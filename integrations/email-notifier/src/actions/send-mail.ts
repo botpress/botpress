@@ -1,11 +1,10 @@
-import * as bp from '.botpress'
-import { addContactToList } from '../utils'
 import { SendEmailCommand } from '@aws-sdk/client-sesv2'
 import * as sdk from '@botpress/sdk'
 import { getSesClient } from '../misc/client'
 import { CONTACT_LIST, FROM_EMAIL_ADDRESS, EMAIL_SIGNATURE } from '../misc/constants'
 import { getErrorMessage } from '../misc/error-handler'
-import { Output } from '.botpress/implementation/typings/actions/sendMail/output'
+import { addContactToList } from '../utils'
+import * as bp from '.botpress'
 
 export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ input, logger, client, ctx }) => {
   try {
@@ -27,9 +26,9 @@ export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ inp
     <p><a href="{{amazonSESUnsubscribeUrl}}">Unsubscribe</a></p>
     </div>`
 
-    const results: Output = {
-      successful: [],
-      failed: [],
+    const results = {
+      successful: [] as { email: string; messageId: string }[],
+      failed: [] as { email: string; error: string }[],
     }
 
     const sendEmailToRecipient = async (email: string) => {
