@@ -1212,6 +1212,9 @@ importers:
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
+      preact:
+        specifier: ^10.26.6
+        version: 10.26.6
 
   integrations/hubspot:
     dependencies:
