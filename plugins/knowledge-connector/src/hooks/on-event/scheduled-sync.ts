@@ -52,6 +52,13 @@ export const handleEvent = async (props: ScheduledSyncProps) => {
 
   logger.info(`Scheduled sync starting for ${integrationGroups.length} integration(s)`)
 
+  // Set lastSyncAt immediately to prevent concurrent cron invocations from
+  // starting a duplicate sync while this one is still running.
+  const syncStartedAt = new Date().toISOString()
+  await props.states.bot.lastScheduledSync.set(ctx.botId, {
+    lastSyncAt: syncStartedAt,
+  })
+
   let hasSucceeded = false
   for (const group of integrationGroups) {
     try {
@@ -64,11 +71,11 @@ export const handleEvent = async (props: ScheduledSyncProps) => {
     }
   }
 
-  if (hasSucceeded) {
+  if (!hasSucceeded) {
+    // Reset lastSyncAt so the next cron trigger retries immediately
     await props.states.bot.lastScheduledSync.set(ctx.botId, {
-      lastSyncAt: new Date().toISOString(),
+      lastSyncAt: undefined,
     })
-  } else {
     logger.warn('Scheduled sync: all integration groups failed, will retry on next trigger')
   }
 }
