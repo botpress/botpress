@@ -1,5 +1,5 @@
 import { IntegrationDefinition } from '@botpress/sdk'
-import { actions, events, states } from 'src/definitions/index'
+import { actions, events, states } from './src/definitions/index'
 
 export default new IntegrationDefinition({
   name: 'plus/email-notifier',
