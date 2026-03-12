@@ -13,8 +13,7 @@ const withHitlSpecific = (s: AnyMessageType) => ({
         .max(MAX_ADDITIONAL_DATA_SIZE)
         .optional()
         .describe(
-          'Additional data to send with the message, useful for custom integrations. Must encoded in a string.'
-        ),
+          'Additional data to send with the message, useful for custom integrations. Must be encoded in a string.'
     }),
 })
 
