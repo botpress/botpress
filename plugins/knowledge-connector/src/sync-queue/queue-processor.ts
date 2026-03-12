@@ -48,7 +48,8 @@ export const processQueue = async (props: ProcessQueueProps) => {
 
   await props.updateSyncQueue({ syncQueue })
 
-  if (endCursor < syncQueue.length) {
+  const hasPendingBeyondBatch = syncQueue.slice(endCursor).some((f) => f.status === 'pending')
+  if (hasPendingBeyondBatch) {
     return { finished: 'batch' } as const
   }
 

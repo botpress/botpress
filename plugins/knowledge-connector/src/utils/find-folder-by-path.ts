@@ -17,7 +17,8 @@ type FolderMatch = {
 
 export function findFolderByPath(
   settings: Record<string, Record<string, FolderConfig>>,
-  filePath: string
+  filePath: string,
+  integrationAlias?: string
 ): FolderMatch | undefined {
   let bestMatch: FolderMatch | undefined
   let bestMatchLength = 0
@@ -26,7 +27,12 @@ export function findFolderByPath(
     for (const [folderId, folderSettings] of Object.entries(folders)) {
       const rawPath = folderSettings.path
       const folderPath = rawPath && !rawPath.endsWith('/') ? `${rawPath}/` : rawPath
-      if (folderPath && filePath.startsWith(folderPath) && folderPath.length > bestMatchLength) {
+      if (
+        folderPath &&
+        filePath.startsWith(folderPath) &&
+        folderPath.length > bestMatchLength &&
+        (!integrationAlias || folderSettings.integrationInstanceAlias === integrationAlias)
+      ) {
         bestMatchLength = folderPath.length
         bestMatch = {
           kbId,

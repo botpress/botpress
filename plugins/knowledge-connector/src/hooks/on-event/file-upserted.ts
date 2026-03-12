@@ -31,7 +31,7 @@ export const handleFileUpsert = async (props: FileUpsertProps) => {
     return
   }
 
-  const folderMatch = findFolderByPath(settings.settings, file.absolutePath)
+  const folderMatch = findFolderByPath(settings.settings, file.absolutePath, integrationAlias)
 
   if (!folderMatch || !folderMatch.syncNewFiles) {
     return
