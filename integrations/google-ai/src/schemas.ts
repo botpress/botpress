@@ -9,7 +9,7 @@ export const ModelId = z
 export type ModelId = z.infer<typeof ModelId>
 
 export const OverrideModelIds: Partial<Record<ModelId, string>> = {
-  'gemini-3-pro': 'gemini-3-pro-preview',
+  'gemini-3-pro': 'gemini-3.1-pro-preview',
   'gemini-3-flash': 'gemini-3-flash-preview',
 }
 
