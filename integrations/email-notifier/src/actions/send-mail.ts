@@ -2,6 +2,7 @@ import { SendEmailCommand } from '@aws-sdk/client-sesv2'
 import { getSesClient } from '../misc/client'
 import { CONTACT_LIST, FROM_EMAIL_ADDRESS, EMAIL_SIGNATURE } from '../misc/constants'
 import { getErrorMessage } from '../misc/error-handler'
+import { escapeHtml } from '../misc/html-utils'
 import { addContactToList } from '../utils'
 import * as bp from '.botpress'
 
@@ -12,14 +13,14 @@ export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ inp
 
   const htmlBody = input.isHtml
     ? `<div>
-    <p>${header}</p>
+    <p>${escapeHtml(header)}</p>
     ${input.body || ''}
     ${EMAIL_SIGNATURE}
     <p><a href="{{amazonSESUnsubscribeUrl}}">Unsubscribe</a></p>
     </div>`
     : `<div>
-    <p>${header}</p>
-    ${input.body ? `<p>${input.body.replace(/\r?\n/g, '<br>')}</p>` : ''}
+    <p>${escapeHtml(header)}</p>
+    ${input.body ? `<p>${escapeHtml(input.body).replace(/\r?\n/g, '<br>')}</p>` : ''}
     ${EMAIL_SIGNATURE}
     <p><a href="{{amazonSESUnsubscribeUrl}}">Unsubscribe</a></p>
     </div>`
