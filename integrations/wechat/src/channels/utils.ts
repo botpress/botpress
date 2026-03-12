@@ -59,12 +59,11 @@ const _getOrUploadWeChatMedia = async (
     kind: 'image' | 'video'
   }
 ) => {
-  const { client, ctx, logger } = props
   const { messageId, mediaId, picUrl, kind } = params
   const mediaKey = `wechat/media/${kind}/${mediaId || messageId || Date.now()}`
 
   if (picUrl) {
-    const { file } = await client.uploadFile({
+    const { file } = await props.client.uploadFile({
       key: mediaKey,
       url: picUrl,
       accessPolicies: ['public_content'],
@@ -76,7 +75,7 @@ const _getOrUploadWeChatMedia = async (
   if (mediaId) {
     const wechatClient = await WeChatClient.create(props)
     const { content, contentType } = await wechatClient.downloadWeChatMedia(mediaId)
-    const { file } = await client.uploadFile({
+    const { file } = await props.client.uploadFile({
       key: mediaKey,
       content,
       contentType,
