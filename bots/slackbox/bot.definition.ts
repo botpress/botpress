@@ -38,5 +38,9 @@ export default new sdk.BotDefinition({
       clientSecret: genenv.SLACKBOX_SLACK_CLIENT_SECRET,
       signingSecret: genenv.SLACKBOX_SLACK_SIGNING_SECRET,
       typingIndicatorEmoji: false,
+      replyBehaviour: {
+        location: 'channel',
+        onlyOnBotMention: false,
+      },
     },
   })

@@ -10,6 +10,12 @@ const createTicket = {
       comment: z.string().title('Ticket Comment').describe('Comment for the ticket'),
       requesterName: z.string().title('Requester Name').describe('Requester name'),
       requesterEmail: z.string().title('Requester Email').describe('Requester email'),
+      ticketFormId: z
+        .string()
+        .regex(/^\d+$/, 'Must be a numeric ID')
+        .title('Ticket Form ID')
+        .describe('Ticket Form ID')
+        .optional(),
     }),
   },
   output: {

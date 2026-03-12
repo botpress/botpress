@@ -277,6 +277,7 @@ Zai.prototype.rewrite = function (this: Zai, original: string, prompt: string, _
     taskId: this.taskId,
     taskType: 'zai.rewrite',
     adapter: this.adapter,
+    memoizer: this._resolveMemoizer(),
   })
 
   return new Response<string>(context, rewrite(original, prompt, _options, context), (result) => result)

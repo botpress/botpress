@@ -16,7 +16,7 @@ export const lintIssue = (issue: lin.Issue, state: types.StateKey): IssueLint[] 
   const hasBlockedLabel = _hasLabelOfCategory(issue, 'blocked')
   const hasBlockedRelation = issue.inverseRelations.nodes.some((relation) => relation.type === 'blocks')
 
-  if (state === 'BLOCKED' && !issue.assignee) {
+  if (state === 'BLOCKED' && !issue.assignee && !hasBlockedRelation) {
     lints.push(`Issue ${issue.identifier} is blocked but has no assignee.`)
   }
   if (state === 'BLOCKED' && !hasBlockedLabel && !hasBlockedRelation) {
@@ -45,12 +45,6 @@ export const lintIssue = (issue: lin.Issue, state: types.StateKey): IssueLint[] 
     lints.push(
       `Issue ${issue.identifier} has an estimate greater than 8 (${issue.estimate}). Consider breaking it down or making it an epic.`
     )
-  }
-
-  const hasProject = issue.project
-  const hasGoal = _hasLabelOfCategory(issue, 'goal')
-  if (!hasProject && !hasGoal) {
-    lints.push(`Issue ${issue.identifier} is missing both a project and a goal label.`)
   }
 
   if (!isIssueTitleFormatValid(issue.title)) {
