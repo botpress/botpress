@@ -37,7 +37,7 @@ export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ inp
 
     const sendEmailToRecipient = async (email: string): Promise<SendResult> => {
       try {
-        await addContactToList(email)
+        await addContactToList(SESClient, email, logger)
 
         const sendEmailCommand = new SendEmailCommand({
           Destination: {
