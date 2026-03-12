@@ -14,6 +14,7 @@ const withHitlSpecific = (s: AnyMessageType) => ({
         .optional()
         .describe(
           'Additional data to send with the message, useful for custom integrations. Must be encoded in a string.'
+        ),
     }),
 })
 
