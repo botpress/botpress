@@ -22,4 +22,7 @@ export default new IntegrationDefinition({
   actions,
   states,
   events,
+  attributes: {
+    category: 'Marketing & Email',
+  },
 })
