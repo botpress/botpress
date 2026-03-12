@@ -82,12 +82,13 @@ const propertyCacheStateDefinition = {
   }),
 } satisfies StateDefinition
 
-export type CrmObjectType = 'ticket' | 'deal' | 'contact' | 'lead'
+export type CrmObjectType = 'ticket' | 'deal' | 'contact' | 'lead' | 'company'
 const propertyCacheStates = {
   ticketPropertyCache: propertyCacheStateDefinition,
   dealPropertyCache: propertyCacheStateDefinition,
   contactPropertyCache: propertyCacheStateDefinition,
   leadPropertyCache: propertyCacheStateDefinition,
+  companyPropertyCache: propertyCacheStateDefinition,
 } satisfies Record<`${CrmObjectType}PropertyCache`, StateDefinition>
 
 export const states = {

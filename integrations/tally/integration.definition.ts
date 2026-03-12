@@ -5,7 +5,7 @@ export default new IntegrationDefinition({
   name: 'tally',
   title: 'Tally',
   description: 'Integrate with Tally forms to capture form submissions and automate workflows.',
-  version: '0.1.0',
+  version: '0.1.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {

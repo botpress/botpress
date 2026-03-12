@@ -1,14 +1,43 @@
 import { llm } from '@botpress/common'
 import { GoogleGenAI } from '@google/genai'
 import { generateContent } from './actions/generate-content'
-import { ModelId } from './schemas'
+import { DefaultModelId, ModelId } from './schemas'
 import * as bp from '.botpress'
 
 const googleAIClient = new GoogleGenAI({ apiKey: bp.secrets.GOOGLE_AI_API_KEY })
 
-const DEFAULT_LANGUAGE_MODEL_ID: ModelId = 'models/gemini-2.0-flash'
-
 const languageModels: Record<ModelId, llm.ModelDetails> = {
+  'gemini-3-pro': {
+    name: 'Gemini 3 Pro (Preview)',
+    description:
+      "One of the best models for multimodal understanding, and Google's most powerful agentic and vibe-coding model yet, delivering richer visuals and deeper interactivity, built on a foundation of state-of-the-art reasoning.",
+    tags: ['preview', 'reasoning', 'agents', 'general-purpose', 'vision'],
+    input: {
+      costPer1MTokens: 2,
+      // Note: Gemini 3 output token limits are actually much higher than the limit enforced below, but we're limiting it for now as they have a tiered token cost that goes up for prompts longer than a certain amount of tokens, as our model pricing is currently based on a flat price per 1M tokens (no matter the prompt size) which is the standard across all major LLM providers except for Google AI.
+      // Reference: https://ai.google.dev/gemini-api/docs/pricing
+      maxTokens: 200_000,
+    },
+    output: {
+      costPer1MTokens: 12,
+      maxTokens: 65_536,
+    },
+  },
+  'gemini-3-flash': {
+    name: 'Gemini 3 Flash (Preview)',
+    description: "Google's most balanced model built for speed, scale, and frontier intelligence.",
+    tags: ['preview', 'reasoning', 'agents', 'general-purpose', 'vision'],
+    input: {
+      costPer1MTokens: 0.5,
+      // Note: Gemini 3 output token limits are actually much higher than the limit enforced below, but we're limiting it for now as they have a tiered token cost that goes up for prompts longer than a certain amount of tokens, as our model pricing is currently based on a flat price per 1M tokens (no matter the prompt size) which is the standard across all major LLM providers except for Google AI.
+      // Reference: https://ai.google.dev/gemini-api/docs/pricing
+      maxTokens: 200_000,
+    },
+    output: {
+      costPer1MTokens: 3,
+      maxTokens: 65_536,
+    },
+  },
   'gemini-2.5-flash': {
     name: 'Gemini 2.5 Flash',
     description:
@@ -65,7 +94,7 @@ export default new bp.Integration({
     generateContent: async ({ input, logger, metadata }) => {
       const output = await generateContent(<llm.GenerateContentInput>input, googleAIClient, logger, {
         models: languageModels,
-        defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
+        defaultModel: DefaultModelId,
       })
       metadata.setCost(output.botpress.cost)
       return output

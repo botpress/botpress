@@ -4,8 +4,8 @@ export const BASE_EVENT_PAYLOAD = sdk.z.object({
   workspace_id: sdk.z.string().min(1),
   type: sdk.z.string().min(1),
   entity: sdk.z.object({
-    type: sdk.z.enum(['page', 'block', 'database', 'comment']),
-    id: sdk.z.string().min(1),
+    type: sdk.z.enum(['page', 'block', 'database', 'comment']).title('Type').describe('The type of entity'),
+    id: sdk.z.string().min(1).title('ID').describe('The ID of the entity'),
   }),
   data: sdk.z.object({}).passthrough(),
 })
@@ -18,7 +18,7 @@ export const events = {
       type: sdk.z.literal('comment.created').title('Type').describe('The type of event'),
       entity: BASE_EVENT_PAYLOAD.shape.entity
         .extend({
-          type: sdk.z.literal('comment'),
+          type: sdk.z.literal('comment').title('Type').describe('The type of entity (comment)'),
         })
         .title('Entity')
         .describe('The entity that the event is related to'),

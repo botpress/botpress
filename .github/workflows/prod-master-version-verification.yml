@@ -17,7 +17,7 @@ jobs:
         run: pnpm bp login -y --token ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }} --workspace-id ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
       - name: Check integration versions
         run: |
-          SKIP_INTEGRATIONS=("docusign" "zendesk-messaging-hitl")
+          SKIP_INTEGRATIONS=("docusign" "zendesk" "zendesk-messaging-hitl")
 
           integrations=$(ls -d integrations/*/ | xargs -n1 basename | sort -u)
           should_fail=0

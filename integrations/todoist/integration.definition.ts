@@ -16,7 +16,7 @@ export default new sdk.IntegrationDefinition({
   name: 'todoist',
   title: 'Todoist',
   description: 'Create and modify tasks, post comments and more.',
-  version: '1.0.2',
+  version: '1.0.3',
   readme: 'hub.md',
   icon: 'icon.svg',
   actions,
@@ -31,5 +31,8 @@ export default new sdk.IntegrationDefinition({
   user,
   __advanced: {
     useLegacyZuiTransformer: true,
+  },
+  attributes: {
+    category: 'Project Management',
   },
 })

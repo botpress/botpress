@@ -4,9 +4,13 @@ export const states = {
   authorization: {
     type: 'integration',
     schema: sdk.z.object({
-      refreshToken: sdk.z.string().describe('Refresh token used to generate a new access token').secret(),
-      grantedScopes: sdk.z.array(sdk.z.string()).describe('Scopes granted by the user'),
-      accountId: sdk.z.string().describe('User ID of the authenticated user'),
+      refreshToken: sdk.z
+        .string()
+        .title('Refresh Token')
+        .describe('Refresh token used to generate a new access token')
+        .secret(),
+      grantedScopes: sdk.z.array(sdk.z.string()).title('Granted Scopes').describe('Scopes granted by the user'),
+      accountId: sdk.z.string().title('Account ID').describe('User ID of the authenticated user'),
       authorizationCode: sdk.z
         .string()
         .title('Access Code')
