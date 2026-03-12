@@ -29,16 +29,20 @@ export const callAction: bp.PluginHandlers['actionHandlers']['syncFilesToBotpres
   const jobFileId = await SyncQueue.jobFileManager.updateSyncQueue(
     props,
     fileKey,
-    includeFiles.map((file) => ({
-      id: file.id,
-      name: file.name,
-      absolutePath: file.absolutePath,
-      type: 'file',
-      status: 'pending',
-      sizeInBytes: file.sizeInBytes,
-      contentHash: file.contentHash,
-      addToKbId: props.input.addToKbId,
-    })),
+    includeFiles.map((file) => {
+      const contentHash = 'contentHash' in file && typeof file.contentHash === 'string' ? file.contentHash : undefined
+
+      return {
+        id: file.id,
+        name: file.name,
+        absolutePath: file.absolutePath,
+        type: 'file',
+        status: 'pending',
+        sizeInBytes: file.sizeInBytes,
+        contentHash,
+        addToKbId: props.input.addToKbId,
+      }
+    }),
     {
       syncJobId,
       integrationName: integrationDefinitionName,

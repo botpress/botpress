@@ -154,7 +154,14 @@ const _syncIntegrationGroup = async (props: ScheduledSyncProps, group: Integrati
     return
   }
 
-  const allFiles: Array<{ id: string; name: string; absolutePath: string; sizeInBytes?: number; kbId: string }> = []
+  const allFiles: Array<{
+    id: string
+    name: string
+    absolutePath: string
+    sizeInBytes?: number
+    contentHash?: string
+    kbId: string
+  }> = []
 
   for (const folder of group.folders) {
     try {
