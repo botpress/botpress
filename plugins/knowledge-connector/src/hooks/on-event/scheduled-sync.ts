@@ -44,7 +44,7 @@ export const handleEvent = async (props: ScheduledSyncProps) => {
     return
   }
 
-  const integrationGroups = _groupFoldersByIntegration(settings)
+  const integrationGroups = _groupFoldersByIntegration(settings, logger)
   if (integrationGroups.length === 0) {
     logger.debug('Scheduled sync skipped: no folders with integration info configured')
     return
@@ -102,7 +102,7 @@ const _getFolderSyncSettings = async (props: ScheduledSyncProps) => {
   }
 }
 
-const _groupFoldersByIntegration = (settings: FolderSyncSettings): IntegrationGroup[] => {
+const _groupFoldersByIntegration = (settings: FolderSyncSettings, logger?: { warn: (...args: unknown[]) => void }): IntegrationGroup[] => {
   const groupMap = new Map<string, IntegrationGroup>()
 
   for (const [kbId, folders] of Object.entries(settings)) {
@@ -121,6 +121,14 @@ const _groupFoldersByIntegration = (settings: FolderSyncSettings): IntegrationGr
           folders: [],
         }
         groupMap.set(alias, group)
+      }
+
+      const configuredAlias = config.transferFileToBotpressAlias ?? 'filesReadonlyTransferFileToBotpress'
+      if (configuredAlias !== group.transferFileToBotpressAlias) {
+        logger?.warn(
+          `Integration "${alias}" has conflicting transferFileToBotpressAlias values: ` +
+            `"${group.transferFileToBotpressAlias}" (used) vs "${configuredAlias}" (ignored, from KB "${kbId}")`
+        )
       }
 
       group.folders.push({
