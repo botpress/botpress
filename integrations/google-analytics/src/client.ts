@@ -14,6 +14,7 @@ type DebugResponse = {
 
 type CollectPayload = {
   client_id: string
+  user_id?: string
   events: Array<{
     name: string
     params?: EventParams
@@ -67,9 +68,10 @@ export class GoogleAnalyticsClient {
     }
   }
 
-  public async trackEvent(clientId: string, eventName: string, params: EventParams = {}): Promise<void> {
+  public async trackEvent(userId: string, eventName: string, params: EventParams = {}): Promise<void> {
     await this._collect({
-      client_id: clientId,
+      client_id: userId,
+      user_id: userId,
       events: [
         {
           name: eventName,
@@ -79,15 +81,15 @@ export class GoogleAnalyticsClient {
     })
   }
 
-  public async updateUserProfile(clientId: string, userProfile: EventParams): Promise<void> {
+  public async updateUserProfile(userId: string, userProfile: EventParams): Promise<void> {
     await this._collect({
-      client_id: clientId,
+      client_id: userId,
+      user_id: userId,
       user_properties: buildUserProperties(userProfile),
       events: [
         {
           name: 'update_user_profile',
           params: {
-            ...userProfile,
             engagement_time_msec: 1,
           },
         },

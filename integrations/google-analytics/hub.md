@@ -17,10 +17,12 @@ These actions utilize Google Analytics Measurement ID and an API Secret for secu
 ### Actions
 
 - **Update User Profile**
+
   - Sends updates to user profile information to Google Analytics.
   - Inputs: User ID, User Profile (optional JSON string of user metadata)
 
 - **Track Node**
+
   - Sends tracking data for node activation within the bot to Google Analytics.
   - Inputs: User ID, Node ID
 

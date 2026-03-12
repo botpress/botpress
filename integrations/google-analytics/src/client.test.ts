@@ -75,25 +75,37 @@ describe('parseError', () => {
   })
 
   test('handles AxiosError with response data string', () => {
-    const error = new AxiosError('Request failed', '400', undefined, {}, {
-      status: 400,
-      statusText: 'Bad Request',
-      headers: {},
-      config: { headers: new AxiosHeaders() },
-      data: 'Bad request body',
-    })
+    const error = new AxiosError(
+      'Request failed',
+      '400',
+      undefined,
+      {},
+      {
+        status: 400,
+        statusText: 'Bad Request',
+        headers: {},
+        config: { headers: new AxiosHeaders() },
+        data: 'Bad request body',
+      }
+    )
 
     expect(parseError(error)).toBe('Request failed with status 400: Bad request body')
   })
 
   test('handles AxiosError with response data object', () => {
-    const error = new AxiosError('Request failed', '422', undefined, {}, {
-      status: 422,
-      statusText: 'Unprocessable Entity',
-      headers: {},
-      config: { headers: new AxiosHeaders() },
-      data: { error: 'validation_error', details: 'invalid field' },
-    })
+    const error = new AxiosError(
+      'Request failed',
+      '422',
+      undefined,
+      {},
+      {
+        status: 422,
+        statusText: 'Unprocessable Entity',
+        headers: {},
+        config: { headers: new AxiosHeaders() },
+        data: { error: 'validation_error', details: 'invalid field' },
+      }
+    )
 
     expect(parseError(error)).toBe(
       'Request failed with status 422: {"error":"validation_error","details":"invalid field"}'
