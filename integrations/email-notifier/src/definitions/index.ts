@@ -22,8 +22,6 @@ export const actions = {
   },
 } satisfies IntegrationDefinitionProps['actions']
 
-export const states = {} satisfies IntegrationDefinitionProps['states']
-
 export const events = {
   emailSent: {
     title: 'Email Sent',
