@@ -73,7 +73,7 @@ export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ inp
         await client.createEvent({
           type: 'emailSent',
           payload: {
-            messageId: result.MessageId!,
+            messageId: result.MessageId,
             to: [email],
             subject: input.subject,
             fromEmail: FROM_EMAIL_ADDRESS,
