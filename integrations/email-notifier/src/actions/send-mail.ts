@@ -31,7 +31,11 @@ export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ inp
       failed: [] as { email: string; error: string }[],
     }
 
-    const sendEmailToRecipient = async (email: string) => {
+    type SendResult =
+      | { success: true; email: string; messageId: string }
+      | { success: false; email: string; error: string }
+
+    const sendEmailToRecipient = async (email: string): Promise<SendResult> => {
       try {
         await addContactToList(email)
 
@@ -63,7 +67,7 @@ export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ inp
         const result = await SESClient.send(sendEmailCommand)
 
         if (!result.MessageId) {
-          throw new sdk.RuntimeError(`Failed to send email to ${email}`)
+          return { success: false, email, error: `Failed to send email to ${email}: no MessageId returned` }
         }
 
         logger
@@ -81,30 +85,22 @@ export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ inp
           },
         })
 
-        return {
-          email,
-          messageId: result.MessageId,
-        }
+        return { success: true, email, messageId: result.MessageId }
       } catch (error) {
         logger.forBot().warn(`Failed to send email to ${email}: ${getErrorMessage(error)}`)
-
-        throw {
-          email,
-          error: getErrorMessage(error),
-        }
+        return { success: false, email, error: getErrorMessage(error) }
       }
     }
 
-    const emailPromises = input.to.map((email) => sendEmailToRecipient(email))
-    const emailResults = await Promise.allSettled(emailPromises)
+    const emailResults = await Promise.all(input.to.map((email) => sendEmailToRecipient(email)))
 
-    emailResults.forEach((result) => {
-      if (result.status === 'fulfilled') {
-        results.successful.push(result.value)
+    for (const result of emailResults) {
+      if (result.success) {
+        results.successful.push({ email: result.email, messageId: result.messageId })
       } else {
-        results.failed.push(result.reason)
+        results.failed.push({ email: result.email, error: result.error })
       }
-    })
+    }
 
     logger
       .forBot()
