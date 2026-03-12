@@ -1,7 +1,10 @@
 {
   "name": "@botpresshub/email-notifier",
   "scripts": {
-    "check:type": "tsc --noEmit"
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "test": "vitest --run"
   },
   "private": true,
   "dependencies": {
@@ -10,6 +13,8 @@
     "@aws-sdk/client-sesv2": "^3.883.0"
   },
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@types/node": "^22.16.4",
     "typescript": "^5.6.3"
   }
