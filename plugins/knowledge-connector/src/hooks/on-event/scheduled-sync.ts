@@ -102,7 +102,10 @@ const _getFolderSyncSettings = async (props: ScheduledSyncProps) => {
   }
 }
 
-const _groupFoldersByIntegration = (settings: FolderSyncSettings, logger?: { warn: (...args: unknown[]) => void }): IntegrationGroup[] => {
+const _groupFoldersByIntegration = (
+  settings: FolderSyncSettings,
+  logger?: { warn: (...args: unknown[]) => void }
+): IntegrationGroup[] => {
   const groupMap = new Map<string, IntegrationGroup>()
 
   for (const [kbId, folders] of Object.entries(settings)) {
