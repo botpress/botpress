@@ -102,7 +102,7 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '1.3.0',
+  version: '1.4.0',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',
@@ -235,18 +235,18 @@ export default new sdk.PluginDefinition({
   },
   message: {
     tags: {
-      // downstream: {
-      //   title: 'Downstream Message ID',
-      //   description: 'ID of the downstream message bound to the upstream one',
-      // },
-      // upstream: {
-      //   title: 'Upstream Message ID',
-      //   description: 'ID of the upstream message bound to the downstream one',
-      // },
-      // additionalData: {
-      //   title: 'Additional Data',
-      //   description: 'Additional data optionally sent with the message by the downstream integration',
-      // },
+      downstream: {
+        title: 'Downstream Message ID',
+        description: 'ID of the downstream message bound to the upstream one',
+      },
+      upstream: {
+        title: 'Upstream Message ID',
+        description: 'ID of the upstream message bound to the downstream one',
+      },
+      additionalData: {
+        title: 'Additional Data',
+        description: 'Additional data optionally sent with the message by the downstream integration',
+      },
     },
   },
   interfaces: {
