@@ -23,7 +23,7 @@ const MAX_MEDIA_BYTES = 10 * 1024 * 1024
 const _handleTextMessage = async (props: bp.MessageProps['channel']['text']) => {
   const { payload, logger } = props
   try {
-    await _sendMessage(props, {
+    await _sendMessageToWeChat(props, {
       msgtype: 'text',
       text: { content: payload.text },
     })
@@ -39,7 +39,7 @@ const _handleImageMessage = async (props: bp.MessageProps['channel']['image']) =
     const wechatClient = await WeChatClient.create(props)
     const { mediaBlob, fileExtension } = await downloadMediaFromURL(payload.imageUrl, logger)
     const mediaId = await wechatClient.uploadMedia('image', mediaBlob, fileExtension)
-    await _sendMessage(
+    await _sendMessageToWeChat(
       props,
       {
         msgtype: 'image',
@@ -56,7 +56,7 @@ const _handleImageMessage = async (props: bp.MessageProps['channel']['image']) =
 const _handleVideoMessage = async (props: bp.MessageProps['channel']['video']) => {
   const { payload, logger } = props
   try {
-    await _sendMessage(props, {
+    await _sendMessageToWeChat(props, {
       msgtype: 'text',
       text: { content: `[Video] ${payload.videoUrl}` },
     })
@@ -66,7 +66,7 @@ const _handleVideoMessage = async (props: bp.MessageProps['channel']['video']) =
   }
 }
 
-const _sendMessage = async (
+const _sendMessageToWeChat = async (
   props: bp.AnyMessageProps,
   message: WeChatOutgoingMessage,
   wechatClient?: WeChatClient
