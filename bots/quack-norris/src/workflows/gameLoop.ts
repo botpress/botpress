@@ -231,6 +231,9 @@ export const GameLoop = new Workflow({
           const players = [...game.players] as Player[]
           for (const p of players.filter((pl: Player) => pl.alive)) {
             p.hp = Math.max(0, p.hp - QUACKENING_DAMAGE)
+            if (p.hp <= 0) {
+              p.alive = false
+            }
             if (p.specialCooldown > 0) {
               p.specialCooldown = Math.max(0, p.specialCooldown - 1)
             }

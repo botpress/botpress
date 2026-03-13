@@ -10,21 +10,6 @@ export const PollVote = new Trigger({
   async handler({ event }) {
     const { userId, messageId } = event.payload as { userId: string; messageId: string; guildId: string }
 
-    const { rows } = await GamesTable.findRows({
-      filter: { pollMessageId: messageId, phase: 'registration' },
-      limit: 1,
-    })
-    const game = rows[0]
-
-    if (!game) {
-      return
-    }
-
-    const alreadyJoined = game.players.some((p: Player) => p.discordUserId === userId)
-    if (alreadyJoined) {
-      return
-    }
-
     let playerName = `Player_${userId.slice(-4)}`
     try {
       const member = await actions.discord.getGuildMember({
@@ -51,9 +36,35 @@ export const PollVote = new Trigger({
       specialCooldown: 0,
       consecutiveHits: 0,
     }
+    const maxAttempts = 5
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const { rows } = await GamesTable.findRows({
+        filter: { pollMessageId: messageId, phase: 'registration' },
+        limit: 1,
+      })
+      const game = rows[0]
+      if (!game) {
+        return
+      }
 
-    const updatedPlayers = [...game.players, newPlayer]
+      if (game.players.some((p: Player) => p.discordUserId === userId)) {
+        return
+      }
 
-    await GamesTable.upsertRows({ rows: [{ ...game, players: updatedPlayers }], keyColumn: 'gameId' })
+      const updatedPlayers = [...game.players, newPlayer]
+      await GamesTable.upsertRows({ rows: [{ ...game, players: updatedPlayers }], keyColumn: 'gameId' })
+
+      // Re-read to verify this vote was not lost by a concurrent write.
+      const { rows: verifyRows } = await GamesTable.findRows({ filter: { gameId: game.gameId }, limit: 1 })
+      const verified = verifyRows[0]
+      if (!verified) {
+        return
+      }
+      if (verified.players.some((p: Player) => p.discordUserId === userId)) {
+        return
+      }
+    }
+
+    console.warn('[pollVote] Failed to register player after retries', { messageId, userId })
   },
 })

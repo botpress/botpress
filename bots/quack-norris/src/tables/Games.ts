@@ -36,6 +36,7 @@ export const GamesTable = new Table({
                   'resting',
                   'blessed',
                   'damageBoost',
+                  'dodgeAll',
                 ]),
                 turnsLeft: z.number(),
                 stacks: z.number().optional(),

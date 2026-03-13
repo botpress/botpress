@@ -49,8 +49,8 @@ export const ITEMS: Record<ItemType, ItemDefinition> = {
     id: 'mirrorShard',
     name: 'Mirror Shard',
     emoji: '🪞',
-    description: "A fragment of the Duchess's legendary vanity mirror. Reflects 50% damage back to attacker.",
-    effect: 'Reflect 50% dmg once',
+    description: "A fragment of the Duchess's legendary vanity mirror. Reflects the next incoming attack.",
+    effect: 'Reflect next incoming attack',
   },
   quackGrenade: {
     id: 'quackGrenade',

@@ -72,11 +72,6 @@ export const startAdventure = new Action({
       questState: existingProfile?.questState ?? { activeQuests: [], completedQuests: [] },
     }
 
-    await PlayersTable.upsertRows({
-      rows: [baseProfile],
-      keyColumn: 'discordUserId',
-    })
-
     // Build welcome text
     const startLocation = LOCATIONS.coliseum
     const welcome = [
@@ -101,7 +96,7 @@ export const startAdventure = new Action({
     // Build tutorial text
     const tutorialText = `${formatEncounter(TUTORIAL_ENCOUNTER)}\n\n*Reply with a number to choose.*`
 
-    // Set tutorial as active encounter
+    // Persist profile and tutorial encounter in a single write to avoid partial initialization.
     await PlayersTable.upsertRows({
       rows: [
         {

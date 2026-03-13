@@ -77,18 +77,18 @@ export const useItem = new Action({
         break
       }
       case 'shieldToken': {
-        gamePlayer.statusEffects.push({ type: 'shielded', turnsLeft: 1, stacks: 25 })
+        gamePlayer.statusEffects.push({ type: 'shielded', turnsLeft: 2, stacks: 25 })
         effectText = `${def.emoji} Used **${def.name}**! Absorbing up to 25 damage this round.`
         break
       }
       case 'damageBoost': {
-        gamePlayer.statusEffects.push({ type: 'damageBoost', turnsLeft: 1, stacks: 10 })
+        gamePlayer.statusEffects.push({ type: 'damageBoost', turnsLeft: 2, stacks: 10 })
         effectText = `${def.emoji} Used **${def.name}**! +10 damage on your next attack.`
         break
       }
       case 'mirrorShard': {
-        gamePlayer.statusEffects.push({ type: 'shielded', turnsLeft: 1, stacks: 50 })
-        effectText = `${def.emoji} Used **${def.name}**! Reflecting 50% damage back to attackers this round.`
+        gamePlayer.statusEffects.push({ type: 'decoy', turnsLeft: 2 })
+        effectText = `${def.emoji} Used **${def.name}**! Reflecting the next incoming attack back to your attacker!`
         break
       }
       case 'quackGrenade': {
@@ -106,7 +106,7 @@ export const useItem = new Action({
         break
       }
       case 'fogBomb': {
-        gamePlayer.statusEffects.push({ type: 'dodgeAll', turnsLeft: 1 })
+        gamePlayer.statusEffects.push({ type: 'dodgeAll', turnsLeft: 2 })
         effectText = `${def.emoji} Used **${def.name}**! 🌫️ A thick fog surrounds you — all attacks miss this round!`
         break
       }
@@ -124,10 +124,25 @@ export const useItem = new Action({
       }
     }
 
+    let gameUpdated = false
     try {
       await GamesTable.upsertRows({ rows: [{ ...game, players }], keyColumn: 'gameId' })
+      gameUpdated = true
       await PlayersTable.upsertRows({ rows: [{ ...profile, inventory }], keyColumn: 'discordUserId' })
     } catch (e) {
+      if (gameUpdated) {
+        try {
+          // Best-effort rollback to avoid granting a free item effect if inventory write fails.
+          await GamesTable.upsertRows({ rows: [game], keyColumn: 'gameId' })
+        } catch (rollbackError) {
+          console.error('[useItem] Failed to rollback game state after inventory write failure', {
+            gameId: input.gameId,
+            userId: input.discordUserId,
+            itemType,
+            rollbackError: rollbackError instanceof Error ? rollbackError.message : String(rollbackError),
+          })
+        }
+      }
       console.error('[useItem] Failed to persist item usage', {
         gameId: input.gameId,
         userId: input.discordUserId,

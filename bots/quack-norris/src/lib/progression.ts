@@ -237,7 +237,7 @@ const MILESTONES = [
 
 /**
  * Check milestones and return celebration messages for newly reached ones.
- * Uses previousMilestoneIndex to avoid re-triggering — caller should persist the returned index.
+ * Uses previousMilestoneIndex to avoid re-triggering and enforces ordered progression.
  */
 export const checkMilestones = (
   profile: MilestoneProfile,
@@ -246,14 +246,11 @@ export const checkMilestones = (
   const messages: string[] = []
   let newIndex = previousMilestoneIndex
 
-  for (let i = 0; i < MILESTONES.length; i++) {
-    if (i <= previousMilestoneIndex) {
-      continue
-    }
-    if (MILESTONES[i]!.check(profile)) {
-      messages.push(MILESTONES[i]!.msg)
-      newIndex = i
-    }
+  // Advance only through contiguous newly satisfied milestones.
+  // This avoids permanently skipping an earlier milestone when a later one is reached first.
+  while (newIndex + 1 < MILESTONES.length && MILESTONES[newIndex + 1]!.check(profile)) {
+    newIndex += 1
+    messages.push(MILESTONES[newIndex]!.msg)
   }
 
   return { messages, newIndex }
