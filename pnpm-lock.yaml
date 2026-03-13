@@ -2087,6 +2087,9 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
+      nanoid:
+        specifier: ^5.1.5
+        version: 5.1.5
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*

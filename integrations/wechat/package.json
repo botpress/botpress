@@ -11,7 +11,8 @@
     "@botpress/sdk": "workspace:*",
     "axios": "^1.13.6",
     "fast-xml-parser": "^5.4.2",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "nanoid": "^5.1.5"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
