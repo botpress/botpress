@@ -17,8 +17,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.73.4
-        version: 1.73.4
+        specifier: 1.76.0
+        version: 1.76.0
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -679,7 +679,7 @@ importers:
         version: link:../../packages/sdk
       openai:
         specifier: ^5.12.1
-        version: 5.12.1(ws@8.18.2)(zod@3.24.2)
+        version: 5.12.1(ws@8.19.0)(zod@3.24.2)
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -929,7 +929,7 @@ importers:
         version: link:../../packages/sdk
       openai:
         specifier: ^5.12.1
-        version: 5.12.1(ws@8.18.2)(zod@3.24.2)
+        version: 5.12.1(ws@8.19.0)(zod@3.24.2)
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1176,7 +1176,7 @@ importers:
         version: link:../../packages/sdk
       openai:
         specifier: ^5.12.1
-        version: 5.12.1(ws@8.18.2)(zod@3.24.2)
+        version: 5.12.1(ws@8.19.0)(zod@3.24.2)
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1212,6 +1212,9 @@ importers:
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
+      preact:
+        specifier: ^10.26.6
+        version: 10.26.6
 
   integrations/hubspot:
     dependencies:
@@ -1586,7 +1589,7 @@ importers:
         version: link:../../packages/sdk
       openai:
         specifier: ^6.9.0
-        version: 6.9.0(ws@8.18.2)
+        version: 6.9.0(ws@8.19.0)
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -2793,7 +2796,7 @@ importers:
         version: 15.0.1
       openai:
         specifier: ^6.9.0
-        version: 6.9.0(ws@8.18.2)
+        version: 6.9.0(ws@8.19.0)
       posthog-node:
         specifier: 5.14.1
         version: 5.14.1
@@ -4007,8 +4010,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@botpress/api@1.73.4':
-    resolution: {integrity: sha512-pMXnEVyNfqwPBibccS/8t8s6Orzq/FSYEdYe9ukRrJLl7hWo60hClpvb0cAldh6RnAO+y/3l6JCQyHk0F9wjpg==}
+  '@botpress/api@1.76.0':
+    resolution: {integrity: sha512-SRKVM0ak9gJGB6TOlraMx5pLQS8Cm58xwBPOiilmuNzB9Cab1hpSJuK4F4ErDOeL2fFEcXAa01/92AA0t/JRmA==}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -13251,7 +13254,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.73.4':
+  '@botpress/api@1.76.0':
     dependencies:
       '@bpinternal/opapi': 1.0.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -20532,14 +20535,14 @@ snapshots:
       is-inside-container: 1.0.0
       wsl-utils: 0.1.0
 
-  openai@5.12.1(ws@8.18.2)(zod@3.24.2):
+  openai@5.12.1(ws@8.19.0)(zod@3.24.2):
     optionalDependencies:
-      ws: 8.18.2
+      ws: 8.19.0
       zod: 3.24.2
 
-  openai@6.9.0(ws@8.18.2):
+  openai@6.9.0(ws@8.19.0):
     optionalDependencies:
-      ws: 8.18.2
+      ws: 8.19.0
 
   openapi-types@12.1.3: {}
 
