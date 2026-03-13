@@ -83,7 +83,7 @@ export const getOrRefreshAccessToken = async ({ client, ctx }: bp.CommonHandlerP
   let tokenResult = await _getCachedAccessToken(client, ctx)
 
   let cacheToken = false
-  if (!tokenResult.success || tokenResult.data.expiresAt >= Date.now() - TOKEN_EXPIRY_BUFFER) {
+  if (!tokenResult.success || tokenResult.data.expiresAt - TOKEN_EXPIRY_BUFFER < Date.now() / MS_PER_SECOND) {
     const { appId, appSecret } = ctx.configuration
     tokenResult = await _getFreshAccessToken(appId, appSecret)
     cacheToken = true
