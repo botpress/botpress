@@ -19,8 +19,6 @@ type WeChatImageMessage = { msgtype: 'image'; image: { media_id: string } }
 type WeChatVideoMessage = { msgtype: 'video'; video: { media_id: string; title?: string; description?: string } }
 type WeChatOutgoingMessage = WeChatTextMessage | WeChatImageMessage | WeChatVideoMessage
 
-const MAX_MEDIA_BYTES = 10 * 1024 * 1024
-
 const _handleTextMessage = async (props: bp.MessageProps['channel']['text']) => {
   const { payload, logger } = props
   try {
