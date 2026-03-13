@@ -1,5 +1,4 @@
 import actions from './actions'
-import { wrapAsyncFnWithTryCatch } from './api/error-handling'
 import { AirtableApi } from './client'
 import * as botpress from '.botpress'
 
@@ -7,10 +6,7 @@ export default new botpress.Integration({
   register: async ({ client, ctx, logger }) => {
     const airtableClient = new AirtableApi({ client, ctx, logger })
 
-    await wrapAsyncFnWithTryCatch(
-      () => airtableClient.testConnection(),
-      'Failed to test connection to Airtable'
-    )()
+    await airtableClient.testConnection()
 
     logger.forBot().info('Connection to Airtable successful')
   },
