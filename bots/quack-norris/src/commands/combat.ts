@@ -419,8 +419,9 @@ const handleUse: CommandHandler = async (ctx) => {
   })
 
   if (result.success) {
-    // Register as the round action so the player can't also attack
-    await submitAction(combat.ActionsTable, ctx.stateRef.activeGameId, combat.game.round, ctx.discordUserId, 'useItem')
+    // Register as a valid round action so the player can't also attack.
+    // We use 'rest' because it's in ActionsTable's enum and preserves "already acted" semantics.
+    await submitAction(combat.ActionsTable, ctx.stateRef.activeGameId, combat.game.round, ctx.discordUserId, 'rest')
     await safeReact(ctx, '✨')
   }
 

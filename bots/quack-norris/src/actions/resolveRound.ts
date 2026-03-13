@@ -22,7 +22,6 @@ import {
   tickStatusEffects,
   decrementCooldowns,
   processShieldedAttack,
-  resetComboCounters,
   removeStatusEffect,
 } from '../lib/combat'
 import {
@@ -66,11 +65,9 @@ export const resolveRound = new Action({
     }
 
     const players: Player[] = [...game.players]
+    const aliveBefore = players.filter((p) => p.alive)
     const events: CombatEvent[] = []
     let totalDamageThisRound = 0
-
-    // --- Reset combo counters at round start ---
-    resetComboCounters(players)
 
     // --- Read actions from ActionsTable (filter by round directly) ---
     const { rows: actionRows } = await ActionsTable.findRows({
@@ -207,14 +204,17 @@ export const resolveRound = new Action({
 
       const heavyAttackers = roundActions.filter((a) => a.type === 'heavy' && a.targetUserId === player.discordUserId)
       const lightAttackers = roundActions.filter((a) => a.type === 'light' && a.targetUserId === player.discordUserId)
-      const anyAttackers = heavyAttackers.length + lightAttackers.length
+      const aliveHeavyAttackers = heavyAttackers
+        .map((a) => players.find((p) => p.discordUserId === a.discordUserId))
+        .filter((p): p is Player => Boolean(p?.alive))
+      const aliveLightAttackers = lightAttackers
+        .map((a) => players.find((p) => p.discordUserId === a.discordUserId))
+        .filter((p): p is Player => Boolean(p?.alive))
+      const anyAttackers = aliveHeavyAttackers.length + aliveLightAttackers.length
 
-      if (heavyAttackers.length > 0) {
-        for (const heavyAction of heavyAttackers) {
-          const attacker = players.find((p) => p.discordUserId === heavyAction.discordUserId)
-          if (attacker) {
-            events.push({ text: narrateBlockSuccess(attacker.name, player.name), type: 'block' })
-          }
+      if (aliveHeavyAttackers.length > 0) {
+        for (const attacker of aliveHeavyAttackers) {
+          events.push({ text: narrateBlockSuccess(attacker.name, player.name), type: 'block' })
         }
       } else if (anyAttackers === 0) {
         events.push({ text: narrateBlockNoAttack(player.name), type: 'block' })
@@ -359,7 +359,6 @@ export const resolveRound = new Action({
 
     // --- Step 7: Check eliminations ---
     const eliminatedPlayers: string[] = []
-    const aliveBefore = players.filter((p) => p.alive)
     for (const player of players) {
       if (player.hp <= 0 && player.alive) {
         player.alive = false

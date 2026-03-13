@@ -95,6 +95,9 @@ export const useItem = new Action({
         const enemies = players.filter((p) => p.discordUserId !== input.discordUserId && p.alive)
         for (const enemy of enemies) {
           enemy.hp = Math.max(0, enemy.hp - 15)
+          if (enemy.hp <= 0) {
+            enemy.alive = false
+          }
         }
         effectText = `${def.emoji} Used **${def.name}**! 💥 15 damage dealt to all enemies!`
         break
