@@ -4,10 +4,7 @@ import * as bp from '.botpress'
 
 const NO_CONTENT = 204
 
-export async function httpGetAsBuffer(
-  url: string,
-  logger: bp.Logger
-): Promise<{ data: Buffer; contentType: string } | null> {
+export async function httpGetAsBuffer(url: string, logger: bp.Logger) {
   const resp = await axios.get(url, {
     responseType: 'arraybuffer',
     transitional: { forcedJSONParsing: false },
@@ -27,25 +24,33 @@ export async function httpGetAsBuffer(
     throw new RuntimeError(errorMsg)
   }
 
-  const contentType = _getContentType(resp.headers, resp.status, logger)
-  return { data: content, contentType }
+  const rawContentType = _getContentType(resp.headers, resp.status, logger)
+  const contentType = rawContentType.replace(/([^;]);.+/, '$1')
+  const charset = _getContentCharset(rawContentType)
+
+  return { data: content, contentType, charset } as const satisfies {
+    data: Buffer
+    contentType: string
+    charset: string
+  }
 }
 
 /** Performs an Axios get request and parses the response as json based
  *  on the content-type, otherwise the data is formatted into a buffer. */
-type JsonOrBufferReturn = { type: 'JSON'; data: object } | { type: 'Buffer'; buffer: Buffer; contentType: string }
+type JsonOrBufferReturn =
+  | { type: 'JSON'; data: object }
+  | { type: 'Buffer'; buffer: Buffer; contentType: string; charset: string }
 export async function httpGetAsJsonOrBuffer(url: string, logger: bp.Logger): Promise<JsonOrBufferReturn | null> {
   const respData = await httpGetAsBuffer(url, logger)
   if (respData === null) return null
 
-  const { data, contentType } = respData
+  const { data, contentType, charset } = respData
   if (contentType.includes('application/json')) {
-    const charset = _getContentCharset(contentType)
     const serializedJSON = _bufferToString(data, charset)
     return { type: 'JSON', data: JSON.parse(serializedJSON) }
   }
 
-  return { type: 'Buffer', buffer: data, contentType }
+  return { type: 'Buffer', buffer: data, contentType, charset }
 }
 
 type CommonResponseHeadersList = 'Server' | 'Content-Type' | 'Content-Length' | 'Cache-Control' | 'Content-Encoding'
