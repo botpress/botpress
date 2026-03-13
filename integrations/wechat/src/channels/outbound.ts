@@ -1,4 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
+import { nanoid } from 'nanoid'
 import { WeChatClient } from '../api/client'
 import { downloadMediaFromURL } from '../api/helpers'
 import * as bp from '.botpress'
@@ -80,11 +81,6 @@ const _sendMessageToWeChat = async (
   wechatClient ??= await WeChatClient.create(props)
   const sendResponse = await wechatClient.sendMessage(wechatConvoId, message)
 
-  const ackId = sendResponse.msgId ?? createAckId('wechat')
+  const ackId = sendResponse.msgId ?? `wechat-${nanoid()}`
   await ack({ tags: { id: ackId } })
-}
-
-const createAckId = (prefix: string): string => {
-  const randomPart = Math.random().toString(36).slice(2, 10)
-  return `${prefix}-${Date.now()}-${randomPart}`
 }
