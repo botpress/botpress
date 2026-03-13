@@ -44,6 +44,9 @@ export class WeChatClient {
     const resp = await httpGetAsJsonOrBuffer(url, this._logger).catch(
       useHandleCaughtError('Failed to download WeChat media')
     )
+    if (resp === null) {
+      throw new RuntimeError('Failed to download WeChat media -> No Content')
+    }
 
     if (resp.type === 'JSON') {
       const result = wechatVideoUrlRespSchema.safeParse(resp)
