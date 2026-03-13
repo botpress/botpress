@@ -2,6 +2,8 @@ import { RuntimeError } from '@botpress/sdk'
 import axios, { type AxiosResponse } from 'axios'
 import * as bp from '.botpress'
 
+const NO_CONTENT = 204
+
 export async function httpGetAsBuffer(
   url: string,
   logger: bp.Logger
@@ -23,7 +25,7 @@ export async function httpGetAsBuffer(
     throw new RuntimeError(errorMsg)
   }
 
-  const contentType = _getContentType(resp.headers, logger)
+  const contentType = _getContentType(resp.headers, resp.status, logger)
   return { data: content, contentType }
 }
 
@@ -65,7 +67,7 @@ export function getHeaderValue(headers: AxiosResponse['headers'], key: string): 
   return Array.isArray(headerValue) ? headerValue : `${headerValue}`
 }
 
-const _getContentType = (headers: AxiosResponse['headers'], logger: bp.Logger) => {
+const _getContentType = (headers: AxiosResponse['headers'], status: number, logger: bp.Logger) => {
   let contentType = getHeaderValue(headers, 'Content-Type')
 
   if (Array.isArray(contentType)) {
@@ -80,7 +82,10 @@ const _getContentType = (headers: AxiosResponse['headers'], logger: bp.Logger) =
     contentType = contentType[0] ?? null
   }
 
-  if (!contentType) throw new RuntimeError("The 'Content-Type' header has not been set")
+  if (!contentType) {
+    if (status === NO_CONTENT) return 'text/plain'
+    throw new Error(`The 'Content-Type' header has not been set (Status code: ${status})`)
+  }
   return contentType
 }
 
