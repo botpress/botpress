@@ -28,14 +28,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
 const _handleWebhookChallenge = (req: Request) => {
   const query = new URLSearchParams(req.query)
   const echostr = query.get('echostr') || ''
-
-  /** Currently the Botpress backend parses numeric response bodies before
-   *  sending it back to the http requester. Since the "echostr" is often a
-   *  very long number, it gets truncated which causes the challenge to fail.
-   *
-   *  The work-around is to append a "|" suffix to the value to stop the number parse.
-   *  Then we use a proxy to strip the suffix before sending it back to WeChat  */
-  return _createTextResponse(200, `${echostr}|`)
+  return _createTextResponse(200, echostr)
 }
 
 const _createTextResponse = (status: number, body: string) => ({
