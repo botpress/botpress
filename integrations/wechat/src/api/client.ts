@@ -19,7 +19,6 @@ type WeChatImageMessage = { msgtype: 'image'; image: { media_id: string } }
 type WeChatVideoMessage = { msgtype: 'video'; video: { media_id: string; title?: string; description?: string } }
 type WeChatOutgoingMessage = WeChatTextMessage | WeChatImageMessage | WeChatVideoMessage
 
-// TODO: Finish cleaning this class logic up
 export class WeChatClient {
   private constructor(
     private readonly _accessToken: string,
