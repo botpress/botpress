@@ -225,21 +225,41 @@ export const GameLoop = new Workflow({
           tags: {},
           payload: { text: roundText },
         })
+      })
 
-        // Apply Quackening damage
-        if (isQuackening) {
-          const players = [...game.players] as Player[]
-          for (const p of players.filter((pl: Player) => pl.alive)) {
-            p.hp = Math.max(0, p.hp - QUACKENING_DAMAGE)
-            if (p.hp <= 0) {
-              p.alive = false
-            }
-            if (p.specialCooldown > 0) {
-              p.specialCooldown = Math.max(0, p.specialCooldown - 1)
-            }
-          }
-          await GamesTable.upsertRows({ rows: [{ ...game, players }], keyColumn: 'gameId' })
+      // Apply Quackening damage in a dedicated idempotent step.
+      await step(`round-${roundNum}-quackening`, async () => {
+        const { rows } = await GamesTable.findRows({ filter: { gameId: input.gameId }, limit: 1 })
+        const game = rows[0]
+        if (!game) {
+          return
         }
+
+        const alivePlayers = (game.players as Player[]).filter((p) => p.alive)
+        const isQuackening = alivePlayers.length <= 3 && roundNum > 3
+        if (!isQuackening) {
+          return
+        }
+
+        if ((game.quackeningAppliedRound ?? 0) >= roundNum) {
+          return
+        }
+
+        const players = [...game.players] as Player[]
+        for (const p of players.filter((pl: Player) => pl.alive)) {
+          p.hp = Math.max(0, p.hp - QUACKENING_DAMAGE)
+          if (p.hp <= 0) {
+            p.alive = false
+          }
+          if (p.specialCooldown > 0) {
+            p.specialCooldown = Math.max(0, p.specialCooldown - 1)
+          }
+        }
+
+        await GamesTable.upsertRows({
+          rows: [{ ...game, players, quackeningAppliedRound: roundNum }],
+          keyColumn: 'gameId',
+        })
       })
 
       // Wait for player actions
