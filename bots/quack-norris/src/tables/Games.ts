@@ -9,6 +9,7 @@ export const GamesTable = new Table({
     pollMessageId: z.string().optional().describe('Registration poll message ID'),
     phase: z.enum(['registration', 'classSelection', 'combat', 'finished']).describe('Current game phase'),
     round: z.number().default(0).describe('Current combat round'),
+    quackeningAppliedRound: z.number().default(0).describe('Latest round where Quackening damage was applied'),
     chaosEvent: z.string().optional().describe('Active chaos event name for this round'),
     players: z
       .array(
