@@ -9,10 +9,15 @@ export const oauthCallbackHandler = async ({ client, ctx, req, logger }: bp.Hand
     return
   }
 
+  // Note: This handler is deprecated in favor of the OAuth wizard
+  // but kept for backward compatibility
+  const redirectUri = `${process.env.BP_WEBHOOK_URL}/oauth`
+
   await GoogleClient.authenticateWithAuthorizationCode({
     client,
     ctx,
     authorizationCode,
+    redirectUri,
   })
 
   await client.configureIntegration({ identifier: ctx.webhookId })

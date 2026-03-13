@@ -29,6 +29,25 @@ type ConversationResponse<
   }
 }>
 
+// TODO: rm dupplicated code with type above
+type GetOrCreateConversationResponse<
+  TIntegration extends common.BaseIntegration,
+  ChannelName extends keyof TIntegration['channels'] = keyof TIntegration['channels'],
+> = utils.ValueOf<{
+  [TChannelName in ChannelName]: utils.Merge<
+    Awaited<Res<client.Client['getOrCreateConversation']>>,
+    {
+      conversation: utils.Merge<
+        Awaited<Res<client.Client['getOrCreateConversation']>>['conversation'],
+        {
+          channel: TChannelName
+          tags: commonTypes.ToTags<keyof TIntegration['channels'][TChannelName]['conversation']['tags']>
+        }
+      >
+    }
+  >
+}>
+
 export type CreateConversation<TIntegration extends common.BaseIntegration> = <
   ChannelName extends keyof TIntegration['channels'],
 >(x: {
@@ -64,7 +83,7 @@ export type GetOrCreateConversation<TIntegration extends common.BaseIntegration>
       discriminateByTags?: NoInfer<utils.Cast<TTags[], string[]>>
     }
   >
-) => Promise<ConversationResponse<TIntegration, ChannelName>>
+) => Promise<GetOrCreateConversationResponse<TIntegration, ChannelName>>
 
 export type UpdateConversation<TIntegration extends common.BaseIntegration> = (
   x: utils.Merge<
