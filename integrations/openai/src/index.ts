@@ -22,6 +22,20 @@ const DEFAULT_IMAGE_MODEL_ID: ImageModelId = 'dall-e-3-standard-1024'
 //  https://openai.com/api/pricing/
 const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
   // IMPORTANT: Only full model names should be supported here, as the short model names can be pointed by OpenAI at any time to a newer model with different pricing.
+  'gpt-5.4-2026-03-05': {
+    name: 'GPT-5.4',
+    description:
+      'GPT-5.4 is the latest frontier model in the GPT-5 series, featuring a 1M+ context window and adaptive reasoning. It delivers state-of-the-art performance on professional knowledge work, coding, and agentic tasks with improved long-context understanding.',
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision', 'coding', 'agents'],
+    input: {
+      costPer1MTokens: 2.5,
+      maxTokens: 1_047_576,
+    },
+    output: {
+      costPer1MTokens: 15,
+      maxTokens: 128_000,
+    },
+  },
   'gpt-5.2-2025-12-11': {
     name: 'GPT-5.2',
     description:
@@ -363,6 +377,7 @@ export default new bp.Integration({
           defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
           overrideRequest: (request) => {
             const isReasoningModel =
+              input.model?.id.startsWith('gpt-5.4-') ||
               input.model?.id.startsWith('gpt-5.2-') ||
               input.model?.id.startsWith('gpt-5.1-') ||
               input.model?.id.startsWith('gpt-5-') ||
@@ -374,8 +389,12 @@ export default new bp.Integration({
               if (input.reasoningEffort) {
                 request.reasoning_effort = validateOpenAIReasoningEffort(input, logger)
               } else {
-                if (input.model?.id.startsWith('gpt-5.2-') || input.model?.id.startsWith('gpt-5.1-')) {
-                  // GPT-5.1 and GPT-5.2 are hybrid reasoning models that supports optional reasoning, so if no reasoning effort is specified we assume the user doesn't want the model to do reasoning (to reduce cost/latency).
+                if (
+                  input.model?.id.startsWith('gpt-5.4-') ||
+                  input.model?.id.startsWith('gpt-5.2-') ||
+                  input.model?.id.startsWith('gpt-5.1-')
+                ) {
+                  // GPT-5.1, GPT-5.2, and GPT-5.4 are hybrid reasoning models that supports optional reasoning, so if no reasoning effort is specified we assume the user doesn't want the model to do reasoning (to reduce cost/latency).
                   request.reasoning_effort = 'none'
                 } else if (input.model?.id.startsWith('gpt-5-')) {
                   // GPT-5 is a hybrid model but it doesn't support optional reasoning, so if reasoning effort isn't specified we assume the user wants to use the least amount of reasoning possible (to reduce cost/latency).
