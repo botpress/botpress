@@ -55,8 +55,8 @@ type ResponseHeaderValue = string | string[] | null
 export function getHeaderValue(headers: AxiosResponse['headers'], key: CommonResponseHeadersList): ResponseHeaderValue
 export function getHeaderValue(headers: AxiosResponse['headers'], key: string): ResponseHeaderValue
 export function getHeaderValue(headers: AxiosResponse['headers'], key: string): ResponseHeaderValue {
-  const headerValue = (headers instanceof axios.AxiosHeaders ? headers.get(key) : headers[key]) ?? null
-  if (!headerValue) return null
+  const headerValue = headers instanceof axios.AxiosHeaders ? headers.get(key) : headers[key]
+  if (headerValue === null || headerValue === undefined) return null
 
   if (headerValue instanceof axios.AxiosHeaders) {
     throw new RuntimeError("This should never trigger, if it does, IMO it's a bug with the Axios package")
