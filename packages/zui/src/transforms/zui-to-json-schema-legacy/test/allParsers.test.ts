@@ -23,9 +23,9 @@ export const allParsersSchema = z
     effectTransform: z.string().transform((x) => !!x),
     effectPreprocess: z.preprocess((x) => {
       try {
-        return JSON.stringify(x)
+        return z.OK(JSON.stringify(x))
       } catch {
-        return 'wahh'
+        return z.OK('wahh')
       }
     }, z.string()),
     enum: z.enum(['hej', 'svejs']),

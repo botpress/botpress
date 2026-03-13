@@ -25,10 +25,8 @@ import type {
   IZodReadonly,
   IZodEffects,
   IZodUnion,
-  RefinementEffect,
   RefinementCtx,
   CustomErrorParams,
-  IssueData,
   ParseContext,
   ParseInput,
   ParseParams,
@@ -200,7 +198,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
         return message
       }
     }
-    return this._refinement((val: Output, ctx: RefinementCtx) => {
+    return this.postprocess((val: Output, ctx: RefinementCtx) => {
       const result = check(val)
       const setError = () =>
         ctx.addIssue({
@@ -211,43 +209,17 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
         return result.then((data) => {
           if (!data) {
             setError()
-            return false
-          } else {
-            return true
+            return { status: 'dirty', value: val }
           }
+          return { status: 'valid', value: val }
         })
       }
       if (!result) {
         setError()
-        return false
-      } else {
-        return true
+        return { status: 'dirty', value: val }
       }
+      return { status: 'valid', value: val }
     })
-  }
-
-  refinement(
-    check: (arg: Output) => unknown,
-    refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData)
-  ): IZodEffects<this, Output, Input> {
-    return this._refinement((val: Output, ctx: RefinementCtx) => {
-      if (!check(val)) {
-        ctx.addIssue(typeof refinementData === 'function' ? refinementData(val, ctx) : refinementData)
-        return false
-      } else {
-        return true
-      }
-    })
-  }
-
-  _refinement(refinement: RefinementEffect<Output>['refinement']): IZodEffects<this, Output, Input> {
-    return builders.refine(this, refinement)
-  }
-
-  superRefine(
-    refinement: (arg: Output, ctx: RefinementCtx) => unknown | Promise<unknown>
-  ): IZodEffects<this, Output, Input> {
-    return this._refinement(refinement)
   }
 
   constructor(def: Def) {
@@ -258,8 +230,6 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     this.safeParseAsync = this.safeParseAsync.bind(this)
     this.spa = this.spa.bind(this)
     this.refine = this.refine.bind(this)
-    this.refinement = this.refinement.bind(this)
-    this.superRefine = this.superRefine.bind(this)
     this.optional = this.optional.bind(this)
     this.nullable = this.nullable.bind(this)
     this.nullish = this.nullish.bind(this)
@@ -268,6 +238,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     this.or = this.or.bind(this)
     this.and = this.and.bind(this)
     this.transform = this.transform.bind(this)
+    this.postprocess = this.postprocess.bind(this)
     this.brand = this.brand.bind(this)
     this.default = this.default.bind(this)
     this.catch = this.catch.bind(this)
@@ -309,7 +280,16 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   transform<NewOut>(
     transform: (arg: Output, ctx: RefinementCtx) => NewOut | Promise<NewOut>
   ): IZodEffects<this, NewOut> {
-    return builders.transformer(this, transform)
+    return this.postprocess(async (arg: Output, ctx: RefinementCtx) => {
+      const result = await transform(arg, ctx)
+      return { status: 'valid' as const, value: result }
+    })
+  }
+
+  postprocess<NewOut>(
+    postprocess: (arg: Output, ctx: RefinementCtx) => SyncParseReturnType<NewOut> | Promise<SyncParseReturnType<NewOut>>
+  ): IZodEffects<this, NewOut> {
+    return builders.postprocess(this, postprocess)
   }
 
   default(def: utils.types.NoUndefined<Input> | (() => utils.types.NoUndefined<Input>)) {

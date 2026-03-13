@@ -4,7 +4,7 @@ import * as z from '../index'
 import { ZodError } from '../error'
 
 test('preprocess', () => {
-  const schema = z.preprocess((data) => [data], z.string().array())
+  const schema = z.preprocess((data) => z.OK([data]), z.string().array())
 
   const value = schema.parse('asdf')
   expect(value).toEqual(['asdf'])
@@ -12,7 +12,7 @@ test('preprocess', () => {
 })
 
 test('async preprocess', async () => {
-  const schema = z.preprocess(async (data) => [data], z.string().array())
+  const schema = z.preprocess(async (data) => z.OK([data]), z.string().array())
 
   const value = await schema.parseAsync('asdf')
   expect(value).toEqual(['asdf'])
@@ -25,7 +25,7 @@ test('preprocess ctx.addIssue with parse', () => {
         code: 'custom',
         message: `${data} is not one of our allowed strings`,
       })
-      return data
+      return z.OK(data)
     }, z.string()).parse('asdf')
   }).toThrow(
     JSON.stringify(
@@ -49,7 +49,7 @@ test('preprocess ctx.addIssue non-fatal by default', () => {
         code: 'custom',
         message: `custom error`,
       })
-      return data
+      return z.OK(data)
     }, z.string()).parse(1234)
   } catch (err) {
     ZodError.assert(err)
@@ -65,7 +65,7 @@ test('preprocess ctx.addIssue fatal true', () => {
         message: `custom error`,
         fatal: true,
       })
-      return data
+      return z.OK(data)
     }, z.string()).parse(1234)
   } catch (err) {
     ZodError.assert(err)
@@ -79,7 +79,7 @@ test('async preprocess ctx.addIssue with parse', async () => {
       code: 'custom',
       message: `custom error`,
     })
-    return data
+    return z.OK(data)
   }, z.string())
 
   expect(schema.parseAsync('asdf')).rejects.toThrow(
@@ -104,7 +104,7 @@ test('preprocess ctx.addIssue with parseAsync', async () => {
         code: 'custom',
         message: `${data} is not one of our allowed strings`,
       })
-      return data
+      return z.OK(data)
     }, z.string())
     .safeParseAsync('asdf')
 
@@ -130,7 +130,7 @@ test('z.NEVER in preprocess', () => {
       ctx.addIssue({ code: 'custom', message: 'bad' })
       return { status: 'aborted' } as never
     }
-    return val
+    return z.OK(val)
   }, z.number())
 
   type foo = z.infer<typeof foo>
@@ -143,7 +143,7 @@ test('z.NEVER in preprocess', () => {
 test('preprocess as the second property of object', () => {
   const schema = z.object({
     nonEmptyStr: z.string().min(1),
-    positiveNum: z.preprocess((v) => Number(v), z.number().positive()),
+    positiveNum: z.preprocess((v) => z.OK(Number(v)), z.number().positive()),
   })
   const result = schema.safeParse({
     nonEmptyStr: '',
@@ -162,7 +162,7 @@ test('preprocess validates with sibling errors', () => {
     z.object({
       // Must be first
       missing: z.string().refine(() => false),
-      preprocess: z.preprocess((data) => (data as string)?.trim(), z.string().regex(/ asdf/)),
+      preprocess: z.preprocess((data) => z.OK((data as string)?.trim()), z.string().regex(/ asdf/)),
     }).parse({ preprocess: ' asdf' })
   }).toThrow(
     JSON.stringify(

@@ -1,4 +1,4 @@
-export { zuiKey } from './consts'
+export { zuiKey, OK, ERR, DIRTY } from './consts'
 export { is } from './guards'
 
 export type {
@@ -221,17 +221,16 @@ export {
   objectType as object,
   optionalType as optional,
   pipelineType as pipeline,
+  postprocessType as postprocess,
   preprocessType as preprocess,
   promiseType as promise,
   recordType as record,
   refType as ref,
-  refineType as refine,
   readonlyType as readonly,
   setType as set,
   strictObjectType as strictObject,
   stringType as string,
   symbolType as symbol,
-  transformerType as transformer,
   tupleType as tuple,
   undefinedType as undefined,
   unionType as union,

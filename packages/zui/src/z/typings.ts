@@ -427,19 +427,6 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
     check: (arg: Output) => unknown | Promise<unknown>,
     message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams)
   ): IZodEffects<this, Output, Input>
-  refinement<RefinedOutput extends Output>(
-    check: (arg: Output) => arg is RefinedOutput,
-    refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData)
-  ): IZodEffects<this, RefinedOutput, Input>
-  refinement(
-    check: (arg: Output) => boolean,
-    refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData)
-  ): IZodEffects<this, Output, Input>
-  superRefine<RefinedOutput extends Output>(
-    refinement: (arg: Output, ctx: RefinementCtx) => arg is RefinedOutput
-  ): IZodEffects<this, RefinedOutput, Input>
-  superRefine(refinement: (arg: Output, ctx: RefinementCtx) => void): IZodEffects<this, Output, Input>
-  superRefine(refinement: (arg: Output, ctx: RefinementCtx) => Promise<void>): IZodEffects<this, Output, Input>
   optional(): IZodOptional<this>
   nullable(): IZodNullable<this>
   nullish(): IZodOptional<IZodNullable<this>>
@@ -462,7 +449,10 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
   mandatory(): IZodType
   or<T extends IZodType>(option: T): IZodUnion<[this, T]>
   and<T extends IZodType>(incoming: T): IZodIntersection<this, T>
-  transform<NewOut>(transform: (arg: Output, ctx: RefinementCtx) => NewOut | Promise<NewOut>): IZodEffects<this, NewOut>
+  transform<NewOut>(transform: (arg: Output) => NewOut | Promise<NewOut>): IZodEffects<this, NewOut>
+  postprocess<NewOut>(
+    postprocess: (arg: Output, ctx: RefinementCtx) => SyncParseReturnType<NewOut> | Promise<SyncParseReturnType<NewOut>>
+  ): IZodEffects<this, NewOut>
   default(def: NoUndefined<Input>): IZodDefault<this>
   default(def: () => NoUndefined<Input>): IZodDefault<this>
   brand<B extends string | number | symbol>(brand?: B): IZodBranded<this, B>
@@ -1575,22 +1565,17 @@ export interface IZodSymbol extends IZodType<symbol, ZodSymbolDef> {}
 
 //* ─────────────────────────── ZodEffects ───────────────────────────────────
 
-export type RefinementEffect<I, O = unknown> = {
-  type: 'refinement'
-  refinement: (arg: I, ctx: RefinementCtx) => O
-}
-
-export type TransformEffect<I, O = unknown> = {
-  type: 'transform'
-  transform: (arg: I, ctx: RefinementCtx) => O
-}
-
 export type PreprocessEffect<I, O = unknown> = {
   type: 'preprocess'
-  preprocess: (arg: I, ctx: RefinementCtx) => O
+  preprocess: (arg: I, ctx: RefinementCtx) => SyncParseReturnType<O> | Promise<SyncParseReturnType<O>>
 }
 
-export type Effect<I, O = unknown> = RefinementEffect<I, O> | TransformEffect<I, O> | PreprocessEffect<I, O>
+export type PostprocessEffect<I, O = unknown> = {
+  type: 'postprocess'
+  postprocess: (arg: I, ctx: RefinementCtx) => SyncParseReturnType<O> | Promise<SyncParseReturnType<O>>
+}
+
+export type Effect<I, O = unknown> = PreprocessEffect<I, O> | PostprocessEffect<I, O>
 export type ZodEffectsDef<T extends IZodType = IZodType> = {
   schema: T
   typeName: 'ZodEffects'
@@ -1802,28 +1787,20 @@ export declare function createFunction<
 >(args: T, returns: U, params: ZodCreateParams): IZodFunction<T, U>
 export declare function createFunction(args?: AnyZodTuple, returns?: IZodType, params?: ZodCreateParams): IZodFunction
 
-export declare function createRefine<T extends IZodType, O>(
-  schema: T,
-  refinement: (arg: output<T>, ctx: RefinementCtx) => arg is O,
-  params?: ZodCreateParams
-): IZodEffects<T, O>
-export declare function createRefine<T extends IZodType>(
-  schema: T,
-  refinement: (arg: output<T>, ctx: RefinementCtx) => unknown | Promise<unknown>,
-  params?: ZodCreateParams
-): IZodEffects<T>
-
-export declare function createTransform<T extends IZodType, O>(
-  schema: T,
-  transform: (arg: output<T>, ctx: RefinementCtx) => O | Promise<O>,
-  params?: ZodCreateParams
-): IZodEffects<T, O>
-
-export declare function createPreprocess<T extends IZodType<O>, O>(
-  preprocess: (arg: unknown, ctx: RefinementCtx) => unknown | Promise<unknown>,
+export declare function createPreprocess<T extends IZodType>(
+  preprocess: (
+    arg: unknown,
+    ctx: RefinementCtx
+  ) => SyncParseReturnType<unknown> | Promise<SyncParseReturnType<unknown>>,
   schema: T,
   params?: ZodCreateParams
 ): IZodEffects<T, output<T>, unknown>
+
+export declare function createPostprocess<T extends IZodType, O>(
+  schema: T,
+  postprocess: (arg: output<T>, ctx: RefinementCtx) => SyncParseReturnType<O> | Promise<SyncParseReturnType<O>>,
+  params?: ZodCreateParams
+): IZodEffects<T, O>
 
 export declare function createOptional<T extends IZodType>(type: T, params?: ZodCreateParams): IZodOptional<T>
 export declare function createNullable<T extends IZodType>(type: T, params?: ZodCreateParams): IZodNullable<T>
@@ -1868,17 +1845,16 @@ export type ZodBuilders = {
   object: typeof createObject
   optional: typeof createOptional
   pipeline: typeof createPipeline
+  postprocess: typeof createPostprocess
   preprocess: typeof createPreprocess
   promise: typeof createPromise
   record: typeof createRecord
   ref: typeof createRef
-  refine: typeof createRefine
   readonly: typeof createReadonly
   set: typeof createSet
   strictObject: typeof createStrictObject
   string: typeof createString
   symbol: typeof createSymbol
-  transformer: typeof createTransform
   tuple: typeof createTuple
   undefined: typeof createUndefined
   union: typeof createUnion

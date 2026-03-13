@@ -206,7 +206,13 @@ test('valid - literals with .default or .preprocess', () => {
       method: z.string(),
     }),
     z.object({
-      type: z.preprocess((val) => String(val), z.literal('bar')),
+      type: z.preprocess(
+        (val) => ({
+          status: 'valid',
+          value: String(val),
+        }),
+        z.literal('bar')
+      ),
       c: z.string(),
     }),
   ])

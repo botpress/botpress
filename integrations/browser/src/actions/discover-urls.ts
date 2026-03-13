@@ -13,7 +13,7 @@ type StopReason = Awaited<ReturnType<bp.IntegrationProps['actions']['discoverUrl
 
 type ZodIssueCode = z.ZodIssue['code']
 
-export const urlSchema = z.string().transform((url, ctx) => {
+export const urlSchema = z.string().postprocess((url, ctx) => {
   url = url.trim()
   if (!url.includes('://')) {
     url = `https://${url}`
@@ -25,7 +25,7 @@ export const urlSchema = z.string().transform((url, ctx) => {
         code: 'custom' satisfies ZodIssueCode,
         message: 'Invalid protocol, only URLs starting with HTTP and HTTPS are supported',
       })
-      return { status: 'aborted' } as never
+      return z.ERR
     }
 
     if (!/.\.[a-zA-Z]{2,}$/.test(x.hostname)) {
@@ -33,17 +33,17 @@ export const urlSchema = z.string().transform((url, ctx) => {
         code: 'custom' satisfies ZodIssueCode,
         message: 'Invalid TLD',
       })
-      return { status: 'aborted' } as never
+      return z.ERR
     }
     const pathName = x.pathname.endsWith('/') ? x.pathname.slice(0, -1) : x.pathname
-    return `${x.origin}${pathName}${x.search ? x.search : ''}`
+    return z.OK(`${x.origin}${pathName}${x.search ? x.search : ''}`)
   } catch (caught) {
     const err = caught instanceof Error ? caught : new Error('Unknown error while parsing URL')
     ctx.addIssue({
       code: 'custom' satisfies ZodIssueCode,
       message: 'Invalid URL: ' + err.message,
     })
-    return { status: 'aborted' } as never
+    return z.ERR
   }
 })
 

@@ -89,8 +89,8 @@ test('custom path', async () => {
   }
 })
 
-test('superRefine', () => {
-  const Strings = z.array(z.string()).superRefine((val, ctx) => {
+test('postprocess as validation', () => {
+  const Strings = z.array(z.string()).postprocess((val, ctx) => {
     if (val.length > 3) {
       ctx.addIssue({
         code: 'too_big',
@@ -98,7 +98,7 @@ test('superRefine', () => {
         type: 'array',
         inclusive: true,
         exact: true,
-        message: 'Too many items 😡',
+        message: 'Too many items',
       })
     }
 
@@ -108,6 +108,8 @@ test('superRefine', () => {
         message: `No duplicates allowed.`,
       })
     }
+
+    return { status: 'valid', value: val }
   })
 
   const result = Strings.safeParse(['asfd', 'asfd', 'asfd', 'asfd'])
@@ -118,8 +120,8 @@ test('superRefine', () => {
   Strings.parse(['asfd', 'qwer'])
 })
 
-test('superRefine async', async () => {
-  const Strings = z.array(z.string()).superRefine(async (val, ctx) => {
+test('postprocess async', async () => {
+  const Strings = z.array(z.string()).postprocess(async (val, ctx) => {
     if (val.length > 3) {
       ctx.addIssue({
         code: 'too_big',
@@ -127,7 +129,7 @@ test('superRefine async', async () => {
         type: 'array',
         inclusive: true,
         exact: true,
-        message: 'Too many items 😡',
+        message: 'Too many items',
       })
     }
 
@@ -137,6 +139,8 @@ test('superRefine async', async () => {
         message: `No duplicates allowed.`,
       })
     }
+
+    return { status: 'valid', value: val }
   })
 
   const result = await Strings.safeParseAsync(['asfd', 'asfd', 'asfd', 'asfd'])
@@ -147,7 +151,7 @@ test('superRefine async', async () => {
   Strings.parseAsync(['asfd', 'qwer'])
 })
 
-test('superRefine - type narrowing', () => {
+test('refine - type narrowing', () => {
   type NarrowType = { type: string; age: number }
   const schema = z
     .object({
@@ -155,18 +159,7 @@ test('superRefine - type narrowing', () => {
       age: z.number(),
     })
     .nullable()
-    .superRefine((arg, ctx): arg is NarrowType => {
-      if (!arg) {
-        // still need to make a call to ctx.addIssue
-        ctx.addIssue({
-          code: 'custom',
-          message: 'cannot be null',
-          fatal: true,
-        })
-        return false
-      }
-      return true
-    })
+    .refine((arg): arg is NarrowType => !!arg)
 
   assert.assertEqual<z.infer<typeof schema>, NarrowType>(true)
 
@@ -174,7 +167,7 @@ test('superRefine - type narrowing', () => {
   expect(schema.safeParse(null).success).toEqual(false)
 })
 
-test('chained mixed refining types', () => {
+test('chained refine type narrowing', () => {
   type firstRefinement = { first: string; second: number; third: true }
   type secondRefinement = { first: 'bob'; second: number; third: true }
   type thirdRefinement = { first: 'bob'; second: 33; third: true }
@@ -186,16 +179,9 @@ test('chained mixed refining types', () => {
     })
     .nullable()
     .refine((arg): arg is firstRefinement => !!arg?.third)
-    .superRefine((arg, ctx): arg is secondRefinement => {
+    .refine((arg): arg is secondRefinement => {
       assert.assertEqual<typeof arg, firstRefinement>(true)
-      if (arg.first !== 'bob') {
-        ctx.addIssue({
-          code: 'custom',
-          message: '`first` property must be `bob`',
-        })
-        return false
-      }
-      return true
+      return arg.first === 'bob'
     })
     .refine((arg): arg is thirdRefinement => {
       assert.assertEqual<typeof arg, secondRefinement>(true)
@@ -241,28 +227,46 @@ test('chained refinements', () => {
   if (!r2.success) expect(r2.error.issues.length).toEqual(2)
 })
 
-test('fatal superRefine', () => {
+test('fatal postprocess', () => {
   const Strings = z
     .string()
-    .superRefine((val, ctx) => {
+    .postprocess((val, ctx) => {
       if (val === '') {
         ctx.addIssue({
           code: 'custom',
           message: 'foo',
           fatal: true,
         })
+        return { status: 'aborted' }
       }
+      return { status: 'valid', value: val }
     })
-    .superRefine((val, ctx) => {
+    .postprocess((val, ctx) => {
       if (val !== ' ') {
         ctx.addIssue({
           code: 'custom',
           message: 'bar',
         })
       }
+      return { status: 'valid', value: val }
     })
 
   const result = Strings.safeParse('')
+
+  expect(result.success).toEqual(false)
+  if (!result.success) expect(result.error.issues.length).toEqual(1)
+})
+
+test('postprocess doesnt fails when adding issue if the return is valid', () => {
+  const schema = z.string().postprocess((val, ctx) => {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'foo',
+    })
+    return { status: 'valid', value: val }
+  })
+
+  const result = schema.safeParse('asdf')
 
   expect(result.success).toEqual(false)
   if (!result.success) expect(result.error.issues.length).toEqual(1)

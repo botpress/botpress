@@ -102,14 +102,16 @@ const _processCreateParams = (
 
 export const customType: ZodBuilders['custom'] = (check?, params = {}, fatal?) => {
   if (check) {
-    return anyType().superRefine((data, ctx) => {
+    return anyType().postprocess((data, ctx) => {
       if (!check(data)) {
         const p =
           typeof params === 'function' ? params(data) : typeof params === 'string' ? { message: params } : params
         const _fatal = p.fatal ?? fatal ?? true
         const p2 = typeof p === 'string' ? { message: p } : p
         ctx.addIssue({ code: 'custom', ...p2, fatal: _fatal })
+        return _fatal ? { status: 'aborted' } : { status: 'dirty', value: data }
       }
+      return { status: 'valid', value: data }
     })
   }
   return anyType()
@@ -297,26 +299,10 @@ export const preprocessType: ZodBuilders['preprocess'] = (preprocess, schema, pa
     ..._processCreateParams(params),
   })
 
-export const refineType: ZodBuilders['refine'] = <T extends IZodType>(
-  schema: T,
-  refinement: (arg: T['_output'], ctx: RefinementCtx) => unknown,
-  params?: ZodCreateParams
-): IZodEffects<T> =>
+export const postprocessType: ZodBuilders['postprocess'] = (schema, postprocess, params) =>
   new ZodEffectsImpl({
     schema,
-    effect: { type: 'refinement', refinement },
-    typeName: 'ZodEffects',
-    ..._processCreateParams(params),
-  })
-
-export const transformerType: ZodBuilders['transformer'] = <T extends IZodType, O>(
-  schema: T,
-  transform: (arg: output<T>, ctx: RefinementCtx) => O | Promise<O>,
-  params?: ZodCreateParams
-): IZodEffects<T, O> =>
-  new ZodEffectsImpl({
-    schema,
-    effect: { type: 'transform', transform },
+    effect: { type: 'postprocess', postprocess },
     typeName: 'ZodEffects',
     ..._processCreateParams(params),
   })
@@ -383,17 +369,16 @@ setBuilders({
   object: objectType,
   optional: optionalType,
   pipeline: pipelineType,
+  postprocess: postprocessType,
   preprocess: preprocessType,
   promise: promiseType,
   record: recordType,
   ref: refType,
-  refine: refineType,
   readonly: readonlyType,
   set: setType,
   strictObject: strictObjectType,
   string: stringType,
   symbol: symbolType,
-  transformer: transformerType,
   tuple: tupleType,
   undefined: undefinedType,
   union: unionType,

@@ -28,7 +28,7 @@ export const getTokenizer = () => {
 }
 
 export const Tokens = (min: number, max: number) => {
-  return z.string().superRefine((value, ctx) => {
+  return z.string().postprocess((value, ctx) => {
     const tokens = tokenizer.count(value)
 
     if (value.length < min) {
@@ -39,6 +39,7 @@ export const Tokens = (min: number, max: number) => {
         message: `Text is ${tokens} but expected at least ${min} tokens`,
         inclusive: true,
       })
+      return z.ERR
     }
 
     if (value.length > max) {
@@ -49,9 +50,10 @@ export const Tokens = (min: number, max: number) => {
         message: `Text is ${tokens} tokens but expected at most ${max} tokens`,
         inclusive: true,
       })
+      return z.ERR
     }
 
-    return value
+    return z.OK(value)
   })
 }
 

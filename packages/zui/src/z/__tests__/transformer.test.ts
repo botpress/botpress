@@ -13,7 +13,7 @@ test('transform ctx.addIssue with parse', () => {
 
   expect(() => {
     z.string()
-      .transform((data, ctx) => {
+      .postprocess((data, ctx) => {
         const i = strs.indexOf(data)
         if (i === -1) {
           ctx.addIssue({
@@ -21,7 +21,7 @@ test('transform ctx.addIssue with parse', () => {
             message: `${data} is not one of our allowed strings`,
           })
         }
-        return data.length
+        return z.OK(data.length)
       })
       .parse('asdf')
   }).toThrow(
@@ -44,7 +44,7 @@ test('transform ctx.addIssue with parseAsync', async () => {
 
   const result = await z
     .string()
-    .transform(async (data, ctx) => {
+    .postprocess(async (data, ctx) => {
       const i = strs.indexOf(data)
       if (i === -1) {
         ctx.addIssue({
@@ -52,7 +52,7 @@ test('transform ctx.addIssue with parseAsync', async () => {
           message: `${data} is not one of our allowed strings`,
         })
       }
-      return data.length
+      return z.OK(data.length)
     })
     .safeParseAsync('asdf')
 
@@ -76,12 +76,12 @@ test('return invalid parse result in transform', () => {
   const foo = z
     .number()
     .optional()
-    .transform((val, ctx) => {
+    .postprocess((val, ctx) => {
       if (!val) {
         ctx.addIssue({ code: 'custom', message: 'bad' })
         return { status: 'aborted' } as never
       }
-      return val
+      return z.OK(val)
     })
   type foo = z.infer<typeof foo>
   assert.assertEqual<foo, number>(true)

@@ -57,16 +57,18 @@ const _Options = z.object({
 
 type Labels<T extends string> = Record<T, string>
 
-const _Labels = z.record(z.string().min(1).max(250), z.string()).superRefine((labels, ctx) => {
+const _Labels = z.record(z.string().min(1).max(250), z.string()).postprocess((labels, ctx) => {
   const keys = Object.keys(labels)
 
   for (const key of keys) {
     if (key.length < 1 || key.length > 250) {
       ctx.addIssue({ message: `The label key "${key}" must be between 1 and 250 characters long`, code: 'custom' })
+      return z.ERR
     }
 
     if (keys.lastIndexOf(key) !== keys.indexOf(key)) {
       ctx.addIssue({ message: `Duplicate label: ${labels[key]}`, code: 'custom' })
+      return z.ERR
     }
 
     if (/[^a-zA-Z0-9_]/.test(key)) {
@@ -74,10 +76,11 @@ const _Labels = z.record(z.string().min(1).max(250), z.string()).superRefine((la
         message: `The label key "${key}" must only contain alphanumeric characters and underscores`,
         code: 'custom',
       })
+      return z.ERR
     }
   }
 
-  return true
+  return z.OK(labels)
 })
 
 declare module '@botpress/zai' {
