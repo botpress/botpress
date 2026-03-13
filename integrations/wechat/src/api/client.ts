@@ -48,7 +48,7 @@ export class WeChatClient {
     }
 
     if (resp.type === 'JSON') {
-      const result = wechatVideoUrlRespSchema.safeParse(resp)
+      const result = wechatVideoUrlRespSchema.safeParse(resp.data)
       if (!result.success) {
         throw new RuntimeError('Received unexpected response when downloading WeChat media')
       }

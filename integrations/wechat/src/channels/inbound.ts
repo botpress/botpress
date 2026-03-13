@@ -85,7 +85,8 @@ export const processInboundChannelMessage = async (props: bp.HandlerProps): Prom
         await createChannelMessage(client, baseMessage, 'text', { text: linkText })
         break
       default:
-        return { success: false, error: new Error(`Unsupported message type: ${wechatMessage.msgType}`) }
+        props.logger.forBot().error(`Unsupported message type: ${wechatMessage.msgType}`)
+        break
     }
   } catch (thrown: unknown) {
     const errMessage = thrown instanceof Error ? thrown.message : String(thrown)
