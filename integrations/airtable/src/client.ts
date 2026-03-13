@@ -1,9 +1,11 @@
 import Airtable, { type FieldSet } from 'airtable'
 import axios, { AxiosInstance } from 'axios'
 import { stringify } from 'querystring'
+import { handleErrorsDecorator } from './api/error-handling'
 import type { CreatableField } from './misc/field-schemas'
 import * as bp from '.botpress'
 
+const handleErrors = handleErrorsDecorator
 type TableResponse = {
   id: string
   name: string
@@ -42,10 +44,12 @@ export class AirtableApi {
     })
   }
 
+  @handleErrors('Failed to test connection to Airtable')
   public async testConnection(): Promise<void> {
     return await this._axiosClient.get('/meta/whoami')
   }
 
+  @handleErrors('Failed to list records')
   public async listRecords({
     tableIdOrName,
     filterByFormula,
@@ -71,6 +75,7 @@ export class AirtableApi {
     }
   }
 
+  @handleErrors('Failed to create record')
   public async createRecord(tableIdOrName: string, fields: FieldSet): Promise<RecordResponse> {
     const record = await this._base(tableIdOrName).create(fields)
     return {
@@ -79,6 +84,7 @@ export class AirtableApi {
     }
   }
 
+  @handleErrors('Failed to update record')
   public async updateRecord(tableIdOrName: string, recordId: string, fields: FieldSet): Promise<RecordResponse> {
     const record = await this._base(tableIdOrName).update(recordId, fields)
     return {
@@ -87,6 +93,7 @@ export class AirtableApi {
     }
   }
 
+  @handleErrors('Failed to create table')
   public async createTable(name: string, fields: CreatableField[], description?: string): Promise<TableResponse> {
     const descriptionLimit = 20000
     const validDescription = description?.slice(0, descriptionLimit)
@@ -100,6 +107,7 @@ export class AirtableApi {
     return response.data
   }
 
+  @handleErrors('Failed to update table')
   public async updateTable(tableIdOrName: string, name?: string, description?: string): Promise<TableResponse> {
     const response = await this._axiosClient.patch(`/meta/bases/${this._baseId}/tables/${tableIdOrName}`, {
       name,
