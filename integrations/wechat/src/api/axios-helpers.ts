@@ -2,29 +2,46 @@ import { RuntimeError } from '@botpress/sdk'
 import axios, { type AxiosResponse } from 'axios'
 import * as bp from '.botpress'
 
-/** Performs an Axios get request and parses the response as json based
- *  on the content-type, otherwise the data is formatted into a buffer. */
-type JsonOrBufferReturn = { type: 'JSON'; data: object } | { type: 'Buffer'; buffer: Buffer; contentType: string }
-export async function httpGetAsJsonOrBuffer(url: string, logger: bp.Logger): Promise<JsonOrBufferReturn> {
+export async function httpGetAsBuffer(
+  url: string,
+  logger: bp.Logger
+): Promise<{ data: Buffer; contentType: string } | null> {
   const resp = await axios.get(url, {
     responseType: 'arraybuffer',
     transitional: { forcedJSONParsing: false },
   })
 
   const content = resp.data
+  if (content === undefined || content === null) {
+    return null
+  }
+
   if (!(content instanceof Buffer)) {
+    const constructorName = content.constructor?.name ?? '<Unknown>'
     // If I understood the Axios docs & configured it correctly, this error should never be thrown
-    throw new RuntimeError('Axios did not convert the response body into a Buffer')
+    const errorMsg = `Axios did not convert the response body into a Buffer (Constructor Name: ${constructorName})`
+    throw new RuntimeError(errorMsg)
   }
 
   const contentType = _getContentType(resp.headers, logger)
+  return { data: content, contentType }
+}
+
+/** Performs an Axios get request and parses the response as json based
+ *  on the content-type, otherwise the data is formatted into a buffer. */
+type JsonOrBufferReturn = { type: 'JSON'; data: object } | { type: 'Buffer'; buffer: Buffer; contentType: string }
+export async function httpGetAsJsonOrBuffer(url: string, logger: bp.Logger): Promise<JsonOrBufferReturn | null> {
+  const respData = await httpGetAsBuffer(url, logger)
+  if (respData === null) return null
+
+  const { data, contentType } = respData
   if (contentType.includes('application/json')) {
     const charset = _getContentCharset(contentType)
-    const serializedJSON = _bufferToString(content, charset)
+    const serializedJSON = _bufferToString(data, charset)
     return { type: 'JSON', data: JSON.parse(serializedJSON) }
   }
 
-  return { type: 'Buffer', buffer: content, contentType }
+  return { type: 'Buffer', buffer: data, contentType }
 }
 
 type CommonResponseHeadersList = 'Server' | 'Content-Type' | 'Content-Length' | 'Cache-Control' | 'Content-Encoding'
