@@ -3,13 +3,14 @@ import crypto from 'crypto'
 import { createCambClient, pollForResult } from './camb-client'
 import * as bp from '.botpress'
 
+const CAMB_AI_BASE_URL = 'https://client.camb.ai'
 const SECONDS_IN_A_DAY = 24 * 60 * 60
 
 export default new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
-    generateSpeech: async ({ input, client, metadata }) => {
+    generateSpeech: async ({ input, client }) => {
       const cambClient = createCambClient(bp.secrets.CAMB_AI_API_KEY)
 
       const response = await cambClient.textToSpeech.tts({
@@ -39,13 +40,8 @@ export default new bp.Integration({
         expiresAt,
       })
 
-      const cost = 0
-      metadata.setCost(cost)
       return {
         audioUrl: file.url,
-        botpress: {
-          cost,
-        },
       }
     },
 
@@ -93,7 +89,7 @@ export default new bp.Integration({
       }
     },
 
-    translatedTts: async ({ input, client, metadata }) => {
+    translatedTts: async ({ input, client }) => {
       const cambClient = createCambClient(bp.secrets.CAMB_AI_API_KEY)
 
       const createResult = await cambClient.translatedTts.createTranslatedTts({
@@ -108,29 +104,20 @@ export default new bp.Integration({
         throw new RuntimeError('CAMB AI did not return a task_id for translated TTS')
       }
 
-      // Poll for completion
-      let runId: number | undefined
-      await pollForResult(
+      const runId = await pollForResult(
         async () => {
           const status = await cambClient.translatedTts.getTranslatedTtsTaskStatus({ task_id: taskId })
           return { status: status.status, run_id: status.run_id }
         },
-        async (rid: number) => {
-          runId = rid
-          return rid
-        }
+        async (rid: number) => rid
       )
-
-      if (!runId) {
-        throw new RuntimeError('CAMB AI did not return a run_id for translated TTS')
-      }
 
       // Get translation result
       const translationResult = await cambClient.translation.getTranslationResult({ run_id: runId })
       const translatedText = translationResult.texts?.[0] ?? ''
 
       // Fetch TTS audio via direct API call (raw bytes, no output_type param)
-      const audioResponse = await fetch(`https://client.camb.ai/apis/tts-result/${runId}`, {
+      const audioResponse = await fetch(`${CAMB_AI_BASE_URL}/apis/tts-result/${runId}`, {
         headers: { 'x-api-key': bp.secrets.CAMB_AI_API_KEY },
       })
       if (!audioResponse.ok) {
@@ -154,14 +141,9 @@ export default new bp.Integration({
         expiresAt,
       })
 
-      const cost = 0
-      metadata.setCost(cost)
       return {
         audioUrl: file.url,
         translatedText,
-        botpress: {
-          cost,
-        },
       }
     },
 
@@ -199,5 +181,5 @@ function generateFileKey(prefix: string, input: object, suffix?: string) {
   hash.update(json)
   const hexHash = hash.digest('hex')
 
-  return prefix + Date.now() + '_' + hexHash + suffix
+  return prefix + hexHash + suffix
 }

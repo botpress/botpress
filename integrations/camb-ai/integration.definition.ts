@@ -19,7 +19,7 @@ export default new IntegrationDefinition({
     generateSpeech: {
       title: 'Generate Speech',
       description: 'Generate speech from text using CAMB AI MARS models',
-      billable: true,
+      billable: false,
       cacheable: true,
       input: {
         schema: z.object({
@@ -57,19 +57,13 @@ export default new IntegrationDefinition({
       output: {
         schema: z.object({
           audioUrl: z.string().describe('URL to the audio file with the generated speech').title('Audio URL'),
-          botpress: z
-            .object({
-              cost: z.number().describe('Cost of the speech generation, in U.S. dollars').title('Cost'),
-            })
-            .describe('Botpress metadata')
-            .title('Botpress'),
         }),
       },
     },
     translateText: {
       title: 'Translate Text',
       description: 'Translate text between languages using CAMB AI',
-      billable: true,
+      billable: false,
       cacheable: true,
       input: {
         schema: z.object({
@@ -93,7 +87,7 @@ export default new IntegrationDefinition({
     translatedTts: {
       title: 'Translated TTS',
       description: 'Translate text and generate speech in the target language',
-      billable: true,
+      billable: false,
       cacheable: true,
       input: {
         schema: z.object({
@@ -121,19 +115,13 @@ export default new IntegrationDefinition({
         schema: z.object({
           audioUrl: z.string().describe('URL to the audio file with the generated speech').title('Audio URL'),
           translatedText: z.string().describe('The translated text').title('Translated Text'),
-          botpress: z
-            .object({
-              cost: z.number().describe('Cost of the operation, in U.S. dollars').title('Cost'),
-            })
-            .describe('Botpress metadata')
-            .title('Botpress'),
         }),
       },
     },
     cloneVoice: {
       title: 'Clone Voice',
       description: 'Clone a voice from an audio sample (10-30 seconds of clear speech)',
-      billable: true,
+      billable: false,
       cacheable: false,
       input: {
         schema: z.object({
