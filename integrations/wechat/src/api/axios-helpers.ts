@@ -15,6 +15,8 @@ export async function httpGetAsBuffer(
 
   const content = resp.data
   if (content === undefined || content === null) {
+    const emptyValueType = content === null ? 'null' : 'undefined'
+    logger.warn(`Sanity check triggered, '${emptyValueType}' returned from axios`)
     return null
   }
 
