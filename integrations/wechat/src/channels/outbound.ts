@@ -1,5 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
 import { WeChatClient } from '../api/client'
+import { downloadMediaFromURL } from '../api/helpers'
 import * as bp from '.botpress'
 
 export const channels = {
@@ -36,7 +37,8 @@ const _handleImageMessage = async (props: bp.MessageProps['channel']['image']) =
   const { payload, logger } = props
   try {
     const wechatClient = await WeChatClient.create(props)
-    const mediaId = await _uploadWeChatMedia(wechatClient, payload.imageUrl, 'image')
+    const { mediaBlob, fileExtension } = await downloadMediaFromURL(payload.imageUrl, logger)
+    const mediaId = await wechatClient.uploadMedia('image', mediaBlob, fileExtension)
     await _sendMessage(
       props,
       {
@@ -80,50 +82,6 @@ const _sendMessage = async (
 
   const ackId = sendResponse.msgId ?? createAckId('wechat')
   await ack({ tags: { id: ackId } })
-}
-
-// Upload media to WeChat cloud (returns media_id)
-// for image and video messages
-const _uploadWeChatMedia = async (
-  wechatClient: WeChatClient,
-  mediaUrl: string,
-  mediaType: 'image' | 'voice' | 'video'
-): Promise<string> => {
-  const mediaResponse = await fetch(mediaUrl)
-  if (!mediaResponse.ok) {
-    throw new RuntimeError(
-      `Failed to download media from URL: ${mediaUrl} (${mediaResponse.status} ${mediaResponse.statusText})`
-    )
-  }
-
-  const contentLengthHeader = mediaResponse.headers.get('content-length')
-  const contentLength = contentLengthHeader ? Number(contentLengthHeader) : Number.NaN
-
-  if (Number.isFinite(contentLength) && contentLength > 0) {
-    if (contentLength > MAX_MEDIA_BYTES) {
-      throw new RuntimeError(`Media exceeds max size of ${MAX_MEDIA_BYTES} bytes`)
-    }
-  }
-
-  const mediaBuffer = await mediaResponse.arrayBuffer()
-  const contentTypeHeader = mediaResponse.headers.get('content-type')
-  const contentType = typeof contentTypeHeader === 'string' ? contentTypeHeader : ''
-  const mediaBlob = new Blob([mediaBuffer], contentType ? { type: contentType } : undefined)
-
-  // fix media type to file extension otherwise wechat will not accept the media
-  const extensionByContentType: Record<string, string> = {
-    'image/jpeg': 'jpg',
-    'image/jpg': 'jpg',
-    'image/png': 'png',
-    'image/gif': 'gif',
-    'image/webp': 'webp',
-    'image/bmp': 'bmp',
-  }
-
-  const baseContentType = (contentType.split(';')[0] || '').trim()
-  const fileExtension = extensionByContentType[baseContentType] || 'jpg'
-
-  return await wechatClient.uploadMedia(mediaType, mediaBlob, fileExtension)
 }
 
 const createAckId = (prefix: string): string => {
