@@ -54,6 +54,11 @@ import type {
   RefinementCtx,
   IZodEffects,
   output,
+  EffectReturnType,
+  ValidEffectReturnType,
+  InvalidEffectReturnType,
+  IssueData,
+  DirtyEffectReturnType,
 } from './typings'
 
 type _ProcessedCreateParams = {
@@ -321,6 +326,30 @@ export const transformerType: ZodBuilders['transformer'] = <T extends IZodType, 
     ..._processCreateParams(params),
   })
 
+export const upstreamType: ZodBuilders['upstream'] = <T extends IZodType, O>(
+  upstream: (arg: output<T>) => EffectReturnType<O> | Promise<EffectReturnType<O>>,
+  schema: T,
+  params?: ZodCreateParams
+): IZodEffects<T, O> =>
+  new ZodEffectsImpl({
+    schema,
+    effect: { type: 'upstream', upstream },
+    typeName: 'ZodEffects',
+    ..._processCreateParams(params),
+  })
+
+export const downstreamType: ZodBuilders['downstream'] = <T extends IZodType, O>(
+  schema: T,
+  downstream: (arg: output<T>) => EffectReturnType<O> | Promise<EffectReturnType<O>>,
+  params?: ZodCreateParams & { abortOnDirty?: boolean }
+): IZodEffects<T, O> =>
+  new ZodEffectsImpl({
+    schema,
+    effect: { type: 'downstream', downstream, abortOnDirty: params?.abortOnDirty ?? true },
+    typeName: 'ZodEffects',
+    ..._processCreateParams(params),
+  })
+
 export const optionalType: ZodBuilders['optional'] = (type, params) =>
   new ZodOptionalImpl({ innerType: type, typeName: 'ZodOptional', ..._processCreateParams(params) })
 
@@ -384,6 +413,8 @@ setBuilders({
   optional: optionalType,
   pipeline: pipelineType,
   preprocess: preprocessType,
+  upstream: upstreamType,
+  downstream: downstreamType,
   promise: promiseType,
   record: recordType,
   ref: refType,
@@ -418,3 +449,11 @@ export const coerce = {
     return dateType({ ...arg, coerce: true })
   },
 }
+
+export const OK = <T>(value: T): ValidEffectReturnType<T> => ({ status: 'valid', value })
+export const ERR = (...issues: IssueData[]): InvalidEffectReturnType => ({ status: 'aborted', issues })
+export const DIRTY = <T>(value: T, ...issues: IssueData[]): DirtyEffectReturnType<T> => ({
+  status: 'dirty',
+  value,
+  issues,
+})

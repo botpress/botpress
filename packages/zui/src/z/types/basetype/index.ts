@@ -35,6 +35,7 @@ import type {
   ParseReturnType,
   AsyncParseReturnType,
   SyncParseReturnType,
+  EffectReturnType,
 } from '../../typings'
 
 import { getParsedType, isAsync, isValid, ParseStatus } from './parseUtil'
@@ -200,54 +201,95 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
         return message
       }
     }
-    return this._refinement((val: Output, ctx: RefinementCtx) => {
-      const result = check(val)
-      const setError = () =>
-        ctx.addIssue({
-          code: 'custom',
-          ...getIssueProperties(val),
-        })
-      if (typeof Promise !== 'undefined' && result instanceof Promise) {
-        return result.then((data) => {
-          if (!data) {
-            setError()
-            return false
-          } else {
-            return true
-          }
-        })
-      }
-      if (!result) {
-        setError()
-        return false
-      } else {
-        return true
-      }
-    })
+    return builders.downstream(
+      this,
+      (val: Output): EffectReturnType<Output> | Promise<EffectReturnType<Output>> => {
+        const result = check(val)
+
+        const issues: IssueData[] = []
+        const setError = () =>
+          issues.push({
+            code: 'custom',
+            ...getIssueProperties(val),
+          })
+
+        if (typeof Promise !== 'undefined' && result instanceof Promise) {
+          return result.then((data) => {
+            if (!data) {
+              setError()
+              return { status: 'aborted', issues }
+            } else {
+              return { status: 'valid', value: val }
+            }
+          })
+        }
+        if (!result) {
+          setError()
+          return { status: 'aborted', issues }
+        } else {
+          return { status: 'valid', value: val }
+        }
+      },
+      { abortOnDirty: false }
+    )
   }
 
   refinement(
     check: (arg: Output) => unknown,
     refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData)
   ): IZodEffects<this, Output, Input> {
-    return this._refinement((val: Output, ctx: RefinementCtx) => {
-      if (!check(val)) {
-        ctx.addIssue(typeof refinementData === 'function' ? refinementData(val, ctx) : refinementData)
-        return false
-      } else {
-        return true
-      }
-    })
-  }
+    return builders.downstream(
+      this,
+      (val: Output): EffectReturnType<Output> | Promise<EffectReturnType<Output>> => {
+        const issues: IssueData[] = []
+        const ctx: RefinementCtx = {
+          addIssue: (issue: IssueData) => issues.push(issue),
+          path: [],
+        }
 
-  _refinement(refinement: RefinementEffect<Output>['refinement']): IZodEffects<this, Output, Input> {
-    return builders.refine(this, refinement)
+        if (!check(val)) {
+          const issue = typeof refinementData === 'function' ? refinementData(val, ctx) : refinementData
+          issues.push(issue)
+          return { status: 'aborted', issues: [issue] }
+        } else {
+          return { status: 'valid', value: val }
+        }
+      },
+      { abortOnDirty: false }
+    )
   }
 
   superRefine(
     refinement: (arg: Output, ctx: RefinementCtx) => unknown | Promise<unknown>
   ): IZodEffects<this, Output, Input> {
-    return this._refinement(refinement)
+    return builders.downstream(
+      this,
+      (val: Output): EffectReturnType<Output> | Promise<EffectReturnType<Output>> => {
+        const issues: IssueData[] = []
+        const ctx: RefinementCtx = {
+          addIssue: (issue: IssueData) => issues.push(issue),
+          path: [],
+        }
+
+        const result = refinement(val, ctx)
+        if (typeof Promise !== 'undefined' && result instanceof Promise) {
+          return result.then((data) => {
+            if (!data) {
+              return { status: 'aborted', issues }
+            } else {
+              return { status: 'valid', value: val }
+            }
+          })
+        } else {
+          if (!result) {
+            return { status: 'aborted', issues }
+          } else {
+            return { status: 'valid', value: val }
+          }
+        }
+      },
+      { abortOnDirty: false }
+    )
   }
 
   constructor(def: Def) {

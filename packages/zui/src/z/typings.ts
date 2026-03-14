@@ -1581,28 +1581,50 @@ export interface IZodSymbol extends IZodType<symbol, ZodSymbolDef> {}
 
 //* ─────────────────────────── ZodEffects ───────────────────────────────────
 
-export type RefinementEffect<I, O = unknown> = {
+export type InvalidEffectReturnType = { status: 'aborted'; issues: IssueData[] }
+export type DirtyEffectReturnType<T = any> = { status: 'dirty'; value: T; issues: IssueData[] }
+export type ValidEffectReturnType<T = any> = { status: 'valid'; value: T }
+export type EffectReturnType<T = any> = InvalidEffectReturnType | DirtyEffectReturnType<T> | ValidEffectReturnType<T>
+
+export type RefinementEffect<I = unknown, O = unknown> = {
   type: 'refinement'
   refinement: (arg: I, ctx: RefinementCtx) => O
 }
 
-export type TransformEffect<I, O = unknown> = {
+export type TransformEffect<I = unknown, O = unknown> = {
   type: 'transform'
   transform: (arg: I, ctx: RefinementCtx) => O
 }
 
-export type PreprocessEffect<I, O = unknown> = {
+export type PreprocessEffect<I = unknown, O = unknown> = {
   type: 'preprocess'
   preprocess: (arg: I, ctx: RefinementCtx) => O
 }
 
-export type Effect<I, O = unknown> = RefinementEffect<I, O> | TransformEffect<I, O> | PreprocessEffect<I, O>
+export type UpstreamEffect<I = unknown, O = unknown> = {
+  type: 'upstream'
+  upstream: (arg: I) => EffectReturnType<O> | Promise<EffectReturnType<O>>
+}
+
+export type DownstreamEffect<I = unknown, O = unknown> = {
+  type: 'downstream'
+  abortOnDirty: boolean // TODO: rename to something better
+  downstream: (arg: I) => EffectReturnType<O> | Promise<EffectReturnType<O>>
+}
+
+export type Effect<I = unknown, O = unknown> =
+  | RefinementEffect<I, O>
+  | TransformEffect<I, O>
+  | PreprocessEffect<I, O>
+  | UpstreamEffect<I, O>
+  | DownstreamEffect<I, O>
+
 export type ZodEffectsDef<T extends IZodType = IZodType> = {
   schema: T
   typeName: 'ZodEffects'
 
   // We don't care about the specific type here as this is a storage type. Type inference is done at the builder level.
-  effect: Effect<unknown>
+  effect: Effect
 } & ZodTypeDef
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
@@ -1831,6 +1853,18 @@ export declare function createPreprocess<T extends IZodType<O>, O>(
   params?: ZodCreateParams
 ): IZodEffects<T, output<T>, unknown>
 
+export declare function createUpstream<T extends IZodType<O>, O>(
+  upstream: (arg: unknown) => EffectReturnType<O> | Promise<EffectReturnType<O>>,
+  schema: T,
+  params?: ZodCreateParams
+): IZodEffects<T, output<T>, unknown>
+
+export declare function createDownstream<T extends IZodType, O>(
+  schema: T,
+  downstream: (arg: output<T>) => EffectReturnType<O> | Promise<EffectReturnType<O>>,
+  params?: ZodCreateParams & { abortOnDirty?: boolean }
+): IZodEffects<T, O>
+
 export declare function createOptional<T extends IZodType>(type: T, params?: ZodCreateParams): IZodOptional<T>
 export declare function createNullable<T extends IZodType>(type: T, params?: ZodCreateParams): IZodNullable<T>
 export declare function createReadonly<T extends IZodType>(type: T, params?: ZodCreateParams): IZodReadonly<T>
@@ -1875,6 +1909,8 @@ export type ZodBuilders = {
   optional: typeof createOptional
   pipeline: typeof createPipeline
   preprocess: typeof createPreprocess
+  upstream: typeof createUpstream
+  downstream: typeof createDownstream
   promise: typeof createPromise
   record: typeof createRecord
   ref: typeof createRef

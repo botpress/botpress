@@ -10,6 +10,7 @@ import type {
   IssueData,
   ParseInput,
   ParseReturnType,
+  EffectReturnType,
 } from '../../typings'
 import { ZodBaseTypeImpl, addIssueToContext, isValid } from '../basetype'
 
@@ -164,8 +165,62 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
         }) as ParseReturnType<this['_output']>
       }
     }
+    if (effect.type === 'upstream') {
+      throw new Error('NOT IMPLEMENTED')
+    }
+    if (effect.type === 'downstream') {
+      if (ctx.common.async === false) {
+        const base = this._def.schema._parseSync({
+          data: ctx.data,
+          path: ctx.path,
+          parent: ctx,
+        })
+
+        if (base.status === 'aborted') return base
+        if (base.status === 'dirty') {
+          status.dirty()
+          if (effect.abortOnDirty) {
+            return base
+          }
+        }
+
+        const result = effect.downstream(base.value)
+        if (result instanceof Promise) {
+          throw new Error(
+            'Asynchronous transform encountered during synchronous parse operation. Use .parseAsync instead.'
+          )
+        }
+        this._appendIssues(checkCtx, result)
+
+        return {
+          status: status.value,
+          value: result.status === 'valid' ? result.value : base.value,
+        } as ParseReturnType<this['_output']>
+      } else {
+        return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((base) => {
+          if (!isValid(base)) return base
+
+          return Promise.resolve(effect.downstream(base.value)).then((result) => {
+            this._appendIssues(checkCtx, result)
+            return {
+              status: status.value,
+              value: result.status === 'valid' ? result.value : base.value,
+            }
+          })
+        }) as ParseReturnType<this['_output']>
+      }
+    }
 
     utils.assert.assertNever(effect)
+  }
+
+  private _appendIssues(ctx: RefinementCtx, result: EffectReturnType<unknown>) {
+    if (result.status === 'valid') {
+      return
+    }
+    for (const issue of result.issues) {
+      ctx.addIssue(issue)
+    }
   }
 
   isEqual(schema: IZodType): boolean {
@@ -185,6 +240,16 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
     if (this._def.effect.type === 'preprocess') {
       if (schema._def.effect.type !== 'preprocess') return false
       return utils.others.compareFunctions(this._def.effect.preprocess, schema._def.effect.preprocess)
+    }
+
+    if (this._def.effect.type === 'upstream') {
+      if (schema._def.effect.type !== 'upstream') return false
+      return utils.others.compareFunctions(this._def.effect.upstream, schema._def.effect.upstream)
+    }
+
+    if (this._def.effect.type === 'downstream') {
+      if (schema._def.effect.type !== 'downstream') return false
+      return utils.others.compareFunctions(this._def.effect.downstream, schema._def.effect.downstream)
     }
 
     this._def.effect satisfies never
