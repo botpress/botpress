@@ -22,6 +22,7 @@ const main = async () => {
   })
 
   if (!output.is(resultExit)) {
+    console.error('Unexpected exit', output.toJSON())
     throw new Error('Unexpected exit')
   }
 
