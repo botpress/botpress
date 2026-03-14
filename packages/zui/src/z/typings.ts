@@ -85,57 +85,57 @@ export type ErrMessage =
       message?: string
     }
 
-type _ZodIssueBase = {
-  path: (string | number)[]
-  message?: string
-}
+// type _ZodIssueBase = {
+//   path: (string | number)[]
+//   message?: string
+// }
 
 export type ZodInvalidTypeIssue = {
   code: 'invalid_type'
   expected: ZodParsedType
   received: ZodParsedType
-} & _ZodIssueBase
+}
 
 export type ZodInvalidLiteralIssue = {
   code: 'invalid_literal'
   expected: unknown
   received: unknown
-} & _ZodIssueBase
+}
 
 export type ZodUnrecognizedKeysIssue = {
   code: 'unrecognized_keys'
   keys: string[]
-} & _ZodIssueBase
+}
 
 export type ZodInvalidUnionIssue = {
   code: 'invalid_union'
   unionErrors: IZodError[]
-} & _ZodIssueBase
+}
 
 export type ZodInvalidUnionDiscriminatorIssue = {
   code: 'invalid_union_discriminator'
   options: Primitive[]
-} & _ZodIssueBase
+}
 
 export type ZodInvalidEnumValueIssue = {
   received: string | number
   code: 'invalid_enum_value'
   options: (string | number)[]
-} & _ZodIssueBase
+}
 
 export type ZodInvalidArgumentsIssue = {
   code: 'invalid_arguments'
   argumentsError: IZodError
-} & _ZodIssueBase
+}
 
 export type ZodInvalidReturnTypeIssue = {
   code: 'invalid_return_type'
   returnTypeError: IZodError
-} & _ZodIssueBase
+}
 
 export type ZodInvalidDateIssue = {
   code: 'invalid_date'
-} & _ZodIssueBase
+}
 
 export type ZodInvalidStringIssue = {
   code: 'invalid_string'
@@ -160,7 +160,7 @@ export type ZodInvalidStringIssue = {
     | {
         endsWith: string
       }
-} & _ZodIssueBase
+}
 
 export type ZodTooSmallIssue = {
   code: 'too_small'
@@ -168,7 +168,7 @@ export type ZodTooSmallIssue = {
   inclusive: boolean
   exact?: boolean
   type: 'array' | 'string' | 'number' | 'set' | 'date' | 'bigint'
-} & _ZodIssueBase
+}
 
 export type ZodTooBigIssue = {
   code: 'too_big'
@@ -176,33 +176,33 @@ export type ZodTooBigIssue = {
   inclusive: boolean
   exact?: boolean
   type: 'array' | 'string' | 'number' | 'set' | 'date' | 'bigint'
-} & _ZodIssueBase
+}
 
 export type ZodInvalidIntersectionTypesIssue = {
   code: 'invalid_intersection_types'
-} & _ZodIssueBase
+}
 
 export type ZodNotMultipleOfIssue = {
   code: 'not_multiple_of'
   multipleOf: number | bigint
-} & _ZodIssueBase
+}
 
 export type ZodNotFiniteIssue = {
   code: 'not_finite'
-} & _ZodIssueBase
+}
 
 export type ZodUnresolvedReferenceIssue = {
   code: 'unresolved_reference'
-} & _ZodIssueBase
+}
 
 export type ZodCustomIssue = {
   code: 'custom'
   params?: {
     [k: string]: unknown
   }
-} & _ZodIssueBase
+}
 
-type _ZodIssueOptionalMessage =
+export type ZodIssueBody =
   | ZodInvalidTypeIssue
   | ZodInvalidLiteralIssue
   | ZodUnrecognizedKeysIssue
@@ -221,12 +221,19 @@ type _ZodIssueOptionalMessage =
   | ZodUnresolvedReferenceIssue
   | ZodCustomIssue
 
-export type ZodIssue = _ZodIssueOptionalMessage & {
+export type ZodIssue = ZodIssueBody & {
+  path: (string | number)[]
   fatal?: boolean
   message: string
 }
 
-export type CustomErrorParams = Partial<SafeOmit<ZodCustomIssue, 'code'>>
+export type CustomErrorParams = Partial<{
+  path: (string | number)[]
+  message: string
+  params: {
+    [k: string]: unknown
+  }
+}>
 
 type _RecursiveZodFormattedError<T> = T extends [any, ...any[]]
   ? {
@@ -260,10 +267,10 @@ export interface IZodError<T = unknown> extends Error {
   addIssues: (subs?: ZodIssue[]) => void
 }
 
-type _StripPath<T extends object> = T extends any ? Omit<T, 'path'> : never
-export type IssueData = _StripPath<_ZodIssueOptionalMessage> & {
+export type IssueData = ZodIssueBody & {
   path?: (string | number)[]
   fatal?: boolean
+  message?: string
 }
 
 type _ErrorMapCtx = {
@@ -272,7 +279,7 @@ type _ErrorMapCtx = {
 }
 
 export type ZodErrorMap = (
-  issue: _ZodIssueOptionalMessage,
+  issue: ZodIssueBody & { path: (string | number)[]; message?: string },
   _ctx: _ErrorMapCtx
 ) => {
   message: string
