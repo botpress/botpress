@@ -10,6 +10,11 @@ export const handleEvent: bp.EventHandlers['files-readonly:folderDeletedRecursiv
   }
 
   try {
+    if (!deletedFolder.absolutePath) {
+      props.logger.warn(`Skipping folder deletion: folder has no absolutePath (id: ${deletedFolder.id})`)
+      return
+    }
+
     const folderPath = deletedFolder.absolutePath?.endsWith('/')
       ? deletedFolder.absolutePath
       : `${deletedFolder.absolutePath}/`

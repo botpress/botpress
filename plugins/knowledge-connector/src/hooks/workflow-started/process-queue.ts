@@ -4,6 +4,7 @@ import * as bp from '.botpress'
 
 export const handleEvent: bp.WorkflowHandlers['processQueue'] = async (props) => {
   const { syncQueue, key } = await SyncQueue.jobFileManager.getSyncQueue(props)
+  const hasKbTarget = syncQueue.some((item) => item.addToKbId !== undefined)
   const logger = props.logger.withWorkflowId(props.workflow.id)
 
   if (
@@ -29,7 +30,7 @@ export const handleEvent: bp.WorkflowHandlers['processQueue'] = async (props) =>
         integrationAlias: props.workflow.tags.integrationInstanceAlias,
         client: props.client,
         transferFileToBotpressAlias: props.workflow.input.transferFileToBotpressAlias,
-        shouldIndex: true,
+        shouldIndex: hasKbTarget,
       }),
       updateSyncQueue: (params) =>
         SyncQueue.jobFileManager.updateSyncQueue(props, key, params.syncQueue, {
