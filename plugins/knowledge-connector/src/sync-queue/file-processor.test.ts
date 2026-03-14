@@ -70,6 +70,10 @@ describe.concurrent('processQueue', () => {
         externalSize: FILE_1.sizeInBytes.toString(),
         externalContentHash: null,
         externalPath: FILE_1.absolutePath,
+        kbId: null,
+        modalities: null,
+        source: null,
+        title: null,
       },
     })
   })
