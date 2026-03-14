@@ -5,7 +5,6 @@ import {
   NoNever,
   Flatten,
   NoUndefined,
-  SafeOmit,
   Writeable,
   AddQuestionMarks,
   ExtendShape,
