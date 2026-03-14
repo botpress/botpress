@@ -16,6 +16,10 @@ runs:
         node-version-file: '.tool-versions'
         package-manager-cache: false
 
+    - name: Setup Bun
+      if: runner.os != 'Windows'
+      uses: oven-sh/setup-bun@v2
+
     - name: Install Node Gyp Build
       shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
       run: |
