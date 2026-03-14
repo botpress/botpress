@@ -12,6 +12,13 @@ patchedDependencies:
 importers:
 
   .:
+    dependencies:
+      '@bpinternal/zui':
+        specifier: workspace:*
+        version: link:packages/zui
+      llmz:
+        specifier: workspace:*
+        version: link:packages/llmz
     devDependencies:
       '@aws-sdk/client-dynamodb':
         specifier: ^3.564.0
