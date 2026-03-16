@@ -231,33 +231,6 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     })
   }
 
-  refinement(
-    check: (arg: Output) => unknown,
-    refinementData: EffectIssue | ((arg: Output, ctx: RefinementCtx) => EffectIssue)
-  ): IZodEffects<this, Output, Input> {
-    return builders.downstream(
-      this,
-      (val: Output, context: EffectContext): EffectReturnType<Output> | Promise<EffectReturnType<Output>> => {
-        const issues: EffectIssue[] = []
-        const ctx: RefinementCtx = {
-          addIssue: (issue) => issues.push(issue),
-          path: context.path,
-        }
-
-        if (!check(val)) {
-          const issue = typeof refinementData === 'function' ? refinementData(val, ctx) : refinementData
-          issues.push(issue)
-          if (issues.some((i) => i.fatal)) {
-            return { status: 'aborted', issues }
-          }
-          return { status: 'dirty', value: val, issues }
-        } else {
-          return { status: 'valid', value: val }
-        }
-      }
-    )
-  }
-
   superRefine(
     refinement: (arg: Output, ctx: RefinementCtx) => unknown | Promise<unknown>
   ): IZodEffects<this, Output, Input> {
@@ -309,7 +282,6 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     this.safeParseAsync = this.safeParseAsync.bind(this)
     this.spa = this.spa.bind(this)
     this.refine = this.refine.bind(this)
-    this.refinement = this.refinement.bind(this)
     this.superRefine = this.superRefine.bind(this)
     this.optional = this.optional.bind(this)
     this.nullable = this.nullable.bind(this)

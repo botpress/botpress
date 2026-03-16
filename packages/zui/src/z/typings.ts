@@ -430,14 +430,6 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
     check: (arg: Output) => unknown | Promise<unknown>,
     message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams)
   ): IZodEffects<this, Output, Input>
-  refinement<RefinedOutput extends Output>(
-    check: (arg: Output) => arg is RefinedOutput,
-    refinementData: EffectIssue | ((arg: Output, ctx: RefinementCtx) => EffectIssue)
-  ): IZodEffects<this, RefinedOutput, Input>
-  refinement(
-    check: (arg: Output) => boolean,
-    refinementData: EffectIssue | ((arg: Output, ctx: RefinementCtx) => EffectIssue)
-  ): IZodEffects<this, Output, Input>
   superRefine<RefinedOutput extends Output>(
     refinement: (arg: Output, ctx: RefinementCtx) => arg is RefinedOutput
   ): IZodEffects<this, RefinedOutput, Input>
