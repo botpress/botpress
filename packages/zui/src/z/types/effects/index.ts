@@ -70,36 +70,36 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
 
     checkCtx.addIssue = checkCtx.addIssue.bind(checkCtx)
 
-    if (effect.type === 'preprocess') {
-      const processed = effect.preprocess(ctx.data, checkCtx)
+    // if (effect.type === 'preprocess') {
+    //   const processed = effect.preprocess(ctx.data, checkCtx)
 
-      if (ctx.common.async) {
-        return Promise.resolve(processed).then(async (processed) => {
-          if (status.value === 'aborted') return { status: 'aborted' }
+    //   if (ctx.common.async) {
+    //     return Promise.resolve(processed).then(async (processed) => {
+    //       if (status.value === 'aborted') return { status: 'aborted' }
 
-          const result = await this._def.schema._parseAsync({
-            data: processed,
-            path: ctx.path,
-            parent: ctx,
-          })
-          if (result.status === 'aborted') return { status: 'aborted' }
-          if (result.status === 'dirty') return { status: 'dirty', value: result.value }
-          if (status.value === 'dirty') return { status: 'dirty', value: result.value }
-          return result
-        })
-      } else {
-        if (status.value === 'aborted') return { status: 'aborted' }
-        const result = this._def.schema._parseSync({
-          data: processed,
-          path: ctx.path,
-          parent: ctx,
-        })
-        if (result.status === 'aborted') return { status: 'aborted' }
-        if (result.status === 'dirty') return { status: 'dirty', value: result.value }
-        if (status.value === 'dirty') return { status: 'dirty', value: result.value }
-        return result
-      }
-    }
+    //       const result = await this._def.schema._parseAsync({
+    //         data: processed,
+    //         path: ctx.path,
+    //         parent: ctx,
+    //       })
+    //       if (result.status === 'aborted') return { status: 'aborted' }
+    //       if (result.status === 'dirty') return { status: 'dirty', value: result.value }
+    //       if (status.value === 'dirty') return { status: 'dirty', value: result.value }
+    //       return result
+    //     })
+    //   } else {
+    //     if (status.value === 'aborted') return { status: 'aborted' }
+    //     const result = this._def.schema._parseSync({
+    //       data: processed,
+    //       path: ctx.path,
+    //       parent: ctx,
+    //     })
+    //     if (result.status === 'aborted') return { status: 'aborted' }
+    //     if (result.status === 'dirty') return { status: 'dirty', value: result.value }
+    //     if (status.value === 'dirty') return { status: 'dirty', value: result.value }
+    //     return result
+    //   }
+    // }
     if (effect.type === 'refinement') {
       const executeRefinement = (acc: unknown): unknown => {
         const result = effect.refinement(acc, checkCtx)
@@ -166,7 +166,45 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
       }
     }
     if (effect.type === 'upstream') {
-      throw new Error('NOT IMPLEMENTED')
+      let asyncProcessed = effect.upstream(ctx.data, { path: ctx.path })
+
+      if (ctx.common.async) {
+        return Promise.resolve(asyncProcessed).then(async (processed) => {
+          processed ??= { status: 'valid', value: ctx.data }
+          this._appendIssues(checkCtx, processed)
+
+          if (status.value === 'aborted') return { status: 'aborted' }
+
+          const result = await this._def.schema._parseAsync({
+            data: (processed as Exclude<EffectReturnType<unknown>, { status: 'aborted' }>).value,
+            path: ctx.path,
+            parent: ctx,
+          })
+          if (result.status === 'aborted') return { status: 'aborted' }
+          if (result.status === 'dirty') return { status: 'dirty', value: result.value }
+          if (status.value === 'dirty') return { status: 'dirty', value: result.value }
+          return result
+        })
+      } else {
+        if (asyncProcessed instanceof Promise) {
+          throw new Error(
+            'Asynchronous upstream transform encountered during synchronous parse operation. Use .parseAsync instead.'
+          )
+        }
+        asyncProcessed ??= { status: 'valid', value: ctx.data }
+        this._appendIssues(checkCtx, asyncProcessed)
+
+        if (status.value === 'aborted') return { status: 'aborted' }
+        const result = this._def.schema._parseSync({
+          data: (asyncProcessed as Exclude<EffectReturnType<unknown>, { status: 'aborted' }>).value,
+          path: ctx.path,
+          parent: ctx,
+        })
+        if (result.status === 'aborted') return { status: 'aborted' }
+        if (result.status === 'dirty') return { status: 'dirty', value: result.value }
+        if (status.value === 'dirty') return { status: 'dirty', value: result.value }
+        return result
+      }
     }
     if (effect.type === 'downstream') {
       if (ctx.common.async === false) {
@@ -204,8 +242,8 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
 
           return Promise.resolve(effect.downstream(base.value, { path: ctx.path })).then((result) => {
             result ??= { status: 'valid', value: base.value }
-
             this._appendIssues(checkCtx, result)
+
             return {
               status: status.value,
               value: result.status === 'valid' ? result.value : base.value,
@@ -241,10 +279,10 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
       return utils.others.compareFunctions(this._def.effect.transform, schema._def.effect.transform)
     }
 
-    if (this._def.effect.type === 'preprocess') {
-      if (schema._def.effect.type !== 'preprocess') return false
-      return utils.others.compareFunctions(this._def.effect.preprocess, schema._def.effect.preprocess)
-    }
+    // if (this._def.effect.type === 'preprocess') {
+    //   if (schema._def.effect.type !== 'preprocess') return false
+    //   return utils.others.compareFunctions(this._def.effect.preprocess, schema._def.effect.preprocess)
+    // }
 
     if (this._def.effect.type === 'upstream') {
       if (schema._def.effect.type !== 'upstream') return false

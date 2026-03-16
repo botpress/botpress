@@ -1608,10 +1608,10 @@ export type TransformEffect<I = unknown, O = unknown> = {
   transform: (arg: I, ctx: RefinementCtx) => O
 }
 
-export type PreprocessEffect<I = unknown, O = unknown> = {
-  type: 'preprocess'
-  preprocess: (arg: I, ctx: RefinementCtx) => O
-}
+// export type PreprocessEffect<I = unknown, O = unknown> = {
+//   type: 'preprocess'
+//   preprocess: (arg: I, ctx: RefinementCtx) => O
+// }
 
 export type UpstreamEffect<I = unknown, O = unknown> = {
   type: 'upstream'
@@ -1627,7 +1627,7 @@ export type DownstreamEffect<I = unknown, O = unknown> = {
 export type Effect<I = unknown, O = unknown> =
   | RefinementEffect<I, O>
   | TransformEffect<I, O>
-  | PreprocessEffect<I, O>
+  // | PreprocessEffect<I, O>
   | UpstreamEffect<I, O>
   | DownstreamEffect<I, O>
 
@@ -1861,20 +1861,12 @@ export declare function createRefine<T extends IZodType>(
   params?: ZodCreateParams
 ): IZodEffects<T>
 
-/**
- *
- * @deprecated Use downstream instead
- */
 export declare function createTransform<T extends IZodType, O>(
   schema: T,
   transform: (arg: output<T>, ctx: RefinementCtx) => O | Promise<O>,
   params?: ZodCreateParams
 ): IZodEffects<T, O>
 
-/**
- *
- * @deprecated Use upstream instead
- */
 export declare function createPreprocess<T extends IZodType<O>, O>(
   preprocess: (arg: unknown, ctx: RefinementCtx) => unknown | Promise<unknown>,
   schema: T,

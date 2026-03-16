@@ -248,7 +248,10 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
         if (!check(val)) {
           const issue = typeof refinementData === 'function' ? refinementData(val, ctx) : refinementData
           issues.push(issue)
-          return { status: 'aborted', issues }
+          if (issues.some((i) => i.fatal)) {
+            return { status: 'aborted', issues }
+          }
+          return { status: 'dirty', value: val, issues }
         } else {
           return { status: 'valid', value: val }
         }
@@ -270,19 +273,23 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
         })
 
         if (typeof Promise !== 'undefined' && result instanceof Promise) {
-          return result.then((data) => {
-            if (issues.length || !data) {
+          return result.then(() => {
+            if (issues.some((i) => i.fatal)) {
               return { status: 'aborted', issues }
-            } else {
-              return { status: 'valid', value: val }
             }
+            if (issues.length) {
+              return { status: 'dirty', value: val, issues }
+            }
+            return { status: 'valid', value: val }
           })
         } else {
-          if (issues.length || !result) {
+          if (issues.some((i) => i.fatal)) {
             return { status: 'aborted', issues }
-          } else {
-            return { status: 'valid', value: val }
           }
+          if (issues.length) {
+            return { status: 'dirty', value: val, issues }
+          }
+          return { status: 'valid', value: val }
         }
       }
     )

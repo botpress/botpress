@@ -298,7 +298,41 @@ export const functionType: ZodBuilders['function'] = (
 export const preprocessType: ZodBuilders['preprocess'] = (preprocess, schema, params) =>
   new ZodEffectsImpl({
     schema,
-    effect: { type: 'preprocess', preprocess },
+    effect: {
+      type: 'upstream',
+      upstream: (arg, ctx) => {
+        const issues: EffectIssue[] = []
+        const context: RefinementCtx = {
+          addIssue: (issue) => issues.push(issue),
+          get path() {
+            return ctx.path
+          },
+        }
+
+        const result = preprocess(arg, context)
+        if (result instanceof Promise) {
+          return result.then((res) => {
+            if (issues.some((i) => i.fatal)) {
+              return ERR(...issues)
+            }
+            if (issues.length) {
+              return DIRTY(res, ...issues)
+            }
+            return OK(res)
+          })
+        }
+
+        if (issues.length) {
+          if (issues.some((i) => i.fatal)) {
+            return ERR(...issues)
+          }
+          if (issues.length) {
+            return DIRTY(result, ...issues)
+          }
+        }
+        return OK(result)
+      },
+    },
     typeName: 'ZodEffects',
     ..._processCreateParams(params),
   })
