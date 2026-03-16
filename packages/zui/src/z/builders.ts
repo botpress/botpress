@@ -339,93 +339,6 @@ export const preprocessType: ZodBuilders['preprocess'] = (preprocess, schema, pa
     ..._processCreateParams(params),
   })
 
-export const refineType: ZodBuilders['refine'] = <T extends IZodType>(
-  schema: T,
-  refinement: (arg: T['_output'], ctx: RefinementCtx) => unknown,
-  params?: ZodCreateParams
-): IZodEffects<T> =>
-  new ZodEffectsImpl({
-    schema,
-    effect: {
-      type: 'downstream',
-      downstream: (arg, ctx) => {
-        const issues: EffectIssue[] = []
-        const context: RefinementCtx = {
-          addIssue: (issue) => issues.push(issue),
-          get path() {
-            return ctx.path
-          },
-        }
-
-        const result = refinement(arg, context)
-        if (result instanceof Promise) {
-          return result.then(() => {
-            if (issues.some((i) => i.fatal)) {
-              return ERR(...issues)
-            }
-            if (issues.length) {
-              return DIRTY(arg, ...issues)
-            }
-            return OK(arg)
-          })
-        }
-
-        if (issues.some((i) => i.fatal)) {
-          return ERR(...issues)
-        }
-        if (issues.length) {
-          return DIRTY(arg, ...issues)
-        }
-        return OK(arg)
-      },
-    },
-    typeName: 'ZodEffects',
-    ..._processCreateParams(params),
-  })
-
-export const transformerType: ZodBuilders['transformer'] = <T extends IZodType, O>(
-  schema: T,
-  transform: (arg: output<T>, ctx: RefinementCtx) => O | Promise<O>,
-  params?: ZodCreateParams
-): IZodEffects<T, O> =>
-  new ZodEffectsImpl({
-    schema,
-    effect: {
-      type: 'downstream',
-      downstream: (arg, ctx) => {
-        const issues: EffectIssue[] = []
-        const context: RefinementCtx = {
-          addIssue: (issue) => issues.push(issue),
-          get path() {
-            return ctx.path
-          },
-        }
-
-        const result = transform(arg, context)
-        if (result instanceof Promise) {
-          return result.then((data) => {
-            if (issues.some((i) => i.fatal)) {
-              return ERR(...issues)
-            }
-            if (issues.length) {
-              return DIRTY(data, ...issues)
-            }
-            return OK(data)
-          })
-        }
-        if (issues.some((i) => i.fatal)) {
-          return ERR(...issues)
-        }
-        if (issues.length) {
-          return DIRTY(result, ...issues)
-        }
-        return OK(result)
-      },
-    },
-    typeName: 'ZodEffects',
-    ..._processCreateParams(params),
-  })
-
 export const upstreamType: ZodBuilders['upstream'] = <T extends IZodType, O>(
   upstream: (
     arg: output<T>,
@@ -524,13 +437,11 @@ setBuilders({
   promise: promiseType,
   record: recordType,
   ref: refType,
-  refine: refineType,
   readonly: readonlyType,
   set: setType,
   strictObject: strictObjectType,
   string: stringType,
   symbol: symbolType,
-  transformer: transformerType,
   tuple: tupleType,
   undefined: undefinedType,
   union: unionType,

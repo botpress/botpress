@@ -1815,23 +1815,6 @@ export declare function createFunction<
 >(args: T, returns: U, params: ZodCreateParams): IZodFunction<T, U>
 export declare function createFunction(args?: AnyZodTuple, returns?: IZodType, params?: ZodCreateParams): IZodFunction
 
-export declare function createRefine<T extends IZodType, O>(
-  schema: T,
-  refinement: (arg: output<T>, ctx: RefinementCtx) => arg is O,
-  params?: ZodCreateParams
-): IZodEffects<T, O>
-export declare function createRefine<T extends IZodType>(
-  schema: T,
-  refinement: (arg: output<T>, ctx: RefinementCtx) => unknown | Promise<unknown>,
-  params?: ZodCreateParams
-): IZodEffects<T>
-
-export declare function createTransform<T extends IZodType, O>(
-  schema: T,
-  transform: (arg: output<T>, ctx: RefinementCtx) => O | Promise<O>,
-  params?: ZodCreateParams
-): IZodEffects<T, O>
-
 export declare function createPreprocess<T extends IZodType<O>, O>(
   preprocess: (arg: unknown, ctx: RefinementCtx) => unknown | Promise<unknown>,
   schema: T,
@@ -1899,13 +1882,11 @@ export type ZodBuilders = {
   promise: typeof createPromise
   record: typeof createRecord
   ref: typeof createRef
-  refine: typeof createRefine
   readonly: typeof createReadonly
   set: typeof createSet
   strictObject: typeof createStrictObject
   string: typeof createString
   symbol: typeof createSymbol
-  transformer: typeof createTransform
   tuple: typeof createTuple
   undefined: typeof createUndefined
   union: typeof createUnion

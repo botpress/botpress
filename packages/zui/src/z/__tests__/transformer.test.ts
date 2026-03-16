@@ -3,9 +3,6 @@ import * as z from '../index'
 import * as assert from '../../assertions.utils.test'
 
 const stringToNumber = z.string().transform((arg) => parseFloat(arg))
-// const numberToString = z
-//   .transformer(z.number())
-//   .transform((n) => String(n));
 const asyncNumberToString = z.number().transform(async (n) => String(n))
 
 test('transform ctx.addIssue with parse', () => {
