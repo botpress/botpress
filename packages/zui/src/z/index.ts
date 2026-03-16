@@ -231,6 +231,8 @@ export {
   optionalType as optional,
   pipelineType as pipeline,
   preprocessType as preprocess,
+  upstreamType as upstream,
+  downstreamType as downstream,
   promiseType as promise,
   recordType as record,
   refType as ref,
