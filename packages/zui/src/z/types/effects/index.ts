@@ -7,10 +7,10 @@ import type {
   input,
   output,
   RefinementCtx,
-  EffectIssue,
   ParseInput,
   ParseReturnType,
   EffectReturnType,
+  IssueData,
 } from '../../typings'
 import { ZodBaseTypeImpl, addIssueToContext, isValid } from '../basetype'
 
@@ -55,7 +55,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
     const effect = this._def.effect
 
     const checkCtx: RefinementCtx = {
-      addIssue: (arg: EffectIssue) => {
+      addIssue: (arg: IssueData) => {
         addIssueToContext(ctx, arg)
         if (arg.fatal) {
           status.abort()
@@ -111,6 +111,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
         return result
       }
     }
+
     if (effect.type === 'downstream') {
       if (ctx.common.async === false) {
         const base = this._def.schema._parseSync({
@@ -140,7 +141,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
         return {
           status: status.value,
           value: result.status === 'valid' ? result.value : base.value,
-        } as ParseReturnType<this['_output']>
+        }
       } else {
         return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((base) => {
           if (!isValid(base)) return base

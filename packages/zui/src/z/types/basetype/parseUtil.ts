@@ -1,7 +1,7 @@
 import { defaultErrorMap, getErrorMap } from '../../error'
 import type {
   ZodParsedType,
-  EffectIssue,
+  IssueData,
   ZodIssue,
   ZodErrorMap,
   ParseContext,
@@ -18,7 +18,7 @@ export const makeIssue = (params: {
   data: any
   path: (string | number)[]
   errorMaps: ZodErrorMap[]
-  issueData: EffectIssue
+  issueData: IssueData
 }): ZodIssue => {
   const { data, path, errorMaps, issueData } = params
   const fullPath = [...path, ...(issueData.path || [])]
@@ -53,7 +53,7 @@ export type MergeObjectPair = _ObjectPair & {
   alwaysSet?: boolean
 }
 
-export function addIssueToContext(ctx: ParseContext, issueData: EffectIssue): void {
+export function addIssueToContext(ctx: ParseContext, issueData: IssueData): void {
   const issue = makeIssue({
     issueData,
     data: ctx.data,

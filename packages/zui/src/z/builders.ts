@@ -60,8 +60,7 @@ import type {
   EffectIssue,
   DirtyEffectReturnType,
   EffectContext,
-  CustomParams,
-  IZodAny,
+  IssueData,
 } from './typings'
 
 type _ProcessedCreateParams = {
@@ -110,13 +109,13 @@ const _processCreateParams = (
 
 export const customType: ZodBuilders['custom'] = (check?, params = {}, fatal?) => {
   if (check) {
-    return anyType().downstream((data) => {
+    return anyType().superRefine((data, ctx) => {
       if (!check(data)) {
         const p =
           typeof params === 'function' ? params(data) : typeof params === 'string' ? { message: params } : params
         const _fatal = p.fatal ?? fatal ?? true
         const p2 = typeof p === 'string' ? { message: p } : p
-        return ERR({ code: 'custom', ...p2, fatal: _fatal })
+        ctx.addIssue({ code: 'custom', ...p2, fatal: _fatal })
       }
     })
   }
@@ -303,7 +302,7 @@ export const preprocessType: ZodBuilders['preprocess'] = (preprocess, schema, pa
     effect: {
       type: 'upstream',
       upstream: (arg, ctx) => {
-        const issues: EffectIssue[] = []
+        const issues: IssueData[] = []
         const context: RefinementCtx = {
           addIssue: (issue) => issues.push(issue),
           get path() {

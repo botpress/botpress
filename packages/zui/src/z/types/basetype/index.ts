@@ -27,7 +27,7 @@ import type {
   IZodUnion,
   RefinementCtx,
   CustomErrorParams,
-  EffectIssue,
+  IssueData,
   ParseContext,
   ParseInput,
   ParseParams,
@@ -205,7 +205,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return builders.downstream(this, (val: Output): EffectReturnType<Output> | Promise<EffectReturnType<Output>> => {
       const result = check(val)
 
-      const issues: EffectIssue[] = []
+      const issues: IssueData[] = []
       const setError = () =>
         issues.push({
           code: 'custom',
@@ -237,7 +237,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return builders.downstream(
       this,
       (val: Output, context: EffectContext): EffectReturnType<Output> | Promise<EffectReturnType<Output>> => {
-        const issues: EffectIssue[] = []
+        const issues: IssueData[] = []
 
         const result = refinement(val, {
           addIssue: (issue) => issues.push(issue),
@@ -335,7 +335,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return builders.downstream(
       this,
       (val: Output, context: EffectContext): EffectReturnType<NewOut> | Promise<EffectReturnType<NewOut>> => {
-        const issues: EffectIssue[] = []
+        const issues: IssueData[] = []
 
         const result = transform(val, {
           addIssue: (issue) => issues.push(issue),

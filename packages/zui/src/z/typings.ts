@@ -271,6 +271,12 @@ type _ErrorMapCtx = {
   data: any
 }
 
+export type IssueData = EffectIssue & {
+  path?: (string | number)[]
+  fatal?: boolean
+  message?: string
+}
+
 export type ZodErrorMap = (
   issue: ZodIssueBody & { path: (string | number)[]; message?: string },
   _ctx: _ErrorMapCtx
@@ -354,7 +360,7 @@ export type ParseParams = {
  * @deprecated use upstream and downstream instead which handle issues with a more robust semantic
  */
 export type RefinementCtx = {
-  addIssue: (arg: EffectIssue) => void
+  addIssue: (arg: IssueData) => void
   path: (string | number)[]
 }
 
@@ -1579,7 +1585,6 @@ export interface IZodSymbol extends IZodType<symbol, ZodSymbolDef> {}
 
 export type EffectIssue = ZodIssueBody & {
   path?: (string | number)[]
-  fatal?: boolean
   message?: string
 }
 
