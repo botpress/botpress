@@ -173,6 +173,12 @@ export type {
   // effects
   ZodEffectsDef,
   IZodEffects as ZodEffects,
+  EffectContext,
+  EffectIssue,
+  ValidEffectReturnType,
+  InvalidEffectReturnType,
+  DirtyEffectReturnType,
+  EffectReturnType,
 
   // undefined
   ZodUndefinedDef,
@@ -195,6 +201,9 @@ export type {
 
 export {
   coerce,
+  OK,
+  ERR,
+  DIRTY,
   anyType as any,
   arrayType as array,
   bigIntType as bigint,

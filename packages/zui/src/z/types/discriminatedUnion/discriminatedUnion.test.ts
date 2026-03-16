@@ -26,7 +26,7 @@ test('valid - discriminator value of various primitive types', () => {
     z.object({ type: z.literal(undefined), val: z.literal(9) }),
     z.object({ type: z.literal('transform'), val: z.literal(10) }),
     z.object({ type: z.literal('refine'), val: z.literal(11) }),
-    z.object({ type: z.literal('superRefine'), val: z.literal(12) }),
+    z.object({ type: z.literal('super'), val: z.literal(12) }),
   ])
 
   expect(schema.parse({ type: '1', val: 1 })).toEqual({ type: '1', val: 1 })

@@ -57,7 +57,7 @@ import type {
   EffectReturnType,
   ValidEffectReturnType,
   InvalidEffectReturnType,
-  IssueData,
+  EffectIssue,
   DirtyEffectReturnType,
   EffectContext,
 } from './typings'
@@ -108,13 +108,13 @@ const _processCreateParams = (
 
 export const customType: ZodBuilders['custom'] = (check?, params = {}, fatal?) => {
   if (check) {
-    return anyType().superRefine((data, ctx) => {
+    return anyType().downstream((data) => {
       if (!check(data)) {
         const p =
           typeof params === 'function' ? params(data) : typeof params === 'string' ? { message: params } : params
         const _fatal = p.fatal ?? fatal ?? true
         const p2 = typeof p === 'string' ? { message: p } : p
-        ctx.addIssue({ code: 'custom', ...p2, fatal: _fatal })
+        return ERR({ code: 'custom', ...p2, fatal: _fatal })
       }
     })
   }
@@ -328,7 +328,10 @@ export const transformerType: ZodBuilders['transformer'] = <T extends IZodType, 
   })
 
 export const upstreamType: ZodBuilders['upstream'] = <T extends IZodType, O>(
-  upstream: (arg: output<T>, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O>>,
+  upstream: (
+    arg: output<T>,
+    ctx: EffectContext
+  ) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined,
   schema: T,
   params?: ZodCreateParams
 ): IZodEffects<T, O> =>
@@ -341,7 +344,10 @@ export const upstreamType: ZodBuilders['upstream'] = <T extends IZodType, O>(
 
 export const downstreamType: ZodBuilders['downstream'] = <T extends IZodType, O>(
   schema: T,
-  downstream: (arg: output<T>, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O>>,
+  downstream: (
+    arg: output<T>,
+    ctx: EffectContext
+  ) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined,
   params?: ZodCreateParams & { failFast?: boolean }
 ): IZodEffects<T, O> =>
   new ZodEffectsImpl({
@@ -452,8 +458,8 @@ export const coerce = {
 }
 
 export const OK = <T>(value: T): ValidEffectReturnType<T> => ({ status: 'valid', value })
-export const ERR = (...issues: IssueData[]): InvalidEffectReturnType => ({ status: 'aborted', issues })
-export const DIRTY = <T>(value: T, ...issues: IssueData[]): DirtyEffectReturnType<T> => ({
+export const ERR = (...issues: EffectIssue[]): InvalidEffectReturnType => ({ status: 'aborted', issues })
+export const DIRTY = <T>(value: T, ...issues: EffectIssue[]): DirtyEffectReturnType<T> => ({
   status: 'dirty',
   value,
   issues,

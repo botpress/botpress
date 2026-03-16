@@ -7,7 +7,7 @@ import type {
   input,
   output,
   RefinementCtx,
-  IssueData,
+  EffectIssue,
   ParseInput,
   ParseReturnType,
   EffectReturnType,
@@ -55,7 +55,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
     const effect = this._def.effect
 
     const checkCtx: RefinementCtx = {
-      addIssue: (arg: IssueData) => {
+      addIssue: (arg: EffectIssue) => {
         addIssueToContext(ctx, arg)
         if (arg.fatal) {
           status.abort()
@@ -184,12 +184,14 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
           }
         }
 
-        const result = effect.downstream(base.value, { path: ctx.path })
+        let result = effect.downstream(base.value, { path: ctx.path })
         if (result instanceof Promise) {
           throw new Error(
             'Asynchronous transform encountered during synchronous parse operation. Use .parseAsync instead.'
           )
         }
+
+        result ??= { status: 'valid', value: base.value }
         this._appendIssues(checkCtx, result)
 
         return {
@@ -201,6 +203,8 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
           if (!isValid(base)) return base
 
           return Promise.resolve(effect.downstream(base.value, { path: ctx.path })).then((result) => {
+            result ??= { status: 'valid', value: base.value }
+
             this._appendIssues(checkCtx, result)
             return {
               status: status.value,

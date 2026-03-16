@@ -28,7 +28,7 @@ import type {
   RefinementEffect,
   RefinementCtx,
   CustomErrorParams,
-  IssueData,
+  EffectIssue,
   ParseContext,
   ParseInput,
   ParseParams,
@@ -206,7 +206,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return builders.downstream(this, (val: Output): EffectReturnType<Output> | Promise<EffectReturnType<Output>> => {
       const result = check(val)
 
-      const issues: IssueData[] = []
+      const issues: EffectIssue[] = []
       const setError = () =>
         issues.push({
           code: 'custom',
@@ -234,12 +234,12 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
 
   refinement(
     check: (arg: Output) => unknown,
-    refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData)
+    refinementData: EffectIssue | ((arg: Output, ctx: RefinementCtx) => EffectIssue)
   ): IZodEffects<this, Output, Input> {
     return builders.downstream(
       this,
       (val: Output, context: EffectContext): EffectReturnType<Output> | Promise<EffectReturnType<Output>> => {
-        const issues: IssueData[] = []
+        const issues: EffectIssue[] = []
         const ctx: RefinementCtx = {
           addIssue: (issue) => issues.push(issue),
           path: context.path,
@@ -262,7 +262,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return builders.downstream(
       this,
       (val: Output, context: EffectContext): EffectReturnType<Output> | Promise<EffectReturnType<Output>> => {
-        const issues: IssueData[] = []
+        const issues: EffectIssue[] = []
 
         const result = refinement(val, {
           addIssue: (issue) => issues.push(issue),
@@ -357,7 +357,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return builders.downstream(
       this,
       (val: Output, context: EffectContext): EffectReturnType<NewOut> | Promise<EffectReturnType<NewOut>> => {
-        const issues: IssueData[] = []
+        const issues: EffectIssue[] = []
 
         const result = transform(val, {
           addIssue: (issue) => issues.push(issue),

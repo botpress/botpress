@@ -89,10 +89,11 @@ test('custom path', async () => {
   }
 })
 
-test('superRefine', () => {
-  const Strings = z.array(z.string()).superRefine((val, ctx) => {
+test('downstream', () => {
+  const Strings = z.array(z.string()).downstream((val) => {
+    const issues: z.EffectIssue[] = []
     if (val.length > 3) {
-      ctx.addIssue({
+      issues.push({
         code: 'too_big',
         maximum: 3,
         type: 'array',
@@ -103,10 +104,14 @@ test('superRefine', () => {
     }
 
     if (val.length !== new Set(val).size) {
-      ctx.addIssue({
+      issues.push({
         code: 'custom',
         message: `No duplicates allowed.`,
       })
+    }
+
+    if (issues.length) {
+      return z.ERR(...issues)
     }
   })
 
@@ -118,10 +123,11 @@ test('superRefine', () => {
   Strings.parse(['asfd', 'qwer'])
 })
 
-test('superRefine async', async () => {
-  const Strings = z.array(z.string()).superRefine(async (val, ctx) => {
+test('downstream async', async () => {
+  const Strings = z.array(z.string()).downstream(async (val) => {
+    const issues: z.EffectIssue[] = []
     if (val.length > 3) {
-      ctx.addIssue({
+      issues.push({
         code: 'too_big',
         maximum: 3,
         type: 'array',
@@ -132,10 +138,14 @@ test('superRefine async', async () => {
     }
 
     if (val.length !== new Set(val).size) {
-      ctx.addIssue({
+      issues.push({
         code: 'custom',
         message: `No duplicates allowed.`,
       })
+    }
+
+    if (issues.length) {
+      return z.ERR(...issues)
     }
   })
 
@@ -147,7 +157,7 @@ test('superRefine async', async () => {
   Strings.parseAsync(['asfd', 'qwer'])
 })
 
-test('superRefine - type narrowing', () => {
+test('downstream - type narrowing', () => {
   type NarrowType = { type: string; age: number }
   const schema = z
     .object({
@@ -155,17 +165,16 @@ test('superRefine - type narrowing', () => {
       age: z.number(),
     })
     .nullable()
-    .superRefine((arg, ctx): arg is NarrowType => {
+    .downstream((arg): z.EffectReturnType<NarrowType> => {
       if (!arg) {
         // still need to make a call to ctx.addIssue
-        ctx.addIssue({
+        return z.ERR({
           code: 'custom',
           message: 'cannot be null',
           fatal: true,
         })
-        return false
       }
-      return true
+      return z.OK(arg)
     })
 
   assert.assertEqual<z.infer<typeof schema>, NarrowType>(true)
@@ -186,16 +195,15 @@ test('chained mixed refining types', () => {
     })
     .nullable()
     .refine((arg): arg is firstRefinement => !!arg?.third)
-    .superRefine((arg, ctx): arg is secondRefinement => {
+    .downstream((arg): z.EffectReturnType<secondRefinement> => {
       assert.assertEqual<typeof arg, firstRefinement>(true)
       if (arg.first !== 'bob') {
-        ctx.addIssue({
+        return z.ERR({
           code: 'custom',
           message: '`first` property must be `bob`',
         })
-        return false
       }
-      return true
+      return z.OK(arg as secondRefinement)
     })
     .refine((arg): arg is thirdRefinement => {
       assert.assertEqual<typeof arg, secondRefinement>(true)
@@ -241,21 +249,21 @@ test('chained refinements', () => {
   if (!r2.success) expect(r2.error.issues.length).toEqual(2)
 })
 
-test('fatal superRefine', () => {
+test('fatal downstream', () => {
   const Strings = z
     .string()
-    .superRefine((val, ctx) => {
+    .downstream((val) => {
       if (val === '') {
-        ctx.addIssue({
+        return z.ERR({
           code: 'custom',
           message: 'foo',
           fatal: true,
         })
       }
     })
-    .superRefine((val, ctx) => {
+    .downstream((val) => {
       if (val !== ' ') {
-        ctx.addIssue({
+        return z.ERR({
           code: 'custom',
           message: 'bar',
         })

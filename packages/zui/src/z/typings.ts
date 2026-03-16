@@ -266,12 +266,6 @@ export interface IZodError<T = unknown> extends Error {
   addIssues: (subs?: ZodIssue[]) => void
 }
 
-export type IssueData = ZodIssueBody & {
-  path?: (string | number)[]
-  fatal?: boolean
-  message?: string
-}
-
 type _ErrorMapCtx = {
   defaultError: string
   data: any
@@ -356,8 +350,11 @@ export type ParseParams = {
   async: boolean
 }
 
+/**
+ * @deprecated use upstream and downstream instead which handle issues with a more robust semantic
+ */
 export type RefinementCtx = {
-  addIssue: (arg: IssueData) => void
+  addIssue: (arg: EffectIssue) => void
   path: (string | number)[]
 }
 
@@ -435,11 +432,11 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
   ): IZodEffects<this, Output, Input>
   refinement<RefinedOutput extends Output>(
     check: (arg: Output) => arg is RefinedOutput,
-    refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData)
+    refinementData: EffectIssue | ((arg: Output, ctx: RefinementCtx) => EffectIssue)
   ): IZodEffects<this, RefinedOutput, Input>
   refinement(
     check: (arg: Output) => boolean,
-    refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData)
+    refinementData: EffectIssue | ((arg: Output, ctx: RefinementCtx) => EffectIssue)
   ): IZodEffects<this, Output, Input>
   superRefine<RefinedOutput extends Output>(
     refinement: (arg: Output, ctx: RefinementCtx) => arg is RefinedOutput
@@ -470,7 +467,10 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
   and<T extends IZodType>(incoming: T): IZodIntersection<this, T>
   transform<NewOut>(transform: (arg: Output, ctx: RefinementCtx) => NewOut | Promise<NewOut>): IZodEffects<this, NewOut>
   downstream<NewOut>(
-    fn: (output: Output, ctx: EffectContext) => EffectReturnType<NewOut> | Promise<EffectReturnType<NewOut>>,
+    fn: (
+      output: Output,
+      ctx: EffectContext
+    ) => EffectReturnType<NewOut> | Promise<EffectReturnType<NewOut> | undefined> | undefined,
     params?: { failFast?: boolean }
   ): IZodEffects<this, NewOut>
   default(def: NoUndefined<Input>): IZodDefault<this>
@@ -1585,8 +1585,14 @@ export interface IZodSymbol extends IZodType<symbol, ZodSymbolDef> {}
 
 //* ─────────────────────────── ZodEffects ───────────────────────────────────
 
-export type InvalidEffectReturnType = { status: 'aborted'; issues: IssueData[] }
-export type DirtyEffectReturnType<T> = { status: 'dirty'; value: T; issues: IssueData[] }
+export type EffectIssue = ZodIssueBody & {
+  path?: (string | number)[]
+  fatal?: boolean
+  message?: string
+}
+
+export type InvalidEffectReturnType = { status: 'aborted'; issues: EffectIssue[] }
+export type DirtyEffectReturnType<T> = { status: 'dirty'; value: T; issues: EffectIssue[] }
 export type ValidEffectReturnType<T> = { status: 'valid'; value: T }
 export type EffectReturnType<T> = InvalidEffectReturnType | DirtyEffectReturnType<T> | ValidEffectReturnType<T>
 
@@ -1609,13 +1615,13 @@ export type PreprocessEffect<I = unknown, O = unknown> = {
 
 export type UpstreamEffect<I = unknown, O = unknown> = {
   type: 'upstream'
-  upstream: (arg: I, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O>>
+  upstream: (arg: I, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined
 }
 
 export type DownstreamEffect<I = unknown, O = unknown> = {
   type: 'downstream'
   failFast?: boolean
-  downstream: (arg: I, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O>>
+  downstream: (arg: I, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined
 }
 
 export type Effect<I = unknown, O = unknown> =
@@ -1876,14 +1882,14 @@ export declare function createPreprocess<T extends IZodType<O>, O>(
 ): IZodEffects<T, output<T>, unknown>
 
 export declare function createUpstream<T extends IZodType<O>, O>(
-  upstream: (arg: unknown, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O>>,
+  upstream: (arg: unknown, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O>> | undefined,
   schema: T,
   params?: ZodCreateParams
 ): IZodEffects<T, output<T>, unknown>
 
 export declare function createDownstream<T extends IZodType, O>(
   schema: T,
-  downstream: (arg: output<T>, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O>>,
+  downstream: (arg: output<T>, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O>> | undefined,
   params?: ZodCreateParams & { failFast?: boolean }
 ): IZodEffects<T, O>
 
