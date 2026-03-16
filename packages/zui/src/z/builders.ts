@@ -300,7 +300,7 @@ export const preprocessType: ZodBuilders['preprocess'] = (preprocess, schema, pa
     schema,
     effect: {
       type: 'upstream',
-      upstream: (arg, ctx) => {
+      effect: (arg, ctx) => {
         const result = preprocess(arg, ctx)
         if (result instanceof Promise) {
           return result.then((res) => OK(res))
@@ -313,7 +313,7 @@ export const preprocessType: ZodBuilders['preprocess'] = (preprocess, schema, pa
   })
 
 export const upstreamType: ZodBuilders['upstream'] = <T extends IZodType, O>(
-  upstream: (
+  effect: (
     arg: unknown,
     ctx: EffectContext
   ) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined,
@@ -322,14 +322,14 @@ export const upstreamType: ZodBuilders['upstream'] = <T extends IZodType, O>(
 ): IZodEffects<T, O> =>
   new ZodEffectsImpl({
     schema,
-    effect: { type: 'upstream', upstream },
+    effect: { type: 'upstream', effect },
     typeName: 'ZodEffects',
     ..._processCreateParams(params),
   })
 
 export const downstreamType: ZodBuilders['downstream'] = <T extends IZodType, O>(
   schema: T,
-  downstream: (
+  effect: (
     arg: output<T>,
     ctx: EffectContext
   ) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined,
@@ -337,7 +337,7 @@ export const downstreamType: ZodBuilders['downstream'] = <T extends IZodType, O>
 ): IZodEffects<T, O> =>
   new ZodEffectsImpl({
     schema,
-    effect: { type: 'downstream', downstream, failFast: params?.failFast },
+    effect: { type: 'downstream', effect, failFast: params?.failFast },
     typeName: 'ZodEffects',
     ..._processCreateParams(params),
   })

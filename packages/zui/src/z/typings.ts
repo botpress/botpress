@@ -1611,13 +1611,13 @@ export type EffectContext = { path: (string | number)[] }
 
 export type UpstreamEffect<I = unknown, O = unknown> = {
   type: 'upstream'
-  upstream: (arg: I, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined
+  effect: (arg: I, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined
 }
 
 export type DownstreamEffect<I = unknown, O = unknown> = {
   type: 'downstream'
   failFast?: boolean
-  downstream: (arg: I, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined
+  effect: (arg: I, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined
 }
 
 export type Effect<I = unknown, O = unknown> = UpstreamEffect<I, O> | DownstreamEffect<I, O>

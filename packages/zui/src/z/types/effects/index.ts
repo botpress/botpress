@@ -54,7 +54,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
     const effect = this._def.effect
 
     if (effect.type === 'upstream') {
-      let asyncProcessed = effect.upstream(ctx.data, { path: ctx.path })
+      let asyncProcessed = effect.effect(ctx.data, { path: ctx.path })
 
       if (ctx.common.async) {
         return Promise.resolve(asyncProcessed).then(async (processed) => {
@@ -111,7 +111,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
           }
         }
 
-        let result = effect.downstream(base.value, { path: ctx.path })
+        let result = effect.effect(base.value, { path: ctx.path })
         if (result instanceof Promise) {
           throw new Error(
             'Asynchronous transform encountered during synchronous parse operation. Use .parseAsync instead.'
@@ -129,7 +129,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
         return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((base) => {
           if (!isValid(base)) return base
 
-          return Promise.resolve(effect.downstream(base.value, { path: ctx.path })).then((result) => {
+          return Promise.resolve(effect.effect(base.value, { path: ctx.path })).then((result) => {
             result ??= { status: 'valid', value: base.value }
             this._processResult(ctx, status, result)
 
@@ -167,12 +167,12 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
 
     if (this._def.effect.type === 'upstream') {
       if (schema._def.effect.type !== 'upstream') return false
-      return utils.others.compareFunctions(this._def.effect.upstream, schema._def.effect.upstream)
+      return utils.others.compareFunctions(this._def.effect.effect, schema._def.effect.effect)
     }
 
     if (this._def.effect.type === 'downstream') {
       if (schema._def.effect.type !== 'downstream') return false
-      return utils.others.compareFunctions(this._def.effect.downstream, schema._def.effect.downstream)
+      return utils.others.compareFunctions(this._def.effect.effect, schema._def.effect.effect)
     }
 
     this._def.effect satisfies never
