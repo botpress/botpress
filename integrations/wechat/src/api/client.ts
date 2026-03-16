@@ -86,7 +86,11 @@ export class WeChatClient {
     formData.append('media', mediaBlob, `media.${fileExtension}`)
 
     const resp = await axios
-      .post(`${WECHAT_API_BASE}/media/upload?access_token=${this._accessToken}&type=${mediaType}`, formData)
+      .post(`${WECHAT_API_BASE}/media/upload?access_token=${this._accessToken}&type=${mediaType}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
       .catch(useHandleCaughtError('Failed to upload media to WeChat API'))
 
     const result = wechatUploadMediaRespSchema.safeParse(resp.data)
