@@ -49,9 +49,10 @@ export const enumerateFilesInFolder = async (props: {
 
   const files: EnumeratedFile[] = []
   const pendingFolders: Array<{ folderId?: string; absolutePath: string }> = [{ folderId, absolutePath: folderPath }]
+  let folderIndex = 0
 
-  while (pendingFolders.length > 0) {
-    const currentFolder = pendingFolders[0]!
+  while (folderIndex < pendingFolders.length) {
+    const currentFolder = pendingFolders[folderIndex++]!
     let nextToken: string | undefined
 
     do {
@@ -81,8 +82,6 @@ export const enumerateFilesInFolder = async (props: {
 
       nextToken = response.meta.nextToken
     } while (nextToken)
-
-    pendingFolders.shift()
   }
 
   logger.info(`Enumerated ${files.length} files in folder "${folderPath}"`)

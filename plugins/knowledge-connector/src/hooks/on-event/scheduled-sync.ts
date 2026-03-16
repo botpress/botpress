@@ -211,39 +211,47 @@ const _syncIntegrationGroup = async (props: ScheduledSyncProps, group: Integrati
       { syncJobId }
     )
 
-    const jobFileId = await SyncQueue.jobFileManager.updateSyncQueue(
-      props,
-      fileKey,
-      files.map((file) => ({
-        id: file.id,
-        name: file.name,
-        absolutePath: file.absolutePath,
-        type: 'file' as const,
-        status: 'pending' as const,
-        sizeInBytes: file.sizeInBytes,
-        contentHash: file.contentHash,
-        addToKbId: kbId,
-      })),
-      {
-        syncJobId,
-        integrationName: group.integrationDefinitionName,
-        integrationInstanceAlias: group.integrationInstanceAlias,
-        syncInitiatedAt,
-      }
-    )
+    let jobFileId: string | undefined
+    try {
+      jobFileId = await SyncQueue.jobFileManager.updateSyncQueue(
+        props,
+        fileKey,
+        files.map((file) => ({
+          id: file.id,
+          name: file.name,
+          absolutePath: file.absolutePath,
+          type: 'file' as const,
+          status: 'pending' as const,
+          sizeInBytes: file.sizeInBytes,
+          contentHash: file.contentHash,
+          addToKbId: kbId,
+        })),
+        {
+          syncJobId,
+          integrationName: group.integrationDefinitionName,
+          integrationInstanceAlias: group.integrationInstanceAlias,
+          syncInitiatedAt,
+        }
+      )
 
-    await props.workflows.processQueue.startNewInstance({
-      input: {
-        jobFileId,
-        transferFileToBotpressAlias: group.transferFileToBotpressAlias,
-      },
-      tags: {
-        integrationDefinitionName: group.integrationDefinitionName,
-        integrationInstanceAlias: group.integrationInstanceAlias,
-        syncJobId,
-        syncInitiatedAt,
-      },
-    })
+      await props.workflows.processQueue.startNewInstance({
+        input: {
+          jobFileId,
+          transferFileToBotpressAlias: group.transferFileToBotpressAlias,
+        },
+        tags: {
+          integrationDefinitionName: group.integrationDefinitionName,
+          integrationInstanceAlias: group.integrationInstanceAlias,
+          syncJobId,
+          syncInitiatedAt,
+        },
+      })
+    } catch (error) {
+      if (jobFileId) {
+        await props.client.deleteFile({ id: jobFileId }).catch(() => {})
+      }
+      throw error
+    }
   }
 }
 

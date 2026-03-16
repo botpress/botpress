@@ -25,45 +25,51 @@ export const callAction: bp.PluginHandlers['actionHandlers']['syncFilesToBotpres
 
   const syncInitiatedAt = new Date().toISOString()
 
-  props.logger.debug('Uploading sync queue job file...', { syncJobId, fileKey })
-  const jobFileId = await SyncQueue.jobFileManager.updateSyncQueue(
-    props,
-    fileKey,
-    includeFiles.map((file) => {
-      const contentHash = 'contentHash' in file && typeof file.contentHash === 'string' ? file.contentHash : undefined
+  let jobFileId: string | undefined
+  try {
+    jobFileId = await SyncQueue.jobFileManager.updateSyncQueue(
+      props,
+      fileKey,
+      includeFiles.map((file) => {
+        const contentHash = 'contentHash' in file && typeof file.contentHash === 'string' ? file.contentHash : undefined
 
-      return {
-        id: file.id,
-        name: file.name,
-        absolutePath: file.absolutePath,
-        type: 'file',
-        status: 'pending',
-        sizeInBytes: file.sizeInBytes,
-        contentHash,
-        addToKbId: props.input.addToKbId,
+        return {
+          id: file.id,
+          name: file.name,
+          absolutePath: file.absolutePath,
+          type: 'file',
+          status: 'pending',
+          sizeInBytes: file.sizeInBytes,
+          contentHash,
+          addToKbId: props.input.addToKbId,
+        }
+      }),
+      {
+        syncJobId,
+        integrationName: integrationDefinitionName,
+        integrationInstanceAlias,
+        syncInitiatedAt,
       }
-    }),
-    {
-      syncJobId,
-      integrationName: integrationDefinitionName,
-      integrationInstanceAlias,
-      syncInitiatedAt,
-    }
-  )
+    )
 
-  props.logger.debug('Starting processQueue workflow...', { syncJobId, jobFileId })
-  await props.workflows.processQueue.startNewInstance({
-    input: {
-      jobFileId,
-      transferFileToBotpressAlias,
-    },
-    tags: {
-      integrationDefinitionName,
-      integrationInstanceAlias,
-      syncJobId,
-      syncInitiatedAt,
-    },
-  })
+    await props.workflows.processQueue.startNewInstance({
+      input: {
+        jobFileId,
+        transferFileToBotpressAlias,
+      },
+      tags: {
+        integrationDefinitionName,
+        integrationInstanceAlias,
+        syncJobId,
+        syncInitiatedAt,
+      },
+    })
+  } catch (error) {
+    if (jobFileId) {
+      await props.client.deleteFile({ id: jobFileId }).catch(() => {})
+    }
+    throw error
+  }
 
   return { syncJobId }
 }
