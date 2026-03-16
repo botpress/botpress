@@ -124,13 +124,12 @@ test('preprocess ctx.addIssue with parseAsync', async () => {
   })
 })
 
-test('z.NEVER in preprocess', () => {
-  const foo = z.preprocess((val, ctx) => {
+test('upstream', () => {
+  const foo = z.upstream((val) => {
     if (!val) {
-      ctx.addIssue({ code: 'custom', message: 'bad' })
-      return { status: 'aborted' } as never
+      return z.ERR({ code: 'custom', message: 'bad' })
     }
-    return val
+    return z.OK(val)
   }, z.number())
 
   type foo = z.infer<typeof foo>

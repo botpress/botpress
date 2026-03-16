@@ -73,12 +73,11 @@ test('return invalid parse result in transform', () => {
   const foo = z
     .number()
     .optional()
-    .transform((val, ctx) => {
+    .downstream((val) => {
       if (!val) {
-        ctx.addIssue({ code: 'custom', message: 'bad' })
-        return { status: 'aborted' } as never
+        return z.ERR({ code: 'custom', message: 'bad' })
       }
-      return val
+      return z.OK(val)
     })
   type foo = z.infer<typeof foo>
   assert.assertEqual<foo, number>(true)

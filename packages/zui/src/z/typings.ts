@@ -357,9 +357,12 @@ export type ParseParams = {
 }
 
 /**
- * @deprecated use upstream and downstream instead which handle issues with a more robust semantic
+ * @deprecated use upstream and downstream instead which handle issues with a better semantic
  */
 export type RefinementCtx = {
+  /**
+   * @deprecated use upstream and downstream instead which handle issues with a better semantic
+   */
   addIssue: (arg: IssueData) => void
   path: (string | number)[]
 }
@@ -436,11 +439,22 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
     check: (arg: Output) => unknown | Promise<unknown>,
     message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams)
   ): IZodEffects<this, Output, Input>
+
+  /**
+   * @deprecated use downstream instead which handle issues with a better semantic
+   */
   superRefine<RefinedOutput extends Output>(
     refinement: (arg: Output, ctx: RefinementCtx) => arg is RefinedOutput
   ): IZodEffects<this, RefinedOutput, Input>
+  /**
+   * @deprecated use downstream instead which handle issues with a better semantic
+   */
   superRefine(refinement: (arg: Output, ctx: RefinementCtx) => void): IZodEffects<this, Output, Input>
+  /**
+   * @deprecated use downstream instead which handle issues with a better semantic
+   */
   superRefine(refinement: (arg: Output, ctx: RefinementCtx) => Promise<void>): IZodEffects<this, Output, Input>
+
   optional(): IZodOptional<this>
   nullable(): IZodNullable<this>
   nullish(): IZodOptional<IZodNullable<this>>
