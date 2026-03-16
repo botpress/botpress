@@ -36,6 +36,7 @@ import type {
   AsyncParseReturnType,
   SyncParseReturnType,
   EffectReturnType,
+  EffectContext,
 } from '../../typings'
 
 import { getParsedType, isAsync, isValid, ParseStatus } from './parseUtil'
@@ -201,37 +202,33 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
         return message
       }
     }
-    return builders.downstream(
-      this,
-      (val: Output): EffectReturnType<Output> | Promise<EffectReturnType<Output>> => {
-        const result = check(val)
+    return builders.downstream(this, (val: Output): EffectReturnType<Output> | Promise<EffectReturnType<Output>> => {
+      const result = check(val)
 
-        const issues: IssueData[] = []
-        const setError = () =>
-          issues.push({
-            code: 'custom',
-            ...getIssueProperties(val),
-          })
+      const issues: IssueData[] = []
+      const setError = () =>
+        issues.push({
+          code: 'custom',
+          ...getIssueProperties(val),
+        })
 
-        if (typeof Promise !== 'undefined' && result instanceof Promise) {
-          return result.then((data) => {
-            if (!data) {
-              setError()
-              return { status: 'aborted', issues }
-            } else {
-              return { status: 'valid', value: val }
-            }
-          })
-        }
-        if (!result) {
-          setError()
-          return { status: 'aborted', issues }
-        } else {
-          return { status: 'valid', value: val }
-        }
-      },
-      { abortOnDirty: false }
-    )
+      if (typeof Promise !== 'undefined' && result instanceof Promise) {
+        return result.then((data) => {
+          if (!data) {
+            setError()
+            return { status: 'aborted', issues }
+          } else {
+            return { status: 'valid', value: val }
+          }
+        })
+      }
+      if (!result) {
+        setError()
+        return { status: 'aborted', issues }
+      } else {
+        return { status: 'valid', value: val }
+      }
+    })
   }
 
   refinement(
@@ -240,11 +237,11 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   ): IZodEffects<this, Output, Input> {
     return builders.downstream(
       this,
-      (val: Output): EffectReturnType<Output> | Promise<EffectReturnType<Output>> => {
+      (val: Output, context: EffectContext): EffectReturnType<Output> | Promise<EffectReturnType<Output>> => {
         const issues: IssueData[] = []
         const ctx: RefinementCtx = {
           addIssue: (issue: IssueData) => issues.push(issue),
-          path: [],
+          path: context.path,
         }
 
         if (!check(val)) {
@@ -254,8 +251,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
         } else {
           return { status: 'valid', value: val }
         }
-      },
-      { abortOnDirty: false }
+      }
     )
   }
 
@@ -264,11 +260,11 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   ): IZodEffects<this, Output, Input> {
     return builders.downstream(
       this,
-      (val: Output): EffectReturnType<Output> | Promise<EffectReturnType<Output>> => {
+      (val: Output, context: EffectContext): EffectReturnType<Output> | Promise<EffectReturnType<Output>> => {
         const issues: IssueData[] = []
         const ctx: RefinementCtx = {
           addIssue: (issue: IssueData) => issues.push(issue),
-          path: [],
+          path: context.path,
         }
 
         const result = refinement(val, ctx)
@@ -287,8 +283,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
             return { status: 'valid', value: val }
           }
         }
-      },
-      { abortOnDirty: false }
+      }
     )
   }
 
@@ -351,7 +346,34 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   transform<NewOut>(
     transform: (arg: Output, ctx: RefinementCtx) => NewOut | Promise<NewOut>
   ): IZodEffects<this, NewOut> {
-    return builders.transformer(this, transform)
+    return builders.downstream(
+      this,
+      (val: Output, context: EffectContext): EffectReturnType<NewOut> | Promise<EffectReturnType<NewOut>> => {
+        const issues: IssueData[] = []
+        const ctx: RefinementCtx = {
+          addIssue: (issue: IssueData) => issues.push(issue),
+          path: context.path,
+        }
+
+        const result = transform(val, ctx)
+        if (result instanceof Promise) {
+          return result.then((data) => {
+            if (issues.length) {
+              return { status: 'aborted', issues }
+            } else {
+              return { status: 'valid', value: data }
+            }
+          })
+        } else {
+          if (issues.length) {
+            return { status: 'aborted', issues }
+          } else {
+            return { status: 'valid', value: result }
+          }
+        }
+      },
+      { failFast: true }
+    )
   }
 
   default(def: utils.types.NoUndefined<Input> | (() => utils.types.NoUndefined<Input>)) {

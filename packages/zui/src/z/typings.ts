@@ -1582,9 +1582,11 @@ export interface IZodSymbol extends IZodType<symbol, ZodSymbolDef> {}
 //* ─────────────────────────── ZodEffects ───────────────────────────────────
 
 export type InvalidEffectReturnType = { status: 'aborted'; issues: IssueData[] }
-export type DirtyEffectReturnType<T = any> = { status: 'dirty'; value: T; issues: IssueData[] }
-export type ValidEffectReturnType<T = any> = { status: 'valid'; value: T }
-export type EffectReturnType<T = any> = InvalidEffectReturnType | DirtyEffectReturnType<T> | ValidEffectReturnType<T>
+export type DirtyEffectReturnType<T> = { status: 'dirty'; value: T; issues: IssueData[] }
+export type ValidEffectReturnType<T> = { status: 'valid'; value: T }
+export type EffectReturnType<T> = InvalidEffectReturnType | DirtyEffectReturnType<T> | ValidEffectReturnType<T>
+
+export type EffectContext = { path: (string | number)[] }
 
 export type RefinementEffect<I = unknown, O = unknown> = {
   type: 'refinement'
@@ -1603,13 +1605,13 @@ export type PreprocessEffect<I = unknown, O = unknown> = {
 
 export type UpstreamEffect<I = unknown, O = unknown> = {
   type: 'upstream'
-  upstream: (arg: I) => EffectReturnType<O> | Promise<EffectReturnType<O>>
+  upstream: (arg: I, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O>>
 }
 
 export type DownstreamEffect<I = unknown, O = unknown> = {
   type: 'downstream'
-  abortOnDirty: boolean // TODO: rename to something better
-  downstream: (arg: I) => EffectReturnType<O> | Promise<EffectReturnType<O>>
+  failFast?: boolean
+  downstream: (arg: I, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O>>
 }
 
 export type Effect<I = unknown, O = unknown> =
@@ -1632,7 +1634,7 @@ export interface IZodEffects<T extends IZodType = IZodType, Output = output<T>, 
   extends IZodType<Output, ZodEffectsDef<T>, Input> {
   innerType(): T
   /**
-   * @deprecated use naked() instead
+   * @deprecated use naked instead
    */
   sourceType(): T
 }
@@ -1830,23 +1832,39 @@ export declare function createFunction<
 >(args: T, returns: U, params: ZodCreateParams): IZodFunction<T, U>
 export declare function createFunction(args?: AnyZodTuple, returns?: IZodType, params?: ZodCreateParams): IZodFunction
 
+/**
+ *
+ * @deprecated Use downstream instead
+ */
 export declare function createRefine<T extends IZodType, O>(
   schema: T,
   refinement: (arg: output<T>, ctx: RefinementCtx) => arg is O,
   params?: ZodCreateParams
 ): IZodEffects<T, O>
+/**
+ *
+ * @deprecated Use downstream instead
+ */
 export declare function createRefine<T extends IZodType>(
   schema: T,
   refinement: (arg: output<T>, ctx: RefinementCtx) => unknown | Promise<unknown>,
   params?: ZodCreateParams
 ): IZodEffects<T>
 
+/**
+ *
+ * @deprecated Use downstream instead
+ */
 export declare function createTransform<T extends IZodType, O>(
   schema: T,
   transform: (arg: output<T>, ctx: RefinementCtx) => O | Promise<O>,
   params?: ZodCreateParams
 ): IZodEffects<T, O>
 
+/**
+ *
+ * @deprecated Use upstream instead
+ */
 export declare function createPreprocess<T extends IZodType<O>, O>(
   preprocess: (arg: unknown, ctx: RefinementCtx) => unknown | Promise<unknown>,
   schema: T,
@@ -1854,15 +1872,15 @@ export declare function createPreprocess<T extends IZodType<O>, O>(
 ): IZodEffects<T, output<T>, unknown>
 
 export declare function createUpstream<T extends IZodType<O>, O>(
-  upstream: (arg: unknown) => EffectReturnType<O> | Promise<EffectReturnType<O>>,
+  upstream: (arg: unknown, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O>>,
   schema: T,
   params?: ZodCreateParams
 ): IZodEffects<T, output<T>, unknown>
 
 export declare function createDownstream<T extends IZodType, O>(
   schema: T,
-  downstream: (arg: output<T>) => EffectReturnType<O> | Promise<EffectReturnType<O>>,
-  params?: ZodCreateParams & { abortOnDirty?: boolean }
+  downstream: (arg: output<T>, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O>>,
+  params?: ZodCreateParams & { failFast?: boolean }
 ): IZodEffects<T, O>
 
 export declare function createOptional<T extends IZodType>(type: T, params?: ZodCreateParams): IZodOptional<T>

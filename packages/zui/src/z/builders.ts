@@ -59,6 +59,7 @@ import type {
   InvalidEffectReturnType,
   IssueData,
   DirtyEffectReturnType,
+  EffectContext,
 } from './typings'
 
 type _ProcessedCreateParams = {
@@ -327,7 +328,7 @@ export const transformerType: ZodBuilders['transformer'] = <T extends IZodType, 
   })
 
 export const upstreamType: ZodBuilders['upstream'] = <T extends IZodType, O>(
-  upstream: (arg: output<T>) => EffectReturnType<O> | Promise<EffectReturnType<O>>,
+  upstream: (arg: output<T>, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O>>,
   schema: T,
   params?: ZodCreateParams
 ): IZodEffects<T, O> =>
@@ -340,12 +341,12 @@ export const upstreamType: ZodBuilders['upstream'] = <T extends IZodType, O>(
 
 export const downstreamType: ZodBuilders['downstream'] = <T extends IZodType, O>(
   schema: T,
-  downstream: (arg: output<T>) => EffectReturnType<O> | Promise<EffectReturnType<O>>,
-  params?: ZodCreateParams & { abortOnDirty?: boolean }
+  downstream: (arg: output<T>, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O>>,
+  params?: ZodCreateParams & { failFast?: boolean }
 ): IZodEffects<T, O> =>
   new ZodEffectsImpl({
     schema,
-    effect: { type: 'downstream', downstream, abortOnDirty: params?.abortOnDirty ?? true },
+    effect: { type: 'downstream', downstream, failFast: params?.failFast },
     typeName: 'ZodEffects',
     ..._processCreateParams(params),
   })

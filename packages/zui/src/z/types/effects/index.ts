@@ -179,12 +179,12 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
         if (base.status === 'aborted') return base
         if (base.status === 'dirty') {
           status.dirty()
-          if (effect.abortOnDirty) {
+          if (effect.failFast) {
             return base
           }
         }
 
-        const result = effect.downstream(base.value)
+        const result = effect.downstream(base.value, { path: ctx.path })
         if (result instanceof Promise) {
           throw new Error(
             'Asynchronous transform encountered during synchronous parse operation. Use .parseAsync instead.'
@@ -200,7 +200,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
         return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((base) => {
           if (!isValid(base)) return base
 
-          return Promise.resolve(effect.downstream(base.value)).then((result) => {
+          return Promise.resolve(effect.downstream(base.value, { path: ctx.path })).then((result) => {
             this._appendIssues(checkCtx, result)
             return {
               status: status.value,
