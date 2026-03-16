@@ -36,7 +36,6 @@ import type {
   SyncParseReturnType,
   EffectReturnType,
   EffectContext,
-  input,
 } from '../../typings'
 
 import { getParsedType, isAsync, isValid, ParseStatus } from './parseUtil'
@@ -270,7 +269,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   downstream<NewOut>(
     fn: (output: Output, ctx: EffectContext) => EffectReturnType<NewOut> | Promise<EffectReturnType<NewOut>>,
     params?: { failFast?: boolean }
-  ): IZodEffects<this, NewOut, input<this>> {
+  ): IZodEffects<this, NewOut> {
     return builders.downstream<this, NewOut>(this, fn, params)
   }
 
