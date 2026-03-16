@@ -69,7 +69,7 @@ test('transform ctx.addIssue with parseAsync', async () => {
   })
 })
 
-test('return invalid parse result in transform', () => {
+test('return invalid parse result in downstream', () => {
   const foo = z
     .number()
     .optional()

@@ -18,7 +18,7 @@ test('async preprocess', async () => {
   expect(value).toEqual(['asdf'])
 })
 
-test('preprocess ctx.addIssue with parse', () => {
+test('upstream dirty with parse', () => {
   expect(() => {
     z.upstream(
       (data) =>
@@ -43,7 +43,7 @@ test('preprocess ctx.addIssue with parse', () => {
   )
 })
 
-test('preprocess ctx.addIssue non-fatal by default', () => {
+test('upstream dirty non-fatal', () => {
   try {
     z.upstream((data) => {
       return z.DIRTY(data, {
@@ -57,7 +57,7 @@ test('preprocess ctx.addIssue non-fatal by default', () => {
   }
 })
 
-test('preprocess ctx.addIssue fatal true', () => {
+test('upstream abort is fatal', () => {
   try {
     z.upstream(() => {
       return z.ERR({
@@ -71,7 +71,7 @@ test('preprocess ctx.addIssue fatal true', () => {
   }
 })
 
-test('async preprocess ctx.addIssue with parse', async () => {
+test('async upstream dirty with parse', async () => {
   const schema = z.upstream(async (data) => {
     return z.DIRTY(data, {
       code: 'custom',
@@ -94,7 +94,7 @@ test('async preprocess ctx.addIssue with parse', async () => {
   )
 })
 
-test('preprocess ctx.addIssue with parseAsync', async () => {
+test('upsream dirty with parseAsync', async () => {
   const result = await z
     .upstream(async (data) => {
       return z.DIRTY(data, {
