@@ -82,7 +82,7 @@ const _getContentType = (headers: AxiosResponse['headers'], status: number, logg
     // is doing some weird stuff in their Backend
     if (contentType.length > 1) {
       logger.warn(
-        `The 'Content-Type' header has multiple values, using first value. All the values are as follows:\n- ${contentType.join('- ')}`
+        `The 'Content-Type' header has multiple values, using first value. All the values are as follows:\n- ${contentType.join('\n- ')}`
       )
     }
 
