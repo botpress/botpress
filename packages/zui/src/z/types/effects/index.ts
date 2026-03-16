@@ -6,7 +6,6 @@ import type {
   ZodEffectsDef,
   input,
   output,
-  RefinementCtx,
   ParseInput,
   ParseReturnType,
   EffectReturnType,
