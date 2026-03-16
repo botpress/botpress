@@ -158,11 +158,6 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
     }
 
     for (const issue of result.issues) {
-      if ((issue as IssueData).fatal) {
-        status.abort()
-      } else {
-        status.dirty()
-      }
       addIssueToContext(ctx, issue)
     }
   }
