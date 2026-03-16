@@ -240,14 +240,14 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
       (val: Output, context: EffectContext): EffectReturnType<Output> | Promise<EffectReturnType<Output>> => {
         const issues: IssueData[] = []
         const ctx: RefinementCtx = {
-          addIssue: (issue: IssueData) => issues.push(issue),
+          addIssue: (issue) => issues.push(issue),
           path: context.path,
         }
 
         if (!check(val)) {
           const issue = typeof refinementData === 'function' ? refinementData(val, ctx) : refinementData
           issues.push(issue)
-          return { status: 'aborted', issues: [issue] }
+          return { status: 'aborted', issues }
         } else {
           return { status: 'valid', value: val }
         }
@@ -262,22 +262,22 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
       this,
       (val: Output, context: EffectContext): EffectReturnType<Output> | Promise<EffectReturnType<Output>> => {
         const issues: IssueData[] = []
-        const ctx: RefinementCtx = {
-          addIssue: (issue: IssueData) => issues.push(issue),
-          path: context.path,
-        }
 
-        const result = refinement(val, ctx)
+        const result = refinement(val, {
+          addIssue: (issue) => issues.push(issue),
+          path: context.path,
+        })
+
         if (typeof Promise !== 'undefined' && result instanceof Promise) {
           return result.then((data) => {
-            if (!data) {
+            if (issues.length || !data) {
               return { status: 'aborted', issues }
             } else {
               return { status: 'valid', value: val }
             }
           })
         } else {
-          if (!result) {
+          if (issues.length || !result) {
             return { status: 'aborted', issues }
           } else {
             return { status: 'valid', value: val }
@@ -350,12 +350,12 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
       this,
       (val: Output, context: EffectContext): EffectReturnType<NewOut> | Promise<EffectReturnType<NewOut>> => {
         const issues: IssueData[] = []
-        const ctx: RefinementCtx = {
-          addIssue: (issue: IssueData) => issues.push(issue),
-          path: context.path,
-        }
 
-        const result = transform(val, ctx)
+        const result = transform(val, {
+          addIssue: (issue) => issues.push(issue),
+          path: context.path,
+        })
+
         if (result instanceof Promise) {
           return result.then((data) => {
             if (issues.length) {
