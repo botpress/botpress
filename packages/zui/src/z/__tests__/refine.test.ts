@@ -246,7 +246,7 @@ test('fatal superRefine', () => {
     .string()
     .superRefine((val, ctx) => {
       if (val === '') {
-        return ctx.addIssue({
+        ctx.addIssue({
           code: 'custom',
           message: 'foo',
           fatal: true,
@@ -255,7 +255,7 @@ test('fatal superRefine', () => {
     })
     .superRefine((val, ctx) => {
       if (val !== ' ') {
-        return ctx.addIssue({
+        ctx.addIssue({
           code: 'custom',
           message: 'bar',
         })
