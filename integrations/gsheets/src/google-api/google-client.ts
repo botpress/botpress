@@ -36,12 +36,14 @@ export class GoogleClient {
     ctx,
     client,
     authorizationCode,
+    redirectUri,
   }: {
     ctx: bp.Context
     client: bp.Client
     authorizationCode: string
+    redirectUri: string
   }) {
-    await exchangeAuthCodeAndSaveRefreshToken({ ctx, client, authorizationCode })
+    await exchangeAuthCodeAndSaveRefreshToken({ ctx, client, authorizationCode, redirectUri })
   }
 
   @handleErrors('Failed to get values from spreadsheet range')
