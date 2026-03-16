@@ -60,6 +60,8 @@ import type {
   EffectIssue,
   DirtyEffectReturnType,
   EffectContext,
+  CustomParams,
+  IZodAny,
 } from './typings'
 
 type _ProcessedCreateParams = {
@@ -344,7 +346,39 @@ export const refineType: ZodBuilders['refine'] = <T extends IZodType>(
 ): IZodEffects<T> =>
   new ZodEffectsImpl({
     schema,
-    effect: { type: 'refinement', refinement },
+    effect: {
+      type: 'downstream',
+      downstream: (arg, ctx) => {
+        const issues: EffectIssue[] = []
+        const context: RefinementCtx = {
+          addIssue: (issue) => issues.push(issue),
+          get path() {
+            return ctx.path
+          },
+        }
+
+        const result = refinement(arg, context)
+        if (result instanceof Promise) {
+          return result.then(() => {
+            if (issues.some((i) => i.fatal)) {
+              return ERR(...issues)
+            }
+            if (issues.length) {
+              return DIRTY(arg, ...issues)
+            }
+            return OK(arg)
+          })
+        }
+
+        if (issues.some((i) => i.fatal)) {
+          return ERR(...issues)
+        }
+        if (issues.length) {
+          return DIRTY(arg, ...issues)
+        }
+        return OK(arg)
+      },
+    },
     typeName: 'ZodEffects',
     ..._processCreateParams(params),
   })
@@ -356,7 +390,38 @@ export const transformerType: ZodBuilders['transformer'] = <T extends IZodType, 
 ): IZodEffects<T, O> =>
   new ZodEffectsImpl({
     schema,
-    effect: { type: 'transform', transform },
+    effect: {
+      type: 'downstream',
+      downstream: (arg, ctx) => {
+        const issues: EffectIssue[] = []
+        const context: RefinementCtx = {
+          addIssue: (issue) => issues.push(issue),
+          get path() {
+            return ctx.path
+          },
+        }
+
+        const result = transform(arg, context)
+        if (result instanceof Promise) {
+          return result.then((data) => {
+            if (issues.some((i) => i.fatal)) {
+              return ERR(...issues)
+            }
+            if (issues.length) {
+              return DIRTY(data, ...issues)
+            }
+            return OK(data)
+          })
+        }
+        if (issues.some((i) => i.fatal)) {
+          return ERR(...issues)
+        }
+        if (issues.length) {
+          return DIRTY(result, ...issues)
+        }
+        return OK(result)
+      },
+    },
     typeName: 'ZodEffects',
     ..._processCreateParams(params),
   })

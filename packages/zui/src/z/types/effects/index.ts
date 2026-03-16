@@ -70,101 +70,6 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
 
     checkCtx.addIssue = checkCtx.addIssue.bind(checkCtx)
 
-    // if (effect.type === 'preprocess') {
-    //   const processed = effect.preprocess(ctx.data, checkCtx)
-
-    //   if (ctx.common.async) {
-    //     return Promise.resolve(processed).then(async (processed) => {
-    //       if (status.value === 'aborted') return { status: 'aborted' }
-
-    //       const result = await this._def.schema._parseAsync({
-    //         data: processed,
-    //         path: ctx.path,
-    //         parent: ctx,
-    //       })
-    //       if (result.status === 'aborted') return { status: 'aborted' }
-    //       if (result.status === 'dirty') return { status: 'dirty', value: result.value }
-    //       if (status.value === 'dirty') return { status: 'dirty', value: result.value }
-    //       return result
-    //     })
-    //   } else {
-    //     if (status.value === 'aborted') return { status: 'aborted' }
-    //     const result = this._def.schema._parseSync({
-    //       data: processed,
-    //       path: ctx.path,
-    //       parent: ctx,
-    //     })
-    //     if (result.status === 'aborted') return { status: 'aborted' }
-    //     if (result.status === 'dirty') return { status: 'dirty', value: result.value }
-    //     if (status.value === 'dirty') return { status: 'dirty', value: result.value }
-    //     return result
-    //   }
-    // }
-    if (effect.type === 'refinement') {
-      const executeRefinement = (acc: unknown): unknown => {
-        const result = effect.refinement(acc, checkCtx)
-        if (ctx.common.async) {
-          return Promise.resolve(result)
-        }
-        if (result instanceof Promise) {
-          throw new Error('Async refinement encountered during synchronous parse operation. Use .parseAsync instead.')
-        }
-        return acc
-      }
-
-      if (ctx.common.async === false) {
-        const inner = this._def.schema._parseSync({
-          data: ctx.data,
-          path: ctx.path,
-          parent: ctx,
-        })
-        if (inner.status === 'aborted') return { status: 'aborted' }
-        if (inner.status === 'dirty') status.dirty()
-
-        // return value is ignored
-        executeRefinement(inner.value)
-        return { status: status.value, value: inner.value }
-      } else {
-        return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((inner) => {
-          if (inner.status === 'aborted') return { status: 'aborted' }
-          if (inner.status === 'dirty') status.dirty()
-
-          return (executeRefinement(inner.value) as Promise<unknown>).then(() => {
-            return { status: status.value, value: inner.value }
-          })
-        })
-      }
-    }
-
-    if (effect.type === 'transform') {
-      if (ctx.common.async === false) {
-        const base = this._def.schema._parseSync({
-          data: ctx.data,
-          path: ctx.path,
-          parent: ctx,
-        })
-
-        if (!isValid(base)) return base
-
-        const result = effect.transform(base.value, checkCtx)
-        if (result instanceof Promise) {
-          throw new Error(
-            'Asynchronous transform encountered during synchronous parse operation. Use .parseAsync instead.'
-          )
-        }
-
-        return { status: status.value, value: result } as ParseReturnType<this['_output']>
-      } else {
-        return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((base) => {
-          if (!isValid(base)) return base
-
-          return Promise.resolve(effect.transform(base.value, checkCtx)).then((result) => ({
-            status: status.value,
-            value: result,
-          }))
-        }) as ParseReturnType<this['_output']>
-      }
-    }
     if (effect.type === 'upstream') {
       let asyncProcessed = effect.upstream(ctx.data, { path: ctx.path })
 
@@ -268,21 +173,6 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
   isEqual(schema: IZodType): boolean {
     if (!(schema instanceof ZodEffectsImpl)) return false
     if (!this._def.schema.isEqual(schema._def.schema)) return false
-
-    if (this._def.effect.type === 'refinement') {
-      if (schema._def.effect.type !== 'refinement') return false
-      return utils.others.compareFunctions(this._def.effect.refinement, schema._def.effect.refinement)
-    }
-
-    if (this._def.effect.type === 'transform') {
-      if (schema._def.effect.type !== 'transform') return false
-      return utils.others.compareFunctions(this._def.effect.transform, schema._def.effect.transform)
-    }
-
-    // if (this._def.effect.type === 'preprocess') {
-    //   if (schema._def.effect.type !== 'preprocess') return false
-    //   return utils.others.compareFunctions(this._def.effect.preprocess, schema._def.effect.preprocess)
-    // }
 
     if (this._def.effect.type === 'upstream') {
       if (schema._def.effect.type !== 'upstream') return false

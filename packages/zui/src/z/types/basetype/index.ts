@@ -25,7 +25,6 @@ import type {
   IZodReadonly,
   IZodEffects,
   IZodUnion,
-  RefinementEffect,
   RefinementCtx,
   CustomErrorParams,
   EffectIssue,

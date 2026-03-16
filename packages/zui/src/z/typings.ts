@@ -1598,21 +1598,6 @@ export type EffectReturnType<T> = InvalidEffectReturnType | DirtyEffectReturnTyp
 
 export type EffectContext = { path: (string | number)[] }
 
-export type RefinementEffect<I = unknown, O = unknown> = {
-  type: 'refinement'
-  refinement: (arg: I, ctx: RefinementCtx) => O
-}
-
-export type TransformEffect<I = unknown, O = unknown> = {
-  type: 'transform'
-  transform: (arg: I, ctx: RefinementCtx) => O
-}
-
-// export type PreprocessEffect<I = unknown, O = unknown> = {
-//   type: 'preprocess'
-//   preprocess: (arg: I, ctx: RefinementCtx) => O
-// }
-
 export type UpstreamEffect<I = unknown, O = unknown> = {
   type: 'upstream'
   upstream: (arg: I, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined
@@ -1624,12 +1609,7 @@ export type DownstreamEffect<I = unknown, O = unknown> = {
   downstream: (arg: I, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined
 }
 
-export type Effect<I = unknown, O = unknown> =
-  | RefinementEffect<I, O>
-  | TransformEffect<I, O>
-  // | PreprocessEffect<I, O>
-  | UpstreamEffect<I, O>
-  | DownstreamEffect<I, O>
+export type Effect<I = unknown, O = unknown> = UpstreamEffect<I, O> | DownstreamEffect<I, O>
 
 export type ZodEffectsDef<T extends IZodType = IZodType> = {
   schema: T
@@ -1737,17 +1717,18 @@ export type ZodNativeTypeName = ZodNativeTypeDef['typeName']
 
 //* ─────────────────────────── Builders ──────────────────────────────
 
-type _CustomParams = CustomErrorParams & { fatal?: boolean }
-
+export type CustomParams = CustomErrorParams & { fatal?: boolean }
 export declare function createCustom<T>(
   check?: (data: unknown) => unknown,
-  params?: string | _CustomParams | ((input: unknown) => _CustomParams),
+  params?: string | CustomParams | ((input: unknown) => CustomParams),
   fatal?: boolean
 ): IZodType<T>
+
 export declare function createInstanceOf<T extends abstract new (...args: any[]) => any>(
   cls: T,
-  params?: _CustomParams
+  params?: CustomParams
 ): IZodType<InstanceType<T>>
+
 export declare function createAny(params?: ZodCreateParams): IZodAny
 export declare function createUnknown(params?: ZodCreateParams): IZodUnknown
 export declare function createNever(params?: ZodCreateParams): IZodNever
