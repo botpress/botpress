@@ -344,18 +344,22 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
 
         if (result instanceof Promise) {
           return result.then((data) => {
-            if (issues.length) {
+            if (issues.some((i) => i.fatal)) {
               return { status: 'aborted', issues }
-            } else {
-              return { status: 'valid', value: data }
             }
+            if (issues.length) {
+              return { status: 'dirty', value: data, issues }
+            }
+            return { status: 'valid', value: data }
           })
         } else {
-          if (issues.length) {
+          if (issues.some((i) => i.fatal)) {
             return { status: 'aborted', issues }
-          } else {
-            return { status: 'valid', value: result }
           }
+          if (issues.length) {
+            return { status: 'dirty', value: result, issues }
+          }
+          return { status: 'valid', value: result }
         }
       },
       { failFast: true }
