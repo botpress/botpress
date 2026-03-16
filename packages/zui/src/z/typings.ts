@@ -469,6 +469,10 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
   or<T extends IZodType>(option: T): IZodUnion<[this, T]>
   and<T extends IZodType>(incoming: T): IZodIntersection<this, T>
   transform<NewOut>(transform: (arg: Output, ctx: RefinementCtx) => NewOut | Promise<NewOut>): IZodEffects<this, NewOut>
+  downstream<NewOut>(
+    fn: (output: Output, ctx: EffectContext) => EffectReturnType<NewOut> | Promise<EffectReturnType<NewOut>>,
+    params?: { failFast?: boolean }
+  ): IZodEffects<this, NewOut>
   default(def: NoUndefined<Input>): IZodDefault<this>
   default(def: () => NoUndefined<Input>): IZodDefault<this>
   brand<B extends string | number | symbol>(brand?: B): IZodBranded<this, B>
