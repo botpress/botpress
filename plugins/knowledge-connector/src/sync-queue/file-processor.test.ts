@@ -47,6 +47,24 @@ describe.concurrent('processQueue', () => {
     expect(mocks.fileRepository.updateFileMetadata).not.toHaveBeenCalled()
   })
 
+  it('should handle listFiles failure by marking the queue item as errored', async () => {
+    // Arrange
+    const mocks = getMocks()
+    mocks.fileRepository.listFiles.mockRejectedValueOnce(new Error('Files API unavailable'))
+
+    // Act
+    const result = processQueueFile({
+      fileToSync: FILE_1,
+      ...mocks,
+    })
+
+    // Assert
+    await expect(result).resolves.toMatchObject({ status: 'errored', errorMessage: 'Files API unavailable' })
+    expect(mocks.integration.transferFileToBotpress).not.toHaveBeenCalled()
+    expect(mocks.fileRepository.deleteFile).not.toHaveBeenCalled()
+    expect(mocks.fileRepository.updateFileMetadata).not.toHaveBeenCalled()
+  })
+
   it('should properly set metadata tags after transferring file', async () => {
     // Arrange
     const mocks = getMocks()

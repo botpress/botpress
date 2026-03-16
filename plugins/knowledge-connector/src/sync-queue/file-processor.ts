@@ -22,7 +22,16 @@ export type ProcessFileProps = {
 
 export const processQueueFile = async (props: ProcessFileProps): Promise<types.SyncQueueItem> => {
   const fileToSync = structuredClone(props.fileToSync) as types.SyncQueueItem
-  const existingFile = await _getExistingFileFromFilesApi(props, fileToSync)
+  let existingFile: types.FilesApiFile | undefined
+  try {
+    existingFile = await _getExistingFileFromFilesApi(props, fileToSync)
+  } catch (thrown: unknown) {
+    const err: Error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    fileToSync.status = 'errored'
+    fileToSync.errorMessage = err.message
+    props.logger.error(`Error while checking existing file ${fileToSync.absolutePath}: ${err.message}`)
+    return fileToSync
+  }
   const shouldUploadFile = _shouldUploadFile(fileToSync, existingFile)
 
   if (!shouldUploadFile) {
