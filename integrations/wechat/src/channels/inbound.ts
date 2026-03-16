@@ -1,3 +1,4 @@
+import { z } from '@botpress/sdk'
 import { XMLParser } from 'fast-xml-parser'
 import camelCase from 'lodash/camelCase'
 import { Result, WebhookResult } from '../types'
@@ -102,7 +103,7 @@ export const processInboundChannelMessage = async (props: bp.HandlerProps): Prom
 const _parseAndValidateWeChatXmlMessage = (rawXmlContent: string): Result<WeChatMessage> => {
   const parser = new XMLParser({ parseTagValue: false })
   const parseData = _mapWechatMessageKeys(parser.parse(rawXmlContent))
-  const result = wechatMessageSchema.safeParse(parseData)
+  const result = z.object({ xml: wechatMessageSchema }).safeParse(parseData)
 
   if (!result.success) {
     return {
@@ -111,7 +112,10 @@ const _parseAndValidateWeChatXmlMessage = (rawXmlContent: string): Result<WeChat
     }
   }
 
-  return result
+  return {
+    success: true,
+    data: result.data.xml,
+  }
 }
 
 // This abstraction can be removed once we determine the "fallback" to no longer be necessary
