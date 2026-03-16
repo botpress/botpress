@@ -1835,7 +1835,7 @@ export declare function createFunction<
 export declare function createFunction(args?: AnyZodTuple, returns?: IZodType, params?: ZodCreateParams): IZodFunction
 
 export declare function createPreprocess<T extends IZodType<O>, O>(
-  preprocess: (arg: unknown, ctx: RefinementCtx) => unknown | Promise<unknown>,
+  preprocess: (arg: unknown, ctx: EffectContext) => O | Promise<O>,
   schema: T,
   params?: ZodCreateParams
 ): IZodEffects<T, output<T>, unknown>

@@ -51,7 +51,6 @@ import type {
   ZodErrorMap,
   ZuiExtensionObject,
   ZodBuilders,
-  RefinementCtx,
   IZodEffects,
   output,
   EffectReturnType,
@@ -302,34 +301,9 @@ export const preprocessType: ZodBuilders['preprocess'] = (preprocess, schema, pa
     effect: {
       type: 'upstream',
       upstream: (arg, ctx) => {
-        const issues: IssueData[] = []
-        const context: RefinementCtx = {
-          addIssue: (issue) => issues.push(issue),
-          get path() {
-            return ctx.path
-          },
-        }
-
-        const result = preprocess(arg, context)
+        const result = preprocess(arg, ctx)
         if (result instanceof Promise) {
-          return result.then((res) => {
-            if (issues.some((i) => i.fatal)) {
-              return ERR(...issues)
-            }
-            if (issues.length) {
-              return DIRTY(res, ...issues)
-            }
-            return OK(res)
-          })
-        }
-
-        if (issues.length) {
-          if (issues.some((i) => i.fatal)) {
-            return ERR(...issues)
-          }
-          if (issues.length) {
-            return DIRTY(result, ...issues)
-          }
+          return result.then((res) => OK(res))
         }
         return OK(result)
       },
@@ -340,7 +314,7 @@ export const preprocessType: ZodBuilders['preprocess'] = (preprocess, schema, pa
 
 export const upstreamType: ZodBuilders['upstream'] = <T extends IZodType, O>(
   upstream: (
-    arg: output<T>,
+    arg: unknown,
     ctx: EffectContext
   ) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined,
   schema: T,

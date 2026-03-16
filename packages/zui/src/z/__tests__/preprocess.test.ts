@@ -20,13 +20,14 @@ test('async preprocess', async () => {
 
 test('preprocess ctx.addIssue with parse', () => {
   expect(() => {
-    z.preprocess((data, ctx) => {
-      ctx.addIssue({
-        code: 'custom',
-        message: `${data} is not one of our allowed strings`,
-      })
-      return data
-    }, z.string()).parse('asdf')
+    z.upstream(
+      (data) =>
+        z.DIRTY(data, {
+          code: 'custom',
+          message: `${data} is not one of our allowed strings`,
+        }),
+      z.string()
+    ).parse('asdf')
   }).toThrow(
     JSON.stringify(
       [
@@ -44,12 +45,11 @@ test('preprocess ctx.addIssue with parse', () => {
 
 test('preprocess ctx.addIssue non-fatal by default', () => {
   try {
-    z.preprocess((data, ctx) => {
-      ctx.addIssue({
+    z.upstream((data) => {
+      return z.DIRTY(data, {
         code: 'custom',
         message: `custom error`,
       })
-      return data
     }, z.string()).parse(1234)
   } catch (err) {
     ZodError.assert(err)
@@ -59,13 +59,11 @@ test('preprocess ctx.addIssue non-fatal by default', () => {
 
 test('preprocess ctx.addIssue fatal true', () => {
   try {
-    z.preprocess((data, ctx) => {
-      ctx.addIssue({
+    z.upstream(() => {
+      return z.ERR({
         code: 'custom',
         message: `custom error`,
-        fatal: true,
       })
-      return data
     }, z.string()).parse(1234)
   } catch (err) {
     ZodError.assert(err)
@@ -74,12 +72,11 @@ test('preprocess ctx.addIssue fatal true', () => {
 })
 
 test('async preprocess ctx.addIssue with parse', async () => {
-  const schema = z.preprocess(async (data, ctx) => {
-    ctx.addIssue({
+  const schema = z.upstream(async (data) => {
+    return z.DIRTY(data, {
       code: 'custom',
       message: `custom error`,
     })
-    return data
   }, z.string())
 
   expect(schema.parseAsync('asdf')).rejects.toThrow(
@@ -99,12 +96,11 @@ test('async preprocess ctx.addIssue with parse', async () => {
 
 test('preprocess ctx.addIssue with parseAsync', async () => {
   const result = await z
-    .preprocess(async (data, ctx) => {
-      ctx.addIssue({
+    .upstream(async (data) => {
+      return z.DIRTY(data, {
         code: 'custom',
         message: `${data} is not one of our allowed strings`,
       })
-      return data
     }, z.string())
     .safeParseAsync('asdf')
 
