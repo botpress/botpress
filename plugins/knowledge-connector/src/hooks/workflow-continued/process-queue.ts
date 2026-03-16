@@ -3,24 +3,25 @@ import { createIntegrationTransferHandler } from '../../utils/create-integration
 import * as bp from '.botpress'
 
 export const handleEvent: bp.WorkflowHandlers['processQueue'] = async (props) => {
-  const { syncQueue, key } = await SyncQueue.jobFileManager.getSyncQueue(props)
-  const hasKbTarget = syncQueue.some((item) => item.addToKbId !== undefined)
   const logger = props.logger.withWorkflowId(props.workflow.id)
 
-  if (
-    !props.workflow.tags.integrationInstanceAlias ||
-    !props.workflow.tags.syncJobId ||
-    !props.workflow.tags.integrationDefinitionName ||
-    !props.workflow.tags.syncInitiatedAt
-  ) {
-    throw new Error(
-      'Missing required workflow tags: integrationInstanceAlias, integrationDefinitionName, syncJobId, and syncInitiatedAt'
-    )
-  }
-
-  await props.workflow.acknowledgeStartOfProcessing()
-
   try {
+    const { syncQueue, key } = await SyncQueue.jobFileManager.getSyncQueue(props)
+    const hasKbTarget = syncQueue.some((item) => item.addToKbId !== undefined)
+
+    if (
+      !props.workflow.tags.integrationInstanceAlias ||
+      !props.workflow.tags.syncJobId ||
+      !props.workflow.tags.integrationDefinitionName ||
+      !props.workflow.tags.syncInitiatedAt
+    ) {
+      throw new Error(
+        'Missing required workflow tags: integrationInstanceAlias, integrationDefinitionName, syncJobId, and syncInitiatedAt'
+      )
+    }
+
+    await props.workflow.acknowledgeStartOfProcessing()
+
     const processResult = await SyncQueue.queueProcessor.processQueue({
       logger,
       syncQueue,

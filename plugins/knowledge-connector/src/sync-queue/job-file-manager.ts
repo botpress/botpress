@@ -6,10 +6,9 @@ import * as bp from '.botpress'
 export const getSyncQueue = async (
   props: bp.WorkflowHandlerProps['processQueue']
 ): Promise<{ syncQueue: types.SyncQueue; key: string }> => {
-  const { jobFileContent, key } = await _retrieveJobFile(props).catch(async (thrown: unknown) => {
+  const { jobFileContent, key } = await _retrieveJobFile(props).catch((thrown: unknown) => {
     const err: Error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    await props.workflow.setFailed({ failureReason: `Failed to retrieve job file: ${err.message}` })
-    throw new Error(`Failed to retrieve job file: ${thrown}`)
+    throw new Error(`Failed to retrieve job file: ${err.message}`)
   })
 
   const syncQueue: types.SyncQueue = []
