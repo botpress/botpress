@@ -10,7 +10,6 @@ import type {
   ParseReturnType,
   EffectReturnType,
   ParseContext,
-  IssueData,
 } from '../../typings'
 import { ParseStatus, ZodBaseTypeImpl, addIssueToContext, isValid } from '../basetype'
 
