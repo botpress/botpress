@@ -15,7 +15,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     const result = await processInboundChannelMessage(props)
     if (!result.success) {
       props.logger.forBot().error(result.error.message)
-      return _createTextResponse(500, 'Internal Server Error')
+      return _createTextResponse(result.status ?? 500, 'Unexpected payload received')
     }
 
     return _createTextResponse(200, result.data)

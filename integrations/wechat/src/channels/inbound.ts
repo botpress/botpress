@@ -1,6 +1,6 @@
 import { XMLParser } from 'fast-xml-parser'
 import camelCase from 'lodash/camelCase'
-import { Result } from '../types'
+import { Result, WebhookResult } from '../types'
 import { usePromiseToResult } from '../utils'
 import { WeChatMessage, wechatMessageSchema } from './schemas'
 import { BaseMessage, createChannelMessage, createMediaMessage } from './utils'
@@ -9,12 +9,12 @@ import * as bp from '.botpress'
 export type BotpressConversation = Awaited<ReturnType<bp.Client['getOrCreateConversation']>>['conversation']
 export type BotpressUser = Awaited<ReturnType<bp.Client['getOrCreateUser']>>['user']
 
-export const processInboundChannelMessage = async (props: bp.HandlerProps): Promise<Result<string>> => {
+export const processInboundChannelMessage = async (props: bp.HandlerProps): Promise<WebhookResult<string>> => {
   const { client, req } = props
 
   const requestBody = req.body?.trim() || ''
   if (requestBody === '') {
-    return { success: false, error: new Error('Received empty webhook payload') }
+    return { success: false, error: new Error('Received empty webhook payload'), status: 200 }
   }
 
   const parseResult = _parseAndValidateMessage(requestBody, props.logger)
@@ -115,7 +115,7 @@ const _parseAndValidateWeChatXmlMessage = (rawXmlContent: string): Result<WeChat
 }
 
 // This abstraction can be removed once we determine the "fallback" to no longer be necessary
-const _parseAndValidateMessage = (rawXmlContent: string, logger: bp.Logger) => {
+const _parseAndValidateMessage = (rawXmlContent: string, logger: bp.Logger): WebhookResult<WeChatMessage> => {
   const result = _parseAndValidateWeChatXmlMessage(rawXmlContent)
 
   if (!result.success) {
@@ -125,7 +125,11 @@ const _parseAndValidateMessage = (rawXmlContent: string, logger: bp.Logger) => {
       return fbResult
     }
 
-    return result
+    return {
+      success: false,
+      error: result.error,
+      status: 200,
+    }
   }
 
   return result
