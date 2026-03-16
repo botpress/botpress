@@ -16,6 +16,10 @@ runs:
         node-version-file: '.tool-versions'
         package-manager-cache: false
 
+    - name: Setup Bun
+      if: runner.os != 'Windows'
+      uses: oven-sh/setup-bun@v2
+
     - name: Install Node Gyp Build
       shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
       run: |
@@ -24,6 +28,13 @@ runs:
     - name: Install dependencies
       shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
       run: pnpm i --frozen-lockfile
+
+    - name: Login to Botpress (optional)
+      if: ${{ env.BP_TOKEN != '' && env.BP_WORKSPACE_ID != '' }}
+      shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
+      run: |
+        pnpm dlx @botpress/cli login -y --api-url "$BP_API_URL" --workspace-id "$BP_WORKSPACE_ID" --token "$BP_TOKEN"
+        pnpm dlx @botpress/adk-cli login --token "$BP_TOKEN" --api-url "$BP_API_URL"
 
     - name: Cache Turbo
       uses: actions/cache@v5
@@ -39,4 +50,7 @@ runs:
       shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
       env:
         BP_VERBOSE: 'true'
+        BP_API_URL: ${{ env.BP_API_URL }}
+        BP_WORKSPACE_ID: ${{ env.BP_WORKSPACE_ID }}
+        BP_TOKEN: ${{ env.BP_TOKEN }}
       run: pnpm turbo run build ${{ inputs.extra_filters }}
