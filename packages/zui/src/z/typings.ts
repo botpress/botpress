@@ -1823,19 +1823,11 @@ export declare function createFunction<
 >(args: T, returns: U, params: ZodCreateParams): IZodFunction<T, U>
 export declare function createFunction(args?: AnyZodTuple, returns?: IZodType, params?: ZodCreateParams): IZodFunction
 
-/**
- *
- * @deprecated Use downstream instead
- */
 export declare function createRefine<T extends IZodType, O>(
   schema: T,
   refinement: (arg: output<T>, ctx: RefinementCtx) => arg is O,
   params?: ZodCreateParams
 ): IZodEffects<T, O>
-/**
- *
- * @deprecated Use downstream instead
- */
 export declare function createRefine<T extends IZodType>(
   schema: T,
   refinement: (arg: output<T>, ctx: RefinementCtx) => unknown | Promise<unknown>,
