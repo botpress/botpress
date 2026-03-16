@@ -441,9 +441,6 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       }
     }
 
-    const { secrets: knownSecrets } = bot as client.Bot & { secrets?: string[] }
-    const secrets = await this.promptSecrets(botDefinition, this.argv, { knownSecrets })
-
     const line = this.logger.line()
     line.started(`Deploying bot ${chalk.bold(bot.name)}...`)
 
@@ -453,10 +450,11 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         ...(await this.prepareBotDependencies(botDefinition, api)),
         id: bot.id,
         code,
-        secrets,
-      } as apiUtils.UpdateBotRequestBody,
+      },
       bot
     )
+
+    updateBotBody.secrets = await this.promptSecrets(botDefinition, this.argv, { knownSecrets: bot.secrets })
 
     const { bot: updatedBot } = await api.client.updateBot(updateBotBody).catch((thrown) => {
       throw errors.BotpressCLIError.wrap(thrown, `Could not update bot "${bot.name}"`)
