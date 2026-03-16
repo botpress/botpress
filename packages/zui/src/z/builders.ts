@@ -61,6 +61,7 @@ import type {
   DirtyEffectReturnType,
   EffectContext,
   IssueData,
+  CustomParams,
 } from './typings'
 
 type _ProcessedCreateParams = {
@@ -109,13 +110,12 @@ const _processCreateParams = (
 
 export const customType: ZodBuilders['custom'] = (check?, params = {}, fatal?) => {
   if (check) {
-    return anyType().superRefine((data, ctx) => {
+    return anyType().downstream((data) => {
       if (!check(data)) {
-        const p =
+        const _params: CustomParams =
           typeof params === 'function' ? params(data) : typeof params === 'string' ? { message: params } : params
-        const _fatal = p.fatal ?? fatal ?? true
-        const p2 = typeof p === 'string' ? { message: p } : p
-        ctx.addIssue({ code: 'custom', ...p2, fatal: _fatal })
+        const _fatal: boolean = _params.fatal ?? fatal ?? true
+        return _fatal ? ERR({ code: 'custom', ..._params }) : DIRTY(data, { code: 'custom', ..._params })
       }
     })
   }

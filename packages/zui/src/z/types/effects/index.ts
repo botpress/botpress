@@ -10,9 +10,10 @@ import type {
   ParseInput,
   ParseReturnType,
   EffectReturnType,
+  ParseContext,
   IssueData,
 } from '../../typings'
-import { ZodBaseTypeImpl, addIssueToContext, isValid } from '../basetype'
+import { ParseStatus, ZodBaseTypeImpl, addIssueToContext, isValid } from '../basetype'
 
 export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, Input = input<T>>
   extends ZodBaseTypeImpl<Output, ZodEffectsDef<T>, Input>
@@ -54,29 +55,13 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
 
     const effect = this._def.effect
 
-    const checkCtx: RefinementCtx = {
-      addIssue: (arg: IssueData) => {
-        addIssueToContext(ctx, arg)
-        if (arg.fatal) {
-          status.abort()
-        } else {
-          status.dirty()
-        }
-      },
-      get path() {
-        return ctx.path
-      },
-    }
-
-    checkCtx.addIssue = checkCtx.addIssue.bind(checkCtx)
-
     if (effect.type === 'upstream') {
       let asyncProcessed = effect.upstream(ctx.data, { path: ctx.path })
 
       if (ctx.common.async) {
         return Promise.resolve(asyncProcessed).then(async (processed) => {
           processed ??= { status: 'valid', value: ctx.data }
-          this._appendIssues(checkCtx, processed)
+          this._processResult(ctx, status, processed ?? { status: 'valid', value: ctx.data })
 
           if (status.value === 'aborted') return { status: 'aborted' }
 
@@ -97,7 +82,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
           )
         }
         asyncProcessed ??= { status: 'valid', value: ctx.data }
-        this._appendIssues(checkCtx, asyncProcessed)
+        this._processResult(ctx, status, asyncProcessed)
 
         if (status.value === 'aborted') return { status: 'aborted' }
         const result = this._def.schema._parseSync({
@@ -136,7 +121,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
         }
 
         result ??= { status: 'valid', value: base.value }
-        this._appendIssues(checkCtx, result)
+        this._processResult(ctx, status, result)
 
         return {
           status: status.value,
@@ -148,7 +133,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
 
           return Promise.resolve(effect.downstream(base.value, { path: ctx.path })).then((result) => {
             result ??= { status: 'valid', value: base.value }
-            this._appendIssues(checkCtx, result)
+            this._processResult(ctx, status, result)
 
             return {
               status: status.value,
@@ -162,12 +147,24 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
     utils.assert.assertNever(effect)
   }
 
-  private _appendIssues(ctx: RefinementCtx, result: EffectReturnType<unknown>) {
+  private _processResult(ctx: ParseContext, status: ParseStatus, result: EffectReturnType<unknown>): void {
     if (result.status === 'valid') {
       return
     }
+
+    if (result.status === 'aborted') {
+      status.abort()
+    } else if (result.status === 'dirty') {
+      status.dirty()
+    }
+
     for (const issue of result.issues) {
-      ctx.addIssue(issue)
+      if ((issue as IssueData).fatal) {
+        status.abort()
+      } else {
+        status.dirty()
+      }
+      addIssueToContext(ctx, issue)
     }
   }
 

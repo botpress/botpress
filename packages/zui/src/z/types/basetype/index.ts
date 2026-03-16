@@ -36,6 +36,7 @@ import type {
   SyncParseReturnType,
   EffectReturnType,
   EffectContext,
+  EffectIssue,
 } from '../../typings'
 
 import { getParsedType, isAsync, isValid, ParseStatus } from './parseUtil'
@@ -204,7 +205,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return builders.downstream(this, (val: Output): EffectReturnType<Output> | Promise<EffectReturnType<Output>> => {
       const result = check(val)
 
-      const issues: IssueData[] = []
+      const issues: EffectIssue[] = []
       const setError = () =>
         issues.push({
           code: 'custom',
@@ -215,7 +216,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
         return result.then((data) => {
           if (!data) {
             setError()
-            return { status: 'aborted', issues }
+            return { status: 'dirty', value: val, issues }
           } else {
             return { status: 'valid', value: val }
           }
@@ -223,7 +224,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
       }
       if (!result) {
         setError()
-        return { status: 'aborted', issues }
+        return { status: 'dirty', value: val, issues }
       } else {
         return { status: 'valid', value: val }
       }
