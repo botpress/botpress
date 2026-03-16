@@ -60,23 +60,25 @@ export const handleEvent = async (props: ScheduledSyncProps) => {
   })
 
   let hasSucceeded = false
-  for (const group of integrationGroups) {
-    try {
-      await _syncIntegrationGroup(props, group)
-      hasSucceeded = true
-    } catch (error) {
-      logger.error(
-        `Scheduled sync failed for integration "${group.integrationInstanceAlias}": ${error instanceof Error ? error.message : String(error)}`
-      )
+  try {
+    for (const group of integrationGroups) {
+      try {
+        await _syncIntegrationGroup(props, group)
+        hasSucceeded = true
+      } catch (error) {
+        logger.error(
+          `Scheduled sync failed for integration "${group.integrationInstanceAlias}": ${error instanceof Error ? error.message : String(error)}`
+        )
+      }
     }
-  }
-
-  if (!hasSucceeded) {
-    // Reset lastSyncAt so the next cron trigger retries immediately
-    await props.states.bot.lastScheduledSync.set(ctx.botId, {
-      lastSyncAt: undefined,
-    })
-    logger.warn('Scheduled sync: all integration groups failed, will retry on next trigger')
+  } finally {
+    if (!hasSucceeded) {
+      // Reset lastSyncAt so the next cron trigger retries immediately
+      await props.states.bot.lastScheduledSync.set(ctx.botId, {
+        lastSyncAt: undefined,
+      })
+      logger.warn('Scheduled sync: all integration groups failed, will retry on next trigger')
+    }
   }
 }
 
