@@ -35,11 +35,6 @@ export class WeChatClient {
   }
 
   private async _downloadWeChatMediaFromUrl(url: string, retry: boolean): WeChatMediaResponse {
-    if (!retry) {
-      // This solution isn't ideal, I'd rather remove the recursion entirely. But this will suffice for now
-      throw new RuntimeError('Failed to download media from WeChat -> Too many retries')
-    }
-
     const resp = await httpGetAsJsonOrBuffer(url, this._logger).catch(
       useHandleCaughtError('Failed to download WeChat media')
     )
@@ -48,6 +43,11 @@ export class WeChatClient {
     }
 
     if (resp.type === 'JSON') {
+      if (!retry) {
+        // This solution isn't ideal, I'd rather remove the recursion entirely. But this will suffice for now
+        throw new RuntimeError('Failed to download media from WeChat -> Too many retries')
+      }
+
       const result = wechatVideoUrlRespSchema.safeParse(resp.data)
       if (!result.success) {
         throw new RuntimeError('Received unexpected response when downloading WeChat media')
