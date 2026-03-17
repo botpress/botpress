@@ -18,15 +18,16 @@ test('async preprocess', async () => {
   expect(value).toEqual(['asdf'])
 })
 
-test('preprocess ctx.addIssue with parse', () => {
+test('upstream dirty with parse', () => {
   expect(() => {
-    z.preprocess((data, ctx) => {
-      ctx.addIssue({
-        code: 'custom',
-        message: `${data} is not one of our allowed strings`,
-      })
-      return data
-    }, z.string()).parse('asdf')
+    z.upstream(
+      (data) =>
+        z.DIRTY(data, {
+          code: 'custom',
+          message: `${data} is not one of our allowed strings`,
+        }),
+      z.string()
+    ).parse('asdf')
   }).toThrow(
     JSON.stringify(
       [
@@ -42,14 +43,13 @@ test('preprocess ctx.addIssue with parse', () => {
   )
 })
 
-test('preprocess ctx.addIssue non-fatal by default', () => {
+test('upstream dirty non-fatal', () => {
   try {
-    z.preprocess((data, ctx) => {
-      ctx.addIssue({
+    z.upstream((data) => {
+      return z.DIRTY(data, {
         code: 'custom',
         message: `custom error`,
       })
-      return data
     }, z.string()).parse(1234)
   } catch (err) {
     ZodError.assert(err)
@@ -57,15 +57,13 @@ test('preprocess ctx.addIssue non-fatal by default', () => {
   }
 })
 
-test('preprocess ctx.addIssue fatal true', () => {
+test('upstream abort is fatal', () => {
   try {
-    z.preprocess((data, ctx) => {
-      ctx.addIssue({
+    z.upstream(() => {
+      return z.ERR({
         code: 'custom',
         message: `custom error`,
-        fatal: true,
       })
-      return data
     }, z.string()).parse(1234)
   } catch (err) {
     ZodError.assert(err)
@@ -73,13 +71,12 @@ test('preprocess ctx.addIssue fatal true', () => {
   }
 })
 
-test('async preprocess ctx.addIssue with parse', async () => {
-  const schema = z.preprocess(async (data, ctx) => {
-    ctx.addIssue({
+test('async upstream dirty with parse', async () => {
+  const schema = z.upstream(async (data) => {
+    return z.DIRTY(data, {
       code: 'custom',
       message: `custom error`,
     })
-    return data
   }, z.string())
 
   expect(schema.parseAsync('asdf')).rejects.toThrow(
@@ -97,14 +94,13 @@ test('async preprocess ctx.addIssue with parse', async () => {
   )
 })
 
-test('preprocess ctx.addIssue with parseAsync', async () => {
+test('upstream dirty with parseAsync', async () => {
   const result = await z
-    .preprocess(async (data, ctx) => {
-      ctx.addIssue({
+    .upstream(async (data) => {
+      return z.DIRTY(data, {
         code: 'custom',
         message: `${data} is not one of our allowed strings`,
       })
-      return data
     }, z.string())
     .safeParseAsync('asdf')
 
@@ -124,13 +120,12 @@ test('preprocess ctx.addIssue with parseAsync', async () => {
   })
 })
 
-test('z.NEVER in preprocess', () => {
-  const foo = z.preprocess((val, ctx) => {
+test('upstream', () => {
+  const foo = z.upstream((val) => {
     if (!val) {
-      ctx.addIssue({ code: 'custom', message: 'bad' })
-      return { status: 'aborted' } as never
+      return z.ERR({ code: 'custom', message: 'bad' })
     }
-    return val
+    return z.OK(val)
   }, z.number())
 
   type foo = z.infer<typeof foo>

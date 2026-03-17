@@ -51,9 +51,15 @@ import type {
   ZodErrorMap,
   ZuiExtensionObject,
   ZodBuilders,
-  RefinementCtx,
   IZodEffects,
   output,
+  EffectReturnType,
+  ValidEffectReturnType,
+  InvalidEffectReturnType,
+  EffectIssue,
+  DirtyEffectReturnType,
+  EffectContext,
+  CustomParams,
 } from './typings'
 
 type _ProcessedCreateParams = {
@@ -102,13 +108,12 @@ const _processCreateParams = (
 
 export const customType: ZodBuilders['custom'] = (check?, params = {}, fatal?) => {
   if (check) {
-    return anyType().superRefine((data, ctx) => {
+    return anyType().downstream((data) => {
       if (!check(data)) {
-        const p =
+        const _params: CustomParams =
           typeof params === 'function' ? params(data) : typeof params === 'string' ? { message: params } : params
-        const _fatal = p.fatal ?? fatal ?? true
-        const p2 = typeof p === 'string' ? { message: p } : p
-        ctx.addIssue({ code: 'custom', ...p2, fatal: _fatal })
+        const _fatal: boolean = _params.fatal ?? fatal ?? true
+        return _fatal ? ERR({ code: 'custom', ..._params }) : DIRTY(data, { code: 'custom', ..._params })
       }
     })
   }
@@ -292,31 +297,46 @@ export const functionType: ZodBuilders['function'] = (
 export const preprocessType: ZodBuilders['preprocess'] = (preprocess, schema, params) =>
   new ZodEffectsImpl({
     schema,
-    effect: { type: 'preprocess', preprocess },
+    effect: {
+      type: 'upstream',
+      effect: (arg, ctx) => {
+        const result = preprocess(arg, ctx)
+        if (result instanceof Promise) {
+          return result.then((res) => OK(res))
+        }
+        return OK(result)
+      },
+    },
     typeName: 'ZodEffects',
     ..._processCreateParams(params),
   })
 
-export const refineType: ZodBuilders['refine'] = <T extends IZodType>(
+export const upstreamType: ZodBuilders['upstream'] = <T extends IZodType, O>(
+  effect: (
+    arg: unknown,
+    ctx: EffectContext
+  ) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined,
   schema: T,
-  refinement: (arg: T['_output'], ctx: RefinementCtx) => unknown,
-  params?: ZodCreateParams
-): IZodEffects<T> =>
-  new ZodEffectsImpl({
-    schema,
-    effect: { type: 'refinement', refinement },
-    typeName: 'ZodEffects',
-    ..._processCreateParams(params),
-  })
-
-export const transformerType: ZodBuilders['transformer'] = <T extends IZodType, O>(
-  schema: T,
-  transform: (arg: output<T>, ctx: RefinementCtx) => O | Promise<O>,
   params?: ZodCreateParams
 ): IZodEffects<T, O> =>
   new ZodEffectsImpl({
     schema,
-    effect: { type: 'transform', transform },
+    effect: { type: 'upstream', effect },
+    typeName: 'ZodEffects',
+    ..._processCreateParams(params),
+  })
+
+export const downstreamType: ZodBuilders['downstream'] = <T extends IZodType, O>(
+  schema: T,
+  effect: (
+    arg: output<T>,
+    ctx: EffectContext
+  ) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined,
+  params?: ZodCreateParams & { failFast?: boolean }
+): IZodEffects<T, O> =>
+  new ZodEffectsImpl({
+    schema,
+    effect: { type: 'downstream', effect, failFast: params?.failFast },
     typeName: 'ZodEffects',
     ..._processCreateParams(params),
   })
@@ -384,16 +404,16 @@ setBuilders({
   optional: optionalType,
   pipeline: pipelineType,
   preprocess: preprocessType,
+  upstream: upstreamType,
+  downstream: downstreamType,
   promise: promiseType,
   record: recordType,
   ref: refType,
-  refine: refineType,
   readonly: readonlyType,
   set: setType,
   strictObject: strictObjectType,
   string: stringType,
   symbol: symbolType,
-  transformer: transformerType,
   tuple: tupleType,
   undefined: undefinedType,
   union: unionType,
@@ -418,3 +438,14 @@ export const coerce = {
     return dateType({ ...arg, coerce: true })
   },
 }
+
+export const OK = <T>(value: T): ValidEffectReturnType<T> => ({ status: 'valid', value })
+export const ERR = (issue: EffectIssue, ...issues: EffectIssue[]): InvalidEffectReturnType => ({
+  status: 'aborted',
+  issues: [issue, ...issues],
+})
+export const DIRTY = <T>(value: T, issue: EffectIssue, ...issues: EffectIssue[]): DirtyEffectReturnType<T> => ({
+  status: 'dirty',
+  value,
+  issues: [issue, ...issues],
+})

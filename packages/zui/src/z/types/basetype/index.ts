@@ -25,7 +25,6 @@ import type {
   IZodReadonly,
   IZodEffects,
   IZodUnion,
-  RefinementEffect,
   RefinementCtx,
   CustomErrorParams,
   IssueData,
@@ -35,9 +34,12 @@ import type {
   ParseReturnType,
   AsyncParseReturnType,
   SyncParseReturnType,
+  EffectReturnType,
+  EffectContext,
+  EffectIssue,
 } from '../../typings'
 
-import { getParsedType, isAsync, isValid, ParseStatus } from './parseUtil'
+import { getParsedType, isAsync, ParseStatus } from './parseUtil'
 
 export * from './parseUtil'
 
@@ -200,54 +202,79 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
         return message
       }
     }
-    return this._refinement((val: Output, ctx: RefinementCtx) => {
+    return builders.downstream(this, (val: Output): EffectReturnType<Output> | Promise<EffectReturnType<Output>> => {
       const result = check(val)
+
+      const issues: EffectIssue[] = []
       const setError = () =>
-        ctx.addIssue({
+        issues.push({
           code: 'custom',
           ...getIssueProperties(val),
         })
+
       if (typeof Promise !== 'undefined' && result instanceof Promise) {
         return result.then((data) => {
           if (!data) {
             setError()
-            return false
+            return { status: 'dirty', value: val, issues }
           } else {
-            return true
+            return { status: 'valid', value: val }
           }
         })
       }
       if (!result) {
         setError()
-        return false
+        return { status: 'dirty', value: val, issues }
       } else {
-        return true
+        return { status: 'valid', value: val }
       }
     })
-  }
-
-  refinement(
-    check: (arg: Output) => unknown,
-    refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData)
-  ): IZodEffects<this, Output, Input> {
-    return this._refinement((val: Output, ctx: RefinementCtx) => {
-      if (!check(val)) {
-        ctx.addIssue(typeof refinementData === 'function' ? refinementData(val, ctx) : refinementData)
-        return false
-      } else {
-        return true
-      }
-    })
-  }
-
-  _refinement(refinement: RefinementEffect<Output>['refinement']): IZodEffects<this, Output, Input> {
-    return builders.refine(this, refinement)
   }
 
   superRefine(
     refinement: (arg: Output, ctx: RefinementCtx) => unknown | Promise<unknown>
   ): IZodEffects<this, Output, Input> {
-    return this._refinement(refinement)
+    return builders.downstream(
+      this,
+      (val: Output, context: EffectContext): EffectReturnType<Output> | Promise<EffectReturnType<Output>> => {
+        const issues: IssueData[] = []
+
+        const result = refinement(val, {
+          addIssue: (issue) => issues.push(issue),
+          path: context.path,
+        })
+
+        if (typeof Promise !== 'undefined' && result instanceof Promise) {
+          return result.then(() => {
+            if (issues.some((i) => i.fatal)) {
+              return { status: 'aborted', issues }
+            }
+            if (issues.length) {
+              return { status: 'dirty', value: val, issues }
+            }
+            return { status: 'valid', value: val }
+          })
+        } else {
+          if (issues.some((i) => i.fatal)) {
+            return { status: 'aborted', issues }
+          }
+          if (issues.length) {
+            return { status: 'dirty', value: val, issues }
+          }
+          return { status: 'valid', value: val }
+        }
+      }
+    )
+  }
+
+  downstream<NewOut>(
+    fn: (
+      output: Output,
+      ctx: EffectContext
+    ) => EffectReturnType<NewOut> | Promise<EffectReturnType<NewOut> | undefined> | undefined,
+    params?: { failFast?: boolean }
+  ): IZodEffects<this, NewOut> {
+    return builders.downstream<this, NewOut>(this, fn, params)
   }
 
   constructor(def: Def) {
@@ -258,7 +285,6 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     this.safeParseAsync = this.safeParseAsync.bind(this)
     this.spa = this.spa.bind(this)
     this.refine = this.refine.bind(this)
-    this.refinement = this.refinement.bind(this)
     this.superRefine = this.superRefine.bind(this)
     this.optional = this.optional.bind(this)
     this.nullable = this.nullable.bind(this)
@@ -276,6 +302,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     this.readonly = this.readonly.bind(this)
     this.isNullable = this.isNullable.bind(this)
     this.isOptional = this.isOptional.bind(this)
+    this.downstream = this.downstream.bind(this)
   }
 
   optional(): IZodOptional<this> {
@@ -309,7 +336,38 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   transform<NewOut>(
     transform: (arg: Output, ctx: RefinementCtx) => NewOut | Promise<NewOut>
   ): IZodEffects<this, NewOut> {
-    return builders.transformer(this, transform)
+    return builders.downstream(
+      this,
+      (val: Output, context: EffectContext): EffectReturnType<NewOut> | Promise<EffectReturnType<NewOut>> => {
+        const issues: IssueData[] = []
+
+        const result = transform(val, {
+          addIssue: (issue) => issues.push(issue),
+          path: context.path,
+        })
+
+        if (result instanceof Promise) {
+          return result.then((data) => {
+            if (issues.some((i) => i.fatal)) {
+              return { status: 'aborted', issues }
+            }
+            if (issues.length) {
+              return { status: 'dirty', value: data, issues }
+            }
+            return { status: 'valid', value: data }
+          })
+        } else {
+          if (issues.some((i) => i.fatal)) {
+            return { status: 'aborted', issues }
+          }
+          if (issues.length) {
+            return { status: 'dirty', value: result, issues }
+          }
+          return { status: 'valid', value: result }
+        }
+      },
+      { failFast: true } // keeps backward compatibility with previous transform implementation
+    )
   }
 
   default(def: utils.types.NoUndefined<Input> | (() => utils.types.NoUndefined<Input>)) {
@@ -441,7 +499,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     ctx: ParseContext,
     result: SyncParseReturnType<Output>
   ): { success: true; data: Output } | { success: false; error: ZodError<Input> } => {
-    if (isValid(result)) {
+    if (result.status === 'valid') {
       return { success: true, data: result.value }
     } else {
       if (!ctx.common.issues.length) {

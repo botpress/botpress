@@ -3,9 +3,6 @@ import * as z from '../index'
 import * as assert from '../../assertions.utils.test'
 
 const stringToNumber = z.string().transform((arg) => parseFloat(arg))
-// const numberToString = z
-//   .transformer(z.number())
-//   .transform((n) => String(n));
 const asyncNumberToString = z.number().transform(async (n) => String(n))
 
 test('transform ctx.addIssue with parse', () => {
@@ -72,16 +69,15 @@ test('transform ctx.addIssue with parseAsync', async () => {
   })
 })
 
-test('return invalid parse result in transform', () => {
+test('return invalid parse result in downstream', () => {
   const foo = z
     .number()
     .optional()
-    .transform((val, ctx) => {
+    .downstream((val) => {
       if (!val) {
-        ctx.addIssue({ code: 'custom', message: 'bad' })
-        return { status: 'aborted' } as never
+        return z.ERR({ code: 'custom', message: 'bad' })
       }
-      return val
+      return z.OK(val)
     })
   type foo = z.infer<typeof foo>
   assert.assertEqual<foo, number>(true)

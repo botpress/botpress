@@ -6,12 +6,13 @@ import type {
   ZodEffectsDef,
   input,
   output,
-  RefinementCtx,
-  IssueData,
   ParseInput,
   ParseReturnType,
+  EffectReturnType,
+  ParseContext,
+  ValidParseReturnType,
 } from '../../typings'
-import { ZodBaseTypeImpl, addIssueToContext, isValid } from '../basetype'
+import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, Input = input<T>>
   extends ZodBaseTypeImpl<Output, ZodEffectsDef<T>, Input>
@@ -49,93 +50,54 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
-    const { status, ctx } = this._processInputParams(input)
+    const { ctx } = this._processInputParams(input)
 
     const effect = this._def.effect
 
-    const checkCtx: RefinementCtx = {
-      addIssue: (arg: IssueData) => {
-        addIssueToContext(ctx, arg)
-        if (arg.fatal) {
-          status.abort()
-        } else {
-          status.dirty()
-        }
-      },
-      get path() {
-        return ctx.path
-      },
-    }
-
-    checkCtx.addIssue = checkCtx.addIssue.bind(checkCtx)
-
-    if (effect.type === 'preprocess') {
-      const processed = effect.preprocess(ctx.data, checkCtx)
+    if (effect.type === 'upstream') {
+      let processed = effect.effect(ctx.data, { path: ctx.path })
 
       if (ctx.common.async) {
         return Promise.resolve(processed).then(async (processed) => {
-          if (status.value === 'aborted') return { status: 'aborted' }
+          processed ??= { status: 'valid', value: ctx.data }
+          this._processResult(ctx, processed)
+
+          if (processed.status === 'aborted') return { status: 'aborted' }
 
           const result = await this._def.schema._parseAsync({
-            data: processed,
+            data: processed.value,
             path: ctx.path,
             parent: ctx,
           })
           if (result.status === 'aborted') return { status: 'aborted' }
           if (result.status === 'dirty') return { status: 'dirty', value: result.value }
-          if (status.value === 'dirty') return { status: 'dirty', value: result.value }
+          if (processed.status === 'dirty') return { status: 'dirty', value: result.value }
           return result
         })
       } else {
-        if (status.value === 'aborted') return { status: 'aborted' }
+        if (processed instanceof Promise) {
+          throw new Error(
+            'Asynchronous upstream transform encountered during synchronous parse operation. Use .parseAsync instead.'
+          )
+        }
+        processed ??= { status: 'valid', value: ctx.data }
+        this._processResult(ctx, processed)
+
+        if (processed.status === 'aborted') return { status: 'aborted' }
+
         const result = this._def.schema._parseSync({
-          data: processed,
+          data: processed.value,
           path: ctx.path,
           parent: ctx,
         })
         if (result.status === 'aborted') return { status: 'aborted' }
         if (result.status === 'dirty') return { status: 'dirty', value: result.value }
-        if (status.value === 'dirty') return { status: 'dirty', value: result.value }
+        if (processed.status === 'dirty') return { status: 'dirty', value: result.value }
         return result
       }
     }
-    if (effect.type === 'refinement') {
-      const executeRefinement = (acc: unknown): unknown => {
-        const result = effect.refinement(acc, checkCtx)
-        if (ctx.common.async) {
-          return Promise.resolve(result)
-        }
-        if (result instanceof Promise) {
-          throw new Error('Async refinement encountered during synchronous parse operation. Use .parseAsync instead.')
-        }
-        return acc
-      }
 
-      if (ctx.common.async === false) {
-        const inner = this._def.schema._parseSync({
-          data: ctx.data,
-          path: ctx.path,
-          parent: ctx,
-        })
-        if (inner.status === 'aborted') return { status: 'aborted' }
-        if (inner.status === 'dirty') status.dirty()
-
-        // return value is ignored
-        executeRefinement(inner.value)
-        return { status: status.value, value: inner.value }
-      } else {
-        return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((inner) => {
-          if (inner.status === 'aborted') return { status: 'aborted' }
-          if (inner.status === 'dirty') status.dirty()
-
-          return (executeRefinement(inner.value) as Promise<unknown>).then(() => {
-            return { status: status.value, value: inner.value }
-          })
-        })
-      }
-    }
-
-    if (effect.type === 'transform') {
+    if (effect.type === 'downstream') {
       if (ctx.common.async === false) {
         const base = this._def.schema._parseSync({
           data: ctx.data,
@@ -143,48 +105,76 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
           parent: ctx,
         })
 
-        if (!isValid(base)) return base
+        if (base.status === 'aborted') return base
+        if (base.status === 'dirty') {
+          if (effect.failFast) {
+            return base
+          }
+        }
 
-        const result = effect.transform(base.value, checkCtx)
+        let result = effect.effect(base.value, { path: ctx.path })
         if (result instanceof Promise) {
           throw new Error(
             'Asynchronous transform encountered during synchronous parse operation. Use .parseAsync instead.'
           )
         }
 
-        return { status: status.value, value: result } as ParseReturnType<this['_output']>
+        result ??= { status: 'valid', value: base.value }
+        this._processResult(ctx, result)
+
+        if (result.status === 'aborted') return { status: 'aborted' }
+        if (result.status === 'dirty') return { status: 'dirty', value: result.value as this['_output'] }
+        if (base.status === 'dirty') return { status: 'dirty', value: result.value as this['_output'] }
+        return result as ValidParseReturnType<this['_output']>
       } else {
         return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((base) => {
-          if (!isValid(base)) return base
+          if (base.status === 'aborted') return base
+          if (base.status === 'dirty') {
+            if (effect.failFast) {
+              return base
+            }
+          }
 
-          return Promise.resolve(effect.transform(base.value, checkCtx)).then((result) => ({
-            status: status.value,
-            value: result,
-          }))
-        }) as ParseReturnType<this['_output']>
+          return Promise.resolve(effect.effect(base.value, { path: ctx.path })).then(
+            (result): ParseReturnType<this['_output']> => {
+              result ??= { status: 'valid', value: base.value }
+              this._processResult(ctx, result)
+
+              if (result.status === 'aborted') return { status: 'aborted' }
+              if (result.status === 'dirty') return { status: 'dirty', value: result.value as this['_output'] }
+              if (base.status === 'dirty') return { status: 'dirty', value: result.value as this['_output'] }
+              return result as ValidParseReturnType<this['_output']>
+            }
+          )
+        })
       }
     }
 
     utils.assert.assertNever(effect)
   }
 
+  private _processResult(ctx: ParseContext, result: EffectReturnType<unknown>): void {
+    if (result.status === 'valid') {
+      return
+    }
+    for (const issue of result.issues) {
+      addIssueToContext(ctx, issue)
+    }
+  }
+
   isEqual(schema: IZodType): boolean {
     if (!(schema instanceof ZodEffectsImpl)) return false
     if (!this._def.schema.isEqual(schema._def.schema)) return false
 
-    if (this._def.effect.type === 'refinement') {
-      if (schema._def.effect.type !== 'refinement') return false
-      return utils.others.compareFunctions(this._def.effect.refinement, schema._def.effect.refinement)
+    if (this._def.effect.type === 'upstream') {
+      if (schema._def.effect.type !== 'upstream') return false
+      return utils.others.compareFunctions(this._def.effect.effect, schema._def.effect.effect)
     }
 
-    if (this._def.effect.type === 'transform') {
-      if (schema._def.effect.type !== 'transform') return false
-      return utils.others.compareFunctions(this._def.effect.transform, schema._def.effect.transform)
-    }
-
-    if (this._def.effect.type === 'preprocess') {
-      if (schema._def.effect.type !== 'preprocess') return false
-      return utils.others.compareFunctions(this._def.effect.preprocess, schema._def.effect.preprocess)
+    if (this._def.effect.type === 'downstream') {
+      if (schema._def.effect.type !== 'downstream') return false
+      if (this._def.effect.failFast !== schema._def.effect.failFast) return false
+      return utils.others.compareFunctions(this._def.effect.effect, schema._def.effect.effect)
     }
 
     this._def.effect satisfies never

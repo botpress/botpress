@@ -173,6 +173,12 @@ export type {
   // effects
   ZodEffectsDef,
   IZodEffects as ZodEffects,
+  EffectContext,
+  EffectIssue,
+  ValidEffectReturnType,
+  InvalidEffectReturnType,
+  DirtyEffectReturnType,
+  EffectReturnType,
 
   // undefined
   ZodUndefinedDef,
@@ -195,6 +201,9 @@ export type {
 
 export {
   coerce,
+  OK,
+  ERR,
+  DIRTY,
   anyType as any,
   arrayType as array,
   bigIntType as bigint,
@@ -222,16 +231,16 @@ export {
   optionalType as optional,
   pipelineType as pipeline,
   preprocessType as preprocess,
+  upstreamType as upstream,
+  downstreamType as downstream,
   promiseType as promise,
   recordType as record,
   refType as ref,
-  refineType as refine,
   readonlyType as readonly,
   setType as set,
   strictObjectType as strictObject,
   stringType as string,
   symbolType as symbol,
-  transformerType as transformer,
   tupleType as tuple,
   undefinedType as undefined,
   unionType as union,

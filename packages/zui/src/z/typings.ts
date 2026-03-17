@@ -84,11 +84,6 @@ export type ErrMessage =
       message?: string
     }
 
-// type _ZodIssueBase = {
-//   path: (string | number)[]
-//   message?: string
-// }
-
 export type ZodInvalidTypeIssue = {
   code: 'invalid_type'
   expected: ZodParsedType
@@ -266,20 +261,18 @@ export interface IZodError<T = unknown> extends Error {
   addIssues: (subs?: ZodIssue[]) => void
 }
 
-export type IssueData = ZodIssueBody & {
+export type IssueData = EffectIssue & {
   path?: (string | number)[]
   fatal?: boolean
   message?: string
 }
 
-type _ErrorMapCtx = {
-  defaultError: string
-  data: any
-}
-
 export type ZodErrorMap = (
   issue: ZodIssueBody & { path: (string | number)[]; message?: string },
-  _ctx: _ErrorMapCtx
+  ctx: {
+    defaultError: string
+    data: any
+  }
 ) => {
   message: string
 }
@@ -356,7 +349,13 @@ export type ParseParams = {
   async: boolean
 }
 
+/**
+ * @deprecated use upstream and downstream instead which handle issues with a better semantic
+ */
 export type RefinementCtx = {
+  /**
+   * @deprecated use upstream and downstream instead which handle issues with a better semantic
+   */
   addIssue: (arg: IssueData) => void
   path: (string | number)[]
 }
@@ -433,19 +432,22 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
     check: (arg: Output) => unknown | Promise<unknown>,
     message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams)
   ): IZodEffects<this, Output, Input>
-  refinement<RefinedOutput extends Output>(
-    check: (arg: Output) => arg is RefinedOutput,
-    refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData)
-  ): IZodEffects<this, RefinedOutput, Input>
-  refinement(
-    check: (arg: Output) => boolean,
-    refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData)
-  ): IZodEffects<this, Output, Input>
+
+  /**
+   * @deprecated use downstream instead which handle issues with a better semantic
+   */
   superRefine<RefinedOutput extends Output>(
     refinement: (arg: Output, ctx: RefinementCtx) => arg is RefinedOutput
   ): IZodEffects<this, RefinedOutput, Input>
+  /**
+   * @deprecated use downstream instead which handle issues with a better semantic
+   */
   superRefine(refinement: (arg: Output, ctx: RefinementCtx) => void): IZodEffects<this, Output, Input>
+  /**
+   * @deprecated use downstream instead which handle issues with a better semantic
+   */
   superRefine(refinement: (arg: Output, ctx: RefinementCtx) => Promise<void>): IZodEffects<this, Output, Input>
+
   optional(): IZodOptional<this>
   nullable(): IZodNullable<this>
   nullish(): IZodOptional<IZodNullable<this>>
@@ -469,6 +471,13 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
   or<T extends IZodType>(option: T): IZodUnion<[this, T]>
   and<T extends IZodType>(incoming: T): IZodIntersection<this, T>
   transform<NewOut>(transform: (arg: Output, ctx: RefinementCtx) => NewOut | Promise<NewOut>): IZodEffects<this, NewOut>
+  downstream<NewOut>(
+    fn: (
+      output: Output,
+      ctx: EffectContext
+    ) => EffectReturnType<NewOut> | Promise<EffectReturnType<NewOut> | undefined> | undefined,
+    params?: { failFast?: boolean }
+  ): IZodEffects<this, NewOut>
   default(def: NoUndefined<Input>): IZodDefault<this>
   default(def: () => NoUndefined<Input>): IZodDefault<this>
   brand<B extends string | number | symbol>(brand?: B): IZodBranded<this, B>
@@ -1581,28 +1590,37 @@ export interface IZodSymbol extends IZodType<symbol, ZodSymbolDef> {}
 
 //* ─────────────────────────── ZodEffects ───────────────────────────────────
 
-export type RefinementEffect<I, O = unknown> = {
-  type: 'refinement'
-  refinement: (arg: I, ctx: RefinementCtx) => O
+export type EffectIssue = ZodIssueBody & {
+  path?: (string | number)[]
+  message?: string
 }
 
-export type TransformEffect<I, O = unknown> = {
-  type: 'transform'
-  transform: (arg: I, ctx: RefinementCtx) => O
+export type InvalidEffectReturnType = { status: 'aborted'; issues: EffectIssue[] }
+export type DirtyEffectReturnType<T> = { status: 'dirty'; value: T; issues: EffectIssue[] }
+export type ValidEffectReturnType<T> = { status: 'valid'; value: T }
+export type EffectReturnType<T> = InvalidEffectReturnType | DirtyEffectReturnType<T> | ValidEffectReturnType<T>
+
+export type EffectContext = { path: (string | number)[] }
+
+export type UpstreamEffect<I = unknown, O = unknown> = {
+  type: 'upstream'
+  effect: (arg: I, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined
 }
 
-export type PreprocessEffect<I, O = unknown> = {
-  type: 'preprocess'
-  preprocess: (arg: I, ctx: RefinementCtx) => O
+export type DownstreamEffect<I = unknown, O = unknown> = {
+  type: 'downstream'
+  failFast?: boolean
+  effect: (arg: I, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined
 }
 
-export type Effect<I, O = unknown> = RefinementEffect<I, O> | TransformEffect<I, O> | PreprocessEffect<I, O>
+export type Effect<I = unknown, O = unknown> = UpstreamEffect<I, O> | DownstreamEffect<I, O>
+
 export type ZodEffectsDef<T extends IZodType = IZodType> = {
   schema: T
   typeName: 'ZodEffects'
 
   // We don't care about the specific type here as this is a storage type. Type inference is done at the builder level.
-  effect: Effect<unknown>
+  effect: Effect
 } & ZodTypeDef
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
@@ -1610,7 +1628,7 @@ export interface IZodEffects<T extends IZodType = IZodType, Output = output<T>, 
   extends IZodType<Output, ZodEffectsDef<T>, Input> {
   innerType(): T
   /**
-   * @deprecated use naked() instead
+   * @deprecated use naked instead
    */
   sourceType(): T
 }
@@ -1703,17 +1721,18 @@ export type ZodNativeTypeName = ZodNativeTypeDef['typeName']
 
 //* ─────────────────────────── Builders ──────────────────────────────
 
-type _CustomParams = CustomErrorParams & { fatal?: boolean }
-
+export type CustomParams = CustomErrorParams & { fatal?: boolean }
 export declare function createCustom<T>(
   check?: (data: unknown) => unknown,
-  params?: string | _CustomParams | ((input: unknown) => _CustomParams),
+  params?: string | CustomParams | ((input: unknown) => CustomParams),
   fatal?: boolean
 ): IZodType<T>
+
 export declare function createInstanceOf<T extends abstract new (...args: any[]) => any>(
   cls: T,
-  params?: _CustomParams
+  params?: CustomParams
 ): IZodType<InstanceType<T>>
+
 export declare function createAny(params?: ZodCreateParams): IZodAny
 export declare function createUnknown(params?: ZodCreateParams): IZodUnknown
 export declare function createNever(params?: ZodCreateParams): IZodNever
@@ -1808,28 +1827,29 @@ export declare function createFunction<
 >(args: T, returns: U, params: ZodCreateParams): IZodFunction<T, U>
 export declare function createFunction(args?: AnyZodTuple, returns?: IZodType, params?: ZodCreateParams): IZodFunction
 
-export declare function createRefine<T extends IZodType, O>(
-  schema: T,
-  refinement: (arg: output<T>, ctx: RefinementCtx) => arg is O,
-  params?: ZodCreateParams
-): IZodEffects<T, O>
-export declare function createRefine<T extends IZodType>(
-  schema: T,
-  refinement: (arg: output<T>, ctx: RefinementCtx) => unknown | Promise<unknown>,
-  params?: ZodCreateParams
-): IZodEffects<T>
-
-export declare function createTransform<T extends IZodType, O>(
-  schema: T,
-  transform: (arg: output<T>, ctx: RefinementCtx) => O | Promise<O>,
-  params?: ZodCreateParams
-): IZodEffects<T, O>
-
 export declare function createPreprocess<T extends IZodType<O>, O>(
-  preprocess: (arg: unknown, ctx: RefinementCtx) => unknown | Promise<unknown>,
+  preprocess: (arg: unknown, ctx: EffectContext) => O | Promise<O>,
   schema: T,
   params?: ZodCreateParams
 ): IZodEffects<T, output<T>, unknown>
+
+export declare function createUpstream<T extends IZodType<O>, O>(
+  upstream: (
+    arg: unknown,
+    ctx: EffectContext
+  ) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined,
+  schema: T,
+  params?: ZodCreateParams
+): IZodEffects<T, output<T>, unknown>
+
+export declare function createDownstream<T extends IZodType, O>(
+  schema: T,
+  downstream: (
+    arg: output<T>,
+    ctx: EffectContext
+  ) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined,
+  params?: ZodCreateParams & { failFast?: boolean }
+): IZodEffects<T, O>
 
 export declare function createOptional<T extends IZodType>(type: T, params?: ZodCreateParams): IZodOptional<T>
 export declare function createNullable<T extends IZodType>(type: T, params?: ZodCreateParams): IZodNullable<T>
@@ -1875,16 +1895,16 @@ export type ZodBuilders = {
   optional: typeof createOptional
   pipeline: typeof createPipeline
   preprocess: typeof createPreprocess
+  upstream: typeof createUpstream
+  downstream: typeof createDownstream
   promise: typeof createPromise
   record: typeof createRecord
   ref: typeof createRef
-  refine: typeof createRefine
   readonly: typeof createReadonly
   set: typeof createSet
   strictObject: typeof createStrictObject
   string: typeof createString
   symbol: typeof createSymbol
-  transformer: typeof createTransform
   tuple: typeof createTuple
   undefined: typeof createUndefined
   union: typeof createUnion
