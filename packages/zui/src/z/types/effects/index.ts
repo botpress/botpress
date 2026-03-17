@@ -59,7 +59,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
       if (ctx.common.async) {
         return Promise.resolve(processed).then(async (processed) => {
           processed ??= { status: 'valid', value: ctx.data }
-          this._processResult(ctx, status, processed ?? { status: 'valid', value: ctx.data })
+          this._processResult(ctx, status, processed)
 
           if (status.value === 'aborted') return { status: 'aborted' }
 
