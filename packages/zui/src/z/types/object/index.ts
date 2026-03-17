@@ -1,147 +1,52 @@
-import { unique } from '../../utils'
-import {
-  ZodArray,
-  ZodEnum,
-  ZodNullable,
-  ZodOptional,
-  ZodTuple,
-  addIssueToContext,
-  INVALID,
-  objectUtil,
+import * as utils from '../../../utils'
+import { is } from '../../guards'
+import { builders } from '../../internal-builders'
+import type {
+  IZodObject,
+  IZodType,
+  ZodObjectDef,
+  UnknownKeysParam,
+  ZodRawShape,
+  ObjectOutputType,
+  ObjectInputType,
+  AdditionalProperties,
+  Deoptional,
+  KeyOfObject,
+  IZodOptional,
+  IZodEnum,
   ParseInput,
   ParseReturnType,
-  ParseStatus,
-  util,
-  ZodIssueCode,
-  ZodParsedType,
-  ParseInputLazyPath,
-  RawCreateParams,
-  ZodFirstPartyTypeKind,
-  ZodRawShape,
-  ZodType,
-  ZodTypeAny,
-  ZodTypeDef,
-  processCreateParams,
-  enumUtil,
-  errorUtil,
-  partialUtil,
-  createZodEnum,
-  ZodNever,
-  ZodAny,
-} from '../index'
-import { CustomSet } from '../utils/custom-set'
+  SyncParseReturnType,
+} from '../../typings'
+import { addIssueToContext, ParseStatus, ParseInputLazyPath, ZodBaseTypeImpl, type MergeObjectPair } from '../basetype'
 
-export type UnknownKeysParam = 'passthrough' | 'strict' | 'strip' | ZodTypeAny
+export class ZodObjectImpl<
+    T extends ZodRawShape = ZodRawShape,
+    UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
+    Output = ObjectOutputType<T, UnknownKeys>,
+    Input = ObjectInputType<T, UnknownKeys>,
+  >
+  extends ZodBaseTypeImpl<Output, ZodObjectDef<T, UnknownKeys>, Input>
+  implements IZodObject<T, UnknownKeys, Output, Input>
+{
+  /** Safe cast: ZodObject structurally satisfies IZodObject but TS can't prove it due to recursive type depth */
 
-export type ZodObjectDef<
-  T extends ZodRawShape = ZodRawShape,
-  UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-> = {
-  typeName: ZodFirstPartyTypeKind.ZodObject
-  shape: () => T
-  unknownKeys: UnknownKeys
-} & ZodTypeDef
-
-export type mergeTypes<A, B> = {
-  [k in keyof A | keyof B]: k extends keyof B ? B[k] : k extends keyof A ? A[k] : never
-}
-
-export type objectOutputType<
-  Shape extends ZodRawShape,
-  UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-> = UnknownKeysOutputType<UnknownKeys> & objectUtil.flatten<objectUtil.addQuestionMarks<baseObjectOutputType<Shape>>>
-
-export type baseObjectOutputType<Shape extends ZodRawShape> = {
-  [k in keyof Shape]: Shape[k]['_output']
-}
-
-export type objectInputType<
-  Shape extends ZodRawShape,
-  UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-> = objectUtil.flatten<baseObjectInputType<Shape>> & UnknownKeysInputType<UnknownKeys>
-
-export type baseObjectInputType<Shape extends ZodRawShape> = objectUtil.addQuestionMarks<{
-  [k in keyof Shape]: Shape[k]['_input']
-}>
-
-export type UnknownKeysInputType<T extends UnknownKeysParam> = T extends ZodTypeAny
-  ? { [k: string]: T['_input'] | unknown } // extra properties cannot contradict the main properties
-  : T extends 'passthrough'
-    ? { [k: string]: unknown }
-    : {}
-
-export type UnknownKeysOutputType<T extends UnknownKeysParam> = T extends ZodTypeAny
-  ? { [k: string]: T['_output'] | unknown } // extra properties cannot contradict the main properties
-  : T extends 'passthrough'
-    ? { [k: string]: unknown }
-    : {}
-
-export type AdditionalProperties<T extends UnknownKeysParam> = T extends ZodTypeAny
-  ? T
-  : T extends 'passthrough'
-    ? ZodAny
-    : T extends 'strict'
-      ? ZodNever
-      : undefined
-
-export type deoptional<T extends ZodTypeAny> =
-  T extends ZodOptional<infer U> ? deoptional<U> : T extends ZodNullable<infer U> ? ZodNullable<deoptional<U>> : T
-
-export type SomeZodObject = ZodObject<ZodRawShape, UnknownKeysParam>
-
-export type noUnrecognized<Obj extends object, Shape extends object> = {
-  [k in keyof Obj]: k extends keyof Shape ? Obj[k] : never
-}
-function deepPartialify(schema: ZodTypeAny): any {
-  if (schema instanceof ZodObject) {
-    const newShape: any = {}
-
-    for (const key in schema.shape) {
-      const fieldSchema = schema.shape[key]
-      newShape[key] = ZodOptional.create(deepPartialify(fieldSchema))
-    }
-    return new ZodObject({
-      ...schema._def,
-      shape: () => newShape,
-    })
-  } else if (schema instanceof ZodArray) {
-    return new ZodArray({
-      ...schema._def,
-      type: deepPartialify(schema.element),
-    })
-  } else if (schema instanceof ZodOptional) {
-    return ZodOptional.create(deepPartialify(schema.unwrap()))
-  } else if (schema instanceof ZodNullable) {
-    return ZodNullable.create(deepPartialify(schema.unwrap()))
-  } else if (schema instanceof ZodTuple) {
-    return ZodTuple.create(schema.items.map((item: any) => deepPartialify(item)))
-  } else {
-    return schema
-  }
-}
-
-export class ZodObject<
-  T extends ZodRawShape = ZodRawShape,
-  UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-  Output = objectOutputType<T, UnknownKeys>,
-  Input = objectInputType<T, UnknownKeys>,
-> extends ZodType<Output, ZodObjectDef<T, UnknownKeys>, Input> {
   private _cached: { shape: T; keys: string[] } | null = null
 
   _getCached(): { shape: T; keys: string[] } {
     if (this._cached !== null) return this._cached
     const shape = this._def.shape()
-    const keys = util.objectKeys(shape)
+    const keys = Object.keys(shape)
     return (this._cached = { shape, keys })
   }
 
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+  dereference(defs: Record<string, IZodType>): IZodType {
     const currentShape = this._def.shape()
-    const shape: Record<string, ZodTypeAny> = {}
+    const shape: Record<string, IZodType> = {}
     for (const key in currentShape) {
       shape[key] = currentShape[key]!.dereference(defs)
     }
-    return new ZodObject({
+    return new ZodObjectImpl({
       ...this._def,
       shape: () => shape,
     })
@@ -153,31 +58,33 @@ export class ZodObject<
     for (const key in shape) {
       refs.push(...shape[key]!.getReferences())
     }
-    return unique(refs)
+    return utils.fn.unique(refs)
   }
 
-  clone(): ZodObject<T, UnknownKeys, Output, Input> {
-    const newShape: Record<string, ZodTypeAny> = {}
+  clone(): IZodObject<T, UnknownKeys, Output, Input> {
+    const newShape: Record<string, IZodType> = {}
     const currentShape = this._def.shape()
     for (const [key, value] of Object.entries(currentShape)) {
       newShape[key] = value.clone()
     }
-    return new ZodObject({
+    const objSchema = new ZodObjectImpl<T, UnknownKeys, Output, Input>({
       ...this._def,
-      shape: () => newShape,
-    }) as ZodObject<T, UnknownKeys, Output, Input>
+      shape: () => newShape as T,
+    })
+
+    return objSchema
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const parsedType = this._getType(input)
-    if (parsedType !== ZodParsedType.object) {
+    if (parsedType !== 'object') {
       const ctx = this._getOrReturnCtx(input)
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.object,
+        code: 'invalid_type',
+        expected: 'object',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     const { status, ctx } = this._processInputParams(input)
@@ -194,8 +101,8 @@ export class ZodObject<
     }
 
     const pairs: {
-      key: ParseReturnType<any>
-      value: ParseReturnType<any>
+      key: ParseReturnType
+      value: ParseReturnType
       alwaysSet?: boolean
     }[] = []
     for (const key of shapeKeys) {
@@ -219,7 +126,7 @@ export class ZodObject<
     } else if (unknownKeys === 'strict') {
       if (extraKeys.length > 0) {
         addIssueToContext(ctx, {
-          code: ZodIssueCode.unrecognized_keys,
+          code: 'unrecognized_keys',
           keys: extraKeys,
         })
         status.dirty()
@@ -242,7 +149,11 @@ export class ZodObject<
     if (ctx.common.async) {
       return Promise.resolve()
         .then(async () => {
-          const syncPairs: any[] = []
+          const syncPairs: {
+            key: SyncParseReturnType
+            value: SyncParseReturnType
+            alwaysSet?: boolean
+          }[] = []
           for (const pair of pairs) {
             const key = await pair.key
             syncPairs.push({
@@ -257,7 +168,7 @@ export class ZodObject<
           return ParseStatus.mergeObjectSync(status, syncPairs)
         })
     } else {
-      return ParseStatus.mergeObjectSync(status, pairs as any)
+      return ParseStatus.mergeObjectSync(status, pairs as MergeObjectPair[])
     }
   }
 
@@ -265,9 +176,9 @@ export class ZodObject<
     return this._def.shape()
   }
 
-  strict(message?: errorUtil.ErrMessage): ZodObject<T, 'strict'> {
-    errorUtil.errToObj
-    return new ZodObject({
+  strict(message?: utils.errors.ErrMessage): IZodObject<T, 'strict'> {
+    utils.errors.errToObj
+    return new ZodObjectImpl({
       ...this._def,
       unknownKeys: 'strict',
       ...(message !== undefined
@@ -276,7 +187,7 @@ export class ZodObject<
               const defaultError = this._def.errorMap?.(issue, ctx).message ?? ctx.defaultError
               if (issue.code === 'unrecognized_keys') {
                 return {
-                  message: errorUtil.errToObj(message).message ?? defaultError,
+                  message: utils.errors.errToObj(message).message ?? defaultError,
                 }
               }
               return {
@@ -288,32 +199,32 @@ export class ZodObject<
     })
   }
 
-  strip(): ZodObject<T, 'strip'> {
-    return new ZodObject({
+  strip(): IZodObject<T, 'strip'> {
+    return new ZodObjectImpl({
       ...this._def,
       unknownKeys: 'strip',
     })
   }
 
-  passthrough(): ZodObject<T, 'passthrough'> {
-    return new ZodObject({
+  passthrough(): IZodObject<T, 'passthrough'> {
+    return new ZodObjectImpl({
       ...this._def,
       unknownKeys: 'passthrough',
     })
   }
 
   /**
-   * @returns The ZodType that is used to validate additional properties or undefined if extra keys are stripped.
+   * @returns The IZodType that is used to validate additional properties or undefined if extra keys are stripped.
    */
   additionalProperties(): AdditionalProperties<UnknownKeys> {
-    if (this._def.unknownKeys instanceof ZodType) {
+    if (typeof this._def.unknownKeys === 'object') {
       return this._def.unknownKeys as AdditionalProperties<UnknownKeys>
     }
     if (this._def.unknownKeys === 'passthrough') {
-      return ZodAny.create() as AdditionalProperties<UnknownKeys>
+      return builders.any() as AdditionalProperties<UnknownKeys>
     }
     if (this._def.unknownKeys === 'strict') {
-      return ZodNever.create() as AdditionalProperties<UnknownKeys>
+      return builders.never() as AdditionalProperties<UnknownKeys>
     }
     return undefined as AdditionalProperties<UnknownKeys>
   }
@@ -328,29 +239,29 @@ export class ZodObject<
   //   <Def extends ZodObjectDef>(def: Def) =>
   //   <Augmentation extends ZodRawShape>(
   //     augmentation: Augmentation
-  //   ): ZodObject<
+  //   ): IZodObject<
   //     extendShape<ReturnType<Def["shape"]>, Augmentation>,
   //     Def["unknownKeys"],
   //     Def["catchall"]
   //   > => {
-  //     return new ZodObject({
+  //     return (new ZodObjectImpl({
   //       ...def,
   //       shape: () => ({
   //         ...def.shape(),
   //         ...augmentation,
   //       }),
-  //     })
+  //     }))
   //   };
   extend<Augmentation extends ZodRawShape>(
     augmentation: Augmentation
-  ): ZodObject<objectUtil.extendShape<T, Augmentation>, UnknownKeys> {
-    return new ZodObject({
+  ): IZodObject<utils.types.ExtendShape<T, Augmentation>, UnknownKeys> {
+    return new ZodObjectImpl({
       ...this._def,
       shape: () => ({
         ...this._def.shape(),
         ...augmentation,
       }),
-    })
+    }) as unknown as IZodObject<utils.types.ExtendShape<T, Augmentation>, UnknownKeys>
   }
   // extend<
   //   Augmentation extends ZodRawShape,
@@ -370,20 +281,20 @@ export class ZodObject<
   //   }>
   // >(
   //   augmentation: Augmentation
-  // ): ZodObject<
+  // ): IZodObject<
   //   extendShape<T, Augmentation>,
   //   UnknownKeys,
   //   Catchall,
   //   NewOutput,
   //   NewInput
   // > {
-  //   return new ZodObject({
+  //   return (new ZodObjectImpl({
   //     ...this._def,
   //     shape: () => ({
   //       ...this._def.shape(),
   //       ...augmentation,
   //     }),
-  //   })
+  //   }))
   // }
   /**
    * @deprecated Use `.extend` instead
@@ -395,93 +306,40 @@ export class ZodObject<
    * inferred type of merged objects. Please
    * upgrade if you are experiencing issues.
    */
-  merge<Incoming extends AnyZodObject, Augmentation extends Incoming['shape']>(
+  merge<Incoming extends IZodObject<any>, Augmentation extends Incoming['shape']>(
     merging: Incoming
-  ): ZodObject<objectUtil.extendShape<T, Augmentation>, Incoming['_def']['unknownKeys']> {
-    const merged: any = new ZodObject({
-      unknownKeys: merging._def.unknownKeys,
-      shape: () => ({
-        ...this._def.shape(),
-        ...merging._def.shape(),
-      }),
-      typeName: ZodFirstPartyTypeKind.ZodObject,
+  ): IZodObject<utils.types.ExtendShape<T, Augmentation>, Incoming['_def']['unknownKeys']> {
+    const merged = new ZodObjectImpl({
+      unknownKeys: merging._def.unknownKeys as Incoming['_def']['unknownKeys'],
+      shape: () =>
+        ({
+          ...this._def.shape(),
+          ...merging._def.shape(),
+        }) as utils.types.ExtendShape<T, Augmentation>,
+      typeName: 'ZodObject',
     })
-    return merged
+    return merged as IZodObject<utils.types.ExtendShape<T, Augmentation>, Incoming['_def']['unknownKeys']>
   }
-  // merge<
-  //   Incoming extends AnyZodObject,
-  //   Augmentation extends Incoming["shape"],
-  //   NewOutput extends {
-  //     [k in keyof Augmentation | keyof Output]: k extends keyof Augmentation
-  //       ? Augmentation[k]["_output"]
-  //       : k extends keyof Output
-  //       ? Output[k]
-  //       : never;
-  //   },
-  //   NewInput extends {
-  //     [k in keyof Augmentation | keyof Input]: k extends keyof Augmentation
-  //       ? Augmentation[k]["_input"]
-  //       : k extends keyof Input
-  //       ? Input[k]
-  //       : never;
-  //   }
-  // >(
-  //   merging: Incoming
-  // ): ZodObject<
-  //   extendShape<T, ReturnType<Incoming["_def"]["shape"]>>,
-  //   Incoming["_def"]["unknownKeys"],
-  //   Incoming["_def"]["catchall"],
-  //   NewOutput,
-  //   NewInput
-  // > {
-  //   const merged: any = new ZodObject({
-  //     unknownKeys: merging._def.unknownKeys,
-  //     catchall: merging._def.catchall,
-  //     shape: () =>
-  //       objectUtil.mergeShapes(this._def.shape(), merging._def.shape()),
-  //     typeName: ZodFirstPartyTypeKind.ZodObject,
-  //   });
-  //   return merged;
-  // }
-  setKey<Key extends string, Schema extends ZodTypeAny>(
+
+  setKey<Key extends string, Schema extends IZodType>(
     key: Key,
     schema: Schema
-  ): ZodObject<
+  ): IZodObject<
     T & {
       [k in Key]: Schema
     },
     UnknownKeys
   > {
-    return this.augment({ [key]: schema }) as ZodObject<
+    return this.augment({ [key]: schema }) as IZodObject<
       T & {
         [k in Key]: Schema
       },
       UnknownKeys
     >
   }
-  // merge<Incoming extends AnyZodObject>(
-  //   merging: Incoming
-  // ): //ZodObject<T & Incoming["_shape"], UnknownKeys, Catchall> = (merging) => {
-  // ZodObject<
-  //   extendShape<T, ReturnType<Incoming["_def"]["shape"]>>,
-  //   Incoming["_def"]["unknownKeys"],
-  //   Incoming["_def"]["catchall"]
-  // > {
-  //   // const mergedShape = objectUtil.mergeShapes(
-  //   //   this._def.shape(),
-  //   //   merging._def.shape()
-  //   // );
-  //   const merged: any = new ZodObject({
-  //     unknownKeys: merging._def.unknownKeys,
-  //     catchall: merging._def.catchall,
-  //     shape: () =>
-  //       objectUtil.mergeShapes(this._def.shape(), merging._def.shape()),
-  //     typeName: ZodFirstPartyTypeKind.ZodObject,
-  //   });
-  //   return merged;
-  // }
-  catchall<Index extends ZodTypeAny>(index: Index): ZodObject<T, Index> {
-    return new ZodObject({
+
+  catchall<Index extends IZodType>(index: Index): IZodObject<T, Index> {
+    return new ZodObjectImpl({
       ...this._def,
       unknownKeys: index,
     })
@@ -491,50 +349,47 @@ export class ZodObject<
     Mask extends {
       [k in keyof T]?: true
     },
-  >(mask: Mask): ZodObject<Pick<T, Extract<keyof T, keyof Mask>>, UnknownKeys> {
-    const shape: any = {}
+  >(mask: Mask): IZodObject<Pick<T, Extract<keyof T, keyof Mask>>, UnknownKeys> {
+    const shape: Record<string, IZodType> = {}
 
-    util.objectKeys(mask).forEach((key) => {
+    Object.keys(mask).forEach((key) => {
       if (mask[key] && this.shape[key]) {
         shape[key] = this.shape[key]
       }
     })
 
-    return new ZodObject({
+    const objSchema: IZodObject<Pick<T, Extract<keyof T, keyof Mask>>, UnknownKeys> = new ZodObjectImpl({
       ...this._def,
-      shape: () => shape,
+      shape: () => shape as Pick<T, Extract<keyof T, keyof Mask>>,
     })
+
+    return objSchema
   }
 
   omit<
     Mask extends {
       [k in keyof T]?: true
     },
-  >(mask: Mask): ZodObject<Omit<T, keyof Mask>, UnknownKeys> {
-    const shape: any = {}
+  >(mask: Mask): IZodObject<Omit<T, keyof Mask>, UnknownKeys> {
+    const shape: Record<string, IZodType> = {}
 
-    util.objectKeys(this.shape).forEach((key) => {
+    Object.entries(this.shape).forEach(([key, value]) => {
       if (!mask[key]) {
-        shape[key] = this.shape[key]
+        shape[key] = value
       }
     })
 
-    return new ZodObject({
+    const objSchema: IZodObject<Omit<T, keyof Mask>, UnknownKeys> = new ZodObjectImpl({
       ...this._def,
-      shape: () => shape,
+      shape: () => shape as Omit<T, keyof Mask>,
     })
+
+    return objSchema
   }
 
-  /**
-   * @deprecated
-   */
-  deepPartial(): partialUtil.DeepPartial<this> {
-    return deepPartialify(this)
-  }
-
-  partial(): ZodObject<
+  partial(): IZodObject<
     {
-      [k in keyof T]: ZodOptional<T[k]>
+      [k in keyof T]: IZodOptional<T[k]>
     },
     UnknownKeys
   >
@@ -544,16 +399,18 @@ export class ZodObject<
     },
   >(
     mask: Mask
-  ): ZodObject<
-    objectUtil.noNever<{
-      [k in keyof T]: k extends keyof Mask ? ZodOptional<T[k]> : T[k]
+  ): IZodObject<
+    utils.types.NoNever<{
+      [k in keyof T]: k extends keyof Mask ? IZodOptional<T[k]> : T[k]
     }>,
     UnknownKeys
   >
-  partial(mask?: any) {
-    const newShape: Record<string, ZodTypeAny | undefined> = {}
+  partial(mask?: {
+    [k in keyof T]?: true
+  }): IZodObject<Record<string, IZodType>, UnknownKeys> {
+    const newShape: Record<string, IZodType | undefined> = {}
 
-    util.objectKeys(this.shape).forEach((key) => {
+    Object.keys(this.shape).forEach((key) => {
       const fieldSchema = this.shape[key]
 
       if (mask && !mask[key]) {
@@ -563,15 +420,17 @@ export class ZodObject<
       }
     })
 
-    return new ZodObject({
+    const objSchema: IZodObject<ZodRawShape, UnknownKeys> = new ZodObjectImpl({
       ...this._def,
       shape: () => newShape as ZodRawShape,
     })
+
+    return objSchema
   }
 
-  required(): ZodObject<
+  required(): IZodObject<
     {
-      [k in keyof T]: deoptional<T[k]>
+      [k in keyof T]: Deoptional<T[k]>
     },
     UnknownKeys
   >
@@ -581,56 +440,59 @@ export class ZodObject<
     },
   >(
     mask: Mask
-  ): ZodObject<
-    objectUtil.noNever<{
-      [k in keyof T]: k extends keyof Mask ? deoptional<T[k]> : T[k]
+  ): IZodObject<
+    utils.types.NoNever<{
+      [k in keyof T]: k extends keyof Mask ? Deoptional<T[k]> : T[k]
     }>,
     UnknownKeys
   >
-  required(mask?: any) {
-    const newShape: any = {}
+  required(mask?: {
+    [k in keyof T]?: true
+  }): IZodObject {
+    const newShape: Record<string, IZodType> = {}
 
-    util.objectKeys(this.shape).forEach((key) => {
+    Object.entries(this.shape).forEach(([key, value]) => {
       if (mask && !mask[key]) {
-        newShape[key] = this.shape[key]
+        newShape[key] = value
       } else {
-        const fieldSchema = this.shape[key]
-        let newField = fieldSchema
+        const fieldSchema = value
 
-        while (newField instanceof ZodOptional) {
-          newField = (newField as ZodOptional<any>)._def.innerType
+        let newField = fieldSchema!
+        while (is.zuiOptional(newField)) {
+          newField = newField._def.innerType
         }
 
         newShape[key] = newField
       }
     })
 
-    return new ZodObject({
+    return new ZodObjectImpl({
       ...this._def,
       shape: () => newShape,
-    })
+    }) as IZodObject
   }
 
-  keyof(): ZodEnum<enumUtil.UnionToTupleString<keyof T>> {
-    return createZodEnum(util.objectKeys(this.shape) as [string, ...string[]]) as any
+  keyof(): IZodEnum<KeyOfObject<T>> {
+    const keys = Object.keys(this.shape) as [string, ...string[]]
+    return builders.enum(keys) as IZodEnum<any>
   }
 
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodObject)) return false
+  isEqual(schema: IZodType): boolean {
+    if (!(schema instanceof ZodObjectImpl)) return false
     if (!this._unknownKeysEqual(schema)) return false
 
     const thisShape = this._def.shape()
     const thatShape = schema._def.shape()
 
-    type Property = [string, ZodTypeAny]
+    type Property = [string, IZodType]
     const compare = (a: Property, b: Property) => a[0] === b[0] && a[1].isEqual(b[1])
-    const thisProps = new CustomSet<Property>(Object.entries(thisShape), { compare })
-    const thatProps = new CustomSet<Property>(Object.entries(thatShape), { compare })
+    const thisProps = new utils.ds.CustomSet<Property>(Object.entries(thisShape), { compare })
+    const thatProps = new utils.ds.CustomSet<Property>(Object.entries(thatShape), { compare })
 
     return thisProps.isEqual(thatProps)
   }
 
-  private _unknownKeysEqual(that: ZodObject): boolean {
+  private _unknownKeysEqual(that: IZodObject): boolean {
     const thisAdditionalProperties = this.additionalProperties()
     const thatAdditionalProperties = that.additionalProperties()
     if (thisAdditionalProperties === undefined || thatAdditionalProperties === undefined) {
@@ -638,33 +500,4 @@ export class ZodObject<
     }
     return thisAdditionalProperties.isEqual(thatAdditionalProperties)
   }
-
-  static create = <T extends ZodRawShape>(shape: T, params?: RawCreateParams): ZodObject<T, 'strip'> => {
-    return new ZodObject({
-      shape: () => shape,
-      unknownKeys: 'strip',
-      typeName: ZodFirstPartyTypeKind.ZodObject,
-      ...processCreateParams(params),
-    })
-  }
-
-  static strictCreate = <T extends ZodRawShape>(shape: T, params?: RawCreateParams): ZodObject<T, 'strict'> => {
-    return new ZodObject({
-      shape: () => shape,
-      unknownKeys: 'strict',
-      typeName: ZodFirstPartyTypeKind.ZodObject,
-      ...processCreateParams(params),
-    })
-  }
-
-  static lazycreate = <T extends ZodRawShape>(shape: () => T, params?: RawCreateParams): ZodObject<T, 'strip'> => {
-    return new ZodObject({
-      shape,
-      unknownKeys: 'strip',
-      typeName: ZodFirstPartyTypeKind.ZodObject,
-      ...processCreateParams(params),
-    })
-  }
 }
-
-export type AnyZodObject = ZodObject<any, any>

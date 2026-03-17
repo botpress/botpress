@@ -1,5 +1,5 @@
 import { JSONSchema7 } from 'json-schema'
-import { ZodFirstPartyTypeKind } from '../../z'
+import { ZodNativeTypeName } from '../../z'
 
 type Transform =
   | 'json-schema-to-zui'
@@ -38,7 +38,7 @@ export class ZuiToJSONSchemaError extends ZuiTransformError {
   }
 }
 export class UnsupportedZuiToJSONSchemaError extends ZuiToJSONSchemaError {
-  public constructor(type: ZodFirstPartyTypeKind, { suggestedAlternative }: { suggestedAlternative?: string } = {}) {
+  public constructor(type: ZodNativeTypeName, { suggestedAlternative }: { suggestedAlternative?: string } = {}) {
     super(
       `Zod type ${type} cannot be transformed to JSON Schema.` +
         (suggestedAlternative ? ` Suggested alternative: ${suggestedAlternative}` : '')
@@ -46,7 +46,7 @@ export class UnsupportedZuiToJSONSchemaError extends ZuiToJSONSchemaError {
   }
 }
 export class UnsupportedZuiCheckToJSONSchemaError extends ZuiToJSONSchemaError {
-  public constructor({ zodType, checkKind }: { zodType: ZodFirstPartyTypeKind; checkKind: string }) {
+  public constructor({ zodType, checkKind }: { zodType: ZodNativeTypeName; checkKind: string }) {
     super(`Zod check .${checkKind}() of type ${zodType} cannot be transformed to JSON Schema.`)
   }
 }
@@ -64,7 +64,7 @@ export class ZuiToTypescriptSchemaError extends ZuiTransformError {
   }
 }
 export class UnsupportedZuiToTypescriptSchemaError extends ZuiToTypescriptSchemaError {
-  public constructor(type: ZodFirstPartyTypeKind) {
+  public constructor(type: ZodNativeTypeName) {
     super(`Zod type ${type} cannot be transformed to TypeScript schema.`)
   }
 }
@@ -76,7 +76,7 @@ export class ZuiToTypescriptTypeError extends ZuiTransformError {
   }
 }
 export class UnsupportedZuiToTypescriptTypeError extends ZuiToTypescriptTypeError {
-  public constructor(type: ZodFirstPartyTypeKind) {
+  public constructor(type: ZodNativeTypeName) {
     super(`Zod type ${type} cannot be transformed to TypeScript type.`)
   }
 }
@@ -89,6 +89,6 @@ export class UntitledDeclarationError extends ZuiToTypescriptTypeError {
 
 export class UnrepresentableGenericError extends ZuiToTypescriptTypeError {
   public constructor() {
-    super(`${ZodFirstPartyTypeKind.ZodRef} can only be transformed to a TypeScript type with a "type" declaration.`)
+    super('ZodRef can only be transformed to a TypeScript type with a "type" declaration.')
   }
 }

@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { zuiKey } from '../../../ui/constants'
-import { z } from '../../../z/index'
+import * as z from '../../../z'
 import { zodToJsonSchema } from '../zodToJsonSchema'
+
+const { zuiKey } = z
 
 describe('The readme example', () => {
   it('should be valid', () => {

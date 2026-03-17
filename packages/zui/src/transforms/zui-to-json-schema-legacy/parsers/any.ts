@@ -1,5 +1,4 @@
-import { zuiKey } from '../../../ui/constants'
-import { ZuiExtensionObject } from '../../../ui/types'
+import { zuiKey, ZuiExtensionObject } from '../../../z'
 
 export type JsonSchema7AnyType = {
   [zuiKey]?: ZuiExtensionObject
