@@ -69,6 +69,14 @@ class MockProvider extends RemoteModelProvider {
       input: { maxTokens: 128000 },
       output: { maxTokens: 16384 },
     },
+    {
+      ref: 'openai:gpt-future',
+      id: 'gpt-future',
+      name: 'gpt-future',
+      integration: 'openai',
+      input: { maxTokens: 128000 },
+      output: { maxTokens: 16384 },
+    },
   ])
   saveModelPreferences = vi.fn().mockResolvedValue(void 0)
 }
@@ -271,15 +279,27 @@ describe('getModelDetails routing', () => {
     expect(details.integration).toBe('cognitive-v2')
   })
 
-  test('useBeta=true + remote fetch fails falls through to integration path', async () => {
-    mockBetaClient({
+  test('useBeta=true + known v2 provider remote fetch fails falls through to integration path', async () => {
+    const betaInstance = mockBetaClient({
       listModels: vi.fn().mockRejectedValue(new Error('network error')),
     })
     const client = new Cognitive({ client: bp, provider, __experimental_beta: true })
 
-    // Use a model NOT in the static registry so it actually tries remote fetch
+    // openai is a known v2 provider, but gpt-future isn't in the static registry
+    const details = await client.getModelDetails('openai:gpt-future')
+
+    expect(betaInstance.listModels).toHaveBeenCalled()
+    expect(details.integration).toBe('openai')
+    expect(provider.fetchInstalledModels).toHaveBeenCalled()
+  })
+
+  test('useBeta=true + custom provider skips remote fetch entirely', async () => {
+    const betaInstance = mockBetaClient()
+    const client = new Cognitive({ client: bp, provider, __experimental_beta: true })
+
     const details = await client.getModelDetails('azure-openai:my-gpt4')
 
+    expect(betaInstance.listModels).not.toHaveBeenCalled()
     expect(details.integration).toBe('azure-openai')
     expect(provider.fetchInstalledModels).toHaveBeenCalled()
   })

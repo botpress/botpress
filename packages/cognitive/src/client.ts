@@ -43,6 +43,7 @@ export class Cognitive {
   protected _debug = false
   private _remoteModelCache = new Map<string, Model>()
   private _remoteModelCacheTime = 0
+  private _remoteModelCachePending: Promise<Map<string, Model>> | null = null
 
   private _events = createNanoEvents<Events>()
 
@@ -73,6 +74,7 @@ export class Cognitive {
     copy._downtimes = [...this._downtimes]
     copy._remoteModelCache = new Map(this._remoteModelCache)
     copy._remoteModelCacheTime = this._remoteModelCacheTime
+    copy._remoteModelCachePending = null
 
     copy.interceptors.request = this.interceptors.request
     copy.interceptors.response = this.interceptors.response
@@ -160,10 +162,22 @@ export class Cognitive {
   }
 
   public async fetchRemoteModels(): Promise<Map<string, Model>> {
-    if (this._remoteModelCache.size && Date.now() - this._remoteModelCacheTime < 60 * 60 * 1000) {
+    if (this._remoteModelCacheTime > 0 && Date.now() - this._remoteModelCacheTime < 60 * 60 * 1000) {
       return this._remoteModelCache
     }
 
+    if (this._remoteModelCachePending) {
+      return this._remoteModelCachePending
+    }
+
+    this._remoteModelCachePending = this._doFetchRemoteModels().finally(() => {
+      this._remoteModelCachePending = null
+    })
+
+    return this._remoteModelCachePending
+  }
+
+  private async _doFetchRemoteModels(): Promise<Map<string, Model>> {
     const betaClient = new CognitiveBeta(this._client.config)
     const remoteModels = await betaClient.listModels()
 
@@ -171,7 +185,7 @@ export class Cognitive {
     this._remoteModelCacheTime = Date.now()
 
     for (const m of remoteModels) {
-      const converted: Model = { ...m, ref: m.id as ModelRef, integration: 'cognitive-v2' }
+      const converted: Model = { ...(m as any), ref: m.id as ModelRef, integration: 'cognitive-v2' }
       this._remoteModelCache.set(m.id, converted)
 
       if (m.aliases) {
@@ -191,14 +205,16 @@ export class Cognitive {
         return { ...resolvedModel, ref: resolvedModel.id as ModelRef, integration: 'cognitive-v2' }
       }
 
-      try {
-        const remoteModels = await this.fetchRemoteModels()
-        const found = remoteModels.get(model)
-        if (found) {
-          return found
+      if (isKnownV2Model(model)) {
+        try {
+          const remoteModels = await this.fetchRemoteModels()
+          const found = remoteModels.get(model)
+          if (found) {
+            return found
+          }
+        } catch {
+          // v2 unavailable — fall through to integration path
         }
-      } catch {
-        // v2 unavailable — fall through to integration path
       }
     }
 
