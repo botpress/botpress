@@ -1834,14 +1834,20 @@ export declare function createPreprocess<T extends IZodType<O>, O>(
 ): IZodEffects<T, output<T>, unknown>
 
 export declare function createUpstream<T extends IZodType<O>, O>(
-  upstream: (arg: unknown, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O>> | undefined,
+  upstream: (
+    arg: unknown,
+    ctx: EffectContext
+  ) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined,
   schema: T,
   params?: ZodCreateParams
 ): IZodEffects<T, output<T>, unknown>
 
 export declare function createDownstream<T extends IZodType, O>(
   schema: T,
-  downstream: (arg: output<T>, ctx: EffectContext) => EffectReturnType<O> | Promise<EffectReturnType<O>> | undefined,
+  downstream: (
+    arg: output<T>,
+    ctx: EffectContext
+  ) => EffectReturnType<O> | Promise<EffectReturnType<O> | undefined> | undefined,
   params?: ZodCreateParams & { failFast?: boolean }
 ): IZodEffects<T, O>
 

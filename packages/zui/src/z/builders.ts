@@ -440,9 +440,12 @@ export const coerce = {
 }
 
 export const OK = <T>(value: T): ValidEffectReturnType<T> => ({ status: 'valid', value })
-export const ERR = (...issues: EffectIssue[]): InvalidEffectReturnType => ({ status: 'aborted', issues })
-export const DIRTY = <T>(value: T, ...issues: EffectIssue[]): DirtyEffectReturnType<T> => ({
+export const ERR = (issue: EffectIssue, ...issues: EffectIssue[]): InvalidEffectReturnType => ({
+  status: 'aborted',
+  issues: [issue, ...issues],
+})
+export const DIRTY = <T>(value: T, issue: EffectIssue, ...issues: EffectIssue[]): DirtyEffectReturnType<T> => ({
   status: 'dirty',
   value,
-  issues,
+  issues: [issue, ...issues],
 })

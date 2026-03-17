@@ -268,7 +268,10 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   }
 
   downstream<NewOut>(
-    fn: (output: Output, ctx: EffectContext) => EffectReturnType<NewOut> | Promise<EffectReturnType<NewOut>>,
+    fn: (
+      output: Output,
+      ctx: EffectContext
+    ) => EffectReturnType<NewOut> | Promise<EffectReturnType<NewOut> | undefined> | undefined,
     params?: { failFast?: boolean }
   ): IZodEffects<this, NewOut> {
     return builders.downstream<this, NewOut>(this, fn, params)
@@ -299,6 +302,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     this.readonly = this.readonly.bind(this)
     this.isNullable = this.isNullable.bind(this)
     this.isOptional = this.isOptional.bind(this)
+    this.downstream = this.downstream.bind(this)
   }
 
   optional(): IZodOptional<this> {
