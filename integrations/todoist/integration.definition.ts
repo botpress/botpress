@@ -16,7 +16,7 @@ export default new sdk.IntegrationDefinition({
   name: 'todoist',
   title: 'Todoist',
   description: 'Create and modify tasks, post comments and more.',
-  version: '1.0.3',
+  version: '1.0.4',
   readme: 'hub.md',
   icon: 'icon.svg',
   actions,

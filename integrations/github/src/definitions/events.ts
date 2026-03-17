@@ -1,4 +1,4 @@
-import { z, ZodTypeAny } from '@botpress/sdk'
+import { z } from '@botpress/sdk'
 import * as sdk from '@botpress/sdk'
 import { Issue, PullRequest, User, PullRequestReview } from './entities'
 
@@ -6,7 +6,7 @@ const COMMON_EVENT_FIELDS = {
   sender: {
     eventSender: User.title('Sender').describe('The user who triggered the event'),
   },
-} as const satisfies Record<string, Record<string, ZodTypeAny>>
+} as const satisfies Record<string, Record<string, z.ZodTypeAny>>
 
 const pullRequestOpened = {
   title: 'Pull Request opened',
