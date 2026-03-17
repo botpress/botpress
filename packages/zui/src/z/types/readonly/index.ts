@@ -6,7 +6,6 @@ import type {
   ParseInput,
   ParseReturnType,
   SyncParseReturnType,
-  ValidParseReturnType,
 } from '../../typings'
 import { isAsync, ZodBaseTypeImpl } from '../basetype'
 

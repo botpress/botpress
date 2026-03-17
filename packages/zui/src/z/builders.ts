@@ -59,7 +59,6 @@ import type {
   EffectIssue,
   DirtyEffectReturnType,
   EffectContext,
-  IssueData,
   CustomParams,
 } from './typings'
 
