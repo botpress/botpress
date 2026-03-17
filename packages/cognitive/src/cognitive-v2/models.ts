@@ -3,12 +3,30 @@ import { Model } from 'src/schemas.gen'
 export type RemoteModel = Model & {
   aliases?: string[]
   lifecycle: 'production' | 'preview' | 'deprecated' | 'discontinued'
-  capabilities?: {
-    supportsImages?: boolean
-  }
+  capabilities?: { supportsImages?: boolean }
 }
 
 export const models: Record<string, RemoteModel> = {
+  'openai:gpt-5.4-2026-03-05': {
+    id: 'openai:gpt-5.4-2026-03-05',
+    name: 'GPT-5.4',
+    description:
+      'GPT-5.4 is the latest frontier model in the GPT-5 series, featuring a 1M+ context window and adaptive reasoning. It delivers state-of-the-art performance on professional knowledge work, coding, and agentic tasks with improved long-context understanding.',
+    input: {
+      maxTokens: 1047576,
+      costPer1MTokens: 2.5,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 15,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision', 'coding', 'agents'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
+    aliases: ['gpt-5.4'],
+  },
   'openai:gpt-5.2-2025-12-11': {
     id: 'openai:gpt-5.2-2025-12-11',
     name: 'GPT-5.2',
@@ -381,6 +399,44 @@ export const models: Record<string, RemoteModel> = {
       supportsImages: false,
     },
   },
+  'anthropic:claude-opus-4-6': {
+    id: 'anthropic:claude-opus-4-6',
+    name: 'Claude Opus 4.6',
+    description:
+      'Claude Opus 4.6 is the most intelligent Claude model, built for complex agents and coding workflows. It excels at long-running professional tasks, large codebases, complex refactors, and multi-step debugging with a 128K max output.',
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 5,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 25,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
+  },
+  'anthropic:claude-sonnet-4-6': {
+    id: 'anthropic:claude-sonnet-4-6',
+    name: 'Claude Sonnet 4.6',
+    description:
+      'Claude Sonnet 4.6 offers the best combination of speed and intelligence in the Claude family. It features adaptive thinking for dynamic reasoning allocation, delivering fast responses for simple queries and deeper analysis for complex tasks.',
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 64000,
+      costPer1MTokens: 15,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
+  },
   'anthropic:claude-sonnet-4-5-20250929': {
     id: 'anthropic:claude-sonnet-4-5-20250929',
     name: 'Claude Sonnet 4.5',
@@ -589,8 +645,8 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 4096,
       costPer1MTokens: 1.25,
     },
-    tags: ['low-cost', 'general-purpose'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'low-cost', 'general-purpose'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: true,
     },
@@ -613,7 +669,7 @@ export const models: Record<string, RemoteModel> = {
     capabilities: {
       supportsImages: true,
     },
-    aliases: ['gemini-3-pro-preview'],
+    aliases: ['gemini-3.1-pro-preview'],
   },
   'google-ai:gemini-3-flash': {
     id: 'google-ai:gemini-3-flash',
