@@ -10,8 +10,9 @@ import type {
   ParseReturnType,
   EffectReturnType,
   ParseContext,
+  ValidParseReturnType,
 } from '../../typings'
-import { ParseStatus, ZodBaseTypeImpl, addIssueToContext } from '../basetype'
+import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, Input = input<T>>
   extends ZodBaseTypeImpl<Output, ZodEffectsDef<T>, Input>
@@ -49,7 +50,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
-    const { status, ctx } = this._processInputParams(input)
+    const { ctx } = this._processInputParams(input)
 
     const effect = this._def.effect
 
@@ -59,18 +60,18 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
       if (ctx.common.async) {
         return Promise.resolve(processed).then(async (processed) => {
           processed ??= { status: 'valid', value: ctx.data }
-          this._processResult(ctx, status, processed)
+          this._processResult(ctx, processed)
 
-          if (status.value === 'aborted') return { status: 'aborted' }
+          if (processed.status === 'aborted') return { status: 'aborted' }
 
           const result = await this._def.schema._parseAsync({
-            data: (processed as Exclude<EffectReturnType<unknown>, { status: 'aborted' }>).value,
+            data: processed.value,
             path: ctx.path,
             parent: ctx,
           })
           if (result.status === 'aborted') return { status: 'aborted' }
           if (result.status === 'dirty') return { status: 'dirty', value: result.value }
-          if (status.value === 'dirty') return { status: 'dirty', value: result.value }
+          if (processed.status === 'dirty') return { status: 'dirty', value: result.value }
           return result
         })
       } else {
@@ -80,17 +81,18 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
           )
         }
         processed ??= { status: 'valid', value: ctx.data }
-        this._processResult(ctx, status, processed)
+        this._processResult(ctx, processed)
 
-        if (status.value === 'aborted') return { status: 'aborted' }
+        if (processed.status === 'aborted') return { status: 'aborted' }
+
         const result = this._def.schema._parseSync({
-          data: (processed as Exclude<EffectReturnType<unknown>, { status: 'aborted' }>).value,
+          data: processed.value,
           path: ctx.path,
           parent: ctx,
         })
         if (result.status === 'aborted') return { status: 'aborted' }
         if (result.status === 'dirty') return { status: 'dirty', value: result.value }
-        if (status.value === 'dirty') return { status: 'dirty', value: result.value }
+        if (processed.status === 'dirty') return { status: 'dirty', value: result.value }
         return result
       }
     }
@@ -105,7 +107,6 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
 
         if (base.status === 'aborted') return base
         if (base.status === 'dirty') {
-          status.dirty()
           if (effect.failFast) {
             return base
           }
@@ -119,49 +120,43 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
         }
 
         result ??= { status: 'valid', value: base.value }
-        this._processResult(ctx, status, result)
+        this._processResult(ctx, result)
 
-        return {
-          status: status.value,
-          value: result.status === 'valid' ? result.value : base.value,
-        }
+        if (result.status === 'aborted') return { status: 'aborted' }
+        if (result.status === 'dirty') return { status: 'dirty', value: result.value as this['_output'] }
+        if (base.status === 'dirty') return { status: 'dirty', value: result.value as this['_output'] }
+        return result as ValidParseReturnType<this['_output']>
       } else {
         return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((base) => {
           if (base.status === 'aborted') return base
           if (base.status === 'dirty') {
-            status.dirty()
             if (effect.failFast) {
               return base
             }
           }
 
-          return Promise.resolve(effect.effect(base.value, { path: ctx.path })).then((result) => {
-            result ??= { status: 'valid', value: base.value }
-            this._processResult(ctx, status, result)
+          return Promise.resolve(effect.effect(base.value, { path: ctx.path })).then(
+            (result): ParseReturnType<this['_output']> => {
+              result ??= { status: 'valid', value: base.value }
+              this._processResult(ctx, result)
 
-            return {
-              status: status.value,
-              value: result.status === 'valid' ? result.value : base.value,
+              if (result.status === 'aborted') return { status: 'aborted' }
+              if (result.status === 'dirty') return { status: 'dirty', value: result.value as this['_output'] }
+              if (base.status === 'dirty') return { status: 'dirty', value: result.value as this['_output'] }
+              return result as ValidParseReturnType<this['_output']>
             }
-          })
-        }) as ParseReturnType<this['_output']>
+          )
+        })
       }
     }
 
     utils.assert.assertNever(effect)
   }
 
-  private _processResult(ctx: ParseContext, status: ParseStatus, result: EffectReturnType<unknown>): void {
+  private _processResult(ctx: ParseContext, result: EffectReturnType<unknown>): void {
     if (result.status === 'valid') {
       return
     }
-
-    if (result.status === 'aborted') {
-      status.abort()
-    } else if (result.status === 'dirty') {
-      status.dirty()
-    }
-
     for (const issue of result.issues) {
       addIssueToContext(ctx, issue)
     }
