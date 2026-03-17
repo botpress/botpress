@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { JSONSchema7Type } from 'json-schema'
-import { z } from '../../../../z/index'
+import * as z from '../../../../z'
 import { parseDefaultDef } from '../../parsers/default'
 import { getRefs } from '../../Refs'
-import { zuiKey } from '../../../../ui/constants'
+
+const { zuiKey } = z
 
 describe('promise', () => {
   it('should be possible to use default on objects', () => {

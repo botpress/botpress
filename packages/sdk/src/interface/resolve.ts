@@ -7,10 +7,10 @@ import {
 } from '../integration'
 import { InterfacePackage } from '../package'
 import * as utils from '../utils'
-import z, { ZuiObjectSchema } from '../zui'
+import { z } from '../zui'
 
 type ResolveInterfaceInput = InterfacePackage & {
-  entities: Record<string, { name: string; schema: ZuiObjectSchema }>
+  entities: Record<string, { name: string; schema: z.ZuiObjectSchema }>
   actions: Record<string, ActionOverrideProps>
   events: Record<string, EventOverrideProps>
   channels: Record<string, ChannelOverrideProps>

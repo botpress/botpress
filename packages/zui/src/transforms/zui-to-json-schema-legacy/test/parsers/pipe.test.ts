@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { zuiKey } from '../../../../ui/constants'
-import { z } from '../../../../z/index'
+import * as z from '../../../../z'
 import { parsePipelineDef } from '../../parsers/pipeline'
 import { getRefs } from '../../Refs'
+
+const { zuiKey } = z
 
 describe('pipe', () => {
   it('Should create an allOf schema with all its inner schemas represented', () => {

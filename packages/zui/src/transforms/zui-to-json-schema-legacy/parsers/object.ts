@@ -1,21 +1,21 @@
-import { zuiKey } from '../../../ui/constants'
-import { ZuiExtensionObject } from '../../../ui/types'
-import { ZodObjectDef, ZodType } from '../../../z/index'
+import * as z from '../../../z'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
+
+const { zuiKey } = z
 
 export type JsonSchema7ObjectType = {
   type: 'object'
   properties: Record<string, JsonSchema7Type>
   additionalProperties: boolean | JsonSchema7Type
   required?: string[]
-  [zuiKey]?: ZuiExtensionObject
+  [zuiKey]?: z.ZuiExtensionObject
 }
 
-const getAdditionalProperties = (def: ZodObjectDef, refs: Refs): boolean | JsonSchema7Type => {
-  if (def.unknownKeys instanceof ZodType) {
+const getAdditionalProperties = (def: z.ZodObjectDef, refs: Refs): boolean | JsonSchema7Type => {
+  if (z.is.zuiType(def.unknownKeys)) {
     return (
-      parseDef(def.unknownKeys._def, {
+      parseDef((def.unknownKeys as z.ZodTypeAny)._def, {
         ...refs,
         currentPath: [...refs.currentPath, 'additionalProperties'],
       }) ?? true
@@ -27,10 +27,10 @@ const getAdditionalProperties = (def: ZodObjectDef, refs: Refs): boolean | JsonS
   return false
 }
 
-export function parseObjectDefX(def: ZodObjectDef, refs: Refs) {
+export function parseObjectDefX(def: z.ZodObjectDef, refs: Refs) {
   Object.keys(def.shape()).reduce(
     (schema: JsonSchema7ObjectType, key) => {
-      let prop = def.shape()[key]
+      let prop = def.shape()[key] as z.ZodTypeAny
       if (typeof prop === 'undefined' || typeof prop._def === 'undefined') {
         return schema
       }
@@ -76,7 +76,7 @@ export function parseObjectDefX(def: ZodObjectDef, refs: Refs) {
           properties: Record<string, JsonSchema7Type>
           required: string[]
         },
-        [propName, propDef]
+        [propName, propDef]: [string, z.ZodTypeAny]
       ) => {
         if (propDef === undefined || propDef._def === undefined) return acc
         const parsedDef = parseDef(propDef._def, {
@@ -98,7 +98,7 @@ export function parseObjectDefX(def: ZodObjectDef, refs: Refs) {
   return result
 }
 
-export function parseObjectDef(def: ZodObjectDef, refs: Refs) {
+export function parseObjectDef(def: z.ZodObjectDef, refs: Refs) {
   const result: JsonSchema7ObjectType = {
     type: 'object',
     ...Object.entries(def.shape()).reduce(
@@ -107,7 +107,7 @@ export function parseObjectDef(def: ZodObjectDef, refs: Refs) {
           properties: Record<string, JsonSchema7Type>
           required: string[]
         },
-        [propName, propDef]
+        [propName, propDef]: [string, z.ZodTypeAny]
       ) => {
         if (propDef === undefined || propDef._def === undefined) return acc
         const parsedDef = parseDef(propDef._def, {
