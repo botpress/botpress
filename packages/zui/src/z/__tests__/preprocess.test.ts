@@ -94,7 +94,7 @@ test('async upstream dirty with parse', async () => {
   )
 })
 
-test('upsream dirty with parseAsync', async () => {
+test('upstream dirty with parseAsync', async () => {
   const result = await z
     .upstream(async (data) => {
       return z.DIRTY(data, {
