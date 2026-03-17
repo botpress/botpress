@@ -36,6 +36,20 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
       maxTokens: 128_000,
     },
   },
+  'gpt-5.3-2026-02-06': {
+    name: 'GPT-5.3',
+    description:
+      'GPT-5.3 is a frontier model in the GPT-5 series, featuring a 1M+ context window and adaptive reasoning. It offers improved coding, agentic, and long-context performance over GPT-5.2, with enhanced instruction-following and reduced hallucinations.',
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision', 'coding', 'agents'],
+    input: {
+      costPer1MTokens: 2,
+      maxTokens: 1_047_576,
+    },
+    output: {
+      costPer1MTokens: 14,
+      maxTokens: 128_000,
+    },
+  },
   'gpt-5.2-2025-12-11': {
     name: 'GPT-5.2',
     description:
@@ -378,6 +392,7 @@ export default new bp.Integration({
           overrideRequest: (request) => {
             const isReasoningModel =
               input.model?.id.startsWith('gpt-5.4-') ||
+              input.model?.id.startsWith('gpt-5.3-') ||
               input.model?.id.startsWith('gpt-5.2-') ||
               input.model?.id.startsWith('gpt-5.1-') ||
               input.model?.id.startsWith('gpt-5-') ||
@@ -391,6 +406,7 @@ export default new bp.Integration({
               } else {
                 if (
                   input.model?.id.startsWith('gpt-5.4-') ||
+                  input.model?.id.startsWith('gpt-5.3-') ||
                   input.model?.id.startsWith('gpt-5.2-') ||
                   input.model?.id.startsWith('gpt-5.1-')
                 ) {
