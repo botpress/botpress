@@ -173,6 +173,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
 
     if (this._def.effect.type === 'downstream') {
       if (schema._def.effect.type !== 'downstream') return false
+      if (this._def.effect.failFast !== schema._def.effect.failFast) return false
       return utils.others.compareFunctions(this._def.effect.effect, schema._def.effect.effect)
     }
 
