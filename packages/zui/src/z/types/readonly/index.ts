@@ -1,5 +1,14 @@
-import type { IZodReadonly, IZodType, MakeReadonly, ZodReadonlyDef, ParseInput, ParseReturnType } from '../../typings'
-import { ZodBaseTypeImpl, isValid } from '../basetype'
+import type {
+  IZodReadonly,
+  IZodType,
+  MakeReadonly,
+  ZodReadonlyDef,
+  ParseInput,
+  ParseReturnType,
+  SyncParseReturnType,
+  ValidParseReturnType,
+} from '../../typings'
+import { isAsync, ZodBaseTypeImpl } from '../basetype'
 
 export class ZodReadonlyImpl<T extends IZodType = IZodType>
   extends ZodBaseTypeImpl<MakeReadonly<T['_output']>, ZodReadonlyDef<T>, MakeReadonly<T['_input']>>
@@ -25,10 +34,17 @@ export class ZodReadonlyImpl<T extends IZodType = IZodType>
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const result = this._def.innerType._parse(input)
-    if (isValid(result)) {
-      result.value = Object.freeze(result.value)
+    if (isAsync(result)) {
+      return result.then(this._freeze)
     }
-    return result
+    return this._freeze(result)
+  }
+
+  private _freeze = (result: SyncParseReturnType<T['_output']>): SyncParseReturnType<this['_output']> => {
+    if (result.status !== 'valid') {
+      return result
+    }
+    return { ...result, value: Object.freeze(result.value) }
   }
 
   unwrap() {

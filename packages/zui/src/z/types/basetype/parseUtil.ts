@@ -9,9 +9,6 @@ import type {
   SyncParseReturnType,
   AsyncParseReturnType,
   ParseReturnType,
-  InvalidParseReturnType,
-  DirtyParseReturnType,
-  ValidParseReturnType,
 } from '../../typings'
 
 export const makeIssue = (params: {
@@ -120,12 +117,6 @@ export class ParseStatus {
   }
 }
 
-export const isAborted = (x: ParseReturnType): x is InvalidParseReturnType =>
-  (x as SyncParseReturnType).status === 'aborted'
-export const isDirty = <T>(x: ParseReturnType<T>): x is ValidParseReturnType<T> | DirtyParseReturnType<T> =>
-  (x as SyncParseReturnType).status === 'dirty'
-export const isValid = <T>(x: ParseReturnType<T>): x is ValidParseReturnType<T> =>
-  (x as SyncParseReturnType).status === 'valid'
 export const isAsync = <T>(x: ParseReturnType<T>): x is AsyncParseReturnType<T> =>
   typeof Promise !== 'undefined' && x instanceof Promise
 

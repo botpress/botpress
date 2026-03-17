@@ -39,7 +39,7 @@ import type {
   EffectIssue,
 } from '../../typings'
 
-import { getParsedType, isAsync, isValid, ParseStatus } from './parseUtil'
+import { getParsedType, isAsync, ParseStatus } from './parseUtil'
 
 export * from './parseUtil'
 
@@ -495,7 +495,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     ctx: ParseContext,
     result: SyncParseReturnType<Output>
   ): { success: true; data: Output } | { success: false; error: ZodError<Input> } => {
-    if (isValid(result)) {
+    if (result.status === 'valid') {
       return { success: true, data: result.value }
     } else {
       if (!ctx.common.issues.length) {

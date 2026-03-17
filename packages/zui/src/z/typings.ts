@@ -84,11 +84,6 @@ export type ErrMessage =
       message?: string
     }
 
-// type _ZodIssueBase = {
-//   path: (string | number)[]
-//   message?: string
-// }
-
 export type ZodInvalidTypeIssue = {
   code: 'invalid_type'
   expected: ZodParsedType
@@ -266,11 +261,6 @@ export interface IZodError<T = unknown> extends Error {
   addIssues: (subs?: ZodIssue[]) => void
 }
 
-type _ErrorMapCtx = {
-  defaultError: string
-  data: any
-}
-
 export type IssueData = EffectIssue & {
   path?: (string | number)[]
   fatal?: boolean
@@ -279,7 +269,10 @@ export type IssueData = EffectIssue & {
 
 export type ZodErrorMap = (
   issue: ZodIssueBody & { path: (string | number)[]; message?: string },
-  _ctx: _ErrorMapCtx
+  ctx: {
+    defaultError: string
+    data: any
+  }
 ) => {
   message: string
 }

@@ -11,7 +11,7 @@ import type {
   EffectReturnType,
   ParseContext,
 } from '../../typings'
-import { ParseStatus, ZodBaseTypeImpl, addIssueToContext, isValid } from '../basetype'
+import { ParseStatus, ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, Input = input<T>>
   extends ZodBaseTypeImpl<Output, ZodEffectsDef<T>, Input>
@@ -127,7 +127,13 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
         }
       } else {
         return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((base) => {
-          if (!isValid(base)) return base
+          if (base.status === 'aborted') return base
+          if (base.status === 'dirty') {
+            status.dirty()
+            if (effect.failFast) {
+              return base
+            }
+          }
 
           return Promise.resolve(effect.effect(base.value, { path: ctx.path })).then((result) => {
             result ??= { status: 'valid', value: base.value }
