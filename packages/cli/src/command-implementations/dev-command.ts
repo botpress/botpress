@@ -10,7 +10,7 @@ import * as apiUtils from '../api'
 import {
   secretEnvVariableName,
   stripSecretEnvVariablePrefix,
-} from '../code-generation/integration-implementation/integration-secret'
+} from '../code-generation/secret-module'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import * as tables from '../tables'
@@ -54,7 +54,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     }
 
     let defaultPort = DEFAULT_BOT_PORT
-    if (this._initialDef.type === 'integration') {
+    if (this._initialDef.type === 'integration' || this._initialDef.type === 'bot') {
       defaultPort = DEFAULT_INTEGRATION_PORT
       const knownSecrets = await this._readKnownSecretsFromCache()
       let secretEnvVariables = await this.promptSecrets(this._initialDef.definition, this.argv, {
