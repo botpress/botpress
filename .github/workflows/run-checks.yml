@@ -16,6 +16,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup
         uses: ./.github/actions/setup
+        env:
+          BP_API_URL: 'https://api.botpress.dev'
+          BP_WORKSPACE_ID: ${{ secrets.STAGING_E2E_TESTS_WORKSPACE_ID }}
+          BP_TOKEN: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
       - run: pnpm run check:dep
       - run: pnpm run check:sherif
       - run: pnpm run check:oxlint
