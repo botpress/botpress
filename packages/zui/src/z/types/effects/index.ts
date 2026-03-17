@@ -54,10 +54,10 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
     const effect = this._def.effect
 
     if (effect.type === 'upstream') {
-      let asyncProcessed = effect.effect(ctx.data, { path: ctx.path })
+      let processed = effect.effect(ctx.data, { path: ctx.path })
 
       if (ctx.common.async) {
-        return Promise.resolve(asyncProcessed).then(async (processed) => {
+        return Promise.resolve(processed).then(async (processed) => {
           processed ??= { status: 'valid', value: ctx.data }
           this._processResult(ctx, status, processed ?? { status: 'valid', value: ctx.data })
 
@@ -74,17 +74,17 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
           return result
         })
       } else {
-        if (asyncProcessed instanceof Promise) {
+        if (processed instanceof Promise) {
           throw new Error(
             'Asynchronous upstream transform encountered during synchronous parse operation. Use .parseAsync instead.'
           )
         }
-        asyncProcessed ??= { status: 'valid', value: ctx.data }
-        this._processResult(ctx, status, asyncProcessed)
+        processed ??= { status: 'valid', value: ctx.data }
+        this._processResult(ctx, status, processed)
 
         if (status.value === 'aborted') return { status: 'aborted' }
         const result = this._def.schema._parseSync({
-          data: (asyncProcessed as Exclude<EffectReturnType<unknown>, { status: 'aborted' }>).value,
+          data: (processed as Exclude<EffectReturnType<unknown>, { status: 'aborted' }>).value,
           path: ctx.path,
           parent: ctx,
         })

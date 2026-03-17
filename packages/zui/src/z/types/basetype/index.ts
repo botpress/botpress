@@ -362,7 +362,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
           return { status: 'valid', value: result }
         }
       },
-      { failFast: true }
+      { failFast: true } // keeps backward compatibility with previous transform implementation
     )
   }
 
