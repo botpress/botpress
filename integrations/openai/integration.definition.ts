@@ -17,7 +17,7 @@ export default new IntegrationDefinition({
   title: 'OpenAI',
   description:
     'Gain access to OpenAI models for text generation, speech synthesis, audio transcription, and image generation.',
-  version: '18.0.1',
+  version: '19.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
