@@ -166,7 +166,7 @@ export class Cognitive {
       return this._remoteModelCache
     }
 
-    if (this._remoteModelCachePending) {
+    if (this._remoteModelCachePending !== null) {
       return this._remoteModelCachePending
     }
 
