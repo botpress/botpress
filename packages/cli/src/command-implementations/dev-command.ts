@@ -220,6 +220,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     }
     if (projectType === 'bot') {
       const projectDef = await resolveProjectDefinition()
+      this._checkSecrets(projectDef.definition)
       return await this._deployDevBot(api, tunnelUrl, projectDef.definition)
     }
     throw new errors.UnsupportedProjectType()
@@ -252,12 +253,12 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     return Object.fromEntries(prefixedSecretEntries)
   }
 
-  private _checkSecrets(integrationDef: sdk.IntegrationDefinition) {
-    if (this._initialDef?.type !== 'integration') {
+  private _checkSecrets(projectDef: sdk.IntegrationDefinition | sdk.BotDefinition) {
+    if (this._initialDef?.type !== 'integration' && this._initialDef?.type !== 'bot') {
       return
     }
     const initialSecrets = this._initialDef?.definition.secrets ?? {}
-    const currentSecrets = integrationDef.secrets ?? {}
+    const currentSecrets = projectDef.secrets ?? {}
     const newSecrets = Object.keys(currentSecrets).filter((s) => !initialSecrets[s])
     if (newSecrets.length > 0) {
       throw new errors.BotpressCLIError('Secrets were added while the server was running. A restart is required.')
