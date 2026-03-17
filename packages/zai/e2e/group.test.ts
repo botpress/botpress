@@ -1153,6 +1153,7 @@ describe.sequential('zai.learn.group', () => {
     } catch (err) {}
   })
 
+  // broken
   it('learns counterintuitive grouping pattern from examples', async () => {
     const adapter = new TableAdapter({
       client,

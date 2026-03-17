@@ -526,6 +526,7 @@ describe.sequential('zai.learn.rate', () => {
     } catch (err) {}
   })
 
+  // broken
   it('learns counterintuitive rating pattern that LLM cannot guess', async () => {
     const adapter = new TableAdapter({
       client,
