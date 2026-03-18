@@ -159,6 +159,19 @@ export type CreateMessage<TIntegration extends common.BaseIntegration> = <
   >
 ) => Promise<MessageResponse<TIntegration, TMessage>>
 
+type GetOrCreateMessageResponse<
+  TIntegration extends common.BaseIntegration,
+  TMessage extends keyof EnumerateMessages<TIntegration> = keyof EnumerateMessages<TIntegration>,
+> = utils.Merge<
+  Awaited<Res<client.Client['getOrCreateMessage']>>,
+  {
+    message: utils.Merge<
+      Awaited<Res<client.Client['getOrCreateMessage']>>['message'],
+      utils.Cast<EnumerateMessages<TIntegration>[TMessage], object>
+    >
+  }
+>
+
 export type GetOrCreateMessage<TIntegration extends common.BaseIntegration> = <
   TMessage extends keyof EnumerateMessages<TIntegration>,
   TTags extends keyof GetMessageByName<TIntegration, TMessage>['tags'],
@@ -167,13 +180,13 @@ export type GetOrCreateMessage<TIntegration extends common.BaseIntegration> = <
     Arg<client.Client['getOrCreateMessage']>,
     {
       type: utils.Cast<TMessage, string>
-      payload: GetMessageByName<TIntegration, TMessage>['payload']
+      payload?: GetMessageByName<TIntegration, TMessage>['payload']
       tags: commonTypes.ToTags<TTags>
       // TODO: find a way to restrict discriminateByTags to tags present in x.tags
       discriminateByTags?: NoInfer<utils.Cast<TTags[], string[]>>
     }
   >
-) => Promise<MessageResponse<TIntegration, TMessage>>
+) => Promise<GetOrCreateMessageResponse<TIntegration, TMessage>>
 
 export type GetMessage<TIntegration extends common.BaseIntegration> = (
   x: Arg<client.Client['getMessage']>
@@ -230,6 +243,16 @@ export type ListUsers<TIntegration extends common.BaseIntegration> = (
   >
 ) => Res<client.Client['listUsers']>
 
+type GetOrCreateUserResponse<TIntegration extends common.BaseIntegration> = utils.Merge<
+  Awaited<Res<client.Client['getOrCreateUser']>>,
+  {
+    user: utils.Merge<
+      Awaited<Res<client.Client['getOrCreateUser']>>['user'],
+      { tags: UserTags<TIntegration> }
+    >
+  }
+>
+
 export type GetOrCreateUser<TIntegration extends common.BaseIntegration> = <
   TTags extends keyof TIntegration['user']['tags'],
 >(
@@ -240,7 +263,7 @@ export type GetOrCreateUser<TIntegration extends common.BaseIntegration> = <
       discriminateByTags?: NoInfer<utils.Cast<TTags[], string[]>>
     }
   >
-) => Promise<UserResponse<TIntegration>>
+) => Promise<GetOrCreateUserResponse<TIntegration>>
 
 export type UpdateUser<TIntegration extends common.BaseIntegration> = (
   x: utils.Merge<
