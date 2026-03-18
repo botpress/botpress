@@ -246,10 +246,7 @@ export type ListUsers<TIntegration extends common.BaseIntegration> = (
 type GetOrCreateUserResponse<TIntegration extends common.BaseIntegration> = utils.Merge<
   Awaited<Res<client.Client['getOrCreateUser']>>,
   {
-    user: utils.Merge<
-      Awaited<Res<client.Client['getOrCreateUser']>>['user'],
-      { tags: UserTags<TIntegration> }
-    >
+    user: utils.Merge<Awaited<Res<client.Client['getOrCreateUser']>>['user'], { tags: UserTags<TIntegration> }>
   }
 >
 
