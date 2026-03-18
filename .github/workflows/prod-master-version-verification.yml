@@ -53,7 +53,7 @@ jobs:
           if [ $should_fail -eq 1 ]; then
             message="\n\nThe following integrations are out of date:\n$outdated_integrations"
             message="$message\nThe following integrations were skipped:\n$skipped_integrations"
-            message="$message\nPlease run the deployment for the out-of-date integrations."
+            message="$message\nPlease run the deployment for the out-of-date integrations in ${{ github.server_url }}/${{ github.repository }}"
 
             echo "\n\nSending curl request to Slack webhook"
             echo "Response:"
