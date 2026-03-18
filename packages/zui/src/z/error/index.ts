@@ -2,6 +2,12 @@ import * as utils from '../../utils'
 import type { ZodIssue, ZodFormattedError, ZodErrorMap, IZodError } from '../typings'
 import { errorMap as defaultErrorMap } from './locales/en'
 
+type _FieldErrors<U> = {
+  _errors: U[]
+} & {
+  [K in string | number]: _FieldErrors<U> | unknown[]
+}
+
 export class ZodError<T = any> extends Error implements IZodError<T> {
   readonly __type__ = 'ZuiError'
 
@@ -24,15 +30,15 @@ export class ZodError<T = any> extends Error implements IZodError<T> {
     this.issues = issues
   }
 
-  format(): ZodFormattedError<T>
+  format(): ZodFormattedError<T, string>
   format<U>(mapper: (issue: ZodIssue) => U): ZodFormattedError<T, U>
-  format(_mapper?: any) {
-    const mapper: (issue: ZodIssue) => any =
+  format<U>(_mapper?: (issue: ZodIssue) => U): ZodFormattedError<T, U> {
+    const mapper: (issue: ZodIssue) => U =
       _mapper ||
       function (issue: ZodIssue) {
-        return issue.message
+        return issue.message as U
       }
-    const fieldErrors = { _errors: [] } as ZodFormattedError<T>
+    const fieldErrors: _FieldErrors<U> = { _errors: [] }
     const processError = (error: ZodError) => {
       for (const issue of error.issues) {
         if (issue.code === 'invalid_union') {
@@ -44,7 +50,7 @@ export class ZodError<T = any> extends Error implements IZodError<T> {
         } else if (issue.path.length === 0) {
           fieldErrors._errors.push(mapper(issue))
         } else {
-          let curr: any = fieldErrors
+          let curr = fieldErrors
           let i = 0
           while (i < issue.path.length) {
             const el = issue.path[i]!
@@ -52,19 +58,12 @@ export class ZodError<T = any> extends Error implements IZodError<T> {
 
             if (!terminal) {
               curr[el] = curr[el] || { _errors: [] }
-              // if (typeof el === "string") {
-              //   curr[el] = curr[el] || { _errors: [] };
-              // } else if (typeof el === "number") {
-              //   const errorArray: any = [];
-              //   errorArray._errors = [];
-              //   curr[el] = curr[el] || errorArray;
-              // }
             } else {
               curr[el] = curr[el] || { _errors: [] }
-              curr[el]._errors.push(mapper(issue))
+              ;(curr[el] as _FieldErrors<U>)._errors.push(mapper(issue))
             }
 
-            curr = curr[el]
+            curr = curr[el] as _FieldErrors<U>
             i++
           }
         }
@@ -72,7 +71,7 @@ export class ZodError<T = any> extends Error implements IZodError<T> {
     }
 
     processError(this)
-    return fieldErrors
+    return fieldErrors as ZodFormattedError<T, U>
   }
 
   static create = (issues: ZodIssue[]) => {

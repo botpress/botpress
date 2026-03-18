@@ -1,6 +1,7 @@
 import { describe, test, expect } from 'vitest'
 import * as z from '../index'
 import * as transforms from '../../transforms'
+import { IZodType } from '../typings'
 
 const expectZui = (actual: z.ZodType) => ({
   not: {
@@ -53,8 +54,8 @@ describe('mandatory', () => {
     expectZui(requiredSchema).toEqual(z.union([z.string(), z.number()]))
   })
   test('empty union', () => {
-    const options: any[] = []
-    const schema = z.union(options as [any, any]) // should not be allowed
+    const options: readonly IZodType[] = []
+    const schema = z.union(options as readonly [IZodType, IZodType]) // should not be allowed
     const requiredSchema = schema.mandatory()
     expect(requiredSchema.isOptional()).toBe(false)
     expectZui(requiredSchema).toEqual(z.never())
