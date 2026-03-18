@@ -103,7 +103,7 @@ export class GetProfileCommand extends GlobalCommand<GetProfileCommandDefinition
       description: '',
       value: profileName,
     }))
-    const selectedProfile = await this.prompt.select('Select the profile you want to use.', { choices })
+    const selectedProfile = await this.prompt.select('Select the profile you want to get.', { choices })
 
     if (!selectedProfile) {
       this.logger.log('No profile selected, aborting.')
