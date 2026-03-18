@@ -27,6 +27,21 @@ type MessageResponse<
   }>
 }
 
+type GetOrCreateMessageResponse<
+  TBot extends common.BaseBot,
+  TMessage extends keyof common.GetMessages<TBot> = keyof common.GetMessages<TBot>,
+> = utils.Merge<
+  Awaited<Res<client.Client['getOrCreateMessage']>>,
+  {
+    message: utils.ValueOf<{
+      [K in keyof common.GetMessages<TBot> as K extends TMessage ? K : never]: utils.Merge<
+        Awaited<Res<client.Client['getOrCreateMessage']>>['message'],
+        { type: K; payload: common.GetMessages<TBot>[K] }
+      >
+    }>
+  }
+>
+
 type StateResponse<
   TBot extends common.BaseBot,
   TState extends keyof TBot['states'] = keyof TBot['states'],
@@ -84,11 +99,11 @@ export type GetOrCreateMessage<TBot extends common.BaseBot> = <TMessage extends 
     Arg<client.Client['getOrCreateMessage']>,
     {
       type: utils.Cast<TMessage, string>
-      payload: utils.Cast<common.GetMessages<TBot>[TMessage], Record<string, any>>
+      payload?: utils.Cast<common.GetMessages<TBot>[TMessage], Record<string, any>>
       // TODO: use bot definiton message property to infer allowed tags
     }
   >
-) => Promise<MessageResponse<TBot, TMessage>>
+) => Promise<GetOrCreateMessageResponse<TBot, TMessage>>
 
 export type GetMessage<TBot extends common.BaseBot> = (
   x: Arg<client.Client['getMessage']>
