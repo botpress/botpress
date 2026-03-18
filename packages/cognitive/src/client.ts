@@ -185,7 +185,7 @@ export class Cognitive {
     this._remoteModelCacheTime = Date.now()
 
     for (const m of remoteModels) {
-      const converted: Model = { ...(m as any), ref: m.id as ModelRef, integration: 'cognitive-v2' }
+      const converted: Model = { ...m, ref: m.id as ModelRef, integration: 'cognitive-v2' }
       this._remoteModelCache.set(m.id, converted)
 
       if (m.aliases) {
@@ -247,7 +247,8 @@ export class Cognitive {
   private async _generateContentV2(input: InputProps): Promise<Response> {
     const v2Input = { ...input, messages: [...input.messages] }
     if (v2Input.systemPrompt) {
-      v2Input.messages.unshift({ role: 'system', content: v2Input.systemPrompt } as any)
+      // @ts-expect-error - system role is not supported in the integrations api, but is used in v2
+      v2Input.messages.unshift({ role: 'system', content: v2Input.systemPrompt })
       delete v2Input.systemPrompt
     }
 
@@ -267,7 +268,7 @@ export class Cognitive {
       this._events.emit('retry', props, error)
     })
 
-    const response = await betaClient.generateText(v2Input as any, {
+    const response = await betaClient.generateText(v2Input, {
       signal: input.signal,
       timeout: this._timeoutMs,
     })
@@ -283,7 +284,7 @@ export class Cognitive {
             content: response.output,
             role: 'assistant',
             index: 0,
-            stopReason: response.metadata.stopReason as any,
+            stopReason: response.metadata.stopReason,
           },
         ],
         usage: {
