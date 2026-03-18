@@ -55,7 +55,7 @@ jobs:
             message="$message\nThe following integrations were skipped:\n$skipped_integrations"
             message="$message\nPlease run the deployment for the out-of-date integrations in ${{ github.server_url }}/${{ github.repository }}"
 
-            echo "\n\nSending curl request to Slack webhook"
+            echo -e "\n\nSending curl request to Slack webhook"
             echo "Response:"
             curl -X POST ${{ secrets.SLACK_WORKFLOW_SEAGULL_WEBHOOK_URL }} \
             -H "Content-Type: application/json" \
@@ -63,9 +63,9 @@ jobs:
               "key": "prod-master-version-verification",
               "text": "'"$message"'"
             }'
-            echo "\nCurl request sent"
+            echo -e "\nCurl request sent"
 
-            echo "$message"
+            echo -e "$message"
 
             exit 1
           fi
