@@ -399,6 +399,15 @@ const useProfileSchema = {
   },
 } satisfies CommandSchema
 
+const doctorSchema = {
+  ...projectSchema,
+  json: {
+    type: 'boolean',
+    description: 'Output results in JSON format',
+    default: false,
+  },
+} satisfies CommandSchema
+
 // exports
 
 export const schemas = {
@@ -436,4 +445,5 @@ export const schemas = {
   listProfiles: listProfilesSchema,
   activeProfile: activeProfileSchema,
   useProfile: useProfileSchema,
+  doctor: doctorSchema,
 } as const
