@@ -22,6 +22,6 @@ test('object augmentation', () => {
     ModifiedAnimal.parse({
       species: 'asdf',
       population: 1324,
-    } as any)
+    })
   expect(bad).toThrow()
 })
