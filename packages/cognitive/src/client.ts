@@ -268,7 +268,7 @@ export class Cognitive {
       this._events.emit('retry', props, error)
     })
 
-    const response = await betaClient.generateText(v2Input, {
+    const response = await betaClient.generateText(v2Input as any, {
       signal: input.signal,
       timeout: this._timeoutMs,
     })
@@ -284,7 +284,7 @@ export class Cognitive {
             content: response.output,
             role: 'assistant',
             index: 0,
-            stopReason: response.metadata.stopReason,
+            stopReason: response.metadata.stopReason ?? 'stop',
           },
         ],
         usage: {
