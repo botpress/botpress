@@ -4,6 +4,39 @@ import { WHATSAPP } from '../misc/constants'
 import { logForBotAndThrow } from '../misc/util'
 import * as bp from '.botpress'
 
+type WhatsAppButton = {
+  type: string
+  text?: string
+  url?: string
+  phone_number?: string
+}
+
+type WhatsAppComponent = {
+  type: string
+  format?: string
+  text?: string
+  buttons?: WhatsAppButton[]
+  example?: Record<string, unknown>
+}
+
+type WhatsAppTemplate = {
+  id: string
+  name: string
+  status: string
+  category: string
+  language: string
+  components?: WhatsAppComponent[]
+}
+
+type WhatsAppTemplatesResponse = {
+  data: WhatsAppTemplate[]
+  paging?: {
+    cursors?: {
+      after?: string
+    }
+  }
+}
+
 export const listTemplates: bp.IntegrationProps['actions']['listTemplates'] = async ({ ctx, input, client, logger }) => {
   if (ctx.configurationType === 'sandbox') {
     logForBotAndThrow('Listing templates is not supported in sandbox mode', logger)
@@ -30,7 +63,7 @@ export const listTemplates: bp.IntegrationProps['actions']['listTemplates'] = as
   const url = `${WHATSAPP.API_URL}/${wabaId}/message_templates?${params.toString()}`
 
   const response = await axios
-    .get(url, {
+    .get<WhatsAppTemplatesResponse>(url, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -42,17 +75,17 @@ export const listTemplates: bp.IntegrationProps['actions']['listTemplates'] = as
       )
     })
 
-  const templates = (response.data.data ?? []).map((template: any) => ({
+  const templates = (response.data.data ?? []).map((template) => ({
     id: template.id,
     name: template.name,
     status: template.status,
     category: template.category,
     language: template.language,
-    components: (template.components ?? []).map((comp: any) => ({
+    components: (template.components ?? []).map((comp) => ({
       type: comp.type,
       format: comp.format,
       text: comp.text,
-      buttons: comp.buttons?.map((btn: any) => ({
+      buttons: comp.buttons?.map((btn) => ({
         type: btn.type,
         text: btn.text,
         url: btn.url,

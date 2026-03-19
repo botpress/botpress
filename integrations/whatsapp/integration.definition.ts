@@ -408,7 +408,7 @@ export default new IntegrationDefinition({
                         .title('Buttons')
                         .describe('Array of button objects (only present for BUTTONS component type)'),
                       example: z
-                        .record(z.any())
+                        .record(z.unknown())
                         .optional()
                         .title('Example')
                         .describe('Example values for the component parameters'),
