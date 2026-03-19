@@ -1,6 +1,5 @@
 webhookId = to_string!(.webhookId)
 webhookUrl = to_string!(.webhookUrl)
-env = to_string!(.env)
 
 clientId = "botpress"
 
