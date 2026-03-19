@@ -1,5 +1,5 @@
-import { logForBotAndThrow } from '../misc/util'
 import { fetchTemplates } from '../misc/template-utils'
+import { logForBotAndThrow } from '../misc/util'
 import * as bp from '.botpress'
 
 export const listTemplates: bp.IntegrationProps['actions']['listTemplates'] = async ({
