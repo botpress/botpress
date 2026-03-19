@@ -35,8 +35,8 @@ const Options = z.object({
   strict: z.boolean().optional().default(true).describe('Whether to strictly follow the schema or not'),
 })
 
-type __Z<T extends any = any> = { _output: T }
-type OfType<O, T extends __Z = __Z<O>> = T extends __Z<O> ? T : never
+type __Z<T> = { _output: T }
+type OfType<O, T extends __Z<any> = __Z<O>> = T extends __Z<O> ? T : never
 type AnyObjectOrArray = Record<string, unknown> | Array<unknown>
 
 declare module '@botpress/zai' {
@@ -127,10 +127,10 @@ const extract = async <S extends OfType<AnyObjectOrArray>>(
 
   let originalSchema: z.ZodType
   try {
-    originalSchema = z.transforms.fromJSONSchema(z.transforms.toJSONSchema(_schema as any as z.ZodType))
+    originalSchema = z.transforms.fromJSONSchema(z.transforms.toJSONSchema(_schema as unknown as z.ZodType))
   } catch {
     // The above transformers arent the legacy ones. They are very strict and might fail on some schema types.
-    originalSchema = _schema as any as z.ZodType
+    originalSchema = _schema as unknown as z.ZodType
   }
 
   const options = Options.parse(_options ?? {})
@@ -251,7 +251,7 @@ Merge it back into a final result.`.trim(),
 
   const exactMatch = examples.find((x) => x.key === Key)
   if (exactMatch) {
-    return exactMatch.output as any as S['_output']
+    return exactMatch.output as S['_output']
   }
 
   const defaultExample = isArrayOfObjects
@@ -313,11 +313,11 @@ ${input.trim()}
   `.trim()
   }
 
-  const formatOutput = (extracted: any) => {
-    extracted = isArray(extracted) ? extracted : [extracted]
+  const formatOutput = (extracted: unknown) => {
+    const extractedArr = isArray(extracted) ? extracted : [extracted]
 
     return (
-      extracted
+      extractedArr
         .map((x: string) =>
           `
 ${START}
@@ -328,7 +328,7 @@ ${END}`.trim()
     )
   }
 
-  const formatExample = (example: { input?: any; schema: string; instructions?: string; extracted: any }) => [
+  const formatExample = (example: { input?: unknown; schema: string; instructions?: string; extracted: unknown }) => [
     {
       type: 'text' as const,
       content: formatInput(stringify(example.input ?? null), example.schema, example.instructions),
@@ -366,9 +366,9 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
         content: formatInput(inputAsString, schemaTypescript, options.instructions ?? ''),
       },
     ],
-    transform: (text) =>
+    transform: (text): unknown[] =>
       (text || '{}')
-        ?.split(START)
+        .split(START)
         .filter((x) => x.trim().length > 0 && x.includes('}'))
         .map((x) => {
           try {
@@ -379,7 +379,7 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
             }
 
             const repairedJson = jsonrepair(json)
-            const parsedJson = JSON5.parse(repairedJson)
+            const parsedJson: unknown = JSON5.parse(repairedJson)
             const safe = objSchema.safeParse(parsedJson)
 
             if (safe.success) {
@@ -398,7 +398,7 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
         .filter((x) => x !== null),
   })
 
-  let final: any
+  let final: unknown
 
   if (isArrayOfObjects) {
     final = extracted
@@ -411,7 +411,7 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
   if (isWrappedValue) {
     if (Array.isArray(final)) {
       final = final.map((x) => ('value' in x ? x.value : x))
-    } else {
+    } else if (typeof final === 'object' && final !== null) {
       final = 'value' in final ? final.value : final
     }
   }
@@ -439,7 +439,7 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
     })
   }
 
-  return final
+  return final as S['_output']
 }
 
 Zai.prototype.extract = function <S extends OfType<AnyObjectOrArray>>(
