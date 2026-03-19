@@ -1,5 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import filesReadonly from './bp_modules/files-readonly'
 
 import { INTEGRATION_NAME } from './src/const'
 import { actions, events, configuration, configurations, channels, user, secrets, states } from './src/definitions'
@@ -28,4 +29,16 @@ export default new sdk.IntegrationDefinition({
   attributes: {
     category: 'Developer Tools',
   },
-})
+}).extend(filesReadonly, ({}) => ({
+  entities: {},
+  actions: {
+    listItemsInFolder: {
+      name: 'filesReadonlyListItemsInFolder',
+      attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO },
+    },
+    transferFileToBotpress: {
+      name: 'filesReadonlyTransferFileToBotpress',
+      attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO },
+    },
+  },
+}))
