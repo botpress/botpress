@@ -74,7 +74,6 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
 
 const _handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProps) => {
   logger.forBot().debug('Handling OAuth callback')
-  logger.forBot().debug(JSON.stringify({ req }))
 
   const searchParams = new URLSearchParams(req.query)
   const authorizationCode = searchParams.get('code')
