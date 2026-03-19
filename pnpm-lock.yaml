@@ -2536,7 +2536,7 @@ importers:
         specifier: 1.38.0
         version: link:../client
       '@botpress/sdk':
-        specifier: workspace:*
+        specifier: 6.2.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
