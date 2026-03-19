@@ -37,16 +37,20 @@ RUN pnpm --filter @botpress/cognitive run build
 RUN pnpm --filter @botpress/cli run bundle
 RUN pnpm --filter @botpresshub/chat run build
 
+# Produce a self-contained node_modules with no pnpm symlinks.
+# Only includes production dependencies of the chat integration (including OTel).
+RUN pnpm --filter @botpresshub/chat --prod deploy --legacy /tmp/chat-deploy
+
 
 FROM node:${NODE_VERSION}-bullseye-slim AS deploy
 
 COPY --from=base /usr/app/integrations/chat/.botpress/dist/index.cjs ./index.cjs
 RUN echo "const server = require('./index.cjs')\nconst port = process.env.PORT ? parseInt(process.env.PORT, 10) : 8081\nserver.default.start(port)" > server.js
 
-# Copy OTel packages from the build stage so they can be required at runtime.
+# Copy OTel packages from the deployed node_modules (real files, no symlinks).
 # These are loaded via dynamic require() in the SDK's tracing module and must
 # be present in node_modules (not bundled by esbuild) for monkey-patching to work.
-COPY --from=base /usr/app/node_modules/@opentelemetry ./node_modules/@opentelemetry
+COPY --from=base /tmp/chat-deploy/node_modules/@opentelemetry ./node_modules/@opentelemetry
 
 # set port env and expose it
 ENV PORT=8081
