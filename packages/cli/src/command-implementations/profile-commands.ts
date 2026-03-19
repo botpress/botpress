@@ -62,7 +62,7 @@ export class UseProfileCommand extends GlobalCommand<UseProfileCommandDefinition
       return
     }
     const profiles = await this.readProfilesFromFS()
-    const choices = Object.entries(profiles).map(([profileName, _]) => ({
+    const choices = Object.keys(profiles).map((profileName) => ({
       title: profileName,
       description: '',
       value: profileName,
@@ -98,7 +98,7 @@ export class GetProfileCommand extends GlobalCommand<GetProfileCommandDefinition
     }
 
     const profiles = await this.readProfilesFromFS()
-    const choices = Object.entries(profiles).map(([profileName, _]) => ({
+    const choices = Object.keys(profiles).map((profileName) => ({
       title: profileName,
       description: '',
       value: profileName,
