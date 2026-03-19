@@ -100,7 +100,15 @@ export const fetchTemplates = async (
       logForBotAndThrow(`Failed to fetch message templates: ${e.response?.data?.error?.message ?? e.message}`, logger)
     })
 
-  return response.data
+  const parsedResult = whatsAppTemplatesResponseSchema.safeParse(response.data)
+  if (!parsedResult.success) {
+    logForBotAndThrow(
+      `Failed to parse response from WhatsApp API when fetching templates: ${parsedResult.error.message}`,
+      logger
+    )
+  }
+
+  return parsedResult.data
 }
 
 export function parseTemplateVariablesJSON(templateVariablesJson: string, logger: bp.Logger): TemplateVariables {
