@@ -430,6 +430,23 @@ export default new IntegrationDefinition({
     },
   },
   events: {
+    messageSent: {
+      title: 'Message Sent',
+      description: 'Triggered when a message is sent',
+      schema: z.object({}),
+    },
+    messageDelivered: {
+      title: 'Message Delivered',
+      description: 'Triggered when a message is delivered to a user',
+      schema: z.object({}),
+    },
+    messageFailed: {
+      title: 'Message Failed',
+      description: 'Triggered when a message fails to be delivered',
+      schema: z.object({
+        error: z.string().describe('Error details describing why the message failed'),
+      }),
+    },
     messageRead: {
       title: 'Message Read',
       description: 'Triggered when a user reads a message',
