@@ -82,7 +82,7 @@ const _handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProp
 
   if (error) {
     logger.forBot().error(`OAuth error: ${error} - ${errorDescription}`)
-    throw new RuntimeError(`OAuth error: ${error} - ${errorDescription}`)
+    return generateRedirection(getInterstitialUrl(false, `OAuth error: ${error} - ${errorDescription}`))
   }
 
   if (!authorizationCode) {
