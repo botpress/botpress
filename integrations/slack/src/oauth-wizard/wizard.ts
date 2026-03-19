@@ -125,8 +125,8 @@ const _createAppHandler: WizardHandler = async (props) => {
   }
   const appName = manifestState.appName || 'Botpress Bot'
 
-  const webhookUrl = process.env.BP_WEBHOOK_URL!
-  const redirectUri = `${webhookUrl}/oauth`
+  const webhookUrl = `${process.env.BP_WEBHOOK_URL!}/${props.ctx.webhookId}`
+  const redirectUri = `${process.env.BP_WEBHOOK_URL!}/oauth`
   const manifest = buildSlackAppManifest(webhookUrl, redirectUri, appName)
   const manifestClient = await SlackManifestClient.create({
     client,
