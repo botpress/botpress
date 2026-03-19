@@ -54,11 +54,12 @@ export const setupTracing = () => {
   if (_initialized) {
     return
   }
-  _initialized = true
 
   if (process.env.TRACING_ENABLED !== 'true') {
     return
   }
+
+  _initialized = true
 
   log.info('Initializing OTel tracing')
 
