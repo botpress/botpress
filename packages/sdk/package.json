@@ -2,12 +2,15 @@
   "name": "@botpress/sdk",
   "version": "6.1.0",
   "description": "Botpress SDK",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "keywords": [],
+  "license": "MIT",
+  "author": "",
   "repository": {
     "url": "https://github.com/botpress/botpress"
   },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "check:type": "tsc -p ./tsconfig.json --noEmit",
     "build:type": "tsc -p ./tsconfig.package.json --emitDeclarationOnly --declaration",
@@ -16,9 +19,6 @@
     "build": "pnpm build:type && pnpm build:node && pnpm build:browser",
     "test": "vitest --run"
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/client": "1.37.0",
     "browser-or-node": "^2.1.1",
@@ -26,13 +26,13 @@
   },
   "devDependencies": {
     "@opentelemetry/api": "1.9.0",
-    "@opentelemetry/sdk-trace-node": "1.27.0",
-    "@opentelemetry/sdk-trace-base": "1.27.0",
-    "@opentelemetry/exporter-trace-otlp-http": "^0.40.0",
     "@opentelemetry/auto-instrumentations-node": "0.52.1",
+    "@opentelemetry/core": "1.30.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.40.0",
     "@opentelemetry/instrumentation": "0.54.2",
     "@opentelemetry/resources": "1.27.0",
-    "@opentelemetry/core": "1.30.0",
+    "@opentelemetry/sdk-trace-base": "1.27.0",
+    "@opentelemetry/sdk-trace-node": "1.27.0",
     "@types/semver": "^7.3.11",
     "esbuild": "^0.25.10",
     "esbuild-plugin-polyfill-node": "^0.3.0",
@@ -41,27 +41,43 @@
   "peerDependencies": {
     "@bpinternal/zui": "^2.0.0",
     "@opentelemetry/api": "1.9.0",
-    "@opentelemetry/sdk-trace-node": "1.27.0",
-    "@opentelemetry/sdk-trace-base": "1.27.0",
-    "@opentelemetry/exporter-trace-otlp-http": "^0.40.0",
     "@opentelemetry/auto-instrumentations-node": "0.52.1",
+    "@opentelemetry/core": "1.30.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.40.0",
     "@opentelemetry/instrumentation": "0.54.2",
     "@opentelemetry/resources": "1.27.0",
-    "@opentelemetry/core": "1.30.0",
+    "@opentelemetry/sdk-trace-base": "1.27.0",
+    "@opentelemetry/sdk-trace-node": "1.27.0",
     "esbuild": "^0.16.12"
   },
   "peerDependenciesMeta": {
     "esbuild": {
       "optional": true
     },
-    "@opentelemetry/api": { "optional": true },
-    "@opentelemetry/sdk-trace-node": { "optional": true },
-    "@opentelemetry/sdk-trace-base": { "optional": true },
-    "@opentelemetry/exporter-trace-otlp-http": { "optional": true },
-    "@opentelemetry/auto-instrumentations-node": { "optional": true },
-    "@opentelemetry/instrumentation": { "optional": true },
-    "@opentelemetry/resources": { "optional": true },
-    "@opentelemetry/core": { "optional": true }
+    "@opentelemetry/api": {
+      "optional": true
+    },
+    "@opentelemetry/sdk-trace-node": {
+      "optional": true
+    },
+    "@opentelemetry/sdk-trace-base": {
+      "optional": true
+    },
+    "@opentelemetry/exporter-trace-otlp-http": {
+      "optional": true
+    },
+    "@opentelemetry/auto-instrumentations-node": {
+      "optional": true
+    },
+    "@opentelemetry/instrumentation": {
+      "optional": true
+    },
+    "@opentelemetry/resources": {
+      "optional": true
+    },
+    "@opentelemetry/core": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=18.0.0"

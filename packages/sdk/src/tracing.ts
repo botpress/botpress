@@ -112,59 +112,6 @@ export const setupTracing = () => {
     _initialized = true
     log.info('OTel tracing initialized')
   } catch (thrown) {
-
-  log.info('Initializing OTel tracing')
-
-  try {
-    const otel = loadOtel()
-
-    const serviceName = process.env.OTEL_SERVICE_NAME ?? 'botpress-integration'
-    const resource = new otel.resources.Resource({ 'service.name': serviceName })
-
-    const exporter = new otel.exporterOtlp.OTLPTraceExporter({ timeoutMillis: 10_000 })
-
-    const innerProcessor = new otel.traceBase.BatchSpanProcessor(exporter, {
-      maxQueueSize: 2048,
-      maxExportBatchSize: 256,
-      scheduledDelayMillis: 2000,
-      exportTimeoutMillis: 10_000,
-    })
-
-    const SpanKind = otel.api.SpanKind
-    const wrappedProcessor: import('@opentelemetry/sdk-trace-base').SpanProcessor = {
-      forceFlush: () => innerProcessor.forceFlush(),
-      shutdown: () => innerProcessor.shutdown(),
-      onEnd: (span) => innerProcessor.onEnd(span),
-      onStart: (span, parentContext) => {
-        const method = (span.attributes['http.method'] as string) ?? span.name
-        const httpTarget = span.attributes['http.target'] as string
-
-        if (span.kind === SpanKind.CLIENT && httpTarget) {
-          span.updateName(`-> ${method} ${normalizePath(httpTarget)}`)
-        }
-
-        if (span.kind === SpanKind.SERVER && httpTarget) {
-          span.updateName(`${method} ${normalizePath(httpTarget)}`)
-        }
-
-        innerProcessor.onStart(span, parentContext)
-      },
-    }
-
-    const provider = new otel.traceNode.NodeTracerProvider({ resource })
-
-    provider.addSpanProcessor(wrappedProcessor)
-    provider.register({ propagator: new otel.core.W3CTraceContextPropagator() })
-
-    const instrumentations = otel.autoInstrumentations.getNodeAutoInstrumentations({
-      '@opentelemetry/instrumentation-fs': { enabled: false },
-      '@opentelemetry/instrumentation-net': { enabled: false },
-    })
-
-    otel.instrumentation.registerInstrumentations({ instrumentations })
-
-    log.info('OTel tracing initialized')
-  } catch (thrown) {
     log.warn(`OTel tracing not available: ${thrown instanceof Error ? thrown.message : String(thrown)}`)
   }
 }
