@@ -73,35 +73,40 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
 }
 
 const _handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProps) => {
-  logger.forBot().debug('Handling OAuth callback')
+  try {
+    logger.forBot().debug('Handling OAuth callback')
 
-  const searchParams = new URLSearchParams(req.query)
-  const authorizationCode = searchParams.get('code')
-  const error = searchParams.get('error')
-  const errorDescription = searchParams.get('error_description')
+    const searchParams = new URLSearchParams(req.query)
+    const authorizationCode = searchParams.get('code')
+    const error = searchParams.get('error')
+    const errorDescription = searchParams.get('error_description')
 
-  if (error) {
-    logger.forBot().error(`OAuth error: ${error} - ${errorDescription}`)
-    return generateRedirection(getInterstitialUrl(false, `OAuth error: ${error} - ${errorDescription}`))
+    if (error) {
+      logger.forBot().error(`OAuth error: ${error} - ${errorDescription}`)
+      throw new RuntimeError(`OAuth error: ${error} - ${errorDescription}`)
+    }
+
+    if (!authorizationCode) {
+      logger.forBot().error('Authorization code not present in OAuth callback')
+      throw new RuntimeError('Authorization code not present in OAuth callback')
+    }
+
+    const credentials = await getCredentials({ authorizationCode, logger })
+
+    logger.forBot().info('Successfully authenticated via OAuth')
+
+    await client.configureIntegration({ identifier: credentials.appId })
+
+    await client.setState({
+      type: 'integration',
+      name: 'credentials',
+      id: ctx.integrationId,
+      payload: credentials,
+    })
+
+    return generateRedirection(getInterstitialUrl(true))
+  } catch (thrown: unknown) {
+    const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+    return generateRedirection(getInterstitialUrl(false, errMsg))
   }
-
-  if (!authorizationCode) {
-    logger.forBot().error('Authorization code not present in OAuth callback')
-    throw new RuntimeError('Authorization code not present in OAuth callback')
-  }
-
-  const credentials = await getCredentials({ authorizationCode, logger })
-
-  logger.forBot().info('Successfully authenticated via OAuth')
-
-  await client.configureIntegration({ identifier: credentials.appId })
-
-  await client.setState({
-    type: 'integration',
-    name: 'credentials',
-    id: ctx.integrationId,
-    payload: credentials,
-  })
-
-  return generateRedirection(getInterstitialUrl(true))
 }
