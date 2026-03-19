@@ -35,7 +35,7 @@
     },
     {
       "id": "catch-handling",
-      "rule": "All thrown catches type must be typed something else than any or unknown.\nThe following snippet is an example solution for this problem:\n\n```Typescript\ntry {\n  ...\n} catch (thrown: unknown) {\n  const error = thrown instanceof Error ? thrown : new Error(String(thrown))\n}\n```"
+      "rule": "All catch clauses must not use `any` as the error type (implicit or explicit). Instead, type the caught value as `unknown` and narrow it before use.\nThe following snippet is an example solution for this problem:\n\n```Typescript\ntry {\n  ...\n} catch (thrown: unknown) {\n  const error = thrown instanceof Error ? thrown : new Error(String(thrown))\n}\n```"
     }
   ]
 }
