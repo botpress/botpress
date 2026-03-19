@@ -14,5 +14,5 @@ export const handleOAuthCallback = async ({ req, client, ctx, logger }: bp.Handl
 
   const slackClient = await SlackClient.createFromAuthorizationCode({ client, ctx, logger, authorizationCode: code })
 
-  await client.configureIntegration({ identifier: slackClient.getTeamId() })
+  await client.configureIntegration({ identifier: slackClient.getBotUserId() })
 }
