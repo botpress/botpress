@@ -1,3 +1,4 @@
+import { z } from '@botpress/sdk'
 import axios from 'axios'
 import { Component, TemplateVariables, templateVariablesSchema } from 'src/misc/types'
 import { getAccessToken, getWabaId } from '../auth'
@@ -5,47 +6,57 @@ import { WHATSAPP } from './constants'
 import { logForBotAndThrow } from './util'
 import * as bp from '.botpress'
 
-type WhatsAppButton = {
-  type: string
-  text?: string
-  url?: string
-  phone_number?: string
-}
+const whatsAppButtonSchema = z.object({
+  type: z.string(),
+  text: z.string().optional(),
+  url: z.string().optional(),
+  phone_number: z.string().optional(),
+})
 
-type WhatsAppComponent = {
-  type: string
-  format?: string
-  text?: string
-  buttons?: WhatsAppButton[]
-  example?: Record<string, unknown>
-}
+const whatsAppComponentSchema = z.object({
+  type: z.string(),
+  format: z.string().optional(),
+  text: z.string().optional(),
+  buttons: z.array(whatsAppButtonSchema).optional(),
+  example: z.record(z.unknown()).optional(),
+})
 
-type WhatsAppTemplate = {
-  id: string
-  name: string
-  status: string
-  category: string
-  language: string
-  components?: WhatsAppComponent[]
-}
+const whatsAppTemplateSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  status: z.string(),
+  category: z.string(),
+  language: z.string(),
+  components: z.array(whatsAppComponentSchema).optional(),
+})
 
-export type WhatsAppTemplatesResponse = {
-  data: WhatsAppTemplate[]
-  paging?: {
-    cursors?: {
-      after?: string
-    }
-  }
-}
+const whatsAppTemplatesResponseSchema = z.object({
+  data: z.array(whatsAppTemplateSchema),
+  paging: z
+    .object({
+      cursors: z
+        .object({
+          after: z.string().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
+})
 
-export type FetchTemplatesParams = {
-  name?: string
-  language?: string
-  status?: string
-  limit?: number
-  after?: string
-  fields?: string
-}
+const fetchTemplatesParamsSchema = z.object({
+  name: z.string().optional(),
+  language: z.string().optional(),
+  status: z.string().optional(),
+  limit: z.number().optional(),
+  after: z.string().optional(),
+  fields: z.string().optional(),
+})
+
+export type WhatsAppButton = z.infer<typeof whatsAppButtonSchema>
+export type WhatsAppComponent = z.infer<typeof whatsAppComponentSchema>
+export type WhatsAppTemplate = z.infer<typeof whatsAppTemplateSchema>
+export type WhatsAppTemplatesResponse = z.infer<typeof whatsAppTemplatesResponseSchema>
+export type FetchTemplatesParams = z.infer<typeof fetchTemplatesParamsSchema>
 
 export const fetchTemplates = async (
   ctx: bp.Context,
