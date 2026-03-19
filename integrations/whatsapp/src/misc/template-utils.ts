@@ -147,7 +147,7 @@ export const getTemplateText = async (
       throw new Error('No template received')
     }
 
-    return _getTemplateText(template.components as Component[], bodyVariables)
+    return _getTemplateText((template.components ?? []) as Component[], bodyVariables)
   } catch (thrown) {
     const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
     logger.forBot().debug(`failed to get template text - ${errMsg}`)
