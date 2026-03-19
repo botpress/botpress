@@ -43,8 +43,16 @@ FROM node:${NODE_VERSION}-bullseye-slim AS deploy
 COPY --from=base /usr/app/integrations/chat/.botpress/dist/index.cjs ./index.cjs
 RUN echo "const server = require('./index.cjs')\nconst port = process.env.PORT ? parseInt(process.env.PORT, 10) : 8081\nserver.default.start(port)" > server.js
 
+# Copy OTel packages from the build stage so they can be required at runtime.
+# These are loaded via dynamic require() in the SDK's tracing module and must
+# be present in node_modules (not bundled by esbuild) for monkey-patching to work.
+COPY --from=base /usr/app/node_modules/.pnpm ./node_modules/.pnpm
+COPY --from=base /usr/app/node_modules/@opentelemetry ./node_modules/@opentelemetry
+
 # set port env and expose it
 ENV PORT=8081
+ENV TRACING_ENABLED=false
+ENV OTEL_SERVICE_NAME="chat-integration"
 EXPOSE ${PORT}
 
 ENTRYPOINT ["node", "server.js"]
