@@ -2,7 +2,12 @@ import { logForBotAndThrow } from '../misc/util'
 import { fetchTemplates } from '../misc/template-utils'
 import * as bp from '.botpress'
 
-export const listTemplates: bp.IntegrationProps['actions']['listTemplates'] = async ({ ctx, input, client, logger }) => {
+export const listTemplates: bp.IntegrationProps['actions']['listTemplates'] = async ({
+  ctx,
+  input,
+  client,
+  logger,
+}) => {
   if (ctx.configurationType === 'sandbox') {
     logForBotAndThrow('Listing templates is not supported in sandbox mode', logger)
   }

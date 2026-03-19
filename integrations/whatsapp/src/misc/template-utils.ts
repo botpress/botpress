@@ -97,10 +97,7 @@ export const fetchTemplates = async (
       },
     })
     .catch((e) => {
-      logForBotAndThrow(
-        `Failed to fetch message templates: ${e.response?.data?.error?.message ?? e.message}`,
-        logger
-      )
+      logForBotAndThrow(`Failed to fetch message templates: ${e.response?.data?.error?.message ?? e.message}`, logger)
     })
 
   return response.data

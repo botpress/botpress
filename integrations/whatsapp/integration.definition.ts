@@ -332,11 +332,7 @@ export default new IntegrationDefinition({
             .optional()
             .title('Status Filter')
             .describe('Filter templates by approval status. Returns all statuses if not specified.'),
-          name: z
-            .string()
-            .optional()
-            .title('Template Name')
-            .describe('Filter templates by exact name match.'),
+          name: z.string().optional().title('Template Name').describe('Filter templates by exact name match.'),
           limit: z
             .number()
             .optional()
@@ -366,10 +362,7 @@ export default new IntegrationDefinition({
                 components: z
                   .array(
                     z.object({
-                      type: z
-                        .string()
-                        .title('Type')
-                        .describe('Component type (HEADER, BODY, FOOTER, BUTTONS)'),
+                      type: z.string().title('Type').describe('Component type (HEADER, BODY, FOOTER, BUTTONS)'),
                       format: z
                         .string()
                         .optional()
@@ -387,11 +380,7 @@ export default new IntegrationDefinition({
                               .string()
                               .title('Button Type')
                               .describe('Type of button (QUICK_REPLY, URL, PHONE_NUMBER, etc.)'),
-                            text: z
-                              .string()
-                              .optional()
-                              .title('Button Text')
-                              .describe('Label text of the button'),
+                            text: z.string().optional().title('Button Text').describe('Label text of the button'),
                             url: z
                               .string()
                               .optional()
