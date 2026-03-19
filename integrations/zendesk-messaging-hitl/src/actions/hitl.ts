@@ -1,13 +1,15 @@
 import { RuntimeError } from '@botpress/client'
 import { buildConversationTranscript } from '@botpress/common'
 import { getSuncoClient } from 'src/client'
-import { getSwitchboardIntegrationId, getAgentWorkspaceSwitchboardIntegrationId } from 'src/setup/util'
+import { getStoredCredentials } from 'src/get-stored-credentials'
+import { getSwitchboardIntegrationName, getAgentWorkspaceSwitchboardIntegrationName } from 'src/setup/util'
 import { Client, IntegrationCtx, User, HitlSession, MessageHistory } from 'src/types'
 import * as bp from '.botpress'
 
 export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ ctx, client, input, logger }) => {
   try {
-    const suncoClient = getSuncoClient(ctx.configuration)
+    const credentials = await getStoredCredentials(client, ctx)
+    const suncoClient = getSuncoClient(credentials)
 
     const { user } = await client.getUser({
       id: input.userId,
@@ -31,13 +33,12 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
       },
     })
 
-    // Get switchboard integration IDs (from cache or fetch at runtime)
-    const switchboardIntegrationId = await getSwitchboardIntegrationId(ctx, client, logger)
-    const agentWorkspaceSwitchboardIntegrationId = await getAgentWorkspaceSwitchboardIntegrationId(ctx, client, logger)
+    const botpressIntegrationName = getSwitchboardIntegrationName(credentials, ctx)
+    const agentWorkspaceName = getAgentWorkspaceSwitchboardIntegrationName()
 
     // Pass control from conversation to our Integration in the switchboard, necessary so the initial message can be sent without creating the ticket yet
     // Reason: If the ticket is created because of the initial message, we can't specify ticket metadata anymore (ticket fields, priority, etc.)
-    await suncoClient.switchboardActionsPassControl(suncoConversation.id, switchboardIntegrationId)
+    await suncoClient.switchboardActionsPassControl(suncoConversation.id, botpressIntegrationName)
 
     // Send a initial message with the conversation title, description and transcript
     // Having a message will allow us to pass control to the agent workspace without requiring a 'reason'
@@ -61,16 +62,12 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
       .info('Passing control to the agent workspace with the following metadata: ' + JSON.stringify({ metadata }))
 
     // Pass control to the agent workspace with the metadata to correctly create fields
-    await suncoClient.switchboardActionsPassControl(
-      suncoConversation.id,
-      agentWorkspaceSwitchboardIntegrationId,
-      metadata
-    )
+    await suncoClient.switchboardActionsPassControl(suncoConversation.id, agentWorkspaceName, metadata)
 
     // Offer control to our integration so our webhook can receive messages from the agent workspace, even if we don't control it
     // In theory we could skip this if deliverStandbyEvents was enabled on our Switchboard Integration record but this way we prevent
     // all bots that use this HITL integration from receiving webhook events from all conversations
-    await suncoClient.switchboardActionsOfferControl(suncoConversation.id, switchboardIntegrationId)
+    await suncoClient.switchboardActionsOfferControl(suncoConversation.id, botpressIntegrationName)
 
     return {
       conversationId: conversation.id,
@@ -94,7 +91,8 @@ export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ inp
   }
 
   try {
-    const suncoClient = getSuncoClient(ctx.configuration)
+    const credentials = await getStoredCredentials(client, ctx)
+    const suncoClient = getSuncoClient(credentials)
 
     logger.forBot().info(`Releasing control from switchboard for conversation ${suncoConversationId}`)
     await suncoClient.switchboardActionsReleaseControl(suncoConversationId)
@@ -111,7 +109,8 @@ export const createUser: bp.IntegrationProps['actions']['createUser'] = async ({
   logger.forBot().info('createUser called', { input })
 
   try {
-    const suncoClient = getSuncoClient(ctx.configuration)
+    const credentials = await getStoredCredentials(client, ctx)
+    const suncoClient = getSuncoClient(credentials)
 
     const { user: botpressUser } = await client.getOrCreateUser({
       ...input,

@@ -1,13 +1,20 @@
 import * as bp from '../../.botpress'
 import { getSuncoClient } from '../client'
+import { getStoredCredentials } from '../get-stored-credentials'
 import { getBotpressIntegrationDisplayName } from './util'
 
-export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, logger }) => {
+export const unregister: bp.IntegrationProps['unregister'] = async (props) => {
+  const { ctx, logger, client } = props
   try {
-    const suncoClient = getSuncoClient(ctx.configuration)
+    const credentials = await getStoredCredentials(client, ctx)
 
+    if (credentials.configType !== 'manual') {
+      logger.forBot().info('OAuth mode: skipping switchboard cleanup on unregister')
+      return
+    }
+
+    const suncoClient = getSuncoClient(credentials)
     const { id: switchboardId } = await suncoClient.getSwitchboardOrThrow()
-
     const integrationDisplayName = getBotpressIntegrationDisplayName(ctx.webhookId)
 
     const { id: switchboardIntegrationId } = await suncoClient.findSwitchboardIntegrationByNameOrThrow(

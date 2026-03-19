@@ -16,6 +16,8 @@ import {
   type MessageContent,
   Message,
 } from './sunshine-api'
+import { BASE_HEADERS } from './api/const'
+import { StoredCredentials } from './types'
 
 export class SuncoClientError extends RuntimeError {
   public readonly operationName: string
@@ -64,8 +66,9 @@ export class SuncoClientError extends RuntimeError {
 
 class SuncoClient {
   private _appId: string
-  private _keyId: string
-  private _keySecret: string
+  private _credentials: StoredCredentials
+  private _baseUrl: string
+  private _authHeaders: Record<string, string>
   private _client: {
     apps: AppsApi
     users: UsersApi
@@ -78,14 +81,28 @@ class SuncoClient {
     switchboardIntegrations: SwitchboardIntegrationsApi
   }
 
-  public constructor(config: { appId: string; keyId: string; keySecret: string }) {
-    this._appId = config.appId
-    this._keyId = config.keyId
-    this._keySecret = config.keySecret
+  public constructor(credentials: StoredCredentials) {
+    this._appId = credentials.appId
+    this._credentials = credentials
     const apiClient = new SunshineConversationsApi.ApiClient()
-    const auth = apiClient.authentications['basicAuth']
-    auth.username = config.keyId
-    auth.password = config.keySecret
+
+    if (credentials.configType === 'manual') {
+      const auth = apiClient.authentications['basicAuth']
+      auth.username = credentials.keyId
+      auth.password = credentials.keySecret
+      this._baseUrl = 'https://api.smooch.io'
+      this._authHeaders = {}
+    } else {
+      if (!credentials.subdomain) {
+        throw new RuntimeError('Subdomain is required for OAuth')
+      }
+      apiClient.basePath = `https://${credentials.subdomain}.zendesk.com/sc`
+      const auth = apiClient.authentications['bearerAuth'] as { accessToken: string }
+      auth.accessToken = credentials.token
+      apiClient.defaultHeaders = { ...apiClient.defaultHeaders, ...BASE_HEADERS }
+      this._baseUrl = `https://${credentials.subdomain}.zendesk.com/sc`
+      this._authHeaders = { Authorization: `Bearer ${credentials.token}`, ...BASE_HEADERS }
+    }
 
     this._client = {
       apps: new SunshineConversationsApi.AppsApi(apiClient),
@@ -343,20 +360,7 @@ class SuncoClient {
         type: 'custom',
         status: 'active',
         displayName: integrationName,
-        webhooks: [
-          {
-            target: webhookUrl,
-            triggers: [
-              'conversation:message',
-              'conversation:remove',
-              'conversation:join',
-              'conversation:postback',
-              'switchboard:releaseControl',
-            ],
-            includeFullUser: false,
-            includeFullSource: false,
-          },
-        ],
+        webhooks: [this._getWebhookDefinitionFor(webhookUrl)],
       })
 
       if (!result?.integration?.id) {
@@ -366,6 +370,44 @@ class SuncoClient {
       return result.integration
     } catch (thrown: unknown) {
       this._handleError(thrown, 'create integration')
+    }
+  }
+
+  public async listWebhooks(integrationId: string) {
+    try {
+      const result = await this._client.webhooks.listWebhooks(this._appId, integrationId)
+      return result.webhooks || []
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'list webhooks', { integrationId })
+    }
+  }
+
+  public async createWebhook(integrationId: string, webhookUrl: string) {
+    try {
+      const result = await this._client.webhooks.createWebhook(
+        this._appId,
+        integrationId,
+        this._getWebhookDefinitionFor(webhookUrl)
+      )
+
+      return result.webhook
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'create webhook', { integrationId, webhookUrl })
+    }
+  }
+
+  public async updateWebhook(integrationId: string, webhookId: string, webhookUrl: string) {
+    try {
+      const result = await this._client.webhooks.updateWebhook(
+        this._appId,
+        integrationId,
+        webhookId,
+        this._getWebhookDefinitionFor(webhookUrl)
+      )
+
+      return result.webhook
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'update webhook', { integrationId, webhookId, webhookUrl })
     }
   }
 
@@ -555,16 +597,14 @@ class SuncoClient {
     // uses superagent internally, which doesn't properly handle Node.js File/Blob objects.
     // Superagent expects stream-like objects with .on() method, but Node.js 18+ File/Blob
     // don't implement stream interfaces. Using axios with native FormData works correctly.
-    const uploadResponse = await axios.post(`https://api.smooch.io/v2/apps/${this._appId}/attachments`, formData, {
-      params: {
-        access: 'public',
-        for: 'message',
-        conversationId,
-      },
-      auth: {
-        username: this._keyId,
-        password: this._keySecret,
-      },
+    const auth =
+      this._credentials.configType === 'manual'
+        ? { auth: { username: this._credentials.keyId, password: this._credentials.keySecret } }
+        : { headers: this._authHeaders }
+
+    const uploadResponse = await axios.postForm(`${this._baseUrl}/v2/apps/${this._appId}/attachments`, formData, {
+      params: { access: 'public', for: 'message', conversationId },
+      ...auth,
     })
 
     const mediaUrl = uploadResponse.data?.attachment?.mediaUrl
@@ -574,7 +614,22 @@ class SuncoClient {
 
     return mediaUrl
   }
+
+  private _getWebhookDefinitionFor(webhookUrl: string) {
+    return {
+      target: webhookUrl,
+      triggers: [
+        'conversation:message',
+        'conversation:remove',
+        'conversation:join',
+        'conversation:postback',
+        'switchboard:releaseControl',
+      ],
+      includeFullUser: false,
+      includeFullSource: false,
+    }
+  }
 }
 
-export const getSuncoClient = (config: { appId: string; keyId: string; keySecret: string }) => new SuncoClient(config)
+export const getSuncoClient = (credentials: StoredCredentials) => new SuncoClient(credentials)
 export type { SuncoClient }

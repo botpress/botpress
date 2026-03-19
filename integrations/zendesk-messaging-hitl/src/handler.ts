@@ -1,8 +1,18 @@
+import { generateRedirection } from '@botpress/common/src/html-dialogs'
+import { getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
+import { RuntimeError } from '@botpress/sdk'
+import { getCredentials } from './api/get-credentials'
 import { handleConversationMessage, handleSwitchboardReleaseControl } from './events'
 import { isSuncoWebhookPayload } from './sunshine-events'
-import { Handler } from './types'
+import * as bp from '.botpress'
 
-export const handler: Handler = async ({ req, logger, client }) => {
+export const handler: bp.IntegrationProps['handler'] = async (props) => {
+  const { req, logger, client } = props
+
+  if (req.path.startsWith('/oauth')) {
+    return await _handleOAuthCallback(props)
+  }
+
   if (!req.body) {
     logger.forBot().warn('Handler received an empty body')
     return
@@ -58,4 +68,41 @@ export const handler: Handler = async ({ req, logger, client }) => {
     const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
     logger.forBot().error(`Error processing Sunco webhook: ${errMsg}`)
   }
+
+  return
+}
+
+const _handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProps) => {
+  logger.forBot().debug('Handling OAuth callback')
+  logger.forBot().debug(JSON.stringify({ req }))
+
+  const searchParams = new URLSearchParams(req.query)
+  const authorizationCode = searchParams.get('code')
+  const error = searchParams.get('error')
+  const errorDescription = searchParams.get('error_description')
+
+  if (error) {
+    logger.forBot().error(`OAuth error: ${error} - ${errorDescription}`)
+    throw new RuntimeError(`OAuth error: ${error} - ${errorDescription}`)
+  }
+
+  if (!authorizationCode) {
+    logger.forBot().error('Authorization code not present in OAuth callback')
+    throw new RuntimeError('Authorization code not present in OAuth callback')
+  }
+
+  const credentials = await getCredentials({ authorizationCode, logger })
+
+  logger.forBot().info('Successfully authenticated via OAuth')
+
+  await client.configureIntegration({ identifier: credentials.appId })
+
+  await client.setState({
+    type: 'integration',
+    name: 'credentials',
+    id: ctx.integrationId,
+    payload: credentials,
+  })
+
+  return generateRedirection(getInterstitialUrl(true))
 }
