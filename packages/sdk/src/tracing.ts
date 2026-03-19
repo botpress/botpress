@@ -112,6 +112,6 @@ export const setupTracing = () => {
 
     log.info('OTel tracing initialized')
   } catch (thrown) {
-    log.warn('OTel tracing not available — packages may not be installed')
+    log.warn(`OTel tracing not available: ${thrown instanceof Error ? thrown.message : String(thrown)}`)
   }
 }
