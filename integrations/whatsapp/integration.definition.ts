@@ -93,7 +93,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.8.3'
+export const INTEGRATION_VERSION = '4.10.0'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
@@ -318,6 +318,113 @@ export default new IntegrationDefinition({
       output: {
         schema: z.object({
           conversationId: z.string().title('Conversation ID').describe('ID of the conversation created'),
+        }),
+      },
+    },
+    listTemplates: {
+      title: 'List Message Templates',
+      description:
+        'Lists WhatsApp message templates from the connected WhatsApp Business Account, including parameter schemas and approval status',
+      input: {
+        schema: z.object({
+          status: z
+            .enum(['APPROVED', 'PENDING', 'REJECTED', 'PAUSED', 'DISABLED', 'ARCHIVED', 'LIMIT_EXCEEDED', 'IN_APPEAL'])
+            .optional()
+            .title('Status Filter')
+            .describe('Filter templates by approval status. Returns all statuses if not specified.'),
+          name: z
+            .string()
+            .optional()
+            .title('Template Name')
+            .describe('Filter templates by exact name match.'),
+          limit: z
+            .number()
+            .optional()
+            .default(20)
+            .title('Limit')
+            .describe('Maximum number of templates to return per page (default: 20, max: 100).'),
+          nextCursor: z
+            .string()
+            .optional()
+            .title('Next Cursor')
+            .describe('Cursor for fetching the next page of results. Obtained from a previous listTemplates call.'),
+        }),
+      },
+      output: {
+        schema: z.object({
+          templates: z
+            .array(
+              z.object({
+                id: z.string().title('Template ID').describe('Unique identifier of the template'),
+                name: z.string().title('Name').describe('Name of the message template'),
+                status: z.string().title('Status').describe('Approval status of the template'),
+                category: z
+                  .string()
+                  .title('Category')
+                  .describe('Category of the template (e.g. MARKETING, UTILITY, AUTHENTICATION)'),
+                language: z.string().title('Language').describe('Language and locale code of the template'),
+                components: z
+                  .array(
+                    z.object({
+                      type: z
+                        .string()
+                        .title('Type')
+                        .describe('Component type (HEADER, BODY, FOOTER, BUTTONS)'),
+                      format: z
+                        .string()
+                        .optional()
+                        .title('Format')
+                        .describe('Format of the component (e.g. TEXT, IMAGE, VIDEO for HEADER)'),
+                      text: z
+                        .string()
+                        .optional()
+                        .title('Text')
+                        .describe('Text content of the component, may contain {{N}} placeholders'),
+                      buttons: z
+                        .array(
+                          z.object({
+                            type: z
+                              .string()
+                              .title('Button Type')
+                              .describe('Type of button (QUICK_REPLY, URL, PHONE_NUMBER, etc.)'),
+                            text: z
+                              .string()
+                              .optional()
+                              .title('Button Text')
+                              .describe('Label text of the button'),
+                            url: z
+                              .string()
+                              .optional()
+                              .title('Button URL')
+                              .describe('URL for URL-type buttons, may contain {{1}} placeholder'),
+                            phone_number: z
+                              .string()
+                              .optional()
+                              .title('Phone Number')
+                              .describe('Phone number for PHONE_NUMBER-type buttons'),
+                          })
+                        )
+                        .optional()
+                        .title('Buttons')
+                        .describe('Array of button objects (only present for BUTTONS component type)'),
+                      example: z
+                        .record(z.any())
+                        .optional()
+                        .title('Example')
+                        .describe('Example values for the component parameters'),
+                    })
+                  )
+                  .title('Components')
+                  .describe('Array of template components (HEADER, BODY, FOOTER, BUTTONS)'),
+              })
+            )
+            .title('Templates')
+            .describe('Array of message templates'),
+          nextCursor: z
+            .string()
+            .optional()
+            .title('Next Cursor')
+            .describe('Cursor for fetching the next page. Undefined if no more pages.'),
         }),
       },
     },
