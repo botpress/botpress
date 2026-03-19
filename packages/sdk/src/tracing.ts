@@ -73,7 +73,6 @@ export const setupTracing = () => {
 
   try {
     const otel = loadOtel()
-    const otlpEndpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? 'http://localhost:4318'
 
     const serviceName = process.env.OTEL_SERVICE_NAME ?? 'botpress-integration'
     const resource = new otel.resources.Resource({ 'service.name': serviceName })
@@ -116,12 +115,6 @@ export const setupTracing = () => {
     otel.api.propagation.setGlobalPropagator(new otel.core.W3CTraceContextPropagator())
 
     const instrumentations = otel.autoInstrumentations.getNodeAutoInstrumentations({
-      '@opentelemetry/instrumentation-http': {
-        ignoreOutgoingRequestHook: (request) => {
-          const target = `${request.hostname ?? request.host ?? ''}:${request.port ?? ''}`
-          return otlpEndpoint.includes(target)
-        },
-      },
       '@opentelemetry/instrumentation-fs': { enabled: false },
       '@opentelemetry/instrumentation-net': { enabled: false },
     })
