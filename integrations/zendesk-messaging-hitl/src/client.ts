@@ -1,5 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import axios from 'axios'
+import { BASE_HEADERS } from './api/const'
 import {
   SunshineConversationsApi,
   type AppsApi,
@@ -16,7 +17,6 @@ import {
   type MessageContent,
   Message,
 } from './sunshine-api'
-import { BASE_HEADERS } from './api/const'
 import { StoredCredentials } from './types'
 
 export class SuncoClientError extends RuntimeError {
