@@ -1,8 +1,99 @@
 import axios from 'axios'
 import { Component, TemplateVariables, templateVariablesSchema } from 'src/misc/types'
 import { getAccessToken, getWabaId } from '../auth'
+import { WHATSAPP } from './constants'
 import { logForBotAndThrow } from './util'
 import * as bp from '.botpress'
+
+type WhatsAppButton = {
+  type: string
+  text?: string
+  url?: string
+  phone_number?: string
+}
+
+type WhatsAppComponent = {
+  type: string
+  format?: string
+  text?: string
+  buttons?: WhatsAppButton[]
+  example?: Record<string, unknown>
+}
+
+type WhatsAppTemplate = {
+  id: string
+  name: string
+  status: string
+  category: string
+  language: string
+  components?: WhatsAppComponent[]
+}
+
+export type WhatsAppTemplatesResponse = {
+  data: WhatsAppTemplate[]
+  paging?: {
+    cursors?: {
+      after?: string
+    }
+  }
+}
+
+export type FetchTemplatesParams = {
+  name?: string
+  language?: string
+  status?: string
+  limit?: number
+  after?: string
+  fields?: string
+}
+
+export const fetchTemplates = async (
+  ctx: bp.Context,
+  client: bp.Client,
+  logger: bp.Logger,
+  params: FetchTemplatesParams = {}
+): Promise<WhatsAppTemplatesResponse> => {
+  const accessToken = await getAccessToken(client, ctx)
+  const wabaId = await getWabaId(client, ctx)
+
+  const queryParams = new URLSearchParams()
+
+  if (params.fields) {
+    queryParams.append('fields', params.fields)
+  }
+  if (params.name) {
+    queryParams.append('name', params.name)
+  }
+  if (params.language) {
+    queryParams.append('language', params.language)
+  }
+  if (params.status) {
+    queryParams.append('status', params.status)
+  }
+  if (params.limit) {
+    queryParams.append('limit', String(params.limit))
+  }
+  if (params.after) {
+    queryParams.append('after', params.after)
+  }
+
+  const url = `${WHATSAPP.API_URL}/${wabaId}/message_templates?${queryParams.toString()}`
+
+  const response = await axios
+    .get<WhatsAppTemplatesResponse>(url, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+    .catch((e) => {
+      logForBotAndThrow(
+        `Failed to fetch message templates: ${e.response?.data?.error?.message ?? e.message}`,
+        logger
+      )
+    })
+
+  return response.data
+}
 
 export function parseTemplateVariablesJSON(templateVariablesJson: string, logger: bp.Logger): TemplateVariables {
   let templateVariablesRaw = []
@@ -38,32 +129,17 @@ export const getTemplateText = async (
   bodyVariables: TemplateVariables
 ): Promise<string> => {
   try {
-    const waba_id = await getWabaId(client, ctx).catch(() => {
-      throw new Error("The configuration doesn't support having the full template in the Botpress' conversation: ")
+    const response = await fetchTemplates(ctx, client, logger, {
+      name: templateName,
+      language: templateLanguage,
     })
 
-    const accessToken = await getAccessToken(client, ctx).catch((e) => {
-      throw new Error('Failed to get access token - error:', e.response?.data || e.message || e)
-    })
+    const template = response.data[0]
+    if (!template) {
+      throw new Error('No template received')
+    }
 
-    const url = `https://graph.facebook.com/v20.0/${waba_id}/message_templates?name=${templateName}&language=${templateLanguage}`
-    const templateComponents: Component[] = await axios
-      .get(url, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
-      .then((res) => {
-        if (!res.data.data[0]) {
-          throw new Error('No template received')
-        }
-        return res.data.data[0].components
-      })
-      .catch((e) => {
-        throw new Error('Failed to fetch template components', e.response?.data || e.message || e)
-      })
-
-    return _getTemplateText(templateComponents, bodyVariables)
+    return _getTemplateText(template.components as Component[], bodyVariables)
   } catch (thrown) {
     const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
     logger.forBot().debug(`failed to get template text - ${errMsg}`)
