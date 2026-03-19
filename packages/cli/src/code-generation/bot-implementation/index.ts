@@ -1,9 +1,9 @@
 import * as sdk from '@botpress/sdk'
 import * as consts from '../consts'
 import * as mod from '../module'
+import { SecretIndexModule } from '../secret-module'
 import * as types from '../typings'
 import { BotImplementationModule } from './bot-implementation'
-import { SecretIndexModule } from '../secret-module'
 
 class BotIndexModule extends mod.Module {
   private _botImplModule: BotImplementationModule

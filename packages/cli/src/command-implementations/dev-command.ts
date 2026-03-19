@@ -50,7 +50,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       BP_TOKEN: api.token,
     }
 
-    let defaultPort = this._initialDef.type === 'integration' ? DEFAULT_INTEGRATION_PORT : DEFAULT_BOT_PORT
+    const defaultPort = this._initialDef.type === 'integration' ? DEFAULT_INTEGRATION_PORT : DEFAULT_BOT_PORT
     if (this._initialDef.type === 'integration' || this._initialDef.type === 'bot') {
       const knownSecrets = await this._readKnownSecretsFromCache()
       let secretEnvVariables = await this.promptSecrets(this._initialDef.definition, this.argv, {

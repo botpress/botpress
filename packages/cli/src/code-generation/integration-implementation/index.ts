@@ -1,8 +1,8 @@
 import * as sdk from '@botpress/sdk'
 import * as consts from '../consts'
+import { SecretIndexModule } from '../secret-module'
 import * as types from '../typings'
 import { IntegrationImplementationModule } from './integration-implementation'
-import { SecretIndexModule } from '../secret-module'
 
 const generateIntegrationImplementationCls = async (
   sdkIntegrationDefinition: sdk.IntegrationDefinition,
