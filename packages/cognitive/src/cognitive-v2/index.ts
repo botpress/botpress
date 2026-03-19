@@ -303,6 +303,26 @@ export class CognitiveBeta {
   }
 }
 
+const COGNITIVE_V2_PROVIDERS = new Set([
+  'openai',
+  'anthropic',
+  'google-ai',
+  'groq',
+  'cerebras',
+  'fireworks-ai',
+  'xai',
+  'openrouter',
+])
+
+export const isKnownV2Model = (model: string | undefined): boolean => {
+  if (!model || ['auto', 'best', 'fast'].includes(model)) {
+    return true
+  }
+
+  const provider = model.split(':')[0]
+  return !!provider && COGNITIVE_V2_PROVIDERS.has(provider)
+}
+
 export const getCognitiveV2Model = (model: string): Model | undefined => {
   if (models[model]) {
     return models[model]
