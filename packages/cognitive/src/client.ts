@@ -2,7 +2,7 @@ import { backOff } from 'exponential-backoff'
 import { createNanoEvents, Unsubscribe } from 'nanoevents'
 
 import { ExtendedClient, getExtendedClient } from './bp-client'
-import { CognitiveBeta, getCognitiveV2Model } from './cognitive-v2'
+import { CognitiveBeta, getCognitiveV2Model, isKnownV2Model } from './cognitive-v2'
 
 import { getActionFromError } from './errors'
 import { InterceptorManager } from './interceptors'
@@ -41,6 +41,9 @@ export class Cognitive {
   protected _downtimes: ModelPreferences['downtimes'] = []
   protected _useBeta: boolean = false
   protected _debug = false
+  private _remoteModelCache = new Map<string, Model>()
+  private _remoteModelCacheTime = 0
+  private _remoteModelCachePending: Promise<Map<string, Model>> | null = null
 
   private _events = createNanoEvents<Events>()
 
@@ -69,6 +72,9 @@ export class Cognitive {
     copy._models = [...this._models]
     copy._preferences = this._preferences ? { ...this._preferences } : null
     copy._downtimes = [...this._downtimes]
+    copy._remoteModelCache = new Map(this._remoteModelCache)
+    copy._remoteModelCacheTime = this._remoteModelCacheTime
+    copy._remoteModelCachePending = null
 
     copy.interceptors.request = this.interceptors.request
     copy.interceptors.response = this.interceptors.response
@@ -155,11 +161,60 @@ export class Cognitive {
     return parseRef(pickModel([ref as ModelRef, ...preferences.best, ...preferences.fast], downtimes))
   }
 
+  public async fetchRemoteModels(): Promise<Map<string, Model>> {
+    if (this._remoteModelCacheTime > 0 && Date.now() - this._remoteModelCacheTime < 60 * 60 * 1000) {
+      return this._remoteModelCache
+    }
+
+    if (this._remoteModelCachePending !== null) {
+      return this._remoteModelCachePending
+    }
+
+    this._remoteModelCachePending = this._doFetchRemoteModels().finally(() => {
+      this._remoteModelCachePending = null
+    })
+
+    return this._remoteModelCachePending
+  }
+
+  private async _doFetchRemoteModels(): Promise<Map<string, Model>> {
+    const betaClient = new CognitiveBeta(this._client.config)
+    const remoteModels = await betaClient.listModels()
+
+    this._remoteModelCache.clear()
+    this._remoteModelCacheTime = Date.now()
+
+    for (const m of remoteModels) {
+      const converted: Model = { ...m, ref: m.id as ModelRef, integration: 'cognitive-v2' }
+      this._remoteModelCache.set(m.id, converted)
+
+      if (m.aliases) {
+        for (const alias of m.aliases) {
+          this._remoteModelCache.set(alias, converted)
+        }
+      }
+    }
+
+    return this._remoteModelCache
+  }
+
   public async getModelDetails(model: string): Promise<Model> {
     if (this._useBeta) {
       const resolvedModel = getCognitiveV2Model(model)
       if (resolvedModel) {
         return { ...resolvedModel, ref: resolvedModel.id as ModelRef, integration: 'cognitive-v2' }
+      }
+
+      if (isKnownV2Model(model)) {
+        try {
+          const remoteModels = await this.fetchRemoteModels()
+          const found = remoteModels.get(model)
+          if (found) {
+            return found
+          }
+        } catch {
+          // v2 unavailable — fall through to integration path
+        }
       }
     }
 
@@ -174,13 +229,27 @@ export class Cognitive {
   }
 
   public async generateContent(input: InputProps): Promise<Response> {
-    if (!this._useBeta || !input.model || !getCognitiveV2Model(input.model)) {
+    if (!this._useBeta || !isKnownV2Model(input.model)) {
       return this._generateContent(input)
     }
 
-    if (input.systemPrompt) {
-      input.messages.unshift({ role: 'system', content: input.systemPrompt } as any)
-      delete input.systemPrompt
+    try {
+      return await this._generateContentV2(input)
+    } catch (err) {
+      if (input.signal?.aborted) {
+        throw err
+      }
+      // v2 failed — fall back to integration path transparently
+      return this._generateContent(input)
+    }
+  }
+
+  private async _generateContentV2(input: InputProps): Promise<Response> {
+    const v2Input = { ...input, messages: [...input.messages] }
+    if (v2Input.systemPrompt) {
+      // @ts-expect-error - system role is not supported in the integrations api, but is used in v2
+      v2Input.messages.unshift({ role: 'system', content: v2Input.systemPrompt })
+      delete v2Input.systemPrompt
     }
 
     const betaClient = new CognitiveBeta(this._client.config)
@@ -199,7 +268,7 @@ export class Cognitive {
       this._events.emit('retry', props, error)
     })
 
-    const response = await betaClient.generateText(input as any, {
+    const response = await betaClient.generateText(v2Input as any, {
       signal: input.signal,
       timeout: this._timeoutMs,
     })
@@ -215,7 +284,7 @@ export class Cognitive {
             content: response.output,
             role: 'assistant',
             index: 0,
-            stopReason: response.metadata.stopReason as any,
+            stopReason: response.metadata.stopReason ?? 'stop',
           },
         ],
         usage: {
