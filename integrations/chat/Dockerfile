@@ -55,8 +55,9 @@ COPY --from=base /tmp/chat-deploy/node_modules ./node_modules
 
 # set port env and expose it
 ENV PORT=8081
-ENV TRACING_ENABLED=false
+ENV TRACING_ENABLED=true
 ENV OTEL_SERVICE_NAME="chat-integration"
+ENV OTEL_EXPORTER_OTLP_ENDPOINT="http://127.0.0.1:4318"
 EXPOSE ${PORT}
 
 ENTRYPOINT ["node", "server.js"]
