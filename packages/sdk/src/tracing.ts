@@ -37,14 +37,7 @@ const loadOtel = () => {
   }
 }
 
-export const getTraceId = (): string | undefined => {
-  try {
-    const { api } = loadOtel()
-    return api.trace.getActiveSpan()?.spanContext().traceId
-  } catch {
-    return undefined
-  }
-}
+let _initialized = false
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const ULID_REGEX = /^[0-9A-HJKMNP-TV-Z]{26}$/i
@@ -56,8 +49,6 @@ const normalizePath = (path: string): string =>
     .split('/')
     .map((part) => (UUID_REGEX.test(part) || ULID_REGEX.test(part) || BP_ID_REGEX.test(part) ? ':id' : part))
     .join('/')
-
-let _initialized = false
 
 export const setupTracing = () => {
   if (_initialized) {
@@ -111,8 +102,6 @@ export const setupTracing = () => {
 
     provider.addSpanProcessor(wrappedProcessor)
     provider.register({ propagator: new otel.core.W3CTraceContextPropagator() })
-
-    otel.api.propagation.setGlobalPropagator(new otel.core.W3CTraceContextPropagator())
 
     const instrumentations = otel.autoInstrumentations.getNodeAutoInstrumentations({
       '@opentelemetry/instrumentation-fs': { enabled: false },

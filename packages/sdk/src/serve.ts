@@ -1,7 +1,7 @@
 import { isNode } from 'browser-or-node'
 import * as http from 'node:http'
 import { log } from './log'
-import { getTraceId, setupTracing } from './tracing'
+import { setupTracing } from './tracing'
 
 export type Request = {
   body?: string
@@ -46,10 +46,6 @@ export async function serve(
       if (request.path === '/health') {
         res.writeHead(200).end('ok')
         return
-      }
-      const traceId = getTraceId()
-      if (traceId) {
-        log.info(`trace_id=${traceId}`, { path: request.path, method: request.method })
       }
       const response = await handler(request)
       res.writeHead(response?.status ?? 200, response?.headers ?? {}).end(response?.body ?? '{}')
