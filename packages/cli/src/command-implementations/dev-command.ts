@@ -7,10 +7,7 @@ import { isEqual } from 'lodash'
 import * as pathlib from 'path'
 import * as uuid from 'uuid'
 import * as apiUtils from '../api'
-import {
-  secretEnvVariableName,
-  stripSecretEnvVariablePrefix,
-} from '../code-generation/secret-module'
+import { secretEnvVariableName, stripSecretEnvVariablePrefix } from '../code-generation/secret-module'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import * as tables from '../tables'
