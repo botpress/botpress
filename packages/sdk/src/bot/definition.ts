@@ -53,6 +53,11 @@ export type MessageDefinition = {
   tags?: Record<string, TagDefinition>
 }
 
+export type SecretDefinition = {
+  optional?: boolean
+  description?: string
+}
+
 export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[string]> = {
   title?: string
   description?: string
@@ -179,6 +184,8 @@ export type BotDefinitionProps<
     [K in keyof TTables]: TableDefinition<TTables[K]>
   }
 
+  secrets?: Record<string, SecretDefinition>
+
   /**
    * # EXPERIMENTAL
    * This API is experimental and may change in the future.
@@ -212,6 +219,7 @@ export class BotDefinition<
   public readonly recurringEvents: this['props']['recurringEvents']
   public readonly actions: this['props']['actions']
   public readonly tables: this['props']['tables']
+  public readonly secrets: this['props']['secrets']
   public readonly workflows: this['props']['workflows']
   public readonly attributes: this['props']['attributes']
   public readonly __advanced: this['props']['__advanced']
@@ -234,6 +242,7 @@ export class BotDefinition<
     this.recurringEvents = props.recurringEvents
     this.actions = props.actions
     this.tables = props.tables
+    this.secrets = props.secrets
     this.workflows = props.workflows
     this.attributes = props.attributes
     this.__advanced = props.__advanced

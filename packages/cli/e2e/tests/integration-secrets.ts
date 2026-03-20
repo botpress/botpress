@@ -32,8 +32,8 @@ const appendSecretDefinition = (originalTsContent: string, secrets: SecretDef): 
   return modifiedTsContent
 }
 
-export const requiredSecrets: Test = {
-  name: 'cli should require required secrets',
+export const requiredIntegrationSecrets: Test = {
+  name: 'cli should require required integration secrets',
   handler: async ({ tmpDir, workspaceHandle, dependencies, ...creds }) => {
     const botpressHomeDir = pathlib.join(tmpDir, '.botpresshome')
     const baseDir = pathlib.join(tmpDir, 'integrations')
