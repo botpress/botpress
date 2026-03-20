@@ -21,9 +21,6 @@ pnpm-lock.yaml
 gen
 dist
 .botpress
-.adk
-**/.adk
-**/.adk/**
 .botpresshome
 .botpresshome.*
 bp_modules
