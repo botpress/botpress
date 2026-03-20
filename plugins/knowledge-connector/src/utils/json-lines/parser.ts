@@ -1,11 +1,11 @@
-import * as sdk from '@botpress/sdk'
+import { z } from '@botpress/sdk'
 
 type _JsonParseResult<T> = { rawLine: string } & ({ value: T } | { error: Error })
 
-export function* parseJsonLines<TLineSchema extends sdk.ZodTypeAny>(
+export function* parseJsonLines<TLineSchema extends z.ZodTypeAny>(
   rawJsonLines: string,
   zodSchema: TLineSchema
-): Generator<_JsonParseResult<sdk.z.infer<TLineSchema>>, void, undefined> {
+): Generator<_JsonParseResult<z.infer<TLineSchema>>, void, undefined> {
   let startCursor = 0
 
   for (let endCursor = 0; endCursor <= rawJsonLines.length; endCursor++) {
