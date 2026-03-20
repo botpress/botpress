@@ -16,17 +16,6 @@ export default new sdk.IntegrationDefinition({
     },
     schema: sdk.z.object({}),
   },
-  configurations: {
-    manual: {
-      title: 'Configure manually with your own app',
-      description: 'Configure the integration with your own Sunshine Conversations app credentials',
-      schema: sdk.z.object({
-        appId: sdk.z.string().min(1).title('App ID').describe('Your Sunshine Conversations App ID'),
-        keyId: sdk.z.string().min(1).title('Key ID').describe('Your Sunshine Conversations Key ID'),
-        keySecret: sdk.z.string().min(1).title('Key Secret').describe('Your Sunshine Conversations Key Secret'),
-      }),
-    },
-  },
   states: {
     credentials: {
       type: 'integration',

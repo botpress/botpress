@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/client'
 import { buildConversationTranscript } from '@botpress/common'
 import { getSuncoClient } from 'src/client'
 import { getStoredCredentials } from 'src/get-stored-credentials'
-import { getSwitchboardIntegrationName, getAgentWorkspaceSwitchboardIntegrationName } from 'src/setup/util'
+import { getAgentWorkspaceSwitchboardIntegrationName } from 'src/setup/util'
 import { Client, IntegrationCtx, User, HitlSession, MessageHistory } from 'src/types'
 import * as bp from '.botpress'
 
@@ -33,7 +33,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
       },
     })
 
-    const botpressIntegrationName = getSwitchboardIntegrationName(credentials, ctx)
+    const botpressIntegrationName = bp.secrets.CLIENT_ID
     const agentWorkspaceName = getAgentWorkspaceSwitchboardIntegrationName()
 
     // Pass control from conversation to our Integration in the switchboard, necessary so the initial message can be sent without creating the ticket yet

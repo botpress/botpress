@@ -1,7 +1,6 @@
 import * as bp from '../../.botpress'
 import { getSuncoClient } from '../client'
 import { getStoredCredentials } from '../get-stored-credentials'
-import { getBotpressIntegrationDisplayName } from './util'
 
 export const unregister: bp.IntegrationProps['unregister'] = async (props) => {
   const { ctx, logger, client, webhookUrl } = props
@@ -9,30 +8,13 @@ export const unregister: bp.IntegrationProps['unregister'] = async (props) => {
     const credentials = await getStoredCredentials(client, ctx)
     const suncoClient = getSuncoClient(credentials)
 
-    if (credentials.configType === 'manual') {
-      // Delete Switchboard Integration and Integration
-      const integrationDisplayName = getBotpressIntegrationDisplayName(ctx.webhookId)
-      const integrationId = (await suncoClient.findIntegrationByDisplayNameOrThrow(integrationDisplayName)).id
-
-      const { id: switchboardId } = await suncoClient.getSwitchboardOrThrow()
-      const { id: switchboardIntegrationId } = await suncoClient.findSwitchboardIntegrationByNameOrThrow(
-        switchboardId,
-        integrationDisplayName
-      )
-      await suncoClient.deleteSwitchboardIntegration(switchboardId, switchboardIntegrationId)
-      await suncoClient.deleteIntegration(integrationId)
+    const webhooks = await suncoClient.listWebhooks('me')
+    const webhook = webhooks.find((wh) => wh.target === webhookUrl)
+    if (webhook?.id) {
+      await suncoClient.deleteWebhook('me', webhook.id)
+      logger.forBot().info('Webhook removed successfully')
     } else {
-      const integrationId = 'me'
-
-      // Delete matching webhook
-      const webhooks = await suncoClient.listWebhooks(integrationId)
-      const webhook = webhooks.find((wh) => wh.target === webhookUrl)
-      if (webhook?.id) {
-        await suncoClient.deleteWebhook(integrationId, webhook.id)
-        logger.forBot().info('Webhook removed successfully')
-      } else {
-        logger.forBot().info('No matching webhook found, nothing to remove')
-      }
+      logger.forBot().info('No matching webhook found, nothing to remove')
     }
 
     logger.forBot().info('Zendesk Messaging HITL integration unregistered')

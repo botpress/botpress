@@ -28,17 +28,8 @@ export type StartHitlInput = Parameters<bp.IntegrationProps['actions']['startHit
 export type HitlSession = StartHitlInput['hitlSession']
 export type MessageHistory = StartHitlInput['messageHistory']
 
-export type ManualCredentials = {
-  configType: 'manual'
-  appId: string
-  keyId: string
-  keySecret: string
-}
-export type OAuthCredentials = {
-  configType: null
+export type StoredCredentials = {
   appId: string
   token: string
   subdomain?: string
 }
-
-export type StoredCredentials = ManualCredentials | OAuthCredentials

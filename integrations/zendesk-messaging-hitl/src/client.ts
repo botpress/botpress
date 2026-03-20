@@ -8,10 +8,7 @@ import {
   type ConversationsApi,
   type MessagesApi,
   type WebhooksApi,
-  type IntegrationsApi,
-  type SwitchboardsApi,
   type SwitchboardActionsApi,
-  type SwitchboardIntegrationsApi,
   type PostMessageRequest,
   type MessageAuthor,
   type MessageContent,
@@ -66,43 +63,30 @@ export class SuncoClientError extends RuntimeError {
 
 class SuncoClient {
   private _appId: string
-  private _credentials: StoredCredentials
   private _baseUrl: string
-  private _authHeaders: Record<string, string>
+  private _token: string
   private _client: {
     apps: AppsApi
     users: UsersApi
     conversations: ConversationsApi
     messages: MessagesApi
     webhooks: WebhooksApi
-    integrations: IntegrationsApi
-    switchboard: SwitchboardsApi
     switchboardActions: SwitchboardActionsApi
-    switchboardIntegrations: SwitchboardIntegrationsApi
   }
 
   public constructor(credentials: StoredCredentials) {
     this._appId = credentials.appId
-    this._credentials = credentials
+    this._token = credentials.token
     const apiClient = new SunshineConversationsApi.ApiClient()
 
-    if (credentials.configType === 'manual') {
-      const auth = apiClient.authentications['basicAuth']
-      auth.username = credentials.keyId
-      auth.password = credentials.keySecret
-      this._baseUrl = 'https://api.smooch.io'
-      this._authHeaders = {}
-    } else {
-      if (!credentials.subdomain) {
-        throw new RuntimeError('Subdomain is required for OAuth')
-      }
-      apiClient.basePath = `https://${credentials.subdomain}.zendesk.com/sc`
-      const auth = apiClient.authentications['bearerAuth'] as { accessToken: string }
-      auth.accessToken = credentials.token
-      apiClient.defaultHeaders = { ...apiClient.defaultHeaders, ...BASE_HEADERS }
-      this._baseUrl = `https://${credentials.subdomain}.zendesk.com/sc`
-      this._authHeaders = { Authorization: `Bearer ${credentials.token}` }
+    if (!credentials.subdomain) {
+      throw new RuntimeError('Subdomain is required for OAuth')
     }
+    apiClient.basePath = `https://${credentials.subdomain}.zendesk.com/sc`
+    const auth = apiClient.authentications['bearerAuth'] as { accessToken: string }
+    auth.accessToken = credentials.token
+    apiClient.defaultHeaders = { ...apiClient.defaultHeaders, ...BASE_HEADERS }
+    this._baseUrl = `https://${credentials.subdomain}.zendesk.com/sc`
 
     this._client = {
       apps: new SunshineConversationsApi.AppsApi(apiClient),
@@ -110,10 +94,7 @@ class SuncoClient {
       conversations: new SunshineConversationsApi.ConversationsApi(apiClient),
       messages: new SunshineConversationsApi.MessagesApi(apiClient),
       webhooks: new SunshineConversationsApi.WebhooksApi(apiClient),
-      integrations: new SunshineConversationsApi.IntegrationsApi(apiClient),
-      switchboard: new SunshineConversationsApi.SwitchboardsApi(apiClient),
       switchboardActions: new SunshineConversationsApi.SwitchboardActionsApi(apiClient),
-      switchboardIntegrations: new SunshineConversationsApi.SwitchboardIntegrationsApi(apiClient),
     }
   }
 
@@ -354,25 +335,6 @@ class SuncoClient {
     }
   }
 
-  public async createIntegration(integrationName: string, webhookUrl: string) {
-    try {
-      const result = await this._client.integrations.createIntegration(this._appId, {
-        type: 'custom',
-        status: 'active',
-        displayName: integrationName,
-        webhooks: [this._getWebhookDefinitionFor(webhookUrl)],
-      })
-
-      if (!result?.integration?.id) {
-        throw new RuntimeError('Integration creation succeeded but no ID returned')
-      }
-
-      return result.integration
-    } catch (thrown: unknown) {
-      this._handleError(thrown, 'create integration')
-    }
-  }
-
   public async listWebhooks(integrationId: string) {
     try {
       const result = await this._client.webhooks.listWebhooks(this._appId, integrationId)
@@ -416,62 +378,6 @@ class SuncoClient {
       await this._client.webhooks.deleteWebhook(this._appId, integrationId, webhookId)
     } catch (thrown: unknown) {
       this._handleError(thrown, 'delete webhook', { integrationId, webhookId })
-    }
-  }
-
-  public async deleteIntegration(integrationId: string) {
-    try {
-      await this._client.integrations.deleteIntegration(this._appId, integrationId)
-    } catch (thrown: unknown) {
-      this._handleError(thrown, 'delete integration', { integrationId })
-    }
-  }
-
-  public async findIntegrationByDisplayNameOrThrow(displayName: string) {
-    try {
-      const integrations = (await this._client.integrations.listIntegrations(this._appId)).integrations || []
-      const integration = integrations.find((int) => int.displayName === displayName)
-      if (!integration) {
-        throw new RuntimeError('Integration not found')
-      }
-
-      return integration
-    } catch (thrown: unknown) {
-      this._handleError(thrown, 'find integration by name', { displayName })
-    }
-  }
-
-  public async findSwitchboardIntegrationByNameOrThrow(switchboardId: string, name: string) {
-    try {
-      const result = await this._client.switchboardIntegrations.listSwitchboardIntegrations(this._appId, switchboardId)
-      const switchboardIntegrations = result.switchboardIntegrations || []
-      const switchboardIntegration = switchboardIntegrations.find(
-        (si: { name?: string; id?: string }) => si.name === name
-      )
-      if (!switchboardIntegration) {
-        throw new RuntimeError(`Switchboard integration with name "${name}" not found`)
-      }
-
-      return switchboardIntegration
-    } catch (thrown: unknown) {
-      this._handleError(thrown, 'find switchboard integration by name', { switchboardId, name })
-    }
-  }
-
-  public async findAgentWorkspaceIntegrationOrThrow(switchboardId: string) {
-    try {
-      const result = await this._client.switchboardIntegrations.listSwitchboardIntegrations(this._appId, switchboardId)
-      const switchboardIntegrations = result.switchboardIntegrations || []
-      const agentWorkspaceIntegration = switchboardIntegrations.find(
-        (si: { integrationType?: string; id?: string }) => si.integrationType === 'zd:agentWorkspace'
-      )
-      if (!agentWorkspaceIntegration || !agentWorkspaceIntegration.id) {
-        throw new RuntimeError('No agent workspace integration found with integrationType zd:agentWorkspace')
-      }
-
-      return agentWorkspaceIntegration
-    } catch (thrown: unknown) {
-      this._handleError(thrown, 'find agent workspace integration', { switchboardId })
     }
   }
 
@@ -523,68 +429,6 @@ class SuncoClient {
     }
   }
 
-  public async getSwitchboardOrThrow() {
-    try {
-      const switchboards = (await this._client.switchboard.listSwitchboards(this._appId)).switchboards || []
-      if (switchboards.length === 0) {
-        throw new RuntimeError('No switchboards found')
-      } else if (switchboards.length > 1) {
-        throw new RuntimeError('Multiple switchboards found')
-      }
-
-      const firstSwitchboard = switchboards[0]
-      if (!firstSwitchboard) {
-        throw new RuntimeError('No switchboards available')
-      }
-
-      return firstSwitchboard
-    } catch (thrown: unknown) {
-      this._handleError(thrown, 'get switchboard ID')
-    }
-  }
-
-  public async createSwitchboardIntegration(
-    switchboardId: string,
-    integrationId: string,
-    name: string,
-    deliverStandbyEvents: boolean = false
-  ) {
-    try {
-      const result = await this._client.switchboardIntegrations.createSwitchboardIntegration(
-        this._appId,
-        switchboardId,
-        {
-          name, // Required: Identifier for use in control transfer protocols
-          integrationId, // Required for custom integrations
-          deliverStandbyEvents, // Optional: defaults to false
-        }
-      )
-
-      return result.switchboardIntegration
-    } catch (thrown: unknown) {
-      this._handleError(thrown, 'create switchboard integration', {
-        switchboardId,
-        integrationId,
-        name,
-      })
-    }
-  }
-
-  public async deleteSwitchboardIntegration(switchboardId: string, switchboardIntegrationId: string) {
-    try {
-      await this._client.switchboardIntegrations.deleteSwitchboardIntegration(
-        this._appId,
-        switchboardId,
-        switchboardIntegrationId
-      )
-    } catch (thrown: unknown) {
-      this._handleError(thrown, 'delete switchboard integration', {
-        switchboardId,
-        switchboardIntegrationId,
-      })
-    }
-  }
-
   public async downloadAndUploadAttachment(sourceUrl: string, conversationId: string): Promise<string> {
     // Download the file from the source URL
     const response = await axios.get(sourceUrl, {
@@ -605,14 +449,9 @@ class SuncoClient {
     // uses superagent internally, which doesn't properly handle Node.js File/Blob objects.
     // Superagent expects stream-like objects with .on() method, but Node.js 18+ File/Blob
     // don't implement stream interfaces. Using axios with native FormData works correctly.
-    const auth =
-      this._credentials.configType === 'manual'
-        ? { auth: { username: this._credentials.keyId, password: this._credentials.keySecret } }
-        : { headers: this._authHeaders }
-
     const uploadResponse = await axios.postForm(`${this._baseUrl}/v2/apps/${this._appId}/attachments`, formData, {
       params: { access: 'public', for: 'message', conversationId },
-      ...auth,
+      headers: { Authorization: `Bearer ${this._token}` },
     })
 
     const mediaUrl = uploadResponse.data?.attachment?.mediaUrl
