@@ -101,7 +101,7 @@ class SuncoClient {
       auth.accessToken = credentials.token
       apiClient.defaultHeaders = { ...apiClient.defaultHeaders, ...BASE_HEADERS }
       this._baseUrl = `https://${credentials.subdomain}.zendesk.com/sc`
-      this._authHeaders = { Authorization: `Bearer ${credentials.token}`, ...BASE_HEADERS }
+      this._authHeaders = { Authorization: `Bearer ${credentials.token}` }
     }
 
     this._client = {
