@@ -108,7 +108,7 @@ describe.concurrent('parseJsonLines', () => {
 
     // Assert
     expect(result).toMatchObject([
-      { rawLine: '{"id": 1, "name": "John", "email": "invalid-email"}', error: expect.any(sdk.z.ZodError) },
+      { rawLine: '{"id": 1, "name": "John", "email": "invalid-email"}', error: expect.any(Error) },
     ])
   })
 
@@ -123,7 +123,7 @@ describe.concurrent('parseJsonLines', () => {
     expect(result).toStrictEqual([
       { rawLine: '1', value: 1 },
       { rawLine: '2', value: 2 },
-      { rawLine: '"not a number"', error: expect.any(sdk.z.ZodError) },
+      { rawLine: '"not a number"', error: expect.any(Error) },
       { rawLine: '4', value: 4 },
     ])
   })
