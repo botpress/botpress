@@ -411,6 +411,14 @@ class SuncoClient {
     }
   }
 
+  public async deleteWebhook(integrationId: string, webhookId: string) {
+    try {
+      await this._client.webhooks.deleteWebhook(this._appId, integrationId, webhookId)
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'delete webhook', { integrationId, webhookId })
+    }
+  }
+
   public async deleteIntegration(integrationId: string) {
     try {
       await this._client.integrations.deleteIntegration(this._appId, integrationId)

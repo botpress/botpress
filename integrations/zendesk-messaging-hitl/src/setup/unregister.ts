@@ -4,29 +4,36 @@ import { getStoredCredentials } from '../get-stored-credentials'
 import { getBotpressIntegrationDisplayName } from './util'
 
 export const unregister: bp.IntegrationProps['unregister'] = async (props) => {
-  const { ctx, logger, client } = props
+  const { ctx, logger, client, webhookUrl } = props
   try {
     const credentials = await getStoredCredentials(client, ctx)
-
-    if (credentials.configType !== 'manual') {
-      logger.forBot().info('OAuth mode: skipping switchboard cleanup on unregister')
-      return
-    }
-
     const suncoClient = getSuncoClient(credentials)
-    const { id: switchboardId } = await suncoClient.getSwitchboardOrThrow()
-    const integrationDisplayName = getBotpressIntegrationDisplayName(ctx.webhookId)
 
-    const { id: switchboardIntegrationId } = await suncoClient.findSwitchboardIntegrationByNameOrThrow(
-      switchboardId,
-      integrationDisplayName
-    )
+    if (credentials.configType === 'manual') {
+      // Delete Switchboard Integration and Integration
+      const integrationDisplayName = getBotpressIntegrationDisplayName(ctx.webhookId)
+      const integrationId = (await suncoClient.findIntegrationByDisplayNameOrThrow(integrationDisplayName)).id
 
-    await suncoClient.deleteSwitchboardIntegration(switchboardId, switchboardIntegrationId)
+      const { id: switchboardId } = await suncoClient.getSwitchboardOrThrow()
+      const { id: switchboardIntegrationId } = await suncoClient.findSwitchboardIntegrationByNameOrThrow(
+        switchboardId,
+        integrationDisplayName
+      )
+      await suncoClient.deleteSwitchboardIntegration(switchboardId, switchboardIntegrationId)
+      await suncoClient.deleteIntegration(integrationId)
+    } else {
+      const integrationId = 'me'
 
-    const { id: integrationId } = await suncoClient.findIntegrationByDisplayNameOrThrow(integrationDisplayName)
-
-    await suncoClient.deleteIntegration(integrationId)
+      // Delete matching webhook
+      const webhooks = await suncoClient.listWebhooks(integrationId)
+      const webhook = webhooks.find((wh) => wh.target === webhookUrl)
+      if (webhook?.id) {
+        await suncoClient.deleteWebhook(integrationId, webhook.id)
+        logger.forBot().info('Webhook removed successfully')
+      } else {
+        logger.forBot().info('No matching webhook found, nothing to remove')
+      }
+    }
 
     logger.forBot().info('Zendesk Messaging HITL integration unregistered')
   } catch (thrown: unknown) {
