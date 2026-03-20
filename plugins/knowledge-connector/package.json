@@ -1,0 +1,20 @@
+{
+  "name": "@botpresshub/knowledge-connector",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "build": "bp add -y && bp build",
+    "test": "vitest --run"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*"
+  },
+  "bpDependencies": {
+    "files-readonly": "../../interfaces/files-readonly"
+  }
+}
