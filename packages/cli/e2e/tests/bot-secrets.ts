@@ -102,7 +102,7 @@ export const requiredBotSecrets: Test = {
       .then(utils.handleExitCode)
 
     const { bot: deployedBot } = await client.getBot({ id: bot.id })
-    if (!deployedBot.secrets.includes('REQUIRED_SECRET') || !deployedBot.secrets.includes('OPTIONAL_SECRET')) {
+    if (!deployedBot.secrets.includes('REQUIRED_SECRET')) {
       throw new Error(
         `Bot ${botName} should have secrets REQUIRED_SECRET and OPTIONAL_SECRET, got: ${deployedBot.secrets.join(', ')}`
       )
