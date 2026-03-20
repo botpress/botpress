@@ -99,7 +99,7 @@ export const requiredIntegrationSecrets: Test = {
     })
     if (!deployedIntegration.secrets.includes('REQUIRED_SECRET')) {
       throw new Error(
-        `Integration ${integrationName} should have secrets REQUIRED_SECRET and OPTIONAL_SECRET, got: ${deployedIntegration.secrets.join(', ')}`
+        `Integration ${integrationName} should have secret REQUIRED_SECRET, got: ${deployedIntegration.secrets.join(', ')}`
       )
     }
     await client.deleteIntegration({ id: deployedIntegration.id })
