@@ -95,14 +95,13 @@ const _handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProp
 
     logger.forBot().info('Successfully authenticated via OAuth')
 
-    await client.configureIntegration({ identifier: credentials.appId })
-
     await client.setState({
       type: 'integration',
       name: 'credentials',
       id: ctx.integrationId,
       payload: credentials,
     })
+    await client.configureIntegration({ identifier: credentials.appId })
 
     return generateRedirection(getInterstitialUrl(true))
   } catch (thrown: unknown) {

@@ -12,7 +12,7 @@ export default new sdk.IntegrationDefinition({
   configuration: {
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
-      required: false,
+      required: true,
     },
     schema: sdk.z.object({}),
   },

@@ -15,7 +15,7 @@ export const getStoredCredentials = async (client: bp.Client, ctx: bp.Context): 
   const { token, appId, subdomain } = credentials
 
   if (!token || !appId) {
-    throw new sdk.RuntimeError('failed to get stored access token or app ID')
+    throw new sdk.RuntimeError('Failed to get credentials, please authenticate first')
   }
 
   return { token, appId, subdomain }

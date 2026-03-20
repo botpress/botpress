@@ -4,48 +4,17 @@
 
 This integration makes Sunshine Conversations (Sunco) available as a channel for Human-in-the-loop on Botpress, integrated with Zendesk. When a user requests to speak with an agent, a conversation will be created in Sunshine Conversations and passed to Zendesk Agent Workspace for agent handling.
 
-## Known Limitations
-
-> **Warning:** Currently this integration cannot be used alongside the Sunco integration (Zendesk Messaging) if both are configured with OAuth for the same Zendesk account. Use the **Manual (API Key)** configuration type if you need to run both integrations simultaneously.
-
 ## Configuration
 
-You will need to have Admin access to your **Zendesk Account** to configure this integration. Two configuration methods are available: **OAuth** (recommended) and **Manual**.
+You will need to have Admin access to your **Zendesk Account** to configure this integration.
 
-### OAuth Configuration (Recommended)
+### OAuth Configuration
 
-OAuth is the simplest way to connect. Botpress will handle authentication automatically through Zendesk's OAuth flow — no need to create API keys manually.
+Botpress will handle authentication automatically through Zendesk's OAuth flow
 
 1. Select **Connect with OAuth** when installing the integration
 2. Log in to your Zendesk account and authorize Botpress
 3. Botpress will automatically configure the integration using your Zendesk account
-
-### Manual Configuration
-
-Use this option if you prefer to manage your own Sunshine Conversations app credentials, or if you need to run this integration alongside the Sunco integration.
-
-#### Configuration fields
-
-- **App ID**: Your Sunshine Conversations App ID
-- **Key ID**: Your Sunshine Conversations Key ID
-- **Key Secret**: Your Sunshine Conversations Key Secret
-
-#### How to get your credentials
-
-1. Log in to your [Zendesk Admin Center](https://admin.zendesk.com)
-2. Navigate to **Channels** > **Messaging and social** > **Sunshine Conversations**
-3. Select your app (or create one) to find the App ID
-4. Go to **Settings** > **API Keys** to create a Key ID and Key Secret
-
-## Automatic Setup
-
-When you register this integration using the **Manual** method, it will automatically:
-
-1. Create an integration in your Zendesk Account with the name `botpress-hitl-{webhookId}`
-2. Configure the webhook to receive events from Zendesk Messaging
-3. Set up the integration to handle messages and agent handoff events
-
-The webhook URL is automatically configured during registration.
 
 ## Enabling Multi Conversations
 
