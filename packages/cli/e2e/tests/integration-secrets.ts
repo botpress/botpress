@@ -97,7 +97,7 @@ export const requiredIntegrationSecrets: Test = {
       name: integrationName,
       version: '0.1.0',
     })
-    if ( !deployedIntegration.secrets.includes('REQUIRED_SECRET')) {
+    if (!deployedIntegration.secrets.includes('REQUIRED_SECRET')) {
       throw new Error(
         `Integration ${integrationName} should have secrets REQUIRED_SECRET and OPTIONAL_SECRET, got: ${deployedIntegration.secrets.join(', ')}`
       )
