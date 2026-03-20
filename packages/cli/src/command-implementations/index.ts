@@ -87,6 +87,7 @@ export default {
       list: getHandler(profiles.ListProfilesCommand),
       active: getHandler(profiles.ActiveProfileCommand),
       use: getHandler(profiles.UseProfileCommand),
+      get: getHandler(profiles.GetProfileCommand),
     },
   },
 } satisfies ImplementationTree<typeof commandDefinitions>

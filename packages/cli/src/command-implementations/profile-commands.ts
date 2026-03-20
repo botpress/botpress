@@ -62,7 +62,7 @@ export class UseProfileCommand extends GlobalCommand<UseProfileCommandDefinition
       return
     }
     const profiles = await this.readProfilesFromFS()
-    const choices = Object.entries(profiles).map(([profileName, _]) => ({
+    const choices = Object.keys(profiles).map((profileName) => ({
       title: profileName,
       description: '',
       value: profileName,
@@ -79,6 +79,40 @@ export class UseProfileCommand extends GlobalCommand<UseProfileCommandDefinition
     await this.globalCache.set('activeProfile', selectedProfile)
     await _updateGlobalCache({ globalCache: this.globalCache, profileName: selectedProfile, profile })
     logSuccess(selectedProfile)
+  }
+}
+
+export type GetProfileCommandDefinition = typeof commandDefinitions.profiles.subcommands.get
+export class GetProfileCommand extends GlobalCommand<GetProfileCommandDefinition> {
+  public async run(): Promise<void> {
+    const logResult = (profileEntry: ProfileEntry) => {
+      const profile = _shouldOmitToken(this.argv) ? _stripProfileToken(profileEntry) : profileEntry
+      this.logger.log('Profile:')
+      this.logger.json(profile)
+    }
+
+    if (this.argv.profileToGet) {
+      const profile = await this.readProfileFromFS(this.argv.profileToGet)
+      logResult({ name: this.argv.profileToGet, ...profile })
+      return
+    }
+
+    const profiles = await this.readProfilesFromFS()
+    const choices = Object.keys(profiles).map((profileName) => ({
+      title: profileName,
+      description: '',
+      value: profileName,
+    }))
+    const selectedProfile = await this.prompt.select('Select the profile you want to get.', { choices })
+
+    if (!selectedProfile) {
+      this.logger.log('No profile selected, aborting.')
+      return
+    }
+
+    const profile = profiles[selectedProfile]
+    if (!profile) throw new errors.BotpressCLIError('The selected profile could not be read')
+    logResult({ name: selectedProfile, ...profile })
   }
 }
 
