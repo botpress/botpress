@@ -226,7 +226,5 @@ export const handleOauth = async ({ req, ctx, client, logger }: bp.HandlerProps)
     payload: credentials,
   })
 
-  const linearClient = new LinearClient({ accessToken: credentials.accessToken })
-  const organization = await linearClient.organization
-  await client.configureIntegration({ identifier: organization.id, scheduleRegisterCall: 'monthly' })
+  await client.configureIntegration({ identifier: ctx.webhookId, scheduleRegisterCall: 'monthly' })
 }

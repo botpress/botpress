@@ -8,7 +8,7 @@ const googleAIClient = new GoogleGenAI({ apiKey: bp.secrets.GOOGLE_AI_API_KEY })
 
 const languageModels: Record<ModelId, llm.ModelDetails> = {
   'gemini-3-pro': {
-    name: 'Gemini 3 Pro (Preview)',
+    name: 'Gemini 3.1 Pro (Preview)',
     description:
       "One of the best models for multimodal understanding, and Google's most powerful agentic and vibe-coding model yet, delivering richer visuals and deeper interactivity, built on a foundation of state-of-the-art reasoning.",
     tags: ['preview', 'reasoning', 'agents', 'general-purpose', 'vision'],
