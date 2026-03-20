@@ -22,10 +22,16 @@ const appendSecretDefinition = (originalTsContent: string, secrets: SecretDef): 
     .map(([secretName, secretDef]) => `    ${secretName}: ${JSON.stringify(secretDef)},`)
     .join('\n')
 
-  return originalTsContent.replace(
-    'new BotDefinition({})',
-    `new BotDefinition({\n  secrets: {\n${secretEntries}\n  },\n})`
+  const modifiedContent = originalTsContent.replace(
+    /(new BotDefinition\(\{)/,
+    `$1\n  secrets: {\n${secretEntries}\n  },\n`
   )
+
+  if (modifiedContent === originalTsContent) {
+    throw new Error('Failed to inject secrets into bot definition')
+  }
+
+  return modifiedContent
 }
 
 export const requiredBotSecrets: Test = {
@@ -95,11 +101,14 @@ export const requiredBotSecrets: Test = {
       })
       .then(utils.handleExitCode)
 
+    const { bot: deployedBot } = await client.getBot({ id: bot.id })
+    if (!deployedBot.secrets.includes('REQUIRED_SECRET') || !deployedBot.secrets.includes('OPTIONAL_SECRET')) {
+      throw new Error(
+        `Bot ${botName} should have secrets REQUIRED_SECRET and OPTIONAL_SECRET, got: ${deployedBot.secrets.join(', ')}`
+      )
+    }
+
     // cleanup deployed bot
     await impl.bots.delete({ ...argv, botRef: bot.id }).then(utils.handleExitCode)
-
-    if (await fetchBot(client, botName)) {
-      throw new Error(`Bot ${botName} should have been deleted`)
-    }
   },
 }

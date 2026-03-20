@@ -4,7 +4,6 @@ import fs from 'fs'
 import pathlib from 'path'
 import * as uuid from 'uuid'
 import impl from '../../src'
-import { fetchAllIntegrations, ApiIntegration } from '../api'
 import defaults from '../defaults'
 import * as retry from '../retry'
 import { Test } from '../typings'
@@ -12,24 +11,21 @@ import * as utils from '../utils'
 
 type SecretDef = NonNullable<sdk.IntegrationDefinitionProps['secrets']>
 
-const fetchIntegration = async (client: Client, integrationName: string): Promise<ApiIntegration | undefined> => {
-  const integrations = await fetchAllIntegrations(client)
-  return integrations.find(({ name }) => name === integrationName)
-}
-
 const appendSecretDefinition = (originalTsContent: string, secrets: SecretDef): string => {
-  const regex = /( *)version: (['"].*['"]),/
-  const replacement = [
-    'version: $2,',
-    'secrets: {',
-    ...Object.entries(secrets).map(([secretName, secretDef]) => `  ${secretName}: ${JSON.stringify(secretDef)},`),
-    '},',
-  ]
-    .map((s) => `$1${s}`) // for indentation
+  const secretEntries = Object.entries(secrets)
+    .map(([secretName, secretDef]) => `    ${secretName}: ${JSON.stringify(secretDef)},`)
     .join('\n')
 
-  const modifiedTsContent = originalTsContent.replace(regex, replacement)
-  return modifiedTsContent
+  const modifiedContent = originalTsContent.replace(
+    /(new IntegrationDefinition\(\{)/,
+    `$1\n  secrets: {\n${secretEntries}\n  },\n`
+  )
+
+  if (modifiedContent === originalTsContent) {
+    throw new Error('Failed to inject secrets into integration definition')
+  }
+
+  return modifiedContent
 }
 
 export const requiredIntegrationSecrets: Test = {
@@ -97,10 +93,18 @@ export const requiredIntegrationSecrets: Test = {
       .then(utils.handleExitCode)
 
     // cleanup deployed integration
-    const integration = await fetchIntegration(client, integrationName)
-    if (!integration) {
-      throw new Error(`Integration ${integrationName} should have been created`)
+    const { integration: deployedIntegration } = await client.getIntegrationByName({
+      name: integrationName,
+      version: '0.1.0',
+    })
+    if (
+      !deployedIntegration.secrets.includes('REQUIRED_SECRET') ||
+      !deployedIntegration.secrets.includes('OPTIONAL_SECRET')
+    ) {
+      throw new Error(
+        `Integration ${integrationName} should have secrets REQUIRED_SECRET and OPTIONAL_SECRET, got: ${deployedIntegration.secrets.join(', ')}`
+      )
     }
-    await client.deleteIntegration({ id: integration.id })
+    await client.deleteIntegration({ id: deployedIntegration.id })
   },
 }
