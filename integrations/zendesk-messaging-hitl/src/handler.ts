@@ -7,7 +7,7 @@ import { isSuncoWebhookPayload } from './sunshine-events'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
-  const { req, logger, client } = props
+  const { req, logger, client, ctx } = props
 
   if (req.path.startsWith('/oauth')) {
     return await _handleOAuthCallback(props)
@@ -31,6 +31,14 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
 
       if (!suncoConversationId) {
         logger.forBot().warn('Event missing conversation ID, skipping')
+        continue
+      }
+
+      const ownerWebhookId = event.payload.conversation?.metadata?.botpressIntegrationOwner
+      if (ownerWebhookId !== ctx.webhookId) {
+        logger
+          .forBot()
+          .debug(`Ignoring Sunco conversation ${suncoConversationId}: owned by ${ownerWebhookId ?? 'unknown'}`)
         continue
       }
 

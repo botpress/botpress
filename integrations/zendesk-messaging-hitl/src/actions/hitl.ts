@@ -24,6 +24,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
 
     const suncoConversation = await suncoClient.createConversation({
       userId: suncoUserId,
+      metadata: { botpressIntegrationOwner: ctx.webhookId },
     })
 
     const { conversation } = await client.getOrCreateConversation({

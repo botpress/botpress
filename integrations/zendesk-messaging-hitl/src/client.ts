@@ -249,7 +249,7 @@ class SuncoClient {
     }
   }
 
-  public async createConversation(args: { userId: string }) {
+  public async createConversation(args: { userId: string; metadata?: Record<string, string> }) {
     try {
       const result = await this._client.conversations.createConversation(this._appId, {
         type: 'personal',
@@ -260,6 +260,7 @@ class SuncoClient {
           },
         ],
         displayName: 'HITL Conversation',
+        metadata: args.metadata,
       })
 
       if (!result?.conversation?.id) {
