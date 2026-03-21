@@ -233,9 +233,6 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      qs:
-        specifier: ^6.11.0
-        version: 6.11.0
     devDependencies:
       '@botpress/common':
         specifier: workspace:*
@@ -255,9 +252,6 @@ importers:
       '@types/json-schema':
         specifier: ^7.0.12
         version: 7.0.12
-      '@types/qs':
-        specifier: ^6.9.7
-        version: 6.9.7
 
   bots/hit-looper:
     dependencies:
