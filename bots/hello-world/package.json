@@ -17,9 +17,8 @@
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "@botpresshub/logger": "workspace:*",
+    "@botpresshub/chat": "workspace:*",
     "@botpresshub/telegram": "workspace:*",
-    "@botpresshub/webhook": "workspace:*",
     "@bpinternal/genenv": "0.0.1",
     "@types/json-schema": "^7.0.12"
   },
