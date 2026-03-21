@@ -10,18 +10,29 @@ import { zodTupleToJsonTuple } from './type-processors/tuple'
 
 export type JSONSchemaUnionStrategy = 'oneOf' | 'anyOf'
 export type JSONSchemaGenerationOptions = {
+  /**
+   * @default 'anyOf' for unions, 'oneOf' for discriminated unions
+   */
   unionStrategy: JSONSchemaUnionStrategy
+
+  /**
+   * @default true
+   * @description Whether to include the discriminator property in the generated JSON schema for discriminated unions. This property is not part of the JSON schema specification but is used by some tools to optimize validation and code generation for discriminated unions. If set to false, the discriminator property will be omitted from the generated JSON schema.
+   */
+  discriminator: boolean
 }
 
-const DEFAULT_UNION_STRATEGY: JSONSchemaUnionStrategy = 'anyOf'
-const DEFAULT_DISCRIMINATED_UNION_STRATEGY: JSONSchemaUnionStrategy = 'oneOf'
+const DEFAULT_UNION_STRATEGY = 'anyOf' satisfies JSONSchemaUnionStrategy
+const DEFAULT_DISCRIMINATED_UNION_STRATEGY = 'oneOf' satisfies JSONSchemaUnionStrategy
+const DEFAULT_DISCRIMINATOR_OPTION = true
 
 /**
  * Converts a Zui schema to a ZUI flavored JSON schema.
  * @param schema zui schema
  * @returns ZUI flavored JSON schema
  */
-export function toJSONSchema(schema: z.ZodType, opts: Partial<JSONSchemaGenerationOptions> = {}): json.Schema {
+export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGenerationOptions> = {}): json.Schema {
+  const opts: Partial<JSONSchemaGenerationOptions> = { ...schema._def.toJSONSchemaOptions, ...options }
   const s = schema as z.ZodNativeType
 
   switch (s.typeName) {
@@ -116,11 +127,13 @@ export function toJSONSchema(schema: z.ZodType, opts: Partial<JSONSchemaGenerati
 
     case 'ZodDiscriminatedUnion':
       const discriminatedUnionStrategy = opts.unionStrategy ?? DEFAULT_DISCRIMINATED_UNION_STRATEGY
+      const discriminatorOption = opts.discriminator ?? DEFAULT_DISCRIMINATOR_OPTION
       if (discriminatedUnionStrategy === 'oneOf') {
+        const discriminator = discriminatorOption ? { propertyName: s.discriminator } : undefined
         return {
           description: s.description,
           oneOf: s.options.map((option) => toJSONSchema(option)),
-          discriminator: { propertyName: s.discriminator },
+          discriminator,
           'x-zui': {
             ...s._def['x-zui'],
             def: { typeName: 'ZodDiscriminatedUnion', discriminator: s.discriminator },

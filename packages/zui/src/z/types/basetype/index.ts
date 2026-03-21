@@ -487,7 +487,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     throw new _CircularDependencyError('toTypescriptType')
   }
 
-  toTypescriptSchema(_opts?: Partial<transforms.TypescriptSchemaGenerationOptions>): string {
+  toTypescriptSchema(): string {
     throw new _CircularDependencyError('toTypescriptSchema')
   }
 

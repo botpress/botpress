@@ -12,16 +12,13 @@ import { ZodTypeDef } from './z/typings'
  */
 
 ZodBaseTypeImpl.prototype.toJSONSchema = function (opts = {}) {
-  const def: ZodTypeDef = this._def
-  return transforms.toJSONSchema(this, { ...def.toJSONSchemaOptions, ...opts })
+  return transforms.toJSONSchema(this, opts)
 }
 
 ZodBaseTypeImpl.prototype.toTypescriptType = function (opts = {}) {
-  const def: ZodTypeDef = this._def
-  return transforms.toTypescriptType(this, { ...def.toTypescriptTypeOptions, ...opts })
+  return transforms.toTypescriptType(this, opts)
 }
 
-ZodBaseTypeImpl.prototype.toTypescriptSchema = function (opts = {}) {
-  const def: ZodTypeDef = this._def
-  return transforms.toTypescriptSchema(this, { ...def.toTypescriptSchemaOptions, ...opts })
+ZodBaseTypeImpl.prototype.toTypescriptSchema = function () {
+  return transforms.toTypescriptSchema(this)
 }

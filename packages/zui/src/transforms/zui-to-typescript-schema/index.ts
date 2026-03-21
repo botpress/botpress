@@ -17,15 +17,13 @@ import { generateStringChecks } from './string-checks'
 
 const { zuiKey } = z
 
-export type TypescriptSchemaGenerationOptions = {}
-
 /**
  *
  * @param schema zui schema
  * @param options generation options
  * @returns a typescript program that would construct the given schema if executed
  */
-export function toTypescriptSchema(schema: z.ZodType, _opts: TypescriptSchemaGenerationOptions = {}): string {
+export function toTypescriptSchema(schema: z.ZodType): string {
   const wrappedSchema: z.ZodType = schema
   const dts = sUnwrapZod(wrappedSchema)
   return dts

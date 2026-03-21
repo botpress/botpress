@@ -365,7 +365,6 @@ export type RefinementCtx = {
 export type TransformsConfig = {
   toJSONSchemaOptions: transforms.JSONSchemaGenerationOptions
   toTypescriptTypeOptions: transforms.TypescriptGenerationOptions
-  toTypescriptSchemaOptions: transforms.TypescriptSchemaGenerationOptions
 }
 
 export type ZodCreateParams =
@@ -563,7 +562,7 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
    * @param options generation options
    * @returns a typescript program (a string) that would construct the given schema if executed
    */
-  toTypescriptSchema(opts?: Partial<transforms.TypescriptSchemaGenerationOptions>): string
+  toTypescriptSchema(): string
 }
 
 //* ─────────────────────────── ZodAny ───────────────────────────────────────

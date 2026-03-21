@@ -24,8 +24,9 @@ export type ZuiSchemaOptions = {
  */
 export const toJSONSchemaLegacy = (
   zuiType: z.ZodType,
-  opts: ZuiSchemaOptions = { target: 'openApi3' }
+  options: ZuiSchemaOptions = { target: 'openApi3' }
 ): JSONSchema7 => {
+  const opts: ZuiSchemaOptions = { ...zuiType._def.toJSONSchemaOptions, ...options }
   const jsonSchema = zodToJsonSchema(zuiType, opts)
   if (opts.$schemaUrl === false) {
     delete jsonSchema.$schema

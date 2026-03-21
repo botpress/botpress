@@ -78,7 +78,6 @@ const _processCreateParams = (
     description,
     supportsExtensions,
     toJSONSchemaOptions,
-    toTypescriptSchemaOptions,
     toTypescriptTypeOptions,
     [zuiKey]: zuiExtensions,
   } = params
@@ -109,7 +108,6 @@ const _processCreateParams = (
     description,
     [zuiKey]: filteredZuiExtensions,
     toJSONSchemaOptions,
-    toTypescriptSchemaOptions,
     toTypescriptTypeOptions,
   }
 }

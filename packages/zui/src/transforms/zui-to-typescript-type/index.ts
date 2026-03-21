@@ -94,7 +94,8 @@ type InternalOptions = {
  * @param options generation options
  * @returns a string of the TypeScript **type** representing the schema
  */
-export function toTypescriptType(schema: z.ZodType, options: TypescriptGenerationOptions = {}): string {
+export function toTypescriptType(schema: z.ZodType, opts: TypescriptGenerationOptions = {}): string {
+  const options: TypescriptGenerationOptions = { ...schema._def.toTypescriptTypeOptions, ...opts }
   const wrappedSchema: Declaration = getDeclarationProps(schema, options)
 
   let dts = sUnwrapZod(wrappedSchema, options)
