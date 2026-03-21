@@ -1,6 +1,12 @@
 import { z } from '@botpress/sdk'
 import { APP_GOOGLE_FOLDER_MIMETYPE, APP_GOOGLE_SHORTCUT_MIMETYPE } from './mime-types'
 
+// TODO: use default options
+const toJSONSchemaOptions: z.transforms.JSONSchemaGenerationOptions = {
+  unionStrategy: 'anyOf',
+  discriminator: false,
+}
+
 // Utility schemas
 export const fileIdSchema = z.string().min(1).describe('The ID of the Google Drive file')
 export const commonFileAttrSchema = z.object({
@@ -50,13 +56,17 @@ export const fileTypesUnionSchema = z.union([
 /* Used to represent a generic file, closer to what is received by the API.
 Type is added to enable discrimination and remove/add access to properties
 depending on file type. */
-export const baseDiscriminatedFileSchema = z.discriminatedUnion('type', [
-  baseNormalFileSchema.extend({ type: z.literal(_fileTypes.normal).title('Type').describe('The type of the file') }),
-  baseFolderFileSchema.extend({ type: z.literal(_fileTypes.folder).title('Type').describe('The type of the file') }),
-  baseShortcutFileSchema.extend({
-    type: z.literal(_fileTypes.shortcut).title('Type').describe('The type of the file'),
-  }),
-])
+export const baseDiscriminatedFileSchema = z.discriminatedUnion(
+  'type',
+  [
+    baseNormalFileSchema.extend({ type: z.literal(_fileTypes.normal).title('Type').describe('The type of the file') }),
+    baseFolderFileSchema.extend({ type: z.literal(_fileTypes.folder).title('Type').describe('The type of the file') }),
+    baseShortcutFileSchema.extend({
+      type: z.literal(_fileTypes.shortcut).title('Type').describe('The type of the file'),
+    }),
+  ],
+  { toJSONSchemaOptions }
+)
 
 export const baseChannelSchema = z.object({
   id: z.string().min(1).title('Channel ID').describe('The ID of the channel'),
@@ -110,11 +120,15 @@ const computedFileAttrSchema = z.object({
 export const fileSchema = baseNormalFileSchema.merge(computedFileAttrSchema)
 export const folderSchema = baseFolderFileSchema.merge(computedFileAttrSchema)
 export const shortcutSchema = baseShortcutFileSchema.merge(computedFileAttrSchema)
-export const genericFileSchema = z.discriminatedUnion('type', [
-  fileSchema.extend({ type: z.literal(_fileTypes.normal) }),
-  folderSchema.extend({ type: z.literal(_fileTypes.folder) }),
-  shortcutSchema.extend({ type: z.literal(_fileTypes.shortcut) }),
-])
+export const genericFileSchema = z.discriminatedUnion(
+  'type',
+  [
+    fileSchema.extend({ type: z.literal(_fileTypes.normal) }),
+    folderSchema.extend({ type: z.literal(_fileTypes.folder) }),
+    shortcutSchema.extend({ type: z.literal(_fileTypes.shortcut) }),
+  ],
+  { toJSONSchemaOptions }
+)
 export const fileChannelSchema = baseChannelSchema.extend({
   fileId: fileIdSchema.title('File ID'),
 })

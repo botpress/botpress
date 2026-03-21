@@ -5,6 +5,12 @@ import linear from './bp_modules/linear'
 import slack from './bp_modules/slack'
 import telegram from './bp_modules/telegram'
 
+// TODO: use default options
+const toJSONSchemaOptions: sdk.z.transforms.JSONSchemaGenerationOptions = {
+  unionStrategy: 'anyOf',
+  discriminator: false,
+}
+
 export default new sdk.BotDefinition({
   states: {
     watchedTeams: {
@@ -26,17 +32,21 @@ export default new sdk.BotDefinition({
       type: 'workflow',
       schema: sdk.z.object({
         issues: sdk.z.array(
-          sdk.z.discriminatedUnion('result', [
-            sdk.z.object({
-              identifier: sdk.z.string().title('Identifier').describe('The issue identifier'),
-              result: sdk.z.literal('failed').title('Result').describe('The lint result'),
-              messages: sdk.z.array(sdk.z.string()).title('Messages').describe('The lint error messages'),
-            }),
-            sdk.z.object({
-              identifier: sdk.z.string().title('Identifier').describe('The issue identifier'),
-              result: sdk.z.enum(['succeeded', 'ignored']).title('Result').describe('The lint result'),
-            }),
-          ])
+          sdk.z.discriminatedUnion(
+            'result',
+            [
+              sdk.z.object({
+                identifier: sdk.z.string().title('Identifier').describe('The issue identifier'),
+                result: sdk.z.literal('failed').title('Result').describe('The lint result'),
+                messages: sdk.z.array(sdk.z.string()).title('Messages').describe('The lint error messages'),
+              }),
+              sdk.z.object({
+                identifier: sdk.z.string().title('Identifier').describe('The issue identifier'),
+                result: sdk.z.enum(['succeeded', 'ignored']).title('Result').describe('The lint result'),
+              }),
+            ],
+            { toJSONSchemaOptions }
+          )
         ),
       }),
     },

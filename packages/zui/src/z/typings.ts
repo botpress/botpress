@@ -363,8 +363,8 @@ export type RefinementCtx = {
 //* ─────────────────────────── Base Type ───────────────────────────────────
 
 export type TransformsConfig = {
-  toJSONSchemaOptions: transforms.JSONSchemaGenerationOptions
-  toTypescriptTypeOptions: transforms.TypescriptGenerationOptions
+  toJSONSchemaOptions: Partial<transforms.JSONSchemaGenerationOptions>
+  toTypescriptTypeOptions: Partial<transforms.TypescriptGenerationOptions>
 }
 
 export type ZodCreateParams =

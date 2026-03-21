@@ -1,8 +1,14 @@
 import * as sdk from '@botpress/sdk'
 
+// TODO: use default options
+const toJSONSchemaOptions: sdk.z.transforms.JSONSchemaGenerationOptions = {
+  unionStrategy: 'anyOf',
+  discriminator: false,
+}
+
 const plainTextSchema = sdk.z.object({ type: sdk.z.literal('plain_text'), text: sdk.z.string() }).strict()
 const markdownSchema = sdk.z.object({ type: sdk.z.literal('mrkdwn'), text: sdk.z.string() }).strict()
-const plainOrMarkdown = sdk.z.discriminatedUnion('type', [markdownSchema, plainTextSchema])
+const plainOrMarkdown = sdk.z.discriminatedUnion('type', [markdownSchema, plainTextSchema], { toJSONSchemaOptions })
 
 const imageElement = sdk.z
   .object({
@@ -57,7 +63,9 @@ const staticSelectSchema = sdk.z
 const contextBlock = sdk.z
   .object({
     type: sdk.z.literal('context'),
-    elements: sdk.z.array(sdk.z.discriminatedUnion('type', [imageElement, ...plainOrMarkdown.options])).max(10),
+    elements: sdk.z
+      .array(sdk.z.discriminatedUnion('type', [imageElement, ...plainOrMarkdown.options], { toJSONSchemaOptions }))
+      .max(10),
   })
   .strict()
   .describe('Display multiple elements in a group')
@@ -303,34 +311,46 @@ const plainTextInput = sdk.z
   })
   .strict()
 
-const multiSelectMenus = sdk.z.discriminatedUnion('type', [
-  multiSelectStaticMenuSchema.sourceType(),
-  externalMultiSelectMenuSchema,
-  usersMultiSelectMenuSchema,
-  conversationsMultiSelectMenuSchema,
-  channelsMultiSelectMenuSchema,
-])
+const multiSelectMenus = sdk.z.discriminatedUnion(
+  'type',
+  [
+    multiSelectStaticMenuSchema.sourceType(),
+    externalMultiSelectMenuSchema,
+    usersMultiSelectMenuSchema,
+    conversationsMultiSelectMenuSchema,
+    channelsMultiSelectMenuSchema,
+  ],
+  { toJSONSchemaOptions }
+)
 
-const selectMenus = sdk.z.discriminatedUnion('type', [
-  staticSelectSchema,
-  externalSelectMenuSchema,
-  usersSelectMenuSchema,
-  conversationsSelectMenuSchema,
-  channelsSelectMenuSchema,
-])
+const selectMenus = sdk.z.discriminatedUnion(
+  'type',
+  [
+    staticSelectSchema,
+    externalSelectMenuSchema,
+    usersSelectMenuSchema,
+    conversationsSelectMenuSchema,
+    channelsSelectMenuSchema,
+  ],
+  { toJSONSchemaOptions }
+)
 
 const inputBlock = sdk.z
   .object({
     type: sdk.z.literal('input'),
     label: plainTextSchema,
-    element: sdk.z.discriminatedUnion('type', [
-      plainTextInput,
-      checkboxesSchema,
-      radioButtonsSchema,
-      ...selectMenus.options,
-      ...multiSelectMenus.options,
-      datePickerSchema,
-    ]),
+    element: sdk.z.discriminatedUnion(
+      'type',
+      [
+        plainTextInput,
+        checkboxesSchema,
+        radioButtonsSchema,
+        ...selectMenus.options,
+        ...multiSelectMenus.options,
+        datePickerSchema,
+      ],
+      { toJSONSchemaOptions }
+    ),
     dispatch_action: sdk.z.boolean().optional(),
     block_id: sdk.z.string().max(255).optional(),
     hint: plainTextSchema.optional(),
@@ -346,17 +366,21 @@ const sectionSchema = sdk.z
     text: plainOrMarkdown.optional(),
     fields: sdk.z.array(plainOrMarkdown).min(1).max(10).optional(),
     accessory: sdk.z
-      .discriminatedUnion('type', [
-        buttonSchema,
-        checkboxesSchema,
-        datePickerSchema,
-        imageElement,
-        overflowSchema,
-        radioButtonsSchema,
-        ...multiSelectMenus.options,
-        ...selectMenus.options,
-        timePickerSchema,
-      ])
+      .discriminatedUnion(
+        'type',
+        [
+          buttonSchema,
+          checkboxesSchema,
+          datePickerSchema,
+          imageElement,
+          overflowSchema,
+          radioButtonsSchema,
+          ...multiSelectMenus.options,
+          ...selectMenus.options,
+          timePickerSchema,
+        ],
+        { toJSONSchemaOptions }
+      )
       .optional(),
   })
   .strict()
@@ -383,17 +407,21 @@ const actionsBlock = sdk.z
   .describe('Display multiple elements in a group')
   .strict()
 
-const blocks = sdk.z.discriminatedUnion('type', [
-  actionsBlock,
-  contextBlock,
-  dividerBlock,
-  fileBlock,
-  headerBlock,
-  imageBlock,
-  inputBlock,
-  sectionSchema,
-  // video // TODO:
-])
+const blocks = sdk.z.discriminatedUnion(
+  'type',
+  [
+    actionsBlock,
+    contextBlock,
+    dividerBlock,
+    fileBlock,
+    headerBlock,
+    imageBlock,
+    inputBlock,
+    sectionSchema,
+    // video // TODO:
+  ],
+  { toJSONSchemaOptions }
+)
 
 const mention = sdk.z.object({
   type: sdk.z.string(),

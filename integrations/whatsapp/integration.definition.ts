@@ -9,6 +9,12 @@ import {
   WhatsAppTemplateCategoryUpdateValueSchema,
 } from './definitions/events'
 
+// TODO: use default options
+const toJSONSchemaOptions: z.transforms.JSONSchemaGenerationOptions = {
+  unionStrategy: 'anyOf',
+  discriminator: false,
+}
+
 const MAX_BUTTON_LABEL_LENGTH = 20
 
 const commonConfigSchema = z.object({
@@ -247,7 +253,7 @@ export default new IntegrationDefinition({
                     title: z.string().optional(),
                   }),
                 }),
-              ])
+              ], { toJSONSchemaOptions })
             ),
           }),
         },

@@ -128,8 +128,8 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
     case 'ZodDiscriminatedUnion':
       const discriminatedUnionStrategy = opts.unionStrategy ?? DEFAULT_DISCRIMINATED_UNION_STRATEGY
       const discriminatorOption = opts.discriminator ?? DEFAULT_DISCRIMINATOR_OPTION
+      const discriminator = discriminatorOption ? { propertyName: s.discriminator } : undefined
       if (discriminatedUnionStrategy === 'oneOf') {
-        const discriminator = discriminatorOption ? { propertyName: s.discriminator } : undefined
         return {
           description: s.description,
           oneOf: s.options.map((option) => toJSONSchema(option)),

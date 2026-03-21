@@ -1,5 +1,11 @@
 import { z } from '@botpress/sdk'
 
+// TODO: use default options
+const toJSONSchemaOptions: z.transforms.JSONSchemaGenerationOptions = {
+  unionStrategy: 'anyOf',
+  discriminator: false,
+}
+
 const baseField = z
   .object({
     key: z.string().min(1).title('Key').describe('Field key identifier'),
@@ -70,16 +76,20 @@ const matrixField = baseField.extend({
   columns: z.array(optionSchema).optional().title('Columns').describe('Matrix columns'),
 })
 
-const knownSpecialFieldSchema = z.discriminatedUnion('type', [
-  multiSelectField,
-  dropdownField,
-  checkboxesField,
-  multipleChoiceField,
-  rankingField,
-  fileUploadField,
-  signatureField,
-  matrixField,
-])
+const knownSpecialFieldSchema = z.discriminatedUnion(
+  'type',
+  [
+    multiSelectField,
+    dropdownField,
+    checkboxesField,
+    multipleChoiceField,
+    rankingField,
+    fileUploadField,
+    signatureField,
+    matrixField,
+  ],
+  { toJSONSchemaOptions }
+)
 
 const fallbackFieldSchema = baseField
   .extend({
