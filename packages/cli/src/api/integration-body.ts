@@ -16,7 +16,6 @@ export const prepareCreateIntegrationBody = async (
         ...event,
         schema: await utils.schema.mapZodToJsonSchema(event, {
           useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
-          unionStrategy: integration.__advanced?.unionStrategy,
         }),
       }))
     : undefined,
@@ -27,14 +26,12 @@ export const prepareCreateIntegrationBody = async (
           ...action.input,
           schema: await utils.schema.mapZodToJsonSchema(action.input, {
             useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
-            unionStrategy: integration.__advanced?.unionStrategy,
           }),
         },
         output: {
           ...action.output,
           schema: await utils.schema.mapZodToJsonSchema(action.output, {
             useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
-            unionStrategy: integration.__advanced?.unionStrategy,
           }),
         },
       }))
@@ -46,7 +43,6 @@ export const prepareCreateIntegrationBody = async (
           ...message,
           schema: await utils.schema.mapZodToJsonSchema(message, {
             useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
-            unionStrategy: integration.__advanced?.unionStrategy,
           }),
         })),
       }))
@@ -56,7 +52,6 @@ export const prepareCreateIntegrationBody = async (
         ...state,
         schema: await utils.schema.mapZodToJsonSchema(state, {
           useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
-          unionStrategy: integration.__advanced?.unionStrategy,
         }),
       }))
     : undefined,
@@ -65,7 +60,6 @@ export const prepareCreateIntegrationBody = async (
         ...entity,
         schema: await utils.schema.mapZodToJsonSchema(entity, {
           useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
-          unionStrategy: integration.__advanced?.unionStrategy,
         }),
       }))
     : undefined,

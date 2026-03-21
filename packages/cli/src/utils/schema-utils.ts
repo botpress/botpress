@@ -28,22 +28,9 @@ export async function mapZodToJsonSchema(
 ): Promise<ReturnType<typeof sdk.z.transforms.toJSONSchemaLegacy>> {
   let schema: JSONSchema7
   if (options.useLegacyZuiTransformer) {
-    const unionOptions =
-      options.unionStrategy === 'oneOf'
-        ? {
-            unionStrategy: 'oneOf' as const,
-            discriminator: true,
-          }
-        : {} // undefined values break the transformation
-
-    schema = sdk.z.transforms.toJSONSchemaLegacy(definition.schema, {
-      target: 'jsonSchema7',
-      ...unionOptions,
-    })
+    schema = sdk.z.transforms.toJSONSchemaLegacy(definition.schema, { target: 'jsonSchema7' })
   } else {
-    schema = sdk.z.transforms.toJSONSchema(definition.schema, {
-      unionStrategy: options.unionStrategy,
-    })
+    schema = sdk.z.transforms.toJSONSchema(definition.schema, { unionStrategy: options.unionStrategy })
   }
   schema = (await dereferenceSchema(schema)) as typeof schema
 

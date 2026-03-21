@@ -17,13 +17,15 @@ import { generateStringChecks } from './string-checks'
 
 const { zuiKey } = z
 
+export type TypescriptSchemaGenerationOptions = {}
+
 /**
  *
  * @param schema zui schema
  * @param options generation options
  * @returns a typescript program that would construct the given schema if executed
  */
-export function toTypescriptSchema(schema: z.ZodType): string {
+export function toTypescriptSchema(schema: z.ZodType, _opts: TypescriptSchemaGenerationOptions = {}): string {
   const wrappedSchema: z.ZodType = schema
   const dts = sUnwrapZod(wrappedSchema)
   return dts
@@ -146,7 +148,6 @@ function sUnwrapZod(schema: z.ZodType): string {
 
     case 'ZodDefault':
       const defaultValue = unknownToTypescriptValue(s._def.defaultValue())
-      // TODO: use z.default() notation
       return `z.default(${sUnwrapZod(s._def.innerType)}, ${defaultValue})${_addMetadata(s._def, s._def.innerType)}`.trim()
 
     case 'ZodCatch':

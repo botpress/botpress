@@ -8,9 +8,13 @@ import { zodSetToJsonSet } from './type-processors/set'
 import { zodStringToJsonString } from './type-processors/string'
 import { zodTupleToJsonTuple } from './type-processors/tuple'
 
+export type JSONSchemaUnionStrategy = 'oneOf' | 'anyOf'
 export type JSONSchemaGenerationOptions = {
-  unionStrategy: 'oneOf' | 'anyOf'
+  unionStrategy: JSONSchemaUnionStrategy
 }
+
+const DEFAULT_UNION_STRATEGY: JSONSchemaUnionStrategy = 'anyOf'
+const DEFAULT_DISCRIMINATED_UNION_STRATEGY: JSONSchemaUnionStrategy = 'oneOf'
 
 /**
  * Converts a Zui schema to a ZUI flavored JSON schema.
@@ -96,7 +100,14 @@ export function toJSONSchema(schema: z.ZodType, opts: Partial<JSONSchemaGenerati
       } satisfies json.ObjectSchema
 
     case 'ZodUnion':
-      // TODO: should we also support unionStrategy here ?
+      const unionStrategy = opts.unionStrategy ?? DEFAULT_UNION_STRATEGY
+      if (unionStrategy === 'oneOf') {
+        return {
+          description: s.description,
+          oneOf: s.options.map((option) => toJSONSchema(option)),
+          'x-zui': s._def['x-zui'],
+        } satisfies json.UnionSchema
+      }
       return {
         description: s.description,
         anyOf: s.options.map((option) => toJSONSchema(option)),
@@ -104,7 +115,8 @@ export function toJSONSchema(schema: z.ZodType, opts: Partial<JSONSchemaGenerati
       } satisfies json.UnionSchema
 
     case 'ZodDiscriminatedUnion':
-      if (opts.unionStrategy === 'oneOf') {
+      const discriminatedUnionStrategy = opts.unionStrategy ?? DEFAULT_DISCRIMINATED_UNION_STRATEGY
+      if (discriminatedUnionStrategy === 'oneOf') {
         return {
           description: s.description,
           oneOf: s.options.map((option) => toJSONSchema(option)),

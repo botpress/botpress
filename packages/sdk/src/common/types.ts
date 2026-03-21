@@ -9,7 +9,4 @@ export type ToTags<TTags extends string | number | symbol> = typeUtils.Cast<
 
 export type SchemaTransformOptions = {
   useLegacyZuiTransformer?: boolean
-
-  /** defaults to anyOf */
-  unionStrategy?: 'oneOf' | 'anyOf'
 }

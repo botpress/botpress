@@ -66,7 +66,7 @@ type _NullSchema = utils.Satisfies<{ type: 'null' }, JSONSchema7>
 type _UndefinedSchema = utils.Satisfies<{ not: true }, JSONSchema7>
 type _NeverSchema = utils.Satisfies<{ not: true }, JSONSchema7>
 type _ArraySchema = utils.Satisfies<{ type: 'array'; items: Schema; minItems?: number; maxItems?: number }, JSONSchema7>
-type _UnionSchema = utils.Satisfies<{ anyOf: Schema[] }, JSONSchema7>
+type _UnionSchema = utils.Satisfies<{ anyOf: Schema[] } | { oneOf: Schema[] }, JSONSchema7>
 type _DiscriminatedUnionSchema = utils.Satisfies<
   //
   { anyOf: Schema[] } | { oneOf: Schema[]; discriminator?: { propertyName: string } },

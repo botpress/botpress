@@ -15,14 +15,12 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
           ...action.input,
           schema: await utils.schema.mapZodToJsonSchema(action.input, {
             useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
-            unionStrategy: bot.__advanced?.unionStrategy,
           }),
         },
         output: {
           ...action.output,
           schema: await utils.schema.mapZodToJsonSchema(action.output, {
             useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
-            unionStrategy: bot.__advanced?.unionStrategy,
           }),
         },
       }))
@@ -32,7 +30,6 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
         ...bot.configuration,
         schema: await utils.schema.mapZodToJsonSchema(bot.configuration, {
           useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
-          unionStrategy: bot.__advanced?.unionStrategy,
         }),
       }
     : undefined,
@@ -41,7 +38,6 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
         ...event,
         schema: await utils.schema.mapZodToJsonSchema(event, {
           useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
-          unionStrategy: bot.__advanced?.unionStrategy,
         }),
       }))
     : undefined,
@@ -51,7 +47,6 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
           ...state,
           schema: await utils.schema.mapZodToJsonSchema(state, {
             useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
-            unionStrategy: bot.__advanced?.unionStrategy,
           }),
         })),
         ({ type }) => type !== 'workflow'

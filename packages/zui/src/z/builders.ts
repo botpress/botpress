@@ -1,3 +1,4 @@
+import * as utils from '../utils'
 import { zuiKey } from './consts'
 import { setBuilders } from './internal-builders'
 import {
@@ -60,13 +61,10 @@ import type {
   DirtyEffectReturnType,
   EffectContext,
   CustomParams,
+  ZodTypeDef,
 } from './typings'
 
-type _ProcessedCreateParams = {
-  errorMap?: ZodErrorMap
-  description?: string
-  [zuiKey]?: ZuiExtensionObject
-}
+type _ProcessedCreateParams = utils.types.SafeOmit<ZodTypeDef, 'typeName'>
 
 const _processCreateParams = (
   params: ZodCreateParams & ({ supportsExtensions?: 'secret'[] } | undefined)
@@ -79,6 +77,9 @@ const _processCreateParams = (
     required_error,
     description,
     supportsExtensions,
+    toJSONSchemaOptions,
+    toTypescriptSchemaOptions,
+    toTypescriptTypeOptions,
     [zuiKey]: zuiExtensions,
   } = params
 
@@ -103,7 +104,14 @@ const _processCreateParams = (
     }
     return { message: invalid_type_error ?? ctx.defaultError }
   }
-  return { errorMap: customMap, description, [zuiKey]: filteredZuiExtensions }
+  return {
+    errorMap: customMap,
+    description,
+    [zuiKey]: filteredZuiExtensions,
+    toJSONSchemaOptions,
+    toTypescriptSchemaOptions,
+    toTypescriptTypeOptions,
+  }
 }
 
 export const customType: ZodBuilders['custom'] = (check?, params = {}, fatal?) => {

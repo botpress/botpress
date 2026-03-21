@@ -362,14 +362,20 @@ export type RefinementCtx = {
 
 //* ─────────────────────────── Base Type ───────────────────────────────────
 
+export type TransformsConfig = {
+  toJSONSchemaOptions: transforms.JSONSchemaGenerationOptions
+  toTypescriptTypeOptions: transforms.TypescriptGenerationOptions
+  toTypescriptSchemaOptions: transforms.TypescriptSchemaGenerationOptions
+}
+
 export type ZodCreateParams =
-  | {
+  | ({
       errorMap?: ZodErrorMap
       invalid_type_error?: string
       required_error?: string
       description?: string
       ['x-zui']?: ZuiExtensionObject
-    }
+    } & Partial<TransformsConfig>)
   | undefined
 
 export type TypeOf<T extends IZodType> = T['_output']
@@ -386,7 +392,7 @@ export type ZodTypeDef = {
   errorMap?: ZodErrorMap
   description?: string
   ['x-zui']?: ZuiExtensionObject
-}
+} & Partial<TransformsConfig>
 
 export type ZodTypeAny = IZodType<any, any, any>
 
@@ -542,25 +548,22 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
 
   /**
    *
-   * @deprecated use z.transforms.toJSONSchema(schema) instead
    * @returns a JSON Schema equivalent to the Zui schema
    */
-  toJSONSchema(): transforms.json.Schema
+  toJSONSchema(opts?: Partial<transforms.JSONSchemaGenerationOptions>): transforms.json.Schema
 
   /**
-   * @deprecated use z.transforms.toTypescriptType(schema) instead
    * @param options generation options
    * @returns a string of the TypeScript type representing the schema
    */
-  toTypescriptType(opts?: transforms.TypescriptGenerationOptions): string
+  toTypescriptType(opts?: Partial<transforms.TypescriptGenerationOptions>): string
 
   /**
    *
-   * @deprecated use z.transforms.toTypescriptSchema(schema) instead
    * @param options generation options
    * @returns a typescript program (a string) that would construct the given schema if executed
    */
-  toTypescriptSchema(): string
+  toTypescriptSchema(opts?: Partial<transforms.TypescriptSchemaGenerationOptions>): string
 }
 
 //* ─────────────────────────── ZodAny ───────────────────────────────────────
