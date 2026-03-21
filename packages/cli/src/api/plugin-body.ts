@@ -24,6 +24,7 @@ export const prepareCreatePluginBody = async (
         ...plugin.configuration,
         schema: await utils.schema.mapZodToJsonSchema(plugin.configuration, {
           useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
+          unionStrategy: plugin.__advanced?.unionStrategy,
         }),
       }
     : undefined,
@@ -32,6 +33,7 @@ export const prepareCreatePluginBody = async (
         ...event,
         schema: await utils.schema.mapZodToJsonSchema(event, {
           useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
+          unionStrategy: plugin.__advanced?.unionStrategy,
         }),
       }))
     : undefined,
@@ -42,12 +44,14 @@ export const prepareCreatePluginBody = async (
           ...action.input,
           schema: await utils.schema.mapZodToJsonSchema(action.input, {
             useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
+            unionStrategy: plugin.__advanced?.unionStrategy,
           }),
         },
         output: {
           ...action.output,
           schema: await utils.schema.mapZodToJsonSchema(action.output, {
             useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
+            unionStrategy: plugin.__advanced?.unionStrategy,
           }),
         },
       }))
@@ -58,6 +62,7 @@ export const prepareCreatePluginBody = async (
           ...state,
           schema: await utils.schema.mapZodToJsonSchema(state, {
             useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
+            unionStrategy: plugin.__advanced?.unionStrategy,
           }),
         })),
         ({ type }) => type !== 'workflow'

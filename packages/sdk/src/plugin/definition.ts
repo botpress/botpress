@@ -9,6 +9,7 @@ import {
   TableDefinition as BotTableDefinition,
   WorkflowDefinition,
 } from '../bot/definition'
+import { SchemaTransformOptions } from '../common/types'
 import { IntegrationPackage, InterfacePackage } from '../package'
 import * as typeUtils from '../utils/type-utils'
 import { SDK_VERSION } from '../version'
@@ -154,9 +155,7 @@ export type PluginDefinitionProps<
     [K in keyof TWorkflows]: WorkflowDefinition<TWorkflows[K]>
   }
 
-  __advanced?: {
-    useLegacyZuiTransformer?: boolean
-  }
+  __advanced?: SchemaTransformOptions
 }
 
 export class PluginDefinition<

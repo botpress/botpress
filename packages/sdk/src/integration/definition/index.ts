@@ -1,4 +1,5 @@
 import type * as esbuild from 'esbuild'
+import { SchemaTransformOptions } from 'src/common/types'
 import { resolveInterface } from '../../interface/resolve'
 import { InterfacePackage } from '../../package'
 import * as utils from '../../utils'
@@ -77,10 +78,9 @@ export type IntegrationDefinitionProps<
 
   interfaces?: Record<string, InterfaceExtension>
 
-  __advanced?: {
+  __advanced?: SchemaTransformOptions & {
     esbuild?: Partial<esbuild.BuildOptions>
     extraOperations?: Record<string, { enabled: boolean }>
-    useLegacyZuiTransformer?: boolean
   }
 }
 

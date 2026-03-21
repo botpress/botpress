@@ -581,6 +581,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         ? {
             schema: await utils.schema.mapZodToJsonSchema(integrationDef.configuration, {
               useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
+              unionStrategy: integrationDef.__advanced?.unionStrategy,
             }),
             identifier: {
               required: integrationDef.configuration.identifier?.required,
@@ -596,6 +597,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
             description: configuration.description,
             schema: await utils.schema.mapZodToJsonSchema(configuration, {
               useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
+              unionStrategy: integrationDef.__advanced?.unionStrategy,
             }),
             identifier: {
               required: configuration.identifier?.required,

@@ -8,12 +8,16 @@ import { zodSetToJsonSet } from './type-processors/set'
 import { zodStringToJsonString } from './type-processors/string'
 import { zodTupleToJsonTuple } from './type-processors/tuple'
 
+export type JSONSchemaGenerationOptions = {
+  unionStrategy: 'oneOf' | 'anyOf'
+}
+
 /**
  * Converts a Zui schema to a ZUI flavored JSON schema.
  * @param schema zui schema
  * @returns ZUI flavored JSON schema
  */
-export function toJSONSchema(schema: z.ZodType): json.Schema {
+export function toJSONSchema(schema: z.ZodType, opts: Partial<JSONSchemaGenerationOptions> = {}): json.Schema {
   const s = schema as z.ZodNativeType
 
   switch (s.typeName) {
@@ -99,6 +103,17 @@ export function toJSONSchema(schema: z.ZodType): json.Schema {
       } satisfies json.UnionSchema
 
     case 'ZodDiscriminatedUnion':
+      if (opts.unionStrategy === 'oneOf') {
+        return {
+          description: s.description,
+          oneOf: s.options.map((option) => toJSONSchema(option)),
+          discriminator: { propertyName: s.discriminator },
+          'x-zui': {
+            ...s._def['x-zui'],
+            def: { typeName: 'ZodDiscriminatedUnion', discriminator: s.discriminator },
+          },
+        } satisfies json.DiscriminatedUnionSchema
+      }
       return {
         description: s.description,
         anyOf: s.options.map((option) => toJSONSchema(option)),

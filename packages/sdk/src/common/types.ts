@@ -6,3 +6,10 @@ export type ToTags<TTags extends string | number | symbol> = typeUtils.Cast<
   Partial<Record<TTags, string>>,
   Record<string, string>
 >
+
+export type SchemaTransformOptions = {
+  useLegacyZuiTransformer?: boolean
+
+  /** defaults to anyOf */
+  unionStrategy?: 'oneOf' | 'anyOf'
+}
