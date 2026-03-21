@@ -96,6 +96,7 @@ export function toJSONSchema(schema: z.ZodType, opts: Partial<JSONSchemaGenerati
       } satisfies json.ObjectSchema
 
     case 'ZodUnion':
+      // TODO: should we also support unionStrategy here ?
       return {
         description: s.description,
         anyOf: s.options.map((option) => toJSONSchema(option)),
