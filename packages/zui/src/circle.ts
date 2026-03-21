@@ -1,6 +1,5 @@
 import * as transforms from './transforms'
 import { ZodBaseTypeImpl } from './z/types'
-import { ZodTypeDef } from './z/typings'
 
 /**
  * This module prevents circular dependencies between the Zod types and the transforms.
