@@ -1,8 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import * as env from './.genenv'
-import logger from './bp_modules/logger'
 import telegram from './bp_modules/telegram'
-import webhook from './bp_modules/webhook'
+import chat from './bp_modules/chat'
 
 export default new sdk.BotDefinition({
   actions: {
@@ -24,11 +23,7 @@ export default new sdk.BotDefinition({
       botToken: env.HELLO_WORLD_TELEGRAM_BOT_TOKEN,
     },
   })
-  .addIntegration(webhook, {
+  .addIntegration(chat, {
     enabled: true,
     configuration: {},
-  })
-  .addPlugin(logger, {
-    configuration: {},
-    dependencies: {},
   })
