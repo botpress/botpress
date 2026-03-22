@@ -12,9 +12,6 @@ export type JSONSchemaUnionStrategy = 'oneOf' | 'anyOf'
 
 /**
  * @description Options for JSON schema generation.
- *  - Options passed directly to the `toJSONSchema` function are global to the whole schema.
- *  - When set at the schema creation, these options will apply to the current schema and all its children.
- *  - In a schema tree, lower level options will override higher level ones.
  */
 export type JSONSchemaGenerationOptions = {
   /**
@@ -38,8 +35,7 @@ const DEFAULT_DISCRIMINATOR_OPTION = true
  * @param schema zui schema
  * @returns ZUI flavored JSON schema
  */
-export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGenerationOptions> = {}): json.Schema {
-  const opts: Partial<JSONSchemaGenerationOptions> = { ...options, ...schema._def.toJSONSchemaOptions }
+export function toJSONSchema(schema: z.ZodType, opts: Partial<JSONSchemaGenerationOptions> = {}): json.Schema {
   const s = schema as z.ZodNativeType
 
   switch (s.typeName) {
@@ -150,6 +146,7 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
       return {
         description: s.description,
         anyOf: s.options.map((option) => toJSONSchema(option, opts)),
+        discriminator,
         'x-zui': {
           ...s._def['x-zui'],
           def: { typeName: 'ZodDiscriminatedUnion', discriminator: s.discriminator },

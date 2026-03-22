@@ -71,9 +71,6 @@ export type TypescriptDeclarationType = DeclarationProps['type']
 
 /**
  * @description Options for Typescript type generation.
- *  - Options passed directly to the `toTypescriptType` function are global to the whole schema.
- *  - When set at the schema creation, these options will apply to the current schema and all its children.
- *  - In a schema tree, lower level options will override higher level ones.
  */
 export type TypescriptGenerationOptions = {
   formatter?: (typing: string) => string
@@ -116,7 +113,7 @@ export function toTypescriptType(schema: z.ZodType, options: TypescriptGeneratio
 const _optionalKey = (key: string): string => (key.endsWith('?') ? key : `${key}?`)
 
 function sUnwrapZod(schema: z.ZodType | KeyValue | FnParameters | Declaration | null, config: InternalOptions): string {
-  let newConfig: InternalOptions = {
+  const newConfig: InternalOptions = {
     ...config,
     declaration: false,
     parent: schema,
@@ -127,17 +124,15 @@ function sUnwrapZod(schema: z.ZodType | KeyValue | FnParameters | Declaration | 
   }
 
   if (schema instanceof Declaration) {
-    newConfig = { ...newConfig, ...schema.props.schema._def.toTypescriptTypeOptions }
     return unwrapDeclaration(schema, newConfig)
   }
 
   if (schema instanceof KeyValue) {
-    newConfig = { ...newConfig, ...schema.value._def.toTypescriptTypeOptions }
     let optionalValue: z.ZodOptional | undefined = undefined
 
     if (z.is.zuiOptional(schema.value)) {
       optionalValue = schema.value
-    } else if (z.is.zuiDefault(schema.value) && newConfig.treatDefaultAsOptional) {
+    } else if (z.is.zuiDefault(schema.value) && config.treatDefaultAsOptional) {
       optionalValue = schema.value._def.innerType.optional()
     }
 
@@ -160,7 +155,6 @@ function sUnwrapZod(schema: z.ZodType | KeyValue | FnParameters | Declaration | 
   }
 
   if (schema instanceof FnParameters) {
-    newConfig = { ...newConfig, ...schema.schema._def.toTypescriptTypeOptions }
     if (z.is.zuiTuple(schema.schema)) {
       let args = ''
       for (let i = 0; i < schema.schema.items.length; i++) {
@@ -193,7 +187,6 @@ function sUnwrapZod(schema: z.ZodType | KeyValue | FnParameters | Declaration | 
   }
 
   if (schema instanceof FnReturn) {
-    newConfig = { ...newConfig, ...schema.schema._def.toTypescriptTypeOptions }
     if (z.is.zuiOptional(schema.schema)) {
       return `${sUnwrapZod(schema.schema.unwrap(), newConfig)} | undefined`
     }
@@ -201,8 +194,7 @@ function sUnwrapZod(schema: z.ZodType | KeyValue | FnParameters | Declaration | 
     return sUnwrapZod(schema.schema, newConfig)
   }
 
-  const s = schema as z.ZodNativeType
-  newConfig = { ...newConfig, ...schema._def.toTypescriptTypeOptions }
+  const s = schema as z.ZodFirstPartySchemaTypes
 
   switch (s.typeName) {
     case 'ZodString':
@@ -330,7 +322,7 @@ ${value}`.trim()
       return `${sUnwrapZod(s._def.innerType, newConfig)} | null`
 
     case 'ZodDefault':
-      const defaultInnerType = newConfig.treatDefaultAsOptional ? s._def.innerType.optional() : s._def.innerType
+      const defaultInnerType = config.treatDefaultAsOptional ? s._def.innerType.optional() : s._def.innerType
       return sUnwrapZod(defaultInnerType, newConfig)
 
     case 'ZodCatch':

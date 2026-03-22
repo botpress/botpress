@@ -5,9 +5,6 @@ import { zodToJsonSchema } from './zodToJsonSchema'
 
 /**
  * @description Options for JSON schema generation.
- *  - Options passed directly to the `toJSONSchema` function are global to the whole schema.
- *  - When set at the schema creation, these options will apply to the current schema and all its children.
- *  - In a schema tree, lower level options will override higher level ones.
  */
 export type JSONSchemaLegacyGenerationOptions = {
   /**

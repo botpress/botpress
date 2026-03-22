@@ -77,8 +77,6 @@ const _processCreateParams = (
     required_error,
     description,
     supportsExtensions,
-    toJSONSchemaOptions,
-    toTypescriptTypeOptions,
     [zuiKey]: zuiExtensions,
   } = params
 
@@ -103,13 +101,7 @@ const _processCreateParams = (
     }
     return { message: invalid_type_error ?? ctx.defaultError }
   }
-  return {
-    errorMap: customMap,
-    description,
-    [zuiKey]: filteredZuiExtensions,
-    toJSONSchemaOptions,
-    toTypescriptTypeOptions,
-  }
+  return { errorMap: customMap, description, [zuiKey]: filteredZuiExtensions }
 }
 
 export const customType: ZodBuilders['custom'] = (check?, params = {}, fatal?) => {
