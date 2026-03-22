@@ -17,7 +17,7 @@ type SchemaDefinition = {
 
 type MapSchemaOptions = {
   useLegacyZuiTransformer?: boolean
-  toJSONSchemaOptions?: sdk.z.transforms.JSONSchemaGenerationOptions
+  toJSONSchemaOptions?: Partial<sdk.z.transforms.JSONSchemaGenerationOptions>
 }
 
 const isObjectSchema = (schema: JsonSchema): boolean => schema.type === 'object'
