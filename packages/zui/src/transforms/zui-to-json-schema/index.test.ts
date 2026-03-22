@@ -1,7 +1,15 @@
 import * as errs from '../common/errors'
 import * as z from '../../z'
+import * as common from '../common/json-schema'
 import { describe, test, expect } from 'vitest'
 import { toJSONSchema } from './index'
+
+const _objSchema = (properties: Record<string, common.Schema>): common.ObjectSchema => ({
+  type: 'object',
+  properties,
+  required: Object.keys(properties),
+  additionalProperties: false,
+})
 
 describe('zuiToJSONSchemaNext', () => {
   test('should map ZodString to StringSchema', () => {
@@ -413,5 +421,41 @@ describe('zuiToJSONSchemaNext', () => {
   test('should map ZodRef to RefSchema', () => {
     const schema = toJSONSchema(z.ref('foo'))
     expect(schema).toEqual({ $ref: 'foo' })
+  })
+
+  test('should correctly handle options recursively', () => {
+    const schema1 = toJSONSchema(z.object({ union: z.union([z.string(), z.number()]) }))
+    expect(schema1).toEqual(_objSchema({ union: { anyOf: [{ type: 'string' }, { type: 'number' }] } }))
+
+    const schema2 = toJSONSchema(z.object({ union: z.union([z.string(), z.number()]) }), { unionStrategy: 'oneOf' })
+    expect(schema2).toEqual(_objSchema({ union: { oneOf: [{ type: 'string' }, { type: 'number' }] } }))
+
+    const schema3 = toJSONSchema(
+      z.object({ union: z.union([z.string(), z.number()]) }, { toJSONSchemaOptions: { unionStrategy: 'oneOf' } })
+    )
+    expect(schema3).toEqual(_objSchema({ union: { oneOf: [{ type: 'string' }, { type: 'number' }] } }))
+
+    const schema4 = toJSONSchema(
+      z.object({ union: z.union([z.string(), z.number()], { toJSONSchemaOptions: { unionStrategy: 'oneOf' } }) })
+    )
+    expect(schema4).toEqual(_objSchema({ union: { oneOf: [{ type: 'string' }, { type: 'number' }] } }))
+  })
+
+  test('should override higher level options with lower level ones', () => {
+    const schema1 = toJSONSchema(
+      z.object({
+        union: z.union([z.string(), z.number()], { toJSONSchemaOptions: { unionStrategy: 'oneOf' } }),
+      }),
+      { unionStrategy: 'anyOf' }
+    )
+    expect(schema1).toEqual(_objSchema({ union: { oneOf: [{ type: 'string' }, { type: 'number' }] } }))
+
+    const schema2 = toJSONSchema(
+      z.object({
+        union: z.union([z.string(), z.number()], { toJSONSchemaOptions: { unionStrategy: 'anyOf' } }),
+      }),
+      { unionStrategy: 'oneOf' }
+    )
+    expect(schema2).toEqual(_objSchema({ union: { anyOf: [{ type: 'string' }, { type: 'number' }] } }))
   })
 })

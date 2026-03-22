@@ -1,5 +1,5 @@
 import type * as esbuild from 'esbuild'
-import { SchemaTransformOptions } from 'src/common/types'
+import { SchemaTransformOptions } from '../../common/types'
 import { resolveInterface } from '../../interface/resolve'
 import { InterfacePackage } from '../../package'
 import * as utils from '../../utils'

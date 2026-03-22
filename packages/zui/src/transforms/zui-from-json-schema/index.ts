@@ -181,14 +181,16 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
   }
 
   if (schema.oneOf !== undefined) {
-    if (guards.isExclusiveDiscriminatedUnionSchema(schema) && schema.discriminator) {
-      const discriminator = schema.discriminator.propertyName
-      const options = schema.oneOf.map(_fromJSONSchema) as [
-        z.ZodDiscriminatedUnionOption<string>,
-        z.ZodDiscriminatedUnionOption<string>,
-        ...z.ZodDiscriminatedUnionOption<string>[],
-      ]
-      return z.discriminatedUnion(discriminator, options)
+    if (guards.isExclusiveDiscriminatedUnionSchema(schema)) {
+      const discriminator = schema.discriminator?.propertyName || schema['x-zui']?.def?.discriminator
+      if (discriminator) {
+        const options = schema.oneOf.map(_fromJSONSchema) as [
+          z.ZodDiscriminatedUnionOption<string>,
+          z.ZodDiscriminatedUnionOption<string>,
+          ...z.ZodDiscriminatedUnionOption<string>[],
+        ]
+        return z.discriminatedUnion(discriminator, options)
+      }
     }
 
     const options = schema.oneOf.map(_fromJSONSchema) as [z.ZodType, z.ZodType, ...z.ZodType[]]

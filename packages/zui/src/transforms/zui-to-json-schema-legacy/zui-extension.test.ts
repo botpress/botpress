@@ -1,8 +1,16 @@
 import { describe, test, expect, it } from 'vitest'
 import { toJSONSchemaLegacy } from './zui-extension'
+import * as common from '../common/json-schema'
 import * as z from '../../z'
 
 const { zuiKey } = z
+
+const _objSchema = (properties: Record<string, common.Schema>): common.ObjectSchema => ({
+  type: 'object',
+  properties,
+  required: Object.keys(properties),
+  additionalProperties: false,
+})
 
 describe('zuiToJsonSchema', () => {
   test('should work', () => {
@@ -386,6 +394,84 @@ describe('zuiToJsonSchema', () => {
       type: 'object',
       [zuiKey]: {},
     })
+  })
+
+  test('should correctly handle options recursively', () => {
+    const schema1 = toJSONSchemaLegacy(
+      z.object({ union: z.union([z.object({ foo: z.string() }), z.object({ bar: z.number() })]) })
+    )
+    expect(schema1).toMatchObject(
+      _objSchema({
+        union: { anyOf: [_objSchema({ foo: { type: 'string' } }), _objSchema({ bar: { type: 'number' } })] },
+      })
+    )
+
+    const schema2 = toJSONSchemaLegacy(
+      z.object({ union: z.union([z.object({ foo: z.string() }), z.object({ bar: z.number() })]) }),
+      {
+        unionStrategy: 'oneOf',
+      }
+    )
+    expect(schema2).toMatchObject(
+      _objSchema({
+        union: { oneOf: [_objSchema({ foo: { type: 'string' } }), _objSchema({ bar: { type: 'number' } })] },
+      })
+    )
+
+    const schema3 = toJSONSchemaLegacy(
+      z.object(
+        { union: z.union([z.object({ foo: z.string() }), z.object({ bar: z.number() })]) },
+        { toJSONSchemaOptions: { unionStrategy: 'oneOf' } }
+      )
+    )
+    expect(schema3).toMatchObject(
+      _objSchema({
+        union: { oneOf: [_objSchema({ foo: { type: 'string' } }), _objSchema({ bar: { type: 'number' } })] },
+      })
+    )
+
+    const schema4 = toJSONSchemaLegacy(
+      z.object({
+        union: z.union([z.object({ foo: z.string() }), z.object({ bar: z.number() })], {
+          toJSONSchemaOptions: { unionStrategy: 'oneOf' },
+        }),
+      })
+    )
+    expect(schema4).toMatchObject(
+      _objSchema({
+        union: { oneOf: [_objSchema({ foo: { type: 'string' } }), _objSchema({ bar: { type: 'number' } })] },
+      })
+    )
+  })
+
+  test('should override higher level options with lower level ones', () => {
+    const schema1 = toJSONSchemaLegacy(
+      z.object({
+        union: z.union([z.object({ foo: z.string() }), z.object({ bar: z.number() })], {
+          toJSONSchemaOptions: { unionStrategy: 'oneOf' },
+        }),
+      }),
+      { unionStrategy: 'anyOf' }
+    )
+    expect(schema1).toMatchObject(
+      _objSchema({
+        union: { oneOf: [_objSchema({ foo: { type: 'string' } }), _objSchema({ bar: { type: 'number' } })] },
+      })
+    )
+
+    const schema2 = toJSONSchemaLegacy(
+      z.object({
+        union: z.union([z.object({ foo: z.string() }), z.object({ bar: z.number() })], {
+          toJSONSchemaOptions: { unionStrategy: 'anyOf' },
+        }),
+      }),
+      { unionStrategy: 'oneOf' }
+    )
+    expect(schema2).toMatchObject(
+      _objSchema({
+        union: { anyOf: [_objSchema({ foo: { type: 'string' } }), _objSchema({ bar: { type: 'number' } })] },
+      })
+    )
   })
 })
 

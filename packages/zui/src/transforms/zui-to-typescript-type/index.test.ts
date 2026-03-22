@@ -1,15 +1,15 @@
 import { describe, it, expect } from 'vitest'
-import { toTypescriptType as toTs } from '.'
+import { toTypescriptType as toTs, TypescriptGenerationOptions } from '.'
 import * as z from '../../z'
 import * as errors from '../common/errors'
 import * as assert from '../../assertions.utils.test'
 
-const toTypescript = (schema: z.ZodType): string => {
+const toTypescript = (schema: z.ZodType, options?: TypescriptGenerationOptions): string => {
   const hasTitle = 'title' in schema.ui
   if (!hasTitle) {
     schema = schema.title('x')
   }
-  return toTs(schema, { declaration: true })
+  return toTs(schema, { declaration: true, ...options })
 }
 
 describe.concurrent('functions', () => {
@@ -1030,4 +1030,74 @@ describe.concurrent('optional', () => {
     const expected = `declare const MyString: string | undefined;`
     await assert.expectTypescript(typings).toMatchWithoutFormatting(expected)
   })
+})
+
+it('should correctly handle options recursively', () => {
+  const ts1 = toTypescript(z.object({ foo: z.string().default('foo') }))
+  assert.expectTypescript(ts1).toMatchWithoutFormatting(`
+    declare const x: {
+      foo: string
+    };
+`)
+
+  const ts2 = toTypescript(z.object({ foo: z.string().default('foo') }), { treatDefaultAsOptional: true })
+  assert.expectTypescript(ts2).toMatchWithoutFormatting(`
+    declare const x: {
+      foo?: string
+    };
+  `)
+
+  const ts3 = toTypescript(
+    z.object(
+      { foo: z.string().default('foo') },
+      {
+        toTypescriptTypeOptions: { treatDefaultAsOptional: true },
+      }
+    )
+  )
+  assert.expectTypescript(ts3).toMatchWithoutFormatting(`
+    declare const x: {
+      foo?: string
+    };
+  `)
+
+  const ts4 = toTypescript(
+    z.object({
+      foo: z.default(z.string(), 'foo', {
+        toTypescriptTypeOptions: { treatDefaultAsOptional: true },
+      }),
+    })
+  )
+
+  assert.expectTypescript(ts4).toMatchWithoutFormatting(`
+    declare const x: {
+      foo?: string
+    };
+  `)
+})
+
+it('should override higher level options with lower level ones', () => {
+  const ts1 = toTypescript(
+    z.object({
+      foo: z.default(z.string(), 'foo', { toTypescriptTypeOptions: { treatDefaultAsOptional: false } }),
+    }),
+    { treatDefaultAsOptional: true }
+  )
+  assert.expectTypescript(ts1).toMatchWithoutFormatting(`
+    declare const x: {
+      foo: string
+    };
+  `)
+
+  const ts2 = toTypescript(
+    z.object({
+      foo: z.default(z.string(), 'foo', { toTypescriptTypeOptions: { treatDefaultAsOptional: true } }),
+    }),
+    { treatDefaultAsOptional: false }
+  )
+  assert.expectTypescript(ts2).toMatchWithoutFormatting(`
+    declare const x: {
+      foo?: string
+    };
+  `)
 })

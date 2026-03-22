@@ -3,7 +3,13 @@ import * as z from '../../z'
 import { Options } from './Options'
 import { zodToJsonSchema } from './zodToJsonSchema'
 
-export type ZuiSchemaOptions = {
+/**
+ * @description Options for JSON schema generation.
+ *  - Options passed directly to the `toJSONSchema` function are global to the whole schema.
+ *  - When set at the schema creation, these options will apply to the current schema and all its children.
+ *  - In a schema tree, lower level options will override higher level ones.
+ */
+export type JSONSchemaLegacyGenerationOptions = {
   /**
    * The scope is the full path to the property defined in the JSON schema, the root node being represented by #
    * Objects doesn't have any scope, only  its child does
@@ -24,9 +30,8 @@ export type ZuiSchemaOptions = {
  */
 export const toJSONSchemaLegacy = (
   zuiType: z.ZodType,
-  options: ZuiSchemaOptions = { target: 'openApi3' }
+  opts: JSONSchemaLegacyGenerationOptions = { target: 'openApi3' }
 ): JSONSchema7 => {
-  const opts: ZuiSchemaOptions = { ...zuiType._def.toJSONSchemaOptions, ...options }
   const jsonSchema = zodToJsonSchema(zuiType, opts)
   if (opts.$schemaUrl === false) {
     delete jsonSchema.$schema
