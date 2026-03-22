@@ -391,16 +391,20 @@ const actionsBlock = sdk.z
     type: sdk.z.literal('actions'),
     elements: sdk.z
       .array(
-        sdk.z.discriminatedUnion('type', [
-          buttonSchema,
-          checkboxesSchema,
-          datePickerSchema,
-          dateTimePickerSchema,
-          overflowSchema,
-          radioButtonsSchema,
-          ...selectMenus.options,
-          timePickerSchema,
-        ])
+        sdk.z.discriminatedUnion(
+          'type',
+          [
+            buttonSchema,
+            checkboxesSchema,
+            datePickerSchema,
+            dateTimePickerSchema,
+            overflowSchema,
+            radioButtonsSchema,
+            ...selectMenus.options,
+            timePickerSchema,
+          ],
+          { toJSONSchemaOptions }
+        )
       )
       .max(5),
   })
