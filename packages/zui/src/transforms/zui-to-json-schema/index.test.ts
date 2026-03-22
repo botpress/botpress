@@ -211,7 +211,7 @@ describe('zuiToJSONSchemaNext', () => {
         z.object({ type: z.literal('A'), a: z.string() }),
         z.object({ type: z.literal('B'), b: z.number() }),
       ]),
-      { unionStrategy: 'anyOf', discriminator: false }
+      { discriminatedUnionStrategy: 'anyOf', discriminator: false }
     )
     expect(schema).toEqual({
       anyOf: [
