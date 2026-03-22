@@ -205,55 +205,59 @@ export default new IntegrationDefinition({
         bloc: {
           schema: z.object({
             items: z.array(
-              z.discriminatedUnion('type', [
-                z.object({
-                  type: z.literal('text'),
-                  payload: z.object({
-                    text: z.string(),
+              z.discriminatedUnion(
+                'type',
+                [
+                  z.object({
+                    type: z.literal('text'),
+                    payload: z.object({
+                      text: z.string(),
+                    }),
                   }),
-                }),
-                z.object({
-                  type: z.literal('markdown'), // TODO Remove for 5.0.0
-                  payload: z.object({
-                    markdown: z.string(),
+                  z.object({
+                    type: z.literal('markdown'), // TODO Remove for 5.0.0
+                    payload: z.object({
+                      markdown: z.string(),
+                    }),
                   }),
-                }),
-                z.object({
-                  type: z.literal('image'),
-                  payload: z.object({
-                    imageUrl: z.string(),
+                  z.object({
+                    type: z.literal('image'),
+                    payload: z.object({
+                      imageUrl: z.string(),
+                    }),
                   }),
-                }),
-                z.object({
-                  type: z.literal('audio'),
-                  payload: z.object({
-                    audioUrl: z.string(),
+                  z.object({
+                    type: z.literal('audio'),
+                    payload: z.object({
+                      audioUrl: z.string(),
+                    }),
                   }),
-                }),
-                z.object({
-                  type: z.literal('video'),
-                  payload: z.object({
-                    videoUrl: z.string(),
+                  z.object({
+                    type: z.literal('video'),
+                    payload: z.object({
+                      videoUrl: z.string(),
+                    }),
                   }),
-                }),
-                z.object({
-                  type: z.literal('file'),
-                  payload: z.object({
-                    fileUrl: z.string(),
-                    title: z.string().optional(),
-                    filename: z.string().optional(),
+                  z.object({
+                    type: z.literal('file'),
+                    payload: z.object({
+                      fileUrl: z.string(),
+                      title: z.string().optional(),
+                      filename: z.string().optional(),
+                    }),
                   }),
-                }),
-                z.object({
-                  type: z.literal('location'),
-                  payload: z.object({
-                    latitude: z.number(),
-                    longitude: z.number(),
-                    address: z.string().optional(),
-                    title: z.string().optional(),
+                  z.object({
+                    type: z.literal('location'),
+                    payload: z.object({
+                      latitude: z.number(),
+                      longitude: z.number(),
+                      address: z.string().optional(),
+                      title: z.string().optional(),
+                    }),
                   }),
-                }),
-              ], { toJSONSchemaOptions })
+                ],
+                { toJSONSchemaOptions }
+              )
             ),
           }),
         },
