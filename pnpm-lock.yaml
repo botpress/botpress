@@ -233,31 +233,22 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      qs:
-        specifier: ^6.11.0
-        version: 6.11.0
     devDependencies:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
-      '@botpresshub/logger':
+      '@botpresshub/chat':
         specifier: workspace:*
-        version: link:../../plugins/logger
+        version: link:../../integrations/chat
       '@botpresshub/telegram':
         specifier: workspace:*
         version: link:../../integrations/telegram
-      '@botpresshub/webhook':
-        specifier: workspace:*
-        version: link:../../integrations/webhook
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
       '@types/json-schema':
         specifier: ^7.0.12
         version: 7.0.12
-      '@types/qs':
-        specifier: ^6.9.7
-        version: 6.9.7
 
   bots/hit-looper:
     dependencies:
