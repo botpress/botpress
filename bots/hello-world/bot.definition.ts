@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import * as env from './.genenv'
-import telegram from './bp_modules/telegram'
 import chat from './bp_modules/chat'
+import telegram from './bp_modules/telegram'
 
 export default new sdk.BotDefinition({
   actions: {
