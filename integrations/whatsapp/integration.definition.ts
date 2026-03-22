@@ -10,8 +10,8 @@ import {
 } from './definitions/events'
 
 // TODO: use default options
-const toJSONSchemaOptions: z.transforms.JSONSchemaGenerationOptions = {
-  unionStrategy: 'anyOf',
+const toJSONSchemaOptions: Partial<z.transforms.JSONSchemaGenerationOptions> = {
+  discriminatedUnionStrategy: 'anyOf',
   discriminator: false,
 }
 

@@ -21,8 +21,8 @@ import {
 } from './src/schemas'
 
 // TODO: use default options
-const toJSONSchemaOptions: sdk.z.transforms.JSONSchemaGenerationOptions = {
-  unionStrategy: 'anyOf',
+const toJSONSchemaOptions: Partial<sdk.z.transforms.JSONSchemaGenerationOptions> = {
+  discriminatedUnionStrategy: 'anyOf',
   discriminator: false,
 }
 

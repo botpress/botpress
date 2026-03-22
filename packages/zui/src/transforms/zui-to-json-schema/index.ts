@@ -15,9 +15,14 @@ export type JSONSchemaUnionStrategy = 'oneOf' | 'anyOf'
  */
 export type JSONSchemaGenerationOptions = {
   /**
-   * @default 'anyOf' for unions, 'oneOf' for discriminated unions
+   * @default 'anyOf'
    */
   unionStrategy: JSONSchemaUnionStrategy
+
+  /**
+   * @default 'oneOf'
+   */
+  discriminatedUnionStrategy: JSONSchemaUnionStrategy
 
   /**
    * @default true
@@ -26,16 +31,19 @@ export type JSONSchemaGenerationOptions = {
   discriminator: boolean
 }
 
-const DEFAULT_UNION_STRATEGY = 'anyOf' satisfies JSONSchemaUnionStrategy
-const DEFAULT_DISCRIMINATED_UNION_STRATEGY = 'oneOf' satisfies JSONSchemaUnionStrategy
-const DEFAULT_DISCRIMINATOR_OPTION = true
+const DEFAULT_OPTIONS: JSONSchemaGenerationOptions = {
+  unionStrategy: 'anyOf',
+  discriminatedUnionStrategy: 'oneOf',
+  discriminator: true,
+}
 
 /**
  * Converts a Zui schema to a ZUI flavored JSON schema.
  * @param schema zui schema
  * @returns ZUI flavored JSON schema
  */
-export function toJSONSchema(schema: z.ZodType, opts: Partial<JSONSchemaGenerationOptions> = {}): json.Schema {
+export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGenerationOptions> = {}): json.Schema {
+  const opts = { ...DEFAULT_OPTIONS, ...options }
   const s = schema as z.ZodNativeType
 
   switch (s.typeName) {
@@ -114,8 +122,7 @@ export function toJSONSchema(schema: z.ZodType, opts: Partial<JSONSchemaGenerati
       } satisfies json.ObjectSchema
 
     case 'ZodUnion':
-      const unionStrategy = opts.unionStrategy ?? DEFAULT_UNION_STRATEGY
-      if (unionStrategy === 'oneOf') {
+      if (opts.unionStrategy === 'oneOf') {
         return {
           description: s.description,
           oneOf: s.options.map((option) => toJSONSchema(option, opts)),
@@ -129,10 +136,8 @@ export function toJSONSchema(schema: z.ZodType, opts: Partial<JSONSchemaGenerati
       } satisfies json.UnionSchema
 
     case 'ZodDiscriminatedUnion':
-      const discriminatedUnionStrategy = opts.unionStrategy ?? DEFAULT_DISCRIMINATED_UNION_STRATEGY
-      const discriminatorOption = opts.discriminator ?? DEFAULT_DISCRIMINATOR_OPTION
-      const discriminator = discriminatorOption ? { propertyName: s.discriminator } : undefined
-      if (discriminatedUnionStrategy === 'oneOf') {
+      const discriminator = opts.discriminator ? { propertyName: s.discriminator } : undefined
+      if (opts.discriminatedUnionStrategy === 'oneOf') {
         return {
           description: s.description,
           oneOf: s.options.map((option) => toJSONSchema(option, opts)),
