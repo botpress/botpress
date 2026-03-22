@@ -72,7 +72,6 @@ export function parseDef(
   refs: Refs,
   forceResolution = false // Forces a new schema to be instantiated even though its def has been seen. Used for improving refs in definitions. See https://github.com/StefanTerdell/zod-to-json-schema/pull/61.
 ): JsonSchema7Type | undefined {
-  refs = { ...refs, ...def.toJSONSchemaOptions }
   const seenItem = refs.seen.get(def)
 
   if (seenItem && !forceResolution) {

@@ -362,19 +362,14 @@ export type RefinementCtx = {
 
 //* ─────────────────────────── Base Type ───────────────────────────────────
 
-export type TransformsConfig = {
-  toJSONSchemaOptions: Partial<transforms.JSONSchemaGenerationOptions>
-  toTypescriptTypeOptions: Partial<transforms.TypescriptGenerationOptions>
-}
-
 export type ZodCreateParams =
-  | ({
+  | {
       errorMap?: ZodErrorMap
       invalid_type_error?: string
       required_error?: string
       description?: string
       ['x-zui']?: ZuiExtensionObject
-    } & Partial<TransformsConfig>)
+    }
   | undefined
 
 export type TypeOf<T extends IZodType> = T['_output']
@@ -391,7 +386,7 @@ export type ZodTypeDef = {
   errorMap?: ZodErrorMap
   description?: string
   ['x-zui']?: ZuiExtensionObject
-} & Partial<TransformsConfig>
+}
 
 export type ZodTypeAny = IZodType<any, any, any>
 

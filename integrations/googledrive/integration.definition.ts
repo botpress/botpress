@@ -20,6 +20,12 @@ import {
   fileChannelSchema,
 } from './src/schemas'
 
+// TODO: use default options
+const toJSONSchemaOptions: sdk.z.transforms.JSONSchemaGenerationOptions = {
+  unionStrategy: 'anyOf',
+  discriminator: false,
+}
+
 export default new sdk.IntegrationDefinition({
   name: 'googledrive',
   title: 'Google Drive',
@@ -200,6 +206,7 @@ export default new sdk.IntegrationDefinition({
       description: 'The API key used to access the Google Picker API',
     },
   },
+  __advanced: { toJSONSchemaOptions },
 }).extend(filesReadonly, ({}) => ({
   entities: {},
   actions: {

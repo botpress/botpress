@@ -32,21 +32,17 @@ export default new sdk.BotDefinition({
       type: 'workflow',
       schema: sdk.z.object({
         issues: sdk.z.array(
-          sdk.z.discriminatedUnion(
-            'result',
-            [
-              sdk.z.object({
-                identifier: sdk.z.string().title('Identifier').describe('The issue identifier'),
-                result: sdk.z.literal('failed').title('Result').describe('The lint result'),
-                messages: sdk.z.array(sdk.z.string()).title('Messages').describe('The lint error messages'),
-              }),
-              sdk.z.object({
-                identifier: sdk.z.string().title('Identifier').describe('The issue identifier'),
-                result: sdk.z.enum(['succeeded', 'ignored']).title('Result').describe('The lint result'),
-              }),
-            ],
-            { toJSONSchemaOptions }
-          )
+          sdk.z.discriminatedUnion('result', [
+            sdk.z.object({
+              identifier: sdk.z.string().title('Identifier').describe('The issue identifier'),
+              result: sdk.z.literal('failed').title('Result').describe('The lint result'),
+              messages: sdk.z.array(sdk.z.string()).title('Messages').describe('The lint error messages'),
+            }),
+            sdk.z.object({
+              identifier: sdk.z.string().title('Identifier').describe('The issue identifier'),
+              result: sdk.z.enum(['succeeded', 'ignored']).title('Result').describe('The lint result'),
+            }),
+          ])
         ),
       }),
     },
@@ -98,6 +94,9 @@ export default new sdk.BotDefinition({
         cron: '0 * * * *', // runs every hour on the hour
       },
     },
+  },
+  __advanced: {
+    toJSONSchemaOptions,
   },
 })
   .addIntegration(github, {
