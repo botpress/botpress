@@ -26,7 +26,6 @@ const appendSecretDefinition = (originalTsContent: string, secrets: SecretDef): 
     'new BotDefinition({})',
     `new BotDefinition({\n  secrets: {\n${secretEntries}\n  },\n})`
   )
-
 }
 
 export const requiredBotSecrets: Test = {
