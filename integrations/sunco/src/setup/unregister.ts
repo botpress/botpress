@@ -1,4 +1,4 @@
-import { deleteApp } from 'src/api/webhooks'
+import { getSuncoClient } from 'src/client'
 import { getStoredCredentials } from 'src/get-stored-credentials'
 import * as bp from '.botpress'
 
@@ -12,5 +12,18 @@ export const unregister: bp.IntegrationProps['unregister'] = async (props) => {
     return
   }
 
-  await deleteApp({ credentials, logger })
+  const {
+    state: { payload: webhook },
+  } = await client.getState({
+    name: 'webhook',
+    type: 'integration',
+    id: ctx.integrationId,
+  })
+
+  if (webhook?.id) {
+    await getSuncoClient(credentials).deleteWebhook(webhook.id)
+    logger.forBot().info('Webhook removed successfully')
+  } else {
+    logger.forBot().info('No stored webhook ID found, nothing to remove')
+  }
 }

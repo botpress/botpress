@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
-import axios from 'axios'
-import { Action, CarouselItem, createClient, MessageContent, PostMessageRequest } from './api/sunshine-api'
+import { Action, CarouselItem, MessageContent, PostMessageRequest } from './api/sunshine-api'
+import { getSuncoClient } from './client'
 import { getStoredCredentials } from './get-stored-credentials'
 import { Carousel, Choice, Conversation, StoredCredentials } from './types'
 import { getSuncoConversationId } from './util'
@@ -102,63 +102,12 @@ async function getMediaUrl(
   try {
     const hostname = new URL(sourceUrl).hostname
     if (hostname.endsWith('zendesk.com')) {
-      return downloadAndUploadAttachment(sourceUrl, getSuncoConversationId(conversation), credentials)
+      return getSuncoClient(credentials).downloadAndUploadAttachment(sourceUrl, getSuncoConversationId(conversation))
     }
   } catch {
     // Invalid URL or error, return as-is
   }
   return sourceUrl
-}
-
-/**
- * Downloads a file from a URL and uploads it to Zendesk's Attachments API.
- * Returns the Zendesk media URL to use in messages.
- */
-async function downloadAndUploadAttachment(
-  sourceUrl: string,
-  conversationId: string,
-  credentials: StoredCredentials
-): Promise<string> {
-  // Download the file from the source URL
-  const response = await axios.get(sourceUrl, {
-    responseType: 'arraybuffer',
-  })
-
-  const contentType = response.headers['content-type'] || 'application/octet-stream'
-  const fileBuffer = Buffer.from(response.data)
-
-  // Extract filename from URL or use a default
-  const urlPath = new URL(sourceUrl).pathname
-  const filename = urlPath.split('/').pop() || 'file'
-
-  const formData = new FormData()
-  const blob = new Blob([fileBuffer], { type: contentType })
-  formData.append('source', blob, filename)
-
-  // Upload via axios instead of the SDK because the sunshine-conversations-client SDK
-  // uses superagent internally, which doesn't properly handle Node.js File/Blob objects.
-  // Superagent expects stream-like objects with .on() method, but Node.js 18+ File/Blob
-  // don't implement stream interfaces. Using axios with native FormData works correctly.
-  const authorization =
-    credentials.configType === 'manual'
-      ? { auth: { username: credentials.keyId, password: credentials.keySecret } }
-      : { headers: { Authorization: `Bearer ${credentials.token}` } }
-
-  const uploadResponse = await axios.post(`https://api.smooch.io/v2/apps/${credentials.appId}/attachments`, formData, {
-    params: {
-      access: 'public',
-      for: 'message',
-      conversationId,
-    },
-    ...authorization,
-  })
-
-  const mediaUrl = uploadResponse.data?.attachment?.mediaUrl
-  if (!mediaUrl) {
-    throw new RuntimeError('Failed to upload attachment to Zendesk: no mediaUrl returned')
-  }
-
-  return mediaUrl
 }
 
 function renderChoiceMessage(payload: Choice): MessageContent {
@@ -176,14 +125,12 @@ async function sendMessage(
   payload: MessageContent,
   credentials: StoredCredentials
 ) {
-  const client = createClient(credentials)
-
   const data: PostMessageRequest = {
     author: { type: 'business' },
     content: payload,
   }
 
-  const { messages } = await client.messages.postMessage(credentials.appId, getSuncoConversationId(conversation), data)
+  const { messages } = await getSuncoClient(credentials).postMessage(getSuncoConversationId(conversation), data)
 
   const message = messages?.[0]
 
