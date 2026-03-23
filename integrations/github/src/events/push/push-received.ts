@@ -39,13 +39,29 @@ export const firePushReceived = async ({
     return
   }
 
-  for (const batch of _getBatches({ created, updated, deleted })) {
-    await client.createEvent({
-      type: 'aggregateFileChanges',
-      payload: {
-        modifiedItems: batch,
-      },
-    })
+  await _emitFileChangeEvents({ client, logger, changes: { created, updated, deleted } })
+}
+
+const _emitFileChangeEvents = async ({
+  client,
+  logger,
+  changes,
+}: {
+  client: bp.Client
+  logger: bp.Logger
+  changes: FileChanges
+}) => {
+  try {
+    for (const batch of _getBatches(changes)) {
+      await client.createEvent({
+        type: 'aggregateFileChanges',
+        payload: {
+          modifiedItems: batch,
+        },
+      })
+    }
+  } catch (err: unknown) {
+    logger.forBot().error('Failed to emit file-change events; swallowing to prevent webhook retries', err as Error)
   }
 }
 
