@@ -30,7 +30,7 @@ export const decodeRepoFolderId = (folderId: string): { owner: string; repo: str
     return null
   }
   const parts = folderId.slice(REPO_PREFIX.length).split('/')
-  if (parts.length < 2 || !parts[0] || !parts[1]) {
+  if (parts.length !== 2 || !parts[0] || !parts[1]) {
     return null
   }
   return { owner: parts[0], repo: parts[1] }
@@ -95,11 +95,7 @@ export const mapContentItemToItem = (
   }
 }
 
-export const mapPushFileToFile = (
-  owner: string,
-  repo: string,
-  filePath: string
-): FilesReadonlyFile => {
+export const mapPushFileToFile = (owner: string, repo: string, filePath: string): FilesReadonlyFile => {
   const name = filePath.split(PATH_SEPARATOR).pop() ?? filePath
   return {
     id: encodeContentId(owner, repo, filePath),
@@ -109,11 +105,7 @@ export const mapPushFileToFile = (
   }
 }
 
-export const mapPushFolderToFolder = (
-  owner: string,
-  repo: string,
-  folderPath: string
-): FilesReadonlyFolder => {
+export const mapPushFolderToFolder = (owner: string, repo: string, folderPath: string): FilesReadonlyFolder => {
   const name = folderPath.split(PATH_SEPARATOR).pop() ?? folderPath
   return {
     id: encodeContentId(owner, repo, folderPath),
