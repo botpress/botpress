@@ -42,14 +42,27 @@ const _listRepos = async ({
 
   const page = prevToken ? parseInt(prevToken, 10) : 1
 
-  const response = await octokit.rest.repos.listForOrg({
-    org: owner,
-    per_page: REPOS_PAGE_SIZE,
-    page,
-    type: 'all',
-  })
+  let repos: mapping.GitHubRepo[]
+  try {
+    const response = await octokit.rest.repos.listForOrg({
+      org: owner,
+      per_page: REPOS_PAGE_SIZE,
+      page,
+      type: 'all',
+    })
+    repos = response.data as mapping.GitHubRepo[]
+  } catch (err: unknown) {
+    if (err && typeof err === 'object' && 'status' in err && err.status === 404) {
+      const response = await octokit.rest.repos.listForAuthenticatedUser({
+        per_page: REPOS_PAGE_SIZE,
+        page,
+      })
+      repos = response.data as mapping.GitHubRepo[]
+    } else {
+      throw err
+    }
+  }
 
-  const repos = response.data as mapping.GitHubRepo[]
   const items = repos.map(mapping.mapRepoToFolder)
 
   const hasMore = repos.length === REPOS_PAGE_SIZE

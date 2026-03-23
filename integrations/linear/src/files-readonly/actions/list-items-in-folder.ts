@@ -40,9 +40,7 @@ const _listTeams = async (linearClient: any, prevToken?: string) => {
   const teams = await linearClient.teams({ after: prevToken, first: PAGE_SIZE })
   const nodes = teams.nodes ?? []
 
-  const items = nodes.map((team: any) =>
-    mapping.mapTeamToFolder({ id: team.id, name: team.name, key: team.key })
-  )
+  const items = nodes.map((team: any) => mapping.mapTeamToFolder({ id: team.id, name: team.name, key: team.key }))
 
   return {
     items,

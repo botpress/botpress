@@ -156,7 +156,7 @@ const _emitFileChangeEvent = async (
       teamKey: linearEvent.data.team?.key,
     })
 
-    const emptyFiles: typeof file[] = []
+    const emptyFiles: (typeof file)[] = []
 
     await client.createEvent({
       type: 'aggregateFileChanges',

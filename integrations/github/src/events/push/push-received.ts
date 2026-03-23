@@ -20,29 +20,52 @@ export const firePushReceived = async ({
       return
     }
 
+    const fileStates = new Map<string, 'created' | 'updated' | 'deleted'>()
+
+    for (const commit of githubEvent.commits) {
+      for (const filePath of commit.added ?? []) {
+        const prev = fileStates.get(filePath)
+        fileStates.set(filePath, prev === 'deleted' ? 'updated' : 'created')
+      }
+      for (const filePath of commit.modified ?? []) {
+        const prev = fileStates.get(filePath)
+        if (prev !== 'created') {
+          fileStates.set(filePath, 'updated')
+        }
+      }
+      for (const filePath of commit.removed ?? []) {
+        const prev = fileStates.get(filePath)
+        if (prev === 'created') {
+          fileStates.delete(filePath)
+        } else {
+          fileStates.set(filePath, 'deleted')
+        }
+      }
+    }
+
+    if (fileStates.size === 0) {
+      return
+    }
+
     const created: bp.events.Events['aggregateFileChanges']['modifiedItems']['created'] = []
     const updated: bp.events.Events['aggregateFileChanges']['modifiedItems']['updated'] = []
     const deleted: bp.events.Events['aggregateFileChanges']['modifiedItems']['deleted'] = []
 
-    for (const commit of githubEvent.commits) {
-      for (const filePath of commit.added ?? []) {
-        created.push(mapping.mapPushFileToFile(owner, repoName, filePath))
+    for (const [filePath, state] of fileStates) {
+      const file = mapping.mapPushFileToFile(owner, repoName, filePath)
+      if (state === 'created') {
+        created.push(file)
+      } else if (state === 'updated') {
+        updated.push(file)
+      } else {
+        deleted.push(file)
       }
-      for (const filePath of commit.modified ?? []) {
-        updated.push(mapping.mapPushFileToFile(owner, repoName, filePath))
-      }
-      for (const filePath of commit.removed ?? []) {
-        deleted.push(mapping.mapPushFileToFile(owner, repoName, filePath))
-      }
-    }
-
-    if (created.length === 0 && updated.length === 0 && deleted.length === 0) {
-      return
     }
 
     await _emitFileChangeEvents({ client, logger, changes: { created, updated, deleted } })
   } catch (err: unknown) {
-    logger.forBot().error('Failed to process push event; swallowing to prevent webhook retries', err as Error)
+    const error = err instanceof Error ? err : new Error(String(err))
+    logger.forBot().error('Failed to process push event; swallowing to prevent webhook retries', error)
   }
 }
 
@@ -65,7 +88,8 @@ const _emitFileChangeEvents = async ({
       })
     }
   } catch (err: unknown) {
-    logger.forBot().error('Failed to emit file-change events; swallowing to prevent webhook retries', err as Error)
+    const error = err instanceof Error ? err : new Error(String(err))
+    logger.forBot().error('Failed to emit file-change events; swallowing to prevent webhook retries', error)
   }
 }
 

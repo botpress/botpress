@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  encodeRepoFolderId,
-  decodeRepoFolderId,
-  encodeContentId,
-  decodeContentId,
-} from './mapping'
+import { encodeRepoFolderId, decodeRepoFolderId, encodeContentId, decodeContentId } from './mapping'
 
 describe.concurrent('encodeRepoFolderId / decodeRepoFolderId', () => {
   it('should round-trip a simple owner/repo', () => {
