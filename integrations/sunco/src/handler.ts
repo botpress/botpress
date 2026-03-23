@@ -4,7 +4,7 @@ import { RuntimeError } from '@botpress/sdk'
 import { getCredentials } from './api/get-credentials'
 import { executeConversationCreated, handleConversationMessage } from './events'
 import { getWebhookSecret } from './get-stored-credentials'
-import { isSuncoWebhookPayload, isWebhookSignatureValid } from './messaging-events'
+import { getConversation, isSuncoWebhookPayload, isWebhookSignatureValid } from './messaging-events'
 import * as wizard from './wizard'
 import * as bp from '.botpress'
 
@@ -33,6 +33,13 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
   }
 
   for (const event of data.events) {
+    const conversation = getConversation(event)
+    const ownerWebhookId = conversation?.metadata?.botpressIntegrationOwner
+    if (ownerWebhookId && ownerWebhookId !== ctx.webhookId) {
+      logger.forBot().debug(`Ignoring Sunco conversation ${conversation?.id}: owned by ${ownerWebhookId}`)
+      continue
+    }
+
     if (event.type === 'conversation:create') {
       await executeConversationCreated({ event, client, logger })
     } else if (event.type === 'conversation:message') {

@@ -52,6 +52,7 @@ export type ConversationCreateEvent = {
         integrationId: string
         integrationType: string
       }
+      metadata?: Record<string, string>
     }
     user?: {
       id: string
@@ -160,6 +161,7 @@ export type ConversationMessageEvent = {
         integrationId: string
         integrationType: string
       }
+      metadata?: Record<string, string>
     }
     message: {
       id: string
@@ -200,4 +202,12 @@ export function isWebhookSignatureValid(
     return false
   }
   return true
+}
+
+export function getConversation(event: SuncoEvent) {
+  if ('payload' in event && event.payload.conversation) {
+    return event.payload.conversation
+  }
+
+  return undefined
 }
