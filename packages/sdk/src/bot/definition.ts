@@ -1,4 +1,5 @@
 import { Table } from '@botpress/client'
+import { SchemaTransformOptions } from '../common/types'
 import * as consts from '../consts'
 import { IntegrationPackage, PluginPackage } from '../package'
 import { PluginInterfaceExtension, PluginIntegrationExtension } from '../plugin'
@@ -196,9 +197,7 @@ export type BotDefinitionProps<
 
   attributes?: Record<string, string>
 
-  __advanced?: {
-    useLegacyZuiTransformer?: boolean
-  }
+  __advanced?: SchemaTransformOptions
 }
 
 export class BotDefinition<

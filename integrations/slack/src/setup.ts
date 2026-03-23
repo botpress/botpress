@@ -8,6 +8,7 @@ export const REQUIRED_SLACK_SCOPES = [
   'channels:manage',
   'channels:read',
   'chat:write',
+  'files:read',
   'groups:history',
   'groups:read',
   'groups:write',

@@ -74,7 +74,7 @@
     "@botpress/client": "1.38.0",
     "@botpress/cognitive": "0.4.1",
     "@bpinternal/thicktoken": "^2.0.0",
-    "@bpinternal/zui": "^2.0.0"
+    "@bpinternal/zui": "^2.1.0"
   },
   "dependenciesMeta": {
     "@bpinternal/zui": {
