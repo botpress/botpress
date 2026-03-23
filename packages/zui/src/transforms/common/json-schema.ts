@@ -66,8 +66,12 @@ type _NullSchema = utils.Satisfies<{ type: 'null' }, JSONSchema7>
 type _UndefinedSchema = utils.Satisfies<{ not: true }, JSONSchema7>
 type _NeverSchema = utils.Satisfies<{ not: true }, JSONSchema7>
 type _ArraySchema = utils.Satisfies<{ type: 'array'; items: Schema; minItems?: number; maxItems?: number }, JSONSchema7>
-type _UnionSchema = utils.Satisfies<{ anyOf: Schema[] }, JSONSchema7>
-type _DiscriminatedUnionSchema = utils.Satisfies<{ anyOf: Schema[] }, JSONSchema7>
+type _UnionSchema = utils.Satisfies<{ anyOf: Schema[] } | { oneOf: Schema[] }, JSONSchema7>
+type _DiscriminatedUnionSchema = utils.Satisfies<
+  //
+  { anyOf: Schema[] } | { oneOf: Schema[]; discriminator?: { propertyName: string } },
+  JSONSchema7
+>
 type _IntersectionSchema = utils.Satisfies<{ allOf: Schema[] }, JSONSchema7>
 type _SetSchema = utils.Satisfies<
   { type: 'array'; items: Schema; uniqueItems: true; minItems?: number; maxItems?: number },

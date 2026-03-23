@@ -479,11 +479,11 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return this.metadata({ placeholder })
   }
 
-  toJSONSchema(): transforms.json.Schema {
+  toJSONSchema(_opts?: Partial<transforms.JSONSchemaGenerationOptions>): transforms.json.Schema {
     throw new _CircularDependencyError('toJSONSchema')
   }
 
-  toTypescriptType(_opts?: transforms.TypescriptGenerationOptions): string {
+  toTypescriptType(_opts?: Partial<transforms.TypescriptGenerationOptions>): string {
     throw new _CircularDependencyError('toTypescriptType')
   }
 

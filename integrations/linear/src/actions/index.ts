@@ -1,3 +1,4 @@
+import { filesReadonlyListItemsInFolder, filesReadonlyTransferFileToBotpress } from '../files-readonly/actions'
 import { createIssue } from './create-issue'
 import { deleteIssue } from './delete-issue'
 import { findTarget } from './find-target'
@@ -14,7 +15,6 @@ import { getOrCreateIssueConversation } from './proactive-conversation'
 import { resolveComment } from './resolve-comment'
 import { sendRawGraphqlQuery } from './send-raw-graphql-query'
 import { updateIssue } from './update-issue'
-import { filesReadonlyListItemsInFolder, filesReadonlyTransferFileToBotpress } from '../files-readonly/actions'
 import * as bp from '.botpress'
 
 export default {

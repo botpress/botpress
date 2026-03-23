@@ -1,4 +1,5 @@
 import { Table } from '@botpress/client'
+import { SchemaTransformOptions } from '../common/types'
 import * as consts from '../consts'
 import { IntegrationPackage, PluginPackage } from '../package'
 import { PluginInterfaceExtension, PluginIntegrationExtension } from '../plugin'
@@ -51,6 +52,11 @@ export type ConversationDefinition = {
 
 export type MessageDefinition = {
   tags?: Record<string, TagDefinition>
+}
+
+export type SecretDefinition = {
+  optional?: boolean
+  description?: string
 }
 
 export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[string]> = {
@@ -179,6 +185,8 @@ export type BotDefinitionProps<
     [K in keyof TTables]: TableDefinition<TTables[K]>
   }
 
+  secrets?: Record<string, SecretDefinition>
+
   /**
    * # EXPERIMENTAL
    * This API is experimental and may change in the future.
@@ -189,9 +197,7 @@ export type BotDefinitionProps<
 
   attributes?: Record<string, string>
 
-  __advanced?: {
-    useLegacyZuiTransformer?: boolean
-  }
+  __advanced?: SchemaTransformOptions
 }
 
 export class BotDefinition<
@@ -212,6 +218,7 @@ export class BotDefinition<
   public readonly recurringEvents: this['props']['recurringEvents']
   public readonly actions: this['props']['actions']
   public readonly tables: this['props']['tables']
+  public readonly secrets: this['props']['secrets']
   public readonly workflows: this['props']['workflows']
   public readonly attributes: this['props']['attributes']
   public readonly __advanced: this['props']['__advanced']
@@ -234,6 +241,7 @@ export class BotDefinition<
     this.recurringEvents = props.recurringEvents
     this.actions = props.actions
     this.tables = props.tables
+    this.secrets = props.secrets
     this.workflows = props.workflows
     this.attributes = props.attributes
     this.__advanced = props.__advanced

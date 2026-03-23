@@ -1,3 +1,4 @@
+import * as utils from '../utils'
 import { zuiKey } from './consts'
 import { setBuilders } from './internal-builders'
 import {
@@ -60,13 +61,10 @@ import type {
   DirtyEffectReturnType,
   EffectContext,
   CustomParams,
+  ZodTypeDef,
 } from './typings'
 
-type _ProcessedCreateParams = {
-  errorMap?: ZodErrorMap
-  description?: string
-  [zuiKey]?: ZuiExtensionObject
-}
+type _ProcessedCreateParams = utils.types.SafeOmit<ZodTypeDef, 'typeName'>
 
 const _processCreateParams = (
   params: ZodCreateParams & ({ supportsExtensions?: 'secret'[] } | undefined)

@@ -10,11 +10,11 @@ import { ZodBaseTypeImpl } from './z/types'
  * The Zod types can import this module to get the method implementations without importing the transforms directly.
  */
 
-ZodBaseTypeImpl.prototype.toJSONSchema = function () {
-  return transforms.toJSONSchema(this)
+ZodBaseTypeImpl.prototype.toJSONSchema = function (opts = {}) {
+  return transforms.toJSONSchema(this, opts)
 }
 
-ZodBaseTypeImpl.prototype.toTypescriptType = function (opts) {
+ZodBaseTypeImpl.prototype.toTypescriptType = function (opts = {}) {
   return transforms.toTypescriptType(this, opts)
 }
 
