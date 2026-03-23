@@ -70,8 +70,8 @@
       "source-map-js@1.2.1": "patches/source-map-js@1.2.1.patch"
     },
     "overrides": {
-      "axios": ">=1.14.0",
-      "valibot": ">=1.2.0"
+      "axios": "^1.14.0",
+      "valibot": "^1.2.0"
     }
   }
 }
