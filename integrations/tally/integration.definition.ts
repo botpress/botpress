@@ -1,6 +1,12 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import schemas from './definitions/schemas'
 
+// TODO: use default options
+const toJSONSchemaOptions: Partial<z.transforms.JSONSchemaGenerationOptions> = {
+  discriminatedUnionStrategy: 'anyOf',
+  discriminator: false,
+}
+
 export default new IntegrationDefinition({
   name: 'tally',
   title: 'Tally',
@@ -45,4 +51,5 @@ export default new IntegrationDefinition({
       },
     },
   },
+  __advanced: { toJSONSchemaOptions },
 })

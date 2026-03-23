@@ -162,19 +162,56 @@ describe('zuiToJSONSchemaNext', () => {
     })
   })
 
-  test('should map ZodUnion to UnionSchema', () => {
+  test('should map ZodUnion to anyOf', () => {
     const schema = toJSONSchema(z.union([z.string(), z.number()]))
     expect(schema).toEqual({
       anyOf: [{ type: 'string' }, { type: 'number' }],
     })
   })
 
-  test('should map ZodDiscriminatedUnion to UnionSchema', () => {
+  test('should map ZodUnion to oneOf when oneOf union strategy', () => {
+    const schema = toJSONSchema(z.union([z.string(), z.number()]), { unionStrategy: 'oneOf' })
+    expect(schema).toEqual({
+      oneOf: [{ type: 'string' }, { type: 'number' }],
+    })
+  })
+
+  test('should map ZodDiscriminatedUnion to oneOf', () => {
     const schema = toJSONSchema(
       z.discriminatedUnion('type', [
         z.object({ type: z.literal('A'), a: z.string() }),
         z.object({ type: z.literal('B'), b: z.number() }),
       ])
+    )
+    expect(schema).toEqual({
+      oneOf: [
+        {
+          type: 'object',
+          properties: { type: { type: 'string', const: 'A' }, a: { type: 'string' } },
+          required: ['type', 'a'],
+          additionalProperties: false,
+        },
+        {
+          type: 'object',
+          properties: { type: { type: 'string', const: 'B' }, b: { type: 'number' } },
+          required: ['type', 'b'],
+          additionalProperties: false,
+        },
+      ],
+      discriminator: { propertyName: 'type' },
+      'x-zui': {
+        def: { typeName: 'ZodDiscriminatedUnion', discriminator: 'type' },
+      },
+    })
+  })
+
+  test('should map ZodDiscriminatedUnion to anyOf when anyOf union strategy', () => {
+    const schema = toJSONSchema(
+      z.discriminatedUnion('type', [
+        z.object({ type: z.literal('A'), a: z.string() }),
+        z.object({ type: z.literal('B'), b: z.number() }),
+      ]),
+      { discriminatedUnionStrategy: 'anyOf', discriminator: false }
     )
     expect(schema).toEqual({
       anyOf: [

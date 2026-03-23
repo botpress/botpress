@@ -68,6 +68,10 @@ type DeclarationProps =
     }
 
 export type TypescriptDeclarationType = DeclarationProps['type']
+
+/**
+ * @description Options for Typescript type generation.
+ */
 export type TypescriptGenerationOptions = {
   formatter?: (typing: string) => string
   declaration?: boolean | TypescriptDeclarationType
