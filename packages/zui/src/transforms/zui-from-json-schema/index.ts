@@ -181,6 +181,14 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
   }
 
   if (schema.oneOf !== undefined) {
+    if (schema.oneOf.length === 0) {
+      return DEFAULT_TYPE
+    }
+
+    if (schema.oneOf.length === 1) {
+      return _fromJSONSchema(schema.oneOf[0])
+    }
+
     if (guards.isExclusiveDiscriminatedUnionSchema(schema)) {
       const discriminator = schema.discriminator?.propertyName || schema['x-zui']?.def?.discriminator
       if (discriminator) {

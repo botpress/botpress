@@ -26,7 +26,12 @@ export type JSONSchemaGenerationOptions = {
 
   /**
    * @default true
-   * @description Whether to include the discriminator property in the generated JSON schema for discriminated unions. This property is not part of the JSON schema specification but is used by some tools to optimize validation and code generation for discriminated unions. If set to false, the discriminator property will be omitted from the generated JSON schema.
+   * @description
+   *  Whether to include the discriminator property in the generated JSON schema for discriminated unions.
+   *  This property is not part of the JSON schema specification but is used by some tools to optimize validation and code generation for discriminated unions.
+   *  If set to false, the discriminator property will be omitted from the generated JSON schema.
+   *  Only affects the generated JSON schema when `discriminatedUnionStrategy` is set to 'oneOf'.
+   *  For more details, see: https://ajv.js.org/guide/modifying-data.html#removing-additional-properties
    */
   discriminator: boolean
 }
@@ -136,8 +141,8 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
       } satisfies json.UnionSchema
 
     case 'ZodDiscriminatedUnion':
-      const discriminator = opts.discriminator ? { propertyName: s.discriminator } : undefined
       if (opts.discriminatedUnionStrategy === 'oneOf') {
+        const discriminator = opts.discriminator ? { propertyName: s.discriminator } : undefined
         return {
           description: s.description,
           oneOf: s.options.map((option) => toJSONSchema(option, opts)),
@@ -151,7 +156,6 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
       return {
         description: s.description,
         anyOf: s.options.map((option) => toJSONSchema(option, opts)),
-        discriminator,
         'x-zui': {
           ...s._def['x-zui'],
           def: { typeName: 'ZodDiscriminatedUnion', discriminator: s.discriminator },
