@@ -11,21 +11,29 @@ export const filesReadonlyListItemsInFolder: bp.IntegrationProps['actions']['fil
   ctx,
 }) => {
   const { folderId, nextToken: prevToken } = input
-  const linearClient = await getLinearClient({ client, ctx })
 
-  if (!folderId) {
-    return await _listTeams(linearClient, prevToken)
+  try {
+    const linearClient = await getLinearClient({ client, ctx })
+
+    if (!folderId) {
+      return await _listTeams(linearClient, prevToken)
+    }
+
+    if (folderId.startsWith(mapping.PREFIXES.TEAM)) {
+      return await _listTeamIssues(linearClient, folderId, prevToken)
+    }
+
+    if (folderId.startsWith(mapping.PREFIXES.PROJECT)) {
+      return await _listProjectIssues(linearClient, folderId, prevToken)
+    }
+
+    throw new sdk.RuntimeError(`Invalid folderId: ${folderId}`)
+  } catch (err: unknown) {
+    if (err instanceof sdk.RuntimeError) {
+      throw err
+    }
+    throw new sdk.RuntimeError(`Failed to list items in folder: ${err instanceof Error ? err.message : String(err)}`)
   }
-
-  if (folderId.startsWith(mapping.PREFIXES.TEAM)) {
-    return await _listTeamIssues(linearClient, folderId, prevToken)
-  }
-
-  if (folderId.startsWith(mapping.PREFIXES.PROJECT)) {
-    return await _listProjectIssues(linearClient, folderId, prevToken)
-  }
-
-  throw new sdk.RuntimeError(`Invalid folderId: ${folderId}`)
 }
 
 const _listTeams = async (linearClient: any, prevToken?: string) => {

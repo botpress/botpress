@@ -11,23 +11,32 @@ export const filesReadonlyTransferFileToBotpress: bp.IntegrationProps['actions']
       throw new sdk.RuntimeError(`Invalid file ID: ${file.id}. Only issues can be transferred.`)
     }
 
-    const issueId = file.id.slice(mapping.PREFIXES.ISSUE.length)
-    const linearClient = await getLinearClient({ client, ctx })
-    const issue = await linearClient.issue(issueId)
+    try {
+      const issueId = file.id.slice(mapping.PREFIXES.ISSUE.length)
+      const linearClient = await getLinearClient({ client, ctx })
+      const issue = await linearClient.issue(issueId)
 
-    if (!issue) {
-      throw new sdk.RuntimeError(`Issue not found: ${issueId}`)
+      if (!issue) {
+        throw new sdk.RuntimeError(`Issue not found: ${issueId}`)
+      }
+
+      const markdown = _buildIssueMarkdown(issue)
+
+      const { file: uploadedFile } = await client.uploadFile({
+        key: fileKey,
+        content: markdown,
+        index: shouldIndex,
+      })
+
+      return { botpressFileId: uploadedFile.id }
+    } catch (err: unknown) {
+      if (err instanceof sdk.RuntimeError) {
+        throw err
+      }
+      throw new sdk.RuntimeError(
+        `Failed to transfer file to Botpress: ${err instanceof Error ? err.message : String(err)}`
+      )
     }
-
-    const markdown = _buildIssueMarkdown(issue)
-
-    const { file: uploadedFile } = await client.uploadFile({
-      key: fileKey,
-      content: markdown,
-      index: shouldIndex,
-    })
-
-    return { botpressFileId: uploadedFile.id }
   }
 
 const _buildIssueMarkdown = (issue: any): string => {

@@ -45,19 +45,19 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
   // ============ EVENTS ==============
   if (linearEvent.type === 'issue' && (linearEvent.action === 'create' || linearEvent.action === 'restore')) {
     await fireIssueCreated({ linearEvent, client, ctx })
-    await _emitFileChangeEvent(client, linearEvent, 'created')
+    await _emitFileChangeEvent(client, logger, linearEvent, 'created')
     return
   }
 
   if (linearEvent.type === 'issue' && linearEvent.action === 'update') {
     await fireIssueUpdated({ linearEvent, client, ctx })
-    await _emitFileChangeEvent(client, linearEvent, 'updated')
+    await _emitFileChangeEvent(client, logger, linearEvent, 'updated')
     return
   }
 
   if (linearEvent.type === 'issue' && linearEvent.action === 'remove') {
     await fireIssueDeleted({ linearEvent, client, ctx })
-    await _emitFileChangeEvent(client, linearEvent, 'deleted')
+    await _emitFileChangeEvent(client, logger, linearEvent, 'deleted')
     return
   }
 
@@ -142,28 +142,33 @@ const _getLinearBotId = async ({ client, ctx }: { client: bp.Client; ctx: bp.Con
 
 const _emitFileChangeEvent = async (
   client: bp.Client,
+  logger: bp.Logger,
   linearEvent: LinearIssueEvent,
   changeType: 'created' | 'updated' | 'deleted'
 ) => {
-  const file = mapping.mapIssueToFile({
-    id: linearEvent.data.id,
-    identifier: `${linearEvent.data.team?.key ?? 'UNK'}-${linearEvent.data.number}`,
-    title: linearEvent.data.title,
-    description: linearEvent.data.description,
-    updatedAt: linearEvent.data.updatedAt ?? new Date().toISOString(),
-    teamKey: linearEvent.data.team?.key,
-  })
+  try {
+    const file = mapping.mapIssueToFile({
+      id: linearEvent.data.id,
+      identifier: `${linearEvent.data.team?.key ?? 'UNK'}-${linearEvent.data.number}`,
+      title: linearEvent.data.title,
+      description: linearEvent.data.description,
+      updatedAt: linearEvent.data.updatedAt ?? new Date().toISOString(),
+      teamKey: linearEvent.data.team?.key,
+    })
 
-  const emptyFiles: typeof file[] = []
+    const emptyFiles: typeof file[] = []
 
-  await client.createEvent({
-    type: 'aggregateFileChanges',
-    payload: {
-      modifiedItems: {
-        created: changeType === 'created' ? [file] : emptyFiles,
-        updated: changeType === 'updated' ? [file] : emptyFiles,
-        deleted: changeType === 'deleted' ? [file] : emptyFiles,
+    await client.createEvent({
+      type: 'aggregateFileChanges',
+      payload: {
+        modifiedItems: {
+          created: changeType === 'created' ? [file] : emptyFiles,
+          updated: changeType === 'updated' ? [file] : emptyFiles,
+          deleted: changeType === 'deleted' ? [file] : emptyFiles,
+        },
       },
-    },
-  })
+    })
+  } catch (err: unknown) {
+    logger.forBot().error('Failed to emit file-change event; swallowing to prevent webhook retries', err as Error)
+  }
 }

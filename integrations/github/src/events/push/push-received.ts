@@ -9,37 +9,41 @@ export const firePushReceived = async ({
   client,
   logger,
 }: bp.HandlerProps & { githubEvent: PushEvent }) => {
-  const repo = githubEvent.repository
-  const owner = repo.owner.login ?? repo.owner.name
-  const repoName = repo.name
-  const defaultRef = `refs/heads/${repo.default_branch ?? repo.master_branch ?? 'main'}`
+  try {
+    const repo = githubEvent.repository
+    const owner = repo.owner.login ?? repo.owner.name
+    const repoName = repo.name
+    const defaultRef = `refs/heads/${repo.default_branch ?? repo.master_branch ?? 'main'}`
 
-  if (githubEvent.ref !== defaultRef) {
-    logger.forBot().debug(`Ignoring push to non-default branch: ${githubEvent.ref}`)
-    return
-  }
-
-  const created: bp.events.Events['aggregateFileChanges']['modifiedItems']['created'] = []
-  const updated: bp.events.Events['aggregateFileChanges']['modifiedItems']['updated'] = []
-  const deleted: bp.events.Events['aggregateFileChanges']['modifiedItems']['deleted'] = []
-
-  for (const commit of githubEvent.commits) {
-    for (const filePath of commit.added ?? []) {
-      created.push(mapping.mapPushFileToFile(owner, repoName, filePath))
+    if (githubEvent.ref !== defaultRef) {
+      logger.forBot().debug(`Ignoring push to non-default branch: ${githubEvent.ref}`)
+      return
     }
-    for (const filePath of commit.modified ?? []) {
-      updated.push(mapping.mapPushFileToFile(owner, repoName, filePath))
-    }
-    for (const filePath of commit.removed ?? []) {
-      deleted.push(mapping.mapPushFileToFile(owner, repoName, filePath))
-    }
-  }
 
-  if (created.length === 0 && updated.length === 0 && deleted.length === 0) {
-    return
-  }
+    const created: bp.events.Events['aggregateFileChanges']['modifiedItems']['created'] = []
+    const updated: bp.events.Events['aggregateFileChanges']['modifiedItems']['updated'] = []
+    const deleted: bp.events.Events['aggregateFileChanges']['modifiedItems']['deleted'] = []
 
-  await _emitFileChangeEvents({ client, logger, changes: { created, updated, deleted } })
+    for (const commit of githubEvent.commits) {
+      for (const filePath of commit.added ?? []) {
+        created.push(mapping.mapPushFileToFile(owner, repoName, filePath))
+      }
+      for (const filePath of commit.modified ?? []) {
+        updated.push(mapping.mapPushFileToFile(owner, repoName, filePath))
+      }
+      for (const filePath of commit.removed ?? []) {
+        deleted.push(mapping.mapPushFileToFile(owner, repoName, filePath))
+      }
+    }
+
+    if (created.length === 0 && updated.length === 0 && deleted.length === 0) {
+      return
+    }
+
+    await _emitFileChangeEvents({ client, logger, changes: { created, updated, deleted } })
+  } catch (err: unknown) {
+    logger.forBot().error('Failed to process push event; swallowing to prevent webhook retries', err as Error)
+  }
 }
 
 const _emitFileChangeEvents = async ({
