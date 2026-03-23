@@ -9,7 +9,7 @@ The public Botpress SDK monorepo. Contains the CLI (`@botpress/cli`), SDK (`@bot
 ## Commands
 
 ```bash
-# Install dependencies
+# Install dependencies (requires pnpm@10.12.4, see packageManager in package.json)
 pnpm install
 
 # Build everything (Turbo-orchestrated)
@@ -183,6 +183,9 @@ Integrations declare interface dependencies in `package.json` via `bpDependencie
 
 - **Prettier**: 120 char width, no semicolons, single quotes, trailing commas ES5, LF line endings
 - **Files**: kebab-case
+- **Types**: use `type` keyword, not `interface` (enforced by oxlint `typescript/consistent-type-definitions`)
+- **No `console.log`**: use `console.warn`, `console.error`, `console.info`, or `console.debug` instead
+- **Unused variables**: prefix with `_` (e.g., `_unused`) — enforced by `no-unused-vars`
 - **Schemas**: always use `sdk.z` (Zod), add `.title()` and `.describe()` for Studio UI metadata
 - **Definitions**: use `as const satisfies sdk.IntegrationDefinitionProps['actions']` pattern
 - **Exports**: named exports, no default exports (except the integration/bot/plugin entry point which default-exports the implementation)
@@ -198,6 +201,12 @@ Integrations declare interface dependencies in `package.json` via `bpDependencie
 
 - `packages/llmz/CLAUDE.md` — LLMz agent framework architecture and patterns
 - `packages/zai/CLAUDE.md` — Zai AI utility library architecture
+
+## Coding Guidelines
+
+- Do not add comments for self-explanatory code. Only comment on "the why," never "the what."
+- Do not write tests for trivial logic or "for the sake of coverage." Only add tests that provide meaningful regressions or document complex edge cases.
+- If you see a pattern being repeated across the repo, point it out before implementing a third instance.
 
 ## User specific information
 
