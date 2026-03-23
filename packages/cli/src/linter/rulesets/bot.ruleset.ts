@@ -1,6 +1,7 @@
 import { falsy } from '@stoplight/spectral-functions'
 import { preprocessRuleset } from '../ruleset-functions'
 import { descriptionFallbackExtractor, titleFallbackExtractor, truthyWithMessage } from '../spectral-functions'
+import { secretsMustHaveADescription } from './shared-rules'
 
 export const BOT_RULESET = preprocessRuleset({
   extends: [],
@@ -189,5 +190,6 @@ export const BOT_RULESET = preprocessRuleset({
         },
       ],
     },
+    'secrets-must-have-a-description': secretsMustHaveADescription,
   },
 })

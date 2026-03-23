@@ -8,12 +8,47 @@ import { zodSetToJsonSet } from './type-processors/set'
 import { zodStringToJsonString } from './type-processors/string'
 import { zodTupleToJsonTuple } from './type-processors/tuple'
 
+export type JSONSchemaUnionStrategy = 'oneOf' | 'anyOf'
+
+/**
+ * @description Options for JSON schema generation.
+ */
+export type JSONSchemaGenerationOptions = {
+  /**
+   * @default 'anyOf'
+   */
+  unionStrategy: JSONSchemaUnionStrategy
+
+  /**
+   * @default 'oneOf'
+   */
+  discriminatedUnionStrategy: JSONSchemaUnionStrategy
+
+  /**
+   * @default true
+   * @description
+   *  Whether to include the discriminator property in the generated JSON schema for discriminated unions.
+   *  This property is not part of the JSON schema specification but is used by some tools to optimize validation and code generation for discriminated unions.
+   *  If set to false, the discriminator property will be omitted from the generated JSON schema.
+   *  Only affects the generated JSON schema when `discriminatedUnionStrategy` is set to 'oneOf'.
+   *  For more details, see: https://ajv.js.org/guide/modifying-data.html#removing-additional-properties
+   */
+  discriminator: boolean
+}
+
+const DEFAULT_OPTIONS: JSONSchemaGenerationOptions = {
+  unionStrategy: 'anyOf',
+  discriminatedUnionStrategy: 'oneOf',
+  discriminator: true,
+}
+
 /**
  * Converts a Zui schema to a ZUI flavored JSON schema.
  * @param schema zui schema
  * @returns ZUI flavored JSON schema
  */
-export function toJSONSchema(schema: z.ZodType): json.Schema {
+export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGenerationOptions> = {}): json.Schema {
+  const opts = { ...DEFAULT_OPTIONS, ...options }
   const s = schema as z.ZodNativeType
 
   switch (s.typeName) {
@@ -72,7 +107,7 @@ export function toJSONSchema(schema: z.ZodType): json.Schema {
       throw new err.UnsupportedZuiToJSONSchemaError('ZodVoid')
 
     case 'ZodArray':
-      return zodArrayToJsonArray(s, toJSONSchema) satisfies json.ArraySchema
+      return zodArrayToJsonArray(s, (i) => toJSONSchema(i, opts)) satisfies json.ArraySchema
 
     case 'ZodObject':
       const shape = Object.entries(s.shape)
@@ -80,28 +115,47 @@ export function toJSONSchema(schema: z.ZodType): json.Schema {
       const required = requiredProperties.length ? requiredProperties.map(([key]) => key) : undefined
       const properties = shape
         .map(([key, value]) => [key, value.mandatory()] satisfies [string, z.ZodType])
-        .map(([key, value]) => [key, toJSONSchema(value)] satisfies [string, json.Schema])
+        .map(([key, value]) => [key, toJSONSchema(value, opts)] satisfies [string, json.Schema])
 
       return {
         type: 'object',
         description: s.description,
         properties: Object.fromEntries(properties),
         required,
-        additionalProperties: additionalPropertiesSchema(s._def),
+        additionalProperties: additionalPropertiesSchema(s._def, opts),
         'x-zui': s._def['x-zui'],
       } satisfies json.ObjectSchema
 
     case 'ZodUnion':
+      if (opts.unionStrategy === 'oneOf') {
+        return {
+          description: s.description,
+          oneOf: s.options.map((option) => toJSONSchema(option, opts)),
+          'x-zui': s._def['x-zui'],
+        } satisfies json.UnionSchema
+      }
       return {
         description: s.description,
-        anyOf: s.options.map((option) => toJSONSchema(option)),
+        anyOf: s.options.map((option) => toJSONSchema(option, opts)),
         'x-zui': s._def['x-zui'],
       } satisfies json.UnionSchema
 
     case 'ZodDiscriminatedUnion':
+      if (opts.discriminatedUnionStrategy === 'oneOf') {
+        const discriminator = opts.discriminator ? { propertyName: s.discriminator } : undefined
+        return {
+          description: s.description,
+          oneOf: s.options.map((option) => toJSONSchema(option, opts)),
+          discriminator,
+          'x-zui': {
+            ...s._def['x-zui'],
+            def: { typeName: 'ZodDiscriminatedUnion', discriminator: s.discriminator },
+          },
+        } satisfies json.DiscriminatedUnionSchema
+      }
       return {
         description: s.description,
-        anyOf: s.options.map((option) => toJSONSchema(option)),
+        anyOf: s.options.map((option) => toJSONSchema(option, opts)),
         'x-zui': {
           ...s._def['x-zui'],
           def: { typeName: 'ZodDiscriminatedUnion', discriminator: s.discriminator },
@@ -109,8 +163,8 @@ export function toJSONSchema(schema: z.ZodType): json.Schema {
       } satisfies json.DiscriminatedUnionSchema
 
     case 'ZodIntersection':
-      const left = toJSONSchema(s._def.left)
-      const right = toJSONSchema(s._def.right)
+      const left = toJSONSchema(s._def.left, opts)
+      const right = toJSONSchema(s._def.right, opts)
 
       /**
        * TODO: Potential conflict between `additionalProperties` in the left and right schemas.
@@ -135,13 +189,13 @@ export function toJSONSchema(schema: z.ZodType): json.Schema {
       } satisfies json.IntersectionSchema
 
     case 'ZodTuple':
-      return zodTupleToJsonTuple(s, toJSONSchema) satisfies json.TupleSchema
+      return zodTupleToJsonTuple(s, (i) => toJSONSchema(i, opts)) satisfies json.TupleSchema
 
     case 'ZodRecord':
       return {
         type: 'object',
         description: s.description,
-        additionalProperties: toJSONSchema(s._def.valueType),
+        additionalProperties: toJSONSchema(s._def.valueType, opts),
         'x-zui': s._def['x-zui'],
       } satisfies json.RecordSchema
 
@@ -149,7 +203,7 @@ export function toJSONSchema(schema: z.ZodType): json.Schema {
       throw new err.UnsupportedZuiToJSONSchemaError('ZodMap')
 
     case 'ZodSet':
-      return zodSetToJsonSet(s, toJSONSchema) satisfies json.SetSchema
+      return zodSetToJsonSet(s, (i) => toJSONSchema(i, opts)) satisfies json.SetSchema
 
     case 'ZodFunction':
       throw new err.UnsupportedZuiToJSONSchemaError('ZodFunction')
@@ -206,7 +260,7 @@ export function toJSONSchema(schema: z.ZodType): json.Schema {
     case 'ZodOptional':
       return {
         description: s.description,
-        anyOf: [toJSONSchema(s._def.innerType), undefinedSchema()],
+        anyOf: [toJSONSchema(s._def.innerType, opts), undefinedSchema()],
         'x-zui': {
           ...s._def['x-zui'],
           def: { typeName: 'ZodOptional' },
@@ -215,7 +269,7 @@ export function toJSONSchema(schema: z.ZodType): json.Schema {
 
     case 'ZodNullable':
       return {
-        anyOf: [toJSONSchema(s._def.innerType), nullSchema()],
+        anyOf: [toJSONSchema(s._def.innerType, opts), nullSchema()],
         'x-zui': {
           ...s._def['x-zui'],
           def: { typeName: 'ZodNullable' },
@@ -225,7 +279,7 @@ export function toJSONSchema(schema: z.ZodType): json.Schema {
     case 'ZodDefault':
       // ZodDefault is not treated as a metadata root so we don't need to preserve x-zui
       return {
-        ...toJSONSchema(s._def.innerType),
+        ...toJSONSchema(s._def.innerType, opts),
         default: s._def.defaultValue(),
       }
 
@@ -248,7 +302,7 @@ export function toJSONSchema(schema: z.ZodType): json.Schema {
     case 'ZodReadonly':
       // ZodReadonly is not treated as a metadata root so we don't need to preserve x-zui
       return {
-        ...toJSONSchema(s._def.innerType),
+        ...toJSONSchema(s._def.innerType, opts),
         readOnly: true,
       }
 
@@ -276,7 +330,10 @@ const nullSchema = (def?: z.ZodTypeDef): json.NullSchema => ({
   'x-zui': def?.['x-zui'],
 })
 
-const additionalPropertiesSchema = (def: z.ZodObjectDef): NonNullable<json.ObjectSchema['additionalProperties']> => {
+const additionalPropertiesSchema = (
+  def: z.ZodObjectDef,
+  opts: Partial<JSONSchemaGenerationOptions>
+): NonNullable<json.ObjectSchema['additionalProperties']> => {
   if (def.unknownKeys === 'passthrough') {
     return true
   }
@@ -293,5 +350,5 @@ const additionalPropertiesSchema = (def: z.ZodObjectDef): NonNullable<json.Objec
     return false
   }
 
-  return toJSONSchema(def.unknownKeys)
+  return toJSONSchema(def.unknownKeys, opts)
 }
