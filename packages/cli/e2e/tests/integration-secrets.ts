@@ -4,6 +4,7 @@ import fs from 'fs'
 import pathlib from 'path'
 import * as uuid from 'uuid'
 import impl from '../../src'
+import { fetchAllIntegrations } from 'e2e/api'
 import defaults from '../defaults'
 import * as retry from '../retry'
 import { Test } from '../typings'
@@ -11,21 +12,24 @@ import * as utils from '../utils'
 
 type SecretDef = NonNullable<sdk.IntegrationDefinitionProps['secrets']>
 
+const fetchIntegration = async (client: Client, integrationName: string): Promise<ApiIntegration | undefined> => {
+  const integrations = await fetchAllIntegrations(client)
+  return integrations.find(({ name }) => name === integrationName)
+}
+
 const appendSecretDefinition = (originalTsContent: string, secrets: SecretDef): string => {
-  const secretEntries = Object.entries(secrets)
-    .map(([secretName, secretDef]) => `    ${secretName}: ${JSON.stringify(secretDef)},`)
+  const regex = /( *)version: (['"].*['"]),/
+  const replacement = [
+    'version: $2,',
+    'secrets: {',
+    ...Object.entries(secrets).map(([secretName, secretDef]) => `  ${secretName}: ${JSON.stringify(secretDef)},`),
+    '},',
+  ]
+    .map((s) => `$1${s}`) // for indentation
     .join('\n')
 
-  const modifiedContent = originalTsContent.replace(
-    /(new IntegrationDefinition\(\{)/,
-    `$1\n  secrets: {\n${secretEntries}\n  },\n`
-  )
-
-  if (modifiedContent === originalTsContent) {
-    throw new Error('Failed to inject secrets into integration definition')
-  }
-
-  return modifiedContent
+  const modifiedTsContent = originalTsContent.replace(regex, replacement)
+  return modifiedTsContent
 }
 
 export const requiredIntegrationSecrets: Test = {
@@ -103,5 +107,9 @@ export const requiredIntegrationSecrets: Test = {
       )
     }
     await client.deleteIntegration({ id: deployedIntegration.id })
+
+    if (await fetchIntegration(client, integrationName)) {
+      throw new Error(`Integration ${integrationName} should have been deleted`)
+    }
   },
 }
