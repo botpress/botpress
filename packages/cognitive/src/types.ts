@@ -1,4 +1,4 @@
-import { ModelProvider, ModelRef } from './models'
+import { Model, ModelPreferences, ModelProvider, ModelRef } from './models'
 import { type GenerateContentInput, type GenerateContentOutput } from './schemas.gen'
 
 export type BotpressClientLike = {
@@ -59,4 +59,17 @@ export type Events = {
   error: (req: Request, error: any) => void
   retry: (req: Request, error: any) => void
   fallback: (req: Request, error: any) => void
+}
+
+export type CognitiveLike = {
+  $$IS_COGNITIVE: boolean
+  client: BotpressClientLike
+  on: <K extends keyof Events>(this: CognitiveLike, event: K, cb: Events[K]) => { (): void }
+  clone: () => CognitiveLike
+  fetchInstalledModels: () => Promise<Model[]>
+  fetchPreferences: () => Promise<ModelPreferences>
+  setPreferences: (preferences: ModelPreferences, save?: boolean) => Promise<void>
+  fetchRemoteModels: () => Promise<Map<string, Model>>
+  getModelDetails: (model: string) => Promise<Model>
+  generateContent: (input: InputProps) => Promise<Response>
 }

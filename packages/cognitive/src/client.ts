@@ -1,5 +1,5 @@
 import { backOff } from 'exponential-backoff'
-import { createNanoEvents, Unsubscribe } from 'nanoevents'
+import { createNanoEvents } from 'nanoevents'
 
 import { ExtendedClient, getExtendedClient } from './bp-client'
 import { CognitiveBeta, getCognitiveV2Model, isKnownV2Model } from './cognitive-v2'
@@ -18,9 +18,9 @@ import {
   RemoteModelProvider,
 } from './models'
 import { GenerateContentOutput } from './schemas.gen'
-import { CognitiveProps, Events, InputProps, Request, Response } from './types'
+import { CognitiveProps, Events, CognitiveLike, InputProps, Request, Response } from './types'
 
-export class Cognitive {
+export class Cognitive implements CognitiveLike {
   public ['$$IS_COGNITIVE'] = true
 
   public static isCognitiveClient(obj: any): obj is Cognitive {
@@ -82,7 +82,7 @@ export class Cognitive {
     return copy
   }
 
-  public on<K extends keyof Events>(this: this, event: K, cb: Events[K]): Unsubscribe {
+  public on<K extends keyof Events>(this: this, event: K, cb: Events[K]): { (): void } {
     return this._events.on(event, cb)
   }
 
