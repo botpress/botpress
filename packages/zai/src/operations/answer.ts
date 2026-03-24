@@ -31,19 +31,9 @@ export type AnswerWithCitations<T> = {
   citations: Citation<T>[]
 }
 
-export type SuccessAnswerResponse<T> = {
+export type AnswerResponse<T> = {
   type: 'answer'
 } & AnswerWithCitations<T>
-
-export type ErrorAnswerResponse = {
-  type: 'missing_knowledge'
-  reason: string
-}
-
-/**
- * Response type when a clear answer can be provided
- */
-export type AnswerResponse<T> = SuccessAnswerResponse<T> | ErrorAnswerResponse
 
 /**
  * Response type when the question is ambiguous and multiple interpretations exist
@@ -459,7 +449,7 @@ const mergeChunkResults = async <T>(
 ): Promise<AnswerResult<T>> => {
   ctx.controller.signal.throwIfAborted()
   // Filter out non-answer results
-  const answers = results.filter((r): r is SuccessAnswerResponse<T> => r.type === 'answer')
+  const answers = results.filter((r): r is AnswerResponse<T> => r.type === 'answer')
 
   if (answers.length === 0) {
     // No answers found, return first non-answer result
@@ -630,7 +620,7 @@ export const parseResponse = <T>(response: string, mappings: LineMapping<T>[]): 
 /**
  * Parse answer response
  */
-const parseAnswerResponse = <T>(text: string, mappings: LineMapping<T>[]): AnswerResponse<T> => {
+const parseAnswerResponse = <T>(text: string, mappings: LineMapping<T>[]): AnswerResult<T> => {
   // Match from answer start to end of string (END is a stop sequence and never appears)
   const answerMatch = text.match(new RegExp(`${ANSWER_START}(.+)$`, 's'))
   if (!answerMatch) {
