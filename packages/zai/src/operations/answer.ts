@@ -31,6 +31,9 @@ export type AnswerWithCitations<T> = {
   citations: Citation<T>[]
 }
 
+/**
+ * Response type when a clear answer can be provided
+ */
 export type AnswerResponse<T> = {
   type: 'answer'
 } & AnswerWithCitations<T>
