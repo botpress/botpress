@@ -169,6 +169,7 @@ const _emitFileChangeEvent = async (
       },
     })
   } catch (err: unknown) {
-    logger.forBot().error('Failed to emit file-change event; swallowing to prevent webhook retries', err as Error)
+    const error = err instanceof Error ? err : new Error(String(err))
+    logger.forBot().error('Failed to emit file-change event; swallowing to prevent webhook retries', error)
   }
 }

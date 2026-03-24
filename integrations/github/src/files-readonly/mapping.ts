@@ -104,13 +104,3 @@ export const mapPushFileToFile = (owner: string, repo: string, filePath: string)
     absolutePath: `/${owner}/${repo}/${filePath}`,
   }
 }
-
-export const mapPushFolderToFolder = (owner: string, repo: string, folderPath: string): FilesReadonlyFolder => {
-  const name = folderPath.split(PATH_SEPARATOR).pop() ?? folderPath
-  return {
-    id: encodeContentId(owner, repo, folderPath),
-    name,
-    type: 'folder',
-    absolutePath: `/${owner}/${repo}/${folderPath}`,
-  }
-}
