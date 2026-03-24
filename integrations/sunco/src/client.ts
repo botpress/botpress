@@ -9,6 +9,8 @@ import {
   type MessagesApi,
   type ActivitiesApi,
   type WebhooksApi,
+  type IntegrationsApi,
+  type Integration,
   type PostMessageRequest,
   type ActivityPost,
 } from './api/sunshine-api'
@@ -24,6 +26,7 @@ class SuncoClient {
     messages: MessagesApi
     activities: ActivitiesApi
     webhooks: WebhooksApi
+    integrations: IntegrationsApi
   }
 
   public constructor(credentials: StoredCredentials) {
@@ -52,6 +55,7 @@ class SuncoClient {
       messages: new SunshineConversationsApi.MessagesApi(apiClient),
       activities: new SunshineConversationsApi.ActivitiesApi(apiClient),
       webhooks: new SunshineConversationsApi.WebhooksApi(apiClient),
+      integrations: new SunshineConversationsApi.IntegrationsApi(apiClient),
     }
   }
 
@@ -100,6 +104,16 @@ class SuncoClient {
     await this._client.webhooks.deleteWebhook(this._appId, 'me', webhookId)
   }
 
+  public async listIntegrations(): Promise<Integration[]> {
+    const { baseUrl, auth } = this._getAxiosConfig()
+    const response = await axios.get(`${baseUrl}/v2/apps/${this._appId}/integrations`, auth)
+    return response.data.integrations || []
+  }
+
+  public async updateConversationMetadata(conversationId: string, metadata: Record<string, string>) {
+    await this._client.conversations.updateConversation(this._appId, conversationId, { metadata })
+  }
+
   public async downloadAndUploadAttachment(sourceUrl: string, conversationId: string): Promise<string> {
     const response = await axios.get(sourceUrl, { responseType: 'arraybuffer' })
 
@@ -112,15 +126,7 @@ class SuncoClient {
 
     // Upload via axios instead of the SDK because the sunshine-conversations-client SDK
     // uses superagent internally, which doesn't properly handle Node.js File/Blob objects.
-    const credentials = this._credentials
-    const auth =
-      credentials.configType === 'manual'
-        ? { auth: { username: credentials.keyId, password: credentials.keySecret } }
-        : { headers: { Authorization: `Bearer ${credentials.token}` } }
-
-    const baseUrl =
-      credentials.configType === 'manual' ? 'https://api.smooch.io' : `https://${credentials.subdomain}.zendesk.com/sc`
-
+    const { baseUrl, auth } = this._getAxiosConfig()
     const uploadResponse = await axios.postForm(`${baseUrl}/v2/apps/${this._appId}/attachments`, formData, {
       params: { access: 'public', for: 'message', conversationId },
       ...auth,
@@ -132,6 +138,17 @@ class SuncoClient {
     }
 
     return mediaUrl
+  }
+
+  private _getAxiosConfig() {
+    const credentials = this._credentials
+    const baseUrl =
+      credentials.configType === 'manual' ? 'https://api.smooch.io' : `https://${credentials.subdomain}.zendesk.com/sc`
+    const auth =
+      credentials.configType === 'manual'
+        ? { auth: { username: credentials.keyId, password: credentials.keySecret } }
+        : { headers: { Authorization: `Bearer ${credentials.token}`, ...BASE_HEADERS } }
+    return { baseUrl, auth }
   }
 }
 

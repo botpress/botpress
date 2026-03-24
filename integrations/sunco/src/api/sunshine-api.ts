@@ -296,6 +296,15 @@ export type Integration = {
   status?: 'active' | 'inactive'
   displayName?: string
   webhooks?: Webhook[]
+  defaultResponder?: {
+    id?: string
+    name?: string
+    integrationId?: string
+    integrationType?: string
+    deliverStandbyEvents?: boolean
+    nextSwitchboardIntegrationId?: string
+    inherited?: boolean
+  }
 }
 
 export type CreateIntegrationRequest = {

@@ -5,9 +5,11 @@ import proactiveUser from 'bp_modules/proactive-user'
 import typingIndicator from 'bp_modules/typing-indicator'
 import { events } from './definitions'
 
+export const INTEGRATION_NAME = 'sunco'
+
 export default new IntegrationDefinition({
-  name: 'sunco',
-  version: '1.7.0',
+  name: INTEGRATION_NAME,
+  version: '2.0.0',
   title: 'Sunshine Conversations',
   description: 'Give your bot access to a powerful omnichannel messaging platform.',
   icon: 'icon.svg',
@@ -36,6 +38,9 @@ export default new IntegrationDefinition({
         secret: z.string().title('Secret').describe('The webhook secret'),
       }),
     },
+  },
+  identifier: {
+    extractScript: 'extract.vrl',
   },
   configuration: {
     identifier: {

@@ -172,6 +172,7 @@ export type ConversationMessageEvent = {
       source?: {
         originalMessageTimestamp?: string
         type?: string
+        integrationId?: string
       }
     }
   }
