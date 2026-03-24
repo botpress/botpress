@@ -43,10 +43,6 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
     return inner.describe(schema.description)
   }
 
-  if (schema.oneOf !== undefined) {
-    throw new errors.UnsupportedJSONSchemaToZuiError({ oneOf: schema.oneOf })
-  }
-
   if (schema.patternProperties !== undefined) {
     throw new errors.UnsupportedJSONSchemaToZuiError({ patternProperties: schema.patternProperties })
   }
@@ -181,6 +177,31 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
     }
 
     const options = schema.anyOf.map(_fromJSONSchema) as [z.ZodType, z.ZodType, ...z.ZodType[]]
+    return z.union(options)
+  }
+
+  if (schema.oneOf !== undefined) {
+    if (schema.oneOf.length === 0) {
+      return DEFAULT_TYPE
+    }
+
+    if (schema.oneOf.length === 1) {
+      return _fromJSONSchema(schema.oneOf[0])
+    }
+
+    if (guards.isExclusiveDiscriminatedUnionSchema(schema)) {
+      const discriminator = schema.discriminator?.propertyName || schema['x-zui']?.def?.discriminator
+      if (discriminator) {
+        const options = schema.oneOf.map(_fromJSONSchema) as [
+          z.ZodDiscriminatedUnionOption<string>,
+          z.ZodDiscriminatedUnionOption<string>,
+          ...z.ZodDiscriminatedUnionOption<string>[],
+        ]
+        return z.discriminatedUnion(discriminator, options)
+      }
+    }
+
+    const options = schema.oneOf.map(_fromJSONSchema) as [z.ZodType, z.ZodType, ...z.ZodType[]]
     return z.union(options)
   }
 

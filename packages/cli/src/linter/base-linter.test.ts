@@ -152,6 +152,7 @@ const lintDefinition = async (definition: IntegrationDefinitionProps) => {
           ...integrationDefinition.configuration,
           schema: await utils.schema.mapZodToJsonSchema(integrationDefinition.configuration, {
             useLegacyZuiTransformer: integrationDefinition.__advanced?.useLegacyZuiTransformer,
+            toJSONSchemaOptions: integrationDefinition.__advanced?.toJSONSchemaOptions,
           }),
         }
       : undefined,
@@ -160,6 +161,7 @@ const lintDefinition = async (definition: IntegrationDefinitionProps) => {
           ...configuration,
           schema: await utils.schema.mapZodToJsonSchema(configuration, {
             useLegacyZuiTransformer: integrationDefinition.__advanced?.useLegacyZuiTransformer,
+            toJSONSchemaOptions: integrationDefinition.__advanced?.toJSONSchemaOptions,
           }),
         }))
       : undefined,

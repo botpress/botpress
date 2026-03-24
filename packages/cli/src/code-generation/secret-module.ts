@@ -1,20 +1,21 @@
-import { IntegrationDefinition } from '@botpress/sdk'
-import { casing } from '../../utils'
-import * as consts from '../consts'
-import { Module } from '../module'
+import { casing } from '../utils'
+import * as consts from './consts'
+import { Module } from './module'
 
 export const secretEnvVariableName = (secretName: string) => `SECRET_${casing.to.screamingSnakeCase(secretName)}`
 export const stripSecretEnvVariablePrefix = (secretName: string) => secretName.replace(/^SECRET_/, '')
 
-export class IntegrationSecretIndexModule extends Module {
-  public constructor(private _integration: IntegrationDefinition) {
+type SecretDefinitions = Record<string, { optional?: boolean }>
+
+export class SecretIndexModule extends Module {
+  public constructor(private _secrets: SecretDefinitions) {
     super({ exportName: 'secrets', path: consts.INDEX_FILE })
   }
 
   public async getContent() {
     let content = consts.GENERATED_HEADER
     content += 'class Secrets {\n'
-    for (const [secretName, { optional }] of Object.entries(this._integration.secrets ?? {})) {
+    for (const [secretName, { optional }] of Object.entries(this._secrets)) {
       const envVariableName = secretEnvVariableName(secretName)
       const fieldName = casing.to.screamingSnakeCase(secretName)
 

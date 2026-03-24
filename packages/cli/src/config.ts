@@ -44,7 +44,7 @@ const workspaceId = {
 
 const secrets = {
   type: 'string',
-  description: 'Values for the integration secrets',
+  description: 'Values for the bot or integration secrets',
   array: true,
   default: [],
 } satisfies CommandOption
@@ -399,6 +399,17 @@ const useProfileSchema = {
   },
 } satisfies CommandSchema
 
+const getProfileSchema = {
+  ...globalSchema,
+  profileToGet: {
+    type: 'string',
+    description: 'The CLI profile defined in the $BP_BOTPRESS_HOME/profiles.json',
+    positional: true,
+    idx: 0,
+  },
+  displayToken: { type: 'boolean', description: 'Display the token in the bp profile', default: false },
+} satisfies CommandSchema
+
 // exports
 
 export const schemas = {
@@ -436,4 +447,5 @@ export const schemas = {
   listProfiles: listProfilesSchema,
   activeProfile: activeProfileSchema,
   useProfile: useProfileSchema,
+  getProfile: getProfileSchema,
 } as const
