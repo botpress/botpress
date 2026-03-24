@@ -1,4 +1,4 @@
-import { Zai, type Memoizer } from './zai'
+import { Zai, type ZaiConfig, type Memoizer } from './zai'
 
 import './operations/text'
 import './operations/rewrite'
@@ -14,4 +14,4 @@ import './operations/answer'
 import './operations/patch'
 
 export { Zai }
-export type { Memoizer }
+export type { Memoizer, ZaiConfig }
