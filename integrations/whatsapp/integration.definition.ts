@@ -79,7 +79,25 @@ const startConversationProps = {
             .optional()
             .title('Message Template variables')
             .describe(
-              'JSON array representation of variable values to pass to the WhatsApp Message Template (if required by the template). Currently, only positional parameters are supported.'
+              'JSON body variables for the template. Positional: ["val1", "val2"]. Named: {"buyer_name": "John", "store": "Acme"}.'
+            ),
+          templateHeaderJson: z
+            .string()
+            .optional()
+            .title('Message Template header (JSON)')
+            .describe(
+              'JSON object for the template header parameter. ' +
+                'For text: { "type": "text", "text": "Hello" }. ' +
+                'For media: { "type": "image", "url": "https://..." } (also supports "video", "document", "location").'
+            ),
+          templateButtonsJson: z
+            .string()
+            .optional()
+            .title('Message Template buttons (JSON)')
+            .describe(
+              'JSON array of button parameters, one per button slot in the template. ' +
+                'Examples: [{ "type": "url", "text": "/path" }, { "type": "quick_reply", "payload": "yes" }, ' +
+                '{ "type": "copy_code", "code": "SAVE10" }, { "type": "skip" }]'
             ),
           botPhoneNumberId: z
             .string()
@@ -99,7 +117,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.10.0'
+export const INTEGRATION_VERSION = '4.11.0'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,

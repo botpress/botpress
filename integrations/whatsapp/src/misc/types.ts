@@ -379,5 +379,62 @@ const componentSchema = z.union([
   }),
 ])
 export type Component = z.infer<typeof componentSchema>
-export const templateVariablesSchema = z.array(z.string().or(z.number()))
+export const positionalVariablesSchema = z.array(z.string().or(z.number()))
+export type PositionalVariables = z.infer<typeof positionalVariablesSchema>
+
+export const namedVariablesSchema = z.record(z.string(), z.string().or(z.number()))
+export type NamedVariables = z.infer<typeof namedVariablesSchema>
+
+export const templateVariablesSchema = z.union([positionalVariablesSchema, namedVariablesSchema])
 export type TemplateVariables = z.infer<typeof templateVariablesSchema>
+
+export const templateHeaderSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('text'),
+    text: z.string().max(60, 'Header text parameter must be 60 characters or fewer'),
+  }),
+  z.object({
+    type: z.literal('image'),
+    url: z.string().url('Header image must be a valid URL'),
+  }),
+  z.object({
+    type: z.literal('video'),
+    url: z.string().url('Header video must be a valid URL'),
+  }),
+  z.object({
+    type: z.literal('document'),
+    url: z.string().url('Header document must be a valid URL'),
+    filename: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal('location'),
+    latitude: z.number(),
+    longitude: z.number(),
+    name: z.string(),
+    address: z.string(),
+  }),
+])
+
+export type TemplateHeader = z.infer<typeof templateHeaderSchema>
+
+const templateButtonSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('url'),
+    text: z.string(),
+  }),
+  z.object({
+    type: z.literal('quick_reply'),
+    payload: z.string(),
+  }),
+  z.object({
+    type: z.literal('copy_code'),
+    code: z.string(),
+  }),
+  z.object({
+    type: z.literal('skip'),
+  }),
+])
+
+export const templateButtonsSchema = z.array(templateButtonSchema)
+
+export type TemplateButtons = z.infer<typeof templateButtonsSchema>
