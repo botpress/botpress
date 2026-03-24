@@ -97,10 +97,19 @@ export const requiredIntegrationSecrets: Test = {
       .then(utils.handleExitCode)
 
     // cleanup deployed integration
-    const integration = await fetchIntegration(client, integrationName)
-    if (!integration) {
-      throw new Error(`Integration ${integrationName} should have been created`)
+    const { integration: deployedIntegration } = await client.getIntegrationByName({
+      name: integrationName,
+      version: '0.1.0',
+    })
+    if (!deployedIntegration.secrets.includes('REQUIRED_SECRET')) {
+      throw new Error(
+        `Integration ${integrationName} should have secret REQUIRED_SECRET, got: ${deployedIntegration.secrets.join(', ')}`
+      )
     }
-    await client.deleteIntegration({ id: integration.id })
+    await client.deleteIntegration({ id: deployedIntegration.id })
+
+    if (await fetchIntegration(client, integrationName)) {
+      throw new Error(`Integration ${integrationName} should have been deleted`)
+    }
   },
 }
