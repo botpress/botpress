@@ -141,6 +141,9 @@ export default new sdk.IntegrationDefinition({
     MARKETPLACE_ORG_ID: {
       description: 'The ID of the marketplace organization',
     },
+    MARKETPLACE_BOT_ID: {
+      description: 'The bot ID for the Zendesk marketplace',
+    },
     ...sentryHelpers.COMMON_SECRET_NAMES,
   },
 }).extend(hitl, (self) => ({

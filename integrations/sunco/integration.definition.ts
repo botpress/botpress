@@ -98,6 +98,9 @@ export default new IntegrationDefinition({
     MARKETPLACE_ORG_ID: {
       description: 'The ID of the marketplace organization',
     },
+    MARKETPLACE_BOT_ID: {
+      description: 'The bot ID for the Zendesk marketplace',
+    },
     ...sentryHelpers.COMMON_SECRET_NAMES,
   },
   user: {
