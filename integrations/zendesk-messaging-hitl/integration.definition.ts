@@ -2,8 +2,10 @@ import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import hitl from './bp_modules/hitl'
 
+export const INTEGRATION_NAME = 'zendesk-messaging-hitl'
+
 export default new sdk.IntegrationDefinition({
-  name: 'zendesk-messaging-hitl',
+  name: INTEGRATION_NAME,
   version: '1.0.0',
   title: 'Zendesk Messaging HITL',
   description: 'This integration allows your bot to use Sunshine Conversations (Sunco) as a HITL Provider for Zendesk',
@@ -15,6 +17,9 @@ export default new sdk.IntegrationDefinition({
       required: true,
     },
     schema: sdk.z.object({}),
+  },
+  identifier: {
+    extractScript: 'extract.vrl',
   },
   states: {
     credentials: {

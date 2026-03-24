@@ -1,7 +1,9 @@
 import { generateRedirection } from '@botpress/common/src/html-dialogs'
 import { getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
 import { RuntimeError } from '@botpress/sdk'
+import { INTEGRATION_NAME } from './../integration.definition'
 import { getCredentials } from './api/get-credentials'
+import { getSuncoClient } from './client'
 import { handleConversationMessage, handleSwitchboardReleaseControl } from './events'
 import { isSuncoWebhookPayload } from './sunshine-events'
 import * as bp from '.botpress'
@@ -109,7 +111,22 @@ const _handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProp
       id: ctx.integrationId,
       payload: credentials,
     })
-    await client.configureIntegration({ identifier: credentials.appId })
+
+    logger.forBot().info('Registering global webhook...')
+    const suncoClient = getSuncoClient(credentials)
+    const globalWebhookUrl = `${new URL(process.env.BP_WEBHOOK_URL!).origin}/integration/global/${INTEGRATION_NAME}`
+    const existingWebhooks = await suncoClient.listWebhooks('me')
+    const existingWebhook = existingWebhooks.find((wh) => wh.target === globalWebhookUrl)
+    if (existingWebhook?.id) {
+      logger.forBot().info(`Updating existing webhook with ID: ${existingWebhook.id}`)
+      await suncoClient.updateWebhook('me', existingWebhook.id, globalWebhookUrl)
+    } else {
+      logger.forBot().info(`Creating new webhook for ${globalWebhookUrl}`)
+      await suncoClient.createWebhook('me', globalWebhookUrl)
+    }
+    logger.forBot().info('Global webhook registered successfully')
+
+    await client.configureIntegration({ identifier: ctx.webhookId })
 
     return generateRedirection(getInterstitialUrl(true))
   } catch (thrown: unknown) {
