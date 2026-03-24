@@ -79,7 +79,7 @@ export class JsonParsingError extends Error {
           break
         case 'invalid_enum_value':
           message += `   Problem: Invalid value "${issue.received}"\n`
-          message += `   Allowed values: ${issue.options.map((o: any) => `"${o}"`).join(', ')}\n`
+          message += `   Allowed values: ${issue.options.map((o) => `"${o}"`).join(', ')}\n`
           message += `   Message: ${issue.message}\n`
           break
         case 'invalid_literal':

@@ -203,7 +203,7 @@ export class ZaiContext {
         })
 
         if (!transform) {
-          output = str as any
+          output = str as Out
         } else {
           output = transform(str, response.output)
         }
