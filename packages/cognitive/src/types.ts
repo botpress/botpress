@@ -64,7 +64,7 @@ export type Events = {
 export type CognitiveLike = {
   $$IS_COGNITIVE: boolean
   client: BotpressClientLike
-  on: <K extends keyof Events>(this: CognitiveLike, event: K, cb: Events[K]) => { (): void }
+  on: <K extends keyof Events>(event: K, cb: Events[K]) => { (): void }
   clone: () => CognitiveLike
   fetchInstalledModels: () => Promise<Model[]>
   fetchPreferences: () => Promise<ModelPreferences>
