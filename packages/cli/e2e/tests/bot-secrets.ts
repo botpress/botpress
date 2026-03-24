@@ -95,6 +95,11 @@ export const requiredBotSecrets: Test = {
       })
       .then(utils.handleExitCode)
 
+    const { bot: deployedBot } = await client.getBot({ id: bot.id })
+    if (!deployedBot.secrets.includes('REQUIRED_SECRET')) {
+      throw new Error(`Bot ${botName} should have secret REQUIRED_SECRET, got: ${deployedBot.secrets.join(', ')}`)
+    }
+
     // cleanup deployed bot
     await impl.bots.delete({ ...argv, botRef: bot.id }).then(utils.handleExitCode)
 
