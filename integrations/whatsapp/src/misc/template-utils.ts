@@ -1,12 +1,6 @@
 import { z } from '@botpress/sdk'
 import axios from 'axios'
-import {
-  Component,
-  KeyValuePair,
-  NamedVariables,
-  TemplateVariables,
-  templateVariablesSchema,
-} from 'src/misc/types'
+import { Component, KeyValuePair, NamedVariables, TemplateVariables, templateVariablesSchema } from 'src/misc/types'
 import {
   BodyComponent,
   BodyParameter,
@@ -288,8 +282,7 @@ const _getRenderedBodyText = (text: string, bodyParams: KeyValuePair[]): string 
 
 // --- Key-value param builders ---
 
-const isAllNumericKeys = (params: KeyValuePair[]): boolean =>
-  params.every(({ key }) => /^\d+$/.test(key))
+const isAllNumericKeys = (params: KeyValuePair[]): boolean => params.every(({ key }) => /^\d+$/.test(key))
 
 /**
  * Custom body component that supports named parameter_name fields,

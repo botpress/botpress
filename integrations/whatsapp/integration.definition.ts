@@ -116,7 +116,8 @@ const startConversationProps = {
                 value: z
                   .string()
                   .title('Value')
-                  .describe('Parameter value (URL suffix, payload, code, or empty for skip)').optional(),
+                  .describe('Parameter value (URL suffix, payload, code, or empty for skip)')
+                  .optional(),
               })
             )
             .optional()

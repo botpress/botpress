@@ -83,7 +83,10 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
   }
 
   // Buttons
-  const buttonParams: KeyValuePair[] = (templateButtonParams ?? []).map(({ key, value }) => ({ key, value: value ?? '' }))
+  const buttonParams: KeyValuePair[] = (templateButtonParams ?? []).map(({ key, value }) => ({
+    key,
+    value: value ?? '',
+  }))
   if (buttonParams.length > 0) {
     templateApiComponents.push(...buildButtonComponents(buttonParams))
   }
