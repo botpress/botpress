@@ -102,7 +102,8 @@ export async function generateContent(
   if (
     (modelId === 'claude-sonnet-4-5-20250929' ||
       modelId === 'claude-haiku-4-5-20251001' ||
-      modelId === 'claude-sonnet-4-6') &&
+      modelId === 'claude-sonnet-4-6' ||
+      modelId === 'claude-opus-4-6') &&
     request.temperature !== undefined &&
     request.top_p !== undefined
   ) {
