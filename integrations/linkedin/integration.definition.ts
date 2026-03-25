@@ -18,6 +18,7 @@ export default new IntegrationDefinition({
   secrets,
   actions,
   attributes: {
+    category: 'Business Operations',
     guideSlug: 'linkedin',
     repo: 'botpress',
   }

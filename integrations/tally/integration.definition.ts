@@ -53,6 +53,7 @@ export default new IntegrationDefinition({
   },
   __advanced: { toJSONSchemaOptions },
   attributes: {
+    category: 'Business Operations',
     repo: 'botpress',
   },
 })

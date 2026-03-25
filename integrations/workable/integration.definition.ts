@@ -51,6 +51,7 @@ export default new IntegrationDefinition({
     candidateMoved,
   },
   attributes: {
+    category: 'Business Operations',
     guideSlug: 'workable',
     repo: 'botpress',
   }

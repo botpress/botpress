@@ -25,6 +25,7 @@ export default new sdk.IntegrationDefinition({
   secrets: { ...secrets, ...sentryHelpers.COMMON_SECRET_NAMES },
   attributes: {
     category: 'Developer Tools',
+    repo: 'botpress',
   },
 }).extend(filesReadonly, ({}) => ({
   entities: {},

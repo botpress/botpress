@@ -124,6 +124,7 @@ export default new sdk.IntegrationDefinition({
   },
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
   attributes: {
+    category: 'Customer Support',
     repo: 'botpress',
   },
 }).extend(hitl, (self) => ({
