@@ -6,12 +6,6 @@ export const getStoredCredentials = async (
   client: bp.Client,
   ctx: bp.HandlerProps['ctx']
 ): Promise<StoredCredentials> => {
-  const { configurationType: configType } = ctx
-  if (configType === 'manual') {
-    const { appId, keyId, keySecret } = ctx.configuration
-    return { configType, appId, keyId, keySecret }
-  }
-
   const {
     state: { payload: credentials },
   } = await client.getOrSetState({
@@ -27,13 +21,10 @@ export const getStoredCredentials = async (
     throw new sdk.RuntimeError('failed to get stored access token or app ID')
   }
 
-  return { configType, token, appId, subdomain }
+  return { token, appId, subdomain }
 }
 
 export const getWebhookSecret = async (client: bp.Client, ctx: bp.HandlerProps['ctx']) => {
-  if (ctx.configurationType === 'manual') {
-    return ctx.configuration.webhookSecret
-  }
   const {
     state: {
       payload: { secret },
