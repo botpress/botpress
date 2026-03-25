@@ -7,13 +7,12 @@ import { safeFormatPhoneNumber } from '../misc/phone-number-to-whatsapp'
 import {
   getTemplateText,
   parseTemplateVariablesJSON,
-  parseTemplateHeaderJSON,
-  parseTemplateButtonsJSON,
-  buildHeaderComponent,
+  buildHeaderComponents,
   buildBodyComponent,
+  buildBodyComponentFromLegacy,
   buildButtonComponents,
 } from '../misc/template-utils'
-import { TemplateHeader, TemplateVariables } from '../misc/types'
+import { KeyValuePair } from '../misc/types'
 import { logForBotAndThrow } from '../misc/util'
 import * as bp from '.botpress'
 
@@ -35,7 +34,14 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     logForBotAndThrow('Sending template is not supported in sandbox mode', logger)
   }
 
-  const { userPhone, templateName, templateVariablesJson, templateHeaderJson, templateButtonsJson } = input.conversation
+  const {
+    userPhone,
+    templateName,
+    templateVariablesJson,
+    templateHeaderParams,
+    templateBodyParams,
+    templateButtonParams,
+  } = input.conversation
   const botPhoneNumberId = input.conversation.botPhoneNumberId
     ? input.conversation.botPhoneNumberId
     : await getDefaultBotPhoneNumberId(client, ctx).catch(() => {
@@ -45,24 +51,41 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
   const templateLanguage = input.conversation.templateLanguage || 'en'
 
   const templateApiComponents: TemplateComponent[] = []
-  let bodyVariables: TemplateVariables = []
-  let headerInfo: TemplateHeader | undefined
+  const headerParams: KeyValuePair[] = templateHeaderParams ?? []
+  let bodyParams: KeyValuePair[] = templateBodyParams ?? []
 
-  if (templateHeaderJson) {
-    headerInfo = parseTemplateHeaderJSON(templateHeaderJson, logger)
-    templateApiComponents.push(buildHeaderComponent(headerInfo))
-  }
-
-  if (templateVariablesJson) {
-    bodyVariables = parseTemplateVariablesJSON(templateVariablesJson, logger)
-    const bodyComponent = buildBodyComponent(bodyVariables)
-    if (bodyComponent) {
-      templateApiComponents.push(bodyComponent)
+  // Header
+  if (headerParams.length > 0) {
+    const headerComponent = buildHeaderComponents(headerParams)
+    if (headerComponent) {
+      templateApiComponents.push(headerComponent)
     }
   }
 
-  if (templateButtonsJson) {
-    templateApiComponents.push(...buildButtonComponents(parseTemplateButtonsJSON(templateButtonsJson, logger)))
+  // Body: prefer new params, fall back to deprecated templateVariablesJson
+  if (bodyParams.length > 0) {
+    const bodyComponent = buildBodyComponent(bodyParams)
+    if (bodyComponent) {
+      templateApiComponents.push(bodyComponent)
+    }
+  } else if (templateVariablesJson) {
+    const variables = parseTemplateVariablesJSON(templateVariablesJson, logger)
+    const bodyComponent = buildBodyComponentFromLegacy(variables)
+    if (bodyComponent) {
+      templateApiComponents.push(bodyComponent)
+    }
+    // Convert legacy variables to key-value pairs for synthetic message rendering
+    if (Array.isArray(variables)) {
+      bodyParams = variables.map((v, i) => ({ key: String(i + 1), value: v.toString() }))
+    } else {
+      bodyParams = Object.entries(variables).map(([key, value]) => ({ key, value: value.toString() }))
+    }
+  }
+
+  // Buttons
+  const buttonParams: KeyValuePair[] = (templateButtonParams ?? []).map(({ key, value }) => ({ key, value: value ?? '' }))
+  if (buttonParams.length > 0) {
+    templateApiComponents.push(...buildButtonComponents(buttonParams))
   }
 
   const formatPhoneNumberResponse = safeFormatPhoneNumber(userPhone)
@@ -113,7 +136,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
       tags: {},
       type: 'text',
       payload: {
-        text: await getTemplateText(ctx, client, logger, templateName, templateLanguage, bodyVariables, headerInfo),
+        text: await getTemplateText(ctx, client, logger, templateName, templateLanguage, bodyParams, headerParams),
       },
     })
     .catch((err: unknown) => {
@@ -125,8 +148,8 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     .forBot()
     .info(
       `Successfully sent WhatsApp template "${templateName}" with language "${templateLanguage}"${
-        bodyVariables && (Array.isArray(bodyVariables) ? bodyVariables.length > 0 : Object.keys(bodyVariables).length > 0)
-          ? ` using template variables: ${JSON.stringify(bodyVariables)}`
+        bodyParams.length > 0
+          ? ` using template variables: ${JSON.stringify(bodyParams)}`
           : ' without template variables'
       }`
     )

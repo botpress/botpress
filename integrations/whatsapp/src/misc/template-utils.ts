@@ -2,13 +2,9 @@ import { z } from '@botpress/sdk'
 import axios from 'axios'
 import {
   Component,
+  KeyValuePair,
   NamedVariables,
-  PositionalVariables,
-  TemplateButtons,
-  TemplateHeader,
   TemplateVariables,
-  templateButtonsSchema,
-  templateHeaderSchema,
   templateVariablesSchema,
 } from 'src/misc/types'
 import {
@@ -23,7 +19,6 @@ import {
   Image,
   Document,
   Video,
-  Location,
 } from 'whatsapp-api-js/messages'
 import type { TemplateComponent } from 'whatsapp-api-js/types'
 import { getAccessToken, getWabaId } from '../auth'
@@ -136,6 +131,8 @@ export const fetchTemplates = async (
   return parsedResult.data
 }
 
+// --- Deprecated: templateVariablesJson parsing (backward compat) ---
+
 export function parseTemplateVariablesJSON(templateVariablesJson: string, logger: bp.Logger): TemplateVariables {
   let templateVariablesRaw: unknown
 
@@ -160,9 +157,11 @@ export function parseTemplateVariablesJSON(templateVariablesJson: string, logger
   return validationResult.data
 }
 
-export function isNamedVariables(variables: TemplateVariables): variables is NamedVariables {
+function isNamedVariables(variables: TemplateVariables): variables is NamedVariables {
   return !Array.isArray(variables)
 }
+
+// --- Synthetic message rendering ---
 
 export const getTemplateText = async (
   ctx: bp.Context,
@@ -170,8 +169,8 @@ export const getTemplateText = async (
   logger: bp.Logger,
   templateName: string,
   templateLanguage: string,
-  bodyVariables: TemplateVariables,
-  headerInfo?: TemplateHeader
+  bodyParams: KeyValuePair[],
+  headerParams: KeyValuePair[]
 ): Promise<string> => {
   try {
     const response = await fetchTemplates(ctx, client, logger, {
@@ -184,7 +183,7 @@ export const getTemplateText = async (
       throw new Error('No template received')
     }
 
-    return _getTemplateText((template.components ?? []) as Component[], bodyVariables, headerInfo)
+    return _getTemplateText((template.components ?? []) as Component[], bodyParams, headerParams)
   } catch (thrown) {
     const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
     logger.forBot().debug(`failed to get template text - ${errMsg}`)
@@ -194,12 +193,12 @@ export const getTemplateText = async (
 
 const _getTemplateText = (
   templateComponents: Component[],
-  bodyVariables: TemplateVariables,
-  headerInfo?: TemplateHeader
+  bodyParams: KeyValuePair[],
+  headerParams: KeyValuePair[]
 ) => {
   let templateText = ''
   for (const component of templateComponents) {
-    const componentText = _parseComponent(component, bodyVariables, headerInfo)
+    const componentText = _parseComponent(component, bodyParams, headerParams)
     if (!componentText) {
       throw new Error('componentText is undefined')
     }
@@ -208,35 +207,37 @@ const _getTemplateText = (
   return templateText
 }
 
+const MEDIA_HEADER_KEYS = new Set(['image', 'video', 'document'])
+
 const _parseComponent = (
   component: Component,
-  bodyVariables: TemplateVariables,
-  headerInfo?: TemplateHeader
+  bodyParams: KeyValuePair[],
+  headerParams: KeyValuePair[]
 ): string | undefined => {
   let compText
   switch (component.type) {
     case 'BODY':
       compText = component.text ?? 'body has no text'
-      return `[BODY]\n${_getRenderedBodyText(compText, bodyVariables)}\n`
+      return `[BODY]\n${_getRenderedBodyText(compText, bodyParams)}\n`
     case 'HEADER':
-      if (headerInfo) {
-        switch (headerInfo.type) {
-          case 'text': {
-            let headerText = headerInfo.text
-            if (component.format === 'TEXT' && component.text) {
-              headerText = component.text.replace(/\{\{[^}]+\}\}/, headerInfo.text)
-            }
-            return `[HEADER TEXT]\n${headerText}\n`
-          }
-          case 'image':
-            return `[HEADER MEDIA IMAGE]\n${headerInfo.url}\n`
-          case 'video':
-            return `[HEADER MEDIA VIDEO]\n${headerInfo.url}\n`
-          case 'document':
-            return `[HEADER MEDIA DOCUMENT]\n${headerInfo.url}\n`
-          case 'location':
-            return `[HEADER LOCATION]\nlat: ${headerInfo.latitude} long: ${headerInfo.longitude} address: ${headerInfo.address} name: ${headerInfo.name}\n`
+      if (headerParams.length > 0) {
+        const first = headerParams[0]!
+        const baseKey = first.key.split(':')[0]!
+        if (baseKey === 'image') {
+          return `[HEADER MEDIA IMAGE]\n${first.value}\n`
         }
+        if (baseKey === 'video') {
+          return `[HEADER MEDIA VIDEO]\n${first.value}\n`
+        }
+        if (baseKey === 'document') {
+          return `[HEADER MEDIA DOCUMENT]\n${first.value}\n`
+        }
+        // Text header
+        let headerText = first.value
+        if (component.format === 'TEXT' && component.text) {
+          headerText = component.text.replace(/\{\{[^}]+\}\}/, first.value)
+        }
+        return `[HEADER TEXT]\n${headerText}\n`
       }
       if (!component.format) {
         compText = component.parameters.flatMap((parameter) => {
@@ -247,11 +248,11 @@ const _parseComponent = (
         compText = component.text ?? 'header has no text'
         return `[HEADER TEXT]\n${component.text}\n`
       } else {
-        compText = component.example.header_handle.flatMap((url) => `${url}\n`)
+        compText = component.example.header_handle.flatMap((url: string) => `${url}\n`)
         return `[HEADER MEDIA ${component.format}]\n${compText}\n`
       }
     case 'BUTTONS':
-      compText = component.buttons.flatMap((button, index) => {
+      compText = component.buttons.flatMap((button: { text?: string }, index: number) => {
         if (!button.text) {
           return
         }
@@ -278,67 +279,17 @@ const _parseComponent = (
   }
 }
 
-const _getRenderedBodyText = (text: string, bodyVariables: TemplateVariables): string => {
-  if (Array.isArray(bodyVariables)) {
-    bodyVariables.forEach((value, index) => {
-      text = text.replace(`{{${index + 1}}}`, value.toString())
-    })
-  } else {
-    for (const [key, value] of Object.entries(bodyVariables)) {
-      text = text.replace(`{{${key}}}`, value.toString())
-    }
+const _getRenderedBodyText = (text: string, bodyParams: KeyValuePair[]): string => {
+  for (const { key, value } of bodyParams) {
+    text = text.replace(`{{${key}}}`, value)
   }
-
   return text
 }
 
-export function parseTemplateHeaderJSON(json: string, logger: bp.Logger): TemplateHeader {
-  let raw: unknown
+// --- Key-value param builders ---
 
-  try {
-    raw = JSON.parse(json)
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : ''
-    logForBotAndThrow(
-      `Value provided for Template Header JSON isn't valid JSON (error: ${message}). Received: ${json}`,
-      logger
-    )
-  }
-
-  const result = templateHeaderSchema.safeParse(raw)
-  if (!result.success) {
-    logForBotAndThrow(
-      `Invalid template header JSON (error: ${result.error.message})`,
-      logger
-    )
-  }
-
-  return result.data
-}
-
-export function parseTemplateButtonsJSON(json: string, logger: bp.Logger): TemplateButtons {
-  let raw: unknown
-
-  try {
-    raw = JSON.parse(json)
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : ''
-    logForBotAndThrow(
-      `Value provided for Template Buttons JSON isn't valid JSON (error: ${message}). Received: ${json}`,
-      logger
-    )
-  }
-
-  const result = templateButtonsSchema.safeParse(raw)
-  if (!result.success) {
-    logForBotAndThrow(
-      `Invalid template buttons JSON (error: ${result.error.message})`,
-      logger
-    )
-  }
-
-  return result.data
-}
+const isAllNumericKeys = (params: KeyValuePair[]): boolean =>
+  params.every(({ key }) => /^\d+$/.test(key))
 
 /**
  * Custom body component that supports named parameter_name fields,
@@ -348,11 +299,11 @@ class NamedBodyComponent implements TemplateComponent {
   readonly type = 'body' as const
   readonly parameters: Array<{ type: 'text'; parameter_name: string; text: string }>
 
-  constructor(namedVars: NamedVariables) {
-    this.parameters = Object.entries(namedVars).map(([key, value]) => ({
+  constructor(params: KeyValuePair[]) {
+    this.parameters = params.map(({ key, value }) => ({
       type: 'text' as const,
       parameter_name: key,
-      text: value.toString(),
+      text: value,
     }))
   }
 
@@ -361,12 +312,83 @@ class NamedBodyComponent implements TemplateComponent {
   }
 }
 
-export function buildBodyComponent(variables: TemplateVariables): TemplateComponent | undefined {
+/**
+ * Custom header component that supports the named parameter_name field,
+ * which the whatsapp-api-js library does not yet support.
+ */
+class NamedHeaderComponent implements TemplateComponent {
+  readonly type = 'header' as const
+  readonly parameters: Array<{ type: 'text'; parameter_name: string; text: string }>
+
+  constructor(params: KeyValuePair[]) {
+    this.parameters = params.map(({ key, value }) => ({
+      type: 'text' as const,
+      parameter_name: key,
+      text: value,
+    }))
+  }
+
+  _build() {
+    return this
+  }
+}
+
+export function buildHeaderComponents(params: KeyValuePair[]): TemplateComponent | undefined {
+  if (params.length === 0) {
+    return undefined
+  }
+
+  const first = params[0]!
+  const baseKey = first.key.split(':')[0]!
+
+  if (MEDIA_HEADER_KEYS.has(baseKey)) {
+    switch (baseKey) {
+      case 'image':
+        return new HeaderComponent(new HeaderParameter(new Image(first.value)))
+      case 'video':
+        return new HeaderComponent(new HeaderParameter(new Video(first.value)))
+      case 'document': {
+        const filename = first.key.includes(':') ? first.key.split(':').slice(1).join(':') : undefined
+        return new HeaderComponent(new HeaderParameter(new Document(first.value, false, undefined, filename)))
+      }
+    }
+  }
+
+  // Text header params — check if positional or named
+  if (isAllNumericKeys(params)) {
+    return new HeaderComponent(new HeaderParameter(params[0]!.value))
+  }
+
+  return new NamedHeaderComponent(params)
+}
+
+export function buildBodyComponent(params: KeyValuePair[]): TemplateComponent | undefined {
+  if (params.length === 0) {
+    return undefined
+  }
+
+  if (isAllNumericKeys(params)) {
+    const sorted = [...params].sort((a, b) => Number(a.key) - Number(b.key))
+    const bodyParams: BodyParameter[] = sorted.map(({ value }) => new BodyParameter(value))
+    if (hasAtleastOne(bodyParams)) {
+      return new BodyComponent(...bodyParams)
+    }
+    return undefined
+  }
+
+  return new NamedBodyComponent(params)
+}
+
+export function buildBodyComponentFromLegacy(variables: TemplateVariables): TemplateComponent | undefined {
   if (isNamedVariables(variables)) {
     if (Object.keys(variables).length === 0) {
       return undefined
     }
-    return new NamedBodyComponent(variables)
+    const params: KeyValuePair[] = Object.entries(variables).map(([key, value]) => ({
+      key,
+      value: value.toString(),
+    }))
+    return new NamedBodyComponent(params)
   }
 
   const bodyParams: BodyParameter[] = variables.map((v) => new BodyParameter(v.toString()))
@@ -376,36 +398,19 @@ export function buildBodyComponent(variables: TemplateVariables): TemplateCompon
   return undefined
 }
 
-export function buildHeaderComponent(header: TemplateHeader): HeaderComponent {
-  switch (header.type) {
-    case 'text':
-      return new HeaderComponent(new HeaderParameter(header.text))
-    case 'image':
-      return new HeaderComponent(new HeaderParameter(new Image(header.url)))
-    case 'video':
-      return new HeaderComponent(new HeaderParameter(new Video(header.url)))
-    case 'document':
-      return new HeaderComponent(new HeaderParameter(new Document(header.url, false, undefined, header.filename)))
-    case 'location':
-      return new HeaderComponent(
-        new HeaderParameter(new Location(header.longitude, header.latitude, header.name, header.address))
-      )
-  }
-}
-
-export function buildButtonComponents(buttons: TemplateButtons): TemplateComponent[] {
+export function buildButtonComponents(params: KeyValuePair[]): TemplateComponent[] {
   const result: TemplateComponent[] = []
 
-  for (const button of buttons) {
-    switch (button.type) {
+  for (const { key, value } of params) {
+    switch (key) {
       case 'url':
-        result.push(new URLComponent(button.text))
+        result.push(new URLComponent(value))
         break
       case 'quick_reply':
-        result.push(new PayloadComponent(button.payload))
+        result.push(new PayloadComponent(value))
         break
       case 'copy_code':
-        result.push(new CopyComponent(button.code))
+        result.push(new CopyComponent(value))
         break
       case 'skip':
         result.push(new SkipButtonComponent())

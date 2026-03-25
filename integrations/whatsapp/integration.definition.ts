@@ -77,27 +77,53 @@ const startConversationProps = {
           templateVariablesJson: z
             .string()
             .optional()
-            .title('Message Template variables')
+            .title('Message Template variables (deprecated)')
             .describe(
-              'JSON body variables for the template. Positional: ["val1", "val2"]. Named: {"buyer_name": "John", "store": "Acme"}.'
+              'Deprecated: use templateBodyParams instead. JSON array of body variable values: ["val1", "val2"].'
             ),
-          templateHeaderJson: z
-            .string()
+          templateHeaderParams: z
+            .array(
+              z.object({
+                key: z.string().title('Key').describe('1-indexed number for numbered and property name for named'),
+                value: z.string().title('Value').describe('Value for the corresponding key'),
+              })
+            )
             .optional()
-            .title('Message Template header (JSON)')
+            .title('Template header parameters')
             .describe(
-              'JSON object for the template header parameter. ' +
-                'For text: { "type": "text", "text": "Hello" }. ' +
-                'For media: { "type": "image", "url": "https://..." } (also supports "video", "document", "location").'
+              'Header parameters as key-value pairs. ' +
+                'For text: key is the parameter name, value is the text (e.g. key="recipient", value="John"). ' +
+                'For media: key is "image", "video", or "document" (optionally "document:filename.pdf"), value is the URL.'
             ),
-          templateButtonsJson: z
-            .string()
+          templateBodyParams: z
+            .array(
+              z.object({
+                key: z.string().title('Key').describe('1-indexed number for numbered and property name for named'),
+                value: z.string().title('Value').describe('Value for the corresponding key'),
+              })
+            )
             .optional()
-            .title('Message Template buttons (JSON)')
+            .title('Template body parameters')
             .describe(
-              'JSON array of button parameters, one per button slot in the template. ' +
-                'Examples: [{ "type": "url", "text": "/path" }, { "type": "quick_reply", "payload": "yes" }, ' +
-                '{ "type": "copy_code", "code": "SAVE10" }, { "type": "skip" }]'
+              'Body parameters as key-value pairs. ' +
+                'For named params: key is the param name (e.g. key="buyer_name", value="John"). ' +
+                'For positional params: key is the position number (e.g. key="1", value="John").'
+            ),
+          templateButtonParams: z
+            .array(
+              z.object({
+                key: z.string().title('Key').describe('Button type: "url", "quick_reply", "copy_code", or "skip"'),
+                value: z
+                  .string()
+                  .title('Value')
+                  .describe('Parameter value (URL suffix, payload, code, or empty for skip)').optional(),
+              })
+            )
+            .optional()
+            .title('Template button parameters')
+            .describe(
+              'Button parameters as key-value pairs. key is the button type: "url", "quick_reply", "copy_code", or "skip". ' +
+                'value is the parameter (URL suffix, payload, code, or empty for skip).'
             ),
           botPhoneNumberId: z
             .string()
