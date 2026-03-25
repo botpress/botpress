@@ -125,8 +125,7 @@ export const fetchTemplates = async (
   return parsedResult.data
 }
 
-// --- Deprecated: templateVariablesJson parsing (backward compat) ---
-
+// TODO: Remove in the next major
 export function parseTemplateVariablesJSON(templateVariablesJson: string, logger: bp.Logger): TemplateVariables {
   let templateVariablesRaw: unknown
 
@@ -155,9 +154,7 @@ function isNamedVariables(variables: TemplateVariables): variables is NamedVaria
   return !Array.isArray(variables)
 }
 
-// --- Synthetic message rendering ---
-
-export const getTemplateText = async (
+export const generateSyntheticTemplateText = async (
   ctx: bp.Context,
   client: bp.Client,
   logger: bp.Logger,
@@ -280,9 +277,8 @@ const _getRenderedBodyText = (text: string, bodyParams: KeyValuePair[]): string 
   return text
 }
 
-// --- Key-value param builders ---
-
-const isAllNumericKeys = (params: KeyValuePair[]): boolean => params.every(({ key }) => /^\d+$/.test(key))
+const isAllNumericKeys = (params: KeyValuePair[]): boolean =>
+  params.every(({ key }) => Number.isInteger(Number(key)) && Number(key) > 0)
 
 /**
  * Custom body component that supports named parameter_name fields,
@@ -300,7 +296,7 @@ class NamedBodyComponent implements TemplateComponent {
     }))
   }
 
-  public _build() {
+  public build() {
     return this
   }
 }
@@ -321,7 +317,7 @@ class NamedHeaderComponent implements TemplateComponent {
     }))
   }
 
-  public _build() {
+  public build() {
     return this
   }
 }
@@ -332,7 +328,11 @@ export function buildHeaderComponents(params: KeyValuePair[]): TemplateComponent
   }
 
   const first = params[0]!
-  const baseKey = first.key.split(':')[0]!
+  const baseKey = first.key.split(':')[0]
+
+  if (!baseKey) {
+    throw new Error(`Invalid header parameter key: ${first.key}`)
+  }
 
   if (MEDIA_HEADER_KEYS.has(baseKey)) {
     switch (baseKey) {
@@ -347,7 +347,6 @@ export function buildHeaderComponents(params: KeyValuePair[]): TemplateComponent
     }
   }
 
-  // Text header params — check if positional or named
   if (isAllNumericKeys(params)) {
     return new HeaderComponent(new HeaderParameter(params[0]!.value))
   }

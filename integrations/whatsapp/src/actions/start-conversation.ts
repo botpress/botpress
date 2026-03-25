@@ -5,7 +5,7 @@ import type { TemplateComponent } from 'whatsapp-api-js/types'
 import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient } from '../auth'
 import { safeFormatPhoneNumber } from '../misc/phone-number-to-whatsapp'
 import {
-  getTemplateText,
+  generateSyntheticTemplateText,
   parseTemplateVariablesJSON,
   buildHeaderComponents,
   buildBodyComponent,
@@ -54,7 +54,6 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
   const headerParams: KeyValuePair[] = templateHeaderParams ?? []
   let bodyParams: KeyValuePair[] = templateBodyParams ?? []
 
-  // Header
   if (headerParams.length > 0) {
     const headerComponent = buildHeaderComponents(headerParams)
     if (headerComponent) {
@@ -62,19 +61,18 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     }
   }
 
-  // Body: prefer new params, fall back to deprecated templateVariablesJson
   if (bodyParams.length > 0) {
     const bodyComponent = buildBodyComponent(bodyParams)
     if (bodyComponent) {
       templateApiComponents.push(bodyComponent)
     }
+  // TODO: Remove templateVariableJson in the next major
   } else if (templateVariablesJson) {
     const variables = parseTemplateVariablesJSON(templateVariablesJson, logger)
     const bodyComponent = buildBodyComponentFromLegacy(variables)
     if (bodyComponent) {
       templateApiComponents.push(bodyComponent)
     }
-    // Convert legacy variables to key-value pairs for synthetic message rendering
     if (Array.isArray(variables)) {
       bodyParams = variables.map((v, i) => ({ key: String(i + 1), value: v.toString() }))
     } else {
@@ -82,7 +80,6 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     }
   }
 
-  // Buttons
   const buttonParams: KeyValuePair[] = (templateButtonParams ?? []).map(({ key, value }) => ({
     key,
     value: value ?? '',
@@ -139,7 +136,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
       tags: {},
       type: 'text',
       payload: {
-        text: await getTemplateText(ctx, client, logger, templateName, templateLanguage, bodyParams, headerParams),
+        text: await generateSyntheticTemplateText(ctx, client, logger, templateName, templateLanguage, bodyParams, headerParams),
       },
     })
     .catch((err: unknown) => {
