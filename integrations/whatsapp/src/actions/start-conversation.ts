@@ -66,7 +66,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     if (bodyComponent) {
       templateApiComponents.push(bodyComponent)
     }
-  // TODO: Remove templateVariableJson in the next major
+    // TODO: Remove templateVariableJson in the next major
   } else if (templateVariablesJson) {
     const variables = parseTemplateVariablesJSON(templateVariablesJson, logger)
     const bodyComponent = buildBodyComponentFromLegacy(variables)
@@ -136,7 +136,15 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
       tags: {},
       type: 'text',
       payload: {
-        text: await generateSyntheticTemplateText(ctx, client, logger, templateName, templateLanguage, bodyParams, headerParams),
+        text: await generateSyntheticTemplateText(
+          ctx,
+          client,
+          logger,
+          templateName,
+          templateLanguage,
+          bodyParams,
+          headerParams
+        ),
       },
     })
     .catch((err: unknown) => {
