@@ -86,7 +86,7 @@ const _ActiveLearning = z.object({
  * const zai = new Zai(config)
  * ```
  */
-type ZaiConfig = {
+export type ZaiConfig = {
   /** Botpress client or Cognitive client instance */
   client: BotpressClientLike | Cognitive
   /** Optional user ID for tracking and attribution */
