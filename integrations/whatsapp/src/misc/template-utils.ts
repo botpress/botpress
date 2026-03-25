@@ -296,7 +296,7 @@ class NamedBodyComponent implements TemplateComponent {
     }))
   }
 
-  public build() {
+  public _build() {
     return this
   }
 }
@@ -317,7 +317,7 @@ class NamedHeaderComponent implements TemplateComponent {
     }))
   }
 
-  public build() {
+  public _build() {
     return this
   }
 }
