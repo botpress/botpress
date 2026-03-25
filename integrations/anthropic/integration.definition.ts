@@ -6,7 +6,7 @@ export default new IntegrationDefinition({
   name: 'anthropic',
   title: 'Anthropic',
   description: 'Access a curated list of Claude models to set as your chosen LLM.',
-  version: '14.0.2',
+  version: '15.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
