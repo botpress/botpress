@@ -34,19 +34,13 @@ class SuncoClient {
     this._credentials = credentials
     const apiClient = new SunshineConversationsApi.ApiClient()
 
-    if (credentials.configType === 'manual') {
-      const auth = apiClient.authentications['basicAuth']
-      auth.username = credentials.keyId
-      auth.password = credentials.keySecret
-    } else {
-      if (!credentials.subdomain) {
-        throw new RuntimeError('Subdomain is required for OAuth')
-      }
-      apiClient.basePath = `https://${credentials.subdomain}.zendesk.com/sc`
-      const auth = apiClient.authentications['bearerAuth'] as { accessToken: string }
-      auth.accessToken = credentials.token
-      apiClient.defaultHeaders = { ...apiClient.defaultHeaders, ...BASE_HEADERS }
+    if (!credentials.subdomain) {
+      throw new RuntimeError('Subdomain is required for OAuth')
     }
+    apiClient.basePath = `https://${credentials.subdomain}.zendesk.com/sc`
+    const auth = apiClient.authentications['bearerAuth'] as { accessToken: string }
+    auth.accessToken = credentials.token
+    apiClient.defaultHeaders = { ...apiClient.defaultHeaders, ...BASE_HEADERS }
 
     this._client = {
       apps: new SunshineConversationsApi.AppsApi(apiClient),
@@ -141,13 +135,9 @@ class SuncoClient {
   }
 
   private _getAxiosConfig() {
-    const credentials = this._credentials
-    const baseUrl =
-      credentials.configType === 'manual' ? 'https://api.smooch.io' : `https://${credentials.subdomain}.zendesk.com/sc`
-    const auth =
-      credentials.configType === 'manual'
-        ? { auth: { username: credentials.keyId, password: credentials.keySecret } }
-        : { headers: { Authorization: `Bearer ${credentials.token}`, ...BASE_HEADERS } }
+    const { subdomain, token } = this._credentials
+    const baseUrl = `https://${subdomain}.zendesk.com/sc`
+    const auth = { headers: { Authorization: `Bearer ${token}`, ...BASE_HEADERS } }
     return { baseUrl, auth }
   }
 }

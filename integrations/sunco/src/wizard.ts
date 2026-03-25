@@ -100,7 +100,6 @@ const _selectIdentifier: WizardHandler = async (props) => {
   }
 
   const suncoClient = getSuncoClient({
-    configType: null,
     appId: credentials.appId,
     token: credentials.token,
     subdomain: credentials.subdomain,

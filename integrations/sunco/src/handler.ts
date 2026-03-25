@@ -93,7 +93,7 @@ const _handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProp
 
   await client.setState({ type: 'integration', name: 'credentials', id: ctx.integrationId, payload: credentials })
 
-  const suncoClient = getSuncoClient({ configType: null, ...credentials })
+  const suncoClient = getSuncoClient(credentials)
   const globalWebhookUrl = `${new URL(process.env.BP_WEBHOOK_URL!).origin}/integration/global/${INTEGRATION_NAME}`
   const existingWebhooks = await suncoClient.listWebhooks()
   const existingWebhook = existingWebhooks.find((wh) => wh.target === globalWebhookUrl)
