@@ -2527,7 +2527,7 @@ importers:
         specifier: 1.38.2
         version: link:../client
       '@botpress/sdk':
-        specifier: 6.3.2
+        specifier: 6.4.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2651,7 +2651,7 @@ importers:
         specifier: 1.38.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.3.2
+        specifier: 6.4.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2667,7 +2667,7 @@ importers:
         specifier: 1.38.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.3.2
+        specifier: 6.4.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2680,7 +2680,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 6.3.2
+        specifier: 6.4.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2696,7 +2696,7 @@ importers:
         specifier: 1.38.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.3.2
+        specifier: 6.4.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2712,7 +2712,7 @@ importers:
         specifier: 1.38.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.3.2
+        specifier: 6.4.0
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2866,7 +2866,7 @@ importers:
         specifier: 1.38.2
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.4.3
+        specifier: 0.4.4
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^2.0.0
@@ -3052,7 +3052,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.4.3
+        specifier: 0.4.4
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -3165,7 +3165,7 @@ importers:
   plugins/conversation-insights:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.4.3
+        specifier: 0.4.4
         version: link:../../packages/cognitive
       '@botpress/sdk':
         specifier: workspace:*
