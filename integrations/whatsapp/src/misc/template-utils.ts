@@ -289,10 +289,10 @@ const isAllNumericKeys = (params: KeyValuePair[]): boolean => params.every(({ ke
  * which the whatsapp-api-js library does not yet support.
  */
 class NamedBodyComponent implements TemplateComponent {
-  readonly type = 'body' as const
-  readonly parameters: Array<{ type: 'text'; parameter_name: string; text: string }>
+  public readonly type = 'body' as const
+  public readonly parameters: Array<{ type: 'text'; parameter_name: string; text: string }>
 
-  constructor(params: KeyValuePair[]) {
+  public constructor(params: KeyValuePair[]) {
     this.parameters = params.map(({ key, value }) => ({
       type: 'text' as const,
       parameter_name: key,
@@ -300,7 +300,7 @@ class NamedBodyComponent implements TemplateComponent {
     }))
   }
 
-  _build() {
+  public _build() {
     return this
   }
 }
@@ -310,10 +310,10 @@ class NamedBodyComponent implements TemplateComponent {
  * which the whatsapp-api-js library does not yet support.
  */
 class NamedHeaderComponent implements TemplateComponent {
-  readonly type = 'header' as const
-  readonly parameters: Array<{ type: 'text'; parameter_name: string; text: string }>
+  public readonly type = 'header' as const
+  public readonly parameters: Array<{ type: 'text'; parameter_name: string; text: string }>
 
-  constructor(params: KeyValuePair[]) {
+  public constructor(params: KeyValuePair[]) {
     this.parameters = params.map(({ key, value }) => ({
       type: 'text' as const,
       parameter_name: key,
@@ -321,7 +321,7 @@ class NamedHeaderComponent implements TemplateComponent {
     }))
   }
 
-  _build() {
+  public _build() {
     return this
   }
 }
