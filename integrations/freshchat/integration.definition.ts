@@ -6,7 +6,7 @@ import { events, configuration, channels, states, user } from './src/definitions
 export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,
   title: 'Freshchat',
-  version: '1.5.4',
+  version: '1.5.5',
   icon: 'icon.svg',
   description: 'This integration allows your bot to use Freshchat as a HITL Provider',
   readme: 'hub.md',
@@ -30,6 +30,7 @@ export default new sdk.IntegrationDefinition({
   },
   attributes: {
     category: 'Communication & Channels',
+    repo: 'botpress',
   },
 }).extend(hitl, (self) => ({
   entities: { hitlSession: self.entities.hitlConversation },

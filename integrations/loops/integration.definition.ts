@@ -5,7 +5,7 @@ export default new IntegrationDefinition({
   name: 'loops',
   title: 'Loops',
   description: 'Handle transactional emails from your chatbot.',
-  version: '0.1.4',
+  version: '0.1.5',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration,
@@ -16,5 +16,7 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'Marketing & Email',
+    guideSlug: 'loops',
+    repo: 'botpress',
   },
 })

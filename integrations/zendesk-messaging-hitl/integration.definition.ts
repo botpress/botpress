@@ -4,7 +4,7 @@ import hitl from './bp_modules/hitl'
 
 export default new sdk.IntegrationDefinition({
   name: 'zendesk-messaging-hitl',
-  version: '0.2.0',
+  version: '0.2.1',
   title: 'Zendesk Messaging HITL',
   description: 'This integration allows your bot to use Sunshine Conversations (Sunco) as a HITL Provider for Zendesk',
   icon: 'icon.svg',
@@ -123,6 +123,9 @@ export default new sdk.IntegrationDefinition({
     },
   },
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  attributes: {
+    repo: 'botpress',
+  },
 }).extend(hitl, (self) => ({
   entities: { hitlSession: self.entities.hitlConversation },
   channels: {

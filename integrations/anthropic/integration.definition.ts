@@ -6,7 +6,7 @@ export default new IntegrationDefinition({
   name: 'anthropic',
   title: 'Anthropic',
   description: 'Access a curated list of Claude models to set as your chosen LLM.',
-  version: '14.0.1',
+  version: '14.0.2',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
@@ -23,6 +23,7 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'AI Models',
+    repo: 'botpress',
   },
 }).extend(llm, ({ entities }) => ({
   entities: { modelRef: entities.modelRef },

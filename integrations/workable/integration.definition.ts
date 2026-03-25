@@ -13,7 +13,7 @@ export default new IntegrationDefinition({
   name: 'workable',
   title: 'Workable',
   description: 'Integration with Workable for Botpress',
-  version: '0.1.1',
+  version: '0.1.2',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -50,4 +50,8 @@ export default new IntegrationDefinition({
     candidateCreated,
     candidateMoved,
   },
+  attributes: {
+    guideSlug: 'workable',
+    repo: 'botpress',
+  }
 })

@@ -3,7 +3,7 @@ import { actions, states, events } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'attio',
-  version: '1.0.2',
+  version: '1.0.3',
 
   title: 'Attio',
   readme: 'hub.md',
@@ -22,5 +22,6 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'CRM & Sales',
+    repo: 'botpress',
   },
 })

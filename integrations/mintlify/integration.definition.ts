@@ -5,7 +5,7 @@ export default new IntegrationDefinition({
   name: 'mintlify',
   title: 'Mintlify',
   description: 'Create and retrieve agent jobs in your Mintlify documentation',
-  version: '1.0.0',
+  version: '1.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -15,4 +15,8 @@ export default new IntegrationDefinition({
     }),
   },
   actions,
+  attributes: {
+    guideSlug: 'mintlify',
+    repo: 'botpress',
+  }
 })
