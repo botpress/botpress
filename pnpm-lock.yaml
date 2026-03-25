@@ -2255,8 +2255,8 @@ importers:
         specifier: ^6.5.13
         version: 6.5.13(preact@10.26.6)
       sunshine-conversations-client:
-        specifier: 17.0.0
-        version: 17.0.0(@babel/core@7.28.0)
+        specifier: ^9.12.0
+        version: 9.15.0(@babel/core@7.28.0)
     devDependencies:
       '@sentry/cli':
         specifier: ^2.39.1
@@ -11112,9 +11112,6 @@ packages:
     resolution: {integrity: sha512-8EbVDiu9iN/nESwxeSxDKe0dunta1GOlHufmSSXxMD2z2/tMZpDMpvXQGsc+ajGo8y2uYUmixaSRUc/QPoQ0GA==}
     engines: {node: '>=16 || 14 >=14.17'}
     hasBin: true
-
-  sunshine-conversations-client@17.0.0:
-    resolution: {integrity: sha512-tmnQeL+5e22BgacaYQrr058bIb1ZVN76hFCfiyK8rSoYauVuLHgzz31KsQiSNb8V/ageST5vleL44oBx7xbx3w==, tarball: https://registry.npmjs.org/sunshine-conversations-client/-/sunshine-conversations-client-17.0.0.tgz}
 
   sunshine-conversations-client@9.15.0:
     resolution: {integrity: sha512-7jY+ybMisDQ4GINvEv1c6+wCCWXf1okeePqiOP8+UdPNxvVOEa6fx93VnD5F5KwVnaXTaVvJ5cgavupGqvCj1w==, tarball: https://registry.npmjs.org/sunshine-conversations-client/-/sunshine-conversations-client-9.15.0.tgz}
@@ -22084,14 +22081,6 @@ snapshots:
       mz: 2.7.0
       pirates: 4.0.5
       ts-interface-checker: 0.1.13
-
-  sunshine-conversations-client@17.0.0(@babel/core@7.28.0):
-    dependencies:
-      '@babel/cli': 7.22.5(@babel/core@7.28.0)
-      superagent: 5.3.1
-    transitivePeerDependencies:
-      - '@babel/core'
-      - supports-color
 
   sunshine-conversations-client@9.15.0(@babel/core@7.28.0):
     dependencies:
