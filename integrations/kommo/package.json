@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/kommo",
-  "description": "Kommo integration for Botpress",
   "private": true,
   "scripts": {
     "build": "bp add -y && bp build",
@@ -13,7 +12,6 @@
     "axios": "^1.13.2"
   },
   "devDependencies": {
-    "@botpress/cli": "workspace:*",
-    "@botpress/sdk": "workspace:*"
+    "@botpress/cli": "workspace:*"
   }
 }
