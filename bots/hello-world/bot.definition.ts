@@ -21,6 +21,7 @@ export default new sdk.BotDefinition({
     enabled: true,
     configuration: {
       botToken: env.HELLO_WORLD_TELEGRAM_BOT_TOKEN,
+      typingIndicatorEmoji: true,
     },
   })
   .addIntegration(chat, {
