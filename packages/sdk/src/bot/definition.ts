@@ -273,7 +273,9 @@ export class BotDefinition<
     const integrationAlias = config?.alias ?? integrationPkg.name
 
     if (self.integrations[integrationAlias]) {
-      throw new SdkDefinitionError(`Another integration with alias "${integrationAlias}" is already installed in the bot`)
+      throw new SdkDefinitionError(
+        `Another integration with alias "${integrationAlias}" is already installed in the bot`
+      )
     }
 
     self.integrations[integrationAlias] = {
