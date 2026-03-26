@@ -53,27 +53,31 @@ const integration = new bp.Integration({
 
       await telegraf.telegram.sendChatAction(chat, 'typing').catch(mapToRuntimeErrorAndThrow('Fail to start typing'))
 
-      if (ctx.configuration.typingIndicatorEmoji) {
-        await telegraf.telegram
-          .setMessageReaction(chat, messageId, [{ type: 'emoji', emoji: '👀' }])
-          .catch(mapToRuntimeErrorAndThrow('Fail to set message reaction'))
+      if (ctx.configuration.typingIndicatorEmoji === false) {
+        return false
       }
+
+      await telegraf.telegram
+        .setMessageReaction(chat, messageId, [{ type: 'emoji', emoji: '👀' }])
+        .catch(mapToRuntimeErrorAndThrow('Fail to set message reaction'))
 
       return {}
     },
     stopTypingIndicator: async ({ input, ctx, client }) => {
-      if (ctx.configuration.typingIndicatorEmoji) {
-        const telegraf = new Telegraf(ctx.configuration.botToken)
-        const { conversation } = await client.getConversation({ id: input.conversationId })
-        const { message } = await client.getMessage({ id: input.messageId })
-
-        const chat = getChat(conversation)
-        const messageId = getMessageId(message)
-
-        await telegraf.telegram
-          .setMessageReaction(chat, messageId, [])
-          .catch(mapToRuntimeErrorAndThrow('Fail to set message reaction'))
+      if (ctx.configuration.typingIndicatorEmoji === false) {
+        return false
       }
+
+      const telegraf = new Telegraf(ctx.configuration.botToken)
+      const { conversation } = await client.getConversation({ id: input.conversationId })
+      const { message } = await client.getMessage({ id: input.messageId })
+
+      const chat = getChat(conversation)
+      const messageId = getMessageId(message)
+
+      await telegraf.telegram
+        .setMessageReaction(chat, messageId, [])
+        .catch(mapToRuntimeErrorAndThrow('Fail to set message reaction'))
 
       return {}
     },
