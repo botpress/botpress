@@ -22,7 +22,7 @@ export default new IntegrationDefinition({
   states,
   user,
   attributes: {
-    category: 'Channels & Communication',
+    category: 'Communication & Channels',
     repo: 'botpress',
   },
 })
