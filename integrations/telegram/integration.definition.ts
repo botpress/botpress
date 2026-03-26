@@ -13,6 +13,11 @@ export default new IntegrationDefinition({
   configuration: {
     schema: z.object({
       botToken: z.string().min(1).describe('Bot Token').title('Bot Token'),
+      typingIndicatorEmoji: z
+        .boolean()
+        .default(false)
+        .title('Typing Indicator Emoji')
+        .describe('Temporarily add an emoji reaction to received messages to indicate when bot is processing message'),
     }),
   },
   channels: {
