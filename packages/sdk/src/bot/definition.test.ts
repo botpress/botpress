@@ -1,5 +1,5 @@
-import { test } from 'vitest'
-import { ResolvedIntegrationConfigInstance, IntegrationInstance } from './definition'
+import { test, expect } from 'vitest'
+import { ResolvedIntegrationConfigInstance, IntegrationInstance, BotDefinition } from './definition'
 import * as utils from '../utils/type-utils'
 import { IntegrationDefinition } from '../integration'
 import { z } from '@bpinternal/zui'
@@ -151,3 +151,111 @@ test('IntegrationConfigInstance of integration with multiple config schemas shou
     ]
   >
 })
+
+test('IntegrationConfigInstance with field with z.default() is optional in the default config type', async () => {
+  const def = new IntegrationDefinition({
+    name: 'frodo',
+    version: '1.0.0',
+    configuration: {
+      schema: z.object({
+        theOneRing: z.string(),
+        isInvisible: z.boolean().default(false),
+      }),
+    },
+  })
+  type Def = typeof def
+  type Pkg = { type: 'integration'; name: Def['name']; version: Def['version']; definition: Def; implementation: null }
+
+  type ActualConfig = Extract<ResolvedIntegrationConfigInstance<Pkg>, { configurationType?: null }>['configuration']
+
+  // z.input makes defaulted fields optional — you can omit isInvisible when configuring
+  type ExpectedConfig = {
+    theOneRing: string
+    isInvisible?: boolean
+  }
+
+  type _assertion = utils.AssertAll<
+    [
+      utils.AssertExtends<ActualConfig, ExpectedConfig>,
+      utils.AssertExtends<ExpectedConfig, ActualConfig>,
+    ]
+  >
+})
+
+test('IntegrationConfigInstance with field with z.default() is optional in a named config type', async () => {
+  const def = new IntegrationDefinition({
+    name: 'frodo',
+    version: '1.0.0',
+    configurations: {
+      withSword: {
+        schema: z.object({
+          sting: z.string(),
+          isEnchanted: z.boolean().default(true),
+        }),
+      },
+    },
+  })
+  type Def = typeof def
+  type Pkg = { type: 'integration'; name: Def['name']; version: Def['version']; definition: Def; implementation: null }
+
+  type ActualConfig = Extract<ResolvedIntegrationConfigInstance<Pkg>, { configurationType: 'withSword' }>['configuration']
+
+  // z.input makes defaulted fields optional — you can omit isEnchanted when configuring
+  type ExpectedConfig = {
+    sting: string
+    isEnchanted?: boolean
+  }
+
+  type _assertion = utils.AssertAll<
+    [
+      utils.AssertExtends<ActualConfig, ExpectedConfig>,
+      utils.AssertExtends<ExpectedConfig, ActualConfig>,
+    ]
+  >
+})
+
+test('addIntegration applies schema defaults to the stored default configuration', () => {
+  const def = new IntegrationDefinition({
+    name: 'frodo',
+    version: '1.0.0',
+    configuration: {
+      schema: z.object({
+        theOneRing: z.string(),
+        isInvisible: z.boolean().default(false),
+      }),
+    },
+  })
+
+  const pkg = { type: 'integration' as const, name: def.name, version: def.version, definition: def, implementation: null }
+  const botDef = new BotDefinition({}).addIntegration(pkg, {
+    configuration: { theOneRing: 'precious' }, // isInvisible intentionally omitted
+  })
+
+  const storedConfig = botDef.integrations?.['frodo']?.configuration
+  expect(storedConfig).toEqual({ theOneRing: 'precious', isInvisible: false })
+})
+
+test('addIntegration applies schema defaults to the stored named configuration', () => {
+  const def = new IntegrationDefinition({
+    name: 'frodo',
+    version: '1.0.0',
+    configurations: {
+      withSword: {
+        schema: z.object({
+          sting: z.string(),
+          isEnchanted: z.boolean().default(true),
+        }),
+      },
+    },
+  })
+
+  const pkg = { type: 'integration' as const, name: def.name, version: def.version, definition: def, implementation: null }
+  const botDef = new BotDefinition({}).addIntegration(pkg, {
+    configurationType: 'withSword',
+    configuration: { sting: 'elvish blade' }, // isEnchanted intentionally omitted
+  })
+
+  const storedConfig = botDef.integrations?.['frodo']?.configuration
+  expect(storedConfig).toEqual({ sting: 'elvish blade', isEnchanted: true })
+})
+
