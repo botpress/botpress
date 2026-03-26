@@ -37,6 +37,7 @@ The Line integration enables your chatbot to seamlessly interact with Line, one 
 `Dropdown` is mapped to `Flex Object`
 `Choice` is mapped to `Flex Object`
 ​
+
 ### From LINE to Botpress
 
 `Text` is mapped to `Text Object`
