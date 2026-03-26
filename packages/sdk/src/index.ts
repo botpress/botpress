@@ -83,7 +83,7 @@ export {
 
 export * as version from './version-utils'
 
-export { SdkDefinitionError, isSdkDefinitionError } from './utils/error-utils'
+export * as errors from './utils/error-utils'
 
 export {
   //

@@ -1,4 +1,4 @@
-import { isSdkDefinitionError } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import Module from 'module'
 import pathlib from 'path'
 
@@ -21,11 +21,11 @@ export const requireJsCode = <T>(code: string): T => {
     return m.exports
   } catch (thrown: unknown) {
     const error = thrown instanceof Error ? thrown : new Error(`${thrown}`)
-    // isSdkDefinitionError() is used instead of instanceof because esbuild bundles
+    // sdk.errors.isDefinitionError() is used instead of instanceof because esbuild bundles
     // @botpress/sdk inline into the compiled definition artifact, making the class
     // inside the bundle a different object than the CLI's own import. See the
-    // isSdkDefinitionError() docstring in the SDK for the full explanation.
-    if (isSdkDefinitionError(thrown)) {
+    // sdk.errors.isDefinitionError() docstring in the SDK for the full explanation.
+    if (sdk.errors.isDefinitionError(thrown)) {
       throw error
     }
     throw _injectStackTrace(error, code, filename)

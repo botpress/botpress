@@ -3,7 +3,7 @@ import { SchemaTransformOptions } from '../../common/types'
 import { resolveInterface } from '../../interface/resolve'
 import { InterfacePackage } from '../../package'
 import * as utils from '../../utils'
-import { SdkDefinitionError } from '../../utils/error-utils'
+import { DefinitionError } from '../../utils/error-utils'
 import { SDK_VERSION } from '../../version'
 import { z } from '../../zui'
 import { SchemaStore, BrandedSchema, createStore, isBranded, getName } from './branded-schema'
@@ -317,7 +317,7 @@ export class IntegrationDefinition<
     const unbrandedEntity = utils.records.pairs(extensionBuilderOutput.entities).find(([_k, e]) => !isBranded(e))
     if (unbrandedEntity) {
       // this means the user tried providing a plain schema without referencing an entity from the integration
-      throw new SdkDefinitionError(
+      throw new DefinitionError(
         `Cannot extend interface "${interfacePkg.name}" with entity "${unbrandedEntity[0]}"; the provided schema is not part of the integration's entities.`
       )
     }
