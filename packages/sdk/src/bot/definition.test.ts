@@ -175,10 +175,7 @@ test('IntegrationConfigInstance with field with z.default() is optional in the d
   }
 
   type _assertion = utils.AssertAll<
-    [
-      utils.AssertExtends<ActualConfig, ExpectedConfig>,
-      utils.AssertExtends<ExpectedConfig, ActualConfig>,
-    ]
+    [utils.AssertExtends<ActualConfig, ExpectedConfig>, utils.AssertExtends<ExpectedConfig, ActualConfig>]
   >
 })
 
@@ -198,7 +195,10 @@ test('IntegrationConfigInstance with field with z.default() is optional in a nam
   type Def = typeof def
   type Pkg = { type: 'integration'; name: Def['name']; version: Def['version']; definition: Def; implementation: null }
 
-  type ActualConfig = Extract<ResolvedIntegrationConfigInstance<Pkg>, { configurationType: 'withSword' }>['configuration']
+  type ActualConfig = Extract<
+    ResolvedIntegrationConfigInstance<Pkg>,
+    { configurationType: 'withSword' }
+  >['configuration']
 
   // z.input makes defaulted fields optional — you can omit isEnchanted when configuring
   type ExpectedConfig = {
@@ -207,10 +207,7 @@ test('IntegrationConfigInstance with field with z.default() is optional in a nam
   }
 
   type _assertion = utils.AssertAll<
-    [
-      utils.AssertExtends<ActualConfig, ExpectedConfig>,
-      utils.AssertExtends<ExpectedConfig, ActualConfig>,
-    ]
+    [utils.AssertExtends<ActualConfig, ExpectedConfig>, utils.AssertExtends<ExpectedConfig, ActualConfig>]
   >
 })
 
@@ -226,7 +223,13 @@ test('addIntegration applies schema defaults to the stored default configuration
     },
   })
 
-  const pkg = { type: 'integration' as const, name: def.name, version: def.version, definition: def, implementation: null }
+  const pkg = {
+    type: 'integration' as const,
+    name: def.name,
+    version: def.version,
+    definition: def,
+    implementation: null,
+  }
   const botDef = new BotDefinition({}).addIntegration(pkg, {
     configuration: { theOneRing: 'precious' }, // isInvisible intentionally omitted
   })
@@ -249,7 +252,13 @@ test('addIntegration applies schema defaults to the stored named configuration',
     },
   })
 
-  const pkg = { type: 'integration' as const, name: def.name, version: def.version, definition: def, implementation: null }
+  const pkg = {
+    type: 'integration' as const,
+    name: def.name,
+    version: def.version,
+    definition: def,
+    implementation: null,
+  }
   const botDef = new BotDefinition({}).addIntegration(pkg, {
     configurationType: 'withSword',
     configuration: { sting: 'elvish blade' }, // isEnchanted intentionally omitted
@@ -258,4 +267,3 @@ test('addIntegration applies schema defaults to the stored named configuration',
   const storedConfig = botDef.integrations?.['frodo']?.configuration
   expect(storedConfig).toEqual({ sting: 'elvish blade', isEnchanted: true })
 })
-
