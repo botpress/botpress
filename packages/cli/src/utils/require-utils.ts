@@ -21,10 +21,9 @@ export const requireJsCode = <T>(code: string): T => {
     return m.exports
   } catch (thrown: unknown) {
     const error = thrown instanceof Error ? thrown : new Error(`${thrown}`)
-    // sdk.errors.isDefinitionError() is used instead of instanceof because esbuild bundles
-    // @botpress/sdk inline into the compiled definition artifact, making the class
-    // inside the bundle a different object than the CLI's own import. See the
-    // sdk.errors.isDefinitionError() docstring in the SDK for the full explanation.
+    // sdk.errors.isDefinitionError() handles cross-bundle detection: esbuild inlines a separate
+    // copy of @botpress/sdk into the compiled definition artifact, so instanceof alone is
+    // unreliable. See the isDefinitionError() docstring in the SDK for the full explanation.
     if (sdk.errors.isDefinitionError(thrown)) {
       throw error
     }

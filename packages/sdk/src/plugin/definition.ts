@@ -11,7 +11,7 @@ import {
 } from '../bot/definition'
 import { SchemaTransformOptions } from '../common/types'
 import { IntegrationPackage, InterfacePackage } from '../package'
-import { DefinitionError } from '../utils/error-utils'
+import { DefinitionError } from '../errors'
 import * as typeUtils from '../utils/type-utils'
 import { SDK_VERSION } from '../version'
 import { z } from '../zui'
