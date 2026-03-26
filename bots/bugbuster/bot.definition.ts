@@ -112,6 +112,7 @@ export default new sdk.BotDefinition({
     configurationType: null,
     configuration: {
       botToken: genenv.BUGBUSTER_TELEGRAM_BOT_TOKEN,
+      typingIndicatorEmoji: true,
     },
   })
   .addIntegration(linear, {
