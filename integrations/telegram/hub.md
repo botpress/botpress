@@ -19,7 +19,7 @@ The Telegram integration allows your AI-powered chatbot to seamlessly interact w
 
 ## Configuration
 
-In order to receive a bot token, you will need to message the telegram BotFather account at [telegram.me/BotFather](https://telegram.me/BotFather). 
+In order to receive a bot token, you will need to message the telegram BotFather account at [telegram.me/BotFather](https://telegram.me/BotFather).
 
 1. Message '/start' to telegram.me/BotFather.
 2. Message '/newbot' to initiate new bot token creation.
