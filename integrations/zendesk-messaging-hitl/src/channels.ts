@@ -1,12 +1,14 @@
 import * as bpCommon from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 import { getSuncoClient, SuncoClient } from './client'
+import { getStoredCredentials } from './get-stored-credentials'
 import * as bp from '.botpress'
 
 const wrapChannel = bpCommon.createChannelWrapper<bp.IntegrationProps>()({
   toolFactories: {
-    suncoClient({ ctx }) {
-      return getSuncoClient(ctx.configuration)
+    async suncoClient({ ctx, client }) {
+      const credentials = await getStoredCredentials(client, ctx)
+      return getSuncoClient(credentials)
     },
 
     async suncoUserId({ client, payload, user: attachedUser }) {

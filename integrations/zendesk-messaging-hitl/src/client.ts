@@ -1,5 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import axios from 'axios'
+import { BASE_HEADERS } from './api/const'
 import {
   SunshineConversationsApi,
   type AppsApi,
@@ -7,15 +8,13 @@ import {
   type ConversationsApi,
   type MessagesApi,
   type WebhooksApi,
-  type IntegrationsApi,
-  type SwitchboardsApi,
   type SwitchboardActionsApi,
-  type SwitchboardIntegrationsApi,
   type PostMessageRequest,
   type MessageAuthor,
   type MessageContent,
   Message,
 } from './sunshine-api'
+import { StoredCredentials } from './types'
 
 export class SuncoClientError extends RuntimeError {
   public readonly operationName: string
@@ -64,28 +63,30 @@ export class SuncoClientError extends RuntimeError {
 
 class SuncoClient {
   private _appId: string
-  private _keyId: string
-  private _keySecret: string
+  private _baseUrl: string
+  private _token: string
   private _client: {
     apps: AppsApi
     users: UsersApi
     conversations: ConversationsApi
     messages: MessagesApi
     webhooks: WebhooksApi
-    integrations: IntegrationsApi
-    switchboard: SwitchboardsApi
     switchboardActions: SwitchboardActionsApi
-    switchboardIntegrations: SwitchboardIntegrationsApi
   }
 
-  public constructor(config: { appId: string; keyId: string; keySecret: string }) {
-    this._appId = config.appId
-    this._keyId = config.keyId
-    this._keySecret = config.keySecret
+  public constructor(credentials: StoredCredentials) {
+    this._appId = credentials.appId
+    this._token = credentials.token
     const apiClient = new SunshineConversationsApi.ApiClient()
-    const auth = apiClient.authentications['basicAuth']
-    auth.username = config.keyId
-    auth.password = config.keySecret
+
+    if (!credentials.subdomain) {
+      throw new RuntimeError('Subdomain is required for OAuth')
+    }
+    apiClient.basePath = `https://${credentials.subdomain}.zendesk.com/sc`
+    const auth = apiClient.authentications['bearerAuth'] as { accessToken: string }
+    auth.accessToken = credentials.token
+    apiClient.defaultHeaders = { ...apiClient.defaultHeaders, ...BASE_HEADERS }
+    this._baseUrl = `https://${credentials.subdomain}.zendesk.com/sc`
 
     this._client = {
       apps: new SunshineConversationsApi.AppsApi(apiClient),
@@ -93,10 +94,7 @@ class SuncoClient {
       conversations: new SunshineConversationsApi.ConversationsApi(apiClient),
       messages: new SunshineConversationsApi.MessagesApi(apiClient),
       webhooks: new SunshineConversationsApi.WebhooksApi(apiClient),
-      integrations: new SunshineConversationsApi.IntegrationsApi(apiClient),
-      switchboard: new SunshineConversationsApi.SwitchboardsApi(apiClient),
       switchboardActions: new SunshineConversationsApi.SwitchboardActionsApi(apiClient),
-      switchboardIntegrations: new SunshineConversationsApi.SwitchboardIntegrationsApi(apiClient),
     }
   }
 
@@ -251,7 +249,7 @@ class SuncoClient {
     }
   }
 
-  public async createConversation(args: { userId: string }) {
+  public async createConversation(args: { userId: string; metadata?: Record<string, string> }) {
     try {
       const result = await this._client.conversations.createConversation(this._appId, {
         type: 'personal',
@@ -262,6 +260,7 @@ class SuncoClient {
           },
         ],
         displayName: 'HITL Conversation',
+        metadata: args.metadata,
       })
 
       if (!result?.conversation?.id) {
@@ -337,91 +336,49 @@ class SuncoClient {
     }
   }
 
-  public async createIntegration(integrationName: string, webhookUrl: string) {
+  public async listWebhooks(integrationId: string) {
     try {
-      const result = await this._client.integrations.createIntegration(this._appId, {
-        type: 'custom',
-        status: 'active',
-        displayName: integrationName,
-        webhooks: [
-          {
-            target: webhookUrl,
-            triggers: [
-              'conversation:message',
-              'conversation:remove',
-              'conversation:join',
-              'conversation:postback',
-              'switchboard:releaseControl',
-            ],
-            includeFullUser: false,
-            includeFullSource: false,
-          },
-        ],
-      })
-
-      if (!result?.integration?.id) {
-        throw new RuntimeError('Integration creation succeeded but no ID returned')
-      }
-
-      return result.integration
+      const result = await this._client.webhooks.listWebhooks(this._appId, integrationId)
+      return result.webhooks || []
     } catch (thrown: unknown) {
-      this._handleError(thrown, 'create integration')
+      this._handleError(thrown, 'list webhooks', { integrationId })
     }
   }
 
-  public async deleteIntegration(integrationId: string) {
+  public async createWebhook(integrationId: string, webhookUrl: string) {
     try {
-      await this._client.integrations.deleteIntegration(this._appId, integrationId)
-    } catch (thrown: unknown) {
-      this._handleError(thrown, 'delete integration', { integrationId })
-    }
-  }
-
-  public async findIntegrationByDisplayNameOrThrow(displayName: string) {
-    try {
-      const integrations = (await this._client.integrations.listIntegrations(this._appId)).integrations || []
-      const integration = integrations.find((int) => int.displayName === displayName)
-      if (!integration) {
-        throw new RuntimeError('Integration not found')
-      }
-
-      return integration
-    } catch (thrown: unknown) {
-      this._handleError(thrown, 'find integration by name', { displayName })
-    }
-  }
-
-  public async findSwitchboardIntegrationByNameOrThrow(switchboardId: string, name: string) {
-    try {
-      const result = await this._client.switchboardIntegrations.listSwitchboardIntegrations(this._appId, switchboardId)
-      const switchboardIntegrations = result.switchboardIntegrations || []
-      const switchboardIntegration = switchboardIntegrations.find(
-        (si: { name?: string; id?: string }) => si.name === name
+      const result = await this._client.webhooks.createWebhook(
+        this._appId,
+        integrationId,
+        this._getWebhookDefinitionFor(webhookUrl)
       )
-      if (!switchboardIntegration) {
-        throw new RuntimeError(`Switchboard integration with name "${name}" not found`)
-      }
 
-      return switchboardIntegration
+      return result.webhook
     } catch (thrown: unknown) {
-      this._handleError(thrown, 'find switchboard integration by name', { switchboardId, name })
+      this._handleError(thrown, 'create webhook', { integrationId, webhookUrl })
     }
   }
 
-  public async findAgentWorkspaceIntegrationOrThrow(switchboardId: string) {
+  public async updateWebhook(integrationId: string, webhookId: string, webhookUrl: string) {
     try {
-      const result = await this._client.switchboardIntegrations.listSwitchboardIntegrations(this._appId, switchboardId)
-      const switchboardIntegrations = result.switchboardIntegrations || []
-      const agentWorkspaceIntegration = switchboardIntegrations.find(
-        (si: { integrationType?: string; id?: string }) => si.integrationType === 'zd:agentWorkspace'
+      const result = await this._client.webhooks.updateWebhook(
+        this._appId,
+        integrationId,
+        webhookId,
+        this._getWebhookDefinitionFor(webhookUrl)
       )
-      if (!agentWorkspaceIntegration || !agentWorkspaceIntegration.id) {
-        throw new RuntimeError('No agent workspace integration found with integrationType zd:agentWorkspace')
-      }
 
-      return agentWorkspaceIntegration
+      return result.webhook
     } catch (thrown: unknown) {
-      this._handleError(thrown, 'find agent workspace integration', { switchboardId })
+      this._handleError(thrown, 'update webhook', { integrationId, webhookId, webhookUrl })
+    }
+  }
+
+  public async deleteWebhook(integrationId: string, webhookId: string) {
+    try {
+      await this._client.webhooks.deleteWebhook(this._appId, integrationId, webhookId)
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'delete webhook', { integrationId, webhookId })
     }
   }
 
@@ -473,68 +430,6 @@ class SuncoClient {
     }
   }
 
-  public async getSwitchboardOrThrow() {
-    try {
-      const switchboards = (await this._client.switchboard.listSwitchboards(this._appId)).switchboards || []
-      if (switchboards.length === 0) {
-        throw new RuntimeError('No switchboards found')
-      } else if (switchboards.length > 1) {
-        throw new RuntimeError('Multiple switchboards found')
-      }
-
-      const firstSwitchboard = switchboards[0]
-      if (!firstSwitchboard) {
-        throw new RuntimeError('No switchboards available')
-      }
-
-      return firstSwitchboard
-    } catch (thrown: unknown) {
-      this._handleError(thrown, 'get switchboard ID')
-    }
-  }
-
-  public async createSwitchboardIntegration(
-    switchboardId: string,
-    integrationId: string,
-    name: string,
-    deliverStandbyEvents: boolean = false
-  ) {
-    try {
-      const result = await this._client.switchboardIntegrations.createSwitchboardIntegration(
-        this._appId,
-        switchboardId,
-        {
-          name, // Required: Identifier for use in control transfer protocols
-          integrationId, // Required for custom integrations
-          deliverStandbyEvents, // Optional: defaults to false
-        }
-      )
-
-      return result.switchboardIntegration
-    } catch (thrown: unknown) {
-      this._handleError(thrown, 'create switchboard integration', {
-        switchboardId,
-        integrationId,
-        name,
-      })
-    }
-  }
-
-  public async deleteSwitchboardIntegration(switchboardId: string, switchboardIntegrationId: string) {
-    try {
-      await this._client.switchboardIntegrations.deleteSwitchboardIntegration(
-        this._appId,
-        switchboardId,
-        switchboardIntegrationId
-      )
-    } catch (thrown: unknown) {
-      this._handleError(thrown, 'delete switchboard integration', {
-        switchboardId,
-        switchboardIntegrationId,
-      })
-    }
-  }
-
   public async downloadAndUploadAttachment(sourceUrl: string, conversationId: string): Promise<string> {
     // Download the file from the source URL
     const response = await axios.get(sourceUrl, {
@@ -555,16 +450,9 @@ class SuncoClient {
     // uses superagent internally, which doesn't properly handle Node.js File/Blob objects.
     // Superagent expects stream-like objects with .on() method, but Node.js 18+ File/Blob
     // don't implement stream interfaces. Using axios with native FormData works correctly.
-    const uploadResponse = await axios.post(`https://api.smooch.io/v2/apps/${this._appId}/attachments`, formData, {
-      params: {
-        access: 'public',
-        for: 'message',
-        conversationId,
-      },
-      auth: {
-        username: this._keyId,
-        password: this._keySecret,
-      },
+    const uploadResponse = await axios.postForm(`${this._baseUrl}/v2/apps/${this._appId}/attachments`, formData, {
+      params: { access: 'public', for: 'message', conversationId },
+      headers: { Authorization: `Bearer ${this._token}` },
     })
 
     const mediaUrl = uploadResponse.data?.attachment?.mediaUrl
@@ -574,7 +462,22 @@ class SuncoClient {
 
     return mediaUrl
   }
+
+  private _getWebhookDefinitionFor(webhookUrl: string) {
+    return {
+      target: webhookUrl,
+      triggers: [
+        'conversation:message',
+        'conversation:remove',
+        'conversation:join',
+        'conversation:postback',
+        'switchboard:releaseControl',
+      ],
+      includeFullUser: false,
+      includeFullSource: false,
+    }
+  }
 }
 
-export const getSuncoClient = (config: { appId: string; keyId: string; keySecret: string }) => new SuncoClient(config)
+export const getSuncoClient = (credentials: StoredCredentials) => new SuncoClient(credentials)
 export type { SuncoClient }
