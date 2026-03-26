@@ -19,5 +19,5 @@ export default new IntegrationDefinition({
     category: 'File Management',
     guideSlug: 'mintlify',
     repo: 'botpress',
-  }
+  },
 })

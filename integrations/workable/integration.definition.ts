@@ -54,5 +54,5 @@ export default new IntegrationDefinition({
     category: 'Business Operations',
     guideSlug: 'workable',
     repo: 'botpress',
-  }
+  },
 })

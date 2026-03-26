@@ -21,5 +21,5 @@ export default new IntegrationDefinition({
     category: 'Business Operations',
     guideSlug: 'linkedin',
     repo: 'botpress',
-  }
+  },
 })
