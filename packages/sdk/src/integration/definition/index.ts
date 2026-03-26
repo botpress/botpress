@@ -405,6 +405,6 @@ export class IntegrationDefinition<
       return z.record(z.intersection(aDef.valueType, bDef.valueType))
     }
     // TODO: adress this case
-    throw new SdkDefinitionError('Cannot merge object schemas with record schemas')
+    throw new Error('Cannot merge object schemas with record schemas')
   }
 }
