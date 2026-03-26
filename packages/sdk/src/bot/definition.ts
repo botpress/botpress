@@ -282,7 +282,9 @@ export class BotDefinition<
       ? integrationPkg.definition.configurations?.[configurationType]?.schema
       : integrationPkg.definition.configuration?.schema
 
-    const configuration = configSchema ? configSchema.parse(rawConfiguration) : rawConfiguration
+    // Spread rawConfiguration first to preserve unknown keys (e.g. from a previous schema version),
+    // then overlay the parsed result so that z.default() values are applied for omitted fields.
+    const configuration = configSchema ? { ...rawConfiguration, ...configSchema.parse(rawConfiguration) } : rawConfiguration
 
     self.integrations[integrationAlias] = {
       ...integrationPkg,
@@ -376,10 +378,18 @@ export class BotDefinition<
         })
     )
 
+    const rawPluginConfiguration = config.configuration ?? {}
+    const pluginConfigSchema = pluginPkg.definition.configuration?.schema
+    // Spread rawPluginConfiguration first to preserve unknown keys (e.g. from a previous schema version),
+    // then overlay the parsed result so that z.default() values are applied for omitted fields.
+    const pluginConfiguration = pluginConfigSchema
+      ? { ...rawPluginConfiguration, ...pluginConfigSchema.parse(rawPluginConfiguration) }
+      : rawPluginConfiguration
+
     self.plugins[pluginAlias] = {
       ...pluginPkg,
       alias: pluginAlias,
-      configuration: config.configuration ?? {},
+      configuration: pluginConfiguration,
       interfaces,
       integrations,
     }
