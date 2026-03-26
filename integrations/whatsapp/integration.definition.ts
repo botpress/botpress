@@ -23,7 +23,7 @@ const commonConfigSchema = z.object({
     .default('typing_indicator')
     .title('Message Read Behavior')
     .describe(
-      'Behavior to adopt when a message is received from WhatsApp. "mark_as_read" will mark the message as read immediately, "typing_indicator" will show a typing indicator for a few seconds after marking the message as read, and "none" will do neither (leaving the message unread).'
+      'Behavior to adopt when a message is received from WhatsApp. "mark_as_read" will mark the message as read immediately, "typing_indicator" will show a typing indicator for a few seconds after marking the message as read, and "none" will do neither and block the typing indicator\'s emoji (leaving the message unread until a reply is sent).'
     ),
   // TODO: in the next major version unify this with messageReadBehavior
   typingIndicatorEmoji: z
