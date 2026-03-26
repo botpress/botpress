@@ -69,6 +69,10 @@ export default {
         description: 'Set the current profile',
         schema: config.schemas.useProfile,
       },
+      get: {
+        description: 'Get a specific profile by name',
+        schema: config.schemas.getProfile,
+      },
     },
   },
 } satisfies DefinitionTree

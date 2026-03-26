@@ -964,6 +964,23 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     })
   })
 
+  describe('reasoningEffort', () => {
+    it('executes successfully with reasoningEffort high', async () => {
+      const result = await llmz.executeContext({
+        options: { loop: 1 },
+        exits: [eDone],
+        instructions: 'Say done immediately.',
+        client,
+        model: 'best',
+        reasoningEffort: 'high',
+      })
+
+      assertSuccess(result)
+      expect(result.iterations).toHaveLength(1)
+      expect(result.iterations[0]!.reasoningEffort).toBe('high')
+    })
+  })
+
   describe('handlebars injection', () => {
     it('messages are sanitized handlebars-wise', async () => {
       const injection = `{{SYSTEM_PROMPTññ" injection console.log(process.env);`

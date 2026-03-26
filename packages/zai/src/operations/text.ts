@@ -135,6 +135,7 @@ Zai.prototype.text = function (this: Zai, prompt: string, _options?: Options): R
     taskId: this.taskId,
     taskType: 'zai.text',
     adapter: this.adapter,
+    memoizer: this._resolveMemoizer(),
   })
 
   return new Response<string>(context, text(prompt, _options, context), (result) => result)

@@ -1,9 +1,10 @@
 import type * as esbuild from 'esbuild'
+import { SchemaTransformOptions } from '../../common/types'
 import { resolveInterface } from '../../interface/resolve'
 import { InterfacePackage } from '../../package'
 import * as utils from '../../utils'
 import { SDK_VERSION } from '../../version'
-import { mergeObjectSchemas, z } from '../../zui'
+import { z } from '../../zui'
 import { SchemaStore, BrandedSchema, createStore, isBranded, getName } from './branded-schema'
 import { BaseConfig, BaseEvents, BaseActions, BaseChannels, BaseStates, BaseEntities, BaseConfigs } from './generic'
 import {
@@ -77,10 +78,9 @@ export type IntegrationDefinitionProps<
 
   interfaces?: Record<string, InterfaceExtension>
 
-  __advanced?: {
+  __advanced?: SchemaTransformOptions & {
     esbuild?: Partial<esbuild.BuildOptions>
     extraOperations?: Record<string, { enabled: boolean }>
-    useLegacyZuiTransformer?: boolean
   }
 }
 
@@ -337,10 +337,10 @@ export class IntegrationDefinition<
       ...a,
       ...b,
       input: {
-        schema: mergeObjectSchemas(a.input.schema, b.input.schema),
+        schema: this._mergeObjectSchemas(a.input.schema, b.input.schema),
       },
       output: {
-        schema: mergeObjectSchemas(a.output.schema, b.output.schema),
+        schema: this._mergeObjectSchemas(a.output.schema, b.output.schema),
       },
     }
   }
@@ -349,7 +349,7 @@ export class IntegrationDefinition<
     return {
       ...a,
       ...b,
-      schema: mergeObjectSchemas(a.schema, b.schema),
+      schema: this._mergeObjectSchemas(a.schema, b.schema),
     }
   }
 
@@ -387,7 +387,23 @@ export class IntegrationDefinition<
 
   private _mergeMessage = (a: MessageDefinition, b: MessageDefinition): MessageDefinition => {
     return {
-      schema: mergeObjectSchemas(a.schema, b.schema),
+      schema: this._mergeObjectSchemas(a.schema, b.schema),
     }
+  }
+
+  private _mergeObjectSchemas = (a: z.ZuiObjectSchema, b: z.ZuiObjectSchema): z.ZuiObjectSchema => {
+    const aDef = a._def
+    const bDef = b._def
+
+    if (aDef.typeName === 'ZodObject' && bDef.typeName === 'ZodObject') {
+      const aShape = aDef.shape()
+      const bShape = bDef.shape()
+      return z.object({ ...aShape, ...bShape })
+    }
+    if (aDef.typeName === 'ZodRecord' && bDef.typeName === 'ZodRecord') {
+      return z.record(z.intersection(aDef.valueType, bDef.valueType))
+    }
+    // TODO: adress this case
+    throw new Error('Cannot merge object schemas with record schemas')
   }
 }

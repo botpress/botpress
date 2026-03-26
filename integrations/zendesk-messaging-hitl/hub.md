@@ -6,23 +6,15 @@ This integration makes Sunshine Conversations (Sunco) available as a channel for
 
 ## Configuration
 
-You will need to have access to your **Zendesk Account** account to configure this integration.
+You will need to have Admin access to your **Zendesk Account** to configure this integration.
 
-### Configuration fields on Botpress
+### OAuth Configuration
 
-- **App ID**: Your Sunshine Conversations App ID
-- **Key ID**: Your Sunshine Conversations Key ID
-- **Key Secret**: Your Sunshine Conversations Key Secret
+Botpress will handle authentication automatically through Zendesk's OAuth flow
 
-### Automatic Setup
-
-When you register this integration, it will automatically:
-
-1. Create a Integration in Zendesk Account with the name `botpress-hitl-{webhookId}`
-2. Configure the webhook to receive events from Zendesk Messaging
-3. Set up the integration to handle messages and switchboard events
-
-The webhook URL is automatically configured during registration
+1. Select **Connect with OAuth** when installing the integration
+2. Log in to your Zendesk account and authorize Botpress
+3. Botpress will automatically configure the integration using your Zendesk account
 
 ## Enabling Multi Conversations
 

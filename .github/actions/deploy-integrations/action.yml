@@ -84,7 +84,7 @@ runs:
             integration=$(basename $integration_path)
             exists=$(./.github/scripts/integration-exists.sh $integration)
 
-            base_command="bp deploy -v -y --noBuild --public --allowDeprecated $dryrun"
+            base_command="bp deploy -v -y --noBuild --visibility public --allowDeprecated $dryrun"
 
             upload_sandbox_scripts=false
             if [ $exists -eq 0 ]; then

@@ -16,3 +16,14 @@ The Telegram integration allows your AI-powered chatbot to seamlessly interact w
 ### Addition of message limits
 
 - Telegram has a message length limit of 4096 characters, so that limit has been added to the text parameter in the `text` message payload. Going over this limit will result in the message being rejected.
+
+## Configuration
+
+In order to receive a bot token, you will need to message the telegram BotFather account at [telegram.me/BotFather](https://telegram.me/BotFather).
+
+1. Message '/start' to telegram.me/BotFather.
+2. Message '/newbot' to initiate new bot token creation.
+3. Send a message with the title of your new bot.
+4. Send a message with the username of your new bot. Please make sure it ends with 'bot'.
+5. The BotFather account will respond with message containing your bot token.
+6. Paste the bot token in the "Bot Token" field in the Botpress Telegram configuration.

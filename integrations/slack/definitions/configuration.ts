@@ -66,4 +66,14 @@ export const configurations = {
       ...SHARED_CONFIGURATION,
     }),
   },
+  manifestAppCredentials: {
+    title: 'App Manifest (Automatic Setup)',
+    description: 'Register new Slack application',
+    identifier: {
+      linkTemplateScript: 'manifestHandler.vrl',
+    },
+    schema: sdk.z.object({
+      ...SHARED_CONFIGURATION,
+    }),
+  },
 } as const satisfies sdk.IntegrationDefinitionProps['configurations']

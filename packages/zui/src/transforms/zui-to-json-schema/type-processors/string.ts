@@ -1,10 +1,11 @@
-import { zuiKey } from '../../../ui/constants'
-import z from '../../../z'
-import { generateDatetimeRegex } from '../../../z/types/string/datetime'
+import { generateDatetimeRegex } from '../../../utils/datestring-utils'
+import * as z from '../../../z'
 import { regexUtils } from '../../common'
 import * as errors from '../../common/errors'
 import * as json from '../../common/json-schema'
 import { zodPatterns } from '../../zui-to-json-schema-legacy/parsers/string'
+
+const { zuiKey } = z
 
 export const zodStringToJsonString = (zodString: z.ZodString): json.StringSchema => {
   const schema: json.StringSchema = {
@@ -84,7 +85,7 @@ export const zodStringToJsonString = (zodString: z.ZodString): json.StringSchema
         break
       default:
         throw new errors.UnsupportedZuiCheckToJSONSchemaError({
-          zodType: z.ZodFirstPartyTypeKind.ZodString,
+          zodType: 'ZodString',
           checkKind: check.kind,
         })
     }

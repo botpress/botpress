@@ -1,10 +1,10 @@
-import { RuntimeError, isApiError } from '@botpress/client'
+import { RuntimeError } from '@botpress/client'
 import { posthogHelper } from '@botpress/common'
 import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
 import axios from 'axios'
 import { INTEGRATION_NAME, INTEGRATION_VERSION } from 'integration.definition'
 import { getAccessToken, getAuthenticatedWhatsappClient } from '../../auth'
-import { formatPhoneNumber } from '../../misc/phone-number-to-whatsapp'
+import { safeFormatPhoneNumber } from '../../misc/phone-number-to-whatsapp'
 import { WhatsAppMessage, WhatsAppMessageValue } from '../../misc/types'
 import { getMessageFromWhatsappMessageId } from '../../misc/util'
 import { getMediaInfos } from '../../misc/whatsapp-utils'
@@ -39,11 +39,9 @@ async function _handleIncomingMessage(
   client: bp.Client,
   logger: bp.Logger
 ) {
-  let userPhone = message.from
-  try {
-    userPhone = formatPhoneNumber(message.from)
-  } catch (thrown) {
-    const distinctId = isApiError(thrown) ? thrown.id : undefined
+  const formatPhoneNumberResponse = safeFormatPhoneNumber(message.from)
+  if (formatPhoneNumberResponse.success === false) {
+    const distinctId = formatPhoneNumberResponse.error.id
     await posthogHelper.sendPosthogEvent(
       {
         distinctId: distinctId ?? 'no id',
@@ -55,14 +53,14 @@ async function _handleIncomingMessage(
       },
       { integrationName: INTEGRATION_NAME, integrationVersion: INTEGRATION_VERSION, key: bp.secrets.POSTHOG_KEY }
     )
-    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    const errorMessage = formatPhoneNumberResponse.error.message
     logger.error(`Failed to parse phone number "${message.from}": ${errorMessage}`)
   }
 
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
     tags: {
-      userPhone,
+      userPhone: formatPhoneNumberResponse.success ? formatPhoneNumberResponse.phoneNumber : message.from,
       botPhoneNumberId: value.metadata.phone_number_id,
     },
   })
@@ -89,7 +87,11 @@ async function _handleIncomingMessage(
   }: ValueOf<IncomingMessages> & { incomingMessageType?: string; replyTo?: string }) => {
     logger.forBot().debug(`Received ${incomingMessageType ?? type} message from WhatsApp:`, payload)
     return client.getOrCreateMessage({
-      tags: { id: message.id, replyTo },
+      tags: {
+        id: message.id,
+        replyTo,
+        ..._processReferralTags(message, logger),
+      },
       type,
       payload,
       userId: user.id,
@@ -244,4 +246,35 @@ function _getMediaExpiry(ctx: bp.Context) {
   }
   const expiresAt = new Date(Date.now() + expiryDelayHours * 60 * 60 * 1000)
   return expiresAt.toISOString()
+}
+
+function _processReferralTags(message: WhatsAppMessage, logger: bp.Logger): Record<string, string> {
+  const { referral } = message
+  if (!referral) {
+    return {}
+  }
+
+  const tags: Record<string, string> = {}
+
+  if (referral.source_url) {
+    const originalUrl = referral.source_url
+    // Urls can go up to 2048 characters, but we limit to 500 to avoid tags limit error
+    const processedUrl = originalUrl.slice(0, 500)
+
+    if (originalUrl !== processedUrl) {
+      logger
+        .forBot()
+        .warn(
+          `For whatsapp message "${message.id}", referral source URL was truncated from ${originalUrl.length} to 500 characters. Original: ${originalUrl}, Sliced: ${processedUrl}`
+        )
+    }
+
+    tags.referralSourceUrl = processedUrl
+  }
+
+  if (referral.source_id) {
+    tags.referralSourceId = referral.source_id
+  }
+
+  return tags
 }

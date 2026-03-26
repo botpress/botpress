@@ -5,20 +5,49 @@ import proactiveUser from 'bp_modules/proactive-user'
 import typingIndicator from 'bp_modules/typing-indicator'
 import { events } from './definitions'
 
+export const INTEGRATION_NAME = 'sunco'
+
 export default new IntegrationDefinition({
-  name: 'sunco',
-  version: '1.5.0',
+  name: INTEGRATION_NAME,
+  version: '2.0.0',
   title: 'Sunshine Conversations',
   description: 'Give your bot access to a powerful omnichannel messaging platform.',
   icon: 'icon.svg',
   readme: 'hub.md',
+  states: {
+    credentials: {
+      type: 'integration',
+      schema: z.object({
+        token: z
+          .string()
+          .optional()
+          .title('Token')
+          .describe('The bearer token obtained after completing the OAuth flow'),
+        appId: z.string().optional().title('App ID').describe('The registered app ID'),
+        subdomain: z
+          .string()
+          .optional()
+          .title('Subdomain')
+          .describe('The subdomain of the authenticated app if there is one'),
+      }),
+    },
+    webhook: {
+      type: 'integration',
+      schema: z.object({
+        id: z.string().title('ID').describe('The webhook ID'),
+        secret: z.string().title('Secret').describe('The webhook secret'),
+      }),
+    },
+  },
+  identifier: {
+    extractScript: 'extract.vrl',
+  },
   configuration: {
-    schema: z.object({
-      appId: z.string().min(1).title('App ID').describe('Your Sunshine Conversations App ID'),
-      keyId: z.string().min(1).title('Key ID').describe('Your Sunshine Conversations Key ID'),
-      keySecret: z.string().min(1).title('Key Secret').describe('Your Sunshine Conversations Key Secret'),
-      webhookSecret: z.string().min(1).title('Webhook Secret').describe('Your Sunshine Conversations Webhook Secret'),
-    }),
+    identifier: {
+      linkTemplateScript: 'linkTemplate.vrl',
+      required: false,
+    },
+    schema: z.object({}),
   },
   channels: {
     channel: {
@@ -49,7 +78,24 @@ export default new IntegrationDefinition({
   },
   actions: {},
   events,
-  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  secrets: {
+    CLIENT_ID: {
+      description: 'Botpress SunCo OAuth Client ID',
+    },
+    CLIENT_SECRET: {
+      description: 'Botpress SunCo OAuth Client Secret',
+    },
+    MARKETPLACE_BOT_NAME: {
+      description: 'The name of the marketplace bot',
+    },
+    MARKETPLACE_ORG_ID: {
+      description: 'The ID of the marketplace organization',
+    },
+    MARKETPLACE_BOT_ID: {
+      description: 'The bot ID for the Zendesk marketplace',
+    },
+    ...sentryHelpers.COMMON_SECRET_NAMES,
+  },
   user: {
     tags: {
       id: {
@@ -79,6 +125,9 @@ export default new IntegrationDefinition({
         .title('Conversation')
         .describe('The conversation object fields'),
     },
+  },
+  attributes: {
+    category: 'Communication & Channels',
   },
 })
   .extend(typingIndicator, () => ({ entities: {} }))

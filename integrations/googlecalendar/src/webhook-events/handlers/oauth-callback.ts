@@ -15,5 +15,7 @@ export const oauthCallbackHandler = async ({ client, ctx, req, logger }: bp.Hand
     authorizationCode,
   })
 
+  await client.configureIntegration({ identifier: ctx.webhookId })
+
   logger.forBot().info('Successfully authenticated with Google Calendar')
 }

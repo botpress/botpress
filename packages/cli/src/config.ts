@@ -44,7 +44,7 @@ const workspaceId = {
 
 const secrets = {
   type: 'string',
-  description: 'Values for the integration secrets',
+  description: 'Values for the bot or integration secrets',
   array: true,
   default: [],
 } satisfies CommandOption
@@ -214,6 +214,12 @@ const devSchema = {
     type: 'string',
     description: 'The tunnel ID to use. The ID will be generated if not specified',
   },
+  noSecretCaching: {
+    type: 'boolean',
+    description: 'Do not save the secrets locally',
+    default: false,
+    alias: 'nsc',
+  },
 } satisfies CommandSchema
 
 const addSchema = {
@@ -375,10 +381,12 @@ const chatSchema = {
 
 const listProfilesSchema = {
   ...globalSchema,
+  displayToken: { type: 'boolean', description: 'Display the token in each of the bp profiles', default: false },
 } satisfies CommandSchema
 
 const activeProfileSchema = {
   ...globalSchema,
+  displayToken: { type: 'boolean', description: 'Display the token in the bp profile', default: false },
 } satisfies CommandSchema
 
 const useProfileSchema = {
@@ -389,6 +397,17 @@ const useProfileSchema = {
     positional: true,
     idx: 0,
   },
+} satisfies CommandSchema
+
+const getProfileSchema = {
+  ...globalSchema,
+  profileToGet: {
+    type: 'string',
+    description: 'The CLI profile defined in the $BP_BOTPRESS_HOME/profiles.json',
+    positional: true,
+    idx: 0,
+  },
+  displayToken: { type: 'boolean', description: 'Display the token in the bp profile', default: false },
 } satisfies CommandSchema
 
 // exports
@@ -428,4 +447,5 @@ export const schemas = {
   listProfiles: listProfilesSchema,
   activeProfile: activeProfileSchema,
   useProfile: useProfileSchema,
+  getProfile: getProfileSchema,
 } as const
