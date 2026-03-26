@@ -10,8 +10,8 @@ import {
   WorkflowDefinition,
 } from '../bot/definition'
 import { SchemaTransformOptions } from '../common/types'
-import { IntegrationPackage, InterfacePackage } from '../package'
 import { DefinitionError } from '../errors'
+import { IntegrationPackage, InterfacePackage } from '../package'
 import * as typeUtils from '../utils/type-utils'
 import { SDK_VERSION } from '../version'
 import { z } from '../zui'
