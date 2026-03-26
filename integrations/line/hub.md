@@ -22,8 +22,6 @@ The Line integration enables your chatbot to seamlessly interact with Line, one 
 
 ## Content Types Mapping
 
-​
-
 ### From Botpress to LINE
 
 `Text` is mapped to `Text Object`
@@ -38,8 +36,7 @@ The Line integration enables your chatbot to seamlessly interact with Line, one 
 `Dropdown` is mapped to `Flex Object`
 `Choice` is mapped to `Flex Object`
 ​
-
-## From LINE to Botpress
+### From LINE to Botpress
 
 `Text` is mapped to `Text Object`
 The rest of the types aren’t currently processed by Botpress
