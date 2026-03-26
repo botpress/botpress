@@ -1,6 +1,6 @@
 {
-  "name": "@botpresshub/whatsapp",
-  "description": "WhatsApp integration for Botpress",
+  "name": "@stay/whatsapp-stay",
+  "description": "StayWhatsApp integration for Botpress",
   "private": true,
   "scripts": {
     "build": "bp add -y && bp build",

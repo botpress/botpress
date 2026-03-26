@@ -424,6 +424,68 @@ export default new IntegrationDefinition({
       },
     },
   },
+  startFlow: {
+    title: 'Start Flow',
+    description: 'Sends an Interactive Flow message to a WhatsApp user',
+    input: {
+      schema: z.object({
+        conversation: z.object({
+          userPhone: z
+            .string()
+            .min(1)
+            .title('User Phone Number')
+            .describe('Phone number of the WhatsApp user to start a conversation with'),
+          botPhoneNumberId: z
+            .string()
+            .optional()
+            .title('Bot Phone Number ID')
+            .describe('Phone number ID to use as sender (uses the default phone number ID if not provided)'),
+        }),
+        bodyText: z.string().min(1).title('Body Text').describe('Text body to show above the Flow CTA'),
+        flow: z
+          .object({
+            flowId: z.string().optional().title('Flow ID').describe('Unique ID of the Flow provided by WhatsApp'),
+            flowName: z
+              .string()
+              .optional()
+              .title('Flow Name')
+              .describe('Flow name provided by the business as an alternative to Flow ID'),
+            flowCta: z
+              .string()
+              .min(1)
+              .max(20)
+              .title('Flow CTA')
+              .describe('Text on the CTA button (max 20 characters, no emoji)'),
+            flowToken: z
+              .string()
+              .optional()
+              .title('Flow Token')
+              .describe('Business-generated token for identifying the Flow execution'),
+            mode: z
+              .enum(['published', 'draft'])
+              .optional()
+              .title('Mode')
+              .describe('Whether the Flow is in published or draft mode'),
+            flowAction: z
+              .enum(['navigate', 'data_exchange'])
+              .optional()
+              .default('navigate')
+              .title('Flow Action')
+              .describe('Type of Flow interaction'),
+            screen: z.string().optional().title('First Screen ID').describe('Required when Flow Action is "navigate"'),
+            dataJson: z
+              .string()
+              .optional()
+              .title('Initial Data JSON')
+              .describe('Non-empty JSON object passed to the first screen when navigating'),
+          })
+          .refine((v) => !!v.flowId || !!v.flowName, {
+            message: 'Provide either Flow ID or Flow Name',
+            path: ['flowId'],
+          }),
+      }),
+    },
+  },
   events: {
     messageSent: {
       title: 'Message Sent',

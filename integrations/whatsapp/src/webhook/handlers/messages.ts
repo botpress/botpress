@@ -100,11 +100,15 @@ async function _handleIncomingMessage(
     })
   }
 
+  const isFlowMessage =
+    message.type === 'interactive' &&
+    message.interactive.type === 'nfm_reply' &&
+    message.interactive.nfm_reply.name === 'flow'
   const replyToWhatsAppId = message.context?.id
   const replyToMessage = replyToWhatsAppId
     ? await getMessageFromWhatsappMessageId(replyToWhatsAppId, client)
     : undefined
-  if (replyToWhatsAppId && !replyToMessage) {
+  if (!isFlowMessage && replyToWhatsAppId && !replyToMessage) {
     // Only thing we can do is log
     // We can't fetch a message from the API if we didn't receive it on the webhook
     logger
@@ -161,6 +165,13 @@ async function _handleIncomingMessage(
     const videoUrl = await _getOrDownloadWhatsappMedia(message.video.id, client, ctx)
     await createMessage({ type, payload: { videoUrl }, replyTo })
   } else if (message.type === 'interactive') {
+    if (message.interactive.type === 'nfm_reply') {
+      const { response_json, body } = message.interactive.nfm_reply
+      await createMessage({
+        type: 'text',
+        payload: { value: response_json, text: body },
+      })
+    }
     if (message.interactive.type === 'button_reply') {
       const { id: value, title: text } = message.interactive.button_reply
       await createMessage({

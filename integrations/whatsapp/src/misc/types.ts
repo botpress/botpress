@@ -44,6 +44,14 @@ const WhatsAppBaseMessageSchema = z.object({
 
 const WhatsAppMessageInteractiveSchema = z.union([
   z.object({
+    type: z.literal('nfm_reply'),
+    nfm_reply: z.object({
+      response_json: z.string(),
+      body: z.string(),
+      name: z.string(),
+    }),
+  }),
+  z.object({
     type: z.literal('button_reply'),
     button_reply: z.object({
       id: z.string(),
