@@ -1302,7 +1302,7 @@ importers:
         version: link:../../packages/sdk
       axios:
         specifier: ^1.13.2
-        version: 1.13.3
+        version: 1.13.6
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
