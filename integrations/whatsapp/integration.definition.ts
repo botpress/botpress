@@ -107,7 +107,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.11.1'
+export const INTEGRATION_VERSION = '4.11.0'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
