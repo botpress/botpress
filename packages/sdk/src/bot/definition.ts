@@ -282,9 +282,11 @@ export class BotDefinition<
       ? integrationPkg.definition.configurations?.[configurationType]?.schema
       : integrationPkg.definition.configuration?.schema
 
-    // Spread rawConfiguration first to preserve unknown keys (e.g. from a previous schema version),
-    // then overlay the parsed result so that z.default() values are applied for omitted fields.
-    const configuration = configSchema ? { ...rawConfiguration, ...configSchema.parse(rawConfiguration) } : rawConfiguration
+    // Use safeParse to avoid throwing on validation errors at definition time (e.g. genenv placeholders
+    // or extra keys in catchall(z.never()) schemas). Spread rawConfiguration first to preserve unknown
+    // keys, then overlay the parsed result so that z.default() values are applied for omitted fields.
+    const parseResult = configSchema ? configSchema.safeParse(rawConfiguration) : null
+    const configuration = parseResult?.success ? { ...rawConfiguration, ...parseResult.data } : rawConfiguration
 
     self.integrations[integrationAlias] = {
       ...integrationPkg,
@@ -380,10 +382,12 @@ export class BotDefinition<
 
     const rawPluginConfiguration = config.configuration ?? {}
     const pluginConfigSchema = pluginPkg.definition.configuration?.schema
-    // Spread rawPluginConfiguration first to preserve unknown keys (e.g. from a previous schema version),
-    // then overlay the parsed result so that z.default() values are applied for omitted fields.
-    const pluginConfiguration = pluginConfigSchema
-      ? { ...rawPluginConfiguration, ...pluginConfigSchema.parse(rawPluginConfiguration) }
+    // Use safeParse to avoid throwing on validation errors at definition time (e.g. genenv placeholders
+    // or extra keys in catchall(z.never()) schemas). Spread rawPluginConfiguration first to preserve
+    // unknown keys, then overlay the parsed result so that z.default() values are applied for omitted fields.
+    const pluginParseResult = pluginConfigSchema ? pluginConfigSchema.safeParse(rawPluginConfiguration) : null
+    const pluginConfiguration = pluginParseResult?.success
+      ? { ...rawPluginConfiguration, ...pluginParseResult.data }
       : rawPluginConfiguration
 
     self.plugins[pluginAlias] = {
