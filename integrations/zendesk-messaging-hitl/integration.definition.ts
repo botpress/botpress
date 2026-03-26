@@ -131,6 +131,7 @@ export default new sdk.IntegrationDefinition({
   attributes: {
     category: 'Customer Support',
     repo: 'botpress',
+  },
   secrets: {
     CLIENT_ID: {
       description: 'Botpress SunCo OAuth Client ID',
