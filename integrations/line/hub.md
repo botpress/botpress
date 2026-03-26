@@ -15,10 +15,11 @@ The Line integration enables your chatbot to seamlessly interact with Line, one 
 1. In your [Line Developers console](https://developers.line.biz/), click on "Providers", select the provider you would like to use or create a new one, and then select or create the Channel you would like to use. If you are creating a new one, select "Messaging API" from the creation menu.
 2. For the selected channel, select the Messaging API tab in your channel settings. Scroll to the bottom to "Channel Access Token", and generate a new one or copy an existing one.
 3. Paste this into the "Channel Access Token" field in the Botpress Line configuration
-4. Go to the channel "Basic settings", scroll to the bottom and copy the "Channel secret"
-5. Paste this into the "Channel Secret" in the Botpress Line configuration
-6. Copy the Webhook endpoint url from the Botpress Line configuration
-7. In Line, go to the "Messaging API" tab of the Channel settings, and paste the Botpress Integration Webhook endpoint url into the "Webhook URL", under Webhook settings
+4. Go to the channel "Basic settings", scroll to the bottom and copy the "Channel secret".
+5. Paste this into the "Channel Secret" in the Botpress Line configuration.
+6. Copy the Webhook endpoint url from the Botpress Line configuration.
+7. In Line, go to the "Messaging API" tab of the Channel settings, and paste the Botpress Integration Webhook endpoint url into the "Webhook URL", under Webhook settings.
+8. Enable the "Use webhook" toggle in Line.
 
 ## Content Types Mapping
 
