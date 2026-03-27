@@ -3,7 +3,7 @@ import filesReadonly from './bp_modules/files-readonly'
 import { actions, configuration, configurations, events, identifier, secrets, states, user } from './definitions'
 
 export const INTEGRATION_NAME = 'notion'
-export const INTEGRATION_VERSION = '3.0.3'
+export const INTEGRATION_VERSION = '3.0.4'
 
 export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -14,6 +14,8 @@ export default new sdk.IntegrationDefinition({
   readme: 'hub.md',
   attributes: {
     category: 'File Management',
+    guideSlug: 'notion',
+    repo: 'botpress',
   },
   actions,
   configuration,

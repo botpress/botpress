@@ -39,7 +39,7 @@ import {
 
 export default new IntegrationDefinition({
   name: 'zoho',
-  version: '3.1.3',
+  version: '3.1.4',
   title: 'Zoho',
   readme: 'hub.md',
   icon: 'icon.svg',
@@ -178,5 +178,6 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'Business Operations',
+    repo: 'botpress',
   },
 })

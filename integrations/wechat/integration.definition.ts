@@ -5,7 +5,7 @@ export default new IntegrationDefinition({
   name: 'wechat',
   title: 'WeChat',
   description: 'Engage with your WeChat audience in real-time.',
-  version: '0.1.0',
+  version: '0.1.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -21,4 +21,8 @@ export default new IntegrationDefinition({
   channels,
   states,
   user,
+  attributes: {
+    category: 'Communication & Channels',
+    repo: 'botpress',
+  },
 })
