@@ -10,6 +10,7 @@ import {
   WorkflowDefinition,
 } from '../bot/definition'
 import { SchemaTransformOptions } from '../common/types'
+import { DefinitionError } from '../errors'
 import { IntegrationPackage, InterfacePackage } from '../package'
 import * as typeUtils from '../utils/type-utils'
 import { SDK_VERSION } from '../version'
@@ -254,7 +255,7 @@ export class PluginDefinition<
 
     for (const alias of [...Object.keys(props.integrations ?? {}), ...Object.keys(props.interfaces ?? {})]) {
       if (aliases.has(alias)) {
-        throw new Error(
+        throw new DefinitionError(
           `Duplicate interface or integration alias detected in plugin definition: '${alias}'. ` +
             'Please use unique aliases for each interface and integration.'
         )
