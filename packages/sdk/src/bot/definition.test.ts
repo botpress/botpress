@@ -2,6 +2,7 @@ import { test, expect } from 'vitest'
 import { ResolvedIntegrationConfigInstance, IntegrationInstance, BotDefinition } from './definition'
 import * as utils from '../utils/type-utils'
 import { IntegrationDefinition } from '../integration'
+import { PluginDefinition } from '../plugin'
 import { z } from '@bpinternal/zui'
 
 test('IntegrationInstance should contain important API fields', async () => {
@@ -266,4 +267,62 @@ test('addIntegration applies schema defaults to the stored named configuration',
 
   const storedConfig = botDef.integrations?.['frodo']?.configuration
   expect(storedConfig).toEqual({ sting: 'elvish blade', isEnchanted: true })
+})
+
+test('addPlugin applies schema defaults to the stored configuration', () => {
+  const def = new PluginDefinition({
+    name: 'samwise',
+    version: '1.0.0',
+    configuration: {
+      schema: z.object({
+        lembas: z.number(),
+        hasRope: z.boolean().default(true),
+      }),
+    },
+  })
+
+  const pkg = {
+    type: 'plugin' as const,
+    name: def.name,
+    version: def.version,
+    definition: def,
+    implementation: Buffer.from(''),
+  }
+  const botDef = new BotDefinition({}).addPlugin(pkg, {
+    configuration: { lembas: 3 }, // hasRope intentionally omitted
+    dependencies: {},
+  })
+
+  const storedConfig = botDef.plugins?.['samwise']?.configuration
+  expect(storedConfig).toEqual({ lembas: 3, hasRope: true })
+})
+
+test('addPlugin falls back to raw config when schema validation fails', () => {
+  const def = new PluginDefinition({
+    name: 'gollum',
+    version: '1.0.0',
+    configuration: {
+      schema: z.object({
+        preciousEmail: z.string().email(),
+        sneaky: z.boolean().default(true),
+      }),
+    },
+  })
+
+  const pkg = {
+    type: 'plugin' as const,
+    name: def.name,
+    version: def.version,
+    definition: def,
+    implementation: Buffer.from(''),
+  }
+  // preciousEmail is a placeholder (not a valid email) — safeParse should fail silently
+  const botDef = new BotDefinition({}).addPlugin(pkg, {
+    configuration: { preciousEmail: '$GOLLUM_EMAIL' },
+    dependencies: {},
+  })
+
+  const storedConfig = botDef.plugins?.['gollum']?.configuration
+  // Falls back to raw config; default for sneaky is not applied since safeParse failed
+  expect(storedConfig).toEqual({ preciousEmail: '$GOLLUM_EMAIL' })
 })
