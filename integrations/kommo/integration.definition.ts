@@ -10,7 +10,7 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
   configuration: {
     schema: z.object({
-      subdomain: z.string().title('Subdomain').describe('Your Kommo subdomain (e.g., yourcompany.kommo.com)'),
+      baseDomain: z.string().title('Subdomain').describe('Your Kommo subdomain (e.g., yourcompany.kommo.com)'),
       accessToken: z
         .string()
         .title('Access token')
