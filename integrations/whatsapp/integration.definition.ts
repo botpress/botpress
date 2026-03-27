@@ -18,6 +18,14 @@ const toJSONSchemaOptions: Partial<z.transforms.JSONSchemaGenerationOptions> = {
 const MAX_BUTTON_LABEL_LENGTH = 20
 
 const commonConfigSchema = z.object({
+  messageReadBehavior: z
+    .enum(['mark_as_read', 'typing_indicator', 'none'])
+    .default('typing_indicator')
+    .title('Message Read Behavior')
+    .describe(
+      'Behavior to adopt when a message is received from WhatsApp. "mark_as_read" will mark the message as read immediately, "typing_indicator" will show a typing indicator for a few seconds after marking the message as read, and "none" will do neither and block the typing indicator\'s emoji (leaving the message unread until a reply is sent).'
+    ),
+  // TODO: in the next major version unify this with messageReadBehavior
   typingIndicatorEmoji: z
     .boolean()
     .default(false)
