@@ -1,5 +1,6 @@
 import type * as esbuild from 'esbuild'
 import { SchemaTransformOptions } from '../../common/types'
+import { DefinitionError } from '../../errors'
 import { resolveInterface } from '../../interface/resolve'
 import { InterfacePackage } from '../../package'
 import * as utils from '../../utils'
@@ -316,7 +317,7 @@ export class IntegrationDefinition<
     const unbrandedEntity = utils.records.pairs(extensionBuilderOutput.entities).find(([_k, e]) => !isBranded(e))
     if (unbrandedEntity) {
       // this means the user tried providing a plain schema without referencing an entity from the integration
-      throw new Error(
+      throw new DefinitionError(
         `Cannot extend interface "${interfacePkg.name}" with entity "${unbrandedEntity[0]}"; the provided schema is not part of the integration's entities.`
       )
     }

@@ -12,7 +12,7 @@ import {
 } from './definitions'
 
 export const INTEGRATION_NAME = 'gmail'
-export const INTEGRATION_VERSION = '1.0.6'
+export const INTEGRATION_VERSION = '1.0.7'
 
 export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -32,5 +32,7 @@ export default new sdk.IntegrationDefinition({
   secrets,
   attributes: {
     category: 'Communication & Channels',
+    guideSlug: 'gmail',
+    repo: 'botpress',
   },
 })
