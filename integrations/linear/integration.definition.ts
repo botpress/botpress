@@ -9,7 +9,7 @@ import listable from './bp_modules/listable'
 import { actions, channels, events, configuration, configurations, user, states, entities } from './definitions'
 
 export const INTEGRATION_NAME = 'linear'
-export const INTEGRATION_VERSION = '2.1.0'
+export const INTEGRATION_VERSION = '2.1.1'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -44,6 +44,7 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'Project Management',
+    repo: 'botpress',
   },
 })
   .extend(listable, ({ entities }) => ({

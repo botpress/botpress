@@ -5,7 +5,7 @@ export default new IntegrationDefinition({
   name: 'monday',
   title: 'Monday',
   description: 'Manage items in Monday boards.',
-  version: '1.0.1',
+  version: '1.0.2',
   readme: 'hub.md',
   icon: 'icon.svg',
   states: {},
@@ -24,5 +24,6 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'Project Management',
+    repo: 'botpress',
   },
 })
