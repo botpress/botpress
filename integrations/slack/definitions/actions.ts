@@ -119,7 +119,7 @@ export const actions = {
       }),
     },
   },
-  
+
   // TODO change to proactive conversation on next major
   startDmConversation: {
     title: 'Start DM Conversation',

@@ -61,7 +61,6 @@ export default new IntegrationDefinition({
   __advanced: {
     toJSONSchemaOptions,
   },
-})
-  .extend(typingIndicator, () => ({
-    entities: {},
-  }))
+}).extend(typingIndicator, () => ({
+  entities: {},
+}))
