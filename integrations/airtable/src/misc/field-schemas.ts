@@ -559,7 +559,6 @@ export const fieldValueSchema = z.discriminatedUnion('type', [
   barcodeValue,
   singleCollaboratorValue,
   multipleCollaboratorsValue,
-  multipleLookupValue,
 ])
 
 export type FieldValue = z.infer<typeof fieldValueSchema>
