@@ -2,7 +2,7 @@ import { IntegrationDefinition, z } from '@botpress/sdk'
 
 export default new IntegrationDefinition({
   name: 'pdf-generator',
-  version: '0.0.6',
+  version: '0.0.7',
   readme: 'hub.md',
   title: 'PDF Generator',
   icon: 'icon.svg',
@@ -65,5 +65,6 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'Business Operations',
+    repo: 'botpress',
   },
 })

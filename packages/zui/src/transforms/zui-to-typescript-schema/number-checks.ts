@@ -1,5 +1,4 @@
-import { util } from '../../z'
-import { ZodNumberCheck, ZodNumberDef } from '../../z/types/number'
+import { ZodNumberCheck, ZodNumberDef } from '../../z/'
 import { primitiveToTypescriptValue as toTs } from '../common/utils'
 
 export const generateNumberChecks = (def: ZodNumberDef): string => {
@@ -23,7 +22,7 @@ const _generateNumberCheck = (check: ZodNumberCheck): string => {
     case 'finite':
       return `.finite(${toTs(check.message)})`
     default:
-      type _assertion = util.AssertNever<typeof check>
+      check satisfies never
       return ''
   }
 }

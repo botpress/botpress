@@ -1,7 +1,8 @@
 import { test, expect } from 'vitest'
-import { util } from '../types/utils'
-import z from '../index'
-import { ZodIssueCode } from '../types/error'
+import * as assert from '../../assertions.utils.test'
+import * as z from '../index'
+
+const _strictEqual = (a: unknown, b: unknown) => a === b
 
 test('refinement', () => {
   const obj1 = z.object({
@@ -12,8 +13,8 @@ test('refinement', () => {
 
   const obj3 = obj2.refine((data) => data.first || data.second, 'Either first or second should be filled in.')
 
-  expect(obj1 === (obj2 as any)).toEqual(false)
-  expect(obj2 === (obj3 as any)).toEqual(false)
+  expect(_strictEqual(obj1, obj2)).toEqual(false)
+  expect(_strictEqual(obj2, obj3)).toEqual(false)
 
   expect(() => obj1.parse({})).toThrow()
   expect(() => obj2.parse({ third: 'adsf' })).toThrow()
@@ -48,11 +49,11 @@ test('refinement type guard', () => {
   type Input = z.input<typeof validationSchema>
   type Schema = z.infer<typeof validationSchema>
 
-  util.assertEqual<'a', Input['a']>(false)
-  util.assertEqual<string, Input['a']>(true)
+  assert.assertEqual<'a', Input['a']>(false)
+  assert.assertEqual<string, Input['a']>(true)
 
-  util.assertEqual<'a', Schema['a']>(true)
-  util.assertEqual<string, Schema['a']>(false)
+  assert.assertEqual<'a', Schema['a']>(true)
+  assert.assertEqual<string, Schema['a']>(false)
 })
 
 test('refinement Promise', async () => {
@@ -88,38 +89,11 @@ test('custom path', async () => {
   }
 })
 
-test('use path in refinement context', async () => {
-  const noNested = z.string()._refinement((_val, ctx) => {
-    if (ctx.path.length > 0) {
-      ctx.addIssue({
-        code: ZodIssueCode.custom,
-        message: `schema cannot be nested. path: ${ctx.path.join('.')}`,
-      })
-      return false
-    } else {
-      return true
-    }
-  })
-
-  const data = z.object({
-    foo: noNested,
-  })
-
-  const t1 = await noNested.spa('asdf')
-  const t2 = await data.spa({ foo: 'asdf' })
-
-  expect(t1.success).toBe(true)
-  expect(t2.success).toBe(false)
-  if (t2.success === false) {
-    expect(t2.error.issues[0]?.message).toEqual('schema cannot be nested. path: foo')
-  }
-})
-
 test('superRefine', () => {
   const Strings = z.array(z.string()).superRefine((val, ctx) => {
     if (val.length > 3) {
       ctx.addIssue({
-        code: z.ZodIssueCode.too_big,
+        code: 'too_big',
         maximum: 3,
         type: 'array',
         inclusive: true,
@@ -130,7 +104,7 @@ test('superRefine', () => {
 
     if (val.length !== new Set(val).size) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: `No duplicates allowed.`,
       })
     }
@@ -148,7 +122,7 @@ test('superRefine async', async () => {
   const Strings = z.array(z.string()).superRefine(async (val, ctx) => {
     if (val.length > 3) {
       ctx.addIssue({
-        code: z.ZodIssueCode.too_big,
+        code: 'too_big',
         maximum: 3,
         type: 'array',
         inclusive: true,
@@ -159,7 +133,7 @@ test('superRefine async', async () => {
 
     if (val.length !== new Set(val).size) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: `No duplicates allowed.`,
       })
     }
@@ -185,7 +159,7 @@ test('superRefine - type narrowing', () => {
       if (!arg) {
         // still need to make a call to ctx.addIssue
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: 'cannot be null',
           fatal: true,
         })
@@ -194,7 +168,7 @@ test('superRefine - type narrowing', () => {
       return true
     })
 
-  util.assertEqual<z.infer<typeof schema>, NarrowType>(true)
+  assert.assertEqual<z.infer<typeof schema>, NarrowType>(true)
 
   expect(schema.safeParse({ type: 'test', age: 0 }).success).toEqual(true)
   expect(schema.safeParse(null).success).toEqual(false)
@@ -213,10 +187,10 @@ test('chained mixed refining types', () => {
     .nullable()
     .refine((arg): arg is firstRefinement => !!arg?.third)
     .superRefine((arg, ctx): arg is secondRefinement => {
-      util.assertEqual<typeof arg, firstRefinement>(true)
+      assert.assertEqual<typeof arg, firstRefinement>(true)
       if (arg.first !== 'bob') {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: '`first` property must be `bob`',
         })
         return false
@@ -224,11 +198,11 @@ test('chained mixed refining types', () => {
       return true
     })
     .refine((arg): arg is thirdRefinement => {
-      util.assertEqual<typeof arg, secondRefinement>(true)
+      assert.assertEqual<typeof arg, secondRefinement>(true)
       return arg.second === 33
     })
 
-  util.assertEqual<z.infer<typeof schema>, thirdRefinement>(true)
+  assert.assertEqual<z.infer<typeof schema>, thirdRefinement>(true)
 })
 
 test('get inner type', () => {
@@ -273,7 +247,7 @@ test('fatal superRefine', () => {
     .superRefine((val, ctx) => {
       if (val === '') {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: 'foo',
           fatal: true,
         })
@@ -282,7 +256,7 @@ test('fatal superRefine', () => {
     .superRefine((val, ctx) => {
       if (val !== ' ') {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: 'bar',
         })
       }

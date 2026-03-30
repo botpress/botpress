@@ -104,5 +104,6 @@ export default new IntegrationDefinition({
   states: {},
   attributes: {
     category: 'Project Management',
+    repo: 'botpress',
   },
 })

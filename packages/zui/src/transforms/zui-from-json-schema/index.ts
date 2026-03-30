@@ -1,5 +1,5 @@
 import { JSONSchema7, JSONSchema7Definition } from 'json-schema'
-import z from '../../z'
+import * as z from '../../z'
 import * as errors from '../common/errors'
 import { ArraySchema, SetSchema, TupleSchema } from '../common/json-schema'
 import * as guards from './guards'
@@ -41,10 +41,6 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
   if (schema.description !== undefined) {
     const inner = _fromJSONSchema({ ...schema, description: undefined })
     return inner.describe(schema.description)
-  }
-
-  if (schema.oneOf !== undefined) {
-    throw new errors.UnsupportedJSONSchemaToZuiError({ oneOf: schema.oneOf })
   }
 
   if (schema.patternProperties !== undefined) {
@@ -102,7 +98,7 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
 
   if (schema.type === 'integer') {
     const zSchema = toZuiPrimitive('number', schema)
-    if (zSchema instanceof z.ZodNumber) {
+    if (zSchema.typeName === 'ZodNumber') {
       return zSchema.int()
     }
 
@@ -184,6 +180,31 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
     return z.union(options)
   }
 
+  if (schema.oneOf !== undefined) {
+    if (schema.oneOf.length === 0) {
+      return DEFAULT_TYPE
+    }
+
+    if (schema.oneOf.length === 1) {
+      return _fromJSONSchema(schema.oneOf[0])
+    }
+
+    if (guards.isExclusiveDiscriminatedUnionSchema(schema)) {
+      const discriminator = schema.discriminator?.propertyName || schema['x-zui']?.def?.discriminator
+      if (discriminator) {
+        const options = schema.oneOf.map(_fromJSONSchema) as [
+          z.ZodDiscriminatedUnionOption<string>,
+          z.ZodDiscriminatedUnionOption<string>,
+          ...z.ZodDiscriminatedUnionOption<string>[],
+        ]
+        return z.discriminatedUnion(discriminator, options)
+      }
+    }
+
+    const options = schema.oneOf.map(_fromJSONSchema) as [z.ZodType, z.ZodType, ...z.ZodType[]]
+    return z.union(options)
+  }
+
   if (schema.allOf !== undefined) {
     if (schema.allOf.length === 0) {
       return DEFAULT_TYPE
@@ -197,7 +218,7 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
     return z.intersection(zLeft, zRight)
   }
 
-  type _expectUndefined = z.util.AssertTrue<z.util.IsEqual<typeof schema.type, undefined>>
+  schema.type satisfies undefined
 
   if (guards.isUnknownSchema(schema)) {
     return z.unknown()

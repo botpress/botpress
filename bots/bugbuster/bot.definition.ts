@@ -5,6 +5,12 @@ import linear from './bp_modules/linear'
 import slack from './bp_modules/slack'
 import telegram from './bp_modules/telegram'
 
+// TODO: use default options
+const toJSONSchemaOptions: Partial<sdk.z.transforms.JSONSchemaGenerationOptions> = {
+  discriminatedUnionStrategy: 'anyOf',
+  discriminator: false,
+}
+
 export default new sdk.BotDefinition({
   states: {
     watchedTeams: {
@@ -89,6 +95,9 @@ export default new sdk.BotDefinition({
       },
     },
   },
+  __advanced: {
+    toJSONSchemaOptions,
+  },
 })
   .addIntegration(github, {
     enabled: true,
@@ -103,6 +112,7 @@ export default new sdk.BotDefinition({
     configurationType: null,
     configuration: {
       botToken: genenv.BUGBUSTER_TELEGRAM_BOT_TOKEN,
+      typingIndicatorEmoji: true,
     },
   })
   .addIntegration(linear, {

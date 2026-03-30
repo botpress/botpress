@@ -2,34 +2,40 @@ import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import hitl from './bp_modules/hitl'
 
+export const INTEGRATION_NAME = 'zendesk-messaging-hitl'
+
 export default new sdk.IntegrationDefinition({
-  name: 'zendesk-messaging-hitl',
-  version: '0.2.0',
+  name: INTEGRATION_NAME,
+  version: '1.0.1',
   title: 'Zendesk Messaging HITL',
   description: 'This integration allows your bot to use Sunshine Conversations (Sunco) as a HITL Provider for Zendesk',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
-    schema: sdk.z.object({
-      appId: sdk.z.string().min(1).title('App ID').describe('Your Sunshine Conversations App ID'),
-      keyId: sdk.z.string().min(1).title('Key ID').describe('Your Sunshine Conversations Key ID'),
-      keySecret: sdk.z.string().min(1).title('Key Secret').describe('Your Sunshine Conversations Key Secret'),
-    }),
+    identifier: {
+      linkTemplateScript: 'linkTemplate.vrl',
+      required: true,
+    },
+    schema: sdk.z.object({}),
+  },
+  identifier: {
+    extractScript: 'extract.vrl',
   },
   states: {
-    switchboardIntegrationIds: {
+    credentials: {
       type: 'integration',
       schema: sdk.z.object({
-        switchboardIntegrationId: sdk.z
+        token: sdk.z
           .string()
-          .title('Switchboard Integration ID')
-          .describe('The ID of the Botpress switchboard integration used for HITL sessions')
-          .optional(),
-        agentWorkspaceSwitchboardIntegrationId: sdk.z
+          .optional()
+          .title('Token')
+          .describe('The bearer token obtained after completing the OAuth flow'),
+        appId: sdk.z.string().optional().title('App ID').describe('The registered app ID'),
+        subdomain: sdk.z
           .string()
-          .title('Agent Workspace Switchboard Integration ID')
-          .describe('The ID of the Zendesk Agent Workspace switchboard integration')
-          .optional(),
+          .optional()
+          .title('Subdomain')
+          .describe('The subdomain of the authenticated app if there is one'),
       }),
     },
   },
@@ -122,7 +128,28 @@ export default new sdk.IntegrationDefinition({
       }),
     },
   },
-  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  attributes: {
+    category: 'Customer Support',
+    repo: 'botpress',
+  },
+  secrets: {
+    CLIENT_ID: {
+      description: 'Botpress SunCo OAuth Client ID',
+    },
+    CLIENT_SECRET: {
+      description: 'Botpress SunCo OAuth Client Secret',
+    },
+    MARKETPLACE_BOT_NAME: {
+      description: 'The name of the marketplace bot',
+    },
+    MARKETPLACE_ORG_ID: {
+      description: 'The ID of the marketplace organization',
+    },
+    MARKETPLACE_BOT_ID: {
+      description: 'The bot ID for the Zendesk marketplace',
+    },
+    ...sentryHelpers.COMMON_SECRET_NAMES,
+  },
 }).extend(hitl, (self) => ({
   entities: { hitlSession: self.entities.hitlConversation },
   channels: {

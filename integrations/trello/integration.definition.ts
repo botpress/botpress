@@ -5,7 +5,7 @@ import { trelloIdSchema } from 'definitions/schemas'
 import { events, actions, channels, user, configuration, entities } from './definitions'
 
 export const INTEGRATION_NAME = 'trello'
-export const INTEGRATION_VERSION = '2.1.2'
+export const INTEGRATION_VERSION = '2.1.3'
 
 export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -43,5 +43,7 @@ export default new sdk.IntegrationDefinition({
   },
   attributes: {
     category: 'Project Management',
+    guideSlug: 'trello',
+    repo: 'botpress',
   },
 })

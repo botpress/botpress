@@ -1,4 +1,4 @@
-import { IntegrationDefinition } from '@botpress/sdk'
+import { IntegrationDefinition, z } from '@botpress/sdk'
 import typingIndicator from 'bp_modules/typing-indicator'
 
 import {
@@ -13,11 +13,17 @@ import {
   user,
 } from './definitions'
 
+// TODO: use default options
+const toJSONSchemaOptions: Partial<z.transforms.JSONSchemaGenerationOptions> = {
+  discriminatedUnionStrategy: 'anyOf',
+  discriminator: false,
+}
+
 export default new IntegrationDefinition({
   name: 'slack',
   title: 'Slack',
   description: 'Automate interactions with your team.',
-  version: '4.0.2',
+  version: '4.0.6',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration,
@@ -31,6 +37,11 @@ export default new IntegrationDefinition({
   user,
   attributes: {
     category: 'Communication & Channels',
+    guideSlug: 'slack',
+    repo: 'botpress',
+  },
+  __advanced: {
+    toJSONSchemaOptions,
   },
 }).extend(typingIndicator, () => ({
   entities: {},

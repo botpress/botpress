@@ -151,10 +151,10 @@ describe('object-to-zui', () => {
     }
     expect(Array.isArray(tagsSchema?.items)).toBe(false)
     expect(tagsSchema?.type).toBe('array')
-    expect((tagsSchema?.items as any)?.type).toBe('string')
+    expect((tagsSchema?.items as JSONSchema7)?.type).toBe('string')
     expect(scoresSchema?.type).toBe('array')
     expect(Array.isArray(scoresSchema?.items)).toBe(false)
-    expect((scoresSchema?.items as any)?.type).toBe('number')
+    expect((scoresSchema?.items as JSONSchema7)?.type).toBe('number')
   })
 
   test('should handle empty objects correctly', () => {

@@ -8,7 +8,7 @@ import { EventEmitter } from './emitter'
  * @property complete - Emitted when operation completes successfully with the result
  * @property error - Emitted when operation fails with the error
  */
-export type ResponseEvents<TComplete = any> = {
+export type ResponseEvents<TComplete> = {
   /** Emitted during execution with updated usage statistics */
   progress: Usage
   /** Emitted when the operation completes with the full result */
@@ -105,12 +105,16 @@ export type ResponseEvents<TComplete = any> = {
  * }
  * ```
  */
-export class Response<T = any, S = T> implements PromiseLike<S> {
+export class Response<T, S = T> implements PromiseLike<S> {
   private _promise: Promise<T>
   private _eventEmitter: EventEmitter<ResponseEvents<T>>
   private _context: ZaiContext
   private _elasped: number | null = null
   private _simplify: (value: T) => S
+
+  public static reject<T>(context: ZaiContext, err: Error): Response<T, T> {
+    return new Response<T, T>(context, Promise.reject(err), (value) => value)
+  }
 
   public constructor(context: ZaiContext, promise: Promise<T>, simplify: (value: T) => S) {
     this._context = context
@@ -302,7 +306,7 @@ export class Response<T = any, S = T> implements PromiseLike<S> {
   // oxlint-disable-next-line no-thenable
   public then<TResult1 = S, TResult2 = never>(
     onfulfilled?: ((value: S) => TResult1 | PromiseLike<TResult1>) | null,
-    onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null
   ): PromiseLike<TResult1 | TResult2> {
     return this._promise.then(
       (value: T) => {
@@ -325,7 +329,7 @@ export class Response<T = any, S = T> implements PromiseLike<S> {
    * @returns Promise resolving to simplified value or error result
    */
   public catch<TResult = never>(
-    onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null
+    onrejected?: ((reason: unknown) => TResult | PromiseLike<TResult>) | null
   ): PromiseLike<S | TResult> {
     return this._promise.catch(onrejected) as PromiseLike<S | TResult>
   }

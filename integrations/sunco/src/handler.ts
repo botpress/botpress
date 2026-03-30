@@ -1,10 +1,12 @@
 import { generateRedirection } from '@botpress/common/src/html-dialogs'
 import { getWizardStepUrl, isOAuthWizardUrl } from '@botpress/common/src/oauth-wizard'
 import { RuntimeError } from '@botpress/sdk'
+import { INTEGRATION_NAME } from '../integration.definition'
 import { getCredentials } from './api/get-credentials'
+import { getSuncoClient } from './client'
 import { executeConversationCreated, handleConversationMessage } from './events'
-import { getWebhookSecret } from './get-stored-credentials'
-import { isSuncoWebhookPayload, isWebhookSignatureValid } from './messaging-events'
+import { getStoredCredentials, getWebhookSecret } from './get-stored-credentials'
+import { getConversation, isSuncoWebhookPayload, isWebhookSignatureValid } from './messaging-events'
 import * as wizard from './wizard'
 import * as bp from '.botpress'
 
@@ -32,7 +34,21 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     return
   }
 
+  const credentials = await getStoredCredentials(client, ctx)
+  const suncoClient = getSuncoClient(credentials)
+
   for (const event of data.events) {
+    const conversation = getConversation(event)
+    const ownerWebhookId = conversation?.metadata?.botpressIntegrationOwner
+    if (ownerWebhookId && ownerWebhookId !== ctx.webhookId) {
+      logger.forBot().debug(`Ignoring Sunco conversation ${conversation?.id}: owned by ${ownerWebhookId}`)
+      continue
+    }
+
+    if (conversation?.id) {
+      await _updateConversationOwnerIfNeeded(suncoClient, conversation.id, conversation.metadata, ctx.webhookId)
+    }
+
     if (event.type === 'conversation:create') {
       await executeConversationCreated({ event, client, logger })
     } else if (event.type === 'conversation:message') {
@@ -75,11 +91,38 @@ const _handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProp
 
   logger.forBot().info('Successfully authenticated SunCo user')
 
-  await client.configureIntegration({
-    identifier: credentials.appId,
-  })
-
   await client.setState({ type: 'integration', name: 'credentials', id: ctx.integrationId, payload: credentials })
 
+  const suncoClient = getSuncoClient(credentials)
+  const globalWebhookUrl = `${new URL(process.env.BP_WEBHOOK_URL!).origin}/integration/global/${INTEGRATION_NAME}`
+  const existingWebhooks = await suncoClient.listWebhooks()
+  const existingWebhook = existingWebhooks.find((wh) => wh.target === globalWebhookUrl)
+  let webhook
+  if (existingWebhook?.id) {
+    webhook = await suncoClient.updateWebhook(existingWebhook.id, globalWebhookUrl)
+  } else {
+    webhook = await suncoClient.createWebhook(globalWebhookUrl)
+  }
+  if (webhook?.id && webhook?.secret) {
+    await client.setState({
+      type: 'integration',
+      name: 'webhook',
+      id: ctx.integrationId,
+      payload: { id: webhook.id, secret: webhook.secret },
+    })
+  }
+
   return generateRedirection(getWizardStepUrl('start', ctx))
+}
+
+const _updateConversationOwnerIfNeeded = async (
+  suncoClient: ReturnType<typeof getSuncoClient>,
+  conversationId: string,
+  metadata: Record<string, string> | undefined,
+  webhookId: string
+) => {
+  if (metadata?.botpressIntegrationOwner === webhookId) {
+    return
+  }
+  await suncoClient.updateConversationMetadata(conversationId, { botpressIntegrationOwner: webhookId })
 }

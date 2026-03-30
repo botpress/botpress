@@ -2,10 +2,10 @@ import { describe, expect, test, it } from 'vitest'
 import { toTypescriptSchema as toTypescript } from '.'
 import { evalZuiString } from '../common/eval-zui-string'
 import * as errors from '../common/errors'
-import z, { ZodLiteral, ZodSchema, ZodType } from '../../z'
-import { UIComponentDefinitions } from '../../ui/types'
+import * as z from '../../z'
+import { UIComponentDefinitions } from '../../z/typings'
 
-const evalZui = (source: string): ZodSchema => {
+const evalZui = (source: string): z.ZodType => {
   const evalResult = evalZuiString(source)
   if (!evalResult.sucess) {
     throw new Error(`${evalResult.error}: ${source}`)
@@ -13,9 +13,9 @@ const evalZui = (source: string): ZodSchema => {
   return evalResult.value
 }
 
-const generate = <Z extends ZodType>(source: Z): Z => evalZui(toTypescript(source)) as Z
+const generate = <Z extends z.ZodType>(source: Z): Z => evalZui(toTypescript(source)) as Z
 
-const assert = (source: ZodType) => ({
+const assert = (source: z.ZodType) => ({
   toGenerateItself() {
     const destination = generate(source)
     let msg: string | undefined
@@ -462,9 +462,9 @@ describe.concurrent('toTypescriptSchema', () => {
   })
   test('literal symbol', () => {
     const source = z.literal(Symbol('banana'))
-    const dest = evalZui(toTypescript(source)) as ZodLiteral
+    const dest = evalZui(toTypescript(source)) as z.ZodLiteral
 
-    expect(dest instanceof ZodLiteral).toBe(true)
+    expect(dest.typeName === 'ZodLiteral').toBe(true)
     const value = dest.value as symbol
     expect(typeof value).toBe('symbol')
     expect(value.description).toBe('banana')

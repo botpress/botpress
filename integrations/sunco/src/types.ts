@@ -24,20 +24,11 @@ export type CreateMessageInput = Parameters<Client['createMessage']>[0]
 export type CreateMessageInputType = CreateMessageInput['type']
 export type CreateMessageInputPayload = CreateMessageInput['payload']
 
-export type ManualCredentials = {
-  configType: 'manual'
-  appId: string
-  keyId: string
-  keySecret: string
-}
-export type OAuthCredentials = {
-  configType: null
+export type StoredCredentials = {
   appId: string
   token: string
   subdomain?: string
 }
-
-export type StoredCredentials = ManualCredentials | OAuthCredentials
 
 // Channel message payload types
 export type Choice = bp.channels.channel.choice.Choice

@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
 import axios, { type AxiosInstance } from 'axios'
 import type { CommonHandlerProps, Result } from '../types'
-import { type CalendlyUri, type GetOAuthAccessTokenResp, getOAuthAccessTokenRespSchema, uuidSchema } from './schemas'
+import { type GetOAuthAccessTokenResp, getOAuthAccessTokenRespSchema } from './schemas'
 import * as bp from '.botpress'
 
 const AUTH_BASE_URL = 'https://auth.calendly.com' as const
@@ -74,21 +74,6 @@ type GetAccessTokenParams =
       refresh_token: string
     }
 
-const _extractUserUuid = (userUri: CalendlyUri): string => {
-  const match = userUri.match(/\/users\/(.+)$/)
-
-  if (!match) {
-    throw new Error('Failed to extract user UUID from URI')
-  }
-
-  const parsed = uuidSchema.safeParse(match[1])
-  if (!parsed.success) {
-    throw new Error('Failed to extract user UUID from URI')
-  }
-
-  return parsed.data
-}
-
 export const applyOAuthState = async ({ client, ctx }: CommonHandlerProps, resp: GetOAuthAccessTokenResp) => {
   const { access_token, refresh_token, created_at, expires_in, owner: userUri } = resp
   const { state } = await client.setState({
@@ -116,10 +101,9 @@ export const exchangeAuthCodeForRefreshToken = async (props: bp.HandlerProps, oA
   const resp = await authClient.getAccessTokenWithCode(oAuthCode)
   if (!resp.success) throw resp.error
 
-  const { userUri } = await applyOAuthState(props, resp.data)
+  await applyOAuthState(props, resp.data)
 
-  const userId = _extractUserUuid(userUri)
   await props.client.configureIntegration({
-    identifier: userId,
+    identifier: props.ctx.webhookId,
   })
 }

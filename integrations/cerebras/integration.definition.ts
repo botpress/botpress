@@ -7,7 +7,7 @@ export default new IntegrationDefinition({
   title: 'Cerebras',
   description:
     'Get access to a curated list of Cerebras models for content generation and chat completions within your bot.',
-  version: '8.0.2',
+  version: '8.0.3',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
@@ -24,6 +24,7 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'AI Models',
+    repo: 'botpress',
   },
 }).extend(llm, ({ entities: { modelRef } }) => ({
   entities: { modelRef },
