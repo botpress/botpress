@@ -99,7 +99,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.10.0'
+export const INTEGRATION_VERSION = '4.10.1'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
@@ -553,6 +553,8 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'Communication & Channels',
+    guideSlug: 'whatsapp',
+    repo: 'botpress',
   },
   __advanced: {
     toJSONSchemaOptions,

@@ -8,7 +8,7 @@ import { actions, events, configuration, configurations, channels, user, secrets
 export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,
   title: 'GitHub',
-  version: '1.2.0',
+  version: '1.2.1',
   icon: 'icon.svg',
   readme: 'hub.md',
   description: 'Manage GitHub issues, pull requests, and repositories.',
@@ -25,6 +25,7 @@ export default new sdk.IntegrationDefinition({
   secrets: { ...secrets, ...sentryHelpers.COMMON_SECRET_NAMES },
   attributes: {
     category: 'Developer Tools',
+    repo: 'botpress',
   },
 }).extend(filesReadonly, ({}) => ({
   entities: {},

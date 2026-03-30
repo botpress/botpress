@@ -6,7 +6,7 @@ export const INTEGRATION_NAME = 'zendesk-messaging-hitl'
 
 export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '1.0.0',
+  version: '1.0.1',
   title: 'Zendesk Messaging HITL',
   description: 'This integration allows your bot to use Sunshine Conversations (Sunco) as a HITL Provider for Zendesk',
   icon: 'icon.svg',
@@ -127,6 +127,10 @@ export default new sdk.IntegrationDefinition({
           .optional(),
       }),
     },
+  },
+  attributes: {
+    category: 'Customer Support',
+    repo: 'botpress',
   },
   secrets: {
     CLIENT_ID: {

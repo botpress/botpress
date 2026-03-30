@@ -11,7 +11,7 @@ export default new IntegrationDefinition({
   name: 'tally',
   title: 'Tally',
   description: 'Integrate with Tally forms to capture form submissions and automate workflows.',
-  version: '0.1.1',
+  version: '0.1.2',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -52,4 +52,8 @@ export default new IntegrationDefinition({
     },
   },
   __advanced: { toJSONSchemaOptions },
+  attributes: {
+    category: 'Business Operations',
+    repo: 'botpress',
+  },
 })

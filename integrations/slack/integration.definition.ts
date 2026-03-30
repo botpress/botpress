@@ -56,6 +56,8 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'Communication & Channels',
+    guideSlug: 'slack',
+    repo: 'botpress',
   },
   __advanced: {
     toJSONSchemaOptions,

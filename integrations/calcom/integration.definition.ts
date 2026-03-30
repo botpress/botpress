@@ -13,7 +13,7 @@ import {
 export default new IntegrationDefinition({
   name: 'calcom',
   title: 'Cal.com',
-  version: '0.4.1',
+  version: '0.4.2',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Schedule meetings and manage events using the Cal.com scheduling platform.',
@@ -63,5 +63,6 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'Business Operations',
+    repo: 'botpress',
   },
 })
