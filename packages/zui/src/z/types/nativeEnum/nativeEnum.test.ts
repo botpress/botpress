@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
-import { util } from '../utils'
 import * as z from '../../index'
+import * as assert from '../../../assertions.utils.test'
 
 test('nativeEnum test with consts', () => {
   const Fruits: { Apple: 'apple'; Banana: 'banana' } = {
@@ -13,7 +13,7 @@ test('nativeEnum test with consts', () => {
   fruitEnum.parse('banana')
   fruitEnum.parse(Fruits.Apple)
   fruitEnum.parse(Fruits.Banana)
-  util.assertEqual<fruitEnum, 'apple' | 'banana'>(true)
+  assert.assertEqual<fruitEnum, 'apple' | 'banana'>(true)
 })
 
 test('nativeEnum test with real enum', () => {
@@ -28,7 +28,7 @@ test('nativeEnum test with real enum', () => {
   fruitEnum.parse('banana')
   fruitEnum.parse(Fruits.Apple)
   fruitEnum.parse(Fruits.Banana)
-  util.assertIs<fruitEnum extends Fruits ? true : false>(true)
+  assert.assertIs<fruitEnum extends Fruits ? true : false>(true)
 })
 
 test('nativeEnum test with const with numeric keys', () => {
@@ -43,7 +43,7 @@ test('nativeEnum test with const with numeric keys', () => {
   fruitEnum.parse(20)
   fruitEnum.parse(FruitValues.Apple)
   fruitEnum.parse(FruitValues.Banana)
-  util.assertEqual<fruitEnum, 10 | 20>(true)
+  assert.assertEqual<fruitEnum, 10 | 20>(true)
 })
 
 test('from enum', () => {

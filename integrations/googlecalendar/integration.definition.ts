@@ -2,7 +2,7 @@ import * as sdk from '@botpress/sdk'
 import { actions, entities, configuration, configurations, identifier, events, secrets, states } from './definitions'
 
 export const INTEGRATION_NAME = 'googlecalendar'
-export const INTEGRATION_VERSION = '2.0.8'
+export const INTEGRATION_VERSION = '2.0.9'
 
 export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -21,5 +21,7 @@ export default new sdk.IntegrationDefinition({
   states,
   attributes: {
     category: 'Business Operations',
+    guideSlug: 'googlecalendar',
+    repo: 'botpress',
   },
 })

@@ -23,13 +23,11 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
       logger,
     })
 
-    const linkedInUserId = oauthClient.getUserId()
-
     await client.configureIntegration({
-      identifier: linkedInUserId,
+      identifier: ctx.webhookId,
     })
 
-    logger.forBot().info(`LinkedIn integration registered for user: ${linkedInUserId}`)
+    logger.forBot().info(`LinkedIn integration registered for user: ${oauthClient.getUserId()}`)
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
     logger.forBot().error(`Failed to exchange authorization code: ${message}`)

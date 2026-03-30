@@ -1,6 +1,7 @@
 import { falsy, truthy } from '@stoplight/spectral-functions'
 import { preprocessRuleset } from '../ruleset-functions'
 import { descriptionFallbackExtractor, titleFallbackExtractor, truthyWithMessage } from '../spectral-functions'
+import { secretsMustHaveADescription } from './shared-rules'
 
 export const INTEGRATION_RULESET = preprocessRuleset({
   extends: [],
@@ -391,17 +392,6 @@ export const INTEGRATION_RULESET = preprocessRuleset({
         },
       ],
     },
-    'secrets-must-have-a-description': {
-      description: 'All secrets {{callToAction}} have a description',
-      message: '{{description}}: {{error}} {{callToAction}} have a non-empty description',
-      severity: 'error',
-      given: '$.secrets[*]',
-      then: [
-        {
-          field: 'description',
-          function: truthyWithMessage(({ path }) => `secret "${path[1]}"`),
-        },
-      ],
-    },
+    'secrets-must-have-a-description': secretsMustHaveADescription,
   },
 })

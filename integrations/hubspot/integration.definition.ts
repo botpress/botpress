@@ -5,7 +5,7 @@ export default new IntegrationDefinition({
   name: 'hubspot',
   title: 'HubSpot',
   description: 'Manage contacts, tickets and more from your chatbot.',
-  version: '5.3.0',
+  version: '5.3.2',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -52,5 +52,7 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'CRM & Sales',
+    guideSlug: 'hubspot',
+    repo: 'botpress',
   },
 })

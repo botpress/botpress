@@ -7,10 +7,7 @@ import { isEqual } from 'lodash'
 import * as pathlib from 'path'
 import * as uuid from 'uuid'
 import * as apiUtils from '../api'
-import {
-  secretEnvVariableName,
-  stripSecretEnvVariablePrefix,
-} from '../code-generation/integration-implementation/integration-secret'
+import { secretEnvVariableName, stripSecretEnvVariablePrefix } from '../code-generation/secret-module'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import * as tables from '../tables'
@@ -53,9 +50,8 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       BP_TOKEN: api.token,
     }
 
-    let defaultPort = DEFAULT_BOT_PORT
-    if (this._initialDef.type === 'integration') {
-      defaultPort = DEFAULT_INTEGRATION_PORT
+    const defaultPort = this._initialDef.type === 'integration' ? DEFAULT_INTEGRATION_PORT : DEFAULT_BOT_PORT
+    if (this._initialDef.type === 'integration' || this._initialDef.type === 'bot') {
       const knownSecrets = await this._readKnownSecretsFromCache()
       let secretEnvVariables = await this.promptSecrets(this._initialDef.definition, this.argv, {
         knownSecrets: Object.keys(knownSecrets),
@@ -220,6 +216,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     }
     if (projectType === 'bot') {
       const projectDef = await resolveProjectDefinition()
+      this._checkSecrets(projectDef.definition)
       return await this._deployDevBot(api, tunnelUrl, projectDef.definition)
     }
     throw new errors.UnsupportedProjectType()
@@ -252,12 +249,12 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     return Object.fromEntries(prefixedSecretEntries)
   }
 
-  private _checkSecrets(integrationDef: sdk.IntegrationDefinition) {
-    if (this._initialDef?.type !== 'integration') {
+  private _checkSecrets(projectDef: sdk.IntegrationDefinition | sdk.BotDefinition) {
+    if (this._initialDef?.type !== 'integration' && this._initialDef?.type !== 'bot') {
       return
     }
     const initialSecrets = this._initialDef?.definition.secrets ?? {}
-    const currentSecrets = integrationDef.secrets ?? {}
+    const currentSecrets = projectDef.secrets ?? {}
     const newSecrets = Object.keys(currentSecrets).filter((s) => !initialSecrets[s])
     if (newSecrets.length > 0) {
       throw new errors.BotpressCLIError('Secrets were added while the server was running. A restart is required.')

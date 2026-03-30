@@ -52,6 +52,11 @@ const integration = new bp.Integration({
       const messageId = getMessageId(message)
 
       await telegraf.telegram.sendChatAction(chat, 'typing').catch(mapToRuntimeErrorAndThrow('Fail to start typing'))
+
+      if (ctx.configuration.typingIndicatorEmoji === false) {
+        return false
+      }
+
       await telegraf.telegram
         .setMessageReaction(chat, messageId, [{ type: 'emoji', emoji: '👀' }])
         .catch(mapToRuntimeErrorAndThrow('Fail to set message reaction'))
@@ -59,6 +64,10 @@ const integration = new bp.Integration({
       return {}
     },
     stopTypingIndicator: async ({ input, ctx, client }) => {
+      if (ctx.configuration.typingIndicatorEmoji === false) {
+        return false
+      }
+
       const telegraf = new Telegraf(ctx.configuration.botToken)
       const { conversation } = await client.getConversation({ id: input.conversationId })
       const { message } = await client.getMessage({ id: input.messageId })
