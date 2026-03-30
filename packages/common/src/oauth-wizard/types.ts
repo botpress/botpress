@@ -1,5 +1,5 @@
+import { Response, z } from '@botpress/sdk'
 import type { VNode } from 'preact'
-import * as sdk from '@botpress/sdk'
 
 export type HandlerProps = {
   req: { path: string; query: string }
@@ -19,14 +19,14 @@ export type WizardStepInputProps = {
   formValues?: Record<string, string>
   query: URLSearchParams
   responses: {
-    redirectToStep: (stepId: string) => sdk.Response
-    redirectToExternalUrl: (url: string) => sdk.Response
+    redirectToStep: (stepId: string) => Response
+    redirectToExternalUrl: (url: string) => Response
     displayChoices: (props: {
       pageTitle: string
       htmlOrMarkdownPageContents: string
       choices: { label: string; value: string }[]
       nextStepId: string
-    }) => sdk.Response
+    }) => Response
     displayButtons: (props: {
       pageTitle: string
       htmlOrMarkdownPageContents: string
@@ -39,7 +39,7 @@ export type WizardStepInputProps = {
         | { action: 'javascript'; callFunction: string }
         | { action: 'close' }
       ))[]
-    }) => sdk.Response
+    }) => Response
     displayInput: (props: {
       pageTitle: string
       htmlOrMarkdownPageContents: string
@@ -48,20 +48,20 @@ export type WizardStepInputProps = {
         type: 'text' | 'number' | 'email' | 'password' | 'url'
       }
       nextStepId: string
-    }) => sdk.Response
+    }) => Response
     displayForm: (props: {
       pageTitle: string
       htmlOrMarkdownPageContents: string
-      schema: sdk.z.AnyZodObject
+      schema: z.AnyZodObject
       nextStepId: string
       errors?: Record<string, string>
       previousValues?: Record<string, string>
-    }) => sdk.Response
-    displayCustom: (props: { pageTitle: string; body: VNode }) => sdk.Response
-    endWizard: (result: { success: true } | { success: false; errorMessage: string }) => sdk.Response
+    }) => Response
+    displayCustom: (props: { pageTitle: string; body: VNode; nextStepId: string }) => Response
+    endWizard: (result: { success: true } | { success: false; errorMessage: string }) => Response
   }
 }
 
 export type WizardStepHandler<THandlerProps extends HandlerProps> = (
   props: THandlerProps & WizardStepInputProps
-) => sdk.Response | Promise<sdk.Response>
+) => Response | Promise<Response>
