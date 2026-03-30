@@ -1,6 +1,8 @@
 import * as sdk from '@botpress/sdk'
+import * as preact from 'preact-render-to-string'
 import * as htmlDialogs from '../html-dialogs'
 import * as consts from './consts'
+import { schemaToFieldDescriptors } from './schema-to-fields'
 import type * as types from './types'
 
 export class OAuthWizard<THandlerProps extends types.HandlerProps> {
@@ -31,11 +33,19 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
       throw new sdk.RuntimeError(`Unknown step ID: ${stepId}`)
     }
 
+    const formValues: Record<string, string> = {}
+    for (const [key, value] of searchParams.entries()) {
+      if (key.startsWith(consts.FORM_PARAM_PREFIX)) {
+        formValues[key.slice(consts.FORM_PARAM_PREFIX.length)] = value
+      }
+    }
+
     return await step.handler({
       ...this._handlerProps,
       query: searchParams,
       selectedChoice: searchParams.get(consts.CHOICE_PARAM) ?? undefined,
       inputValue: searchParams.get(consts.INPUT_PARAM) ?? undefined,
+      formValues: Object.keys(formValues).length > 0 ? formValues : undefined,
       responses: {
         displayButtons: ({ buttons, pageTitle, htmlOrMarkdownPageContents }) =>
           htmlDialogs.generateButtonDialog({
@@ -80,6 +90,22 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
               label: input.label,
               type: input.type,
             },
+          }),
+        displayForm: ({ schema, nextStepId, pageTitle, htmlOrMarkdownPageContents, errors, previousValues }) =>
+          htmlDialogs.generateFormDialog({
+            pageTitle,
+            helpText: htmlOrMarkdownPageContents,
+            formSubmitUrl: getWizardStepUrl(nextStepId, this._handlerProps.ctx),
+            formParamPrefix: consts.FORM_PARAM_PREFIX,
+            fields: schemaToFieldDescriptors(schema, errors, previousValues),
+            extraHiddenParams: {
+              state: this._handlerProps.ctx.webhookId,
+            },
+          }),
+        displayCustom: ({ pageTitle, body }) =>
+          htmlDialogs.generateRawHtmlDialog({
+            bodyHtml: preact.render(body),
+            pageTitle,
           }),
         redirectToStep: (stepId) => htmlDialogs.generateRedirection(getWizardStepUrl(stepId, this._handlerProps.ctx)),
         redirectToExternalUrl: (url) => htmlDialogs.generateRedirection(new URL(url)),

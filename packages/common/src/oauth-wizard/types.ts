@@ -1,3 +1,4 @@
+import type { VNode } from 'preact'
 import * as sdk from '@botpress/sdk'
 
 export type HandlerProps = {
@@ -15,6 +16,7 @@ export type WizardStep<THandlerProps extends HandlerProps> = {
 export type WizardStepInputProps = {
   selectedChoice?: string
   inputValue?: string
+  formValues?: Record<string, string>
   query: URLSearchParams
   responses: {
     redirectToStep: (stepId: string) => sdk.Response
@@ -47,6 +49,15 @@ export type WizardStepInputProps = {
       }
       nextStepId: string
     }) => sdk.Response
+    displayForm: (props: {
+      pageTitle: string
+      htmlOrMarkdownPageContents: string
+      schema: sdk.z.AnyZodObject
+      nextStepId: string
+      errors?: Record<string, string>
+      previousValues?: Record<string, string>
+    }) => sdk.Response
+    displayCustom: (props: { pageTitle: string; body: VNode }) => sdk.Response
     endWizard: (result: { success: true } | { success: false; errorMessage: string }) => sdk.Response
   }
 }
