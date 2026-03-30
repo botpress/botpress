@@ -7,7 +7,7 @@ export const prepareIntegrationsUpdate = <T extends WithEnabled>(
   remoteIntegrations: Record<string, unknown>
 ): Record<string, T | null> =>
   mapValues(integrations, (integration, key) => {
-    const isExistingInstance = key in remoteIntegrations
+    const isExistingInstance = Object.hasOwn(remoteIntegrations, key)
     if (integration !== null && !isExistingInstance && integration.enabled === undefined) {
       return { ...integration, enabled: false }
     }
