@@ -1,4 +1,4 @@
-import { z, ZodFirstPartyTypeKind } from '@botpress/sdk'
+import { z } from '@botpress/sdk'
 
 export type FormFieldDescriptor = {
   name: string
@@ -15,11 +15,14 @@ export type FormFieldDescriptor = {
   previousValue?: string
 }
 
+function getTypeName(schema: z.ZodTypeAny): string {
+  return (schema._def as { typeName?: string }).typeName ?? ''
+}
+
 function extractDefaultValue(schema: z.ZodTypeAny): string | undefined {
   let current = schema
   while (true) {
-    const typeName = current._def.typeName as ZodFirstPartyTypeKind
-    if (typeName === ZodFirstPartyTypeKind.ZodDefault) {
+    if (getTypeName(current) === 'ZodDefault') {
       const def = current._def as { defaultValue: () => unknown }
       return String(def.defaultValue())
     }
@@ -35,17 +38,17 @@ function resolveInputType(
   schema: z.ZodTypeAny,
   meta: Record<string, unknown>
 ): { inputType: FormFieldDescriptor['inputType']; options?: { label: string; value: string }[] } {
-  const typeName = schema._def.typeName as ZodFirstPartyTypeKind
+  const typeName = getTypeName(schema)
 
-  if (typeName === ZodFirstPartyTypeKind.ZodBoolean) {
+  if (typeName === 'ZodBoolean') {
     return { inputType: 'checkbox' }
   }
 
-  if (typeName === ZodFirstPartyTypeKind.ZodNumber) {
+  if (typeName === 'ZodNumber') {
     return { inputType: 'number' }
   }
 
-  if (typeName === ZodFirstPartyTypeKind.ZodEnum) {
+  if (typeName === 'ZodEnum') {
     const values = (schema._def as { values: string[] }).values
     return {
       inputType: 'select',
@@ -53,7 +56,7 @@ function resolveInputType(
     }
   }
 
-  if (typeName === ZodFirstPartyTypeKind.ZodString) {
+  if (typeName === 'ZodString') {
     if (meta.secret) {
       return { inputType: 'password' }
     }

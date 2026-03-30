@@ -2,7 +2,7 @@ import { Response, z } from '@botpress/sdk'
 import type { VNode } from 'preact'
 
 export type HandlerProps = {
-  req: { path: string; query: string }
+  req: { path: string; query: string; body?: string }
   ctx: {
     webhookId: string
   }
@@ -57,7 +57,7 @@ export type WizardStepInputProps = {
       errors?: Record<string, string>
       previousValues?: Record<string, string>
     }) => Response
-    displayCustom: (props: { pageTitle: string; body: VNode; nextStepId: string }) => Response
+    displayCustom: (props: { pageTitle: string; body: (nextStepUrl: URL) => VNode; nextStepId: string }) => Response
     endWizard: (result: { success: true } | { success: false; errorMessage: string }) => Response
   }
 }

@@ -34,7 +34,8 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
     }
 
     const formValues: Record<string, string> = {}
-    for (const [key, value] of searchParams.entries()) {
+    const formParams = this._handlerProps.req.body ? new URLSearchParams(this._handlerProps.req.body) : searchParams
+    for (const [key, value] of formParams.entries()) {
       if (key.startsWith(consts.FORM_PARAM_PREFIX)) {
         formValues[key.slice(consts.FORM_PARAM_PREFIX.length)] = value
       }
@@ -102,9 +103,9 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
               state: this._handlerProps.ctx.webhookId,
             },
           }),
-        displayCustom: ({ pageTitle, body }) =>
+        displayCustom: ({ pageTitle, body, nextStepId }) =>
           htmlDialogs.generateRawHtmlDialog({
-            bodyHtml: preact.render(body),
+            bodyHtml: preact.render(body(getWizardStepUrl(nextStepId, this._handlerProps.ctx))),
             pageTitle,
           }),
         redirectToStep: (stepId) => htmlDialogs.generateRedirection(getWizardStepUrl(stepId, this._handlerProps.ctx)),
