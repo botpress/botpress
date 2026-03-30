@@ -3,21 +3,33 @@ import { wrapActionAndInjectSlackClient } from 'src/actions/action-wrapper'
 
 export const startChannelConversation = wrapActionAndInjectSlackClient(
   { actionName: 'startChannelConversation', errorMessage: 'Failed to start Channel conversation' },
-  async ({ client, logger, slackClient }, { channelName }) => {
-    const slackChannelInfo = await slackClient.getChannelInfo({ channelName })
-    if (slackChannelInfo === undefined) {
-      const errorMessage = `The channel "${channelName}" does not exist or your bot does not have access to it`
-      logger.forBot().error(errorMessage)
-      throw new RuntimeError(errorMessage)
+  async ({ client, logger, slackClient }, { conversation }) => {
+    const { channelId, channelName } = conversation
+
+    let resolvedChannelId: string | undefined = channelId
+
+    if (!resolvedChannelId) {
+      if (!channelName) {
+        throw new RuntimeError('Either channelId or channelName must be provided')
+      }
+
+      const slackChannelInfo = await slackClient.getChannelInfo({ channelName })
+      if (slackChannelInfo === undefined) {
+        const errorMessage = `The channel "${channelName}" does not exist or your bot does not have access to it`
+        logger.forBot().error(errorMessage)
+        throw new RuntimeError(errorMessage)
+      }
+
+      resolvedChannelId = slackChannelInfo.id
     }
 
-    const { conversation } = await client.getOrCreateConversation({
+    const { conversation: bpConversation } = await client.getOrCreateConversation({
       channel: 'channel',
-      tags: { id: slackChannelInfo?.id },
+      tags: { id: resolvedChannelId },
     })
 
     return {
-      conversationId: conversation.id,
+      conversationId: bpConversation.id,
     }
   }
 )

@@ -18,7 +18,7 @@ const _handleApiChange = async (
   const response = await props.client.callAction({
     type: 'slack:startChannelConversation',
     input: {
-      channelName: SLACK_CHANNEL_TO_PING,
+      conversation: { channelName: SLACK_CHANNEL_TO_PING },
     },
   })
   await props.client.createMessage({
