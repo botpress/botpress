@@ -15,7 +15,12 @@ export const updateTable: IntegrationProps['actions']['updateTable'] = async ({ 
   return table
 }
 
-export const getTableRecords: IntegrationProps['actions']['getTableRecords'] = async ({ client, ctx, logger, input }) => {
+export const getTableRecords: IntegrationProps['actions']['getTableRecords'] = async ({
+  client,
+  ctx,
+  logger,
+  input,
+}) => {
   const airtableClient = new AirtableApi({ client, ctx, logger })
   const records = await airtableClient.listRecords({
     tableIdOrName: input.tableIdOrName,
