@@ -87,7 +87,10 @@ export const prepareUpdateBotBody = (
     ...localBot.message,
     tags: utils.records.setNullOnMissingValues(localBot.message?.tags, remoteBot.message?.tags),
   },
-  integrations: utils.records.setNullOnMissingValues(localBot.integrations, remoteBot.integrations),
+  integrations: utils.integrations.prepareIntegrationsUpdate(
+    utils.records.setNullOnMissingValues(localBot.integrations, remoteBot.integrations),
+    remoteBot.integrations
+  ),
   plugins: utils.records.setNullOnMissingValues(localBot.plugins, remoteBot.plugins),
   tags: localBot.tags, // TODO: allow removing bot tags (aka attributes) by setting to null
 })
