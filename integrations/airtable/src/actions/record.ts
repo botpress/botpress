@@ -1,6 +1,7 @@
 import { FieldSet } from 'airtable/lib/field_set'
+import { AirtableApi } from '../client'
 import type { FieldValue } from '../misc/field-schemas'
-import { wrapAction } from './action-wrapper'
+import type { IntegrationProps } from '../misc/types'
 
 function toFieldSet(fields: FieldValue[]): FieldSet {
   const result: FieldSet = {}
@@ -10,29 +11,27 @@ function toFieldSet(fields: FieldValue[]): FieldSet {
   return result
 }
 
-export const createRecord = wrapAction(
-  { actionName: 'createRecord', errorMessage: 'Failed to create record' },
-  async ({ airtableClient, logger }, { tableIdOrName, fields }) => {
-    const record = await airtableClient.createRecord(tableIdOrName, toFieldSet(fields))
-    logger.forBot().info(`Successful - Create Record - ${record.id}`)
-    return record
-  }
-)
+export const createRecord: IntegrationProps['actions']['createRecord'] = async ({ client, ctx, logger, input }) => {
+  const airtableClient = new AirtableApi({ client, ctx, logger })
+  const record = await airtableClient.createRecord(input.tableIdOrName, toFieldSet(input.fields))
+  logger.forBot().info(`Successful - Create Record - ${record.id}`)
+  return record
+}
 
-export const updateRecord = wrapAction(
-  { actionName: 'updateRecord', errorMessage: 'Failed to update record' },
-  async ({ airtableClient, logger }, { tableIdOrName, recordId, fields }) => {
-    const record = await airtableClient.updateRecord(tableIdOrName, recordId, toFieldSet(fields))
-    logger.forBot().info(`Successful - Update Record - ${record.id}`)
-    return record
-  }
-)
+export const updateRecord: IntegrationProps['actions']['updateRecord'] = async ({ client, ctx, logger, input }) => {
+  const airtableClient = new AirtableApi({ client, ctx, logger })
+  const record = await airtableClient.updateRecord(input.tableIdOrName, input.recordId, toFieldSet(input.fields))
+  logger.forBot().info(`Successful - Update Record - ${record.id}`)
+  return record
+}
 
-export const listRecords = wrapAction(
-  { actionName: 'listRecords', errorMessage: 'Failed to list records' },
-  async ({ airtableClient, logger }, { tableIdOrName, filterByFormula, nextToken }) => {
-    const records = await airtableClient.listRecords({ tableIdOrName, filterByFormula, nextToken })
-    logger.forBot().info(`Successful - List Records - ${tableIdOrName}`)
-    return records
-  }
-)
+export const listRecords: IntegrationProps['actions']['listRecords'] = async ({ client, ctx, logger, input }) => {
+  const airtableClient = new AirtableApi({ client, ctx, logger })
+  const records = await airtableClient.listRecords({
+    tableIdOrName: input.tableIdOrName,
+    filterByFormula: input.filterByFormula,
+    nextToken: input.nextToken,
+  })
+  logger.forBot().info(`Successful - List Records - ${input.tableIdOrName}`)
+  return records
+}

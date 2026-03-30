@@ -13,8 +13,6 @@ export const redactAirtableError = (error: Error, customErrorMessage: string): s
     return error
   }
 
-  console.warn(customErrorMessage, error)
-
   if (axios.isAxiosError(error)) {
     const status = error.response?.status
     const data = error.response?.data as { error?: { message?: string }; message?: string } | undefined

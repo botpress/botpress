@@ -1,5 +1,5 @@
 import Airtable, { type FieldSet } from 'airtable'
-import axios, { AxiosInstance } from 'axios'
+import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import { stringify } from 'querystring'
 import { handleErrorsDecorator } from './api/error-handling'
 import type { CreatableField } from './misc/field-schemas'
@@ -45,7 +45,7 @@ export class AirtableApi {
   }
 
   @handleErrors('Failed to test connection to Airtable')
-  public async testConnection(): Promise<void> {
+  public async testConnection(): Promise<AxiosResponse> {
     return await this._axiosClient.get('/meta/whoami')
   }
 
