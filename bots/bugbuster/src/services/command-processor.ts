@@ -86,7 +86,7 @@ export class CommandProcessor {
     if (!existingChannel) {
       const conversation = await this._client.callAction({
         type: 'slack:startChannelConversation',
-        input: { conversation: { channelName: channelToAdd } },
+        input: { channelName: channelToAdd },
       })
       channels.push({ conversationId: conversation.output.conversationId, name: channelToAdd, teams })
     } else {

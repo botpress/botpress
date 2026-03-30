@@ -3,8 +3,7 @@ import { wrapActionAndInjectSlackClient } from 'src/actions/action-wrapper'
 
 export const startChannelConversation = wrapActionAndInjectSlackClient(
   { actionName: 'startChannelConversation', errorMessage: 'Failed to start Channel conversation' },
-  async ({ client, logger, slackClient }, { conversation }) => {
-    const { channelId, channelName } = conversation
+  async ({ client, logger, slackClient }, { channelId, channelName }) => {
 
     let resolvedChannelId: string | undefined = channelId
 

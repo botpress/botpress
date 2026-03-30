@@ -128,7 +128,7 @@ const _getSlackConversationId = async (
       const response = await client.callAction({
         type: 'slack:startChannelConversation',
         input: {
-          conversation: { channelName },
+          channelName,
         },
       })
       cachedSlackConversationIds[channelName] = response.output.conversationId

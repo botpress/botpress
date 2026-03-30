@@ -95,6 +95,32 @@ export const actions = {
     },
   },
 
+  // TODO change to proactive conversation on next major
+  startChannelConversation: {
+    title: 'Start Channel Conversation',
+    description: 'Initiate a conversation in a channel',
+    input: {
+      schema: sdk.z.object({
+        channelName: sdk.z
+          .string()
+          .optional()
+          .title('[DEPRECATED] Channel Name')
+          .describe('[DEPRECATED] The name of the channel you want the conversation to be created at'),
+        channelId: sdk.z
+          .string()
+          .optional()
+          .title('Channel ID')
+          .describe('The ID of the channel you want the conversation to be created at'),
+      }),
+    },
+    output: {
+      schema: sdk.z.object({
+        conversationId: sdk.z.string().title('Conversation ID').describe('The ID of the new conversation'),
+      }),
+    },
+  },
+  
+  // TODO change to proactive conversation on next major
   startDmConversation: {
     title: 'Start DM Conversation',
     description: 'Initiate a conversation with a user in a DM',

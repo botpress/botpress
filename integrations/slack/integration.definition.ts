@@ -1,5 +1,4 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import proactiveConversation from 'bp_modules/proactive-conversation'
 import typingIndicator from 'bp_modules/typing-indicator'
 
 import {
@@ -65,12 +64,4 @@ export default new IntegrationDefinition({
 })
   .extend(typingIndicator, () => ({
     entities: {},
-  }))
-  .extend(proactiveConversation, ({ entities }) => ({
-    entities: {
-      conversation: entities.conversation,
-    },
-    actions: {
-      getOrCreateConversation: { name: 'startChannelConversation' },
-    },
   }))
