@@ -1,11 +1,19 @@
 import { posthogHelper } from '@botpress/common'
 import { INTEGRATION_NAME, INTEGRATION_VERSION } from 'integration.definition'
-import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
+import { Language, Template } from 'whatsapp-api-js/messages'
+import type { TemplateComponent } from 'whatsapp-api-js/types'
 import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient } from '../auth'
 import { safeFormatPhoneNumber } from '../misc/phone-number-to-whatsapp'
-import { getTemplateText, parseTemplateVariablesJSON } from '../misc/template-utils'
-import { TemplateVariables } from '../misc/types'
-import { hasAtleastOne, logForBotAndThrow } from '../misc/util'
+import {
+  generateSyntheticTemplateText,
+  parseTemplateVariablesJSON,
+  buildHeaderComponent,
+  buildBodyComponent,
+  buildBodyComponentFromLegacy,
+  buildButtonComponents,
+} from '../misc/template-utils'
+import type { TemplateBodyParams } from '../misc/types'
+import { logForBotAndThrow } from '../misc/util'
 import * as bp from '.botpress'
 
 export const sendTemplateMessage: bp.IntegrationProps['actions']['sendTemplateMessage'] = async (props) => {
@@ -26,7 +34,14 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     logForBotAndThrow('Sending template is not supported in sandbox mode', logger)
   }
 
-  const { userPhone, templateName, templateVariablesJson } = input.conversation
+  const {
+    userPhone,
+    templateName,
+    templateVariablesJson,
+    templateHeaderParams,
+    templateBodyParams,
+    templateButtonParams,
+  } = input.conversation
   const botPhoneNumberId = input.conversation.botPhoneNumberId
     ? input.conversation.botPhoneNumberId
     : await getDefaultBotPhoneNumberId(client, ctx).catch(() => {
@@ -34,9 +49,37 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
       })
 
   const templateLanguage = input.conversation.templateLanguage || 'en'
-  let templateVariables: TemplateVariables = []
-  if (templateVariablesJson) {
-    templateVariables = parseTemplateVariablesJSON(templateVariablesJson, logger)
+
+  const templateApiComponents: TemplateComponent[] = []
+  let effectiveBodyParams: TemplateBodyParams | undefined = templateBodyParams
+
+  if (templateHeaderParams) {
+    templateApiComponents.push(buildHeaderComponent(templateHeaderParams))
+  }
+
+  if (templateBodyParams) {
+    const bodyComponent = buildBodyComponent(templateBodyParams)
+    if (bodyComponent) {
+      templateApiComponents.push(bodyComponent)
+    }
+    // TODO: Remove templateVariablesJson in the next major
+  } else if (templateVariablesJson) {
+    const variables = parseTemplateVariablesJSON(templateVariablesJson, logger)
+    const bodyComponent = buildBodyComponentFromLegacy(variables)
+    if (bodyComponent) {
+      templateApiComponents.push(bodyComponent)
+    }
+    // Convert legacy variables to TemplateBodyParams for synthetic text rendering
+    effectiveBodyParams = Array.isArray(variables)
+      ? { type: 'positional' as const, values: variables.map((v) => String(v)) }
+      : {
+          type: 'named' as const,
+          values: Object.fromEntries(Object.entries(variables).map(([k, v]) => [k, String(v)])),
+        }
+  }
+
+  if (templateButtonParams && templateButtonParams.length > 0) {
+    templateApiComponents.push(...buildButtonComponents(templateButtonParams))
   }
 
   const formatPhoneNumberResponse = safeFormatPhoneNumber(userPhone)
@@ -67,12 +110,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
 
   const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
   const language = new Language(templateLanguage)
-  const bodyParams: BodyParameter[] = templateVariables.map((variable) => ({
-    type: 'text',
-    text: variable.toString(),
-  }))
-  const components = hasAtleastOne(bodyParams) ? [new BodyComponent(...bodyParams)] : []
-  const template = new Template(templateName, language, ...components)
+  const template = new Template(templateName, language, ...templateApiComponents)
 
   const response = await whatsapp.sendMessage(botPhoneNumberId, userPhone, template)
 
@@ -92,19 +130,28 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
       tags: {},
       type: 'text',
       payload: {
-        text: await getTemplateText(ctx, client, logger, templateName, templateLanguage, templateVariables),
+        text: await generateSyntheticTemplateText(
+          ctx,
+          client,
+          logger,
+          templateName,
+          templateLanguage,
+          effectiveBodyParams,
+          templateHeaderParams
+        ),
       },
     })
-    .catch((err: any) => {
-      logger.forBot().error(`Failed to Create synthetic message from template message - Error: ${err?.message ?? ''}`)
+    .catch((err: unknown) => {
+      const message = err instanceof Error ? err.message : ''
+      logger.forBot().error(`Failed to Create synthetic message from template message - Error: ${message}`)
     })
 
   logger
     .forBot()
     .info(
       `Successfully sent WhatsApp template "${templateName}" with language "${templateLanguage}"${
-        templateVariables && templateVariables.length
-          ? ` using template variables: ${JSON.stringify(templateVariables)}`
+        templateBodyParams
+          ? ` using template variables: ${JSON.stringify(templateBodyParams)}`
           : ' without template variables'
       }`
     )
