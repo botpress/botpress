@@ -7,7 +7,7 @@ export default new IntegrationDefinition({
   name: 'groq',
   title: 'Groq',
   description: 'Gain access to Groq models for content generation, chat responses, and audio transcription.',
-  version: '15.0.2',
+  version: '15.0.3',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
@@ -29,6 +29,7 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'AI Models',
+    repo: 'botpress',
   },
 })
   .extend(llm, ({ entities: { modelRef } }) => ({ entities: { modelRef } }))

@@ -14,7 +14,7 @@ import {
 export default new IntegrationDefinition({
   name: 'resend',
   title: 'Resend',
-  version: '0.1.9',
+  version: '0.1.10',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Send markdown rich-text emails using the Resend email service.',
@@ -95,5 +95,6 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'Marketing & Email',
+    repo: 'botpress',
   },
 })

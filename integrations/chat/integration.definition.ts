@@ -113,5 +113,6 @@ export default new sdk.IntegrationDefinition({
   },
   attributes: {
     category: 'Communication & Channels',
+    repo: 'botpress',
   },
 })

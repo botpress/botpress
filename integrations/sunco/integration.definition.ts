@@ -9,7 +9,7 @@ export const INTEGRATION_NAME = 'sunco'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.0.0',
+  version: '2.0.1',
   title: 'Sunshine Conversations',
   description: 'Give your bot access to a powerful omnichannel messaging platform.',
   icon: 'icon.svg',
@@ -128,6 +128,8 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'Communication & Channels',
+    guideSlug: 'sunco',
+    repo: 'botpress',
   },
 })
   .extend(typingIndicator, () => ({ entities: {} }))

@@ -603,6 +603,8 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'Communication & Channels',
+    guideSlug: 'whatsapp',
+    repo: 'botpress',
   },
   __advanced: {
     toJSONSchemaOptions,

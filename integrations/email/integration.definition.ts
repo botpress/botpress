@@ -11,7 +11,7 @@ const emailSchema = z.object({
 
 export default new IntegrationDefinition({
   name: 'email',
-  version: '0.1.3',
+  version: '0.1.4',
   title: 'Email',
   description: 'Send and receive emails using IMAP and SMTP protocols',
   readme: 'hub.md',
@@ -152,5 +152,6 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'Marketing & Email',
+    repo: 'botpress',
   },
 })
