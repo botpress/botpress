@@ -12,6 +12,7 @@ import {
   buildBodyComponentFromLegacy,
   buildButtonComponents,
 } from '../misc/template-utils'
+import type { TemplateBodyParams } from '../misc/types'
 import { logForBotAndThrow } from '../misc/util'
 import * as bp from '.botpress'
 
@@ -50,6 +51,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
   const templateLanguage = input.conversation.templateLanguage || 'en'
 
   const templateApiComponents: TemplateComponent[] = []
+  let effectiveBodyParams: TemplateBodyParams | undefined = templateBodyParams
 
   if (templateHeaderParams) {
     templateApiComponents.push(buildHeaderComponent(templateHeaderParams))
@@ -67,6 +69,13 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     if (bodyComponent) {
       templateApiComponents.push(bodyComponent)
     }
+    // Convert legacy variables to TemplateBodyParams for synthetic text rendering
+    effectiveBodyParams = Array.isArray(variables)
+      ? { type: 'positional' as const, values: variables.map((v) => String(v)) }
+      : {
+          type: 'named' as const,
+          values: Object.fromEntries(Object.entries(variables).map(([k, v]) => [k, String(v)])),
+        }
   }
 
   if (templateButtonParams && templateButtonParams.length > 0) {
@@ -127,7 +136,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
           logger,
           templateName,
           templateLanguage,
-          templateBodyParams,
+          effectiveBodyParams,
           templateHeaderParams
         ),
       },

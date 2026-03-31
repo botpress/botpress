@@ -397,7 +397,9 @@ export type TemplateHeaderParam =
   | { type: 'video'; url: string }
   | { type: 'document'; url: string; filename?: string }
 
-export type TemplateBodyParams = { type: 'positional'; values: string[] } | { type: 'named'; values: Record<string, string> }
+export type TemplateBodyParams =
+  | { type: 'positional'; values: string[] }
+  | { type: 'named'; values: Record<string, string> }
 
 export type TemplateButtonParam =
   | { type: 'url'; value: string }

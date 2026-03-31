@@ -237,8 +237,6 @@ const _getTemplateText = (
   return templateText
 }
 
-const MEDIA_HEADER_KEYS = new Set(['image', 'video', 'document'])
-
 const _parseComponent = (
   component: Component,
   bodyParams: KeyValuePair[],
