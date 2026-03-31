@@ -122,12 +122,14 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     )
   }
 
+  const whatsappMessageId = response.messages[0]?.id
+
   await client
     .createMessage({
       origin: 'synthetic',
       conversationId: conversation.id,
       userId: ctx.botId,
-      tags: {},
+      tags: { ...(whatsappMessageId ? { id: whatsappMessageId } : {}) },
       type: 'text',
       payload: {
         text: await generateSyntheticTemplateText(
