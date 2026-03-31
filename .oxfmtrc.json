@@ -1,0 +1,31 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+
+  "printWidth": 120,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": false,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "bracketSpacing": true,
+  "endOfLine": "lf",
+  "ignorePatterns": [
+    "pnpm-lock.yaml",
+    "**/gen/**",
+    "**/dist/**",
+    "**/.botpress/**",
+    "**/bp_modules/**",
+    "*.gen.ts",
+    ".botpresshome",
+    ".botpresshome.*",
+    "**/cdktf.out/**",
+    "**/.aws-sam/**",
+    "**/local/integrations/**",
+    "packages/files-api/fixtures/*.json",
+    "packages/files-api/fixtures/*.html",
+    "packages/load-tests/data/**",
+    "**/packages/pdf2md/**",
+    "**/prisma/migrations/migration_lock.toml",
+    "*.css.d.ts"
+  ]
+}

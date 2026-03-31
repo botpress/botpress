@@ -1,0 +1,54 @@
+name: Deploy Chat Staging
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'integrations/chat/**'
+      - 'packages/sdk/**'
+
+  workflow_dispatch:
+    inputs:
+      branchOrCommit:
+        description: 'Branch/Commit/Tag to deploy'
+        required: false
+        type: string
+        default: 'master'
+      skipDeploy:
+        description: 'Skip deployment to ECS'
+        required: false
+        type: boolean
+        default: false
+      builder:
+        description: 'Image Builder'
+        required: false
+        type: choice
+        options:
+          - docker
+          - depot
+        default: 'depot'
+
+permissions:
+  id-token: write
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  deploy-chat-staging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: botpress/gh-actions/full-service-deploy@v3.3
+        with:
+          service: chat
+          repository: chat-integration
+          dockerfile: integrations/chat/Dockerfile
+          context: .
+          builder: ${{ inputs.builder || 'depot' }}
+          role-ecs-update: skynet_infra_update
+          skip-ecs-update: ${{ inputs.skipDeploy }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.branchOrCommit || github.sha }}
+          environment: staging
