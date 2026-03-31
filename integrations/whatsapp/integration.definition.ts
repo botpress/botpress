@@ -85,9 +85,51 @@ const startConversationProps = {
           templateVariablesJson: z
             .string()
             .optional()
-            .title('Message Template variables')
+            .title('[DEPRECATED] Message Template variables')
             .describe(
-              'JSON array representation of variable values to pass to the WhatsApp Message Template (if required by the template). Currently, only positional parameters are supported.'
+              'Deprecated: use templateBodyParams instead. JSON array of body variable values: ["val1", "val2"].'
+            ),
+          templateHeaderParams: z
+            .discriminatedUnion('type', [
+              z.object({ type: z.literal('text'), value: z.string(), parameterName: z.string().optional() }),
+              z.object({ type: z.literal('image'), url: z.string() }),
+              z.object({ type: z.literal('video'), url: z.string() }),
+              z.object({ type: z.literal('document'), url: z.string(), filename: z.string().optional() }),
+            ])
+            .optional()
+            .title('Template header parameters')
+            .describe(
+              'Header parameter. ' +
+                'For text headers: type="text", value is the replacement text, parameterName is optional (for named params). ' +
+                'For media headers: type="image"|"video"|"document", url is the media URL. Documents may include a filename.'
+            ),
+          templateBodyParams: z
+            .discriminatedUnion('type', [
+              z.object({ type: z.literal('positional'), values: z.array(z.string()) }),
+              z.object({ type: z.literal('named'), values: z.record(z.string()) }),
+            ])
+            .optional()
+            .title('Template body parameters')
+            .describe(
+              'Body parameters. ' +
+                'For positional params ({{1}}, {{2}}, ...): type="positional", values is an ordered array of strings. ' +
+                'For named params ({{buyer_name}}): type="named", values is a record mapping param names to values.'
+            ),
+          templateButtonParams: z
+            .array(
+              z.discriminatedUnion('type', [
+                z.object({ type: z.literal('url'), value: z.string() }),
+                z.object({ type: z.literal('quick_reply'), payload: z.string() }),
+                z.object({ type: z.literal('copy_code'), code: z.string() }),
+                z.object({ type: z.literal('skip') }),
+              ])
+            )
+            .optional()
+            .title('Template button parameters')
+            .describe(
+              'Button parameters as an ordered array. ' +
+                'url: value is the URL suffix. quick_reply: payload is the callback data. ' +
+                'copy_code: code is the coupon code. skip: no parameter needed (for phone number buttons, etc.).'
             ),
           botPhoneNumberId: z
             .string()
