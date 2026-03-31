@@ -1,57 +1,5 @@
-import { StoredCredentials } from 'src/types'
 // @ts-expect-error No types for sunshine-conversations-client
 import * as SunshineConversationsClientModule from 'sunshine-conversations-client'
-
-export type CombinedApiClient = {
-  activities: ActivitiesApi
-  apps: AppsApi
-  users: UsersApi
-  conversations: ConversationsApi
-  messages: MessagesApi
-  webhooks: WebhooksApi
-  integrations: IntegrationsApi
-  switchboard: SwitchboardsApi
-  switchboardActions: SwitchboardActionsApi
-  switchboardIntegrations: SwitchboardIntegrationsApi
-}
-
-export function createClient(creds: StoredCredentials): CombinedApiClient {
-  const client =
-    creds.configType === 'manual'
-      ? createClientFromBasicAuth(creds.keyId, creds.keySecret)
-      : createClientFromToken(creds.token)
-  return createApis(client)
-}
-
-function createClientFromBasicAuth(keyId: string, keySecret: string): ApiClient {
-  const apiClient = new SunshineConversationsApi.ApiClient()
-  const auth = apiClient.authentications['basicAuth']
-  auth.username = keyId
-  auth.password = keySecret
-  return apiClient
-}
-
-function createClientFromToken(token: string) {
-  const apiClient = new SunshineConversationsApi.ApiClient()
-  const auth = apiClient.authentications['bearerAuth']
-  auth.accessToken = token
-  return apiClient
-}
-
-function createApis(apiClient: ApiClient): CombinedApiClient {
-  return {
-    activities: new SunshineConversationsApi.ActivitiesApi(apiClient),
-    apps: new SunshineConversationsApi.AppsApi(apiClient),
-    users: new SunshineConversationsApi.UsersApi(apiClient),
-    conversations: new SunshineConversationsApi.ConversationsApi(apiClient),
-    messages: new SunshineConversationsApi.MessagesApi(apiClient),
-    webhooks: new SunshineConversationsApi.WebhooksApi(apiClient),
-    integrations: new SunshineConversationsApi.IntegrationsApi(apiClient),
-    switchboard: new SunshineConversationsApi.SwitchboardsApi(apiClient),
-    switchboardActions: new SunshineConversationsApi.SwitchboardActionsApi(apiClient),
-    switchboardIntegrations: new SunshineConversationsApi.SwitchboardIntegrationsApi(apiClient),
-  }
-}
 
 // The typings below were generated using AI based on dist from sunshine-conversations-client
 
@@ -78,6 +26,8 @@ export type ApiClientAuthentications = {
 // This is a very simplified type for the ApiClient
 export type ApiClient = {
   authentications: ApiClientAuthentications
+  basePath: string
+  defaultHeaders: Record<string, string>
 }
 
 // ============================================================================
@@ -346,6 +296,15 @@ export type Integration = {
   status?: 'active' | 'inactive'
   displayName?: string
   webhooks?: Webhook[]
+  defaultResponder?: {
+    id?: string
+    name?: string
+    integrationId?: string
+    integrationType?: string
+    deliverStandbyEvents?: boolean
+    nextSwitchboardIntegrationId?: string
+    inherited?: boolean
+  }
 }
 
 export type CreateIntegrationRequest = {
@@ -386,6 +345,7 @@ export type IntegrationsApi = {
 export type Webhook = {
   id: string
   target: string
+  secret?: string
   triggers?: string[]
   includeFullUser?: boolean
   includeFullSource?: boolean
