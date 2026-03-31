@@ -77,54 +77,51 @@ const startConversationProps = {
           templateVariablesJson: z
             .string()
             .optional()
-            .title('Message Template variables (deprecated)')
+            .title('[DEPRECATED] Message Template variables')
             .describe(
               'Deprecated: use templateBodyParams instead. JSON array of body variable values: ["val1", "val2"].'
             ),
           templateHeaderParams: z
-            .array(
-              z.object({
-                key: z.string().title('Key').describe('1-indexed number for numbered and property name for named'),
-                value: z.string().title('Value').describe('Value for the corresponding key'),
-              })
-            )
+            .discriminatedUnion('type', [
+              z.object({ type: z.literal('text'), value: z.string(), parameterName: z.string().optional() }),
+              z.object({ type: z.literal('image'), url: z.string() }),
+              z.object({ type: z.literal('video'), url: z.string() }),
+              z.object({ type: z.literal('document'), url: z.string(), filename: z.string().optional() }),
+            ])
             .optional()
             .title('Template header parameters')
             .describe(
-              'Header parameters as key-value pairs. ' +
-                'For text: key is the parameter name, value is the text (e.g. key="recipient", value="John"). ' +
-                'For media: key is "image", "video", or "document" (optionally "document:filename.pdf"), value is the URL.'
+              'Header parameter. ' +
+                'For text headers: type="text", value is the replacement text, parameterName is optional (for named params). ' +
+                'For media headers: type="image"|"video"|"document", url is the media URL. Documents may include a filename.'
             ),
           templateBodyParams: z
-            .array(
-              z.object({
-                key: z.string().title('Key').describe('1-indexed number for numbered and property name for named'),
-                value: z.string().title('Value').describe('Value for the corresponding key'),
-              })
-            )
+            .discriminatedUnion('type', [
+              z.object({ type: z.literal('positional'), values: z.array(z.string()) }),
+              z.object({ type: z.literal('named'), values: z.record(z.string()) }),
+            ])
             .optional()
             .title('Template body parameters')
             .describe(
-              'Body parameters as key-value pairs. ' +
-                'For named params: key is the param name (e.g. key="buyer_name", value="John"). ' +
-                'For positional params: key is the position number (e.g. key="1", value="John").'
+              'Body parameters. ' +
+                'For positional params ({{1}}, {{2}}, ...): type="positional", values is an ordered array of strings. ' +
+                'For named params ({{buyer_name}}): type="named", values is a record mapping param names to values.'
             ),
           templateButtonParams: z
             .array(
-              z.object({
-                key: z.string().title('Key').describe('Button type: "url", "quick_reply", "copy_code", or "skip"'),
-                value: z
-                  .string()
-                  .title('Value')
-                  .describe('Parameter value (URL suffix, payload, code, or empty for skip)')
-                  .optional(),
-              })
+              z.discriminatedUnion('type', [
+                z.object({ type: z.literal('url'), value: z.string() }),
+                z.object({ type: z.literal('quick_reply'), payload: z.string() }),
+                z.object({ type: z.literal('copy_code'), code: z.string() }),
+                z.object({ type: z.literal('skip') }),
+              ])
             )
             .optional()
             .title('Template button parameters')
             .describe(
-              'Button parameters as key-value pairs. key is the button type: "url", "quick_reply", "copy_code", or "skip". ' +
-                'value is the parameter (URL suffix, payload, code, or empty for skip).'
+              'Button parameters as an ordered array. ' +
+                'url: value is the URL suffix. quick_reply: payload is the callback data. ' +
+                'copy_code: code is the coupon code. skip: no parameter needed (for phone number buttons, etc.).'
             ),
           botPhoneNumberId: z
             .string()

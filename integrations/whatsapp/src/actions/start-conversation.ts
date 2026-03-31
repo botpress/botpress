@@ -7,12 +7,11 @@ import { safeFormatPhoneNumber } from '../misc/phone-number-to-whatsapp'
 import {
   generateSyntheticTemplateText,
   parseTemplateVariablesJSON,
-  buildHeaderComponents,
+  buildHeaderComponent,
   buildBodyComponent,
   buildBodyComponentFromLegacy,
   buildButtonComponents,
 } from '../misc/template-utils'
-import { KeyValuePair } from '../misc/types'
 import { logForBotAndThrow } from '../misc/util'
 import * as bp from '.botpress'
 
@@ -51,41 +50,27 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
   const templateLanguage = input.conversation.templateLanguage || 'en'
 
   const templateApiComponents: TemplateComponent[] = []
-  const headerParams: KeyValuePair[] = templateHeaderParams ?? []
-  let bodyParams: KeyValuePair[] = templateBodyParams ?? []
 
-  if (headerParams.length > 0) {
-    const headerComponent = buildHeaderComponents(headerParams)
-    if (headerComponent) {
-      templateApiComponents.push(headerComponent)
-    }
+  if (templateHeaderParams) {
+    templateApiComponents.push(buildHeaderComponent(templateHeaderParams))
   }
 
-  if (bodyParams.length > 0) {
-    const bodyComponent = buildBodyComponent(bodyParams)
+  if (templateBodyParams) {
+    const bodyComponent = buildBodyComponent(templateBodyParams)
     if (bodyComponent) {
       templateApiComponents.push(bodyComponent)
     }
-    // TODO: Remove templateVariableJson in the next major
+    // TODO: Remove templateVariablesJson in the next major
   } else if (templateVariablesJson) {
     const variables = parseTemplateVariablesJSON(templateVariablesJson, logger)
     const bodyComponent = buildBodyComponentFromLegacy(variables)
     if (bodyComponent) {
       templateApiComponents.push(bodyComponent)
     }
-    if (Array.isArray(variables)) {
-      bodyParams = variables.map((v, i) => ({ key: String(i + 1), value: v.toString() }))
-    } else {
-      bodyParams = Object.entries(variables).map(([key, value]) => ({ key, value: value.toString() }))
-    }
   }
 
-  const buttonParams: KeyValuePair[] = (templateButtonParams ?? []).map(({ key, value }) => ({
-    key,
-    value: value ?? '',
-  }))
-  if (buttonParams.length > 0) {
-    templateApiComponents.push(...buildButtonComponents(buttonParams))
+  if (templateButtonParams && templateButtonParams.length > 0) {
+    templateApiComponents.push(...buildButtonComponents(templateButtonParams))
   }
 
   const formatPhoneNumberResponse = safeFormatPhoneNumber(userPhone)
@@ -142,8 +127,8 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
           logger,
           templateName,
           templateLanguage,
-          bodyParams,
-          headerParams
+          templateBodyParams,
+          templateHeaderParams
         ),
       },
     })
@@ -156,8 +141,8 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     .forBot()
     .info(
       `Successfully sent WhatsApp template "${templateName}" with language "${templateLanguage}"${
-        bodyParams.length > 0
-          ? ` using template variables: ${JSON.stringify(bodyParams)}`
+        templateBodyParams
+          ? ` using template variables: ${JSON.stringify(templateBodyParams)}`
           : ' without template variables'
       }`
     )

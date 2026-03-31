@@ -1,6 +1,15 @@
 import { z } from '@botpress/sdk'
 import axios from 'axios'
-import { Component, KeyValuePair, NamedVariables, TemplateVariables, templateVariablesSchema } from 'src/misc/types'
+import {
+  Component,
+  KeyValuePair,
+  NamedVariables,
+  TemplateBodyParams,
+  TemplateButtonParam,
+  TemplateHeaderParam,
+  TemplateVariables,
+  templateVariablesSchema,
+} from 'src/misc/types'
 import {
   BodyComponent,
   BodyParameter,
@@ -154,14 +163,42 @@ function isNamedVariables(variables: TemplateVariables): variables is NamedVaria
   return !Array.isArray(variables)
 }
 
+function headerParamToKVPairs(param: TemplateHeaderParam | undefined): KeyValuePair[] {
+  if (!param) {
+    return []
+  }
+  switch (param.type) {
+    case 'text':
+      return [{ key: param.parameterName ?? '1', value: param.value }]
+    case 'image':
+      return [{ key: 'image', value: param.url }]
+    case 'video':
+      return [{ key: 'video', value: param.url }]
+    case 'document':
+      return [{ key: param.filename ? `document:${param.filename}` : 'document', value: param.url }]
+  }
+}
+
+function bodyParamsToKVPairs(params: TemplateBodyParams | undefined): KeyValuePair[] {
+  if (!params) {
+    return []
+  }
+  switch (params.type) {
+    case 'positional':
+      return params.values.map((v, i) => ({ key: String(i + 1), value: v }))
+    case 'named':
+      return Object.entries(params.values).map(([key, value]) => ({ key, value }))
+  }
+}
+
 export const generateSyntheticTemplateText = async (
   ctx: bp.Context,
   client: bp.Client,
   logger: bp.Logger,
   templateName: string,
   templateLanguage: string,
-  bodyParams: KeyValuePair[],
-  headerParams: KeyValuePair[]
+  bodyParams: TemplateBodyParams | undefined,
+  headerParam: TemplateHeaderParam | undefined
 ): Promise<string> => {
   try {
     const response = await fetchTemplates(ctx, client, logger, {
@@ -174,7 +211,9 @@ export const generateSyntheticTemplateText = async (
       throw new Error('No template received')
     }
 
-    return _getTemplateText((template.components ?? []) as Component[], bodyParams, headerParams)
+    const bodyKV = bodyParamsToKVPairs(bodyParams)
+    const headerKV = headerParamToKVPairs(headerParam)
+    return _getTemplateText((template.components ?? []) as Component[], bodyKV, headerKV)
   } catch (thrown) {
     const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
     logger.forBot().debug(`failed to get template text - ${errMsg}`)
@@ -277,9 +316,6 @@ const _getRenderedBodyText = (text: string, bodyParams: KeyValuePair[]): string 
   return text
 }
 
-const isAllNumericKeys = (params: KeyValuePair[]): boolean =>
-  params.every(({ key }) => Number.isInteger(Number(key)) && Number(key) > 0)
-
 /**
  * Custom body component that supports named parameter_name fields,
  * which the whatsapp-api-js library does not yet support.
@@ -288,8 +324,8 @@ class NamedBodyComponent implements TemplateComponent {
   public readonly type = 'body' as const
   public readonly parameters: Array<{ type: 'text'; parameter_name: string; text: string }>
 
-  public constructor(params: KeyValuePair[]) {
-    this.parameters = params.map(({ key, value }) => ({
+  public constructor(namedValues: Record<string, string>) {
+    this.parameters = Object.entries(namedValues).map(([key, value]) => ({
       type: 'text' as const,
       parameter_name: key,
       text: value,
@@ -309,12 +345,14 @@ class NamedHeaderComponent implements TemplateComponent {
   public readonly type = 'header' as const
   public readonly parameters: Array<{ type: 'text'; parameter_name: string; text: string }>
 
-  public constructor(params: KeyValuePair[]) {
-    this.parameters = params.map(({ key, value }) => ({
-      type: 'text' as const,
-      parameter_name: key,
-      text: value,
-    }))
+  public constructor(parameterName: string, value: string) {
+    this.parameters = [
+      {
+        type: 'text' as const,
+        parameter_name: parameterName,
+        text: value,
+      },
+    ]
   }
 
   public _build() {
@@ -322,53 +360,41 @@ class NamedHeaderComponent implements TemplateComponent {
   }
 }
 
-export function buildHeaderComponents(params: KeyValuePair[]): TemplateComponent | undefined {
-  if (params.length === 0) {
-    return undefined
-  }
-
-  const first = params[0]!
-  const baseKey = first.key.split(':')[0]
-
-  if (!baseKey) {
-    throw new Error(`Invalid header parameter key: ${first.key}`)
-  }
-
-  if (MEDIA_HEADER_KEYS.has(baseKey)) {
-    switch (baseKey) {
-      case 'image':
-        return new HeaderComponent(new HeaderParameter(new Image(first.value)))
-      case 'video':
-        return new HeaderComponent(new HeaderParameter(new Video(first.value)))
-      case 'document': {
-        const filename = first.key.includes(':') ? first.key.split(':').slice(1).join(':') : undefined
-        return new HeaderComponent(new HeaderParameter(new Document(first.value, false, undefined, filename)))
+export function buildHeaderComponent(param: TemplateHeaderParam): TemplateComponent {
+  switch (param.type) {
+    case 'image':
+      return new HeaderComponent(new HeaderParameter(new Image(param.url)))
+    case 'video':
+      return new HeaderComponent(new HeaderParameter(new Video(param.url)))
+    case 'document':
+      return new HeaderComponent(new HeaderParameter(new Document(param.url, false, undefined, param.filename)))
+    case 'text':
+      if (param.parameterName) {
+        return new NamedHeaderComponent(param.parameterName, param.value)
       }
-    }
+      return new HeaderComponent(new HeaderParameter(param.value))
   }
-
-  if (isAllNumericKeys(params)) {
-    return new HeaderComponent(new HeaderParameter(params[0]!.value))
-  }
-
-  return new NamedHeaderComponent(params)
 }
 
-export function buildBodyComponent(params: KeyValuePair[]): TemplateComponent | undefined {
-  if (params.length === 0) {
-    return undefined
-  }
-
-  if (isAllNumericKeys(params)) {
-    const sorted = [...params].sort((a, b) => Number(a.key) - Number(b.key))
-    const bodyParams: BodyParameter[] = sorted.map(({ value }) => new BodyParameter(value))
-    if (hasAtleastOne(bodyParams)) {
-      return new BodyComponent(...bodyParams)
+export function buildBodyComponent(params: TemplateBodyParams): TemplateComponent | undefined {
+  switch (params.type) {
+    case 'positional': {
+      if (params.values.length === 0) {
+        return undefined
+      }
+      const bodyParams = params.values.map((v) => new BodyParameter(v))
+      if (hasAtleastOne(bodyParams)) {
+        return new BodyComponent(...bodyParams)
+      }
+      return undefined
     }
-    return undefined
+    case 'named': {
+      if (Object.keys(params.values).length === 0) {
+        return undefined
+      }
+      return new NamedBodyComponent(params.values)
+    }
   }
-
-  return new NamedBodyComponent(params)
 }
 
 export function buildBodyComponentFromLegacy(variables: TemplateVariables): TemplateComponent | undefined {
@@ -376,11 +402,11 @@ export function buildBodyComponentFromLegacy(variables: TemplateVariables): Temp
     if (Object.keys(variables).length === 0) {
       return undefined
     }
-    const params: KeyValuePair[] = Object.entries(variables).map(([key, value]) => ({
-      key,
-      value: value.toString(),
-    }))
-    return new NamedBodyComponent(params)
+    const stringValues: Record<string, string> = {}
+    for (const [key, value] of Object.entries(variables)) {
+      stringValues[key] = value.toString()
+    }
+    return new NamedBodyComponent(stringValues)
   }
 
   const bodyParams: BodyParameter[] = variables.map((v) => new BodyParameter(v.toString()))
@@ -390,25 +416,17 @@ export function buildBodyComponentFromLegacy(variables: TemplateVariables): Temp
   return undefined
 }
 
-export function buildButtonComponents(params: KeyValuePair[]): TemplateComponent[] {
-  const result: TemplateComponent[] = []
-
-  for (const { key, value } of params) {
-    switch (key) {
+export function buildButtonComponents(params: TemplateButtonParam[]): TemplateComponent[] {
+  return params.flatMap((param): TemplateComponent[] => {
+    switch (param.type) {
       case 'url':
-        result.push(new URLComponent(value))
-        break
+        return [new URLComponent(param.value)]
       case 'quick_reply':
-        result.push(new PayloadComponent(value))
-        break
+        return [new PayloadComponent(param.payload)]
       case 'copy_code':
-        result.push(new CopyComponent(value))
-        break
+        return [new CopyComponent(param.code)]
       case 'skip':
-        result.push(new SkipButtonComponent())
-        break
+        return [new SkipButtonComponent()]
     }
-  }
-
-  return result
+  })
 }

@@ -390,3 +390,17 @@ export type TemplateVariables = z.infer<typeof templateVariablesSchema>
 
 export const keyValuePairSchema = z.object({ key: z.string(), value: z.string() })
 export type KeyValuePair = z.infer<typeof keyValuePairSchema>
+
+export type TemplateHeaderParam =
+  | { type: 'text'; value: string; parameterName?: string }
+  | { type: 'image'; url: string }
+  | { type: 'video'; url: string }
+  | { type: 'document'; url: string; filename?: string }
+
+export type TemplateBodyParams = { type: 'positional'; values: string[] } | { type: 'named'; values: Record<string, string> }
+
+export type TemplateButtonParam =
+  | { type: 'url'; value: string }
+  | { type: 'quick_reply'; payload: string }
+  | { type: 'copy_code'; code: string }
+  | { type: 'skip' }
