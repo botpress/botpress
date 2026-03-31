@@ -188,16 +188,20 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
   return await wizard.handleRequest()
 }
 
-const _getOAuthAuthorizationUri = (ctx: { webhookId: string }) =>
-  'https://accounts.google.com/o/oauth2/v2/auth?' +
-  `scope=${encodeURIComponent('https://www.googleapis.com/auth/drive.file')}` +
-  '&access_type=offline' +
-  '&include_granted_scopes=true' +
-  '&response_type=code' +
-  '&prompt=consent' +
-  `&state=${encodeURIComponent(ctx.webhookId)}` +
-  `&redirect_uri=${encodeURIComponent(_getOAuthRedirectUri().href)}` +
-  `&client_id=${encodeURIComponent(bp.secrets.CLIENT_ID)}`
+const _getOAuthAuthorizationUri = (ctx: { webhookId: string }) => {
+  const uri =
+    'https://accounts.google.com/o/oauth2/v2/auth?' +
+    `scope=${encodeURIComponent('https://www.googleapis.com/auth/spreadsheets')}` +
+    '&access_type=offline' +
+    '&include_granted_scopes=true' +
+    '&response_type=code' +
+    '&prompt=consent' +
+    `&state=${encodeURIComponent(ctx.webhookId)}` +
+    `&redirect_uri=${encodeURIComponent(_getOAuthRedirectUri().href)}` +
+    `&client_id=${encodeURIComponent(bp.secrets.CLIENT_ID)}`
+  console.log('OAuth authorization URI:', uri)
+  return uri
+}
 
 const _getOAuthRedirectUri = () => oauthWizard.getWizardStepUrl('oauth-callback')
 
