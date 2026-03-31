@@ -108,13 +108,12 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
         return responses.displayButtons({
           pageTitle: 'Google Sheets Integration',
           htmlOrMarkdownPageContents: `
-            You will now be asked to select the files and folders you wish to
-            grant access to. This is necessary for the integration to work
+            You will now be asked to select the spreadsheet you wish to use
+            with this integration. This is necessary for the integration to work
             properly.
 
-            If you do not give access to any files or folders, the integration
-            will only be able to access files that are created through the
-            integration.
+            If you do not select a spreadsheet, you will need to manually
+            configure the spreadsheet ID in the integration settings.
 
             <script>
               let pickerApiLoaded = false;
@@ -132,16 +131,23 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
                 new google.picker.PickerBuilder()
                     .addView(new google.picker.DocsView(google.picker.ViewId.SPREADSHEETS)
                       .setIncludeFolders(true)
-                      .setSelectFolderEnabled(true)
+                      .setSelectFolderEnabled(false)
                       .setMode(google.picker.DocsViewMode.LIST))
                     .enableFeature(google.picker.Feature.NAV_HIDDEN)
-                    .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
-                    .setTitle('Select the spreadsheets and folders you wish to share with Botpress')
+                    .setTitle('Select the spreadsheet you wish to use with Botpress')
                     .setOAuthToken(${JSON.stringify(accessToken)})
                     .setDeveloperKey(${JSON.stringify(bp.secrets.FILE_PICKER_API_KEY)})
                     .setCallback((data) => {
                       if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
-                        document.location.href = ${JSON.stringify(oauthWizard.getWizardStepUrl('end', ctx).href)};
+                        const docs = data[google.picker.Response.DOCUMENTS];
+                        if (docs && docs.length > 0) {
+                          const spreadsheetId = docs[0].id;
+                          const nextUrl = new URL(${JSON.stringify(oauthWizard.getWizardStepUrl('end', ctx).href)});
+                          nextUrl.searchParams.set('spreadsheetId', spreadsheetId);
+                          document.location.href = nextUrl.href;
+                        } else {
+                          document.location.href = ${JSON.stringify(oauthWizard.getWizardStepUrl('end', ctx).href)};
+                        }
                       } else if (data[google.picker.Response.ACTION] == google.picker.Action.CANCEL) {
                         // User closed the picker without selecting files.
                         // They can still click "Skip file selection" to continue.
@@ -159,15 +165,9 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
           buttons: [
             {
               action: 'javascript',
-              label: 'Select files',
+              label: 'Select spreadsheet',
               callFunction: 'createPicker',
               buttonType: 'primary',
-            },
-            {
-              action: 'navigate',
-              label: 'Skip file selection',
-              navigateToStep: 'end',
-              buttonType: 'warning',
             },
           ],
         })
@@ -176,7 +176,19 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
 
     .addStep({
       id: 'end',
-      handler({ responses }) {
+      async handler({ responses, query, client, ctx }) {
+        const spreadsheetId = query.get('spreadsheetId')
+
+        if (spreadsheetId) {
+          // Save the spreadsheet ID to state
+          await client.setState({
+            id: ctx.integrationId,
+            type: 'integration',
+            name: 'spreadsheetConfig' as any,
+            payload: { spreadsheetId } as any,
+          })
+        }
+
         return responses.endWizard({
           success: true,
         })
