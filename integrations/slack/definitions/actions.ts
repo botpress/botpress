@@ -157,6 +157,16 @@ export const actions = {
       'Get information about Slack channels one page at a time. Returns channel details for the current page and a cursor for the next page.',
     input: {
       schema: sdk.z.object({
+        includeArchived: sdk.z
+          .boolean()
+          .optional()
+          .title('Include Archived')
+          .describe('Whether to include archived channels in the results'),
+        includePrivate: sdk.z
+          .boolean()
+          .optional()
+          .title('Include Private')
+          .describe('Whether to include private channels in the results'),
         cursor: sdk.z
           .string()
           .optional()

@@ -400,12 +400,24 @@ export class SlackClient {
 
   @requireAllScopes(['channels:read', 'chat:write'])
   @handleErrors('Failed to retrieve channels info')
-  public async getChannelsInfo({ cursor }: { cursor?: string }) {
-    const response = await this._slackWebClient.conversations.list({
-      types: 'public_channel,private_channel',
-      exclude_archived: true,
-      limit: 200,
-      cursor,
+  public async getChannelsInfo({
+    includeArchived,
+    includePrivate,
+    cursor,
+  }: {
+    includeArchived?: boolean
+    includePrivate?: boolean
+    cursor?: string
+  }) {
+    const types = includePrivate ? 'public_channel,private_channel' : 'public_channel'
+    const response = surfaceSlackErrors({
+      logger: this._logger,
+      response: await this._slackWebClient.conversations.list({
+        types,
+        exclude_archived: !includeArchived,
+        limit: 200,
+        cursor,
+      }),
     })
 
     return {

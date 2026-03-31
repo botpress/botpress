@@ -1,6 +1,6 @@
 import { addReaction } from './add-reaction'
 import { findTarget } from './find-target'
-import { getChannelsInfo } from './get-channel-info'
+import { getChannelsInfo } from './get-channels-info'
 import { getUserProfile } from './get-user-profile'
 import { retrieveMessage } from './retrieve-message'
 import { startChannelConversation } from './start-channel-conversation'
