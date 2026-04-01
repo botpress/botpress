@@ -8,9 +8,6 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Salesforce integration allows you to create, search, update and delete a variety of Salesforce objects',
-  identifier: {
-    fallbackHandlerScript: 'fallbackHandler.vrl',
-  },
   configuration: {
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
