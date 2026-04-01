@@ -196,6 +196,7 @@ const deploySchema = {
     description: 'Allow deprecated features in the project',
     default: false,
   },
+  url: { type: 'string', description: 'Custom URL for the integration. Only used when deploying an integration' },
 } as const satisfies CommandSchema
 
 const devSchema = {

@@ -10,6 +10,7 @@ const isPublic = false
 const visibility = 'private' as const
 const minify = true
 const profile = undefined
+const url = undefined
 
 export default {
   minify,
@@ -24,4 +25,5 @@ export default {
   public: isPublic,
   visibility,
   profile,
+  url,
 } as const
