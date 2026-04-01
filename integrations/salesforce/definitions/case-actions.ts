@@ -2,9 +2,9 @@ import * as sdk from '@botpress/sdk'
 import { recordResultSchema, searchOutputSchema } from './common-schemas'
 
 const createCaseInputSchema = sdk.z.object({
-  Subject: sdk.z.string().describe('The subject of the case'),
-  Description: sdk.z.string().describe('The description of the case'),
-  Status: sdk.z.string().optional().describe('The status of the case'),
+  Subject: sdk.z.string().title('Subject').describe('The subject of the case'),
+  Description: sdk.z.string().title('Description').describe('The description of the case'),
+  Status: sdk.z.string().optional().title('Status').describe('The status of the case'),
   customFields: sdk.z
     .string()
     .displayAs<any>({
@@ -16,7 +16,9 @@ const createCaseInputSchema = sdk.z.object({
         resizable: true,
       },
     })
-    .optional(),
+    .optional()
+    .title('Custom Fields')
+    .describe('Additional fields in JSON format'),
 })
 
 const createCase = {
@@ -35,7 +37,7 @@ const updateCase = {
   description: 'Update a Salesforce Case',
   input: {
     schema: sdk.z.object({
-      Id: sdk.z.string().describe('The ID of the case'),
+      Id: sdk.z.string().title('ID').describe('The ID of the case'),
       ...createCaseInputSchema.partial().shape,
     }),
   },
@@ -49,10 +51,10 @@ const searchCases = {
   description: 'Search Salesforce Cases',
   input: {
     schema: sdk.z.object({
-      Id: sdk.z.string().optional().describe('The ID of the case'),
-      Subject: sdk.z.string().optional().describe('The subject of the case'),
-      Description: sdk.z.string().optional().describe('The description of the case'),
-      Status: sdk.z.string().optional().describe('The status of the case'),
+      Id: sdk.z.string().optional().title('ID').describe('The ID of the case'),
+      Subject: sdk.z.string().optional().title('Subject').describe('The subject of the case'),
+      Description: sdk.z.string().optional().title('Description').describe('The description of the case'),
+      Status: sdk.z.string().optional().title('Status').describe('The status of the case'),
     }),
   },
   output: {

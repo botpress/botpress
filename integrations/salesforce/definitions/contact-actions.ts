@@ -2,10 +2,10 @@ import * as sdk from '@botpress/sdk'
 import { recordResultSchema, searchOutputSchema } from './common-schemas'
 
 const createContactInputSchema = sdk.z.object({
-  FirstName: sdk.z.string().describe('The first name of the contact (e.g. John)'),
-  LastName: sdk.z.string().describe('The last name of the contact (e.g. Doe)'),
-  Email: sdk.z.string().email().describe('The email address of the contact (e.g. john.doe@example.com)'),
-  Phone: sdk.z.string().optional().describe('The phone number of the contact (Optional) (e.g. +1-555-1234)'),
+  FirstName: sdk.z.string().title('First Name').describe('The first name of the contact (e.g. John)'),
+  LastName: sdk.z.string().title('Last Name').describe('The last name of the contact (e.g. Doe)'),
+  Email: sdk.z.string().email().title('Email').describe('The email address of the contact (e.g. john.doe@example.com)'),
+  Phone: sdk.z.string().optional().title('Phone').describe('The phone number of the contact (Optional) (e.g. +1-555-1234)'),
   customFields: sdk.z
     .string()
     .displayAs<any>({
@@ -18,6 +18,7 @@ const createContactInputSchema = sdk.z.object({
       },
     })
     .optional()
+    .title('Custom Fields')
     .describe('Custom fields (JSON)'),
 })
 
@@ -37,7 +38,7 @@ const updateContact = {
   description: 'Update a Salesforce Contact',
   input: {
     schema: sdk.z.object({
-      Id: sdk.z.string().describe('The ID of the contact'),
+      Id: sdk.z.string().title('ID').describe('The ID of the contact'),
       ...createContactInputSchema.partial().shape,
     }),
   },
@@ -51,9 +52,9 @@ const searchContacts = {
   description: 'Search Salesforce Contacts',
   input: {
     schema: sdk.z.object({
-      Id: sdk.z.string().optional().describe('The ID of the contact'),
-      Name: sdk.z.string().optional().describe('The first name of the contact (e.g. John)'),
-      Email: sdk.z.string().email().optional().describe('The email address of the contact (e.g. john.doe@example.com)'),
+      Id: sdk.z.string().optional().title('ID').describe('The ID of the contact'),
+      Name: sdk.z.string().optional().title('Name').describe('The first name of the contact (e.g. John)'),
+      Email: sdk.z.string().email().optional().title('Email').describe('The email address of the contact (e.g. john.doe@example.com)'),
     }),
   },
   output: {

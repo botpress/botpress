@@ -25,10 +25,17 @@ export default new IntegrationDefinition({
     credentials: {
       type: 'integration',
       schema: z.object({
-        isSandbox: z.boolean(),
-        accessToken: z.string(),
-        instanceUrl: z.string(),
-        refreshToken: z.string().optional(),
+        isSandbox: z.boolean().title('Is Sandbox').describe('Whether this is a Salesforce sandbox environment'),
+        accessToken: z.string().title('Access Token').describe('OAuth access token for Salesforce API calls'),
+        instanceUrl: z
+          .string()
+          .title('Instance URL')
+          .describe('Salesforce instance URL (e.g. https://yourorg.salesforce.com)'),
+        refreshToken: z
+          .string()
+          .optional()
+          .title('Refresh Token')
+          .describe('OAuth refresh token used to obtain new access tokens'),
       }),
     },
   },

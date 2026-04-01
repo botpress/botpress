@@ -5,7 +5,7 @@ const makeApiRequest = {
   description: 'Make a request to Salesforce API',
   input: {
     schema: sdk.z.object({
-      method: sdk.z.string(),
+      method: sdk.z.string().title('Method').describe('HTTP method (GET, POST, PATCH, DELETE)'),
       path: sdk.z.string().title('Path').describe('yourinstance.salesforce.com/services/data/v54.0/PATH'),
       headers: sdk.z.string().optional().title('Headers').describe('Headers in JSON format'),
       params: sdk.z.string().optional().title('Params').describe('Params in JSON format'),
@@ -27,10 +27,10 @@ const makeApiRequest = {
   },
   output: {
     schema: sdk.z.object({
-      success: sdk.z.boolean(),
-      status: sdk.z.number().optional(),
-      body: sdk.z.any().optional(),
-      error: sdk.z.string().optional(),
+      success: sdk.z.boolean().title('Success').describe('Whether the request was successful'),
+      status: sdk.z.number().optional().title('Status').describe('HTTP status code of the response'),
+      body: sdk.z.any().optional().title('Body').describe('Response body from the API'),
+      error: sdk.z.string().optional().title('Error').describe('Error message if the request failed'),
     }),
   },
 } satisfies sdk.ActionDefinition
