@@ -61,7 +61,7 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
     },
   })
 
-  client.configureIntegration({ identifier: ctx.webhookId })
+  await client.configureIntegration({ identifier: ctx.webhookId })
 
   return responses.endWizard({ success: true })
 }
