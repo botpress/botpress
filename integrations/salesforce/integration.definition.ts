@@ -4,7 +4,7 @@ import { actionDefinitions } from './definitions'
 export default new IntegrationDefinition({
   name: 'salesforce',
   title: 'Salesforce',
-  version: '1.5.0',
+  version: '1.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Salesforce integration allows you to create, search, update and delete a variety of Salesforce objects',
