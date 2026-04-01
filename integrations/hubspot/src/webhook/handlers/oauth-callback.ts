@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
-import { HubspotClient } from '../../hubspot-api'
 import { exchangeCodeForOAuthCredentials, setOAuthCredentials } from '../../auth'
+import { HubspotClient } from '../../hubspot-api'
 import * as bp from '.botpress'
 
 export const isOAuthCallback = (props: bp.HandlerProps): boolean => props.req.path.startsWith('/oauth')
