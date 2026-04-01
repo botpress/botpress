@@ -37,7 +37,7 @@ type RequestOptions = {
 
 const isBrowser = () => typeof window !== 'undefined' && typeof window.fetch === 'function'
 
-export { Models } from './types'
+export { Models, SttModels } from './types'
 export type {
   CommonRequestOptions,
   CognitiveContentPart,

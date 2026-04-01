@@ -94,6 +94,17 @@ export type Models =
   | 'fireworks-ai:accounts/fireworks/models/mythomax-l2-13b'
   | 'fireworks-ai:accounts/fireworks/models/gemma2-9b-it'
   | ({} & string)
+
+export type SttModels =
+  | 'auto'
+  | 'best'
+  | 'fast'
+  | 'groq:whisper-large-v3'
+  | 'groq:whisper-large-v3-turbo'
+  | 'openai:whisper-1'
+  | 'fireworks-ai:whisper-v3'
+  | ({} & string)
+
 export type CognitiveContentPart = {
   type: 'text' | 'image' | 'audio'
   text?: string
@@ -177,7 +188,7 @@ export type CognitiveRequest = {
     /** Maximum time to wait for the first token before falling back to the next provider */
     maxTimeToFirstToken?: number
     /** STT model to use when transcribing audio parts for models that do not support audio natively */
-    transcriptionModel?: string
+    transcriptionModel?: SttModels
   }
   meta?: {
     /** Source of the prompt, e.g. agent/:id/:version, cards/ai-generate, cards/ai-task, nodes/autonomous, etc. */
@@ -263,8 +274,8 @@ export type TranscribeRequest = {
   url: string
   /** MIME type of the audio file. Auto-detected from URL if not provided. */
   mimeType?: string
-  /** STT model or ordered list of models to try. Additional models are used as fallback. Defaults to cheapest available. */
-  model?: string | (string | undefined)[]
+  /** STT model or ordered list of models to try. Additional models are used as fallback. Defaults to auto. */
+  model?: SttModels | SttModels[]
   options?: CommonRequestOptions
 }
 
@@ -293,7 +304,6 @@ export type ModelTag =
   | 'deprecated'
   | 'general-purpose'
   | 'low-cost'
-  | 'flagship'
   | 'vision'
   | 'coding'
   | 'agents'
@@ -302,7 +312,6 @@ export type ModelTag =
   | 'storytelling'
   | 'reasoning'
   | 'preview'
-  | 'speech-to-text'
 
 export type Model = {
   id: string
@@ -334,9 +343,9 @@ export type Model = {
    */
   lifecycle: 'production' | 'preview' | 'deprecated' | 'discontinued'
   capabilities?: {
-    supportsImages: boolean
-    supportsAudio: boolean
-    supportsTranscription: boolean
-    supportsSearch: boolean
+    supportsImages?: boolean
+    supportsAudio?: boolean
+    supportsTranscription?: boolean
+    supportsSearch?: boolean
   }
 }

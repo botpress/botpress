@@ -3,7 +3,12 @@ import { Model } from 'src/schemas.gen'
 export type RemoteModel = Model & {
   aliases?: string[]
   lifecycle: 'production' | 'preview' | 'deprecated' | 'discontinued'
-  capabilities?: { supportsImages?: boolean }
+  capabilities?: {
+    supportsImages?: boolean
+    supportsAudio?: boolean
+    supportsTranscription?: boolean
+    supportsSearch?: boolean
+  }
 }
 
 export const models: Record<string, RemoteModel> = {
