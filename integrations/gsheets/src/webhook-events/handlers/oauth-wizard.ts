@@ -112,9 +112,6 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
             with this integration. This is necessary for the integration to work
             properly.
 
-            If you do not select a spreadsheet, you will need to manually
-            configure the spreadsheet ID in the integration settings.
-
             <script>
               let pickerApiLoaded = false;
 
@@ -180,12 +177,11 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
         const spreadsheetId = query.get('spreadsheetId')
 
         if (spreadsheetId) {
-          // Save the spreadsheet ID to state
           await client.setState({
             id: ctx.integrationId,
             type: 'integration',
-            name: 'spreadsheetConfig' as any,
-            payload: { spreadsheetId } as any,
+            name: 'spreadsheetConfig',
+            payload: { spreadsheetId },
           })
         }
 
