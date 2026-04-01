@@ -4,8 +4,8 @@ The Salesforce integration allows you to search, create, update, and delete Sale
 
 ## Integration Setup
 
-1. Toggle on the "Enable Integration" option and click "Save."
-2. Click the **Connect** button to authorize with Salesforce and complete the installation process.
+1. Install the Integration
+2. Click the **Authorize** or **Connect with OAuth** button to authorize with Salesforce and complete the installation process.
 3. To use Salesforce's Sandbox environment instead, select the **Sandbox** configuration type before connecting.
 
 ## How-To
