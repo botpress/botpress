@@ -1,0 +1,23 @@
+{
+  "name": "@botpresshub/salesforce",
+  "description": "Salesforce integration for Botpress",
+  "private": true,
+  "scripts": {
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "test": "vitest --run"
+  },
+  "dependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "axios": "^1.7.7",
+    "jsforce": "^1.11.1"
+  },
+  "devDependencies": {
+    "@types/jsforce": "^1.11.5",
+    "@types/node": "^22.16.4"
+  }
+}
