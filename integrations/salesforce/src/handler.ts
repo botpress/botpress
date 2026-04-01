@@ -54,12 +54,14 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
     name: 'credentials',
     id: ctx.integrationId,
     payload: {
-      isSandbox: ctx.configurationType === 'sandbox',
+      isSandbox: ctx.configurationType === 'sfsandbox',
       accessToken,
       instanceUrl,
       refreshToken,
     },
   })
+
+  client.configureIntegration({ identifier: ctx.webhookId })
 
   return responses.endWizard({ success: true })
 }

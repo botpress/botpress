@@ -9,7 +9,7 @@ export default new bp.Integration({
 
     const credentials = await getSfCredentials(client, ctx.integrationId)
 
-    if ((ctx.configurationType === 'sandbox') !== credentials.isSandbox) {
+    if ((ctx.configurationType === 'sfsandbox') !== credentials.isSandbox) {
       await client.setState({
         type: 'integration',
         name: 'credentials',

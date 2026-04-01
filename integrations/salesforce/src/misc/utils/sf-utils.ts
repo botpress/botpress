@@ -106,5 +106,5 @@ export const getRequestPayload = <T extends { customFields?: string }>(input: T)
 }
 
 export const getEnvironmentUrl = (ctx: bp.Context): string => {
-  return ctx.configurationType === 'sandbox' ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
+  return ctx.configurationType === 'sfsandbox' ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
 }

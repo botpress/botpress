@@ -15,7 +15,7 @@ export default new IntegrationDefinition({
     schema: z.object({}),
   },
   configurations: {
-    sandbox: {
+    sfsandbox: {
       title: 'Sandbox',
       description: 'Use Salesforce sandbox environment (test.salesforce.com)',
       schema: z.object({}),
