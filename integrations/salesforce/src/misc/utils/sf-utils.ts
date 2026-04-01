@@ -7,7 +7,7 @@ export const getOAuth2 = (ctx: bp.Context): OAuth2 => {
   return new OAuth2({
     clientId: bp.secrets.CONSUMER_KEY,
     clientSecret: bp.secrets.CONSUMER_SECRET,
-    redirectUri: `${getBotpressWebhookUrl()}/oauth`,
+    redirectUri: `${getBotpressWebhookUrl()}/oauth/wizard/oauth-callback`,
     loginUrl: getEnvironmentUrl(ctx),
   })
 }
