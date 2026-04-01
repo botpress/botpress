@@ -23,6 +23,11 @@ scopes = [
   "crm.objects.leads.write", # to create and update leads
   "crm.objects.deals.read", # to retrieve deals
   "crm.objects.deals.write", # to create and update deals
+  "conversations.custom_channels.read",                                                                                                                                                                                                                  
+  "conversations.custom_channels.write",
+  "conversations.read",                                                                                                                                                                                                                                 
+  "conversations.write",
+  "conversations.visitor_identification.tokens.create"
 ]
 scopesStr = encode_percent(join!(scopes, " "))
 

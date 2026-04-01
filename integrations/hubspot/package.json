@@ -2,6 +2,9 @@
   "name": "@botpresshub/hubspot",
   "description": "Hubspot integration for Botpress",
   "private": true,
+  "bpDependencies": {
+    "hitl": "../../interfaces/hitl"
+  },
   "scripts": {
     "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",

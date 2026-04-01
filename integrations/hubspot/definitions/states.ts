@@ -91,9 +91,31 @@ const propertyCacheStates = {
   companyPropertyCache: propertyCacheStateDefinition,
 } satisfies Record<`${CrmObjectType}PropertyCache`, StateDefinition>
 
+const hitlChannelInfo = {
+  type: 'integration' as const,
+  schema: z.object({
+    channelId: z.string().title('Channel ID').describe('The HubSpot custom channel ID'),
+    channelAccountId: z.string().title('Channel Account ID').describe('The HubSpot channel account ID'),
+  }),
+} satisfies StateDefinition
+
+const hitlUserInfo = {
+  type: 'user' as const,
+  schema: z.object({
+    name: z.string().title('Name').describe('The display name of the user'),
+    contactIdentifier: z.string().title('Contact Identifier').describe('Email address or phone number of the user'),
+    contactType: z
+      .enum(['email', 'phone'])
+      .title('Contact Type')
+      .describe('Whether the identifier is an email or phone number'),
+  }),
+} satisfies StateDefinition
+
 export const states = {
   oauthCredentials,
   ticketPipelineCache,
   companiesCache,
   ...propertyCacheStates,
+  hitlChannelInfo,
+  hitlUserInfo,
 } satisfies Record<string, StateDefinition>
