@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios'
-import { Input } from '.botpress/implementation/actions/makeApiRequest/input'
+import { Input } from '../../../.botpress/implementation/typings/actions/makeApiRequest/input'
 
 export const makeRequest = async (url: string, input: Input, accessToken: string): Promise<AxiosResponse> => {
   return axios({
