@@ -19,6 +19,9 @@ export default new IntegrationDefinition({
       title: 'Sandbox',
       description: 'Use Salesforce sandbox environment (test.salesforce.com)',
       schema: z.object({}),
+      identifier: {
+        linkTemplateScript: 'linkTemplate.vrl',
+      },
     },
   },
   states: {
