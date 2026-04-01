@@ -5,7 +5,11 @@ const createContactInputSchema = sdk.z.object({
   FirstName: sdk.z.string().title('First Name').describe('The first name of the contact (e.g. John)'),
   LastName: sdk.z.string().title('Last Name').describe('The last name of the contact (e.g. Doe)'),
   Email: sdk.z.string().email().title('Email').describe('The email address of the contact (e.g. john.doe@example.com)'),
-  Phone: sdk.z.string().optional().title('Phone').describe('The phone number of the contact (Optional) (e.g. +1-555-1234)'),
+  Phone: sdk.z
+    .string()
+    .optional()
+    .title('Phone')
+    .describe('The phone number of the contact (Optional) (e.g. +1-555-1234)'),
   customFields: sdk.z
     .string()
     .displayAs<any>({
@@ -54,7 +58,12 @@ const searchContacts = {
     schema: sdk.z.object({
       Id: sdk.z.string().optional().title('ID').describe('The ID of the contact'),
       Name: sdk.z.string().optional().title('Name').describe('The first name of the contact (e.g. John)'),
-      Email: sdk.z.string().email().optional().title('Email').describe('The email address of the contact (e.g. john.doe@example.com)'),
+      Email: sdk.z
+        .string()
+        .email()
+        .optional()
+        .title('Email')
+        .describe('The email address of the contact (e.g. john.doe@example.com)'),
     }),
   },
   output: {
