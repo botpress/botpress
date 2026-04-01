@@ -1659,6 +1659,12 @@ importers:
       jsforce:
         specifier: ^1.11.1
         version: 1.11.1
+      preact:
+        specifier: ^10.26.6
+        version: 10.26.6
+      preact-render-to-string:
+        specifier: ^6.5.13
+        version: 6.5.13(preact@10.26.6)
     devDependencies:
       '@types/jsforce':
         specifier: ^1.11.5
