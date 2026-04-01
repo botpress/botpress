@@ -364,6 +364,7 @@ export default new IntegrationDefinition({
       output: {
         schema: z.object({
           conversationId: z.string().title('Conversation ID').describe('ID of the conversation created'),
+          messageId: z.string().optional().title('Message ID').describe('ID of the message created'),
         }),
       },
     },
@@ -374,6 +375,7 @@ export default new IntegrationDefinition({
       output: {
         schema: z.object({
           conversationId: z.string().title('Conversation ID').describe('ID of the conversation created'),
+          messageId: z.string().optional().title('Message ID').describe('ID of the message created'),
         }),
       },
     },
