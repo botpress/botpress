@@ -122,7 +122,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     )
   }
 
-  const whatsappMessageId = response.messages[0]?.id
+  const whatsappMessageId = 'messages' in response ? response.messages[0]?.id : undefined
 
   await client
     .createMessage({
