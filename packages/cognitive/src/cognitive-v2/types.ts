@@ -94,23 +94,58 @@ export type Models =
   | 'fireworks-ai:accounts/fireworks/models/mythomax-l2-13b'
   | 'fireworks-ai:accounts/fireworks/models/gemma2-9b-it'
   | ({} & string)
+export type CognitiveContentPart = {
+  type: 'text' | 'image' | 'audio'
+  text?: string
+  url?: string
+  mimeType?: string
+}
+
+export type CognitiveToolCall = {
+  id: string
+  name: string
+  input: Record<string, unknown>
+}
+
+export type CognitiveMessage = {
+  role: 'user' | 'assistant' | 'system'
+  content: string | CognitiveContentPart[] | null
+  type?: 'text' | 'tool_calls' | 'tool_result' | 'multipart'
+  toolCalls?: {
+    id: string
+    type: 'function'
+    function: { name: string; arguments: Record<string, unknown> | null }
+  }[]
+  toolResultCallId?: string
+}
+
+export type CognitiveTool = {
+  name: string
+  description?: string
+  parameters?: Record<string, unknown>
+  strict?: boolean
+}
+
+export type CognitiveToolControl =
+  | { mode: 'auto'; parallel?: boolean }
+  | { mode: 'none' }
+  | { mode: 'required'; parallel?: boolean }
+  | { mode: 'specific'; toolName: string; parallel?: boolean }
+
+export type CommonRequestOptions = {
+  /** Include additional metadata in the response */
+  debug?: boolean
+  /** Bypass the cache and force a new request */
+  skipCache?: boolean
+  /** Client-provided request ID. Acts as an idempotency key — if provided, the result is stored and a retry with the same ID returns the stored result instead of re-running the operation */
+  requestId?: string
+}
+
 export type CognitiveRequest = {
   /**
    * @minItems 1
    */
-  messages: {
-    role: 'user' | 'assistant' | 'system'
-    content:
-      | string
-      | {
-          type: 'text' | 'image'
-          text?: string
-          url?: string
-          mimeType?: string
-          [k: string]: any
-        }[]
-    type?: string
-  }[]
+  messages: CognitiveMessage[]
   /**
    * Model to query. Additional models are used as fallback if the main model is unavailable
    */
@@ -128,111 +163,146 @@ export type CognitiveRequest = {
    */
   responseFormat?: 'text' | 'json' | 'json_object'
   reasoningEffort?: 'low' | 'medium' | 'high' | 'dynamic' | 'none'
-  options?: {
-    /**
-     * Debug mode include additional metadata in the response
-     */
-    debug?: boolean
-    /**
-     * Bypass the cache and force a new request
-     */
-    skipCache?: boolean
-    /**
-     * Maximum time to wait for the first token before falling back to the next provider
-     */
+  /** Enable web search. The model can search the web and fetch pages to ground its response with real-time information. */
+  search?:
+    | true
+    | {
+        excludedDomains?: string[]
+      }
+  /** Tools the model may call */
+  tools?: CognitiveTool[]
+  /** Controls how the model uses tools. Defaults to auto when tools are provided */
+  toolControl?: CognitiveToolControl
+  options?: CommonRequestOptions & {
+    /** Maximum time to wait for the first token before falling back to the next provider */
     maxTimeToFirstToken?: number
+    /** STT model to use when transcribing audio parts for models that do not support audio natively */
+    transcriptionModel?: string
   }
   meta?: {
-    /**
-     * Source of the prompt, e.g. agent/:id/:version cards/ai-generate, cards/ai-task, nodes/autonomous, etc.
-     */
+    /** Source of the prompt, e.g. agent/:id/:version, cards/ai-generate, cards/ai-task, nodes/autonomous, etc. */
     promptSource?: string
     promptCategory?: string
-    /**
-     * Name of the integration that originally received the message that initiated this action
-     */
+    /** Name of the integration that originally received the message that initiated this action */
     integrationName?: string
   }
 }
 
+export type StopReason = 'stop' | 'max_tokens' | 'content_filter' | 'tool_calls' | 'other'
+
+export type WarningType =
+  | 'parameter_ignored'
+  | 'provider_limitation'
+  | 'deprecated_model'
+  | 'discontinued_model'
+  | 'fallback_used'
+  | 'timeout'
+
+export type CognitiveMetadata = {
+  requestId?: string
+  provider: string
+  model?: string
+  usage: {
+    inputTokens: number
+    inputCost: number
+    outputTokens: number
+    outputCost: number
+  }
+  /** Total cost of the request in U.S. dollars */
+  cost: number
+  cached?: boolean
+  /** Time it took for the provider to respond to the LLM query, in milliseconds */
+  latency?: number
+  /** Time it took for the first token to be received from the provider, in milliseconds */
+  ttft?: number
+  /** Time spent on reasoning in milliseconds */
+  reasoningTime?: number
+  stopReason?: StopReason
+  reasoningEffort?: string
+  /** Web sources cited by the model when search is enabled */
+  citations?: { url: string; title?: string }[]
+  warnings?: { type: WarningType; message: string }[]
+  /** List of models that were tried and failed before the successful one */
+  fallbackPath?: string[]
+  /** Present when audio content was transcribed to text before being sent to the LLM */
+  transcription?: {
+    /** Full STT model ID including provider (e.g. groq:whisper-large-v3-turbo) */
+    model: string
+    provider: string
+    /** Transcription cost in U.S. dollars */
+    cost: number
+    /** Total audio duration transcribed in seconds */
+    durationSeconds: number
+    /** Number of audio parts transcribed */
+    parts: number
+  }
+  debug?: { type: string; data?: unknown }[]
+}
+
 export type CognitiveStreamChunk = {
   output?: string
+  reasoning?: string
+  /** Tool calls requested by the model (emitted with the final chunk) */
+  toolCalls?: CognitiveToolCall[]
   created: number
   finished?: boolean
-  metadata?: {
-    provider: string
-    model?: string
-    usage: {
-      inputTokens: number
-      inputCost: number
-      outputTokens: number
-      outputCost: number
-    }
-    cost: number
-    cached?: boolean
-    /**
-     * Time it took for the provider to respond to the LLM query
-     */
-    latency?: number
-    /**
-     * Time it took for the first token to be received from the provider
-     */
-    ttft?: number
-    stopReason?: 'stop' | 'max_tokens' | 'content_filter' | 'tool_calls' | 'other'
-    reasoningEffort?: string
-    warnings?: {
-      type: 'parameter_ignored' | 'provider_limitation' | 'deprecated_model' | 'discontinued_model' | 'fallback_used'
-      message: string
-    }[]
-    /**
-     * List of models that were tried and failed
-     */
-    fallbackPath?: string[]
-    debug?: {
-      type: 'models_to_try' | 'provider_request' | 'provider_response'
-    }[]
-  }
+  metadata?: CognitiveMetadata
 }
 
 export type CognitiveResponse = {
   output: string
   reasoning?: string
-  metadata: {
-    provider: string
-    model?: string
-    usage: {
-      inputTokens: number
-      inputCost: number
-      outputTokens: number
-      outputCost: number
-    }
-    cost: number
-    cached?: boolean
-    /**
-     * Time it took for the provider to respond to the LLM query
-     */
-    latency?: number
-    /**
-     * Time it took for the first token to be received from the provider
-     */
-    ttft?: number
-    stopReason?: 'stop' | 'max_tokens' | 'content_filter' | 'tool_calls' | 'other'
-    reasoningEffort?: string
-    warnings?: {
-      type: 'parameter_ignored' | 'provider_limitation' | 'deprecated_model' | 'discontinued_model' | 'fallback_used'
-      message: string
-    }[]
-    /**
-     * List of models that were tried and failed
-     */
-    fallbackPath?: string[]
-    debug?: {
-      type: 'models_to_try' | 'provider_request' | 'provider_response'
-      data?: any | null
-    }[]
-  }
+  /** Tool calls requested by the model */
+  toolCalls?: CognitiveToolCall[]
+  metadata: CognitiveMetadata
   error?: string
 }
+
+export type TranscribeRequest = {
+  /** URL of the audio file to transcribe (supports http(s) URLs and data URIs) */
+  url: string
+  /** MIME type of the audio file. Auto-detected from URL if not provided. */
+  mimeType?: string
+  /** STT model or ordered list of models to try. Additional models are used as fallback. Defaults to cheapest available. */
+  model?: string | (string | undefined)[]
+  options?: CommonRequestOptions
+}
+
+/**
+ * Transcription metadata. Picks shared fields from CognitiveMetadata and adds transcription-specific ones.
+ */
+export type TranscribeMetadata = Pick<
+  CognitiveMetadata,
+  'requestId' | 'provider' | 'cost' | 'latency' | 'cached' | 'fallbackPath' | 'debug'
+> & {
+  /** Full model ID including provider (e.g. groq:whisper-large-v3-turbo) */
+  model: string
+  /** Audio duration in seconds */
+  durationSeconds: number
+}
+
+export type TranscribeResponse = {
+  /** Transcribed text */
+  output: string
+  error?: string
+  metadata: TranscribeMetadata
+}
+
+export type ModelTag =
+  | 'recommended'
+  | 'deprecated'
+  | 'general-purpose'
+  | 'low-cost'
+  | 'flagship'
+  | 'vision'
+  | 'coding'
+  | 'agents'
+  | 'function-calling'
+  | 'roleplay'
+  | 'storytelling'
+  | 'reasoning'
+  | 'preview'
+  | 'speech-to-text'
 
 export type Model = {
   id: string
@@ -242,26 +312,14 @@ export type Model = {
    * Aliases that are also resolving to this model
    */
   aliases?: string[]
-  tags: (
-    | 'recommended'
-    | 'deprecated'
-    | 'general-purpose'
-    | 'low-cost'
-    | 'vision'
-    | 'coding'
-    | 'agents'
-    | 'function-calling'
-    | 'roleplay'
-    | 'storytelling'
-    | 'reasoning'
-    | 'preview'
-  )[]
+  tags?: ModelTag[]
   input: {
     maxTokens: number
     /**
      * Cost per 1 million tokens, in U.S. dollars
      */
     costPer1MTokens: number
+    costPerMinute?: number
   }
   output: {
     maxTokens: number
@@ -269,9 +327,16 @@ export type Model = {
      * Cost per 1 million tokens, in U.S. dollars
      */
     costPer1MTokens: number
+    costPerMinute?: number
   }
   /**
    * The lifecycle state of the model. Deprecated models are still available, but a warning will be shown to the user. Discontinued models will be directed to a replacement model.
    */
   lifecycle: 'production' | 'preview' | 'deprecated' | 'discontinued'
+  capabilities?: {
+    supportsImages: boolean
+    supportsAudio: boolean
+    supportsTranscription: boolean
+    supportsSearch: boolean
+  }
 }

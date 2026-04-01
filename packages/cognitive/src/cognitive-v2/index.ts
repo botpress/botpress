@@ -2,9 +2,16 @@ import axios, { AxiosInstance } from 'axios'
 import { backOff } from 'exponential-backoff'
 import { createNanoEvents, Unsubscribe } from 'nanoevents'
 import { defaultModel, models } from './models'
-import { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk, Model } from './types'
+import {
+  CognitiveRequest,
+  CognitiveResponse,
+  CognitiveStreamChunk,
+  TranscribeRequest,
+  TranscribeResponse,
+  Model,
+} from './types'
 
-export { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk }
+export { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk, TranscribeRequest, TranscribeResponse }
 
 export type BetaEvents = {
   request: (req: { input: CognitiveRequest }) => void
@@ -31,6 +38,18 @@ type RequestOptions = {
 const isBrowser = () => typeof window !== 'undefined' && typeof window.fetch === 'function'
 
 export { Models } from './types'
+export type {
+  CommonRequestOptions,
+  CognitiveContentPart,
+  CognitiveMessage,
+  CognitiveToolCall,
+  CognitiveTool,
+  CognitiveToolControl,
+  CognitiveMetadata,
+  TranscribeMetadata,
+  StopReason,
+  ModelTag,
+} from './types'
 
 export class CognitiveBeta {
   private _axiosClient: AxiosInstance
@@ -112,6 +131,23 @@ export class CognitiveBeta {
     )
 
     return data.models
+  }
+
+  public async transcribeAudio(input: TranscribeRequest, options: RequestOptions = {}) {
+    const signal = options.signal ?? AbortSignal.timeout(this._timeout)
+
+    const { data } = await this._withServerRetry(() =>
+      this._axiosClient.post<TranscribeResponse>('/v2/cognitive/transcribe-audio', input, {
+        signal,
+        timeout: options.timeout ?? this._timeout,
+      })
+    )
+
+    if (data.error) {
+      throw new Error(`Transcription error: ${data.error}`)
+    }
+
+    return data
   }
 
   public async *generateTextStream(
