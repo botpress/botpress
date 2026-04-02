@@ -1,6 +1,8 @@
 {
   "name": "@botpresshub/zoom",
   "scripts": {
+    "build": "bp add -y && bp build",
+    "check:bplint": "bp lint",
     "check:type": "tsc --noEmit"
   },
   "private": true,
