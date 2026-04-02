@@ -12,9 +12,9 @@ export const handleOAuthCallback: bp.IntegrationProps['handler'] = async ({ clie
     return
   }
 
-  await NotionClient.processAuthorizationCode({ client, ctx }, authorizationCode)
+  const { workspaceId } = await NotionClient.processAuthorizationCode({ client, ctx }, authorizationCode)
 
   await client.configureIntegration({
-    identifier: ctx.webhookId,
+    identifier: workspaceId,
   })
 }

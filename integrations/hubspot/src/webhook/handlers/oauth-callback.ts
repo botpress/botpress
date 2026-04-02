@@ -1,10 +1,11 @@
 import { RuntimeError } from '@botpress/sdk'
 import { exchangeCodeForOAuthCredentials, setOAuthCredentials } from '../../auth'
+import { HubspotClient } from '../../hubspot-api'
 import * as bp from '.botpress'
 
 export const isOAuthCallback = (props: bp.HandlerProps): boolean => props.req.path.startsWith('/oauth')
 
-export const handleOAuthCallback: bp.IntegrationProps['handler'] = async ({ client, ctx, req }) => {
+export const handleOAuthCallback: bp.IntegrationProps['handler'] = async ({ client, ctx, req, logger }) => {
   const searchParams = new URLSearchParams(req.query)
   const authorizationCode = searchParams.get('code')
 
@@ -18,7 +19,10 @@ export const handleOAuthCallback: bp.IntegrationProps['handler'] = async ({ clie
     credentials,
   })
 
+  const hsClient = new HubspotClient({ accessToken: credentials.accessToken, client, ctx, logger })
+  const hubId = await hsClient.getHubId()
+
   await client.configureIntegration({
-    identifier: ctx.webhookId,
+    identifier: hubId,
   })
 }
