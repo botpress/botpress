@@ -1,5 +1,5 @@
 {
-  "name": "mixpanelbotpress",
+  "name": "@botpresshub/mixpanel",
   "scripts": {
     "version": "bp --version",
     "login": "bp login",
@@ -7,10 +7,7 @@
     "gen": "bp gen",
     "deploy": "bp deploy"
   },
-  "keywords": [],
   "private": true,
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/client": "1.24.1",
     "@botpress/sdk": "4.15.8",
