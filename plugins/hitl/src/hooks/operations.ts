@@ -43,9 +43,14 @@ export const assignAgent = async (options: AssignAgentOptions): Promise<boolean>
     upstreamConversationId: upstreamConversation.id,
   })
 
+  // Set the human agent on both conversations before sending the join message,
+  // so that agent info (e.g. name) is available when the message is delivered.
   await Promise.all([
     downstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
     upstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
+  ])
+
+  await Promise.all([
     upstreamCm.maybeRespondText(sessionConfig.onHumanAgentAssignedMessage, DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE),
     tryLinkWebchatUser(props, {
       downstreamUser: humanAgentUser,
