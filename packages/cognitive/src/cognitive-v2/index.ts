@@ -13,11 +13,15 @@ import {
 
 export { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk, TranscribeRequest, TranscribeResponse }
 
+export type BetaTextRequest = { type: 'generateText'; input: CognitiveRequest }
+export type BetaTranscribeRequest = { type: 'transcribeAudio'; input: TranscribeRequest }
+export type BetaRequest = BetaTextRequest | BetaTranscribeRequest
+
 export type BetaEvents = {
-  request: (req: { input: CognitiveRequest }) => void
-  response: (req: { input: CognitiveRequest }, res: CognitiveResponse) => void
-  error: (req: { input: CognitiveRequest }, error: any) => void
-  retry: (req: { input: CognitiveRequest }, error: any) => void
+  request: (req: BetaRequest) => void
+  response: (req: BetaRequest, res: CognitiveResponse | TranscribeResponse) => void
+  error: (req: BetaRequest, error: any) => void
+  retry: (req: BetaRequest, error: any) => void
 }
 
 type ClientProps = {
@@ -102,7 +106,7 @@ export class CognitiveBeta {
 
   public async generateText(input: CognitiveRequest, options: RequestOptions = {}) {
     const signal = options.signal ?? AbortSignal.timeout(this._timeout)
-    const req = { input }
+    const req: BetaTextRequest = { type: 'generateText', input }
 
     this._events.emit('request', req)
 
@@ -135,19 +139,31 @@ export class CognitiveBeta {
 
   public async transcribeAudio(input: TranscribeRequest, options: RequestOptions = {}) {
     const signal = options.signal ?? AbortSignal.timeout(this._timeout)
+    const req: BetaTranscribeRequest = { type: 'transcribeAudio', input }
 
-    const { data } = await this._withServerRetry(() =>
-      this._axiosClient.post<TranscribeResponse>('/v2/cognitive/transcribe-audio', input, {
-        signal,
-        timeout: options.timeout ?? this._timeout,
-      })
-    )
+    this._events.emit('request', req)
 
-    if (data.error) {
-      throw new Error(`Transcription error: ${data.error}`)
+    try {
+      const { data } = await this._withServerRetry(
+        () =>
+          this._axiosClient.post<TranscribeResponse>('/v2/cognitive/transcribe-audio', input, {
+            signal,
+            timeout: options.timeout ?? this._timeout,
+          }),
+        options,
+        req
+      )
+
+      if (data.error) {
+        throw new Error(`Transcription error: ${data.error}`)
+      }
+
+      this._events.emit('response', req, data)
+      return data
+    } catch (error) {
+      this._events.emit('error', req, error)
+      throw error
     }
-
-    return data
   }
 
   public async *generateTextStream(
@@ -155,7 +171,7 @@ export class CognitiveBeta {
     options: RequestOptions = {}
   ): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
     const signal = options.signal ?? AbortSignal.timeout(this._timeout)
-    const req = { input: request }
+    const req: BetaTextRequest = { type: 'generateText', input: request }
     const chunks: CognitiveStreamChunk[] = []
     let lastChunk: CognitiveStreamChunk | undefined
 
@@ -311,7 +327,7 @@ export class CognitiveBeta {
   private async _withServerRetry<T>(
     fn: () => Promise<T>,
     options: RequestOptions = {},
-    req?: { input: CognitiveRequest }
+    req?: BetaRequest
   ): Promise<T> {
     let attemptCount = 0
     return backOff(
