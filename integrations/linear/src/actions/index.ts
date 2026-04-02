@@ -1,3 +1,4 @@
+import { filesReadonlyListItemsInFolder, filesReadonlyTransferFileToBotpress } from '../files-readonly/actions'
 import { createIssue } from './create-issue'
 import { deleteIssue } from './delete-issue'
 import { findTarget } from './find-target'
@@ -33,4 +34,6 @@ export default {
   getOrCreateIssueConversation,
   issueDelete,
   issueList,
+  filesReadonlyListItemsInFolder,
+  filesReadonlyTransferFileToBotpress,
 } satisfies Partial<bp.IntegrationProps['actions']>

@@ -13,7 +13,7 @@ const getWabaIdsFromTokenResponseSchema = z
       granular_scopes: z.array(
         z.object({
           scope: z.string(),
-          target_ids: z.array(z.string()),
+          target_ids: z.array(z.string()).optional(),
         })
       ),
     }),

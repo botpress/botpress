@@ -39,8 +39,8 @@ export default new sdk.BotDefinition({
     typingIndicatorEmoji: false,
     botName: 'Clog',
     botAvatarUrl: 'https://files.bpcontent.cloud/2025/06/16/20/20250616204038-BRUW6C2R.svg',
-    createReplyThread: {
-      enabled: false,
+    replyBehaviour: {
+      location: 'channel',
       onlyOnBotMention: false,
     },
   },

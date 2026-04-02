@@ -1,4 +1,4 @@
-import { ZodError } from '@bpinternal/zui'
+import z, { ZodError } from '@bpinternal/zui'
 
 export class JsonParsingError extends Error {
   public constructor(
@@ -13,7 +13,7 @@ export class JsonParsingError extends Error {
     let errorMessage = 'Error parsing JSON:\n\n'
     errorMessage += `---JSON---\n${json}\n\n`
 
-    if (error instanceof ZodError) {
+    if (z.is.zuiError(error)) {
       errorMessage += '---Validation Errors---\n\n'
       errorMessage += JsonParsingError._formatZodError(error)
     } else {
@@ -79,7 +79,7 @@ export class JsonParsingError extends Error {
           break
         case 'invalid_enum_value':
           message += `   Problem: Invalid value "${issue.received}"\n`
-          message += `   Allowed values: ${issue.options.map((o: any) => `"${o}"`).join(', ')}\n`
+          message += `   Allowed values: ${issue.options.map((o) => `"${o}"`).join(', ')}\n`
           message += `   Message: ${issue.message}\n`
           break
         case 'invalid_literal':

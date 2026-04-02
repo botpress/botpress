@@ -7,14 +7,14 @@ const modelDescription = 'Model to use for image generation. Defaults to "dall-e
 
 export default new IntegrationDefinition({
   name: 'dalle',
-  version: '0.3.5',
+  version: '0.3.8',
   icon: 'icon.svg',
   title: 'DALL-E (Deprecated)',
   description: 'Integrate DALL-E to generate images directly within your chatbot conversations.',
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      apiKey: z.string().describe('Open AI Key'),
+      apiKey: z.string().title('OpenAI API Key').describe('An API Key for the OpenAI DALL-E service'),
     }),
   },
   channels: {},
@@ -38,5 +38,9 @@ export default new IntegrationDefinition({
         }),
       },
     },
+  },
+  attributes: {
+    category: 'AI Models',
+    repo: 'botpress',
   },
 })

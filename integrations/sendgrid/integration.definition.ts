@@ -12,7 +12,7 @@ import {
 export default new IntegrationDefinition({
   name: 'sendgrid',
   title: 'SendGrid',
-  version: '0.1.8',
+  version: '0.1.10',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Send markdown rich-text emails using the SendGrid email service.',
@@ -80,5 +80,9 @@ export default new IntegrationDefinition({
   },
   __advanced: {
     useLegacyZuiTransformer: true,
+  },
+  attributes: {
+    category: 'Marketing & Email',
+    repo: 'botpress',
   },
 })

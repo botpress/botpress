@@ -1,19 +1,21 @@
 import { Table } from '@botpress/client'
+import { SchemaTransformOptions } from '../common/types'
 import * as consts from '../consts'
+import { DefinitionError } from '../errors'
 import { IntegrationPackage, PluginPackage } from '../package'
 import { PluginInterfaceExtension, PluginIntegrationExtension } from '../plugin'
 import { SchemaDefinition } from '../schema'
 import * as utils from '../utils'
 import { ValueOf, Writable, Merge, StringKeys } from '../utils/type-utils'
 import { SDK_VERSION } from '../version'
-import z, { ZuiObjectSchema, ZuiObjectOrRefSchema } from '../zui'
+import { z } from '../zui'
 
-type BaseConfig = ZuiObjectSchema
-type BaseStates = Record<string, ZuiObjectOrRefSchema>
-type BaseEvents = Record<string, ZuiObjectOrRefSchema>
-type BaseActions = Record<string, ZuiObjectOrRefSchema>
-type BaseTables = Record<string, ZuiObjectOrRefSchema>
-type BaseWorkflows = Record<string, ZuiObjectSchema>
+type BaseConfig = z.ZuiObjectSchema
+type BaseStates = Record<string, z.ZuiObjectOrRefSchema>
+type BaseEvents = Record<string, z.ZuiObjectOrRefSchema>
+type BaseActions = Record<string, z.ZuiObjectOrRefSchema>
+type BaseTables = Record<string, z.ZuiObjectOrRefSchema>
+type BaseWorkflows = Record<string, z.ZuiObjectSchema>
 
 export type TagDefinition = {
   title?: string
@@ -53,11 +55,16 @@ export type MessageDefinition = {
   tags?: Record<string, TagDefinition>
 }
 
+export type SecretDefinition = {
+  optional?: boolean
+  description?: string
+}
+
 export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[string]> = {
   title?: string
   description?: string
   input: SchemaDefinition<TAction>
-  output: SchemaDefinition<ZuiObjectOrRefSchema> // cannot infer both input and output types (typescript limitation)
+  output: SchemaDefinition<z.ZuiObjectOrRefSchema> // cannot infer both input and output types (typescript limitation)
   attributes?: Record<string, string>
 }
 
@@ -65,7 +72,7 @@ export type WorkflowDefinition<TWorkflow extends BaseWorkflows[string] = BaseWor
   title?: string
   description?: string
   input: SchemaDefinition<TWorkflow>
-  output: SchemaDefinition<ZuiObjectSchema> // cannot infer both input and output types (typescript limitation)
+  output: SchemaDefinition<z.ZuiObjectSchema> // cannot infer both input and output types (typescript limitation)
   tags?: Record<string, TagDefinition>
 }
 
@@ -179,6 +186,8 @@ export type BotDefinitionProps<
     [K in keyof TTables]: TableDefinition<TTables[K]>
   }
 
+  secrets?: Record<string, SecretDefinition>
+
   /**
    * # EXPERIMENTAL
    * This API is experimental and may change in the future.
@@ -189,9 +198,7 @@ export type BotDefinitionProps<
 
   attributes?: Record<string, string>
 
-  __advanced?: {
-    useLegacyZuiTransformer?: boolean
-  }
+  __advanced?: SchemaTransformOptions
 }
 
 export class BotDefinition<
@@ -212,6 +219,7 @@ export class BotDefinition<
   public readonly recurringEvents: this['props']['recurringEvents']
   public readonly actions: this['props']['actions']
   public readonly tables: this['props']['tables']
+  public readonly secrets: this['props']['secrets']
   public readonly workflows: this['props']['workflows']
   public readonly attributes: this['props']['attributes']
   public readonly __advanced: this['props']['__advanced']
@@ -234,6 +242,7 @@ export class BotDefinition<
     this.recurringEvents = props.recurringEvents
     this.actions = props.actions
     this.tables = props.tables
+    this.secrets = props.secrets
     this.workflows = props.workflows
     this.attributes = props.attributes
     this.__advanced = props.__advanced
@@ -264,7 +273,7 @@ export class BotDefinition<
     const integrationAlias = config?.alias ?? integrationPkg.name
 
     if (self.integrations[integrationAlias]) {
-      throw new Error(`Another integration with alias "${integrationAlias}" is already installed in the bot`)
+      throw new DefinitionError(`Another integration with alias "${integrationAlias}" is already installed in the bot`)
     }
 
     self.integrations[integrationAlias] = {
@@ -287,7 +296,7 @@ export class BotDefinition<
     const pluginAlias = config.alias ?? pluginPkg.name
 
     if (self.plugins[pluginAlias]) {
-      throw new Error(`Another plugin with alias "${pluginAlias}" is already installed in the bot`)
+      throw new DefinitionError(`Another plugin with alias "${pluginAlias}" is already installed in the bot`)
     }
     // Resolve backing integrations for plugin interfaces:
     const interfaces: Record<string, PluginInterfaceExtension> = Object.fromEntries(
@@ -299,7 +308,7 @@ export class BotDefinition<
           if (!integrationInstance) {
             const availableIntegrations = Object.keys(this.integrations ?? {}).join(', ') || '(none)'
 
-            throw new Error(
+            throw new DefinitionError(
               `Interface with alias "${pluginIfaceAlias}" of plugin with alias "${pluginAlias}" ` +
                 `references integration with alias "${pluginIfaceConfig.integrationAlias}" which is not installed. ` +
                 'Please make sure to add the integration via addIntegration() before calling addPlugin().\n' +
@@ -314,7 +323,7 @@ export class BotDefinition<
             const availableInterfaces =
               Object.keys(integrationInstance.definition.interfaces ?? {}).join(', ') || '(none)'
 
-            throw new Error(
+            throw new DefinitionError(
               `Interface with alias "${pluginIfaceConfig.integrationInterfaceAlias}" does not exist in integration ` +
                 `"${integrationInstance.name}" referenced by interface with alias "${pluginIfaceAlias}" of plugin ` +
                 `with alias "${pluginAlias}".\nAvailable interface aliases: ${availableInterfaces}`
@@ -554,7 +563,7 @@ export class BotDefinition<
         const backingIntegration = this.integrations?.[pluginInterfaceExtension.integrationAlias]
 
         if (!backingIntegration) {
-          throw new Error(
+          throw new DefinitionError(
             `Interface with alias "${interfaceAlias}" of plugin with alias "${pluginAlias}" references integration "${pluginInterfaceExtension.name}" which is not installed`
           )
         }
@@ -585,13 +594,13 @@ export class BotDefinition<
   }
 
   private _dereferenceZuiSchema(
-    schema: ZuiObjectOrRefSchema,
+    schema: z.ZuiObjectOrRefSchema,
     zuiReferenceMap: Record<string, z.ZodTypeAny>
-  ): ZuiObjectSchema {
-    return schema.dereference(zuiReferenceMap) as ZuiObjectSchema
+  ): z.ZuiObjectSchema {
+    return schema.dereference(zuiReferenceMap) as z.ZuiObjectSchema
   }
 
-  private _dereferenceDefinitionSchemas<TDefinitionRecord extends Record<string, { schema: ZuiObjectOrRefSchema }>>(
+  private _dereferenceDefinitionSchemas<TDefinitionRecord extends Record<string, { schema: z.ZuiObjectOrRefSchema }>>(
     definitions: TDefinitionRecord | undefined,
     zuiReferenceMap: Record<string, z.ZodTypeAny>
   ): TDefinitionRecord {
@@ -603,7 +612,7 @@ export class BotDefinition<
     ) as TDefinitionRecord
   }
 
-  private _dereferenceDefinitionSchema<TDefinition extends { schema: ZuiObjectOrRefSchema } | undefined>(
+  private _dereferenceDefinitionSchema<TDefinition extends { schema: z.ZuiObjectOrRefSchema } | undefined>(
     definition: TDefinition,
     zuiReferenceMap: Record<string, z.ZodTypeAny>
   ): TDefinition {
@@ -615,7 +624,7 @@ export class BotDefinition<
   private _dereferenceActionDefinitionSchemas<
     TDefinitionRecord extends Record<
       string,
-      { input: { schema: ZuiObjectOrRefSchema }; output: { schema: ZuiObjectOrRefSchema } }
+      { input: { schema: z.ZuiObjectOrRefSchema }; output: { schema: z.ZuiObjectOrRefSchema } }
     >,
   >(definitions: TDefinitionRecord | undefined, zuiReferenceMap: Record<string, z.ZodTypeAny>): TDefinitionRecord {
     return Object.fromEntries(

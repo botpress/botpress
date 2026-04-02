@@ -81,7 +81,10 @@ const _handleDownstreamMessage = async (
     })
   }
 
-  await upstreamCm.respond({ ...messagePayload, userId: upstreamUserId })
+  await upstreamCm.respond(
+    { ...messagePayload, userId: upstreamUserId },
+    { downstream: props.data.id, additionalData: _getMessageAdditionalData(props.data) }
+  )
   return consts.STOP_EVENT_HANDLING
 }
 
@@ -89,6 +92,15 @@ const _getMessagePayloadIfSupported = (msg: client.Message): types.MessagePayloa
   consts.SUPPORTED_MESSAGE_TYPES.includes(msg.type as types.SupportedMessageTypes)
     ? ({ type: msg.type, ...msg.payload } as types.MessagePayload)
     : undefined
+
+const _getMessageAdditionalData = (msg: client.Message): string | undefined => {
+  // should be typed by the SDK because it's part of the hitl interface
+  const propName = 'additionalData'
+  if (propName in msg.payload && typeof msg.payload[propName] === 'string') {
+    return msg.payload[propName]
+  }
+  return
+}
 
 const _handleUpstreamMessage = async (
   props: bp.HookHandlerProps['before_incoming_message'],
@@ -109,9 +121,11 @@ const _handleUpstreamMessage = async (
 
   if (!messagePayload) {
     props.logger.with(props.data).error('Upstream conversation received a non-text message')
+
+    const supportedMessageTypes = consts.SUPPORTED_MESSAGE_TYPES.join(', ')
     await upstreamCm.respond({
       type: 'text',
-      text: 'Sorry, I can only handle text messages for now. Please try again.',
+      text: `Sorry, I can only handle one of the following message types: ${supportedMessageTypes}`,
     })
     return consts.STOP_EVENT_HANDLING
   }
@@ -153,7 +167,7 @@ const _handleUpstreamMessage = async (
   }
 
   props.logger.withConversationId(upstreamConversation.id).info('Sending message to downstream')
-  await downstreamCm.respond({ ...messagePayload, userId: patientDownstreamUserId })
+  await downstreamCm.respond({ ...messagePayload, userId: patientDownstreamUserId }, { upstream: props.data.id })
 
   return consts.STOP_EVENT_HANDLING
 }

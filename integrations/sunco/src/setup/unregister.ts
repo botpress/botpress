@@ -1,3 +1,3 @@
-import * as bp from '../../.botpress'
+import * as bp from '.botpress'
 
-export const unregister: bp.IntegrationProps['unregister'] = async ({}) => {}
+export const unregister: bp.IntegrationProps['unregister'] = async () => {}

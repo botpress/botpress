@@ -1,5 +1,4 @@
-import { zuiKey } from '../../../ui/constants'
-import { ZuiExtensionObject } from '../../../ui/types'
+import { zuiKey, ZuiExtensionObject } from '../../../z'
 import { ZodRefDef } from '../../../z/types/ref'
 
 export type JsonSchema7RefType = {

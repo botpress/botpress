@@ -26,9 +26,26 @@ export class GoogleClient {
   public static async create({ ctx, client }: { ctx: bp.Context; client: bp.Client }) {
     const oauth2Client = await getAuthenticatedOAuth2Client({ ctx, client })
 
+    const getSpreadsheetIdFromState = async (): Promise<string> => {
+      let spreadsheetId: string
+      if (ctx.configurationType === 'serviceAccountKey') {
+        spreadsheetId = ctx.configuration.spreadsheetId
+      } else {
+        const { state } = await client.getState({
+          id: ctx.integrationId,
+          type: 'integration',
+          name: 'spreadsheetConfig',
+        })
+        spreadsheetId = state.payload.spreadsheetId
+      }
+      return spreadsheetId
+    }
+
+    const spreadsheetId = await getSpreadsheetIdFromState()
+
     return new GoogleClient({
       oauthClient: oauth2Client,
-      spreadsheetId: ctx.configuration.spreadsheetId,
+      spreadsheetId,
     })
   }
 
@@ -36,12 +53,14 @@ export class GoogleClient {
     ctx,
     client,
     authorizationCode,
+    redirectUri,
   }: {
     ctx: bp.Context
     client: bp.Client
     authorizationCode: string
+    redirectUri: string
   }) {
-    await exchangeAuthCodeAndSaveRefreshToken({ ctx, client, authorizationCode })
+    await exchangeAuthCodeAndSaveRefreshToken({ ctx, client, authorizationCode, redirectUri })
   }
 
   @handleErrors('Failed to get values from spreadsheet range')
