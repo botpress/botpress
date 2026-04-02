@@ -198,7 +198,7 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
 
 const _getOAuthAuthorizationUri = (ctx: { webhookId: string }) =>
   'https://accounts.google.com/o/oauth2/v2/auth?' +
-  `scope=${encodeURIComponent('https://www.googleapis.com/auth/drive.file')}` +
+  `scope=${encodeURIComponent('https://www.googleapis.com/auth/spreadsheets')}` +
   '&access_type=offline' +
   '&include_granted_scopes=true' +
   '&response_type=code' +
