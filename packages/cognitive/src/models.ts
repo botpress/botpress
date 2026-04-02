@@ -6,7 +6,15 @@ import { BotpressClientLike } from './types'
 export const DOWNTIME_THRESHOLD_MINUTES = 5
 const PREFERENCES_FILE_SUFFIX = 'models.config.json'
 
-export const DEFAULT_INTEGRATIONS = ['google-ai', 'anthropic', 'openai', 'cerebras', 'fireworks-ai', 'groq']
+export const DEFAULT_INTEGRATIONS = [
+  'google-ai',
+  'anthropic',
+  'openai',
+  'cerebras',
+  'fireworks-ai',
+  'groq',
+  'novita-ai',
+]
 
 // Biases for vendors and models
 const VendorPreferences = ['google-ai', 'anthropic', 'openai']
