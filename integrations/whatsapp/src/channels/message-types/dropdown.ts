@@ -31,7 +31,7 @@ export function* generateOutgoingMessages({
 
     for (const chunk of chunks) {
       const rows: Row[] = chunk.map(
-        (o) => new Row(o.value.substring(0, 200), truncate(o.label, ACTION_LABEL_MAX_LENGTH), ' ')
+        (o) => new Row(o.value.substring(0, 200), truncate(o.label, ACTION_LABEL_MAX_LENGTH), o.description || ' ')
       )
       if (!hasAtleastOne(rows)) {
         logger.debug('No rows in chunk, skipping')
