@@ -55,6 +55,7 @@ jobs:
 
   update-integration-url:
     needs: deploy-chat-staging
+    if: ${{ !inputs.skipDeploy }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -49,6 +49,7 @@ jobs:
 
   update-integration-url:
     needs: deploy-chat-production
+    if: ${{ !inputs.skipDeploy }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
