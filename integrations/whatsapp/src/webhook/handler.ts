@@ -57,14 +57,19 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
 
   switch (changes.field) {
     case 'messages':
-      for (const status of changes.value.statuses ?? []) {
-        await statusHandler(status, props)
-      }
       for (const message of changes.value.messages ?? []) {
         if (message.type === 'reaction') {
           await reactionHandler(message, props)
         } else {
           await messagesHandler(message, changes.value, props)
+        }
+      }
+      for (const status of changes.value.statuses ?? []) {
+        try {
+          await statusHandler(status, props)
+        } catch (thrown: unknown) {
+          const errMsg = thrown instanceof Error ? thrown.message : 'Unknown error thrown'
+          logger.forBot().error(`Failed to process WhatsApp status event: ${errMsg}`)
         }
       }
       break
