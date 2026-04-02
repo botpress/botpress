@@ -2,7 +2,6 @@ import { z } from '@botpress/sdk'
 
 // -----LEADS------
 
-// Zod schema for KommoLead
 export const kommoLeadSchema = z.object({
   id: z.number(),
   name: z.string(),
@@ -87,7 +86,6 @@ export const kommoLeadSchema = z.object({
 
 export type KommoLead = z.infer<typeof kommoLeadSchema>
 
-// Zod schema for CreateLeadRequest
 export const createLeadRequestSchema = z.object({
   name: z.string(),
   price: z.number().optional(),
@@ -142,7 +140,6 @@ export const createLeadRequestSchema = z.object({
 
 export type CreateLeadRequest = z.infer<typeof createLeadRequestSchema>
 
-// Zod schema for UpdateLeadRequest
 export const updateLeadRequestSchema = z.object({
   id: z.number().optional(),
   name: z.string().optional(),
@@ -166,7 +163,6 @@ export const updateLeadRequestSchema = z.object({
 
 export type UpdateLeadRequest = z.infer<typeof updateLeadRequestSchema>
 
-// Zod schema for KommoCreateResponse
 export const kommoCreateResponseSchema = z.object({
   _links: z.object({
     self: z.object({
@@ -190,7 +186,6 @@ export const kommoCreateResponseSchema = z.object({
 
 export type KommoCreateResponse = z.infer<typeof kommoCreateResponseSchema>
 
-// Zod schema for KommoUpdateResponse
 export const kommoUpdateResponseSchema = z.object({
   _links: z.object({
     self: z.object({
@@ -204,7 +199,6 @@ export const kommoUpdateResponseSchema = z.object({
 
 export type KommoUpdateResponse = z.infer<typeof kommoUpdateResponseSchema>
 
-// Zod schema for KommoSearchLeadResponse
 export const kommoSearchLeadResponseSchema = z.object({
   _page: z.number(),
   _links: z.object({
@@ -221,7 +215,6 @@ export type KommoSearchLeadResponse = z.infer<typeof kommoSearchLeadResponseSche
 
 // -------------CONTACTS-------------
 
-// Zod schema for KommoContact
 export const kommoContactSchema = z.object({
   id: z.number(),
   name: z.string(),
@@ -239,7 +232,6 @@ export const kommoContactSchema = z.object({
 
 export type KommoContact = z.infer<typeof kommoContactSchema>
 
-// Zod schema for CreateContactRequest
 export const createContactRequestSchema = z.object({
   name: z.string().optional(),
   first_name: z.string().optional(),
@@ -251,7 +243,6 @@ export const createContactRequestSchema = z.object({
 
 export type CreateContactRequest = z.infer<typeof createContactRequestSchema>
 
-// Zod schema for KommoCreateContactResponse
 export const kommoCreateContactResponseSchema = z.object({
   _links: z.object({
     self: z.object({
@@ -275,7 +266,6 @@ export const kommoCreateContactResponseSchema = z.object({
 
 export type KommoCreateContactResponse = z.infer<typeof kommoCreateContactResponseSchema>
 
-// Zod schema for KommoSearchContactsResponse
 export const kommoSearchContactsResponseSchema = z.object({
   _page: z.number(),
   _links: z.object({
@@ -296,7 +286,7 @@ export const kommoSearchContactsResponseSchema = z.object({
 export type KommoSearchContactsResponse = z.infer<typeof kommoSearchContactsResponseSchema>
 
 //----General-----
-// Zod schema for KommoErrorResponse
+
 export const kommoErrorResponseSchema = z.object({
   title: z.string(),
   type: z.string(),

@@ -5,11 +5,9 @@ export default new IntegrationDefinition({
   name: 'kommo',
   title: 'Kommo',
   description: 'Manage leads and contacts in your Kommo CRM directly from your chatbot.',
-  version: '1.0.0',
+  version: '0.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
-
-  // User provides these when configuring the integration
   configuration: {
     schema: z.object({
       baseDomain: z.string().title('Subdomain').describe('Your Kommo subdomain (e.g., yourcompany.kommo.com)'),

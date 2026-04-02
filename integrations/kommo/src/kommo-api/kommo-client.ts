@@ -57,7 +57,6 @@ export class KommoClient {
       this._logger.forBot().info('Lead created successfully', { leadId: lead.id })
       return lead
     } catch (error) {
-      this._logger.forBot().error('Failed to create lead', { error })
       throw new Error(getErrorMessage(error))
     }
   }
@@ -77,7 +76,6 @@ export class KommoClient {
         return undefined
       }
 
-      this._logger.forBot().error('Failed to fetch lead', { leadId, error })
       throw new Error(getErrorMessage(error))
     }
   }
@@ -96,7 +94,6 @@ export class KommoClient {
       this._logger.forBot().info('Lead updated successfully', { leadId: lead.id })
       return lead
     } catch (error) {
-      this._logger.forBot().error('Failed to update lead', { leadId, error })
       throw new Error(getErrorMessage(error))
     }
   }
@@ -118,7 +115,6 @@ export class KommoClient {
         this._logger.forBot().info('No leads found', { query })
         return []
       }
-      this._logger.forBot().error('Failed to search leads', { query, error })
       throw new Error(getErrorMessage(error))
     }
   }
@@ -143,7 +139,6 @@ export class KommoClient {
 
       return contact
     } catch (error) {
-      this._logger.forBot().error('Failed to create contact', { error })
       throw new Error(getErrorMessage(error))
     }
   }
@@ -162,7 +157,6 @@ export class KommoClient {
         return undefined
       }
 
-      this._logger.forBot().error('Failed to fetch contact', { contactId, error })
       throw new Error(getErrorMessage(error))
     }
   }
@@ -186,7 +180,6 @@ export class KommoClient {
         return []
       }
 
-      this._logger.forBot().error('Failed to search contacts', { query, error })
       throw new Error(getErrorMessage(error))
     }
   }
