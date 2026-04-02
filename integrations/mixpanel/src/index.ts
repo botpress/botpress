@@ -1,7 +1,7 @@
-import * as botpress from '.botpress'
+import * as bpclient from '@botpress/client'
 import axios from 'axios'
 import Mixpanel from 'mixpanel'
-import * as bpclient from '@botpress/client'
+import * as botpress from '.botpress'
 
 export default new botpress.Integration({
   register: async ({ ctx }) => {
@@ -13,12 +13,9 @@ export default new botpress.Integration({
     const token = ctx.configuration.token
 
     try {
-      // basic auth, username is token, password is empty
       await axios.post(
         'https://api.mixpanel.com/import',
-        {
-          // bad payload on purpose, we don't want to track anything
-        },
+        {},
         {
           auth: {
             username: token,
@@ -27,16 +24,13 @@ export default new botpress.Integration({
         }
       )
     } catch (error: any) {
-      // if the error isn't an axios error, throw it
       if (!error.response) {
         throw new bpclient.RuntimeError('Configuration Error! Unknown error.')
       }
 
-      // if error code is 401, it means the token is incorrect
       if (error.response.status === 401) {
         throw new bpclient.RuntimeError('Configuration Error! The Mixpanel token is incorrect.')
       }
-      // otherwise we are good!
     }
   },
   unregister: async () => {},
