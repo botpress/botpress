@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+    "baseUrl": ".",
+    "outDir": "dist",
+    "types": ["preact"]
+  },
+  "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "*.ts"]
+}

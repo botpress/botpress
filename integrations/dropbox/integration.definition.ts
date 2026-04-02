@@ -5,7 +5,7 @@ import { actions, configuration, configurations, entities, secrets, states } fro
 export default new sdk.IntegrationDefinition({
   name: 'dropbox',
   title: 'Dropbox',
-  version: '2.0.0',
+  version: '2.0.1',
   description: 'Manage your files and folders effortlessly.',
   readme: 'hub.md',
   icon: 'icon.svg',
@@ -17,6 +17,7 @@ export default new sdk.IntegrationDefinition({
   states,
   attributes: {
     category: 'File Management',
+    repo: 'botpress',
   },
 }).extend(filesReadonly, ({}) => ({
   entities: {},

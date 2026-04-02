@@ -5,7 +5,7 @@ import { telegramMessageChannels } from './definitions/channels'
 
 export default new IntegrationDefinition({
   name: 'telegram',
-  version: '1.0.4',
+  version: '1.0.5',
   title: 'Telegram',
   description: 'Engage with your audience in real-time.',
   icon: 'icon.svg',
@@ -52,6 +52,8 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'Communication & Channels',
+    guideSlug: 'telegram',
+    repo: 'botpress',
   },
 }).extend(typingIndicator, () => ({
   entities: {},

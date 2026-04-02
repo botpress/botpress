@@ -34,7 +34,7 @@ import {
 
 export default new IntegrationDefinition({
   name: 'stripe',
-  version: '0.5.5',
+  version: '0.5.6',
   title: 'Stripe',
   readme: 'hub.md',
   icon: 'icon.svg',
@@ -236,5 +236,6 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'E-commerce & Payments',
+    repo: 'botpress',
   },
 })

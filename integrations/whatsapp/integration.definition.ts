@@ -18,6 +18,14 @@ const toJSONSchemaOptions: Partial<z.transforms.JSONSchemaGenerationOptions> = {
 const MAX_BUTTON_LABEL_LENGTH = 20
 
 const commonConfigSchema = z.object({
+  messageReadBehavior: z
+    .enum(['mark_as_read', 'typing_indicator', 'none'])
+    .default('typing_indicator')
+    .title('Message Read Behavior')
+    .describe(
+      'Behavior to adopt when a message is received from WhatsApp. "mark_as_read" will mark the message as read immediately, "typing_indicator" will show a typing indicator for a few seconds after marking the message as read, and "none" will do neither and block the typing indicator\'s emoji (leaving the message unread until a reply is sent).'
+    ),
+  // TODO: in the next major version unify this with messageReadBehavior
   typingIndicatorEmoji: z
     .boolean()
     .default(false)
@@ -77,9 +85,51 @@ const startConversationProps = {
           templateVariablesJson: z
             .string()
             .optional()
-            .title('Message Template variables')
+            .title('[DEPRECATED] Message Template variables')
             .describe(
-              'JSON array representation of variable values to pass to the WhatsApp Message Template (if required by the template). Currently, only positional parameters are supported.'
+              'Deprecated: use templateBodyParams instead. JSON array of body variable values: ["val1", "val2"].'
+            ),
+          templateHeaderParams: z
+            .discriminatedUnion('type', [
+              z.object({ type: z.literal('text'), value: z.string(), parameterName: z.string().optional() }),
+              z.object({ type: z.literal('image'), url: z.string() }),
+              z.object({ type: z.literal('video'), url: z.string() }),
+              z.object({ type: z.literal('document'), url: z.string(), filename: z.string().optional() }),
+            ])
+            .optional()
+            .title('Template header parameters')
+            .describe(
+              'Header parameter. ' +
+                'For text headers: type="text", value is the replacement text, parameterName is optional (for named params). ' +
+                'For media headers: type="image"|"video"|"document", url is the media URL. Documents may include a filename.'
+            ),
+          templateBodyParams: z
+            .discriminatedUnion('type', [
+              z.object({ type: z.literal('positional'), values: z.array(z.string()) }),
+              z.object({ type: z.literal('named'), values: z.record(z.string()) }),
+            ])
+            .optional()
+            .title('Template body parameters')
+            .describe(
+              'Body parameters. ' +
+                'For positional params ({{1}}, {{2}}, ...): type="positional", values is an ordered array of strings. ' +
+                'For named params ({{buyer_name}}): type="named", values is a record mapping param names to values.'
+            ),
+          templateButtonParams: z
+            .array(
+              z.discriminatedUnion('type', [
+                z.object({ type: z.literal('url'), value: z.string() }),
+                z.object({ type: z.literal('quick_reply'), payload: z.string() }),
+                z.object({ type: z.literal('copy_code'), code: z.string() }),
+                z.object({ type: z.literal('skip') }),
+              ])
+            )
+            .optional()
+            .title('Template button parameters')
+            .describe(
+              'Button parameters as an ordered array. ' +
+                'url: value is the URL suffix. quick_reply: payload is the callback data. ' +
+                'copy_code: code is the coupon code. skip: no parameter needed (for phone number buttons, etc.).'
             ),
           botPhoneNumberId: z
             .string()
@@ -99,7 +149,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.10.0'
+export const INTEGRATION_VERSION = '4.12.1'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
@@ -314,6 +364,7 @@ export default new IntegrationDefinition({
       output: {
         schema: z.object({
           conversationId: z.string().title('Conversation ID').describe('ID of the conversation created'),
+          messageId: z.string().optional().title('Message ID').describe('ID of the message created'),
         }),
       },
     },
@@ -324,6 +375,7 @@ export default new IntegrationDefinition({
       output: {
         schema: z.object({
           conversationId: z.string().title('Conversation ID').describe('ID of the conversation created'),
+          messageId: z.string().optional().title('Message ID').describe('ID of the message created'),
         }),
       },
     },
@@ -553,6 +605,8 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'Communication & Channels',
+    guideSlug: 'whatsapp',
+    repo: 'botpress',
   },
   __advanced: {
     toJSONSchemaOptions,
