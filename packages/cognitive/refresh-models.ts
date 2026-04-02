@@ -2,7 +2,7 @@ import 'dotenv/config'
 import axios from 'axios'
 import * as fs from 'fs'
 import * as path from 'path'
-import { Model } from 'src/schemas.gen'
+import { Model } from 'src/cognitive-v2/types'
 
 const builtInModels = ['auto', 'best', 'fast']
 const filteredLifecycles = ['deprecated', 'discontinued']
@@ -10,9 +10,7 @@ const filteredLifecycles = ['deprecated', 'discontinued']
 const modelsListPath = path.resolve(__dirname, 'src/cognitive-v2', 'models.ts')
 const typesPath = path.resolve(__dirname, 'src/cognitive-v2', 'types.ts')
 
-type RemoteModel = Model & { lifecycle?: string; aliases?: string[]; capabilities?: { supportsImages?: boolean } }
-
-const toRef = (m: RemoteModel | string | null | undefined): string | null => {
+const toRef = (m: Model | string | null | undefined): string | null => {
   if (!m) return null
   if (typeof m === 'string') return m
 
@@ -27,16 +25,16 @@ async function main(): Promise<void> {
 
   const {
     data: { models },
-  } = await axios.get<{ models: RemoteModel[] }>(`${server}/models?includeDeprecated=true`, {
+  } = await axios.get<{ models: Model[] }>(`${server}/models?includeDeprecated=true`, {
     headers: {
       Authorization: `Bearer ${key}`,
       'X-Bot-Id': botId,
     },
   })
 
-  const modelsObj = models.reduce((acc, m) => ((acc[m.id] = m), acc), {} as Record<string, RemoteModel>)
+  const modelsObj = models.reduce((acc, m) => ((acc[m.id] = m), acc), {} as Record<string, Model>)
 
-  const defaultModel: RemoteModel = {
+  const defaultModel: Model = {
     id: '',
     name: '',
     description: '',
@@ -46,39 +44,62 @@ async function main(): Promise<void> {
     lifecycle: 'production',
   }
 
-  const newFile = `import { Model } from 'src/schemas.gen'\n
-export type RemoteModel = Model & { aliases?: string[]; lifecycle: 'production' | 'preview' | 'deprecated' | 'discontinued'; capabilities?: { supportsImages?: boolean } }\n
-export const models: Record<string, RemoteModel>  = ${JSON.stringify(modelsObj, null, 2)}\n
-export const defaultModel: RemoteModel = ${JSON.stringify(defaultModel, undefined, 2)}
+  const newFile = `import { Model } from './types'\n
+export const models: Record<string, Model>  = ${JSON.stringify(modelsObj, null, 2)}\n
+export const defaultModel: Model = ${JSON.stringify(defaultModel, undefined, 2)}
 `
 
   fs.writeFileSync(modelsListPath, newFile, 'utf8')
 
-  const withoutDeprecated = models.filter((m) => !filteredLifecycles.includes(m.lifecycle))
-  const refs = Array.from(new Set(withoutDeprecated.map(toRef).filter(Boolean))).sort((a, b) => a.localeCompare(b))
-  const aliases = models.flatMap((m) =>
-    (m.aliases || []).map((a) => {
-      const [provider] = m.id.split(':')
-      return `${provider}:${a}`
-    })
-  )
+  const collectRefs = (list: Model[]) =>
+    Array.from(new Set(list.map(toRef).filter(Boolean))).sort((a, b) => a.localeCompare(b))
+  const collectAliases = (list: Model[]) =>
+    Array.from(new Set(list.flatMap((m) => (m.aliases || []).map((a) => `${m.id.split(':')[0]}:${a}`))))
+
+  const active = models.filter((m) => !filteredLifecycles.includes(m.lifecycle))
+  const activeLlm = active.filter((m) => !m.capabilities?.supportsTranscription)
+  const activeStt = active.filter((m) => m.capabilities?.supportsTranscription)
+
+  const refs = collectRefs(activeLlm)
+  const aliases = collectAliases(models.filter((m) => !m.capabilities?.supportsTranscription))
+
+  const sttRefs = collectRefs(activeStt)
+  const sttAliases = collectAliases(activeStt)
 
   const content = fs.readFileSync(typesPath, 'utf8')
 
-  const startMarker = 'type Models ='
-  const endMarker = 'export type CognitiveRequest'
+  // Update Models union
+  const modelsStartMarker = 'export type Models ='
+  const modelsEndMarker = 'export type SttModels ='
 
-  const startIdx = content.indexOf(startMarker)
-  const endIdx = content.indexOf(endMarker)
+  const modelsStartIdx = content.indexOf(modelsStartMarker)
+  const modelsEndIdx = content.indexOf(modelsEndMarker)
 
-  if (startIdx === -1 || endIdx === -1 || endIdx <= startIdx) {
-    throw new Error('Could not locate Models union block in models.ts')
+  if (modelsStartIdx === -1 || modelsEndIdx === -1 || modelsEndIdx <= modelsStartIdx) {
+    throw new Error('Could not locate Models union block in types.ts')
   }
 
   const items = [...builtInModels, ...refs, ...aliases].map((r) => `  | '${r}'`)
-  const unionBlock = ['type Models =', ...items, '  | ({} & string)', ''].join('\n')
+  const modelsUnionBlock = ['export type Models =', ...items, '  | ({} & string)', '', ''].join('\n')
 
-  const nextContent = content.slice(0, startIdx) + unionBlock + content.slice(endIdx)
+  let nextContent = content.slice(0, modelsStartIdx) + modelsUnionBlock + content.slice(modelsEndIdx)
+
+  // Update SttModels union
+  const sttStartMarker = 'export type SttModels ='
+  const sttEndMarker = 'export type CognitiveContentPart'
+
+  const sttStartIdx = nextContent.indexOf(sttStartMarker)
+  const sttEndIdx = nextContent.indexOf(sttEndMarker)
+
+  if (sttStartIdx === -1 || sttEndIdx === -1 || sttEndIdx <= sttStartIdx) {
+    throw new Error('Could not locate SttModels union block in types.ts')
+  }
+
+  const sttItems = [...builtInModels, ...sttRefs, ...sttAliases].map((r) => `  | '${r}'`)
+  const sttUnionBlock = ['export type SttModels =', ...sttItems, '  | ({} & string)', '', ''].join('\n')
+
+  nextContent = nextContent.slice(0, sttStartIdx) + sttUnionBlock + nextContent.slice(sttEndIdx)
+
   fs.writeFileSync(typesPath, nextContent, 'utf8')
 }
 
