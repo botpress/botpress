@@ -324,11 +324,7 @@ export class CognitiveBeta {
     return false
   }
 
-  private async _withServerRetry<T>(
-    fn: () => Promise<T>,
-    options: RequestOptions = {},
-    req?: BetaRequest
-  ): Promise<T> {
+  private async _withServerRetry<T>(fn: () => Promise<T>, options: RequestOptions = {}, req?: BetaRequest): Promise<T> {
     let attemptCount = 0
     return backOff(
       async () => {

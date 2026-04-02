@@ -21,9 +21,9 @@ const toRef = (m: RemoteModel | string | null | undefined): string | null => {
 }
 
 async function main(): Promise<void> {
-  const server = process.env.COGNITIVE_SERVER || 'https://api.botpress.cloud/v2/cognitive'
-  const key = process.env.TOKEN
-  const botId = process.env.BOT_ID
+  const server = process.env.CLOUD_COGNITIVE_ENDPOINT || 'https://api.botpress.cloud/v2/cognitive'
+  const key = process.env.CLOUD_PAT
+  const botId = process.env.CLOUD_BOT_ID
 
   const {
     data: { models },
