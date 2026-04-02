@@ -25,12 +25,13 @@ export default new botpress.Integration({
       )
     } catch (error: unknown) {
       if (!axios.isAxiosError(error)) {
-        throw new bpclient.RuntimeError('Configuration Error! Unknown error.')
+        throw new bpclient.RuntimeError('Configuration Error: Unknown error.')
       }
 
       if (error.response?.status === 401) {
-        throw new bpclient.RuntimeError('Configuration Error! The Mixpanel token is incorrect.')
+        throw new bpclient.RuntimeError('Configuration Error: The Mixpanel token is incorrect.')
       }
+      throw new bpclient.RuntimeError(`Configuration Error: ${error.message}`)
     }
   },
   unregister: async () => {},
@@ -44,7 +45,7 @@ export default new botpress.Integration({
         if (args.input.userProfile) {
           traits = JSON.parse(args.input.userProfile)
         }
-      } catch (error) {
+      } catch {
         args.logger.forBot().error('Invalid JSON as userProfile. Must be JSON.stringable()')
         return { success: false, log: 'Invalid JSON as userProfile. Must be JSON.stringable()' }
       }
