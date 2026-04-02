@@ -14,7 +14,7 @@
     "mixpanel": "^0.18.0"
   },
   "devDependencies": {
-    "@types/node": "^22.16.4",
-    "@botpress/cli": "workspace:*"
+    "@botpress/cli": "workspace:*",
+    "@types/node": "^22.16.4"
   }
 }
