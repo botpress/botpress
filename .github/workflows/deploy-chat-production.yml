@@ -41,7 +41,7 @@ jobs:
           dockerfile: integrations/chat/Dockerfile
           context: .
           builder: ${{ inputs.builder || 'depot' }}
-          role-ecs-update: skynet_infra_update
+          role-ecs-update: botpress_infra_update
           skip-ecs-update: ${{ inputs.skipDeploy }}
           create-tag: true
           ref: ${{ inputs.branchOrCommit || github.sha }}
