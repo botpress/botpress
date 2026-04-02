@@ -1,7 +1,7 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
 
 export default new IntegrationDefinition({
-  name: 'plus/mixpanel',
+  name: 'mixpanel',
   title: 'Mixpanel',
   description: 'Track Botpress Analytics events in Mixpanel',
   icon: 'logo.svg',
@@ -14,12 +14,12 @@ export default new IntegrationDefinition({
   },
   actions: {
     updateUserProfile: {
-      title: `Update User Profile`,
-      description: `Updates the User's profile (identifying information such as email, name, etc.)`,
+      title: 'Update User Profile',
+      description: "Updates the User's profile (identifying information such as email, name, etc.)",
       input: {
         schema: z.object({
           userId: z.string().describe('The user id of the profile you want to update'),
-          userProfile: z.string().describe(`JSON String of a user's metadata (e.g., email, name)`).optional(),
+          userProfile: z.string().describe("JSON String of a user's metadata (e.g., email, name)").optional(),
         }),
       },
       output: {
