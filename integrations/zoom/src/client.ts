@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
+import { z } from '@botpress/sdk'
 import axios from 'axios'
 import { backOff } from 'exponential-backoff'
-import { z } from 'zod'
 import * as bp from '.botpress'
 
 const accessTokenResponseSchema = z.object({
@@ -21,19 +21,13 @@ const recordingsResponseSchema = z.object({
 })
 
 export class ZoomClient {
-  private config: Pick<bp.configuration.Configuration, 'zoomClientId' | 'zoomClientSecret' | 'zoomAccountId'>
-  private logger: bp.Logger
+  public constructor(
+    private _config: Pick<bp.configuration.Configuration, 'zoomClientId' | 'zoomClientSecret' | 'zoomAccountId'>,
+    private _logger: bp.Logger
+  ) {}
 
-  constructor(
-    config: Pick<bp.configuration.Configuration, 'zoomClientId' | 'zoomClientSecret' | 'zoomAccountId'>,
-    logger: bp.Logger
-  ) {
-    this.config = config
-    this.logger = logger
-  }
-
-  async getAccessToken(): Promise<string> {
-    const { zoomClientId, zoomClientSecret, zoomAccountId } = this.config
+  public async getAccessToken(): Promise<string> {
+    const { zoomClientId, zoomClientSecret, zoomAccountId } = this._config
     const tokenUrl = `https://zoom.us/oauth/token?grant_type=account_credentials&account_id=${zoomAccountId}`
     const authHeader = Buffer.from(`${zoomClientId}:${zoomClientSecret}`).toString('base64')
 
@@ -57,10 +51,10 @@ export class ZoomClient {
         const validation = accessTokenResponseSchema.safeParse(error.response.data)
         const errorData = validation.success ? validation.data : {}
         const errorMsg = `Zoom access token fetch failed (HTTP ${error.response.status}): ${errorData.error_description || errorData.error || 'Unknown error'}`
-        this.logger.forBot().error(errorMsg, errorData)
+        this._logger.forBot().error(errorMsg, errorData)
         throw new RuntimeError(errorMsg)
       }
-      this.logger.forBot().error('Failed to fetch Zoom access token', error)
+      this._logger.forBot().error('Failed to fetch Zoom access token', error)
       throw new RuntimeError('Failed to fetch Zoom access token')
     }
   }
@@ -72,7 +66,7 @@ export class ZoomClient {
    * API: GET /meetings/{meetingId}/recordings
    * Docs: https://developers.zoom.us/docs/api/meetings/#tag/cloud-recording
    */
-  async fetchTranscriptUrl(
+  public async fetchTranscriptUrl(
     meetingUUID: string,
     accessToken: string
   ): Promise<{ transcriptUrl: string; audioUrl: string } | null> {
@@ -88,7 +82,7 @@ export class ZoomClient {
 
           const validation = recordingsResponseSchema.safeParse(data)
           if (!validation.success) {
-            this.logger.forBot().error('Invalid recordings response format')
+            this._logger.forBot().error('Invalid recordings response format')
             throw new RuntimeError('Invalid recordings response format')
           }
 
@@ -113,7 +107,7 @@ export class ZoomClient {
     } catch (error) {
       // Return null if transcript or audio wasn't found after retries
       if (error instanceof Error && (error.message === 'Transcript not ready' || error.message === 'Audio not ready')) {
-        this.logger
+        this._logger
           .forBot()
           .warn(`Recording files not found for meeting ${meetingUUID} after retries: ${error.message}`)
         return null
@@ -122,7 +116,7 @@ export class ZoomClient {
       // Re-throw other errors (network failures, auth errors, etc.)
       if (axios.isAxiosError(error)) {
         const status = error.response?.status
-        this.logger.forBot().error(`Failed to fetch recordings for meeting ${meetingUUID}: HTTP ${status}`, error)
+        this._logger.forBot().error(`Failed to fetch recordings for meeting ${meetingUUID}: HTTP ${status}`, error)
         throw new RuntimeError(`Failed to fetch recordings: HTTP ${status || 'network error'}`)
       }
 

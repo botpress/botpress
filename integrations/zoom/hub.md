@@ -11,14 +11,6 @@ Easily receive and automate Zoom meeting transcripts in Botpress for meetings ho
 
 ---
 
-## Usage
-
-- **Trigger workflows** → Add a "Listen to Event" card for `transcriptReceived`.
-- **Access data** → Use `event.payload.meetingUUID` and `event.payload.transcript` in flows.
-- **Store transcripts** → Save to tables for later analysis or reporting.
-
----
-
 ## Prerequisites
 
 You must be:
