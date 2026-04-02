@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
+import { z } from '@botpress/sdk'
 import axios from 'axios'
 import { backOff } from 'exponential-backoff'
-import { z } from 'zod'
 import * as bp from '.botpress'
 
 const accessTokenResponseSchema = z.object({
