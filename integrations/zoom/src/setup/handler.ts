@@ -71,7 +71,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
     const parsed = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
     const validation = zoomWebhookSchema.safeParse(parsed)
     if (!validation.success) {
-      logger.forBot().error('Invalid webhook body format')
+      logger.forBot().error(`Invalid webhook body format: ${validation.error.message}`)
       return { status: 400, body: 'Invalid request body format' }
     }
 
