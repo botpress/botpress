@@ -24,14 +24,13 @@ export default new botpress.Integration({
         }
       )
     } catch (error: unknown) {
-      if (!axios.isAxiosError(error)) {
+      if (!axios.isAxiosError(error) || !error.response) {
         throw new bpclient.RuntimeError('Configuration Error: Unknown error.')
       }
 
       if (error.response?.status === 401) {
         throw new bpclient.RuntimeError('Configuration Error: The Mixpanel token is incorrect.')
       }
-      throw new bpclient.RuntimeError(`Configuration Error: ${error.message}`)
     }
   },
   unregister: async () => {},
