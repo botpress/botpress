@@ -335,7 +335,7 @@ export type Model = {
    * Aliases that are also resolving to this model
    */
   aliases?: string[]
-  tags?: ModelTag[]
+  tags: ModelTag[]
   input: {
     maxTokens: number
     /**
