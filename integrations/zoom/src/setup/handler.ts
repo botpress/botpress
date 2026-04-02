@@ -1,10 +1,10 @@
-import crypto from 'crypto'
 import { RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
-import * as bp from '.botpress'
+import crypto from 'crypto'
 import { ZoomClient } from '../client'
 import { zoomWebhookSchema, TranscriptCompletedPayload } from '../types'
 import { cleanVtt } from '../utils'
+import * as bp from '.botpress'
 
 const handleTranscriptCompleted = async ({
   payload,

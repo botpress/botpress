@@ -1,6 +1,5 @@
 import { z } from '@botpress/sdk'
 
-// Webhook schemas and types
 const urlValidationSchema = z.object({
   event: z.literal('endpoint.url_validation'),
   payload: z.object({

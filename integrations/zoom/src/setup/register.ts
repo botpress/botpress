@@ -1,6 +1,6 @@
-import * as bp from '.botpress'
-import { ZoomClient } from '../client'
 import { RuntimeError } from '@botpress/sdk'
+import { ZoomClient } from '../client'
+import * as bp from '.botpress'
 
 export const register: bp.IntegrationProps['register'] = async ({ ctx, logger }) => {
   try {
