@@ -1,0 +1,8 @@
+identifier = null
+body = parse_json!(.body)
+
+if exists(body.events[0].payload.conversation.metadata.botpressIntegrationOwner) {
+    identifier = body.events[0].payload.conversation.metadata.botpressIntegrationOwner
+}
+
+identifier

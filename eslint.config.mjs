@@ -19,6 +19,7 @@ const ignores = [
   '**/node_modules/',
   '**/bp_modules/',
   '**/.botpress/',
+  '**/.adk/',
   '**/gen/',
   '**/.turbo/',
   '**/.genenv/',

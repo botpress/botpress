@@ -5,7 +5,7 @@ export default new IntegrationDefinition({
   name: 'charts',
   title: 'Charts',
   description: 'Easily generate a variety of charts, including line, bar, pie, and scatter plots, etc.',
-  version: '0.2.6',
+  version: '0.2.8',
   readme: 'hub.md',
   icon: 'icon.svg',
   actions: actionDefinitions,
@@ -16,5 +16,9 @@ export default new IntegrationDefinition({
   },
   __advanced: {
     useLegacyZuiTransformer: true,
+  },
+  attributes: {
+    category: 'Other',
+    repo: 'botpress',
   },
 })

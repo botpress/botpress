@@ -6,10 +6,9 @@ import * as bp from '.botpress'
 
 export const getUser: bp.IntegrationProps['actions']['getUser'] = async (args) => {
   const {
-    ctx,
     input: { linearUserId },
   } = args
-  const linearClient = await getLinearClient(args, ctx.integrationId)
+  const linearClient = await getLinearClient(args)
   const user = linearUserId ? await linearClient.user(linearUserId) : await linearClient.viewer
 
   return userProfileSchema.parse({

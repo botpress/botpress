@@ -111,6 +111,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       ...(await this.prepareIntegrationDependencies(integrationDef, api)),
       visibility: this._visibility,
       sdkVersion: integrationDef.metadata?.sdkVersion,
+      url: this.argv.url,
     }
 
     const startedMessage = `Deploying integration ${chalk.bold(name)} v${version}...`
@@ -453,6 +454,8 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       },
       bot
     )
+
+    updateBotBody.secrets = await this.promptSecrets(botDefinition, this.argv, { knownSecrets: bot.secrets })
 
     const { bot: updatedBot } = await api.client.updateBot(updateBotBody).catch((thrown) => {
       throw errors.BotpressCLIError.wrap(thrown, `Could not update bot "${bot.name}"`)

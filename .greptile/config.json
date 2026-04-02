@@ -1,0 +1,45 @@
+{
+  "strictness": 2,
+  "commentTypes": ["info", "logic", "syntax"],
+  "triggerOnUpdates": true,
+  "shouldUpdateDescription": false,
+  "updateExistingSummaryComment": true,
+  "summarySection": {
+    "included": true,
+    "collapsible": true,
+    "defaultOpen": false
+  },
+  "issuesTableSection": {
+    "included": true,
+    "collapsible": true,
+    "defaultOpen": false
+  },
+  "confidenceScoreSection": {
+    "included": true,
+    "collapsible": true,
+    "defaultOpen": false
+  },
+  "sequenceDiagramSection": {
+    "included": true,
+    "collapsible": true,
+    "defaultOpen": false
+  },
+  "rules": [
+    {
+      "id": "error-handling",
+      "rule": "All async functions must use try-catch blocks."
+    },
+    {
+      "id": "promise-handling",
+      "rule": "All promises must be awaited."
+    },
+    {
+      "id": "catch-handling",
+      "rule": "All catch clauses must not use `any` as the error type (implicit or explicit). Instead, type the caught value as `unknown` and narrow it before use.\nThe following snippet is an example solution for this problem:\n\n```Typescript\ntry {\n  ...\n} catch (thrown: unknown) {\n  const error = thrown instanceof Error ? thrown : new Error(String(thrown))\n}\n```"
+    },
+    {
+      "id": "configure-integration-identifier-type",
+      "rule": "When choosing the identifier of an integration, it should be something unique and if there is an extract script, it should match the value a global webhook extracts. For instance, if the global webhook extracts a `hubId`, then the identifier should be the `hubId` and not the `webhookId`."
+    }
+  ]
+}

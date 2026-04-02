@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# OS
+.DS_Store
+
+# Generated files
+.botpress/
+.claude/
+
+# Planning
+plan/

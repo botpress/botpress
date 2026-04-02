@@ -1,4 +1,5 @@
 import { z } from '@botpress/sdk'
+import { creatableFieldSchema, fieldValueSchema } from './field-schemas'
 import { tableSchema, recordSchema } from './sub-schemas'
 
 export const getTableRecordsInputSchema = z.object({
@@ -37,9 +38,10 @@ export const listRecordsOutputSchema = z
 export const createTableInputSchema = z.object({
   name: z.string().describe('Name of the Table (e.g. MyTable)').title('Name'),
   fields: z
-    .string()
+    .array(creatableFieldSchema)
+    .min(1)
     .describe(
-      'The Table\'s fields, separated by commas. Each field should be in the format "type_name" (e.g. "phoneNumber_Customer Phone, singleLineText_Address").'
+      'The fields to create in the table. Each field requires a name and type, and some types require additional options.'
     )
     .title('Fields'),
   description: z
@@ -71,12 +73,7 @@ export const createRecordInputSchema = z.object({
     .string()
     .describe('The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)')
     .title('Table ID or Name'),
-  fields: z
-    .string()
-    .describe(
-      'The fields and their values for the new record, in a JSON format (e.g. {"Name":"John Doe","City":"In the moon","Verify":true})'
-    )
-    .title('Fields'),
+  fields: z.array(fieldValueSchema).min(1).describe('The fields and their values for the new record').title('Fields'),
 })
 
 export const createRecordOutputSchema = recordSchema.passthrough()
@@ -88,10 +85,9 @@ export const updateRecordInputSchema = z.object({
     .title('Table ID or Name'),
   recordId: z.string().describe('The ID of the Record to be updated').title('Record ID'),
   fields: z
-    .string()
-    .describe(
-      'The fields and their values for the record to be updated, in a JSON format (e.g. {"Name":"John Doe","Verify":true})'
-    )
+    .array(fieldValueSchema)
+    .min(1)
+    .describe('The fields and their values for the record to be updated')
     .title('Fields'),
 })
 

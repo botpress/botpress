@@ -17,7 +17,7 @@ jobs:
         run: pnpm bp login -y --token ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }} --workspace-id ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
       - name: Check integration versions
         run: |
-          SKIP_INTEGRATIONS=("docusign" "zendesk-messaging-hitl")
+          SKIP_INTEGRATIONS=("docusign" "zendesk" "zendesk-messaging-hitl")
 
           integrations=$(ls -d integrations/*/ | xargs -n1 basename | sort -u)
           should_fail=0
@@ -31,7 +31,7 @@ jobs:
               if [ "$integration" = "$skip_integration" ]; then
                 echo "Skipping $integration"
                 skip=1
-                skipped_integrations="$skipped_integrations$integration\n"
+                skipped_integrations="$skipped_integrations> $integration\n"
                 break
               fi
             done
@@ -46,16 +46,16 @@ jobs:
             if [ $exists -eq 0 ]; then
               echo "Integration $integration is not up to date. Please deploy the latest version of your integration."
               should_fail=1
-              outdated_integrations="$outdated_integrations$integration\n"
+              outdated_integrations="$outdated_integrations> $integration\n"
             fi
           done
 
           if [ $should_fail -eq 1 ]; then
             message="\n\nThe following integrations are out of date:\n$outdated_integrations"
             message="$message\nThe following integrations were skipped:\n$skipped_integrations"
-            message="$message\nPlease run the deployment for the out-of-date integrations."
+            message="$message\nPlease run the deployment for the out-of-date integrations in ${{ github.server_url }}/${{ github.repository }}"
 
-            echo "\n\nSending curl request to Slack webhook"
+            echo -e "\n\nSending curl request to Slack webhook"
             echo "Response:"
             curl -X POST ${{ secrets.SLACK_WORKFLOW_SEAGULL_WEBHOOK_URL }} \
             -H "Content-Type: application/json" \
@@ -63,9 +63,9 @@ jobs:
               "key": "prod-master-version-verification",
               "text": "'"$message"'"
             }'
-            echo "\nCurl request sent"
+            echo -e "\nCurl request sent"
 
-            echo "$message"
+            echo -e "$message"
 
             exit 1
           fi

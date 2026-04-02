@@ -1,9 +1,9 @@
-import { RuntimeError, ZodError } from '@botpress/sdk'
+import { RuntimeError, z } from '@botpress/sdk'
 import axios from 'axios'
 import type { Result } from './types'
 
-const _isZodError = (error: any): error is ZodError => {
-  return error && typeof error === 'object' && error instanceof ZodError && 'errors' in error
+const _isZodError = (error: any): error is z.ZodError => {
+  return error && typeof error === 'object' && z.is.zuiError(error) && 'errors' in error
 }
 
 export function parseError(thrown: unknown): RuntimeError {

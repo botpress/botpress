@@ -1,23 +1,14 @@
-import { RuntimeError } from '@botpress/sdk'
 import actions from './actions'
 import { AirtableApi } from './client'
 import * as botpress from '.botpress'
 
 export default new botpress.Integration({
-  register: async ({ ctx, logger }) => {
-    const airtableClient = new AirtableApi(
-      ctx.configuration.accessToken,
-      ctx.configuration.baseId,
-      ctx.configuration.endpointUrl
-    )
+  register: async ({ client, ctx, logger }) => {
+    const airtableClient = new AirtableApi({ client, ctx, logger })
 
-    try {
-      await airtableClient.testConnection()
-      logger.forBot().info('Connection to Airtable successful')
-    } catch (thrown) {
-      const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-      throw new RuntimeError('Failed to test connection to Airtable', error)
-    }
+    await airtableClient.testConnection()
+
+    logger.forBot().info('Connection to Airtable successful')
   },
   unregister: async () => {},
   actions,

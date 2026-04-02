@@ -1,0 +1,10 @@
+identifier = null
+body = parse_json!(.body)
+
+identifier = get(body, ["events", 0, "payload", "message", "source", "integrationId"]) ?? null
+
+if identifier == null {
+    identifier = get(body, ["events", 0, "payload", "conversation", "metadata", "botpressIntegrationOwner"]) ?? null
+}
+
+identifier

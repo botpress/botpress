@@ -16,11 +16,15 @@ export const prepareCreatePluginBody = async (
   conversation: {
     tags: plugin.conversation?.tags ?? {},
   },
+  message: {
+    tags: plugin.message?.tags ?? {},
+  },
   configuration: plugin.configuration
     ? {
         ...plugin.configuration,
         schema: await utils.schema.mapZodToJsonSchema(plugin.configuration, {
           useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
+          toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
         }),
       }
     : undefined,
@@ -29,6 +33,7 @@ export const prepareCreatePluginBody = async (
         ...event,
         schema: await utils.schema.mapZodToJsonSchema(event, {
           useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
+          toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
         }),
       }))
     : undefined,
@@ -39,12 +44,14 @@ export const prepareCreatePluginBody = async (
           ...action.input,
           schema: await utils.schema.mapZodToJsonSchema(action.input, {
             useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
+            toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
           }),
         },
         output: {
           ...action.output,
           schema: await utils.schema.mapZodToJsonSchema(action.output, {
             useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
+            toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
           }),
         },
       }))
@@ -55,6 +62,7 @@ export const prepareCreatePluginBody = async (
           ...state,
           schema: await utils.schema.mapZodToJsonSchema(state, {
             useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
+            toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
           }),
         })),
         ({ type }) => type !== 'workflow'
@@ -90,12 +98,13 @@ export const prepareUpdatePluginBody = (
     ),
   }
 
+  // TODO: set null to conversation, user and message tags that are removed
+
   return {
     ...localPlugin,
     actions,
     events,
     states,
-    user: localPlugin.user, // TODO: allow deleting user tags with null
     attributes,
     dependencies,
   }

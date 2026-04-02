@@ -1,10 +1,36 @@
-import { RuntimeError } from '@botpress/client'
+import { ApiError, isApiError, RuntimeError } from '@botpress/client'
 import { parsePhoneNumber, ParsedPhoneNumber } from 'awesome-phonenumber'
 
 const ARGENTINA_COUNTRY_CODE = 54
 const ARGENTINA_COUNTRY_CODE_AFTER_PREFIX = 9
 const MEXICO_COUNTRY_CODE = 52
 const MEXICO_COUNTRY_CODE_AFTER_PREFIX = 1
+
+type formatPhoneNumberResponse =
+  | {
+      success: true
+      phoneNumber: string
+    }
+  | {
+      success: false
+      error: ApiError
+    }
+
+export function safeFormatPhoneNumber(phoneNumber: string): formatPhoneNumberResponse {
+  try {
+    const formattedPhoneNumber = formatPhoneNumber(phoneNumber)
+    return {
+      success: true,
+      phoneNumber: formattedPhoneNumber,
+    }
+  } catch (thrown) {
+    const error = isApiError(thrown) ? thrown : new RuntimeError(String(thrown))
+    return {
+      success: false,
+      error,
+    }
+  }
+}
 
 export function formatPhoneNumber(phoneNumber: string) {
   if (!phoneNumber.startsWith('+')) {
