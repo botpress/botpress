@@ -1071,6 +1071,22 @@ importers:
         specifier: workspace:*
         version: link:../../interfaces/llm
 
+  integrations/google-analytics:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: ^1.13.1
+        version: 1.13.6
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   integrations/googlecalendar:
     dependencies:
       '@botpress/client':
