@@ -111,6 +111,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       ...(await this.prepareIntegrationDependencies(integrationDef, api)),
       visibility: this._visibility,
       sdkVersion: integrationDef.metadata?.sdkVersion,
+      url: this.argv.url,
     }
 
     const startedMessage = `Deploying integration ${chalk.bold(name)} v${version}...`

@@ -12,12 +12,12 @@
   "issuesTableSection": {
     "included": true,
     "collapsible": true,
-    "defaultOpen": true
+    "defaultOpen": false
   },
   "confidenceScoreSection": {
     "included": true,
     "collapsible": true,
-    "defaultOpen": true
+    "defaultOpen": false
   },
   "sequenceDiagramSection": {
     "included": true,
