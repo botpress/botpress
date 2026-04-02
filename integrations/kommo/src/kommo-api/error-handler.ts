@@ -2,6 +2,10 @@ import { z } from '@botpress/sdk'
 import { isAxiosError } from 'axios'
 import { KommoErrorResponse } from './types'
 
+const _isZodError = (error: any): error is z.ZodError => {
+  return error && typeof error === 'object' && z.is.zuiError(error) && 'errors' in error
+}
+
 const formatZodErrors = (issues: z.ZodIssue[]) =>
   'Validation Error: ' +
   issues
@@ -43,7 +47,7 @@ export const getErrorMessage = (err: unknown): string => {
     return status ? `${message} (Status: ${status})` : message
   }
 
-  if (err instanceof z.ZodError) {
+  if (_isZodError(err)) {
     return formatZodErrors(err.errors)
   }
 
