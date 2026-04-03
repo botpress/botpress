@@ -1,5 +1,5 @@
 import { Client } from '@botpress/client'
-import { Cognitive, Models, type BotpressClientLike } from '@botpress/cognitive'
+import { Cognitive, type Models, type BotpressClientLike, type CognitiveLike } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 
 import { clamp, isEqual, isPlainObject, omit } from 'lodash-es'
@@ -223,7 +223,7 @@ export type ExecutionProps = {
    * This is used to generate content using the LLM and to access the Botpress API.
    * If not provided, a default client will be created using environment variables.
    */
-  client?: Cognitive | BotpressClientLike
+  client?: CognitiveLike | BotpressClientLike
 
   /**
    * When provided, the execution will immediately stop when the signal is aborted.
@@ -275,13 +275,16 @@ export const executeContext = async (props: ExecutionProps): Promise<ExecutionRe
   return result
 }
 
+const _isCognitive = (client: CognitiveLike | BotpressClientLike): client is CognitiveLike =>
+  Cognitive.isCognitiveClient(client)
+
 export const _executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
   const controller = createJoinedAbortController([props.signal])
   const { onIterationStart, onIterationEnd, onTrace, onExit, onBeforeExecution, onAfterTool, onBeforeTool } = props
 
   const client = props.client ?? new Client()
 
-  const cognitive = Cognitive.isCognitiveClient(client) ? client : new Cognitive({ client, __experimental_beta: true })
+  const cognitive = _isCognitive(client) ? client : new Cognitive({ client, __experimental_beta: true })
   const cleanups: (() => void)[] = []
 
   const ctx = new Context({
@@ -425,7 +428,7 @@ const executeIteration = async ({
 }: {
   ctx: Context
   iteration: Iteration
-  cognitive: Cognitive
+  cognitive: CognitiveLike
   controller: AbortController
 } & ExecutionHooks): Promise<void> => {
   let startedAt = Date.now()

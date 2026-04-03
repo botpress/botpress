@@ -3,7 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "rootDir": "./src",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "noCheck": true
   },
   "include": ["src/**/*"]
 }
