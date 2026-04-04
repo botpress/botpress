@@ -107,6 +107,7 @@ export default [
       '@stylistic/eol-last': 'error',
       '@typescript-eslint/no-shadow': 'off',
 
+      'import/no-unresolved': 'off',
       'import/order': [
         'warn',
         {

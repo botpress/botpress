@@ -13,6 +13,10 @@
     "**/*.d.ts",
     "**/*.test.ts",
     "**/*.js",
+    "**/*.cjs",
+    "**/*.mjs",
+    "**/*.jsx",
+    "**/*.md.ts",
     "**/cdk.out/",
     "**/dist/",
     "**/node_modules/",
@@ -24,148 +28,73 @@
     "**/.genenv/",
     "packages/llmz/examples/"
   ],
-  "rules": {
-    // Rules that have yet to be implemented in oxlint are commented out.
-    // The full list of rules can be found at https://oxc.rs/docs/guide/usage/linter/rules
-    //
-    "eslint/no-console": [
-      "warn",
-      {
-        "allow": [
+  "rules": {},
+  "overrides": [
+    {
+      "files": ["**/*.ts", "**/*.tsx"],
+      "rules": {
+        "eslint/no-console": [
           "warn",
-          "dir",
-          "time",
-          "timeEnd",
-          "timeLog",
-          "trace",
-          "assert",
-          "clear",
-          "count",
-          "countReset",
-          "group",
-          "groupEnd",
-          "table",
-          "debug",
-          "info",
-          "dirxml",
+          {
+            "allow": [
+              "warn",
+              "dir",
+              "time",
+              "timeEnd",
+              "timeLog",
+              "trace",
+              "assert",
+              "clear",
+              "count",
+              "countReset",
+              "group",
+              "groupEnd",
+              "table",
+              "debug",
+              "info",
+              "dirxml",
+              "error",
+              "groupCollapsed",
+              "Console",
+              "profile",
+              "profileEnd",
+              "timeStamp",
+              "context"
+            ]
+          }
+        ],
+        "eslint/no-cond-assign": "error",
+        "eslint/no-const-assign": "error",
+        "eslint/no-debugger": "error",
+        "eslint/no-sparse-arrays": "error",
+        "eslint/no-unreachable": "error",
+        "eslint/max-lines-per-function": "off",
+        "eslint/default-case": "off",
+        "eslint/default-case-last": "error",
+        "eslint/max-depth": "error",
+        "eslint/no-eval": "error",
+        "eslint/no-return-assign": "error",
+        "eslint/no-var": "error",
+        "eslint/no-duplicate-imports": "error",
+        "typescript/consistent-type-definitions": ["error", "type"],
+        "typescript/prefer-namespace-keyword": "error",
+        "eslint/curly": ["error", "multi-line"],
+        "eslint/eqeqeq": ["error", "smart"],
+        "typescript/no-unused-vars": "off",
+        "eslint/no-unused-vars": [
           "error",
-          "groupCollapsed",
-          "Console",
-          "profile",
-          "profileEnd",
-          "timeStamp",
-          "context"
-        ]
+          {
+            "vars": "all",
+            "varsIgnorePattern": "^_",
+            "args": "after-used",
+            "argsIgnorePattern": "^_"
+          }
+        ],
+        "unicorn/no-empty-file": "error",
+        "unicorn/no-lonely-if": "off"
       }
-    ],
-    // "eslint/complexity": ["off"],
-    "eslint/no-cond-assign": "error",
-    "eslint/no-const-assign": "error",
-    "eslint/no-debugger": "error",
-    "eslint/no-sparse-arrays": "error",
-    "eslint/no-unreachable": "error",
-    "eslint/max-lines-per-function": "off",
-    "eslint/default-case": "off",
-    "eslint/default-case-last": "error",
-    "eslint/max-depth": "error",
-    "eslint/no-eval": "error",
-    "eslint/no-return-assign": "error",
-    "eslint/no-var": "error",
-    // "eslint/prefer-const": "warn",
-    "eslint/no-duplicate-imports": "error",
-    "typescript/consistent-type-definitions": ["error", "type"],
-    // "eslint/member-delimiter-style": [
-    //   "error",
-    //   {
-    //     "multiline": {
-    //       "delimiter": "none",
-    //       "requireLast": true
-    //     },
-    //     "singleline": {
-    //       "delimiter": "semi",
-    //       "requireLast": false
-    //     }
-    //   }
-    // ],
-    "typescript/prefer-namespace-keyword": "error",
-    // "eslint/quotes": [
-    //   "error",
-    //   "single",
-    //   {
-    //     "avoidEscape": true
-    //   }
-    // ],
-    // "typescript/no-floating-promises": "error",
-    // "typescript/no-misused-promises": "error",
-    // "eslint/semi": [
-    //   "error",
-    //   "never"
-    // ],
-    // "eslint/type-annotation-spacing": "error",
-    // "eslint/brace-style": "off",
-    "eslint/curly": ["error", "multi-line"],
-    // "eslint/eol-last": "error",
-    "eslint/eqeqeq": ["error", "smart"],
-    // "typescript/no-shadow": "off",
-    // "import/order": [
-    //   "warn",
-    //   {
-    //     "groups": [
-    //       [
-    //         "builtin",
-    //         "external"
-    //       ],
-    //       "parent",
-    //       "index",
-    //       "sibling"
-    //     ],
-    //     // TODO: Eventually enable this in the future for consistency
-    //     // 'newlines-between': 'always',
-    //     "alphabetize": {
-    //       "order": "asc",
-    //       "caseInsensitive": true
-    //     },
-    //     "pathGroupsExcludedImportTypes": [
-    //       "builtin"
-    //     ]
-    //   }
-    // ],
-    "import/no-unresolved": "off",
-    // "jsdoc/check-alignment": "error",
-    // "eslint/linebreak-style": [
-    //   "error",
-    //   "unix"
-    // ],
-    // "eslint/no-trailing-spaces": "error",
-    // "eslint/object-shorthand": "error",
-    "typescript/no-unused-vars": "off",
-    "eslint/no-unused-vars": [
-      "error",
-      {
-        "vars": "all",
-        "varsIgnorePattern": "^_",
-        "args": "after-used",
-        "argsIgnorePattern": "^_"
-      }
-    ],
-    // "typescript/naming-convention": [
-    //   "warn",
-    //   {
-    //     "selector": "memberLike",
-    //     "modifiers": [
-    //       "private"
-    //     ],
-    //     "format": [
-    //       "camelCase"
-    //     ],
-    //     "leadingUnderscore": "require"
-    //   }
-    // ],
-    // "typescript/explicit-member-accessibility": "warn",
-    "unicorn/no-empty-file": "error",
-    "unicorn/no-lonely-if": "off"
-  },
-  "overrides": [],
+    }
+  ],
   "categories": {
     "correctness": "off",
     "pedantic": "off",
