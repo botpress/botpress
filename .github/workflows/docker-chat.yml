@@ -1,4 +1,4 @@
-name: Build and push Chat Integration Docker
+name: Check Chat Integration Docker
 
 on:
   pull_request:
@@ -7,21 +7,6 @@ on:
     paths:
       - 'integrations/chat/**'
       - 'packages/sdk/**'
-
-  push:
-    branches:
-      - master
-    paths:
-      - 'integrations/chat/**'
-      - 'packages/sdk/**'
-
-  workflow_dispatch:
-    inputs:
-      push_to_ecr:
-        description: 'Push image to ECR after successful tests'
-        required: true
-        type: boolean
-        default: true
 
 permissions:
   id-token: write
@@ -32,54 +17,15 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-test-push:
+  build-and-test:
     runs-on: depot-ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup # FIXME: This should not be necessary, as the Dockerfile should be self-contained
+      - name: Setup
         uses: ./.github/actions/setup
         with:
           extra_filters: '-F @botpresshub/chat'
-
-      - uses: aws-actions/configure-aws-credentials@v3
-        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.push_to_ecr) }}
-        with:
-          role-session-name: container_pusher
-          role-to-assume: arn:aws:iam::986677156374:role/actions/build/container_pusher
-          aws-region: us-east-1
-
-      - uses: aws-actions/amazon-ecr-login@v1
-        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.push_to_ecr) }}
-        id: ecr
-        with:
-          mask-password: true
-
-      - uses: docker/metadata-action@v4
-        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.push_to_ecr) }}
-        id: meta
-        with:
-          images: ${{ steps.ecr.outputs.registry }}/chat-integration
-          flavor: |
-            latest=false
-          tags: |
-            type=sha,prefix=,format=long
-
-      - name: Set BUILD_DATE
-        id: meta_date
-        run: |
-          export TZ=America/Toronto
-          echo "timestamp=$(date +"%Y-%m-%d %H:%M:%S")" >> "$GITHUB_OUTPUT"
-
-      - name: Create ECR Registry
-        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.push_to_ecr) }}
-        env:
-          ECR_REPOSITORY: chat-integration
-        run: |
-          aws --version
-          aws ecr create-repository --repository-name $ECR_REPOSITORY || true
-          aws ssm get-parameter --name '/cloud/container-registry/ecr-policy-document' --query 'Parameter.Value' | jq -r '.' > repository-policy.json
-          aws ecr set-repository-policy --repository-name $ECR_REPOSITORY --policy-text file://repository-policy.json &> /dev/null
 
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
@@ -90,13 +36,11 @@ jobs:
           project: ${{ secrets.DEPOT_PROJECT_ID }}
           build-args: |
             MINIFY=true
-            BUILD_DATE=${{ steps.meta_date.outputs.timestamp }}
           file: ./integrations/chat/Dockerfile
           context: .
           push: false
           load: true
           tags: chat-integration:test
-          labels: ${{ steps.meta.outputs.labels }}
 
       - name: Start Docker container
         run: |
@@ -148,17 +92,3 @@ jobs:
       - name: Cleanup container
         if: always()
         run: docker rm -f chat-test || true
-
-      - name: Tag and push to ECR
-        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.push_to_ecr) }}
-        env:
-          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          echo "Tagging image for ECR: $ECR_REGISTRY/chat-integration:$IMAGE_TAG"
-          docker tag chat-integration:test $ECR_REGISTRY/chat-integration:$IMAGE_TAG
-
-          echo "Pushing to ECR..."
-          docker push $ECR_REGISTRY/chat-integration:$IMAGE_TAG
-
-          echo "Successfully pushed image: $IMAGE_TAG"
