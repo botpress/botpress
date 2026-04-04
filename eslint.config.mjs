@@ -1,10 +1,8 @@
 import importPlugin from 'eslint-plugin-import'
 import jsdoc from 'eslint-plugin-jsdoc'
-import prettier from 'eslint-plugin-prettier'
 import globals from 'globals'
 import tsParser from '@typescript-eslint/parser'
 import tseslint from 'typescript-eslint'
-import stylistic from '@stylistic/eslint-plugin'
 import oxlint from 'eslint-plugin-oxlint'
 import path from 'path'
 
@@ -43,9 +41,7 @@ export default [
     files: ['**/*.{ts,tsx}'],
     plugins: {
       jsdoc,
-      '@stylistic': stylistic,
       '@typescript-eslint': tseslint.plugin,
-      prettier,
       import: importPlugin,
     },
 
@@ -66,34 +62,6 @@ export default [
     },
 
     rules: {
-      ...prettier.configs.recommended.rules,
-
-      complexity: ['off'],
-      'prefer-const': 'warn',
-
-      '@stylistic/member-delimiter-style': [
-        'error',
-        {
-          multiline: {
-            delimiter: 'none',
-            requireLast: true,
-          },
-
-          singleline: {
-            delimiter: 'semi',
-            requireLast: false,
-          },
-        },
-      ],
-
-      '@stylistic/quotes': [
-        'error',
-        'single',
-        {
-          avoidEscape: true,
-        },
-      ],
-
       '@typescript-eslint/no-floating-promises': [
         'error',
         {
@@ -101,33 +69,8 @@ export default [
         },
       ],
       '@typescript-eslint/no-misused-promises': 'error',
-      '@stylistic/semi': ['error', 'never'],
-      '@stylistic/type-annotation-spacing': 'error',
-      '@stylistic/brace-style': 'off',
-      '@stylistic/eol-last': 'error',
-      '@typescript-eslint/no-shadow': 'off',
-
-      'import/no-unresolved': 'off',
-      'import/order': [
-        'warn',
-        {
-          groups: [['builtin', 'external'], 'parent', 'index', 'sibling'],
-          // TODO: Eventually enable this in the future for consistency
-          // 'newlines-between': 'always',
-          alphabetize: {
-            order: 'asc',
-            caseInsensitive: true,
-          },
-
-          pathGroupsExcludedImportTypes: ['builtin'],
-        },
-      ],
-
       'jsdoc/check-alignment': 'error',
-      '@stylistic/linebreak-style': ['error', 'unix'],
-      '@stylistic/no-trailing-spaces': 'error',
       'object-shorthand': 'error',
-
       '@typescript-eslint/naming-convention': [
         'warn',
         {
@@ -137,8 +80,20 @@ export default [
           leadingUnderscore: 'require',
         },
       ],
-
       '@typescript-eslint/explicit-member-accessibility': 'warn',
+      'import/no-unresolved': 'off',
+      'import/order': [
+        'warn',
+        {
+          groups: [['builtin', 'external'], 'parent', 'index', 'sibling'],
+          alphabetize: {
+            order: 'asc',
+            caseInsensitive: true,
+          },
+
+          pathGroupsExcludedImportTypes: ['builtin'],
+        },
+      ],
 
       // Disable every rule already covered by oxlint:
       ...oxlintRules,

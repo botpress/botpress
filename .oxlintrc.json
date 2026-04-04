@@ -4,7 +4,8 @@
   "env": {
     "browser": true,
     "es2024": true,
-    "node": true
+    "node": true,
+    "builtin": true
   },
   "globals": {},
   "settings": {},
@@ -26,12 +27,16 @@
     "**/bp_modules/",
     "**/.turbo/",
     "**/.genenv/",
-    "packages/llmz/examples/"
+    "packages/llmz/examples/",
+    "node_modules/",
+    "**/.adk/",
+    "**/.ignore.me.*"
   ],
   "rules": {},
   "overrides": [
     {
       "files": ["**/*.{ts,tsx}"],
+      "jsPlugins": ["eslint-plugin-prettier", "@stylistic/eslint-plugin"],
       "rules": {
         "eslint/no-console": [
           "warn",
@@ -91,7 +96,38 @@
           }
         ],
         "unicorn/no-empty-file": "error",
-        "unicorn/no-lonely-if": "off"
+        "unicorn/no-lonely-if": "off",
+        "prettier/prettier": "error",
+        "arrow-body-style": "off",
+        "complexity": ["off"],
+        "prefer-const": "warn",
+        "@stylistic/member-delimiter-style": [
+          "error",
+          {
+            "multiline": {
+              "delimiter": "none",
+              "requireLast": true
+            },
+            "singleline": {
+              "delimiter": "semi",
+              "requireLast": false
+            }
+          }
+        ],
+        "@stylistic/quotes": [
+          "error",
+          "single",
+          {
+            "avoidEscape": true
+          }
+        ],
+        "@stylistic/semi": ["error", "never"],
+        "@stylistic/type-annotation-spacing": "error",
+        "@stylistic/brace-style": "off",
+        "@stylistic/eol-last": "error",
+        "@stylistic/linebreak-style": ["error", "unix"],
+        "@stylistic/no-trailing-spaces": "error",
+        "no-shadow": "off"
       }
     }
   ],
