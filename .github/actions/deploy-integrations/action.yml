@@ -1,7 +1,7 @@
 name: Deploy Integrations
 description: Deploys integrations
 
-input:
+inputs:
   environment:
     type: choice
     description: 'Environment to deploy to'
@@ -49,7 +49,9 @@ runs:
       shell: bash
       env:
         SENTRY_FILTER: ${{ steps.list_sentry_integrations.outputs.filter }}
-      run: pnpm -r --stream $SENTRY_FILTER exec sentry-cli sourcemaps inject .botpress/dist
+      run: |
+        # shellcheck disable=SC2086 # SENTRY_FILTER contains multiple space-separated -F flags that must be split into individual arguments
+        pnpm -r --stream $SENTRY_FILTER exec sentry-cli sourcemaps inject .botpress/dist
     - name: Upload SourceMaps
       shell: bash
       env:
@@ -58,7 +60,9 @@ runs:
         SENTRY_RELEASE: ${{ github.sha }}
         SENTRY_FILTER: ${{ steps.list_sentry_integrations.outputs.filter }}
         GITHUB_SHA: ${{ github.sha }}
-      run: pnpm -r --stream $SENTRY_FILTER exec sentry-cli sourcemaps upload --release="$GITHUB_SHA" --url-prefix '~' .botpress/dist
+      run: |
+        # shellcheck disable=SC2086 # SENTRY_FILTER contains multiple space-separated -F flags that must be split into individual arguments
+        pnpm -r --stream $SENTRY_FILTER exec sentry-cli sourcemaps upload --release="$GITHUB_SHA" --url-prefix '~' .botpress/dist
     - name: Deploys Integrations
       shell: bash
       env:
