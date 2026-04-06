@@ -1,5 +1,4 @@
-import { RuntimeError } from '@botpress/sdk'
-import { z } from '@botpress/sdk'
+import { RuntimeError, z } from '@botpress/sdk'
 import axios from 'axios'
 import { backOff } from 'exponential-backoff'
 import * as bp from '.botpress'
