@@ -114,7 +114,7 @@ export class TablesPublisher {
 
     await api.client.updateTable({
       table: existingTable.name,
-      schema: sdk.transforms.toJSONSchemaLegacy(updatedTableDef.schema),
+      schema: sdk.z.transforms.toJSONSchemaLegacy(updatedTableDef.schema),
       frozen: updatedTableDef.frozen,
       tags: updatedTableDef.tags,
       isComputeEnabled: updatedTableDef.isComputeEnabled,
@@ -130,7 +130,7 @@ export class TablesPublisher {
     tableName: string
     tableDef: sdk.BotTableDefinition
   }): Promise<Record<string, sdk.z.infer<typeof schemas.columnSchema>>> {
-    const columns = sdk.transforms.toJSONSchemaLegacy(tableDef.schema).properties!
+    const columns = sdk.z.transforms.toJSONSchemaLegacy(tableDef.schema).properties!
 
     const validColumns = await Promise.all(
       Object.entries(columns).map(async ([columnName, columnSchema]) => {
@@ -172,7 +172,7 @@ export class TablesPublisher {
   }) {
     await api.client.createTable({
       name: tableName,
-      schema: sdk.transforms.toJSONSchemaLegacy(tableDef.schema),
+      schema: sdk.z.transforms.toJSONSchemaLegacy(tableDef.schema),
       frozen: tableDef.frozen,
       tags: tableDef.tags,
       factor: tableDef.factor,

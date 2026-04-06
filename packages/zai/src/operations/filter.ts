@@ -363,6 +363,7 @@ Zai.prototype.filter = function <T>(
     taskId: this.taskId,
     taskType: 'zai.filter',
     adapter: this.adapter,
+    memoizer: this._resolveMemoizer(),
   })
 
   return new Response<Array<T>>(context, filter(input, condition, _options, context), (result) => result)

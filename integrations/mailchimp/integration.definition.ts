@@ -16,7 +16,7 @@ const INTEGRATION_NAME = 'mailchimp'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   title: 'Mailchimp',
-  version: '0.3.7',
+  version: '0.3.12',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Send mass email campaigns from within your workflows. Manage customers, campaigns, lists and more.',
@@ -78,5 +78,9 @@ export default new IntegrationDefinition({
         schema: getAllCampaignsOutputSchema,
       },
     },
+  },
+  attributes: {
+    category: 'Marketing & Email',
+    repo: 'botpress',
   },
 })

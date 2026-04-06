@@ -6,6 +6,7 @@ import { messagesHandler } from './handlers/messages'
 import { oauthCallbackHandler } from './handlers/oauth'
 import { reactionHandler } from './handlers/reaction'
 import { isSandboxCommand, sandboxHandler } from './handlers/sandbox'
+import { statusHandler } from './handlers/status'
 import { subscribeHandler } from './handlers/subscribe'
 import * as bp from '.botpress'
 
@@ -61,6 +62,14 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
           await reactionHandler(message, props)
         } else {
           await messagesHandler(message, changes.value, props)
+        }
+      }
+      for (const status of changes.value.statuses ?? []) {
+        try {
+          await statusHandler(status, props)
+        } catch (thrown: unknown) {
+          const errMsg = thrown instanceof Error ? thrown.message : 'Unknown error thrown'
+          logger.forBot().error(`Failed to process WhatsApp status event: ${errMsg}`)
         }
       }
       break

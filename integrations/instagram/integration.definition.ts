@@ -5,7 +5,7 @@ import proactiveUser from 'bp_modules/proactive-user'
 import { dmChannelMessages } from './definitions/channel'
 
 export const INTEGRATION_NAME = 'instagram'
-export const INTEGRATION_VERSION = '4.1.6'
+export const INTEGRATION_VERSION = '4.1.8'
 
 const commonConfigSchema = z.object({
   replyToComments: z
@@ -223,6 +223,11 @@ export default new IntegrationDefinition({
         .title('Conversation')
         .describe('The conversation object fields'),
     },
+  },
+  attributes: {
+    category: 'Communication & Channels',
+    guideSlug: 'instagram',
+    repo: 'botpress',
   },
 })
   .extend(proactiveUser, ({ entities }) => ({

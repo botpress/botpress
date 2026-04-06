@@ -1,7 +1,7 @@
 import { collectableGenerator } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 import * as SlackWebApi from '@slack/web-api'
-import { handleErrorsDecorator as handleErrors } from './error-handling'
+import { handleErrorsDecorator as handleErrors, surfaceSlackErrors } from './error-handling'
 import { SlackOAuthClient } from './slack-oauth-client'
 import { requiresAllScopesDecorator as requireAllScopes } from './slack-scopes'
 import * as bp from '.botpress'
@@ -36,8 +36,29 @@ export class SlackClient {
     ctx: bp.Context
     logger: bp.Logger
   }) {
+    if (ctx.configurationType === 'manifestAppCredentials') {
+      const {
+        state: {
+          payload: { clientId, clientSecret },
+        },
+      } = await client.getState({
+        type: 'integration',
+        name: 'manifestAppCredentials',
+        id: ctx.integrationId,
+      })
+      if (!clientId || !clientSecret) {
+        throw new sdk.RuntimeError('Client ID or Client Secret not found, please re-run the authorization wizard')
+      }
+      const oAuthClient = new SlackOAuthClient({
+        ctx,
+        client,
+        logger,
+        clientIdOverride: clientId,
+        clientSecretOverride: clientSecret,
+      })
+      return await SlackClient._createNewInstance({ logger, oAuthClient })
+    }
     const oAuthClient = new SlackOAuthClient({ ctx, client, logger })
-
     return await SlackClient._createNewInstance({ logger, oAuthClient })
   }
 
@@ -52,6 +73,35 @@ export class SlackClient {
     logger: bp.Logger
     authorizationCode: string
   }) {
+    if (ctx.configurationType === 'manifestAppCredentials') {
+      const {
+        state: {
+          payload: { clientId, clientSecret, authorizeUrl },
+        },
+      } = await client.getState({
+        type: 'integration',
+        name: 'manifestAppCredentials',
+        id: ctx.integrationId,
+      })
+      if (!clientId || !clientSecret || !authorizeUrl) {
+        throw new sdk.RuntimeError('Client ID or Client Secret not found, please re-run the authorization wizard')
+      }
+      const oAuthClient = new SlackOAuthClient({
+        ctx,
+        client,
+        logger,
+        clientIdOverride: clientId,
+        clientSecretOverride: clientSecret,
+      })
+      const redirectUri = new URL(authorizeUrl).searchParams.get('redirect_uri')
+      if (!redirectUri) {
+        throw new sdk.RuntimeError('Could not retreive redirect uri, please re-run the authorization wizard')
+      }
+      await oAuthClient.requestShortLivedCredentials.fromAuthorizationCode(authorizationCode, redirectUri!)
+
+      return await SlackClient._createNewInstance({ logger, oAuthClient })
+    }
+
     const oAuthClient = new SlackOAuthClient({ ctx, client, logger })
     await oAuthClient.requestShortLivedCredentials.fromAuthorizationCode(authorizationCode)
 
@@ -108,7 +158,10 @@ export class SlackClient {
 
   @handleErrors('Failed to validate Slack authentication')
   public async testAuthentication() {
-    this._surfaceSlackErrors(await this._slackWebClient.auth.test())
+    surfaceSlackErrors({
+      logger: this._logger,
+      response: await this._slackWebClient.auth.test(),
+    })
   }
 
   public getBotUserId(): string {
@@ -172,12 +225,13 @@ export class SlackClient {
     let resultCount = 0
 
     do {
-      const { members, response_metadata } = this._surfaceSlackErrors(
-        await this._slackWebClient.users.list({
+      const { members, response_metadata } = surfaceSlackErrors({
+        logger: this._logger,
+        response: await this._slackWebClient.users.list({
           cursor,
           limit: 200,
-        })
-      )
+        }),
+      })
 
       for (const member of members ?? []) {
         if (limit && resultCount++ > limit) {
@@ -201,14 +255,15 @@ export class SlackClient {
     let resultCount = 0
 
     do {
-      const { channels, response_metadata } = this._surfaceSlackErrors(
-        await this._slackWebClient.conversations.list({
+      const { channels, response_metadata } = surfaceSlackErrors({
+        logger: this._logger,
+        response: await this._slackWebClient.conversations.list({
           exclude_archived: true,
           cursor,
           limit: 200,
           types: 'public_channel',
-        })
-      )
+        }),
+      })
 
       for (const channel of channels ?? []) {
         if (limit && resultCount++ > limit) {
@@ -224,14 +279,15 @@ export class SlackClient {
   @requireAllScopes(['channels:history', 'groups:history', 'im:history', 'mpim:history'])
   @handleErrors('Failed to retrieve message')
   public async retrieveMessage({ channel, messageTs }: { channel: string; messageTs: string }) {
-    const { messages } = this._surfaceSlackErrors(
-      await this._slackWebClient.conversations.history({
+    const { messages } = surfaceSlackErrors({
+      logger: this._logger,
+      response: await this._slackWebClient.conversations.history({
         channel,
         limit: 1,
         inclusive: true,
         latest: messageTs,
-      })
-    )
+      }),
+    })
 
     const message = messages?.[0]
 
@@ -245,11 +301,12 @@ export class SlackClient {
   @requireAllScopes(['im:write'])
   @handleErrors('Failed to start DM with user')
   public async startDmWithUser(userId: string) {
-    const { channel } = this._surfaceSlackErrors(
-      await this._slackWebClient.conversations.open({
+    const { channel } = surfaceSlackErrors({
+      logger: this._logger,
+      response: await this._slackWebClient.conversations.open({
         users: userId,
-      })
-    )
+      }),
+    })
 
     const dmChannelId = channel?.id
 
@@ -295,8 +352,9 @@ export class SlackClient {
     username?: string
     iconUrl?: string
   }) {
-    const response = this._surfaceSlackErrors(
-      await this._slackWebClient.chat.postMessage({
+    const response = surfaceSlackErrors({
+      logger: this._logger,
+      response: await this._slackWebClient.chat.postMessage({
         channel: channelId,
         text,
         thread_ts: threadTs,
@@ -304,8 +362,8 @@ export class SlackClient {
         as_user: true,
         username,
         icon_url: iconUrl,
-      })
-    )
+      }),
+    })
 
     return response.message
   }
@@ -313,50 +371,68 @@ export class SlackClient {
   @requireAllScopes(['users:read'])
   @handleErrors('Failed to retrieve user profile')
   public async getUserProfile({ userId }: { userId: string }) {
-    const response = this._surfaceSlackErrors(
-      await this._slackWebClient.users.profile.get({
+    const response = surfaceSlackErrors({
+      logger: this._logger,
+      response: await this._slackWebClient.users.profile.get({
         user: userId,
-      })
-    )
+      }),
+    })
 
     return response.profile
   }
 
   @requireAllScopes(['channels:read', 'chat:write'])
-  @handleErrors('Failed to retrieve user profile')
+  @handleErrors('Failed to retrieve channel info')
   public async getChannelInfo({ channelName }: { channelName: string }) {
-    const allChannels: SlackWebApi.ConversationsListResponse['channels'] = []
     for await (const page of this._slackWebClient.paginate('conversations.list', {
       types: 'public_channel,private_channel',
       exclude_archived: true,
       limit: 200,
     }) as AsyncIterable<SlackWebApi.ConversationsListResponse>) {
-      if (page.channels) {
-        allChannels.push(...page.channels)
-      }
-    }
-    for (const channel of allChannels) {
-      if (channel.name === channelName) {
-        return channel
+      const found = page.channels?.find((ch) => ch.name === channelName)
+      if (found) {
+        return found
       }
     }
 
     return undefined
   }
 
-  private _surfaceSlackErrors<TResponse extends SlackWebApi.WebAPICallResult>(response: TResponse): TResponse {
-    if (response.response_metadata?.warnings?.length) {
-      this._logger.forBot().warn('Slack API emitted warnings', response.response_metadata.warnings)
-    }
+  @requireAllScopes(['channels:read', 'chat:write'])
+  @handleErrors('Failed to retrieve channels info')
+  public async getChannelsInfo({
+    includeArchived,
+    includePrivate,
+    cursor,
+  }: {
+    includeArchived?: boolean
+    includePrivate?: boolean
+    cursor?: string
+  }) {
+    const types = includePrivate ? 'public_channel,private_channel' : 'public_channel'
+    const response = surfaceSlackErrors({
+      logger: this._logger,
+      response: await this._slackWebClient.conversations.list({
+        types,
+        exclude_archived: !includeArchived,
+        limit: 200,
+        cursor,
+      }),
+    })
 
-    if (response.error) {
-      throw new sdk.RuntimeError(`Slack API error: ${response.error}`)
+    return {
+      channels: (response.channels ?? []).map((ch) => ({
+        id: ch.id ?? '',
+        name: ch.name ?? '',
+        topic: ch.topic?.value ?? '',
+        purpose: ch.purpose?.value ?? '',
+        numMembers: ch.num_members ?? 0,
+        isPrivate: ch.is_private ?? false,
+        isArchived: ch.is_archived ?? false,
+        creator: ch.creator ?? '',
+        created: ch.created ?? 0,
+      })),
+      nextCursor: response.response_metadata?.next_cursor || undefined,
     }
-
-    if (!response.ok) {
-      throw new sdk.RuntimeError('Slack API returned an unspecified error')
-    }
-
-    return response
   }
 }
