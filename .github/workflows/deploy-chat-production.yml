@@ -69,3 +69,16 @@ jobs:
           pnpm -F @botpresshub/chat -c exec -- \
             bp deploy -v -y --noBuild --visibility public --allowDeprecated \
             --url "http://chat.private:9271"
+
+  ping-success:
+    needs: [deploy-chat-production, update-integration-url]
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl -m 10 --retry 5 ${{ secrets.CHAT_DEPLOY_PRODUCTION_PING_URL }}
+
+  ping-failure:
+    needs: [deploy-chat-production, update-integration-url]
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl -m 10 --retry 5 ${{ secrets.CHAT_DEPLOY_PRODUCTION_PING_URL }}/fail
