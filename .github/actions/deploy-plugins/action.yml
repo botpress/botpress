@@ -30,15 +30,13 @@ runs:
   using: 'composite'
   steps:
     - name: Deploys Plugins
-      env:
-        ENVIRONMENT: ${{ inputs.environment }}
-        TOKEN_CLOUD_OPS_ACCOUNT: ${{ inputs.token_cloud_ops_account }}
-        CLOUD_OPS_WORKSPACE_ID: ${{ inputs.cloud_ops_workspace_id }}
       shell: bash
       env:
         INPUT_ENVIRONMENT: ${{ inputs.environment }}
         INPUT_FORCE: ${{ inputs.force }}
         INPUT_EXTRA_FILTER: ${{ inputs.extra_filter }}
+        TOKEN_CLOUD_OPS_ACCOUNT: ${{ inputs.token_cloud_ops_account }}
+        CLOUD_OPS_WORKSPACE_ID: ${{ inputs.cloud_ops_workspace_id }}
       run: |
         if [ "$INPUT_ENVIRONMENT" = "staging" ]; then
           api_url="https://api.botpress.dev"
@@ -58,7 +56,7 @@ runs:
         else
           redeploy=0
         fi
-        
+
         all_filters="-F '{plugins/*}' $INPUT_EXTRA_FILTER"
         list_plugins_cmd="pnpm list $all_filters --json"
         plugin_paths=$(eval "$list_plugins_cmd" | jq -r 'map(".path") | .[]')
@@ -68,7 +66,7 @@ runs:
             exists=$(./.github/scripts/plugin-exists.sh "$plugin")
 
             base_command="bp deploy -v -y --visibility public"
-            
+
             if [ "$exists" -eq 0 ]; then
                 echo -e "\nDeploying plugin: ### $plugin ###\n"
                 pnpm retry -n 2 -- pnpm -F "{plugins/$plugin}" -c exec -- "$base_command"

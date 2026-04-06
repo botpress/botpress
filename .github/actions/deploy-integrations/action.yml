@@ -60,18 +60,16 @@ runs:
         GITHUB_SHA: ${{ github.sha }}
       run: pnpm -r --stream "$SENTRY_FILTER" exec sentry-cli sourcemaps upload --release="$GITHUB_SHA" --url-prefix '~' .botpress/dist
     - name: Deploys Integrations
-      env:
-        ENVIRONMENT: ${{ inputs.environment }}
-        TOKEN_CLOUD_OPS_ACCOUNT: ${{ inputs.token_cloud_ops_account }}
-        CLOUD_OPS_WORKSPACE_ID: ${{ inputs.cloud_ops_workspace_id }}
-        SENTRY_RELEASE: ${{ github.sha }}
-        SENTRY_ENVIRONMENT: ${{ inputs.environment }}
       shell: bash
       env:
         INPUT_ENVIRONMENT: ${{ inputs.environment }}
         INPUT_FORCE: ${{ inputs.force }}
         INPUT_DRY_RUN: ${{ inputs.dry_run }}
         INPUT_EXTRA_FILTER: ${{ inputs.extra_filter }}
+        TOKEN_CLOUD_OPS_ACCOUNT: ${{ inputs.token_cloud_ops_account }}
+        CLOUD_OPS_WORKSPACE_ID: ${{ inputs.cloud_ops_workspace_id }}
+        SENTRY_RELEASE: ${{ github.sha }}
+        SENTRY_ENVIRONMENT: ${{ inputs.environment }}
       run: |
         if [ "$INPUT_ENVIRONMENT" = "staging" ]; then
           api_url="https://api.botpress.dev"
@@ -91,7 +89,7 @@ runs:
         else
           redeploy=0
         fi
-        
+
         if [ "$INPUT_DRY_RUN" = "true" ]; then
           dryrun="--dryRun"
           is_dry_run=1
@@ -99,7 +97,7 @@ runs:
           dryrun=""
           is_dry_run=0
         fi
-        
+
         all_filters="-F '{integrations/*}' $INPUT_EXTRA_FILTER"
         list_integrations_cmd="pnpm list $all_filters --json"
         integration_paths=$(eval "$list_integrations_cmd" | jq -r 'map(".path") | .[]')

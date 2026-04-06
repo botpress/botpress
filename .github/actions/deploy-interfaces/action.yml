@@ -30,15 +30,13 @@ runs:
   using: 'composite'
   steps:
     - name: Deploys Interfaces
-      env:
-        ENVIRONMENT: ${{ inputs.environment }}
-        TOKEN_CLOUD_OPS_ACCOUNT: ${{ inputs.token_cloud_ops_account }}
-        CLOUD_OPS_WORKSPACE_ID: ${{ inputs.cloud_ops_workspace_id }}
       shell: bash
       env:
         INPUT_ENVIRONMENT: ${{ inputs.environment }}
         INPUT_FORCE: ${{ inputs.force }}
         INPUT_EXTRA_FILTER: ${{ inputs.extra_filter }}
+        TOKEN_CLOUD_OPS_ACCOUNT: ${{ inputs.token_cloud_ops_account }}
+        CLOUD_OPS_WORKSPACE_ID: ${{ inputs.cloud_ops_workspace_id }}
       run: |
         if [ "$INPUT_ENVIRONMENT" = "staging" ]; then
           api_url="https://api.botpress.dev"
@@ -58,7 +56,7 @@ runs:
         else
           redeploy=0
         fi
-        
+
         all_filters="-F '{interfaces/*}' $INPUT_EXTRA_FILTER"
         list_interfaces_cmd="pnpm list $all_filters --json"
         interface_paths=$(eval "$list_interfaces_cmd" | jq -r 'map(".path") | .[]')

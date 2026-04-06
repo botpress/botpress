@@ -16,4 +16,3 @@ jobs:
         uses: actions/checkout@v4
       - name: Check shell scripts
         uses: botpress/gh-actions/check-shells@v3
-
