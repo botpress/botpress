@@ -299,7 +299,9 @@ const initIntegration = async (props: TestProps, integrationName: string) => {
     ...creds,
   }
   const integrationDir = pathlib.join(tmpDir, integrationName)
-  await impl.init({ ...argv, workDir: tmpDir, name: integrationName, type: 'integration', template: 'empty' }).then(utils.handleExitCode)
+  await impl
+    .init({ ...argv, workDir: tmpDir, name: integrationName, type: 'integration', template: 'empty' })
+    .then(utils.handleExitCode)
   await utils.fixBotpressDependencies({ workDir: integrationDir, target: dependencies })
   await utils.npmInstall({ workDir: integrationDir }).then(utils.handleExitCode)
   return { integrationDir }
@@ -320,13 +322,20 @@ export const addLocalIntegrationKeepsRelativePath: Test = {
     const { integrationDir } = await initIntegration(props, integrationName)
 
     logger.info('Initializing bot')
-    const { botDir } = await initBot(props, 'import * as sdk from "@botpress/sdk"\nexport default new sdk.BotDefinition({})')
+    const { botDir } = await initBot(
+      props,
+      'import * as sdk from "@botpress/sdk"\nexport default new sdk.BotDefinition({})'
+    )
 
     const relativeIntegrationPath = pathlib.relative(process.cwd(), integrationDir)
-    const integrationPathRef = relativeIntegrationPath.startsWith('.') ? relativeIntegrationPath : `./${relativeIntegrationPath}`
+    const integrationPathRef = relativeIntegrationPath.startsWith('.')
+      ? relativeIntegrationPath
+      : `./${relativeIntegrationPath}`
 
     logger.info('Adding local integration via relative path')
-    await impl.add({ ...argv, installPath: botDir, packageRef: integrationPathRef, useDev: false, alias: undefined }).then(utils.handleExitCode)
+    await impl
+      .add({ ...argv, installPath: botDir, packageRef: integrationPathRef, useDev: false, alias: undefined })
+      .then(utils.handleExitCode)
 
     const pkgJson = JSON.parse(fslib.readFileSync(pathlib.join(botDir, 'package.json'), 'utf8'))
     const bpDeps = pkgJson.bpDependencies as Record<string, string> | undefined
@@ -357,21 +366,33 @@ export const addDevIntegrationSkipsBpDependencies: Test = {
     // Simulate a dev integration by writing a devId to the project cache
     const cacheDir = pathlib.join(integrationDir, '.botpress')
     fslib.mkdirSync(cacheDir, { recursive: true })
-    fslib.writeFileSync(pathlib.join(cacheDir, 'project.cache.json'), JSON.stringify({ devId: 'fake-dev-integration-id' }))
+    fslib.writeFileSync(
+      pathlib.join(cacheDir, 'project.cache.json'),
+      JSON.stringify({ devId: 'fake-dev-integration-id' })
+    )
 
     logger.info('Initializing bot')
-    const { botDir } = await initBot(props, 'import * as sdk from "@botpress/sdk"\nexport default new sdk.BotDefinition({})')
+    const { botDir } = await initBot(
+      props,
+      'import * as sdk from "@botpress/sdk"\nexport default new sdk.BotDefinition({})'
+    )
 
     const relativeIntegrationPath = pathlib.relative(process.cwd(), integrationDir)
-    const integrationPathRef = relativeIntegrationPath.startsWith('.') ? relativeIntegrationPath : `./${relativeIntegrationPath}`
+    const integrationPathRef = relativeIntegrationPath.startsWith('.')
+      ? relativeIntegrationPath
+      : `./${relativeIntegrationPath}`
 
     logger.info('Adding dev integration')
-    await impl.add({ ...argv, installPath: botDir, packageRef: integrationPathRef, useDev: true, alias: undefined }).then(utils.handleExitCode)
+    await impl
+      .add({ ...argv, installPath: botDir, packageRef: integrationPathRef, useDev: true, alias: undefined })
+      .then(utils.handleExitCode)
 
     const pkgJson = JSON.parse(fslib.readFileSync(pathlib.join(botDir, 'package.json'), 'utf8'))
     const bpDeps = pkgJson.bpDependencies as Record<string, string> | undefined
     if (bpDeps?.[integrationName] !== undefined) {
-      throw new Error(`Expected "${integrationName}" to NOT be in bpDependencies when using --use-dev, but got: ${JSON.stringify(bpDeps)}`)
+      throw new Error(
+        `Expected "${integrationName}" to NOT be in bpDependencies when using --use-dev, but got: ${JSON.stringify(bpDeps)}`
+      )
     }
   },
 }
