@@ -1,10 +1,10 @@
-import crypto from 'crypto'
 import { RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
-import * as bp from '.botpress'
+import crypto from 'crypto'
 import { ZoomClient } from '../client'
 import { zoomWebhookSchema, TranscriptCompletedPayload } from '../types'
 import { cleanVtt } from '../utils'
+import * as bp from '.botpress'
 
 const handleTranscriptCompleted = async ({
   payload,
@@ -71,7 +71,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
     const parsed = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
     const validation = zoomWebhookSchema.safeParse(parsed)
     if (!validation.success) {
-      logger.forBot().error('Invalid webhook body format')
+      logger.forBot().error(`Invalid webhook body format: ${validation.error.message}`)
       return { status: 400, body: 'Invalid request body format' }
     }
 
