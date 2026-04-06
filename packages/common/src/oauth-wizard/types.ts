@@ -16,7 +16,7 @@ export type WizardStep<THandlerProps extends HandlerProps> = {
 export type WizardStepInputProps = {
   selectedChoice?: string
   inputValue?: string
-  formValues?: Record<string, string>
+  formValues?: Record<string, string | number | boolean>
   query: URLSearchParams
   responses: {
     redirectToStep: (stepId: string) => Response
@@ -49,15 +49,18 @@ export type WizardStepInputProps = {
       }
       nextStepId: string
     }) => Response
-    displayForm: (props: {
+    displayForm: <T extends z.ZodObject>(props: {
       pageTitle: string
       htmlOrMarkdownPageContents: string
-      schema: z.AnyZodObject
+      schema: T
       nextStepId: string
-      errors?: Record<string, string>
-      previousValues?: Record<string, string>
+      errors?: z.ZodError<T['_def']>
+      previousValues?: T['_input']
     }) => Response
-    displayCustom: (props: { pageTitle: string; body: (nextStepUrl: URL) => VNode; nextStepId: string }) => Response
+    displayCustom: (props: {
+      pageTitle: string
+      body: VNode
+    }) => Response
     endWizard: (result: { success: true } | { success: false; errorMessage: string }) => Response
   }
 }

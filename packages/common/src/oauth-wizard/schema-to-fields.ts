@@ -1,9 +1,25 @@
 import { z } from '@botpress/sdk'
 
+export type HtmlInputType =
+  | 'text'
+  | 'number'
+  | 'email'
+  | 'password'
+  | 'url'
+  | 'date'
+  | 'time'
+  | 'color'
+  | 'checkbox'
+  | 'radio'
+  | 'select'
+  | 'textarea'
+  | 'hidden'
+
 export type FormFieldDescriptor = {
   name: string
   label: string
-  inputType: 'text' | 'number' | 'email' | 'password' | 'url' | 'checkbox' | 'select'
+  inputType: HtmlInputType
+  displayAsParams: Record<string, unknown>
   placeholder?: string
   required: boolean
   disabled: boolean
@@ -15,66 +31,50 @@ export type FormFieldDescriptor = {
   previousValue?: string
 }
 
-function getTypeName(schema: z.ZodTypeAny): string {
-  return (schema._def as { typeName?: string }).typeName ?? ''
+type ZuiMetadata = {
+  displayAs?: [string, Record<string, unknown>]
+  title?: string
+  placeholder?: string
+  hidden?: boolean | string
+  disabled?: boolean | string
 }
 
-function extractDefaultValue(schema: z.ZodTypeAny): string | undefined {
-  let current = schema
-  while (true) {
-    if (getTypeName(current) === 'ZodDefault') {
-      const def = current._def as { defaultValue: () => unknown }
-      return String(def.defaultValue())
-    }
-    const innerType = (current._def as { innerType?: z.ZodTypeAny }).innerType
-    if (!innerType) {
-      return undefined
-    }
-    current = innerType
-  }
+const DISPLAY_AS_TO_HTML: Record<string, HtmlInputType> = {
+  switch: 'checkbox',
+  checkbox: 'checkbox',
+  radiogroup: 'radio',
+  dropdown: 'select',
+  select: 'select',
+  password: 'password',
+  secret: 'password',
+  number: 'number',
+  email: 'email',
+  url: 'url',
+  date: 'date',
+  time: 'time',
+  color: 'color',
+  hidden: 'hidden',
+  textarea: 'textarea',
 }
 
-function resolveInputType(
-  schema: z.ZodTypeAny,
-  meta: Record<string, unknown>
-): { inputType: FormFieldDescriptor['inputType']; options?: { label: string; value: string }[] } {
-  const typeName = getTypeName(schema)
-
-  if (typeName === 'ZodBoolean') {
-    return { inputType: 'checkbox' }
-  }
-
-  if (typeName === 'ZodNumber') {
-    return { inputType: 'number' }
-  }
-
-  if (typeName === 'ZodEnum') {
-    const values = (schema._def as { values: string[] }).values
-    return {
-      inputType: 'select',
-      options: values.map((v) => ({ label: v, value: v })),
+function resolveHtmlInputType(displayAsId: string | undefined, naked: z.ZodType, hasEnum: boolean): HtmlInputType {
+  if (displayAsId) {
+    const mapped = DISPLAY_AS_TO_HTML[displayAsId]
+    if (mapped) {
+      return mapped
     }
   }
 
-  if (typeName === 'ZodString') {
-    if (meta.secret) {
-      return { inputType: 'password' }
-    }
-
-    const checks = (schema._def as { checks?: { kind: string }[] }).checks ?? []
-    for (const check of checks) {
-      if (check.kind === 'email') {
-        return { inputType: 'email' }
-      }
-      if (check.kind === 'url') {
-        return { inputType: 'url' }
-      }
-    }
-
-    return { inputType: 'text' }
+  if (hasEnum) {
+    return 'select'
   }
-
-  return { inputType: 'text' }
+  if (z.is.zuiBoolean(naked)) {
+    return 'checkbox'
+  }
+  if (z.is.zuiNumber(naked)) {
+    return 'number'
+  }
+  return 'text'
 }
 
 function capitalizeFieldName(name: string): string {
@@ -85,32 +85,53 @@ function capitalizeFieldName(name: string): string {
     .trim()
 }
 
-export function schemaToFieldDescriptors(
-  schema: z.AnyZodObject,
-  errors?: Record<string, string>,
-  previousValues?: Record<string, string>
+function findDefault(field: z.ZodType): unknown {
+  let current: z.ZodType = field
+  while (current) {
+    if (z.is.zuiDefault(current)) {
+      return current._def.defaultValue()
+    }
+    if ('innerType' in current._def) {
+      current = (current._def as { innerType: z.ZodType }).innerType
+    } else {
+      break
+    }
+  }
+  return undefined
+}
+
+export function schemaToFieldDescriptors<T extends z.ZodObject>(
+  schema: T,
+  errors?: z.ZodError<T['_def']>,
+  previousValues?: T['_input']
 ): FormFieldDescriptor[] {
-  const shape = schema.shape as Record<string, z.ZodTypeAny>
   const fields: FormFieldDescriptor[] = []
 
-  for (const [name, fieldSchema] of Object.entries(shape)) {
-    const inner = fieldSchema.naked()
-    const meta = inner.getMetadata()
-    const { inputType, options } = resolveInputType(inner, meta)
+  for (const [name, field] of Object.entries(schema.shape) as [string, z.ZodType][]) {
+    const zui = field._def[z.zuiKey] as ZuiMetadata | undefined
+    const naked = field.naked()
+    const displayAs = zui?.displayAs
+    const displayAsId = displayAs?.[0]
+    const displayAsParams = displayAs?.[1] ?? {}
+    const isEnum = z.is.zuiEnum(naked)
+    const options = isEnum ? (naked._def.values as string[]).map((v) => ({ label: v, value: v })) : undefined
+    const inputType = resolveHtmlInputType(displayAsId, naked, isEnum)
+    const defaultValue = findDefault(field)
 
     fields.push({
       name,
-      label: (meta.title as string) ?? capitalizeFieldName(name),
+      label: zui?.title ?? capitalizeFieldName(name),
       inputType,
-      placeholder: meta.placeholder as string | undefined,
-      required: !fieldSchema.isOptional(),
-      disabled: meta.disabled === true,
-      hidden: meta.hidden === true,
-      defaultValue: extractDefaultValue(fieldSchema),
+      displayAsParams,
+      placeholder: zui?.placeholder,
+      required: !field.isOptional(),
+      disabled: zui?.disabled === true,
+      hidden: zui?.hidden === true,
+      defaultValue: defaultValue != null ? String(defaultValue) : undefined,
       options,
-      description: inner._def.description as string | undefined,
-      error: errors?.[name],
-      previousValue: previousValues?.[name],
+      description: field._def.description as string | undefined,
+      error: errors?.issues.find((issue) => issue.path[0] === name)?.message,
+      previousValue: previousValues?.[name] != null ? String(previousValues[name]) : undefined,
     })
   }
 

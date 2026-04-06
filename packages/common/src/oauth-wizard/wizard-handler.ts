@@ -33,11 +33,31 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
       throw new sdk.RuntimeError(`Unknown step ID: ${stepId}`)
     }
 
-    const formValues: Record<string, string> = {}
+    const formValues: Record<string, string | number | boolean> = {}
     const formParams = this._handlerProps.req.body ? new URLSearchParams(this._handlerProps.req.body) : searchParams
     for (const [key, value] of formParams.entries()) {
       if (key.startsWith(consts.FORM_PARAM_PREFIX)) {
         formValues[key.slice(consts.FORM_PARAM_PREFIX.length)] = value
+      }
+    }
+
+    const rawSchemaJson = formParams.get(consts.FORM_SCHEMA_PARAM)
+    if (rawSchemaJson && Object.keys(formValues).length > 0) {
+      const jsonSchema = JSON.parse(rawSchemaJson) as { properties?: Record<string, { type?: string }> }
+      const coercedShape: Record<string, sdk.z.ZodType> = {}
+      for (const name of Object.keys(formValues)) {
+        const fieldType = jsonSchema.properties?.[name]?.type
+        if (fieldType === 'boolean') {
+          coercedShape[name] = sdk.z.coerce.boolean()
+        } else if (fieldType === 'number' || fieldType === 'integer') {
+          coercedShape[name] = sdk.z.coerce.number()
+        } else {
+          coercedShape[name] = sdk.z.coerce.string()
+        }
+      }
+      const coerced = sdk.z.object(coercedShape).safeParse(formValues)
+      if (coerced.success) {
+        Object.assign(formValues, coerced.data)
       }
     }
 
@@ -101,12 +121,13 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
             fields: schemaToFieldDescriptors(schema, errors, previousValues),
             extraHiddenParams: {
               state: this._handlerProps.ctx.webhookId,
+              [consts.FORM_SCHEMA_PARAM]: JSON.stringify(schema.toJSONSchema()),
             },
           }),
-        displayCustom: ({ pageTitle, body, nextStepId }) =>
+        displayCustom: ({ pageTitle, body }) =>
           htmlDialogs.generateRawHtmlDialog({
-            bodyHtml: preact.render(body(getWizardStepUrl(nextStepId, this._handlerProps.ctx))),
             pageTitle,
+            bodyHtml: preact.render(body),
           }),
         redirectToStep: (stepId) => htmlDialogs.generateRedirection(getWizardStepUrl(stepId, this._handlerProps.ctx)),
         redirectToExternalUrl: (url) => htmlDialogs.generateRedirection(new URL(url)),
