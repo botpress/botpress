@@ -13,7 +13,7 @@ import {
 } from './definitions'
 
 export const INTEGRATION_NAME = 'gsheets'
-export const INTEGRATION_VERSION = '2.1.6'
+export const INTEGRATION_VERSION = '2.1.8'
 
 export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -33,5 +33,7 @@ export default new sdk.IntegrationDefinition({
   user,
   attributes: {
     category: 'Project Management',
+    guideSlug: 'gsheets',
+    repo: 'botpress',
   },
 })

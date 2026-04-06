@@ -4,7 +4,8 @@ import { LinearWebhookClient } from '@linear/sdk/webhooks'
 import { fireIssueCreated } from './events/issueCreated'
 import { fireIssueDeleted } from './events/issueDeleted'
 import { fireIssueUpdated } from './events/issueUpdated'
-import { LinearEvent, handleOauth } from './misc/linear'
+import * as mapping from './files-readonly/mapping'
+import { LinearEvent, LinearIssueEvent, handleOauth } from './misc/linear'
 import { Result } from './misc/types'
 import { getLinearClient, getUserAndConversation } from './misc/utils'
 import * as bp from '.botpress'
@@ -44,16 +45,19 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
   // ============ EVENTS ==============
   if (linearEvent.type === 'issue' && (linearEvent.action === 'create' || linearEvent.action === 'restore')) {
     await fireIssueCreated({ linearEvent, client, ctx })
+    await _emitFileChangeEvent(client, logger, linearEvent, 'created')
     return
   }
 
   if (linearEvent.type === 'issue' && linearEvent.action === 'update') {
     await fireIssueUpdated({ linearEvent, client, ctx })
+    await _emitFileChangeEvent(client, logger, linearEvent, 'updated')
     return
   }
 
   if (linearEvent.type === 'issue' && linearEvent.action === 'remove') {
     await fireIssueDeleted({ linearEvent, client, ctx })
+    await _emitFileChangeEvent(client, logger, linearEvent, 'deleted')
     return
   }
 
@@ -134,4 +138,38 @@ const _getLinearBotId = async ({ client, ctx }: { client: bp.Client; ctx: bp.Con
   const linearClient = await getLinearClient({ client, ctx })
   const me = await linearClient.viewer
   return me.id
+}
+
+const _emitFileChangeEvent = async (
+  client: bp.Client,
+  logger: bp.Logger,
+  linearEvent: LinearIssueEvent,
+  changeType: 'created' | 'updated' | 'deleted'
+) => {
+  try {
+    const file = mapping.mapIssueToFile({
+      id: linearEvent.data.id,
+      identifier: `${linearEvent.data.team?.key ?? 'UNK'}-${linearEvent.data.number}`,
+      title: linearEvent.data.title,
+      description: linearEvent.data.description,
+      updatedAt: linearEvent.data.updatedAt ?? new Date().toISOString(),
+      teamKey: linearEvent.data.team?.key,
+    })
+
+    const emptyFiles: (typeof file)[] = []
+
+    await client.createEvent({
+      type: 'aggregateFileChanges',
+      payload: {
+        modifiedItems: {
+          created: changeType === 'created' ? [file] : emptyFiles,
+          updated: changeType === 'updated' ? [file] : emptyFiles,
+          deleted: changeType === 'deleted' ? [file] : emptyFiles,
+        },
+      },
+    })
+  } catch (thrown) {
+    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    logger.forBot().error('Failed to emit file-change event; swallowing to prevent webhook retries', errorMessage)
+  }
 }

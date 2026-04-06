@@ -1,4 +1,4 @@
-import { createClient } from 'src/api/sunshine-api'
+import { getSuncoClient } from 'src/client'
 import { getStoredCredentials } from 'src/get-stored-credentials'
 import * as bp from '.botpress'
 
@@ -8,8 +8,7 @@ export const getOrCreateConversation: bp.IntegrationProps['actions']['getOrCreat
   ctx,
 }) => {
   const credentials = await getStoredCredentials(client, ctx)
-  const suncoClient = createClient(credentials)
-  const suncoConversation = await suncoClient.conversations.getConversation(credentials.appId, input.conversation.id)
+  const suncoConversation = await getSuncoClient(credentials).getConversation(input.conversation.id)
 
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',

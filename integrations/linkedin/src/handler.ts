@@ -88,14 +88,11 @@ const handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProps
     logger,
   })
 
-  const linkedInUserId = oauthClient.getUserId()
-  const grantedScopes = oauthClient.getGrantedScopes()
-
-  logger.forBot().info(`Successfully authenticated LinkedIn user: ${linkedInUserId}`)
-  logger.forBot().info(`Granted scopes: ${grantedScopes.join(', ')}`)
+  logger.forBot().info(`Successfully authenticated LinkedIn user: ${oauthClient.getUserId()}`)
+  logger.forBot().info(`Granted scopes: ${oauthClient.getGrantedScopes().join(', ')}`)
 
   await client.configureIntegration({
-    identifier: linkedInUserId,
+    identifier: oauthClient.getUserId(),
   })
 
   return { status: 200 }

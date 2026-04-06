@@ -542,21 +542,18 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
 
   /**
    *
-   * @deprecated use z.transforms.toJSONSchema(schema) instead
    * @returns a JSON Schema equivalent to the Zui schema
    */
-  toJSONSchema(): transforms.json.Schema
+  toJSONSchema(opts?: Partial<transforms.JSONSchemaGenerationOptions>): transforms.json.Schema
 
   /**
-   * @deprecated use z.transforms.toTypescriptType(schema) instead
    * @param options generation options
    * @returns a string of the TypeScript type representing the schema
    */
-  toTypescriptType(opts?: transforms.TypescriptGenerationOptions): string
+  toTypescriptType(opts?: Partial<transforms.TypescriptGenerationOptions>): string
 
   /**
    *
-   * @deprecated use z.transforms.toTypescriptSchema(schema) instead
    * @param options generation options
    * @returns a typescript program (a string) that would construct the given schema if executed
    */

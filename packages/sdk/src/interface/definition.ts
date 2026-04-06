@@ -1,3 +1,4 @@
+import { SchemaTransformOptions } from '../common/types'
 import { ActionDefinition, ChannelDefinition, EntityDefinition, EventDefinition } from '../integration/definition'
 import * as utils from '../utils'
 import { SDK_VERSION } from '../version'
@@ -74,9 +75,7 @@ export type InterfaceDefinitionProps<
     [K in keyof TChannels]: GenericChannelDefinition<TEntities, TChannels[K]>
   }
 
-  __advanced?: {
-    useLegacyZuiTransformer?: boolean
-  }
+  __advanced?: SchemaTransformOptions
 }
 
 export class InterfaceDefinition<

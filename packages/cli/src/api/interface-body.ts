@@ -15,6 +15,7 @@ export const prepareCreateInterfaceBody = async (
         ...entity,
         schema: await utils.schema.mapZodToJsonSchema(entity, {
           useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
+          toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
         }),
       }))
     : {},
@@ -23,6 +24,7 @@ export const prepareCreateInterfaceBody = async (
         ...event,
         schema: await utils.schema.mapZodToJsonSchema(event, {
           useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
+          toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
         }),
       }))
     : {},
@@ -33,12 +35,14 @@ export const prepareCreateInterfaceBody = async (
           ...action.input,
           schema: await utils.schema.mapZodToJsonSchema(action.input, {
             useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
+            toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
           }),
         },
         output: {
           ...action.output,
           schema: await utils.schema.mapZodToJsonSchema(action.output, {
             useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
+            toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
           }),
         },
       }))
@@ -50,6 +54,7 @@ export const prepareCreateInterfaceBody = async (
           ...message,
           schema: await utils.schema.mapZodToJsonSchema(message, {
             useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
+            toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
           }),
         })),
       }))

@@ -1,5 +1,7 @@
 import { Table } from '@botpress/client'
+import { SchemaTransformOptions } from '../common/types'
 import * as consts from '../consts'
+import { DefinitionError } from '../errors'
 import { IntegrationPackage, PluginPackage } from '../package'
 import { PluginInterfaceExtension, PluginIntegrationExtension } from '../plugin'
 import { SchemaDefinition } from '../schema'
@@ -53,6 +55,11 @@ export type MessageDefinition = {
   tags?: Record<string, TagDefinition>
 }
 
+export type SecretDefinition = {
+  optional?: boolean
+  description?: string
+}
+
 export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[string]> = {
   title?: string
   description?: string
@@ -83,12 +90,12 @@ export type ResolvedIntegrationConfigInstance<I extends IntegrationPackage = Int
 } & (
   | {
       configurationType?: null
-      configuration: z.infer<NonNullable<I['definition']['configuration']>['schema']>
+      configuration: z.input<NonNullable<I['definition']['configuration']>['schema']>
     }
   | ValueOf<{
       [K in StringKeys<NonNullable<I['definition']['configurations']>>]: {
         configurationType: K
-        configuration: z.infer<NonNullable<I['definition']['configurations']>[K]['schema']>
+        configuration: z.input<NonNullable<I['definition']['configurations']>[K]['schema']>
       }
     }>
 )
@@ -100,7 +107,7 @@ type IntegrationConfigInstance<I extends IntegrationPackage = IntegrationPackage
 
 type _ResolvedPluginConfigInstance<P extends PluginPackage = PluginPackage> = {
   alias: string
-  configuration: z.infer<NonNullable<P['definition']['configuration']>['schema']>
+  configuration: z.input<NonNullable<P['definition']['configuration']>['schema']>
   interfaces: {
     [I in keyof NonNullable<P['definition']['interfaces']>]: PluginInterfaceExtension
   }
@@ -179,6 +186,8 @@ export type BotDefinitionProps<
     [K in keyof TTables]: TableDefinition<TTables[K]>
   }
 
+  secrets?: Record<string, SecretDefinition>
+
   /**
    * # EXPERIMENTAL
    * This API is experimental and may change in the future.
@@ -189,9 +198,7 @@ export type BotDefinitionProps<
 
   attributes?: Record<string, string>
 
-  __advanced?: {
-    useLegacyZuiTransformer?: boolean
-  }
+  __advanced?: SchemaTransformOptions
 }
 
 export class BotDefinition<
@@ -212,6 +219,7 @@ export class BotDefinition<
   public readonly recurringEvents: this['props']['recurringEvents']
   public readonly actions: this['props']['actions']
   public readonly tables: this['props']['tables']
+  public readonly secrets: this['props']['secrets']
   public readonly workflows: this['props']['workflows']
   public readonly attributes: this['props']['attributes']
   public readonly __advanced: this['props']['__advanced']
@@ -234,6 +242,7 @@ export class BotDefinition<
     this.recurringEvents = props.recurringEvents
     this.actions = props.actions
     this.tables = props.tables
+    this.secrets = props.secrets
     this.workflows = props.workflows
     this.attributes = props.attributes
     this.__advanced = props.__advanced
@@ -264,15 +273,28 @@ export class BotDefinition<
     const integrationAlias = config?.alias ?? integrationPkg.name
 
     if (self.integrations[integrationAlias]) {
-      throw new Error(`Another integration with alias "${integrationAlias}" is already installed in the bot`)
+      throw new DefinitionError(`Another integration with alias "${integrationAlias}" is already installed in the bot`)
     }
+
+    const configurationType = config && 'configurationType' in config ? config.configurationType : undefined
+    const rawConfiguration = config && 'configuration' in config ? (config.configuration ?? {}) : {}
+
+    const configSchema = configurationType
+      ? integrationPkg.definition.configurations?.[configurationType]?.schema
+      : integrationPkg.definition.configuration?.schema
+
+    // Use safeParse to avoid throwing on validation errors at definition time (e.g. genenv placeholders
+    // or extra keys in catchall(z.never()) schemas). Spread rawConfiguration first to preserve unknown
+    // keys, then overlay the parsed result so that z.default() values are applied for omitted fields.
+    const parseResult = configSchema ? configSchema.safeParse(rawConfiguration) : null
+    const configuration = parseResult?.success ? { ...rawConfiguration, ...parseResult.data } : rawConfiguration
 
     self.integrations[integrationAlias] = {
       ...integrationPkg,
       alias: integrationAlias,
       enabled: config?.enabled,
-      configurationType: config && 'configurationType' in config ? config.configurationType : undefined,
-      configuration: config && 'configuration' in config ? (config.configuration ?? {}) : {},
+      configurationType,
+      configuration,
       disabledChannels: config?.disabledChannels,
     }
     return this
@@ -287,7 +309,7 @@ export class BotDefinition<
     const pluginAlias = config.alias ?? pluginPkg.name
 
     if (self.plugins[pluginAlias]) {
-      throw new Error(`Another plugin with alias "${pluginAlias}" is already installed in the bot`)
+      throw new DefinitionError(`Another plugin with alias "${pluginAlias}" is already installed in the bot`)
     }
     // Resolve backing integrations for plugin interfaces:
     const interfaces: Record<string, PluginInterfaceExtension> = Object.fromEntries(
@@ -299,7 +321,7 @@ export class BotDefinition<
           if (!integrationInstance) {
             const availableIntegrations = Object.keys(this.integrations ?? {}).join(', ') || '(none)'
 
-            throw new Error(
+            throw new DefinitionError(
               `Interface with alias "${pluginIfaceAlias}" of plugin with alias "${pluginAlias}" ` +
                 `references integration with alias "${pluginIfaceConfig.integrationAlias}" which is not installed. ` +
                 'Please make sure to add the integration via addIntegration() before calling addPlugin().\n' +
@@ -314,7 +336,7 @@ export class BotDefinition<
             const availableInterfaces =
               Object.keys(integrationInstance.definition.interfaces ?? {}).join(', ') || '(none)'
 
-            throw new Error(
+            throw new DefinitionError(
               `Interface with alias "${pluginIfaceConfig.integrationInterfaceAlias}" does not exist in integration ` +
                 `"${integrationInstance.name}" referenced by interface with alias "${pluginIfaceAlias}" of plugin ` +
                 `with alias "${pluginAlias}".\nAvailable interface aliases: ${availableInterfaces}`
@@ -359,10 +381,20 @@ export class BotDefinition<
         })
     )
 
+    const rawPluginConfiguration = config.configuration ?? {}
+    const pluginConfigSchema = pluginPkg.definition.configuration?.schema
+    // Use safeParse to avoid throwing on validation errors at definition time (e.g. genenv placeholders
+    // or extra keys in catchall(z.never()) schemas). Spread rawPluginConfiguration first to preserve
+    // unknown keys, then overlay the parsed result so that z.default() values are applied for omitted fields.
+    const pluginParseResult = pluginConfigSchema ? pluginConfigSchema.safeParse(rawPluginConfiguration) : null
+    const pluginConfiguration = pluginParseResult?.success
+      ? { ...rawPluginConfiguration, ...pluginParseResult.data }
+      : rawPluginConfiguration
+
     self.plugins[pluginAlias] = {
       ...pluginPkg,
       alias: pluginAlias,
-      configuration: config.configuration ?? {},
+      configuration: pluginConfiguration,
       interfaces,
       integrations,
     }
@@ -554,7 +586,7 @@ export class BotDefinition<
         const backingIntegration = this.integrations?.[pluginInterfaceExtension.integrationAlias]
 
         if (!backingIntegration) {
-          throw new Error(
+          throw new DefinitionError(
             `Interface with alias "${interfaceAlias}" of plugin with alias "${pluginAlias}" references integration "${pluginInterfaceExtension.name}" which is not installed`
           )
         }

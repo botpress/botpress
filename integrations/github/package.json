@@ -21,5 +21,8 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@sentry/cli": "^2.39.1"
+  },
+  "bpDependencies": {
+    "files-readonly": "../../interfaces/files-readonly"
   }
 }

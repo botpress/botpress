@@ -95,6 +95,7 @@ export const markdown = {
 export const markdownBloc = {
   schema: z.object({
     items: z.array(
+      // TODO: replace by a discriminated union
       z.union([
         //
         ...blocItemSchema.options,
