@@ -289,3 +289,89 @@ export const addPlugin: Test = {
 
 const fetchBot = async (client: client.Client, botName: string): Promise<ApiBot | undefined> =>
   await fetchAllBots(client).then((bots) => bots.find(({ name }) => name === botName))
+
+const initIntegration = async (props: TestProps, integrationName: string) => {
+  const { tmpDir, dependencies, ...creds } = props
+  const argv = {
+    ...defaults,
+    botpressHome: getHomeDir({ tmpDir }),
+    confirm: true,
+    ...creds,
+  }
+  const integrationDir = pathlib.join(tmpDir, integrationName)
+  await impl.init({ ...argv, workDir: tmpDir, name: integrationName, type: 'integration', template: 'empty' }).then(utils.handleExitCode)
+  await utils.fixBotpressDependencies({ workDir: integrationDir, target: dependencies })
+  await utils.npmInstall({ workDir: integrationDir }).then(utils.handleExitCode)
+  return { integrationDir }
+}
+
+export const addLocalIntegrationKeepsRelativePath: Test = {
+  name: 'cli should store the original relative path in bpDependencies when adding a local integration',
+  handler: async (props) => {
+    const { tmpDir, logger, ...creds } = props
+    const argv = {
+      ...defaults,
+      botpressHome: getHomeDir({ tmpDir }),
+      confirm: true,
+      ...creds,
+    }
+
+    const integrationName = `myintegration${utils.getUUID()}`
+    const { integrationDir } = await initIntegration(props, integrationName)
+
+    logger.info('Initializing bot')
+    const { botDir } = await initBot(props, 'import * as sdk from "@botpress/sdk"\nexport default new sdk.BotDefinition({})')
+
+    const relativeIntegrationPath = pathlib.relative(process.cwd(), integrationDir)
+    const integrationPathRef = relativeIntegrationPath.startsWith('.') ? relativeIntegrationPath : `./${relativeIntegrationPath}`
+
+    logger.info('Adding local integration via relative path')
+    await impl.add({ ...argv, installPath: botDir, packageRef: integrationPathRef, useDev: false, alias: undefined }).then(utils.handleExitCode)
+
+    const pkgJson = JSON.parse(fslib.readFileSync(pathlib.join(botDir, 'package.json'), 'utf8'))
+    const bpDeps = pkgJson.bpDependencies as Record<string, string> | undefined
+    if (!bpDeps) {
+      throw new Error('Expected bpDependencies to be set in package.json after bp add')
+    }
+    const storedPath = bpDeps[integrationName]
+    if (storedPath !== integrationPathRef) {
+      throw new Error(`Expected bpDependencies to store "${integrationPathRef}" but got "${storedPath}"`)
+    }
+  },
+}
+
+export const addDevIntegrationSkipsBpDependencies: Test = {
+  name: 'cli should not modify bpDependencies when adding a local integration with --use-dev',
+  handler: async (props) => {
+    const { tmpDir, logger, ...creds } = props
+    const argv = {
+      ...defaults,
+      botpressHome: getHomeDir({ tmpDir }),
+      confirm: true,
+      ...creds,
+    }
+
+    const integrationName = `myintegration${utils.getUUID()}`
+    const { integrationDir } = await initIntegration(props, integrationName)
+
+    // Simulate a dev integration by writing a devId to the project cache
+    const cacheDir = pathlib.join(integrationDir, '.botpress')
+    fslib.mkdirSync(cacheDir, { recursive: true })
+    fslib.writeFileSync(pathlib.join(cacheDir, 'project.cache.json'), JSON.stringify({ devId: 'fake-dev-integration-id' }))
+
+    logger.info('Initializing bot')
+    const { botDir } = await initBot(props, 'import * as sdk from "@botpress/sdk"\nexport default new sdk.BotDefinition({})')
+
+    const relativeIntegrationPath = pathlib.relative(process.cwd(), integrationDir)
+    const integrationPathRef = relativeIntegrationPath.startsWith('.') ? relativeIntegrationPath : `./${relativeIntegrationPath}`
+
+    logger.info('Adding dev integration')
+    await impl.add({ ...argv, installPath: botDir, packageRef: integrationPathRef, useDev: true, alias: undefined }).then(utils.handleExitCode)
+
+    const pkgJson = JSON.parse(fslib.readFileSync(pathlib.join(botDir, 'package.json'), 'utf8'))
+    const bpDeps = pkgJson.bpDependencies as Record<string, string> | undefined
+    if (bpDeps?.[integrationName] !== undefined) {
+      throw new Error(`Expected "${integrationName}" to NOT be in bpDependencies when using --use-dev, but got: ${JSON.stringify(bpDeps)}`)
+    }
+  },
+}

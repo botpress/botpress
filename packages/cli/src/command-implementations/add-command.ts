@@ -162,7 +162,13 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   private async _addNewSinglePackage(ref: RefWithAlias) {
     const foundPackage = await this._findPackage(ref)
     const targetPackage = foundPackage.targetPackage
-    const packageName = await this._addDependencyToPackage(foundPackage.packageName, targetPackage)
+    const isDevPackage = targetPackage.type === 'integration' && !!targetPackage.pkg.devId
+    if (isDevPackage) {
+      this.logger.debug('Skipping bpDependencies update for dev integration')
+    }
+    const packageName = isDevPackage
+      ? foundPackage.packageName
+      : await this._addDependencyToPackage(ref, foundPackage.packageName, targetPackage)
     await this._addSinglePackage(ref, { packageName, targetPackage })
   }
 
@@ -360,7 +366,11 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     })
   }
 
-  private async _addDependencyToPackage(packageName: string, targetPackage: InstallablePackage): Promise<string> {
+  private async _addDependencyToPackage(
+    ref: RefWithAlias,
+    packageName: string,
+    targetPackage: InstallablePackage
+  ): Promise<string> {
     const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath).catch((thrown) => {
       throw errors.BotpressCLIError.wrap(thrown, 'Failed to read package.json file')
     })
@@ -371,7 +381,9 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     }
 
     const version =
-      targetPackage.pkg.path ?? `${targetPackage.type}:${targetPackage.pkg.name}@${targetPackage.pkg.version}`
+      ref.type === 'path'
+        ? ref.path
+        : `${targetPackage.type}:${targetPackage.pkg.name}@${targetPackage.pkg.version}`
     const { bpDependencies } = pkgJson
     if (!bpDependencies) {
       pkgJson.bpDependencies = { [packageName]: version }
