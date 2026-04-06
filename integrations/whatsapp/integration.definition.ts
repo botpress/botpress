@@ -9,9 +9,23 @@ import {
   WhatsAppTemplateCategoryUpdateValueSchema,
 } from './definitions/events'
 
+// TODO: use default options
+const toJSONSchemaOptions: Partial<z.transforms.JSONSchemaGenerationOptions> = {
+  discriminatedUnionStrategy: 'anyOf',
+  discriminator: false,
+}
+
 const MAX_BUTTON_LABEL_LENGTH = 20
 
 const commonConfigSchema = z.object({
+  messageReadBehavior: z
+    .enum(['mark_as_read', 'typing_indicator', 'none'])
+    .default('typing_indicator')
+    .title('Message Read Behavior')
+    .describe(
+      'Behavior to adopt when a message is received from WhatsApp. "mark_as_read" will mark the message as read immediately, "typing_indicator" will show a typing indicator for a few seconds after marking the message as read, and "none" will do neither and block the typing indicator\'s emoji (leaving the message unread until a reply is sent).'
+    ),
+  // TODO: in the next major version unify this with messageReadBehavior
   typingIndicatorEmoji: z
     .boolean()
     .default(false)
@@ -71,9 +85,51 @@ const startConversationProps = {
           templateVariablesJson: z
             .string()
             .optional()
-            .title('Message Template variables')
+            .title('[DEPRECATED] Message Template variables')
             .describe(
-              'JSON array representation of variable values to pass to the WhatsApp Message Template (if required by the template). Currently, only positional parameters are supported.'
+              'Deprecated: use templateBodyParams instead. JSON array of body variable values: ["val1", "val2"].'
+            ),
+          templateHeaderParams: z
+            .discriminatedUnion('type', [
+              z.object({ type: z.literal('text'), value: z.string(), parameterName: z.string().optional() }),
+              z.object({ type: z.literal('image'), url: z.string() }),
+              z.object({ type: z.literal('video'), url: z.string() }),
+              z.object({ type: z.literal('document'), url: z.string(), filename: z.string().optional() }),
+            ])
+            .optional()
+            .title('Template header parameters')
+            .describe(
+              'Header parameter. ' +
+                'For text headers: type="text", value is the replacement text, parameterName is optional (for named params). ' +
+                'For media headers: type="image"|"video"|"document", url is the media URL. Documents may include a filename.'
+            ),
+          templateBodyParams: z
+            .discriminatedUnion('type', [
+              z.object({ type: z.literal('positional'), values: z.array(z.string()) }),
+              z.object({ type: z.literal('named'), values: z.record(z.string()) }),
+            ])
+            .optional()
+            .title('Template body parameters')
+            .describe(
+              'Body parameters. ' +
+                'For positional params ({{1}}, {{2}}, ...): type="positional", values is an ordered array of strings. ' +
+                'For named params ({{buyer_name}}): type="named", values is a record mapping param names to values.'
+            ),
+          templateButtonParams: z
+            .array(
+              z.discriminatedUnion('type', [
+                z.object({ type: z.literal('url'), value: z.string() }),
+                z.object({ type: z.literal('quick_reply'), payload: z.string() }),
+                z.object({ type: z.literal('copy_code'), code: z.string() }),
+                z.object({ type: z.literal('skip') }),
+              ])
+            )
+            .optional()
+            .title('Template button parameters')
+            .describe(
+              'Button parameters as an ordered array. ' +
+                'url: value is the URL suffix. quick_reply: payload is the callback data. ' +
+                'copy_code: code is the coupon code. skip: no parameter needed (for phone number buttons, etc.).'
             ),
           botPhoneNumberId: z
             .string()
@@ -93,7 +149,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.5.20'
+export const INTEGRATION_VERSION = '4.12.2'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
@@ -266,6 +322,14 @@ export default new IntegrationDefinition({
             title: 'Reply To',
             description: 'The ID of the message that this message is a reply to',
           },
+          referralSourceUrl: {
+            title: 'Referral Source URL',
+            description: 'The URL of the ad or content that led to the conversation',
+          },
+          referralSourceId: {
+            title: 'Referral Source ID',
+            description: 'The ID of the ad or content that led to the conversation',
+          },
         },
       },
       conversation: {
@@ -300,6 +364,7 @@ export default new IntegrationDefinition({
       output: {
         schema: z.object({
           conversationId: z.string().title('Conversation ID').describe('ID of the conversation created'),
+          messageId: z.string().optional().title('Message ID').describe('ID of the message created'),
         }),
       },
     },
@@ -310,11 +375,130 @@ export default new IntegrationDefinition({
       output: {
         schema: z.object({
           conversationId: z.string().title('Conversation ID').describe('ID of the conversation created'),
+          messageId: z.string().optional().title('Message ID').describe('ID of the message created'),
+        }),
+      },
+    },
+    listTemplates: {
+      title: 'List Message Templates',
+      description:
+        'Lists WhatsApp message templates from the connected WhatsApp Business Account, including parameter schemas and approval status',
+      input: {
+        schema: z.object({
+          status: z
+            .enum(['APPROVED', 'PENDING', 'REJECTED', 'PAUSED', 'DISABLED', 'ARCHIVED', 'LIMIT_EXCEEDED', 'IN_APPEAL'])
+            .optional()
+            .title('Status Filter')
+            .describe('Filter templates by approval status. Returns all statuses if not specified.'),
+          name: z.string().optional().title('Template Name').describe('Filter templates by exact name match.'),
+          limit: z
+            .number()
+            .optional()
+            .default(20)
+            .title('Limit')
+            .describe('Maximum number of templates to return per page (default: 20, max: 100).'),
+          nextCursor: z
+            .string()
+            .optional()
+            .title('Next Cursor')
+            .describe('Cursor for fetching the next page of results. Obtained from a previous listTemplates call.'),
+        }),
+      },
+      output: {
+        schema: z.object({
+          templates: z
+            .array(
+              z.object({
+                id: z.string().title('Template ID').describe('Unique identifier of the template'),
+                name: z.string().title('Name').describe('Name of the message template'),
+                status: z.string().title('Status').describe('Approval status of the template'),
+                category: z
+                  .string()
+                  .title('Category')
+                  .describe('Category of the template (e.g. MARKETING, UTILITY, AUTHENTICATION)'),
+                language: z.string().title('Language').describe('Language and locale code of the template'),
+                components: z
+                  .array(
+                    z.object({
+                      type: z.string().title('Type').describe('Component type (HEADER, BODY, FOOTER, BUTTONS)'),
+                      format: z
+                        .string()
+                        .optional()
+                        .title('Format')
+                        .describe('Format of the component (e.g. TEXT, IMAGE, VIDEO for HEADER)'),
+                      text: z
+                        .string()
+                        .optional()
+                        .title('Text')
+                        .describe('Text content of the component, may contain {{N}} placeholders'),
+                      buttons: z
+                        .array(
+                          z.object({
+                            type: z
+                              .string()
+                              .title('Button Type')
+                              .describe('Type of button (QUICK_REPLY, URL, PHONE_NUMBER, etc.)'),
+                            text: z.string().optional().title('Button Text').describe('Label text of the button'),
+                            url: z
+                              .string()
+                              .optional()
+                              .title('Button URL')
+                              .describe('URL for URL-type buttons, may contain {{1}} placeholder'),
+                            phone_number: z
+                              .string()
+                              .optional()
+                              .title('Phone Number')
+                              .describe('Phone number for PHONE_NUMBER-type buttons'),
+                          })
+                        )
+                        .optional()
+                        .title('Buttons')
+                        .describe('Array of button objects (only present for BUTTONS component type)'),
+                      example: z
+                        .record(z.unknown())
+                        .optional()
+                        .title('Example')
+                        .describe('Example values for the component parameters'),
+                    })
+                  )
+                  .title('Components')
+                  .describe('Array of template components (HEADER, BODY, FOOTER, BUTTONS)'),
+              })
+            )
+            .title('Templates')
+            .describe('Array of message templates'),
+          nextCursor: z
+            .string()
+            .optional()
+            .title('Next Cursor')
+            .describe('Cursor for fetching the next page. Undefined if no more pages.'),
         }),
       },
     },
   },
   events: {
+    messageSent: {
+      title: 'Message Sent',
+      description: 'Triggered when a message is sent',
+      schema: z.object({}),
+    },
+    messageDelivered: {
+      title: 'Message Delivered',
+      description: 'Triggered when a message is delivered to a user',
+      schema: z.object({}),
+    },
+    messageFailed: {
+      title: 'Message Failed',
+      description: 'Triggered when a message fails to be delivered',
+      schema: z.object({
+        error: z.string().describe('Error details describing why the message failed'),
+      }),
+    },
+    messageRead: {
+      title: 'Message Read',
+      description: 'Triggered when a user reads a message',
+      schema: z.object({}),
+    },
     reactionAdded: {
       title: 'Reaction Added',
       description: 'Triggered when a user adds a reaction to a message',
@@ -418,6 +602,14 @@ export default new IntegrationDefinition({
       description: 'Proactive conversation with a WhatsApp user',
       schema: startConversationProps.input.schema.shape['conversation'],
     },
+  },
+  attributes: {
+    category: 'Communication & Channels',
+    guideSlug: 'whatsapp',
+    repo: 'botpress',
+  },
+  __advanced: {
+    toJSONSchemaOptions,
   },
 })
   .extend(typingIndicator, () => ({ entities: {} }))

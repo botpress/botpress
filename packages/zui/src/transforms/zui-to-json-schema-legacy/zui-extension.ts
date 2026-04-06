@@ -1,9 +1,12 @@
 import { JSONSchema7 } from 'json-schema'
-import { z } from '../../z/index'
+import * as z from '../../z'
 import { Options } from './Options'
 import { zodToJsonSchema } from './zodToJsonSchema'
 
-export type ZuiSchemaOptions = {
+/**
+ * @description Options for JSON schema generation.
+ */
+export type JSONSchemaLegacyGenerationOptions = {
   /**
    * The scope is the full path to the property defined in the JSON schema, the root node being represented by #
    * Objects doesn't have any scope, only  its child does
@@ -23,10 +26,10 @@ export type ZuiSchemaOptions = {
  * @deprecated Use the new toJSONSchema function instead.
  */
 export const toJSONSchemaLegacy = (
-  zuiType: z.ZodTypeAny,
-  opts: ZuiSchemaOptions = { target: 'openApi3' }
+  zuiType: z.ZodType,
+  opts: JSONSchemaLegacyGenerationOptions = { target: 'openApi3' }
 ): JSONSchema7 => {
-  const jsonSchema = zodToJsonSchema(zuiType as z.ZodType, opts)
+  const jsonSchema = zodToJsonSchema(zuiType, opts)
   if (opts.$schemaUrl === false) {
     delete jsonSchema.$schema
   } else if (typeof opts.$schemaUrl === 'string') {

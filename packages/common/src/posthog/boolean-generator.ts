@@ -1,12 +1,12 @@
-export const useBooleanGenerator = (truthyPercentage: number): (() => boolean) => {
-  if (truthyPercentage <= 0 || truthyPercentage > 100 || !Number.isInteger(truthyPercentage)) {
-    throw new Error('Percentage must be an integer between 1 and 100')
+export const useBooleanGenerator = (truthyRatio: number): (() => boolean) => {
+  if (truthyRatio <= 0 || truthyRatio > 1 || Number.isNaN(truthyRatio)) {
+    throw new Error('Ratio must be a number between 0 and 1 (exclusive of 0)')
   }
 
-  if (truthyPercentage === 100) {
+  if (truthyRatio === 1) {
     return () => true
   }
 
-  const probability = truthyPercentage / 100
+  const probability = truthyRatio
   return () => Math.random() <= probability
 }

@@ -32,9 +32,15 @@ describe('parseLLMOutput', () => {
   it('invalid json parsing throws an error', () => {
     const output = COGNITIVE_OUTPUT(`not a json`)
 
-    expect(() => {
+    let thrown: unknown | undefined = undefined
+    try {
       parseLLMOutput<typeof CONTENT_PARSE_SCHEMA>({ schema: CONTENT_PARSE_SCHEMA, ...output })
-    }).toThrowError(sdk.ZodError)
+    } catch (e) {
+      thrown = e
+    }
+
+    expect(thrown).toBeDefined()
+    expect(z.is.zuiError(thrown)).toBe(true)
   })
 
   it('empty choices parsing throws an error', () => {

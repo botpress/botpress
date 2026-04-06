@@ -24,25 +24,27 @@ COPY ./tsconfig.json /usr/app/tsconfig.json
 COPY integrations/chat ./integrations/chat
 COPY patches/source-map-js@1.2.1.patch patches/source-map-js@1.2.1.patch
 
-# install
-RUN pnpm install --frozen-lockfile
-RUN pnpm install --frozen-lockfile --dir integrations/chat
-RUN pnpm install --frozen-lockfile --dir packages/sdk
-RUN pnpm install --frozen-lockfile --dir packages/cli
-
-# Use production node environment by default
+# Use NODE_ENV to avoid installing devDependencies
 ENV NODE_ENV=production
 
-# build dependencies in correct order: client -> chat-client -> SDK -> CLI -> chat integration
-RUN pnpm --filter @botpress/client run build
+# install
+RUN pnpm install --frozen-lockfile
+RUN pnpm --filter @bpinternal/zui run build
 RUN pnpm --filter @botpress/chat run build
+RUN pnpm --filter @botpress/client run build
 RUN pnpm --filter @botpress/sdk run build
+RUN pnpm --filter @botpress/cognitive run build
 RUN pnpm --filter @botpress/cli run bundle
 RUN pnpm --filter @botpresshub/chat run build
+
 
 FROM node:${NODE_VERSION}-bullseye-slim AS deploy
 
 COPY --from=base /usr/app/integrations/chat/.botpress/dist/index.cjs ./index.cjs
-RUN echo -e "const server = require('./index.cjs')\nserver.default.start()" > server.js
+RUN echo "const server = require('./index.cjs')\nconst port = process.env.PORT ? parseInt(process.env.PORT, 10) : 8081\nserver.default.start(port)" > server.js
+
+# set port env and expose it
+ENV PORT=8081
+EXPOSE ${PORT}
 
 ENTRYPOINT ["node", "server.js"]

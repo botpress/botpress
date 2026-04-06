@@ -1,13 +1,14 @@
 import { test, expect } from 'vitest'
-import { util } from '../types/utils'
-import z from '../index'
+import * as assert from '../../assertions.utils.test'
+import * as z from '../index'
+import { ZodError } from '../error'
 
 test('preprocess', () => {
   const schema = z.preprocess((data) => [data], z.string().array())
 
   const value = schema.parse('asdf')
   expect(value).toEqual(['asdf'])
-  util.assertEqual<(typeof schema)['_input'], unknown>(true)
+  assert.assertEqual<(typeof schema)['_input'], unknown>(true)
 })
 
 test('async preprocess', async () => {
@@ -17,15 +18,16 @@ test('async preprocess', async () => {
   expect(value).toEqual(['asdf'])
 })
 
-test('preprocess ctx.addIssue with parse', () => {
+test('upstream dirty with parse', () => {
   expect(() => {
-    z.preprocess((data, ctx) => {
-      ctx.addIssue({
-        code: 'custom',
-        message: `${data} is not one of our allowed strings`,
-      })
-      return data
-    }, z.string()).parse('asdf')
+    z.upstream(
+      (data) =>
+        z.DIRTY(data, {
+          code: 'custom',
+          message: `${data} is not one of our allowed strings`,
+        }),
+      z.string()
+    ).parse('asdf')
   }).toThrow(
     JSON.stringify(
       [
@@ -41,44 +43,40 @@ test('preprocess ctx.addIssue with parse', () => {
   )
 })
 
-test('preprocess ctx.addIssue non-fatal by default', () => {
+test('upstream dirty non-fatal', () => {
   try {
-    z.preprocess((data, ctx) => {
-      ctx.addIssue({
+    z.upstream((data) => {
+      return z.DIRTY(data, {
         code: 'custom',
         message: `custom error`,
       })
-      return data
     }, z.string()).parse(1234)
   } catch (err) {
-    z.ZodError.assert(err)
+    ZodError.assert(err)
     expect(err.issues.length).toEqual(2)
   }
 })
 
-test('preprocess ctx.addIssue fatal true', () => {
+test('upstream abort is fatal', () => {
   try {
-    z.preprocess((data, ctx) => {
-      ctx.addIssue({
+    z.upstream(() => {
+      return z.ERR({
         code: 'custom',
         message: `custom error`,
-        fatal: true,
       })
-      return data
     }, z.string()).parse(1234)
   } catch (err) {
-    z.ZodError.assert(err)
+    ZodError.assert(err)
     expect(err.issues.length).toEqual(1)
   }
 })
 
-test('async preprocess ctx.addIssue with parse', async () => {
-  const schema = z.preprocess(async (data, ctx) => {
-    ctx.addIssue({
+test('async upstream dirty with parse', async () => {
+  const schema = z.upstream(async (data) => {
+    return z.DIRTY(data, {
       code: 'custom',
       message: `custom error`,
     })
-    return data
   }, z.string())
 
   expect(schema.parseAsync('asdf')).rejects.toThrow(
@@ -96,20 +94,20 @@ test('async preprocess ctx.addIssue with parse', async () => {
   )
 })
 
-test('preprocess ctx.addIssue with parseAsync', async () => {
+test('upstream dirty with parseAsync', async () => {
   const result = await z
-    .preprocess(async (data, ctx) => {
-      ctx.addIssue({
+    .upstream(async (data) => {
+      return z.DIRTY(data, {
         code: 'custom',
         message: `${data} is not one of our allowed strings`,
       })
-      return data
     }, z.string())
     .safeParseAsync('asdf')
 
   expect(JSON.parse(JSON.stringify(result))).toEqual({
     success: false,
     error: {
+      __type__: 'ZuiError',
       issues: [
         {
           code: 'custom',
@@ -122,17 +120,16 @@ test('preprocess ctx.addIssue with parseAsync', async () => {
   })
 })
 
-test('z.NEVER in preprocess', () => {
-  const foo = z.preprocess((val, ctx) => {
+test('upstream', () => {
+  const foo = z.upstream((val) => {
     if (!val) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'bad' })
-      return z.NEVER
+      return z.ERR({ code: 'custom', message: 'bad' })
     }
-    return val
+    return z.OK(val)
   }, z.number())
 
   type foo = z.infer<typeof foo>
-  util.assertEqual<foo, number>(true)
+  assert.assertEqual<foo, number>(true)
   const arg = foo.safeParse(undefined)
   if (!arg.success) {
     expect(arg.error.issues[0]?.message).toEqual('bad')
@@ -150,8 +147,8 @@ test('preprocess as the second property of object', () => {
   expect(result.success).toEqual(false)
   if (!result.success) {
     expect(result.error.issues.length).toEqual(2)
-    expect(result.error.issues[0]?.code).toEqual(z.ZodIssueCode.too_small)
-    expect(result.error.issues[1]?.code).toEqual(z.ZodIssueCode.too_small)
+    expect(result.error.issues[0]?.code).toEqual('too_small')
+    expect(result.error.issues[1]?.code).toEqual('too_small')
   }
 })
 
@@ -160,7 +157,7 @@ test('preprocess validates with sibling errors', () => {
     z.object({
       // Must be first
       missing: z.string().refine(() => false),
-      preprocess: z.preprocess((data: any) => data?.trim(), z.string().regex(/ asdf/)),
+      preprocess: z.preprocess((data) => (data as string)?.trim(), z.string().regex(/ asdf/)),
     }).parse({ preprocess: ' asdf' })
   }).toThrow(
     JSON.stringify(

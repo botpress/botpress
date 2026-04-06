@@ -2,6 +2,7 @@
   "name": "@botpresshub/bigcommerce",
   "scripts": {
     "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
     "build": "bp add -y && bp build",
     "test": "vitest --run"
   },

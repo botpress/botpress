@@ -4,7 +4,9 @@
     "baseUrl": ".",
     "outDir": "dist",
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
   },
   "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "*.ts"]
 }

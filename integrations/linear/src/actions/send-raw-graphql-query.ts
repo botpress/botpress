@@ -4,7 +4,6 @@ import * as bp from '.botpress'
 
 export const sendRawGraphqlQuery: bp.IntegrationProps['actions']['sendRawGraphqlQuery'] = async (args) => {
   const {
-    ctx,
     input: { query, parameters },
   } = args
 
@@ -16,7 +15,7 @@ export const sendRawGraphqlQuery: bp.IntegrationProps['actions']['sendRawGraphql
     {} as Record<string, unknown>
   )
   try {
-    const linearClient = await getLinearClient(args, ctx.integrationId)
+    const linearClient = await getLinearClient(args)
     const result = await linearClient.client.rawRequest(query, mappedParams)
     return { result: result.data }
   } catch (thrown) {

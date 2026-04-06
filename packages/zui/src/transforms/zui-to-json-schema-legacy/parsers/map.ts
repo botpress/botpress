@@ -1,6 +1,4 @@
-import { zuiKey } from '../../../ui/constants'
-import { ZuiExtensionObject } from '../../../ui/types'
-import { ZodMapDef } from '../../../z/index'
+import { zuiKey, ZuiExtensionObject, ZodMapDef, ZodTypeAny } from '../../../z'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 import { JsonSchema7RecordType, parseRecordDef } from './record'
@@ -23,12 +21,12 @@ export function parseMapDef(def: ZodMapDef, refs: Refs): JsonSchema7MapType | Js
   }
 
   const keys =
-    parseDef(def.keyType._def, {
+    parseDef((def.keyType as ZodTypeAny)._def, {
       ...refs,
       currentPath: [...refs.currentPath, 'items', 'items', '0'],
     }) || {}
   const values =
-    parseDef(def.valueType._def, {
+    parseDef((def.valueType as ZodTypeAny)._def, {
       ...refs,
       currentPath: [...refs.currentPath, 'items', 'items', '1'],
     }) || {}

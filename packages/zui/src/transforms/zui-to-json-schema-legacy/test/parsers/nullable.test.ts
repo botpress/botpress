@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { zuiKey } from '../../../../ui/constants'
-import { z } from '../../../../z/index'
+import * as z from '../../../../z'
 import { parseObjectDef } from '../../parsers/object'
 import { getRefs } from '../../Refs'
+
+const { zuiKey } = z
 
 describe('nullable', () => {
   it('should be possible to properly reference nested nullable primitives', () => {

@@ -1,6 +1,5 @@
 import { test } from 'vitest'
 import { crazySchema } from './crazySchema'
-// import z from "../index";
 
 test('parse', () => {
   crazySchema.parse({

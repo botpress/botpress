@@ -9,6 +9,7 @@ const describeRule = createDescribeRule<CreateBotRequestBody>()(BOT_RULESET)
 const EMPTY_STRING = ''
 const TRUTHY_STRING = 'truthy'
 const EVENT_NAME = 'eventName'
+const SECRET_NAME = 'SECRET_NAME'
 const PARAM_NAME = 'paramName'
 const PROPERTIES_PARAM = 'properties'
 const PARAM_NAMES = [PARAM_NAME, PROPERTIES_PARAM] as const
@@ -1013,6 +1014,30 @@ describeRule('state-fields-must-have-description', (lint) => {
     const results = await lint(definition)
 
     // assert
+    expect(results).toHaveLength(0)
+  })
+})
+
+describeRule('secrets-must-have-a-description', (lint) => {
+  test('missing description should trigger', async () => {
+    const definition = { secrets: { [SECRET_NAME]: {} } } as const satisfies PartialDefinition
+    const results = await lint(definition)
+    expect(results).toHaveLength(1)
+  })
+
+  test('empty description should trigger', async () => {
+    const definition = {
+      secrets: { [SECRET_NAME]: { description: EMPTY_STRING } },
+    } as const satisfies PartialDefinition
+    const results = await lint(definition)
+    expect(results).toHaveLength(1)
+  })
+
+  test('valid description should not trigger', async () => {
+    const definition = {
+      secrets: { [SECRET_NAME]: { description: TRUTHY_STRING } },
+    } as const satisfies PartialDefinition
+    const results = await lint(definition)
     expect(results).toHaveLength(0)
   })
 })
