@@ -8,7 +8,11 @@ export const statusHandler = async (value: WhatsAppStatusValue, props: bp.Handle
   if (value.status === 'sent') {
     const message = await getMessageFromWhatsappMessageId(value.id, client)
     if (!message) {
-      logger.forBot().error(`No message found for WhatsApp message ID ${value.id}, cannot create messageSent event`)
+      logger
+        .forBot()
+        .debug(
+          `The WhatsApp message was sent, but there is no corresponding message in Botpress. Botpress cannot create a messageSent event for WhatsApp message ID: ${value.id}`
+        )
       return
     }
 
@@ -25,7 +29,9 @@ export const statusHandler = async (value: WhatsAppStatusValue, props: bp.Handle
     if (!message) {
       logger
         .forBot()
-        .error(`No message found for WhatsApp message ID ${value.id}, cannot create messageDelivered event`)
+        .debug(
+          `The WhatsApp message was delivered, but there is no corresponding message in Botpress. Botpress cannot create a messageDelivered event for WhatsApp message ID: ${value.id}`
+        )
       return
     }
 
@@ -40,7 +46,11 @@ export const statusHandler = async (value: WhatsAppStatusValue, props: bp.Handle
   if (value.status === 'read') {
     const message = await getMessageFromWhatsappMessageId(value.id, client)
     if (!message) {
-      logger.forBot().error(`No message found for WhatsApp message ID ${value.id}, cannot create messageRead event`)
+      logger
+        .forBot()
+        .debug(
+          `The WhatsApp message was read, but there is no corresponding message in Botpress. Botpress cannot create a messageRead event for WhatsApp message ID: ${value.id}`
+        )
       return
     }
 
@@ -69,7 +79,11 @@ export const statusHandler = async (value: WhatsAppStatusValue, props: bp.Handle
 
     const message = await getMessageFromWhatsappMessageId(value.id, client)
     if (!message) {
-      logger.forBot().error(`No message found for WhatsApp message ID ${value.id}, cannot create messageFailed event`)
+      logger
+        .forBot()
+        .debug(
+          `The WhatsApp message delivery failed, but there is no corresponding message in Botpress. Botpress cannot create a messageFailed event for WhatsApp message ID: ${value.id}`
+        )
       return
     }
 
