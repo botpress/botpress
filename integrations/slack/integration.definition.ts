@@ -23,7 +23,7 @@ export default new IntegrationDefinition({
   name: 'slack',
   title: 'Slack',
   description: 'Automate interactions with your team.',
-  version: '4.1.0',
+  version: '4.1.1',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration,

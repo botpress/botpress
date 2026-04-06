@@ -2,15 +2,26 @@ import axios, { AxiosInstance } from 'axios'
 import { backOff } from 'exponential-backoff'
 import { createNanoEvents, Unsubscribe } from 'nanoevents'
 import { defaultModel, models } from './models'
-import { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk, Model } from './types'
+import {
+  CognitiveRequest,
+  CognitiveResponse,
+  CognitiveStreamChunk,
+  TranscribeRequest,
+  TranscribeResponse,
+  Model,
+} from './types'
 
-export { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk }
+export { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk, TranscribeRequest, TranscribeResponse }
+
+export type BetaTextRequest = { type: 'generateText'; input: CognitiveRequest }
+export type BetaTranscribeRequest = { type: 'transcribeAudio'; input: TranscribeRequest }
+export type BetaRequest = BetaTextRequest | BetaTranscribeRequest
 
 export type BetaEvents = {
-  request: (req: { input: CognitiveRequest }) => void
-  response: (req: { input: CognitiveRequest }, res: CognitiveResponse) => void
-  error: (req: { input: CognitiveRequest }, error: any) => void
-  retry: (req: { input: CognitiveRequest }, error: any) => void
+  request: (req: BetaRequest) => void
+  response: (req: BetaRequest, res: CognitiveResponse | TranscribeResponse) => void
+  error: (req: BetaRequest, error: any) => void
+  retry: (req: BetaRequest, error: any) => void
 }
 
 type ClientProps = {
@@ -30,7 +41,19 @@ type RequestOptions = {
 
 const isBrowser = () => typeof window !== 'undefined' && typeof window.fetch === 'function'
 
-export { Models } from './types'
+export { Models, SttModels } from './types'
+export type {
+  CommonRequestOptions,
+  CognitiveContentPart,
+  CognitiveMessage,
+  CognitiveToolCall,
+  CognitiveTool,
+  CognitiveToolControl,
+  CognitiveMetadata,
+  TranscribeMetadata,
+  StopReason,
+  ModelTag,
+} from './types'
 
 export class CognitiveBeta {
   private _axiosClient: AxiosInstance
@@ -83,7 +106,7 @@ export class CognitiveBeta {
 
   public async generateText(input: CognitiveRequest, options: RequestOptions = {}) {
     const signal = options.signal ?? AbortSignal.timeout(this._timeout)
-    const req = { input }
+    const req: BetaTextRequest = { type: 'generateText', input }
 
     this._events.emit('request', req)
 
@@ -114,12 +137,41 @@ export class CognitiveBeta {
     return data.models
   }
 
+  public async transcribeAudio(input: TranscribeRequest, options: RequestOptions = {}) {
+    const signal = options.signal ?? AbortSignal.timeout(this._timeout)
+    const req: BetaTranscribeRequest = { type: 'transcribeAudio', input }
+
+    this._events.emit('request', req)
+
+    try {
+      const { data } = await this._withServerRetry(
+        () =>
+          this._axiosClient.post<TranscribeResponse>('/v2/cognitive/transcribe-audio', input, {
+            signal,
+            timeout: options.timeout ?? this._timeout,
+          }),
+        options,
+        req
+      )
+
+      if (data.error) {
+        throw new Error(`Transcription error: ${data.error}`)
+      }
+
+      this._events.emit('response', req, data)
+      return data
+    } catch (error) {
+      this._events.emit('error', req, error)
+      throw error
+    }
+  }
+
   public async *generateTextStream(
     request: CognitiveRequest,
     options: RequestOptions = {}
   ): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
     const signal = options.signal ?? AbortSignal.timeout(this._timeout)
-    const req = { input: request }
+    const req: BetaTextRequest = { type: 'generateText', input: request }
     const chunks: CognitiveStreamChunk[] = []
     let lastChunk: CognitiveStreamChunk | undefined
 
@@ -272,11 +324,7 @@ export class CognitiveBeta {
     return false
   }
 
-  private async _withServerRetry<T>(
-    fn: () => Promise<T>,
-    options: RequestOptions = {},
-    req?: { input: CognitiveRequest }
-  ): Promise<T> {
+  private async _withServerRetry<T>(fn: () => Promise<T>, options: RequestOptions = {}, req?: BetaRequest): Promise<T> {
     let attemptCount = 0
     return backOff(
       async () => {
