@@ -35,7 +35,7 @@ export const stopTypingIndicator: bp.IntegrationProps['actions']['stopTypingIndi
   ctx,
   input,
 }) => {
-  if (ctx.configuration.messageReadBehavior === 'none') {
+  if (ctx.configuration.messageReadBehavior === 'none' || !ctx.configuration.typingIndicatorEmoji) {
     return {}
   }
   const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
