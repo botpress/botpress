@@ -59,7 +59,12 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
   switch (changes.field) {
     case 'smb_message_echoes':
       for (const echo of changes.value.message_echoes) {
-        await echoHandler(echo, changes.value, props)
+        try {
+          await echoHandler(echo, changes.value, props)
+        } catch (thrown: unknown) {
+          const errMsg = thrown instanceof Error ? thrown.message : 'Unknown error thrown'
+          logger.forBot().error(`Failed to process WhatsApp echo event: ${errMsg}`)
+        }
       }
       break
     case 'messages':
