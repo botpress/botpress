@@ -334,7 +334,7 @@ export const addLocalIntegrationKeepsRelativePath: Test = {
     logger.info('Initializing bot')
     const { botDir } = await initBot(
       props,
-      'import * as sdk from "@botpress/sdk"\nexport default new sdk.BotDefinition({})'
+      ['import * as sdk from "@botpress/sdk"', 'export default new sdk.BotDefinition({})'].join('\n')
     )
 
     // The stored path should be relative to installPath (botDir), not process.cwd()
@@ -386,7 +386,7 @@ export const addDevIntegrationSkipsBpDependencies: Test = {
     logger.info('Initializing bot')
     const { botDir } = await initBot(
       props,
-      'import * as sdk from "@botpress/sdk"\nexport default new sdk.BotDefinition({})'
+      ['import * as sdk from "@botpress/sdk"', 'export default new sdk.BotDefinition({})'].join('\n')
     )
 
     logger.info('Adding dev integration')
@@ -399,6 +399,64 @@ export const addDevIntegrationSkipsBpDependencies: Test = {
     if (bpDeps?.[fullIntegrationName] !== undefined) {
       throw new Error(
         `Expected "${fullIntegrationName}" to NOT be in bpDependencies when using --use-dev, but got: ${JSON.stringify(bpDeps)}`
+      )
+    }
+  },
+}
+
+export const addDevIntegrationPreservesExistingBpDependency: Test = {
+  name: 'cli should not overwrite existing bpDependencies entry when re-adding as dev integration',
+  handler: async (props) => {
+    const { tmpDir, logger, workspaceHandle, ...creds } = props
+    const argv = {
+      ...defaults,
+      botpressHome: getHomeDir({ tmpDir }),
+      confirm: true,
+      workspaceHandle,
+      ...creds,
+    }
+
+    const integrationName = `myintegration${utils.getUUID()}`
+    const fullIntegrationName = `${workspaceHandle}/${integrationName}`
+    const { integrationDir } = await initIntegration(props, integrationName)
+
+    logger.info('Initializing bot')
+    const { botDir } = await initBot(
+      props,
+      ['import * as sdk from "@botpress/sdk"', 'export default new sdk.BotDefinition({})'].join('\n')
+    )
+
+    logger.info('Adding local integration (no --use-dev) to populate bpDependencies')
+    await impl
+      .add({ ...argv, installPath: botDir, packageRef: integrationDir, useDev: false, alias: undefined })
+      .then(utils.handleExitCode)
+
+    const pkgJsonAfterFirst = JSON.parse(fslib.readFileSync(pathlib.join(botDir, 'package.json'), 'utf8'))
+    const storedRelativePath = (pkgJsonAfterFirst.bpDependencies as Record<string, string> | undefined)?.[
+      fullIntegrationName
+    ]
+    if (!storedRelativePath) {
+      throw new Error('Expected bpDependencies to contain an entry after initial bp add')
+    }
+
+    // Simulate the integration being run with bp dev (devId present in cache)
+    const cacheDir = pathlib.join(integrationDir, '.botpress')
+    fslib.mkdirSync(cacheDir, { recursive: true })
+    fslib.writeFileSync(
+      pathlib.join(cacheDir, 'project.cache.json'),
+      JSON.stringify({ devId: 'fake-dev-integration-id' })
+    )
+
+    logger.info('Re-adding same integration with --use-dev')
+    await impl
+      .add({ ...argv, installPath: botDir, packageRef: integrationDir, useDev: true, alias: undefined })
+      .then(utils.handleExitCode)
+
+    const pkgJsonAfterDev = JSON.parse(fslib.readFileSync(pathlib.join(botDir, 'package.json'), 'utf8'))
+    const bpDepsAfterDev = pkgJsonAfterDev.bpDependencies as Record<string, string> | undefined
+    if (bpDepsAfterDev?.[fullIntegrationName] !== storedRelativePath) {
+      throw new Error(
+        `Expected bpDependencies["${fullIntegrationName}"] to remain "${storedRelativePath}" after --use-dev add, but got: ${JSON.stringify(bpDepsAfterDev?.[fullIntegrationName])}`
       )
     }
   },
@@ -422,7 +480,7 @@ export const reinstallLocalIntegration: Test = {
     logger.info('Initializing bot')
     const { botDir } = await initBot(
       props,
-      'import * as sdk from "@botpress/sdk"\nexport default new sdk.BotDefinition({})'
+      ['import * as sdk from "@botpress/sdk"', 'export default new sdk.BotDefinition({})'].join('\n')
     )
 
     logger.info('Adding local integration')

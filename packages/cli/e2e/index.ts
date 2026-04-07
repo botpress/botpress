@@ -12,6 +12,7 @@ import {
   addPlugin,
   addLocalIntegrationKeepsRelativePath,
   addDevIntegrationSkipsBpDependencies,
+  addDevIntegrationPreservesExistingBpDependency,
   reinstallLocalIntegration,
 } from './tests/install-package'
 import { requiredIntegrationSecrets } from './tests/integration-secrets'
@@ -33,6 +34,7 @@ const tests: Test[] = [
   addPlugin,
   addLocalIntegrationKeepsRelativePath,
   addDevIntegrationSkipsBpDependencies,
+  addDevIntegrationPreservesExistingBpDependency,
   reinstallLocalIntegration,
   installAllInterfaces,
   removePackage,

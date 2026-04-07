@@ -166,12 +166,13 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     const foundPackage = await this._findPackage(ref)
     const targetPackage = foundPackage.targetPackage
     const isDevPackage = targetPackage.type === 'integration' && !!targetPackage.pkg.devId
+    let packageName: string
     if (isDevPackage) {
       this.logger.debug('Skipping bpDependencies update for dev integration')
+      packageName = foundPackage.packageName
+    } else {
+      packageName = await this._addDependencyToPackage(ref, foundPackage.packageName, targetPackage)
     }
-    const packageName = isDevPackage
-      ? foundPackage.packageName
-      : await this._addDependencyToPackage(ref, foundPackage.packageName, targetPackage)
     await this._addSinglePackage(ref, { packageName, targetPackage })
   }
 
