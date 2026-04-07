@@ -77,9 +77,9 @@ jobs:
           ECR_REPOSITORY: chat-integration
         run: |
           aws --version
-          aws ecr create-repository --repository-name $ECR_REPOSITORY || true
+          aws ecr create-repository --repository-name "$ECR_REPOSITORY" || true
           aws ssm get-parameter --name '/cloud/container-registry/ecr-policy-document' --query 'Parameter.Value' | jq -r '.' > repository-policy.json
-          aws ecr set-repository-policy --repository-name $ECR_REPOSITORY --policy-text file://repository-policy.json &> /dev/null
+          aws ecr set-repository-policy --repository-name "$ECR_REPOSITORY" --policy-text file://repository-policy.json &> /dev/null
 
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
@@ -156,9 +156,9 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           echo "Tagging image for ECR: $ECR_REGISTRY/chat-integration:$IMAGE_TAG"
-          docker tag chat-integration:test $ECR_REGISTRY/chat-integration:$IMAGE_TAG
+          docker tag chat-integration:test "$ECR_REGISTRY/chat-integration:$IMAGE_TAG"
 
           echo "Pushing to ECR..."
-          docker push $ECR_REGISTRY/chat-integration:$IMAGE_TAG
+          docker push "$ECR_REGISTRY/chat-integration:$IMAGE_TAG"
 
           echo "Successfully pushed image: $IMAGE_TAG"
