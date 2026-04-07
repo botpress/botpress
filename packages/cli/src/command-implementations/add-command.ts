@@ -382,7 +382,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
     const version =
       ref.type === 'path'
-        ? utils.path.relativeFrom(
+        ? utils.path.relativePathFrom(
             utils.path.absoluteFrom(utils.path.cwd(), this.argv.installPath),
             utils.path.absoluteFrom(utils.path.cwd(), ref.path)
           )

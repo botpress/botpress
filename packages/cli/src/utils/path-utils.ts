@@ -55,6 +55,15 @@ export const relativeFrom = (rootdir: AbsolutePath, target: string) => {
   return pathlib.relative(rootdir, absPath)
 }
 
+/**
+ * Same as relativeFrom but ensures the result starts with './' or '../',
+ * so it is recognized as a path ref by parsePackageRef.
+ */
+export const relativePathFrom = (rootdir: AbsolutePath, target: string) => {
+  const rel = relativeFrom(rootdir, target)
+  return rel.startsWith('.') ? rel : `./${rel}`
+}
+
 export class PathStore<P extends string> {
   public constructor(public readonly abs: Record<P, AbsolutePath>) {}
   public rel(from: Extract<P, `${string}Dir`>) {
