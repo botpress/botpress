@@ -335,18 +335,14 @@ export const addLocalIntegrationKeepsRelativePath: Test = {
       'import * as sdk from "@botpress/sdk"\nexport default new sdk.BotDefinition({})'
     )
 
-    const relativeIntegrationPath = pathlib.relative(process.cwd(), integrationDir)
-    const integrationPathRef = relativeIntegrationPath.startsWith('.')
-      ? relativeIntegrationPath
-      : `./${relativeIntegrationPath}`
-
     // The stored path should be relative to installPath (botDir), not process.cwd()
+    // Use integrationDir (absolute) as packageRef to avoid cross-drive issues on Windows
     const rel = pathlib.relative(botDir, integrationDir)
     const expectedStoredPath = rel.startsWith('.') ? rel : `./${rel}`
 
     logger.info('Adding local integration via relative path')
     await impl
-      .add({ ...argv, installPath: botDir, packageRef: integrationPathRef, useDev: false, alias: undefined })
+      .add({ ...argv, installPath: botDir, packageRef: integrationDir, useDev: false, alias: undefined })
       .then(utils.handleExitCode)
 
     const pkgJson = JSON.parse(fslib.readFileSync(pathlib.join(botDir, 'package.json'), 'utf8'))
@@ -391,14 +387,9 @@ export const addDevIntegrationSkipsBpDependencies: Test = {
       'import * as sdk from "@botpress/sdk"\nexport default new sdk.BotDefinition({})'
     )
 
-    const relativeIntegrationPath = pathlib.relative(process.cwd(), integrationDir)
-    const integrationPathRef = relativeIntegrationPath.startsWith('.')
-      ? relativeIntegrationPath
-      : `./${relativeIntegrationPath}`
-
     logger.info('Adding dev integration')
     await impl
-      .add({ ...argv, installPath: botDir, packageRef: integrationPathRef, useDev: true, alias: undefined })
+      .add({ ...argv, installPath: botDir, packageRef: integrationDir, useDev: true, alias: undefined })
       .then(utils.handleExitCode)
 
     const pkgJson = JSON.parse(fslib.readFileSync(pathlib.join(botDir, 'package.json'), 'utf8'))
