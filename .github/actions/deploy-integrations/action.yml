@@ -115,7 +115,7 @@ runs:
                 if [ $exists -eq 0 ] || [ $redeploy -eq 1 ]; then
                     echo -e "\nTriggering ECS deploy for: ### $integration ###\n"
                     if [ $is_dry_run -eq 0 ]; then
-                        gh workflow run "deploy-chat-${ENVIRONMENT}.yml" --field branchOrCommit="${GITHUB_SHA}"
+                        gh workflow run "deploy-chat-${INPUT_ENVIRONMENT}.yml" --field branchOrCommit="${GITHUB_SHA}"
                     fi
                 else
                     echo -e "\nSkipping integration: ### $integration ###\n"
