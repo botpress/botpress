@@ -6,7 +6,7 @@ import { BotLogger } from '../bot-logger'
 import { BotSpecificClient } from '../client'
 import * as common from '../common'
 import { extractContext } from './context'
-import { SUCCESS_RESPONSE } from './responses'
+import { SUCCESS_RESPONSE, SUCCESS_STOPPED_RESPONSE } from './responses'
 import * as types from './types'
 import { handleWorkflowUpdateEvent } from './workflows/update-handler'
 
@@ -186,7 +186,7 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
       })
       message = hookOutput?.data ?? message
       if (hookOutput?.stop) {
-        return SUCCESS_RESPONSE
+        return SUCCESS_STOPPED_RESPONSE
       }
     }
 
@@ -210,7 +210,7 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
       })
       message = hookOutput?.data ?? message
       if (hookOutput?.stop) {
-        return SUCCESS_RESPONSE
+        return SUCCESS_STOPPED_RESPONSE
       }
     }
 
@@ -242,7 +242,7 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
     })
     event = hookOutput?.data ?? event
     if (hookOutput?.stop) {
-      return SUCCESS_RESPONSE
+      return SUCCESS_STOPPED_RESPONSE
     }
   }
 
@@ -260,7 +260,7 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
     })
     event = hookOutput?.data ?? event
     if (hookOutput?.stop) {
-      return SUCCESS_RESPONSE
+      return SUCCESS_STOPPED_RESPONSE
     }
   }
 
