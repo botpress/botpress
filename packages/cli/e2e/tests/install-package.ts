@@ -5,6 +5,8 @@ import * as pathlib from 'path'
 import * as uuid from 'uuid'
 import impl from '../../src'
 import * as apiUtils from '../../src/api'
+import * as consts from '../../src/consts'
+import * as cliUtils from '../../src/utils'
 import { ApiBot, fetchAllBots } from '../api'
 import defaults from '../defaults'
 import * as retry from '../retry'
@@ -398,6 +400,51 @@ export const addDevIntegrationSkipsBpDependencies: Test = {
       throw new Error(
         `Expected "${fullIntegrationName}" to NOT be in bpDependencies when using --use-dev, but got: ${JSON.stringify(bpDeps)}`
       )
+    }
+  },
+}
+
+export const reinstallLocalIntegration: Test = {
+  name: 'cli should reinstall local integration from bpDependencies regardless of cwd',
+  handler: async (props) => {
+    const { tmpDir, logger, workspaceHandle, ...creds } = props
+    const argv = {
+      ...defaults,
+      botpressHome: getHomeDir({ tmpDir }),
+      confirm: true,
+      ...creds,
+    }
+
+    const integrationName = `myintegration${utils.getUUID()}`
+    const fullIntegrationName = `${workspaceHandle}/${integrationName}`
+    const { integrationDir } = await initIntegration(props, integrationName)
+
+    logger.info('Initializing bot')
+    const { botDir } = await initBot(
+      props,
+      'import * as sdk from "@botpress/sdk"\nexport default new sdk.BotDefinition({})'
+    )
+
+    logger.info('Adding local integration')
+    await impl
+      .add({ ...argv, installPath: botDir, packageRef: integrationDir, useDev: false, alias: undefined })
+      .then(utils.handleExitCode)
+
+    const moduleDir = pathlib.join(botDir, consts.installDirName, cliUtils.casing.to.kebabCase(fullIntegrationName))
+    if (!fslib.existsSync(moduleDir)) {
+      throw new Error(`Expected bp_modules to contain "${fullIntegrationName}" after bp add`)
+    }
+
+    logger.info('Deleting bp_modules')
+    fslib.rmSync(pathlib.join(botDir, 'bp_modules'), { recursive: true, force: true })
+
+    logger.info('Reinstalling from bpDependencies')
+    await impl
+      .add({ ...argv, installPath: botDir, packageRef: undefined, useDev: false, alias: undefined })
+      .then(utils.handleExitCode)
+
+    if (!fslib.existsSync(moduleDir)) {
+      throw new Error(`Expected bp_modules to contain "${fullIntegrationName}" after reinstall`)
     }
   },
 }

@@ -12,6 +12,7 @@ import {
   addPlugin,
   addLocalIntegrationKeepsRelativePath,
   addDevIntegrationSkipsBpDependencies,
+  reinstallLocalIntegration,
 } from './tests/install-package'
 import { requiredIntegrationSecrets } from './tests/integration-secrets'
 import { enforceWorkspaceHandle, prependWorkspaceHandle } from './tests/manage-workspace-handle'
@@ -32,6 +33,7 @@ const tests: Test[] = [
   addPlugin,
   addLocalIntegrationKeepsRelativePath,
   addDevIntegrationSkipsBpDependencies,
+  reinstallLocalIntegration,
   installAllInterfaces,
   removePackage,
 ]
