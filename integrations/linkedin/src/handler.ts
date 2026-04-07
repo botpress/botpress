@@ -92,7 +92,7 @@ const handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProps
   logger.forBot().info(`Granted scopes: ${oauthClient.getGrantedScopes().join(', ')}`)
 
   await client.configureIntegration({
-    identifier: ctx.webhookId,
+    identifier: oauthClient.getUserId(),
   })
 
   return { status: 200 }

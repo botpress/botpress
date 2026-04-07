@@ -24,7 +24,7 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
     })
 
     await client.configureIntegration({
-      identifier: ctx.webhookId,
+      identifier: oauthClient.getUserId(),
     })
 
     logger.forBot().info(`LinkedIn integration registered for user: ${oauthClient.getUserId()}`)
