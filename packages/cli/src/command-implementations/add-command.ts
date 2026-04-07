@@ -73,7 +73,10 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         throw new errors.InvalidPackageReferenceError(pkgRefStr)
       }
 
-      const refWithAlias = { ...parsed, alias: pkgAlias }
+      // Resolve path refs against installPath so reinstall works regardless of cwd
+      const normalized =
+        parsed.type === 'path' ? { ...parsed, path: utils.path.absoluteFrom(baseInstallPath, parsed.path) } : parsed
+      const refWithAlias = { ...normalized, alias: pkgAlias }
       const foundPkg = await this._findPackage(refWithAlias)
       await this._addSinglePackage(refWithAlias, foundPkg)
     }
