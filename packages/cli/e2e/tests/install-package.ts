@@ -332,6 +332,9 @@ export const addLocalIntegrationKeepsRelativePath: Test = {
       ? relativeIntegrationPath
       : `./${relativeIntegrationPath}`
 
+    // The stored path should be relative to installPath (botDir), not process.cwd()
+    const expectedStoredPath = pathlib.relative(botDir, integrationDir)
+
     logger.info('Adding local integration via relative path')
     await impl
       .add({ ...argv, installPath: botDir, packageRef: integrationPathRef, useDev: false, alias: undefined })
@@ -343,8 +346,8 @@ export const addLocalIntegrationKeepsRelativePath: Test = {
       throw new Error('Expected bpDependencies to be set in package.json after bp add')
     }
     const storedPath = bpDeps[integrationName]
-    if (storedPath !== integrationPathRef) {
-      throw new Error(`Expected bpDependencies to store "${integrationPathRef}" but got "${storedPath}"`)
+    if (storedPath !== expectedStoredPath) {
+      throw new Error(`Expected bpDependencies to store "${expectedStoredPath}" but got "${storedPath}"`)
     }
   },
 }

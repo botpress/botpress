@@ -381,7 +381,12 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     }
 
     const version =
-      ref.type === 'path' ? ref.path : `${targetPackage.type}:${targetPackage.pkg.name}@${targetPackage.pkg.version}`
+      ref.type === 'path'
+        ? utils.path.relativeFrom(
+            utils.path.absoluteFrom(utils.path.cwd(), this.argv.installPath),
+            utils.path.absoluteFrom(utils.path.cwd(), ref.path)
+          )
+        : `${targetPackage.type}:${targetPackage.pkg.name}@${targetPackage.pkg.version}`
     const { bpDependencies } = pkgJson
     if (!bpDependencies) {
       pkgJson.bpDependencies = { [packageName]: version }
