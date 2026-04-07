@@ -291,7 +291,7 @@ const fetchBot = async (client: client.Client, botName: string): Promise<ApiBot 
   await fetchAllBots(client).then((bots) => bots.find(({ name }) => name === botName))
 
 const initIntegration = async (props: TestProps, integrationName: string) => {
-  const { tmpDir, dependencies, ...creds } = props
+  const { tmpDir, dependencies, workspaceHandle, ...creds } = props
   const argv = {
     ...defaults,
     botpressHome: getHomeDir({ tmpDir }),
@@ -300,7 +300,13 @@ const initIntegration = async (props: TestProps, integrationName: string) => {
   }
   const integrationDir = pathlib.join(tmpDir, integrationName)
   await impl
-    .init({ ...argv, workDir: tmpDir, name: integrationName, type: 'integration', template: 'empty' })
+    .init({
+      ...argv,
+      workDir: tmpDir,
+      name: `${workspaceHandle}/${integrationName}`,
+      type: 'integration',
+      template: 'empty',
+    })
     .then(utils.handleExitCode)
   await utils.fixBotpressDependencies({ workDir: integrationDir, target: dependencies })
   await utils.npmInstall({ workDir: integrationDir }).then(utils.handleExitCode)
