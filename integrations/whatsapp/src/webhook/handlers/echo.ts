@@ -1,3 +1,4 @@
+import { safeFormatPhoneNumber } from '../../misc/phone-number-to-whatsapp'
 import { WhatsAppMessageEchoValue, WhatsAppEchoMessage } from '../../misc/types'
 import { _handleMessage } from './messages'
 import * as bp from '.botpress'
@@ -9,10 +10,18 @@ export const echoHandler = async (
 ) => {
   const { ctx, client, logger } = props
 
+  const formatPhoneNumberResponse = safeFormatPhoneNumber(echo.to)
+  if (formatPhoneNumberResponse.success === false) {
+    logger
+      .forBot()
+      .error(`Failed to parse recipient phone number "${echo.to}": ${formatPhoneNumberResponse.error.message}`)
+  }
+  const userPhone = formatPhoneNumberResponse.success ? formatPhoneNumberResponse.phoneNumber : echo.to
+
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
     tags: {
-      userPhone: echo.to,
+      userPhone,
       botPhoneNumberId: value.metadata.phone_number_id,
     },
   })
