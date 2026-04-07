@@ -316,15 +316,17 @@ const initIntegration = async (props: TestProps, integrationName: string) => {
 export const addLocalIntegrationKeepsRelativePath: Test = {
   name: 'cli should store the original relative path in bpDependencies when adding a local integration',
   handler: async (props) => {
-    const { tmpDir, logger, ...creds } = props
+    const { tmpDir, logger, workspaceHandle, ...creds } = props
     const argv = {
       ...defaults,
       botpressHome: getHomeDir({ tmpDir }),
       confirm: true,
+      workspaceHandle,
       ...creds,
     }
 
     const integrationName = `myintegration${utils.getUUID()}`
+    const fullIntegrationName = `${workspaceHandle}/${integrationName}`
     const { integrationDir } = await initIntegration(props, integrationName)
 
     logger.info('Initializing bot')
@@ -339,7 +341,8 @@ export const addLocalIntegrationKeepsRelativePath: Test = {
       : `./${relativeIntegrationPath}`
 
     // The stored path should be relative to installPath (botDir), not process.cwd()
-    const expectedStoredPath = pathlib.relative(botDir, integrationDir)
+    const rel = pathlib.relative(botDir, integrationDir)
+    const expectedStoredPath = rel.startsWith('.') ? rel : `./${rel}`
 
     logger.info('Adding local integration via relative path')
     await impl
@@ -351,7 +354,7 @@ export const addLocalIntegrationKeepsRelativePath: Test = {
     if (!bpDeps) {
       throw new Error('Expected bpDependencies to be set in package.json after bp add')
     }
-    const storedPath = bpDeps[integrationName]
+    const storedPath = bpDeps[fullIntegrationName]
     if (storedPath !== expectedStoredPath) {
       throw new Error(`Expected bpDependencies to store "${expectedStoredPath}" but got "${storedPath}"`)
     }
@@ -361,15 +364,17 @@ export const addLocalIntegrationKeepsRelativePath: Test = {
 export const addDevIntegrationSkipsBpDependencies: Test = {
   name: 'cli should not modify bpDependencies when adding a local integration with --use-dev',
   handler: async (props) => {
-    const { tmpDir, logger, ...creds } = props
+    const { tmpDir, logger, workspaceHandle, ...creds } = props
     const argv = {
       ...defaults,
       botpressHome: getHomeDir({ tmpDir }),
       confirm: true,
+      workspaceHandle,
       ...creds,
     }
 
     const integrationName = `myintegration${utils.getUUID()}`
+    const fullIntegrationName = `${workspaceHandle}/${integrationName}`
     const { integrationDir } = await initIntegration(props, integrationName)
 
     // Simulate a dev integration by writing a devId to the project cache
@@ -398,9 +403,9 @@ export const addDevIntegrationSkipsBpDependencies: Test = {
 
     const pkgJson = JSON.parse(fslib.readFileSync(pathlib.join(botDir, 'package.json'), 'utf8'))
     const bpDeps = pkgJson.bpDependencies as Record<string, string> | undefined
-    if (bpDeps?.[integrationName] !== undefined) {
+    if (bpDeps?.[fullIntegrationName] !== undefined) {
       throw new Error(
-        `Expected "${integrationName}" to NOT be in bpDependencies when using --use-dev, but got: ${JSON.stringify(bpDeps)}`
+        `Expected "${fullIntegrationName}" to NOT be in bpDependencies when using --use-dev, but got: ${JSON.stringify(bpDeps)}`
       )
     }
   },
