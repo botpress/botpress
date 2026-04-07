@@ -337,7 +337,7 @@ export const addLocalIntegrationKeepsRelativePath: Test = {
 
     // The stored path should be relative to installPath (botDir), not process.cwd()
     // Use integrationDir (absolute) as packageRef to avoid cross-drive issues on Windows
-    const rel = pathlib.relative(botDir, integrationDir)
+    const rel = pathlib.relative(botDir, integrationDir).split(pathlib.sep).join('/')
     const expectedStoredPath = rel.startsWith('.') ? rel : `./${rel}`
 
     logger.info('Adding local integration via relative path')
