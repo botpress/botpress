@@ -15,7 +15,10 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
       - name: Login to Botpress
-        run: pnpm bp login -y --token ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }} --workspace-id ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
+        env:
+          TOKEN: ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}
+          WORKSPACE_ID: ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
+        run: pnpm bp login -y --token "$TOKEN" --workspace-id "$WORKSPACE_ID"
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v46
@@ -23,22 +26,24 @@ jobs:
           files: 'integrations/**/*.{ts,md,svg}'
           separator: '\n'
       - name: Check integration versions
+        env:
+          CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
-          modified_integrations=$(echo -e "${{ steps.changed-files.outputs.all_changed_files }}" | awk -F'/' '{print $2}' | sort -u)
+          modified_integrations=$(echo -e "$CHANGED_FILES" | awk -F'/' '{print $2}' | sort -u)
 
           should_fail=0
 
           for integration in $modified_integrations; do
             echo "Checking $integration"
-            exists=$(./.github/scripts/integration-exists.sh $integration)
+            exists=$(./.github/scripts/integration-exists.sh "$integration")
 
-            if [ $exists -ne 0 ]; then
+            if [ "$exists" -ne 0 ]; then
               echo "Integration $integration is already deployed publicly with the same version. Please update the version of your integration."
               should_fail=1
             fi
           done
 
-          if [ $should_fail -ne 0 ]; then
+          if [ "$should_fail" -ne 0 ]; then
             echo "Please update the version of your integration before pushing your changes."
             exit 1
           fi
