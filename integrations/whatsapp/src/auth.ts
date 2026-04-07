@@ -61,7 +61,6 @@ export class MetaOauthClient {
       `https://graph.facebook.com/${this._version}/debug_token?${query.toString()}`
     )
 
-    console.log('dataDebugToken', dataDebugToken)
     const data = getWabaIdsFromTokenResponseSchema.safeParse(dataDebugToken).data?.data
     if (!data) {
       throw new RuntimeError('Invalid response from API when fetching WhatsApp Business Accounts IDs')

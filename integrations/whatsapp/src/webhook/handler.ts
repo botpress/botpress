@@ -2,6 +2,7 @@ import { Request } from '@botpress/sdk'
 import * as crypto from 'crypto'
 import { getClientSecret } from '../auth'
 import { WhatsAppPayload, WhatsAppPayloadSchema } from '../misc/types'
+import { echoHandler } from './handlers/echo'
 import { messagesHandler } from './handlers/messages'
 import { oauthCallbackHandler } from './handlers/oauth'
 import { reactionHandler } from './handlers/reaction'
@@ -56,6 +57,11 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
   }
 
   switch (changes.field) {
+    case 'smb_message_echoes':
+      for (const echo of changes.value.message_echoes) {
+        await echoHandler(echo, changes.value, props)
+      }
+      break
     case 'messages':
       for (const message of changes.value.messages ?? []) {
         if (message.type === 'reaction') {
