@@ -1,13 +1,6 @@
 name: Deploy Chat Staging
 
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - 'integrations/chat/**'
-      - 'packages/sdk/**'
-
   workflow_dispatch:
     inputs:
       branchOrCommit:
@@ -50,7 +43,7 @@ jobs:
           builder: ${{ inputs.builder || 'depot' }}
           role-ecs-update: botpress_infra_update
           skip-ecs-update: ${{ inputs.skipDeploy }}
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.branchOrCommit || github.sha }}
+          ref: ${{ inputs.branchOrCommit || github.sha }}
           environment: staging
 
   update-integration-url:
@@ -60,7 +53,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.branchOrCommit || github.sha }}
+          ref: ${{ inputs.branchOrCommit || github.sha }}
 
       - name: Setup
         uses: ./.github/actions/setup
