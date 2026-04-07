@@ -67,7 +67,7 @@ export const relativePathFrom = (rootdir: AbsolutePath, target: string) => {
     return rel // different drives on Windows — keep absolute
   }
   const unix = toUnix(rel)
-  return unix.startsWith('.') ? unix : `./${unix}`
+  return unix.startsWith('./') || unix.startsWith('../') ? unix : `./${unix}`
 }
 
 export class PathStore<P extends string> {
