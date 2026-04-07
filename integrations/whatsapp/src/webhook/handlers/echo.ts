@@ -1,4 +1,4 @@
-import { WhatsAppMessage, WhatsAppMessageEchoValue, WhatsAppEchoMessage } from '../../misc/types'
+import { WhatsAppMessageEchoValue, WhatsAppEchoMessage } from '../../misc/types'
 import { _handleMessage } from './messages'
 import * as bp from '.botpress'
 
