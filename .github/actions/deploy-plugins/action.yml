@@ -1,7 +1,7 @@
 name: Deploy Plugins
 description: Deploys plugins
 
-input:
+inputs:
   environment:
     type: choice
     description: 'Environment to deploy to'
@@ -59,7 +59,7 @@ runs:
 
         all_filters="-F '{plugins/*}' $INPUT_EXTRA_FILTER"
         list_plugins_cmd="pnpm list $all_filters --json"
-        plugin_paths=$(eval "$list_plugins_cmd" | jq -r 'map(".path") | .[]')
+        plugin_paths=$(eval "$list_plugins_cmd" | jq -r 'map(.path) | .[]')
 
         for plugin_path in $plugin_paths; do
             plugin=$(basename "$plugin_path")
