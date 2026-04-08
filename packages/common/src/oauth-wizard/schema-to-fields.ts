@@ -57,7 +57,7 @@ const DISPLAY_AS_TO_HTML: Record<string, HtmlInputType> = {
   textarea: 'textarea',
 }
 
-function resolveHtmlInputType(displayAsId: string | undefined, naked: z.ZodType, hasEnum: boolean): HtmlInputType {
+function _resolveHtmlInputType(displayAsId: string | undefined, naked: z.ZodType, hasEnum: boolean): HtmlInputType {
   if (displayAsId) {
     const mapped = DISPLAY_AS_TO_HTML[displayAsId]
     if (mapped) {
@@ -77,7 +77,7 @@ function resolveHtmlInputType(displayAsId: string | undefined, naked: z.ZodType,
   return 'text'
 }
 
-function capitalizeFieldName(name: string): string {
+function _capitalizeFieldName(name: string): string {
   return name
     .replace(/([A-Z])/g, ' $1')
     .replace(/[_-]/g, ' ')
@@ -115,12 +115,12 @@ export function schemaToFieldDescriptors<T extends z.ZodObject>(
     const displayAsParams = displayAs?.[1] ?? {}
     const isEnum = z.is.zuiEnum(naked)
     const options = isEnum ? (naked._def.values as string[]).map((v) => ({ label: v, value: v })) : undefined
-    const inputType = resolveHtmlInputType(displayAsId, naked, isEnum)
+    const inputType = _resolveHtmlInputType(displayAsId, naked, isEnum)
     const defaultValue = findDefault(field)
 
     fields.push({
       name,
-      label: zui?.title ?? capitalizeFieldName(name),
+      label: zui?.title ?? _capitalizeFieldName(name),
       inputType,
       displayAsParams,
       placeholder: zui?.placeholder,
