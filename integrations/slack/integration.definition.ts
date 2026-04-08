@@ -1,4 +1,5 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
+import proactiveConversation from 'bp_modules/proactive-conversation'
 import typingIndicator from 'bp_modules/typing-indicator'
 
 import {
@@ -38,18 +39,27 @@ export default new IntegrationDefinition({
   entities: {
     conversation: {
       title: 'Conversation',
-      description: 'A Slack channel conversation',
+      description: 'A Slack conversation (channel or DM)',
       schema: z.object({
+        channel: z
+          .enum(['dm', 'channel'])
+          .title('Channel Type')
+          .describe('Whether to start a DM or channel conversation'),
         channelId: z
           .string()
           .optional()
           .title('Channel ID')
-          .describe('The Slack channel ID. If provided, the channel name lookup is skipped.'),
+          .describe('The Slack channel ID. If provided, the channel name lookup is skipped. (for channel type)'),
         channelName: z
           .string()
           .optional()
           .title('Channel Name')
-          .describe('The name of the channel. Used to look up the channel if no ID is provided.'),
+          .describe('The name of the channel. Used to look up the channel if no ID is provided. (for channel type)'),
+        slackUserId: z
+          .string()
+          .optional()
+          .title('Slack User ID')
+          .describe('The Slack user ID to start a DM with. (for dm type)'),
       }),
     },
   },
@@ -61,6 +71,12 @@ export default new IntegrationDefinition({
   __advanced: {
     toJSONSchemaOptions,
   },
-}).extend(typingIndicator, () => ({
-  entities: {},
-}))
+})
+  .extend(typingIndicator, () => ({
+    entities: {},
+  }))
+  .extend(proactiveConversation, ({ entities }) => ({
+    entities: {
+      conversation: entities.conversation,
+    },
+  }))

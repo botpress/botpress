@@ -81,31 +81,16 @@ export const actions = {
     },
   },
 
-  syncMembers: {
-    title: 'Sync Members',
-    description:
-      'Sync Slack workspace members to Botpress users. This action keeps track of the last sync timestamp and will only sync updated members since the last sync.',
-    input: {
-      schema: sdk.z.object({}),
-    },
-    output: {
-      schema: sdk.z.object({
-        syncedCount: sdk.z.number().title('Synced Count').describe('The number of members synced'),
-      }),
-    },
-  },
-
-  // TODO change to proactive conversation on next major
-  startChannelConversation: {
-    title: 'Start Channel Conversation',
-    description: 'Initiate a conversation in a channel',
+  getOrCreateChannelConversation: {
+    title: 'Get or Create Channel Conversation',
+    description: 'Get or create a conversation in a channel',
     input: {
       schema: sdk.z.object({
         channelName: sdk.z
           .string()
           .optional()
-          .title('[DEPRECATED] Channel Name')
-          .describe('[DEPRECATED] The name of the channel you want the conversation to be created at'),
+          .title('Channel Name')
+          .describe('The name of the channel you want the conversation to be created at'),
         channelId: sdk.z
           .string()
           .optional()
@@ -120,10 +105,9 @@ export const actions = {
     },
   },
 
-  // TODO change to proactive conversation on next major
-  startDmConversation: {
-    title: 'Start DM Conversation',
-    description: 'Initiate a conversation with a user in a DM',
+  getOrCreateDmConversation: {
+    title: 'Get or Create DM Conversation',
+    description: 'Get or create a conversation with a user in a DM',
     input: {
       schema: sdk.z.object({
         slackUserId: sdk.z.string().title('User ID').describe('The ID of the user to initiate the conversation with'),
@@ -133,6 +117,20 @@ export const actions = {
       schema: sdk.z.object({
         userId: sdk.z.string().title('User ID').describe('The ID of the user'),
         conversationId: sdk.z.string().title('Conversation ID').describe('The ID of the new conversation'),
+      }),
+    },
+  },
+
+  syncMembers: {
+    title: 'Sync Members',
+    description:
+      'Sync Slack workspace members to Botpress users. This action keeps track of the last sync timestamp and will only sync updated members since the last sync.',
+    input: {
+      schema: sdk.z.object({}),
+    },
+    output: {
+      schema: sdk.z.object({
+        syncedCount: sdk.z.number().title('Synced Count').describe('The number of members synced'),
       }),
     },
   },

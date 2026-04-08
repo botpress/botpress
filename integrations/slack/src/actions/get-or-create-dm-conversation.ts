@@ -1,7 +1,7 @@
 import { wrapActionAndInjectSlackClient } from 'src/actions/action-wrapper'
 
-export const startDmConversation = wrapActionAndInjectSlackClient(
-  { actionName: 'startDmConversation', errorMessage: 'Failed to start DM conversation' },
+export const getOrCreateDmConversation = wrapActionAndInjectSlackClient(
+  { actionName: 'getOrCreateDmConversation', errorMessage: 'Failed to get or create DM conversation' },
   async ({ client, slackClient }, { slackUserId }) => {
     const { user } = await client.getOrCreateUser({
       tags: {

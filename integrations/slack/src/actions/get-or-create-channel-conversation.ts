@@ -1,8 +1,8 @@
 import { RuntimeError } from '@botpress/client'
 import { wrapActionAndInjectSlackClient } from 'src/actions/action-wrapper'
 
-export const startChannelConversation = wrapActionAndInjectSlackClient(
-  { actionName: 'startChannelConversation', errorMessage: 'Failed to start Channel conversation' },
+export const getOrCreateChannelConversation = wrapActionAndInjectSlackClient(
+  { actionName: 'getOrCreateChannelConversation', errorMessage: 'Failed to get or create Channel conversation' },
   async ({ client, logger, slackClient }, { channelId, channelName }) => {
     let resolvedChannelId: string | undefined = channelId
 
