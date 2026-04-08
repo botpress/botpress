@@ -102,8 +102,8 @@ function findDefault(field: z.ZodType): unknown {
 
 export function schemaToFieldDescriptors<T extends z.ZodObject>(
   schema: T,
-  errors?: z.ZodError<T['_def']>,
-  previousValues?: T['_input']
+  errors?: z.ZodError<z.input<T>>,
+  previousValues?: z.input<T>
 ): FormFieldDescriptor[] {
   const fields: FormFieldDescriptor[] = []
 

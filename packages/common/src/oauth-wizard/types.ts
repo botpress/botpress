@@ -54,8 +54,8 @@ export type WizardStepInputProps = {
       htmlOrMarkdownPageContents: string
       schema: T
       nextStepId: string
-      errors?: z.ZodError<z.infer<T>>
-      previousValues?: T['_input']
+      errors?: z.ZodError<z.input<T>>
+      previousValues?: z.input<T>
     }) => Response
     displayCustom: (props: { pageTitle: string; body: VNode }) => Response
     endWizard: (result: { success: true } | { success: false; errorMessage: string }) => Response
