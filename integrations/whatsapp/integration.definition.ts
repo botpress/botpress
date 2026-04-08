@@ -46,6 +46,14 @@ const commonConfigSchema = z.object({
     .describe(
       'Expiry time in hours for downloaded media files. An expiry time of 0 means the files will never expire.'
     ),
+  listenMessageEchoes: z
+    .boolean()
+    .default(false)
+    .optional()
+    .title('Listen Message Echoes')
+    .describe(
+      'When enabled, triggers an onMessageEchoReceived event when an external message is echoed via the webhook.'
+    ),
 })
 
 const dropdownButtonLabelSchema = z
@@ -149,7 +157,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.12.2'
+export const INTEGRATION_VERSION = '4.13.0'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
@@ -330,6 +338,10 @@ export default new IntegrationDefinition({
             title: 'Referral Source ID',
             description: 'The ID of the ad or content that led to the conversation',
           },
+          echoCreationType: {
+            title: 'Echo Creation Type',
+            description: 'For echoed messages: the creation type reported by WhatsApp (e.g. "created_by_1p_bot")',
+          },
         },
       },
       conversation: {
@@ -355,6 +367,10 @@ export default new IntegrationDefinition({
       name: {
         title: 'Name',
         description: 'WhatsApp user display name',
+      },
+      number: {
+        title: 'Phone Number',
+        description: 'WhatsApp phone number of the user',
       },
     },
   },
@@ -497,6 +513,12 @@ export default new IntegrationDefinition({
     messageRead: {
       title: 'Message Read',
       description: 'Triggered when a user reads a message',
+      schema: z.object({}),
+    },
+    onMessageEchoReceived: {
+      title: 'Message Echo Received',
+      description:
+        'Triggered when an outbound message sent through another channel (e.g. a human agent) is echoed back via the webhook',
       schema: z.object({}),
     },
     reactionAdded: {

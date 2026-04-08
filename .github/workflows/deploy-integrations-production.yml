@@ -12,6 +12,7 @@ on:
 permissions:
   id-token: write
   contents: read
+  actions: write
 
 jobs:
   deploy-production:
