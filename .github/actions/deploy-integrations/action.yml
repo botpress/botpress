@@ -64,7 +64,6 @@ runs:
         # shellcheck disable=SC2086 # SENTRY_FILTER contains multiple space-separated -F flags that must be split into individual arguments
         pnpm -r --stream $SENTRY_FILTER exec sentry-cli sourcemaps upload --release="$GITHUB_SHA" --url-prefix '~' .botpress/dist
     - name: Deploys Integrations
-      shell: bash
       env:
         INPUT_ENVIRONMENT: ${{ inputs.environment }}
         INPUT_FORCE: ${{ inputs.force }}
@@ -74,6 +73,8 @@ runs:
         CLOUD_OPS_WORKSPACE_ID: ${{ inputs.cloud_ops_workspace_id }}
         SENTRY_RELEASE: ${{ github.sha }}
         SENTRY_ENVIRONMENT: ${{ inputs.environment }}
+        GH_TOKEN: ${{ github.token }}
+      shell: bash
       run: |
         if [ "$INPUT_ENVIRONMENT" = "staging" ]; then
           api_url="https://api.botpress.dev"
@@ -109,6 +110,18 @@ runs:
         for integration_path in $integration_paths; do
             integration=$(basename "$integration_path")
             exists=$(./.github/scripts/integration-exists.sh "$integration")
+
+            if [ "$integration" == "chat" ]; then
+                if [ $exists -eq 0 ] || [ $redeploy -eq 1 ]; then
+                    echo -e "\nTriggering ECS deploy for: ### $integration ###\n"
+                    if [ $is_dry_run -eq 0 ]; then
+                        gh workflow run "deploy-chat-${INPUT_ENVIRONMENT}.yml" --field branchOrCommit="${GITHUB_SHA}"
+                    fi
+                else
+                    echo -e "\nSkipping integration: ### $integration ###\n"
+                fi
+                continue
+            fi
 
             base_command="bp deploy -v -y --noBuild --visibility public --allowDeprecated $dryrun"
 

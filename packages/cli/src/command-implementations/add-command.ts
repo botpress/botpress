@@ -73,7 +73,10 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         throw new errors.InvalidPackageReferenceError(pkgRefStr)
       }
 
-      const refWithAlias = { ...parsed, alias: pkgAlias }
+      // Resolve path refs against installPath so reinstall works regardless of cwd
+      const normalized =
+        parsed.type === 'path' ? { ...parsed, path: utils.path.absoluteFrom(baseInstallPath, parsed.path) } : parsed
+      const refWithAlias = { ...normalized, alias: pkgAlias }
       const foundPkg = await this._findPackage(refWithAlias)
       await this._addSinglePackage(refWithAlias, foundPkg)
     }
@@ -162,7 +165,14 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   private async _addNewSinglePackage(ref: RefWithAlias) {
     const foundPackage = await this._findPackage(ref)
     const targetPackage = foundPackage.targetPackage
-    const packageName = await this._addDependencyToPackage(foundPackage.packageName, targetPackage)
+    const isDevPackage = targetPackage.type === 'integration' && !!targetPackage.pkg.devId
+    let packageName: string
+    if (isDevPackage) {
+      this.logger.debug('Skipping bpDependencies update for dev integration')
+      packageName = foundPackage.packageName
+    } else {
+      packageName = await this._addDependencyToPackage(ref, foundPackage.packageName, targetPackage)
+    }
     await this._addSinglePackage(ref, { packageName, targetPackage })
   }
 
@@ -360,7 +370,11 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     })
   }
 
-  private async _addDependencyToPackage(packageName: string, targetPackage: InstallablePackage): Promise<string> {
+  private async _addDependencyToPackage(
+    ref: RefWithAlias,
+    packageName: string,
+    targetPackage: InstallablePackage
+  ): Promise<string> {
     const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath).catch((thrown) => {
       throw errors.BotpressCLIError.wrap(thrown, 'Failed to read package.json file')
     })
@@ -371,7 +385,12 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     }
 
     const version =
-      targetPackage.pkg.path ?? `${targetPackage.type}:${targetPackage.pkg.name}@${targetPackage.pkg.version}`
+      ref.type === 'path'
+        ? utils.path.relativePathFrom(
+            utils.path.absoluteFrom(utils.path.cwd(), this.argv.installPath),
+            utils.path.absoluteFrom(utils.path.cwd(), ref.path)
+          )
+        : `${targetPackage.type}:${targetPackage.pkg.name}@${targetPackage.pkg.version}`
     const { bpDependencies } = pkgJson
     if (!bpDependencies) {
       pkgJson.bpDependencies = { [packageName]: version }
