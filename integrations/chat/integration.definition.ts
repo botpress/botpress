@@ -71,20 +71,14 @@ export default new sdk.IntegrationDefinition({
       description: 'Web chat channel for communicating with users via HTTP requests',
       conversation: {
         tags: {
-          owner: {
-            title: 'Conversation Owner',
-            description: 'ID of the user who created the conversation',
-          },
+          owner: { title: 'Conversation Owner', description: 'ID of the user who created the conversation' },
           fid: { title: 'Foreign ID', description: 'Copy of the foreign ID of the conversation' },
         },
       },
       messages,
       message: {
         tags: {
-          fid: {
-            title: 'Foreign ID',
-            description: 'This tag is of no use and only exists for historical reasons',
-          },
+          fid: { title: 'Foreign ID', description: 'This tag is of no use and only exists for historical reasons' },
         },
       },
     },
