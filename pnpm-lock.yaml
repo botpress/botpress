@@ -29,8 +29,8 @@ importers:
         specifier: workspace:*
         version: link:packages/sdk
       '@bpinternal/depsynky':
-        specifier: 0.3.0
-        version: 0.3.0
+        specifier: 0.3.2
+        version: 0.3.2
       '@bpinternal/readiness':
         specifier: ^0.0.16
         version: 0.0.16
@@ -4099,8 +4099,8 @@ packages:
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
 
-  '@bpinternal/depsynky@0.3.0':
-    resolution: {integrity: sha512-bhiEPOZXhJvzNzkwne3iRA+3RHppO8rLpDLZR8ee6XS7ATiTv4H9nOY31q89a4Pd/CXK2gWjJUmsq+QT93r72g==}
+  '@bpinternal/depsynky@0.3.2':
+    resolution: {integrity: sha512-Ck9WLYv7qZXBDg4XvKMk5Y2jGkbGkWVMwal+WWJFh3SMDWChGB2Z4b2UgVbdaIBD9j3AN0O7thrrg33B2IcmeQ==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
     hasBin: true
 
@@ -13666,7 +13666,7 @@ snapshots:
 
   '@bpinternal/const@0.1.0': {}
 
-  '@bpinternal/depsynky@0.3.0':
+  '@bpinternal/depsynky@0.3.2':
     dependencies:
       '@bpinternal/yargs-extra': 0.0.20
       chalk: 4.1.2
