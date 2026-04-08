@@ -3,7 +3,6 @@ import { z } from '@botpress/sdk'
 import { messages } from './definitions/channels/messages'
 import { apiVersion } from './src/gen/version'
 
-// this is a test
 export default new sdk.IntegrationDefinition({
   name: 'chat',
   title: 'Chat',
