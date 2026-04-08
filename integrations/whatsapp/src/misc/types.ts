@@ -286,10 +286,29 @@ export const WhatsAppTemplateCategoryUpdateValueSchema = z.object({
   new_category: z.string().optional(),
 })
 
+const WhatsAppEchoMessageSchema = WhatsAppMessageSchema.and(
+  z.object({ to: z.string(), message_creation_type: z.string() })
+)
+export type WhatsAppEchoMessage = z.infer<typeof WhatsAppEchoMessageSchema>
+
+const WhatsAppMessageEchoValueSchema = z.object({
+  messaging_product: z.literal('whatsapp'),
+  metadata: z.object({
+    display_phone_number: z.string(),
+    phone_number_id: z.string(),
+  }),
+  message_echoes: z.array(WhatsAppEchoMessageSchema),
+})
+export type WhatsAppMessageEchoValue = z.infer<typeof WhatsAppMessageEchoValueSchema>
+
 const WhatsAppChangesSchema = z.discriminatedUnion('field', [
   z.object({
     field: z.literal('messages'),
     value: WhatsAppMessageValueSchema,
+  }),
+  z.object({
+    field: z.literal('smb_message_echoes'),
+    value: WhatsAppMessageEchoValueSchema,
   }),
   z.object({
     field: z.literal('message_template_components_update'),
