@@ -4,7 +4,7 @@ import * as bp from '.botpress'
 
 type GoogleOAuth2Client = InstanceType<(typeof google.auth)['OAuth2']>
 
-const OAUTH_SCOPES = ['https://www.googleapis.com/auth/drive.files']
+const OAUTH_SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 // Note: This endpoint is used to construct the OAuth2 client but is overridden
 // when exchanging tokens. The actual redirect URI is passed explicitly.
 const GLOBAL_OAUTH_ENDPOINT = `${process.env.BP_WEBHOOK_URL}/oauth`
