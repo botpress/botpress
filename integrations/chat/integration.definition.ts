@@ -1,74 +1,64 @@
-import * as sdk from "@botpress/sdk";
-import { z } from "@botpress/sdk";
-import { messages } from "./definitions/channels/messages";
-import { apiVersion } from "./src/gen/version";
+import * as sdk from '@botpress/sdk'
+import { z } from '@botpress/sdk'
+import { messages } from './definitions/channels/messages'
+import { apiVersion } from './src/gen/version'
 
 // this is a test
 export default new sdk.IntegrationDefinition({
-  name: "chat",
-  title: "Chat",
+  name: 'chat',
+  title: 'Chat',
   version: apiVersion,
-  readme: "hub.md",
-  icon: "icon.svg",
-  description:
-    "Chat integration for Botpress; Allows interacting with your bot using HTTP requests.",
+  readme: 'hub.md',
+  icon: 'icon.svg',
+  description: 'Chat integration for Botpress; Allows interacting with your bot using HTTP requests.',
   configuration: {
     schema: z.object({
       encryptionKey: z
         .string()
         .optional()
-        .title("Encryption Key (HS256) - optional")
+        .title('Encryption Key (HS256) - optional')
         .describe(
-          "Only set this config if you plan on signing your user key yourself. Key used to sign and verify user keys; JWT tokens with HS256 algorithm.",
+          'Only set this config if you plan on signing your user key yourself. Key used to sign and verify user keys; JWT tokens with HS256 algorithm.'
         ),
       webhookUrl: z
         .string()
         .optional()
-        .title("Webhook URL - optional")
+        .title('Webhook URL - optional')
         .describe(
-          "Only set this config if you want to listen on a webhook instead of the standard SSE stream. URL where all incoming and outgoing messages / events are sent to.",
+          'Only set this config if you want to listen on a webhook instead of the standard SSE stream. URL where all incoming and outgoing messages / events are sent to.'
         ),
       webhookSecret: z
         .string()
         .optional()
-        .title("Webhook Secret - optional")
-        .describe("Secret forwarded to the webhook URL."),
+        .title('Webhook Secret - optional')
+        .describe('Secret forwarded to the webhook URL.'),
     }),
   },
   events: {
     custom: {
-      title: "Custom Event",
-      description: "Custom event sent from the chat client to the bot",
+      title: 'Custom Event',
+      description: 'Custom event sent from the chat client to the bot',
       schema: z.object({
-        userId: z
-          .string()
-          .title("User ID")
-          .describe("The ID of the user who sent the custom event"),
+        userId: z.string().title('User ID').describe('The ID of the user who sent the custom event'),
         conversationId: z
           .string()
-          .title("Conversation ID")
-          .describe("The ID of the conversation where the event was sent"),
-        payload: z
-          .record(z.any())
-          .title("Payload")
-          .describe("Custom data payload sent with the event"),
+          .title('Conversation ID')
+          .describe('The ID of the conversation where the event was sent'),
+        payload: z.record(z.any()).title('Payload').describe('Custom data payload sent with the event'),
       }),
     },
   },
   actions: {
     sendEvent: {
-      title: "Send Custom Event",
-      description: "Send a custom event from the bot to the chat client",
+      title: 'Send Custom Event',
+      description: 'Send a custom event from the bot to the chat client',
       input: {
         schema: z.object({
           conversationId: z
             .string()
-            .title("Conversation ID")
-            .describe("The ID of the conversation to send the event to"),
-          payload: z
-            .record(z.any())
-            .title("Payload")
-            .describe("Custom data payload to send with the event"),
+            .title('Conversation ID')
+            .describe('The ID of the conversation to send the event to'),
+          payload: z.record(z.any()).title('Payload').describe('Custom data payload to send with the event'),
         }),
       },
       output: {
@@ -78,23 +68,23 @@ export default new sdk.IntegrationDefinition({
   },
   channels: {
     channel: {
-      title: "Chat Channel",
-      description: "Web chat channel for communicating with users via HTTP requests",
+      title: 'Chat Channel',
+      description: 'Web chat channel for communicating with users via HTTP requests',
       conversation: {
         tags: {
           owner: {
-            title: "Conversation Owner",
-            description: "ID of the user who created the conversation",
+            title: 'Conversation Owner',
+            description: 'ID of the user who created the conversation',
           },
-          fid: { title: "Foreign ID", description: "Copy of the foreign ID of the conversation" },
+          fid: { title: 'Foreign ID', description: 'Copy of the foreign ID of the conversation' },
         },
       },
       messages,
       message: {
         tags: {
           fid: {
-            title: "Foreign ID",
-            description: "This tag is of no use and only exists for historical reasons",
+            title: 'Foreign ID',
+            description: 'This tag is of no use and only exists for historical reasons',
           },
         },
       },
@@ -102,35 +92,34 @@ export default new sdk.IntegrationDefinition({
   },
   user: {
     tags: {
-      fid: { title: "Foreign ID", description: "Copy of the foreign ID of the user" },
+      fid: { title: 'Foreign ID', description: 'Copy of the foreign ID of the user' },
       profile: {
-        title: "User Profile",
-        description: "Custom profile data of the user encoded as a string",
+        title: 'User Profile',
+        description: 'Custom profile data of the user encoded as a string',
       },
     },
   },
   secrets: {
     SIGNAL_URL: {
-      description: "URL of the signal side of the realtime service",
+      description: 'URL of the signal side of the realtime service',
       optional: false,
     },
     SIGNAL_SECRET: {
       description:
-        "Secret used to authenticate with the signal service. If not provided, no authentication will be used",
+        'Secret used to authenticate with the signal service. If not provided, no authentication will be used',
       optional: true,
     },
     AUTH_ENCRYPTION_KEY: {
-      description: "Secret used to sign and verify JWT tokens",
+      description: 'Secret used to sign and verify JWT tokens',
       optional: false,
     },
     FID_STORE_CONFIG: {
-      description:
-        "Base64 encoded JSON object containing the configuration for the foreign id store",
+      description: 'Base64 encoded JSON object containing the configuration for the foreign id store',
       optional: true,
     },
   },
   attributes: {
-    category: "Communication & Channels",
-    repo: "botpress",
+    category: 'Communication & Channels',
+    repo: 'botpress',
   },
-});
+})
