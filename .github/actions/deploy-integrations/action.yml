@@ -105,7 +105,7 @@ runs:
 
         all_filters="-F '{integrations/*}' $INPUT_EXTRA_FILTER"
         list_integrations_cmd="pnpm list $all_filters --json"
-        integration_paths=$(eval "$list_integrations_cmd" | jq -r 'map(".path") | .[]')
+        integration_paths=$(eval "$list_integrations_cmd" | jq -r 'map(.path) | .[]')
 
         for integration_path in $integration_paths; do
             integration=$(basename "$integration_path")
