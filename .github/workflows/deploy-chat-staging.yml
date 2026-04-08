@@ -41,6 +41,7 @@ jobs:
           dockerfile: integrations/chat/Dockerfile
           context: .
           builder: ${{ inputs.builder || 'depot' }}
+          depot-project: ${{ secrets.DEPOT_PROJECT_ID }}
           role-ecs-update: botpress_infra_update
           skip-ecs-update: ${{ inputs.skipDeploy }}
           ref: ${{ inputs.branchOrCommit || github.sha }}
