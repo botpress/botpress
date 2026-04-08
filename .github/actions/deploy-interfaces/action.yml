@@ -1,7 +1,7 @@
 name: Deploy Interfaces
 description: Deploys interfaces
 
-input:
+inputs:
   environment:
     type: choice
     description: 'Environment to deploy to'
