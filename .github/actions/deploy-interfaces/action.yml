@@ -59,7 +59,7 @@ runs:
 
         all_filters="-F '{interfaces/*}' $INPUT_EXTRA_FILTER"
         list_interfaces_cmd="pnpm list $all_filters --json"
-        interface_paths=$(eval "$list_interfaces_cmd" | jq -r 'map(".path") | .[]')
+        interface_paths=$(eval "$list_interfaces_cmd" | jq -r 'map(.path) | .[]')
 
         for interface_path in $interface_paths; do
             interface=$(basename "$interface_path")
