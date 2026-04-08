@@ -57,10 +57,7 @@ export type WizardStepInputProps = {
       errors?: z.ZodError<T['_def']>
       previousValues?: T['_input']
     }) => Response
-    displayCustom: (props: {
-      pageTitle: string
-      body: VNode
-    }) => Response
+    displayCustom: (props: { pageTitle: string; body: VNode }) => Response
     endWizard: (result: { success: true } | { success: false; errorMessage: string }) => Response
   }
 }
