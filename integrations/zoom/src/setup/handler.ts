@@ -1,4 +1,4 @@
-import { RuntimeError } from '@botpress/sdk'
+import { Request, RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
 import crypto from 'crypto'
 import { ZoomClient } from '../client'
@@ -66,6 +66,11 @@ const handleTranscriptCompleted = async ({
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
   const config = ctx.configuration
+  const isSignatureValid = _isSignatureValid(req, config.secretToken)
+  if (!isSignatureValid) {
+    logger.forBot().warn('Request signature was invalid')
+    return { status: 401, body: 'Invalid signature' }
+  }
 
   try {
     const parsed = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
@@ -98,4 +103,15 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
     logger.forBot().error(`Webhook handler error: ${errorMsg}`)
     return { status: 400, body: 'Invalid request' }
   }
+}
+
+const _isSignatureValid = (req: Request, secret: string) => {
+  const timestamp = req.headers?.['x-zm-request-timestamp']
+  const signature = req.headers?.['x-zm-signature']
+  if (!timestamp || !signature) {
+    return false
+  }
+  const message = `v0:${timestamp}:${typeof req.body === 'string' ? req.body : JSON.stringify(req.body)}`
+  const expectedSig = 'v0=' + crypto.createHmac('sha256', secret).update(message).digest('hex')
+  return signature === expectedSig
 }
