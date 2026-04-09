@@ -90,12 +90,12 @@ export type ResolvedIntegrationConfigInstance<I extends IntegrationPackage = Int
 } & (
   | {
       configurationType?: null
-      configuration: z.infer<NonNullable<I['definition']['configuration']>['schema']>
+      configuration: z.input<NonNullable<I['definition']['configuration']>['schema']>
     }
   | ValueOf<{
       [K in StringKeys<NonNullable<I['definition']['configurations']>>]: {
         configurationType: K
-        configuration: z.infer<NonNullable<I['definition']['configurations']>[K]['schema']>
+        configuration: z.input<NonNullable<I['definition']['configurations']>[K]['schema']>
       }
     }>
 )
@@ -107,7 +107,7 @@ type IntegrationConfigInstance<I extends IntegrationPackage = IntegrationPackage
 
 type _ResolvedPluginConfigInstance<P extends PluginPackage = PluginPackage> = {
   alias: string
-  configuration: z.infer<NonNullable<P['definition']['configuration']>['schema']>
+  configuration: z.input<NonNullable<P['definition']['configuration']>['schema']>
   interfaces: {
     [I in keyof NonNullable<P['definition']['interfaces']>]: PluginInterfaceExtension
   }
@@ -276,12 +276,25 @@ export class BotDefinition<
       throw new DefinitionError(`Another integration with alias "${integrationAlias}" is already installed in the bot`)
     }
 
+    const configurationType = config && 'configurationType' in config ? config.configurationType : undefined
+    const rawConfiguration = config && 'configuration' in config ? (config.configuration ?? {}) : {}
+
+    const configSchema = configurationType
+      ? integrationPkg.definition.configurations?.[configurationType]?.schema
+      : integrationPkg.definition.configuration?.schema
+
+    // Use safeParse to avoid throwing on validation errors at definition time (e.g. genenv placeholders
+    // or extra keys in catchall(z.never()) schemas). Spread rawConfiguration first to preserve unknown
+    // keys, then overlay the parsed result so that z.default() values are applied for omitted fields.
+    const parseResult = configSchema ? configSchema.safeParse(rawConfiguration) : null
+    const configuration = parseResult?.success ? { ...rawConfiguration, ...parseResult.data } : rawConfiguration
+
     self.integrations[integrationAlias] = {
       ...integrationPkg,
       alias: integrationAlias,
       enabled: config?.enabled,
-      configurationType: config && 'configurationType' in config ? config.configurationType : undefined,
-      configuration: config && 'configuration' in config ? (config.configuration ?? {}) : {},
+      configurationType,
+      configuration,
       disabledChannels: config?.disabledChannels,
     }
     return this
@@ -368,10 +381,20 @@ export class BotDefinition<
         })
     )
 
+    const rawPluginConfiguration = config.configuration ?? {}
+    const pluginConfigSchema = pluginPkg.definition.configuration?.schema
+    // Use safeParse to avoid throwing on validation errors at definition time (e.g. genenv placeholders
+    // or extra keys in catchall(z.never()) schemas). Spread rawPluginConfiguration first to preserve
+    // unknown keys, then overlay the parsed result so that z.default() values are applied for omitted fields.
+    const pluginParseResult = pluginConfigSchema ? pluginConfigSchema.safeParse(rawPluginConfiguration) : null
+    const pluginConfiguration = pluginParseResult?.success
+      ? { ...rawPluginConfiguration, ...pluginParseResult.data }
+      : rawPluginConfiguration
+
     self.plugins[pluginAlias] = {
       ...pluginPkg,
       alias: pluginAlias,
-      configuration: config.configuration ?? {},
+      configuration: pluginConfiguration,
       interfaces,
       integrations,
     }

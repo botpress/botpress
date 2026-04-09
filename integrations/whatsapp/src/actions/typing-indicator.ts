@@ -9,13 +9,17 @@ export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIn
   input,
   logger,
 }) => {
+  if (ctx.configuration.messageReadBehavior === 'none') {
+    return {}
+  }
   const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
   const { conversationId, messageId } = input
   const { botPhoneNumberId, userPhone } = await _getConversationInfos(client, conversationId)
   const { whatsappMessageId } = await _getMessageInfos(client, messageId)
+  const indicator = ctx.configuration.messageReadBehavior === 'typing_indicator' ? 'text' : undefined
 
   // No await to avoid blocking
-  void whatsapp.markAsRead(botPhoneNumberId, whatsappMessageId, 'text').catch((e) => {
+  void whatsapp.markAsRead(botPhoneNumberId, whatsappMessageId, indicator).catch((e) => {
     logger.forBot().error(`Error marking message as read and/or sending typing indicators: ${e ?? '[Unknown error]'}`)
   })
   if (ctx.configuration.typingIndicatorEmoji) {
@@ -31,6 +35,9 @@ export const stopTypingIndicator: bp.IntegrationProps['actions']['stopTypingIndi
   ctx,
   input,
 }) => {
+  if (ctx.configuration.messageReadBehavior === 'none' || !ctx.configuration.typingIndicatorEmoji) {
+    return {}
+  }
   const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
   const { conversationId, messageId } = input
   const { botPhoneNumberId, userPhone } = await _getConversationInfos(client, conversationId)

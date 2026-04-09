@@ -1,6 +1,6 @@
 {
   "name": "@botpress/cognitive",
-  "version": "0.4.7",
+  "version": "0.5.3",
   "description": "Wrapper around the Botpress Client to call LLMs",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -13,7 +13,7 @@
     "check:type": "tsc --noEmit",
     "build:type": "tsup --tsconfig tsconfig.build.json ./src/index.ts --dts-resolve --dts-only --clean",
     "build:neutral": "ts-node -T ./build.ts --neutral",
-    "build": "pnpm build:type && pnpm build:neutral && size-limit",
+    "build": "pnpm build:neutral && pnpm build:type && size-limit",
     "test:e2e": "vitest run --dir ./e2e",
     "test": "vitest --run",
     "refresh:models": "ts-node -T ./refresh-models.ts && pnpm prettier src/cognitive-v2/models.ts --write"

@@ -7,7 +7,14 @@ import { createDeployBotWithDependencies } from './tests/create-deploy-bot-with-
 import { createDeployIntegration } from './tests/create-deploy-integration'
 import { devBot } from './tests/dev-bot'
 import { installAllInterfaces } from './tests/install-interfaces'
-import { addIntegration, addPlugin } from './tests/install-package'
+import {
+  addIntegration,
+  addPlugin,
+  addLocalIntegrationKeepsRelativePath,
+  addDevIntegrationSkipsBpDependencies,
+  addDevIntegrationPreservesExistingBpDependency,
+  reinstallLocalIntegration,
+} from './tests/install-package'
 import { requiredIntegrationSecrets } from './tests/integration-secrets'
 import { enforceWorkspaceHandle, prependWorkspaceHandle } from './tests/manage-workspace-handle'
 import { removePackage } from './tests/remove-package'
@@ -25,6 +32,10 @@ const tests: Test[] = [
   enforceWorkspaceHandle,
   addIntegration,
   addPlugin,
+  addLocalIntegrationKeepsRelativePath,
+  addDevIntegrationSkipsBpDependencies,
+  addDevIntegrationPreservesExistingBpDependency,
+  reinstallLocalIntegration,
   installAllInterfaces,
   removePackage,
 ]
