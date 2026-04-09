@@ -1,5 +1,6 @@
 import * as errors from '../../gen/errors'
 import * as msgPayload from '../message-payload'
+import { setSpanAttributes, SPAN_ATTRS } from '../../tracing'
 import * as types from '../types'
 import * as fid from './fid'
 import * as model from './model'
@@ -10,6 +11,8 @@ export const createMessage: types.AuthenticatedOperations['createMessage'] = asy
 
   const { conversationId, payload, metadata } = req.body
   const { userId } = req.auth
+
+  setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: conversationId, [SPAN_ATTRS.USER_ID]: userId })
 
   const { participant } = await props.apiUtils.findParticipant({ id: conversationId, userId: req.auth.userId })
   if (!participant) {
@@ -64,6 +67,9 @@ export const deleteMessage: types.AuthenticatedOperations['deleteMessage'] = asy
   const { id } = req.params
 
   const { message } = await props.client.getMessage({ id })
+
+  setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: message.conversationId, [SPAN_ATTRS.USER_ID]: message.userId })
+
   if (message.userId !== req.auth.userId) {
     throw new errors.ForbiddenError('You are not the sender of this message')
   }

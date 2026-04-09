@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios'
+import { instrumentAxiosClient } from '../tracing'
 import { logger } from '../logger'
 import { SignalEmitter, Signal } from './typings'
 
@@ -46,6 +47,7 @@ export class PushpinEmitter implements SignalEmitter {
       baseURL: emitUrl,
       headers,
     })
+    instrumentAxiosClient(this._client)
   }
 
   public async emit(channel: string, signal: Signal): Promise<void> {

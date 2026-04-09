@@ -1,4 +1,5 @@
 import * as errors from '../../gen/errors'
+import { setSpanAttributes, SPAN_ATTRS } from '../../tracing'
 import * as types from '../types'
 import * as fid from './fid'
 import * as model from './model'
@@ -9,6 +10,8 @@ export const createEvent: types.AuthenticatedOperations['createEvent'] = async (
 
   const { conversationId, payload } = req.body
   const { userId } = req.auth
+
+  setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: conversationId, [SPAN_ATTRS.USER_ID]: userId })
 
   const { participant } = await props.apiUtils.findParticipant({ id: conversationId, userId: req.auth.userId })
   if (!participant) {

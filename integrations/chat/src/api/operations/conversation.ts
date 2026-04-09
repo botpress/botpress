@@ -1,5 +1,6 @@
 import * as errors from '../../gen/errors'
 import { validateFid } from '../../id-store'
+import { setSpanAttributes, SPAN_ATTRS } from '../../tracing'
 import * as types from '../types'
 import * as fid from './fid'
 import * as model from './model'
@@ -11,6 +12,8 @@ export const createConversation: types.AuthenticatedOperations['createConversati
   const {
     auth: { userId },
   } = req
+
+  setSpanAttributes({ [SPAN_ATTRS.USER_ID]: userId })
 
   const { conversation } = await props.client.createConversation({
     channel: 'channel',
@@ -177,6 +180,8 @@ export const listenConversation: types.AuthenticatedOperations['listenConversati
 
   const userId = req.auth.userId
   const conversationId = req.params.id
+
+  setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: conversationId, [SPAN_ATTRS.USER_ID]: userId })
 
   const { participant } = await props.apiUtils.findParticipant({ id: conversationId, userId })
   if (!participant) {

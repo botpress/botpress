@@ -1,5 +1,6 @@
 import * as errors from '../../gen/errors'
 import { validateFid } from '../../id-store'
+import { setSpanAttributes, SPAN_ATTRS } from '../../tracing'
 import * as types from '../types'
 import * as fid from './fid'
 import * as model from './model'
@@ -28,6 +29,7 @@ export const createUser: types.Operations['createUser'] = async (props, foreignR
   })
 
   const userFid = foreignReq.body.id ?? user.id
+  setSpanAttributes({ [SPAN_ATTRS.USER_ID]: user.id })
   const userKey = props.auth.generateKey({ id: userFid })
   return fidHandler.mapResponse({
     body: {
@@ -60,6 +62,7 @@ export const getOrCreateUser: types.AuthenticatedOperations['getOrCreateUser'] =
     (await props.apiUtils.findUser({ id: userFid }).then((res) => res.user?.id))
 
   if (existingId) {
+    setSpanAttributes({ [SPAN_ATTRS.USER_ID]: existingId })
     const { user: updatedUser } = await props.client.updateUser({
       id: existingId,
       name,
@@ -103,6 +106,7 @@ export const getOrCreateUser: types.AuthenticatedOperations['getOrCreateUser'] =
     },
   }
 
+  setSpanAttributes({ [SPAN_ATTRS.USER_ID]: newUser.id })
   await props.userIdStore.byFid.set(userFid, newUser.id)
   return fid.merge(res, {
     body: {

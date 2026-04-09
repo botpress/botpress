@@ -1,4 +1,5 @@
 import * as dynamodb from '@aws-sdk/client-dynamodb'
+import { runWithSpan } from '../tracing'
 import { logger } from '../logger'
 import * as errors from './errors'
 import * as types from './types'
@@ -23,17 +24,19 @@ class DynamoDbMap implements types.IdMap {
   public async find(src: string): Promise<string | undefined> {
     const { botId, tableName, indexName, partitionKey, srcKeyName, destKeyName } = this._props
 
-    const { Items } = await this._client.send(
-      new dynamodb.QueryCommand({
-        TableName: tableName,
-        IndexName: indexName,
-        ConsistentRead: true,
-        KeyConditionExpression: `${partitionKey} = :bot_id AND ${srcKeyName} = :src`,
-        ExpressionAttributeValues: {
-          ':bot_id': { S: botId },
-          ':src': { S: src },
-        },
-      })
+    const { Items } = await runWithSpan('dynamodb.find', () =>
+      this._client.send(
+        new dynamodb.QueryCommand({
+          TableName: tableName,
+          IndexName: indexName,
+          ConsistentRead: true,
+          KeyConditionExpression: `${partitionKey} = :bot_id AND ${srcKeyName} = :src`,
+          ExpressionAttributeValues: {
+            ':bot_id': { S: botId },
+            ':src': { S: src },
+          },
+        })
+      ), { attributes: { 'db.table': tableName, 'db.key': src } }
     )
 
     const dest = Items?.[0]?.[destKeyName]?.S
@@ -76,39 +79,43 @@ class IncomingDynamoDbMap extends DynamoDbMap implements types.IncomingIdMap {
     const { botId, tableName, partitionKey: partitionKeyName, sortKey, indexSortKey } = this._args
     const createdAt = String(Date.now())
 
-    await this._client
-      .send(
-        new dynamodb.PutItemCommand({
-          TableName: tableName,
-          Item: {
-            [partitionKeyName]: { S: botId },
-            [sortKey]: { S: fid },
-            [indexSortKey]: { S: id },
-            created_at: { N: createdAt },
-          },
-          ConditionExpression: `attribute_not_exists(${partitionKeyName}) AND attribute_not_exists(${sortKey})`,
-        })
-      )
-      .catch((thrown) => {
-        if (thrown instanceof dynamodb.ConditionalCheckFailedException) {
-          throw new errors.IdAlreadyAssignedError(fid)
-        }
-        throw thrown
-      })
+    await runWithSpan('dynamodb.set', () =>
+      this._client
+        .send(
+          new dynamodb.PutItemCommand({
+            TableName: tableName,
+            Item: {
+              [partitionKeyName]: { S: botId },
+              [sortKey]: { S: fid },
+              [indexSortKey]: { S: id },
+              created_at: { N: createdAt },
+            },
+            ConditionExpression: `attribute_not_exists(${partitionKeyName}) AND attribute_not_exists(${sortKey})`,
+          })
+        )
+        .catch((thrown) => {
+          if (thrown instanceof dynamodb.ConditionalCheckFailedException) {
+            throw new errors.IdAlreadyAssignedError(fid)
+          }
+          throw thrown
+        }), { attributes: { 'db.table': tableName, 'db.key': fid } }
+    )
 
     this._debug('set', fid, id)
   }
 
   public async delete(fid: string): Promise<void> {
     const { botId, tableName, partitionKey: partitionKeyName, sortKey } = this._args
-    await this._client.send(
-      new dynamodb.DeleteItemCommand({
-        TableName: tableName,
-        Key: {
-          [partitionKeyName]: { S: botId },
-          [sortKey]: { S: fid },
-        },
-      })
+    await runWithSpan('dynamodb.delete', () =>
+      this._client.send(
+        new dynamodb.DeleteItemCommand({
+          TableName: tableName,
+          Key: {
+            [partitionKeyName]: { S: botId },
+            [sortKey]: { S: fid },
+          },
+        })
+      ), { attributes: { 'db.table': tableName, 'db.key': fid } }
     )
   }
 }
@@ -142,13 +149,17 @@ class OutgoingDynamoDbMap extends DynamoDbMap implements types.OutoingIdMap {
     const { botId, tableName, indexName, partitionKey, indexSortKey, sortKey } = this._args
 
     const uniqueIds = Array.from(new Set(ids))
-    const whereIn = uniqueIds.map((id) => `'${id}'`).join(', ')
+    const placeholders = uniqueIds.map(() => '?').join(', ')
+    const parameters = [{ S: botId }, ...uniqueIds.map((id) => ({ S: id }))]
 
     // cannot perform a batch get operation on a secondary index, so we use PartiQl instead
-    const { Items } = await this._client.send(
-      new dynamodb.ExecuteStatementCommand({
-        Statement: `SELECT ${indexSortKey}, ${sortKey} FROM "${tableName}"."${indexName}" WHERE ${partitionKey} = '${botId}' AND ${indexSortKey} IN (${whereIn})`,
-      })
+    const { Items } = await runWithSpan('dynamodb.fetch', () =>
+      this._client.send(
+        new dynamodb.ExecuteStatementCommand({
+          Statement: `SELECT ${indexSortKey}, ${sortKey} FROM "${tableName}"."${indexName}" WHERE ${partitionKey} = ? AND ${indexSortKey} IN (${placeholders})`,
+          Parameters: parameters,
+        })
+      ), { attributes: { 'db.table': tableName, 'db.count': String(uniqueIds.length) } }
     )
 
     const entries: Record<string, string> = {}
