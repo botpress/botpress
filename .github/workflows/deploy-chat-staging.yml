@@ -1,6 +1,11 @@
 name: Deploy Chat Staging
 
 on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'integrations/chat/**'
   workflow_dispatch:
     inputs:
       branchOrCommit:
@@ -47,37 +52,14 @@ jobs:
           ref: ${{ inputs.branchOrCommit || github.sha }}
           environment: staging
 
-  update-integration-url:
-    needs: deploy-chat-staging
-    if: ${{ !inputs.skipDeploy }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.branchOrCommit || github.sha }}
-
-      - name: Setup
-        uses: ./.github/actions/setup
-
-      - name: Deploy integration with ECS URL
-        run: |
-          pnpm bp login -y \
-            --api-url "https://api.botpress.dev" \
-            --workspaceId "${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}" \
-            --token "${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}"
-
-          pnpm -F @botpresshub/chat -c exec -- \
-            bp deploy -v -y --noBuild --visibility public --allowDeprecated \
-            --url "http://chat.private:9271"
-
   ping-success:
-    needs: [deploy-chat-staging, update-integration-url]
+    needs: [deploy-chat-staging]
     runs-on: ubuntu-latest
     steps:
       - run: curl -m 10 --retry 5 ${{ secrets.CHAT_DEPLOY_STAGING_PING_URL }}
 
   ping-failure:
-    needs: [deploy-chat-staging, update-integration-url]
+    needs: [deploy-chat-staging]
     if: ${{ failure() }}
     runs-on: ubuntu-latest
     steps:
