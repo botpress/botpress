@@ -22,7 +22,11 @@ const getCustomHeaders = (): Record<string, string> | undefined => {
   }
 
   try {
-    return JSON.parse(raw) as Record<string, string>
+    const parsed = JSON.parse(raw)
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      return undefined
+    }
+    return parsed as Record<string, string>
   } catch {
     return undefined
   }
