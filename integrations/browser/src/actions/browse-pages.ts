@@ -15,6 +15,19 @@ const fixOutput = (val: unknown): string => {
   return ''
 }
 
+const getCustomHeaders = (): Record<string, string> | undefined => {
+  const raw = bp.secrets.FIRECRAWL_CUSTOM_HEADERS
+  if (!raw) {
+    return undefined
+  }
+
+  try {
+    return JSON.parse(raw) as Record<string, string>
+  } catch {
+    return undefined
+  }
+}
+
 const getPageContent = async (props: {
   url: string
   logger: IntegrationLogger
@@ -34,6 +47,7 @@ const getPageContent = async (props: {
       waitFor: props.waitFor,
       timeout: props.timeout,
       formats: ['markdown', 'rawHtml'],
+      headers: getCustomHeaders(),
       storeInCache: true,
     })
 

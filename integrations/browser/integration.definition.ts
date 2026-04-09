@@ -22,6 +22,10 @@ export default new IntegrationDefinition({
     FIRECRAWL_API_KEY: {
       description: 'FireCrawl key',
     },
+    FIRECRAWL_CUSTOM_HEADERS: {
+      description: 'Custom HTTP headers to include in Firecrawl scrape requests (JSON object)',
+      optional: true,
+    },
     LOGO_API_KEY: {
       description: 'Logo key',
     },
