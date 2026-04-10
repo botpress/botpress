@@ -54,7 +54,7 @@ const integration = new bp.Integration({
       await telegraf.telegram.sendChatAction(chat, 'typing').catch(mapToRuntimeErrorAndThrow('Fail to start typing'))
 
       if (ctx.configuration.typingIndicatorEmoji === false) {
-        return false
+        return {}
       }
 
       await telegraf.telegram
@@ -65,7 +65,7 @@ const integration = new bp.Integration({
     },
     stopTypingIndicator: async ({ input, ctx, client }) => {
       if (ctx.configuration.typingIndicatorEmoji === false) {
-        return false
+        return {}
       }
 
       const telegraf = new Telegraf(ctx.configuration.botToken)
