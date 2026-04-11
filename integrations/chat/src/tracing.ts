@@ -1,10 +1,22 @@
 import { context, propagation, SpanStatusCode, trace } from '@opentelemetry/api'
 import { W3CTraceContextPropagator } from '@opentelemetry/core'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
+import { registerInstrumentations } from '@opentelemetry/instrumentation'
+import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { Resource } from '@opentelemetry/resources'
 import { BatchSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base'
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
 import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios'
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+const ULID_REGEX = /^[a-zA-Z]+_[0-9A-HJKMNP-TV-Z]{26}$/
+
+export const normalizePath = (path: string): string =>
+  path
+    .split('?')[0]!
+    .split('/')
+    .map((part) => (UUID_REGEX.test(part) || ULID_REGEX.test(part) ? ':id' : part))
+    .join('/')
 
 export const SPAN_ATTRS = {
   USER_ID: 'bp.userId',
@@ -35,6 +47,41 @@ export const initTracing = (): NodeTracerProvider | null => {
     provider.addSpanProcessor(new BatchSpanProcessor(new ConsoleSpanExporter()))
   }
   provider.register({ propagator: new W3CTraceContextPropagator() })
+
+  registerInstrumentations({
+    tracerProvider: provider,
+    instrumentations: [
+      new HttpInstrumentation({
+        // Suppress DynamoDB HTTP spans (already wrapped by custom dynamodb.* spans in dynamo-db-store.ts)
+        ignoreOutgoingRequestHook: (req) => {
+          // AWS SDK v3 sets req.host (e.g. "localhost:8000") rather than hostname+port separately
+          const hostParts = req.host?.split(':')
+          const host = req.hostname ?? hostParts?.[0] ?? ''
+          const port = Number(req.port ?? hostParts?.[1] ?? 0)
+          return host.endsWith('.amazonaws.com') || (host === 'localhost' && port === 8000)
+        },
+        // Rename spans for clarity and add bp.* attributes
+        requestHook: (span, request) => {
+          if ('complete' in request) {
+            // IncomingMessage: use x-bp-operation header for a descriptive name
+            const op = request.headers['x-bp-operation']
+            if (typeof op === 'string') {
+              span.updateName(`webhook:${op}`)
+            }
+            // Set bp.* attributes from SDK-injected headers
+            const botId = request.headers['x-bot-id']
+            const integrationId = request.headers['x-integration-id']
+            if (typeof botId === 'string') span.setAttribute('bp.botId', botId)
+            if (typeof integrationId === 'string') span.setAttribute('bp.integrationId', integrationId)
+          } else if ('path' in request && request.path) {
+            // ClientRequest (outgoing): rename from "METHOD" to "METHOD /normalized-path"
+            span.updateName(`${request.method ?? 'HTTP'} ${normalizePath(request.path)}`)
+          }
+        },
+      }),
+    ],
+  })
+
   return provider
 }
 

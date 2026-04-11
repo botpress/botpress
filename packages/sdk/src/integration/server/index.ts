@@ -27,7 +27,17 @@ type ServerProps = CommonHandlerProps<BaseIntegration> & {
   instance: IntegrationHandlers<BaseIntegration>
 }
 
+const otelActive = !!process.env.OTEL_EXPORTER_OTLP_ENDPOINT
+
 const extractTracingHeaders = (headers: Record<string, string | undefined>) => {
+  // When OTEL is active, HttpInstrumentation injects the correct active span context on every
+  // outgoing call. Forwarding any incoming trace headers (W3C or Sentry) as static Axios headers
+  // would cause them to win over the dynamic injection, making downstream spans appear as siblings
+  // of the integration rather than children of its active span. In particular, a stale sentry-trace
+  // header causes the bridge's SentryPropagator to overwrite the correct W3C parent.
+  if (otelActive) {
+    return {}
+  }
   return ['traceparent', 'tracestate', 'sentry-trace'].reduce<Record<string, string>>((acc, header) => {
     if (headers[header]) {
       acc[header] = headers[header]

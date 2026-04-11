@@ -7,7 +7,7 @@ import { makeHandler } from './handler'
 import { MemorySpace, ChatIdStore, InMemoryChatIdStore, DynamoDbChatIdStore } from './id-store'
 import { Options, options } from './options'
 import { CompositeSignalEmiter, PushpinEmitter, SignalEmitter, WebhookEmitter } from './signal-emitter'
-import { initTracing, runWithSpan } from './tracing'
+import { initTracing, normalizePath, runWithSpan } from './tracing'
 import { MessageArgs, ActionArgs } from './types'
 import * as bp from '.botpress'
 
@@ -185,7 +185,7 @@ export default new bp.Integration({
     })
 
     const reqId = debug.debugRequest(props.req)
-    const res = await runWithSpan(`${props.req.method} ${props.req.path}`, () => handler(props), {
+    const res = await runWithSpan(`${props.req.method} ${normalizePath(props.req.path)}`, () => handler(props), {
       traceHeaders: props.req.headers,
     })
     debug.debugResponse(reqId, res)
