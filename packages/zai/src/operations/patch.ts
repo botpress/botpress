@@ -420,16 +420,16 @@ ${numberedView}
           type: 'text',
           role: 'user',
           content: [
-            `The following JSON file has syntax errors. The original instructions were:`,
+            'The following JSON file has syntax errors. The original instructions were:',
             truncatedInstructions,
             '',
-            `Here is the broken result:`,
+            'Here is the broken result:',
             '',
             brokenFileInput,
             '',
             `JSON parse error: ${errorMessage}`,
             '',
-            `Fix ONLY the JSON syntax errors (missing commas, orphaned braces, etc). Do NOT change the data — only fix the syntax to make it valid JSON.`,
+            'Fix ONLY the JSON syntax errors (missing commas, orphaned braces, etc). Do NOT change the data — only fix the syntax to make it valid JSON.',
           ].join('\n'),
         },
       ],
@@ -482,13 +482,13 @@ ${numberedView}
           type: 'text',
           role: 'user',
           content: [
-            `The following JSON file is valid JSON but does not match the expected schema.`,
+            'The following JSON file is valid JSON but does not match the expected schema.',
             '',
             fileInput,
             '',
             errorMessage,
             '',
-            `Fix the JSON to match the schema. Only change what's needed to satisfy the validation errors above.`,
+            "Fix the JSON to match the schema. Only change what's needed to satisfy the validation errors above.",
           ].join('\n'),
         },
       ],
@@ -653,9 +653,7 @@ Generate patches for each file that needs modification:
   }
 
   // Step 5: Apply merged patches to original files (with JSON validation/repair for .json files)
-  const patchedFiles = await Promise.all(
-    files.map((file) => applyPatchToFile(file, mergedPatches.get(file.path)))
-  )
+  const patchedFiles = await Promise.all(files.map((file) => applyPatchToFile(file, mergedPatches.get(file.path))))
 
   return patchedFiles
 }
