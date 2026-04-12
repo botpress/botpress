@@ -338,7 +338,7 @@ ${numberedView}
   const ensureValidJson = (content: string): string | null => {
     const result = validateOrRepairJson(content)
     if (result.valid) {
-      return result.content ?? content
+      return result.content
     }
     return null
   }
@@ -448,6 +448,13 @@ ${numberedView}
       const retryContent = Micropatch.applyText(brokenContent, retryPatchOps)
       const validContent = ensureValidJson(retryContent)
       if (validContent !== null) {
+        if (options.schema) {
+          const parsed = JSON.parse(validContent)
+          const safe = (options.schema as unknown as z.ZodType).safeParse(parsed)
+          if (!safe.success) {
+            return retrySchemaValidation(file, validContent, safe.error)
+          }
+        }
         return { ...file, content: validContent, patch: retryPatchOps }
       }
     } catch {
