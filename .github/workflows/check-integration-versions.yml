@@ -33,9 +33,19 @@ jobs:
 
           should_fail=0
 
+          SKIP_INTEGRATIONS=("chat")
+
           for integration in $modified_integrations; do
-            if [ "$integration" = "chat" ]; then
-              echo "Skipping $integration (version is locked)"
+            skip=0
+            for skip_integration in "${SKIP_INTEGRATIONS[@]}"; do
+              if [ "$integration" = "$skip_integration" ]; then
+                echo "Skipping $integration"
+                skip=1
+                break
+              fi
+            done
+
+            if [ $skip -eq 1 ]; then
               continue
             fi
 
