@@ -24,7 +24,7 @@ export const SPAN_ATTRS = {
 } as const
 
 export const initTracing = (): NodeTracerProvider | null => {
-  if (!process.env.OTEL_EXPORTER_OTLP_ENDPOINT) {
+  if (!process.env.OTEL_EXPORTER_OTLP_ENDPOINT && process.env.OTEL_CONSOLE_EXPORTER !== 'true') {
     return null
   }
 

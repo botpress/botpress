@@ -13,7 +13,7 @@ import * as bp from '.botpress'
 
 const tracingProvider = initTracing()
 if (tracingProvider) {
-  process.on('SIGTERM', () => void tracingProvider.shutdown())
+  process.on('SIGTERM', () => tracingProvider.shutdown().catch(console.error))
 }
 
 const memSpace = new MemorySpace()
@@ -145,6 +145,9 @@ const emitEvent = async (args: ActionArgs) => {
 export default new bp.Integration({
   register: async () => {},
   unregister: async () => {},
+  __advanced: {
+    managesOwnTracePropagation: !!tracingProvider,
+  },
   actions: {
     sendEvent: async (props) => {
       await emitEvent(props)
