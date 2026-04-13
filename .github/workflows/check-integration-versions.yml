@@ -34,6 +34,11 @@ jobs:
           should_fail=0
 
           for integration in $modified_integrations; do
+            if [ "$integration" = "chat" ]; then
+              echo "Skipping $integration (version is locked)"
+              continue
+            fi
+
             echo "Checking $integration"
             exists=$(./.github/scripts/integration-exists.sh "$integration")
 

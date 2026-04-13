@@ -24,7 +24,7 @@ jobs:
           REPO: ${{ github.repository }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WORKFLOW_SEAGULL_WEBHOOK_URL }}
         run: |
-          SKIP_INTEGRATIONS=("docusign" "zendesk" "zendesk-messaging-hitl")
+          SKIP_INTEGRATIONS=("chat" "docusign" "zendesk" "zendesk-messaging-hitl")
 
           integrations=$(find integrations -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -n1 basename | sort -u)
           should_fail=0
