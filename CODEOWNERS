@@ -23,7 +23,6 @@
 /packages/zai @allardy @slvnperron @botpress/squid
 
 # Bots
-# TODO: Why was Kraken there?
 /bots @botpress/shell @botpress/squid
 
 # Plugins
