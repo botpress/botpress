@@ -2,7 +2,7 @@ import { collectableGenerator } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 import * as SlackWebApi from '@slack/web-api'
 import { handleErrorsDecorator as handleErrors, surfaceSlackErrors } from './error-handling'
-import { SlackOAuthClient } from './slack-oauth-client'
+import { SlackOAuthClient, getManualWizardCredentialsState } from './slack-oauth-client'
 import { requiresAllScopesDecorator as requireAllScopes } from './slack-scopes'
 import * as bp from '.botpress'
 
@@ -58,6 +58,22 @@ export class SlackClient {
       })
       return await SlackClient._createNewInstance({ logger, oAuthClient })
     }
+
+    if (ctx.configurationType === 'refreshToken') {
+      const { clientId, clientSecret } = await getManualWizardCredentialsState(client, ctx)
+      if (!clientId || !clientSecret) {
+        throw new sdk.RuntimeError('Client ID or Client Secret not found, please re-run the authorization wizard')
+      }
+      const oAuthClient = new SlackOAuthClient({
+        ctx,
+        client,
+        logger,
+        clientIdOverride: clientId,
+        clientSecretOverride: clientSecret,
+      })
+      return await SlackClient._createNewInstance({ logger, oAuthClient })
+    }
+
     const oAuthClient = new SlackOAuthClient({ ctx, client, logger })
     return await SlackClient._createNewInstance({ logger, oAuthClient })
   }
@@ -127,40 +143,6 @@ export class SlackClient {
 
     const oAuthClient = new SlackOAuthClient({ ctx, client, logger })
     await oAuthClient.requestShortLivedCredentials.fromAuthorizationCode(authorizationCode)
-
-    return await SlackClient._createNewInstance({ logger, oAuthClient })
-  }
-
-  public static async createFromRefreshToken({
-    ctx,
-    client,
-    logger,
-    refreshToken,
-  }: {
-    client: bp.Client
-    ctx: bp.Context
-    logger: bp.Logger
-    refreshToken: string
-  }) {
-    const oAuthClient = new SlackOAuthClient({ ctx, client, logger })
-    await oAuthClient.requestShortLivedCredentials.fromRefreshToken(refreshToken)
-
-    return await SlackClient._createNewInstance({ logger, oAuthClient })
-  }
-
-  public static async createFromLegacyBotToken({
-    ctx,
-    client,
-    logger,
-    legacyBotToken,
-  }: {
-    client: bp.Client
-    ctx: bp.Context
-    logger: bp.Logger
-    legacyBotToken: string
-  }) {
-    const oAuthClient = new SlackOAuthClient({ ctx, client, logger })
-    await oAuthClient.requestShortLivedCredentials.fromLegacyBotToken(legacyBotToken)
 
     return await SlackClient._createNewInstance({ logger, oAuthClient })
   }

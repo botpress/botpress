@@ -17,6 +17,7 @@ type PrivateAuthState = {
   readonly botUserId: string
   readonly teamId: string
 }
+type ManualWizardCredentialsState = bp.states.manualWizardCredentials.ManualWizardCredentials['payload']
 type PublicAuthState = {
   readonly accessToken: string
   readonly scopes: string[]
@@ -25,6 +26,22 @@ type PublicAuthState = {
 }
 
 const MINIMUM_TOKEN_VALIDITY_SECONDS = 7_200 // 2 hours
+
+export const getManualWizardCredentialsState = async (
+  client: bp.Client,
+  ctx: bp.Context
+): Promise<Partial<ManualWizardCredentialsState>> => {
+  try {
+    const { state } = await client.getState({
+      type: 'integration',
+      name: 'manualWizardCredentials',
+      id: ctx.integrationId,
+    })
+    return state.payload
+  } catch {
+    return {}
+  }
+}
 
 export class SlackOAuthClient {
   private readonly _client: bp.Client
@@ -48,11 +65,8 @@ export class SlackOAuthClient {
     clientIdOverride?: string
     clientSecretOverride?: string
   }) {
-    this._clientId =
-      clientIdOverride ?? (ctx.configurationType === 'refreshToken' ? ctx.configuration.clientId : bp.secrets.CLIENT_ID)
-    this._clientSecret =
-      clientSecretOverride ??
-      (ctx.configurationType === 'refreshToken' ? ctx.configuration.clientSecret : bp.secrets.CLIENT_SECRET)
+    this._clientId = clientIdOverride ?? bp.secrets.CLIENT_ID
+    this._clientSecret = clientSecretOverride ?? bp.secrets.CLIENT_SECRET
     this._slackClient = new SlackWebClient()
     this._client = client
     this._ctx = ctx

@@ -87,12 +87,11 @@ const _saveCredentialsHandler: WizardHandler = async ({ ctx, client, responses, 
 
   const redirectUri = `${process.env.BP_WEBHOOK_URL}/oauth`
   const scopes = REQUIRED_SLACK_SCOPES.join(',')
-  const authorizeUrl =
-    `https://slack.com/oauth/v2/authorize` +
-    `?client_id=${encodeURIComponent(clientId)}` +
-    `&scope=${encodeURIComponent(scopes)}` +
-    `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-    `&state=${encodeURIComponent(ctx.webhookId)}`
+  const authorizeUrl = `https://slack.com/oauth/v2/authorize
+    ?client_id=${encodeURIComponent(clientId)}
+    &scope=${encodeURIComponent(scopes)}
+    &redirect_uri=${encodeURIComponent(redirectUri)}
+    &state=${encodeURIComponent(ctx.webhookId)}`
 
   return responses.redirectToExternalUrl(authorizeUrl)
 }

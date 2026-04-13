@@ -64,10 +64,7 @@ export type ManifestCreateResponse = z.infer<typeof manifestCreateResponseSchema
 export type SlackAppManifest = z.infer<typeof manifestSchema>
 
 type ManifestAppCredentialsState = bp.states.manifestAppCredentials.ManifestAppCredentials['payload']
-type AppManifestConfigurationCredentials = Pick<
-  ManifestAppCredentialsState,
-  'appConfigurationToken' | 'appConfigurationRefreshToken'
->
+type AppManifestConfigurationCredentials = Pick<ManifestAppCredentialsState, 'appConfigurationRefreshToken'>
 
 export const patchAppManifestConfigurationState = async (
   client: bp.Client,
@@ -131,51 +128,34 @@ export class SlackManifestClient {
     }
 
     const state = await getAppManifestConfigurationState(client, ctx)
-
-    const appConfigurationToken = state.appConfigurationToken
     const appConfigurationRefreshToken = state.appConfigurationRefreshToken
 
-    if (!appConfigurationToken || !appConfigurationRefreshToken) {
+    if (!appConfigurationRefreshToken) {
       throw new RuntimeError('Slack manifest app credentials are not properly configured')
     }
 
-    return { appConfigurationToken, appConfigurationRefreshToken }
+    return { appConfigurationRefreshToken }
   }
 
   private static async _resolveAndValidateToken(props: bp.CommonHandlerProps): Promise<string> {
     const { client, ctx, logger } = props
-    const { appConfigurationToken, appConfigurationRefreshToken } = await SlackManifestClient._resolveTokens(props)
+    const { appConfigurationRefreshToken } = await SlackManifestClient._resolveTokens(props)
 
     const slackWebClient = new SlackWebClient.WebClient()
-    logger.forBot().debug('Validating Slack app configuration token and refresh token...')
-    const { ok, error } = await slackWebClient.auth
-      .test({
-        token: appConfigurationToken,
-      })
-      .catch((e) => e.data as SlackWebClient.AuthTestResponse)
+    logger.forBot().debug('Rotating Slack app configuration token using refresh token...')
+    const { token: rotatedToken, refresh_token } = surfaceSlackErrors({
+      logger,
+      response: await slackWebClient.tooling.tokens.rotate({
+        refresh_token: appConfigurationRefreshToken,
+      }),
+    })
 
-    if (!ok && error === 'token_expired') {
-      logger
-        .forBot()
-        .debug('Slack app configuration token has expired, attempting to rotate the token using the refresh token...')
-      const { token: rotatedToken, refresh_token } = surfaceSlackErrors({
-        logger,
-        response: await slackWebClient.tooling.tokens.rotate({
-          refresh_token: appConfigurationRefreshToken!,
-        }),
-      })
-      logger.forBot().debug('Rotating Slack app configuration token...')
-      await patchAppManifestConfigurationState(client, ctx, {
-        appConfigurationToken: rotatedToken,
-        appConfigurationRefreshToken: refresh_token,
-      })
-      logger.forBot().debug('Rotated expired Slack app configuration token successfully')
-      return rotatedToken!
-    } else if (!ok) {
-      throw new RuntimeError(`Failed to validate Slack app configuration token: ${error}`)
-    }
+    await patchAppManifestConfigurationState(client, ctx, {
+      appConfigurationRefreshToken: refresh_token,
+    })
 
-    return appConfigurationToken
+    logger.forBot().debug('Rotated Slack app configuration token successfully')
+    return rotatedToken!
   }
 
   public async validateManifest(manifest: SlackAppManifest) {
