@@ -29,8 +29,8 @@ importers:
         specifier: workspace:*
         version: link:packages/sdk
       '@bpinternal/depsynky':
-        specifier: 0.3.0
-        version: 0.3.0
+        specifier: 0.3.2
+        version: 0.3.2
       '@bpinternal/readiness':
         specifier: ^0.0.16
         version: 0.0.16
@@ -2331,6 +2331,25 @@ importers:
         specifier: workspace:*
         version: link:../../packages/cli
 
+  integrations/zoom:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: ^1.13.2
+        version: 1.13.6
+      exponential-backoff:
+        specifier: ^3.1.1
+        version: 3.1.3
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   interfaces/creatable:
     dependencies:
       '@botpress/sdk':
@@ -4099,8 +4118,8 @@ packages:
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
 
-  '@bpinternal/depsynky@0.3.0':
-    resolution: {integrity: sha512-bhiEPOZXhJvzNzkwne3iRA+3RHppO8rLpDLZR8ee6XS7ATiTv4H9nOY31q89a4Pd/CXK2gWjJUmsq+QT93r72g==}
+  '@bpinternal/depsynky@0.3.2':
+    resolution: {integrity: sha512-Ck9WLYv7qZXBDg4XvKMk5Y2jGkbGkWVMwal+WWJFh3SMDWChGB2Z4b2UgVbdaIBD9j3AN0O7thrrg33B2IcmeQ==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
     hasBin: true
 
@@ -8098,6 +8117,9 @@ packages:
 
   exponential-backoff@3.1.1:
     resolution: {integrity: sha512-dX7e/LHVJ6W3DE1MHWi9S1EYzDESENfLrYohG2G++ovZrYOkm4Knwa0mc1cn84xJOR4KEU0WSchhLbd0UklbHw==}
+
+  exponential-backoff@3.1.3:
+    resolution: {integrity: sha512-ZgEeZXj30q+I0EN+CbSSpIyPaJ5HVQD18Z1m+u1FXbAeT94mr1zw50q4q6jiiC447Nl/YTcIYSAftiGqetwXCA==}
 
   express-rate-limit@8.3.1:
     resolution: {integrity: sha512-D1dKN+cmyPWuvB+G2SREQDzPY1agpBIcTa9sJxOPMCNeH3gwzhqJRDWCXW3gg0y//+LQ/8j52JbMROWyrKdMdw==}
@@ -13666,7 +13688,7 @@ snapshots:
 
   '@bpinternal/const@0.1.0': {}
 
-  '@bpinternal/depsynky@0.3.0':
+  '@bpinternal/depsynky@0.3.2':
     dependencies:
       '@bpinternal/yargs-extra': 0.0.20
       chalk: 4.1.2
@@ -18431,6 +18453,8 @@ snapshots:
       jest-util: 29.5.0
 
   exponential-backoff@3.1.1: {}
+
+  exponential-backoff@3.1.3: {}
 
   express-rate-limit@8.3.1(express@5.2.1):
     dependencies:
