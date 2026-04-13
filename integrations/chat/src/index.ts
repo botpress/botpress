@@ -13,7 +13,7 @@ import * as bp from '.botpress'
 
 const tracingProvider = initTracing()
 if (tracingProvider) {
-  process.on('SIGTERM', () => tracingProvider.shutdown().catch(console.error))
+  process.on('SIGTERM', () => void tracingProvider.shutdown().catch(console.error))
 }
 
 const memSpace = new MemorySpace()

@@ -1,6 +1,6 @@
 import * as dynamodb from '@aws-sdk/client-dynamodb'
-import { runWithSpan } from '../tracing'
 import { logger } from '../logger'
+import { runWithSpan } from '../tracing'
 import * as errors from './errors'
 import * as types from './types'
 

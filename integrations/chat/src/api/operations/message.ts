@@ -1,6 +1,6 @@
 import * as errors from '../../gen/errors'
-import * as msgPayload from '../message-payload'
 import { setSpanAttributes, SPAN_ATTRS } from '../../tracing'
+import * as msgPayload from '../message-payload'
 import * as types from '../types'
 import * as fid from './fid'
 import * as model from './model'

@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
-import { instrumentAxiosClient } from '../tracing'
 import { logger } from '../logger'
+import { instrumentAxiosClient } from '../tracing'
 import { SignalEmitter, Signal } from './typings'
 
 export class WebhookEmitter implements SignalEmitter {
