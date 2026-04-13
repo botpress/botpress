@@ -58,6 +58,7 @@ export const initTracing = (): NodeTracerProvider | null => {
           const hostParts = req.host?.split(':')
           const host = req.hostname ?? hostParts?.[0] ?? ''
           const port = Number(req.port ?? hostParts?.[1] ?? 0)
+          // localhost:8000 is assumed to be DynamoDB Local (the standard port used by the AWS DynamoDB local emulator)
           return host.endsWith('.amazonaws.com') || (host === 'localhost' && port === 8000)
         },
         // Rename spans for clarity and add bp.* attributes
@@ -106,6 +107,8 @@ export const runWithSpan = async <T>(
         if (err instanceof Error) {
           span.recordException(err)
           span.setStatus({ code: SpanStatusCode.ERROR, message: err.message })
+        } else {
+          span.setStatus({ code: SpanStatusCode.ERROR, message: String(err) })
         }
         throw err
       } finally {
