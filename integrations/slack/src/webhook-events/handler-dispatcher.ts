@@ -116,7 +116,7 @@ const _dispatchEvent = async ({ client, ctx, logger }: bp.HandlerProps, slackEve
 
 const _getSigningSecret = async ({ client, ctx }: bp.CommonHandlerProps): Promise<string> => {
   if (ctx.configurationType === 'refreshToken') {
-    return ctx.configuration.signingSecret
+    return ctx.states.signingSecret
   } else if (ctx.configurationType === 'manifestAppCredentials') {
     const { signingSecret } = await getAppManifestConfigurationState(client, ctx)
     if (!signingSecret) throw new sdk.RuntimeError('Signing secret not found, please re-run setup wizard')

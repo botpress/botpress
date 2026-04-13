@@ -87,4 +87,12 @@ export const states = {
         .describe('The default Slack app authorize url'),
     }),
   },
+  manualWizardCredentials: {
+    type: 'integration',
+    schema: sdk.z.object({
+      signingSecret: sdk.z.string().secret().title('Signing Secret').describe('The Slack Signing Secret'),
+      clientId: sdk.z.string().title('Client ID').describe('OAuth Client ID'),
+      clientSecret: sdk.z.string().secret().title('Client Secret').describe('OAuth Client Secret'),
+    }),
+  },
 } as const satisfies sdk.IntegrationDefinitionProps['states']

@@ -102,6 +102,29 @@ export class SlackClient {
       return await SlackClient._createNewInstance({ logger, oAuthClient })
     }
 
+    if (ctx.configurationType === 'refreshToken') {
+      const {
+        state: {
+          payload: { clientId, clientSecret },
+        },
+      } = await client.getState({
+        type: 'integration',
+        name: 'manualWizardCredentials',
+        id: ctx.integrationId,
+      })
+      const oAuthClient = new SlackOAuthClient({
+        ctx,
+        client,
+        logger,
+        clientIdOverride: clientId,
+        clientSecretOverride: clientSecret,
+      })
+      const redirectUri = `${process.env.BP_WEBHOOK_URL}/oauth`
+      await oAuthClient.requestShortLivedCredentials.fromAuthorizationCode(authorizationCode, redirectUri)
+
+      return await SlackClient._createNewInstance({ logger, oAuthClient })
+    }
+
     const oAuthClient = new SlackOAuthClient({ ctx, client, logger })
     await oAuthClient.requestShortLivedCredentials.fromAuthorizationCode(authorizationCode)
 

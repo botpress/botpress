@@ -47,23 +47,10 @@ export const configurations = {
   refreshToken: {
     title: 'Manual configuration',
     description: 'Configure by manually supplying the refresh token and signing secret',
+    identifier: {
+      linkTemplateScript: 'wizardHandler.vrl',
+    },
     schema: sdk.z.object({
-      refreshToken: sdk.z
-        .string()
-        .secret()
-        .title('Slack Refresh Token or Bot Token')
-        .describe('Available in the app admin panel under OAuth & Permissions'),
-      signingSecret: sdk.z
-        .string()
-        .secret()
-        .title('Slack Signing Secret')
-        .describe('Available in the app admin panel under Basic Info'),
-      clientId: sdk.z.string().title('Slack Client ID').describe('Available in the app admin panel under Basic Info'),
-      clientSecret: sdk.z
-        .string()
-        .secret()
-        .title('Slack Client Secret')
-        .describe('Available in the app admin panel under Basic Info'),
       ...SHARED_CONFIGURATION,
     }),
   },
@@ -71,7 +58,7 @@ export const configurations = {
     title: 'App Manifest (Automatic Setup)',
     description: 'Register new Slack application',
     identifier: {
-      linkTemplateScript: 'manifestHandler.vrl',
+      linkTemplateScript: 'wizardHandler.vrl',
     },
     schema: sdk.z.object({
       ...SHARED_CONFIGURATION,
