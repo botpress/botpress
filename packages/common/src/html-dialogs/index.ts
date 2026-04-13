@@ -2,7 +2,7 @@ import * as sdk from '@botpress/sdk'
 import dedent from 'dedent'
 import * as preact from 'preact-render-to-string'
 import { DISABLE_INTERSTITIAL_HEADER } from '../oauth-wizard'
-import { ButtonDialogPage, SelectDialogPage, InputDialogPage } from './components'
+import { ButtonDialogPage, SelectDialogPage, InputDialogPage, FormDialogPage } from './components'
 
 export const generateRedirection = (url: URL): sdk.Response => ({
   status: 303,
@@ -31,6 +31,12 @@ export const generateSelectDialog = (props: Parameters<typeof SelectDialogPage>[
 export const generateInputDialog = (props: Parameters<typeof InputDialogPage>[0] & CommonDialogProps): sdk.Response =>
   _generateHtml({
     bodyHtml: preact.render(InputDialogPage(props)),
+    pageTitle: props.pageTitle,
+  })
+
+export const generateFormDialog = (props: Parameters<typeof FormDialogPage>[0] & CommonDialogProps): sdk.Response =>
+  _generateHtml({
+    bodyHtml: preact.render(FormDialogPage(props)),
     pageTitle: props.pageTitle,
   })
 
