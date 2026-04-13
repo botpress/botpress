@@ -94,9 +94,7 @@ export const runWithSpan = async <T>(
   }
 ): Promise<T> => {
   const tracer = trace.getTracer('chat-integration')
-  const parentCtx = opts?.traceHeaders
-    ? propagation.extract(context.active(), opts.traceHeaders)
-    : context.active()
+  const parentCtx = opts?.traceHeaders ? propagation.extract(context.active(), opts.traceHeaders) : context.active()
 
   return context.with(parentCtx, () =>
     tracer.startActiveSpan(spanName, { attributes: opts?.attributes }, async (span) => {
