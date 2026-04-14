@@ -52,14 +52,27 @@ jobs:
           ref: ${{ inputs.branchOrCommit || github.sha }}
           environment: staging
 
+  deploy-chat-lambda:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ inputs.branchOrCommit || github.sha }}
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Deploy to Lambda
+        run: |
+          pnpm bp login -y --api-url "https://api.botpress.dev" --workspaceId "${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}" --token "${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}"
+          pnpm -F "{integrations/chat}" -c exec -- bp deploy -v -y --noBuild --visibility public --allowDeprecated
+
   ping-success:
-    needs: [deploy-chat-staging]
+    needs: [deploy-chat-staging, deploy-chat-lambda]
     runs-on: ubuntu-latest
     steps:
       - run: curl -m 10 --retry 5 ${{ secrets.CHAT_DEPLOY_STAGING_PING_URL }}
 
   ping-failure:
-    needs: [deploy-chat-staging]
+    needs: [deploy-chat-staging, deploy-chat-lambda]
     if: ${{ failure() }}
     runs-on: ubuntu-latest
     steps:

@@ -1,6 +1,8 @@
 import * as sdk from '@botpress/sdk'
+import * as preact from 'preact-render-to-string'
 import * as htmlDialogs from '../html-dialogs'
 import * as consts from './consts'
+import { schemaToFieldDescriptors } from './schema-to-fields'
 import type * as types from './types'
 
 export class OAuthWizard<THandlerProps extends types.HandlerProps> {
@@ -31,12 +33,41 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
       throw new sdk.RuntimeError(`Unknown step ID: ${stepId}`)
     }
 
+    const formValues: Record<string, string | number | boolean> = {}
+    const formParams = this._handlerProps.req.body ? new URLSearchParams(this._handlerProps.req.body) : searchParams
+    for (const [key, value] of formParams.entries()) {
+      if (key.startsWith(consts.FORM_PARAM_PREFIX)) {
+        formValues[key.slice(consts.FORM_PARAM_PREFIX.length)] = value
+      }
+    }
+
+    const rawSchemaJson = formParams.get(consts.FORM_SCHEMA_PARAM)
+    if (rawSchemaJson && Object.keys(formValues).length > 0) {
+      const jsonSchema = JSON.parse(rawSchemaJson) as { properties?: Record<string, { type?: string }> }
+      const coercedShape: Record<string, sdk.z.ZodType> = {}
+      for (const name of Object.keys(formValues)) {
+        const fieldType = jsonSchema.properties?.[name]?.type
+        if (fieldType === 'boolean') {
+          coercedShape[name] = sdk.z.coerce.boolean()
+        } else if (fieldType === 'number' || fieldType === 'integer') {
+          coercedShape[name] = sdk.z.coerce.number()
+        } else {
+          coercedShape[name] = sdk.z.coerce.string()
+        }
+      }
+      const coerced = sdk.z.object(coercedShape).safeParse(formValues)
+      if (coerced.success) {
+        Object.assign(formValues, coerced.data)
+      }
+    }
+
     return await step.handler({
       ...this._handlerProps,
       query: searchParams,
       selectedChoice: searchParams.get(consts.CHOICE_PARAM) ?? undefined,
       selectedChoices: searchParams.getAll(consts.CHOICE_PARAM).length > 0 ? searchParams.getAll(consts.CHOICE_PARAM) : undefined,
       inputValue: searchParams.get(consts.INPUT_PARAM) ?? undefined,
+      formValues: Object.keys(formValues).length > 0 ? formValues : undefined,
       responses: {
         displayButtons: ({ buttons, pageTitle, htmlOrMarkdownPageContents }) =>
           htmlDialogs.generateButtonDialog({
@@ -83,6 +114,23 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
               label: input.label,
               type: input.type,
             },
+          }),
+        displayForm: ({ schema, nextStepId, pageTitle, htmlOrMarkdownPageContents, errors, previousValues }) =>
+          htmlDialogs.generateFormDialog({
+            pageTitle,
+            helpText: htmlOrMarkdownPageContents,
+            formSubmitUrl: getWizardStepUrl(nextStepId, this._handlerProps.ctx),
+            formParamPrefix: consts.FORM_PARAM_PREFIX,
+            fields: schemaToFieldDescriptors(schema, errors, previousValues),
+            extraHiddenParams: {
+              state: this._handlerProps.ctx.webhookId,
+              [consts.FORM_SCHEMA_PARAM]: JSON.stringify(schema.toJSONSchema()),
+            },
+          }),
+        displayCustom: ({ pageTitle, body }) =>
+          htmlDialogs.generateRawHtmlDialog({
+            pageTitle,
+            bodyHtml: preact.render(body),
           }),
         redirectToStep: (stepId) => htmlDialogs.generateRedirection(getWizardStepUrl(stepId, this._handlerProps.ctx)),
         redirectToExternalUrl: (url) => htmlDialogs.generateRedirection(new URL(url)),
