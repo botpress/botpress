@@ -212,7 +212,6 @@ export class HubSpotHitlClient {
           params,
           headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' },
         })
-        this.logger.forBot().error('Get custom channels response: ' + JSON.stringify({ data: response.data }))
         return response.data
       } catch (error: any) {
         const isLast = attempt >= DEFAULT_RETRY_CONFIG.maxRetries
