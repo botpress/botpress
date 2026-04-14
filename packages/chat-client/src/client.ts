@@ -103,6 +103,8 @@ export class Client implements IClient {
   public readonly deleteUser: IClient['deleteUser'] = (x) => this._call('deleteUser', x)
   public readonly createEvent: IClient['createEvent'] = (x) => this._call('createEvent', x)
   public readonly getEvent: IClient['getEvent'] = (x) => this._call('getEvent', x)
+  public readonly initializeIncomingMessage: IClient['initializeIncomingMessage'] = (x) =>
+    this._call('initializeIncomingMessage', x)
 
   public get list() {
     return {
@@ -275,6 +277,8 @@ export class AuthenticatedClient implements IAuthenticatedClient {
     this._client.createEvent({ 'x-user-key': this.user.key, ...x })
   public readonly getEvent: IAuthenticatedClient['getEvent'] = (x) =>
     this._client.getEvent({ 'x-user-key': this.user.key, ...x })
+  public readonly initializeIncomingMessage: IAuthenticatedClient['initializeIncomingMessage'] = (x) =>
+    this._client.initializeIncomingMessage({ 'x-user-key': this.user.key, ...x })
 
   public get list() {
     return {
