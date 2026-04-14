@@ -1,4 +1,5 @@
 import * as bp from '.botpress'
+import { RuntimeError } from '@botpress/sdk'
 
 interface HubSpotMessage {
   conversationsThreadId: string
@@ -27,6 +28,11 @@ export const handleOperatorReplied = async ({ hubspotEvent, client }: OperatorRe
   })
 
   const actorId = hubspotEvent.message?.senders?.[0]?.actorId
+
+  if (!actorId) {
+    throw new RuntimeError('Missing actorId in operator message senders')
+  }
+
   const { user } = await client.getOrCreateUser({
     tags: { actorId },
     discriminateByTags: ['actorId'],
