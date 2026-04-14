@@ -1,3 +1,4 @@
+import { getConversationByExternalIdOrThrow } from '../utils/conversation'
 import * as bp from '.botpress'
 
 interface HubSpotEvent {
@@ -13,10 +14,7 @@ interface ConversationCompletedParams {
 }
 
 export const handleConversationCompleted = async ({ hubspotEvent, client }: ConversationCompletedParams) => {
-  const { conversation } = await client.getOrCreateConversation({
-    channel: 'hitl',
-    tags: { id: String(hubspotEvent.objectId) },
-  })
+  const conversation = await getConversationByExternalIdOrThrow(client, hubspotEvent.objectId)
 
   await client.createEvent({
     type: 'hitlStopped',

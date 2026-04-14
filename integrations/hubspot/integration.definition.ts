@@ -10,20 +10,7 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
-    schema: z.object({
-      enableHitl: z
-        .boolean()
-        .optional()
-        .title('Enable HITL')
-        .describe('Enable Human-in-the-Loop to route conversations to HubSpot agents.'),
-      inboxId: z
-        .string()
-        .optional()
-        .title('Inbox or Help Desk ID')
-        .describe(
-          'HubSpot Inbox ID or Help Desk ID to route HITL conversations to. Works with both HubSpot Inbox (Sales Hub) and Help Desk (Service Hub).'
-        ),
-    }),
+    schema: z.object({}),
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
     },
@@ -70,7 +57,13 @@ export default new IntegrationDefinition({
   states,
   entities: {
     ticket: {
-      schema: z.object({}),
+      schema: z.object({
+        inboxId: z
+          .string()
+          .optional()
+          .title('Inbox ID')
+          .describe('Override the default inbox for this HITL session'),
+      }),
     },
   },
   user: {
@@ -78,6 +71,7 @@ export default new IntegrationDefinition({
       email: { title: 'Email', description: 'Email address of the user' },
       phoneNumber: { title: 'Phone Number', description: 'Phone number of the user' },
       contactType: { title: 'Contact Type', description: 'Whether the user was identified by email or phone' },
+      actorId: { title: 'Actor ID', description: 'HubSpot actor ID' },
     },
   },
   secrets: {
@@ -121,6 +115,10 @@ export default new IntegrationDefinition({
           integrationThreadId: {
             title: 'Integration Thread ID',
             description: 'The UUID used as integrationThreadId in HubSpot Custom Channel messages',
+          },
+          inboxId: {
+            title: 'Inbox ID',
+            description: 'The HubSpot inbox ID used for this HITL session',
           },
         },
       },

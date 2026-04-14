@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { RuntimeError } from '@botpress/sdk'
 import { getAccessToken } from '../auth'
 import * as bp from '.botpress'
 
@@ -123,6 +122,23 @@ export class HubSpotHitlClient {
     return response.data.email
   }
 
+  public async getActorDetails(
+    actorId: string
+  ): Promise<{ id: string; name: string; email: string; avatar: string; type: string }> {
+    const endpoint = `${HUBSPOT_API_BASE_URL}/conversations/v3/conversations/actors/${actorId}`
+    const response = await this.makeHitlRequest<{
+      id: string
+      name: string
+      email: string
+      avatar: string
+      type: string
+    }>(endpoint, 'GET')
+    if (!response.success || !response.data) {
+      throw new Error(`Failed to fetch actor details: ${response.message}`)
+    }
+    return response.data
+  }
+
   public async getActorPhoneNumber(contactId: string): Promise<string> {
     const endpoint = `${HUBSPOT_API_BASE_URL}/crm/v3/objects/contacts/${contactId}?properties=phone`
     const response = await this.makeHitlRequest<{ properties: { phone: string } }>(endpoint, 'GET', null, {
@@ -142,8 +158,8 @@ export class HubSpotHitlClient {
       `${HUBSPOT_API_BASE_URL}/conversations/v3/custom-channels`,
       'POST',
       {
-        name: 'Botpress',
-        webhookUrl: `https://webhook.botpress.cloud/${this.ctx.webhookId}`,
+        name: 'Botpress HITL',
+        webhookUrl: `${process.env.BP_WEBHOOK_URL}/${this.ctx.webhookId}`,
         capabilities: {
           deliveryIdentifierTypes: ['CHANNEL_SPECIFIC_OPAQUE_ID'],
           richText: ['HYPERLINK', 'TEXT_ALIGNMENT', 'BLOCKQUOTE'],
@@ -171,7 +187,10 @@ export class HubSpotHitlClient {
     return response.data.id
   }
 
-  public async getCustomChannels(appId: string, developerApiKey?: string): Promise<{ results: Array<{ id: string }> }> {
+  public async getCustomChannels(
+    appId: string,
+    developerApiKey?: string
+  ): Promise<{ results: Array<{ id: string; webhookUrl: string }> }> {
     const params: Record<string, string> = { appId }
     if (developerApiKey) params.hapikey = developerApiKey
 
@@ -249,7 +268,7 @@ export class HubSpotHitlClient {
     const payload = {
       name: channelName,
       inboxId: inboxOrHelpDeskId,
-      deliveryIdentifier: { type: 'CHANNEL_SPECIFIC_OPAQUE_ID', value: 'botpress' },
+      deliveryIdentifier: { type: 'CHANNEL_SPECIFIC_OPAQUE_ID', value: `botpress-${inboxOrHelpDeskId}` },
       authorized: true,
     }
     const response = await this.makeHitlRequest<{ id: string }>(endpoint, 'POST', payload)
@@ -257,6 +276,15 @@ export class HubSpotHitlClient {
       throw new Error(`connectCustomChannel failed: ${response.message}`)
     }
     return response
+  }
+
+  public async listChannelAccounts(channelId: string): Promise<Array<{ id: string; inboxId: string }>> {
+    const endpoint = `${HUBSPOT_API_BASE_URL}/conversations/v3/custom-channels/${channelId}/channel-accounts`
+    const response = await this.makeHitlRequest<{ results: Array<{ id: string; inboxId: string }> }>(endpoint, 'GET')
+    if (!response.success || !response.data) {
+      throw new Error(`listChannelAccounts failed: ${response.message}`)
+    }
+    return response.data.results
   }
 
   public async createConversation(
@@ -292,23 +320,23 @@ export class HubSpotHitlClient {
     return response
   }
 
+  public async listInboxes(): Promise<Array<{ id: string; name: string }>> {
+    const endpoint = `${HUBSPOT_API_BASE_URL}/conversations/v3/conversations/inboxes`
+    const response = await this.makeHitlRequest<{ results: Array<{ id: string; name: string }> }>(endpoint, 'GET')
+    if (!response.success || !response.data) {
+      throw new Error(`listInboxes failed: ${response.message}`)
+    }
+    return response.data.results
+  }
+
   public async sendMessage(
     message: string,
     senderName: string,
     contactIdentifier: string,
-    integrationThreadId: string
+    integrationThreadId: string,
+    channelId: string,
+    channelAccountId: string
   ): Promise<any> {
-    const { state } = await this.bpClient.getState({
-      id: this.ctx.integrationId,
-      name: 'hitlChannelInfo',
-      type: 'integration',
-    })
-
-    if (!state?.payload?.channelId || !state?.payload?.channelAccountId) {
-      throw new RuntimeError('Missing HITL channel info in state')
-    }
-
-    const { channelId, channelAccountId } = state.payload
     const endpoint = `${HUBSPOT_API_BASE_URL}/conversations/v3/custom-channels/${channelId}/messages`
     const isEmail = contactIdentifier.includes('@')
     const deliveryType = isEmail ? 'HS_EMAIL_ADDRESS' : 'HS_PHONE_NUMBER'

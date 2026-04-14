@@ -63,7 +63,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
 
     const {
       state: { payload: channelInfo },
-    } = await client.getState({ id: ctx.integrationId, name: 'hitlChannelInfo', type: 'integration' })
+    } = await client.getState({ id: ctx.integrationId, name: 'hitlConfig', type: 'integration' })
 
     if (!channelInfo?.channelId) {
       throw new RuntimeError(
@@ -72,7 +72,17 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
     }
 
     const { name, contactIdentifier } = userInfo
-    const { channelId, channelAccountId } = channelInfo
+    const { channelId, defaultInboxId, channelAccounts } = channelInfo
+
+    const inboxId = input.hitlSession?.inboxId?.length ? input.hitlSession.inboxId : defaultInboxId
+    const channelAccountId = channelAccounts?.[inboxId]
+
+    if (!channelAccountId) {
+      throw new RuntimeError(
+        `No channel account found for inbox ${inboxId}. Make sure this inbox was selected during setup.`
+      )
+    }
+
     const integrationThreadId = randomUUID()
 
     const result = await hitlClient.createConversation(
@@ -94,6 +104,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
         id: hubspotConversationId,
         userId,
         integrationThreadId,
+        inboxId,
       },
     })
 

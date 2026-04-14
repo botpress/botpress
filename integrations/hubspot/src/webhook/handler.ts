@@ -1,11 +1,11 @@
+import { generateRedirection } from '@botpress/common/src/html-dialogs'
+import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import { Signature } from '@hubspot/api-client'
 import { getClientSecret } from '../auth'
-import { validateHubSpotSignature } from '../hitl/utils/signature'
-import { handleOperatorAssignedUpdate } from '../hitl/events/operator-assigned'
 import { handleOperatorReplied } from '../hitl/events/operator-replied'
-import { handleConversationCompleted } from '../hitl/events/conversation-completed'
-import { getHitlClient } from '../hitl/client'
+import { validateHubSpotSignature } from '../hitl/utils/signature'
 import * as handlers from './handlers'
+import { buildOAuthWizard } from './handlers/oauth-wizard'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
@@ -13,24 +13,44 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
 
   logger.debug(`Received request on ${req.path}: ${JSON.stringify(req.body, null, 2)}`)
 
-  if (handlers.isOAuthCallback(props)) {
-    return await handlers.handleOAuthCallback(props)
+  if (oauthWizard.isOAuthWizardUrl(req.path)) {
+    try {
+      return await buildOAuthWizard(props).handleRequest()
+    } catch (thrown: unknown) {
+      const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+      return generateRedirection(oauthWizard.getInterstitialUrl(false, errMsg))
+    }
   }
 
-  // HITL events (Custom Channel webhook) use the v3 signature header
+  if (req.path.startsWith('/oauth')) {
+    const modifiedProps = { ...props, req: { ...props.req, path: '/oauth/wizard/oauth-callback' } }
+    try {
+      return await buildOAuthWizard(modifiedProps).handleRequest()
+    } catch (thrown: unknown) {
+      const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+      return generateRedirection(oauthWizard.getInterstitialUrl(false, errMsg))
+    }
+  }
+
+  // Global webhook subscriptions (conversation + CRM events) — array payload, v1 signature
+  // Must be checked before the v3 header check because global webhooks can also send x-hubspot-signature-v3
+  if (handlers.isConversationEvent(props) || handlers.isBatchUpdateEvent(props)) {
+    const validation = _validateRequestAuthentication(props)
+    if (validation.error) {
+      logger.error(`Error validating request: ${validation.message}`)
+      return { status: 401, body: validation.message }
+    }
+
+    if (handlers.isConversationEvent(props)) {
+      return await handlers.handleConversationEvent(props)
+    }
+
+    return await handlers.handleBatchUpdateEvent(props)
+  }
+
+  // Custom Channel webhook — object payload, v3 signature
   if (req.headers['x-hubspot-signature-v3']) {
     return await _handleHitlEvent(props)
-  }
-
-  // CRM batch-update events use v1 signature
-  const validation = _validateRequestAuthentication(props)
-  if (validation.error) {
-    logger.error(`Error validating request: ${validation.message}`)
-    return { status: 401, body: validation.message }
-  }
-
-  if (handlers.isBatchUpdateEvent(props)) {
-    return await handlers.handleBatchUpdateEvent(props)
   }
 
   logger.warn(`No handler found for request on '/${req.path}'`)
@@ -41,7 +61,7 @@ const _handleHitlEvent: bp.IntegrationProps['handler'] = async ({ req, ctx, clie
   const signature = req.headers['x-hubspot-signature-v3'] as string
   const timestamp = req.headers['x-hubspot-request-timestamp'] as string
   const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body)
-  const webhookUrl = `https://webhook.botpress.cloud/${ctx.webhookId}`
+  const webhookUrl = `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
   const clientSecret = getClientSecret(ctx)
 
   if (clientSecret) {
@@ -71,28 +91,10 @@ const _handleHitlEvent: bp.IntegrationProps['handler'] = async ({ req, ctx, clie
     return { status: 400, body: 'Invalid JSON body' }
   }
 
-  const hubSpotClient = getHitlClient(ctx, client, logger)
-
   if (Array.isArray(payload)) {
-    for (const event of payload) {
-      if (
-        event.subscriptionType === 'conversation.propertyChange' &&
-        event.propertyName === 'assignedTo' &&
-        event.propertyValue
-      ) {
-        logger.forBot().info(`Operator assigned: ${event.propertyValue}`)
-        await handleOperatorAssignedUpdate({ hubspotEvent: event, client, hubSpotClient, logger })
-      }
-
-      if (
-        event.subscriptionType === 'conversation.propertyChange' &&
-        event.propertyName === 'status' &&
-        event.propertyValue === 'CLOSED'
-      ) {
-        logger.forBot().info('Conversation closed by operator')
-        await handleConversationCompleted({ hubspotEvent: event, client })
-      }
-    }
+    // conversation.propertyChange events are sent via global webhooks (v1 signature) and handled there.
+    // Custom Channel webhooks (v3) only send object-type events like OUTGOING_CHANNEL_MESSAGE_CREATED.
+    logger.forBot().debug('Array payload received on v3 path — no handlers registered for this format')
     return
   }
 
