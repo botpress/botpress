@@ -7,7 +7,7 @@ import { makeHandler } from './handler'
 import { MemorySpace, ChatIdStore, InMemoryChatIdStore, DynamoDbChatIdStore } from './id-store'
 import { Options, options } from './options'
 import { CompositeSignalEmiter, PushpinEmitter, SignalEmitter, WebhookEmitter } from './signal-emitter'
-import { initTracing, normalizePath, runWithSpan } from './tracing'
+import { initTracing, normalizePath, runWithSpan, setSpanAttributes, SPAN_ATTRS } from './tracing'
 import { MessageArgs, ActionArgs } from './types'
 import * as bp from '.botpress'
 
@@ -91,54 +91,62 @@ const mapEventSignalFid = async (idStores: ChatIdStores, args: ActionArgs): Prom
 }
 
 const emitMessage = async (args: MessageArgs) => {
-  const opts = options(args)
-  const signalEmitter = makeEmitter(opts)
-  const idStores = makeIdStores(opts)
+  await runWithSpan('emit.message', async () => {
+    const opts = options(args)
+    const signalEmitter = makeEmitter(opts)
+    const idStores = makeIdStores(opts)
 
-  const {
-    conversation: { id: channel },
-  } = args
+    const {
+      conversation: { id: channel },
+    } = args
 
-  args = await mapMessageSignalFid(idStores, args)
-  debug.debugSignal(args)
+    args = await mapMessageSignalFid(idStores, args)
+    debug.debugSignal(args)
 
-  const { metadata, payload } = mapBotpressMessageToChat(args)
-  await signalEmitter.emit(channel, {
-    type: 'message_created',
-    data: {
-      id: args.message.id,
-      conversationId: args.conversation.id,
-      userId: args.user.id,
-      createdAt: args.message.createdAt,
-      payload,
-      metadata,
-      isBot: true,
-    },
+    setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: args.conversation.id })
+
+    const { metadata, payload } = mapBotpressMessageToChat(args)
+    await signalEmitter.emit(channel, {
+      type: 'message_created',
+      data: {
+        id: args.message.id,
+        conversationId: args.conversation.id,
+        userId: args.user.id,
+        createdAt: args.message.createdAt,
+        payload,
+        metadata,
+        isBot: true,
+      },
+    })
   })
 }
 
 const emitEvent = async (args: ActionArgs) => {
-  const opts = options(args)
-  const signalEmitter = makeEmitter(opts)
-  const idStores = makeIdStores(opts)
+  await runWithSpan('emit.event', async () => {
+    const opts = options(args)
+    const signalEmitter = makeEmitter(opts)
+    const idStores = makeIdStores(opts)
 
-  const {
-    input: { conversationId: channel },
-  } = args
+    const {
+      input: { conversationId: channel },
+    } = args
 
-  args = await mapEventSignalFid(idStores, args)
-  debug.debugSignal(args)
+    args = await mapEventSignalFid(idStores, args)
+    debug.debugSignal(args)
 
-  await signalEmitter.emit(channel, {
-    type: 'event_created',
-    data: {
-      id: null,
-      createdAt: new Date().toISOString(),
-      conversationId: args.input.conversationId,
-      userId: args.ctx.botUserId,
-      payload: args.input.payload,
-      isBot: true,
-    },
+    setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: args.input.conversationId })
+
+    await signalEmitter.emit(channel, {
+      type: 'event_created',
+      data: {
+        id: null,
+        createdAt: new Date().toISOString(),
+        conversationId: args.input.conversationId,
+        userId: args.ctx.botUserId,
+        payload: args.input.payload,
+        isBot: true,
+      },
+    })
   })
 }
 
@@ -188,9 +196,17 @@ export default new bp.Integration({
     })
 
     const reqId = debug.debugRequest(props.req)
-    const res = await runWithSpan(`${props.req.method} ${normalizePath(props.req.path)}`, () => handler(props), {
-      traceHeaders: props.req.headers,
-    })
+    const res = await runWithSpan(
+      `${props.req.method} ${normalizePath(props.req.path)}`,
+      async () => {
+        setSpanAttributes({ 'bp.botId': props.ctx.botId, 'bp.integrationId': props.ctx.integrationId })
+        return handler(props)
+      },
+      {
+        // traceHeaders is only used for W3C context extraction — header values are not stored as span attributes
+        traceHeaders: props.req.headers,
+      }
+    )
     debug.debugResponse(reqId, res)
 
     return res

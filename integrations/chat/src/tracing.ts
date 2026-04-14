@@ -54,31 +54,17 @@ export const initTracing = (): NodeTracerProvider | null => {
     tracerProvider: provider,
     instrumentations: [
       new HttpInstrumentation({
-        // Suppress DynamoDB HTTP spans (already wrapped by custom dynamodb.* spans in dynamo-db-store.ts)
-        ignoreOutgoingRequestHook: (req) => {
-          // AWS SDK v3 sets req.host (e.g. "localhost:8000") rather than hostname+port separately
-          const hostParts = req.host?.split(':')
-          const host = req.hostname ?? hostParts?.[0] ?? ''
-          const port = Number(req.port ?? hostParts?.[1] ?? 0)
-          // localhost:8000 is assumed to be DynamoDB Local (the standard port used by the AWS DynamoDB local emulator)
-          return host.endsWith('.amazonaws.com') || (host === 'localhost' && port === 8000)
-        },
-        // Rename spans for clarity and add bp.* attributes
+        // Rename spans for clarity
         requestHook: (span, request) => {
           if ('complete' in request) {
             // IncomingMessage: use x-bp-operation header for a descriptive name
             const op = request.headers['x-bp-operation']
             if (typeof op === 'string') {
-              span.updateName(`webhook:${op}`)
+              span.updateName(`bp:${op}`)
             }
-            // Set bp.* attributes from SDK-injected headers
-            const botId = request.headers['x-bot-id']
-            const integrationId = request.headers['x-integration-id']
-            if (typeof botId === 'string') span.setAttribute('bp.botId', botId)
-            if (typeof integrationId === 'string') span.setAttribute('bp.integrationId', integrationId)
           } else if ('path' in request && request.path) {
-            // ClientRequest (outgoing): rename from "METHOD" to "METHOD /normalized-path"
-            span.updateName(`${request.method ?? 'HTTP'} ${normalizePath(request.path)}`)
+            // ClientRequest (outgoing): rename from "METHOD" to "-> METHOD /normalized-path"
+            span.updateName(`-> ${request.method ?? 'HTTP'} ${normalizePath(request.path)}`)
           }
         },
       }),
