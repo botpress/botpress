@@ -1,4 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
+import { getConversationByExternalIdOrThrow } from '../utils/conversation'
 import * as bp from '.botpress'
 
 type HubSpotMessage = {
@@ -22,10 +23,7 @@ export const handleOperatorReplied = async ({ hubspotEvent, client }: OperatorRe
     throw new RuntimeError('Missing conversation thread ID in operator message')
   }
 
-  const { conversation } = await client.getOrCreateConversation({
-    channel: 'hitl',
-    tags: { id: hubspotEvent.message.conversationsThreadId },
-  })
+  const conversation = await getConversationByExternalIdOrThrow(client, hubspotEvent.message.conversationsThreadId)
 
   const actorId = hubspotEvent.message?.senders?.[0]?.actorId
 
