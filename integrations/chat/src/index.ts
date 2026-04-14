@@ -199,7 +199,7 @@ export default new bp.Integration({
     const res = await runWithSpan(
       `${props.req.method} ${normalizePath(props.req.path)}`,
       async () => {
-        setSpanAttributes({ 'bp.botId': props.ctx.botId, 'bp.integrationId': props.ctx.integrationId })
+        setSpanAttributes({ [SPAN_ATTRS.BOT_ID]: props.ctx.botId, [SPAN_ATTRS.INTEGRATION_ID]: props.ctx.integrationId })
         return handler(props)
       },
       {

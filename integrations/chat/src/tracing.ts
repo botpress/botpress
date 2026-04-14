@@ -21,6 +21,11 @@ export const normalizePath = (path: string): string =>
 export const SPAN_ATTRS = {
   USER_ID: 'bp.userId',
   CONVERSATION_ID: 'bp.conversationId',
+  BOT_ID: 'bp.botId',
+  INTEGRATION_ID: 'bp.integrationId',
+  DB_TABLE: 'db.table',
+  DB_KEY: 'db.key',
+  DB_COUNT: 'db.count',
 } as const
 
 export const initTracing = (): NodeTracerProvider | null => {

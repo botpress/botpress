@@ -1,6 +1,6 @@
 import * as dynamodb from '@aws-sdk/client-dynamodb'
 import { logger } from '../logger'
-import { runWithSpan } from '../tracing'
+import { runWithSpan, SPAN_ATTRS } from '../tracing'
 import * as errors from './errors'
 import * as types from './types'
 
@@ -39,7 +39,7 @@ class DynamoDbMap implements types.IdMap {
             },
           })
         ),
-      { attributes: { 'db.table': tableName, 'db.key': src } }
+      { attributes: { [SPAN_ATTRS.DB_TABLE]: tableName, [SPAN_ATTRS.DB_KEY]: src } }
     )
 
     const dest = Items?.[0]?.[destKeyName]?.S
@@ -104,7 +104,7 @@ class IncomingDynamoDbMap extends DynamoDbMap implements types.IncomingIdMap {
             }
             throw thrown
           }),
-      { attributes: { 'db.table': tableName, 'db.key': fid } }
+      { attributes: { [SPAN_ATTRS.DB_TABLE]: tableName, [SPAN_ATTRS.DB_KEY]: fid } }
     )
 
     this._debug('set', fid, id)
@@ -124,7 +124,7 @@ class IncomingDynamoDbMap extends DynamoDbMap implements types.IncomingIdMap {
             },
           })
         ),
-      { attributes: { 'db.table': tableName, 'db.key': fid } }
+      { attributes: { [SPAN_ATTRS.DB_TABLE]: tableName, [SPAN_ATTRS.DB_KEY]: fid } }
     )
   }
 }
@@ -171,7 +171,7 @@ class OutgoingDynamoDbMap extends DynamoDbMap implements types.OutoingIdMap {
             Parameters: parameters,
           })
         ),
-      { attributes: { 'db.table': tableName, 'db.count': String(uniqueIds.length) } }
+      { attributes: { [SPAN_ATTRS.DB_TABLE]: tableName, [SPAN_ATTRS.DB_COUNT]: String(uniqueIds.length) } }
     )
 
     const entries: Record<string, string> = {}
