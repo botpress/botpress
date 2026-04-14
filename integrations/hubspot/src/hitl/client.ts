@@ -5,7 +5,7 @@ import * as bp from '.botpress'
 const HUBSPOT_API_BASE_URL = 'https://api.hubapi.com'
 
 // Retry infrastructure
-interface RetryConfig {
+type RetryConfig = {
   maxRetries: number
   baseDelay: number
   maxDelay: number
@@ -43,36 +43,36 @@ function getRetryAfterMs(error: any): number | null {
   return null
 }
 
-interface ApiResponse<T> {
+type ApiResponse<T> = {
   success: boolean
   message: string
   data: T | null
 }
 
-export interface ThreadInfo {
+export type ThreadInfo = {
   id: string
   associatedContactId: string
 }
 
 export class HubSpotHitlClient {
-  private ctx: bp.Context
-  private bpClient: bp.Client
-  private logger: bp.Logger
+  private _ctx: bp.Context
+  private _bpClient: bp.Client
+  private _logger: bp.Logger
 
-  constructor(ctx: bp.Context, bpClient: bp.Client, logger: bp.Logger) {
-    this.ctx = ctx
-    this.bpClient = bpClient
-    this.logger = logger
+  public constructor(ctx: bp.Context, bpClient: bp.Client, logger: bp.Logger) {
+    this._ctx = ctx
+    this._bpClient = bpClient
+    this._logger = logger
   }
 
-  private async makeHitlRequest<T>(
+  private async _makeHitlRequest<T>(
     endpoint: string,
     method: string = 'GET',
     data: any = null,
     params: any = {},
     retryConfig: RetryConfig = DEFAULT_RETRY_CONFIG
   ): Promise<ApiResponse<T>> {
-    const accessToken = await getAccessToken({ client: this.bpClient, ctx: this.ctx })
+    const accessToken = await getAccessToken({ client: this._bpClient, ctx: this._ctx })
 
     const headers: Record<string, string> = {
       Authorization: `Bearer ${accessToken}`,
@@ -84,20 +84,20 @@ export class HubSpotHitlClient {
 
     for (let attempt = 0; attempt <= retryConfig.maxRetries; attempt++) {
       try {
-        this.logger.forBot().debug(`Making request to ${method} ${endpoint}`)
+        this._logger.forBot().debug(`Making request to ${method} ${endpoint}`)
         const response = await axios({ method, url: endpoint, headers, data, params })
         return { success: true, message: 'Request successful', data: response.data }
       } catch (error: any) {
         const isLast = attempt >= retryConfig.maxRetries
         if (!isLast && isRateLimitError(error)) {
           const delay = getRetryAfterMs(error) ?? calculateDelay(attempt, retryConfig)
-          this.logger
+          this._logger
             .forBot()
             .warn(`Rate limited. Retrying in ${delay / 1000}s (attempt ${attempt + 1}/${retryConfig.maxRetries})`)
           await sleep(delay)
           continue
         }
-        this.logger.forBot().error('HubSpot API error:', error.response?.data || error.message)
+        this._logger.forBot().error('HubSpot API error:', error.response?.data || error.message)
         return { success: false, message: error.response?.data?.message || error.message, data: null }
       }
     }
@@ -106,7 +106,7 @@ export class HubSpotHitlClient {
 
   public async getThreadInfo(threadId: string): Promise<ThreadInfo> {
     const endpoint = `${HUBSPOT_API_BASE_URL}/conversations/v3/conversations/threads/${threadId}`
-    const response = await this.makeHitlRequest<ThreadInfo>(endpoint, 'GET')
+    const response = await this._makeHitlRequest<ThreadInfo>(endpoint, 'GET')
     if (!response.success || !response.data) {
       throw new Error(`Failed to fetch thread info: ${response.message}`)
     }
@@ -115,7 +115,7 @@ export class HubSpotHitlClient {
 
   public async getActorEmail(actorId: string): Promise<string> {
     const endpoint = `${HUBSPOT_API_BASE_URL}/conversations/v3/conversations/actors/${actorId}`
-    const response = await this.makeHitlRequest<{ email: string }>(endpoint, 'GET')
+    const response = await this._makeHitlRequest<{ email: string }>(endpoint, 'GET')
     if (!response.success || !response.data) {
       throw new Error(`Failed to fetch actor info: ${response.message}`)
     }
@@ -126,7 +126,7 @@ export class HubSpotHitlClient {
     actorId: string
   ): Promise<{ id: string; name: string; email: string; avatar: string; type: string }> {
     const endpoint = `${HUBSPOT_API_BASE_URL}/conversations/v3/conversations/actors/${actorId}`
-    const response = await this.makeHitlRequest<{
+    const response = await this._makeHitlRequest<{
       id: string
       name: string
       email: string
@@ -141,7 +141,7 @@ export class HubSpotHitlClient {
 
   public async getActorPhoneNumber(contactId: string): Promise<string> {
     const endpoint = `${HUBSPOT_API_BASE_URL}/crm/v3/objects/contacts/${contactId}?properties=phone`
-    const response = await this.makeHitlRequest<{ properties: { phone: string } }>(endpoint, 'GET', null, {
+    const response = await this._makeHitlRequest<{ properties: { phone: string } }>(endpoint, 'GET', null, {
       archived: false,
     })
     if (!response.success || !response.data) {
@@ -154,12 +154,12 @@ export class HubSpotHitlClient {
     const params: Record<string, string> = { appId }
     if (developerApiKey) params.hapikey = developerApiKey
 
-    const response = await this.makeHitlRequest<{ id: string }>(
+    const response = await this._makeHitlRequest<{ id: string }>(
       `${HUBSPOT_API_BASE_URL}/conversations/v3/custom-channels`,
       'POST',
       {
         name: 'Botpress HITL',
-        webhookUrl: `${process.env.BP_WEBHOOK_URL}/${this.ctx.webhookId}`,
+        webhookUrl: `${process.env.BP_WEBHOOK_URL}/${this._ctx.webhookId}`,
         capabilities: {
           deliveryIdentifierTypes: ['CHANNEL_SPECIFIC_OPAQUE_ID'],
           richText: ['HYPERLINK', 'TEXT_ALIGNMENT', 'BLOCKQUOTE'],
@@ -194,20 +194,9 @@ export class HubSpotHitlClient {
     const params: Record<string, string> = { appId }
     if (developerApiKey) params.hapikey = developerApiKey
 
-    const accessToken = await getAccessToken({ client: this.bpClient, ctx: this.ctx })
+    const accessToken = await getAccessToken({ client: this._bpClient, ctx: this._ctx })
     for (let attempt = 0; attempt <= DEFAULT_RETRY_CONFIG.maxRetries; attempt++) {
       try {
-        this.logger.forBot().error(
-          JSON.stringify({
-            getCustomChannel: [
-              `${HUBSPOT_API_BASE_URL}/conversations/v3/custom-channels`,
-              {
-                params,
-                headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' },
-              },
-            ],
-          })
-        )
         const response = await axios.get(`${HUBSPOT_API_BASE_URL}/conversations/v3/custom-channels`, {
           params,
           headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' },
@@ -220,7 +209,7 @@ export class HubSpotHitlClient {
           await sleep(delay)
           continue
         }
-        this.logger.forBot().error('Failed to fetch custom channels:', error.response?.data || error.message)
+        this._logger.forBot().error('Failed to fetch custom channels:', error.response?.data || error.message)
         throw error
       }
     }
@@ -235,14 +224,14 @@ export class HubSpotHitlClient {
     const params: Record<string, string> = { appId }
     if (developerApiKey) params.hapikey = developerApiKey
 
-    const accessToken = await getAccessToken({ client: this.bpClient, ctx: this.ctx })
+    const accessToken = await getAccessToken({ client: this._bpClient, ctx: this._ctx })
     for (let attempt = 0; attempt <= DEFAULT_RETRY_CONFIG.maxRetries; attempt++) {
       try {
         await axios.delete(`${HUBSPOT_API_BASE_URL}/conversations/v3/custom-channels/${channelId}`, {
           params,
           headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' },
         })
-        this.logger.forBot().info(`Deleted custom channel ${channelId}`)
+        this._logger.forBot().info(`Deleted custom channel ${channelId}`)
         return { success: true }
       } catch (error: any) {
         const isLast = attempt >= DEFAULT_RETRY_CONFIG.maxRetries
@@ -251,7 +240,7 @@ export class HubSpotHitlClient {
           await sleep(delay)
           continue
         }
-        this.logger.forBot().error('Failed to delete custom channel:', error.response?.data || error.message)
+        this._logger.forBot().error('Failed to delete custom channel:', error.response?.data || error.message)
         return { success: false }
       }
     }
@@ -270,7 +259,7 @@ export class HubSpotHitlClient {
       deliveryIdentifier: { type: 'CHANNEL_SPECIFIC_OPAQUE_ID', value: `botpress-${inboxOrHelpDeskId}` },
       authorized: true,
     }
-    const response = await this.makeHitlRequest<{ id: string }>(endpoint, 'POST', payload)
+    const response = await this._makeHitlRequest<{ id: string }>(endpoint, 'POST', payload)
     if (!response.success || !response.data) {
       throw new Error(`connectCustomChannel failed: ${response.message}`)
     }
@@ -279,7 +268,7 @@ export class HubSpotHitlClient {
 
   public async listChannelAccounts(channelId: string): Promise<Array<{ id: string; inboxId: string }>> {
     const endpoint = `${HUBSPOT_API_BASE_URL}/conversations/v3/custom-channels/${channelId}/channel-accounts`
-    const response = await this.makeHitlRequest<{ results: Array<{ id: string; inboxId: string }> }>(endpoint, 'GET')
+    const response = await this._makeHitlRequest<{ results: Array<{ id: string; inboxId: string }> }>(endpoint, 'GET')
     if (!response.success || !response.data) {
       throw new Error(`listChannelAccounts failed: ${response.message}`)
     }
@@ -312,7 +301,7 @@ export class HubSpotHitlClient {
       ],
     }
 
-    const response = await this.makeHitlRequest(endpoint, 'POST', payload)
+    const response = await this._makeHitlRequest(endpoint, 'POST', payload)
     if (!response.success) {
       throw new Error(`createConversation failed: ${response.message}`)
     }
@@ -321,7 +310,7 @@ export class HubSpotHitlClient {
 
   public async listInboxes(): Promise<Array<{ id: string; name: string }>> {
     const endpoint = `${HUBSPOT_API_BASE_URL}/conversations/v3/conversations/inboxes`
-    const response = await this.makeHitlRequest<{ results: Array<{ id: string; name: string }> }>(endpoint, 'GET')
+    const response = await this._makeHitlRequest<{ results: Array<{ id: string; name: string }> }>(endpoint, 'GET')
     if (!response.success || !response.data) {
       throw new Error(`listInboxes failed: ${response.message}`)
     }
@@ -354,7 +343,7 @@ export class HubSpotHitlClient {
       ],
     }
 
-    const response = await this.makeHitlRequest(endpoint, 'POST', payload)
+    const response = await this._makeHitlRequest(endpoint, 'POST', payload)
     if (!response.success) {
       throw new Error(`sendMessage failed: ${response.message}`)
     }

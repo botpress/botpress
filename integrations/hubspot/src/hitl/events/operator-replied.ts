@@ -1,18 +1,18 @@
-import * as bp from '.botpress'
 import { RuntimeError } from '@botpress/sdk'
+import * as bp from '.botpress'
 
-interface HubSpotMessage {
+type HubSpotMessage = {
   conversationsThreadId: string
   text: string
   senders?: Array<{ actorId: string }>
 }
 
-interface HubSpotEvent {
+type HubSpotEvent = {
   type: string
   message?: HubSpotMessage
 }
 
-interface OperatorRepliedParams {
+type OperatorRepliedParams = {
   hubspotEvent: HubSpotEvent
   client: bp.Client
 }

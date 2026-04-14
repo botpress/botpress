@@ -3,7 +3,7 @@ import { handleConversationCompleted } from '../../hitl/events/conversation-comp
 import { handleOperatorAssignedUpdate } from '../../hitl/events/operator-assigned'
 import * as bp from '.botpress'
 
-interface ConversationEvent {
+type ConversationEvent = {
   subscriptionType: string
   objectId: string | number
   propertyName?: string

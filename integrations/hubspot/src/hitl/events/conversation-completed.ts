@@ -1,14 +1,14 @@
 import { getConversationByExternalIdOrThrow } from '../utils/conversation'
 import * as bp from '.botpress'
 
-interface HubSpotEvent {
+type HubSpotEvent = {
   objectId: string | number
   subscriptionType: string
   propertyName?: string
   propertyValue?: string
 }
 
-interface ConversationCompletedParams {
+type ConversationCompletedParams = {
   hubspotEvent: HubSpotEvent
   client: bp.Client
 }

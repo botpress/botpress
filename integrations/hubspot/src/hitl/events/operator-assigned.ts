@@ -2,14 +2,14 @@ import { HubSpotHitlClient } from '../client'
 import { getConversationByExternalIdOrThrow } from '../utils/conversation'
 import * as bp from '.botpress'
 
-interface HubSpotEvent {
+type HubSpotEvent = {
   objectId: string | number
   subscriptionType: string
   propertyName?: string
   propertyValue?: string
 }
 
-interface OperatorAssignedParams {
+type OperatorAssignedParams = {
   hubspotEvent: HubSpotEvent
   client: bp.Client
   hubSpotClient: HubSpotHitlClient

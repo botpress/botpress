@@ -77,7 +77,7 @@ const _oauthRedirectStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
   const scopesStr = encodeURIComponent(scopes.join(' '))
 
   const url =
-    `https://app.hubspot.com/oauth/authorize` +
+    'https://app.hubspot.com/oauth/authorize' +
     `?client_id=${bp.secrets.CLIENT_ID}` +
     `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
     `&state=${ctx.webhookId}` +
