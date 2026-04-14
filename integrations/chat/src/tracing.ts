@@ -42,7 +42,9 @@ export const initTracing = (): NodeTracerProvider | null => {
     resource: new Resource(resourceAttrs),
   })
 
-  provider.addSpanProcessor(new BatchSpanProcessor(new OTLPTraceExporter()))
+  if (process.env.OTEL_EXPORTER_OTLP_ENDPOINT) {
+    provider.addSpanProcessor(new BatchSpanProcessor(new OTLPTraceExporter()))
+  }
   if (process.env.OTEL_CONSOLE_EXPORTER === 'true') {
     provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()))
   }
