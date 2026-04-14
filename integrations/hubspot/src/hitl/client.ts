@@ -30,11 +30,13 @@ function calculateDelay(attempt: number, config: RetryConfig): number {
   return Math.floor(exponentialDelay + jitter)
 }
 
-function isRateLimitError(error: any): boolean {
+function isRateLimitError(error: unknown): boolean {
+  if (!axios.isAxiosError(error)) return false
   return error.response?.status === 429 || error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT'
 }
 
-function getRetryAfterMs(error: any): number | null {
+function getRetryAfterMs(error: unknown): number | null {
+  if (!axios.isAxiosError(error)) return null
   const retryAfter = error.response?.headers?.['retry-after']
   if (!retryAfter) return null
   const parsed = parseInt(retryAfter, 10)
@@ -88,18 +90,20 @@ export class HubSpotHitlClient {
         this._logger.forBot().debug(`Making request to ${method} ${endpoint}`)
         const response = await axios({ method, url: endpoint, headers, data, params })
         return { success: true, message: 'Request successful', data: response.data }
-      } catch (error: any) {
+      } catch (thrown: unknown) {
         const isLast = attempt >= retryConfig.maxRetries
-        if (!isLast && isRateLimitError(error)) {
-          const delay = getRetryAfterMs(error) ?? calculateDelay(attempt, retryConfig)
+        if (!isLast && isRateLimitError(thrown)) {
+          const delay = getRetryAfterMs(thrown) ?? calculateDelay(attempt, retryConfig)
           this._logger
             .forBot()
             .warn(`Rate limited. Retrying in ${delay / 1000}s (attempt ${attempt + 1}/${retryConfig.maxRetries})`)
           await sleep(delay)
           continue
         }
-        this._logger.forBot().error('HubSpot API error:', error.response?.data || error.message)
-        return { success: false, message: error.response?.data?.message || error.message, data: null }
+        const errData = axios.isAxiosError(thrown) ? thrown.response?.data : undefined
+        const message = thrown instanceof Error ? thrown.message : String(thrown)
+        this._logger.forBot().error('HubSpot API error:', errData || message)
+        return { success: false, message: errData?.message || message, data: null }
       }
     }
     return { success: false, message: 'Max retries exceeded', data: null }
@@ -195,26 +199,16 @@ export class HubSpotHitlClient {
     const params: Record<string, string> = { appId }
     if (developerApiKey) params.hapikey = developerApiKey
 
-    const accessToken = await getAccessToken({ client: this._bpClient, ctx: this._ctx })
-    for (let attempt = 0; attempt <= DEFAULT_RETRY_CONFIG.maxRetries; attempt++) {
-      try {
-        const response = await axios.get(`${HUBSPOT_API_BASE_URL}/conversations/v3/custom-channels`, {
-          params,
-          headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' },
-        })
-        return response.data
-      } catch (error: any) {
-        const isLast = attempt >= DEFAULT_RETRY_CONFIG.maxRetries
-        if (!isLast && isRateLimitError(error)) {
-          const delay = getRetryAfterMs(error) ?? calculateDelay(attempt, DEFAULT_RETRY_CONFIG)
-          await sleep(delay)
-          continue
-        }
-        this._logger.forBot().error('Failed to fetch custom channels:', error.response?.data || error.message)
-        throw error
-      }
+    const response = await this._makeHitlRequest<{ results: Array<{ id: string; webhookUrl: string }> }>(
+      `${HUBSPOT_API_BASE_URL}/conversations/v3/custom-channels`,
+      'GET',
+      null,
+      params
+    )
+    if (!response.success || !response.data) {
+      throw new RuntimeError(`getCustomChannels failed: ${response.message}`)
     }
-    throw new RuntimeError('Max retries exceeded fetching custom channels')
+    return response.data
   }
 
   public async deleteCustomChannel(
@@ -225,27 +219,18 @@ export class HubSpotHitlClient {
     const params: Record<string, string> = { appId }
     if (developerApiKey) params.hapikey = developerApiKey
 
-    const accessToken = await getAccessToken({ client: this._bpClient, ctx: this._ctx })
-    for (let attempt = 0; attempt <= DEFAULT_RETRY_CONFIG.maxRetries; attempt++) {
-      try {
-        await axios.delete(`${HUBSPOT_API_BASE_URL}/conversations/v3/custom-channels/${channelId}`, {
-          params,
-          headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' },
-        })
-        this._logger.forBot().info(`Deleted custom channel ${channelId}`)
-        return { success: true }
-      } catch (error: any) {
-        const isLast = attempt >= DEFAULT_RETRY_CONFIG.maxRetries
-        if (!isLast && isRateLimitError(error)) {
-          const delay = getRetryAfterMs(error) ?? calculateDelay(attempt, DEFAULT_RETRY_CONFIG)
-          await sleep(delay)
-          continue
-        }
-        this._logger.forBot().error('Failed to delete custom channel:', error.response?.data || error.message)
-        return { success: false }
-      }
+    const response = await this._makeHitlRequest(
+      `${HUBSPOT_API_BASE_URL}/conversations/v3/custom-channels/${channelId}`,
+      'DELETE',
+      null,
+      params
+    )
+    if (response.success) {
+      this._logger.forBot().info(`Deleted custom channel ${channelId}`)
+    } else {
+      this._logger.forBot().error(`Failed to delete custom channel ${channelId}: ${response.message}`)
     }
-    return { success: false }
+    return { success: response.success }
   }
 
   public async connectCustomChannel(

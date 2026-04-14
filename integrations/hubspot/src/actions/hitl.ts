@@ -42,7 +42,8 @@ export const createUser: bp.IntegrationProps['actions']['createUser'] = async ({
     logger.forBot().debug(`createUser: created/found user ${botpressUser.id} (${contactType})`)
 
     return { userId: botpressUser.id }
-  } catch (error: any) {
+  } catch (thrown: unknown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
     throw new RuntimeError(error.message)
   }
 }
@@ -108,7 +109,8 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
     })
 
     return { conversationId: conversation.id }
-  } catch (error: any) {
+  } catch (thrown: unknown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
     logger.forBot().error(`startHitl error: ${error.message}`)
     throw new RuntimeError(error.message)
   }
