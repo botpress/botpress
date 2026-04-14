@@ -1,71 +1,56 @@
-import { unique } from '../../utils'
-import {
-  RawCreateParams,
-  ZodFirstPartyTypeKind,
-  ZodType,
-  ZodTypeAny,
-  ZodTypeDef,
-  ZodError,
+import * as utils from '../../../utils'
+import { ZodError } from '../../error'
+import { is } from '../../guards'
+import { builders } from '../../internal-builders'
+import type {
+  DefaultZodUnionOptions,
+  IZodUnion,
+  IZodType,
+  ZodUnionDef,
+  ZodUnionOptions,
   ZodIssue,
-  ZodIssueCode,
-  processCreateParams,
-  addIssueToContext,
-  DIRTY,
-  INVALID,
   ParseContext,
   ParseInput,
   ParseReturnType,
   SyncParseReturnType,
-  ZodUndefined,
-  ZodNever,
-} from '../index'
-import { CustomSet } from '../utils/custom-set'
+  InvalidParseReturnType,
+  DirtyParseReturnType,
+} from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
-type DefaultZodUnionOptions = Readonly<[ZodTypeAny, ZodTypeAny, ...ZodTypeAny[]]>
-export type ZodUnionOptions = Readonly<[ZodTypeAny, ...ZodTypeAny[]]>
-export type ZodUnionDef<T extends ZodUnionOptions = DefaultZodUnionOptions> = {
-  options: T
-  typeName: ZodFirstPartyTypeKind.ZodUnion
-} & ZodTypeDef
-
-export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extends ZodType<
-  T[number]['_output'],
-  ZodUnionDef<T>,
-  T[number]['_input']
-> {
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
-    const options = this._def.options.map((option) => option.dereference(defs)) as [
-      ZodTypeAny,
-      ZodTypeAny,
-      ...ZodTypeAny[],
-    ]
-    return new ZodUnion({
+export class ZodUnionImpl<T extends ZodUnionOptions = DefaultZodUnionOptions>
+  extends ZodBaseTypeImpl<T[number]['_output'], ZodUnionDef<T>, T[number]['_input']>
+  implements IZodUnion<T>
+{
+  dereference(defs: Record<string, IZodType>): IZodType {
+    const options = this._def.options.map((option) => option.dereference(defs)) as [IZodType, IZodType, ...IZodType[]]
+    return new ZodUnionImpl({
       ...this._def,
       options,
     })
   }
 
   getReferences(): string[] {
-    return unique(
+    return utils.fn.unique(
       this._def.options.reduce<string[]>((acc, option) => {
         return [...acc, ...option.getReferences()]
       }, [])
     )
   }
 
-  clone(): ZodUnion<T> {
-    const options = this._def.options.map((option) => option.clone()) as [ZodTypeAny, ...ZodTypeAny[]]
-    return new ZodUnion({
+  clone(): IZodUnion<T> {
+    const options = this._def.options.map((option) => option.clone()) as utils.types.Writeable<T>
+    return new ZodUnionImpl({
       ...this._def,
-      options,
-    }) as ZodUnion<any>
+      options: options as T,
+    })
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { ctx } = this._processInputParams(input)
     const options = this._def.options
 
-    function handleResults(results: { ctx: ParseContext; result: SyncParseReturnType<any> }[]) {
+    function handleResults(results: { ctx: ParseContext; result: SyncParseReturnType }[]): SyncParseReturnType {
       // return first issue-free validation if it exists
       for (const result of results) {
         if (result.result.status === 'valid') {
@@ -85,10 +70,10 @@ export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extend
       const unionErrors = results.map((result) => new ZodError(result.ctx.common.issues))
 
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_union,
+        code: 'invalid_union',
         unionErrors,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     if (ctx.common.async) {
@@ -113,7 +98,7 @@ export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extend
         })
       ).then(handleResults)
     } else {
-      let dirty: undefined | { result: DIRTY<any>; ctx: ParseContext } = undefined
+      let dirty: undefined | { result: DirtyParseReturnType; ctx: ParseContext } = undefined
       const issues: ZodIssue[][] = []
       for (const option of options) {
         const childCtx: ParseContext = {
@@ -148,11 +133,11 @@ export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extend
 
       const unionErrors = issues.map((issues) => new ZodError(issues))
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_union,
+        code: 'invalid_union',
         unionErrors,
       })
 
-      return INVALID
+      return { status: 'aborted' } satisfies InvalidParseReturnType
     }
   }
 
@@ -160,39 +145,29 @@ export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extend
     return this._def.options
   }
 
-  static create = <T extends Readonly<[ZodTypeAny, ZodTypeAny, ...ZodTypeAny[]]>>(
-    types: T,
-    params?: RawCreateParams
-  ): ZodUnion<T> => {
-    return new ZodUnion({
-      options: types,
-      typeName: ZodFirstPartyTypeKind.ZodUnion,
-      ...processCreateParams(params),
-    })
-  }
+  isEqual(schema: IZodType): boolean {
+    if (!(schema instanceof ZodUnionImpl)) return false
 
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodUnion)) return false
-
-    const compare = (a: ZodType, b: ZodType) => a.isEqual(b)
-    const thisOptions = new CustomSet<ZodType>([...this._def.options], { compare })
-    const thatOptions = new CustomSet<ZodType>([...schema._def.options], { compare })
+    const compare = (a: IZodType, b: IZodType) => a.isEqual(b)
+    const thisOptions = new utils.ds.CustomSet<IZodType>([...this._def.options], { compare })
+    const thatOptions = new utils.ds.CustomSet<IZodType>([...schema._def.options], { compare })
 
     return thisOptions.isEqual(thatOptions)
   }
 
-  mandatory(): ZodType {
-    const options = this._def.options.filter((o) => !(o instanceof ZodUndefined)).map((option) => option.mandatory())
+  mandatory(): IZodType {
+    const options = this._def.options.filter((o) => !is.zuiUndefined(o)).map((option) => option.mandatory())
+
     const [first, second, ...others] = options
     if (!first) {
-      return ZodNever.create({
+      return builders.never({
         ...this._def,
       })
     }
     if (!second) {
       return first
     }
-    return new ZodUnion({
+    return new ZodUnionImpl({
       ...this._def,
       options: [first, second, ...others],
     })

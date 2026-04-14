@@ -3,7 +3,7 @@ import { IntegrationDefinition } from '@botpress/sdk'
 import { actionDefinitions } from 'src/definitions/actions'
 
 export const INTEGRATION_NAME = 'browser'
-export const INTEGRATION_VERSION = '0.8.3'
+export const INTEGRATION_VERSION = '0.8.7'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -22,8 +22,16 @@ export default new IntegrationDefinition({
     FIRECRAWL_API_KEY: {
       description: 'FireCrawl key',
     },
+    FIRECRAWL_CUSTOM_HEADERS: {
+      description: 'Custom HTTP headers to include in Firecrawl scrape requests (JSON object)',
+      optional: true,
+    },
     LOGO_API_KEY: {
       description: 'Logo key',
     },
+  },
+  attributes: {
+    category: 'Developer Tools',
+    repo: 'botpress',
   },
 })

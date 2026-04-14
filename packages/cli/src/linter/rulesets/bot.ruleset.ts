@@ -1,6 +1,7 @@
 import { falsy } from '@stoplight/spectral-functions'
 import { preprocessRuleset } from '../ruleset-functions'
 import { descriptionFallbackExtractor, titleFallbackExtractor, truthyWithMessage } from '../spectral-functions'
+import { secretsMustHaveADescription } from './shared-rules'
 
 export const BOT_RULESET = preprocessRuleset({
   extends: [],
@@ -44,10 +45,10 @@ export const BOT_RULESET = preprocessRuleset({
       message:
         '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'error',
-      given: '$.configuration..schema.properties[*].x-zui',
+      given: '$.configuration..schema.properties[*]',
       then: [
         {
-          field: 'title',
+          field: 'x-zui.title',
           function: truthyWithMessage({
             failMsgMapper: ({ path, isFallback }) => `configuration parameter "${path.at(isFallback ? -5 : -3)}"`,
             fallbackExtractor: titleFallbackExtractor,
@@ -189,5 +190,6 @@ export const BOT_RULESET = preprocessRuleset({
         },
       ],
     },
+    'secrets-must-have-a-description': secretsMustHaveADescription,
   },
 })

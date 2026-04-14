@@ -70,6 +70,7 @@ export const ModelSchema = ModelRefSchema.extend({
       'storytelling',
       'reasoning',
       'preview',
+      'speech-to-text',
     ])
   ),
   input: z.object({

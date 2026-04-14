@@ -1,4 +1,4 @@
-name: Build and push Chat Integration Docker
+name: Check Chat Integration Docker
 
 on:
   pull_request:
@@ -7,8 +7,6 @@ on:
     paths:
       - 'integrations/chat/**'
       - 'packages/sdk/**'
-
-  workflow_dispatch: {}
 
 permissions:
   id-token: write
@@ -19,17 +17,73 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  docker-chat:
+  build-and-test:
     runs-on: depot-ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup # FIXME: This should not be necessary, as the Dockerfile should be self-contained
-        uses: ./.github/actions/setup
+
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
+      - name: Build Docker image
+        uses: depot/build-push-action@v1
         with:
-          extra_filters: '-F @botpresshub/chat'
-      - uses: ./.github/actions/docker-build
-        with:
-          repository: chat-integration
-          dockerfile: ./integrations/chat/Dockerfile
-          push: ${{ github.event_name == 'workflow_dispatch' }}
-          depot-project: ${{ secrets.DEPOT_PROJECT_ID }}
+          project: ${{ secrets.DEPOT_PROJECT_ID }}
+          build-args: |
+            MINIFY=true
+          file: ./integrations/chat/Dockerfile
+          context: .
+          push: false
+          load: true
+          tags: chat-integration:test
+
+      - name: Start Docker container
+        run: |
+          docker run -d \
+            --name chat-test \
+            -p 8081:8081 \
+            -e SECRET_SIGNAL_URL=https://chat.botpress.dev \
+            chat-integration:test
+
+      - name: Wait for container to be ready
+        run: |
+          echo "Waiting for container to start..."
+          for i in {1..30}; do
+            if docker ps --filter "name=chat-test" --filter "status=running" | grep -q chat-test; then
+              echo "Container is running"
+              sleep 5
+              exit 0
+            fi
+            if docker ps -a --filter "name=chat-test" --filter "status=exited" | grep -q chat-test; then
+              echo "Container exited prematurely!"
+              docker logs chat-test
+              exit 1
+            fi
+            echo "Waiting for container... ($i/30)"
+            sleep 2
+          done
+          echo "Container did not start within expected time"
+          docker ps -a
+          exit 1
+
+      - name: Check health endpoint
+        run: |
+          echo "Checking /health endpoint..."
+          for i in {1..15}; do
+            if curl -f http://localhost:8081/health; then
+              echo "Health check passed!"
+              exit 0
+            fi
+            echo "Attempt $i/15 failed, retrying..."
+            sleep 2
+          done
+          echo "Health check failed after 15 attempts"
+          exit 1
+
+      - name: Show container logs on failure
+        if: failure()
+        run: docker logs chat-test
+
+      - name: Cleanup container
+        if: always()
+        run: docker rm -f chat-test || true

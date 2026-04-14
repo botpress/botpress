@@ -8,7 +8,7 @@ export default new IntegrationDefinition({
   title: 'Fireworks AI',
   description:
     'Choose from curated Fireworks AI models for content generation, chat completions, and audio transcription.',
-  version: '10.0.1',
+  version: '11.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
@@ -27,6 +27,10 @@ export default new IntegrationDefinition({
     FIREWORKS_AI_API_KEY: {
       description: 'Fireworks AI API key',
     },
+  },
+  attributes: {
+    category: 'AI Models',
+    repo: 'botpress',
   },
 })
   .extend(llm, ({ entities: { modelRef } }) => ({ entities: { modelRef } }))

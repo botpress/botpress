@@ -26,6 +26,7 @@ const SHARED_CONFIGURATION = {
         .title('Require Bot Mention for Replies')
         .describe('This ensures that the bot only replies to messages when it is explicitly mentioned'),
     })
+    .optional()
     .title('Reply Behaviour')
     .describe('How the bot should reply to messages'),
 } as const
@@ -63,6 +64,16 @@ export const configurations = {
         .secret()
         .title('Slack Client Secret')
         .describe('Available in the app admin panel under Basic Info'),
+      ...SHARED_CONFIGURATION,
+    }),
+  },
+  manifestAppCredentials: {
+    title: 'App Manifest (Automatic Setup)',
+    description: 'Register new Slack application',
+    identifier: {
+      linkTemplateScript: 'manifestHandler.vrl',
+    },
+    schema: sdk.z.object({
       ...SHARED_CONFIGURATION,
     }),
   },

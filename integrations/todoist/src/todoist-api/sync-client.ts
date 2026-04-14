@@ -1,4 +1,4 @@
-import { z, ZodRawShape, ZodObject } from '@botpress/sdk'
+import { z } from '@botpress/sdk'
 
 export class TodoistSyncClient {
   private readonly _fetch: typeof fetch
@@ -28,7 +28,7 @@ export class TodoistSyncClient {
     }
   }
 
-  private async _post<T extends ZodRawShape>({
+  private async _post<T extends z.ZodRawShape>({
     endpoint,
     params,
     responseSchema,
@@ -36,7 +36,7 @@ export class TodoistSyncClient {
     endpoint: string
     responseSchema: T
     params?: Record<string, any>
-  }): Promise<z.infer<ZodObject<T, 'strip'>>> {
+  }): Promise<z.infer<z.ZodObject<T, 'strip'>>> {
     return this._sendRequest({
       endpoint,
       init: {
@@ -48,13 +48,13 @@ export class TodoistSyncClient {
     })
   }
 
-  private async _get<T extends ZodRawShape>({
+  private async _get<T extends z.ZodRawShape>({
     endpoint,
     responseSchema,
   }: {
     endpoint: string
     responseSchema: T
-  }): Promise<z.infer<ZodObject<T, 'strip'>>> {
+  }): Promise<z.infer<z.ZodObject<T, 'strip'>>> {
     return this._sendRequest({
       endpoint,
       init: {
@@ -64,7 +64,7 @@ export class TodoistSyncClient {
     })
   }
 
-  private async _sendRequest<T extends ZodRawShape>({
+  private async _sendRequest<T extends z.ZodRawShape>({
     endpoint,
     init,
     responseSchema,
@@ -72,7 +72,7 @@ export class TodoistSyncClient {
     endpoint: string
     init: RequestInit
     responseSchema: T
-  }): Promise<z.infer<ZodObject<T, 'strip'>>> {
+  }): Promise<z.infer<z.ZodObject<T, 'strip'>>> {
     const response = await this._fetch(`https://api.todoist.com/sync/v9/${endpoint}`, init)
 
     if (!response.ok) {

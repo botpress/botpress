@@ -4,7 +4,8 @@ import { LinearWebhookClient } from '@linear/sdk/webhooks'
 import { fireIssueCreated } from './events/issueCreated'
 import { fireIssueDeleted } from './events/issueDeleted'
 import { fireIssueUpdated } from './events/issueUpdated'
-import { LinearEvent, handleOauth } from './misc/linear'
+import * as mapping from './files-readonly/mapping'
+import { LinearEvent, LinearIssueEvent, handleOauth } from './misc/linear'
 import { Result } from './misc/types'
 import { getLinearClient, getUserAndConversation } from './misc/utils'
 import * as bp from '.botpress'
@@ -12,9 +13,10 @@ import * as bp from '.botpress'
 const LINEAR_WEBHOOK_SIGNATURE_HEADER = 'linear-signature'
 const LINEAR_WEBHOOK_TS_FIELD = 'webhookTimestamp'
 
-export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
+export const handler: bp.IntegrationProps['handler'] = async (props) => {
+  const { req, ctx, client, logger } = props
   if (req.path === '/oauth') {
-    return handleOauth(req, client, ctx).catch((err) => {
+    return await handleOauth(props).catch((err) => {
       logger.forBot().error('Error while processing OAuth', err.response?.data || err.message)
       throw err
     })
@@ -43,16 +45,19 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   // ============ EVENTS ==============
   if (linearEvent.type === 'issue' && (linearEvent.action === 'create' || linearEvent.action === 'restore')) {
     await fireIssueCreated({ linearEvent, client, ctx })
+    await _emitFileChangeEvent(client, logger, linearEvent, 'created')
     return
   }
 
   if (linearEvent.type === 'issue' && linearEvent.action === 'update') {
     await fireIssueUpdated({ linearEvent, client, ctx })
+    await _emitFileChangeEvent(client, logger, linearEvent, 'updated')
     return
   }
 
   if (linearEvent.type === 'issue' && linearEvent.action === 'remove') {
     await fireIssueDeleted({ linearEvent, client, ctx })
+    await _emitFileChangeEvent(client, logger, linearEvent, 'deleted')
     return
   }
 
@@ -130,7 +135,41 @@ const _getWebhookSigningSecret = ({ ctx }: { ctx: bp.Context }) =>
   ctx.configurationType === 'apiKey' ? ctx.configuration.webhookSigningSecret : bp.secrets.WEBHOOK_SIGNING_SECRET
 
 const _getLinearBotId = async ({ client, ctx }: { client: bp.Client; ctx: bp.Context }) => {
-  const linearClient = await getLinearClient({ client, ctx }, ctx.integrationId)
+  const linearClient = await getLinearClient({ client, ctx })
   const me = await linearClient.viewer
   return me.id
+}
+
+const _emitFileChangeEvent = async (
+  client: bp.Client,
+  logger: bp.Logger,
+  linearEvent: LinearIssueEvent,
+  changeType: 'created' | 'updated' | 'deleted'
+) => {
+  try {
+    const file = mapping.mapIssueToFile({
+      id: linearEvent.data.id,
+      identifier: `${linearEvent.data.team?.key ?? 'UNK'}-${linearEvent.data.number}`,
+      title: linearEvent.data.title,
+      description: linearEvent.data.description,
+      updatedAt: linearEvent.data.updatedAt ?? new Date().toISOString(),
+      teamKey: linearEvent.data.team?.key,
+    })
+
+    const emptyFiles: (typeof file)[] = []
+
+    await client.createEvent({
+      type: 'aggregateFileChanges',
+      payload: {
+        modifiedItems: {
+          created: changeType === 'created' ? [file] : emptyFiles,
+          updated: changeType === 'updated' ? [file] : emptyFiles,
+          deleted: changeType === 'deleted' ? [file] : emptyFiles,
+        },
+      },
+    })
+  } catch (thrown) {
+    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    logger.forBot().error('Failed to emit file-change event; swallowing to prevent webhook retries', errorMessage)
+  }
 }

@@ -482,14 +482,14 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   }
 
   protected async promptSecrets(
-    integrationDef: sdk.IntegrationDefinition,
+    def: { secrets?: Record<string, sdk.SecretDefinition> },
     argv: YargsConfig<typeof config.schemas.secrets>,
     opts: { formatEnv?: boolean; knownSecrets?: string[] } = {}
   ): Promise<Record<string, string | null>> {
     const formatEnv = opts.formatEnv ?? false
     const knownSecrets = opts.knownSecrets ?? []
 
-    const { secrets: secretDefinitions } = integrationDef
+    const { secrets: secretDefinitions } = def
     if (!secretDefinitions) {
       return {}
     }
@@ -497,7 +497,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const secretArgv = this._parseArgvSecrets(argv.secrets)
     const invalidSecret = Object.keys(secretArgv).find((s) => !secretDefinitions[s])
     if (invalidSecret) {
-      throw new errors.BotpressCLIError(`Secret ${invalidSecret} is not defined in integration definition`)
+      throw new errors.BotpressCLIError(`Secret ${invalidSecret} is not defined in the definition`)
     }
 
     const values: Record<string, string | null> = {}
@@ -581,6 +581,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         ? {
             schema: await utils.schema.mapZodToJsonSchema(integrationDef.configuration, {
               useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
+              toJSONSchemaOptions: integrationDef.__advanced?.toJSONSchemaOptions,
             }),
             identifier: {
               required: integrationDef.configuration.identifier?.required,
@@ -596,6 +597,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
             description: configuration.description,
             schema: await utils.schema.mapZodToJsonSchema(configuration, {
               useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
+              toJSONSchemaOptions: integrationDef.__advanced?.toJSONSchemaOptions,
             }),
             identifier: {
               required: configuration.identifier?.required,

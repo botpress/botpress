@@ -1,13 +1,15 @@
 import { posthogHelper } from '@botpress/common'
 import { IntegrationDefinition } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import deletable from './bp_modules/deletable'
+import filesReadonly from './bp_modules/files-readonly'
 import listable from './bp_modules/listable'
 
 import { actions, channels, events, configuration, configurations, user, states, entities } from './definitions'
 
 export const INTEGRATION_NAME = 'linear'
-export const INTEGRATION_VERSION = '1.3.0'
+export const INTEGRATION_VERSION = '2.1.2'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -40,6 +42,10 @@ export default new IntegrationDefinition({
     },
     ...posthogHelper.COMMON_SECRET_NAMES,
   },
+  attributes: {
+    category: 'Project Management',
+    repo: 'botpress',
+  },
 })
   .extend(listable, ({ entities }) => ({
     entities: { item: entities.issue },
@@ -61,4 +67,17 @@ export default new IntegrationDefinition({
       conversation: entities.issueConversation,
     },
     actions: { getOrCreateConversation: { name: 'getOrCreateIssueConversation' } },
+  }))
+  .extend(filesReadonly, ({}) => ({
+    entities: {},
+    actions: {
+      listItemsInFolder: {
+        name: 'filesReadonlyListItemsInFolder',
+        attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO },
+      },
+      transferFileToBotpress: {
+        name: 'filesReadonlyTransferFileToBotpress',
+        attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO },
+      },
+    },
   }))
