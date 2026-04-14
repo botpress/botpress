@@ -96,9 +96,8 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
     )
 
     const hubspotConversationId = result.data.conversationsThreadId
-    logger.forBot().debug(`startHitl: HubSpot conversation ID: ${hubspotConversationId}`)
 
-    const { conversation } = await client.getOrCreateConversation({
+    const { conversation } = await client.createConversation({
       channel: 'hitl',
       tags: {
         id: hubspotConversationId,
@@ -107,8 +106,6 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
         inboxId,
       },
     })
-
-    logger.forBot().debug(`startHitl: Botpress conversation ID: ${conversation.id}`)
 
     return { conversationId: conversation.id }
   } catch (error: any) {
