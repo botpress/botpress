@@ -4,7 +4,7 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { Resource } from '@opentelemetry/resources'
-import { BatchSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base'
+import { BatchSpanProcessor, ConsoleSpanExporter, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base'
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
 import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios'
 
@@ -44,7 +44,7 @@ export const initTracing = (): NodeTracerProvider | null => {
 
   provider.addSpanProcessor(new BatchSpanProcessor(new OTLPTraceExporter()))
   if (process.env.OTEL_CONSOLE_EXPORTER === 'true') {
-    provider.addSpanProcessor(new BatchSpanProcessor(new ConsoleSpanExporter()))
+    provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()))
   }
   provider.register({ propagator: new W3CTraceContextPropagator() })
 
