@@ -350,6 +350,14 @@ export class HubSpotHitlClient {
     }
     return response
   }
+
+  public async closeThread(threadId: string): Promise<void> {
+    const endpoint = `${HUBSPOT_API_BASE_URL}/conversations/v3/conversations/threads/${threadId}`
+    const response = await this._makeHitlRequest(endpoint, 'PATCH', { status: 'CLOSED' })
+    if (!response.success) {
+      throw new RuntimeError(`closeThread failed: ${response.message}`)
+    }
+  }
 }
 
 export const getHitlClient = (ctx: bp.Context, bpClient: bp.Client, logger: bp.Logger): HubSpotHitlClient =>
