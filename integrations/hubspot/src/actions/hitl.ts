@@ -119,18 +119,20 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
 
 export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ ctx, client, input, logger }) => {
   const { conversationId } = input
-
-  const { conversation } = await client.getConversation({ id: conversationId })
-  const threadId = conversation.tags.id
-
-  if (!threadId) {
-    logger.forBot().warn(`stopHitl: no HubSpot thread ID on conversation ${conversationId} — skipping close`)
-    return {}
+  try {
+    const { conversation } = await client.getConversation({ id: conversationId })
+    const threadId = conversation.tags.id
+    if (!threadId) {
+      logger.forBot().warn(`stopHitl: no HubSpot thread ID on conversation ${conversationId} — skipping close`)
+      return {}
+    }
+    const hitlClient = getHitlClient(ctx, client, logger)
+    await hitlClient.closeThread(threadId)
+    logger.forBot().info(`stopHitl: closed HubSpot thread ${threadId}`)
+  } catch (thrown: unknown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    logger.forBot().error(`stopHitl error: ${error.message}`)
+    throw new RuntimeError(error.message)
   }
-
-  const hitlClient = getHitlClient(ctx, client, logger)
-  await hitlClient.closeThread(threadId)
-  logger.forBot().info(`stopHitl: closed HubSpot thread ${threadId}`)
-
   return {}
 }
