@@ -58,7 +58,9 @@ export async function connectHitlChannel(props: {
     payload: { channelId, defaultInboxId, channelAccounts },
   })
 
-  logger.forBot().info(`HITL channel ${channelId} connected to ${inboxIds.length} inbox(es). Default: ${defaultInboxId}`)
+  logger
+    .forBot()
+    .info(`HITL channel ${channelId} connected to ${inboxIds.length} inbox(es). Default: ${defaultInboxId}`)
 }
 
 export async function setupHitlChannel(props: {

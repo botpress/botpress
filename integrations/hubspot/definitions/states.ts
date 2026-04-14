@@ -95,7 +95,10 @@ const hitlConfig = {
   type: 'integration' as const,
   schema: z.object({
     channelId: z.string().title('Channel ID').describe('The HubSpot custom channel ID'),
-    defaultInboxId: z.string().title('Default Inbox ID').describe('The inbox used when no inboxId is specified in startHitl'),
+    defaultInboxId: z
+      .string()
+      .title('Default Inbox ID')
+      .describe('The inbox used when no inboxId is specified in startHitl'),
     channelAccounts: z
       .record(z.string())
       .title('Channel Accounts')
@@ -119,9 +122,17 @@ const hitlSetupWizard = {
   type: 'integration' as const,
   schema: z.object({
     enableHitl: z.boolean().title('Enable HITL').describe('Whether HITL is enabled for this integration'),
-    selectedInboxIds: z.array(z.string()).optional().title('Selected Inbox IDs').describe('Inboxes selected during wizard setup'),
+    selectedInboxIds: z
+      .array(z.string())
+      .optional()
+      .title('Selected Inbox IDs')
+      .describe('Inboxes selected during wizard setup'),
     defaultInboxId: z.string().optional().title('Default Inbox ID').describe('The inbox used by default in startHitl'),
-    channelId: z.string().optional().title('Channel ID').describe('HubSpot custom channel ID, saved between wizard steps'),
+    channelId: z
+      .string()
+      .optional()
+      .title('Channel ID')
+      .describe('HubSpot custom channel ID, saved between wizard steps'),
   }),
 } satisfies StateDefinition
 

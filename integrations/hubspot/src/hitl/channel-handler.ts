@@ -46,7 +46,14 @@ export const channels: bp.IntegrationProps['channels'] = {
 
         const { name, contactIdentifier } = userInfo
 
-        await hitlClient.sendMessage(payload.text, name, contactIdentifier, integrationThreadId, channelInfo.channelId, channelAccountId)
+        await hitlClient.sendMessage(
+          payload.text,
+          name,
+          contactIdentifier,
+          integrationThreadId,
+          channelInfo.channelId,
+          channelAccountId
+        )
       },
       image: async ({ logger }) => {
         logger.forBot().warn('Image messages are not supported in the HubSpot HITL channel')

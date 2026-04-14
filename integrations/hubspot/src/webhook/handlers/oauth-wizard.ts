@@ -30,7 +30,12 @@ const HITL_SCOPES = [
   'conversations.visitor_identification.tokens.create',
 ]
 
-const _startStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async ({ selectedChoice, client, ctx, responses }) => {
+const _startStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async ({
+  selectedChoice,
+  client,
+  ctx,
+  responses,
+}) => {
   if (selectedChoice) {
     const enableHitl = selectedChoice === 'with-hitl'
     await client.setState({
@@ -155,8 +160,7 @@ const _hitlInboxIdStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async (
     logger.forBot().warn('Failed to fetch HubSpot inboxes')
   }
 
-  const inboxTypeExplanation =
-    'Botpress HITL supports two inbox types:\n- Conversations Inbox\n- Help Desk'
+  const inboxTypeExplanation = 'Botpress HITL supports two inbox types:\n- Conversations Inbox\n- Help Desk'
 
   if (inboxes.length === 0) {
     return responses.displayButtons({
@@ -177,8 +181,7 @@ const _hitlInboxIdStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async (
   return responses.displayChoices({
     pageTitle: 'Select HubSpot Inboxes',
     htmlOrMarkdownPageContents:
-      'Select one or more inboxes where HITL conversations will be routed.\n\n' +
-      inboxTypeExplanation,
+      'Select one or more inboxes where HITL conversations will be routed.\n\n' + inboxTypeExplanation,
     choices: inboxes.map((inbox) => ({ label: `${inbox.name} (ID: ${inbox.id})`, value: inbox.id })),
     nextStepId: 'hitl-inbox-id',
     multiple: true,

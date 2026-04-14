@@ -29,7 +29,7 @@ export const handleOperatorReplied = async ({ hubspotEvent, client }: OperatorRe
   const actorId = hubspotEvent.message?.senders?.[0]?.actorId
   const { user } = await client.getOrCreateUser({
     tags: { actorId },
-    discriminateByTags: [ 'actorId' ]
+    discriminateByTags: ['actorId'],
   })
 
   if (!user?.id) {

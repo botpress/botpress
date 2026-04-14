@@ -58,11 +58,7 @@ export default new IntegrationDefinition({
   entities: {
     ticket: {
       schema: z.object({
-        inboxId: z
-          .string()
-          .optional()
-          .title('Inbox ID')
-          .describe('Override the default inbox for this HITL session'),
+        inboxId: z.string().optional().title('Inbox ID').describe('Override the default inbox for this HITL session'),
       }),
     },
   },
