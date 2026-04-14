@@ -19,7 +19,7 @@ type OperatorRepliedParams = {
 
 export const handleOperatorReplied = async ({ hubspotEvent, client }: OperatorRepliedParams) => {
   if (!hubspotEvent.message?.conversationsThreadId) {
-    throw new Error('Missing conversation thread ID in operator message')
+    throw new RuntimeError('Missing conversation thread ID in operator message')
   }
 
   const { conversation } = await client.getOrCreateConversation({
@@ -39,7 +39,7 @@ export const handleOperatorReplied = async ({ hubspotEvent, client }: OperatorRe
   })
 
   if (!user?.id) {
-    throw new Error('Failed to get or create agent user')
+    throw new RuntimeError('Failed to get or create agent user')
   }
 
   await client.createMessage({

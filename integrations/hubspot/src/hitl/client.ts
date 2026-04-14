@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
 import { getAccessToken } from '../auth'
 import * as bp from '.botpress'
@@ -108,7 +109,7 @@ export class HubSpotHitlClient {
     const endpoint = `${HUBSPOT_API_BASE_URL}/conversations/v3/conversations/threads/${threadId}`
     const response = await this._makeHitlRequest<ThreadInfo>(endpoint, 'GET')
     if (!response.success || !response.data) {
-      throw new Error(`Failed to fetch thread info: ${response.message}`)
+      throw new RuntimeError(`Failed to fetch thread info: ${response.message}`)
     }
     return response.data
   }
@@ -117,7 +118,7 @@ export class HubSpotHitlClient {
     const endpoint = `${HUBSPOT_API_BASE_URL}/conversations/v3/conversations/actors/${actorId}`
     const response = await this._makeHitlRequest<{ email: string }>(endpoint, 'GET')
     if (!response.success || !response.data) {
-      throw new Error(`Failed to fetch actor info: ${response.message}`)
+      throw new RuntimeError(`Failed to fetch actor info: ${response.message}`)
     }
     return response.data.email
   }
@@ -134,7 +135,7 @@ export class HubSpotHitlClient {
       type: string
     }>(endpoint, 'GET')
     if (!response.success || !response.data) {
-      throw new Error(`Failed to fetch actor details: ${response.message}`)
+      throw new RuntimeError(`Failed to fetch actor details: ${response.message}`)
     }
     return response.data
   }
@@ -145,7 +146,7 @@ export class HubSpotHitlClient {
       archived: false,
     })
     if (!response.success || !response.data) {
-      throw new Error(`Failed to fetch contact phone: ${response.message}`)
+      throw new RuntimeError(`Failed to fetch contact phone: ${response.message}`)
     }
     return response.data.properties.phone
   }
@@ -182,7 +183,7 @@ export class HubSpotHitlClient {
     )
 
     if (!response.success || !response.data) {
-      throw new Error(`createCustomChannel failed: ${response.message}`)
+      throw new RuntimeError(`createCustomChannel failed: ${response.message}`)
     }
     return response.data.id
   }
@@ -213,7 +214,7 @@ export class HubSpotHitlClient {
         throw error
       }
     }
-    throw new Error('Max retries exceeded fetching custom channels')
+    throw new RuntimeError('Max retries exceeded fetching custom channels')
   }
 
   public async deleteCustomChannel(
@@ -261,7 +262,7 @@ export class HubSpotHitlClient {
     }
     const response = await this._makeHitlRequest<{ id: string }>(endpoint, 'POST', payload)
     if (!response.success || !response.data) {
-      throw new Error(`connectCustomChannel failed: ${response.message}`)
+      throw new RuntimeError(`connectCustomChannel failed: ${response.message}`)
     }
     return response
   }
@@ -270,7 +271,7 @@ export class HubSpotHitlClient {
     const endpoint = `${HUBSPOT_API_BASE_URL}/conversations/v3/custom-channels/${channelId}/channel-accounts`
     const response = await this._makeHitlRequest<{ results: Array<{ id: string; inboxId: string }> }>(endpoint, 'GET')
     if (!response.success || !response.data) {
-      throw new Error(`listChannelAccounts failed: ${response.message}`)
+      throw new RuntimeError(`listChannelAccounts failed: ${response.message}`)
     }
     return response.data.results
   }
@@ -303,7 +304,7 @@ export class HubSpotHitlClient {
 
     const response = await this._makeHitlRequest(endpoint, 'POST', payload)
     if (!response.success) {
-      throw new Error(`createConversation failed: ${response.message}`)
+      throw new RuntimeError(`createConversation failed: ${response.message}`)
     }
     return response
   }
@@ -312,7 +313,7 @@ export class HubSpotHitlClient {
     const endpoint = `${HUBSPOT_API_BASE_URL}/conversations/v3/conversations/inboxes`
     const response = await this._makeHitlRequest<{ results: Array<{ id: string; name: string }> }>(endpoint, 'GET')
     if (!response.success || !response.data) {
-      throw new Error(`listInboxes failed: ${response.message}`)
+      throw new RuntimeError(`listInboxes failed: ${response.message}`)
     }
     return response.data.results
   }
@@ -345,7 +346,7 @@ export class HubSpotHitlClient {
 
     const response = await this._makeHitlRequest(endpoint, 'POST', payload)
     if (!response.success) {
-      throw new Error(`sendMessage failed: ${response.message}`)
+      throw new RuntimeError(`sendMessage failed: ${response.message}`)
     }
     return response
   }
