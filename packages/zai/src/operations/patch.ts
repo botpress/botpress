@@ -195,6 +195,10 @@ const patch = async (
     throw new Error(INVALID_SCHEMA_ERROR)
   }
 
+  if (files.length === 0) {
+    return []
+  }
+
   const tokenizer = await getTokenizer()
   const model = await ctx.getModel()
 
