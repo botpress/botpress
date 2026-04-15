@@ -32,6 +32,9 @@ const _File = z.object({
   content: z.string(),
 })
 
+type __Z<T> = { __type__: 'ZuiType', _output: T }
+type OfType<O, T extends __Z<any> = __Z<O>> = T extends __Z<O> ? T : never
+
 export type Options = {
   /**
    * Maximum tokens per chunk when processing large files or many files.
@@ -45,7 +48,7 @@ export type Options = {
    * Only applies to files detected as JSON (by .json extension).
    * If the patched JSON doesn't match the schema, the LLM is re-prompted to fix it.
    */
-  schema?: z.ZodTypeAny
+  schema?: OfType<any>
 }
 
 const INVALID_SCHEMA_ERROR = 'zai.patch only accepts schemas created with @bpinternal/zui'

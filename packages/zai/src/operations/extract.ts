@@ -37,6 +37,10 @@ const Options = z.object({
   strict: z.boolean().optional().default(true).describe('Whether to strictly follow the schema or not'),
 })
 
+type __Z<T> = { __type__: 'ZuiType', _output: T }
+type OfType<O, T extends __Z<any> = __Z<O>> = T extends __Z<O> ? T : never
+type AnyObjectOrArray = Record<string, unknown> | Array<unknown>
+
 declare module '@botpress/zai' {
   interface Zai {
     /**
@@ -106,7 +110,7 @@ declare module '@botpress/zai' {
      * console.log(`Extraction took ${elapsed}ms and cost $${usage.cost.total}`)
      * ```
      */
-    extract<S extends z.ZodTypeAny>(input: unknown, schema: S, options?: Options): Response<S['_output']>
+    extract<S extends OfType<any>>(input: unknown, schema: S, options?: Options): Response<S['_output']>
   }
 }
 const SPECIAL_CHAR = '■'
@@ -115,7 +119,7 @@ const END = '■json_end■'
 const NO_MORE = '■NO_MORE_ELEMENT■'
 const ZERO_ELEMENTS = '■ZERO_ELEMENTS■'
 
-const extract = async <S extends z.ZodTypeAny>(
+const extract = async <S extends OfType<AnyObjectOrArray>>(
   input: unknown,
   _schema: S,
   _options: Options | undefined,
