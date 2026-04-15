@@ -90,7 +90,6 @@ const _handleHitlEvent: bp.IntegrationProps['handler'] = async ({ req, ctx, clie
   }
 
   if (payload.type === 'OUTGOING_CHANNEL_MESSAGE_CREATED') {
-    logger.forBot().info('New outgoing message from operator')
     return await handleOperatorReplied({ hubspotEvent: payload, client, logger })
   }
 

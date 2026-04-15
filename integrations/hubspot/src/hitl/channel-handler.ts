@@ -78,7 +78,6 @@ export const channels: bp.IntegrationProps['channels'] = {
         })
       },
       video: async (props) => {
-        props.logger.forBot().debug('Forwarding video as file attachment (HubSpot has no native video type)')
         await _sendMessage(props, '', {
           url: props.payload.videoUrl,
           name: props.payload.title ?? 'video',

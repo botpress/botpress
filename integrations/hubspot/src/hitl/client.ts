@@ -87,7 +87,6 @@ export class HubSpotHitlClient {
 
     for (let attempt = 0; attempt <= retryConfig.maxRetries; attempt++) {
       try {
-        this._logger.forBot().debug(`Making request to ${method} ${endpoint}`)
         const response = await axios({ method, url: endpoint, headers, data, params })
         return { success: true, message: 'Request successful', data: response.data }
       } catch (thrown: unknown) {
