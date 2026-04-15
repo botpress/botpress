@@ -52,7 +52,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     return await _handleHitlEvent(props)
   }
 
-  logger.warn(`No handler found for request`)
+  logger.warn('No handler found for request')
 }
 
 const _handleHitlEvent: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
