@@ -22,37 +22,42 @@ export const handleOperatorAssignedUpdate = async ({
   hubSpotClient,
   logger,
 }: OperatorAssignedParams) => {
-  const actorId = hubspotEvent.propertyValue
+  try {
+    const actorId = hubspotEvent.propertyValue
 
-  if (!actorId) {
-    logger.forBot().warn('assignedTo event has no actor — skipping')
-    return
-  }
+    if (!actorId) {
+      logger.forBot().warn('assignedTo event has no actor — skipping')
+      return
+    }
 
-  const conversation = await getConversationByExternalIdOrThrow(client, hubspotEvent.objectId)
+    const conversation = await getConversationByExternalIdOrThrow(client, hubspotEvent.objectId)
 
-  const { user } = await client.getOrCreateUser({
-    tags: { actorId },
-    discriminateByTags: ['actorId'],
-  })
-
-  const details = await hubSpotClient.getActorDetails(actorId).catch(() => null)
-  if (details) {
-    await client.updateUser({
-      id: user.id,
-      name: details.name,
-      pictureUrl: details.avatar,
-      tags: { actorId, email: details.email },
+    const { user } = await client.getOrCreateUser({
+      tags: { actorId },
+      discriminateByTags: ['actorId'],
     })
+
+    const details = await hubSpotClient.getActorDetails(actorId).catch(() => null)
+    if (details) {
+      await client.updateUser({
+        id: user.id,
+        name: details.name,
+        pictureUrl: details.avatar,
+        tags: { actorId, email: details.email },
+      })
+    }
+
+    await client.createEvent({
+      type: 'hitlAssigned',
+      payload: {
+        conversationId: conversation.id,
+        userId: user.id,
+      },
+    })
+
+    logger.forBot().info(`hitlAssigned fired: conversation=${conversation.id}, user=${user.id}`)
+  } catch (thrown: unknown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    logger.forBot().error(`Failed to handle "operator assignment" event: ${error.message}`)
   }
-
-  await client.createEvent({
-    type: 'hitlAssigned',
-    payload: {
-      conversationId: conversation.id,
-      userId: user.id,
-    },
-  })
-
-  logger.forBot().info(`hitlAssigned fired: conversation=${conversation.id}, user=${user.id}`)
 }

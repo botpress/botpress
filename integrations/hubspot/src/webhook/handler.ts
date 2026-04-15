@@ -32,8 +32,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     }
   }
 
-  // Global webhook subscriptions (conversation + CRM events) — array payload, v1 signature
-  // Must be checked before the v3 header check because global webhooks can also send x-hubspot-signature-v3
+  // Global webhook subscriptions (conversation updates + CRM events)
   if (handlers.isConversationEvent(props) || handlers.isBatchUpdateEvent(props)) {
     const validation = _validateRequestAuthentication(props)
     if (validation.error) {
@@ -48,13 +47,12 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     return await handlers.handleBatchUpdateEvent(props)
   }
 
-  // Custom Channel webhook — object payload, v3 signature
+  // Custom Channel webhook (messages)
   if (req.headers['x-hubspot-signature-v3']) {
     return await _handleHitlEvent(props)
   }
 
-  logger.warn(`No handler found for request on '/${req.path}'`)
-  return { status: 404, body: 'No handler found' }
+  logger.warn(`No handler found for request`)
 }
 
 const _handleHitlEvent: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
@@ -91,16 +89,9 @@ const _handleHitlEvent: bp.IntegrationProps['handler'] = async ({ req, ctx, clie
     return { status: 400, body: 'Invalid JSON body' }
   }
 
-  if (Array.isArray(payload)) {
-    // conversation.propertyChange events are sent via global webhooks (v1 signature) and handled there.
-    // Custom Channel webhooks (v3) only send object-type events like OUTGOING_CHANNEL_MESSAGE_CREATED.
-    logger.forBot().debug('Array payload received on v3 path — no handlers registered for this format')
-    return
-  }
-
   if (payload.type === 'OUTGOING_CHANNEL_MESSAGE_CREATED') {
     logger.forBot().info('New outgoing message from operator')
-    await handleOperatorReplied({ hubspotEvent: payload, client })
+    await handleOperatorReplied({ hubspotEvent: payload, client, logger })
     return
   }
 
@@ -109,7 +100,7 @@ const _handleHitlEvent: bp.IntegrationProps['handler'] = async ({ req, ctx, clie
     return
   }
 
-  logger.forBot().warn('Unhandled HubSpot HITL event format')
+  logger.forBot().warn(`Unhandled HubSpot HITL event format: ${payload.type}`)
 }
 
 const _validateRequestAuthentication = ({ req, ctx }: bp.HandlerProps) => {

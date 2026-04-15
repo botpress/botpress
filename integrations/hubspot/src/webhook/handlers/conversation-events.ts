@@ -43,7 +43,7 @@ export const handleConversationEvent: bp.IntegrationProps['handler'] = async ({ 
 
       if (event.propertyName === 'status' && (event.propertyValue === 'CLOSED' || event.propertyValue === 'ARCHIVED')) {
         logger.forBot().info(`Conversation ${event.propertyValue} by operator`)
-        await handleConversationCompleted({ hubspotEvent: event, client })
+        await handleConversationCompleted({ hubspotEvent: event, client, logger })
       }
     } else {
       logger.forBot().info(`Event ${event.subscriptionType} not handled`)
