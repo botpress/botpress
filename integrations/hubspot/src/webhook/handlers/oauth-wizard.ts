@@ -1,6 +1,6 @@
 import { generateRawHtmlDialog } from '@botpress/common/src/html-dialogs'
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
-import { exchangeCodeForOAuthCredentials, setOAuthCredentials, getAccessToken } from '../../auth'
+import { exchangeCodeForOAuthCredentials, setOAuthCredentials } from '../../auth'
 import { getHitlClient } from '../../hitl/client'
 import { createHitlChannel, connectHitlChannel } from '../../hitl/setup'
 import { HubspotClient } from '../../hubspot-api'
@@ -113,13 +113,14 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
 
   const enableHitl = hitlSetupWizardState?.state?.payload?.enableHitl ?? false
 
+  const hsClient = new HubspotClient({ accessToken: credentials.accessToken, client, ctx, logger })
+  const hubId = await hsClient.getHubId()
+  await client.configureIntegration({ identifier: hubId })
+
   if (enableHitl) {
     return responses.redirectToStep('hitl-inbox-id')
   }
 
-  const hsClient = new HubspotClient({ accessToken: credentials.accessToken, client, ctx, logger })
-  const hubId = await hsClient.getHubId()
-  await client.configureIntegration({ identifier: hubId })
   return responses.endWizard({ success: true })
 }
 
@@ -300,10 +301,6 @@ const _creatingChannelStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = asy
 
   if (isAvailable) {
     await connectHitlChannel({ ctx, client, logger, channelId, inboxIds: selectedInboxIds, defaultInboxId })
-    const accessToken = await getAccessToken({ client, ctx })
-    const hsClient = new HubspotClient({ accessToken, client, ctx, logger })
-    const hubId = await hsClient.getHubId()
-    await client.configureIntegration({ identifier: hubId })
     return responses.endWizard({ success: true })
   }
 
