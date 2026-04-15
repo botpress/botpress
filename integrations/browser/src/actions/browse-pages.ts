@@ -26,7 +26,7 @@ const getCustomHeaders = (logger: IntegrationLogger): Record<string, string> | u
   try {
     const parsed = JSON.parse(raw)
     // TODO: Remove once fixed. Here temporarily to for debugging purposes.
-    logger.forBot().debug('[FIRECRAWL] Custom Headers Parsed: ', { parsed, type: typeof parsed })
+    logger.forBot().debug('[FIRECRAWL] Custom Headers Parsed: ', { present: !!parsed, type: typeof parsed })
     if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
       return undefined
     }
