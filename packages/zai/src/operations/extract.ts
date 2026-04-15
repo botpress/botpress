@@ -37,7 +37,7 @@ const Options = z.object({
   strict: z.boolean().optional().default(true).describe('Whether to strictly follow the schema or not'),
 })
 
-type __Z<T> = { __type__: 'ZuiType', _output: T }
+type __Z<T> = { __type__: 'ZuiType'; _output: T }
 type OfType<O, T extends __Z<any> = __Z<O>> = T extends __Z<O> ? T : never
 type AnyObjectOrArray = Record<string, unknown> | Array<unknown>
 

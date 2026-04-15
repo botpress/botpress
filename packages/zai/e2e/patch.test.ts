@@ -2173,13 +2173,14 @@ describe('zai.patch — JSON file operations', { timeout: 60_000 }, () => {
   it('rejects non-zui schemas', async () => {
     const schema = {
       _output: undefined,
+      __type__: 'ZuiType' as const,
       safeParse: () => ({ success: true, data: { version: '1.0.0' } }),
     }
 
     await expect(
       zai
         .patch([configFile], 'change port to 8080 and set debug to true', {
-          schema: schema as any,
+          schema: schema,
         })
         .result()
     ).rejects.toThrow('@bpinternal/zui')

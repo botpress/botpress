@@ -32,7 +32,7 @@ const _File = z.object({
   content: z.string(),
 })
 
-type __Z<T> = { __type__: 'ZuiType', _output: T }
+type __Z<T> = { __type__: 'ZuiType'; _output: T }
 type OfType<O, T extends __Z<any> = __Z<O>> = T extends __Z<O> ? T : never
 
 export type Options = {
@@ -190,8 +190,12 @@ const patch = async (
 
   const options: Options = { ...Options.parse(_options ?? {}), schema: _options?.schema }
 
-  if (options.schema && !z.is.zuiType(options.schema)) {
-    throw new Error(INVALID_SCHEMA_ERROR)
+  let zSchema: z.ZodTypeAny | null = null
+  if (options.schema) {
+    if (!z.is.zuiType(options.schema)) {
+      throw new Error(INVALID_SCHEMA_ERROR)
+    }
+    zSchema = options.schema
   }
 
   if (files.length === 0) {
@@ -388,9 +392,9 @@ ${numberedView}
     }
 
     // If a schema is provided, validate the JSON against it
-    if (options.schema) {
+    if (zSchema) {
       const parsed = JSON.parse(validContent)
-      const safe = options.schema.safeParse(parsed)
+      const safe = zSchema.safeParse(parsed)
       if (!safe.success) {
         return retrySchemaValidation(file, validContent, safe.error)
       }
@@ -455,9 +459,9 @@ ${numberedView}
       const retryContent = Micropatch.applyText(brokenContent, retryPatchOps)
       const validContent = ensureValidJson(retryContent)
       if (validContent !== null) {
-        if (options.schema) {
+        if (zSchema) {
           const parsed = JSON.parse(validContent)
-          const safe = options.schema.safeParse(parsed)
+          const safe = zSchema.safeParse(parsed)
           if (!safe.success) {
             return retrySchemaValidation(file, validContent, safe.error)
           }
@@ -521,9 +525,9 @@ ${numberedView}
       const retryContent = Micropatch.applyText(content, retryPatchOps)
       const validContent = ensureValidJson(retryContent)
       if (validContent !== null) {
-        if (options.schema) {
+        if (zSchema) {
           const parsed = JSON.parse(validContent)
-          const safe = options.schema.safeParse(parsed)
+          const safe = zSchema.safeParse(parsed)
           if (safe.success) {
             return { ...file, content: validContent, patch: retryPatchOps }
           }
