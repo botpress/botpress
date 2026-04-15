@@ -49,4 +49,6 @@ export const handleConversationEvent: bp.IntegrationProps['handler'] = async ({ 
       logger.forBot().info(`Event ${event.subscriptionType} not handled`)
     }
   }
+
+  return {}
 }

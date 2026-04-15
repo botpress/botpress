@@ -91,16 +91,16 @@ const _handleHitlEvent: bp.IntegrationProps['handler'] = async ({ req, ctx, clie
 
   if (payload.type === 'OUTGOING_CHANNEL_MESSAGE_CREATED') {
     logger.forBot().info('New outgoing message from operator')
-    await handleOperatorReplied({ hubspotEvent: payload, client, logger })
-    return
+    return await handleOperatorReplied({ hubspotEvent: payload, client, logger })
   }
 
   if (payload.type === 'CHANNEL_ACCOUNT_CREATED') {
     logger.forBot().info(`Channel account created: ${JSON.stringify(payload)}`)
-    return
+    return {}
   }
 
   logger.forBot().warn(`Unhandled HubSpot HITL event format: ${payload.type}`)
+  return {}
 }
 
 const _validateRequestAuthentication = ({ req, ctx }: bp.HandlerProps) => {
