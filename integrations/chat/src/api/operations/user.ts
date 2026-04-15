@@ -43,6 +43,7 @@ export const getUser: types.AuthenticatedOperations['getUser'] = async (props, f
   const fidHandler = fid.handlers.getUser(props, foreignReq)
   const req = await fidHandler.mapRequest()
 
+  setSpanAttributes({ [SPAN_ATTRS.USER_ID]: req.auth.userId })
   const { user } = await props.client.getUser({ id: req.auth.userId })
   return fidHandler.mapResponse({
     body: {
@@ -125,6 +126,7 @@ export const updateUser: types.AuthenticatedOperations['updateUser'] = async (pr
     body: { name, pictureUrl, profile },
   } = req
 
+  setSpanAttributes({ [SPAN_ATTRS.USER_ID]: req.auth.userId })
   const { user } = await props.client.updateUser({ id: req.auth.userId, name, pictureUrl, tags: { profile } })
 
   return fidHandler.mapResponse({
@@ -138,6 +140,7 @@ export const deleteUser: types.AuthenticatedOperations['deleteUser'] = async (pr
   const fidHandler = fid.handlers.deleteUser(props, foreignReq)
   const req = await fidHandler.mapRequest()
 
+  setSpanAttributes({ [SPAN_ATTRS.USER_ID]: req.auth.userId })
   await props.client.deleteUser({ id: req.auth.userId })
   return fidHandler.mapResponse({ body: {} })
 }

@@ -6,7 +6,6 @@ import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { Resource } from '@opentelemetry/resources'
 import { BatchSpanProcessor, ConsoleSpanExporter, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base'
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
-import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios'
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const ULID_REGEX = /^[a-zA-Z]+_[0-9A-HJKMNP-TV-Z]{26}$/
@@ -21,6 +20,7 @@ export const normalizePath = (path: string): string =>
 export const SPAN_ATTRS = {
   USER_ID: 'bp.userId',
   CONVERSATION_ID: 'bp.conversationId',
+  MESSAGE_ID: 'bp.messageId',
   BOT_ID: 'bp.botId',
   INTEGRATION_ID: 'bp.integrationId',
   DB_TABLE: 'db.table',
@@ -121,11 +121,4 @@ export const setSpanAttributes = (attrs: Record<string, string | undefined>): vo
       span.setAttribute(key, value)
     }
   }
-}
-
-export const instrumentAxiosClient = (axiosClient: AxiosInstance): void => {
-  axiosClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-    propagation.inject(context.active(), config.headers)
-    return config
-  })
 }

@@ -1,6 +1,5 @@
 import axios, { AxiosInstance } from 'axios'
 import { logger } from '../logger'
-import { instrumentAxiosClient } from '../tracing'
 import { SignalEmitter, Signal } from './typings'
 
 export class WebhookEmitter implements SignalEmitter {
@@ -16,7 +15,6 @@ export class WebhookEmitter implements SignalEmitter {
       baseURL: webhookUrl,
       headers,
     })
-    instrumentAxiosClient(this._client)
   }
 
   public async emit(_channel: string, signal: Signal): Promise<void> {

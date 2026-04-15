@@ -36,6 +36,8 @@ export const getConversation: types.AuthenticatedOperations['getConversation'] =
   const fidHandler = fid.handlers.getConversation(props, foreignReq)
   const req = await fidHandler.mapRequest()
 
+  setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: req.params.id, [SPAN_ATTRS.USER_ID]: req.auth.userId })
+
   const { conversation } = await props.client.getConversation({ id: req.params.id })
 
   const { participant } = await props.apiUtils.findParticipant({
@@ -65,6 +67,8 @@ export const getOrCreateConversation: types.AuthenticatedOperations['getOrCreate
   const existingId = await props.convIdStore.byFid.find(conversationFid)
 
   if (existingId) {
+    setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: existingId, [SPAN_ATTRS.USER_ID]: userId })
+
     const { conversation } = await props.client.getConversation({ id: existingId })
     if (conversation.tags.owner !== userId) {
       throw new errors.ForbiddenError('You are not the owner of this conversation')
@@ -99,6 +103,7 @@ export const getOrCreateConversation: types.AuthenticatedOperations['getOrCreate
 
   const { id: conversationId } = conversation
 
+  setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: conversationId, [SPAN_ATTRS.USER_ID]: userId })
   await props.client.addParticipant({ id: conversationId, userId })
   await props.convIdStore.byFid.set(conversationFid, conversationId)
 
@@ -121,6 +126,8 @@ export const deleteConversation: types.AuthenticatedOperations['deleteConversati
   const fidHandler = fid.handlers.deleteConversation(props, foreignReq)
   const req = await fidHandler.mapRequest()
 
+  setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: req.params.id, [SPAN_ATTRS.USER_ID]: req.auth.userId })
+
   const { conversation } = await props.client.getConversation({ id: req.params.id })
   if (conversation.tags.owner !== req.auth.userId) {
     throw new errors.ForbiddenError('You are not the owner of this conversation')
@@ -134,6 +141,8 @@ export const deleteConversation: types.AuthenticatedOperations['deleteConversati
 export const listConversations: types.AuthenticatedOperations['listConversations'] = async (props, foreignReq) => {
   const fidHandler = fid.handlers.listConversations(props, foreignReq)
   const req = await fidHandler.mapRequest()
+
+  setSpanAttributes({ [SPAN_ATTRS.USER_ID]: req.auth.userId })
 
   const { conversations, meta } = await props.client.listConversations({
     nextToken: req.query.nextToken,
@@ -158,6 +167,8 @@ export const listMessages: types.AuthenticatedOperations['listMessages'] = async
 
   const { nextToken } = req.query
   const { conversationId } = req.params
+
+  setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: conversationId, [SPAN_ATTRS.USER_ID]: req.auth.userId })
 
   const { participant } = await props.apiUtils.findParticipant({ id: conversationId, userId: req.auth.userId })
   if (!participant) {
@@ -216,6 +227,8 @@ export const addParticipant: types.AuthenticatedOperations['addParticipant'] = a
   const conversationId = req.params.conversationId
   const participantId = req.body.userId
 
+  setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: conversationId, [SPAN_ATTRS.USER_ID]: userId })
+
   const {
     conversation: {
       tags: { owner },
@@ -249,6 +262,8 @@ export const getParticipant: types.AuthenticatedOperations['getParticipant'] = a
   const fidHandler = fid.handlers.getParticipant(props, foreignReq)
   const req = await fidHandler.mapRequest()
 
+  setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: req.params.conversationId, [SPAN_ATTRS.USER_ID]: req.auth.userId })
+
   const {
     conversation: {
       tags: { owner },
@@ -280,6 +295,8 @@ export const removeParticipant: types.AuthenticatedOperations['removeParticipant
   const userId = req.auth.userId
   const conversationId = req.params.conversationId
   const participantId = req.params.userId
+
+  setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: conversationId, [SPAN_ATTRS.USER_ID]: userId })
 
   const {
     conversation: {
@@ -317,6 +334,8 @@ export const removeParticipant: types.AuthenticatedOperations['removeParticipant
 export const listParticipants: types.AuthenticatedOperations['listParticipants'] = async (props, foreignReq) => {
   const fidHandler = fid.handlers.listParticipants(props, foreignReq)
   const req = await fidHandler.mapRequest()
+
+  setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: req.params.conversationId, [SPAN_ATTRS.USER_ID]: req.auth.userId })
 
   const { participant } = await props.apiUtils.findParticipant({
     id: req.params.conversationId,

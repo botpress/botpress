@@ -98,12 +98,13 @@ const emitMessage = async (args: MessageArgs) => {
 
     const {
       conversation: { id: channel },
+      user: { id: internalUserId },
     } = args
 
     args = await mapMessageSignalFid(idStores, args)
     debug.debugSignal(args)
 
-    setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: args.conversation.id })
+    setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: args.conversation.id, [SPAN_ATTRS.USER_ID]: internalUserId, [SPAN_ATTRS.MESSAGE_ID]: args.message.id })
 
     const { metadata, payload } = mapBotpressMessageToChat(args)
     await signalEmitter.emit(channel, {
@@ -134,7 +135,7 @@ const emitEvent = async (args: ActionArgs) => {
     args = await mapEventSignalFid(idStores, args)
     debug.debugSignal(args)
 
-    setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: args.input.conversationId })
+    setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: args.input.conversationId, [SPAN_ATTRS.USER_ID]: args.ctx.botUserId })
 
     await signalEmitter.emit(channel, {
       type: 'event_created',
