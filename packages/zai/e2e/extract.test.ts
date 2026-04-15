@@ -38,12 +38,11 @@ describe('zai.extract', () => {
   it('rejects non-zui schemas', async () => {
     const schema = {
       _output: undefined,
-      __type__: 'ZuiType' as const,
       safeParse: () => ({ success: true, data: { name: 'John Doe', age: 30 } }),
     }
 
     await expect(
-      zai.extract('My name is John Doe, I am 30 years old and I live in Quebec', schema).result()
+      zai.extract('My name is John Doe, I am 30 years old and I live in Quebec', schema as any).result()
     ).rejects.toThrow('@bpinternal/zui')
   })
 
