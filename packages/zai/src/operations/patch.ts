@@ -185,10 +185,6 @@ const patch = async (
 ): Promise<Array<File>> => {
   ctx.controller.signal.throwIfAborted()
 
-  if (files.length === 0) {
-    return []
-  }
-
   const options: Options = { ...Options.parse(_options ?? {}), schema: _options?.schema }
 
   if (options.schema && !z.is.zuiType(options.schema)) {
