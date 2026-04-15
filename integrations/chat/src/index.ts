@@ -98,7 +98,6 @@ const emitMessage = async (args: MessageArgs) => {
 
     const {
       conversation: { id: channel },
-      user: { id: internalUserId },
     } = args
 
     args = await mapMessageSignalFid(idStores, args)
@@ -106,7 +105,7 @@ const emitMessage = async (args: MessageArgs) => {
 
     setSpanAttributes({
       [SPAN_ATTRS.CONVERSATION_ID]: args.conversation.id,
-      [SPAN_ATTRS.USER_ID]: internalUserId,
+      [SPAN_ATTRS.USER_ID]: args.user.id,
       [SPAN_ATTRS.MESSAGE_ID]: args.message.id,
     })
 

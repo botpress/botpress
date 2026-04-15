@@ -23,6 +23,8 @@ export const createConversation: types.AuthenticatedOperations['createConversati
     },
   })
 
+  setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: conversation.id })
+
   await props.client.addParticipant({ id: conversation.id, userId })
 
   return fidHandler.mapResponse({
