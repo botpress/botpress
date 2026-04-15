@@ -34,7 +34,6 @@ const getCustomHeaders = (logger: IntegrationLogger): Record<string, string> | u
   } catch (err) {
     logger.forBot().error('[FIRECRAWL] Custom Headers Failed Parse: ', {
       error: err instanceof Error ? err.message : String(err),
-      raw,
     })
     return undefined
   }
