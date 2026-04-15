@@ -104,6 +104,7 @@ export default new IntegrationDefinition({
   channels: {
     hitl: {
       title: 'HubSpot HITL',
+      description: 'Human-in-the-Loop channel for routing conversations to HubSpot agents',
       conversation: {
         tags: {
           id: { title: 'HubSpot Conversation ID', description: 'The HubSpot conversations thread ID' },
