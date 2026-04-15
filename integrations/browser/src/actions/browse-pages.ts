@@ -62,13 +62,17 @@ const getPageContent = async (props: {
       headers: getCustomHeaders(props.logger),
       storeInCache: true,
     }
-    // TODO: Remove once fixed. Here temporarily to for debugging purposes.
-    props.logger.forBot().debug('[FIRECRAWL] Scrape Request: ', payload)
 
     // TODO: Remove once fixed. Here temporarily to for debugging purposes.
     // NOTE: need to unblock client and need to ensure that these headers are passed {"X-Botpress-Crawler": "botpress"}
-    payload.headers = payload.headers || { 'X-Botpress-Crawler': 'botpress' }
+    const withCrawlerHeader = (headers: Record<string, string> | undefined): Record<string, string> => ({
+      ...(headers ?? {}),
+      'X-Botpress-Crawler': headers?.['X-Botpress-Crawler'] ?? 'botpress',
+    })
+    payload.headers = withCrawlerHeader(payload.headers)
 
+    // TODO: Remove once fixed. Here temporarily to for debugging purposes.
+    props.logger.forBot().debug('[FIRECRAWL] Custom Headers Sent: ', payload)
     const result = await firecrawl.scrape(props.url, payload)
 
     props.logger.forBot().debug(`[FIRECRAWL] API call took ${Date.now() - startTime}ms for url: ${props.url}`)
