@@ -28,6 +28,7 @@ const HITL_SCOPES = [
   'conversations.read',
   'conversations.write',
   'conversations.visitor_identification.tokens.create',
+  'files',
 ]
 
 const _startStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async ({

@@ -1,6 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
 import { getAccessToken } from '../auth'
+import { ensureExtension, getMediaMetadata } from './utils/media'
 import * as bp from '.botpress'
 
 const HUBSPOT_API_BASE_URL = 'https://api.hubapi.com'
@@ -56,7 +57,6 @@ export type ThreadInfo = {
   id: string
   associatedContactId: string
 }
-
 export class HubSpotHitlClient {
   private _ctx: bp.Context
   private _bpClient: bp.Client
@@ -169,15 +169,15 @@ export class HubSpotHitlClient {
           deliveryIdentifierTypes: ['CHANNEL_SPECIFIC_OPAQUE_ID'],
           richText: ['HYPERLINK', 'TEXT_ALIGNMENT', 'BLOCKQUOTE'],
           threadingModel: 'INTEGRATION_THREAD_ID',
-          allowInlineImages: true,
+          allowInlineImages: false,
           allowOutgoingMessages: true,
           allowConversationStart: true,
           maxFileAttachmentCount: 1,
           allowMultipleRecipients: false,
           outgoingAttachmentTypes: ['FILE'],
-          maxFileAttachmentSizeBytes: 1000000,
-          maxTotalFileAttachmentSizeBytes: 1000000,
-          allowedFileAttachmentMimeTypes: ['image/png'],
+          maxFileAttachmentSizeBytes: 10_000_000,
+          maxTotalFileAttachmentSizeBytes: 10_000_000,
+          allowedFileAttachmentMimeTypes: ['image/*', 'audio/*', 'video/*', 'application/*', 'text/*'],
         },
         channelAccountConnectionRedirectUrl: 'https://example.com',
         channelDescription: 'Botpress custom channel integration.',
@@ -303,17 +303,56 @@ export class HubSpotHitlClient {
     return response.data.results
   }
 
+  private async _uploadFile(
+    fileUrl: string,
+    name: string,
+    integrationThreadId: string,
+    contentType?: string
+  ): Promise<string> {
+    const accessToken = await getAccessToken({ client: this._bpClient, ctx: this._ctx })
+
+    const fileResponse = await axios.get<ArrayBuffer>(fileUrl, { responseType: 'arraybuffer' })
+
+    const formData = new FormData()
+    formData.append('file', new Blob([fileResponse.data], contentType ? { type: contentType } : undefined), name)
+    formData.append('folderPath', `/botpress-hitl/${integrationThreadId}`)
+    formData.append('options', JSON.stringify({ access: 'PRIVATE', ttl: 'P1Y' }))
+
+    const uploadResponse = await axios.post(`${HUBSPOT_API_BASE_URL}/filemanager/api/v3/files/upload`, formData, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+
+    const fileId = uploadResponse.data?.objects?.[0]?.id
+    if (!fileId) {
+      throw new RuntimeError('HubSpot file upload returned no fileId')
+    }
+    return String(fileId)
+  }
+
   public async sendMessage(
     message: string,
     senderName: string,
     contactIdentifier: string,
     integrationThreadId: string,
     channelId: string,
-    channelAccountId: string
+    channelAccountId: string,
+    attachment?: {
+      url: string
+      name: string
+      fileUsageType: 'IMAGE' | 'AUDIO' | 'VOICE_RECORDING' | 'STICKER' | 'OTHER'
+    }
   ): Promise<any> {
     const endpoint = `${HUBSPOT_API_BASE_URL}/conversations/v3/custom-channels/${channelId}/messages`
     const isEmail = contactIdentifier.includes('@')
     const deliveryType = isEmail ? 'HS_EMAIL_ADDRESS' : 'HS_PHONE_NUMBER'
+
+    const attachments: Array<{ type: string; fileId: string; name: string; fileUsageType: string }> = []
+    if (attachment) {
+      const metadata = await getMediaMetadata(attachment.url)
+      const name = metadata.fileName ?? ensureExtension(attachment.name, attachment.url)
+      const fileId = await this._uploadFile(attachment.url, name, integrationThreadId, metadata.mimeType)
+      attachments.push({ type: 'FILE', fileId, name, fileUsageType: attachment.fileUsageType })
+    }
 
     const payload = {
       type: 'MESSAGE',
@@ -327,6 +366,7 @@ export class HubSpotHitlClient {
           deliveryIdentifier: { type: deliveryType, value: contactIdentifier },
         },
       ],
+      attachments,
     }
 
     const response = await this._makeHitlRequest(endpoint, 'POST', payload)
