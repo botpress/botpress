@@ -23,6 +23,8 @@ export type Options = {
   strict?: boolean
 }
 
+const INVALID_SCHEMA_ERROR = 'zai.extract only accepts schemas created with @bpinternal/zui'
+
 const Options = z.object({
   instructions: z.string().optional().describe('Instructions to guide the user on how to extract the data'),
   chunkLength: z
@@ -34,10 +36,6 @@ const Options = z.object({
     .default(16_000),
   strict: z.boolean().optional().default(true).describe('Whether to strictly follow the schema or not'),
 })
-
-type __Z<T> = { _output: T }
-type OfType<O, T extends __Z<any> = __Z<O>> = T extends __Z<O> ? T : never
-type AnyObjectOrArray = Record<string, unknown> | Array<unknown>
 
 declare module '@botpress/zai' {
   interface Zai {
@@ -108,7 +106,7 @@ declare module '@botpress/zai' {
      * console.log(`Extraction took ${elapsed}ms and cost $${usage.cost.total}`)
      * ```
      */
-    extract<S extends OfType<any>>(input: unknown, schema: S, options?: Options): Response<S['_output']>
+    extract<S extends z.ZodTypeAny>(input: unknown, schema: S, options?: Options): Response<S['_output']>
   }
 }
 const SPECIAL_CHAR = '■'
@@ -117,7 +115,7 @@ const END = '■json_end■'
 const NO_MORE = '■NO_MORE_ELEMENT■'
 const ZERO_ELEMENTS = '■ZERO_ELEMENTS■'
 
-const extract = async <S extends OfType<AnyObjectOrArray>>(
+const extract = async <S extends z.ZodTypeAny>(
   input: unknown,
   _schema: S,
   _options: Options | undefined,
@@ -125,12 +123,16 @@ const extract = async <S extends OfType<AnyObjectOrArray>>(
 ): Promise<S['_output']> => {
   ctx.controller.signal.throwIfAborted()
 
+  if (!z.is.zuiType(_schema)) {
+    throw new Error(INVALID_SCHEMA_ERROR)
+  }
+
   let originalSchema: z.ZodType
   try {
-    originalSchema = z.transforms.fromJSONSchema(z.transforms.toJSONSchema(_schema as unknown as z.ZodType))
+    originalSchema = z.transforms.fromJSONSchema(z.transforms.toJSONSchema(_schema))
   } catch {
     // The above transformers arent the legacy ones. They are very strict and might fail on some schema types.
-    originalSchema = _schema as unknown as z.ZodType
+    originalSchema = _schema
   }
 
   const options = Options.parse(_options ?? {})
@@ -442,7 +444,7 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
   return final as S['_output']
 }
 
-Zai.prototype.extract = function <S extends OfType<AnyObjectOrArray>>(
+Zai.prototype.extract = function <S extends z.ZodTypeAny>(
   this: Zai,
   input: unknown,
   schema: S,
