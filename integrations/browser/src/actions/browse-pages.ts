@@ -18,7 +18,7 @@ const fixOutput = (val: unknown): string => {
 const getCustomHeaders = (logger: IntegrationLogger): Record<string, string> | undefined => {
   const raw = bp.secrets.FIRECRAWL_CUSTOM_HEADERS
   // TODO: Remove once fixed. Here temporarily to for debugging purposes.
-  logger.forBot().debug('[FIRECRAWL] Custom Headers Raw: ', { present: !!raw, type: typeof raw, raw })
+  logger.forBot().debug('[FIRECRAWL] Custom Headers Raw: ', { present: !!raw, type: typeof raw })
   if (!raw) {
     return undefined
   }
@@ -65,14 +65,16 @@ const getPageContent = async (props: {
 
     // TODO: Remove once fixed. Here temporarily to for debugging purposes.
     // NOTE: need to unblock client and need to ensure that these headers are passed {"X-Botpress-Crawler": "botpress"}
-    const withCrawlerHeader = (headers: Record<string, string> | undefined): Record<string, string> => ({
-      ...(headers ?? {}),
-      'X-Botpress-Crawler': headers?.['X-Botpress-Crawler'] ?? 'botpress',
-    })
+    const withCrawlerHeader = (headers: Record<string, string> | undefined): Record<string, string> => {
+      if (headers?.['X-Botpress-Crawler'])
+        {props.logger.forBot().debug("[FIRECRAWL] Set 'X-Botpress-Crawler' to 'botpress'")}
+      return {
+        ...(headers ?? {}),
+        'X-Botpress-Crawler': headers?.['X-Botpress-Crawler'] ?? 'botpress',
+      }
+    }
     payload.headers = withCrawlerHeader(payload.headers)
 
-    // TODO: Remove once fixed. Here temporarily to for debugging purposes.
-    props.logger.forBot().debug('[FIRECRAWL] Custom Headers Sent: ', payload)
     const result = await firecrawl.scrape(props.url, payload)
 
     props.logger.forBot().debug(`[FIRECRAWL] API call took ${Date.now() - startTime}ms for url: ${props.url}`)
