@@ -121,6 +121,46 @@ export const actions = {
     },
   },
 
+  startChannelConversation: {
+    title: '[DEPRECATED] Start Channel Conversation',
+    description: '[DEPRECATED: use getOrCreateChannelConversation] Get or create a conversation in a channel',
+    input: {
+      schema: sdk.z.object({
+        channelName: sdk.z
+          .string()
+          .optional()
+          .title('Channel Name')
+          .describe('The name of the channel you want the conversation to be created at'),
+        channelId: sdk.z
+          .string()
+          .optional()
+          .title('Channel ID')
+          .describe('The ID of the channel you want the conversation to be created at'),
+      }),
+    },
+    output: {
+      schema: sdk.z.object({
+        conversationId: sdk.z.string().title('Conversation ID').describe('The ID of the new conversation'),
+      }),
+    },
+  },
+
+  startDmConversation: {
+    title: '[DEPRECATED] Start DM Conversation',
+    description: '[DEPRECATED: use getOrCreateDmConversation] Initiate a conversation with a user in a DM',
+    input: {
+      schema: sdk.z.object({
+        slackUserId: sdk.z.string().title('User ID').describe('The ID of the user to initiate the conversation with'),
+      }),
+    },
+    output: {
+      schema: sdk.z.object({
+        userId: sdk.z.string().title('User ID').describe('The ID of the user'),
+        conversationId: sdk.z.string().title('Conversation ID').describe('The ID of the new conversation'),
+      }),
+    },
+  },
+
   syncMembers: {
     title: 'Sync Members',
     description:

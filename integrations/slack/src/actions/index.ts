@@ -18,6 +18,8 @@ export default {
   getOrCreateChannelConversation,
   getOrCreateConversation,
   getOrCreateDmConversation,
+  startChannelConversation: getOrCreateChannelConversation,
+  startDmConversation: getOrCreateDmConversation,
   retrieveMessage,
   syncMembers,
   updateChannelTopic,

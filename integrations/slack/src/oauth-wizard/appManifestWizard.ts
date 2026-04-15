@@ -96,10 +96,6 @@ const _saveConfigHandler: WizardHandler = async ({ client, ctx, responses, formV
 const _createAppHandler: WizardHandler = async (props) => {
   const { client, ctx, responses, logger } = props
 
-  if (ctx.configurationType !== 'manifestAppCredentials') {
-    throw new RuntimeError('This wizard is only available for the App Manifest configuration type')
-  }
-
   const manifestState = await getAppManifestConfigurationState(client, ctx)
 
   if (!manifestState.appConfigurationRefreshToken) {
