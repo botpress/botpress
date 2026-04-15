@@ -65,8 +65,9 @@ const getPageContent = async (props: {
     // TODO: Remove once fixed. Here temporarily to for debugging purposes.
     // NOTE: need to unblock client and need to ensure that these headers are passed {"X-Botpress-Crawler": "botpress"}
     const withCrawlerHeader = (headers: Record<string, string> | undefined): Record<string, string> => {
-      if (headers?.['X-Botpress-Crawler'])
-        {props.logger.forBot().debug("[FIRECRAWL] Set 'X-Botpress-Crawler' to 'botpress'")}
+      if (headers?.['X-Botpress-Crawler']) {
+        props.logger.forBot().debug("[FIRECRAWL] Set 'X-Botpress-Crawler' to 'botpress'")
+      }
       return {
         ...(headers ?? {}),
         'X-Botpress-Crawler': headers?.['X-Botpress-Crawler'] ?? 'botpress',
