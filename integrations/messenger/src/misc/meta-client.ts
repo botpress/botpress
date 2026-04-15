@@ -200,7 +200,7 @@ export class MetaClient {
     let url = `${this._baseUrl}/me/accounts?${query.toString()}`
 
     while (url) {
-      const { data } = await this._makeRequest({
+      const { data, paging } = await this._makeRequest({
         method: 'GET',
         endpoint: url,
         tokenType: 'none',
@@ -210,7 +210,7 @@ export class MetaClient {
       allPages = allPages.concat(data)
 
       // Check if there's a next page
-      url = data.paging && data.paging.next ? data.paging.next : null
+      url = paging && paging.next ? paging.next : null
     }
 
     return allPages
