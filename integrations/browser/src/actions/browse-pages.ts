@@ -15,33 +15,6 @@ const fixOutput = (val: unknown): string => {
   return ''
 }
 
-const getCustomHeaders = (logger: IntegrationLogger): Record<string, string> | undefined => {
-  const raw = bp.secrets.FIRECRAWL_CUSTOM_HEADERS
-  // TODO: Remove once fixed. Here temporarily to for debugging purposes.
-  logger.forBot().debug('[FIRECRAWL] Custom Headers Raw: ', { present: !!raw, type: typeof raw })
-  if (!raw) {
-    return undefined
-  }
-
-  try {
-    const parsed = JSON.parse(raw)
-    // TODO: Remove once fixed. Here temporarily to for debugging purposes.
-    logger.forBot().debug('[FIRECRAWL] Custom Headers Parsed: ', {
-      keys: parsed !== null && !Array.isArray(parsed) && typeof parsed === 'object' ? Object.keys(parsed) : [],
-      type: typeof parsed,
-    })
-    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-      return undefined
-    }
-    return parsed as Record<string, string>
-  } catch (err) {
-    logger.forBot().error('[FIRECRAWL] Custom Headers Failed Parse: ', {
-      error: err instanceof Error ? err.message : String(err),
-    })
-    return undefined
-  }
-}
-
 const getPageContent = async (props: {
   url: string
   logger: IntegrationLogger
@@ -54,33 +27,18 @@ const getPageContent = async (props: {
   const startTime = Date.now()
 
   try {
-    const payload = {
+    const result = await firecrawl.scrape(props.url, {
       onlyMainContent: true,
       maxAge: 60 * 60 * 24 * 7, // 1 week
       removeBase64Images: true,
       waitFor: props.waitFor,
       timeout: props.timeout,
-      formats: ['markdown' as const, 'rawHtml' as const],
-      headers: getCustomHeaders(props.logger),
+      formats: ['markdown', 'rawHtml'],
+      headers: { 'X-Botpress-Crawler': 'botpress' },
       storeInCache: true,
-    }
+    })
 
-    // TODO: Remove once fixed. Here temporarily to for debugging purposes.
-    // NOTE: need to unblock client and need to ensure that these headers are passed {"X-Botpress-Crawler": "botpress"}
-    const withCrawlerHeader = (headers: Record<string, string> | undefined): Record<string, string> => {
-      if (headers?.['X-Botpress-Crawler']) {
-        props.logger.forBot().debug("[FIRECRAWL] Set 'X-Botpress-Crawler' to 'botpress'")
-      }
-      return {
-        ...(headers ?? {}),
-        'X-Botpress-Crawler': headers?.['X-Botpress-Crawler'] ?? 'botpress',
-      }
-    }
-    payload.headers = withCrawlerHeader(payload.headers)
-
-    const result = await firecrawl.scrape(props.url, payload)
-
-    props.logger.forBot().debug(`[FIRECRAWL] API call took ${Date.now() - startTime}ms for url: ${props.url}`)
+    props.logger.forBot().debug(`Firecrawl API call took ${Date.now() - startTime}ms for url: ${props.url}`)
 
     const contentLength = result.markdown?.length || 0
     const isLargePage = contentLength > 50000
