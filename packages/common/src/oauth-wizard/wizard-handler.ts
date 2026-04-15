@@ -65,7 +65,8 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
       ...this._handlerProps,
       query: searchParams,
       selectedChoice: searchParams.get(consts.CHOICE_PARAM) ?? undefined,
-      selectedChoices: searchParams.getAll(consts.CHOICE_PARAM).length > 0 ? searchParams.getAll(consts.CHOICE_PARAM) : undefined,
+      selectedChoices:
+        searchParams.getAll(consts.CHOICE_PARAM).length > 0 ? searchParams.getAll(consts.CHOICE_PARAM) : undefined,
       inputValue: searchParams.get(consts.INPUT_PARAM) ?? undefined,
       formValues: Object.keys(formValues).length > 0 ? formValues : undefined,
       responses: {

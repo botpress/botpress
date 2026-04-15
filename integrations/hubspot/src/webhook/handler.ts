@@ -9,7 +9,7 @@ import { buildOAuthWizard } from './handlers/oauth-wizard'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
-  const { req, ctx, client, logger } = props
+  const { req, logger } = props
 
   logger.debug(`Received request on ${req.path}: ${JSON.stringify(req.body, null, 2)}`)
 
