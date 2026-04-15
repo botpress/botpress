@@ -448,7 +448,7 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
   return final as S['_output']
 }
 
-Zai.prototype.extract = function <S extends z.ZodTypeAny>(
+Zai.prototype.extract = function <S extends OfType<AnyObjectOrArray>>(
   this: Zai,
   input: unknown,
   schema: S,
