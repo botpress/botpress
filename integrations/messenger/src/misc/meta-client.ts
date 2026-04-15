@@ -142,7 +142,7 @@ export class MetaClient {
     )
 
     if (!scope?.target_ids?.length) {
-      return this.getUserManagedPagesFromToken(inputToken)
+      return this._getUserManagedPagesFromToken(this._getUserToken())
     }
 
     const ids = scope.target_ids
@@ -190,7 +190,7 @@ export class MetaClient {
     return results
   }
 
-  public async getUserManagedPagesFromToken(userToken: string) {
+  private async _getUserManagedPagesFromToken(userToken: string) {
     let allPages: { id: string; name: string }[] = []
 
     const query = new URLSearchParams({
@@ -200,17 +200,17 @@ export class MetaClient {
     let url = `${this._baseUrl}/me/accounts?${query.toString()}`
 
     while (url) {
-      const response = await this._makeRequest({
+      const { data } = await this._makeRequest({
         method: 'GET',
         endpoint: url,
         tokenType: 'none',
       })
 
       // Add the pages to the allPages array
-      allPages = allPages.concat(response.data.data)
+      allPages = allPages.concat(data)
 
       // Check if there's a next page
-      url = response.data.paging && response.data.paging.next ? response.data.paging.next : null
+      url = data.paging && data.paging.next ? data.paging.next : null
     }
 
     return allPages
