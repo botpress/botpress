@@ -83,7 +83,9 @@ export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async 
 
   try {
     const pageContentPromises = await Promise.allSettled(
-      input.urls.map((url) => getPageContent({ ctx, url, logger, waitFor: input.waitFor, timeout: input.timeout, maxAge: input.maxAge }))
+      input.urls.map((url) =>
+        getPageContent({ ctx, url, logger, waitFor: input.waitFor, timeout: input.timeout, maxAge: input.maxAge })
+      )
     )
 
     const results = pageContentPromises
