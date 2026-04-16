@@ -117,15 +117,6 @@ export class HubSpotHitlClient {
     return response.data
   }
 
-  public async getActorEmail(actorId: string): Promise<string> {
-    const endpoint = `${HUBSPOT_API_BASE_URL}/conversations/v3/conversations/actors/${actorId}`
-    const response = await this._makeHitlRequest<{ email: string }>(endpoint, 'GET')
-    if (!response.success || !response.data) {
-      throw new RuntimeError(`Failed to fetch actor info: ${response.message}`)
-    }
-    return response.data.email
-  }
-
   public async getActorDetails(
     actorId: string
   ): Promise<{ id: string; name: string; email: string; avatar: string; type: string }> {
@@ -141,17 +132,6 @@ export class HubSpotHitlClient {
       throw new RuntimeError(`Failed to fetch actor details: ${response.message}`)
     }
     return response.data
-  }
-
-  public async getActorPhoneNumber(contactId: string): Promise<string> {
-    const endpoint = `${HUBSPOT_API_BASE_URL}/crm/v3/objects/contacts/${contactId}?properties=phone`
-    const response = await this._makeHitlRequest<{ properties: { phone: string } }>(endpoint, 'GET', null, {
-      archived: false,
-    })
-    if (!response.success || !response.data) {
-      throw new RuntimeError(`Failed to fetch contact phone: ${response.message}`)
-    }
-    return response.data.properties.phone
   }
 
   public async createCustomChannel(appId: string, developerApiKey?: string): Promise<string> {
