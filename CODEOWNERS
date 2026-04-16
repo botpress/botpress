@@ -32,9 +32,9 @@
 /integrations @botpress/shell
 
 ## Utils
-/integrations/browser @allardy @botpress/starfish
-/integrations/charts @allardy @botpress/starfish
-/integrations/pdf-generator @allardy @botpress/starfish
+/integrations/browser @botpress/shell
+/integrations/charts @botpress/shell
+/integrations/pdf-generator @botpress/shell
 
 ## LLM
 /integrations/anthropic @botpress/shark
