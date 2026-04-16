@@ -2170,6 +2170,21 @@ describe('zai.patch — JSON file operations', { timeout: 60_000 }, () => {
     expect(parsed.version).toBe('1.0.0')
   })
 
+  it('rejects non-zui schemas', async () => {
+    const schema = {
+      _output: undefined,
+      safeParse: () => ({ success: true, data: { version: '1.0.0' } }),
+    }
+
+    await expect(
+      zai
+        .patch([configFile], 'change port to 8080 and set debug to true', {
+          schema: schema as any,
+        })
+        .result()
+    ).rejects.toThrow('@bpinternal/zui')
+  })
+
   it('validates patched JSON against a nested zui schema', async () => {
     const schema = z.object({
       database: z.object({
