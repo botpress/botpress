@@ -3,9 +3,11 @@ import { qualityScoreSchema } from 'definitions/events'
 
 const WhatsAppContactSchema = z.object({
   wa_id: z.string(),
-  profile: z.object({
-    name: z.string(),
-  }),
+  profile: z
+    .object({
+      name: z.string().optional(),
+    })
+    .optional(),
 })
 
 const WhatsAppBaseMessageSchema = z.object({
