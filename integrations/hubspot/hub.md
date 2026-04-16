@@ -24,6 +24,7 @@ For advanced users who need full control over their HubSpot app, a **manual conf
    - `crm.objects.deals.write`
 5. Under the _Webhooks_ tab, paste your webhook URL, set _Event Throttling_ to 1, and click _Create Subscription_.
 6. You may now optionally subscribe to webhook events. In the _Create new webhook subscriptions_ dialog, **you must enable _expanded object support_** before selecting the events you wish to subscribe to. Currently, the integration supports the following events:
+
    - Company Created
    - Company Deleted
    - Contact Created
@@ -36,9 +37,9 @@ For advanced users who need full control over their HubSpot app, a **manual conf
 7. You may now click the _Create App_ button to create your Legacy Private App.
 8. From your app's settings page, navigate to the _Auth_ tab and copy the _Access Token_ and _Client Secret_. In the Botpress integration configuration, paste them and save.
 
-| Field | Value |
-|---|---|
-| Access Token | The Access Token from your Private App |
+| Field         | Value                                                            |
+| ------------- | ---------------------------------------------------------------- |
+| Access Token  | The Access Token from your Private App                           |
 | Client Secret | Your app's Client Secret (used for webhook signature validation) |
 
 ### HITL (Human-in-the-Loop) manual configuration
@@ -58,6 +59,7 @@ In your HubSpot settings, open your existing Private App and add the following s
 #### 2. Add a Webhook Subscription
 
 Under the **Webhooks** tab, subscribe to:
+
 - `conversation.propertyChange` (for agent assignment and conversation status changes), select all properties.
 
 #### 3. Click _Commit Changes_ to save the updated scopes and webhook subscriptions.
@@ -95,11 +97,11 @@ You can connect multiple inboxes — the first one will be used as the default.
 
 Fill in the following fields in your Botpress integration configuration:
 
-| Field | Value |
-|---|---|
-| App ID | Your app's App ID from step 4 |
-| Developer API Key | Your developer API key from step 4 |
-| Inbox IDs | One or more inbox or Help Desk IDs from step 5. The first is the default. |
+| Field             | Value                                                                     |
+| ----------------- | ------------------------------------------------------------------------- |
+| App ID            | Your app's App ID from step 4                                             |
+| Developer API Key | Your developer API key from step 4                                        |
+| Inbox IDs         | One or more inbox or Help Desk IDs from step 5. The first is the default. |
 
 Save the configuration. After saving, it may take **over a minute** for the HubSpot custom channel to connect. Do not refresh or close the page during this time.
 
