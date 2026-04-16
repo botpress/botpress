@@ -18,8 +18,6 @@ export default new IntegrationDefinition({
     schema: z.object({
       crawlerHeaderValue: z
         .string()
-        .trim()
-        .min(1)
         .default('botpress')
         .describe('Value sent in the X-Botpress-Crawler header for Firecrawl scrape requests')
         .title('Crawler Header Value'),
