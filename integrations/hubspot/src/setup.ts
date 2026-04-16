@@ -15,7 +15,7 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
     return
   }
 
-  if (!ctx.configuration.enableHitl || !ctx.configuration.inboxId) {
+  if (!ctx.configuration.inboxIds?.length) {
     return
   }
 
@@ -31,7 +31,7 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
     logger,
     appId,
     developerApiKey,
-    inboxId: ctx.configuration.inboxId,
+    inboxIds: ctx.configuration.inboxIds,
   })
 }
 

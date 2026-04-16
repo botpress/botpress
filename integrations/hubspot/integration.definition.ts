@@ -20,24 +20,24 @@ export default new IntegrationDefinition({
       title: 'Manual Configuration',
       description: 'Manual configuration, use your own Hubspot app',
       schema: z.object({
-        accessToken: z.string().min(1).secret().title('Access Token').describe('Your Hubspot Access Token'),
+        accessToken: z
+          .string()
+          .min(1)
+          .secret()
+          .title('Access Token')
+          .describe('Your HubSpot Private App Access Token.'),
         clientSecret: z
           .string()
           .secret()
           .optional()
           .title('Client Secret')
-          .describe('Hubspot Client Secret (used for webhook signature check)'),
-        enableHitl: z
-          .boolean()
+          .describe('Your HubSpot app Client Secret. Used for webhook signature validation.'),
+        inboxIds: z
+          .array(z.string())
           .optional()
-          .title('Enable HITL')
-          .describe('Enable Human-in-the-Loop to route conversations to HubSpot agents.'),
-        inboxId: z
-          .string()
-          .optional()
-          .title('Inbox or Help Desk ID')
+          .title('Inbox or Help Desk IDs')
           .describe(
-            'HubSpot Inbox ID or Help Desk ID to route HITL conversations to. Works with both HubSpot Inbox (Sales Hub) and Help Desk (Service Hub).'
+            'List of HubSpot Inbox or Help Desk IDs. The first ID is the default. Works with both HubSpot Inbox (Sales Hub) and Help Desk (Service Hub).'
           ),
         developerApiKey: z
           .string()

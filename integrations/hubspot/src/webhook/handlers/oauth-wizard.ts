@@ -27,7 +27,6 @@ const HITL_SCOPES = [
   'conversations.custom_channels.write',
   'conversations.read',
   'conversations.write',
-  'conversations.visitor_identification.tokens.create',
   'files',
 ]
 

@@ -69,13 +69,13 @@ export async function setupHitlChannel(props: {
   logger: bp.Logger
   appId: string
   developerApiKey: string | undefined
-  inboxId: string
+  inboxIds: string[]
 }): Promise<void> {
-  const { ctx, client, logger, appId, developerApiKey, inboxId } = props
+  const { ctx, client, logger, appId, developerApiKey, inboxIds } = props
   const hitlClient = getHitlClient(ctx, client, logger)
   const channelId = await createHitlChannel({ ctx, client, logger, appId, developerApiKey })
   await _waitForChannelAvailability(hitlClient, channelId, appId, developerApiKey, logger)
-  await connectHitlChannel({ ctx, client, logger, channelId, inboxIds: [inboxId], defaultInboxId: inboxId })
+  await connectHitlChannel({ ctx, client, logger, channelId, inboxIds, defaultInboxId: inboxIds[0]! })
 }
 
 async function _waitForChannelAvailability(

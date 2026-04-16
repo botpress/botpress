@@ -62,13 +62,14 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
       throw new RuntimeError('User identifier not found. Please ensure the user is created with createUser first.')
     }
 
-    const {
-      state: { payload: channelInfo },
-    } = await client.getState({ id: ctx.integrationId, name: 'hitlConfig', type: 'integration' })
+    const channelState = await client
+      .getState({ id: ctx.integrationId, name: 'hitlConfig', type: 'integration' })
+      .catch(() => null)
 
+    const channelInfo = channelState?.state?.payload
     if (!channelInfo?.channelId) {
       throw new RuntimeError(
-        'HITL channel not configured. Please ensure enableHitl is enabled and the integration is registered.'
+        'HITL channel not configured. Please make sure you enabled/configured HITL for this Integration.'
       )
     }
 

@@ -32,6 +32,10 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     }
   }
 
+  if (_isCustomChannelEvent(req.body)) {
+    return await _handleHitlEvent(props)
+  }
+
   // Global webhook subscriptions (conversation updates + CRM events)
   if (handlers.isConversationEvent(props) || handlers.isBatchUpdateEvent(props)) {
     const validation = _validateRequestAuthentication(props)
@@ -47,12 +51,17 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     return await handlers.handleBatchUpdateEvent(props)
   }
 
-  // Custom Channel webhook (messages)
-  if (req.headers['x-hubspot-signature-v3']) {
-    return await _handleHitlEvent(props)
-  }
-
   logger.warn('No handler found for request')
+}
+
+const _isCustomChannelEvent = (body: string | undefined): boolean => {
+  if (!body?.length) return false
+  try {
+    const parsed = typeof body === 'string' ? JSON.parse(body) : body
+    return typeof parsed === 'object' && !Array.isArray(parsed) && typeof parsed.type === 'string'
+  } catch {
+    return false
+  }
 }
 
 const _handleHitlEvent: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {

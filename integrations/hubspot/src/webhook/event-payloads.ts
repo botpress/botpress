@@ -113,3 +113,4 @@ export const BATCH_UPDATE_EVENT_PAYLOAD = sdk.z.array(
 )
 
 export type BatchUpdateEventPayload = sdk.z.infer<typeof BATCH_UPDATE_EVENT_PAYLOAD>
+
