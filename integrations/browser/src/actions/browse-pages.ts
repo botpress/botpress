@@ -30,7 +30,7 @@ const getPageContent = async (props: {
   try {
     const result = await firecrawl.scrape(props.url, {
       onlyMainContent: true,
-      maxAge: 60 * 60 * 24 * 7, // 1 week
+      maxAge: props.maxAge,
       removeBase64Images: true,
       waitFor: props.waitFor,
       timeout: props.timeout,
@@ -83,7 +83,7 @@ export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async 
 
   try {
     const pageContentPromises = await Promise.allSettled(
-      input.urls.map((url) => getPageContent({ ctx, url, logger, waitFor: input.waitFor, timeout: input.timeout }))
+      input.urls.map((url) => getPageContent({ ctx, url, logger, waitFor: input.waitFor, timeout: input.timeout, maxAge: input.maxAge }))
     )
 
     const results = pageContentPromises
