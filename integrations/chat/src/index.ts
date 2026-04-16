@@ -140,7 +140,6 @@ const emitEvent = async (args: ActionArgs) => {
 
     setSpanAttributes({
       [SPAN_ATTRS.CONVERSATION_ID]: args.input.conversationId,
-      [SPAN_ATTRS.USER_ID]: args.ctx.botUserId,
     })
 
     await signalEmitter.emit(channel, {
