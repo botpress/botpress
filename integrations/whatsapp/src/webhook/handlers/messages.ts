@@ -81,7 +81,7 @@ export const messagesHandler = async (
       name: contact.profile?.name,
     },
     name: contact.profile?.name,
-    discriminateByTags: [ 'userId' ]
+    discriminateByTags: ['userId'],
   })
 
   const replyToWhatsAppId = message.context?.id
