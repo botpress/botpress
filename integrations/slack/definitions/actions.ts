@@ -86,11 +86,13 @@ export const actions = {
     description: 'Get or create a conversation in a channel',
     input: {
       schema: sdk.z.object({
-        channelId: sdk.z
-          .string()
-          .optional()
-          .title('Channel ID')
-          .describe('The ID of the channel you want the conversation to be created at'),
+        conversation: sdk.z.object({
+          channelId: sdk.z
+            .string()
+            .optional()
+            .title('Channel ID')
+            .describe('The ID of the channel you want the conversation to be created at'),
+        }),
       }),
     },
     output: {
@@ -168,6 +170,11 @@ export const actions = {
               numMembers: sdk.z.number().title('Number of Members').describe('The number of members in the channel'),
               isPrivate: sdk.z.boolean().title('Is Private').describe('Whether the channel is private'),
               isArchived: sdk.z.boolean().title('Is Archived').describe('Whether the channel is archived'),
+              isDm: sdk.z.boolean().title('Is DM').describe('Whether this is a direct message conversation'),
+              userId: sdk.z
+                .string()
+                .title('User ID')
+                .describe('The Slack user ID of the other participant (for 1:1 DMs)'),
               creator: sdk.z.string().title('Creator').describe('The Slack user ID of the channel creator'),
               created: sdk.z.number().title('Created').describe('The Unix timestamp of when the channel was created'),
             })

@@ -3,7 +3,7 @@ import { wrapActionAndInjectSlackClient } from 'src/actions/action-wrapper'
 
 export const getOrCreateChannelConversation = wrapActionAndInjectSlackClient(
   { actionName: 'getOrCreateChannelConversation', errorMessage: 'Failed to get or create channel conversation' },
-  async ({ client }, { channelId }) => {
+  async ({ client }, { conversation: { channelId } }) => {
     if (!channelId) {
       throw new RuntimeError('channelId must be provided')
     }

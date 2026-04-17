@@ -5,6 +5,7 @@ import * as bp from '.botpress'
 export const isOAuthCallback = (req: sdk.Request): req is sdk.Request & { path: '/oauth' } => req.path === '/oauth'
 
 export const handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProps) => {
+  logger.forBot().debug('OAuth callback handled in webhook handler, redirecting to end step')
   const query = new URLSearchParams(req.query)
   const code = query.get('code')
 
@@ -14,7 +15,9 @@ export const handleOAuthCallback = async ({ req, client, ctx, logger }: bp.Handl
 
   const slackClient = await SlackClient.createFromAuthorizationCode({ client, ctx, logger, authorizationCode: code })
   const identifier =
-    ctx.configurationType === 'manifestAppCredentials' ? slackClient.getBotUserId() : slackClient.getTeamId()
+    ctx.configurationType === 'manifestAppCredentials' || ctx.configurationType === 'refreshToken'
+      ? slackClient.getBotUserId()
+      : slackClient.getTeamId()
 
   await client.configureIntegration({ identifier })
 }

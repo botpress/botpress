@@ -379,24 +379,7 @@ export class SlackClient {
     return response.profile
   }
 
-  @requireAllScopes(['channels:read', 'chat:write'])
-  @handleErrors('Failed to retrieve channel info')
-  public async getChannelInfo({ channelName }: { channelName: string }) {
-    for await (const page of this._slackWebClient.paginate('conversations.list', {
-      types: 'public_channel,private_channel',
-      exclude_archived: true,
-      limit: 200,
-    }) as AsyncIterable<SlackWebApi.ConversationsListResponse>) {
-      const found = page.channels?.find((ch) => ch.name === channelName)
-      if (found) {
-        return found
-      }
-    }
-
-    return undefined
-  }
-
-  @requireAllScopes(['channels:read', 'chat:write'])
+  @requireAllScopes(['channels:read', 'chat:write', 'groups:read', 'im:read', 'mpim:read'])
   @handleErrors('Failed to retrieve channels info')
   public async getChannelsInfo({
     includeArchived,
@@ -429,12 +412,14 @@ export class SlackClient {
     return {
       channels: (response.channels ?? []).map((ch) => ({
         id: ch.id ?? '',
-        name: ch.name ?? '',
+        name: ch.name ?? ch.user ?? ch.id ?? '',
         topic: ch.topic?.value ?? '',
         purpose: ch.purpose?.value ?? '',
         numMembers: ch.num_members ?? 0,
         isPrivate: ch.is_private ?? false,
         isArchived: ch.is_archived ?? false,
+        isDm: ch.is_im || ch.is_mpim || false,
+        userId: ch.user ?? '',
         creator: ch.creator ?? '',
         created: ch.created ?? 0,
       })),
