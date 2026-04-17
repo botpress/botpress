@@ -89,6 +89,20 @@ const handleOperation = async (props: ServerProps) => {
 export const integrationHandler =
   (instance: IntegrationHandlers<BaseIntegration>) =>
   async (req: Request): Promise<Response | void> => {
+    if (req.path === '/metrics') {
+      try {
+        // /metrics is scraped directly by Prometheus without bot context headers.
+        // client and ctx are not used by the metrics endpoint.
+        return await instance.webhook({
+          req,
+          client: {} as IntegrationSpecificClient<BaseIntegration>,
+          ctx: {} as IntegrationContext<BaseIntegration>,
+          logger: {} as IntegrationLogger,
+        })
+      } catch {
+        return { status: 404 }
+      }
+    }
     const ctx = extractContext(req.headers)
     const props = getServerProps(ctx, req, instance)
     const { logger } = props
