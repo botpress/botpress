@@ -8,7 +8,7 @@ import { actions } from './definitions/actions'
 import { messages } from './definitions/channels/channel/messages'
 
 export const INTEGRATION_NAME = 'messenger'
-export const INTEGRATION_VERSION = '5.1.7'
+export const INTEGRATION_VERSION = '5.1.8'
 
 const commonConfigSchema = z.object({
   downloadMedia: z
