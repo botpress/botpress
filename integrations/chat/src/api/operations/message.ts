@@ -1,4 +1,5 @@
 import * as errors from '../../gen/errors'
+import { setSpanAttributes, SPAN_ATTRS } from '../../tracing'
 import * as msgPayload from '../message-payload'
 import * as types from '../types'
 import * as fid from './fid'
@@ -11,7 +12,10 @@ export const createMessage: types.AuthenticatedOperations['createMessage'] = asy
   const { conversationId, payload, metadata } = req.body
   const { userId } = req.auth
 
+  setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: conversationId, [SPAN_ATTRS.USER_ID]: userId })
+
   const { participant } = await props.apiUtils.findParticipant({ id: conversationId, userId: req.auth.userId })
+
   if (!participant) {
     throw new errors.ForbiddenError("You are not a participant in this message's conversation")
   }
@@ -24,6 +28,8 @@ export const createMessage: types.AuthenticatedOperations['createMessage'] = asy
     userId,
     payload: mappedPayload,
   })
+
+  setSpanAttributes({ [SPAN_ATTRS.MESSAGE_ID]: message.id })
 
   const res = await fidHandler.mapResponse({
     body: {
@@ -43,8 +49,11 @@ export const getMessage: types.AuthenticatedOperations['getMessage'] = async (pr
   const fidHandler = fid.handlers.getMessage(props, foreignReq)
   const req = await fidHandler.mapRequest()
 
+  setSpanAttributes({ [SPAN_ATTRS.USER_ID]: req.auth.userId, [SPAN_ATTRS.MESSAGE_ID]: req.params.id })
+
   const { message } = await props.client.getMessage({ id: req.params.id })
   const { conversationId } = message
+  setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: conversationId })
   const { participant } = await props.apiUtils.findParticipant({ id: conversationId, userId: req.auth.userId })
   if (!participant) {
     throw new errors.ForbiddenError("You are not a participant in this message's conversation")
@@ -63,7 +72,12 @@ export const deleteMessage: types.AuthenticatedOperations['deleteMessage'] = asy
 
   const { id } = req.params
 
+  setSpanAttributes({ [SPAN_ATTRS.USER_ID]: req.auth.userId, [SPAN_ATTRS.MESSAGE_ID]: id })
+
   const { message } = await props.client.getMessage({ id })
+
+  setSpanAttributes({ [SPAN_ATTRS.CONVERSATION_ID]: message.conversationId })
+
   if (message.userId !== req.auth.userId) {
     throw new errors.ForbiddenError('You are not the sender of this message')
   }
