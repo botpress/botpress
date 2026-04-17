@@ -2,9 +2,8 @@ import { isOAuthWizardUrl } from '@botpress/common/src/oauth-wizard'
 import * as sdk from '@botpress/sdk'
 import type { SlackEvent } from '@slack/types'
 import { safeParseBody } from 'src/misc/utils'
-import { getManualWizardCredentialsState } from 'src/slack-api/slack-oauth-client'
 import { oauthWizardHandler } from '../oauth-wizard'
-import { getAppManifestConfigurationState } from '../slack-api/slack-manifest-client'
+import { getAppCredentials } from '../slack-api/slack-manifest-client'
 import * as handlers from './handlers'
 import { handleInteractiveRequest, isInteractiveRequest } from './handlers/interactive-request'
 import { isOAuthCallback, handleOAuthCallback } from './handlers/oauth-callback'
@@ -116,14 +115,9 @@ const _dispatchEvent = async ({ client, ctx, logger }: bp.HandlerProps, slackEve
 }
 
 const _getSigningSecret = async ({ client, ctx }: bp.CommonHandlerProps): Promise<string> => {
-  if (ctx.configurationType === 'refreshToken') {
-    const { signingSecret } = await getManualWizardCredentialsState(client, ctx)
-    if (!signingSecret) throw new sdk.RuntimeError('Signing secret not found, please re-run setup wizard')
-    return signingSecret
-  } else if (ctx.configurationType === 'manifestAppCredentials') {
-    const { signingSecret } = await getAppManifestConfigurationState(client, ctx)
-    if (!signingSecret) throw new sdk.RuntimeError('Signing secret not found, please re-run setup wizard')
-    return signingSecret
+  const appCreds = await getAppCredentials(client, ctx)
+  if (appCreds.signingSecret) {
+    return appCreds.signingSecret
   }
   return bp.secrets.SIGNING_SECRET
 }

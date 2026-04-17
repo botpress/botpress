@@ -2,7 +2,8 @@ import { collectableGenerator } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 import * as SlackWebApi from '@slack/web-api'
 import { handleErrorsDecorator as handleErrors, surfaceSlackErrors } from './error-handling'
-import { SlackOAuthClient, getManualWizardCredentialsState } from './slack-oauth-client'
+import { getAppCredentials } from './slack-manifest-client'
+import { SlackOAuthClient } from './slack-oauth-client'
 import { requiresAllScopesDecorator as requireAllScopes } from './slack-scopes'
 import * as bp from '.botpress'
 
@@ -36,40 +37,15 @@ export class SlackClient {
     ctx: bp.Context
     logger: bp.Logger
   }) {
-    if (ctx.configurationType === 'manifestAppCredentials') {
-      const {
-        state: {
-          payload: { clientId, clientSecret },
-        },
-      } = await client.getState({
-        type: 'integration',
-        name: 'manifestAppCredentials',
-        id: ctx.integrationId,
-      })
-      if (!clientId || !clientSecret) {
-        throw new sdk.RuntimeError('Client ID or Client Secret not found, please re-run the authorization wizard')
-      }
-      const oAuthClient = new SlackOAuthClient({
-        ctx,
-        client,
-        logger,
-        clientIdOverride: clientId,
-        clientSecretOverride: clientSecret,
-      })
-      return await SlackClient._createNewInstance({ logger, oAuthClient })
-    }
+    const appCreds = await getAppCredentials(client, ctx)
 
-    if (ctx.configurationType === 'refreshToken') {
-      const { clientId, clientSecret } = await getManualWizardCredentialsState(client, ctx)
-      if (!clientId || !clientSecret) {
-        throw new sdk.RuntimeError('Client ID or Client Secret not found, please re-run the authorization wizard')
-      }
+    if (appCreds.clientId && appCreds.clientSecret) {
       const oAuthClient = new SlackOAuthClient({
         ctx,
         client,
         logger,
-        clientIdOverride: clientId,
-        clientSecretOverride: clientSecret,
+        clientIdOverride: appCreds.clientId,
+        clientSecretOverride: appCreds.clientSecret,
       })
       return await SlackClient._createNewInstance({ logger, oAuthClient })
     }
@@ -89,55 +65,18 @@ export class SlackClient {
     logger: bp.Logger
     authorizationCode: string
   }) {
-    if (ctx.configurationType === 'manifestAppCredentials') {
-      const {
-        state: {
-          payload: { clientId, clientSecret, authorizeUrl },
-        },
-      } = await client.getState({
-        type: 'integration',
-        name: 'manifestAppCredentials',
-        id: ctx.integrationId,
-      })
-      if (!clientId || !clientSecret || !authorizeUrl) {
-        throw new sdk.RuntimeError('Client ID or Client Secret not found, please re-run the authorization wizard')
-      }
+    const appCreds = await getAppCredentials(client, ctx)
+    const redirectUri = `${process.env.BP_WEBHOOK_URL}/oauth`
+
+    if (appCreds.clientId && appCreds.clientSecret) {
       const oAuthClient = new SlackOAuthClient({
         ctx,
         client,
         logger,
-        clientIdOverride: clientId,
-        clientSecretOverride: clientSecret,
+        clientIdOverride: appCreds.clientId,
+        clientSecretOverride: appCreds.clientSecret,
       })
-      const redirectUri = new URL(authorizeUrl).searchParams.get('redirect_uri')
-      if (!redirectUri) {
-        throw new sdk.RuntimeError('Could not retreive redirect uri, please re-run the authorization wizard')
-      }
-      await oAuthClient.requestShortLivedCredentials.fromAuthorizationCode(authorizationCode, redirectUri!)
-
-      return await SlackClient._createNewInstance({ logger, oAuthClient })
-    }
-
-    if (ctx.configurationType === 'refreshToken') {
-      const {
-        state: {
-          payload: { clientId, clientSecret },
-        },
-      } = await client.getState({
-        type: 'integration',
-        name: 'manualWizardCredentials',
-        id: ctx.integrationId,
-      })
-      const oAuthClient = new SlackOAuthClient({
-        ctx,
-        client,
-        logger,
-        clientIdOverride: clientId,
-        clientSecretOverride: clientSecret,
-      })
-      const redirectUri = `${process.env.BP_WEBHOOK_URL}/oauth`
       await oAuthClient.requestShortLivedCredentials.fromAuthorizationCode(authorizationCode, redirectUri)
-
       return await SlackClient._createNewInstance({ logger, oAuthClient })
     }
 

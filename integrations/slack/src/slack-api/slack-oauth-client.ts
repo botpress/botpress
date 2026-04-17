@@ -17,7 +17,6 @@ type PrivateAuthState = {
   readonly botUserId: string
   readonly teamId: string
 }
-type ManualWizardCredentialsState = bp.states.manualWizardCredentials.ManualWizardCredentials['payload']
 type PublicAuthState = {
   readonly accessToken: string
   readonly scopes: string[]
@@ -26,22 +25,6 @@ type PublicAuthState = {
 }
 
 const MINIMUM_TOKEN_VALIDITY_SECONDS = 7_200 // 2 hours
-
-export const getManualWizardCredentialsState = async (
-  client: bp.Client,
-  ctx: bp.Context
-): Promise<Partial<ManualWizardCredentialsState>> => {
-  try {
-    const { state } = await client.getState({
-      type: 'integration',
-      name: 'manualWizardCredentials',
-      id: ctx.integrationId,
-    })
-    return state.payload
-  } catch {
-    return {}
-  }
-}
 
 export class SlackOAuthClient {
   private readonly _client: bp.Client

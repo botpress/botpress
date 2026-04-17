@@ -63,38 +63,34 @@ const manifestCreateResponseSchema = z.object({
 export type ManifestCreateResponse = z.infer<typeof manifestCreateResponseSchema>
 export type SlackAppManifest = z.infer<typeof manifestSchema>
 
-type ManifestAppCredentialsState = bp.states.manifestAppCredentials.ManifestAppCredentials['payload']
-type AppManifestConfigurationCredentials = Pick<ManifestAppCredentialsState, 'appConfigurationRefreshToken'>
+type AppCredentialsState = bp.states.appCredentials.AppCredentials['payload']
 
-export const patchAppManifestConfigurationState = async (
+export const patchAppCredentials = async (
   client: bp.Client,
   ctx: bp.Context,
-  newState: Partial<ManifestAppCredentialsState>
+  newState: Partial<AppCredentialsState>
 ) => {
-  const state = await getAppManifestConfigurationState(client, ctx)
-  const { data, success } = states.manifestAppCredentials.schema.safeParse({
+  const state = await getAppCredentials(client, ctx)
+  const { data, success } = states.appCredentials.schema.safeParse({
     ...state,
     ...newState,
   })
   if (!success) {
-    throw new RuntimeError(`Failed to parse manifest app credentials state: ${JSON.stringify(data)}`)
+    throw new RuntimeError(`Failed to parse app credentials state: ${JSON.stringify(data)}`)
   }
   await client.setState({
     type: 'integration',
     id: ctx.integrationId,
-    name: 'manifestAppCredentials',
+    name: 'appCredentials',
     payload: data,
   })
 }
 
-export const getAppManifestConfigurationState = async (
-  client: bp.Client,
-  ctx: bp.Context
-): Promise<Partial<ManifestAppCredentialsState>> => {
+export const getAppCredentials = async (client: bp.Client, ctx: bp.Context): Promise<Partial<AppCredentialsState>> => {
   try {
     const { state } = await client.getState({
       type: 'integration',
-      name: 'manifestAppCredentials',
+      name: 'appCredentials',
       id: ctx.integrationId,
     })
     return state.payload
@@ -122,12 +118,8 @@ export class SlackManifestClient {
   private static async _resolveTokens({
     client,
     ctx,
-  }: bp.CommonHandlerProps): Promise<AppManifestConfigurationCredentials> {
-    if (ctx.configurationType !== 'manifestAppCredentials') {
-      throw new RuntimeError('Slack manifest app credentials are not properly configured')
-    }
-
-    const state = await getAppManifestConfigurationState(client, ctx)
+  }: bp.CommonHandlerProps): Promise<{ appConfigurationRefreshToken: string }> {
+    const state = await getAppCredentials(client, ctx)
     const appConfigurationRefreshToken = state.appConfigurationRefreshToken
 
     if (!appConfigurationRefreshToken) {
@@ -150,7 +142,7 @@ export class SlackManifestClient {
       }),
     })
 
-    await patchAppManifestConfigurationState(client, ctx, {
+    await patchAppCredentials(client, ctx, {
       appConfigurationRefreshToken: refresh_token,
     })
 

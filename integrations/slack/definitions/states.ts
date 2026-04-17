@@ -50,43 +50,18 @@ export const states = {
         .describe('The now-revoked refresh token that was used to set up the integration'),
     }),
   },
-  manifestAppCredentials: {
+  appCredentials: {
     type: 'integration',
     schema: sdk.z.object({
-      appName: sdk.z.string().optional().title('Slack App Name').describe('The display name of the created Slack app'),
+      clientId: sdk.z.string().optional().title('Client ID').describe('OAuth Client ID'),
+      clientSecret: sdk.z.string().secret().optional().title('Client Secret').describe('OAuth Client Secret'),
+      signingSecret: sdk.z.string().secret().optional().title('Signing Secret').describe('The Slack Signing Secret'),
       appConfigurationRefreshToken: sdk.z
         .string()
         .secret()
-        .title('Slack App Configuration Refresh Token')
-        .describe('Generated from api.slack.com/apps'),
-      appId: sdk.z.string().optional().title('Slack App ID').describe('The ID of the created Slack app'),
-      clientId: sdk.z.string().optional().title('Client ID').describe('OAuth Client ID from the manifest-created app'),
-      clientSecret: sdk.z
-        .string()
-        .secret()
         .optional()
-        .title('Client Secret')
-        .describe('OAuth Client Secret from the manifest-created app'),
-      signingSecret: sdk.z
-        .string()
-        .secret()
-        .optional()
-        .title('Signing Secret')
-        .describe('Signing secret from the manifest-created app'),
-      authorizeUrl: sdk.z
-        .string()
-        .url()
-        .optional()
-        .title('Slack Authorize Url')
-        .describe('The default Slack app authorize url'),
-    }),
-  },
-  manualWizardCredentials: {
-    type: 'integration',
-    schema: sdk.z.object({
-      signingSecret: sdk.z.string().secret().title('Signing Secret').describe('The Slack Signing Secret'),
-      clientId: sdk.z.string().title('Client ID').describe('OAuth Client ID'),
-      clientSecret: sdk.z.string().secret().title('Client Secret').describe('OAuth Client Secret'),
+        .title('App Configuration Refresh Token')
+        .describe('Generated from api.slack.com/apps, used for manifest-based setup'),
     }),
   },
 } as const satisfies sdk.IntegrationDefinitionProps['states']
