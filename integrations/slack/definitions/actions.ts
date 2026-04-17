@@ -86,11 +86,6 @@ export const actions = {
     description: 'Get or create a conversation in a channel',
     input: {
       schema: sdk.z.object({
-        channelName: sdk.z
-          .string()
-          .optional()
-          .title('Channel Name')
-          .describe('The name of the channel you want the conversation to be created at'),
         channelId: sdk.z
           .string()
           .optional()
@@ -100,62 +95,6 @@ export const actions = {
     },
     output: {
       schema: sdk.z.object({
-        conversationId: sdk.z.string().title('Conversation ID').describe('The ID of the new conversation'),
-      }),
-    },
-  },
-
-  getOrCreateDmConversation: {
-    title: 'Get or Create DM Conversation',
-    description: 'Get or create a conversation with a user in a DM',
-    input: {
-      schema: sdk.z.object({
-        slackUserId: sdk.z.string().title('User ID').describe('The ID of the user to initiate the conversation with'),
-      }),
-    },
-    output: {
-      schema: sdk.z.object({
-        userId: sdk.z.string().title('User ID').describe('The ID of the user'),
-        conversationId: sdk.z.string().title('Conversation ID').describe('The ID of the new conversation'),
-      }),
-    },
-  },
-
-  startChannelConversation: {
-    title: '[DEPRECATED] Start Channel Conversation',
-    description: '[DEPRECATED: use getOrCreateChannelConversation] Get or create a conversation in a channel',
-    input: {
-      schema: sdk.z.object({
-        channelName: sdk.z
-          .string()
-          .optional()
-          .title('Channel Name')
-          .describe('The name of the channel you want the conversation to be created at'),
-        channelId: sdk.z
-          .string()
-          .optional()
-          .title('Channel ID')
-          .describe('The ID of the channel you want the conversation to be created at'),
-      }),
-    },
-    output: {
-      schema: sdk.z.object({
-        conversationId: sdk.z.string().title('Conversation ID').describe('The ID of the new conversation'),
-      }),
-    },
-  },
-
-  startDmConversation: {
-    title: '[DEPRECATED] Start DM Conversation',
-    description: '[DEPRECATED: use getOrCreateDmConversation] Initiate a conversation with a user in a DM',
-    input: {
-      schema: sdk.z.object({
-        slackUserId: sdk.z.string().title('User ID').describe('The ID of the user to initiate the conversation with'),
-      }),
-    },
-    output: {
-      schema: sdk.z.object({
-        userId: sdk.z.string().title('User ID').describe('The ID of the user'),
         conversationId: sdk.z.string().title('Conversation ID').describe('The ID of the new conversation'),
       }),
     },
@@ -205,6 +144,11 @@ export const actions = {
           .optional()
           .title('Include Private')
           .describe('Whether to include private channels in the results'),
+        includeDm: sdk.z
+          .boolean()
+          .optional()
+          .title('Include Direct Messages')
+          .describe('Whether to include direct messages in the results'),
         cursor: sdk.z
           .string()
           .optional()

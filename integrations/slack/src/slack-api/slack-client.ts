@@ -305,21 +305,14 @@ export class SlackClient {
 
   @requireAllScopes(['im:write'])
   @handleErrors('Failed to start DM with user')
-  public async startDmWithUser(userId: string) {
-    const { channel } = surfaceSlackErrors({
+  public async startDmWithUser(channelId: string) {
+    surfaceSlackErrors({
       logger: this._logger,
       response: await this._slackWebClient.conversations.open({
-        users: userId,
+        channel: channelId,
       }),
     })
-
-    const dmChannelId = channel?.id
-
-    if (!dmChannelId) {
-      throw new sdk.RuntimeError('Failed to start DM with user')
-    }
-
-    return dmChannelId
+    return channelId
   }
 
   @requireAllScopes(['channels:manage', 'groups:write', 'im:write', 'mpim:write'])
@@ -408,17 +401,25 @@ export class SlackClient {
   public async getChannelsInfo({
     includeArchived,
     includePrivate,
+    includeDm,
     cursor,
   }: {
     includeArchived?: boolean
     includePrivate?: boolean
+    includeDm?: boolean
     cursor?: string
   }) {
-    const types = includePrivate ? 'public_channel,private_channel' : 'public_channel'
+    const types = ['public_channel']
+    if (includePrivate) {
+      types.push('private_channel')
+    }
+    if (includeDm) {
+      types.push('im', 'mpim')
+    }
     const response = surfaceSlackErrors({
       logger: this._logger,
       response: await this._slackWebClient.conversations.list({
-        types,
+        types: types.join(','),
         exclude_archived: !includeArchived,
         limit: 200,
         cursor,

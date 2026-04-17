@@ -79,4 +79,7 @@ export default new IntegrationDefinition({
     entities: {
       conversation: entities.conversation,
     },
+    actions: {
+      getOrCreateConversation: { name: 'getOrCreateChannelConversation' },
+    },
   }))
