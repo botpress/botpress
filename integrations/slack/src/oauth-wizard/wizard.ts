@@ -42,7 +42,9 @@ const _manifestConfigSchema = z.object({
 
 const _manualCredentialsForm = {
   pageTitle: 'Slack App Credentials',
-  htmlOrMarkdownPageContents: 'Some fields are invalid. Please correct them and try again.',
+  htmlOrMarkdownPageContents:
+    'Enter your Slack app credentials.<br>' +
+    'You can find these in the app admin panel under <strong>Basic Information</strong>.',
   schema: _manualCredentialsSchema,
   nextStepId: 'save-manual-credentials',
 }

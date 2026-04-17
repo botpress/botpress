@@ -1,5 +1,19 @@
 The Slack integration enables seamless communication between your AI-powered chatbot and Slack, the popular collaboration platform. Connect your chatbot to Slack and streamline team communication, automate tasks, and enhance productivity. With this integration, your chatbot can send and receive messages, share updates, handle inquiries, and perform actions directly within Slack channels. Leverage Slack's extensive features such as chat, file sharing, notifications, and app integrations to create a powerful conversational AI experience. Enhance team collaboration and streamline workflows with the Slack Integration for Botpress.
 
+## Migrating from version `4.x` to `5.x`
+
+Version 5.0 of the Slack integration introduces a unified setup wizard and changes to several actions.
+
+### Configuration changes
+
+The separate configuration modes ("Manual configuration" and "App Manifest") have been replaced by a single unified setup wizard. When you save the integration, the wizard will prompt you to choose between the default Botpress app, creating a new Slack app via App Manifest, or using an existing Slack app. If you previously used a manual or App Manifest configuration, you will need to re-run the setup wizard.
+
+### Action changes
+
+- **`startDmConversation` has been removed.** Use `getOrCreateChannelConversation` instead by passing the Slack channel ID of the DM conversation.
+- **`getChannelsInfo` is a new action** that returns paginated information about Slack channels, including support for filtering by archived, private, and DM channels. Use the `cursor` parameter to paginate through results.
+- **`getOrCreateChannelConversation`** now accepts a `conversation` object with a `channelId` field instead of requiring a Slack user ID.
+
 ## Migrating from version `3.x` to `4.x`
 
 Version 4.0 of the Slack integration refines the bot's reply behaviour by introducing the possibility to reply in either `channel`, `thread` or `channel and thread`. This replaces the previous `createReplyThread` configuration option by adding the ability to **only** reply in threads.
