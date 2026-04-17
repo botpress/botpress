@@ -151,4 +151,5 @@ export type IntegrationHandlers<TIntegration extends BaseIntegration> = {
   actions: ActionHandlers<TIntegration>
   channels: ChannelHandlers<TIntegration>
   unknownOperationHandler?: UnknownOperationHandler<TIntegration>
+  managesOwnTracePropagation?: boolean
 }

@@ -78,9 +78,10 @@ export const messagesHandler = async (
   const { user } = await client.getOrCreateUser({
     tags: {
       userId: contact.wa_id,
-      name: contact?.profile.name,
+      name: contact.profile?.name,
     },
-    name: contact?.profile.name,
+    name: contact.profile?.name,
+    discriminateByTags: ['userId'],
   })
 
   const replyToWhatsAppId = message.context?.id
