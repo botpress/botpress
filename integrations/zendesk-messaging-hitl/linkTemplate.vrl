@@ -1,0 +1,8 @@
+webhookId = to_string!(.webhookId)
+webhookUrl = to_string!(.webhookUrl)
+
+clientId = "botpress"
+
+redirectUri = "{{ webhookUrl }}/oauth"
+
+"https://oauth-bridge.zendesk.com/sc/oauth/authorize?response_type=code&client_id={{ clientId }}&redirect_uri={{ redirectUri }}&state={{ webhookId }}"

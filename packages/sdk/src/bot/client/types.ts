@@ -79,17 +79,6 @@ export type CreateMessage<TBot extends common.BaseBot> = <TMessage extends keyof
   >
 ) => Promise<MessageResponse<TBot, TMessage>>
 
-export type GetOrCreateMessage<TBot extends common.BaseBot> = <TMessage extends keyof common.GetMessages<TBot>>(
-  x: utils.Merge<
-    Arg<client.Client['getOrCreateMessage']>,
-    {
-      type: utils.Cast<TMessage, string>
-      payload: utils.Cast<common.GetMessages<TBot>[TMessage], Record<string, any>>
-      // TODO: use bot definiton message property to infer allowed tags
-    }
-  >
-) => Promise<MessageResponse<TBot, TMessage>>
-
 export type GetMessage<TBot extends common.BaseBot> = (
   x: Arg<client.Client['getMessage']>
 ) => Promise<MessageResponse<TBot>>
@@ -437,7 +426,6 @@ export type ClientOperations<TBot extends common.BaseBot> = {
   createEvent: CreateEvent<TBot>
   listEvents: ListEvents<TBot>
   createMessage: CreateMessage<TBot>
-  getOrCreateMessage: GetOrCreateMessage<TBot>
   getMessage: GetMessage<TBot>
   updateMessage: UpdateMessage<TBot>
   listMessages: ListMessages<TBot>

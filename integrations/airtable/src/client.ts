@@ -1,8 +1,11 @@
 import Airtable, { type FieldSet } from 'airtable'
-import axios, { AxiosInstance } from 'axios'
+import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import { stringify } from 'querystring'
-import { TableFields } from './misc/types'
+import { handleErrorsDecorator } from './api/error-handling'
+import type { CreatableField } from './misc/field-schemas'
+import * as bp from '.botpress'
 
+const handleErrors = handleErrorsDecorator
 type TableResponse = {
   id: string
   name: string
@@ -21,12 +24,19 @@ export class AirtableApi {
   private _base: Airtable.Base
   private _axiosClient: AxiosInstance
   private _baseId: string
+  private _logger: bp.Logger
 
-  public constructor(apiKey: string, baseId: string, endpointUrl?: string) {
+  public constructor({ ctx, logger }: bp.CommonHandlerProps) {
+    this._logger = logger
+    const endpointUrl = ctx.configuration.endpointUrl || 'https://api.airtable.com/v0/'
+    const apiKey = ctx.configuration.accessToken
+    const baseId = ctx.configuration.baseId
     this._baseId = baseId
-    this._base = new Airtable({ apiKey, endpointUrl }).base(baseId)
+
+    // This split is done because the Airtable SDK appends /v0/ path itself
+    this._base = new Airtable({ apiKey, endpointUrl: endpointUrl.replace('/v0/', '') }).base(baseId)
     this._axiosClient = axios.create({
-      baseURL: endpointUrl || 'https://api.airtable.com/v0/',
+      baseURL: endpointUrl,
       headers: {
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
@@ -34,10 +44,12 @@ export class AirtableApi {
     })
   }
 
-  public async testConnection(): Promise<void> {
+  @handleErrors('Failed to test connection to Airtable')
+  public async testConnection(): Promise<AxiosResponse> {
     return await this._axiosClient.get('/meta/whoami')
   }
 
+  @handleErrors('Failed to list records')
   public async listRecords({
     tableIdOrName,
     filterByFormula,
@@ -63,7 +75,8 @@ export class AirtableApi {
     }
   }
 
-  public async createRecord(tableIdOrName: string, fields: object): Promise<RecordResponse> {
+  @handleErrors('Failed to create record')
+  public async createRecord(tableIdOrName: string, fields: FieldSet): Promise<RecordResponse> {
     const record = await this._base(tableIdOrName).create(fields)
     return {
       id: record.id,
@@ -71,7 +84,8 @@ export class AirtableApi {
     }
   }
 
-  public async updateRecord(tableIdOrName: string, recordId: string, fields: object): Promise<RecordResponse> {
+  @handleErrors('Failed to update record')
+  public async updateRecord(tableIdOrName: string, recordId: string, fields: FieldSet): Promise<RecordResponse> {
     const record = await this._base(tableIdOrName).update(recordId, fields)
     return {
       id: record.id,
@@ -79,7 +93,8 @@ export class AirtableApi {
     }
   }
 
-  public async createTable(name: string, fields: TableFields, description?: string): Promise<TableResponse> {
+  @handleErrors('Failed to create table')
+  public async createTable(name: string, fields: CreatableField[], description?: string): Promise<TableResponse> {
     const descriptionLimit = 20000
     const validDescription = description?.slice(0, descriptionLimit)
     const payload = {
@@ -92,6 +107,7 @@ export class AirtableApi {
     return response.data
   }
 
+  @handleErrors('Failed to update table')
   public async updateTable(tableIdOrName: string, name?: string, description?: string): Promise<TableResponse> {
     const response = await this._axiosClient.patch(`/meta/bases/${this._baseId}/tables/${tableIdOrName}`, {
       name,

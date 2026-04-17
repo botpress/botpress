@@ -34,6 +34,7 @@ const getPageContent = async (props: {
       waitFor: props.waitFor,
       timeout: props.timeout,
       formats: ['markdown', 'rawHtml'],
+      headers: { 'X-Botpress-Crawler': 'botpress' },
       storeInCache: true,
     })
 

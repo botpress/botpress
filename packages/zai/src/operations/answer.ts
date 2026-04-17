@@ -623,14 +623,14 @@ export const parseResponse = <T>(response: string, mappings: LineMapping<T>[]): 
 /**
  * Parse answer response
  */
-const parseAnswerResponse = <T>(text: string, mappings: LineMapping<T>[]): AnswerResponse<T> => {
+const parseAnswerResponse = <T>(text: string, mappings: LineMapping<T>[]): AnswerResult<T> => {
   // Match from answer start to end of string (END is a stop sequence and never appears)
   const answerMatch = text.match(new RegExp(`${ANSWER_START}(.+)$`, 's'))
   if (!answerMatch) {
     return {
       type: 'missing_knowledge',
       reason: 'Could not extract answer from response.',
-    } as any
+    }
   }
 
   const answerText = answerMatch[1].trim()
@@ -806,10 +806,6 @@ Zai.prototype.answer = function <T>(
 ): Response<AnswerResult<T>, AnswerResult<T>> {
   const parse = _Options.safeParse(_options ?? {})
 
-  if (!parse.success) {
-    return Promise.reject(new Error(`Invalid options: ${parse.error.message}`)) as any
-  }
-
   const context = new ZaiContext({
     client: this.client,
     modelId: this.Model,
@@ -818,6 +814,10 @@ Zai.prototype.answer = function <T>(
     adapter: this.adapter,
     memoizer: this._resolveMemoizer(),
   })
+
+  if (!parse.success) {
+    return Response.reject<AnswerResult<T>>(context, new Error(`Invalid options: ${parse.error.message}`))
+  }
 
   return new Response<AnswerResult<T>, AnswerResult<T>>(
     context,

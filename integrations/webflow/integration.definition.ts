@@ -4,7 +4,7 @@ import { actions } from './definitions/actions'
 
 export default new IntegrationDefinition({
   name: 'webflow',
-  version: '3.1.3',
+  version: '3.1.4',
   title: 'Webflow',
   description: 'CRUD operations for Webflow CMS',
   readme: 'hub.md',
@@ -53,5 +53,6 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'Developer Tools',
+    repo: 'botpress',
   },
 })

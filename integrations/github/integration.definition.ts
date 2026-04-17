@@ -1,5 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import filesReadonly from './bp_modules/files-readonly'
 
 import { INTEGRATION_NAME } from './src/const'
 import { actions, events, configuration, configurations, channels, user, secrets, states } from './src/definitions'
@@ -7,7 +8,7 @@ import { actions, events, configuration, configurations, channels, user, secrets
 export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,
   title: 'GitHub',
-  version: '1.1.8',
+  version: '1.2.1',
   icon: 'icon.svg',
   readme: 'hub.md',
   description: 'Manage GitHub issues, pull requests, and repositories.',
@@ -22,10 +23,20 @@ export default new sdk.IntegrationDefinition({
     extractScript: 'extract.vrl',
   },
   secrets: { ...secrets, ...sentryHelpers.COMMON_SECRET_NAMES },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
   attributes: {
     category: 'Developer Tools',
+    repo: 'botpress',
   },
-})
+}).extend(filesReadonly, ({}) => ({
+  entities: {},
+  actions: {
+    listItemsInFolder: {
+      name: 'filesReadonlyListItemsInFolder',
+      attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO },
+    },
+    transferFileToBotpress: {
+      name: 'filesReadonlyTransferFileToBotpress',
+      attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO },
+    },
+  },
+}))

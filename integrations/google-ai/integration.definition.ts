@@ -6,7 +6,7 @@ export default new IntegrationDefinition({
   name: 'google-ai',
   title: 'Google AI',
   description: 'Gain access to Gemini models for content generation, chat responses, and advanced language tasks.',
-  version: '7.0.3',
+  version: '8.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
@@ -23,5 +23,6 @@ export default new IntegrationDefinition({
   },
   attributes: {
     category: 'AI Models',
+    repo: 'botpress',
   },
 }).extend(llm, ({ entities: { modelRef } }) => ({ entities: { modelRef } }))

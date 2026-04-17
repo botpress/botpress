@@ -1,4 +1,4 @@
-import z from '../index'
+import * as z from '../index'
 
 export const filePath = __filename
 
