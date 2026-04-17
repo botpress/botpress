@@ -92,14 +92,15 @@ export const integrationHandler =
     if (req.path === '/metrics') {
       try {
         // /metrics is scraped directly by Prometheus without bot context headers.
-        // client and ctx are not used by the metrics endpoint.
+        // client and ctx are empty stubs since the metrics endpoint doesn't use them.
         return await instance.webhook({
           req,
           client: {} as IntegrationSpecificClient<BaseIntegration>,
           ctx: {} as IntegrationContext<BaseIntegration>,
           logger: {} as IntegrationLogger,
         })
-      } catch {
+      } catch (err) {
+        console.error('Error handling /metrics endpoint', err)
         return { status: 404 }
       }
     }
