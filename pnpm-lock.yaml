@@ -1082,9 +1082,6 @@ importers:
 
   integrations/google-analytics:
     dependencies:
-      '@botpress/client':
-        specifier: workspace:*
-        version: link:../../packages/client
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
@@ -4133,6 +4130,7 @@ packages:
 
   '@doist/todoist-api-typescript@3.0.3':
     resolution: {integrity: sha512-rDYE6X/xSF+b+fvRYoVyBa7EaUOSIKhTrn7/XxV3Fm2rQrK61SoImor5pyWZlMiABH44WMf+FBIh+IjGAGaX3Q==}
+    deprecated: Package renamed to @doist/todoist-sdk. Please update your dependency.
     peerDependencies:
       type-fest: ^4.12.0
 

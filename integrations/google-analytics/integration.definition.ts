@@ -16,6 +16,7 @@ export default new IntegrationDefinition({
         .describe('The Measurement ID for your Google Analytics 4 property'),
       apiSecret: z
         .string()
+        .secret()
         .min(1, 'API Secret is required')
         .title('API Secret')
         .describe('The API Secret for your Google Analytics 4 property'),
@@ -72,4 +73,8 @@ export default new IntegrationDefinition({
     },
   },
   channels: {},
+  attributes: {
+    category: 'Marketing & Email',
+    repo: 'botpress',
+  },
 })

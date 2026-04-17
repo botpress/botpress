@@ -76,8 +76,8 @@ export class GoogleAnalyticsClient {
         {
           name: eventName,
           params: {
-            ...params,
             engagement_time_msec: 1,
+            ...params,
           },
         },
       ],

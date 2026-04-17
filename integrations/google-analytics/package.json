@@ -9,7 +9,6 @@
     "test": "vitest --run"
   },
   "dependencies": {
-    "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "axios": "^1.13.1"
   },
