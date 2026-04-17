@@ -6,11 +6,11 @@ Version 5.0 of the Slack integration introduces a unified setup wizard and chang
 
 ### Configuration changes
 
-The separate configuration modes ("Manual configuration" and "App Manifest") have been replaced by a single unified setup wizard. When you save the integration, the wizard will prompt you to choose between the default Botpress app, creating a new Slack app via App Manifest, or using an existing Slack app. If you previously used a manual or App Manifest configuration, you will need to re-run the setup wizard.
+The separate configuration modes ("OAuth", "Manual configuration" and "App Manifest") have been replaced by a single unified setup wizard. When you save the integration, the wizard will prompt you to choose between the default Botpress app, creating a new Slack app via App Manifest, or using an existing Slack app. If you previously used a manual or App Manifest configuration, you will need to re-run the setup wizard.
 
 ### Action changes
 
-- **`startDmConversation` has been removed.** Use `getOrCreateChannelConversation` instead by passing the Slack channel ID of the DM conversation.
+- **`startDmConversation` and `startChannelConversation` have been removed.** Use `getOrCreateChannelConversation` instead by passing the Slack channel ID of the conversation.
 - **`getChannelsInfo` is a new action** that returns paginated information about Slack channels, including support for filtering by archived, private, and DM channels. Use the `cursor` parameter to paginate through results.
 - **`getOrCreateChannelConversation`** now accepts a `conversation` object with a `channelId` field instead of requiring a Slack user ID.
 
