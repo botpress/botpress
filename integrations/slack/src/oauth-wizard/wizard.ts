@@ -44,7 +44,7 @@ const _manualCredentialsForm = {
   pageTitle: 'Slack App Credentials',
   htmlOrMarkdownPageContents:
     'Enter your Slack app credentials.<br>' +
-    'You can find these in the app admin panel under <strong>Basic Information</strong>.',
+    'You can find these in the <a href="https://api.slack.com/apps" target="_blank">app admin panel</a> under <strong>Basic Information</strong>.',
   schema: _manualCredentialsSchema,
   nextStepId: 'save-manual-credentials',
 }
