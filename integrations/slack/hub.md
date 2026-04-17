@@ -63,15 +63,15 @@ If you configured the integration using manual configuration, you will need to u
 
 ## Configuration
 
-### Automatic configuration with OAuth (recommended)
+When you add the Slack integration to your bot and save the configuration, a setup wizard will guide you through connecting to Slack. The wizard presents three options:
 
-This is the simplest way to set up the integration. To set up the Slack integration using OAuth, click the authorization button and follow the instructions to connect your Botpress chatbot to Slack. This method is recommended as it simplifies the configuration process and ensures secure communication between your chatbot and Slack.
+### Use the default Botpress Slack Application (recommended)
 
-When using this configuration mode, a Botpress-managed Slack application will be used to connect to your workspace. The application will have the necessary permissions to send and receive messages, access channels, and perform other actions on your behalf. If you require more granular control over the permissions or prefer to use your own Slack application, you can opt for the manual configuration mode instead.
+This is the simplest way to set up the integration. A Botpress-managed Slack application will be used to connect to your workspace. Simply select this option in the wizard and you will be redirected to Slack to authorize the app. The application has the necessary permissions to send and receive messages, access channels, and perform other actions on your behalf.
 
-### App Manifest configuration (automatic setup)
+### Configure a new Slack Application (App Manifest)
 
-This configuration mode automatically creates a dedicated Slack app for your bot using the Slack App Manifest API. Unlike the default OAuth method which uses a shared Botpress-managed Slack app, this gives you your own Slack app with full control, without the manual setup steps of the manual configuration mode.
+This option automatically creates a dedicated Slack app for your bot using the Slack App Manifest API. Unlike the default method which uses a shared Botpress-managed Slack app, this gives you your own Slack app with full control, without the manual setup steps.
 
 #### Prerequisites
 
@@ -82,29 +82,30 @@ This configuration mode automatically creates a dedicated Slack app for your bot
 1. Navigate to [api.slack.com/apps](https://api.slack.com/apps) and log in.
 2. Scroll to the bottom of the page and find the **"Your App Configuration Tokens"** section.
 3. Click **"Generate Token"** next to the workspace you want to install the bot in. Copy the generated token. Note that configuration tokens expire after 12 hours.
-4. In Botpress, add the Slack integration to your bot.
-5. Select the **"App Manifest (Automatic Setup)"** configuration mode.
-6. Save the configuration. This will trigger the setup wizard.
-7. In the wizard, click **Continue**, then paste your Configuration Token and submit.
-8. The wizard will automatically create a Slack app with all required scopes, event subscriptions, and interactivity pre-configured.
-9. You will be redirected to Slack to authorize the app. Click **"Allow"** to install it in your workspace.
-10. Once complete, you will see a success page. The integration is now configured and ready to use.
+4. In Botpress, add the Slack integration to your bot and save the configuration.
+5. In the setup wizard, select **"Configure a new Slack Application"**.
+6. Paste your App Configuration Refresh Token and optionally choose a name for the app, then submit.
+7. The wizard will automatically create a Slack app with all required scopes, event subscriptions, and interactivity pre-configured.
+8. You will be redirected to Slack to authorize the app. Click **"Allow"** to install it in your workspace.
+9. Once complete, you will see a success page. The integration is now configured and ready to use.
 
 The created Slack app is fully yours and visible at [api.slack.com/apps](https://api.slack.com/apps).
 
-### Manual configuration with a bot token
+### Use an already existing Slack Application (Manual)
 
-If you prefer to manually configure the integration, you can provide a bot token to connect your custom Slack application to Botpress. To set up the Slack integration manually, follow these steps:
+If you already have a Slack app you want to connect to Botpress, select this option in the wizard and provide your app's credentials.
 
-#### Step 1 - Creating your Slack application
+#### Step 1 - Preparing your Slack application
 
-1. In your browser, navigate to the Slack API portal and log in.
-2. From the Slack API portal, create a new Slack app.
+1. In your browser, navigate to the [Slack API portal](https://api.slack.com/apps) and log in.
+2. Open your Slack app (or create a new one).
 3. Navigate to the "OAuth & Permissions" section of your Slack app.
 4. Scroll down to the "Redirect URLs" section and add the following URL:
+
    ```
    https://webhook.botpress.cloud/oauth
    ```
+
 5. Still in the "OAuth & Permissions" section, add the following _Bot Token Scopes_ to your bot token:
    - `channels:history`: needed to receive incoming messages and to fetch the history of channels the bot gets invited into.
    - `channels:manage`: needed to open new DMs and to set the current topic.
@@ -116,7 +117,7 @@ If you prefer to manually configure the integration, you can provide a bot token
    - `im:history`: needed to receive incoming messages and to fetch the history of private channels the bot gets invited into.
    - `im:read`: needed to obtain a list of all available DMs and to retrieve details about specific DMs.
    - `im:write`: needed to open new DMs and to set the current topic of existing DMs.
-   - `mpim:history`: needed to receive incoming messages and to fetch the history of multi-person DMs the bot gets invited into
+   - `mpim:history`: needed to receive incoming messages and to fetch the history of multi-person DMs the bot gets invited into.
    - `mpim:read`: needed to obtain a list of all available multi-person DMs, to retrieve details about conversations, and to receive notifications when a user joins a multi-person DM.
    - `mpim:write`: needed to open new DMs and to set the current topic.
    - `reactions:read`: needed to receive notifications when reactions are added.
@@ -125,18 +126,15 @@ If you prefer to manually configure the integration, you can provide a bot token
    - `users.profile:read`: needed to retrieve profile information for channel and DM members.
    - `users:read`: needed to obtain a list of all members of the workspace and to receive notifications when new members join the workspace.
    - `users:read.email`: needed for the `Get User Profile` action.
-6. **IMPORTANT:** install your Slack app to your workspace. This is a crucial step to ensure that the bot can send and receive messages. To do this, scroll up to the "OAuth Tokens for Your Workspace" section and click "Install App to Workspace". Follow the on-screen instructions to authorize the app.
-7. Scroll up to the "Advanced token security via token rotation " section and click "Opt In" to enable token rotation. Confirm you wish to opt in.
-8. Copy the Refresh Token (starts with `xoxe-1-`) or legacy Bot Token (starts with `xoxb-`). You will need it to set up the integration on Botpress. You may need to refresh the page in the Slack API portal to see the token.
-9. Navigate to the "Basic Information" section of your Slack app.
-10. Copy the "Client ID", "Client Secret", and "Signing Secret". You will need them to set up the integration on Botpress.
+6. Scroll up to the "Advanced token security via token rotation" section and click "Opt In" to enable token rotation. Confirm you wish to opt in.
+7. Navigate to the "Basic Information" section and note your **Client ID**, **Client Secret**, and **Signing Secret**.
 
-#### Step 2 - Setting up the integration in Botpress
+#### Step 2 - Completing the setup wizard
 
-1. In Botpress, navigate to the integration's settings.
-2. Select the "Manual" configuration mode.
-3. Paste the "Refresh Token", "Client ID", "Client Secret", and "Signing Secret" you copied from the Slack API portal into the corresponding fields in Botpress.
-4. Click "Save" to save the configuration.
+1. In Botpress, add the Slack integration to your bot and save the configuration.
+2. In the setup wizard, select **"Use an already existing Slack Application"**.
+3. Enter the **Client ID**, **Client Secret**, and **Signing Secret** from your Slack app.
+4. You will be redirected to Slack to authorize the app. Click **"Allow"** to install it in your workspace.
 
 #### Step 3 - Enabling webhooks
 
