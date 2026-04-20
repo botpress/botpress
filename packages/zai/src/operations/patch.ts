@@ -32,7 +32,7 @@ const _File = z.object({
   content: z.string(),
 })
 
-type __Z<T> = { _output: T }
+type __Z<T> = { __type__: 'ZuiType'; _output: T }
 type OfType<O, T extends __Z<any> = __Z<O>> = T extends __Z<O> ? T : never
 
 export type Options = {
@@ -44,12 +44,14 @@ export type Options = {
    */
   maxTokensPerChunk?: number
   /**
-   * Optional Zui/Zod schema to validate JSON files against after patching.
+   * Optional Zui schema to validate JSON files against after patching.
    * Only applies to files detected as JSON (by .json extension).
    * If the patched JSON doesn't match the schema, the LLM is re-prompted to fix it.
    */
   schema?: OfType<any>
 }
+
+const INVALID_SCHEMA_ERROR = 'zai.patch only accepts schemas created with @bpinternal/zui'
 
 const Options = z.object({
   maxTokensPerChunk: z.number().optional(),
@@ -186,11 +188,20 @@ const patch = async (
 ): Promise<Array<File>> => {
   ctx.controller.signal.throwIfAborted()
 
+  const options: Options = { ...Options.parse(_options ?? {}), schema: _options?.schema }
+
+  let zSchema: z.ZodTypeAny | null = null
+  if (options.schema) {
+    if (!z.is.zuiType(options.schema)) {
+      throw new Error(INVALID_SCHEMA_ERROR)
+    }
+    zSchema = options.schema
+  }
+
   if (files.length === 0) {
     return []
   }
 
-  const options = { ...Options.parse(_options ?? {}), schema: _options?.schema } as Options
   const tokenizer = await getTokenizer()
   const model = await ctx.getModel()
 
@@ -381,9 +392,9 @@ ${numberedView}
     }
 
     // If a schema is provided, validate the JSON against it
-    if (options.schema) {
+    if (zSchema) {
       const parsed = JSON.parse(validContent)
-      const safe = (options.schema as unknown as z.ZodType).safeParse(parsed)
+      const safe = zSchema.safeParse(parsed)
       if (!safe.success) {
         return retrySchemaValidation(file, validContent, safe.error)
       }
@@ -448,9 +459,9 @@ ${numberedView}
       const retryContent = Micropatch.applyText(brokenContent, retryPatchOps)
       const validContent = ensureValidJson(retryContent)
       if (validContent !== null) {
-        if (options.schema) {
+        if (zSchema) {
           const parsed = JSON.parse(validContent)
-          const safe = (options.schema as unknown as z.ZodType).safeParse(parsed)
+          const safe = zSchema.safeParse(parsed)
           if (!safe.success) {
             return retrySchemaValidation(file, validContent, safe.error)
           }
@@ -514,9 +525,9 @@ ${numberedView}
       const retryContent = Micropatch.applyText(content, retryPatchOps)
       const validContent = ensureValidJson(retryContent)
       if (validContent !== null) {
-        if (options.schema) {
+        if (zSchema) {
           const parsed = JSON.parse(validContent)
-          const safe = (options.schema as unknown as z.ZodType).safeParse(parsed)
+          const safe = zSchema.safeParse(parsed)
           if (safe.success) {
             return { ...file, content: validContent, patch: retryPatchOps }
           }

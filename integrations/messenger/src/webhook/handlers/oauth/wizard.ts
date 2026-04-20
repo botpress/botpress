@@ -9,30 +9,12 @@ const ERROR_ACCESS_TOKEN_UNAVAILABLE = 'Access token is not available, please tr
 
 export const handler = async (props: bp.HandlerProps) => {
   const wizard = new oauthWizard.OAuthWizardBuilder(props)
-    .addStep({
-      id: 'start',
-      handler: _startHandler,
-    })
-    .addStep({
-      id: 'reset',
-      handler: _resetHandler,
-    })
-    .addStep({
-      id: 'oauth-callback',
-      handler: _oauthCallbackHandler,
-    })
-    .addStep({
-      id: 'select-page',
-      handler: _selectPageHandler,
-    })
-    .addStep({
-      id: 'setup',
-      handler: _setupHandler,
-    })
-    .addStep({
-      id: 'end',
-      handler: _endHandler,
-    })
+    .addStep({ id: 'start', handler: _startHandler })
+    .addStep({ id: 'reset', handler: _resetHandler })
+    .addStep({ id: 'oauth-callback', handler: _oauthCallbackHandler })
+    .addStep({ id: 'select-page', handler: _selectPageHandler })
+    .addStep({ id: 'setup', handler: _setupHandler })
+    .addStep({ id: 'end', handler: _endHandler })
     .build()
 
   const response = await wizard.handleRequest()
@@ -103,7 +85,35 @@ const _selectPageHandler: WizardHandler = async ({ responses, client, ctx, logge
   }
 
   const metaClient = await createAuthenticatedMetaClient({ configType: 'oauth', ctx, client, logger })
+  logger.forBot().info('Fetching Facebook pages for page selection', ctx)
   const pages = await metaClient.getFacebookPagesFromToken(userToken)
+
+  if (!pages || pages.length === 0) {
+    return responses.displayButtons({
+      pageTitle: 'No Pages Found',
+      htmlOrMarkdownPageContents: `No Facebook pages found for the authenticated user. Please ensure that your Facebook account has at least one page and that you have granted the necessary permissions.
+        
+        - **1. Opt in to all current and future Pages:**  
+        Gives access to Pages you own only.  
+        *Does not give access to Pages owned by other users, even if you are an admin.*  
+        
+        - **2. Opt in to current Pages only:**  
+        Gives access to pages you own or have a role on. This includes Pages you have access to through Meta Business Suite.`,
+      buttons: [
+        {
+          label: 'Edit permissions',
+          buttonType: 'primary',
+          action: 'navigate',
+          navigateToStep: 'reset',
+        },
+        {
+          label: 'Close',
+          buttonType: 'secondary',
+          action: 'close',
+        },
+      ],
+    })
+  }
 
   return responses.displayChoices({
     choices: pages.map((page) => ({
