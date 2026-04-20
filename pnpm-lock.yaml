@@ -1607,6 +1607,28 @@ importers:
         specifier: ^2.39.1
         version: 2.39.1
 
+  integrations/novita-ai:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      openai:
+        specifier: ^5.12.1
+        version: 5.12.1(ws@8.19.0)(zod@3.25.76)
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpresshub/llm':
+        specifier: workspace:*
+        version: link:../../interfaces/llm
+
   integrations/openai:
     dependencies:
       '@botpress/client':

@@ -42,6 +42,7 @@
 /integrations/fireworks-ai @botpress/shark @botpress/leads
 /integrations/google-ai @botpress/shark @botpress/leads
 /integrations/groq @botpress/shark @botpress/leads
+/integrations/novita-ai @botpress/shark @botpress/leads
 /integrations/openai @botpress/shark @botpress/leads
 
 ## Chat
