@@ -1,0 +1,21 @@
+{
+  "name": "@botpresshub/postmark",
+  "scripts": {
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "postmark": "^4.0.7"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*"
+  },
+  "bpDependencies": {
+    "proactive-conversation": "../../interfaces/proactive-conversation"
+  }
+}

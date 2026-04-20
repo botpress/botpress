@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "baseUrl": ".",
+    "outDir": "dist"
+  },
+  "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "*.ts"]
+}
