@@ -6,7 +6,7 @@ export const INTEGRATION_NAME = 'zendesk-messaging-hitl'
 
 export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '1.0.1',
+  version: '1.1.0',
   title: 'Zendesk Messaging HITL',
   description: 'This integration allows your bot to use Sunshine Conversations (Sunco) as a HITL Provider for Zendesk',
   icon: 'icon.svg',
