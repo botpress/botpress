@@ -5,7 +5,8 @@
   "scripts": {
     "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "bp lint"
+    "check:bplint": "bp lint",
+    "test": "vitest --run"
   },
   "dependencies": {
     "@botpress/common": "workspace:*",
@@ -13,6 +14,7 @@
     "@hubspot/api-client": "^13.1.0"
   },
   "devDependencies": {
-    "@botpress/cli": "workspace:*"
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*"
   }
 }

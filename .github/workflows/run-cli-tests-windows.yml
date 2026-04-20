@@ -18,12 +18,12 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup
         uses: ./.github/actions/setup
-      - run: |
-          pnpm run -F cli test:e2e -v `
-            --api-url https://api.botpress.dev `
-            --workspace-id ${{ secrets.STAGING_E2E_TESTS_WORKSPACE_ID }} `
-            --workspace-handle clitests `
-            --token ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }} `
-            --sdk-path "$(pwd)/packages/sdk" `
-            --client-path "$(pwd)/packages/client"
+        with:
+          extra_filters: '-F @botpress/cli'
+      - env:
+          WORKSPACE_ID: ${{ secrets.STAGING_E2E_TESTS_WORKSPACE_ID }}
+          TOKEN: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
+        run: |
+          # shellcheck disable=all
+          pnpm run -F cli test:e2e -v --api-url https://api.botpress.dev --workspace-id $env:WORKSPACE_ID --workspace-handle clitests --token $env:TOKEN --sdk-path "$(pwd)/packages/sdk" --client-path "$(pwd)/packages/client"
         shell: pwsh

@@ -9,7 +9,8 @@
     "check:format": "prettier --check .",
     "fix:format": "prettier --write .",
     "check:lint": "eslint ./ --ext .ts --ext .tsx",
-    "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx"
+    "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx",
+    "test": "vitest --run"
   },
   "dependencies": {
     "@botpress/cli": "workspace:*",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@sentry/cli": "^2.39.1",
     "@types/nodemailer": "^6.4.4",
     "@types/react": "^18.3.11",

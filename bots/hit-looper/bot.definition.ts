@@ -1,11 +1,8 @@
-/* bplint-disable */ // zui `toTypescriptSchema` does not preserve title and description properties
 import * as sdk from '@botpress/sdk'
 import * as genenv from './.genenv'
 import chat from './bp_modules/chat'
 import hitl from './bp_modules/hitl'
 import zendesk from './bp_modules/zendesk'
-
-const zendeskHitl = zendesk.definition.interfaces['hitl<hitlTicket>']
 
 export default new sdk.BotDefinition({
   configuration: {
@@ -23,9 +20,6 @@ export default new sdk.BotDefinition({
     },
   },
   conversation: {},
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })
   .addIntegration(chat, {
     enabled: true,
@@ -44,15 +38,10 @@ export default new sdk.BotDefinition({
       flowOnHitlStopped: false,
       useHumanAgentInfo: false,
     },
-    interfaces: {
+    dependencies: {
       hitl: {
-        id: zendesk.id,
-        name: zendesk.name,
-        version: zendesk.version,
-        entities: zendeskHitl.entities,
-        actions: zendeskHitl.actions,
-        events: zendeskHitl.events,
-        channels: zendeskHitl.channels,
+        integrationAlias: 'zendesk',
+        integrationInterfaceAlias: 'hitl<hitlTicket>',
       },
     },
   })

@@ -49,7 +49,7 @@ export abstract class Module {
   }
 
   public get importAlias(): string {
-    return this.typeName.split(pathlib.sep).map(strings.importAlias).join('__')
+    return this.typeName.split(/\\|\//).map(strings.importAlias).join('__')
   }
 
   protected constructor(private _def: ModuleProps) {}

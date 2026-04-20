@@ -12,4 +12,7 @@ export const secrets = {
   WEBHOOK_VERIFICATION_SECRET: {
     description: 'The Notion-provided secret for verifying incoming webhooks.',
   },
+  POSTHOG_KEY: {
+    description: 'The Posthog key of the Botpress Notion Integration.',
+  },
 } as const satisfies sdk.IntegrationDefinitionProps['secrets']

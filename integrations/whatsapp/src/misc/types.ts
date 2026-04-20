@@ -3,9 +3,11 @@ import { qualityScoreSchema } from 'definitions/events'
 
 const WhatsAppContactSchema = z.object({
   wa_id: z.string(),
-  profile: z.object({
-    name: z.string(),
-  }),
+  profile: z
+    .object({
+      name: z.string().optional(),
+    })
+    .optional(),
 })
 
 const WhatsAppBaseMessageSchema = z.object({
@@ -19,6 +21,13 @@ const WhatsAppBaseMessageSchema = z.object({
       frequently_forwarded: z.boolean().optional(),
       from: z.string().optional(),
       id: z.string().optional(),
+    })
+    .optional(),
+  // there are other fields in the referral object, but we don't need them
+  referral: z
+    .object({
+      source_url: z.string().optional(),
+      source_id: z.string().optional(),
     })
     .optional(),
   errors: z
@@ -152,6 +161,29 @@ export type WhatsAppReactionMessage = WhatsAppMessage & {
   type: 'reaction'
 }
 
+const WhatsAppStatusSchema = z.object({
+  id: z.string(),
+  status: z.enum(['sent', 'delivered', 'read', 'failed']),
+  timestamp: z.string(),
+  recipient_id: z.string(),
+  errors: z
+    .array(
+      z.object({
+        code: z.number(),
+        title: z.string(),
+        message: z.string(),
+        error_data: z
+          .object({
+            details: z.string(),
+          })
+          .optional(),
+      })
+    )
+    .optional(),
+})
+
+export type WhatsAppStatusValue = z.infer<typeof WhatsAppStatusSchema>
+
 const WhatsAppMessageValueSchema = z.object({
   messaging_product: z.literal('whatsapp'),
   metadata: z.object({
@@ -160,6 +192,7 @@ const WhatsAppMessageValueSchema = z.object({
   }),
   contacts: z.array(WhatsAppContactSchema).optional(),
   messages: z.array(WhatsAppMessageSchema).optional(),
+  statuses: z.array(WhatsAppStatusSchema).optional(),
 })
 export type WhatsAppMessageValue = z.infer<typeof WhatsAppMessageValueSchema>
 
@@ -255,10 +288,29 @@ export const WhatsAppTemplateCategoryUpdateValueSchema = z.object({
   new_category: z.string().optional(),
 })
 
+const WhatsAppEchoMessageSchema = WhatsAppMessageSchema.and(
+  z.object({ to: z.string(), message_creation_type: z.string() })
+)
+export type WhatsAppEchoMessage = z.infer<typeof WhatsAppEchoMessageSchema>
+
+const WhatsAppMessageEchoValueSchema = z.object({
+  messaging_product: z.literal('whatsapp'),
+  metadata: z.object({
+    display_phone_number: z.string(),
+    phone_number_id: z.string(),
+  }),
+  message_echoes: z.array(WhatsAppEchoMessageSchema),
+})
+export type WhatsAppMessageEchoValue = z.infer<typeof WhatsAppMessageEchoValueSchema>
+
 const WhatsAppChangesSchema = z.discriminatedUnion('field', [
   z.object({
     field: z.literal('messages'),
     value: WhatsAppMessageValueSchema,
+  }),
+  z.object({
+    field: z.literal('smb_message_echoes'),
+    value: WhatsAppMessageEchoValueSchema,
   }),
   z.object({
     field: z.literal('message_template_components_update'),
@@ -348,5 +400,30 @@ const componentSchema = z.union([
   }),
 ])
 export type Component = z.infer<typeof componentSchema>
-export const templateVariablesSchema = z.array(z.string().or(z.number()))
+export const positionalVariablesSchema = z.array(z.string().or(z.number()))
+export type PositionalVariables = z.infer<typeof positionalVariablesSchema>
+
+export const namedVariablesSchema = z.record(z.string(), z.string().or(z.number()))
+export type NamedVariables = z.infer<typeof namedVariablesSchema>
+
+export const templateVariablesSchema = z.union([positionalVariablesSchema, namedVariablesSchema])
 export type TemplateVariables = z.infer<typeof templateVariablesSchema>
+
+export const keyValuePairSchema = z.object({ key: z.string(), value: z.string() })
+export type KeyValuePair = z.infer<typeof keyValuePairSchema>
+
+export type TemplateHeaderParam =
+  | { type: 'text'; value: string; parameterName?: string }
+  | { type: 'image'; url: string }
+  | { type: 'video'; url: string }
+  | { type: 'document'; url: string; filename?: string }
+
+export type TemplateBodyParams =
+  | { type: 'positional'; values: string[] }
+  | { type: 'named'; values: Record<string, string> }
+
+export type TemplateButtonParam =
+  | { type: 'url'; value: string }
+  | { type: 'quick_reply'; payload: string }
+  | { type: 'copy_code'; code: string }
+  | { type: 'skip' }

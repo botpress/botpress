@@ -8,13 +8,15 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@sentry/cli": "^2.39.1"
   },
   "private": true,
   "scripts": {
     "build": "bp add -y && bp build",
     "check:bplint": "bp lint",
-    "check:type": "tsc --noEmit"
+    "check:type": "tsc --noEmit",
+    "test": "vitest --run"
   },
   "bpDependencies": {
     "files-readonly": "../../interfaces/files-readonly"

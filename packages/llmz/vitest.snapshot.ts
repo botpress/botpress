@@ -8,7 +8,7 @@ import { VitestSnapshotEnvironment } from 'vitest/snapshot'
 class PreventDoubleInlineSaves extends VitestSnapshotEnvironment {
   private _trackedStacks = new Set<string>()
 
-  public processStackTrace(stack) {
+  public processStackTrace(stack: any) {
     const serialized = JSON.stringify(stack)
     if (this._trackedStacks.has(serialized)) {
       return { ...stack, column: stack.column + 1000 }

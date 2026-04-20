@@ -81,3 +81,4 @@ export const typeName = (name: string) => apply(name, utils.casing.to.pascalCase
 export const importAlias = (name: string) => apply(name, utils.casing.to.camelCase, escapeTypescriptReserved)
 export const varName = (name: string) => apply(name, utils.casing.to.camelCase, escapeTypescriptReserved)
 export const fileName = (name: string) => apply(name, escapeFileNameSpecialChars)
+export const dirName = fileName

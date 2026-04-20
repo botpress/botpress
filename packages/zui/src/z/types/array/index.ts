@@ -1,0 +1,157 @@
+import { isEqual } from 'lodash-es'
+import * as utils from '../../../utils'
+import type {
+  ArrayCardinality,
+  ArrayOutputType,
+  IZodArray,
+  IZodType,
+  ZodArrayDef,
+  ParseInput,
+  ParseReturnType,
+} from '../../typings'
+import { ParseInputLazyPath, ZodBaseTypeImpl, addIssueToContext, ParseStatus } from '../basetype'
+
+export class ZodArrayImpl<T extends IZodType = IZodType, Cardinality extends ArrayCardinality = 'many'>
+  extends ZodBaseTypeImpl<
+    ArrayOutputType<T, Cardinality>,
+    ZodArrayDef<T>,
+    Cardinality extends 'atleastone' ? [T['_input'], ...T['_input'][]] : T['_input'][]
+  >
+  implements IZodArray<T, Cardinality>
+{
+  dereference(defs: Record<string, IZodType>): IZodType {
+    return new ZodArrayImpl({
+      ...this._def,
+      type: this._def.type.dereference(defs),
+    })
+  }
+
+  getReferences(): string[] {
+    return this._def.type.getReferences()
+  }
+
+  clone(): ZodArrayImpl<T, Cardinality> {
+    return new ZodArrayImpl({
+      ...this._def,
+      type: this._def.type.clone() as T,
+    })
+  }
+
+  isEqual(schema: IZodType): boolean {
+    if (!(schema instanceof ZodArrayImpl)) {
+      return false
+    }
+    return (
+      // message is not considered for equality
+      isEqual(this._def.exactLength?.value, schema._def.exactLength?.value) &&
+      isEqual(this._def.maxLength?.value, schema._def.maxLength?.value) &&
+      isEqual(this._def.minLength?.value, schema._def.minLength?.value) &&
+      this._def.type.isEqual(schema._def.type)
+    )
+  }
+
+  _parse(input: ParseInput): ParseReturnType<this['_output']> {
+    const { ctx, status } = this._processInputParams(input)
+
+    const def = this._def
+
+    if (ctx.parsedType !== 'array') {
+      addIssueToContext(ctx, {
+        code: 'invalid_type',
+        expected: 'array',
+        received: ctx.parsedType,
+      })
+      return { status: 'aborted' }
+    }
+
+    if (def.exactLength !== null) {
+      const tooBig = ctx.data.length > def.exactLength.value
+      const tooSmall = ctx.data.length < def.exactLength.value
+      if (tooBig || tooSmall) {
+        addIssueToContext(ctx, {
+          code: tooBig ? 'too_big' : 'too_small',
+          minimum: (tooSmall ? def.exactLength.value : undefined) as number,
+          maximum: (tooBig ? def.exactLength.value : undefined) as number,
+          type: 'array',
+          inclusive: true,
+          exact: true,
+          message: def.exactLength.message,
+        })
+        status.dirty()
+      }
+    }
+
+    if (def.minLength !== null) {
+      if (ctx.data.length < def.minLength.value) {
+        addIssueToContext(ctx, {
+          code: 'too_small',
+          minimum: def.minLength.value,
+          type: 'array',
+          inclusive: true,
+          exact: false,
+          message: def.minLength.message,
+        })
+        status.dirty()
+      }
+    }
+
+    if (def.maxLength !== null) {
+      if (ctx.data.length > def.maxLength.value) {
+        addIssueToContext(ctx, {
+          code: 'too_big',
+          maximum: def.maxLength.value,
+          type: 'array',
+          inclusive: true,
+          exact: false,
+          message: def.maxLength.message,
+        })
+        status.dirty()
+      }
+    }
+
+    if (ctx.common.async) {
+      return Promise.all(
+        [...ctx.data].map((item, i) => {
+          return def.type._parseAsync(new ParseInputLazyPath(ctx, item, ctx.path, i))
+        })
+      ).then((result) => {
+        return ParseStatus.mergeArray(status, result)
+      })
+    }
+
+    const result = [...ctx.data].map((item, i) => {
+      return def.type._parseSync(new ParseInputLazyPath(ctx, item, ctx.path, i))
+    })
+
+    return ParseStatus.mergeArray(status, result)
+  }
+
+  get element() {
+    return this._def.type
+  }
+
+  min(minLength: number, message?: utils.errors.ErrMessage): this {
+    return new ZodArrayImpl({
+      ...this._def,
+      minLength: { value: minLength, message: utils.errors.toString(message) },
+    }) as this
+  }
+
+  max(maxLength: number, message?: utils.errors.ErrMessage): this {
+    return new ZodArrayImpl({
+      ...this._def,
+      maxLength: { value: maxLength, message: utils.errors.toString(message) },
+    }) as this
+  }
+
+  length(len: number, message?: utils.errors.ErrMessage): this {
+    return new ZodArrayImpl({
+      ...this._def,
+      exactLength: { value: len, message: utils.errors.toString(message) },
+    }) as this
+  }
+
+  nonempty(message?: utils.errors.ErrMessage): ZodArrayImpl<T, 'atleastone'> {
+    return this.min(1, message) as ZodArrayImpl<T, 'atleastone'>
+  }
+}

@@ -137,13 +137,17 @@ export class MetaClient {
       tokenType: 'none',
     })
 
-    const scope = dataDebugToken.data.granular_scopes.find(
-      (item: { scope: string; target_ids: string[] }) => item.scope === 'pages_messaging'
+    const scope = dataDebugToken.data.granular_scopes?.find(
+      (item: { scope: string; target_ids?: string[] }) => item.scope === 'pages_messaging'
     )
 
-    if (scope.target_ids) {
-      const ids = scope.target_ids
+    if (!scope?.target_ids?.length) {
+      return this._getUserManagedPagesFromToken(this._getUserToken())
+    }
 
+    const ids = scope.target_ids
+
+    try {
       const dataBusinesses = await this._makeRequest({
         method: 'GET',
         endpoint: `?ids=${ids.join()}&fields=id,name`,
@@ -154,12 +158,39 @@ export class MetaClient {
       })
 
       return Object.keys(dataBusinesses).map((key) => dataBusinesses[key])
-    } else {
-      return this.getUserManagedPagesFromToken(inputToken)
+    } catch (error) {
+      this._logger?.forBot().warn('Batch page fetch failed for page selection, trying individually, error: ', error)
+      return this._fetchPagesIndividually(ids, inputToken)
     }
   }
 
-  public async getUserManagedPagesFromToken(userToken: string) {
+  private async _fetchPagesIndividually(pageIds: string[], userToken: string): Promise<{ id: string; name: string }[]> {
+    const results: { id: string; name: string }[] = []
+
+    await Promise.all(
+      pageIds.map(async (pageId) => {
+        try {
+          const pageData = await this._makeRequest({
+            method: 'GET',
+            endpoint: `${pageId}?fields=id,name`,
+            tokenType: 'none',
+            customHeaders: {
+              Authorization: `Bearer ${userToken}`,
+            },
+          })
+          if (pageData.id && pageData.name) {
+            results.push({ id: pageData.id, name: pageData.name })
+          }
+        } catch {
+          this._logger?.forBot().debug(`Skipping page "${pageId}", failed to get details`)
+        }
+      })
+    )
+
+    return results
+  }
+
+  private async _getUserManagedPagesFromToken(userToken: string) {
     let allPages: { id: string; name: string }[] = []
 
     const query = new URLSearchParams({
@@ -169,17 +200,17 @@ export class MetaClient {
     let url = `${this._baseUrl}/me/accounts?${query.toString()}`
 
     while (url) {
-      const response = await this._makeRequest({
+      const { data, paging } = await this._makeRequest({
         method: 'GET',
         endpoint: url,
         tokenType: 'none',
       })
 
       // Add the pages to the allPages array
-      allPages = allPages.concat(response.data.data)
+      allPages = allPages.concat(data)
 
       // Check if there's a next page
-      url = response.data.paging && response.data.paging.next ? response.data.paging.next : null
+      url = paging && paging.next ? paging.next : null
     }
 
     return allPages

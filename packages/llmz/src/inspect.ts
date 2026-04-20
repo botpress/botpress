@@ -1,5 +1,20 @@
 import bytes from 'bytes'
-import { chain, isEmpty, uniq, isEqual, uniqWith, filter, mapKeys, countBy, orderBy, isNil } from 'lodash-es'
+import {
+  flow,
+  isEmpty,
+  uniq,
+  isEqual,
+  uniqWith,
+  filter,
+  mapKeys,
+  countBy,
+  orderBy,
+  isNil,
+  fromPairs,
+  toPairs,
+  take,
+  map,
+} from 'lodash-es'
 
 import { escapeString, getTokenizer } from './utils.js'
 
@@ -306,14 +321,14 @@ function previewObject(obj: unknown, options: PreviewOptions) {
     lines.push(SUBTITLE_LN)
 
     const entries = Object.entries(obj)
-    const typesCount = chain(entries)
-      .countBy(([, value]) => extractType(value, false))
-      .entries()
-      .orderBy(1, 'desc')
-      .filter(([, count]) => count > 1)
-      .slice(0, 3)
-      .fromPairs()
-      .value()
+    const typesCount = flow(
+      (e: [string, unknown][]) => countBy(e, ([, value]) => extractType(value, false)),
+      toPairs,
+      (p) => orderBy(p, ([, count]) => count, 'desc'),
+      (p) => p.filter(([, count]) => count > 1),
+      (p) => p.slice(0, 3),
+      fromPairs
+    )(entries)
 
     const keys = Object.keys(obj)
     const uniqueEntries = uniq(Object.values(obj))
@@ -368,14 +383,13 @@ function previewLongText(text: string, length: number = LONG_TEXT_LENGTH) {
   const uniqueWords = uniq(words).length
   const wordFrequency = countBy(words)
 
-  const mostCommonWords = chain(wordFrequency)
-    .toPairs()
-    .orderBy(1, 'desc')
-    .filter(([, count]) => count > 1)
-    .take(20)
-    .map(([word, count]) => `"${word}" ${count} times`)
-    .value()
-    .join('\n' + ' '.repeat(22))
+  const mostCommonWords = flow(
+    toPairs,
+    (p) => orderBy(p, ([, count]) => count, 'desc'),
+    (p) => filter(p, ([, count]) => count > 1),
+    (p) => take(p, 20),
+    (p) => map(p, ([word, count]) => `"${word}" ${count} times`)
+  )(wordFrequency).join('\n' + ' '.repeat(22))
 
   // Extract URLs and Emails
   const urls = text.match(urlPattern) || []

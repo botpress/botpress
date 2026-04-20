@@ -4,11 +4,15 @@ import * as consts from '../../consts'
 import { IntegrationTypingsModule } from '../../integration-implementation/integration-typings'
 import { InterfaceTypingsModule } from '../../interface-implementation'
 import { Module, ReExportTypeModule, SingleFileModule } from '../../module'
+import * as strings from '../../strings'
 import { ActionsModule } from './actions-module'
 import { DefaultConfigurationModule } from './configuration-module'
+import { ConversationModule } from './conversation-module'
 import { EventsModule } from './events-module'
+import { MessageModule } from './message-module'
 import { StatesModule } from './states-module'
 import { TablesModule } from './tables-module'
+import { UserModule } from './user-module'
 import { WorkflowsModule } from './workflows-module'
 
 class PluginIntegrationsModule extends ReExportTypeModule {
@@ -19,7 +23,7 @@ class PluginIntegrationsModule extends ReExportTypeModule {
 
     for (const [alias, integration] of Object.entries(plugin.integrations ?? {})) {
       const integrationModule = new IntegrationTypingsModule(integration.definition)
-      integrationModule.unshift(alias)
+      integrationModule.unshift(strings.dirName(alias))
       this.pushDep(integrationModule)
     }
   }
@@ -33,7 +37,7 @@ class PluginInterfacesModule extends ReExportTypeModule {
 
     for (const [alias, intrface] of Object.entries(plugin.interfaces ?? {})) {
       const interfaceModule = new InterfaceTypingsModule(intrface.definition)
-      interfaceModule.unshift(alias)
+      interfaceModule.unshift(strings.dirName(alias))
       this.pushDep(interfaceModule)
     }
   }
@@ -48,6 +52,9 @@ type PluginTypingsIndexDependencies = {
   actionsModule: ActionsModule
   tablesModule: TablesModule
   workflowsModule: WorkflowsModule
+  conversationModule: ConversationModule
+  messageModule: MessageModule
+  userModule: UserModule
 }
 
 type _assertPropsInPluginDefinition = utils.types.AssertKeyOf<'props', sdk.PluginDefinition>
@@ -110,6 +117,18 @@ export class PluginTypingsModule extends Module {
     workflowsModule.unshift('workflows')
     this.pushDep(workflowsModule)
 
+    const conversationModule = new ConversationModule(_plugin.conversation)
+    conversationModule.unshift('conversation')
+    this.pushDep(conversationModule)
+
+    const messageModule = new MessageModule(_plugin.message)
+    messageModule.unshift('message')
+    this.pushDep(messageModule)
+
+    const userModule = new UserModule(_plugin.user)
+    userModule.unshift('user')
+    this.pushDep(userModule)
+
     this._dependencies = {
       integrationsModule,
       interfacesModule,
@@ -119,6 +138,9 @@ export class PluginTypingsModule extends Module {
       actionsModule,
       tablesModule,
       workflowsModule,
+      conversationModule,
+      messageModule,
+      userModule,
     }
   }
 
@@ -132,6 +154,9 @@ export class PluginTypingsModule extends Module {
       actionsModule,
       tablesModule,
       workflowsModule,
+      conversationModule,
+      messageModule,
+      userModule,
     } = this._dependencies
 
     const integrationsImport = integrationsModule.import(this)
@@ -142,6 +167,9 @@ export class PluginTypingsModule extends Module {
     const actionsImport = actionsModule
     const tablesImport = tablesModule.import(this)
     const workflowsImport = workflowsModule
+    const conversationImport = conversationModule.import(this)
+    const messageImport = messageModule.import(this)
+    const userImport = userModule.import(this)
 
     return [
       consts.GENERATED_HEADER,
@@ -153,6 +181,9 @@ export class PluginTypingsModule extends Module {
       `import * as ${actionsModule.name} from './${actionsImport.name}'`,
       `import * as ${tablesModule.name} from './${tablesImport}'`,
       `import * as ${workflowsModule.name} from './${workflowsImport.name}'`,
+      `import * as ${conversationModule.name} from './${conversationImport}'`,
+      `import * as ${messageModule.name} from './${messageImport}'`,
+      `import * as ${userModule.name} from './${userImport}'`,
       '',
       `export * as ${integrationsModule.name} from './${integrationsImport}'`,
       `export * as ${interfacesModule.name} from './${interfacesImport}'`,
@@ -162,6 +193,9 @@ export class PluginTypingsModule extends Module {
       `export * as ${actionsModule.name} from './${actionsImport.name}'`,
       `export * as ${tablesModule.name} from './${tablesImport}'`,
       `export * as ${workflowsModule.name} from './${workflowsImport.name}'`,
+      `export * as ${conversationModule.name} from './${conversationImport}'`,
+      `export * as ${messageModule.name} from './${messageImport}'`,
+      `export * as ${userModule.name} from './${userImport}'`,
       '',
       'export type TPlugin = {',
       `  name: "${this._plugin.name}"`,
@@ -174,6 +208,9 @@ export class PluginTypingsModule extends Module {
       `  actions: ${actionsModule.name}.${actionsModule.exportName}`,
       `  tables: ${tablesModule.name}.${tablesModule.exportName}`,
       `  workflows: ${workflowsModule.name}.${workflowsModule.exportName}`,
+      `  conversation: ${conversationModule.name}.${conversationModule.exportName}`,
+      `  message: ${messageModule.name}.${messageModule.exportName}`,
+      `  user: ${userModule.name}.${userModule.exportName}`,
       '}',
     ].join('\n')
   }

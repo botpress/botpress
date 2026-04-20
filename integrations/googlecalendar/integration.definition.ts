@@ -1,14 +1,12 @@
 import * as sdk from '@botpress/sdk'
-import creatable from './bp_modules/creatable'
-import deletable from './bp_modules/deletable'
-import listable from './bp_modules/listable'
-import readable from './bp_modules/readable'
-import updatable from './bp_modules/updatable'
 import { actions, entities, configuration, configurations, identifier, events, secrets, states } from './definitions'
 
+export const INTEGRATION_NAME = 'googlecalendar'
+export const INTEGRATION_VERSION = '2.0.9'
+
 export default new sdk.IntegrationDefinition({
-  name: 'googlecalendar',
-  version: '1.0.3',
+  name: INTEGRATION_NAME,
+  version: INTEGRATION_VERSION,
   description: 'Sync with your calendar to manage events, appointments, and schedules directly within the chatbot.',
   title: 'Google Calendar',
   readme: 'hub.md',
@@ -21,30 +19,9 @@ export default new sdk.IntegrationDefinition({
   events,
   secrets,
   states,
-  __advanced: {
-    useLegacyZuiTransformer: true,
+  attributes: {
+    category: 'Business Operations',
+    guideSlug: 'googlecalendar',
+    repo: 'botpress',
   },
 })
-  .extend(listable, ({ entities }) => ({
-    entities: { item: entities.event },
-    actions: { list: { name: 'eventList' } },
-  }))
-  .extend(creatable, ({ entities }) => ({
-    entities: { item: entities.event },
-    actions: { create: { name: 'eventCreate' } },
-    events: { created: { name: 'eventCreated' } },
-  }))
-  .extend(readable, ({ entities }) => ({
-    entities: { item: entities.event },
-    actions: { read: { name: 'eventRead' } },
-  }))
-  .extend(updatable, ({ entities }) => ({
-    entities: { item: entities.event },
-    actions: { update: { name: 'eventUpdate' } },
-    events: { updated: { name: 'eventUpdated' } },
-  }))
-  .extend(deletable, ({ entities }) => ({
-    entities: { item: entities.event },
-    actions: { delete: { name: 'eventDelete' } },
-    events: { deleted: { name: 'eventDeleted' } },
-  }))

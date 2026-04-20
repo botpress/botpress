@@ -27,6 +27,9 @@ export const channels = {
           title: sdk.z.string().optional().title('Title').describe('Title for the file'),
         }),
       },
+      bloc: {
+        schema: sdk.messages.markdownBloc.schema,
+      },
     },
     message: {
       tags: {

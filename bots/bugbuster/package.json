@@ -9,12 +9,12 @@
   "private": true,
   "dependencies": {
     "@botpress/client": "workspace:*",
-    "@botpress/sdk": "workspace:*",
-    "@linear/sdk": "^50.0.0"
+    "@botpress/sdk": "workspace:*"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@botpresshub/github": "workspace:*",
     "@botpresshub/linear": "workspace:*",
     "@botpresshub/slack": "workspace:*",

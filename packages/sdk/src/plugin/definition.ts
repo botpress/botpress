@@ -9,27 +9,23 @@ import {
   TableDefinition as BotTableDefinition,
   WorkflowDefinition,
 } from '../bot/definition'
+import { SchemaTransformOptions } from '../common/types'
+import { DefinitionError } from '../errors'
 import { IntegrationPackage, InterfacePackage } from '../package'
 import * as typeUtils from '../utils/type-utils'
 import { SDK_VERSION } from '../version'
-import { ZuiObjectSchema, ZuiObjectOrRefSchema, z } from '../zui'
+import { z } from '../zui'
 
-export {
-  UserDefinition,
-  ConversationDefinition,
-  MessageDefinition,
-  IntegrationConfigInstance,
-  WorkflowDefinition,
-} from '../bot/definition'
+export { UserDefinition, ConversationDefinition, MessageDefinition, WorkflowDefinition } from '../bot/definition'
 
-type BaseConfig = ZuiObjectOrRefSchema
-type BaseStates = Record<string, ZuiObjectOrRefSchema>
-type BaseEvents = Record<string, ZuiObjectOrRefSchema>
-type BaseActions = Record<string, ZuiObjectOrRefSchema>
+type BaseConfig = z.ZuiObjectOrRefSchema
+type BaseStates = Record<string, z.ZuiObjectOrRefSchema>
+type BaseEvents = Record<string, z.ZuiObjectOrRefSchema>
+type BaseActions = Record<string, z.ZuiObjectOrRefSchema>
 type BaseInterfaces = Record<string, InterfacePackage>
 type BaseIntegrations = Record<string, IntegrationPackage>
-type BaseTables = Record<string, ZuiObjectOrRefSchema>
-type BaseWorkflows = Record<string, ZuiObjectSchema>
+type BaseTables = Record<string, z.ZuiObjectOrRefSchema>
+type BaseWorkflows = Record<string, z.ZuiObjectSchema>
 
 export type TableDefinition<TTable extends BaseTables[string] = BaseTables[string]> = typeUtils.Merge<
   BotTableDefinition,
@@ -63,7 +59,7 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
   BotActionDefinition,
   {
     input: { schema: TAction }
-    output: { schema: ZuiObjectOrRefSchema }
+    output: { schema: z.ZuiObjectOrRefSchema }
   }
 >
 
@@ -79,7 +75,7 @@ export type RecurringEventDefinition<TEvents extends BaseEvents = BaseEvents> = 
 
 export type ZuiSchemaWithEntityReferences<
   TInterfaces extends BaseInterfaces,
-  TReturnType extends ZuiObjectOrRefSchema,
+  TReturnType extends z.ZuiObjectOrRefSchema,
 > =
   | ((props: {
       entities: {
@@ -92,7 +88,7 @@ export type ZuiSchemaWithEntityReferences<
 
 type GenericDefinition<
   TInterfaces extends BaseInterfaces,
-  TDefinition extends { schema: ZuiObjectOrRefSchema },
+  TDefinition extends { schema: z.ZuiObjectOrRefSchema },
 > = typeUtils.Merge<
   TDefinition,
   {
@@ -160,9 +156,7 @@ export type PluginDefinitionProps<
     [K in keyof TWorkflows]: WorkflowDefinition<TWorkflows[K]>
   }
 
-  __advanced?: {
-    useLegacyZuiTransformer?: boolean
-  }
+  __advanced?: SchemaTransformOptions
 }
 
 export class PluginDefinition<
@@ -256,6 +250,18 @@ export class PluginDefinition<
     this.workflows = props.workflows
     this.attributes = props.attributes
     this.__advanced = props.__advanced
+
+    const aliases = new Set<string>()
+
+    for (const alias of [...Object.keys(props.integrations ?? {}), ...Object.keys(props.interfaces ?? {})]) {
+      if (aliases.has(alias)) {
+        throw new DefinitionError(
+          `Duplicate interface or integration alias detected in plugin definition: '${alias}'. ` +
+            'Please use unique aliases for each interface and integration.'
+        )
+      }
+      aliases.add(alias)
+    }
 
     this.configuration = props.configuration
       ? {
@@ -380,13 +386,13 @@ export class PluginDefinition<
   }
 
   private _dereferenceZuiSchema(
-    schema: ZuiObjectOrRefSchema,
+    schema: z.ZuiObjectOrRefSchema,
     zuiReferenceMap: Record<string, z.ZodTypeAny>
-  ): ZuiObjectSchema {
-    return schema.dereference(zuiReferenceMap) as ZuiObjectSchema
+  ): z.ZuiObjectSchema {
+    return schema.dereference(zuiReferenceMap) as z.ZuiObjectSchema
   }
 
-  private _dereferenceDefinitionSchemas<TDefinitionRecord extends Record<string, { schema: ZuiObjectOrRefSchema }>>(
+  private _dereferenceDefinitionSchemas<TDefinitionRecord extends Record<string, { schema: z.ZuiObjectOrRefSchema }>>(
     definitions: TDefinitionRecord | undefined,
     zuiReferenceMap: Record<string, z.ZodTypeAny>
   ): TDefinitionRecord {
@@ -401,7 +407,7 @@ export class PluginDefinition<
   private _dereferenceActionDefinitionSchemas<
     TDefinitionRecord extends Record<
       string,
-      { input: { schema: ZuiObjectOrRefSchema }; output: { schema: ZuiObjectOrRefSchema } }
+      { input: { schema: z.ZuiObjectOrRefSchema }; output: { schema: z.ZuiObjectOrRefSchema } }
     >,
   >(definitions: TDefinitionRecord | undefined, zuiReferenceMap: Record<string, z.ZodTypeAny>): TDefinitionRecord {
     return Object.fromEntries(

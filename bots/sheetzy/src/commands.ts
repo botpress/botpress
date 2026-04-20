@@ -67,7 +67,7 @@ const set: Command = async (props, args) => {
   const values = parseResult.data
 
   await props.client.callAction({
-    type: 'gsheets:updateValues',
+    type: 'gsheets:setValues',
     input: {
       range,
       values: _stringifyValues(values),
@@ -80,11 +80,32 @@ const set: Command = async (props, args) => {
 const append: Command = async (props, args) => {
   const utils = new ApiUtils(props)
 
-  const [range, ...body] = args
+  const [firstArg, secondArg, ...body] = args
   const jsonValues = body.join(' ')
 
-  if (!range) {
-    throw new CommandError('Missing range')
+  if (!firstArg) {
+    throw new CommandError('Missing startColumn')
+  }
+
+  let sheetName: string | undefined
+  let startColumn: string
+
+  if (secondArg && !secondArg.startsWith('[') && !secondArg.startsWith('{')) {
+    sheetName = firstArg
+    startColumn = secondArg
+  } else {
+    startColumn = firstArg
+    if (firstArg.includes('!')) {
+      const parts = firstArg.split('!')
+      if (parts.length > 1 && parts[1]) {
+        sheetName = parts[0]
+        startColumn = parts[1]
+      }
+    }
+  }
+
+  if (!startColumn) {
+    throw new CommandError('Missing startColumn')
   }
 
   const parseResult = valuesSchema.safeParse(JSON.parse(jsonValues))
@@ -97,7 +118,8 @@ const append: Command = async (props, args) => {
   await props.client.callAction({
     type: 'gsheets:appendValues',
     input: {
-      range,
+      sheetName,
+      startColumn,
       values: _stringifyValues(values),
     },
   })

@@ -1,11 +1,12 @@
-import { Client } from '@botpress/client'
+import type * as client from '@botpress/client'
 import { BotSpecificClient } from '../../bot'
 import * as consts from '../../consts'
+import { type AsyncCollection, createAsyncCollection } from '../../utils/api-paging-utils'
 import { BasePlugin, PluginRuntimeProps } from '../common'
 import { EventProxy, EventSchedule, EventSender } from './types'
 
 type _EventSenderProps = {
-  client: BotSpecificClient<any> | Client
+  client: BotSpecificClient<any> | client.Client
   eventName: string
   conversationId?: string
   userId?: string
@@ -15,20 +16,21 @@ type _EventSenderProps = {
 class _EventSender implements EventSender<object> {
   public constructor(private _props: _EventSenderProps) {}
 
-  public async emit(eventPayload: object): Promise<void> {
+  public async emit(eventPayload: object): Promise<client.Event> {
     const { conversationId, userId, messageId } = this._props
-    await this._props.client.createEvent({
+    const { event } = await this._props.client.createEvent({
       type: this._props.eventName,
       payload: eventPayload,
       conversationId,
       userId,
       messageId,
     })
+    return event
   }
 
-  public async schedule(eventPayload: object, schedule: EventSchedule): Promise<void> {
+  public async schedule(eventPayload: object, schedule: EventSchedule): Promise<client.Event> {
     const { conversationId, userId, messageId } = this._props
-    await this._props.client.createEvent({
+    const { event } = await this._props.client.createEvent({
       type: this._props.eventName,
       payload: eventPayload,
       conversationId,
@@ -36,6 +38,7 @@ class _EventSender implements EventSender<object> {
       messageId,
       schedule,
     })
+    return event
   }
 
   public withConversationId(conversationId: string): this {
@@ -58,10 +61,35 @@ class _EventSender implements EventSender<object> {
       messageId,
     }) as this
   }
+
+  public async getById(props: { id: string }): Promise<client.Event> {
+    const response = await this._props.client.getEvent({ id: props.id })
+    return response.event
+  }
+
+  public list(
+    props?: Omit<client.ClientInputs['listEvents'], 'type' | 'nextToken' | 'conversationId' | 'messageId' | 'userId'>
+  ): AsyncCollection<client.Event> {
+    return createAsyncCollection(({ nextToken }) =>
+      this._props.client
+        .listEvents({
+          ...props,
+          type: this._props.eventName,
+          conversationId: this._props.conversationId,
+          userId: this._props.userId,
+          messageId: this._props.messageId,
+          nextToken,
+        })
+        .then(({ meta, events }) => ({
+          meta,
+          items: events,
+        }))
+    )
+  }
 }
 
 export const proxyEvents = <TPlugin extends BasePlugin>(
-  client: BotSpecificClient<TPlugin> | Client,
+  client: BotSpecificClient<TPlugin> | client.Client,
   props: PluginRuntimeProps<TPlugin>
 ): EventProxy<TPlugin> =>
   new Proxy(

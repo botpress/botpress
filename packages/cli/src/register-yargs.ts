@@ -23,7 +23,14 @@ export const registerYargs = (yargz: YargsInstance, commands: tree.CommandTree) 
     }
 
     const { schema, description, alias } = command
-    const aliases = alias ? [cmdName, alias] : [cmdName]
+    let aliases: string[]
+    if (Array.isArray(alias)) {
+      aliases = [cmdName, ...alias]
+    } else if (alias) {
+      aliases = [cmdName, alias]
+    } else {
+      aliases = [cmdName]
+    }
 
     const options = Object.entries(schema)
     let positionals = options.filter(

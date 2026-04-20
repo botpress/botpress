@@ -64,7 +64,7 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
   }
 
   protected override async bootstrap() {
-    const pkgJson = await this.readPkgJson()
+    const pkgJson = await this.readCLIPkgJson()
     const versionText = chalk.bold(`v${pkgJson.version}`)
     this.logger.log(`Botpress CLI ${versionText}`, { prefix: '🤖' })
 
@@ -134,9 +134,12 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
       throw new errors.BotpressCLIError(`Profile file not found at "${this.globalPaths.abs.profilesPath}"`)
     }
     const fileContent = await fs.promises.readFile(this.globalPaths.abs.profilesPath, 'utf-8')
-    const parsedProfiles = JSON.parse(fileContent)
+    const jsonParseResult = utils.json.safeParseJson(fileContent)
+    if (!jsonParseResult.success) {
+      throw new errors.BotpressCLIError(`Error parsing profiles file: ${jsonParseResult.error.message}`)
+    }
 
-    const zodParseResult = z.record(profileCredentialSchema).safeParse(parsedProfiles)
+    const zodParseResult = z.record(profileCredentialSchema).safeParse(jsonParseResult.data)
     if (!zodParseResult.success) {
       throw errors.BotpressCLIError.wrap(zodParseResult.error, 'Error parsing profiles: ')
     }
@@ -174,7 +177,7 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     try {
       this.logger.debug('Checking if cli is up to date')
 
-      const pkgJson = await this.readPkgJson()
+      const pkgJson = await this.readCLIPkgJson()
       if (!pkgJson.version) {
         throw new errors.BotpressCLIError('Could not find version in package.json')
       }
@@ -199,12 +202,15 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     }
   }
 
-  protected async readPkgJson(): Promise<utils.pkgJson.PackageJson> {
+  protected async readCLIPkgJson(): Promise<utils.pkgJson.PackageJson> {
     if (this._pkgJson) {
       return this._pkgJson
     }
     const { cliRootDir } = this.globalPaths.abs
-    const pkgJson = await utils.pkgJson.readPackageJson(cliRootDir)
+    const pkgJson = await utils.pkgJson.readPackageJson(cliRootDir).catch((thrown) => {
+      throw errors.BotpressCLIError.wrap(thrown, `Failed to read CLI package.json file at "${cliRootDir}"`)
+    })
+
     if (!pkgJson) {
       throw new errors.BotpressCLIError(`Could not find package.json at "${cliRootDir}"`)
     }

@@ -3,7 +3,8 @@
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp add -y && bp build --minify false",
-    "add:integrations": "echo 'no integrations to add'"
+    "add:integrations": "echo 'no integrations to add'",
+    "test": "vitest --run"
   },
   "private": true,
   "dependencies": {
@@ -13,6 +14,7 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@bpinternal/genenv": "0.0.1"
   }
 }

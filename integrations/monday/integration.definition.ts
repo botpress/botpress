@@ -5,7 +5,7 @@ export default new IntegrationDefinition({
   name: 'monday',
   title: 'Monday',
   description: 'Manage items in Monday boards.',
-  version: '1.0.0',
+  version: '1.0.2',
   readme: 'hub.md',
   icon: 'icon.svg',
   states: {},
@@ -22,7 +22,8 @@ export default new IntegrationDefinition({
   configuration: {
     schema: configurationSchema,
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
+  attributes: {
+    category: 'Project Management',
+    repo: 'botpress',
   },
 })

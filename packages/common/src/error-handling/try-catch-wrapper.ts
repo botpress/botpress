@@ -119,7 +119,7 @@ export const createErrorHandlingDecorator =
         } catch (thrown: unknown) {
           await asyncFnWrapperWithErrorRedaction(async () => {
             throw thrown
-          }, errorMessage)()
+          }, `${errorMessage}: ${thrown}`)()
         }
       }
       return

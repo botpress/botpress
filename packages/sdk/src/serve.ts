@@ -46,9 +46,10 @@ export async function serve(
       }
       const response = await handler(request)
       res.writeHead(response?.status ?? 200, response?.headers ?? {}).end(response?.body ?? '{}')
-    } catch (e: any) {
-      log.error('Error while handling request', { error: e?.message ?? 'Internal error occured' })
-      res.writeHead(500).end(JSON.stringify({ error: e?.message ?? 'Internal error occured' }))
+    } catch (thrown: unknown) {
+      const error: string = thrown instanceof Error ? thrown.message : String(thrown)
+      log.error('Error while handling request', { error: error ?? 'Internal error occured' })
+      res.writeHead(500).end(JSON.stringify({ error: error ?? 'Internal error occured' }))
     }
   })
 

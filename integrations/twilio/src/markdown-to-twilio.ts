@@ -1,5 +1,5 @@
 import { transformMarkdown, MarkdownHandlers, stripAllHandlers } from '@botpress/common'
-import { TwilioChannel } from './types'
+import { TwilioChannel } from './twilio'
 
 const messengerHandlers: MarkdownHandlers = {
   ...stripAllHandlers,

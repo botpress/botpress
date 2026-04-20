@@ -6,6 +6,7 @@ const messages = {
   text: {
     schema: textSchema,
   },
+  bloc: sdk.messages.markdownBloc,
 } as const satisfies sdk.ChannelDefinition['messages']
 
 const conversationTags = {

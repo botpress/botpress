@@ -1,4 +1,4 @@
-import { z, ZodTypeAny } from '@botpress/sdk'
+import { z } from '@botpress/sdk'
 import * as sdk from '@botpress/sdk'
 import { Issue, PullRequest, User, PullRequestReview } from './entities'
 
@@ -6,7 +6,7 @@ const COMMON_EVENT_FIELDS = {
   sender: {
     eventSender: User.title('Sender').describe('The user who triggered the event'),
   },
-} as const satisfies Record<string, Record<string, ZodTypeAny>>
+} as const satisfies Record<string, Record<string, z.ZodTypeAny>>
 
 const pullRequestOpened = {
   title: 'Pull Request opened',
@@ -17,7 +17,7 @@ const pullRequestOpened = {
 
     // The following fields have been kept for backwards compatibility.
     // TODO: Remove these fields in the next major version :
-    type: z.literal('github:pullRequestOpened').optional().title('DEPRECATED: type'),
+    type: z.literal('github:pullRequestOpened').optional().title('DEPRECATED: type').describe('Not needed anymore'),
     id: z.number().title('DEPRECATED: id').describe('use pullRequest.id instead'),
     title: z.string().title('DEPRECATED: title').describe('use pullRequest.name instead'),
     content: z.string().title('DEPRECATED: content').describe('use pullRequest.body instead'),
@@ -31,10 +31,11 @@ const pullRequestOpened = {
     targets: z
       .object({
         pullRequest: z.string().optional().title('DEPRECATED: pullRequest').describe('use pullRequest.number instead'),
-        issue: z.string().optional().title('DEPRECATED: issue'),
-        discussion: z.string().optional().title('DEPRECATED: discussion'),
+        issue: z.string().optional().title('DEPRECATED: issue').describe('Not needed'),
+        discussion: z.string().optional().title('DEPRECATED: discussion').describe('Not needed'),
       })
-      .title('DEPRECATED: targets'),
+      .title('DEPRECATED: targets')
+      .describe('Not needed'),
   }),
 } as const satisfies sdk.EventDefinition
 
@@ -47,7 +48,7 @@ export const pullRequestMerged = {
 
     // The following fields have been kept for backwards compatibility.
     // TODO: Remove these fields in the next major version :
-    type: z.literal('github:pullRequestMerged').optional().title('DEPRECATED: type'),
+    type: z.literal('github:pullRequestMerged').optional().title('DEPRECATED: type').describe('Not needed anymore'),
     id: z.number().title('DEPRECATED: id').describe('use pullRequest.id instead'),
     title: z.string().title('DEPRECATED: title').describe('use pullRequest.name instead'),
     content: z.string().title('DEPRECATED: content').describe('use pullRequest.body instead'),
@@ -61,10 +62,11 @@ export const pullRequestMerged = {
     targets: z
       .object({
         pullRequest: z.string().optional().title('DEPRECATED: pullRequest').describe('use pullRequest.number instead'),
-        issue: z.string().optional().title('DEPRECATED: issue'),
-        discussion: z.string().optional().title('DEPRECATED: discussion'),
+        issue: z.string().optional().title('DEPRECATED: issue').describe('Not needed'),
+        discussion: z.string().optional().title('DEPRECATED: discussion').describe('Not needed'),
       })
-      .title('DEPRECATED: targets'),
+      .title('DEPRECATED: targets')
+      .describe('Not needed'),
   }),
 } as const satisfies sdk.EventDefinition
 

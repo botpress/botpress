@@ -1,8 +1,8 @@
-import type { Card } from 'definitions/schemas'
-import { UpdateCard, CreateCard } from 'trello.js/out/api/parameters'
+import { Parameters } from 'trello.js'
+import { UpdateCardPayload, CreateCardPayload } from '../types'
 
 export namespace RequestMapping {
-  export const mapUpdateCard = (card: Pick<Card, 'id'> & Partial<Card>): UpdateCard =>
+  export const mapUpdateCard = (card: UpdateCardPayload): Parameters.UpdateCard =>
     _keepOnlySetProperties({
       id: card.id,
       name: card.name,
@@ -16,7 +16,7 @@ export namespace RequestMapping {
       idMembers: card.memberIds,
     })
 
-  export const mapCreateCard = (card: Pick<Card, 'listId' | 'name' | 'description'> & Partial<Card>): CreateCard =>
+  export const mapCreateCard = (card: CreateCardPayload): Parameters.CreateCard =>
     _keepOnlySetProperties({
       name: card.name,
       desc: card.description,
@@ -24,6 +24,8 @@ export namespace RequestMapping {
       due: card.dueDate,
       idLabels: card.labelIds,
       idMembers: card.memberIds,
+      pos: card.verticalPosition,
+      dueComplete: card.isCompleted,
     })
 }
 

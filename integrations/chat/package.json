@@ -2,15 +2,24 @@
   "name": "@botpresshub/chat",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "check:blint": "bp lint",
+    "check:bplint": "bp lint",
     "generate": "ts-node -T ./openapi.ts ./src/gen",
-    "build": "bp add -y && bp build"
+    "build": "bp add -y && bp build",
+    "test": "vitest --run"
   },
   "private": true,
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.564.0",
     "@botpress/sdk": "workspace:*",
     "@bpinternal/pingrip": "link:../../../packages/pingrip",
+    "@opentelemetry/api": "1.9.0",
+    "@opentelemetry/core": "1.30.0",
+    "@opentelemetry/exporter-trace-otlp-http": "0.54.2",
+    "@opentelemetry/instrumentation": "0.54.2",
+    "@opentelemetry/instrumentation-http": "0.54.2",
+    "@opentelemetry/resources": "1.27.0",
+    "@opentelemetry/sdk-trace-base": "1.27.0",
+    "@opentelemetry/sdk-trace-node": "1.27.0",
     "ajv": "^8.12.0",
     "axios": "1.2.5",
     "chalk": "^4.1.2",
@@ -22,6 +31,7 @@
   "devDependencies": {
     "@botpress/chat-api": "workspace:*",
     "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@types/json-schema": "^7.0.12",
     "@types/jsonwebtoken": "^9.0.3",
     "@types/lodash": "^4.14.191",

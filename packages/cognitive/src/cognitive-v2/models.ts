@@ -1,11 +1,120 @@
-import { Model } from 'src/schemas.gen'
+import { Model } from './types'
 
-export type RemoteModel = Model & {
-  aliases?: string[]
-  lifecycle: 'production' | 'preview' | 'deprecated' | 'discontinued'
-}
-
-export const models: Record<string, RemoteModel> = {
+export const models: Record<string, Model> = {
+  'openai:gpt-5.4-2026-03-05': {
+    id: 'openai:gpt-5.4-2026-03-05',
+    name: 'GPT-5.4',
+    description:
+      'GPT-5.4 is the latest frontier model in the GPT-5 series, featuring a 1M+ context window and adaptive reasoning. It delivers state-of-the-art performance on professional knowledge work, coding, and agentic tasks with improved long-context understanding.',
+    input: {
+      maxTokens: 1047576,
+      costPer1MTokens: 2.5,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 15,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision', 'coding', 'agents'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+    aliases: ['gpt-5.4'],
+  },
+  'openai:gpt-5.4-mini-2026-03-17': {
+    id: 'openai:gpt-5.4-mini-2026-03-17',
+    name: 'GPT-5.4 Mini',
+    description:
+      'GPT-5.4 Mini brings the strengths of GPT-5.4 to a faster, more efficient model designed for high-volume workloads. It is optimized for speed and cost while retaining strong reasoning and vision capabilities.',
+    input: {
+      maxTokens: 400000,
+      costPer1MTokens: 0.75,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 4.5,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['gpt-5.4-mini'],
+  },
+  'openai:gpt-5.4-nano-2026-03-17': {
+    id: 'openai:gpt-5.4-nano-2026-03-17',
+    name: 'GPT-5.4 Nano',
+    description:
+      'GPT-5.4 Nano is the smallest and cheapest GPT-5.4 variant, designed for tasks where speed and cost matter most like classification, data extraction, ranking, and coding sub-agents.',
+    input: {
+      maxTokens: 400000,
+      costPer1MTokens: 0.2,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 1.25,
+    },
+    tags: ['low-cost', 'reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['gpt-5.4-nano'],
+  },
+  'openai:gpt-5.3-chat': {
+    id: 'openai:gpt-5.3-chat',
+    name: 'GPT-5.3 Chat',
+    description:
+      'GPT-5.3 Chat is the GPT-5.3 Instant model used in ChatGPT, exposed via the API. Rolling alias that points to the latest snapshot.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 1.75,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 14,
+    },
+    tags: ['reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['gpt-5.3-chat-latest'],
+  },
+  'openai:gpt-5.2-2025-12-11': {
+    id: 'openai:gpt-5.2-2025-12-11',
+    name: 'GPT-5.2',
+    description:
+      'GPT-5.2 is the latest frontier-grade model in the GPT-5 series, offering stronger agentic and long context perfomance compared to GPT-5.1. It uses adaptive reasoning to allocate computation dynamically, responding quickly to simple queries while spending more depth on complex tasks.',
+    input: {
+      maxTokens: 400000,
+      costPer1MTokens: 1.75,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 14,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
   'openai:gpt-5.1-2025-11-13': {
     id: 'openai:gpt-5.1-2025-11-13',
     name: 'GPT-5.1',
@@ -19,8 +128,14 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 128000,
       costPer1MTokens: 10,
     },
-    tags: ['recommended', 'reasoning', 'general-purpose'],
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
   },
   'openai:gpt-5-2025-08-07': {
     id: 'openai:gpt-5-2025-08-07',
@@ -35,8 +150,14 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 128000,
       costPer1MTokens: 10,
     },
-    tags: ['reasoning', 'general-purpose'],
+    tags: ['reasoning', 'general-purpose', 'vision'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['gpt-5'],
   },
   'openai:gpt-5-mini-2025-08-07': {
@@ -52,8 +173,14 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 128000,
       costPer1MTokens: 2,
     },
-    tags: ['recommended', 'reasoning', 'general-purpose'],
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['gpt-5-mini'],
   },
   'openai:gpt-5-nano-2025-08-07': {
@@ -69,8 +196,14 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 128000,
       costPer1MTokens: 0.4,
     },
-    tags: ['low-cost', 'reasoning', 'general-purpose'],
+    tags: ['low-cost', 'reasoning', 'general-purpose', 'vision'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['gpt-5-nano'],
   },
   'openai:o4-mini-2025-04-16': {
@@ -88,6 +221,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'vision', 'coding'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['o4-mini'],
   },
   'openai:o3-2025-04-16': {
@@ -105,6 +244,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'vision', 'coding'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['o3'],
   },
   'openai:gpt-4.1-2025-04-14': {
@@ -122,6 +267,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'vision', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['gpt-4.1'],
   },
   'openai:gpt-4.1-mini-2025-04-14': {
@@ -139,6 +290,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'vision', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['gpt-4.1-mini'],
   },
   'openai:gpt-4.1-nano-2025-04-14': {
@@ -155,6 +312,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'vision', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['gpt-4.1-nano'],
   },
   'openai:o3-mini-2025-01-31': {
@@ -172,6 +335,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'general-purpose', 'coding'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['o3-mini'],
   },
   'openai:o1-2024-12-17': {
@@ -189,6 +358,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'vision', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'openai:o1-mini-2024-09-12': {
     id: 'openai:o1-mini-2024-09-12',
@@ -204,7 +379,13 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 4.4,
     },
     tags: ['reasoning', 'vision', 'general-purpose'],
-    lifecycle: 'production',
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['o1-mini'],
   },
   'openai:gpt-4o-mini-2024-07-18': {
@@ -222,6 +403,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'vision', 'low-cost', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['gpt-4o-mini'],
   },
   'openai:gpt-4o-2024-11-20': {
@@ -239,6 +426,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'vision', 'general-purpose', 'coding', 'agents'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['gpt-4o'],
   },
   'openai:gpt-4o-2024-08-06': {
@@ -256,6 +449,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'vision', 'general-purpose', 'coding', 'agents'],
     lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'openai:gpt-4o-2024-05-13': {
     id: 'openai:gpt-4o-2024-05-13',
@@ -272,6 +471,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'vision', 'general-purpose', 'coding', 'agents'],
     lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'openai:gpt-4-turbo-2024-04-09': {
     id: 'openai:gpt-4-turbo-2024-04-09',
@@ -288,6 +493,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'general-purpose', 'coding', 'agents'],
     lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'openai:gpt-3.5-turbo-0125': {
     id: 'openai:gpt-3.5-turbo-0125',
@@ -304,6 +515,101 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'general-purpose', 'low-cost'],
     lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'openai:whisper-1': {
+    id: 'openai:whisper-1',
+    name: 'Whisper V2',
+    description: 'OpenAI Whisper V2 — general-purpose speech recognition model supporting 99 languages.',
+    input: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+      costPerMinute: 0.006,
+    },
+    output: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+    },
+    tags: ['general-purpose', 'speech-to-text'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: true,
+      supportsSearch: false,
+    },
+  },
+  'anthropic:claude-opus-4-6': {
+    id: 'anthropic:claude-opus-4-6',
+    name: 'Claude Opus 4.6',
+    description:
+      'Claude Opus 4.6 is the most intelligent Claude model, built for complex agents and coding workflows. It excels at long-running professional tasks, large codebases, complex refactors, and multi-step debugging with a 128K max output.',
+    input: {
+      maxTokens: 1000000,
+      costPer1MTokens: 5,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 25,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
+  'anthropic:claude-sonnet-4-6': {
+    id: 'anthropic:claude-sonnet-4-6',
+    name: 'Claude Sonnet 4.6',
+    description:
+      'Claude Sonnet 4.6 offers the best combination of speed and intelligence in the Claude family. It features adaptive thinking for dynamic reasoning allocation, delivering fast responses for simple queries and deeper analysis for complex tasks.',
+    input: {
+      maxTokens: 1000000,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 64000,
+      costPer1MTokens: 15,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
+  'anthropic:claude-opus-4-5-20251101': {
+    id: 'anthropic:claude-opus-4-5-20251101',
+    name: 'Claude Opus 4.5',
+    description:
+      'Claude Opus 4.5 is a highly capable model with strong reasoning, coding, and agentic performance. It offers the same pricing tier as Opus 4.6 with a 200K context window.',
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 5,
+    },
+    output: {
+      maxTokens: 64000,
+      costPer1MTokens: 25,
+    },
+    tags: ['reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+    aliases: ['claude-opus-4-5'],
   },
   'anthropic:claude-sonnet-4-5-20250929': {
     id: 'anthropic:claude-sonnet-4-5-20250929',
@@ -320,6 +626,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
     aliases: ['claude-sonnet-4-5'],
   },
   'anthropic:claude-sonnet-4-20250514': {
@@ -337,6 +649,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['claude-sonnet-4'],
   },
   'anthropic:claude-sonnet-4-reasoning-20250514': {
@@ -354,6 +672,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'vision', 'reasoning', 'general-purpose', 'agents', 'coding'],
     lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['claude-sonnet-4-reasoning'],
   },
   'anthropic:claude-haiku-4-5-20251001': {
@@ -371,6 +695,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'agents', 'vision', 'general-purpose', 'coding'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['claude-haiku-4-5'],
   },
   'anthropic:claude-haiku-4-5-reasoning-20251001': {
@@ -388,7 +718,13 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
     lifecycle: 'production',
-    aliases: ['claude-haiku-4-5-reasoning'],
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['claude-haiku-4-5-reasoning', 'claude-haiku-4-5-20251001'],
   },
   'anthropic:claude-3-7-sonnet-20250219': {
     id: 'anthropic:claude-3-7-sonnet-20250219',
@@ -404,7 +740,13 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 15,
     },
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
-    lifecycle: 'production',
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'anthropic:claude-3-7-sonnet-reasoning-20250219': {
     id: 'anthropic:claude-3-7-sonnet-reasoning-20250219',
@@ -420,7 +762,13 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 15,
     },
     tags: ['deprecated', 'vision', 'reasoning', 'general-purpose', 'agents', 'coding'],
-    lifecycle: 'deprecated',
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'anthropic:claude-3-5-haiku-20241022': {
     id: 'anthropic:claude-3-5-haiku-20241022',
@@ -436,7 +784,13 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 4,
     },
     tags: ['general-purpose', 'low-cost'],
-    lifecycle: 'production',
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'anthropic:claude-3-5-sonnet-20241022': {
     id: 'anthropic:claude-3-5-sonnet-20241022',
@@ -453,6 +807,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['vision', 'general-purpose', 'agents', 'coding', 'storytelling'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'anthropic:claude-3-5-sonnet-20240620': {
     id: 'anthropic:claude-3-5-sonnet-20240620',
@@ -469,6 +829,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['vision', 'general-purpose', 'agents', 'coding', 'storytelling'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'anthropic:claude-3-haiku-20240307': {
     id: 'anthropic:claude-3-haiku-20240307',
@@ -483,8 +849,104 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 4096,
       costPer1MTokens: 1.25,
     },
-    tags: ['low-cost', 'general-purpose'],
+    tags: ['deprecated', 'low-cost', 'general-purpose'],
+    lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'google-ai:gemini-3.1-pro': {
+    id: 'google-ai:gemini-3.1-pro',
+    name: 'Gemini 3.1 Pro',
+    description:
+      "Google's most powerful agentic and coding model, delivering state-of-the-art reasoning with rich multimodal understanding. Successor to Gemini 3 Pro (shut down March 9, 2026).",
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 2,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 12,
+    },
+    tags: ['reasoning', 'agents', 'general-purpose', 'vision', 'coding'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+    aliases: ['gemini-3.1-pro-preview'],
+  },
+  'google-ai:gemini-3-flash': {
+    id: 'google-ai:gemini-3-flash',
+    name: 'Gemini 3 Flash',
+    description: "Google's most balanced model built for speed, scale, and frontier intelligence.",
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 0.5,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 3,
+    },
+    tags: ['reasoning', 'agents', 'general-purpose', 'vision'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+    aliases: ['gemini-3-flash-preview'],
+  },
+  'google-ai:gemini-3.1-flash-lite': {
+    id: 'google-ai:gemini-3.1-flash-lite',
+    name: 'Gemini 3.1 Flash-Lite',
+    description:
+      "Google's most cost-effective AI model for high-volume, low-latency tasks. Offers strong performance at a fraction of the cost of larger models.",
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 0.25,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 1.5,
+    },
+    tags: ['low-cost', 'general-purpose', 'vision'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+    aliases: ['gemini-3.1-flash-lite-preview'],
+  },
+  'google-ai:gemini-2.5-pro': {
+    id: 'google-ai:gemini-2.5-pro',
+    name: 'Gemini 2.5 Pro',
+    description:
+      'Google\'s most advanced stable AI model designed for complex reasoning, coding, mathematics, and scientific tasks. Features "thinking" capabilities for superior human-preference alignment and problem-solving.',
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 1.25,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 10,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision', 'coding'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
   },
   'google-ai:gemini-2.5-flash': {
     id: 'google-ai:gemini-2.5-flash',
@@ -501,22 +963,34 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
   },
-  'google-ai:gemini-2.5-pro': {
-    id: 'google-ai:gemini-2.5-pro',
-    name: 'Gemini 2.5 Pro',
+  'google-ai:gemini-2.5-flash-lite': {
+    id: 'google-ai:gemini-2.5-flash-lite',
+    name: 'Gemini 2.5 Flash-Lite',
     description:
-      'Google\'s most advanced AI model designed for complex reasoning, coding, mathematics, and scientific tasks. Features "thinking" capabilities for superior human-preference alignment and problem-solving.',
+      'Lightweight, cost-efficient Gemini model optimized for high-volume, low-latency tasks. Successor to Gemini 2.0 Flash with improved capabilities.',
     input: {
-      maxTokens: 200000,
-      costPer1MTokens: 1.25,
+      maxTokens: 1048576,
+      costPer1MTokens: 0.1,
     },
     output: {
       maxTokens: 65536,
-      costPer1MTokens: 10,
+      costPer1MTokens: 0.4,
     },
-    tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision', 'coding'],
+    tags: ['recommended', 'low-cost', 'general-purpose', 'vision'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
   },
   'google-ai:gemini-2.0-flash': {
     id: 'google-ai:gemini-2.0-flash',
@@ -532,8 +1006,36 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.4,
     },
     tags: ['low-cost', 'general-purpose', 'vision'],
-    lifecycle: 'production',
+    lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['models/gemini-2.0-flash'],
+  },
+  'google-ai:gemini-3-pro': {
+    id: 'google-ai:gemini-3-pro',
+    name: 'Gemini 3 Pro (Shut Down)',
+    description: 'Gemini 3 Pro Preview was shut down on March 9, 2026. Use Gemini 3.1 Pro instead.',
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 2,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 12,
+    },
+    tags: ['reasoning', 'agents', 'general-purpose', 'vision'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+    aliases: ['gemini-3-pro-preview'],
   },
   'cerebras:gpt-oss-120b': {
     id: 'cerebras:gpt-oss-120b',
@@ -550,6 +1052,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['preview', 'general-purpose', 'reasoning'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'cerebras:qwen-3-32b': {
     id: 'cerebras:qwen-3-32b',
@@ -565,7 +1073,13 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.8,
     },
     tags: ['general-purpose', 'reasoning'],
-    lifecycle: 'production',
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'cerebras:llama-4-scout-17b-16e-instruct': {
     id: 'cerebras:llama-4-scout-17b-16e-instruct',
@@ -581,7 +1095,13 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.85,
     },
     tags: ['general-purpose', 'vision'],
-    lifecycle: 'production',
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'cerebras:llama3.1-8b': {
     id: 'cerebras:llama3.1-8b',
@@ -598,6 +1118,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'cerebras:llama3.3-70b': {
     id: 'cerebras:llama3.3-70b',
@@ -613,7 +1139,13 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 1.2,
     },
     tags: ['general-purpose'],
-    lifecycle: 'production',
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'groq:gpt-oss-20b': {
     id: 'groq:gpt-oss-20b',
@@ -622,14 +1154,20 @@ export const models: Record<string, RemoteModel> = {
       'gpt-oss-20b is a compact, open-weight language model optimized for low-latency. It shares the same training foundation and capabilities as the GPT-OSS 120B model, with faster responses and lower cost.',
     input: {
       maxTokens: 131000,
-      costPer1MTokens: 0.1,
+      costPer1MTokens: 0.075,
     },
     output: {
       maxTokens: 32000,
-      costPer1MTokens: 0.5,
+      costPer1MTokens: 0.3,
     },
     tags: ['preview', 'general-purpose', 'reasoning', 'low-cost'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['openai/gpt-oss-20b'],
   },
   'groq:gpt-oss-120b': {
@@ -647,6 +1185,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['preview', 'general-purpose', 'reasoning'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['openai/gpt-oss-120b'],
   },
   'groq:deepseek-r1-distill-llama-70b': {
@@ -664,6 +1208,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['general-purpose', 'reasoning', 'preview'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'groq:llama-3.3-70b-versatile': {
     id: 'groq:llama-3.3-70b-versatile',
@@ -680,6 +1230,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'general-purpose', 'coding'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'groq:llama-3.2-1b-preview': {
     id: 'groq:llama-3.2-1b-preview',
@@ -696,6 +1252,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'deprecated'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'groq:llama-3.2-3b-preview': {
     id: 'groq:llama-3.2-3b-preview',
@@ -712,6 +1274,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'general-purpose', 'deprecated'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'groq:llama-3.2-11b-vision-preview': {
     id: 'groq:llama-3.2-11b-vision-preview',
@@ -728,6 +1296,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'vision', 'general-purpose', 'deprecated'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'groq:llama-3.2-90b-vision-preview': {
     id: 'groq:llama-3.2-90b-vision-preview',
@@ -744,6 +1318,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['vision', 'general-purpose', 'deprecated'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'groq:llama-3.1-8b-instant': {
     id: 'groq:llama-3.1-8b-instant',
@@ -759,6 +1339,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'groq:llama3-8b-8192': {
     id: 'groq:llama3-8b-8192',
@@ -775,6 +1361,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'general-purpose', 'deprecated'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'groq:llama3-70b-8192': {
     id: 'groq:llama3-70b-8192',
@@ -791,6 +1383,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['general-purpose', 'deprecated'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'groq:gemma2-9b-it': {
     id: 'groq:gemma2-9b-it',
@@ -807,6 +1405,164 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'general-purpose'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'groq:whisper-large-v3': {
+    id: 'groq:whisper-large-v3',
+    name: 'Whisper V3',
+    description: 'Whisper Large V3 on Groq — fast, accurate multilingual speech recognition.',
+    input: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+      costPerMinute: 0.00185,
+    },
+    output: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+    },
+    tags: ['general-purpose', 'speech-to-text'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: true,
+      supportsSearch: false,
+    },
+  },
+  'groq:whisper-large-v3-turbo': {
+    id: 'groq:whisper-large-v3-turbo',
+    name: 'Whisper V3 Turbo',
+    description: 'Whisper Large V3 Turbo on Groq — optimized for speed with near-identical accuracy to V3.',
+    input: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+      costPerMinute: 0.000667,
+    },
+    output: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+    },
+    tags: ['low-cost', 'general-purpose', 'speech-to-text'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: true,
+      supportsSearch: false,
+    },
+  },
+  'groq:distil-whisper-large-v3-en': {
+    id: 'groq:distil-whisper-large-v3-en',
+    name: 'Distil Whisper V3 (English)',
+    description: 'Distilled Whisper Large V3 on Groq — decommissioned, replaced by whisper-large-v3-turbo.',
+    input: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+      costPerMinute: 0.000333,
+    },
+    output: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+    },
+    tags: ['low-cost', 'speech-to-text'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: true,
+      supportsSearch: false,
+    },
+  },
+  'xai:grok-4-1-fast-reasoning': {
+    id: 'xai:grok-4-1-fast-reasoning',
+    name: 'Grok 4.1 Fast (Reasoning)',
+    description:
+      'Latest fast Grok model with reasoning capabilities and a massive 2M context window. Extremely cost-effective for a frontier-class model.',
+    input: {
+      maxTokens: 2000000,
+      costPer1MTokens: 0.2,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.5,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision', 'low-cost'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'xai:grok-4-1-fast-non-reasoning': {
+    id: 'xai:grok-4-1-fast-non-reasoning',
+    name: 'Grok 4.1 Fast (Non-Reasoning)',
+    description:
+      'Latest fast Grok model for non-reasoning tasks with a massive 2M context window. Extremely cost-effective for a frontier-class model.',
+    input: {
+      maxTokens: 2000000,
+      costPer1MTokens: 0.2,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.5,
+    },
+    tags: ['recommended', 'general-purpose', 'vision', 'low-cost'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'xai:grok-4.20-0309-reasoning': {
+    id: 'xai:grok-4.20-0309-reasoning',
+    name: 'Grok 4.20 (Reasoning)',
+    description: 'xAI flagship model with deep reasoning capabilities and 2M context window.',
+    input: {
+      maxTokens: 2000000,
+      costPer1MTokens: 2,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 6,
+    },
+    tags: ['reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'xai:grok-4.20-0309-non-reasoning': {
+    id: 'xai:grok-4.20-0309-non-reasoning',
+    name: 'Grok 4.20 (Non-Reasoning)',
+    description: 'xAI flagship model for non-reasoning tasks with 2M context window.',
+    input: {
+      maxTokens: 2000000,
+      costPer1MTokens: 2,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 6,
+    },
+    tags: ['general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'xai:grok-code-fast-1': {
     id: 'xai:grok-code-fast-1',
@@ -822,6 +1578,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['coding', 'general-purpose', 'low-cost'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'xai:grok-4-fast-reasoning': {
     id: 'xai:grok-4-fast-reasoning',
@@ -835,8 +1597,14 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 128000,
       costPer1MTokens: 0.5,
     },
-    tags: ['reasoning', 'recommended', 'general-purpose'],
+    tags: ['reasoning', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'xai:grok-4-fast-non-reasoning': {
     id: 'xai:grok-4-fast-non-reasoning',
@@ -850,8 +1618,14 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 128000,
       costPer1MTokens: 0.5,
     },
-    tags: ['low-cost', 'recommended', 'general-purpose'],
+    tags: ['low-cost', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'xai:grok-4-0709': {
     id: 'xai:grok-4-0709',
@@ -867,6 +1641,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'xai:grok-3-mini': {
     id: 'xai:grok-3-mini',
@@ -882,6 +1662,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'xai:grok-3': {
     id: 'xai:grok-3',
@@ -897,6 +1683,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
   },
   'openrouter:gpt-oss-120b': {
     id: 'openrouter:gpt-oss-120b',
@@ -913,6 +1705,35 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['preview', 'general-purpose', 'reasoning'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'fireworks-ai:qwen3-8b': {
+    id: 'fireworks-ai:qwen3-8b',
+    name: 'Qwen3 8B',
+    description:
+      'Qwen3 8B is a newer-generation small model with better architecture than Llama 3.1 8B. Same price tier with improved quality across reasoning and coding tasks.',
+    input: {
+      maxTokens: 40960,
+      costPer1MTokens: 0.2,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 0.2,
+    },
+    tags: ['low-cost', 'general-purpose', 'reasoning'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/qwen3-8b'],
   },
   'fireworks-ai:gpt-oss-20b': {
     id: 'fireworks-ai:gpt-oss-20b',
@@ -929,6 +1750,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['general-purpose', 'reasoning', 'low-cost'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['accounts/fireworks/models/gpt-oss-20b'],
   },
   'fireworks-ai:gpt-oss-120b': {
@@ -946,7 +1773,59 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['general-purpose', 'reasoning'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['accounts/fireworks/models/gpt-oss-120b'],
+  },
+  'fireworks-ai:deepseek-v3p2': {
+    id: 'fireworks-ai:deepseek-v3p2',
+    name: 'DeepSeek V3.2',
+    description:
+      'DeepSeek V3.2 is a 675B-parameter mixture-of-experts model with superior reasoning and agent performance. It delivers high computational efficiency with strong results across coding, math, and general-purpose tasks.',
+    input: {
+      maxTokens: 163840,
+      costPer1MTokens: 0.56,
+    },
+    output: {
+      maxTokens: 160000,
+      costPer1MTokens: 1.68,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/deepseek-v3p2'],
+  },
+  'fireworks-ai:deepseek-v3p1': {
+    id: 'fireworks-ai:deepseek-v3p1',
+    name: 'DeepSeek V3.1',
+    description:
+      'DeepSeek V3.1 is a 685B-parameter hybrid LLM with mixture-of-experts architecture (37B activated per token). Features thinking and non-thinking chat modes for complex agentic behaviors and reasoning tasks.',
+    input: {
+      maxTokens: 163840,
+      costPer1MTokens: 0.56,
+    },
+    output: {
+      maxTokens: 163840,
+      costPer1MTokens: 1.68,
+    },
+    tags: ['reasoning', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/deepseek-v3p1'],
   },
   'fireworks-ai:deepseek-r1-0528': {
     id: 'fireworks-ai:deepseek-r1-0528',
@@ -962,7 +1841,13 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 8,
     },
     tags: ['recommended', 'reasoning', 'general-purpose', 'coding'],
-    lifecycle: 'production',
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['accounts/fireworks/models/deepseek-r1-0528'],
   },
   'fireworks-ai:deepseek-v3-0324': {
@@ -979,7 +1864,13 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.9,
     },
     tags: ['recommended', 'general-purpose'],
-    lifecycle: 'production',
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['accounts/fireworks/models/deepseek-v3-0324'],
   },
   'fireworks-ai:llama4-maverick-instruct-basic': {
@@ -996,7 +1887,13 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.88,
     },
     tags: ['general-purpose', 'vision'],
-    lifecycle: 'production',
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['accounts/fireworks/models/llama4-maverick-instruct-basic'],
   },
   'fireworks-ai:llama4-scout-instruct-basic': {
@@ -1013,7 +1910,13 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.6,
     },
     tags: ['general-purpose', 'vision'],
-    lifecycle: 'production',
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['accounts/fireworks/models/llama4-scout-instruct-basic'],
   },
   'fireworks-ai:llama-v3p3-70b-instruct': {
@@ -1031,6 +1934,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['accounts/fireworks/models/llama-v3p3-70b-instruct'],
   },
   'fireworks-ai:deepseek-r1': {
@@ -1048,6 +1957,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'general-purpose', 'coding'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['accounts/fireworks/models/deepseek-r1'],
   },
   'fireworks-ai:deepseek-r1-basic': {
@@ -1065,6 +1980,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'general-purpose', 'coding'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['accounts/fireworks/models/deepseek-r1-basic'],
   },
   'fireworks-ai:deepseek-v3': {
@@ -1082,6 +2003,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'general-purpose'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['accounts/fireworks/models/deepseek-v3'],
   },
   'fireworks-ai:llama-v3p1-405b-instruct': {
@@ -1099,6 +2026,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'general-purpose'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['accounts/fireworks/models/llama-v3p1-405b-instruct'],
   },
   'fireworks-ai:llama-v3p1-70b-instruct': {
@@ -1116,6 +2049,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'general-purpose'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['accounts/fireworks/models/llama-v3p1-70b-instruct'],
   },
   'fireworks-ai:llama-v3p1-8b-instruct': {
@@ -1132,7 +2071,13 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.2,
     },
     tags: ['low-cost', 'general-purpose'],
-    lifecycle: 'production',
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['accounts/fireworks/models/llama-v3p1-8b-instruct'],
   },
   'fireworks-ai:mixtral-8x22b-instruct': {
@@ -1150,6 +2095,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'general-purpose'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['accounts/fireworks/models/mixtral-8x22b-instruct'],
   },
   'fireworks-ai:mixtral-8x7b-instruct': {
@@ -1167,6 +2118,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'general-purpose'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['accounts/fireworks/models/mixtral-8x7b-instruct'],
   },
   'fireworks-ai:mythomax-l2-13b': {
@@ -1184,6 +2141,12 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['roleplay', 'storytelling', 'low-cost'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['accounts/fireworks/models/mythomax-l2-13b'],
   },
   'fireworks-ai:gemma2-9b-it': {
@@ -1201,11 +2164,39 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'low-cost', 'general-purpose'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
     aliases: ['accounts/fireworks/models/gemma2-9b-it'],
+  },
+  'fireworks-ai:whisper-v3': {
+    id: 'fireworks-ai:whisper-v3',
+    name: 'Whisper V3',
+    description: 'Whisper V3 on Fireworks AI — multilingual speech recognition with high accuracy.',
+    input: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+      costPerMinute: 0.0015,
+    },
+    output: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+    },
+    tags: ['general-purpose', 'speech-to-text'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: true,
+      supportsSearch: false,
+    },
   },
 }
 
-export const defaultModel: RemoteModel = {
+export const defaultModel: Model = {
   id: '',
   name: '',
   description: '',

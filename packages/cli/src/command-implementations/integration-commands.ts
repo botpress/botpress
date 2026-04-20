@@ -1,6 +1,6 @@
 import chalk from 'chalk'
 import _ from 'lodash'
-import { ApiClient, PublicOrPrivateIntegration } from 'src/api/client'
+import { ApiClient, PublicOrPrivateIntegration, IntegrationSummary } from 'src/api/client'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import { NamePackageRef, parsePackageRef } from '../package-ref'
@@ -38,28 +38,69 @@ export class ListIntegrationsCommand extends GlobalCommand<ListIntegrationsComma
   public async run(): Promise<void> {
     const api = await this.ensureLoginAndCreateClient(this.argv)
 
-    const { dev, name, versionNumber: version } = this.argv
+    const { dev, public: isPublic, owned } = this.argv
 
-    const privateLister = (req: { nextToken?: string }) =>
-      api.client.listIntegrations({ nextToken: req.nextToken, dev, name, version })
-
-    const dummyLister: typeof privateLister = async () => ({ integrations: [], meta: {} })
-    const publicLister = dev
-      ? dummyLister
-      : (req: { nextToken?: string }) => api.client.listPublicIntegrations({ nextToken: req.nextToken, name, version })
+    if (dev && isPublic) {
+      throw new errors.BotpressCLIError(
+        'Cannot use --dev and --public flags together as dev integrations are always private'
+      )
+    }
+    if (dev && owned) {
+      throw new errors.BotpressCLIError(
+        'Cannot use --dev and --owned flags together as dev integrations are always owned by the current workspace'
+      )
+    }
 
     try {
-      const [privateIntegrations, publicIntegrations] = await Promise.all([
-        api.listAllPages(privateLister, (r) => r.integrations),
-        api.listAllPages(publicLister, (r) => r.integrations),
-      ])
-      const integrations = _.uniqBy([...privateIntegrations, ...publicIntegrations], (i) => i.id)
-
+      const integrations = await this._listAllIntegrations(api)
       this.logger.success('Integrations:')
       this.logger.json(integrations)
     } catch (thrown) {
       throw errors.BotpressCLIError.wrap(thrown, 'Could not list integrations')
     }
+  }
+
+  private _listAllIntegrations = async (api: ApiClient): Promise<IntegrationSummary[]> => {
+    if (this.argv.dev) {
+      return this._listDevIntegrations(api)
+    }
+
+    if (this.argv.public && this.argv.owned) {
+      const [owned, publicIntegrations] = await Promise.all([
+        this._listOwnedIntegrations(api),
+        this._listPublicIntegrations(api),
+      ])
+      return _.intersectionBy(owned, publicIntegrations, (i) => i.id).slice(0, this.argv.limit)
+    }
+
+    if (this.argv.owned) {
+      return this._listOwnedIntegrations(api)
+    }
+
+    if (this.argv.public) {
+      return this._listPublicIntegrations(api)
+    }
+
+    const [owned, publicIntegrations] = await Promise.all([
+      this._listOwnedIntegrations(api),
+      this._listPublicIntegrations(api),
+    ])
+    return _.uniqBy([...owned, ...publicIntegrations], (i) => i.id).slice(0, this.argv.limit)
+  }
+
+  private _listDevIntegrations = async (api: ApiClient): Promise<IntegrationSummary[]> => {
+    const { name, versionNumber: version } = this.argv
+    return api.client.list.integrations({ dev: true, name, version }).collect({ limit: this.argv.limit })
+  }
+
+  private _listOwnedIntegrations = async (api: ApiClient): Promise<IntegrationSummary[]> => {
+    const { name, versionNumber: version } = this.argv
+    return api.client.list.integrations({ name, version }).collect({ limit: this.argv.limit })
+  }
+
+  private _listPublicIntegrations = async (api: ApiClient): Promise<IntegrationSummary[]> => {
+    const { name, versionNumber: version } = this.argv
+    return api.client.list.publicIntegrations({ name, version }).collect({ limit: this.argv.limit })
   }
 }
 

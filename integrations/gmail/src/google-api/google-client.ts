@@ -1,14 +1,25 @@
 import * as sdk from '@botpress/sdk'
-import { google } from 'googleapis'
+import { gmail_v1, google } from 'googleapis'
 import { IntegrationConfig } from 'src/config/integration-config'
+import { composeRawEmail } from 'src/utils/mail-composing'
 import { GmailClient, GoogleOAuth2Client } from './types'
 import * as bp from '.botpress'
 
 export class GoogleClient {
+  public readonly threads: ThreadManagement
+  public readonly messages: MessageManagement
+  public readonly labels: LabelManagement
+  public readonly drafts: DraftManagement
+
   private constructor(
     private readonly _gmail: GmailClient,
     private readonly _topicName: string
-  ) {}
+  ) {
+    this.threads = new ThreadManagement(this._gmail)
+    this.messages = new MessageManagement(this._gmail)
+    this.labels = new LabelManagement(this._gmail)
+    this.drafts = new DraftManagement(this._gmail)
+  }
 
   public static async create({
     client,
@@ -19,14 +30,26 @@ export class GoogleClient {
     ctx: bp.Context
     refreshToken?: string
   }) {
-    const token = refreshToken ?? (await this._getRefreshTokenFromStates({ client, ctx }))
+    const token = refreshToken ?? (await GoogleClient._getRefreshTokenFromStates({ client, ctx }))
 
-    const oauth2Client = this._getOAuthClient({ ctx })
-    oauth2Client.setCredentials({ refresh_token: token })
+    if (!token) {
+      throw new sdk.RuntimeError('No refresh token found. Please complete the OAuth flow to obtain a refresh token.')
+    }
 
-    const gmailClient = google.gmail({ version: 'v1', auth: oauth2Client })
+    const oauth2Client = GoogleClient._getOAuthClient({ ctx })
+
+    try {
+      oauth2Client.setCredentials({ refresh_token: token })
+    } catch (error) {
+      throw new sdk.RuntimeError(`Failed to set OAuth credentials: ${error}`)
+    }
+
+    const gmailClient = google.gmail({
+      version: 'v1',
+      auth: oauth2Client,
+      timeout: 30000,
+    })
     const topicName = IntegrationConfig.getPubSubTopicName({ ctx })
-
     return new GoogleClient(gmailClient, topicName)
   }
 
@@ -39,15 +62,15 @@ export class GoogleClient {
     ctx: bp.Context
     authorizationCode: string
   }) {
-    const refreshToken = await this._exchangeAuthorizationCodeForRefreshToken({ ctx, authorizationCode })
+    const refreshToken = await GoogleClient._exchangeAuthorizationCodeForRefreshToken({ ctx, authorizationCode })
 
-    await this._saveRefreshTokenIntoStates({ client, ctx, refreshToken })
+    await GoogleClient._saveRefreshTokenIntoStates({ client, ctx, refreshToken, authorizationCode })
 
-    return this.create({ client, ctx, refreshToken })
+    return GoogleClient.create({ client, ctx, refreshToken })
   }
 
   public async watchIncomingMail() {
-    await this._gmail.users.watch({
+    return this._gmail.users.watch({
       userId: 'me',
       requestBody: { topicName: this._topicName },
     })
@@ -71,43 +94,61 @@ export class GoogleClient {
     return history.data
   }
 
-  public async getMessageById(messageId: string) {
-    const message = await this._gmail.users.messages.get({ id: messageId, userId: 'me' })
-
-    return message.data
-  }
-
-  public async sendRawEmail(raw: string, threadId?: string) {
-    const newMail = await this._gmail.users.messages.send({ requestBody: { raw, threadId }, userId: 'me' })
-
-    return newMail.data
-  }
-
   private static async _getRefreshTokenFromStates({ client, ctx }: { client: bp.Client; ctx: bp.Context }) {
-    const { state } = await client.getState({
-      type: 'integration',
-      name: 'configuration',
-      id: ctx.integrationId,
-    })
+    try {
+      const { state } = await client.getOrSetState({
+        type: 'integration',
+        name: 'configuration',
+        id: ctx.integrationId,
+        payload: {
+          refreshToken: '',
+          lastHistoryId: undefined,
+        },
+      })
 
-    return state.payload.refreshToken
+      const refreshToken = state.payload.refreshToken || undefined
+
+      return refreshToken
+    } catch (error) {
+      throw new sdk.RuntimeError(`Failed to get refresh token from states: ${error}`)
+    }
   }
 
   private static async _saveRefreshTokenIntoStates({
     client,
     ctx,
     refreshToken,
+    authorizationCode,
   }: {
     client: bp.Client
     ctx: bp.Context
     refreshToken: string
+    authorizationCode?: string
   }) {
-    await client.setState({
-      type: 'integration',
-      name: 'configuration',
-      id: ctx.integrationId,
-      payload: { refreshToken },
-    })
+    // Use patchState to preserve existing fields like lastHistoryId
+    try {
+      await client.patchState({
+        type: 'integration',
+        name: 'configuration',
+        id: ctx.integrationId,
+        payload: {
+          refreshToken,
+          ...(authorizationCode && { authorizationCode }),
+        },
+      })
+    } catch {
+      // If state doesn't exist, create it with getOrSetState
+      await client.getOrSetState({
+        type: 'integration',
+        name: 'configuration',
+        id: ctx.integrationId,
+        payload: {
+          refreshToken,
+          lastHistoryId: undefined,
+          ...(authorizationCode && { authorizationCode }),
+        },
+      })
+    }
   }
 
   private static async _exchangeAuthorizationCodeForRefreshToken({
@@ -117,7 +158,7 @@ export class GoogleClient {
     ctx: bp.Context
     authorizationCode: string
   }) {
-    const refreshToken = await this._getRefreshToken({ ctx, authorizationCode })
+    const refreshToken = await GoogleClient._getRefreshToken({ ctx, authorizationCode })
 
     if (!refreshToken) {
       throw new sdk.RuntimeError('Unable to obtain refresh token. Please try the OAuth flow again.')
@@ -127,13 +168,13 @@ export class GoogleClient {
   }
 
   private static async _getRefreshToken({ ctx, authorizationCode }: { ctx: bp.Context; authorizationCode: string }) {
-    const oauth2Client = this._getOAuthClient({ ctx })
+    const oauth2Client = GoogleClient._getOAuthClient({ ctx })
 
     try {
       const response = await oauth2Client.getToken(authorizationCode)
       return response.tokens.refresh_token ?? null
     } catch (thrown) {
-      this._handleRefreshTokenError({ ctx, thrown })
+      GoogleClient._handleRefreshTokenError({ ctx, thrown })
     }
 
     return null
@@ -154,5 +195,197 @@ export class GoogleClient {
     const { clientId, clientSecret, endpoint } = IntegrationConfig.getOAuthConfig({ ctx })
 
     return new google.auth.OAuth2(clientId, clientSecret, endpoint)
+  }
+}
+
+class MessageManagement {
+  public constructor(private readonly _gmail: GmailClient) {}
+
+  public async get(messageId: string) {
+    const message = await this._gmail.users.messages.get({ id: messageId, userId: 'me' })
+    return message.data
+  }
+
+  public async send(raw: string, threadId?: string) {
+    const newMail = await this._gmail.users.messages.send({ requestBody: { raw, threadId }, userId: 'me' })
+    return newMail.data
+  }
+
+  public async delete(messageId: string) {
+    await this._gmail.users.messages.delete({ id: messageId, userId: 'me' })
+  }
+
+  public async trash(messageId: string) {
+    await this._gmail.users.messages.trash({ id: messageId, userId: 'me' })
+  }
+
+  public async untrash(messageId: string) {
+    await this._gmail.users.messages.untrash({ id: messageId, userId: 'me' })
+  }
+
+  public async modifyLabels(messageId: string, addLabelIds?: string[], removeLabelIds?: string[]) {
+    await this._gmail.users.messages.modify({
+      id: messageId,
+      userId: 'me',
+      requestBody: { addLabelIds, removeLabelIds },
+    })
+  }
+
+  public async getAttachment(messageId?: string, attachmentId?: string) {
+    const attachment = await this._gmail.users.messages.attachments.get({ id: attachmentId, messageId, userId: 'me' })
+    return attachment.data
+  }
+
+  public async getFirstAttachment(messageId: string) {
+    const message = await this.get(messageId)
+    const attachmentId = this._findFirstAttachmentId(message.payload)
+
+    if (!attachmentId) {
+      throw new sdk.RuntimeError('No attachment found in the message')
+    }
+
+    const attachment = await this._gmail.users.messages.attachments.get({
+      id: attachmentId,
+      messageId,
+      userId: 'me',
+    })
+
+    return {
+      ...attachment.data,
+      attachmentId,
+    }
+  }
+
+  public async composeRaw(to: string, subject: string, body: string) {
+    const raw = await composeRawEmail({
+      to,
+      subject,
+      text: body,
+      html: body,
+      textEncoding: 'base64',
+    })
+
+    return raw
+  }
+
+  private _findFirstAttachmentId(payload: gmail_v1.Schema$MessagePart | undefined): string | null {
+    if (!payload) {
+      return null
+    }
+
+    if (payload.body?.attachmentId) {
+      return payload.body.attachmentId
+    }
+
+    if (payload.parts && Array.isArray(payload.parts)) {
+      for (const part of payload.parts) {
+        const attachmentId = this._findFirstAttachmentId(part)
+        if (attachmentId) {
+          return attachmentId
+        }
+      }
+    }
+
+    return null
+  }
+}
+
+class ThreadManagement {
+  public constructor(private readonly _gmail: GmailClient) {}
+
+  public async list() {
+    const threads = await this._gmail.users.threads.list({ userId: 'me' })
+    return threads.data
+  }
+
+  public async get(threadId: string) {
+    const thread = await this._gmail.users.threads.get({ id: threadId, userId: 'me' })
+    return thread.data
+  }
+
+  public async trash(threadId: string) {
+    await this._gmail.users.threads.trash({ id: threadId, userId: 'me' })
+  }
+
+  public async untrash(threadId: string) {
+    await this._gmail.users.threads.untrash({ id: threadId, userId: 'me' })
+  }
+}
+
+class LabelManagement {
+  public constructor(private readonly _gmail: GmailClient) {}
+
+  public async list() {
+    const labels = await this._gmail.users.labels.list({ userId: 'me' })
+    return labels.data
+  }
+
+  public async get(labelId: string) {
+    const label = await this._gmail.users.labels.get({ id: labelId, userId: 'me' })
+    return label.data
+  }
+
+  public async create(name: string) {
+    const label = await this._gmail.users.labels.create({ requestBody: { name }, userId: 'me' })
+    return label.data
+  }
+
+  public async delete(labelId: string) {
+    await this._gmail.users.labels.delete({ id: labelId, userId: 'me' })
+  }
+
+  public async update(labelId: string, name?: string, backgroundColor?: string, textColor?: string) {
+    const label = await this._gmail.users.labels.update({
+      id: labelId,
+      userId: 'me',
+      requestBody: {
+        name,
+        color: backgroundColor || textColor ? { backgroundColor, textColor } : undefined,
+      },
+    })
+    return label.data
+  }
+}
+
+class DraftManagement {
+  public constructor(private readonly _gmail: GmailClient) {}
+
+  public async list() {
+    const drafts = await this._gmail.users.drafts.list({ userId: 'me' })
+    return drafts.data
+  }
+
+  public async get(draftId: string) {
+    const draft = await this._gmail.users.drafts.get({ id: draftId, userId: 'me' })
+    return draft.data
+  }
+
+  public async create(raw: string) {
+    const draft = await this._gmail.users.drafts.create({
+      userId: 'me',
+      requestBody: { message: { raw } },
+    })
+    return draft.data
+  }
+
+  public async delete(draftId: string) {
+    await this._gmail.users.drafts.delete({ id: draftId, userId: 'me' })
+  }
+
+  public async update(draftId: string, raw: string) {
+    const draft = await this._gmail.users.drafts.update({
+      id: draftId,
+      userId: 'me',
+      requestBody: { message: { raw } },
+    })
+    return draft.data
+  }
+
+  public async send(draftId: string) {
+    const sent = await this._gmail.users.drafts.send({
+      userId: 'me',
+      requestBody: { id: draftId },
+    })
+    return sent.data
   }
 }

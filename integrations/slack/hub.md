@@ -1,5 +1,14 @@
 The Slack integration enables seamless communication between your AI-powered chatbot and Slack, the popular collaboration platform. Connect your chatbot to Slack and streamline team communication, automate tasks, and enhance productivity. With this integration, your chatbot can send and receive messages, share updates, handle inquiries, and perform actions directly within Slack channels. Leverage Slack's extensive features such as chat, file sharing, notifications, and app integrations to create a powerful conversational AI experience. Enhance team collaboration and streamline workflows with the Slack Integration for Botpress.
 
+## Migrating from version `3.x` to `4.x`
+
+Version 4.0 of the Slack integration refines the bot's reply behaviour by introducing the possibility to reply in either `channel`, `thread` or `channel and thread`. This replaces the previous `createReplyThread` configuration option by adding the ability to **only** reply in threads.
+
+Features that have been added are:
+
+- Improved reply behaviour
+- Added rich text! Users are now able to input markdown text and it display in rich text in slack
+
 ## Migrating from version `2.x` to `3.x`
 
 Version 3.0 of the Slack integration changes the way the mention system works with Botpress.
@@ -59,6 +68,29 @@ If you configured the integration using manual configuration, you will need to u
 This is the simplest way to set up the integration. To set up the Slack integration using OAuth, click the authorization button and follow the instructions to connect your Botpress chatbot to Slack. This method is recommended as it simplifies the configuration process and ensures secure communication between your chatbot and Slack.
 
 When using this configuration mode, a Botpress-managed Slack application will be used to connect to your workspace. The application will have the necessary permissions to send and receive messages, access channels, and perform other actions on your behalf. If you require more granular control over the permissions or prefer to use your own Slack application, you can opt for the manual configuration mode instead.
+
+### App Manifest configuration (automatic setup)
+
+This configuration mode automatically creates a dedicated Slack app for your bot using the Slack App Manifest API. Unlike the default OAuth method which uses a shared Botpress-managed Slack app, this gives you your own Slack app with full control, without the manual setup steps of the manual configuration mode.
+
+#### Prerequisites
+
+- A Slack workspace where you have admin permissions.
+
+#### Steps
+
+1. Navigate to [api.slack.com/apps](https://api.slack.com/apps) and log in.
+2. Scroll to the bottom of the page and find the **"Your App Configuration Tokens"** section.
+3. Click **"Generate Token"** next to the workspace you want to install the bot in. Copy the generated token. Note that configuration tokens expire after 12 hours.
+4. In Botpress, add the Slack integration to your bot.
+5. Select the **"App Manifest (Automatic Setup)"** configuration mode.
+6. Save the configuration. This will trigger the setup wizard.
+7. In the wizard, click **Continue**, then paste your Configuration Token and submit.
+8. The wizard will automatically create a Slack app with all required scopes, event subscriptions, and interactivity pre-configured.
+9. You will be redirected to Slack to authorize the app. Click **"Allow"** to install it in your workspace.
+10. Once complete, you will see a success page. The integration is now configured and ready to use.
+
+The created Slack app is fully yours and visible at [api.slack.com/apps](https://api.slack.com/apps).
 
 ### Manual configuration with a bot token
 
@@ -133,13 +165,7 @@ Regardless of the configuration mode you choose, you can optionally set a custom
 
 ## Replying in threads instead of the main channel
 
-To minimize disruption in busy Slack channels, you can activate reply threading in the integration settings. This feature creates a thread for each incoming message, where the bot will respond. For a more targeted approach, enable the "Require Bot Mention for Reply Threading Option" to only create threads when the bot is mentioned by name.
-
-Note that enabling reply threading alone doesn't stop your bot from posting in the main channel. To restrict responses exclusively to threads, modify your workflow in the Botpress Studio to terminate when receiving messages from the main channel:
-
-1. Insert an empty Standard Node at the very beginning of your Main workflow and connect it to your existing flow.
-2. Add an Expression card with the condition `event.channel === 'channel'`.
-3. Create an End card and connect the Expression card to it.
+To minimize disruption in busy Slack channels, you can activate reply threading in the integration settings. This feature creates a thread for each incoming message, where the bot will respond. For a more targeted approach, enable the "Require Bot Mention for Replies" to only create threads when the bot is mentioned by name.
 
 ## Limitations
 

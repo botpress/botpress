@@ -19,7 +19,7 @@ export default new IntegrationDefinition({
   title: 'Airtable',
   description:
     'Access and manage Airtable data to allow your chatbot to retrieve details, update records, and organize information.',
-  version: '1.0.1',
+  version: '2.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -102,4 +102,8 @@ export default new IntegrationDefinition({
   },
   events: {},
   states: {},
+  attributes: {
+    category: 'Project Management',
+    repo: 'botpress',
+  },
 })

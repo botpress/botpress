@@ -10,6 +10,7 @@
     "@botpress/sdk": "workspace:*"
   },
   "devDependencies": {
-    "@botpress/cli": "workspace:*"
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*"
   }
 }

@@ -117,16 +117,29 @@ const _commonMessagingHandler = async ({
   const { client } = handlerProps
 
   const { sender, recipient } = messagingItem
-  const { conversation } = await client.getOrCreateConversation({
-    channel: 'channel',
-    tags: { id: sender.id },
-  })
+  const { conversation } = await client
+    .getOrCreateConversation({
+      channel: 'channel',
+      tags: { id: sender.id },
+    })
+    .catch((thrown) => {
+      const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+      handlerProps.logger.error(`Failed to get or create conversation for Messenger user ${sender.id}: ${errorMessage}`)
+      throw thrown
+    })
 
-  const { user } = await client.getOrCreateUser({
-    tags: {
-      id: sender.id,
-    },
-  })
+  const { user } = await client
+    .getOrCreateUser({
+      tags: {
+        id: sender.id,
+      },
+    })
+    .catch((thrown) => {
+      const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+      handlerProps.logger.error(`Failed to get or create user for Messenger user ${sender.id}: ${errorMessage}`)
+      throw thrown
+    })
+
   await _updateUserProfile(user, sender.id, handlerProps)
 
   await client.getOrCreateMessage({

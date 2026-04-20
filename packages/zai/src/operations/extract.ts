@@ -1,5 +1,5 @@
 // eslint-disable consistent-type-definitions
-import { z, ZodObject, transforms } from '@bpinternal/zui'
+import { z } from '@bpinternal/zui'
 
 import JSON5 from 'json5'
 import { jsonrepair } from 'jsonrepair'
@@ -23,6 +23,8 @@ export type Options = {
   strict?: boolean
 }
 
+const INVALID_SCHEMA_ERROR = 'zai.extract only accepts schemas created with @bpinternal/zui'
+
 const Options = z.object({
   instructions: z.string().optional().describe('Instructions to guide the user on how to extract the data'),
   chunkLength: z
@@ -35,8 +37,8 @@ const Options = z.object({
   strict: z.boolean().optional().default(true).describe('Whether to strictly follow the schema or not'),
 })
 
-type __Z<T extends any = any> = { _output: T }
-type OfType<O, T extends __Z = __Z<O>> = T extends __Z<O> ? T : never
+type __Z<T> = { __type__: 'ZuiType'; _output: T }
+type OfType<O, T extends __Z<any> = __Z<O>> = T extends __Z<O> ? T : never
 type AnyObjectOrArray = Record<string, unknown> | Array<unknown>
 
 declare module '@botpress/zai' {
@@ -125,7 +127,17 @@ const extract = async <S extends OfType<AnyObjectOrArray>>(
 ): Promise<S['_output']> => {
   ctx.controller.signal.throwIfAborted()
 
-  let schema = transforms.fromJSONSchema(transforms.toJSONSchema(_schema as any as z.ZodType))
+  if (!z.is.zuiType(_schema)) {
+    throw new Error(INVALID_SCHEMA_ERROR)
+  }
+
+  let originalSchema: z.ZodType
+  try {
+    originalSchema = z.transforms.fromJSONSchema(z.transforms.toJSONSchema(_schema))
+  } catch {
+    // The above transformers arent the legacy ones. They are very strict and might fail on some schema types.
+    originalSchema = _schema
+  }
 
   const options = Options.parse(_options ?? {})
   const tokenizer = await getTokenizer()
@@ -136,46 +148,16 @@ const extract = async <S extends OfType<AnyObjectOrArray>>(
 
   const PROMPT_COMPONENT = Math.max(model.input.maxTokens - PROMPT_INPUT_BUFFER, 100)
 
-  let isArrayOfObjects = false
-  let wrappedValue = false
-  const originalSchema = schema
+  const { isArrayOfObjects, isWrappedValue, objSchema } = _parsing.parseSchema(originalSchema, {
+    partial: !options.strict,
+  })
 
-  const baseType = (schema.naked ? schema.naked() : schema)?.constructor?.name ?? 'unknown'
-
-  if (baseType === 'ZodArray') {
-    isArrayOfObjects = true
-    let elementType = (schema as any).element
-    if (elementType.naked) {
-      elementType = elementType.naked()
-    }
-
-    if (elementType?.constructor?.name === 'ZodObject') {
-      schema = elementType
-    } else {
-      wrappedValue = true
-      schema = z.object({
-        value: elementType,
-      })
-    }
-  } else if (baseType !== 'ZodObject') {
-    wrappedValue = true
-    schema = z.object({
-      value: originalSchema,
-    })
-  }
-
-  if (!options.strict) {
-    try {
-      schema = (schema as ZodObject).partial()
-    } catch {}
-  }
-
-  const schemaTypescript = schema.toTypescriptType({ declaration: false, treatDefaultAsOptional: true })
+  const schemaTypescript = objSchema.toTypescriptType({ declaration: false, treatDefaultAsOptional: true })
   const schemaLength = tokenizer.count(schemaTypescript)
 
   options.chunkLength = Math.min(options.chunkLength, model.input.maxTokens - PROMPT_INPUT_BUFFER - schemaLength)
 
-  const keys = Object.keys((schema as ZodObject).shape)
+  const keys = Object.keys(objSchema.shape)
 
   const inputAsString = stringify(input)
 
@@ -275,7 +257,7 @@ Merge it back into a final result.`.trim(),
 
   const exactMatch = examples.find((x) => x.key === Key)
   if (exactMatch) {
-    return exactMatch.output as any as S['_output']
+    return exactMatch.output as S['_output']
   }
 
   const defaultExample = isArrayOfObjects
@@ -337,11 +319,11 @@ ${input.trim()}
   `.trim()
   }
 
-  const formatOutput = (extracted: any) => {
-    extracted = isArray(extracted) ? extracted : [extracted]
+  const formatOutput = (extracted: unknown) => {
+    const extractedArr = isArray(extracted) ? extracted : [extracted]
 
     return (
-      extracted
+      extractedArr
         .map((x: string) =>
           `
 ${START}
@@ -352,7 +334,7 @@ ${END}`.trim()
     )
   }
 
-  const formatExample = (example: { input?: any; schema: string; instructions?: string; extracted: any }) => [
+  const formatExample = (example: { input?: unknown; schema: string; instructions?: string; extracted: unknown }) => [
     {
       type: 'text' as const,
       content: formatInput(stringify(example.input ?? null), example.schema, example.instructions),
@@ -390,9 +372,9 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
         content: formatInput(inputAsString, schemaTypescript, options.instructions ?? ''),
       },
     ],
-    transform: (text) =>
+    transform: (text): unknown[] =>
       (text || '{}')
-        ?.split(START)
+        .split(START)
         .filter((x) => x.trim().length > 0 && x.includes('}'))
         .map((x) => {
           try {
@@ -403,8 +385,8 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
             }
 
             const repairedJson = jsonrepair(json)
-            const parsedJson = JSON5.parse(repairedJson)
-            const safe = schema.safeParse(parsedJson)
+            const parsedJson: unknown = JSON5.parse(repairedJson)
+            const safe = objSchema.safeParse(parsedJson)
 
             if (safe.success) {
               return safe.data
@@ -422,20 +404,20 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
         .filter((x) => x !== null),
   })
 
-  let final: any
+  let final: unknown
 
   if (isArrayOfObjects) {
     final = extracted
   } else if (extracted.length === 0) {
-    final = options.strict ? schema.parse({}) : {}
+    final = options.strict ? objSchema.parse({}) : {}
   } else {
     final = extracted[0]
   }
 
-  if (wrappedValue) {
+  if (isWrappedValue) {
     if (Array.isArray(final)) {
       final = final.map((x) => ('value' in x ? x.value : x))
-    } else {
+    } else if (typeof final === 'object' && final !== null) {
       final = 'value' in final ? final.value : final
     }
   }
@@ -463,7 +445,7 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
     })
   }
 
-  return final
+  return final as S['_output']
 }
 
 Zai.prototype.extract = function <S extends OfType<AnyObjectOrArray>>(
@@ -478,7 +460,50 @@ Zai.prototype.extract = function <S extends OfType<AnyObjectOrArray>>(
     taskId: this.taskId,
     taskType: 'zai.extract',
     adapter: this.adapter,
+    memoizer: this._resolveMemoizer(),
   })
 
   return new Response<S['_output']>(context, extract(input, schema, _options, context), (result) => result)
+}
+
+namespace _parsing {
+  const _getBaseSchema = (schema: z.ZodType): z.ZodType => (schema.naked ? schema.naked() : schema)
+
+  const _maybeWrapObjSchema = (s: z.ZodType): { schema: z.ZodObject; isWrapped: boolean } => {
+    if (z.is.zuiObject(s)) {
+      return { schema: s, isWrapped: false }
+    }
+    return {
+      schema: z.object({
+        value: s,
+      }),
+      isWrapped: true,
+    }
+  }
+
+  const _applySchemaOptions = (schema: z.ZodObject, opts: ParseSchemaOptions): z.ZodObject => {
+    if (!opts.partial) {
+      return schema
+    }
+
+    try {
+      return schema.partial()
+    } catch {
+      return schema
+    }
+  }
+
+  export type ParseSchemaOptions = { partial: boolean }
+  export const parseSchema = (originalSchema: z.ZodType, opts: ParseSchemaOptions) => {
+    const baseType = _getBaseSchema(originalSchema)
+
+    if (z.is.zuiArray(baseType)) {
+      const elementType = _getBaseSchema(baseType.element)
+      const { schema, isWrapped } = _maybeWrapObjSchema(elementType)
+      return { isArrayOfObjects: true, isWrappedValue: isWrapped, objSchema: _applySchemaOptions(schema, opts) }
+    }
+
+    const { schema, isWrapped: wrapped } = _maybeWrapObjSchema(baseType)
+    return { isArrayOfObjects: false, isWrappedValue: wrapped, objSchema: _applySchemaOptions(schema, opts) }
+  }
 }

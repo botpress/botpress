@@ -2,7 +2,8 @@
   "name": "@botpresshub/personality",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "build": "bp add -y && bp build"
+    "build": "bp add -y && bp build",
+    "test": "vitest --run"
   },
   "private": true,
   "dependencies": {
@@ -15,6 +16,7 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@botpresshub/llm": "workspace:*",
     "@bpinternal/genenv": "0.0.1",
     "@types/semver": "^7.3.11",

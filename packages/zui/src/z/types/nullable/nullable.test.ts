@@ -1,0 +1,50 @@
+import { test, expect } from 'vitest'
+import * as z from '../../index'
+
+function checkErrors(a: z.ZodType, bad: any) {
+  let expected: z.ZodError | undefined = undefined
+  try {
+    a.parse(bad)
+  } catch (error) {
+    expected = error as z.ZodError
+  }
+
+  let actual: z.ZodError | undefined = undefined
+  try {
+    a.optional().parse(bad)
+  } catch (error) {
+    actual = error as z.ZodError
+  }
+
+  const actualErrors = actual?.errors || []
+  const expectedErrors = expected?.errors || []
+
+  expect(actualErrors.length).toEqual(expectedErrors.length)
+  for (let i = 0; i < expectedErrors.length; i++) {
+    expect(actualErrors[i]).toEqual(expectedErrors[i])
+  }
+}
+
+test('Should have error messages appropriate for the underlying type', () => {
+  checkErrors(z.string().min(2), 1)
+  z.string().min(2).nullable().parse(null)
+  checkErrors(z.number().gte(2), 1)
+  z.number().gte(2).nullable().parse(null)
+  checkErrors(z.boolean(), '')
+  z.boolean().nullable().parse(null)
+  checkErrors(z.null(), null)
+  z.null().nullable().parse(null)
+  checkErrors(z.null(), {})
+  z.null().nullable().parse(null)
+  checkErrors(z.object({}), 1)
+  z.object({}).nullable().parse(null)
+  checkErrors(z.tuple([]), 1)
+  z.tuple([]).nullable().parse(null)
+  checkErrors(z.unknown(), 1)
+  z.unknown().nullable().parse(null)
+})
+
+test('unwrap', () => {
+  const unwrapped = z.string().nullable().unwrap()
+  expect(unwrapped.typeName).toBe('ZodString')
+})

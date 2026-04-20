@@ -1,6 +1,7 @@
 import { RuntimeError } from '@botpress/client'
 import { ChatPostMessageArguments } from '@slack/web-api'
 import { textSchema } from '../definitions/channels/text-input-schema'
+import { transformMarkdownForSlack } from './misc/markdown-to-slack'
 import { replaceMentions } from './misc/replace-mentions'
 import { isValidUrl } from './misc/utils'
 import { SlackClient } from './slack-api'
@@ -10,7 +11,9 @@ import * as bp from '.botpress'
 const defaultMessages = {
   text: async ({ client, payload, ctx, conversation, ack, logger }) => {
     const parsed = textSchema.parse(payload)
-    parsed.text = replaceMentions(parsed.text, parsed.mentions)
+    let transformedText = replaceMentions(parsed.text, parsed.mentions)
+    transformedText = transformMarkdownForSlack(transformedText)
+    parsed.text = transformedText
     logger.forBot().debug('Sending text message to Slack chat:', payload)
     await _sendSlackMessage(
       { ack, ctx, client, logger },

@@ -63,7 +63,7 @@ export async function getTypings(schema: z.Schema, options?: Options): Promise<s
 
   let wrappedSchema: z.Schema | Declaration = schema
 
-  if (options?.declaration && schema instanceof z.Schema) {
+  if (options?.declaration && z.is.zuiType(schema)) {
     const title = 'title' in schema.ui ? (schema.ui.title as string) : null
     if (!title) {
       throw new Error('Only schemas with "title" Zui property can be declared.')
@@ -85,7 +85,7 @@ async function sUnwrapZodRecursive(
 }
 
 async function sUnwrapZod(
-  schema: z.Schema | KeyValue | FnParameters | Declaration | null,
+  schema: z.ZodType | KeyValue | FnParameters | Declaration | null,
   options: InternalOptions
 ): Promise<string> {
   const newOptions = {
@@ -102,7 +102,7 @@ async function sUnwrapZod(
     const isLargeDeclaration = typings.split('\n').length >= LARGE_DECLARATION_LINES
     const closingTag = isLargeDeclaration ? `// end of ${schema.identifier}` : ''
 
-    if (schema.schema instanceof z.ZodFunction) {
+    if (z.is.zuiFunction(schema.schema)) {
       return stripSpaces(`${description}
 declare function ${schema.identifier}${typings};${closingTag}`)
     }
@@ -112,9 +112,9 @@ declare const ${schema.identifier}: ${typings};${closingTag}`)
   }
 
   if (schema instanceof KeyValue) {
-    if (schema.value instanceof z.ZodOptional) {
+    if (z.is.zuiOptional(schema.value) || z.is.zuiDefault(schema.value)) {
       let innerType = schema.value._def.innerType as z.Schema
-      if (innerType instanceof z.Schema && !innerType.description && schema.value.description) {
+      if (z.is.zuiType(innerType) && !innerType.description && schema.value.description) {
         innerType = innerType?.describe(schema.value.description)
       }
       const optionalToken = schema.key.endsWith('?') ? '' : '?'
@@ -129,18 +129,18 @@ declare const ${schema.identifier}: ${typings};${closingTag}`)
   }
 
   if (schema instanceof FnParameters) {
-    if (schema.schema instanceof z.ZodTuple) {
+    if (z.is.zuiTuple(schema.schema)) {
       let args = ''
       for (let i = 0; i < schema.schema.items.length; i++) {
-        const argName = schema.schema.items[i]?.ui?.title ?? `arg${i}`
-        const item = schema.schema.items[i]
+        const argName = (schema.schema.items[i]?.ui?.title as string) ?? `arg${i}`
+        const item = schema.schema.items[i]!
         args += `${await sUnwrapZodRecursive(new KeyValue(toPropertyKey(argName), item), newOptions)}, `
       }
 
       return args
     }
 
-    const isLiteral = schema.schema.naked() instanceof z.ZodLiteral
+    const isLiteral = z.is.zuiLiteral(schema.schema.naked())
 
     const typings = (await sUnwrapZodRecursive(schema.schema, newOptions)).trim()
     const startsWithPairs =
@@ -159,34 +159,40 @@ declare const ${schema.identifier}: ${typings};${closingTag}`)
   }
 
   if (schema instanceof FnReturn) {
-    if (schema.schema instanceof z.ZodOptional) {
+    if (z.is.zuiOptional(schema.schema)) {
       return `${await sUnwrapZodRecursive(schema.schema.unwrap(), newOptions)} | undefined`
     }
 
     return sUnwrapZodRecursive(schema.schema, newOptions)
   }
 
-  if (schema instanceof z.ZodDefault) {
-    return sUnwrapZodRecursive(schema._def.innerType, options)
-  }
-
-  if (schema instanceof z.ZodVoid) {
-    return 'void'
-  }
-
-  if (schema instanceof z.ZodUnknown) {
+  if (schema === null) {
     return 'unknown'
   }
 
-  if (schema instanceof z.ZodAny) {
+  schema satisfies z.ZodType
+
+  if (z.is.zuiDefault(schema)) {
+    return sUnwrapZodRecursive(schema._def.innerType, options)
+  }
+
+  if (z.is.zuiVoid(schema)) {
+    return 'void'
+  }
+
+  if (z.is.zuiUnknown(schema)) {
+    return 'unknown'
+  }
+
+  if (z.is.zuiAny(schema)) {
     return 'any'
   }
 
-  if (schema instanceof z.ZodPromise) {
+  if (z.is.zuiPromise(schema)) {
     return `Promise<${await sUnwrapZodRecursive(schema.unwrap(), newOptions)}>`
   }
 
-  if (schema instanceof z.ZodFunction) {
+  if (z.is.zuiFunction(schema)) {
     const description = getMultilineComment(schema._def.description)
     const input = await sUnwrapZodRecursive(new FnParameters(schema._def.args), newOptions)
     const output = await sUnwrapZodRecursive(new FnReturn(schema._def.returns), newOptions)
@@ -200,7 +206,7 @@ declare const ${schema.identifier}: ${typings};${closingTag}`)
 (${input}) => ${output}`
   }
 
-  if (schema instanceof z.ZodArray) {
+  if (z.is.zuiArray(schema)) {
     const item = await sUnwrapZodRecursive(schema._def.type, newOptions)
 
     if (isPrimitive(item)) {
@@ -210,12 +216,12 @@ declare const ${schema.identifier}: ${typings};${closingTag}`)
     return `Array<${item}>`
   }
 
-  if (schema instanceof z.ZodEnum) {
+  if (z.is.zuiEnum(schema)) {
     const values = schema._def.values.map(escapeString)
     return values.join(' | ')
   }
 
-  if (schema instanceof z.ZodTuple) {
+  if (z.is.zuiTuple(schema)) {
     if (schema.items.length === 0) {
       return '[]'
     }
@@ -224,12 +230,12 @@ declare const ${schema.identifier}: ${typings};${closingTag}`)
     return `[${items.join(', ')}]`
   }
 
-  if (schema instanceof z.ZodNullable) {
+  if (z.is.zuiNullable(schema)) {
     return `${await sUnwrapZodRecursive(schema.unwrap(), options)} | null`
   }
 
-  if (schema instanceof z.ZodOptional) {
-    if (options?.declaration || options?.parent instanceof z.ZodRecord) {
+  if (z.is.zuiOptional(schema)) {
+    if (options?.declaration || (z.is.zuiType(options?.parent) && options.parent.typeName === 'ZodRecord')) {
       return `${await sUnwrapZodRecursive(schema._def.innerType, newOptions)} | undefined`
     }
     const optionalToken = options.parent instanceof KeyValue ? '| undefined' : ''
@@ -237,10 +243,10 @@ declare const ${schema.identifier}: ${typings};${closingTag}`)
     return val
   }
 
-  if (schema instanceof z.ZodObject) {
+  if (z.is.zuiObject(schema)) {
     const props = await Promise.all(
       Object.entries(schema.shape).map(async ([key, value]) => {
-        if (value instanceof z.Schema) {
+        if (z.is.zuiType(value)) {
           return sUnwrapZodRecursive(new KeyValue(toPropertyKey(key), value), newOptions)
         }
         return `${key}: unknown`
@@ -250,16 +256,16 @@ declare const ${schema.identifier}: ${typings};${closingTag}`)
     return `{ ${props.join('; ')} }`
   }
 
-  if (schema instanceof z.ZodString) {
+  if (z.is.zuiString(schema)) {
     const description = getMultilineComment(schema._def.description)
     return `${description} string`.trim()
   }
 
-  if (schema instanceof z.ZodUnion) {
+  if (z.is.zuiUnion(schema)) {
     const description = getMultilineComment(schema._def.description)
 
     const options = await Promise.all(
-      (schema.options as z.ZodSchema[]).map(async (option) => {
+      (schema.options as readonly z.ZodSchema[]).map(async (option) => {
         return sUnwrapZodRecursive(option, newOptions)
       })
     )
@@ -267,31 +273,31 @@ declare const ${schema.identifier}: ${typings};${closingTag}`)
 ${options.join(' | ')}`
   }
 
-  if (schema instanceof z.ZodLiteral) {
+  if (z.is.zuiLiteral(schema)) {
     const description = getMultilineComment(schema._def.description)
     return `${description}
-${typeof schema.value === 'string' ? escapeString(schema.value) : schema.value}`.trim()
+${typeof schema.value === 'string' ? escapeString(schema.value) : String(schema.value)}`.trim()
   }
 
-  if (schema instanceof z.ZodNumber) {
+  if (z.is.zuiNumber(schema)) {
     const description = getMultilineComment(schema._def.description)
     return `${description} number`.trim()
   }
 
-  if (schema instanceof z.ZodBoolean) {
+  if (z.is.zuiBoolean(schema)) {
     const description = getMultilineComment(schema._def.description)
     return `${description} boolean`.trim()
   }
 
-  if (schema instanceof z.ZodCatch) {
+  if (z.is.zuiCatch(schema)) {
     return sUnwrapZodRecursive(schema.removeCatch(), newOptions)
   }
 
-  if (schema instanceof z.ZodLazy) {
+  if (z.is.zuiLazy(schema)) {
     return sUnwrapZodRecursive(schema._def.getter(), newOptions)
   }
 
-  if (schema instanceof z.ZodRecord) {
+  if (z.is.zuiRecord(schema)) {
     const description = getMultilineComment(schema._def.description)
     const keyType = await sUnwrapZodRecursive(schema._def.keyType, newOptions)
     const valueType = await sUnwrapZodRecursive(schema._def.valueType, newOptions)

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import http from 'http'
+import * as bp from '.botpress'
 
 type AxiosSummaryErrorProps = {
   request: {
@@ -34,7 +35,7 @@ class AxiosSummaryError extends Error {
  * Axios Requests are too verbose and can pollute logs.
  * This function summarizes the error for better readability.
  */
-export const summarizeAxiosError = (thrown: unknown): never => {
+export const summarizeAxiosError = (thrown: unknown, logger: bp.Logger): never => {
   if (!axios.isAxiosError(thrown)) {
     throw thrown
   }
@@ -67,6 +68,7 @@ export const summarizeAxiosError = (thrown: unknown): never => {
     }
   }
 
+  logger.forBotOnly().error('Zendesk API request failed', { request: parsedRequest, response: parsedResponse })
   throw new AxiosSummaryError({
     request: parsedRequest,
     response: parsedResponse,

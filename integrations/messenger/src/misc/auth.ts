@@ -13,16 +13,17 @@ export async function getMessengerClientCredentials(
   ctx: bp.Context
 ): Promise<MessengerClientCredentials> {
   let credentials: MessengerClientCredentials
+  const clientSecret = getClientSecret(ctx)
   if (ctx.configurationType === 'manual') {
     credentials = {
       accessToken: ctx.configuration.accessToken,
-      clientSecret: ctx.configuration.clientSecret,
+      clientSecret,
       clientId: ctx.configuration.clientId,
     }
   } else if (ctx.configurationType === 'sandbox') {
     credentials = {
       accessToken: bp.secrets.SANDBOX_ACCESS_TOKEN,
-      clientSecret: bp.secrets.SANDBOX_CLIENT_SECRET,
+      clientSecret,
       clientId: bp.secrets.SANDBOX_CLIENT_ID,
     }
   } else {
@@ -38,7 +39,7 @@ export async function getMessengerClientCredentials(
 
     credentials = {
       accessToken: pageToken,
-      clientSecret: bp.secrets.CLIENT_SECRET,
+      clientSecret,
       clientId: bp.secrets.CLIENT_ID,
     }
   }

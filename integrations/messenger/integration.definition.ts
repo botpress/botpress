@@ -4,9 +4,11 @@ import * as sdk from '@botpress/sdk'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 import typingIndicator from 'bp_modules/typing-indicator'
+import { actions } from './definitions/actions'
 import { messages } from './definitions/channels/channel/messages'
 
 export const INTEGRATION_NAME = 'messenger'
+export const INTEGRATION_VERSION = '5.1.8'
 
 const commonConfigSchema = z.object({
   downloadMedia: z
@@ -36,7 +38,7 @@ const replyToCommentsSchema = z.object({
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '5.0.1',
+  version: INTEGRATION_VERSION,
   title: 'Messenger and Facebook',
   description:
     'Give your bot access to one of the world’s largest messaging platforms and manage your Facebook page content in one place.',
@@ -146,7 +148,7 @@ export default new IntegrationDefinition({
       },
     },
   },
-  actions: {},
+  actions,
   events: {},
   states: {
     oauth: {
@@ -231,6 +233,11 @@ export default new IntegrationDefinition({
       title: 'Conversation',
       description: 'A conversation with a Messenger user',
     },
+  },
+  attributes: {
+    category: 'Communication & Channels',
+    guideSlug: 'messenger',
+    repo: 'botpress',
   },
 })
   .extend(typingIndicator, () => ({ entities: {} }))

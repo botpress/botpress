@@ -96,6 +96,11 @@ const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterPr
   }
 
   const metaClient = await createAuthenticatedMetaClient({ configType: 'oauth', ctx, client, logger })
+  const isSubscribedToWebhooks = await metaClient.isSubscribedToWebhooks(pageId)
+  if (!isSubscribedToWebhooks) {
+    logger.forBot().info(`No webhooks subscribed to for page ${pageId}. Skipping unsubscription.`)
+    return
+  }
   await metaClient.unsubscribeFromWebhooks(pageId)
 }
 

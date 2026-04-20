@@ -1,33 +1,48 @@
-export { addCardComment } from './implementations/addCardComment'
-export { createCard } from './implementations/createCard'
-export { getAllBoardMembers } from './implementations/getAllBoardMembers'
-export { getAllBoards } from './implementations/getAllBoards'
-export { getBoardById } from './implementations/getBoardById'
-export { getBoardMembersByDisplayName } from './implementations/getBoardMembersByDisplayName'
-export { getBoardsByDisplayName } from './implementations/getBoardsByDisplayName'
-export { getCardById } from './implementations/getCardById'
-export { getCardsByDisplayName } from './implementations/getCardsByDisplayName'
-export { getCardsInList } from './implementations/getCardsInList'
-export { getListById } from './implementations/getListById'
-export { getListsByDisplayName } from './implementations/getListsByDisplayName'
-export { getListsInBoard } from './implementations/getListsInBoard'
-export { getMemberByIdOrUsername } from './implementations/getMemberByIdOrUsername'
-export { moveCardDown } from './implementations/moveCardDown'
-export { moveCardToList } from './implementations/moveCardToList'
-export { moveCardUp } from './implementations/moveCardUp'
-export { updateCard } from './implementations/updateCard'
-export { getAllCardMembers } from './implementations/getAllCardMembers'
+import { getAllBoards, getBoardsByDisplayName, getBoardById } from './board-actions'
+import {
+  getCardsInList,
+  getCardsByDisplayName,
+  getCardById,
+  createCard,
+  updateCard,
+  moveCardToList,
+  moveCardUp,
+  moveCardDown,
+  deleteCard,
+} from './card-actions'
+import { addCardComment } from './card-comment-actions'
+import { getListsInBoard, getListsByDisplayName, getListById } from './list-actions'
+import {
+  getAllBoardMembers,
+  getAllCardMembers,
+  getMemberByIdOrUsername,
+  getBoardMembersByDisplayName,
+} from './member-actions'
+import * as bp from '.botpress'
 
-export { cardList } from './implementations/interfaces/cardList'
-export { cardRead } from './implementations/interfaces/cardRead'
-export { cardCreate } from './implementations/interfaces/cardCreate'
-export { cardUpdate } from './implementations/interfaces/cardUpdate'
-export { cardDelete } from './implementations/interfaces/cardDelete'
-export { boardList } from './implementations/interfaces/boardList'
-export { boardRead } from './implementations/interfaces/boardRead'
-export { listList } from './implementations/interfaces/listList'
-export { listRead } from './implementations/interfaces/listRead'
-export { boardMemberList } from './implementations/interfaces/boardMemberList'
-export { boardMemberRead } from './implementations/interfaces/boardMemberRead'
-export { cardMemberList } from './implementations/interfaces/cardMemberList'
-export { cardMemberRead } from './implementations/interfaces/cardMemberRead'
+export const actions = {
+  // === Board Actions ===
+  getBoardById,
+  getBoardsByDisplayName,
+  getAllBoards,
+  // === List Actions ===
+  getListById,
+  getListsByDisplayName,
+  getListsInBoard,
+  // === Card Actions ===
+  getCardById,
+  getCardsByDisplayName,
+  getCardsInList,
+  createCard,
+  updateCard,
+  deleteCard,
+  addCardComment,
+  moveCardUp,
+  moveCardDown,
+  moveCardToList,
+  // === Member Actions ===
+  getMemberByIdOrUsername,
+  getBoardMembersByDisplayName,
+  getAllBoardMembers,
+  getAllCardMembers,
+} as const satisfies bp.IntegrationProps['actions']

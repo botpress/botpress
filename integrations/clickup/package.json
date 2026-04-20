@@ -3,7 +3,8 @@
   "scripts": {
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",
-    "build": "bp add -y && bp build"
+    "build": "bp add -y && bp build",
+    "test": "vitest --run"
   },
   "private": true,
   "dependencies": {
@@ -14,6 +15,7 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@botpress/common": "workspace:*"
+    "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*"
   }
 }

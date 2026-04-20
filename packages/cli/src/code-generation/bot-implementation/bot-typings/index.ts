@@ -2,6 +2,7 @@ import * as sdk from '@botpress/sdk'
 import * as consts from '../../consts'
 import { IntegrationTypingsModule } from '../../integration-implementation/integration-typings'
 import { Module, ReExportTypeModule } from '../../module'
+import * as strings from '../../strings'
 import { ActionsModule } from './actions-module'
 import { EventsModule } from './events-module'
 import { StatesModule } from './states-module'
@@ -16,7 +17,7 @@ class BotIntegrationsModule extends ReExportTypeModule {
 
     for (const [alias, integration] of Object.entries(bot.integrations ?? {})) {
       const integrationModule = new IntegrationTypingsModule(integration.definition).setCustomTypeName(alias)
-      integrationModule.unshift(alias)
+      integrationModule.unshift(strings.dirName(alias))
       this.pushDep(integrationModule)
     }
   }

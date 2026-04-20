@@ -1,6 +1,7 @@
 import { IntegrationLogger, RuntimeError } from '@botpress/sdk'
-import Firecrawl from '@mendable/firecrawl-js'
+import Firecrawl, { SdkError } from '@mendable/firecrawl-js'
 import { FullPage } from 'src/definitions/actions'
+import { trackEvent } from '../tracking'
 import * as bp from '.botpress'
 
 const COST_PER_PAGE = 0.0015
@@ -33,10 +34,22 @@ const getPageContent = async (props: {
       waitFor: props.waitFor,
       timeout: props.timeout,
       formats: ['markdown', 'rawHtml'],
+      headers: { 'X-Botpress-Crawler': 'botpress' },
       storeInCache: true,
     })
 
     props.logger.forBot().debug(`Firecrawl API call took ${Date.now() - startTime}ms for url: ${props.url}`)
+
+    const contentLength = result.markdown?.length || 0
+    const isLargePage = contentLength > 50000
+
+    if (isLargePage) {
+      await trackEvent('large_page_scraped', {
+        url: props.url,
+        contentLength,
+        durationMs: Date.now() - startTime,
+      })
+    }
 
     return {
       url: props.url,
@@ -48,6 +61,18 @@ const getPageContent = async (props: {
     }
   } catch (err) {
     props.logger.error('There was an error while calling Firecrawl API.', err)
+
+    if (err instanceof SdkError) {
+      const isRateLimit = err.status === 429 || err.message.includes('rate limit')
+      await trackEvent('firecrawl_error', {
+        url: props.url,
+        errorType: isRateLimit ? 'rate_limited' : 'api_error',
+        errorMessage: err.message,
+        statusCode: err.status,
+        errorCode: err.code,
+      })
+    }
+
     throw new RuntimeError(`There was an error while browsing the page: ${props.url}`)
   }
 }
@@ -61,12 +86,19 @@ export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async 
     )
 
     const results = pageContentPromises
-      .filter((promise): promise is PromiseFulfilledResult<any> => promise.status === 'fulfilled')
+      .filter((promise): promise is PromiseFulfilledResult<FullPage> => promise.status === 'fulfilled')
       .map((result) => result.value)
 
     // only charging for successful pages
     const cost = results.length * COST_PER_PAGE
     metadata.setCost(cost)
+
+    await trackEvent('pages_browsed', {
+      urlCount: input.urls.length,
+      successCount: results.length,
+      failedCount: input.urls.length - results.length,
+      durationMs: Date.now() - startTime,
+    })
 
     return {
       results,

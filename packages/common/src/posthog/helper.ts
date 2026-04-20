@@ -1,6 +1,8 @@
 import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
+
 import { EventMessage, PostHog } from 'posthog-node'
+import { useBooleanGenerator } from './boolean-generator'
 
 export const COMMON_SECRET_NAMES = {
   POSTHOG_KEY: {
@@ -8,22 +10,58 @@ export const COMMON_SECRET_NAMES = {
   },
 } satisfies sdk.IntegrationDefinitionProps['secrets']
 
-type PostHogConfig = {
+export type PostHogConfig = {
   key: string
   integrationName: string
+  integrationVersion: string
+  /** A map of function names to their rate limit ratio (0-1 exclusive of 0).
+   *  Use '*' as a wildcard key to set a default for all unlisted functions.
+   *  Functions not listed (and no '*' key) default to 1 (no rate limiting). */
+  rateLimitByFunction?: Record<string, number>
 }
 
-export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfig): Promise<void> => {
-  const { key, integrationName } = config
-  const client = new PostHog(key, {
+type WrapFunctionProps = {
+  config: PostHogConfig
+  fn: Function
+  functionName: string
+  functionArea: string
+}
+
+const getRateLimitRatio = (config: PostHogConfig, functionName?: string): number => {
+  if (functionName && config.rateLimitByFunction?.[functionName] !== undefined) {
+    return config.rateLimitByFunction[functionName]
+  }
+  if (config.rateLimitByFunction?.['*'] !== undefined) {
+    return config.rateLimitByFunction['*']
+  }
+  return 1
+}
+
+const createPostHogClient = (key: string, rateLimitRatio: number = 1): PostHog => {
+  const shouldAllow = useBooleanGenerator(rateLimitRatio)
+  return new PostHog(key, {
     host: 'https://us.i.posthog.com',
+    before_send: (event) => {
+      return shouldAllow() ? event : null
+    },
   })
+}
+
+export const sendPosthogEvent = async (
+  props: EventMessage,
+  config: PostHogConfig,
+  functionName?: string
+): Promise<void> => {
+  const { key, integrationName, integrationVersion } = config
+  const rateLimitRatio = getRateLimitRatio(config, functionName)
+  const client = createPostHogClient(key, rateLimitRatio)
   try {
     const signedProps: EventMessage = {
       ...props,
       properties: {
         ...props.properties,
         integrationName,
+        integrationVersion,
       },
     }
     await client.captureImmediate(signedProps)
@@ -35,60 +73,103 @@ export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfi
   }
 }
 
-export function wrapIntegration(config: PostHogConfig) {
-  return function <T extends { new (...args: any[]): sdk.Integration<any> }>(constructor: T): T {
-    return class extends constructor {
-      public constructor(...args: any[]) {
-        super(...args)
-        this.props.register = wrapFunction(this.props.register, config)
-        this.props.unregister = wrapFunction(this.props.unregister, config)
-        this.props.handler = wrapFunction(wrapHandler(this.props.handler, config), config)
+export function wrapIntegration(config: PostHogConfig, integrationProps: sdk.IntegrationProps<any>) {
+  integrationProps.register = wrapFunction({
+    fn: integrationProps.register,
+    config,
+    functionName: 'register',
+    functionArea: 'registration',
+  })
+  integrationProps.unregister = wrapFunction({
+    fn: integrationProps.unregister,
+    config,
+    functionName: 'unregister',
+    functionArea: 'registration',
+  })
+  integrationProps.handler = wrapFunction({
+    fn: wrapHandler(integrationProps.handler, config),
+    config,
+    functionName: 'handler',
+    functionArea: 'handler',
+  })
 
-        if (this.props.actions) {
-          for (const actionType of Object.keys(this.props.actions)) {
-            const actionFn = this.props.actions[actionType]
-            if (typeof actionFn === 'function') {
-              this.props.actions[actionType] = wrapFunction(actionFn, config)
-            }
-          }
-        }
-
-        if (this.props.channels) {
-          for (const channelName of Object.keys(this.props.channels)) {
-            const channel = this.props.channels[channelName]
-            if (!channel || !channel.messages) continue
-            Object.keys(channel.messages).forEach((messageType) => {
-              const messageFn = channel.messages[messageType]
-              if (typeof messageFn === 'function') {
-                channel.messages[messageType] = wrapFunction(messageFn, config)
-              }
-            })
-          }
-        }
+  if (integrationProps.actions) {
+    for (const actionType of Object.keys(integrationProps.actions)) {
+      const actionFn = integrationProps.actions[actionType]
+      if (typeof actionFn === 'function') {
+        integrationProps.actions[actionType] = wrapFunction({
+          fn: actionFn,
+          config,
+          functionName: actionType,
+          functionArea: 'actions',
+        })
       }
     }
   }
+
+  if (integrationProps.channels) {
+    for (const channelName of Object.keys(integrationProps.channels)) {
+      const channel = integrationProps.channels[channelName]
+      if (!channel || !channel.messages) continue
+      Object.keys(channel.messages).forEach((messageType) => {
+        const messageFn = channel.messages[messageType]
+        if (typeof messageFn === 'function') {
+          channel.messages[messageType] = wrapFunction({
+            fn: messageFn,
+            config,
+            functionName: channelName,
+            functionArea: 'channels',
+          })
+        }
+      })
+    }
+  }
+  return new sdk.Integration(integrationProps)
 }
 
-function wrapFunction(fn: Function, config: PostHogConfig) {
+function wrapFunction(props: WrapFunctionProps) {
+  const { config, fn, functionArea, functionName } = props
   return async (...args: any[]) => {
     try {
+      await sendPosthogEvent(
+        {
+          distinctId: `${config.integrationName}_${config.integrationVersion}`,
+          event: `${config.integrationName}_${functionName}`, // e.g. "gmail_registered"
+          properties: {
+            from: functionName,
+            area: functionArea,
+            integrationName: config.integrationName,
+            integrationVersion: config.integrationVersion,
+          },
+        },
+        config,
+        functionName
+      )
+
       return await fn(...args)
     } catch (thrown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-
       const distinctId = client.isApiError(thrown) ? thrown.id : undefined
+      const additionalProps = {
+        configurationType: args[0]?.ctx?.configurationType,
+        integrationId: args[0]?.ctx?.integrationId,
+      }
+
       await sendPosthogEvent(
         {
           distinctId: distinctId ?? 'no id',
           event: 'unhandled_error',
           properties: {
-            from: fn.name,
+            from: functionName,
+            area: functionArea,
             integrationName: config.integrationName,
+            integrationVersion: config.integrationVersion,
             errMsg,
+            ...additionalProps,
           },
         },
-        config
+        config,
+        functionName
       )
       throw thrown
     }
@@ -101,6 +182,11 @@ function wrapHandler(fn: Function, config: PostHogConfig) {
   return async (...args: any[]) => {
     const resp: void | Response = await fn(...args)
     if (resp instanceof Response && isServerErrorStatus(resp.status)) {
+      const additionalProps = {
+        configurationType: args[0]?.ctx?.configurationType,
+        integrationId: args[0]?.ctx?.integrationId,
+      }
+
       if (!resp.body) {
         await sendPosthogEvent(
           {
@@ -109,10 +195,13 @@ function wrapHandler(fn: Function, config: PostHogConfig) {
             properties: {
               from: fn.name,
               integrationName: config.integrationName,
+              integrationVersion: config.integrationVersion,
               errMsg: 'Empty Body',
+              ...additionalProps,
             },
           },
-          config
+          config,
+          'handler'
         )
         return resp
       }
@@ -123,10 +212,13 @@ function wrapHandler(fn: Function, config: PostHogConfig) {
           properties: {
             from: fn.name,
             integrationName: config.integrationName,
+            integrationVersion: config.integrationVersion,
             errMsg: JSON.stringify(resp.body),
+            ...additionalProps,
           },
         },
-        config
+        config,
+        'handler'
       )
       return resp
     }

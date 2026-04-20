@@ -14,6 +14,7 @@ export type ProcessQueueProps = {
   }
   integration: {
     name: string
+    alias: string
     transferFileToBotpress: (params: {
       file: models.FileWithPath
       fileKey: string

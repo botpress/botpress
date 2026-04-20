@@ -46,18 +46,17 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
   if (validationResult.error) {
     return { status: 401, body: validationResult.message }
   }
+
   const { data, success } = safeJsonParse(req.body)
   if (!success) {
     const errorMsg = 'Unable to parse request payload as JSON'
     return { status: 400, body: errorMsg }
   }
 
-  // Parse payload once with entry-level union schema
   const payloadResult = instagramPayloadSchema.safeParse(data)
   if (!payloadResult.success) {
-    const errorMsg = `Received invalid Instagram payload: ${payloadResult.error.message}`
-    props.logger.warn(errorMsg)
-    return { status: 400, body: 'Invalid payload' }
+    logger.forBot().warn('Unsupported Event Payload: ' + payloadResult.error.message)
+    return { status: 200 }
   }
 
   const payload = payloadResult.data

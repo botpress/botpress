@@ -119,7 +119,7 @@ describe('Object typings', () => {
         // ---------------- //
 
         /** Adds two numbers */
-        function add(args: { a: number; b: number }): number
+        function add(args: { a: number; b: number }): Promise<number>
       }"
     `)
   })
@@ -161,7 +161,7 @@ describe('Object typings', () => {
         // ---------------- //
 
         /** Adds two numbers */
-        function add(args: { a: number; b: number }): number
+        function add(args: { a: number; b: number }): Promise<number>
       } // end namespace "MyObject""
     `)
   })

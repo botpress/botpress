@@ -1,4 +1,5 @@
 import axios, { isAxiosError } from 'axios'
+import { trackEvent } from '../tracking'
 import * as bp from '.botpress'
 
 const COST_PER_PAGE = 0.0015
@@ -64,6 +65,16 @@ export const captureScreenshot: bp.IntegrationProps['actions']['captureScreensho
 
     if (data.screenshot) {
       metadata.setCost(COST_PER_PAGE)
+
+      await trackEvent('screenshot_captured', {
+        domain: new URL(input.url).hostname,
+        width: input.width || 1080,
+        height: input.height || 1920,
+        fullPage: input.fullPage || false,
+        hasJsInjection: !!input.javascriptToInject,
+        hasCssInjection: !!input.cssToInject,
+      })
+
       return { imageUrl: data.screenshot, htmlUrl: data.extracted_html }
     } else {
       throw new Error('Screenshot not available')
@@ -71,6 +82,11 @@ export const captureScreenshot: bp.IntegrationProps['actions']['captureScreensho
   } catch (error) {
     if (isAxiosError(error)) {
       logger.forBot().error('There was an error while taking the screenshot', error.response?.data)
+      await trackEvent('screenshot_error', {
+        domain: new URL(input.url).hostname,
+        statusCode: error.response?.status,
+        errorMessage: error.message,
+      })
     }
 
     throw error

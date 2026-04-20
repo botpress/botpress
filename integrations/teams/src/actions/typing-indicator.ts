@@ -1,5 +1,5 @@
 import { ActivityTypes } from 'botbuilder'
-import { getAdapter, getConversationReference } from 'src/utils'
+import { getAdapter, getConversationReference } from '../utils'
 import * as bp from '.botpress'
 
 const DEFAULT_TIMEOUT = 5000

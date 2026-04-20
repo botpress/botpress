@@ -1,13 +1,14 @@
-import * as sdk from '@botpress/client'
+import { RuntimeError } from '@botpress/sdk'
 import { isValidUrl } from './misc/utils'
 import { SlackClient } from './slack-api'
 import type * as bp from '.botpress'
 
-const REQUIRED_SLACK_SCOPES = [
+export const REQUIRED_SLACK_SCOPES = [
   'channels:history',
   'channels:manage',
   'channels:read',
   'chat:write',
+  'files:read',
   'groups:history',
   'groups:read',
   'groups:write',
@@ -28,7 +29,7 @@ const REQUIRED_SLACK_SCOPES = [
 export const register: bp.IntegrationProps['register'] = async ({ client, ctx, logger }) => {
   logger.forBot().debug('Registering Slack integration')
 
-  await _updateBotpressBotNameAndAvatar(client, ctx)
+  await _updateBotpressBotNameAndAvatar({ client, ctx, logger })
 
   let slackClient: SlackClient
 
@@ -39,7 +40,7 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
       !ctx.configuration.clientId ||
       !ctx.configuration.clientSecret
     ) {
-      throw new sdk.RuntimeError(
+      throw new RuntimeError(
         'Missing configuration: Refresh Token, Signing Secret, Client ID, and Client Secret are all required when using manual configuration'
       )
     }
@@ -82,7 +83,7 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
     const grantedScopes = slackClient.getGrantedScopes()
     const missingScopes = REQUIRED_SLACK_SCOPES.filter((scope) => !grantedScopes.includes(scope))
 
-    throw new sdk.RuntimeError(
+    throw new RuntimeError(
       'The Slack access token is missing required scopes. Please re-authorize the app.\n\n' +
         `Missing scopes: ${missingScopes.join(', ')}.\n` +
         `Granted scopes: ${grantedScopes.join(', ')}.`
@@ -90,12 +91,17 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
   }
 }
 
-const _updateBotpressBotNameAndAvatar = async (client: bp.Client, ctx: bp.Context) => {
+const _updateBotpressBotNameAndAvatar = async ({ client, ctx, logger }: bp.CommonHandlerProps) => {
   const { botAvatarUrl } = ctx.configuration
+
+  const isUrlValid = botAvatarUrl && isValidUrl(botAvatarUrl)
+  if (!isUrlValid) {
+    logger.forBot().warn('The provided bot avatar URL is invalid. Skipping avatar picture update.')
+  }
 
   await client.updateUser({
     id: ctx.botUserId,
-    pictureUrl: botAvatarUrl && isValidUrl(botAvatarUrl) ? botAvatarUrl.trim() : undefined,
+    pictureUrl: isUrlValid ? botAvatarUrl.trim() : undefined,
     name: ctx.configuration.botName?.trim(),
   })
 }
@@ -117,24 +123,22 @@ const _validateTokenType = (ctx: bp.Context) => {
   if (ctx.configurationType !== 'refreshToken') return
 
   if (ctx.configuration.refreshToken.startsWith('xapp-')) {
-    throw new sdk.RuntimeError(
+    throw new RuntimeError(
       'App-level tokens (tokens beginning with xapp) are not supported. Please provide either a bot refresh token or a bot access token.'
     )
   } else if (ctx.configuration.refreshToken.startsWith('xoxp-')) {
-    throw new sdk.RuntimeError(
+    throw new RuntimeError(
       'User tokens (tokens beginning with xoxp) are not supported. Please provide either a bot refresh token or a bot access token.'
     )
   } else if (ctx.configuration.refreshToken.startsWith('xoxe.xoxb-1-')) {
-    throw new sdk.RuntimeError(
+    throw new RuntimeError(
       'Rotating bot tokens (tokens beginning with xoxe.xoxb) are not supported. Please provide either a bot refresh token or a bot access token.'
     )
   } else if (
     !ctx.configuration.refreshToken.startsWith('xoxe-1-') &&
     !ctx.configuration.refreshToken.startsWith('xoxb-')
   ) {
-    throw new sdk.RuntimeError(
-      'Unknown Slack token type. Please provide either a bot refresh token or a bot access token.'
-    )
+    throw new RuntimeError('Unknown Slack token type. Please provide either a bot refresh token or a bot access token.')
   }
 }
 

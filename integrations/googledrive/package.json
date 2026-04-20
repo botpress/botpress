@@ -2,7 +2,9 @@
   "name": "@botpresshub/googledrive",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "build": "bp add -y && bp build"
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build",
+    "test": "vitest --run"
   },
   "private": true,
   "dependencies": {
@@ -17,6 +19,7 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@sentry/cli": "^2.39.1",
     "@types/jsonwebtoken": "^9.0.3",
     "@types/uuid": "^9.0.1",

@@ -21,12 +21,16 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          extra_filters: '-F @botpress/* -F llmz'
+          extra_filters: '-F @botpress/* -F llmz -F @bpinternal/zui'
 
       - name: update npm
         shell: bash
         run: npm install -g npm@^11.5.1 # Required for OIDC login
 
+      - name: Publish Zui
+        uses: botpress/gh-actions/publish-if-not-exists@master
+        with:
+          path: './packages/zui'
       - name: Publish Client
         uses: botpress/gh-actions/publish-if-not-exists@master
         with:

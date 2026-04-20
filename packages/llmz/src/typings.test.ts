@@ -233,11 +233,11 @@ describe('objects', () => {
           /** The Knowledge Bases to Query */
           e: {
             /** This is f */
-            f: boolean | undefined
+            f?: boolean
             /** This is g */
-            g: "ga" | "gb"
+            g?: "ga" | "gb"
             /** This is h */
-            h: string[]
+            h?: string[]
           }
         }) => unknown
       } // end of MyObject"

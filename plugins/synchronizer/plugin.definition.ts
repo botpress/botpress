@@ -71,7 +71,4 @@ export default new sdk.PluginDefinition({
     listable: sdk.version.allWithinMajorOf(listable),
     deletable: sdk.version.allWithinMajorOf(deletable),
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })

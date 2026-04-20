@@ -1,4 +1,3 @@
-import * as client from '@botpress/client'
 import * as types from './types'
 
 export type UserOverrides = { name?: string; email?: string; pictureUrl?: string }
@@ -6,13 +5,13 @@ export type UserOverrides = { name?: string; email?: string; pictureUrl?: string
 export class UserLinker {
   public constructor(
     private _props: types.AnyHandlerProps,
-    private _users: Record<string, client.User> = {}
+    private _users: Record<string, types.ActionableUser> = {}
   ) {}
 
   public async getDownstreamUserId(upstreamUserId: string, upstreamUserOverrides?: UserOverrides): Promise<string> {
     let upstreamUser = this._users[upstreamUserId]
     if (!upstreamUser) {
-      const { user: fetchedUser } = await this._props.client.getUser({ id: upstreamUserId })
+      const fetchedUser = await this._props.users.getById({ id: upstreamUserId })
       this._users[upstreamUserId] = fetchedUser
       upstreamUser = fetchedUser
     }
@@ -33,7 +32,7 @@ export class UserLinker {
     return downstreamUserId
   }
 
-  private async _getExistingDownstreamUserId(upstreamUser: client.User) {
+  private async _getExistingDownstreamUserId(upstreamUser: types.ActionableUser) {
     const downstreamUserId = upstreamUser?.tags?.downstream
 
     if (!downstreamUserId || upstreamUser?.tags?.integrationName !== this._props.interfaces.hitl.name) {
@@ -41,7 +40,7 @@ export class UserLinker {
     }
 
     try {
-      await this._props.client.getUser({ id: downstreamUserId })
+      await this._props.users.getById({ id: downstreamUserId })
     } catch {
       return null
     }
@@ -49,28 +48,26 @@ export class UserLinker {
     return downstreamUserId
   }
 
-  private async _linkUser(upstreamUser: client.User, upstreamUserOverrides?: UserOverrides) {
+  private async _linkUser(upstreamUser: types.ActionableUser, upstreamUserOverrides?: UserOverrides) {
+    // To access bot-level tags:
+    const untypedUserTags: Record<string, string> = upstreamUser.tags
+
     // Call createUser in the hitl integration (zendesk, etc.):
     const { userId: downstreamUserId } = await this._props.actions.hitl.createUser({
-      name: upstreamUserOverrides?.name ?? upstreamUser.tags['name'] ?? upstreamUser.name ?? 'Unknown User',
-      pictureUrl: upstreamUserOverrides?.pictureUrl ?? upstreamUser.tags['pictureUrl'] ?? upstreamUser.pictureUrl,
-      email:
-        upstreamUserOverrides?.email ??
-        upstreamUser.tags['email'] ??
-        upstreamUser.tags.email ??
-        this._generateFakeEmail(upstreamUser),
+      name: upstreamUserOverrides?.name ?? untypedUserTags['name'] ?? upstreamUser.name ?? 'Unknown User',
+      pictureUrl: upstreamUserOverrides?.pictureUrl ?? untypedUserTags['pictureUrl'] ?? upstreamUser.pictureUrl,
+      email: upstreamUserOverrides?.email ?? untypedUserTags['email'] ?? this._generateFakeEmail(upstreamUser),
     })
+    const downstreamUser = await this._props.users.getById({ id: downstreamUserId })
 
-    const [{ user: updatedUpstreamUser }, { user: updatedDownstreamUser }] = await Promise.all([
-      this._props.client.updateUser({
-        id: upstreamUser.id,
+    const [updatedUpstreamUser, updatedDownstreamUser] = await Promise.all([
+      upstreamUser.update({
         tags: {
           downstream: downstreamUserId,
           integrationName: this._props.interfaces.hitl.name,
         },
       }),
-      this._props.client.updateUser({
-        id: downstreamUserId,
+      downstreamUser.update({
         tags: {
           upstream: upstreamUser.id,
           integrationName: this._props.interfaces.hitl.name,
@@ -84,7 +81,7 @@ export class UserLinker {
     }
   }
 
-  private _generateFakeEmail(user: client.User) {
+  private _generateFakeEmail(user: types.ActionableUser) {
     const botId = this._props.ctx.botId.replaceAll('_', '-')
     return `${user.id}@no-reply.${botId}.botpress.com`
   }

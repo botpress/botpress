@@ -36,6 +36,15 @@ export type BasePlugin = {
   actions: Record<string, BaseAction>
   tables: Record<string, BaseTable>
   workflows: Record<string, BaseWorkflow>
+  conversation: {
+    tags: Record<string, any>
+  }
+  user: {
+    tags: Record<string, any>
+  }
+  message: {
+    tags: Record<string, any>
+  }
 }
 
 export type InputBasePlugin = utils.DeepPartial<BasePlugin>
@@ -58,4 +67,7 @@ export type DefaultPlugin<B extends utils.DeepPartial<BasePlugin>> = {
     : {
         [K in keyof B['interfaces']]: DefaultInterface<utils.Cast<B['interfaces'][K], InputBaseInterface>>
       }
+  conversation: utils.Default<B['conversation'], BasePlugin['conversation']>
+  user: utils.Default<B['user'], BasePlugin['user']>
+  message: utils.Default<B['message'], BasePlugin['message']>
 }

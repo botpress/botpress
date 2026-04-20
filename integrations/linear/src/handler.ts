@@ -1,16 +1,22 @@
-import { Request } from '@botpress/sdk'
-import { LinearWebhooks, LINEAR_WEBHOOK_SIGNATURE_HEADER, LINEAR_WEBHOOK_TS_FIELD } from '@linear/sdk'
+import { Request, RuntimeError } from '@botpress/sdk'
+import { LinearWebhookClient } from '@linear/sdk/webhooks'
 
 import { fireIssueCreated } from './events/issueCreated'
 import { fireIssueDeleted } from './events/issueDeleted'
 import { fireIssueUpdated } from './events/issueUpdated'
-import { LinearEvent, handleOauth } from './misc/linear'
-import { getUserAndConversation } from './misc/utils'
+import * as mapping from './files-readonly/mapping'
+import { LinearEvent, LinearIssueEvent, handleOauth } from './misc/linear'
+import { Result } from './misc/types'
+import { getLinearClient, getUserAndConversation } from './misc/utils'
 import * as bp from '.botpress'
 
-export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
+const LINEAR_WEBHOOK_SIGNATURE_HEADER = 'linear-signature'
+const LINEAR_WEBHOOK_TS_FIELD = 'webhookTimestamp'
+
+export const handler: bp.IntegrationProps['handler'] = async (props) => {
+  const { req, ctx, client, logger } = props
   if (req.path === '/oauth') {
-    return handleOauth(req, client, ctx).catch((err) => {
+    return await handleOauth(props).catch((err) => {
       logger.forBot().error('Error while processing OAuth', err.response?.data || err.message)
       throw err
     })
@@ -23,28 +29,35 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   const linearEvent: LinearEvent = JSON.parse(req.body)
   linearEvent.type = linearEvent.type.toLowerCase() as LinearEvent['type']
 
-  if (!_isWebhookProperlyAuthenticated({ req, linearEvent, ctx })) {
-    logger
-      .forBot()
-      .error(
-        'Received a webhook event that is not properly authenticated. Please ensure the webhook signing secret is correct.'
-      )
-    throw new Error('Webhook event is not properly authenticated: the signing secret is invalid.')
+  const result = _safeCheckWebhookSignature({ req, linearEvent, ctx })
+  if (!result.success) {
+    const message = `Error while verifying webhook signature: ${result.message}`
+    logger.forBot().error(message)
+    throw new RuntimeError(message)
+  }
+
+  const linearBotId = await _getLinearBotId({ client, ctx })
+  if (linearEvent.data.userId === linearBotId || linearEvent.data.user?.id === linearBotId) {
+    logger.forBot().debug('Received a webhook event from the bot itself, skipping...')
+    return
   }
 
   // ============ EVENTS ==============
   if (linearEvent.type === 'issue' && (linearEvent.action === 'create' || linearEvent.action === 'restore')) {
     await fireIssueCreated({ linearEvent, client, ctx })
+    await _emitFileChangeEvent(client, logger, linearEvent, 'created')
     return
   }
 
   if (linearEvent.type === 'issue' && linearEvent.action === 'update') {
     await fireIssueUpdated({ linearEvent, client, ctx })
+    await _emitFileChangeEvent(client, logger, linearEvent, 'updated')
     return
   }
 
   if (linearEvent.type === 'issue' && linearEvent.action === 'remove') {
     await fireIssueDeleted({ linearEvent, client, ctx })
+    await _emitFileChangeEvent(client, logger, linearEvent, 'deleted')
     return
   }
 
@@ -85,7 +98,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   }
 }
 
-const _isWebhookProperlyAuthenticated = ({
+const _safeCheckWebhookSignature = ({
   req,
   linearEvent,
   ctx,
@@ -93,19 +106,70 @@ const _isWebhookProperlyAuthenticated = ({
   req: Request
   linearEvent: LinearEvent
   ctx: bp.Context
-}) => {
+}): Result<undefined> => {
   const webhookSignatureHeader = req.headers[LINEAR_WEBHOOK_SIGNATURE_HEADER]
 
   if (!webhookSignatureHeader || !req.body) {
-    return
+    return { success: false, message: 'missing signature header or request body' }
   }
 
-  const webhookHandler = new LinearWebhooks(_getWebhookSigningSecret({ ctx }))
+  const webhookHandler = new LinearWebhookClient(_getWebhookSigningSecret({ ctx }))
   const bodyBuffer = Buffer.from(req.body)
   const timeStampHeader = linearEvent[LINEAR_WEBHOOK_TS_FIELD]
-
-  return webhookHandler.verify(bodyBuffer, webhookSignatureHeader, timeStampHeader)
+  try {
+    const result = webhookHandler.verify(bodyBuffer, webhookSignatureHeader, timeStampHeader)
+    if (result) {
+      return { success: true, result: undefined }
+    }
+    return { success: false, message: 'webhook signature verification failed' }
+  } catch (thrown) {
+    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    return {
+      success: false,
+      message: `Webhook signature verification failed: ${errorMessage}`,
+    }
+  }
 }
 
 const _getWebhookSigningSecret = ({ ctx }: { ctx: bp.Context }) =>
   ctx.configurationType === 'apiKey' ? ctx.configuration.webhookSigningSecret : bp.secrets.WEBHOOK_SIGNING_SECRET
+
+const _getLinearBotId = async ({ client, ctx }: { client: bp.Client; ctx: bp.Context }) => {
+  const linearClient = await getLinearClient({ client, ctx })
+  const me = await linearClient.viewer
+  return me.id
+}
+
+const _emitFileChangeEvent = async (
+  client: bp.Client,
+  logger: bp.Logger,
+  linearEvent: LinearIssueEvent,
+  changeType: 'created' | 'updated' | 'deleted'
+) => {
+  try {
+    const file = mapping.mapIssueToFile({
+      id: linearEvent.data.id,
+      identifier: `${linearEvent.data.team?.key ?? 'UNK'}-${linearEvent.data.number}`,
+      title: linearEvent.data.title,
+      description: linearEvent.data.description,
+      updatedAt: linearEvent.data.updatedAt ?? new Date().toISOString(),
+      teamKey: linearEvent.data.team?.key,
+    })
+
+    const emptyFiles: (typeof file)[] = []
+
+    await client.createEvent({
+      type: 'aggregateFileChanges',
+      payload: {
+        modifiedItems: {
+          created: changeType === 'created' ? [file] : emptyFiles,
+          updated: changeType === 'updated' ? [file] : emptyFiles,
+          deleted: changeType === 'deleted' ? [file] : emptyFiles,
+        },
+      },
+    })
+  } catch (thrown) {
+    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    logger.forBot().error('Failed to emit file-change event; swallowing to prevent webhook retries', errorMessage)
+  }
+}

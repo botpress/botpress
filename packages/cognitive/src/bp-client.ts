@@ -40,12 +40,6 @@ export const getExtendedClient = (_client: unknown): ExtendedClient => {
     throw new Error('Client must be a valid instance of a Botpress client (@botpress/client)')
   }
 
-  const botId = client.config.headers['x-bot-id'] as string
-
-  if (!botId?.length) {
-    throw new Error('Client must be instanciated with Bot ID')
-  }
-
   const clone = () => {
     const c = client as any
     if (c.clone && typeof c.clone === 'function') {
@@ -56,7 +50,6 @@ export const getExtendedClient = (_client: unknown): ExtendedClient => {
 
   return {
     ...client,
-    botId,
     axios: (client as any).axiosInstance as AxiosInstance,
     clone,
     abortable: (signal: AbortSignal) => {

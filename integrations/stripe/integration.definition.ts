@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { IntegrationDefinition, z } from '@botpress/sdk'
 import {
   createCustomerInputSchema,
@@ -35,7 +34,7 @@ import {
 
 export default new IntegrationDefinition({
   name: 'stripe',
-  version: '0.5.1',
+  version: '0.5.6',
   title: 'Stripe',
   readme: 'hub.md',
   icon: 'icon.svg',
@@ -43,8 +42,17 @@ export default new IntegrationDefinition({
     'Manage payments, subscriptions, and customers seamlessly. Execute workflows on charge failures and subscription updates.',
   configuration: {
     schema: z.object({
-      apiKey: z.string().min(1).describe('API Key'),
-      apiVersion: z.string().optional().default('2023-10-16').describe('API Version (optional) (default: 2023-10-16)'),
+      apiKey: z
+        .string()
+        .min(1)
+        .describe('The secret key or a restricted key from your Stripe account')
+        .title('API Key'),
+      apiVersion: z
+        .string()
+        .optional()
+        .default('2023-10-16')
+        .describe('API Version (optional) (default: 2023-10-16)')
+        .title('API Version'),
     }),
   },
   events: {
@@ -95,6 +103,7 @@ export default new IntegrationDefinition({
     tags: {
       id: {
         title: 'Stripe customer ID',
+        description: 'The unique identifier for a Stripe customer.',
       },
     },
   },
@@ -103,13 +112,17 @@ export default new IntegrationDefinition({
     stripeIntegrationInfo: {
       type: 'integration',
       schema: z.object({
-        stripeWebhookId: z.string(),
+        stripeWebhookId: z
+          .string()
+          .title('Stripe Webhook ID')
+          .describe('The unique identifier for the Stripe webhook.'),
       }),
     },
   },
   actions: {
     createPaymentLink: {
       title: 'Create Payment Link',
+      description: 'Creates a Stripe payment link for a product.',
       input: {
         schema: createPaymentLinkInputSchema,
       },
@@ -119,6 +132,7 @@ export default new IntegrationDefinition({
     },
     listProductPrices: {
       title: 'List Product Prices',
+      description: 'Lists all Stripe product prices.',
       input: {
         schema: listProductPricesInputSchema,
       },
@@ -128,6 +142,7 @@ export default new IntegrationDefinition({
     },
     createSubsLink: {
       title: 'Create Subscription Payment Link',
+      description: 'Creates a Stripe payment link for a subscription product.',
       input: {
         schema: createSubsLinkInputSchema,
       },
@@ -137,6 +152,7 @@ export default new IntegrationDefinition({
     },
     listPaymentLinks: {
       title: 'List Payment Links',
+      description: 'Lists all active Stripe payment links.',
       input: {
         schema: listPaymentLinksInputSchema,
       },
@@ -146,6 +162,7 @@ export default new IntegrationDefinition({
     },
     findPaymentLink: {
       title: 'Find Payment Link',
+      description: 'Finds a Stripe payment link by URL.',
       input: {
         schema: findPaymentLinkInputSchema,
       },
@@ -155,6 +172,7 @@ export default new IntegrationDefinition({
     },
     deactivatePaymentLink: {
       title: 'Deactivate Payment Link',
+      description: 'Deactivates a Stripe payment link by ID.',
       input: {
         schema: deactivatePaymentLinkInputSchema,
       },
@@ -164,6 +182,7 @@ export default new IntegrationDefinition({
     },
     listCustomers: {
       title: 'List Customers By Email',
+      description: 'Lists Stripe customers, optionally filtered by email.',
       input: {
         schema: listCustomersInputSchema,
       },
@@ -173,6 +192,7 @@ export default new IntegrationDefinition({
     },
     searchCustomers: {
       title: 'Search Customers By Fields',
+      description: 'Searches Stripe customers by email, name, or phone.',
       input: {
         schema: searchCustomersInputSchema,
       },
@@ -182,6 +202,7 @@ export default new IntegrationDefinition({
     },
     createCustomer: {
       title: 'Create Customer',
+      description: 'Creates a new Stripe customer.',
       input: {
         schema: createCustomerInputSchema,
       },
@@ -191,6 +212,7 @@ export default new IntegrationDefinition({
     },
     createOrRetrieveCustomer: {
       title: 'Create Or Retrieve Customer',
+      description: 'Creates a new Stripe customer or retrieves an existing one by email.',
       input: {
         schema: createOrRetrieveCustomerInputSchema,
       },
@@ -200,6 +222,7 @@ export default new IntegrationDefinition({
     },
     retrieveCustomerById: {
       title: 'Retrieve Customer By ID',
+      description: 'Retrieves a Stripe customer by their ID.',
       input: {
         schema: retrieveCustomerByIdInputSchema,
       },
@@ -210,5 +233,9 @@ export default new IntegrationDefinition({
   },
   __advanced: {
     useLegacyZuiTransformer: true,
+  },
+  attributes: {
+    category: 'E-commerce & Payments',
+    repo: 'botpress',
   },
 })

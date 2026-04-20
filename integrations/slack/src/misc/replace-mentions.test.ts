@@ -1,10 +1,6 @@
 import { test, expect, vi } from 'vitest'
 import { replaceMentions, Mention } from './replace-mentions'
 
-test('returns undefined if text is undefined', () => {
-  expect(replaceMentions(undefined, [])).toBeUndefined()
-})
-
 test('returns text unchanged if mentions is undefined', () => {
   expect(replaceMentions('hey <@John Doe>', undefined)).toBe('hey <@John Doe>')
 })

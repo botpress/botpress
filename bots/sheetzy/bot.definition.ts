@@ -18,9 +18,6 @@ export default new sdk.BotDefinition({
       },
     },
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })
   .addIntegration(gsheets, {
     enabled: true,
@@ -35,5 +32,6 @@ export default new sdk.BotDefinition({
     enabled: true,
     configuration: {
       botToken: genenv.SHEETZY_TELEGRAM_BOT_TOKEN,
+      typingIndicatorEmoji: true,
     },
   })

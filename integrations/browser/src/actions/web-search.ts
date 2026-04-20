@@ -1,4 +1,5 @@
 import axios, { isAxiosError } from 'axios'
+import { trackEvent } from '../tracking'
 import { browsePages } from './browse-pages'
 import * as bp from '.botpress'
 
@@ -30,6 +31,13 @@ export const webSearch: bp.IntegrationProps['actions']['webSearch'] = async ({
   try {
     const { data: searchResults } = await axios.post<BingSearchResult[]>('bing/search', input, axiosConfig)
     logger.forBot().debug(`Search Web using Bing took ${Date.now() - startTime}ms`)
+
+    await trackEvent('web_search_performed', {
+      queryLength: input.query.length,
+      resultCount: searchResults.length,
+      browsePages: input.browsePages || false,
+      durationMs: Date.now() - startTime,
+    })
 
     if (!input.browsePages) {
       return { results: searchResults }

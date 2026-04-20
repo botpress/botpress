@@ -1,11 +1,20 @@
 import * as sdk from '@botpress/sdk'
 
-type AnyMessageType = (typeof sdk.messages.defaults)[keyof typeof sdk.messages.defaults]
-const withUserId = (s: AnyMessageType) => ({
+const MAX_ADDITIONAL_DATA_SIZE = 500 // corresponds to max message tag size in the runtime API
+
+type AnyMessageType = { schema: sdk.z.ZodObject }
+const withHitlSpecific = (s: AnyMessageType) => ({
   ...s,
   schema: () =>
     s.schema.extend({
       userId: sdk.z.string().optional().describe('Allows sending a message pretending to be a certain user'),
+      additionalData: sdk.z
+        .string()
+        .max(MAX_ADDITIONAL_DATA_SIZE)
+        .optional()
+        .describe(
+          'Additional data to send with the message, useful for custom integrations. Must be encoded in a string.'
+        ),
     }),
 })
 
@@ -17,10 +26,11 @@ const messageSourceSchema = sdk.z.union([
 const allMessages = {
   ...sdk.messages.defaults,
   markdown: sdk.messages.markdown,
-} satisfies Record<string, { schema: sdk.AnyZodObject }>
+  bloc: sdk.messages.markdownBloc,
+} satisfies Record<string, { schema: sdk.z.AnyZodObject }>
 
 type Tuple<T> = [T, T, ...T[]]
-const messagePayloadSchemas: sdk.AnyZodObject[] = Object.entries(allMessages).map(([k, v]) =>
+const messagePayloadSchemas: sdk.z.AnyZodObject[] = Object.entries(allMessages).map(([k, v]) =>
   sdk.z.object({
     source: messageSourceSchema,
     type: sdk.z.literal(k),
@@ -28,11 +38,11 @@ const messagePayloadSchemas: sdk.AnyZodObject[] = Object.entries(allMessages).ma
   })
 )
 
-const messageSchema = sdk.z.union(messagePayloadSchemas as Tuple<sdk.AnyZodObject>)
+const messageSchema = sdk.z.union(messagePayloadSchemas as Tuple<sdk.z.AnyZodObject>)
 
 export default new sdk.InterfaceDefinition({
   name: 'hitl',
-  version: '2.0.0',
+  version: '2.1.0',
   entities: {
     hitlSession: {
       title: 'HITL session',
@@ -177,12 +187,12 @@ export default new sdk.InterfaceDefinition({
   channels: {
     hitl: {
       messages: {
-        text: withUserId(sdk.messages.defaults.text),
-        image: withUserId(sdk.messages.defaults.image),
-        audio: withUserId(sdk.messages.defaults.audio),
-        video: withUserId(sdk.messages.defaults.video),
-        file: withUserId(sdk.messages.defaults.file),
-        bloc: withUserId(sdk.messages.defaults.bloc),
+        text: withHitlSpecific(sdk.messages.defaults.text),
+        image: withHitlSpecific(sdk.messages.defaults.image),
+        audio: withHitlSpecific(sdk.messages.defaults.audio),
+        video: withHitlSpecific(sdk.messages.defaults.video),
+        file: withHitlSpecific(sdk.messages.defaults.file),
+        bloc: withHitlSpecific(sdk.messages.markdownBloc), // TODO: use the actual bloc message when bumping a version of the interface
       },
     },
   },

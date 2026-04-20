@@ -13,6 +13,7 @@ export const handleEvent: bp.WorkflowHandlers['processQueue'] = async (props) =>
     fileRepository: props.client,
     integration: {
       ...props.interfaces['files-readonly'],
+      alias: props.interfaces['files-readonly'].integrationAlias,
       transferFileToBotpress: props.actions['files-readonly'].transferFileToBotpress,
     },
     updateSyncQueue: (params) => SyncQueue.jobFileManager.updateSyncQueue(props, key, params.syncQueue),

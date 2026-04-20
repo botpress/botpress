@@ -1,4 +1,4 @@
-import watcher from '@parcel/watcher'
+import type watcher from '@parcel/watcher'
 import { debounceAsync } from './concurrency-utils'
 import { EventEmitter } from './event-emitter'
 
@@ -37,6 +37,7 @@ export class FileWatcher {
     if (opt?.debounceMs) {
       subscriptionHandler = debounceAsync(subscriptionHandler, opt.debounceMs)
     }
+    const watcher = await import('@parcel/watcher')
 
     const subscription = await watcher.subscribe(dir, subscriptionHandler, opt)
     return new FileWatcher(subscription, eventEmitter)

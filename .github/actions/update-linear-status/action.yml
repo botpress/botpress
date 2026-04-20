@@ -1,0 +1,26 @@
+name: Update Linear Status
+
+inputs:
+  linearApiKey:
+    required: true
+  teamName:
+    required: true
+  targetLabel:
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install tsx -w --save-dev
+
+    - name: Update issues
+      shell: bash
+      run: npx tsx ./.github/scripts/update-linear.ts
+      env:
+        LINEAR_API_KEY: ${{inputs.linearApiKey}}
+        TEAM_NAME: ${{inputs.teamName}}
+        TARGET_LABEL: ${{inputs.targetLabel}}

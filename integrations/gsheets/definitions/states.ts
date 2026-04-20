@@ -11,4 +11,13 @@ export const states = {
         .describe('The refresh token to use to authenticate with Google APIs. It gets exchanged for a bearer token'),
     }),
   },
+  spreadsheetConfig: {
+    type: 'integration',
+    schema: z.object({
+      spreadsheetId: z
+        .string()
+        .title('Spreadsheet ID')
+        .describe('The ID of the Google Spreadsheet selected during OAuth setup'),
+    }),
+  },
 } as const satisfies sdk.IntegrationDefinitionProps['states']

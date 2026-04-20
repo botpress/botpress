@@ -4,13 +4,12 @@ import * as gen from './prompt/parse-content'
 import * as sentiment from './prompt/sentiment-prompt'
 import * as summarizer from './prompt/summary-prompt'
 import * as types from './types'
-import * as bp from '.botpress'
 
 type CommonProps = types.CommonProps
 
-type UpdateTitleAndSummaryProps = CommonProps & {
-  conversation: bp.MessageHandlerProps['conversation']
-  messages: bp.MessageHandlerProps['message'][]
+type UpdateTitleAndSummaryProps = Omit<CommonProps, 'messages'> & {
+  conversation: types.ActionableConversation
+  messages: types.ActionableMessage[]
   client: cognitive.BotpressClientLike
 }
 export const updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
@@ -42,8 +41,7 @@ export const updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) =
     schema: sentiment.SentimentAnalysisOutput,
   })
 
-  await props.client.updateConversation({
-    id: props.conversation.id,
+  await props.conversation.update({
     tags: {
       title: parsedSummary.json.title,
       summary: parsedSummary.json.summary,
@@ -59,7 +57,7 @@ type ParsePromptProps = {
   logger: UpdateTitleAndSummaryProps['logger']
   prompt: gen.LLMInput
   client: cognitive.BotpressClientLike
-  schema: sdk.ZodSchema
+  schema: sdk.z.ZodSchema
 }
 const _generateContentWithRetries = async <T>(props: ParsePromptProps): Promise<gen.PredictResponse<T>> => {
   let attemptCount = 0

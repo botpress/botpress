@@ -26,9 +26,26 @@ export class GoogleClient {
   public static async create({ ctx, client }: { ctx: bp.Context; client: bp.Client }) {
     const oauth2Client = await getAuthenticatedOAuth2Client({ ctx, client })
 
+    const getSpreadsheetIdFromState = async (): Promise<string> => {
+      let spreadsheetId: string
+      if (ctx.configurationType === 'serviceAccountKey') {
+        spreadsheetId = ctx.configuration.spreadsheetId
+      } else {
+        const { state } = await client.getState({
+          id: ctx.integrationId,
+          type: 'integration',
+          name: 'spreadsheetConfig',
+        })
+        spreadsheetId = state.payload.spreadsheetId
+      }
+      return spreadsheetId
+    }
+
+    const spreadsheetId = await getSpreadsheetIdFromState()
+
     return new GoogleClient({
       oauthClient: oauth2Client,
-      spreadsheetId: ctx.configuration.spreadsheetId,
+      spreadsheetId,
     })
   }
 
@@ -36,12 +53,14 @@ export class GoogleClient {
     ctx,
     client,
     authorizationCode,
+    redirectUri,
   }: {
     ctx: bp.Context
     client: bp.Client
     authorizationCode: string
+    redirectUri: string
   }) {
-    await exchangeAuthCodeAndSaveRefreshToken({ ctx, client, authorizationCode })
+    await exchangeAuthCodeAndSaveRefreshToken({ ctx, client, authorizationCode, redirectUri })
   }
 
   @handleErrors('Failed to get values from spreadsheet range')
@@ -304,5 +323,82 @@ export class GoogleClient {
     const sheetsTitles = sheets?.map((sheet) => sheet.properties?.title).filter(Boolean) ?? []
 
     return `spreadsheet "${title}"` + (sheetsTitles.length ? ` with sheets "${sheetsTitles.join('", "')}"` : '')
+  }
+
+  @handleErrors('Failed to get sheet ID by name')
+  public async getSheetIdByName(sheetName?: string): Promise<{ sheetId: number; sheetTitle: string }> {
+    const meta = await this.getSpreadsheetMetadata({ fields: 'sheets.properties' })
+    const sheets = meta.sheets ?? []
+
+    if (!sheetName) {
+      const firstVisibleSheet = sheets.find((s) => !s.properties?.hidden)
+      if (!firstVisibleSheet?.properties) {
+        throw new Error('No visible sheets found in spreadsheet')
+      }
+      return {
+        sheetId: firstVisibleSheet.properties.sheetId ?? 0,
+        sheetTitle: firstVisibleSheet.properties.title ?? '',
+      }
+    }
+
+    const sheet = sheets.find((s) => s.properties?.title === sheetName)
+    if (!sheet?.properties) {
+      throw new Error(`Sheet "${sheetName}" not found`)
+    }
+    return {
+      sheetId: sheet.properties.sheetId ?? 0,
+      sheetTitle: sheet.properties.title ?? '',
+    }
+  }
+
+  @handleErrors('Failed to insert rows')
+  public async insertRows({
+    sheetId,
+    startIndex,
+    numberOfRows = 1,
+  }: {
+    sheetId: number
+    startIndex: number
+    numberOfRows?: number
+  }) {
+    await this._sheetsClient.spreadsheets.batchUpdate({
+      spreadsheetId: this._spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            insertDimension: {
+              range: {
+                sheetId,
+                dimension: 'ROWS',
+                startIndex,
+                endIndex: startIndex + numberOfRows,
+              },
+              inheritFromBefore: startIndex > 0,
+            },
+          },
+        ],
+      },
+    })
+  }
+
+  @handleErrors('Failed to delete rows')
+  public async deleteRowsFromSheet({ sheetId, rowIndexes }: { sheetId: number; rowIndexes: number[] }) {
+    const sortedIndexes = [...rowIndexes].sort((a, b) => b - a)
+
+    const requests = sortedIndexes.map((rowIndex) => ({
+      deleteDimension: {
+        range: {
+          sheetId,
+          dimension: 'ROWS' as const,
+          startIndex: rowIndex - 1,
+          endIndex: rowIndex,
+        },
+      },
+    }))
+
+    await this._sheetsClient.spreadsheets.batchUpdate({
+      spreadsheetId: this._spreadsheetId,
+      requestBody: { requests },
+    })
   }
 }

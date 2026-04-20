@@ -3,7 +3,8 @@
   "scripts": {
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",
-    "build": "bp add -y && bp build"
+    "build": "bp add -y && bp build",
+    "test": "vitest --run"
   },
   "private": true,
   "dependencies": {
@@ -11,11 +12,13 @@
     "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "googleapis": "^144.0.0"
+    "googleapis": "^171.4.0"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
-    "@sentry/cli": "^2.39.1"
+    "@botpress/sdk": "workspace:*",
+    "@sentry/cli": "^2.39.1",
+    "preact": "^10.26.6"
   }
 }

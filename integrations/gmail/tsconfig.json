@@ -5,7 +5,9 @@
     "jsxImportSource": "react",
     "lib": ["es2022", "DOM"],
     "baseUrl": ".",
-    "outDir": "dist"
+    "outDir": "dist",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "*.ts"]
 }

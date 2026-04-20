@@ -118,18 +118,30 @@ const _commonMessagingHandler = async ({
   const { client, ctx, logger } = handlerProps
 
   const { sender, recipient } = messagingItem
-  const { conversation } = await client.getOrCreateConversation({
-    channel: 'channel',
-    tags: {
-      id: sender.id,
-    },
-  })
+  const { conversation } = await client
+    .getOrCreateConversation({
+      channel: 'channel',
+      tags: {
+        id: sender.id,
+      },
+    })
+    .catch((thrown) => {
+      const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+      logger.error(`Failed to get or create conversation for Instagram user ${sender.id}: ${errorMessage}`)
+      throw thrown
+    })
 
-  const { user } = await client.getOrCreateUser({
-    tags: {
-      id: sender.id,
-    },
-  })
+  const { user } = await client
+    .getOrCreateUser({
+      tags: {
+        id: sender.id,
+      },
+    })
+    .catch((thrown) => {
+      const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+      logger.error(`Failed to get or create user for Instagram user ${sender.id}: ${errorMessage}`)
+      throw thrown
+    })
 
   if (!user.name || !user.pictureUrl) {
     try {

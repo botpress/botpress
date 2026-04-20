@@ -43,6 +43,7 @@ describe.concurrent('processQueue', () => {
     } as const satisfies Mocked<ProcessFileProps['fileRepository']>,
     integration: {
       name: 'test-integration',
+      alias: 'test-integration-alias',
       transferFileToBotpress: vi.fn(),
     } as const satisfies Mocked<ProcessFileProps['integration']>,
     logger: new sdk.BotLogger(),
@@ -229,6 +230,7 @@ describe.concurrent('processQueue', () => {
       id: FILE_1.id,
       tags: {
         integrationName: 'test-integration',
+        integrationAlias: 'test-integration-alias',
         externalId: FILE_1.id,
         externalModifiedDate: FILE_1.lastModifiedDate,
         externalSize: FILE_1.sizeInBytes.toString(),
@@ -257,6 +259,7 @@ describe.concurrent('processQueue', () => {
       id: FILE_1.id,
       tags: {
         integrationName: 'test-integration',
+        integrationAlias: 'test-integration-alias',
         externalId: FILE_1.id,
         externalModifiedDate: FILE_1.lastModifiedDate,
         externalSize: FILE_1.sizeInBytes.toString(),

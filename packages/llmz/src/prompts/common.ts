@@ -42,7 +42,14 @@ export const replacePlaceholders = (prompt: string, values: Record<string, unkno
   const regex = new RegExp('■■■([A-Z0-9_\\.-]+)■■■', 'gi')
   const obj = Object.assign({}, values)
 
-  const replaced = prompt.replace(regex, (_match, name) => {
+  const compile = Handlebars.compile(prompt)
+
+  const compiled = compile({
+    is_message_enabled: false,
+    ...values,
+  })
+
+  const replaced = compiled.replace(regex, (_match, name) => {
     if (name in values) {
       delete obj[name]
       return typeof values[name] === 'string' ? (values[name] as string) : JSON.stringify(values[name])
@@ -59,12 +66,5 @@ export const replacePlaceholders = (prompt: string, values: Record<string, unkno
     throw new Error(`Missing placeholders: ${remaining.join(', ')}`)
   }
 
-  const compile = Handlebars.compile(replaced)
-
-  const compiled = compile({
-    is_message_enabled: false,
-    ...values,
-  })
-
-  return compiled.replace(/\n{3,}/g, '\n\n').trim()
+  return replaced.replace(/\n{3,}/g, '\n\n').trim()
 }

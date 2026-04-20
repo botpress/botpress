@@ -8,6 +8,36 @@ Stay agile and organized by dynamically adding new sheets to accommodate evolvin
 Unfortunately, **automatic configuration is temporarily unavailable**.
 We are currently in the process of getting our Google Sheets integration verified by Google. Once this verification is complete, you will be able to use the automatic configuration method to set up the Google Sheets integration with just a few clicks. Until then, you will need to create your own Google Cloud Platform (GCP) Service Account by following the steps outlined in the `Manual configuration using a service account` section below.
 
+## Migrating from 1.x.x to 2.x.x
+
+Version `2.0.0` of the Google Sheets integration introduces changes to the _Append Values_ action. If you are migrating from a previous version to `2.0.0`, please note the following changes:
+
+### Changes to the Append Values action
+
+- The `range` parameter has been replaced with two separate parameters: `sheetName` (optional) and `startColumn` (required).
+  - **Before**: The action accepted a single `range` parameter in A1 notation (e.g., `"Sheet1!A1:B2"`).
+  - **After**: The action now accepts `sheetName` (e.g., `"Sheet1"`) and `startColumn` (e.g., `"A"`) as separate parameters.
+- The range is now automatically constructed from the start column to row 100,000. The action will search for existing data in this range to find the table and append values after the last row.
+
+- **Migration guide**: If you were using the old format with a range like `"Sheet1!A1:B2"`, you should now use:
+
+  ```json
+  {
+    "sheetName": "Sheet1",
+    "startColumn": "A",
+    "values": [["value1", "value2"]]
+  }
+  ```
+
+  If you were using a range without a sheet name like `"A1:B2"`, you can now use:
+
+  ```json
+  {
+    "startColumn": "A",
+    "values": [["value1", "value2"]]
+  }
+  ```
+
 ## Configuration
 
 ### Automatic configuration with OAuth
@@ -195,7 +225,7 @@ For example, if you want to update the range `Sheet1!A3:A6` with the values `1`,
 
 To insert a new row of data at the end of a table, you can use the _Append Values_ action. This action appends a new row of data after all other rows of data.
 
-To use this action, you must specify the range of one of the rows in the table. This could be the header row or any other row of the table. The action will then find the last row of the table and append the new data after it.
+To use this action, you must specify the start column of the table. The action will search for existing data in that column and find the last row of the table, then append the new data after it.
 
 For example, if you have a table with the following data in a sheet called `Sheet1`:
 
@@ -209,7 +239,8 @@ To append a new row with the data `Mike`, `35`, `SF`, you could use the followin
 
 ```json
 {
-  "range": "Sheet1!A1:C1",
+  "sheetName": "Sheet1",
+  "startColumn": "A",
   "majorDimension": "ROWS",
   "values": [["Mike", "35", "SF"]]
 }
@@ -219,7 +250,8 @@ You can insert multiple rows at once by providing multiple rows of data in the `
 
 ```json
 {
-  "range": "Sheet1!A1:C1",
+  "sheetName": "Sheet1",
+  "startColumn": "A",
   "majorDimension": "ROWS",
   "values": [
     ["Mike", "35", "SF"],
@@ -244,7 +276,8 @@ To append a new column with the data `Mike`, `35`, `SF`, you could use the follo
 
 ```json
 {
-  "range": "Sheet1!A1:A3",
+  "sheetName": "Sheet1",
+  "startColumn": "A",
   "majorDimension": "COLUMNS",
   "values": [["Mike", "35", "SF"]]
 }
@@ -289,7 +322,7 @@ The values will be returned in the following format:
 
 #### Updating values in a cell range
 
-To change values instead of appending new ones, you can use the _Update Values_ action. This action updates the values in the specified range in the Google Spreadsheet.
+To change values instead of appending new ones, you can use the _Set Values_ action. This action sets the values in the specified range in the Google Spreadsheet.
 
 For example, if you have the following data in a sheet called `Sheet1`:
 

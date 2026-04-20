@@ -72,6 +72,44 @@ export namespace Event {
       .optional()
       .default('default')
       .describe('Visibility of the event. Optional. The default value is "default".'),
+    enableGoogleMeet: z
+      .boolean()
+      .title('Enable Google Meet')
+      .optional()
+      .default(false)
+      .describe('Whether to enable Google Meet for the event. Optional. The default value is false.'),
+    sendNotifications: z
+      .boolean()
+      .title('Send Notifications')
+      .optional()
+      .default(true)
+      .describe('Whether to send notifications to attendees. Optional. The default value is true.'),
+    attendees: z
+      .array(
+        z.object({
+          email: z.string().title('Email').describe('The email address of the attendee.'),
+          displayName: z.string().title('Display Name').optional().describe('The name of the attendee. Optional.'),
+          optional: z
+            .boolean()
+            .title('Optional Attendee')
+            .optional()
+            .default(false)
+            .describe('Whether this is an optional attendee. Optional. The default is False.'),
+          responseStatus: z
+            .enum(['needsAction', 'declined', 'tentative', 'accepted'])
+            .title('Response Status')
+            .optional()
+            .describe("The attendee's response status. Read-only when creating events."),
+        })
+      )
+      .title('Attendees')
+      .optional()
+      .describe('List of attendees for the event. Email invitations will be sent automatically.'),
+    conferenceLink: z
+      .string()
+      .title('Conference Link')
+      .optional()
+      .describe('The Google Meet link for the event. This is automatically generated when enableGoogleMeet is true.'),
   } as const
 
   export const schema = z.object(_fields)

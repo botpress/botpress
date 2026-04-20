@@ -45,6 +45,7 @@ export default {
   serve: commandImplementations.serve,
   deploy: commandImplementations.deploy,
   add: commandImplementations.add,
+  remove: commandImplementations.remove,
   dev: commandImplementations.dev,
   lint: commandImplementations.lint,
   chat: commandImplementations.chat,
@@ -52,5 +53,6 @@ export default {
     list: commandImplementations.profiles.subcommands.list,
     active: commandImplementations.profiles.subcommands.active,
     use: commandImplementations.profiles.subcommands.use,
+    get: commandImplementations.profiles.subcommands.get,
   },
 } satisfies CommandHandlers<typeof commandDefinitions>

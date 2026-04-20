@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, afterAll } from 'vitest'
+import { z } from '@bpinternal/zui'
 
 import { getClient, getZai, metadata } from './utils'
 import { TableAdapter } from '../src/adapters/botpress-table'
@@ -1624,5 +1625,618 @@ describe.sequential('zai.learn.patch', { timeout: 60_000 }, () => {
       "◼︎<1|import React from 'react';
       ◼︎=1|export const Component: React.FC = () => <div>Test</div>"
     `)
+  })
+})
+
+describe('zai.patch — JSON file operations', { timeout: 60_000 }, () => {
+  const zai = getZai()
+
+  it('changes a value inside a simple JSON object', async () => {
+    const file: File = {
+      path: 'config.json',
+      name: 'config.json',
+      content: JSON.stringify({ name: 'my-app', version: '1.0.0', debug: false }, null, 2),
+    }
+
+    const { output } = await zai.patch([file], 'change the version to "2.0.0"').result()
+
+    expect(output).toHaveLength(1)
+    expect(output[0].name).toBe('config.json')
+    expect(output[0].path).toBe('config.json')
+    expect(output[0].content).toMatch(JSON.stringify({ name: 'my-app', version: '2.0.0', debug: false }, null, 2))
+  })
+
+  it('changes multiple properties inside a simple JSON object', async () => {
+    const file: File = {
+      path: 'config.json',
+      name: 'config.json',
+      content: JSON.stringify({ name: 'my-app', version: '1.0.0', debug: false, port: 3000 }, null, 2),
+    }
+
+    const result = await zai
+      .patch([file], 'make the name "super-app", debug = true, change port should be 8080')
+      .result()
+
+    expect(result.output).toHaveLength(1)
+    const parsed = JSON.parse(result.output[0].content)
+    expect(parsed.name).toBe('super-app')
+    expect(parsed.debug).toBe(true)
+    expect(parsed.port).toBe(8080)
+    expect(parsed.version).toBe('1.0.0')
+  })
+
+  it('changes multiple properties inside a complex JSON object', async () => {
+    const file: File = {
+      path: 'config.json',
+      name: 'config.json',
+      content: JSON.stringify(
+        {
+          app: { name: 'my-app', version: '1.0.0' },
+          server: { host: 'localhost', port: 3000, ssl: { enabled: false, cert: '' } },
+          logging: { level: 'info', format: 'text' },
+        },
+        null,
+        2
+      ),
+    }
+
+    const result = await zai
+      .patch(
+        [file],
+        'change app.name to "production-app", server.port to 443, server.ssl.enabled to true, and logging.level to "warn"'
+      )
+      .result()
+
+    expect(result.output).toHaveLength(1)
+    const parsed = JSON.parse(result.output[0].content)
+    expect(parsed.app.name).toBe('production-app')
+    expect(parsed.app.version).toBe('1.0.0')
+    expect(parsed.server.port).toBe(443)
+    expect(parsed.server.ssl.enabled).toBe(true)
+    expect(parsed.server.host).toBe('localhost')
+    expect(parsed.logging.level).toBe('warn')
+    expect(parsed.logging.format).toBe('text')
+  })
+
+  it('adds additional properties in a simple JSON', async () => {
+    const file: File = {
+      path: 'config.json',
+      name: 'config.json',
+      content: JSON.stringify({ name: 'my-app', version: '1.0.0' }, null, 2),
+    }
+
+    const result = await zai
+      .patch([file], 'add "description": "A sample application" and "license": "MIT" to the JSON')
+      .result()
+
+    expect(result.output).toHaveLength(1)
+    const parsed = JSON.parse(result.output[0].content)
+    expect(parsed.name).toBe('my-app')
+    expect(parsed.version).toBe('1.0.0')
+    expect(parsed.description).toBe('A sample application')
+    expect(parsed.license).toBe('MIT')
+  })
+
+  it('adds additional properties in a complex JSON', async () => {
+    const file: File = {
+      path: 'config.json',
+      name: 'config.json',
+      content: JSON.stringify(
+        {
+          database: { host: 'localhost', port: 5432 },
+          cache: { enabled: true },
+        },
+        null,
+        2
+      ),
+    }
+
+    const result = await zai
+      .patch(
+        [file],
+        'add "name": "mydb" and "ssl": true inside the database object, and add "ttl": 3600 inside the cache object'
+      )
+      .result()
+
+    expect(result.output).toHaveLength(1)
+    const parsed = JSON.parse(result.output[0].content)
+    expect(parsed.database.host).toBe('localhost')
+    expect(parsed.database.port).toBe(5432)
+    expect(parsed.database.name).toBe('mydb')
+    expect(parsed.database.ssl).toBe(true)
+    expect(parsed.cache.enabled).toBe(true)
+    expect(parsed.cache.ttl).toBe(3600)
+  })
+
+  it('removes a property from a simple JSON', async () => {
+    const file: File = {
+      path: 'config.json',
+      name: 'config.json',
+      content: JSON.stringify({ name: 'my-app', version: '1.0.0', deprecated: true, debug: false }, null, 2),
+    }
+
+    const result = await zai.patch([file], 'remove the "deprecated" property').result()
+
+    expect(result.output).toHaveLength(1)
+    const parsed = JSON.parse(result.output[0].content)
+    expect(parsed.name).toBe('my-app')
+    expect(parsed.version).toBe('1.0.0')
+    expect(parsed.debug).toBe(false)
+    expect(parsed).not.toHaveProperty('deprecated')
+  })
+
+  it('removes multiple properties from a simple JSON', async () => {
+    const file: File = {
+      path: 'config.json',
+      name: 'config.json',
+      content: JSON.stringify(
+        { name: 'my-app', version: '1.0.0', deprecated: true, temporary: 'value', debug: false, legacy: true },
+        null,
+        2
+      ),
+    }
+
+    const result = await zai.patch([file], 'remove the "deprecated", "temporary", and "legacy" properties').result()
+
+    expect(result.output).toHaveLength(1)
+    const parsed = JSON.parse(result.output[0].content)
+    expect(parsed.name).toBe('my-app')
+    expect(parsed.version).toBe('1.0.0')
+    expect(parsed.debug).toBe(false)
+    expect(parsed).not.toHaveProperty('deprecated')
+    expect(parsed).not.toHaveProperty('temporary')
+    expect(parsed).not.toHaveProperty('legacy')
+  })
+
+  it('removes items inside a JSON array inside a JSON object', async () => {
+    const file: File = {
+      path: 'config.json',
+      name: 'config.json',
+      content: JSON.stringify(
+        {
+          name: 'my-app',
+          contributors: [
+            { name: 'Alice', role: 'lead' },
+            { name: 'Bob', role: 'dev' },
+            { name: 'Charlie', role: 'intern' },
+            { name: 'Diana', role: 'dev' },
+          ],
+        },
+        null,
+        2
+      ),
+    }
+
+    const result = await zai.patch([file], 'remove Bob and Charlie from the contributors array').result()
+
+    expect(result.output).toHaveLength(1)
+    const parsed = JSON.parse(result.output[0].content)
+    expect(parsed.name).toBe('my-app')
+    expect(parsed.contributors).toHaveLength(2)
+    expect(parsed.contributors.map((c: any) => c.name)).toEqual(['Alice', 'Diana'])
+  })
+
+  it('adds, removes, and changes properties inside a simple JSON', async () => {
+    const file: File = {
+      path: 'package.json',
+      name: 'package.json',
+      content: JSON.stringify({ name: 'old-name', version: '0.1.0', private: true, deprecated: true }, null, 2),
+    }
+
+    const result = await zai
+      .patch(
+        [file],
+        'change "name" to "new-name", change "version" to "1.0.0", remove the "deprecated" property, and add "license": "MIT"'
+      )
+      .result()
+
+    expect(result.output).toHaveLength(1)
+    const parsed = JSON.parse(result.output[0].content)
+    expect(parsed.name).toBe('new-name')
+    expect(parsed.version).toBe('1.0.0')
+    expect(parsed.private).toBe(true)
+    expect(parsed.license).toBe('MIT')
+    expect(parsed).not.toHaveProperty('deprecated')
+  })
+
+  it('adds, removes, and changes properties inside a complex JSON', async () => {
+    const file: File = {
+      path: 'config.json',
+      name: 'config.json',
+      content: JSON.stringify(
+        {
+          app: { name: 'old-app', version: '0.1.0', experimental: true },
+          database: { host: 'localhost', port: 5432, pool: { min: 2, max: 10, idleTimeout: 30000 } },
+          features: { darkMode: false, betaFeatures: true, analytics: { enabled: false, provider: 'none' } },
+        },
+        null,
+        2
+      ),
+    }
+
+    const result = await zai
+      .patch(
+        [file],
+        'change app.name to "new-app" and app.version to "1.0.0", remove app.experimental, change database.pool.max to 20, remove features.betaFeatures, change features.analytics.enabled to true and features.analytics.provider to "mixpanel", and add features.darkMode as true and database.pool.timeout as 5000'
+      )
+      .result()
+
+    expect(result.output).toHaveLength(1)
+    const parsed = JSON.parse(result.output[0].content)
+
+    // Changed
+    expect(parsed.app.name).toBe('new-app')
+    expect(parsed.app.version).toBe('1.0.0')
+    expect(parsed.database.pool.max).toBe(20)
+    expect(parsed.features.analytics.enabled).toBe(true)
+    expect(parsed.features.analytics.provider).toBe('mixpanel')
+    expect(parsed.features.darkMode).toBe(true)
+
+    // Removed
+    expect(parsed.app).not.toHaveProperty('experimental')
+    expect(parsed.features).not.toHaveProperty('betaFeatures')
+
+    // Added
+    expect(parsed.database.pool.timeout).toBe(5000)
+
+    // Unchanged
+    expect(parsed.database.host).toBe('localhost')
+    expect(parsed.database.port).toBe(5432)
+    expect(parsed.database.pool.min).toBe(2)
+    expect(parsed.database.pool.idleTimeout).toBe(30000)
+  })
+
+  it('restructures a realistic package.json with many simultaneous changes', async () => {
+    const file: File = {
+      path: 'package.json',
+      name: 'package.json',
+      content: JSON.stringify(
+        {
+          name: '@acme/api-server',
+          version: '2.4.1',
+          description: 'Acme API Server',
+          main: 'dist/index.js',
+          scripts: {
+            build: 'tsc',
+            dev: 'ts-node src/index.ts',
+            test: 'jest',
+            lint: 'eslint src/',
+            'db:migrate': 'knex migrate:latest',
+            'db:seed': 'knex seed:run',
+          },
+          dependencies: {
+            express: '^4.18.2',
+            knex: '^3.1.0',
+            pg: '^8.11.3',
+            zod: '^3.22.4',
+            dotenv: '^16.3.1',
+            cors: '^2.8.5',
+            helmet: '^7.1.0',
+            jsonwebtoken: '^9.0.2',
+            bcrypt: '^5.1.1',
+          },
+          devDependencies: {
+            typescript: '^5.3.3',
+            '@types/node': '^20.10.0',
+            '@types/express': '^4.17.21',
+            jest: '^29.7.0',
+            'ts-jest': '^29.1.1',
+            eslint: '^8.55.0',
+            '@types/cors': '^2.8.17',
+            '@types/jsonwebtoken': '^9.0.5',
+            '@types/bcrypt': '^5.0.2',
+          },
+          engines: { node: '>=18.0.0' },
+          repository: {
+            type: 'git',
+            url: 'https://github.com/acme/api-server.git',
+          },
+          author: 'Acme Corp',
+          license: 'UNLICENSED',
+          private: true,
+        },
+        null,
+        2
+      ),
+    }
+
+    const result = await zai
+      .patch(
+        [file],
+        [
+          'Migrate from Express+Jest+ESLint to Hono+Vitest+Biome:',
+          '- change scripts.build to "bun build src/index.ts --outdir dist"',
+          '- change scripts.dev to "bun --hot src/index.ts"',
+          '- change scripts.test to "vitest"',
+          '- change scripts.lint to "biome check src/"',
+          '- remove express, cors, helmet, dotenv from dependencies',
+          '- add hono "^4.0.0" to dependencies',
+          '- remove all @types/* packages, jest, ts-jest, eslint from devDependencies',
+          '- add vitest "^1.2.0" and @biomejs/biome "^1.5.0" to devDependencies',
+          '- bump the version to "3.0.0"',
+          '- change engines.node to ">=20.0.0"',
+          '- change license to "MIT"',
+          '- remove the private field',
+          '- add a "type": "module" field',
+        ].join('\n')
+      )
+      .result()
+
+    expect(result.output).toHaveLength(1)
+    const parsed = JSON.parse(result.output[0].content)
+
+    // Version & metadata
+    expect(parsed.version).toBe('3.0.0')
+    expect(parsed.license).toBe('MIT')
+    expect(parsed).not.toHaveProperty('private')
+    expect(parsed.type).toBe('module')
+    expect(parsed.engines.node).toBe('>=20.0.0')
+
+    // Scripts
+    expect(parsed.scripts.test).toBe('vitest')
+    expect(parsed.scripts.lint).toBe('biome check src/')
+    expect(parsed.scripts.dev).toContain('bun')
+    expect(parsed.scripts.build).toContain('bun')
+
+    // Dependencies — removed
+    expect(parsed.dependencies).not.toHaveProperty('express')
+    expect(parsed.dependencies).not.toHaveProperty('cors')
+    expect(parsed.dependencies).not.toHaveProperty('helmet')
+    expect(parsed.dependencies).not.toHaveProperty('dotenv')
+
+    // Dependencies — added
+    expect(parsed.dependencies.hono).toBeDefined()
+
+    // Dependencies — kept
+    expect(parsed.dependencies.knex).toBeDefined()
+    expect(parsed.dependencies.pg).toBeDefined()
+    expect(parsed.dependencies.zod).toBeDefined()
+    expect(parsed.dependencies.jsonwebtoken).toBeDefined()
+    expect(parsed.dependencies.bcrypt).toBeDefined()
+
+    // DevDependencies — removed
+    expect(parsed.devDependencies).not.toHaveProperty('jest')
+    expect(parsed.devDependencies).not.toHaveProperty('ts-jest')
+    expect(parsed.devDependencies).not.toHaveProperty('eslint')
+    expect(parsed.devDependencies).not.toHaveProperty('@types/node')
+    expect(parsed.devDependencies).not.toHaveProperty('@types/express')
+    expect(parsed.devDependencies).not.toHaveProperty('@types/cors')
+    expect(parsed.devDependencies).not.toHaveProperty('@types/jsonwebtoken')
+    expect(parsed.devDependencies).not.toHaveProperty('@types/bcrypt')
+
+    // DevDependencies — added
+    expect(parsed.devDependencies.vitest).toBeDefined()
+    expect(parsed.devDependencies['@biomejs/biome']).toBeDefined()
+
+    // DevDependencies — kept
+    expect(parsed.devDependencies.typescript).toBeDefined()
+
+    // Unchanged
+    expect(parsed.name).toBe('@acme/api-server')
+    expect(parsed.description).toBe('Acme API Server')
+    expect(parsed.scripts['db:migrate']).toBe('knex migrate:latest')
+    expect(parsed.scripts['db:seed']).toBe('knex seed:run')
+    expect(parsed.repository.url).toBe('https://github.com/acme/api-server.git')
+    expect(parsed.author).toBe('Acme Corp')
+  })
+
+  it('restructures deep nested objects and arrays in a CI/CD pipeline config', async () => {
+    const file: File = {
+      path: 'pipeline.json',
+      name: 'pipeline.json',
+      content: JSON.stringify(
+        {
+          pipeline: {
+            name: 'deploy-prod',
+            version: 1,
+            triggers: [
+              { type: 'push', branches: ['main', 'release/*'] },
+              { type: 'schedule', cron: '0 2 * * 1' },
+              { type: 'manual', approvers: ['alice', 'bob', 'charlie'] },
+            ],
+            stages: [
+              {
+                name: 'build',
+                timeout: 600,
+                steps: [
+                  { run: 'npm ci', cache: true },
+                  { run: 'npm run build', artifacts: ['dist/**'] },
+                  { run: 'npm test', retry: 2 },
+                ],
+              },
+              {
+                name: 'security',
+                timeout: 300,
+                steps: [
+                  { run: 'npm audit', allowFailure: true },
+                  { run: 'snyk test', env: { SNYK_TOKEN: '$SNYK_TOKEN' } },
+                ],
+              },
+              {
+                name: 'deploy',
+                timeout: 900,
+                dependsOn: ['build', 'security'],
+                steps: [
+                  { run: 'docker build -t app:latest .' },
+                  { run: 'docker push app:latest' },
+                  { run: 'kubectl apply -f k8s/', retry: 3 },
+                ],
+              },
+            ],
+            notifications: {
+              onSuccess: [{ type: 'slack', channel: '#deploys' }],
+              onFailure: [
+                { type: 'slack', channel: '#deploys' },
+                { type: 'email', recipients: ['oncall@acme.com'] },
+                { type: 'pagerduty', severity: 'high' },
+              ],
+            },
+          },
+        },
+        null,
+        2
+      ),
+    }
+
+    const result = await zai
+      .patch(
+        [file],
+        [
+          'Make the following changes to the pipeline config:',
+          '- bump pipeline.version to 2',
+          '- remove the schedule trigger from the triggers array',
+          '- remove "charlie" from the manual trigger approvers and add "diana"',
+          '- remove the entire security stage from stages',
+          '- in the deploy stage: remove "security" from dependsOn (keep "build"), and change retry on the kubectl step to 5',
+          '- in notifications.onFailure: remove the pagerduty entry and add "platform@acme.com" to the email recipients',
+        ].join('\n')
+      )
+      .result()
+
+    expect(result.output).toHaveLength(1)
+    const parsed = JSON.parse(result.output[0].content)
+    const p = parsed.pipeline
+
+    // Version
+    expect(p.version).toBe(2)
+
+    // Triggers — schedule removed
+    expect(p.triggers.find((t: any) => t.type === 'schedule')).toBeUndefined()
+    // Triggers — push unchanged
+    const pushTrigger = p.triggers.find((t: any) => t.type === 'push')
+    expect(pushTrigger.branches).toContain('main')
+    expect(pushTrigger.branches).toContain('release/*')
+    // Triggers — manual approvers updated
+    const manualTrigger = p.triggers.find((t: any) => t.type === 'manual')
+    expect(manualTrigger.approvers).toContain('alice')
+    expect(manualTrigger.approvers).toContain('bob')
+    expect(manualTrigger.approvers).not.toContain('charlie')
+    expect(manualTrigger.approvers).toContain('diana')
+
+    // Stages — security removed
+    expect(p.stages.find((s: any) => s.name === 'security')).toBeUndefined()
+
+    // Stages — build unchanged
+    const build = p.stages.find((s: any) => s.name === 'build')
+    expect(build.timeout).toBe(600)
+    expect(build.steps).toHaveLength(3)
+
+    // Stages — deploy
+    const deploy = p.stages.find((s: any) => s.name === 'deploy')
+    expect(deploy.dependsOn).toContain('build')
+    expect(deploy.dependsOn).not.toContain('security')
+    const kubectlStep = deploy.steps.find((s: any) => s.run.includes('kubectl'))
+    expect(kubectlStep.retry).toBe(5)
+
+    // Notifications — pagerduty removed
+    expect(p.notifications.onFailure.find((n: any) => n.type === 'pagerduty')).toBeUndefined()
+    // Notifications — email recipients updated
+    const emailNotif = p.notifications.onFailure.find((n: any) => n.type === 'email')
+    expect(emailNotif.recipients).toContain('oncall@acme.com')
+    expect(emailNotif.recipients).toContain('platform@acme.com')
+
+    // Unchanged
+    expect(p.name).toBe('deploy-prod')
+    expect(p.notifications.onSuccess).toHaveLength(1)
+    expect(p.notifications.onSuccess[0].channel).toBe('#deploys')
+  })
+
+  it('validates patched JSON against a zui schema', async () => {
+    const schema = z.object({
+      name: z.string(),
+      version: z.string(),
+      port: z.number().min(1).max(65535),
+      debug: z.boolean(),
+    })
+
+    const file: File = {
+      path: 'config.json',
+      name: 'config.json',
+      content: JSON.stringify({ name: 'my-app', version: '1.0.0', port: 3000, debug: false }, null, 2),
+    }
+
+    const result = await zai.patch([file], 'change port to 8080 and set debug to true', { schema }).result()
+
+    expect(result.output).toHaveLength(1)
+    const parsed = JSON.parse(result.output[0].content)
+
+    // Schema validation should pass
+    const safe = schema.safeParse(parsed)
+    expect(safe.success).toBe(true)
+
+    expect(parsed.port).toBe(8080)
+    expect(parsed.debug).toBe(true)
+    expect(parsed.name).toBe('my-app')
+    expect(parsed.version).toBe('1.0.0')
+  })
+
+  it('rejects non-zui schemas', async () => {
+    const schema = {
+      _output: undefined,
+      safeParse: () => ({ success: true, data: { version: '1.0.0' } }),
+    }
+
+    await expect(
+      zai
+        .patch([configFile], 'change port to 8080 and set debug to true', {
+          schema: schema as any,
+        })
+        .result()
+    ).rejects.toThrow('@bpinternal/zui')
+  })
+
+  it('validates patched JSON against a nested zui schema', async () => {
+    const schema = z.object({
+      database: z.object({
+        host: z.string(),
+        port: z.number().min(5434),
+        credentials: z.object({
+          username: z.string(),
+          password: z.string().min(1),
+        }),
+      }),
+      features: z.array(z.string()),
+    })
+
+    const file: File = {
+      path: 'config.json',
+      name: 'config.json',
+      content: JSON.stringify(
+        {
+          database: {
+            host: 'localhost',
+            port: 5432,
+            credentials: { username: 'admin', password: 'secret' },
+          },
+          features: ['auth', 'logging'],
+        },
+        null,
+        2
+      ),
+    }
+
+    const result = await zai
+      .patch(
+        [file],
+        'change database host to "db.prod.internal", port to 5433 or higher, and add "caching" to features',
+        {
+          schema,
+        }
+      )
+      .result()
+
+    expect(result.output).toHaveLength(1)
+    const parsed = JSON.parse(result.output[0].content)
+
+    const safe = schema.safeParse(parsed)
+    expect(safe.success).toBe(true)
+
+    expect(parsed.database.host).toBe('db.prod.internal')
+    expect(parsed.database.port).toBe(5434)
+    expect(parsed.database.credentials.username).toBe('admin')
+    expect(parsed.database.credentials.password).toBe('secret')
+    expect(parsed.features).toContain('auth')
+    expect(parsed.features).toContain('logging')
+    expect(parsed.features).toContain('caching')
   })
 })

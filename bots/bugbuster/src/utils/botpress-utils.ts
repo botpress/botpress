@@ -1,26 +1,31 @@
+import * as sdk from '@botpress/sdk'
+import * as types from '../types'
 import * as bp from '.botpress'
 
-export type BotProps = bp.EventHandlerProps | bp.MessageHandlerProps
-export type BotMessage = Pick<bp.ClientInputs['createMessage'], 'type' | 'payload'>
-export type GithubIssue = bp.integrations.github.actions.findTarget.output.Output['targets'][number]
-export type IssueLintEntry = bp.states.recentlyLinted.RecentlyLinted['payload']['issues'][number]
+type BotMessage = Pick<bp.ClientInputs['createMessage'], 'type' | 'payload'>
 
-const RECENT_THRESHOLD: number = 1000 * 60 * 10 // 10 minutes
+type ErrorHandlerProps = {
+  context: string
+  conversationId?: string
+}
 
 export class BotpressApi {
-  private constructor(private _props: BotProps) {}
+  private constructor(
+    private _client: bp.Client,
+    private _botId: string,
+    private _logger: sdk.BotLogger
+  ) {}
 
-  public static async create(props: BotProps): Promise<BotpressApi> {
-    return new BotpressApi(props)
+  public static create(props: types.CommonHandlerProps): BotpressApi {
+    return new BotpressApi(props.client, props.ctx.botId, props.logger)
   }
 
   public async respond(conversationId: string, msg: BotMessage): Promise<void> {
-    const { client, ctx } = this._props
-    await client.createMessage({
+    await this._client.createMessage({
       type: msg.type,
       payload: msg.payload,
       conversationId,
-      userId: ctx.botId,
+      userId: this._botId,
       tags: {},
     })
   }
@@ -32,49 +37,13 @@ export class BotpressApi {
     })
   }
 
-  public listGithubIssues = async (): Promise<GithubIssue[]> => {
-    const {
-      output: { targets: githubIssues },
-    } = await this._props.client.callAction({
-      type: 'github:findTarget',
-      input: {
-        channel: 'issue',
-        repo: 'botpress',
-        query: '',
-      },
-    })
-    return githubIssues
-  }
-
-  public async getRecentlyLinted(): Promise<bp.states.recentlyLinted.RecentlyLinted['payload']['issues']> {
-    const { client } = this._props
-    const {
-      state: {
-        payload: { issues },
-      },
-    } = await client.getOrSetState({
-      id: this._props.ctx.botId,
-      type: 'bot',
-      name: 'recentlyLinted',
-      payload: { issues: [] },
-    })
-    return issues.filter(this._isRecentlyLinted)
-  }
-
-  public async setRecentlyLinted(issues: bp.states.recentlyLinted.RecentlyLinted['payload']['issues']): Promise<void> {
-    await this._props.client.setState({
-      id: this._props.ctx.botId,
-      type: 'bot',
-      name: 'recentlyLinted',
-      payload: {
-        issues: issues.filter(this._isRecentlyLinted),
-      },
-    })
-  }
-
-  private _isRecentlyLinted = (issue: IssueLintEntry): boolean => {
-    const lintedAt = new Date(issue.lintedAt).getTime()
-    const now = new Date().getTime()
-    return now - lintedAt < RECENT_THRESHOLD
+  public handleError = async (props: ErrorHandlerProps, thrown: unknown): Promise<never> => {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    const message = `An error occured while ${props.context}: ${error.message}`
+    this._logger.error(message)
+    if (props.conversationId) {
+      await this.respondText(props.conversationId, message).catch(() => {}) // if this fails, there's nothing we can do
+    }
+    throw new sdk.RuntimeError(error.message)
   }
 }

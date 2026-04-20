@@ -1,3 +1,4 @@
+import { Client } from '@botpress/client'
 import { Cognitive, Models, type BotpressClientLike } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 
@@ -68,6 +69,19 @@ export type ExecutionHooks = {
   /**
    * BLOCKING HOOK
    *   This hook will block the execution of the iteration until it resolves.
+   *
+   * This hook will be called before each iteration starts, regardless of the status.
+   * This is useful for logging or dynamically change model arguments
+   */
+  onIterationStart?: (
+    iteration: Iteration,
+    controller: AbortController,
+    context: Context
+  ) => Promise<void | Partial<Iteration>> | void | Partial<Iteration>
+
+  /**
+   * BLOCKING HOOK
+   *   This hook will block the execution of the iteration until it resolves.
    * NON-MUTATION HOOK
    *   This hook can't mutate the result or status of the iteration.
    *
@@ -114,6 +128,8 @@ export type ExecutionHooks = {
     tool: Tool
     input: any
     controller: AbortController
+    toolCallId: string
+    object?: string
   }) => Promise<{ input?: any } | void>
 
   /**
@@ -131,6 +147,8 @@ export type ExecutionHooks = {
     input: any
     output: any
     controller: AbortController
+    toolCallId: string
+    object?: string
   }) => Promise<{ output?: any } | void>
 }
 
@@ -203,8 +221,9 @@ export type ExecutionProps = {
   /**
    * An instance of a Botpress Client, or an instance of Cognitive Client (@botpress/cognitive).
    * This is used to generate content using the LLM and to access the Botpress API.
+   * If not provided, a default client will be created using environment variables.
    */
-  client: Cognitive | BotpressClientLike
+  client?: Cognitive | BotpressClientLike
 
   /**
    * When provided, the execution will immediately stop when the signal is aborted.
@@ -236,6 +255,15 @@ export type ExecutionProps = {
    * If no temperature is provided, the default temperature of 0.7 will be used.
    */
   temperature?: ValueOrGetter<number, Context>
+
+  /**
+   * The reasoning effort to use for models that support reasoning.
+   * - "none": Disable reasoning (for models with optional reasoning)
+   * - "low" | "medium" | "high": Fixed reasoning effort levels
+   * - "dynamic": Let the provider automatically determine the reasoning effort
+   * If not provided, the model will not use reasoning for models with optional reasoning.
+   */
+  reasoningEffort?: ValueOrGetter<'low' | 'medium' | 'high' | 'dynamic' | 'none', Context>
 } & ExecutionHooks
 
 export const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
@@ -249,8 +277,11 @@ export const executeContext = async (props: ExecutionProps): Promise<ExecutionRe
 
 export const _executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
   const controller = createJoinedAbortController([props.signal])
-  const { onIterationEnd, onTrace, onExit, onBeforeExecution, onAfterTool, onBeforeTool } = props
-  const cognitive = Cognitive.isCognitiveClient(props.client) ? props.client : new Cognitive({ client: props.client })
+  const { onIterationStart, onIterationEnd, onTrace, onExit, onBeforeExecution, onAfterTool, onBeforeTool } = props
+
+  const client = props.client ?? new Client()
+
+  const cognitive = Cognitive.isCognitiveClient(client) ? client : new Cognitive({ client, __experimental_beta: true })
   const cleanups: (() => void)[] = []
 
   const ctx = new Context({
@@ -264,6 +295,7 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
     snapshot: props.snapshot,
     model: props.model,
     temperature: props.temperature,
+    reasoningEffort: props.reasoningEffort,
   })
 
   try {
@@ -273,6 +305,20 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
       }
 
       const iteration = await ctx.nextIteration()
+
+      try {
+        await executeOnIterationStartHook({
+          iteration,
+          ctx,
+          onIterationStart,
+          controller,
+          onIterationEnd,
+        })
+      } catch (err) {
+        if (err instanceof ThinkSignal) {
+          continue
+        }
+      }
 
       if (controller.signal.aborted) {
         iteration.end({
@@ -305,7 +351,11 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
           onBeforeTool,
         })
       } catch (err) {
-        // this should not happen, but if it does, we want to catch it and mark the iteration as failed and loop
+        if (err instanceof CognitiveError) {
+          // early return when problems with cognitive service
+          return new ErrorExecutionResult(ctx, err)
+        }
+
         iteration.end({
           type: 'execution_error',
           execution_error: {
@@ -380,7 +430,11 @@ const executeIteration = async ({
 } & ExecutionHooks): Promise<void> => {
   let startedAt = Date.now()
   const traces = iteration.traces
-  const model = await cognitive.getModelDetails(Array.isArray(iteration.model) ? iteration.model[0]! : iteration.model)
+
+  const modelRef = Array.isArray(iteration.model) ? iteration.model[0]! : iteration.model
+  const model = await cognitive.getModelDetails(modelRef).catch((thrown) => {
+    throw new CognitiveError(`Failed to fetch model details for model "${modelRef}": ${getErrorMessage(thrown)}`)
+  })
   const modelLimit = Math.max(model.input.maxTokens, 8_000)
   const responseLengthBuffer = getModelOutputLimit(modelLimit)
 
@@ -394,6 +448,7 @@ const executeIteration = async ({
       // This can happen when a message is truncated and the content is empty
       typeof x.content !== 'string' || x.content.trim().length > 0
   )
+  iteration.messages = messages
 
   traces.push({
     type: 'llm_call_started',
@@ -402,20 +457,22 @@ const executeIteration = async ({
     model: model.ref,
   })
 
-  const output = await cognitive.generateContent({
-    signal: controller.signal,
-    systemPrompt: messages.find((x) => x.role === 'system')?.content,
-    model: model.ref,
-    temperature: iteration.temperature,
-    responseFormat: 'text',
-    messages: messages.filter((x) => x.role !== 'system'),
-    stopSequences: ctx.version.getStopTokens(),
-  })
+  const output = await cognitive
+    .generateContent({
+      signal: controller.signal,
+      systemPrompt: messages.find((x) => x.role === 'system')?.content,
+      model: model.ref,
+      temperature: iteration.temperature,
+      responseFormat: 'text',
+      reasoningEffort: iteration.reasoningEffort,
+      messages: messages.filter((x) => x.role !== 'system'),
+      stopSequences: ctx.version.getStopTokens(),
+    })
+    .catch((thrown) => {
+      throw new CognitiveError(`LLM generation failed: ${getErrorMessage(thrown)}`)
+    })
 
-  const out =
-    output.output.choices?.[0]?.type === 'text' && typeof output.output.choices?.[0].content === 'string'
-      ? output.output.choices[0].content
-      : null
+  const out = typeof output.output.choices?.[0]?.content === 'string' ? output.output.choices[0].content : null
 
   if (!out) {
     throw new CognitiveError('LLM did not return any text output')
@@ -461,6 +518,7 @@ const executeIteration = async ({
     spend: output.meta.cost.input + output.meta.cost.output,
     output: assistantResponse.raw,
     model: `${output.meta.model.integration}:${output.meta.model.model}`,
+    usage: output.output.usage,
   }
 
   traces.push({
@@ -481,7 +539,7 @@ const executeIteration = async ({
       internalValues[name] = value
 
       const initialValue = value
-      const schema = type ?? z.any()
+      const schema = (type ?? z.any()) as z.ZodType
 
       Object.defineProperty(instance, name, {
         enumerable: true,
@@ -637,6 +695,7 @@ const executeIteration = async ({
       thinking_requested: {
         variables: result.signal.context,
         reason: result.signal.reason,
+        metadata: result.signal.metadata,
       },
     })
   }
@@ -650,7 +709,6 @@ const executeIteration = async ({
     })
   }
 
-  const _validActions = [...iteration.exits.map((x) => x.name.toLowerCase()), 'think']
   let returnValue: { action: string; value?: unknown } | null =
     result.success && result.return_value ? result.return_value : null
 
@@ -794,6 +852,8 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, cont
           tool,
           input,
           controller,
+          object,
+          toolCallId,
         })
 
         if (typeof beforeRes?.input !== 'undefined') {
@@ -810,6 +870,8 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, cont
           input,
           output,
           controller,
+          object,
+          toolCallId,
         })
 
         if (typeof afterRes?.output !== 'undefined') {
@@ -828,10 +890,24 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, cont
             success = true
             return res
           })
-          .catch((err: any) => {
+          .catch(async (err: any) => {
             if (!handleSignals(err)) {
               success = false
               error = err
+            } else {
+              const afterRes = await afterHook?.({
+                iteration,
+                tool,
+                input,
+                output,
+                controller,
+                object,
+                toolCallId,
+              })
+
+              if (typeof afterRes?.output !== 'undefined') {
+                output = afterRes.output
+              }
             }
 
             // Important: we want to re-throw signals so that the VM can handle them
@@ -887,5 +963,48 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, cont
     }
 
     return output
+  }
+}
+
+const executeOnIterationStartHook = async (props: {
+  iteration: Iteration
+  ctx: Context
+  onIterationStart?: ExecutionHooks['onIterationStart']
+  onIterationEnd?: ExecutionHooks['onIterationEnd']
+  controller: AbortController
+}) => {
+  const { iteration, ctx, onIterationStart, controller, onIterationEnd } = props
+
+  try {
+    const hookRes = await onIterationStart?.(iteration, controller, ctx)
+    if (hookRes) {
+      Object.assign(iteration, hookRes)
+    }
+  } catch (err) {
+    if (err instanceof ThinkSignal) {
+      iteration.end({
+        type: 'thinking_requested',
+        thinking_requested: {
+          variables: err.context,
+          reason: err.reason,
+        },
+      })
+
+      try {
+        await onIterationEnd?.(iteration, controller)
+      } catch (err) {
+        console.error(err)
+      }
+    } else {
+      iteration.end({
+        type: 'execution_error',
+        execution_error: {
+          message: `Error in onIterationStart hook: ${getErrorMessage(err)}`,
+          stack: cleanStackTrace((err as Error).stack ?? 'No stack trace available'),
+        },
+      })
+    }
+
+    throw err
   }
 }

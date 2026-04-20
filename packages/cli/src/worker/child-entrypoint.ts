@@ -9,7 +9,18 @@ const childProcessEntrypoint = async (_props: ChildProcessProps) => {
   if (!rawConfig) {
     throw new Error(`Config variable ${CONFIG_ENV_KEY} was not set`)
   }
-  const config = configSchema.parse(JSON.parse(rawConfig))
+
+  const jsonParseResult = utils.json.safeParseJson(rawConfig)
+  if (!jsonParseResult.success) {
+    throw new Error(`Failed to parse config JSON: ${jsonParseResult.error.message}`)
+  }
+
+  const zodParseResult = configSchema.safeParse(jsonParseResult.data)
+  if (!zodParseResult.success) {
+    throw new Error(`Config validation failed: ${zodParseResult.error.message}`)
+  }
+
+  const config = zodParseResult.data
 
   if (config.type === 'code') {
     utils.require.requireJsCode(config.code)

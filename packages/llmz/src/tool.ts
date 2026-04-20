@@ -1,7 +1,7 @@
 import { TypeOf, z, transforms, ZodObject, ZodType } from '@bpinternal/zui'
 import { JSONSchema7 } from 'json-schema'
 import { isEmpty, uniq } from 'lodash-es'
-import { Serializable, ZuiType } from './types.js'
+import { Serializable } from './types.js'
 import { getTypings as generateTypings } from './typings.js'
 import { convertObjectToZuiLiterals, isJsonSchema, isValidIdentifier, isZuiSchema } from './utils.js'
 
@@ -65,7 +65,7 @@ export namespace Tool {
     metadata: Record<string, unknown>
     input?: JSONSchema7
     output?: JSONSchema7
-    staticInputValues?: SmartPartial<TypeOf<ZuiType>>
+    staticInputValues?: SmartPartial<TypeOf<z.ZodType>>
     maxRetries: number
   }
 }
@@ -211,7 +211,7 @@ export namespace Tool {
  * - **Type coercion**: Basic type coercion where possible
  *
  */
-export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> implements Serializable<Tool.JSON> {
+export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodType> implements Serializable<Tool.JSON> {
   private _staticInputValues?: unknown
 
   public name: string
@@ -273,13 +273,13 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
 
     const input = this.input ? transforms.fromJSONSchemaLegacy(this.input) : z.any()
 
-    if (input instanceof z.ZodObject && typeof values !== 'object') {
+    if (z.is.zuiObject(input) && typeof values !== 'object') {
       throw new Error(
         `Invalid static input values for tool ${this.name}. Expected an object, but got type "${typeof values}"`
       )
     }
 
-    if (input instanceof z.ZodArray && !Array.isArray(values)) {
+    if (z.is.zuiArray(input) && !Array.isArray(values)) {
       throw new Error(
         `Invalid static input values for tool ${this.name}. Expected an array, but got type "${typeof values}"`
       )
@@ -299,7 +299,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
    * @internal
    */
   public get zInput() {
-    let input: ZuiType
+    let input: z.ZodType
     if (this.input) {
       try {
         input = transforms.fromJSONSchema(this.input)
@@ -312,10 +312,10 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
 
     if (!isEmpty(this._staticInputValues)) {
       const inputExtensions = convertObjectToZuiLiterals(this._staticInputValues)
-      if (input instanceof z.ZodObject) {
+      if (z.is.zuiObject(input)) {
         input = input.extend(inputExtensions) as typeof input
-      } else if (input instanceof z.ZodArray) {
-        input = z.array(input.element.extend(inputExtensions))
+      } else if (z.is.zuiArray(input)) {
+        input = z.array((input.element as z.ZodObject).extend(inputExtensions))
       } else {
         // if input is z.string() or z.number() etc
         input = inputExtensions as typeof input
@@ -332,14 +332,16 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
    * @internal
    */
   public get zOutput() {
-    if (!this.output) {
-      return z.void()
+    let output: ZodType = z.void()
+    if (this.output) {
+      try {
+        output = transforms.fromJSONSchema(this.output)
+      } catch {
+        output = transforms.fromJSONSchemaLegacy(this.output)
+      }
     }
-    try {
-      return transforms.fromJSONSchema(this.output)
-    } catch {
-      return transforms.fromJSONSchemaLegacy(this.output)
-    }
+
+    return z.promise(output)
   }
 
   /**
@@ -427,7 +429,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
    * })
    * ```
    */
-  public clone<IX extends ZuiType = I, OX extends ZuiType = O>(
+  public clone<IX extends z.ZodType = I, OX extends z.ZodType = O>(
     props: Partial<{
       name: string
       aliases?: string[]
@@ -467,13 +469,13 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
         input:
           typeof props.input === 'function'
             ? props.input?.(zInput)
-            : props.input instanceof ZodType
+            : z.is.zuiType(props.input)
               ? props.input
               : (zInput as unknown as IX),
         output:
           typeof props.output === 'function'
             ? props.output?.(zOutput)
-            : props.output instanceof ZodType
+            : z.is.zuiType(props.output)
               ? props.output
               : (zOutput as unknown as OX),
         handler: (props.handler ?? this._handler) as (args: TypeOf<IX>, ctx: ToolCallContext) => Promise<TypeOf<OX>>,
@@ -672,7 +674,10 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
    *
    * @internal This method is primarily used internally by the LLMz execution engine
    */
-  public async execute(input: TypeOf<I>, ctx: ToolCallContext): Promise<TypeOf<O>> {
+  public async execute(rawInput: TypeOf<I>, ctx: ToolCallContext): Promise<TypeOf<O>> {
+    const isZodObject = (this.zInput as any)._def.typeName === 'ZodObject'
+    const input = isZodObject ? (rawInput ?? {}) : rawInput
+
     const pInput = (this.zInput as any).safeParse(input)
 
     if (!pInput.success) {
@@ -715,7 +720,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
    */
   public async getTypings(): Promise<string> {
     // Try newer fromJSONSchema first, fallback to legacy if it fails
-    let input: ZuiType | undefined
+    let input: z.ZodType | undefined
     if (this.input) {
       try {
         input = transforms.fromJSONSchema(this.input)
@@ -726,7 +731,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
 
     // Handle void output specially - when z.void() is converted to JSON Schema ({}),
     // it becomes z.any() when converted back. Check if the JSON Schema is empty.
-    let output: ZuiType
+    let output: z.ZodType
     if (!this.output || Object.keys(this.output).length === 0) {
       output = z.void()
     } else {
@@ -738,7 +743,8 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
     }
 
     if (
-      (input as any)?.naked() instanceof ZodObject &&
+      input &&
+      z.is.zuiObject(input.naked()) &&
       typeof this._staticInputValues === 'object' &&
       !isEmpty(this._staticInputValues)
     ) {
@@ -802,6 +808,8 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
       while (names.has(toolName)) {
         toolName = `${tool.name}${++counter}`
       }
+
+      names.add(toolName)
 
       return tool.rename(toolName)
     })

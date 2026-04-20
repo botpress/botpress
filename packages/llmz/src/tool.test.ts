@@ -132,7 +132,7 @@ describe('tools with unique names', () => {
     expect(tools.map((t) => t.name)).toMatchInlineSnapshot(`
       [
         "add1",
-        "add1",
+        "add2",
         "sub1",
         "add",
         "sub",

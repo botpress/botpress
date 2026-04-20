@@ -1,10 +1,10 @@
-import { RuntimeError, isApiError } from '@botpress/client'
+import { RuntimeError } from '@botpress/client'
 import { posthogHelper } from '@botpress/common'
 import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
 import axios from 'axios'
-import { INTEGRATION_NAME } from 'integration.definition'
+import { INTEGRATION_NAME, INTEGRATION_VERSION } from 'integration.definition'
 import { getAccessToken, getAuthenticatedWhatsappClient } from '../../auth'
-import { formatPhoneNumber } from '../../misc/phone-number-to-whatsapp'
+import { safeFormatPhoneNumber } from '../../misc/phone-number-to-whatsapp'
 import { WhatsAppMessage, WhatsAppMessageValue } from '../../misc/types'
 import { getMessageFromWhatsappMessageId } from '../../misc/util'
 import { getMediaInfos } from '../../misc/whatsapp-utils'
@@ -17,6 +17,21 @@ type IncomingMessages = {
   }
 }
 
+type CreateMessageArgs = ValueOf<IncomingMessages> & { incomingMessageType?: string }
+type CreateMessageFn = (args: CreateMessageArgs) => Promise<{ message: { id: string } } | undefined>
+
+export type HandleMessageArgs = {
+  message: WhatsAppMessage
+  conversationId: string
+  userId: string
+  ctx: bp.Context
+  client: bp.Client
+  logger: bp.Logger
+  tags: Record<string, string>
+  origin?: 'synthetic'
+  createMessageOverride?: CreateMessageFn
+}
+
 export const messagesHandler = async (
   message: NonNullable<WhatsAppMessageValue['messages']>[number],
   value: WhatsAppMessageValue,
@@ -27,23 +42,10 @@ export const messagesHandler = async (
   const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
   const phoneNumberId = value.metadata.phone_number_id
   await whatsapp.markAsRead(phoneNumberId, message.id)
-  await _handleIncomingMessage(message, value, ctx, client, logger)
 
-  return { status: 200 }
-}
-
-async function _handleIncomingMessage(
-  message: WhatsAppMessage,
-  value: WhatsAppMessageValue,
-  ctx: bp.Context,
-  client: bp.Client,
-  logger: bp.Logger
-) {
-  let userPhone = message.from
-  try {
-    userPhone = formatPhoneNumber(message.from)
-  } catch (thrown) {
-    const distinctId = isApiError(thrown) ? thrown.id : undefined
+  const formatPhoneNumberResponse = safeFormatPhoneNumber(message.from)
+  if (formatPhoneNumberResponse.success === false) {
+    const distinctId = formatPhoneNumberResponse.error.id
     await posthogHelper.sendPosthogEvent(
       {
         distinctId: distinctId ?? 'no id',
@@ -53,16 +55,16 @@ async function _handleIncomingMessage(
           phoneNumber: message.from,
         },
       },
-      { integrationName: INTEGRATION_NAME, key: bp.secrets.POSTHOG_KEY }
+      { integrationName: INTEGRATION_NAME, integrationVersion: INTEGRATION_VERSION, key: bp.secrets.POSTHOG_KEY }
     )
-    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    const errorMessage = formatPhoneNumberResponse.error.message
     logger.error(`Failed to parse phone number "${message.from}": ${errorMessage}`)
   }
 
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
     tags: {
-      userPhone,
+      userPhone: formatPhoneNumberResponse.success ? formatPhoneNumberResponse.phoneNumber : message.from,
       botPhoneNumberId: value.metadata.phone_number_id,
     },
   })
@@ -76,27 +78,11 @@ async function _handleIncomingMessage(
   const { user } = await client.getOrCreateUser({
     tags: {
       userId: contact.wa_id,
-      name: contact?.profile.name,
+      name: contact.profile?.name,
     },
-    name: contact?.profile.name,
+    name: contact.profile?.name,
+    discriminateByTags: ['userId'],
   })
-
-  const createMessage = async ({
-    type,
-    payload,
-    incomingMessageType,
-    replyTo,
-  }: ValueOf<IncomingMessages> & { incomingMessageType?: string; replyTo?: string }) => {
-    logger.forBot().debug(`Received ${incomingMessageType ?? type} message from WhatsApp:`, payload)
-    return client.getOrCreateMessage({
-      tags: { id: message.id, replyTo },
-      type,
-      payload,
-      userId: user.id,
-      conversationId: conversation.id,
-      discriminateByTags: ['id'],
-    })
-  }
 
   const replyToWhatsAppId = message.context?.id
   const replyToMessage = replyToWhatsAppId
@@ -113,60 +99,94 @@ async function _handleIncomingMessage(
   }
   const replyTo = replyToMessage?.id
 
+  await _handleMessage({
+    message,
+    conversationId: conversation.id,
+    userId: user.id,
+    ctx,
+    client,
+    logger,
+    tags: {
+      id: message.id,
+      ...(replyTo && { replyTo }),
+      ..._processReferralTags(message, logger),
+    },
+  })
+}
+
+export async function _handleMessage(args: HandleMessageArgs) {
+  const { message, conversationId, userId, ctx, client, logger, tags, origin } = args
+
+  const _createMessage: CreateMessageFn =
+    args.createMessageOverride ??
+    (async ({ type, payload, incomingMessageType }) => {
+      logger.forBot().debug(`Received ${incomingMessageType ?? type} message from WhatsApp:`, payload)
+      return client.getOrCreateMessage({
+        tags,
+        type,
+        payload,
+        userId,
+        conversationId,
+        discriminateByTags: ['id'],
+        origin,
+      })
+    })
+
   const { type } = message
   if (type === 'text') {
-    await createMessage({ type, payload: { text: message.text.body }, replyTo })
+    return _createMessage({ type, payload: { text: message.text.body } })
   } else if (type === 'button') {
-    await createMessage({
+    return _createMessage({
       type: 'text',
       payload: {
         value: message.button.payload,
         text: message.button.text,
       },
-      replyTo,
     })
   } else if (type === 'location') {
     const { latitude, longitude, address, name } = message.location
-    await createMessage({
+    return _createMessage({
       type,
       payload: { latitude: Number(latitude), longitude: Number(longitude), title: name, address },
-      replyTo,
     })
   } else if (type === 'image') {
     const imageUrl = await _getOrDownloadWhatsappMedia(message.image.id, client, ctx)
-    await createMessage({ type, payload: { imageUrl }, replyTo })
+    return _createMessage({
+      type,
+      payload: {
+        imageUrl,
+        ...(message.image.caption && { caption: message.image.caption }),
+      },
+    })
   } else if (type === 'sticker') {
     const stickerUrl = await _getOrDownloadWhatsappMedia(message.sticker.id, client, ctx)
-    await createMessage({ type: 'image', payload: { imageUrl: stickerUrl }, replyTo })
+    return _createMessage({ type: 'image', payload: { imageUrl: stickerUrl } })
   } else if (type === 'audio') {
     const audioUrl = await _getOrDownloadWhatsappMedia(message.audio.id, client, ctx)
-    await createMessage({ type, payload: { audioUrl }, replyTo })
+    return _createMessage({ type, payload: { audioUrl } })
   } else if (type === 'document') {
     const documentUrl = await _getOrDownloadWhatsappMedia(message.document.id, client, ctx)
-    await createMessage({
+    return _createMessage({
       type: 'file',
       payload: { fileUrl: documentUrl, filename: message.document.filename },
-      replyTo,
     })
   } else if (type === 'video') {
     const videoUrl = await _getOrDownloadWhatsappMedia(message.video.id, client, ctx)
-    await createMessage({ type, payload: { videoUrl }, replyTo })
+    return _createMessage({ type, payload: { videoUrl } })
   } else if (message.type === 'interactive') {
     if (message.interactive.type === 'button_reply') {
       const { id: value, title: text } = message.interactive.button_reply
-      await createMessage({
+      return _createMessage({
         type: 'text',
         payload: { value, text },
         incomingMessageType: type,
-        replyTo,
       })
     } else if (message.interactive.type === 'list_reply') {
       const { id: value, title: text } = message.interactive.list_reply
-      await createMessage({
+      return _createMessage({
         type: 'text',
         payload: { value, text },
         incomingMessageType: type,
-        replyTo,
       })
     }
   } else if (message.type === 'unsupported' || message.type === 'unknown') {
@@ -175,6 +195,7 @@ async function _handleIncomingMessage(
   } else {
     logger.forBot().warn(`Unhandled message type ${type}: ${JSON.stringify(message)}`)
   }
+  return undefined
 }
 
 async function _getOrDownloadWhatsappMedia(whatsappMediaId: string, client: bp.Client, ctx: bp.Context) {
@@ -237,4 +258,35 @@ function _getMediaExpiry(ctx: bp.Context) {
   }
   const expiresAt = new Date(Date.now() + expiryDelayHours * 60 * 60 * 1000)
   return expiresAt.toISOString()
+}
+
+function _processReferralTags(message: WhatsAppMessage, logger: bp.Logger): Record<string, string> {
+  const { referral } = message
+  if (!referral) {
+    return {}
+  }
+
+  const tags: Record<string, string> = {}
+
+  if (referral.source_url) {
+    const originalUrl = referral.source_url
+    // Urls can go up to 2048 characters, but we limit to 500 to avoid tags limit error
+    const processedUrl = originalUrl.slice(0, 500)
+
+    if (originalUrl !== processedUrl) {
+      logger
+        .forBot()
+        .warn(
+          `For whatsapp message "${message.id}", referral source URL was truncated from ${originalUrl.length} to 500 characters. Original: ${originalUrl}, Sliced: ${processedUrl}`
+        )
+    }
+
+    tags.referralSourceUrl = processedUrl
+  }
+
+  if (referral.source_id) {
+    tags.referralSourceId = referral.source_id
+  }
+
+  return tags
 }

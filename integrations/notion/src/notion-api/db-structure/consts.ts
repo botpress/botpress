@@ -27,4 +27,5 @@ export const NOTION_PROPERTY_STRINGIFIED_TYPE_MAP: Record<NotionPagePropertyType
   unique_id: '{start:string;end:string}',
   button: 'null',
   verification: 'null',
+  place: 'null',
 }

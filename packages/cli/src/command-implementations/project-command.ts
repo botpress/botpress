@@ -16,7 +16,14 @@ import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
 
 export type ProjectCommandDefinition = CommandDefinition<typeof config.schemas.project>
-export type ProjectCache = { botId: string; devId: string; tunnelId: string }
+export type ProjectCache = {
+  botId: string
+  devId: string
+  tunnelId: string
+  secrets: {
+    [secretName: string]: string
+  }
+}
 
 type ConfigurableProjectPaths = { workDir: string }
 type ConstantProjectPaths = typeof consts.fromWorkDir
@@ -90,8 +97,12 @@ export class ProjectDefinitionContext {
   }
 }
 
+type ResolvedDependency = { id: string }
+type DependencyCacheKey = `${'integration' | 'plugin' | 'interface'}:${string}@${string}`
+
 export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends GlobalCommand<C> {
   protected projectContext: ProjectDefinitionContext = new ProjectDefinitionContext()
+  private _dependencyCache = new Map<DependencyCacheKey, ResolvedDependency>()
 
   public setProjectContext(projectContext: ProjectDefinitionContext) {
     this.projectContext = projectContext
@@ -303,9 +314,9 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     this.logger.log('Integrations:')
     for (const [alias, integration] of Object.entries(bot.integrations)) {
       if (integration.enabled) {
-        this.logger.log(`${alias}:`, { prefix: { symbol: '→', indent: 2 } })
+        this.logger.log(`${alias} ${integration.version}:`, { prefix: { symbol: '→', indent: 2 } })
       } else {
-        this.logger.log(`${alias} ${chalk.italic('(disabled)')}:`, {
+        this.logger.log(`${alias} ${integration.version} ${chalk.italic('(disabled)')}:`, {
           prefix: { symbol: '→', indent: 2 },
         })
       }
@@ -471,14 +482,14 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   }
 
   protected async promptSecrets(
-    integrationDef: sdk.IntegrationDefinition,
+    def: { secrets?: Record<string, sdk.SecretDefinition> },
     argv: YargsConfig<typeof config.schemas.secrets>,
     opts: { formatEnv?: boolean; knownSecrets?: string[] } = {}
   ): Promise<Record<string, string | null>> {
     const formatEnv = opts.formatEnv ?? false
     const knownSecrets = opts.knownSecrets ?? []
 
-    const { secrets: secretDefinitions } = integrationDef
+    const { secrets: secretDefinitions } = def
     if (!secretDefinitions) {
       return {}
     }
@@ -486,7 +497,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const secretArgv = this._parseArgvSecrets(argv.secrets)
     const invalidSecret = Object.keys(secretArgv).find((s) => !secretDefinitions[s])
     if (invalidSecret) {
-      throw new errors.BotpressCLIError(`Secret ${invalidSecret} is not defined in integration definition`)
+      throw new errors.BotpressCLIError(`Secret ${invalidSecret} is not defined in the definition`)
     }
 
     const values: Record<string, string | null> = {}
@@ -570,6 +581,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         ? {
             schema: await utils.schema.mapZodToJsonSchema(integrationDef.configuration, {
               useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
+              toJSONSchemaOptions: integrationDef.__advanced?.toJSONSchemaOptions,
             }),
             identifier: {
               required: integrationDef.configuration.identifier?.required,
@@ -585,6 +597,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
             description: configuration.description,
             schema: await utils.schema.mapZodToJsonSchema(configuration, {
               useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
+              toJSONSchemaOptions: integrationDef.__advanced?.toJSONSchemaOptions,
             }),
             identifier: {
               required: configuration.identifier?.required,
@@ -599,21 +612,30 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     botDef: sdk.BotDefinition,
     api: apiUtils.ApiClient
   ): Promise<Partial<apiUtils.UpdateBotRequestBody>> {
-    const integrations = await this._fetchDependencies(botDef.integrations ?? {}, ({ name, version }) =>
-      api.getPublicOrPrivateIntegration({ type: 'name', name, version })
-    )
+    const integrations = await this._fetchDependencies({
+      deps: botDef.integrations ?? {},
+      fetcher: ({ name, version }) => api.getPublicOrPrivateIntegration({ type: 'name', name, version }),
+      cacheKey: ({ name, version }) => `integration:${name}@${version}`,
+    })
 
-    const plugins = await this._fetchDependencies(
-      botDef.plugins ?? {},
-      async ({ name, version }) => await api.getPublicOrPrivatePlugin({ type: 'name', name, version })
-    )
+    const plugins = await this._fetchDependencies({
+      deps: botDef.plugins ?? {},
+      fetcher: async ({ name, version }) => await api.getPublicOrPrivatePlugin({ type: 'name', name, version }),
+      cacheKey: ({ name, version }) => `plugin:${name}@${version}`,
+    })
 
     const pluginsWithBackingIntegrations = await utils.records.mapValuesAsync(plugins, async (plugin) => ({
       ...plugin,
-      interfaces: await this._fetchDependencies(
-        plugin.interfaces ?? {},
-        async (interfaceExtension) => await api.getPublicOrPrivateIntegration({ ...interfaceExtension, type: 'name' })
-      ),
+      interfaces: await this._fetchDependencies({
+        deps: plugin.interfaces ?? {},
+        fetcher: async ({ name, version }) => await api.getPublicOrPrivateIntegration({ name, version, type: 'name' }),
+        cacheKey: ({ name, version }) => `interface:${name}@${version}`,
+      }),
+      integrations: await this._fetchDependencies({
+        deps: plugin.integrations ?? {},
+        fetcher: async ({ name, version }) => await api.getPublicOrPrivateIntegration({ name, version, type: 'name' }),
+        cacheKey: ({ name, version }) => `integration:${name}@${version}`,
+      }),
     }))
 
     return {
@@ -630,10 +652,27 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       ),
       plugins: utils.records.mapValues(pluginsWithBackingIntegrations, (plugin) => ({
         ...plugin,
-        interfaces: utils.records.mapValues(plugin.interfaces ?? {}, (iface) => ({
-          ...iface,
-          integrationId: iface.id,
-        })),
+        interfaces: utils.records.mapValues(
+          plugin.interfaces ?? {},
+          (iface) =>
+            ({
+              integrationId: iface.id,
+              integrationAlias: iface.integrationAlias,
+              integrationInterfaceAlias: iface.integrationInterfaceAlias,
+            }) satisfies NonNullable<
+              NonNullable<NonNullable<apiUtils.UpdateBotRequestBody['plugins']>[string]>['interfaces']
+            >[string]
+        ),
+        integrations: utils.records.mapValues(
+          plugin.integrations ?? {},
+          (integration) =>
+            ({
+              integrationId: integration.id,
+              integrationAlias: integration.integrationAlias,
+            }) satisfies NonNullable<
+              NonNullable<NonNullable<apiUtils.UpdateBotRequestBody['plugins']>[string]>['integrations']
+            >[string]
+        ),
       })),
     }
   }
@@ -642,9 +681,11 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     integrationDef: sdk.IntegrationDefinition,
     api: apiUtils.ApiClient
   ): Promise<Partial<apiUtils.CreateIntegrationRequestBody>> {
-    const interfaces = await this._fetchDependencies(integrationDef.interfaces ?? {}, ({ name, version }) =>
-      api.getPublicInterface({ type: 'name', name, version })
-    )
+    const interfaces = await this._fetchDependencies({
+      deps: integrationDef.interfaces ?? {},
+      fetcher: ({ name, version }) => api.getPublicInterface({ type: 'name', name, version }),
+      cacheKey: (dep) => `interface:${dep.name}@${dep.version}`,
+    })
     return { interfaces }
   }
 
@@ -652,12 +693,16 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     pluginDef: sdk.PluginDefinition,
     api: apiUtils.ApiClient
   ): Promise<Partial<apiUtils.CreatePluginRequestBody>> {
-    const integrations = await this._fetchDependencies(pluginDef.integrations ?? {}, ({ name, version }) =>
-      api.getPublicOrPrivateIntegration({ type: 'name', name, version })
-    )
-    const interfaces = await this._fetchDependencies(pluginDef.interfaces ?? {}, ({ name, version }) =>
-      api.getPublicInterface({ type: 'name', name, version })
-    )
+    const integrations = await this._fetchDependencies({
+      deps: pluginDef.integrations ?? {},
+      fetcher: ({ name, version }) => api.getPublicOrPrivateIntegration({ type: 'name', name, version }),
+      cacheKey: (dep) => `integration:${dep.name}@${dep.version}`,
+    })
+    const interfaces = await this._fetchDependencies({
+      deps: pluginDef.interfaces ?? {},
+      fetcher: ({ name, version }) => api.getPublicInterface({ type: 'name', name, version }),
+      cacheKey: (dep) => `interface:${dep.name}@${dep.version}`,
+    })
     return {
       dependencies: {
         integrations,
@@ -666,16 +711,31 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
   }
 
-  private _fetchDependencies = async <T extends { id?: string; name: string; version: string }>(
-    deps: Record<string, T>,
-    fetcher: (dep: T) => Promise<{ id: string }>
-  ): Promise<Record<string, T & { id: string }>> => {
-    const isRemote = (dep: T): dep is T & { id: string } => dep.id !== undefined
-    return utils.records.mapValuesAsync(deps, async (dep): Promise<T & { id: string }> => {
+  private _fetchDependencies = async <T extends { id?: string; name: string; version: string }>({
+    deps,
+    fetcher,
+    cacheKey: getCacheKey,
+  }: {
+    deps: Record<string, T>
+    fetcher: (dep: T) => Promise<ResolvedDependency>
+    cacheKey: (dep: T) => DependencyCacheKey
+  }): Promise<Record<string, T & ResolvedDependency>> => {
+    const isRemote = (dep: T): dep is T & ResolvedDependency => dep.id !== undefined
+    return utils.records.mapValuesAsync(deps, async (dep): Promise<T & ResolvedDependency> => {
       if (isRemote(dep)) {
         return dep
       }
+
+      const cacheKey = getCacheKey(dep)
+      const cached = this._dependencyCache.get(cacheKey)
+
+      if (cached) {
+        return { ...dep, id: cached.id }
+      }
+
       const { id } = await fetcher(dep)
+      this._dependencyCache.set(cacheKey, { id })
+
       return { ...dep, id }
     })
   }
@@ -713,12 +773,18 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       this.logger.debug('Checking if sdk is up to date')
 
       const { workDir } = this.projectPaths.abs
-      const projectPkgJson = await utils.pkgJson.readPackageJson(workDir)
-      if (!projectPkgJson) {
+      const readProjectPkgJsonResult = await utils.pkgJson.safeReadPackageJson(workDir)
+      if (!readProjectPkgJsonResult.success) {
+        this.logger.debug(`Could not read package.json at "${workDir}": ${readProjectPkgJsonResult.error.message}`)
+        return
+      }
+
+      if (!readProjectPkgJsonResult.pkgJson) {
         this.logger.debug(`Could not find package.json at "${workDir}"`)
         return
       }
 
+      const { pkgJson: projectPkgJson } = readProjectPkgJsonResult
       const sdkPackageName = '@botpress/sdk'
       const actualSdkVersion = utils.pkgJson.findDependency(projectPkgJson, sdkPackageName)
       if (!actualSdkVersion) {
@@ -736,7 +802,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         return
       }
 
-      const cliPkgJson = await this.readPkgJson()
+      const cliPkgJson = await this.readCLIPkgJson()
       const expectedSdkVersion = utils.pkgJson.findDependency(cliPkgJson, sdkPackageName)
       if (!expectedSdkVersion) {
         this.logger.debug(`Could not find dependency "${sdkPackageName}" in cli package.json`)

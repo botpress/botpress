@@ -61,6 +61,8 @@ export class IntegrationSpecificClient<TIntegration extends common.BaseIntegrati
     this._client.listMessages(x)) as types.ListMessages<TIntegration>
   public deleteMessage: types.DeleteMessage<TIntegration> = ((x) =>
     this._client.deleteMessage(x)) as types.DeleteMessage<TIntegration>
+  public initializeIncomingMessage: types.InitializeIncomingMessage<TIntegration> = ((x) =>
+    this._client.initializeIncomingMessage(x)) as types.InitializeIncomingMessage<TIntegration>
 
   public createUser: types.CreateUser<TIntegration> = ((x) =>
     this._client.createUser(x)) as types.CreateUser<TIntegration>

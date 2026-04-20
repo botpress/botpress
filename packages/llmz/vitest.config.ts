@@ -1,53 +1,13 @@
-import 'dotenv/config'
-import fs from 'node:fs'
 import { defineConfig } from 'vitest/config'
-
-function textLoader() {
-  return {
-    name: 'text-loader',
-    transform(_src: string, id: string) {
-      if (id.endsWith('.txt')) {
-        const content = fs.readFileSync(id, 'utf-8')
-        return {
-          code: `export default ${JSON.stringify(content)};`,
-          map: null,
-        }
-      }
-    },
-  }
-}
-
-function mdLoader() {
-  return {
-    name: 'md-loader',
-    transform(_src: string, id: string) {
-      if (id.endsWith('.md')) {
-        const content = fs.readFileSync(id, 'utf-8')
-        return {
-          code: `export default ${JSON.stringify(content)};`,
-          map: null,
-        }
-      }
-    },
-  }
-}
+import config from '../../vitest.config'
 
 export default defineConfig({
-  plugins: [textLoader(), mdLoader()],
-  resolve: {
-    extensions: ['.js', '.ts', '.json', '.txt', '.md'],
-  },
-  assetsInclude: '**/*.md',
+  ...config,
   test: {
-    retry: 2, // because LLMs can fail
-    testTimeout: 60_000, // because LLMs can be slow
-    teardownTimeout: 10_000,
+    ...config.test,
+    testTimeout: 10_000,
+    setupFiles: './vitest.setup.ts',
     snapshotSerializers: ['./vitest.stack-trace-serializer.ts'],
     snapshotEnvironment: './vitest.snapshot.ts',
-    maxConcurrency: 1,
-    isolate: false,
-    allowOnly: true,
-    pool: 'forks',
-    setupFiles: './vitest.setup.ts',
   },
 })

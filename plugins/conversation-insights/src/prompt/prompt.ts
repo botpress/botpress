@@ -1,6 +1,6 @@
+import type * as client from '@botpress/client'
 import { z } from '@botpress/sdk'
 import { LLMInput } from './parse-content'
-import * as bp from '.botpress'
 
 export type SentimentAnalysisOutput = z.infer<typeof SentimentAnalysisOutput>
 export const SentimentAnalysisOutput = z.object({
@@ -33,7 +33,7 @@ const formatMessages = (
 
 export type PromptArgs = {
   systemPrompt: string
-  messages: bp.MessageHandlerProps['message'][]
+  messages: client.Message[]
   context: object
   botId: string
 }

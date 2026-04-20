@@ -45,7 +45,7 @@ const workspaceId = {
 
 const secrets = {
   type: 'string',
-  description: 'Values for the integration secrets',
+  description: 'Values for the bot or integration secrets',
   array: true,
   default: [],
 } satisfies CommandOption
@@ -56,13 +56,6 @@ const botRef = {
   demandOption: true,
   positional: true,
   idx: 0,
-} satisfies CommandOption
-
-const packageType = {
-  type: 'string',
-  description:
-    'Either an integration or an interface; helps disambiguate the package type in case both an integration and an interface have the same reference.',
-  choices: ['integration', 'interface', 'plugin'] as const,
 } satisfies CommandOption
 
 const packageRef = {
@@ -204,6 +197,7 @@ const deploySchema = {
     description: 'Allow deprecated features in the project',
     default: false,
   },
+  url: { type: 'string', description: 'Custom URL for the integration. Only used when deploying an integration' },
 } as const satisfies CommandSchema
 
 const devSchema = {
@@ -222,13 +216,18 @@ const devSchema = {
     type: 'string',
     description: 'The tunnel ID to use. The ID will be generated if not specified',
   },
+  noSecretCaching: {
+    type: 'boolean',
+    description: 'Do not save the secrets locally',
+    default: false,
+    alias: 'nsc',
+  },
 } satisfies CommandSchema
 
 const addSchema = {
   ...globalSchema,
   ...credentialsSchema,
   packageRef,
-  packageType,
   installPath: {
     type: 'string',
     description: 'The path where to install the package',
@@ -241,8 +240,15 @@ const addSchema = {
   },
   alias: {
     type: 'string',
-    description: 'The alias of the dependency you want to install',
+    description: 'The alias to install the package with',
   },
+} satisfies CommandSchema
+
+const removeSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+  workDir,
+  alias: { idx: 0, positional: true, type: 'string', description: 'The alias of the package to uninstall' },
 } satisfies CommandSchema
 
 const loginSchema = {
@@ -296,6 +302,9 @@ const listIntegrationsSchema = {
   ...credentialsSchema,
   name: { type: 'string', description: 'The name filter when listing integrations' },
   versionNumber: { type: 'string', description: 'The version filter when listing integrations' },
+  owned: { type: 'boolean', description: 'List only owned integrations' },
+  public: { type: 'boolean', description: 'List only public integrations' },
+  limit: { type: 'number', description: 'Limit the number of integrations returned' },
   dev,
 } satisfies CommandSchema
 
@@ -379,10 +388,12 @@ const chatSchema = {
 
 const listProfilesSchema = {
   ...globalSchema,
+  displayToken: { type: 'boolean', description: 'Display the token in each of the bp profiles', default: false },
 } satisfies CommandSchema
 
 const activeProfileSchema = {
   ...globalSchema,
+  displayToken: { type: 'boolean', description: 'Display the token in the bp profile', default: false },
 } satisfies CommandSchema
 
 const useProfileSchema = {
@@ -393,6 +404,17 @@ const useProfileSchema = {
     positional: true,
     idx: 0,
   },
+} satisfies CommandSchema
+
+const getProfileSchema = {
+  ...globalSchema,
+  profileToGet: {
+    type: 'string',
+    description: 'The CLI profile defined in the $BP_BOTPRESS_HOME/profiles.json',
+    positional: true,
+    idx: 0,
+  },
+  displayToken: { type: 'boolean', description: 'Display the token in the bp profile', default: false },
 } satisfies CommandSchema
 
 // exports
@@ -425,10 +447,12 @@ export const schemas = {
   serve: serveSchema,
   deploy: deploySchema,
   add: addSchema,
+  remove: removeSchema,
   dev: devSchema,
   lint: lintSchema,
   chat: chatSchema,
   listProfiles: listProfilesSchema,
   activeProfile: activeProfileSchema,
   useProfile: useProfileSchema,
+  getProfile: getProfileSchema,
 } as const

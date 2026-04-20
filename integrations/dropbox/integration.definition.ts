@@ -1,21 +1,23 @@
 import * as sdk from '@botpress/sdk'
 import filesReadonly from './bp_modules/files-readonly'
-import { actions, configuration, entities, secrets, states } from './definitions'
+import { actions, configuration, configurations, entities, secrets, states } from './definitions'
 
 export default new sdk.IntegrationDefinition({
   name: 'dropbox',
   title: 'Dropbox',
-  version: '1.2.0',
+  version: '2.0.1',
   description: 'Manage your files and folders effortlessly.',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration,
+  configurations,
   actions,
   entities,
   secrets,
   states,
-  __advanced: {
-    useLegacyZuiTransformer: true,
+  attributes: {
+    category: 'File Management',
+    repo: 'botpress',
   },
 }).extend(filesReadonly, ({}) => ({
   entities: {},

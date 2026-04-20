@@ -1,0 +1,88 @@
+import * as utils from '../../../utils'
+import type {
+  IZodPipeline,
+  IZodType,
+  ZodPipelineDef,
+  ParseInput,
+  ParseReturnType,
+  AsyncParseReturnType,
+} from '../../typings'
+import { ZodBaseTypeImpl } from '../basetype'
+export type { ZodPipelineDef }
+
+export class ZodPipelineImpl<A extends IZodType = IZodType, B extends IZodType = IZodType>
+  extends ZodBaseTypeImpl<B['_output'], ZodPipelineDef<A, B>, A['_input']>
+  implements IZodPipeline<A, B>
+{
+  dereference(defs: Record<string, IZodType>): ZodBaseTypeImpl {
+    return new ZodPipelineImpl({
+      ...this._def,
+      in: this._def.in.dereference(defs),
+      out: this._def.out.dereference(defs),
+    })
+  }
+
+  getReferences(): string[] {
+    return utils.fn.unique([...this._def.in.getReferences(), ...this._def.out.getReferences()])
+  }
+
+  clone(): IZodPipeline<A, B> {
+    return new ZodPipelineImpl({
+      ...this._def,
+      in: this._def.in.clone() as A,
+      out: this._def.out.clone() as B,
+    })
+  }
+
+  _parse(input: ParseInput): ParseReturnType {
+    const { status, ctx } = this._processInputParams(input)
+    if (ctx.common.async) {
+      const handleAsync = async (): AsyncParseReturnType => {
+        const inResult = await this._def.in._parseAsync({
+          data: ctx.data,
+          path: ctx.path,
+          parent: ctx,
+        })
+        if (inResult.status === 'aborted') return { status: 'aborted' }
+        if (inResult.status === 'dirty') {
+          status.dirty()
+          return { status: 'dirty', value: inResult.value }
+        } else {
+          return this._def.out._parseAsync({
+            data: inResult.value,
+            path: ctx.path,
+            parent: ctx,
+          })
+        }
+      }
+      return handleAsync()
+    } else {
+      const inResult = this._def.in._parseSync({
+        data: ctx.data,
+        path: ctx.path,
+        parent: ctx,
+      })
+      if (inResult.status === 'aborted') return { status: 'aborted' }
+      if (inResult.status === 'dirty') {
+        status.dirty()
+        return {
+          status: 'dirty',
+          value: inResult.value,
+        }
+      } else {
+        return this._def.out._parseSync({
+          data: inResult.value,
+          path: ctx.path,
+          parent: ctx,
+        })
+      }
+    }
+  }
+
+  isEqual(schema: IZodType): boolean {
+    if (!(schema instanceof ZodPipelineImpl)) return false
+    if (!this._def.in.isEqual(schema._def.in)) return false
+    if (!this._def.out.isEqual(schema._def.out)) return false
+    return true
+  }
+}

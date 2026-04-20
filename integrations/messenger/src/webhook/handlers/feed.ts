@@ -63,7 +63,18 @@ const _handleCommentEvent = async (value: CommentChangeValue, props: bp.HandlerP
 }
 
 const _handleCommentCreated = async (value: CommentChangeValue, props: bp.HandlerProps) => {
-  const { client, logger } = props
+  const { client, logger, ctx } = props
+
+  if (ctx.configurationType === 'sandbox') {
+    logger.forBot().error('Comment replies are not supported in sandbox mode')
+    return
+  }
+
+  if (!ctx.configuration.replyToComments) {
+    logger.forBot().info('Comment replies are disabled in the configuration')
+    return
+  }
+
   const { comment_id: commentId, post_id: postId, message, from, parent_id: parentId } = value
 
   if (!message) {
@@ -111,7 +122,7 @@ const _handleCommentCreated = async (value: CommentChangeValue, props: bp.Handle
     },
     discriminateByTags: ['id'],
     type: 'text',
-    payload: { text: message },
+    payload: { text: message, commentId },
     userId: user.id,
     conversationId: conversation.id,
   })

@@ -100,9 +100,12 @@ export async function generateContent(
   }
 
   if (
-    (modelId === 'claude-sonnet-4-5-20250929' || modelId === 'claude-haiku-4-5-20251001') &&
-    request.temperature &&
-    request.top_p
+    (modelId === 'claude-sonnet-4-5-20250929' ||
+      modelId === 'claude-haiku-4-5-20251001' ||
+      modelId === 'claude-sonnet-4-6' ||
+      modelId === 'claude-opus-4-6') &&
+    request.temperature !== undefined &&
+    request.top_p !== undefined
   ) {
     // This model fails when setting both parameters with the error "`temperature` and `top_p` cannot both be specified for this model. Please use only one.", so we remove the top_p parameter if temperature is also set.
     request.top_p = undefined

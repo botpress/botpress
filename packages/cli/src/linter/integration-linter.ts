@@ -1,5 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import { CreateIntegrationRequestBody } from '../api'
+import { type Logger } from '../logger'
 import { BaseLinter } from './base-linter'
 import { INTEGRATION_RULESET } from './rulesets/integration.ruleset'
 
@@ -8,7 +9,7 @@ export type AggregateIntegrationBody = Omit<CreateIntegrationRequestBody, 'secre
   Pick<sdk.IntegrationDefinitionProps, 'secrets'>
 
 export class IntegrationLinter extends BaseLinter<AggregateIntegrationBody> {
-  public constructor(definition: AggregateIntegrationBody) {
-    super(definition, INTEGRATION_RULESET)
+  public constructor(definition: AggregateIntegrationBody, logger?: Logger) {
+    super(definition, INTEGRATION_RULESET, logger)
   }
 }

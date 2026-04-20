@@ -17,7 +17,7 @@ export default new IntegrationDefinition({
   title: 'OpenAI',
   description:
     'Gain access to OpenAI models for text generation, speech synthesis, audio transcription, and image generation.',
-  version: '17.0.0',
+  version: '20.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
@@ -98,6 +98,10 @@ export default new IntegrationDefinition({
         }),
       },
     },
+  },
+  attributes: {
+    category: 'AI Models',
+    repo: 'botpress',
   },
 })
   .extend(llm, ({ entities: { modelRef } }) => ({ entities: { modelRef } }))

@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import { ConversationParameters, ConversationReference, TeamsChannelAccount, TeamsInfo, TurnContext } from 'botbuilder'
-import { getUserByEmail } from '../client'
+import { MicrosoftClient } from '../microsoft-api'
 import { getAdapter, getError } from '../utils'
 import * as bp from '.botpress'
 
@@ -43,7 +43,7 @@ export const startDmConversation: bp.IntegrationProps['actions']['startDmConvers
   // ── If we only have an email, call TeamsInfo.getMember to fetch the account ──
   if (!teamsUserId?.length && teamsUserEmail?.length) {
     try {
-      const teamsUser = await getUserByEmail(ctx, teamsUserEmail)
+      const teamsUser = await MicrosoftClient.create(ctx).getUserByEmail(teamsUserEmail)
       teamsUserId = teamsUser?.id
     } catch (thrown) {
       const err = getError(thrown)

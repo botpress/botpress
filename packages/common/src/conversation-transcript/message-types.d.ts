@@ -1,8 +1,17 @@
 import * as sdk from '@botpress/sdk'
 
-type AllMessageTypes = typeof sdk.messages.defaults & { markdown: typeof sdk.messages.markdown }
+type ValueOf<T> = T[keyof T]
+type Merge<A, B> = Omit<A, keyof B> & B
 
-export type Message = {
+type AllMessageTypes = Merge<
+  typeof sdk.messages.defaults,
+  {
+    markdown: typeof sdk.messages.markdown
+    bloc: typeof sdk.messages.markdownBloc
+  }
+>
+
+export type Message = ValueOf<{
   [K in keyof AllMessageTypes]: {
     type: K
     source:
@@ -15,7 +24,7 @@ export type Message = {
         }
     payload: sdk.z.infer<AllMessageTypes[K]['schema']>
   }
-}[keyof AllMessageTypes]
+}>
 
 export type MessageSource = Message['source']
 

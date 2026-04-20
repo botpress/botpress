@@ -5,7 +5,7 @@ import proactiveUser from 'bp_modules/proactive-user'
 
 export default new IntegrationDefinition({
   name: 'intercom',
-  version: '2.0.0',
+  version: '2.0.4',
   title: 'Intercom',
   description: 'Engage with customers in realtime with personalized messaging.',
   icon: 'icon.svg',
@@ -13,10 +13,9 @@ export default new IntegrationDefinition({
   configuration: {
     schema: z.object({
       accessToken: z.string().min(1).title('Access Token').describe('The access token of the Intercom app'),
-      adminId: z.string().min(1).optional().title('Admin ID').describe('The admin ID of the Bot'),
+      adminId: z.string().optional().title('Admin ID').describe('The admin ID of the Bot'),
       clientSecret: z
         .string()
-        .min(1)
         .secret()
         .optional()
         .title('Client Secret')
@@ -53,7 +52,7 @@ export default new IntegrationDefinition({
     channel: {
       title: 'Intercom conversation',
       description: 'Channel for a Intercom conversation',
-      messages: messages.defaults,
+      messages: { ...messages.defaults, bloc: messages.markdownBloc },
       message: {
         tags: {
           id: {
@@ -114,6 +113,11 @@ export default new IntegrationDefinition({
         id: z.string().min(1).title('Conversation ID').describe('The ID of the Intercom conversation'),
       }),
     },
+  },
+  attributes: {
+    category: 'Customer Support',
+    guideSlug: 'intercom',
+    repo: 'botpress',
   },
 })
   .extend(proactiveUser, ({ entities }) => ({

@@ -27,7 +27,6 @@ export const installAllPlugins: Test = {
         .add({
           ...argv,
           packageRef: iface,
-          packageType: 'plugin',
           installPath: baseDir,
           useDev: false,
           alias: undefined,

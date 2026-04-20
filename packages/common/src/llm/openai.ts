@@ -447,7 +447,7 @@ export function validateOpenAIReasoningEffort(
   logger: IntegrationLogger
 ): ChatCompletionReasoningEffort | undefined {
   if (input.reasoningEffort === 'none') {
-    if (input.model?.id.startsWith('gpt-5.1-')) {
+    if (input.model?.id.startsWith('gpt-5.2-') || input.model?.id.startsWith('gpt-5.1-')) {
       return 'none'
     } else {
       logger

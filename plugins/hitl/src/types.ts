@@ -20,3 +20,13 @@ export type MessagePayload = {
     userId?: string
   } & sdk.z.infer<BaseMessagePayloads[TMsgType]['schema']>
 }[keyof BaseMessagePayloads]
+
+export type MessageTags = {
+  [T in keyof bp.message.Message['tags']]?: string
+}
+
+export type ActionableConversation = NonNullable<
+  Awaited<ReturnType<bp.ActionHandlerProps['conversations']['hitl']['hitl']['getById']>>
+>
+export type ActionableMessage = NonNullable<Awaited<ReturnType<bp.ActionHandlerProps['messages']['getById']>>>
+export type ActionableUser = NonNullable<Awaited<ReturnType<bp.ActionHandlerProps['users']['getById']>>>

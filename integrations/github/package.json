@@ -4,7 +4,8 @@
   "scripts": {
     "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "bp lint"
+    "check:bplint": "bp lint",
+    "test": "vitest --run"
   },
   "dependencies": {
     "@botpress/common": "workspace:*",
@@ -18,6 +19,10 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@sentry/cli": "^2.39.1"
+  },
+  "bpDependencies": {
+    "files-readonly": "../../interfaces/files-readonly"
   }
 }
