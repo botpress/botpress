@@ -5,10 +5,10 @@ import * as bp from '.botpress'
 
 type MessageHandlers = bp.IntegrationProps['channels']['mail']['messages']
 
-const escapeHtml = (str: string): string =>
+export const escapeHtml = (str: string): string =>
   str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
-const textToHtml = (str: string): string => escapeHtml(str).replace(/\r\n|\r|\n/g, '<br>')
+export const textToHtml = (str: string): string => escapeHtml(str).replace(/\r\n|\r|\n/g, '<br>')
 
 const CONTENT_TYPE_EXTENSIONS: Record<string, string> = {
   'image/jpeg': 'jpg',

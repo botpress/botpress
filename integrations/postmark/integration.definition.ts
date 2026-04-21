@@ -2,9 +2,9 @@ import * as sdk from '@botpress/sdk'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 
 const emailProps = {
-  cc: sdk.z.string().optional(),
-  bcc: sdk.z.string().optional(),
-  subject: sdk.z.string().optional(),
+  cc: sdk.z.string().optional().describe('The CC recipients of the email').title('CC Recipients'),
+  bcc: sdk.z.string().optional().describe('The BCC recipients of the email').title('BCC Recipients'),
+  subject: sdk.z.string().optional().describe('The subject of the email').title('Email Subject'),
 }
 
 export default new sdk.IntegrationDefinition({
@@ -106,13 +106,20 @@ export default new sdk.IntegrationDefinition({
       description: 'A postmark replyThread',
       schema: sdk.z
         .object({
-          threadRootMessageId: sdk.z
-            .string()
-            .optional()
-            .title('Thread Root Message ID')
-            .describe('The Message-ID of the first email in the thread'),
           userEmailAddress: sdk.z.string().describe('The recipient email address').title('Recipient Email Address'),
           userName: sdk.z.string().optional().describe('The recipient name').title('Recipient Name'),
+          cc: sdk.z.string().optional().describe('The CC recipients of the initial email').title('CC Recipients'),
+          bcc: sdk.z.string().optional().describe('The BCC recipients of the initial email').title('BCC Recipients'),
+          subject: sdk.z
+            .string()
+            .optional()
+            .describe('The subject of the initial email')
+            .title('Initial Email Subject'),
+          text: sdk.z
+            .string()
+            .min(1)
+            .describe('The body of the initial email that opens the thread')
+            .title('Initial Email Body'),
         })
         .title('Conversation')
         .describe('The conversation object fields'),

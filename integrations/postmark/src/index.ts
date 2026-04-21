@@ -3,7 +3,7 @@ import { Buffer } from 'node:buffer'
 import { timingSafeEqual } from 'node:crypto'
 import * as pm from 'postmark'
 import { type Attachment, postmarkInboundWebhookSchema } from './inbound-webhook'
-import { messages } from './messages'
+import { messages, textToHtml } from './messages'
 import * as bp from '.botpress'
 
 const MAX_INBOUND_ATTACHMENT_SIZE = 10 * 1024 * 1024 // 10MB — matches outbound cap
@@ -127,35 +127,69 @@ export default new bp.Integration({
   },
   actions: {
     getOrCreateReplyThreadConversation: async (props) => {
-      const { client: bpClient, logger, input } = props
+      const { client: bpClient, ctx, logger, input } = props
       const {
-        conversation: { userEmailAddress, threadRootMessageId, userName },
+        conversation: { userEmailAddress, userName, cc, bcc, subject, text },
       } = input
-      logger
-        .forBotOnly()
-        .debug(
-          `Getting or creating conversation for email thread with root message ID "${threadRootMessageId}" and user email "${userEmailAddress}"`
-        )
-      // const pmClient = new pm.ServerClient(props.ctx.configuration.serverToken)
-      await bpClient.getOrCreateUser({
+
+      logger.forBotOnly().debug(`Opening a new reply thread with user email "${userEmailAddress}"`)
+
+      const { user } = await bpClient.getOrCreateUser({
         name: userName || userEmailAddress,
         tags: {
           emailAddress: userEmailAddress,
         },
         discriminateByTags: ['emailAddress'],
       })
-      // const sendEmailResponse = await pmClient.sendEmail({
-      //   From: props.ctx.configuration.fromEmail,
 
-      // })
+      const subjectLine = subject || '(No subject)'
+      const pmClient = new pm.ServerClient(ctx.configuration.serverToken)
+      let threadRootMessageId: string
+      try {
+        const response = await pmClient.sendEmail({
+          From: ctx.configuration.fromEmail,
+          To: userEmailAddress,
+          Cc: cc,
+          Bcc: bcc,
+          Subject: subjectLine,
+          TextBody: text,
+          HtmlBody: textToHtml(text),
+        })
+        threadRootMessageId = response.MessageID
+      } catch (thrown) {
+        if (thrown instanceof sdk.RuntimeError) throw thrown
+        const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+        throw new sdk.RuntimeError(`Failed to send email via Postmark: ${errorMessage}`)
+      }
+
       const { conversation } = await bpClient.getOrCreateConversation({
         channel: 'mail',
         tags: {
           threadRootMessageId,
+          postmarkEmailAddress: ctx.configuration.fromEmail,
           userEmailAddress,
         },
         discriminateByTags: ['threadRootMessageId'],
       })
+
+      await bpClient.getOrCreateMessage({
+        type: 'text',
+        conversationId: conversation.id,
+        userId: user.id,
+        tags: {
+          id: threadRootMessageId,
+          emailMessageId: threadRootMessageId,
+          subject: subjectLine,
+          cc: cc || '',
+          bcc: bcc || '',
+        },
+        payload: {
+          text,
+          subject: subjectLine,
+        },
+        discriminateByTags: ['id'],
+      })
+
       return { conversationId: conversation.id }
     },
   },
