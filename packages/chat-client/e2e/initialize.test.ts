@@ -4,7 +4,6 @@ import * as utils from './utils'
 import * as config from './config'
 import * as chat from '../src'
 import jwt from '../src/jsonwebtoken'
-import { UnauthorizedError } from '../src'
 
 const apiUrl = config.get('API_URL')
 
@@ -78,6 +77,28 @@ test('api allows creating the conversation first, then initializing message and 
     payload: { type: 'text', text: 'hi' },
     metadata: {},
   })
+})
+
+test('api creates a new user when x-user-key is provided for a user not yet in the FID store', async () => {
+  const encryptionKey = config.get('ENCRYPTION_KEY')
+  const userId = utils.getUserFid()
+  const client = new chat.Client({ apiUrl })
+  if (!jwt) {
+    throw new Error('Tests can only be run from node')
+  }
+  // Sign a fresh key for a user that has never been seen before (no prior getOrCreateUser)
+  const userKey = jwt.sign({ id: userId }, encryptionKey, { algorithm: 'HS256' })
+
+  const initializeResponse = await client.initializeIncomingMessage({ 'x-user-key': userKey })
+
+  // The returned user.id must be a valid internal ID, not the FID string
+  expect(initializeResponse.user.id).not.toBe(userId)
+  expect(initializeResponse.user.id).toMatch(/^[0-9a-f-]{36}$/)
+  expect(initializeResponse.conversation).toEqual(expect.objectContaining({ id: expect.any(String) }))
+
+  // A second call with the same key should return the same user
+  const secondResponse = await client.initializeIncomingMessage({ 'x-user-key': userKey })
+  expect(secondResponse.user.id).toBe(initializeResponse.user.id)
 })
 
 test('api allows reusing a self-encrypted user key with initialize', async () => {
