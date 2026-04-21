@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import { ApiClient } from 'src/api/client'
+import { ApiClient } from '../api/client'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import { GlobalCommand } from './global-command'

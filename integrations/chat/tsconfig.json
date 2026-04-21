@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
+    "paths": { "*": ["./*"] },
     "noErrorTruncation": true
   },
   "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "*.ts"]
