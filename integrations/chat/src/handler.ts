@@ -1,5 +1,6 @@
 import { Request } from '@botpress/sdk'
 import * as api from './api'
+import * as errors from './gen/errors'
 import { extraRoutes } from './extra-routes'
 import { handleRequest } from './gen/handler'
 import { Handler } from './types'
@@ -31,8 +32,14 @@ export const makeHandler =
 
     if (websocket.isWebSocketRequest(args.req) && args.req.body) {
       try {
-        return websocket.handleWebSocketRequest(props, args.req)
-      } catch {
+        return await websocket.handleWebSocketRequest(props, args.req)
+      } catch (e) {
+        if (errors.isApiError(e)) {
+          return {
+            status: e.code,
+            body: JSON.stringify(e.toJSON()),
+          }
+        }
         return {
           status: 400,
           body: JSON.stringify({ message: 'Malformed request payload' }),

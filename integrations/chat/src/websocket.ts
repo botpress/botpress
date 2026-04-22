@@ -25,13 +25,13 @@ type RequestIdentifiers = {
 const extractRequestIdentifiers = async (props: api.OperationTools, req: Request): Promise<RequestIdentifiers> => {
   const queries = qs.parse(req.query)
   if (!queries['x-user-key'] || typeof queries['x-user-key'] !== 'string') {
-    throw new errors.UnauthorizedError('x-user-key should be speicified as a query param.')
+    throw new errors.UnauthorizedError('x-user-key should be specified as a query param.')
   }
   const userKey = queries['x-user-key']
 
   const urlParts = req.path.split('/').splice(1)
   if (urlParts.length !== 3) {
-    throw new errors.InternalError('An unexpected error occured.')
+    throw new errors.InternalError('An unexpected error occurred.')
   }
   const _userId = props.auth.parseKey(userKey).id
   const [userId, conversationId] = await Promise.all([

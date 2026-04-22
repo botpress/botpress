@@ -50,7 +50,7 @@ const makeEventSource = (url: string, props: Props = {}) => {
   let source: ServerEventsSource
   if (props.protocol === 'websocket') {
     if (props.headers?.['x-user-key']) {
-      url = `${url}?x-user-key=${props.headers['x-user-key']}`
+      url = `${url}?x-user-key=${encodeURIComponent(props.headers['x-user-key'])}`
     }
     source = new WebSocket(url)
   } else if (isBrowser) {
