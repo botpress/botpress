@@ -38,9 +38,9 @@ export const handlers = {
     mapResponse: async (res) => {
       const id = res.body.user.id
       const fid = req.body.id
-      if (fid) {
-        await props.userIdStore.byFid.set(fid, id)
-      }
+      // Always store a mapping so byFid.find can identify keys that encode internal IDs
+      // (users created without an explicit FID have the internal ID used as their FID in the key).
+      await props.userIdStore.byFid.set(fid ?? id, id)
       return merge(res, {
         body: {
           user: {

@@ -36,11 +36,10 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
 
   const preparedBody: PreparedBody = {}
 
-  // Resolve the internal user ID explicitly: check the FID store first, then the SDK by ID (for
-  // users created without an explicit FID whose key encodes the internal ID directly).
-  const authUserId = userId !== undefined
-    ? (await props.userIdStore.byFid.find(userId)) ?? (await props.apiUtils.findUser({ id: userId }).then((res) => res.user?.id))
-    : undefined
+  // Resolve the internal user ID via the FID store. createUser always stores a mapping (using the
+  // internal ID as key when no explicit FID is provided), so find() returning undefined means this
+  // is a genuinely new user whose key has never been registered.
+  const authUserId = userId !== undefined ? await props.userIdStore.byFid.find(userId) : undefined
 
   if (authUserId !== undefined) {
     preparedBody.userId = authUserId
