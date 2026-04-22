@@ -4,7 +4,7 @@ import { timingSafeEqual } from 'node:crypto'
 import * as pm from 'postmark'
 import { type Attachment, postmarkInboundWebhookSchema } from './inbound-webhook'
 import { messages, textToHtml } from './messages'
-import { send } from './send-email'
+import { generateRfcMessageId, send } from './send-email'
 import * as bp from '.botpress'
 
 const MAX_INBOUND_ATTACHMENT_SIZE = 10 * 1024 * 1024 // 10MB — matches outbound cap
@@ -219,7 +219,8 @@ export default new bp.Integration({
         }
 
         logger.forBotOnly().debug(`Opening a new reply thread with user email "${userEmailAddress}"`)
-        const threadRootMessageId = await pmClient
+        const threadRootMessageId = generateRfcMessageId(ctx.configuration.fromEmail)
+        await pmClient
           .sendEmail({
             From: ctx.configuration.fromEmail,
             To: userEmailAddress,
@@ -228,8 +229,8 @@ export default new bp.Integration({
             Subject: subjectLine,
             TextBody: text,
             HtmlBody: textToHtml(text),
+            Headers: [{ Name: 'Message-ID', Value: `<${threadRootMessageId}>` }],
           })
-          .then((r) => r.MessageID)
           .catch((thrown) => {
             if (thrown instanceof sdk.RuntimeError) throw thrown
             throw new sdk.RuntimeError(

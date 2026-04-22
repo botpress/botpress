@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import { randomUUID } from 'node:crypto'
 import * as pm from 'postmark'
 import * as bp from '.botpress'
 
@@ -11,13 +12,14 @@ export type SendArgs = {
   input: Omit<SendEmailInput, 'From' | 'To'>
 }
 
-const sendEmailMessage = async (
-  input: SendEmailInput,
-  { serverToken }: { serverToken: string }
-): Promise<{ messageId: string }> => {
+export const generateRfcMessageId = (fromEmail: string): string => {
+  const domain = fromEmail.split('@')[1] || 'botpress.local'
+  return `${randomUUID()}@${domain}`
+}
+
+const sendEmailMessage = async (input: SendEmailInput, { serverToken }: { serverToken: string }): Promise<void> => {
   const client = new pm.ServerClient(serverToken)
-  const response = await client.sendEmail(input)
-  return { messageId: response.MessageID }
+  await client.sendEmail(input)
 }
 
 const collectEmailThread = async (
@@ -54,24 +56,24 @@ export const send = async ({ configuration, conversation, client, input }: SendA
   }
 
   const { ids, inReplyTo } = await collectEmailThread(client, conversation.id)
-  const replyHeaders = inReplyTo
-    ? [
-        { Name: 'In-Reply-To', Value: `<${inReplyTo}>` },
-        { Name: 'References', Value: ids.map((id) => `<${id}>`).join(' ') },
-      ]
-    : undefined
+  const outgoingMessageId = generateRfcMessageId(configuration.fromEmail)
+  const headers: Array<{ Name: string; Value: string }> = [{ Name: 'Message-ID', Value: `<${outgoingMessageId}>` }]
+  if (inReplyTo) {
+    headers.push({ Name: 'In-Reply-To', Value: `<${inReplyTo}>` })
+    headers.push({ Name: 'References', Value: ids.map((id) => `<${id}>`).join(' ') })
+  }
 
   try {
-    const { messageId } = await sendEmailMessage(
+    await sendEmailMessage(
       {
+        ...input,
         From: configuration.fromEmail,
         To: conversation.tags.userEmailAddress,
-        Headers: replyHeaders,
-        ...input,
+        Headers: headers,
       },
       { serverToken: configuration.serverToken }
     )
-    return messageId
+    return outgoingMessageId
   } catch (error) {
     if (error instanceof sdk.RuntimeError) {
       throw error
