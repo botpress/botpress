@@ -2,7 +2,9 @@ import { Request } from '@botpress/sdk'
 import qs from 'qs'
 import * as api from './api'
 import * as errors from './gen/errors'
-import { messages, websocket } from '@bpinternal/pingrip'
+import { messages, outputs } from '@bpinternal/pingrip'
+
+const WS_CLOSE_GOING_AWAY = 1001
 
 export const isWebSocketRequest = (req: Request) => {
   if (req.method.toLowerCase() !== 'post') {
@@ -57,21 +59,15 @@ export const handleWebSocketRequest = async (props: api.OperationTools, req: Req
 
   for (const message of messages.parse(Buffer.from(req.body))) {
     if (message.type === 'open') {
-      const response = new websocket.ResponseBuilder()
-        .open()
-        .keepAlive("ping", 30)
-        .subscribe(channels)
-        .toResponse()
+      const response = new outputs.ResponseBuilder().open().keepAlive('ping', 30).subscribe(channels).toResponse()
       return {
         ...response,
         body: response.body.toString(),
       }
     }
-    if (message.type === 'close') {
-      const response = new websocket.ResponseBuilder()
-        .close(message.code)
-        .unsubscribe(channels)
-        .toResponse()
+    if (message.type === 'close' || message.type === 'disconnect') {
+      const code = 'code' in message ? message.code : WS_CLOSE_GOING_AWAY
+      const response = new outputs.ResponseBuilder().close(code).unsubscribe(channels).toResponse()
       return {
         ...response,
         body: response.body.toString(),

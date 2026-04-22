@@ -706,6 +706,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@bpinternal/pingrip':
+        specifier: 0.1.1
+        version: 0.1.1
       '@opentelemetry/api':
         specifier: 1.9.0
         version: 1.9.0
@@ -4161,6 +4164,9 @@ packages:
   '@bpinternal/opapi@1.0.0':
     resolution: {integrity: sha512-r38k8SZSyu0s4YKukTrHaBeb8tlL8vgJiNdawnN2cmxbqkSdsss2pWnZQU2fsSLijhcfV0tUvGCf8GfgZviYBA==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
+
+  '@bpinternal/pingrip@0.1.1':
+    resolution: {integrity: sha512-bidpZO+d1fAAp0MvoLRhgvJyVu57S+B74WKzPMk5i/8rgaPSUySGnXqH52gFA27oyZnEicZGBte4U7+iq00p3A==}
 
   '@bpinternal/readiness@0.0.16':
     resolution: {integrity: sha512-VkxUYCblFVm0S39kNT/ycFmHXN/OGPuMnbOpPWPgYf/dOLJgtM0oWsW8TOs8JcO+Pt928r9vonbMFYRGYDwQpw==}
@@ -13966,6 +13972,12 @@ snapshots:
       - debug
       - openapi-types
       - supports-color
+
+  '@bpinternal/pingrip@0.1.1':
+    dependencies:
+      axios: 1.13.6
+    transitivePeerDependencies:
+      - debug
 
   '@bpinternal/readiness@0.0.16':
     dependencies:

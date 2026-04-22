@@ -24,7 +24,7 @@ const checkApiCanSendAndReceiveMessages = async (
 
   const listener = await client.listenConversation({
     id: conversationId,
-    protocol: props.protocol
+    protocol: props.protocol,
   })
 
   const waitForResponsePromise = new Promise<chat.Signals['message_created']>((resolve) => {
@@ -72,7 +72,7 @@ test.each(conversationProtocols)('api allows sending and receiving messages usin
     {
       client,
       conversationId,
-      protocol
+      protocol,
     },
     {
       type: 'text',
@@ -101,26 +101,29 @@ test.each(conversationProtocols)('api allows sending and receiving messages usin
   )
 })
 
-test.each(conversationProtocols)('api allows sending and receiving messages using remotly generated JWTs', async (protocol) => {
-  const userId = utils.getUserFid()
-  const conversationId = utils.getConversationFid()
+test.each(conversationProtocols)(
+  'api allows sending and receiving messages using remotly generated JWTs',
+  async (protocol) => {
+    const userId = utils.getUserFid()
+    const conversationId = utils.getConversationFid()
 
-  const client = await chat.Client.connect({ apiUrl, userId, encryptionKey })
+    const client = await chat.Client.connect({ apiUrl, userId, encryptionKey })
 
-  await client.getOrCreateConversation({ id: conversationId })
+    await client.getOrCreateConversation({ id: conversationId })
 
-  await checkApiCanSendAndReceiveMessages(
-    {
-      client,
-      conversationId,
-      protocol
-    },
-    {
-      type: 'text',
-      text: 'hello world',
-    }
-  )
-})
+    await checkApiCanSendAndReceiveMessages(
+      {
+        client,
+        conversationId,
+        protocol,
+      },
+      {
+        type: 'text',
+        text: 'hello world',
+      }
+    )
+  }
+)
 
 test.each(conversationProtocols)('api allows deleting a message', async (protocol) => {
   const client = await chat.Client.connect({ apiUrl })
