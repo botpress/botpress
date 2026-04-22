@@ -2,8 +2,16 @@ import * as sdk from '@botpress/sdk'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 
 const emailProps = {
-  cc: sdk.z.string().optional().describe('The CC recipients of the email').title('CC Recipients'),
-  bcc: sdk.z.string().optional().describe('The BCC recipients of the email').title('BCC Recipients'),
+  cc: sdk.z
+    .array(sdk.z.object({ email: sdk.z.string().email(), name: sdk.z.string().optional() }))
+    .optional()
+    .describe('The CC recipients of the initial email')
+    .title('CC Recipients'),
+  bcc: sdk.z
+    .array(sdk.z.object({ email: sdk.z.string().email(), name: sdk.z.string().optional() }))
+    .optional()
+    .describe('The BCC recipients of the initial email')
+    .title('BCC Recipients'),
   subject: sdk.z.string().optional().describe('The subject of the email').title('Email Subject'),
 }
 
@@ -122,8 +130,16 @@ export default new sdk.IntegrationDefinition({
             .optional(),
           userEmailAddress: sdk.z.string().describe('The recipient email address').title('Recipient Email Address'),
           userName: sdk.z.string().optional().describe('The recipient name').title('Recipient Name'),
-          cc: sdk.z.string().optional().describe('The CC recipients of the initial email').title('CC Recipients'),
-          bcc: sdk.z.string().optional().describe('The BCC recipients of the initial email').title('BCC Recipients'),
+          cc: sdk.z
+            .array(sdk.z.object({ email: sdk.z.string().email(), name: sdk.z.string().optional() }))
+            .optional()
+            .describe('The CC recipients of the initial email')
+            .title('CC Recipients'),
+          bcc: sdk.z
+            .array(sdk.z.object({ email: sdk.z.string().email(), name: sdk.z.string().optional() }))
+            .optional()
+            .describe('The BCC recipients of the initial email')
+            .title('BCC Recipients'),
           subject: sdk.z
             .string()
             .optional()

@@ -4,7 +4,7 @@ import { timingSafeEqual } from 'node:crypto'
 import * as pm from 'postmark'
 import { type Attachment, postmarkInboundWebhookSchema } from './inbound-webhook'
 import { messages, textToHtml } from './messages'
-import { generateRfcMessageId, send } from './send-email'
+import { formatRecipients, generateRfcMessageId, send } from './send-email'
 import * as bp from '.botpress'
 
 const MAX_INBOUND_ATTACHMENT_SIZE = 10 * 1024 * 1024 // 10MB — matches outbound cap
@@ -186,7 +186,7 @@ export default new bp.Integration({
       const subjectLine = subject || '(No subject)'
       const pmClient = new pm.ServerClient(ctx.configuration.serverToken)
 
-      const { user } = await bpClient.getOrCreateUser({
+      await bpClient.getOrCreateUser({
         name: userName || userEmailAddress,
         tags: { emailAddress: userEmailAddress },
         discriminateByTags: ['emailAddress'],
@@ -224,8 +224,8 @@ export default new bp.Integration({
           .sendEmail({
             From: ctx.configuration.fromEmail,
             To: userEmailAddress,
-            Cc: cc,
-            Bcc: bcc,
+            Cc: formatRecipients(cc),
+            Bcc: formatRecipients(bcc),
             Subject: subjectLine,
             TextBody: text,
             HtmlBody: textToHtml(text),
@@ -259,8 +259,8 @@ export default new bp.Integration({
           id: messageId,
           emailMessageId: messageId,
           subject: subjectLine,
-          cc: cc || '',
-          bcc: bcc || '',
+          cc: formatRecipients(cc) ?? '',
+          bcc: formatRecipients(bcc) ?? '',
         },
         payload: { text, subject: subjectLine },
         discriminateByTags: ['id'],

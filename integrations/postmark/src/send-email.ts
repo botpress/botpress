@@ -5,11 +5,21 @@ import * as bp from '.botpress'
 
 export type SendEmailInput = Parameters<pm.ServerClient['sendEmail']>[0]
 
+export type EmailRecipient = { email: string; name?: string }
+
 export type SendArgs = {
   configuration: bp.configuration.Configuration
   conversation: { id: string; tags: { postmarkEmailAddress?: string; userEmailAddress?: string } }
   client: bp.Client
-  input: Omit<SendEmailInput, 'From' | 'To'>
+  input: Omit<SendEmailInput, 'From' | 'To' | 'Cc' | 'Bcc'> & {
+    Cc?: EmailRecipient[]
+    Bcc?: EmailRecipient[]
+  }
+}
+
+export const formatRecipients = (recipients?: EmailRecipient[]): string | undefined => {
+  if (!recipients || recipients.length === 0) return undefined
+  return recipients.map(({ email, name }) => (name ? `"${name.replace(/"/g, '\\"')}" <${email}>` : email)).join(', ')
 }
 
 export const generateRfcMessageId = (fromEmail: string): string => {
@@ -63,12 +73,15 @@ export const send = async ({ configuration, conversation, client, input }: SendA
     headers.push({ Name: 'References', Value: ids.map((id) => `<${id}>`).join(' ') })
   }
 
+  const { Cc, Bcc, ...rest } = input
   try {
     await sendEmailMessage(
       {
-        ...input,
+        ...rest,
         From: configuration.fromEmail,
         To: conversation.tags.userEmailAddress,
+        Cc: formatRecipients(Cc),
+        Bcc: formatRecipients(Bcc),
         Headers: headers,
       },
       { serverToken: configuration.serverToken }
