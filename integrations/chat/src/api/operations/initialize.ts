@@ -36,8 +36,14 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
 
   const preparedBody: PreparedBody = {}
 
-  if (request.auth.userId !== '') {
-    preparedBody.userId = request.auth.userId
+  // Resolve the internal user ID explicitly: check the FID store first, then the SDK by ID (for
+  // users created without an explicit FID whose key encodes the internal ID directly).
+  const authUserId = userId !== undefined
+    ? (await props.userIdStore.byFid.find(userId)) ?? (await props.apiUtils.findUser({ id: userId }).then((res) => res.user?.id))
+    : undefined
+
+  if (authUserId !== undefined) {
+    preparedBody.userId = authUserId
   } else {
     preparedBody.user = {
       ...request.body.user,

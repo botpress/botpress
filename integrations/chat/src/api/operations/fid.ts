@@ -465,18 +465,18 @@ export const handlers = {
     req: types.AuthenticatedInputs['initializeIncomingMessage']
   ) => ({
     mapRequest: async () => {
-      let authUserId: string | undefined = undefined
+      let authUserId = undefined
       let conversationId = undefined
       if (req.body.conversationId) {
         conversationId = await props.convIdStore.byFid.get(req.body.conversationId)
       }
       if (req.auth.userId !== '') {
-        authUserId = await props.userIdStore.byFid.find(req.auth.userId)
+        authUserId = await props.userIdStore.byFid.get(req.auth.userId)
       }
 
       type PartialInitializeIncomingMessageBody = Partial<types.OperationInputs['initializeIncomingMessage']['body']>
       return merge(req, {
-        auth: { userId: authUserId ?? '' },
+        auth: { userId: authUserId },
         body: {
           conversationId,
         } satisfies PartialInitializeIncomingMessageBody as PartialInitializeIncomingMessageBody,
