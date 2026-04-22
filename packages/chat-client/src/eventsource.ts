@@ -52,19 +52,28 @@ const makeEventSource = (url: string, props: Props = {}) => {
     if (props.headers?.['x-user-key']) {
       url = `${url}?x-user-key=${encodeURIComponent(props.headers['x-user-key'])}`
     }
-    source = new WebSocket(url)
-  } else if (isBrowser) {
-    const module: typeof EventSourceBrowser = require('event-source-polyfill')
-    const ctor = module.EventSourcePolyfill
-    source = new ctor(url, { headers: props.headers })
+    if (isBrowser) {
+      source = new WebSocket(url)
+    } else {
+      const WS = require('ws')
+      source = new WS(url)
+    }
   } else {
-    const module: typeof EventSourceNodeJs = require('eventsource')
-    source = new module(url, { headers: props.headers })
+    if (isBrowser) {
+      const module: typeof EventSourceBrowser = require('event-source-polyfill')
+      source = new module.EventSourcePolyfill(url, { headers: props.headers })
+    } else {
+      const module: typeof EventSourceNodeJs = require('eventsource')
+      source = new module(url, { headers: props.headers })
+    }
   }
   const emitter = new EventEmitter<Events>()
   source.onopen = (ev: Event) => emitter.emit('open', ev)
   source.onmessage = (ev: MessageEvent) => emitter.emit('message', ev)
   source.onerror = (ev: Event) => emitter.emit('error', ev)
+  if (source instanceof WebSocket) {
+    source.onclose = (ev: Event) => emitter.emit('error', ev)
+  }
   return {
     emitter,
     source,

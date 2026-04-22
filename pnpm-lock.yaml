@@ -2580,6 +2580,9 @@ importers:
       verror:
         specifier: ^1.10.1
         version: 1.10.1
+      ws:
+        specifier: ^8.18.0
+        version: 8.20.0
       zod:
         specifier: ^3.21.4
         version: 3.22.4
@@ -2614,6 +2617,9 @@ importers:
       '@types/web':
         specifier: ^0.0.115
         version: 0.0.115
+      '@types/ws':
+        specifier: ^8.5.10
+        version: 8.18.1
       dotenv:
         specifier: ^16.4.4
         version: 16.4.4
@@ -6710,8 +6716,8 @@ packages:
   '@types/ws@6.0.4':
     resolution: {integrity: sha512-PpPrX7SZW9re6+Ha8ojZG4Se8AZXgf0GK6zmfqEuCsY49LFDNXO3SByp44X3dFEqtB73lkCDAdUazhAjVPiNwg==}
 
-  '@types/ws@8.5.5':
-    resolution: {integrity: sha512-lwhs8hktwxSjf9UaZ9tG5M03PGogvFaH8gUgLNbN9HKIg0dvv6q+gkSuJ8HN4/VbyxkuLzCjlN7GquQ0gUJfIg==}
+  '@types/ws@8.18.1':
+    resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
   '@types/yargs-parser@21.0.0':
     resolution: {integrity: sha512-iO9ZQHkZxHn4mSakYV0vFHAVDyEOIJQrV2uZ06HxEPcx+mt8swXoZHIbaaJ2crJYFfErySgktuTZ3BeLz+XmFA==}
@@ -12402,18 +12408,6 @@ packages:
       utf-8-validate:
         optional: true
 
-  ws@8.13.0:
-    resolution: {integrity: sha512-x9vcZYTrFPC7aSIbj7sRCYo7L/Xb8Iy+pW0ng0wt2vCJv7M9HOMy0UoN3rr+IFC7hb7vXoqS+P9ktyLLLhO+LA==}
-    engines: {node: '>=10.0.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: '>=5.0.2'
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
-
   ws@8.18.2:
     resolution: {integrity: sha512-DMricUmwGZUVr++AEAe2uiVM7UoO9MAVZMDu05UQOaUII0lp+zOzLLU4Xqh/JvTqklB1T4uELaaPBKyjE1r4fQ==}
     engines: {node: '>=10.0.0'}
@@ -14026,10 +14020,10 @@ snapshots:
 
   '@bpinternal/tunnel@0.1.1':
     dependencies:
-      '@types/ws': 8.5.5
+      '@types/ws': 8.18.1
       browser-or-node: 2.1.1
-      isomorphic-ws: 5.0.0(ws@8.13.0)
-      ws: 8.13.0
+      isomorphic-ws: 5.0.0(ws@8.20.0)
+      ws: 8.20.0
       zod: 3.24.2
     transitivePeerDependencies:
       - bufferutil
@@ -16738,7 +16732,7 @@ snapshots:
     dependencies:
       '@types/node': 22.16.4
 
-  '@types/ws@8.5.5':
+  '@types/ws@8.18.1':
     dependencies:
       '@types/node': 22.16.4
 
@@ -20062,9 +20056,9 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  isomorphic-ws@5.0.0(ws@8.13.0):
+  isomorphic-ws@5.0.0(ws@8.20.0):
     dependencies:
-      ws: 8.13.0
+      ws: 8.20.0
 
   isstream@0.1.2: {}
 
@@ -23918,12 +23912,9 @@ snapshots:
 
   ws@7.5.10: {}
 
-  ws@8.13.0: {}
-
   ws@8.18.2: {}
 
-  ws@8.20.0:
-    optional: true
+  ws@8.20.0: {}
 
   wsl-utils@0.1.0:
     dependencies:
