@@ -4,6 +4,7 @@ import { timingSafeEqual } from 'node:crypto'
 import * as pm from 'postmark'
 import { type Attachment, postmarkInboundWebhookSchema } from './inbound-webhook'
 import { messages, textToHtml } from './messages'
+import { send } from './send-email'
 import * as bp from '.botpress'
 
 const MAX_INBOUND_ATTACHMENT_SIZE = 10 * 1024 * 1024 // 10MB — matches outbound cap
@@ -23,15 +24,67 @@ const getMessageType = (contentType: string): 'image' | 'audio' | 'video' | 'fil
 
 const sanitizeFilename = (name: string): string => name.replace(/[^\w.\-]/g, '_').slice(0, 120) || 'attachment'
 
-const extractThreadRoot = (headers: Array<{ Name: string; Value: string }>, fallbackId: string): string => {
-  const references = headers.find((h) => h.Name === 'References')?.Value
+const extractParentHeaders = (
+  references: string | undefined,
+  inReplyTo: string | undefined
+): { root?: string; parent?: string } => {
   if (references) {
-    const first = references.trim().split(/\s+/)[0]
-    if (first) return first.replace(/[<>]/g, '')
+    const first = references.trim().split(/\s+/)[0]?.replace(/[<>]/g, '')
+    if (first) {
+      return { root: first }
+    }
   }
-  const inReplyTo = headers.find((h) => h.Name === 'In-Reply-To')?.Value
-  if (inReplyTo) return inReplyTo.trim().replace(/[<>]/g, '')
-  return fallbackId
+  if (inReplyTo) {
+    const parent = inReplyTo.trim().replace(/[<>]/g, '')
+    if (parent) {
+      return { parent }
+    }
+  }
+  return {}
+}
+
+const extractThreadRoot = (headers: Array<{ Name: string; Value: string }>, fallbackId: string): string => {
+  const { root, parent } = extractParentHeaders(
+    headers.find((h) => h.Name === 'References')?.Value,
+    headers.find((h) => h.Name === 'In-Reply-To')?.Value
+  )
+  return root ?? parent ?? fallbackId
+}
+
+const extractMessageIdHeader = (headers: Array<{ Name: string; Value: string }>): string | undefined => {
+  const raw = headers.find((h) => h.Name.toLowerCase() === 'message-id')?.Value
+  const trimmed = raw?.trim().replace(/^<|>$/g, '')
+  return trimmed || undefined
+}
+
+type ConversationInformation = NonNullable<
+  bp.actions.getOrCreateReplyThreadConversation.input.Input['conversation']['conversationInformation']
+>
+
+const findConversationByThreadRoot = async (bpClient: bp.Client, threadRootMessageId: string) => {
+  const { conversations } = await bpClient.listConversations({ tags: { threadRootMessageId } })
+  return conversations[0]
+}
+
+const findConversationByMessageId = async (bpClient: bp.Client, emailMessageId: string) => {
+  const { messages } = await bpClient.listMessages({ tags: { emailMessageId } })
+  const match = messages[0]
+  if (!match) return undefined
+  const { conversation } = await bpClient.getConversation({ id: match.conversationId })
+  return conversation
+}
+
+const resolveExistingConversation = async (bpClient: bp.Client, info: ConversationInformation | undefined) => {
+  if (!info) return undefined
+  if (info.rootEmailId) {
+    return findConversationByThreadRoot(bpClient, info.rootEmailId)
+  }
+  if (info.lastEmailId) {
+    const byRoot = await findConversationByThreadRoot(bpClient, info.lastEmailId)
+    if (byRoot) return byRoot
+    return findConversationByMessageId(bpClient, info.lastEmailId)
+  }
+  return undefined
 }
 
 const uploadAttachment = async (attachment: Attachment, emailMessageId: string, index: number, client: bp.Client) => {
@@ -128,69 +181,91 @@ export default new bp.Integration({
   actions: {
     getOrCreateReplyThreadConversation: async (props) => {
       const { client: bpClient, ctx, logger, input } = props
-      const {
-        conversation: { userEmailAddress, userName, cc, bcc, subject, text },
-      } = input
-
-      logger.forBotOnly().debug(`Opening a new reply thread with user email "${userEmailAddress}"`)
-
-      const { user } = await bpClient.getOrCreateUser({
-        name: userName || userEmailAddress,
-        tags: {
-          emailAddress: userEmailAddress,
-        },
-        discriminateByTags: ['emailAddress'],
-      })
+      const { userEmailAddress, userName, cc, bcc, subject, text, conversationInformation } = input.conversation
 
       const subjectLine = subject || '(No subject)'
       const pmClient = new pm.ServerClient(ctx.configuration.serverToken)
-      let threadRootMessageId: string
-      try {
-        const response = await pmClient.sendEmail({
-          From: ctx.configuration.fromEmail,
-          To: userEmailAddress,
-          Cc: cc,
-          Bcc: bcc,
-          Subject: subjectLine,
-          TextBody: text,
-          HtmlBody: textToHtml(text),
-        })
-        threadRootMessageId = response.MessageID
-      } catch (thrown) {
-        if (thrown instanceof sdk.RuntimeError) throw thrown
-        const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
-        throw new sdk.RuntimeError(`Failed to send email via Postmark: ${errorMessage}`)
-      }
 
-      const { conversation } = await bpClient.getOrCreateConversation({
-        channel: 'mail',
-        tags: {
-          threadRootMessageId,
-          postmarkEmailAddress: ctx.configuration.fromEmail,
-          userEmailAddress,
-        },
-        discriminateByTags: ['threadRootMessageId'],
+      const { user } = await bpClient.getOrCreateUser({
+        name: userName || userEmailAddress,
+        tags: { emailAddress: userEmailAddress },
+        discriminateByTags: ['emailAddress'],
       })
+
+      const { id: conversationId, messageId } = await (async () => {
+        const existing = await resolveExistingConversation(bpClient, conversationInformation)
+
+        if (existing) {
+          logger.forBotOnly().debug(`Resolved existing reply thread conversation "${existing.id}"`)
+          const id = await send({
+            configuration: ctx.configuration,
+            conversation: {
+              id: existing.id,
+              tags: {
+                postmarkEmailAddress: existing.tags.postmarkEmailAddress,
+                userEmailAddress: existing.tags.userEmailAddress,
+              },
+            },
+            client: bpClient,
+            input: { Subject: subjectLine, TextBody: text, HtmlBody: textToHtml(text), Cc: cc, Bcc: bcc },
+          })
+          return { id: existing.id, messageId: id }
+        }
+
+        if (conversationInformation?.rootEmailId || conversationInformation?.lastEmailId) {
+          throw new sdk.RuntimeError(
+            `No Botpress conversation found for thread root "${conversationInformation.rootEmailId ?? conversationInformation.lastEmailId}"`
+          )
+        }
+
+        logger.forBotOnly().debug(`Opening a new reply thread with user email "${userEmailAddress}"`)
+        const threadRootMessageId = await pmClient
+          .sendEmail({
+            From: ctx.configuration.fromEmail,
+            To: userEmailAddress,
+            Cc: cc,
+            Bcc: bcc,
+            Subject: subjectLine,
+            TextBody: text,
+            HtmlBody: textToHtml(text),
+          })
+          .then((r) => r.MessageID)
+          .catch((thrown) => {
+            if (thrown instanceof sdk.RuntimeError) throw thrown
+            throw new sdk.RuntimeError(
+              `Failed to send email via Postmark: ${thrown instanceof Error ? thrown.message : String(thrown)}`
+            )
+          })
+
+        const { conversation } = await bpClient.getOrCreateConversation({
+          channel: 'mail',
+          tags: {
+            threadRootMessageId,
+            postmarkEmailAddress: ctx.configuration.fromEmail,
+            userEmailAddress,
+          },
+          discriminateByTags: ['threadRootMessageId'],
+        })
+        return { id: conversation.id, messageId: threadRootMessageId }
+      })()
 
       await bpClient.getOrCreateMessage({
         type: 'text',
-        conversationId: conversation.id,
-        userId: user.id,
+        conversationId,
+        userId: ctx.botId,
+        origin: 'synthetic',
         tags: {
-          id: threadRootMessageId,
-          emailMessageId: threadRootMessageId,
+          id: messageId,
+          emailMessageId: messageId,
           subject: subjectLine,
           cc: cc || '',
           bcc: bcc || '',
         },
-        payload: {
-          text,
-          subject: subjectLine,
-        },
+        payload: { text, subject: subjectLine },
         discriminateByTags: ['id'],
       })
-
-      return { conversationId: conversation.id }
+      logger.forBotOnly().debug(`Sent email message "${messageId}" in conversation "${conversationId}"`)
+      return { conversationId }
     },
   },
   channels: {
@@ -250,7 +325,8 @@ export default new bp.Integration({
       })
     }
 
-    const threadRootMessageId = extractThreadRoot(email.Headers, email.MessageID)
+    const rfcMessageId = extractMessageIdHeader(email.Headers) ?? email.MessageID
+    const threadRootMessageId = extractThreadRoot(email.Headers, rfcMessageId)
 
     const { conversation } = await client.getOrCreateConversation({
       channel: 'mail',
@@ -266,8 +342,8 @@ export default new bp.Integration({
       type: 'text',
       conversationId: conversation.id,
       tags: {
-        id: email.MessageID,
-        emailMessageId: email.MessageID,
+        id: rfcMessageId,
+        emailMessageId: rfcMessageId,
         bcc: email.Bcc,
         cc: email.Cc,
         subject: email.Subject,
@@ -300,7 +376,7 @@ export default new bp.Integration({
             type: messageType,
             conversationId: conversation.id,
             tags: {
-              id: `${email.MessageID}_attachment_${index}`,
+              id: `${rfcMessageId}_attachment_${index}`,
               subject: email.Subject,
               cc: email.Cc,
               bcc: email.Bcc,

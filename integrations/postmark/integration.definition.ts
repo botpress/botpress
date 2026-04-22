@@ -106,6 +106,20 @@ export default new sdk.IntegrationDefinition({
       description: 'A postmark replyThread',
       schema: sdk.z
         .object({
+          conversationInformation: sdk.z
+            .object({
+              rootEmailId: sdk.z
+                .string()
+                .optional()
+                .describe('The ID of the root email in the thread')
+                .title('Root Email ID'),
+              lastEmailId: sdk.z
+                .string()
+                .optional()
+                .describe('The ID of the last email in the thread')
+                .title('Last Email ID'),
+            })
+            .optional(),
           userEmailAddress: sdk.z.string().describe('The recipient email address').title('Recipient Email Address'),
           userName: sdk.z.string().optional().describe('The recipient name').title('Recipient Name'),
           cc: sdk.z.string().optional().describe('The CC recipients of the initial email').title('CC Recipients'),
