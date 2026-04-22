@@ -1,4 +1,4 @@
-import { commonTypes } from 'src/common'
+import { commonTypes } from '../../common'
 import * as utils from '../../utils/type-utils'
 import * as common from '../common'
 
