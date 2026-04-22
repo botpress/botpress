@@ -305,6 +305,38 @@ export class SlackClient {
     return response.message
   }
 
+  @requireAllScopes(['files:write'])
+  @handleErrors('Failed to upload file')
+  public async uploadFile({
+    channelId,
+    threadTs,
+    fileBuffer,
+    filename,
+    title,
+    initialComment,
+  }: {
+    channelId: string
+    threadTs?: string
+    fileBuffer: Buffer
+    filename: string
+    title?: string
+    initialComment?: string
+  }) {
+    const response = surfaceSlackErrors({
+      logger: this._logger,
+      response: await this._slackWebClient.files.uploadV2({
+        channel_id: channelId,
+        thread_ts: threadTs,
+        file: fileBuffer,
+        filename,
+        title,
+        initial_comment: initialComment,
+      }),
+    })
+
+    return response
+  }
+
   @requireAllScopes(['users:read'])
   @handleErrors('Failed to retrieve user profile')
   public async getUserProfile({ userId }: { userId: string }) {
