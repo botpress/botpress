@@ -1,10 +1,13 @@
 import { RuntimeError } from '@botpress/client'
 import { buildConversationTranscript } from '@botpress/common'
+import { randomUUID } from 'node:crypto'
 import { getSuncoClient } from 'src/client'
 import { getStoredCredentials } from 'src/get-stored-credentials'
 import { getAgentWorkspaceSwitchboardIntegrationName } from 'src/setup/util'
 import { Client, IntegrationCtx, User, HitlSession, MessageHistory } from 'src/types'
 import * as bp from '.botpress'
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ ctx, client, input, logger }) => {
   try {
@@ -113,28 +116,28 @@ export const createUser: bp.IntegrationProps['actions']['createUser'] = async ({
     const credentials = await getStoredCredentials(client, ctx)
     const suncoClient = getSuncoClient(credentials)
 
-    const { user: botpressUser } = await client.getOrCreateUser({
-      ...input,
-      tags: {
-        email: input.email,
-      },
-    })
+    const externalId = input.email?.length ? input.email : randomUUID()
+    const emailValue = input.email && EMAIL_REGEX.test(input.email) ? input.email : undefined
 
     const suncoUser = await suncoClient.getOrCreateUser({
-      ...input,
-      externalId: botpressUser.id,
+      name: input.name,
+      email: emailValue,
+      avatarUrl: input.pictureUrl,
+      externalId,
     })
 
     if (!suncoUser.id) {
       throw new RuntimeError('Failed to create Sunco User')
     }
 
-    await client.updateUser({
-      ...input,
-      id: botpressUser.id,
+    const { user: botpressUser } = await client.getOrCreateUser({
+      name: input.name,
+      pictureUrl: input.pictureUrl,
       tags: {
         id: suncoUser.id,
+        ...(emailValue ? { email: emailValue } : {}),
       },
+      discriminateByTags: ['id'],
     })
 
     return {

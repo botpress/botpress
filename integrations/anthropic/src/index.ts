@@ -174,20 +174,6 @@ const LanguageModels: Record<ModelId, llm.ModelDetails> = {
       maxTokens: 4096,
     },
   },
-  'claude-3-haiku-20240307': {
-    name: 'Claude 3 Haiku',
-    description:
-      "Claude 3 Haiku is Anthropic's fastest and most compact model for near-instant responsiveness. Quick and accurate targeted performance.",
-    tags: ['low-cost', 'general-purpose'],
-    input: {
-      costPer1MTokens: 0.25,
-      maxTokens: 200_000,
-    },
-    output: {
-      costPer1MTokens: 1.25,
-      maxTokens: 4096,
-    },
-  },
 }
 
 export default new bp.Integration({

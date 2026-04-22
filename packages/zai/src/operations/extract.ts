@@ -23,6 +23,8 @@ export type Options = {
   strict?: boolean
 }
 
+const INVALID_SCHEMA_ERROR = 'zai.extract only accepts schemas created with @bpinternal/zui'
+
 const Options = z.object({
   instructions: z.string().optional().describe('Instructions to guide the user on how to extract the data'),
   chunkLength: z
@@ -35,7 +37,7 @@ const Options = z.object({
   strict: z.boolean().optional().default(true).describe('Whether to strictly follow the schema or not'),
 })
 
-type __Z<T> = { _output: T }
+type __Z<T> = { __type__: 'ZuiType'; _output: T }
 type OfType<O, T extends __Z<any> = __Z<O>> = T extends __Z<O> ? T : never
 type AnyObjectOrArray = Record<string, unknown> | Array<unknown>
 
@@ -125,12 +127,16 @@ const extract = async <S extends OfType<AnyObjectOrArray>>(
 ): Promise<S['_output']> => {
   ctx.controller.signal.throwIfAborted()
 
+  if (!z.is.zuiType(_schema)) {
+    throw new Error(INVALID_SCHEMA_ERROR)
+  }
+
   let originalSchema: z.ZodType
   try {
-    originalSchema = z.transforms.fromJSONSchema(z.transforms.toJSONSchema(_schema as unknown as z.ZodType))
+    originalSchema = z.transforms.fromJSONSchema(z.transforms.toJSONSchema(_schema))
   } catch {
     // The above transformers arent the legacy ones. They are very strict and might fail on some schema types.
-    originalSchema = _schema as unknown as z.ZodType
+    originalSchema = _schema
   }
 
   const options = Options.parse(_options ?? {})
