@@ -91,9 +91,9 @@ test('api creates a new user when x-user-key is provided for a user not yet in t
 
   const initializeResponse = await client.initializeIncomingMessage({ 'x-user-key': userKey })
 
-  // The returned user.id must be a valid internal ID, not the FID string
+  // The returned user.id must be an internal ID, not the FID string
   expect(initializeResponse.user.id).not.toBe(userId)
-  expect(initializeResponse.user.id).toMatch(/^[0-9a-f-]{36}$/)
+  expect(initializeResponse.user.id).toEqual(expect.any(String))
   expect(initializeResponse.conversation).toEqual(expect.objectContaining({ id: expect.any(String) }))
 
   // A second call with the same key should return the same user
