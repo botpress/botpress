@@ -39,4 +39,3 @@ All message types support optional `cc`, `bcc`, and `subject` fields.
 ## Limitations
 
 - The integration does not track delivery events (bounces, opens, clicks).
-- Bot-initiated conversations are not supported — emails can only be sent as replies to inbound messages.
