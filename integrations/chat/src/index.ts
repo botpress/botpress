@@ -5,11 +5,11 @@ import { AuthKeyHandler } from './auth-key'
 import * as debug from './debug'
 import { makeHandler } from './handler'
 import { MemorySpace, ChatIdStore, InMemoryChatIdStore, DynamoDbChatIdStore } from './id-store'
+import { startMetricsServer } from './metrics-server'
 import { Options, options } from './options'
 import { CompositeSignalEmiter, PushpinEmitter, SignalEmitter, WebhookEmitter } from './signal-emitter'
 import { initTracing, normalizePath, runWithSpan, setSpanAttributes, SPAN_ATTRS } from './tracing'
 import { MessageArgs, ActionArgs } from './types'
-import { startMetricsServer } from './metrics-server'
 import * as bp from '.botpress'
 
 const tracingProvider = initTracing()
