@@ -1,15 +1,28 @@
 import { isBrowser } from 'browser-or-node'
 import type EventSourceBrowser from 'event-source-polyfill'
 import type EventSourceNodeJs from 'eventsource'
+import type WS from 'ws'
 import { EventEmitter } from './event-emitter'
 
 type WebSocketOnOpen = NonNullable<WebSocket['onopen']>
 type WebSocketOnMessage = NonNullable<WebSocket['onmessage']>
 type WebSocketOnError = NonNullable<WebSocket['onerror']>
+type WebSocketOnClose = NonNullable<WebSocket['onclose']>
 
 type WebSocketOpenEvent = Parameters<WebSocketOnOpen>[0]
 type WebSocketMessageEvent = Parameters<WebSocketOnMessage>[0]
 type WebSocketErrorEvent = Parameters<WebSocketOnError>[0]
+type WebSocketCloseEvent = Parameters<WebSocketOnClose>[0]
+
+type WsOnOpen = NonNullable<WS['onopen']>
+type WsOnMessage = NonNullable<WS['onmessage']>
+type WsOnError = NonNullable<WS['onerror']>
+type WsOnClose = NonNullable<WS['onclose']>
+
+type WsOpenEvent = Parameters<WsOnOpen>[0]
+type WsMessageEvent = Parameters<WsOnMessage>[0]
+type WsErrorEvent = Parameters<WsOnError>[0]
+type WsCloseEvent = Parameters<WsOnClose>[0]
 
 type NodeOnOpen = EventSourceNodeJs['onopen']
 type NodeOnMessage = EventSourceNodeJs['onmessage']
@@ -27,14 +40,16 @@ type BrowserOpenEvent = Parameters<BrowserOnOpen>[0]
 type BrowserMessageEvent = Parameters<BrowserOnMessage>[0]
 type BrowserErrorEvent = Parameters<BrowserOnError>[0]
 
-export type OpenEvent = NodeOpenEvent | BrowserOpenEvent | WebSocketOpenEvent
-export type MessageEvent = NodeMessageEvent | BrowserMessageEvent | WebSocketMessageEvent
-export type ErrorEvent = NodeErrorEvent | BrowserErrorEvent | WebSocketErrorEvent
+export type OpenEvent = NodeOpenEvent | BrowserOpenEvent | WebSocketOpenEvent | WsOpenEvent
+export type MessageEvent = NodeMessageEvent | BrowserMessageEvent | WebSocketMessageEvent | WsMessageEvent
+export type ErrorEvent = NodeErrorEvent | BrowserErrorEvent | WebSocketErrorEvent | WsErrorEvent
+export type CloseEvent = WebSocketCloseEvent | WsCloseEvent
 
 export type Events = {
   open: OpenEvent
   message: MessageEvent
   error: ErrorEvent
+  close: CloseEvent
 }
 
 export type ServerEventsProtocol = 'websocket' | 'sse'
@@ -44,11 +59,11 @@ export type Props = {
   protocol?: ServerEventsProtocol
 }
 
-type ServerEventsSource = EventSourceBrowser.EventSourcePolyfill | EventSourceNodeJs | WebSocket
+type ServerEventsSource = EventSourceBrowser.EventSourcePolyfill | EventSourceNodeJs | WebSocket | WS
 
-// TODO: fix grep catch
 const makeEventSource = (url: string, props: Props = {}) => {
   let source: ServerEventsSource
+  const emitter = new EventEmitter<Events>()
   const isWebSocket = props.protocol === 'websocket'
   if (isWebSocket) {
     if (props.headers?.['x-user-key']) {
@@ -57,9 +72,10 @@ const makeEventSource = (url: string, props: Props = {}) => {
     if (isBrowser) {
       source = new WebSocket(url)
     } else {
-      const WS = require('ws')
-      source = new WS(url)
+      const WSModule: typeof WS = require('ws')
+      source = new WSModule(url)
     }
+    source.onclose = (ev: CloseEvent) => emitter.emit('close', ev)
   } else {
     if (isBrowser) {
       const module: typeof EventSourceBrowser = require('event-source-polyfill')
@@ -69,13 +85,9 @@ const makeEventSource = (url: string, props: Props = {}) => {
       source = new module(url, { headers: props.headers })
     }
   }
-  const emitter = new EventEmitter<Events>()
-  source.onopen = (ev: Event) => emitter.emit('open', ev)
+  source.onopen = (ev: OpenEvent) => emitter.emit('open', ev)
   source.onmessage = (ev: MessageEvent) => emitter.emit('message', ev)
-  source.onerror = (ev: Event) => emitter.emit('error', ev)
-  if (isWebSocket) {
-    source.onclose = (ev: Event) => emitter.emit('error', ev)
-  }
+  source.onerror = (ev: ErrorEvent) => emitter.emit('error', ev)
   return {
     emitter,
     source,

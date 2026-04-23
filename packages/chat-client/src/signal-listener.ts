@@ -35,6 +35,7 @@ export type Signals = {
 
 type Events = Signals & {
   error: Error
+  close: undefined
 }
 
 export type SignalListenerStatus = SignalListenerState['status']
@@ -108,6 +109,7 @@ export class SignalListener extends EventEmitter<Events> {
 
     source.on('message', this._handleMessage(source, watchdog))
     source.on('error', this._handleError(source, watchdog))
+    source.on('close', this._handleClose(source, watchdog))
     watchdog.on('error', this._handleError(source, watchdog))
 
     this._state = { status: 'connected', source, watchdog }
@@ -124,6 +126,11 @@ export class SignalListener extends EventEmitter<Events> {
     watchdog.reset()
     const signal = this._parseSignal(ev.data)
     this.emit(signal.type, signal.data)
+  }
+
+  private _handleClose = (source: EventSourceEmitter, watchdog: WatchDog) => () => {
+    this._disconnectSync(source, watchdog)
+    this.emit('close', undefined)
   }
 
   private _handleError = (source: EventSourceEmitter, watchdog: WatchDog) => (ev: ErrorEvent | Error) => {
