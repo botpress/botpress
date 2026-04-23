@@ -581,7 +581,7 @@ export class HubspotClient {
     }
 
     if (!filters.length) {
-      throw new Error('No filters provided')
+      throw new sdk.RuntimeError('No filters provided')
     }
 
     const deals = await this._hsClient.crm.deals.searchApi.doSearch({
@@ -738,7 +738,7 @@ export class HubspotClient {
     }
 
     if (!filters.length) {
-      throw new Error('No filters provided')
+      throw new sdk.RuntimeError('No filters provided')
     }
 
     const leads = await this._hsClient.crm.objects.leads.searchApi.doSearch({
