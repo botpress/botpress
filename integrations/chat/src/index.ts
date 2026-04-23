@@ -17,11 +17,6 @@ if (tracingProvider) {
   process.on('SIGTERM', () => void tracingProvider.shutdown().catch(console.error))
 }
 
-if (process.env.METRICS_ENABLED !== 'false') {
-  const metricsPort = process.env.METRICS_PORT ? parseInt(process.env.METRICS_PORT, 10) : 9090
-  startMetricsServer(metricsPort)
-}
-
 const memSpace = new MemorySpace()
 
 type ChatIdStores = Record<'convIdStore' | 'userIdStore', ChatIdStore>
@@ -162,7 +157,11 @@ const emitEvent = async (args: ActionArgs) => {
   })
 }
 
-export default new bp.Integration({
+class IntegrationWithMetrics extends bp.Integration {
+  public startMetricsServer = startMetricsServer
+}
+
+export default new IntegrationWithMetrics({
   register: async () => {},
   unregister: async () => {},
   __advanced: {
