@@ -66,6 +66,7 @@ const makeEventSource = (url: string, props: Props = {}) => {
   const emitter = new EventEmitter<Events>()
   const isWebSocket = props.protocol === 'websocket'
   if (isWebSocket) {
+    url = url.replace(/^http/, 'ws')
     if (props.headers?.['x-user-key']) {
       url = `${url}?x-user-key=${encodeURIComponent(props.headers['x-user-key'])}`
     }
