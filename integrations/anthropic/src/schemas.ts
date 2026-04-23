@@ -16,7 +16,6 @@ export const ModelId = z
     'claude-sonnet-4-reasoning-20250514',
     'claude-3-5-sonnet-20241022',
     'claude-3-5-sonnet-20240620',
-    'claude-3-haiku-20240307',
   ])
   .describe('Model to use for content generation')
   .placeholder(DefaultModel)
