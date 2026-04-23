@@ -269,7 +269,6 @@ const _getOrCreateMessageFromFiles = async ({
 
 const _parseSlackFile = (logger: bp.Logger, file: File): BlocItem | null => {
   const fileType = file.mimetype.split('/')[0]
-  logger.forBot().warn(file)
   if (!fileType) {
     logger.forBot().info('File of type', fileType, 'is not yet supported.')
     return null
