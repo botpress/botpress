@@ -1,8 +1,8 @@
 import { Request } from '@botpress/sdk'
+import { messages, outputs } from '@bpinternal/pingrip'
 import qs from 'qs'
 import * as api from './api'
 import * as errors from './gen/errors'
-import { messages, outputs } from '@bpinternal/pingrip'
 
 const WS_CLOSE_GOING_AWAY = 1001
 

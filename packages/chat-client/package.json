@@ -23,10 +23,10 @@
     "browser-or-node": "^2.1.1",
     "event-source-polyfill": "^1.0.31",
     "eventsource": "^2.0.2",
-    "ws": "^8.18.0",
     "jsonwebtoken": "^9.0.2",
     "qs": "^6.11.0",
     "verror": "^1.10.1",
+    "ws": "^8.18.0",
     "zod": "^3.21.4"
   },
   "devDependencies": {

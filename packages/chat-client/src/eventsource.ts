@@ -46,9 +46,11 @@ export type Props = {
 
 type ServerEventsSource = EventSourceBrowser.EventSourcePolyfill | EventSourceNodeJs | WebSocket
 
+// TODO: fix grep catch
 const makeEventSource = (url: string, props: Props = {}) => {
   let source: ServerEventsSource
-  if (props.protocol === 'websocket') {
+  const isWebSocket = props.protocol === 'websocket'
+  if (isWebSocket) {
     if (props.headers?.['x-user-key']) {
       url = `${url}?x-user-key=${encodeURIComponent(props.headers['x-user-key'])}`
     }
@@ -71,7 +73,7 @@ const makeEventSource = (url: string, props: Props = {}) => {
   source.onopen = (ev: Event) => emitter.emit('open', ev)
   source.onmessage = (ev: MessageEvent) => emitter.emit('message', ev)
   source.onerror = (ev: Event) => emitter.emit('error', ev)
-  if (source instanceof WebSocket) {
+  if (isWebSocket) {
     source.onclose = (ev: Event) => emitter.emit('error', ev)
   }
   return {
