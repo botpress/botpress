@@ -15,6 +15,7 @@ export type WizardStep<THandlerProps extends HandlerProps> = {
 
 export type WizardStepInputProps = {
   selectedChoice?: string
+  selectedChoices?: string[]
   inputValue?: string
   formValues?: Record<string, string | number | boolean>
   query: URLSearchParams
@@ -26,6 +27,8 @@ export type WizardStepInputProps = {
       htmlOrMarkdownPageContents: string
       choices: { label: string; value: string }[]
       nextStepId: string
+      multiple?: boolean
+      defaultValues?: string[]
     }) => Response
     displayButtons: (props: {
       pageTitle: string
