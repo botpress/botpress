@@ -16,6 +16,7 @@
     "@botpress/sdk": "workspace:*"
   },
   "bpDependencies": {
-    "proactive-conversation": "../../interfaces/proactive-conversation"
+    "proactive-conversation": "../../interfaces/proactive-conversation",
+    "proactive-user": "../../interfaces/proactive-user"
   }
 }

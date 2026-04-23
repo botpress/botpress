@@ -1,5 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import proactiveConversation from 'bp_modules/proactive-conversation'
+import proactiveUser from 'bp_modules/proactive-user'
 
 const emailProps = {
   cc: sdk.z
@@ -35,6 +36,63 @@ export default new sdk.IntegrationDefinition({
           'Optional secret to verify inbound webhooks. Append ?secret=YOUR_SECRET to your Postmark webhook URL.'
         ),
     }),
+  },
+  actions: {
+    sendEmail: {
+      title: 'Send Email',
+      description: 'Send an email through Postmark',
+      input: {
+        schema: sdk.z
+          .object({
+            conversationInformation: sdk.z
+              .object({
+                rootEmailId: sdk.z
+                  .string()
+                  .optional()
+                  .describe('The ID of the root email in the thread')
+                  .title('Root Email ID'),
+                lastEmailId: sdk.z
+                  .string()
+                  .optional()
+                  .describe('The ID of the last email in the thread')
+                  .title('Last Email ID'),
+              })
+              .optional(),
+            userEmailAddress: sdk.z.string().describe('The recipient email address').title('Recipient Email Address'),
+            userName: sdk.z.string().optional().describe('The recipient name').title('Recipient Name'),
+            cc: sdk.z
+              .array(sdk.z.object({ email: sdk.z.string().email(), name: sdk.z.string().optional() }))
+              .optional()
+              .describe('The CC recipients of the initial email')
+              .title('CC Recipients'),
+            bcc: sdk.z
+              .array(sdk.z.object({ email: sdk.z.string().email(), name: sdk.z.string().optional() }))
+              .optional()
+              .describe('The BCC recipients of the initial email')
+              .title('BCC Recipients'),
+            subject: sdk.z
+              .string()
+              .optional()
+              .describe('The subject of the initial email')
+              .title('Initial Email Subject'),
+            text: sdk.z
+              .string()
+              .min(1)
+              .describe('The body of the initial email that opens the thread')
+              .title('Initial Email Body'),
+          })
+          .title('Conversation')
+          .describe('The conversation object fields'),
+      },
+      output: {
+        schema: sdk.z.object({
+          conversationId: sdk.z
+            .string()
+            .describe('The ID of the conversation associated with the email')
+            .title('Conversation ID'),
+        }),
+      },
+    },
   },
   user: {
     tags: {
@@ -112,56 +170,45 @@ export default new sdk.IntegrationDefinition({
     conversation: {
       title: 'Conversation',
       description: 'A postmark replyThread',
-      schema: sdk.z
-        .object({
-          conversationInformation: sdk.z
-            .object({
-              rootEmailId: sdk.z
-                .string()
-                .optional()
-                .describe('The ID of the root email in the thread')
-                .title('Root Email ID'),
-              lastEmailId: sdk.z
-                .string()
-                .optional()
-                .describe('The ID of the last email in the thread')
-                .title('Last Email ID'),
-            })
-            .optional(),
-          userEmailAddress: sdk.z.string().describe('The recipient email address').title('Recipient Email Address'),
-          userName: sdk.z.string().optional().describe('The recipient name').title('Recipient Name'),
-          cc: sdk.z
-            .array(sdk.z.object({ email: sdk.z.string().email(), name: sdk.z.string().optional() }))
-            .optional()
-            .describe('The CC recipients of the initial email')
-            .title('CC Recipients'),
-          bcc: sdk.z
-            .array(sdk.z.object({ email: sdk.z.string().email(), name: sdk.z.string().optional() }))
-            .optional()
-            .describe('The BCC recipients of the initial email')
-            .title('BCC Recipients'),
-          subject: sdk.z
+      schema: sdk.z.object({
+        conversationInformation: sdk.z.object({
+          rootEmailId: sdk.z
             .string()
             .optional()
-            .describe('The subject of the initial email')
-            .title('Initial Email Subject'),
-          text: sdk.z
+            .describe('The ID of the root email in the thread')
+            .title('Root Email ID'),
+          lastEmailId: sdk.z
             .string()
-            .min(1)
-            .describe('The body of the initial email that opens the thread')
-            .title('Initial Email Body'),
-        })
-        .title('Conversation')
-        .describe('The conversation object fields'),
+            .optional()
+            .describe('The ID of the last email in the thread')
+            .title('Last Email ID'),
+        }),
+      }),
+    },
+    user: {
+      title: 'User',
+      description: 'A user in the Postmark channel',
+      schema: sdk.z.object({}),
     },
   },
-}).extend(proactiveConversation, ({ entities }) => ({
-  entities: { conversation: entities.conversation },
-  actions: {
-    getOrCreateConversation: {
-      name: 'getOrCreateReplyThreadConversation',
-      title: 'Get or Create Reply Thread Conversation',
-      description: 'Get or create a conversation for a reply thread',
+})
+  .extend(proactiveConversation, ({ entities }) => ({
+    entities: { conversation: entities.conversation },
+    actions: {
+      getOrCreateConversation: {
+        name: 'getOrCreateReplyThreadConversation',
+        title: 'Get or Create Reply Thread Conversation',
+        description: 'Get or create a conversation for a reply thread',
+      },
     },
-  },
-}))
+  }))
+  .extend(proactiveUser, ({ entities }) => ({
+    entities: { user: entities.user },
+    actions: {
+      getOrCreateUser: {
+        name: 'getOrCreateUser',
+        title: 'Get or Create User',
+        description: 'Get or create a user in the Postmark channel',
+      },
+    },
+  }))

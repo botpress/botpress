@@ -179,9 +179,9 @@ export default new bp.Integration({
     }
   },
   actions: {
-    getOrCreateReplyThreadConversation: async (props) => {
+    sendEmail: async (props) => {
       const { client: bpClient, ctx, logger, input } = props
-      const { userEmailAddress, userName, cc, bcc, subject, text, conversationInformation } = input.conversation
+      const { userEmailAddress, userName, cc, bcc, subject, text, conversationInformation } = input
 
       const subjectLine = subject || '(No subject)'
       const pmClient = new pm.ServerClient(ctx.configuration.serverToken)
@@ -267,6 +267,34 @@ export default new bp.Integration({
       })
       logger.forBotOnly().debug(`Sent email message "${messageId}" in conversation "${conversationId}"`)
       return { conversationId }
+    },
+    getOrCreateReplyThreadConversation: async (props) => {
+      const { client: bpClient, logger, input } = props
+      const { conversationInformation } = input.conversation
+
+      const conversation = await resolveExistingConversation(bpClient, conversationInformation)
+      if (!conversation) {
+        throw new sdk.RuntimeError('No existing conversation found for the provided conversation information')
+      }
+
+      logger.forBotOnly().debug(`Resolved existing reply thread conversation "${conversation.id}"`)
+      return { conversationId: conversation.id }
+    },
+    getOrCreateUser: async (props) => {
+      const { client: bpClient, logger, input } = props
+      const { name, email } = input
+      if (!email || email.trim() === '') {
+        throw new sdk.RuntimeError('Email address is required to get or create a user')
+      }
+
+      const { user } = await bpClient.getOrCreateUser({
+        name: name || email,
+        tags: { emailAddress: email },
+        discriminateByTags: ['emailAddress'],
+      })
+
+      logger.forBotOnly().debug(`Resolved user with email "${email}" to user ID "${user.id}"`)
+      return { userId: user.id }
     },
   },
   channels: {
