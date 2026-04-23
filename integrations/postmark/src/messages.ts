@@ -10,6 +10,18 @@ export const escapeHtml = (str: string): string =>
 
 export const textToHtml = (str: string): string => escapeHtml(str).replace(/\r\n|\r|\n/g, '<br>')
 
+export const sanitizeHttpUrl = (url: string): string | undefined => {
+  try {
+    const parsed = new URL(url)
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return url
+    }
+  } catch {
+    // invalid URL
+  }
+  return undefined
+}
+
 const CONTENT_TYPE_EXTENSIONS: Record<string, string> = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
@@ -230,9 +242,10 @@ export const messages: MessageHandlers = {
       htmlBody += '<p>'
       textBody += '\n'
       for (const action of payload.actions) {
-        if (action.action === 'url') {
-          htmlBody += `<a href="${escapeHtml(action.value)}">${escapeHtml(action.label)}</a><br>`
-          textBody += `\n- ${action.label}: ${action.value}`
+        const safeUrl = action.action === 'url' ? sanitizeHttpUrl(action.value) : undefined
+        if (safeUrl) {
+          htmlBody += `<a href="${escapeHtml(safeUrl)}">${escapeHtml(action.label)}</a><br>`
+          textBody += `\n- ${action.label}: ${safeUrl}`
         } else {
           htmlBody += `${escapeHtml(action.label)}<br>`
           textBody += `\n- ${action.label}`
@@ -283,9 +296,10 @@ export const messages: MessageHandlers = {
         itemHtml += '<p>'
         itemText += '\n'
         for (const action of item.actions) {
-          if (action.action === 'url') {
-            itemHtml += `<a href="${escapeHtml(action.value)}">${escapeHtml(action.label)}</a><br>`
-            itemText += `\n- ${action.label}: ${action.value}`
+          const safeUrl = action.action === 'url' ? sanitizeHttpUrl(action.value) : undefined
+          if (safeUrl) {
+            itemHtml += `<a href="${escapeHtml(safeUrl)}">${escapeHtml(action.label)}</a><br>`
+            itemText += `\n- ${action.label}: ${safeUrl}`
           } else {
             itemHtml += `${escapeHtml(action.label)}<br>`
             itemText += `\n- ${action.label}`

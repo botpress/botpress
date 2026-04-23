@@ -145,8 +145,9 @@ export default new bp.Integration({
       : webhookUrl
 
     if (server.InboundHookUrl && !server.InboundHookUrl.startsWith(webhookUrl)) {
+      const displayUrl = server.InboundHookUrl.split('?')[0]
       throw new sdk.RuntimeError(
-        `Postmark server already has an Inbound Hook URL set to "${server.InboundHookUrl}". Clear it in the Postmark dashboard before installing this integration.`
+        `Postmark server already has an Inbound Hook URL set to "${displayUrl}". Clear it in the Postmark dashboard before installing this integration.`
       )
     }
 
