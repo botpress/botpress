@@ -9,6 +9,7 @@ import { Options, options } from './options'
 import { CompositeSignalEmiter, PushpinEmitter, SignalEmitter, WebhookEmitter } from './signal-emitter'
 import { initTracing, normalizePath, runWithSpan, setSpanAttributes, SPAN_ATTRS } from './tracing'
 import { MessageArgs, ActionArgs } from './types'
+import { startMetricsServer } from './metrics-server'
 import * as bp from '.botpress'
 
 const tracingProvider = initTracing()
@@ -156,7 +157,11 @@ const emitEvent = async (args: ActionArgs) => {
   })
 }
 
-export default new bp.Integration({
+class IntegrationWithMetrics extends bp.Integration {
+  public startMetricsServer = startMetricsServer
+}
+
+export default new IntegrationWithMetrics({
   register: async () => {},
   unregister: async () => {},
   __advanced: {
