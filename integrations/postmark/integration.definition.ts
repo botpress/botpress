@@ -57,7 +57,9 @@ export default new sdk.IntegrationDefinition({
                   .describe('The ID of the last email in the thread')
                   .title('Last Email ID'),
               })
-              .optional(),
+              .optional()
+              .describe('Information about the conversation thread, used to group emails into threads')
+              .title('Conversation Information'),
             userEmailAddress: sdk.z.string().describe('The recipient email address').title('Recipient Email Address'),
             userName: sdk.z.string().optional().describe('The recipient name').title('Recipient Name'),
             cc: sdk.z
@@ -171,18 +173,21 @@ export default new sdk.IntegrationDefinition({
       title: 'Conversation',
       description: 'A postmark replyThread',
       schema: sdk.z.object({
-        conversationInformation: sdk.z.object({
-          rootEmailId: sdk.z
-            .string()
-            .optional()
-            .describe('The ID of the root email in the thread')
-            .title('Root Email ID'),
-          lastEmailId: sdk.z
-            .string()
-            .optional()
-            .describe('The ID of the last email in the thread')
-            .title('Last Email ID'),
-        }),
+        conversationInformation: sdk.z
+          .object({
+            rootEmailId: sdk.z
+              .string()
+              .optional()
+              .describe('The ID of the root email in the thread')
+              .title('Root Email ID'),
+            lastEmailId: sdk.z
+              .string()
+              .optional()
+              .describe('The ID of the last email in the thread')
+              .title('Last Email ID'),
+          })
+          .describe('Information about the conversation thread, used to group emails into threads')
+          .title('Conversation Information'),
       }),
     },
     user: {
