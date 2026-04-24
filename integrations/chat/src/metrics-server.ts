@@ -24,5 +24,7 @@ export const startMetricsServer = (port: number) => {
     console.error(`Metrics server failed to start: ${err.message}`)
   })
 
-  server.listen(port, () => {})
+  server.listen(port, () => {
+    console.log(`Metrics server listening on port ${port}`)
+  })
 }
