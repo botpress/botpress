@@ -36,20 +36,13 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
 
   const preparedBody: PreparedBody = {}
 
-  // Determine how to pass the user to the Botpress API:
-  //   Case A: No x-user-key header → create a new user (userId is undefined)
-  //   Case B: x-user-key encodes a Botpress internal ID (user_<ULID>) → user was created via
-  //           createUser({}) without an explicit FID; use the ID directly without a store lookup
-  //   Case C: x-user-key encodes an external FID → look up in the store
-  //           - If found: existing user, pass userId
-  //           - If not found: brand-new FID, create a new user
-  const INTERNAL_USER_ID_RE = /^user_[0-9A-HJKMNP-TV-Z]{26}$/
-  const authUserId: string | undefined =
+  // Resolve the internal user ID explicitly: check the FID store first, then the SDK by ID (for
+  // users created without an explicit FID whose key encodes the internal ID directly).
+  const authUserId =
     userId !== undefined
-      ? INTERNAL_USER_ID_RE.test(userId)
-        ? userId // Case B: internal ID, no store lookup needed
-        : await props.userIdStore.byFid.find(userId) // Case C: external FID
-      : undefined // Case A: no key
+      ? ((await props.userIdStore.byFid.find(userId)) ??
+        (await props.apiUtils.findUser({ id: userId }).then((res) => res.user?.id)))
+      : undefined
 
   if (authUserId !== undefined) {
     preparedBody.userId = authUserId
