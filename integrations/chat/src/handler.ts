@@ -15,12 +15,13 @@ export const makeHandler =
   (props: api.OperationTools): Handler =>
   async (args) => {
     if (args.req.method.toLowerCase() === 'options') {
+      // preflight request
       return {
         status: 200,
       }
     }
 
-    if (!isPushpinRequest(args.req) && args.req.path !== '/metrics') {
+    if (!isPushpinRequest(args.req)) {
       const message =
         'Chat API should be called from the chat domain "chat.botpress.cloud" not directly from the webhook domain "webhook.botpress.cloud".'
       return {

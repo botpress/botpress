@@ -1,7 +1,9 @@
 import * as http from 'http'
+import { collectDefaultMetrics } from 'prom-client'
 import { registry } from './metrics'
 
 export const startMetricsServer = (port: number) => {
+  collectDefaultMetrics({ register: registry })
   const server = http.createServer((req, res) => {
     void (async () => {
       if (req.url === '/health') {
