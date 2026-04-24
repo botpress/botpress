@@ -1679,6 +1679,22 @@ importers:
         specifier: workspace:*
         version: link:../../packages/common
 
+  integrations/postmark:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      postmark:
+        specifier: ^4.0.7
+        version: 4.0.7
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   integrations/resend:
     dependencies:
       '@botpress/client':
@@ -10804,6 +10820,9 @@ packages:
   posthog-node@5.14.1:
     resolution: {integrity: sha512-NbqZMCwHectzfeFOeLqes1fPg/V5bsKhrBfyH1qHEcDb4ZHcbDARcqLE6JDhwMDQKa4YHkInXHITYscMuPylFw==}
     engines: {node: '>=20'}
+
+  postmark@4.0.7:
+    resolution: {integrity: sha512-DjNniUl1XNCGUKhCR98ePd5gv16rlUAVKKaU9TUqnE3hDSqfT9XDulu1idjagQmdyGscqnRtXk/puAEiYMeevg==}
 
   preact-render-to-string@6.5.13:
     resolution: {integrity: sha512-iGPd+hKPMFKsfpR2vL4kJ6ZPcFIoWZEcBf0Dpm3zOpdVvj77aY8RlLiQji5OMrngEyaxGogeakTb54uS2FvA6w==}
@@ -22021,6 +22040,12 @@ snapshots:
   posthog-node@5.14.1:
     dependencies:
       '@posthog/core': 1.6.0
+
+  postmark@4.0.7:
+    dependencies:
+      axios: 1.13.6
+    transitivePeerDependencies:
+      - debug
 
   preact-render-to-string@6.5.13(preact@10.26.6):
     dependencies:
