@@ -1,5 +1,41 @@
+import axios from 'axios'
 import { SlackClient } from 'src/slack-api'
 import * as bp from '.botpress'
+
+const _extractBotpressFileId = (url: string): string | undefined => {
+  try {
+    const pathname = new URL(url).pathname
+    const last = pathname.split('/').filter(Boolean).pop()
+    return last ? decodeURIComponent(last) : undefined
+  } catch {
+    return undefined
+  }
+}
+
+export const downloadBotpressFile = async (
+  url: string,
+  client: bp.Client,
+  logger: bp.Logger
+): Promise<{ buffer: Buffer; filename: string }> => {
+  let downloadUrl = url
+  let filename = _extractBotpressFileId(url) ?? 'file'
+
+  const fileId = _extractBotpressFileId(url)
+  if (fileId) {
+    try {
+      const { file } = await client.getFile({ id: fileId })
+      downloadUrl = file.url
+      filename = file.key.split('/').pop() ?? filename
+    } catch (error) {
+      logger
+        .forBot()
+        .debug('Could not resolve file through Botpress Files API, falling back to direct URL download', { error })
+    }
+  }
+
+  const response = await axios.get<ArrayBuffer>(downloadUrl, { responseType: 'arraybuffer' })
+  return { buffer: Buffer.from(response.data), filename }
+}
 
 export const isValidUrl = (str: string) => {
   try {
