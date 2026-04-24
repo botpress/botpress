@@ -1,4 +1,4 @@
-export { Events, BotpressClientLike } from './types'
+export { Events, BotpressClientLike, CognitiveLike } from './types'
 export * from './client'
 export { ModelPreferences, ModelProvider, RemoteModelProvider, Model } from './models'
 export { type GenerateContentInput, type GenerateContentOutput } from './schemas.gen'

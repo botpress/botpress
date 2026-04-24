@@ -1,9 +1,7 @@
 import { Client } from '@botpress/client'
-import { BotpressClientLike, Cognitive, Model, Models } from '@botpress/cognitive'
-
+import { Cognitive, type BotpressClientLike, type CognitiveLike, type Model, type Models } from '@botpress/cognitive'
 import { type TextTokenizer, getWasmTokenizer } from '@bpinternal/thicktoken'
 import { z } from '@bpinternal/zui'
-
 import { Adapter } from './adapters/adapter'
 import { TableAdapter } from './adapters/botpress-table'
 import { MemoryAdapter } from './adapters/memory'
@@ -88,7 +86,7 @@ const _ActiveLearning = z.object({
  */
 export type ZaiConfig = {
   /** Botpress client or Cognitive client instance */
-  client: BotpressClientLike | Cognitive
+  client: BotpressClientLike | CognitiveLike
   /** Optional user ID for tracking and attribution */
   userId?: string
   /** Model to use: 'best' (default), 'fast', or specific model like 'openai:gpt-4' */
@@ -110,7 +108,7 @@ export type ZaiConfig = {
 }
 
 const _ZaiConfig = z.object({
-  client: z.custom<BotpressClientLike | Cognitive>(),
+  client: z.custom<BotpressClientLike | CognitiveLike>(),
   userId: z.string().describe('The ID of the user consuming the API').optional(),
   modelId: z
     .custom<Models>(
@@ -205,7 +203,7 @@ const _ZaiConfig = z.object({
  */
 export class Zai {
   protected static tokenizer: TextTokenizer = null!
-  protected client: Cognitive
+  protected client: CognitiveLike
 
   private _originalConfig: ZaiConfig
 
@@ -243,9 +241,7 @@ export class Zai {
     this._originalConfig = config
     const parsed = _ZaiConfig.parse(config) as ZaiConfig
 
-    this.client = Cognitive.isCognitiveClient(parsed.client)
-      ? (parsed.client as unknown as Cognitive)
-      : new Cognitive({ client: parsed.client })
+    this.client = this._isCogitive(parsed.client) ? parsed.client : new Cognitive({ client: parsed.client })
 
     this.namespace = parsed.namespace
     this._userId = parsed.userId
@@ -254,7 +250,7 @@ export class Zai {
 
     this.adapter = parsed.activeLearning?.enable
       ? new TableAdapter({
-          client: this.client.client as unknown as Client,
+          client: this.client.client as Client,
           tableName: parsed.activeLearning.tableName,
         })
       : new MemoryAdapter([])
@@ -262,10 +258,13 @@ export class Zai {
     this._memoize = config.memoize
   }
 
+  private _isCogitive = (client: BotpressClientLike | CognitiveLike): client is CognitiveLike =>
+    Cognitive.isCognitiveClient(client)
+
   /** @internal */
   protected async callModel(
-    props: Parameters<Cognitive['generateContent']>[0]
-  ): ReturnType<Cognitive['generateContent']> {
+    props: Parameters<CognitiveLike['generateContent']>[0]
+  ): ReturnType<CognitiveLike['generateContent']> {
     return this.client.generateContent({
       reasoningEffort: 'none',
       ...props,
