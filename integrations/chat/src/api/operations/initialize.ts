@@ -36,8 +36,13 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
 
   const preparedBody: PreparedBody = {}
 
-  if (request.auth.userId !== '') {
-    preparedBody.userId = request.auth.userId
+  // Resolve the internal user ID via the FID store. createUser always stores a mapping (using the
+  // internal ID as key when no explicit FID is provided), so find() returning undefined means this
+  // is a genuinely new user whose key has never been registered.
+  const authUserId = userId !== undefined ? await props.userIdStore.byFid.find(userId) : undefined
+
+  if (authUserId !== undefined) {
+    preparedBody.userId = authUserId
   } else {
     preparedBody.user = {
       ...request.body.user,
