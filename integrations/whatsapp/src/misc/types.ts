@@ -147,8 +147,22 @@ const WhatsAppMessageSchema = z.union([
     }),
   }),
   WhatsAppBaseMessageSchema.extend({
+    type: z.literal('order'),
+    order: z.object({
+      catalog_id: z.string(),
+      text: z.string().optional(),
+      product_items: z.array(
+        z.object({
+          product_retailer_id: z.string(),
+          quantity: z.number(),
+          item_price: z.number(),
+          currency: z.string(),
+        })
+      ),
+    }),
+  }),
+  WhatsAppBaseMessageSchema.extend({
     type: z.union([
-      z.literal('order'),
       z.literal('system'),
       z.literal('unknown'),
       z.literal('unsupported'), // not documented but can be received
