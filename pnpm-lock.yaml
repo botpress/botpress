@@ -2658,8 +2658,8 @@ importers:
         specifier: ^11.7.0
         version: 11.7.0
       '@botpress/chat':
-        specifier: 0.5.5
-        version: 0.5.5
+        specifier: 0.6.0
+        version: link:../chat-client
       '@botpress/client':
         specifier: 1.41.0
         version: link:../client
@@ -4175,10 +4175,6 @@ packages:
 
   '@botpress/api@1.90.0':
     resolution: {integrity: sha512-MzOjBOyMIkKOi6P6k3chpiTdHIl8PMNLcgdnkua7XTOrnLu3751ntsJcmhSHmaJnQdVwQiys+hHmzBuY3mQx1g==}
-
-  '@botpress/chat@0.5.5':
-    resolution: {integrity: sha512-KgKhDi5pwG0QVg9ULq/oW+5uzaA8Ht42KOPh42LuK96niomNlDzPbM+b3ix7zp16KLDGkzCOO7oo8HuouLfNmw==}
-    engines: {node: '>=18.0.0'}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -13946,19 +13942,6 @@ snapshots:
       - debug
       - openapi-types
       - supports-color
-
-  '@botpress/chat@0.5.5':
-    dependencies:
-      axios: 1.2.5
-      browser-or-node: 2.1.1
-      event-source-polyfill: 1.0.31
-      eventsource: 2.0.2
-      jsonwebtoken: 9.0.2
-      qs: 6.15.0
-      verror: 1.10.1
-      zod: 3.25.76
-    transitivePeerDependencies:
-      - debug
 
   '@bpinternal/const@0.1.0': {}
 
@@ -24013,7 +23996,8 @@ snapshots:
 
   zod@3.24.2: {}
 
-  zod@3.25.76: {}
+  zod@3.25.76:
+    optional: true
 
   zwitch@1.0.5: {}
 
