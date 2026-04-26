@@ -38,9 +38,7 @@ export const handlers = {
     mapResponse: async (res) => {
       const id = res.body.user.id
       const fid = req.body.id
-      if (fid) {
-        await props.userIdStore.byFid.set(fid, id)
-      }
+      await props.userIdStore.byFid.set(fid ?? id, id)
       return merge(res, {
         body: {
           user: {
