@@ -38,9 +38,7 @@ export const handlers = {
     mapResponse: async (res) => {
       const id = res.body.user.id
       const fid = req.body.id
-      if (fid) {
-        await props.userIdStore.byFid.set(fid, id)
-      }
+      await props.userIdStore.byFid.set(fid ?? id, id)
       return merge(res, {
         body: {
           user: {
@@ -459,5 +457,42 @@ export const handlers = {
           },
         },
       }),
+  }),
+  initializeIncomingMessage: (
+    props: types.OperationProps,
+    req: types.AuthenticatedInputs['initializeIncomingMessage']
+  ) => ({
+    mapRequest: async () => {
+      let authUserId: string | undefined = undefined
+      let conversationId = undefined
+      if (req.body.conversationId) {
+        conversationId = await props.convIdStore.byFid.get(req.body.conversationId)
+      }
+      if (req.auth.userId !== '') {
+        authUserId = await props.userIdStore.byFid.find(req.auth.userId)
+      }
+
+      type PartialInitializeIncomingMessageBody = Partial<types.OperationInputs['initializeIncomingMessage']['body']>
+      return merge(req, {
+        auth: { userId: authUserId ?? '' },
+        body: {
+          conversationId,
+        } satisfies PartialInitializeIncomingMessageBody as PartialInitializeIncomingMessageBody,
+      })
+    },
+    mapResponse: async (res) => {
+      const userIdPromise = props.userIdStore.byId.get(res.body.user.id)
+      const conversationIdPromise = props.convIdStore.byId.get(res.body.conversation.id)
+
+      const [userId, conversationId] = await Promise.all([userIdPromise, conversationIdPromise])
+
+      return merge(res, {
+        body: {
+          user: { ...res.body.user, id: userId },
+          conversation: { ...res.body.conversation, id: conversationId },
+          message: res.body.message ? { ...res.body.message, userId, conversationId } : undefined,
+        },
+      })
+    },
   }),
 } satisfies FidHandlers
