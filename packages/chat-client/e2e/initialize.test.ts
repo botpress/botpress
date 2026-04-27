@@ -113,7 +113,7 @@ test('api allows reusing a self-encrypted user key with initialize', async () =>
 
   const initializeResponse = await client.initializeIncomingMessage({ 'x-user-key': userKey })
 
-  expect(initializeResponse.user.id).toBe(user.user.id)
+  expect(initializeResponse.user.id).toEqual(userId)
   expect(initializeResponse.conversation).toEqual(expect.objectContaining({ id: expect.any(String) }))
   expect(initializeResponse.message).toBeUndefined()
 })
