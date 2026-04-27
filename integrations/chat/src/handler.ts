@@ -36,19 +36,21 @@ export const makeHandler =
 
     const { auth, signals, convIdStore, userIdStore, apiUtils } = props
     const start = performance.now()
-    const response = await handleRequest(routes, {
-      ...args,
-      auth,
-      signals,
-      convIdStore,
-      userIdStore,
-      apiUtils,
-    })
-    const durationSeconds = (performance.now() - start) / 1000
-
-    const statusCode = String(response.status ?? 200)
-    httpRequestsTotal.inc({ method, status_code: statusCode, path: normalizedPath })
-    httpRequestDuration.observe({ method, status_code: statusCode, path: normalizedPath }, durationSeconds)
-
-    return response
+    let statusCode = '500'
+    try {
+      const response = await handleRequest(routes, {
+        ...args,
+        auth,
+        signals,
+        convIdStore,
+        userIdStore,
+        apiUtils,
+      })
+      statusCode = String(response.status ?? 200)
+      return response
+    } finally {
+      const durationSeconds = (performance.now() - start) / 1000
+      httpRequestsTotal.inc({ method, status_code: statusCode, path: normalizedPath })
+      httpRequestDuration.observe({ method, status_code: statusCode, path: normalizedPath }, durationSeconds)
+    }
   }
