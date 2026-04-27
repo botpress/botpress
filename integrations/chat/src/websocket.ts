@@ -29,14 +29,14 @@ const extractRequestIdentifiers = async (props: api.OperationTools, req: Request
   }
   const userKey = queries['x-user-key']
 
-  const urlParts = req.path.split('/').splice(1)
-  if (urlParts.length !== 3) {
+  const _convId = req.path.split('/').splice(1)[1]
+  if (_convId === undefined) {
     throw new errors.InternalError('An unexpected error occurred.')
   }
   const _userId = props.auth.parseKey(userKey).id
   const [userId, conversationId] = await Promise.all([
     props.userIdStore.byFid.get(_userId),
-    props.convIdStore.byFid.get(urlParts[1]!),
+    props.convIdStore.byFid.get(_convId),
   ])
 
   return {

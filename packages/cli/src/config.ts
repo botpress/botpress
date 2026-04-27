@@ -84,9 +84,17 @@ const pluginRef = {
   description: 'The plugin ID or name and version. Ex: knowledge@0.0.1',
 } satisfies CommandOption
 
-const sourceMap = { type: 'boolean', description: 'Generate sourcemaps', default: false } satisfies CommandOption
+const sourceMap = {
+  type: 'boolean',
+  description: 'Generate sourcemaps',
+  default: false,
+} satisfies CommandOption
 
-const minify = { type: 'boolean', description: 'Minify the bundled code', default: true } satisfies CommandOption
+const minify = {
+  type: 'boolean',
+  description: 'Minify the bundled code',
+  default: true,
+} satisfies CommandOption
 
 const dev = {
   type: 'boolean',
@@ -176,7 +184,10 @@ const deploySchema = {
   botId: { type: 'string', description: 'The bot ID to deploy. Only used when deploying a bot' },
   noBuild,
   dryRun,
-  createNewBot: { type: 'boolean', description: 'Create a new bot when deploying. Only used when deploying a bot' },
+  createNewBot: {
+    type: 'boolean',
+    description: 'Create a new bot when deploying. Only used when deploying a bot',
+  },
   sourceMap,
   minify,
   visibility: {
@@ -197,7 +208,10 @@ const deploySchema = {
     description: 'Allow deprecated features in the project',
     default: false,
   },
-  url: { type: 'string', description: 'Custom URL for the integration. Only used when deploying an integration' },
+  url: {
+    type: 'string',
+    description: 'Custom URL for the integration. Only used when deploying an integration',
+  },
 } as const satisfies CommandSchema
 
 const devSchema = {
@@ -248,7 +262,12 @@ const removeSchema = {
   ...globalSchema,
   ...credentialsSchema,
   workDir,
-  alias: { idx: 0, positional: true, type: 'string', description: 'The alias of the package to uninstall' },
+  alias: {
+    idx: 0,
+    positional: true,
+    type: 'string',
+    description: 'The alias of the package to uninstall',
+  },
 } satisfies CommandSchema
 
 const loginSchema = {
@@ -382,18 +401,26 @@ const chatSchema = {
   protocol: {
     choices: ['sse', 'websocket'] satisfies ReadonlyArray<ServerEventsProtocol>,
     default: 'sse' as const,
-    description: 'The protocol to use to join the chat server',
+    description: 'The protocol to use for long lived connections',
   },
 } satisfies CommandSchema
 
 const listProfilesSchema = {
   ...globalSchema,
-  displayToken: { type: 'boolean', description: 'Display the token in each of the bp profiles', default: false },
+  displayToken: {
+    type: 'boolean',
+    description: 'Display the token in each of the bp profiles',
+    default: false,
+  },
 } satisfies CommandSchema
 
 const activeProfileSchema = {
   ...globalSchema,
-  displayToken: { type: 'boolean', description: 'Display the token in the bp profile', default: false },
+  displayToken: {
+    type: 'boolean',
+    description: 'Display the token in the bp profile',
+    default: false,
+  },
 } satisfies CommandSchema
 
 const useProfileSchema = {
@@ -414,7 +441,11 @@ const getProfileSchema = {
     positional: true,
     idx: 0,
   },
-  displayToken: { type: 'boolean', description: 'Display the token in the bp profile', default: false },
+  displayToken: {
+    type: 'boolean',
+    description: 'Display the token in the bp profile',
+    default: false,
+  },
 } satisfies CommandSchema
 
 // exports

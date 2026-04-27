@@ -6,7 +6,7 @@ import * as chat from '../src'
 
 const apiUrl = config.get('API_URL')
 const encryptionKey = config.get('ENCRYPTION_KEY')
-const conversationProtocols = ['sse', 'websocket'] as const
+const serverEventsProtocols = ['sse', 'websocket'] as const
 
 type CheckApiCanSendAndReceiveMessagesProps = {
   client: chat.AuthenticatedClient
@@ -61,7 +61,7 @@ const checkApiCanSendAndReceiveMessages = async (
   return messageReceived.payload
 }
 
-test.each(conversationProtocols)('api allows sending and receiving messages using botpress IDs', async (protocol) => {
+test.each(serverEventsProtocols)('api allows sending and receiving messages using botpress IDs', async (protocol) => {
   const client = await chat.Client.connect({ apiUrl })
 
   const {
@@ -81,7 +81,7 @@ test.each(conversationProtocols)('api allows sending and receiving messages usin
   )
 })
 
-test.each(conversationProtocols)('api allows sending and receiving messages using foreign IDs', async (protocol) => {
+test.each(serverEventsProtocols)('api allows sending and receiving messages using foreign IDs', async (protocol) => {
   const userId = utils.getUserFid()
   const conversationId = utils.getConversationFid()
   const client = await chat.Client.connect({ apiUrl, userId })
@@ -101,7 +101,7 @@ test.each(conversationProtocols)('api allows sending and receiving messages usin
   )
 })
 
-test.each(conversationProtocols)(
+test.each(serverEventsProtocols)(
   'api allows sending and receiving messages using remotly generated JWTs',
   async (protocol) => {
     const userId = utils.getUserFid()
@@ -125,7 +125,7 @@ test.each(conversationProtocols)(
   }
 )
 
-test.each(conversationProtocols)('api allows deleting a message', async (protocol) => {
+test.each(serverEventsProtocols)('api allows deleting a message', async (protocol) => {
   const client = await chat.Client.connect({ apiUrl })
   const { conversation } = await client.createConversation({})
 
@@ -164,7 +164,7 @@ test.each(conversationProtocols)('api allows deleting a message', async (protoco
   ).rejects.toThrow(chat.ResourceNotFoundError)
 })
 
-test.each(conversationProtocols)('api allows sending and receiving messages with metadata', async (protocol) => {
+test.each(serverEventsProtocols)('api allows sending and receiving messages with metadata', async (protocol) => {
   type Message = Awaited<ReturnType<chat.Client['listMessages']>>['messages'][number]
   const metadata = { foo: 'bar' }
 
@@ -219,7 +219,7 @@ test.each(conversationProtocols)('api allows sending and receiving messages with
   expect(fetchedSelfMessage!.metadata).toEqual(metadata)
 })
 
-test.each(conversationProtocols)('api allows sending bloc messages', async (protocol) => {
+test.each(serverEventsProtocols)('api allows sending bloc messages', async (protocol) => {
   const client = await chat.Client.connect({ apiUrl })
 
   const {
@@ -248,7 +248,7 @@ test.each(conversationProtocols)('api allows sending bloc messages', async (prot
   )
 })
 
-test.each(conversationProtocols)('api allows receiving bloc messages from bot', async (protocol) => {
+test.each(serverEventsProtocols)('api allows receiving bloc messages from bot', async (protocol) => {
   const client = await chat.Client.connect({ apiUrl })
 
   const {

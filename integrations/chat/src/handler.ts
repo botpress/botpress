@@ -33,11 +33,18 @@ export const makeHandler =
     if (websocket.isWebSocketRequest(args.req) && args.req.body) {
       try {
         return await websocket.handleWebSocketRequest(props, args.req)
-      } catch (e: unknown) {
-        const error = errors.errorFrom(e)
+      } catch (thrown: unknown) {
+        if (errors.isApiError(thrown)) {
+          return {
+            status: thrown.code,
+            body: JSON.stringify(thrown.toJSON()),
+          }
+        }
         return {
-          status: error.code,
-          body: JSON.stringify(error.toJSON()),
+          status: 500,
+          body: JSON.stringify({
+            message: thrown instanceof Error ? thrown.message : 'Unknown error',
+          }),
         }
       }
     }
