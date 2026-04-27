@@ -205,6 +205,18 @@ export class LinearOauthClient {
   }
 }
 
+const _findWebhookByUrl = async (linearClient: LinearClient, url: string) => {
+  let page = await linearClient.webhooks()
+  do {
+    const match = page.nodes.find((w) => w.url === url)
+    if (match) {
+      return match
+    }
+    page = await page.fetchNext()
+  } while (page.pageInfo.hasNextPage)
+  return undefined
+}
+
 export const unregisterWebhook = async ({
   linearClient,
   logger,
@@ -214,8 +226,7 @@ export const unregisterWebhook = async ({
   logger: bp.Logger
   url: string
 }) => {
-  const existingWebhooks = await linearClient.webhooks()
-  const webhook = existingWebhooks.nodes.find((w) => w.url === url)
+  const webhook = await _findWebhookByUrl(linearClient, url)
   if (!webhook) {
     logger.forBot().info('No Linear webhook found to unregister, skipping...')
     return
@@ -235,8 +246,8 @@ const _registerWebhook = async ({
   logger: bp.Logger
   url: string
 }) => {
-  const existingWebhooks = await linearClient.webhooks()
-  if (existingWebhooks.nodes.some((w) => w.url === url)) {
+  const existing = await _findWebhookByUrl(linearClient, url)
+  if (existing) {
     logger.forBot().info('Linear webhook already registered, skipping...')
     return
   }
