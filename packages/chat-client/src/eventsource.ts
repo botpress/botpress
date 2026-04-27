@@ -93,6 +93,9 @@ export const listenEventSource = async (url: string, props: Props = {}): Promise
     emitter.on('error', (thrown) => {
       reject(thrown)
     })
+    emitter.on('close', () => {
+      reject(new Error('Connection closed before opening'))
+    })
   }).finally(() => emitter.cleanup())
 
   return {
