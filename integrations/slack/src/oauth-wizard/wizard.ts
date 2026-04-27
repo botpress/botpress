@@ -44,7 +44,7 @@ const _manualCredentialsForm = {
   pageTitle: 'Slack App Credentials',
   htmlOrMarkdownPageContents:
     'Enter your Slack app credentials.<br>' +
-    'You can find these in the <a href="https://api.slack.com/apps" target="_blank">app admin panel</a> under <strong>Basic Information</strong>.',
+    'You can find these in the <a href="https://api.slack.com/apps" target="_blank">app admin panel</a> under each application\'s <strong>Basic Information</strong>.',
   schema: _manualCredentialsSchema,
   nextStepId: 'save-manual-credentials',
 }
@@ -52,8 +52,8 @@ const _manualCredentialsForm = {
 const _manifestConfigForm = {
   pageTitle: 'Slack App Configuration',
   htmlOrMarkdownPageContents:
-    'Enter your Slack App Configuration Refresh Token and a name for your app.<br>' +
-    'You can generate tokens at <a href="https://api.slack.com/apps" target="_blank">api.slack.com/apps</a>.',
+    'Generate an App Configuration in the <a href="https://api.slack.com/apps" target="_blank">app admin panel</a>, near the bottom of the page.<br>' + 
+    'Enter your Slack App Configuration Refresh Token, and a name for your app.',
   schema: _manifestConfigSchema,
   nextStepId: 'create-app',
 }
@@ -79,9 +79,9 @@ const _startHandler: WizardHandler = ({ responses }) => {
     pageTitle: 'Slack Integration Setup',
     htmlOrMarkdownPageContents: 'Choose how you would like to configure your Slack integration:',
     choices: [
-      { label: 'Use the default Botpress Slack Application', value: 'default' },
+      { label: 'Connect with OAuth', value: 'default' },
       { label: 'Configure a new Slack Application', value: 'manifest' },
-      { label: 'Use an already existing Slack Application', value: 'manual' },
+      { label: 'Use existing Slack Application Credentials', value: 'manual' },
     ],
     nextStepId: 'route-choice',
   })
