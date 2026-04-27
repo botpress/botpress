@@ -75,7 +75,9 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
   }
 
   const conversationFidKey = req.body.conversationId ?? initializeResponse.conversation.id
-  await props.convIdStore.byFid.set(conversationFidKey, initializeResponse.conversation.id)
+  if (!req.body.conversationId) {
+    await props.convIdStore.byFid.set(conversationFidKey, initializeResponse.conversation.id)
+  }
 
   if (!req.body.conversationId) {
     await props.client.updateConversation({
