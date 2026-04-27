@@ -207,14 +207,16 @@ export class LinearOauthClient {
 
 const _findWebhookByUrl = async (linearClient: LinearClient, url: string) => {
   let page = await linearClient.webhooks()
-  do {
+  while (true) {
     const match = page.nodes.find((w) => w.url === url)
     if (match) {
       return match
     }
+    if (!page.pageInfo.hasNextPage) {
+      return undefined
+    }
     page = await page.fetchNext()
-  } while (page.pageInfo.hasNextPage)
-  return undefined
+  }
 }
 
 export const unregisterWebhook = async ({
