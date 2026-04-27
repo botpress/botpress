@@ -205,6 +205,27 @@ export class LinearOauthClient {
   }
 }
 
+export const unregisterWebhook = async ({
+  linearClient,
+  logger,
+  url,
+}: {
+  linearClient: LinearClient
+  logger: bp.Logger
+  url: string
+}) => {
+  const existingWebhooks = await linearClient.webhooks()
+  const webhook = existingWebhooks.nodes.find((w) => w.url === url)
+  if (!webhook) {
+    logger.forBot().info('No Linear webhook found to unregister, skipping...')
+    return
+  }
+
+  logger.forBot().info('Unregistering Linear webhook...')
+  await linearClient.deleteWebhook(webhook.id)
+  logger.forBot().info('Linear webhook unregistered successfully.')
+}
+
 const _registerWebhook = async ({
   linearClient,
   logger,
@@ -255,5 +276,10 @@ export const handleOauth = async ({ req, ctx, client, logger }: bp.HandlerProps)
   await client.configureIntegration({ identifier: organization.id, scheduleRegisterCall: 'monthly' })
 
   const webhookUrl = `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
-  await _registerWebhook({ linearClient, logger, url: webhookUrl })
+  try {
+    await _registerWebhook({ linearClient, logger, url: webhookUrl })
+  } catch (thrown) {
+    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    logger.forBot().warn('Failed to register webhook:', errorMessage)
+  }
 }
