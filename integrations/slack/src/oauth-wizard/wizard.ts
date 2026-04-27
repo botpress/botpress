@@ -52,7 +52,7 @@ const _manualCredentialsForm = {
 const _manifestConfigForm = {
   pageTitle: 'Slack App Configuration',
   htmlOrMarkdownPageContents:
-    'Generate an App Configuration in the <a href="https://api.slack.com/apps" target="_blank">app admin panel</a>, near the bottom of the page.<br>' + 
+    'Generate an App Configuration in the <a href="https://api.slack.com/apps" target="_blank">app admin panel</a>, near the bottom of the page.<br>' +
     'Enter your Slack App Configuration Refresh Token, and a name for your app.',
   schema: _manifestConfigSchema,
   nextStepId: 'create-app',
