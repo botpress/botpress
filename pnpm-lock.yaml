@@ -2580,9 +2580,6 @@ importers:
       verror:
         specifier: ^1.10.1
         version: 1.10.1
-      ws:
-        specifier: ^8.18.0
-        version: 8.20.0
       zod:
         specifier: ^3.21.4
         version: 3.22.4
