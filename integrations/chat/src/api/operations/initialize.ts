@@ -69,10 +69,13 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
 
   const initializeResponse = await props.client.initializeIncomingMessage(preparedBody)
 
-  const fidKey = userId ?? initializeResponse.user.id
+  const userFidKey = userId ?? initializeResponse.user.id
   if (authUserId === undefined) {
-    await props.userIdStore.byFid.set(fidKey, initializeResponse.user.id)
+    await props.userIdStore.byFid.set(userFidKey, initializeResponse.user.id)
   }
+
+  const conversationFidKey = req.body.conversationId ?? initializeResponse.conversation.id
+  await props.convIdStore.byFid.set(conversationFidKey, initializeResponse.conversation.id)
 
   if (!req.body.conversationId) {
     await props.client.updateConversation({
