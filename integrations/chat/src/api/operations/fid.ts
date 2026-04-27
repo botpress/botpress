@@ -481,8 +481,10 @@ export const handlers = {
       })
     },
     mapResponse: async (res) => {
-      const userId = res.body.user.id
-      const conversationId = await props.convIdStore.byId.get(res.body.conversation.id)
+      const userIdPromise = props.userIdStore.byId.get(res.body.user.id)
+      const conversationIdPromise = props.convIdStore.byId.get(res.body.conversation.id)
+
+      const [userId, conversationId] = await Promise.all([userIdPromise, conversationIdPromise])
 
       return merge(res, {
         body: {
