@@ -205,6 +205,32 @@ export class LinearOauthClient {
   }
 }
 
+const _registerWebhook = async ({
+  linearClient,
+  logger,
+  url,
+}: {
+  linearClient: LinearClient
+  logger: bp.Logger
+  url: string
+}) => {
+  const existingWebhooks = await linearClient.webhooks()
+  if (existingWebhooks.nodes.some((w) => w.url === url)) {
+    logger.forBot().info('Linear webhook already registered, skipping...')
+    return
+  }
+
+  logger.forBot().info('Registering Linear webhook...')
+  await linearClient.createWebhook({
+    url,
+    resourceTypes: ['Issue', 'Comment'],
+    secret: bp.secrets.WEBHOOK_SIGNING_SECRET,
+    allPublicTeams: true,
+    label: 'Botpress',
+  })
+  logger.forBot().info('Linear webhook registered successfully.')
+}
+
 export const handleOauth = async ({ req, ctx, client, logger }: bp.HandlerProps) => {
   const linearOauthClient = new LinearOauthClient()
 
@@ -216,8 +242,6 @@ export const handleOauth = async ({ req, ctx, client, logger }: bp.HandlerProps)
   }
 
   const credentials = await linearOauthClient.getAccessTokenFromOAuthCode(code)
-  // const oAuthResponse = await linearOauthClient.getAccessTokenFromOAuthCode(code)
-  // const credentials = await linearOauthClient.resolveValidCredentials(oAuthResponse)
   logger.forBot().info('Obtained credentials from OAuth flow, saving to state...')
   await client.setState({
     type: 'integration',
@@ -229,4 +253,7 @@ export const handleOauth = async ({ req, ctx, client, logger }: bp.HandlerProps)
   const linearClient = new LinearClient({ accessToken: credentials.accessToken })
   const organization = await linearClient.organization
   await client.configureIntegration({ identifier: organization.id, scheduleRegisterCall: 'monthly' })
+
+  const webhookUrl = `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
+  await _registerWebhook({ linearClient, logger, url: webhookUrl })
 }
