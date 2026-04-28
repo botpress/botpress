@@ -17,8 +17,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.90.0
-        version: 1.90.0
+        specifier: 1.91.0
+        version: 1.91.0
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -703,6 +703,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@bpinternal/pingrip':
+        specifier: 0.1.1
+        version: 0.1.1
       '@opentelemetry/api':
         specifier: 1.9.0
         version: 1.9.0
@@ -742,6 +745,9 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
+      prom-client:
+        specifier: ^15.1.3
+        version: 15.1.3
       qs:
         specifier: ^6.11.0
         version: 6.11.0
@@ -1252,10 +1258,19 @@ importers:
       '@hubspot/api-client':
         specifier: ^13.1.0
         version: 13.1.0
+      preact:
+        specifier: ^10.26.6
+        version: 10.26.6
+      preact-render-to-string:
+        specifier: ^6.5.13
+        version: 6.5.13(preact@10.26.6)
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@types/node':
+        specifier: ^22.16.4
+        version: 22.16.4
 
   integrations/hunter:
     dependencies:
@@ -1663,6 +1678,22 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+
+  integrations/postmark:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      postmark:
+        specifier: ^4.0.7
+        version: 4.0.7
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
 
   integrations/resend:
     dependencies:
@@ -2608,6 +2639,9 @@ importers:
       '@types/web':
         specifier: ^0.0.115
         version: 0.0.115
+      '@types/ws':
+        specifier: ^8.5.10
+        version: 8.18.1
       dotenv:
         specifier: ^16.4.4
         version: 16.4.4
@@ -4145,8 +4179,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@botpress/api@1.90.0':
-    resolution: {integrity: sha512-MzOjBOyMIkKOi6P6k3chpiTdHIl8PMNLcgdnkua7XTOrnLu3751ntsJcmhSHmaJnQdVwQiys+hHmzBuY3mQx1g==}
+  '@botpress/api@1.91.0':
+    resolution: {integrity: sha512-eVzlWZ5VeEZpBoUsu4k6TssE6VjkTUaayWigxlAe5ISN2N027XyxuPA85i81tiYuIpNdRJ+Iox9ECJuaChnX1w==}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -4171,6 +4205,9 @@ packages:
   '@bpinternal/opapi@1.0.0':
     resolution: {integrity: sha512-r38k8SZSyu0s4YKukTrHaBeb8tlL8vgJiNdawnN2cmxbqkSdsss2pWnZQU2fsSLijhcfV0tUvGCf8GfgZviYBA==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
+
+  '@bpinternal/pingrip@0.1.1':
+    resolution: {integrity: sha512-bidpZO+d1fAAp0MvoLRhgvJyVu57S+B74WKzPMk5i/8rgaPSUySGnXqH52gFA27oyZnEicZGBte4U7+iq00p3A==}
 
   '@bpinternal/readiness@0.0.16':
     resolution: {integrity: sha512-VkxUYCblFVm0S39kNT/ycFmHXN/OGPuMnbOpPWPgYf/dOLJgtM0oWsW8TOs8JcO+Pt928r9vonbMFYRGYDwQpw==}
@@ -6701,8 +6738,8 @@ packages:
   '@types/ws@6.0.4':
     resolution: {integrity: sha512-PpPrX7SZW9re6+Ha8ojZG4Se8AZXgf0GK6zmfqEuCsY49LFDNXO3SByp44X3dFEqtB73lkCDAdUazhAjVPiNwg==}
 
-  '@types/ws@8.5.5':
-    resolution: {integrity: sha512-lwhs8hktwxSjf9UaZ9tG5M03PGogvFaH8gUgLNbN9HKIg0dvv6q+gkSuJ8HN4/VbyxkuLzCjlN7GquQ0gUJfIg==}
+  '@types/ws@8.18.1':
+    resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
   '@types/yargs-parser@21.0.0':
     resolution: {integrity: sha512-iO9ZQHkZxHn4mSakYV0vFHAVDyEOIJQrV2uZ06HxEPcx+mt8swXoZHIbaaJ2crJYFfErySgktuTZ3BeLz+XmFA==}
@@ -7227,6 +7264,9 @@ packages:
   binary-extensions@2.2.0:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==}
     engines: {node: '>=8'}
+
+  bintrees@1.0.2:
+    resolution: {integrity: sha512-VOMgTMwjAaUG580SXn3LacVgjurrbMme7ZZNYGSSV7mmtY6QQRh0Eg3pwIcntQ77DErK1L0NxkbetjcoXzVwKw==}
 
   bl@1.2.3:
     resolution: {integrity: sha512-pvcNpa0UU69UT341rO6AYy4FVAIkUHuZXRIWbq+zHnsVcRzDDjIAhGuuYoi0d//cwIwtt4pkpKycWEfjdV+vww==}
@@ -10787,6 +10827,9 @@ packages:
     resolution: {integrity: sha512-NbqZMCwHectzfeFOeLqes1fPg/V5bsKhrBfyH1qHEcDb4ZHcbDARcqLE6JDhwMDQKa4YHkInXHITYscMuPylFw==}
     engines: {node: '>=20'}
 
+  postmark@4.0.7:
+    resolution: {integrity: sha512-DjNniUl1XNCGUKhCR98ePd5gv16rlUAVKKaU9TUqnE3hDSqfT9XDulu1idjagQmdyGscqnRtXk/puAEiYMeevg==}
+
   preact-render-to-string@6.5.13:
     resolution: {integrity: sha512-iGPd+hKPMFKsfpR2vL4kJ6ZPcFIoWZEcBf0Dpm3zOpdVvj77aY8RlLiQji5OMrngEyaxGogeakTb54uS2FvA6w==}
     peerDependencies:
@@ -10836,6 +10879,10 @@ packages:
   progress@2.0.3:
     resolution: {integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==}
     engines: {node: '>=0.4.0'}
+
+  prom-client@15.1.3:
+    resolution: {integrity: sha512-6ZiOBfCywsD4k1BN9IX0uZhF+tJkV8q8llP64G5Hajs4JOeVLPCwpPVcpXy3BwYiUGgyJzsJJQeOIv7+hDSq8g==}
+    engines: {node: ^16 || ^18 || >=20}
 
   promise@7.3.1:
     resolution: {integrity: sha512-nolQXZ/4L+bP/UGlkfaIujX9BKxGwmQ9OT4mOt5yvy8iK1h3wqTEJCijzGANTCCl9nWjY41juyAn2K3Q1hLLTg==}
@@ -11606,6 +11653,9 @@ packages:
     resolution: {integrity: sha512-rzS0heiNf8Xn7/mpdSVVSMAWAoy9bfb1WOTYC78Z0UQKeKa/CWS8FOq0lKGNa8DWKAn9gxjCvMLYc5PGXYlK2A==}
     engines: {node: '>= 0.8.0'}
 
+  tdigest@0.1.2:
+    resolution: {integrity: sha512-+G0LLgjjo9BZX2MfdvPfH+MKLCrxlXSYec5DaPYP1fe6Iyhf0/fSmJ0bFiZ1F8BT6cGXl2LpltQptzjXKWEkKA==}
+
   telegraf@4.16.3:
     resolution: {integrity: sha512-yjEu2NwkHlXu0OARWoNhJlIjX09dRktiMQFsM678BAH/PEPVwctzL67+tvXqLCRQQvm3SDtki2saGO9hLlz68w==}
     engines: {node: ^12.20.0 || >=14.13.1}
@@ -12375,18 +12425,6 @@ packages:
     peerDependencies:
       bufferutil: ^4.0.1
       utf-8-validate: ^5.0.2
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
-
-  ws@8.13.0:
-    resolution: {integrity: sha512-x9vcZYTrFPC7aSIbj7sRCYo7L/Xb8Iy+pW0ng0wt2vCJv7M9HOMy0UoN3rr+IFC7hb7vXoqS+P9ktyLLLhO+LA==}
-    engines: {node: '>=10.0.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: '>=5.0.2'
     peerDependenciesMeta:
       bufferutil:
         optional: true
@@ -13904,7 +13942,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.90.0':
+  '@botpress/api@1.91.0':
     dependencies:
       '@bpinternal/opapi': 1.0.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -13965,6 +14003,12 @@ snapshots:
       - openapi-types
       - supports-color
 
+  '@bpinternal/pingrip@0.1.1':
+    dependencies:
+      axios: 1.13.6
+    transitivePeerDependencies:
+      - debug
+
   '@bpinternal/readiness@0.0.16':
     dependencies:
       '@aws-sdk/client-dynamodb': 3.709.0
@@ -13999,10 +14043,10 @@ snapshots:
 
   '@bpinternal/tunnel@0.1.1':
     dependencies:
-      '@types/ws': 8.5.5
+      '@types/ws': 8.18.1
       browser-or-node: 2.1.1
-      isomorphic-ws: 5.0.0(ws@8.13.0)
-      ws: 8.13.0
+      isomorphic-ws: 5.0.0(ws@8.20.0)
+      ws: 8.20.0
       zod: 3.24.2
     transitivePeerDependencies:
       - bufferutil
@@ -16711,7 +16755,7 @@ snapshots:
     dependencies:
       '@types/node': 22.16.4
 
-  '@types/ws@8.5.5':
+  '@types/ws@8.18.1':
     dependencies:
       '@types/node': 22.16.4
 
@@ -17452,6 +17496,8 @@ snapshots:
   bignumber.js@9.1.1: {}
 
   binary-extensions@2.2.0: {}
+
+  bintrees@1.0.2: {}
 
   bl@1.2.3:
     dependencies:
@@ -20021,9 +20067,9 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  isomorphic-ws@5.0.0(ws@8.13.0):
+  isomorphic-ws@5.0.0(ws@8.20.0):
     dependencies:
-      ws: 8.13.0
+      ws: 8.20.0
 
   isstream@0.1.2: {}
 
@@ -21995,6 +22041,12 @@ snapshots:
     dependencies:
       '@posthog/core': 1.6.0
 
+  postmark@4.0.7:
+    dependencies:
+      axios: 1.13.6
+    transitivePeerDependencies:
+      - debug
+
   preact-render-to-string@6.5.13(preact@10.26.6):
     dependencies:
       preact: 10.26.6
@@ -22026,6 +22078,11 @@ snapshots:
   process-nextick-args@2.0.1: {}
 
   progress@2.0.3: {}
+
+  prom-client@15.1.3:
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      tdigest: 0.1.2
 
   promise@7.3.1:
     dependencies:
@@ -23006,6 +23063,10 @@ snapshots:
       to-buffer: 1.1.1
       xtend: 4.0.2
 
+  tdigest@0.1.2:
+    dependencies:
+      bintrees: 1.0.2
+
   telegraf@4.16.3:
     dependencies:
       '@telegraf/types': 7.1.0
@@ -23877,12 +23938,9 @@ snapshots:
 
   ws@7.5.10: {}
 
-  ws@8.13.0: {}
-
   ws@8.18.2: {}
 
-  ws@8.20.0:
-    optional: true
+  ws@8.20.0: {}
 
   wsl-utils@0.1.0:
     dependencies:
