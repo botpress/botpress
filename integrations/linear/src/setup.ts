@@ -4,7 +4,10 @@ import * as bp from '.botpress'
 export const register: bp.IntegrationProps['register'] = async ({ client, ctx, logger }) => {
   logger.forBot().info('Registering integration...')
   const linearClient = await LinearOauthClient.create({ client, ctx })
-  if (ctx.configurationType === 'apiKey' && !ctx.configuration.webhookSigningSecret) {
+  if (
+    ctx.configurationType === null ||
+    (ctx.configurationType === 'apiKey' && !ctx.configuration.webhookSigningSecret)
+  ) {
     const webhookUrl = `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
     try {
       await registerWebhook({ linearClient, logger, url: webhookUrl })
