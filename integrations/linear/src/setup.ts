@@ -1,4 +1,4 @@
-import { RuntimeError } from 'node_modules/@botpress/client/dist'
+import { RuntimeError } from '@botpress/client'
 import { LinearOauthClient, registerWebhook, unregisterWebhook } from './misc/linear'
 import * as bp from '.botpress'
 
