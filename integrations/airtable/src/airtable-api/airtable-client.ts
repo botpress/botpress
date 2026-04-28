@@ -1,11 +1,13 @@
 import Airtable, { type FieldSet } from 'airtable'
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import { stringify } from 'querystring'
-import { handleErrorsDecorator } from './api/error-handling'
-import type { CreatableField } from './misc/field-schemas'
+import { handleErrorsDecorator } from '../api/error-handling'
+import type { CreatableField } from '../misc/field-schemas'
+import { AirtableOAuthClient } from './airtable-oauth-client'
 import * as bp from '.botpress'
 
 const handleErrors = handleErrorsDecorator
+
 type TableResponse = {
   id: string
   name: string
@@ -20,28 +22,85 @@ type RecordResponse = {
   fields: FieldSet
 }
 
-export class AirtableApi {
-  private _base: Airtable.Base
-  private _axiosClient: AxiosInstance
-  private _baseId: string
-  private _logger: bp.Logger
+type CreateProps = {
+  client: bp.Client
+  ctx: bp.Context
+  logger: bp.Logger
+}
 
-  public constructor({ ctx, logger }: bp.CommonHandlerProps) {
+export class AirtableClient {
+  private readonly _logger: bp.Logger
+  private readonly _baseId: string
+  private readonly _base: Airtable.Base
+  private readonly _axiosClient: AxiosInstance
+
+  private constructor({
+    logger,
+    baseId,
+    accessToken,
+    endpointUrl,
+  }: {
+    logger: bp.Logger
+    baseId: string
+    accessToken: string
+    endpointUrl: string
+  }) {
     this._logger = logger
-    const endpointUrl = ctx.configuration.endpointUrl || 'https://api.airtable.com/v0/'
-    const apiKey = ctx.configuration.accessToken
-    const baseId = ctx.configuration.baseId
     this._baseId = baseId
 
-    // This split is done because the Airtable SDK appends /v0/ path itself
-    this._base = new Airtable({ apiKey, endpointUrl: endpointUrl.replace('/v0/', '') }).base(baseId)
+    // The Airtable SDK appends /v0/ itself, so strip it from the configured endpoint.
+    this._base = new Airtable({ apiKey: accessToken, endpointUrl: endpointUrl.replace('/v0/', '') }).base(baseId)
     this._axiosClient = axios.create({
       baseURL: endpointUrl,
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
     })
+  }
+
+  public static async createFromStates({ client, ctx, logger }: CreateProps): Promise<AirtableClient> {
+    const oauth = new AirtableOAuthClient({ client, ctx, logger })
+    return AirtableClient._createNewInstance({ ctx, logger, oauth })
+  }
+
+  public static async createFromAuthorizationCode({
+    client,
+    ctx,
+    logger,
+    code,
+    codeVerifier,
+    redirectUri,
+  }: CreateProps & { code: string; codeVerifier: string; redirectUri: string }): Promise<AirtableClient> {
+    const oauth = new AirtableOAuthClient({ client, ctx, logger })
+    await oauth.requestShortLivedCredentials.fromAuthorizationCode(code, codeVerifier, redirectUri)
+    return AirtableClient._createNewInstance({ ctx, logger, oauth })
+  }
+
+  public static async createFromPersonalAccessToken({
+    client,
+    ctx,
+    logger,
+    personalAccessToken,
+  }: CreateProps & { personalAccessToken: string }): Promise<AirtableClient> {
+    const oauth = new AirtableOAuthClient({ client, ctx, logger })
+    await oauth.savePersonalAccessToken(personalAccessToken)
+    return AirtableClient._createNewInstance({ ctx, logger, oauth })
+  }
+
+  private static async _createNewInstance({
+    ctx,
+    logger,
+    oauth,
+  }: {
+    ctx: bp.Context
+    logger: bp.Logger
+    oauth: AirtableOAuthClient
+  }): Promise<AirtableClient> {
+    const { accessToken } = await oauth.getAuthState()
+    const baseId = ctx.configuration.baseId
+    const endpointUrl = ctx.configuration.endpointUrl || 'https://api.airtable.com/v0/'
+    return new AirtableClient({ logger, baseId, accessToken, endpointUrl })
   }
 
   @handleErrors('Failed to test connection to Airtable')

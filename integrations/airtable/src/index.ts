@@ -1,10 +1,10 @@
 import actions from './actions'
-import { AirtableApi } from './client'
+import { AirtableClient } from './airtable-api/airtable-client'
 import * as botpress from '.botpress'
 
 export default new botpress.Integration({
   register: async ({ client, ctx, logger }) => {
-    const airtableClient = new AirtableApi({ client, ctx, logger })
+    const airtableClient = await AirtableClient.createFromStates({ client, ctx, logger })
 
     await airtableClient.testConnection()
 

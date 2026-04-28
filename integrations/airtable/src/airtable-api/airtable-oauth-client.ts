@@ -40,7 +40,6 @@ export class AirtableOAuthClient {
   private readonly _clientId: string
   private readonly _clientSecret: string
   private _currentAuthState: PrivateAuthState | undefined = undefined
-  private _personalAccessToken: string | undefined = undefined
 
   public constructor({
     ctx,
