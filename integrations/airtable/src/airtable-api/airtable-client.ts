@@ -101,7 +101,12 @@ export class AirtableClient {
   }): Promise<AirtableClient> {
     const { accessToken } = await oauth.getAuthState()
     const { baseId, endpointUrl } = await AirtableClient._getConfiguration({ client, ctx })
-    return new AirtableClient({ logger, baseId, accessToken, endpointUrl: endpointUrl ?? 'https://api.airtable.com/v0/' })
+    return new AirtableClient({
+      logger,
+      baseId,
+      accessToken,
+      endpointUrl: endpointUrl ?? 'https://api.airtable.com/v0/',
+    })
   }
 
   private static async _getConfiguration({

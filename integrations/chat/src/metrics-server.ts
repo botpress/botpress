@@ -34,6 +34,6 @@ export const startMetricsServer = (port: number) => {
   })
 
   server.listen(port, () => {
-    console.log(`Metrics server listening on port ${port}`)
+    
   })
 }
