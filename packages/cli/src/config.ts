@@ -173,8 +173,19 @@ const readSchema = {
 
 const serveSchema = {
   ...projectSchema,
+  ...credentialsSchema,
   ...secretsSchema,
   port,
+  setupEnv: {
+    type: 'boolean',
+    description:
+      'Create a fresh Integration API Key (IAK) and inject BP_API_URL, BP_TOKEN, BP_WORKSPACE_ID env vars before starting the server. Requires the integration to be deployed.',
+    default: false,
+  },
+  entry: {
+    type: 'string',
+    description: 'Path to a custom entry script that starts the server (instead of the default Integration.start).',
+  },
 } satisfies CommandSchema
 
 const deploySchema = {
