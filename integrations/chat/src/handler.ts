@@ -1,9 +1,11 @@
 import { Request } from '@botpress/sdk'
 import * as api from './api'
 import { extraRoutes } from './extra-routes'
+import * as errors from './gen/errors'
 import { handleRequest, Router } from './gen/handler'
 import { httpRequestsTotal, httpRequestDuration } from './metrics'
 import { Handler } from './types'
+import * as websocket from './websocket'
 
 const isPushpinRequest = (req: Request) => 'grip-sig' in req.headers
 
@@ -27,6 +29,25 @@ export const makeHandler =
       return {
         status: 400,
         body: JSON.stringify({ message }),
+      }
+    }
+
+    if (websocket.isWebSocketRequest(args.req) && args.req.body) {
+      try {
+        return await websocket.handleWebSocketRequest(props, args.req)
+      } catch (thrown: unknown) {
+        if (errors.isApiError(thrown)) {
+          return {
+            status: thrown.code,
+            body: JSON.stringify(thrown.toJSON()),
+          }
+        }
+        return {
+          status: 500,
+          body: JSON.stringify({
+            message: thrown instanceof Error ? thrown.message : 'Unknown error',
+          }),
+        }
       }
     }
 
