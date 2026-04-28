@@ -286,6 +286,9 @@ const _parseSlackFile = (logger: bp.Logger, file: File): BlocItem | null => {
     case 'audio':
       return { type: fileType, payload: { audioUrl: file.permalink_public } }
 
+    case 'video':
+      return { type: fileType, payload: { videoUrl: file.permalink_public } }
+
     case 'file':
       return { type: fileType, payload: { fileUrl: file.permalink_public } }
 
