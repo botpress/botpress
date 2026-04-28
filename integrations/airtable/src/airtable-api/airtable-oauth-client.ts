@@ -31,7 +31,7 @@ type PublicAuthState = {
 }
 
 const AIRTABLE_TOKEN_URL = 'https://airtable.com/oauth2/v1/token'
-const MINIMUM_TOKEN_VALIDITY_SECONDS = 7_200 // 2 hours
+const MINIMUM_TOKEN_VALIDITY_SECONDS = 3_600 // 2 hours
 
 export class AirtableOAuthClient {
   private readonly _client: bp.Client
@@ -93,6 +93,10 @@ export class AirtableOAuthClient {
         redirect_uri: redirectUri,
         code_verifier: codeVerifier,
       })
+
+      this._logger
+        .forBot()
+        .debug('Authorization code exchanged for tokens, parsing response and saving credentials...', response)
 
       this._currentAuthState = this._parseAirtableTokenResponse(response)
       await this._saveOAuthCredentials()
