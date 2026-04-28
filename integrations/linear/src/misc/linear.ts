@@ -239,7 +239,7 @@ export const unregisterWebhook = async ({
   logger.forBot().info('Linear webhook unregistered successfully.')
 }
 
-const _registerWebhook = async ({
+export const registerWebhook = async ({
   linearClient,
   logger,
   url,
@@ -290,7 +290,7 @@ export const handleOauth = async ({ req, ctx, client, logger }: bp.HandlerProps)
 
   const webhookUrl = `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
   try {
-    await _registerWebhook({ linearClient, logger, url: webhookUrl })
+    await registerWebhook({ linearClient, logger, url: webhookUrl })
   } catch (thrown) {
     const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
     logger.forBot().warn('Failed to register webhook:', errorMessage)
