@@ -101,7 +101,38 @@ export default new IntegrationDefinition({
     },
   },
   events: {},
-  states: {},
+  states: {
+    oAuthCredentials: {
+      type: 'integration',
+      schema: z.object({
+        accessToken: z.string().secret().describe('The OAuth access token'),
+        refreshToken: z.string().secret().describe('The rotating OAuth refresh token'),
+        expiresAt: z.string().datetime().describe('The timestamp of when the access token expires'),
+        scopes: z.array(z.string()).describe('The scopes granted to the token'),
+      }),
+    },
+    manualCredentials: {
+      type: 'integration',
+      schema: z.object({
+        personalAccessToken: z.string().secret().describe('The Airtable Personal Access Token'),
+      }),
+    },
+    oauthPkce: {
+      type: 'integration',
+      schema: z.object({
+        codeVerifier: z.string().describe('The PKCE code verifier paired with the in-flight authorization request'),
+        createdAt: z.string().datetime().describe('The timestamp of when the code verifier was issued'),
+      }),
+    },
+  },
+  secrets: {
+    CLIENT_ID: {
+      description: 'The client ID of the Airtable OAuth app.',
+    },
+    CLIENT_SECRET: {
+      description: 'The client secret of the Airtable OAuth app.',
+    },
+  },
   attributes: {
     category: 'Project Management',
     repo: 'botpress',
