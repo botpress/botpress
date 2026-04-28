@@ -58,6 +58,10 @@ export class PushpinEmitter implements SignalEmitter {
               action: 'send',
               content: this._sse(signal),
             },
+            'ws-message': {
+              action: 'send',
+              content: JSON.stringify(signal),
+            },
           },
         },
       ],
@@ -71,6 +75,9 @@ export class PushpinEmitter implements SignalEmitter {
           channel,
           formats: {
             'http-stream': {
+              action: 'close',
+            },
+            'ws-message': {
               action: 'close',
             },
           },

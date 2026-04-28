@@ -103,11 +103,13 @@ export async function generateContent(
     (modelId === 'claude-sonnet-4-5-20250929' ||
       modelId === 'claude-haiku-4-5-20251001' ||
       modelId === 'claude-sonnet-4-6' ||
-      modelId === 'claude-opus-4-6') &&
+      modelId === 'claude-opus-4-6' ||
+      modelId === 'claude-opus-4-7') &&
     request.temperature !== undefined &&
     request.top_p !== undefined
   ) {
-    // This model fails when setting both parameters with the error "`temperature` and `top_p` cannot both be specified for this model. Please use only one.", so we remove the top_p parameter if temperature is also set.
+    // TODO: Remove this check once all 3.x models are removed,
+    // see https://platform.claude.com/docs/en/about-claude/models/migration-guide#breaking-changes
     request.top_p = undefined
   }
 
