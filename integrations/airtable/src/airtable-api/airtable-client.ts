@@ -61,7 +61,7 @@ export class AirtableClient {
 
   public static async createFromStates({ client, ctx, logger }: CreateProps): Promise<AirtableClient> {
     const oauth = new AirtableOAuthClient({ client, ctx, logger })
-    return AirtableClient._createNewInstance({ ctx, logger, oauth })
+    return AirtableClient._createNewInstance({ client, ctx, logger, oauth })
   }
 
   public static async createFromAuthorizationCode({
@@ -74,7 +74,7 @@ export class AirtableClient {
   }: CreateProps & { code: string; codeVerifier: string; redirectUri: string }): Promise<AirtableClient> {
     const oauth = new AirtableOAuthClient({ client, ctx, logger })
     await oauth.requestShortLivedCredentials.fromAuthorizationCode(code, codeVerifier, redirectUri)
-    return AirtableClient._createNewInstance({ ctx, logger, oauth })
+    return AirtableClient._createNewInstance({ client, ctx, logger, oauth })
   }
 
   public static async createFromPersonalAccessToken({
@@ -85,22 +85,38 @@ export class AirtableClient {
   }: CreateProps & { personalAccessToken: string }): Promise<AirtableClient> {
     const oauth = new AirtableOAuthClient({ client, ctx, logger })
     await oauth.savePersonalAccessToken(personalAccessToken)
-    return AirtableClient._createNewInstance({ ctx, logger, oauth })
+    return AirtableClient._createNewInstance({ client, ctx, logger, oauth })
   }
 
   private static async _createNewInstance({
+    client,
     ctx,
     logger,
     oauth,
   }: {
+    client: bp.Client
     ctx: bp.Context
     logger: bp.Logger
     oauth: AirtableOAuthClient
   }): Promise<AirtableClient> {
     const { accessToken } = await oauth.getAuthState()
-    const baseId = ctx.configuration.baseId
-    const endpointUrl = ctx.configuration.endpointUrl || 'https://api.airtable.com/v0/'
-    return new AirtableClient({ logger, baseId, accessToken, endpointUrl })
+    const { baseId, endpointUrl } = await AirtableClient._getConfiguration({ client, ctx })
+    return new AirtableClient({ logger, baseId, accessToken, endpointUrl: endpointUrl ?? 'https://api.airtable.com/v0/' })
+  }
+
+  private static async _getConfiguration({
+    client,
+    ctx,
+  }: {
+    client: bp.Client
+    ctx: bp.Context
+  }): Promise<{ baseId: string; endpointUrl?: string }> {
+    const { state } = await client.getState({
+      type: 'integration',
+      id: ctx.integrationId,
+      name: 'configuration',
+    })
+    return state.payload
   }
 
   @handleErrors('Failed to test connection to Airtable')

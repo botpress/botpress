@@ -19,20 +19,11 @@ export default new IntegrationDefinition({
   title: 'Airtable',
   description:
     'Access and manage Airtable data to allow your chatbot to retrieve details, update records, and organize information.',
-  version: '2.0.0',
+  version: '3.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
-    schema: z.object({
-      accessToken: z.string().describe('Personal Access Token').title('Personal Access Token'),
-      baseId: z.string().describe('Base ID').title('Base ID'),
-      endpointUrl: z
-        .string()
-        .optional()
-        .default('https://api.airtable.com/v0/')
-        .describe('API endpoint to hit (Default: https://api.airtable.com/v0/)')
-        .title('Endpoint Url'),
-    }),
+    schema: z.object({}),
   },
   channels: {},
   user: {
@@ -122,6 +113,13 @@ export default new IntegrationDefinition({
       schema: z.object({
         codeVerifier: z.string().describe('The PKCE code verifier paired with the in-flight authorization request'),
         createdAt: z.string().datetime().describe('The timestamp of when the code verifier was issued'),
+      }),
+    },
+    configuration: {
+      type: 'integration',
+      schema: z.object({
+        baseId: z.string().describe('The selected Airtable base ID'),
+        endpointUrl: z.string().optional().describe('Optional override for the Airtable API endpoint'),
       }),
     },
   },

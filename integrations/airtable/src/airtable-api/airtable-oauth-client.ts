@@ -65,7 +65,6 @@ export class AirtableOAuthClient {
   public async getAuthState(): Promise<PublicAuthState> {
     const manualCredentials = await this._getManualCredentialsState()
     if (manualCredentials) {
-      this._personalAccessToken = manualCredentials.personalAccessToken
       return {
         accessToken: manualCredentials.personalAccessToken,
         scopes: [],
@@ -124,7 +123,6 @@ export class AirtableOAuthClient {
       id: this._ctx.integrationId,
       payload: { personalAccessToken },
     })
-    this._personalAccessToken = personalAccessToken
   }
 
   private async _postToken(body: Record<string, string>): Promise<AirtableTokenResponse> {
