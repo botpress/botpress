@@ -23,6 +23,9 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
+    identifier: {
+      linkTemplateScript: 'linkTemplate.vrl',
+    },
     schema: z.object({}),
   },
   channels: {},
