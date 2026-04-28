@@ -1,3 +1,4 @@
+import { RuntimeError } from 'node_modules/@botpress/client/dist'
 import { LinearOauthClient, registerWebhook, unregisterWebhook } from './misc/linear'
 import * as bp from '.botpress'
 
@@ -13,7 +14,7 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
       await registerWebhook({ linearClient, logger, url: webhookUrl })
     } catch (thrown) {
       const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
-      logger.forBot().warn('Failed to register webhook:', errorMessage)
+      throw new RuntimeError(`Failed to register webhook: ${errorMessage}`)
     }
   }
   logger.forBot().info('Integration registered successfully.')
