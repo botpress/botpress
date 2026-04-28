@@ -186,6 +186,7 @@ const _saveBaseHandler: WizardHandler = async ({ ctx, client, selectedChoice, re
     payload: { baseId: selectedChoice },
   })
 
+  await client.configureIntegration({ identifier: ctx.webhookId })
   return responses.endWizard({ success: true })
 }
 
