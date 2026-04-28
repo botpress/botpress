@@ -102,6 +102,7 @@ export default new IntegrationDefinition({
         accessToken: z.string().secret().describe('The OAuth access token'),
         refreshToken: z.string().secret().describe('The rotating OAuth refresh token'),
         expiresAt: z.string().datetime().describe('The timestamp of when the access token expires'),
+        refreshExpiresAt: z.string().datetime().describe('The timestamp of when the refresh token expires'),
         scopes: z.array(z.string()).describe('The scopes granted to the token'),
       }),
     },

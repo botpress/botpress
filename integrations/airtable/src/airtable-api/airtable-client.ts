@@ -64,30 +64,6 @@ export class AirtableClient {
     return AirtableClient._createNewInstance({ client, ctx, logger, oauth })
   }
 
-  public static async createFromAuthorizationCode({
-    client,
-    ctx,
-    logger,
-    code,
-    codeVerifier,
-    redirectUri,
-  }: CreateProps & { code: string; codeVerifier: string; redirectUri: string }): Promise<AirtableClient> {
-    const oauth = new AirtableOAuthClient({ client, ctx, logger })
-    await oauth.requestShortLivedCredentials.fromAuthorizationCode(code, codeVerifier, redirectUri)
-    return AirtableClient._createNewInstance({ client, ctx, logger, oauth })
-  }
-
-  public static async createFromPersonalAccessToken({
-    client,
-    ctx,
-    logger,
-    personalAccessToken,
-  }: CreateProps & { personalAccessToken: string }): Promise<AirtableClient> {
-    const oauth = new AirtableOAuthClient({ client, ctx, logger })
-    await oauth.savePersonalAccessToken(personalAccessToken)
-    return AirtableClient._createNewInstance({ client, ctx, logger, oauth })
-  }
-
   private static async _createNewInstance({
     client,
     ctx,

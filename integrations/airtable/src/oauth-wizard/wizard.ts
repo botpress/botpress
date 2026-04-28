@@ -108,10 +108,15 @@ const _oauthRedirectHandler: WizardHandler = async ({ ctx, client, responses }) 
   return responses.redirectToExternalUrl(_buildAirtableAuthorizeUrl({ codeChallenge, webhookId: ctx.webhookId }))
 }
 
-const _oauthCallbackHandler: WizardHandler = async ({ req, ctx, client, logger, responses, query }) => {
-  const code = query.get('code') ?? new URLSearchParams(req.query).get('code')
+const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, logger, responses, query }) => {
+  const code = query.get('code')
   if (!code) {
     return responses.endWizard({ success: false, errorMessage: 'Airtable did not return an authorization code' })
+  }
+
+  const state = query.get('state')
+  if (!state || state !== ctx.webhookId) {
+    return responses.endWizard({ success: false, errorMessage: 'Invalid OAuth state parameter' })
   }
 
   const { state: pkceState } = await client.getState({
@@ -123,6 +128,13 @@ const _oauthCallbackHandler: WizardHandler = async ({ req, ctx, client, logger, 
 
   const oauth = new AirtableOAuthClient({ client, ctx, logger })
   await oauth.requestShortLivedCredentials.fromAuthorizationCode(code, codeVerifier, _getRedirectUri())
+
+  await client.setState({
+    type: 'integration',
+    name: 'oauthPkce',
+    id: ctx.integrationId,
+    payload: null,
+  })
 
   return responses.redirectToStep('pick-base')
 }
@@ -142,6 +154,16 @@ const _pickBaseHandler: WizardHandler = async ({ ctx, client, logger, responses 
       success: false,
       errorMessage: 'No Airtable bases were found for this account',
     })
+  }
+
+  if (bases.length === 1) {
+    await client.setState({
+      type: 'integration',
+      name: 'configuration',
+      id: ctx.integrationId,
+      payload: { baseId: bases[0]!.id },
+    })
+    return responses.endWizard({ success: true })
   }
 
   return responses.displayChoices({

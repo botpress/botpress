@@ -14,12 +14,11 @@ type AirtableTokenResponse = {
 
 type PrivateAuthState = {
   readonly accessToken: {
-    readonly issuedAt: Date
     readonly expiresAt: Date
     readonly token: string
   }
   readonly refreshToken: {
-    readonly issuedAt: Date
+    readonly expiresAt: Date
     readonly token: string
   }
   readonly scopes: string[]
@@ -31,7 +30,7 @@ type PublicAuthState = {
 }
 
 const AIRTABLE_TOKEN_URL = 'https://airtable.com/oauth2/v1/token'
-const MINIMUM_TOKEN_VALIDITY_SECONDS = 3_600 // 2 hours
+const MINIMUM_TOKEN_VALIDITY_SECONDS = 3_600 // 1 hour
 
 export class AirtableOAuthClient {
   private readonly _client: bp.Client
@@ -94,9 +93,7 @@ export class AirtableOAuthClient {
         code_verifier: codeVerifier,
       })
 
-      this._logger
-        .forBot()
-        .debug('Authorization code exchanged for tokens, parsing response and saving credentials...', response)
+      this._logger.forBot().debug('Authorization code exchanged for tokens, parsing response and saving credentials...')
 
       this._currentAuthState = this._parseAirtableTokenResponse(response)
       await this._saveOAuthCredentials()
@@ -163,41 +160,43 @@ export class AirtableOAuthClient {
   }
 
   private async _getManualCredentialsState() {
-    try {
-      const { state } = await this._client.getState({
+    return this._client
+      .getState({
         type: 'integration',
         id: this._ctx.integrationId,
         name: 'manualCredentials',
       })
-      return state.payload
-    } catch {}
-    return
+      .then(({ state }) => state.payload)
+      .catch(() => undefined)
   }
 
   private async _getOAuthCredentialsState() {
-    try {
-      const { state } = await this._client.getState({
+    return this._client
+      .getState({
         type: 'integration',
         id: this._ctx.integrationId,
         name: 'oAuthCredentials',
       })
-      return state.payload
-    } catch {}
-    return
+      .then(({ state }) => state.payload)
+      .catch(() => undefined)
   }
 
   private async _refreshAuth(credentials: bp.states.oAuthCredentials.OAuthCredentials['payload']) {
-    const tokenExpiresAt = new Date(credentials.expiresAt)
+    const accessTokenExpiresAt = new Date(credentials.expiresAt)
+    const refreshTokenExpiresAt = new Date(credentials.refreshExpiresAt)
 
-    if (tokenExpiresAt > this._getMinExpiryDate()) {
+    if (refreshTokenExpiresAt <= new Date()) {
+      throw new sdk.RuntimeError('Airtable refresh token has expired. Please re-run the integration setup wizard.')
+    }
+
+    if (accessTokenExpiresAt > this._getMinExpiryDate()) {
       this._currentAuthState = {
         accessToken: {
-          expiresAt: tokenExpiresAt,
-          issuedAt: tokenExpiresAt, // not persisted; only expiry matters for validity check
+          expiresAt: accessTokenExpiresAt,
           token: credentials.accessToken,
         },
         refreshToken: {
-          issuedAt: tokenExpiresAt,
+          expiresAt: refreshTokenExpiresAt,
           token: credentials.refreshToken,
         },
         scopes: credentials.scopes,
@@ -209,27 +208,33 @@ export class AirtableOAuthClient {
   }
 
   private _parseAirtableTokenResponse(response: AirtableTokenResponse): PrivateAuthState {
-    if (!response.access_token || !response.refresh_token || !response.expires_in || !response.scope) {
-      console.error('Airtable OAuth response is missing required fields', response)
+    if (
+      !response.access_token ||
+      !response.refresh_token ||
+      !response.expires_in ||
+      !response.refresh_expires_in ||
+      !response.scope
+    ) {
+      this._logger.forBot().error('Airtable OAuth response is missing required fields')
       throw new sdk.RuntimeError('OAuth response is missing required fields')
     }
 
     if (response.expires_in < MINIMUM_TOKEN_VALIDITY_SECONDS) {
-      console.error('Airtable OAuth response has an invalid expiration time', response.expires_in)
+      this._logger.forBot().error(`Airtable OAuth response has invalid expires_in=${response.expires_in}`)
       throw new sdk.RuntimeError('OAuth response has an invalid expiration time')
     }
 
-    const issuedAt = new Date()
-    const expiresAt = new Date(issuedAt.getTime() + response.expires_in * 1000)
+    const now = Date.now()
+    const accessTokenExpiresAt = new Date(now + response.expires_in * 1000)
+    const refreshTokenExpiresAt = new Date(now + response.refresh_expires_in * 1000)
 
     return {
       accessToken: {
-        issuedAt,
-        expiresAt,
+        expiresAt: accessTokenExpiresAt,
         token: response.access_token,
       },
       refreshToken: {
-        issuedAt,
+        expiresAt: refreshTokenExpiresAt,
         token: response.refresh_token,
       },
       scopes: response.scope.split(' '),
@@ -249,6 +254,7 @@ export class AirtableOAuthClient {
         accessToken: this._currentAuthState.accessToken.token,
         refreshToken: this._currentAuthState.refreshToken.token,
         expiresAt: this._currentAuthState.accessToken.expiresAt.toISOString(),
+        refreshExpiresAt: this._currentAuthState.refreshToken.expiresAt.toISOString(),
         scopes: this._currentAuthState.scopes,
       },
     })
