@@ -26,8 +26,11 @@ export const configurations = {
         .string()
         .secret()
         .optional()
-        .title('Webhook Signing Secret')
-        .describe('The secret key for verifying incoming Linear webhook events'),
+        .title('Webhook Signing Secret (deprecated)')
+        .describe(
+          'The secret key for verifying incoming Linear webhook events if the webhook has been registered manually. ' +
+            "If you don't provide this value, a webhook will be created automatically."
+        ),
     }),
   },
 } as const satisfies IntegrationDefinitionProps['configurations']
