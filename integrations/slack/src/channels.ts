@@ -3,7 +3,7 @@ import { ChatPostMessageArguments } from '@slack/web-api'
 import { textSchema } from '../definitions/channels/text-input-schema'
 import { transformMarkdownForSlack } from './misc/markdown-to-slack'
 import { replaceMentions } from './misc/replace-mentions'
-import { isValidUrl } from './misc/utils'
+import { downloadBotpressFile, isValidUrl } from './misc/utils'
 import { SlackClient } from './slack-api'
 import { renderCard } from './slack-api/card-renderer'
 import * as bp from '.botpress'
@@ -41,51 +41,15 @@ const defaultMessages = {
   },
   audio: async ({ ctx, conversation, ack, client, payload, logger }) => {
     logger.forBot().debug('Sending audio message to Slack chat:', payload)
-    await _sendSlackMessage(
-      { ack, ctx, client, logger },
-      {
-        ..._getSlackTarget(conversation),
-        text: 'audio',
-        blocks: [
-          {
-            type: 'section',
-            text: { type: 'mrkdwn', text: `<${payload.audioUrl}|audio>` },
-          },
-        ],
-      }
-    )
+    await _uploadSlackFile({ ack, ctx, client, logger, conversation }, { url: payload.audioUrl, title: payload.title })
   },
   video: async ({ ctx, conversation, ack, client, payload, logger }) => {
     logger.forBot().debug('Sending video message to Slack chat:', payload)
-    await _sendSlackMessage(
-      { ack, ctx, client, logger },
-      {
-        ..._getSlackTarget(conversation),
-        text: 'video',
-        blocks: [
-          {
-            type: 'section',
-            text: { type: 'mrkdwn', text: `<${payload.videoUrl}|video>` },
-          },
-        ],
-      }
-    )
+    await _uploadSlackFile({ ack, ctx, client, logger, conversation }, { url: payload.videoUrl, title: payload.title })
   },
   file: async ({ ctx, conversation, ack, client, payload, logger }) => {
     logger.forBot().debug('Sending file message to Slack chat:', payload)
-    await _sendSlackMessage(
-      { ack, ctx, client, logger },
-      {
-        ..._getSlackTarget(conversation),
-        text: 'file',
-        blocks: [
-          {
-            type: 'section',
-            text: { type: 'mrkdwn', text: `<${payload.fileUrl}|file>` },
-          },
-        ],
-      }
-    )
+    await _uploadSlackFile({ ack, ctx, client, logger, conversation }, { url: payload.fileUrl, title: payload.title })
   },
   location: async ({ ctx, conversation, ack, client, payload, logger }) => {
     const googleMapsLink = `https://www.google.com/maps/search/?api=1&query=${payload.latitude},${payload.longitude}`
@@ -229,6 +193,61 @@ const _getOptionalProps = (ctx: bp.Context, logger: bp.Logger) => {
   }
 
   return props
+}
+
+const _uploadSlackFile = async (
+  {
+    client,
+    ctx,
+    ack,
+    logger,
+    conversation,
+  }: {
+    client: bp.Client
+    ctx: bp.Context
+    ack: bp.AnyAckFunction
+    logger: bp.Logger
+    conversation: bp.ClientResponses['getConversation']['conversation']
+  },
+  { url, title }: { url: string; title?: string }
+) => {
+  const { channel, thread_ts } = _getSlackTarget(conversation)
+  const { buffer, filename } = await downloadBotpressFile(url, client, logger)
+
+  const slackClient = await SlackClient.createFromStates({ client, ctx, logger })
+
+  const oldestTs = (Date.now() / 1000 - 1).toFixed(6)
+
+  await slackClient.uploadFile({
+    channelId: channel,
+    threadTs: thread_ts,
+    fileBuffer: buffer,
+    filename,
+    title,
+  })
+
+  let messageTs: string | undefined
+  let messageUserId: string | undefined
+  try {
+    const message = await slackClient.getLatestChannelMessage({
+      channelId: channel,
+      threadTs: thread_ts,
+      oldestTs,
+    })
+
+    if (message && message.user === slackClient.getBotUserId()) {
+      messageTs = message.ts
+      messageUserId = message.user
+    } else {
+      logger
+        .forBot()
+        .warn('Could not correlate uploaded Slack file with a bot message; thread/reaction tracking will be limited')
+    }
+  } catch (err) {
+    logger.forBot().warn(`Failed to retrieve uploaded file message metadata: ${err}`)
+  }
+
+  await ack({ tags: { ts: messageTs, channelId: channel, userId: messageUserId } })
 }
 
 const _sendSlackMessage = async (
