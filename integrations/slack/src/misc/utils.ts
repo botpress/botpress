@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
 import { SlackClient } from 'src/slack-api'
 import * as bp from '.botpress'
@@ -33,8 +34,13 @@ export const downloadBotpressFile = async (
     }
   }
 
-  const response = await axios.get<ArrayBuffer>(downloadUrl, { responseType: 'arraybuffer' })
-  return { buffer: Buffer.from(response.data), filename }
+  try {
+    const response = await axios.get<ArrayBuffer>(downloadUrl, { responseType: 'arraybuffer' })
+    return { buffer: Buffer.from(response.data), filename }
+  } catch (error) {
+    logger.forBot().error('Error while downloading file from URL:', error)
+    throw new RuntimeError(error instanceof Error ? error.message : String(error))
+  }
 }
 
 export const isValidUrl = (str: string) => {

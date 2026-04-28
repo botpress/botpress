@@ -242,6 +242,41 @@ export class SlackClient {
     return message
   }
 
+  @requireAllScopes(['channels:history', 'groups:history', 'im:history', 'mpim:history'])
+  @handleErrors('Failed to retrieve latest channel message')
+  public async getLatestChannelMessage({
+    channelId,
+    threadTs,
+    oldestTs,
+  }: {
+    channelId: string
+    threadTs?: string
+    oldestTs?: string
+  }) {
+    if (threadTs) {
+      const { messages } = surfaceSlackErrors({
+        logger: this._logger,
+        response: await this._slackWebClient.conversations.replies({
+          channel: channelId,
+          ts: threadTs,
+          oldest: oldestTs,
+        }),
+      })
+      return messages?.[messages.length - 1]
+    }
+
+    const { messages } = surfaceSlackErrors({
+      logger: this._logger,
+      response: await this._slackWebClient.conversations.history({
+        channel: channelId,
+        limit: 1,
+        oldest: oldestTs,
+      }),
+    })
+
+    return messages?.[0]
+  }
+
   @requireAllScopes(['im:write'])
   @handleErrors('Failed to start DM with user')
   public async startDmWithUser(channelId: string) {

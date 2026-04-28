@@ -216,6 +216,8 @@ const _uploadSlackFile = async (
 
   const slackClient = await SlackClient.createFromStates({ client, ctx, logger })
 
+  const oldestTs = (Date.now() / 1000 - 1).toFixed(6)
+
   await slackClient.uploadFile({
     channelId: channel,
     threadTs: thread_ts,
@@ -224,7 +226,28 @@ const _uploadSlackFile = async (
     title,
   })
 
-  await ack({ tags: { channelId: channel } })
+  let messageTs: string | undefined
+  let messageUserId: string | undefined
+  try {
+    const message = await slackClient.getLatestChannelMessage({
+      channelId: channel,
+      threadTs: thread_ts,
+      oldestTs,
+    })
+
+    if (message && message.user === slackClient.getBotUserId()) {
+      messageTs = message.ts
+      messageUserId = message.user
+    } else {
+      logger
+        .forBot()
+        .warn('Could not correlate uploaded Slack file with a bot message; thread/reaction tracking will be limited')
+    }
+  } catch (err) {
+    logger.forBot().warn(`Failed to retrieve uploaded file message metadata: ${err}`)
+  }
+
+  await ack({ tags: { ts: messageTs, channelId: channel, userId: messageUserId } })
 }
 
 const _sendSlackMessage = async (
