@@ -55,7 +55,7 @@ export class ChatCommand extends GlobalCommand<ChatCommandDefinition> {
     convLine.success(`Conversation created with id "${conversation.id}"`)
     convLine.commit()
 
-    const chat = Chat.launch({ client, conversationId: conversation.id })
+    const chat = Chat.launch({ client, conversationId: conversation.id, protocol: this.argv.protocol })
     await chat.wait()
   }
 

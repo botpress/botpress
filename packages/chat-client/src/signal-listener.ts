@@ -1,5 +1,5 @@
 import { EventEmitter } from './event-emitter'
-import { listenEventSource, EventSourceEmitter, MessageEvent, ErrorEvent } from './eventsource'
+import { listenEventSource, EventSourceEmitter, MessageEvent, ErrorEvent, ServerEventsProtocol } from './eventsource'
 import { zod as signals, Types } from './gen/signals'
 import { WatchDog } from './watchdog'
 
@@ -35,6 +35,7 @@ export type Signals = {
 
 type Events = Signals & {
   error: Error
+  close: undefined
 }
 
 export type SignalListenerStatus = SignalListenerState['status']
@@ -44,6 +45,7 @@ export type SignalListenerProps = {
   userKey: string
   conversationId: string
   debug: boolean
+  protocol?: ServerEventsProtocol
 }
 
 export class SignalListener extends EventEmitter<Events> {
@@ -100,12 +102,14 @@ export class SignalListener extends EventEmitter<Events> {
   private _connect = async (): Promise<EventSourceEmitter> => {
     const source = await listenEventSource(`${this._props.url}/conversations/${this._props.conversationId}/listen`, {
       headers: { 'x-user-key': this._props.userKey },
+      protocol: this._props.protocol,
     })
 
     const watchdog = WatchDog.init(CONNECTION_TIMEOUT)
 
     source.on('message', this._handleMessage(source, watchdog))
     source.on('error', this._handleError(source, watchdog))
+    source.on('close', this._handleClose(source, watchdog))
     watchdog.on('error', this._handleError(source, watchdog))
 
     this._state = { status: 'connected', source, watchdog }
@@ -122,6 +126,11 @@ export class SignalListener extends EventEmitter<Events> {
     watchdog.reset()
     const signal = this._parseSignal(ev.data)
     this.emit(signal.type, signal.data)
+  }
+
+  private _handleClose = (source: EventSourceEmitter, watchdog: WatchDog) => () => {
+    this._disconnectSync(source, watchdog)
+    this.emit('close', undefined)
   }
 
   private _handleError = (source: EventSourceEmitter, watchdog: WatchDog) => (ev: ErrorEvent | Error) => {

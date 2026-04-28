@@ -1,3 +1,5 @@
+import MarkdownDiv from '../markdown-div'
+
 export default ({
   pageTitle,
   helpText,
@@ -5,6 +7,8 @@ export default ({
   formFieldName,
   options,
   extraHiddenParams,
+  multiple,
+  defaultValues,
 }: {
   pageTitle: string
   helpText: string
@@ -12,6 +16,8 @@ export default ({
   formFieldName: string
   options: { label: string; value: string }[]
   extraHiddenParams: Record<string, string>
+  multiple?: boolean
+  defaultValues?: string[]
 }) => {
   return (
     <div className="d-flex justify-content-center align-items-center vh-100">
@@ -22,16 +28,17 @@ export default ({
             <input type="hidden" name={key} value={value} />
           ))}
           <div className="form-group mb-3">
-            <label htmlFor={formFieldName}>{helpText}</label>
+            <MarkdownDiv>{helpText}</MarkdownDiv>
             <div className="mt-1">
               {options.map((option) => (
                 <div key={option.value} className="form-check">
                   <input
                     className="form-check-input"
-                    type="radio"
+                    type={multiple ? 'checkbox' : 'radio'}
                     id={option.value}
                     name={formFieldName}
                     value={option.value}
+                    checked={defaultValues?.includes(option.value)}
                   ></input>
                   <label className="form-check-label" htmlFor={option.value}>
                     {option.label}
