@@ -29,7 +29,6 @@ type CreateProps = {
 }
 
 export class AirtableClient {
-  private readonly _logger: bp.Logger
   private readonly _baseId: string
   private readonly _base: Airtable.Base
   private readonly _axiosClient: AxiosInstance
@@ -45,7 +44,6 @@ export class AirtableClient {
     accessToken: string
     endpointUrl: string
   }) {
-    this._logger = logger
     this._baseId = baseId
 
     // The Airtable SDK appends /v0/ itself, so strip it from the configured endpoint.
@@ -101,7 +99,7 @@ export class AirtableClient {
   }
 
   @handleErrors('Failed to test connection to Airtable')
-  public async testConnection(): Promise<{ id: string; email: string; scopes: string[] }> {
+  public async testConnection(): Promise<{ id: string; email?: string; scopes?: string[] }> {
     return await this._axiosClient.get('/meta/whoami')
   }
 
