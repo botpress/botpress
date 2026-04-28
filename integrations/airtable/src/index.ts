@@ -9,7 +9,8 @@ export default new botpress.Integration({
   register: async ({ client, ctx, logger }) => {
     try {
       const airtableClient = await AirtableClient.createFromStates({ client, ctx, logger })
-      await airtableClient.testConnection()
+      const { id } = await airtableClient.testConnection()
+      await client.configureIntegration({ identifier: id })
     } catch (thrown) {
       const message = thrown instanceof Error ? thrown.message : String(thrown)
       throw new sdk.RuntimeError(`Failed to connect to Airtable. Re-run the setup wizard. (${message})`)
