@@ -101,6 +101,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
 const _safeCheckWebhookSignature = ({
   req,
   linearEvent,
+  ctx,
 }: {
   req: Request
   linearEvent: LinearEvent
@@ -112,7 +113,7 @@ const _safeCheckWebhookSignature = ({
     return { success: false, message: 'missing signature header or request body' }
   }
 
-  const webhookHandler = new LinearWebhookClient(bp.secrets.WEBHOOK_SIGNING_SECRET)
+  const webhookHandler = new LinearWebhookClient(_getWebhookSigningSecret({ ctx }))
   const bodyBuffer = Buffer.from(req.body)
   const timeStampHeader = linearEvent[LINEAR_WEBHOOK_TS_FIELD]
   try {
@@ -129,6 +130,11 @@ const _safeCheckWebhookSignature = ({
     }
   }
 }
+
+const _getWebhookSigningSecret = ({ ctx }: { ctx: bp.Context }) =>
+  ctx.configurationType === 'apiKey' && ctx.configuration.webhookSigningSecret
+    ? ctx.configuration.webhookSigningSecret
+    : bp.secrets.WEBHOOK_SIGNING_SECRET
 
 const _getLinearBotId = async ({ client, ctx }: { client: bp.Client; ctx: bp.Context }) => {
   const linearClient = await getLinearClient({ client, ctx })
