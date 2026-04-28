@@ -1,5 +1,6 @@
 {
   "name": "@botpresshub/chat",
+  "private": true,
   "scripts": {
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",
@@ -7,10 +8,10 @@
     "build": "bp add -y && bp build",
     "test": "vitest --run"
   },
-  "private": true,
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.564.0",
     "@botpress/sdk": "workspace:*",
+    "@bpinternal/pingrip": "0.1.1",
     "@opentelemetry/api": "1.9.0",
     "@opentelemetry/core": "1.30.0",
     "@opentelemetry/exporter-trace-otlp-http": "0.54.2",
