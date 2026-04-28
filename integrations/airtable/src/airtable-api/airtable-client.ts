@@ -34,7 +34,6 @@ export class AirtableClient {
   private readonly _axiosClient: AxiosInstance
 
   private constructor({
-    logger,
     baseId,
     accessToken,
     endpointUrl,
