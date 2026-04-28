@@ -9,10 +9,22 @@ function getRetryAfterMs(error: Parameters<NonNullable<client.RetryConfig['retry
 
   const headerNames = ['retry-after', 'ratelimit-reset', 'x-ratelimit-reset']
   for (const name of headerNames) {
-    const value = headers[name]
-    if (!value) continue
-    const seconds = parseInt(String(value), 10)
-    if (!isNaN(seconds) && seconds > 0) {
+    const raw = headers[name]
+    if (!raw) continue
+    const value = String(raw)
+
+    // HTTP-date format (e.g. "Mon, 28 Apr 2026 12:00:00 GMT")
+    if (value.includes(' ')) {
+      const futureDate = new Date(value)
+      if (!isNaN(futureDate.getTime())) {
+        return Math.max(0, futureDate.getTime() - Date.now())
+      }
+      continue
+    }
+
+    // Seconds format (e.g. "120")
+    const seconds = parseInt(value, 10)
+    if (!isNaN(seconds) && seconds >= 0) {
       return seconds * 1000
     }
   }
