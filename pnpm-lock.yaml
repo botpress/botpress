@@ -17,8 +17,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.91.0
-        version: 1.91.0
+        specifier: 1.95.0
+        version: 1.95.0
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -4179,8 +4179,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@botpress/api@1.91.0':
-    resolution: {integrity: sha512-eVzlWZ5VeEZpBoUsu4k6TssE6VjkTUaayWigxlAe5ISN2N027XyxuPA85i81tiYuIpNdRJ+Iox9ECJuaChnX1w==}
+  '@botpress/api@1.95.0':
+    resolution: {integrity: sha512-6S7qzvAkrpVjURFWdXhDe8NPqvzUDZytXnzUyKCxR1eK+VhLAPnyZvDuzwZ0knJuyLoA6rsxNedPCPwXWayI/Q==}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -6740,6 +6740,9 @@ packages:
 
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
+
+  '@types/ws@8.5.5':
+    resolution: {integrity: sha512-lwhs8hktwxSjf9UaZ9tG5M03PGogvFaH8gUgLNbN9HKIg0dvv6q+gkSuJ8HN4/VbyxkuLzCjlN7GquQ0gUJfIg==}
 
   '@types/yargs-parser@21.0.0':
     resolution: {integrity: sha512-iO9ZQHkZxHn4mSakYV0vFHAVDyEOIJQrV2uZ06HxEPcx+mt8swXoZHIbaaJ2crJYFfErySgktuTZ3BeLz+XmFA==}
@@ -12431,6 +12434,18 @@ packages:
       utf-8-validate:
         optional: true
 
+  ws@8.13.0:
+    resolution: {integrity: sha512-x9vcZYTrFPC7aSIbj7sRCYo7L/Xb8Iy+pW0ng0wt2vCJv7M9HOMy0UoN3rr+IFC7hb7vXoqS+P9ktyLLLhO+LA==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
   ws@8.18.2:
     resolution: {integrity: sha512-DMricUmwGZUVr++AEAe2uiVM7UoO9MAVZMDu05UQOaUII0lp+zOzLLU4Xqh/JvTqklB1T4uELaaPBKyjE1r4fQ==}
     engines: {node: '>=10.0.0'}
@@ -13942,7 +13957,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.91.0':
+  '@botpress/api@1.95.0':
     dependencies:
       '@bpinternal/opapi': 1.0.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -14043,10 +14058,10 @@ snapshots:
 
   '@bpinternal/tunnel@0.1.1':
     dependencies:
-      '@types/ws': 8.18.1
+      '@types/ws': 8.5.5
       browser-or-node: 2.1.1
-      isomorphic-ws: 5.0.0(ws@8.20.0)
-      ws: 8.20.0
+      isomorphic-ws: 5.0.0(ws@8.13.0)
+      ws: 8.13.0
       zod: 3.24.2
     transitivePeerDependencies:
       - bufferutil
@@ -16756,6 +16771,10 @@ snapshots:
       '@types/node': 22.16.4
 
   '@types/ws@8.18.1':
+    dependencies:
+      '@types/node': 22.16.4
+
+  '@types/ws@8.5.5':
     dependencies:
       '@types/node': 22.16.4
 
@@ -20067,9 +20086,9 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  isomorphic-ws@5.0.0(ws@8.20.0):
+  isomorphic-ws@5.0.0(ws@8.13.0):
     dependencies:
-      ws: 8.20.0
+      ws: 8.13.0
 
   isstream@0.1.2: {}
 
@@ -23938,9 +23957,12 @@ snapshots:
 
   ws@7.5.10: {}
 
+  ws@8.13.0: {}
+
   ws@8.18.2: {}
 
-  ws@8.20.0: {}
+  ws@8.20.0:
+    optional: true
 
   wsl-utils@0.1.0:
     dependencies:
