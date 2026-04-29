@@ -17,6 +17,9 @@ export class ServeCommand extends ProjectCommand<ServeCommandDefinition> {
     if (projectType === 'interface') {
       throw new errors.BotpressCLIError('An interface project has no implementation to serve.')
     }
+    if (this.argv.setupEnv && projectType !== 'integration') {
+      throw new errors.BotpressCLIError('--setupEnv is only supported for integration projects.')
+    }
 
     if (projectType === 'integration' || projectType === 'bot') {
       const projectDef = await resolveProjectDefinition()
@@ -28,14 +31,9 @@ export class ServeCommand extends ProjectCommand<ServeCommandDefinition> {
       for (const [key, value] of Object.entries(nonNullSecretEnvVariables)) {
         process.env[key] = value
       }
-    }
-
-    if (this.argv.setupEnv) {
-      if (projectType !== 'integration') {
-        throw new errors.BotpressCLIError('--setupEnv is only supported for integration projects.')
+      if (this.argv.setupEnv && projectDef.type === 'integration') {
+        await this._setupEnvForLocalServe(projectDef.definition)
       }
-      const projectDef = await resolveProjectDefinition()
-      await this._setupEnvForLocalServe(projectDef.definition)
     }
 
     if (this.argv.entry) {
@@ -101,7 +99,10 @@ export class ServeCommand extends ProjectCommand<ServeCommandDefinition> {
 
     await new Promise<void>((resolve, reject) => {
       child.on('error', reject)
-      child.on('close', resolve)
+      child.on('close', (code) => {
+        if (code === 0 || code === null) resolve()
+        else reject(new Error(`Entry script exited with code ${code}`))
+      })
     })
   }
 }
