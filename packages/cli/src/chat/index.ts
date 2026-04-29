@@ -43,6 +43,7 @@ const EXIT_KEYWORDS = ['exit', '.exit']
 export type ChatProps = {
   client: chat.AuthenticatedClient
   conversationId: string
+  protocol: chat.ServerEventsProtocol
 }
 
 export class Chat {
@@ -61,7 +62,10 @@ export class Chat {
     this._switchAlternateScreenBuffer()
     this._events.on('state', this._renderMessages)
 
-    const connection = await this._props.client.listenConversation({ id: this._props.conversationId })
+    const connection = await this._props.client.listenConversation({
+      id: this._props.conversationId,
+      protocol: this._props.protocol,
+    })
     const keyboard = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
