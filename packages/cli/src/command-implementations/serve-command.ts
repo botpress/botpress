@@ -81,7 +81,7 @@ export class ServeCommand extends ProjectCommand<ServeCommandDefinition> {
     process.env.BP_TOKEN = iak
     process.env.BP_WORKSPACE_ID = api.workspaceId
 
-    this.logger.debug(`--setupEnv: configured BP_API_URL=${api.url} BP_WORKSPACE_ID=${api.workspaceId} BP_TOKEN=<iak>`)
+    this.logger.debug(`Env configured with BP_API_URL=${api.url} BP_WORKSPACE_ID=${api.workspaceId} BP_TOKEN=<iak>`)
   }
 
   private async _runEntryScript(entry: string): Promise<void> {
@@ -96,24 +96,12 @@ export class ServeCommand extends ProjectCommand<ServeCommandDefinition> {
     this.logger.log(`Serving via entry script ${entryPath}...`)
     const child = spawn('node', [entryPath], { env: process.env, stdio: 'inherit' })
 
-    const forwardSignal = (sig: NodeJS.Signals) => () => {
-      child.kill(sig)
-    }
-    const onSigterm = forwardSignal('SIGTERM')
-    const onSigint = forwardSignal('SIGINT')
-    process.on('SIGTERM', onSigterm)
-    process.on('SIGINT', onSigint)
+    process.on('SIGTERM', () => child.kill('SIGTERM'))
+    process.on('SIGINT', () => child.kill('SIGINT'))
 
-    try {
-      await new Promise<void>((resolve, reject) => {
-        child.on('error', reject)
-        child.on('exit', (code) =>
-          code === 0 || code === null ? resolve() : reject(new Error(`entry exited with ${code}`))
-        )
-      })
-    } finally {
-      process.off('SIGTERM', onSigterm)
-      process.off('SIGINT', onSigint)
-    }
+    await new Promise<void>((resolve, reject) => {
+      child.on('error', reject)
+      child.on('close', resolve)
+    })
   }
 }
