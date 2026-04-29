@@ -4182,10 +4182,6 @@ packages:
   '@botpress/api@1.95.0':
     resolution: {integrity: sha512-6S7qzvAkrpVjURFWdXhDe8NPqvzUDZytXnzUyKCxR1eK+VhLAPnyZvDuzwZ0knJuyLoA6rsxNedPCPwXWayI/Q==}
 
-  '@botpress/client@1.41.0':
-    resolution: {integrity: sha512-70o3wZRMuIxMgjU92SFvbd7iaLtNNjN59bqjX0tmliLssysO0+PvR9vafF/Hoe/6T+1yeAIcAM5WoGj5GY7bhA==}
-    engines: {node: '>=18.0.0'}
-
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
