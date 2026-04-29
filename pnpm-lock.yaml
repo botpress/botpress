@@ -2668,7 +2668,7 @@ importers:
         version: link:../chat-client
       '@botpress/client':
         specifier: 1.41.0
-        version: link:../client
+        version: 1.41.0
       '@botpress/sdk':
         specifier: 6.6.0
         version: link:../sdk
@@ -2792,7 +2792,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 1.41.0
-        version: link:../../../client
+        version: 1.41.0
       '@botpress/sdk':
         specifier: 6.6.0
         version: link:../../../sdk
@@ -2808,7 +2808,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 1.41.0
-        version: link:../../../client
+        version: 1.41.0
       '@botpress/sdk':
         specifier: 6.6.0
         version: link:../../../sdk
@@ -2837,7 +2837,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 1.41.0
-        version: link:../../../client
+        version: 1.41.0
       '@botpress/sdk':
         specifier: 6.6.0
         version: link:../../../sdk
@@ -2853,7 +2853,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 1.41.0
-        version: link:../../../client
+        version: 1.41.0
       '@botpress/sdk':
         specifier: 6.6.0
         version: link:../../../sdk
@@ -3007,7 +3007,7 @@ importers:
         version: 7.26.9
       '@botpress/client':
         specifier: 1.41.0
-        version: link:../client
+        version: 1.41.0
       '@botpress/cognitive':
         specifier: 0.5.3
         version: link:../cognitive
@@ -3113,7 +3113,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 1.41.0
-        version: link:../client
+        version: 1.41.0
       '@bpinternal/zui':
         specifier: ^2.1.1
         version: link:../zui
@@ -3150,7 +3150,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 1.41.0
-        version: link:../client
+        version: 1.41.0
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
         version: 1.0.2
@@ -4181,6 +4181,10 @@ packages:
 
   '@botpress/api@1.95.0':
     resolution: {integrity: sha512-6S7qzvAkrpVjURFWdXhDe8NPqvzUDZytXnzUyKCxR1eK+VhLAPnyZvDuzwZ0knJuyLoA6rsxNedPCPwXWayI/Q==}
+
+  '@botpress/client@1.41.0':
+    resolution: {integrity: sha512-70o3wZRMuIxMgjU92SFvbd7iaLtNNjN59bqjX0tmliLssysO0+PvR9vafF/Hoe/6T+1yeAIcAM5WoGj5GY7bhA==}
+    engines: {node: '>=18.0.0'}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -13965,6 +13969,15 @@ snapshots:
       - openapi-types
       - supports-color
 
+  '@botpress/client@1.41.0':
+    dependencies:
+      axios: 1.13.6
+      axios-retry: 4.5.0(axios@1.13.6)
+      browser-or-node: 2.1.1
+      qs: 6.15.0
+    transitivePeerDependencies:
+      - debug
+
   '@bpinternal/const@0.1.0': {}
 
   '@bpinternal/depsynky@0.3.2':
@@ -17253,6 +17266,11 @@ snapshots:
   axios-retry@3.9.1:
     dependencies:
       '@babel/runtime': 7.24.7
+      is-retry-allowed: 2.2.0
+
+  axios-retry@4.5.0(axios@1.13.6):
+    dependencies:
+      axios: 1.13.6
       is-retry-allowed: 2.2.0
 
   axios-retry@4.5.0(axios@1.4.0):
