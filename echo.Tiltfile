@@ -108,7 +108,7 @@ dynamodb_resource = {
   }
 }
 
-PUSHPIN_ROUTES = "* %s:443,ssl,insecure,host=%s" % (API.bp_webhook_domain, API.bp_webhook_domain)
+PUSHPIN_ROUTES = "*,proto=ws %s:443,ssl,insecure,host=%s,over_http\n* %s:443,ssl,insecure,host=%s" % (API.bp_webhook_domain, API.bp_webhook_domain, API.bp_webhook_domain, API.bp_webhook_domain)
 PUSHPIN_CONFIG = "%s" % read_file(PUSHPIN_CONFIG_PATH, '')
 pushpin_ressource = {
   "image": "botpress/pushpin",

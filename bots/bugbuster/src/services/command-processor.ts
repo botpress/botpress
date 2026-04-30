@@ -58,57 +58,71 @@ export class CommandProcessor {
     }
   }
 
-  // private _addNotifChannel: types.CommandImplementation = async ([channelToAdd, ...teams]: string[]) => {
-  //   if (!channelToAdd || !teams[0]) {
-  //     return { success: false, message: MISSING_ARGS_ERROR }
-  //   }
+  private _addNotifChannel: types.CommandImplementation = async ([channelToAdd, ...teams]: string[]) => {
+    if (!channelToAdd || !teams[0]) {
+      return { success: false, message: MISSING_ARGS_ERROR }
+    }
 
-  //   const {
-  //     state: {
-  //       payload: { channels },
-  //     },
-  //   } = await this._client.getOrSetState({
-  //     id: this._botId,
-  //     name: 'notificationChannels',
-  //     type: 'bot',
-  //     payload: { channels: [] },
-  //   })
+    const {
+      state: {
+        payload: { channels },
+      },
+    } = await this._client.getOrSetState({
+      id: this._botId,
+      name: 'notificationChannels',
+      type: 'bot',
+      payload: { channels: [] },
+    })
 
-  //   const watchedTeams = await this._teamsManager.listWatchedTeams()
-  //   if (!teams.every((team) => watchedTeams.includes(team))) {
-  //     return {
-  //       success: false,
-  //       message: 'make sure every team you want to add is being watched.',
-  //     }
-  //   }
+    const watchedTeams = await this._teamsManager.listWatchedTeams()
+    if (!teams.every((team) => watchedTeams.includes(team))) {
+      return {
+        success: false,
+        message: 'make sure every team you want to add is being watched.',
+      }
+    }
 
-  //   const existingChannel = channels.find((channel) => channel.name === channelToAdd)
-  //   if (!existingChannel) {
-  //     const conversation = await this._client.callAction({
-  //       type: 'slack:startChannelConversation',
-  //       input: { channelName: channelToAdd },
-  //     })
-  //     channels.push({ conversationId: conversation.output.conversationId, name: channelToAdd, teams })
-  //   } else {
-  //     teams.forEach((team) => {
-  //       if (!existingChannel.teams.includes(team)) {
-  //         existingChannel.teams.push(team)
-  //       }
-  //     })
-  //   }
+    const existingChannel = channels.find((channel) => channel.name === channelToAdd)
+    if (!existingChannel) {
+      const channelId = await this._resolveChannelId(channelToAdd)
+      if (!channelId) {
+        return { success: false, message: `Could not find a Slack channel matching '${channelToAdd}'.` }
+      }
+      const conversation = await this._client.callAction({
+        type: 'slack:getOrCreateChannelConversation',
+        input: { conversation: { channelId } },
+      })
+      channels.push({ conversationId: conversation.output.conversationId, name: channelToAdd, teams })
+    } else {
+      teams.forEach((team) => {
+        if (!existingChannel.teams.includes(team)) {
+          existingChannel.teams.push(team)
+        }
+      })
+    }
 
-  //   await this._client.setState({
-  //     id: this._botId,
-  //     name: 'notificationChannels',
-  //     type: 'bot',
-  //     payload: { channels },
-  //   })
+    await this._client.setState({
+      id: this._botId,
+      name: 'notificationChannels',
+      type: 'bot',
+      payload: { channels },
+    })
 
-  //   return {
-  //     success: true,
-  //     message: `Notifications for team(s) ${teams.join(', ')} will be posted in channel ${channelToAdd}.`,
-  //   }
-  // }
+    return {
+      success: true,
+      message: `Notifications for team(s) ${teams.join(', ')} will be posted in channel ${channelToAdd}.`,
+    }
+  }
+
+  private async _resolveChannelId(input: string): Promise<string | undefined> {
+    const { output } = await this._client.callAction({
+      type: 'slack:findTarget',
+      input: { query: input, channel: 'channel' },
+    })
+    const exact = output.targets.find((t) => t.displayName === input)
+    const match = exact ?? output.targets[0]
+    return match?.tags.id
+  }
 
   private _removeNotifChannel: types.CommandImplementation = async ([channelToRemove]: string[]) => {
     if (!channelToRemove) {
@@ -243,12 +257,12 @@ export class CommandProcessor {
       name: '#lintAll',
       implementation: this._lintAll,
     },
-    // {
-    //   name: '#addNotifChannel',
-    //   implementation: this._addNotifChannel,
-    //   requiredArgs: ['channelName', 'teamName1'],
-    //   optionalArgs: ['teamName2 ...'],
-    // },
+    {
+      name: '#addNotifChannel',
+      implementation: this._addNotifChannel,
+      requiredArgs: ['channelName', 'teamName1'],
+      optionalArgs: ['teamName2 ...'],
+    },
     {
       name: '#removeNotifChannel',
       implementation: this._removeNotifChannel,
