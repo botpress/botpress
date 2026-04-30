@@ -23,6 +23,8 @@ export type LinearIssueEvent = {
   type: 'issue'
   data: {
     id: string
+    identifier: string
+    url: string
     creatorId: string
     labelIds?: string[]
     number: number
@@ -44,7 +46,10 @@ export type LinearIssueEvent = {
       name: string
     }
     state: {
+      id: string
       name: string
+      color: string
+      type: string
     }
     project?: {
       id: string
