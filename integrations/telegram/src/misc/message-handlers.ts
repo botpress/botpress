@@ -44,11 +44,11 @@ const sendContentOrFallback = async <P extends MessageHandlerProps<keyof bp.Mess
   const sendFn = send(client.telegram)
   const opts = 'caption' in payload ? { caption: payload.caption } : undefined
   logger.forBot().debug(`calling ${sendFn.name} to Telegram chat ${chat}: ${url}`)
+  let message: TelegramMessage
   try {
-    const message = await sendFn
+    message = await sendFn
       .call(client.telegram, chat, url, opts)
       .catch(mapToRuntimeErrorAndThrow(`Failed to ${sendFn.name}`))
-    await ackMessage(message, ack)
   } catch (err) {
     if (fallback) {
       await fallback()
@@ -60,11 +60,11 @@ const sendContentOrFallback = async <P extends MessageHandlerProps<keyof bp.Mess
         `Telegram could not send the media using ${sendFn.name}, sending it as a plain text link instead: ${String(err)}`
       )
     const text = opts?.caption ? `${opts.caption}\n${url}` : url
-    const message = await client.telegram
+    message = await client.telegram
       .sendMessage(chat, text)
       .catch(mapToRuntimeErrorAndThrow('Fail to send media link fallback'))
-    await ackMessage(message, ack)
   }
+  await ackMessage(message, ack)
 }
 
 export const handleTextMessage = async (props: MessageHandlerProps<'text'>) => {
