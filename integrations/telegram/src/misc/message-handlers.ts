@@ -57,7 +57,7 @@ const sendContentOrFallback = async <P extends MessageHandlerProps<keyof bp.Mess
     logger
       .forBot()
       .warn(`Telegram could not send the media using ${sendFn.name}, sending it as a plain text link instead: ${String(err)}`)
-    const text = opts ? `${opts.caption}\n${url}` : url
+    const text = opts?.caption ? `${opts.caption}\n${url}` : url
     const message = await client.telegram
       .sendMessage(chat, text)
       .catch(mapToRuntimeErrorAndThrow('Fail to send media link fallback'))
