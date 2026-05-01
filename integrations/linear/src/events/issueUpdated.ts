@@ -34,7 +34,6 @@ export const fireIssueUpdated = async ({ linearEvent, client, ctx }: IssueProps)
       projectId: linearEvent.data.project?.id,
       assigneeId: linearEvent.data.assignee?.id,
       subscriberIds: linearEvent.data.subscriberIds,
-      statusId: linearEvent.data.state.id,
     },
     targets: {
       issue: { id: linearEvent.data.id },

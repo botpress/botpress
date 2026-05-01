@@ -69,7 +69,6 @@ export const linearIdsSchema = z
       .title('Label IDs')
       .describe('The internal Linear Label IDs associated with the issue'),
     issueId: z.string().title('Issue ID').describe('The internal Linear Issue ID'),
-    statusId: z.string().title('Status ID').describe('The internal Linear State ID'),
     teamId: z.string().optional().title('Team ID').describe('The internal Linear Team ID'),
     projectId: z.string().optional().title('Project ID').describe('The internal Linear Project ID'),
     assigneeId: z.string().optional().title('Assignee User ID').describe('The internal Linear Assignee ID'),
