@@ -17,7 +17,14 @@ const issueUpdated = {
   }),
 } as const satisfies EventDefinition
 
+const issueDeleted = {
+  title: 'Issue Deleted',
+  description: 'Triggered when an issue is deleted',
+  schema: issueEventSchema.omit({ userId: true, conversationId: true }),
+} as const satisfies EventDefinition
+
 export const events = {
   issueCreated,
   issueUpdated,
+  issueDeleted,
 } as const satisfies IntegrationDefinitionProps['events']
