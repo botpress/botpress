@@ -9,7 +9,7 @@ import listable from './bp_modules/listable'
 import { actions, channels, events, configuration, configurations, user, states, entities } from './definitions'
 
 export const INTEGRATION_NAME = 'linear'
-export const INTEGRATION_VERSION = '2.1.3'
+export const INTEGRATION_VERSION = '2.2.0'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
