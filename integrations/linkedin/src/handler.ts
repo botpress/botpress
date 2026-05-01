@@ -1,4 +1,3 @@
-import { RuntimeError } from '@botpress/sdk'
 import * as crypto from 'crypto'
 import { LinkedInOAuthClient } from './linkedin-api'
 import { verifyLinkedInWebhook, dispatchWebhookEvent } from './webhook'

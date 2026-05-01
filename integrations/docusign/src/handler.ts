@@ -12,7 +12,9 @@ export const handler = async (props: bp.HandlerProps) => {
     const searchParams = new URLSearchParams(props.req.query)
     const error = searchParams.get('error')
     if (error) {
-      return generateRedirection(getInterstitialUrl(false, `OAuth error: ${error} - ${searchParams.get('error_description') ?? ''}`))
+      return generateRedirection(
+        getInterstitialUrl(false, `OAuth error: ${error} - ${searchParams.get('error_description') ?? ''}`)
+      )
     }
 
     const oAuthCode = searchParams.get('code')

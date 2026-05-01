@@ -138,7 +138,10 @@ export const getAccountState = async (props: CommonHandlerProps) => {
   return { account: accountState, hasChanged: hasAccountChanged }
 }
 
-export const exchangeAuthCodeForRefreshToken = async (props: bp.HandlerProps, oAuthCode: string): Promise<sdk.Response> => {
+export const exchangeAuthCodeForRefreshToken = async (
+  props: bp.HandlerProps,
+  oAuthCode: string
+): Promise<sdk.Response> => {
   try {
     const authClient = DocusignAuthClient.create(props)
     const tokenResp = await authClient.getAccessTokenWithCode(oAuthCode)
