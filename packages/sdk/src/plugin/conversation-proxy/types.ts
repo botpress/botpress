@@ -78,7 +78,7 @@ export type ActionableConversation<
       Omit<client.ClientInputs['updateConversation'], 'id'>,
       { tags?: commonTypes.ToTags<typeUtils.StringKeys<TPlugin['conversation']['tags']>> }
     >
-  ) => Promise<ActionableConversation<TPlugin>>
+  ) => Promise<ActionableConversation<TPlugin, TChannelName, TMessage>>
   getMessage: (props: { id: string }) => Promise<messageProxy.ActionableMessage<TPlugin, TMessage>>
   getOrCreateMessage: (
     props: Omit<client.ClientInputs['getOrCreateMessage'], 'conversationId' | 'tags' | 'type' | 'payload'> &

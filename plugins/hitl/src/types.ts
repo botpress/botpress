@@ -25,8 +25,16 @@ export type MessageTags = {
   [T in keyof bp.message.Message['tags']]?: string
 }
 
-export type ActionableConversation = NonNullable<
+export type UnknownActionableConversation = bp.MessageHandlerProps['conversation']
+export type UnknownActionableMessage = bp.MessageHandlerProps['message']
+export type UnknownActionableUser = bp.MessageHandlerProps['user']
+
+export type HitlActionableConversation = NonNullable<
   Awaited<ReturnType<bp.ActionHandlerProps['conversations']['hitl']['hitl']['getById']>>
 >
-export type ActionableMessage = NonNullable<Awaited<ReturnType<bp.ActionHandlerProps['messages']['getById']>>>
-export type ActionableUser = NonNullable<Awaited<ReturnType<bp.ActionHandlerProps['users']['getById']>>>
+export type HitlActionableMessage = NonNullable<Awaited<ReturnType<bp.ActionHandlerProps['messages']['getById']>>>
+export type HitlActionableUser = NonNullable<Awaited<ReturnType<bp.ActionHandlerProps['users']['getById']>>>
+
+export type ActionableConversation = HitlActionableConversation | UnknownActionableConversation
+export type ActionableMessage = HitlActionableMessage | UnknownActionableMessage
+export type ActionableUser = HitlActionableUser | UnknownActionableUser
