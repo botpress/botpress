@@ -46,7 +46,6 @@ export type LinearIssueEvent = {
       name: string
     }
     state: {
-      id: string
       name: string
       color: string
       type: string
