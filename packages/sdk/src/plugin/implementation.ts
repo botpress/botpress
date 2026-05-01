@@ -1,3 +1,4 @@
+import * as client from '@botpress/client'
 import type {
   MessageHandlersMap as BotMessageHandlersMap,
   EventHandlersMap as BotEventHandlersMap,
@@ -45,6 +46,11 @@ import { proxyUser, proxyUsers, type UserFinder } from './user-proxy'
 export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> = {
   actions: ActionHandlers<TPlugin>
 }
+
+type WithMessageContext<T> = T & { user: client.User; conversation: client.Conversation }
+
+const _hookInputHasMessageContext = <T extends object>(input: T): input is WithMessageContext<T> =>
+  'user' in input && 'conversation' in input
 
 type Tools<TPlugin extends BasePlugin = BasePlugin> = InjectedHandlerProps<TPlugin>
 
@@ -264,12 +270,37 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
 
                 return handlers.map(({ handler }) =>
                   utils.functions.setName(
-                    (input: utils.types.ValueOf<HookInputsWithoutInjectedProps<TPlugin>>['*']) =>
-                      handler({
-                        ...input,
-                        data: unprefixTagsOwnedByPlugin(input.data, { alias: this._runtime.alias }),
-                        ...this._getTools(input.client),
-                      }),
+                    (input: utils.types.ValueOf<HookInputsWithoutInjectedProps<TPlugin>>['*']) => {
+                      const data = unprefixTagsOwnedByPlugin(input.data, { alias: this._runtime.alias })
+                      const tools = this._getTools(input.client)
+                      const callHandler = handler as (props: unknown) => unknown
+
+                      // `before_incoming_message` and `after_incoming_message` carry the raw
+                      // `user` and `conversation` from the incoming event payload; wrap them
+                      // as proxies so handlers see the same shape as `plugin.on.message(...)`.
+                      // Other hook types don't carry these fields, so we just forward.
+                      if (_hookInputHasMessageContext(input)) {
+                        const { user, conversation, client: pluginClient } = input
+                        return callHandler({
+                          ...input,
+                          data,
+                          user: proxyUser({
+                            client: pluginClient,
+                            user,
+                            conversationId: conversation.id,
+                            pluginAlias: this._runtime.alias,
+                          }),
+                          conversation: proxyConversation({
+                            client: pluginClient,
+                            plugin: this._runtime,
+                            conversation,
+                          }),
+                          ...tools,
+                        })
+                      }
+
+                      return callHandler({ ...input, data, ...tools })
+                    },
                     handler.name
                   )
                 )

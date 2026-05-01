@@ -297,11 +297,38 @@ export type HookData<TBot extends common.BaseBot> = {
   }
 }
 
+/**
+ * Per-hook-type extra props injected into the hook handler input. Only set for
+ * hooks where the runtime already has the relevant context for free (e.g.
+ * incoming message hooks, where `user` and `conversation` are part of the
+ * incoming `event.payload`). Adding entries here lets handlers skip an extra
+ * client round-trip to fetch the same data.
+ */
+export type HookExtraInputs<_TBot extends common.BaseBot> = {
+  before_incoming_event: {}
+  before_incoming_message: {
+    user: client.User
+    conversation: client.Conversation
+  }
+  before_outgoing_message: {}
+  before_outgoing_call_action: {}
+  before_incoming_call_action: {}
+  after_incoming_event: {}
+  after_incoming_message: {
+    user: client.User
+    conversation: client.Conversation
+  }
+  after_outgoing_message: {}
+  after_outgoing_call_action: {}
+  after_incoming_call_action: {}
+}
+
 export type HookInputs<TBot extends common.BaseBot> = {
   [THookType in utils.StringKeys<HookData<TBot>>]: {
-    [THookDataName in utils.StringKeys<HookData<TBot>[THookType]>]: ExtendedHandlerProps<TBot> & {
-      data: HookData<TBot>[THookType][THookDataName]
-    }
+    [THookDataName in utils.StringKeys<HookData<TBot>[THookType]>]: ExtendedHandlerProps<TBot> &
+      HookExtraInputs<TBot>[THookType] & {
+        data: HookData<TBot>[THookType][THookDataName]
+      }
   }
 }
 

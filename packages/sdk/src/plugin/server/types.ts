@@ -403,18 +403,64 @@ export type HookData<TPlugin extends common.BasePlugin> = {
   }
 }
 
+/**
+ * Per-hook-type extra props injected into the hook handler input. Only set for
+ * hooks where the bot runtime already has the relevant context (e.g. incoming
+ * message hooks). The raw shape uses `client.User`/`client.Conversation`; the
+ * injected shape replaces them with proxies (see `HookExtraInputsInjected`).
+ */
+export type HookExtraInputsWithoutInjectedProps = {
+  before_incoming_event: {}
+  before_incoming_message: {
+    user: client.User
+    conversation: client.Conversation
+  }
+  before_outgoing_message: {}
+  before_outgoing_call_action: {}
+  before_incoming_call_action: {}
+  after_incoming_event: {}
+  after_incoming_message: {
+    user: client.User
+    conversation: client.Conversation
+  }
+  after_outgoing_message: {}
+  after_outgoing_call_action: {}
+  after_incoming_call_action: {}
+}
+
+export type HookExtraInputsInjected<TPlugin extends common.BasePlugin> = {
+  before_incoming_event: {}
+  before_incoming_message: {
+    user: userProxy.ActionableUser<TPlugin, string>
+    conversation: conversationProxy.ActionableConversation<TPlugin>
+  }
+  before_outgoing_message: {}
+  before_outgoing_call_action: {}
+  before_incoming_call_action: {}
+  after_incoming_event: {}
+  after_incoming_message: {
+    user: userProxy.ActionableUser<TPlugin, string>
+    conversation: conversationProxy.ActionableConversation<TPlugin>
+  }
+  after_outgoing_message: {}
+  after_outgoing_call_action: {}
+  after_incoming_call_action: {}
+}
+
 export type HookInputsWithoutInjectedProps<TPlugin extends common.BasePlugin> = {
   [THookType in utils.StringKeys<HookData<TPlugin>>]: {
-    [THookDataName in utils.StringKeys<HookData<TPlugin>[THookType]>]: CommonHandlerProps<TPlugin> & {
-      data: HookData<TPlugin>[THookType][THookDataName]
-    }
+    [THookDataName in utils.StringKeys<HookData<TPlugin>[THookType]>]: CommonHandlerProps<TPlugin> &
+      HookExtraInputsWithoutInjectedProps[THookType] & {
+        data: HookData<TPlugin>[THookType][THookDataName]
+      }
   }
 }
 
 export type HookInputs<TPlugin extends common.BasePlugin> = {
   [THookType in utils.StringKeys<HookData<TPlugin>>]: _WithInjectedProps<
     HookInputsWithoutInjectedProps<TPlugin>[THookType],
-    TPlugin
+    TPlugin,
+    HookExtraInputsInjected<TPlugin>[THookType]
   >
 }
 
@@ -437,7 +483,8 @@ export type HookHandlersWithoutInjectedProps<TPlugin extends common.BasePlugin> 
 export type HookHandlers<TPlugin extends common.BasePlugin> = {
   [THookType in utils.StringKeys<HookData<TPlugin>>]: _WithInjectedPropsFn<
     HookHandlersWithoutInjectedProps<TPlugin>[THookType],
-    TPlugin
+    TPlugin,
+    HookExtraInputsInjected<TPlugin>[THookType]
   >
 }
 
