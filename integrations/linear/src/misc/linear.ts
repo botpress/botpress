@@ -2,7 +2,7 @@ import { RuntimeError, z } from '@botpress/sdk'
 import { LinearClient } from '@linear/sdk'
 import axios from 'axios'
 import queryString from 'query-string'
-import { handleErrorsDecorator as handleErrors, wrapAsyncFnWithTryCatch } from './error-handling'
+import { handleErrorsDecorator as handleErrors } from './error-handling'
 import * as bp from '.botpress'
 
 type Credentials = bp.states.States['credentials']['payload']
@@ -271,7 +271,7 @@ export const registerWebhook = async ({
   logger.forBot().info('Linear webhook registered successfully.')
 }
 
-export const handleOauth = wrapAsyncFnWithTryCatch(async ({ req, ctx, client, logger }: bp.HandlerProps) => {
+export const handleOauth = async ({ req, ctx, client, logger }: bp.HandlerProps) => {
   const linearOauthClient = new LinearOauthClient()
 
   const query = queryString.parse(req.query)
@@ -301,4 +301,4 @@ export const handleOauth = wrapAsyncFnWithTryCatch(async ({ req, ctx, client, lo
     const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
     logger.forBot().warn('Failed to register webhook:', errorMessage)
   }
-})
+}

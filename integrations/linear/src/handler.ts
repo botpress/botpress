@@ -1,5 +1,7 @@
 import { Request, RuntimeError } from '@botpress/sdk'
 import { LinearWebhookClient } from '@linear/sdk/webhooks'
+import { generateRedirection } from '@botpress/common/src/html-dialogs'
+import { getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
 
 import { fireIssueCreated } from './events/issueCreated'
 import { fireIssueDeleted } from './events/issueDeleted'
@@ -16,7 +18,14 @@ const LINEAR_WEBHOOK_TS_FIELD = 'webhookTimestamp'
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
   const { req, ctx, client, logger } = props
   if (req.path === '/oauth') {
-    return await handleOauth(props)
+    try {
+      return await handleOauth(props)
+    } catch (error) {
+      const errorString = error instanceof Error ? error.message : String(error)
+      const errorMessage = 'OAuth registration error: ' + errorString
+      logger.forBot().error(errorMessage)
+      return generateRedirection(getInterstitialUrl(false, errorMessage))
+    }
   }
 
   if (!req.body) {

@@ -1,6 +1,5 @@
 import { createAsyncFnWrapperWithErrorRedaction, createErrorHandlingDecorator } from '@botpress/common'
-import * as sdk from '@botpress/sdk'
-import { z } from '@botpress/sdk'
+import { z, RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
 
 const linearOAuthErrorSchema = z.object({
@@ -8,12 +7,12 @@ const linearOAuthErrorSchema = z.object({
   error_description: z.string().optional(),
 })
 
-export const redactLinearError = (thrown: unknown, genericErrorMessage: string): sdk.RuntimeError => {
+export const redactLinearError = (thrown: unknown, genericErrorMessage: string): RuntimeError => {
   const error = thrown instanceof Error ? thrown : new Error(String(thrown))
 
   console.warn('Linear error', { error, genericErrorMessage })
 
-  if (error instanceof sdk.RuntimeError) {
+  if (error instanceof RuntimeError) {
     return error
   }
 
@@ -25,14 +24,14 @@ export const redactLinearError = (thrown: unknown, genericErrorMessage: string):
     if (parsed.success) {
       const { error: code, error_description: description } = parsed.data
       const detail = description ? `${code}: ${description}` : code
-      return new sdk.RuntimeError(`${genericErrorMessage}: ${detail}${status ? ` (HTTP ${status})` : ''}`)
+      return new RuntimeError(`${genericErrorMessage}: ${detail}${status ? ` (HTTP ${status})` : ''}`)
     }
 
     const fallback = typeof data === 'string' && data.length > 0 ? data : data ? JSON.stringify(data) : error.message
-    return new sdk.RuntimeError(`${genericErrorMessage}: ${fallback}${status ? ` (HTTP ${status})` : ''}`)
+    return new RuntimeError(`${genericErrorMessage}: ${fallback}${status ? ` (HTTP ${status})` : ''}`)
   }
 
-  return new sdk.RuntimeError(`${genericErrorMessage}: ${error.message}`)
+  return new RuntimeError(`${genericErrorMessage}: ${error.message}`)
 }
 
 export const wrapAsyncFnWithTryCatch = createAsyncFnWrapperWithErrorRedaction(redactLinearError)
