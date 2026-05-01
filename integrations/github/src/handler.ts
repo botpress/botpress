@@ -2,6 +2,8 @@ import * as sdk from '@botpress/sdk'
 import { verify as verifyWebhook } from '@octokit/webhooks-methods'
 import type { WebhookEvent } from '@octokit/webhooks-types'
 
+import { generateRedirection } from '@botpress/common/src/html-dialogs'
+import { getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
 import { GITHUB_SIGNATURE_HEADER } from './const'
 import { fireDiscussionCommentCreated } from './events/discussion/discussion-comment-created'
 import { fireDiscussionCommentReplied } from './events/discussion/discussion-comment-replied'
@@ -69,10 +71,13 @@ const _isOauthRequest = ({ req }: bp.HandlerProps) => req.path === '/oauth'
 
 const _handleOauthRequest = async ({ req, client, ctx, logger }: bp.HandlerProps) => {
   logger.forBot().info('Handling incoming OAuth callback')
-  return _handleOauth(req, client, ctx).catch((err) => {
-    logger.forBot().error('Error while processing OAuth callback', err.response?.data || err.message)
-    throw err
-  })
+  return _handleOauth(req, client, ctx)
+    .then(() => generateRedirection(getInterstitialUrl(true)))
+    .catch((err) => {
+      const errorMessage = err.response?.data?.message || err.message || String(err)
+      logger.forBot().error('Error while processing OAuth callback', errorMessage)
+      return generateRedirection(getInterstitialUrl(false, errorMessage))
+    })
 }
 
 const _handleOauth = async (req: sdk.Request, client: bp.Client, ctx: bp.Context) => {
@@ -87,6 +92,7 @@ const _handleOauth = async (req: sdk.Request, client: bp.Client, ctx: bp.Context
 
   await _saveInstallationId({ ctx, client, installationId })
   await client.configureIntegration({ identifier: installationIdStr })
+  return { status: 200 }
 }
 
 const _saveInstallationId = async ({

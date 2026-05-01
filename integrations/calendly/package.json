@@ -10,6 +10,7 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
+    "@botpress/common": "workspace:*",
     "axios": "^1.11.0"
   },
   "devDependencies": {

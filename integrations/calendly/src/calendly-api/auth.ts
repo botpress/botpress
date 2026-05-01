@@ -3,6 +3,9 @@ import axios, { type AxiosInstance } from 'axios'
 import type { CommonHandlerProps, Result } from '../types'
 import { type GetOAuthAccessTokenResp, getOAuthAccessTokenRespSchema } from './schemas'
 import * as bp from '.botpress'
+import { generateRedirection } from '@botpress/common/src/html-dialogs'
+import { getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
+import * as sdk from '@botpress/sdk'
 
 const AUTH_BASE_URL = 'https://auth.calendly.com' as const
 
@@ -96,14 +99,23 @@ export const applyOAuthState = async ({ client, ctx }: CommonHandlerProps, resp:
   return { oauth: state.payload.oauth, userUri }
 }
 
-export const exchangeAuthCodeForRefreshToken = async (props: bp.HandlerProps, oAuthCode: string): Promise<void> => {
-  const authClient = new CalendlyAuthClient()
-  const resp = await authClient.getAccessTokenWithCode(oAuthCode)
-  if (!resp.success) throw resp.error
+export const exchangeAuthCodeForRefreshToken = async (props: bp.HandlerProps, oAuthCode: string): Promise<sdk.Response> => {
+  try {
+    const authClient = new CalendlyAuthClient()
+    const resp = await authClient.getAccessTokenWithCode(oAuthCode)
+    if (!resp.success) throw resp.error
 
-  await applyOAuthState(props, resp.data)
+    await applyOAuthState(props, resp.data)
 
-  await props.client.configureIntegration({
-    identifier: props.ctx.webhookId,
-  })
+    await props.client.configureIntegration({
+      identifier: props.ctx.webhookId,
+    })
+
+    return generateRedirection(getInterstitialUrl(true))
+  } catch (error) {
+    const errorString = error instanceof Error ? error.message : String(error)
+    const errorMessage = 'OAuth registration error: ' + errorString
+    props.logger.forBot().error(errorMessage)
+    return generateRedirection(getInterstitialUrl(false, errorMessage))
+  }
 }

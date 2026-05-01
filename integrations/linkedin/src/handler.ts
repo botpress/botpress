@@ -2,6 +2,8 @@ import { RuntimeError } from '@botpress/sdk'
 import * as crypto from 'crypto'
 import { LinkedInOAuthClient } from './linkedin-api'
 import { verifyLinkedInWebhook, dispatchWebhookEvent } from './webhook'
+import { generateRedirection } from '@botpress/common/src/html-dialogs'
+import { getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
@@ -72,28 +74,36 @@ const handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProps
   const errorDescription = searchParams.get('error_description')
 
   if (error) {
-    logger.forBot().error(`LinkedIn OAuth error: ${error} - ${errorDescription}`)
-    throw new RuntimeError(`LinkedIn OAuth error: ${error} - ${errorDescription}`)
+    const errorMsg = `OAuth error: ${error} - ${errorDescription ?? ''}`
+    logger.forBot().error(`LinkedIn ${errorMsg}`)
+    return generateRedirection(getInterstitialUrl(false, errorMsg))
   }
 
   if (!authorizationCode) {
-    logger.forBot().error('Authorization code not present in OAuth callback')
-    throw new RuntimeError('Authorization code not present in OAuth callback')
+    const errorMsg = 'Authorization code not present in OAuth callback'
+    logger.forBot().error(errorMsg)
+    return generateRedirection(getInterstitialUrl(false, errorMsg))
   }
 
-  const oauthClient = await LinkedInOAuthClient.createFromAuthorizationCode({
-    authorizationCode,
-    client,
-    ctx,
-    logger,
-  })
+  try {
+    const oauthClient = await LinkedInOAuthClient.createFromAuthorizationCode({
+      authorizationCode,
+      client,
+      ctx,
+      logger,
+    })
 
-  logger.forBot().info(`Successfully authenticated LinkedIn user: ${oauthClient.getUserId()}`)
-  logger.forBot().info(`Granted scopes: ${oauthClient.getGrantedScopes().join(', ')}`)
+    logger.forBot().info(`Successfully authenticated LinkedIn user: ${oauthClient.getUserId()}`)
+    logger.forBot().info(`Granted scopes: ${oauthClient.getGrantedScopes().join(', ')}`)
 
-  await client.configureIntegration({
-    identifier: oauthClient.getUserId(),
-  })
+    await client.configureIntegration({
+      identifier: oauthClient.getUserId(),
+    })
 
-  return { status: 200 }
+    return generateRedirection(getInterstitialUrl(true))
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : String(error)
+    logger.forBot().error(`Failed to process OAuth callback: ${errorMsg}`)
+    return generateRedirection(getInterstitialUrl(false, errorMsg))
+  }
 }

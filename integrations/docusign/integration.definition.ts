@@ -6,7 +6,7 @@ import { envelopeEventSchema } from 'definitions/events'
 export default new IntegrationDefinition({
   name: 'docusign',
   title: 'Docusign',
-  version: '2.1.2',
+  version: '2.1.3',
   readme: 'hub.md',
   icon: 'icon.svg',
   description:

@@ -3,6 +3,9 @@ import { CommonHandlerProps } from '../types'
 import { DocusignAuthClient } from './auth'
 import { GetAccessTokenResp, UserAccount } from './schemas'
 import * as bp from '.botpress'
+import * as sdk from '@botpress/sdk'
+import { generateRedirection } from '@botpress/common/src/html-dialogs'
+import { getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
 
 export const MS_PER_MINUTE = 60000
 export const MS_PER_HOUR = MS_PER_MINUTE * 60
@@ -135,17 +138,24 @@ export const getAccountState = async (props: CommonHandlerProps) => {
   return { account: accountState, hasChanged: hasAccountChanged }
 }
 
-export const exchangeAuthCodeForRefreshToken = async (props: bp.HandlerProps, oAuthCode: string): Promise<void> => {
-  const authClient = DocusignAuthClient.create(props)
-  const tokenResp = await authClient.getAccessTokenWithCode(oAuthCode)
-  if (!tokenResp.success) throw tokenResp.error
+export const exchangeAuthCodeForRefreshToken = async (props: bp.HandlerProps, oAuthCode: string): Promise<sdk.Response> => {
+  try {
+    const authClient = DocusignAuthClient.create(props)
+    const tokenResp = await authClient.getAccessTokenWithCode(oAuthCode)
+    if (!tokenResp.success) throw tokenResp.error
 
-  const userInfoResp = await authClient.getUserInfo(tokenResp.data.accessToken, tokenResp.data.tokenType)
-  if (!userInfoResp.success) throw userInfoResp.error
+    const userInfoResp = await authClient.getUserInfo(tokenResp.data.accessToken, tokenResp.data.tokenType)
+    if (!userInfoResp.success) throw userInfoResp.error
 
-  await applyOAuthState(props, tokenResp.data)
+    await applyOAuthState(props, tokenResp.data)
 
-  await props.client.configureIntegration({
-    identifier: userInfoResp.data.sub,
-  })
+    await props.client.configureIntegration({
+      identifier: userInfoResp.data.sub,
+    })
+
+    return generateRedirection(getInterstitialUrl(true))
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    return generateRedirection(getInterstitialUrl(false, errorMessage))
+  }
 }
