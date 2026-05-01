@@ -99,7 +99,8 @@ export class AirtableClient {
 
   @handleErrors('Failed to test connection to Airtable')
   public async testConnection(): Promise<{ id: string; email?: string; scopes?: string[] }> {
-    return await this._axiosClient.get('/meta/whoami')
+    const response = await this._axiosClient.get<{ id: string; email?: string; scopes?: string[] }>('/meta/whoami')
+    return response.data
   }
 
   @handleErrors('Failed to list records')

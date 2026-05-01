@@ -63,7 +63,7 @@ export class AirtableOAuthClient {
   @handleErrors('Failed to refresh Airtable credentials')
   public async getAuthState(): Promise<PublicAuthState> {
     const manualCredentials = await this._getManualCredentialsState()
-    if (manualCredentials) {
+    if (manualCredentials && manualCredentials.personalAccessToken !== '') {
       return {
         accessToken: manualCredentials.personalAccessToken,
         scopes: [],
@@ -97,6 +97,7 @@ export class AirtableOAuthClient {
 
       this._currentAuthState = this._parseAirtableTokenResponse(response)
       await this._saveOAuthCredentials()
+      await this._clearManualCredentials()
 
       this._logger.debug('Successfully exchanged authorization code')
     },
@@ -124,6 +125,7 @@ export class AirtableOAuthClient {
       id: this._ctx.integrationId,
       payload: { personalAccessToken },
     })
+    await this._clearOAuthCredentials()
   }
 
   private async _postToken(body: Record<string, string>): Promise<AirtableTokenResponse> {
@@ -189,7 +191,7 @@ export class AirtableOAuthClient {
       throw new sdk.RuntimeError('Airtable refresh token has expired. Please re-run the integration setup wizard.')
     }
 
-    if (accessTokenExpiresAt > this._getMinExpiryDate()) {
+    if (accessTokenExpiresAt > new Date()) {
       this._currentAuthState = {
         accessToken: {
           expiresAt: accessTokenExpiresAt,
@@ -239,6 +241,31 @@ export class AirtableOAuthClient {
       },
       scopes: response.scope.split(' '),
     } as const
+  }
+
+  private async _clearManualCredentials() {
+    await this._client.setState({
+      type: 'integration',
+      name: 'manualCredentials',
+      id: this._ctx.integrationId,
+      payload: { personalAccessToken: '' },
+    })
+  }
+
+  private async _clearOAuthCredentials() {
+    const epoch = new Date(0).toISOString()
+    await this._client.setState({
+      type: 'integration',
+      name: 'oAuthCredentials',
+      id: this._ctx.integrationId,
+      payload: {
+        accessToken: '',
+        refreshToken: '',
+        expiresAt: epoch,
+        refreshExpiresAt: epoch,
+        scopes: [],
+      },
+    })
   }
 
   private async _saveOAuthCredentials() {

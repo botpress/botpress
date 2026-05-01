@@ -129,11 +129,12 @@ const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, logger, respo
   const oauth = new AirtableOAuthClient({ client, ctx, logger })
   await oauth.requestShortLivedCredentials.fromAuthorizationCode(code, codeVerifier, _getRedirectUri())
 
+  // Sentinel: schema requires non-null payload; epoch timestamp marks the verifier as consumed.
   await client.setState({
     type: 'integration',
     name: 'oauthPkce',
     id: ctx.integrationId,
-    payload: null,
+    payload: { codeVerifier: '', createdAt: new Date(0).toISOString() },
   })
 
   return responses.redirectToStep('pick-base')
@@ -186,7 +187,6 @@ const _saveBaseHandler: WizardHandler = async ({ ctx, client, selectedChoice, re
     payload: { baseId: selectedChoice },
   })
 
-  await client.configureIntegration({ identifier: ctx.webhookId })
   return responses.endWizard({ success: true })
 }
 
