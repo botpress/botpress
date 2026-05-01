@@ -1,7 +1,7 @@
-import { Request, RuntimeError } from '@botpress/sdk'
-import { LinearWebhookClient } from '@linear/sdk/webhooks'
 import { generateRedirection } from '@botpress/common/src/html-dialogs'
 import { getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
+import { Request, RuntimeError } from '@botpress/sdk'
+import { LinearWebhookClient } from '@linear/sdk/webhooks'
 
 import { fireIssueCreated } from './events/issueCreated'
 import { fireIssueDeleted } from './events/issueDeleted'
