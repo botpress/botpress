@@ -1785,6 +1785,45 @@ importers:
         specifier: ^14.1.2
         version: 14.1.2
 
+  integrations/shopify:
+    dependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
+  integrations/shopify-admin:
+    dependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
+  integrations/shopify-storefront:
+    dependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   integrations/slack:
     dependencies:
       '@botpress/common':
