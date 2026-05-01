@@ -1,8 +1,8 @@
+import { generateRedirection } from '@botpress/common/src/html-dialogs'
+import { getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
 import { exchangeAuthCodeForRefreshToken } from './docusign-api/auth-utils'
 import { dispatchIntegrationEvent } from './webhooks/event-dispatcher'
 import { parseWebhookEvent, verifyWebhookSignature } from './webhooks/utils'
-import { generateRedirection } from '@botpress/common/src/html-dialogs'
-import { getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
 import * as bp from '.botpress'
 
 const _isOauthRequest = ({ req }: bp.HandlerProps) => req.path === '/oauth'

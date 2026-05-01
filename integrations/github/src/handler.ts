@@ -1,9 +1,9 @@
+import { generateRedirection } from '@botpress/common/src/html-dialogs'
+import { getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
 import * as sdk from '@botpress/sdk'
 import { verify as verifyWebhook } from '@octokit/webhooks-methods'
 import type { WebhookEvent } from '@octokit/webhooks-types'
 
-import { generateRedirection } from '@botpress/common/src/html-dialogs'
-import { getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
 import { GITHUB_SIGNATURE_HEADER } from './const'
 import { fireDiscussionCommentCreated } from './events/discussion/discussion-comment-created'
 import { fireDiscussionCommentReplied } from './events/discussion/discussion-comment-replied'
