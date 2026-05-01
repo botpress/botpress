@@ -518,5 +518,4 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     return fetchedBot
   }
-
 }

@@ -221,7 +221,10 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     if (projectType === 'integration' && this._initialDef?.type === 'integration') {
       const projectDef = await resolveProjectDefinition()
       this._checkSecrets(projectDef.definition)
-      const integrationDef = new sdk.IntegrationDefinition({ ...projectDef.definition, name: this._initialDef.definition.name })
+      const integrationDef = new sdk.IntegrationDefinition({
+        ...projectDef.definition,
+        name: this._initialDef.definition.name,
+      })
       return await this._deployDevIntegration(api, tunnelUrl, integrationDef)
     }
     if (projectType === 'bot') {
