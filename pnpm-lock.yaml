@@ -2696,6 +2696,9 @@ importers:
       '@stoplight/spectral-parsers':
         specifier: ^1.0.4
         version: 1.0.4
+      '@stoplight/types':
+        specifier: ^14.1.1
+        version: 14.1.1
       '@types/lodash':
         specifier: ^4.14.191
         version: 4.14.195
@@ -2754,9 +2757,6 @@ importers:
       '@bpinternal/log4bot':
         specifier: ^0.0.4
         version: 0.0.4
-      '@stoplight/types':
-        specifier: ^14.1.1
-        version: 14.1.1
       '@types/bluebird':
         specifier: ^3.5.38
         version: 3.5.38

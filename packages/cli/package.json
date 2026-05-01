@@ -1,6 +1,6 @@
 {
   "name": "@botpress/cli",
-  "version": "6.6.0",
+  "version": "6.6.1",
   "description": "Botpress CLI",
   "scripts": {
     "build": "pnpm run build:types && pnpm run bundle && pnpm run template:gen",
@@ -37,6 +37,7 @@
     "@stoplight/spectral-core": "^1.19.1",
     "@stoplight/spectral-functions": "^1.9.0",
     "@stoplight/spectral-parsers": "^1.0.4",
+    "@stoplight/types": "^14.1.1",
     "@types/lodash": "^4.14.191",
     "@types/verror": "^1.10.6",
     "axios": "^1.4.0",
@@ -58,7 +59,6 @@
   },
   "devDependencies": {
     "@bpinternal/log4bot": "^0.0.4",
-    "@stoplight/types": "^14.1.1",
     "@types/bluebird": "^3.5.38",
     "@types/ini": "^4.1.1",
     "@types/json-schema": "^7.0.12",
