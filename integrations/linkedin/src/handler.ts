@@ -67,24 +67,18 @@ const handleWebhookChallenge = ({ req, ctx, logger }: bp.HandlerProps) => {
 const handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProps) => {
   logger.forBot().debug('Handling OAuth callback')
 
-  const searchParams = new URLSearchParams(req.query)
-  const authorizationCode = searchParams.get('code')
-  const error = searchParams.get('error')
-  const errorDescription = searchParams.get('error_description')
-
-  if (error) {
-    const errorMsg = `OAuth error: ${error} - ${errorDescription ?? ''}`
-    logger.forBot().error(`LinkedIn ${errorMsg}`)
-    return generateRedirection(getInterstitialUrl(false, errorMsg))
-  }
-
-  if (!authorizationCode) {
-    const errorMsg = 'Authorization code not present in OAuth callback'
-    logger.forBot().error(errorMsg)
-    return generateRedirection(getInterstitialUrl(false, errorMsg))
-  }
-
   try {
+    const searchParams = new URLSearchParams(req.query)
+    const error = searchParams.get('error')
+    if (error) {
+      throw new Error(`${error} - ${searchParams.get('error_description') ?? ''}`)
+    }
+
+    const authorizationCode = searchParams.get('code')
+    if (!authorizationCode) {
+      throw new Error('Authorization code not present in OAuth callback')
+    }
+
     const oauthClient = await LinkedInOAuthClient.createFromAuthorizationCode({
       authorizationCode,
       client,
@@ -100,9 +94,10 @@ const handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProps
     })
 
     return generateRedirection(getInterstitialUrl(true))
-  } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : String(error)
-    logger.forBot().error(`Failed to process OAuth callback: ${errorMsg}`)
-    return generateRedirection(getInterstitialUrl(false, errorMsg))
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    const errorMessage = 'OAuth error: ' + msg
+    logger.forBot().error(errorMessage)
+    return generateRedirection(getInterstitialUrl(false, errorMessage))
   }
 }

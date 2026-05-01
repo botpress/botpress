@@ -1,10 +1,10 @@
+import { generateRedirection } from '@botpress/common/src/html-dialogs'
+import { getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
+import * as sdk from '@botpress/sdk'
 import { RuntimeError, z } from '@botpress/sdk'
 import axios from 'axios'
 import { Client as IntercomClient } from 'intercom-client'
 import * as bp from '.botpress'
-import * as sdk from '@botpress/sdk'
-import { generateRedirection } from '@botpress/common/src/html-dialogs'
-import { getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
 
 export const getAuthenticatedIntercomClient = async (client: bp.Client, ctx: bp.Context): Promise<IntercomClient> => {
   // TODO: Change null for 'manual' once the Intercom app is approved
@@ -58,22 +58,19 @@ export const getSignatureSecret = (ctx: bp.Context): string | undefined => {
   return bp.secrets.CLIENT_SECRET
 }
 
-export const handleOAuth = async ({ client, ctx, req }: bp.HandlerProps): Promise<sdk.Response> => {
-  console.info('Handling OAuth callback')
+export const handleOAuth = async ({ client, ctx, req, logger }: bp.HandlerProps): Promise<sdk.Response> => {
+  logger.forBot().info('Handling OAuth callback')
+
   try {
     const searchParams = new URLSearchParams(req.query)
     const error = searchParams.get('error')
     if (error) {
-      const errorMsg = `OAuth error: ${error} - ${searchParams.get('error_description') ?? ''}`
-      console.error(errorMsg)
-      return generateRedirection(getInterstitialUrl(false, errorMsg))
+      throw new Error(`${error} - ${searchParams.get('error_description') ?? ''}`)
     }
 
     const code = searchParams.get('code')
     if (!code) {
-      const errorMsg = 'Authorization code not present in OAuth callback'
-      console.error(errorMsg)
-      return generateRedirection(getInterstitialUrl(false, errorMsg))
+      throw new Error('Authorization code not present in OAuth callback')
     }
 
     const accessToken = await exchangeCodeForAccessToken(code)
@@ -81,10 +78,11 @@ export const handleOAuth = async ({ client, ctx, req }: bp.HandlerProps): Promis
     await saveAuthCredentials(client, ctx, { accessToken, adminId })
     await client.configureIntegration({ identifier: adminId })
     return generateRedirection(getInterstitialUrl(true))
-  } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : String(error)
-    console.error('Failed to process OAuth callback:', errorMsg)
-    return generateRedirection(getInterstitialUrl(false, errorMsg))
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    const errorMessage = 'OAuth error: ' + msg
+    logger.forBot().error(errorMessage)
+    return generateRedirection(getInterstitialUrl(false, errorMessage))
   }
 }
 

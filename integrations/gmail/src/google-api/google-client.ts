@@ -2,6 +2,7 @@ import * as sdk from '@botpress/sdk'
 import { gmail_v1, google } from 'googleapis'
 import { IntegrationConfig } from 'src/config/integration-config'
 import { composeRawEmail } from 'src/utils/mail-composing'
+import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { GmailClient, GoogleOAuth2Client } from './types'
 import * as bp from '.botpress'
 
@@ -53,6 +54,7 @@ export class GoogleClient {
     return new GoogleClient(gmailClient, topicName)
   }
 
+  @handleErrors('Failed to obtain Gmail OAuth refresh token from authorization code')
   public static async createFromAuthorizationCode({
     client,
     ctx,

@@ -13,7 +13,7 @@ export const handler = async (props: bp.HandlerProps) => {
       const searchParams = new URLSearchParams(props.req.query)
       const error = searchParams.get('error')
       if (error) {
-        throw new Error(`OAuth error: ${error} - ${searchParams.get('error_description') ?? ''}`)
+        throw new Error(`${error} - ${searchParams.get('error_description') ?? ''}`)
       }
 
       const oAuthCode = searchParams.get('code')
@@ -25,8 +25,9 @@ export const handler = async (props: bp.HandlerProps) => {
       return generateRedirection(getInterstitialUrl(true))
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
-      props.logger.forBot().error('OAuth error: ' + msg)
-      return generateRedirection(getInterstitialUrl(false, msg))
+      const errorMessage = 'OAuth error: ' + msg
+      props.logger.forBot().error(errorMessage)
+      return generateRedirection(getInterstitialUrl(false, errorMessage))
     }
   }
 
