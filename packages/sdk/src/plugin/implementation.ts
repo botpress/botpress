@@ -273,7 +273,6 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
                     (input: utils.types.ValueOf<HookInputsWithoutInjectedProps<TPlugin>>['*']) => {
                       const data = unprefixTagsOwnedByPlugin(input.data, { alias: this._runtime.alias })
                       const tools = this._getTools(input.client)
-                      const callHandler = handler as (props: unknown) => unknown
 
                       // `before_incoming_message` and `after_incoming_message` carry the raw
                       // `user` and `conversation` from the incoming event payload; wrap them
@@ -281,7 +280,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
                       // Other hook types don't carry these fields, so we just forward.
                       if (_hookInputHasMessageContext(input)) {
                         const { user, conversation, client: pluginClient } = input
-                        return callHandler({
+                        return handler({
                           ...input,
                           data,
                           user: proxyUser({
@@ -299,7 +298,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
                         })
                       }
 
-                      return callHandler({ ...input, data, ...tools })
+                      return handler({ ...input, data, ...tools })
                     },
                     handler.name
                   )
