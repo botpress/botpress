@@ -13,8 +13,12 @@ type IssueCreated = bp.events.issueCreated.IssueCreated
 export const fireIssueCreated = async ({ linearEvent, client, ctx }: IssueProps) => {
   const payload: Omit<IssueCreated, 'conversationId' | 'userId'> = {
     title: linearEvent.data.title,
+    identifier: linearEvent.data.identifier,
+    url: linearEvent.data.url,
     priority: linearEvent.data.priority,
     status: linearEvent.data.state.name,
+    statusColor: linearEvent.data.state.color,
+    statusType: linearEvent.data.state.type,
     description: linearEvent.data.description ?? undefined,
     number: linearEvent.data.number,
     updatedAt: linearEvent.data.updatedAt,
