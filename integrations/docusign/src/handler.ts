@@ -9,20 +9,25 @@ const _isOauthRequest = ({ req }: bp.HandlerProps) => req.path === '/oauth'
 
 export const handler = async (props: bp.HandlerProps) => {
   if (_isOauthRequest(props)) {
-    const searchParams = new URLSearchParams(props.req.query)
-    const error = searchParams.get('error')
-    if (error) {
-      return generateRedirection(
-        getInterstitialUrl(false, `OAuth error: ${error} - ${searchParams.get('error_description') ?? ''}`)
-      )
-    }
+    try {
+      const searchParams = new URLSearchParams(props.req.query)
+      const error = searchParams.get('error')
+      if (error) {
+        throw new Error(`OAuth error: ${error} - ${searchParams.get('error_description') ?? ''}`)
+      }
 
-    const oAuthCode = searchParams.get('code')
-    if (oAuthCode === null) {
-      return generateRedirection(getInterstitialUrl(false, 'Authorization code not present in OAuth callback'))
-    }
+      const oAuthCode = searchParams.get('code')
+      if (!oAuthCode) {
+        throw new Error('Authorization code not present in OAuth callback')
+      }
 
-    return await exchangeAuthCodeForRefreshToken(props, oAuthCode)
+      await exchangeAuthCodeForRefreshToken(props, oAuthCode)
+      return generateRedirection(getInterstitialUrl(true))
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      props.logger.forBot().error('OAuth error: ' + msg)
+      return generateRedirection(getInterstitialUrl(false, msg))
+    }
   }
 
   const signatureResult = verifyWebhookSignature(props)
