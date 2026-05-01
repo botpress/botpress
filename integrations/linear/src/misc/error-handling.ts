@@ -10,8 +10,6 @@ const linearOAuthErrorSchema = z.object({
 export const redactLinearError = (thrown: unknown, genericErrorMessage: string): RuntimeError => {
   const error = thrown instanceof Error ? thrown : new Error(String(thrown))
 
-  console.warn('Linear error', { error, genericErrorMessage })
-
   if (error instanceof RuntimeError) {
     return error
   }
