@@ -13,8 +13,12 @@ type IssueUpdated = bp.events.issueUpdated.IssueUpdated
 export const fireIssueUpdated = async ({ linearEvent, client, ctx }: IssueProps) => {
   const payload: Omit<IssueUpdated, 'conversationId' | 'userId'> = {
     title: linearEvent.data.title,
+    identifier: linearEvent.data.identifier,
+    url: linearEvent.data.url,
     priority: linearEvent.data.priority,
     status: linearEvent.data.state.name,
+    statusColor: linearEvent.data.state.color,
+    statusType: linearEvent.data.state.type,
     description: linearEvent.data.description ?? '',
     number: linearEvent.data.number,
     updatedAt: linearEvent.data.updatedAt,
