@@ -1,25 +1,34 @@
 import { z } from '@botpress/sdk'
-import { emailHeaderSchema, emailTagSchema } from '../src/webhook-events/schemas/email'
+
+export const emailHeaderSchema = z.object({
+  name: z.string().title('Header Name').describe('The name of the email header'),
+  value: z.string().title('Header Value').describe('The value of the email header'),
+})
+
+export const emailTagSchema = z.object({
+  name: z.string().title('Tag Name').describe('The name of the email tag'),
+  value: z.string().title('Tag Value').describe('The value of the email tag'),
+})
 
 const _baseWebhookEmailEventSchema = z.object({
-  emailId: z.string().optional().describe('The ID for the sent email').title('Email ID'),
+  emailId: z.string().optional().title('Email ID').describe('The ID for the sent email'),
   createdAt: z
     .string()
     .datetime()
-    .describe('An ISO8601 datetime representing when the event was triggered')
-    .title('Event datetime'),
-  subject: z.string().describe('The subject of the email').title('Email subject'),
-  from: z.string().describe('The sender of the email').title('Email sender'),
-  to: z.array(z.string()).min(1).describe('The recipients of the email').title('Email recipients'),
-  cc: z.array(z.string()).min(1).optional().describe('The carbon copy recipients of the email').title('Carbon Copy'),
+    .title('Event datetime')
+    .describe('An ISO8601 datetime representing when the event was triggered'),
+  subject: z.string().title('Email subject').describe('The subject of the email'),
+  from: z.string().title('Email sender').describe('The sender of the email'),
+  to: z.array(z.string()).min(1).title('Email recipients').describe('The recipients of the email'),
+  cc: z.array(z.string()).min(1).optional().title('Carbon Copy').describe('The carbon copy recipients of the email'),
   bcc: z
     .array(z.string())
     .min(1)
     .optional()
-    .describe('The blind carbon copy recipients of the email')
-    .title('Blind Carbon Copy'),
-  headers: z.array(emailHeaderSchema).min(1).optional().describe('The headers of the email').title('Email headers'),
-  tags: z.array(emailTagSchema).min(1).optional().describe('The tags of the email').title('Email tags'),
+    .title('Blind Carbon Copy')
+    .describe('The blind carbon copy recipients of the email'),
+  headers: z.array(emailHeaderSchema).min(1).optional().title('Email headers').describe('The headers of the email'),
+  tags: z.array(emailTagSchema).min(1).optional().title('Email tags').describe('The tags of the email'),
 })
 
 export const sentEmailEventSchema = _baseWebhookEmailEventSchema
@@ -31,35 +40,35 @@ export const deliveredEmailEventSchema = _baseWebhookEmailEventSchema
 export const markedAsSpamEmailEventSchema = _baseWebhookEmailEventSchema
 
 const _emailErrorEventSchema = _baseWebhookEmailEventSchema.extend({
-  reason: z.string().describe('The reason this event was triggered').title('Event reason'),
+  reason: z.string().title('Event reason').describe('The reason this event was triggered'),
 })
 
 export const bouncedEmailEventSchema = _emailErrorEventSchema.extend({
   type: z
     .string()
-    .describe('The Resend type for why the email bounced (e.g. "Permanent", "Transient", "Undetermined")')
-    .title('Bounce type'),
+    .title('Bounce type')
+    .describe('The Resend type for why the email bounced (e.g. "Permanent", "Transient", "Undetermined")'),
   subtype: z
     .string()
-    .describe('The Resend subtype for why the email bounced (e.g. "General", "NoEmail", "MailboxFull", etc.)')
-    .title('Bounce subtype'),
+    .title('Bounce subtype')
+    .describe('The Resend subtype for why the email bounced (e.g. "General", "NoEmail", "MailboxFull", etc.)'),
 })
 
 export const openedEmailEventSchema = _baseWebhookEmailEventSchema.extend({
   openedAt: z
     .string()
     .datetime()
-    .describe('An ISO8601 datetime representing when the email was opened')
-    .title('Email opened datetime'),
+    .title('Email opened datetime')
+    .describe('An ISO8601 datetime representing when the email was opened'),
 })
 
 export const clickedEmailLinkEventSchema = _baseWebhookEmailEventSchema.extend({
   clickedAt: z
     .string()
     .datetime()
-    .describe('An ISO8601 datetime representing when a link in the email was clicked')
-    .title('Link clicked datetime'),
-  url: z.string().describe('The destination URL of the link that was clicked').title('Clicked URL'),
+    .title('Link clicked datetime')
+    .describe('An ISO8601 datetime representing when a link in the email was clicked'),
+  url: z.string().title('Clicked URL').describe('The destination URL of the link that was clicked'),
 })
 
 export const failedToSendEmailEventSchema = _emailErrorEventSchema
