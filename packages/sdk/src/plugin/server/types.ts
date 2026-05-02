@@ -337,7 +337,17 @@ export type WorkflowHandlers<TPlugin extends common.BasePlugin> = {
   ) => Promise<void>
 }
 
-type BaseHookDefinition = { stoppable?: boolean; data: any }
+type BaseHookDefinition = {
+  stoppable?: boolean
+  data: any
+  /**
+   * Per-hook-type extra props injected into the hook handler input. Only set
+   * for hooks where the bot runtime already has the relevant context (e.g.
+   * incoming message hooks). The `raw` shape uses `client.User`/
+   * `client.Conversation`; the `injected` shape replaces them with proxies.
+   */
+  extraInputs?: { raw: object; injected: object }
+}
 type HookDefinition<THookDef extends BaseHookDefinition = BaseHookDefinition> = THookDef
 
 /**
@@ -360,6 +370,16 @@ export type HookDefinitions<TPlugin extends common.BasePlugin> = {
   before_incoming_message: HookDefinition<{
     stoppable: true
     data: _IncomingMessages<TPlugin> & { '*': AnyIncomingMessage<TPlugin> }
+    extraInputs: {
+      raw: {
+        user?: client.User
+        conversation?: client.Conversation
+      }
+      injected: {
+        user?: userProxy.ActionableUser<TPlugin, string>
+        conversation?: conversationProxy.ActionableConversation<TPlugin>
+      }
+    }
   }>
   before_outgoing_message: HookDefinition<{
     stoppable: false
@@ -380,6 +400,16 @@ export type HookDefinitions<TPlugin extends common.BasePlugin> = {
   after_incoming_message: HookDefinition<{
     stoppable: true
     data: _IncomingMessages<TPlugin> & { '*': AnyIncomingMessage<TPlugin> }
+    extraInputs: {
+      raw: {
+        user?: client.User
+        conversation?: client.Conversation
+      }
+      injected: {
+        user?: userProxy.ActionableUser<TPlugin, string>
+        conversation?: conversationProxy.ActionableConversation<TPlugin>
+      }
+    }
   }>
   after_outgoing_message: HookDefinition<{
     stoppable: false
@@ -403,54 +433,26 @@ export type HookData<TPlugin extends common.BasePlugin> = {
   }
 }
 
-/**
- * Per-hook-type extra props injected into the hook handler input. Only set for
- * hooks where the bot runtime already has the relevant context (e.g. incoming
- * message hooks). The raw shape uses `client.User`/`client.Conversation`; the
- * injected shape replaces them with proxies (see `HookExtraInputsInjected`).
- */
-export type HookExtraInputsWithoutInjectedProps = {
-  before_incoming_event: {}
-  before_incoming_message: {
-    user?: client.User
-    conversation?: client.Conversation
+type _HookExtraInputsRaw<TPlugin extends common.BasePlugin> = {
+  [THookType in utils.StringKeys<HookDefinitions<TPlugin>>]: HookDefinitions<TPlugin>[THookType] extends {
+    extraInputs: { raw: infer T }
   }
-  before_outgoing_message: {}
-  before_outgoing_call_action: {}
-  before_incoming_call_action: {}
-  after_incoming_event: {}
-  after_incoming_message: {
-    user?: client.User
-    conversation?: client.Conversation
-  }
-  after_outgoing_message: {}
-  after_outgoing_call_action: {}
-  after_incoming_call_action: {}
+    ? T
+    : {}
 }
 
-export type HookExtraInputsInjected<TPlugin extends common.BasePlugin> = {
-  before_incoming_event: {}
-  before_incoming_message: {
-    user?: userProxy.ActionableUser<TPlugin, string>
-    conversation?: conversationProxy.ActionableConversation<TPlugin>
+type _HookExtraInputsInjected<TPlugin extends common.BasePlugin> = {
+  [THookType in utils.StringKeys<HookDefinitions<TPlugin>>]: HookDefinitions<TPlugin>[THookType] extends {
+    extraInputs: { injected: infer T }
   }
-  before_outgoing_message: {}
-  before_outgoing_call_action: {}
-  before_incoming_call_action: {}
-  after_incoming_event: {}
-  after_incoming_message: {
-    user?: userProxy.ActionableUser<TPlugin, string>
-    conversation?: conversationProxy.ActionableConversation<TPlugin>
-  }
-  after_outgoing_message: {}
-  after_outgoing_call_action: {}
-  after_incoming_call_action: {}
+    ? T
+    : {}
 }
 
 export type HookInputsWithoutInjectedProps<TPlugin extends common.BasePlugin> = {
   [THookType in utils.StringKeys<HookData<TPlugin>>]: {
     [THookDataName in utils.StringKeys<HookData<TPlugin>[THookType]>]: CommonHandlerProps<TPlugin> &
-      HookExtraInputsWithoutInjectedProps[THookType] & {
+      _HookExtraInputsRaw<TPlugin>[THookType] & {
         data: HookData<TPlugin>[THookType][THookDataName]
       }
   }
@@ -460,7 +462,7 @@ export type HookInputs<TPlugin extends common.BasePlugin> = {
   [THookType in utils.StringKeys<HookData<TPlugin>>]: _WithInjectedProps<
     HookInputsWithoutInjectedProps<TPlugin>[THookType],
     TPlugin,
-    HookExtraInputsInjected<TPlugin>[THookType]
+    _HookExtraInputsInjected<TPlugin>[THookType]
   >
 }
 
@@ -484,7 +486,7 @@ export type HookHandlers<TPlugin extends common.BasePlugin> = {
   [THookType in utils.StringKeys<HookData<TPlugin>>]: _WithInjectedPropsFn<
     HookHandlersWithoutInjectedProps<TPlugin>[THookType],
     TPlugin,
-    HookExtraInputsInjected<TPlugin>[THookType]
+    _HookExtraInputsInjected<TPlugin>[THookType]
   >
 }
 
