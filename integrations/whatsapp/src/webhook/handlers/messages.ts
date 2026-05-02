@@ -189,6 +189,12 @@ export async function _handleMessage(args: HandleMessageArgs) {
         incomingMessageType: type,
       })
     }
+  } else if (message.type === 'order') {
+    return _createMessage({
+      type: 'text',
+      payload: { text: JSON.stringify(message.order) },
+      incomingMessageType: 'order',
+    })
   } else if (message.type === 'unsupported' || message.type === 'unknown') {
     const errors = message.errors?.map((err) => `${err.message} (${err.error_data.details})`).join('\n')
     logger.forBot().warn(`Received message type ${message.type} by WhatsApp, errors: ${errors ?? 'none'}`)
