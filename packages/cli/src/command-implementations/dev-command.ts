@@ -1,5 +1,5 @@
 import type * as client from '@botpress/client'
-import type * as sdk from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import { TunnelRequest, TunnelResponse } from '@bpinternal/tunnel'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import chalk from 'chalk'
@@ -35,7 +35,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   public async run(): Promise<void> {
     this.logger.warn('This command is experimental and subject to breaking changes without notice.')
 
-    const api = await this.ensureLoginAndCreateClient(this.argv)
+    let api = await this.ensureLoginAndCreateClient(this.argv)
 
     const { projectType, resolveProjectDefinition } = this.readProjectDefinitionFromFS()
     if (projectType === 'interface') {
@@ -43,6 +43,15 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     }
     const projectDef = await resolveProjectDefinition()
     this._initialDef = projectDef
+
+    if (projectDef.type === 'integration') {
+      const handleResult = await this.manageWorkspaceHandle(api, projectDef.definition)
+      if (!handleResult) return
+      if (handleResult.workspaceId) {
+        api = api.switchWorkspace(handleResult.workspaceId)
+      }
+      this._initialDef = { ...projectDef, definition: handleResult.integration }
+    }
 
     let env: Record<string, string> = {
       ...process.env,
@@ -209,10 +218,14 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     if (projectType === 'interface') {
       throw new errors.BotpressCLIError('This feature is not available for interfaces.')
     }
-    if (projectType === 'integration') {
+    if (projectType === 'integration' && this._initialDef?.type === 'integration') {
       const projectDef = await resolveProjectDefinition()
       this._checkSecrets(projectDef.definition)
-      return await this._deployDevIntegration(api, tunnelUrl, projectDef.definition)
+      const integrationDef = new sdk.IntegrationDefinition({
+        ...projectDef.definition,
+        name: this._initialDef.definition.name,
+      })
+      return await this._deployDevIntegration(api, tunnelUrl, integrationDef)
     }
     if (projectType === 'bot') {
       const projectDef = await resolveProjectDefinition()
