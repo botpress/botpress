@@ -1,10 +1,10 @@
-import { Cognitive, Model, GenerateContentInput, GenerateContentOutput } from '@botpress/cognitive'
+import { CognitiveLike, Model, GenerateContentInput, GenerateContentOutput } from '@botpress/cognitive'
 import { Adapter } from './adapters/adapter'
 import { EventEmitter } from './emitter'
 import { fastHash } from './utils'
 import type { Memoizer } from './zai'
 
-type Meta = Awaited<ReturnType<Cognitive['generateContent']>>['meta']
+type Meta = Awaited<ReturnType<CognitiveLike['generateContent']>>['meta']
 
 type GenerateContentProps<T> = Omit<GenerateContentInput, 'model' | 'signal'> & {
   maxRetries?: number
@@ -12,7 +12,7 @@ type GenerateContentProps<T> = Omit<GenerateContentInput, 'model' | 'signal'> & 
 }
 
 export type ZaiContextProps = {
-  client: Cognitive
+  client: CognitiveLike
   taskType: string
   taskId: string
   modelId: string
@@ -100,7 +100,7 @@ export class ZaiContext {
   private _memoizer: Memoizer
 
   public controller: AbortController = new AbortController()
-  private _client: Cognitive
+  private _client: CognitiveLike
 
   private static _noopMemoizer: Memoizer = { run: (_id, fn) => fn() }
 
