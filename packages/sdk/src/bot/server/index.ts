@@ -1,4 +1,4 @@
-import { isApiError, Client, RuntimeError, Message, State } from '@botpress/client'
+import { isApiError, Client, RuntimeError, Message, State, User, Conversation } from '@botpress/client'
 import { retryConfig } from '../../retry'
 import { Request, Response, parseBody } from '../../serve'
 import * as utils from '../../utils/type-utils'
@@ -171,6 +171,8 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
   if (ctx.type === 'message_created') {
     const event = body.event
     let message: Message = event.payload.message
+    const user: User = event.payload.user
+    const conversation: Conversation = event.payload.conversation
 
     common.logger = common.logger.with({
       messageId: message.id,
@@ -182,6 +184,8 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
     for (const handler of beforeIncomingMessageHooks) {
       const hookOutput = await handler({
         ...common,
+        user,
+        conversation,
         data: message,
       })
       message = hookOutput?.data ?? message
@@ -192,8 +196,8 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
 
     const messagePayload: Parameters<(typeof messageHandlers)[number]>[0] = {
       ...common,
-      user: event.payload.user,
-      conversation: event.payload.conversation,
+      user,
+      conversation,
       message,
       event,
     }
@@ -206,6 +210,8 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
     for (const handler of afterIncomingMessageHooks) {
       const hookOutput = await handler({
         ...common,
+        user,
+        conversation,
         data: message,
       })
       message = hookOutput?.data ?? message

@@ -1,3 +1,4 @@
+import * as client from '@botpress/client'
 import type {
   MessageHandlersMap as BotMessageHandlersMap,
   EventHandlersMap as BotEventHandlersMap,
@@ -46,16 +47,21 @@ export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> =
   actions: ActionHandlers<TPlugin>
 }
 
+type WithMessageContext<T> = T & { user: client.User; conversation: client.Conversation }
+
+const _hookInputHasMessageContext = <T extends object>(input: T): input is WithMessageContext<T> =>
+  'user' in input && 'conversation' in input
+
 type Tools<TPlugin extends BasePlugin = BasePlugin> = InjectedHandlerProps<TPlugin>
 
 export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> implements BotHandlers<TPlugin> {
   private _runtimeProps: PluginRuntimeProps<TPlugin> | undefined
 
   private _actionHandlers: ActionHandlers<any>
-  private _messageHandlers: OrderedMessageHandlersMap<any> = {}
-  private _eventHandlers: OrderedEventHandlersMap<any> = {}
-  private _stateExpiredHandlers: OrderedStateExpiredHandlersMap<any> = {}
-  private _hookHandlers: OrderedHookHandlersMap<any> = {
+  private _messageHandlers: OrderedMessageHandlersMap = {}
+  private _eventHandlers: OrderedEventHandlersMap = {}
+  private _stateExpiredHandlers: OrderedStateExpiredHandlersMap = {}
+  private _hookHandlers: OrderedHookHandlersMap = {
     before_incoming_event: {},
     before_incoming_message: {},
     before_outgoing_message: {},
@@ -67,7 +73,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     after_outgoing_call_action: {},
     after_incoming_call_action: {},
   }
-  private _workflowHandlers: OrderedWorkflowHandlersMap<any> = {
+  private _workflowHandlers: OrderedWorkflowHandlersMap = {
     started: {},
     continued: {},
     timed_out: {},
@@ -264,12 +270,35 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
 
                 return handlers.map(({ handler }) =>
                   utils.functions.setName(
-                    (input: utils.types.ValueOf<HookInputsWithoutInjectedProps<TPlugin>>['*']) =>
-                      handler({
-                        ...input,
-                        data: unprefixTagsOwnedByPlugin(input.data, { alias: this._runtime.alias }),
-                        ...this._getTools(input.client),
-                      }),
+                    (input: utils.types.ValueOf<HookInputsWithoutInjectedProps<TPlugin>>['*']) => {
+                      const data = unprefixTagsOwnedByPlugin(input.data, { alias: this._runtime.alias })
+                      const tools = this._getTools(input.client)
+
+                      let extraProps: Record<string, any> = {}
+
+                      // `before_incoming_message` and `after_incoming_message` carry the raw
+                      // `user` and `conversation` from the incoming event payload; wrap them
+                      // as proxies so handlers see the same shape as `plugin.on.message(...)`.
+                      // Other hook types don't carry these fields, so we just forward.
+                      if (_hookInputHasMessageContext(input)) {
+                        const user = proxyUser({
+                          client: input.client,
+                          user: input.user,
+                          conversationId: input.conversation.id,
+                          pluginAlias: this._runtime.alias,
+                        })
+
+                        const conversation = proxyConversation({
+                          client: input.client,
+                          plugin: this._runtime,
+                          conversation: input.conversation,
+                        })
+
+                        extraProps = { user, conversation }
+                      }
+
+                      return handler({ ...input, data, ...extraProps, ...tools })
+                    },
                     handler.name
                   )
                 )
