@@ -236,7 +236,16 @@ export type WorkflowHandlers<TBot extends common.BaseBot> = {
   ) => Promise<void>
 }
 
-type BaseHookDefinition = { stoppable?: boolean; data: any }
+type BaseHookDefinition = {
+  stoppable?: boolean
+  data: any
+  /**
+   * Per-hook-type extra props injected into the hook handler input. Only set
+   * for hooks where the bot runtime already has the relevant context (e.g.
+   * incoming message hooks).
+   */
+  extraInputs?: object
+}
 type HookDefinition<THookDef extends BaseHookDefinition = BaseHookDefinition> = THookDef
 
 /**
@@ -254,6 +263,10 @@ export type HookDefinitions<TBot extends common.BaseBot> = {
   before_incoming_message: HookDefinition<{
     stoppable: true
     data: _IncomingMessages<TBot> & { '*': AnyIncomingMessage<TBot> }
+    extraInputs: {
+      user?: client.User
+      conversation?: client.Conversation
+    }
   }>
   before_outgoing_message: HookDefinition<{
     stoppable: false
@@ -274,6 +287,10 @@ export type HookDefinitions<TBot extends common.BaseBot> = {
   after_incoming_message: HookDefinition<{
     stoppable: true
     data: _IncomingMessages<TBot> & { '*': AnyIncomingMessage<TBot> }
+    extraInputs: {
+      user?: client.User
+      conversation?: client.Conversation
+    }
   }>
   after_outgoing_message: HookDefinition<{
     stoppable: false
@@ -297,36 +314,18 @@ export type HookData<TBot extends common.BaseBot> = {
   }
 }
 
-/**
- * Per-hook-type extra props injected into the hook handler input. Only set for
- * hooks where the runtime already has the relevant context for free (e.g.
- * incoming message hooks, where `user` and `conversation` are part of the
- * incoming `event.payload`). Adding entries here lets handlers skip an extra
- * client round-trip to fetch the same data.
- */
-export type HookExtraInputs<_TBot extends common.BaseBot> = {
-  before_incoming_event: {}
-  before_incoming_message: {
-    user: client.User
-    conversation: client.Conversation
+type _HookExtraInputs<TBot extends common.BaseBot> = {
+  [THookType in utils.StringKeys<HookDefinitions<TBot>>]: HookDefinitions<TBot>[THookType] extends {
+    extraInputs: infer T
   }
-  before_outgoing_message: {}
-  before_outgoing_call_action: {}
-  before_incoming_call_action: {}
-  after_incoming_event: {}
-  after_incoming_message: {
-    user: client.User
-    conversation: client.Conversation
-  }
-  after_outgoing_message: {}
-  after_outgoing_call_action: {}
-  after_incoming_call_action: {}
+    ? T
+    : {}
 }
 
 export type HookInputs<TBot extends common.BaseBot> = {
   [THookType in utils.StringKeys<HookData<TBot>>]: {
     [THookDataName in utils.StringKeys<HookData<TBot>[THookType]>]: ExtendedHandlerProps<TBot> &
-      HookExtraInputs<TBot>[THookType] & {
+      _HookExtraInputs<TBot>[THookType] & {
         data: HookData<TBot>[THookType][THookDataName]
       }
   }
