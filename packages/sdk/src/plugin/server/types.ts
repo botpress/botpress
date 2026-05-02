@@ -412,16 +412,16 @@ export type HookData<TPlugin extends common.BasePlugin> = {
 export type HookExtraInputsWithoutInjectedProps = {
   before_incoming_event: {}
   before_incoming_message: {
-    user: client.User
-    conversation: client.Conversation
+    user?: client.User
+    conversation?: client.Conversation
   }
   before_outgoing_message: {}
   before_outgoing_call_action: {}
   before_incoming_call_action: {}
   after_incoming_event: {}
   after_incoming_message: {
-    user: client.User
-    conversation: client.Conversation
+    user?: client.User
+    conversation?: client.Conversation
   }
   after_outgoing_message: {}
   after_outgoing_call_action: {}
@@ -431,16 +431,16 @@ export type HookExtraInputsWithoutInjectedProps = {
 export type HookExtraInputsInjected<TPlugin extends common.BasePlugin> = {
   before_incoming_event: {}
   before_incoming_message: {
-    user: userProxy.ActionableUser<TPlugin, string>
-    conversation: conversationProxy.ActionableConversation<TPlugin>
+    user?: userProxy.ActionableUser<TPlugin, string>
+    conversation?: conversationProxy.ActionableConversation<TPlugin>
   }
   before_outgoing_message: {}
   before_outgoing_call_action: {}
   before_incoming_call_action: {}
   after_incoming_event: {}
   after_incoming_message: {
-    user: userProxy.ActionableUser<TPlugin, string>
-    conversation: conversationProxy.ActionableConversation<TPlugin>
+    user?: userProxy.ActionableUser<TPlugin, string>
+    conversation?: conversationProxy.ActionableConversation<TPlugin>
   }
   after_outgoing_message: {}
   after_outgoing_call_action: {}

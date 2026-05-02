@@ -14,7 +14,9 @@ import * as consts from '../consts'
 import * as bp from '.botpress'
 
 export const handleMessage: bp.HookHandlers['before_incoming_message']['*'] = async (props) => {
-  const conversation = props.conversation as unknown as types.ActionableConversation
+  const conversation = await props.conversations.hitl.hitl.getById({
+    id: props.data.conversationId,
+  })
 
   const { integration } = conversation
   if (integration === props.interfaces.hitl.name) {
