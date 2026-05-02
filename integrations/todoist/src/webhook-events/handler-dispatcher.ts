@@ -29,7 +29,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerP
   }
 
   if (!req.body) {
-    return
+    return {}
   }
 
   console.debug(req)
@@ -38,6 +38,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerP
     await _ensureWebhookIsAuthenticated(props)
   }
   await _dispatchEvent(props)
+  return {}
 }
 
 const _ensureWebhookIsAuthenticated = async ({ req }: bp.HandlerProps) => {

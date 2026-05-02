@@ -24,6 +24,7 @@ export class GoogleClient {
     })
   }
 
+  @handleErrors('Failed to authenticate Google Calendar with authorization code')
   public static async authenticateWithAuthorizationCode({
     ctx,
     client,

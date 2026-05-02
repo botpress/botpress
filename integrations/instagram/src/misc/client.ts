@@ -1,3 +1,4 @@
+import { handleErrorsDecorator as handleErrors } from '@botpress/common'
 import { RuntimeError, z } from '@botpress/sdk'
 import axios from 'axios'
 import { InstagramRecipientId } from './types'
@@ -17,6 +18,7 @@ export class InstagramClient {
     this._clientId = bp.secrets.CLIENT_ID
     this._clientSecret = bp.secrets.CLIENT_SECRET
   }
+  @handleErrors('Failed to obtain Instagram OAuth access token from authorization code')
   public async getAccessTokenFromCode(code: string): Promise<{
     accessToken: string
     expirationTime: number
@@ -60,6 +62,7 @@ export class InstagramClient {
     return { accessToken: access_token, expirationTime: Date.now() + expires_in * 1000 }
   }
 
+  @handleErrors('Failed to refresh Instagram OAuth access token')
   public async refreshAccessToken(): Promise<{ accessToken: string; expirationTime: number }> {
     const query = new URLSearchParams({
       grant_type: 'ig_refresh_token',

@@ -1,3 +1,6 @@
+import { generateRedirection } from '@botpress/common/src/html-dialogs'
+import { getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
+import * as sdk from '@botpress/sdk'
 import { RuntimeError, z } from '@botpress/sdk'
 import axios from 'axios'
 import { Client as IntercomClient } from 'intercom-client'
@@ -55,16 +58,32 @@ export const getSignatureSecret = (ctx: bp.Context): string | undefined => {
   return bp.secrets.CLIENT_SECRET
 }
 
-export const handleOAuth = async ({ client, ctx, req }: bp.HandlerProps): Promise<void> => {
-  console.info('Handling OAuth callback')
-  const code = new URLSearchParams(req.query).get('code')
-  if (!code) {
-    throw new RuntimeError('Code not present in OAuth callback request')
+export const handleOAuth = async ({ client, ctx, req, logger }: bp.HandlerProps): Promise<sdk.Response> => {
+  logger.forBot().info('Handling OAuth callback')
+
+  try {
+    const searchParams = new URLSearchParams(req.query)
+    const error = searchParams.get('error')
+    if (error) {
+      throw new Error(`${error} - ${searchParams.get('error_description') ?? ''}`)
+    }
+
+    const code = searchParams.get('code')
+    if (!code) {
+      throw new Error('Authorization code not present in OAuth callback')
+    }
+
+    const accessToken = await exchangeCodeForAccessToken(code)
+    const adminId = await getAdminId(ctx)
+    await saveAuthCredentials(client, ctx, { accessToken, adminId })
+    await client.configureIntegration({ identifier: adminId })
+    return generateRedirection(getInterstitialUrl(true))
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    const errorMessage = 'OAuth error: ' + msg
+    logger.forBot().error(errorMessage)
+    return generateRedirection(getInterstitialUrl(false, errorMessage))
   }
-  const accessToken = await exchangeCodeForAccessToken(code)
-  const adminId = await getAdminId(ctx)
-  await saveAuthCredentials(client, ctx, { accessToken, adminId })
-  await client.configureIntegration({ identifier: adminId })
 }
 
 const responseSchema = z.object({

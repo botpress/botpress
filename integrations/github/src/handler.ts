@@ -1,3 +1,5 @@
+import { generateRedirection } from '@botpress/common/src/html-dialogs'
+import { getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
 import * as sdk from '@botpress/sdk'
 import { verify as verifyWebhook } from '@octokit/webhooks-methods'
 import type { WebhookEvent } from '@octokit/webhooks-types'
@@ -69,10 +71,15 @@ const _isOauthRequest = ({ req }: bp.HandlerProps) => req.path === '/oauth'
 
 const _handleOauthRequest = async ({ req, client, ctx, logger }: bp.HandlerProps) => {
   logger.forBot().info('Handling incoming OAuth callback')
-  return _handleOauth(req, client, ctx).catch((err) => {
-    logger.forBot().error('Error while processing OAuth callback', err.response?.data || err.message)
-    throw err
-  })
+  try {
+    await _handleOauth(req, client, ctx)
+    return generateRedirection(getInterstitialUrl(true))
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    const errorMessage = 'OAuth error: ' + msg
+    logger.forBot().error(errorMessage)
+    return generateRedirection(getInterstitialUrl(false, errorMessage))
+  }
 }
 
 const _handleOauth = async (req: sdk.Request, client: bp.Client, ctx: bp.Context) => {

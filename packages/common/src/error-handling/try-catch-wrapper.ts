@@ -89,7 +89,7 @@ export const defaultErrorRedactor: RedactFn = (error: Error, customMessage: stri
   // to expose more information to the user or log the error differently.
 
   console.warn(customMessage, error)
-  return new sdk.RuntimeError(customMessage)
+  return new sdk.RuntimeError(`${customMessage}: ${error.message}`)
 }
 
 /**
@@ -130,3 +130,15 @@ export const createErrorHandlingDecorator =
       return asyncFnWrapperWithErrorRedaction(_originalMethod.bind(this), errorMessage).apply(this, args)
     }
   }
+
+/**
+ * Default async function wrapper that uses {@link defaultErrorRedactor} to
+ * convert thrown errors into `sdk.RuntimeError` instances with a custom message.
+ */
+export const wrapAsyncFnWithTryCatch = createAsyncFnWrapperWithErrorRedaction(defaultErrorRedactor)
+
+/**
+ * Default class method decorator that wraps the method with the default
+ * try-catch wrapper.
+ */
+export const handleErrorsDecorator = createErrorHandlingDecorator(wrapAsyncFnWithTryCatch)

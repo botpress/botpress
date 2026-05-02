@@ -1,3 +1,4 @@
+import { handleErrorsDecorator as handleErrors } from '@botpress/common'
 import { RuntimeError } from '@botpress/sdk'
 import axios, { type AxiosInstance } from 'axios'
 import type { CommonHandlerProps, Result } from '../types'
@@ -74,6 +75,7 @@ export class DocusignAuthClient {
     }
   }
 
+  @handleErrors('Failed to obtain Docusign OAuth access token from authorization code')
   public async getAccessTokenWithCode(code: string): Promise<Result<GetAccessTokenResp>> {
     return this._getAccessToken({
       grant_type: 'authorization_code',
@@ -81,6 +83,7 @@ export class DocusignAuthClient {
     })
   }
 
+  @handleErrors('Failed to refresh Docusign OAuth access token')
   public async getAccessTokenWithRefreshToken(refreshToken: string): Promise<Result<GetAccessTokenResp>> {
     return this._getAccessToken({
       grant_type: 'refresh_token',
@@ -88,6 +91,7 @@ export class DocusignAuthClient {
     })
   }
 
+  @handleErrors('Failed to retrieve Docusign user info')
   public async getUserInfo(accessToken: string, tokenType: string): Promise<Result<GetUserInfoResp>> {
     const resp = await this._axiosClient.get('/oauth/userinfo', {
       headers: {
