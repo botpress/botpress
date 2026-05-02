@@ -40,3 +40,21 @@ test('MessageRequest with base plugin should be loose type', () => {
     ]
   >
 })
+
+test('HookHandlers with implemented plugin should always extend AnyHookHandler', () => {
+  type Actual = types.HookHandlers<FooBarBazPlugin>
+  type Expected = Record<types.HookDefinitionType, Record<string, types.AnyHookHandler<FooBarBazPlugin>>>
+  type _assertion = utils.AssertExtends<Actual, Expected>
+})
+
+test('HookHandlers with empty plugin should always extend AnyHookHandler', () => {
+  type Actual = types.HookHandlers<EmptyPlugin>
+  type Expected = Record<types.HookDefinitionType, Record<string, types.AnyHookHandler<EmptyPlugin>>>
+  type _assertion = utils.AssertExtends<Actual, Expected>
+})
+
+test('HookHandlers with base plugin should always extend AnyHookHandler', () => {
+  type Actual = types.HookHandlers<common.BasePlugin>
+  type Expected = Record<types.HookDefinitionType, Record<string, types.AnyHookHandler<common.BasePlugin>>>
+  type _assertion = utils.AssertExtends<Actual, Expected>
+})

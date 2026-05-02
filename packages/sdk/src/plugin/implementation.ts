@@ -58,10 +58,10 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
   private _runtimeProps: PluginRuntimeProps<TPlugin> | undefined
 
   private _actionHandlers: ActionHandlers<any>
-  private _messageHandlers: OrderedMessageHandlersMap<any> = {}
-  private _eventHandlers: OrderedEventHandlersMap<any> = {}
-  private _stateExpiredHandlers: OrderedStateExpiredHandlersMap<any> = {}
-  private _hookHandlers: OrderedHookHandlersMap<any> = {
+  private _messageHandlers: OrderedMessageHandlersMap = {}
+  private _eventHandlers: OrderedEventHandlersMap = {}
+  private _stateExpiredHandlers: OrderedStateExpiredHandlersMap = {}
+  private _hookHandlers: OrderedHookHandlersMap = {
     before_incoming_event: {},
     before_incoming_message: {},
     before_outgoing_message: {},
@@ -73,7 +73,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     after_outgoing_call_action: {},
     after_incoming_call_action: {},
   }
-  private _workflowHandlers: OrderedWorkflowHandlersMap<any> = {
+  private _workflowHandlers: OrderedWorkflowHandlersMap = {
     started: {},
     continued: {},
     timed_out: {},
@@ -274,31 +274,30 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
                       const data = unprefixTagsOwnedByPlugin(input.data, { alias: this._runtime.alias })
                       const tools = this._getTools(input.client)
 
+                      let extraProps: Record<string, any> = {}
+
                       // `before_incoming_message` and `after_incoming_message` carry the raw
                       // `user` and `conversation` from the incoming event payload; wrap them
                       // as proxies so handlers see the same shape as `plugin.on.message(...)`.
                       // Other hook types don't carry these fields, so we just forward.
                       if (_hookInputHasMessageContext(input)) {
-                        const { user, conversation, client: pluginClient } = input
-                        return handler({
-                          ...input,
-                          data,
-                          user: proxyUser({
-                            client: pluginClient,
-                            user,
-                            conversationId: conversation.id,
-                            pluginAlias: this._runtime.alias,
-                          }),
-                          conversation: proxyConversation({
-                            client: pluginClient,
-                            plugin: this._runtime,
-                            conversation,
-                          }),
-                          ...tools,
+                        const user = proxyUser({
+                          client: input.client,
+                          user: input.user,
+                          conversationId: input.conversation.id,
+                          pluginAlias: this._runtime.alias,
                         })
+
+                        const conversation = proxyConversation({
+                          client: input.client,
+                          plugin: this._runtime,
+                          conversation: input.conversation,
+                        })
+
+                        extraProps = { user, conversation }
                       }
 
-                      return handler({ ...input, data, ...tools })
+                      return handler({ ...input, data, ...extraProps, ...tools })
                     },
                     handler.name
                   )
