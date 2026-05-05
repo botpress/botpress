@@ -6,6 +6,13 @@ export default new IntegrationDefinition({
   version: '0.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
+  configuration: {
+    schema: z.object({
+      url: z.string().url().title('Odoo URL'),
+      database: z.string().min(1).title('Database'),
+      apiKey: z.string().secret().min(1).title('API Key'),
+    }),
+  },
   actions: {
     getFields: {
       title: 'Get Odoo Fields',
