@@ -157,4 +157,71 @@ describe('issue action payloads', () => {
       ],
     })
   })
+
+  it('uses accountId for create assignee fields', async () => {
+    await newIssue({
+      ...baseProps,
+      input: {
+        summary: 'Assign on create',
+        projectKey: 'SCRUM',
+        issueType: 'Task',
+        assigneeId: 'abc-123',
+      },
+    } as any)
+
+    expect(mocks.newIssue).toHaveBeenCalledWith({
+      fields: {
+        summary: 'Assign on create',
+        project: { key: 'SCRUM' },
+        issuetype: { name: 'Task' },
+        assignee: { accountId: 'abc-123' },
+      },
+    })
+  })
+
+  it('uses accountId for update assignee fields', async () => {
+    await updateIssue({
+      ...baseProps,
+      input: {
+        issueKey: 'SCRUM-17',
+        assigneeId: 'abc-123',
+      },
+    } as any)
+
+    expect(mocks.updateIssue).toHaveBeenCalledWith({
+      issueIdOrKey: 'SCRUM-17',
+      fields: {
+        assignee: { accountId: 'abc-123' },
+      },
+    })
+  })
+
+  it('uses accountId for batch create assignee fields', async () => {
+    await newIssues({
+      ...baseProps,
+      input: {
+        issues: [
+          {
+            summary: 'Assign in batch',
+            projectKey: 'SCRUM',
+            issueType: 'Task',
+            assigneeId: 'abc-123',
+          },
+        ],
+      },
+    } as any)
+
+    expect(mocks.newIssues).toHaveBeenCalledWith({
+      issueUpdates: [
+        {
+          fields: {
+            summary: 'Assign in batch',
+            project: { key: 'SCRUM' },
+            issuetype: { name: 'Task' },
+            assignee: { accountId: 'abc-123' },
+          },
+        },
+      ],
+    })
+  })
 })

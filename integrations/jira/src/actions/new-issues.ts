@@ -24,7 +24,7 @@ export const newIssues: Implementation['actions']['newIssues'] = async ({ ctx, i
     }
     if (i.description !== undefined) fields.description = textToAdfDocument(i.description)
     if (i.parentKey !== undefined) fields.parent = { key: i.parentKey }
-    if (i.assigneeId !== undefined) fields.assignee = { id: i.assigneeId }
+    if (i.assigneeId !== undefined) fields.assignee = { accountId: i.assigneeId }
     return { fields }
   })
 

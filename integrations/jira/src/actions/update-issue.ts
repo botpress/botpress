@@ -25,7 +25,7 @@ export const updateIssue: Implementation['actions']['updateIssue'] = async ({ ct
     fields.parent = { key: validatedInput.parentKey }
   }
   if (validatedInput.assigneeId !== undefined) {
-    fields.assignee = { id: validatedInput.assigneeId }
+    fields.assignee = { accountId: validatedInput.assigneeId }
   }
 
   const issueUpdate: Version3Parameters.EditIssue = {
