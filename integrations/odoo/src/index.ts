@@ -17,7 +17,15 @@ export default new bp.Integration({
     // throw new sdk.RuntimeError('Invalid configuration') // replace this with your own validation logic
   },
   actions: {
-    getFields: async () => ({}),
+    getFields: async (props) => {
+      const { model, fields, attributes } = props.input
+
+      props.logger
+        .forBot()
+        .info(`getFields called with model=${model}, fields=${fields}, attributes=${attributes}`)
+
+      return {}
+    },
   },
   channels: {},
   handler: async () => {},
