@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/sdk'
 import type { Version3Models } from 'jira.js'
 import { newIssuesInputSchema, newIssuesOutputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
-import { getClient } from '../utils'
+import { getClient, textToAdfDocument } from '../utils'
 
 type IssueInput = Version3Models.IssueUpdateDetails
 
@@ -22,7 +22,7 @@ export const newIssues: Implementation['actions']['newIssues'] = async ({ ctx, i
       issuetype: { name: i.issueType },
       project: { key: i.projectKey },
     }
-    if (i.description !== undefined) fields.description = i.description
+    if (i.description !== undefined) fields.description = textToAdfDocument(i.description)
     if (i.parentKey !== undefined) fields.parent = { key: i.parentKey }
     if (i.assigneeId !== undefined) fields.assignee = { id: i.assigneeId }
     return { fields }

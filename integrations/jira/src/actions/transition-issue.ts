@@ -3,7 +3,7 @@ import { RuntimeError } from '@botpress/sdk'
 import { transitionIssueInputSchema, transitionIssueOutputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
-import { getClient } from '../utils'
+import { getClient, textToAdfDocument } from '../utils'
 
 export const transitionIssue: Implementation['actions']['transitionIssue'] = async ({ ctx, input, logger }) => {
   const validatedInput = transitionIssueInputSchema.parse(input)
@@ -15,7 +15,7 @@ export const transitionIssue: Implementation['actions']['transitionIssue'] = asy
       transition: { id: validatedInput.transitionId },
       ...(validatedInput.comment !== undefined && {
         update: {
-          comment: [{ add: { body: validatedInput.comment } }],
+          comment: [{ add: { body: textToAdfDocument(validatedInput.comment) } }],
         },
       }),
     })

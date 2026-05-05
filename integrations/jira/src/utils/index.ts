@@ -5,6 +5,17 @@ import type { Config } from '../misc/types'
 
 export const getClient = (config: Config) => new JiraApi(config.host, config.email, config.apiToken)
 
+export const textToAdfDocument = (text: string): Version3Models.Document => ({
+  version: 1,
+  type: 'doc',
+  content: [
+    {
+      type: 'paragraph',
+      content: [{ type: 'text', text }],
+    },
+  ],
+})
+
 type FlattenedIssue = {
   issueKey: string
   id?: string
@@ -100,21 +111,54 @@ type JiraErrorShape = {
   statusText?: string
 }
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+const getStringArray = (value: unknown): string[] | undefined =>
+  Array.isArray(value) && value.every((item): item is string => typeof item === 'string') ? value : undefined
+
+const getStringRecord = (value: unknown): Record<string, string> | undefined => {
+  if (!isRecord(value)) return undefined
+  const entries = Object.entries(value)
+  if (!entries.every((entry): entry is [string, string] => typeof entry[1] === 'string')) return undefined
+  return Object.fromEntries(entries)
+}
+
+const getJiraError = (error: unknown): JiraErrorShape | undefined => {
+  if (!isRecord(error)) return undefined
+
+  const errors = getStringRecord(error.errors)
+  const errorMessages = getStringArray(error.errorMessages)
+  const status = typeof error.status === 'number' ? error.status : undefined
+  const statusText = typeof error.statusText === 'string' ? error.statusText : undefined
+
+  if (!errors && !errorMessages && status === undefined && statusText === undefined) return undefined
+  return { errors, errorMessages, status, statusText }
+}
+
+export const getJiraErrorDetail = (error: unknown): string | undefined => {
+  const jiraError = getJiraError(error)
+  if (!jiraError) return undefined
+
+  const fieldErrors = jiraError.errors ? Object.entries(jiraError.errors).map(([k, v]) => `${k}: ${v}`) : []
+  const detail = [...(jiraError.errorMessages ?? []), ...fieldErrors].join('; ')
+  return detail.length > 0 ? detail : undefined
+}
+
 export const buildIssueRuntimeError = (
   error: unknown,
   issueType: string | undefined,
   projectKey: string | undefined,
   verb: 'create' | 'update'
 ): RuntimeError => {
-  const jiraError = error as JiraErrorShape
+  const jiraError = getJiraError(error)
   const issueTypeError = jiraError?.errors?.issuetype
   if (issueTypeError && projectKey) {
     return new RuntimeError(
       `Failed to ${verb} issue: invalid issue type "${issueType ?? ''}" for project "${projectKey}". Use a Jira issue type that is valid for the target project. (Jira: ${issueTypeError})`
     )
   }
-  const fieldErrors = jiraError?.errors ? Object.entries(jiraError.errors).map(([k, v]) => `${k}: ${v}`) : []
-  const detail = [...(jiraError?.errorMessages ?? []), ...fieldErrors].join('; ')
+  const detail = getJiraErrorDetail(error)
   if (detail) {
     return new RuntimeError(`Failed to ${verb} issue: ${detail}`)
   }

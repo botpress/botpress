@@ -17,6 +17,17 @@ vi.mock('../utils', async () => {
 import { getIssueTransitions } from './get-issue-transitions'
 import { transitionIssue } from './transition-issue'
 
+const adf = (text: string) => ({
+  version: 1,
+  type: 'doc',
+  content: [
+    {
+      type: 'paragraph',
+      content: [{ type: 'text', text }],
+    },
+  ],
+})
+
 const baseProps = {
   ctx: {
     configuration: {
@@ -96,7 +107,7 @@ describe('issue transitions', () => {
       issueIdOrKey: 'SCRUM-1',
       transition: { id: '21' },
       update: {
-        comment: [{ add: { body: 'Starting work' } }],
+        comment: [{ add: { body: adf('Starting work') } }],
       },
     })
   })

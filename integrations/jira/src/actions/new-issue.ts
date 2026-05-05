@@ -2,7 +2,7 @@ import { Version3Parameters } from 'jira.js'
 import { newIssueInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
-import { buildIssueRuntimeError, getClient } from '../utils'
+import { buildIssueRuntimeError, getClient, textToAdfDocument } from '../utils'
 
 export const newIssue: Implementation['actions']['newIssue'] = async ({ ctx, input, logger }) => {
   const validatedInput = newIssueInputSchema.parse(input)
@@ -18,7 +18,7 @@ export const newIssue: Implementation['actions']['newIssue'] = async ({ ctx, inp
   }
 
   if (validatedInput.description !== undefined) {
-    fields.description = validatedInput.description
+    fields.description = textToAdfDocument(validatedInput.description)
   }
   if (validatedInput.parentKey !== undefined) {
     fields.parent = { key: validatedInput.parentKey }
