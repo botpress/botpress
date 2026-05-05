@@ -66,7 +66,9 @@ const buildBlockActionsPayload = (overrides: Partial<BlockActionsPayload> = {}):
 
 const encodePayload = (payload: BlockActionsPayload): string => `payload=${encodeURIComponent(JSON.stringify(payload))}`
 
-const buildHandlerProps = (payload: BlockActionsPayload) => {
+type ReplyLocation = 'channel' | 'thread' | 'channelAndThread'
+
+const buildHandlerProps = (payload: BlockActionsPayload, opts: { replyLocation?: ReplyLocation } = {}) => {
   const getOrCreateConversation = vi.fn(async (input: GetOrCreateConversationInput) => ({
     conversation: { id: input.channel === 'thread' ? 'thread-conversation-id' : 'channel-conversation-id' },
   }))
@@ -84,6 +86,11 @@ const buildHandlerProps = (payload: BlockActionsPayload) => {
         getOrCreateUser: vi.fn(async () => ({ user: { id: 'botpress-user-id' } })),
         getOrCreateConversation,
         getOrCreateMessage,
+      },
+      ctx: {
+        configuration: {
+          replyBehaviour: opts.replyLocation ? { location: opts.replyLocation, onlyOnBotMention: false } : undefined,
+        },
       },
       logger: {
         forBot: () => ({
@@ -110,14 +117,16 @@ describe('handleInteractiveRequest', () => {
       tags: { id: 'C0123456789', thread: '1764784200.000200' },
       discriminateByTags: ['id', 'thread'],
     })
+    expect(getOrCreateConversation).toHaveBeenCalledTimes(1)
     expect(getOrCreateMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         conversationId: 'thread-conversation-id',
-        tags: {
+        tags: expect.objectContaining({
           ts: '1764784399.000100',
           userId: 'U0A6E7PA7FH',
           channelId: 'C0123456789',
-        },
+          forkedToThread: 'false',
+        }),
       })
     )
   })
@@ -127,7 +136,7 @@ describe('handleInteractiveRequest', () => {
       container: { channel_id: 'C0123456789', message_ts: '1764784399.000100' },
       message: { ts: '1764784399.000100' },
     })
-    const { props, getOrCreateConversation } = buildHandlerProps(payload)
+    const { props, getOrCreateConversation, getOrCreateMessage } = buildHandlerProps(payload)
 
     await handleInteractiveRequest(props)
 
@@ -135,6 +144,101 @@ describe('handleInteractiveRequest', () => {
       channel: 'channel',
       tags: { id: 'C0123456789' },
     })
+    expect(getOrCreateConversation).toHaveBeenCalledTimes(1)
+    expect(getOrCreateMessage).toHaveBeenCalledTimes(1)
+    expect(getOrCreateMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversationId: 'channel-conversation-id',
+        tags: expect.objectContaining({ forkedToThread: 'false' }),
+      })
+    )
+  })
+
+  it('forks a top-level click into a thread when replyBehaviour.location is "thread"', async () => {
+    const payload = buildBlockActionsPayload({
+      container: { channel_id: 'C0123456789', message_ts: '1764784399.000100' },
+      message: { ts: '1764784399.000100' },
+    })
+    const { props, getOrCreateConversation, getOrCreateMessage } = buildHandlerProps(payload, {
+      replyLocation: 'thread',
+    })
+
+    await handleInteractiveRequest(props)
+
+    expect(getOrCreateConversation).toHaveBeenCalledTimes(1)
+    expect(getOrCreateConversation).toHaveBeenCalledWith({
+      channel: 'thread',
+      tags: { id: 'C0123456789', thread: '1764784399.000100' },
+      discriminateByTags: ['id', 'thread'],
+    })
+    expect(getOrCreateMessage).toHaveBeenCalledTimes(1)
+    expect(getOrCreateMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversationId: 'thread-conversation-id',
+        tags: expect.objectContaining({ forkedToThread: 'true' }),
+      })
+    )
+  })
+
+  it('dispatches a top-level click to BOTH the channel and the thread when replyBehaviour.location is "channelAndThread"', async () => {
+    const payload = buildBlockActionsPayload({
+      container: { channel_id: 'C0123456789', message_ts: '1764784399.000100' },
+      message: { ts: '1764784399.000100' },
+    })
+    const { props, getOrCreateConversation, getOrCreateMessage } = buildHandlerProps(payload, {
+      replyLocation: 'channelAndThread',
+    })
+
+    await handleInteractiveRequest(props)
+
+    expect(getOrCreateConversation).toHaveBeenCalledTimes(2)
+    expect(getOrCreateConversation).toHaveBeenNthCalledWith(1, {
+      channel: 'channel',
+      tags: { id: 'C0123456789' },
+    })
+    expect(getOrCreateConversation).toHaveBeenNthCalledWith(2, {
+      channel: 'thread',
+      tags: { id: 'C0123456789', thread: '1764784399.000100' },
+      discriminateByTags: ['id', 'thread'],
+    })
+    expect(getOrCreateMessage).toHaveBeenCalledTimes(2)
+    expect(getOrCreateMessage).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        conversationId: 'channel-conversation-id',
+        tags: expect.objectContaining({ forkedToThread: 'false' }),
+      })
+    )
+    expect(getOrCreateMessage).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        conversationId: 'thread-conversation-id',
+        tags: expect.objectContaining({ forkedToThread: 'true' }),
+      })
+    )
+  })
+
+  it('keeps thread-click responses in the thread when replyBehaviour.location is "channel"', async () => {
+    const payload = buildBlockActionsPayload()
+    const { props, getOrCreateConversation, getOrCreateMessage } = buildHandlerProps(payload, {
+      replyLocation: 'channel',
+    })
+
+    await handleInteractiveRequest(props)
+
+    expect(getOrCreateConversation).toHaveBeenCalledTimes(1)
+    expect(getOrCreateConversation).toHaveBeenCalledWith({
+      channel: 'thread',
+      tags: { id: 'C0123456789', thread: '1764784200.000200' },
+      discriminateByTags: ['id', 'thread'],
+    })
+    expect(getOrCreateMessage).toHaveBeenCalledTimes(1)
+    expect(getOrCreateMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversationId: 'thread-conversation-id',
+        tags: expect.objectContaining({ forkedToThread: 'false' }),
+      })
+    )
   })
 
   it('short-circuits non-block_actions interaction types without responding or persisting a message', async () => {

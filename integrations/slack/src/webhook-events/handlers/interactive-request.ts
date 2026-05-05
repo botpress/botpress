@@ -6,7 +6,7 @@ import * as bp from '.botpress'
 export const isInteractiveRequest = (req: sdk.Request) =>
   req.body?.startsWith('payload=') || req.path === '/interactive'
 
-export const handleInteractiveRequest = async ({ req, client, logger }: bp.HandlerProps) => {
+export const handleInteractiveRequest = async ({ req, client, logger, ctx }: bp.HandlerProps) => {
   const body = _parseInteractiveBody(req)
 
   if (body.type !== 'block_actions') {
@@ -32,23 +32,53 @@ export const handleInteractiveRequest = async ({ req, client, logger }: bp.Handl
     throw new sdk.RuntimeError('Slack message timestamp is missing from interactive request')
   }
 
-  const { botpressUserId: userId } = await getBotpressUserFromSlackUser({ slackUserId: body.user.id }, client)
-  const { botpressConversationId: conversationId } = await getBotpressConversationFromSlackThread(
-    { slackChannelId, slackThreadId: getInteractiveThreadTs(body) },
-    client
-  )
+  const slackThreadTs = getInteractiveThreadTs(body)
+  const isClickInChannel = !slackThreadTs
+  const replyLocation = ctx.configuration.replyBehaviour?.location ?? 'channel'
+  const shouldRespondInChannel =
+    isClickInChannel && (replyLocation === 'channel' || replyLocation === 'channelAndThread')
+  const shouldRespondInThread = !isClickInChannel || replyLocation === 'thread' || replyLocation === 'channelAndThread'
 
-  await client.getOrCreateMessage({
-    tags: {
-      ts: slackMessageTs,
-      userId: body.user.id,
-      channelId: slackChannelId,
-    },
-    type: 'text',
-    payload: { text: actionValue },
-    userId,
-    conversationId,
-  })
+  const { botpressUserId: userId } = await getBotpressUserFromSlackUser({ slackUserId: body.user.id }, client)
+
+  const dispatch = async (target: { conversationId: string; forkedToThread: 'true' | 'false' }) => {
+    await client.getOrCreateMessage({
+      tags: {
+        ts: slackMessageTs,
+        userId: body.user.id,
+        channelId: slackChannelId,
+        forkedToThread: target.forkedToThread,
+      },
+      discriminateByTags:
+        target.forkedToThread === 'false' && isClickInChannel
+          ? ['ts', 'channelId']
+          : ['ts', 'channelId', 'forkedToThread'],
+      type: 'text',
+      payload: { text: actionValue },
+      userId,
+      conversationId: target.conversationId,
+    })
+  }
+
+  if (shouldRespondInChannel) {
+    const { botpressConversationId } = await getBotpressConversationFromSlackThread(
+      { slackChannelId, slackThreadId: undefined },
+      client
+    )
+    await dispatch({ conversationId: botpressConversationId, forkedToThread: 'false' })
+  }
+
+  if (shouldRespondInThread) {
+    const threadTs = slackThreadTs ?? slackMessageTs
+    const { botpressConversationId } = await getBotpressConversationFromSlackThread(
+      { slackChannelId, slackThreadId: threadTs },
+      client
+    )
+    await dispatch({
+      conversationId: botpressConversationId,
+      forkedToThread: isClickInChannel ? 'true' : 'false',
+    })
+  }
 }
 
 type InteractiveBody = {
