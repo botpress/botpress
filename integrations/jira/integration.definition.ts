@@ -14,8 +14,5 @@ export default new IntegrationDefinition({
   user,
   actions,
   events: {},
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
   states,
 })
