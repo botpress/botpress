@@ -7,18 +7,19 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   icon: 'icon.svg',
   actions: {
-    helloWorld: {
-      title: 'Hello World',
-      description: 'A simple hello world action',
+    getFields: {
+      title: 'Get Odoo Fields',
+      description: 'Get available fields for Odoo leads, contacts, or tickets.',
       input: {
         schema: z.object({
-          name: z.string().optional(),
+          model: z.enum(['Lead', 'Contact', 'Ticket']),
+          fields: z.array(z.string()).optional(),
+          attributes: z.array(z.string()).optional(),
+          context: z.record(z.unknown()).optional(),
         }),
       },
       output: {
-        schema: z.object({
-          message: z.string(),
-        }),
+        schema: z.record(z.string(), z.record(z.string(), z.any())),
       },
     },
   },
