@@ -118,6 +118,28 @@ export const getBotpressConversationFromSlackThread = async (
   }
 }
 
+type ReplyLocation = 'channel' | 'thread' | 'channelAndThread'
+
+export const getReplyDispatch = (input: {
+  slackThreadTs: string | undefined
+  slackMessageTs: string
+  replyLocation: ReplyLocation | undefined
+}) => {
+  const replyLocation = input.replyLocation ?? 'channel'
+  const isSentInChannel = !input.slackThreadTs
+  const shouldRespondInChannel =
+    isSentInChannel && (replyLocation === 'channel' || replyLocation === 'channelAndThread')
+  const shouldRespondInThread =
+    !isSentInChannel || replyLocation === 'thread' || replyLocation === 'channelAndThread'
+  const threadTsForReply = input.slackThreadTs ?? input.slackMessageTs
+  return {
+    isSentInChannel,
+    shouldRespondInChannel,
+    shouldRespondInThread,
+    threadTsForReply,
+  }
+}
+
 export const getMessageFromSlackEvent = async (
   client: bp.Client,
   event: { item: { type: string; channel?: string; ts?: string } }
