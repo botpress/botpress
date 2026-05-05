@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { getInteractiveThreadTs, handleInteractiveRequest } from './interactive-request'
 
@@ -9,23 +9,27 @@ vi.mock('axios', () => ({
   },
 }))
 
+beforeEach(() => {
+  vi.mocked(axios.post).mockClear()
+})
+
 const RESPONSE_URL = 'https://hooks.slack.com/actions/T000/B000/XXX'
 
 type BlockActionsPayload = {
-  type: 'block_actions'
-  response_url: string
+  type: string
+  response_url?: string
   user: { id: string }
-  channel: { id: string }
+  channel?: { id: string }
   container?: {
     channel_id?: string
     message_ts?: string
     thread_ts?: string
   }
-  message: {
-    ts: string
+  message?: {
+    ts?: string
     thread_ts?: string
   }
-  actions: { type: 'button'; value: string; action_id: string }[]
+  actions?: { type: 'button'; value: string; action_id: string }[]
 }
 
 type GetOrCreateConversationInput = {
@@ -131,6 +135,80 @@ describe('handleInteractiveRequest', () => {
       channel: 'channel',
       tags: { id: 'C0123456789' },
     })
+  })
+
+  it('short-circuits non-block_actions interaction types without responding or persisting a message', async () => {
+    const payload = buildBlockActionsPayload({ type: 'view_submission' })
+    const { props, getOrCreateConversation, getOrCreateMessage } = buildHandlerProps(payload)
+
+    await handleInteractiveRequest(props)
+
+    expect(axios.post).not.toHaveBeenCalled()
+    expect(getOrCreateConversation).not.toHaveBeenCalled()
+    expect(getOrCreateMessage).not.toHaveBeenCalled()
+  })
+
+  it('throws when actions are missing from a block_actions payload', async () => {
+    const payload = buildBlockActionsPayload({ actions: [] })
+    const { props } = buildHandlerProps(payload)
+
+    await expect(handleInteractiveRequest(props)).rejects.toThrow(/no action/i)
+  })
+
+  it('throws when response_url is missing from a block_actions payload', async () => {
+    const payload: BlockActionsPayload = {
+      type: 'block_actions',
+      user: { id: 'U0A6E7PA7FH' },
+      channel: { id: 'C0123456789' },
+      message: { ts: '1764784399.000100' },
+      actions: [{ type: 'button', value: 'approve', action_id: 'quick_reply_0' }],
+    }
+    const { props } = buildHandlerProps(payload)
+
+    await expect(handleInteractiveRequest(props)).rejects.toThrow(/response url/i)
+  })
+
+  it('throws when no slack channel id can be resolved from the payload', async () => {
+    const payload: BlockActionsPayload = {
+      type: 'block_actions',
+      response_url: RESPONSE_URL,
+      user: { id: 'U0A6E7PA7FH' },
+      message: { ts: '1764784399.000100' },
+      actions: [{ type: 'button', value: 'approve', action_id: 'quick_reply_0' }],
+    }
+    const { props } = buildHandlerProps(payload)
+
+    await expect(handleInteractiveRequest(props)).rejects.toThrow(/channel id/i)
+  })
+
+  it('throws when no slack message timestamp can be resolved from the payload', async () => {
+    const payload: BlockActionsPayload = {
+      type: 'block_actions',
+      response_url: RESPONSE_URL,
+      user: { id: 'U0A6E7PA7FH' },
+      channel: { id: 'C0123456789' },
+      actions: [{ type: 'button', value: 'approve', action_id: 'quick_reply_0' }],
+    }
+    const { props } = buildHandlerProps(payload)
+
+    await expect(handleInteractiveRequest(props)).rejects.toThrow(/message timestamp/i)
+  })
+
+  it('parses raw JSON bodies received via /interactive without stripping payload= substrings inside values', async () => {
+    const payload = buildBlockActionsPayload({
+      actions: [{ type: 'button', value: 'redirect=payload=baz', action_id: 'quick_reply_0' }],
+    })
+    const { props, getOrCreateMessage } = buildHandlerProps(payload)
+    props.req.body = JSON.stringify(payload)
+
+    await handleInteractiveRequest(props)
+
+    expect(axios.post).toHaveBeenCalledWith(RESPONSE_URL, { text: 'redirect=payload=baz' })
+    expect(getOrCreateMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        payload: { text: 'redirect=payload=baz' },
+      })
+    )
   })
 })
 

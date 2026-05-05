@@ -83,9 +83,14 @@ type InteractiveThreadSource = Pick<InteractiveBody, 'container' | 'message'>
 export const getInteractiveThreadTs = (body: InteractiveThreadSource): string | undefined =>
   body.container?.thread_ts ?? body.message?.thread_ts
 
+const PAYLOAD_PREFIX = 'payload='
+
+const _stripPayloadPrefixIfPresent = (decoded: string): string =>
+  decoded.startsWith(PAYLOAD_PREFIX) ? decoded.slice(PAYLOAD_PREFIX.length) : decoded
+
 const _parseInteractiveBody = (req: sdk.Request): InteractiveBody => {
   try {
-    return JSON.parse(decodeURIComponent(req.body!).replace('payload=', ''))
+    return JSON.parse(_stripPayloadPrefixIfPresent(decodeURIComponent(req.body!)))
   } catch (thrown: unknown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
     throw new sdk.RuntimeError('Body is invalid for interactive request', error)
