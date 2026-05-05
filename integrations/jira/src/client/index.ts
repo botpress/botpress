@@ -47,10 +47,10 @@ export type IssuePickerResponse = {
 }
 
 export class JiraApi {
-  private client: Version3Client
+  private _client: Version3Client
 
-  constructor(host: string, email: string, apiToken: string) {
-    this.client = new Version3Client({
+  public constructor(host: string, email: string, apiToken: string) {
+    this._client = new Version3Client({
       host,
       authentication: {
         basic: {
@@ -62,94 +62,94 @@ export class JiraApi {
     })
   }
 
-  async newIssue(issue: Version3Parameters.CreateIssue): Promise<string> {
-    const { key } = await this.client.issues.createIssue(issue)
+  public async newIssue(issue: Version3Parameters.CreateIssue): Promise<string> {
+    const { key } = await this._client.issues.createIssue(issue)
     return key
   }
 
-  async newIssues(payload: Version3Parameters.CreateIssues): Promise<Version3Models.CreatedIssues> {
-    return await this.client.issues.createIssues(payload)
+  public async newIssues(payload: Version3Parameters.CreateIssues): Promise<Version3Models.CreatedIssues> {
+    return await this._client.issues.createIssues(payload)
   }
 
-  async updateIssue(issueUpdate: Version3Parameters.EditIssue): Promise<void> {
-    await this.client.issues.editIssue(issueUpdate)
+  public async updateIssue(issueUpdate: Version3Parameters.EditIssue): Promise<void> {
+    await this._client.issues.editIssue(issueUpdate)
   }
 
-  async assignIssue(issueIdOrKey: string, accountId: string | null): Promise<void> {
+  public async assignIssue(issueIdOrKey: string, accountId: string | null): Promise<void> {
     const config: RequestConfig = {
       url: `/rest/api/3/issue/${encodeURIComponent(issueIdOrKey)}/assignee`,
       method: 'PUT',
       data: { accountId },
     }
-    await this.client.sendRequest<void>(config, undefined as never)
+    await this._client.sendRequest<void>(config, undefined as never)
   }
 
-  async deleteIssue(issueIdOrKey: string, deleteSubtasks: boolean = false): Promise<void> {
-    await this.client.issues.deleteIssue({
+  public async deleteIssue(issueIdOrKey: string, deleteSubtasks: boolean = false): Promise<void> {
+    await this._client.issues.deleteIssue({
       issueIdOrKey,
       deleteSubtasks: String(deleteSubtasks) as 'true' | 'false',
     })
   }
 
-  async getIssue(params: Version3Parameters.GetIssue): Promise<Version3Models.Issue> {
-    return await this.client.issues.getIssue(params)
+  public async getIssue(params: Version3Parameters.GetIssue): Promise<Version3Models.Issue> {
+    return await this._client.issues.getIssue(params)
   }
 
-  async searchIssues(params: EnhancedSearchRequest): Promise<EnhancedSearchResponse> {
+  public async searchIssues(params: EnhancedSearchRequest): Promise<EnhancedSearchResponse> {
     const config: RequestConfig = {
       url: '/rest/api/3/search/jql',
       method: 'POST',
       data: params,
     }
-    return await this.client.sendRequest<EnhancedSearchResponse>(config, undefined as never)
+    return await this._client.sendRequest<EnhancedSearchResponse>(config, undefined as never)
   }
 
-  async getIssueTransitions(params: Version3Parameters.GetTransitions): Promise<Version3Models.Transitions> {
-    return await this.client.issues.getTransitions(params)
+  public async getIssueTransitions(params: Version3Parameters.GetTransitions): Promise<Version3Models.Transitions> {
+    return await this._client.issues.getTransitions(params)
   }
 
-  async transitionIssue(params: Version3Parameters.DoTransition): Promise<void> {
-    await this.client.issues.doTransition(params)
+  public async transitionIssue(params: Version3Parameters.DoTransition): Promise<void> {
+    await this._client.issues.doTransition(params)
   }
 
-  async listProjects(params: Version3Parameters.SearchProjects): Promise<Version3Models.PageProject> {
-    return await this.client.projects.searchProjects(params)
+  public async listProjects(params: Version3Parameters.SearchProjects): Promise<Version3Models.PageProject> {
+    return await this._client.projects.searchProjects(params)
   }
 
-  async listIssueTypesForProject(projectIdOrKey: string): Promise<CreateMetaIssueTypesPage> {
+  public async listIssueTypesForProject(projectIdOrKey: string): Promise<CreateMetaIssueTypesPage> {
     const config: RequestConfig = {
       url: `/rest/api/3/issue/createmeta/${encodeURIComponent(projectIdOrKey)}/issuetypes`,
       method: 'GET',
     }
-    return await this.client.sendRequest<CreateMetaIssueTypesPage>(config, undefined as never)
+    return await this._client.sendRequest<CreateMetaIssueTypesPage>(config, undefined as never)
   }
 
-  async countIssues(jql: string): Promise<number> {
+  public async countIssues(jql: string): Promise<number> {
     const config: RequestConfig = {
       url: '/rest/api/3/search/approximate-count',
       method: 'POST',
       data: { jql },
     }
-    const response = await this.client.sendRequest<{ count: number }>(config, undefined as never)
+    const response = await this._client.sendRequest<{ count: number }>(config, undefined as never)
     return response.count
   }
 
-  async pickIssue(query: string, currentJql?: string): Promise<IssuePickerResponse> {
+  public async pickIssue(query: string, currentJql?: string): Promise<IssuePickerResponse> {
     const params = new URLSearchParams({ query })
     if (currentJql) params.set('currentJQL', currentJql)
     const config: RequestConfig = {
       url: `/rest/api/3/issue/picker?${params.toString()}`,
       method: 'GET',
     }
-    return await this.client.sendRequest<IssuePickerResponse>(config, undefined as never)
+    return await this._client.sendRequest<IssuePickerResponse>(config, undefined as never)
   }
 
-  async listProjectStatuses(projectIdOrKey: string): Promise<Version3Models.IssueTypeWithStatus[]> {
-    return await this.client.projects.getAllStatuses(projectIdOrKey)
+  public async listProjectStatuses(projectIdOrKey: string): Promise<Version3Models.IssueTypeWithStatus[]> {
+    return await this._client.projects.getAllStatuses(projectIdOrKey)
   }
 
-  async addCommentToIssue(issueIdOrKey: string, body: string): Promise<string> {
-    const { id } = await this.client.issueComments.addComment({
+  public async addCommentToIssue(issueIdOrKey: string, body: string): Promise<string> {
+    const { id } = await this._client.issueComments.addComment({
       issueIdOrKey,
       body,
     })
@@ -159,8 +159,8 @@ export class JiraApi {
     return id
   }
 
-  async findUser(query: string): Promise<Version3Models.User> {
-    const users = await this.client.userSearch.findUsers({
+  public async findUser(query: string): Promise<Version3Models.User> {
+    const users = await this._client.userSearch.findUsers({
       query,
       maxResults: 1,
     })
@@ -171,7 +171,7 @@ export class JiraApi {
     return user
   }
 
-  async findAllUser(addParams?: Version3Parameters.GetAllUsers): Promise<Version3Models.User[]> {
-    return await this.client.users.getAllUsers(addParams)
+  public async findAllUser(addParams?: Version3Parameters.GetAllUsers): Promise<Version3Models.User[]> {
+    return await this._client.users.getAllUsers(addParams)
   }
 }
