@@ -218,6 +218,30 @@ describe('handleInteractiveRequest', () => {
     )
   })
 
+  it('discriminates inbound messages by userId so distinct users clicking the same button do not collapse onto one Botpress message', async () => {
+    const payloadA = buildBlockActionsPayload({ user: { id: 'U_USER_A' } })
+    const { props: propsA, getOrCreateMessage: getOrCreateMessageA } = buildHandlerProps(payloadA)
+    await handleInteractiveRequest(propsA)
+
+    expect(getOrCreateMessageA).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tags: expect.objectContaining({ userId: 'U_USER_A' }),
+        discriminateByTags: ['ts', 'channelId', 'userId', 'forkedToThread'],
+      })
+    )
+
+    const payloadB = buildBlockActionsPayload({ user: { id: 'U_USER_B' } })
+    const { props: propsB, getOrCreateMessage: getOrCreateMessageB } = buildHandlerProps(payloadB)
+    await handleInteractiveRequest(propsB)
+
+    expect(getOrCreateMessageB).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tags: expect.objectContaining({ userId: 'U_USER_B' }),
+        discriminateByTags: ['ts', 'channelId', 'userId', 'forkedToThread'],
+      })
+    )
+  })
+
   it('keeps thread-click responses in the thread when replyBehaviour.location is "channel"', async () => {
     const payload = buildBlockActionsPayload()
     const { props, getOrCreateConversation, getOrCreateMessage } = buildHandlerProps(payload, {

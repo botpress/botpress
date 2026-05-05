@@ -53,10 +53,7 @@ export const handleInteractiveRequest = async ({ req, client, logger, ctx }: bp.
         channelId: slackChannelId,
         forkedToThread: target.forkedToThread,
       },
-      discriminateByTags:
-        target.forkedToThread === 'false' && isSentInChannel
-          ? ['ts', 'channelId']
-          : ['ts', 'channelId', 'forkedToThread'],
+      discriminateByTags: ['ts', 'channelId', 'userId', 'forkedToThread'],
       type: 'text',
       payload: { text: actionValue },
       userId,

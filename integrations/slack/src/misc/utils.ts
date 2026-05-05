@@ -129,8 +129,7 @@ export const getReplyDispatch = (input: {
   const isSentInChannel = !input.slackThreadTs
   const shouldRespondInChannel =
     isSentInChannel && (replyLocation === 'channel' || replyLocation === 'channelAndThread')
-  const shouldRespondInThread =
-    !isSentInChannel || replyLocation === 'thread' || replyLocation === 'channelAndThread'
+  const shouldRespondInThread = !isSentInChannel || replyLocation === 'thread' || replyLocation === 'channelAndThread'
   const threadTsForReply = input.slackThreadTs ?? input.slackMessageTs
   return {
     isSentInChannel,
