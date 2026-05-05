@@ -60,6 +60,7 @@ export type ConversationMessageEvent = {
     conversation?: {
       id: string
       type?: string
+      metadata?: Record<string, string>
       activeSwitchboardIntegration?: {
         id: string
         name: string
@@ -98,6 +99,7 @@ export type SwitchboardReleaseControlEvent = {
   payload: {
     conversation?: {
       id: string
+      metadata?: Record<string, string>
     }
     reason?: string
   }

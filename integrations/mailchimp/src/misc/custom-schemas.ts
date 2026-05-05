@@ -143,29 +143,33 @@ export const getAllListsInputSchema = z.object({
 export const getAllCampaignsInputSchema = getAllListsInputSchema.describe('List count to retrieve').title('Lists')
 
 const campaignSchema = z.object({
-  id: z.string(),
-  web_id: z.number(),
-  parent_campaign_id: z.string().optional(),
-  type: z.string(),
-  create_time: z.string(),
-  archive_url: z.string(),
-  long_archive_url: z.string(),
-  status: z.string(),
-  emails_sent: z.number(),
-  send_time: z.string(),
-  content_type: z.string(),
-  needs_block_refresh: z.boolean(),
-  resendable: z.boolean(),
-  recipients: recipientsSchema.optional(),
-  settings: settingsSchema,
-  variate_settings: variateSettingsSchema.optional(),
-  tracking: trackingSchema,
-  rss_opts: rssOptsSchema.optional(),
-  ab_split_opts: abSplitOptsSchema.optional(),
-  social_card: socialCardSchema.optional(),
-  report_summary: reportSummarySchema.optional(),
-  delivery_status: deliveryStatusSchema,
-  _links: z.array(linkSchema),
+  id: z.string().title('ID').describe('Campaign ID'),
+  web_id: z.number().title('Web ID').describe('Campaign web ID'),
+  parent_campaign_id: z
+    .string()
+    .optional()
+    .title('Parent Campaign ID')
+    .describe('Parent campaign ID if this is a child campaign'),
+  type: z.string().title('Type').describe('Campaign type'),
+  create_time: z.string().title('Create Time').describe('Campaign creation time'),
+  archive_url: z.string().title('Archive URL').describe('URL to the campaign archive'),
+  long_archive_url: z.string().title('Long Archive URL').describe('Long URL to the campaign archive'),
+  status: z.string().title('Status').describe('Campaign status'),
+  emails_sent: z.number().title('Emails Sent').describe('Number of emails sent'),
+  send_time: z.string().title('Send Time').describe('Time when the campaign was sent'),
+  content_type: z.string().title('Content Type').describe('Campaign content type'),
+  needs_block_refresh: z.boolean().title('Needs Block Refresh').describe('Whether the campaign needs block refresh'),
+  resendable: z.boolean().title('Resendable').describe('Whether the campaign can be resent'),
+  recipients: recipientsSchema.optional().title('Recipients').describe('Campaign recipients'),
+  settings: settingsSchema.title('Settings').describe('Campaign settings'),
+  variate_settings: variateSettingsSchema.optional().title('Variate Settings').describe('A/B testing settings'),
+  tracking: trackingSchema.title('Tracking').describe('Campaign tracking settings'),
+  rss_opts: rssOptsSchema.optional().title('RSS Options').describe('RSS campaign options'),
+  ab_split_opts: abSplitOptsSchema.optional().title('AB Split Options').describe('A/B split test options'),
+  social_card: socialCardSchema.optional().title('Social Card').describe('Social media card settings'),
+  report_summary: reportSummarySchema.optional().title('Report Summary').describe('Campaign report summary'),
+  delivery_status: deliveryStatusSchema.title('Delivery Status').describe('Campaign delivery status'),
+  _links: z.array(linkSchema).title('Links').describe('Related links'),
 })
 
 export const getAllCampaignsOutputSchema = z.object({

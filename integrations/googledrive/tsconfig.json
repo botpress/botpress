@@ -4,7 +4,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
     "types": ["preact"],
-    "baseUrl": ".",
+    "paths": { "*": ["./*"] },
     "outDir": "dist"
   },
   "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "*.ts"]

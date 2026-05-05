@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/client'
-import { IntegrationLogger, z, ZodIssueCode } from '@botpress/sdk'
+import { IntegrationLogger, z } from '@botpress/sdk'
 import Firecrawl, { SdkError } from '@mendable/firecrawl-js'
 import { trackEvent } from '../tracking'
 import { isValidGlob, matchGlob } from '../utils/globs'
@@ -11,7 +11,9 @@ const COST_PER_FIRECRAWL_MAP = 0.001
 
 type StopReason = Awaited<ReturnType<bp.IntegrationProps['actions']['discoverUrls']>>['stopReason']
 
-export const urlSchema = z.string().transform((url, ctx) => {
+type ZodIssueCode = z.ZodIssue['code']
+
+export const urlSchema = z.string().downstream((url) => {
   url = url.trim()
   if (!url.includes('://')) {
     url = `https://${url}`
@@ -19,29 +21,26 @@ export const urlSchema = z.string().transform((url, ctx) => {
   try {
     const x = new URL(url)
     if (x.protocol !== 'http:' && x.protocol !== 'https:') {
-      ctx.addIssue({
-        code: ZodIssueCode.custom,
+      return z.ERR({
+        code: 'custom' satisfies ZodIssueCode,
         message: 'Invalid protocol, only URLs starting with HTTP and HTTPS are supported',
       })
-      return z.NEVER
     }
 
     if (!/.\.[a-zA-Z]{2,}$/.test(x.hostname)) {
-      ctx.addIssue({
-        code: ZodIssueCode.custom,
+      return z.ERR({
+        code: 'custom' satisfies ZodIssueCode,
         message: 'Invalid TLD',
       })
-      return z.NEVER
     }
     const pathName = x.pathname.endsWith('/') ? x.pathname.slice(0, -1) : x.pathname
-    return `${x.origin}${pathName}${x.search ? x.search : ''}`
+    return z.OK(`${x.origin}${pathName}${x.search ? x.search : ''}`)
   } catch (caught) {
     const err = caught instanceof Error ? caught : new Error('Unknown error while parsing URL')
-    ctx.addIssue({
-      code: ZodIssueCode.custom,
+    return z.ERR({
+      code: 'custom' satisfies ZodIssueCode,
       message: 'Invalid URL: ' + err.message,
     })
-    return z.NEVER
   }
 })
 

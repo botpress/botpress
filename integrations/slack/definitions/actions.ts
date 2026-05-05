@@ -81,6 +81,27 @@ export const actions = {
     },
   },
 
+  getOrCreateChannelConversation: {
+    title: 'Get or Create Channel Conversation',
+    description: 'Get or create a conversation in a channel',
+    input: {
+      schema: sdk.z.object({
+        conversation: sdk.z.object({
+          channelId: sdk.z
+            .string()
+            .optional()
+            .title('Channel ID')
+            .describe('The ID of the channel you want the conversation to be created at'),
+        }),
+      }),
+    },
+    output: {
+      schema: sdk.z.object({
+        conversationId: sdk.z.string().title('Conversation ID').describe('The ID of the new conversation'),
+      }),
+    },
+  },
+
   syncMembers: {
     title: 'Sync Members',
     description:
@@ -91,40 +112,6 @@ export const actions = {
     output: {
       schema: sdk.z.object({
         syncedCount: sdk.z.number().title('Synced Count').describe('The number of members synced'),
-      }),
-    },
-  },
-
-  startChannelConversation: {
-    title: 'Start Channel Conversation',
-    description: 'Initiate a conversation in a channel',
-    input: {
-      schema: sdk.z.object({
-        channelName: sdk.z
-          .string()
-          .title('Channel Name')
-          .describe('The name of the channel you want the conversation to be created at'),
-      }),
-    },
-    output: {
-      schema: sdk.z.object({
-        conversationId: sdk.z.string().title('Conversation ID').describe('The ID of the new conversation'),
-      }),
-    },
-  },
-
-  startDmConversation: {
-    title: 'Start DM Conversation',
-    description: 'Initiate a conversation with a user in a DM',
-    input: {
-      schema: sdk.z.object({
-        slackUserId: sdk.z.string().title('User ID').describe('The ID of the user to initiate the conversation with'),
-      }),
-    },
-    output: {
-      schema: sdk.z.object({
-        userId: sdk.z.string().title('User ID').describe('The ID of the user'),
-        conversationId: sdk.z.string().title('Conversation ID').describe('The ID of the new conversation'),
       }),
     },
   },
@@ -140,6 +127,65 @@ export const actions = {
     },
     output: {
       schema: sdk.z.object({}),
+    },
+  },
+
+  getChannelsInfo: {
+    title: 'Get Channels Info',
+    description:
+      'Get information about Slack channels one page at a time. Returns channel details for the current page and a cursor for the next page.',
+    input: {
+      schema: sdk.z.object({
+        includeArchived: sdk.z
+          .boolean()
+          .optional()
+          .title('Include Archived')
+          .describe('Whether to include archived channels in the results'),
+        includePrivate: sdk.z
+          .boolean()
+          .optional()
+          .title('Include Private')
+          .describe('Whether to include private channels in the results'),
+        includeDm: sdk.z
+          .boolean()
+          .optional()
+          .title('Include Direct Messages')
+          .describe('Whether to include direct messages in the results'),
+        cursor: sdk.z
+          .string()
+          .optional()
+          .title('Cursor')
+          .describe('Pagination cursor for fetching the next page of channels. Omit for the first page.'),
+      }),
+    },
+    output: {
+      schema: sdk.z.object({
+        channels: sdk.z
+          .array(
+            sdk.z.object({
+              id: sdk.z.string().title('Channel ID').describe('The Slack ID of the channel'),
+              name: sdk.z.string().title('Name').describe('The name of the channel'),
+              topic: sdk.z.string().title('Topic').describe('The topic of the channel'),
+              purpose: sdk.z.string().title('Purpose').describe('The purpose of the channel'),
+              numMembers: sdk.z.number().title('Number of Members').describe('The number of members in the channel'),
+              isPrivate: sdk.z.boolean().title('Is Private').describe('Whether the channel is private'),
+              isArchived: sdk.z.boolean().title('Is Archived').describe('Whether the channel is archived'),
+              isDm: sdk.z.boolean().title('Is DM').describe('Whether this is a direct message conversation'),
+              userId: sdk.z
+                .string()
+                .title('User ID')
+                .describe('The Slack user ID of the other participant (for 1:1 DMs)'),
+              creator: sdk.z.string().title('Creator').describe('The Slack user ID of the channel creator'),
+              created: sdk.z.number().title('Created').describe('The Unix timestamp of when the channel was created'),
+            })
+          )
+          .title('Channels')
+          .describe('List of channels on this page'),
+        nextCursor: sdk.z
+          .string()
+          .title('Next Cursor')
+          .describe('Cursor for the next page. Empty string if no more pages.'),
+      }),
     },
   },
 

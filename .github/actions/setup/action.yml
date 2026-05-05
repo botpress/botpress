@@ -39,4 +39,7 @@ runs:
       shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
       env:
         BP_VERBOSE: 'true'
-      run: pnpm turbo run build ${{ inputs.extra_filters }}
+        EXTRA_FILTERS: ${{ inputs.extra_filters }}
+      run: |
+        # shellcheck disable=SC2086 # EXTRA_FILTERS contains multiple space-separated filter arguments
+        pnpm turbo run build $EXTRA_FILTERS

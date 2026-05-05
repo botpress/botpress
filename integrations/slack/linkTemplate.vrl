@@ -1,11 +1,4 @@
 webhookId = to_string!(.webhookId)
 webhookUrl = to_string!(.webhookUrl)
-env = to_string!(.env)
 
-clientId = "327679845109.6525952150899"
-
-if env == "production" {
-  clientId = "327679845109.4960499297143"
-}
-
-"https://slack.com/oauth/v2/authorize?client_id={{ clientId }}&state={{ webhookId }}&redirect_uri={{ webhookUrl }}/oauth&scope=channels:history,channels:manage,channels:read,chat:write,groups:history,groups:read,groups:write,im:history,im:read,im:write,mpim:history,mpim:read,mpim:write,reactions:read,reactions:write,team:read,users.profile:read,users:read,users:read.email&user_scope="
+"{{ webhookUrl }}/oauth/wizard/start?state={{ webhookId }}"

@@ -1,4 +1,4 @@
-import { ZodBrandedDef } from '../../../z/index'
+import { ZodBrandedDef } from '../../../z'
 import { parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 

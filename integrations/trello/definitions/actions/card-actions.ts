@@ -1,6 +1,6 @@
 import { ActionDefinition, z } from '@botpress/sdk'
 import { cardSchema, listSchema, trelloIdSchema } from 'definitions/schemas'
-import { hasCardId, hasListId, hasMessage, outputsCard, outputsCards } from './common'
+import { hasCardId, hasListId, hasMessage } from './common'
 
 export const getCardById = {
   title: 'Get card by ID',
@@ -9,13 +9,15 @@ export const getCardById = {
     schema: hasCardId.describe('Input schema for getting a card from its ID'),
   },
   output: {
-    schema: outputsCard.describe('Output schema for getting a card from its ID'),
+    schema: z.object({
+      card: cardSchema.title('Trello Card').describe("The Trello card that's associated with the given card ID"),
+    }),
   },
 } as const satisfies ActionDefinition
 
 export const getCardsByDisplayName = {
-  title: 'Find cards by name name',
-  description: 'Find all lists whose display name match this name',
+  title: 'Find cards by name',
+  description: 'Find all cards whose display name match this name',
   input: {
     schema: hasListId
       .extend({
@@ -24,7 +26,9 @@ export const getCardsByDisplayName = {
       .describe('Input schema for getting a card ID from its name'),
   },
   output: {
-    schema: outputsCards.describe('Output schema for getting a card ID from its name'),
+    schema: z.object({
+      cards: z.array(cardSchema).title('Trello Cards').describe('A list of cards that match the given card name'),
+    }),
   },
 } as const satisfies ActionDefinition
 
@@ -35,7 +39,12 @@ export const getCardsInList = {
     schema: hasListId.describe('Input schema for getting all cards in a list'),
   },
   output: {
-    schema: outputsCards.describe('Output schema for getting all cards in a list'),
+    schema: z.object({
+      cards: z
+        .array(cardSchema)
+        .title('Trello Cards')
+        .describe('An array of cards that are contained within the given list'),
+    }),
   },
 } as const satisfies ActionDefinition
 
@@ -73,8 +82,11 @@ export const createCard = {
       .describe('Input schema for creating a new card'),
   },
   output: {
-    schema: hasMessage
-      .extend({
+    schema: z
+      .object({
+        message: hasMessage.shape.message
+          .title('Action message')
+          .describe('A message that says if the card was successfully created or not'),
         newCardId: cardSchema.shape.id.describe('Unique identifier of the new card'),
       })
       .describe('Output schema for creating a card'),
@@ -138,10 +150,11 @@ export const updateCard = {
             'Labels to remove from the card (Optional). This should be a list of label IDs. Leave empty to keep the current labels.'
           ),
         dueDate: cardSchema.shape.dueDate
+          .nullable()
           .optional()
           .title('Due Date')
           .describe(
-            'The due date of the card in ISO 8601 format (Optional). Leave empty to keep the current due date.'
+            'The due date of the card in ISO 8601 format (Optional). Set to null to remove the due date or leave empty to keep the current due date.'
           ),
         listId: listSchema.shape.id
           .optional()
@@ -150,13 +163,13 @@ export const updateCard = {
         /** Note: The validation for "verticalPosition" must be done in the action
          *   implementation, since studio does not support union types in inputs yet
          *   and the JSON schema generation does not support zod runtime validation
-         *   like "refine" (at the time of writing, 2026-01-13). */
+         *   like "refine" (at the time of writing, 2026-01-22). */
         verticalPosition: z
           .string()
           .optional()
           .title('Vertical Position')
           .describe(
-            'The new position of the card in the list, either "top", "bottom", or a float (Optional). Leave empty to keep the current position.'
+            'The new position of the card in the list, either "top", "bottom", or a stringified float (Optional). Leave empty to keep the current position.'
           ),
       })
       .describe('Input schema for creating a new card'),
@@ -200,11 +213,13 @@ export const addCardComment = {
       .describe('Input schema for adding a comment to a card'),
   },
   output: {
-    schema: hasMessage
-      .extend({
-        newCommentId: trelloIdSchema.describe('Unique identifier of the newly created comment'),
-      })
-      .describe('Output schema for adding a comment to a card'),
+    schema: z.object({
+      message: z
+        .string()
+        .title('Action message')
+        .describe('A message that says if the comment was successfully created or not'),
+      newCommentId: trelloIdSchema.title('New Comment ID').describe('Unique identifier of the newly created comment'),
+    }),
   },
 } as const satisfies ActionDefinition
 
@@ -248,6 +263,17 @@ export const moveCardToList = {
       newListId: listSchema.shape.id
         .title('New List ID')
         .describe('Unique identifier of the list in which the card will be moved to'),
+      /** Note: The validation for "newVerticalPosition" must be done in the action
+       *   implementation, since studio does not support union types in inputs yet
+       *   and the JSON schema generation does not support zod runtime validation
+       *   like "refine" (at the time of writing, 2026-01-22). */
+      newVerticalPosition: z
+        .string()
+        .optional()
+        .title('New Vertical Position')
+        .describe(
+          'The new position of the card in the list, either "top", "bottom", or a stringified float (Optional). Leave empty to keep the current position.'
+        ),
     }),
   },
   output: {

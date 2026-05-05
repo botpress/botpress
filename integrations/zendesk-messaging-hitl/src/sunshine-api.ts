@@ -26,6 +26,8 @@ export type ApiClientAuthentications = {
 // This is a very simplified type for the ApiClient
 export type ApiClient = {
   authentications: ApiClientAuthentications
+  basePath: string
+  defaultHeaders: Record<string, string>
 }
 
 // ============================================================================

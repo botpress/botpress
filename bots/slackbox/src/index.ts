@@ -111,6 +111,15 @@ const _shouldForwardEmail = async (
   }
 }
 
+const _resolveSlackChannelId = async (client: bp.Client, channelName: string): Promise<string | undefined> => {
+  const { output } = await client.callAction({
+    type: 'slack:findTarget',
+    input: { query: channelName, channel: 'channel' },
+  })
+  const exact = output.targets.find((t) => t.displayName === channelName)
+  return (exact ?? output.targets[0])?.tags.id
+}
+
 const _getSlackConversationId = async (
   client: bp.Client,
   logger: bp.MessageHandlerProps['logger'],
@@ -125,14 +134,20 @@ const _getSlackConversationId = async (
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
+      const channelId = await _resolveSlackChannelId(client, channelName)
+      if (!channelId) {
+        throw new Error(`Could not find Slack channel '${channelName}'`)
+      }
       const response = await client.callAction({
-        type: 'slack:startChannelConversation',
+        type: 'slack:getOrCreateChannelConversation',
         input: {
-          channelName,
+          conversation: {
+            channelId,
+          },
         },
       })
       cachedSlackConversationIds[channelName] = response.output.conversationId
-      return cachedSlackConversationIds[channelName]
+      return cachedSlackConversationIds[channelName] as string
     } catch (err) {
       logger.warn(`Attempt ${attempt}/${maxRetries} failed: ${err}`)
       if (attempt === maxRetries) {
@@ -167,4 +182,5 @@ const _mapGmailToSlack = (conversation: Conversation, message: AnyIncomingMessag
 
   return notificationMessage
 }
+
 export default bot

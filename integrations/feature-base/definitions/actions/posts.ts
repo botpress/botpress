@@ -44,7 +44,7 @@ export const createPost = {
     schema: z.object({
       submission: z
         .object({
-          id: z.string(),
+          id: z.string().title('ID').describe('Submission ID'),
         })
         .title('Submission')
         .describe('Represent the created post.'),

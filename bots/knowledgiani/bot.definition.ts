@@ -12,6 +12,7 @@ export default new sdk.BotDefinition({})
     enabled: true,
     configuration: {
       botToken: env.KNOWLEDGIANI_TELEGRAM_BOT_TOKEN,
+      typingIndicatorEmoji: true,
     },
   })
   .addIntegration(openai, {

@@ -255,6 +255,15 @@ export type ExecutionProps = {
    * If no temperature is provided, the default temperature of 0.7 will be used.
    */
   temperature?: ValueOrGetter<number, Context>
+
+  /**
+   * The reasoning effort to use for models that support reasoning.
+   * - "none": Disable reasoning (for models with optional reasoning)
+   * - "low" | "medium" | "high": Fixed reasoning effort levels
+   * - "dynamic": Let the provider automatically determine the reasoning effort
+   * If not provided, the model will not use reasoning for models with optional reasoning.
+   */
+  reasoningEffort?: ValueOrGetter<'low' | 'medium' | 'high' | 'dynamic' | 'none', Context>
 } & ExecutionHooks
 
 export const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
@@ -286,6 +295,7 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
     snapshot: props.snapshot,
     model: props.model,
     temperature: props.temperature,
+    reasoningEffort: props.reasoningEffort,
   })
 
   try {
@@ -454,6 +464,7 @@ const executeIteration = async ({
       model: model.ref,
       temperature: iteration.temperature,
       responseFormat: 'text',
+      reasoningEffort: iteration.reasoningEffort,
       messages: messages.filter((x) => x.role !== 'system'),
       stopSequences: ctx.version.getStopTokens(),
     })

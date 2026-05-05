@@ -1,17 +1,27 @@
 import { test, expect } from 'vitest'
 import * as z from '../../index'
 
-function checkErrors(a: z.ZodTypeAny, bad: any) {
-  let expected
+function checkErrors(a: z.ZodType, bad: any) {
+  let expected: z.ZodError | undefined = undefined
   try {
     a.parse(bad)
   } catch (error) {
-    expected = (error as z.ZodError).formErrors
+    expected = error as z.ZodError
   }
+
+  let actual: z.ZodError | undefined = undefined
   try {
     a.optional().parse(bad)
   } catch (error) {
-    expect((error as z.ZodError).formErrors).toEqual(expected)
+    actual = error as z.ZodError
+  }
+
+  const actualErrors = actual?.errors || []
+  const expectedErrors = expected?.errors || []
+
+  expect(actualErrors.length).toEqual(expectedErrors.length)
+  for (let i = 0; i < expectedErrors.length; i++) {
+    expect(actualErrors[i]).toEqual(expectedErrors[i])
   }
 }
 
@@ -36,5 +46,5 @@ test('Should have error messages appropriate for the underlying type', () => {
 
 test('unwrap', () => {
   const unwrapped = z.string().optional().unwrap()
-  expect(unwrapped).toBeInstanceOf(z.ZodString)
+  expect(unwrapped.typeName).toBe('ZodString')
 })

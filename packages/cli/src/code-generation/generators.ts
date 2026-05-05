@@ -24,7 +24,7 @@ export const jsonSchemaToTypescriptZuiSchema = async (
   extraProps: Record<string, string> = {}
 ): Promise<string> => {
   schema = await utils.schema.dereferenceSchema(schema)
-  const zuiSchema = sdk.transforms.fromJSONSchemaLegacy(schema)
+  const zuiSchema = sdk.z.transforms.fromJSONSchemaLegacy(schema)
 
   const allProps = {
     ...extraProps,

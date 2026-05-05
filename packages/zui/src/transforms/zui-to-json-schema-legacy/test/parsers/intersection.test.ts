@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { zuiKey } from '../../../../ui/constants'
-import { z } from '../../../../z/index'
+import * as z from '../../../../z'
 import { parseIntersectionDef } from '../../parsers/intersection'
 import { getRefs } from '../../Refs'
+
+const { zuiKey } = z
 
 describe('intersections', () => {
   it('should be possible to use intersections', () => {

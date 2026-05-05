@@ -83,6 +83,8 @@ export {
 
 export * as version from './version-utils'
 
+export * as errors from './errors'
+
 export {
   //
   IntegrationPackage,

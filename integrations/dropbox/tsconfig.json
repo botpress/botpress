@@ -1,7 +1,9 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+    "paths": { "*": ["./*"] },
     "outDir": "dist",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true

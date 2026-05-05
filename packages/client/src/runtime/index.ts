@@ -56,10 +56,6 @@ export class Client extends gen.Client {
         new common.listing.AsyncCollection(({ nextToken }) =>
           this.listUsers({ nextToken, ...props }).then((r) => ({ ...r, items: r.users }))
         ),
-      tasks: (props: ListInputs['listTasks']) =>
-        new common.listing.AsyncCollection(({ nextToken }) =>
-          this.listTasks({ nextToken, ...props }).then((r) => ({ ...r, items: r.tasks }))
-        ),
     }
   }
 }

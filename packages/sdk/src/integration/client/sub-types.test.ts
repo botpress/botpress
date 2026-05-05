@@ -1,4 +1,4 @@
-import { FooBarBazIntegration } from 'src/fixtures'
+import { FooBarBazIntegration } from '../../fixtures'
 import * as utils from '../../utils/type-utils'
 import {
   ConversationTags,

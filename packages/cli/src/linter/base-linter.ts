@@ -1,9 +1,15 @@
 import { Spectral, Document, type ISpectralDiagnostic, type RulesetDefinition } from '@stoplight/spectral-core'
 import { Json as JsonParser, type JsonParserResult } from '@stoplight/spectral-parsers'
+import { DiagnosticSeverity } from '@stoplight/types'
 import { type Logger } from '../logger'
 import { TRUTHY_WITH_MESSAGE_ID } from './spectral-functions'
 
-type ProblemSeverity = 0 | 1 | 2 | 3
+enum ProblemSeverity {
+  Error = 0,
+  Warning = 1,
+  Info = 2,
+  Debug = 3,
+}
 
 const _injectLoggerIntoRulesetOptions = (ruleset: RulesetDefinition, logger?: Logger) => {
   // This is the most jankiest thing I've ever done but
@@ -62,11 +68,31 @@ export abstract class BaseLinter<TDefinition> {
     return this._results.some((result) => result.severity === 0)
   }
 
+  public getIssuesCountBySeverity() {
+    return Object.values(
+      this._getResults().reduce(
+        (acc, { severity }) => {
+          if (!acc.hasOwnProperty(severity)) {
+            acc[severity] = {
+              severityLevel: severity,
+              name: ProblemSeverity[severity] ?? 'Unknown',
+              count: 0,
+            }
+          }
+
+          acc[severity].count += 1
+          return acc
+        },
+        {} as Record<ProblemSeverity, ResultSeverityCount>
+      )
+    ).toSorted((a, b) => a.severityLevel - b.severityLevel)
+  }
+
   private _getResults() {
     return this._results.map((result) => ({
       message: result.message,
       path: this._simplifyPath(result.path),
-      severity: result.severity as ProblemSeverity,
+      severity: result.severity as StoplightServerity,
     }))
   }
 
@@ -76,12 +102,21 @@ export abstract class BaseLinter<TDefinition> {
 
   private _logResultMessage(logger: Logger, message: string, severity: ProblemSeverity) {
     const logLevelMapping = {
-      0: logger.error,
-      1: logger.warn,
-      2: logger.log,
-      3: logger.debug,
-    } as const
+      [ProblemSeverity.Error]: logger.error,
+      [ProblemSeverity.Warning]: logger.warn,
+      [ProblemSeverity.Info]: logger.log,
+      [ProblemSeverity.Debug]: logger.debug,
+    } as const satisfies Record<StoplightServerity, Function>
 
     logLevelMapping[severity].call(logger, message)
   }
 }
+
+type ResultSeverityCount = {
+  severityLevel: ProblemSeverity
+  name: string
+  count: number
+}
+
+type EnumToIndices<T extends {}> = `${Extract<T, number>}` extends `${infer N extends number}` ? N : never
+type StoplightServerity = EnumToIndices<DiagnosticSeverity>

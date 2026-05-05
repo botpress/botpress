@@ -1,3 +1,4 @@
+#!/bin/bash
 if [ -z "$1" ]; then
   echo "Error: integration name is not provided" >&2
   exit 1
@@ -12,4 +13,4 @@ if [ -f "$sandbox_script" ]; then
   has_sandbox=true
 fi
 
-echo $has_sandbox
+echo "$has_sandbox"

@@ -1,4 +1,4 @@
-import { zuiKey } from '../../../ui/constants'
+import { zuiKey } from '../../../z'
 import { JsonSchemaObject } from '../types'
 import { withMessage } from '../utils'
 

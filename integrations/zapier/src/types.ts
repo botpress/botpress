@@ -4,7 +4,7 @@ import * as bp from '.botpress'
 export type Client = bp.Client
 
 export const TriggerSubscriberSchema = z.object({
-  url: z.string(),
+  url: z.string().title('URL').describe('The webhook URL of the subscriber'),
 })
 
 export type TriggerSubscriber = z.infer<typeof TriggerSubscriberSchema>

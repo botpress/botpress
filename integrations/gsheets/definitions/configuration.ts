@@ -12,9 +12,7 @@ const _commonConfig = {
 } as const
 
 export const configuration = {
-  schema: z.object({
-    ..._commonConfig,
-  }),
+  schema: z.object({}),
   identifier: { linkTemplateScript: 'linkTemplate.vrl', required: true },
 } as const satisfies sdk.IntegrationDefinitionProps['configuration']
 

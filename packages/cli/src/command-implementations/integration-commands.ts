@@ -1,6 +1,6 @@
 import chalk from 'chalk'
 import _ from 'lodash'
-import { ApiClient, PublicOrPrivateIntegration, IntegrationSummary } from 'src/api/client'
+import { ApiClient, PublicOrPrivateIntegration, IntegrationSummary } from '../api/client'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import { NamePackageRef, parsePackageRef } from '../package-ref'

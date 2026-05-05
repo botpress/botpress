@@ -1,8 +1,8 @@
 import * as sdk from '@botpress/sdk'
 import * as consts from '../consts'
+import { SecretIndexModule } from '../secret-module'
 import * as types from '../typings'
 import { IntegrationImplementationModule } from './integration-implementation'
-import { IntegrationSecretIndexModule } from './integration-secret'
 
 const generateIntegrationImplementationCls = async (
   sdkIntegrationDefinition: sdk.IntegrationDefinition,
@@ -17,7 +17,7 @@ const generateIntegrationSecrets = async (
   sdkIntegrationDefinition: sdk.IntegrationDefinition,
   secretsPath: string
 ): Promise<types.File[]> => {
-  const indexModule = new IntegrationSecretIndexModule(sdkIntegrationDefinition)
+  const indexModule = new SecretIndexModule(sdkIntegrationDefinition.secrets ?? {})
   indexModule.unshift(secretsPath)
   return indexModule.flatten()
 }

@@ -1,8 +1,10 @@
-import { z, Request, RuntimeError } from '@botpress/sdk'
+import { RuntimeError, z } from '@botpress/sdk'
 import { LinearClient } from '@linear/sdk'
 import axios from 'axios'
 import queryString from 'query-string'
 import * as bp from '.botpress'
+
+type Credentials = bp.states.States['credentials']['payload']
 
 type BaseEvent = {
   action: 'create' | 'update' | 'remove' | 'restore'
@@ -21,6 +23,8 @@ export type LinearIssueEvent = {
   type: 'issue'
   data: {
     id: string
+    identifier: string
+    url: string
     creatorId: string
     labelIds?: string[]
     number: number
@@ -43,6 +47,8 @@ export type LinearIssueEvent = {
     }
     state: {
       name: string
+      color: string
+      type: string
     }
     project?: {
       id: string
@@ -69,62 +75,117 @@ const oauthHeaders = {
   'Content-Type': 'application/x-www-form-urlencoded',
 } as const
 
-export async function getAccessToken(code: string) {
-  await axios.post(
-    `${linearEndpoint}/oauth/token`,
-    {
-      code,
-      grant_type: 'authorization_code',
-    },
-    {
-      headers: oauthHeaders,
-    }
-  )
-}
-
 const oauthSchema = z.object({
   access_token: z.string(),
+  refresh_token: z.string(),
   expires_in: z.number(),
+})
+
+type OAuthResponse = z.infer<typeof oauthSchema>
+
+const tokenRequestSchema = z.object({
+  actor: z.literal('application'),
+  redirect_uri: z.string(),
+})
+
+const getAccessTokenRequestSchema = tokenRequestSchema.extend({
+  grant_type: z.literal('authorization_code'),
+  code: z.string(),
+})
+
+const refreshTokenRequestSchema = tokenRequestSchema.extend({
+  grant_type: z.literal('refresh_token'),
+  refresh_token: z.string(),
+})
+
+const migrateTokenRequestSchema = z.object({
+  access_token: z.string(),
 })
 
 export class LinearOauthClient {
   private _clientId: string
   private _clientSecret: string
+  private _redirectUri: string
 
   public constructor() {
     this._clientId = bp.secrets.CLIENT_ID
     this._clientSecret = bp.secrets.CLIENT_SECRET
+    this._redirectUri = `${process.env.BP_WEBHOOK_URL}/oauth`
   }
 
-  public async getAccessToken(code: string) {
-    const expiresAt = new Date()
-
-    const res = await axios.post(
-      `${linearEndpoint}/oauth/token`,
-      {
-        client_id: this._clientId,
-        client_secret: this._clientSecret,
-        actor: 'application',
-        redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
-        code,
-        grant_type: 'authorization_code',
-      },
-      {
-        headers: oauthHeaders,
-      }
+  private async _handleOAuthRequest<TSchema extends z.ZodObject>(
+    url: string,
+    body: z.infer<TSchema>
+  ): Promise<OAuthResponse> {
+    const { data } = await axios.post(
+      url,
+      { client_id: this._clientId, client_secret: this._clientSecret, ...body },
+      { headers: oauthHeaders }
     )
+    return data
+  }
 
-    const { access_token, expires_in } = oauthSchema.parse(res.data)
-
-    expiresAt.setSeconds(expiresAt.getSeconds() + expires_in)
+  private _parseCredentials(res: OAuthResponse): Credentials {
+    const { data, error } = oauthSchema.safeParse(res)
+    if (error) {
+      throw new RuntimeError(`Failed to parse OAuth token response: ${error.message}`)
+    }
+    const expiresAt = new Date()
+    expiresAt.setSeconds(expiresAt.getSeconds() + data.expires_in)
 
     return {
-      accessToken: access_token,
+      accessToken: data.access_token,
+      refreshToken: data.refresh_token,
       expiresAt: expiresAt.toISOString(),
     }
   }
 
-  public async getLinearClient(client: bp.Client, ctx: bp.Context, integrationId: string) {
+  public async migrateOldToken(oldAccessToken: string): Promise<Credentials> {
+    const data = await this._handleOAuthRequest<typeof migrateTokenRequestSchema>(
+      `${linearEndpoint}/oauth/migrate_old_token`,
+      {
+        access_token: oldAccessToken,
+      }
+    )
+    return this._parseCredentials(data)
+  }
+
+  public async getAccessTokenFromRefreshToken(oldRefreshToken: string): Promise<Credentials> {
+    const data = await this._handleOAuthRequest<typeof refreshTokenRequestSchema>(`${linearEndpoint}/oauth/token`, {
+      grant_type: 'refresh_token',
+      refresh_token: oldRefreshToken,
+      actor: 'application',
+      redirect_uri: this._redirectUri,
+    })
+    return this._parseCredentials(data)
+  }
+
+  public async getAccessTokenFromOAuthCode(code: string) {
+    const data = await this._handleOAuthRequest<typeof getAccessTokenRequestSchema>(`${linearEndpoint}/oauth/token`, {
+      grant_type: 'authorization_code',
+      code,
+      actor: 'application',
+      redirect_uri: this._redirectUri,
+    })
+    if (!data.refresh_token) {
+      return this.migrateOldToken(data.access_token)
+    }
+    return this._parseCredentials(data)
+  }
+
+  public async resolveValidCredentials(current: Credentials): Promise<Credentials> {
+    const FIVE_MINUTES_MS = 5 * 60 * 1000
+    const isExpired = new Date(current.expiresAt).getTime() <= Date.now() + FIVE_MINUTES_MS
+
+    if (isExpired) {
+      return this.getAccessTokenFromRefreshToken(current.refreshToken)
+    }
+
+    return current
+  }
+
+  public static async create(props: { client: bp.Client; ctx: bp.Context }) {
+    const { ctx, client } = props
     if (ctx.configurationType === 'apiKey') {
       return new LinearClient({ apiKey: ctx.configuration.apiKey })
     }
@@ -134,14 +195,81 @@ export class LinearOauthClient {
     } = await client.getState({
       type: 'integration',
       name: 'credentials',
-      id: integrationId,
+      id: ctx.integrationId,
     })
 
-    return new LinearClient({ accessToken: payload.accessToken })
+    const linearOauthClient = new LinearOauthClient()
+    const credentials = await linearOauthClient.resolveValidCredentials(payload)
+
+    if (credentials.accessToken !== payload.accessToken) {
+      await client.setState({ type: 'integration', name: 'credentials', id: ctx.integrationId, payload: credentials })
+    }
+
+    return new LinearClient({ accessToken: credentials.accessToken })
   }
 }
 
-export const handleOauth = async (req: Request, client: bp.Client, ctx: bp.Context) => {
+const _findWebhookByUrl = async (linearClient: LinearClient, url: string) => {
+  let page = await linearClient.webhooks()
+  while (true) {
+    const match = page.nodes.find((w) => w.url === url)
+    if (match) {
+      return match
+    }
+    if (!page.pageInfo.hasNextPage) {
+      return undefined
+    }
+    page = await page.fetchNext()
+  }
+}
+
+export const unregisterWebhook = async ({
+  linearClient,
+  logger,
+  url,
+}: {
+  linearClient: LinearClient
+  logger: bp.Logger
+  url: string
+}) => {
+  const webhook = await _findWebhookByUrl(linearClient, url)
+  if (!webhook) {
+    logger.forBot().info('No Linear webhook found to unregister, skipping...')
+    return
+  }
+
+  logger.forBot().info('Unregistering Linear webhook...')
+  await linearClient.deleteWebhook(webhook.id)
+  logger.forBot().info('Linear webhook unregistered successfully.')
+}
+
+export const registerWebhook = async ({
+  linearClient,
+  logger,
+  url,
+}: {
+  linearClient: LinearClient
+  logger: bp.Logger
+  url: string
+}) => {
+  const existing = await _findWebhookByUrl(linearClient, url)
+  if (existing) {
+    logger.forBot().info('Linear webhook already registered, skipping...')
+    return
+  }
+
+  logger.forBot().info('Registering Linear webhook...')
+  await linearClient.createWebhook({
+    url,
+    resourceTypes: ['Issue', 'Comment'],
+    secret: bp.secrets.WEBHOOK_SIGNING_SECRET,
+    allPublicTeams: true,
+    label: 'Botpress',
+  })
+  logger.forBot().info('Linear webhook registered successfully.')
+}
+
+export const handleOauth = async ({ req, ctx, client, logger }: bp.HandlerProps) => {
   const linearOauthClient = new LinearOauthClient()
 
   const query = queryString.parse(req.query)
@@ -151,19 +279,24 @@ export const handleOauth = async (req: Request, client: bp.Client, ctx: bp.Conte
     throw new RuntimeError('Handler received an empty code')
   }
 
-  const { accessToken, expiresAt } = await linearOauthClient.getAccessToken(code)
-
+  const credentials = await linearOauthClient.getAccessTokenFromOAuthCode(code)
+  logger.forBot().info('Obtained credentials from OAuth flow, saving to state...')
   await client.setState({
     type: 'integration',
     name: 'credentials',
     id: ctx.integrationId,
-    payload: {
-      accessToken,
-      expiresAt,
-    },
+    payload: credentials,
   })
 
-  const linearClient = new LinearClient({ accessToken })
+  const linearClient = new LinearClient({ accessToken: credentials.accessToken })
   const organization = await linearClient.organization
-  await client.configureIntegration({ identifier: organization.id })
+  await client.configureIntegration({ identifier: organization.id, scheduleRegisterCall: 'monthly' })
+
+  const webhookUrl = `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
+  try {
+    await registerWebhook({ linearClient, logger, url: webhookUrl })
+  } catch (thrown) {
+    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    logger.forBot().warn('Failed to register webhook:', errorMessage)
+  }
 }

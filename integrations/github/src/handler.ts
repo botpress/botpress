@@ -14,10 +14,12 @@ import { firePullRequestOpened } from './events/pull-request/pull-request-opened
 import { firePullRequestReviewCommentCreated } from './events/pull-request/pull-request-review-comment-created'
 import { firePullRequestReviewCommentReplied } from './events/pull-request/pull-request-review-comment-replied'
 import { firePullRequestReviewSubmitted } from './events/pull-request/pull-request-review-submitted'
+import { firePushReceived } from './events/push/push-received'
 import { GithubSettings } from './misc/github-settings'
 import {
   isIssueOpenedEvent,
   isPingEvent,
+  isPushEvent,
   isPullRequestCommentCreatedEvent,
   isPullRequestReviewCommentCreatedEvent,
   isPullRequestReviewCommentReplyCreatedEvent,
@@ -48,6 +50,7 @@ const EVENT_HANDLERS: Readonly<WebhookEventHandlerEntry<any>[]> = [
   [isDiscussionCreatedEvent, fireDiscussionCreated],
   [isDiscussionCommentCreatedEvent, fireDiscussionCommentCreated],
   [isDiscussionCommentReplyCreatedEvent, fireDiscussionCommentReplied],
+  [isPushEvent, firePushReceived],
 ] as const
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {

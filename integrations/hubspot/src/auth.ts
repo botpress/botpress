@@ -90,18 +90,15 @@ const _getOrRefreshOAuthAccessToken = async ({ client, ctx }: { client: bp.Clien
 }
 
 export const getAccessToken = async ({ client, ctx }: { client: bp.Client; ctx: bp.Context }) => {
-  let accessToken: string | undefined
   if (ctx.configurationType === 'manual') {
-    accessToken = ctx.configuration.accessToken
-  } else {
-    accessToken = await _getOrRefreshOAuthAccessToken({ client, ctx })
+    const { accessToken } = ctx.configuration
+    if (!accessToken) {
+      throw new RuntimeError('Access token not found in saved credentials')
+    }
+    return accessToken
   }
 
-  if (!accessToken) {
-    throw new RuntimeError('Access token not found in saved credentials')
-  }
-
-  return accessToken
+  return _getOrRefreshOAuthAccessToken({ client, ctx })
 }
 
 export const getClientSecret = (ctx: bp.Context) => {

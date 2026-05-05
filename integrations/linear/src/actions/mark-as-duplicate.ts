@@ -4,10 +4,9 @@ import * as bp from '.botpress'
 
 export const markAsDuplicate: bp.IntegrationProps['actions']['markAsDuplicate'] = async (args) => {
   const {
-    ctx,
     input: { issueId, relatedIssueId },
   } = args
-  const linearClient = await getLinearClient(args, ctx.integrationId)
+  const linearClient = await getLinearClient(args)
   await linearClient.createIssueRelation({
     issueId,
     relatedIssueId,

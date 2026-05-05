@@ -62,10 +62,6 @@ export class Client extends gen.Client implements IClient {
         new common.listing.AsyncCollection(({ nextToken }) =>
           this.listUsers({ nextToken, ...props }).then((r) => ({ ...r, items: r.users }))
         ),
-      tasks: (props: ListInputs['listTasks']) =>
-        new common.listing.AsyncCollection(({ nextToken }) =>
-          this.listTasks({ nextToken, ...props }).then((r) => ({ ...r, items: r.tasks }))
-        ),
       publicIntegrations: (props: ListInputs['listPublicIntegrations']) =>
         new common.listing.AsyncCollection(({ nextToken }) =>
           this.listPublicIntegrations({ nextToken, ...props }).then((r) => ({ ...r, items: r.integrations }))

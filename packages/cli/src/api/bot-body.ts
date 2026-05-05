@@ -15,12 +15,14 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
           ...action.input,
           schema: await utils.schema.mapZodToJsonSchema(action.input, {
             useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
+            toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
           }),
         },
         output: {
           ...action.output,
           schema: await utils.schema.mapZodToJsonSchema(action.output, {
             useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
+            toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
           }),
         },
       }))
@@ -30,6 +32,7 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
         ...bot.configuration,
         schema: await utils.schema.mapZodToJsonSchema(bot.configuration, {
           useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
+          toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
         }),
       }
     : undefined,
@@ -38,6 +41,7 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
         ...event,
         schema: await utils.schema.mapZodToJsonSchema(event, {
           useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
+          toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
         }),
       }))
     : undefined,
@@ -47,6 +51,7 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
           ...state,
           schema: await utils.schema.mapZodToJsonSchema(state, {
             useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
+            toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
           }),
         })),
         ({ type }) => type !== 'workflow'
@@ -82,7 +87,10 @@ export const prepareUpdateBotBody = (
     ...localBot.message,
     tags: utils.records.setNullOnMissingValues(localBot.message?.tags, remoteBot.message?.tags),
   },
-  integrations: utils.records.setNullOnMissingValues(localBot.integrations, remoteBot.integrations),
+  integrations: utils.integrations.prepareIntegrationsUpdate(
+    utils.records.setNullOnMissingValues(localBot.integrations, remoteBot.integrations),
+    remoteBot.integrations
+  ),
   plugins: utils.records.setNullOnMissingValues(localBot.plugins, remoteBot.plugins),
   tags: localBot.tags, // TODO: allow removing bot tags (aka attributes) by setting to null
 })

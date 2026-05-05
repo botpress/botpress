@@ -57,7 +57,7 @@ type ParsePromptProps = {
   logger: UpdateTitleAndSummaryProps['logger']
   prompt: gen.LLMInput
   client: cognitive.BotpressClientLike
-  schema: sdk.ZodSchema
+  schema: sdk.z.ZodSchema
 }
 const _generateContentWithRetries = async <T>(props: ParsePromptProps): Promise<gen.PredictResponse<T>> => {
   let attemptCount = 0

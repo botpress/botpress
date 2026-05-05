@@ -24,6 +24,12 @@ export type CreateMessageInput = Parameters<Client['createMessage']>[0]
 export type CreateMessageInputType = CreateMessageInput['type']
 export type CreateMessageInputPayload = CreateMessageInput['payload']
 
+export type StoredCredentials = {
+  appId: string
+  token: string
+  subdomain?: string
+}
+
 // Channel message payload types
 export type Choice = bp.channels.channel.choice.Choice
 export type Carousel = bp.channels.channel.carousel.Carousel

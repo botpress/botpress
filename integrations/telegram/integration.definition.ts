@@ -5,7 +5,7 @@ import { telegramMessageChannels } from './definitions/channels'
 
 export default new IntegrationDefinition({
   name: 'telegram',
-  version: '1.0.2',
+  version: '1.0.6',
   title: 'Telegram',
   description: 'Engage with your audience in real-time.',
   icon: 'icon.svg',
@@ -13,6 +13,11 @@ export default new IntegrationDefinition({
   configuration: {
     schema: z.object({
       botToken: z.string().min(1).describe('Bot Token').title('Bot Token'),
+      typingIndicatorEmoji: z
+        .boolean()
+        .default(false)
+        .title('Typing Indicator Emoji')
+        .describe('Temporarily add an emoji reaction to received messages to indicate when bot is processing message'),
     }),
   },
   channels: {
@@ -44,6 +49,11 @@ export default new IntegrationDefinition({
     tags: {
       id: { title: 'ID', description: 'The id of the user' },
     },
+  },
+  attributes: {
+    category: 'Communication & Channels',
+    guideSlug: 'telegram',
+    repo: 'botpress',
   },
 }).extend(typingIndicator, () => ({
   entities: {},

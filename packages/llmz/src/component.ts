@@ -97,10 +97,9 @@ export function getComponentReference(component: ComponentDefinition): string {
           const naked = schema.naked()
           const zodType = naked._def.typeName
           const defValue = getDefaultValue(schema)
-          const typings =
-            naked instanceof z.ZodEnum
-              ? naked._def.values.map((x: string) => `"${x}"`).join(' | ')
-              : zodTypeToTsType[zodType] || zodType
+          const typings = z.is.zuiEnum(naked)
+            ? naked._def.values.map((x: string) => `"${x}"`).join(' | ')
+            : zodTypeToTsType[zodType] || zodType
           const required = !schema.isOptional() ? '**(required)**' : '(optional)'
           const def = defValue ? ` _Default: \`${defValue}\`_` : ''
           const description = schema.description || schema.naked().description || schema?._def.description || ''

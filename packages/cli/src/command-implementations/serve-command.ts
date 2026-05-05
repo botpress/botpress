@@ -20,7 +20,7 @@ export class ServeCommand extends ProjectCommand<ServeCommandDefinition> {
       throw new errors.BotpressCLIError('An interface project has no implementation to serve.')
     }
 
-    if (projectType === 'integration') {
+    if (projectType === 'integration' || projectType === 'bot') {
       const projectDef = await resolveProjectDefinition()
       // TODO: store secrets in local cache to avoid prompting every time
       const secretEnvVariables = await this.promptSecrets(projectDef.definition, this.argv, { formatEnv: true })

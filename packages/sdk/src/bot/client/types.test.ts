@@ -167,11 +167,6 @@ describe('ClientOperations', () => {
     type General = client.Client['createMessage']
     type _assertion = utils.AssertExtends<Specific, General>
   })
-  test('getOrCreateMessage of BotSpecificClient extends General', () => {
-    type Specific = types.ClientOperations<BaseBot>['getOrCreateMessage']
-    type General = client.Client['getOrCreateMessage']
-    type _assertion = utils.AssertExtends<Specific, General>
-  })
   test('getMessage of BotSpecificClient extends General', () => {
     type Specific = types.ClientOperations<BaseBot>['getMessage']
     type General = client.Client['getMessage']

@@ -1,52 +1,27 @@
-import {
-  ZodIssueCode,
-  RawCreateParams,
-  ZodFirstPartyTypeKind,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  ZodParsedType,
-  addIssueToContext,
-  INVALID,
-  OK,
-  ParseInput,
-  ParseReturnType,
-} from '../index'
+import type { IZodBoolean, IZodType, ZodBooleanDef, ParseInput, ParseReturnType } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
-export type ZodBooleanDef = {
-  typeName: ZodFirstPartyTypeKind.ZodBoolean
-  coerce: boolean
-} & ZodTypeDef
-
-export class ZodBoolean extends ZodType<boolean, ZodBooleanDef> {
+export class ZodBooleanImpl extends ZodBaseTypeImpl<boolean, ZodBooleanDef> implements IZodBoolean {
   _parse(input: ParseInput): ParseReturnType<boolean> {
     if (this._def.coerce) {
       input.data = Boolean(input.data)
     }
     const parsedType = this._getType(input)
 
-    if (parsedType !== ZodParsedType.boolean) {
+    if (parsedType !== 'boolean') {
       const ctx = this._getOrReturnCtx(input)
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.boolean,
+        code: 'invalid_type',
+        expected: 'boolean',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
-    return OK(input.data)
+    return { status: 'valid', value: input.data }
   }
 
-  static create = (params?: RawCreateParams & { coerce?: boolean }): ZodBoolean => {
-    return new ZodBoolean({
-      typeName: ZodFirstPartyTypeKind.ZodBoolean,
-      coerce: params?.coerce || false,
-      ...processCreateParams(params),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodBoolean)) return false
+  isEqual(schema: IZodType): boolean {
+    if (!(schema instanceof ZodBooleanImpl)) return false
     return this._def.coerce === schema._def.coerce
   }
 }

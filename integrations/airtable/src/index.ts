@@ -1,26 +1,30 @@
-import { RuntimeError } from '@botpress/sdk'
+import { isOAuthWizardUrl } from '@botpress/common/src/oauth-wizard'
+import * as sdk from '@botpress/sdk'
 import actions from './actions'
-import { AirtableApi } from './client'
+import { AirtableClient } from './airtable-api/airtable-client'
+import { oauthWizardHandler } from './oauth-wizard'
 import * as botpress from '.botpress'
 
 export default new botpress.Integration({
-  register: async ({ ctx, logger }) => {
-    const airtableClient = new AirtableApi(
-      ctx.configuration.accessToken,
-      ctx.configuration.baseId,
-      ctx.configuration.endpointUrl
-    )
-
+  register: async ({ client, ctx, logger }) => {
     try {
-      await airtableClient.testConnection()
-      logger.forBot().info('Connection to Airtable successful')
+      const airtableClient = await AirtableClient.createFromStates({ client, ctx, logger })
+      const { id } = await airtableClient.testConnection()
+      await client.configureIntegration({ identifier: id })
     } catch (thrown) {
-      const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-      throw new RuntimeError('Failed to test connection to Airtable', error)
+      const message = thrown instanceof Error ? thrown.message : String(thrown)
+      throw new sdk.RuntimeError(`Failed to connect to Airtable. Re-run the setup wizard. (${message})`)
     }
+
+    logger.forBot().info('Connection to Airtable successful')
   },
   unregister: async () => {},
   actions,
   channels: {},
-  handler: async () => {},
+  handler: async (props) => {
+    if (isOAuthWizardUrl(props.req.path)) {
+      return await oauthWizardHandler(props)
+    }
+    return
+  },
 })

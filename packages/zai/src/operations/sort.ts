@@ -800,6 +800,7 @@ Zai.prototype.sort = function <T>(
     taskId: this.taskId,
     taskType: 'zai.sort',
     adapter: this.adapter,
+    memoizer: this._resolveMemoizer(),
   })
 
   return new Response<Array<T>, Array<T>>(

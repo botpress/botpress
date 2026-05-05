@@ -1,0 +1,12 @@
+webhookId = to_string!(.webhookId)
+webhookUrl = to_string!(.webhookUrl)
+env = to_string!(.env)
+
+clientId = "789ku4ucqpvndz"
+if env == "production" {
+  clientId = "786rl66mwxted8"
+}
+
+redirectUri = "{{ webhookUrl }}/oauth"
+
+"https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id={{ clientId }}&redirect_uri={{ redirectUri }}&state={{ webhookId }}&scope=openid%20profile%20email%20w_member_social"

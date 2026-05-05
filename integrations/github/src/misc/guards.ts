@@ -8,6 +8,7 @@ import type {
   PullRequestOpenedEvent,
   PullRequestReviewCommentCreatedEvent,
   PullRequestReviewSubmittedEvent,
+  PushEvent,
   WebhookEvent,
 } from '@octokit/webhooks-types'
 
@@ -53,3 +54,6 @@ export const isDiscussionCommentCreatedEvent = (event: WebhookEvent): event is D
 
 export const isDiscussionCommentReplyCreatedEvent = (event: WebhookEvent): event is DiscussionCommentCreatedEvent =>
   'discussion' in event && 'comment' in event && event.action === 'created' && !!event.comment.parent_id
+
+export const isPushEvent = (event: WebhookEvent): event is PushEvent =>
+  'ref' in event && 'commits' in event && 'head_commit' in event

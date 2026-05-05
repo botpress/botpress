@@ -1,0 +1,151 @@
+import * as sdk from '@botpress/sdk'
+import type * as models from '../../definitions/models'
+import type * as types from '../types'
+
+export type ProcessFileProps = {
+  fileToSync: Readonly<types.SyncQueueItem>
+  logger: sdk.BotLogger
+  fileRepository: {
+    listFiles: (params: { tags: Record<string, string> }) => Promise<{ files: types.FilesApiFile[] }>
+    deleteFile: (params: { id: string }) => Promise<unknown>
+    updateFileMetadata: (params: { id: string; tags: Record<string, string | null> }) => Promise<unknown>
+  }
+  integration: {
+    name: string
+    alias: string
+    transferFileToBotpress: (params: {
+      file: models.FileWithPath
+      fileKey: string
+    }) => Promise<{ botpressFileId: string }>
+  }
+}
+
+export const processQueueFile = async (props: ProcessFileProps): Promise<types.SyncQueueItem> => {
+  const fileToSync = structuredClone(props.fileToSync) as types.SyncQueueItem
+  let existingFile: types.FilesApiFile | undefined
+  try {
+    existingFile = await _getExistingFileFromFilesApi(props, fileToSync)
+  } catch (thrown: unknown) {
+    const err: Error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    fileToSync.status = 'errored'
+    fileToSync.errorMessage = err.message
+    props.logger.error(`Error while checking existing file ${fileToSync.absolutePath}: ${err.message}`)
+    return fileToSync
+  }
+  const shouldUploadFile = _shouldUploadFile(fileToSync, existingFile)
+
+  if (!shouldUploadFile) {
+    fileToSync.status = 'already-synced'
+    return fileToSync
+  }
+
+  const existingTags = existingFile?.tags ?? {}
+  await _deleteExistingFileFromFilesApi(props, existingFile)
+  await _transferFileToBotpress(props, fileToSync, existingTags)
+
+  if (fileToSync.status !== 'errored') {
+    fileToSync.status = 'newly-synced'
+  }
+
+  return fileToSync
+}
+
+const _getExistingFileFromFilesApi = async (
+  props: ProcessFileProps,
+  fileToSync: models.FileWithPath
+): Promise<types.FilesApiFile | undefined> => {
+  const { files: existingFiles } = await props.fileRepository.listFiles({
+    tags: {
+      externalId: fileToSync.id,
+      integrationName: props.integration.name,
+      integrationAlias: props.integration.alias,
+    },
+  })
+
+  if (existingFiles.length === 0) {
+    return
+  }
+
+  return existingFiles[0]!
+}
+
+const _shouldUploadFile = (fileToSync: models.FileWithPath, existingFile?: types.FilesApiFile) => {
+  if (!existingFile) {
+    return true
+  }
+
+  const existingHash = existingFile.tags['externalContentHash']
+  const newHash = fileToSync.contentHash
+
+  if (existingHash && newHash) {
+    return existingHash !== newHash
+  }
+
+  const existingSize = existingFile.tags['externalSize']
+  const newSize = fileToSync.sizeInBytes?.toString()
+
+  if (existingSize && newSize) {
+    return existingSize !== newSize
+  }
+
+  return true
+}
+
+const _deleteExistingFileFromFilesApi = async (props: ProcessFileProps, existingFile?: types.FilesApiFile) => {
+  if (!existingFile) {
+    return
+  }
+
+  try {
+    await props.fileRepository.deleteFile({ id: existingFile.id })
+  } catch (error) {
+    props.logger.warn(`Failed to delete existing file: ${error instanceof Error ? error.message : String(error)}`)
+  }
+}
+
+const _transferFileToBotpress = async (
+  props: ProcessFileProps,
+  fileToSync: types.SyncQueueItem,
+  existingTags: Record<string, string> = {}
+) => {
+  let botpressFileId: string
+  try {
+    const result = await props.integration.transferFileToBotpress({
+      file: fileToSync,
+      fileKey: `${props.integration.alias}:${fileToSync.absolutePath}`,
+    })
+    botpressFileId = result.botpressFileId
+  } catch (thrown: unknown) {
+    const err: Error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    fileToSync.status = 'errored'
+    fileToSync.errorMessage = err.message
+    props.logger.error(`Error while uploading file ${fileToSync.absolutePath}: ${err.message}`)
+    return
+  }
+
+  try {
+    await props.fileRepository.updateFileMetadata({
+      id: botpressFileId,
+      tags: {
+        ...existingTags,
+        integrationName: props.integration.name,
+        integrationAlias: props.integration.alias,
+        externalId: fileToSync.id,
+        externalSize: fileToSync.sizeInBytes?.toString() ?? null,
+        externalContentHash: fileToSync.contentHash ?? null,
+        externalPath: fileToSync.absolutePath,
+        kbId: fileToSync.addToKbId ?? null,
+        source: fileToSync.addToKbId ? 'knowledge-base' : null,
+        title: fileToSync.addToKbId ? fileToSync.name : null,
+        modalities: fileToSync.addToKbId ? '["text"]' : null,
+      },
+    })
+  } catch (thrown: unknown) {
+    const err: Error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    fileToSync.status = 'errored'
+    fileToSync.errorMessage = err.message
+    props.logger.error(
+      `File ${fileToSync.absolutePath} was uploaded (id: ${botpressFileId}) but metadata update failed: ${err.message}. This file may be orphaned and should be cleaned up manually if the next sync does not overwrite it.`
+    )
+  }
+}

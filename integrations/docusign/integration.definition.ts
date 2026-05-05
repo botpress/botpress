@@ -6,7 +6,7 @@ import { envelopeEventSchema } from 'definitions/events'
 export default new IntegrationDefinition({
   name: 'docusign',
   title: 'Docusign',
-  version: '2.1.0',
+  version: '2.1.2',
   readme: 'hub.md',
   icon: 'icon.svg',
   description:
@@ -133,5 +133,9 @@ export default new IntegrationDefinition({
           .nullable(),
       }),
     },
+  },
+  attributes: {
+    category: 'Business Operations',
+    repo: 'botpress',
   },
 })

@@ -27,3 +27,9 @@ export type CreateMessageInputPayload = CreateMessageInput['payload']
 export type StartHitlInput = Parameters<bp.IntegrationProps['actions']['startHitl']>[0]['input']
 export type HitlSession = StartHitlInput['hitlSession']
 export type MessageHistory = StartHitlInput['messageHistory']
+
+export type StoredCredentials = {
+  appId: string
+  token: string
+  subdomain?: string
+}

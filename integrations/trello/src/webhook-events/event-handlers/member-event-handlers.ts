@@ -1,6 +1,7 @@
 import { TrelloEventType } from 'definitions/events'
 import { MemberAddedToCardWebhook, MemberRemovedFromCardWebhook } from '../schemas/member-webhook-schemas'
 import { extractCommonEventData, extractIdAndName } from './helpers'
+import { Expect, IsWebhookHandler } from './types'
 import * as bp from '.botpress'
 
 export const handleMemberAddedToCardEvent = async (
@@ -18,6 +19,7 @@ export const handleMemberAddedToCardEvent = async (
     },
   })
 }
+type _HandleMemberAddedToCardEventTest = Expect<IsWebhookHandler<typeof handleMemberAddedToCardEvent>>
 
 export const handleMemberRemovedFromCardEvent = async (
   props: bp.HandlerProps,
@@ -37,3 +39,4 @@ export const handleMemberRemovedFromCardEvent = async (
     },
   })
 }
+type _HandleMemberRemovedFromCardEventTest = Expect<IsWebhookHandler<typeof handleMemberRemovedFromCardEvent>>

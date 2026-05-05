@@ -1,48 +1,48 @@
 # Global
-* @botpress/engineering
+* @botpress/squid
 
 # Packages
 
 ## API / Client
-/packages/chat-api @botpress/kraken @botpress/leads
-/packages/chat-client @botpress/kraken @botpress/leads
-/packages/client @botpress/squid @botpress/kraken @botpress/leads
+/packages/chat-api @botpress/kraken
+/packages/chat-client @botpress/kraken
+/packages/client @botpress/squid @botpress/kraken
 
 ## CLI / SDK
-/packages/cli @botpress/squid @botpress/leads
-/packages/sdk @botpress/squid @botpress/leads
+/packages/cli @botpress/squid
+/packages/sdk @botpress/squid
 
 ## Common / Utils
-/packages/common @botpress/squid @botpress/leads
-/packages/sdk-addons @botpress/squid @botpress/leads
+/packages/common @botpress/squid
+/packages/sdk-addons @botpress/squid
 
 ## AI
-/packages/cognitive @allardy @slvnperron @botpress/squid @botpress/leads
-/packages/llmz @allardy @slvnperron @botpress/squid @botpress/leads
-/packages/vai @allardy @slvnperron @botpress/squid @botpress/leads
-/packages/zai @allardy @slvnperron @botpress/squid @botpress/leads
+/packages/cognitive @allardy @slvnperron @botpress/squid
+/packages/llmz @allardy @slvnperron @botpress/squid
+/packages/vai @allardy @slvnperron @botpress/squid
+/packages/zai @allardy @slvnperron @botpress/squid
 
 # Bots
-/bots @botpress/shell @botpress/squid @botpress/kraken @botpress/leads
+/bots @botpress/shell @botpress/squid
 
 # Plugins
-/plugins @botpress/shell @botpress/leads
+/plugins @botpress/shell
 
 # Integrations
-/integrations @botpress/shell @botpress/leads
+/integrations @botpress/shell
 
 ## Utils
-/integrations/browser @allardy @botpress/starfish @botpress/leads
-/integrations/charts @allardy @botpress/starfish @botpress/leads
-/integrations/pdf-generator @allardy @botpress/starfish @botpress/leads
+/integrations/browser @botpress/shell
+/integrations/charts @botpress/shell
+/integrations/pdf-generator @botpress/shell
 
 ## LLM
-/integrations/anthropic @botpress/shark @botpress/leads
-/integrations/cerebras @botpress/shark @botpress/leads
-/integrations/fireworks-ai @botpress/shark @botpress/leads
-/integrations/google-ai @botpress/shark @botpress/leads
-/integrations/groq @botpress/shark @botpress/leads
-/integrations/openai @botpress/shark @botpress/leads
+/integrations/anthropic @botpress/shark
+/integrations/cerebras @botpress/shark
+/integrations/fireworks-ai @botpress/shark
+/integrations/google-ai @botpress/shark
+/integrations/groq @botpress/shark
+/integrations/openai @botpress/shark
 
 ## Chat
-/integrations/chat @botpress/kraken @botpress/leads
+/integrations/chat @botpress/kraken

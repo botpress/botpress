@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import z from '../index'
+import * as z from '../index'
 
 test('object augmentation', () => {
   const Animal = z
@@ -22,6 +22,6 @@ test('object augmentation', () => {
     ModifiedAnimal.parse({
       species: 'asdf',
       population: 1324,
-    } as any)
+    })
   expect(bad).toThrow()
 })

@@ -43,6 +43,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async (pro
     requester,
     {
       priority: input.hitlSession?.priority,
+      ...(input.hitlSession?.ticketFormId ? { ticket_form_id: parseInt(input.hitlSession.ticketFormId, 10) } : {}),
     }
   )
 

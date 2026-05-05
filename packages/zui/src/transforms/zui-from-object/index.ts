@@ -1,4 +1,4 @@
-import { z, SomeZodObject, ZodTypeAny } from '../../z/index'
+import * as z from '../../z'
 import * as errors from '../common/errors'
 
 // Using a basic regex do determine if it's a date or not to avoid using another lib for that
@@ -14,12 +14,12 @@ export type ObjectToZuiOptions = { optional?: boolean; nullable?: boolean; passt
  * @param opts - Options to customize the Zod schema:
  * @returns A Zod schema representing the object.
  */
-export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true): ZodTypeAny => {
+export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true): z.ZodType => {
   if (typeof obj !== 'object') {
     throw new errors.ObjectToZuiError('Input must be an object')
   }
 
-  const applyOptions = (zodType: any) => {
+  const applyOptions = (zodType: z.ZodType) => {
     let newType = zodType
     if (opts?.nullable) {
       newType = newType.nullable()
@@ -27,13 +27,13 @@ export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true
     if (opts?.optional) {
       newType = newType.optional()
     }
-    if (opts?.passtrough && typeof newType.passthrough === 'function') {
+    if (opts?.passtrough && z.is.zuiObject(newType)) {
       newType = newType.passthrough()
     }
     return newType
   }
 
-  const schema = Object.entries(obj).reduce((acc: any, [key, value]) => {
+  const schema: z.ZodRawShape = Object.entries(obj).reduce((acc: z.ZodRawShape, [key, value]: [string, unknown]) => {
     if (value === null) {
       acc[key] = applyOptions(z.null())
     } else {
@@ -49,12 +49,14 @@ export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true
           break
         case 'object':
           if (Array.isArray(value)) {
-            if (value.length === 0) {
+            const [first] = value as unknown[]
+            if (first === undefined || first === null) {
               acc[key] = applyOptions(z.array(z.unknown()))
-            } else if (typeof value[0] === 'object') {
-              acc[key] = applyOptions(z.array(fromObject(value[0], opts, false)))
-            } else if (['string', 'number', 'boolean'].includes(typeof value[0])) {
-              acc[key] = applyOptions(z.array((z as any)[typeof value[0] as any]()))
+            } else if (typeof first === 'object') {
+              acc[key] = applyOptions(z.array(fromObject(first, opts, false)))
+            } else if (typeof first === 'string' || typeof first === 'number' || typeof first === 'boolean') {
+              const inner = _getInnerType(first)
+              acc[key] = applyOptions(z.array(inner))
             }
           } else {
             acc[key] = applyOptions(fromObject(value, opts, false))
@@ -65,7 +67,7 @@ export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true
       }
     }
     return acc
-  }, {} as SomeZodObject)
+  }, {} as z.ZodRawShape)
 
   const hasProperties = Object.keys(schema).length > 0
   if (opts?.passtrough || (!isRoot && !hasProperties)) {
@@ -73,4 +75,18 @@ export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true
   }
 
   return z.object(schema)
+}
+
+const _getInnerType = (first: string | number | boolean): z.ZodType => {
+  if (typeof first === 'string') {
+    return z.string()
+  }
+  if (typeof first === 'number') {
+    return z.number()
+  }
+  if (typeof first === 'boolean') {
+    return z.boolean()
+  }
+  first satisfies never
+  return z.unknown()
 }

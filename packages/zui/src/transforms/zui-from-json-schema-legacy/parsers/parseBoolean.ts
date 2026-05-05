@@ -1,4 +1,4 @@
-import { zuiKey } from '../../../ui/constants'
+import { zuiKey } from '../../../z'
 import { JsonSchemaObject } from '../types'
 
 export const parseBoolean = (_schema: JsonSchemaObject & { type: 'boolean' }) => {

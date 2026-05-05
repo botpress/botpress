@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import { util } from '../utils'
+import * as assert from '../../../assertions.utils.test'
 import * as z from '../../index'
 
 const booleanRecord = z.record(z.boolean())
@@ -12,11 +12,11 @@ const recordWithLiteralKeys = z.record(z.union([z.literal('Tuna'), z.literal('Sa
 type recordWithLiteralKeys = z.infer<typeof recordWithLiteralKeys>
 
 test('type inference', () => {
-  util.assertEqual<booleanRecord, Record<string, boolean>>(true)
+  assert.assertEqual<booleanRecord, Record<string, boolean>>(true)
 
-  util.assertEqual<recordWithEnumKeys, Partial<Record<'Tuna' | 'Salmon', string>>>(true)
+  assert.assertEqual<recordWithEnumKeys, Partial<Record<'Tuna' | 'Salmon', string>>>(true)
 
-  util.assertEqual<recordWithLiteralKeys, Partial<Record<'Tuna' | 'Salmon', string>>>(true)
+  assert.assertEqual<recordWithLiteralKeys, Partial<Record<'Tuna' | 'Salmon', string>>>(true)
 })
 
 test('methods', () => {
@@ -36,7 +36,7 @@ test('string record parse - fail', () => {
   const badCheck = () =>
     booleanRecord.parse({
       asdf: 1234,
-    } as any)
+    })
   expect(badCheck).toThrow()
 
   expect(() => booleanRecord.parse('asdf')).toThrow()
@@ -46,7 +46,7 @@ test('string record parse - fail', () => {
   const badCheck = () =>
     booleanRecord.parse({
       asdf: {},
-    } as any)
+    })
   expect(badCheck).toThrow()
 })
 
@@ -54,7 +54,7 @@ test('string record parse - fail', () => {
   const badCheck = () =>
     booleanRecord.parse({
       asdf: [],
-    } as any)
+    })
   expect(badCheck).toThrow()
 })
 

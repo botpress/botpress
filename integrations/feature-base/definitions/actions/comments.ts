@@ -46,26 +46,30 @@ export const getComments = {
         .array(
           z
             .object({
-              id: z.string(),
-              upvoted: z.boolean().optional(),
-              downvoted: z.boolean().optional(),
-              inReview: z.boolean().optional(),
-              isSpam: z.boolean().optional(),
-              pinned: z.boolean().optional(),
-              emailSent: z.boolean().optional(),
-              sendNotification: z.boolean().optional(),
-              organization: z.string().optional(),
-              submission: z.string().optional(),
-              author: z.string().optional(),
-              authorId: z.string().optional(),
-              authorPicture: z.string().optional(),
-              isPrivate: z.boolean().optional(),
-              isDeleted: z.boolean().optional(),
-              content: z.string().optional(),
-              upvotes: z.number().optional(),
-              downvotes: z.number().optional(),
-              parentComment: z.string().nullable().optional(),
-              path: z.string().optional(),
+              id: z.string().title('ID').describe('Comment ID'),
+              upvoted: z.boolean().optional().title('Upvoted').describe('Whether the comment is upvoted'),
+              downvoted: z.boolean().optional().title('Downvoted').describe('Whether the comment is downvoted'),
+              inReview: z.boolean().optional().title('In Review').describe('Whether the comment is in review'),
+              isSpam: z.boolean().optional().title('Is Spam').describe('Whether the comment is marked as spam'),
+              pinned: z.boolean().optional().title('Pinned').describe('Whether the comment is pinned'),
+              emailSent: z.boolean().optional().title('Email Sent').describe('Whether an email notification was sent'),
+              sendNotification: z
+                .boolean()
+                .optional()
+                .title('Send Notification')
+                .describe('Whether to send notifications'),
+              organization: z.string().optional().title('Organization').describe('Organization ID'),
+              submission: z.string().optional().title('Submission').describe('Submission ID'),
+              author: z.string().optional().title('Author').describe('Author name'),
+              authorId: z.string().optional().title('Author ID').describe('Author ID'),
+              authorPicture: z.string().optional().title('Author Picture').describe('Author profile picture URL'),
+              isPrivate: z.boolean().optional().title('Is Private').describe('Whether the comment is private'),
+              isDeleted: z.boolean().optional().title('Is Deleted').describe('Whether the comment is deleted'),
+              content: z.string().optional().title('Content').describe('Comment content'),
+              upvotes: z.number().optional().title('Upvotes').describe('Number of upvotes'),
+              downvotes: z.number().optional().title('Downvotes').describe('Number of downvotes'),
+              parentComment: z.string().nullable().optional().title('Parent Comment').describe('Parent comment ID'),
+              path: z.string().optional().title('Path').describe('Comment path'),
             })
             .title('Comment')
             .describe('Represent a single comment.')

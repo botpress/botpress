@@ -1,4 +1,4 @@
-import { ZodError, RuntimeError } from '@botpress/sdk'
+import { RuntimeError, z } from '@botpress/sdk'
 import { MailchimpApi } from './client'
 import { Customer, MailchimpAPIError } from './misc/custom-types'
 import { Logger } from './misc/types'
@@ -27,8 +27,8 @@ export const isMailchimpError = (error: any): error is MailchimpAPIError => {
   return 'status' in error && 'response' in error && 'body' in error.response
 }
 
-export const isZodError = (error: any): error is ZodError => {
-  return error && typeof error === 'object' && error instanceof ZodError && 'errors' in error
+export const isZodError = (error: any): error is z.ZodError => {
+  return error && typeof error === 'object' && z.is.zuiError(error) && 'errors' in error
 }
 
 export const parseError = (error: any): RuntimeError => {

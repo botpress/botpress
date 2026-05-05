@@ -89,6 +89,7 @@ export class HubspotClient {
       deal: PropertiesCache.create({ client, ctx, accessToken, type: 'deal' }),
       lead: PropertiesCache.create({ client, ctx, accessToken, type: 'lead' }),
       ticket: PropertiesCache.create({ client, ctx, accessToken, type: 'ticket' }),
+      company: PropertiesCache.create({ client, ctx, accessToken, type: 'company' }),
     }
   }
 
@@ -221,6 +222,25 @@ export class HubspotClient {
       ...(propertiesToReturn ?? []),
     ])
     return company
+  }
+
+  @handleErrors('Failed to update company')
+  public async updateCompany({
+    companyId,
+    additionalProperties,
+  }: {
+    companyId: number
+    additionalProperties: Record<string, string>
+  }) {
+    const resolvedProperties = await this._resolveAndCoerceProperties({
+      properties: additionalProperties,
+      type: 'company',
+    })
+
+    const updatedCompany = await this._hsClient.crm.companies.basicApi.update(companyId.toString(), {
+      properties: resolvedProperties,
+    })
+    return updatedCompany
   }
 
   @handleErrors('Failed to get ticket by ID')
@@ -561,7 +581,7 @@ export class HubspotClient {
     }
 
     if (!filters.length) {
-      throw new Error('No filters provided')
+      throw new sdk.RuntimeError('No filters provided')
     }
 
     const deals = await this._hsClient.crm.deals.searchApi.doSearch({
@@ -718,7 +738,7 @@ export class HubspotClient {
     }
 
     if (!filters.length) {
-      throw new Error('No filters provided')
+      throw new sdk.RuntimeError('No filters provided')
     }
 
     const leads = await this._hsClient.crm.objects.leads.searchApi.doSearch({

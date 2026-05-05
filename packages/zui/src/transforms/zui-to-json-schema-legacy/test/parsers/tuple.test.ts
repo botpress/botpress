@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { zuiKey } from '../../../../ui/constants'
-import { z } from '../../../../z/index'
+import * as z from '../../../../z'
 import { parseTupleDef } from '../../parsers/tuple'
 import { getRefs } from '../../Refs'
+
+const { zuiKey } = z
 
 describe('objects', () => {
   it('should be possible to describe a simple tuple schema', () => {

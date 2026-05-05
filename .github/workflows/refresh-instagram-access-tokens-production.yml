@@ -30,10 +30,14 @@ jobs:
     runs-on: depot-ubuntu-22.04-8
     needs: [refresh-tokens]
     steps:
-      - run: curl -m 10 --retry 5 ${{ secrets.INSTAGRAM_REFRESH_TOKEN_PING_URL }}
+      - env:
+          PING_URL: ${{ secrets.INSTAGRAM_REFRESH_TOKEN_PING_URL }}
+        run: curl -m 10 --retry 5 "$PING_URL"
   ping-failure:
     runs-on: depot-ubuntu-22.04-8
     if: ${{ failure() }}
     needs: [refresh-tokens]
     steps:
-      - run: curl -m 10 --retry 5 ${{ secrets.INSTAGRAM_REFRESH_TOKEN_PING_URL }}/fail
+      - env:
+          PING_URL: ${{ secrets.INSTAGRAM_REFRESH_TOKEN_PING_URL }}
+        run: curl -m 10 --retry 5 "$PING_URL/fail"

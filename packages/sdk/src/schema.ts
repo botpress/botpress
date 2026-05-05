@@ -1,4 +1,4 @@
-import * as z from './zui'
+import { z } from './zui'
 
 type SchemaOptions<T> = {
   title: string

@@ -3,12 +3,14 @@ import { z } from '@bpinternal/zui'
 import pLimit from 'p-limit'
 
 import { ZaiContext } from '../context'
+import { isJsonFile, validateOrRepairJson } from '../json-utils'
 import { Micropatch } from '../micropatch'
 import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
 import { fastHash, stringify } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
+import { JsonParsingError } from './errors'
 
 /**
  * Represents a file to be patched
@@ -30,6 +32,9 @@ const _File = z.object({
   content: z.string(),
 })
 
+type __Z<T> = { __type__: 'ZuiType'; _output: T }
+type OfType<O, T extends __Z<any> = __Z<O>> = T extends __Z<O> ? T : never
+
 export type Options = {
   /**
    * Maximum tokens per chunk when processing large files or many files.
@@ -38,7 +43,15 @@ export type Options = {
    * If not specified, all files must fit in a single prompt.
    */
   maxTokensPerChunk?: number
+  /**
+   * Optional Zui schema to validate JSON files against after patching.
+   * Only applies to files detected as JSON (by .json extension).
+   * If the patched JSON doesn't match the schema, the LLM is re-prompted to fix it.
+   */
+  schema?: OfType<any>
 }
+
+const INVALID_SCHEMA_ERROR = 'zai.patch only accepts schemas created with @bpinternal/zui'
 
 const Options = z.object({
   maxTokensPerChunk: z.number().optional(),
@@ -175,11 +188,20 @@ const patch = async (
 ): Promise<Array<File>> => {
   ctx.controller.signal.throwIfAborted()
 
+  const options: Options = { ...Options.parse(_options ?? {}), schema: _options?.schema }
+
+  let zSchema: z.ZodTypeAny | null = null
+  if (options.schema) {
+    if (!z.is.zuiType(options.schema)) {
+      throw new Error(INVALID_SCHEMA_ERROR)
+    }
+    zSchema = options.schema
+  }
+
   if (files.length === 0) {
     return []
   }
 
-  const options = Options.parse(_options ?? {}) as Options
   const tokenizer = await getTokenizer()
   const model = await ctx.getModel()
 
@@ -320,11 +342,211 @@ ${numberedView}
   }
 
   /**
+   * For JSON files, validate the patched content is valid JSON.
+   * Attempts repair with jsonrepair if invalid.
+   * Returns the (possibly repaired) content, or null if unrecoverable.
+   */
+  const ensureValidJson = (content: string): string | null => {
+    const result = validateOrRepairJson(content)
+    if (result.valid) {
+      return result.content
+    }
+    return null
+  }
+
+  /**
+   * Apply a patch to a file. If the file is JSON, validate and optionally repair the output.
+   * If repair fails, re-prompt the LLM to fix the JSON.
+   */
+  const applyPatchToFile = async (file: File, patchOps: string | undefined): Promise<File> => {
+    if (!patchOps || patchOps.trim().length === 0) {
+      return { ...file, patch: '' }
+    }
+
+    let patchedContent: string
+    try {
+      patchedContent = Micropatch.applyText(file.content, patchOps)
+    } catch (error) {
+      console.error(`Failed to apply patch to ${file.path}:`, error)
+      return { ...file, patch: `ERROR: ${error instanceof Error ? error.message : String(error)}` }
+    }
+
+    const jsonMode = isJsonFile(file.path, file.name)
+
+    if (!jsonMode) {
+      return { ...file, content: patchedContent, patch: patchOps }
+    }
+
+    // JSON mode: validate the original input is actually JSON
+    const originalParse = validateOrRepairJson(file.content)
+    if (!originalParse.valid) {
+      // Original file wasn't valid JSON either, skip JSON validation
+      return { ...file, content: patchedContent, patch: patchOps }
+    }
+
+    // Validate/repair the patched output
+    const validContent = ensureValidJson(patchedContent)
+    if (validContent === null) {
+      // Repair failed — give the LLM the broken result and ask it to fix the syntax
+      return retryJsonPatch(file, patchedContent)
+    }
+
+    // If a schema is provided, validate the JSON against it
+    if (zSchema) {
+      const parsed = JSON.parse(validContent)
+      const safe = zSchema.safeParse(parsed)
+      if (!safe.success) {
+        return retrySchemaValidation(file, validContent, safe.error)
+      }
+    }
+
+    return { ...file, content: validContent, patch: patchOps }
+  }
+
+  /**
+   * Re-prompt the LLM when a JSON file patch produced invalid JSON.
+   * Gives the LLM the broken result as a new file to patch, asking it to fix just the JSON syntax errors.
+   */
+  const retryJsonPatch = async (file: File, brokenContent: string): Promise<File> => {
+    // Get the parse error message
+    const parseResult = validateOrRepairJson(brokenContent)
+    const errorMessage = parseResult.error
+
+    // Format the broken content as a numbered file for the LLM to patch
+    const brokenChunk: FileChunk = {
+      path: file.path,
+      name: file.name,
+      content: brokenContent,
+      startLine: 1,
+      endLine: brokenContent.split(/\r?\n/).length,
+      totalLines: brokenContent.split(/\r?\n/).length,
+      isPartial: false,
+    }
+    const brokenFileInput = formatChunksForInput([brokenChunk])
+
+    const { extracted } = await ctx.generateContent({
+      systemPrompt: getMicropatchSystemPrompt(),
+      messages: [
+        {
+          type: 'text',
+          role: 'user',
+          content: [
+            'The following JSON file has syntax errors. The original instructions were:',
+            truncatedInstructions,
+            '',
+            'Here is the broken result:',
+            '',
+            brokenFileInput,
+            '',
+            `JSON parse error: ${errorMessage}`,
+            '',
+            'Fix ONLY the JSON syntax errors (missing commas, orphaned braces, etc). Do NOT change the data — only fix the syntax to make it valid JSON.',
+          ].join('\n'),
+        },
+      ],
+      stopSequences: [],
+      transform: (text) => (text ?? '').trim(),
+    })
+
+    const retryPatchMap = parsePatchOutput(extracted)
+    const retryPatchOps = retryPatchMap.get(file.path)
+
+    if (!retryPatchOps || retryPatchOps.trim().length === 0) {
+      throw new Error(`JSON patch retry for "${file.path}" produced no patches.\n\n${errorMessage}`)
+    }
+
+    try {
+      const retryContent = Micropatch.applyText(brokenContent, retryPatchOps)
+      const validContent = ensureValidJson(retryContent)
+      if (validContent !== null) {
+        if (zSchema) {
+          const parsed = JSON.parse(validContent)
+          const safe = zSchema.safeParse(parsed)
+          if (!safe.success) {
+            return retrySchemaValidation(file, validContent, safe.error)
+          }
+        }
+        return { ...file, content: validContent, patch: retryPatchOps }
+      }
+    } catch {
+      // Fall through to throw
+    }
+
+    throw new Error(`JSON patch retry for "${file.path}" still produced invalid JSON.\n\n${errorMessage}`)
+  }
+
+  /**
+   * Re-prompt the LLM when a JSON file's content is valid JSON but doesn't match the schema.
+   * Gives the LLM the content + the schema validation errors and asks it to fix the data.
+   */
+  const retrySchemaValidation = async (file: File, content: string, zodError: z.ZodError): Promise<File> => {
+    const errorMessage = new JsonParsingError(content, zodError).message
+
+    const contentChunk: FileChunk = {
+      path: file.path,
+      name: file.name,
+      content,
+      startLine: 1,
+      endLine: content.split(/\r?\n/).length,
+      totalLines: content.split(/\r?\n/).length,
+      isPartial: false,
+    }
+    const fileInput = formatChunksForInput([contentChunk])
+
+    const { extracted } = await ctx.generateContent({
+      systemPrompt: getMicropatchSystemPrompt(),
+      messages: [
+        {
+          type: 'text',
+          role: 'user',
+          content: [
+            'The following JSON file is valid JSON but does not match the expected schema.',
+            '',
+            fileInput,
+            '',
+            errorMessage,
+            '',
+            "Fix the JSON to match the schema. Only change what's needed to satisfy the validation errors above.",
+          ].join('\n'),
+        },
+      ],
+      stopSequences: [],
+      transform: (text) => (text ?? '').trim(),
+    })
+
+    const retryPatchMap = parsePatchOutput(extracted)
+    const retryPatchOps = retryPatchMap.get(file.path)
+
+    if (!retryPatchOps || retryPatchOps.trim().length === 0) {
+      throw new Error(`Schema validation retry for "${file.path}" produced no patches.\n\n${errorMessage}`)
+    }
+
+    try {
+      const retryContent = Micropatch.applyText(content, retryPatchOps)
+      const validContent = ensureValidJson(retryContent)
+      if (validContent !== null) {
+        if (zSchema) {
+          const parsed = JSON.parse(validContent)
+          const safe = zSchema.safeParse(parsed)
+          if (safe.success) {
+            return { ...file, content: validContent, patch: retryPatchOps }
+          }
+        } else {
+          return { ...file, content: validContent, patch: retryPatchOps }
+        }
+      }
+    } catch {
+      // Fall through to throw
+    }
+
+    throw new Error(`Schema validation retry for "${file.path}" still failed.\n\n${errorMessage}`)
+  }
+
+  /**
    * Process a single batch of file chunks
    */
   const processBatch = async (batch: ProcessingBatch): Promise<Map<string, string>> => {
     const chunksInput = formatChunksForInput(batch.items)
-
     const { extracted } = await ctx.generateContent({
       systemPrompt: getMicropatchSystemPrompt(),
       messages: [
@@ -390,34 +612,11 @@ Generate patches for each file that needs modification:
       isPartial: false,
     }))
 
-    const patchMap = await processBatch({ items: allChunks, tokenCount: totalInputTokens })
+    const batch: ProcessingBatch = { items: allChunks, tokenCount: totalInputTokens }
+    const patchMap = await processBatch(batch)
 
-    // Apply patches to each file
-    const patchedFiles: Array<File> = files.map((file) => {
-      const patchOps = patchMap.get(file.path)
-
-      if (!patchOps || patchOps.trim().length === 0) {
-        return {
-          ...file,
-          patch: '',
-        }
-      }
-
-      try {
-        const patchedContent = Micropatch.applyText(file.content, patchOps)
-        return {
-          ...file,
-          content: patchedContent,
-          patch: patchOps,
-        }
-      } catch (error) {
-        console.error(`Failed to apply patch to ${file.path}:`, error)
-        return {
-          ...file,
-          patch: `ERROR: ${error instanceof Error ? error.message : String(error)}`,
-        }
-      }
-    })
+    // Apply patches to each file (with JSON validation/repair for .json files)
+    const patchedFiles = await Promise.all(files.map((file) => applyPatchToFile(file, patchMap.get(file.path))))
 
     // Save example for active learning
     if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {
@@ -471,32 +670,8 @@ Generate patches for each file that needs modification:
     }
   }
 
-  // Step 5: Apply merged patches to original files
-  const patchedFiles: Array<File> = files.map((file) => {
-    const patchOps = mergedPatches.get(file.path)
-
-    if (!patchOps || patchOps.trim().length === 0) {
-      return {
-        ...file,
-        patch: '',
-      }
-    }
-
-    try {
-      const patchedContent = Micropatch.applyText(file.content, patchOps)
-      return {
-        ...file,
-        content: patchedContent,
-        patch: patchOps,
-      }
-    } catch (error) {
-      console.error(`Failed to apply patch to ${file.path}:`, error)
-      return {
-        ...file,
-        patch: `ERROR: ${error instanceof Error ? error.message : String(error)}`,
-      }
-    }
-  })
+  // Step 5: Apply merged patches to original files (with JSON validation/repair for .json files)
+  const patchedFiles = await Promise.all(files.map((file) => applyPatchToFile(file, mergedPatches.get(file.path))))
 
   return patchedFiles
 }
@@ -650,6 +825,7 @@ Zai.prototype.patch = function (
     taskId: this.taskId,
     taskType: 'zai.patch',
     adapter: this.adapter,
+    memoizer: this._resolveMemoizer(),
   })
 
   return new Response<Array<File>>(context, patch(files, instructions, _options, context), (result) => result)

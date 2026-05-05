@@ -1,0 +1,75 @@
+name: Deploy Chat Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      branchOrCommit:
+        description: 'Branch/Commit/Tag to deploy'
+        required: false
+        type: string
+        default: 'master'
+      skipDeploy:
+        description: 'Skip deployment to ECS'
+        required: false
+        type: boolean
+        default: false
+      builder:
+        description: 'Image Builder'
+        required: false
+        type: choice
+        options:
+          - docker
+          - depot
+        default: 'depot'
+
+permissions:
+  id-token: write
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  deploy-chat-production:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: botpress/gh-actions/full-service-deploy@v3.3
+        with:
+          service: chat
+          repository: chat-integration
+          dockerfile: integrations/chat/Dockerfile
+          context: .
+          builder: ${{ inputs.builder || 'depot' }}
+          depot-project: ${{ secrets.DEPOT_PROJECT_ID }}
+          role-ecs-update: botpress_infra_update
+          skip-ecs-update: ${{ inputs.skipDeploy }}
+          create-tag: true
+          ref: ${{ inputs.branchOrCommit || github.sha }}
+          environment: production
+
+  deploy-chat-lambda:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ inputs.branchOrCommit || github.sha }}
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Deploy to Lambda
+        run: |
+          pnpm bp login -y --api-url "https://api.botpress.cloud" --workspaceId "${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}" --token "${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}"
+          pnpm -F "{integrations/chat}" -c exec -- bp deploy -v -y --noBuild --visibility public --allowDeprecated
+
+  ping-success:
+    needs: [deploy-chat-production, deploy-chat-lambda]
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl -m 10 --retry 5 ${{ secrets.CHAT_DEPLOY_PRODUCTION_PING_URL }}
+
+  ping-failure:
+    needs: [deploy-chat-production, deploy-chat-lambda]
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl -m 10 --retry 5 ${{ secrets.CHAT_DEPLOY_PRODUCTION_PING_URL }}/fail

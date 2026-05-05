@@ -1,5 +1,5 @@
 export * from './typings'
-export { secretEnvVariableName } from './integration-implementation/integration-secret'
+export { secretEnvVariableName } from './secret-module'
 export { generateBotImplementation } from './bot-implementation'
 export { generateIntegrationImplementation } from './integration-implementation'
 export { generatePluginImplementation } from './plugin-implementation'

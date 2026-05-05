@@ -26,6 +26,7 @@
   "bpDependencies": {
     "listable": "../../interfaces/listable",
     "deletable": "../../interfaces/deletable",
-    "proactive-conversation": "../../interfaces/proactive-conversation"
+    "proactive-conversation": "../../interfaces/proactive-conversation",
+    "files-readonly": "../../interfaces/files-readonly"
   }
 }

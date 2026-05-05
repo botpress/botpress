@@ -11,13 +11,13 @@ export type PredictResponse<T> = {
   json: T
 }
 
-const parseJson = <T>(expectedSchema: sdk.ZodSchema, str: string): T => {
+const parseJson = <T>(expectedSchema: sdk.z.ZodSchema, str: string): T => {
   const repaired = jsonrepair(str)
   const parsed = JSON.parse(repaired)
   return expectedSchema.parse(parsed)
 }
 
-type ParseLLMOutputProps = cognitive.GenerateContentOutput & { schema: sdk.ZodSchema }
+type ParseLLMOutputProps = cognitive.GenerateContentOutput & { schema: sdk.z.ZodSchema }
 export const parseLLMOutput = <T>(props: ParseLLMOutputProps): PredictResponse<T> => {
   const mappedChoices: LLMChoice['content'][] = props.choices.map((choice) => choice.content)
   if (!mappedChoices[0]) throw new sdk.RuntimeError('Could not parse LLM output')

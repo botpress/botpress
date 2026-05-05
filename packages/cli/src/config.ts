@@ -1,3 +1,4 @@
+import type { ServerEventsProtocol } from '@botpress/chat'
 import * as consts from './consts'
 import { ProjectTemplates } from './project-templates'
 import type { CommandOption, CommandSchema } from './typings'
@@ -44,7 +45,7 @@ const workspaceId = {
 
 const secrets = {
   type: 'string',
-  description: 'Values for the integration secrets',
+  description: 'Values for the bot or integration secrets',
   array: true,
   default: [],
 } satisfies CommandOption
@@ -83,9 +84,17 @@ const pluginRef = {
   description: 'The plugin ID or name and version. Ex: knowledge@0.0.1',
 } satisfies CommandOption
 
-const sourceMap = { type: 'boolean', description: 'Generate sourcemaps', default: false } satisfies CommandOption
+const sourceMap = {
+  type: 'boolean',
+  description: 'Generate sourcemaps',
+  default: false,
+} satisfies CommandOption
 
-const minify = { type: 'boolean', description: 'Minify the bundled code', default: true } satisfies CommandOption
+const minify = {
+  type: 'boolean',
+  description: 'Minify the bundled code',
+  default: true,
+} satisfies CommandOption
 
 const dev = {
   type: 'boolean',
@@ -175,7 +184,10 @@ const deploySchema = {
   botId: { type: 'string', description: 'The bot ID to deploy. Only used when deploying a bot' },
   noBuild,
   dryRun,
-  createNewBot: { type: 'boolean', description: 'Create a new bot when deploying. Only used when deploying a bot' },
+  createNewBot: {
+    type: 'boolean',
+    description: 'Create a new bot when deploying. Only used when deploying a bot',
+  },
   sourceMap,
   minify,
   visibility: {
@@ -196,6 +208,10 @@ const deploySchema = {
     description: 'Allow deprecated features in the project',
     default: false,
   },
+  url: {
+    type: 'string',
+    description: 'Custom URL for the integration. Only used when deploying an integration',
+  },
 } as const satisfies CommandSchema
 
 const devSchema = {
@@ -213,6 +229,12 @@ const devSchema = {
   tunnelId: {
     type: 'string',
     description: 'The tunnel ID to use. The ID will be generated if not specified',
+  },
+  noSecretCaching: {
+    type: 'boolean',
+    description: 'Do not save the secrets locally',
+    default: false,
+    alias: 'nsc',
   },
 } satisfies CommandSchema
 
@@ -240,7 +262,12 @@ const removeSchema = {
   ...globalSchema,
   ...credentialsSchema,
   workDir,
-  alias: { idx: 0, positional: true, type: 'string', description: 'The alias of the package to uninstall' },
+  alias: {
+    idx: 0,
+    positional: true,
+    type: 'string',
+    description: 'The alias of the package to uninstall',
+  },
 } satisfies CommandSchema
 
 const loginSchema = {
@@ -371,14 +398,29 @@ const chatSchema = {
     idx: 0,
     description: 'The bot ID to chat with',
   },
+  protocol: {
+    choices: ['sse', 'websocket'] satisfies ReadonlyArray<ServerEventsProtocol>,
+    default: 'sse' as const,
+    description: 'The protocol to use for long lived connections',
+  },
 } satisfies CommandSchema
 
 const listProfilesSchema = {
   ...globalSchema,
+  displayToken: {
+    type: 'boolean',
+    description: 'Display the token in each of the bp profiles',
+    default: false,
+  },
 } satisfies CommandSchema
 
 const activeProfileSchema = {
   ...globalSchema,
+  displayToken: {
+    type: 'boolean',
+    description: 'Display the token in the bp profile',
+    default: false,
+  },
 } satisfies CommandSchema
 
 const useProfileSchema = {
@@ -388,6 +430,21 @@ const useProfileSchema = {
     description: 'The CLI profile defined in the $BP_BOTPRESS_HOME/profiles.json',
     positional: true,
     idx: 0,
+  },
+} satisfies CommandSchema
+
+const getProfileSchema = {
+  ...globalSchema,
+  profileToGet: {
+    type: 'string',
+    description: 'The CLI profile defined in the $BP_BOTPRESS_HOME/profiles.json',
+    positional: true,
+    idx: 0,
+  },
+  displayToken: {
+    type: 'boolean',
+    description: 'Display the token in the bp profile',
+    default: false,
   },
 } satisfies CommandSchema
 
@@ -428,4 +485,5 @@ export const schemas = {
   listProfiles: listProfilesSchema,
   activeProfile: activeProfileSchema,
   useProfile: useProfileSchema,
+  getProfile: getProfileSchema,
 } as const

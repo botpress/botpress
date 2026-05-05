@@ -44,7 +44,7 @@ export async function getTriggersState(ctx: bp.Context, client: Client) {
       if ((isApiError(e) && e.type === 'ResourceNotFound') || e.message === 'No State found') {
         console.info("Zapier triggers state doesn't exist yet and will be initialized")
         return defaultState
-      } else if (e instanceof z.ZodError) {
+      } else if (z.is.zuiError(e)) {
         console.warn(`Zapier triggers state will be reset as it's corrupted: ${e.message}`)
         return defaultState
       } else {

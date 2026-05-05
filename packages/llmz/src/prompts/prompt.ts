@@ -1,7 +1,7 @@
 import { type GenerateContentInput } from '@botpress/cognitive'
 
-import { Component } from 'src/component.js'
-import { Exit } from 'src/exit.js'
+import { Component } from '../component.js'
+import { Exit } from '../exit.js'
 import type { ObjectInstance } from '../objects.js'
 import { Snapshot } from '../snapshots.js'
 import { type Tool } from '../tool.js'

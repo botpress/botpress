@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import z from '../index'
+import * as z from '../index'
 
 test('string coercion', () => {
   const schema = z.coerce.string()

@@ -1,4 +1,4 @@
-import type { ZodSchema } from '../../z/index'
+import type { ZodType } from '../../z'
 
 export type Targets = 'jsonSchema7' | 'jsonSchema2019-09' | 'openApi3'
 
@@ -13,7 +13,7 @@ export type Options<Target extends Targets = 'jsonSchema7'> = {
   target: Target
   strictUnions: boolean
   definitionPath: string
-  definitions: Record<string, ZodSchema>
+  definitions: Record<string, ZodType>
   errorMessages: boolean
   markdownDescription: boolean
   patternStrategy: 'escape' | 'preserve'

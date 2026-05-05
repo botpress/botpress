@@ -26,23 +26,28 @@ COPY patches/source-map-js@1.2.1.patch patches/source-map-js@1.2.1.patch
 
 # install
 RUN pnpm install --frozen-lockfile
-RUN pnpm install --frozen-lockfile --dir integrations/chat
-RUN pnpm install --frozen-lockfile --dir packages/sdk
-RUN pnpm install --frozen-lockfile --dir packages/cli
 
-# Use production node environment by default
-ENV NODE_ENV=production
+# generate
+RUN pnpm --filter @botpress/client run generate
+RUN pnpm --filter @botpress/chat run generate
+RUN pnpm --filter @botpresshub/chat run generate
 
-# build dependencies in correct order: client -> chat-client -> SDK -> CLI -> chat integration
-RUN pnpm --filter @botpress/client run build
+# build
+RUN pnpm --filter @bpinternal/zui run build
 RUN pnpm --filter @botpress/chat run build
+RUN pnpm --filter @botpress/client run build
 RUN pnpm --filter @botpress/sdk run build
+RUN pnpm --filter @botpress/cognitive run build
 RUN pnpm --filter @botpress/cli run bundle
 RUN pnpm --filter @botpresshub/chat run build
 
 FROM node:${NODE_VERSION}-bullseye-slim AS deploy
 
 COPY --from=base /usr/app/integrations/chat/.botpress/dist/index.cjs ./index.cjs
-RUN echo -e "const server = require('./index.cjs')\nserver.default.start()" > server.js
+COPY integrations/chat/server.js ./server.js
+
+# set port env and expose it
+ENV PORT=8081
+EXPOSE ${PORT}
 
 ENTRYPOINT ["node", "server.js"]

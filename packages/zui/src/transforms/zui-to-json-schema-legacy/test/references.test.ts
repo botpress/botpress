@@ -1,10 +1,11 @@
 import { describe, test, expect } from 'vitest'
 import Ajv from 'ajv'
-import { z } from '../../../z/index'
+import * as z from '../../../z'
 import { zodToJsonSchema } from '../zodToJsonSchema'
 const ajv = new Ajv()
 import deref from 'local-ref-resolver'
-import { zuiKey } from '../../../ui/constants'
+
+const { zuiKey } = z
 
 describe('Pathing', () => {
   test('should handle recurring properties with paths', () => {

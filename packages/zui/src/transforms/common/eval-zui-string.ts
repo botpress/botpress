@@ -1,9 +1,9 @@
-import z, { ZodTypeAny } from '../../z'
+import * as z from '../../z'
 
 export type EvalZuiStringResult =
   | {
       sucess: true
-      value: ZodTypeAny
+      value: z.ZodTypeAny
     }
   | {
       sucess: false
@@ -11,7 +11,7 @@ export type EvalZuiStringResult =
     }
 
 export const evalZuiString = (zuiString: string): EvalZuiStringResult => {
-  let result: any
+  let result: unknown
 
   try {
     result = new Function('z', `return ${zuiString}`)(z)
@@ -20,7 +20,7 @@ export const evalZuiString = (zuiString: string): EvalZuiStringResult => {
     return { sucess: false, error: `Failed to evaluate schema: ${err.message}` }
   }
 
-  if (!(result instanceof z.ZodType)) {
+  if (!z.is.zuiType(result)) {
     return { sucess: false, error: `String "${zuiString}" does not evaluate to a Zod schema` }
   }
 

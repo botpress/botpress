@@ -45,6 +45,10 @@ const slackHandlers: MarkdownHandlers = {
     return text ? `<${node.url}|${text}>` : `<${node.url}>`
   },
   paragraph: (node, visit) => `${visit(node)}\n`,
+  html: (node) => {
+    const SLACK_SPECIAL_MENTIONS = ['<!here>', '<!everyone>', '<!channel>']
+    return SLACK_SPECIAL_MENTIONS.includes(node.value) ? node.value : ''
+  },
 }
 
 export function transformMarkdownForSlack(text: string): string {

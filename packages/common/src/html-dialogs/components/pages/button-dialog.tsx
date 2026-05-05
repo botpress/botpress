@@ -1,9 +1,11 @@
 import MarkdownDiv from '../markdown-div'
 
 export default ({
+  pageTitle,
   helpText,
   buttons,
 }: {
+  pageTitle: string
   helpText: string
   buttons: ({
     label: string
@@ -13,6 +15,7 @@ export default ({
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
       <div style={{ maxWidth: 500, width: '100%' }}>
+        <h1 className="text-center">{pageTitle}</h1>
         <MarkdownDiv>{helpText}</MarkdownDiv>
         <div style={{ columnGap: 5, display: 'flex', justifyContent: 'center' }}>
           {buttons.map((button) =>

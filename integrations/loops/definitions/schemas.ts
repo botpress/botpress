@@ -4,7 +4,12 @@ export const sendTransactionalEmailInputSchema = z.object({
   email: z.string().describe('The email address of the recipient.').title('Email'),
   transactionalId: z.string().describe('The ID of the transactional email to send.').title('Transactional ID'),
   dataVariables: z
-    .array(z.object({ key: z.string(), value: z.string() }))
+    .array(
+      z.object({
+        key: z.string().title('Key').describe('The key of the data variable'),
+        value: z.string().title('Value').describe('The value of the data variable'),
+      })
+    )
     .describe('An object containing data as defined by the data variables added to the transactional email template.')
     .title('Data Variables'),
   addToAudience: z
@@ -29,7 +34,13 @@ export const sendTransactionalEmailInputSchema = z.object({
     )
     .title('File IDs'),
   fileData: z
-    .array(z.object({ filename: z.string(), contentType: z.string(), data: z.string() }))
+    .array(
+      z.object({
+        filename: z.string().title('Filename').describe('The name of the file'),
+        contentType: z.string().title('Content Type').describe('The MIME content type of the file'),
+        data: z.string().title('Data').describe('The base64-encoded data of the file'),
+      })
+    )
     .optional()
     .describe('The name, base64-encoded data, and MIME content type of custom files to be attached to the email.')
     .title('File Data'),

@@ -14,9 +14,10 @@ export type PostHogConfig = {
   key: string
   integrationName: string
   integrationVersion: string
-  /** An integer percentage between 1 and 100 which determines
-   *  what percentage of events are allowed through. */
-  rateLimitPercentage?: number
+  /** A map of function names to their rate limit ratio (0-1 exclusive of 0).
+   *  Use '*' as a wildcard key to set a default for all unlisted functions.
+   *  Functions not listed (and no '*' key) default to 1 (no rate limiting). */
+  rateLimitByFunction?: Record<string, number>
 }
 
 type WrapFunctionProps = {
@@ -26,8 +27,18 @@ type WrapFunctionProps = {
   functionArea: string
 }
 
-const createPostHogClient = (key: string, rateLimitPercentage: number = 100): PostHog => {
-  const shouldAllow = useBooleanGenerator(rateLimitPercentage)
+const getRateLimitRatio = (config: PostHogConfig, functionName?: string): number => {
+  if (functionName && config.rateLimitByFunction?.[functionName] !== undefined) {
+    return config.rateLimitByFunction[functionName]
+  }
+  if (config.rateLimitByFunction?.['*'] !== undefined) {
+    return config.rateLimitByFunction['*']
+  }
+  return 1
+}
+
+const createPostHogClient = (key: string, rateLimitRatio: number = 1): PostHog => {
+  const shouldAllow = useBooleanGenerator(rateLimitRatio)
   return new PostHog(key, {
     host: 'https://us.i.posthog.com',
     before_send: (event) => {
@@ -36,9 +47,14 @@ const createPostHogClient = (key: string, rateLimitPercentage: number = 100): Po
   })
 }
 
-export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfig): Promise<void> => {
-  const { key, integrationName, integrationVersion, rateLimitPercentage } = config
-  const client = createPostHogClient(key, rateLimitPercentage)
+export const sendPosthogEvent = async (
+  props: EventMessage,
+  config: PostHogConfig,
+  functionName?: string
+): Promise<void> => {
+  const { key, integrationName, integrationVersion } = config
+  const rateLimitRatio = getRateLimitRatio(config, functionName)
+  const client = createPostHogClient(key, rateLimitRatio)
   try {
     const signedProps: EventMessage = {
       ...props,
@@ -126,7 +142,8 @@ function wrapFunction(props: WrapFunctionProps) {
             integrationVersion: config.integrationVersion,
           },
         },
-        config
+        config,
+        functionName
       )
 
       return await fn(...args)
@@ -151,7 +168,8 @@ function wrapFunction(props: WrapFunctionProps) {
             ...additionalProps,
           },
         },
-        config
+        config,
+        functionName
       )
       throw thrown
     }
@@ -182,7 +200,8 @@ function wrapHandler(fn: Function, config: PostHogConfig) {
               ...additionalProps,
             },
           },
-          config
+          config,
+          'handler'
         )
         return resp
       }
@@ -198,7 +217,8 @@ function wrapHandler(fn: Function, config: PostHogConfig) {
             ...additionalProps,
           },
         },
-        config
+        config,
+        'handler'
       )
       return resp
     }

@@ -1,0 +1,7 @@
+{
+  "chat": {
+    "repository": "chat-integration",
+    "cluster": "Cloud-Chat-ServiceCluster",
+    "services": ["Cloud-Chat-Service"]
+  }
+}

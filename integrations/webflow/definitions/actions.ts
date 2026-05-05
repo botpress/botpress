@@ -37,30 +37,33 @@ const collectionSchema = z.object({
 })
 
 const collectionDetailsSchema = collectionSchema.extend({
-  fields: z.array(
-    z.object({
-      id: z.string().describe('Unique identifier for a Field').title('Field ID'),
-      isRequired: z.boolean().describe('define whether a field is required in a collection').title('Is Required'),
-      type: fieldTypeSchema
-        .describe('Choose these appropriate field type for your collection data')
-        .title('Field Type'),
-      displayName: z.string().describe('The name of the Field').title('Field Name'),
-      isEditable: z.boolean().nullable().describe('Define whether the field is editable').title('Is Editable'),
-      slug: z
-        .string()
-        .nullable()
-        .describe(
-          'Slug of Field in Site URL structure. Slugs should be all lowercase with no spaces. Any spaces will be converted to "-".'
-        )
-        .title('Field Slug'),
-      helpText: z
-        .string()
-        .nullable()
-        .describe('Additional text to help anyone filling out this field')
-        .title('Field Help Text'),
-      validation: z.any().describe('The validation for the field').title('Field Validation'),
-    })
-  ),
+  fields: z
+    .array(
+      z.object({
+        id: z.string().describe('Unique identifier for a Field').title('Field ID'),
+        isRequired: z.boolean().describe('define whether a field is required in a collection').title('Is Required'),
+        type: fieldTypeSchema
+          .describe('Choose these appropriate field type for your collection data')
+          .title('Field Type'),
+        displayName: z.string().describe('The name of the Field').title('Field Name'),
+        isEditable: z.boolean().nullable().describe('Define whether the field is editable').title('Is Editable'),
+        slug: z
+          .string()
+          .nullable()
+          .describe(
+            'Slug of Field in Site URL structure. Slugs should be all lowercase with no spaces. Any spaces will be converted to "-".'
+          )
+          .title('Field Slug'),
+        helpText: z
+          .string()
+          .nullable()
+          .describe('Additional text to help anyone filling out this field')
+          .title('Field Help Text'),
+        validation: z.any().describe('The validation for the field').title('Field Validation'),
+      })
+    )
+    .title('Fields')
+    .describe('Array of fields in the collection'),
 })
 
 const itemSchemaInput = z.object({
@@ -275,15 +278,18 @@ export const actions = {
           .title('Collection ID'),
         itemIDs: z
           .object({
-            items: z.array(
-              z.object({
-                id: z
-                  .string()
-                  .min(1, 'Item ID is required')
-                  .describe('Unique identifier for the Item')
-                  .title('Item ID'),
-              })
-            ),
+            items: z
+              .array(
+                z.object({
+                  id: z
+                    .string()
+                    .min(1, 'Item ID is required')
+                    .describe('Unique identifier for the Item')
+                    .title('Item ID'),
+                })
+              )
+              .title('Items')
+              .describe('Array of items to delete'),
           })
           .describe('Array of item IDs to delete')
           .title('Item IDs'),

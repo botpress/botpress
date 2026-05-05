@@ -10,7 +10,7 @@ export const createIssue: bp.IntegrationProps['actions']['createIssue'] = async 
     input: { title, description, priority, teamName, labels, project },
   } = args
 
-  const linearClient = await getLinearClient(args, ctx.integrationId)
+  const linearClient = await getLinearClient(args)
 
   const team = await getTeam(linearClient, undefined, teamName)
 

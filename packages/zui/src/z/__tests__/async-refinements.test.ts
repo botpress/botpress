@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import z from '../index'
+import * as z from '../index'
 
 test('parse async test', async () => {
   const schema1 = z.string().refine(async (_val) => false)

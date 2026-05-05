@@ -1,4 +1,3 @@
-import axios from 'axios'
 import * as cheerio from 'cheerio'
 import * as bp from '.botpress'
 
@@ -8,6 +7,15 @@ const bot = new bp.Bot({
   actions: {},
 })
 
+const _resolveSlackChannelId = async (client: bp.Client, channelName: string): Promise<string | undefined> => {
+  const { output } = await client.callAction({
+    type: 'slack:findTarget',
+    input: { query: channelName, channel: 'channel' },
+  })
+  const exact = output.targets.find((t) => t.displayName === channelName)
+  return (exact ?? output.targets[0])?.tags.id
+}
+
 const _handleApiChange = async (
   message: string,
   newGraphApiVersion: string | undefined,
@@ -15,13 +23,16 @@ const _handleApiChange = async (
 ): Promise<void> => {
   const { client, logger } = props
   logger.info(message)
-  const response = await props.client.callAction({
-    type: 'slack:startChannelConversation',
-    input: {
-      channelName: SLACK_CHANNEL_TO_PING,
-    },
+  const channelId = await _resolveSlackChannelId(client, SLACK_CHANNEL_TO_PING)
+  if (!channelId) {
+    logger.error(`Could not find Slack channel '${SLACK_CHANNEL_TO_PING}'`)
+    return
+  }
+  const response = await client.callAction({
+    type: 'slack:getOrCreateChannelConversation',
+    input: { conversation: { channelId } },
   })
-  await props.client.createMessage({
+  await client.createMessage({
     type: 'text',
     conversationId: response.output.conversationId,
     tags: {},
@@ -52,8 +63,9 @@ bot.on.event('timeToCheckApi', async (props) => {
   })
   const currentGraphApiVersion = state.payload.currentGraphApiVersion
 
-  const response = await axios.get('https://developers.facebook.com/docs/graph-api/changelog/')
-  const selector = cheerio.load(response.data)
+  const response = await fetch('https://developers.facebook.com/docs/graph-api/changelog/')
+  const html = await response.text()
+  const selector = cheerio.load(html)
   const newGraphApiVersion = selector('code').first().text().trim()
 
   if (!isVersionString(newGraphApiVersion)) {

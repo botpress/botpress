@@ -1,5 +1,6 @@
 import { test, expect, describe, vi } from 'vitest'
 import { prepareCreateIntegrationBody } from '../api/integration-body'
+import * as utils from '../utils'
 import { IntegrationLinter } from './integration-linter'
 import { IntegrationDefinition, type IntegrationDefinitionProps, z } from '@botpress/sdk'
 
@@ -146,6 +147,24 @@ const lintDefinition = async (definition: IntegrationDefinitionProps) => {
   const integrationBody = await prepareCreateIntegrationBody(integrationDefinition)
   const linter = new IntegrationLinter({
     ...integrationBody,
+    configuration: integrationDefinition.configuration
+      ? {
+          ...integrationDefinition.configuration,
+          schema: await utils.schema.mapZodToJsonSchema(integrationDefinition.configuration, {
+            useLegacyZuiTransformer: integrationDefinition.__advanced?.useLegacyZuiTransformer,
+            toJSONSchemaOptions: integrationDefinition.__advanced?.toJSONSchemaOptions,
+          }),
+        }
+      : undefined,
+    configurations: integrationDefinition.configurations
+      ? await utils.records.mapValuesAsync(integrationDefinition.configurations, async (configuration) => ({
+          ...configuration,
+          schema: await utils.schema.mapZodToJsonSchema(configuration, {
+            useLegacyZuiTransformer: integrationDefinition.__advanced?.useLegacyZuiTransformer,
+            toJSONSchemaOptions: integrationDefinition.__advanced?.toJSONSchemaOptions,
+          }),
+        }))
+      : undefined,
     readme: integrationDefinition.readme,
     icon: integrationDefinition.icon,
     secrets: integrationDefinition.secrets,

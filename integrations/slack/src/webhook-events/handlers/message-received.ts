@@ -286,6 +286,9 @@ const _parseSlackFile = (logger: bp.Logger, file: File): BlocItem | null => {
     case 'audio':
       return { type: fileType, payload: { audioUrl: file.permalink_public } }
 
+    case 'video':
+      return { type: fileType, payload: { videoUrl: file.permalink_public } }
+
     case 'file':
       return { type: fileType, payload: { fileUrl: file.permalink_public } }
 
@@ -356,7 +359,7 @@ const _getTextPayloadFromSlackEvent = async (
   type BlockElement = ContextBlockElement | ActionsBlockElement | RichTextBlockElement
   type BlockSubElement = RichTextSection | RichTextElement
   const userElements = blocks
-    .flatMap((block): BlockElement[] => ('elements' in block ? block.elements : []))
+    .flatMap((block): BlockElement[] => ('elements' in block ? (block.elements as BlockElement[]) : []))
     .flatMap((element): BlockSubElement[] => ('elements' in element ? element.elements : []))
     .filter((subElement) => subElement.type === 'user')
 
