@@ -24,6 +24,7 @@ const FILEWATCHER_DEBOUNCE_MS = 500
 export type DevCommandDefinition = typeof commandDefinitions.dev
 export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   private _initialDef: ProjectDefinition | undefined = undefined
+  private _deployedIntegrationName: string | undefined = undefined
   private _cacheDevRequestBody: apiUtils.UpdateBotRequestBody | apiUtils.UpdateIntegrationRequestBody | undefined
   private _buildContext: utils.esbuild.BuildCodeContext
 
@@ -50,7 +51,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       if (handleResult.workspaceId) {
         api = api.switchWorkspace(handleResult.workspaceId)
       }
-      this._initialDef = { ...projectDef, definition: handleResult.integration }
+      this._deployedIntegrationName = handleResult.integration.name
     }
 
     let env: Record<string, string> = {
@@ -168,9 +169,13 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
             .filter((e) => !e.path.startsWith(this.projectPaths.abs.outDir))
             .filter((e) => pathlib.extname(e.path) === '.ts')
 
+          const packageJsonEvents = events
+            .filter((e) => !e.path.startsWith(this.projectPaths.abs.outDir))
+            .filter((e) => pathlib.basename(e.path) === 'package.json')
+
           const distEvents = events.filter((e) => e.path.startsWith(this.projectPaths.abs.distDir))
 
-          if (typescriptEvents.length > 0) {
+          if (typescriptEvents.length > 0 || packageJsonEvents.length > 0) {
             this.logger.log('Changes detected, rebuilding')
             await this._restart(api, worker, httpTunnelUrl)
           } else if (distEvents.length > 0) {
@@ -221,9 +226,14 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     if (projectType === 'integration' && this._initialDef?.type === 'integration') {
       const projectDef = await resolveProjectDefinition()
       this._checkSecrets(projectDef.definition)
+      if (projectDef.definition.name !== this._initialDef.definition.name) {
+        throw new errors.BotpressCLIError(
+          `Integration name changed from "${this._initialDef.definition.name}" to "${projectDef.definition.name}". Renaming integrations during bp dev is not supported. Please restart bp dev.`
+        )
+      }
       const integrationDef = new sdk.IntegrationDefinition({
         ...projectDef.definition,
-        name: this._initialDef.definition.name,
+        name: this._deployedIntegrationName ?? this._initialDef.definition.name,
       })
       return await this._deployDevIntegration(api, tunnelUrl, integrationDef)
     }
