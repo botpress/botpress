@@ -1,9 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
 import type { Version3Models } from 'jira.js'
-
 import { newIssuesInputSchema, newIssuesOutputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
-
 import { getClient } from '../utils'
 
 type IssueInput = Version3Models.IssueUpdateDetails
@@ -44,9 +42,7 @@ export const newIssues: Implementation['actions']['newIssues'] = async ({ ctx, i
         message: detail.length > 0 ? detail : `HTTP ${e.status ?? 'unknown'}`,
       }
     })
-    logger
-      .forBot()
-      .info(`Successful - New Issues - ${created.length} created, ${errors.length} failed`)
+    logger.forBot().info(`Successful - New Issues - ${created.length} created, ${errors.length} failed`)
     return newIssuesOutputSchema.parse({ created, errors })
   } catch (error) {
     logger.forBot().debug(`'New Issues' exception ${JSON.stringify(error)}`)

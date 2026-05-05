@@ -1,4 +1,5 @@
 import { Version3Client, Version3Models, Version3Parameters } from 'jira.js'
+import type { RequestConfig } from 'jira.js/out/requestConfig'
 
 export type EnhancedSearchRequest = {
   jql: string
@@ -75,14 +76,12 @@ export class JiraApi {
   }
 
   async assignIssue(issueIdOrKey: string, accountId: string | null): Promise<void> {
-    await this.client.sendRequest<void>(
-      {
-        url: `/rest/api/3/issue/${encodeURIComponent(issueIdOrKey)}/assignee`,
-        method: 'PUT',
-        data: { accountId },
-      } as any,
-      undefined as never
-    )
+    const config: RequestConfig = {
+      url: `/rest/api/3/issue/${encodeURIComponent(issueIdOrKey)}/assignee`,
+      method: 'PUT',
+      data: { accountId },
+    }
+    await this.client.sendRequest<void>(config, undefined as never)
   }
 
   async deleteIssue(issueIdOrKey: string, deleteSubtasks: boolean = false): Promise<void> {
@@ -97,14 +96,12 @@ export class JiraApi {
   }
 
   async searchIssues(params: EnhancedSearchRequest): Promise<EnhancedSearchResponse> {
-    return await this.client.sendRequest<EnhancedSearchResponse>(
-      {
-        url: '/rest/api/3/search/jql',
-        method: 'POST',
-        data: params,
-      } as any,
-      undefined as never
-    )
+    const config: RequestConfig = {
+      url: '/rest/api/3/search/jql',
+      method: 'POST',
+      data: params,
+    }
+    return await this.client.sendRequest<EnhancedSearchResponse>(config, undefined as never)
   }
 
   async getIssueTransitions(params: Version3Parameters.GetTransitions): Promise<Version3Models.Transitions> {
@@ -120,37 +117,31 @@ export class JiraApi {
   }
 
   async listIssueTypesForProject(projectIdOrKey: string): Promise<CreateMetaIssueTypesPage> {
-    return await this.client.sendRequest<CreateMetaIssueTypesPage>(
-      {
-        url: `/rest/api/3/issue/createmeta/${encodeURIComponent(projectIdOrKey)}/issuetypes`,
-        method: 'GET',
-      } as any,
-      undefined as never
-    )
+    const config: RequestConfig = {
+      url: `/rest/api/3/issue/createmeta/${encodeURIComponent(projectIdOrKey)}/issuetypes`,
+      method: 'GET',
+    }
+    return await this.client.sendRequest<CreateMetaIssueTypesPage>(config, undefined as never)
   }
 
   async countIssues(jql: string): Promise<number> {
-    const response = await this.client.sendRequest<{ count: number }>(
-      {
-        url: '/rest/api/3/search/approximate-count',
-        method: 'POST',
-        data: { jql },
-      } as any,
-      undefined as never
-    )
+    const config: RequestConfig = {
+      url: '/rest/api/3/search/approximate-count',
+      method: 'POST',
+      data: { jql },
+    }
+    const response = await this.client.sendRequest<{ count: number }>(config, undefined as never)
     return response.count
   }
 
   async pickIssue(query: string, currentJql?: string): Promise<IssuePickerResponse> {
     const params = new URLSearchParams({ query })
     if (currentJql) params.set('currentJQL', currentJql)
-    return await this.client.sendRequest<IssuePickerResponse>(
-      {
-        url: `/rest/api/3/issue/picker?${params.toString()}`,
-        method: 'GET',
-      } as any,
-      undefined as never
-    )
+    const config: RequestConfig = {
+      url: `/rest/api/3/issue/picker?${params.toString()}`,
+      method: 'GET',
+    }
+    return await this.client.sendRequest<IssuePickerResponse>(config, undefined as never)
   }
 
   async listProjectStatuses(projectIdOrKey: string): Promise<Version3Models.IssueTypeWithStatus[]> {
@@ -162,7 +153,10 @@ export class JiraApi {
       issueIdOrKey,
       body,
     })
-    return id || ''
+    if (!id) {
+      throw new Error(`Jira did not return a comment ID for issue ${issueIdOrKey}`)
+    }
+    return id
   }
 
   async findUser(query: string): Promise<Version3Models.User> {

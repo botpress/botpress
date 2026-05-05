@@ -1,15 +1,9 @@
 import { RuntimeError } from '@botpress/sdk'
-
 import { getIssueTransitionsInputSchema, getIssueTransitionsOutputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
-
 import { getClient } from '../utils'
 
-export const getIssueTransitions: Implementation['actions']['getIssueTransitions'] = async ({
-  ctx,
-  input,
-  logger,
-}) => {
+export const getIssueTransitions: Implementation['actions']['getIssueTransitions'] = async ({ ctx, input, logger }) => {
   const validatedInput = getIssueTransitionsInputSchema.parse(input)
   const jiraClient = getClient(ctx.configuration)
 
@@ -19,14 +13,19 @@ export const getIssueTransitions: Implementation['actions']['getIssueTransitions
       includeUnavailableTransitions: true,
     })
 
-    const transitions = (response.transitions ?? []).map((t) => ({
-      id: t.id ?? '',
-      name: t.name,
-      toStatus: t.to?.name,
-      toStatusCategory: t.to?.statusCategory?.name,
-      isAvailable: t.isAvailable,
-      hasScreen: t.hasScreen,
-    }))
+    const transitions = (response.transitions ?? []).flatMap((t) => {
+      if (!t.id) return []
+      return [
+        {
+          id: t.id,
+          name: t.name,
+          toStatus: t.to?.name,
+          toStatusCategory: t.to?.statusCategory?.name,
+          isAvailable: t.isAvailable,
+          hasScreen: t.hasScreen,
+        },
+      ]
+    })
 
     logger.forBot().info(`Successful - Get Issue Transitions - ${transitions.length} for ${validatedInput.issueKey}`)
     return getIssueTransitionsOutputSchema.parse({ transitions })

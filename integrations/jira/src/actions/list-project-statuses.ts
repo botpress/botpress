@@ -1,15 +1,9 @@
 import { RuntimeError } from '@botpress/sdk'
-
 import { listProjectStatusesInputSchema, listProjectStatusesOutputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
-
 import { getClient } from '../utils'
 
-export const listProjectStatuses: Implementation['actions']['listProjectStatuses'] = async ({
-  ctx,
-  input,
-  logger,
-}) => {
+export const listProjectStatuses: Implementation['actions']['listProjectStatuses'] = async ({ ctx, input, logger }) => {
   const validatedInput = listProjectStatusesInputSchema.parse(input)
   const jiraClient = getClient(ctx.configuration)
 

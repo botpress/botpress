@@ -117,7 +117,8 @@ const getIssue = {
 
 const listProjects = {
   title: 'List Projects',
-  description: 'List Jira projects visible to the configured user. Supports pagination and an optional name/key query filter.',
+  description:
+    'List Jira projects visible to the configured user. Supports pagination and an optional name/key query filter.',
   input: {
     schema: listProjectsInputSchema,
   },

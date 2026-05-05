@@ -55,7 +55,11 @@ export const updateIssueOutputSchema = z.object({
 export const jiraIssueSchema = z.object({
   issueKey: z.string().title('Issue Key').describe('Jira issue key (e.g. SCRUM-17)'),
   id: z.string().optional().title('Issue ID').describe('Internal Jira issue ID'),
-  browseUrl: z.string().optional().title('Browse URL').describe('User-facing Jira URL for the issue (https://<host>/browse/<KEY>)'),
+  browseUrl: z
+    .string()
+    .optional()
+    .title('Browse URL')
+    .describe('User-facing Jira URL for the issue (https://<host>/browse/<KEY>)'),
   summary: z.string().optional().title('Summary').describe('Issue summary'),
   description: z.string().optional().title('Description').describe('Issue description as plain text, when available'),
   status: z.string().optional().title('Status').describe('Current workflow status name'),
@@ -109,7 +113,11 @@ export const jiraProjectSchema = z.object({
   id: z.string().title('Project ID').describe('Internal Jira project ID'),
   key: z.string().title('Project Key').describe('Project key (e.g. SCRUM)'),
   name: z.string().optional().title('Project Name').describe('Display name of the project'),
-  projectTypeKey: z.string().optional().title('Project Type').describe('Project type (software, service_desk, business)'),
+  projectTypeKey: z
+    .string()
+    .optional()
+    .title('Project Type')
+    .describe('Project type (software, service_desk, business)'),
   description: z.string().optional().title('Description').describe('Project description'),
   leadAccountId: z.string().optional().title('Lead Account ID').describe('Account ID of the project lead'),
   leadName: z.string().optional().title('Lead Name').describe('Display name of the project lead'),
@@ -133,10 +141,22 @@ export const listProjectsOutputSchema = z.object({
 export const jiraTransitionSchema = z.object({
   id: z.string().title('Transition ID').describe('ID of the transition (pass to transitionIssue)'),
   name: z.string().optional().title('Transition Name').describe('Display name of the transition'),
-  toStatus: z.string().optional().title('Target Status').describe('Status the issue moves to when the transition is applied'),
-  toStatusCategory: z.string().optional().title('Target Status Category').describe('Status category of the target status'),
+  toStatus: z
+    .string()
+    .optional()
+    .title('Target Status')
+    .describe('Status the issue moves to when the transition is applied'),
+  toStatusCategory: z
+    .string()
+    .optional()
+    .title('Target Status Category')
+    .describe('Status category of the target status'),
   isAvailable: z.boolean().optional().title('Available').describe('Whether the transition is currently available'),
-  hasScreen: z.boolean().optional().title('Has Screen').describe('Whether the transition shows a screen for additional fields'),
+  hasScreen: z
+    .boolean()
+    .optional()
+    .title('Has Screen')
+    .describe('Whether the transition shows a screen for additional fields'),
 })
 
 export const getIssueTransitionsInputSchema = z.object({

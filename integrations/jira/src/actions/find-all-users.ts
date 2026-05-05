@@ -9,8 +9,8 @@ export const findAllUsers: Implementation['actions']['findAllUsers'] = async ({ 
   const validatedInput = findAllUsersInputSchema.parse(input)
   const jiraClient = getClient(ctx.configuration)
   const addParams = {
-    startAt: Number(validatedInput?.startAt || undefined) || undefined,
-    maxResults: Number(validatedInput?.maxResults || undefined) || undefined,
+    startAt: validatedInput.startAt,
+    maxResults: validatedInput.maxResults,
   }
   let response
   try {

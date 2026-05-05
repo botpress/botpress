@@ -28,15 +28,20 @@ export const listProjects: Implementation['actions']['listProjects'] = async ({ 
     })
 
     const projects = response.values ?? []
-    const items = projects.map((p) => ({
-      id: p.id ?? '',
-      key: p.key ?? '',
-      name: p.name,
-      projectTypeKey: p.projectTypeKey,
-      description: p.description,
-      leadAccountId: p.lead?.accountId,
-      leadName: p.lead?.displayName,
-    }))
+    const items = projects.flatMap((p) => {
+      if (!p.id || !p.key) return []
+      return [
+        {
+          id: p.id,
+          key: p.key,
+          name: p.name,
+          projectTypeKey: p.projectTypeKey,
+          description: p.description,
+          leadAccountId: p.lead?.accountId,
+          leadName: p.lead?.displayName,
+        },
+      ]
+    })
 
     const isLast = response.isLast ?? items.length < maxResults
     const consumed = startAt + items.length
