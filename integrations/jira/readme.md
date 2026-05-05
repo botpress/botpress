@@ -20,7 +20,7 @@ To enable the Jira Software integration in Botpress, follow these steps:
 
 - Access your Botpress admin panel.
 - Navigate to the “Integrations” section.
-- Locate the Jira Software integration and click on “Enable” or “Configure.”
+- Locate the Jira Software integration and click on "Install Integration".
 - Provide the required API token, host, and email configuration details.
 - Save the configuration.
 
