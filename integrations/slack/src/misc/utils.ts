@@ -100,6 +100,7 @@ export const getBotpressConversationFromSlackThread = async (
     const resp = await client.getOrCreateConversation({
       channel: 'thread',
       tags: { id: props.slackChannelId, thread: props.slackThreadId },
+      discriminateByTags: ['id', 'thread'],
     })
     conversation = resp.conversation
   } else {
