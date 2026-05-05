@@ -1,34 +1,19 @@
 import type { IntegrationDefinitionProps } from '@botpress/sdk'
-import z from 'zod'
+import { z } from '@botpress/sdk'
 
 export { actions } from './actions'
 export { channels } from './channels'
 
 export const configuration = {
   schema: z.object({
-    host: z.string().describe('Atlassian Host Domain'),
-    email: z.string().describe('Email in Atlassian Account'),
-    apiToken: z.string().describe('API Token'),
+    host: z.string().title('Host URL').describe('Jira Cloud host URL, such as https://example.atlassian.net'),
+    email: z.string().title('Email').describe('Atlassian account email used for Jira API authentication'),
+    apiToken: z.string().title('API Token').describe('Atlassian API token used for Jira API authentication'),
   }),
 } satisfies IntegrationDefinitionProps['configuration']
 
-export const states = {
-  // voidStateOne: {
-  //   type: 'integration',
-  //   schema: z.object({
-  //     dataField: z.string(),
-  //   }),
-  // },
-  // voidStateTwo: {
-  //   type: 'conversation',
-  //   schema: z.object({
-  //     otherDataField: z.string(),
-  //   }),
-  // },
-} satisfies IntegrationDefinitionProps['states']
+export const states = {} satisfies IntegrationDefinitionProps['states']
 
 export const user = {
-  tags: {
-    // id: {},
-  },
+  tags: {},
 } satisfies IntegrationDefinitionProps['user']

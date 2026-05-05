@@ -1,36 +1,41 @@
+import { Version3Parameters } from 'jira.js'
 import { newIssueInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
-import { getClient } from '../utils'
+import { buildIssueRuntimeError, getClient } from '../utils'
 
 export const newIssue: Implementation['actions']['newIssue'] = async ({ ctx, input, logger }) => {
   const validatedInput = newIssueInputSchema.parse(input)
   const jiraClient = getClient(ctx.configuration)
-  const issue = {
-    fields: {
-      summary: validatedInput.summary,
-      description: validatedInput.description,
-      issuetype: {
-        name: validatedInput.issueType,
-      },
-      project: {
-        key: validatedInput.projectKey,
-      },
-      parent: {
-        key: validatedInput.parentKey || undefined,
-      },
-      assignee: {
-        id: validatedInput.assigneeId || undefined,
-      },
+  const fields: Version3Parameters.CreateIssue['fields'] = {
+    summary: validatedInput.summary,
+    issuetype: {
+      name: validatedInput.issueType,
+    },
+    project: {
+      key: validatedInput.projectKey,
     },
   }
-  let response
+
+  if (validatedInput.description !== undefined) {
+    fields.description = validatedInput.description
+  }
+  if (validatedInput.parentKey !== undefined) {
+    fields.parent = { key: validatedInput.parentKey }
+  }
+  if (validatedInput.assigneeId !== undefined) {
+    fields.assignee = { id: validatedInput.assigneeId }
+  }
+
+  const issue: Version3Parameters.CreateIssue = {
+    fields,
+  }
   try {
-    response = await jiraClient.newIssue(issue)
+    const response = await jiraClient.newIssue(issue)
     logger.forBot().info(`Successful - New Issue - ${response}`)
+    return { issueKey: response }
   } catch (error) {
     logger.forBot().debug(`'New Issue' exception ${JSON.stringify(error)}`)
-    response = ''
+    throw buildIssueRuntimeError(error, validatedInput.issueType, validatedInput.projectKey, 'create')
   }
-  return { issueKey: response }
 }

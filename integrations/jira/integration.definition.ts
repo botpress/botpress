@@ -3,10 +3,10 @@ import { IntegrationDefinition } from '@botpress/sdk'
 import { configuration, states, user, channels, actions } from './src/definitions'
 
 export default new IntegrationDefinition({
-  name: 'plus/jira',
+  name: 'jira',
   title: 'Jira',
   description: 'This integration allows you to manipulate Jira issues and users.',
-  version: '0.2.4',
+  version: '0.3.0',
   readme: 'readme.md',
   icon: 'icon.svg',
   configuration,
@@ -14,5 +14,8 @@ export default new IntegrationDefinition({
   user,
   actions,
   events: {},
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
   states,
 })

@@ -1,4 +1,4 @@
-import { Version3Models } from 'jira.js'
+import { RuntimeError } from '@botpress/sdk'
 
 import { findAllUsersInputSchema, findAllUsersOutputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
@@ -18,7 +18,13 @@ export const findAllUsers: Implementation['actions']['findAllUsers'] = async ({ 
     logger.forBot().info(`Successful - Find All User - Total Users ${response.length}`)
   } catch (error) {
     logger.forBot().debug(`'Find All User' exception ${JSON.stringify(error)}`)
-    response = [] as Version3Models.User[]
+    const message = error instanceof Error ? error.message : JSON.stringify(error)
+    throw new RuntimeError(`Failed to find all users: ${message}`)
   }
-  return findAllUsersOutputSchema.parse({ users: response })
+  return findAllUsersOutputSchema.parse({
+    users: response.map((user) => ({
+      ...user,
+      active: user.active ?? false,
+    })),
+  })
 }
