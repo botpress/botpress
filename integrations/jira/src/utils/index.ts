@@ -1,20 +1,12 @@
 import { RuntimeError } from '@botpress/sdk'
 import type { Version3Models } from 'jira.js'
 import { JiraApi } from '../client'
+import { textToAdfDocument } from '../misc/adf'
 import type { Config } from '../misc/types'
 
 export const getClient = (config: Config) => new JiraApi(config.host, config.email, config.apiToken)
 
-export const textToAdfDocument = (text: string): Version3Models.Document => ({
-  version: 1,
-  type: 'doc',
-  content: [
-    {
-      type: 'paragraph',
-      content: [{ type: 'text', text }],
-    },
-  ],
-})
+export { textToAdfDocument }
 
 type FlattenedIssue = {
   issueKey: string

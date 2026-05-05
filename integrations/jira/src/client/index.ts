@@ -1,5 +1,6 @@
 import { Version3Client, Version3Models, Version3Parameters } from 'jira.js'
 import type { RequestConfig } from 'jira.js/out/requestConfig'
+import { textToAdfDocument } from '../misc/adf'
 
 export type EnhancedSearchRequest = {
   jql: string
@@ -151,7 +152,7 @@ export class JiraApi {
   public async addCommentToIssue(issueIdOrKey: string, body: string): Promise<string> {
     const { id } = await this._client.issueComments.addComment({
       issueIdOrKey,
-      body,
+      body: textToAdfDocument(body),
     })
     if (!id) {
       throw new Error(`Jira did not return a comment ID for issue ${issueIdOrKey}`)

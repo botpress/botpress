@@ -52,7 +52,19 @@ describe('JiraApi', () => {
   it('adds issue comments from issue key and text', async () => {
     mocks.addComment.mockResolvedValue({ id: '10042' })
     const commentId = await newClient().addCommentToIssue('SCRUM-17', 'Please investigate this.')
-    expect(mocks.addComment).toHaveBeenCalledWith({ issueIdOrKey: 'SCRUM-17', body: 'Please investigate this.' })
+    expect(mocks.addComment).toHaveBeenCalledWith({
+      issueIdOrKey: 'SCRUM-17',
+      body: {
+        version: 1,
+        type: 'doc',
+        content: [
+          {
+            type: 'paragraph',
+            content: [{ type: 'text', text: 'Please investigate this.' }],
+          },
+        ],
+      },
+    })
     expect(commentId).toBe('10042')
   })
 
