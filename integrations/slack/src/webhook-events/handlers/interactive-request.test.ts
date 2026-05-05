@@ -148,8 +148,8 @@ describe('handleInteractiveRequest', () => {
     expect(getOrCreateMessage).not.toHaveBeenCalled()
   })
 
-  it('throws when actions are missing from a block_actions payload', async () => {
-    const payload = buildBlockActionsPayload({ actions: [] })
+  it('throws when the actions field is omitted from a block_actions payload', async () => {
+    const payload = buildBlockActionsPayload({ actions: undefined })
     const { props } = buildHandlerProps(payload)
 
     await expect(handleInteractiveRequest(props)).rejects.toThrow(/no action/i)
