@@ -1,9 +1,8 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import { actions, configuration, states } from './definitions'
-import { integrationName } from './package.json'
 
 export default new IntegrationDefinition({
-  name: integrationName,
+  name: 'odoo',
   title: 'Odoo',
   description: 'Connect Botpress to Odoo records such as leads, contacts, and tickets.',
   version: '0.1.0',

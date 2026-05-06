@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/odoo",
-  "integrationName": "@botpresshub/odoo",
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp add -y && bp build",
