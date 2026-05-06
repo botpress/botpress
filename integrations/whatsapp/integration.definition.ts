@@ -342,6 +342,10 @@ export default new IntegrationDefinition({
             title: 'Echo Creation Type',
             description: 'For echoed messages: the creation type reported by WhatsApp (e.g. "created_by_1p_bot")',
           },
+          status: {
+            title: 'Delivery Status',
+            description: 'Latest WhatsApp delivery status reported via webhook (SENT, DELIVERED, READ, FAILED).',
+          },
         },
       },
       conversation: {
