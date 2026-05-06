@@ -1,5 +1,5 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
-import { actions, configuration } from './definitions'
+import { actions, configuration, states } from './definitions'
 import { integrationName } from './package.json'
 
 export default new IntegrationDefinition({
@@ -10,5 +10,6 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration,
+  states,
   actions,
 })
