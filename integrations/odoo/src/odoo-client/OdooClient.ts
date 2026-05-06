@@ -55,7 +55,7 @@ const readOdooError = (errorMessage: string): string => {
   }
 }
 
-export class OdooAPI {
+export class OdooClient {
   private url: string
   private apiKey: string
   private database: string
@@ -148,4 +148,4 @@ export class OdooAPI {
   }
 }
 
-export default OdooAPI
+export default OdooClient

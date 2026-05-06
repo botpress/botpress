@@ -1,9 +1,9 @@
 import * as sdk from '@botpress/sdk'
-import { OdooAPI } from './odoo-api/OdooAPI'
+import { OdooClient } from './odoo-client/OdooClient'
 import * as bp from '.botpress'
 
-const createOdooApi = (props: bp.AnyActionProps): OdooAPI =>
-  new OdooAPI(props.ctx.configuration.url, props.ctx.configuration.apiKey, props.ctx.configuration.database)
+const createOdooClient = (props: bp.AnyActionProps): OdooClient =>
+  new OdooClient(props.ctx.configuration.url, props.ctx.configuration.apiKey, props.ctx.configuration.database)
 
 type NotDeletedContact = {
   id: number
@@ -72,7 +72,7 @@ export default new bp.Integration({
   actions: {
     getCurrentUser: async (props) => {
       try {
-        const id = await createOdooApi(props).getCurrentUserId()
+        const id = await createOdooClient(props).getCurrentUserId()
 
         return { id }
       } catch (thrown) {
@@ -80,13 +80,13 @@ export default new bp.Integration({
       }
     },
     getContactFields: async (props) => {
-      const fields = await createOdooApi(props).getFields('Contact', props.input)
+      const fields = await createOdooClient(props).getFields('Contact', props.input)
 
       return { fields }
     },
     searchContacts: async (props) => {
       try {
-        const records = await createOdooApi(props).searchContacts(props.input)
+        const records = await createOdooClient(props).searchContacts(props.input)
 
         return { records }
       } catch (thrown) {
@@ -95,7 +95,7 @@ export default new bp.Integration({
     },
     getContacts: async (props) => {
       try {
-        const records = await createOdooApi(props).getContacts(props.input)
+        const records = await createOdooClient(props).getContacts(props.input)
 
         return { records }
       } catch (thrown) {
@@ -104,7 +104,7 @@ export default new bp.Integration({
     },
     createContact: async (props) => {
       try {
-        const id = await createOdooApi(props).createContact(props.input)
+        const id = await createOdooClient(props).createContact(props.input)
 
         return { id }
       } catch (thrown) {
@@ -113,7 +113,7 @@ export default new bp.Integration({
     },
     updateContacts: async (props) => {
       try {
-        const success = await createOdooApi(props).updateContacts(props.input)
+        const success = await createOdooClient(props).updateContacts(props.input)
 
         return { success }
       } catch (thrown) {
@@ -121,8 +121,8 @@ export default new bp.Integration({
       }
     },
     deleteContacts: async (props) => {
-      const odooApi = createOdooApi(props)
-      const contacts = await odooApi.getContacts({
+      const odooClient = createOdooClient(props)
+      const contacts = await odooClient.getContacts({
         ids: props.input.ids,
         fields: ['id', 'name', 'user_id'],
         context: props.input.context,
@@ -155,7 +155,7 @@ export default new bp.Integration({
         }
 
         try {
-          const success = await odooApi.deleteContacts({ ids: [id], context: props.input.context })
+          const success = await odooClient.deleteContacts({ ids: [id], context: props.input.context })
 
           if (success) {
             deletedIds.push(id)
