@@ -2,7 +2,7 @@ export type Model = 'Lead' | 'Contact' | 'Ticket'
 
 export type OdooContext = Record<string, unknown>
 
-export type OdooDomainCondition = [field: string, operator: string, value: unknown]
+export type OdooDomainCondition = unknown[]
 export type OdooDomainOperator = '&' | '|' | '!'
 export type OdooDomain = Array<OdooDomainCondition | OdooDomainOperator>
 
@@ -17,6 +17,13 @@ export type GetFieldsRequest = {
 }
 
 export type GetFieldsOutput = Record<string, unknown>
+
+/**
+ * POST /json/2/res.users/context_get
+ */
+export type ResUsersContextGetOutput = OdooContext & {
+  uid: number
+}
 
 /**
  * POST /json/2/res.partner/search_read
