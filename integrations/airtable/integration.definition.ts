@@ -14,6 +14,12 @@ import {
   listRecordsOutputSchema,
 } from './src/misc/custom-schemas'
 
+// TODO: use default options
+const toJSONSchemaOptions: Partial<z.transforms.JSONSchemaGenerationOptions> = {
+  discriminatedUnionStrategy: 'anyOf',
+  discriminator: false,
+}
+
 export default new IntegrationDefinition({
   name: 'airtable',
   title: 'Airtable',
@@ -135,9 +141,7 @@ export default new IntegrationDefinition({
       description: 'The client secret of the Airtable OAuth app.',
     },
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
+  __advanced: { toJSONSchemaOptions },
   attributes: {
     category: 'Project Management',
     repo: 'botpress',
