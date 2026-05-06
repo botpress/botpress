@@ -1,19 +1,32 @@
 import actions from './odoo-client/actions/implementations'
+import { createOdooRuntimeError } from './odoo-client/actions/errors'
+import { OdooClient } from './odoo-client/OdooClient'
+import * as sdk from '@botpress/sdk'
 import * as bp from '.botpress'
 
 export default new bp.Integration({
   register: async (props) => {
-    props.logger
-      .forBot()
-      .info(
-        `register called with url=${props.ctx.configuration.url}, database=${props.ctx.configuration.database}, apiKey=${props.ctx.configuration.apiKey}`
-      )
+    const { url, apiKey, database } = props.ctx.configuration
+    const logger = props.logger.forBot()
 
-    /**
-     * This is called when an integration configuration is saved.
-     * You should use this handler to instanciate ressources in the external service and ensure that the configuration is valid.
-     */
-    // throw new sdk.RuntimeError('Invalid configuration') // replace this with your own validation logic
+    logger.info(`Validating Odoo configuration for url=${url}, database=${database}`)
+
+    try {
+      const odooClient = new OdooClient(url, apiKey, database)
+      const userId = await odooClient.getCurrentUserId()
+
+      await props.client.setState({
+        type: 'integration',
+        id: props.ctx.integrationId,
+        name: 'account',
+        payload: { userId },
+      })
+
+      logger.info(`Odoo configuration validated for user id ${userId}`)
+    } catch (thrown) {
+      logger.warn('Odoo configuration validation failed', { error: thrown instanceof Error ? thrown.message : String(thrown) })
+      throw new sdk.RuntimeError(`Invalid Odoo configuration: ${createOdooRuntimeError(thrown).message}`)
+    }
   },
   unregister: async () => {
     /**
