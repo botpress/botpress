@@ -10,11 +10,11 @@ Before installing the integration, make sure you have:
 
 In Botpress, configure the integration with the following fields:
 
-| Field | Description |
-| --- | --- |
+| Field    | Description                                                             |
+| -------- | ----------------------------------------------------------------------- |
 | Odoo URL | The base URL of your Odoo instance, such as `https://example.odoo.com`. |
-| Database | The Odoo database name. |
-| API Key | The Odoo API key used to authenticate JSON-2 API requests. |
+| Database | The Odoo database name.                                                 |
+| API Key  | The Odoo API key used to authenticate JSON-2 API requests.              |
 
 When the integration is saved, Botpress validates the configuration by calling Odoo and retrieving the user ID associated with the API key. That user ID is stored in the integration state and can be used by actions that need to know which Odoo user is configured.
 
@@ -71,9 +71,7 @@ Odoo field values are passed as objects keyed by Odoo field name. For example, c
 Odoo domains use the standard Odoo domain format. For example:
 
 ```json
-[
-  ["email", "=", "ada@example.com"]
-]
+[["email", "=", "ada@example.com"]]
 ```
 
 You can pass an optional Odoo context object to contact actions when you need to control Odoo-specific request behavior.

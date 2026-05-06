@@ -1,4 +1,4 @@
-import { z, IntegrationDefinition, IntegrationDefinitionProps } from '@botpress/sdk'
+import { z, IntegrationDefinitionProps } from '@botpress/sdk'
 
 const odooContextSchema = z
   .record(z.string(), z.unknown())

@@ -27,8 +27,6 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 
 const isOdooRecordArray = (value: unknown): value is OdooRecord[] => Array.isArray(value) && value.every(isRecord)
 
-const isNumber = (value: unknown): value is number => typeof value === 'number'
-
 const isNumberArray = (value: unknown): value is number[] =>
   Array.isArray(value) && value.every((item) => typeof item === 'number')
 
@@ -128,7 +126,12 @@ export class OdooClient {
 
   public async createContact(input: ResPartnerCreateInput): Promise<ResPartnerCreateOutput> {
     const { values, ...rest } = input
-    const ids = await this._postJson('/json/2/res.partner/create', { ...rest, vals_list: values }, isNumberArray, 'number array')
+    const ids = await this._postJson(
+      '/json/2/res.partner/create',
+      { ...rest, vals_list: values },
+      isNumberArray,
+      'number array'
+    )
 
     if (ids.length !== 1 || ids[0] === undefined) {
       throw new Error('Odoo API request failed: expected one created contact id')
