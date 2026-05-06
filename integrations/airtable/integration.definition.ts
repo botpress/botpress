@@ -135,6 +135,9 @@ export default new IntegrationDefinition({
       description: 'The client secret of the Airtable OAuth app.',
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
   attributes: {
     category: 'Project Management',
     repo: 'botpress',
