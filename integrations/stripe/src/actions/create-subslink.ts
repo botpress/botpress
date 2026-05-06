@@ -3,12 +3,7 @@ import { StripeClient } from '../stripe-api/stripe-client'
 import { createSubsLinkInputSchema } from '../misc/custom-schemas'
 import type { IntegrationProps } from '../misc/types'
 
-export const createSubsLink: IntegrationProps['actions']['createSubsLink'] = async ({
-  ctx,
-  client,
-  logger,
-  input,
-}) => {
+export const createSubsLink: IntegrationProps['actions']['createSubsLink'] = async ({ ctx, client, logger, input }) => {
   const validatedInput = createSubsLinkInputSchema.parse(input)
   const stripeClient = await StripeClient.createFromStates({ client, ctx, logger })
   let response
