@@ -9,13 +9,21 @@ const odooRecordSchema = z
   .record(z.string(), z.unknown())
   .title('Values')
   .describe('Odoo field values keyed by field name.')
-const odooDomainConditionSchema = z.tuple([z.string(), z.string(), z.unknown()])
+const odooDomainConditionSchema = z.array(z.unknown())
 const odooDomainSchema = z
   .array(z.union([odooDomainConditionSchema, z.enum(['&', '|', '!'])]))
   .title('Domain')
   .describe('Odoo domain filters, such as [["id", "in", [1, 2, 3]]].')
 const fieldsSchema = z.array(z.string()).title('Fields').describe('Odoo field names to include in the response.')
 const contactIdsSchema = z.array(z.number()).title('Contact IDs').describe('Odoo contact record IDs.')
+const notDeletedContactSchema = z
+  .object({
+    id: z.number().title('Contact ID').describe('Odoo contact record ID.'),
+    name: z.string().title('Contact Name').describe('Odoo contact display name.').optional(),
+    reason: z.string().title('Reason').describe('Why the contact could not be deleted.'),
+  })
+  .title('Not Deleted Contact')
+  .describe('An Odoo contact that could not be deleted.')
 
 export default new IntegrationDefinition({
   name: integrationName,
@@ -32,6 +40,18 @@ export default new IntegrationDefinition({
     }),
   },
   actions: {
+    getCurrentUser: {
+      title: 'Get Current User',
+      description: 'Get the Odoo user ID associated with the configured API key.',
+      input: {
+        schema: z.object({}),
+      },
+      output: {
+        schema: z.object({
+          id: z.number().title('User ID').describe('Odoo user ID associated with the configured API key.'),
+        }),
+      },
+    },
     getContactFields: {
       title: 'Get Odoo Contact Fields',
       description: 'Get available fields for Odoo contacts.',
@@ -123,16 +143,25 @@ export default new IntegrationDefinition({
     },
     deleteContacts: {
       title: 'Delete Contacts',
-      description: 'Delete one or more Odoo contacts.',
+      description: 'Delete one or more Odoo contacts owned by the specified Odoo user.',
       input: {
         schema: z.object({
           ids: contactIdsSchema,
+          ownerId: z
+            .number()
+            .title('Owner User ID')
+            .describe('Odoo user ID that must match each contact owner before the contact is deleted.'),
           context: odooContextSchema.optional(),
         }),
       },
       output: {
         schema: z.object({
-          success: z.boolean().title('Success').describe('Whether Odoo accepted the contact deletion.'),
+          success: z.boolean().title('Success').describe('Whether all requested contacts were deleted.'),
+          deletedIds: contactIdsSchema.describe('Odoo contact record IDs that were deleted.'),
+          notDeletedContacts: z
+            .array(notDeletedContactSchema)
+            .title('Not Deleted Contacts')
+            .describe('Odoo contacts that could not be deleted, with the reason for each contact.'),
         }),
       },
     },
