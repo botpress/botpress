@@ -4,7 +4,6 @@ import * as htmlDialogs from '../html-dialogs'
 import * as consts from './consts'
 import { schemaToFieldDescriptors } from './schema-to-fields'
 import type * as types from './types'
-import { DISABLE_INTERSTITIAL_HEADER } from './consts'
 
 export class OAuthWizard<THandlerProps extends types.HandlerProps> {
   private readonly _steps: Map<string, types.WizardStep<THandlerProps>>
@@ -158,7 +157,7 @@ export const getInterstitialUrl = (success: boolean, message?: string) =>
 export const generateRedirection = (url: URL): Response => ({
   status: 303,
   headers: {
-    ...DISABLE_INTERSTITIAL_HEADER,
+    ...consts.DISABLE_INTERSTITIAL_HEADER,
     location: url.toString(),
   },
 })
