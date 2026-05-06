@@ -1,43 +1,91 @@
-# Hello World
-
-This integration is a template with a single action.
-
-> Describe the integration's purpose.
+The Odoo integration lets your Botpress chatbot work with Odoo contact records through Odoo's JSON-2 API. You can search, read, create, update, and delete contacts, retrieve contact field metadata, and validate the configured Odoo API key against the current Odoo user.
 
 ## Configuration
 
-This integration does not need a configuration.
+Before installing the integration, make sure you have:
 
-> Explain how to configure your integration and list prerequisites `ex: accounts, etc.`.
-> You might also want to add configuration details for specific use cases.
+- An Odoo instance with JSON-2 API access enabled.
+- The Odoo database name.
+- An API key for an Odoo user that has access to the contact records your bot needs to manage.
 
-## Usage
+In Botpress, configure the integration with the following fields:
 
-To use, call the action `helloWorld`. This action will greet the user.
+| Field | Description |
+| --- | --- |
+| Odoo URL | The base URL of your Odoo instance, such as `https://example.odoo.com`. |
+| Database | The Odoo database name. |
+| API Key | The Odoo API key used to authenticate JSON-2 API requests. |
 
-> Explain how to use your integration.
-> You might also want to include an example if there is a specific use case.
+When the integration is saved, Botpress validates the configuration by calling Odoo and retrieving the user ID associated with the API key. That user ID is stored in the integration state and can be used by actions that need to know which Odoo user is configured.
+
+## Actions
+
+### Get Current User
+
+Returns the Odoo user ID associated with the configured API key.
+
+### Get Odoo Contact Fields
+
+Retrieves metadata for available Odoo contact fields. You can optionally pass specific field names and metadata attributes to limit the response.
+
+### Search Contacts
+
+Searches Odoo contacts using an Odoo domain filter. You can also pass fields, offset, limit, order, and context values.
+
+### Get Contacts
+
+Reads one or more Odoo contacts by ID. You can optionally choose which fields to return.
+
+### Create Contact
+
+Creates a new Odoo contact from the provided field values and returns the created contact ID.
+
+### Update Contacts
+
+Updates one or more Odoo contacts with the provided field values.
+
+### Delete Contacts
+
+Deletes one or more Odoo contacts when they are owned by the expected Odoo user.
+
+Before deleting a contact, the integration reads the contact's `user_id` field and compares it with the `ownerId` input. Contacts that are missing, assigned to another user, unassigned, linked to an active Odoo user, or rejected by Odoo are returned in `notDeletedContacts` with a reason.
+
+The action returns:
+
+- `success`: Whether all requested contacts were deleted.
+- `deletedIds`: The contact IDs that were deleted.
+- `notDeletedContacts`: Contacts that were not deleted, with a reason for each one.
+
+## Usage Notes
+
+Odoo field values are passed as objects keyed by Odoo field name. For example, creating a contact might use values such as:
+
+```json
+{
+  "name": "Ada Lovelace",
+  "email": "ada@example.com",
+  "phone": "+1 555 0100"
+}
+```
+
+Odoo domains use the standard Odoo domain format. For example:
+
+```json
+[
+  ["email", "=", "ada@example.com"]
+]
+```
+
+You can pass an optional Odoo context object to contact actions when you need to control Odoo-specific request behavior.
 
 ## Limitations
 
-The `helloWorld` action has a max name size limit of 2^28 - 16 characters (the max javascript string size).
-
-> List the known bugs.
-> List known limits `ex: rate-limiting, payload sizes, etc.`
-> List unsupported use cases.
+- This version focuses on Odoo contacts (`res.partner`).
+- The integration does not currently handle Odoo webhooks or incoming events.
+- The integration does not provide Botpress channels for Odoo conversations.
+- Delete protection depends on the contact's `user_id` owner field.
+- Available fields, permissions, and validation rules depend on your Odoo instance and the permissions of the configured API key.
 
 ## Changelog
 
-- 0.1.0: Implemented `helloWorld` action.
-
-> If some versions of your integration introduce changes worth mentionning (breaking changes, bug fixes), describe them here. This will help users to know what to expect when updating the integration.
-
-### Integration publication checklist
-
-- [ ] The register handler is implemented and validates the configuration.
-- [ ] Title and descriptions for all schemas are present in `integration.definition.ts`.
-- [ ] Events store `conversationId`, `userId` and `messageId` when available.
-- [ ] Implement events & actions that are related to `channels`, `entities`, `user`, `conversations` and `messages`.
-- [ ] Events related to messages are implemented as messages.
-- [ ] When an action is required by the bot developer, a `RuntimeError` is thrown with instructions to fix the problem.
-- [ ] Bot name and bot avatar URL fields are available in the integration configuration.
+- 0.1.0: Added Odoo configuration validation and contact actions for field lookup, search, read, create, update, and delete.
