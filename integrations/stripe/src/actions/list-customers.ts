@@ -1,14 +1,14 @@
 import type { Customer } from 'src/misc/custom-types'
-import { getClient } from '../client'
+import { StripeClient } from '../stripe-api/stripe-client'
 import { listCustomersInputSchema } from '../misc/custom-schemas'
 import type { IntegrationProps } from '../misc/types'
 
-export const listCustomers: IntegrationProps['actions']['listCustomers'] = async ({ ctx, logger, input }) => {
+export const listCustomers: IntegrationProps['actions']['listCustomers'] = async ({ ctx, client, logger, input }) => {
   const validatedInput = listCustomersInputSchema.parse(input)
-  const StripeClient = getClient(ctx.configuration)
+  const stripeClient = await StripeClient.createFromStates({ client, ctx, logger })
   let response
   try {
-    const customers = await StripeClient.listAllCustomerBasic(validatedInput.email || undefined)
+    const customers = await stripeClient.listAllCustomerBasic(validatedInput.email || undefined)
 
     const customerByEmails: Record<string, Customer[]> = {}
 

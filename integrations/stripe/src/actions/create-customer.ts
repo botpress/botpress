@@ -1,10 +1,10 @@
-import { getClient } from '../client'
+import { StripeClient } from '../stripe-api/stripe-client'
 import { createCustomerInputSchema } from '../misc/custom-schemas'
 import type { IntegrationProps } from '../misc/types'
 
-export const createCustomer: IntegrationProps['actions']['createCustomer'] = async ({ ctx, logger, input }) => {
+export const createCustomer: IntegrationProps['actions']['createCustomer'] = async ({ ctx, client, logger, input }) => {
   const validatedInput = createCustomerInputSchema.parse(input)
-  const StripeClient = getClient(ctx.configuration)
+  const stripeClient = await StripeClient.createFromStates({ client, ctx, logger })
   let response
   try {
     const params = {
@@ -15,7 +15,7 @@ export const createCustomer: IntegrationProps['actions']['createCustomer'] = asy
       payment_method: validatedInput.paymentMethodId,
       address: validatedInput.address ? JSON.parse(validatedInput.address) : undefined,
     }
-    const customer = await StripeClient.createCustomer(params)
+    const customer = await stripeClient.createCustomer(params)
 
     response = {
       customer,

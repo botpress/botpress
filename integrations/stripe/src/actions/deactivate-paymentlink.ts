@@ -1,17 +1,18 @@
-import { getClient } from '../client'
+import { StripeClient } from '../stripe-api/stripe-client'
 import { deactivatePaymentLinkInputSchema } from '../misc/custom-schemas'
 import type { IntegrationProps } from '../misc/types'
 
 export const deactivatePaymentLink: IntegrationProps['actions']['deactivatePaymentLink'] = async ({
   ctx,
+  client,
   logger,
   input,
 }) => {
   const validatedInput = deactivatePaymentLinkInputSchema.parse(input)
-  const StripeClient = getClient(ctx.configuration)
+  const stripeClient = await StripeClient.createFromStates({ client, ctx, logger })
   let response
   try {
-    const paymentLink = await StripeClient.deactivatePaymentLink(validatedInput.id)
+    const paymentLink = await stripeClient.deactivatePaymentLink(validatedInput.id)
 
     response = {
       id: paymentLink.id,

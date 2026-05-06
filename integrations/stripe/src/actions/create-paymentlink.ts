@@ -1,35 +1,35 @@
-import { getClient } from '../client'
+import { StripeClient } from '../stripe-api/stripe-client'
 import { createPaymentLinkInputSchema } from '../misc/custom-schemas'
-import type { ProductBasic, StripeClient } from '../misc/stripe-client'
+import type { ProductBasic } from '../misc/stripe-client'
 import type { IntegrationProps } from '../misc/types'
 
-const findOrCreateProduct = async (StripeClient: StripeClient, productName: string) => {
-  const products = await StripeClient.listAllProductsBasic()
+const findOrCreateProduct = async (stripeClient: StripeClient, productName: string) => {
+  const products = await stripeClient.listAllProductsBasic()
   let product = products.find((p: ProductBasic) => p.name === productName)
 
   if (!product) {
-    product = await StripeClient.createProduct(productName)
+    product = await stripeClient.createProduct(productName)
   }
 
   return product
 }
 
 const findOrCreatePrice = async (
-  StripeClient: StripeClient,
+  stripeClient: StripeClient,
   productId: string,
   unitAmount: number,
   currency: string
 ) => {
-  const prices = await StripeClient.listPrices(productId)
+  const prices = await stripeClient.listPrices(productId)
 
   if (!unitAmount) {
-    return prices.data[0] || (await StripeClient.createPrice(productId, 0, currency))
+    return prices.data[0] || (await stripeClient.createPrice(productId, 0, currency))
   }
 
   let price = prices.data.find((p) => p.unit_amount === unitAmount && p.currency === currency)
 
   if (!price) {
-    price = await StripeClient.createPrice(productId, unitAmount, currency)
+    price = await stripeClient.createPrice(productId, unitAmount, currency)
   }
 
   return price
@@ -53,13 +53,18 @@ const buildLineItem = (
   }
 }
 
-export const createPaymentLink: IntegrationProps['actions']['createPaymentLink'] = async ({ ctx, logger, input }) => {
+export const createPaymentLink: IntegrationProps['actions']['createPaymentLink'] = async ({
+  ctx,
+  client,
+  logger,
+  input,
+}) => {
   const validatedInput = createPaymentLinkInputSchema.parse(input)
-  const StripeClient = getClient(ctx.configuration)
+  const stripeClient = await StripeClient.createFromStates({ client, ctx, logger })
 
   try {
-    const product = await findOrCreateProduct(StripeClient, validatedInput.productName)
-    const price = await findOrCreatePrice(StripeClient, product.id, validatedInput.unit_amount, validatedInput.currency)
+    const product = await findOrCreateProduct(stripeClient, validatedInput.productName)
+    const price = await findOrCreatePrice(stripeClient, product.id, validatedInput.unit_amount, validatedInput.currency)
 
     const lineItem = buildLineItem(
       price.id,
@@ -69,7 +74,7 @@ export const createPaymentLink: IntegrationProps['actions']['createPaymentLink']
       validatedInput.adjustableQuantityMinimum
     )
 
-    const paymentLink = await StripeClient.createPaymentLink(lineItem)
+    const paymentLink = await stripeClient.createPaymentLink(lineItem)
 
     logger.forBot().info(`Successful - Create Payment Link - ${paymentLink.id}`)
 

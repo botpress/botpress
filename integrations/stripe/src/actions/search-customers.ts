@@ -1,13 +1,18 @@
-import { getClient } from '../client'
+import { StripeClient } from '../stripe-api/stripe-client'
 import { searchCustomersInputSchema } from '../misc/custom-schemas'
 import type { IntegrationProps } from '../misc/types'
 
-export const searchCustomers: IntegrationProps['actions']['searchCustomers'] = async ({ ctx, logger, input }) => {
+export const searchCustomers: IntegrationProps['actions']['searchCustomers'] = async ({
+  ctx,
+  client,
+  logger,
+  input,
+}) => {
   const validatedInput = searchCustomersInputSchema.parse(input)
-  const StripeClient = getClient(ctx.configuration)
+  const stripeClient = await StripeClient.createFromStates({ client, ctx, logger })
   let response
   try {
-    const customers = await StripeClient.searchCustomers(
+    const customers = await stripeClient.searchCustomers(
       validatedInput.email,
       validatedInput.name,
       validatedInput.phone

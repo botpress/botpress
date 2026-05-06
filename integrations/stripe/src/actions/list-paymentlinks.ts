@@ -1,11 +1,11 @@
-import { getClient } from '../client'
+import { StripeClient } from '../stripe-api/stripe-client'
 import type { IntegrationProps } from '../misc/types'
 
-export const listPaymentLinks: IntegrationProps['actions']['listPaymentLinks'] = async ({ ctx, logger }) => {
-  const StripeClient = getClient(ctx.configuration)
+export const listPaymentLinks: IntegrationProps['actions']['listPaymentLinks'] = async ({ ctx, client, logger }) => {
+  const stripeClient = await StripeClient.createFromStates({ client, ctx, logger })
   let response
   try {
-    const paymentLinks = await StripeClient.listAllPaymentLinksBasic()
+    const paymentLinks = await stripeClient.listAllPaymentLinksBasic()
 
     response = {
       paymentLinks,

@@ -1,17 +1,18 @@
-import { getClient } from '../client'
+import { StripeClient } from '../stripe-api/stripe-client'
 import { retrieveCustomerByIdInputSchema } from '../misc/custom-schemas'
 import * as bp from '.botpress'
 
 export const retrieveCustomerById: bp.IntegrationProps['actions']['retrieveCustomerById'] = async ({
   ctx,
+  client,
   logger,
   input,
 }) => {
   const validatedInput = retrieveCustomerByIdInputSchema.parse(input)
-  const StripeClient = getClient(ctx.configuration)
+  const stripeClient = await StripeClient.createFromStates({ client, ctx, logger })
 
   try {
-    const customer = await StripeClient.retrieveCustomer(validatedInput.id)
+    const customer = await stripeClient.retrieveCustomer(validatedInput.id)
     if (customer.deleted) {
       logger.forBot().info(`Customer not found - Retrieve Customer - ${validatedInput.id}`)
       return {}

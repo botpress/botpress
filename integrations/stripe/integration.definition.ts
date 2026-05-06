@@ -110,19 +110,34 @@ export default new IntegrationDefinition({
     oAuthCredentials: {
       type: 'integration',
       schema: z.object({
-        accessToken: z.string().secret().describe('The OAuth access token'),
-        refreshToken: z.string().secret().describe('The rotating OAuth refresh token'),
-        expiresAt: z.string().datetime().describe('The timestamp of when the access token expires'),
-        refreshExpiresAt: z.string().datetime().describe('The timestamp of when the refresh token expires'),
-        scopes: z.array(z.string()).describe('The scopes granted to the token'),
-        stripeUserId: z.string().describe('The Stripe account ID (acct_xxx) the token was issued for'),
-        livemode: z.boolean().describe('Whether the token operates against Stripe live mode'),
+        accessToken: z.string().secret().title('Access Token').describe('The OAuth access token'),
+        refreshToken: z.string().secret().title('Refresh Token').describe('The rotating OAuth refresh token'),
+        expiresAt: z
+          .string()
+          .datetime()
+          .title('Access Token Expires At')
+          .describe('The timestamp of when the access token expires'),
+        refreshExpiresAt: z
+          .string()
+          .datetime()
+          .title('Refresh Token Expires At')
+          .describe('The timestamp of when the refresh token expires'),
+        scopes: z.array(z.string()).title('Scopes').describe('The scopes granted to the token'),
+        stripeUserId: z
+          .string()
+          .title('Stripe Account ID')
+          .describe('The Stripe account ID (acct_xxx) the token was issued for'),
+        livemode: z.boolean().title('Live Mode').describe('Whether the token operates against Stripe live mode'),
       }),
     },
     manualCredentials: {
       type: 'integration',
       schema: z.object({
-        apiKey: z.string().secret().describe('The secret key or a restricted key from your Stripe account'),
+        apiKey: z
+          .string()
+          .secret()
+          .title('Stripe API Key')
+          .describe('The secret key or a restricted key from your Stripe account'),
       }),
     },
     stripeIntegrationInfo: {
