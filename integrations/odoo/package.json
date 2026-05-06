@@ -1,6 +1,6 @@
 {
-  "name": "@bp-templates/hello-world",
-  "integrationName": "workspace-hand/odoo",
+  "name": "@botpresshub/odoo",
+  "integrationName": "@botpresshub/odoo",
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp add -y && bp build",
@@ -10,10 +10,12 @@
   "private": true,
   "dependencies": {
     "@botpress/client": "workspace:*",
-    "@botpress/sdk": "workspace:*"
+    "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "@botpress/sdk-addons": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^22.16.4",
-    "typescript": "^5.6.3"
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*"
   }
 }
