@@ -19,6 +19,17 @@ const _wrapAction = createActionWrapper<bp.IntegrationProps>()({
   toolFactories: {
     odooClient: ({ ctx }) =>
       new OdooClient(ctx.configuration.url, ctx.configuration.apiKey, ctx.configuration.database),
+    getOdooUserId:
+      ({ client, ctx }) =>
+      async () => {
+        const { state } = await client.getState({
+          type: 'integration',
+          id: ctx.integrationId,
+          name: 'account',
+        })
+
+        return state.payload.userId
+      },
   },
   extraMetadata: {} as {
     errorMessage: string
