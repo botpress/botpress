@@ -2676,7 +2676,7 @@ importers:
         specifier: 1.43.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 6.8.0
+        specifier: 6.9.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2702,6 +2702,9 @@ importers:
       '@stoplight/spectral-parsers':
         specifier: ^1.0.4
         version: 1.0.4
+      '@stoplight/types':
+        specifier: ^14.1.1
+        version: 14.1.1
       '@types/lodash':
         specifier: ^4.14.191
         version: 4.14.195
@@ -2760,9 +2763,6 @@ importers:
       '@bpinternal/log4bot':
         specifier: ^0.0.4
         version: 0.0.4
-      '@stoplight/types':
-        specifier: ^14.1.1
-        version: 14.1.1
       '@types/bluebird':
         specifier: ^3.5.38
         version: 3.5.38
@@ -2800,7 +2800,7 @@ importers:
         specifier: 1.43.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.8.0
+        specifier: 6.9.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2816,7 +2816,7 @@ importers:
         specifier: 1.43.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.8.0
+        specifier: 6.9.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2829,7 +2829,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 6.8.0
+        specifier: 6.9.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2845,7 +2845,7 @@ importers:
         specifier: 1.43.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.8.0
+        specifier: 6.9.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2861,7 +2861,7 @@ importers:
         specifier: 1.43.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.8.0
+        specifier: 6.9.0
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8

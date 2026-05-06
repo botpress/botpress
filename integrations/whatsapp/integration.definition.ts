@@ -157,7 +157,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.13.1'
+export const INTEGRATION_VERSION = '4.14.0'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
@@ -341,6 +341,10 @@ export default new IntegrationDefinition({
           echoCreationType: {
             title: 'Echo Creation Type',
             description: 'For echoed messages: the creation type reported by WhatsApp (e.g. "created_by_1p_bot")',
+          },
+          status: {
+            title: 'Delivery Status',
+            description: 'Latest WhatsApp delivery status reported via webhook (SENT, DELIVERED, READ, FAILED).',
           },
         },
       },
