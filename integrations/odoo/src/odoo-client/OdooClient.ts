@@ -54,21 +54,21 @@ const readOdooError = (errorMessage: string): string => {
 }
 
 export class OdooClient {
-  private url: string
-  private apiKey: string
-  private database: string
+  private _url: string
+  private _apiKey: string
+  private _database: string
 
-  constructor(url: string, apiKey: string, database: string) {
-    this.url = url.replace(/\/$/, '')
-    this.apiKey = apiKey
-    this.database = database
+  public constructor(url: string, apiKey: string, database: string) {
+    this._url = url.replace(/\/$/, '')
+    this._apiKey = apiKey
+    this._database = database
   }
 
   private _getHeaders(): Record<string, string> {
     return {
       'Content-Type': 'application/json',
-      Authorization: `bearer ${this.apiKey}`,
-      'X-ODOO-DATABASE': this.database,
+      Authorization: `bearer ${this._apiKey}`,
+      'X-ODOO-DATABASE': this._database,
     }
   }
 
@@ -80,7 +80,7 @@ export class OdooClient {
   ): Promise<TResponse> {
     const headers = this._getHeaders()
 
-    const response = await fetch(`${this.url}${endpoint}`, {
+    const response = await fetch(`${this._url}${endpoint}`, {
       method: 'POST',
       headers,
       body: JSON.stringify(body),
