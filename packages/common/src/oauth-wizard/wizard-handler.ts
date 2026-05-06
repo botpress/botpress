@@ -1,9 +1,10 @@
-import * as sdk from '@botpress/sdk'
+import { Response, RuntimeError, z } from '@botpress/sdk'
 import * as preact from 'preact-render-to-string'
 import * as htmlDialogs from '../html-dialogs'
 import * as consts from './consts'
 import { schemaToFieldDescriptors } from './schema-to-fields'
 import type * as types from './types'
+import { DISABLE_INTERSTITIAL_HEADER } from './consts'
 
 export class OAuthWizard<THandlerProps extends types.HandlerProps> {
   private readonly _steps: Map<string, types.WizardStep<THandlerProps>>
@@ -20,9 +21,9 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
     this._handlerProps = handlerProps
   }
 
-  public async handleRequest(): Promise<sdk.Response> {
+  public async handleRequest(): Promise<Response> {
     if (!isOAuthWizardUrl(this._handlerProps.req.path)) {
-      throw new sdk.RuntimeError('Invalid OAuth wizard URL')
+      throw new RuntimeError('Invalid OAuth wizard URL')
     }
 
     const searchParams = new URLSearchParams(this._handlerProps.req.query)
@@ -30,7 +31,7 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
     const step = this._steps.get(stepId)
 
     if (!step) {
-      throw new sdk.RuntimeError(`Unknown step ID: ${stepId}`)
+      throw new RuntimeError(`Unknown step ID: ${stepId}`)
     }
 
     const formValues: Record<string, string | number | boolean> = {}
@@ -44,18 +45,18 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
     const rawSchemaJson = formParams.get(consts.FORM_SCHEMA_PARAM)
     if (rawSchemaJson && Object.keys(formValues).length > 0) {
       const jsonSchema = JSON.parse(rawSchemaJson) as { properties?: Record<string, { type?: string }> }
-      const coercedShape: Record<string, sdk.z.ZodType> = {}
+      const coercedShape: Record<string, z.ZodType> = {}
       for (const name of Object.keys(formValues)) {
         const fieldType = jsonSchema.properties?.[name]?.type
         if (fieldType === 'boolean') {
-          coercedShape[name] = sdk.z.coerce.boolean()
+          coercedShape[name] = z.coerce.boolean()
         } else if (fieldType === 'number' || fieldType === 'integer') {
-          coercedShape[name] = sdk.z.coerce.number()
+          coercedShape[name] = z.coerce.number()
         } else {
-          coercedShape[name] = sdk.z.coerce.string()
+          coercedShape[name] = z.coerce.string()
         }
       }
-      const coerced = sdk.z.object(coercedShape).safeParse(formValues)
+      const coerced = z.object(coercedShape).safeParse(formValues)
       if (coerced.success) {
         Object.assign(formValues, coerced.data)
       }
@@ -133,12 +134,10 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
             pageTitle,
             bodyHtml: preact.render(body),
           }),
-        redirectToStep: (stepId) => htmlDialogs.generateRedirection(getWizardStepUrl(stepId, this._handlerProps.ctx)),
-        redirectToExternalUrl: (url) => htmlDialogs.generateRedirection(new URL(url)),
+        redirectToStep: (stepId) => generateRedirection(getWizardStepUrl(stepId, this._handlerProps.ctx)),
+        redirectToExternalUrl: (url) => generateRedirection(new URL(url)),
         endWizard: (result) =>
-          htmlDialogs.generateRedirection(
-            getInterstitialUrl(result.success, result.success ? undefined : result.errorMessage)
-          ),
+          generateRedirection(getInterstitialUrl(result.success, result.success ? undefined : result.errorMessage)),
       },
     })
   }
@@ -155,3 +154,11 @@ export const getInterstitialUrl = (success: boolean, message?: string) =>
     process.env.BP_WEBHOOK_URL?.replace('webhook', 'app') +
       `/oauth/interstitial?success=${success}${message ? `&errorMessage=${message}` : ''}`
   )
+
+export const generateRedirection = (url: URL): Response => ({
+  status: 303,
+  headers: {
+    ...DISABLE_INTERSTITIAL_HEADER,
+    location: url.toString(),
+  },
+})

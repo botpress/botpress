@@ -1,5 +1,4 @@
-import { generateRedirection } from '@botpress/common/src/html-dialogs'
-import { getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
+import { generateRedirection, getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
 import { GoogleClient } from '../google-api'
 import * as bp from '.botpress'
 

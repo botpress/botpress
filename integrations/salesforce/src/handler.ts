@@ -1,4 +1,3 @@
-import { generateRedirection } from '@botpress/common/src/html-dialogs'
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import { Connection, OAuth2 } from 'jsforce'
 import { getEnvironmentUrl } from './misc/utils/sf-utils'
@@ -82,6 +81,6 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
       .handleRequest()
   } catch (thrown: unknown) {
     const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-    return generateRedirection(oauthWizard.getInterstitialUrl(false, errMsg))
+    return oauthWizard.generateRedirection(oauthWizard.getInterstitialUrl(false, errMsg))
   }
 }
