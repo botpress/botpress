@@ -13,6 +13,7 @@ import type {
   ResPartnerUnlinkOutput,
   ResPartnerWriteInput,
   ResPartnerWriteOutput,
+  ResUsersContextGetOutput,
 } from './types'
 
 const modelMap: Record<Model, string> = {
@@ -104,6 +105,17 @@ export class OdooAPI {
 
   async getFields(model: Model, request: GetFieldsRequest): Promise<GetFieldsOutput> {
     return this.postJson(`/json/2/${modelMap[model]}/fields_get`, request, isRecord, 'JSON object')
+  }
+
+  async getCurrentUserId(): Promise<number> {
+    const context = await this.postJson<ResUsersContextGetOutput>(
+      '/json/2/res.users/context_get',
+      {},
+      (data): data is ResUsersContextGetOutput => isRecord(data) && typeof data.uid === 'number',
+      'JSON object with uid'
+    )
+
+    return context.uid
   }
 
   async searchContacts(input: ResPartnerSearchReadInput): Promise<ResPartnerSearchReadOutput> {
