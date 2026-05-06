@@ -14,7 +14,21 @@ import type {
   ResPartnerWriteInput,
   ResPartnerWriteOutput,
   ResUsersContextGetOutput,
-} from './types'
+} from './contact.types'
+import type {
+  CrmLeadCreateInput,
+  CrmLeadCreateOutput,
+  CrmLeadFieldsGetInput,
+  CrmLeadFieldsGetOutput,
+  CrmLeadReadInput,
+  CrmLeadReadOutput,
+  CrmLeadSearchReadInput,
+  CrmLeadSearchReadOutput,
+  CrmLeadUnlinkInput,
+  CrmLeadUnlinkOutput,
+  CrmLeadWriteInput,
+  CrmLeadWriteOutput,
+} from './lead.types.ts'
 
 const modelMap: Record<Model, string> = {
   Lead: 'crm.lead',
@@ -26,6 +40,9 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 
 const isOdooRecordArray = (value: unknown): value is OdooRecord[] => Array.isArray(value) && value.every(isRecord)
+
+const isRecordMap = (value: unknown): value is Record<string, Record<string, unknown>> =>
+  isRecord(value) && Object.values(value).every(isRecord)
 
 const isNumberArray = (value: unknown): value is number[] =>
   Array.isArray(value) && value.every((item) => typeof item === 'number')
@@ -105,6 +122,10 @@ export class OdooClient {
     return this._postJson(`/json/2/${modelMap[model]}/fields_get`, request, isRecord, 'JSON object')
   }
 
+  public async getLeadFields(input: CrmLeadFieldsGetInput): Promise<CrmLeadFieldsGetOutput> {
+    return this._postJson('/json/2/crm.lead/fields_get', input, isRecordMap, 'JSON object')
+  }
+
   public async getCurrentUserId(): Promise<number> {
     const context = await this._postJson<ResUsersContextGetOutput>(
       '/json/2/res.users/context_get',
@@ -120,8 +141,16 @@ export class OdooClient {
     return this._postJson('/json/2/res.partner/search_read', input, isOdooRecordArray, 'JSON array')
   }
 
+  public async searchLeads(input: CrmLeadSearchReadInput): Promise<CrmLeadSearchReadOutput> {
+    return this._postJson('/json/2/crm.lead/search_read', input, isOdooRecordArray, 'JSON array')
+  }
+
   public async getContacts(input: ResPartnerReadInput): Promise<ResPartnerReadOutput> {
     return this._postJson('/json/2/res.partner/read', input, isOdooRecordArray, 'JSON array')
+  }
+
+  public async getLeads(input: CrmLeadReadInput): Promise<CrmLeadReadOutput> {
+    return this._postJson('/json/2/crm.lead/read', input, isOdooRecordArray, 'JSON array')
   }
 
   public async createContact(input: ResPartnerCreateInput): Promise<ResPartnerCreateOutput> {
@@ -140,14 +169,40 @@ export class OdooClient {
     return ids[0]
   }
 
+  public async createLead(input: CrmLeadCreateInput): Promise<CrmLeadCreateOutput> {
+    const { values, ...rest } = input
+    const ids = await this._postJson(
+      '/json/2/crm.lead/create',
+      { ...rest, vals_list: values },
+      isNumberArray,
+      'number array'
+    )
+
+    if (ids.length !== 1 || ids[0] === undefined) {
+      throw new Error('Odoo API request failed: expected one created lead id')
+    }
+
+    return ids[0]
+  }
+
   public async updateContacts(input: ResPartnerWriteInput): Promise<ResPartnerWriteOutput> {
     const { values, ...rest } = input
 
     return this._postJson('/json/2/res.partner/write', { ...rest, vals: values }, isBoolean, 'boolean')
   }
 
+  public async updateLeads(input: CrmLeadWriteInput): Promise<CrmLeadWriteOutput> {
+    const { values, ...rest } = input
+
+    return this._postJson('/json/2/crm.lead/write', { ...rest, vals: values }, isBoolean, 'boolean')
+  }
+
   public async deleteContacts(input: ResPartnerUnlinkInput): Promise<ResPartnerUnlinkOutput> {
     return this._postJson('/json/2/res.partner/unlink', input, isBoolean, 'boolean')
+  }
+
+  public async deleteLeads(input: CrmLeadUnlinkInput): Promise<CrmLeadUnlinkOutput> {
+    return this._postJson('/json/2/crm.lead/unlink', input, isBoolean, 'boolean')
   }
 }
 
