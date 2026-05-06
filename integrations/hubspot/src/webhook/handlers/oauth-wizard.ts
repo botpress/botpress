@@ -32,10 +32,24 @@ const HITL_SCOPES = [
 
 const _startStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async ({
   selectedChoice,
+  query,
   client,
   ctx,
   responses,
+  logger,
+  req,
 }) => {
+  logger.forBot().info(JSON.stringify({ req, query }))
+  if (query.get('source') === 'desk') {
+    await client.setState({
+      type: 'integration',
+      name: 'hitlSetupWizard',
+      id: ctx.integrationId,
+      payload: { enableHitl: false },
+    })
+    return responses.redirectToStep('oauth-redirect')
+  }
+
   if (selectedChoice) {
     const enableHitl = selectedChoice === 'with-hitl'
     await client.setState({
