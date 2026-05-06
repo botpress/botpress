@@ -110,7 +110,7 @@ export async function generateContent(
   ) {
     // TODO: Remove this check once all 3.x models are removed,
     // see https://platform.claude.com/docs/en/about-claude/models/migration-guide#breaking-changes
-    request.top_p = undefined
+    request.temperature = undefined
   }
 
   const thinkingBudgetTokens = ThinkingModeBudgetTokens[input.reasoningEffort ?? 'none'] // Default to not use reasoning as Claude models use optional reasoning
