@@ -1,5 +1,9 @@
 import * as sdk from '@botpress/sdk'
 import * as bp from '.botpress'
+import { OdooAPI } from './odoo-api/OdooAPI'
+
+const createOdooApi = (props: bp.AnyActionProps): OdooAPI =>
+  new OdooAPI(props.ctx.configuration.url, props.ctx.configuration.apiKey, props.ctx.configuration.database)
 
 export default new bp.Integration({
   register: async (props) => {
@@ -24,11 +28,36 @@ export default new bp.Integration({
   },
   actions: {
     getFields: async (props) => {
-      const { model, fields, attributes } = props.input
+      const { model, allfields, attributes } = props.input
 
-      props.logger.forBot().info(`getFields called with model=${model}, fields=${fields}, attributes=${attributes}`)
+      const fields = await createOdooApi(props).getFields(model, props.input)
 
-      return {}
+      return { fields }
+    },
+    searchContacts: async (props) => {
+      const records = await createOdooApi(props).searchContacts(props.input)
+
+      return { records }
+    },
+    getContacts: async (props) => {
+      const records = await createOdooApi(props).getContacts(props.input)
+
+      return { records }
+    },
+    createContact: async (props) => {
+      const id = await createOdooApi(props).createContact(props.input)
+
+      return { id }
+    },
+    updateContacts: async (props) => {
+      const success = await createOdooApi(props).updateContacts(props.input)
+
+      return { success }
+    },
+    deleteContacts: async (props) => {
+      const success = await createOdooApi(props).deleteContacts(props.input)
+
+      return { success }
     },
   },
   channels: {},
