@@ -5,7 +5,10 @@ const odooContextSchema = z
   .record(z.string(), z.unknown())
   .title('Context')
   .describe('Optional Odoo context values to pass with the request.')
-const odooRecordSchema = z.record(z.string(), z.unknown()).title('Values').describe('Odoo field values keyed by field name.')
+const odooRecordSchema = z
+  .record(z.string(), z.unknown())
+  .title('Values')
+  .describe('Odoo field values keyed by field name.')
 const odooDomainConditionSchema = z.tuple([z.string(), z.string(), z.unknown()])
 const odooDomainSchema = z
   .array(z.union([odooDomainConditionSchema, z.enum(['&', '|', '!'])]))
@@ -29,12 +32,11 @@ export default new IntegrationDefinition({
     }),
   },
   actions: {
-    getFields: {
-      title: 'Get Odoo Fields',
-      description: 'Get available fields for Odoo leads, contacts, or tickets.',
+    getContactFields: {
+      title: 'Get Odoo Contact Fields',
+      description: 'Get available fields for Odoo contacts.',
       input: {
         schema: z.object({
-          model: z.enum(['Lead', 'Contact', 'Ticket']).title('Model').describe('Odoo model to inspect.'),
           allfields: fieldsSchema.optional(),
           attributes: z
             .array(z.string())

@@ -27,10 +27,8 @@ export default new bp.Integration({
     // throw new sdk.RuntimeError('Invalid configuration') // replace this with your own validation logic
   },
   actions: {
-    getFields: async (props) => {
-      const { model, allfields, attributes } = props.input
-
-      const fields = await createOdooApi(props).getFields(model, props.input)
+    getContactFields: async (props) => {
+      const fields = await createOdooApi(props).getFields('Contact', props.input)
 
       return { fields }
     },
