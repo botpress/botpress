@@ -66,7 +66,7 @@ export class OdooClient {
     this.database = database
   }
 
-  private getHeaders(): Record<string, string> {
+  private _getHeaders(): Record<string, string> {
     return {
       'Content-Type': 'application/json',
       Authorization: `bearer ${this.apiKey}`,
@@ -74,13 +74,13 @@ export class OdooClient {
     }
   }
 
-  private async postJson<TResponse>(
+  private async _postJson<TResponse>(
     endpoint: string,
     body: object,
     isExpectedResponse: (data: unknown) => data is TResponse,
     expectedResponseDescription: string
   ): Promise<TResponse> {
-    const headers = this.getHeaders()
+    const headers = this._getHeaders()
 
     const response = await fetch(`${this.url}${endpoint}`, {
       method: 'POST',
@@ -103,12 +103,12 @@ export class OdooClient {
     return data
   }
 
-  async getFields(model: Model, request: GetFieldsRequest): Promise<GetFieldsOutput> {
-    return this.postJson(`/json/2/${modelMap[model]}/fields_get`, request, isRecord, 'JSON object')
+  public async getFields(model: Model, request: GetFieldsRequest): Promise<GetFieldsOutput> {
+    return this._postJson(`/json/2/${modelMap[model]}/fields_get`, request, isRecord, 'JSON object')
   }
 
-  async getCurrentUserId(): Promise<number> {
-    const context = await this.postJson<ResUsersContextGetOutput>(
+  public async getCurrentUserId(): Promise<number> {
+    const context = await this._postJson<ResUsersContextGetOutput>(
       '/json/2/res.users/context_get',
       {},
       (data): data is ResUsersContextGetOutput => isRecord(data) && typeof data.uid === 'number',
@@ -118,17 +118,17 @@ export class OdooClient {
     return context.uid
   }
 
-  async searchContacts(input: ResPartnerSearchReadInput): Promise<ResPartnerSearchReadOutput> {
-    return this.postJson('/json/2/res.partner/search_read', input, isOdooRecordArray, 'JSON array')
+  public async searchContacts(input: ResPartnerSearchReadInput): Promise<ResPartnerSearchReadOutput> {
+    return this._postJson('/json/2/res.partner/search_read', input, isOdooRecordArray, 'JSON array')
   }
 
-  async getContacts(input: ResPartnerReadInput): Promise<ResPartnerReadOutput> {
-    return this.postJson('/json/2/res.partner/read', input, isOdooRecordArray, 'JSON array')
+  public async getContacts(input: ResPartnerReadInput): Promise<ResPartnerReadOutput> {
+    return this._postJson('/json/2/res.partner/read', input, isOdooRecordArray, 'JSON array')
   }
 
-  async createContact(input: ResPartnerCreateInput): Promise<ResPartnerCreateOutput> {
+  public async createContact(input: ResPartnerCreateInput): Promise<ResPartnerCreateOutput> {
     const { values, ...rest } = input
-    const ids = await this.postJson('/json/2/res.partner/create', { ...rest, vals_list: values }, isNumberArray, 'number array')
+    const ids = await this._postJson('/json/2/res.partner/create', { ...rest, vals_list: values }, isNumberArray, 'number array')
 
     if (ids.length !== 1 || ids[0] === undefined) {
       throw new Error('Odoo API request failed: expected one created contact id')
@@ -137,14 +137,14 @@ export class OdooClient {
     return ids[0]
   }
 
-  async updateContacts(input: ResPartnerWriteInput): Promise<ResPartnerWriteOutput> {
+  public async updateContacts(input: ResPartnerWriteInput): Promise<ResPartnerWriteOutput> {
     const { values, ...rest } = input
 
-    return this.postJson('/json/2/res.partner/write', { ...rest, vals: values }, isBoolean, 'boolean')
+    return this._postJson('/json/2/res.partner/write', { ...rest, vals: values }, isBoolean, 'boolean')
   }
 
-  async deleteContacts(input: ResPartnerUnlinkInput): Promise<ResPartnerUnlinkOutput> {
-    return this.postJson('/json/2/res.partner/unlink', input, isBoolean, 'boolean')
+  public async deleteContacts(input: ResPartnerUnlinkInput): Promise<ResPartnerUnlinkOutput> {
+    return this._postJson('/json/2/res.partner/unlink', input, isBoolean, 'boolean')
   }
 }
 
