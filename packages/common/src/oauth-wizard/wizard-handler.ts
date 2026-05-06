@@ -2,6 +2,7 @@ import { Response, RuntimeError, z } from '@botpress/sdk'
 import * as preact from 'preact-render-to-string'
 import * as htmlDialogs from '../html-dialogs'
 import * as consts from './consts'
+import { generateRedirection, getInterstitialUrl } from './interstitial'
 import { schemaToFieldDescriptors } from './schema-to-fields'
 import type * as types from './types'
 
@@ -147,17 +148,3 @@ export const getWizardStepUrl = (stepId: string, ctx?: { webhookId: string }): U
 
 export const isOAuthWizardUrl = (path: string): path is (typeof consts)['BASE_WIZARD_PATH'] =>
   path.startsWith(consts.BASE_WIZARD_PATH)
-
-export const getInterstitialUrl = (success: boolean, message?: string) =>
-  new URL(
-    process.env.BP_WEBHOOK_URL?.replace('webhook', 'app') +
-      `/oauth/interstitial?success=${success}${message ? `&errorMessage=${message}` : ''}`
-  )
-
-export const generateRedirection = (url: URL): Response => ({
-  status: 303,
-  headers: {
-    ...consts.DISABLE_INTERSTITIAL_HEADER,
-    location: url.toString(),
-  },
-})

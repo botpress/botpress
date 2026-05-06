@@ -1,4 +1,4 @@
-import { generateRedirection, getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
+import { generateRedirection, getInterstitialUrl } from '@botpress/common/src/oauth-wizard/interstitial'
 import * as sdk from '@botpress/sdk'
 import { RuntimeError, z } from '@botpress/sdk'
 import axios from 'axios'

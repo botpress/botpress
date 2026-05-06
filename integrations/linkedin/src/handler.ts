@@ -1,4 +1,4 @@
-import { generateRedirection, getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
+import { generateRedirection, getInterstitialUrl } from '@botpress/common/src/oauth-wizard/interstitial'
 import * as crypto from 'crypto'
 import { LinkedInOAuthClient } from './linkedin-api'
 import { verifyLinkedInWebhook, dispatchWebhookEvent } from './webhook'

@@ -1,4 +1,4 @@
-import { generateRedirection, getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
+import { generateRedirection, getInterstitialUrl } from '@botpress/common/src/oauth-wizard/interstitial'
 import { exchangeAuthCodeForRefreshToken } from './docusign-api/auth-utils'
 import { dispatchIntegrationEvent } from './webhooks/event-dispatcher'
 import { parseWebhookEvent, verifyWebhookSignature } from './webhooks/utils'

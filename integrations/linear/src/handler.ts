@@ -1,4 +1,4 @@
-import { generateRedirection, getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
+import { generateRedirection, getInterstitialUrl } from '@botpress/common/src/oauth-wizard/interstitial'
 import { Request, RuntimeError } from '@botpress/sdk'
 import { LinearWebhookClient } from '@linear/sdk/webhooks'
 
