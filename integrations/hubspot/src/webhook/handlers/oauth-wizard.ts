@@ -92,6 +92,7 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
   logger,
   query,
   responses,
+  setIntegrationIdentifier,
 }) => {
   const error = query.get('error')
   if (error) {
@@ -115,7 +116,7 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
 
   const hsClient = new HubspotClient({ accessToken: credentials.accessToken, client, ctx, logger })
   const hubId = await hsClient.getHubId()
-  await client.configureIntegration({ identifier: hubId })
+  setIntegrationIdentifier(hubId)
 
   if (enableHitl) {
     return responses.redirectToStep('hitl-inbox-id')
