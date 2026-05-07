@@ -5,42 +5,40 @@ import { createOdooRuntimeError } from './errors'
 import * as bp from '.botpress'
 
 export const wrapAction: typeof _wrapAction = (meta, actionImpl) =>
-  _wrapAction(meta, (props) =>
-    _wrapAsyncFnWithTryCatch(() => {
-      props.logger
-        .forBot()
-        .debug(`Running action "${meta.actionName}" [bot id: ${props.ctx.botId}]`, { input: props.input })
+  _wrapAction(meta, (props) => {
+    const logger = props.logger.forBot()
 
-      return actionImpl(props as Parameters<typeof actionImpl>[0], props.input)
+    logger.debug(`Running action "${meta.actionName}" [bot id: ${props.ctx.botId}]`, { input: props.input })
+
+    return _wrapAsyncFnWithTryCatch(() => {
+      const output = actionImpl(props as Parameters<typeof actionImpl>[0], props.input)
+
+      return output.catch((thrown) => {
+        if (!(thrown instanceof sdk.RuntimeError)) {
+          logger.warn(`Action Error: ${meta.errorMessage}`, {
+            error: thrown instanceof Error ? thrown.message : String(thrown),
+          })
+        }
+
+        throw thrown
+      }) as typeof output
     }, `Action Error: ${meta.errorMessage}`)()
-  )
+  })
 
 const _wrapAction = createActionWrapper<bp.IntegrationProps>()({
   toolFactories: {
     odooClient: ({ ctx }) =>
       new OdooClient(ctx.configuration.url, ctx.configuration.apiKey, ctx.configuration.database),
-    getOdooUserId:
-      ({ client, ctx }) =>
-      async () => {
-        const { state } = await client.getState({
-          type: 'integration',
-          id: ctx.integrationId,
-          name: 'account',
-        })
-
-        return state.payload.userId
-      },
   },
   extraMetadata: {} as {
     errorMessage: string
   },
 })
 
-const _wrapAsyncFnWithTryCatch = createAsyncFnWrapperWithErrorRedaction((error: Error, customMessage: string) => {
+const _wrapAsyncFnWithTryCatch = createAsyncFnWrapperWithErrorRedaction((error: Error) => {
   if (error instanceof sdk.RuntimeError) {
     return error
   }
 
-  console.warn(customMessage, error)
   return createOdooRuntimeError(error)
 })

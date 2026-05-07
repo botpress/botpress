@@ -30,13 +30,7 @@ export default new bp.Integration({
       throw new sdk.RuntimeError(`Invalid Odoo configuration: ${createOdooRuntimeError(thrown).message}`)
     }
   },
-  unregister: async () => {
-    /**
-     * This is called when a bot removes the integration.
-     * You should use this handler to instanciate ressources in the external service and ensure that the configuration is valid.
-     */
-    // throw new sdk.RuntimeError('Invalid configuration') // replace this with your own validation logic
-  },
+  unregister: async () => {},
   actions,
   channels: {},
   handler: async () => {},
