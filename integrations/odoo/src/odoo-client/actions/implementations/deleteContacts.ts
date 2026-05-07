@@ -7,6 +7,11 @@ type NotDeletedContact = {
   reason: string
 }
 
+type DeletableContact = {
+  id: number
+  name?: string
+}
+
 const getContactOwnerId = (contact: Record<string, unknown>): number | undefined => {
   const owner = contact.user_id
 
@@ -24,6 +29,41 @@ const getContactOwnerId = (contact: Record<string, unknown>): number | undefined
 const getContactName = (contact: Record<string, unknown>): string | undefined =>
   typeof contact.name === 'string' ? contact.name : undefined
 
+const deleteContactsIndividually = async (
+  odooClient: {
+    deleteContacts: (input: { ids: number[]; context?: Record<string, unknown> }) => Promise<boolean>
+  },
+  contacts: DeletableContact[],
+  context: Record<string, unknown> | undefined
+): Promise<{ deletedIds: number[]; notDeletedContacts: NotDeletedContact[] }> => {
+  const deletedIds: number[] = []
+  const notDeletedContacts: NotDeletedContact[] = []
+
+  for (const { id, name } of contacts) {
+    try {
+      const success = await odooClient.deleteContacts({ ids: [id], context })
+
+      if (success) {
+        deletedIds.push(id)
+      } else {
+        notDeletedContacts.push({ id, name, reason: 'Odoo did not accept the contact deletion.' })
+      }
+    } catch (thrown) {
+      const reason = getErrorMessage(thrown)
+
+      notDeletedContacts.push({
+        id,
+        name,
+        reason: isActiveUserLinkedContactError(reason)
+          ? 'Contact is linked to an active Odoo user and cannot be deleted.'
+          : reason,
+      })
+    }
+  }
+
+  return { deletedIds, notDeletedContacts }
+}
+
 export const deleteContacts = wrapAction(
   { actionName: 'deleteContacts', errorMessage: 'Failed to delete Odoo contacts' },
   async ({ odooClient }, input) => {
@@ -37,6 +77,7 @@ export const deleteContacts = wrapAction(
     )
     const deletedIds: number[] = []
     const notDeletedContacts: NotDeletedContact[] = []
+    const deletableContacts: DeletableContact[] = []
 
     for (const id of input.ids) {
       const contact = contactsById.get(id)
@@ -61,24 +102,29 @@ export const deleteContacts = wrapAction(
         continue
       }
 
+      deletableContacts.push({ id, name })
+    }
+
+    if (deletableContacts.length > 0) {
       try {
-        const success = await odooClient.deleteContacts({ ids: [id], context: input.context })
+        const success = await odooClient.deleteContacts({
+          ids: deletableContacts.map(({ id }) => id),
+          context: input.context,
+        })
 
         if (success) {
-          deletedIds.push(id)
+          deletedIds.push(...deletableContacts.map(({ id }) => id))
         } else {
-          notDeletedContacts.push({ id, name, reason: 'Odoo did not accept the contact deletion.' })
-        }
-      } catch (thrown) {
-        const reason = getErrorMessage(thrown)
+          const individualResult = await deleteContactsIndividually(odooClient, deletableContacts, input.context)
 
-        notDeletedContacts.push({
-          id,
-          name,
-          reason: isActiveUserLinkedContactError(reason)
-            ? 'Contact is linked to an active Odoo user and cannot be deleted.'
-            : reason,
-        })
+          deletedIds.push(...individualResult.deletedIds)
+          notDeletedContacts.push(...individualResult.notDeletedContacts)
+        }
+      } catch {
+        const individualResult = await deleteContactsIndividually(odooClient, deletableContacts, input.context)
+
+        deletedIds.push(...individualResult.deletedIds)
+        notDeletedContacts.push(...individualResult.notDeletedContacts)
       }
     }
 
