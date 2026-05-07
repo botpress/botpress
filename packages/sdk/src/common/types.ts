@@ -8,6 +8,11 @@ export type ToTags<TTags extends string | number | symbol> = typeUtils.Cast<
   Record<string, string>
 >
 
+export type ToNullableTags<TTags extends string | number | symbol> = typeUtils.Cast<
+  Partial<Record<TTags, string | null>>,
+  Record<string, string | null>
+>
+
 export type SchemaTransformOptions = {
   useLegacyZuiTransformer?: boolean
   toJSONSchemaOptions?: Partial<z.transforms.JSONSchemaGenerationOptions>

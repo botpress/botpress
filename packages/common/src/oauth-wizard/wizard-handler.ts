@@ -61,7 +61,9 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
       }
     }
 
-    return await step.handler({
+    const extraHeaders: Record<string, string> = {}
+
+    const response = await step.handler({
       ...this._handlerProps,
       query: searchParams,
       selectedChoice: searchParams.get(consts.CHOICE_PARAM) ?? undefined,
@@ -69,6 +71,9 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
         searchParams.getAll(consts.CHOICE_PARAM).length > 0 ? searchParams.getAll(consts.CHOICE_PARAM) : undefined,
       inputValue: searchParams.get(consts.INPUT_PARAM) ?? undefined,
       formValues: Object.keys(formValues).length > 0 ? formValues : undefined,
+      setIntegrationIdentifier(identifier: string) {
+        extraHeaders[sdk.OAUTH_IDENTIFIER_HEADER] = identifier
+      },
       responses: {
         displayButtons: ({ buttons, pageTitle, htmlOrMarkdownPageContents }) =>
           htmlDialogs.generateButtonDialog({
@@ -141,6 +146,14 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
           ),
       },
     })
+
+    return {
+      ...response,
+      headers: {
+        ...response.headers,
+        ...extraHeaders,
+      },
+    }
   }
 }
 
