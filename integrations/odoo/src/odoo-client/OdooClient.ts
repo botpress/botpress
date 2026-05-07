@@ -128,7 +128,7 @@ export class OdooClient {
     const { values, ...rest } = input
     const ids = await this._postJson(
       '/json/2/res.partner/create',
-      { ...rest, vals_list: values },
+      { ...rest, vals_list: [values] },
       isNumberArray,
       'number array'
     )
