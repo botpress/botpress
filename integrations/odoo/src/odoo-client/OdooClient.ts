@@ -29,6 +29,21 @@ import type {
   CrmLeadWriteInput,
   CrmLeadWriteOutput,
 } from './lead.types'
+import type {
+  HelpdeskTicketCreateInput,
+  HelpdeskTicketCreateOutput,
+  HelpdeskTicketFieldsGetInput,
+  HelpdeskTicketFieldsGetOutput,
+  HelpdeskTicketReadInput,
+  HelpdeskTicketReadOutput,
+  HelpdeskTicketSearchReadInput,
+  HelpdeskTicketSearchReadOutput,
+  HelpdeskTicketUnlinkInput,
+  HelpdeskTicketUnlinkOutput,
+  HelpdeskTicketWriteInput,
+  HelpdeskTicketWriteOutput,
+  OdooRecord as HelpdeskTicketRecord,
+} from './ticket.types'
 
 const modelMap: Record<Model, string> = {
   Lead: 'crm.lead',
@@ -40,6 +55,9 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 
 const isOdooRecordArray = (value: unknown): value is OdooRecord[] => Array.isArray(value) && value.every(isRecord)
+
+const isHelpdeskTicketRecordArray = (value: unknown): value is HelpdeskTicketRecord[] =>
+  Array.isArray(value) && value.every((item) => isRecord(item) && typeof item.id === 'number')
 
 const isRecordMap = (value: unknown): value is Record<string, Record<string, unknown>> =>
   isRecord(value) && Object.values(value).every(isRecord)
@@ -126,6 +144,10 @@ export class OdooClient {
     return this._postJson('/json/2/crm.lead/fields_get', input, isRecordMap, 'JSON object')
   }
 
+  public async getTicketFields(input: HelpdeskTicketFieldsGetInput): Promise<HelpdeskTicketFieldsGetOutput> {
+    return this._postJson('/json/2/helpdesk.ticket/fields_get', input, isRecordMap, 'JSON object')
+  }
+
   public async getCurrentUserId(): Promise<number> {
     const context = await this._postJson<ResUsersContextGetOutput>(
       '/json/2/res.users/context_get',
@@ -145,12 +167,20 @@ export class OdooClient {
     return this._postJson('/json/2/crm.lead/search_read', input, isOdooRecordArray, 'JSON array')
   }
 
+  public async searchTickets(input: HelpdeskTicketSearchReadInput): Promise<HelpdeskTicketSearchReadOutput> {
+    return this._postJson('/json/2/helpdesk.ticket/search_read', input, isHelpdeskTicketRecordArray, 'JSON array')
+  }
+
   public async listContacts(input: ResPartnerReadInput): Promise<ResPartnerReadOutput> {
     return this._postJson('/json/2/res.partner/read', input, isOdooRecordArray, 'JSON array')
   }
 
   public async listLeads(input: CrmLeadReadInput): Promise<CrmLeadReadOutput> {
     return this._postJson('/json/2/crm.lead/read', input, isOdooRecordArray, 'JSON array')
+  }
+
+  public async getTickets(input: HelpdeskTicketReadInput): Promise<HelpdeskTicketReadOutput> {
+    return this._postJson('/json/2/helpdesk.ticket/read', input, isHelpdeskTicketRecordArray, 'JSON array')
   }
 
   public async createContact(input: ResPartnerCreateInput): Promise<ResPartnerCreateOutput> {
@@ -185,6 +215,22 @@ export class OdooClient {
     return ids[0]
   }
 
+  public async createTicket(input: HelpdeskTicketCreateInput): Promise<HelpdeskTicketCreateOutput> {
+    const { values, ...rest } = input
+    const ids = await this._postJson(
+      '/json/2/helpdesk.ticket/create',
+      { ...rest, vals_list: [values] },
+      isNumberArray,
+      'number array'
+    )
+
+    if (ids.length !== 1 || ids[0] === undefined) {
+      throw new Error('Odoo API request failed: expected one created ticket id')
+    }
+
+    return ids[0]
+  }
+
   public async updateContacts(input: ResPartnerWriteInput): Promise<ResPartnerWriteOutput> {
     const { values, ...rest } = input
 
@@ -197,12 +243,22 @@ export class OdooClient {
     return this._postJson('/json/2/crm.lead/write', { ...rest, vals: values }, isBoolean, 'boolean')
   }
 
+  public async updateTickets(input: HelpdeskTicketWriteInput): Promise<HelpdeskTicketWriteOutput> {
+    const { values, ...rest } = input
+
+    return this._postJson('/json/2/helpdesk.ticket/write', { ...rest, vals: values }, isBoolean, 'boolean')
+  }
+
   public async deleteContacts(input: ResPartnerUnlinkInput): Promise<ResPartnerUnlinkOutput> {
     return this._postJson('/json/2/res.partner/unlink', input, isBoolean, 'boolean')
   }
 
   public async deleteLeads(input: CrmLeadUnlinkInput): Promise<CrmLeadUnlinkOutput> {
     return this._postJson('/json/2/crm.lead/unlink', input, isBoolean, 'boolean')
+  }
+
+  public async deleteTickets(input: HelpdeskTicketUnlinkInput): Promise<HelpdeskTicketUnlinkOutput> {
+    return this._postJson('/json/2/helpdesk.ticket/unlink', input, isBoolean, 'boolean')
   }
 }
 
