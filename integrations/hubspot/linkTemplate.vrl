@@ -1,4 +1,9 @@
 webhookId = to_string!(.webhookId)
 webhookUrl = to_string!(.webhookUrl)
+source = to_string!(.source) ?? ""
 
-"{{ webhookUrl }}/oauth/wizard/start?state={{ webhookId }}"
+if source == "desk" {
+  "{{ webhookUrl }}/oauth/wizard/start?state={{ webhookId }}&wizchoice=without-hitl"
+} else {
+  "{{ webhookUrl }}/oauth/wizard/start?state={{ webhookId }}"
+}
