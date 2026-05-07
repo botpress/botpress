@@ -1,5 +1,5 @@
-import { wrapAction } from '../action-wrapper'
-import { getErrorMessage, isActiveUserLinkedContactError } from '../errors'
+import { wrapAction } from '../../action-wrapper'
+import { getErrorMessage, isActiveUserLinkedContactError } from '../../errors'
 
 type NotDeletedContact = {
   id: number

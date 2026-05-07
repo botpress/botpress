@@ -1,4 +1,4 @@
-import { wrapAction } from '../action-wrapper'
+import { wrapAction } from '../../action-wrapper'
 
 export const updateLeads = wrapAction(
   { actionName: 'updateLeads', errorMessage: 'Failed to update Odoo leads' },

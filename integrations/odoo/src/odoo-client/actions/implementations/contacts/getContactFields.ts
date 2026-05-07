@@ -1,4 +1,4 @@
-import { wrapAction } from '../action-wrapper'
+import { wrapAction } from '../../action-wrapper'
 
 export const getContactFields = wrapAction(
   { actionName: 'getContactFields', errorMessage: 'Failed to get Odoo contact fields' },

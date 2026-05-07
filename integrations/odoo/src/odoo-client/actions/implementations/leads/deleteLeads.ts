@@ -1,4 +1,4 @@
-import { wrapAction } from '../action-wrapper'
+import { wrapAction } from '../../action-wrapper'
 
 export const deleteLeads = wrapAction(
   { actionName: 'deleteLeads', errorMessage: 'Failed to delete Odoo leads' },

@@ -1,4 +1,4 @@
-import { wrapAction } from '../action-wrapper'
+import { wrapAction } from '../../action-wrapper'
 
 export const createLead = wrapAction(
   { actionName: 'createLead', errorMessage: 'Failed to create Odoo lead' },
