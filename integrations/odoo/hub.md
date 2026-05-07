@@ -18,44 +18,6 @@ In Botpress, configure the integration with the following fields:
 
 When the integration is saved, Botpress validates the configuration by calling Odoo and retrieving the user ID associated with the API key. That user ID is stored in the integration state and can be used by actions that need to know which Odoo user is configured.
 
-## Actions
-
-### Get Current User
-
-Returns the Odoo user ID associated with the configured API key.
-
-### Get Odoo Contact Fields
-
-Retrieves metadata for available Odoo contact fields. You can optionally pass specific field names and metadata attributes to limit the response.
-
-### Search Contacts
-
-Searches Odoo contacts using an Odoo domain filter. You can also pass fields, offset, limit, order, and context values.
-
-### Get Contacts
-
-Reads one or more Odoo contacts by ID. You can optionally choose which fields to return.
-
-### Create Contact
-
-Creates a new Odoo contact from the provided field values and returns the created contact ID.
-
-### Update Contacts
-
-Updates one or more Odoo contacts with the provided field values.
-
-### Delete Contacts
-
-Deletes one or more Odoo contacts when they are owned by the expected Odoo user.
-
-Before deleting a contact, the integration reads the contact's `user_id` field and compares it with the `ownerId` input. Contacts that are missing, assigned to another user, unassigned, linked to an active Odoo user, or rejected by Odoo are returned in `notDeletedContacts` with a reason.
-
-The action returns:
-
-- `success`: Whether all requested contacts were deleted.
-- `deletedIds`: The contact IDs that were deleted.
-- `notDeletedContacts`: Contacts that were not deleted, with a reason for each one.
-
 ## Usage Notes
 
 Odoo field values are passed as objects keyed by Odoo field name. For example, creating a contact might use values such as:
