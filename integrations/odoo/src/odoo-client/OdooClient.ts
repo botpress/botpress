@@ -67,7 +67,7 @@ export class OdooClient {
   private _getHeaders(): Record<string, string> {
     return {
       'Content-Type': 'application/json',
-      Authorization: `bearer ${this._apiKey}`,
+      Authorization: `Bearer ${this._apiKey}`,
       'X-ODOO-DATABASE': this._database,
     }
   }
