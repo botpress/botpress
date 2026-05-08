@@ -52,7 +52,7 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
   } else {
     preparedBody.conversation = {
       channel: 'channel',
-      tags: {},
+      tags: authUserId !== '' ? { owner: authUserId } : {},
       discriminateByTags: [],
     }
   }
@@ -72,7 +72,7 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
     await props.userIdStore.byFid.set(userFidKey, initializeResponse.user.id)
   }
 
-  if (!req.body.conversationId) {
+  if (!req.body.conversationId && authUserId === '') {
     await props.client.updateConversation({
       id: initializeResponse.conversation.id,
       tags: {
