@@ -1,6 +1,9 @@
 import { BaseLogger } from '../../base-logger'
 
 type IntegrationLogOptions = {
+  botId?: string
+  integrationId?: string
+  integrationAlias?: string
   userId?: string
   conversationId?: string
   traceId?: string
@@ -74,6 +77,9 @@ export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
   protected override getJsonMessage(msg: string) {
     return JSON.stringify({
       msg,
+      botId: this.defaultOptions.botId,
+      integrationId: this.defaultOptions.integrationId,
+      integrationAlias: this.defaultOptions.integrationAlias,
       //We need to have snake case 'visible_to_bot_owner' since that is how we used to differentiate between bot and integration logs
       visible_to_bot_owner: this.defaultOptions.visibleToBotOwners,
       hidden_to_integration_owner: this.defaultOptions.hiddenToIntegrationOwners,
