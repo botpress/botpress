@@ -15,7 +15,7 @@ export type ZaiContextProps = {
   client: Cognitive
   taskType: string
   taskId: string
-  modelId: string
+  modelId: GenerateContentInput['model']
   adapter?: Adapter
   source?: GenerateContentInput['meta']
   memoizer?: Memoizer
@@ -141,7 +141,10 @@ export class ZaiContext {
   }
 
   public async getModel(): Promise<Model> {
-    return this._client.getModelDetails(this.modelId)
+    // getModelDetails resolves a single model; for a fallback array we report
+    // the primary entry's details. Fallbacks are honored at the request layer.
+    const primary = Array.isArray(this.modelId) ? this.modelId[0] : this.modelId
+    return this._client.getModelDetails(primary)
   }
 
   public on<K extends keyof ContextEvents>(type: K, listener: (event: ContextEvents[K]) => void) {

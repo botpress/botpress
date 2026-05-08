@@ -20,8 +20,14 @@ export type GenerationMetadata = {
   }
 }
 
+export type InputModel = 'auto' | 'best' | 'fast' | ModelRef
+
 export type InputProps = Omit<GenerateContentInput, 'model'> & {
-  model?: 'best' | 'fast' | ModelRef
+  /**
+   * Model to use, or an ordered list of fallback models. Ordered fallback is honored only on the cognitive-v2 path;
+   * the legacy integration path uses the first entry and falls back to server-side preferences instead.
+   */
+  model?: InputModel | InputModel[]
   signal?: AbortSignal
 }
 

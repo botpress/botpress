@@ -150,7 +150,7 @@ export class Cognitive {
 
     const downtimes = [...preferences.downtimes, ...(this._downtimes ?? [])]
 
-    if (ref === 'best') {
+    if (ref === 'best' || ref === 'auto') {
       return parseRef(pickModel(preferences.best, downtimes))
     }
 
@@ -229,7 +229,9 @@ export class Cognitive {
   }
 
   public async generateContent(input: InputProps): Promise<Response> {
-    if (!this._useBeta || !isKnownV2Model(input.model)) {
+    const primaryInputModel = Array.isArray(input.model) ? input.model[0] : input.model
+
+    if (!this._useBeta || !isKnownV2Model(primaryInputModel)) {
       return this._generateContent(input)
     }
 
@@ -325,6 +327,8 @@ export class Cognitive {
 
     const client = this._client.abortable(signal)
 
+    const primaryInputModel = Array.isArray(input.model) ? input.model[0] : input.model
+
     let props: Request = { input }
     let integration: string
     let model: string
@@ -336,7 +340,7 @@ export class Cognitive {
       meta: any
     }>(
       async () => {
-        const selection = await this._selectModel(input.model ?? 'best')
+        const selection = await this._selectModel(primaryInputModel ?? 'best')
 
         integration = selection.integration
         model = selection.model
