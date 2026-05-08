@@ -17,8 +17,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.90.0
-        version: 1.90.0
+        specifier: 1.102.0
+        version: 1.102.0
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -149,9 +149,6 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      '@bpinternal/genenv':
-        specifier: 0.0.1
-        version: 0.0.1
       cheerio:
         specifier: ^1.1.2
         version: 1.1.2
@@ -342,6 +339,8 @@ importers:
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
+
+  bots/quack-norris: {}
 
   bots/sheetzy:
     dependencies:
@@ -706,6 +705,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@bpinternal/pingrip':
+        specifier: 0.1.1
+        version: 0.1.1
       '@opentelemetry/api':
         specifier: 1.9.0
         version: 1.9.0
@@ -745,6 +747,9 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
+      prom-client:
+        specifier: ^15.1.3
+        version: 15.1.3
       qs:
         specifier: ^6.11.0
         version: 6.11.0
@@ -1629,6 +1634,25 @@ importers:
         specifier: ^2.39.1
         version: 2.39.1
 
+  integrations/odoo:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@botpress/sdk-addons':
+        specifier: workspace:*
+        version: link:../../packages/sdk-addons
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   integrations/openai:
     dependencies:
       '@botpress/client':
@@ -1994,6 +2018,8 @@ importers:
       '@types/sanitize-html':
         specifier: ^2.16.0
         version: 2.16.0
+
+  integrations/test-integration: {}
 
   integrations/todoist:
     dependencies:
@@ -2636,6 +2662,9 @@ importers:
       '@types/web':
         specifier: ^0.0.115
         version: 0.0.115
+      '@types/ws':
+        specifier: ^8.5.10
+        version: 8.18.1
       dotenv:
         specifier: ^16.4.4
         version: 16.4.4
@@ -2658,13 +2687,13 @@ importers:
         specifier: ^11.7.0
         version: 11.7.0
       '@botpress/chat':
-        specifier: 0.6.0
+        specifier: 0.5.6
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.41.0
+        specifier: 1.44.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 6.6.1
+        specifier: 6.9.3
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2690,6 +2719,9 @@ importers:
       '@stoplight/spectral-parsers':
         specifier: ^1.0.4
         version: 1.0.4
+      '@stoplight/types':
+        specifier: ^14.1.1
+        version: 14.1.1
       '@types/lodash':
         specifier: ^4.14.191
         version: 4.14.195
@@ -2748,9 +2780,6 @@ importers:
       '@bpinternal/log4bot':
         specifier: ^0.0.4
         version: 0.0.4
-      '@stoplight/types':
-        specifier: ^14.1.1
-        version: 14.1.1
       '@types/bluebird':
         specifier: ^3.5.38
         version: 3.5.38
@@ -2785,10 +2814,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.41.0
+        specifier: 1.44.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.6.1
+        specifier: 6.9.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2801,10 +2830,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.41.0
+        specifier: 1.44.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.6.1
+        specifier: 6.9.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2817,7 +2846,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 6.6.1
+        specifier: 6.9.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2830,10 +2859,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.41.0
+        specifier: 1.44.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.6.1
+        specifier: 6.9.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2846,10 +2875,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.41.0
+        specifier: 1.44.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.6.1
+        specifier: 6.9.3
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -3000,7 +3029,7 @@ importers:
         specifier: ^7.26.3
         version: 7.26.9
       '@botpress/client':
-        specifier: 1.41.0
+        specifier: 1.44.0
         version: link:../client
       '@botpress/cognitive':
         specifier: 0.5.3
@@ -3106,7 +3135,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.41.0
+        specifier: 1.44.0
         version: link:../client
       '@bpinternal/zui':
         specifier: ^2.1.1
@@ -3143,7 +3172,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.41.0
+        specifier: 1.44.0
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -4173,8 +4202,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@botpress/api@1.90.0':
-    resolution: {integrity: sha512-MzOjBOyMIkKOi6P6k3chpiTdHIl8PMNLcgdnkua7XTOrnLu3751ntsJcmhSHmaJnQdVwQiys+hHmzBuY3mQx1g==}
+  '@botpress/api@1.102.0':
+    resolution: {integrity: sha512-Qce4ZguplKIDAQJxkXwgHVLiHSm36nCsuLV4SbPvKPgBtGDOGINKbpimgHkfDhW7DCfMUmS2W0gWew/LHFqbpA==}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -4199,6 +4228,9 @@ packages:
   '@bpinternal/opapi@1.0.0':
     resolution: {integrity: sha512-r38k8SZSyu0s4YKukTrHaBeb8tlL8vgJiNdawnN2cmxbqkSdsss2pWnZQU2fsSLijhcfV0tUvGCf8GfgZviYBA==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
+
+  '@bpinternal/pingrip@0.1.1':
+    resolution: {integrity: sha512-bidpZO+d1fAAp0MvoLRhgvJyVu57S+B74WKzPMk5i/8rgaPSUySGnXqH52gFA27oyZnEicZGBte4U7+iq00p3A==}
 
   '@bpinternal/readiness@0.0.16':
     resolution: {integrity: sha512-VkxUYCblFVm0S39kNT/ycFmHXN/OGPuMnbOpPWPgYf/dOLJgtM0oWsW8TOs8JcO+Pt928r9vonbMFYRGYDwQpw==}
@@ -6729,8 +6761,8 @@ packages:
   '@types/ws@6.0.4':
     resolution: {integrity: sha512-PpPrX7SZW9re6+Ha8ojZG4Se8AZXgf0GK6zmfqEuCsY49LFDNXO3SByp44X3dFEqtB73lkCDAdUazhAjVPiNwg==}
 
-  '@types/ws@8.5.5':
-    resolution: {integrity: sha512-lwhs8hktwxSjf9UaZ9tG5M03PGogvFaH8gUgLNbN9HKIg0dvv6q+gkSuJ8HN4/VbyxkuLzCjlN7GquQ0gUJfIg==}
+  '@types/ws@8.18.1':
+    resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
   '@types/yargs-parser@21.0.0':
     resolution: {integrity: sha512-iO9ZQHkZxHn4mSakYV0vFHAVDyEOIJQrV2uZ06HxEPcx+mt8swXoZHIbaaJ2crJYFfErySgktuTZ3BeLz+XmFA==}
@@ -7255,6 +7287,9 @@ packages:
   binary-extensions@2.2.0:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==}
     engines: {node: '>=8'}
+
+  bintrees@1.0.2:
+    resolution: {integrity: sha512-VOMgTMwjAaUG580SXn3LacVgjurrbMme7ZZNYGSSV7mmtY6QQRh0Eg3pwIcntQ77DErK1L0NxkbetjcoXzVwKw==}
 
   bl@1.2.3:
     resolution: {integrity: sha512-pvcNpa0UU69UT341rO6AYy4FVAIkUHuZXRIWbq+zHnsVcRzDDjIAhGuuYoi0d//cwIwtt4pkpKycWEfjdV+vww==}
@@ -10868,6 +10903,10 @@ packages:
     resolution: {integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==}
     engines: {node: '>=0.4.0'}
 
+  prom-client@15.1.3:
+    resolution: {integrity: sha512-6ZiOBfCywsD4k1BN9IX0uZhF+tJkV8q8llP64G5Hajs4JOeVLPCwpPVcpXy3BwYiUGgyJzsJJQeOIv7+hDSq8g==}
+    engines: {node: ^16 || ^18 || >=20}
+
   promise@7.3.1:
     resolution: {integrity: sha512-nolQXZ/4L+bP/UGlkfaIujX9BKxGwmQ9OT4mOt5yvy8iK1h3wqTEJCijzGANTCCl9nWjY41juyAn2K3Q1hLLTg==}
 
@@ -11636,6 +11675,9 @@ packages:
   tar-stream@1.6.2:
     resolution: {integrity: sha512-rzS0heiNf8Xn7/mpdSVVSMAWAoy9bfb1WOTYC78Z0UQKeKa/CWS8FOq0lKGNa8DWKAn9gxjCvMLYc5PGXYlK2A==}
     engines: {node: '>= 0.8.0'}
+
+  tdigest@0.1.2:
+    resolution: {integrity: sha512-+G0LLgjjo9BZX2MfdvPfH+MKLCrxlXSYec5DaPYP1fe6Iyhf0/fSmJ0bFiZ1F8BT6cGXl2LpltQptzjXKWEkKA==}
 
   telegraf@4.16.3:
     resolution: {integrity: sha512-yjEu2NwkHlXu0OARWoNhJlIjX09dRktiMQFsM678BAH/PEPVwctzL67+tvXqLCRQQvm3SDtki2saGO9hLlz68w==}
@@ -13935,7 +13977,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.90.0':
+  '@botpress/api@1.102.0':
     dependencies:
       '@bpinternal/opapi': 1.0.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -13996,6 +14038,12 @@ snapshots:
       - openapi-types
       - supports-color
 
+  '@bpinternal/pingrip@0.1.1':
+    dependencies:
+      axios: 1.13.6
+    transitivePeerDependencies:
+      - debug
+
   '@bpinternal/readiness@0.0.16':
     dependencies:
       '@aws-sdk/client-dynamodb': 3.709.0
@@ -14030,7 +14078,7 @@ snapshots:
 
   '@bpinternal/tunnel@0.1.1':
     dependencies:
-      '@types/ws': 8.5.5
+      '@types/ws': 8.18.1
       browser-or-node: 2.1.1
       isomorphic-ws: 5.0.0(ws@8.13.0)
       ws: 8.13.0
@@ -16742,7 +16790,7 @@ snapshots:
     dependencies:
       '@types/node': 22.16.4
 
-  '@types/ws@8.5.5':
+  '@types/ws@8.18.1':
     dependencies:
       '@types/node': 22.16.4
 
@@ -17483,6 +17531,8 @@ snapshots:
   bignumber.js@9.1.1: {}
 
   binary-extensions@2.2.0: {}
+
+  bintrees@1.0.2: {}
 
   bl@1.2.3:
     dependencies:
@@ -22064,6 +22114,11 @@ snapshots:
 
   progress@2.0.3: {}
 
+  prom-client@15.1.3:
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      tdigest: 0.1.2
+
   promise@7.3.1:
     dependencies:
       asap: 2.0.6
@@ -23042,6 +23097,10 @@ snapshots:
       readable-stream: 2.3.8
       to-buffer: 1.1.1
       xtend: 4.0.2
+
+  tdigest@0.1.2:
+    dependencies:
+      bintrees: 1.0.2
 
   telegraf@4.16.3:
     dependencies:
