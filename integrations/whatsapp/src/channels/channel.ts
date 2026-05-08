@@ -24,6 +24,7 @@ import * as carousel from './message-types/carousel'
 import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
 import * as image from './message-types/image'
+import { RawInteractiveMessage } from './message-types/raw-interactive'
 import * as bp from '.botpress'
 
 const PART_DELAY_MS = 1000
@@ -229,6 +230,7 @@ type OutgoingMessage =
   | Interactive
   | Template
   | Reaction
+  | RawInteractiveMessage
 
 type SendMessageProps = {
   client: bp.Client
