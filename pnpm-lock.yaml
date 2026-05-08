@@ -340,8 +340,6 @@ importers:
         specifier: 0.0.1
         version: 0.0.1
 
-  bots/quack-norris: {}
-
   bots/sheetzy:
     dependencies:
       '@botpress/client':
@@ -2019,8 +2017,6 @@ importers:
         specifier: ^2.16.0
         version: 2.16.0
 
-  integrations/test-integration: {}
-
   integrations/todoist:
     dependencies:
       '@botpress/common':
@@ -2687,7 +2683,7 @@ importers:
         specifier: ^11.7.0
         version: 11.7.0
       '@botpress/chat':
-        specifier: 0.5.6
+        specifier: 0.6.0
         version: link:../chat-client
       '@botpress/client':
         specifier: 1.44.0
