@@ -123,21 +123,14 @@ export default new sdk.BotDefinition({
       webhookSigningSecret: genenv.BUGBUSTER_LINEAR_WEBHOOK_SIGNING_SECRET,
     },
   })
-  .addIntegration(
-    slack
-    //   {
-    //   enabled: true,
-    //   configurationType: 'refreshToken',
-    //   configuration: {
-    //     refreshToken: genenv.BUGBUSTER_SLACK_REFRESH_TOKEN,
-    //     clientId: genenv.BUGBUSTER_SLACK_CLIENT_ID,
-    //     clientSecret: genenv.BUGBUSTER_SLACK_CLIENT_SECRET,
-    //     signingSecret: genenv.BUGBUSTER_SLACK_SIGNING_SECRET,
-    //     typingIndicatorEmoji: false,
-    //     replyBehaviour: {
-    //       location: 'channel',
-    //       onlyOnBotMention: false,
-    //     },
-    //   },
-    // }
-  )
+  .addIntegration(slack, {
+    enabled: true,
+    configurationType: null,
+    configuration: {
+      typingIndicatorEmoji: false,
+      replyBehaviour: {
+        location: 'channel',
+        onlyOnBotMention: false,
+      },
+    },
+  })

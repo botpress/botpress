@@ -96,6 +96,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
       userId: userId as string, // TODO: fix this
     })
   }
+  return
 }
 
 const _safeCheckWebhookSignature = ({
@@ -132,7 +133,9 @@ const _safeCheckWebhookSignature = ({
 }
 
 const _getWebhookSigningSecret = ({ ctx }: { ctx: bp.Context }) =>
-  ctx.configurationType === 'apiKey' ? ctx.configuration.webhookSigningSecret : bp.secrets.WEBHOOK_SIGNING_SECRET
+  ctx.configurationType === 'apiKey' && ctx.configuration.webhookSigningSecret
+    ? ctx.configuration.webhookSigningSecret
+    : bp.secrets.WEBHOOK_SIGNING_SECRET
 
 const _getLinearBotId = async ({ client, ctx }: { client: bp.Client; ctx: bp.Context }) => {
   const linearClient = await getLinearClient({ client, ctx })

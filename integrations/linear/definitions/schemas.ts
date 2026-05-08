@@ -78,7 +78,6 @@ export const linearIdsSchema = z
       .title('Subscriber IDs')
       .describe('The internal Linear Subscriber User IDs'),
   })
-  .optional()
   .describe('The Linear IDs of the referenced entities')
 
 const commonIssueProperties = {
@@ -86,6 +85,8 @@ const commonIssueProperties = {
   number: z.number().title('Number').describe('The issue number on Linear, such as "123" in XXX-123'),
   createdAt: z.string().datetime().title('Created At').describe('The ISO date the issue was created'),
   updatedAt: z.string().datetime().title('Updated At').describe('The ISO date the issue was last updated'),
+  identifier: z.string().title('Identifier').describe("Issue's human readable identifier (e.g. XXX-123)"),
+  url: z.string().title('Issue URL').describe('The URL of the issue on Linear'),
   priority: z
     .number()
     .title('Priority')
@@ -100,9 +101,7 @@ const commonIssueProperties = {
 export const issueSchema = z.object({
   ...commonIssueProperties,
   id: z.string().title('Issue ID').describe('The issue ID on Linear'),
-  identifier: z.string().title('Identifier').describe("Issue's human readable identifier (e.g. XXX-123)"),
   estimate: z.number().optional().title('Points Estimate').describe('The estimate of the issue in points'),
-  url: z.string().title('Issue URL').describe('The URL of the issue on Linear'),
 })
 
 export const issueEventSchema = z.object({
@@ -118,6 +117,8 @@ export const issueEventSchema = z.object({
     .title('Team Key')
     .describe('The key of the Linear team the issue currently belongs to, such as "XXX" in XXX-123'),
   status: z.string().title('Status').describe('The issue State name (such as "In Progress"'),
+  statusColor: z.string().title('Status Color').describe('The issue State color (#000000 format)'),
+  statusType: z.string().title('Status Type').describe('The issue State type'),
   labels: z
     .array(z.string().title('Label Name').describe('The name of the label'))
     .optional()

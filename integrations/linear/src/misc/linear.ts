@@ -1,4 +1,4 @@
-import { RuntimeError, z } from '@botpress/sdk'
+import { OAUTH_IDENTIFIER_HEADER, Response, RuntimeError, z } from '@botpress/sdk'
 import { LinearClient } from '@linear/sdk'
 import axios from 'axios'
 import queryString from 'query-string'
@@ -23,6 +23,8 @@ export type LinearIssueEvent = {
   type: 'issue'
   data: {
     id: string
+    identifier: string
+    url: string
     creatorId: string
     labelIds?: string[]
     number: number
@@ -45,6 +47,8 @@ export type LinearIssueEvent = {
     }
     state: {
       name: string
+      color: string
+      type: string
     }
     project?: {
       id: string
@@ -205,7 +209,67 @@ export class LinearOauthClient {
   }
 }
 
-export const handleOauth = async ({ req, ctx, client, logger }: bp.HandlerProps) => {
+const _findWebhookByUrl = async (linearClient: LinearClient, url: string) => {
+  let page = await linearClient.webhooks()
+  while (true) {
+    const match = page.nodes.find((w) => w.url === url)
+    if (match) {
+      return match
+    }
+    if (!page.pageInfo.hasNextPage) {
+      return undefined
+    }
+    page = await page.fetchNext()
+  }
+}
+
+export const unregisterWebhook = async ({
+  linearClient,
+  logger,
+  url,
+}: {
+  linearClient: LinearClient
+  logger: bp.Logger
+  url: string
+}) => {
+  const webhook = await _findWebhookByUrl(linearClient, url)
+  if (!webhook) {
+    logger.forBot().info('No Linear webhook found to unregister, skipping...')
+    return
+  }
+
+  logger.forBot().info('Unregistering Linear webhook...')
+  await linearClient.deleteWebhook(webhook.id)
+  logger.forBot().info('Linear webhook unregistered successfully.')
+}
+
+export const registerWebhook = async ({
+  linearClient,
+  logger,
+  url,
+}: {
+  linearClient: LinearClient
+  logger: bp.Logger
+  url: string
+}) => {
+  const existing = await _findWebhookByUrl(linearClient, url)
+  if (existing) {
+    logger.forBot().info('Linear webhook already registered, skipping...')
+    return
+  }
+
+  logger.forBot().info('Registering Linear webhook...')
+  await linearClient.createWebhook({
+    url,
+    resourceTypes: ['Issue', 'Comment'],
+    secret: bp.secrets.WEBHOOK_SIGNING_SECRET,
+    allPublicTeams: true,
+    label: 'Botpress',
+  })
+  logger.forBot().info('Linear webhook registered successfully.')
+}
+
+export const handleOauth = async ({ req, ctx, client, logger }: bp.HandlerProps): Promise<Response> => {
   const linearOauthClient = new LinearOauthClient()
 
   const query = queryString.parse(req.query)
@@ -216,8 +280,6 @@ export const handleOauth = async ({ req, ctx, client, logger }: bp.HandlerProps)
   }
 
   const credentials = await linearOauthClient.getAccessTokenFromOAuthCode(code)
-  // const oAuthResponse = await linearOauthClient.getAccessTokenFromOAuthCode(code)
-  // const credentials = await linearOauthClient.resolveValidCredentials(oAuthResponse)
   logger.forBot().info('Obtained credentials from OAuth flow, saving to state...')
   await client.setState({
     type: 'integration',
@@ -228,5 +290,18 @@ export const handleOauth = async ({ req, ctx, client, logger }: bp.HandlerProps)
 
   const linearClient = new LinearClient({ accessToken: credentials.accessToken })
   const organization = await linearClient.organization
-  await client.configureIntegration({ identifier: organization.id, scheduleRegisterCall: 'monthly' })
+  await client.configureIntegration({ scheduleRegisterCall: 'monthly' })
+
+  const webhookUrl = `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
+  try {
+    await registerWebhook({ linearClient, logger, url: webhookUrl })
+  } catch (thrown) {
+    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    logger.forBot().warn('Failed to register webhook:', errorMessage)
+  }
+
+  return {
+    status: 200,
+    headers: { [OAUTH_IDENTIFIER_HEADER]: organization.id },
+  }
 }
