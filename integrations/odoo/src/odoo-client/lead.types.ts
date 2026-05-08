@@ -1,16 +1,6 @@
-export type OdooContext = Record<string, unknown>
+import type { OdooContext, OdooDomain, OdooRecord } from './odoo.types'
 
-export type OdooDomainCondition = unknown[]
-
-export type OdooDomainOperator = '&' | '|' | '!'
-
-export type OdooDomain = Array<OdooDomainCondition | OdooDomainOperator>
-
-export type OdooRecord = Record<string, unknown> & {
-  id?: number
-}
-
-export type OdooMany2One = [id: number, displayName: string]
+export type { OdooContext, OdooDomain, OdooMany2One, OdooRecord } from './odoo.types'
 
 /**
  * POST /json/2/crm.lead/fields_get

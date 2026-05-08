@@ -33,7 +33,11 @@ const leadValuesSchema = z
     stage_id: z.number().title('Stage ID').describe('Odoo CRM stage ID.').optional(),
     user_id: z.number().title('Salesperson ID').describe('Assigned Odoo user ID.').optional(),
     team_id: z.number().title('Sales Team ID').describe('Assigned Odoo sales team ID.').optional(),
-    type: z.enum(['lead', 'opportunity']).title('Type').describe('Whether the CRM record is a lead or opportunity.').optional(),
+    type: z
+      .enum(['lead', 'opportunity'])
+      .title('Type')
+      .describe('Whether the CRM record is a lead or opportunity.')
+      .optional(),
     probability: z.number().title('Probability').describe('Success probability percentage.').optional(),
     expected_revenue: z.number().title('Expected Revenue').describe('Expected revenue for the opportunity.').optional(),
     description: z.string().title('Description').describe('Internal notes or description for the lead.').optional(),
@@ -109,7 +113,10 @@ export const actions = {
     },
     output: {
       schema: z.object({
-        fields: z.record(z.string(), z.unknown()).title('Fields').describe('Field metadata keyed by Odoo lead field name.'),
+        fields: z
+          .record(z.string(), z.unknown())
+          .title('Fields')
+          .describe('Field metadata keyed by Odoo lead field name.'),
       }),
     },
   },

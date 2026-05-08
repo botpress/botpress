@@ -1,4 +1,11 @@
-import { createContact, deleteContacts, getContactFields, getContacts, searchContacts, updateContacts } from './contacts'
+import {
+  createContact,
+  deleteContacts,
+  getContactFields,
+  getContacts,
+  searchContacts,
+  updateContacts,
+} from './contacts'
 import { getCurrentUser } from './current-user'
 import { createLead, deleteLeads, getLeadFields, getLeads, searchLeads, updateLeads } from './leads'
 import * as bp from '.botpress'

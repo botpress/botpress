@@ -28,7 +28,7 @@ import type {
   CrmLeadUnlinkOutput,
   CrmLeadWriteInput,
   CrmLeadWriteOutput,
-} from './lead.types.ts'
+} from './lead.types'
 
 const modelMap: Record<Model, string> = {
   Lead: 'crm.lead',
@@ -173,7 +173,7 @@ export class OdooClient {
     const { values, ...rest } = input
     const ids = await this._postJson(
       '/json/2/crm.lead/create',
-      { ...rest, vals_list: values },
+      { ...rest, vals_list: [values] },
       isNumberArray,
       'number array'
     )

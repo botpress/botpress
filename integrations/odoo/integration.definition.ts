@@ -8,6 +8,10 @@ export default new IntegrationDefinition({
   version: '0.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
+  attributes: {
+    category: 'CRM & Sales',
+    repo: 'botpress',
+  },
   configuration,
   states,
   actions,
