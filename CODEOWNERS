@@ -9,6 +9,7 @@
 /packages/client @botpress/kraken
 /packages/cli @botpress/kraken
 /packages/sdk @botpress/kraken
+/packages/zui @botpress/swordfish
 
 ## Common / Utils
 /packages/common @botpress/shell
