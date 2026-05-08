@@ -1,4 +1,4 @@
-import { BaseLogger } from '../../base-logger'
+import { BaseLogger, type LogLevel } from '../../base-logger'
 
 type IntegrationLogOptions = {
   botId?: string
@@ -74,9 +74,10 @@ export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
     })
   }
 
-  protected override getJsonMessage(msg: string) {
+  protected override getJsonMessage(level: LogLevel, msg: string) {
     return JSON.stringify({
       msg,
+      level,
       botId: this.defaultOptions.botId,
       integrationId: this.defaultOptions.integrationId,
       integrationAlias: this.defaultOptions.integrationAlias,

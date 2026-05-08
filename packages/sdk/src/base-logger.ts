@@ -1,6 +1,6 @@
 import util from 'util'
 
-type LogLevel = 'info' | 'debug' | 'warn' | 'error'
+export type LogLevel = 'info' | 'debug' | 'warn' | 'error'
 
 export type IssueLogEvent = {
   type: 'issue'
