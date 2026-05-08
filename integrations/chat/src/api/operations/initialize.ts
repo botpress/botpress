@@ -10,7 +10,7 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
     throw new InvalidPayloadError('You have to set either the "x-user-key" header or the "user" body parameter.')
   }
 
-  if (props.auth.mode === 'personal' && !req.headers['x-user-key']) {
+  if (props.auth.mode === 'personal' && !userKeyHeader) {
     throw new UnauthorizedError(
       'The "initialize" operation can only create a user when using the shared encryption key.'
     )
@@ -36,10 +36,8 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
 
   const preparedBody: PreparedBody = {}
 
-  // find() returning undefined means that this is a new user
-  const authUserId = userId !== undefined ? await props.userIdStore.byFid.find(userId) : undefined
-
-  if (authUserId !== undefined) {
+  const authUserId = request.auth.userId
+  if (authUserId !== '') {
     preparedBody.userId = authUserId
   } else {
     preparedBody.user = {
@@ -69,14 +67,9 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
 
   const initializeResponse = await props.client.initializeIncomingMessage(preparedBody)
 
-  const userFidKey = userId ?? initializeResponse.user.id
-  if (authUserId === undefined) {
+  if (authUserId === '') {
+    const userFidKey = userId ?? initializeResponse.user.id
     await props.userIdStore.byFid.set(userFidKey, initializeResponse.user.id)
-  }
-
-  const conversationFidKey = req.body.conversationId ?? initializeResponse.conversation.id
-  if (!req.body.conversationId) {
-    await props.convIdStore.byFid.set(conversationFidKey, initializeResponse.conversation.id)
   }
 
   if (!req.body.conversationId) {
@@ -84,7 +77,6 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
       id: initializeResponse.conversation.id,
       tags: {
         owner: initializeResponse.user.id,
-        fid: request.body.conversationId ?? initializeResponse.conversation.id,
       },
     })
   }

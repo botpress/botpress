@@ -59,7 +59,7 @@ test('api allows creating the user first, then initializing conversation and mes
   })
 })
 
-test('api allows creating the conversation first, then initializing message and user', async () => {
+test('api allows creating the user and conversation first, then initializing the message', async () => {
   const client = new chat.Client({ apiUrl })
   const user = await client.createUser({})
   const conversation = await client.createConversation({ 'x-user-key': user.key })
