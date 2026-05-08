@@ -39,7 +39,5 @@ class SocketSafeHttpsAgent extends https.Agent {
   }
 }
 
-export const httpAgent =
-  isNode && http && http.Agent ? new SocketSafeHttpAgent({ keepAlive: true }) : undefined
-export const httpsAgent =
-  isNode && https && https.Agent ? new SocketSafeHttpsAgent({ keepAlive: true }) : undefined
+export const httpAgent = isNode && http && http.Agent ? new SocketSafeHttpAgent({ keepAlive: true }) : undefined
+export const httpsAgent = isNode && https && https.Agent ? new SocketSafeHttpsAgent({ keepAlive: true }) : undefined
