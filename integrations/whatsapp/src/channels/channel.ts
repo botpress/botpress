@@ -115,8 +115,8 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         message: new Location(payload.longitude, payload.latitude),
       })
     },
-    carousel: async ({ payload, logger, ...props }) => {
-      await _sendMany({ ...props, logger, generator: carousel.generateOutgoingMessages(payload, logger) })
+    carousel: async (props) => {
+      await _sendMany({ ...props, generator: carousel.generateOutgoingMessages(props) })
     },
     card: async ({ payload, logger, ...props }) => {
       await _sendMany({ ...props, logger, generator: card.generateOutgoingMessages(payload, logger) })

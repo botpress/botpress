@@ -22,12 +22,21 @@ const MAX_QR_BUTTONS_PER_CARD = 2
 
 const ZERO_WIDTH_SPACE = '​'
 
-export function* generateOutgoingMessages(carousel: Carousel, logger: bp.Logger) {
-  const result = _partitionForCarousel(carousel.items)
+type CarouselMessageProps = Parameters<
+  NonNullable<bp.IntegrationProps['channels']['channel']['messages']>['carousel']
+>[0]
+
+export function* generateOutgoingMessages(props: CarouselMessageProps) {
+  const { logger, message, payload } = props
+  const result = _partitionForCarousel(payload.items)
 
   if (result.mode === 'fallback') {
-    logger.forBot().warn(`Falling back to per-card rendering instead of a native WhatsApp carousel: ${result.reason}`)
-    for (const item of carousel.items) {
+    logger
+      .forBot()
+      .warn(
+        `Message ${message.id}: falling back to per-card rendering instead of a native WhatsApp carousel: ${result.reason}`
+      )
+    for (const item of payload.items) {
       for (const m of _safeRenderCard(item, logger)) yield m
     }
     return
