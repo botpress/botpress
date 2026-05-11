@@ -20,7 +20,7 @@ export type GenerationMetadata = {
   }
 }
 
-export type InputModel = 'auto' | 'best' | 'fast' | ModelRef
+export type InputModel = 'auto' | 'best' | 'fast' | ModelRef | (string & {})
 
 export type InputProps = Omit<GenerateContentInput, 'model'> & {
   /**
