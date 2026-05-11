@@ -16,7 +16,7 @@ import {
 
 // TODO: use default options
 const toJSONSchemaOptions: Partial<z.transforms.JSONSchemaGenerationOptions> = {
-  discriminatedUnionStrategy: 'anyOf',
+  discriminatedUnionStrategy: 'oneOf',
   discriminator: false,
 }
 
