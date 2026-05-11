@@ -460,6 +460,9 @@ importers:
       axios:
         specifier: ^1.5.0
         version: 1.6.7
+      exponential-backoff:
+        specifier: ^3.1.1
+        version: 3.1.1
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*

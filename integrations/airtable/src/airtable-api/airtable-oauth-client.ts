@@ -1,5 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import axios from 'axios'
+import { backOff } from 'exponential-backoff'
 import { handleErrorsDecorator as handleErrors } from '../api/error-handling'
 import * as bp from '.botpress'
 
@@ -273,17 +274,23 @@ export class AirtableOAuthClient {
       throw new sdk.RuntimeError('No credentials to save')
     }
 
-    await this._client.setState({
-      type: 'integration',
-      name: 'oAuthCredentials',
-      id: this._ctx.integrationId,
-      payload: {
-        accessToken: this._currentAuthState.accessToken.token,
-        refreshToken: this._currentAuthState.refreshToken.token,
-        expiresAt: this._currentAuthState.accessToken.expiresAt.toISOString(),
-        refreshExpiresAt: this._currentAuthState.refreshToken.expiresAt.toISOString(),
-        scopes: this._currentAuthState.scopes,
-      },
-    })
+    const authState = this._currentAuthState
+
+    await backOff(
+      () =>
+        this._client.setState({
+          type: 'integration',
+          name: 'oAuthCredentials',
+          id: this._ctx.integrationId,
+          payload: {
+            accessToken: authState.accessToken.token,
+            refreshToken: authState.refreshToken.token,
+            expiresAt: authState.accessToken.expiresAt.toISOString(),
+            refreshExpiresAt: authState.refreshToken.expiresAt.toISOString(),
+            scopes: authState.scopes,
+          },
+        }),
+      { numOfAttempts: 3, startingDelay: 500 }
+    )
   }
 }
