@@ -3028,7 +3028,7 @@ importers:
         specifier: 1.44.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.5.3
+        specifier: 0.5.4
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^2.0.0
@@ -3214,7 +3214,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.5.3
+        specifier: 0.5.4
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -3328,7 +3328,7 @@ importers:
     dependencies:
       '@botpress/cognitive':
         specifier: 0.5.3
-        version: link:../../packages/cognitive
+        version: 0.5.3
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
@@ -4200,6 +4200,10 @@ packages:
 
   '@botpress/api@1.102.0':
     resolution: {integrity: sha512-Qce4ZguplKIDAQJxkXwgHVLiHSm36nCsuLV4SbPvKPgBtGDOGINKbpimgHkfDhW7DCfMUmS2W0gWew/LHFqbpA==}
+
+  '@botpress/cognitive@0.5.3':
+    resolution: {integrity: sha512-Rfn6Cn/Ge8YHSCD4zGF2ETLI5gBMNv/YKKP7PQc2Vz6csxz3zA7GpWZR/4lZmwYuYJ39t0IXKccB6oCB51WHdw==}
+    engines: {node: '>=18.0.0'}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -14008,6 +14012,11 @@ snapshots:
       - debug
       - openapi-types
       - supports-color
+
+  '@botpress/cognitive@0.5.3':
+    dependencies:
+      exponential-backoff: 3.1.1
+      nanoevents: 9.1.0
 
   '@bpinternal/const@0.1.0': {}
 
