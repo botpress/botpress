@@ -5,7 +5,7 @@ export default new IntegrationDefinition({
   name: 'odoo',
   title: 'Odoo',
   description: 'Connect Botpress to Odoo records such as leads, contacts, and tickets.',
-  version: '0.1.0',
+  version: '0.2.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   attributes: {
