@@ -65,7 +65,7 @@ const _redirectToDropboxHandler: WizardHandler = async (props) => {
 const _getOAuthRedirectUri = (ctx?: bp.Context) => oauthWizard.getWizardStepUrl('oauth-callback', ctx).toString()
 
 const _oauthCallbackHandler: WizardHandler = async (props) => {
-  const { responses, query, client, ctx, logger } = props
+  const { responses, query, client, ctx, logger, setIntegrationIdentifier } = props
 
   const oauthError = query.get('error')
   const oauthErrorDescription = query.get('error_description')
@@ -100,7 +100,7 @@ const _oauthCallbackHandler: WizardHandler = async (props) => {
     await oauthClient.processAuthorizationCode(authorizationCode, redirectUri)
     logger.forBot().info('Successfully exchanged authorization code for refresh token')
 
-    await client.configureIntegration({ identifier: ctx.webhookId })
+    setIntegrationIdentifier(ctx.webhookId)
 
     return responses.endWizard({
       success: true,

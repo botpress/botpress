@@ -17,8 +17,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.99.0
-        version: 1.99.0
+        specifier: 1.105.0
+        version: 1.105.0
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -1638,6 +1638,25 @@ importers:
         specifier: ^2.39.1
         version: 2.39.1
 
+  integrations/odoo:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@botpress/sdk-addons':
+        specifier: workspace:*
+        version: link:../../packages/sdk-addons
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   integrations/openai:
     dependencies:
       '@botpress/client':
@@ -2673,10 +2692,10 @@ importers:
         specifier: 0.5.5
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.43.0
+        specifier: 1.45.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 6.9.0
+        specifier: 6.11.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2797,10 +2816,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.43.0
+        specifier: 1.45.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.9.0
+        specifier: 6.11.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2813,10 +2832,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.43.0
+        specifier: 1.45.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.9.0
+        specifier: 6.11.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2829,7 +2848,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 6.9.0
+        specifier: 6.11.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2842,10 +2861,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.43.0
+        specifier: 1.45.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.9.0
+        specifier: 6.11.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2858,10 +2877,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.43.0
+        specifier: 1.45.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.9.0
+        specifier: 6.11.0
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -3012,7 +3031,7 @@ importers:
         specifier: ^7.26.3
         version: 7.26.9
       '@botpress/client':
-        specifier: 1.43.0
+        specifier: 1.45.0
         version: link:../client
       '@botpress/cognitive':
         specifier: 0.5.3
@@ -3118,7 +3137,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.43.0
+        specifier: 1.45.0
         version: link:../client
       '@bpinternal/zui':
         specifier: ^2.1.1
@@ -3155,7 +3174,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.43.0
+        specifier: 1.45.0
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -4185,8 +4204,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@botpress/api@1.99.0':
-    resolution: {integrity: sha512-3tKkidEQL6DU9AmxhRqhGWDhctMiRIZUbyPidkvLv64AOUjgMmFxtlTwpqHch9ECLyT2BWGwu6PP2ekE4tnXxQ==}
+  '@botpress/api@1.105.0':
+    resolution: {integrity: sha512-DnnqYlEyLCXf7cCaPSJvrQHhb+ycRbFPCyCGKTn0y7mvF32n5tgwZUbC4fEtHt/i6u9AuXPG3ObqPjPcYxocLw==}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -6844,6 +6863,7 @@ packages:
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
+    deprecated: Potential CWE-502 - Update to 1.3.1 or higher
 
   '@vitest/expect@2.1.4':
     resolution: {integrity: sha512-DOETT0Oh1avie/D/o2sgMHGrzYUFFo3zqESB2Hn70z6QB1HrS2IQ9z5DfyTqU8sg4Bpu13zZe9V4+UTNQlUeQA==}
@@ -13987,7 +14007,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.99.0':
+  '@botpress/api@1.105.0':
     dependencies:
       '@bpinternal/opapi': 1.0.0(openapi-types@12.1.3)
     transitivePeerDependencies:

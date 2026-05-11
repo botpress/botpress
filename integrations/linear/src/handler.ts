@@ -101,6 +101,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
       userId: userId as string, // TODO: fix this
     })
   }
+  return
 }
 
 const _safeCheckWebhookSignature = ({

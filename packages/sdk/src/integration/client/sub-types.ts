@@ -1,4 +1,3 @@
-import { commonTypes } from '../../common'
 import * as utils from '../../utils/type-utils'
 import * as common from '../common'
 
@@ -45,9 +44,7 @@ export type MessageTags<TIntegration extends common.BaseIntegration> = keyof uti
   }>
 >
 
-export type UserTags<TIntegration extends common.BaseIntegration> = commonTypes.ToTags<
-  keyof TIntegration['user']['tags']
->
+export type UserTags<TIntegration extends common.BaseIntegration> = keyof TIntegration['user']['tags']
 
 export type TagsOfMessage<
   TIntegration extends common.BaseIntegration,
