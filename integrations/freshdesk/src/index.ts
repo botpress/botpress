@@ -1,33 +1,29 @@
 import * as sdk from '@botpress/sdk'
+import { createFreshdeskRuntimeError } from './freshdesk-client/actions/errors'
+import actions from './freshdesk-client/actions/implementations'
+import { FreshdeskClient } from './freshdesk-client/FreshdeskClient'
+import { handler } from './handler'
 import * as bp from '.botpress'
 
 export default new bp.Integration({
-  register: async () => {
-    /**
-     * This is called when an integration configuration is saved.
-     * You should use this handler to instanciate ressources in the external service and ensure that the configuration is valid.
-     */
-    throw new sdk.RuntimeError('Invalid configuration') // replace this with your own validation logic
-  },
-  unregister: async () => {
-    /**
-     * This is called when a bot removes the integration.
-     * You should use this handler to instanciate ressources in the external service and ensure that the configuration is valid.
-     */
-    throw new sdk.RuntimeError('Invalid configuration') // replace this with your own validation logic
-  },
-  actions: {
-    helloWorld: async (props) => {
-      /**
-       * This is called when a bot calls the action `helloWorld`.
-       */
-      props.logger.forBot().info('Hello World!') // this log will be visible by the bots that use this integration
+  register: async (props) => {
+    const { domain, apiKey } = props.ctx.configuration
+    const logger = props.logger.forBot()
 
-      let { name } = props.input
-      name = name || 'World'
-      return { message: `Hello "${name}"! Nice to meet you ;)` }
-    },
+    logger.info(`Validating Freshdesk configuration for domain=${domain}`)
+
+    try {
+      await new FreshdeskClient(domain, apiKey).validateCredentials()
+      logger.info('Freshdesk configuration validated successfully')
+    } catch (thrown) {
+      logger.warn('Freshdesk configuration validation failed', {
+        error: thrown instanceof Error ? thrown.message : String(thrown),
+      })
+      throw new sdk.RuntimeError(`Invalid Freshdesk configuration: ${createFreshdeskRuntimeError(thrown).message}`)
+    }
   },
+  unregister: async () => {},
+  actions,
   channels: {},
-  handler: async () => {},
+  handler,
 })

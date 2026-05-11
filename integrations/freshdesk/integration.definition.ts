@@ -1,25 +1,15 @@
-import { z, IntegrationDefinition } from '@botpress/sdk'
-import { integrationName } from './package.json'
+import { IntegrationDefinition } from '@botpress/sdk'
+import { actions, configuration, events, states } from './definitions'
 
 export default new IntegrationDefinition({
-  name: integrationName,
+  name: 'freshdesk',
+  title: 'Freshdesk',
+  description: 'Connect Botpress to Freshdesk to create, read, update, delete, and search support tickets.',
   version: '0.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
-  actions: {
-    helloWorld: {
-      title: 'Hello World',
-      description: 'A simple hello world action',
-      input: {
-        schema: z.object({
-          name: z.string().optional(),
-        }),
-      },
-      output: {
-        schema: z.object({
-          message: z.string(),
-        }),
-      },
-    },
-  },
+  configuration,
+  states,
+  actions,
+  events,
 })
