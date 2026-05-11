@@ -1,10 +1,127 @@
 import { wrapAction } from '../../action-wrapper'
+import { getErrorMessage } from '../../errors'
+
+type NotDeletedLead = {
+  id: number
+  name?: string
+  reason: string
+}
+
+type DeletableLead = {
+  id: number
+  name?: string
+}
+
+const getLeadOwnerId = (lead: Record<string, unknown>): number | undefined => {
+  const owner = lead.user_id
+
+  if (Array.isArray(owner) && typeof owner[0] === 'number') {
+    return owner[0]
+  }
+
+  if (typeof owner === 'number') {
+    return owner
+  }
+
+  return undefined
+}
+
+const getLeadName = (lead: Record<string, unknown>): string | undefined =>
+  typeof lead.name === 'string' ? lead.name : undefined
+
+const deleteLeadsIndividually = async (
+  odooClient: {
+    deleteLeads: (input: { ids: number[]; context?: Record<string, unknown> }) => Promise<boolean>
+  },
+  leads: DeletableLead[],
+  context: Record<string, unknown> | undefined
+): Promise<{ deletedIds: number[]; notDeletedLeads: NotDeletedLead[] }> => {
+  const deletedIds: number[] = []
+  const notDeletedLeads: NotDeletedLead[] = []
+
+  for (const { id, name } of leads) {
+    try {
+      const success = await odooClient.deleteLeads({ ids: [id], context })
+
+      if (success) {
+        deletedIds.push(id)
+      } else {
+        notDeletedLeads.push({ id, name, reason: 'Odoo did not accept the lead deletion.' })
+      }
+    } catch (thrown) {
+      notDeletedLeads.push({ id, name, reason: getErrorMessage(thrown) })
+    }
+  }
+
+  return { deletedIds, notDeletedLeads }
+}
 
 export const deleteLeads = wrapAction(
   { actionName: 'deleteLeads', errorMessage: 'Failed to delete Odoo leads' },
   async ({ odooClient }, input) => {
-    const success = await odooClient.deleteLeads(input)
+    const leads = await odooClient.getLeads({
+      ids: input.ids,
+      fields: ['id', 'name', 'user_id'],
+      context: input.context,
+    })
+    const leadsById = new Map(leads.flatMap((lead) => (typeof lead.id === 'number' ? [[lead.id, lead]] : [])))
+    const deletedIds: number[] = []
+    const notDeletedLeads: NotDeletedLead[] = []
+    const deletableLeads: DeletableLead[] = []
 
-    return { success }
+    for (const id of input.ids) {
+      const lead = leadsById.get(id)
+
+      if (!lead) {
+        notDeletedLeads.push({ id, reason: 'Lead was not found in Odoo.' })
+        continue
+      }
+
+      const name = getLeadName(lead)
+      const ownerId = getLeadOwnerId(lead)
+
+      if (ownerId !== input.ownerId) {
+        notDeletedLeads.push({
+          id,
+          name,
+          reason:
+            ownerId === undefined
+              ? 'Lead is not assigned to an owner.'
+              : `Lead is owned by Odoo user ${ownerId}, not Odoo user ${input.ownerId}.`,
+        })
+        continue
+      }
+
+      deletableLeads.push({ id, name })
+    }
+
+    if (deletableLeads.length > 0) {
+      try {
+        const success = await odooClient.deleteLeads({
+          ids: deletableLeads.map(({ id }) => id),
+          context: input.context,
+        })
+
+        if (success) {
+          deletedIds.push(...deletableLeads.map(({ id }) => id))
+        } else {
+          const individualResult = await deleteLeadsIndividually(odooClient, deletableLeads, input.context)
+
+          deletedIds.push(...individualResult.deletedIds)
+          notDeletedLeads.push(...individualResult.notDeletedLeads)
+        }
+      } catch {
+        const individualResult = await deleteLeadsIndividually(odooClient, deletableLeads, input.context)
+
+        deletedIds.push(...individualResult.deletedIds)
+        notDeletedLeads.push(...individualResult.notDeletedLeads)
+      }
+    }
+
+    return {
+      success: notDeletedLeads.length === 0,
+      deletedIds,
+      notDeletedLeads,
+    }
   }
 )

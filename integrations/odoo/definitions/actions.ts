@@ -64,6 +64,15 @@ const notDeletedContactSchema = z
   .title('Not Deleted Contact')
   .describe('An Odoo contact that could not be deleted.')
 
+const notDeletedLeadSchema = z
+  .object({
+    id: z.number().title('Lead ID').describe('Odoo CRM lead record ID.'),
+    name: z.string().title('Lead Name').describe('Odoo CRM lead display name.').optional(),
+    reason: z.string().title('Reason').describe('Why the lead could not be deleted.'),
+  })
+  .title('Not Deleted Lead')
+  .describe('An Odoo CRM lead that could not be deleted.')
+
 export const actions = {
   getCurrentUser: {
     title: 'Get Current User',
@@ -207,16 +216,25 @@ export const actions = {
   },
   deleteLeads: {
     title: 'Delete Leads',
-    description: 'Delete one or more Odoo CRM leads.',
+    description: 'Delete one or more Odoo CRM leads owned by the specified Odoo user.',
     input: {
       schema: z.object({
         ids: leadIdsSchema,
+        ownerId: z
+          .number()
+          .title('Owner User ID')
+          .describe('Odoo user ID that must match each lead owner before the lead is deleted.'),
         context: odooContextSchema.optional(),
       }),
     },
     output: {
       schema: z.object({
-        success: z.boolean().title('Success').describe('Whether Odoo accepted the lead deletion.'),
+        success: z.boolean().title('Success').describe('Whether all requested leads were deleted.'),
+        deletedIds: leadIdsSchema.describe('Odoo CRM lead record IDs that were deleted.'),
+        notDeletedLeads: z
+          .array(notDeletedLeadSchema)
+          .title('Not Deleted Leads')
+          .describe('Odoo CRM leads that could not be deleted, with the reason for each lead.'),
       }),
     },
   },
