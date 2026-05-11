@@ -23,7 +23,8 @@ A card renders as one or more bubbles in original action order:
 A `carousel` becomes one or more native Carousels (up to 10 cards each) when every card:
 
 - has an `imageUrl`,
-- has exactly one `url` action OR 1-2 `postback`/`say` actions (no mixing), and
+- has exactly one `url` action OR 1-2 `postback`/`say` actions (no mixing),
+- has a combined title + subtitle body of 160 characters or fewer, and
 - has quick-reply values unique across the carousel.
 
 Cards with the same shape are grouped together (up to 10 per group). If any condition fails, or if grouping would leave a single card on its own, the whole carousel renders per-card instead and a warning is logged with the reason.
