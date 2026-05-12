@@ -101,7 +101,7 @@ export class FreshdeskClient {
     const body = {
       status: 2,
       priority: 1,
-      ...Object.fromEntries(Object.entries(input).filter(([, v]) => v != null)),
+      ...Object.fromEntries(Object.entries(input).filter(([, v]) => v != null && v !== 0 && v !== '')),
     }
     return this._request<FreshdeskTicket>('POST', '/tickets', undefined, body)
   }
@@ -118,7 +118,7 @@ export class FreshdeskClient {
 
   public async updateTicket(input: UpdateTicketInput): Promise<FreshdeskTicket> {
     const { id, ...rest } = input
-    const body = Object.fromEntries(Object.entries(rest).filter(([, v]) => v != null))
+    const body = Object.fromEntries(Object.entries(rest).filter(([, v]) => v != null && v !== 0 && v !== ''))
     return this._request<FreshdeskTicket>('PUT', `/tickets/${id}`, undefined, body)
   }
 

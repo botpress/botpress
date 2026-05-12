@@ -41,7 +41,7 @@ const requesterFields = z.object({
 
 const ticketWriteFields = z.object({
   subject: z.string().title('Subject').describe('Subject of the ticket.'),
-  description: z.string().optional().title('Description').describe('HTML content of the ticket description.'),
+  description: z.string().title('Description').describe('HTML content of the ticket description.'),
   priority: z.number().optional().title('Priority').describe('Ticket priority: 1=Low, 2=Medium, 3=High, 4=Urgent.'),
   status: z.number().optional().title('Status').describe('Ticket status: 2=Open, 3=Pending, 4=Resolved, 5=Closed.'),
   type: z.string().optional().title('Type').describe('Ticket category type.'),
@@ -126,6 +126,7 @@ export const actions = {
       schema: ticketWriteFields
         .merge(requesterFields)
         .extend({ subject: z.string().optional().title('Subject').describe('Updated ticket subject.') })
+        .extend({ description: z.string().optional().title('Description').describe('HTML content of the ticket description.') })
         .extend({ id: z.number().title('Ticket ID').describe('The Freshdesk ticket ID to update.') }),
     },
     output: {
@@ -149,14 +150,14 @@ export const actions = {
   searchTickets: {
     title: 'Search Tickets',
     description:
-      'Searches Freshdesk tickets using query syntax. Example: "priority:3 AND status:2". Supports up to 10 pages of results.',
+      'Filters Freshdesk tickets by field values. Supports filtering on status, priority, type, tag, dates, and IDs — but not free-text fields like subject or description. Supports up to 10 pages of results.',
     input: {
       schema: z.object({
         query: z
           .string()
           .title('Query')
           .describe(
-            "Freshdesk search query. Searchable fields: subject, status, priority, type, tag, agent, group, created_at, due_by, requester_id, company_id. Note: description is not searchable. Examples: \"subject:'404 error'\", \"priority:3 AND status:2\", \"tag:'billing'\"."
+            "Freshdesk filter query. Supported fields: status, priority, type, tag, created_at, updated_at, due_by, fr_due_by, requester_id, company_id, agent_id, group_id. Note: free-text fields like subject and description are not searchable. Examples: \"priority:3 AND status:2\", \"tag:'billing'\", \"created_at:>'2024-01-01'\"."
           ),
         page: z.number().optional().title('Page').describe('Page number (1–10).'),
       }),
