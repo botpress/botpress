@@ -56,6 +56,26 @@ export const searchContact: bp.IntegrationProps['actions']['searchContact'] = as
   }
 }
 
+export const listContactProperties: bp.IntegrationProps['actions']['listContactProperties'] = async ({
+  ctx,
+  client,
+  logger,
+}) => {
+  const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
+  const properties = await hsClient.listContactProperties()
+  return {
+    properties: properties.map((property) => ({
+      name: property.name,
+      label: property.label,
+      type: property.type,
+      fieldType: property.fieldType,
+      groupName: property.groupName,
+      description: property.description,
+      ...(property.referencedObjectType ? { referencedObjectType: property.referencedObjectType } : {}),
+    })),
+  }
+}
+
 export const createContact: bp.IntegrationProps['actions']['createContact'] = async ({
   ctx,
   client,

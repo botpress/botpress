@@ -7,6 +7,32 @@ export const contactSchema = z.object({
   createdAt: z.string().title('Created At').describe('The date and time the contact was created'),
   updatedAt: z.string().title('Updated At').describe('The date and time the contact was last updated'),
   properties: z.record(z.string().nullable()).title('Properties').describe('The properties of the contact'),
+  avatarUrl: z
+    .string()
+    .nullable()
+    .optional()
+    .title('Avatar URL')
+    .describe("The URL to the contact's avatar image, if available"),
+})
+
+export const propertyMetadataSchema = z.object({
+  name: z.string().title('Name').describe('The internal name of the property'),
+  label: z.string().title('Label').describe('The human-readable label of the property'),
+  type: z
+    .string()
+    .title('Type')
+    .describe('The data type of the property (e.g. string, number, date, datetime, enumeration, bool)'),
+  fieldType: z
+    .string()
+    .title('Field Type')
+    .describe('The form field type of the property (e.g. text, textarea, select, radio, checkbox)'),
+  groupName: z.string().title('Group Name').describe('The internal name of the property group'),
+  description: z.string().title('Description').describe('The description of the property'),
+  referencedObjectType: z
+    .string()
+    .optional()
+    .title('Referenced Object Type')
+    .describe('The type of object referenced by this property (e.g. OWNER), if any'),
 })
 
 const searchContact: ActionDefinition = {
@@ -21,6 +47,22 @@ const searchContact: ActionDefinition = {
   output: {
     schema: z.object({
       contact: contactSchema.optional().title('Contact').describe('The contact found, or undefined if not found'),
+    }),
+  },
+}
+
+const listContactProperties: ActionDefinition = {
+  title: 'List Contact Properties',
+  description: 'List all available Hubspot contact properties with their metadata',
+  input: {
+    schema: z.object({}).title('Empty').describe('No input required'),
+  },
+  output: {
+    schema: z.object({
+      properties: z
+        .array(propertyMetadataSchema)
+        .title('Properties')
+        .describe('The contact properties defined in this Hubspot account'),
     }),
   },
 }
@@ -180,4 +222,5 @@ export const actions = {
   updateContact,
   deleteContact,
   listContacts,
+  listContactProperties,
 } as const

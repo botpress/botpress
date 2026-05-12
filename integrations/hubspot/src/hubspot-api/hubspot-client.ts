@@ -1039,6 +1039,26 @@ export class HubspotClient {
     this._ticketPipelinesAlreadyRefreshed = true
   }
 
+  @handleErrors('Failed to list contact properties')
+  public async listContactProperties() {
+    const properties = await this._hsClient.crm.properties.coreApi.getAll('contacts')
+    return properties.results
+  }
+
+  @handleErrors('Failed to get owner by ID')
+  public async getOwnerById({ ownerId }: { ownerId: string }) {
+    const numericOwnerId = Number(ownerId)
+    if (isNaN(numericOwnerId)) {
+      throw new sdk.RuntimeError(`Invalid owner ID "${ownerId}"`)
+    }
+    return await this._hsClient.crm.owners.ownersApi.getById(numericOwnerId)
+  }
+
+  @handleErrors('Failed to get signed URL for file')
+  public async getFileSignedUrl({ fileId, expirationSeconds }: { fileId: string; expirationSeconds?: number }) {
+    return await this._hsClient.files.filesApi.getSignedUrl(fileId, undefined, expirationSeconds)
+  }
+
   @handleErrors('Failed to retrieve owner by email')
   private async _retrieveOwnerByEmail({ email }: { email: string }) {
     const canonicalEmail = _getCanonicalName(email)
