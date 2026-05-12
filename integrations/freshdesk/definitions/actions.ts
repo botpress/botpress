@@ -3,25 +3,25 @@ import { IntegrationDefinitionProps, z } from '@botpress/sdk'
 const ticketSchema = z.object({
   id: z.number().title('ID').describe('Unique Freshdesk ticket ID.'),
   subject: z.string().title('Subject').describe('Subject of the ticket.'),
-  description: z.string().optional().title('Description').describe('HTML content of the ticket description.'),
-  description_text: z.string().optional().title('Description Text').describe('Plain-text ticket description.'),
+  description: z.string().nullish().title('Description').describe('HTML content of the ticket description.'),
+  description_text: z.string().nullish().title('Description Text').describe('Plain-text ticket description.'),
   status: z.number().title('Status').describe('Ticket status: 2=Open, 3=Pending, 4=Resolved, 5=Closed.'),
   priority: z.number().title('Priority').describe('Ticket priority: 1=Low, 2=Medium, 3=High, 4=Urgent.'),
-  source: z.number().optional().title('Source').describe('Channel through which the ticket was created.'),
-  email: z.string().optional().title('Email').describe('Requester email address.'),
-  name: z.string().optional().title('Name').describe('Requester name.'),
-  requester_id: z.number().optional().title('Requester ID').describe('Freshdesk requester user ID.'),
-  responder_id: z.number().optional().title('Responder ID').describe('Agent assigned to the ticket.'),
-  group_id: z.number().optional().title('Group ID').describe('Group the ticket is assigned to.'),
-  type: z.string().optional().title('Type').describe('Ticket category type.'),
-  tags: z.array(z.string()).optional().title('Tags').describe('Tags associated with the ticket.'),
-  cc_emails: z.array(z.string()).optional().title('CC Emails').describe('List of CC email addresses.'),
-  due_by: z.string().optional().title('Due By').describe('ISO 8601 timestamp for when the ticket is due.'),
+  source: z.number().nullish().title('Source').describe('Channel through which the ticket was created.'),
+  email: z.string().nullish().title('Email').describe('Requester email address.'),
+  name: z.string().nullish().title('Name').describe('Requester name.'),
+  requester_id: z.number().nullish().title('Requester ID').describe('Freshdesk requester user ID.'),
+  responder_id: z.number().nullish().title('Responder ID').describe('Agent assigned to the ticket.'),
+  group_id: z.number().nullish().title('Group ID').describe('Group the ticket is assigned to.'),
+  type: z.string().nullish().title('Type').describe('Ticket category type.'),
+  tags: z.array(z.string()).nullish().title('Tags').describe('Tags associated with the ticket.'),
+  cc_emails: z.array(z.string()).nullish().title('CC Emails').describe('List of CC email addresses.'),
+  due_by: z.string().nullish().title('Due By').describe('ISO 8601 timestamp for when the ticket is due.'),
   created_at: z.string().title('Created At').describe('ISO 8601 timestamp of ticket creation.'),
   updated_at: z.string().title('Updated At').describe('ISO 8601 timestamp of last update.'),
   custom_fields: z
     .record(z.string(), z.unknown())
-    .optional()
+    .nullish()
     .title('Custom Fields')
     .describe('Custom field key-value pairs.'),
 })
@@ -155,7 +155,9 @@ export const actions = {
         query: z
           .string()
           .title('Query')
-          .describe('Freshdesk search query. Examples: "priority:3", "status:2 AND tag:\'billing\'", "agent_id:null".'),
+          .describe(
+            "Freshdesk search query. Searchable fields: subject, status, priority, type, tag, agent, group, created_at, due_by, requester_id, company_id. Note: description is not searchable. Examples: \"subject:'404 error'\", \"priority:3 AND status:2\", \"tag:'billing'\"."
+          ),
         page: z.number().optional().title('Page').describe('Page number (1–10).'),
       }),
     },

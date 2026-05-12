@@ -38,7 +38,7 @@ export class FreshdeskClient {
     if (params) {
       const searchParams = new URLSearchParams()
       for (const [key, value] of Object.entries(params)) {
-        if (value !== undefined) {
+        if (value != null) {
           searchParams.set(key, String(value))
         }
       }
@@ -61,6 +61,9 @@ export class FreshdeskClient {
         const parsed = JSON.parse(text) as Record<string, unknown>
         if (typeof parsed['description'] === 'string') {
           detail = parsed['description']
+        }
+        if (Array.isArray(parsed['errors']) && parsed['errors'].length > 0) {
+          detail += ` | errors: ${JSON.stringify(parsed['errors'])}`
         }
       } catch {
         // use raw text
@@ -89,13 +92,18 @@ export class FreshdeskClient {
   }
 
   public async createTicket(input: CreateTicketInput): Promise<FreshdeskTicket> {
-    const hasRequester = REQUESTER_FIELDS.some((f) => (input as Record<string, unknown>)[f] !== undefined)
+    const hasRequester = REQUESTER_FIELDS.some((f) => (input as Record<string, unknown>)[f] != null)
     if (!hasRequester) {
       throw new Error(
         'At least one requester field must be provided: email, phone, twitter_id, facebook_id, unique_external_id, or requester_id.'
       )
     }
-    return this._request<FreshdeskTicket>('POST', '/tickets', undefined, input)
+    const body = {
+      status: 2,
+      priority: 1,
+      ...Object.fromEntries(Object.entries(input).filter(([, v]) => v != null)),
+    }
+    return this._request<FreshdeskTicket>('POST', '/tickets', undefined, body)
   }
 
   public async getTicket(input: GetTicketInput): Promise<FreshdeskTicket> {
@@ -109,7 +117,8 @@ export class FreshdeskClient {
   }
 
   public async updateTicket(input: UpdateTicketInput): Promise<FreshdeskTicket> {
-    const { id, ...body } = input
+    const { id, ...rest } = input
+    const body = Object.fromEntries(Object.entries(rest).filter(([, v]) => v != null))
     return this._request<FreshdeskTicket>('PUT', `/tickets/${id}`, undefined, body)
   }
 
