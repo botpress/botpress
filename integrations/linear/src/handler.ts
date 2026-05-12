@@ -15,9 +15,22 @@ const LINEAR_WEBHOOK_TS_FIELD = 'webhookTimestamp'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
   const { req, ctx, client, logger } = props
+  logger
+    .forBot()
+    .debug(
+      `Linear handler invoked (method="${req.method ?? ''}", path="${req.path ?? ''}", integrationId="${ctx.integrationId}", webhookId="${ctx.webhookId}", configurationType="${ctx.configurationType}", hasBody=${Boolean(req.body)})`
+    )
+
   if (req.path === '/oauth') {
+    logger.forBot().info(`Linear OAuth callback received at /oauth (integrationId="${ctx.integrationId}").`)
     return await handleOauth(props).catch((err) => {
-      logger.forBot().error('Error while processing OAuth', err.response?.data || err.message)
+      logger
+        .forBot()
+        .error(
+          `Error while processing Linear OAuth: status=${err.response?.status ?? 'n/a'}, message="${
+            err?.message ?? ''
+          }", responseData=${JSON.stringify(err.response?.data ?? {})}`
+        )
       throw err
     })
   }
