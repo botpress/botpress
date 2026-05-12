@@ -2683,13 +2683,13 @@ importers:
         specifier: ^11.7.0
         version: 11.7.0
       '@botpress/chat':
-        specifier: 0.5.5
-        version: 0.5.5
+        specifier: 0.6.0
+        version: link:../chat-client
       '@botpress/client':
         specifier: 1.45.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 6.11.0
+        specifier: 6.11.1
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2813,7 +2813,7 @@ importers:
         specifier: 1.45.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.11.0
+        specifier: 6.11.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2829,7 +2829,7 @@ importers:
         specifier: 1.45.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.11.0
+        specifier: 6.11.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2842,7 +2842,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 6.11.0
+        specifier: 6.11.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2858,7 +2858,7 @@ importers:
         specifier: 1.45.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.11.0
+        specifier: 6.11.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2874,7 +2874,7 @@ importers:
         specifier: 1.45.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.11.0
+        specifier: 6.11.1
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -4200,10 +4200,6 @@ packages:
 
   '@botpress/api@1.105.0':
     resolution: {integrity: sha512-DnnqYlEyLCXf7cCaPSJvrQHhb+ycRbFPCyCGKTn0y7mvF32n5tgwZUbC4fEtHt/i6u9AuXPG3ObqPjPcYxocLw==}
-
-  '@botpress/chat@0.5.5':
-    resolution: {integrity: sha512-KgKhDi5pwG0QVg9ULq/oW+5uzaA8Ht42KOPh42LuK96niomNlDzPbM+b3ix7zp16KLDGkzCOO7oo8HuouLfNmw==}
-    engines: {node: '>=18.0.0'}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -12171,23 +12167,27 @@ packages:
 
   uuid@10.0.0:
     resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@3.4.0:
     resolution: {integrity: sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==}
-    deprecated: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@9.0.0:
     resolution: {integrity: sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   v8-compile-cache-lib@3.0.1:
@@ -13984,19 +13984,6 @@ snapshots:
       - debug
       - openapi-types
       - supports-color
-
-  '@botpress/chat@0.5.5':
-    dependencies:
-      axios: 1.2.5
-      browser-or-node: 2.1.1
-      event-source-polyfill: 1.0.31
-      eventsource: 2.0.2
-      jsonwebtoken: 9.0.2
-      qs: 6.15.0
-      verror: 1.10.1
-      zod: 3.25.76
-    transitivePeerDependencies:
-      - debug
 
   '@bpinternal/const@0.1.0': {}
 
@@ -24068,7 +24055,8 @@ snapshots:
 
   zod@3.24.2: {}
 
-  zod@3.25.76: {}
+  zod@3.25.76:
+    optional: true
 
   zwitch@1.0.5: {}
 
