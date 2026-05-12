@@ -1,4 +1,4 @@
-import { Response, RuntimeError, z } from '@botpress/sdk'
+import { Response, RuntimeError, z, OAUTH_IDENTIFIER_HEADER } from '@botpress/sdk'
 import * as preact from 'preact-render-to-string'
 import * as htmlDialogs from '../html-dialogs'
 import * as consts from './consts'
@@ -73,7 +73,7 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
       inputValue: searchParams.get(consts.INPUT_PARAM) ?? undefined,
       formValues: Object.keys(formValues).length > 0 ? formValues : undefined,
       setIntegrationIdentifier(identifier: string) {
-        extraHeaders[sdk.OAUTH_IDENTIFIER_HEADER] = identifier
+        extraHeaders[OAUTH_IDENTIFIER_HEADER] = identifier
       },
       responses: {
         displayButtons: ({ buttons, pageTitle, htmlOrMarkdownPageContents }) =>
