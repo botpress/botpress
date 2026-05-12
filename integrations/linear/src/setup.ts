@@ -6,28 +6,43 @@ const _isWebhookManuallyRegistered = (ctx: bp.HandlerProps['ctx']) =>
   ctx.configurationType === 'apiKey' && ctx.configuration.webhookSigningSecret
 
 export const register: bp.IntegrationProps['register'] = async ({ client, ctx, logger }) => {
-  logger.forBot().info('Registering integration...')
+  const manuallyRegistered = _isWebhookManuallyRegistered(ctx)
+  logger.forBot().info('Registering Linear integration.')
+
   const linearClient = await LinearOauthClient.create({ client, ctx })
-  if (!_isWebhookManuallyRegistered(ctx)) {
+
+  if (!manuallyRegistered) {
     const webhookUrl = `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
+    logger.forBot().info('Registering Linear webhook')
     try {
       await registerWebhook({ linearClient, logger, url: webhookUrl })
+      logger.forBot().info('Linear webhook registered')
     } catch (thrown) {
       const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
       throw new RuntimeError(`Failed to register webhook: ${errorMessage}`)
     }
+  } else {
+    logger
+      .forBot()
+      .info('Skipping automatic Linear webhook registration: webhookSigningSecret is set in apiKey configuration.')
   }
-  logger.forBot().info('Integration registered successfully.')
+  logger.forBot().info(`Linear integration registered successfully (integrationId="${ctx.integrationId}").`)
 }
 
 export const unregister: bp.IntegrationProps['unregister'] = async ({ client, ctx, logger }) => {
-  if (_isWebhookManuallyRegistered(ctx)) {
+  const manuallyRegistered = _isWebhookManuallyRegistered(ctx)
+  logger.forBot().info('Unregistering Linear integration.')
+
+  if (manuallyRegistered) {
+    logger.forBot().info('Skipping Linear webhook unregistration: webhook was manually registered.')
     return
   }
   try {
     const linearClient = await LinearOauthClient.create({ client, ctx })
     const webhookUrl = `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
+    logger.forBot().info('Unregistering Linear webhook.')
     await unregisterWebhook({ linearClient, logger, url: webhookUrl })
+    logger.forBot().info('Linear webhook unregistration step completed.')
   } catch (thrown) {
     const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
     logger.forBot().warn('Failed to unregister webhook:', errorMessage)
