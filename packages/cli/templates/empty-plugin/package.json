@@ -5,7 +5,7 @@
     "check:type": "tsc --noEmit"
   },
   "dependencies": {
-    "@botpress/sdk": "6.9.3"
+    "@botpress/sdk": "6.11.0"
   },
   "devDependencies": {
     "@types/node": "^22.16.4",
