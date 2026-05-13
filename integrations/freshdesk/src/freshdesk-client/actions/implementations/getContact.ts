@@ -10,7 +10,7 @@ export const getContact = wrapAction(
       email: contact.email ?? null,
       phone: contact.phone ?? null,
       mobile: contact.mobile ?? null,
-      company_id: contact.company_id ?? null,
+      companyId: contact.company_id ?? null,
       tags: contact.tags ?? null,
       createdAt: contact.created_at,
     }

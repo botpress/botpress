@@ -85,7 +85,7 @@ export const actions = {
         createdAt: z.string().title('Created At').describe('ISO 8601 timestamp of ticket creation.'),
         updatedAt: z.string().title('Updated At').describe('ISO 8601 timestamp of last update.'),
         tags: z.array(z.string()).nullish().title('Tags').describe('Tags associated with the ticket.'),
-        custom_fields: z
+        customFields: z
           .record(z.string(), z.unknown())
           .nullish()
           .title('Custom Fields')
@@ -162,7 +162,7 @@ export const actions = {
     description: 'Deletes a Freshdesk ticket. Deleted tickets can be restored from the Freshdesk UI.',
     input: {
       schema: z.object({
-        id: z.number().title('Ticket ID').describe('The Freshdesk ticket ID to delete.'),
+        ticketId: z.string().title('Ticket ID').describe('The Freshdesk ticket ID to delete.'),
       }),
     },
     output: {
@@ -266,7 +266,7 @@ export const actions = {
         email: z.string().nullish().title('Email').describe('Email address of the contact.'),
         phone: z.string().nullish().title('Phone').describe('Phone number of the contact.'),
         mobile: z.string().nullish().title('Mobile').describe('Mobile number of the contact.'),
-        company_id: z.number().nullish().title('Company ID').describe('ID of the associated company.'),
+        companyId: z.number().nullish().title('Company ID').describe('ID of the associated company.'),
         tags: z.array(z.string()).nullish().title('Tags').describe('Tags associated with the contact.'),
         createdAt: z.string().title('Created At').describe('ISO 8601 timestamp of contact creation.'),
       }),
@@ -290,7 +290,7 @@ export const actions = {
               name: z.string().title('Name').describe('Full name of the contact.'),
               email: z.string().nullish().title('Email').describe('Email address of the contact.'),
               phone: z.string().nullish().title('Phone').describe('Phone number of the contact.'),
-              company_id: z.number().nullish().title('Company ID').describe('ID of the associated company.'),
+              companyId: z.number().nullish().title('Company ID').describe('ID of the associated company.'),
             })
           )
           .title('Contacts')

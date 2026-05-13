@@ -3,8 +3,14 @@ import { normalizeTicket } from './normalizeTicket'
 
 type HandlerProps = Parameters<bp.IntegrationProps['handler']>[0]
 
-export const executeticketReplied = async (props: HandlerProps & { body: Record<string, unknown> }) => {
-  const { client, body } = props
+export const executeTicketReplied = async (props: HandlerProps & { body: Record<string, unknown> }) => {
+  const { client, body, logger } = props
+  const log = logger.forBot()
+
+  if (!body['reply']) {
+    log.warn('ticketReplied webhook missing reply field, ignoring')
+    return
+  }
 
   const ticket = normalizeTicket(body['ticket'] as Record<string, unknown>)
 

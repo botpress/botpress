@@ -17,7 +17,7 @@ export const getTicket = wrapAction(
       createdAt: ticket.created_at,
       updatedAt: ticket.updated_at,
       tags: ticket.tags ?? null,
-      custom_fields: ticket.custom_fields ?? null,
+      customFields: ticket.custom_fields ?? null,
     }
   }
 )

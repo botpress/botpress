@@ -14,14 +14,16 @@ export default new IntegrationDefinition({
   events,
   user: {
     tags: {
-      freshdeskRequesterId: { title: 'Freshdesk Requester ID' },
+      freshdeskRequesterId: { title: 'Freshdesk Requester ID', description: 'The ID of the requester in Freshdesk' },
     },
   },
   channels: {
     ticket: {
+      title: 'Ticket',
+      description: 'A Freshdesk support ticket channel for managing customer support conversations',
       conversation: {
         tags: {
-          freshdeskTicketId: { title: 'Freshdesk Ticket ID' },
+          freshdeskTicketId: { title: 'Freshdesk Ticket ID', description: 'The ID of the ticket in Freshdesk' },
         },
       },
       messages: {

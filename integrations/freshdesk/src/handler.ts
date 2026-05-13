@@ -1,14 +1,23 @@
-import { executeticketReplied } from './events/ticketReplied'
+import { executeTicketReplied } from './events/ticketReplied'
 import { executeTicketCreated } from './events/ticketCreated'
 import { executeTicketUpdated } from './events/ticketUpdated'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
-  const { req, logger } = props
+  const { req, logger, ctx } = props
   const log = logger.forBot()
 
   log.info(`Webhook received: ${req.method} ${req.path}`)
-  log.info(`Webhook body: ${req.body ?? '(empty)'}`)
+  log.debug(`Webhook body: ${req.body ?? '(empty)'}`)
+
+  const { webhookSecret } = ctx.configuration
+  if (webhookSecret) {
+    const providedSecret = req.headers?.['x-webhook-secret']
+    if (providedSecret !== webhookSecret) {
+      log.warn('Webhook received with invalid or missing secret, rejecting')
+      return
+    }
+  }
 
   try {
     if (!req.body) {
@@ -40,7 +49,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
 
     if (req.path === '/ticket-replied') {
       log.info(`Firing ticketReplied, ticket=${JSON.stringify(body['ticket'])}`)
-      const result = await executeticketReplied({ ...props, body })
+      const result = await executeTicketReplied({ ...props, body })
       log.info('ticketReplied event fired successfully')
       return result
     }

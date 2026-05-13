@@ -10,10 +10,11 @@ Connect Botpress to Freshdesk to manage support tickets and react to ticket life
 
 ## Configuration
 
-| Field                | Description                                             |
-| -------------------- | ------------------------------------------------------- |
-| **Freshdesk Domain** | Your subdomain only — not the full URL. Example: `acme` |
-| **API Key**          | Your personal API key from Freshdesk Profile Settings   |
+| Field                | Description                                                                                                                                                            |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Freshdesk Domain** | Your subdomain only — not the full URL. Example: `acme`                                                                                                                |
+| **API Key**          | Your personal API key from Freshdesk Profile Settings                                                                                                                  |
+| **Webhook Secret**   | Optional. A secret string used to authenticate incoming webhooks. Set it here and add it as the `X-Webhook-Secret` header in each Freshdesk Automation webhook action. |
 
 ## Actions
 
@@ -56,20 +57,20 @@ Retrieves a single Freshdesk ticket by ID.
 
 **Output**
 
-| Field           | Type     | Description                            |
-| --------------- | -------- | -------------------------------------- |
-| `id`            | number   | Unique Freshdesk ticket ID             |
-| `subject`       | string   | Subject of the ticket                  |
-| `description`   | string   | HTML content of the ticket description |
-| `status`        | string   | Ticket status enum                     |
-| `priority`      | string   | Ticket priority enum                   |
-| `requesterId`   | number   | Freshdesk requester user ID            |
-| `responderId`   | number   | Agent assigned to the ticket           |
-| `groupId`       | number   | Group the ticket is assigned to        |
-| `createdAt`     | string   | ISO 8601 timestamp of ticket creation  |
-| `updatedAt`     | string   | ISO 8601 timestamp of last update      |
-| `tags`          | string[] | Tags associated with the ticket        |
-| `custom_fields` | record   | Custom field key-value pairs           |
+| Field          | Type     | Description                            |
+| -------------- | -------- | -------------------------------------- |
+| `id`           | number   | Unique Freshdesk ticket ID             |
+| `subject`      | string   | Subject of the ticket                  |
+| `description`  | string   | HTML content of the ticket description |
+| `status`       | string   | Ticket status enum                     |
+| `priority`     | string   | Ticket priority enum                   |
+| `requesterId`  | number   | Freshdesk requester user ID            |
+| `responderId`  | number   | Agent assigned to the ticket           |
+| `groupId`      | number   | Group the ticket is assigned to        |
+| `createdAt`    | string   | ISO 8601 timestamp of ticket creation  |
+| `updatedAt`    | string   | ISO 8601 timestamp of last update      |
+| `tags`         | string[] | Tags associated with the ticket        |
+| `customFields` | record   | Custom field key-value pairs           |
 
 ### List Tickets
 
@@ -143,6 +144,12 @@ Adds an internal note to a ticket. Notes are private by default (not visible to 
 
 Soft-deletes a ticket (it can be restored from the Freshdesk UI). Returns no data on success.
 
+**Input**
+
+| Field      | Type   | Required | Description             |
+| ---------- | ------ | -------- | ----------------------- |
+| `ticketId` | string | Yes      | The Freshdesk ticket ID |
+
 ### Search Tickets
 
 Searches Freshdesk tickets by email, status, or priority. Returns up to 100 results.
@@ -179,20 +186,20 @@ Retrieves a Freshdesk contact by ID.
 
 **Output**
 
-| Field        | Type     | Description                            |
-| ------------ | -------- | -------------------------------------- |
-| `id`         | number   | Unique Freshdesk contact ID            |
-| `name`       | string   | Full name of the contact               |
-| `email`      | string   | Email address of the contact           |
-| `phone`      | string   | Phone number of the contact            |
-| `mobile`     | string   | Mobile number of the contact           |
-| `company_id` | number   | ID of the associated company           |
-| `tags`       | string[] | Tags associated with the contact       |
-| `createdAt`  | string   | ISO 8601 timestamp of contact creation |
+| Field       | Type     | Description                            |
+| ----------- | -------- | -------------------------------------- |
+| `id`        | number   | Unique Freshdesk contact ID            |
+| `name`      | string   | Full name of the contact               |
+| `email`     | string   | Email address of the contact           |
+| `phone`     | string   | Phone number of the contact            |
+| `mobile`    | string   | Mobile number of the contact           |
+| `companyId` | number   | ID of the associated company           |
+| `tags`      | string[] | Tags associated with the contact       |
+| `createdAt` | string   | ISO 8601 timestamp of contact creation |
 
 ### Search Contacts
 
-Finds contacts by email or name. Use `email` for exact match; use `name` for prefix-based search (case-insensitive).
+Finds contacts by email or name. Use `email` for exact match; use `name` for prefix-based search (case-insensitive). If both `email` and `name` are provided, `email` takes precedence.
 
 **Input**
 
@@ -203,13 +210,13 @@ Finds contacts by email or name. Use `email` for exact match; use `name` for pre
 
 **Output**
 
-| Field                   | Type   | Description                  |
-| ----------------------- | ------ | ---------------------------- |
-| `contacts[].id`         | number | Unique Freshdesk contact ID  |
-| `contacts[].name`       | string | Full name of the contact     |
-| `contacts[].email`      | string | Email address of the contact |
-| `contacts[].phone`      | string | Phone number of the contact  |
-| `contacts[].company_id` | number | ID of the associated company |
+| Field                  | Type   | Description                  |
+| ---------------------- | ------ | ---------------------------- |
+| `contacts[].id`        | number | Unique Freshdesk contact ID  |
+| `contacts[].name`      | string | Full name of the contact     |
+| `contacts[].email`     | string | Email address of the contact |
+| `contacts[].phone`     | string | Phone number of the contact  |
+| `contacts[].companyId` | number | ID of the associated company |
 
 ## Ticket Properties
 
@@ -259,7 +266,9 @@ Fires when a customer adds a reply to a ticket. Set up a rule under **Admin → 
 | ticketUpdated | `{webhook-url}/ticket-updated` |
 | ticketReplied | `{webhook-url}/ticket-replied` |
 
-6. In the webhook body, include at minimum the ticket fields your bot needs. Example JSON template:
+6. _(Recommended)_ If you set a **Webhook Secret** in the integration configuration, add a custom request header named `X-Webhook-Secret` with that same value in each Freshdesk Automation webhook action. The integration will reject any webhook that omits or mismatches the secret.
+
+7. In the webhook body, include at minimum the ticket fields your bot needs. Example JSON template:
 
 ```json
 {
@@ -288,7 +297,7 @@ For `ticketReplied`, also include reply fields:
 
 ## Limitations
 
-- The Search Tickets action supports a maximum of 10 pages of results
+- The Search Tickets action scans up to 4 pages (120 results) of Freshdesk search results before applying the `limit` cap
 - Freshdesk webhook setup requires manual configuration via Automation Rules — the integration cannot create them automatically
 - Deleted tickets are soft-deleted and can be restored via the Freshdesk UI
 - Ticket attachments are not supported in this integration

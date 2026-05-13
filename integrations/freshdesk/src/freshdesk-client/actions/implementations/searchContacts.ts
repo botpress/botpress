@@ -1,5 +1,7 @@
 import { wrapAction } from '../action-wrapper'
 
+const MAX_NAME_ENRICHMENT = 5
+
 export const searchContacts = wrapAction(
   { actionName: 'searchContacts', errorMessage: 'Failed to search Freshdesk contacts' },
   async ({ freshdeskClient }, input) => {
@@ -11,7 +13,7 @@ export const searchContacts = wrapAction(
           name: c.name,
           email: c.email ?? null,
           phone: c.phone ?? null,
-          company_id: c.company_id ?? null,
+          companyId: c.company_id ?? null,
         })),
       }
     }
@@ -19,14 +21,14 @@ export const searchContacts = wrapAction(
     if (input.name) {
       const results = await freshdeskClient.searchContactsByName(input.name)
       const contacts = await Promise.all(
-        results.map(async (r) => {
+        results.slice(0, MAX_NAME_ENRICHMENT).map(async (r) => {
           const contact = await freshdeskClient.getContact(r.id)
           return {
             id: contact.id,
             name: contact.name,
             email: contact.email ?? null,
             phone: contact.phone ?? null,
-            company_id: contact.company_id ?? null,
+            companyId: contact.company_id ?? null,
           }
         })
       )
