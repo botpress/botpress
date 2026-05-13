@@ -18,7 +18,7 @@ import {
   RemoteModelProvider,
 } from './models'
 import { GenerateContentOutput } from './schemas.gen'
-import { CognitiveProps, Events, InputProps, Request, Response } from './types'
+import { CognitiveProps, Events, InputModel, InputProps, Request, Response } from './types'
 
 export class Cognitive {
   public ['$$IS_COGNITIVE'] = true
@@ -136,6 +136,10 @@ export class Cognitive {
     })
   }
 
+  private _getPrimaryModel(input: InputProps): InputModel | undefined {
+    return Array.isArray(input.model) ? input.model[0] : input.model
+  }
+
   private async _selectModel(ref: string): Promise<{ integration: string; model: string }> {
     const parseRef = (ref: string) => {
       const parts = ref.split(':')
@@ -229,7 +233,7 @@ export class Cognitive {
   }
 
   public async generateContent(input: InputProps): Promise<Response> {
-    const primaryInputModel = Array.isArray(input.model) ? input.model[0] : input.model
+    const primaryInputModel = this._getPrimaryModel(input)
 
     if (!this._useBeta || !isKnownV2Model(primaryInputModel)) {
       return this._generateContent(input)
@@ -327,7 +331,7 @@ export class Cognitive {
 
     const client = this._client.abortable(signal)
 
-    const primaryInputModel = Array.isArray(input.model) ? input.model[0] : input.model
+    const primaryInputModel = this._getPrimaryModel(input)
 
     let props: Request = { input }
     let integration: string
