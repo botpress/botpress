@@ -51,8 +51,12 @@ export const defaultModel: Model = ${JSON.stringify(defaultModel, undefined, 2)}
 
   fs.writeFileSync(modelsListPath, newFile, 'utf8')
 
-  const collectRefs = (list: Model[]) =>
-    Array.from(new Set(list.map(toRef).filter(Boolean))).sort((a, b) => a.localeCompare(b))
+  const collectRefs = (list: Model[]) => {
+    const refs = list.map(toRef).filter((x) => x !== null)
+    const uniqueRefs = Array.from(new Set(refs))
+    return uniqueRefs.sort((a, b) => a.localeCompare(b))
+  }
+
   const collectAliases = (list: Model[]) =>
     Array.from(new Set(list.flatMap((m) => (m.aliases || []).map((a) => `${m.id.split(':')[0]}:${a}`))))
 
