@@ -1,5 +1,8 @@
 import { wrapAction } from '../action-wrapper'
 
+// Name search returns results without email/phone; 
+// each needs a separate getContact call to fill in those missing fields. 
+// Cap at 5 to avoid unbounded API requests.
 const MAX_NAME_ENRICHMENT = 5
 
 export const searchContacts = wrapAction(
