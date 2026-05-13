@@ -269,7 +269,9 @@ Fires when a customer adds a reply to a ticket. Set up a rule under **Admin → 
 
 6. _(Recommended)_ If you set a **Webhook Secret** in the integration configuration, add a custom request header named `X-Webhook-Secret` with that same value in each Freshdesk Automation webhook action. The integration will reject any webhook that omits or mismatches the secret.
 
-7. In the webhook body, include at minimum the ticket fields your bot needs. Example JSON template:
+7. In the webhook body, include at minimum the ticket fields your bot needs. The `ticket.id` field is **required** — webhooks missing it will be rejected. All other ticket fields are optional.
+
+   For `ticketCreated` and `ticketUpdated`:
 
 ```json
 {
@@ -286,13 +288,15 @@ Fires when a customer adds a reply to a ticket. Set up a rule under **Admin → 
 }
 ```
 
-For `ticketReplied`, also include reply fields:
+   For `ticketReplied`, also include reply fields. The `reply.body` field is **required**:
 
 ```json
 {
-  "ticket": { 
-    "id": "{{ticket.id}}", 
-    "status": {{ticket.status}} },
+  "ticket": {
+    "id": "{{ticket.id}}",
+    "status": "{{ticket.status_id}}",
+    "requester_id": "{{ticket.requester.id}}"
+  },
   "reply": {
     "body": "{{ticket.latest_public_comment_html}}",
     "body_text": "{{ticket.latest_public_comment}}",
