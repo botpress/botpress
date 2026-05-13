@@ -1,5 +1,5 @@
-import { wrapAction } from '../action-wrapper'
 import type { FreshdeskTicket } from '../../types'
+import { wrapAction } from '../action-wrapper'
 import { NUM_TO_PRIORITY, NUM_TO_STATUS, PRIORITY_TO_NUM, STATUS_TO_NUM } from './utils'
 
 export const searchTickets = wrapAction(

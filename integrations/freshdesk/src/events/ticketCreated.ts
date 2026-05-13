@@ -1,5 +1,5 @@
-import * as bp from '.botpress'
 import { normalizeTicket } from './normalizeTicket'
+import * as bp from '.botpress'
 
 type HandlerProps = Parameters<bp.IntegrationProps['handler']>[0]
 

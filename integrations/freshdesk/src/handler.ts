@@ -1,5 +1,5 @@
-import { executeTicketReplied } from './events/ticketReplied'
 import { executeTicketCreated } from './events/ticketCreated'
+import { executeTicketReplied } from './events/ticketReplied'
 import { executeTicketUpdated } from './events/ticketUpdated'
 import * as bp from '.botpress'
 
