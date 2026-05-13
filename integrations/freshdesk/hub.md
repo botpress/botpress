@@ -23,26 +23,26 @@ Creates a new support ticket.
 
 **Input**
 
-| Field          | Type             | Required | Default  | Description                        |
-| -------------- | ---------------- | -------- | -------- | ---------------------------------- |
-| `subject`      | string           | Yes      |          | Subject of the ticket              |
-| `description`  | string           | Yes      |          | HTML content of the ticket body    |
-| `email`        | string           | Yes      |          | Requester email address            |
-| `priority`     | `low` \| `medium` \| `high` \| `urgent` | No | `medium` | Ticket priority |
-| `status`       | `open` \| `pending` \| `resolved` \| `closed` | No | `open` | Ticket status |
-| `tags`         | string[]         | No       |          | Tags to associate with the ticket  |
-| `custom_fields` | record          | No       |          | Custom field key-value pairs       |
+| Field           | Type                                          | Required | Default  | Description                       |
+| --------------- | --------------------------------------------- | -------- | -------- | --------------------------------- |
+| `subject`       | string                                        | Yes      |          | Subject of the ticket             |
+| `description`   | string                                        | Yes      |          | HTML content of the ticket body   |
+| `email`         | string                                        | Yes      |          | Requester email address           |
+| `priority`      | `low` \| `medium` \| `high` \| `urgent`       | No       | `medium` | Ticket priority                   |
+| `status`        | `open` \| `pending` \| `resolved` \| `closed` | No       | `open`   | Ticket status                     |
+| `tags`          | string[]                                      | No       |          | Tags to associate with the ticket |
+| `custom_fields` | record                                        | No       |          | Custom field key-value pairs      |
 
 **Output**
 
-| Field       | Type   | Description                              |
-| ----------- | ------ | ---------------------------------------- |
-| `id`        | number | Unique Freshdesk ticket ID               |
-| `subject`   | string | Subject of the ticket                    |
-| `status`    | string | Ticket status as a string enum           |
-| `priority`  | string | Ticket priority as a string enum         |
-| `createdAt` | string | ISO 8601 timestamp of ticket creation    |
-| `url`       | string | URL to view the ticket in Freshdesk      |
+| Field       | Type   | Description                           |
+| ----------- | ------ | ------------------------------------- |
+| `id`        | number | Unique Freshdesk ticket ID            |
+| `subject`   | string | Subject of the ticket                 |
+| `status`    | string | Ticket status as a string enum        |
+| `priority`  | string | Ticket priority as a string enum      |
+| `createdAt` | string | ISO 8601 timestamp of ticket creation |
+| `url`       | string | URL to view the ticket in Freshdesk   |
 
 ### Get Ticket
 
@@ -50,26 +50,26 @@ Retrieves a single Freshdesk ticket by ID.
 
 **Input**
 
-| Field      | Type   | Required | Description           |
-| ---------- | ------ | -------- | --------------------- |
+| Field      | Type   | Required | Description             |
+| ---------- | ------ | -------- | ----------------------- |
 | `ticketId` | string | Yes      | The Freshdesk ticket ID |
 
 **Output**
 
-| Field         | Type     | Description                                  |
-| ------------- | -------- | -------------------------------------------- |
-| `id`          | number   | Unique Freshdesk ticket ID                   |
-| `subject`     | string   | Subject of the ticket                        |
-| `description` | string   | HTML content of the ticket description       |
-| `status`      | string   | Ticket status enum                           |
-| `priority`    | string   | Ticket priority enum                         |
-| `requesterId` | number   | Freshdesk requester user ID                  |
-| `responderId` | number   | Agent assigned to the ticket                 |
-| `groupId`     | number   | Group the ticket is assigned to              |
-| `createdAt`   | string   | ISO 8601 timestamp of ticket creation        |
-| `updatedAt`   | string   | ISO 8601 timestamp of last update            |
-| `tags`        | string[] | Tags associated with the ticket              |
-| `custom_fields` | record | Custom field key-value pairs                 |
+| Field           | Type     | Description                            |
+| --------------- | -------- | -------------------------------------- |
+| `id`            | number   | Unique Freshdesk ticket ID             |
+| `subject`       | string   | Subject of the ticket                  |
+| `description`   | string   | HTML content of the ticket description |
+| `status`        | string   | Ticket status enum                     |
+| `priority`      | string   | Ticket priority enum                   |
+| `requesterId`   | number   | Freshdesk requester user ID            |
+| `responderId`   | number   | Agent assigned to the ticket           |
+| `groupId`       | number   | Group the ticket is assigned to        |
+| `createdAt`     | string   | ISO 8601 timestamp of ticket creation  |
+| `updatedAt`     | string   | ISO 8601 timestamp of last update      |
+| `tags`          | string[] | Tags associated with the ticket        |
+| `custom_fields` | record   | Custom field key-value pairs           |
 
 ### List Tickets
 
@@ -81,23 +81,23 @@ Updates an existing Freshdesk ticket.
 
 **Input**
 
-| Field          | Type             | Required | Description                              |
-| -------------- | ---------------- | -------- | ---------------------------------------- |
-| `ticketId`     | string           | Yes      | The Freshdesk ticket ID to update        |
-| `status`       | `open` \| `pending` \| `resolved` \| `closed` | No | Updated ticket status |
-| `priority`     | `low` \| `medium` \| `high` \| `urgent` | No | Updated ticket priority |
-| `responderId`  | number           | No       | ID of the agent to assign the ticket to  |
-| `groupId`      | number           | No       | ID of the group to assign the ticket to  |
-| `custom_fields` | record          | No       | Custom field key-value pairs             |
+| Field           | Type                                          | Required | Description                             |
+| --------------- | --------------------------------------------- | -------- | --------------------------------------- |
+| `ticketId`      | string                                        | Yes      | The Freshdesk ticket ID to update       |
+| `status`        | `open` \| `pending` \| `resolved` \| `closed` | No       | Updated ticket status                   |
+| `priority`      | `low` \| `medium` \| `high` \| `urgent`       | No       | Updated ticket priority                 |
+| `responderId`   | number                                        | No       | ID of the agent to assign the ticket to |
+| `groupId`       | number                                        | No       | ID of the group to assign the ticket to |
+| `custom_fields` | record                                        | No       | Custom field key-value pairs            |
 
 **Output**
 
-| Field       | Type   | Description                           |
-| ----------- | ------ | ------------------------------------- |
-| `id`        | number | Unique Freshdesk ticket ID            |
-| `status`    | string | Updated ticket status enum            |
-| `priority`  | string | Updated ticket priority enum          |
-| `updatedAt` | string | ISO 8601 timestamp of last update     |
+| Field       | Type   | Description                       |
+| ----------- | ------ | --------------------------------- |
+| `id`        | number | Unique Freshdesk ticket ID        |
+| `status`    | string | Updated ticket status enum        |
+| `priority`  | string | Updated ticket priority enum      |
+| `updatedAt` | string | ISO 8601 timestamp of last update |
 
 ### Reply to Ticket
 
@@ -105,19 +105,19 @@ Sends a customer-facing reply on a ticket.
 
 **Input**
 
-| Field       | Type     | Required | Description                                     |
-| ----------- | -------- | -------- | ----------------------------------------------- |
-| `ticketId`  | string   | Yes      | The Freshdesk ticket ID to reply to             |
-| `body`      | string   | Yes      | HTML content of the reply                       |
-| `cc_emails` | string[] | No       | Email addresses to CC on the reply              |
+| Field       | Type     | Required | Description                         |
+| ----------- | -------- | -------- | ----------------------------------- |
+| `ticketId`  | string   | Yes      | The Freshdesk ticket ID to reply to |
+| `body`      | string   | Yes      | HTML content of the reply           |
+| `cc_emails` | string[] | No       | Email addresses to CC on the reply  |
 
 **Output**
 
-| Field       | Type   | Description                              |
-| ----------- | ------ | ---------------------------------------- |
-| `id`        | number | Unique ID of the reply                   |
-| `body`      | string | HTML content of the reply                |
-| `createdAt` | string | ISO 8601 timestamp of reply creation     |
+| Field       | Type   | Description                          |
+| ----------- | ------ | ------------------------------------ |
+| `id`        | number | Unique ID of the reply               |
+| `body`      | string | HTML content of the reply            |
+| `createdAt` | string | ISO 8601 timestamp of reply creation |
 
 ### Add Note
 
@@ -125,19 +125,19 @@ Adds an internal note to a ticket. Notes are private by default (not visible to 
 
 **Input**
 
-| Field      | Type    | Required | Default | Description                              |
-| ---------- | ------- | -------- | ------- | ---------------------------------------- |
-| `ticketId` | string  | Yes      |         | The Freshdesk ticket ID                  |
-| `body`     | string  | Yes      |         | HTML content of the note                 |
-| `private`  | boolean | No       | `true`  | Set to `false` to make the note public   |
+| Field      | Type    | Required | Default | Description                            |
+| ---------- | ------- | -------- | ------- | -------------------------------------- |
+| `ticketId` | string  | Yes      |         | The Freshdesk ticket ID                |
+| `body`     | string  | Yes      |         | HTML content of the note               |
+| `private`  | boolean | No       | `true`  | Set to `false` to make the note public |
 
 **Output**
 
-| Field       | Type   | Description                              |
-| ----------- | ------ | ---------------------------------------- |
-| `id`        | number | Unique ID of the note                    |
-| `body`      | string | HTML content of the note                 |
-| `createdAt` | string | ISO 8601 timestamp of note creation      |
+| Field       | Type   | Description                         |
+| ----------- | ------ | ----------------------------------- |
+| `id`        | number | Unique ID of the note               |
+| `body`      | string | HTML content of the note            |
+| `createdAt` | string | ISO 8601 timestamp of note creation |
 
 ### Delete Ticket
 
@@ -149,23 +149,23 @@ Searches Freshdesk tickets by email, status, or priority. Returns up to 100 resu
 
 **Input**
 
-| Field      | Type             | Required | Default | Description                              |
-| ---------- | ---------------- | -------- | ------- | ---------------------------------------- |
-| `email`    | string           | No       |         | Filter by requester email address        |
-| `status`   | `open` \| `pending` \| `resolved` \| `closed` | No | | Filter by ticket status |
-| `priority` | `low` \| `medium` \| `high` \| `urgent` | No | | Filter by ticket priority |
-| `limit`    | number           | No       | 20      | Maximum tickets to return (max 100)      |
+| Field      | Type                                          | Required | Default | Description                         |
+| ---------- | --------------------------------------------- | -------- | ------- | ----------------------------------- |
+| `email`    | string                                        | No       |         | Filter by requester email address   |
+| `status`   | `open` \| `pending` \| `resolved` \| `closed` | No       |         | Filter by ticket status             |
+| `priority` | `low` \| `medium` \| `high` \| `urgent`       | No       |         | Filter by ticket priority           |
+| `limit`    | number                                        | No       | 20      | Maximum tickets to return (max 100) |
 
 **Output**
 
-| Field                    | Type   | Description                           |
-| ------------------------ | ------ | ------------------------------------- |
-| `tickets[].id`           | number | Unique Freshdesk ticket ID            |
-| `tickets[].subject`      | string | Subject of the ticket                 |
-| `tickets[].status`       | string | Ticket status enum                    |
-| `tickets[].priority`     | string | Ticket priority enum                  |
-| `tickets[].createdAt`    | string | ISO 8601 timestamp of ticket creation |
-| `tickets[].requesterEmail` | string | Email address of the requester      |
+| Field                      | Type   | Description                           |
+| -------------------------- | ------ | ------------------------------------- |
+| `tickets[].id`             | number | Unique Freshdesk ticket ID            |
+| `tickets[].subject`        | string | Subject of the ticket                 |
+| `tickets[].status`         | string | Ticket status enum                    |
+| `tickets[].priority`       | string | Ticket priority enum                  |
+| `tickets[].createdAt`      | string | ISO 8601 timestamp of ticket creation |
+| `tickets[].requesterEmail` | string | Email address of the requester        |
 
 ### Get Contact
 
@@ -179,37 +179,37 @@ Retrieves a Freshdesk contact by ID.
 
 **Output**
 
-| Field        | Type     | Description                               |
-| ------------ | -------- | ----------------------------------------- |
-| `id`         | number   | Unique Freshdesk contact ID               |
-| `name`       | string   | Full name of the contact                  |
-| `email`      | string   | Email address of the contact              |
-| `phone`      | string   | Phone number of the contact               |
-| `mobile`     | string   | Mobile number of the contact              |
-| `company_id` | number   | ID of the associated company              |
-| `tags`       | string[] | Tags associated with the contact          |
-| `createdAt`  | string   | ISO 8601 timestamp of contact creation    |
+| Field        | Type     | Description                            |
+| ------------ | -------- | -------------------------------------- |
+| `id`         | number   | Unique Freshdesk contact ID            |
+| `name`       | string   | Full name of the contact               |
+| `email`      | string   | Email address of the contact           |
+| `phone`      | string   | Phone number of the contact            |
+| `mobile`     | string   | Mobile number of the contact           |
+| `company_id` | number   | ID of the associated company           |
+| `tags`       | string[] | Tags associated with the contact       |
+| `createdAt`  | string   | ISO 8601 timestamp of contact creation |
 
 ### Search Contacts
 
-Finds contacts by email or name. Use `email` for exact match; use `name` for prefix-based search (case-insensitive). Name search uses the Freshdesk autocomplete API and returns only `id` and `name` — `email`, `phone`, and `company_id` will be `null` for name-only results.
+Finds contacts by email or name. Use `email` for exact match; use `name` for prefix-based search (case-insensitive).
 
 **Input**
 
-| Field   | Type   | Required | Description                                   |
-| ------- | ------ | -------- | --------------------------------------------- |
-| `email` | string | No       | Filter by exact email address                 |
-| `name`  | string | No       | Search by name prefix (e.g. `"John"`)         |
+| Field   | Type   | Required | Description                           |
+| ------- | ------ | -------- | ------------------------------------- |
+| `email` | string | No       | Filter by exact email address         |
+| `name`  | string | No       | Search by name prefix (e.g. `"John"`) |
 
 **Output**
 
-| Field                   | Type   | Description                          |
-| ----------------------- | ------ | ------------------------------------ |
-| `contacts[].id`         | number | Unique Freshdesk contact ID          |
-| `contacts[].name`       | string | Full name of the contact             |
-| `contacts[].email`      | string | Email address (email search only)    |
-| `contacts[].phone`      | string | Phone number (email search only)     |
-| `contacts[].company_id` | number | Associated company (email search only) |
+| Field                   | Type   | Description                  |
+| ----------------------- | ------ | ---------------------------- |
+| `contacts[].id`         | number | Unique Freshdesk contact ID  |
+| `contacts[].name`       | string | Full name of the contact     |
+| `contacts[].email`      | string | Email address of the contact |
+| `contacts[].phone`      | string | Phone number of the contact  |
+| `contacts[].company_id` | number | ID of the associated company |
 
 ## Ticket Properties
 
@@ -257,7 +257,7 @@ Fires when a customer adds a reply to a ticket. Set up a rule under **Admin → 
 | ------------- | ------------------------------ |
 | ticketCreated | `{webhook-url}/ticket-created` |
 | ticketUpdated | `{webhook-url}/ticket-updated` |
-| ticketReplied  | `{webhook-url}/ticket-replied`  |
+| ticketReplied | `{webhook-url}/ticket-replied` |
 
 6. In the webhook body, include at minimum the ticket fields your bot needs. Example JSON template:
 

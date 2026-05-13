@@ -278,11 +278,7 @@ export const actions = {
     input: {
       schema: z.object({
         email: z.string().optional().title('Email').describe('Filter contacts by exact email address.'),
-        name: z
-          .string()
-          .optional()
-          .title('Name')
-          .describe('Search contacts by name prefix (case-insensitive).'),
+        name: z.string().optional().title('Name').describe('Search contacts by name prefix (case-insensitive).'),
       }),
     },
     output: {
