@@ -222,7 +222,7 @@ export const actions = {
       schema: z.object({
         ticketId: z.string().title('Ticket ID').describe('The Freshdesk ticket ID to reply to.'),
         body: z.string().title('Body').describe('HTML content of the reply.'),
-        cc_emails: z.array(z.string()).optional().title('CC Emails').describe('Email addresses to CC on the reply.'),
+        cc_emails: z.array(z.string().email()).optional().title('CC Emails').describe('Email addresses to CC on the reply.'),
       }),
     },
     output: {
