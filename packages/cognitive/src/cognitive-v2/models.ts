@@ -920,12 +920,6 @@ export const models: Record<string, Model> = {
     aliases: [
       'claude-haiku-4-5-reasoning',
       'claude-haiku-4-5-20251001',
-      'claude-haiku-4-5-20251001',
-      'claude-haiku-4-5-20251001',
-      'claude-haiku-4-5-20251001',
-      'claude-haiku-4-5-20251001',
-      'claude-haiku-4-5-20251001',
-      'claude-haiku-4-5-20251001',
     ],
   },
   'anthropic:claude-3-7-sonnet-20250219': {
