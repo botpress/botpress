@@ -38,7 +38,7 @@ export const events = {
         .object({
           body: z.string().title('Body').describe('HTML content of the reply.'),
           body_text: z.string().optional().title('Body Text').describe('Plain-text content of the reply.'),
-          customer_id: z.number().optional().title('Customer ID').describe('ID of the customer who replied.'),
+          customer_email: z.string().optional().title('Customer Email').describe('Email of the customer who replied.'),
         })
         .title('Reply')
         .describe('The reply that was added.'),
