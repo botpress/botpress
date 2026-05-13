@@ -1,4 +1,4 @@
-import { IntegrationDefinition } from '@botpress/sdk'
+import { IntegrationDefinition, z } from '@botpress/sdk'
 import { actions, configuration, events, states } from './definitions'
 
 export default new IntegrationDefinition({
@@ -12,4 +12,21 @@ export default new IntegrationDefinition({
   states,
   actions,
   events,
+  user: {
+    tags: {
+      freshdeskRequesterId: { title: 'Freshdesk Requester ID' },
+    },
+  },
+  channels: {
+    ticket: {
+      conversation: {
+        tags: {
+          freshdeskTicketId: { title: 'Freshdesk Ticket ID' },
+        },
+      },
+      messages: {
+        text: { schema: z.object({ text: z.string() }) },
+      },
+    },
+  },
 })

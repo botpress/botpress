@@ -24,6 +24,12 @@ export default new bp.Integration({
   },
   unregister: async () => {},
   actions,
-  channels: {},
+  channels: {
+    ticket: {
+      messages: {
+        text: async () => {},
+      },
+    },
+  },
   handler,
 })

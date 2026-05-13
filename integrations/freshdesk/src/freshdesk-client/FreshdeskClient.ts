@@ -38,7 +38,7 @@ export class FreshdeskClient {
     if (params) {
       const searchParams = new URLSearchParams()
       for (const [key, value] of Object.entries(params)) {
-        if (value != null) {
+        if (value != null && value !== 0 && value !== '') {
           searchParams.set(key, String(value))
         }
       }
@@ -117,7 +117,7 @@ export class FreshdeskClient {
   }
 
   public async updateTicket(input: UpdateTicketInput): Promise<FreshdeskTicket> {
-    const { id, ...rest } = input
+    const { id, cc_emails, ...rest } = input
     const body = Object.fromEntries(Object.entries(rest).filter(([, v]) => v != null && v !== 0 && v !== ''))
     return this._request<FreshdeskTicket>('PUT', `/tickets/${id}`, undefined, body)
   }

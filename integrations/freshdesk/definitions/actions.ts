@@ -124,6 +124,7 @@ export const actions = {
     description: 'Updates an existing Freshdesk ticket.',
     input: {
       schema: ticketWriteFields
+        .omit({ cc_emails: true })
         .merge(requesterFields)
         .extend({ subject: z.string().optional().title('Subject').describe('Updated ticket subject.') })
         .extend({ description: z.string().optional().title('Description').describe('HTML content of the ticket description.') })
