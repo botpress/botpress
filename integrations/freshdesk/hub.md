@@ -156,13 +156,13 @@ Searches Freshdesk tickets by status, priority, agent, or tag. Returns up to 100
 
 **Input**
 
-| Field        | Type                                          | Required | Default | Description                         |
-| ------------ | --------------------------------------------- | -------- | ------- | ----------------------------------- |
-| `status`     | `open` \| `pending` \| `resolved` \| `closed` | No       |         | Filter by ticket status             |
-| `priority`   | `low` \| `medium` \| `high` \| `urgent`       | No       |         | Filter by ticket priority           |
-| `agent_id`   | number                                        | No       |         | Filter by assigned agent ID         |
-| `tag`        | string                                        | No       |         | Filter by tag                       |
-| `limit`      | number                                        | No       | 20      | Maximum tickets to return (max 100) |
+| Field      | Type                                          | Required | Default | Description                         |
+| ---------- | --------------------------------------------- | -------- | ------- | ----------------------------------- |
+| `status`   | `open` \| `pending` \| `resolved` \| `closed` | No       |         | Filter by ticket status             |
+| `priority` | `low` \| `medium` \| `high` \| `urgent`       | No       |         | Filter by ticket priority           |
+| `agent_id` | number                                        | No       |         | Filter by assigned agent ID         |
+| `tag`      | string                                        | No       |         | Filter by tag                       |
+| `limit`    | number                                        | No       | 20      | Maximum tickets to return (max 100) |
 
 **Output**
 
