@@ -431,6 +431,9 @@ const executeIteration = async ({
   let startedAt = Date.now()
   const traces = iteration.traces
 
+  // When an array is provided, additional entries act as ordered fallbacks at the
+  // cognitive layer. Token budget and stop-token computation only need the primary
+  // model's details, so we resolve those off the first entry.
   const modelRef = Array.isArray(iteration.model) ? iteration.model[0]! : iteration.model
   const model = await cognitive.getModelDetails(modelRef).catch((thrown) => {
     throw new CognitiveError(`Failed to fetch model details for model "${modelRef}": ${getErrorMessage(thrown)}`)
@@ -461,7 +464,9 @@ const executeIteration = async ({
     .generateContent({
       signal: controller.signal,
       systemPrompt: messages.find((x) => x.role === 'system')?.content,
-      model: model.ref,
+      // Validated upstream in Context (see context.ts isValidModel). Cast narrows
+      // Models' `({} & string)` escape hatch down to cognitive's stricter InputModel.
+      model: iteration.model as Required<Parameters<Cognitive['generateContent']>[0]>['model'],
       temperature: iteration.temperature,
       responseFormat: 'text',
       reasoningEffort: iteration.reasoningEffort,
