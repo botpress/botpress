@@ -127,7 +127,6 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
     status: 200,
     headers: { [OAUTH_IDENTIFIER_HEADER]: hubId },
   }
-  // return responses.endWizard({ success: true })
 }
 
 const _hitlInboxIdStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async ({

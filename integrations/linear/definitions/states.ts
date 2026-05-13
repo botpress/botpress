@@ -13,6 +13,16 @@ export const states = {
       expiresAt: z.string().title('Expires At').describe('The time when the access token expires'),
     }),
   },
+  environment: {
+    type: 'integration',
+    schema: z.object({
+      env: z
+        .enum(['preview', 'production'])
+        .title('Environment')
+        .describe('The environment where the integration is installed'),
+      source: z.string().optional().title('Source').describe('The source of the OAuth request, eg: "desk"'),
+    }),
+  },
 
   // TODO: delete these 2 states when the backend stop considering state deletion as breaking change
   configuration: {

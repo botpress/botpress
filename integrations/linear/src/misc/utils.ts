@@ -11,6 +11,8 @@ export async function getLinearClient({ client, ctx }: LinearClientProps) {
   return await LinearOauthClient.create({ client, ctx })
 }
 
+export const useDeskOAuth = ({ source }: bp.states.environment.Environment['payload']) => source === 'desk'
+
 type ValueOf<T> = T[keyof T]
 type CreateCommentProps = Omit<ValueOf<bp.MessageProps['issue']>, 'payload'> & { content: string }
 export async function createComment(args: CreateCommentProps) {
