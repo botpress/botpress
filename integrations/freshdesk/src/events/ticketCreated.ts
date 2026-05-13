@@ -11,7 +11,7 @@ export const executeTicketCreated = async (props: HandlerProps & { body: Record<
     return
   }
   const ticket = normalizeTicket(rawTicket as Record<string, unknown>)
-  
+
   const { user } = await client.getOrCreateUser({
     tags: { freshdeskRequesterId: String(ticket['requester_id'] ?? 'unknown') },
   })
