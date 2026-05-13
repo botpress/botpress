@@ -273,13 +273,16 @@ Fires when a customer adds a reply to a ticket. Set up a rule under **Admin → 
 
 ```json
 {
-  "ticket": {
-    "id": "{{ticket.id}}",
-    "subject": "{{ticket.subject}}",
-    "status": {{ticket.status}},
-    "priority": {{ticket.priority}},
-    "responder_id": {{ticket.agent.id}}
-  }
+	"ticket": {
+		"id": "{{ticket.id}}",
+		"subject": "{{ticket.subject}}",
+		"status": "{{ticket.status_id}}",
+		"priority": "{{ticket.priority_id}}",
+		"requester_id": "{{ticket.requester.id}}",
+		"responder_id": "{{ticket.agent.id}}",
+		"group_id": "{{ticket.group.id}}",
+		"type": "{{ticket.ticket_type}}"
+	}
 }
 ```
 
@@ -287,7 +290,9 @@ For `ticketReplied`, also include reply fields:
 
 ```json
 {
-  "ticket": { "id": "{{ticket.id}}", "status": {{ticket.status}} },
+  "ticket": { 
+    "id": "{{ticket.id}}", 
+    "status": {{ticket.status}} },
   "reply": {
     "body": "{{ticket.latest_public_comment_html}}",
     "body_text": "{{ticket.latest_public_comment}}",
