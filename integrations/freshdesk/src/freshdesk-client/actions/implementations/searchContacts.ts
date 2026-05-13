@@ -23,7 +23,7 @@ export const searchContacts = wrapAction(
 
     if (input.name) {
       const results = await freshdeskClient.searchContactsByName(input.name)
-      const contacts = await Promise.all(
+      const settled = await Promise.allSettled(
         results.slice(0, MAX_NAME_ENRICHMENT).map(async (r) => {
           const contact = await freshdeskClient.getContact(r.id)
           return {
@@ -35,6 +35,7 @@ export const searchContacts = wrapAction(
           }
         })
       )
+      const contacts = settled.filter((r) => r.status === 'fulfilled').map((r) => r.value)
       return { contacts }
     }
 
