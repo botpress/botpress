@@ -19,16 +19,57 @@ Connect Botpress to Freshdesk to manage support tickets and react to ticket life
 
 ### Create Ticket
 
-Creates a new support ticket. At least one requester identifier must be provided (`email`, `phone`, `twitter_id`, `facebook_id`, `unique_external_id`, or `requester_id`).
+Creates a new support ticket.
+
+**Input**
+
+| Field          | Type             | Required | Default  | Description                        |
+| -------------- | ---------------- | -------- | -------- | ---------------------------------- |
+| `subject`      | string           | Yes      |          | Subject of the ticket              |
+| `description`  | string           | Yes      |          | HTML content of the ticket body    |
+| `email`        | string           | Yes      |          | Requester email address            |
+| `priority`     | `low` \| `medium` \| `high` \| `urgent` | No | `medium` | Ticket priority |
+| `status`       | `open` \| `pending` \| `resolved` \| `closed` | No | `open` | Ticket status |
+| `tags`         | string[]         | No       |          | Tags to associate with the ticket  |
+| `customFields` | record           | No       |          | Custom field key-value pairs       |
+
+**Output**
+
+| Field       | Type   | Description                              |
+| ----------- | ------ | ---------------------------------------- |
+| `id`        | number | Unique Freshdesk ticket ID               |
+| `subject`   | string | Subject of the ticket                    |
+| `status`    | string | Ticket status as a string enum           |
+| `priority`  | string | Ticket priority as a string enum         |
+| `createdAt` | string | ISO 8601 timestamp of ticket creation    |
+| `url`       | string | URL to view the ticket in Freshdesk      |
 
 ### Get Ticket
 
-Retrieves a single ticket by its numeric ID. Use the `include` parameter to embed additional data:
+Retrieves a single Freshdesk ticket by ID.
 
-- `conversations` — up to 10 most recent replies
-- `requester` — requester email, name, and phone
-- `company` — company name
-- `stats` — resolved/closed timestamps
+**Input**
+
+| Field      | Type   | Required | Description           |
+| ---------- | ------ | -------- | --------------------- |
+| `ticketId` | string | Yes      | The Freshdesk ticket ID |
+
+**Output**
+
+| Field         | Type     | Description                                  |
+| ------------- | -------- | -------------------------------------------- |
+| `id`          | number   | Unique Freshdesk ticket ID                   |
+| `subject`     | string   | Subject of the ticket                        |
+| `description` | string   | HTML content of the ticket description       |
+| `status`      | string   | Ticket status enum                           |
+| `priority`    | string   | Ticket priority enum                         |
+| `requesterId` | number   | Freshdesk requester user ID                  |
+| `responderId` | number   | Agent assigned to the ticket                 |
+| `groupId`     | number   | Group the ticket is assigned to              |
+| `createdAt`   | string   | ISO 8601 timestamp of ticket creation        |
+| `updatedAt`   | string   | ISO 8601 timestamp of last update            |
+| `tags`        | string[] | Tags associated with the ticket              |
+| `customFields`| record   | Custom field key-value pairs                 |
 
 ### List Tickets
 
@@ -36,7 +77,27 @@ Returns a paginated list of tickets. Supports predefined filters (`new_and_my_op
 
 ### Update Ticket
 
-Updates any fields on an existing ticket. Common use cases: changing `status` or `priority`, reassigning via `responder_id` or `group_id`.
+Updates an existing Freshdesk ticket.
+
+**Input**
+
+| Field          | Type             | Required | Description                              |
+| -------------- | ---------------- | -------- | ---------------------------------------- |
+| `ticketId`     | string           | Yes      | The Freshdesk ticket ID to update        |
+| `status`       | `open` \| `pending` \| `resolved` \| `closed` | No | Updated ticket status |
+| `priority`     | `low` \| `medium` \| `high` \| `urgent` | No | Updated ticket priority |
+| `responderId`  | number           | No       | ID of the agent to assign the ticket to  |
+| `groupId`      | number           | No       | ID of the group to assign the ticket to  |
+| `customFields` | record           | No       | Custom field key-value pairs             |
+
+**Output**
+
+| Field       | Type   | Description                           |
+| ----------- | ------ | ------------------------------------- |
+| `id`        | number | Unique Freshdesk ticket ID            |
+| `status`    | string | Updated ticket status enum            |
+| `priority`  | string | Updated ticket priority enum          |
+| `updatedAt` | string | ISO 8601 timestamp of last update     |
 
 ### Delete Ticket
 
@@ -44,34 +105,45 @@ Soft-deletes a ticket (it can be restored from the Freshdesk UI). Returns no dat
 
 ### Search Tickets
 
-Queries tickets using Freshdesk's search syntax. Results are paginated (max 10 pages, 30 results per page).
+Searches Freshdesk tickets by email, status, or priority. Returns up to 100 results.
 
-**Query examples:**
+**Input**
 
-```
-priority:3
-status:2 AND priority:4
-tag:'billing' AND status:2
-agent_id:null
-type:'Question' OR type:'Problem'
-due_by:>'2024-01-01' AND due_by:<'2024-12-31'
-```
+| Field      | Type             | Required | Default | Description                              |
+| ---------- | ---------------- | -------- | ------- | ---------------------------------------- |
+| `email`    | string           | No       |         | Filter by requester email address        |
+| `status`   | `open` \| `pending` \| `resolved` \| `closed` | No | | Filter by ticket status |
+| `priority` | `low` \| `medium` \| `high` \| `urgent` | No | | Filter by ticket priority |
+| `limit`    | number           | No       | 20      | Maximum tickets to return (max 100)      |
+
+**Output**
+
+| Field                    | Type   | Description                           |
+| ------------------------ | ------ | ------------------------------------- |
+| `tickets[].id`           | number | Unique Freshdesk ticket ID            |
+| `tickets[].subject`      | string | Subject of the ticket                 |
+| `tickets[].status`       | string | Ticket status enum                    |
+| `tickets[].priority`     | string | Ticket priority enum                  |
+| `tickets[].createdAt`    | string | ISO 8601 timestamp of ticket creation |
+| `tickets[].requesterEmail` | string | Email address of the requester      |
 
 ## Ticket Properties
 
-| Status   | Value |
-| -------- | ----- |
-| Open     | 2     |
-| Pending  | 3     |
-| Resolved | 4     |
-| Closed   | 5     |
+The Create Ticket action accepts `status` and `priority` as string enums. Other actions (Update Ticket, Search Tickets) use the raw Freshdesk numeric values.
 
-| Priority | Value |
-| -------- | ----- |
-| Low      | 1     |
-| Medium   | 2     |
-| High     | 3     |
-| Urgent   | 4     |
+| Status   | String value | Numeric value |
+| -------- | ------------ | ------------- |
+| Open     | `open`       | 2             |
+| Pending  | `pending`    | 3             |
+| Resolved | `resolved`   | 4             |
+| Closed   | `closed`     | 5             |
+
+| Priority | String value | Numeric value |
+| -------- | ------------ | ------------- |
+| Low      | `low`        | 1             |
+| Medium   | `medium`     | 2             |
+| High     | `high`       | 3             |
+| Urgent   | `urgent`     | 4             |
 
 ## Events
 
@@ -125,7 +197,7 @@ For `ticketReplied`, also include reply fields:
   "reply": {
     "body": "{{ticket.latest_public_comment_html}}",
     "body_text": "{{ticket.latest_public_comment}}",
-    "customer_id": {{ticket.customer.id}}
+    "customer_email": "{{ticket.contact.email}}"
   }
 }
 ```
