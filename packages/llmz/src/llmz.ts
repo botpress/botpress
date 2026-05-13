@@ -464,7 +464,9 @@ const executeIteration = async ({
     .generateContent({
       signal: controller.signal,
       systemPrompt: messages.find((x) => x.role === 'system')?.content,
-      model: iteration.model,
+      // Validated upstream in Context (see context.ts isValidModel). Cast narrows
+      // Models' `({} & string)` escape hatch down to cognitive's stricter InputModel.
+      model: iteration.model as Required<Parameters<Cognitive['generateContent']>[0]>['model'],
       temperature: iteration.temperature,
       responseFormat: 'text',
       reasoningEffort: iteration.reasoningEffort,

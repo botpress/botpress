@@ -913,12 +913,17 @@ export class Context implements Serializable<Context.JSON> {
       throw new Error('Invalid temperature. Expected a number between 0 and 2.')
     }
 
+    const isValidModel = (m: unknown): m is string =>
+      typeof m === 'string' && (m === 'best' || m === 'fast' || m === 'auto' || m.includes(':'))
+
     if (Array.isArray(model)) {
-      if (model.length === 0 || !model.every((m) => typeof m === 'string' && m.length > 0)) {
-        throw new Error('Invalid model. Expected a non-empty array of non-empty strings.')
+      if (model.length === 0 || !model.every(isValidModel)) {
+        throw new Error(
+          "Invalid model. Expected a non-empty array of model strings ('best'/'fast'/'auto' or 'provider:model')."
+        )
       }
-    } else if (typeof model !== 'string' || model.length === 0) {
-      throw new Error('Invalid model. Expected a non-empty string or array of strings.')
+    } else if (!isValidModel(model)) {
+      throw new Error("Invalid model. Expected 'best'/'fast'/'auto' or 'provider:model'.")
     }
 
     return {
