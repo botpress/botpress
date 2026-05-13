@@ -42,7 +42,7 @@ const requesterFields = z.object({
 const ticketWriteFields = z.object({
   subject: z.string().title('Subject').describe('Subject of the ticket.'),
   description: z.string().title('Description').describe('HTML content of the ticket description.'),
-  priority: z.number().optional().title('Priority').describe('Ticket priority: 1=Low, 2=Medium, 3=High, 4=Urgent.'),
+  priority: z.number().default(1).title('Priority').describe('Ticket priority: 1=Low, 2=Medium, 3=High, 4=Urgent.'),
   status: z.number().optional().title('Status').describe('Ticket status: 2=Open, 3=Pending, 4=Resolved, 5=Closed.'),
   type: z.string().optional().title('Type').describe('Ticket category type.'),
   tags: z.array(z.string()).optional().title('Tags').describe('Tags to associate with the ticket.'),
