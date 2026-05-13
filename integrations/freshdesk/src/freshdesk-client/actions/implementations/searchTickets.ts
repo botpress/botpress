@@ -8,7 +8,8 @@ export const searchTickets = wrapAction(
     const limit = Math.min(input.limit ?? 20, 100)
 
     const queryParts: string[] = []
-    if (input.email) queryParts.push(`email:'${input.email}'`)
+    if (input.agent_id) queryParts.push(`agent_id:${input.agent_id}`)
+    if (input.tag) queryParts.push(`tag:'${input.tag}'`)
     if (input.status) queryParts.push(`status:${STATUS_TO_NUM[input.status]}`)
     if (input.priority) queryParts.push(`priority:${PRIORITY_TO_NUM[input.priority]}`)
 

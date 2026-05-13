@@ -171,10 +171,15 @@ export const actions = {
   },
   searchTickets: {
     title: 'Search Tickets',
-    description: 'Searches Freshdesk tickets by email, status, or priority.',
+    description: 'Searches Freshdesk tickets by agent, tag, status, or priority.',
     input: {
       schema: z.object({
-        email: z.string().optional().title('Email').describe('Filter by requester email address.'),
+        agent_id: z
+          .number()
+          .optional()
+          .title('Agent ID')
+          .describe('Filter by the ID of the agent the ticket is assigned to.'),
+        tag: z.string().optional().title('Tag').describe('Filter by a tag associated with the ticket.'),
         status: z
           .enum(['open', 'pending', 'resolved', 'closed'])
           .optional()
