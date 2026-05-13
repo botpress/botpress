@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'crypto'
 import { executeTicketCreated } from './events/ticketCreated'
 import { executeTicketReplied } from './events/ticketReplied'
 import { executeTicketUpdated } from './events/ticketUpdated'
@@ -13,7 +14,11 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
   const { webhookSecret } = ctx.configuration
   if (webhookSecret) {
     const providedSecret = req.headers?.['x-webhook-secret']
-    if (providedSecret !== webhookSecret) {
+    const secretsMatch =
+      typeof providedSecret === 'string' &&
+      providedSecret.length === webhookSecret.length &&
+      timingSafeEqual(Buffer.from(providedSecret), Buffer.from(webhookSecret))
+    if (!secretsMatch) {
       log.warn('Webhook received with invalid or missing secret, rejecting')
       return
     }
