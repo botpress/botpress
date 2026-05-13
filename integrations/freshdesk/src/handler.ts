@@ -41,14 +41,14 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     }
 
     if (req.path === '/ticket-updated') {
-      log.info(`Firing ticketUpdated, ticket=${JSON.stringify(body['ticket'])}`)
+      log.debug(`Firing ticketUpdated, ticket=${JSON.stringify(body['ticket'])}`)
       const result = await executeTicketUpdated({ ...props, body })
       log.info('ticketUpdated event fired successfully')
       return result
     }
 
     if (req.path === '/ticket-replied') {
-      log.info(`Firing ticketReplied, ticket=${JSON.stringify(body['ticket'])}`)
+      log.debug(`Firing ticketReplied, ticket=${JSON.stringify(body['ticket'])}`)
       const result = await executeTicketReplied({ ...props, body })
       log.info('ticketReplied event fired successfully')
       return result
