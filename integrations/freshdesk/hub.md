@@ -85,9 +85,9 @@ Fires when a new ticket is opened. Set up an Automation Rule under **Admin → A
 
 Fires when a ticket is updated (status change, reassignment, priority change, etc.). Set up a rule under **Admin → Automations → Ticket Updates**.
 
-### agentReplied
+### ticketReplied
 
-Fires when an agent adds a reply or note to a ticket. Set up a rule under **Admin → Automations → Ticket Updates**, with a condition that triggers on new replies.
+Fires when a customer adds a reply to a ticket. Set up a rule under **Admin → Automations → Ticket Updates**, with a condition that triggers on new replies.
 
 ### Webhook setup
 
@@ -101,7 +101,7 @@ Fires when an agent adds a reply or note to a ticket. Set up a rule under **Admi
 | ------------- | ------------------------------ |
 | ticketCreated | `{webhook-url}/ticket-created` |
 | ticketUpdated | `{webhook-url}/ticket-updated` |
-| agentReplied  | `{webhook-url}/agent-replied`  |
+| ticketReplied  | `{webhook-url}/ticket-replied`  |
 
 6. In the webhook body, include at minimum the ticket fields your bot needs. Example JSON template:
 
@@ -117,7 +117,7 @@ Fires when an agent adds a reply or note to a ticket. Set up a rule under **Admi
 }
 ```
 
-For `agentReplied`, also include reply fields:
+For `ticketReplied`, also include reply fields:
 
 ```json
 {
@@ -125,7 +125,7 @@ For `agentReplied`, also include reply fields:
   "reply": {
     "body": "{{ticket.latest_public_comment_html}}",
     "body_text": "{{ticket.latest_public_comment}}",
-    "agent_id": {{ticket.agent.id}}
+    "customer_id": {{ticket.customer.id}}
   }
 }
 ```
@@ -139,4 +139,4 @@ For `agentReplied`, also include reply fields:
 
 ## Changelog
 
-- 0.1.0: Initial release with createTicket, getTicket, listTickets, updateTicket, deleteTicket, searchTickets actions and ticketCreated, ticketUpdated, agentReplied events.
+- 0.1.0: Initial release with createTicket, getTicket, listTickets, updateTicket, deleteTicket, searchTickets actions and ticketCreated, ticketUpdated, ticketReplied events.

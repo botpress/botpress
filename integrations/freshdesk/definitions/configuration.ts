@@ -5,8 +5,8 @@ export const configuration = {
     domain: z
       .string()
       .min(1)
-      .title('Freshdesk Domain')
-      .describe('Your Freshdesk subdomain (e.g. "yourcompany" from yourcompany.freshdesk.com).'),
+      .title('Freshdesk Subdomain')
+      .describe('E.g. "yourcompany" from yourcompany.freshdesk.com'),
     apiKey: z
       .string()
       .secret()

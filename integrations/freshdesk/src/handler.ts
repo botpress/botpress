@@ -1,4 +1,4 @@
-import { executeAgentReplied } from './events/agentReplied'
+import { executeTicketReplied } from './events/ticketReplied'
 import { executeTicketCreated } from './events/ticketCreated'
 import { executeTicketUpdated } from './events/ticketUpdated'
 import * as bp from '.botpress'
@@ -38,10 +38,10 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
       return result
     }
 
-    if (req.path === '/agent-replied') {
-      log.info(`Firing agentReplied, ticket=${JSON.stringify(body['ticket'])}`)
-      const result = await executeAgentReplied({ ...props, body })
-      log.info('agentReplied event fired successfully')
+    if (req.path === '/ticket-replied') {
+      log.info(`Firing ticketReplied, ticket=${JSON.stringify(body['ticket'])}`)
+      const result = await executeTicketReplied({ ...props, body })
+      log.info('ticketReplied event fired successfully')
       return result
     }
 

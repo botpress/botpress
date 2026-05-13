@@ -29,19 +29,19 @@ export const events = {
     }),
     ui: {},
   },
-  agentReplied: {
-    title: 'Agent Replied',
-    description: 'Triggered when an agent adds a reply or note to a ticket.',
+  ticketReplied: {
+    title: 'Ticket Replied',
+    description: 'Triggered when a customer adds a reply to a ticket.',
     schema: z.object({
       ticket: webhookTicketSchema.title('Ticket').describe('The ticket that received the reply.'),
       reply: z
         .object({
           body: z.string().title('Body').describe('HTML content of the reply.'),
           body_text: z.string().optional().title('Body Text').describe('Plain-text content of the reply.'),
-          agent_id: z.number().optional().title('Agent ID').describe('ID of the agent who replied.'),
+          customer_id: z.number().optional().title('Customer ID').describe('ID of the customer who replied.'),
         })
         .title('Reply')
-        .describe('The reply or note that was added.'),
+        .describe('The reply that was added.'),
     }),
     ui: {},
   },

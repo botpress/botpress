@@ -3,7 +3,7 @@ import { normalizeTicket } from './normalizeTicket'
 
 type HandlerProps = Parameters<bp.IntegrationProps['handler']>[0]
 
-export const executeAgentReplied = async (props: HandlerProps & { body: Record<string, unknown> }) => {
+export const executeticketReplied = async (props: HandlerProps & { body: Record<string, unknown> }) => {
   const { client, body } = props
 
   const ticket = normalizeTicket(body['ticket'] as Record<string, unknown>)
@@ -18,10 +18,10 @@ export const executeAgentReplied = async (props: HandlerProps & { body: Record<s
   })
 
   await client.createEvent({
-    type: 'agentReplied',
+    type: 'ticketReplied',
     payload: {
-      ticket: ticket as bp.events.agentReplied.AgentReplied['ticket'],
-      reply: body['reply'] as bp.events.agentReplied.AgentReplied['reply'],
+      ticket: ticket as bp.events.ticketReplied.TicketReplied['ticket'],
+      reply: body['reply'] as bp.events.ticketReplied.TicketReplied['reply'],
     },
     conversationId: conversation.id,
     userId: user.id,
