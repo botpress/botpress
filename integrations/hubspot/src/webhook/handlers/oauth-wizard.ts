@@ -1,6 +1,5 @@
 import { generateRawHtmlDialog } from '@botpress/common/src/html-dialogs'
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
-import { OAUTH_IDENTIFIER_HEADER } from '@botpress/sdk'
 import { exchangeCodeForOAuthCredentials, setOAuthCredentials } from '../../auth'
 import { getHitlClient } from '../../hitl/client'
 import { createHitlChannel, connectHitlChannel } from '../../hitl/setup'
@@ -123,10 +122,7 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
     return responses.redirectToStep('hitl-inbox-id')
   }
 
-  return {
-    status: 200,
-    headers: { [OAUTH_IDENTIFIER_HEADER]: hubId },
-  }
+  return responses.endWizard({ success: true })
 }
 
 const _hitlInboxIdStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async ({

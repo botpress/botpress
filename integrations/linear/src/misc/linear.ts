@@ -214,7 +214,7 @@ export class LinearOauthClient {
       name: 'environment',
       id: ctx.integrationId,
     })
-    const useDesk = await useDeskOAuth(environment)
+    const useDesk = useDeskOAuth(environment)
     const linearOauthClient = new LinearOauthClient(useDesk)
     const credentials = await linearOauthClient.resolveValidCredentials(payload)
 

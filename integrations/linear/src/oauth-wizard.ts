@@ -1,5 +1,5 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
-import { OAUTH_IDENTIFIER_HEADER, z } from '@botpress/sdk'
+import { z } from '@botpress/sdk'
 import { LinearClient } from '@linear/sdk'
 import { LinearOauthClient, registerWebhook } from './misc/linear'
 import { useDeskOAuth } from './misc/utils'
@@ -64,7 +64,7 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
     name: 'environment',
     id: ctx.integrationId,
   })
-  const useDesk = await useDeskOAuth(environment)
+  const useDesk = useDeskOAuth(environment)
   const linearOauthClient = new LinearOauthClient(useDesk)
   const credentials = await linearOauthClient.getAccessTokenFromOAuthCode(code)
   logger.forBot().info('Obtained credentials from OAuth flow, saving to state...')
@@ -87,11 +87,7 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
   }
 
   setIntegrationIdentifier(organization.id)
-
-  return {
-    status: 200,
-    headers: { [OAUTH_IDENTIFIER_HEADER]: organization.id },
-  }
+  return responses.endWizard({ success: true })
 }
 
 export const buildOAuthWizard = (props: bp.HandlerProps) =>

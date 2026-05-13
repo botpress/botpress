@@ -1,6 +1,6 @@
 import { generateRedirection } from '@botpress/common/src/html-dialogs'
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
-import { Request, RuntimeError } from '@botpress/sdk'
+import { Request, RuntimeError, OAUTH_IDENTIFIER_HEADER } from '@botpress/sdk'
 import { LinearWebhookClient } from '@linear/sdk/webhooks'
 
 import { fireIssueCreated } from './events/issueCreated'
@@ -38,7 +38,14 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     logger.forBot().info('Linear OAuth callback received')
     const modifiedProps = { ...props, req: { ...props.req, path: '/oauth/wizard/oauth-callback' } }
     try {
-      return await buildOAuthWizard(modifiedProps).handleRequest()
+      const wizardResult = await buildOAuthWizard(modifiedProps).handleRequest()
+      const identifier = wizardResult.headers?.[OAUTH_IDENTIFIER_HEADER]
+      return identifier
+        ? {
+            status: 200,
+            headers: { [OAUTH_IDENTIFIER_HEADER]: identifier },
+          }
+        : wizardResult
     } catch (thrown: unknown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
       logger.forBot().error('Error while processing OAuth callback', errMsg)
