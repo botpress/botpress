@@ -5,8 +5,8 @@ const ticketSchema = z.object({
   subject: z.string().title('Subject').describe('Subject of the ticket.'),
   description: z.string().nullish().title('Description').describe('HTML content of the ticket description.'),
   description_text: z.string().nullish().title('Description Text').describe('Plain-text ticket description.'),
-  status: z.number().title('Status').describe('Ticket status: 2=Open, 3=Pending, 4=Resolved, 5=Closed.'),
-  priority: z.number().title('Priority').describe('Ticket priority: 1=Low, 2=Medium, 3=High, 4=Urgent.'),
+  status: z.enum(['open', 'pending', 'resolved', 'closed']).title('Status').describe('Ticket status.'),
+  priority: z.enum(['low', 'medium', 'high', 'urgent']).title('Priority').describe('Ticket priority.'),
   source: z.number().nullish().title('Source').describe('Channel through which the ticket was created.'),
   email: z.string().nullish().title('Email').describe('Requester email address.'),
   name: z.string().nullish().title('Name').describe('Requester name.'),
@@ -26,47 +26,41 @@ const ticketSchema = z.object({
     .describe('Custom field key-value pairs.'),
 })
 
-const requesterFields = z.object({
-  email: z
-    .string()
-    .optional()
-    .title('Email')
-    .describe('Requester email. At least one requester field must be provided.'),
-  phone: z.string().optional().title('Phone').describe('Requester phone number.'),
-  twitter_id: z.string().optional().title('Twitter ID').describe('Requester Twitter handle.'),
-  facebook_id: z.string().optional().title('Facebook ID').describe('Requester Facebook ID.'),
-  unique_external_id: z.string().optional().title('External ID').describe('Requester external ID.'),
-  requester_id: z.number().optional().title('Requester ID').describe('ID of an existing Freshdesk contact.'),
-})
-
-const ticketWriteFields = z.object({
-  subject: z.string().title('Subject').describe('Subject of the ticket.'),
-  description: z.string().title('Description').describe('HTML content of the ticket description.'),
-  priority: z.number().default(1).title('Priority').describe('Ticket priority: 1=Low, 2=Medium, 3=High, 4=Urgent.'),
-  status: z.number().optional().title('Status').describe('Ticket status: 2=Open, 3=Pending, 4=Resolved, 5=Closed.'),
-  type: z.string().optional().title('Type').describe('Ticket category type.'),
-  tags: z.array(z.string()).optional().title('Tags').describe('Tags to associate with the ticket.'),
-  group_id: z.number().optional().title('Group ID').describe('ID of the group to assign the ticket to.'),
-  responder_id: z.number().optional().title('Responder ID').describe('ID of the agent to assign the ticket to.'),
-  cc_emails: z.array(z.string()).optional().title('CC Emails').describe('Email addresses to CC on the ticket.'),
-  custom_fields: z
-    .record(z.string(), z.unknown())
-    .optional()
-    .title('Custom Fields')
-    .describe('Custom field key-value pairs.'),
-})
-
 export const actions = {
   createTicket: {
     title: 'Create Ticket',
-    description:
-      'Creates a new ticket in Freshdesk. At least one requester field (email, phone, twitter_id, facebook_id, unique_external_id, or requester_id) must be provided.',
+    description: 'Creates a new ticket in Freshdesk.',
     input: {
-      schema: ticketWriteFields.merge(requesterFields),
+      schema: z.object({
+        subject: z.string().title('Subject').describe('Subject of the ticket.'),
+        description: z.string().title('Description').describe('HTML content of the ticket description.'),
+        email: z.string().title('Email').describe('Requester email address.'),
+        priority: z
+          .enum(['low', 'medium', 'high', 'urgent'])
+          .default('medium')
+          .title('Priority')
+          .describe('Ticket priority: "low", "medium", "high", or "urgent".'),
+        status: z
+          .enum(['open', 'pending', 'resolved', 'closed'])
+          .default('open')
+          .title('Status')
+          .describe('Ticket status: "open", "pending", "resolved", or "closed".'),
+        tags: z.array(z.string()).optional().title('Tags').describe('Tags to associate with the ticket.'),
+        customFields: z
+          .record(z.string(), z.unknown())
+          .optional()
+          .title('Custom Fields')
+          .describe('Custom field key-value pairs.'),
+      }),
     },
     output: {
       schema: z.object({
-        ticket: ticketSchema.title('Ticket').describe('The created ticket.'),
+        id: z.number().title('ID').describe('Unique Freshdesk ticket ID.'),
+        subject: z.string().title('Subject').describe('Subject of the ticket.'),
+        status: z.enum(['open', 'pending', 'resolved', 'closed']).title('Status').describe('Ticket status.'),
+        priority: z.enum(['low', 'medium', 'high', 'urgent']).title('Priority').describe('Ticket priority.'),
+        createdAt: z.string().title('Created At').describe('ISO 8601 timestamp of ticket creation.'),
+        url: z.string().title('URL').describe('URL to view the ticket in Freshdesk.'),
       }),
     },
   },
@@ -75,17 +69,27 @@ export const actions = {
     description: 'Retrieves a single Freshdesk ticket by ID.',
     input: {
       schema: z.object({
-        id: z.number().title('Ticket ID').describe('The Freshdesk ticket ID.'),
-        include: z
-          .string()
-          .optional()
-          .title('Include')
-          .describe('Comma-separated embeds: conversations, requester, company, stats.'),
+        ticketId: z.string().title('Ticket ID').describe('The Freshdesk ticket ID.'),
       }),
     },
     output: {
       schema: z.object({
-        ticket: ticketSchema.title('Ticket').describe('The retrieved ticket.'),
+        id: z.number().title('ID').describe('Unique Freshdesk ticket ID.'),
+        subject: z.string().title('Subject').describe('Subject of the ticket.'),
+        description: z.string().nullish().title('Description').describe('HTML content of the ticket description.'),
+        status: z.enum(['open', 'pending', 'resolved', 'closed']).title('Status').describe('Ticket status.'),
+        priority: z.enum(['low', 'medium', 'high', 'urgent']).title('Priority').describe('Ticket priority.'),
+        requesterId: z.number().nullish().title('Requester ID').describe('Freshdesk requester user ID.'),
+        responderId: z.number().nullish().title('Responder ID').describe('Agent assigned to the ticket.'),
+        groupId: z.number().nullish().title('Group ID').describe('Group the ticket is assigned to.'),
+        createdAt: z.string().title('Created At').describe('ISO 8601 timestamp of ticket creation.'),
+        updatedAt: z.string().title('Updated At').describe('ISO 8601 timestamp of last update.'),
+        tags: z.array(z.string()).nullish().title('Tags').describe('Tags associated with the ticket.'),
+        customFields: z
+          .record(z.string(), z.unknown())
+          .nullish()
+          .title('Custom Fields')
+          .describe('Custom field key-value pairs.'),
       }),
     },
   },
@@ -123,16 +127,33 @@ export const actions = {
     title: 'Update Ticket',
     description: 'Updates an existing Freshdesk ticket.',
     input: {
-      schema: ticketWriteFields
-        .omit({ cc_emails: true })
-        .merge(requesterFields)
-        .extend({ subject: z.string().optional().title('Subject').describe('Updated ticket subject.') })
-        .extend({ description: z.string().optional().title('Description').describe('HTML content of the ticket description.') })
-        .extend({ id: z.number().title('Ticket ID').describe('The Freshdesk ticket ID to update.') }),
+      schema: z.object({
+        ticketId: z.string().title('Ticket ID').describe('The Freshdesk ticket ID to update.'),
+        status: z
+          .enum(['open', 'pending', 'resolved', 'closed'])
+          .optional()
+          .title('Status')
+          .describe('Updated ticket status: "open", "pending", "resolved", or "closed".'),
+        priority: z
+          .enum(['low', 'medium', 'high', 'urgent'])
+          .optional()
+          .title('Priority')
+          .describe('Updated ticket priority: "low", "medium", "high", or "urgent".'),
+        responderId: z.number().optional().title('Responder ID').describe('ID of the agent to assign the ticket to.'),
+        groupId: z.number().optional().title('Group ID').describe('ID of the group to assign the ticket to.'),
+        customFields: z
+          .record(z.string(), z.unknown())
+          .optional()
+          .title('Custom Fields')
+          .describe('Custom field key-value pairs.'),
+      }),
     },
     output: {
       schema: z.object({
-        ticket: ticketSchema.title('Ticket').describe('The updated ticket.'),
+        id: z.number().title('ID').describe('Unique Freshdesk ticket ID.'),
+        status: z.enum(['open', 'pending', 'resolved', 'closed']).title('Status').describe('Updated ticket status.'),
+        priority: z.enum(['low', 'medium', 'high', 'urgent']).title('Priority').describe('Updated ticket priority.'),
+        updatedAt: z.string().title('Updated At').describe('ISO 8601 timestamp of last update.'),
       }),
     },
   },
@@ -150,23 +171,42 @@ export const actions = {
   },
   searchTickets: {
     title: 'Search Tickets',
-    description:
-      'Filters Freshdesk tickets by field values. Supports filtering on status, priority, type, tag, dates, and IDs — but not free-text fields like subject or description. Supports up to 10 pages of results.',
+    description: 'Searches Freshdesk tickets by email, status, or priority.',
     input: {
       schema: z.object({
-        query: z
-          .string()
-          .title('Query')
-          .describe(
-            "Freshdesk filter query. Supported fields: status, priority, type, tag, created_at, updated_at, due_by, fr_due_by, requester_id, company_id, agent_id, group_id. Note: free-text fields like subject and description are not searchable. Examples: \"priority:3 AND status:2\", \"tag:'billing'\", \"created_at:>'2024-01-01'\"."
-          ),
-        page: z.number().optional().title('Page').describe('Page number (1–10).'),
+        email: z.string().optional().title('Email').describe('Filter by requester email address.'),
+        status: z
+          .enum(['open', 'pending', 'resolved', 'closed'])
+          .optional()
+          .title('Status')
+          .describe('Filter by ticket status: "open", "pending", "resolved", or "closed".'),
+        priority: z
+          .enum(['low', 'medium', 'high', 'urgent'])
+          .optional()
+          .title('Priority')
+          .describe('Filter by ticket priority: "low", "medium", "high", or "urgent".'),
+        limit: z
+          .number()
+          .default(20)
+          .title('Limit')
+          .describe('Maximum number of tickets to return (default 20, max 100).'),
       }),
     },
     output: {
       schema: z.object({
-        tickets: z.array(ticketSchema).title('Tickets').describe('Matching tickets.'),
-        total: z.number().optional().title('Total').describe('Total number of matching tickets.'),
+        tickets: z
+          .array(
+            z.object({
+              id: z.number().title('ID').describe('Unique Freshdesk ticket ID.'),
+              subject: z.string().title('Subject').describe('Subject of the ticket.'),
+              status: z.enum(['open', 'pending', 'resolved', 'closed']).title('Status').describe('Ticket status.'),
+              priority: z.enum(['low', 'medium', 'high', 'urgent']).title('Priority').describe('Ticket priority.'),
+              createdAt: z.string().title('Created At').describe('ISO 8601 timestamp of ticket creation.'),
+              requesterEmail: z.string().nullish().title('Requester Email').describe('Email address of the requester.'),
+            })
+          )
+          .title('Tickets')
+          .describe('Matching tickets.'),
       }),
     },
   },
