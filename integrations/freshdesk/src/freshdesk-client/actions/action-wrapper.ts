@@ -10,18 +10,18 @@ export const wrapAction: typeof _wrapAction = (meta, actionImpl) =>
 
     logger.debug(`Running action "${meta.actionName}" [bot id: ${props.ctx.botId}]`, { input: props.input })
 
-    return _wrapAsyncFnWithTryCatch(() => {
-      const output = actionImpl(props as Parameters<typeof actionImpl>[0], props.input)
-
-      return output.catch((thrown) => {
+    return _wrapAsyncFnWithTryCatch(async () => {
+      try {
+        return await actionImpl(props as Parameters<typeof actionImpl>[0], props.input)
+      } catch (thrown) {
         if (!(thrown instanceof sdk.RuntimeError)) {
           logger.warn(`Action Error: ${meta.errorMessage}`, {
             error: thrown instanceof Error ? thrown.message : String(thrown),
           })
         }
         throw thrown
-      }) as typeof output
-    }, `Action Error: ${meta.errorMessage}`)()
+      }
+    }, `Action Error: ${meta.errorMessage}`)() as ReturnType<typeof actionImpl>
   })
 
 const _wrapAction = createActionWrapper<bp.IntegrationProps>()({

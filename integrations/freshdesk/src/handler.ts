@@ -28,13 +28,13 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     let body: Record<string, unknown>
     try {
       body = JSON.parse(req.body) as Record<string, unknown>
-    } catch (e) {
-      log.error(`Webhook body is not valid JSON: ${String(e)}`)
+    } catch (e: unknown) {
+      log.error(`Webhook body is not valid JSON: ${e instanceof Error ? e.message : String(e)}`)
       return
     }
 
     if (req.path === '/ticket-created') {
-      log.info(`Firing ticketCreated, ticket=${JSON.stringify(body['ticket'])}`)
+      log.debug(`Firing ticketCreated, ticket=${JSON.stringify(body['ticket'])}`)
       const result = await executeTicketCreated({ ...props, body })
       log.info('ticketCreated event fired successfully')
       return result
@@ -55,7 +55,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     }
 
     log.warn(`Unhandled webhook path: ${req.path}`)
-  } catch (e) {
+  } catch (e: unknown) {
     log.error(`Unhandled error in webhook handler: ${e instanceof Error ? e.message : String(e)}`)
     throw e
   }

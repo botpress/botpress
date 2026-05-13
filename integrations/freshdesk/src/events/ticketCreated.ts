@@ -6,8 +6,12 @@ type HandlerProps = Parameters<bp.IntegrationProps['handler']>[0]
 export const executeTicketCreated = async (props: HandlerProps & { body: Record<string, unknown> }) => {
   const { client, body } = props
 
-  const ticket = normalizeTicket(body['ticket'] as Record<string, unknown>)
-
+  const rawTicket = body['ticket']
+  if (!rawTicket || typeof rawTicket !== 'object') {
+    return
+  }
+  const ticket = normalizeTicket(rawTicket as Record<string, unknown>)
+  
   const { user } = await client.getOrCreateUser({
     tags: { freshdeskRequesterId: String(ticket['requester_id'] ?? 'unknown') },
   })

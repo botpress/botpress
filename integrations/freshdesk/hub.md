@@ -152,16 +152,17 @@ Soft-deletes a ticket (it can be restored from the Freshdesk UI). Returns no dat
 
 ### Search Tickets
 
-Searches Freshdesk tickets by email, status, or priority. Returns up to 100 results.
+Searches Freshdesk tickets by status, priority, agent, or tag. Returns up to 100 results.
 
 **Input**
 
-| Field      | Type                                          | Required | Default | Description                         |
-| ---------- | --------------------------------------------- | -------- | ------- | ----------------------------------- |
-| `email`    | string                                        | No       |         | Filter by requester email address   |
-| `status`   | `open` \| `pending` \| `resolved` \| `closed` | No       |         | Filter by ticket status             |
-| `priority` | `low` \| `medium` \| `high` \| `urgent`       | No       |         | Filter by ticket priority           |
-| `limit`    | number                                        | No       | 20      | Maximum tickets to return (max 100) |
+| Field        | Type                                          | Required | Default | Description                         |
+| ------------ | --------------------------------------------- | -------- | ------- | ----------------------------------- |
+| `status`     | `open` \| `pending` \| `resolved` \| `closed` | No       |         | Filter by ticket status             |
+| `priority`   | `low` \| `medium` \| `high` \| `urgent`       | No       |         | Filter by ticket priority           |
+| `agent_id`   | number                                        | No       |         | Filter by assigned agent ID         |
+| `tag`        | string                                        | No       |         | Filter by tag                       |
+| `limit`      | number                                        | No       | 20      | Maximum tickets to return (max 100) |
 
 **Output**
 
