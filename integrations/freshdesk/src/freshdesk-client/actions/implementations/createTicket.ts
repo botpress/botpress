@@ -11,7 +11,7 @@ export const createTicket = wrapAction(
       priority: PRIORITY_TO_NUM[input.priority ?? 'medium'],
       status: STATUS_TO_NUM[input.status ?? 'open'],
       tags: input.tags,
-      custom_fields: input.customFields,
+      custom_fields: input.custom_fields,
     })
 
     return {

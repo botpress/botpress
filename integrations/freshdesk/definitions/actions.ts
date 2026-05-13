@@ -46,7 +46,7 @@ export const actions = {
           .title('Status')
           .describe('Ticket status: "open", "pending", "resolved", or "closed".'),
         tags: z.array(z.string()).optional().title('Tags').describe('Tags to associate with the ticket.'),
-        customFields: z
+        custom_fields: z
           .record(z.string(), z.unknown())
           .optional()
           .title('Custom Fields')
@@ -85,7 +85,7 @@ export const actions = {
         createdAt: z.string().title('Created At').describe('ISO 8601 timestamp of ticket creation.'),
         updatedAt: z.string().title('Updated At').describe('ISO 8601 timestamp of last update.'),
         tags: z.array(z.string()).nullish().title('Tags').describe('Tags associated with the ticket.'),
-        customFields: z
+        custom_fields: z
           .record(z.string(), z.unknown())
           .nullish()
           .title('Custom Fields')
@@ -141,7 +141,7 @@ export const actions = {
           .describe('Updated ticket priority: "low", "medium", "high", or "urgent".'),
         responderId: z.number().optional().title('Responder ID').describe('ID of the agent to assign the ticket to.'),
         groupId: z.number().optional().title('Group ID').describe('ID of the group to assign the ticket to.'),
-        customFields: z
+        custom_fields: z
           .record(z.string(), z.unknown())
           .optional()
           .title('Custom Fields')

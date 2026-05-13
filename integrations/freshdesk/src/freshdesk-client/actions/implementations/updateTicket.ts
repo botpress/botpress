@@ -10,7 +10,7 @@ export const updateTicket = wrapAction(
       ...(input.priority != null && { priority: PRIORITY_TO_NUM[input.priority] }),
       ...(input.responderId != null && { responder_id: input.responderId }),
       ...(input.groupId != null && { group_id: input.groupId }),
-      ...(input.customFields != null && { custom_fields: input.customFields }),
+      ...(input.custom_fields != null && { custom_fields: input.custom_fields }),
     })
     return {
       id: ticket.id,
