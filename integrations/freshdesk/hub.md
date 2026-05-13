@@ -31,7 +31,7 @@ Creates a new support ticket.
 | `priority`     | `low` \| `medium` \| `high` \| `urgent` | No | `medium` | Ticket priority |
 | `status`       | `open` \| `pending` \| `resolved` \| `closed` | No | `open` | Ticket status |
 | `tags`         | string[]         | No       |          | Tags to associate with the ticket  |
-| `customFields` | record           | No       |          | Custom field key-value pairs       |
+| `custom_fields` | record          | No       |          | Custom field key-value pairs       |
 
 **Output**
 
@@ -69,7 +69,7 @@ Retrieves a single Freshdesk ticket by ID.
 | `createdAt`   | string   | ISO 8601 timestamp of ticket creation        |
 | `updatedAt`   | string   | ISO 8601 timestamp of last update            |
 | `tags`        | string[] | Tags associated with the ticket              |
-| `customFields`| record   | Custom field key-value pairs                 |
+| `custom_fields` | record | Custom field key-value pairs                 |
 
 ### List Tickets
 
@@ -88,7 +88,7 @@ Updates an existing Freshdesk ticket.
 | `priority`     | `low` \| `medium` \| `high` \| `urgent` | No | Updated ticket priority |
 | `responderId`  | number           | No       | ID of the agent to assign the ticket to  |
 | `groupId`      | number           | No       | ID of the group to assign the ticket to  |
-| `customFields` | record           | No       | Custom field key-value pairs             |
+| `custom_fields` | record          | No       | Custom field key-value pairs             |
 
 **Output**
 
@@ -98,6 +98,46 @@ Updates an existing Freshdesk ticket.
 | `status`    | string | Updated ticket status enum            |
 | `priority`  | string | Updated ticket priority enum          |
 | `updatedAt` | string | ISO 8601 timestamp of last update     |
+
+### Reply to Ticket
+
+Sends a customer-facing reply on a ticket.
+
+**Input**
+
+| Field       | Type     | Required | Description                                     |
+| ----------- | -------- | -------- | ----------------------------------------------- |
+| `ticketId`  | string   | Yes      | The Freshdesk ticket ID to reply to             |
+| `body`      | string   | Yes      | HTML content of the reply                       |
+| `cc_emails` | string[] | No       | Email addresses to CC on the reply              |
+
+**Output**
+
+| Field       | Type   | Description                              |
+| ----------- | ------ | ---------------------------------------- |
+| `id`        | number | Unique ID of the reply                   |
+| `body`      | string | HTML content of the reply                |
+| `createdAt` | string | ISO 8601 timestamp of reply creation     |
+
+### Add Note
+
+Adds an internal note to a ticket. Notes are private by default (not visible to the requester).
+
+**Input**
+
+| Field      | Type    | Required | Default | Description                              |
+| ---------- | ------- | -------- | ------- | ---------------------------------------- |
+| `ticketId` | string  | Yes      |         | The Freshdesk ticket ID                  |
+| `body`     | string  | Yes      |         | HTML content of the note                 |
+| `private`  | boolean | No       | `true`  | Set to `false` to make the note public   |
+
+**Output**
+
+| Field       | Type   | Description                              |
+| ----------- | ------ | ---------------------------------------- |
+| `id`        | number | Unique ID of the note                    |
+| `body`      | string | HTML content of the note                 |
+| `createdAt` | string | ISO 8601 timestamp of note creation      |
 
 ### Delete Ticket
 
@@ -127,9 +167,53 @@ Searches Freshdesk tickets by email, status, or priority. Returns up to 100 resu
 | `tickets[].createdAt`    | string | ISO 8601 timestamp of ticket creation |
 | `tickets[].requesterEmail` | string | Email address of the requester      |
 
+### Get Contact
+
+Retrieves a Freshdesk contact by ID.
+
+**Input**
+
+| Field       | Type   | Required | Description              |
+| ----------- | ------ | -------- | ------------------------ |
+| `contactId` | string | Yes      | The Freshdesk contact ID |
+
+**Output**
+
+| Field        | Type     | Description                               |
+| ------------ | -------- | ----------------------------------------- |
+| `id`         | number   | Unique Freshdesk contact ID               |
+| `name`       | string   | Full name of the contact                  |
+| `email`      | string   | Email address of the contact              |
+| `phone`      | string   | Phone number of the contact               |
+| `mobile`     | string   | Mobile number of the contact              |
+| `company_id` | number   | ID of the associated company              |
+| `tags`       | string[] | Tags associated with the contact          |
+| `createdAt`  | string   | ISO 8601 timestamp of contact creation    |
+
+### Search Contacts
+
+Finds contacts by email or name. Use `email` for exact match; use `name` for prefix-based search (case-insensitive). Name search uses the Freshdesk autocomplete API and returns only `id` and `name` — `email`, `phone`, and `company_id` will be `null` for name-only results.
+
+**Input**
+
+| Field   | Type   | Required | Description                                   |
+| ------- | ------ | -------- | --------------------------------------------- |
+| `email` | string | No       | Filter by exact email address                 |
+| `name`  | string | No       | Search by name prefix (e.g. `"John"`)         |
+
+**Output**
+
+| Field                   | Type   | Description                          |
+| ----------------------- | ------ | ------------------------------------ |
+| `contacts[].id`         | number | Unique Freshdesk contact ID          |
+| `contacts[].name`       | string | Full name of the contact             |
+| `contacts[].email`      | string | Email address (email search only)    |
+| `contacts[].phone`      | string | Phone number (email search only)     |
+| `contacts[].company_id` | number | Associated company (email search only) |
+
 ## Ticket Properties
 
-The Create Ticket action accepts `status` and `priority` as string enums. Other actions (Update Ticket, Search Tickets) use the raw Freshdesk numeric values.
+All actions accept `status` and `priority` as string enums. The integration handles conversion to Freshdesk's internal numeric values.
 
 | Status   | String value | Numeric value |
 | -------- | ------------ | ------------- |
@@ -211,4 +295,5 @@ For `ticketReplied`, also include reply fields:
 
 ## Changelog
 
+- 0.2.0: Added replyToTicket, addNote, getContact, searchContacts actions. Renamed `customFields` to `custom_fields` for consistency with Freshdesk API.
 - 0.1.0: Initial release with createTicket, getTicket, listTickets, updateTicket, deleteTicket, searchTickets actions and ticketCreated, ticketUpdated, ticketReplied events.

@@ -210,4 +210,96 @@ export const actions = {
       }),
     },
   },
+  replyToTicket: {
+    title: 'Reply to Ticket',
+    description: 'Sends a customer-facing reply on a Freshdesk ticket.',
+    input: {
+      schema: z.object({
+        ticketId: z.string().title('Ticket ID').describe('The Freshdesk ticket ID to reply to.'),
+        body: z.string().title('Body').describe('HTML content of the reply.'),
+        cc_emails: z.array(z.string()).optional().title('CC Emails').describe('Email addresses to CC on the reply.'),
+      }),
+    },
+    output: {
+      schema: z.object({
+        id: z.number().title('ID').describe('Unique ID of the reply.'),
+        body: z.string().title('Body').describe('HTML content of the reply.'),
+        createdAt: z.string().title('Created At').describe('ISO 8601 timestamp of reply creation.'),
+      }),
+    },
+  },
+  addNote: {
+    title: 'Add Note',
+    description: 'Adds an internal note to a Freshdesk ticket (not visible to the requester by default).',
+    input: {
+      schema: z.object({
+        ticketId: z.string().title('Ticket ID').describe('The Freshdesk ticket ID to add a note to.'),
+        body: z.string().title('Body').describe('HTML content of the note.'),
+        private: z
+          .boolean()
+          .optional()
+          .default(true)
+          .title('Private')
+          .describe('Set to false to make the note public. Defaults to true.'),
+      }),
+    },
+    output: {
+      schema: z.object({
+        id: z.number().title('ID').describe('Unique ID of the note.'),
+        body: z.string().title('Body').describe('HTML content of the note.'),
+        createdAt: z.string().title('Created At').describe('ISO 8601 timestamp of note creation.'),
+      }),
+    },
+  },
+  getContact: {
+    title: 'Get Contact',
+    description: 'Retrieves a Freshdesk contact by ID.',
+    input: {
+      schema: z.object({
+        contactId: z.string().title('Contact ID').describe('The Freshdesk contact ID.'),
+      }),
+    },
+    output: {
+      schema: z.object({
+        id: z.number().title('ID').describe('Unique Freshdesk contact ID.'),
+        name: z.string().title('Name').describe('Full name of the contact.'),
+        email: z.string().nullish().title('Email').describe('Email address of the contact.'),
+        phone: z.string().nullish().title('Phone').describe('Phone number of the contact.'),
+        mobile: z.string().nullish().title('Mobile').describe('Mobile number of the contact.'),
+        company_id: z.number().nullish().title('Company ID').describe('ID of the associated company.'),
+        tags: z.array(z.string()).nullish().title('Tags').describe('Tags associated with the contact.'),
+        createdAt: z.string().title('Created At').describe('ISO 8601 timestamp of contact creation.'),
+      }),
+    },
+  },
+  searchContacts: {
+    title: 'Search Contacts',
+    description: 'Finds Freshdesk contacts by email or name.',
+    input: {
+      schema: z.object({
+        email: z.string().optional().title('Email').describe('Filter contacts by exact email address.'),
+        name: z
+          .string()
+          .optional()
+          .title('Name')
+          .describe('Search contacts by name prefix (case-insensitive).'),
+      }),
+    },
+    output: {
+      schema: z.object({
+        contacts: z
+          .array(
+            z.object({
+              id: z.number().title('ID').describe('Unique Freshdesk contact ID.'),
+              name: z.string().title('Name').describe('Full name of the contact.'),
+              email: z.string().nullish().title('Email').describe('Email address of the contact.'),
+              phone: z.string().nullish().title('Phone').describe('Phone number of the contact.'),
+              company_id: z.number().nullish().title('Company ID').describe('ID of the associated company.'),
+            })
+          )
+          .title('Contacts')
+          .describe('Matching contacts.'),
+      }),
+    },
+  },
 } as const satisfies IntegrationDefinitionProps['actions']

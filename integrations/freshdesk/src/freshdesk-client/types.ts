@@ -85,3 +85,34 @@ export type SearchTicketsOutput = {
   results: FreshdeskTicket[]
   total?: number
 }
+
+export type FreshdeskConversation = {
+  id: number
+  body: string
+  body_text?: string
+  created_at: string
+  updated_at: string
+  ticket_id: number
+  user_id: number
+}
+
+export type ReplyToTicketInput = {
+  body: string
+  cc_emails?: string[]
+}
+
+export type AddNoteInput = {
+  body: string
+  private?: boolean
+}
+
+export type FreshdeskContact = {
+  id: number
+  name: string
+  email?: string
+  phone?: string
+  mobile?: string
+  company_id?: number
+  tags?: string[]
+  created_at: string
+}
