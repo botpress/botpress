@@ -1,6 +1,28 @@
 import { Model } from './types'
 
 export const models: Record<string, Model> = {
+  'openai:gpt-5.5': {
+    id: 'openai:gpt-5.5',
+    name: 'GPT-5.5',
+    description:
+      'GPT-5.5 is OpenAI\'s latest frontier model, described as "a new class of intelligence for coding and professional work". It features a 1M+ context window with adaptive reasoning and configurable effort levels, and supports vision, tool use, structured outputs, and server-side web search.',
+    input: {
+      maxTokens: 1047576,
+      costPer1MTokens: 5,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 30,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision', 'coding', 'agents'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
   'openai:gpt-5.4-2026-03-05': {
     id: 'openai:gpt-5.4-2026-03-05',
     name: 'GPT-5.4',
@@ -310,8 +332,8 @@ export const models: Record<string, Model> = {
       maxTokens: 32768,
       costPer1MTokens: 0.4,
     },
-    tags: ['low-cost', 'vision', 'general-purpose'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'low-cost', 'vision', 'general-purpose'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
@@ -333,8 +355,8 @@ export const models: Record<string, Model> = {
       maxTokens: 100000,
       costPer1MTokens: 4.4,
     },
-    tags: ['reasoning', 'general-purpose', 'coding'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'reasoning', 'general-purpose', 'coding'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -356,8 +378,8 @@ export const models: Record<string, Model> = {
       maxTokens: 100000,
       costPer1MTokens: 60,
     },
-    tags: ['reasoning', 'vision', 'general-purpose'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'reasoning', 'vision', 'general-purpose'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
@@ -544,6 +566,177 @@ export const models: Record<string, Model> = {
       supportsSearch: false,
     },
   },
+  'openai:tts-1': {
+    id: 'openai:tts-1',
+    name: 'OpenAI TTS-1',
+    description: 'Standard text-to-speech, low latency',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['text-to-speech', 'recommended'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'openai:tts-1-hd': {
+    id: 'openai:tts-1-hd',
+    name: 'OpenAI TTS-1 HD',
+    description: 'High-definition text-to-speech',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['text-to-speech'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'openai:gpt-4o-mini-tts': {
+    id: 'openai:gpt-4o-mini-tts',
+    name: 'GPT-4o Mini TTS',
+    description: 'Steerable text-to-speech with voice instructions',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['text-to-speech', 'recommended'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'openai:gpt-image-2': {
+    id: 'openai:gpt-image-2',
+    name: 'OpenAI gpt-image-2',
+    description:
+      "OpenAI's newest native multimodal image generation model. Highest quality, accepts input images for editing.",
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['image-generation', 'recommended'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'openai:gpt-image-1.5': {
+    id: 'openai:gpt-image-1.5',
+    name: 'OpenAI gpt-image-1.5',
+    description:
+      'Flagship native multimodal image generation. Strong text rendering, accepts input images for editing.',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['image-generation', 'recommended'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'openai:gpt-image-1-mini': {
+    id: 'openai:gpt-image-1-mini',
+    name: 'OpenAI gpt-image-1-mini',
+    description: 'Affordable variant of gpt-image-1.5 for high-volume, cost-sensitive image generation.',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['image-generation', 'low-cost'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'openai:gpt-image-1': {
+    id: 'openai:gpt-image-1',
+    name: 'OpenAI gpt-image-1',
+    description: 'Original OpenAI native multimodal image generation model. Superseded by gpt-image-1.5 / gpt-image-2.',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['image-generation'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'anthropic:claude-opus-4-7': {
+    id: 'anthropic:claude-opus-4-7',
+    name: 'Claude Opus 4.7',
+    description:
+      "Claude Opus 4.7 is Anthropic's most capable generally available model, with a step-change improvement in agentic coding over Claude Opus 4.6. Features adaptive thinking for dynamic reasoning allocation, substantially improved vision capabilities, and task budgets for agentic loops. Uses a new tokenizer that may use up to 35% more tokens for the same text.",
+    input: {
+      maxTokens: 1000000,
+      costPer1MTokens: 5,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 25,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
   'anthropic:claude-opus-4-6': {
     id: 'anthropic:claude-opus-4-6',
     name: 'Claude Opus 4.6',
@@ -648,7 +841,7 @@ export const models: Record<string, Model> = {
       costPer1MTokens: 15,
     },
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
-    lifecycle: 'production',
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
@@ -724,7 +917,16 @@ export const models: Record<string, Model> = {
       supportsTranscription: false,
       supportsSearch: false,
     },
-    aliases: ['claude-haiku-4-5-reasoning', 'claude-haiku-4-5-20251001'],
+    aliases: [
+      'claude-haiku-4-5-reasoning',
+      'claude-haiku-4-5-20251001',
+      'claude-haiku-4-5-20251001',
+      'claude-haiku-4-5-20251001',
+      'claude-haiku-4-5-20251001',
+      'claude-haiku-4-5-20251001',
+      'claude-haiku-4-5-20251001',
+      'claude-haiku-4-5-20251001',
+    ],
   },
   'anthropic:claude-3-7-sonnet-20250219': {
     id: 'anthropic:claude-3-7-sonnet-20250219',
@@ -850,7 +1052,7 @@ export const models: Record<string, Model> = {
       costPer1MTokens: 1.25,
     },
     tags: ['deprecated', 'low-cost', 'general-purpose'],
-    lifecycle: 'deprecated',
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
@@ -1037,6 +1239,133 @@ export const models: Record<string, Model> = {
     },
     aliases: ['gemini-3-pro-preview'],
   },
+  'google-ai:gemini-2.5-flash-preview-tts': {
+    id: 'google-ai:gemini-2.5-flash-preview-tts',
+    name: 'Gemini 2.5 Flash TTS',
+    description: 'Native Gemini text-to-speech, fast tier',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['text-to-speech', 'preview'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'google-ai:gemini-2.5-pro-preview-tts': {
+    id: 'google-ai:gemini-2.5-pro-preview-tts',
+    name: 'Gemini 2.5 Pro TTS',
+    description: 'Native Gemini text-to-speech, pro tier',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['text-to-speech', 'preview'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'google-ai:imagen-4.0-ultra-generate-001': {
+    id: 'google-ai:imagen-4.0-ultra-generate-001',
+    name: 'Imagen 4 Ultra',
+    description: "Google's highest-fidelity Imagen 4 variant.",
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['image-generation', 'recommended'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'google-ai:imagen-4.0-generate-001': {
+    id: 'google-ai:imagen-4.0-generate-001',
+    name: 'Imagen 4',
+    description: "Google's standard Imagen 4 image generation model.",
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['image-generation', 'recommended'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'google-ai:imagen-4.0-fast-generate-001': {
+    id: 'google-ai:imagen-4.0-fast-generate-001',
+    name: 'Imagen 4 Fast',
+    description: 'Speed-optimized Imagen 4 variant.',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['image-generation', 'low-cost'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'google-ai:gemini-2.5-flash-image': {
+    id: 'google-ai:gemini-2.5-flash-image',
+    name: 'Gemini 2.5 Flash Image',
+    description:
+      'Gemini-native image generation (formerly "Nano Banana"). Token-billed; ~$0.039 per 1024×1024 image. Supports image editing.',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['image-generation'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
   'cerebras:gpt-oss-120b': {
     id: 'cerebras:gpt-oss-120b',
     name: 'GPT-OSS 120B (Preview)',
@@ -1116,8 +1445,8 @@ export const models: Record<string, Model> = {
       maxTokens: 16000,
       costPer1MTokens: 0.1,
     },
-    tags: ['low-cost', 'general-purpose'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'low-cost', 'general-purpose'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -1146,6 +1475,52 @@ export const models: Record<string, Model> = {
       supportsTranscription: false,
       supportsSearch: false,
     },
+  },
+  'groq:qwen3-32b': {
+    id: 'groq:qwen3-32b',
+    name: 'Qwen3 32B (Preview)',
+    description:
+      'Qwen3-32B is a reasoning model from Alibaba. It excels in code-gen, tool-calling, and advanced reasoning. Served as a preview model on Groq with fast inference speeds.',
+    input: {
+      maxTokens: 131000,
+      costPer1MTokens: 0.29,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 0.59,
+    },
+    tags: ['preview', 'reasoning', 'general-purpose'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['qwen/qwen3-32b'],
+  },
+  'groq:llama-4-scout-17b-16e-instruct': {
+    id: 'groq:llama-4-scout-17b-16e-instruct',
+    name: 'Llama 4 Scout 17B (Preview)',
+    description:
+      'Llama 4 Scout 17B Instruct (16E) is a mixture-of-experts (MoE) language model developed by Meta, using 16 experts per forward pass and activating 17 billion parameters out of a total of 109B. Supports multimodal input (text and image) with multilingual output. Served as a preview model on Groq.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.11,
+    },
+    output: {
+      maxTokens: 8192,
+      costPer1MTokens: 0.34,
+    },
+    tags: ['preview', 'vision', 'general-purpose', 'low-cost'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['meta-llama/llama-4-scout-17b-16e-instruct'],
   },
   'groq:gpt-oss-20b': {
     id: 'groq:gpt-oss-20b',
@@ -1712,6 +2087,52 @@ export const models: Record<string, Model> = {
       supportsSearch: false,
     },
   },
+  'fireworks-ai:kimi-k2p6': {
+    id: 'fireworks-ai:kimi-k2p6',
+    name: 'Kimi K2.6',
+    description:
+      'Kimi K2.6 is an open-source, native multimodal agentic model with a 1 trillion parameter mixture-of-experts architecture. It delivers strong performance on agentic and reasoning tasks with a 262K context window.',
+    input: {
+      maxTokens: 262144,
+      costPer1MTokens: 0.95,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 4,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'agents', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/kimi-k2p6'],
+  },
+  'fireworks-ai:kimi-k2p5': {
+    id: 'fireworks-ai:kimi-k2p5',
+    name: 'Kimi K2.5',
+    description:
+      'Kimi K2.5 is an open-source mixture-of-experts agentic model with strong reasoning and tool-use capabilities. Features a 262K context window at a cost-effective price point.',
+    input: {
+      maxTokens: 262144,
+      costPer1MTokens: 0.6,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 3,
+    },
+    tags: ['reasoning', 'general-purpose', 'agents'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/kimi-k2p5'],
+  },
   'fireworks-ai:qwen3-8b': {
     id: 'fireworks-ai:qwen3-8b',
     name: 'Qwen3 8B',
@@ -2191,6 +2612,90 @@ export const models: Record<string, Model> = {
       supportsImages: false,
       supportsAudio: false,
       supportsTranscription: true,
+      supportsSearch: false,
+    },
+  },
+  'elevenlabs:eleven_v3': {
+    id: 'elevenlabs:eleven_v3',
+    name: 'ElevenLabs v3 (Alpha)',
+    description: 'Most expressive ElevenLabs model, alpha quality',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['text-to-speech', 'preview'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'elevenlabs:eleven_multilingual_v2': {
+    id: 'elevenlabs:eleven_multilingual_v2',
+    name: 'ElevenLabs Multilingual v2',
+    description: 'Production multilingual voice synthesis (29 languages)',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['text-to-speech', 'recommended'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'elevenlabs:eleven_turbo_v2_5': {
+    id: 'elevenlabs:eleven_turbo_v2_5',
+    name: 'ElevenLabs Turbo v2.5',
+    description: 'Fast multilingual TTS',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['text-to-speech', 'low-cost'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'elevenlabs:eleven_flash_v2_5': {
+    id: 'elevenlabs:eleven_flash_v2_5',
+    name: 'ElevenLabs Flash v2.5',
+    description: 'Lowest latency TTS, ~75ms TTFB',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['text-to-speech', 'low-cost', 'recommended'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
       supportsSearch: false,
     },
   },
