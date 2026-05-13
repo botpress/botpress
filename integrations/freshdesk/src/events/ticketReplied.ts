@@ -12,7 +12,12 @@ export const executeTicketReplied = async (props: HandlerProps & { body: Record<
     return
   }
 
-  const ticket = normalizeTicket(body['ticket'] as Record<string, unknown>)
+  const rawTicket = body['ticket']
+  if (!rawTicket || typeof rawTicket !== 'object') {
+    log.warn('ticketReplied webhook missing ticket field, ignoring')
+    return
+  }
+  const ticket = normalizeTicket(rawTicket as Record<string, unknown>)
 
   const { user } = await client.getOrCreateUser({
     tags: { freshdeskRequesterId: String(ticket['requester_id'] ?? 'unknown') },

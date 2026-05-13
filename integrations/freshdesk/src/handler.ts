@@ -14,10 +14,12 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
   const { webhookSecret } = ctx.configuration
   if (webhookSecret) {
     const providedSecret = req.headers?.['x-webhook-secret']
+    const providedBuf = typeof providedSecret === 'string' ? Buffer.from(providedSecret, 'utf8') : null
+    const secretBuf = Buffer.from(webhookSecret, 'utf8')
     const secretsMatch =
-      typeof providedSecret === 'string' &&
-      providedSecret.length === webhookSecret.length &&
-      timingSafeEqual(Buffer.from(providedSecret), Buffer.from(webhookSecret))
+      providedBuf !== null &&
+      providedBuf.byteLength === secretBuf.byteLength &&
+      timingSafeEqual(providedBuf, secretBuf)
     if (!secretsMatch) {
       log.warn('Webhook received with invalid or missing secret, rejecting')
       return

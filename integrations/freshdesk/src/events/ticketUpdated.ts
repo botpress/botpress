@@ -4,9 +4,15 @@ import * as bp from '.botpress'
 type HandlerProps = Parameters<bp.IntegrationProps['handler']>[0]
 
 export const executeTicketUpdated = async (props: HandlerProps & { body: Record<string, unknown> }) => {
-  const { client, body } = props
+  const { client, body, logger } = props
+  const log = logger.forBot()
 
-  const ticket = normalizeTicket(body['ticket'] as Record<string, unknown>)
+  const rawTicket = body['ticket']
+  if (!rawTicket || typeof rawTicket !== 'object') {
+    log.warn('ticketUpdated webhook missing ticket field, ignoring')
+    return
+  }
+  const ticket = normalizeTicket(rawTicket as Record<string, unknown>)
 
   const { user } = await client.getOrCreateUser({
     tags: { freshdeskRequesterId: String(ticket['requester_id'] ?? 'unknown') },
