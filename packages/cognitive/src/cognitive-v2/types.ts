@@ -408,11 +408,9 @@ export type ImageMetadata = BaseBetaMetadata & {
   format: string
 }
 
-export type ImageResponse = {
-  output: { imageUrl: string }
-  metadata: ImageMetadata
-  error?: string
-}
+export type ImageResponse =
+  | { output: { imageUrl: string }; metadata: ImageMetadata; error?: never }
+  | { output: { imageUrl: null }; metadata: ImageMetadata; error: string }
 
 export type ModelTag =
   | 'recommended'

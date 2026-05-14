@@ -163,7 +163,10 @@ export class CognitiveBeta {
 
   public async listVoices(filter: { model?: string; language?: string } = {}): Promise<Voice[]> {
     const { data } = await this._withServerRetry(() =>
-      this._axiosClient.get<{ voices: Voice[] }>('/v2/cognitive/voices', { params: filter })
+      this._axiosClient.get<{ voices: Voice[] }>('/v2/cognitive/voices', {
+        params: filter,
+        paramsSerializer: { encode: encodeURIComponent },
+      })
     )
 
     return data.voices
