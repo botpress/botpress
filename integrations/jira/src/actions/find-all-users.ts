@@ -10,18 +10,17 @@ export const findAllUsers: Implementation['actions']['findAllUsers'] = async ({ 
     startAt: validatedInput.startAt,
     maxResults: validatedInput.maxResults,
   }
-  let response
   try {
-    response = await jiraClient.findAllUsers(addParams)
+    const response = await jiraClient.findAllUsers(addParams)
     logger.forBot().info(`Successful - Find All User - Total Users ${response.length}`)
+    return findAllUsersOutputSchema.parse({
+      users: response.map((user) => ({
+        ...user,
+        active: user.active ?? false,
+      })),
+    })
   } catch (error) {
     logger.forBot().debug(`'Find All User' exception ${serializeErrorForLog(error)}`)
     throw buildRuntimeError('Failed to find all users', error)
   }
-  return findAllUsersOutputSchema.parse({
-    users: response.map((user) => ({
-      ...user,
-      active: user.active ?? false,
-    })),
-  })
 }

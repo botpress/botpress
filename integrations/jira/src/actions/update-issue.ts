@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/sdk'
 import { Version3Parameters } from 'jira.js'
 import { updateIssueInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
@@ -21,9 +22,6 @@ export const updateIssue: Implementation['actions']['updateIssue'] = async ({ ct
   if (validatedInput.description !== undefined) {
     fields.description = textToAdfDocument(validatedInput.description)
   }
-  if (validatedInput.issueType !== undefined) {
-    fields.issuetype = { name: validatedInput.issueType }
-  }
   if (validatedInput.projectKey !== undefined) {
     fields.project = { key: validatedInput.projectKey }
   }
@@ -39,7 +37,11 @@ export const updateIssue: Implementation['actions']['updateIssue'] = async ({ ct
     fields,
   }
   try {
-    if (validatedInput.issueType !== undefined && validatedInput.projectKey !== undefined) {
+    if (validatedInput.issueType !== undefined) {
+      if (validatedInput.projectKey === undefined) {
+        throw new RuntimeError('projectKey is required when updating issueType')
+      }
+
       const issueTypeIds = await resolveIssueTypeIds(jiraClient, [
         {
           issueType: validatedInput.issueType,
