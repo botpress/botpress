@@ -13,7 +13,7 @@ export const wrapAction: typeof _wrapAction = (meta, actionImpl) =>
     return _wrapAsyncFnWithTryCatch(async () => {
       try {
         return await actionImpl(props as Parameters<typeof actionImpl>[0], props.input)
-      } catch (thrown) {
+      } catch (thrown: unknown) {
         if (!(thrown instanceof sdk.RuntimeError)) {
           logger.warn(`Action Error: ${meta.errorMessage}`, {
             error: thrown instanceof Error ? thrown.message : String(thrown),
