@@ -12,7 +12,7 @@ Connect Botpress to Freshdesk to manage support tickets and react to ticket life
 
 | Field                | Description                                                                                                                                                            |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Freshdesk Domain** | Your subdomain only, not the full URL. Example: `botpress`                                                                                                                |
+| **Freshdesk Domain** | Your subdomain only, not the full URL. Example: `botpress`                                                                                                             |
 | **API Key**          | Your personal API key from Freshdesk Profile Settings                                                                                                                  |
 | **Webhook Secret**   | Optional. A secret string used to authenticate incoming webhooks. Set it here and add it as the `X-Webhook-Secret` header in each Freshdesk Automation webhook action. |
 
