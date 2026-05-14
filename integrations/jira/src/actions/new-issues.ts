@@ -16,22 +16,22 @@ export const newIssues: Implementation['actions']['newIssues'] = async ({ ctx, i
   }
   const jiraClient = getClient(ctx.configuration)
 
-  const issueTypeIds = await resolveIssueTypeIds(jiraClient, validatedInput.issues)
-
-  const issueUpdates: IssueInput[] = validatedInput.issues.map((i) => {
-    const issueTypeId = issueTypeIds.get(`${i.projectKey}::${i.issueType}`)!
-    const fields: NonNullable<IssueInput['fields']> = {
-      summary: i.summary,
-      issuetype: { id: issueTypeId },
-      project: { key: i.projectKey },
-    }
-    if (i.description !== undefined) fields.description = textToAdfDocument(i.description)
-    if (i.parentKey !== undefined) fields.parent = { key: i.parentKey }
-    if (i.assigneeId !== undefined) fields.assignee = { accountId: i.assigneeId }
-    return { fields }
-  })
-
   try {
+    const issueTypeIds = await resolveIssueTypeIds(jiraClient, validatedInput.issues)
+
+    const issueUpdates: IssueInput[] = validatedInput.issues.map((i) => {
+      const issueTypeId = issueTypeIds.get(`${i.projectKey}::${i.issueType}`)!
+      const fields: NonNullable<IssueInput['fields']> = {
+        summary: i.summary,
+        issuetype: { id: issueTypeId },
+        project: { key: i.projectKey },
+      }
+      if (i.description !== undefined) fields.description = textToAdfDocument(i.description)
+      if (i.parentKey !== undefined) fields.parent = { key: i.parentKey }
+      if (i.assigneeId !== undefined) fields.assignee = { accountId: i.assigneeId }
+      return { fields }
+    })
+
     const response = await jiraClient.newIssues({ issueUpdates })
     const created = (response.issues ?? []).map((c) => ({ issueKey: c.key }))
     const errors = (response.errors ?? []).map((e) => {

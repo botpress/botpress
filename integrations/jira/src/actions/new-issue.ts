@@ -14,38 +14,39 @@ export const newIssue: Implementation['actions']['newIssue'] = async ({ ctx, inp
   const validatedInput = newIssueInputSchema.parse(input)
   const jiraClient = getClient(ctx.configuration)
 
-  const issueTypeIds = await resolveIssueTypeIds(jiraClient, [
-    {
-      issueType: validatedInput.issueType,
-      projectKey: validatedInput.projectKey,
-    },
-  ])
-  const issueTypeId = issueTypeIds.get(`${validatedInput.projectKey}::${validatedInput.issueType}`)!
-
-  const fields: Version3Parameters.CreateIssue['fields'] = {
-    summary: validatedInput.summary,
-    issuetype: {
-      id: issueTypeId,
-    },
-    project: {
-      key: validatedInput.projectKey,
-    },
-  }
-
-  if (validatedInput.description !== undefined) {
-    fields.description = textToAdfDocument(validatedInput.description)
-  }
-  if (validatedInput.parentKey !== undefined) {
-    fields.parent = { key: validatedInput.parentKey }
-  }
-  if (validatedInput.assigneeId !== undefined) {
-    fields.assignee = { accountId: validatedInput.assigneeId }
-  }
-
-  const issue: Version3Parameters.CreateIssue = {
-    fields,
-  }
   try {
+    const issueTypeIds = await resolveIssueTypeIds(jiraClient, [
+      {
+        issueType: validatedInput.issueType,
+        projectKey: validatedInput.projectKey,
+      },
+    ])
+    const issueTypeId = issueTypeIds.get(`${validatedInput.projectKey}::${validatedInput.issueType}`)!
+
+    const fields: Version3Parameters.CreateIssue['fields'] = {
+      summary: validatedInput.summary,
+      issuetype: {
+        id: issueTypeId,
+      },
+      project: {
+        key: validatedInput.projectKey,
+      },
+    }
+
+    if (validatedInput.description !== undefined) {
+      fields.description = textToAdfDocument(validatedInput.description)
+    }
+    if (validatedInput.parentKey !== undefined) {
+      fields.parent = { key: validatedInput.parentKey }
+    }
+    if (validatedInput.assigneeId !== undefined) {
+      fields.assignee = { accountId: validatedInput.assigneeId }
+    }
+
+    const issue: Version3Parameters.CreateIssue = {
+      fields,
+    }
+
     const response = await jiraClient.newIssue(issue)
     logger.forBot().info(`Successful - New Issue - ${response}`)
     return { issueKey: response }
