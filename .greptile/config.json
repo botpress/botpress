@@ -1,7 +1,7 @@
 {
   "strictness": 2,
   "commentTypes": ["info", "logic", "syntax"],
-  "triggerOnUpdates": true,
+  "triggerOnUpdates": false,
   "shouldUpdateDescription": false,
   "updateExistingSummaryComment": true,
   "summarySection": {

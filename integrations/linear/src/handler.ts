@@ -15,7 +15,14 @@ const LINEAR_WEBHOOK_TS_FIELD = 'webhookTimestamp'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
   const { req, ctx, client, logger } = props
+  logger
+    .forBot()
+    .debug(
+      `Linear handler invoked (method="${req.method ?? ''}", path="${req.path ?? ''}", hasBody=${Boolean(req.body)})`
+    )
+
   if (req.path === '/oauth') {
+    logger.forBot().info('Linear OAuth callback received')
     return await handleOauth(props).catch((err) => {
       logger.forBot().error('Error while processing OAuth', err.response?.data || err.message)
       throw err
@@ -96,6 +103,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
       userId: userId as string, // TODO: fix this
     })
   }
+  return
 }
 
 const _safeCheckWebhookSignature = ({

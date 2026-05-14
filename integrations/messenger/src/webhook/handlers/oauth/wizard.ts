@@ -126,7 +126,14 @@ const _selectPageHandler: WizardHandler = async ({ responses, client, ctx, logge
   })
 }
 
-const _setupHandler: WizardHandler = async ({ responses, client, ctx, logger, selectedChoice }) => {
+const _setupHandler: WizardHandler = async ({
+  responses,
+  client,
+  ctx,
+  logger,
+  selectedChoice,
+  setIntegrationIdentifier,
+}) => {
   const { userToken } = await getMetaClientCredentials({ configType: 'oauth', client, ctx }).catch(() => ({
     userToken: undefined,
   }))
@@ -166,9 +173,7 @@ const _setupHandler: WizardHandler = async ({ responses, client, ctx, logger, se
 
   logger.forBot().info(`Successfully subscribed to webhooks for OAuth page ${pageId}`)
 
-  await client.configureIntegration({
-    identifier: pageId,
-  })
+  setIntegrationIdentifier(pageId)
 
   return responses.displayButtons({
     pageTitle: 'Configuration Complete',
