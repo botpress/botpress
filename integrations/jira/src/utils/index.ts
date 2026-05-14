@@ -25,7 +25,12 @@ export const resolveIssueTypeIds = async (
   const nameToId = new Map<string, string>()
 
   for (const projectKey of projectKeys) {
-    const response = await client.listIssueTypesForProject(projectKey)
+    let response: Awaited<ReturnType<JiraApi['listIssueTypesForProject']>>
+    try {
+      response = await client.listIssueTypesForProject(projectKey)
+    } catch (error) {
+      throw buildRuntimeError(`Failed to resolve issue types for project "${projectKey}"`, error)
+    }
 
     for (const issue of issues) {
       const mapKey = key(projectKey, issue.issueType)
@@ -33,7 +38,7 @@ export const resolveIssueTypeIds = async (
       const match = (response.issueTypes ?? []).find((t) => t.name === issue.issueType)
       if (!match?.id) {
         throw new RuntimeError(
-          `Failed to create issues: invalid issue type "${issue.issueType}" for project "${projectKey}". Use a Jira issue type that is valid for the target project.`
+          `Failed to resolve issue types: invalid issue type "${issue.issueType}" for project "${projectKey}". Use a Jira issue type that is valid for the target project.`
         )
       }
       nameToId.set(mapKey, match.id)
