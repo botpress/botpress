@@ -275,20 +275,20 @@ Fires when a customer adds a reply to a ticket. Set up a rule under **Admin → 
 
 ```json
 {
-	"ticket": {
-		"id": "{{ticket.id}}",
-		"subject": "{{ticket.subject}}",
-		"status": "{{ticket.status_id}}",
-		"priority": "{{ticket.priority_id}}",
-		"requester_id": "{{ticket.requester.id}}",
-		"responder_id": "{{ticket.agent.id}}",
-		"group_id": "{{ticket.group.id}}",
-		"type": "{{ticket.ticket_type}}"
-	}
+  "ticket": {
+    "id": "{{ticket.id}}",
+    "subject": "{{ticket.subject}}",
+    "status": "{{ticket.status_id}}",
+    "priority": "{{ticket.priority_id}}",
+    "requester_id": "{{ticket.requester.id}}",
+    "responder_id": "{{ticket.agent.id}}",
+    "group_id": "{{ticket.group.id}}",
+    "type": "{{ticket.ticket_type}}"
+  }
 }
 ```
 
-   For `ticketReplied`, also include reply fields. The `reply.body` field is **required**:
+For `ticketReplied`, also include reply fields. The `reply.body` field is **required**:
 
 ```json
 {

@@ -1,5 +1,5 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import { actions, configuration, events, states } from './definitions'
+import { actions, configuration, events } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'freshdesk',
@@ -9,7 +9,6 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration,
-  states,
   actions,
   events,
   user: {

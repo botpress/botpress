@@ -1,8 +1,7 @@
 import { z } from '@botpress/sdk'
 
 // Freshdesk sends all template values as strings; coerce numeric fields
-const coerceToNumber = (val: unknown): number | null =>
-  val != null && val !== '' ? Number(val) : null
+const coerceToNumber = (val: unknown): number | null => (val != null && val !== '' ? Number(val) : null)
 
 const incomingTicketSchema = z.object({
   id: z.preprocess(coerceToNumber, z.number()),
