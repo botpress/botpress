@@ -1625,12 +1625,6 @@ importers:
 
   integrations/n8n:
     dependencies:
-      '@botpress/cli':
-        specifier: workspace:*
-        version: link:../../packages/cli
-      '@botpress/client':
-        specifier: workspace:*
-        version: link:../../packages/client
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
@@ -1638,12 +1632,9 @@ importers:
         specifier: ^1.7.9
         version: 1.13.6
     devDependencies:
-      '@types/node':
-        specifier: ^22.16.4
-        version: 22.16.4
-      typescript:
-        specifier: ^5.6.3
-        version: 5.9.3
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
 
   integrations/notion:
     dependencies:

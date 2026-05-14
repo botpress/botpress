@@ -7,13 +7,11 @@
   },
   "private": true,
   "dependencies": {
-    "@botpress/cli": "workspace:*",
-    "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "axios": "^1.7.9"
   },
   "devDependencies": {
-    "@types/node": "^22.16.4",
-    "typescript": "^5.6.3"
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*"
   }
 }

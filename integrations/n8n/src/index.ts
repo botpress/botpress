@@ -1,6 +1,5 @@
 import * as sdk from '@botpress/sdk'
 import axios from 'axios'
-import { randomUUID } from 'node:crypto'
 import actions from './actions'
 import { getn8nClient } from './actions/utils'
 import * as bp from '.botpress'
@@ -79,7 +78,7 @@ export default new bp.Integration({
       data?: Record<string, any>
     }
 
-    const tagValue = payload.conversationId || randomUUID()
+    const tagValue = payload.conversationId || crypto.randomUUID()
     let conversationId: string
     try {
       const result = await client.getOrCreateConversation({
