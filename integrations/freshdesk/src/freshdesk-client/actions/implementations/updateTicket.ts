@@ -18,8 +18,8 @@ export const updateTicket = wrapAction(
     })
     return {
       id: ticket.id,
-      status: NUM_TO_STATUS[ticket.status as keyof typeof NUM_TO_STATUS] ?? 'open',
-      priority: NUM_TO_PRIORITY[ticket.priority as keyof typeof NUM_TO_PRIORITY] ?? 'medium',
+      status: NUM_TO_STATUS[ticket.status as keyof typeof NUM_TO_STATUS],
+      priority: NUM_TO_PRIORITY[ticket.priority as keyof typeof NUM_TO_PRIORITY],
       updatedAt: ticket.updated_at,
     }
   }

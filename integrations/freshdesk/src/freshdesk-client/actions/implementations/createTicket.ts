@@ -17,8 +17,8 @@ export const createTicket = wrapAction(
     return {
       id: ticket.id,
       subject: ticket.subject,
-      status: NUM_TO_STATUS[ticket.status as keyof typeof NUM_TO_STATUS] ?? 'open',
-      priority: NUM_TO_PRIORITY[ticket.priority as keyof typeof NUM_TO_PRIORITY] ?? 'medium',
+      status: NUM_TO_STATUS[ticket.status as keyof typeof NUM_TO_STATUS],
+      priority: NUM_TO_PRIORITY[ticket.priority as keyof typeof NUM_TO_PRIORITY],
       createdAt: ticket.created_at,
       url: `https://${ctx.configuration.domain}.freshdesk.com/helpdesk/tickets/${ticket.id}`,
     }

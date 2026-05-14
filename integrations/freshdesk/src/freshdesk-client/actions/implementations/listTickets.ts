@@ -11,8 +11,8 @@ export const listTickets = wrapAction(
     })
     const tickets = raw.map((t) => ({
       ...t,
-      status: NUM_TO_STATUS[t.status as keyof typeof NUM_TO_STATUS] ?? 'open',
-      priority: NUM_TO_PRIORITY[t.priority as keyof typeof NUM_TO_PRIORITY] ?? 'medium',
+      status: NUM_TO_STATUS[t.status as keyof typeof NUM_TO_STATUS],
+      priority: NUM_TO_PRIORITY[t.priority as keyof typeof NUM_TO_PRIORITY],
     }))
     return { tickets }
   }

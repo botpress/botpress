@@ -34,8 +34,8 @@ export const searchTickets = wrapAction(
       tickets: rawTickets.map((t) => ({
         id: t.id,
         subject: t.subject,
-        status: NUM_TO_STATUS[t.status as keyof typeof NUM_TO_STATUS] ?? 'open',
-        priority: NUM_TO_PRIORITY[t.priority as keyof typeof NUM_TO_PRIORITY] ?? 'medium',
+        status: NUM_TO_STATUS[t.status as keyof typeof NUM_TO_STATUS],
+        priority: NUM_TO_PRIORITY[t.priority as keyof typeof NUM_TO_PRIORITY],
         createdAt: t.created_at,
         requesterEmail: t.email ?? null,
       })),
