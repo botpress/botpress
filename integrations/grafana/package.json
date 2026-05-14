@@ -1,0 +1,19 @@
+{
+  "name": "@botpresshub/grafana",
+  "integrationName": "my_handle-1/grafana",
+  "scripts": {
+    "check:type": "tsc --noEmit"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/sdk": "6.10.0",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "@hey-api/client-fetch": "^0.13.1",
+    "@hey-api/openapi-ts": "^0.97.1",
+    "@types/node": "^22.16.4",
+    "@types/node-fetch": "^2.6.4",
+    "typescript": "^5.6.3"
+  }
+}
