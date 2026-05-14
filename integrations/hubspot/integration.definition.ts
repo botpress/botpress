@@ -6,7 +6,7 @@ export default new IntegrationDefinition({
   name: 'hubspot',
   title: 'HubSpot',
   description: 'Manage contacts, tickets and more from your chatbot.',
-  version: '6.0.3',
+  version: '6.0.4',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -18,7 +18,7 @@ export default new IntegrationDefinition({
   configurations: {
     manual: {
       title: 'Manual Configuration',
-      description: 'Manual configuration, use your own Hubspot app',
+      description: 'Manual configuration, use your own HubSpot app',
       schema: z.object({
         accessToken: z
           .string()
@@ -72,10 +72,10 @@ export default new IntegrationDefinition({
   },
   secrets: {
     CLIENT_ID: {
-      description: 'The client ID of the Hubspot app',
+      description: 'The client ID of the HubSpot app',
     },
     CLIENT_SECRET: {
-      description: 'The client secret of the Hubspot app',
+      description: 'The client secret of the HubSpot app',
     },
     DISABLE_OAUTH: {
       // TODO: Remove once the OAuth app allows for unlimited installs
