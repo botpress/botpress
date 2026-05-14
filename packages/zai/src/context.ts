@@ -15,7 +15,7 @@ export type ZaiContextProps = {
   client: Cognitive
   taskType: string
   taskId: string
-  modelId: GenerateContentInput['model']
+  modelId: string | string[]
   adapter?: Adapter
   source?: GenerateContentInput['meta']
   memoizer?: Memoizer
