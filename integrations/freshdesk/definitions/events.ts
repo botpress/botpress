@@ -1,6 +1,6 @@
 import { IntegrationDefinitionProps, z } from '@botpress/sdk'
 
-const webhookTicketSchema = z.object({
+export const webhookTicketSchema = z.object({
   id: z.number().title('Ticket ID').describe('Freshdesk ticket ID.'),
   subject: z.string().nullish().title('Subject').describe('Ticket subject.'),
   status: z.number().nullish().title('Status').describe('Ticket status: 2=Open, 3=Pending, 4=Resolved, 5=Closed.'),
@@ -10,6 +10,12 @@ const webhookTicketSchema = z.object({
   group_id: z.number().nullish().title('Group ID').describe('Group the ticket is assigned to.'),
   type: z.string().nullish().title('Type').describe('Ticket category type.'),
   tags: z.array(z.string()).nullish().title('Tags').describe('Tags associated with the ticket.'),
+})
+
+export const webhookReplySchema = z.object({
+  body: z.string().title('Body').describe('HTML content of the reply.'),
+  body_text: z.string().optional().title('Body Text').describe('Plain-text content of the reply.'),
+  customer_email: z.string().optional().title('Customer Email').describe('Email of the customer who replied.'),
 })
 
 export const events = {
@@ -34,14 +40,7 @@ export const events = {
     description: 'Triggered when a customer adds a reply to a ticket.',
     schema: z.object({
       ticket: webhookTicketSchema.title('Ticket').describe('The ticket that received the reply.'),
-      reply: z
-        .object({
-          body: z.string().title('Body').describe('HTML content of the reply.'),
-          body_text: z.string().optional().title('Body Text').describe('Plain-text content of the reply.'),
-          customer_email: z.string().optional().title('Customer Email').describe('Email of the customer who replied.'),
-        })
-        .title('Reply')
-        .describe('The reply that was added.'),
+      reply: webhookReplySchema.title('Reply').describe('The reply that was added.'),
     }),
     ui: {},
   },

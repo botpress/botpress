@@ -1,27 +1,26 @@
 import { z } from '@botpress/sdk'
+import { webhookReplySchema, webhookTicketSchema } from '../../definitions/events'
 
 // Freshdesk sends all template values as strings; coerce numeric fields
 const coerceToNumber = (val: unknown): number | null => (val != null && val !== '' ? Number(val) : null)
 
-const incomingTicketSchema = z.object({
-  id: z.preprocess(coerceToNumber, z.number()),
-  subject: z.string().nullish(),
-  status: z.preprocess(coerceToNumber, z.number().nullable()),
-  priority: z.preprocess(coerceToNumber, z.number().nullable()),
-  requester_id: z.preprocess(coerceToNumber, z.number().nullable()),
-  responder_id: z.preprocess(coerceToNumber, z.number().nullable()),
-  group_id: z.preprocess(coerceToNumber, z.number().nullable()),
-  type: z.string().nullish(),
-  tags: z.array(z.string()).nullish(),
-})
+const freshdeskTicketSchema = z.preprocess(
+  (obj) => {
+    if (typeof obj !== 'object' || obj === null) return obj
+    const t = obj as Record<string, unknown>
+    return {
+      ...t,
+      id: coerceToNumber(t['id']),
+      status: coerceToNumber(t['status']),
+      priority: coerceToNumber(t['priority']),
+      requester_id: coerceToNumber(t['requester_id']),
+      responder_id: coerceToNumber(t['responder_id']),
+      group_id: coerceToNumber(t['group_id']),
+    }
+  },
+  webhookTicketSchema
+)
 
-export const ticketCreatedBodySchema = z.object({ ticket: incomingTicketSchema })
-export const ticketUpdatedBodySchema = z.object({ ticket: incomingTicketSchema })
-export const ticketRepliedBodySchema = z.object({
-  ticket: incomingTicketSchema,
-  reply: z.object({
-    body: z.string(),
-    body_text: z.string().optional(),
-    customer_email: z.string().optional(),
-  }),
-})
+export const ticketCreatedBodySchema = z.object({ ticket: freshdeskTicketSchema })
+export const ticketUpdatedBodySchema = z.object({ ticket: freshdeskTicketSchema })
+export const ticketRepliedBodySchema = z.object({ ticket: freshdeskTicketSchema, reply: webhookReplySchema })
