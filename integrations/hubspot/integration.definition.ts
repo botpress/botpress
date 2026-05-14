@@ -6,7 +6,7 @@ export default new IntegrationDefinition({
   name: 'hubspot',
   title: 'HubSpot',
   description: 'Manage contacts, tickets and more from your chatbot.',
-  version: '6.0.1',
+  version: '6.0.3',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
