@@ -2,7 +2,13 @@ import { Version3Parameters } from 'jira.js'
 import { updateIssueInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
-import { buildIssueRuntimeError, getClient, textToAdfDocument } from '../utils'
+import {
+  buildIssueRuntimeError,
+  getClient,
+  resolveIssueTypeIds,
+  serializeErrorForLog,
+  textToAdfDocument,
+} from '../utils'
 
 export const updateIssue: Implementation['actions']['updateIssue'] = async ({ ctx, input, logger }) => {
   const validatedInput = updateIssueInputSchema.parse(input)
@@ -15,7 +21,20 @@ export const updateIssue: Implementation['actions']['updateIssue'] = async ({ ct
   if (validatedInput.description !== undefined) {
     fields.description = textToAdfDocument(validatedInput.description)
   }
-  if (validatedInput.issueType !== undefined) {
+  if (validatedInput.issueType !== undefined && validatedInput.projectKey !== undefined) {
+    const issueTypeIds = await resolveIssueTypeIds(jiraClient, [
+      {
+        issueType: validatedInput.issueType,
+        projectKey: validatedInput.projectKey,
+      },
+    ])
+    const issueTypeId = issueTypeIds.get(`${validatedInput.projectKey}::${validatedInput.issueType}`)
+    if (issueTypeId) {
+      fields.issuetype = { id: issueTypeId }
+    } else {
+      fields.issuetype = { name: validatedInput.issueType }
+    }
+  } else if (validatedInput.issueType !== undefined) {
     fields.issuetype = { name: validatedInput.issueType }
   }
   if (validatedInput.projectKey !== undefined) {
@@ -37,7 +56,7 @@ export const updateIssue: Implementation['actions']['updateIssue'] = async ({ ct
     logger.forBot().info(`Successful - Update Issue - ${validatedInput.issueKey}`)
     return { issueKey: validatedInput.issueKey }
   } catch (error) {
-    logger.forBot().debug(`'Update Issue' exception ${JSON.stringify(error)}`)
+    logger.forBot().debug(`'Update Issue' exception ${serializeErrorForLog(error)}`)
     throw buildIssueRuntimeError(error, validatedInput.issueType, validatedInput.projectKey, 'update')
   }
 }

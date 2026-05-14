@@ -2,15 +2,30 @@ import { Version3Parameters } from 'jira.js'
 import { newIssueInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
-import { buildIssueRuntimeError, getClient, textToAdfDocument } from '../utils'
+import {
+  buildIssueRuntimeError,
+  getClient,
+  resolveIssueTypeIds,
+  serializeErrorForLog,
+  textToAdfDocument,
+} from '../utils'
 
 export const newIssue: Implementation['actions']['newIssue'] = async ({ ctx, input, logger }) => {
   const validatedInput = newIssueInputSchema.parse(input)
   const jiraClient = getClient(ctx.configuration)
+
+  const issueTypeIds = await resolveIssueTypeIds(jiraClient, [
+    {
+      issueType: validatedInput.issueType,
+      projectKey: validatedInput.projectKey,
+    },
+  ])
+  const issueTypeId = issueTypeIds.get(`${validatedInput.projectKey}::${validatedInput.issueType}`)!
+
   const fields: Version3Parameters.CreateIssue['fields'] = {
     summary: validatedInput.summary,
     issuetype: {
-      name: validatedInput.issueType,
+      id: issueTypeId,
     },
     project: {
       key: validatedInput.projectKey,
@@ -35,7 +50,7 @@ export const newIssue: Implementation['actions']['newIssue'] = async ({ ctx, inp
     logger.forBot().info(`Successful - New Issue - ${response}`)
     return { issueKey: response }
   } catch (error) {
-    logger.forBot().debug(`'New Issue' exception ${JSON.stringify(error)}`)
+    logger.forBot().debug(`'New Issue' exception ${serializeErrorForLog(error)}`)
     throw buildIssueRuntimeError(error, validatedInput.issueType, validatedInput.projectKey, 'create')
   }
 }

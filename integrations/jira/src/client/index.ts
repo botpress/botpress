@@ -1,5 +1,4 @@
 import { Version3Client, Version3Models, Version3Parameters } from 'jira.js'
-import type { RequestConfig } from 'jira.js/out/requestConfig'
 import { textToAdfDocument } from '../misc/adf'
 
 export type EnhancedSearchRequest = {
@@ -76,13 +75,19 @@ export class JiraApi {
     await this._client.issues.editIssue(issueUpdate)
   }
 
+  public async getCurrentUser(): Promise<Version3Models.User> {
+    return await this._client.myself.getCurrentUser()
+  }
+
   public async assignIssue(issueIdOrKey: string, accountId: string | null): Promise<void> {
-    const config: RequestConfig = {
-      url: `/rest/api/3/issue/${encodeURIComponent(issueIdOrKey)}/assignee`,
-      method: 'PUT',
-      data: { accountId },
-    }
-    await this._client.sendRequest<void>(config, undefined as never)
+    await this._client.sendRequest<void>(
+      {
+        url: `/rest/api/3/issue/${encodeURIComponent(issueIdOrKey)}/assignee`,
+        method: 'PUT',
+        data: { accountId },
+      },
+      undefined as never
+    )
   }
 
   public async deleteIssue(issueIdOrKey: string, deleteSubtasks: boolean = false): Promise<void> {
@@ -97,12 +102,14 @@ export class JiraApi {
   }
 
   public async searchIssues(params: EnhancedSearchRequest): Promise<EnhancedSearchResponse> {
-    const config: RequestConfig = {
-      url: '/rest/api/3/search/jql',
-      method: 'POST',
-      data: params,
-    }
-    return await this._client.sendRequest<EnhancedSearchResponse>(config, undefined as never)
+    return await this._client.sendRequest<EnhancedSearchResponse>(
+      {
+        url: '/rest/api/3/search/jql',
+        method: 'POST',
+        data: params,
+      },
+      undefined as never
+    )
   }
 
   public async getIssueTransitions(params: Version3Parameters.GetTransitions): Promise<Version3Models.Transitions> {
@@ -118,31 +125,37 @@ export class JiraApi {
   }
 
   public async listIssueTypesForProject(projectIdOrKey: string): Promise<CreateMetaIssueTypesPage> {
-    const config: RequestConfig = {
-      url: `/rest/api/3/issue/createmeta/${encodeURIComponent(projectIdOrKey)}/issuetypes`,
-      method: 'GET',
-    }
-    return await this._client.sendRequest<CreateMetaIssueTypesPage>(config, undefined as never)
+    return await this._client.sendRequest<CreateMetaIssueTypesPage>(
+      {
+        url: `/rest/api/3/issue/createmeta/${encodeURIComponent(projectIdOrKey)}/issuetypes`,
+        method: 'GET',
+      },
+      undefined as never
+    )
   }
 
   public async countIssues(jql: string): Promise<number> {
-    const config: RequestConfig = {
-      url: '/rest/api/3/search/approximate-count',
-      method: 'POST',
-      data: { jql },
-    }
-    const response = await this._client.sendRequest<{ count: number }>(config, undefined as never)
+    const response = await this._client.sendRequest<{ count: number }>(
+      {
+        url: '/rest/api/3/search/approximate-count',
+        method: 'POST',
+        data: { jql },
+      },
+      undefined as never
+    )
     return response.count
   }
 
   public async pickIssue(query: string, currentJql?: string): Promise<IssuePickerResponse> {
     const params = new URLSearchParams({ query })
     if (currentJql) params.set('currentJQL', currentJql)
-    const config: RequestConfig = {
-      url: `/rest/api/3/issue/picker?${params.toString()}`,
-      method: 'GET',
-    }
-    return await this._client.sendRequest<IssuePickerResponse>(config, undefined as never)
+    return await this._client.sendRequest<IssuePickerResponse>(
+      {
+        url: `/rest/api/3/issue/picker?${params.toString()}`,
+        method: 'GET',
+      },
+      undefined as never
+    )
   }
 
   public async listProjectStatuses(projectIdOrKey: string): Promise<Version3Models.IssueTypeWithStatus[]> {
@@ -172,7 +185,7 @@ export class JiraApi {
     return user
   }
 
-  public async findAllUser(addParams?: Version3Parameters.GetAllUsers): Promise<Version3Models.User[]> {
+  public async findAllUsers(addParams?: Version3Parameters.GetAllUsers): Promise<Version3Models.User[]> {
     return await this._client.users.getAllUsers(addParams)
   }
 }

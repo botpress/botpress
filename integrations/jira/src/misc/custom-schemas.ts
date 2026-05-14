@@ -3,12 +3,12 @@ import { z } from '@botpress/sdk'
 export const jiraUserSchema = z.object({
   self: z.string().optional().title('Self URL').describe('Jira API URL for the user'),
   key: z.string().optional().title('User Key').describe('Legacy Jira user key, when available'),
-  accountId: z.string().title('Account ID').describe('Jira account ID for the user'),
+  accountId: z.string().optional().title('Account ID').describe('Jira account ID for the user'),
   accountType: z.string().optional().title('Account Type').describe('Jira account type for the user'),
   name: z.string().optional().title('Name').describe('Legacy Jira username, when available'),
   emailAddress: z.string().optional().title('Email Address').describe('Email address for the Jira user, when visible'),
   displayName: z.string().optional().title('Display Name').describe('Display name for the Jira user'),
-  active: z.boolean().title('Active').describe('Whether the Jira user account is active'),
+  active: z.boolean().optional().title('Active').describe('Whether the Jira user account is active'),
   timeZone: z.string().optional().title('Time Zone').describe('User time zone configured in Jira'),
   locale: z.string().optional().title('Locale').describe('User locale configured in Jira'),
 })
@@ -23,8 +23,15 @@ export const findUserInputSchema = z.object({
 export const findUserOutputSchema = jiraUserSchema
 
 export const findAllUsersInputSchema = z.object({
-  startAt: z.number().optional().title('Start At').describe('Index of the first Jira user to return'),
-  maxResults: z.number().optional().title('Max Results').describe('Maximum number of Jira users to return'),
+  startAt: z.number().int().min(0).optional().title('Start At').describe('Index of the first Jira user to return'),
+  maxResults: z
+    .number()
+    .int()
+    .min(1)
+    .max(100)
+    .optional()
+    .title('Max Results')
+    .describe('Maximum number of Jira users to return (1-100)'),
 })
 
 export const findAllUsersOutputSchema = z.object({
@@ -89,6 +96,9 @@ export const searchIssuesInputSchema = z.object({
     .describe('Pagination cursor returned from a previous searchIssues call'),
   maxResults: z
     .number()
+    .int()
+    .min(1)
+    .max(100)
     .optional()
     .title('Max Results')
     .describe('Maximum number of issues to return per page (1-100, default 50)'),
@@ -130,7 +140,14 @@ export const listProjectsInputSchema = z.object({
     .title('Query')
     .describe('Optional case-insensitive substring match against project key or name'),
   nextToken: z.string().optional().title('Next Token').describe('Pagination cursor returned from a previous call'),
-  maxResults: z.number().optional().title('Max Results').describe('Maximum number of projects per page (default 50)'),
+  maxResults: z
+    .number()
+    .int()
+    .min(1)
+    .max(100)
+    .optional()
+    .title('Max Results')
+    .describe('Maximum number of projects per page (1-100, default 50)'),
 })
 
 export const listProjectsOutputSchema = z.object({

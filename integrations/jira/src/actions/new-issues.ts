@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/sdk'
 import type { Version3Models } from 'jira.js'
 import { newIssuesInputSchema, newIssuesOutputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
-import { getClient, textToAdfDocument } from '../utils'
+import { buildRuntimeError, getClient, resolveIssueTypeIds, serializeErrorForLog, textToAdfDocument } from '../utils'
 
 type IssueInput = Version3Models.IssueUpdateDetails
 
@@ -16,10 +16,13 @@ export const newIssues: Implementation['actions']['newIssues'] = async ({ ctx, i
   }
   const jiraClient = getClient(ctx.configuration)
 
+  const issueTypeIds = await resolveIssueTypeIds(jiraClient, validatedInput.issues)
+
   const issueUpdates: IssueInput[] = validatedInput.issues.map((i) => {
+    const issueTypeId = issueTypeIds.get(`${i.projectKey}::${i.issueType}`)!
     const fields: NonNullable<IssueInput['fields']> = {
       summary: i.summary,
-      issuetype: { name: i.issueType },
+      issuetype: { id: issueTypeId },
       project: { key: i.projectKey },
     }
     if (i.description !== undefined) fields.description = textToAdfDocument(i.description)
@@ -45,8 +48,7 @@ export const newIssues: Implementation['actions']['newIssues'] = async ({ ctx, i
     logger.forBot().info(`Successful - New Issues - ${created.length} created, ${errors.length} failed`)
     return newIssuesOutputSchema.parse({ created, errors })
   } catch (error) {
-    logger.forBot().debug(`'New Issues' exception ${JSON.stringify(error)}`)
-    const message = error instanceof Error ? error.message : JSON.stringify(error)
-    throw new RuntimeError(`Failed to create issues: ${message}`)
+    logger.forBot().debug(`'New Issues' exception ${serializeErrorForLog(error)}`)
+    throw buildRuntimeError('Failed to create issues', error)
   }
 }

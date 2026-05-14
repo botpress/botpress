@@ -1,9 +1,7 @@
-import { RuntimeError } from '@botpress/sdk'
-
 import { countIssuesInputSchema, countIssuesOutputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
-import { getClient } from '../utils'
+import { buildRuntimeError, getClient, serializeErrorForLog } from '../utils'
 
 export const countIssues: Implementation['actions']['countIssues'] = async ({ ctx, input, logger }) => {
   const validatedInput = countIssuesInputSchema.parse(input)
@@ -14,8 +12,7 @@ export const countIssues: Implementation['actions']['countIssues'] = async ({ ct
     logger.forBot().info(`Successful - Count Issues - ${count} match`)
     return countIssuesOutputSchema.parse({ count })
   } catch (error) {
-    logger.forBot().debug(`'Count Issues' exception ${JSON.stringify(error)}`)
-    const message = error instanceof Error ? error.message : JSON.stringify(error)
-    throw new RuntimeError(`Failed to count issues: ${message}`)
+    logger.forBot().debug(`'Count Issues' exception ${serializeErrorForLog(error)}`)
+    throw buildRuntimeError('Failed to count issues', error)
   }
 }

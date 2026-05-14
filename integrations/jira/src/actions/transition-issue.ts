@@ -3,7 +3,7 @@ import { RuntimeError } from '@botpress/sdk'
 import { transitionIssueInputSchema, transitionIssueOutputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
-import { getClient, textToAdfDocument } from '../utils'
+import { getClient, getErrorMessage, serializeErrorForLog, textToAdfDocument } from '../utils'
 
 export const transitionIssue: Implementation['actions']['transitionIssue'] = async ({ ctx, input, logger }) => {
   const validatedInput = transitionIssueInputSchema.parse(input)
@@ -29,8 +29,8 @@ export const transitionIssue: Implementation['actions']['transitionIssue'] = asy
       transitionId: validatedInput.transitionId,
     })
   } catch (error) {
-    logger.forBot().debug(`'Transition Issue' exception ${JSON.stringify(error)}`)
-    const message = error instanceof Error ? error.message : JSON.stringify(error)
+    logger.forBot().debug(`'Transition Issue' exception ${serializeErrorForLog(error)}`)
+    const message = getErrorMessage(error)
     throw new RuntimeError(
       `Failed to transition issue ${validatedInput.issueKey}: ${message}. Use getIssueTransitions to discover valid transition IDs.`
     )

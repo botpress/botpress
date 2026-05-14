@@ -3,7 +3,7 @@ import { RuntimeError } from '@botpress/sdk'
 import { assignIssueInputSchema, assignIssueOutputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
-import { getClient } from '../utils'
+import { getClient, getErrorMessage, serializeErrorForLog } from '../utils'
 
 export const assignIssue: Implementation['actions']['assignIssue'] = async ({ ctx, input, logger }) => {
   const validatedInput = assignIssueInputSchema.parse(input)
@@ -23,8 +23,8 @@ export const assignIssue: Implementation['actions']['assignIssue'] = async ({ ct
       accountId: validatedInput.accountId,
     })
   } catch (error) {
-    logger.forBot().debug(`'Assign Issue' exception ${JSON.stringify(error)}`)
-    const message = error instanceof Error ? error.message : JSON.stringify(error)
+    logger.forBot().debug(`'Assign Issue' exception ${serializeErrorForLog(error)}`)
+    const message = getErrorMessage(error)
     throw new RuntimeError(`Failed to assign issue ${validatedInput.issueKey}: ${message}`)
   }
 }

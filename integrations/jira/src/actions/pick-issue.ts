@@ -1,9 +1,7 @@
-import { RuntimeError } from '@botpress/sdk'
-
 import { pickIssueInputSchema, pickIssueOutputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
-import { getClient } from '../utils'
+import { buildRuntimeError, getClient, serializeErrorForLog } from '../utils'
 
 export const pickIssue: Implementation['actions']['pickIssue'] = async ({ ctx, input, logger }) => {
   const validatedInput = pickIssueInputSchema.parse(input)
@@ -25,8 +23,7 @@ export const pickIssue: Implementation['actions']['pickIssue'] = async ({ ctx, i
     logger.forBot().info(`Successful - Pick Issue - ${matches.length} matches for "${validatedInput.query}"`)
     return pickIssueOutputSchema.parse({ matches })
   } catch (error) {
-    logger.forBot().debug(`'Pick Issue' exception ${JSON.stringify(error)}`)
-    const message = error instanceof Error ? error.message : JSON.stringify(error)
-    throw new RuntimeError(`Failed to pick issue: ${message}`)
+    logger.forBot().debug(`'Pick Issue' exception ${serializeErrorForLog(error)}`)
+    throw buildRuntimeError('Failed to pick issue', error)
   }
 }

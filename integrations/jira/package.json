@@ -1,5 +1,6 @@
 {
   "name": "@botpresshub/jirasoftware",
+  "description": "Work with your Jira workspace, users, projects, and workflow transitions from Botpress.",
   "scripts": {
     "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",

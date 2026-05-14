@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
 import { listProjectStatusesInputSchema, listProjectStatusesOutputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
-import { getClient } from '../utils'
+import { getClient, getErrorMessage, serializeErrorForLog } from '../utils'
 
 export const listProjectStatuses: Implementation['actions']['listProjectStatuses'] = async ({ ctx, input, logger }) => {
   const validatedInput = listProjectStatusesInputSchema.parse(input)
@@ -21,8 +21,8 @@ export const listProjectStatuses: Implementation['actions']['listProjectStatuses
     logger.forBot().info(`Successful - List Project Statuses - ${items.length} for ${validatedInput.projectKey}`)
     return listProjectStatusesOutputSchema.parse({ items })
   } catch (error) {
-    logger.forBot().debug(`'List Project Statuses' exception ${JSON.stringify(error)}`)
-    const message = error instanceof Error ? error.message : JSON.stringify(error)
+    logger.forBot().debug(`'List Project Statuses' exception ${serializeErrorForLog(error)}`)
+    const message = getErrorMessage(error)
     throw new RuntimeError(`Failed to list statuses for project ${validatedInput.projectKey}: ${message}`)
   }
 }

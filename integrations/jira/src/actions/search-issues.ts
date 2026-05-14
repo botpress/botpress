@@ -1,9 +1,7 @@
-import { RuntimeError } from '@botpress/sdk'
-
 import { searchIssuesInputSchema, searchIssuesOutputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
-import { ISSUE_SEARCH_FIELDS, flattenIssue, getClient } from '../utils'
+import { ISSUE_SEARCH_FIELDS, buildRuntimeError, flattenIssue, getClient, serializeErrorForLog } from '../utils'
 
 const DEFAULT_MAX_RESULTS = 50
 const HARD_MAX_RESULTS = 100
@@ -38,8 +36,7 @@ export const searchIssues: Implementation['actions']['searchIssues'] = async ({ 
 
     return searchIssuesOutputSchema.parse({ items, nextToken })
   } catch (error) {
-    logger.forBot().debug(`'Search Issues' exception ${JSON.stringify(error)}`)
-    const message = error instanceof Error ? error.message : JSON.stringify(error)
-    throw new RuntimeError(`Failed to search issues: ${message}`)
+    logger.forBot().debug(`'Search Issues' exception ${serializeErrorForLog(error)}`)
+    throw buildRuntimeError('Failed to search issues', error)
   }
 }

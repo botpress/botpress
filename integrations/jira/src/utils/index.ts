@@ -8,6 +8,41 @@ export const getClient = (config: Config) => new JiraApi(config.host, config.ema
 
 export { textToAdfDocument }
 
+export const serializeErrorForLog = (error: unknown): string => {
+  try {
+    return JSON.stringify(error)
+  } catch {
+    return String(error)
+  }
+}
+
+export const resolveIssueTypeIds = async (
+  client: JiraApi,
+  issues: Array<{ issueType: string; projectKey: string }>
+): Promise<Map<string, string>> => {
+  const projectKeys = new Set(issues.map((i) => i.projectKey))
+  const key = (projectKey: string, typeName: string) => `${projectKey}::${typeName}`
+  const nameToId = new Map<string, string>()
+
+  for (const projectKey of projectKeys) {
+    const response = await client.listIssueTypesForProject(projectKey)
+
+    for (const issue of issues) {
+      const mapKey = key(projectKey, issue.issueType)
+      if (issue.projectKey !== projectKey || nameToId.has(mapKey)) continue
+      const match = (response.issueTypes ?? []).find((t) => t.name === issue.issueType)
+      if (!match?.id) {
+        throw new RuntimeError(
+          `Failed to create issues: invalid issue type "${issue.issueType}" for project "${projectKey}". Use a Jira issue type that is valid for the target project.`
+        )
+      }
+      nameToId.set(mapKey, match.id)
+    }
+  }
+
+  return nameToId
+}
+
 type FlattenedIssue = {
   issueKey: string
   id?: string
@@ -136,6 +171,12 @@ export const getJiraErrorDetail = (error: unknown): string | undefined => {
   const detail = [...(jiraError.errorMessages ?? []), ...fieldErrors].join('; ')
   return detail.length > 0 ? detail : undefined
 }
+
+export const getErrorMessage = (error: unknown): string =>
+  getJiraErrorDetail(error) ?? (error instanceof Error ? error.message : serializeErrorForLog(error))
+
+export const buildRuntimeError = (prefix: string, error: unknown): RuntimeError =>
+  new RuntimeError(`${prefix}: ${getErrorMessage(error)}`)
 
 export const buildIssueRuntimeError = (
   error: unknown,

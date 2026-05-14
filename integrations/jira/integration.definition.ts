@@ -5,7 +5,8 @@ import { configuration, states, user, channels, actions } from './src/definition
 export default new IntegrationDefinition({
   name: 'jira',
   title: 'Jira',
-  description: 'This integration allows you to manipulate Jira issues and users.',
+  description:
+    'This integration allows you to work with your Jira workspace, users, projects, and workflow transitions.',
   version: '0.3.0',
   readme: 'readme.md',
   icon: 'icon.svg',
@@ -15,4 +16,8 @@ export default new IntegrationDefinition({
   actions,
   events: {},
   states,
+  attributes: {
+    category: 'Project Management',
+    repo: 'botpress',
+  },
 })

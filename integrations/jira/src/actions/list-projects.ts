@@ -3,7 +3,7 @@ import { RuntimeError } from '@botpress/sdk'
 import { listProjectsInputSchema, listProjectsOutputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
-import { getClient } from '../utils'
+import { buildRuntimeError, getClient, serializeErrorForLog } from '../utils'
 
 const DEFAULT_MAX_RESULTS = 50
 const HARD_MAX_RESULTS = 100
@@ -43,16 +43,15 @@ export const listProjects: Implementation['actions']['listProjects'] = async ({ 
       ]
     })
 
-    const isLast = response.isLast ?? items.length < maxResults
-    const consumed = startAt + items.length
-    const nextToken = !isLast && items.length > 0 ? String(consumed) : undefined
+    const isLast = response.isLast ?? projects.length < maxResults
+    const consumed = startAt + projects.length
+    const nextToken = !isLast && projects.length > 0 ? String(consumed) : undefined
 
     logger.forBot().info(`Successful - List Projects - ${items.length} returned`)
 
     return listProjectsOutputSchema.parse({ items, nextToken })
   } catch (error) {
-    logger.forBot().debug(`'List Projects' exception ${JSON.stringify(error)}`)
-    const message = error instanceof Error ? error.message : JSON.stringify(error)
-    throw new RuntimeError(`Failed to list projects: ${message}`)
+    logger.forBot().debug(`'List Projects' exception ${serializeErrorForLog(error)}`)
+    throw buildRuntimeError('Failed to list projects', error)
   }
 }
