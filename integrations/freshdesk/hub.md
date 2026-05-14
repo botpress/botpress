@@ -12,7 +12,7 @@ Connect Botpress to Freshdesk to manage support tickets and react to ticket life
 
 | Field                | Description                                                                                                                                                            |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Freshdesk Domain** | Your subdomain only — not the full URL. Example: `acme`                                                                                                                |
+| **Freshdesk Domain** | Your subdomain only, not the full URL. Example: `botpress`                                                                                                                |
 | **API Key**          | Your personal API key from Freshdesk Profile Settings                                                                                                                  |
 | **Webhook Secret**   | Optional. A secret string used to authenticate incoming webhooks. Set it here and add it as the `X-Webhook-Secret` header in each Freshdesk Automation webhook action. |
 
@@ -43,7 +43,7 @@ Events are triggered by Freshdesk **Automation Rules** which you configure manua
 1. In your Freshdesk dashboard, go to **Admin → Automations**
 2. Create a new rule for each event you want to receive
 3. Under the rule's **Actions**, add a **Trigger Webhook** action
-4. Set the **Request Type** to `POST` and **Content Type** to `application/json`
+4. Set the **Request Type** to `POST` and **encoding** to `json`
 5. Use the following URLs (replace `{webhook-url}` with the URL shown in Botpress after installing the integration):
 
 | Event         | Webhook URL                    |
@@ -93,11 +93,10 @@ For `ticketReplied`, also include reply fields. The `reply.body` field is **requ
 ## Limitations
 
 - The Search Tickets action scans up to 4 pages (120 results) of Freshdesk search results before applying the `limit` cap
-- Freshdesk webhook setup requires manual configuration via Automation Rules — the integration cannot create them automatically
-- Deleted tickets are soft-deleted and can be restored via the Freshdesk UI
+- Freshdesk webhook setup requires manual configuration via Automation Rules. The integration cannot create them automatically
+- Deleted tickets can be found in the trash page of the Freshdesk UI and can be restored for up to 30 days
 - Ticket attachments are not supported in this integration
 
 ## Changelog
 
-- 0.2.0: Added replyToTicket, addNote, getContact, searchContacts actions. Renamed `customFields` to `custom_fields` for consistency with Freshdesk API.
-- 0.1.0: Initial release with createTicket, getTicket, listTickets, updateTicket, deleteTicket, searchTickets actions and ticketCreated, ticketUpdated, ticketReplied events.
+- 0.1.0: Initial release with `createTicket`, `getTicket`, `listTickets`, `updateTicket`, `deleteTicket`, `replyToTicket`, `addNote`, `searchTickets`, `searchContacts`, `getContact` actions and `ticketCreated`, `ticketUpdated`, `ticketReplied` events.
