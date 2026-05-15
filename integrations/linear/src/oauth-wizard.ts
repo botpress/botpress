@@ -24,14 +24,13 @@ const _startStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async ({ ctx,
 
   const isDesk = useDeskOAuth(payload)
   const clientId = isDesk ? bp.secrets.DESK_CLIENT_ID : bp.secrets.CLIENT_ID
-  const actor = isDesk ? 'user' : 'application'
   const authorizeUrl =
     'https://linear.app/oauth/authorize' +
     `?client_id=${clientId}` +
     `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
     '&response_type=code' +
     '&prompt=consent' +
-    `&actor=${actor}` +
+    'actor=app' +
     `&state=${ctx.webhookId}` +
     `&scope=${SCOPES}`
 
