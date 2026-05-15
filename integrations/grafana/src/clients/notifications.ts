@@ -73,11 +73,19 @@ export async function editNotificationPolicy(
   const inputTuples = JSON.stringify(toObjectMatchers(input.matchers))
   const isMatch = (r: Route) => r.receiver === input.receiver && JSON.stringify(r.object_matchers) === inputTuples
 
+  const routes = tree.routes ?? []
+  if (!routes.some(isMatch)) {
+    return {
+      success: false,
+      error: `No notification policy found for receiver "${input.receiver}" with the given matchers`,
+    }
+  }
+
   const { error } = await routePutPolicyTree({
     client: legacyClient(config),
     body: {
       ...tree,
-      routes: (tree.routes ?? []).map((r) =>
+      routes: routes.map((r) =>
         isMatch(r)
           ? {
               ...r,
@@ -131,11 +139,19 @@ export async function deleteNotificationPolicy(
   const inputTuples = JSON.stringify(toObjectMatchers(input.matchers))
   const isMatch = (r: Route) => r.receiver === input.receiver && JSON.stringify(r.object_matchers) === inputTuples
 
+  const routes = tree.routes ?? []
+  if (!routes.some(isMatch)) {
+    return {
+      success: false,
+      error: `No notification policy found for receiver "${input.receiver}" with the given matchers`,
+    }
+  }
+
   const { error } = await routePutPolicyTree({
     client: legacyClient(config),
     body: {
       ...tree,
-      routes: (tree.routes ?? []).filter((r) => !isMatch(r)),
+      routes: routes.filter((r) => !isMatch(r)),
     },
   })
   return error ? { success: false, error: errorMessage(error) } : { success: true }
