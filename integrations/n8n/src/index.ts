@@ -67,7 +67,6 @@ export default new bp.Integration({
     try {
       await client.createEvent({
         type: 'n8nEvent',
-        conversationId: payload.conversationId,
         payload: {
           workflowId: payload.workflowId,
           workflowName: payload.workflowName,

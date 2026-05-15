@@ -4,7 +4,7 @@ export default new IntegrationDefinition({
   name: 'n8n',
   title: 'n8n',
   description: 'This integration allows you to interact with n8n workflows.',
-  version: '0.1.19',
+  version: '0.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
