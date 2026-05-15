@@ -1,8 +1,6 @@
 import { wrapAction } from '../action-wrapper'
 
-// Name search (autocomplete) returns results without email/phone;
-// each needs a separate getContact call to fill in those missing fields.
-// Cap at 5 to avoid unbounded API requests.
+
 const MAX_NAME_ENRICHMENT = 5
 
 export const searchContacts = wrapAction(
@@ -30,6 +28,10 @@ export const searchContacts = wrapAction(
       // Autocomplete endpoint has no pagination
       const results = await freshdeskClient.searchContactsByName(input.name)
       const settled = await Promise.allSettled(
+        // Name search returns results without email/phone;
+        // each needs a separate getContact call to fill in those missing fields.
+        // Cap at 5 to avoid unbounded API requests.
+
         results.slice(0, MAX_NAME_ENRICHMENT).map(async (r) => {
           const contact = await freshdeskClient.getContact(r.id)
           return {

@@ -3,29 +3,6 @@ import * as bp from '.botpress'
 
 type HandlerProps = Parameters<bp.IntegrationProps['handler']>[0]
 
-const extractPlainText = (raw: string): string => {
-  let text = raw
-  // Freshdesk sometimes prepends "Agent Name : " before the HTML body — strip only that prefix
-  text = text.replace(/^[^<]+:\s*(?=<)/, '')
-  if (!/<[a-z]/i.test(text)) {
-    return text.trim()
-  }
-  // Strip HTML: convert <br> to newlines, remove all other tags, decode entities, clean whitespace
-  return text
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/gi, '&')
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;/gi, "'")
-    .replace(/​/g, '') // zero-width space Freshdesk sometimes injects
-    .replace(/[ \t]+/g, ' ')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim()
-}
-
 export const executeHitlMessageReceived = async (props: HandlerProps & { body: Record<string, unknown> }) => {
   const { client, body, logger } = props
   const log = logger.forBot()
@@ -37,7 +14,7 @@ export const executeHitlMessageReceived = async (props: HandlerProps & { body: R
   }
 
   const { ticket, reply, agent } = parsed.data
-  const text = extractPlainText(reply.body_text)
+  const text = reply.body_text
 
   if (!text) {
     log.debug('hitlMessageReceived: empty reply body, ignoring')
