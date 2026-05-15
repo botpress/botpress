@@ -82,7 +82,8 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
   })
   const useDesk = useDeskOAuth(environment)
   const linearOauthClient = new LinearOauthClient(useDesk)
-  const credentials = await linearOauthClient.getAccessTokenFromOAuthCode(code)
+  const tokenActor = environment.wizardPhase === 'app' ? 'app' : 'user'
+  const credentials = await linearOauthClient.getAccessTokenFromOAuthCode(code, tokenActor)
 
   if (environment.wizardPhase === 'app') {
     logger.forBot().info('Received app-actor OAuth callback, saving runtime credentials...')
