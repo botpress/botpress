@@ -17,7 +17,7 @@ const _buildAuthorizeUrl = ({
   promptConsent,
 }: {
   clientId: string
-  actor: 'user' | 'application'
+  actor: 'user' | 'app'
   scopes: string
   state: string
   promptConsent: boolean
@@ -127,7 +127,7 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
   return responses.redirectToExternalUrl(
     _buildAuthorizeUrl({
       clientId,
-      actor: 'application',
+      actor: 'app',
       scopes: APP_SCOPES,
       state: ctx.webhookId,
       promptConsent: false,
