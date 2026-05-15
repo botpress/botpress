@@ -11,7 +11,7 @@ export const contactSchema = z.object({
 
 const searchContact: ActionDefinition = {
   title: 'Search Contact',
-  description: 'Search for a contact in Hubspot',
+  description: 'Search for a contact in HubSpot',
   input: {
     schema: z.object({
       email: z.string().optional().title('Email').describe('The email of the contact to search for'),
@@ -27,7 +27,7 @@ const searchContact: ActionDefinition = {
 
 const createContact: ActionDefinition = {
   title: 'Create Contact',
-  description: 'Create a contact in Hubspot',
+  description: 'Create a contact in HubSpot',
   input: {
     schema: z.object({
       email: z.string().optional().title('Email').describe('The email of the contact'),
@@ -76,7 +76,7 @@ const createContact: ActionDefinition = {
 
 const getContact: ActionDefinition = {
   title: 'Get Contact',
-  description: 'Get a contact from Hubspot',
+  description: 'Get a contact from HubSpot',
   input: {
     schema: z.object({
       contactIdOrEmail: z.string().title('Contact ID or Email').describe('The ID or email of the contact to get'),
@@ -91,7 +91,7 @@ const getContact: ActionDefinition = {
 
 const updateContact: ActionDefinition = {
   title: 'Update Contact',
-  description: 'Update a contact in Hubspot',
+  description: 'Update a contact in HubSpot',
   input: {
     schema: z.object({
       contactIdOrEmail: z.string().title('Contact ID or Email').describe('The ID or email of the contact to update'),
@@ -125,7 +125,7 @@ const updateContact: ActionDefinition = {
 
 const deleteContact: ActionDefinition = {
   title: 'Delete Contact',
-  description: 'Delete a contact in Hubspot',
+  description: 'Delete a contact in HubSpot',
   input: {
     schema: z.object({
       contactId: z.string().title('Contact ID').describe('The ID of the contact to delete'),
@@ -138,7 +138,7 @@ const deleteContact: ActionDefinition = {
 
 const listContacts: ActionDefinition = {
   title: 'List Contacts',
-  description: 'List contacts in Hubspot',
+  description: 'List contacts in HubSpot',
   input: {
     schema: z.object({
       meta: z
