@@ -4,9 +4,15 @@ import { createAlertRule, getAlertRule, listAlertRules, deleteAlertRule } from '
 
 export const createAlertRuleAction: bp.IntegrationProps['actions']['createAlertRule'] = async (props) => {
   const config = props.ctx.configuration
-  const result = await createAlertRule(config, alertRuleSchema.parse(props.input))
-  if (!result.success) props.logger.forBot().error(`Failed to create alert rule: ${result.error}`)
-  return result
+  try {
+    const result = await createAlertRule(config, alertRuleSchema.parse(props.input))
+    if (!result.success) props.logger.forBot().error(`Failed to create alert rule: ${result.error}`)
+    return result
+  } catch (thrown: unknown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    props.logger.forBot().error(`Failed to create alert rule: ${error.message}`)
+    return { success: false, error: error.message }
+  }
 }
 
 export const getAlertRuleAction: bp.IntegrationProps['actions']['getAlertRule'] = async (props) => {
