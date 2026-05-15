@@ -89,7 +89,7 @@ export default new IntegrationDefinition({
             .min(1)
             .placeholder('{{ event.conversationId }}')
             .title('Conversation ID')
-            .describe('The Botpress event conversation ID — use {{event.conversationId}}'),
+            .describe('The current Botpress conversation ID — use {{event.conversationId}}'),
           payload: z
             .record(z.string(), z.any())
             .optional()
@@ -122,11 +122,6 @@ export default new IntegrationDefinition({
           .optional()
           .title('Workflow Name')
           .describe('The name of the workflow that posted this event'),
-        conversationId: z
-          .string()
-          .optional()
-          .title('Conversation ID')
-          .describe('The Botpress conversation ID to resume'),
         data: z.record(z.string(), z.any()).title('Data').describe('Arbitrary data payload sent by the n8n workflow'),
       }),
     },
