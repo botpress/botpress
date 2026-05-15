@@ -30,8 +30,9 @@ async function prometheusProxy(
 
     const json = await response.json() as { data?: unknown }
     return { success: true, status: response.status, data: json.data }
-  } catch (error) {
-    return { success: false, error: String(error) }
+  } catch (thrown: unknown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    return { success: false, error: error.message }
   }
 }
 
