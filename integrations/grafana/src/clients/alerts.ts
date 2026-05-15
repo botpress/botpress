@@ -7,14 +7,17 @@ import {
   routePostAlertRule,
 } from '../grafana-legacy-client'
 import { type GrafanaConfig, legacyClient } from './config'
+import { errorMessage } from './utils'
 
 type AlertRuleInput = z.infer<typeof alertRuleSchema>
 
-function errorMessage(error: unknown): string {
-  return typeof error === 'object' ? JSON.stringify(error) : String(error)
-}
-
-function buildQueryData(datasourceUid: string, query: string, reducer: string, thresholdType: string, thresholdValue: number): Record<string, any>[] {
+function buildQueryData(
+  datasourceUid: string,
+  query: string,
+  reducer: string,
+  thresholdType: string,
+  thresholdValue: number
+): Record<string, any>[] {
   return [
     {
       refId: 'A',
@@ -52,12 +55,19 @@ export async function createAlertRule(
       folderUID: input.folderUID,
       ruleGroup: input.ruleGroup,
       condition: 'C',
-      data: buildQueryData(input.dataArray.datasourceUid, input.dataArray.query, input.dataArray.reducer, input.dataArray.thresholdType, input.dataArray.thresholdValue) as any,
+      data: buildQueryData(
+        input.dataArray.datasourceUid,
+        input.dataArray.query,
+        input.dataArray.reducer,
+        input.dataArray.thresholdType,
+        input.dataArray.thresholdValue
+      ) as any,
       for: input.forDuration,
       labels: { ...(input.botpressId ? { botpress_id: input.botpressId } : {}), ...input.labels },
-      annotations: input.dashboardUid && input.panelId
-        ? { __dashboardUid__: input.dashboardUid, __panelId__: input.panelId }
-        : undefined,
+      annotations:
+        input.dashboardUid && input.panelId
+          ? { __dashboardUid__: input.dashboardUid, __panelId__: input.panelId }
+          : undefined,
       noDataState: input.noDataState,
       execErrState: input.execErrState,
       orgID: 1,
@@ -72,9 +82,11 @@ export async function createAlertRule(
   return { success: true, uid: data.uid }
 }
 
-export async function listAlertRules(
-  config: GrafanaConfig
-): Promise<{ success: boolean; data?: { uid?: string; title?: string; ruleGroup?: string; folderUID?: string; labels?: Record<string, string> }[]; error?: string }> {
+export async function listAlertRules(config: GrafanaConfig): Promise<{
+  success: boolean
+  data?: { uid?: string; title?: string; ruleGroup?: string; folderUID?: string; labels?: Record<string, string> }[]
+  error?: string
+}> {
   const { data, error } = await routeGetAlertRules({ client: legacyClient(config) })
   if (error || !data) return { success: false, error: errorMessage(error) }
   const items = data.map((r) => ({
@@ -82,7 +94,7 @@ export async function listAlertRules(
     title: r.title,
     ruleGroup: r.ruleGroup,
     folderUID: r.folderUID,
-    labels: r.labels as Record<string, string> | undefined,
+    labels: r.labels,
   }))
   return { success: true, data: items }
 }
@@ -90,7 +102,11 @@ export async function listAlertRules(
 export async function getAlertRule(
   config: GrafanaConfig,
   uid: string
-): Promise<{ success: boolean; data?: { uid?: string; title?: string; ruleGroup?: string; folderUID?: string; labels?: Record<string, string> }; error?: string }> {
+): Promise<{
+  success: boolean
+  data?: { uid?: string; title?: string; ruleGroup?: string; folderUID?: string; labels?: Record<string, string> }
+  error?: string
+}> {
   const { data, error } = await routeGetAlertRule({ client: legacyClient(config), path: { UID: uid } })
   if (error || !data) return { success: false, error: errorMessage(error) }
   return {
@@ -100,7 +116,7 @@ export async function getAlertRule(
       title: data.title,
       ruleGroup: data.ruleGroup,
       folderUID: data.folderUID,
-      labels: data.labels as Record<string, string> | undefined,
+      labels: data.labels,
     },
   }
 }

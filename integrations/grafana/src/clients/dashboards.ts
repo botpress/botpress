@@ -4,10 +4,11 @@ import {
   grafanaDashboardK8sGetDashboard,
   grafanaDashboardK8sListDashboard,
   grafanaDashboardK8sReplaceDashboard,
+  GrafanaDashboardK8sComGithubGrafanaGrafanaAppsDashboardPkgApisDashboardV1Dashboard as K8sDashboard,
 } from '../grafana-k8s-client'
-import type { GrafanaDashboardK8sComGithubGrafanaGrafanaAppsDashboardPkgApisDashboardV1Dashboard as K8sDashboard } from '../grafana-k8s-client'
 import type { Panel } from '../types/GrafanaDashboard'
-import { type GrafanaConfig, getK8sNamespace, k8sClient } from './config'
+import { type GrafanaConfig, k8sClient } from './config'
+import { errorMessage } from './utils'
 
 type CreateDashboardInput = {
   uid: string
@@ -27,7 +28,13 @@ type CreateDashboardInput = {
   folderUid?: string
 }
 
-function buildK8sBody(uid: string, ns: string, spec: Record<string, unknown>, folderUid?: string, existingMeta?: K8sDashboard['metadata']): K8sDashboard {
+function buildK8sBody(
+  uid: string,
+  ns: string,
+  spec: Record<string, unknown>,
+  folderUid?: string,
+  existingMeta?: K8sDashboard['metadata']
+): K8sDashboard {
   return {
     apiVersion: 'dashboard.grafana.app/v1',
     kind: 'Dashboard',
@@ -45,15 +52,11 @@ function buildK8sBody(uid: string, ns: string, spec: Record<string, unknown>, fo
   }
 }
 
-function errorMessage(error: unknown): string {
-  return typeof error === 'object' ? JSON.stringify(error) : String(error)
-}
-
 export async function createDashboard(
   config: GrafanaConfig,
+  ns: string,
   request: CreateDashboardInput
 ): Promise<{ success: boolean; error?: string }> {
-  const ns = await getK8sNamespace(config)
   const { folderUid, uid, ...rest } = request
   const spec = {
     uid,
@@ -81,10 +84,10 @@ export async function createDashboard(
 
 export async function editDashboard(
   config: GrafanaConfig,
+  ns: string,
   dashboardUid: string,
   updates: Partial<CreateDashboardInput>
 ): Promise<{ success: boolean; error?: string }> {
-  const ns = await getK8sNamespace(config)
   const { data: existing, error: getError } = await grafanaDashboardK8sGetDashboard({
     client: k8sClient(config),
     path: { namespace: ns, name: dashboardUid },
@@ -103,11 +106,11 @@ export async function editDashboard(
 
 export async function editDashboardPanel(
   config: GrafanaConfig,
+  ns: string,
   dashboardUid: string,
   panelId: number,
   panel: Partial<Panel>
 ): Promise<{ success: boolean; error?: string }> {
-  const ns = await getK8sNamespace(config)
   const { data: existing, error: getError } = await grafanaDashboardK8sGetDashboard({
     client: k8sClient(config),
     path: { namespace: ns, name: dashboardUid },
@@ -116,7 +119,9 @@ export async function editDashboardPanel(
 
   const existingPanels: Partial<Panel>[] = (existing.spec as any)?.panels ?? []
   const panelIndex = existingPanels.findIndex((p) => p.id === panelId)
-  if (panelIndex === -1) return { success: false, error: `Panel with id ${panelId} not found in dashboard "${dashboardUid}"` }
+  if (panelIndex === -1) {
+    return { success: false, error: `Panel with id ${panelId} not found in dashboard "${dashboardUid}"` }
+  }
 
   const updatedPanels = existingPanels.map((p, i) => (i === panelIndex ? { ...p, ...panel, id: panelId } : p))
   const folderUid = existing.metadata.annotations?.['grafana.app/folder']
@@ -130,9 +135,9 @@ export async function editDashboardPanel(
 
 export async function getDashboard(
   config: GrafanaConfig,
+  ns: string,
   dashboardUid: string
 ): Promise<{ success: boolean; data?: { dashboard: unknown; meta: unknown }; error?: string }> {
-  const ns = await getK8sNamespace(config)
   const { data, error } = await grafanaDashboardK8sGetDashboard({
     client: k8sClient(config),
     path: { namespace: ns, name: dashboardUid },
@@ -148,9 +153,9 @@ export async function getDashboard(
 }
 
 export async function listDashboards(
-  config: GrafanaConfig
+  config: GrafanaConfig,
+  ns: string
 ): Promise<{ success: boolean; data?: { name: string; title: string }[]; error?: string }> {
-  const ns = await getK8sNamespace(config)
   const { data, error } = await grafanaDashboardK8sListDashboard({
     client: k8sClient(config),
     path: { namespace: ns },
@@ -165,9 +170,9 @@ export async function listDashboards(
 
 export async function deleteDashboard(
   config: GrafanaConfig,
+  ns: string,
   dashboardUid: string
 ): Promise<{ success: boolean; error?: string }> {
-  const ns = await getK8sNamespace(config)
   const { error } = await grafanaDashboardK8sDeleteDashboard({
     client: k8sClient(config),
     path: { namespace: ns, name: dashboardUid },

@@ -1,9 +1,6 @@
 import { getDataSources } from '../grafana-legacy-client'
 import { type GrafanaConfig, legacyClient } from './config'
-
-function errorMessage(error: unknown): string {
-  return typeof error === 'object' ? JSON.stringify(error) : String(error)
-}
+import { errorMessage } from './utils'
 
 async function prometheusProxy(
   config: GrafanaConfig,
@@ -11,7 +8,9 @@ async function prometheusProxy(
   path: string,
   params?: Record<string, string>
 ): Promise<{ success: boolean; data?: any; status?: number; error?: string }> {
-  const url = new URL(`https://${config.grafanaUsername}.grafana.net/api/datasources/proxy/uid/${datasourceUid}/${path}`)
+  const url = new URL(
+    `https://${config.grafanaUsername}.grafana.net/api/datasources/proxy/uid/${datasourceUid}/${path}`
+  )
 
   if (params) {
     for (const [key, value] of Object.entries(params)) {
@@ -28,7 +27,7 @@ async function prometheusProxy(
       return { success: false, status: response.status, error: await response.text() }
     }
 
-    const json = await response.json() as { data?: unknown }
+    const json = (await response.json()) as { data?: unknown }
     return { success: true, status: response.status, data: json.data }
   } catch (thrown: unknown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
@@ -36,10 +35,11 @@ async function prometheusProxy(
   }
 }
 
-
-export async function listDatasources(
-  config: GrafanaConfig
-): Promise<{ success: boolean; data?: { uid?: string; name?: string; type?: string; isDefault?: boolean }[]; error?: string }> {
+export async function listDatasources(config: GrafanaConfig): Promise<{
+  success: boolean
+  data?: { uid?: string; name?: string; type?: string; isDefault?: boolean }[]
+  error?: string
+}> {
   const { data, error } = await getDataSources({ client: legacyClient(config) })
   if (error || !data) return { success: false, error: errorMessage(error) }
   const items = data.map((ds) => ({ uid: ds.uid, name: ds.name, type: ds.type, isDefault: ds.isDefault }))
@@ -81,5 +81,5 @@ export async function listLabelValues(
   datasourceUid: string,
   labelName: string
 ): Promise<{ success: boolean; data?: string[]; error?: string }> {
-  return prometheusProxy(config, datasourceUid, `api/v1/label/${labelName}/values`)
+  return prometheusProxy(config, datasourceUid, `api/v1/label/${encodeURIComponent(labelName)}/values`)
 }

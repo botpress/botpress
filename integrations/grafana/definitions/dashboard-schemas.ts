@@ -27,11 +27,15 @@ export const timeSeriesPanelSchema = z.object({
   datasource: datasourceSchema.optional(),
   id: z.number().optional(),
   gridPos: gridPosSchema.optional(),
-  targets: z.array(z.object({
-    refId: z.string(),
-    datasource: datasourceSchema.optional(),
-    expr: z.string().optional(),
-  })).optional(),
+  targets: z
+    .array(
+      z.object({
+        refId: z.string(),
+        datasource: datasourceSchema.optional(),
+        expr: z.string().optional(),
+      })
+    )
+    .optional(),
   fieldConfig: z.any().optional(),
   options: z.any().optional(),
 }) satisfies z.ZodType<Partial<TimeSeriesPanel>>

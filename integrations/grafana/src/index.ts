@@ -1,9 +1,33 @@
-import { createAlertRuleAction, getAlertRuleAction, listAlertRulesAction, deleteAlertRuleAction } from './actions/alerts'
+import {
+  createAlertRuleAction,
+  getAlertRuleAction,
+  listAlertRulesAction,
+  deleteAlertRuleAction,
+} from './actions/alerts'
 import { listContactPointsAction, createContactPointAction, deleteContactPointAction } from './actions/contactPoints'
-import { createDashboardAction, editDashboardAction, editDashboardPanelAction, getDashboardAction, listDashboardsAction, deleteDashboardAction } from './actions/dashboards'
-import { listDatasourcesAction, queryMetricsAction, listMetricNamesAction, listLabelNamesAction, listLabelValuesAction } from './actions/datasources'
+import {
+  createDashboardAction,
+  editDashboardAction,
+  editDashboardPanelAction,
+  getDashboardAction,
+  listDashboardsAction,
+  deleteDashboardAction,
+} from './actions/dashboards'
+import {
+  listDatasourcesAction,
+  queryMetricsAction,
+  listMetricNamesAction,
+  listLabelNamesAction,
+  listLabelValuesAction,
+} from './actions/datasources'
 import { createFolderAction, listFoldersAction, deleteFolderAction } from './actions/folders'
-import { createNotificationPolicyAction, listNotificationPoliciesAction, editNotificationPolicyAction, deleteNotificationPolicyAction, editDefaultNotificationPolicyAction } from './actions/notifications'
+import {
+  createNotificationPolicyAction,
+  listNotificationPoliciesAction,
+  editNotificationPolicyAction,
+  deleteNotificationPolicyAction,
+  editDefaultNotificationPolicyAction,
+} from './actions/notifications'
 import { handler } from './handler'
 import { register } from './register'
 import * as bp from '.botpress'
@@ -40,5 +64,5 @@ export default new bp.Integration({
     listLabelValues: listLabelValuesAction,
   },
   channels: {},
-  handler
+  handler,
 })

@@ -1,9 +1,6 @@
-import {type GrafanaConfig, legacyClient } from './config'
-import {routeGetContactpoints, routePostContactpoints, routeDeleteContactpoints } from '../grafana-legacy-client'
-
-function errorMessage(error: unknown): string {
-  return typeof error === 'object' ? JSON.stringify(error) : String(error)
-}
+import { routeGetContactpoints, routePostContactpoints, routeDeleteContactpoints } from '../grafana-legacy-client'
+import { type GrafanaConfig, legacyClient } from './config'
+import { errorMessage } from './utils'
 
 export async function listContactPoints(
   config: GrafanaConfig
@@ -16,14 +13,18 @@ export async function listContactPoints(
 
 export async function createContactPoint(
   config: GrafanaConfig,
-  input: { webhookUrl: string; name?: string }
+  input: { webhookUrl: string; secret: string; name?: string }
 ): Promise<{ success: boolean; uid?: string; error?: string }> {
   const { data, error } = await routePostContactpoints({
     client: legacyClient(config),
     body: {
       name: input.name,
       type: 'webhook',
-      settings: { url: input.webhookUrl },
+      settings: {
+        url: input.webhookUrl,
+        authorization_scheme: 'Bearer',
+        authorization_credentials: input.secret,
+      },
     },
   })
   if (error || !data) return { success: false, error: errorMessage(error) }

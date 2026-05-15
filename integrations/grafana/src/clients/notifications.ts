@@ -1,19 +1,12 @@
 import { z } from '@botpress/sdk'
 import { matcherSchema, notificationPolicySchema } from '../../definitions/notification-schemas'
-import {
-  routeGetPolicyTree,
-  routePutPolicyTree,
-} from '../grafana-legacy-client'
-import type { Route } from '../grafana-legacy-client'
+import { routeGetPolicyTree, routePutPolicyTree, Route } from '../grafana-legacy-client'
 import { type GrafanaConfig, legacyClient } from './config'
+import { errorMessage } from './utils'
 
 type PolicyMatcher = z.infer<typeof matcherSchema>
 
 type NotificationPolicyInput = z.infer<typeof notificationPolicySchema>
-
-function errorMessage(error: unknown): string {
-  return typeof error === 'object' ? JSON.stringify(error) : String(error)
-}
 
 function toObjectMatchers(matchers: PolicyMatcher[]): [string, string, string][] {
   return matchers.map((m) => [m.name, m.operator, m.value])
@@ -49,9 +42,11 @@ export async function createNotificationPolicy(
   return error ? { success: false, error: errorMessage(error) } : { success: true }
 }
 
-export async function listNotificationPolicies(
-  config: GrafanaConfig
-): Promise<{ success: boolean; data?: { receiver?: string; matchers?: unknown; object_matchers?: unknown; group_by?: string[]; continue?: boolean }[]; error?: string }> {
+export async function listNotificationPolicies(config: GrafanaConfig): Promise<{
+  success: boolean
+  data?: { receiver?: string; matchers?: unknown; object_matchers?: unknown; group_by?: string[]; continue?: boolean }[]
+  error?: string
+}> {
   const { data: tree, error } = await routeGetPolicyTree({ client: legacyClient(config) })
   if (error || !tree) return { success: false, error: errorMessage(error) }
   const routes = (tree.routes ?? []).map((r) => ({
@@ -76,9 +71,7 @@ export async function editNotificationPolicy(
   if (getError || !tree) return { success: false, error: errorMessage(getError) }
 
   const inputTuples = JSON.stringify(toObjectMatchers(input.matchers))
-  const isMatch = (r: Route) =>
-    r.receiver === input.receiver &&
-    JSON.stringify(r.object_matchers) === inputTuples
+  const isMatch = (r: Route) => r.receiver === input.receiver && JSON.stringify(r.object_matchers) === inputTuples
 
   const { error } = await routePutPolicyTree({
     client: legacyClient(config),
@@ -89,9 +82,7 @@ export async function editNotificationPolicy(
           ? {
               ...r,
               receiver: input.updates.receiver ?? r.receiver,
-              object_matchers: input.updates.matchers
-                ? toObjectMatchers(input.updates.matchers)
-                : r.object_matchers,
+              object_matchers: input.updates.matchers ? toObjectMatchers(input.updates.matchers) : r.object_matchers,
               continue: input.updates.continue ?? r.continue,
               group_by: input.updates.group_by ?? r.group_by,
               group_wait: input.updates.group_wait ?? r.group_wait,
@@ -138,9 +129,7 @@ export async function deleteNotificationPolicy(
   if (getError || !tree) return { success: false, error: errorMessage(getError) }
 
   const inputTuples = JSON.stringify(toObjectMatchers(input.matchers))
-  const isMatch = (r: Route) =>
-    r.receiver === input.receiver &&
-    JSON.stringify(r.object_matchers) === inputTuples
+  const isMatch = (r: Route) => r.receiver === input.receiver && JSON.stringify(r.object_matchers) === inputTuples
 
   const { error } = await routePutPolicyTree({
     client: legacyClient(config),

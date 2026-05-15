@@ -8,7 +8,6 @@ export const listDatasourcesAction: bp.IntegrationProps['actions']['listDatasour
   return result
 }
 
-
 export const queryMetricsAction: bp.IntegrationProps['actions']['queryMetrics'] = async (props) => {
   const { datasourceUid, query, start, end, step } = props.input
   const config = props.ctx.configuration

@@ -7,7 +7,6 @@ export const deleteFolder = {
   input: {
     schema: z.object({
       folderUid: z.string().min(1, 'Folder UID is required'),
-      forceDeleteRules: z.boolean().default(false).describe('If true, also deletes any alert rules inside the folder'),
     }),
   },
   output: {

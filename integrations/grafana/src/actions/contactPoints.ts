@@ -11,17 +11,16 @@ export const listContactPointsAction: bp.IntegrationProps['actions']['listContac
 export const createContactPointAction: bp.IntegrationProps['actions']['createContactPoint'] = async (props) => {
   const config = props.ctx.configuration
 
-  let webhookUrl = props.input.webhookUrl
-  if (!webhookUrl) {
-    const { state } = await props.client.getState({
-      type: 'integration',
-      name: 'webhookConfig',
-      id: props.ctx.integrationId,
-    })
-    webhookUrl = state.payload.webhookUrl
-  }
+  const { state } = await props.client.getState({
+    type: 'integration',
+    name: 'webhookConfig',
+    id: props.ctx.integrationId,
+  })
 
-  const result = await createContactPoint(config, { ...props.input, webhookUrl })
+  const webhookUrl = props.input.webhookUrl ?? state.payload.webhookUrl
+  const secret = state.payload.webhookSecret
+
+  const result = await createContactPoint(config, { ...props.input, webhookUrl, secret })
   if (!result.success) props.logger.forBot().error(`Failed to create contact point: ${result.error}`)
   return result
 }

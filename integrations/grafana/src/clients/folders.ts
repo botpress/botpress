@@ -5,19 +5,16 @@ import {
   grafanaFolderK8sDeleteFolder,
   grafanaFolderK8sListFolder,
 } from '../grafana-k8s-client'
-import { type GrafanaConfig, getK8sNamespace, k8sClient } from './config'
+import { type GrafanaConfig, k8sClient } from './config'
+import { errorMessage } from './utils'
 
 type CreateFolderInput = z.infer<typeof createFolderSchema>
 
-function errorMessage(error: unknown): string {
-  return typeof error === 'object' ? JSON.stringify(error) : String(error)
-}
-
 export async function createFolder(
   config: GrafanaConfig,
+  ns: string,
   input: CreateFolderInput
 ): Promise<{ success: boolean; uid?: string; error?: string }> {
-  const ns = await getK8sNamespace(config)
   const { data, error } = await grafanaFolderK8sCreateFolder({
     client: k8sClient(config),
     path: { namespace: ns },
@@ -38,9 +35,9 @@ export async function createFolder(
 }
 
 export async function listFolders(
-  config: GrafanaConfig
+  config: GrafanaConfig,
+  ns: string
 ): Promise<{ success: boolean; data?: { uid?: string; title?: string; parentUid?: string }[]; error?: string }> {
-  const ns = await getK8sNamespace(config)
   const { data, error } = await grafanaFolderK8sListFolder({
     client: k8sClient(config),
     path: { namespace: ns },
@@ -56,10 +53,9 @@ export async function listFolders(
 
 export async function deleteFolder(
   config: GrafanaConfig,
-  folderUid: string,
-  _forceDeleteRules: boolean = false
+  ns: string,
+  folderUid: string
 ): Promise<{ success: boolean; error?: string }> {
-  const ns = await getK8sNamespace(config)
   const { error } = await grafanaFolderK8sDeleteFolder({
     client: k8sClient(config),
     path: { namespace: ns, name: folderUid },
