@@ -107,10 +107,10 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
     payload: credentials,
   })
 
-  const adminClient = new LinearClient({ accessToken: credentials.accessToken })
+  const linearClient = new LinearClient({ accessToken: credentials.accessToken })
   const webhookUrl = `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
   try {
-    await registerWebhook({ linearClient: adminClient, logger, url: webhookUrl })
+    await registerWebhook({ linearClient, logger, url: webhookUrl })
   } catch (thrown) {
     const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
     logger.forBot().warn('Failed to register webhook:', errorMessage)

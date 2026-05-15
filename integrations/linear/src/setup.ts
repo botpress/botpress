@@ -10,11 +10,11 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
   logger.forBot().info('Registering Linear integration.')
 
   if (!manuallyRegistered) {
-    const adminClient = await LinearOauthClient.createAdmin({ client, ctx })
+    const linearClient = await LinearOauthClient.createAdmin({ client, ctx })
     const webhookUrl = `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
     logger.forBot().info('Registering Linear webhook')
     try {
-      await registerWebhook({ linearClient: adminClient, logger, url: webhookUrl })
+      await registerWebhook({ linearClient, logger, url: webhookUrl })
       logger.forBot().info('Linear webhook registered')
     } catch (thrown) {
       const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
@@ -37,10 +37,10 @@ export const unregister: bp.IntegrationProps['unregister'] = async ({ client, ct
     return
   }
   try {
-    const adminClient = await LinearOauthClient.createAdmin({ client, ctx })
+    const linearClient = await LinearOauthClient.createAdmin({ client, ctx })
     const webhookUrl = `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
     logger.forBot().info('Unregistering Linear webhook.')
-    await unregisterWebhook({ linearClient: adminClient, logger, url: webhookUrl })
+    await unregisterWebhook({ linearClient, logger, url: webhookUrl })
     logger.forBot().info('Linear webhook unregistration step completed.')
   } catch (thrown) {
     const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
