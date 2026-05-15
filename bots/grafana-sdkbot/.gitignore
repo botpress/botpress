@@ -1,0 +1,9 @@
+node_modules/
+bp_modules/
+dist/
+.botpress/
+
+.env
+.env.*
+
+*.log
