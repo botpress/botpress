@@ -62,6 +62,5 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     log.warn(`Unhandled webhook path: ${req.path}`)
   } catch (e: unknown) {
     log.error(`Unhandled error in webhook handler: ${e instanceof Error ? e.message : String(e)}`)
-    throw e
   }
 }
