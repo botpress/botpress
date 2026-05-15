@@ -16,10 +16,9 @@ export default new bp.Integration({
       await new FreshdeskClient(domain, apiKey).validateCredentials()
       logger.info('Freshdesk configuration validated successfully')
     } catch (thrown) {
-      logger.warn('Freshdesk configuration validation failed', {
-        error: thrown instanceof Error ? thrown.message : String(thrown),
-      })
-      throw new sdk.RuntimeError(`Invalid Freshdesk configuration: ${createFreshdeskRuntimeError(thrown).message}`)
+      const error = createFreshdeskRuntimeError(thrown)
+      logger.warn('Freshdesk configuration validation failed', { error: error.message })
+      throw new sdk.RuntimeError(`Invalid Freshdesk configuration: ${error.message}`)
     }
   },
   unregister: async () => {},
