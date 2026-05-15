@@ -4,7 +4,7 @@ export default new IntegrationDefinition({
   name: 'n8n',
   title: 'n8n',
   description: 'This integration allows you to interact with n8n workflows.',
-  version: '0.1.0',
+  version: '0.1.19',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -20,25 +20,6 @@ export default new IntegrationDefinition({
         .title('Access Key')
         .describe('Your n8n API key. Found in n8n under Settings → n8n API.'),
     }),
-  },
-  channels: {
-    webhook: {
-      title: 'Webhook',
-      description: 'Channel for receiving messages and events from n8n workflows.',
-      messages: {
-        text: {
-          schema: z.object({ text: z.string() }),
-        },
-      },
-      conversation: {
-        tags: {
-          conversationId: {
-            title: 'Conversation ID',
-            description: 'Botpress conversation ID echoed back from n8n to resume a specific conversation',
-          },
-        },
-      },
-    },
   },
   actions: {
     listWorkflows: {
@@ -106,8 +87,9 @@ export default new IntegrationDefinition({
           conversationId: z
             .string()
             .min(1)
+            .placeholder('{{ event.conversationId }}')
             .title('Conversation ID')
-            .describe('The Botpress conversation ID — use {{conversation.id}}'),
+            .describe('The Botpress event conversation ID — use {{event.conversationId}}'),
           payload: z
             .record(z.string(), z.any())
             .optional()

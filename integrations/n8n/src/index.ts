@@ -1,94 +1,53 @@
-import * as sdk from '@botpress/sdk'
-import axios from 'axios'
+import { z } from '@botpress/sdk'
 import actions from './actions'
-import { getn8nClient } from './actions/utils'
+import { N8nClient } from './client'
 import * as bp from '.botpress'
 
-// handles both cases (parsed JSON or string)
-const parseJsonBody = (body: unknown): unknown => {
+const webhookPayloadSchema = z.object({
+  conversationId: z.string().optional(),
+  workflowId: z.string().optional(),
+  workflowName: z.string().optional(),
+  data: z.union([z.record(z.string(), z.any()), z.string()]).optional(),
+})
+
+const parseJsonBody = (body: unknown): unknown | null => {
   if (typeof body !== 'string') {
     return body
   }
   try {
     return JSON.parse(body)
   } catch {
-    throw new sdk.RuntimeError('n8n webhook request contained invalid JSON')
+    return null
   }
 }
 
 export default new bp.Integration({
   register: async ({ ctx }) => {
-    const { baseUrl, accessKey } = ctx.configuration
-
-    const n8nClient = getn8nClient({ baseUrl, accessKey })
-
-    try {
-      await n8nClient.get('/workflows', {
-        params: {
-          limit: 1,
-          excludePinnedData: true,
-        },
-      })
-    } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        const status = err.response?.status
-        const code = err.code
-        const message = status ? `n8n responded with HTTP ${status}` : code || err.message || 'network error'
-
-        if (status === 401 || status === 403) {
-          throw new sdk.RuntimeError(
-            `Registration failed: authentication rejected (${message}). Check your Access Key and permissions.`
-          )
-        }
-
-        if (status === 404) {
-          throw new sdk.RuntimeError(
-            `Registration failed: the n8n API was not found at ${baseUrl}/api/v1 (HTTP 404). Ensure your Base URL points to the root of your n8n instance (for example https://example.app.n8n.cloud).`
-          )
-        }
-
-        throw new sdk.RuntimeError(
-          `Registration failed: unable to reach n8n (${message}). Verify the Base URL is correct and reachable from this host.`
-        )
-      }
-
-      const message = err instanceof Error ? err.message : String(err)
-      throw new sdk.RuntimeError(`Registration failed: ${message}`)
-    }
+    await new N8nClient(ctx.configuration).validateConnection()
   },
   unregister: async () => undefined,
   actions,
-  channels: {
-    webhook: {
-      messages: {
-        text: async () => {},
-      },
-    },
-  },
-  handler: async ({ req, client }) => {
+  channels: {},
+  handler: async ({ req, client, logger }) => {
+    const log = logger.forBot()
+
     const body = parseJsonBody(req.body)
     if (!body || typeof body !== 'object') {
-      throw new sdk.RuntimeError('n8n webhook requests must contain a JSON body')
+      log.error('n8n webhook request must contain a valid JSON object body')
+      return
     }
 
-    const payload = body as {
-      conversationId?: string
-      workflowId?: string
-      workflowName?: string
-      data?: Record<string, any>
+    const result = webhookPayloadSchema.safeParse(body)
+    if (!result.success) {
+      log.error('Invalid n8n webhook payload structure')
+      return
     }
 
-    const tagValue = payload.conversationId || crypto.randomUUID()
-    let conversationId: string
-    try {
-      const result = await client.getOrCreateConversation({
-        channel: 'webhook',
-        tags: { conversationId: tagValue },
-      })
-      conversationId = result.conversation.id
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err)
-      throw new sdk.RuntimeError(`Failed to get or create conversation: ${message}`)
+    const payload = result.data
+
+    if (!payload.conversationId) {
+      log.error('Missing conversationId in n8n webhook payload — ensure your n8n workflow echoes it back')
+      return
     }
 
     let data: Record<string, any>
@@ -96,7 +55,8 @@ export default new bp.Integration({
       try {
         data = JSON.parse(payload.data)
       } catch {
-        throw new sdk.RuntimeError('n8n webhook request contained invalid JSON in payload.data')
+        log.error('n8n webhook payload.data contained invalid JSON')
+        return
       }
     } else if (typeof payload.data === 'object' && payload.data !== null) {
       data = payload.data
@@ -107,17 +67,17 @@ export default new bp.Integration({
     try {
       await client.createEvent({
         type: 'n8nEvent',
+        conversationId: payload.conversationId,
         payload: {
           workflowId: payload.workflowId,
           workflowName: payload.workflowName,
           conversationId: payload.conversationId,
           data,
         },
-        conversationId,
       })
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err)
-      throw new sdk.RuntimeError(`Failed to create n8n event: ${message}`)
+      log.error(`Failed to create n8n event: ${err instanceof Error ? err.message : String(err)}`)
+      return
     }
 
     return { status: 200, body: JSON.stringify({ ok: true }) }
