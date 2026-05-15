@@ -1,5 +1,6 @@
 webhookId = to_string!(.webhookId)
 webhookUrl = to_string!(.webhookUrl)
+env = to_string!(.env)
 source = to_string!(.source)
 
-"{{ webhookUrl }}/oauth/wizard/start?state={{ webhookId }}&source={{ source }}"
+"{{ webhookUrl }}/oauth/wizard/start?state={{ webhookId }}&source={{ source }}&env={{ env }}"
