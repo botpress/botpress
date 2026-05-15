@@ -1,6 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import { createFreshdeskRuntimeError } from './freshdesk-client/actions/errors'
 import actions from './freshdesk-client/actions/implementations'
+import hitlChannels from './freshdesk-client/channels/hitl'
 import { FreshdeskClient } from './freshdesk-client/FreshdeskClient'
 import { handler } from './handler'
 import * as bp from '.botpress'
@@ -23,6 +24,15 @@ export default new bp.Integration({
   },
   unregister: async () => {},
   actions,
-  channels: {},
+  channels: {
+    ticket: {
+      messages: {
+        text: async () => {
+          throw new sdk.RuntimeError('Outbound messaging is not supported by the Freshdesk integration.')
+        },
+      },
+    },
+    ...hitlChannels,
+  },
   handler,
 })

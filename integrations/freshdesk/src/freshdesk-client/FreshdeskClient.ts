@@ -154,4 +154,8 @@ export class FreshdeskClient {
   public async searchContactsByName(term: string): Promise<Array<{ id: number; name: string }>> {
     return this._request<Array<{ id: number; name: string }>>('GET', '/contacts/autocomplete', { term })
   }
+
+  public async createContact(name: string, email: string): Promise<FreshdeskContact> {
+    return this._request<FreshdeskContact>('POST', '/contacts', undefined, { name, email })
+  }
 }

@@ -1,21 +1,75 @@
-import { IntegrationDefinition } from '@botpress/sdk'
+import { IntegrationDefinition, z } from '@botpress/sdk'
 import { actions, configuration, events } from './definitions'
-
-// TODO(HITL): add back the ticket channel with freshdeskTicketId conversation tag to enable the bot to send messages into ticket threads
+import hitl from './bp_modules/hitl'
 
 export default new IntegrationDefinition({
   name: 'freshdesk',
   title: 'Freshdesk',
   description: 'Connect Botpress to Freshdesk to create, read, update, delete, and search support tickets.',
-  version: '0.1.0',
+  version: '0.3.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration,
   actions,
   events,
+  entities: {
+    hitlTicket: {
+      schema: z.object({
+        priority: z
+          .enum(['low', 'medium', 'high', 'urgent'])
+          .title('Priority')
+          .describe('Priority of the ticket.')
+          .optional(),
+        groupId: z.string().title('Group ID').describe('Freshdesk group ID to assign the ticket to.').optional(),
+        tags: z.array(z.string()).title('Tags').describe('Tags to apply to the ticket.').optional(),
+        chatbotName: z
+          .string()
+          .title('Chatbot Name')
+          .describe('Name of the chatbot displayed in the ticket. Defaults to "Botpress".')
+          .optional(),
+        requesterName: z
+          .string()
+          .title('Requester Name')
+          .describe('Name of the requester. Use if the end user is not already a Freshdesk contact.')
+          .optional(),
+        requesterEmail: z
+          .string()
+          .title('Requester Email')
+          .describe('Email of the requester. Required together with Requester Name if provided.')
+          .optional(),
+      }),
+    },
+  },
   user: {
     tags: {
       freshdeskRequesterId: { title: 'Freshdesk Requester ID', description: 'The ID of the requester in Freshdesk' },
+      freshdeskAgentId: { title: 'Freshdesk Agent ID', description: 'The ID of the agent in Freshdesk' },
     },
   },
-})
+}).extend(hitl, (self) => ({
+  entities: {
+    hitlSession: self.entities.hitlTicket,
+  },
+  channels: {
+    hitl: {
+      title: 'Freshdesk Ticket (HITL)',
+      description: 'Human in the loop channel for Freshdesk tickets',
+      conversation: {
+        tags: {
+          freshdeskTicketId: {
+            title: 'Freshdesk Ticket ID',
+            description: 'The ID of the Freshdesk ticket linked to this HITL session',
+          },
+        },
+      },
+      message: {
+        tags: {
+          freshdeskCommentId: {
+            title: 'Freshdesk Comment ID',
+            description: 'The ID of the note or reply in Freshdesk',
+          },
+        },
+      },
+    },
+  },
+}))

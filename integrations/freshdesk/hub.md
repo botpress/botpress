@@ -76,6 +76,66 @@ For `ticketReplied`, also include reply fields. The `reply.body` field is **requ
 }
 ```
 
+## Human-in-the-Loop (HITL)
+
+The Freshdesk integration supports the **HITL** interface, which lets your bot escalate a conversation to a human agent via a Freshdesk ticket. Install the **HITL** plugin in your Botpress bot to enable this feature.
+
+### hitlTicket entity fields
+
+| Field            | Type                                    | Description                                                                 |
+| ---------------- | --------------------------------------- | --------------------------------------------------------------------------- |
+| `priority`       | `low` \| `medium` \| `high` \| `urgent` | Ticket priority. Defaults to Low if not set.                                |
+| `groupId`        | string                                  | Freshdesk group ID to assign the ticket to.                                 |
+| `tags`           | string[]                                | Tags to apply to the ticket.                                                |
+| `chatbotName`    | string                                  | Name shown in ticket notes sent by the bot. Defaults to `Botpress`.         |
+| `requesterName`  | string                                  | Name of the requester. Required if the user is not yet a Freshdesk contact. |
+| `requesterEmail` | string                                  | Email of the requester. Used together with `requesterName`.                 |
+
+### HITL webhook setup
+
+Two additional webhook paths notify Botpress when a ticket is assigned to an agent or resolved. Configure them as separate **Automation Rules** in Freshdesk (**Admin → Automations → Ticket Updates**):
+
+#### `/hitl-assigned` — fires `hitlAssigned`
+
+Trigger condition: **Agent Is Assigned**
+
+Webhook body:
+
+```json
+{
+  "ticket": { "id": "{{ticket.id}}" },
+  "agent": { "id": "{{ticket.agent.id}}", "name": "{{ticket.agent.name}}" }
+}
+```
+
+#### `/hitl-message-received` — routes agent reply into the Botpress conversation
+
+Trigger condition: **Reply Sent By Agent** (use this condition specifically — it excludes notes added via the API, which would otherwise echo bot messages back)
+
+Webhook body:
+
+```json
+{
+  "ticket": { "id": "{{ticket.id}}" },
+  "reply": { "body_text": "{{ticket.latest_public_comment}}" },
+  "agent": { "id": "{{ticket.agent.id}}", "name": "{{ticket.agent.name}}" }
+}
+```
+
+#### `/hitl-stopped` — fires `hitlStopped`
+
+Trigger condition: **Status Is Resolved** OR **Status Is Closed**
+
+Webhook body:
+
+```json
+{
+  "ticket": { "id": "{{ticket.id}}" }
+}
+```
+
+The `X-Webhook-Secret` header (optional) works identically to the other webhook paths.
+
 ## Limitations
 
 - The Search Tickets action scans up to 4 pages (120 results) of Freshdesk search results before applying the `limit` cap
@@ -85,4 +145,5 @@ For `ticketReplied`, also include reply fields. The `reply.body` field is **requ
 
 ## Changelog
 
+- 0.3.0: Added HITL support — `startHitl`, `stopHitl`, and `createUser` actions; `hitlAssigned` and `hitlStopped` events; `hitl` channel for bot-to-ticket messaging.
 - 0.1.0: Initial release with `createTicket`, `getTicket`, `listTickets`, `updateTicket`, `deleteTicket`, `addNote`, `searchTickets`, `searchContacts`, `getContact` actions and `ticketCreated`, `ticketUpdated`, `ticketReplied` events.

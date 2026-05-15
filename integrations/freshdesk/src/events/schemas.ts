@@ -20,9 +20,30 @@ export const freshdeskWebhookReplySchema = z.object({
   customer_email: z.string().optional(),
 })
 
+const hitlTicketIdSchema = z.object({
+  id: z.coerce.number(),
+})
+
+const hitlAgentSchema = z.object({
+  id: z.union([z.string(), z.number()]).transform(String).optional(),
+  name: z.string().optional(),
+})
+
 export const ticketCreatedBodySchema = z.object({ ticket: freshdeskWebhookTicketSchema })
 export const ticketUpdatedBodySchema = z.object({ ticket: freshdeskWebhookTicketSchema })
 export const ticketRepliedBodySchema = z.object({
   ticket: freshdeskWebhookTicketSchema,
   reply: freshdeskWebhookReplySchema,
 })
+export const hitlMessageReceivedBodySchema = z.object({
+  ticket: hitlTicketIdSchema,
+  reply: z.object({
+    body_text: z.string(),
+  }),
+  agent: hitlAgentSchema,
+})
+export const hitlAssignedBodySchema = z.object({
+  ticket: hitlTicketIdSchema,
+  agent: hitlAgentSchema,
+})
+export const hitlStoppedBodySchema = z.object({ ticket: hitlTicketIdSchema })
