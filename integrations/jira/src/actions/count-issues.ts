@@ -3,9 +3,9 @@ import type { Implementation } from '../misc/types'
 
 import { buildRuntimeError, getClient, serializeErrorForLog } from '../utils'
 
-export const countIssues: Implementation['actions']['countIssues'] = async ({ ctx, input, logger }) => {
+export const countIssues: Implementation['actions']['countIssues'] = async ({ client, ctx, input, logger }) => {
   const validatedInput = countIssuesInputSchema.parse(input)
-  const jiraClient = getClient(ctx.configuration)
+  const jiraClient = await getClient({ client, ctx, logger })
 
   try {
     const count = await jiraClient.countIssues(validatedInput.jql)

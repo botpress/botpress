@@ -7,9 +7,9 @@ const DEFAULT_MAX_RESULTS = 50
 const HARD_MAX_RESULTS = 100
 const DEFAULT_JQL = 'order by created DESC'
 
-export const searchIssues: Implementation['actions']['searchIssues'] = async ({ ctx, input, logger }) => {
+export const searchIssues: Implementation['actions']['searchIssues'] = async ({ client, ctx, input, logger }) => {
   const validatedInput = searchIssuesInputSchema.parse(input)
-  const jiraClient = getClient(ctx.configuration)
+  const jiraClient = await getClient({ client, ctx, logger })
 
   const maxResults = Math.min(validatedInput.maxResults ?? DEFAULT_MAX_RESULTS, HARD_MAX_RESULTS)
   const jql = validatedInput.jql && validatedInput.jql.trim().length > 0 ? validatedInput.jql : DEFAULT_JQL
@@ -23,7 +23,7 @@ export const searchIssues: Implementation['actions']['searchIssues'] = async ({ 
     })
 
     const issues = response.issues ?? []
-    const items = issues.map((issue) => flattenIssue(issue, ctx.configuration.host))
+    const items = issues.map((issue) => flattenIssue(issue, jiraClient.host))
     const nextToken = response.isLast ? undefined : response.nextPageToken
 
     if (response.isLast === false && response.nextPageToken === undefined && items.length > 0) {

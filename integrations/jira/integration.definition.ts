@@ -1,13 +1,13 @@
 import { IntegrationDefinition } from '@botpress/sdk'
 
-import { configuration, states, user, channels, actions } from './src/definitions'
+import { configuration, states, secrets, user, channels, actions } from './src/definitions'
 
 export default new IntegrationDefinition({
   name: 'jira',
   title: 'Jira',
   description:
     'This integration allows you to work with your Jira workspace, users, projects, and workflow transitions.',
-  version: '0.3.0',
+  version: '0.3.1',
   readme: 'readme.md',
   icon: 'icon.svg',
   configuration,
@@ -16,6 +16,7 @@ export default new IntegrationDefinition({
   actions,
   events: {},
   states,
+  secrets,
   attributes: {
     category: 'Project Management',
     repo: 'botpress',

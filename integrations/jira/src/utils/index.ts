@@ -1,10 +1,62 @@
 import { RuntimeError } from '@botpress/sdk'
 import type { Version3Models } from 'jira.js'
 import { JiraApi } from '../client'
+import { JiraOAuthClient } from '../client/auth'
 import { textToAdfDocument } from '../misc/adf'
-import type { Config } from '../misc/types'
+import * as bp from '.botpress'
 
-export const getClient = (config: Config) => new JiraApi(config.host, config.email, config.apiToken)
+type ClientProps = {
+  client: bp.Client
+  ctx: bp.Context
+  logger: bp.Logger
+}
+
+const _getLegacyManualConfig = (ctx: bp.Context) => {
+  const config = ctx.configuration as unknown
+  if (!config || typeof config !== 'object') {
+    return
+  }
+
+  const { host, email, apiToken } = config as Record<string, unknown>
+  if (typeof host === 'string' && typeof email === 'string' && typeof apiToken === 'string') {
+    return { host, email, apiToken }
+  }
+
+  return
+}
+
+export const getClient = async ({ client, ctx, logger }: ClientProps): Promise<JiraApi> => {
+  const configuration = await client
+    .getState({
+      type: 'integration',
+      name: 'configuration',
+      id: ctx.integrationId,
+    })
+    .then(({ state }) => state.payload)
+    .catch(() => undefined)
+
+  if (configuration?.authType === 'manual') {
+    const { state } = await client.getState({
+      type: 'integration',
+      name: 'manualCredentials',
+      id: ctx.integrationId,
+    })
+    return JiraApi.fromBasicAuth(state.payload.host, state.payload.email, state.payload.apiToken)
+  }
+
+  if (configuration?.authType === 'oauth' && configuration.cloudId) {
+    const oauth = new JiraOAuthClient({ client, ctx, logger })
+    const accessToken = await oauth.getAccessToken()
+    return JiraApi.fromOAuth(configuration.cloudId, accessToken, configuration.host)
+  }
+
+  const legacyManualConfig = _getLegacyManualConfig(ctx)
+  if (legacyManualConfig) {
+    return JiraApi.fromBasicAuth(legacyManualConfig.host, legacyManualConfig.email, legacyManualConfig.apiToken)
+  }
+
+  throw new RuntimeError('Jira is not configured. Re-run the Jira setup wizard.')
+}
 
 export { textToAdfDocument }
 
