@@ -5,9 +5,9 @@ import type { Implementation } from '../misc/types'
 
 import { getClient, getErrorMessage, serializeErrorForLog } from '../utils'
 
-export const assignIssue: Implementation['actions']['assignIssue'] = async ({ ctx, input, logger }) => {
+export const assignIssue: Implementation['actions']['assignIssue'] = async ({ client, ctx, input, logger }) => {
   const validatedInput = assignIssueInputSchema.parse(input)
-  const jiraClient = getClient(ctx.configuration)
+  const jiraClient = await getClient({ client, ctx, logger })
 
   try {
     await jiraClient.assignIssue(validatedInput.issueKey, validatedInput.accountId)

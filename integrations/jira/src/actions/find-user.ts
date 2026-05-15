@@ -4,9 +4,9 @@ import type { Implementation } from '../misc/types'
 
 import { getClient, getErrorMessage, serializeErrorForLog } from '../utils'
 
-export const findUser: Implementation['actions']['findUser'] = async ({ ctx, input, logger }) => {
+export const findUser: Implementation['actions']['findUser'] = async ({ client, ctx, input, logger }) => {
   const validatedInput = findUserInputSchema.parse(input)
-  const jiraClient = getClient(ctx.configuration)
+  const jiraClient = await getClient({ client, ctx, logger })
   try {
     const response = await jiraClient.findUser(validatedInput.query)
     logger

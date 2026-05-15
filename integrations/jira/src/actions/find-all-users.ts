@@ -3,9 +3,9 @@ import type { Implementation } from '../misc/types'
 
 import { buildRuntimeError, getClient, serializeErrorForLog } from '../utils'
 
-export const findAllUsers: Implementation['actions']['findAllUsers'] = async ({ ctx, input, logger }) => {
+export const findAllUsers: Implementation['actions']['findAllUsers'] = async ({ client, ctx, input, logger }) => {
   const validatedInput = findAllUsersInputSchema.parse(input)
-  const jiraClient = getClient(ctx.configuration)
+  const jiraClient = await getClient({ client, ctx, logger })
   const addParams = {
     startAt: validatedInput.startAt,
     maxResults: validatedInput.maxResults,
