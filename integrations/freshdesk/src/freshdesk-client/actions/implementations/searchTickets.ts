@@ -12,7 +12,14 @@ export const searchTickets = wrapAction(
     if (input.status) queryParts.push(`status:${STATUS_TO_NUM[input.status]}`)
     if (input.priority) queryParts.push(`priority:${PRIORITY_TO_NUM[input.priority]}`)
 
-    const toTicket = (t: { id: number; subject: string; status: number; priority: number; created_at: string; email?: string }) => ({
+    const toTicket = (t: {
+      id: number
+      subject: string
+      status: number
+      priority: number
+      created_at: string
+      email?: string
+    }) => ({
       id: t.id,
       subject: t.subject,
       status: NUM_TO_STATUS[t.status as keyof typeof NUM_TO_STATUS],
