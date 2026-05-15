@@ -14,8 +14,13 @@ export const executeTicketCreated = async (props: HandlerProps & { body: Record<
   }
   const { ticket } = parsed.data
 
+  if (!ticket.requester_id) {
+    log.warn('ticketCreated webhook has no requester_id, skipping event')
+    return
+  }
+
   const { user } = await client.getOrCreateUser({
-    tags: { freshdeskRequesterId: String(ticket.requester_id ?? 'unknown') },
+    tags: { freshdeskRequesterId: String(ticket.requester_id) },
   })
 
   const { conversation } = await client.getOrCreateConversation({
