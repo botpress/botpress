@@ -1,10 +1,10 @@
 import { z } from '@botpress/sdk'
 import { contactSchema } from '../../definitions/actions/contact'
-import { getAuthenticatedHubSpotClient, propertiesEntriesToRecord } from '../utils'
+import { getAuthenticatedHubspotClient, propertiesEntriesToRecord } from '../utils'
 import * as bp from '.botpress'
 
-type HubSpotClient = Awaited<ReturnType<typeof getAuthenticatedHubSpotClient>>
-type HsContact = Awaited<ReturnType<HubSpotClient['getContact']>>
+type HubspotClient = Awaited<ReturnType<typeof getAuthenticatedHubspotClient>>
+type HsContact = Awaited<ReturnType<HubspotClient['getContact']>>
 type BpContact = z.infer<typeof contactSchema>
 
 const _mapHsContactToBpContact = (hsContact: HsContact): BpContact => ({
@@ -16,7 +16,7 @@ const _mapHsContactToBpContact = (hsContact: HsContact): BpContact => ({
   updatedAt: hsContact.updatedAt.toISOString(),
 })
 
-const _getContactPropertyKeys = async (hsClient: HubSpotClient) => {
+const _getContactPropertyKeys = async (hsClient: HubspotClient) => {
   const properties = await hsClient.getAllObjectProperties('contacts')
   return properties.results.map((property) => property.name)
 }
@@ -27,7 +27,7 @@ export const searchContact: bp.IntegrationProps['actions']['searchContact'] = as
   input,
   logger,
 }) => {
-  const hsClient = await getAuthenticatedHubSpotClient({ ctx, client, logger })
+  const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
 
   const phoneStr = input.phone ? `phone ${input.phone}` : 'unknown phone'
   const emailStr = input.email ? `email ${input.email}` : 'unknown email'
@@ -62,7 +62,7 @@ export const createContact: bp.IntegrationProps['actions']['createContact'] = as
   input,
   logger,
 }) => {
-  const hsClient = await getAuthenticatedHubSpotClient({ ctx, client, logger })
+  const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
   const { email, phone, owner, companies, tickets, properties } = input
   const additionalProperties = propertiesEntriesToRecord(properties ?? [])
   const newContact = await hsClient.createContact({
@@ -79,7 +79,7 @@ export const createContact: bp.IntegrationProps['actions']['createContact'] = as
 }
 
 export const getContact: bp.IntegrationProps['actions']['getContact'] = async ({ ctx, client, input, logger }) => {
-  const hsClient = await getAuthenticatedHubSpotClient({ ctx, client, logger })
+  const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
 
   const propertyKeys = await _getContactPropertyKeys(hsClient)
   const contact = await hsClient.getContact({
@@ -97,7 +97,7 @@ export const updateContact: bp.IntegrationProps['actions']['updateContact'] = as
   input,
   logger,
 }) => {
-  const hsClient = await getAuthenticatedHubSpotClient({ ctx, client, logger })
+  const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
   const { contactIdOrEmail, phone, email, properties } = input
   const additionalProperties = propertiesEntriesToRecord(properties ?? [])
   const updatedContact = await hsClient.updateContact({
@@ -121,7 +121,7 @@ export const deleteContact: bp.IntegrationProps['actions']['deleteContact'] = as
   input,
   logger,
 }) => {
-  const hsClient = await getAuthenticatedHubSpotClient({ ctx, client, logger })
+  const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
   await hsClient.deleteContact({
     contactId: input.contactId,
   })
@@ -129,7 +129,7 @@ export const deleteContact: bp.IntegrationProps['actions']['deleteContact'] = as
 }
 
 export const listContacts: bp.IntegrationProps['actions']['listContacts'] = async ({ ctx, client, input, logger }) => {
-  const hsClient = await getAuthenticatedHubSpotClient({ ctx, client, logger })
+  const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
   const propertyKeys = await _getContactPropertyKeys(hsClient)
   const { contacts, nextToken } = await hsClient.listContacts({
     properties: propertyKeys,
