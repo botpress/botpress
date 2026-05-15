@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
 import { contactSchema } from '../../definitions/actions/contact'
-import { getAuthenticatedHubspotClient, getOrFetchPortalId, propertiesEntriesToRecord } from '../utils'
+import { buildContactUrl, getAuthenticatedHubspotClient, getOrFetchPortalId, propertiesEntriesToRecord } from '../utils'
 import * as bp from '.botpress'
 
 type HubspotClient = Awaited<ReturnType<typeof getAuthenticatedHubspotClient>>
@@ -51,8 +51,10 @@ export const searchContact: bp.IntegrationProps['actions']['searchContact'] = as
     }
   }
 
+  const portalId = await getOrFetchPortalId({ client, ctx, hsClient })
   return {
     contact: _mapHsContactToBpContact(contact),
+    url: buildContactUrl({ portalId, contactId: contact.id }),
   }
 }
 
@@ -111,7 +113,7 @@ export const getContact: bp.IntegrationProps['actions']['getContact'] = async ({
   ])
   return {
     contact: _mapHsContactToBpContact(contact),
-    url: `https://app.hubspot.com/contacts/${portalId}/contact/${contact.id}`,
+    url: buildContactUrl({ portalId, contactId: contact.id }),
   }
 }
 

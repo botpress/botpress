@@ -47,6 +47,11 @@ const searchContact: ActionDefinition = {
   output: {
     schema: z.object({
       contact: contactSchema.optional().title('Contact').describe('The contact found, or undefined if not found'),
+      url: z
+        .string()
+        .optional()
+        .title('Contact URL')
+        .describe("The URL to the contact's page in the HubSpot UI, or undefined if no contact was found"),
     }),
   },
 }

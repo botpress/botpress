@@ -36,6 +36,9 @@ export const setPortalId = async ({
   })
 }
 
+export const buildContactUrl = ({ portalId, contactId }: { portalId: string; contactId: string }) =>
+  `https://app.hubspot.com/contacts/${portalId}/contact/${contactId}`
+
 export const getOrFetchPortalId = async ({
   client,
   ctx,
