@@ -1,14 +1,20 @@
 import * as bp from '../.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx, logger }) => {
-  const { state } = await client.getState({
-    type: 'integration',
-    name: 'webhookConfig',
-    id: ctx.integrationId,
-  })
+  let webhookSecret: string
+  try {
+    const { state } = await client.getState({
+      type: 'integration',
+      name: 'webhookConfig',
+      id: ctx.integrationId,
+    })
+    webhookSecret = state.payload.webhookSecret
+  } catch (e) {
+    logger.forBot().error(`Failed to load integration state: ${e instanceof Error ? e.message : String(e)}`)
+    return { status: 500 }
+  }
 
-  const expected = `Bearer ${state.payload.webhookSecret}`
-  if (req.headers['authorization'] !== expected) {
+  if (req.headers['authorization'] !== `Bearer ${webhookSecret}`) {
     logger.forBot().warn('Rejected webhook request: invalid or missing Authorization header')
     return { status: 401 }
   }
