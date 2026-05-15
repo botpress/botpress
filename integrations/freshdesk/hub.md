@@ -2,20 +2,6 @@
 
 Connect Botpress to Freshdesk to manage support tickets and react to ticket lifecycle events from your bots.
 
-## Prerequisites
-
-- A Freshdesk account with agent or admin access
-- Your Freshdesk **subdomain** (e.g. `yourcompany` from `yourcompany.freshdesk.com`)
-- A Freshdesk **API key** (found under your profile avatar → Profile Settings → API Key)
-
-## Configuration
-
-| Field                | Description                                                                                                                                                            |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Freshdesk Domain** | Your subdomain only, not the full URL. Example: `botpress`                                                                                                             |
-| **API Key**          | Your personal API key from Freshdesk Profile Settings                                                                                                                  |
-| **Webhook Secret**   | Optional. A secret string used to authenticate incoming webhooks. Set it here and add it as the `X-Webhook-Secret` header in each Freshdesk Automation webhook action. |
-
 ## Ticket Properties
 
 `status` and `priority` are represented as string enums. The integration handles conversion to Freshdesk's internal numeric values.
@@ -99,4 +85,4 @@ For `ticketReplied`, also include reply fields. The `reply.body` field is **requ
 
 ## Changelog
 
-- 0.1.0: Initial release with `createTicket`, `getTicket`, `listTickets`, `updateTicket`, `deleteTicket`, `replyToTicket`, `addNote`, `searchTickets`, `searchContacts`, `getContact` actions and `ticketCreated`, `ticketUpdated`, `ticketReplied` events.
+- 0.1.0: Initial release with `createTicket`, `getTicket`, `listTickets`, `updateTicket`, `deleteTicket`, `addNote`, `searchTickets`, `searchContacts`, `getContact` actions and `ticketCreated`, `ticketUpdated`, `ticketReplied` events.

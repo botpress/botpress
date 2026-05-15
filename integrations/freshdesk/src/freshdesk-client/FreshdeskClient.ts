@@ -7,7 +7,6 @@ import type {
   FreshdeskTicket,
   GetTicketInput,
   ListTicketsInput,
-  ReplyToTicketInput,
   SearchTicketsInput,
   SearchTicketsOutput,
   UpdateTicketInput,
@@ -134,10 +133,6 @@ export class FreshdeskClient {
     const query = input.query.startsWith('"') ? input.query : `"${input.query}"`
     const params: Record<string, string | number | undefined> = { query, page: input.page }
     return this._request<SearchTicketsOutput>('GET', '/search/tickets', params)
-  }
-
-  public async replyToTicket(ticketId: number, input: ReplyToTicketInput): Promise<FreshdeskConversation> {
-    return this._request<FreshdeskConversation>('POST', `/tickets/${ticketId}/reply`, undefined, input)
   }
 
   public async addNote(ticketId: number, input: AddNoteInput): Promise<FreshdeskConversation> {

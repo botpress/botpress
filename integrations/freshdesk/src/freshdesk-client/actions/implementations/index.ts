@@ -4,7 +4,6 @@ import { deleteTicket } from './deleteTicket'
 import { getContact } from './getContact'
 import { getTicket } from './getTicket'
 import { listTickets } from './listTickets'
-import { replyToTicket } from './replyToTicket'
 import { searchContacts } from './searchContacts'
 import { searchTickets } from './searchTickets'
 import { updateTicket } from './updateTicket'
@@ -17,7 +16,6 @@ export default {
   getContact,
   getTicket,
   listTickets,
-  replyToTicket,
   searchContacts,
   searchTickets,
   updateTicket,
