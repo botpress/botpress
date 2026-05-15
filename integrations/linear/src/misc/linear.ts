@@ -1,7 +1,7 @@
-import { OAUTH_IDENTIFIER_HEADER, Response, RuntimeError, z } from '@botpress/sdk'
+import { RuntimeError, z } from '@botpress/sdk'
 import { LinearClient } from '@linear/sdk'
 import axios from 'axios'
-import queryString from 'query-string'
+import { useDeskOAuth } from './utils'
 import * as bp from '.botpress'
 
 type Credentials = bp.states.States['credentials']['payload']
@@ -107,9 +107,9 @@ export class LinearOauthClient {
   private _clientSecret: string
   private _redirectUri: string
 
-  public constructor() {
-    this._clientId = bp.secrets.CLIENT_ID
-    this._clientSecret = bp.secrets.CLIENT_SECRET
+  public constructor(useDeskOAuth?: boolean) {
+    this._clientId = useDeskOAuth ? bp.secrets.DESK_CLIENT_ID : bp.secrets.CLIENT_ID
+    this._clientSecret = useDeskOAuth ? bp.secrets.DESK_CLIENT_SECRET : bp.secrets.CLIENT_SECRET
     this._redirectUri = `${process.env.BP_WEBHOOK_URL}/oauth`
   }
 
@@ -117,12 +117,21 @@ export class LinearOauthClient {
     url: string,
     body: z.infer<TSchema>
   ): Promise<OAuthResponse> {
-    const { data } = await axios.post(
-      url,
-      { client_id: this._clientId, client_secret: this._clientSecret, ...body },
-      { headers: oauthHeaders }
-    )
-    return data
+    const form = new URLSearchParams({
+      client_id: this._clientId,
+      client_secret: this._clientSecret,
+      ...body,
+    })
+    try {
+      const response = await axios.post(url, form.toString(), { headers: oauthHeaders })
+      return response.data
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const message = err.response?.data?.error_description || err.message
+        throw new RuntimeError(`OAuth request failed: ${message}`)
+      }
+      throw new RuntimeError(`OAuth request failed: ${String(err)}`)
+    }
   }
 
   private _parseCredentials(res: OAuthResponse): Credentials {
@@ -198,7 +207,15 @@ export class LinearOauthClient {
       id: ctx.integrationId,
     })
 
-    const linearOauthClient = new LinearOauthClient()
+    const {
+      state: { payload: environment },
+    } = await client.getState({
+      type: 'integration',
+      name: 'environment',
+      id: ctx.integrationId,
+    })
+    const useDesk = useDeskOAuth(environment)
+    const linearOauthClient = new LinearOauthClient(useDesk)
     const credentials = await linearOauthClient.resolveValidCredentials(payload)
 
     if (credentials.accessToken !== payload.accessToken) {
@@ -267,41 +284,4 @@ export const registerWebhook = async ({
     label: 'Botpress',
   })
   logger.forBot().info('Linear webhook registered successfully.')
-}
-
-export const handleOauth = async ({ req, ctx, client, logger }: bp.HandlerProps): Promise<Response> => {
-  const linearOauthClient = new LinearOauthClient()
-
-  const query = queryString.parse(req.query)
-  const code = query.code
-
-  if (typeof code !== 'string') {
-    throw new RuntimeError('Handler received an empty code')
-  }
-
-  const credentials = await linearOauthClient.getAccessTokenFromOAuthCode(code)
-  logger.forBot().info('Obtained credentials from OAuth flow, saving to state...')
-  await client.setState({
-    type: 'integration',
-    name: 'credentials',
-    id: ctx.integrationId,
-    payload: credentials,
-  })
-
-  const linearClient = new LinearClient({ accessToken: credentials.accessToken })
-  const organization = await linearClient.organization
-  await client.configureIntegration({ scheduleRegisterCall: 'monthly' })
-
-  const webhookUrl = `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
-  try {
-    await registerWebhook({ linearClient, logger, url: webhookUrl })
-  } catch (thrown) {
-    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
-    logger.forBot().warn('Failed to register webhook:', errorMessage)
-  }
-
-  return {
-    status: 200,
-    headers: { [OAUTH_IDENTIFIER_HEADER]: organization.id },
-  }
 }

@@ -1360,6 +1360,28 @@ importers:
         specifier: ^2.39.1
         version: 2.39.1
 
+  integrations/jira:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      jira.js:
+        specifier: ^2.19.1
+        version: 2.20.1
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@types/node':
+        specifier: ^22.16.4
+        version: 22.16.4
+
   integrations/kommo:
     dependencies:
       '@botpress/client':
@@ -7160,6 +7182,11 @@ packages:
   asynckit@0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
 
+  atlassian-jwt@2.0.3:
+    resolution: {integrity: sha512-G9oO3HHS1UKgsLRXj6nNKv2TY6g3PleBCdzHwbFeVKg+18GBFIMRz+ApxuOuWAgcL7RngNFF5rGNtw1Ss3hvTg==}
+    engines: {node: '>= 0.4.0'}
+    deprecated: 'DEPRECATED: atlassian-jwt has moved to @atlassian/atlassian-jwt. The latest version is 2.1.1. Please update your dependency.'
+
   available-typed-arrays@1.0.7:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
@@ -9564,6 +9591,9 @@ packages:
       node-notifier:
         optional: true
 
+  jira.js@2.20.1:
+    resolution: {integrity: sha512-ZFlFAVTEaw86OemQ8BVyVSV0YDZqMI6WVc08Th5GgqVEODW4gmhXLOxqSmCasRJMMVAtI1LrFlFFTf9GnFaUhg==}
+
   jiti@2.4.2:
     resolution: {integrity: sha512-rg9zJN+G4n2nfJl5MW3BMygZX56zKPNVEYYqq7adpmMh4Jn2QNEwhvQlFy6jPVdcod7txZtKHWnyZiA3a0zP7A==}
     hasBin: true
@@ -9735,6 +9765,9 @@ packages:
   jsprim@1.4.2:
     resolution: {integrity: sha512-P2bSOMAc/ciLz6DzgjVlGJP9+BrJWu5UDGK70C2iweC5QBIeFf0ZXRvGjEj2uYgrY2MkAAhsSWHDWlFtEroZWw==}
     engines: {node: '>=0.6.0'}
+
+  jsuri@1.3.1:
+    resolution: {integrity: sha512-LLdAeqOf88/X0hylAI7oSir6QUsz/8kOW0FcJzzu/SJRfORA/oPHycAOthkNp7eLPlTAbqVDFbqNRHkRVzEA3g==}
 
   jwa@1.4.1:
     resolution: {integrity: sha512-qiLX/xhEEFKUAJ6FiBMbes3w9ATzyk5W7Hvzpa/SLYdxNtng+gcurvrI7TbACjIXlsJyr05/S1oUhZrc63evQA==}
@@ -17288,6 +17321,11 @@ snapshots:
 
   asynckit@0.4.0: {}
 
+  atlassian-jwt@2.0.3:
+    dependencies:
+      jsuri: 1.3.1
+      lodash: 4.17.21
+
   available-typed-arrays@1.0.7:
     dependencies:
       possible-typed-array-names: 1.0.0
@@ -20500,6 +20538,16 @@ snapshots:
       - supports-color
       - ts-node
 
+  jira.js@2.20.1:
+    dependencies:
+      atlassian-jwt: 2.0.3
+      axios: 1.13.6
+      form-data: 4.0.5
+      oauth: 0.10.2
+      tslib: 2.6.2
+    transitivePeerDependencies:
+      - debug
+
   jiti@2.4.2: {}
 
   jju@1.4.0: {}
@@ -20711,6 +20759,8 @@ snapshots:
       extsprintf: 1.3.0
       json-schema: 0.4.0
       verror: 1.10.0
+
+  jsuri@1.3.1: {}
 
   jwa@1.4.1:
     dependencies:

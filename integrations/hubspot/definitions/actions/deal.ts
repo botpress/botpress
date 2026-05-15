@@ -10,7 +10,7 @@ export const dealSchema = z.object({
 
 const searchDeal: ActionDefinition = {
   title: 'Search Deal',
-  description: 'Search for a deal in Hubspot',
+  description: 'Search for a deal in HubSpot',
   input: {
     schema: z.object({
       name: z.string().optional().title('Name').describe('The name of the deal to search for'),
@@ -25,7 +25,7 @@ const searchDeal: ActionDefinition = {
 
 const createDeal: ActionDefinition = {
   title: 'Create Deal',
-  description: 'Create a deal in Hubspot',
+  description: 'Create a deal in HubSpot',
   input: {
     schema: z.object({
       name: z.string().title('Name').describe('The name of the deal'),
@@ -50,7 +50,7 @@ const createDeal: ActionDefinition = {
 
 const getDeal: ActionDefinition = {
   title: 'Get Deal',
-  description: 'Get a deal from Hubspot',
+  description: 'Get a deal from HubSpot',
   input: {
     schema: z.object({
       dealId: z.string().title('Deal ID').describe('The ID of the deal to get'),
@@ -65,7 +65,7 @@ const getDeal: ActionDefinition = {
 
 const updateDeal: ActionDefinition = {
   title: 'Update Deal',
-  description: 'Update a deal in Hubspot',
+  description: 'Update a deal in HubSpot',
   input: {
     schema: z.object({
       dealId: z.string().title('Deal ID').describe('The ID of the deal to update'),
@@ -97,7 +97,7 @@ const updateDeal: ActionDefinition = {
 
 const deleteDeal: ActionDefinition = {
   title: 'Delete Deal',
-  description: 'Delete a deal in Hubspot',
+  description: 'Delete a deal in HubSpot',
   input: {
     schema: z.object({
       dealId: z.string().title('Deal ID').describe('The ID of the deal to delete'),

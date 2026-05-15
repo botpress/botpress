@@ -1,7 +1,7 @@
 {
   "name": "@botpress/zai",
   "description": "Zui AI (zai) – An LLM utility library written on top of Zui and the Botpress API",
-  "version": "2.6.20",
+  "version": "2.6.21",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
