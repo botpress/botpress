@@ -1,6 +1,5 @@
 import { wrapAction } from '../action-wrapper'
 
-
 const MAX_NAME_ENRICHMENT = 5
 
 export const searchContacts = wrapAction(
