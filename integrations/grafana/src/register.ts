@@ -6,8 +6,9 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, client, w
   let result: Awaited<ReturnType<typeof listFolders>>
   try {
     result = await listFolders(ctx.configuration)
-  } catch (e) {
-    throw new sdk.RuntimeError(`Could not reach Grafana — check your username and token. ${e}`)
+  } catch (thrown: unknown) {
+    const e = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new sdk.RuntimeError(`Could not reach Grafana — check your username and token. ${e.message}`)
   }
 
   if (!result.success) {
