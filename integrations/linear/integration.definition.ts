@@ -9,7 +9,7 @@ import listable from './bp_modules/listable'
 import { actions, channels, events, configuration, configurations, user, states, entities } from './definitions'
 
 export const INTEGRATION_NAME = 'linear'
-export const INTEGRATION_VERSION = '2.4.0'
+export const INTEGRATION_VERSION = '2.5.0'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -35,6 +35,12 @@ export default new IntegrationDefinition({
       description: 'The client ID of your Linear OAuth app.',
     },
     CLIENT_SECRET: {
+      description: 'The client secret of your Linear OAuth app.',
+    },
+    DESK_CLIENT_ID: {
+      description: 'The client ID of your Linear OAuth app.',
+    },
+    DESK_CLIENT_SECRET: {
       description: 'The client secret of your Linear OAuth app.',
     },
     WEBHOOK_SIGNING_SECRET: {

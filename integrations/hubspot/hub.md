@@ -67,7 +67,7 @@ Under the **Webhooks** tab, subscribe to:
 #### 4. Get Your App ID and Developer API Key
 
 - **App ID**: Open your private App in HubSpot again — the App ID is in the URL (e.g., `https://app.hubspot.com/private-apps/ACCOUNT_ID/36900466`).
-- **Developer API Key**: In your Hubspot Dashboard, navigate to _Development_ > _Keys_ > _Developer API Key_ and copy or generate your key.
+- **Developer API Key**: In your HubSpot Dashboard, navigate to _Development_ > _Keys_ > _Developer API Key_ and copy or generate your key.
 
 #### 5. Retrieve Your Help Desk or Inbox IDs
 

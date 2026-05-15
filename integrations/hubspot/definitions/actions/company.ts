@@ -11,7 +11,7 @@ export const companySchema = z.object({
 
 const searchCompany: ActionDefinition = {
   title: 'Search Company',
-  description: 'Search for a company in Hubspot',
+  description: 'Search for a company in HubSpot',
   input: {
     schema: z.object({
       name: z.string().optional().title('Name').describe('The name of the company to search for'),
@@ -27,7 +27,7 @@ const searchCompany: ActionDefinition = {
 
 const getCompany: ActionDefinition = {
   title: 'Get Company',
-  description: 'Get a company from Hubspot by ID',
+  description: 'Get a company from HubSpot by ID',
   input: {
     schema: z.object({
       companyId: z.string().title('Company ID').describe('The ID of the company to get'),
@@ -49,7 +49,7 @@ const getCompany: ActionDefinition = {
 
 const updateCompany: ActionDefinition = {
   title: 'Update Company',
-  description: 'Update a company in Hubspot',
+  description: 'Update a company in HubSpot',
   input: {
     schema: z.object({
       companyId: z.string().title('Company ID').describe('The ID of the company to update'),

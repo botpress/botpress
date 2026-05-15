@@ -1,13 +1,16 @@
-import { Request, RuntimeError } from '@botpress/sdk'
+import { generateRedirection } from '@botpress/common/src/html-dialogs'
+import * as oauthWizard from '@botpress/common/src/oauth-wizard'
+import { Request, RuntimeError, OAUTH_IDENTIFIER_HEADER } from '@botpress/sdk'
 import { LinearWebhookClient } from '@linear/sdk/webhooks'
 
 import { fireIssueCreated } from './events/issueCreated'
 import { fireIssueDeleted } from './events/issueDeleted'
 import { fireIssueUpdated } from './events/issueUpdated'
 import * as mapping from './files-readonly/mapping'
-import { LinearEvent, LinearIssueEvent, handleOauth } from './misc/linear'
+import { LinearEvent, LinearIssueEvent } from './misc/linear'
 import { Result } from './misc/types'
 import { getLinearClient, getUserAndConversation } from './misc/utils'
+import { buildOAuthWizard } from './oauth-wizard'
 import * as bp from '.botpress'
 
 const LINEAR_WEBHOOK_SIGNATURE_HEADER = 'linear-signature'
@@ -21,12 +24,33 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
       `Linear handler invoked (method="${req.method ?? ''}", path="${req.path ?? ''}", hasBody=${Boolean(req.body)})`
     )
 
+  if (oauthWizard.isOAuthWizardUrl(req.path)) {
+    try {
+      return await buildOAuthWizard(props).handleRequest()
+    } catch (thrown: unknown) {
+      const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+      logger.forBot().error('Error while processing OAuth wizard request', errMsg)
+      return generateRedirection(oauthWizard.getInterstitialUrl(false, errMsg))
+    }
+  }
+
   if (req.path === '/oauth') {
     logger.forBot().info('Linear OAuth callback received')
-    return await handleOauth(props).catch((err) => {
-      logger.forBot().error('Error while processing OAuth', err.response?.data || err.message)
-      throw err
-    })
+    const modifiedProps = { ...props, req: { ...props.req, path: '/oauth/wizard/oauth-callback' } }
+    try {
+      const wizardResult = await buildOAuthWizard(modifiedProps).handleRequest()
+      const identifier = wizardResult.headers?.[OAUTH_IDENTIFIER_HEADER]
+      return identifier
+        ? {
+            status: 200,
+            headers: { [OAUTH_IDENTIFIER_HEADER]: identifier },
+          }
+        : wizardResult
+    } catch (thrown: unknown) {
+      const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+      logger.forBot().error('Error while processing OAuth callback', errMsg)
+      return generateRedirection(oauthWizard.getInterstitialUrl(false, errMsg))
+    }
   }
 
   if (!req.body) {
