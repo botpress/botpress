@@ -145,5 +145,6 @@ The `X-Webhook-Secret` header (optional) works identically to the other webhook 
 
 ## Changelog
 
+- 0.4.0: Added `replyToTicket` action and `ticket` channel for routing webhook events to conversations.
 - 0.3.0: Added HITL support — `startHitl`, `stopHitl`, and `createUser` actions; `hitlAssigned` and `hitlStopped` events; `hitl` channel for bot-to-ticket messaging.
-- 0.1.0: Initial release with `createTicket`, `getTicket`, `listTickets`, `updateTicket`, `deleteTicket`, `addNote`, `searchTickets`, `searchContacts`, `getContact` actions and `ticketCreated`, `ticketUpdated`, `ticketReplied` events.
+- 0.1.0: Initial release with `createTicket`, `getTicket`, `listTickets`, `updateTicket`, `deleteTicket`, `replyToTicket`, `addNote`, `searchTickets`, `searchContacts`, `getContact` actions and `ticketCreated`, `ticketUpdated`, `ticketReplied` events.
