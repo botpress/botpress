@@ -30,7 +30,7 @@ const _startStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async ({ ctx,
     `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
     '&response_type=code' +
     '&prompt=consent' +
-    'actor=app' +
+    '&actor=app' +
     `&state=${ctx.webhookId}` +
     `&scope=${SCOPES}`
 
