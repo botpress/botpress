@@ -1,5 +1,5 @@
-import { ticketUpdatedBodySchema } from './schemas'
 import { mapTicket } from './mappers'
+import { ticketUpdatedBodySchema } from './schemas'
 import * as bp from '.botpress'
 
 type HandlerProps = Parameters<bp.IntegrationProps['handler']>[0]

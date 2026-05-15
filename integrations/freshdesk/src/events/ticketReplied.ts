@@ -1,5 +1,5 @@
-import { ticketRepliedBodySchema } from './schemas'
 import { mapTicket, mapReply } from './mappers'
+import { ticketRepliedBodySchema } from './schemas'
 import * as bp from '.botpress'
 
 type HandlerProps = Parameters<bp.IntegrationProps['handler']>[0]
