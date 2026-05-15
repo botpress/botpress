@@ -69,7 +69,7 @@ export const actions = {
     description: 'Retrieves a single Freshdesk ticket by ID.',
     input: {
       schema: z.object({
-        ticketId: z.string().title('Ticket ID').describe('The Freshdesk ticket ID.'),
+        ticketId: z.coerce.number().int().positive().title('Ticket ID').describe('The Freshdesk ticket ID.'),
       }),
     },
     output: {
@@ -137,7 +137,7 @@ export const actions = {
     description: 'Updates an existing Freshdesk ticket.',
     input: {
       schema: z.object({
-        ticketId: z.string().title('Ticket ID').describe('The Freshdesk ticket ID to update.'),
+        ticketId: z.coerce.number().int().positive().title('Ticket ID').describe('The Freshdesk ticket ID to update.'),
         status: z
           .enum(['open', 'pending', 'resolved', 'closed'])
           .optional()
@@ -171,7 +171,7 @@ export const actions = {
     description: 'Deletes a Freshdesk ticket. Deleted tickets can be restored from the Freshdesk UI.',
     input: {
       schema: z.object({
-        ticketId: z.string().title('Ticket ID').describe('The Freshdesk ticket ID to delete.'),
+        ticketId: z.coerce.number().int().positive().title('Ticket ID').describe('The Freshdesk ticket ID to delete.'),
       }),
     },
     output: {
@@ -240,7 +240,12 @@ export const actions = {
     description: 'Adds an internal note to a Freshdesk ticket (not visible to the requester by default).',
     input: {
       schema: z.object({
-        ticketId: z.string().title('Ticket ID').describe('The Freshdesk ticket ID to add a note to.'),
+        ticketId: z.coerce
+          .number()
+          .int()
+          .positive()
+          .title('Ticket ID')
+          .describe('The Freshdesk ticket ID to add a note to.'),
         body: z.string().title('Body').describe('HTML content of the note.'),
         private: z
           .boolean()
@@ -263,7 +268,7 @@ export const actions = {
     description: 'Retrieves a Freshdesk contact by ID.',
     input: {
       schema: z.object({
-        contactId: z.string().title('Contact ID').describe('The Freshdesk contact ID.'),
+        contactId: z.coerce.number().int().positive().title('Contact ID').describe('The Freshdesk contact ID.'),
       }),
     },
     output: {

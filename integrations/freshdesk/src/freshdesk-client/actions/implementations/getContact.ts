@@ -3,11 +3,7 @@ import { wrapAction } from '../action-wrapper'
 export const getContact = wrapAction(
   { actionName: 'getContact', errorMessage: 'Failed to get Freshdesk contact' },
   async ({ freshdeskClient }, input) => {
-    const contactId = parseInt(input.contactId, 10)
-    if (!Number.isFinite(contactId) || contactId <= 0) {
-      throw new Error(`Invalid contact ID: "${input.contactId}". Must be a positive integer.`)
-    }
-    const contact = await freshdeskClient.getContact(contactId)
+    const contact = await freshdeskClient.getContact(input.contactId)
     return {
       id: contact.id,
       name: contact.name,

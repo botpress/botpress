@@ -4,11 +4,7 @@ import { NUM_TO_PRIORITY, NUM_TO_STATUS } from './const'
 export const getTicket = wrapAction(
   { actionName: 'getTicket', errorMessage: 'Failed to get Freshdesk ticket' },
   async ({ freshdeskClient }, input) => {
-    const id = parseInt(input.ticketId, 10)
-    if (!Number.isFinite(id) || id <= 0) {
-      throw new Error(`Invalid ticket ID: "${input.ticketId}". Must be a positive integer.`)
-    }
-    const ticket = await freshdeskClient.getTicket({ id })
+    const ticket = await freshdeskClient.getTicket({ id: input.ticketId })
     return {
       id: ticket.id,
       subject: ticket.subject,

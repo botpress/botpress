@@ -1,3 +1,4 @@
+import * as sdk from '@botpress/sdk'
 import type {
   AddNoteInput,
   CreateTicketInput,
@@ -72,9 +73,9 @@ export class FreshdeskClient {
         // use raw text
       }
       if (response.status === 429) {
-        throw new Error(`Freshdesk rate limit reached. ${detail}`)
+        throw new sdk.RuntimeError(`Freshdesk rate limit reached. ${detail}`)
       }
-      throw new Error(`Freshdesk API error ${response.status}: ${detail}`)
+      throw new sdk.RuntimeError(`Freshdesk API error ${response.status}: ${detail}`)
     }
 
     return response.json() as Promise<T>
@@ -86,7 +87,7 @@ export class FreshdeskClient {
 
     if (!response.ok) {
       const text = await response.text()
-      throw new Error(`Freshdesk API error ${response.status}: ${text}`)
+      throw new sdk.RuntimeError(`Freshdesk API error ${response.status}: ${text}`)
     }
   }
 
@@ -97,7 +98,7 @@ export class FreshdeskClient {
   public async createTicket(input: CreateTicketInput): Promise<FreshdeskTicket> {
     const hasRequester = REQUESTER_FIELDS.some((f) => (input as Record<string, unknown>)[f] != null)
     if (!hasRequester) {
-      throw new Error(
+      throw new sdk.RuntimeError(
         'At least one requester field must be provided: email, phone, twitter_id, facebook_id, unique_external_id, or requester_id.'
       )
     }

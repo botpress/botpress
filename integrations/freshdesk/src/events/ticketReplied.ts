@@ -1,4 +1,5 @@
 import { ticketRepliedBodySchema } from './schemas'
+import { mapTicket, mapReply } from './mappers'
 import * as bp from '.botpress'
 
 type HandlerProps = Parameters<bp.IntegrationProps['handler']>[0]
@@ -23,18 +24,10 @@ export const executeTicketReplied = async (props: HandlerProps & { body: Record<
     tags: { freshdeskRequesterId: String(ticket.requester_id) },
   })
 
-  const { conversation } = await client.getOrCreateConversation({
-    channel: 'ticket',
-    tags: { freshdeskTicketId: String(ticket.id) },
-  })
-
+  // TODO(HITL): get or create a conversation on the ticket channel and pass conversationId to createEvent
   await client.createEvent({
     type: 'ticketReplied',
-    payload: {
-      ticket: ticket as bp.events.ticketReplied.TicketReplied['ticket'],
-      reply: reply as bp.events.ticketReplied.TicketReplied['reply'],
-    },
-    conversationId: conversation.id,
+    payload: { ticket: mapTicket(ticket), reply: mapReply(reply) },
     userId: user.id,
   })
 }
