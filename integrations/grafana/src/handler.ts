@@ -1,7 +1,12 @@
 import * as bp from '../.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, client }) => {
-  const payload = JSON.parse(req.body ?? '{}')
+  let payload: { alerts?: unknown[] }
+  try {
+    payload = JSON.parse(req.body ?? '{}') as { alerts?: unknown[] }
+  } catch {
+    return
+  }
 
   for (const alert of payload.alerts ?? []) {
     await client.createEvent({
