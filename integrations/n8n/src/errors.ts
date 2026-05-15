@@ -17,7 +17,7 @@ export const wrapRegistrationError = (error: unknown, baseUrl: string): never =>
   if (axios.isAxiosError(error)) {
     const status = error.response?.status
     const code = error.code
-    const message = status ? `n8n responded with HTTP ${status}` : code || error.message || 'network error'
+    const message = status ? `n8n responded with HTTP ${status}` : (code ?? error.message ?? 'network error')
 
     if (status === 401 || status === 403) {
       throw new sdk.RuntimeError(

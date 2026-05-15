@@ -2,6 +2,11 @@
 
 This integration connects your Botpress bot to n8n, letting you trigger workflows from your bot and receive results back as events.
 
+## Prerequisites
+
+- An n8n instance
+- An n8n API key — found under **Settings → n8n API**. Generating an API key requires a paid n8n plan and is not available on the free trial.
+
 ## Receiving data back from n8n
 
 To send data back to Botpress after an n8n workflow finishes, add an **HTTP Request** node at the end of your workflow and configure it to POST to your integration's webhook URL.
