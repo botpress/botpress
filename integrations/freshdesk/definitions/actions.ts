@@ -113,13 +113,22 @@ export const actions = {
           .optional()
           .title('Order Type')
           .describe('Sort direction. Defaults to desc.'),
-        page: z.number().optional().title('Page').describe('Page number (default 1).'),
         per_page: z.number().optional().title('Per Page').describe('Tickets per page (max 100, default 30).'),
+        nextToken: z
+          .string()
+          .optional()
+          .title('Next Token')
+          .describe('Token to continue from the previous page of results.'),
       }),
     },
     output: {
       schema: z.object({
         tickets: z.array(ticketSchema).title('Tickets').describe('List of matching tickets.'),
+        nextToken: z
+          .string()
+          .optional()
+          .title('Next Token')
+          .describe('Token to fetch the next page. Absent when there are no more results.'),
       }),
     },
   },
@@ -195,6 +204,11 @@ export const actions = {
           .default(20)
           .title('Limit')
           .describe('Maximum number of tickets to return (default 20, max 100).'),
+        nextToken: z
+          .string()
+          .optional()
+          .title('Next Token')
+          .describe('Token to continue from the previous page of results.'),
       }),
     },
     output: {
@@ -212,6 +226,11 @@ export const actions = {
           )
           .title('Tickets')
           .describe('Matching tickets.'),
+        nextToken: z
+          .string()
+          .optional()
+          .title('Next Token')
+          .describe('Token to fetch the next page. Absent when there are no more results.'),
       }),
     },
   },
@@ -267,6 +286,11 @@ export const actions = {
       schema: z.object({
         email: z.string().optional().title('Email').describe('Filter contacts by exact email address.'),
         name: z.string().optional().title('Name').describe('Search contacts by name prefix (case-insensitive).'),
+        nextToken: z
+          .string()
+          .optional()
+          .title('Next Token')
+          .describe('Token to continue from the previous page of results.'),
       }),
     },
     output: {
@@ -283,6 +307,11 @@ export const actions = {
           )
           .title('Contacts')
           .describe('Matching contacts.'),
+        nextToken: z
+          .string()
+          .optional()
+          .title('Next Token')
+          .describe('Token to fetch the next page. Absent when there are no more results.'),
       }),
     },
   },

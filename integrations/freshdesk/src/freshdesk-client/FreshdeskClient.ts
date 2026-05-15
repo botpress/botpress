@@ -146,8 +146,8 @@ export class FreshdeskClient {
     return this._request<FreshdeskContact>('GET', `/contacts/${id}`)
   }
 
-  public async searchContactsByEmail(email: string): Promise<FreshdeskContact[]> {
-    return this._request<FreshdeskContact[]>('GET', '/contacts', { email })
+  public async searchContactsByEmail(email: string, page?: number): Promise<FreshdeskContact[]> {
+    return this._request<FreshdeskContact[]>('GET', '/contacts', { email, page })
   }
 
   public async searchContactsByName(term: string): Promise<Array<{ id: number; name: string }>> {
