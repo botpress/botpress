@@ -6,13 +6,37 @@ import { useDeskOAuth } from './misc/utils'
 import * as bp from '.botpress'
 
 const REDIRECT_URI = `${process.env.BP_WEBHOOK_URL}/oauth`
-const SCOPES = 'read,write,issues:create,comments:create,admin'
+const APP_SCOPES = 'read,write,issues:create,comments:create'
+const ADMIN_SCOPES = 'read,write,admin'
+
+const _buildAuthorizeUrl = ({
+  clientId,
+  actor,
+  scopes,
+  state,
+  promptConsent,
+}: {
+  clientId: string
+  actor: 'user' | 'application'
+  scopes: string
+  state: string
+  promptConsent: boolean
+}) =>
+  'https://linear.app/oauth/authorize' +
+  `?client_id=${clientId}` +
+  `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
+  '&response_type=code' +
+  (promptConsent ? '&prompt=consent' : '') +
+  `&actor=${actor}` +
+  `&state=${state}` +
+  `&scope=${scopes}`
 
 const _startStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async ({ ctx, client, query, responses }) => {
   const searchParams = new URLSearchParams(query)
   const payload = {
     source: searchParams.get('source') ?? undefined,
     env: z.enum(['preview', 'production']).catch('preview').parse(searchParams.get('env')),
+    wizardPhase: 'admin',
   } as bp.states.environment.Environment['payload']
 
   await client.setState({
@@ -24,17 +48,10 @@ const _startStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async ({ ctx,
 
   const isDesk = useDeskOAuth(payload)
   const clientId = isDesk ? bp.secrets.DESK_CLIENT_ID : bp.secrets.CLIENT_ID
-  const authorizeUrl =
-    'https://linear.app/oauth/authorize' +
-    `?client_id=${clientId}` +
-    `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
-    '&response_type=code' +
-    '&prompt=consent' +
-    '&actor=app' +
-    `&state=${ctx.webhookId}` +
-    `&scope=${SCOPES}`
 
-  return responses.redirectToExternalUrl(authorizeUrl)
+  return responses.redirectToExternalUrl(
+    _buildAuthorizeUrl({ clientId, actor: 'user', scopes: ADMIN_SCOPES, state: ctx.webhookId, promptConsent: true })
+  )
 }
 
 const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async ({
@@ -66,27 +83,56 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
   const useDesk = useDeskOAuth(environment)
   const linearOauthClient = new LinearOauthClient(useDesk)
   const credentials = await linearOauthClient.getAccessTokenFromOAuthCode(code)
-  logger.forBot().info('Obtained credentials from OAuth flow, saving to state...')
+
+  if (environment.wizardPhase === 'app') {
+    logger.forBot().info('Received app-actor OAuth callback, saving runtime credentials...')
+    await client.setState({
+      type: 'integration',
+      name: 'credentials',
+      id: ctx.integrationId,
+      payload: credentials,
+    })
+
+    const linearClient = new LinearClient({ accessToken: credentials.accessToken })
+    const organization = await linearClient.organization
+    setIntegrationIdentifier(organization.id)
+    return responses.endWizard({ success: true })
+  }
+
+  logger.forBot().info('Received user-actor OAuth callback, saving admin credentials...')
   await client.setState({
     type: 'integration',
-    name: 'credentials',
+    name: 'adminCredentials',
     id: ctx.integrationId,
     payload: credentials,
   })
 
-  const linearClient = new LinearClient({ accessToken: credentials.accessToken })
-  const organization = await linearClient.organization
-
+  const adminClient = new LinearClient({ accessToken: credentials.accessToken })
   const webhookUrl = `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
   try {
-    await registerWebhook({ linearClient, logger, url: webhookUrl })
+    await registerWebhook({ linearClient: adminClient, logger, url: webhookUrl })
   } catch (thrown) {
     const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
     logger.forBot().warn('Failed to register webhook:', errorMessage)
   }
 
-  setIntegrationIdentifier(organization.id)
-  return responses.endWizard({ success: true })
+  await client.setState({
+    type: 'integration',
+    name: 'environment',
+    id: ctx.integrationId,
+    payload: { ...environment, wizardPhase: 'app' },
+  })
+
+  const clientId = useDesk ? bp.secrets.DESK_CLIENT_ID : bp.secrets.CLIENT_ID
+  return responses.redirectToExternalUrl(
+    _buildAuthorizeUrl({
+      clientId,
+      actor: 'application',
+      scopes: APP_SCOPES,
+      state: ctx.webhookId,
+      promptConsent: false,
+    })
+  )
 }
 
 export const buildOAuthWizard = (props: bp.HandlerProps) =>

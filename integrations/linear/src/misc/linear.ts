@@ -194,6 +194,17 @@ export class LinearOauthClient {
   }
 
   public static async create(props: { client: bp.Client; ctx: bp.Context }) {
+    return LinearOauthClient._createFromStoredCredentials(props, 'credentials')
+  }
+
+  public static async createAdmin(props: { client: bp.Client; ctx: bp.Context }) {
+    return LinearOauthClient._createFromStoredCredentials(props, 'adminCredentials')
+  }
+
+  private static async _createFromStoredCredentials(
+    props: { client: bp.Client; ctx: bp.Context },
+    stateName: 'credentials' | 'adminCredentials'
+  ) {
     const { ctx, client } = props
     if (ctx.configurationType === 'apiKey') {
       return new LinearClient({ apiKey: ctx.configuration.apiKey })
@@ -203,7 +214,7 @@ export class LinearOauthClient {
       state: { payload },
     } = await client.getState({
       type: 'integration',
-      name: 'credentials',
+      name: stateName,
       id: ctx.integrationId,
     })
 
@@ -219,7 +230,7 @@ export class LinearOauthClient {
     const credentials = await linearOauthClient.resolveValidCredentials(payload)
 
     if (credentials.accessToken !== payload.accessToken) {
-      await client.setState({ type: 'integration', name: 'credentials', id: ctx.integrationId, payload: credentials })
+      await client.setState({ type: 'integration', name: stateName, id: ctx.integrationId, payload: credentials })
     }
 
     return new LinearClient({ accessToken: credentials.accessToken })
