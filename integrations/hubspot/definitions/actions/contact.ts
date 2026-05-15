@@ -127,6 +127,7 @@ const getContact: ActionDefinition = {
   output: {
     schema: z.object({
       contact: contactSchema.title('Contact').describe('The fetched contact'),
+      url: z.string().title('Contact URL').describe("The URL to the contact's page in the HubSpot UI"),
     }),
   },
 }

@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
 import { contactSchema } from '../../definitions/actions/contact'
-import { getAuthenticatedHubspotClient, propertiesEntriesToRecord } from '../utils'
+import { getAuthenticatedHubspotClient, getOrFetchPortalId, propertiesEntriesToRecord } from '../utils'
 import * as bp from '.botpress'
 
 type HubspotClient = Awaited<ReturnType<typeof getAuthenticatedHubspotClient>>
@@ -102,12 +102,16 @@ export const getContact: bp.IntegrationProps['actions']['getContact'] = async ({
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
 
   const propertyKeys = await _getContactPropertyKeys(hsClient)
-  const contact = await hsClient.getContact({
-    contactId: input.contactIdOrEmail,
-    propertiesToReturn: propertyKeys,
-  })
+  const [contact, portalId] = await Promise.all([
+    hsClient.getContact({
+      contactId: input.contactIdOrEmail,
+      propertiesToReturn: propertyKeys,
+    }),
+    getOrFetchPortalId({ client, ctx, hsClient }),
+  ])
   return {
     contact: _mapHsContactToBpContact(contact),
+    url: `https://app.hubspot.com/contacts/${portalId}/contact/${contact.id}`,
   }
 }
 

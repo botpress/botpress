@@ -9,6 +9,13 @@ const oauthCredentials = {
   }),
 } satisfies StateDefinition
 
+const hubInfo = {
+  type: 'integration',
+  schema: z.object({
+    portalId: z.string().title('Portal ID').describe('The HubSpot portal (hub) ID for the connected account'),
+  }),
+} satisfies StateDefinition
+
 const ticketPipelineCache = {
   type: 'integration',
   schema: z.object({
@@ -138,6 +145,7 @@ const hitlSetupWizard = {
 
 export const states = {
   oauthCredentials,
+  hubInfo,
   ticketPipelineCache,
   companiesCache,
   ...propertyCacheStates,

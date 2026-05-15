@@ -4,6 +4,7 @@ import { exchangeCodeForOAuthCredentials, setOAuthCredentials } from '../../auth
 import { getHitlClient } from '../../hitl/client'
 import { createHitlChannel, connectHitlChannel } from '../../hitl/setup'
 import { HubspotClient } from '../../hubspot-api'
+import { setPortalId } from '../../utils'
 import * as bp from '.botpress'
 
 const REDIRECT_URI = `${process.env.BP_WEBHOOK_URL}/oauth`
@@ -117,6 +118,7 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
   const hsClient = new HubspotClient({ accessToken: credentials.accessToken, client, ctx, logger })
   const hubId = await hsClient.getHubId()
   setIntegrationIdentifier(hubId)
+  await setPortalId({ client, ctx, portalId: hubId })
 
   if (enableHitl) {
     return responses.redirectToStep('hitl-inbox-id')
