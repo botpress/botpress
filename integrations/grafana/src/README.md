@@ -24,14 +24,6 @@ The deprecation hints visible in `alerts.ts`, `notifications.ts`, and
 `datasources.ts` are intentional. They serve as a signal: these files are the
 ones to update when their K8s API equivalents graduate to `v1`.
 
-### The deprecated client
-
-`grafana-client-deprecated/` is the original client generated with the now-deprecated
-`openapi-typescript-codegen` tool. It is kept as a reference only and is not
-imported anywhere. It can be deleted once you are confident the migration is complete.
-
----
-
 ## Namespace resolution
 
 Grafana Cloud uses a per-stack namespace in the format `stacks-{stackId}` (e.g.
@@ -139,7 +131,6 @@ specs/
 src/
   grafana-k8s-client/          ← generated — do not edit manually
   grafana-legacy-client/       ← generated — do not edit manually
-  grafana-client-deprecated/   ← old generator output, reference only
 
   clients/
     config.ts                  ← k8sClient() and legacyClient() factories
