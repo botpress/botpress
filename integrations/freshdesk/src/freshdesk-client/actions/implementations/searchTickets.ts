@@ -1,6 +1,6 @@
 import type { FreshdeskTicket } from '../../types'
 import { wrapAction } from '../action-wrapper'
-import { NUM_TO_PRIORITY, NUM_TO_STATUS, PRIORITY_TO_NUM, STATUS_TO_NUM } from './utils'
+import { NUM_TO_PRIORITY, NUM_TO_STATUS, PRIORITY_TO_NUM, STATUS_TO_NUM } from './const'
 
 export const searchTickets = wrapAction(
   { actionName: 'searchTickets', errorMessage: 'Failed to search Freshdesk tickets' },

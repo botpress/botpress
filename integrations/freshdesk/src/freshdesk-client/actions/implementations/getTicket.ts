@@ -1,5 +1,5 @@
 import { wrapAction } from '../action-wrapper'
-import { NUM_TO_PRIORITY, NUM_TO_STATUS } from './utils'
+import { NUM_TO_PRIORITY, NUM_TO_STATUS } from './const'
 
 export const getTicket = wrapAction(
   { actionName: 'getTicket', errorMessage: 'Failed to get Freshdesk ticket' },
