@@ -99,40 +99,46 @@ const _oauthRedirectHandler: WizardHandler = async ({ ctx, client, responses }) 
 }
 
 const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, logger, responses, query }) => {
-  const code = query.get('code')
-  if (!code) {
-    return responses.endWizard({ success: false, errorMessage: 'Jira did not return an authorization code' })
-  }
+  try {
+    const code = query.get('code')
+    if (!code) {
+      return responses.endWizard({ success: false, errorMessage: 'Jira did not return an authorization code' })
+    }
 
-  const state = query.get('state')
-  const { state: sessionState } = await client.getState({
-    type: 'integration',
-    name: 'oauthSession',
-    id: ctx.integrationId,
-  })
-  if (!state || state !== ctx.webhookId || sessionState.payload.state !== ctx.webhookId) {
-    return responses.endWizard({ success: false, errorMessage: 'Invalid OAuth state parameter' })
-  }
-
-  const createdAt = sessionState.payload.createdAt
-  if (!createdAt || Date.now() - new Date(createdAt).getTime() > OAUTH_SESSION_MAX_AGE_MS) {
-    return responses.endWizard({
-      success: false,
-      errorMessage: 'OAuth session has expired. Please restart the setup wizard.',
+    const state = query.get('state')
+    const { state: sessionState } = await client.getState({
+      type: 'integration',
+      name: 'oauthSession',
+      id: ctx.integrationId,
     })
+    if (!state || state !== ctx.webhookId || sessionState.payload.state !== ctx.webhookId) {
+      return responses.endWizard({ success: false, errorMessage: 'Invalid OAuth state parameter' })
+    }
+
+    const createdAt = sessionState.payload.createdAt
+    if (!createdAt || Date.now() - new Date(createdAt).getTime() > OAUTH_SESSION_MAX_AGE_MS) {
+      return responses.endWizard({
+        success: false,
+        errorMessage: 'OAuth session has expired. Please restart the setup wizard.',
+      })
+    }
+
+    const oauth = new JiraOAuthClient({ client, ctx, logger })
+    await oauth.exchangeAuthorizationCode(code, _getRedirectUri())
+
+    await client.setState({
+      type: 'integration',
+      name: 'oauthSession',
+      id: ctx.integrationId,
+      payload: { state: '', createdAt: new Date(0).toISOString() },
+    })
+
+    return responses.redirectToStep('pick-site')
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'An unexpected error occurred'
+    logger.forBot().error(`Jira wizard step failed: ${message}`, { error })
+    return responses.endWizard({ success: false, errorMessage: message })
   }
-
-  const oauth = new JiraOAuthClient({ client, ctx, logger })
-  await oauth.exchangeAuthorizationCode(code, _getRedirectUri())
-
-  await client.setState({
-    type: 'integration',
-    name: 'oauthSession',
-    id: ctx.integrationId,
-    payload: { state: '', createdAt: new Date(0).toISOString() },
-  })
-
-  return responses.redirectToStep('pick-site')
 }
 
 const _pickSiteHandler: WizardHandler = async ({ ctx, client, logger, responses }) => {
