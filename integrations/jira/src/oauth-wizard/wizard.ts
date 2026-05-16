@@ -15,6 +15,8 @@ const REQUIRED_JIRA_SCOPES = [
   'offline_access',
 ]
 
+const OAUTH_SESSION_MAX_AGE_MS = 10 * 60 * 1000 // 10 minutes
+
 const _getRedirectUri = () => oauthWizard.getWizardStepUrl('oauth-callback').toString()
 
 const _manualCredentialsSchema = z.object({
@@ -71,24 +73,29 @@ const _routeChoiceHandler: WizardHandler = ({ selectedChoice, responses }) => {
 }
 
 const _oauthRedirectHandler: WizardHandler = async ({ ctx, client, responses }) => {
-  await client.setState({
-    type: 'integration',
-    name: 'oauthSession',
-    id: ctx.integrationId,
-    payload: { state: ctx.webhookId, createdAt: new Date().toISOString() },
-  })
+  try {
+    await client.setState({
+      type: 'integration',
+      name: 'oauthSession',
+      id: ctx.integrationId,
+      payload: { state: ctx.webhookId, createdAt: new Date().toISOString() },
+    })
 
-  const params = new URLSearchParams({
-    audience: 'api.atlassian.com',
-    client_id: bp.secrets.CLIENT_ID,
-    scope: REQUIRED_JIRA_SCOPES.join(' '),
-    redirect_uri: _getRedirectUri(),
-    state: ctx.webhookId,
-    response_type: 'code',
-    prompt: 'consent',
-  })
+    const params = new URLSearchParams({
+      audience: 'api.atlassian.com',
+      client_id: bp.secrets.CLIENT_ID,
+      scope: REQUIRED_JIRA_SCOPES.join(' '),
+      redirect_uri: _getRedirectUri(),
+      state: ctx.webhookId,
+      response_type: 'code',
+      prompt: 'consent',
+    })
 
-  return responses.redirectToExternalUrl(`https://auth.atlassian.com/authorize?${params.toString()}`)
+    return responses.redirectToExternalUrl(`https://auth.atlassian.com/authorize?${params.toString()}`)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'An unexpected error occurred'
+    return responses.endWizard({ success: false, errorMessage: message })
+  }
 }
 
 const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, logger, responses, query }) => {
@@ -107,6 +114,14 @@ const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, logger, respo
     return responses.endWizard({ success: false, errorMessage: 'Invalid OAuth state parameter' })
   }
 
+  const createdAt = sessionState.payload.createdAt
+  if (!createdAt || Date.now() - new Date(createdAt).getTime() > OAUTH_SESSION_MAX_AGE_MS) {
+    return responses.endWizard({
+      success: false,
+      errorMessage: 'OAuth session has expired. Please restart the setup wizard.',
+    })
+  }
+
   const oauth = new JiraOAuthClient({ client, ctx, logger })
   await oauth.exchangeAuthorizationCode(code, _getRedirectUri())
 
@@ -121,78 +136,113 @@ const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, logger, respo
 }
 
 const _pickSiteHandler: WizardHandler = async ({ ctx, client, logger, responses }) => {
-  const oauth = new JiraOAuthClient({ client, ctx, logger })
-  const accessToken = await oauth.getAccessToken()
-  const sites = await oauth.listAccessibleJiraResources(accessToken)
+  try {
+    const oauth = new JiraOAuthClient({ client, ctx, logger })
+    const accessToken = await oauth.getAccessToken()
+    const sites = await oauth.listAccessibleJiraResources(accessToken)
 
-  if (sites.length === 0) {
-    return responses.endWizard({
-      success: false,
-      errorMessage: 'No Jira sites were found for this Atlassian account',
+    if (sites.length === 0) {
+      return responses.endWizard({
+        success: false,
+        errorMessage: 'No Jira sites were found for this Atlassian account',
+      })
+    }
+
+    if (sites.length === 1) {
+      const site = sites[0]!
+      await _saveOAuthSite({ ctx, client, siteId: site.id, host: site.url })
+      await oauth.clearManualCredentials()
+      return responses.endWizard({ success: true })
+    }
+
+    return responses.displayChoices({
+      pageTitle: 'Select a Jira Site',
+      htmlOrMarkdownPageContents: 'Pick the Jira site you want this integration to use.',
+      choices: sites.map((site) => ({ label: site.name || site.url, value: `${site.id}|${site.url}` })),
+      nextStepId: 'save-site',
     })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'An unexpected error occurred'
+    logger.forBot().error(`Jira wizard step failed: ${message}`, { error })
+    return responses.endWizard({ success: false, errorMessage: message })
   }
-
-  if (sites.length === 1) {
-    const site = sites[0]!
-    await _saveOAuthSite({ ctx, client, siteId: site.id, host: site.url })
-    await oauth.clearManualCredentials()
-    return responses.endWizard({ success: true })
-  }
-
-  return responses.displayChoices({
-    pageTitle: 'Select a Jira Site',
-    htmlOrMarkdownPageContents: 'Pick the Jira site you want this integration to use.',
-    choices: sites.map((site) => ({ label: site.name || site.url, value: `${site.id}|${site.url}` })),
-    nextStepId: 'save-site',
-  })
 }
 
 const _saveSiteHandler: WizardHandler = async ({ ctx, client, logger, selectedChoice, responses }) => {
-  if (!selectedChoice) {
-    return responses.redirectToStep('pick-site')
-  }
+  try {
+    if (!selectedChoice) {
+      return responses.redirectToStep('pick-site')
+    }
 
-  const [siteId, host] = selectedChoice.split('|')
-  if (!siteId || !host) {
-    return responses.redirectToStep('pick-site')
-  }
+    const [siteId, host] = selectedChoice.split('|')
+    if (!siteId || !host) {
+      return responses.redirectToStep('pick-site')
+    }
 
-  await _saveOAuthSite({ ctx, client, siteId, host })
-  const oauth = new JiraOAuthClient({ client, ctx, logger })
-  await oauth.clearManualCredentials()
-  return responses.endWizard({ success: true })
+    await _saveOAuthSite({ ctx, client, siteId, host })
+    const oauth = new JiraOAuthClient({ client, ctx, logger })
+    await oauth.clearManualCredentials()
+    return responses.endWizard({ success: true })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'An unexpected error occurred'
+    logger.forBot().error(`Jira wizard step failed: ${message}`, { error })
+    return responses.endWizard({ success: false, errorMessage: message })
+  }
 }
 
 const _getManualCredentialsHandler: WizardHandler = ({ responses }) => responses.displayForm(_manualCredentialsForm)
 
 const _saveManualCredentialsHandler: WizardHandler = async ({ ctx, client, logger, formValues, responses }) => {
-  if (!formValues) {
-    return responses.redirectToStep('get-manual-credentials')
-  }
+  try {
+    if (!formValues) {
+      return responses.redirectToStep('get-manual-credentials')
+    }
 
-  const parsed = _manualCredentialsSchema.safeParse(formValues)
-  if (!parsed.success) {
-    return responses.displayForm({
-      ..._manualCredentialsForm,
-      errors: parsed.error,
-      previousValues: formValues as z.input<typeof _manualCredentialsSchema>,
+    const parsed = _manualCredentialsSchema.safeParse(formValues)
+    if (!parsed.success) {
+      return responses.displayForm({
+        ..._manualCredentialsForm,
+        errors: parsed.error,
+        previousValues: formValues as z.input<typeof _manualCredentialsSchema>,
+      })
+    }
+
+    const jiraClient = JiraApi.fromBasicAuth(parsed.data.host, parsed.data.email, parsed.data.apiToken)
+    try {
+      await jiraClient.getCurrentUser()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Invalid Jira credentials'
+      const syntheticParse = _manualCredentialsSchema.safeParse({})
+      if (!syntheticParse.success) {
+        syntheticParse.error.issues = [
+          { message, path: ['apiToken'], code: 'custom' } satisfies z.ZodIssue,
+        ]
+        return responses.displayForm({
+          ..._manualCredentialsForm,
+          errors: syntheticParse.error,
+          previousValues: parsed.data,
+        })
+      }
+      // Should never reach here since empty object fails validation
+      return responses.endWizard({ success: false, errorMessage: message })
+    }
+
+    const oauth = new JiraOAuthClient({ client, ctx, logger })
+    await oauth.saveManualCredentials(parsed.data)
+    await client.setState({
+      type: 'integration',
+      name: 'configuration',
+      id: ctx.integrationId,
+      payload: { authType: 'manual', host: parsed.data.host },
     })
+    await client.configureIntegration({ identifier: parsed.data.host })
+
+    return responses.endWizard({ success: true })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'An unexpected error occurred'
+    logger.forBot().error(`Jira wizard step failed: ${message}`, { error })
+    return responses.endWizard({ success: false, errorMessage: message })
   }
-
-  const jiraClient = JiraApi.fromBasicAuth(parsed.data.host, parsed.data.email, parsed.data.apiToken)
-  await jiraClient.getCurrentUser()
-
-  const oauth = new JiraOAuthClient({ client, ctx, logger })
-  await oauth.saveManualCredentials(parsed.data)
-  await client.setState({
-    type: 'integration',
-    name: 'configuration',
-    id: ctx.integrationId,
-    payload: { authType: 'manual', host: parsed.data.host },
-  })
-  await client.configureIntegration({ identifier: parsed.data.host })
-
-  return responses.endWizard({ success: true })
 }
 
 const _saveOAuthSite = async ({

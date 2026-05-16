@@ -1,4 +1,4 @@
-import { RuntimeError } from '@botpress/sdk'
+import { isApiError, RuntimeError } from '@botpress/sdk'
 import * as bp from '.botpress'
 
 type AtlassianTokenResponse = {
@@ -145,7 +145,13 @@ export class JiraOAuthClient {
         id: this._props.ctx.integrationId,
       })
       .then(({ state }) => state.payload)
-      .catch(() => undefined)
+      .catch((e: unknown) => {
+        if (isApiError(e) && e.type === 'ResourceNotFound') {
+          return undefined
+        }
+        this._props.logger.forBot().error('Failed to read Jira OAuth credentials state', { error: e })
+        throw e
+      })
   }
 
   private async _saveOAuthCredentials(token: AtlassianTokenResponse, previousRefreshToken?: string) {
