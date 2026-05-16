@@ -1,4 +1,4 @@
-import { RuntimeError } from '@botpress/sdk'
+import { isApiError, RuntimeError } from '@botpress/sdk'
 import type { Version3Models } from 'jira.js'
 import { JiraApi } from '../client'
 import { JiraOAuthClient } from '../client/auth'
@@ -33,7 +33,13 @@ export const getClient = async ({ client, ctx, logger }: ClientProps): Promise<J
       id: ctx.integrationId,
     })
     .then(({ state }) => state.payload)
-    .catch(() => undefined)
+    .catch((e: unknown) => {
+      if (isApiError(e) && e.type === 'ResourceNotFound') {
+        return undefined
+      }
+      logger.forBot().error('Failed to read Jira configuration state', { error: e })
+      throw e
+    })
 
   if (configuration?.authType === 'manual') {
     const { state } = await client.getState({
