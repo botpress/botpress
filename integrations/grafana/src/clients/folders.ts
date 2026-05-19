@@ -4,7 +4,7 @@ import {
   grafanaFolderK8sCreateFolder,
   grafanaFolderK8sDeleteFolder,
   grafanaFolderK8sListFolder,
-} from '../grafana-k8s-client'
+} from '../gen/grafana-k8s-client'
 import { type GrafanaConfig, k8sClient } from './config'
 import { errorMessage } from './utils'
 

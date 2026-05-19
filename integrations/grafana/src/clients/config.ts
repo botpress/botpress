@@ -1,5 +1,8 @@
-import { createClient, createConfig } from '../grafana-k8s-client/client'
-import { createClient as createLegacyClient, createConfig as createLegacyConfig } from '../grafana-legacy-client/client'
+import { createClient, createConfig } from '../gen/grafana-k8s-client/client'
+import {
+  createClient as createLegacyClient,
+  createConfig as createLegacyConfig,
+} from '../gen/grafana-legacy-client/client'
 
 export type GrafanaConfig = {
   grafanaUsername: string

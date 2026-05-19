@@ -1,4 +1,4 @@
-import { getDataSources } from '../grafana-legacy-client'
+import { getDataSources } from '../gen/grafana-legacy-client'
 import { type GrafanaConfig, legacyClient } from './config'
 import { errorMessage } from './utils'
 

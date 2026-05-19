@@ -6,7 +6,7 @@
   },
   "private": true,
   "dependencies": {
-    "@botpress/sdk": "6.10.0",
+    "@botpress/sdk": "workspace:*",
     "node-fetch": "^2.7.0"
   },
   "devDependencies": {

@@ -8,10 +8,10 @@ different resources reach stability at different times.
 
 This project uses two generated clients to reflect that reality:
 
-| Client | Spec | Covers |
-|---|---|---|
-| `grafana-k8s-client/` | `specs/grafana-dashboard-k8s.json` + `specs/grafana-folder-k8s.json` | Dashboards, Folders |
-| `grafana-legacy-client/` | `specs/grafana-legacy.json` | Alerts, Notifications, Datasources |
+| Client                   | Spec                                                                 | Covers                             |
+| ------------------------ | -------------------------------------------------------------------- | ---------------------------------- |
+| `grafana-k8s-client/`    | `specs/grafana-dashboard-k8s.json` + `specs/grafana-folder-k8s.json` | Dashboards, Folders                |
+| `grafana-legacy-client/` | `specs/grafana-legacy.json`                                          | Alerts, Notifications, Datasources |
 
 ### Why is the legacy client still used for alerts and notifications?
 
@@ -101,6 +101,7 @@ wrappers. Fix them in the wrapper file — the `actions/` layer and
 When a resource's K8s API graduates to `v1`, follow these steps:
 
 1. **Find the new spec endpoint** — check the discovery document:
+
    ```bash
    curl -s -H "Authorization: Bearer $TOKEN" -H "Accept: application/json" \
      "https://your-stack.grafana.net/openapi/v3" | python3 -m json.tool | grep "grafana.app"

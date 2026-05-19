@@ -5,7 +5,7 @@ import {
   routeGetAlertRule,
   routeGetAlertRules,
   routePostAlertRule,
-} from '../grafana-legacy-client'
+} from '../gen/grafana-legacy-client'
 import { type GrafanaConfig, legacyClient } from './config'
 import { errorMessage } from './utils'
 

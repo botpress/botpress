@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
 import { matcherSchema, notificationPolicySchema } from '../../definitions/notification-schemas'
-import { routeGetPolicyTree, routePutPolicyTree, Route } from '../grafana-legacy-client'
+import { routeGetPolicyTree, routePutPolicyTree, Route } from '../gen/grafana-legacy-client'
 import { type GrafanaConfig, legacyClient } from './config'
 import { errorMessage } from './utils'
 

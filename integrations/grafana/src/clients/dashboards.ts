@@ -5,8 +5,8 @@ import {
   grafanaDashboardK8sListDashboard,
   grafanaDashboardK8sReplaceDashboard,
   GrafanaDashboardK8sComGithubGrafanaGrafanaAppsDashboardPkgApisDashboardV1Dashboard as K8sDashboard,
-} from '../grafana-k8s-client'
-import type { Panel } from '../types/GrafanaDashboard'
+} from '../gen/grafana-k8s-client'
+import type { Panel } from '../types/gen/GrafanaDashboard'
 import { type GrafanaConfig, k8sClient } from './config'
 import { errorMessage } from './utils'
 

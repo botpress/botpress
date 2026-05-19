@@ -10,11 +10,15 @@ export const listContactPoints = {
   output: {
     schema: z.object({
       success: z.boolean(),
-      data: z.array(z.object({
-        uid: z.string().optional(),
-        name: z.string().optional(),
-        type: z.string(),
-      })).optional(),
+      data: z
+        .array(
+          z.object({
+            uid: z.string().optional(),
+            name: z.string().optional(),
+            type: z.string(),
+          })
+        )
+        .optional(),
       error: z.string().optional(),
     }),
   },

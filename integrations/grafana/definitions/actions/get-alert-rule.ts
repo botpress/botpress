@@ -12,13 +12,15 @@ export const getAlertRule = {
   output: {
     schema: z.object({
       success: z.boolean(),
-      data: z.object({
-        uid: z.string().optional(),
-        title: z.string().optional(),
-        ruleGroup: z.string().optional(),
-        folderUID: z.string().optional(),
-        labels: z.record(z.string()).optional(),
-      }).optional(),
+      data: z
+        .object({
+          uid: z.string().optional(),
+          title: z.string().optional(),
+          ruleGroup: z.string().optional(),
+          folderUID: z.string().optional(),
+          labels: z.record(z.string()).optional(),
+        })
+        .optional(),
       error: z.string().optional(),
     }),
   },

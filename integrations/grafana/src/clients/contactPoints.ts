@@ -1,4 +1,4 @@
-import { routeGetContactpoints, routePostContactpoints, routeDeleteContactpoints } from '../grafana-legacy-client'
+import { routeGetContactpoints, routePostContactpoints, routeDeleteContactpoints } from '../gen/grafana-legacy-client'
 import { type GrafanaConfig, legacyClient } from './config'
 import { errorMessage } from './utils'
 

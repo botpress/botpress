@@ -8,11 +8,15 @@ export const listFolders = {
   output: {
     schema: z.object({
       success: z.boolean(),
-      data: z.array(z.object({
-        uid: z.string().optional(),
-        title: z.string().optional(),
-        parentUid: z.string().optional(),
-      })).optional(),
+      data: z
+        .array(
+          z.object({
+            uid: z.string().optional(),
+            title: z.string().optional(),
+            parentUid: z.string().optional(),
+          })
+        )
+        .optional(),
       error: z.string().optional(),
     }),
   },

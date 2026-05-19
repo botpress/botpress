@@ -17,23 +17,32 @@ export const alertRuleSchema = z.object({
   dataArray: dataArraySchema,
   forDuration: z.string().optional().default('5m').describe('How long the condition must be true before alerting'),
   ruleGroup: z.string().optional().default('default').describe('Rule group name'),
-  labels: z.record(z.string()).optional().describe('Key-value labels used to route the alert (e.g. { severity: "critical" })'),
+  labels: z
+    .record(z.string())
+    .optional()
+    .describe('Key-value labels used to route the alert (e.g. { severity: "critical" })'),
   noDataState: z.enum(['Alerting', 'NoData', 'OK']).optional().default('NoData'),
   execErrState: z.enum(['OK', 'Alerting', 'Error']).optional().default('Error'),
   isPaused: z.boolean().optional(),
   keep_firing_for: z.string().optional(),
   missingSeriesEvalsToResolve: z.number().optional(),
   uid: z.string().optional(),
-  botpressId: z.string().optional().describe('Arbitrary ID stored as a botpress_id label on the rule — returned on every alertFired event'),
-  notification_settings: z.object({
-    receiver: z.string().min(1, 'Receiver name is required'),
-    group_by: z.array(z.string()).optional(),
-    group_wait: z.string().optional(),
-    group_interval: z.string().optional(),
-    repeat_interval: z.string().optional(),
-    mute_time_intervals: z.array(z.string()).optional(),
-    active_time_intervals: z.array(z.string()).optional(),
-  }).optional().describe('Wire the alert directly to a contact point, skipping notification policies'),
+  botpressId: z
+    .string()
+    .optional()
+    .describe('Arbitrary ID stored as a botpress_id label on the rule — returned on every alertFired event'),
+  notification_settings: z
+    .object({
+      receiver: z.string().min(1, 'Receiver name is required'),
+      group_by: z.array(z.string()).optional(),
+      group_wait: z.string().optional(),
+      group_interval: z.string().optional(),
+      repeat_interval: z.string().optional(),
+      mute_time_intervals: z.array(z.string()).optional(),
+      active_time_intervals: z.array(z.string()).optional(),
+    })
+    .optional()
+    .describe('Wire the alert directly to a contact point, skipping notification policies'),
 })
 
 export const createAlertRule = {

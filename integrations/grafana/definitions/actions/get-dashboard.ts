@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
 import { ActionDef } from './types'
-import type { GrafanaDashboard } from '../../src/types/GrafanaDashboard'
+import type { GrafanaDashboard } from '../../src/types/gen/GrafanaDashboard'
 
 export const getDashboardDataSchema = z.object({
   dashboard: z.any().optional(),
@@ -12,7 +12,9 @@ export const getDashboard = {
   description: 'Retrieve metadata and spec of a Grafana dashboard',
   input: {
     schema: z.object({
-      dashboardUid: z.string().min(1, 'Dashboard UID is required (use the name field from listDashboards, not the title)'),
+      dashboardUid: z
+        .string()
+        .min(1, 'Dashboard UID is required (use the name field from listDashboards, not the title)'),
     }),
   },
   output: {

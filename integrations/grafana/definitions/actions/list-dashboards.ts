@@ -9,12 +9,14 @@ export const listDashboards = {
   },
   output: {
     schema: z.object({
-      dashboards: z.array(
-        z.object({
-          name: z.string(),
-          title: z.string(),
-        })
-      ).optional(),
+      dashboards: z
+        .array(
+          z.object({
+            name: z.string(),
+            title: z.string(),
+          })
+        )
+        .optional(),
       error: z.string().optional(),
     }),
   },
