@@ -118,11 +118,11 @@ export class OdooClient {
     return data
   }
 
-  public async getFields(model: Model, request: GetFieldsRequest): Promise<GetFieldsOutput> {
+  public async listFields(model: Model, request: GetFieldsRequest): Promise<GetFieldsOutput> {
     return this._postJson(`/json/2/${modelMap[model]}/fields_get`, request, isRecord, 'JSON object')
   }
 
-  public async getLeadFields(input: CrmLeadFieldsGetInput): Promise<CrmLeadFieldsGetOutput> {
+  public async listLeadFields(input: CrmLeadFieldsGetInput): Promise<CrmLeadFieldsGetOutput> {
     return this._postJson('/json/2/crm.lead/fields_get', input, isRecordMap, 'JSON object')
   }
 
@@ -145,11 +145,11 @@ export class OdooClient {
     return this._postJson('/json/2/crm.lead/search_read', input, isOdooRecordArray, 'JSON array')
   }
 
-  public async getContacts(input: ResPartnerReadInput): Promise<ResPartnerReadOutput> {
+  public async listContacts(input: ResPartnerReadInput): Promise<ResPartnerReadOutput> {
     return this._postJson('/json/2/res.partner/read', input, isOdooRecordArray, 'JSON array')
   }
 
-  public async getLeads(input: CrmLeadReadInput): Promise<CrmLeadReadOutput> {
+  public async listLeads(input: CrmLeadReadInput): Promise<CrmLeadReadOutput> {
     return this._postJson('/json/2/crm.lead/read', input, isOdooRecordArray, 'JSON array')
   }
 

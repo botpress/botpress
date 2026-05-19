@@ -10,7 +10,7 @@ export const createOdooRuntimeError = (thrown: unknown): sdk.RuntimeError => {
     const [, field, model] = invalidFieldMatch
 
     return new sdk.RuntimeError(
-      `Invalid Odoo field "${field}" for model "${model}". Remove this field from the request or call getContactFields to see the available contact fields for this Odoo database.`
+      `Invalid Odoo field "${field}" for model "${model}". Remove this field from the request or call listContactFields to see the available contact fields for this Odoo database.`
     )
   }
 

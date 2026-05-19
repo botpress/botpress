@@ -1,6 +1,6 @@
 export { createContact } from './createContact'
 export { deleteContacts } from './deleteContacts'
-export { getContactFields } from './getContactFields'
-export { getContacts } from './getContacts'
+export { listContactFields } from './listContactFields'
+export { listContacts } from './listContacts'
 export { searchContacts } from './searchContacts'
 export { updateContacts } from './updateContacts'

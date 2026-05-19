@@ -1,6 +1,6 @@
 export { createLead } from './createLead'
 export { deleteLeads } from './deleteLeads'
-export { getLeadFields } from './getLeadFields'
-export { getLeads } from './getLeads'
+export { listLeadFields } from './listLeadFields'
+export { listLeads } from './listLeads'
 export { searchLeads } from './searchLeads'
 export { updateLeads } from './updateLeads'

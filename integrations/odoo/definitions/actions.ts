@@ -86,9 +86,9 @@ export const actions = {
       }),
     },
   },
-  getContactFields: {
-    title: 'Get Odoo Contact Fields',
-    description: 'Get available fields for Odoo contacts.',
+  listContactFields: {
+    title: 'List Odoo Contact Fields',
+    description: 'List available fields for Odoo contacts.',
     input: {
       schema: z.object({
         allfields: fieldsSchema.optional(),
@@ -106,9 +106,9 @@ export const actions = {
       }),
     },
   },
-  getLeadFields: {
-    title: 'Get Odoo Lead Fields',
-    description: 'Get available fields for Odoo CRM leads.',
+  listLeadFields: {
+    title: 'List Odoo Lead Fields',
+    description: 'List available fields for Odoo CRM leads.',
     input: {
       schema: z.object({
         allfields: fieldsSchema.optional(),
@@ -167,8 +167,8 @@ export const actions = {
       }),
     },
   },
-  getLeads: {
-    title: 'Get Leads',
+  listLeads: {
+    title: 'List Leads',
     description: 'Read Odoo CRM leads by ID.',
     input: {
       schema: z.object({
@@ -238,8 +238,8 @@ export const actions = {
       }),
     },
   },
-  getContacts: {
-    title: 'Get Contacts',
+  listContacts: {
+    title: 'List Contacts',
     description: 'Read Odoo contacts by ID.',
     input: {
       schema: z.object({

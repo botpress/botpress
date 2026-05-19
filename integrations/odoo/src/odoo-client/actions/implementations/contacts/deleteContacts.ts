@@ -67,7 +67,7 @@ const deleteContactsIndividually = async (
 export const deleteContacts = wrapAction(
   { actionName: 'deleteContacts', errorMessage: 'Failed to delete Odoo contacts' },
   async ({ odooClient }, input) => {
-    const contacts = await odooClient.getContacts({
+    const contacts = await odooClient.listContacts({
       ids: input.ids,
       fields: ['id', 'name', 'user_id'],
       context: input.context,

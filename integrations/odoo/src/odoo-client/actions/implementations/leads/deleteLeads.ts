@@ -59,7 +59,7 @@ const deleteLeadsIndividually = async (
 export const deleteLeads = wrapAction(
   { actionName: 'deleteLeads', errorMessage: 'Failed to delete Odoo leads' },
   async ({ odooClient }, input) => {
-    const leads = await odooClient.getLeads({
+    const leads = await odooClient.listLeads({
       ids: input.ids,
       fields: ['id', 'name', 'user_id'],
       context: input.context,
