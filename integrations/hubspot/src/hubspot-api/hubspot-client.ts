@@ -1055,8 +1055,26 @@ export class HubspotClient {
   }
 
   @handleErrors('Failed to get signed URL for file')
-  public async getFileSignedUrl({ fileId, expirationSeconds }: { fileId: string; expirationSeconds?: number }) {
-    return await this._hsClient.files.filesApi.getSignedUrl(fileId, undefined, expirationSeconds)
+  public async getFileSignedUrl({ fileId }: { fileId: string }): Promise<string | undefined> {
+    const results = await this._hsClient.files.filesApi.doSearch(
+      undefined,
+      undefined,
+      undefined,
+      1,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      fileId
+    )
+    return results.results[0]?.url
   }
 
   @handleErrors('Failed to retrieve owner by email')

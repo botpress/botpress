@@ -7,12 +7,6 @@ export const contactSchema = z.object({
   createdAt: z.string().title('Created At').describe('The date and time the contact was created'),
   updatedAt: z.string().title('Updated At').describe('The date and time the contact was last updated'),
   properties: z.record(z.string().nullable()).title('Properties').describe('The properties of the contact'),
-  avatarUrl: z
-    .string()
-    .nullable()
-    .optional()
-    .title('Avatar URL')
-    .describe("The URL to the contact's avatar image, if available"),
 })
 
 export const propertyMetadataSchema = z.object({

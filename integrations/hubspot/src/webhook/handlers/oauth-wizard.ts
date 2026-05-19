@@ -21,6 +21,8 @@ const CRM_SCOPES = [
   'crm.objects.leads.write',
   'crm.objects.deals.read',
   'crm.objects.deals.write',
+  'files',
+  'files.ui_hidden.read',
 ]
 
 const HITL_SCOPES = [
