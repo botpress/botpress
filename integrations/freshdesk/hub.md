@@ -2,24 +2,6 @@
 
 Connect Botpress to Freshdesk to manage support tickets and react to ticket lifecycle events from your bots.
 
-## Ticket Properties
-
-`status` and `priority` are represented as string enums. The integration handles conversion to Freshdesk's internal numeric values.
-
-| Status   | String value | Numeric value |
-| -------- | ------------ | ------------- |
-| Open     | `open`       | 2             |
-| Pending  | `pending`    | 3             |
-| Resolved | `resolved`   | 4             |
-| Closed   | `closed`     | 5             |
-
-| Priority | String value | Numeric value |
-| -------- | ------------ | ------------- |
-| Low      | `low`        | 1             |
-| Medium   | `medium`     | 2             |
-| High     | `high`       | 3             |
-| Urgent   | `urgent`     | 4             |
-
 ## Events
 
 Events are triggered by Freshdesk **Automation Rules** which you configure manually. Each event corresponds to a different webhook path.
@@ -76,26 +58,11 @@ For `ticketReplied`, also include reply fields. The `reply.body` field is **requ
 }
 ```
 
-## Human-in-the-Loop (HITL)
+## Human-in-the-Loop (HITL)   |
 
-The Freshdesk integration supports the **HITL** interface, which lets your bot escalate a conversation to a human agent via a Freshdesk ticket. Install the **HITL** plugin in your Botpress bot to enable this feature.
+Three additional webhook paths notify Botpress when a ticket is assigned to an agent or resolved. Configure them as separate **Automation Rules** in Freshdesk (**Admin → Automations → Ticket Updates**):
 
-### hitlTicket entity fields
-
-| Field            | Type                                    | Description                                                                 |
-| ---------------- | --------------------------------------- | --------------------------------------------------------------------------- |
-| `priority`       | `low` \| `medium` \| `high` \| `urgent` | Ticket priority. Defaults to Low if not set.                                |
-| `groupId`        | string                                  | Freshdesk group ID to assign the ticket to.                                 |
-| `tags`           | string[]                                | Tags to apply to the ticket.                                                |
-| `chatbotName`    | string                                  | Name shown in ticket notes sent by the bot. Defaults to `Botpress`.         |
-| `requesterName`  | string                                  | Name of the requester. Required if the user is not yet a Freshdesk contact. |
-| `requesterEmail` | string                                  | Email of the requester. Used together with `requesterName`.                 |
-
-### HITL webhook setup
-
-Two additional webhook paths notify Botpress when a ticket is assigned to an agent or resolved. Configure them as separate **Automation Rules** in Freshdesk (**Admin → Automations → Ticket Updates**):
-
-#### `/hitl-assigned` — fires `hitlAssigned`
+### `/hitl-assigned` — fires `hitlAssigned`
 
 Trigger condition: **Agent Is Assigned**
 
@@ -108,7 +75,7 @@ Webhook body:
 }
 ```
 
-#### `/hitl-message-received` — routes agent reply into the Botpress conversation
+### `/hitl-message-received` — routes agent reply into the Botpress conversation
 
 Trigger condition: **Reply Sent By Agent** (use this condition specifically — it excludes notes added via the API, which would otherwise echo bot messages back)
 
@@ -122,7 +89,7 @@ Webhook body:
 }
 ```
 
-#### `/hitl-stopped` — fires `hitlStopped`
+### `/hitl-stopped` — fires `hitlStopped`
 
 Trigger condition: **Status Is Resolved** OR **Status Is Closed**
 
@@ -138,13 +105,11 @@ The `X-Webhook-Secret` header (optional) works identically to the other webhook 
 
 ## Limitations
 
-- The Search Tickets action scans up to 4 pages (120 results) of Freshdesk search results before applying the `limit` cap
 - Freshdesk webhook setup requires manual configuration via Automation Rules. The integration cannot create them automatically
 - Deleted tickets can be found in the trash page of the Freshdesk UI and can be restored for up to 30 days
 - Ticket attachments are not supported in this integration
 
 ## Changelog
 
-- 0.4.0: Added `replyToTicket` action and `ticket` channel for routing webhook events to conversations.
-- 0.3.0: Added HITL support — `startHitl`, `stopHitl`, and `createUser` actions; `hitlAssigned` and `hitlStopped` events; `hitl` channel for bot-to-ticket messaging.
-- 0.1.0: Initial release with `createTicket`, `getTicket`, `listTickets`, `updateTicket`, `deleteTicket`, `replyToTicket`, `addNote`, `searchTickets`, `searchContacts`, `getContact` actions and `ticketCreated`, `ticketUpdated`, `ticketReplied` events.
+- 0.2.0: Added HITL support with `startHitl` and `stopHitl`; `hitlAssigned` and `hitlStopped` events; `hitl` channel for bot-to-ticket messaging. Added `replyToTicket` action.
+- 0.1.0: Initial release with `createTicket`, `getTicket`, `listTickets`, `updateTicket`, `deleteTicket`, `addNote`, `searchTickets`, `searchContacts`, `getContact` actions and `ticketCreated`, `ticketUpdated`, `ticketReplied` events. 
