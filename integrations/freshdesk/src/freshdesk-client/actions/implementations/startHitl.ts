@@ -1,7 +1,7 @@
 import { buildConversationTranscript } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
-import { createFreshdeskRuntimeError } from '../errors'
 import { FreshdeskClient } from '../../FreshdeskClient'
+import { createFreshdeskRuntimeError } from '../errors'
 import * as bp from '.botpress'
 
 const PRIORITY_MAP: Record<string, number> = { low: 1, medium: 2, high: 3, urgent: 4 }

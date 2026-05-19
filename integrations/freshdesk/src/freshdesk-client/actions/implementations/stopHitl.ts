@@ -1,6 +1,6 @@
-import { createFreshdeskRuntimeError } from '../errors'
-import { FreshdeskClient } from '../../FreshdeskClient'
 import * as sdk from '@botpress/sdk'
+import { FreshdeskClient } from '../../FreshdeskClient'
+import { createFreshdeskRuntimeError } from '../errors'
 import * as bp from '.botpress'
 
 export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ input, client, ctx, logger }) => {

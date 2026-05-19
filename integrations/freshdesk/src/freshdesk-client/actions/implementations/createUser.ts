@@ -1,6 +1,6 @@
-import { createFreshdeskRuntimeError } from '../errors'
-import { FreshdeskClient } from '../../FreshdeskClient'
 import * as sdk from '@botpress/sdk'
+import { FreshdeskClient } from '../../FreshdeskClient'
+import { createFreshdeskRuntimeError } from '../errors'
 import * as bp from '.botpress'
 
 export const createUser: bp.IntegrationProps['actions']['createUser'] = async ({ input, client, ctx, logger }) => {
