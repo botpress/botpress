@@ -1,8 +1,2 @@
-node_modules/
-.botpress/
-.DS_Store
-eslint.config.mjs
 !src/gen
 !src/gen/**
-!src/types/gen
-!src/types/gen/**

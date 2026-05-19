@@ -219,6 +219,8 @@ importers:
         specifier: workspace:*
         version: link:../../integrations/chat
 
+  bots/grafana-sdkbot: {}
+
   bots/hello-world:
     dependencies:
       '@botpress/cli':
@@ -1199,9 +1201,6 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      node-fetch:
-        specifier: ^2.7.0
-        version: 2.7.0
     devDependencies:
       '@hey-api/client-fetch':
         specifier: ^0.13.1
@@ -1212,9 +1211,6 @@ importers:
       '@types/node':
         specifier: ^22.16.4
         version: 22.16.4
-      '@types/node-fetch':
-        specifier: ^2.6.4
-        version: 2.6.12
       typescript:
         specifier: ^5.6.3
         version: 5.9.3

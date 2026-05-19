@@ -1,14 +1,13 @@
 import * as sdk from '@botpress/sdk'
 import * as bp from '../.botpress'
-import { getK8sNamespace } from './clients/config'
-import { listFolders } from './clients/folders'
+import { GrafanaClient } from './client'
 
 export const register: bp.IntegrationProps['register'] = async ({ ctx, client, webhookUrl }) => {
-  let result: Awaited<ReturnType<typeof listFolders>>
-  let k8sNamespace: string
+  const grafana = new GrafanaClient(ctx.configuration)
+
+  let result: Awaited<ReturnType<typeof grafana.listFolders>>
   try {
-    k8sNamespace = await getK8sNamespace(ctx.configuration)
-    result = await listFolders(ctx.configuration, k8sNamespace)
+    result = await grafana.listFolders()
   } catch (error_: unknown) {
     const e = error_ instanceof Error ? error_ : new Error(String(error_))
     throw new sdk.RuntimeError(`Could not reach Grafana — check your username and token. ${e.message}`)
@@ -25,6 +24,8 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, client, w
     throw new sdk.RuntimeError(`Failed to read integration state: ${e instanceof Error ? e.message : String(e)}`)
   }
   const webhookSecret = existingState.state.payload.webhookSecret || crypto.randomUUID()
+
+  const k8sNamespace = await grafana.namespace()
 
   await client.setState({
     type: 'integration',

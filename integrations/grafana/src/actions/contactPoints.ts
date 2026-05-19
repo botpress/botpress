@@ -1,16 +1,14 @@
 import * as bp from '../../.botpress'
-import { listContactPoints, createContactPoint, deleteContactPoint } from '../clients/contactPoints'
+import { GrafanaClient } from '../client'
 
 export const listContactPointsAction: bp.IntegrationProps['actions']['listContactPoints'] = async (props) => {
-  const config = props.ctx.configuration
-  const result = await listContactPoints(config)
+  const client = new GrafanaClient(props.ctx.configuration)
+  const result = await client.listContactPoints()
   if (!result.success) props.logger.forBot().error(`Failed to list contact points: ${result.error}`)
   return result
 }
 
 export const createContactPointAction: bp.IntegrationProps['actions']['createContactPoint'] = async (props) => {
-  const config = props.ctx.configuration
-
   let webhookUrl: string
   let secret: string
   try {
@@ -21,20 +19,21 @@ export const createContactPointAction: bp.IntegrationProps['actions']['createCon
     })
     webhookUrl = props.input.webhookUrl ?? state.payload.webhookUrl
     secret = state.payload.webhookSecret
-  } catch (e) {
-    const error = e instanceof Error ? e.message : String(e)
+  } catch (error_: unknown) {
+    const error = error_ instanceof Error ? error_.message : String(error_)
     props.logger.forBot().error(`Failed to load integration state: ${error}`)
     return { success: false, error }
   }
 
-  const result = await createContactPoint(config, { ...props.input, webhookUrl, secret })
+  const client = new GrafanaClient(props.ctx.configuration)
+  const result = await client.createContactPoint({ ...props.input, webhookUrl, secret })
   if (!result.success) props.logger.forBot().error(`Failed to create contact point: ${result.error}`)
   return result
 }
 
 export const deleteContactPointAction: bp.IntegrationProps['actions']['deleteContactPoint'] = async (props) => {
-  const config = props.ctx.configuration
-  const result = await deleteContactPoint(config, props.input.uid)
+  const client = new GrafanaClient(props.ctx.configuration)
+  const result = await client.deleteContactPoint(props.input.uid)
   if (!result.success) props.logger.forBot().error(`Failed to delete contact point: ${result.error}`)
   return result
 }

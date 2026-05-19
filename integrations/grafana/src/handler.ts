@@ -1,3 +1,4 @@
+import { z } from '@botpress/sdk'
 import * as bp from '../.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx, logger }) => {
@@ -11,25 +12,50 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx
     webhookSecret = state.payload.webhookSecret
   } catch (e) {
     logger.forBot().error(`Failed to load integration state: ${e instanceof Error ? e.message : String(e)}`)
-    return { status: 500 }
+    return { status: 200 }
   }
 
   if (req.headers['authorization'] !== `Bearer ${webhookSecret}`) {
     logger.forBot().warn('Rejected webhook request: invalid or missing Authorization header')
-    return { status: 401 }
+    return { status: 200 }
   }
 
   logger.forBot().debug('Webhook request authorized')
 
-  let payload: { alerts?: unknown[] }
-  try {
-    payload = JSON.parse(req.body ?? '{}') as { alerts?: unknown[] }
-  } catch {
-    return { status: 400 }
+  if (!req.body) {
+    logger.forBot().debug('Request is missing a body')
+    return { status: 200 }
   }
 
-  for (const alert of payload.alerts ?? []) {
-    const a = alert as { labels?: Record<string, string>; status?: string; startsAt?: string }
+  let jsonPayload: unknown
+  try {
+    jsonPayload = JSON.parse(req.body)
+  } catch {
+    logger.forBot().debug('Invalid JSON Body')
+    return { status: 200 }
+  }
+
+  const parseResult = z
+    .object({
+      alerts: z
+        .array(
+          z.object({
+            labels: z.record(z.string()).optional(),
+            status: z.string().optional(),
+            startsAt: z.string().optional(),
+          })
+        )
+        .optional(),
+    })
+    .safeParse(jsonPayload)
+
+  if (!parseResult.success) {
+    logger.forBot().debug('Invalid body schema')
+    return { status: 200 }
+  }
+
+  for (const alert of parseResult.data.alerts ?? []) {
+    const a = alert
     await client.createEvent({
       type: 'alertFired',
       payload: {

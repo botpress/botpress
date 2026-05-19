@@ -1,20 +1,19 @@
 {
   "name": "@botpresshub/grafana",
-  "integrationName": "grafana",
   "scripts": {
     "build": "bp add -y && bp build",
-    "check:type": "tsc --noEmit"
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "test": "vitest --run"
   },
   "private": true,
   "dependencies": {
-    "@botpress/sdk": "workspace:*",
-    "node-fetch": "^2.7.0"
+    "@botpress/sdk": "workspace:*"
   },
   "devDependencies": {
     "@hey-api/client-fetch": "^0.13.1",
     "@hey-api/openapi-ts": "^0.97.1",
     "@types/node": "^22.16.4",
-    "@types/node-fetch": "^2.6.4",
     "typescript": "^5.6.3"
   }
 }

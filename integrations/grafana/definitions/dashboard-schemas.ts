@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import type { TextPanel, TimeSeriesPanel } from '../src/types/gen/GrafanaDashboard'
+import type { TextPanel, TimeSeriesPanel } from '../src/gen/types/GrafanaDashboard'
 
 export const gridPosSchema = z.object({
   h: z.number().optional(),
