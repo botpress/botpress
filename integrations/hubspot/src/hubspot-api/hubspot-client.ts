@@ -1054,8 +1054,8 @@ export class HubspotClient {
     return await this._hsClient.crm.owners.ownersApi.getById(numericOwnerId)
   }
 
-  @handleErrors('Failed to get signed URL for file')
-  public async getFileSignedUrl({ fileId }: { fileId: string }): Promise<string | undefined> {
+  @handleErrors('Failed to get URL for file')
+  public async getFileUrl({ filePath }: { filePath: string }): Promise<string | undefined> {
     const results = await this._hsClient.files.filesApi.doSearch(
       undefined,
       undefined,
@@ -1072,7 +1072,7 @@ export class HubspotClient {
       undefined,
       undefined,
       undefined,
-      fileId
+      filePath
     )
     return results.results[0]?.url
   }
