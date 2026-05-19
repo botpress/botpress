@@ -2,6 +2,7 @@
   "name": "@botpresshub/grafana",
   "integrationName": "grafana",
   "scripts": {
+    "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit"
   },
   "private": true,
