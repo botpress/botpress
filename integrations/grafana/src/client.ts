@@ -133,17 +133,17 @@ export class GrafanaClient {
   private readonly _legacy: ReturnType<typeof createLegacyClient>
   private _namespace: string | undefined
 
-  constructor(private readonly config: GrafanaConfig) {
-    const baseUrl = `https://${config.grafanaUsername}.grafana.net`
-    const headers = { Authorization: `Bearer ${config.grafanaServiceAccountToken}` }
+  public constructor(private readonly _config: GrafanaConfig) {
+    const baseUrl = `https://${_config.grafanaUsername}.grafana.net`
+    const headers = { Authorization: `Bearer ${_config.grafanaServiceAccountToken}` }
     this._k8s = createK8sClient(createK8sConfig({ baseUrl, headers }))
     this._legacy = createLegacyClient(createLegacyConfig({ baseUrl: `${baseUrl}/api`, headers }))
   }
 
-  async namespace(): Promise<string> {
+  public async namespace(): Promise<string> {
     if (this._namespace) return this._namespace
-    const res = await fetch(`https://${this.config.grafanaUsername}.grafana.net/api/frontend/settings`, {
-      headers: { Authorization: `Bearer ${this.config.grafanaServiceAccountToken}` },
+    const res = await fetch(`https://${this._config.grafanaUsername}.grafana.net/api/frontend/settings`, {
+      headers: { Authorization: `Bearer ${this._config.grafanaServiceAccountToken}` },
     })
     if (!res.ok) throw new Error(`Failed to fetch Grafana namespace: ${res.status}`)
     const data = (await res.json()) as { namespace?: string }
@@ -154,7 +154,7 @@ export class GrafanaClient {
 
   // --- Dashboards ---
 
-  async createDashboard(request: CreateDashboardInput): Promise<{ success: boolean; error?: string }> {
+  public async createDashboard(request: CreateDashboardInput): Promise<{ success: boolean; error?: string }> {
     const ns = await this.namespace()
     const { folderUid, uid, ...rest } = request
     const spec = {
@@ -181,7 +181,7 @@ export class GrafanaClient {
     return error ? { success: false, error: errorMessage(error) } : { success: true }
   }
 
-  async editDashboard(
+  public async editDashboard(
     dashboardUid: string,
     updates: Partial<CreateDashboardInput>
   ): Promise<{ success: boolean; error?: string }> {
@@ -202,7 +202,7 @@ export class GrafanaClient {
     return error ? { success: false, error: errorMessage(error) } : { success: true }
   }
 
-  async editDashboardPanel(
+  public async editDashboardPanel(
     dashboardUid: string,
     panelId: number,
     panel: Partial<Panel>
@@ -230,7 +230,7 @@ export class GrafanaClient {
     return error ? { success: false, error: errorMessage(error) } : { success: true }
   }
 
-  async getDashboard(
+  public async getDashboard(
     dashboardUid: string
   ): Promise<{ success: boolean; data?: { dashboard: unknown; meta: unknown }; error?: string }> {
     const ns = await this.namespace()
@@ -248,7 +248,11 @@ export class GrafanaClient {
     }
   }
 
-  async listDashboards(): Promise<{ success: boolean; data?: { name: string; title: string }[]; error?: string }> {
+  public async listDashboards(): Promise<{
+    success: boolean
+    data?: { name: string; title: string }[]
+    error?: string
+  }> {
     const ns = await this.namespace()
     const { data, error } = await grafanaDashboardK8sListDashboard({
       client: this._k8s,
@@ -262,7 +266,7 @@ export class GrafanaClient {
     return { success: true, data: items }
   }
 
-  async deleteDashboard(dashboardUid: string): Promise<{ success: boolean; error?: string }> {
+  public async deleteDashboard(dashboardUid: string): Promise<{ success: boolean; error?: string }> {
     const ns = await this.namespace()
     const { error } = await grafanaDashboardK8sDeleteDashboard({
       client: this._k8s,
@@ -273,7 +277,7 @@ export class GrafanaClient {
 
   // --- Folders ---
 
-  async createFolder(input: CreateFolderInput): Promise<{ success: boolean; uid?: string; error?: string }> {
+  public async createFolder(input: CreateFolderInput): Promise<{ success: boolean; uid?: string; error?: string }> {
     const ns = await this.namespace()
     const { data, error } = await grafanaFolderK8sCreateFolder({
       client: this._k8s,
@@ -294,7 +298,7 @@ export class GrafanaClient {
     return { success: true, uid: data.metadata.name }
   }
 
-  async listFolders(): Promise<{
+  public async listFolders(): Promise<{
     success: boolean
     data?: { uid?: string; title?: string; parentUid?: string }[]
     error?: string
@@ -313,7 +317,7 @@ export class GrafanaClient {
     return { success: true, data: items }
   }
 
-  async deleteFolder(folderUid: string): Promise<{ success: boolean; error?: string }> {
+  public async deleteFolder(folderUid: string): Promise<{ success: boolean; error?: string }> {
     const ns = await this.namespace()
     const { error } = await grafanaFolderK8sDeleteFolder({
       client: this._k8s,
@@ -324,7 +328,7 @@ export class GrafanaClient {
 
   // --- Alert Rules ---
 
-  async createAlertRule(input: AlertRuleInput): Promise<{ success: boolean; uid?: string; error?: string }> {
+  public async createAlertRule(input: AlertRuleInput): Promise<{ success: boolean; uid?: string; error?: string }> {
     const { data, error } = await routePostAlertRule({
       client: this._legacy,
       body: {
@@ -359,7 +363,7 @@ export class GrafanaClient {
     return { success: true, uid: data.uid }
   }
 
-  async listAlertRules(): Promise<{
+  public async listAlertRules(): Promise<{
     success: boolean
     data?: { uid?: string; title?: string; ruleGroup?: string; folderUID?: string; labels?: Record<string, string> }[]
     error?: string
@@ -376,7 +380,7 @@ export class GrafanaClient {
     return { success: true, data: items }
   }
 
-  async getAlertRule(uid: string): Promise<{
+  public async getAlertRule(uid: string): Promise<{
     success: boolean
     data?: { uid?: string; title?: string; ruleGroup?: string; folderUID?: string; labels?: Record<string, string> }
     error?: string
@@ -395,14 +399,14 @@ export class GrafanaClient {
     }
   }
 
-  async deleteAlertRule(uid: string): Promise<{ success: boolean; error?: string }> {
+  public async deleteAlertRule(uid: string): Promise<{ success: boolean; error?: string }> {
     const { error } = await routeDeleteAlertRule({ client: this._legacy, path: { UID: uid } })
     return error ? { success: false, error: errorMessage(error) } : { success: true }
   }
 
   // --- Notification Policies ---
 
-  async createNotificationPolicy(input: NotificationPolicyInput): Promise<{ success: boolean; error?: string }> {
+  public async createNotificationPolicy(input: NotificationPolicyInput): Promise<{ success: boolean; error?: string }> {
     const { data: tree, error: getError } = await routeGetPolicyTree({ client: this._legacy })
     if (getError || !tree) return { success: false, error: errorMessage(getError) }
 
@@ -429,7 +433,7 @@ export class GrafanaClient {
     return error ? { success: false, error: errorMessage(error) } : { success: true }
   }
 
-  async listNotificationPolicies(): Promise<{
+  public async listNotificationPolicies(): Promise<{
     success: boolean
     data?: {
       receiver?: string
@@ -452,7 +456,7 @@ export class GrafanaClient {
     return { success: true, data: routes }
   }
 
-  async editNotificationPolicy(input: {
+  public async editNotificationPolicy(input: {
     receiver: string
     matchers: PolicyMatcher[]
     updates: Partial<NotificationPolicyInput>
@@ -496,7 +500,7 @@ export class GrafanaClient {
     return error ? { success: false, error: errorMessage(error) } : { success: true }
   }
 
-  async editDefaultNotificationPolicy(
+  public async editDefaultNotificationPolicy(
     input: Partial<Omit<NotificationPolicyInput, 'matchers'>>
   ): Promise<{ success: boolean; error?: string }> {
     const { data: tree, error: getError } = await routeGetPolicyTree({ client: this._legacy })
@@ -518,7 +522,7 @@ export class GrafanaClient {
     return error ? { success: false, error: errorMessage(error) } : { success: true }
   }
 
-  async deleteNotificationPolicy(input: {
+  public async deleteNotificationPolicy(input: {
     receiver: string
     matchers: PolicyMatcher[]
   }): Promise<{ success: boolean; error?: string }> {
@@ -548,7 +552,7 @@ export class GrafanaClient {
 
   // --- Contact Points ---
 
-  async listContactPoints(): Promise<{
+  public async listContactPoints(): Promise<{
     success: boolean
     data?: { uid?: string; name?: string; type: string }[]
     error?: string
@@ -559,7 +563,7 @@ export class GrafanaClient {
     return { success: true, data: items }
   }
 
-  async createContactPoint(input: {
+  public async createContactPoint(input: {
     webhookUrl: string
     secret: string
     name?: string
@@ -580,14 +584,14 @@ export class GrafanaClient {
     return { success: true, uid: data.uid }
   }
 
-  async deleteContactPoint(uid: string): Promise<{ success: boolean; error?: string }> {
+  public async deleteContactPoint(uid: string): Promise<{ success: boolean; error?: string }> {
     const { error } = await routeDeleteContactpoints({ client: this._legacy, path: { UID: uid } })
     return error ? { success: false, error: errorMessage(error) } : { success: true }
   }
 
   // --- Datasources ---
 
-  async listDatasources(): Promise<{
+  public async listDatasources(): Promise<{
     success: boolean
     data?: { uid?: string; name?: string; type?: string; isDefault?: boolean }[]
     error?: string
@@ -604,7 +608,7 @@ export class GrafanaClient {
     params?: Record<string, string>
   ): Promise<{ success: boolean; data?: any; status?: number; error?: string }> {
     const url = new URL(
-      `https://${this.config.grafanaUsername}.grafana.net/api/datasources/proxy/uid/${datasourceUid}/${path}`
+      `https://${this._config.grafanaUsername}.grafana.net/api/datasources/proxy/uid/${datasourceUid}/${path}`
     )
     if (params) {
       for (const [key, value] of Object.entries(params)) {
@@ -613,7 +617,7 @@ export class GrafanaClient {
     }
     try {
       const response = await fetch(url.toString(), {
-        headers: { Authorization: `Bearer ${this.config.grafanaServiceAccountToken}` },
+        headers: { Authorization: `Bearer ${this._config.grafanaServiceAccountToken}` },
       })
       if (!response.ok) {
         return { success: false, status: response.status, error: await response.text() }
@@ -626,7 +630,7 @@ export class GrafanaClient {
     }
   }
 
-  async queryMetrics(
+  public async queryMetrics(
     datasourceUid: string,
     query: string,
     start: string,
@@ -641,15 +645,15 @@ export class GrafanaClient {
     })
   }
 
-  async listMetricNames(datasourceUid: string): Promise<{ success: boolean; data?: string[]; error?: string }> {
+  public async listMetricNames(datasourceUid: string): Promise<{ success: boolean; data?: string[]; error?: string }> {
     return this._prometheusProxy(datasourceUid, 'api/v1/label/__name__/values')
   }
 
-  async listLabelNames(datasourceUid: string): Promise<{ success: boolean; data?: string[]; error?: string }> {
+  public async listLabelNames(datasourceUid: string): Promise<{ success: boolean; data?: string[]; error?: string }> {
     return this._prometheusProxy(datasourceUid, 'api/v1/labels')
   }
 
-  async listLabelValues(
+  public async listLabelValues(
     datasourceUid: string,
     labelName: string
   ): Promise<{ success: boolean; data?: string[]; error?: string }> {
