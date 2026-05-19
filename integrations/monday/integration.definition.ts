@@ -8,7 +8,16 @@ export default new IntegrationDefinition({
   version: '1.0.2',
   readme: 'hub.md',
   icon: 'icon.svg',
-  states: {},
+  states: {
+    oAuthCredentials: {
+      type: 'integration',
+      schema: z.object({
+        accessToken: z.string(),
+        tokenType: z.literal('Bearer'),
+        scope: z.string(),
+      }),
+    },
+  },
   actions: {
     createItem: {
       title: 'Create Item',
@@ -21,6 +30,17 @@ export default new IntegrationDefinition({
   },
   configuration: {
     schema: configurationSchema,
+    identifier: {
+      linkTemplateScript: 'linkTemplate.vrl',
+    },
+  },
+  secrets: {
+    CLIENT_ID: {
+      description: 'The client ID of the OAuth app.',
+    },
+    CLIENT_SECRET: {
+      description: 'The client secret of the OAuth app.',
+    },
   },
   attributes: {
     category: 'Project Management',
