@@ -36,6 +36,11 @@ const searchContact: ActionDefinition = {
     schema: z.object({
       email: z.string().optional().title('Email').describe('The email of the contact to search for'),
       phone: z.string().optional().title('Phone').describe('The phone number of the contact to search for'),
+      properties: z
+        .array(z.string())
+        .optional()
+        .title('Properties to Fetch')
+        .describe('The list of property names to fetch on the matching contact. Defaults to all properties.'),
     }),
   },
   output: {

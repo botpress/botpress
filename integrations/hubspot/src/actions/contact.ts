@@ -32,7 +32,7 @@ export const searchContact: bp.IntegrationProps['actions']['searchContact'] = as
   const phoneStr = input.phone ? `phone ${input.phone}` : 'unknown phone'
   const emailStr = input.email ? `email ${input.email}` : 'unknown email'
   const infosStr = `${phoneStr} and ${emailStr}`
-  const propertyKeys = await _getContactPropertyKeys(hsClient)
+  const propertyKeys = input.properties?.length ? input.properties : await _getContactPropertyKeys(hsClient)
   logger
     .forBot()
     .debug(
