@@ -52,6 +52,7 @@ const _oauthRedirectHandler: WizardHandler = async ({ ctx, responses }) => {
   url.searchParams.set('response_type', 'code')
   url.searchParams.set('scope', 'boards:read boards:write')
   url.searchParams.set('state', ctx.webhookId)
+  url.searchParams.set('force_install_if_needed', 'true')
 
   return responses.redirectToExternalUrl(url.toString())
 }
