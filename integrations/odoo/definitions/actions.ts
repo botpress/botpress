@@ -17,7 +17,16 @@ const odooDomainSchema = z
   .title('Domain')
   .describe('Odoo domain filters, such as [["id", "in", [1, 2, 3]]].')
 
-const fieldsSchema = z.array(z.string()).title('Fields').describe('Odoo field names to include in the response.')
+const fieldsSchema = z
+  .array(z.string())
+  .title('Fields')
+  .describe('Odoo technical field names to include in the response. Only use fields known to exist on the target Odoo model.')
+const contactFieldsSchema = fieldsSchema.describe(
+  'Odoo res.partner field names to include in the response. Call listContactFields before choosing fields unless the exact field names were already retrieved in this conversation. Do not request CRM lead fields here; use searchLeads or listLeadFields for crm.lead fields.'
+)
+const leadFieldsSchema = fieldsSchema.describe(
+  'Odoo crm.lead field names to include in the response. Call listLeadFields before choosing fields unless the exact field names were already retrieved in this conversation. To find which contacts are also leads, first retrieve the available contact and lead fields, then read comparable fields.'
+)
 const contactIdsSchema = z.array(z.number()).title('Contact IDs').describe('Odoo contact record IDs.')
 const leadIdsSchema = z.array(z.number()).title('Lead IDs').describe('Odoo CRM lead record IDs.')
 
@@ -88,10 +97,11 @@ export const actions = {
   },
   listContactFields: {
     title: 'List Odoo Contact Fields',
-    description: 'List available fields for Odoo contacts.',
+    description:
+      'List available fields for Odoo contacts. Call this before searchContacts, listContacts, createContact, or updateContacts when selecting Odoo contact field names.',
     input: {
       schema: z.object({
-        allfields: fieldsSchema.optional(),
+        allfields: contactFieldsSchema.optional(),
         attributes: z
           .array(z.string())
           .title('Attributes')
@@ -108,10 +118,11 @@ export const actions = {
   },
   listLeadFields: {
     title: 'List Odoo Lead Fields',
-    description: 'List available fields for Odoo CRM leads.',
+    description:
+      'List available fields for Odoo CRM leads. Call this before searchLeads, listLeads, createLead, or updateLeads when selecting Odoo lead field names.',
     input: {
       schema: z.object({
-        allfields: fieldsSchema.optional(),
+        allfields: leadFieldsSchema.optional(),
         attributes: z
           .array(z.string())
           .title('Attributes')
@@ -131,11 +142,12 @@ export const actions = {
   },
   searchContacts: {
     title: 'Search Contacts',
-    description: 'Search Odoo contacts using an Odoo domain and optional read parameters.',
+    description:
+      'Search Odoo contacts using an Odoo domain and optional read parameters. Call listContactFields first unless the needed res.partner field names were already retrieved in this conversation.',
     input: {
       schema: z.object({
         domain: odooDomainSchema.optional(),
-        fields: fieldsSchema.optional(),
+        fields: contactFieldsSchema.optional(),
         offset: z.number().title('Offset').describe('Number of matching contacts to skip.').optional(),
         limit: z.number().title('Limit').describe('Maximum number of contacts to return.').optional(),
         order: z.string().title('Order').describe('Odoo order expression, such as "name asc".').optional(),
@@ -150,11 +162,12 @@ export const actions = {
   },
   searchLeads: {
     title: 'Search Leads',
-    description: 'Search Odoo CRM leads using an Odoo domain and optional read parameters.',
+    description:
+      'Search Odoo CRM leads using an Odoo domain and optional read parameters. Call listLeadFields first unless the needed crm.lead field names were already retrieved in this conversation.',
     input: {
       schema: z.object({
         domain: odooDomainSchema.optional(),
-        fields: fieldsSchema.optional(),
+        fields: leadFieldsSchema.optional(),
         offset: z.number().title('Offset').describe('Number of matching leads to skip.').optional(),
         limit: z.number().title('Limit').describe('Maximum number of leads to return.').optional(),
         order: z.string().title('Order').describe('Odoo order expression, such as "name asc".').optional(),
@@ -169,11 +182,12 @@ export const actions = {
   },
   listLeads: {
     title: 'List Leads',
-    description: 'Read Odoo CRM leads by ID.',
+    description:
+      'Read Odoo CRM leads by ID. Call listLeadFields first unless the needed crm.lead field names were already retrieved in this conversation.',
     input: {
       schema: z.object({
         ids: leadIdsSchema,
-        fields: fieldsSchema.optional(),
+        fields: leadFieldsSchema.optional(),
         context: odooContextSchema.optional(),
       }),
     },
@@ -185,7 +199,8 @@ export const actions = {
   },
   createLead: {
     title: 'Create Lead',
-    description: 'Create an Odoo CRM lead or opportunity.',
+    description:
+      'Create an Odoo CRM lead or opportunity. Call listLeadFields first unless the needed crm.lead field names were already retrieved in this conversation.',
     input: {
       schema: z.object({
         values: leadValuesSchema,
@@ -200,7 +215,8 @@ export const actions = {
   },
   updateLeads: {
     title: 'Update Leads',
-    description: 'Update one or more Odoo CRM leads.',
+    description:
+      'Update one or more Odoo CRM leads. Call listLeadFields first unless the needed crm.lead field names were already retrieved in this conversation.',
     input: {
       schema: z.object({
         ids: leadIdsSchema,
@@ -240,11 +256,12 @@ export const actions = {
   },
   listContacts: {
     title: 'List Contacts',
-    description: 'Read Odoo contacts by ID.',
+    description:
+      'Read Odoo contacts by ID. Call listContactFields first unless the needed res.partner field names were already retrieved in this conversation.',
     input: {
       schema: z.object({
         ids: contactIdsSchema,
-        fields: fieldsSchema.optional(),
+        fields: contactFieldsSchema.optional(),
         context: odooContextSchema.optional(),
       }),
     },
@@ -256,7 +273,8 @@ export const actions = {
   },
   createContact: {
     title: 'Create Contact',
-    description: 'Create an Odoo contact.',
+    description:
+      'Create an Odoo contact. Call listContactFields first unless the needed res.partner field names were already retrieved in this conversation.',
     input: {
       schema: z.object({
         values: odooRecordSchema,
@@ -271,7 +289,8 @@ export const actions = {
   },
   updateContacts: {
     title: 'Update Contacts',
-    description: 'Update one or more Odoo contacts.',
+    description:
+      'Update one or more Odoo contacts. Call listContactFields first unless the needed res.partner field names were already retrieved in this conversation.',
     input: {
       schema: z.object({
         ids: contactIdsSchema,
