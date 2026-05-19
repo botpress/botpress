@@ -319,7 +319,7 @@ export const actions = {
     },
     output: {
       schema: z.object({
-        success: z.boolean().title('Success').describe('Whether all requested contacts were deleted.'),
+        message: z.string().title('Message').describe('Summary of which requested contacts were deleted or not deleted.'),
         deletedIds: contactIdsSchema.describe('Odoo contact record IDs that were deleted.'),
         notDeletedContacts: z
           .array(notDeletedContactSchema)

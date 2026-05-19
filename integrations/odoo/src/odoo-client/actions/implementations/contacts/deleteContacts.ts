@@ -1,3 +1,4 @@
+import * as sdk from '@botpress/sdk'
 import { wrapAction } from '../../action-wrapper'
 import { getErrorMessage, isActiveUserLinkedContactError } from '../../errors'
 
@@ -28,6 +29,25 @@ const getContactOwnerId = (contact: Record<string, unknown>): number | undefined
 
 const getContactName = (contact: Record<string, unknown>): string | undefined =>
   typeof contact.name === 'string' ? contact.name : undefined
+
+const getDeleteContactsMessage = (deletedIds: number[], notDeletedContacts: NotDeletedContact[]): string => {
+  if (notDeletedContacts.length === 0) {
+    return `Deleted ${deletedIds.length} Odoo contact${deletedIds.length === 1 ? '' : 's'}.`
+  }
+
+  const notDeletedContactIds = notDeletedContacts.map(({ id }) => id).join(', ')
+  const deletedMessage =
+    deletedIds.length === 0
+      ? 'No Odoo contacts were deleted.'
+      : `Deleted ${deletedIds.length} Odoo contact${deletedIds.length === 1 ? '' : 's'}: ${deletedIds.join(', ')}.`
+
+  return `${deletedMessage} Could not delete ${notDeletedContacts.length} Odoo contact${
+    notDeletedContacts.length === 1 ? '' : 's'
+  }: ${notDeletedContactIds}.`
+}
+
+const getNotDeletedContactsDetails = (notDeletedContacts: NotDeletedContact[]): string =>
+  notDeletedContacts.map(({ id, reason }) => `Contact ${id}: ${reason}`).join(' ')
 
 const deleteContactsIndividually = async (
   odooClient: {
@@ -128,8 +148,16 @@ export const deleteContacts = wrapAction(
       }
     }
 
+    if (deletedIds.length === 0 && notDeletedContacts.length > 0) {
+      throw new sdk.RuntimeError(
+        `${getDeleteContactsMessage(deletedIds, notDeletedContacts)} ${getNotDeletedContactsDetails(
+          notDeletedContacts
+        )}`
+      )
+    }
+
     return {
-      success: notDeletedContacts.length === 0,
+      message: getDeleteContactsMessage(deletedIds, notDeletedContacts),
       deletedIds,
       notDeletedContacts,
     }
