@@ -20,7 +20,9 @@ const odooDomainSchema = z
 const fieldsSchema = z
   .array(z.string())
   .title('Fields')
-  .describe('Odoo technical field names to include in the response. Only use fields known to exist on the target Odoo model.')
+  .describe(
+    'Odoo technical field names to include in the response. Only use fields known to exist on the target Odoo model.'
+  )
 const contactFieldsSchema = fieldsSchema.describe(
   'Odoo res.partner field names to include in the response. Call listContactFields before choosing fields unless the exact field names were already retrieved in this conversation. Do not request CRM lead fields here; use searchLeads or listLeadFields for crm.lead fields.'
 )
@@ -319,7 +321,10 @@ export const actions = {
     },
     output: {
       schema: z.object({
-        message: z.string().title('Message').describe('Summary of which requested contacts were deleted or not deleted.'),
+        message: z
+          .string()
+          .title('Message')
+          .describe('Summary of which requested contacts were deleted or not deleted.'),
         deletedIds: contactIdsSchema.describe('Odoo contact record IDs that were deleted.'),
         notDeletedContacts: z
           .array(notDeletedContactSchema)
