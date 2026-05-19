@@ -6,7 +6,7 @@ export default new IntegrationDefinition({
   name: 'freshdesk',
   title: 'Freshdesk',
   description: 'Connect Botpress to Freshdesk to create, read, update, delete, and search support tickets.',
-  version: '0.4.0',
+  version: '0.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration,
