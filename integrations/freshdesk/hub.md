@@ -58,7 +58,7 @@ For `ticketReplied`, also include reply fields. The `reply.body` field is **requ
 }
 ```
 
-## Human-in-the-Loop (HITL)   |
+## Human-in-the-Loop (HITL) |
 
 Three additional webhook paths notify Botpress when a ticket is assigned to an agent or resolved. Configure them as separate **Automation Rules** in Freshdesk (**Admin → Automations → Ticket Updates**):
 
@@ -112,4 +112,4 @@ The `X-Webhook-Secret` header (optional) works identically to the other webhook 
 ## Changelog
 
 - 0.2.0: Added HITL support with `startHitl` and `stopHitl`; `hitlAssigned` and `hitlStopped` events; `hitl` channel for bot-to-ticket messaging. Added `replyToTicket` action.
-- 0.1.0: Initial release with `createTicket`, `getTicket`, `listTickets`, `updateTicket`, `deleteTicket`, `addNote`, `searchTickets`, `searchContacts`, `getContact` actions and `ticketCreated`, `ticketUpdated`, `ticketReplied` events. 
+- 0.1.0: Initial release with `createTicket`, `getTicket`, `listTickets`, `updateTicket`, `deleteTicket`, `addNote`, `searchTickets`, `searchContacts`, `getContact` actions and `ticketCreated`, `ticketUpdated`, `ticketReplied` events.
