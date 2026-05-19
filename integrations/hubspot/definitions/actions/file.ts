@@ -5,7 +5,7 @@ const getFileUrl: ActionDefinition = {
   description: 'Get a URL to access a file stored in Hubspot Files',
   input: {
     schema: z.object({
-      filePath: z.string().title('File path').describe('The path to the Hubspot file'),
+      fileName: z.string().title('File path').describe('The path to the Hubspot file'),
     }),
   },
   output: {

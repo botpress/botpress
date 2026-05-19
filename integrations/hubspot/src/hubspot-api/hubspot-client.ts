@@ -1055,26 +1055,13 @@ export class HubspotClient {
   }
 
   @handleErrors('Failed to get URL for file')
-  public async getFileUrl({ filePath }: { filePath: string }): Promise<string | undefined> {
-    const results = await this._hsClient.files.filesApi.doSearch(
-      undefined,
-      undefined,
-      undefined,
-      1,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      filePath
-    )
-    return results.results[0]?.url
+  public async getFileUrl({ fileName }: { fileName: string }): Promise<string | undefined> {
+    const response = await this._hsClient.apiRequest({
+      method: 'GET',
+      path: `/files/v3/files/stat/${encodeURIComponent(fileName)}`,
+    })
+    const body = (await response.json()) as { file?: { url?: string } }
+    return body.file?.url
   }
 
   @handleErrors('Failed to retrieve owner by email')
