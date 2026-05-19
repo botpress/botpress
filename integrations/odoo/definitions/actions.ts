@@ -245,7 +245,7 @@ export const actions = {
     },
     output: {
       schema: z.object({
-        success: z.boolean().title('Success').describe('Whether all requested leads were deleted.'),
+        message: z.string().title('Message').describe('Summary of which requested leads were deleted or not deleted.'),
         deletedIds: leadIdsSchema.describe('Odoo CRM lead record IDs that were deleted.'),
         notDeletedLeads: z
           .array(notDeletedLeadSchema)

@@ -1,3 +1,4 @@
+import * as sdk from '@botpress/sdk'
 import { wrapAction } from '../../action-wrapper'
 import { getErrorMessage } from '../../errors'
 
@@ -28,6 +29,25 @@ const getLeadOwnerId = (lead: Record<string, unknown>): number | undefined => {
 
 const getLeadName = (lead: Record<string, unknown>): string | undefined =>
   typeof lead.name === 'string' ? lead.name : undefined
+
+const getDeleteLeadsMessage = (deletedIds: number[], notDeletedLeads: NotDeletedLead[]): string => {
+  if (notDeletedLeads.length === 0) {
+    return `Deleted ${deletedIds.length} Odoo lead${deletedIds.length === 1 ? '' : 's'}.`
+  }
+
+  const notDeletedLeadIds = notDeletedLeads.map(({ id }) => id).join(', ')
+  const deletedMessage =
+    deletedIds.length === 0
+      ? 'No Odoo leads were deleted.'
+      : `Deleted ${deletedIds.length} Odoo lead${deletedIds.length === 1 ? '' : 's'}: ${deletedIds.join(', ')}.`
+
+  return `${deletedMessage} Could not delete ${notDeletedLeads.length} Odoo lead${
+    notDeletedLeads.length === 1 ? '' : 's'
+  }: ${notDeletedLeadIds}.`
+}
+
+const getNotDeletedLeadsDetails = (notDeletedLeads: NotDeletedLead[]): string =>
+  notDeletedLeads.map(({ id, reason }) => `Lead ${id}: ${reason}`).join(' ')
 
 const deleteLeadsIndividually = async (
   odooClient: {
@@ -118,8 +138,14 @@ export const deleteLeads = wrapAction(
       }
     }
 
+    if (deletedIds.length === 0 && notDeletedLeads.length > 0) {
+      throw new sdk.RuntimeError(
+        `${getDeleteLeadsMessage(deletedIds, notDeletedLeads)} ${getNotDeletedLeadsDetails(notDeletedLeads)}`
+      )
+    }
+
     return {
-      success: notDeletedLeads.length === 0,
+      message: getDeleteLeadsMessage(deletedIds, notDeletedLeads),
       deletedIds,
       notDeletedLeads,
     }
