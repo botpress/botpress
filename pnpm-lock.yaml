@@ -1642,6 +1642,22 @@ importers:
         specifier: workspace:*
         version: link:../../packages/cli
 
+  integrations/n8n:
+    dependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: ^1.7.9
+        version: 1.13.6
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   integrations/notion:
     dependencies:
       '@botpress/client':
