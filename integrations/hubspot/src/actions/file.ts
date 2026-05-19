@@ -6,7 +6,7 @@ export const getFileUrl: bp.IntegrationProps['actions']['getFileUrl'] = async ({
   try {
     const url = await hsClient.getFileUrl({ filePath: input.filePath })
     return { url }
-  } catch (err) {
+  } catch (err: unknown) {
     logger.forBot().debug(`File ${input.filePath} URL could not be retrieved: ${err}`)
     return { url: undefined }
   }

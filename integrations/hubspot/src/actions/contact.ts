@@ -64,17 +64,22 @@ export const listContactProperties: bp.IntegrationProps['actions']['listContactP
   logger,
 }) => {
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
-  const properties = await hsClient.listContactProperties()
-  return {
-    properties: properties.map((property) => ({
-      name: property.name,
-      label: property.label,
-      type: property.type,
-      fieldType: property.fieldType,
-      groupName: property.groupName,
-      description: property.description,
-      ...(property.referencedObjectType ? { referencedObjectType: property.referencedObjectType } : {}),
-    })),
+  try {
+    const properties = await hsClient.listContactProperties()
+    return {
+      properties: properties.map((property) => ({
+        name: property.name,
+        label: property.label,
+        type: property.type,
+        fieldType: property.fieldType,
+        groupName: property.groupName,
+        description: property.description,
+        ...(property.referencedObjectType ? { referencedObjectType: property.referencedObjectType } : {}),
+      })),
+    }
+  } catch (err: unknown) {
+    logger.forBot().debug(`Contact properties could not be retrieved: ${err}`)
+    return { properties: [] }
   }
 }
 

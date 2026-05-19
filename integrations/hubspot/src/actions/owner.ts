@@ -18,7 +18,7 @@ export const getOwner: bp.IntegrationProps['actions']['getOwner'] = async ({ ctx
         updatedAt: owner.updatedAt.toISOString(),
       },
     }
-  } catch (err) {
+  } catch (err: unknown) {
     logger.forBot().debug(`Owner ${input.ownerId} could not be retrieved: ${err}`)
     return { owner: undefined }
   }
