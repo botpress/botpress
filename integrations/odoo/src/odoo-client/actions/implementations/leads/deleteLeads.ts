@@ -66,7 +66,11 @@ const deleteLeadsIndividually = async (
       if (success) {
         deletedIds.push(id)
       } else {
-        notDeletedLeads.push({ id, name, reason: 'Odoo did not accept the lead deletion.' })
+        notDeletedLeads.push({
+          id,
+          name,
+          reason: 'Odoo returned false while deleting this lead. Verify the lead ID and user permissions.',
+        })
       }
     } catch (thrown) {
       notDeletedLeads.push({ id, name, reason: getErrorMessage(thrown) })

@@ -1,3 +1,4 @@
+import * as sdk from '@botpress/sdk'
 import { wrapAction } from '../../action-wrapper'
 
 export const updateLeads = wrapAction(
@@ -5,6 +6,14 @@ export const updateLeads = wrapAction(
   async ({ odooClient }, input) => {
     const success = await odooClient.updateLeads(input)
 
-    return { success }
+    if (!success) {
+      throw new sdk.RuntimeError(
+        `Odoo returned false while updating lead IDs ${input.ids.join(
+          ', '
+        )}. The update was not applied; verify the lead IDs, field names, values, and user permissions.`
+      )
+    }
+
+    return { updatedIds: input.ids }
   }
 )

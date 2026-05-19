@@ -228,7 +228,7 @@ export const actions = {
     },
     output: {
       schema: z.object({
-        success: z.boolean().title('Success').describe('Whether Odoo accepted the lead update.'),
+        updatedIds: leadIdsSchema.describe('Odoo CRM lead record IDs that were updated.'),
       }),
     },
   },
@@ -302,7 +302,7 @@ export const actions = {
     },
     output: {
       schema: z.object({
-        success: z.boolean().title('Success').describe('Whether Odoo accepted the contact update.'),
+        updatedIds: contactIdsSchema.describe('Odoo contact record IDs that were updated.'),
       }),
     },
   },

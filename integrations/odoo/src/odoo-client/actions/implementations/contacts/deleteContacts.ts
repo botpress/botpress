@@ -66,7 +66,11 @@ const deleteContactsIndividually = async (
       if (success) {
         deletedIds.push(id)
       } else {
-        notDeletedContacts.push({ id, name, reason: 'Odoo did not accept the contact deletion.' })
+        notDeletedContacts.push({
+          id,
+          name,
+          reason: 'Odoo returned false while deleting this contact. Verify the contact ID and user permissions.',
+        })
       }
     } catch (thrown) {
       const reason = getErrorMessage(thrown)
