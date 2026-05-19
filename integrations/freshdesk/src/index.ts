@@ -23,14 +23,6 @@ export default new bp.Integration({
   },
   unregister: async () => {},
   actions,
-  channels: {
-    ticket: {
-      messages: {
-        text: async () => {
-          throw new sdk.RuntimeError('Outbound messaging is not supported by the Freshdesk integration.')
-        },
-      },
-    },
-  },
+  channels: {},
   handler,
 })
