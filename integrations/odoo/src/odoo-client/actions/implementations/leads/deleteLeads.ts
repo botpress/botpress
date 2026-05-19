@@ -76,6 +76,33 @@ const deleteLeadsIndividually = async (
   return { deletedIds, notDeletedLeads }
 }
 
+async function deleteDeletableLeads(
+  odooClient: {
+    deleteLeads: (input: { ids: number[]; context?: Record<string, unknown> }) => Promise<boolean>
+  },
+  leads: DeletableLead[],
+  context: Record<string, unknown> | undefined
+): Promise<{ deletedIds: number[]; notDeletedLeads: NotDeletedLead[] }> {
+  if (leads.length === 0) {
+    return { deletedIds: [], notDeletedLeads: [] }
+  }
+
+  try {
+    const success = await odooClient.deleteLeads({
+      ids: leads.map(({ id }) => id),
+      context,
+    })
+
+    if (success) {
+      return { deletedIds: leads.map(({ id }) => id), notDeletedLeads: [] }
+    }
+  } catch {
+    // Fall back to individual deletes so we can report which leads failed.
+  }
+
+  return deleteLeadsIndividually(odooClient, leads, context)
+}
+
 export const deleteLeads = wrapAction(
   { actionName: 'deleteLeads', errorMessage: 'Failed to delete Odoo leads' },
   async ({ odooClient }, input) => {
@@ -115,28 +142,10 @@ export const deleteLeads = wrapAction(
       deletableLeads.push({ id, name })
     }
 
-    if (deletableLeads.length > 0) {
-      try {
-        const success = await odooClient.deleteLeads({
-          ids: deletableLeads.map(({ id }) => id),
-          context: input.context,
-        })
+    const deleteResult = await deleteDeletableLeads(odooClient, deletableLeads, input.context)
 
-        if (success) {
-          deletedIds.push(...deletableLeads.map(({ id }) => id))
-        } else {
-          const individualResult = await deleteLeadsIndividually(odooClient, deletableLeads, input.context)
-
-          deletedIds.push(...individualResult.deletedIds)
-          notDeletedLeads.push(...individualResult.notDeletedLeads)
-        }
-      } catch {
-        const individualResult = await deleteLeadsIndividually(odooClient, deletableLeads, input.context)
-
-        deletedIds.push(...individualResult.deletedIds)
-        notDeletedLeads.push(...individualResult.notDeletedLeads)
-      }
-    }
+    deletedIds.push(...deleteResult.deletedIds)
+    notDeletedLeads.push(...deleteResult.notDeletedLeads)
 
     if (deletedIds.length === 0 && notDeletedLeads.length > 0) {
       throw new sdk.RuntimeError(
