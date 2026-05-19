@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
-import { ActionDef } from './types'
 import type { GrafanaDashboard } from '../../src/types/gen/GrafanaDashboard'
+import { ActionDef } from './types'
 
 export const getDashboardDataSchema = z.object({
   dashboard: z.any().optional(),

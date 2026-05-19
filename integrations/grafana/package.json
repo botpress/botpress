@@ -1,6 +1,6 @@
 {
   "name": "@botpresshub/grafana",
-  "integrationName": "my_handle-1/grafana",
+  "integrationName": "grafana",
   "scripts": {
     "check:type": "tsc --noEmit"
   },

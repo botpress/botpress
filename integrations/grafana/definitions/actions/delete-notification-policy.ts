@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
-import { ActionDef } from './types'
 import { matcherSchema } from '../notification-schemas'
+import { ActionDef } from './types'
 
 export const deleteNotificationPolicy = {
   title: 'Delete Notification Policy',

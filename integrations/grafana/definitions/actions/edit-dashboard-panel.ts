@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
-import { ActionDef } from './types'
 import { panelSchema } from '../dashboard-schemas'
+import { ActionDef } from './types'
 
 export const editDashboardPanel = {
   title: 'Edit Dashboard Panel',

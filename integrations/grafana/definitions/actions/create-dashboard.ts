@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
-import { ActionDef } from './types'
 import { createDashboardInputSchema } from '../dashboard-schemas'
+import { ActionDef } from './types'
 
 export const createDashboardOutputSchema = z.object({
   success: z.boolean(),
