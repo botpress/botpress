@@ -1,6 +1,6 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import { actions, configuration, events } from './definitions'
 import hitl from './bp_modules/hitl'
+import { actions, configuration, events } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'freshdesk',
