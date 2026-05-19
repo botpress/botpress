@@ -154,7 +154,7 @@ export class GrafanaClient {
 
   // --- Dashboards ---
 
-  public async createDashboard(request: CreateDashboardInput): Promise<{ success: boolean; error?: string }> {
+  public async createDashboard(request: CreateDashboardInput): Promise<void> {
     const ns = await this.namespace()
     const { folderUid, uid, ...rest } = request
     const spec = {
@@ -178,19 +178,16 @@ export class GrafanaClient {
       path: { namespace: ns },
       body: buildK8sBody(uid, ns, spec, folderUid),
     })
-    return error ? { success: false, error: errorMessage(error) } : { success: true }
+    if (error) throw new Error(errorMessage(error))
   }
 
-  public async editDashboard(
-    dashboardUid: string,
-    updates: Partial<CreateDashboardInput>
-  ): Promise<{ success: boolean; error?: string }> {
+  public async editDashboard(dashboardUid: string, updates: Partial<CreateDashboardInput>): Promise<void> {
     const ns = await this.namespace()
     const { data: existing, error: getError } = await grafanaDashboardK8sGetDashboard({
       client: this._k8s,
       path: { namespace: ns, name: dashboardUid },
     })
-    if (getError || !existing) return { success: false, error: errorMessage(getError) }
+    if (getError || !existing) throw new Error(errorMessage(getError))
 
     const { folderUid, ...specUpdates } = updates
     const folderUidToUse = folderUid ?? existing.metadata.annotations?.['grafana.app/folder']
@@ -199,26 +196,20 @@ export class GrafanaClient {
       path: { namespace: ns, name: dashboardUid },
       body: buildK8sBody(dashboardUid, ns, { ...existing.spec, ...specUpdates }, folderUidToUse, existing.metadata),
     })
-    return error ? { success: false, error: errorMessage(error) } : { success: true }
+    if (error) throw new Error(errorMessage(error))
   }
 
-  public async editDashboardPanel(
-    dashboardUid: string,
-    panelId: number,
-    panel: Partial<Panel>
-  ): Promise<{ success: boolean; error?: string }> {
+  public async editDashboardPanel(dashboardUid: string, panelId: number, panel: Partial<Panel>): Promise<void> {
     const ns = await this.namespace()
     const { data: existing, error: getError } = await grafanaDashboardK8sGetDashboard({
       client: this._k8s,
       path: { namespace: ns, name: dashboardUid },
     })
-    if (getError || !existing) return { success: false, error: errorMessage(getError) }
+    if (getError || !existing) throw new Error(errorMessage(getError))
 
     const existingPanels: Partial<Panel>[] = (existing.spec as any)?.panels ?? []
     const panelIndex = existingPanels.findIndex((p) => p.id === panelId)
-    if (panelIndex === -1) {
-      return { success: false, error: `Panel with id ${panelId} not found in dashboard "${dashboardUid}"` }
-    }
+    if (panelIndex === -1) throw new Error(`Panel with id ${panelId} not found in dashboard "${dashboardUid}"`)
 
     const updatedPanels = existingPanels.map((p, i) => (i === panelIndex ? { ...p, ...panel, id: panelId } : p))
     const folderUid = existing.metadata.annotations?.['grafana.app/folder']
@@ -227,57 +218,47 @@ export class GrafanaClient {
       path: { namespace: ns, name: dashboardUid },
       body: buildK8sBody(dashboardUid, ns, { ...existing.spec, panels: updatedPanels }, folderUid, existing.metadata),
     })
-    return error ? { success: false, error: errorMessage(error) } : { success: true }
+    if (error) throw new Error(errorMessage(error))
   }
 
-  public async getDashboard(
-    dashboardUid: string
-  ): Promise<{ success: boolean; data?: { dashboard: unknown; meta: unknown }; error?: string }> {
+  public async getDashboard(dashboardUid: string): Promise<{ dashboard: unknown; meta: unknown }> {
     const ns = await this.namespace()
     const { data, error } = await grafanaDashboardK8sGetDashboard({
       client: this._k8s,
       path: { namespace: ns, name: dashboardUid },
     })
-    if (error || !data) return { success: false, error: errorMessage(error) }
+    if (error || !data) throw new Error(errorMessage(error))
     return {
-      success: true,
-      data: {
-        dashboard: data.spec,
-        meta: { folderUid: data.metadata.annotations?.['grafana.app/folder'] },
-      },
+      dashboard: data.spec,
+      meta: { folderUid: data.metadata.annotations?.['grafana.app/folder'] },
     }
   }
 
-  public async listDashboards(): Promise<{
-    success: boolean
-    data?: { name: string; title: string }[]
-    error?: string
-  }> {
+  public async listDashboards(): Promise<{ name: string; title: string }[]> {
     const ns = await this.namespace()
     const { data, error } = await grafanaDashboardK8sListDashboard({
       client: this._k8s,
       path: { namespace: ns },
     })
-    if (error || !data) return { success: false, error: errorMessage(error) }
-    const items = data.items.map((d) => ({
+    if (error || !data) throw new Error(errorMessage(error))
+    return data.items.map((d) => ({
       name: d.metadata.name ?? '',
       title: String((d.spec as any)?.title ?? d.metadata.name ?? ''),
     }))
-    return { success: true, data: items }
   }
 
-  public async deleteDashboard(dashboardUid: string): Promise<{ success: boolean; error?: string }> {
+  public async deleteDashboard(dashboardUid: string): Promise<void> {
     const ns = await this.namespace()
     const { error } = await grafanaDashboardK8sDeleteDashboard({
       client: this._k8s,
       path: { namespace: ns, name: dashboardUid },
     })
-    return error ? { success: false, error: errorMessage(error) } : { success: true }
+    if (error) throw new Error(errorMessage(error))
   }
 
   // --- Folders ---
 
-  public async createFolder(input: CreateFolderInput): Promise<{ success: boolean; uid?: string; error?: string }> {
+  public async createFolder(input: CreateFolderInput): Promise<{ uid: string }> {
     const ns = await this.namespace()
     const { data, error } = await grafanaFolderK8sCreateFolder({
       client: this._k8s,
@@ -294,41 +275,36 @@ export class GrafanaClient {
         },
       },
     })
-    if (error || !data) return { success: false, error: errorMessage(error) }
-    return { success: true, uid: data.metadata.name }
+    if (error || !data) throw new Error(errorMessage(error))
+    return { uid: data.metadata.name ?? '' }
   }
 
-  public async listFolders(): Promise<{
-    success: boolean
-    data?: { uid?: string; title?: string; parentUid?: string }[]
-    error?: string
-  }> {
+  public async listFolders(): Promise<{ uid?: string; title?: string; parentUid?: string }[]> {
     const ns = await this.namespace()
     const { data, error } = await grafanaFolderK8sListFolder({
       client: this._k8s,
       path: { namespace: ns },
     })
-    if (error || !data) return { success: false, error: errorMessage(error) }
-    const items = data.items.map((f) => ({
+    if (error || !data) throw new Error(errorMessage(error))
+    return data.items.map((f) => ({
       uid: f.metadata.name,
       title: f.spec.title,
       parentUid: f.metadata.labels?.['grafana.app/folder'],
     }))
-    return { success: true, data: items }
   }
 
-  public async deleteFolder(folderUid: string): Promise<{ success: boolean; error?: string }> {
+  public async deleteFolder(folderUid: string): Promise<void> {
     const ns = await this.namespace()
     const { error } = await grafanaFolderK8sDeleteFolder({
       client: this._k8s,
       path: { namespace: ns, name: folderUid },
     })
-    return error ? { success: false, error: errorMessage(error) } : { success: true }
+    if (error) throw new Error(errorMessage(error))
   }
 
   // --- Alert Rules ---
 
-  public async createAlertRule(input: AlertRuleInput): Promise<{ success: boolean; uid?: string; error?: string }> {
+  public async createAlertRule(input: AlertRuleInput): Promise<{ uid: string }> {
     const { data, error } = await routePostAlertRule({
       client: this._legacy,
       body: {
@@ -359,56 +335,52 @@ export class GrafanaClient {
         notification_settings: input.notification_settings,
       },
     })
-    if (error || !data) return { success: false, error: errorMessage(error) }
-    return { success: true, uid: data.uid }
+    if (error || !data) throw new Error(errorMessage(error))
+    return { uid: data.uid ?? '' }
   }
 
-  public async listAlertRules(): Promise<{
-    success: boolean
-    data?: { uid?: string; title?: string; ruleGroup?: string; folderUID?: string; labels?: Record<string, string> }[]
-    error?: string
-  }> {
+  public async listAlertRules(): Promise<
+    { uid?: string; title?: string; ruleGroup?: string; folderUID?: string; labels?: Record<string, string> }[]
+  > {
     const { data, error } = await routeGetAlertRules({ client: this._legacy })
-    if (error || !data) return { success: false, error: errorMessage(error) }
-    const items = data.map((r) => ({
+    if (error || !data) throw new Error(errorMessage(error))
+    return data.map((r) => ({
       uid: r.uid,
       title: r.title,
       ruleGroup: r.ruleGroup,
       folderUID: r.folderUID,
       labels: r.labels,
     }))
-    return { success: true, data: items }
   }
 
   public async getAlertRule(uid: string): Promise<{
-    success: boolean
-    data?: { uid?: string; title?: string; ruleGroup?: string; folderUID?: string; labels?: Record<string, string> }
-    error?: string
+    uid?: string
+    title?: string
+    ruleGroup?: string
+    folderUID?: string
+    labels?: Record<string, string>
   }> {
     const { data, error } = await routeGetAlertRule({ client: this._legacy, path: { UID: uid } })
-    if (error || !data) return { success: false, error: errorMessage(error) }
+    if (error || !data) throw new Error(errorMessage(error))
     return {
-      success: true,
-      data: {
-        uid: data.uid,
-        title: data.title,
-        ruleGroup: data.ruleGroup,
-        folderUID: data.folderUID,
-        labels: data.labels,
-      },
+      uid: data.uid,
+      title: data.title,
+      ruleGroup: data.ruleGroup,
+      folderUID: data.folderUID,
+      labels: data.labels,
     }
   }
 
-  public async deleteAlertRule(uid: string): Promise<{ success: boolean; error?: string }> {
+  public async deleteAlertRule(uid: string): Promise<void> {
     const { error } = await routeDeleteAlertRule({ client: this._legacy, path: { UID: uid } })
-    return error ? { success: false, error: errorMessage(error) } : { success: true }
+    if (error) throw new Error(errorMessage(error))
   }
 
   // --- Notification Policies ---
 
-  public async createNotificationPolicy(input: NotificationPolicyInput): Promise<{ success: boolean; error?: string }> {
+  public async createNotificationPolicy(input: NotificationPolicyInput): Promise<void> {
     const { data: tree, error: getError } = await routeGetPolicyTree({ client: this._legacy })
-    if (getError || !tree) return { success: false, error: errorMessage(getError) }
+    if (getError || !tree) throw new Error(errorMessage(getError))
 
     const { error } = await routePutPolicyTree({
       client: this._legacy,
@@ -430,49 +402,37 @@ export class GrafanaClient {
         ],
       },
     })
-    return error ? { success: false, error: errorMessage(error) } : { success: true }
+    if (error) throw new Error(errorMessage(error))
   }
 
-  public async listNotificationPolicies(): Promise<{
-    success: boolean
-    data?: {
-      receiver?: string
-      matchers?: unknown
-      object_matchers?: unknown
-      group_by?: string[]
-      continue?: boolean
-    }[]
-    error?: string
-  }> {
+  public async listNotificationPolicies(): Promise<
+    { receiver?: string; matchers?: unknown; object_matchers?: unknown; group_by?: string[]; continue?: boolean }[]
+  > {
     const { data: tree, error } = await routeGetPolicyTree({ client: this._legacy })
-    if (error || !tree) return { success: false, error: errorMessage(error) }
-    const routes = (tree.routes ?? []).map((r) => ({
+    if (error || !tree) throw new Error(errorMessage(error))
+    return (tree.routes ?? []).map((r) => ({
       receiver: r.receiver,
       matchers: r.matchers,
       object_matchers: r.object_matchers,
       group_by: r.group_by,
       continue: r.continue,
     }))
-    return { success: true, data: routes }
   }
 
   public async editNotificationPolicy(input: {
     receiver: string
     matchers: PolicyMatcher[]
     updates: Partial<NotificationPolicyInput>
-  }): Promise<{ success: boolean; error?: string }> {
+  }): Promise<void> {
     const { data: tree, error: getError } = await routeGetPolicyTree({ client: this._legacy })
-    if (getError || !tree) return { success: false, error: errorMessage(getError) }
+    if (getError || !tree) throw new Error(errorMessage(getError))
 
     const inputTuples = JSON.stringify(toObjectMatchers(input.matchers))
     const isMatch = (r: Route) => r.receiver === input.receiver && JSON.stringify(r.object_matchers) === inputTuples
 
     const routes = tree.routes ?? []
     if (!routes.some(isMatch)) {
-      return {
-        success: false,
-        error: `No notification policy found for receiver "${input.receiver}" with the given matchers`,
-      }
+      throw new Error(`No notification policy found for receiver "${input.receiver}" with the given matchers`)
     }
 
     const { error } = await routePutPolicyTree({
@@ -497,14 +457,12 @@ export class GrafanaClient {
         ),
       },
     })
-    return error ? { success: false, error: errorMessage(error) } : { success: true }
+    if (error) throw new Error(errorMessage(error))
   }
 
-  public async editDefaultNotificationPolicy(
-    input: Partial<Omit<NotificationPolicyInput, 'matchers'>>
-  ): Promise<{ success: boolean; error?: string }> {
+  public async editDefaultNotificationPolicy(input: Partial<Omit<NotificationPolicyInput, 'matchers'>>): Promise<void> {
     const { data: tree, error: getError } = await routeGetPolicyTree({ client: this._legacy })
-    if (getError || !tree) return { success: false, error: errorMessage(getError) }
+    if (getError || !tree) throw new Error(errorMessage(getError))
 
     const { error } = await routePutPolicyTree({
       client: this._legacy,
@@ -519,55 +477,39 @@ export class GrafanaClient {
         ...(input.active_time_intervals !== undefined && { active_time_intervals: input.active_time_intervals }),
       },
     })
-    return error ? { success: false, error: errorMessage(error) } : { success: true }
+    if (error) throw new Error(errorMessage(error))
   }
 
-  public async deleteNotificationPolicy(input: {
-    receiver: string
-    matchers: PolicyMatcher[]
-  }): Promise<{ success: boolean; error?: string }> {
+  public async deleteNotificationPolicy(input: { receiver: string; matchers: PolicyMatcher[] }): Promise<void> {
     const { data: tree, error: getError } = await routeGetPolicyTree({ client: this._legacy })
-    if (getError || !tree) return { success: false, error: errorMessage(getError) }
+    if (getError || !tree) throw new Error(errorMessage(getError))
 
     const inputTuples = JSON.stringify(toObjectMatchers(input.matchers))
     const isMatch = (r: Route) => r.receiver === input.receiver && JSON.stringify(r.object_matchers) === inputTuples
 
     const routes = tree.routes ?? []
     if (!routes.some(isMatch)) {
-      return {
-        success: false,
-        error: `No notification policy found for receiver "${input.receiver}" with the given matchers`,
-      }
+      throw new Error(`No notification policy found for receiver "${input.receiver}" with the given matchers`)
     }
 
     const { error } = await routePutPolicyTree({
       client: this._legacy,
-      body: {
-        ...tree,
-        routes: routes.filter((r) => !isMatch(r)),
-      },
+      body: { ...tree, routes: routes.filter((r) => !isMatch(r)) },
     })
-    return error ? { success: false, error: errorMessage(error) } : { success: true }
+    if (error) throw new Error(errorMessage(error))
   }
 
   // --- Contact Points ---
 
-  public async listContactPoints(): Promise<{
-    success: boolean
-    data?: { uid?: string; name?: string; type: string }[]
-    error?: string
-  }> {
+  public async listContactPoints(): Promise<{ uid?: string; name?: string; type: string }[]> {
     const { data, error } = await routeGetContactpoints({ client: this._legacy })
-    if (error || !data) return { success: false, error: errorMessage(error) }
-    const items = data.map((cp) => ({ uid: cp.uid, name: cp.name, type: cp.type }))
-    return { success: true, data: items }
+    if (error || !data) throw new Error(errorMessage(error))
+    return data.map((cp) => ({ uid: cp.uid, name: cp.name, type: cp.type }))
   }
 
-  public async createContactPoint(input: {
-    webhookUrl: string
-    secret: string
-    name?: string
-  }): Promise<{ success: boolean; uid?: string; error?: string }> {
+  public async createContactPoint(input: { webhookUrl: string; secret: string; name?: string }): Promise<{
+    uid: string
+  }> {
     const { data, error } = await routePostContactpoints({
       client: this._legacy,
       body: {
@@ -580,33 +522,24 @@ export class GrafanaClient {
         },
       },
     })
-    if (error || !data) return { success: false, error: errorMessage(error) }
-    return { success: true, uid: data.uid }
+    if (error || !data) throw new Error(errorMessage(error))
+    return { uid: data.uid ?? '' }
   }
 
-  public async deleteContactPoint(uid: string): Promise<{ success: boolean; error?: string }> {
+  public async deleteContactPoint(uid: string): Promise<void> {
     const { error } = await routeDeleteContactpoints({ client: this._legacy, path: { UID: uid } })
-    return error ? { success: false, error: errorMessage(error) } : { success: true }
+    if (error) throw new Error(errorMessage(error))
   }
 
   // --- Datasources ---
 
-  public async listDatasources(): Promise<{
-    success: boolean
-    data?: { uid?: string; name?: string; type?: string; isDefault?: boolean }[]
-    error?: string
-  }> {
+  public async listDatasources(): Promise<{ uid?: string; name?: string; type?: string; isDefault?: boolean }[]> {
     const { data, error } = await getDataSources({ client: this._legacy })
-    if (error || !data) return { success: false, error: errorMessage(error) }
-    const items = data.map((ds) => ({ uid: ds.uid, name: ds.name, type: ds.type, isDefault: ds.isDefault }))
-    return { success: true, data: items }
+    if (error || !data) throw new Error(errorMessage(error))
+    return data.map((ds) => ({ uid: ds.uid, name: ds.name, type: ds.type, isDefault: ds.isDefault }))
   }
 
-  private async _prometheusProxy(
-    datasourceUid: string,
-    path: string,
-    params?: Record<string, string>
-  ): Promise<{ success: boolean; data?: any; status?: number; error?: string }> {
+  private async _prometheusProxy(datasourceUid: string, path: string, params?: Record<string, string>): Promise<any> {
     const url = new URL(
       `https://${this._config.grafanaUsername}.grafana.net/api/datasources/proxy/uid/${datasourceUid}/${path}`
     )
@@ -615,19 +548,12 @@ export class GrafanaClient {
         url.searchParams.set(key, value)
       }
     }
-    try {
-      const response = await fetch(url.toString(), {
-        headers: { Authorization: `Bearer ${this._config.grafanaServiceAccountToken}` },
-      })
-      if (!response.ok) {
-        return { success: false, status: response.status, error: await response.text() }
-      }
-      const json = (await response.json()) as { data?: unknown }
-      return { success: true, status: response.status, data: json.data }
-    } catch (thrown: unknown) {
-      const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-      return { success: false, error: error.message }
-    }
+    const response = await fetch(url.toString(), {
+      headers: { Authorization: `Bearer ${this._config.grafanaServiceAccountToken}` },
+    })
+    if (!response.ok) throw new Error(`Prometheus proxy error ${response.status}: ${await response.text()}`)
+    const json = (await response.json()) as { data?: unknown }
+    return json.data
   }
 
   public async queryMetrics(
@@ -636,7 +562,7 @@ export class GrafanaClient {
     start: string,
     end: string,
     step?: string
-  ): Promise<{ success: boolean; data?: any; error?: string }> {
+  ): Promise<any> {
     return this._prometheusProxy(datasourceUid, 'api/v1/query_range', {
       query,
       start,
@@ -645,18 +571,15 @@ export class GrafanaClient {
     })
   }
 
-  public async listMetricNames(datasourceUid: string): Promise<{ success: boolean; data?: string[]; error?: string }> {
+  public async listMetricNames(datasourceUid: string): Promise<string[]> {
     return this._prometheusProxy(datasourceUid, 'api/v1/label/__name__/values')
   }
 
-  public async listLabelNames(datasourceUid: string): Promise<{ success: boolean; data?: string[]; error?: string }> {
+  public async listLabelNames(datasourceUid: string): Promise<string[]> {
     return this._prometheusProxy(datasourceUid, 'api/v1/labels')
   }
 
-  public async listLabelValues(
-    datasourceUid: string,
-    labelName: string
-  ): Promise<{ success: boolean; data?: string[]; error?: string }> {
+  public async listLabelValues(datasourceUid: string, labelName: string): Promise<string[]> {
     return this._prometheusProxy(datasourceUid, `api/v1/label/${encodeURIComponent(labelName)}/values`)
   }
 }

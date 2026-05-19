@@ -6,13 +6,12 @@ export const deleteFolder = {
   description: 'Delete a Grafana folder by UID. Also deletes all dashboards inside it.',
   input: {
     schema: z.object({
-      folderUid: z.string().min(1, 'Folder UID is required'),
+      folderUid: z
+        .string()
+        .min(1, 'Folder UID is required')
+        .title('Folder UID')
+        .describe('UID of the folder to delete'),
     }),
   },
-  output: {
-    schema: z.object({
-      success: z.boolean(),
-      error: z.string().optional(),
-    }),
-  },
+  output: { schema: z.object({}) },
 } satisfies ActionDef

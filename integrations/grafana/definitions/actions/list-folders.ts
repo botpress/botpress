@@ -7,17 +7,16 @@ export const listFolders = {
   input: { schema: z.object({}) },
   output: {
     schema: z.object({
-      success: z.boolean(),
-      data: z
+      folders: z
         .array(
           z.object({
-            uid: z.string().optional(),
-            title: z.string().optional(),
-            parentUid: z.string().optional(),
+            uid: z.string().optional().title('UID').describe('Folder UID'),
+            title: z.string().optional().title('Title').describe('Folder display name'),
+            parentUid: z.string().optional().title('Parent UID').describe('UID of the parent folder, if nested'),
           })
         )
-        .optional(),
-      error: z.string().optional(),
+        .title('Folders')
+        .describe('List of all folders'),
     }),
   },
 } satisfies ActionDef

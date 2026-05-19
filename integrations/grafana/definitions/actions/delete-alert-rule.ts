@@ -6,13 +6,8 @@ export const deleteAlertRule = {
   description: 'Delete a Grafana alert rule by UID',
   input: {
     schema: z.object({
-      uid: z.string().min(1, 'Alert rule UID is required'),
+      uid: z.string().min(1, 'Alert rule UID is required').title('UID').describe('UID of the alert rule to delete'),
     }),
   },
-  output: {
-    schema: z.object({
-      success: z.boolean(),
-      error: z.string().optional(),
-    }),
-  },
+  output: { schema: z.object({}) },
 } satisfies ActionDef

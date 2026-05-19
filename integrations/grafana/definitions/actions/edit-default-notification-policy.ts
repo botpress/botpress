@@ -8,10 +8,5 @@ export const editDefaultNotificationPolicy = {
   input: {
     schema: notificationPolicySchema.omit({ matchers: true }).partial(),
   },
-  output: {
-    schema: z.object({
-      success: z.boolean(),
-      error: z.string().optional(),
-    }),
-  },
+  output: { schema: z.object({}) },
 } satisfies ActionDef

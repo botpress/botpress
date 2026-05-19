@@ -6,13 +6,12 @@ export const deleteContactPoint = {
   description: 'Delete a Grafana contact point by UID',
   input: {
     schema: z.object({
-      uid: z.string().min(1, 'Contact point UID is required'),
+      uid: z
+        .string()
+        .min(1, 'Contact point UID is required')
+        .title('UID')
+        .describe('UID of the contact point to delete'),
     }),
   },
-  output: {
-    schema: z.object({
-      success: z.boolean(),
-      error: z.string().optional(),
-    }),
-  },
+  output: { schema: z.object({}) },
 } satisfies ActionDef

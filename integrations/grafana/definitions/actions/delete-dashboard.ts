@@ -6,13 +6,12 @@ export const deleteDashboard = {
   description: 'Delete a Grafana dashboard',
   input: {
     schema: z.object({
-      dashboardName: z.string().min(1, 'Dashboard name is required'),
+      dashboardName: z
+        .string()
+        .min(1, 'Dashboard name is required')
+        .title('Dashboard Name')
+        .describe('UID/name of the dashboard to delete (the "name" field from listDashboards)'),
     }),
   },
-  output: {
-    schema: z.object({
-      success: z.boolean(),
-      error: z.string().optional(),
-    }),
-  },
+  output: { schema: z.object({}) },
 } satisfies ActionDef

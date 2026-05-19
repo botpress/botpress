@@ -6,15 +6,21 @@ export const listLabelValues = {
   description: 'List all values for a specific label in a Prometheus datasource',
   input: {
     schema: z.object({
-      datasourceUid: z.string().min(1, 'Datasource UID is required'),
-      labelName: z.string().min(1, 'Label name is required (e.g. "job", "instance")'),
+      datasourceUid: z
+        .string()
+        .min(1, 'Datasource UID is required')
+        .title('Datasource UID')
+        .describe('UID of the Prometheus datasource to query'),
+      labelName: z
+        .string()
+        .min(1, 'Label name is required')
+        .title('Label Name')
+        .describe('Label name to list values for (e.g. "job", "instance")'),
     }),
   },
   output: {
     schema: z.object({
-      success: z.boolean(),
-      data: z.array(z.string()).optional(),
-      error: z.string().optional(),
+      labelValues: z.array(z.string()).title('Label Values').describe('List of all values for the specified label'),
     }),
   },
 } satisfies ActionDef

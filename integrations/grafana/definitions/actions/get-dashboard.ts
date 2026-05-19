@@ -1,11 +1,5 @@
 import { z } from '@botpress/sdk'
-import type { GrafanaDashboard } from '../../src/gen/types/GrafanaDashboard'
 import { ActionDef } from './types'
-
-export const getDashboardDataSchema = z.object({
-  dashboard: z.any().optional(),
-  meta: z.any().optional(),
-}) satisfies z.ZodType<Partial<GrafanaDashboard>>
 
 export const getDashboard = {
   title: 'Get Dashboard',
@@ -14,14 +8,18 @@ export const getDashboard = {
     schema: z.object({
       dashboardUid: z
         .string()
-        .min(1, 'Dashboard UID is required (use the name field from listDashboards, not the title)'),
+        .min(1, 'Dashboard UID is required')
+        .title('Dashboard UID')
+        .describe('UID of the dashboard to retrieve (the "name" field from listDashboards, not the title)'),
     }),
   },
   output: {
     schema: z.object({
-      success: z.boolean(),
-      data: getDashboardDataSchema.optional(),
-      error: z.string().optional(),
+      dashboard: z
+        .any()
+        .title('Dashboard')
+        .describe('Dashboard specification including all panels, variables, and settings'),
+      meta: z.any().title('Metadata').describe('Dashboard metadata including folder UID'),
     }),
   },
 } satisfies ActionDef

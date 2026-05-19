@@ -5,16 +5,11 @@ import { GrafanaClient } from './client'
 export const register: bp.IntegrationProps['register'] = async ({ ctx, client, webhookUrl }) => {
   const grafana = new GrafanaClient(ctx.configuration)
 
-  let result: Awaited<ReturnType<typeof grafana.listFolders>>
   try {
-    result = await grafana.listFolders()
+    await grafana.listFolders()
   } catch (error_: unknown) {
     const e = error_ instanceof Error ? error_ : new Error(String(error_))
     throw new sdk.RuntimeError(`Could not reach Grafana — check your username and token. ${e.message}`)
-  }
-
-  if (!result.success) {
-    throw new sdk.RuntimeError(`Grafana configuration is invalid: ${result.error}`)
   }
 
   let existingState: Awaited<ReturnType<typeof client.getState>>

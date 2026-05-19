@@ -7,19 +7,22 @@ export const listNotificationPolicies = {
   input: { schema: z.object({}) },
   output: {
     schema: z.object({
-      success: z.boolean(),
-      data: z
+      policies: z
         .array(
           z.object({
-            receiver: z.string().optional(),
-            matchers: z.any().optional(),
-            object_matchers: z.any().optional(),
-            group_by: z.array(z.string()).optional(),
-            continue: z.boolean().optional(),
+            receiver: z.string().optional().title('Receiver').describe('Contact point this policy routes to'),
+            matchers: z.any().optional().title('Matchers').describe('String-format label matchers'),
+            object_matchers: z
+              .any()
+              .optional()
+              .title('Object Matchers')
+              .describe('Structured label matchers as [name, operator, value] tuples'),
+            group_by: z.array(z.string()).optional().title('Group By').describe('Labels used to group alerts'),
+            continue: z.boolean().optional().title('Continue').describe('Whether matching continues to sibling routes'),
           })
         )
-        .optional(),
-      error: z.string().optional(),
+        .title('Policies')
+        .describe('List of notification policy routes'),
     }),
   },
 } satisfies ActionDef

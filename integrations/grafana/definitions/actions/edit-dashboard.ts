@@ -9,14 +9,13 @@ export const editDashboard = {
   input: {
     schema: z
       .object({
-        dashboardUid: z.string().min(1, 'Dashboard UID is required'),
+        dashboardUid: z
+          .string()
+          .min(1, 'Dashboard UID is required')
+          .title('Dashboard UID')
+          .describe('UID of the dashboard to edit (the "name" field from listDashboards)'),
       })
       .merge(createDashboardInputSchema.omit({ uid: true }).partial()),
   },
-  output: {
-    schema: z.object({
-      success: z.boolean(),
-      error: z.string().optional(),
-    }),
-  },
+  output: { schema: z.object({}) },
 } satisfies ActionDef
