@@ -83,6 +83,7 @@ const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, query, respon
     },
   })
 
+  await client.configureIntegration({ identifier: ctx.webhookId })
   setIntegrationIdentifier(ctx.webhookId)
 
   return responses.endWizard({ success: true })
