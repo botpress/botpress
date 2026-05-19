@@ -220,9 +220,7 @@ const _saveManualCredentialsHandler: WizardHandler = async ({ ctx, client, logge
       const message = error instanceof Error ? error.message : 'Invalid Jira credentials'
       const syntheticParse = _manualCredentialsSchema.safeParse({})
       if (!syntheticParse.success) {
-        syntheticParse.error.issues = [
-          { message, path: ['apiToken'], code: 'custom' } satisfies z.ZodIssue,
-        ]
+        syntheticParse.error.issues = [{ message, path: ['apiToken'], code: 'custom' } satisfies z.ZodIssue]
         return responses.displayForm({
           ..._manualCredentialsForm,
           errors: syntheticParse.error,
