@@ -9,25 +9,71 @@ export const contactSchema = z.object({
   properties: z.record(z.string().nullable()).title('Properties').describe('The properties of the contact'),
 })
 
+export const propertyMetadataSchema = z.object({
+  name: z.string().title('Name').describe('The internal name of the property'),
+  label: z.string().title('Label').describe('The human-readable label of the property'),
+  type: z
+    .string()
+    .title('Type')
+    .describe('The data type of the property (e.g. string, number, date, datetime, enumeration, bool)'),
+  fieldType: z
+    .string()
+    .title('Field Type')
+    .describe('The form field type of the property (e.g. text, textarea, select, radio, checkbox)'),
+  groupName: z.string().title('Group Name').describe('The internal name of the property group'),
+  description: z.string().title('Description').describe('The description of the property'),
+  referencedObjectType: z
+    .string()
+    .optional()
+    .title('Referenced Object Type')
+    .describe('The type of object referenced by this property (e.g. OWNER), if any'),
+})
+
 const searchContact: ActionDefinition = {
   title: 'Search Contact',
-  description: 'Search for a contact in Hubspot',
+  description: 'Search for a contact in HubSpot',
   input: {
     schema: z.object({
       email: z.string().optional().title('Email').describe('The email of the contact to search for'),
       phone: z.string().optional().title('Phone').describe('The phone number of the contact to search for'),
+      properties: z
+        .array(z.string())
+        .optional()
+        .title('Properties to Fetch')
+        .describe('The list of property names to fetch on the matching contact. Defaults to all properties.'),
     }),
   },
   output: {
     schema: z.object({
       contact: contactSchema.optional().title('Contact').describe('The contact found, or undefined if not found'),
+      url: z
+        .string()
+        .optional()
+        .title('Contact URL')
+        .describe("The URL to the contact's page in the HubSpot UI, or undefined if no contact was found"),
+    }),
+  },
+}
+
+const listContactProperties: ActionDefinition = {
+  title: 'List Contact Properties',
+  description: 'List all available Hubspot contact properties with their metadata',
+  input: {
+    schema: z.object({}).title('Empty').describe('No input required'),
+  },
+  output: {
+    schema: z.object({
+      properties: z
+        .array(propertyMetadataSchema)
+        .title('Properties')
+        .describe('The contact properties defined in this Hubspot account'),
     }),
   },
 }
 
 const createContact: ActionDefinition = {
   title: 'Create Contact',
-  description: 'Create a contact in Hubspot',
+  description: 'Create a contact in HubSpot',
   input: {
     schema: z.object({
       email: z.string().optional().title('Email').describe('The email of the contact'),
@@ -76,7 +122,7 @@ const createContact: ActionDefinition = {
 
 const getContact: ActionDefinition = {
   title: 'Get Contact',
-  description: 'Get a contact from Hubspot',
+  description: 'Get a contact from HubSpot',
   input: {
     schema: z.object({
       contactIdOrEmail: z.string().title('Contact ID or Email').describe('The ID or email of the contact to get'),
@@ -85,13 +131,14 @@ const getContact: ActionDefinition = {
   output: {
     schema: z.object({
       contact: contactSchema.title('Contact').describe('The fetched contact'),
+      url: z.string().title('Contact URL').describe("The URL to the contact's page in the HubSpot UI"),
     }),
   },
 }
 
 const updateContact: ActionDefinition = {
   title: 'Update Contact',
-  description: 'Update a contact in Hubspot',
+  description: 'Update a contact in HubSpot',
   input: {
     schema: z.object({
       contactIdOrEmail: z.string().title('Contact ID or Email').describe('The ID or email of the contact to update'),
@@ -125,7 +172,7 @@ const updateContact: ActionDefinition = {
 
 const deleteContact: ActionDefinition = {
   title: 'Delete Contact',
-  description: 'Delete a contact in Hubspot',
+  description: 'Delete a contact in HubSpot',
   input: {
     schema: z.object({
       contactId: z.string().title('Contact ID').describe('The ID of the contact to delete'),
@@ -138,7 +185,7 @@ const deleteContact: ActionDefinition = {
 
 const listContacts: ActionDefinition = {
   title: 'List Contacts',
-  description: 'List contacts in Hubspot',
+  description: 'List contacts in HubSpot',
   input: {
     schema: z.object({
       meta: z
@@ -180,4 +227,5 @@ export const actions = {
   updateContact,
   deleteContact,
   listContacts,
+  listContactProperties,
 } as const

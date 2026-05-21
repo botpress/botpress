@@ -17,8 +17,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.99.0
-        version: 1.99.0
+        specifier: 1.105.0
+        version: 1.105.0
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -992,6 +992,25 @@ importers:
         specifier: ^4.14.191
         version: 4.14.195
 
+  integrations/freshdesk:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@botpress/sdk-addons':
+        specifier: workspace:*
+        version: link:../../packages/sdk-addons
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   integrations/github:
     dependencies:
       '@botpress/common':
@@ -1362,6 +1381,28 @@ importers:
         specifier: ^2.39.1
         version: 2.39.1
 
+  integrations/jira:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      jira.js:
+        specifier: ^2.19.1
+        version: 2.20.1
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@types/node':
+        specifier: ^22.16.4
+        version: 22.16.4
+
   integrations/kommo:
     dependencies:
       '@botpress/client':
@@ -1622,6 +1663,22 @@ importers:
         specifier: workspace:*
         version: link:../../packages/cli
 
+  integrations/n8n:
+    dependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: ^1.7.9
+        version: 1.13.6
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   integrations/notion:
     dependencies:
       '@botpress/client':
@@ -1652,6 +1709,25 @@ importers:
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
+
+  integrations/odoo:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@botpress/sdk-addons':
+        specifier: workspace:*
+        version: link:../../packages/sdk-addons
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
 
   integrations/openai:
     dependencies:
@@ -2688,10 +2764,10 @@ importers:
         specifier: 0.5.5
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.43.0
+        specifier: 1.45.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 6.9.0
+        specifier: 6.11.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2812,10 +2888,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.43.0
+        specifier: 1.45.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.9.0
+        specifier: 6.11.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2828,10 +2904,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.43.0
+        specifier: 1.45.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.9.0
+        specifier: 6.11.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2844,7 +2920,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 6.9.0
+        specifier: 6.11.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2857,10 +2933,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.43.0
+        specifier: 1.45.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.9.0
+        specifier: 6.11.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2873,10 +2949,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.43.0
+        specifier: 1.45.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.9.0
+        specifier: 6.11.0
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -3027,10 +3103,10 @@ importers:
         specifier: ^7.26.3
         version: 7.26.9
       '@botpress/client':
-        specifier: 1.43.0
+        specifier: 1.45.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.5.3
+        specifier: 0.5.4
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^2.0.0
@@ -3133,7 +3209,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.43.0
+        specifier: 1.45.0
         version: link:../client
       '@bpinternal/zui':
         specifier: ^2.1.1
@@ -3170,7 +3246,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.43.0
+        specifier: 1.45.0
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -3216,7 +3292,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.5.3
+        specifier: 0.5.4
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -3329,7 +3405,7 @@ importers:
   plugins/conversation-insights:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.5.3
+        specifier: 0.5.4
         version: link:../../packages/cognitive
       '@botpress/sdk':
         specifier: workspace:*
@@ -4200,8 +4276,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@botpress/api@1.99.0':
-    resolution: {integrity: sha512-3tKkidEQL6DU9AmxhRqhGWDhctMiRIZUbyPidkvLv64AOUjgMmFxtlTwpqHch9ECLyT2BWGwu6PP2ekE4tnXxQ==}
+  '@botpress/api@1.105.0':
+    resolution: {integrity: sha512-DnnqYlEyLCXf7cCaPSJvrQHhb+ycRbFPCyCGKTn0y7mvF32n5tgwZUbC4fEtHt/i6u9AuXPG3ObqPjPcYxocLw==}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -7178,6 +7254,11 @@ packages:
   asynckit@0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
 
+  atlassian-jwt@2.0.3:
+    resolution: {integrity: sha512-G9oO3HHS1UKgsLRXj6nNKv2TY6g3PleBCdzHwbFeVKg+18GBFIMRz+ApxuOuWAgcL7RngNFF5rGNtw1Ss3hvTg==}
+    engines: {node: '>= 0.4.0'}
+    deprecated: 'DEPRECATED: atlassian-jwt has moved to @atlassian/atlassian-jwt. The latest version is 2.1.1. Please update your dependency.'
+
   available-typed-arrays@1.0.7:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
@@ -9633,6 +9714,9 @@ packages:
       node-notifier:
         optional: true
 
+  jira.js@2.20.1:
+    resolution: {integrity: sha512-ZFlFAVTEaw86OemQ8BVyVSV0YDZqMI6WVc08Th5GgqVEODW4gmhXLOxqSmCasRJMMVAtI1LrFlFFTf9GnFaUhg==}
+
   jiti@2.4.2:
     resolution: {integrity: sha512-rg9zJN+G4n2nfJl5MW3BMygZX56zKPNVEYYqq7adpmMh4Jn2QNEwhvQlFy6jPVdcod7txZtKHWnyZiA3a0zP7A==}
     hasBin: true
@@ -9812,6 +9896,9 @@ packages:
   jsprim@1.4.2:
     resolution: {integrity: sha512-P2bSOMAc/ciLz6DzgjVlGJP9+BrJWu5UDGK70C2iweC5QBIeFf0ZXRvGjEj2uYgrY2MkAAhsSWHDWlFtEroZWw==}
     engines: {node: '>=0.6.0'}
+
+  jsuri@1.3.1:
+    resolution: {integrity: sha512-LLdAeqOf88/X0hylAI7oSir6QUsz/8kOW0FcJzzu/SJRfORA/oPHycAOthkNp7eLPlTAbqVDFbqNRHkRVzEA3g==}
 
   jwa@1.4.1:
     resolution: {integrity: sha512-qiLX/xhEEFKUAJ6FiBMbes3w9ATzyk5W7Hvzpa/SLYdxNtng+gcurvrI7TbACjIXlsJyr05/S1oUhZrc63evQA==}
@@ -14133,7 +14220,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.99.0':
+  '@botpress/api@1.105.0':
     dependencies:
       '@bpinternal/opapi': 1.0.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -17457,6 +17544,11 @@ snapshots:
 
   asynckit@0.4.0: {}
 
+  atlassian-jwt@2.0.3:
+    dependencies:
+      jsuri: 1.3.1
+      lodash: 4.17.21
+
   available-typed-arrays@1.0.7:
     dependencies:
       possible-typed-array-names: 1.0.0
@@ -19806,7 +19898,7 @@ snapshots:
       extend: 3.0.2
       gaxios: 6.1.1
       google-auth-library: 9.0.0
-      qs: 6.13.0
+      qs: 6.15.0
       url-template: 2.0.8
       uuid: 9.0.1
     transitivePeerDependencies:
@@ -20715,6 +20807,16 @@ snapshots:
       - supports-color
       - ts-node
 
+  jira.js@2.20.1:
+    dependencies:
+      atlassian-jwt: 2.0.3
+      axios: 1.13.6
+      form-data: 4.0.5
+      oauth: 0.10.2
+      tslib: 2.6.2
+    transitivePeerDependencies:
+      - debug
+
   jiti@2.4.2: {}
 
   jiti@2.7.0: {}
@@ -20932,6 +21034,8 @@ snapshots:
       extsprintf: 1.3.0
       json-schema: 0.4.0
       verror: 1.10.0
+
+  jsuri@1.3.1: {}
 
   jwa@1.4.1:
     dependencies:
@@ -23311,7 +23415,7 @@ snapshots:
       formidable: 1.2.6
       methods: 1.1.2
       mime: 1.6.0
-      qs: 6.13.0
+      qs: 6.15.0
       readable-stream: 2.3.8
     transitivePeerDependencies:
       - supports-color

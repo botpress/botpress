@@ -202,7 +202,7 @@ const _doStepVerifyNumber = async (
 }
 
 const _doStepWrapUp: WizardHandler = async (props) => {
-  const { responses, client, ctx, logger } = props
+  const { responses, client, ctx, logger, setIntegrationIdentifier } = props
   const credentials = await _getCredentialsState(client, ctx)
   const { accessToken, wabaId, defaultBotPhoneNumberId } = credentials
   if (!accessToken) {
@@ -215,9 +215,7 @@ const _doStepWrapUp: WizardHandler = async (props) => {
     throw new Error(PHONE_NUMBER_ID_UNAVAILABLE_ERROR)
   }
   const oauthClient = new MetaOauthClient(logger)
-  await client.configureIntegration({
-    identifier: wabaId,
-  })
+  setIntegrationIdentifier(wabaId)
   await oauthClient.registerNumber(defaultBotPhoneNumberId, accessToken)
   await oauthClient.subscribeToWebhooks(wabaId, accessToken)
 
