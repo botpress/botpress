@@ -16,7 +16,7 @@ export default new sdk.IntegrationDefinition({
     category: 'Knowledge Base',
     repo: 'botpress',
   },
-}).extend(filesReadonly, ({}) => ({
+}).extend(filesReadonly, ({}) => ({ // Enables knowledge-connector plugin to browse and index SharePoint files
   entities: {},
   actions: {
     listItemsInFolder: {
@@ -27,12 +27,5 @@ export default new sdk.IntegrationDefinition({
       name: 'filesReadonlyTransferFileToBotpress',
       attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO },
     },
-  },
-  events: {
-    fileCreated: { name: 'filesReadonlyFileCreated' },
-    fileUpdated: { name: 'filesReadonlyFileUpdated' },
-    fileDeleted: { name: 'filesReadonlyFileDeleted' },
-    folderDeletedRecursive: { name: 'filesReadonlyFolderDeletedRecursive' },
-    aggregateFileChanges: { name: 'filesReadonlyAggregateFileChanges' },
   },
 }))

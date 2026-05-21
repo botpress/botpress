@@ -1,0 +1,1 @@
+export { addToSync } from './sync'
