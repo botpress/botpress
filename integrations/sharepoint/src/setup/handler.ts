@@ -1,8 +1,59 @@
-import * as bp from '.botpress'
+import type { ChangeItem } from '../misc/SharepointTypes'
 import { SharepointClient } from '../SharepointClient'
+import * as bp from '.botpress'
 
 type ItemCache = Record<string, { absolutePath: string; name: string }>
 type AggregatePayload = bp.events.Events['aggregateFileChanges']
+type Created = AggregatePayload['modifiedItems']['created']
+type Updated = AggregatePayload['modifiedItems']['updated']
+type Deleted = AggregatePayload['modifiedItems']['deleted']
+
+function applyChange(
+  ch: ChangeItem,
+  cache: ItemCache,
+  pathMap: Map<number, string | null | undefined>,
+  created: Created,
+  updated: Updated,
+  deleted: Deleted,
+  logger: bp.Logger,
+  lib: string
+) {
+  const itemId = ch.ItemId.toString()
+  switch (ch.ChangeType) {
+    case 1:
+    case 6:
+    case 7: {
+      const spPath = pathMap.get(ch.ItemId)
+      if (!spPath) break
+      const name = spPath.split('/').pop() ?? spPath
+      cache[itemId] = { absolutePath: spPath, name }
+      created.push({ type: 'file', id: itemId, name, absolutePath: spPath })
+      break
+    }
+    case 2:
+    case 4: {
+      const spPath = pathMap.get(ch.ItemId)
+      if (!spPath) break
+      const name = spPath.split('/').pop() ?? spPath
+      cache[itemId] = { absolutePath: spPath, name }
+      updated.push({ type: 'file', id: itemId, name, absolutePath: spPath })
+      break
+    }
+    case 3:
+    case 5: {
+      const cached = cache[itemId]
+      if (!cached) {
+        logger.forBot().warn(`[Handler] (${lib}) Delete for unknown item ${itemId} — skipping`)
+        break
+      }
+      delete cache[itemId]
+      deleted.push({ type: 'file', id: itemId, name: cached.name, absolutePath: cached.absolutePath })
+      break
+    }
+    default:
+      logger.forBot().debug(`[Handler] (${lib}) Skipping unsupported ChangeType=${ch.ChangeType}`)
+  }
+}
 
 const RENEW_THRESHOLD_MS = 5 * 24 * 60 * 60 * 1000
 const SUBSCRIPTION_DURATION_MS = 30 * 24 * 60 * 60 * 1000
@@ -30,15 +81,16 @@ export const handler: bp.IntegrationProps['handler'] = async ({ ctx, req, client
     }
   }
 
-  const {
-    state: { payload },
-  } = await client.getState({
-    type: 'integration',
-    name: 'configuration',
-    id: ctx.integrationId,
-  })
+  let statePayload: { subscriptions: Record<string, unknown> }
+  try {
+    const { state } = await client.getState({ type: 'integration', name: 'configuration', id: ctx.integrationId })
+    statePayload = state.payload as typeof statePayload
+  } catch {
+    logger.forBot().info('[Handler] No state found — nothing to process')
+    return { status: 200, body: 'OK' }
+  }
 
-  const subs = payload.subscriptions as Record<
+  const subs = statePayload.subscriptions as Record<
     string,
     { webhookSubscriptionId: string; changeToken: string; itemPathCache: ItemCache; expiresAt?: string }
   >
@@ -65,9 +117,9 @@ export const handler: bp.IntegrationProps['handler'] = async ({ ctx, req, client
       const newToken = changes.at(-1)!.ChangeToken.StringValue
       const cache: ItemCache = { ...(currentSub.itemPathCache ?? {}) }
 
-      const created: AggregatePayload['modifiedItems']['created'] = []
-      const updated: AggregatePayload['modifiedItems']['updated'] = []
-      const deleted: AggregatePayload['modifiedItems']['deleted'] = []
+      const created: Created = []
+      const updated: Updated = []
+      const deleted: Deleted = []
 
       // Pre-fetch paths in parallel for all items that need a lookup (add/update/rename/restore/move-in)
       const needsLookup = changes.filter((ch) => [1, 2, 4, 6, 7].includes(ch.ChangeType))
@@ -75,48 +127,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ ctx, req, client
       const pathMap = new Map(needsLookup.map((ch, i) => [ch.ItemId, pathResults[i]]))
 
       for (const ch of changes) {
-        const itemId = ch.ItemId.toString()
-
-        switch (ch.ChangeType) {
-          // Add, MoveTo (entered scope), Restore
-          case 1:
-          case 6:
-          case 7: {
-            const spPath = pathMap.get(ch.ItemId)
-            if (!spPath) break
-            const name = spPath.split('/').pop() ?? spPath
-            cache[itemId] = { absolutePath: spPath, name }
-            created.push({ type: 'file', id: itemId, name, absolutePath: spPath })
-            break
-          }
-
-          // Update, Rename
-          case 2:
-          case 4: {
-            const spPath = pathMap.get(ch.ItemId)
-            if (!spPath) break
-            const name = spPath.split('/').pop() ?? spPath
-            cache[itemId] = { absolutePath: spPath, name }
-            updated.push({ type: 'file', id: itemId, name, absolutePath: spPath })
-            break
-          }
-
-          // Delete, MoveAway (left scope)
-          case 3:
-          case 5: {
-            const cached = cache[itemId]
-            if (!cached) {
-              logger.forBot().warn(`[Handler] (${lib}) Delete for unknown item ${itemId} — skipping`)
-              break
-            }
-            delete cache[itemId]
-            deleted.push({ type: 'file', id: itemId, name: cached.name, absolutePath: cached.absolutePath })
-            break
-          }
-
-          default:
-            logger.forBot().debug(`[Handler] (${lib}) Skipping unsupported ChangeType=${ch.ChangeType}`)
-        }
+        applyChange(ch, cache, pathMap, created, updated, deleted, logger, lib)
       }
 
       if (created.length > 0 || updated.length > 0 || deleted.length > 0) {
@@ -141,7 +152,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ ctx, req, client
     type: 'integration',
     name: 'configuration',
     id: ctx.integrationId,
-    payload: { subscriptions: updatedSubs },
+    payload: { subscriptions: updatedSubs as bp.states.States['configuration']['payload']['subscriptions'] },
   })
 
   return { status: 200, body: 'OK' }

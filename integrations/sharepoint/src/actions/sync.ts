@@ -5,13 +5,15 @@ import { cleanupWebhook, getLibraryNames } from '../setup/utils'
 export const addToSync: bp.Integration['actions']['addToSync'] = async ({ client, ctx, input, logger }) => {
   const webhookUrl = `https://webhook.botpress.cloud/${ctx.webhookId}`
 
-  const { state } = await client.getState({
-    type: 'integration',
-    name: 'configuration',
-    id: ctx.integrationId,
-  })
+  let rawState: { payload: { subscriptions: unknown } } | undefined
+  try {
+    const { state } = await client.getState({ type: 'integration', name: 'configuration', id: ctx.integrationId })
+    rawState = state as typeof rawState
+  } catch {
+    // State not yet initialized — treat as empty
+  }
 
-  const subscriptions = state.payload.subscriptions as Record<
+  const subscriptions = (rawState?.payload?.subscriptions ?? {}) as Record<
     string,
     {
       webhookSubscriptionId: string

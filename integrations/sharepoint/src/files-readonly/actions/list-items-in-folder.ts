@@ -53,8 +53,9 @@ function applyFilters(items: Item[], filters: Filters): Item[] {
         filters.modifiedAfter &&
         item.lastModifiedDate &&
         new Date(item.lastModifiedDate) < new Date(filters.modifiedAfter)
-      )
+      ) {
         return false
+      }
     }
     return true
   })

@@ -40,3 +40,6 @@
 
 ## Chat
 /integrations/chat @botpress/kraken
+
+## Knowledge Base
+/integrations/sharepoint @james-helou

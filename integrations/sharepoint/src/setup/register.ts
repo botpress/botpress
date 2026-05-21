@@ -2,10 +2,30 @@ import * as bp from '.botpress'
 import { SharepointClient } from '../SharepointClient'
 import { cleanupWebhook, getLibraryNames } from './utils'
 
+type Subscriptions = Record<
+  string,
+  { webhookSubscriptionId: string; changeToken: string; itemPathCache: Record<string, { absolutePath: string; name: string }>; expiresAt: string }
+>
+
 export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUrl, client, logger }) => {
+  // Read existing subscriptions so dynamically added libraries (via addToSync) are preserved across re-registrations
+  let existingSubscriptions: Subscriptions = {}
+  try {
+    const { state } = await client.getState({ type: 'integration', name: 'configuration', id: ctx.integrationId })
+    existingSubscriptions = state.payload.subscriptions as Subscriptions
+  } catch {
+    // State doesn't exist yet — start fresh
+  }
+
   const rawLibNames = ctx.configuration.documentLibraryNames
   if (!rawLibNames) {
     logger.forBot().info('[Registration] No documentLibraryNames configured — skipping webhook setup')
+    await client.setState({
+      type: 'integration',
+      name: 'configuration',
+      id: ctx.integrationId,
+      payload: { subscriptions: existingSubscriptions },
+    })
     return
   }
 
@@ -44,16 +64,8 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUr
     })
   )
 
-  const subscriptions: Record<
-    string,
-    {
-      webhookSubscriptionId: string
-      changeToken: string
-      itemPathCache: Record<string, { absolutePath: string; name: string }>
-      expiresAt: string
-    }
-  > = {}
-
+  // Merge: preserve existing addToSync subscriptions, overwrite config-declared ones with fresh registrations
+  const subscriptions: Subscriptions = { ...existingSubscriptions }
   for (const result of results) {
     if (result.status === 'fulfilled') {
       const { lib, webhookSubscriptionId, changeToken, expiresAt } = result.value
