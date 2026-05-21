@@ -42,7 +42,7 @@ const hitlAgentSchema = z.object({
   name: z.string().optional(),
 })
 
-const hitlReplyBodySchema = z.object({
+const hitlMessageBodySchema = z.object({
   body_text: z.string().transform((raw) => {
     const text = raw.replace(/^[^<]+:\s*(?=<)/, '')
     // freshdesk prepends "Agent Name : " before response, trim that
@@ -73,7 +73,8 @@ export const ticketRepliedBodySchema = z.object({
 })
 export const hitlMessageReceivedBodySchema = z.object({
   ticket: hitlTicketIdSchema,
-  reply: hitlReplyBodySchema,
+  reply: hitlMessageBodySchema.optional(),
+  note: hitlMessageBodySchema.optional(),
   agent: hitlAgentSchema.optional(),
 })
 export const hitlAssignedBodySchema = z.object({

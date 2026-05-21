@@ -15,8 +15,8 @@ export const executeHitlMessageReceived = async (props: HandlerProps & { body: R
     return
   }
 
-  const { ticket, reply, agent } = parsed.data
-  const text = reply.body_text
+  const { ticket, reply, note, agent } = parsed.data
+  const text = note?.body_text ?? reply?.body_text
 
   if (!isHitlTicket(ticket)) {
     log.debug(`hitlMessageReceived: ticket=${ticket.id} is not marked as a Botpress HITL ticket, ignoring`)
@@ -24,7 +24,7 @@ export const executeHitlMessageReceived = async (props: HandlerProps & { body: R
   }
 
   if (!text) {
-    log.debug('hitlMessageReceived: empty reply body, ignoring')
+    log.debug('hitlMessageReceived: empty message body, ignoring')
     return
   }
 

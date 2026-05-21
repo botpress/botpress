@@ -83,9 +83,13 @@ Webhook body:
 }
 ```
 
-### `/hitl-message-received` — routes agent reply into the Botpress conversation
+### `/hitl-message-received` — routes agent note/comment into the Botpress conversation
 
-Trigger condition: **Reply Sent By Agent** (use this condition specifically — it excludes notes added via the API, which would otherwise echo bot messages back)
+Recommended trigger condition: **Public Note Added By Agent** or your Freshdesk account's equivalent public note/comment-added condition.
+
+For HITL tickets, agents should add a public note/comment instead of using **Reply**. Freshdesk replies are email deliveries to the requester and can be marked as undelivered when the requester email is a Botpress/Webchat placeholder. Public notes/comments are routed to Webchat by this webhook and do not need Freshdesk email delivery.
+
+If your Freshdesk automation can distinguish agent-created notes from API-created notes, use that condition to avoid echoing Botpress messages back into the conversation. Botpress messages are added to the ticket as public notes by the integration.
 
 Webhook body:
 
@@ -95,7 +99,7 @@ Webhook body:
     "id": "{{ticket.id}}",
     "tags": "{{ticket.tags}}"
   },
-  "reply": {
+  "note": {
     "body_text": "{{ticket.latest_public_comment}}"
   },
   "agent": {
@@ -104,6 +108,8 @@ Webhook body:
   }
 }
 ```
+
+The legacy `reply.body_text` shape is still accepted for existing reply-based setups, but `note.body_text` is recommended for Webchat HITL.
 
 ### `/hitl-stopped` — fires `hitlStopped`
 
