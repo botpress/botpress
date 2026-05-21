@@ -1,5 +1,5 @@
-import * as bp from '.botpress'
 import { SharepointClient } from '../SharepointClient'
+import * as bp from '.botpress'
 
 export const getLibraryNames = (documentLibraryNames: string): string[] => {
   try {

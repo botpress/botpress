@@ -1,6 +1,6 @@
-import * as bp from '.botpress'
 import { SharepointClient } from '../SharepointClient'
 import { cleanupWebhook, getLibraryNames } from '../setup/utils'
+import * as bp from '.botpress'
 
 export const addToSync: bp.Integration['actions']['addToSync'] = async ({ client, ctx, input, logger }) => {
   const webhookUrl = `https://webhook.botpress.cloud/${ctx.webhookId}`

@@ -1,5 +1,5 @@
-import * as bp from '.botpress'
 import { SharepointClient } from '../SharepointClient'
+import * as bp from '.botpress'
 
 export const unregister: bp.IntegrationProps['unregister'] = async ({ client, ctx, logger }) => {
   let state: { payload: { subscriptions: Record<string, { webhookSubscriptionId: string }> } }

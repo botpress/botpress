@@ -1,6 +1,6 @@
-import * as bp from '.botpress'
 import { SharepointClient } from '../SharepointClient'
 import { cleanupWebhook, getLibraryNames } from './utils'
+import * as bp from '.botpress'
 
 type Subscriptions = Record<
   string,
