@@ -44,26 +44,29 @@ const hitlAgentSchema = z.object({
 
 const hitlMessageBodySchema = z.object({
   id: z.union([z.string(), z.number()]).transform(String).optional(),
-  body_text: z.string().transform((raw) => {
-    const text = raw.replace(/^[^<]+:\s*(?=<)/, '')
-    // freshdesk prepends "Agent Name : " before response, trim that
-    if (!/<[a-z]/i.test(text)) return text.trim()
+  body_text: z
+    .string()
+    .transform((raw) => {
+      const text = raw.replace(/^[^<]+:\s*(?=<)/, '')
+      // freshdesk prepends "Agent Name : " before response, trim that
+      if (!/<[a-z]/i.test(text)) return text.trim()
 
-    // strip html from the response body
-    return text
-      .replace(/<br\s*\/?>/gi, '\n')
-      .replace(/<[^>]+>/g, '')
-      .replace(/&nbsp;/gi, ' ')
-      .replace(/&amp;/gi, '&')
-      .replace(/&lt;/gi, '<')
-      .replace(/&gt;/gi, '>')
-      .replace(/&quot;/gi, '"')
-      .replace(/&#39;/gi, "'")
-      .replace(/​/g, '')
-      .replace(/[ \t]+/g, ' ')
-      .replace(/\n{3,}/g, '\n\n')
-      .trim()
-  }),
+      // strip html from the response body
+      return text
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<[^>]+>/g, '')
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/&amp;/gi, '&')
+        .replace(/&lt;/gi, '<')
+        .replace(/&gt;/gi, '>')
+        .replace(/&quot;/gi, '"')
+        .replace(/&#39;/gi, "'")
+        .replace(/​/g, '')
+        .replace(/[ \t]+/g, ' ')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim()
+    })
+    .optional(),
 })
 
 export const ticketCreatedBodySchema = z.object({ ticket: freshdeskWebhookTicketSchema })
