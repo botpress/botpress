@@ -5,20 +5,30 @@ import { telegramMessageChannels } from './definitions/channels'
 
 export default new IntegrationDefinition({
   name: 'telegram',
-  version: '1.0.7',
+  version: '1.0.8',
   title: 'Telegram',
   description: 'Engage with your audience in real-time.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
+    identifier: {
+      linkTemplateScript: 'linkTemplate.vrl',
+    },
     schema: z.object({
-      botToken: z.string().min(1).describe('Bot Token').title('Bot Token'),
       typingIndicatorEmoji: z
         .boolean()
         .default(false)
         .title('Typing Indicator Emoji')
         .describe('Temporarily add an emoji reaction to received messages to indicate when bot is processing message'),
     }),
+  },
+  states: {
+    credentials: {
+      type: 'integration',
+      schema: z.object({
+        botToken: z.string().title('Bot Token').min(1).secret().describe('The Telegram bot token'),
+      }),
+    },
   },
   channels: {
     channel: {
