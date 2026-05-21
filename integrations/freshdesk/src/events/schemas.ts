@@ -74,10 +74,10 @@ export const ticketRepliedBodySchema = z.object({
 export const hitlMessageReceivedBodySchema = z.object({
   ticket: hitlTicketIdSchema,
   reply: hitlReplyBodySchema,
-  agent: hitlAgentSchema,
+  agent: hitlAgentSchema.optional(),
 })
 export const hitlAssignedBodySchema = z.object({
   ticket: hitlTicketIdSchema,
-  agent: hitlAgentSchema,
+  agent: hitlAgentSchema.optional(),
 })
 export const hitlStoppedBodySchema = z.object({ ticket: hitlTicketIdSchema })
