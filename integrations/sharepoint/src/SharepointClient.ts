@@ -71,7 +71,7 @@ export class SharepointClient {
     return res.data.d.Id
   }
 
-  async getLatestChangeToken(): Promise<string | null> {
+  public async getLatestChangeToken(): Promise<string | null> {
     const changes = await this.getChanges(null)
     if (changes.length > 0) {
       return changes.at(-1)!.ChangeToken.StringValue
@@ -79,7 +79,7 @@ export class SharepointClient {
     return null
   }
 
-  async getFilePath(listItemIndex: number): Promise<string | null> {
+  public async getFilePath(listItemIndex: number): Promise<string | null> {
     const lib = this.getDocumentLibraryName()
     const url =
       `${this._baseUrl}/_api/web/lists/getbytitle('${lib}')/items(${listItemIndex})` +
@@ -96,7 +96,7 @@ export class SharepointClient {
     return ServerRelativeUrl
   }
 
-  async getChanges(changeToken: string | null): Promise<ChangeItem[]> {
+  public async getChanges(changeToken: string | null): Promise<ChangeItem[]> {
     const lib = this.getDocumentLibraryName()
     const token = await this._fetchToken()
     const url = `${this._baseUrl}/_api/web/lists/getbytitle('${lib}')/GetChanges`
@@ -117,7 +117,7 @@ export class SharepointClient {
     return res.data.d.results
   }
 
-  async registerWebhook(webhookUrl: string, clientState: string): Promise<string> {
+  public async registerWebhook(webhookUrl: string, clientState: string): Promise<string> {
     const listId = await this._getDocumentLibraryListId()
     const url = `${this._baseUrl}/_api/web/lists('${listId}')/subscriptions`
     const token = await this._fetchToken()
@@ -136,7 +136,7 @@ export class SharepointClient {
     return res.data.d.id
   }
 
-  async renewWebhook(subscriptionId: string, newExpirationDateTime: string): Promise<void> {
+  public async renewWebhook(subscriptionId: string, newExpirationDateTime: string): Promise<void> {
     const listId = await this._getDocumentLibraryListId()
     const url = `${this._baseUrl}/_api/web/lists('${listId}')/subscriptions('${subscriptionId}')`
     const token = await this._fetchToken()
@@ -145,14 +145,14 @@ export class SharepointClient {
       .catch(handleAxiosError)
   }
 
-  async unregisterWebhook(webhookId: string): Promise<void> {
+  public async unregisterWebhook(webhookId: string): Promise<void> {
     const listId = await this._getDocumentLibraryListId()
     const url = `${this._baseUrl}/_api/web/lists('${listId}')/subscriptions('${webhookId}')`
     const token = await this._fetchToken()
     await axios.delete(url, { headers: this._odataVerboseHeaders(token) }).catch(handleAxiosError)
   }
 
-  async listWebhookSubscriptions(): Promise<Array<{ id: string; notificationUrl: string }>> {
+  public async listWebhookSubscriptions(): Promise<Array<{ id: string; notificationUrl: string }>> {
     const listId = await this._getDocumentLibraryListId()
     const url = `${this._baseUrl}/_api/web/lists('${listId}')/subscriptions`
     const token = await this._fetchToken()
@@ -163,7 +163,7 @@ export class SharepointClient {
     }))
   }
 
-  async listDocumentLibraries(): Promise<Array<{ name: string; serverRelativeUrl: string }>> {
+  public async listDocumentLibraries(): Promise<Array<{ name: string; serverRelativeUrl: string }>> {
     const token = await this._fetchToken()
     const url =
       `${this._baseUrl}/_api/web/lists` +
@@ -178,7 +178,7 @@ export class SharepointClient {
     }))
   }
 
-  async listFiles(
+  public async listFiles(
     serverRelativePath: string,
     nextUrl?: string
   ): Promise<{
@@ -205,7 +205,7 @@ export class SharepointClient {
     }
   }
 
-  async listSubfolders(serverRelativePath: string): Promise<Array<{ name: string; serverRelativeUrl: string }>> {
+  public async listSubfolders(serverRelativePath: string): Promise<Array<{ name: string; serverRelativeUrl: string }>> {
     const token = await this._fetchToken()
     const url =
       `${this._baseUrl}/_api/web/GetFolderByServerRelativeUrl('${serverRelativePath}')/Folders` +
@@ -219,7 +219,7 @@ export class SharepointClient {
     }))
   }
 
-  async downloadFile(serverRelativePath: string): Promise<ArrayBuffer> {
+  public async downloadFile(serverRelativePath: string): Promise<ArrayBuffer> {
     const token = await this._fetchToken()
     const url = `${this._baseUrl}/_api/web/GetFileByServerRelativeUrl('${serverRelativePath}')/$value`
     const res = await axios
