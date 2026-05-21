@@ -1,4 +1,4 @@
-import { wrapAction } from '../action-wrapper'
+import { wrapAction } from '../../action-wrapper'
 
 export const searchContacts = wrapAction(
   { actionName: 'searchContacts', errorMessage: 'Failed to search Odoo contacts' },

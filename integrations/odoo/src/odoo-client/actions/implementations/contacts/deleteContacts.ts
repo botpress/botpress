@@ -1,5 +1,6 @@
-import { wrapAction } from '../action-wrapper'
-import { getErrorMessage, isActiveUserLinkedContactError } from '../errors'
+import * as sdk from '@botpress/sdk'
+import { wrapAction } from '../../action-wrapper'
+import { getErrorMessage, isActiveUserLinkedContactError } from '../../errors'
 
 type NotDeletedContact = {
   id: number
@@ -29,6 +30,25 @@ const getContactOwnerId = (contact: Record<string, unknown>): number | undefined
 const getContactName = (contact: Record<string, unknown>): string | undefined =>
   typeof contact.name === 'string' ? contact.name : undefined
 
+const getDeleteContactsMessage = (deletedIds: number[], notDeletedContacts: NotDeletedContact[]): string => {
+  if (notDeletedContacts.length === 0) {
+    return `Deleted ${deletedIds.length} Odoo contact${deletedIds.length === 1 ? '' : 's'}.`
+  }
+
+  const notDeletedContactIds = notDeletedContacts.map(({ id }) => id).join(', ')
+  const deletedMessage =
+    deletedIds.length === 0
+      ? 'No Odoo contacts were deleted.'
+      : `Deleted ${deletedIds.length} Odoo contact${deletedIds.length === 1 ? '' : 's'}: ${deletedIds.join(', ')}.`
+
+  return `${deletedMessage} Could not delete ${notDeletedContacts.length} Odoo contact${
+    notDeletedContacts.length === 1 ? '' : 's'
+  }: ${notDeletedContactIds}.`
+}
+
+const getNotDeletedContactsDetails = (notDeletedContacts: NotDeletedContact[]): string =>
+  notDeletedContacts.map(({ id, reason }) => `Contact ${id}: ${reason}`).join(' ')
+
 const deleteContactsIndividually = async (
   odooClient: {
     deleteContacts: (input: { ids: number[]; context?: Record<string, unknown> }) => Promise<boolean>
@@ -46,7 +66,11 @@ const deleteContactsIndividually = async (
       if (success) {
         deletedIds.push(id)
       } else {
-        notDeletedContacts.push({ id, name, reason: 'Odoo did not accept the contact deletion.' })
+        notDeletedContacts.push({
+          id,
+          name,
+          reason: 'Odoo returned false while deleting this contact. Verify the contact ID and user permissions.',
+        })
       }
     } catch (thrown) {
       const reason = getErrorMessage(thrown)
@@ -67,7 +91,7 @@ const deleteContactsIndividually = async (
 export const deleteContacts = wrapAction(
   { actionName: 'deleteContacts', errorMessage: 'Failed to delete Odoo contacts' },
   async ({ odooClient }, input) => {
-    const contacts = await odooClient.getContacts({
+    const contacts = await odooClient.listContacts({
       ids: input.ids,
       fields: ['id', 'name', 'user_id'],
       context: input.context,
@@ -128,8 +152,16 @@ export const deleteContacts = wrapAction(
       }
     }
 
+    if (deletedIds.length === 0 && notDeletedContacts.length > 0) {
+      throw new sdk.RuntimeError(
+        `${getDeleteContactsMessage(deletedIds, notDeletedContacts)} ${getNotDeletedContactsDetails(
+          notDeletedContacts
+        )}`
+      )
+    }
+
     return {
-      success: notDeletedContacts.length === 0,
+      message: getDeleteContactsMessage(deletedIds, notDeletedContacts),
       deletedIds,
       notDeletedContacts,
     }
