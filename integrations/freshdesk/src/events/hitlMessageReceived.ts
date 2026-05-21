@@ -1,3 +1,4 @@
+import { isHitlTicket } from '../hitl'
 import { hitlMessageReceivedBodySchema } from './schemas'
 import * as bp from '.botpress'
 
@@ -15,6 +16,11 @@ export const executeHitlMessageReceived = async (props: HandlerProps & { body: R
 
   const { ticket, reply, agent } = parsed.data
   const text = reply.body_text
+
+  if (!isHitlTicket(ticket)) {
+    log.debug(`hitlMessageReceived: ticket=${ticket.id} is not marked as a Botpress HITL ticket, ignoring`)
+    return
+  }
 
   if (!text) {
     log.debug('hitlMessageReceived: empty reply body, ignoring')

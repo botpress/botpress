@@ -1,5 +1,6 @@
 import { buildConversationTranscript } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
+import { HITL_TICKET_TAG } from '../../../hitl'
 import { FreshdeskClient } from '../../FreshdeskClient'
 import { createFreshdeskRuntimeError } from '../errors'
 import * as bp from '.botpress'
@@ -39,7 +40,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
       ...requesterFields,
       ...(input.hitlSession?.priority ? { priority: PRIORITY_MAP[input.hitlSession.priority] } : {}),
       ...(input.hitlSession?.groupId ? { group_id: parseInt(input.hitlSession.groupId, 10) } : {}),
-      ...(input.hitlSession?.tags ? { tags: input.hitlSession.tags } : {}),
+      tags: Array.from(new Set([HITL_TICKET_TAG, ...(input.hitlSession?.tags ?? [])])),
     })
 
     log.info(`Created Freshdesk ticket id=${ticket.id} for HITL session`)

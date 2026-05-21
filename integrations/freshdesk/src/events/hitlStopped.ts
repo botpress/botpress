@@ -1,3 +1,4 @@
+import { isHitlTicket } from '../hitl'
 import { hitlStoppedBodySchema } from './schemas'
 import * as bp from '.botpress'
 
@@ -14,6 +15,11 @@ export const executeHitlStopped = async (props: HandlerProps & { body: Record<st
   }
 
   const { ticket } = parsed.data
+
+  if (!isHitlTicket(ticket)) {
+    log.debug(`hitlStopped: ticket=${ticket.id} is not marked as a Botpress HITL ticket, ignoring`)
+    return
+  }
 
   try {
     const { conversation } = await client.getOrCreateConversation({

@@ -60,7 +60,9 @@ For `ticketReplied`, also include reply fields. The `reply.body` field is **requ
 
 ## Human-in-the-Loop (HITL) |
 
-Three additional webhook paths notify Botpress when a ticket is assigned to an agent or resolved. Configure them as separate **Automation Rules** in Freshdesk (**Admin → Automations → Ticket Updates**):
+Three additional webhook paths notify Botpress when a ticket is assigned to an agent or resolved. Configure them as separate **Automation Rules** in Freshdesk (**Admin → Automations → Ticket Updates**).
+
+Tickets created by `startHitl` are tagged with `botpress-hitl`. Include ticket tags in each HITL webhook body; Botpress ignores HITL webhooks for tickets that do not have this tag.
 
 ### `/hitl-assigned` — fires `hitlAssigned`
 
@@ -70,7 +72,7 @@ Webhook body:
 
 ```json
 {
-  "ticket": { "id": "{{ticket.id}}" },
+  "ticket": { "id": "{{ticket.id}}", "tags": "{{ticket.tags}}" },
   "agent": { "id": "{{ticket.agent.id}}", "name": "{{ticket.agent.name}}" }
 }
 ```
@@ -83,7 +85,7 @@ Webhook body:
 
 ```json
 {
-  "ticket": { "id": "{{ticket.id}}" },
+  "ticket": { "id": "{{ticket.id}}", "tags": "{{ticket.tags}}" },
   "reply": { "body_text": "{{ticket.latest_public_comment}}" },
   "agent": { "id": "{{ticket.agent.id}}", "name": "{{ticket.agent.name}}" }
 }
@@ -97,7 +99,7 @@ Webhook body:
 
 ```json
 {
-  "ticket": { "id": "{{ticket.id}}" }
+  "ticket": { "id": "{{ticket.id}}", "tags": "{{ticket.tags}}" }
 }
 ```
 

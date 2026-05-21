@@ -22,6 +22,19 @@ export const freshdeskWebhookReplySchema = z.object({
 
 const hitlTicketIdSchema = z.object({
   id: z.coerce.number(),
+  tags: z
+    .union([z.array(z.string()), z.string()])
+    .nullish()
+    .transform((tags) => {
+      if (Array.isArray(tags)) return tags
+      if (typeof tags === 'string') {
+        return tags
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter(Boolean)
+      }
+      return undefined
+    }),
 })
 
 const hitlAgentSchema = z.object({
