@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/client'
-import { LinearOauthClient, registerWebhook, unregisterWebhook } from './misc/linear'
+import { LinearOauthClient, registerWebhook, revokeToken, unregisterWebhook } from './misc/linear'
 import * as bp from '.botpress'
 
 const _isWebhookManuallyRegistered = (ctx: bp.HandlerProps['ctx']) =>
@@ -41,7 +41,17 @@ export const unregister: bp.IntegrationProps['unregister'] = async ({ client, ct
     const webhookUrl = `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
     logger.forBot().info('Unregistering Linear webhook.')
     await unregisterWebhook({ linearClient, logger, url: webhookUrl })
-    logger.forBot().info('Linear webhook unregistration step completed.')
+
+    logger.forBot().info('Revoking Linear access token.')
+    const {
+      state: { payload },
+    } = await client.getState({
+      type: 'integration',
+      name: 'credentials',
+      id: ctx.integrationId,
+    })
+    await revokeToken(payload.accessToken)
+    logger.forBot().info('Linear integration unregistration completed.')
   } catch (thrown) {
     const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
     logger.forBot().warn('Failed to unregister webhook:', errorMessage)

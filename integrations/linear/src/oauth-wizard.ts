@@ -14,19 +14,17 @@ const _buildAuthorizeUrl = ({
   actor,
   scopes,
   state,
-  promptConsent,
 }: {
   clientId: string
   actor: 'user' | 'app'
   scopes: string
   state: string
-  promptConsent: boolean
 }) =>
   'https://linear.app/oauth/authorize' +
   `?client_id=${clientId}` +
   `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
   '&response_type=code' +
-  (promptConsent ? '&prompt=consent' : '') +
+  '&prompt=consent' +
   `&actor=${actor}` +
   `&state=${state}` +
   `&scope=${scopes}`
@@ -50,7 +48,7 @@ const _startStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async ({ ctx,
   const clientId = isDesk ? bp.secrets.DESK_CLIENT_ID : bp.secrets.CLIENT_ID
 
   return responses.redirectToExternalUrl(
-    _buildAuthorizeUrl({ clientId, actor: 'user', scopes: ADMIN_SCOPES, state: ctx.webhookId, promptConsent: true })
+    _buildAuthorizeUrl({ clientId, actor: 'user', scopes: ADMIN_SCOPES, state: ctx.webhookId })
   )
 }
 
@@ -131,7 +129,6 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
       actor: 'app',
       scopes: APP_SCOPES,
       state: ctx.webhookId,
-      promptConsent: false,
     })
   )
 }
