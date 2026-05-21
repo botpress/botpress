@@ -33,6 +33,15 @@ export const executeHitlMessageReceived = async (props: HandlerProps & { body: R
       tags: { freshdeskTicketId: String(ticket.id) },
     })
 
+    const { messages } = await client.listMessages({
+      conversationId: conversation.id,
+      tags: { freshdeskCommentId: reply.id },
+    })
+    if (messages.length > 0) {
+      log.debug(`hitlMessageReceived: duplicate reply detected for ticket=${ticket.id}, reply=${reply.id}, skipping`)
+      return
+    }
+
     const agentId = agent?.id ?? 'unknown'
     const agentName = agent?.name ?? 'Freshdesk Agent'
     const { users } = await client.listUsers({ tags: { freshdeskAgentId: agentId } })
@@ -40,19 +49,12 @@ export const executeHitlMessageReceived = async (props: HandlerProps & { body: R
       ? await client.updateUser({ ...users[0], name: agentName, tags: { ...users[0].tags, freshdeskAgentId: agentId } })
       : await client.createUser({ name: agentName, tags: { freshdeskAgentId: agentId } })
 
-    // Deduplicate: skip if a message with identical text is already the most recent in this conversation
-    const { messages } = await client.listMessages({ conversationId: conversation.id })
-    if (messages.length > 0 && messages[0]?.payload?.['text'] === text) {
-      log.debug(`hitlMessageReceived: duplicate message detected for ticket=${ticket.id}, skipping`)
-      return
-    }
-
     await client.createMessage({
       type: 'text',
       userId: user.id,
       conversationId: conversation.id,
       payload: { text },
-      tags: {},
+      tags: { freshdeskCommentId: reply.id },
     })
 
     log.info(`hitlMessageReceived: created message in conversation=${conversation.id} from agent=${agentId}`)
