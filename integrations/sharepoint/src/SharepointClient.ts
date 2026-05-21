@@ -1,8 +1,6 @@
-import axios from 'axios'
 import * as msal from '@azure/msal-node'
 import * as sdk from '@botpress/sdk'
-import * as bp from '.botpress'
-import { formatPrivateKey, handleAxiosError } from './misc/utils'
+import axios from 'axios'
 import {
   ChangeItem,
   ChangeResponse,
@@ -10,15 +8,17 @@ import {
   SharePointFoldersResponse,
   SharePointListsResponse,
 } from './misc/SharepointTypes'
+import { formatPrivateKey, handleAxiosError } from './misc/utils'
+import * as bp from '.botpress'
 
 export class SharepointClient {
-  private cca: msal.ConfidentialClientApplication
-  private primaryDomain: string
-  private siteName: string
-  private documentLibraryName: string | undefined
+  private _cca: msal.ConfidentialClientApplication
+  private _primaryDomain: string
+  private _siteName: string
+  private _documentLibraryName: string | undefined
 
-  constructor(integrationConfiguration: bp.configuration.Configuration, documentLibraryName?: string) {
-    this.cca = new msal.ConfidentialClientApplication({
+  public constructor(integrationConfiguration: bp.configuration.Configuration, documentLibraryName?: string) {
+    this._cca = new msal.ConfidentialClientApplication({
       auth: {
         clientId: integrationConfiguration.clientId.trim(),
         authority: `https://login.microsoftonline.com/${integrationConfiguration.tenantId.trim()}`,
@@ -29,45 +29,45 @@ export class SharepointClient {
       },
     })
 
-    this.primaryDomain = integrationConfiguration.primaryDomain.trim()
-    this.siteName = integrationConfiguration.siteName.trim()
-    this.documentLibraryName = documentLibraryName?.trim()
+    this._primaryDomain = integrationConfiguration.primaryDomain.trim()
+    this._siteName = integrationConfiguration.siteName.trim()
+    this._documentLibraryName = documentLibraryName?.trim()
   }
 
   public getDocumentLibraryName(): string {
-    if (!this.documentLibraryName) {
+    if (!this._documentLibraryName) {
       throw new sdk.RuntimeError('[SharepointClient] documentLibraryName is not set on this client instance')
     }
-    return this.documentLibraryName
+    return this._documentLibraryName
   }
 
-  private async fetchToken(): Promise<string> {
+  private async _fetchToken(): Promise<string> {
     const tokenRequest = {
-      scopes: [`https://${this.primaryDomain}.sharepoint.com/.default`],
+      scopes: [`https://${this._primaryDomain}.sharepoint.com/.default`],
     }
-    const token = await this.cca.acquireTokenByClientCredential(tokenRequest)
+    const token = await this._cca.acquireTokenByClientCredential(tokenRequest)
     if (!token) {
       throw new sdk.RuntimeError('Error acquiring SharePoint OAuth token')
     }
     return token.accessToken
   }
 
-  private get baseUrl(): string {
-    return `https://${this.primaryDomain}.sharepoint.com/sites/${this.siteName}`
+  private get _baseUrl(): string {
+    return `https://${this._primaryDomain}.sharepoint.com/sites/${this._siteName}`
   }
 
-  private odataVerboseHeaders(accessToken: string) {
+  private _odataVerboseHeaders(accessToken: string) {
     return {
       Authorization: `Bearer ${accessToken}`,
       Accept: 'application/json;odata=verbose',
     }
   }
 
-  private async getDocumentLibraryListId(): Promise<string> {
+  private async _getDocumentLibraryListId(): Promise<string> {
     const lib = this.getDocumentLibraryName()
-    const url = `${this.baseUrl}/_api/web/lists/getbytitle('${lib}')?$select=Title,Id`
-    const token = await this.fetchToken()
-    const res = await axios.get(url, { headers: this.odataVerboseHeaders(token) }).catch(handleAxiosError)
+    const url = `${this._baseUrl}/_api/web/lists/getbytitle('${lib}')?$select=Title,Id`
+    const token = await this._fetchToken()
+    const res = await axios.get(url, { headers: this._odataVerboseHeaders(token) }).catch(handleAxiosError)
     return res.data.d.Id
   }
 
@@ -82,11 +82,11 @@ export class SharepointClient {
   async getFilePath(listItemIndex: number): Promise<string | null> {
     const lib = this.getDocumentLibraryName()
     const url =
-      `${this.baseUrl}/_api/web/lists/getbytitle('${lib}')/items(${listItemIndex})` +
+      `${this._baseUrl}/_api/web/lists/getbytitle('${lib}')/items(${listItemIndex})` +
       '/File?$select=Name,ServerRelativeUrl'
-    const token = await this.fetchToken()
+    const token = await this._fetchToken()
     const res: { data: { d: { Name: string | null; ServerRelativeUrl: string | null } } } = await axios
-      .get(url, { headers: this.odataVerboseHeaders(token) })
+      .get(url, { headers: this._odataVerboseHeaders(token) })
       .catch(() => ({ data: { d: { Name: null, ServerRelativeUrl: null } } }))
 
     const { Name, ServerRelativeUrl } = res.data.d
@@ -98,8 +98,8 @@ export class SharepointClient {
 
   async getChanges(changeToken: string | null): Promise<ChangeItem[]> {
     const lib = this.getDocumentLibraryName()
-    const token = await this.fetchToken()
-    const url = `${this.baseUrl}/_api/web/lists/getbytitle('${lib}')/GetChanges`
+    const token = await this._fetchToken()
+    const url = `${this._baseUrl}/_api/web/lists/getbytitle('${lib}')/GetChanges`
     const query: Record<string, unknown> = {
       Item: true,
       Add: true,
@@ -112,51 +112,51 @@ export class SharepointClient {
       query.ChangeTokenStart = { StringValue: changeToken }
     }
     const res = await axios
-      .post<ChangeResponse>(url, { query }, { headers: this.odataVerboseHeaders(token) })
+      .post<ChangeResponse>(url, { query }, { headers: this._odataVerboseHeaders(token) })
       .catch(handleAxiosError)
     return res.data.d.results
   }
 
   async registerWebhook(webhookUrl: string, clientState: string): Promise<string> {
-    const listId = await this.getDocumentLibraryListId()
-    const url = `${this.baseUrl}/_api/web/lists('${listId}')/subscriptions`
-    const token = await this.fetchToken()
+    const listId = await this._getDocumentLibraryListId()
+    const url = `${this._baseUrl}/_api/web/lists('${listId}')/subscriptions`
+    const token = await this._fetchToken()
     const res = await axios
       .post(
         url,
         {
           clientState,
-          resource: `${this.baseUrl}/_api/web/lists('${listId}')`,
+          resource: `${this._baseUrl}/_api/web/lists('${listId}')`,
           notificationUrl: webhookUrl,
           expirationDateTime: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString(),
         },
-        { headers: this.odataVerboseHeaders(token) }
+        { headers: this._odataVerboseHeaders(token) }
       )
       .catch(handleAxiosError)
     return res.data.d.id
   }
 
   async renewWebhook(subscriptionId: string, newExpirationDateTime: string): Promise<void> {
-    const listId = await this.getDocumentLibraryListId()
-    const url = `${this.baseUrl}/_api/web/lists('${listId}')/subscriptions('${subscriptionId}')`
-    const token = await this.fetchToken()
+    const listId = await this._getDocumentLibraryListId()
+    const url = `${this._baseUrl}/_api/web/lists('${listId}')/subscriptions('${subscriptionId}')`
+    const token = await this._fetchToken()
     await axios
-      .patch(url, { expirationDateTime: newExpirationDateTime }, { headers: this.odataVerboseHeaders(token) })
+      .patch(url, { expirationDateTime: newExpirationDateTime }, { headers: this._odataVerboseHeaders(token) })
       .catch(handleAxiosError)
   }
 
   async unregisterWebhook(webhookId: string): Promise<void> {
-    const listId = await this.getDocumentLibraryListId()
-    const url = `${this.baseUrl}/_api/web/lists('${listId}')/subscriptions('${webhookId}')`
-    const token = await this.fetchToken()
-    await axios.delete(url, { headers: this.odataVerboseHeaders(token) }).catch(handleAxiosError)
+    const listId = await this._getDocumentLibraryListId()
+    const url = `${this._baseUrl}/_api/web/lists('${listId}')/subscriptions('${webhookId}')`
+    const token = await this._fetchToken()
+    await axios.delete(url, { headers: this._odataVerboseHeaders(token) }).catch(handleAxiosError)
   }
 
   async listWebhookSubscriptions(): Promise<Array<{ id: string; notificationUrl: string }>> {
-    const listId = await this.getDocumentLibraryListId()
-    const url = `${this.baseUrl}/_api/web/lists('${listId}')/subscriptions`
-    const token = await this.fetchToken()
-    const res = await axios.get(url, { headers: this.odataVerboseHeaders(token) }).catch(handleAxiosError)
+    const listId = await this._getDocumentLibraryListId()
+    const url = `${this._baseUrl}/_api/web/lists('${listId}')/subscriptions`
+    const token = await this._fetchToken()
+    const res = await axios.get(url, { headers: this._odataVerboseHeaders(token) }).catch(handleAxiosError)
     return (res.data.d.results as Array<{ id: string; notificationUrl: string }>).map((s) => ({
       id: s.id,
       notificationUrl: s.notificationUrl,
@@ -164,13 +164,13 @@ export class SharepointClient {
   }
 
   async listDocumentLibraries(): Promise<Array<{ name: string; serverRelativeUrl: string }>> {
-    const token = await this.fetchToken()
+    const token = await this._fetchToken()
     const url =
-      `${this.baseUrl}/_api/web/lists` +
+      `${this._baseUrl}/_api/web/lists` +
       '?$filter=BaseTemplate eq 101 and Hidden eq false' +
       '&$select=Title,RootFolder/ServerRelativeUrl&$expand=RootFolder'
     const res = await axios
-      .get<SharePointListsResponse>(url, { headers: this.odataVerboseHeaders(token) })
+      .get<SharePointListsResponse>(url, { headers: this._odataVerboseHeaders(token) })
       .catch(handleAxiosError)
     return res.data.d.results.map((lib) => ({
       name: lib.Title,
@@ -185,13 +185,13 @@ export class SharepointClient {
     files: Array<{ name: string; serverRelativeUrl: string; length: number; timeLastModified: string; eTag: string }>
     nextUrl?: string
   }> {
-    const token = await this.fetchToken()
+    const token = await this._fetchToken()
     const url =
       nextUrl ??
-      `${this.baseUrl}/_api/web/GetFolderByServerRelativeUrl('${serverRelativePath}')/Files` +
+      `${this._baseUrl}/_api/web/GetFolderByServerRelativeUrl('${serverRelativePath}')/Files` +
         '?$select=Name,ServerRelativeUrl,Length,TimeLastModified,ETag&$top=100'
     const res = await axios
-      .get<SharePointFilesResponse>(url, { headers: this.odataVerboseHeaders(token) })
+      .get<SharePointFilesResponse>(url, { headers: this._odataVerboseHeaders(token) })
       .catch(handleAxiosError)
     return {
       files: res.data.d.results.map((f) => ({
@@ -206,12 +206,12 @@ export class SharepointClient {
   }
 
   async listSubfolders(serverRelativePath: string): Promise<Array<{ name: string; serverRelativeUrl: string }>> {
-    const token = await this.fetchToken()
+    const token = await this._fetchToken()
     const url =
-      `${this.baseUrl}/_api/web/GetFolderByServerRelativeUrl('${serverRelativePath}')/Folders` +
+      `${this._baseUrl}/_api/web/GetFolderByServerRelativeUrl('${serverRelativePath}')/Folders` +
       "?$filter=Name ne 'Forms'"
     const res = await axios
-      .get<SharePointFoldersResponse>(url, { headers: this.odataVerboseHeaders(token) })
+      .get<SharePointFoldersResponse>(url, { headers: this._odataVerboseHeaders(token) })
       .catch(handleAxiosError)
     return res.data.d.results.map((f) => ({
       name: f.Name,
@@ -220,8 +220,8 @@ export class SharepointClient {
   }
 
   async downloadFile(serverRelativePath: string): Promise<ArrayBuffer> {
-    const token = await this.fetchToken()
-    const url = `${this.baseUrl}/_api/web/GetFileByServerRelativeUrl('${serverRelativePath}')/$value`
+    const token = await this._fetchToken()
+    const url = `${this._baseUrl}/_api/web/GetFileByServerRelativeUrl('${serverRelativePath}')/$value`
     const res = await axios
       .get<ArrayBuffer>(url, { headers: { Authorization: `Bearer ${token}` }, responseType: 'arraybuffer' })
       .catch(handleAxiosError)
