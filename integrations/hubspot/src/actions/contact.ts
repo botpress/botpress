@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
 import { contactSchema } from '../../definitions/actions/contact'
-import { getAuthenticatedHubspotClient, propertiesEntriesToRecord } from '../utils'
+import { buildContactUrl, getAuthenticatedHubspotClient, getOrFetchPortalId, propertiesEntriesToRecord } from '../utils'
 import * as bp from '.botpress'
 
 type HubspotClient = Awaited<ReturnType<typeof getAuthenticatedHubspotClient>>
@@ -32,7 +32,7 @@ export const searchContact: bp.IntegrationProps['actions']['searchContact'] = as
   const phoneStr = input.phone ? `phone ${input.phone}` : 'unknown phone'
   const emailStr = input.email ? `email ${input.email}` : 'unknown email'
   const infosStr = `${phoneStr} and ${emailStr}`
-  const propertyKeys = await _getContactPropertyKeys(hsClient)
+  const propertyKeys = input.properties?.length ? input.properties : await _getContactPropertyKeys(hsClient)
   logger
     .forBot()
     .debug(
@@ -51,8 +51,35 @@ export const searchContact: bp.IntegrationProps['actions']['searchContact'] = as
     }
   }
 
+  const portalId = await getOrFetchPortalId({ client, ctx, hsClient })
   return {
     contact: _mapHsContactToBpContact(contact),
+    url: buildContactUrl({ portalId, contactId: contact.id }),
+  }
+}
+
+export const listContactProperties: bp.IntegrationProps['actions']['listContactProperties'] = async ({
+  ctx,
+  client,
+  logger,
+}) => {
+  const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
+  try {
+    const properties = await hsClient.listContactProperties()
+    return {
+      properties: properties.map((property) => ({
+        name: property.name,
+        label: property.label,
+        type: property.type,
+        fieldType: property.fieldType,
+        groupName: property.groupName,
+        description: property.description,
+        ...(property.referencedObjectType ? { referencedObjectType: property.referencedObjectType } : {}),
+      })),
+    }
+  } catch (err: unknown) {
+    logger.forBot().debug(`Contact properties could not be retrieved: ${err}`)
+    return { properties: [] }
   }
 }
 
@@ -82,12 +109,16 @@ export const getContact: bp.IntegrationProps['actions']['getContact'] = async ({
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
 
   const propertyKeys = await _getContactPropertyKeys(hsClient)
-  const contact = await hsClient.getContact({
-    contactId: input.contactIdOrEmail,
-    propertiesToReturn: propertyKeys,
-  })
+  const [contact, portalId] = await Promise.all([
+    hsClient.getContact({
+      contactId: input.contactIdOrEmail,
+      propertiesToReturn: propertyKeys,
+    }),
+    getOrFetchPortalId({ client, ctx, hsClient }),
+  ])
   return {
     contact: _mapHsContactToBpContact(contact),
+    url: buildContactUrl({ portalId, contactId: contact.id }),
   }
 }
 

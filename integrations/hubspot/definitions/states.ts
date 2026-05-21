@@ -3,9 +3,27 @@ import { z, StateDefinition } from '@botpress/sdk'
 const oauthCredentials = {
   type: 'integration',
   schema: z.object({
-    accessToken: z.string().title('Access Token').describe('The access token for the Hubspot integration'),
-    refreshToken: z.string().title('Refresh Token').describe('The refresh token for the Hubspot integration'),
+    accessToken: z.string().title('Access Token').describe('The access token for the HubSpot integration'),
+    refreshToken: z.string().title('Refresh Token').describe('The refresh token for the HubSpot integration'),
     expiresAtSeconds: z.number().title('Expires At').describe('The timestamp in seconds when the access token expires'),
+  }),
+} satisfies StateDefinition
+
+const hubInfo = {
+  type: 'integration',
+  schema: z.object({
+    portalId: z.string().title('Portal ID').describe('The HubSpot portal (hub) ID for the connected account'),
+  }),
+} satisfies StateDefinition
+
+const environment = {
+  type: 'integration',
+  schema: z.object({
+    env: z
+      .enum(['preview', 'production'])
+      .title('Environment')
+      .describe('The environment where the integration is installed'),
+    source: z.string().optional().title('Source').describe('The source of the OAuth request, eg: "desk"'),
   }),
 } satisfies StateDefinition
 
@@ -69,7 +87,7 @@ const propertyCacheStateDefinition = {
         z.object({
           label: z.string().title('Label').describe('The label of the property'),
           type: propertyTypeSchema,
-          hubspotDefined: z.boolean().title('Hubspot Defined').describe('Whether the property is defined by Hubspot'),
+          hubspotDefined: z.boolean().title('HubSpot Defined').describe('Whether the property is defined by HubSpot'),
           options: z
             .array(z.string())
             .optional()
@@ -138,6 +156,8 @@ const hitlSetupWizard = {
 
 export const states = {
   oauthCredentials,
+  hubInfo,
+  environment,
   ticketPipelineCache,
   companiesCache,
   ...propertyCacheStates,

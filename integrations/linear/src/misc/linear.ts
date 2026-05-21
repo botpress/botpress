@@ -1,7 +1,7 @@
-import { OAUTH_IDENTIFIER_HEADER, Response, RuntimeError, z } from '@botpress/sdk'
+import { RuntimeError, z } from '@botpress/sdk'
 import { LinearClient } from '@linear/sdk'
 import axios from 'axios'
-import queryString from 'query-string'
+import { useDeskOAuth } from './utils'
 import * as bp from '.botpress'
 
 type Credentials = bp.states.States['credentials']['payload']
@@ -83,8 +83,10 @@ const oauthSchema = z.object({
 
 type OAuthResponse = z.infer<typeof oauthSchema>
 
+export type Actor = 'user' | 'app'
+
 const tokenRequestSchema = z.object({
-  actor: z.literal('application'),
+  actor: z.enum(['user', 'app']),
   redirect_uri: z.string(),
 })
 
@@ -107,9 +109,9 @@ export class LinearOauthClient {
   private _clientSecret: string
   private _redirectUri: string
 
-  public constructor() {
-    this._clientId = bp.secrets.CLIENT_ID
-    this._clientSecret = bp.secrets.CLIENT_SECRET
+  public constructor(useDeskOAuth?: boolean) {
+    this._clientId = useDeskOAuth ? bp.secrets.DESK_CLIENT_ID : bp.secrets.CLIENT_ID
+    this._clientSecret = useDeskOAuth ? bp.secrets.DESK_CLIENT_SECRET : bp.secrets.CLIENT_SECRET
     this._redirectUri = `${process.env.BP_WEBHOOK_URL}/oauth`
   }
 
@@ -117,12 +119,21 @@ export class LinearOauthClient {
     url: string,
     body: z.infer<TSchema>
   ): Promise<OAuthResponse> {
-    const { data } = await axios.post(
-      url,
-      { client_id: this._clientId, client_secret: this._clientSecret, ...body },
-      { headers: oauthHeaders }
-    )
-    return data
+    const form = new URLSearchParams({
+      client_id: this._clientId,
+      client_secret: this._clientSecret,
+      ...body,
+    })
+    try {
+      const response = await axios.post(url, form.toString(), { headers: oauthHeaders })
+      return response.data
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const message = err.response?.data?.error_description || err.message
+        throw new RuntimeError(`OAuth request failed: ${message}`)
+      }
+      throw new RuntimeError(`OAuth request failed: ${String(err)}`)
+    }
   }
 
   private _parseCredentials(res: OAuthResponse): Credentials {
@@ -150,21 +161,21 @@ export class LinearOauthClient {
     return this._parseCredentials(data)
   }
 
-  public async getAccessTokenFromRefreshToken(oldRefreshToken: string): Promise<Credentials> {
+  public async getAccessTokenFromRefreshToken(oldRefreshToken: string, actor: Actor): Promise<Credentials> {
     const data = await this._handleOAuthRequest<typeof refreshTokenRequestSchema>(`${linearEndpoint}/oauth/token`, {
       grant_type: 'refresh_token',
       refresh_token: oldRefreshToken,
-      actor: 'application',
+      actor,
       redirect_uri: this._redirectUri,
     })
     return this._parseCredentials(data)
   }
 
-  public async getAccessTokenFromOAuthCode(code: string) {
+  public async getAccessTokenFromOAuthCode(code: string, actor: Actor) {
     const data = await this._handleOAuthRequest<typeof getAccessTokenRequestSchema>(`${linearEndpoint}/oauth/token`, {
       grant_type: 'authorization_code',
       code,
-      actor: 'application',
+      actor,
       redirect_uri: this._redirectUri,
     })
     if (!data.refresh_token) {
@@ -173,18 +184,29 @@ export class LinearOauthClient {
     return this._parseCredentials(data)
   }
 
-  public async resolveValidCredentials(current: Credentials): Promise<Credentials> {
+  public async resolveValidCredentials(current: Credentials, actor: Actor): Promise<Credentials> {
     const FIVE_MINUTES_MS = 5 * 60 * 1000
     const isExpired = new Date(current.expiresAt).getTime() <= Date.now() + FIVE_MINUTES_MS
 
     if (isExpired) {
-      return this.getAccessTokenFromRefreshToken(current.refreshToken)
+      return this.getAccessTokenFromRefreshToken(current.refreshToken, actor)
     }
 
     return current
   }
 
   public static async create(props: { client: bp.Client; ctx: bp.Context }) {
+    return LinearOauthClient._createFromStoredCredentials(props, 'credentials')
+  }
+
+  public static async createAdmin(props: { client: bp.Client; ctx: bp.Context }) {
+    return LinearOauthClient._createFromStoredCredentials(props, 'adminCredentials')
+  }
+
+  private static async _createFromStoredCredentials(
+    props: { client: bp.Client; ctx: bp.Context },
+    stateName: 'credentials' | 'adminCredentials'
+  ) {
     const { ctx, client } = props
     if (ctx.configurationType === 'apiKey') {
       return new LinearClient({ apiKey: ctx.configuration.apiKey })
@@ -194,15 +216,43 @@ export class LinearOauthClient {
       state: { payload },
     } = await client.getState({
       type: 'integration',
-      name: 'credentials',
+      name: stateName,
       id: ctx.integrationId,
     })
 
-    const linearOauthClient = new LinearOauthClient()
-    const credentials = await linearOauthClient.resolveValidCredentials(payload)
+    let effectiveStateName = stateName
+    let effectivePayload = payload
+    if (stateName === 'adminCredentials' && !payload.accessToken) {
+      const {
+        state: { payload: fallbackPayload },
+      } = await client.getState({
+        type: 'integration',
+        name: 'credentials',
+        id: ctx.integrationId,
+      })
+      effectiveStateName = 'credentials'
+      effectivePayload = fallbackPayload
+    }
 
-    if (credentials.accessToken !== payload.accessToken) {
-      await client.setState({ type: 'integration', name: 'credentials', id: ctx.integrationId, payload: credentials })
+    const {
+      state: { payload: environment },
+    } = await client.getState({
+      type: 'integration',
+      name: 'environment',
+      id: ctx.integrationId,
+    })
+    const useDesk = useDeskOAuth(environment)
+    const linearOauthClient = new LinearOauthClient(useDesk)
+    const actor: Actor = effectiveStateName === 'adminCredentials' ? 'user' : 'app'
+    const credentials = await linearOauthClient.resolveValidCredentials(effectivePayload, actor)
+
+    if (credentials.accessToken !== effectivePayload.accessToken) {
+      await client.setState({
+        type: 'integration',
+        name: effectiveStateName,
+        id: ctx.integrationId,
+        payload: credentials,
+      })
     }
 
     return new LinearClient({ accessToken: credentials.accessToken })
@@ -267,41 +317,4 @@ export const registerWebhook = async ({
     label: 'Botpress',
   })
   logger.forBot().info('Linear webhook registered successfully.')
-}
-
-export const handleOauth = async ({ req, ctx, client, logger }: bp.HandlerProps): Promise<Response> => {
-  const linearOauthClient = new LinearOauthClient()
-
-  const query = queryString.parse(req.query)
-  const code = query.code
-
-  if (typeof code !== 'string') {
-    throw new RuntimeError('Handler received an empty code')
-  }
-
-  const credentials = await linearOauthClient.getAccessTokenFromOAuthCode(code)
-  logger.forBot().info('Obtained credentials from OAuth flow, saving to state...')
-  await client.setState({
-    type: 'integration',
-    name: 'credentials',
-    id: ctx.integrationId,
-    payload: credentials,
-  })
-
-  const linearClient = new LinearClient({ accessToken: credentials.accessToken })
-  const organization = await linearClient.organization
-  await client.configureIntegration({ scheduleRegisterCall: 'monthly' })
-
-  const webhookUrl = `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
-  try {
-    await registerWebhook({ linearClient, logger, url: webhookUrl })
-  } catch (thrown) {
-    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
-    logger.forBot().warn('Failed to register webhook:', errorMessage)
-  }
-
-  return {
-    status: 200,
-    headers: { [OAUTH_IDENTIFIER_HEADER]: organization.id },
-  }
 }

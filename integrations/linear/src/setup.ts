@@ -9,9 +9,8 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
   const manuallyRegistered = _isWebhookManuallyRegistered(ctx)
   logger.forBot().info('Registering Linear integration.')
 
-  const linearClient = await LinearOauthClient.create({ client, ctx })
-
   if (!manuallyRegistered) {
+    const linearClient = await LinearOauthClient.createAdmin({ client, ctx })
     const webhookUrl = `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
     logger.forBot().info('Registering Linear webhook')
     try {
@@ -38,7 +37,7 @@ export const unregister: bp.IntegrationProps['unregister'] = async ({ client, ct
     return
   }
   try {
-    const linearClient = await LinearOauthClient.create({ client, ctx })
+    const linearClient = await LinearOauthClient.createAdmin({ client, ctx })
     const webhookUrl = `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
     logger.forBot().info('Unregistering Linear webhook.')
     await unregisterWebhook({ linearClient, logger, url: webhookUrl })
