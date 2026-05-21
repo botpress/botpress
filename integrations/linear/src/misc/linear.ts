@@ -220,6 +220,20 @@ export class LinearOauthClient {
       id: ctx.integrationId,
     })
 
+    let effectiveStateName = stateName
+    let effectivePayload = payload
+    if (stateName === 'adminCredentials' && !payload.accessToken) {
+      const {
+        state: { payload: fallbackPayload },
+      } = await client.getState({
+        type: 'integration',
+        name: 'credentials',
+        id: ctx.integrationId,
+      })
+      effectiveStateName = 'credentials'
+      effectivePayload = fallbackPayload
+    }
+
     const {
       state: { payload: environment },
     } = await client.getState({
@@ -229,11 +243,16 @@ export class LinearOauthClient {
     })
     const useDesk = useDeskOAuth(environment)
     const linearOauthClient = new LinearOauthClient(useDesk)
-    const actor: Actor = stateName === 'adminCredentials' ? 'user' : 'app'
-    const credentials = await linearOauthClient.resolveValidCredentials(payload, actor)
+    const actor: Actor = effectiveStateName === 'adminCredentials' ? 'user' : 'app'
+    const credentials = await linearOauthClient.resolveValidCredentials(effectivePayload, actor)
 
-    if (credentials.accessToken !== payload.accessToken) {
-      await client.setState({ type: 'integration', name: stateName, id: ctx.integrationId, payload: credentials })
+    if (credentials.accessToken !== effectivePayload.accessToken) {
+      await client.setState({
+        type: 'integration',
+        name: effectiveStateName,
+        id: ctx.integrationId,
+        payload: credentials,
+      })
     }
 
     return new LinearClient({ accessToken: credentials.accessToken })
