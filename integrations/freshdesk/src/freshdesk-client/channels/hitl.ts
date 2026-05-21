@@ -82,43 +82,31 @@ export default {
       bloc: wrapChannel(
         { channelName: 'hitl', messageType: 'bloc' },
         async ({ ack, payload, freshdeskTicketId, freshdeskClient, chatbotName }) => {
+          let firstNoteId: string | undefined
+          const addNote = async (body: string) => {
+            const note = await freshdeskClient.addNote(freshdeskTicketId, { body, private: false })
+            firstNoteId ??= String(note.id)
+          }
+
           for (const item of payload.items) {
             switch (item.type) {
               case 'text':
-                await freshdeskClient.addNote(freshdeskTicketId, {
-                  body: `[${chatbotName}]: ${item.payload.text}`,
-                  private: false,
-                })
+                await addNote(`[${chatbotName}]: ${item.payload.text}`)
                 break
               case 'markdown':
-                await freshdeskClient.addNote(freshdeskTicketId, {
-                  body: `[${chatbotName}]: ${item.payload.markdown}`,
-                  private: false,
-                })
+                await addNote(`[${chatbotName}]: ${item.payload.markdown}`)
                 break
               case 'image':
-                await freshdeskClient.addNote(freshdeskTicketId, {
-                  body: `[${chatbotName}]: ${item.payload.imageUrl}`,
-                  private: false,
-                })
+                await addNote(`[${chatbotName}]: ${item.payload.imageUrl}`)
                 break
               case 'video':
-                await freshdeskClient.addNote(freshdeskTicketId, {
-                  body: `[${chatbotName}]: ${item.payload.videoUrl}`,
-                  private: false,
-                })
+                await addNote(`[${chatbotName}]: ${item.payload.videoUrl}`)
                 break
               case 'audio':
-                await freshdeskClient.addNote(freshdeskTicketId, {
-                  body: `[${chatbotName}]: ${item.payload.audioUrl}`,
-                  private: false,
-                })
+                await addNote(`[${chatbotName}]: ${item.payload.audioUrl}`)
                 break
               case 'file':
-                await freshdeskClient.addNote(freshdeskTicketId, {
-                  body: `[${chatbotName}]: ${item.payload.fileUrl}`,
-                  private: false,
-                })
+                await addNote(`[${chatbotName}]: ${item.payload.fileUrl}`)
                 break
               case 'location': {
                 const { title, address, latitude, longitude } = item.payload
@@ -126,10 +114,7 @@ export default {
                 if (title) parts.push(title, '')
                 if (address) parts.push(address, '')
                 parts.push(`Latitude: ${latitude}`, `Longitude: ${longitude}`)
-                await freshdeskClient.addNote(freshdeskTicketId, {
-                  body: `[${chatbotName}]: ${parts.join('\n')}`,
-                  private: false,
-                })
+                await addNote(`[${chatbotName}]: ${parts.join('\n')}`)
                 break
               }
               default:
@@ -137,7 +122,7 @@ export default {
             }
           }
 
-          await ack({ tags: {} })
+          await ack({ tags: firstNoteId ? { freshdeskCommentId: firstNoteId } : {} })
         }
       ),
     },
