@@ -72,8 +72,14 @@ Webhook body:
 
 ```json
 {
-  "ticket": { "id": "{{ticket.id}}", "tags": "{{ticket.tags}}" },
-  "agent": { "id": "{{ticket.agent.id}}", "name": "{{ticket.agent.name}}" }
+  "ticket": {
+    "id": "{{ticket.id}}",
+    "tags": "{{ticket.tags}}"
+  },
+  "agent": {
+    "id": "{{ticket.agent.id}}",
+    "name": "{{ticket.agent.name}}"
+  }
 }
 ```
 
@@ -85,9 +91,18 @@ Webhook body:
 
 ```json
 {
-  "ticket": { "id": "{{ticket.id}}", "tags": "{{ticket.tags}}" },
-  "reply": { "id": "{{ticket.latest_public_comment_id}}", "body_text": "{{ticket.latest_public_comment}}" },
-  "agent": { "id": "{{ticket.agent.id}}", "name": "{{ticket.agent.name}}" }
+  "ticket": {
+    "id": "{{ticket.id}}",
+    "tags": "{{ticket.tags}}"
+  },
+  "reply": {
+    "id": "{{ticket.latest_public_comment_id}}",
+    "body_text": "{{ticket.latest_public_comment}}"
+  },
+  "agent": {
+    "id": "{{ticket.agent.id}}",
+    "name": "{{ticket.agent.name}}"
+  }
 }
 ```
 
@@ -99,7 +114,10 @@ Webhook body:
 
 ```json
 {
-  "ticket": { "id": "{{ticket.id}}", "tags": "{{ticket.tags}}" }
+  "ticket": {
+    "id": "{{ticket.id}}",
+    "tags": "{{ticket.tags}}"
+  }
 }
 ```
 
