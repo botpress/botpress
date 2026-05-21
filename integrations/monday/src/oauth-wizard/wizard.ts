@@ -1,4 +1,5 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
+import { z } from '@botpress/sdk'
 import axios from 'axios'
 import * as bp from '.botpress'
 
@@ -18,29 +19,56 @@ type MondayOAuthCredentials = {
 
 const OAUTH_REDIRECT_URI = 'https://webhook.botpress.cloud/oauth/wizard/oauth-callback'
 
+const _manualConfigurationSchema = z.object({
+  personalAccessToken: z
+    .string()
+    .secret()
+    .title('Personal Access Token')
+    .describe('A Monday.com personal access token with access to the boards you want to manage.'),
+})
+
+const _manualConfigurationForm = {
+  pageTitle: 'Manual Monday Configuration',
+  htmlOrMarkdownPageContents:
+    'Enter your Monday.com personal access token to configure this integration manually.<br>' +
+    'You can create a token from the <a href="https://developer.monday.com/api-reference/docs/authentication#get-your-token" target="_blank">Monday authentication settings</a>.',
+  schema: _manualConfigurationSchema,
+  nextStepId: 'save-manual-configuration',
+}
+
 export const handler = async (props: bp.HandlerProps) => {
   const wizard = new oauthWizard.OAuthWizardBuilder(props)
     .addStep({ id: 'start', handler: _startHandler })
+    .addStep({ id: 'route-choice', handler: _routeChoiceHandler })
     .addStep({ id: 'oauth-redirect', handler: _oauthRedirectHandler })
     .addStep({ id: 'oauth-callback', handler: _oauthCallbackHandler })
+    .addStep({ id: 'manual-configuration', handler: _manualConfigurationHandler })
+    .addStep({ id: 'save-manual-configuration', handler: _saveManualConfigurationHandler })
     .build()
 
   return await wizard.handleRequest()
 }
 
 const _startHandler: WizardHandler = ({ responses }) => {
-  return responses.displayButtons({
-    pageTitle: 'Connect Account',
-    htmlOrMarkdownPageContents: 'Connect your account to continue.',
-    buttons: [
-      {
-        action: 'navigate',
-        label: 'Connect',
-        navigateToStep: 'oauth-redirect',
-        buttonType: 'primary',
-      },
+  return responses.displayChoices({
+    pageTitle: 'Monday Integration Setup',
+    htmlOrMarkdownPageContents: 'Choose how you would like to configure your Monday integration:',
+    choices: [
+      { label: 'Connect with OAuth', value: 'oauth' },
+      { label: 'Use a Personal Access Token', value: 'manual' },
     ],
+    nextStepId: 'route-choice',
   })
+}
+
+const _routeChoiceHandler: WizardHandler = ({ selectedChoice, responses }) => {
+  switch (selectedChoice) {
+    case 'manual':
+      return responses.redirectToStep('manual-configuration')
+    case 'oauth':
+    default:
+      return responses.redirectToStep('oauth-redirect')
+  }
 }
 
 const _oauthRedirectHandler: WizardHandler = async ({ ctx, responses }) => {
@@ -80,6 +108,55 @@ const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, query, respon
       accessToken: credentials.accessToken,
       tokenType: credentials.tokenType,
       scope: credentials.scope,
+    },
+  })
+
+  await client.configureIntegration({ identifier: ctx.webhookId })
+  setIntegrationIdentifier(ctx.webhookId)
+
+  return responses.endWizard({ success: true })
+}
+
+const _manualConfigurationHandler: WizardHandler = ({ responses }) => {
+  return responses.displayForm(_manualConfigurationForm)
+}
+
+const _saveManualConfigurationHandler: WizardHandler = async ({
+  ctx,
+  client,
+  formValues,
+  responses,
+  setIntegrationIdentifier,
+}) => {
+  if (!formValues) {
+    return responses.redirectToStep('manual-configuration')
+  }
+
+  const parsed = _manualConfigurationSchema.safeParse(formValues)
+  if (!parsed.success) {
+    return responses.displayForm({
+      ..._manualConfigurationForm,
+      errors: parsed.error,
+      previousValues: formValues as z.input<typeof _manualConfigurationSchema>,
+    })
+  }
+
+  await client.setState({
+    type: 'integration',
+    name: 'configuration',
+    id: ctx.integrationId,
+    payload: {
+      personalAccessToken: parsed.data.personalAccessToken,
+    },
+  })
+  await client.setState({
+    type: 'integration',
+    name: 'oAuthCredentials',
+    id: ctx.integrationId,
+    payload: {
+      accessToken: '',
+      tokenType: 'Bearer',
+      scope: '',
     },
   })
 
