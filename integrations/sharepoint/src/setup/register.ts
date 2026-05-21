@@ -4,7 +4,12 @@ import { cleanupWebhook, getLibraryNames } from './utils'
 
 type Subscriptions = Record<
   string,
-  { webhookSubscriptionId: string; changeToken: string; itemPathCache: Record<string, { absolutePath: string; name: string }>; expiresAt: string }
+  {
+    webhookSubscriptionId: string
+    changeToken: string
+    itemPathCache: Record<string, { absolutePath: string; name: string }>
+    expiresAt: string
+  }
 >
 
 export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUrl, client, logger }) => {
