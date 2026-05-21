@@ -50,7 +50,12 @@ export const startQueryExplorer = async (
     return
   }
   if (!metricNames?.length) {
-    await reply(client, conversationId, userId, 'Cannot explore metrics: invalid or empty datasource. Going back to panel options.')
+    await reply(
+      client,
+      conversationId,
+      userId,
+      'Cannot explore metrics: invalid or empty datasource. Going back to panel options.'
+    )
     await setFlowState(client, conversationId, {
       panelForm: { ...state.panelForm, datasourceUid: undefined } as PanelForm,
     })

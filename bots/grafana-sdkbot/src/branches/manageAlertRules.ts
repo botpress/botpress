@@ -196,7 +196,10 @@ const handleDeleteRuleSelect = async (client: Client, conversationId: string, us
   }
 
   try {
-    const { output: ruleOutput } = await client.callAction({ type: `${GRAFANA}:getAlertRule`, input: { uid: rule.uid } })
+    const { output: ruleOutput } = await client.callAction({
+      type: `${GRAFANA}:getAlertRule`,
+      input: { uid: rule.uid },
+    })
     const botpressId = ruleOutput.labels?.botpress_id
     if (botpressId) {
       const { rows } = await client.findTableRows({ table: 'alertSubscriptionsTable', filter: { botpressId } })
