@@ -19,18 +19,23 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
     const ticketDescription = description + (messageHistory.length ? `\n\n---\n\n${messageHistory}` : '')
 
     const freshdeskClient = new FreshdeskClient(ctx.configuration.domain, ctx.configuration.apiKey)
+    const { requesterEmail, requesterName } = input.hitlSession ?? {}
 
-    const requesterFields = input.hitlSession?.requesterName
+    if (requesterName && !requesterEmail) {
+      throw new sdk.RuntimeError('requesterEmail is required when requesterName is provided.')
+    }
+
+    const requesterFields = requesterEmail
       ? {
-          name: input.hitlSession.requesterName,
-          ...(input.hitlSession.requesterEmail ? { email: input.hitlSession.requesterEmail } : {}),
+          email: requesterEmail,
+          ...(requesterName ? { name: requesterName } : {}),
         }
       : user.tags.freshdeskRequesterId
         ? { requester_id: parseInt(user.tags.freshdeskRequesterId, 10) }
         : (() => {
             throw new sdk.RuntimeError(
               `User ${user.id} has no freshdeskRequesterId tag and no requesterName was provided. ` +
-                'Call createUser first or pass requesterName/requesterEmail in the hitlSession.'
+                'Call createUser first or pass requesterEmail in the hitlSession.'
             )
           })()
 

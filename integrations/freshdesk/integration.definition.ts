@@ -30,7 +30,7 @@ export default new IntegrationDefinition({
         requesterName: z
           .string()
           .title('Requester Name')
-          .describe('Name of the requester. Use if the end user is not already a Freshdesk contact.')
+          .describe('Name of the requester. Requires Requester Email when provided.')
           .optional(),
         requesterEmail: z
           .string()
