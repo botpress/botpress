@@ -31,7 +31,14 @@ const _startHandler: WizardHandler = ({ responses }) => {
   return responses.displayForm(_tokenForm)
 }
 
-const _finalizeHandler: WizardHandler = async ({ formValues, client, ctx, responses, setIntegrationIdentifier }) => {
+const _finalizeHandler: WizardHandler = async ({
+  formValues,
+  client,
+  ctx,
+  logger,
+  responses,
+  setIntegrationIdentifier,
+}) => {
   if (!formValues) {
     return responses.redirectToStep('start')
   }
@@ -52,7 +59,8 @@ const _finalizeHandler: WizardHandler = async ({ formValues, client, ctx, respon
     const telegraf = new Telegraf(botToken)
     const bot = await telegraf.telegram.getMe()
     botUsername = bot.username ?? String(bot.id)
-  } catch {
+  } catch (err) {
+    logger.forBot().debug('Token validation failed via getMe():', err)
     return responses.displayForm({
       ..._tokenForm,
       // not a real ZodError instance, displayForm only reads errors.issues

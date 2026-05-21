@@ -83,8 +83,10 @@ const oauthSchema = z.object({
 
 type OAuthResponse = z.infer<typeof oauthSchema>
 
+export type Actor = 'user' | 'app'
+
 const tokenRequestSchema = z.object({
-  actor: z.literal('application'),
+  actor: z.enum(['user', 'app']),
   redirect_uri: z.string(),
 })
 
@@ -159,21 +161,21 @@ export class LinearOauthClient {
     return this._parseCredentials(data)
   }
 
-  public async getAccessTokenFromRefreshToken(oldRefreshToken: string): Promise<Credentials> {
+  public async getAccessTokenFromRefreshToken(oldRefreshToken: string, actor: Actor): Promise<Credentials> {
     const data = await this._handleOAuthRequest<typeof refreshTokenRequestSchema>(`${linearEndpoint}/oauth/token`, {
       grant_type: 'refresh_token',
       refresh_token: oldRefreshToken,
-      actor: 'application',
+      actor,
       redirect_uri: this._redirectUri,
     })
     return this._parseCredentials(data)
   }
 
-  public async getAccessTokenFromOAuthCode(code: string) {
+  public async getAccessTokenFromOAuthCode(code: string, actor: Actor) {
     const data = await this._handleOAuthRequest<typeof getAccessTokenRequestSchema>(`${linearEndpoint}/oauth/token`, {
       grant_type: 'authorization_code',
       code,
-      actor: 'application',
+      actor,
       redirect_uri: this._redirectUri,
     })
     if (!data.refresh_token) {
@@ -182,18 +184,29 @@ export class LinearOauthClient {
     return this._parseCredentials(data)
   }
 
-  public async resolveValidCredentials(current: Credentials): Promise<Credentials> {
+  public async resolveValidCredentials(current: Credentials, actor: Actor): Promise<Credentials> {
     const FIVE_MINUTES_MS = 5 * 60 * 1000
     const isExpired = new Date(current.expiresAt).getTime() <= Date.now() + FIVE_MINUTES_MS
 
     if (isExpired) {
-      return this.getAccessTokenFromRefreshToken(current.refreshToken)
+      return this.getAccessTokenFromRefreshToken(current.refreshToken, actor)
     }
 
     return current
   }
 
   public static async create(props: { client: bp.Client; ctx: bp.Context }) {
+    return LinearOauthClient._createFromStoredCredentials(props, 'credentials')
+  }
+
+  public static async createAdmin(props: { client: bp.Client; ctx: bp.Context }) {
+    return LinearOauthClient._createFromStoredCredentials(props, 'adminCredentials')
+  }
+
+  private static async _createFromStoredCredentials(
+    props: { client: bp.Client; ctx: bp.Context },
+    stateName: 'credentials' | 'adminCredentials'
+  ) {
     const { ctx, client } = props
     if (ctx.configurationType === 'apiKey') {
       return new LinearClient({ apiKey: ctx.configuration.apiKey })
@@ -203,9 +216,23 @@ export class LinearOauthClient {
       state: { payload },
     } = await client.getState({
       type: 'integration',
-      name: 'credentials',
+      name: stateName,
       id: ctx.integrationId,
     })
+
+    let effectiveStateName = stateName
+    let effectivePayload = payload
+    if (stateName === 'adminCredentials' && !payload.accessToken) {
+      const {
+        state: { payload: fallbackPayload },
+      } = await client.getState({
+        type: 'integration',
+        name: 'credentials',
+        id: ctx.integrationId,
+      })
+      effectiveStateName = 'credentials'
+      effectivePayload = fallbackPayload
+    }
 
     const {
       state: { payload: environment },
@@ -216,10 +243,16 @@ export class LinearOauthClient {
     })
     const useDesk = useDeskOAuth(environment)
     const linearOauthClient = new LinearOauthClient(useDesk)
-    const credentials = await linearOauthClient.resolveValidCredentials(payload)
+    const actor: Actor = effectiveStateName === 'adminCredentials' ? 'user' : 'app'
+    const credentials = await linearOauthClient.resolveValidCredentials(effectivePayload, actor)
 
-    if (credentials.accessToken !== payload.accessToken) {
-      await client.setState({ type: 'integration', name: 'credentials', id: ctx.integrationId, payload: credentials })
+    if (credentials.accessToken !== effectivePayload.accessToken) {
+      await client.setState({
+        type: 'integration',
+        name: effectiveStateName,
+        id: ctx.integrationId,
+        payload: credentials,
+      })
     }
 
     return new LinearClient({ accessToken: credentials.accessToken })

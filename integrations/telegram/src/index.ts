@@ -1,3 +1,4 @@
+import { isOAuthWizardUrl } from '@botpress/common/src/oauth-wizard'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { ok } from 'assert/strict'
 import { Telegraf } from 'telegraf'
@@ -31,14 +32,14 @@ import * as bp from '.botpress'
 
 const integration = new bp.Integration({
   register: async ({ webhookUrl, ctx, client }) => {
-    const botToken = await getStoredBotToken(client, ctx.integrationId)
+    const botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
     const telegraf = new Telegraf(botToken)
     await telegraf.telegram
       .setWebhook(webhookUrl)
       .catch(mapToRuntimeErrorAndThrow('Fail to set webhook. Check your bot token'))
   },
   unregister: async ({ ctx, client }) => {
-    const botToken = await getStoredBotToken(client, ctx.integrationId)
+    const botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
     const telegraf = new Telegraf(botToken)
     await telegraf.telegram
       .deleteWebhook({ drop_pending_updates: true })
@@ -46,7 +47,7 @@ const integration = new bp.Integration({
   },
   actions: {
     startTypingIndicator: async ({ input, ctx, client }) => {
-      const botToken = await getStoredBotToken(client, ctx.integrationId)
+      const botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
       const telegraf = new Telegraf(botToken)
       const { conversation } = await client.getConversation({ id: input.conversationId })
       const { message } = await client.getMessage({ id: input.messageId })
@@ -71,7 +72,7 @@ const integration = new bp.Integration({
         return {}
       }
 
-      const botToken = await getStoredBotToken(client, ctx.integrationId)
+      const botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
       const telegraf = new Telegraf(botToken)
       const { conversation } = await client.getConversation({ id: input.conversationId })
       const { message } = await client.getMessage({ id: input.messageId })
@@ -104,8 +105,12 @@ const integration = new bp.Integration({
     },
   },
   handler: async (props) => {
-    if (props.req.path.startsWith('/oauth')) {
+    if (isOAuthWizardUrl(props.req.path)) {
       return await wizardHandler(props)
+    }
+
+    if (props.req.path.startsWith('/oauth')) {
+      return { status: 404, body: 'Not Found' }
     }
 
     return await wrapHandler(async ({ req, client, ctx, logger }) => {
@@ -154,7 +159,7 @@ const integration = new bp.Integration({
         discriminateByTags: ['id'],
       })
 
-      const botToken = await getStoredBotToken(client, ctx.integrationId)
+      const botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
 
       const userFieldsToUpdate = {
         pictureUrl: !user.pictureUrl

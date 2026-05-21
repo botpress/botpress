@@ -1,14 +1,8 @@
+import type { OdooContext, OdooDomain, OdooRecord } from './odoo.types'
+
+export type { OdooContext, OdooDomain, OdooRecord } from './odoo.types'
+
 export type Model = 'Lead' | 'Contact' | 'Ticket'
-
-export type OdooContext = Record<string, unknown>
-
-export type OdooDomainCondition = unknown[]
-export type OdooDomainOperator = '&' | '|' | '!'
-export type OdooDomain = Array<OdooDomainCondition | OdooDomainOperator>
-
-export type OdooRecord = Record<string, unknown> & {
-  id?: number
-}
 
 export type GetFieldsRequest = {
   allfields?: string[]

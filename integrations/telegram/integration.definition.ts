@@ -15,6 +15,14 @@ export default new IntegrationDefinition({
       linkTemplateScript: 'linkTemplate.vrl',
     },
     schema: z.object({
+      botToken: z
+        .string()
+        .min(1)
+        .secret()
+        .hidden()
+        .optional()
+        .title('Bot Token')
+        .describe('Legacy Telegram bot token. New installations store this in integration state.'),
       typingIndicatorEmoji: z
         .boolean()
         .default(false)
