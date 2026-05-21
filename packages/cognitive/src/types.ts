@@ -20,8 +20,25 @@ export type GenerationMetadata = {
   }
 }
 
+/**
+ * Model selector accepted by `generateContent`.
+ *
+ * - `'best'` / `'auto'`: aliases. `'best'` is the original SDK selector;
+ *   `'auto'` was added when cognitive-v2 landed (the v2 server uses that
+ *   name). Both pick the first available entry from `preferences.best` on
+ *   the legacy path, and are forwarded as-is on the v2 path.
+ * - `'fast'`: same shape — first available from `preferences.fast` on the
+ *   legacy path, forwarded on the v2 path.
+ * - `ModelRef`: any `provider:model` string.
+ */
+export type InputModel = 'auto' | 'best' | 'fast' | ModelRef
+
 export type InputProps = Omit<GenerateContentInput, 'model'> & {
-  model?: 'best' | 'fast' | ModelRef
+  /**
+   * Model to use, or an ordered list of fallback models. Ordered fallback is honored only on the cognitive-v2 path;
+   * the legacy integration path uses the first entry and falls back to server-side preferences instead.
+   */
+  model?: InputModel | InputModel[]
   signal?: AbortSignal
 }
 

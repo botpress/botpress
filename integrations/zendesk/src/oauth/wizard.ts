@@ -127,7 +127,7 @@ const _resetHandler: WizardHandler = async (props) => {
 }
 
 const _oauthCallbackHandler: WizardHandler = async (props) => {
-  const { responses, query, client, ctx } = props
+  const { responses, query, client, ctx, setIntegrationIdentifier } = props
   const authorizationCode = query.get('code')
   if (!authorizationCode) {
     return responses.endWizard({
@@ -146,7 +146,7 @@ const _oauthCallbackHandler: WizardHandler = async (props) => {
   const newCredentials = { ...credentials, accessToken }
   await _patchCredentialsState(client, ctx, newCredentials)
 
-  await client.configureIntegration({ identifier: ctx.webhookId })
+  setIntegrationIdentifier(ctx.webhookId)
 
   return responses.redirectToStep('end')
 }

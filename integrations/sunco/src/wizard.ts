@@ -75,10 +75,10 @@ const _addToChannels: WizardHandler = async (props) => {
 }
 
 const _selectIdentifier: WizardHandler = async (props) => {
-  const { responses, client, ctx, selectedChoice } = props
+  const { responses, client, ctx, selectedChoice, setIntegrationIdentifier } = props
 
   if (selectedChoice) {
-    await client.configureIntegration({ identifier: selectedChoice })
+    setIntegrationIdentifier(selectedChoice)
     return responses.redirectToStep('end')
   }
 

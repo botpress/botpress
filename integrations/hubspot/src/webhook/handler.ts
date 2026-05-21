@@ -1,5 +1,6 @@
 import { generateRedirection } from '@botpress/common/src/html-dialogs'
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
+import { OAUTH_IDENTIFIER_HEADER } from '@botpress/sdk'
 import { Signature } from '@hubspot/api-client'
 import { getClientSecret } from '../auth'
 import { handleOperatorReplied } from '../hitl/events/operator-replied'
@@ -25,7 +26,14 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
   if (req.path.startsWith('/oauth')) {
     const modifiedProps = { ...props, req: { ...props.req, path: '/oauth/wizard/oauth-callback' } }
     try {
-      return await buildOAuthWizard(modifiedProps).handleRequest()
+      const wizardResult = await buildOAuthWizard(modifiedProps).handleRequest()
+      const identifier = wizardResult.headers?.[OAUTH_IDENTIFIER_HEADER]
+      return identifier
+        ? {
+            status: 200,
+            headers: { [OAUTH_IDENTIFIER_HEADER]: identifier },
+          }
+        : wizardResult
     } catch (thrown: unknown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
       return generateRedirection(oauthWizard.getInterstitialUrl(false, errMsg))

@@ -4,6 +4,8 @@ import * as sdk from '@botpress/sdk'
 // this type is not exported by the sdk: it's a placeholder for the integration type
 type BaseIntegration = sdk.DefaultIntegration<any>
 
+type Cast<T, U> = T extends U ? T : U
+
 /**
  * Creates or updates a user based on the provided input.
  * If a user is found with the same discriminating tags, it will be updated.
@@ -15,26 +17,28 @@ type BaseIntegration = sdk.DefaultIntegration<any>
 export const createOrUpdateUser = async <
   Client extends sdk.IntegrationSpecificClient<TIntegration>,
   TIntegration extends BaseIntegration = Client extends sdk.IntegrationSpecificClient<infer TI> ? TI : never,
-  CreateProps extends Parameters<Client['getOrCreateUser']>[0] = Parameters<Client['getOrCreateUser']>[0],
+  CreateProps extends Parameters<Client['createUser']>[0] = Parameters<Client['createUser']>[0],
   DiscriminatingTags extends Extract<keyof CreateProps['tags'], string> = Extract<keyof CreateProps['tags'], string>,
 >(
   props: CreateProps & { client: Client; discriminateByTags?: DiscriminatingTags[] }
-): Promise<Awaited<ReturnType<Client['getOrCreateUser']>>> => {
+): Promise<Awaited<ReturnType<Client['createUser']>>> => {
   const { users: matchingUsers } = await props.client.listUsers({ tags: _getFilteredTags(props) })
 
   if (matchingUsers.length > 1) {
     throw new sdk.RuntimeError('Multiple users found with the same discriminating tags')
   }
 
+  type UserTags = keyof TIntegration['user']['tags']
+  const updateTags: Partial<Record<UserTags, string | null>> = { ...matchingUsers[0]!.tags, ...props.tags }
   return (
     matchingUsers.length === 1
       ? await props.client.updateUser({
           ...matchingUsers[0]!,
           ...props,
-          tags: { ...matchingUsers[0]!.tags, ...props.tags },
+          tags: updateTags as Cast<typeof updateTags, Record<string, string | null>>,
         })
       : await props.client.createUser(props)
-  ) as Awaited<ReturnType<Client['getOrCreateUser']>>
+  ) as Awaited<ReturnType<Client['createUser']>>
 }
 
 const _getFilteredTags = <TAGS extends client.User['tags']>({

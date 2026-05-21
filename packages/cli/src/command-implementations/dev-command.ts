@@ -1,5 +1,5 @@
 import type * as client from '@botpress/client'
-import type * as sdk from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import { TunnelRequest, TunnelResponse } from '@bpinternal/tunnel'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import chalk from 'chalk'
@@ -24,6 +24,7 @@ const FILEWATCHER_DEBOUNCE_MS = 500
 export type DevCommandDefinition = typeof commandDefinitions.dev
 export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   private _initialDef: ProjectDefinition | undefined = undefined
+  private _deployedIntegrationName: string | undefined = undefined
   private _cacheDevRequestBody: apiUtils.UpdateBotRequestBody | apiUtils.UpdateIntegrationRequestBody | undefined
   private _buildContext: utils.esbuild.BuildCodeContext
 
@@ -35,7 +36,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   public async run(): Promise<void> {
     this.logger.warn('This command is experimental and subject to breaking changes without notice.')
 
-    const api = await this.ensureLoginAndCreateClient(this.argv)
+    let api = await this.ensureLoginAndCreateClient(this.argv)
 
     const { projectType, resolveProjectDefinition } = this.readProjectDefinitionFromFS()
     if (projectType === 'interface') {
@@ -43,6 +44,15 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     }
     const projectDef = await resolveProjectDefinition()
     this._initialDef = projectDef
+
+    if (projectDef.type === 'integration') {
+      const handleResult = await this.manageWorkspaceHandle(api, projectDef.definition)
+      if (!handleResult) return
+      if (handleResult.workspaceId) {
+        api = api.switchWorkspace(handleResult.workspaceId)
+      }
+      this._deployedIntegrationName = handleResult.integration.name
+    }
 
     let env: Record<string, string> = {
       ...process.env,
@@ -159,9 +169,13 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
             .filter((e) => !e.path.startsWith(this.projectPaths.abs.outDir))
             .filter((e) => pathlib.extname(e.path) === '.ts')
 
+          const packageJsonEvents = events
+            .filter((e) => !e.path.startsWith(this.projectPaths.abs.outDir))
+            .filter((e) => pathlib.basename(e.path) === 'package.json')
+
           const distEvents = events.filter((e) => e.path.startsWith(this.projectPaths.abs.distDir))
 
-          if (typescriptEvents.length > 0) {
+          if (typescriptEvents.length > 0 || packageJsonEvents.length > 0) {
             this.logger.log('Changes detected, rebuilding')
             await this._restart(api, worker, httpTunnelUrl)
           } else if (distEvents.length > 0) {
@@ -209,10 +223,19 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     if (projectType === 'interface') {
       throw new errors.BotpressCLIError('This feature is not available for interfaces.')
     }
-    if (projectType === 'integration') {
+    if (projectType === 'integration' && this._initialDef?.type === 'integration') {
       const projectDef = await resolveProjectDefinition()
       this._checkSecrets(projectDef.definition)
-      return await this._deployDevIntegration(api, tunnelUrl, projectDef.definition)
+      if (projectDef.definition.name !== this._initialDef.definition.name) {
+        throw new errors.BotpressCLIError(
+          `Integration name changed from "${this._initialDef.definition.name}" to "${projectDef.definition.name}". Renaming integrations during bp dev is not supported. Please restart bp dev.`
+        )
+      }
+      const integrationDef = new sdk.IntegrationDefinition({
+        ...projectDef.definition,
+        name: this._deployedIntegrationName ?? this._initialDef.definition.name,
+      })
+      return await this._deployDevIntegration(api, tunnelUrl, integrationDef)
     }
     if (projectType === 'bot') {
       const projectDef = await resolveProjectDefinition()

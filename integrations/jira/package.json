@@ -1,0 +1,24 @@
+{
+  "name": "@botpresshub/jirasoftware",
+  "description": "Work with your Jira workspace, users, projects, and workflow transitions from Botpress.",
+  "scripts": {
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "test": "vitest --run"
+  },
+  "keywords": [],
+  "private": true,
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "jira.js": "^2.19.1"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@types/node": "^22.16.4"
+  }
+}
