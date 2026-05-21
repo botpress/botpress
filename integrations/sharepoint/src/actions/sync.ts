@@ -1,5 +1,5 @@
-import { SharepointClient } from '../SharepointClient'
 import { cleanupWebhook, getLibraryNames } from '../setup/utils'
+import { SharepointClient } from '../SharepointClient'
 import * as bp from '.botpress'
 
 export const addToSync: bp.Integration['actions']['addToSync'] = async ({ client, ctx, input, logger }) => {
