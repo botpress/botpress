@@ -9,7 +9,9 @@ export default new bp.Integration({
     const accessToken = (await _getOAuthAccessToken({ client, ctx })) ?? ctx.configuration.personalAccessToken
 
     if (!accessToken) {
-      throw new RuntimeError('Monday credentials are missing. Please connect your Monday account or provide a personal access token.')
+      throw new RuntimeError(
+        'Monday credentials are missing. Please connect your Monday account or provide a personal access token.'
+      )
     }
 
     await client.configureIntegration({
