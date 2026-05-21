@@ -96,7 +96,6 @@ Webhook body:
     "tags": "{{ticket.tags}}"
   },
   "reply": {
-    "id": "{{ticket.latest_public_comment_id}}",
     "body_text": "{{ticket.latest_public_comment}}"
   },
   "agent": {
