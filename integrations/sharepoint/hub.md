@@ -25,6 +25,7 @@ This integration is compatible with the Botpress knowledge-connector plugin. Onc
 Dynamically add new document libraries to your sync configuration without re-deploying.
 
 **Input:**
+
 - `documentLibraryNames` — Libraries to add (single name, comma-separated, or JSON array).
 
 **Output:** `{ success: boolean }` — `true` if at least one library was added, `false` if all failed.
@@ -71,4 +72,3 @@ Under **API Permissions**, add the following **Application permissions** and gra
 Click **Grant admin consent** when done.
 
 > **Note:** This integration authenticates directly against the SharePoint REST API (not Microsoft Graph), so only SharePoint permissions are required.
-

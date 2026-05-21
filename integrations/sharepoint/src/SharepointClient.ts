@@ -83,7 +83,7 @@ export class SharepointClient {
     const lib = this.getDocumentLibraryName()
     const url =
       `${this.baseUrl}/_api/web/lists/getbytitle('${lib}')/items(${listItemIndex})` +
-      `/File?$select=Name,ServerRelativeUrl`
+      '/File?$select=Name,ServerRelativeUrl'
     const token = await this.fetchToken()
     const res: { data: { d: { Name: string | null; ServerRelativeUrl: string | null } } } = await axios
       .get(url, { headers: this.odataVerboseHeaders(token) })
@@ -100,7 +100,14 @@ export class SharepointClient {
     const lib = this.getDocumentLibraryName()
     const token = await this.fetchToken()
     const url = `${this.baseUrl}/_api/web/lists/getbytitle('${lib}')/GetChanges`
-    const query: Record<string, unknown> = { Item: true, Add: true, Update: true, DeleteObject: true, Move: true, Restore: true }
+    const query: Record<string, unknown> = {
+      Item: true,
+      Add: true,
+      Update: true,
+      DeleteObject: true,
+      Move: true,
+      Restore: true,
+    }
     if (changeToken !== null && changeToken !== 'initial-sync-token') {
       query.ChangeTokenStart = { StringValue: changeToken }
     }
@@ -160,9 +167,11 @@ export class SharepointClient {
     const token = await this.fetchToken()
     const url =
       `${this.baseUrl}/_api/web/lists` +
-      `?$filter=BaseTemplate eq 101 and Hidden eq false` +
-      `&$select=Title,RootFolder/ServerRelativeUrl&$expand=RootFolder`
-    const res = await axios.get<SharePointListsResponse>(url, { headers: this.odataVerboseHeaders(token) }).catch(handleAxiosError)
+      '?$filter=BaseTemplate eq 101 and Hidden eq false' +
+      '&$select=Title,RootFolder/ServerRelativeUrl&$expand=RootFolder'
+    const res = await axios
+      .get<SharePointListsResponse>(url, { headers: this.odataVerboseHeaders(token) })
+      .catch(handleAxiosError)
     return res.data.d.results.map((lib) => ({
       name: lib.Title,
       serverRelativeUrl: lib.RootFolder.ServerRelativeUrl,
@@ -180,8 +189,10 @@ export class SharepointClient {
     const url =
       nextUrl ??
       `${this.baseUrl}/_api/web/GetFolderByServerRelativeUrl('${serverRelativePath}')/Files` +
-        `?$select=Name,ServerRelativeUrl,Length,TimeLastModified,ETag&$top=100`
-    const res = await axios.get<SharePointFilesResponse>(url, { headers: this.odataVerboseHeaders(token) }).catch(handleAxiosError)
+        '?$select=Name,ServerRelativeUrl,Length,TimeLastModified,ETag&$top=100'
+    const res = await axios
+      .get<SharePointFilesResponse>(url, { headers: this.odataVerboseHeaders(token) })
+      .catch(handleAxiosError)
     return {
       files: res.data.d.results.map((f) => ({
         name: f.Name,
@@ -198,8 +209,10 @@ export class SharepointClient {
     const token = await this.fetchToken()
     const url =
       `${this.baseUrl}/_api/web/GetFolderByServerRelativeUrl('${serverRelativePath}')/Folders` +
-      `?$filter=Name ne 'Forms'`
-    const res = await axios.get<SharePointFoldersResponse>(url, { headers: this.odataVerboseHeaders(token) }).catch(handleAxiosError)
+      "?$filter=Name ne 'Forms'"
+    const res = await axios
+      .get<SharePointFoldersResponse>(url, { headers: this.odataVerboseHeaders(token) })
+      .catch(handleAxiosError)
     return res.data.d.results.map((f) => ({
       name: f.Name,
       serverRelativeUrl: f.ServerRelativeUrl,

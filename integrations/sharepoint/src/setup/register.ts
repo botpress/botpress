@@ -36,7 +36,9 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUr
         if (webhookSubscriptionId) {
           await cleanupWebhook(webhookSubscriptionId, ctx, lib, logger)
         }
-        logger.forBot().error(`[Registration] (${lib}) Failed: ${error instanceof Error ? error.message : String(error)}`)
+        logger
+          .forBot()
+          .error(`[Registration] (${lib}) Failed: ${error instanceof Error ? error.message : String(error)}`)
         throw error
       }
     })
@@ -44,7 +46,12 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUr
 
   const subscriptions: Record<
     string,
-    { webhookSubscriptionId: string; changeToken: string; itemPathCache: Record<string, { absolutePath: string; name: string }>; expiresAt: string }
+    {
+      webhookSubscriptionId: string
+      changeToken: string
+      itemPathCache: Record<string, { absolutePath: string; name: string }>
+      expiresAt: string
+    }
   > = {}
 
   for (const result of results) {

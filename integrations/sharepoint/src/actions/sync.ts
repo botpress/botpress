@@ -13,7 +13,12 @@ export const addToSync: bp.Integration['actions']['addToSync'] = async ({ client
 
   const subscriptions = state.payload.subscriptions as Record<
     string,
-    { webhookSubscriptionId: string; changeToken: string; itemPathCache: Record<string, { absolutePath: string; name: string }>; expiresAt?: string }
+    {
+      webhookSubscriptionId: string
+      changeToken: string
+      itemPathCache: Record<string, { absolutePath: string; name: string }>
+      expiresAt?: string
+    }
   >
   const libs = getLibraryNames(input.documentLibraryNames)
   const newLibs = libs.filter((lib) => !Object.hasOwn(subscriptions, lib))

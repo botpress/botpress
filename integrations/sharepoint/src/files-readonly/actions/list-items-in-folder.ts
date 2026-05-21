@@ -23,7 +23,9 @@ export const filesReadonlyListItemsInFolder = wrapAction(
     // First page: fetch folders and first page of files in parallel
     const [subfolders, { files, nextUrl }] = await Promise.all([
       filters?.itemType === 'file' ? Promise.resolve([]) : sharepointClient.listSubfolders(folderId),
-      filters?.itemType === 'folder' ? Promise.resolve({ files: [], nextUrl: undefined }) : sharepointClient.listFiles(folderId),
+      filters?.itemType === 'folder'
+        ? Promise.resolve({ files: [], nextUrl: undefined })
+        : sharepointClient.listFiles(folderId),
     ])
 
     const folderItems = subfolders.map((f) => mapping.mapFolder(f, folderId))
@@ -35,7 +37,10 @@ export const filesReadonlyListItemsInFolder = wrapAction(
   }
 )
 
-type Item = ReturnType<typeof mapping.mapFile> | ReturnType<typeof mapping.mapFolder> | ReturnType<typeof mapping.mapLibrary>
+type Item =
+  | ReturnType<typeof mapping.mapFile>
+  | ReturnType<typeof mapping.mapFolder>
+  | ReturnType<typeof mapping.mapLibrary>
 type Filters = { itemType?: 'file' | 'folder'; maxSizeInBytes?: number; modifiedAfter?: string } | undefined
 
 function applyFilters(items: Item[], filters: Filters): Item[] {
@@ -44,7 +49,12 @@ function applyFilters(items: Item[], filters: Filters): Item[] {
     if (filters.itemType && item.type !== filters.itemType) return false
     if (item.type === 'file') {
       if (filters.maxSizeInBytes && item.sizeInBytes && item.sizeInBytes > filters.maxSizeInBytes) return false
-      if (filters.modifiedAfter && item.lastModifiedDate && new Date(item.lastModifiedDate) < new Date(filters.modifiedAfter)) return false
+      if (
+        filters.modifiedAfter &&
+        item.lastModifiedDate &&
+        new Date(item.lastModifiedDate) < new Date(filters.modifiedAfter)
+      )
+        return false
     }
     return true
   })

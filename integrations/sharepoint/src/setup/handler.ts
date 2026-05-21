@@ -126,7 +126,9 @@ export const handler: bp.IntegrationProps['handler'] = async ({ ctx, req, client
         })
         logger
           .forBot()
-          .info(`[Handler] (${lib}) Emitted aggregateFileChanges: +${created.length} ~${updated.length} -${deleted.length}`)
+          .info(
+            `[Handler] (${lib}) Emitted aggregateFileChanges: +${created.length} ~${updated.length} -${deleted.length}`
+          )
       }
 
       updatedSubs[lib] = { ...currentSub, changeToken: newToken, itemPathCache: cache }

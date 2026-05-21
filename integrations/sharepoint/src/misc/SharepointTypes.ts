@@ -1,17 +1,17 @@
-export interface ChangeItem {
+export type ChangeItem = {
   ChangeToken: { StringValue: string }
   // 1=Add 2=Update 3=Delete 4=Rename 5=MoveAway 6=MoveTo 7=Restore
   ChangeType: 1 | 2 | 3 | 4 | 5 | 6 | 7
   ItemId: number
 }
 
-export interface ChangeResponse {
+export type ChangeResponse = {
   d: {
     results: ChangeItem[]
   }
 }
 
-export interface SharePointFile {
+export type SharePointFile = {
   Name: string
   ServerRelativeUrl: string
   Length: string
@@ -26,7 +26,7 @@ export type SharePointFilesResponse = {
   }
 }
 
-export interface SharePointFolder {
+export type SharePointFolder = {
   Name: string
   ServerRelativeUrl: string
 }

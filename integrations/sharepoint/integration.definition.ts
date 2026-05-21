@@ -16,7 +16,8 @@ export default new sdk.IntegrationDefinition({
     category: 'Knowledge Base',
     repo: 'botpress',
   },
-}).extend(filesReadonly, ({}) => ({ // Enables knowledge-connector plugin to browse and index SharePoint files
+}).extend(filesReadonly, ({}) => ({
+  // Enables knowledge-connector plugin to browse and index SharePoint files
   entities: {},
   actions: {
     listItemsInFolder: {
