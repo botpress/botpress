@@ -3,6 +3,24 @@ import { getAccessToken } from './auth'
 import { HubspotClient } from './hubspot-api'
 import * as bp from '.botpress'
 
+export const useDeskOAuth = ({ env, source }: bp.states.environment.Environment['payload']) =>
+  env === 'production' && source === 'desk'
+
+export const getEnvironment = async ({
+  client,
+  ctx,
+}: {
+  client: bp.Client
+  ctx: bp.Context
+}): Promise<bp.states.environment.Environment['payload']> => {
+  const {
+    state: { payload },
+  } = await client
+    .getState({ type: 'integration', name: 'environment', id: ctx.integrationId })
+    .catch(() => ({ state: { payload: { env: 'preview' as const, source: undefined } } }))
+  return payload
+}
+
 export const getAuthenticatedHubspotClient = async ({
   ctx,
   client,
