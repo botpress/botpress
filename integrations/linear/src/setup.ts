@@ -42,15 +42,17 @@ export const unregister: bp.IntegrationProps['unregister'] = async ({ client, ct
     logger.forBot().info('Unregistering Linear webhook.')
     await unregisterWebhook({ linearClient, logger, url: webhookUrl })
 
-    logger.forBot().info('Revoking Linear access token.')
-    const {
-      state: { payload },
-    } = await client.getState({
-      type: 'integration',
-      name: 'credentials',
-      id: ctx.integrationId,
-    })
-    await revokeToken(payload.accessToken)
+    logger.forBot().info('Revoking Linear access tokens.')
+    const [{ state: appState }, { state: adminState }] = await Promise.all([
+      client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId }),
+      client.getState({ type: 'integration', name: 'adminCredentials', id: ctx.integrationId }),
+    ])
+    if (appState.payload.accessToken) {
+      await revokeToken(appState.payload.accessToken)
+    }
+    if (adminState.payload.accessToken) {
+      await revokeToken(adminState.payload.accessToken)
+    }
     logger.forBot().info('Linear integration unregistration completed.')
   } catch (thrown) {
     const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
