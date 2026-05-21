@@ -43,6 +43,7 @@ const hitlAgentSchema = z.object({
 })
 
 const hitlMessageBodySchema = z.object({
+  id: z.union([z.string(), z.number()]).transform(String).optional(),
   body_text: z.string().transform((raw) => {
     const text = raw.replace(/^[^<]+:\s*(?=<)/, '')
     // freshdesk prepends "Agent Name : " before response, trim that

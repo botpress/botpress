@@ -89,7 +89,7 @@ Recommended trigger condition: **Public Note Added By Agent** or your Freshdesk 
 
 For HITL tickets, agents should add a public note/comment instead of using **Reply**. Freshdesk replies are email deliveries to the requester and can be marked as undelivered when the requester email is a Botpress/Webchat placeholder. Public notes/comments are routed to Webchat by this webhook and do not need Freshdesk email delivery.
 
-If your Freshdesk automation can distinguish agent-created notes from API-created notes, use that condition to avoid echoing Botpress messages back into the conversation. Botpress messages are added to the ticket as public notes by the integration.
+Botpress messages are added to the ticket as public notes by the integration and prefixed as `[Botpress]: message` or `[Chatbot Name]: message`. When Freshdesk sends those public notes back to this webhook, Botpress checks for that prefix and confirms that the unprefixed message text already exists in the HITL conversation before ignoring it. This prevents Webchat messages from echoing back into the conversation while avoiding broad prefix-only filtering.
 
 Webhook body:
 
@@ -108,6 +108,8 @@ Webhook body:
   }
 }
 ```
+
+Human agent public notes that start with `[Name]:` are only ignored if the text after the prefix matches an existing HITL message. To avoid ambiguity, agents should still avoid starting notes with the Botpress-created note prefix format.
 
 The legacy `reply.body_text` shape is still accepted for existing reply-based setups, but `note.body_text` is recommended for Webchat HITL.
 

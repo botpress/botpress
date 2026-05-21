@@ -34,6 +34,11 @@ export const executeHitlMessageReceived = async (props: HandlerProps & { body: R
       tags: { freshdeskTicketId: String(ticket.id) },
     })
 
+    if (await _isWebchatEcho({ conversationId: conversation.id, text, client })) {
+      log.debug(`hitlMessageReceived: ignoring Webchat echo for ticket=${ticket.id}`)
+      return
+    }
+
     const { user } = await getOrCreateAgentUser({ agent, client, ticketId: ticket.id })
 
     await client.createMessage({
@@ -51,3 +56,37 @@ export const executeHitlMessageReceived = async (props: HandlerProps & { body: R
     )
   }
 }
+
+const _isWebchatEcho = async ({
+  conversationId,
+  text,
+  client,
+}: {
+  conversationId: string
+  text: string
+  client: bp.Client
+}): Promise<boolean> => {
+  if (!_hasWebchatPrefix(text)) {
+    return false
+  }
+
+  const textWithoutWebchatPrefix = _stripWebchatPrefix(text)
+  const { messages } = await client.listMessages({ conversationId })
+
+  return messages.some((message) => _isSameTextMessage(message, textWithoutWebchatPrefix))
+}
+
+const _isSameTextMessage = (message: { type: string; payload: unknown }, text: string): boolean => {
+  if (message.type !== 'text' || typeof message.payload !== 'object' || message.payload === null) {
+    return false
+  }
+
+  const payloadText = (message.payload as { text?: unknown }).text
+  return typeof payloadText === 'string' && _normalizeText(payloadText) === _normalizeText(text)
+}
+
+const _hasWebchatPrefix = (text: string): boolean => /^\[[^\]\n]+\]:\s*/.test(text)
+
+const _stripWebchatPrefix = (text: string): string => text.replace(/^\[[^\]\n]+\]:\s*/, '')
+
+const _normalizeText = (text: string): string => text.replace(/\r\n/g, '\n').trim()
