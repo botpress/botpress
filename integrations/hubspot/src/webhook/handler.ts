@@ -46,7 +46,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
 
   // Global webhook subscriptions (conversation updates + CRM events)
   if (handlers.isConversationEvent(props) || handlers.isBatchUpdateEvent(props)) {
-    const validation = _validateRequestAuthentication(props)
+    const validation = await _validateRequestAuthentication(props)
     if (validation.error) {
       logger.error(`Error validating request: ${validation.message}`)
       return { status: 401, body: validation.message }
@@ -77,7 +77,7 @@ const _handleHitlEvent: bp.IntegrationProps['handler'] = async ({ req, ctx, clie
   const timestamp = req.headers['x-hubspot-request-timestamp'] as string
   const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body)
   const webhookUrl = `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
-  const clientSecret = getClientSecret(ctx)
+  const clientSecret = await getClientSecret({ client, ctx })
 
   if (clientSecret) {
     const isValid = validateHubSpotSignature(
@@ -119,8 +119,8 @@ const _handleHitlEvent: bp.IntegrationProps['handler'] = async ({ req, ctx, clie
   return {}
 }
 
-const _validateRequestAuthentication = ({ req, ctx }: bp.HandlerProps) => {
-  const clientSecret = getClientSecret(ctx)
+const _validateRequestAuthentication = async ({ req, ctx, client }: bp.HandlerProps) => {
+  const clientSecret = await getClientSecret({ client, ctx })
   if (!clientSecret) {
     return { error: false }
   }
