@@ -32,19 +32,33 @@ export const startQueryExplorer = async (
 ) => {
   const state = await getFlowState(client, conversationId)
   const datasourceUid = getDatasourceUid(state)
-  const { output } = await client.callAction({ type: `${GRAFANA}:listMetricNames`, input: { datasourceUid } })
-  const { success, data, error } = output
-  if (!success || !data?.length) {
-    const reason = error ?? 'invalid or empty datasource'
-    await reply(client, conversationId, userId, `Cannot explore metrics: ${reason}. Going back to panel options.`)
+  let metricNames
+  try {
+    const { output } = await client.callAction({ type: `${GRAFANA}:listMetricNames`, input: { datasourceUid } })
+    metricNames = output.metricNames
+  } catch (err) {
+    await reply(
+      client,
+      conversationId,
+      userId,
+      `Cannot explore metrics: ${err instanceof Error ? err.message : String(err)}. Going back to panel options.`
+    )
     await setFlowState(client, conversationId, {
       panelForm: { ...state.panelForm, datasourceUid: undefined } as PanelForm,
     })
     await onError()
     return
   }
-  await setFlowState(client, conversationId, { explorerState: { metricsList: data, currentParams: [] } })
-  await showList(client, conversationId, userId, 'Metrics:', data, [{ label: 'Back', value: '-1' }])
+  if (!metricNames?.length) {
+    await reply(client, conversationId, userId, 'Cannot explore metrics: invalid or empty datasource. Going back to panel options.')
+    await setFlowState(client, conversationId, {
+      panelForm: { ...state.panelForm, datasourceUid: undefined } as PanelForm,
+    })
+    await onError()
+    return
+  }
+  await setFlowState(client, conversationId, { explorerState: { metricsList: metricNames, currentParams: [] } })
+  await showList(client, conversationId, userId, 'Metrics:', metricNames, [{ label: 'Back', value: '-1' }])
   await setTags(client, conversationId, { branch: 'query_explorer', step: 'metrics_list' })
 }
 
@@ -68,13 +82,24 @@ const handleMetricsList = async (
     ])
     return
   }
-  const { output } = await client.callAction({ type: `${GRAFANA}:listLabelNames`, input: { datasourceUid } })
-  const { success, data, error } = output
-  if (!success || !data?.length) {
-    await reply(client, conversationId, userId, `Failed to list label names: ${error ?? 'Unknown error.'}`)
+  let labelNames
+  try {
+    const { output } = await client.callAction({ type: `${GRAFANA}:listLabelNames`, input: { datasourceUid } })
+    labelNames = output.labelNames
+  } catch (err) {
+    await reply(
+      client,
+      conversationId,
+      userId,
+      `Failed to list label names: ${err instanceof Error ? err.message : String(err)}`
+    )
     return
   }
-  const updatedExplorer: ExplorerState = { ...explorer, metric, currentParams: [], labelNamesList: data }
+  if (!labelNames?.length) {
+    await reply(client, conversationId, userId, 'Failed to list label names: no labels found.')
+    return
+  }
+  const updatedExplorer: ExplorerState = { ...explorer, metric, currentParams: [], labelNamesList: labelNames }
   await setFlowState(client, conversationId, { explorerState: updatedExplorer })
   await showLabelNamesList(client, conversationId, userId, updatedExplorer)
 }
@@ -115,23 +140,29 @@ const handleLabelNamesList = async (
     return
   }
 
-  const { output } = await client.callAction({
-    type: `${GRAFANA}:listLabelValues`,
-    input: { datasourceUid, labelName },
-  })
-  const { success, data, error } = output
-  if (!success || !data?.length) {
+  let labelValues
+  try {
+    const { output } = await client.callAction({
+      type: `${GRAFANA}:listLabelValues`,
+      input: { datasourceUid, labelName },
+    })
+    labelValues = output.labelValues
+  } catch (err) {
     await reply(
       client,
       conversationId,
       userId,
-      `Failed to list values for "${labelName}": ${error ?? 'Unknown error.'}`
+      `Failed to list values for "${labelName}": ${err instanceof Error ? err.message : String(err)}`
     )
     return
   }
-  const updatedExplorer: ExplorerState = { ...explorer, selectedLabelName: labelName, labelValuesList: data }
+  if (!labelValues?.length) {
+    await reply(client, conversationId, userId, `Failed to list values for "${labelName}": no values found.`)
+    return
+  }
+  const updatedExplorer: ExplorerState = { ...explorer, selectedLabelName: labelName, labelValuesList: labelValues }
   await setFlowState(client, conversationId, { explorerState: updatedExplorer })
-  await showList(client, conversationId, userId, `Label: ${labelName}`, data, [
+  await showList(client, conversationId, userId, `Label: ${labelName}`, labelValues, [
     { label: 'Back to labels', value: '-1' },
   ])
   await setTags(client, conversationId, { branch: 'query_explorer', step: 'label_values_list' })

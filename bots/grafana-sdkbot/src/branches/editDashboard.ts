@@ -104,23 +104,22 @@ const submitEditDashboard = async (
   form: EditDashboardForm,
   uid: string
 ) => {
-  const { output } = await client.callAction({
-    type: `${GRAFANA}:editDashboard`,
-    input: {
-      dashboardUid: uid,
-      ...(form.title && { title: form.title }),
-      ...(form.tags && { tags: form.tags }),
-      ...(form.timezone && { timezone: form.timezone }),
-      ...(form.timeFrom && form.timeTo && { time: { from: form.timeFrom, to: form.timeTo } }),
-      ...(form.refresh && { refresh: form.refresh }),
-      ...(form.folderUid && { folderUid: form.folderUid }),
-    } as any,
-  })
-  const { success, error } = output
-  if (success) {
+  try {
+    await client.callAction({
+      type: `${GRAFANA}:editDashboard`,
+      input: {
+        dashboardUid: uid,
+        ...(form.title && { title: form.title }),
+        ...(form.tags && { tags: form.tags }),
+        ...(form.timezone && { timezone: form.timezone }),
+        ...(form.timeFrom && form.timeTo && { time: { from: form.timeFrom, to: form.timeTo } }),
+        ...(form.refresh && { refresh: form.refresh }),
+        ...(form.folderUid && { folderUid: form.folderUid }),
+      } as any,
+    })
     await reply(client, conversationId, userId, 'Dashboard settings saved.')
-  } else {
-    await reply(client, conversationId, userId, 'Failed to save: ' + (error ?? 'Unknown error.'))
+  } catch (err) {
+    await reply(client, conversationId, userId, 'Failed to save: ' + (err instanceof Error ? err.message : String(err)))
   }
 }
 
@@ -131,19 +130,23 @@ const submitEditPanel = async (
   form: PanelForm,
   uid: string
 ) => {
-  const { output } = await client.callAction({
-    type: `${GRAFANA}:editDashboardPanel`,
-    input: {
-      dashboardUid: uid,
-      panelId: form.id!,
-      panel: panelFormToPayload(form) as any,
-    },
-  })
-  const { success, error } = output
-  if (success) {
+  try {
+    await client.callAction({
+      type: `${GRAFANA}:editDashboardPanel`,
+      input: {
+        dashboardUid: uid,
+        panelId: form.id!,
+        panel: panelFormToPayload(form) as any,
+      },
+    })
     await reply(client, conversationId, userId, 'Panel saved.')
-  } else {
-    await reply(client, conversationId, userId, 'Failed to save panel: ' + (error ?? 'Unknown error.'))
+  } catch (err) {
+    await reply(
+      client,
+      conversationId,
+      userId,
+      'Failed to save panel: ' + (err instanceof Error ? err.message : String(err))
+    )
   }
 }
 
@@ -315,19 +318,27 @@ export const applyEditFolderUid = async (client: Client, conversationId: string,
 // ─── Entry point ──────────────────────────────────────────────
 
 const loadAndEnterEditDashboard = async (client: Client, conversationId: string, userId: string, uid: string) => {
-  const { output } = await client.callAction({
-    type: `${GRAFANA}:getDashboard`,
-    input: { dashboardUid: uid },
-  })
-  const { success, data } = output as { success: boolean; data?: { dashboard?: any } }
-  if (!success || !data?.dashboard) {
+  let dashboard
+  try {
+    const { output } = await client.callAction({
+      type: `${GRAFANA}:getDashboard`,
+      input: { dashboardUid: uid },
+    })
+    dashboard = output.dashboard
+  } catch {
     await showMenu(client, conversationId, userId, 'Dashboard not found.\n\nEnter the dashboard UID to edit:', [
       { label: 'List dashboards', value: 'list' },
     ])
     await setTags(client, conversationId, { branch: 'edit_dashboard_uid', step: '' })
     return
   }
-  const dashboard = data.dashboard
+  if (!dashboard) {
+    await showMenu(client, conversationId, userId, 'Dashboard not found.\n\nEnter the dashboard UID to edit:', [
+      { label: 'List dashboards', value: 'list' },
+    ])
+    await setTags(client, conversationId, { branch: 'edit_dashboard_uid', step: '' })
+    return
+  }
   await setFlowState(client, conversationId, {
     selectedDashboard: { uid: dashboard.uid ?? uid, name: dashboard.uid ?? uid, title: dashboard.title ?? uid },
     dashboardJson: dashboard,

@@ -1,26 +1,34 @@
 import { GRAFANA } from '../const'
-import type { Dashboard, DashboardData } from '../types'
+import type { Dashboard, Panel } from '../types'
 import { Client, goToMainMenu, pickFromList, reply, setFlowState, setTags, showList, showMenu } from '../utils'
 
 export const displayDashboard = async (client: Client, conversationId: string, userId: string, uid: string) => {
-  const { output } = await client.callAction({
-    type: `${GRAFANA}:getDashboard`,
-    input: { dashboardUid: uid },
-  })
-  const { success, data } = output as { success: boolean; data?: DashboardData }
-
-  if (!success || !data?.dashboard) {
+  let dashboard
+  try {
+    const { output } = await client.callAction({
+      type: `${GRAFANA}:getDashboard`,
+      input: { dashboardUid: uid },
+    })
+    dashboard = output.dashboard
+  } catch {
     await showMenu(client, conversationId, userId, 'Dashboard not found.\n\nEnter the dashboard UID to view:', [
       { label: 'List dashboards', value: 'list' },
     ])
     await setTags(client, conversationId, { branch: 'get_dashboard', step: '' })
     return
-  } else {
-    const { title, panels } = data.dashboard
-    const panelList = panels?.length ? panels.map((p) => `  - ${p.title ?? 'Untitled'}`).join('\n') : '  No panels'
-    await reply(client, conversationId, userId, `Title: ${title}\n\nPanels:\n${panelList}`)
   }
 
+  if (!dashboard) {
+    await showMenu(client, conversationId, userId, 'Dashboard not found.\n\nEnter the dashboard UID to view:', [
+      { label: 'List dashboards', value: 'list' },
+    ])
+    await setTags(client, conversationId, { branch: 'get_dashboard', step: '' })
+    return
+  }
+
+  const { title, panels } = dashboard
+  const panelList = panels?.length ? panels.map((p: Panel) => `  - ${p.title ?? 'Untitled'}`).join('\n') : '  No panels'
+  await reply(client, conversationId, userId, `Title: ${title}\n\nPanels:\n${panelList}`)
   await goToMainMenu(client, conversationId, userId)
 }
 

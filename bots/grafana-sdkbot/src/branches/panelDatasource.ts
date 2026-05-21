@@ -20,13 +20,20 @@ export const resumeToQueryPrompt = async (client: Client, conversationId: string
 }
 
 const listAndShowDatasources = async (client: Client, conversationId: string, userId: string) => {
-  const { output } = await client.callAction({ type: `${GRAFANA}:listDatasources`, input: {} })
-  const { success, data, error } = output
-  if (!success || !data) {
-    await reply(client, conversationId, userId, 'Failed to list datasources: ' + (error ?? 'Unknown error.'))
+  let datasources
+  try {
+    const { output } = await client.callAction({ type: `${GRAFANA}:listDatasources`, input: {} })
+    datasources = output.datasources
+  } catch (err) {
+    await reply(
+      client,
+      conversationId,
+      userId,
+      'Failed to list datasources: ' + (err instanceof Error ? err.message : String(err))
+    )
     return
   }
-  const prometheus = data.filter((ds) => ds.type === 'prometheus')
+  const prometheus = datasources.filter((ds) => ds.type === 'prometheus')
   if (!prometheus.length) {
     await reply(client, conversationId, userId, 'No Prometheus datasources found.')
     return

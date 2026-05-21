@@ -148,28 +148,30 @@ const submitCreateDashboard = async (client: Client, conversationId: string, use
   const state = await getFlowState(client, conversationId)
   const form = state.createForm as CreateForm
 
-  const { output } = await client.callAction({
-    type: `${GRAFANA}:createDashboard`,
-    input: {
-      uid: form.uid!,
-      title: form.title!,
-      ...(form.panels?.length && { panels: form.panels as any }),
-      ...(form.tags && { tags: form.tags }),
-      ...(form.timezone && { timezone: form.timezone }),
-      ...(form.editable !== undefined && { editable: form.editable }),
-      ...(form.graphTooltip !== undefined && { graphTooltip: form.graphTooltip }),
-      ...(form.timeFrom && form.timeTo && { time: { from: form.timeFrom, to: form.timeTo } }),
-      ...(form.refresh && { refresh: form.refresh }),
-      ...(form.folderUid && { folderUid: form.folderUid }),
-    },
-  })
-
-  const { success, error } = output
-
-  if (success) {
+  try {
+    await client.callAction({
+      type: `${GRAFANA}:createDashboard`,
+      input: {
+        uid: form.uid!,
+        title: form.title!,
+        ...(form.panels?.length && { panels: form.panels as any }),
+        ...(form.tags && { tags: form.tags }),
+        ...(form.timezone && { timezone: form.timezone }),
+        ...(form.editable !== undefined && { editable: form.editable }),
+        ...(form.graphTooltip !== undefined && { graphTooltip: form.graphTooltip }),
+        ...(form.timeFrom && form.timeTo && { time: { from: form.timeFrom, to: form.timeTo } }),
+        ...(form.refresh && { refresh: form.refresh }),
+        ...(form.folderUid && { folderUid: form.folderUid }),
+      },
+    })
     await reply(client, conversationId, userId, `Dashboard "${form.title}" created successfully.`)
-  } else {
-    await reply(client, conversationId, userId, `Failed to create dashboard: ${error ?? 'Unknown error.'}`)
+  } catch (err) {
+    await reply(
+      client,
+      conversationId,
+      userId,
+      `Failed to create dashboard: ${err instanceof Error ? err.message : String(err)}`
+    )
   }
 
   await goToMainMenu(client, conversationId, userId)

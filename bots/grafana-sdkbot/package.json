@@ -1,21 +1,24 @@
 {
-  "name": "@bp-templates/empty-bot",
+  "name": "@bp-bots/grafana-sdkbot",
   "scripts": {
-    "check:type": "tsc --noEmit"
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build"
   },
   "private": true,
   "dependencies": {
-    "@botpress/client": "1.44.0",
-    "@botpress/sdk": "6.10.0"
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*"
   },
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
     "@types/node": "^22.16.4",
     "prettier": "^3.4.2",
     "typescript": "^5.6.3"
   },
   "bpDependencies": {
     "chat": "integration:chat@1.0.0",
-    "grafana": "integration:my_handle-1/grafana@0.1.0",
+    "my_handle-1/grafana": "integration:my_handle-1/grafana@0.1.0",
     "webchat": "integration:webchat@0.3.0",
     "llm": "interface:llm@10.0.0",
     "anthropic": "integration:anthropic@18.0.1"

@@ -103,20 +103,28 @@ export const startNotificationPolicyExplorer = async (
 ) => {
   await setFlowState(client, conversationId, { callerBranch: returnBranch })
 
-  const { output } = (await client.callAction({ type: `${GRAFANA}:listNotificationPolicies`, input: {} })) as {
-    output: { success: boolean; data?: NotificationPolicy[]; error?: string }
-  }
-
-  if (!output.success || !output.data?.length) {
-    await showMenu(client, conversationId, userId, output.error ?? 'No notification policies found.', LIST_CONTROLS)
-  } else {
-    await setFlowState(client, conversationId, { notificationPolicyList: output.data })
-    await showList(
+  try {
+    const { output } = await client.callAction({ type: `${GRAFANA}:listNotificationPolicies`, input: {} })
+    const { policies } = output
+    if (!policies?.length) {
+      await showMenu(client, conversationId, userId, 'No notification policies found.', LIST_CONTROLS)
+    } else {
+      await setFlowState(client, conversationId, { notificationPolicyList: policies })
+      await showList(
+        client,
+        conversationId,
+        userId,
+        'Select a notification policy to use its labels:',
+        policies.map(policyLabel),
+        LIST_CONTROLS
+      )
+    }
+  } catch (err) {
+    await showMenu(
       client,
       conversationId,
       userId,
-      'Select a notification policy to use its labels:',
-      output.data.map(policyLabel),
+      `Failed to list notification policies: ${err instanceof Error ? err.message : String(err)}`,
       LIST_CONTROLS
     )
   }
@@ -196,27 +204,29 @@ const submitCreateNotifPolicy = async (
     return
   }
 
-  const { output } = (await client.callAction({
-    type: `${GRAFANA}:createNotificationPolicy`,
-    input: {
-      receiver: form.receiver,
-      ...(form.matchers?.length && { matchers: form.matchers }),
-      ...(form.continue !== undefined && { continue: form.continue }),
-      ...(form.group_by?.length && { group_by: form.group_by }),
-      ...(form.group_wait && { group_wait: form.group_wait }),
-      ...(form.group_interval && { group_interval: form.group_interval }),
-      ...(form.repeat_interval && { repeat_interval: form.repeat_interval }),
-      ...(form.mute_time_intervals?.length && { mute_time_intervals: form.mute_time_intervals }),
-      ...(form.active_time_intervals?.length && { active_time_intervals: form.active_time_intervals }),
-    },
-  })) as { output: { success: boolean; error?: string } }
-
-  const { success, error } = output
-
-  if (success) {
+  try {
+    await client.callAction({
+      type: `${GRAFANA}:createNotificationPolicy`,
+      input: {
+        receiver: form.receiver,
+        ...(form.matchers?.length && { matchers: form.matchers }),
+        ...(form.continue !== undefined && { continue: form.continue }),
+        ...(form.group_by?.length && { group_by: form.group_by }),
+        ...(form.group_wait && { group_wait: form.group_wait }),
+        ...(form.group_interval && { group_interval: form.group_interval }),
+        ...(form.repeat_interval && { repeat_interval: form.repeat_interval }),
+        ...(form.mute_time_intervals?.length && { mute_time_intervals: form.mute_time_intervals }),
+        ...(form.active_time_intervals?.length && { active_time_intervals: form.active_time_intervals }),
+      },
+    })
     await reply(client, conversationId, userId, `Notification policy created for receiver "${form.receiver}".`)
-  } else {
-    await reply(client, conversationId, userId, `Failed to create notification policy: ${error ?? 'Unknown error.'}`)
+  } catch (err) {
+    await reply(
+      client,
+      conversationId,
+      userId,
+      `Failed to create notification policy: ${err instanceof Error ? err.message : String(err)}`
+    )
   }
 
   await onDone()

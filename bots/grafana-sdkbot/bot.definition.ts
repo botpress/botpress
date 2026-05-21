@@ -1,7 +1,7 @@
 import { BotDefinition } from '@botpress/sdk'
 import anthropic from './bp_modules/anthropic'
 import chat from './bp_modules/chat'
-import grafana from './bp_modules/grafana'
+import grafana from './bp_modules/my-handle-1-grafana'
 import webchat from './bp_modules/webchat'
 import { conversation } from './definitions/conversation'
 import { states } from './definitions/states'

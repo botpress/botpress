@@ -24,31 +24,37 @@ export const startFolderPicker = async (
   userId: string,
   returnBranch: string
 ) => {
-  const { output } = await client.callAction({ type: `${GRAFANA}:listFolders`, input: {} })
-  const { success, data, error } = output
-
-  if (!success) {
-    await reply(client, conversationId, userId, `Failed to load folders: ${error ?? 'Unknown error.'}`)
+  let folders
+  try {
+    const { output } = await client.callAction({ type: `${GRAFANA}:listFolders`, input: {} })
+    folders = output.folders
+  } catch (err) {
+    await reply(
+      client,
+      conversationId,
+      userId,
+      `Failed to load folders: ${err instanceof Error ? err.message : String(err)}`
+    )
     await goToMainMenu(client, conversationId, userId)
     return
   }
 
   await setFlowState(client, conversationId, { folderPickerReturnBranch: returnBranch })
 
-  if (!data?.length) {
+  if (!folders?.length) {
     await setFlowState(client, conversationId, { createFolderForm: {} })
     await reply(client, conversationId, userId, 'No folders found. Enter a title to create one:')
     await setTags(client, conversationId, { branch: 'folder_picker', step: 'create_title' })
     return
   }
 
-  await setFlowState(client, conversationId, { folders: data })
+  await setFlowState(client, conversationId, { folders })
   await showList(
     client,
     conversationId,
     userId,
     'Pick a folder:',
-    data.map((f) => f.title ?? ''),
+    folders.map((f) => f.title ?? ''),
     [{ label: 'Create new folder', value: '0' }]
   )
   await setTags(client, conversationId, { branch: 'folder_picker', step: '' })
@@ -137,24 +143,25 @@ const submitCreateFolder = async (
   form: CreateFolderForm,
   onSelected: (uid: string) => Promise<void>
 ) => {
-  const { output } = await client.callAction({
-    type: `${GRAFANA}:createFolder`,
-    input: {
-      title: form.title!,
-      ...(form.uid && { uid: form.uid }),
-      ...(form.parentUid && { parentUid: form.parentUid }),
-      ...(form.description && { description: form.description }),
-    },
-  })
-
-  const { success, uid, error } = output
-
-  if (!success || !uid) {
-    await reply(client, conversationId, userId, `Failed to create folder: ${error ?? 'Unknown error.'}`)
+  try {
+    const { output } = await client.callAction({
+      type: `${GRAFANA}:createFolder`,
+      input: {
+        title: form.title!,
+        ...(form.uid && { uid: form.uid }),
+        ...(form.parentUid && { parentUid: form.parentUid }),
+        ...(form.description && { description: form.description }),
+      },
+    })
+    await reply(client, conversationId, userId, `Folder "${form.title}" created.`)
+    await onSelected(output.uid)
+  } catch (err) {
+    await reply(
+      client,
+      conversationId,
+      userId,
+      `Failed to create folder: ${err instanceof Error ? err.message : String(err)}`
+    )
     await goToMainMenu(client, conversationId, userId)
-    return
   }
-
-  await reply(client, conversationId, userId, `Folder "${form.title}" created.`)
-  await onSelected(uid)
 }

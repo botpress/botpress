@@ -66,61 +66,90 @@ const handleMenuInput = async (client: Client, conversationId: string, userId: s
   }
 
   if (input === '1') {
-    const { output } = await client.callAction({ type: `${GRAFANA}:listAlertRules`, input: {} })
-    const { success, data } = output
-    if (!success || !data?.length) {
-      await reply(client, conversationId, userId, 'No alert rules found.')
+    try {
+      const { output } = await client.callAction({ type: `${GRAFANA}:listAlertRules`, input: {} })
+      const { alertRules } = output
+      if (!alertRules?.length) {
+        await reply(client, conversationId, userId, 'No alert rules found.')
+        await showMenu(client, conversationId, userId, MANAGE_MENU, [{ label: 'Back', value: '-1' }])
+        return
+      }
+      await setFlowState(client, conversationId, { alertRuleList: alertRules })
+      await showList(
+        client,
+        conversationId,
+        userId,
+        'Alert rules:',
+        alertRules.map((r) => `${r.title ?? r.uid} (${r.ruleGroup ?? 'no group'})`),
+        [{ label: 'Cancel', value: '-1' }]
+      )
+      await setTags(client, conversationId, { branch: 'manage_alert_rules', step: 'delete_rule_select' })
+    } catch (err) {
+      await reply(
+        client,
+        conversationId,
+        userId,
+        `Failed to list alert rules: ${err instanceof Error ? err.message : String(err)}`
+      )
       await showMenu(client, conversationId, userId, MANAGE_MENU, [{ label: 'Back', value: '-1' }])
-      return
     }
-    await setFlowState(client, conversationId, { alertRuleList: data })
-    await showList(
-      client,
-      conversationId,
-      userId,
-      'Alert rules:',
-      data.map((r) => `${r.title ?? r.uid} (${r.ruleGroup ?? 'no group'})`),
-      [{ label: 'Cancel', value: '-1' }]
-    )
-    await setTags(client, conversationId, { branch: 'manage_alert_rules', step: 'delete_rule_select' })
     return
   }
 
   if (input === '2') {
-    const { output } = await client.callAction({ type: `${GRAFANA}:listContactPoints`, input: {} })
-    const { success, data } = output
-    if (!success || !data?.length) {
-      await reply(client, conversationId, userId, 'No contact points found.')
+    try {
+      const { output } = await client.callAction({ type: `${GRAFANA}:listContactPoints`, input: {} })
+      const { contactPoints } = output
+      if (!contactPoints?.length) {
+        await reply(client, conversationId, userId, 'No contact points found.')
+        await showMenu(client, conversationId, userId, MANAGE_MENU, [{ label: 'Back', value: '-1' }])
+        return
+      }
+      await setFlowState(client, conversationId, { contactPointList: contactPoints })
+      await showList(
+        client,
+        conversationId,
+        userId,
+        'Contact points:',
+        contactPoints.map((cp) => `${cp.name ?? cp.uid} (${cp.type})`),
+        [{ label: 'Cancel', value: '-1' }]
+      )
+      await setTags(client, conversationId, { branch: 'manage_alert_rules', step: 'delete_contact_point_select' })
+    } catch (err) {
+      await reply(
+        client,
+        conversationId,
+        userId,
+        `Failed to list contact points: ${err instanceof Error ? err.message : String(err)}`
+      )
       await showMenu(client, conversationId, userId, MANAGE_MENU, [{ label: 'Back', value: '-1' }])
-      return
     }
-    await setFlowState(client, conversationId, { contactPointList: data })
-    await showList(
-      client,
-      conversationId,
-      userId,
-      'Contact points:',
-      data.map((cp) => `${cp.name ?? cp.uid} (${cp.type})`),
-      [{ label: 'Cancel', value: '-1' }]
-    )
-    await setTags(client, conversationId, { branch: 'manage_alert_rules', step: 'delete_contact_point_select' })
     return
   }
 
   if (input === '3') {
-    const { output } = (await client.callAction({ type: `${GRAFANA}:listNotificationPolicies`, input: {} })) as {
-      output: { success: boolean; data?: NotificationPolicy[]; error?: string }
-    }
-    if (!output.success || !output.data?.length) {
-      await reply(client, conversationId, userId, output.error ?? 'No notification policies found.')
+    try {
+      const { output } = await client.callAction({ type: `${GRAFANA}:listNotificationPolicies`, input: {} })
+      const { policies } = output
+      if (!policies?.length) {
+        await reply(client, conversationId, userId, 'No notification policies found.')
+        await showMenu(client, conversationId, userId, MANAGE_MENU, [{ label: 'Back', value: '-1' }])
+        return
+      }
+      await setFlowState(client, conversationId, { notificationPolicyList: policies })
+      await showList(client, conversationId, userId, 'Notification policies:', policies.map(notifPolicyLabel), [
+        { label: 'Cancel', value: '-1' },
+      ])
+      await setTags(client, conversationId, { branch: 'manage_alert_rules', step: 'delete_notif_policy_select' })
+    } catch (err) {
+      await reply(
+        client,
+        conversationId,
+        userId,
+        `Failed to list notification policies: ${err instanceof Error ? err.message : String(err)}`
+      )
       await showMenu(client, conversationId, userId, MANAGE_MENU, [{ label: 'Back', value: '-1' }])
-      return
     }
-    await setFlowState(client, conversationId, { notificationPolicyList: output.data })
-    await showList(client, conversationId, userId, 'Notification policies:', output.data.map(notifPolicyLabel), [
-      { label: 'Cancel', value: '-1' },
-    ])
-    await setTags(client, conversationId, { branch: 'manage_alert_rules', step: 'delete_notif_policy_select' })
     return
   }
 
@@ -166,22 +195,30 @@ const handleDeleteRuleSelect = async (client: Client, conversationId: string, us
     return
   }
 
-  const { output: ruleOutput } = await client.callAction({ type: `${GRAFANA}:getAlertRule`, input: { uid: rule.uid } })
-  const { data: ruleData } = ruleOutput
-  const botpressId = ruleData?.labels?.botpress_id
-  if (botpressId) {
-    const { rows } = await client.findTableRows({ table: 'alertSubscriptionsTable', filter: { botpressId } })
-    if (rows.length) {
-      await client.deleteTableRows({ table: 'alertSubscriptionsTable', ids: rows.map((r) => r.id) })
+  try {
+    const { output: ruleOutput } = await client.callAction({ type: `${GRAFANA}:getAlertRule`, input: { uid: rule.uid } })
+    const botpressId = ruleOutput.labels?.botpress_id
+    if (botpressId) {
+      const { rows } = await client.findTableRows({ table: 'alertSubscriptionsTable', filter: { botpressId } })
+      if (rows.length) {
+        await client.deleteTableRows({ table: 'alertSubscriptionsTable', ids: rows.map((r) => r.id) })
+      }
     }
+  } catch {
+    // skip subscription cleanup if alert rule lookup fails
   }
 
-  const { output } = await client.callAction({ type: `${GRAFANA}:deleteAlertRule`, input: { uid: rule.uid } })
-  const { success, error } = output
-  const msg = success
-    ? `Alert rule "${rule.title ?? rule.uid}" deleted successfully.`
-    : `Failed to delete alert rule: ${error ?? 'Unknown error.'}`
-  await reply(client, conversationId, userId, msg)
+  try {
+    await client.callAction({ type: `${GRAFANA}:deleteAlertRule`, input: { uid: rule.uid } })
+    await reply(client, conversationId, userId, `Alert rule "${rule.title ?? rule.uid}" deleted successfully.`)
+  } catch (err) {
+    await reply(
+      client,
+      conversationId,
+      userId,
+      `Failed to delete alert rule: ${err instanceof Error ? err.message : String(err)}`
+    )
+  }
   await showMenu(client, conversationId, userId, MANAGE_MENU, [{ label: 'Back', value: '-1' }])
   await setTags(client, conversationId, { branch: 'manage_alert_rules', step: 'menu' })
 }
@@ -219,12 +256,17 @@ const handleDeleteContactPointSelect = async (
     return
   }
 
-  const { output } = await client.callAction({ type: `${GRAFANA}:deleteContactPoint`, input: { uid: cp.uid } })
-  const { success, error } = output
-  const msg = success
-    ? `Contact point "${cp.name ?? cp.uid}" deleted successfully.`
-    : `Failed to delete contact point: ${error ?? 'Unknown error.'}`
-  await reply(client, conversationId, userId, msg)
+  try {
+    await client.callAction({ type: `${GRAFANA}:deleteContactPoint`, input: { uid: cp.uid } })
+    await reply(client, conversationId, userId, `Contact point "${cp.name ?? cp.uid}" deleted successfully.`)
+  } catch (err) {
+    await reply(
+      client,
+      conversationId,
+      userId,
+      `Failed to delete contact point: ${err instanceof Error ? err.message : String(err)}`
+    )
+  }
   await showMenu(client, conversationId, userId, MANAGE_MENU, [{ label: 'Back', value: '-1' }])
   await setTags(client, conversationId, { branch: 'manage_alert_rules', step: 'menu' })
 }
@@ -262,15 +304,25 @@ const handleDeleteNotifPolicySelect = async (client: Client, conversationId: str
     await setTags(client, conversationId, { branch: 'manage_alert_rules', step: 'menu' })
     return
   }
-  const { output } = (await client.callAction({
-    type: `${GRAFANA}:deleteNotificationPolicy`,
-    input: { receiver: policy.receiver, matchers },
-  })) as { output: { success: boolean; error?: string } }
-  const { success, error } = output
-  const msg = success
-    ? `Notification policy for receiver "${policy.receiver}" deleted successfully.`
-    : `Failed to delete notification policy: ${error ?? 'Unknown error.'}`
-  await reply(client, conversationId, userId, msg)
+  try {
+    await client.callAction({
+      type: `${GRAFANA}:deleteNotificationPolicy`,
+      input: { receiver: policy.receiver, matchers },
+    })
+    await reply(
+      client,
+      conversationId,
+      userId,
+      `Notification policy for receiver "${policy.receiver}" deleted successfully.`
+    )
+  } catch (err) {
+    await reply(
+      client,
+      conversationId,
+      userId,
+      `Failed to delete notification policy: ${err instanceof Error ? err.message : String(err)}`
+    )
+  }
   await showMenu(client, conversationId, userId, MANAGE_MENU, [{ label: 'Back', value: '-1' }])
   await setTags(client, conversationId, { branch: 'manage_alert_rules', step: 'menu' })
 }

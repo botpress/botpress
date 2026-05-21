@@ -308,38 +308,35 @@ const submitWithVisualization = async (client: Client, logger: Logger, conversat
   const dashboardUid = dashboardTitle.toLowerCase().replaceAll(/\s+/g, '-')
   const panelId = 1
 
-  const { output: dashOutput } = await client.callAction({
-    type: `${GRAFANA}:createDashboard`,
-    input: {
-      uid: dashboardUid,
-      title: dashboardTitle,
-      folderUid: form.folderUID,
-      panels: [
-        {
-          type: 'timeseries',
-          title: form.title!,
-          id: panelId,
-          gridPos: { w: 24, h: 8 },
-          datasource: { type: 'prometheus', uid: form.datasourceUid! },
-          targets: [{ refId: 'A', expr: form.query! }],
-        },
-      ],
-    },
-  })
-
-  const { success: dashSuccess, error: dashError } = dashOutput
-  if (!dashSuccess) {
+  try {
+    await client.callAction({
+      type: `${GRAFANA}:createDashboard`,
+      input: {
+        uid: dashboardUid,
+        title: dashboardTitle,
+        folderUid: form.folderUID,
+        panels: [
+          {
+            type: 'timeseries',
+            title: form.title!,
+            id: panelId,
+            gridPos: { w: 24, h: 8 },
+            datasource: { type: 'prometheus', uid: form.datasourceUid! },
+            targets: [{ refId: 'A', expr: form.query! }],
+          },
+        ],
+      },
+    })
+    await submitCreateAlertRule(client, logger, conversationId, userId, dashboardUid, String(panelId))
+  } catch (err) {
     await reply(
       client,
       conversationId,
       userId,
-      `Could not create dashboard: ${dashError ?? 'Unknown error.'}. Creating alert rule without visualisation.`
+      `Could not create dashboard: ${err instanceof Error ? err.message : String(err)}. Creating alert rule without visualisation.`
     )
     await submitCreateAlertRule(client, logger, conversationId, userId)
-    return
   }
-
-  await submitCreateAlertRule(client, logger, conversationId, userId, dashboardUid, String(panelId))
 }
 
 const submitCreateAlertRule = async (
@@ -355,39 +352,41 @@ const submitCreateAlertRule = async (
 
   const botpressId = await registerAlertSubscription(client, logger, conversationId)
 
-  const { output } = await client.callAction({
-    type: `${GRAFANA}:createAlertRule`,
-    input: {
-      title: form.title!,
-      folderUID: form.folderUID!,
-      dataArray: {
-        datasourceUid: form.datasourceUid!,
-        query: form.query!,
-        reducer: form.reducer ?? 'mean',
-        thresholdType: form.thresholdType!,
-        thresholdValue: form.thresholdValue!,
+  try {
+    await client.callAction({
+      type: `${GRAFANA}:createAlertRule`,
+      input: {
+        title: form.title!,
+        folderUID: form.folderUID!,
+        dataArray: {
+          datasourceUid: form.datasourceUid!,
+          query: form.query!,
+          reducer: form.reducer ?? 'mean',
+          thresholdType: form.thresholdType!,
+          thresholdValue: form.thresholdValue!,
+        },
+        botpressId,
+        forDuration: form.forDuration ?? '30s',
+        ...(form.ruleGroup && { ruleGroup: form.ruleGroup }),
+        ...(form.labels && { labels: form.labels }),
+        ...(form.receiver && { notification_settings: { receiver: form.receiver } }),
+        ...(dashboardUid && { dashboardUid }),
+        ...(panelId && { panelId }),
       },
-      botpressId,
-      forDuration: form.forDuration ?? '30s',
-      ...(form.ruleGroup && { ruleGroup: form.ruleGroup }),
-      ...(form.labels && { labels: form.labels }),
-      ...(form.receiver && { notification_settings: { receiver: form.receiver } }),
-      ...(dashboardUid && { dashboardUid }),
-      ...(panelId && { panelId }),
-    },
-  })
-
-  const { success, error } = output as { success: boolean; error?: string }
-
-  if (success) {
+    })
     await reply(
       client,
       conversationId,
       userId,
       `Alert rule "${form.title}" created. You'll be notified here when it fires.`
     )
-  } else {
-    await reply(client, conversationId, userId, `Failed to create alert rule: ${error ?? 'Unknown error.'}`)
+  } catch (err) {
+    await reply(
+      client,
+      conversationId,
+      userId,
+      `Failed to create alert rule: ${err instanceof Error ? err.message : String(err)}`
+    )
   }
 
   await goToMainMenu(client, conversationId, userId)

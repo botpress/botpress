@@ -9,22 +9,34 @@ export const startContactPointPicker = async (
 ) => {
   await setFlowState(client, conversationId, { contactPointPickerReturnBranch: returnBranch })
 
-  const { output } = await client.callAction({ type: `${GRAFANA}:listContactPoints`, input: {} })
-  const { success, data } = output
+  let contactPoints
+  try {
+    const { output } = await client.callAction({ type: `${GRAFANA}:listContactPoints`, input: {} })
+    contactPoints = output.contactPoints
+  } catch (err) {
+    await reply(
+      client,
+      conversationId,
+      userId,
+      `Failed to load contact points: ${err instanceof Error ? err.message : String(err)} Enter the receiver name:`
+    )
+    await setTags(client, conversationId, { branch: 'contact_point_picker', step: 'create_name' })
+    return
+  }
 
-  if (!success || !data?.length) {
+  if (!contactPoints?.length) {
     await reply(client, conversationId, userId, 'No contact points found. Enter the receiver name:')
     await setTags(client, conversationId, { branch: 'contact_point_picker', step: 'create_name' })
     return
   }
 
-  await setFlowState(client, conversationId, { contactPointList: data })
+  await setFlowState(client, conversationId, { contactPointList: contactPoints })
   await showList(
     client,
     conversationId,
     userId,
     'Contact points:',
-    data.map((cp) => `${cp.name ?? cp.uid} (${cp.type})`),
+    contactPoints.map((cp) => `${cp.name ?? cp.uid} (${cp.type})`),
     [{ label: 'Get notifications on this bot', value: '0' }]
   )
   await setTags(client, conversationId, { branch: 'contact_point_picker', step: '' })
@@ -39,18 +51,17 @@ export const handleContactPointPicker = async (
   onSelected: (name: string) => Promise<void>
 ) => {
   if (step === 'create_name') {
-    const { output } = await client.callAction({ type: `${GRAFANA}:createContactPoint`, input: { name: input } as any })
-    const { success, error } = output as { success: boolean; error?: string }
-    if (!success) {
+    try {
+      await client.callAction({ type: `${GRAFANA}:createContactPoint`, input: { name: input } as any })
+      await onSelected(input)
+    } catch (err) {
       await reply(
         client,
         conversationId,
         userId,
-        `Failed to create contact point: ${error ?? 'Unknown error.'} Enter a name again:`
+        `Failed to create contact point: ${err instanceof Error ? err.message : String(err)} Enter a name again:`
       )
-      return
     }
-    await onSelected(input)
     return
   }
 
