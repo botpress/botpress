@@ -1,4 +1,5 @@
 import { isHitlTicket } from '../hitl'
+import { getOrCreateAgentUser } from './agent'
 import { hitlMessageReceivedBodySchema } from './schemas'
 import * as bp from '.botpress'
 
@@ -33,12 +34,7 @@ export const executeHitlMessageReceived = async (props: HandlerProps & { body: R
       tags: { freshdeskTicketId: String(ticket.id) },
     })
 
-    const agentId = agent?.id ?? 'unknown'
-    const agentName = agent?.name ?? 'Freshdesk Agent'
-    const { users } = await client.listUsers({ tags: { freshdeskAgentId: agentId } })
-    const { user } = users[0]
-      ? await client.updateUser({ ...users[0], name: agentName, tags: { ...users[0].tags, freshdeskAgentId: agentId } })
-      : await client.createUser({ name: agentName, tags: { freshdeskAgentId: agentId } })
+    const { user } = await getOrCreateAgentUser({ agent, client, ticketId: ticket.id })
 
     await client.createMessage({
       type: 'text',
@@ -48,7 +44,7 @@ export const executeHitlMessageReceived = async (props: HandlerProps & { body: R
       tags: {},
     })
 
-    log.info(`hitlMessageReceived: created message in conversation=${conversation.id} from agent=${agentId}`)
+    log.info(`hitlMessageReceived: created message in conversation=${conversation.id} from agent=${user.id}`)
   } catch (thrown) {
     log.error(
       `hitlMessageReceived failed for ticket=${ticket.id}: ${thrown instanceof Error ? thrown.message : String(thrown)}`
