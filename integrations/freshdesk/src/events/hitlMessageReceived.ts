@@ -35,7 +35,10 @@ export const executeHitlMessageReceived = async (props: HandlerProps & { body: R
     })
 
     if (await _isWebchatEcho({ conversationId: conversation.id, text, client })) {
-      log.debug(`hitlMessageReceived: ignoring Webchat echo for ticket=${ticket.id}`)
+      log.warn(
+        `hitlMessageReceived: ignoring possible Webchat echo for ticket=${ticket.id}; ` +
+          `matched prefixed Freshdesk note against existing HITL message: ${JSON.stringify(_stripWebchatPrefix(text))}`
+      )
       return
     }
 
