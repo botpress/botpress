@@ -22,6 +22,8 @@ For advanced users who need full control over their HubSpot app, a **manual conf
    - `crm.objects.leads.write`
    - `crm.objects.deals.read`
    - `crm.objects.deals.write`
+   - `files`
+   - `files.ui_hidden.read`
 5. Under the _Webhooks_ tab, paste your webhook URL, set _Event Throttling_ to 1, and click _Create Subscription_.
 6. You may now optionally subscribe to webhook events. In the _Create new webhook subscriptions_ dialog, **you must enable _expanded object support_** before selecting the events you wish to subscribe to. Currently, the integration supports the following events:
 
@@ -54,7 +56,6 @@ In your HubSpot settings, open your existing Private App and add the following s
 - `conversations.custom_channels.write`
 - `conversations.read`
 - `conversations.write`
-- `files`
 
 #### 2. Add a Webhook Subscription
 
