@@ -35,13 +35,14 @@ export const events = {
     }),
     ui: {},
   },
-  ticketReplied: {
-    title: 'Ticket Replied',
-    description: 'Triggered when a customer adds a reply to a ticket.',
-    schema: z.object({
-      ticket: ticketEventSchema.title('Ticket').describe('The ticket that received the reply.'),
-      reply: replyEventSchema.title('Reply').describe('The reply that was added.'),
-    }),
-    ui: {},
-  },
+  // create message in the HITL channel instead of an event
+  // ticketReplied: {
+  //   title: 'Ticket Replied',
+  //   description: 'Triggered when a customer adds a reply to a ticket.',
+  //   schema: z.object({
+  //     ticket: ticketEventSchema.title('Ticket').describe('The ticket that received the reply.'),
+  //     reply: replyEventSchema.title('Reply').describe('The reply that was added.'),
+  //   }),
+  //   ui: {},
+  // },
 } as const satisfies IntegrationDefinitionProps['events']

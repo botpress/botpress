@@ -23,6 +23,29 @@ export default new bp.Integration({
   },
   unregister: async () => {},
   actions,
-  channels: {},
+  channels: {
+    ticket: {
+      messages: {
+        text: async () => {
+          // send request to the freshdesk API to create the message
+        },
+        audio: async () => {
+          // send request to the freshdesk API to create the message
+        },
+        file: async () => {
+          // send request to the freshdesk API to create the message
+        },
+        image: async () => {
+          // send request to the freshdesk API to create the message
+        },
+        bloc: async () => {
+          // send request to the freshdesk API to create the message
+        },
+        video: async () => {
+          // send request to the freshdesk API to create the message
+        },
+      },
+    },
+  },
   handler,
 })

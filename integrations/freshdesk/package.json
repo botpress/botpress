@@ -16,5 +16,8 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/sdk": "workspace:*"
+  },
+  "bpDependencies": {
+    "hitl": "../../interfaces/hitl"
   }
 }

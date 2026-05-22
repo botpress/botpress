@@ -24,7 +24,7 @@ export const executeTicketReplied = async (props: HandlerProps & { body: Record<
     tags: { freshdeskRequesterId: String(ticket.requester_id) },
   })
 
-  // TODO(HITL): get or create a conversation on the ticket channel and pass conversationId to createEvent
+  // create message in the HITL channel instead of an event
   await client.createEvent({
     type: 'ticketReplied',
     payload: { ticket: mapTicket(ticket), reply: mapReply(reply) },
