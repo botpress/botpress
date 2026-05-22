@@ -1,7 +1,6 @@
 import { z } from '@botpress/sdk'
 
-export const configurationSchema = z.object({
-})
+export const configurationSchema = z.object({})
 
 export const manualConfigurationSchema = z.object({
   personalAccessToken: z
