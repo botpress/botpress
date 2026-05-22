@@ -1,12 +1,12 @@
 import { isOAuthWizardUrl } from '@botpress/common/src/oauth-wizard'
 import * as actions from 'src/actions'
-import { getAccessToken } from 'src/misc/auth'
+import { getMondayClient } from 'src/misc/auth'
 import { oauthWizardHandler } from './oauth-wizard'
 import * as bp from '.botpress'
 
 export default new bp.Integration({
   register: async ({ client, ctx }) => {
-    await getAccessToken({ client, ctx })
+    await getMondayClient({ client, ctx })
 
     await client.configureIntegration({
       identifier: ctx.webhookId,

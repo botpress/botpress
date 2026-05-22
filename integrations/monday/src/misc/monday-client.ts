@@ -2,7 +2,7 @@ import axios, { Axios } from 'axios'
 import { GRAPHQL_QUERIES, QUERY_INPUT, QUERY_RESPONSE } from './graphql-queries'
 
 export type MondayClientConfiguration = {
-  personalAccessToken: string
+  authorization: string
 }
 
 export type CreateItemOptions = {
@@ -27,7 +27,7 @@ export class MondayClient {
       baseURL: 'https://api.monday.com/v2',
       timeout: 10_000,
       headers: {
-        Authorization: config.personalAccessToken,
+        Authorization: config.authorization,
         'API-Version': '2023-07',
         'Content-Type': 'application/json',
       },

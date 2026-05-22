@@ -1,4 +1,5 @@
 import { RuntimeError, isApiError } from '@botpress/sdk'
+import { MondayClient } from './monday-client'
 import * as bp from '.botpress'
 
 type AuthProps = {
@@ -42,11 +43,14 @@ export const getOAuthAccessToken = async ({ client, ctx }: AuthProps) => {
   return state?.payload.accessToken || undefined
 }
 
-export const getAccessToken = async (props: AuthProps) => {
+export const getMondayClient = async (props: AuthProps) => {
+  const oAuthAccessToken = await getOAuthAccessToken(props)
+  if (oAuthAccessToken) {
+    return createOAuthMondayClient(oAuthAccessToken)
+  }
+
   const accessToken =
-    (await getOAuthAccessToken(props)) ??
-    (await getConfigurationAccessToken(props)) ??
-    props.ctx.configuration.personalAccessToken
+    (await getConfigurationAccessToken(props)) ?? props.ctx.configuration.personalAccessToken
 
   if (!accessToken) {
     throw new RuntimeError(
@@ -54,5 +58,11 @@ export const getAccessToken = async (props: AuthProps) => {
     )
   }
 
-  return accessToken
+  return createPersonalAccessTokenMondayClient(accessToken)
 }
+
+export const createOAuthMondayClient = (accessToken: string) =>
+  MondayClient.create({ authorization: `Bearer ${accessToken}` })
+
+export const createPersonalAccessTokenMondayClient = (accessToken: string) =>
+  MondayClient.create({ authorization: accessToken })
