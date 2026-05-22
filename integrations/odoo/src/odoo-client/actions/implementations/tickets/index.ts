@@ -1,6 +1,6 @@
 export { createTicket } from './createTicket'
 export { deleteTickets } from './deleteTickets'
-export { getTicketFields } from './getTicketFields'
-export { getTickets } from './getTickets'
+export { listTicketFields } from './listTicketFields'
+export { listTickets } from './listTickets'
 export { searchTickets } from './searchTickets'
 export { updateTickets } from './updateTickets'

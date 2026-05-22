@@ -8,18 +8,18 @@ import {
 } from './contacts'
 import { getCurrentUser } from './current-user'
 import { createLead, deleteLeads, listLeadFields, listLeads, searchLeads, updateLeads } from './leads'
-import { createTicket, deleteTickets, getTicketFields, getTickets, searchTickets, updateTickets } from './tickets'
+import { createTicket, deleteTickets, listTicketFields, listTickets, searchTickets, updateTickets } from './tickets'
 import * as bp from '.botpress'
 
 export default {
   getCurrentUser,
   listContactFields,
   listLeadFields,
-  getTicketFields,
+  listTicketFields,
   searchLeads,
   searchTickets,
   listLeads,
-  getTickets,
+  listTickets,
   createLead,
   createTicket,
   updateLeads,

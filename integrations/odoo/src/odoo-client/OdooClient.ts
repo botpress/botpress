@@ -144,7 +144,7 @@ export class OdooClient {
     return this._postJson('/json/2/crm.lead/fields_get', input, isRecordMap, 'JSON object')
   }
 
-  public async getTicketFields(input: HelpdeskTicketFieldsGetInput): Promise<HelpdeskTicketFieldsGetOutput> {
+  public async listTicketFields(input: HelpdeskTicketFieldsGetInput): Promise<HelpdeskTicketFieldsGetOutput> {
     return this._postJson('/json/2/helpdesk.ticket/fields_get', input, isRecordMap, 'JSON object')
   }
 
@@ -179,7 +179,7 @@ export class OdooClient {
     return this._postJson('/json/2/crm.lead/read', input, isOdooRecordArray, 'JSON array')
   }
 
-  public async getTickets(input: HelpdeskTicketReadInput): Promise<HelpdeskTicketReadOutput> {
+  public async listTickets(input: HelpdeskTicketReadInput): Promise<HelpdeskTicketReadOutput> {
     return this._postJson('/json/2/helpdesk.ticket/read', input, isHelpdeskTicketRecordArray, 'JSON array')
   }
 

@@ -30,7 +30,7 @@ const leadFieldsSchema = fieldsSchema.describe(
   'Odoo crm.lead field names to include in the response. Call listLeadFields before choosing fields unless the exact field names were already retrieved in this conversation. To find which contacts are also leads, first retrieve the available contact and lead fields, then read comparable fields.'
 )
 const ticketFieldsSchema = fieldsSchema.describe(
-  'Odoo helpdesk.ticket field names to include in the response. Call getTicketFields before choosing fields unless the exact field names were already retrieved in this conversation.'
+  'Odoo helpdesk.ticket field names to include in the response. Call listTicketFields before choosing fields unless the exact field names were already retrieved in this conversation.'
 )
 const contactIdsSchema = z.array(z.number()).title('Contact IDs').describe('Odoo contact record IDs.')
 const leadIdsSchema = z.array(z.number()).title('Lead IDs').describe('Odoo CRM lead record IDs.')
@@ -201,9 +201,9 @@ export const actions = {
       }),
     },
   },
-  getTicketFields: {
-    title: 'Get Odoo Ticket Fields',
-    description: 'Get available fields for Odoo helpdesk tickets.',
+  listTicketFields: {
+    title: 'List Odoo Ticket Fields',
+    description: 'List available fields for Odoo helpdesk tickets.',
     input: {
       schema: z.object({
         allfields: ticketFieldsSchema.optional(),
@@ -281,7 +281,7 @@ export const actions = {
   searchTickets: {
     title: 'Search Tickets',
     description:
-      'Search Odoo helpdesk tickets using an Odoo domain and optional read parameters. Call getTicketFields first unless the needed helpdesk.ticket field names were already retrieved in this conversation.',
+      'Search Odoo helpdesk tickets using an Odoo domain and optional read parameters. Call listTicketFields first unless the needed helpdesk.ticket field names were already retrieved in this conversation.',
     input: {
       schema: z.object({
         domain: odooDomainSchema.optional(),
@@ -298,10 +298,10 @@ export const actions = {
       }),
     },
   },
-  getTickets: {
-    title: 'Get Tickets',
+  listTickets: {
+    title: 'List Tickets',
     description:
-      'Read Odoo helpdesk tickets by ID. Call getTicketFields first unless the needed helpdesk.ticket field names were already retrieved in this conversation.',
+      'List Odoo helpdesk tickets by ID. Call listTicketFields first unless the needed helpdesk.ticket field names were already retrieved in this conversation.',
     input: {
       schema: z.object({
         ids: ticketIdsSchema,
@@ -334,7 +334,7 @@ export const actions = {
   createTicket: {
     title: 'Create Ticket',
     description:
-      'Create an Odoo helpdesk ticket. Call getTicketFields first unless the needed helpdesk.ticket field names were already retrieved in this conversation.',
+      'Create an Odoo helpdesk ticket. Call listTicketFields first unless the needed helpdesk.ticket field names were already retrieved in this conversation.',
     input: {
       schema: z.object({
         values: ticketValuesSchema,
@@ -367,7 +367,7 @@ export const actions = {
   updateTickets: {
     title: 'Update Tickets',
     description:
-      'Update one or more Odoo helpdesk tickets. Call getTicketFields first unless the needed helpdesk.ticket field names were already retrieved in this conversation.',
+      'Update one or more Odoo helpdesk tickets. Call listTicketFields first unless the needed helpdesk.ticket field names were already retrieved in this conversation.',
     input: {
       schema: z.object({
         ids: ticketIdsSchema,
