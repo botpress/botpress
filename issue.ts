@@ -1,4 +1,8 @@
+// This file is for testing various edge cases and issues with the zui to JSON Schema transformation.
+// To be removed from the final codebase, but great for understanding.
+
 import { z } from './packages/zui/src/index'
+import { fromObject } from './packages/zui/src/transforms'
 
 const zSchema = z.object({
   oop: z.string().describe('This is a string'),
@@ -43,7 +47,31 @@ const setSchema = z.object({
   set: z.set(z.string().refine((v) => v.length > 0)),
 })
 
-for (const schema of [zSchema, unionSchema, discriminatedUnionSchema, intersectionSchema, setSchema]) {
+const literalSchema = z.object({
+  literal: z.literal(42n),
+})
+
+try {
+  fromObject('not an object' as any)
+} catch (e) {
+  console.log((e as Error).message)
+}
+
+try {
+  fromObject({
+    a: {
+      b: {
+        c: [{ good: 'ok', broken: Symbol('x') }, { good: 'also ok' }],
+      },
+    },
+  })
+} catch (e) {
+  console.log((e as Error).message)
+}
+
+const trimSchema = z.object({ field: z.string().trim() })
+
+for (const schema of [zSchema, unionSchema, discriminatedUnionSchema, intersectionSchema, setSchema, literalSchema, trimSchema]) {
   try {
     schema.toJSONSchema()
   } catch (e) {

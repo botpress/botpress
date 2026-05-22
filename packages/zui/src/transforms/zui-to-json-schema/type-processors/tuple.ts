@@ -16,7 +16,7 @@ export const zodTupleToJsonTuple = (
       try {
         return toSchema(item)
       } catch (e) {
-        if (e instanceof err.UnsupportedZuiToJSONSchemaError) {
+        if (e instanceof err.ZuiTransformError) {
           utils.errors.prependPathSegment(e, `[${index}]`)
         }
         throw e

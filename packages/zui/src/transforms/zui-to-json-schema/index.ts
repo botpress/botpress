@@ -119,7 +119,7 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
           try {
             return [key, toJSONSchema(value, opts)] satisfies [string, json.Schema]
           } catch (e) {
-            if (e instanceof err.UnsupportedZuiToJSONSchemaError) {
+            if (e instanceof err.ZuiTransformError) {
               let propertyKey = `.${key}`
               switch (value.typeName) {
                 case 'ZodArray':
@@ -160,7 +160,7 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
             try {
               return toJSONSchema(option, opts)
             } catch (e) {
-              if (e instanceof err.UnsupportedZuiToJSONSchemaError) {
+              if (e instanceof err.ZuiTransformError) {
                 utils.errors.prependPathSegment(e, `[${index}]`)
               }
               throw e
@@ -175,7 +175,7 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
           try {
             return toJSONSchema(option, opts)
           } catch (e) {
-            if (e instanceof err.UnsupportedZuiToJSONSchemaError) {
+            if (e instanceof err.ZuiTransformError) {
               utils.errors.prependPathSegment(e, `[${index}]`)
             }
             throw e
@@ -193,7 +193,7 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
             try {
               return toJSONSchema(option, opts)
             } catch (e) {
-              if (e instanceof err.UnsupportedZuiToJSONSchemaError) {
+              if (e instanceof err.ZuiTransformError) {
                 utils.errors.prependPathSegment(e, `[${index}]`)
               }
               throw e
@@ -212,7 +212,7 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
           try {
             return toJSONSchema(option, opts)
           } catch (e) {
-            if (e instanceof err.UnsupportedZuiToJSONSchemaError) {
+            if (e instanceof err.ZuiTransformError) {
               utils.errors.prependPathSegment(e, `[${index}]`)
             }
             throw e
@@ -231,7 +231,7 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
       try {
         left = toJSONSchema(s._def.left, opts)
       } catch (e) {
-        if (e instanceof err.UnsupportedZuiToJSONSchemaError) {
+        if (e instanceof err.ZuiTransformError) {
           utils.errors.prependPathSegment(e, '[0]')
         }
         throw e
@@ -240,7 +240,7 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
       try {
         right = toJSONSchema(s._def.right, opts)
       } catch (e) {
-        if (e instanceof err.UnsupportedZuiToJSONSchemaError) {
+        if (e instanceof err.ZuiTransformError) {
           utils.errors.prependPathSegment(e, '[1]')
         }
         throw e

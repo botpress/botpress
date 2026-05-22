@@ -1,5 +1,7 @@
+import * as utils from '../../utils'
 import * as z from '../../z'
 import * as errors from '../common/errors'
+
 
 // Using a basic regex do determine if it's a date or not to avoid using another lib for that
 const dateTimeRegex =
@@ -34,39 +36,49 @@ export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true
   }
 
   const schema: z.ZodRawShape = Object.entries(obj).reduce((acc: z.ZodRawShape, [key, value]: [string, unknown]) => {
-    if (value === null) {
-      acc[key] = applyOptions(z.null())
-    } else {
-      switch (typeof value) {
-        case 'string':
-          acc[key] = dateTimeRegex.test(value) ? applyOptions(z.string().datetime()) : applyOptions(z.string())
-          break
-        case 'number':
-          acc[key] = applyOptions(z.number())
-          break
-        case 'boolean':
-          acc[key] = applyOptions(z.boolean())
-          break
-        case 'object':
-          if (Array.isArray(value)) {
-            const [first] = value as unknown[]
-            if (first === undefined || first === null) {
-              acc[key] = applyOptions(z.array(z.unknown()))
-            } else if (typeof first === 'object') {
-              acc[key] = applyOptions(z.array(fromObject(first, opts, false)))
-            } else if (typeof first === 'string' || typeof first === 'number' || typeof first === 'boolean') {
-              const inner = _getInnerType(first)
-              acc[key] = applyOptions(z.array(inner))
+    try {
+      if (value === null) {
+        acc[key] = applyOptions(z.null())
+      } else {
+        switch (typeof value) {
+          case 'string':
+            acc[key] = dateTimeRegex.test(value) ? applyOptions(z.string().datetime()) : applyOptions(z.string())
+            break
+          case 'number':
+            acc[key] = applyOptions(z.number())
+            break
+          case 'boolean':
+            acc[key] = applyOptions(z.boolean())
+            break
+          case 'object':
+            if (Array.isArray(value)) {
+              const [first] = value as unknown[]
+              if (first === undefined || first === null) {
+                acc[key] = applyOptions(z.array(z.unknown()))
+              } else if (typeof first === 'object') {
+                acc[key] = applyOptions(z.array(fromObject(first, opts, false)))
+              } else if (typeof first === 'string' || typeof first === 'number' || typeof first === 'boolean') {
+                const inner = _getInnerType(first)
+                acc[key] = applyOptions(z.array(inner))
+              }
+            } else {
+              acc[key] = applyOptions(fromObject(value, opts, false))
             }
-          } else {
-            acc[key] = applyOptions(fromObject(value, opts, false))
-          }
-          break
-        default:
-          throw new errors.ObjectToZuiError(`Unsupported type for key ${key}`)
+            break
+          default:
+            throw new errors.ObjectToZuiError(`Unsupported type for key ${key}`)
+        }
       }
+      return acc
+    } catch (e) {
+    if (e instanceof errors.ZuiTransformError) {
+      if (Array.isArray(value)) {
+        utils.errors.prependPathSegment(e, '[number]')
+      }
+      utils.errors.prependPathSegment(e, `.${key}`)
     }
-    return acc
+    throw e
+  }
   }, {} as z.ZodRawShape)
 
   const hasProperties = Object.keys(schema).length > 0

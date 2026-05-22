@@ -414,4 +414,13 @@ describe('zuiToJSONSchemaNext', () => {
     const schema = toJSONSchema(z.ref('foo'))
     expect(schema).toEqual({ $ref: 'foo' })
   })
+
+  test('should show complete path section in error message', () => {
+    try {
+      toJSONSchema(z.object({ foo: z.object({ bar: z.tuple([z.number(), z.void()]) }) }))
+    } catch (e) {
+      expect(e.message).toContain('#.foo.bar[1]')
+    }
+  })
+
 })
