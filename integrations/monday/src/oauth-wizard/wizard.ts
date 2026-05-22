@@ -19,7 +19,8 @@ type MondayOAuthCredentials = {
 }
 
 const OAUTH_REDIRECT_URI = 'https://webhook.botpress.cloud/oauth/wizard/oauth-callback'
-const INVALID_CREDENTIALS_MESSAGE = 'Invalid Monday credentials. Please reconnect your account or provide a valid token.'
+const INVALID_CREDENTIALS_MESSAGE =
+  'Invalid Monday credentials. Please reconnect your account or provide a valid token.'
 
 const _manualConfigurationSchema = z.object({
   personalAccessToken: z
@@ -148,7 +149,9 @@ const _saveManualConfigurationHandler: WizardHandler = async ({
     })
   }
 
-  const validationError = await createPersonalAccessTokenMondayClient(parsed.data.personalAccessToken).validateAccessToken()
+  const validationError = await createPersonalAccessTokenMondayClient(
+    parsed.data.personalAccessToken
+  ).validateAccessToken()
 
   if (validationError) {
     return responses.displayForm({

@@ -49,8 +49,7 @@ export const getMondayClient = async (props: AuthProps) => {
     return createOAuthMondayClient(oAuthAccessToken)
   }
 
-  const accessToken =
-    (await getConfigurationAccessToken(props)) ?? props.ctx.configuration.personalAccessToken
+  const accessToken = (await getConfigurationAccessToken(props)) ?? props.ctx.configuration.personalAccessToken
 
   if (!accessToken) {
     throw new RuntimeError(
