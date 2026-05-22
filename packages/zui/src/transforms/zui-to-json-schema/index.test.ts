@@ -423,5 +423,4 @@ describe('zuiToJSONSchemaNext', () => {
       expect(e instanceof Error && e.message).toContain('#.foo.bar[1]')
     }
   })
-
 })
