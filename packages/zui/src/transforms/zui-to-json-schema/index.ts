@@ -115,7 +115,33 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
       const required = requiredProperties.length ? requiredProperties.map(([key]) => key) : undefined
       const properties = shape
         .map(([key, value]) => [key, value.mandatory()] satisfies [string, z.ZodType])
-        .map(([key, value]) => [key, toJSONSchema(value, opts)] satisfies [string, json.Schema])
+        .map(([key, value]) => {
+          try {
+            return [key, toJSONSchema(value, opts)] satisfies [string, json.Schema]
+          } catch (e) {
+            if (e instanceof err.UnsupportedZuiToJSONSchemaError) {
+              let propertyKey = `.${key}`
+              switch (value.typeName) {
+                case 'ZodArray':
+                  propertyKey += '[number]'
+                  break
+                case 'ZodRecord':
+                  propertyKey += '[*]'
+                  break
+                case 'ZodSet':
+                  propertyKey += '[*]'
+                  break
+                case 'ZodTuple':
+                  // Tuples are handled in the tuple processor, so we don't append anything to the property key here
+                  break
+                default:
+                  break
+              }
+              utils.errors.prependPathSegment(e, propertyKey)
+            }
+            throw e
+          }
+        })
 
       return {
         type: 'object',
@@ -130,13 +156,31 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
       if (opts.unionStrategy === 'oneOf') {
         return {
           description: s.description,
-          oneOf: s.options.map((option) => toJSONSchema(option, opts)),
+          oneOf: s.options.map((option, index) => {
+            try {
+              return toJSONSchema(option, opts)
+            } catch (e) {
+              if (e instanceof err.UnsupportedZuiToJSONSchemaError) {
+                utils.errors.prependPathSegment(e, `[${index}]`)
+              }
+              throw e
+            }
+          }),
           'x-zui': s._def['x-zui'],
         } satisfies json.UnionSchema
       }
       return {
         description: s.description,
-        anyOf: s.options.map((option) => toJSONSchema(option, opts)),
+        anyOf: s.options.map((option, index) => {
+          try {
+            return toJSONSchema(option, opts)
+          } catch (e) {
+            if (e instanceof err.UnsupportedZuiToJSONSchemaError) {
+              utils.errors.prependPathSegment(e, `[${index}]`)
+            }
+            throw e
+          }
+        }),
         'x-zui': s._def['x-zui'],
       } satisfies json.UnionSchema
 
@@ -145,7 +189,16 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
         const discriminator = opts.discriminator ? { propertyName: s.discriminator } : undefined
         return {
           description: s.description,
-          oneOf: s.options.map((option) => toJSONSchema(option, opts)),
+          oneOf: s.options.map((option, index) => {
+            try {
+              return toJSONSchema(option, opts)
+            } catch (e) {
+              if (e instanceof err.UnsupportedZuiToJSONSchemaError) {
+                utils.errors.prependPathSegment(e, `[${index}]`)
+              }
+              throw e
+            }
+          }),
           discriminator,
           'x-zui': {
             ...s._def['x-zui'],
@@ -155,7 +208,16 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
       }
       return {
         description: s.description,
-        anyOf: s.options.map((option) => toJSONSchema(option, opts)),
+        anyOf: s.options.map((option, index) => {
+          try {
+            return toJSONSchema(option, opts)
+          } catch (e) {
+            if (e instanceof err.UnsupportedZuiToJSONSchemaError) {
+              utils.errors.prependPathSegment(e, `[${index}]`)
+            }
+            throw e
+          }
+        }),
         'x-zui': {
           ...s._def['x-zui'],
           def: { typeName: 'ZodDiscriminatedUnion', discriminator: s.discriminator },
@@ -163,8 +225,26 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
       } satisfies json.DiscriminatedUnionSchema
 
     case 'ZodIntersection':
-      const left = toJSONSchema(s._def.left, opts)
-      const right = toJSONSchema(s._def.right, opts)
+      let left
+      let right
+
+      try {
+        left = toJSONSchema(s._def.left, opts)
+      } catch (e) {
+        if (e instanceof err.UnsupportedZuiToJSONSchemaError) {
+          utils.errors.prependPathSegment(e, '[0]')
+        }
+        throw e
+      }
+
+      try {
+        right = toJSONSchema(s._def.right, opts)
+      } catch (e) {
+        if (e instanceof err.UnsupportedZuiToJSONSchemaError) {
+          utils.errors.prependPathSegment(e, '[1]')
+        }
+        throw e
+      }
 
       /**
        * TODO: Potential conflict between `additionalProperties` in the left and right schemas.
