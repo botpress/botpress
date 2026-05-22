@@ -17,6 +17,8 @@ export const configuration = {
       .array()
       .optional()
       .title('Document Library Names')
-      .describe('Document libraries to subscribe to for real-time sync. Not needed for knowledge-connector browsing only.'),
+      .describe(
+        'Document libraries to subscribe to for real-time sync. Not needed for knowledge-connector browsing only.'
+      ),
   }),
 } satisfies IntegrationDefinitionProps['configuration']
