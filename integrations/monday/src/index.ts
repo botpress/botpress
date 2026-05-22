@@ -19,7 +19,12 @@ export default new bp.Integration({
         identifier: ctx.webhookId,
       })
     } catch (thrown) {
-      throw thrown
+      if (thrown instanceof RuntimeError) {
+        throw thrown
+      }
+
+      const message = thrown instanceof Error ? thrown.message : String(thrown)
+      throw new RuntimeError(`Failed to configure Monday integration. Please reconnect your account. (${message})`)
     }
   },
   unregister: async () => {
