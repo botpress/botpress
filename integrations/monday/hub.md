@@ -4,7 +4,7 @@
 
 ## Configuration
 
-This integration connects to Monday.com with OAuth. You can also provide a personal access token as an optional fallback if you want to configure access manually.
+This integration connects to Monday.com with OAuth by default. You can also select manual configuration and provide a personal access token if you prefer to configure access manually.
 
 ### Monday
 
@@ -16,7 +16,7 @@ Use the authorization button in Botpress to connect your Monday.com account. Dur
 
 #### Personal access token
 
-A personal access token is optional. If you prefer manual configuration, refer to the [Authentication Guide](https://developer.monday.com/api-reference/docs/authentication#get-your-token) in the Monday documentation to learn how to acquire your token.
+If you prefer manual configuration, refer to the [Authentication Guide](https://developer.monday.com/api-reference/docs/authentication#get-your-token) in the Monday documentation to learn how to acquire your token.
 
 #### Board ID
 
@@ -31,6 +31,6 @@ In the URL provided above, the Board ID would be `9012345678`. Keep this (and an
 ### Botpress
 
 1. Install the Monday integration in your Botpress bot.
-2. Click the authorization button and complete the OAuth flow.
-3. Optionally paste a personal access token in the configuration field as a fallback.
+2. Use the default OAuth configuration and click the authorization button to complete the OAuth flow.
+3. To configure manually, select **Manual Configuration** and paste your Monday.com personal access token.
 4. Save configuration.
