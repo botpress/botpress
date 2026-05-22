@@ -1,5 +1,5 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import { configurationSchema, createItemSchema } from 'src/misc/custom-schemas'
+import { configurationSchema, createItemSchema, manualConfigurationSchema } from 'src/misc/custom-schemas'
 
 export default new IntegrationDefinition({
   name: 'monday',
@@ -42,6 +42,13 @@ export default new IntegrationDefinition({
     schema: configurationSchema,
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
+    },
+  },
+  configurations: {
+    manual: {
+      title: 'Manual Configuration',
+      description: 'Configure with your Personal Access Token',
+      schema: manualConfigurationSchema,
     },
   },
   secrets: {

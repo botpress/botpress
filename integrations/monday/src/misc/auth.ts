@@ -44,12 +44,22 @@ export const getOAuthAccessToken = async ({ client, ctx }: AuthProps) => {
 }
 
 export const getMondayClient = async (props: AuthProps) => {
+  if (props.ctx.configurationType === 'manual') {
+    const { personalAccessToken } = props.ctx.configuration
+
+    if (!personalAccessToken) {
+      throw new RuntimeError('Monday credentials are missing. Please provide a personal access token.')
+    }
+
+    return createPersonalAccessTokenMondayClient(personalAccessToken)
+  }
+
   const oAuthAccessToken = await getOAuthAccessToken(props)
   if (oAuthAccessToken) {
     return createOAuthMondayClient(oAuthAccessToken)
   }
 
-  const accessToken = (await getConfigurationAccessToken(props)) ?? props.ctx.configuration.personalAccessToken
+  const accessToken = await getConfigurationAccessToken(props)
 
   if (!accessToken) {
     throw new RuntimeError(
