@@ -59,7 +59,8 @@ const _finalizeHandler: WizardHandler = async ({
     const telegraf = new Telegraf(botToken)
     const bot = await telegraf.telegram.getMe()
     botUsername = bot.username ?? String(bot.id)
-  } catch (err) {
+  } catch (thrown: unknown) {
+    const err = thrown instanceof Error ? thrown : new Error(String(thrown))
     logger.forBot().debug('Token validation failed via getMe():', err)
     return responses.displayForm({
       ..._tokenForm,

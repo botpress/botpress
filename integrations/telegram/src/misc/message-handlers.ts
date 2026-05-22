@@ -40,7 +40,7 @@ const sendContentOrFallback = async <P extends MessageHandlerProps<keyof bp.Mess
   fallback?: () => Promise<void>
 }) => {
   const { ctx, conversation, ack, logger, payload, client } = props
-  const botToken = await getStoredBotToken(client, ctx.integrationId)
+  const botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
   const telegraf = new Telegraf(botToken)
   const chat = getChat(conversation)
   const sendFn = send(telegraf.telegram)
@@ -72,7 +72,7 @@ const sendContentOrFallback = async <P extends MessageHandlerProps<keyof bp.Mess
 export const handleTextMessage = async (props: MessageHandlerProps<'text'>) => {
   const { payload, ctx, conversation, ack, logger, client } = props
   const { text } = payload
-  const botToken = await getStoredBotToken(client, ctx.integrationId)
+  const botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
   const telegraf = new Telegraf(botToken)
   const chat = getChat(conversation)
   logger.forBot().debug(`Sending markdown message to Telegram chat ${chat}:`, text)
@@ -141,7 +141,7 @@ export const handleLocationMessage = async ({
   logger,
   client,
 }: MessageHandlerProps<'location'>) => {
-  const botToken = await getStoredBotToken(client, ctx.integrationId)
+  const botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
   const telegraf = new Telegraf(botToken)
   const chat = getChat(conversation)
   logger.forBot().debug(`Sending location message to Telegram chat ${chat}:`, {
@@ -162,7 +162,7 @@ export const handleCardMessage = async ({
   logger,
   client,
 }: MessageHandlerProps<'card'>) => {
-  const botToken = await getStoredBotToken(client, ctx.integrationId)
+  const botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
   const telegraf = new Telegraf(botToken)
   const chat = getChat(conversation)
   logger.forBot().debug(`Sending card message to Telegram chat ${chat}:`, payload)
@@ -177,7 +177,7 @@ export const handleCarouselMessage = async ({
   logger,
   client,
 }: MessageHandlerProps<'carousel'>) => {
-  const botToken = await getStoredBotToken(client, ctx.integrationId)
+  const botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
   const telegraf = new Telegraf(botToken)
   const chat = getChat(conversation)
   logger.forBot().debug(`Sending carousel message to Telegram chat ${chat}:`, payload)
@@ -194,7 +194,7 @@ export const handleDropdownMessage = async ({
   logger,
   client,
 }: MessageHandlerProps<'dropdown'>) => {
-  const botToken = await getStoredBotToken(client, ctx.integrationId)
+  const botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
   const telegraf = new Telegraf(botToken)
   const chat = getChat(conversation)
   const buttons = payload.options.map((choice) => Markup.button.callback(choice.label, choice.value))
@@ -213,7 +213,7 @@ export const handleChoiceMessage = async ({
   logger,
   client,
 }: MessageHandlerProps<'choice'>) => {
-  const botToken = await getStoredBotToken(client, ctx.integrationId)
+  const botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
   const telegraf = new Telegraf(botToken)
   const chat = getChat(conversation)
   logger.forBot().debug(`Sending choice message to Telegram chat ${chat}:`, payload)

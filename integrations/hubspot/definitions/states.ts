@@ -16,6 +16,17 @@ const hubInfo = {
   }),
 } satisfies StateDefinition
 
+const environment = {
+  type: 'integration',
+  schema: z.object({
+    env: z
+      .enum(['preview', 'production'])
+      .title('Environment')
+      .describe('The environment where the integration is installed'),
+    source: z.string().optional().title('Source').describe('The source of the OAuth request, eg: "desk"'),
+  }),
+} satisfies StateDefinition
+
 const ticketPipelineCache = {
   type: 'integration',
   schema: z.object({
@@ -146,6 +157,7 @@ const hitlSetupWizard = {
 export const states = {
   oauthCredentials,
   hubInfo,
+  environment,
   ticketPipelineCache,
   companiesCache,
   ...propertyCacheStates,

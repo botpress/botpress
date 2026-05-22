@@ -6,7 +6,7 @@ export default new IntegrationDefinition({
   name: 'hubspot',
   title: 'HubSpot',
   description: 'Manage contacts, tickets and more from your chatbot.',
-  version: '6.0.6',
+  version: '6.0.8',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -76,6 +76,12 @@ export default new IntegrationDefinition({
     },
     CLIENT_SECRET: {
       description: 'The client secret of the HubSpot app',
+    },
+    DESK_CLIENT_ID: {
+      description: 'The client ID of the HubSpot OAuth app used when installed through Desk in production',
+    },
+    DESK_CLIENT_SECRET: {
+      description: 'The client secret of the HubSpot OAuth app used when installed through Desk in production',
     },
     DISABLE_OAUTH: {
       // TODO: Remove once the OAuth app allows for unlimited installs

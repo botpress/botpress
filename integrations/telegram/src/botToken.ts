@@ -8,7 +8,13 @@ export const getStoredBotToken = async (
 ): Promise<string> => {
   const stateResult = await client
     .getState({ type: 'integration', name: 'credentials', id: integrationId })
-    .catch(() => null)
+    .catch((thrown: unknown) => {
+      const err = thrown instanceof Error ? thrown : new Error(String(thrown))
+      if (err.message.toLowerCase().includes('not found')) {
+        return null
+      }
+      throw err
+    })
 
   const botToken = stateResult?.state.payload.botToken ?? legacyToken
   if (typeof botToken !== 'string' || botToken.trim().length === 0) {
