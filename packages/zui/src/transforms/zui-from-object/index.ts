@@ -2,7 +2,6 @@ import * as utils from '../../utils'
 import * as z from '../../z'
 import * as errors from '../common/errors'
 
-
 // Using a basic regex do determine if it's a date or not to avoid using another lib for that
 const dateTimeRegex =
   /^\d{4}-\d{2}-\d{2}(T|\s)?((\d{2}:\d{2}:\d{2}(\.\d{1,3})?)|(\d{2}:\d{2}))?(\s?([+-]\d{2}:\d{2}|Z))?$/
@@ -53,14 +52,7 @@ export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true
           case 'object':
             if (Array.isArray(value)) {
               const [first] = value as unknown[]
-              if (first === undefined || first === null) {
-                acc[key] = applyOptions(z.array(z.unknown()))
-              } else if (typeof first === 'object') {
-                acc[key] = applyOptions(z.array(fromObject(first, opts, false)))
-              } else if (typeof first === 'string' || typeof first === 'number' || typeof first === 'boolean') {
-                const inner = _getInnerType(first)
-                acc[key] = applyOptions(z.array(inner))
-              }
+              acc[key] = applyOptions(z.array(_inferArrayItemType(first, opts)))
             } else {
               acc[key] = applyOptions(fromObject(value, opts, false))
             }
@@ -71,14 +63,14 @@ export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true
       }
       return acc
     } catch (e) {
-    if (e instanceof errors.ZuiTransformError) {
-      if (Array.isArray(value)) {
-        utils.errors.prependPathSegment(e, '[number]')
+      if (e instanceof errors.ZuiTransformError) {
+        if (Array.isArray(value)) {
+          utils.errors.prependPathSegment(e, '[number]')
+        }
+        utils.errors.prependPathSegment(e, `.${key}`)
       }
-      utils.errors.prependPathSegment(e, `.${key}`)
+      throw e
     }
-    throw e
-  }
   }, {} as z.ZodRawShape)
 
   const hasProperties = Object.keys(schema).length > 0
@@ -89,16 +81,17 @@ export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true
   return z.object(schema)
 }
 
+const _inferArrayItemType = (first: unknown, opts?: ObjectToZuiOptions): z.ZodType => {
+  if (first === undefined || first === null) return z.unknown()
+  if (typeof first === 'object') return fromObject(first, opts, false)
+  if (typeof first === 'string' || typeof first === 'number' || typeof first === 'boolean') return _getInnerType(first)
+  return z.unknown()
+}
+
 const _getInnerType = (first: string | number | boolean): z.ZodType => {
-  if (typeof first === 'string') {
-    return z.string()
-  }
-  if (typeof first === 'number') {
-    return z.number()
-  }
-  if (typeof first === 'boolean') {
-    return z.boolean()
-  }
+  if (typeof first === 'string') return z.string()
+  if (typeof first === 'number') return z.number()
+  if (typeof first === 'boolean') return z.boolean()
   first satisfies never
   return z.unknown()
 }

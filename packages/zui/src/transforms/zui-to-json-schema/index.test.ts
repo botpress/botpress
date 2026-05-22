@@ -418,8 +418,9 @@ describe('zuiToJSONSchemaNext', () => {
   test('should show complete path section in error message', () => {
     try {
       toJSONSchema(z.object({ foo: z.object({ bar: z.tuple([z.number(), z.void()]) }) }))
+      expect.fail('should have thrown')
     } catch (e) {
-      expect(e.message).toContain('#.foo.bar[1]')
+      expect(e instanceof Error && e.message).toContain('#.foo.bar[1]')
     }
   })
 
