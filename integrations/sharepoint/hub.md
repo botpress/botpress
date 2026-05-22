@@ -2,16 +2,6 @@
 
 Connect one or many SharePoint document libraries to Botpress. Supports both real-time webhook sync to knowledge bases and file browsing via the knowledge-connector plugin.
 
-## Configuration
-
-- **clientId** — Application (client) ID of your Microsoft Entra (Azure AD) app registration.
-- **tenantId** — Directory (tenant) ID of the same app registration.
-- **thumbprint** — Thumbprint of the certificate uploaded to the app registration.
-- **privateKey** — PEM-formatted private key that matches the certificate. Paste the full content of the `.key` file (headers included).
-- **primaryDomain** — SharePoint primary domain (the part before `.sharepoint.com`). Example: `contoso`
-- **siteName** — Name of the SharePoint site that owns the document libraries you want to sync.
-- **documentLibraryNames** _(optional)_ — Comma-separated list or JSON array of document libraries to subscribe to for real-time sync. Not needed for knowledge-connector browsing only.
-
 > **Webhook expiry:** SharePoint webhook subscriptions expire after **30 days**. The integration automatically renews them on incoming notifications before they expire.
 
 ## Knowledge-Connector
@@ -26,9 +16,7 @@ Dynamically add new document libraries to your sync configuration without re-dep
 
 **Input:**
 
-- `documentLibraryNames` — Libraries to add (single name, comma-separated, or JSON array).
-
-**Output:** `{ success: boolean }` — `true` if at least one library was added, `false` if all failed.
+- `documentLibraryNames` — Array of library names to add.
 
 ## Setup
 

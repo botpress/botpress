@@ -1,4 +1,5 @@
-import { cleanupWebhook, getLibraryNames } from '../setup/utils'
+import * as sdk from '@botpress/sdk'
+import { cleanupWebhook } from '../setup/utils'
 import { SharepointClient } from '../SharepointClient'
 import * as bp from '.botpress'
 
@@ -22,12 +23,12 @@ export const addToSync: bp.Integration['actions']['addToSync'] = async ({ client
       expiresAt?: string
     }
   >
-  const libs = getLibraryNames(input.documentLibraryNames)
-  const newLibs = libs.filter((lib) => !Object.hasOwn(subscriptions, lib))
+  const libs = input.documentLibraryNames
+  const newLibs = libs.filter((lib) => !(lib in subscriptions))
 
   if (newLibs.length === 0) {
     logger.forBot().info('[addToSync] All requested libraries are already subscribed')
-    return { success: true }
+    return {}
   }
 
   const results = await Promise.allSettled(
@@ -61,7 +62,7 @@ export const addToSync: bp.Integration['actions']['addToSync'] = async ({ client
   }
 
   if (Object.keys(newSubscriptions).length === 0) {
-    return { success: false }
+    throw new sdk.RuntimeError('[addToSync] All libraries failed to register. Check logs for details.')
   }
 
   await client.setState({
@@ -71,5 +72,5 @@ export const addToSync: bp.Integration['actions']['addToSync'] = async ({ client
     payload: { subscriptions: { ...subscriptions, ...newSubscriptions } },
   })
 
-  return { success: true }
+  return {}
 }

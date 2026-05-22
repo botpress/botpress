@@ -14,10 +14,9 @@ export const configuration = {
     siteName: z.string().min(1).title('Site Name').describe('SharePoint site name'),
     documentLibraryNames: z
       .string()
+      .array()
       .optional()
       .title('Document Library Names')
-      .describe(
-        'Document libraries to subscribe to for real-time sync. Formats: single name, comma-separated, or JSON array. Required for real-time sync; not needed for knowledge-connector browsing only.'
-      ),
+      .describe('Document libraries to subscribe to for real-time sync. Not needed for knowledge-connector browsing only.'),
   }),
 } satisfies IntegrationDefinitionProps['configuration']

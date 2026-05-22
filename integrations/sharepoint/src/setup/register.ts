@@ -1,5 +1,5 @@
 import { SharepointClient } from '../SharepointClient'
-import { cleanupWebhook, getLibraryNames } from './utils'
+import { cleanupWebhook } from './utils'
 import * as bp from '.botpress'
 
 type Subscriptions = Record<
@@ -22,8 +22,8 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUr
     // State doesn't exist yet — start fresh
   }
 
-  const rawLibNames = ctx.configuration.documentLibraryNames
-  if (!rawLibNames) {
+  const libs = ctx.configuration.documentLibraryNames ?? []
+  if (libs.length === 0) {
     logger.forBot().info('[Registration] No documentLibraryNames configured — skipping webhook setup')
     await client.setState({
       type: 'integration',
@@ -33,8 +33,6 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUr
     })
     return
   }
-
-  const libs = getLibraryNames(rawLibNames)
 
   const results = await Promise.allSettled(
     libs.map(async (lib) => {

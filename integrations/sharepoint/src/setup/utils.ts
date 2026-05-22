@@ -1,21 +1,6 @@
 import { SharepointClient } from '../SharepointClient'
 import * as bp from '.botpress'
 
-export const getLibraryNames = (documentLibraryNames: string): string[] => {
-  try {
-    const parsed = JSON.parse(documentLibraryNames)
-    if (Array.isArray(parsed)) {
-      return parsed
-    }
-    return [parsed]
-  } catch {
-    return documentLibraryNames
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
-  }
-}
-
 export const cleanupWebhook = async (
   webhookSubscriptionId: string,
   ctx: bp.Context,
