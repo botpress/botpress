@@ -217,7 +217,10 @@ export const actions = {
     },
     output: {
       schema: z.object({
-        fields: z.record(z.string(), z.unknown()).title('Fields').describe('Field metadata keyed by Odoo ticket field name.'),
+        fields: z
+          .record(z.string(), z.unknown())
+          .title('Fields')
+          .describe('Field metadata keyed by Odoo ticket field name.'),
       }),
     },
   },
