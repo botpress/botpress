@@ -8,66 +8,70 @@ type AuthProps = {
 }
 
 export const getConfigurationAccessToken = async ({ client, ctx }: AuthProps) => {
-  const { state } = await client
-    .getState({
+  try {
+    const { state } = await client.getState({
       type: 'integration',
       name: 'configuration',
       id: ctx.integrationId,
     })
-    .catch((thrown: unknown) => {
-      if (isApiError(thrown) && thrown.code === 404) {
-        return { state: undefined }
-      }
 
-      throw thrown
-    })
+    return state?.payload.personalAccessToken
+  } catch (thrown) {
+    if (isApiError(thrown) && thrown.code === 404) {
+      return undefined
+    }
 
-  return state?.payload.personalAccessToken
+    throw thrown
+  }
 }
 
 export const getOAuthAccessToken = async ({ client, ctx }: AuthProps) => {
-  const { state } = await client
-    .getState({
+  try {
+    const { state } = await client.getState({
       type: 'integration',
       name: 'oAuthCredentials',
       id: ctx.integrationId,
     })
-    .catch((thrown: unknown) => {
-      if (isApiError(thrown) && thrown.code === 404) {
-        return { state: undefined }
-      }
 
-      throw thrown
-    })
+    return state?.payload.accessToken || undefined
+  } catch (thrown) {
+    if (isApiError(thrown) && thrown.code === 404) {
+      return undefined
+    }
 
-  return state?.payload.accessToken || undefined
+    throw thrown
+  }
 }
 
 export const getMondayClient = async (props: AuthProps) => {
-  if (props.ctx.configurationType === 'manual') {
-    const { personalAccessToken } = props.ctx.configuration
+  try {
+    if (props.ctx.configurationType === 'manual') {
+      const { personalAccessToken } = props.ctx.configuration
 
-    if (!personalAccessToken) {
-      throw new RuntimeError('Monday credentials are missing. Please provide a personal access token.')
+      if (!personalAccessToken) {
+        throw new RuntimeError('Monday credentials are missing. Please provide a personal access token.')
+      }
+
+      return createPersonalAccessTokenMondayClient(personalAccessToken)
     }
 
-    return createPersonalAccessTokenMondayClient(personalAccessToken)
+    const oAuthAccessToken = await getOAuthAccessToken(props)
+    if (oAuthAccessToken) {
+      return createOAuthMondayClient(oAuthAccessToken)
+    }
+
+    const accessToken = await getConfigurationAccessToken(props)
+
+    if (!accessToken) {
+      throw new RuntimeError(
+        'Monday credentials are missing. Please connect your Monday account or provide a personal access token.'
+      )
+    }
+
+    return createPersonalAccessTokenMondayClient(accessToken)
+  } catch (thrown) {
+    throw thrown
   }
-
-  const oAuthAccessToken = await getOAuthAccessToken(props)
-  if (oAuthAccessToken) {
-    return createOAuthMondayClient(oAuthAccessToken)
-  }
-
-  const accessToken = await getConfigurationAccessToken(props)
-
-  if (!accessToken) {
-    throw new RuntimeError(
-      'Monday credentials are missing. Please connect your Monday account or provide a personal access token.'
-    )
-  }
-
-  return createPersonalAccessTokenMondayClient(accessToken)
 }
 
 export const createOAuthMondayClient = (accessToken: string) =>

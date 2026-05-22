@@ -7,25 +7,39 @@ import * as bp from '.botpress'
 
 export default new bp.Integration({
   register: async ({ client, ctx }) => {
-    const mondayClient = await getMondayClient({ client, ctx })
-    const validationError = await mondayClient.validateAccessToken()
+    try {
+      const mondayClient = await getMondayClient({ client, ctx })
+      const validationError = await mondayClient.validateAccessToken()
 
-    if (validationError) {
-      throw new RuntimeError('Invalid Monday credentials. Please reconnect your account or provide a valid token.')
+      if (validationError) {
+        throw new RuntimeError('Invalid Monday credentials. Please reconnect your account or provide a valid token.')
+      }
+
+      await client.configureIntegration({
+        identifier: ctx.webhookId,
+      })
+    } catch (thrown) {
+      throw thrown
     }
-
-    await client.configureIntegration({
-      identifier: ctx.webhookId,
-    })
   },
-  unregister: async () => {},
+  unregister: async () => {
+    try {
+      return
+    } catch (thrown) {
+      throw thrown
+    }
+  },
   actions,
   channels: {},
   handler: async (props) => {
-    if (isOAuthWizardUrl(props.req.path)) {
-      return await oauthWizardHandler(props)
-    }
+    try {
+      if (isOAuthWizardUrl(props.req.path)) {
+        return await oauthWizardHandler(props)
+      }
 
-    return
+      return
+    } catch (thrown) {
+      throw thrown
+    }
   },
 })

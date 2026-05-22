@@ -4,17 +4,17 @@ import * as wizard from './wizard'
 import * as bp from '.botpress'
 
 export const oauthWizardHandler: bp.IntegrationProps['handler'] = async (props) => {
-  const { req, logger } = props
-
-  if (!isOAuthWizardUrl(req.path)) {
-    return { status: 404, body: 'Invalid OAuth wizard endpoint' }
-  }
-
   try {
+    const { req, logger } = props
+
+    if (!isOAuthWizardUrl(req.path)) {
+      return { status: 404, body: 'Invalid OAuth wizard endpoint' }
+    }
+
     return await wizard.handler(props)
   } catch (thrown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    logger.forBot().error(`OAuth wizard error: ${error.message}`)
+    props.logger.forBot().error(`OAuth wizard error: ${error.message}`)
     return generateRedirection(getInterstitialUrl(false, error.message))
   }
 }
