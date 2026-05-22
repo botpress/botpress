@@ -21,8 +21,7 @@ type MondayOAuthCredentials = {
 const OAUTH_REDIRECT_URI = 'https://webhook.botpress.cloud/oauth/wizard/oauth-callback'
 const INVALID_CREDENTIALS_MESSAGE =
   'Invalid Monday credentials. Please reconnect your account or provide a valid token.'
-const OAUTH_CONFIGURATION_ERROR_MESSAGE =
-  'Unable to complete the Monday OAuth setup. Please try again.'
+const OAUTH_CONFIGURATION_ERROR_MESSAGE = 'Unable to complete the Monday OAuth setup. Please try again.'
 
 export const handler = async (props: bp.HandlerProps) => {
   try {
@@ -56,7 +55,10 @@ const _oauthRedirectHandler: WizardHandler = async ({ ctx, responses }) => {
 
     return responses.redirectToExternalUrl(url.toString())
   } catch (thrown) {
-    return responses.endWizard({ success: false, errorMessage: _formatWizardError(thrown, OAUTH_CONFIGURATION_ERROR_MESSAGE) })
+    return responses.endWizard({
+      success: false,
+      errorMessage: _formatWizardError(thrown, OAUTH_CONFIGURATION_ERROR_MESSAGE),
+    })
   }
 }
 
@@ -97,7 +99,10 @@ const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, query, respon
 
     return responses.endWizard({ success: true })
   } catch (thrown) {
-    return responses.endWizard({ success: false, errorMessage: _formatWizardError(thrown, OAUTH_CONFIGURATION_ERROR_MESSAGE) })
+    return responses.endWizard({
+      success: false,
+      errorMessage: _formatWizardError(thrown, OAUTH_CONFIGURATION_ERROR_MESSAGE),
+    })
   }
 }
 
