@@ -1,6 +1,7 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import { z } from '@botpress/sdk'
 import axios from 'axios'
+import { createOAuthMondayClient, createPersonalAccessTokenMondayClient } from 'src/misc/auth'
 import * as bp from '.botpress'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
@@ -18,6 +19,7 @@ type MondayOAuthCredentials = {
 }
 
 const OAUTH_REDIRECT_URI = 'https://webhook.botpress.cloud/oauth/wizard/oauth-callback'
+const INVALID_CREDENTIALS_MESSAGE = 'Invalid Monday credentials. Please reconnect your account or provide a valid token.'
 
 const _manualConfigurationSchema = z.object({
   personalAccessToken: z
@@ -100,6 +102,10 @@ const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, query, respon
   const redirectUri = OAUTH_REDIRECT_URI
   const credentials = await exchangeCodeForTokens({ code, redirectUri })
 
+  if (!(await createOAuthMondayClient(credentials.accessToken).validateAccessToken())) {
+    return responses.endWizard({ success: false, errorMessage: INVALID_CREDENTIALS_MESSAGE })
+  }
+
   await client.setState({
     type: 'integration',
     name: 'oAuthCredentials',
@@ -141,6 +147,14 @@ const _saveManualConfigurationHandler: WizardHandler = async ({
     })
   }
 
+  if (!(await createPersonalAccessTokenMondayClient(parsed.data.personalAccessToken).validateAccessToken())) {
+    return responses.displayForm({
+      ..._manualConfigurationForm,
+      errors: _getInvalidCredentialsError(parsed.data),
+      previousValues: formValues as z.input<typeof _manualConfigurationSchema>,
+    })
+  }
+
   await client.setState({
     type: 'integration',
     name: 'configuration',
@@ -164,6 +178,15 @@ const _saveManualConfigurationHandler: WizardHandler = async ({
   setIntegrationIdentifier(ctx.webhookId)
 
   return responses.endWizard({ success: true })
+}
+
+const _getInvalidCredentialsError = (values: z.input<typeof _manualConfigurationSchema>) => {
+  const schema = _manualConfigurationSchema.refine(() => false, {
+    message: INVALID_CREDENTIALS_MESSAGE,
+    path: ['personalAccessToken'],
+  })
+
+  return schema.safeParse(values).error!
 }
 
 const exchangeCodeForTokens = async ({

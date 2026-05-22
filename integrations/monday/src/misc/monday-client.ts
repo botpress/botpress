@@ -48,6 +48,15 @@ export class MondayClient {
     return response.data.data
   }
 
+  public async validateAccessToken(): Promise<boolean> {
+    try {
+      const response = await this._executeGraphqlQuery('validateAccessToken', {})
+      return Array.isArray(response.boards)
+    } catch {
+      return false
+    }
+  }
+
   public async createItem(
     boardId: string,
     item: CreateItemOptions
