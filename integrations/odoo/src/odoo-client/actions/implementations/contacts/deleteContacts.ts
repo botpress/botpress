@@ -161,7 +161,6 @@ export const deleteContacts = wrapAction(
     }
 
     return {
-      message: getDeleteContactsMessage(deletedIds, notDeletedContacts),
       deletedIds,
       notDeletedContacts,
     }

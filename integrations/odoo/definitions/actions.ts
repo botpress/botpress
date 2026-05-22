@@ -377,7 +377,7 @@ export const actions = {
     },
     output: {
       schema: z.object({
-        success: z.boolean().title('Success').describe('Whether Odoo accepted the ticket update.'),
+        updatedIds: ticketIdsSchema.describe('Odoo helpdesk ticket record IDs that were updated.'),
       }),
     },
   },
@@ -396,7 +396,6 @@ export const actions = {
     },
     output: {
       schema: z.object({
-        message: z.string().title('Message').describe('Summary of which requested leads were deleted or not deleted.'),
         deletedIds: leadIdsSchema.describe('Odoo CRM lead record IDs that were deleted.'),
         notDeletedLeads: z
           .array(notDeletedLeadSchema)
@@ -416,7 +415,7 @@ export const actions = {
     },
     output: {
       schema: z.object({
-        success: z.boolean().title('Success').describe('Whether Odoo accepted the ticket deletion.'),
+        deletedIds: ticketIdsSchema.describe('Odoo helpdesk ticket record IDs that were deleted.'),
       }),
     },
   },
@@ -485,10 +484,6 @@ export const actions = {
     },
     output: {
       schema: z.object({
-        message: z
-          .string()
-          .title('Message')
-          .describe('Summary of which requested contacts were deleted or not deleted.'),
         deletedIds: contactIdsSchema.describe('Odoo contact record IDs that were deleted.'),
         notDeletedContacts: z
           .array(notDeletedContactSchema)

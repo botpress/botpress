@@ -1,3 +1,4 @@
+import * as sdk from '@botpress/sdk'
 import { wrapAction } from '../../action-wrapper'
 
 export const deleteTickets = wrapAction(
@@ -5,6 +6,14 @@ export const deleteTickets = wrapAction(
   async ({ odooClient }, input) => {
     const success = await odooClient.deleteTickets(input)
 
-    return { success }
+    if (!success) {
+      throw new sdk.RuntimeError(
+        `Odoo returned false while deleting ticket IDs ${input.ids.join(
+          ', '
+        )}. Verify the ticket IDs and user permissions.`
+      )
+    }
+
+    return { deletedIds: input.ids }
   }
 )

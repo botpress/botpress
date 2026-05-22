@@ -158,7 +158,6 @@ export const deleteLeads = wrapAction(
     }
 
     return {
-      message: getDeleteLeadsMessage(deletedIds, notDeletedLeads),
       deletedIds,
       notDeletedLeads,
     }
