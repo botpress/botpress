@@ -86,6 +86,7 @@ const _handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Response>
 
         await updateRefreshTokenFromAuthorizationCode({ authorizationCode, client, ctx })
 
+        // Done in order to correctly display the authorization status in the UI (not used for webhooks)
         await client.configureIntegration({
           identifier: ctx.webhookId,
         })
