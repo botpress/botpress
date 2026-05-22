@@ -8,8 +8,9 @@ import * as bp from '.botpress'
 export default new bp.Integration({
   register: async ({ client, ctx }) => {
     const mondayClient = await getMondayClient({ client, ctx })
+    const validationError = await mondayClient.validateAccessToken()
 
-    if (!(await mondayClient.validateAccessToken())) {
+    if (validationError) {
       throw new RuntimeError('Invalid Monday credentials. Please reconnect your account or provide a valid token.')
     }
 

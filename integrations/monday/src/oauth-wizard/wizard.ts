@@ -101,8 +101,9 @@ const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, query, respon
 
   const redirectUri = OAUTH_REDIRECT_URI
   const credentials = await exchangeCodeForTokens({ code, redirectUri })
+  const validationError = await createOAuthMondayClient(credentials.accessToken).validateAccessToken()
 
-  if (!(await createOAuthMondayClient(credentials.accessToken).validateAccessToken())) {
+  if (validationError) {
     return responses.endWizard({ success: false, errorMessage: INVALID_CREDENTIALS_MESSAGE })
   }
 
@@ -147,7 +148,9 @@ const _saveManualConfigurationHandler: WizardHandler = async ({
     })
   }
 
-  if (!(await createPersonalAccessTokenMondayClient(parsed.data.personalAccessToken).validateAccessToken())) {
+  const validationError = await createPersonalAccessTokenMondayClient(parsed.data.personalAccessToken).validateAccessToken()
+
+  if (validationError) {
     return responses.displayForm({
       ..._manualConfigurationForm,
       errors: _getInvalidCredentialsError(parsed.data),

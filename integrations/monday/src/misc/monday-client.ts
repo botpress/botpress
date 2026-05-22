@@ -48,12 +48,16 @@ export class MondayClient {
     return response.data.data
   }
 
-  public async validateAccessToken(): Promise<boolean> {
+  public async validateAccessToken(): Promise<Error | undefined> {
     try {
       const response = await this._executeGraphqlQuery('validateAccessToken', {})
-      return Array.isArray(response.boards)
-    } catch {
-      return false
+      if (!Array.isArray(response.boards)) {
+        return new Error('Monday credentials validation returned an unexpected response.')
+      }
+
+      return
+    } catch (thrown) {
+      return thrown instanceof Error ? thrown : new Error('Monday credentials validation failed.')
     }
   }
 
