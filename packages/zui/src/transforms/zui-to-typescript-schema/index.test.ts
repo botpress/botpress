@@ -1,5 +1,5 @@
 import { describe, expect, test, it } from 'vitest'
-import { toTypescriptSchema as toTypescript } from '.'
+import { toTypescriptSchema as toTypescript, toTypescriptSchema } from '.'
 import { evalZuiString } from '../common/eval-zui-string'
 import * as errors from '../common/errors'
 import * as z from '../../z'
@@ -690,6 +690,17 @@ describe.concurrent('toTypescriptSchema', () => {
       const evaluated = evalZui(toTypescript(schema))
       assert(schema).toGenerateItself()
       expect(evaluated.getMetadata().patate).toBe('pilée')
+    })
+
+    test('should show complete path section in error message', () => {
+      try {
+        toTypescriptSchema(
+          z.object({ foo: z.object({ bar: z.tuple([z.number(), z.string().refine((v) => v.length > 0)]) }) })
+        )
+        expect.fail('should have thrown')
+      } catch (e) {
+        expect(e instanceof Error && e.message).toContain('#.foo.bar[1]')
+      }
     })
   })
 })

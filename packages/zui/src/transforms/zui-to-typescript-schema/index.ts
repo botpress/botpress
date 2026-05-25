@@ -163,7 +163,7 @@ function _unwrapZodUnion(s: z.ZodUnion): string {
     try {
       options.push(sUnwrapZod(option))
     } catch (e) {
-      if (e instanceof errors.UnsupportedZuiToTypescriptSchemaError) {
+      if (e instanceof errors.ZuiTransformError) {
         utils.errors.prependPathSegment(e, `[${index}]`)
       }
       throw e
@@ -178,7 +178,7 @@ function _unwrapZodDiscriminatedUnion(s: z.ZodDiscriminatedUnion): string {
     try {
       opts.push(sUnwrapZod(option))
     } catch (e) {
-      if (e instanceof errors.UnsupportedZuiToTypescriptSchemaError) {
+      if (e instanceof errors.ZuiTransformError) {
         utils.errors.prependPathSegment(e, `[${index}]`)
       }
       throw e
@@ -194,7 +194,7 @@ function _unwrapZodIntersection(s: z.ZodIntersection): string {
   try {
     left = sUnwrapZod(s._def.left)
   } catch (e) {
-    if (e instanceof errors.UnsupportedZuiToTypescriptSchemaError) {
+    if (e instanceof errors.ZuiTransformError ) {
       utils.errors.prependPathSegment(e, '[0]')
     }
     throw e
@@ -202,7 +202,7 @@ function _unwrapZodIntersection(s: z.ZodIntersection): string {
   try {
     right = sUnwrapZod(s._def.right)
   } catch (e) {
-    if (e instanceof errors.UnsupportedZuiToTypescriptSchemaError) {
+    if (e instanceof errors.ZuiTransformError) {
       utils.errors.prependPathSegment(e, '[1]')
     }
     throw e
@@ -216,7 +216,7 @@ function _unwrapZodRecord(s: z.ZodRecord): string {
     const valueType = sUnwrapZod(s._def.valueType)
     return `z.record(${keyType}, ${valueType})${_addMetadata(s._def)}`.trim()
   } catch (e) {
-    if (e instanceof errors.UnsupportedZuiToTypescriptSchemaError) {
+    if (e instanceof errors.ZuiTransformError) {
       utils.errors.prependPathSegment(e, '[*]')
     }
     throw e
@@ -274,7 +274,11 @@ function _unwrapZodObject(s: z.ZodObject): string {
   }
   const catchall = s.additionalProperties()
   const catchallString = catchall ? `.catchall(${sUnwrapZod(catchall)})` : ''
-  return ['z.object({', ...Object.entries(props).map(([key, value]) => `  ${key}: ${value},`), `})${catchallString}${_addMetadata(s._def)}`]
+  return [
+    'z.object({',
+    ...Object.entries(props).map(([key, value]) => `  ${key}: ${value},`),
+    `})${catchallString}${_addMetadata(s._def)}`,
+  ]
     .join('\n')
     .trim()
 }
