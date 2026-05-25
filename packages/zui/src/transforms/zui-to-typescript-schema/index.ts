@@ -211,8 +211,8 @@ function _unwrapZodIntersection(s: z.ZodIntersection): string {
 }
 
 function _unwrapZodRecord(s: z.ZodRecord): string {
-  const keyType = sUnwrapZod(s._def.keyType)
   try {
+    const keyType = sUnwrapZod(s._def.keyType)
     const valueType = sUnwrapZod(s._def.valueType)
     return `z.record(${keyType}, ${valueType})${_addMetadata(s._def)}`.trim()
   } catch (e) {
@@ -251,7 +251,7 @@ function _unwrapZodArray(s: z.ZodArray): string {
 
 function _unwrapZodSet(s: z.ZodSet): string {
   try {
-    return `z.set(${sUnwrapZod(s._def.valueType)})${generateSetChecks(s._def)}${_addMetadata(s._def, s._def.valueType)}`
+    return `z.set(${sUnwrapZod(s._def.valueType)})${generateSetChecks(s._def)}${_addMetadata(s._def)}`
   } catch (e) {
     if (e instanceof errors.ZuiTransformError) {
       utils.errors.prependPathSegment(e, '[*]')
