@@ -97,7 +97,11 @@ const _loadNodeTree = async (
 ): Promise<GoogleDriveNodeTree | null> => {
   try {
     const { file } = await client.getFile({ id: GOOGLE_DRIVE_TREE_FILE_KEY })
-    return GoogleDriveNodeTree.fromJSON(await fetch(file.url).then((res) => res.text()))
+    const res = await fetch(file.url)
+    if (!res.ok) {
+      throw new Error(`Failed to fetch node tree file: HTTP ${res.status}`)
+    }
+    return GoogleDriveNodeTree.fromJSON(await res.text())
   } catch (thrown: unknown) {
     if (isApiError(thrown) && thrown.type === 'ResourceNotFound') {
       return null
