@@ -1,31 +1,19 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import { RuntimeError } from '@botpress/sdk'
-import axios from 'axios'
 import { createOAuthMondayClient } from 'src/misc/auth'
+import { exchangeCodeForTokens } from 'src/misc/monday-client'
 import * as bp from '.botpress'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
 
-type MondayOAuthTokenResponse = {
-  access_token: string
-  token_type: string
-  scope: string
-}
-
-type MondayOAuthCredentials = {
-  accessToken: string
-  tokenType: 'Bearer'
-  scope: string
-}
-
-const OAUTH_REDIRECT_URI = 'https://webhook.botpress.cloud/oauth/wizard/oauth-callback'
+const OAUTH_REDIRECT_URI = `${process.env.BP_WEBHOOK_URL}/oauth/wizard/oauth-callback`
 const INVALID_CREDENTIALS_MESSAGE =
   'Invalid Monday credentials. Please reconnect your account or provide a valid token.'
 const OAUTH_CONFIGURATION_ERROR_MESSAGE = 'Unable to complete the Monday OAuth setup. Please try again.'
+const SCOPES = 'boards:read boards:write'
 
 export const handler = async (props: bp.HandlerProps) => {
   const wizard = new oauthWizard.OAuthWizardBuilder(props)
-    .addStep({ id: 'start', handler: _startHandler })
     .addStep({ id: 'oauth-redirect', handler: _oauthRedirectHandler })
     .addStep({ id: 'oauth-callback', handler: _oauthCallbackHandler })
     .build()
@@ -33,21 +21,18 @@ export const handler = async (props: bp.HandlerProps) => {
   return await wizard.handleRequest()
 }
 
-const _startHandler: WizardHandler = ({ responses }) => {
-  return responses.redirectToStep('oauth-redirect')
-}
-
 const _oauthRedirectHandler: WizardHandler = async ({ ctx, responses }) => {
   try {
-    const redirectUri = OAUTH_REDIRECT_URI
-
     const url = new URL('https://auth.monday.com/oauth2/authorize')
-    url.searchParams.set('client_id', bp.secrets.CLIENT_ID)
-    url.searchParams.set('redirect_uri', redirectUri)
-    url.searchParams.set('response_type', 'code')
-    url.searchParams.set('scope', 'boards:read boards:write')
-    url.searchParams.set('state', ctx.webhookId)
-    url.searchParams.set('force_install_if_needed', 'true')
+    const params = new URLSearchParams({
+      client_id: bp.secrets.CLIENT_ID,
+      redirect_uri: OAUTH_REDIRECT_URI,
+      response_type: 'code',
+      scope: SCOPES,
+      state: ctx.webhookId,
+      force_install_if_needed: new Boolean(true).toString(),
+    })
+    url.search = params.toString()
 
     return responses.redirectToExternalUrl(url.toString())
   } catch (thrown) {
@@ -72,8 +57,9 @@ const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, query, respon
     }
 
     const redirectUri = OAUTH_REDIRECT_URI
-    const credentials = await exchangeCodeForTokens({ code, redirectUri })
-    const validationError = await createOAuthMondayClient(credentials.accessToken).validateAccessToken()
+    const credentials = await _exchangeCodeForTokens({ code, redirectUri })
+    const mondayClient = createOAuthMondayClient(credentials.accessToken)
+    const validationError = await mondayClient.validateAccessToken()
 
     if (validationError) {
       return responses.endWizard({ success: false, errorMessage: INVALID_CREDENTIALS_MESSAGE })
@@ -107,26 +93,14 @@ const _formatWizardError = (thrown: unknown, fallbackMessage: string) => {
   return message ? `${fallbackMessage} (${message})` : fallbackMessage
 }
 
-const exchangeCodeForTokens = async ({
-  code,
-  redirectUri,
-}: {
-  code: string
-  redirectUri: string
-}): Promise<MondayOAuthCredentials> => {
+const _exchangeCodeForTokens = async ({ code, redirectUri }: { code: string; redirectUri: string }) => {
   try {
-    const response = await axios.post<MondayOAuthTokenResponse>('https://auth.monday.com/oauth2/token', {
-      client_id: bp.secrets.CLIENT_ID,
-      client_secret: bp.secrets.CLIENT_SECRET,
-      redirect_uri: redirectUri,
+    return await exchangeCodeForTokens({
+      clientId: bp.secrets.CLIENT_ID,
+      clientSecret: bp.secrets.CLIENT_SECRET,
+      redirectUri,
       code,
     })
-
-    return {
-      accessToken: response.data.access_token,
-      tokenType: 'Bearer',
-      scope: response.data.scope,
-    }
   } catch (thrown) {
     const message = thrown instanceof Error ? thrown.message : String(thrown)
     throw new RuntimeError(`Failed to exchange Monday OAuth code for tokens. ${message}`)

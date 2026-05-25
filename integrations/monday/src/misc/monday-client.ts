@@ -5,6 +5,25 @@ export type MondayClientConfiguration = {
   authorization: string
 }
 
+type MondayOAuthTokenResponse = {
+  access_token: string
+  token_type: string
+  scope: string
+}
+
+export type MondayOAuthCredentials = {
+  accessToken: string
+  tokenType: 'Bearer'
+  scope: string
+}
+
+export type ExchangeCodeForTokensInput = {
+  clientId: string
+  clientSecret: string
+  redirectUri: string
+  code: string
+}
+
 export type CreateItemOptions = {
   name: string
 }
@@ -17,6 +36,26 @@ export type Item = {
 export type ItemsPageResponse = {
   items: Item[]
   nextToken: string | undefined
+}
+
+export const exchangeCodeForTokens = async ({
+  clientId,
+  clientSecret,
+  redirectUri,
+  code,
+}: ExchangeCodeForTokensInput): Promise<MondayOAuthCredentials> => {
+  const response = await axios.post<MondayOAuthTokenResponse>('https://auth.monday.com/oauth2/token', {
+    client_id: clientId,
+    client_secret: clientSecret,
+    redirect_uri: redirectUri,
+    code,
+  })
+
+  return {
+    accessToken: response.data.access_token,
+    tokenType: 'Bearer',
+    scope: response.data.scope,
+  }
 }
 
 export class MondayClient {

@@ -33,21 +33,25 @@ export const getMondayClient = async (props: AuthProps) => {
       throw new RuntimeError('Monday credentials are missing. Please provide a personal access token.')
     }
 
-    return createPersonalAccessTokenMondayClient(personalAccessToken)
+    return MondayClient.create({ authorization: personalAccessToken })
   }
 
-  const oAuthAccessToken = await getOAuthAccessToken(props)
-  if (oAuthAccessToken) {
-    return createOAuthMondayClient(oAuthAccessToken)
+  let oAuthAccessToken: string | undefined
+  try {
+    oAuthAccessToken = await getOAuthAccessToken(props)
+  } catch (thrown) {
+    const message = thrown instanceof Error ? thrown.message : String(thrown)
+    throw new RuntimeError(`Failed to load Monday OAuth credentials. Please reconnect your account. (${message})`)
   }
 
-  throw new RuntimeError(
-    'Monday credentials are missing. Please connect your Monday account or provide a personal access token.'
-  )
+  if (!oAuthAccessToken) {
+    throw new RuntimeError(
+      'Monday credentials are missing. Please connect your Monday account or provide a personal access token.'
+    )
+  }
+
+  return createOAuthMondayClient(oAuthAccessToken)
 }
 
 export const createOAuthMondayClient = (accessToken: string) =>
   MondayClient.create({ authorization: `Bearer ${accessToken}` })
-
-export const createPersonalAccessTokenMondayClient = (accessToken: string) =>
-  MondayClient.create({ authorization: accessToken })
