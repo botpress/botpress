@@ -7,24 +7,6 @@ type AuthProps = {
   ctx: bp.Context
 }
 
-export const getConfigurationAccessToken = async ({ client, ctx }: AuthProps) => {
-  try {
-    const { state } = await client.getState({
-      type: 'integration',
-      name: 'configuration',
-      id: ctx.integrationId,
-    })
-
-    return state?.payload.personalAccessToken
-  } catch (thrown) {
-    if (isApiError(thrown) && thrown.code === 404) {
-      return undefined
-    }
-
-    throw thrown
-  }
-}
-
 export const getOAuthAccessToken = async ({ client, ctx }: AuthProps) => {
   try {
     const { state } = await client.getState({
@@ -59,15 +41,9 @@ export const getMondayClient = async (props: AuthProps) => {
     return createOAuthMondayClient(oAuthAccessToken)
   }
 
-  const accessToken = await getConfigurationAccessToken(props)
-
-  if (!accessToken) {
-    throw new RuntimeError(
-      'Monday credentials are missing. Please connect your Monday account or provide a personal access token.'
-    )
-  }
-
-  return createPersonalAccessTokenMondayClient(accessToken)
+  throw new RuntimeError(
+    'Monday credentials are missing. Please connect your Monday account or provide a personal access token.'
+  )
 }
 
 export const createOAuthMondayClient = (accessToken: string) =>

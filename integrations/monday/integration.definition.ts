@@ -17,16 +17,6 @@ export default new IntegrationDefinition({
         scope: z.string().title('Scope').describe('The scopes granted to the Monday OAuth token.'),
       }),
     },
-    configuration: {
-      type: 'integration',
-      schema: z.object({
-        personalAccessToken: z
-          .string()
-          .secret()
-          .title('Personal Access Token')
-          .describe('The Monday.com personal access token used for manual configuration.'),
-      }),
-    },
   },
   actions: {
     createItem: {
