@@ -1213,6 +1213,49 @@ importers:
         specifier: ^10.26.6
         version: 10.26.6
 
+  integrations/googledrivekb:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@botpress/sdk-addons':
+        specifier: workspace:*
+        version: link:../../packages/sdk-addons
+      axios:
+        specifier: ^1.7.7
+        version: 1.13.6
+      googleapis:
+        specifier: ^144.0.0
+        version: 144.0.0
+      jsonwebtoken:
+        specifier: ^9.0.2
+        version: 9.0.2
+      uuid:
+        specifier: ^9.0.0
+        version: 9.0.1
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@sentry/cli':
+        specifier: ^2.39.1
+        version: 2.39.1
+      '@types/jsonwebtoken':
+        specifier: ^9.0.3
+        version: 9.0.6
+      '@types/uuid':
+        specifier: ^9.0.1
+        version: 9.0.1
+      preact:
+        specifier: ^10.26.6
+        version: 10.26.6
+
   integrations/grafana:
     dependencies:
       '@botpress/sdk':
@@ -21086,7 +21129,7 @@ snapshots:
   jwks-rsa@3.1.0:
     dependencies:
       '@types/express': 4.17.17
-      '@types/jsonwebtoken': 9.0.3
+      '@types/jsonwebtoken': 9.0.6
       debug: 4.4.0
       jose: 4.15.2
       limiter: 1.1.5
@@ -23999,7 +24042,7 @@ snapshots:
 
   universal-github-app-jwt@1.1.1:
     dependencies:
-      '@types/jsonwebtoken': 9.0.3
+      '@types/jsonwebtoken': 9.0.6
       jsonwebtoken: 9.0.2
 
   universal-user-agent@6.0.0: {}
