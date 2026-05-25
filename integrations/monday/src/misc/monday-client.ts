@@ -40,16 +40,12 @@ export class MondayClient {
     queryName: K,
     variables: GRAPHQL_QUERIES[K][QUERY_INPUT]
   ): Promise<GRAPHQL_QUERIES[K][QUERY_RESPONSE]> {
-    try {
-      const response = await this._client.post('', {
-        query: GRAPHQL_QUERIES[queryName].query,
-        variables,
-      })
+    const response = await this._client.post('', {
+      query: GRAPHQL_QUERIES[queryName].query,
+      variables,
+    })
 
-      return response.data.data
-    } catch (thrown) {
-      throw thrown
-    }
+    return response.data.data
   }
 
   public async validateAccessToken(): Promise<Error | undefined> {
@@ -69,13 +65,9 @@ export class MondayClient {
     boardId: string,
     item: CreateItemOptions
   ): Promise<GRAPHQL_QUERIES['createItem'][QUERY_RESPONSE]> {
-    try {
-      return await this._executeGraphqlQuery('createItem', {
-        boardId,
-        itemName: item.name,
-      })
-    } catch (thrown) {
-      throw thrown
-    }
+    return await this._executeGraphqlQuery('createItem', {
+      boardId,
+      itemName: item.name,
+    })
   }
 }

@@ -28,23 +28,15 @@ export default new bp.Integration({
     }
   },
   unregister: async () => {
-    try {
-      return
-    } catch (thrown) {
-      throw thrown
-    }
+    return
   },
   actions,
   channels: {},
   handler: async (props) => {
-    try {
-      if (isOAuthWizardUrl(props.req.path)) {
-        return await oauthWizardHandler(props)
-      }
-
-      return
-    } catch (thrown) {
-      throw thrown
+    if (isOAuthWizardUrl(props.req.path)) {
+      return await oauthWizardHandler(props)
     }
+
+    return
   },
 })

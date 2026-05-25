@@ -24,17 +24,13 @@ const INVALID_CREDENTIALS_MESSAGE =
 const OAUTH_CONFIGURATION_ERROR_MESSAGE = 'Unable to complete the Monday OAuth setup. Please try again.'
 
 export const handler = async (props: bp.HandlerProps) => {
-  try {
-    const wizard = new oauthWizard.OAuthWizardBuilder(props)
-      .addStep({ id: 'start', handler: _startHandler })
-      .addStep({ id: 'oauth-redirect', handler: _oauthRedirectHandler })
-      .addStep({ id: 'oauth-callback', handler: _oauthCallbackHandler })
-      .build()
+  const wizard = new oauthWizard.OAuthWizardBuilder(props)
+    .addStep({ id: 'start', handler: _startHandler })
+    .addStep({ id: 'oauth-redirect', handler: _oauthRedirectHandler })
+    .addStep({ id: 'oauth-callback', handler: _oauthCallbackHandler })
+    .build()
 
-    return await wizard.handleRequest()
-  } catch (thrown) {
-    throw thrown
-  }
+  return await wizard.handleRequest()
 }
 
 const _startHandler: WizardHandler = ({ responses }) => {
