@@ -22,12 +22,7 @@ import {
   GenericFile,
 } from './types'
 import { listItemsAndProcess, ListFunction, streamToBuffer, ListItemsInputWithArgs, listAllItems } from './utils'
-import {
-  getFileTypeFromMimeType,
-  parseChannel,
-  parseBaseGeneric,
-  parseBaseGenerics,
-} from './validation'
+import { getFileTypeFromMimeType, parseChannel, parseBaseGeneric, parseBaseGenerics } from './validation'
 import * as bp from '.botpress'
 
 type DownloadFileDataClientOutput = {
