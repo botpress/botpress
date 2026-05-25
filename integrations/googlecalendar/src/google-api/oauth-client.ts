@@ -5,7 +5,7 @@ import * as bp from '.botpress'
 type GoogleOAuth2Client = InstanceType<(typeof google.auth)['OAuth2']>
 
 const OAUTH_SCOPES = ['https://www.googleapis.com/auth/calendar.events', 'https://www.googleapis.com/auth/calendar']
-const GLOBAL_OAUTH_ENDPOINT = `${process.env.BP_WEBHOOK_URL}/oauth`
+const GLOBAL_OAUTH_ENDPOINT = `${process.env.BP_WEBHOOK_URL}/oauth/wizard/oauth-callback`
 
 export const exchangeAuthCodeAndSaveRefreshToken = async ({
   ctx,

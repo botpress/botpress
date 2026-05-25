@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/sdk'
 import { google } from 'googleapis'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { RequestMapping, ResponseMapping } from './mapping'
-import { exchangeAuthCodeAndSaveRefreshToken, getAuthenticatedOAuth2Client } from './oauth-client'
+import { getAuthenticatedOAuth2Client } from './oauth-client'
 import { CreateEventRequest, GoogleCalendarClient, GoogleOAuth2Client, Event, UpdateEventRequest } from './types'
 import * as bp from '.botpress'
 
@@ -43,18 +43,6 @@ export class GoogleClient {
       throw new RuntimeError('Calendar ID is missing. Please complete the setup wizard again.')
     }
     return calendarId
-  }
-
-  public static async authenticateWithAuthorizationCode({
-    ctx,
-    client,
-    authorizationCode,
-  }: {
-    ctx: bp.Context
-    client: bp.Client
-    authorizationCode: string
-  }) {
-    await exchangeAuthCodeAndSaveRefreshToken({ ctx, client, authorizationCode })
   }
 
   @handleErrors('Failed to get calendar summary')
