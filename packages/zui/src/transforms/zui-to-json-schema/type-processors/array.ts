@@ -1,4 +1,6 @@
+import * as utils from '../../../utils'
 import * as z from '../../../z'
+import * as err from '../../common/errors'
 import * as json from '../../common/json-schema'
 
 const { zuiKey } = z
@@ -7,10 +9,21 @@ export const zodArrayToJsonArray = (
   zodArray: z.ZodArray,
   toSchema: (x: z.ZodType) => json.Schema
 ): json.ArraySchema => {
+  const items = (() => {
+    try {
+      return toSchema(zodArray._def.type)
+    } catch (e) {
+      if (e instanceof err.ZuiTransformError) {
+        utils.errors.prependPathSegment(e, '[number]')
+      }
+      throw e
+    }
+  })()
+
   const schema: json.ArraySchema = {
     type: 'array',
     description: zodArray.description,
-    items: toSchema(zodArray._def.type),
+    items,
     'x-zui': zodArray._def['x-zui'],
   }
 

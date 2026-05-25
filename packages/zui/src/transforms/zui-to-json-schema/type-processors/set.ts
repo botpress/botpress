@@ -1,14 +1,27 @@
+import * as utils from '../../../utils'
 import * as z from '../../../z'
+import * as err from '../../common/errors'
 import * as json from '../../common/json-schema'
 
 const { zuiKey } = z
 
 export const zodSetToJsonSet = (zodSet: z.ZodSet, toSchema: (x: z.ZodType) => json.Schema): json.SetSchema => {
+  const items = (() => {
+    try {
+      return toSchema(zodSet._def.valueType)
+    } catch (e) {
+      if (e instanceof err.ZuiTransformError) {
+        utils.errors.prependPathSegment(e, '[*]')
+      }
+      throw e
+    }
+  })()
+
   const schema: json.SetSchema = {
     type: 'array',
     description: zodSet.description,
     uniqueItems: true,
-    items: toSchema(zodSet._def.valueType),
+    items,
     'x-zui': zodSet._def['x-zui'],
   }
 

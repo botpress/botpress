@@ -1,4 +1,4 @@
-import { mapValues, isEqual } from 'lodash-es'
+import { isEqual } from 'lodash-es'
 
 import * as utils from '../../utils'
 import * as z from '../../z'
@@ -69,43 +69,25 @@ function sUnwrapZod(schema: z.ZodType): string {
       return `z.void()${_addMetadata(s._def)}`.trim()
 
     case 'ZodArray':
-      return `z.array(${sUnwrapZod(s._def.type)})${generateArrayChecks(s._def)}${_addMetadata(s._def, s._def.type)}`
+      return _unwrapZodArray(s)
 
     case 'ZodObject':
-      const props = mapValues(s.shape, sUnwrapZod)
-      const catchall = s.additionalProperties()
-      const catchallString = catchall ? `.catchall(${sUnwrapZod(catchall)})` : ''
-      return [
-        //
-        'z.object({',
-        ...Object.entries(props).map(([key, value]) => `  ${key}: ${value},`),
-        `})${catchallString}${_addMetadata(s._def)}`,
-      ]
-        .join('\n')
-        .trim()
+      return _unwrapZodObject(s)
 
     case 'ZodUnion':
-      const options = s._def.options.map(sUnwrapZod)
-      return `z.union([${options.join(', ')}])${_addMetadata(s._def)}`.trim()
+      return _unwrapZodUnion(s)
 
     case 'ZodDiscriminatedUnion':
-      const opts = s._def.options.map(sUnwrapZod)
-      const discriminator = primitiveToTypescriptValue(s._def.discriminator)
-      return `z.discriminatedUnion(${discriminator}, [${opts.join(', ')}])${_addMetadata(s._def)}`.trim()
+      return _unwrapZodDiscriminatedUnion(s)
 
     case 'ZodIntersection':
-      const left: string = sUnwrapZod(s._def.left)
-      const right: string = sUnwrapZod(s._def.right)
-      return `z.intersection(${left}, ${right})${_addMetadata(s._def)}`.trim()
+      return _unwrapZodIntersection(s)
 
     case 'ZodTuple':
-      const items = s._def.items.map(sUnwrapZod)
-      return `z.tuple([${items.join(', ')}])${_addMetadata(s._def)}`.trim()
+      return _unwrapZodTuple(s)
 
     case 'ZodRecord':
-      const keyType = sUnwrapZod(s._def.keyType)
-      const valueType = sUnwrapZod(s._def.valueType)
-      return `z.record(${keyType}, ${valueType})${_addMetadata(s._def)}`.trim()
+      return _unwrapZodRecord(s)
 
     case 'ZodMap':
       const mapKeyType = sUnwrapZod(s._def.keyType)
@@ -113,7 +95,7 @@ function sUnwrapZod(schema: z.ZodType): string {
       return `z.map(${mapKeyType}, ${mapValueType})${_addMetadata(s._def)}`.trim()
 
     case 'ZodSet':
-      return `z.set(${sUnwrapZod(s._def.valueType)})${generateSetChecks(s._def)}${_addMetadata(s._def)}`.trim()
+      return _unwrapZodSet(s)
 
     case 'ZodFunction':
       const args = s._def.args.items.map(sUnwrapZod)
@@ -173,6 +155,128 @@ function sUnwrapZod(schema: z.ZodType): string {
     default:
       utils.assert.assertNever(s)
   }
+}
+
+function _unwrapZodUnion(s: z.ZodUnion): string {
+  const options: string[] = []
+  for (const [index, option] of s._def.options.entries()) {
+    try {
+      options.push(sUnwrapZod(option))
+    } catch (e) {
+      if (e instanceof errors.UnsupportedZuiToTypescriptSchemaError) {
+        utils.errors.prependPathSegment(e, `[${index}]`)
+      }
+      throw e
+    }
+  }
+  return `z.union([${options.join(', ')}])${_addMetadata(s._def)}`.trim()
+}
+
+function _unwrapZodDiscriminatedUnion(s: z.ZodDiscriminatedUnion): string {
+  const opts: string[] = []
+  for (const [index, option] of s._def.options.entries()) {
+    try {
+      opts.push(sUnwrapZod(option))
+    } catch (e) {
+      if (e instanceof errors.UnsupportedZuiToTypescriptSchemaError) {
+        utils.errors.prependPathSegment(e, `[${index}]`)
+      }
+      throw e
+    }
+  }
+  const discriminator = primitiveToTypescriptValue(s._def.discriminator)
+  return `z.discriminatedUnion(${discriminator}, [${opts.join(', ')}])${_addMetadata(s._def)}`.trim()
+}
+
+function _unwrapZodIntersection(s: z.ZodIntersection): string {
+  let left: string
+  let right: string
+  try {
+    left = sUnwrapZod(s._def.left)
+  } catch (e) {
+    if (e instanceof errors.UnsupportedZuiToTypescriptSchemaError) {
+      utils.errors.prependPathSegment(e, '[0]')
+    }
+    throw e
+  }
+  try {
+    right = sUnwrapZod(s._def.right)
+  } catch (e) {
+    if (e instanceof errors.UnsupportedZuiToTypescriptSchemaError) {
+      utils.errors.prependPathSegment(e, '[1]')
+    }
+    throw e
+  }
+  return `z.intersection(${left}, ${right})${_addMetadata(s._def)}`.trim()
+}
+
+function _unwrapZodRecord(s: z.ZodRecord): string {
+  const keyType = sUnwrapZod(s._def.keyType)
+  try {
+    const valueType = sUnwrapZod(s._def.valueType)
+    return `z.record(${keyType}, ${valueType})${_addMetadata(s._def)}`.trim()
+  } catch (e) {
+    if (e instanceof errors.UnsupportedZuiToTypescriptSchemaError) {
+      utils.errors.prependPathSegment(e, '[*]')
+    }
+    throw e
+  }
+}
+
+function _unwrapZodTuple(s: z.ZodTuple): string {
+  const items: string[] = []
+  for (const [index, item] of s._def.items.entries()) {
+    try {
+      items.push(sUnwrapZod(item))
+    } catch (e) {
+      if (e instanceof errors.ZuiTransformError) {
+        utils.errors.prependPathSegment(e, `[${index}]`)
+      }
+      throw e
+    }
+  }
+  return `z.tuple([${items.join(', ')}])${_addMetadata(s._def)}`.trim()
+}
+
+function _unwrapZodArray(s: z.ZodArray): string {
+  try {
+    return `z.array(${sUnwrapZod(s._def.type)})${generateArrayChecks(s._def)}${_addMetadata(s._def, s._def.type)}`
+  } catch (e) {
+    if (e instanceof errors.ZuiTransformError) {
+      utils.errors.prependPathSegment(e, '[number]')
+    }
+    throw e
+  }
+}
+
+function _unwrapZodSet(s: z.ZodSet): string {
+  try {
+    return `z.set(${sUnwrapZod(s._def.valueType)})${generateSetChecks(s._def)}${_addMetadata(s._def, s._def.valueType)}`
+  } catch (e) {
+    if (e instanceof errors.ZuiTransformError) {
+      utils.errors.prependPathSegment(e, '[*]')
+    }
+    throw e
+  }
+}
+
+function _unwrapZodObject(s: z.ZodObject): string {
+  const props: Record<string, string> = {}
+  for (const [key, value] of Object.entries(s.shape)) {
+    try {
+      props[key] = sUnwrapZod(value)
+    } catch (e) {
+      if (e instanceof errors.ZuiTransformError) {
+        utils.errors.prependPathSegment(e, `.${key}`)
+      }
+      throw e
+    }
+  }
+  const catchall = s.additionalProperties()
+  const catchallString = catchall ? `.catchall(${sUnwrapZod(catchall)})` : ''
+  return ['z.object({', ...Object.entries(props).map(([key, value]) => `  ${key}: ${value},`), `})${catchallString}${_addMetadata(s._def)}`]
+    .join('\n')
+    .trim()
 }
 
 const _addMetadata = (def: z.ZodTypeDef, inner?: z.ZodType) => {

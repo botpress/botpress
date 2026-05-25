@@ -120,24 +120,7 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
             return [key, toJSONSchema(value, opts)] satisfies [string, json.Schema]
           } catch (e) {
             if (e instanceof err.ZuiTransformError) {
-              let propertyKey = `.${key}`
-              switch (value.typeName) {
-                case 'ZodArray':
-                  propertyKey += '[number]'
-                  break
-                case 'ZodRecord':
-                  propertyKey += '[*]'
-                  break
-                case 'ZodSet':
-                  propertyKey += '[*]'
-                  break
-                case 'ZodTuple':
-                  // Tuples are handled in the tuple processor, so we don't append anything to the property key here
-                  break
-                default:
-                  break
-              }
-              utils.errors.prependPathSegment(e, propertyKey)
+              utils.errors.prependPathSegment(e, `.${key}`)
             }
             throw e
           }
@@ -272,12 +255,19 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
       return zodTupleToJsonTuple(s, (i) => toJSONSchema(i, opts)) satisfies json.TupleSchema
 
     case 'ZodRecord':
-      return {
-        type: 'object',
-        description: s.description,
-        additionalProperties: toJSONSchema(s._def.valueType, opts),
-        'x-zui': s._def['x-zui'],
-      } satisfies json.RecordSchema
+      try {
+        return {
+          type: 'object',
+          description: s.description,
+          additionalProperties: toJSONSchema(s._def.valueType, opts),
+          'x-zui': s._def['x-zui'],
+        } satisfies json.RecordSchema
+      } catch (e) {
+        if (e instanceof err.ZuiTransformError) {
+          utils.errors.prependPathSegment(e, '[*]')
+        }
+        throw e
+      }
 
     case 'ZodMap':
       throw new err.UnsupportedZuiToJSONSchemaError('ZodMap')
