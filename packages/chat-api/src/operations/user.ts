@@ -1,24 +1,10 @@
 import { schema } from '@bpinternal/opapi'
 import z from 'zod'
-import { userIdSchema } from '../models/user'
+import { userIdSchema, userInput } from '../models/user'
 import { authHeaders } from './auth'
 import { OperationFunc } from './types'
 
 const section = 'user' as const
-
-const userInput = schema(
-  z.object({
-    name: schema(z.string().optional(), {
-      description: 'Name of the [User](#schema_user) (not a unique identifier)',
-    }),
-    pictureUrl: schema(z.string().optional(), {
-      description: 'Picture url of the [User](#schema_user)',
-    }),
-    profile: schema(z.string().max(1000).optional(), {
-      description: 'Custom profile data of the [User](#schema_user) encoded as a string',
-    }),
-  })
-)
 
 export const getUserOperation: OperationFunc = (api) => ({
   name: 'getUser',

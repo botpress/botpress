@@ -278,7 +278,9 @@ export type UpdateUser<TIntegration extends common.BaseIntegration> = (
 
 export type DeleteUser<_TIntegration extends common.BaseIntegration> = client.Client['deleteUser']
 
-export type InitializeIncomingMessage<TIntegration extends common.BaseIntegration> = (
+export type InitializeIncomingMessage<TIntegration extends common.BaseIntegration> = <
+  ChannelName extends keyof TIntegration['channels'],
+>(
   x: utils.Merge<
     Arg<client.Client['initializeIncomingMessage']>,
     {
@@ -288,7 +290,7 @@ export type InitializeIncomingMessage<TIntegration extends common.BaseIntegratio
       >
       conversation?: utils.Merge<
         NonNullable<Arg<client.Client['initializeIncomingMessage']>['conversation']>,
-        { tags: commonTypes.ToTags<ConversationTags<TIntegration>> }
+        { tags: commonTypes.ToTags<ConversationTags<TIntegration>>; channel: utils.Cast<ChannelName, string> }
       >
       message?: utils.Merge<
         NonNullable<Arg<client.Client['initializeIncomingMessage']>['message']>,
@@ -297,9 +299,9 @@ export type InitializeIncomingMessage<TIntegration extends common.BaseIntegratio
     }
   >
 ) => Promise<{
-  user: Awaited<Res<client.Client['getUser']>>['user']
-  conversation: Awaited<Res<client.Client['getConversation']>>['conversation']
-  message?: MessageResponse<TIntegration>
+  user: UserResponse<TIntegration>['user']
+  conversation: ConversationResponse<TIntegration>['conversation']
+  message?: MessageResponse<TIntegration>['message']
 }>
 
 type StateResponse<TIntegration extends common.BaseIntegration, TState extends keyof TIntegration['states']> = {

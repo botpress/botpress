@@ -1,17 +1,17 @@
 {
   "name": "@bp-templates/webhook-message",
-  "integrationName": "webhook-message",
+  "private": true,
   "scripts": {
     "check:type": "tsc --noEmit"
   },
-  "private": true,
   "dependencies": {
     "@botpress/client": "1.45.0",
-    "@botpress/sdk": "6.11.0",
+    "@botpress/sdk": "6.11.1",
     "axios": "^1.6.8"
   },
   "devDependencies": {
     "@types/node": "^22.16.4",
     "typescript": "^5.6.3"
-  }
+  },
+  "integrationName": "webhook-message"
 }
