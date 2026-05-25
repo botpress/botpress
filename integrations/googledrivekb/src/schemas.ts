@@ -138,14 +138,7 @@ function createListOutputSchema<T extends z.ZodTypeAny>(itemSchema: T) {
   })
 }
 
-export const createFileArgSchema = commonFileAttrSchema.omit({
-  id: true, // Unknown at creation time
-})
 export const readFileArgSchema = z.object({ id: fileIdSchema.title('File ID') })
-export const updateFileArgSchema = commonFileAttrSchema.omit({
-  mimeType: true, // Cannot be changed unless data is uploaded with a new type
-})
-export const deleteFileArgSchema = z.object({ id: fileIdSchema.title('File ID') })
 export const listItemsInputSchema = z.object({
   nextToken: z.string().optional().title('Next Token').describe('The token to use to get the next page of results'),
 })
@@ -153,22 +146,6 @@ export const listItemsOutputSchema = createListOutputSchema(z.any())
 export const listFilesOutputSchema = createListOutputSchema(fileSchema)
 export const listFoldersOutputSchema = createListOutputSchema(folderSchema)
 
-// URL is used instead of ID because an integration can't access all files of a bot
-// using the files API
-export const uploadFileDataArgSchema = z.object({
-  id: z.string().min(1).title('File ID').describe('The ID of the Google Drive file to upload content to'),
-  url: z
-    .string()
-    .min(1)
-    .title('File URL')
-    .describe('The URL used to access the file whose content will be uploaded to Google Drive'),
-  mimeType: z
-    .string()
-    .min(1)
-    .optional()
-    .title('MIME Type')
-    .describe('Media type of the uploaded content. This will override any previously set media type'),
-})
 export const downloadFileDataArgSchema = z.object({
   id: z.string().min(1).title('File ID').describe('The ID of the Google Drive file whose content will be downloaded'),
   index: z.boolean().title('Index File').describe('Indicates if the file is to be indexed or not'),

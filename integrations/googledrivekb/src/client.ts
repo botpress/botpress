@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
-import { Readable, Stream } from 'stream'
+import { Readable } from 'stream'
 import { v4 as uuidv4 } from 'uuid'
 import { getAuthenticatedGoogleClient } from './auth'
 import { handleNotFoundError, handleRateLimitError, isGaxiosError } from './error-handling'
@@ -15,8 +15,6 @@ import {
   Folder,
   ListFilesOutput,
   ListFoldersOutput,
-  CreateFileArgs,
-  UpdateFileArgs,
   ListItemsInput,
   ListItemsOutput,
   BaseGenericFileUnion,
@@ -204,20 +202,6 @@ export class Client {
     return parentId === MYDRIVE_ID_ALIAS ? 'not trashed' : `'${parentId}' in parents`
   }
 
-  public async createFile({ name, parentId, mimeType }: CreateFileArgs): Promise<File> {
-    const response = await this._googleClient.files.create({
-      fields: GOOGLE_API_FILE_FIELDS,
-      requestBody: {
-        name,
-        parents: parentId ? [parentId] : undefined,
-        mimeType,
-      },
-    })
-    const file = parseBaseNormal(response.data)
-    this._filesCache.set({ type: 'normal', ...file })
-    return await this._getCompleteFileFromBaseFile(file)
-  }
-
   public async readGenericFile(id: string): Promise<GenericFile> {
     const file = await this._fetchFile(id)
     return await this._getCompleteFile(file)
@@ -229,37 +213,6 @@ export class Client {
       throw new RuntimeError(`Attempted to read a file of type ${file.type}`)
     }
     return await this._getCompleteFileFromBaseFile(file)
-  }
-
-  public async updateFile({ id: fileId, name, parentId }: UpdateFileArgs): Promise<File> {
-    const addParents = parentId ? `${parentId}` : undefined
-    const response = await this._googleClient.files.update({
-      fields: GOOGLE_API_FILE_FIELDS,
-      fileId,
-      addParents, // Also removes old parents
-      requestBody: {
-        name,
-      },
-    })
-    const file = parseBaseNormal(response.data)
-    this._filesCache.set({ type: 'normal', ...file })
-    return await this._getCompleteFileFromBaseFile(file)
-  }
-
-  public async deleteFile(id: string) {
-    await this._googleClient.files.delete({
-      fileId: id,
-    })
-  }
-
-  public async uploadFileData({ id, mimeType, data }: { id: string; mimeType?: string; data: Stream }) {
-    await this._googleClient.files.update({
-      fileId: id,
-      media: {
-        body: data,
-        mimeType,
-      },
-    })
   }
 
   public async downloadFileData({ id }: { id: string }): Promise<DownloadFileDataClientOutput> {
