@@ -6,7 +6,6 @@ import * as bp from '.botpress'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
 
-const OAUTH_REDIRECT_URI = `${process.env.BP_WEBHOOK_URL}/oauth/wizard/oauth-callback`
 const INVALID_CREDENTIALS_MESSAGE =
   'Invalid Monday credentials. Please reconnect your account or provide a valid token.'
 const OAUTH_CONFIGURATION_ERROR_MESSAGE = 'Unable to complete the Monday OAuth setup. Please try again.'
@@ -26,11 +25,11 @@ const _oauthRedirectHandler: WizardHandler = async ({ ctx, responses }) => {
     const url = new URL('https://auth.monday.com/oauth2/authorize')
     const params = new URLSearchParams({
       client_id: bp.secrets.CLIENT_ID,
-      redirect_uri: OAUTH_REDIRECT_URI,
+      redirect_uri: _getOAuthRedirectUri(),
       response_type: 'code',
       scope: SCOPES,
       state: ctx.webhookId,
-      force_install_if_needed: new Boolean(true).toString(),
+      force_install_if_needed: String(true),
     })
     url.search = params.toString()
 
@@ -56,8 +55,7 @@ const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, query, respon
       return responses.endWizard({ success: false, errorMessage: 'Invalid OAuth state' })
     }
 
-    const redirectUri = OAUTH_REDIRECT_URI
-    const credentials = await _exchangeCodeForTokens({ code, redirectUri })
+    const credentials = await _exchangeCodeForTokens({ code, redirectUri: _getOAuthRedirectUri() })
     const mondayClient = createOAuthMondayClient(credentials.accessToken)
     const validationError = await mondayClient.validateAccessToken()
 
@@ -106,3 +104,5 @@ const _exchangeCodeForTokens = async ({ code, redirectUri }: { code: string; red
     throw new RuntimeError(`Failed to exchange Monday OAuth code for tokens. ${message}`)
   }
 }
+
+const _getOAuthRedirectUri = () => oauthWizard.getWizardStepUrl('oauth-callback').toString()
