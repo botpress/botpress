@@ -15,7 +15,7 @@ export const serializeToken = (token: Token, secret: string): string => {
 }
 
 export const deserializeToken = (serializedToken: string, secret: string): Token | undefined => {
-  let object: any
+  let object: unknown
   try {
     object = jwt.verify(serializedToken, secret)
   } catch {
