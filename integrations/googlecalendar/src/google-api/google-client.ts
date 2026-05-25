@@ -31,6 +31,7 @@ export class GoogleClient {
     const stateResult = await client
       .getState({ type: 'integration', name: 'configuration', id: ctx.integrationId })
       .catch((thrown: unknown) => {
+        // The SDK doesn't expose a typed not-found error, so we string-match.
         const err = thrown instanceof Error ? thrown : new Error(String(thrown))
         if (err.message.toLowerCase().includes('not found')) {
           return null
@@ -40,7 +41,7 @@ export class GoogleClient {
 
     const calendarId = stateResult?.state.payload.calendarId ?? ctx.configuration.calendarId
     if (typeof calendarId !== 'string' || calendarId.trim().length === 0) {
-      throw new RuntimeError('Calendar ID is missing. Please complete the setup wizard again.')
+      throw new RuntimeError('Calendar ID is missing. Please reconfigure the integration.')
     }
     return calendarId
   }
