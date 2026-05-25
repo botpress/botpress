@@ -24,12 +24,14 @@ export const downloadToBotpress = async ({
     index: indexFile ?? false,
   }
   let botpressFileId: string
+  let botpressFileUrl: string
   if (dataType === 'stream') {
     const upsertResponse = await client.upsertFile({
       ...uploadParams,
       size: dataSize,
     })
     botpressFileId = upsertResponse.file.id
+    botpressFileUrl = upsertResponse.file.url
     await axios
       .put(upsertResponse.file.uploadUrl, data, {
         maxBodyLength: dataSize,
@@ -47,7 +49,8 @@ export const downloadToBotpress = async ({
       content: data,
     })
     botpressFileId = uploadResponse.file.id
+    botpressFileUrl = uploadResponse.file.url
   }
 
-  return { botpressFileId }
+  return { botpressFileId, botpressFileUrl }
 }

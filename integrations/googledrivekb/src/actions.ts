@@ -67,7 +67,7 @@ const downloadFileData: bp.IntegrationProps['actions']['downloadFileData'] = wra
   const { driveClient, input } = props
   const { id, index } = input
 
-  const { botpressFileId } = await downloadToBotpress({
+  const { botpressFileId, botpressFileUrl } = await downloadToBotpress({
     botpressFileKey: id,
     googleDriveFileId: id,
     client: props.client,
@@ -76,7 +76,7 @@ const downloadFileData: bp.IntegrationProps['actions']['downloadFileData'] = wra
   })
 
   await saveAllCaches(props)
-  return { bpFileId: botpressFileId }
+  return { bpFileId: botpressFileId, url: botpressFileUrl }
 }, 'Error downloading file')
 
 const syncChannels: bp.IntegrationProps['actions']['syncChannels'] = wrapWithTryCatch(async (baseProps) => {

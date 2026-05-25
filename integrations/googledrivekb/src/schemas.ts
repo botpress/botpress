@@ -178,6 +178,10 @@ export const downloadFileDataOutputSchema = z.object({
     .string()
     .min(1)
     .describe('The Botpress file ID corresponding to the file that was uploaded from Google Drive to the Files API'),
+  url: z
+    .string()
+    .min(1)
+    .describe('The URL to access the file content. Use this instead of constructing the URL from the file ID.'),
 })
 
 export const fileDeletedEventSchema = z.object({
