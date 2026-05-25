@@ -2,7 +2,12 @@ import { RuntimeError } from '@botpress/sdk'
 import { Readable } from 'stream'
 import { v4 as uuidv4 } from 'uuid'
 import { getAuthenticatedGoogleClient } from './auth'
-import { handleNotFoundError, handleRateLimitError, isGaxiosError } from './error-handling'
+import {
+  handleNotFoundError,
+  handleRateLimitError,
+  isGaxiosError,
+  isSubscriptionRateLimitError,
+} from './error-handling'
 import { serializeToken } from './file-notification-token'
 import { FilesCache } from './files-cache'
 import { APP_GOOGLE_FOLDER_MIMETYPE, APP_GOOGLE_SHORTCUT_MIMETYPE, INDEXABLE_MIMETYPES } from './mime-types'
@@ -256,7 +261,14 @@ export class Client {
     const fileChannels: FileChannel[] = []
     let hasError = false
     await listItemsAndProcess(listFn, async (item) => {
-      const channel = await this._watch(item).catch(this._getRateLimitErrorHandler())
+      const channel = await this._watch(item).catch(async (error: unknown) => {
+        if (isSubscriptionRateLimitError(error)) {
+          this._logger.forBot().warn('Subscription rate limit exceeded. Retry operation later.')
+        } else {
+          this._logger.forBot().warn(`Failed to subscribe to changes for '${item.name}' (${item.id})`)
+        }
+        return undefined
+      })
       if (channel) {
         fileChannels.push(channel)
       } else {
