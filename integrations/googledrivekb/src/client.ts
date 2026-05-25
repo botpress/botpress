@@ -27,7 +27,6 @@ import {
   parseChannel,
   parseBaseGeneric,
   parseBaseGenerics,
-  parseBaseNormal,
 } from './validation'
 import * as bp from '.botpress'
 
