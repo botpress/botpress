@@ -194,7 +194,7 @@ function _unwrapZodIntersection(s: z.ZodIntersection): string {
   try {
     left = sUnwrapZod(s._def.left)
   } catch (e) {
-    if (e instanceof errors.ZuiTransformError ) {
+    if (e instanceof errors.ZuiTransformError) {
       utils.errors.prependPathSegment(e, '[0]')
     }
     throw e
