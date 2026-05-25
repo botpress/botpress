@@ -43,7 +43,23 @@ const HITL_SCOPES = [
   'files',
 ]
 
-const _startStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async ({ client, ctx, query, responses }) => {
+const _startStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async ({
+  client,
+  ctx,
+  query,
+  selectedChoice,
+  responses,
+}) => {
+  if (selectedChoice) {
+    await client.setState({
+      type: 'integration',
+      name: 'hitlSetupWizard',
+      id: ctx.integrationId,
+      payload: { enableHitl: selectedChoice === 'with-hitl' },
+    })
+    return responses.redirectToStep('oauth-redirect')
+  }
+
   const environmentPayload = {
     source: query.get('source') ?? undefined,
     env: z.enum(['preview', 'production']).catch('preview').parse(query.get('env')),
