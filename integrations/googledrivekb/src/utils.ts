@@ -15,7 +15,7 @@ export const streamToBuffer = (stream: Readable, maxBufferSize: number): Promise
       .on('data', (chunk: Buffer) => {
         size += chunk.length
         if (size > maxBufferSize) {
-          reject(`Max buffer size exceeded while converting stream to buffer (${maxBufferSize})`)
+          reject(new Error(`Max buffer size exceeded while converting stream to buffer (${maxBufferSize})`))
         }
         chunkArray.push(chunk)
       })
