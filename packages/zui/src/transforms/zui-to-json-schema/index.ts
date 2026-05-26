@@ -420,5 +420,12 @@ const additionalPropertiesSchema = (
     return false
   }
 
-  return toJSONSchema(def.unknownKeys, opts)
+  try {
+    return toJSONSchema(def.unknownKeys, opts)
+  } catch (e) {
+    if (e instanceof err.ZuiTransformError) {
+      utils.errors.prependPathSegment(e, '.<catchall>')
+    }
+    throw e
+  }
 }

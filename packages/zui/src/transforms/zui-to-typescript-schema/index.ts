@@ -211,16 +211,28 @@ function _unwrapZodIntersection(s: z.ZodIntersection): string {
 }
 
 function _unwrapZodRecord(s: z.ZodRecord): string {
+  let keyType: string
+  let valueType: string
+
   try {
-    const keyType = sUnwrapZod(s._def.keyType)
-    const valueType = sUnwrapZod(s._def.valueType)
-    return `z.record(${keyType}, ${valueType})${_addMetadata(s._def)}`.trim()
+    keyType = sUnwrapZod(s._def.keyType)
+  } catch (e) {
+    if (e instanceof errors.ZuiTransformError) {
+      utils.errors.prependPathSegment(e, '[key]')
+    }
+    throw e
+  }
+
+  try {
+    valueType = sUnwrapZod(s._def.valueType)
   } catch (e) {
     if (e instanceof errors.ZuiTransformError) {
       utils.errors.prependPathSegment(e, '[*]')
     }
     throw e
   }
+
+  return `z.record(${keyType}, ${valueType})${_addMetadata(s._def)}`.trim()
 }
 
 function _unwrapZodTuple(s: z.ZodTuple): string {
@@ -273,7 +285,17 @@ function _unwrapZodObject(s: z.ZodObject): string {
     }
   }
   const catchall = s.additionalProperties()
-  const catchallString = catchall ? `.catchall(${sUnwrapZod(catchall)})` : ''
+  let catchallString = ''
+  if (catchall) {
+    try {
+      catchallString = `.catchall(${sUnwrapZod(catchall)})`
+    } catch (e) {
+      if (e instanceof errors.ZuiTransformError) {
+        utils.errors.prependPathSegment(e, '.<catchall>')
+      }
+      throw e
+    }
+  }
   return [
     'z.object({',
     ...Object.entries(props).map(([key, value]) => `  ${key}: ${value},`),
