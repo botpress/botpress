@@ -237,7 +237,7 @@ export const actions = {
   // TODO: re-add replyToTicket action
   addNote: {
     title: 'Add Note',
-    description: 'Adds a public note to a Freshdesk ticket by sending it through the note channel.',
+    description: 'Adds a note to a Freshdesk ticket.',
     input: {
       schema: z.object({
         ticketId: z.coerce
@@ -251,7 +251,7 @@ export const actions = {
           .boolean()
           .default(true)
           .title('Private')
-          .describe('Whether the note should be visible to the requester(default true).'),
+          .describe('Whether the note should be internal (default is true).'),
       }),
     },
     output: {
