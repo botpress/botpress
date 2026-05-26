@@ -1,4 +1,5 @@
 import { generateDatetimeRegex } from '../../../utils/datestring-utils'
+import { PropertyPath } from '../../../utils/property-path-utils'
 import * as z from '../../../z'
 import { regexUtils } from '../../common'
 import * as errors from '../../common/errors'
@@ -7,7 +8,7 @@ import { zodPatterns } from '../../zui-to-json-schema-legacy/parsers/string'
 
 const { zuiKey } = z
 
-export const zodStringToJsonString = (zodString: z.ZodString): json.StringSchema => {
+export const zodStringToJsonString = (zodString: z.ZodString, path: PropertyPath): json.StringSchema => {
   const schema: json.StringSchema = {
     type: 'string',
     description: zodString.description,
@@ -87,6 +88,7 @@ export const zodStringToJsonString = (zodString: z.ZodString): json.StringSchema
         throw new errors.UnsupportedZuiCheckToJSONSchemaError({
           zodType: 'ZodString',
           checkKind: check.kind,
+          path: path.toString(),
         })
     }
   }

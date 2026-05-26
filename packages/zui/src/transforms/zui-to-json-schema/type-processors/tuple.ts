@@ -1,3 +1,4 @@
+import { PropertyPath } from '../../../utils/property-path-utils'
 import * as z from '../../../z'
 import * as json from '../../common/json-schema'
 
@@ -5,12 +6,13 @@ const { zuiKey } = z
 
 export const zodTupleToJsonTuple = (
   zodTuple: z.ZodTuple,
-  toSchema: (x: z.ZodType) => json.Schema
+  toSchema: (x: z.ZodType, path: PropertyPath) => json.Schema,
+  path: PropertyPath
 ): json.TupleSchema => {
   const schema: json.TupleSchema = {
     type: 'array',
     description: zodTuple.description,
-    items: zodTuple._def.items.map((item) => toSchema(item)),
+    items: zodTuple._def.items.map((item, index) => toSchema(item, path.withIndexType('number', index))),
   }
 
   if (zodTuple._def[zuiKey]) {
@@ -18,7 +20,7 @@ export const zodTupleToJsonTuple = (
   }
 
   if (zodTuple._def.rest) {
-    schema.additionalItems = toSchema(zodTuple._def.rest)
+    schema.additionalItems = toSchema(zodTuple._def.rest, path.withPrefix('additionalItemsOf'))
   }
 
   return schema
