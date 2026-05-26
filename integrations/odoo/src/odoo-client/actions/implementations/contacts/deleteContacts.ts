@@ -1,6 +1,9 @@
 import * as sdk from '@botpress/sdk'
+import { z } from '@botpress/sdk'
 import { wrapAction } from '../../action-wrapper'
 import { getErrorMessage, isActiveUserLinkedContactError } from '../../errors'
+
+
 
 type NotDeletedContact = {
   id: number
@@ -16,12 +19,14 @@ type DeletableContact = {
 const getContactOwnerId = (contact: Record<string, unknown>): number | undefined => {
   const owner = contact.user_id
 
-  if (Array.isArray(owner) && typeof owner[0] === 'number') {
-    return owner[0]
+  const isNumberArray = z.array(z.number()).safeParse(owner)
+  if (isNumberArray.success) {
+    return isNumberArray.data[0]
   }
 
-  if (typeof owner === 'number') {
-    return owner
+  const isNumber = z.number().safeParse(owner)
+  if (isNumber.success) {
+    return isNumber.data
   }
 
   return undefined
