@@ -285,7 +285,7 @@ function _unwrapZodObject(s: z.ZodObject): string {
     }
   }
   const catchall = s.additionalProperties()
-  let catchallString = ''
+  let catchallString: string = ''
   if (catchall) {
     try {
       catchallString = `.catchall(${sUnwrapZod(catchall)})`

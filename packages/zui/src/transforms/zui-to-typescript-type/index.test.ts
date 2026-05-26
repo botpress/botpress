@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { toTypescriptType as toTs } from '.'
+import { toTypescriptType as toTs, toTypescriptType } from '.'
 import * as z from '../../z'
 import * as errors from '../common/errors'
 import * as assert from '../../assertions.utils.test'
@@ -1029,5 +1029,23 @@ describe.concurrent('optional', () => {
     const typings = toTs(schema, { declaration: true, treatDefaultAsOptional: true })
     const expected = `declare const MyString: string | undefined;`
     await assert.expectTypescript(typings).toMatchWithoutFormatting(expected)
+  })
+})
+
+describe.concurrent('error path', () => {
+  it('should show complete path section in error message', () => {
+    enum Direction {
+      Up = 'UP',
+      Down = 'DOWN',
+    }
+
+    try {
+      toTypescriptType(
+        z.object({ foo: z.object({ bar: z.tuple([z.number(), z.nativeEnum(Direction)]) }) })
+      )
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e instanceof Error && e.message).toContain('#.foo.bar[1]')
+    }
   })
 })

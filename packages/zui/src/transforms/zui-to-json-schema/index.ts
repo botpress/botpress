@@ -208,8 +208,8 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
       } satisfies json.DiscriminatedUnionSchema
 
     case 'ZodIntersection':
-      let left
-      let right
+      let left: json.Schema
+      let right: json.Schema
 
       try {
         left = toJSONSchema(s._def.left, opts)

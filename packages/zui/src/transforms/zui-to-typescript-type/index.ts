@@ -230,7 +230,15 @@ function sUnwrapZod(schema: z.ZodType | KeyValue | FnParameters | Declaration | 
       return `${getMultilineComment(s.description)} void`.trim()
 
     case 'ZodArray':
-      const item = sUnwrapZod(s._def.type, newConfig)
+      let item: string
+      try {
+        item = sUnwrapZod(s._def.type, newConfig)
+      } catch (e) {
+        if (e instanceof errors.ZuiTransformError) {
+          utils.errors.prependPathSegment(e, '[number]')
+        }
+        throw e
+      }
 
       if (isPrimitive(item)) {
         return `${item}[]`
@@ -241,7 +249,14 @@ function sUnwrapZod(schema: z.ZodType | KeyValue | FnParameters | Declaration | 
     case 'ZodObject':
       const props = Object.entries(s._def.shape()).map(([key, value]) => {
         if (z.is.zuiType(value)) {
-          return sUnwrapZod(new KeyValue(toPropertyKey(key), value), newConfig)
+          try {
+            return sUnwrapZod(new KeyValue(toPropertyKey(key), value), newConfig)
+          } catch (e) {
+            if (e instanceof errors.ZuiTransformError) {
+              utils.errors.prependPathSegment(e, `.${key}`)
+            }
+             throw e
+           }
         }
         return `${key}: unknown`
       })
@@ -249,40 +264,109 @@ function sUnwrapZod(schema: z.ZodType | KeyValue | FnParameters | Declaration | 
       return `{ ${props.join('; ')} }`
 
     case 'ZodUnion':
-      const options = s._def.options.map((option) => {
-        return sUnwrapZod(option, newConfig)
-      })
+      const options: string[] = []
+      for (const [index, option] of s._def.options.entries()) {
+        try {
+          options.push(sUnwrapZod(option, newConfig))
+        } catch (e) {
+          if (e instanceof errors.ZuiTransformError) {
+            utils.errors.prependPathSegment(e, `[${index}]`)
+          }
+          throw e
+        }
+      }
       return `${getMultilineComment(s.description)}
 ${options.join(' | ')}`
 
     case 'ZodDiscriminatedUnion':
-      const opts = s._def.options.map((option) => {
-        return sUnwrapZod(option, newConfig)
-      })
+      const opts: string[] = []
+      for (const [index, option] of s._def.options.entries()) {
+        try {
+          opts.push(sUnwrapZod(option, newConfig))
+        } catch (e) {
+          if (e instanceof errors.ZuiTransformError) {
+            utils.errors.prependPathSegment(e, `[${index}]`)
+          }
+          throw e
+        }
+      }
       return `${getMultilineComment(s.description)}
 ${opts.join(' | ')}`
 
     case 'ZodIntersection':
-      return `${sUnwrapZod(s._def.left, newConfig)} & ${sUnwrapZod(s._def.right, newConfig)}`
+      let left: string
+      let right: string
+      try {
+        left = sUnwrapZod(s._def.left, newConfig)
+      } catch (e) {
+        if (e instanceof errors.ZuiTransformError) {
+          utils.errors.prependPathSegment(e, '[0]')
+        }
+        throw e
+      }
+      try {
+        right = sUnwrapZod(s._def.right, newConfig)
+      } catch (e) {
+        if (e instanceof errors.ZuiTransformError) {
+          utils.errors.prependPathSegment(e, '[1]')
+        }
+        throw e
+      }
+      return `${left} & ${right}`
 
     case 'ZodTuple':
       if (s._def.items.length === 0) {
         return '[]'
       }
 
-      const items = s._def.items.map((i) => sUnwrapZod(i, newConfig))
+      const items = s._def.items.map((item, index) => {
+        try {
+        return sUnwrapZod(item, newConfig)
+        } catch (e) {
+          if (e instanceof errors.ZuiTransformError) {
+            utils.errors.prependPathSegment(e, `[${index}]`)
+          }
+          throw e
+        }
+      })
       return `[${items.join(', ')}]`
 
     case 'ZodRecord':
-      const keyType = sUnwrapZod(s._def.keyType, newConfig)
-      const valueType = sUnwrapZod(s._def.valueType, newConfig)
+      let keyType: string
+      let valueType: string
+
+      try {
+        keyType = sUnwrapZod(s._def.keyType, newConfig)
+      } catch (e) {
+        if (e instanceof errors.ZuiTransformError) {
+          utils.errors.prependPathSegment(e, '[key]')
+        }
+        throw e
+      }
+
+      try {
+        valueType = sUnwrapZod(s._def.valueType, newConfig)
+      } catch (e) {
+        if (e instanceof errors.ZuiTransformError) {
+          utils.errors.prependPathSegment(e, '[*]')
+        }
+        throw e
+      }
+
       return `${getMultilineComment(s.description)} { [key: ${keyType}]: ${valueType} }`
 
     case 'ZodMap':
       return `Map<${sUnwrapZod(s._def.keyType, newConfig)}, ${sUnwrapZod(s._def.valueType, newConfig)}>`
 
     case 'ZodSet':
+      try {
       return `Set<${sUnwrapZod(s._def.valueType, newConfig)}>`
+      } catch (e) {
+        if (e instanceof errors.ZuiTransformError) {
+          utils.errors.prependPathSegment(e, '[*]')
+        }
+        throw e
+      }
 
     case 'ZodFunction':
       const input = sUnwrapZod(new FnParameters(s._def.args), newConfig)
