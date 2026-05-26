@@ -318,3 +318,16 @@ export const registerWebhook = async ({
   })
   logger.forBot().info('Linear webhook registered successfully.')
 }
+
+export const revokeToken = async (token: string) => {
+  const form = new URLSearchParams({ token, token_type_hint: 'access_token' })
+  try {
+    await axios.post(`${linearEndpoint}/oauth/revoke`, form.toString(), { headers: oauthHeaders })
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      const message = err.response?.data?.error_description || err.message
+      throw new RuntimeError(`Failed to revoke token: ${message}`)
+    }
+    throw new RuntimeError(`Failed to revoke token: ${String(err)}`)
+  }
+}
