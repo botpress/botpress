@@ -64,10 +64,7 @@ export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true
       return acc
     } catch (e) {
       if (e instanceof errors.ZuiTransformError) {
-        if (Array.isArray(value)) {
-          utils.errors.prependPathSegment(e, '[number]')
-        }
-        utils.errors.prependPathSegment(e, `.${key}`)
+        utils.errors.prependPathSegment(e, `.${key}` + (Array.isArray(value) ? '[number]' : ''))
       }
       throw e
     }

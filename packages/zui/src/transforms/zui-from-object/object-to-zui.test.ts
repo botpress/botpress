@@ -215,4 +215,17 @@ describe('object-to-zui', () => {
     expect(testSchema?.properties?.output).toHaveProperty('additionalProperties', true)
     expect(fixedSchema).toHaveProperty('additionalProperties', true)
   })
+
+  test('should show complete path section in error message', () => {
+    try {
+      fromObject({
+        foo: {
+          bar: [{ good: 'ok', broken: Symbol('x') }],
+        },
+      })
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect((e as Error).message).toContain('#.foo.bar[number].broken')
+    }
+  })
 })
