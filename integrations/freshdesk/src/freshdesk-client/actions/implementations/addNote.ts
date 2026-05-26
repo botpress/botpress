@@ -1,16 +1,26 @@
+import * as sdk from '@botpress/sdk'
 import { wrapAction } from '../action-wrapper'
 
 export const addNote = wrapAction(
   { actionName: 'addNote', errorMessage: 'Failed to add note to Freshdesk ticket' },
-  async ({ freshdeskClient }, input) => {
-    const note = await freshdeskClient.addNote(input.ticketId, {
-      body: input.body,
-      private: input.private ?? true,
+  async ({ client, ctx }, input) => {
+    const { conversations } = await client.listConversations({
+      tags: { freshdeskTicketId: String(input.ticketId) },
     })
-    return {
-      id: note.id,
-      body: note.body,
-      createdAt: note.created_at,
+
+    const conversation = conversations[0]
+    if (!conversation) {
+      throw new sdk.RuntimeError(`No conversation found for Freshdesk ticket ${input.ticketId}`)
     }
+
+    const { message } = await client.createMessage({
+      conversationId: conversation.id,
+      userId: ctx.botUserId,
+      type: 'text',
+      payload: { text: input.body },
+      tags: { isPrivate: String(input.private) },
+    })
+
+    return { messageId: message.id }
   }
 )

@@ -237,7 +237,7 @@ export const actions = {
   // TODO: re-add replyToTicket action
   addNote: {
     title: 'Add Note',
-    description: 'Adds an internal note to a Freshdesk ticket (not visible to the requester by default).',
+    description: 'Adds a public note to a Freshdesk ticket by sending it through the note channel.',
     input: {
       schema: z.object({
         ticketId: z.coerce
@@ -249,17 +249,14 @@ export const actions = {
         body: z.string().title('Body').describe('HTML content of the note.'),
         private: z
           .boolean()
-          .optional()
           .default(true)
           .title('Private')
-          .describe('Set to false to make the note public. Defaults to true.'),
+          .describe('Whether the note should be visible to the requester(default true).'),
       }),
     },
     output: {
       schema: z.object({
-        id: z.number().title('ID').describe('Unique ID of the note.'),
-        body: z.string().title('Body').describe('HTML content of the note.'),
-        createdAt: z.string().title('Created At').describe('ISO 8601 timestamp of note creation.'),
+        messageId: z.string().title('Message ID').describe('Botpress message ID of the created note.'),
       }),
     },
   },

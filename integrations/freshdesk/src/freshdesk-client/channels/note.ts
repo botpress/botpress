@@ -3,7 +3,7 @@ import * as sdk from '@botpress/sdk'
 import { FreshdeskClient } from '../FreshdeskClient'
 import * as bp from '.botpress'
 
-const wrapChannel = createChannelWrapper<bp.IntegrationProps>()({
+const _wrapChannel = createChannelWrapper<bp.IntegrationProps>()({
   toolFactories: {
     freshdeskTicketId: ({ conversation, logger }) => {
       const ticketId = conversation.tags.freshdeskTicketId
@@ -18,53 +18,55 @@ const wrapChannel = createChannelWrapper<bp.IntegrationProps>()({
       const { user } = await client.getUser({ id: ctx.botUserId })
       return user.name ?? 'Botpress'
     },
+    isPrivate: ({ message }) => message.tags.isPrivate === 'true',
   },
 })
 
-const sendNote = async (
+const _sendNote = async (
   freshdeskClient: FreshdeskClient,
   ticketId: number,
   body: string,
+  isPrivate: boolean,
   ack: (args: { tags: Record<string, string> }) => Promise<void>
 ) => {
-  const result = await freshdeskClient.addNote(ticketId, { body, private: false })
+  const result = await freshdeskClient.addNote(ticketId, { body, private: isPrivate })
   await ack({ tags: { freshdeskCommentId: String(result.id) } })
 }
 
 export default {
-  ticket: {
+  note: {
     messages: {
-      text: wrapChannel(
-        { channelName: 'ticket', messageType: 'text' },
-        ({ ack, payload, freshdeskTicketId, freshdeskClient, chatbotName }) =>
-          sendNote(freshdeskClient, freshdeskTicketId, `[${chatbotName}]: ${payload.text}`, ack)
+      text: _wrapChannel(
+        { channelName: 'note', messageType: 'text' },
+        ({ ack, payload, freshdeskTicketId, freshdeskClient, chatbotName, isPrivate }) =>
+          _sendNote(freshdeskClient, freshdeskTicketId, `[${chatbotName}]: ${payload.text}`, isPrivate, ack)
       ),
-      audio: wrapChannel(
-        { channelName: 'ticket', messageType: 'audio' },
-        ({ ack, payload, freshdeskTicketId, freshdeskClient, chatbotName }) =>
-          sendNote(freshdeskClient, freshdeskTicketId, `[${chatbotName}]: ${payload.audioUrl}`, ack)
+      audio: _wrapChannel(
+        { channelName: 'note', messageType: 'audio' },
+        ({ ack, payload, freshdeskTicketId, freshdeskClient, chatbotName, isPrivate }) =>
+          _sendNote(freshdeskClient, freshdeskTicketId, `[${chatbotName}]: ${payload.audioUrl}`, isPrivate, ack)
       ),
-      file: wrapChannel(
-        { channelName: 'ticket', messageType: 'file' },
-        ({ ack, payload, freshdeskTicketId, freshdeskClient, chatbotName }) =>
-          sendNote(freshdeskClient, freshdeskTicketId, `[${chatbotName}]: ${payload.fileUrl}`, ack)
+      file: _wrapChannel(
+        { channelName: 'note', messageType: 'file' },
+        ({ ack, payload, freshdeskTicketId, freshdeskClient, chatbotName, isPrivate }) =>
+          _sendNote(freshdeskClient, freshdeskTicketId, `[${chatbotName}]: ${payload.fileUrl}`, isPrivate, ack)
       ),
-      image: wrapChannel(
-        { channelName: 'ticket', messageType: 'image' },
-        ({ ack, payload, freshdeskTicketId, freshdeskClient, chatbotName }) =>
-          sendNote(freshdeskClient, freshdeskTicketId, `[${chatbotName}]: ${payload.imageUrl}`, ack)
+      image: _wrapChannel(
+        { channelName: 'note', messageType: 'image' },
+        ({ ack, payload, freshdeskTicketId, freshdeskClient, chatbotName, isPrivate }) =>
+          _sendNote(freshdeskClient, freshdeskTicketId, `[${chatbotName}]: ${payload.imageUrl}`, isPrivate, ack)
       ),
-      video: wrapChannel(
-        { channelName: 'ticket', messageType: 'video' },
-        ({ ack, payload, freshdeskTicketId, freshdeskClient, chatbotName }) =>
-          sendNote(freshdeskClient, freshdeskTicketId, `[${chatbotName}]: ${payload.videoUrl}`, ack)
+      video: _wrapChannel(
+        { channelName: 'note', messageType: 'video' },
+        ({ ack, payload, freshdeskTicketId, freshdeskClient, chatbotName, isPrivate }) =>
+          _sendNote(freshdeskClient, freshdeskTicketId, `[${chatbotName}]: ${payload.videoUrl}`, isPrivate, ack)
       ),
-      bloc: wrapChannel(
-        { channelName: 'ticket', messageType: 'bloc' },
-        async ({ ack, payload, freshdeskTicketId, freshdeskClient, chatbotName }) => {
+      bloc: _wrapChannel(
+        { channelName: 'note', messageType: 'bloc' },
+        async ({ ack, payload, freshdeskTicketId, freshdeskClient, chatbotName, isPrivate }) => {
           let firstNoteId: string | undefined
           const addNote = async (body: string) => {
-            const note = await freshdeskClient.addNote(freshdeskTicketId, { body, private: false })
+            const note = await freshdeskClient.addNote(freshdeskTicketId, { body, private: isPrivate })
             firstNoteId ??= String(note.id)
           }
 
