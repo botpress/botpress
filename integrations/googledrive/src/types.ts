@@ -10,9 +10,6 @@ import {
   commonFileAttrSchema,
   listFilesOutputSchema,
   listFoldersOutputSchema,
-  createFileArgSchema,
-  updateFileArgSchema,
-  uploadFileDataArgSchema,
   downloadFileDataArgSchema,
   downloadFileDataOutputSchema,
   listItemsOutputSchema,
@@ -51,9 +48,6 @@ export type ListItemsInput = z.infer<typeof listItemsInputSchema>
 export type ListItemsOutput<T> = Overwrite<z.infer<typeof listItemsOutputSchema>, { items: T[] }>
 export type ListFilesOutput = z.infer<typeof listFilesOutputSchema>
 export type ListFoldersOutput = z.infer<typeof listFoldersOutputSchema>
-export type CreateFileArgs = z.infer<typeof createFileArgSchema>
-export type UpdateFileArgs = z.infer<typeof updateFileArgSchema>
-export type UploadFileDataArgs = z.infer<typeof uploadFileDataArgSchema>
 export type DownloadFileDataArgs = z.infer<typeof downloadFileDataArgSchema>
 export type DownloadFileDataOutput = z.infer<typeof downloadFileDataOutputSchema>
 

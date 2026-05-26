@@ -1,5 +1,5 @@
 {
-  "name": "@botpresshub/googledrive",
+  "name": "@botpresshub/googledrivekb",
   "scripts": {
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",

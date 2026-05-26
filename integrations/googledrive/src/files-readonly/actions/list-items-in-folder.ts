@@ -1,3 +1,4 @@
+import { isApiError } from '@botpress/client'
 import { APP_GOOGLE_FOLDER_MIMETYPE, APP_GOOGLE_SHORTCUT_MIMETYPE } from 'src/mime-types'
 import { Client as DriveClient } from '../../client'
 import { GoogleDriveNodeTree, type GoogleDriveNode } from '../google-drive-file-tree'
@@ -18,6 +19,9 @@ const _listItemsInSpecificFolder = async (
   props: FilesReadonlyListItemsInFolderProps
 ): Promise<FilesReadonlyListItemsInFolderReturn> => {
   const nodeTree = await _loadNodeTree(props.client)
+  if (!nodeTree) {
+    return { items: [], meta: { nextToken: undefined } }
+  }
   const node = nodeTree.getNodeById(props.input.folderId!)
 
   return _enumerateNodeChildren({ node, nextToken: props.input.nextToken })
@@ -80,16 +84,30 @@ const _enumerateNodeTreeItems = async (
   nextToken: string
 ): Promise<FilesReadonlyListItemsInFolderReturn> => {
   const nodeTree = await _loadNodeTree(client)
+  if (!nodeTree) {
+    return { items: [], meta: { nextToken: undefined } }
+  }
   const rootNode = nodeTree.getRootNode()
 
   return _enumerateNodeChildren({ node: rootNode, nextToken })
 }
 
-const _loadNodeTree = async (client: FilesReadonlyListItemsInFolderProps['client']): Promise<GoogleDriveNodeTree> => {
-  const { file } = await client.getFile({
-    id: GOOGLE_DRIVE_TREE_FILE_KEY,
-  })
-  return GoogleDriveNodeTree.fromJSON(await fetch(file.url).then((res) => res.text()))
+const _loadNodeTree = async (
+  client: FilesReadonlyListItemsInFolderProps['client']
+): Promise<GoogleDriveNodeTree | null> => {
+  try {
+    const { file } = await client.getFile({ id: GOOGLE_DRIVE_TREE_FILE_KEY })
+    const res = await fetch(file.url)
+    if (!res.ok) {
+      throw new Error(`Failed to fetch node tree file: HTTP ${res.status}`)
+    }
+    return GoogleDriveNodeTree.fromJSON(await res.text())
+  } catch (thrown: unknown) {
+    if (isApiError(thrown) && thrown.type === 'ResourceNotFound') {
+      return null
+    }
+    throw thrown
+  }
 }
 
 const _getNextTokenForChildIndex = (childIndex: number): string => `${SYNTHETIC_NEXT_TOKEN_PREFIX}${childIndex}`
@@ -139,7 +157,8 @@ const _enumerateDriveItemsNextPage = async (
   nextToken: string,
   filters: string
 ): Promise<FilesReadonlyListItemsInFolderReturn> => {
-  const nodeTree = await _loadNodeTree(client)
+  const rootFolderId = await driveClient.getRootFolderId()
+  const nodeTree = (await _loadNodeTree(client)) ?? new GoogleDriveNodeTree({ rootFolderId })
 
   return await _enumerateGoogleDriveAndBuildNodeTree({ driveClient, client, nextToken, filters, nodeTree })
 }

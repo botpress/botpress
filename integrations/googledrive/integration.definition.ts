@@ -3,15 +3,11 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import filesReadonly from './bp_modules/files-readonly'
 import {
   fileSchema,
-  createFileArgSchema,
-  updateFileArgSchema,
-  uploadFileDataArgSchema,
   downloadFileDataArgSchema,
   listFoldersOutputSchema,
   listFilesOutputSchema,
   readFileArgSchema,
   listItemsInputSchema,
-  deleteFileArgSchema,
   downloadFileDataOutputSchema,
   fileDeletedEventSchema,
   folderSchema,
@@ -27,10 +23,10 @@ const toJSONSchemaOptions: Partial<sdk.z.transforms.JSONSchemaGenerationOptions>
 }
 
 export default new sdk.IntegrationDefinition({
-  name: 'googledrive',
-  title: 'Google Drive',
-  description: 'Access and manage your Google Drive files from your bot.',
-  version: '0.4.2',
+  name: 'googledrivekb',
+  title: 'Google Drive (Knowledge Base)',
+  description: 'Sync Google Drive files into a Botpress knowledge base using read-only access to all files.',
+  version: '0.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   attributes: {
@@ -45,7 +41,6 @@ export default new sdk.IntegrationDefinition({
   },
   actions: {
     listFiles: {
-      // TODO: Implement listable
       title: 'List Files',
       description: 'List files in Google Drive',
       input: {
@@ -56,7 +51,6 @@ export default new sdk.IntegrationDefinition({
       },
     },
     listFolders: {
-      // TODO: Implement listable
       title: 'List folders',
       description: 'List folders in Google Drive',
       input: {
@@ -66,19 +60,7 @@ export default new sdk.IntegrationDefinition({
         schema: listFoldersOutputSchema,
       },
     },
-    createFile: {
-      // TODO: Implement creatable
-      title: 'Create File',
-      description: 'Create an empty file in Google Drive',
-      input: {
-        schema: createFileArgSchema,
-      },
-      output: {
-        schema: fileSchema.describe('The file created in Google Drive'),
-      },
-    },
     readFile: {
-      // TODO: Implement readable
       title: 'Read File',
       description: "Read a file's metadata in a Google Drive",
       input: {
@@ -86,38 +68,6 @@ export default new sdk.IntegrationDefinition({
       },
       output: {
         schema: fileSchema.describe('The file read from Google Drive'),
-      },
-    },
-    updateFile: {
-      // TODO: Implement updatable
-      title: 'Update File',
-      description: "Update a file's metadata in Google Drive",
-      input: {
-        schema: updateFileArgSchema,
-      },
-      output: {
-        schema: fileSchema.describe('The file updated in Google Drive'),
-      },
-    },
-    deleteFile: {
-      // TODO: Implement deletable
-      title: 'Delete File',
-      description: 'Deletes a file in Google Drive',
-      input: {
-        schema: deleteFileArgSchema,
-      },
-      output: {
-        schema: sdk.z.object({}),
-      },
-    },
-    uploadFileData: {
-      title: 'Upload file data',
-      description: 'Upload data to a file in Google Drive',
-      input: {
-        schema: uploadFileDataArgSchema,
-      },
-      output: {
-        schema: sdk.z.object({}),
       },
     },
     downloadFileData: {
@@ -202,9 +152,6 @@ export default new sdk.IntegrationDefinition({
     },
     WEBHOOK_SECRET: {
       description: 'The secret used to sign webhook tokens. Should be a high-entropy string that only Botpress knows',
-    },
-    FILE_PICKER_API_KEY: {
-      description: 'The API key used to access the Google Picker API',
     },
   },
   __advanced: { toJSONSchemaOptions },

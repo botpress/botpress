@@ -1,8 +1,13 @@
 import { RuntimeError } from '@botpress/sdk'
-import { Readable, Stream } from 'stream'
+import { Readable } from 'stream'
 import { v4 as uuidv4 } from 'uuid'
 import { getAuthenticatedGoogleClient } from './auth'
-import { handleNotFoundError, handleRateLimitError, isGaxiosError } from './error-handling'
+import {
+  handleNotFoundError,
+  handleRateLimitError,
+  isGaxiosError,
+  isSubscriptionRateLimitError,
+} from './error-handling'
 import { serializeToken } from './file-notification-token'
 import { FilesCache } from './files-cache'
 import { APP_GOOGLE_FOLDER_MIMETYPE, APP_GOOGLE_SHORTCUT_MIMETYPE, INDEXABLE_MIMETYPES } from './mime-types'
@@ -15,8 +20,6 @@ import {
   Folder,
   ListFilesOutput,
   ListFoldersOutput,
-  CreateFileArgs,
-  UpdateFileArgs,
   ListItemsInput,
   ListItemsOutput,
   BaseGenericFileUnion,
@@ -24,13 +27,7 @@ import {
   GenericFile,
 } from './types'
 import { listItemsAndProcess, ListFunction, streamToBuffer, ListItemsInputWithArgs, listAllItems } from './utils'
-import {
-  getFileTypeFromMimeType,
-  parseChannel,
-  parseBaseGeneric,
-  parseBaseGenerics,
-  parseBaseNormal,
-} from './validation'
+import { getFileTypeFromMimeType, parseChannel, parseBaseGeneric, parseBaseGenerics } from './validation'
 import * as bp from '.botpress'
 
 type DownloadFileDataClientOutput = {
@@ -204,20 +201,6 @@ export class Client {
     return parentId === MYDRIVE_ID_ALIAS ? 'not trashed' : `'${parentId}' in parents`
   }
 
-  public async createFile({ name, parentId, mimeType }: CreateFileArgs): Promise<File> {
-    const response = await this._googleClient.files.create({
-      fields: GOOGLE_API_FILE_FIELDS,
-      requestBody: {
-        name,
-        parents: parentId ? [parentId] : undefined,
-        mimeType,
-      },
-    })
-    const file = parseBaseNormal(response.data)
-    this._filesCache.set({ type: 'normal', ...file })
-    return await this._getCompleteFileFromBaseFile(file)
-  }
-
   public async readGenericFile(id: string): Promise<GenericFile> {
     const file = await this._fetchFile(id)
     return await this._getCompleteFile(file)
@@ -229,37 +212,6 @@ export class Client {
       throw new RuntimeError(`Attempted to read a file of type ${file.type}`)
     }
     return await this._getCompleteFileFromBaseFile(file)
-  }
-
-  public async updateFile({ id: fileId, name, parentId }: UpdateFileArgs): Promise<File> {
-    const addParents = parentId ? `${parentId}` : undefined
-    const response = await this._googleClient.files.update({
-      fields: GOOGLE_API_FILE_FIELDS,
-      fileId,
-      addParents, // Also removes old parents
-      requestBody: {
-        name,
-      },
-    })
-    const file = parseBaseNormal(response.data)
-    this._filesCache.set({ type: 'normal', ...file })
-    return await this._getCompleteFileFromBaseFile(file)
-  }
-
-  public async deleteFile(id: string) {
-    await this._googleClient.files.delete({
-      fileId: id,
-    })
-  }
-
-  public async uploadFileData({ id, mimeType, data }: { id: string; mimeType?: string; data: Stream }) {
-    await this._googleClient.files.update({
-      fileId: id,
-      media: {
-        body: data,
-        mimeType,
-      },
-    })
   }
 
   public async downloadFileData({ id }: { id: string }): Promise<DownloadFileDataClientOutput> {
@@ -309,7 +261,14 @@ export class Client {
     const fileChannels: FileChannel[] = []
     let hasError = false
     await listItemsAndProcess(listFn, async (item) => {
-      const channel = await this._watch(item).catch(this._getRateLimitErrorHandler())
+      const channel = await this._watch(item).catch(async (error: unknown) => {
+        if (isSubscriptionRateLimitError(error)) {
+          this._logger.forBot().warn('Subscription rate limit exceeded. Retry operation later.')
+        } else {
+          this._logger.forBot().warn(`Failed to subscribe to changes for '${item.name}' (${item.id})`)
+        }
+        return undefined
+      })
       if (channel) {
         fileChannels.push(channel)
       } else {
