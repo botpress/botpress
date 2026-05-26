@@ -1,7 +1,5 @@
 import type { OdooContext, OdooDomain, OdooRecord } from './odoo.types'
 
-export type { OdooContext, OdooDomain, OdooRecord } from './odoo.types'
-
 export type Model = 'Lead' | 'Contact' | 'Ticket'
 
 export type GetFieldsRequest = {

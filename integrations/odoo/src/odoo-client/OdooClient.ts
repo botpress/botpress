@@ -1,8 +1,8 @@
 import type {
+  OdooRecord,
   GetFieldsOutput,
   GetFieldsRequest,
   Model,
-  OdooRecord,
   ResPartnerCreateInput,
   ResPartnerCreateOutput,
   ResPartnerReadInput,
@@ -14,8 +14,6 @@ import type {
   ResPartnerWriteInput,
   ResPartnerWriteOutput,
   ResUsersContextGetOutput,
-} from './contact.types'
-import type {
   CrmLeadCreateInput,
   CrmLeadCreateOutput,
   CrmLeadFieldsGetInput,
@@ -28,8 +26,6 @@ import type {
   CrmLeadUnlinkOutput,
   CrmLeadWriteInput,
   CrmLeadWriteOutput,
-} from './lead.types'
-import type {
   HelpdeskTicketCreateInput,
   HelpdeskTicketCreateOutput,
   HelpdeskTicketFieldsGetInput,
@@ -42,8 +38,7 @@ import type {
   HelpdeskTicketUnlinkOutput,
   HelpdeskTicketWriteInput,
   HelpdeskTicketWriteOutput,
-  OdooRecord as HelpdeskTicketRecord,
-} from './ticket.types'
+} from './types'
 
 const modelMap: Record<Model, string> = {
   Lead: 'crm.lead',
@@ -56,7 +51,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 
 const isOdooRecordArray = (value: unknown): value is OdooRecord[] => Array.isArray(value) && value.every(isRecord)
 
-const isHelpdeskTicketRecordArray = (value: unknown): value is HelpdeskTicketRecord[] =>
+const isHelpdeskTicketRecordArray = (value: unknown): value is OdooRecord[] =>
   Array.isArray(value) && value.every((item) => isRecord(item) && typeof item.id === 'number')
 
 const isRecordMap = (value: unknown): value is Record<string, Record<string, unknown>> =>
