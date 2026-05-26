@@ -3,6 +3,7 @@ import { createFreshdeskRuntimeError } from './freshdesk-client/actions/errors'
 import actions from './freshdesk-client/actions/implementations'
 import { FreshdeskClient } from './freshdesk-client/FreshdeskClient'
 import { handler } from './handler'
+import channels from './freshdesk-client/channels/ticket'
 import * as bp from '.botpress'
 
 export default new bp.Integration({
@@ -23,29 +24,6 @@ export default new bp.Integration({
   },
   unregister: async () => {},
   actions,
-  channels: {
-    ticket: {
-      messages: {
-        text: async () => {
-          // send request to the freshdesk API to create the message
-        },
-        audio: async () => {
-          // send request to the freshdesk API to create the message
-        },
-        file: async () => {
-          // send request to the freshdesk API to create the message
-        },
-        image: async () => {
-          // send request to the freshdesk API to create the message
-        },
-        bloc: async () => {
-          // send request to the freshdesk API to create the message
-        },
-        video: async () => {
-          // send request to the freshdesk API to create the message
-        },
-      },
-    },
-  },
+  channels,
   handler,
 })
