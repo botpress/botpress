@@ -3129,7 +3129,7 @@ importers:
         specifier: 1.46.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.5.4
+        specifier: 0.5.5
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^2.0.0
@@ -3315,7 +3315,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.5.4
+        specifier: 0.5.5
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -3428,7 +3428,7 @@ importers:
   plugins/conversation-insights:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.5.4
+        specifier: 0.5.5
         version: link:../../packages/cognitive
       '@botpress/sdk':
         specifier: workspace:*
