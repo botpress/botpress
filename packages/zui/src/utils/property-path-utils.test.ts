@@ -59,7 +59,7 @@ describe.concurrent('PropertyPath', () => {
 
     it('does not mutate the original', () => {
       const original = new PropertyPath().appendSection('foo')
-      const prefixed = original.withPrefix('keyOf')
+      const prefixed: PropertyPath = original.withPrefix('keyOf')
       expect(original.toString()).toBe('#.foo')
       expect(prefixed.toString()).toBe('keyOf #.foo')
     })
