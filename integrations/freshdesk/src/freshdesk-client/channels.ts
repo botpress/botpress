@@ -3,7 +3,7 @@ import * as sdk from '@botpress/sdk'
 import { FreshdeskClient } from '../FreshdeskClient'
 import * as bp from '.botpress'
 
-const _wrapChannel = createChannelWrapper<bp.IntegrationProps>()({
+const _wrapNoteChannel = createChannelWrapper<bp.IntegrationProps>()({
   toolFactories: {
     freshdeskTicketId: ({ conversation, logger }) => {
       const ticketId = conversation.tags.freshdeskTicketId
@@ -36,32 +36,32 @@ const _sendNote = async (
 export default {
   note: {
     messages: {
-      text: _wrapChannel(
+      text: _wrapNoteChannel(
         { channelName: 'note', messageType: 'text' },
         ({ ack, payload, freshdeskTicketId, freshdeskClient, chatbotName, isPrivate }) =>
           _sendNote(freshdeskClient, freshdeskTicketId, `[${chatbotName}]: ${payload.text}`, isPrivate, ack)
       ),
-      audio: _wrapChannel(
+      audio: _wrapNoteChannel(
         { channelName: 'note', messageType: 'audio' },
         ({ ack, payload, freshdeskTicketId, freshdeskClient, chatbotName, isPrivate }) =>
           _sendNote(freshdeskClient, freshdeskTicketId, `[${chatbotName}]: ${payload.audioUrl}`, isPrivate, ack)
       ),
-      file: _wrapChannel(
+      file: _wrapNoteChannel(
         { channelName: 'note', messageType: 'file' },
         ({ ack, payload, freshdeskTicketId, freshdeskClient, chatbotName, isPrivate }) =>
           _sendNote(freshdeskClient, freshdeskTicketId, `[${chatbotName}]: ${payload.fileUrl}`, isPrivate, ack)
       ),
-      image: _wrapChannel(
+      image: _wrapNoteChannel(
         { channelName: 'note', messageType: 'image' },
         ({ ack, payload, freshdeskTicketId, freshdeskClient, chatbotName, isPrivate }) =>
           _sendNote(freshdeskClient, freshdeskTicketId, `[${chatbotName}]: ${payload.imageUrl}`, isPrivate, ack)
       ),
-      video: _wrapChannel(
+      video: _wrapNoteChannel(
         { channelName: 'note', messageType: 'video' },
         ({ ack, payload, freshdeskTicketId, freshdeskClient, chatbotName, isPrivate }) =>
           _sendNote(freshdeskClient, freshdeskTicketId, `[${chatbotName}]: ${payload.videoUrl}`, isPrivate, ack)
       ),
-      bloc: _wrapChannel(
+      bloc: _wrapNoteChannel(
         { channelName: 'note', messageType: 'bloc' },
         async ({ ack, payload, freshdeskTicketId, freshdeskClient, chatbotName, isPrivate }) => {
           let firstNoteId: string | undefined
@@ -107,6 +107,21 @@ export default {
           await ack({ tags: firstNoteId ? { freshdeskCommentId: firstNoteId } : {} })
         }
       ),
+    },
+  },
+  reply: {
+    messages: {
+      text: async ({ ctx, conversation, message, payload, ack, logger }) => {
+        const ticketId = conversation.tags.freshdeskTicketId
+        if (!ticketId) {
+          logger.forBot().error('Conversation is missing freshdeskTicketId tag')
+          throw new sdk.RuntimeError('Conversation is missing freshdeskTicketId tag')
+        }
+        const ccEmails = message.tags.ccEmails ? message.tags.ccEmails.split(',') : []
+        const freshdeskClient = new FreshdeskClient(ctx.configuration.domain, ctx.configuration.apiKey)
+        const result = await freshdeskClient.replyToTicket(parseInt(ticketId, 10), { body: payload.text, ccEmails })
+        await ack({ tags: { freshdeskMessageId: String(result.id) } })
+      },
     },
   },
 }

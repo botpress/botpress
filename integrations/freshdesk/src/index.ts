@@ -3,7 +3,7 @@ import { createFreshdeskRuntimeError } from './freshdesk-client/actions/errors'
 import actions from './freshdesk-client/actions/implementations'
 import { FreshdeskClient } from './freshdesk-client/FreshdeskClient'
 import { handler } from './handler'
-import channels from './freshdesk-client/channels/ticket'
+import channels from './freshdesk-client/channels'
 import * as bp from '.botpress'
 
 export default new bp.Integration({

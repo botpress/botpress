@@ -1,11 +1,11 @@
 import * as sdk from '@botpress/sdk'
 import { wrapAction } from '../action-wrapper'
 
-export const addNote = wrapAction(
-  { actionName: 'addNote', errorMessage: 'Failed to add note to Freshdesk ticket' },
+export const replyToTicket = wrapAction(
+  { actionName: 'replyToTicket', errorMessage: 'Failed to add reply to Freshdesk ticket' },
   async ({ client, ctx }, input) => {
     const { conversations } = await client.listConversations({
-      channel: 'note',
+      channel: 'reply',
       tags: { freshdeskTicketId: String(input.ticketId) },
     })
 
@@ -19,9 +19,8 @@ export const addNote = wrapAction(
       userId: ctx.botUserId,
       type: 'text',
       payload: { text: input.body },
-      tags: { isPrivate: String(input.private) },
+      tags: { ccEmails: input.ccEmails?.join(',') ?? '' },
     })
-
     return {
       messageId: message.id,
       body: input.body,

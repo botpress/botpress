@@ -1,6 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import type {
   AddNoteInput,
+  ReplyToTicketInput,
   CreateTicketInput,
   DeleteTicketInput,
   FreshdeskContact,
@@ -138,8 +139,14 @@ export class FreshdeskClient {
 
   public async addNote(ticketId: number, input: AddNoteInput): Promise<FreshdeskConversation> {
     return this._request<FreshdeskConversation>('POST', `/tickets/${ticketId}/notes`, undefined, {
-      private: true,
       ...input,
+    })
+  }
+
+  public async replyToTicket(ticketId: number, input: ReplyToTicketInput): Promise<FreshdeskConversation> {
+    return this._request<FreshdeskConversation>('POST', `/tickets/${ticketId}/reply`, undefined, {
+      body: input.body,
+      cc_emails: input.ccEmails,
     })
   }
 

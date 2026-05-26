@@ -101,6 +101,11 @@ export type AddNoteInput = {
   private?: boolean
 }
 
+export type ReplyToTicketInput = {
+  body: string
+  ccEmails?: string[]
+}
+
 export type FreshdeskContact = {
   id: number
   name: string

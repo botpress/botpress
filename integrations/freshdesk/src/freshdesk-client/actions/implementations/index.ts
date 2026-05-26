@@ -1,4 +1,5 @@
 import { addNote } from './addNote'
+import { replyToTicket } from './replyToTicket'
 import { createTicket } from './createTicket'
 import { deleteTicket } from './deleteTicket'
 import { getContact } from './getContact'
@@ -11,6 +12,7 @@ import * as bp from '.botpress'
 
 export default {
   addNote,
+  replyToTicket,
   createTicket,
   deleteTicket,
   getContact,

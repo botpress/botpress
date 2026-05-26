@@ -234,7 +234,6 @@ export const actions = {
       }),
     },
   },
-  // TODO: re-add replyToTicket action
   addNote: {
     title: 'Add Note',
     description: 'Adds a note to a Freshdesk ticket.',
@@ -257,6 +256,35 @@ export const actions = {
     output: {
       schema: z.object({
         messageId: z.string().title('Message ID').describe('Botpress message ID of the created note.'),
+        body: z.string().title('Body').describe('HTML content of the note.'),
+        createdAt: z.string().title('Created At').describe('ISO 8601 timestamp of when the note was created.'),
+      }),
+    },
+  },
+  replyToTicket: {
+    title: 'Reply to Ticket',
+    description: 'Adds a public reply to a Freshdesk ticket.',
+    input: {
+      schema: z.object({
+        ticketId: z.coerce
+          .number()
+          .int()
+          .positive()
+          .title('Ticket ID')
+          .describe('The Freshdesk ticket ID to add a reply to.'),
+        body: z.string().title('Body').describe('HTML content of the reply.'),
+        ccEmails: z
+          .array(z.string().email())
+          .optional()
+          .title('CC Emails')
+          .describe('List of email addresses to CC on the reply.'),
+      }),
+    },
+    output: {
+      schema: z.object({
+        messageId: z.string().title('Message ID').describe('Botpress message ID of the created reply.'),
+        body: z.string().title('Body').describe('HTML content of the reply.'),
+        createdAt: z.string().title('Created At').describe('ISO 8601 timestamp of when the reply was created.'),
       }),
     },
   },
