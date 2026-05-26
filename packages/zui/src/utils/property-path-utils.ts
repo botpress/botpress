@@ -21,15 +21,15 @@ export type PathSection = {
 
 export class PropertyPath {
   private readonly _sections: PathSection[]
-  private _prefix: string
+  private readonly _prefix: string
 
-  constructor(sections: PathSection[] = []) {
+  constructor(sections: PathSection[] = [], prefix: string = '') {
     this._sections = sections
-    this._prefix = ''
+    this._prefix = prefix
   }
 
   appendSection(name: string): PropertyPath {
-    return new PropertyPath([...this._sections, { name, indices: [] }])
+    return new PropertyPath([...this._sections, { name, indices: [] }], this._prefix)
   }
 
   withIndexType(type: 'number', value?: number): PropertyPath
@@ -40,12 +40,11 @@ export class PropertyPath {
     const sections = [...this._sections]
     const last = sections.at(-1)!
     sections[sections.length - 1] = { ...last, indices: [...last.indices, { type, value } as SectionIndex] }
-    return new PropertyPath(sections)
+    return new PropertyPath(sections, this._prefix)
   }
 
-  withPrefix(prefix: string): this {
-    this._prefix = prefix + ' '
-    return this
+  withPrefix(prefix: string): PropertyPath {
+    return new PropertyPath(this._sections, prefix + ' ')
   }
 
   toString(): string {

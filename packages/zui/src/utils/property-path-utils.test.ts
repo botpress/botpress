@@ -56,6 +56,23 @@ describe.concurrent('PropertyPath', () => {
       const path = new PropertyPath().appendSection('foo').withPrefix('keyOf')
       expect(path.toString()).toBe('keyOf #.foo')
     })
+
+    it('does not mutate the original', () => {
+      const original = new PropertyPath().appendSection('foo')
+      const prefixed = original.withPrefix('keyOf')
+      expect(original.toString()).toBe('#.foo')
+      expect(prefixed.toString()).toBe('keyOf #.foo')
+    })
+
+    it('prefix is preserved through appendSection', () => {
+      const path = new PropertyPath().appendSection('foo').withPrefix('keyOf').appendSection('bar')
+      expect(path.toString()).toBe('keyOf #.foo.bar')
+    })
+
+    it('prefix is preserved through withIndexType', () => {
+      const path = new PropertyPath().appendSection('foo').withPrefix('keyOf').withIndexType('number', 1)
+      expect(path.toString()).toBe('keyOf #.foo[1]')
+    })
   })
 
   describe.concurrent('appendSection', () => {
