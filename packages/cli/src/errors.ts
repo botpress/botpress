@@ -63,7 +63,33 @@ export class BotpressCLIError extends VError {
   }
 
   public static fullStack(err: Error): string {
-    return VError.fullStack(err)
+    return BotpressCLIError._fullStack(err, new Set())
+  }
+
+  private static _fullStack(err: Error, seen: Set<Error>): string {
+    if (seen.has(err)) {
+      return '[Circular error cause]'
+    }
+    seen.add(err)
+
+    const stack = err.stack || err.message
+    const cause = BotpressCLIError._cause(err)
+
+    if (!cause) {
+      return stack
+    }
+
+    return `${stack}\ncaused by: ${BotpressCLIError._fullStack(cause, seen)}`
+  }
+
+  private static _cause(err: Error): Error | undefined {
+    const vErrorCause = VError.cause(err)
+    if (vErrorCause) {
+      return vErrorCause
+    }
+
+    const nativeCause = (err as { cause?: unknown }).cause
+    return nativeCause instanceof Error ? nativeCause : undefined
   }
 }
 
@@ -84,14 +110,19 @@ export class ExclusiveIntegrationFeatureError extends BotpressCLIError {
 export class HTTPError extends BotpressCLIError {
   public constructor(
     public readonly status: number | undefined,
-    message: string
+    message: string,
+    opts?: { cause?: Error }
   ) {
+    if (opts?.cause) {
+      super(message, opts)
+      return
+    }
     super(message)
   }
 
   public static fromAxios(e: AxiosError<{ message?: string }>): HTTPError {
     const message = this._axiosMsg(e)
-    return new HTTPError(e.response?.status, message)
+    return new HTTPError(e.response?.status, message, { cause: e })
   }
 
   public static fromApi(e: KnownApiError): HTTPError {

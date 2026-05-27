@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios'
 import { describe, expect, it } from 'vitest'
 import { BotpressCLIError } from './errors'
 
@@ -27,14 +28,23 @@ describe('BotpressCLIError.fullStack', () => {
     expect(BotpressCLIError.fullStack(mapped)).toContain('caused by:')
   })
 
-  // Characterizes a known boundary: VError.fullStack walks verror's own cause chain, NOT native
-  // ES2022 Error.cause. If that extra hop is ever added, this is the single place to update.
-  it('does not recursively follow native Error.cause', () => {
+  it('recursively follows native Error.cause', () => {
     const inner = new Error('INNER_CAUSE_MARKER')
     const outer = new Error('outer', { cause: inner })
 
     const mapped = BotpressCLIError.map(outer)
     expect(mapped.cause()).toBe(outer) // outer is preserved (one level)
-    expect(BotpressCLIError.fullStack(mapped)).not.toContain('INNER_CAUSE_MARKER')
+    expect(BotpressCLIError.fullStack(mapped)).toContain('INNER_CAUSE_MARKER')
+  })
+
+  it('follows axios transport causes without changing the mapped message', () => {
+    const cause = new Error('AXIOS_CAUSE_MARKER')
+    const axiosError = new AxiosError('')
+    axiosError.cause = cause
+
+    const mapped = BotpressCLIError.map(axiosError)
+
+    expect(mapped.message).toBe('')
+    expect(BotpressCLIError.fullStack(mapped)).toContain('AXIOS_CAUSE_MARKER')
   })
 })
