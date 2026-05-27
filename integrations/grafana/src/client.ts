@@ -2,7 +2,6 @@ import { z } from '@botpress/sdk'
 import { alertRuleSchema } from '../definitions/actions/create-alert-rule'
 import { createFolderSchema } from '../definitions/actions/create-folder'
 import { matcherSchema, notificationPolicySchema } from '../definitions/notification-schemas'
-import type { Panel } from '../grafana-api/GrafanaDashboard'
 import {
   grafanaDashboardK8sCreateDashboard,
   grafanaDashboardK8sDeleteDashboard,
@@ -42,6 +41,48 @@ type AlertRuleInput = z.infer<typeof alertRuleSchema>
 type CreateFolderInput = z.infer<typeof createFolderSchema>
 type PolicyMatcher = z.infer<typeof matcherSchema>
 type NotificationPolicyInput = z.infer<typeof notificationPolicySchema>
+
+type Datasource = {
+  type: string
+  uid: string
+}
+
+type Target = {
+  refId: string
+  datasource?: Datasource
+  expr?: string
+}
+
+type GridPos = {
+  h?: number
+  w?: number
+  x?: number
+  y?: number
+}
+
+type TextPanel = {
+  type: 'text'
+  title: string
+  description?: string
+  content?: string
+  mode?: 'markdown' | 'html' | 'code'
+  gridPos?: GridPos
+  id?: number
+}
+
+type TimeSeriesPanel = {
+  type: 'timeseries'
+  title: string
+  description?: string
+  datasource?: Datasource
+  gridPos?: GridPos
+  id?: number
+  targets?: Target[]
+  fieldConfig?: any
+  options?: any
+}
+
+type Panel = TextPanel | TimeSeriesPanel
 
 type CreateDashboardInput = {
   uid: string
