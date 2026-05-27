@@ -2,6 +2,7 @@ import { z } from '@botpress/sdk'
 import { alertRuleSchema } from '../definitions/actions/create-alert-rule'
 import { createFolderSchema } from '../definitions/actions/create-folder'
 import { matcherSchema, notificationPolicySchema } from '../definitions/notification-schemas'
+import type { Panel } from '../grafana-api/GrafanaDashboard'
 import {
   grafanaDashboardK8sCreateDashboard,
   grafanaDashboardK8sDeleteDashboard,
@@ -31,7 +32,6 @@ import {
   createClient as createLegacyClient,
   createConfig as createLegacyConfig,
 } from './gen/grafana-legacy-client/client'
-import type { Panel } from './gen/types/GrafanaDashboard'
 
 export type GrafanaConfig = {
   grafanaUsername: string
