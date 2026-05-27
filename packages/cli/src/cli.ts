@@ -9,7 +9,11 @@ import { registerYargs } from './register-yargs'
 
 const logError = (thrown: unknown) => {
   const error = errors.BotpressCLIError.map(thrown)
-  new Logger().error(error.message)
+  // parsed argv isn't available on the uncaught/yargs path, so detect verbose from raw argv
+  const verbose = process.argv.includes('-v') || process.argv.includes('--verbose')
+  const logger = new Logger({ verbose })
+  logger.error(error.message)
+  logger.debug(errors.BotpressCLIError.fullStack(error))
 }
 
 const onError = (thrown: unknown) => {
