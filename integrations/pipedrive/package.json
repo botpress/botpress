@@ -1,0 +1,19 @@
+{
+  "name": "pipedrive",
+  "description": "Pipedrive integration for Botpress",
+  "private": true,
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build"
+  },
+  "dependencies": {
+    "@botpress/sdk": "4.15.3",
+    "axios": "^1.12.2",
+    "pipedrive": "^29.2.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.16.4",
+    "typescript": "^5.6.3"
+  }
+}
