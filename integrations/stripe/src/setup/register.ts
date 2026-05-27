@@ -39,14 +39,6 @@ export const register: RegisterFunction = async ({ ctx, client, webhookUrl, logg
     .then(({ state }) => state.payload)
     .catch(() => undefined)
 
-  if (prior?.stripeWebhookId) {
-    try {
-      await stripeClient.deleteWebhook(prior.stripeWebhookId)
-    } catch (error) {
-      logger.forBot().warn(`Failed to delete prior Stripe webhook ${prior.stripeWebhookId}`, error)
-    }
-  }
-
   const { id: stripeWebhookId, secret: stripeWebhookSecret } = await stripeClient.createWebhookEndpointWithSecret({
     url: webhookUrl,
     enabled_events: ENABLED_EVENTS,
@@ -58,6 +50,14 @@ export const register: RegisterFunction = async ({ ctx, client, webhookUrl, logg
     name: 'stripeIntegrationInfo',
     payload: { stripeWebhookId, stripeWebhookSecret },
   })
+
+  if (prior?.stripeWebhookId && prior.stripeWebhookId !== stripeWebhookId) {
+    try {
+      await stripeClient.deleteWebhook(prior.stripeWebhookId)
+    } catch (error) {
+      logger.forBot().warn(`Failed to delete prior Stripe webhook ${prior.stripeWebhookId}`, error)
+    }
+  }
 
   logger.forBot().info('Connection to Stripe successful')
 }
