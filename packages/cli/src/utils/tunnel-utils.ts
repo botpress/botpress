@@ -1,4 +1,5 @@
 import { TunnelTail, ClientCloseEvent, ClientErrorEvent, errors } from '@bpinternal/tunnel'
+import { BotpressCLIError } from '../errors'
 import { Logger } from '../logger'
 import { EventEmitter } from './event-emitter'
 
@@ -111,7 +112,12 @@ export class TunnelSupervisor {
       .then((t) => {
         this._tunnel = t
       })
-      .catch(() => this.events.emit('connectionFailed', ev))
+      .catch((thrown) => {
+        const err = BotpressCLIError.map(thrown)
+        this._logger.error(`Tunnel reconnection failed: ${err.message}`)
+        this._logger.debug(BotpressCLIError.fullStack(err))
+        this.events.emit('connectionFailed', ev)
+      })
   }
 
   private async _reconnect(ev: ReconnectionTriggerEvent): Promise<TunnelTail> {
