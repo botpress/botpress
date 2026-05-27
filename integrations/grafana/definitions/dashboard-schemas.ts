@@ -1,5 +1,4 @@
 import { z } from '@botpress/sdk'
-import type { TextPanel, TimeSeriesPanel } from '../grafana-api/GrafanaDashboard'
 
 export const gridPosSchema = z.object({
   h: z.number().optional().title('Height').describe('Panel height in grid units'),
@@ -20,7 +19,7 @@ export const textPanelSchema = z.object({
     .describe('Rendering mode for the content'),
   id: z.number().optional().title('ID').describe('Numeric panel ID (assigned by Grafana)'),
   gridPos: gridPosSchema.optional().title('Grid Position').describe('Position and size of the panel in the grid'),
-}) satisfies z.ZodType<Partial<TextPanel>>
+})
 
 export const datasourceSchema = z.object({
   type: z.string().title('Type').describe('Datasource type (e.g. "prometheus")'),
@@ -47,7 +46,7 @@ export const timeSeriesPanelSchema = z.object({
     .describe('Query targets for this panel'),
   fieldConfig: z.any().optional().title('Field Config').describe('Field display configuration'),
   options: z.any().optional().title('Options').describe('Panel display options'),
-}) satisfies z.ZodType<Partial<TimeSeriesPanel>>
+})
 
 export const panelSchema = z.discriminatedUnion('type', [textPanelSchema, timeSeriesPanelSchema])
 
