@@ -10,6 +10,11 @@ const isKnownApiError = (e: unknown): e is KnownApiError => client.isApiError(e)
 export class BotpressCLIError extends VError {
   public static wrap(thrown: unknown, message: string): BotpressCLIError {
     const err = BotpressCLIError.map(thrown)
+    if (!err.message.trim()) {
+      // the cause carries no message of its own; avoid rendering a dangling "<message>: "
+      // while still keeping it as a cause so fullStack can surface the deeper chain under --verbose
+      return new BotpressCLIError(message ?? '', { cause: err })
+    }
     return new BotpressCLIError(err, message ?? '')
   }
 
@@ -122,6 +127,8 @@ export class HTTPError extends BotpressCLIError {
 
   public static fromAxios(e: AxiosError<{ message?: string }>): HTTPError {
     const message = this._axiosMsg(e)
+    // keep the axios error as a cause so fullStack can show the transport-level chain under --verbose.
+    // only its message/stack are ever rendered; never serialize this cause — its config holds auth headers.
     return new HTTPError(e.response?.status, message, { cause: e })
   }
 

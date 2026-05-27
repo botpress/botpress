@@ -21,6 +21,19 @@ describe('BotpressCLIError.map', () => {
   })
 })
 
+describe('BotpressCLIError.wrap', () => {
+  it('chains the cause message when the cause has one', () => {
+    const wrapped = BotpressCLIError.wrap(new Error('real cause'), 'Build failed')
+    expect(wrapped.message).toBe('Build failed: real cause')
+  })
+
+  it('omits the dangling colon when the cause has no message, but keeps it for fullStack', () => {
+    const wrapped = BotpressCLIError.wrap(new Error('', { cause: new Error('DEEP_CAUSE_MARKER') }), 'Build failed')
+    expect(wrapped.message).toBe('Build failed')
+    expect(BotpressCLIError.fullStack(wrapped)).toContain('DEEP_CAUSE_MARKER')
+  })
+})
+
 describe('BotpressCLIError.fullStack', () => {
   it('walks the preserved cause so the original throw site is included', () => {
     const mapped = BotpressCLIError.map(new Error('boom'))
