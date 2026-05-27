@@ -7,7 +7,7 @@ declare module '@bpinternal/zui' {
       R extends z.ZodType = z.ZodType,
     > = (typeArguments: A) => R
 
-    export type ZuiObjectSchema = z.ZodObject | z.ZodRecord
+    export type ZuiObjectSchema = z.ZodObject | z.ZodRecord | z.ZodDiscriminatedUnion
     export type ZuiObjectOrRefSchema = ZuiObjectSchema | z.ZodRef
   }
 }

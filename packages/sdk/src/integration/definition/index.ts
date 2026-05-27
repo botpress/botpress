@@ -404,7 +404,16 @@ export class IntegrationDefinition<
     if (aDef.typeName === 'ZodRecord' && bDef.typeName === 'ZodRecord') {
       return z.record(z.intersection(aDef.valueType, bDef.valueType))
     }
+
+    if (aDef.typeName === 'ZodDiscriminatedUnion' && bDef.typeName === 'ZodDiscriminatedUnion') {
+      if (aDef.discriminator !== bDef.discriminator) {
+        throw new Error(`Cannot merge discriminated unions with different discriminator keys: '${aDef.discriminator}' and '${bDef.discriminator}'`)
+      }
+      const merged = [...aDef.options, ...bDef.options] as [z.ZodDiscriminatedUnionOption<string>, ...z.ZodDiscriminatedUnionOption<string>[]]
+      return z.discriminatedUnion(aDef.discriminator, merged)
+    }
+
     // TODO: adress this case
-    throw new Error('Cannot merge object schemas with record schemas')
+    throw new Error('Can only merge schemas of the same type (ZodObject, ZodRecord or ZodDiscriminatedUnion)')
   }
 }
