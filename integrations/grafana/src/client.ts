@@ -31,7 +31,6 @@ import {
   createClient as createLegacyClient,
   createConfig as createLegacyConfig,
 } from './gen/grafana-legacy-client/client'
-import type { Panel } from './gen/types/GrafanaDashboard'
 
 export type GrafanaConfig = {
   grafanaUsername: string
@@ -42,6 +41,48 @@ type AlertRuleInput = z.infer<typeof alertRuleSchema>
 type CreateFolderInput = z.infer<typeof createFolderSchema>
 type PolicyMatcher = z.infer<typeof matcherSchema>
 type NotificationPolicyInput = z.infer<typeof notificationPolicySchema>
+
+type Datasource = {
+  type: string
+  uid: string
+}
+
+type Target = {
+  refId: string
+  datasource?: Datasource
+  expr?: string
+}
+
+type GridPos = {
+  h?: number
+  w?: number
+  x?: number
+  y?: number
+}
+
+type TextPanel = {
+  type: 'text'
+  title: string
+  description?: string
+  content?: string
+  mode?: 'markdown' | 'html' | 'code'
+  gridPos?: GridPos
+  id?: number
+}
+
+type TimeSeriesPanel = {
+  type: 'timeseries'
+  title: string
+  description?: string
+  datasource?: Datasource
+  gridPos?: GridPos
+  id?: number
+  targets?: Target[]
+  fieldConfig?: any
+  options?: any
+}
+
+type Panel = TextPanel | TimeSeriesPanel
 
 type CreateDashboardInput = {
   uid: string
