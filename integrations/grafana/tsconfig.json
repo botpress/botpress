@@ -4,5 +4,5 @@
     "paths": { "*": ["./*"] },
     "outDir": "dist"
   },
-  "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "*.ts", "grafana-api/GrafanaDashboard.ts"]
+  "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "*.ts", "grafana-api/*.ts"]
 }
