@@ -17,8 +17,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.105.0
-        version: 1.105.0
+        specifier: 1.108.0
+        version: 1.108.0
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -1213,6 +1213,49 @@ importers:
         specifier: ^10.26.6
         version: 10.26.6
 
+  integrations/googledrivekb:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@botpress/sdk-addons':
+        specifier: workspace:*
+        version: link:../../packages/sdk-addons
+      axios:
+        specifier: ^1.7.7
+        version: 1.13.6
+      googleapis:
+        specifier: ^144.0.0
+        version: 144.0.0
+      jsonwebtoken:
+        specifier: ^9.0.2
+        version: 9.0.2
+      uuid:
+        specifier: ^9.0.0
+        version: 9.0.1
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@sentry/cli':
+        specifier: ^2.39.1
+        version: 2.39.1
+      '@types/jsonwebtoken':
+        specifier: ^9.0.3
+        version: 9.0.6
+      '@types/uuid':
+        specifier: ^9.0.1
+        version: 9.0.1
+      preact:
+        specifier: ^10.26.6
+        version: 10.26.6
+
   integrations/grafana:
     dependencies:
       '@botpress/sdk':
@@ -1224,10 +1267,10 @@ importers:
         version: link:../../packages/cli
       '@hey-api/client-fetch':
         specifier: ^0.13.1
-        version: 0.13.1(@hey-api/openapi-ts@0.97.1(typescript@5.9.3))
+        version: 0.13.1(@hey-api/openapi-ts@0.97.2(typescript@5.9.3))
       '@hey-api/openapi-ts':
         specifier: ^0.97.1
-        version: 0.97.1(typescript@5.9.3)
+        version: 0.97.2(typescript@5.9.3)
       '@types/node':
         specifier: ^22.16.4
         version: 22.16.4
@@ -1882,6 +1925,28 @@ importers:
       '@types/markdown-it':
         specifier: ^14.1.2
         version: 14.1.2
+
+  integrations/sharepoint:
+    dependencies:
+      '@azure/msal-node':
+        specifier: ^3.6.2
+        version: 3.6.3
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: ^1.10.0
+        version: 1.13.6
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@sentry/cli':
+        specifier: ^2.39.1
+        version: 2.39.1
 
   integrations/slack:
     dependencies:
@@ -2765,10 +2830,10 @@ importers:
         specifier: 0.5.5
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.45.0
+        specifier: 1.46.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 6.11.0
+        specifier: 6.11.1
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2889,10 +2954,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.45.0
+        specifier: 1.46.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.11.0
+        specifier: 6.11.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2905,10 +2970,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.45.0
+        specifier: 1.46.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.11.0
+        specifier: 6.11.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2921,7 +2986,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 6.11.0
+        specifier: 6.11.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2934,10 +2999,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.45.0
+        specifier: 1.46.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.11.0
+        specifier: 6.11.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2950,10 +3015,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.45.0
+        specifier: 1.46.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.11.0
+        specifier: 6.11.1
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -3104,10 +3169,10 @@ importers:
         specifier: ^7.26.3
         version: 7.26.9
       '@botpress/client':
-        specifier: 1.45.0
+        specifier: 1.46.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.5.4
+        specifier: 0.5.5
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^2.0.0
@@ -3210,7 +3275,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.45.0
+        specifier: 1.46.0
         version: link:../client
       '@bpinternal/zui':
         specifier: ^2.1.1
@@ -3247,7 +3312,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.45.0
+        specifier: 1.46.0
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -3293,7 +3358,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.5.4
+        specifier: 0.5.5
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -3406,7 +3471,7 @@ importers:
   plugins/conversation-insights:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.5.4
+        specifier: 0.5.5
         version: link:../../packages/cognitive
       '@botpress/sdk':
         specifier: workspace:*
@@ -4277,8 +4342,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@botpress/api@1.105.0':
-    resolution: {integrity: sha512-DnnqYlEyLCXf7cCaPSJvrQHhb+ycRbFPCyCGKTn0y7mvF32n5tgwZUbC4fEtHt/i6u9AuXPG3ObqPjPcYxocLw==}
+  '@botpress/api@1.108.0':
+    resolution: {integrity: sha512-8NZATBHQy2s+HkNn4C4yQL1Yti4KMBJrdwzBVqqJfFblnkbFSPfzzkylb3Io+4YAamYTse61nEIYZCtY6a/Jhg==}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -5050,15 +5115,15 @@ packages:
     resolution: {integrity: sha512-ZhCFSKI2ipZHEbgmtUHdyddvRU3wJ4elgCfYUC7T7hZa4EivSrVflTQf2w+v3TuaYxR1Y2V2kq3otqTttrrK8Q==}
     engines: {node: '>=22.13.0'}
 
-  '@hey-api/openapi-ts@0.97.1':
-    resolution: {integrity: sha512-LksUJeXAqwf6OhcCCr3/B4YjnBs5rqSqjDUKMBvkgp4OhaCQiJrOvntctFxdnugy8jUojP4yi/eJf5xYzcYzCQ==}
+  '@hey-api/openapi-ts@0.97.2':
+    resolution: {integrity: sha512-nA+y0/I5O9loQMeJKumi6BQ40/Y71N0hIMmXZ/I7rh8jEOzYxSxmf5a4TBEI2Ap4RAfZyh7RJzJfVzT98KUYQQ==}
     engines: {node: '>=22.13.0'}
     hasBin: true
     peerDependencies:
       typescript: '>=5.5.3 || >=6.0.0 || 6.0.1-rc'
 
-  '@hey-api/shared@0.4.3':
-    resolution: {integrity: sha512-3tHfZNXgGOt+3P3Kq9cvqmZ9i7e3jtrkip1uDpZTX1+hTNboHhYdjxnT8AbrDuvslTaQHoAOlP4/iCDdzd9Jag==}
+  '@hey-api/shared@0.4.4':
+    resolution: {integrity: sha512-UZgaQNEdo/OSGLeNXhSv0VQTHQQm5Q2mHOuoYhFPJkNvLVrz7KZtGdKR8O4QPrhyblshxY+caJli08WKM0gREg==}
     engines: {node: '>=22.13.0'}
 
   '@hey-api/spec-types@0.2.0':
@@ -6759,6 +6824,9 @@ packages:
   '@types/lodash@4.17.0':
     resolution: {integrity: sha512-t7dhREVv6dbNj0q17X12j7yDG4bD/DHYX7o5/DbDxobP0HnGPgpRz2Ej77aL7TZT3DSw13fqUTj8J4mMnqa7WA==}
 
+  '@types/lodash@4.17.24':
+    resolution: {integrity: sha512-gIW7lQLZbue7lRSWEFql49QJJWThrTFFeIMJdp3eH4tKoxm1OvEPg02rm4wCCSHS0cL3/Fizimb35b7k8atwsQ==}
+
   '@types/mailchimp__mailchimp_marketing@3.0.10':
     resolution: {integrity: sha512-UMeHXH1XQUuj6PBWQzripZhH7ENEFMHiH55aGXKKuqhM29kF//xHWwqazY/zwT8TWKHvXAmIg/MKT8ZM1pFWrw==}
 
@@ -8311,6 +8379,7 @@ packages:
 
   esbuild-plugin-polyfill-node@0.3.0:
     resolution: {integrity: sha512-SHG6CKUfWfYyYXGpW143NEZtcVVn8S/WHcEOxk62LuDXnY4Zpmc+WmxJKN6GMTgTClXJXhEM5KQlxKY6YjbucQ==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     peerDependencies:
       esbuild: '*'
 
@@ -14221,7 +14290,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.105.0':
+  '@botpress/api@1.108.0':
     dependencies:
       '@bpinternal/opapi': 1.0.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -14778,9 +14847,9 @@ snapshots:
     dependencies:
       graphql: 15.8.0
 
-  '@hey-api/client-fetch@0.13.1(@hey-api/openapi-ts@0.97.1(typescript@5.9.3))':
+  '@hey-api/client-fetch@0.13.1(@hey-api/openapi-ts@0.97.2(typescript@5.9.3))':
     dependencies:
-      '@hey-api/openapi-ts': 0.97.1(typescript@5.9.3)
+      '@hey-api/openapi-ts': 0.97.2(typescript@5.9.3)
 
   '@hey-api/codegen-core@0.8.1':
     dependencies:
@@ -14797,11 +14866,11 @@ snapshots:
       '@types/json-schema': 7.0.15
       js-yaml: 4.1.1
 
-  '@hey-api/openapi-ts@0.97.1(typescript@5.9.3)':
+  '@hey-api/openapi-ts@0.97.2(typescript@5.9.3)':
     dependencies:
       '@hey-api/codegen-core': 0.8.1
       '@hey-api/json-schema-ref-parser': 1.4.2
-      '@hey-api/shared': 0.4.3
+      '@hey-api/shared': 0.4.4
       '@hey-api/spec-types': 0.2.0
       '@hey-api/types': 0.1.4
       '@lukeed/ms': 2.0.2
@@ -14813,7 +14882,7 @@ snapshots:
     transitivePeerDependencies:
       - magicast
 
-  '@hey-api/shared@0.4.3':
+  '@hey-api/shared@0.4.4':
     dependencies:
       '@hey-api/codegen-core': 0.8.1
       '@hey-api/json-schema-ref-parser': 1.4.2
@@ -16962,11 +17031,13 @@ snapshots:
 
   '@types/lodash-es@4.17.12':
     dependencies:
-      '@types/lodash': 4.17.0
+      '@types/lodash': 4.17.24
 
   '@types/lodash@4.14.195': {}
 
   '@types/lodash@4.17.0': {}
+
+  '@types/lodash@4.17.24': {}
 
   '@types/mailchimp__mailchimp_marketing@3.0.10': {}
 
@@ -17179,7 +17250,7 @@ snapshots:
       fast-glob: 3.3.2
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.7.4
+      semver: 7.7.2
       ts-api-utils: 2.1.0(typescript@5.6.3)
       typescript: 5.6.3
     transitivePeerDependencies:
@@ -18683,7 +18754,7 @@ snapshots:
       '@one-ini/wasm': 0.1.1
       commander: 10.0.1
       minimatch: 9.0.1
-      semver: 7.7.4
+      semver: 7.7.2
 
   ee-first@1.1.1: {}
 
@@ -19887,7 +19958,7 @@ snapshots:
       extend: 3.0.2
       gaxios: 5.1.0
       google-auth-library: 8.8.0
-      qs: 6.15.0
+      qs: 6.13.0
       url-template: 2.0.8
       uuid: 9.0.1
     transitivePeerDependencies:
@@ -19899,7 +19970,7 @@ snapshots:
       extend: 3.0.2
       gaxios: 6.1.1
       google-auth-library: 9.0.0
-      qs: 6.15.0
+      qs: 6.13.0
       url-template: 2.0.8
       uuid: 9.0.1
     transitivePeerDependencies:
@@ -20757,7 +20828,7 @@ snapshots:
       jest-util: 29.5.0
       natural-compare: 1.4.0
       pretty-format: 29.5.0
-      semver: 7.7.4
+      semver: 7.7.2
     transitivePeerDependencies:
       - supports-color
 
@@ -20942,7 +21013,7 @@ snapshots:
     dependencies:
       '@bcherny/json-schema-ref-parser': 10.0.5-fork
       '@types/json-schema': 7.0.15
-      '@types/lodash': 4.17.0
+      '@types/lodash': 4.17.24
       '@types/prettier': 2.7.3
       cli-color: 2.0.3
       get-stdin: 8.0.0
@@ -21059,7 +21130,7 @@ snapshots:
   jwks-rsa@3.1.0:
     dependencies:
       '@types/express': 4.17.17
-      '@types/jsonwebtoken': 9.0.3
+      '@types/jsonwebtoken': 9.0.6
       debug: 4.4.0
       jose: 4.15.2
       limiter: 1.1.5
@@ -21521,7 +21592,7 @@ snapshots:
   messaging-api-common@1.0.4:
     dependencies:
       '@types/debug': 4.1.12
-      '@types/lodash': 4.17.0
+      '@types/lodash': 4.17.24
       '@types/url-join': 4.0.3
       axios: 0.21.4(debug@4.4.1)
       camel-case: 4.1.2
@@ -23416,7 +23487,7 @@ snapshots:
       formidable: 1.2.6
       methods: 1.1.2
       mime: 1.6.0
-      qs: 6.15.0
+      qs: 6.13.0
       readable-stream: 2.3.8
     transitivePeerDependencies:
       - supports-color
@@ -23433,7 +23504,7 @@ snapshots:
       mime: 2.6.0
       qs: 6.15.0
       readable-stream: 3.6.2
-      semver: 7.7.4
+      semver: 7.7.2
     transitivePeerDependencies:
       - supports-color
 
@@ -23449,7 +23520,7 @@ snapshots:
       mime: 2.6.0
       qs: 6.15.0
       readable-stream: 3.6.2
-      semver: 7.7.4
+      semver: 7.7.2
     transitivePeerDependencies:
       - supports-color
 
@@ -23972,7 +24043,7 @@ snapshots:
 
   universal-github-app-jwt@1.1.1:
     dependencies:
-      '@types/jsonwebtoken': 9.0.3
+      '@types/jsonwebtoken': 9.0.6
       jsonwebtoken: 9.0.2
 
   universal-user-agent@6.0.0: {}

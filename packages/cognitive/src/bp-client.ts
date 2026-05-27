@@ -50,6 +50,7 @@ export const getExtendedClient = (_client: unknown): ExtendedClient => {
 
   return {
     ...client,
+    botId: client.config.headers['x-bot-id'] as string,
     axios: (client as any).axiosInstance as AxiosInstance,
     clone,
     abortable: (signal: AbortSignal) => {
