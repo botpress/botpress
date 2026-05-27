@@ -1,4 +1,5 @@
 import { z } from '@botpress/sdk'
+import { helpdeskTicketRecordSchema, odooRecordSchema } from './types'
 import type {
   GetFieldsOutput,
   GetFieldsRequest,
@@ -46,13 +47,13 @@ const modelMap: Record<Model, string> = {
   Ticket: 'helpdesk.ticket',
 }
 
-const recordSchema = z.record(z.string(), z.unknown())
+const recordSchema = odooRecordSchema
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   recordSchema.safeParse(value).success
 
 const odooRecordArraySchema = z.array(recordSchema)
 
-const helpdeskTicketRecordArraySchema = z.array(recordSchema.and(z.object({ id: z.number() })))
+const helpdeskTicketRecordArraySchema = z.array(helpdeskTicketRecordSchema)
 
 const recordMapSchema = z.record(z.string(), recordSchema)
 

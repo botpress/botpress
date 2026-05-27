@@ -1,4 +1,10 @@
-import type { OdooContext, OdooDomain, OdooRecord } from './odoo.types'
+import { z } from '@botpress/sdk'
+import type { OdooContext, OdooDomain } from './odoo.types'
+import { odooRecordSchema } from './odoo.types'
+
+export const helpdeskTicketRecordSchema = odooRecordSchema.and(z.object({ id: z.number() }))
+
+export type HelpdeskTicketRecord = z.infer<typeof helpdeskTicketRecordSchema>
 
 /**
  * POST /json/2/helpdesk.ticket/fields_get
@@ -23,7 +29,7 @@ export type HelpdeskTicketSearchReadInput = {
   context?: OdooContext
 }
 
-export type HelpdeskTicketSearchReadOutput = OdooRecord[]
+export type HelpdeskTicketSearchReadOutput = HelpdeskTicketRecord[]
 
 /**
  * POST /json/2/helpdesk.ticket/read
@@ -34,7 +40,7 @@ export type HelpdeskTicketReadInput = {
   context?: OdooContext
 }
 
-export type HelpdeskTicketReadOutput = OdooRecord[]
+export type HelpdeskTicketReadOutput = HelpdeskTicketRecord[]
 
 /**
  * POST /json/2/helpdesk.ticket/create
