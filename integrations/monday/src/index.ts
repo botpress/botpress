@@ -1,8 +1,7 @@
-import { oauthWizard } from '@botpress/common'
 import { RuntimeError } from '@botpress/sdk'
 import * as actions from 'src/actions'
 import { getMondayClient } from 'src/misc/auth'
-import { oauthWizardHandler } from './oauth-wizard'
+import { isOAuthWizardUrl, oauthWizardHandler } from './oauth-wizard'
 import * as bp from '.botpress'
 
 export default new bp.Integration({
@@ -27,7 +26,7 @@ export default new bp.Integration({
   actions,
   channels: {},
   handler: async (props) => {
-    if (oauthWizard.isOAuthWizardUrl(props.req.path)) {
+    if (isOAuthWizardUrl(props.req.path)) {
       return await oauthWizardHandler(props)
     }
     return { status: 404, body: 'Invalid endpoint' }

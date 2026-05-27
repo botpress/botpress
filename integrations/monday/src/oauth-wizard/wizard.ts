@@ -1,29 +1,38 @@
-import { oauthWizard } from '@botpress/common'
-import { RuntimeError } from '@botpress/sdk'
+import { OAUTH_IDENTIFIER_HEADER, RuntimeError, type Response } from '@botpress/sdk'
 import { createOAuthMondayClient } from 'src/misc/auth'
 import { exchangeCodeForTokens } from 'src/misc/monday-client'
 import * as bp from '.botpress'
 
-type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
-
 const OAUTH_CONFIGURATION_ERROR_MESSAGE = 'Unable to complete the Monday OAuth setup. Please try again.'
+const BASE_WIZARD_PATH = '/oauth/wizard/'
+const DISABLE_INTERSTITIAL_HEADER = { 'x-bp-disable-interstitial': 'true' } as const
 const SCOPES = 'boards:read boards:write'
 
 export const handler = async (props: bp.HandlerProps) => {
-  const wizard = new oauthWizard.OAuthWizardBuilder(props)
-    .addStep({ id: 'oauth-redirect', handler: _oauthRedirectHandler })
-    .addStep({ id: 'oauth-callback', handler: _oauthCallbackHandler })
-    .build()
+  if (!isOAuthWizardUrl(props.req.path)) {
+    throw new RuntimeError('Invalid OAuth wizard URL')
+  }
 
-  return await wizard.handleRequest()
+  const stepId = props.req.path.slice(BASE_WIZARD_PATH.length)
+  const query = new URLSearchParams(props.req.query)
+
+  if (stepId === 'oauth-redirect') {
+    return await _oauthRedirectHandler(props)
+  }
+
+  if (stepId === 'oauth-callback') {
+    return await _oauthCallbackHandler(props, query)
+  }
+
+  throw new RuntimeError(`Unknown OAuth wizard step: ${stepId}`)
 }
 
-const _oauthRedirectHandler: WizardHandler = async ({ ctx, responses }) => {
+const _oauthRedirectHandler = async ({ ctx }: bp.HandlerProps) => {
   try {
     const url = new URL('https://auth.monday.com/oauth2/authorize')
     const params = new URLSearchParams({
       client_id: bp.secrets.CLIENT_ID,
-      redirect_uri: _getOAuthRedirectUri(),
+      redirect_uri: getOAuthRedirectUri(),
       response_type: 'code',
       scope: SCOPES,
       state: ctx.webhookId,
@@ -31,29 +40,26 @@ const _oauthRedirectHandler: WizardHandler = async ({ ctx, responses }) => {
     })
     url.search = params.toString()
 
-    return responses.redirectToExternalUrl(url.toString())
+    return redirectToUrl(url)
   } catch (thrown) {
-    return responses.endWizard({
-      success: false,
-      errorMessage: _formatWizardError(thrown, OAUTH_CONFIGURATION_ERROR_MESSAGE),
-    })
+    return redirectToInterstitial(false, _formatWizardError(thrown, OAUTH_CONFIGURATION_ERROR_MESSAGE))
   }
 }
 
-const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, query, responses, setIntegrationIdentifier }) => {
+const _oauthCallbackHandler = async ({ ctx, client }: bp.HandlerProps, query: URLSearchParams) => {
   try {
     const code = query.get('code')
     const state = query.get('state')
 
     if (!code) {
-      return responses.endWizard({ success: false, errorMessage: 'Missing OAuth code' })
+      return redirectToInterstitial(false, 'Missing OAuth code')
     }
 
     if (state !== ctx.webhookId) {
-      return responses.endWizard({ success: false, errorMessage: 'Invalid OAuth state' })
+      return redirectToInterstitial(false, 'Invalid OAuth state')
     }
 
-    const credentials = await _exchangeCodeForTokens({ code, redirectUri: _getOAuthRedirectUri() })
+    const credentials = await _exchangeCodeForTokens({ code, redirectUri: getOAuthRedirectUri() })
     const mondayClient = createOAuthMondayClient(credentials.accessToken)
     await mondayClient.validateAccessToken()
 
@@ -67,14 +73,17 @@ const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, query, respon
     })
 
     await client.configureIntegration({ identifier: ctx.webhookId })
-    setIntegrationIdentifier(ctx.webhookId)
 
-    return responses.endWizard({ success: true })
+    const response = redirectToInterstitial(true)
+    return {
+      ...response,
+      headers: {
+        ...response.headers,
+        [OAUTH_IDENTIFIER_HEADER]: ctx.webhookId,
+      },
+    }
   } catch (thrown) {
-    return responses.endWizard({
-      success: false,
-      errorMessage: _formatWizardError(thrown, OAUTH_CONFIGURATION_ERROR_MESSAGE),
-    })
+    return redirectToInterstitial(false, _formatWizardError(thrown, OAUTH_CONFIGURATION_ERROR_MESSAGE))
   }
 }
 
@@ -97,4 +106,26 @@ const _exchangeCodeForTokens = async ({ code, redirectUri }: { code: string; red
   }
 }
 
-const _getOAuthRedirectUri = () => oauthWizard.getWizardStepUrl('oauth-callback').toString()
+const getWizardStepUrl = (stepId: string) => new URL(`${BASE_WIZARD_PATH}${stepId}`, process.env.BP_WEBHOOK_URL)
+
+const getOAuthRedirectUri = () => getWizardStepUrl('oauth-callback').toString()
+
+export const isOAuthWizardUrl = (path: string) => path.startsWith(BASE_WIZARD_PATH)
+
+const redirectToUrl = (url: URL): Response => ({
+  status: 303,
+  headers: {
+    ...DISABLE_INTERSTITIAL_HEADER,
+    location: url.toString(),
+  },
+})
+
+export const redirectToInterstitial = (success: boolean, message?: string): Response => {
+  const url = new URL(
+    `${process.env.BP_WEBHOOK_URL?.replace('webhook', 'app')}/oauth/interstitial?success=${success}${
+      message ? `&errorMessage=${message}` : ''
+    }`
+  )
+
+  return redirectToUrl(url)
+}
