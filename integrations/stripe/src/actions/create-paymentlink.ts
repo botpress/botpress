@@ -1,7 +1,7 @@
-import { StripeClient } from '../stripe-api/stripe-client'
 import { createPaymentLinkInputSchema } from '../misc/custom-schemas'
 import type { ProductBasic } from '../misc/stripe-client'
 import type { IntegrationProps } from '../misc/types'
+import { StripeClient } from '../stripe-api/stripe-client'
 
 const findOrCreateProduct = async (stripeClient: StripeClient, productName: string) => {
   const products = await stripeClient.listAllProductsBasic()

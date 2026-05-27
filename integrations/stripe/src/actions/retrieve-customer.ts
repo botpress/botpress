@@ -1,5 +1,5 @@
-import { StripeClient } from '../stripe-api/stripe-client'
 import { retrieveCustomerByIdInputSchema } from '../misc/custom-schemas'
+import { StripeClient } from '../stripe-api/stripe-client'
 import * as bp from '.botpress'
 
 export const retrieveCustomerById: bp.IntegrationProps['actions']['retrieveCustomerById'] = async ({

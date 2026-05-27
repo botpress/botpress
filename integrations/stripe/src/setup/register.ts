@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import Stripe from 'stripe'
-import { StripeClient } from '../stripe-api/stripe-client'
 import type { RegisterFunction } from '../misc/types'
+import { StripeClient } from '../stripe-api/stripe-client'
 
 export const ENABLED_EVENTS: Stripe.WebhookEndpointCreateParams.EnabledEvent[] = [
   'charge.failed',

@@ -1,4 +1,3 @@
-import Stripe from 'stripe'
 import { fireChargeFailed } from 'src/events/charge-failed'
 import { fireInvoicePaymentFailed } from 'src/events/invoice-payment-failed'
 import { firePaymentIntentFailed } from 'src/events/payment-intent-failed'
@@ -7,9 +6,10 @@ import { fireSubscriptionDeleted } from 'src/events/subscription-deleted'
 import { fireSubscriptionScheduleCreated } from 'src/events/subscription-schedule-created'
 import { fireSubscriptionScheduleUpdated } from 'src/events/subscription-schedule-updated'
 import { fireSubscriptionUpdated } from 'src/events/subscription-updated'
+import Stripe from 'stripe'
+import type { Handler } from '../misc/types'
 import { StripeClient } from '../stripe-api/stripe-client'
 import { ENABLED_EVENTS } from './register'
-import type { Handler } from '../misc/types'
 
 // Stand-in Stripe instance only used for webhook signature verification (no API calls).
 // @ts-ignore

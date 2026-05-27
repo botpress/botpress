@@ -1,6 +1,6 @@
-import { StripeClient } from '../stripe-api/stripe-client'
 import { searchCustomersInputSchema } from '../misc/custom-schemas'
 import type { IntegrationProps } from '../misc/types'
+import { StripeClient } from '../stripe-api/stripe-client'
 
 export const searchCustomers: IntegrationProps['actions']['searchCustomers'] = async ({
   ctx,

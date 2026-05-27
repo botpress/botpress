@@ -1,6 +1,6 @@
-import { StripeClient } from '../stripe-api/stripe-client'
 import { createCustomerInputSchema } from '../misc/custom-schemas'
 import type { IntegrationProps } from '../misc/types'
+import { StripeClient } from '../stripe-api/stripe-client'
 
 export const createCustomer: IntegrationProps['actions']['createCustomer'] = async ({ ctx, client, logger, input }) => {
   const validatedInput = createCustomerInputSchema.parse(input)

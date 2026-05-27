@@ -1,5 +1,5 @@
-import { StripeClient } from '../stripe-api/stripe-client'
 import type { UnregisterFunction } from '../misc/types'
+import { StripeClient } from '../stripe-api/stripe-client'
 
 export const unregister: UnregisterFunction = async ({ ctx, client, logger }) => {
   let stripeClient: StripeClient
