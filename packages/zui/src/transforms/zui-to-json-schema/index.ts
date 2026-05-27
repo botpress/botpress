@@ -1,4 +1,5 @@
 import * as utils from '../../utils'
+import { PropertyPath } from '../../utils/property-path-utils'
 import * as z from '../../z'
 import * as err from '../common/errors'
 import * as json from '../common/json-schema'
@@ -48,21 +49,29 @@ const DEFAULT_OPTIONS: JSONSchemaGenerationOptions = {
  * @returns ZUI flavored JSON schema
  */
 export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGenerationOptions> = {}): json.Schema {
+  return _toJSONSchema(schema, options, new PropertyPath())
+}
+
+function _toJSONSchema(
+  schema: z.ZodType,
+  options: Partial<JSONSchemaGenerationOptions> = {},
+  path: PropertyPath
+): json.Schema {
   const opts = { ...DEFAULT_OPTIONS, ...options }
   const s = schema as z.ZodNativeType
 
   switch (s.typeName) {
     case 'ZodString':
-      return zodStringToJsonString(s) satisfies json.StringSchema
+      return zodStringToJsonString(s, path) satisfies json.StringSchema
 
     case 'ZodNumber':
       return zodNumberToJsonNumber(s) satisfies json.NumberSchema
 
     case 'ZodNaN':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodNaN')
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodNaN', path.toString())
 
     case 'ZodBigInt':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodBigInt', {
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodBigInt', path.toString(), {
         suggestedAlternative: 'serialize bigint to string',
       })
 
@@ -74,7 +83,7 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
       } satisfies json.BooleanSchema
 
     case 'ZodDate':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodDate', {
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodDate', path.toString(), {
         suggestedAlternative: 'use z.string().datetime() instead',
       })
 
@@ -104,10 +113,12 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
       } satisfies json.NeverSchema
 
     case 'ZodVoid':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodVoid')
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodVoid', path.toString())
 
     case 'ZodArray':
-      return zodArrayToJsonArray(s, (i) => toJSONSchema(i, opts)) satisfies json.ArraySchema
+      return zodArrayToJsonArray(s, (i) =>
+        _toJSONSchema(i, opts, path.withIndexType('number'))
+      ) satisfies json.ArraySchema
 
     case 'ZodObject':
       const shape = Object.entries(s.shape)
@@ -115,14 +126,16 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
       const required = requiredProperties.length ? requiredProperties.map(([key]) => key) : undefined
       const properties = shape
         .map(([key, value]) => [key, value.mandatory()] satisfies [string, z.ZodType])
-        .map(([key, value]) => [key, toJSONSchema(value, opts)] satisfies [string, json.Schema])
+        .map(
+          ([key, value]) => [key, _toJSONSchema(value, opts, path.appendSection(key))] satisfies [string, json.Schema]
+        )
 
       return {
         type: 'object',
         description: s.description,
         properties: Object.fromEntries(properties),
         required,
-        additionalProperties: additionalPropertiesSchema(s._def, opts),
+        additionalProperties: additionalPropertiesSchema(s._def, opts, path),
         'x-zui': s._def['x-zui'],
       } satisfies json.ObjectSchema
 
@@ -130,13 +143,13 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
       if (opts.unionStrategy === 'oneOf') {
         return {
           description: s.description,
-          oneOf: s.options.map((option) => toJSONSchema(option, opts)),
+          oneOf: s.options.map((option, index) => _toJSONSchema(option, opts, path.withIndexType('number', index))),
           'x-zui': s._def['x-zui'],
         } satisfies json.UnionSchema
       }
       return {
         description: s.description,
-        anyOf: s.options.map((option) => toJSONSchema(option, opts)),
+        anyOf: s.options.map((option, index) => _toJSONSchema(option, opts, path.withIndexType('number', index))),
         'x-zui': s._def['x-zui'],
       } satisfies json.UnionSchema
 
@@ -145,7 +158,7 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
         const discriminator = opts.discriminator ? { propertyName: s.discriminator } : undefined
         return {
           description: s.description,
-          oneOf: s.options.map((option) => toJSONSchema(option, opts)),
+          oneOf: s.options.map((option, index) => _toJSONSchema(option, opts, path.withIndexType('number', index))),
           discriminator,
           'x-zui': {
             ...s._def['x-zui'],
@@ -155,7 +168,7 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
       }
       return {
         description: s.description,
-        anyOf: s.options.map((option) => toJSONSchema(option, opts)),
+        anyOf: s.options.map((option, index) => _toJSONSchema(option, opts, path.withIndexType('number', index))),
         'x-zui': {
           ...s._def['x-zui'],
           def: { typeName: 'ZodDiscriminatedUnion', discriminator: s.discriminator },
@@ -163,8 +176,8 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
       } satisfies json.DiscriminatedUnionSchema
 
     case 'ZodIntersection':
-      const left = toJSONSchema(s._def.left, opts)
-      const right = toJSONSchema(s._def.right, opts)
+      const left = _toJSONSchema(s._def.left, opts, path.withIndexType('number', 0))
+      const right = _toJSONSchema(s._def.right, opts, path.withIndexType('number', 1))
 
       /**
        * TODO: Potential conflict between `additionalProperties` in the left and right schemas.
@@ -189,27 +202,34 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
       } satisfies json.IntersectionSchema
 
     case 'ZodTuple':
-      return zodTupleToJsonTuple(s, (i) => toJSONSchema(i, opts)) satisfies json.TupleSchema
+      return zodTupleToJsonTuple(s, (i, p) => _toJSONSchema(i, opts, p), path) satisfies json.TupleSchema
 
-    case 'ZodRecord':
+    case 'ZodRecord': {
+      const keyType = s._def.keyType
+      const recordPath = z.is.zuiString(keyType)
+        ? path.withIndexType('string')
+        : z.is.zuiNumber(keyType)
+          ? path.withIndexType('number')
+          : path.withIndexType('any')
       return {
         type: 'object',
         description: s.description,
-        additionalProperties: toJSONSchema(s._def.valueType, opts),
+        additionalProperties: _toJSONSchema(s._def.valueType, opts, recordPath),
         'x-zui': s._def['x-zui'],
       } satisfies json.RecordSchema
+    }
 
     case 'ZodMap':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodMap')
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodMap', path.toString())
 
     case 'ZodSet':
-      return zodSetToJsonSet(s, (i) => toJSONSchema(i, opts)) satisfies json.SetSchema
+      return zodSetToJsonSet(s, (i) => _toJSONSchema(i, opts, path.withIndexType('number'))) satisfies json.SetSchema
 
     case 'ZodFunction':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodFunction')
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodFunction', path.toString())
 
     case 'ZodLazy':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodLazy')
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodLazy', path.toString())
 
     case 'ZodLiteral':
       if (typeof s.value === 'string') {
@@ -240,7 +260,7 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
       } else {
         s.value satisfies bigint | symbol
         const unsupportedLiteral = typeof s.value
-        throw new err.ZuiToJSONSchemaError(`Unsupported literal type: "${unsupportedLiteral}"`)
+        throw new err.ZuiToJSONSchemaError(`Unsupported literal type: "${unsupportedLiteral}"`, path.toString())
       }
 
     case 'ZodEnum':
@@ -252,15 +272,15 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
       } satisfies json.EnumSchema
 
     case 'ZodEffects':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodEffects')
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodEffects', path.toString())
 
     case 'ZodNativeEnum':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodNativeEnum')
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodNativeEnum', path.toString())
 
     case 'ZodOptional':
       return {
         description: s.description,
-        anyOf: [toJSONSchema(s._def.innerType, opts), undefinedSchema()],
+        anyOf: [_toJSONSchema(s._def.innerType, opts, path), undefinedSchema()],
         'x-zui': {
           ...s._def['x-zui'],
           def: { typeName: 'ZodOptional' },
@@ -269,7 +289,7 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
 
     case 'ZodNullable':
       return {
-        anyOf: [toJSONSchema(s._def.innerType, opts), nullSchema()],
+        anyOf: [_toJSONSchema(s._def.innerType, opts, path), nullSchema()],
         'x-zui': {
           ...s._def['x-zui'],
           def: { typeName: 'ZodNullable' },
@@ -279,30 +299,30 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
     case 'ZodDefault':
       // ZodDefault is not treated as a metadata root so we don't need to preserve x-zui
       return {
-        ...toJSONSchema(s._def.innerType, opts),
+        ..._toJSONSchema(s._def.innerType, opts, path),
         default: s._def.defaultValue(),
       }
 
     case 'ZodCatch':
       // TODO: could be supported using if-else json schema
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodCatch')
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodCatch', path.toString())
 
     case 'ZodPromise':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodPromise')
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodPromise', path.toString())
 
     case 'ZodBranded':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodBranded')
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodBranded', path.toString())
 
     case 'ZodPipeline':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodPipeline')
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodPipeline', path.toString())
 
     case 'ZodSymbol':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodPipeline')
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodSymbol', path.toString())
 
     case 'ZodReadonly':
       // ZodReadonly is not treated as a metadata root so we don't need to preserve x-zui
       return {
-        ...toJSONSchema(s._def.innerType, opts),
+        ..._toJSONSchema(s._def.innerType, opts, path),
         readOnly: true,
       }
 
@@ -332,7 +352,8 @@ const nullSchema = (def?: z.ZodTypeDef): json.NullSchema => ({
 
 const additionalPropertiesSchema = (
   def: z.ZodObjectDef,
-  opts: Partial<JSONSchemaGenerationOptions>
+  opts: Partial<JSONSchemaGenerationOptions>,
+  path: PropertyPath
 ): NonNullable<json.ObjectSchema['additionalProperties']> => {
   if (def.unknownKeys === 'passthrough') {
     return true
@@ -350,5 +371,5 @@ const additionalPropertiesSchema = (
     return false
   }
 
-  return toJSONSchema(def.unknownKeys, opts)
+  return _toJSONSchema(def.unknownKeys, opts, path.withIndexType('string'))
 }
