@@ -3,8 +3,6 @@ import { z } from '@botpress/sdk'
 import { wrapAction } from '../../action-wrapper'
 import { getErrorMessage, isActiveUserLinkedContactError } from '../../errors'
 
-
-
 type NotDeletedContact = {
   id: number
   name?: string

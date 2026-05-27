@@ -1,10 +1,6 @@
-import { z } from '@botpress/sdk'
-import type { OdooContext, OdooDomain } from './odoo.types'
-import { odooRecordSchema } from './odoo.types'
+import type { OdooContext, OdooDomain, OdooRecord } from './odoo.types'
 
-export const helpdeskTicketRecordSchema = odooRecordSchema.and(z.object({ id: z.number() }))
-
-export type HelpdeskTicketRecord = z.infer<typeof helpdeskTicketRecordSchema>
+export type HelpdeskTicketRecord = OdooRecord & { id: number }
 
 /**
  * POST /json/2/helpdesk.ticket/fields_get

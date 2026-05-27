@@ -1,5 +1,4 @@
 import { z } from '@botpress/sdk'
-import { helpdeskTicketRecordSchema, odooRecordSchema } from './types'
 import type {
   GetFieldsOutput,
   GetFieldsRequest,
@@ -46,13 +45,11 @@ const modelMap: Record<Model, string> = {
   Contact: 'res.partner',
   Ticket: 'helpdesk.ticket',
 }
-
-const recordSchema = odooRecordSchema
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  recordSchema.safeParse(value).success
+const recordSchema = z.record(z.string(), z.unknown()).and(z.object({ id: z.number().optional() }))
 
 const odooRecordArraySchema = z.array(recordSchema)
 
+const helpdeskTicketRecordSchema = recordSchema.and(z.object({ id: z.number() }))
 const helpdeskTicketRecordArraySchema = z.array(helpdeskTicketRecordSchema)
 
 const recordMapSchema = z.record(z.string(), recordSchema)
@@ -60,7 +57,6 @@ const recordMapSchema = z.record(z.string(), recordSchema)
 const createdIdSchema = z.tuple([z.number()])
 
 const booleanSchema = z.boolean()
-const isString = (value: unknown): value is string => z.string().safeParse(value).success
 const resUsersContextGetOutputSchema = recordSchema.and(z.object({ uid: z.number() }))
 
 const odooErrorSchema = recordSchema.and(z.object({ name: z.string().optional(), message: z.string().optional() }))
@@ -108,7 +104,7 @@ export class OdooClient {
   private async _postJson<TResponse>(
     endpoint: string,
     body: object,
-    responseSchema: z.ZodType<TResponse>,
+    responseSchema: z.ZodType<TResponse>
   ): Promise<TResponse> {
     const headers = this._getHeaders()
 
@@ -182,21 +178,13 @@ export class OdooClient {
 
   public async createContact(input: ResPartnerCreateInput): Promise<ResPartnerCreateOutput> {
     const { values, ...rest } = input
-    const ids = await this._postJson(
-      '/json/2/res.partner/create',
-      { ...rest, vals_list: [values] },
-      createdIdSchema
-    )
+    const ids = await this._postJson('/json/2/res.partner/create', { ...rest, vals_list: [values] }, createdIdSchema)
     return ids[0]
   }
 
   public async createLead(input: CrmLeadCreateInput): Promise<CrmLeadCreateOutput> {
     const { values, ...rest } = input
-    const ids = await this._postJson(
-      '/json/2/crm.lead/create',
-      { ...rest, vals_list: [values] },
-      createdIdSchema
-    )
+    const ids = await this._postJson('/json/2/crm.lead/create', { ...rest, vals_list: [values] }, createdIdSchema)
 
     return ids[0]
   }
