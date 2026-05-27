@@ -47,7 +47,8 @@ export class ZuiToJSONSchemaError extends ZuiTransformError {
 export class UnsupportedZuiToJSONSchemaError extends ZuiToJSONSchemaError {
   public constructor(
     type: ZodNativeTypeName,
-    { suggestedAlternative, path }: { suggestedAlternative?: string; path?: string } = {}
+    path?: string,
+    { suggestedAlternative }: { suggestedAlternative?: string } = {}
   ) {
     const msg = suggestedAlternative
       ? `Zod type ${type} cannot be transformed to JSON Schema. Suggested alternative: ${suggestedAlternative}`
@@ -56,7 +57,7 @@ export class UnsupportedZuiToJSONSchemaError extends ZuiToJSONSchemaError {
   }
 }
 export class UnsupportedZuiCheckToJSONSchemaError extends ZuiToJSONSchemaError {
-  public constructor({ zodType, checkKind, path }: { zodType: ZodNativeTypeName; checkKind: string; path?: string }) {
+  public constructor(zodType: ZodNativeTypeName, checkKind: string, path?: string) {
     super(`Zod check .${checkKind}() of type ${zodType} cannot be transformed to JSON Schema.`, path)
   }
 }

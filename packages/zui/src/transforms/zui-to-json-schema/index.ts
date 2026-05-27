@@ -68,12 +68,11 @@ function _toJSONSchema(
       return zodNumberToJsonNumber(s) satisfies json.NumberSchema
 
     case 'ZodNaN':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodNaN', { path: path.toString() })
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodNaN', path.toString())
 
     case 'ZodBigInt':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodBigInt', {
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodBigInt', path.toString(), {
         suggestedAlternative: 'serialize bigint to string',
-        path: path.toString(),
       })
 
     case 'ZodBoolean':
@@ -84,9 +83,8 @@ function _toJSONSchema(
       } satisfies json.BooleanSchema
 
     case 'ZodDate':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodDate', {
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodDate', path.toString(), {
         suggestedAlternative: 'use z.string().datetime() instead',
-        path: path.toString(),
       })
 
     case 'ZodUndefined':
@@ -115,7 +113,7 @@ function _toJSONSchema(
       } satisfies json.NeverSchema
 
     case 'ZodVoid':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodVoid', { path: path.toString() })
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodVoid', path.toString())
 
     case 'ZodArray':
       return zodArrayToJsonArray(s, (i) =>
@@ -222,16 +220,16 @@ function _toJSONSchema(
     }
 
     case 'ZodMap':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodMap', { path: path.toString() })
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodMap', path.toString())
 
     case 'ZodSet':
       return zodSetToJsonSet(s, (i) => _toJSONSchema(i, opts, path.withIndexType('number'))) satisfies json.SetSchema
 
     case 'ZodFunction':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodFunction', { path: path.toString() })
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodFunction', path.toString())
 
     case 'ZodLazy':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodLazy', { path: path.toString() })
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodLazy', path.toString())
 
     case 'ZodLiteral':
       if (typeof s.value === 'string') {
@@ -274,10 +272,10 @@ function _toJSONSchema(
       } satisfies json.EnumSchema
 
     case 'ZodEffects':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodEffects', { path: path.toString() })
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodEffects', path.toString())
 
     case 'ZodNativeEnum':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodNativeEnum', { path: path.toString() })
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodNativeEnum', path.toString())
 
     case 'ZodOptional':
       return {
@@ -307,19 +305,19 @@ function _toJSONSchema(
 
     case 'ZodCatch':
       // TODO: could be supported using if-else json schema
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodCatch', { path: path.toString() })
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodCatch', path.toString())
 
     case 'ZodPromise':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodPromise', { path: path.toString() })
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodPromise', path.toString())
 
     case 'ZodBranded':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodBranded', { path: path.toString() })
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodBranded', path.toString())
 
     case 'ZodPipeline':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodPipeline', { path: path.toString() })
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodPipeline', path.toString())
 
     case 'ZodSymbol':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodSymbol', { path: path.toString() })
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodSymbol', path.toString())
 
     case 'ZodReadonly':
       // ZodReadonly is not treated as a metadata root so we don't need to preserve x-zui

@@ -423,4 +423,14 @@ describe('zuiToJSONSchemaNext', () => {
       expect(e instanceof Error && e.message).toContain('#.foo.bar[1]')
     }
   })
+
+  test('should expose path as a property on the error', () => {
+    try {
+      toJSONSchema(z.object({ foo: z.object({ bar: z.tuple([z.number(), z.void()]) }) }))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errs.ZuiTransformError)
+      expect((e as errs.ZuiTransformError).path).toBe('#.foo.bar[1]')
+    }
+  })
 })
