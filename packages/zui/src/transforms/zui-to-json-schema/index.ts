@@ -127,7 +127,8 @@ function _toJSONSchema(
       const properties = shape
         .map(([key, value]) => [key, value.mandatory()] satisfies [string, z.ZodType])
         .map(
-          ([key, value]) => [key, _toJSONSchema(value, opts, path.appendSection(key))] satisfies [string, json.Schema]
+          ([key, value]) =>
+            [key, _toJSONSchema(value, opts, path.withIndexType('key', key))] satisfies [string, json.Schema]
         )
 
       return {

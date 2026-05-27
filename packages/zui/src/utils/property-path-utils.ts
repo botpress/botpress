@@ -28,14 +28,11 @@ export class PropertyPath {
     this._prefix = prefix
   }
 
-  appendSection(name: string): PropertyPath {
-    return new PropertyPath([...this._sections, { type: 'key', value: name }], this._prefix)
-  }
-
+  withIndexType(type: 'key', value: string): PropertyPath
   withIndexType(type: 'number', value?: number): PropertyPath
   withIndexType(type: 'string', value?: string): PropertyPath
   withIndexType(type: 'any'): PropertyPath
-  withIndexType(type: 'number' | 'string' | 'any', value?: number | string): PropertyPath {
+  withIndexType(type: 'number' | 'string' | 'any' | 'key', value?: number | string): PropertyPath {
     return new PropertyPath([...this._sections, { type, value } as PathSection], this._prefix)
   }
 
