@@ -3,13 +3,15 @@ import Stripe from 'stripe'
 import { StripeClient } from '../stripe-api/stripe-client'
 import type { RegisterFunction } from '../misc/types'
 
-const ENABLED_EVENTS: Stripe.WebhookEndpointCreateParams.EnabledEvent[] = [
+export const ENABLED_EVENTS: Stripe.WebhookEndpointCreateParams.EnabledEvent[] = [
   'charge.failed',
   'customer.subscription.deleted',
   'customer.subscription.updated',
   'customer.subscription.created',
   'invoice.payment_failed',
   'payment_intent.payment_failed',
+  'subscription_schedule.created',
+  'subscription_schedule.updated',
 ]
 
 export const register: RegisterFunction = async ({ ctx, client, webhookUrl, logger }) => {
