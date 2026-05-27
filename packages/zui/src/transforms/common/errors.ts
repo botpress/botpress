@@ -14,7 +14,8 @@ export abstract class ZuiTransformError extends Error {
     message?: string,
     public readonly path?: string
   ) {
-    super((path ? `${path} : ` : '') + message)
+    const msg = path ? `${path} : ${message}` : message
+    super(msg)
   }
 }
 
@@ -48,11 +49,10 @@ export class UnsupportedZuiToJSONSchemaError extends ZuiToJSONSchemaError {
     type: ZodNativeTypeName,
     { suggestedAlternative, path }: { suggestedAlternative?: string; path?: string } = {}
   ) {
-    super(
-      `Zod type ${type} cannot be transformed to JSON Schema.` +
-        (suggestedAlternative ? ` Suggested alternative: ${suggestedAlternative}` : ''),
-      path
-    )
+    const msg = suggestedAlternative
+      ? `Zod type ${type} cannot be transformed to JSON Schema. Suggested alternative: ${suggestedAlternative}`
+      : `Zod type ${type} cannot be transformed to JSON Schema.`
+    super(msg, path)
   }
 }
 export class UnsupportedZuiCheckToJSONSchemaError extends ZuiToJSONSchemaError {

@@ -178,8 +178,8 @@ function _toJSONSchema(
       } satisfies json.DiscriminatedUnionSchema
 
     case 'ZodIntersection':
-      const left = _toJSONSchema(s._def.left, opts, path.withIndexType('string', 'left'))
-      const right = _toJSONSchema(s._def.right, opts, path.withIndexType('string', 'right'))
+      const left = _toJSONSchema(s._def.left, opts, path.withIndexType('number', 0))
+      const right = _toJSONSchema(s._def.right, opts, path.withIndexType('number', 1))
 
       /**
        * TODO: Potential conflict between `additionalProperties` in the left and right schemas.
@@ -207,13 +207,12 @@ function _toJSONSchema(
       return zodTupleToJsonTuple(s, (i, p) => _toJSONSchema(i, opts, p), path) satisfies json.TupleSchema
 
     case 'ZodRecord': {
-      const keyTypeName = s._def.keyType.typeName
-      const recordPath =
-        keyTypeName === 'ZodString'
-          ? path.withIndexType('string')
-          : keyTypeName === 'ZodNumber'
-            ? path.withIndexType('number')
-            : path.withIndexType('any')
+      const keyType = s._def.keyType
+      const recordPath = z.is.zuiString(keyType)
+        ? path.withIndexType('string')
+        : z.is.zuiNumber(keyType)
+          ? path.withIndexType('number')
+          : path.withIndexType('any')
       return {
         type: 'object',
         description: s.description,
@@ -374,5 +373,5 @@ const additionalPropertiesSchema = (
     return false
   }
 
-  return _toJSONSchema(def.unknownKeys, opts, path.withPrefix('catchallOf'))
+  return _toJSONSchema(def.unknownKeys, opts, path.withIndexType('string'))
 }

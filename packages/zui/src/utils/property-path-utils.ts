@@ -1,3 +1,8 @@
+export type KeySectionIndex = {
+  type: 'key'
+  value: string
+}
+
 export type NumberSectionIndex = {
   type: 'number'
   value?: number
@@ -12,12 +17,7 @@ export type AnySectionIndex = {
   type: 'any'
 }
 
-export type SectionIndex = NumberSectionIndex | StringSectionIndex | AnySectionIndex
-
-export type PathSection = {
-  name: string
-  indices: SectionIndex[]
-}
+export type PathSection = KeySectionIndex | NumberSectionIndex | StringSectionIndex | AnySectionIndex
 
 export class PropertyPath {
   private readonly _sections: PathSection[]
@@ -29,18 +29,14 @@ export class PropertyPath {
   }
 
   appendSection(name: string): PropertyPath {
-    return new PropertyPath([...this._sections, { name, indices: [] }], this._prefix)
+    return new PropertyPath([...this._sections, { type: 'key', value: name }], this._prefix)
   }
 
   withIndexType(type: 'number', value?: number): PropertyPath
   withIndexType(type: 'string', value?: string): PropertyPath
   withIndexType(type: 'any'): PropertyPath
   withIndexType(type: 'number' | 'string' | 'any', value?: number | string): PropertyPath {
-    if (this._sections.length === 0) return this
-    const sections = [...this._sections]
-    const last = sections.at(-1)!
-    sections[sections.length - 1] = { ...last, indices: [...last.indices, { type, value } as SectionIndex] }
-    return new PropertyPath(sections, this._prefix)
+    return new PropertyPath([...this._sections, { type, value } as PathSection], this._prefix)
   }
 
   withPrefix(prefix: string): PropertyPath {
@@ -48,15 +44,12 @@ export class PropertyPath {
   }
 
   toString(): string {
-    return (
-      this._prefix +
-      '#' +
-      this._sections
-        .map((section) => {
-          const indices = section.indices.map((i) => `[${i.type === 'any' ? '*' : (i.value ?? i.type)}]`).join('')
-          return `.${section.name}${indices}`
-        })
-        .join('')
-    )
+    return `${this._prefix}#${this._sections
+      .map((section) => {
+        if (section.type === 'key') return `.${section.value}`
+        if (section.type === 'any') return '[*]'
+        return `[${section.value ?? section.type}]`
+      })
+      .join('')}`
   }
 }

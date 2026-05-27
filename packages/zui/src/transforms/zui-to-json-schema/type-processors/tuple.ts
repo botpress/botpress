@@ -20,7 +20,7 @@ export const zodTupleToJsonTuple = (
   }
 
   if (zodTuple._def.rest) {
-    schema.additionalItems = toSchema(zodTuple._def.rest, path.withPrefix('additionalItemsOf'))
+    schema.additionalItems = toSchema(zodTuple._def.rest, path.withIndexType('number'))
   }
 
   return schema
