@@ -39,20 +39,31 @@ export class BotpressCLIError extends VError {
       return HTTPError.fromAxios(thrown)
     }
     if (thrown instanceof Error) {
-      const { message } = thrown
-      return new BotpressCLIError(message)
+      return new BotpressCLIError(thrown.message, { cause: thrown })
     }
     return new BotpressCLIError(String(thrown))
   }
 
   public constructor(error: BotpressCLIError, message: string)
   public constructor(message: string)
-  public constructor(first: BotpressCLIError | string, second?: string) {
+  public constructor(message: string, opts: { cause?: Error })
+  public constructor(first: BotpressCLIError | string, second?: string | { cause?: Error }) {
     if (typeof first === 'string') {
+      if (typeof second === 'object') {
+        // preserve the original error as a cause without duplicating its message into ours.
+        // `skipCauseMessage` is supported by verror at runtime but missing from @types/verror,
+        // so the option object is typed inline rather than as VError.Options.
+        super({ cause: second.cause, skipCauseMessage: true } as { cause?: Error; skipCauseMessage: boolean }, first)
+        return
+      }
       super(first)
       return
     }
-    super(first, second!)
+    super(first, second as string)
+  }
+
+  public static fullStack(err: Error): string {
+    return VError.fullStack(err)
   }
 }
 
