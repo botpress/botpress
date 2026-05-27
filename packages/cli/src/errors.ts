@@ -56,8 +56,9 @@ export class BotpressCLIError extends VError {
     if (typeof first === 'string') {
       if (typeof second === 'object') {
         // preserve the original error as a cause without duplicating its message into ours.
-        // `skipCauseMessage` is supported by verror at runtime but missing from @types/verror,
-        // so the option object is typed inline rather than as VError.Options.
+        // `skipCauseMessage` is supported by verror at runtime (validated against verror@1.10.1)
+        // but missing from @types/verror, so the option object is typed inline rather than as
+        // VError.Options. The message-neutrality this relies on is guarded by errors.test.ts.
         super({ cause: second.cause, skipCauseMessage: true } as { cause?: Error; skipCauseMessage: boolean }, first)
         return
       }

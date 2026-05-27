@@ -23,9 +23,12 @@ export type ReconnectedEvent = {
 }
 
 export class ReconnectionFailedError extends Error {
-  public constructor(public readonly event: ReconnectionTriggerEvent) {
+  public constructor(
+    public readonly event: ReconnectionTriggerEvent,
+    cause?: Error
+  ) {
     const reason = ReconnectionFailedError._reason(event)
-    super(`Reconnection failed: ${reason}`)
+    super(`Reconnection failed: ${reason}${cause ? `: ${cause.message}` : ''}`, cause ? { cause } : undefined)
   }
 
   private static _reason(event: ReconnectionTriggerEvent): string {
@@ -47,7 +50,7 @@ export class TunnelSupervisor {
   private _started = false
 
   public readonly events = new EventEmitter<{
-    connectionFailed: ReconnectionTriggerEvent
+    connectionFailed: { ev: ReconnectionTriggerEvent; cause: Error }
     manuallyClosed: null
     connected: {
       tunnel: TunnelTail
@@ -87,8 +90,8 @@ export class TunnelSupervisor {
     }
 
     return new Promise((resolve, reject) => {
-      this.events.on('connectionFailed', (ev) => {
-        reject(new ReconnectionFailedError(ev))
+      this.events.on('connectionFailed', ({ ev, cause }) => {
+        reject(new ReconnectionFailedError(ev, cause))
       })
 
       this.events.on('manuallyClosed', () => {
@@ -113,10 +116,9 @@ export class TunnelSupervisor {
         this._tunnel = t
       })
       .catch((thrown) => {
-        const err = BotpressCLIError.map(thrown)
-        this._logger.error(`Tunnel reconnection failed: ${err.message}`)
-        this._logger.debug(BotpressCLIError.fullStack(err))
-        this.events.emit('connectionFailed', ev)
+        // carry the real failure as the cause; the dev server then tears down and the single
+        // "running the dev server" error surfaces this reason (avoids a duplicate log line here)
+        this.events.emit('connectionFailed', { ev, cause: BotpressCLIError.map(thrown) })
       })
   }
 
