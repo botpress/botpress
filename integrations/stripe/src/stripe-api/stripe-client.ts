@@ -8,6 +8,10 @@ type CreateProps = {
   logger: bp.Logger
 }
 
+type LegacyConfiguration = bp.Context['configuration'] & {
+  apiKey?: string
+}
+
 export class StripeClient {
   protected _stripe: Stripe
 
@@ -18,7 +22,20 @@ export class StripeClient {
 
   public static async createFromStates({ client, ctx, logger }: CreateProps): Promise<StripeClient> {
     const oauth = new StripeOAuthClient({ client, ctx, logger })
-    const { accessToken } = await oauth.getAuthState()
+
+    // essential for old API key support
+    let accessToken: string
+    try {
+      accessToken = (await oauth.getAuthState()).accessToken
+    } catch (error) {
+      const legacyApiKey = (ctx.configuration as LegacyConfiguration).apiKey
+      if (!legacyApiKey) {
+        throw error
+      }
+
+      await oauth.saveManualApiKey(legacyApiKey)
+      accessToken = legacyApiKey
+    }
     return new StripeClient(accessToken, ctx.configuration.apiVersion)
   }
 
