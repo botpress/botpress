@@ -16,8 +16,6 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@hey-api/client-fetch": "^0.13.1",
-    "@hey-api/openapi-ts": "^0.97.1",
-    "@types/node": "^22.16.4",
-    "typescript": "^5.6.3"
+    "@hey-api/openapi-ts": "^0.97.1"
   }
 }
