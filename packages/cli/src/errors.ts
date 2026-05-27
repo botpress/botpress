@@ -68,6 +68,8 @@ export class BotpressCLIError extends VError {
     super(first, second as string)
   }
 
+  // VError.fullStack only follows VError causes; this also follows native `Error.cause`/axios
+  // causes (with a cycle guard). static to mirror VError's own `fullStack(err)`.
   public static fullStack(err: Error): string {
     return BotpressCLIError._fullStack(err, new Set())
   }

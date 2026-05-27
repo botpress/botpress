@@ -301,7 +301,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       },
       this.logger
     ).catch((thrown) => {
-      throw errors.BotpressCLIError.wrap(thrown, `Could not start dev worker on port ${port} (bundle: ${outfile})`)
+      throw errors.BotpressCLIError.wrap(thrown, `Could not start dev worker on port ${port}`)
     })
 
     return worker

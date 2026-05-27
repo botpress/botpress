@@ -28,7 +28,9 @@ export class ReconnectionFailedError extends Error {
     cause?: Error
   ) {
     const reason = ReconnectionFailedError._reason(event)
-    super(`Reconnection failed: ${reason}${cause ? `: ${cause.message}` : ''}`, cause ? { cause } : undefined)
+    const message = cause ? `Reconnection failed: ${reason}: ${cause.message}` : `Reconnection failed: ${reason}`
+    const options = cause ? { cause } : undefined
+    super(message, options)
   }
 
   private static _reason(event: ReconnectionTriggerEvent): string {
