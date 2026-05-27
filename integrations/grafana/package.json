@@ -5,8 +5,8 @@
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",
     "test": "vitest --run",
-    "generate:k8s": "openapi-ts -i ./src/gen/specs/grafana-dashboard-k8s.json ./src/gen/specs/grafana-folder-k8s.json -o ./src/gen/grafana-k8s-client -c @hey-api/client-fetch",
-    "generate:legacy": "openapi-ts -i ./src/gen/specs/grafana-legacy.json -o ./src/gen/grafana-legacy-client -c @hey-api/client-fetch",
+    "generate:k8s": "openapi-ts -i ./grafana-api/grafana-dashboard-k8s.json ./grafana-api/grafana-folder-k8s.json -o ./src/gen/grafana-k8s-client -c @hey-api/client-fetch",
+    "generate:legacy": "openapi-ts -i ./grafana-api/grafana-legacy.json -o ./src/gen/grafana-legacy-client -c @hey-api/client-fetch",
     "generate": "pnpm run generate:k8s && pnpm run generate:legacy"
   },
   "private": true,
@@ -16,8 +16,6 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@hey-api/client-fetch": "^0.13.1",
-    "@hey-api/openapi-ts": "^0.97.1",
-    "@types/node": "^22.16.4",
-    "typescript": "^5.6.3"
+    "@hey-api/openapi-ts": "^0.97.1"
   }
 }

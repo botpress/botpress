@@ -23,6 +23,7 @@ Grafana's Kubernetes-style API (`/apis/...`). These must be fetched from a live 
     "https://your-stack.grafana.net/openapi/v3" | python3 -m json.tool | grep "grafana.app"
   ```
 - **Re-fetch**:
+
   ```sh
   TOKEN="your-grafana-service-account-token"
   BASE="https://your-stack.grafana.net"
