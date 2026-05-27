@@ -1,4 +1,4 @@
-import { isOAuthWizardUrl } from '@botpress/common/src/oauth-wizard'
+import { oauthWizard } from '@botpress/common'
 import { RuntimeError } from '@botpress/sdk'
 import * as actions from 'src/actions'
 import { getMondayClient } from 'src/misc/auth'
@@ -9,11 +9,7 @@ export default new bp.Integration({
   register: async ({ client, ctx }) => {
     try {
       const mondayClient = await getMondayClient({ client, ctx })
-      const validationError = await mondayClient.validateAccessToken()
-
-      if (validationError) {
-        throw new RuntimeError('Invalid Monday credentials. Please reconnect your account or provide a valid token.')
-      }
+      await mondayClient.validateAccessToken()
 
       await client.configureIntegration({
         identifier: ctx.webhookId,
@@ -27,16 +23,13 @@ export default new bp.Integration({
       throw new RuntimeError(`Failed to configure Monday integration. Please reconnect your account. (${message})`)
     }
   },
-  unregister: async () => {
-    return
-  },
+  unregister: async () => {},
   actions,
   channels: {},
   handler: async (props) => {
-    if (isOAuthWizardUrl(props.req.path)) {
+    if (oauthWizard.isOAuthWizardUrl(props.req.path)) {
       return await oauthWizardHandler(props)
     }
-
-    return
+    return { status: 404, body: 'Invalid endpoint' }
   },
 })

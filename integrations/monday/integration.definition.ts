@@ -13,8 +13,6 @@ export default new IntegrationDefinition({
       type: 'integration',
       schema: z.object({
         accessToken: z.string().secret().title('Access Token').describe('The Monday OAuth access token.'),
-        tokenType: z.literal('Bearer').title('Token Type').describe('The Monday OAuth token type.'),
-        scope: z.string().title('Scope').describe('The scopes granted to the Monday OAuth token.'),
       }),
     },
   },

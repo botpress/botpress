@@ -1,4 +1,4 @@
-import * as oauthWizard from '@botpress/common/src/oauth-wizard'
+import { oauthWizard } from '@botpress/common'
 import { RuntimeError } from '@botpress/sdk'
 import { createOAuthMondayClient } from 'src/misc/auth'
 import { exchangeCodeForTokens } from 'src/misc/monday-client'
@@ -6,8 +6,6 @@ import * as bp from '.botpress'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
 
-const INVALID_CREDENTIALS_MESSAGE =
-  'Invalid Monday credentials. Please reconnect your account or provide a valid token.'
 const OAUTH_CONFIGURATION_ERROR_MESSAGE = 'Unable to complete the Monday OAuth setup. Please try again.'
 const SCOPES = 'boards:read boards:write'
 
@@ -57,11 +55,7 @@ const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, query, respon
 
     const credentials = await _exchangeCodeForTokens({ code, redirectUri: _getOAuthRedirectUri() })
     const mondayClient = createOAuthMondayClient(credentials.accessToken)
-    const validationError = await mondayClient.validateAccessToken()
-
-    if (validationError) {
-      return responses.endWizard({ success: false, errorMessage: INVALID_CREDENTIALS_MESSAGE })
-    }
+    await mondayClient.validateAccessToken()
 
     await client.setState({
       type: 'integration',
@@ -69,8 +63,6 @@ const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, query, respon
       id: ctx.integrationId,
       payload: {
         accessToken: credentials.accessToken,
-        tokenType: credentials.tokenType,
-        scope: credentials.scope,
       },
     })
 

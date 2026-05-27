@@ -7,14 +7,10 @@ export type MondayClientConfiguration = {
 
 type MondayOAuthTokenResponse = {
   access_token: string
-  token_type: string
-  scope: string
 }
 
 export type MondayOAuthCredentials = {
   accessToken: string
-  tokenType: 'Bearer'
-  scope: string
 }
 
 export type ExchangeCodeForTokensInput = {
@@ -53,8 +49,6 @@ export const exchangeCodeForTokens = async ({
 
   return {
     accessToken: response.data.access_token,
-    tokenType: 'Bearer',
-    scope: response.data.scope,
   }
 }
 
@@ -87,16 +81,14 @@ export class MondayClient {
     return response.data.data
   }
 
-  public async validateAccessToken(): Promise<Error | undefined> {
+  public async validateAccessToken(): Promise<void> {
     try {
       const response = await this._executeGraphqlQuery('validateAccessToken', {})
       if (!Array.isArray(response.boards)) {
-        return new Error('Monday credentials validation returned an unexpected response.')
+        throw new Error('Monday credentials validation returned an unexpected response.')
       }
-
-      return
     } catch (thrown) {
-      return thrown instanceof Error ? thrown : new Error('Monday credentials validation failed.')
+      throw thrown instanceof Error ? thrown : new Error('Monday credentials validation failed.')
     }
   }
 
