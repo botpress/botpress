@@ -29,8 +29,38 @@ const contactFieldsSchema = fieldsSchema.describe(
 const leadFieldsSchema = fieldsSchema.describe(
   'Odoo crm.lead field names to include in the response. Call listLeadFields before choosing fields unless the exact field names were already retrieved in this conversation. To find which contacts are also leads, first retrieve the available contact and lead fields, then read comparable fields.'
 )
+const ticketFieldsSchema = fieldsSchema.describe(
+  'Odoo helpdesk.ticket field names to include in the response. Call listTicketFields before choosing fields unless the exact field names were already retrieved in this conversation.'
+)
 const contactIdsSchema = z.array(z.number()).title('Contact IDs').describe('Odoo contact record IDs.')
 const leadIdsSchema = z.array(z.number()).title('Lead IDs').describe('Odoo CRM lead record IDs.')
+const ticketIdsSchema = z.array(z.number()).title('Ticket IDs').describe('Odoo helpdesk ticket record IDs.')
+
+const contactValuesSchema = z
+  .object({
+    name: z.string().title('Name').describe('Contact or company display name.'),
+    email: z.string().title('Email').describe('Contact email address.').optional(),
+    phone: z.string().title('Phone').describe('Contact phone number.').optional(),
+    parent_id: z.number().title('Company ID').describe('Related company/contact ID for this contact.').optional(),
+    is_company: z.boolean().title('Is Company').describe('Whether this contact represents a company.').optional(),
+    street: z.string().title('Street').describe('Street address.').optional(),
+    city: z.string().title('City').describe('City.').optional(),
+    zip: z.string().title('ZIP').describe('Postal or ZIP code.').optional(),
+    country_id: z.number().title('Country ID').describe('Related Odoo country ID.').optional(),
+    state_id: z.number().title('State ID').describe('Related Odoo state ID.').optional(),
+    vat: z.string().title('Tax ID').describe('Tax identification number.').optional(),
+    website: z.string().title('Website').describe('Contact or company website.').optional(),
+  })
+  .passthrough()
+  .title('Contact Values')
+  .describe(
+    'Odoo contact field values keyed by field name. Use listContactFields before using custom fields; company names are usually represented by name or parent_id, not company_name.'
+  )
+
+const contactUpdateValuesSchema = contactValuesSchema
+  .partial()
+  .title('Contact Values')
+  .describe('Odoo contact field values to update, keyed by field name.')
 
 const leadValuesSchema = z
   .object({
@@ -65,6 +95,35 @@ const leadUpdateValuesSchema = leadValuesSchema
   .partial()
   .title('Lead Values')
   .describe('Odoo CRM lead field values to update, keyed by field name.')
+
+const ticketValuesSchema = z
+  .object({
+    name: z.string().title('Name').describe('Helpdesk ticket title.'),
+    description: z.string().title('Description').describe('Ticket description or customer request details.').optional(),
+    partner_id: z.number().title('Customer ID').describe('Related Odoo customer/contact ID.').optional(),
+    partner_name: z.string().title('Customer Name').describe('Customer name for the ticket.').optional(),
+    partner_email: z.string().title('Customer Email').describe('Customer email address for the ticket.').optional(),
+    email_cc: z.string().title('Email CC').describe('Additional email recipients copied on the ticket.').optional(),
+    team_id: z.number().title('Helpdesk Team ID').describe('Assigned Odoo helpdesk team ID.').optional(),
+    user_id: z.number().title('Assigned User ID').describe('Assigned Odoo user ID.').optional(),
+    stage_id: z.number().title('Stage ID').describe('Odoo helpdesk ticket stage ID.').optional(),
+    ticket_type_id: z.number().title('Ticket Type ID').describe('Odoo helpdesk ticket type ID.').optional(),
+    priority: z
+      .enum(['0', '1', '2', '3'])
+      .title('Priority')
+      .describe('Odoo ticket priority, from 0 (lowest) to 3 (highest).')
+      .optional(),
+    tag_ids: z.array(z.number()).title('Tag IDs').describe('Odoo helpdesk ticket tag IDs.').optional(),
+    company_id: z.number().title('Company ID').describe('Related Odoo company ID.').optional(),
+  })
+  .passthrough()
+  .title('Ticket Values')
+  .describe('Odoo helpdesk ticket field values keyed by field name.')
+
+const ticketUpdateValuesSchema = ticketValuesSchema
+  .partial()
+  .title('Ticket Values')
+  .describe('Odoo helpdesk ticket field values to update, keyed by field name.')
 
 const notDeletedContactSchema = z
   .object({
@@ -142,6 +201,29 @@ export const actions = {
       }),
     },
   },
+  listTicketFields: {
+    title: 'List Odoo Ticket Fields',
+    description: 'List available fields for Odoo helpdesk tickets.',
+    input: {
+      schema: z.object({
+        allfields: ticketFieldsSchema.optional(),
+        attributes: z
+          .array(z.string())
+          .title('Attributes')
+          .describe('Field metadata attributes to return, such as string, type, and required.')
+          .optional(),
+        context: odooContextSchema.optional(),
+      }),
+    },
+    output: {
+      schema: z.object({
+        fields: z
+          .record(z.string(), z.unknown())
+          .title('Fields')
+          .describe('Field metadata keyed by Odoo ticket field name.'),
+      }),
+    },
+  },
   searchContacts: {
     title: 'Search Contacts',
     description:
@@ -199,6 +281,43 @@ export const actions = {
       }),
     },
   },
+  searchTickets: {
+    title: 'Search Tickets',
+    description:
+      'Search Odoo helpdesk tickets using an Odoo domain and optional read parameters. Call listTicketFields first unless the needed helpdesk.ticket field names were already retrieved in this conversation.',
+    input: {
+      schema: z.object({
+        domain: odooDomainSchema.optional(),
+        fields: ticketFieldsSchema.optional(),
+        offset: z.number().title('Offset').describe('Number of matching tickets to skip.').optional(),
+        limit: z.number().title('Limit').describe('Maximum number of tickets to return.').optional(),
+        order: z.string().title('Order').describe('Odoo order expression, such as "name asc".').optional(),
+        context: odooContextSchema.optional(),
+      }),
+    },
+    output: {
+      schema: z.object({
+        records: z.array(odooRecordSchema).title('Records').describe('Matching Odoo helpdesk ticket records.'),
+      }),
+    },
+  },
+  listTickets: {
+    title: 'List Tickets',
+    description:
+      'List Odoo helpdesk tickets by ID. Call listTicketFields first unless the needed helpdesk.ticket field names were already retrieved in this conversation.',
+    input: {
+      schema: z.object({
+        ids: ticketIdsSchema,
+        fields: ticketFieldsSchema.optional(),
+        context: odooContextSchema.optional(),
+      }),
+    },
+    output: {
+      schema: z.object({
+        records: z.array(odooRecordSchema).title('Records').describe('Requested Odoo helpdesk ticket records.'),
+      }),
+    },
+  },
   createLead: {
     title: 'Create Lead',
     description:
@@ -212,6 +331,22 @@ export const actions = {
     output: {
       schema: z.object({
         id: z.number().title('Lead ID').describe('ID of the created Odoo CRM lead.'),
+      }),
+    },
+  },
+  createTicket: {
+    title: 'Create Ticket',
+    description:
+      'Create an Odoo helpdesk ticket. Call listTicketFields first unless the needed helpdesk.ticket field names were already retrieved in this conversation.',
+    input: {
+      schema: z.object({
+        values: ticketValuesSchema,
+        context: odooContextSchema.optional(),
+      }),
+    },
+    output: {
+      schema: z.object({
+        id: z.number().title('Ticket ID').describe('ID of the created Odoo helpdesk ticket.'),
       }),
     },
   },
@@ -232,6 +367,23 @@ export const actions = {
       }),
     },
   },
+  updateTickets: {
+    title: 'Update Tickets',
+    description:
+      'Update one or more Odoo helpdesk tickets. Call listTicketFields first unless the needed helpdesk.ticket field names were already retrieved in this conversation.',
+    input: {
+      schema: z.object({
+        ids: ticketIdsSchema,
+        values: ticketUpdateValuesSchema,
+        context: odooContextSchema.optional(),
+      }),
+    },
+    output: {
+      schema: z.object({
+        updatedIds: ticketIdsSchema.describe('Odoo helpdesk ticket record IDs that were updated.'),
+      }),
+    },
+  },
   deleteLeads: {
     title: 'Delete Leads',
     description: 'Delete one or more Odoo CRM leads owned by the specified Odoo user.',
@@ -247,12 +399,26 @@ export const actions = {
     },
     output: {
       schema: z.object({
-        message: z.string().title('Message').describe('Summary of which requested leads were deleted or not deleted.'),
         deletedIds: leadIdsSchema.describe('Odoo CRM lead record IDs that were deleted.'),
         notDeletedLeads: z
           .array(notDeletedLeadSchema)
           .title('Not Deleted Leads')
           .describe('Odoo CRM leads that could not be deleted, with the reason for each lead.'),
+      }),
+    },
+  },
+  deleteTickets: {
+    title: 'Delete Tickets',
+    description: 'Delete one or more Odoo helpdesk tickets.',
+    input: {
+      schema: z.object({
+        ids: ticketIdsSchema,
+        context: odooContextSchema.optional(),
+      }),
+    },
+    output: {
+      schema: z.object({
+        deletedIds: ticketIdsSchema.describe('Odoo helpdesk ticket record IDs that were deleted.'),
       }),
     },
   },
@@ -279,7 +445,7 @@ export const actions = {
       'Create an Odoo contact. Call listContactFields first unless the needed res.partner field names were already retrieved in this conversation.',
     input: {
       schema: z.object({
-        values: odooRecordSchema,
+        values: contactValuesSchema,
         context: odooContextSchema.optional(),
       }),
     },
@@ -296,7 +462,7 @@ export const actions = {
     input: {
       schema: z.object({
         ids: contactIdsSchema,
-        values: odooRecordSchema,
+        values: contactUpdateValuesSchema,
         context: odooContextSchema.optional(),
       }),
     },
@@ -321,10 +487,6 @@ export const actions = {
     },
     output: {
       schema: z.object({
-        message: z
-          .string()
-          .title('Message')
-          .describe('Summary of which requested contacts were deleted or not deleted.'),
         deletedIds: contactIdsSchema.describe('Odoo contact record IDs that were deleted.'),
         notDeletedContacts: z
           .array(notDeletedContactSchema)
