@@ -430,8 +430,7 @@ describe('zuiToJSONSchemaNext', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo')
-      expect((e as errs.ZuiTransformError).path).toContain('.bar')
+      expect((e as errs.ZuiTransformError).path).toBe('#.foo.bar')
     }
   })
 
@@ -441,7 +440,7 @@ describe('zuiToJSONSchemaNext', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo[number]')
+      expect((e as errs.ZuiTransformError).path).toContain('[number]')
     }
   })
 
@@ -451,7 +450,7 @@ describe('zuiToJSONSchemaNext', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo[1]')
+      expect((e as errs.ZuiTransformError).path).toContain('[1]')
     }
   })
 
@@ -461,7 +460,7 @@ describe('zuiToJSONSchemaNext', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo[number]')
+      expect((e as errs.ZuiTransformError).path).toContain('[number]')
     }
   })
 
@@ -471,7 +470,7 @@ describe('zuiToJSONSchemaNext', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo[number]')
+      expect((e as errs.ZuiTransformError).path).toContain('[number]')
     }
   })
 
@@ -481,7 +480,7 @@ describe('zuiToJSONSchemaNext', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo[string]')
+      expect((e as errs.ZuiTransformError).path).toContain('[string]')
     }
   })
 
@@ -491,7 +490,7 @@ describe('zuiToJSONSchemaNext', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo[number]')
+      expect((e as errs.ZuiTransformError).path).toContain('[number]')
     }
   })
 
@@ -501,7 +500,7 @@ describe('zuiToJSONSchemaNext', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo[*]')
+      expect((e as errs.ZuiTransformError).path).toContain('[*]')
     }
   })
 
@@ -511,7 +510,7 @@ describe('zuiToJSONSchemaNext', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo[1]')
+      expect((e as errs.ZuiTransformError).path).toContain('[1]')
     }
   })
 
@@ -528,7 +527,7 @@ describe('zuiToJSONSchemaNext', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.discriminatedUnion[1]')
+      expect((e as errs.ZuiTransformError).path).toContain('[1]')
     }
   })
 
@@ -545,7 +544,7 @@ describe('zuiToJSONSchemaNext', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.intersection[0]')
+      expect((e as errs.ZuiTransformError).path).toContain('[0]')
     }
   })
 
@@ -555,7 +554,7 @@ describe('zuiToJSONSchemaNext', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo[string]')
+      expect((e as errs.ZuiTransformError).path).toContain('[string]')
     }
   })
 })
