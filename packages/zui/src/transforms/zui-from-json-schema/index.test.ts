@@ -1,6 +1,7 @@
 import * as z from '../../z'
 import { describe, test, expect } from 'vitest'
 import { fromJSONSchema } from './index'
+import * as errs from '../common/errors'
 import { JSONSchema7 } from 'json-schema'
 import { Schema as ZuiJSONSchema } from '../common/json-schema'
 import { toJSONSchema } from '../zui-to-json-schema'
@@ -1134,4 +1135,177 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
     expect(bool._def.description).toBe('A boolean parameter')
     expect(nul._def.description).toBe('A null parameter')
   })
+
+  describe.concurrent('error path propagation', () => {
+    test('should add complete path to error message', () => {
+      try {
+        fromJSONSchema({
+          type: 'object',
+          properties: {
+            foo: {
+              type: 'object',
+              properties: {
+                bar: {
+                  type: 'array',
+                  items: [{ type: 'number' }, { not: { type: 'string' } }],
+                },
+              },
+            },
+          },
+        })
+        expect.fail('should have thrown')
+      } catch (e) {
+        expect(e instanceof Error && e.message).toContain('#.foo.bar[1]')
+      }
+    })
+
+    test('should add object keys to path', () => {
+      try {
+        fromJSONSchema({
+          type: 'object',
+          properties: {
+            foo: {
+              type: 'object',
+              properties: {
+                bar: {
+                  type: 'object',
+                  patternProperties: { '^S_': { type: 'string' } },
+                },
+              },
+            },
+          },
+        })
+        expect.fail('should have thrown')
+      } catch (e) {
+        expect(e).toBeInstanceOf(errs.ZuiTransformError)
+        expect((e as errs.ZuiTransformError).path).toContain('.foo')
+        expect((e as errs.ZuiTransformError).path).toContain('.bar')
+      }
+    })
+
+    test('should add [number] to path for array item error', () => {
+      try {
+        fromJSONSchema({
+          type: 'array',
+          items: { if: { properties: { active: { type: 'boolean' } } } },
+        })
+        expect.fail('should have thrown')
+      } catch (e) {
+        expect(e).toBeInstanceOf(errs.ZuiTransformError)
+        expect((e as errs.ZuiTransformError).path).toContain('[number]')
+      }
+    })
+
+    test('should add [index] to path for tuple item error', () => {
+      try {
+        fromJSONSchema({
+          type: 'array',
+          items: [{ type: 'string' }, { type: 'number' }, { patternProperties: { '^x_': { type: 'string' } } }],
+        })
+        expect.fail('should have thrown')
+      } catch (e) {
+        expect(e).toBeInstanceOf(errs.ZuiTransformError)
+        expect((e as errs.ZuiTransformError).path).toContain('[2]')
+      }
+    })
+
+    test('should add [number] to path for set item error', () => {
+      try {
+        fromJSONSchema({
+          type: 'array',
+          uniqueItems: true,
+          items: { if: { properties: { active: { type: 'boolean' } } } },
+        })
+        expect.fail('should have thrown')
+      } catch (e) {
+        expect(e).toBeInstanceOf(errs.ZuiTransformError)
+        expect((e as errs.ZuiTransformError).path).toContain('[number]')
+      }
+    })
+
+    test('should add [index] to path for anyOf (union) branch error', () => {
+      try {
+        fromJSONSchema({
+          type: 'object',
+          properties: {
+            foo: { anyOf: [{ type: 'string' }, { if: { properties: { active: { type: 'boolean' } } } }] },
+          },
+        })
+        expect.fail('should have thrown')
+      } catch (e) {
+        expect(e).toBeInstanceOf(errs.ZuiTransformError)
+        expect((e as errs.ZuiTransformError).path).toContain('[1]')
+      }
+    })
+
+    test('should add [index] to path for oneOf (undiscriminated union) branch error', () => {
+      try {
+        fromJSONSchema({
+          type: 'object',
+          properties: {
+            foo: { oneOf: [{ type: 'string' }, { patternProperties: { '^x_': { type: 'string' } } }] },
+          },
+        })
+        expect.fail('should have thrown')
+      } catch (e) {
+        expect(e).toBeInstanceOf(errs.ZuiTransformError)
+        expect((e as errs.ZuiTransformError).path).toContain('[1]')
+      }
+    })
+
+    test('should add [index] to path for allOf (intersection) branch error', () => {
+      try {
+        fromJSONSchema({
+          type: 'object',
+          properties: {
+            foo: {
+              allOf: [
+                { type: 'object', properties: { bar: { type: 'string' } } },
+                { propertyNames: { pattern: '^[A-Z]+$' } },
+              ],
+            },
+          },
+        })
+        expect.fail('should have thrown')
+      } catch (e) {
+        expect(e).toBeInstanceOf(errs.ZuiTransformError)
+        expect((e as errs.ZuiTransformError).path).toContain('[1]')
+      }
+    })
+
+    test('should add [string] to path for object additionalProperties (catchall) error', () => {
+      try {
+        fromJSONSchema({
+          type: 'object',
+          properties: {
+            foo: { type: 'string' },
+          },
+          additionalProperties: { if: { properties: { active: { type: 'boolean' } } } },
+        })
+        expect.fail('should have thrown')
+      } catch (e) {
+        expect(e).toBeInstanceOf(errs.ZuiTransformError)
+        expect((e as errs.ZuiTransformError).path).toContain('[string]')
+      }
+    })
+
+    test('should add [number] to path for tuple rest (additionalItems) error', () => {
+      try {
+        fromJSONSchema({
+          type: 'object',
+          properties: {
+            foo: {
+              type: 'array',
+              items: [{ type: 'number' }, { type: 'number' }],
+              additionalItems: { patternProperties: { '^x_': { type: 'string' } } },
+            },
+          },
+        })
+        expect.fail('should have thrown')
+      } catch (e) {
+        expect(e).toBeInstanceOf(errs.ZuiTransformError)
+        expect((e as errs.ZuiTransformError).path).toContain('[number]')
+      }
+    })
+  }) // error path propagation
 })

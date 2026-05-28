@@ -136,7 +136,7 @@ function _toJSONSchema(
         description: s.description,
         properties: Object.fromEntries(properties),
         required,
-        additionalProperties: additionalPropertiesSchema(s._def, opts, path),
+        additionalProperties: additionalPropertiesSchema(s._def, opts, path.withIndexType('string')),
         'x-zui': s._def['x-zui'],
       } satisfies json.ObjectSchema
 

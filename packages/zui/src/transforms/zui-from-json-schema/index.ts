@@ -1,4 +1,5 @@
 import { JSONSchema7, JSONSchema7Definition } from 'json-schema'
+import { PropertyPath } from '../../utils/property-path-utils'
 import * as z from '../../z'
 import * as errors from '../common/errors'
 import { ArraySchema, SetSchema, TupleSchema } from '../common/json-schema'
@@ -14,10 +15,10 @@ const DEFAULT_TYPE = z.any()
  * @returns ZUI Schema
  */
 export function fromJSONSchema(schema: JSONSchema7): z.ZodType {
-  return _fromJSONSchema(schema)
+  return _fromJSONSchema(schema, new PropertyPath())
 }
 
-function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
+function _fromJSONSchema(schema: JSONSchema7Definition | undefined, path: PropertyPath): z.ZodType {
   if (schema === undefined) {
     return DEFAULT_TYPE
   }
@@ -31,36 +32,36 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
   }
 
   if (schema.default !== undefined) {
-    const inner = _fromJSONSchema({ ...schema, default: undefined })
+    const inner = _fromJSONSchema({ ...schema, default: undefined }, path)
     return inner.default(schema.default)
   }
   if (schema.readOnly) {
-    const inner = _fromJSONSchema({ ...schema, readOnly: undefined })
+    const inner = _fromJSONSchema({ ...schema, readOnly: undefined }, path)
     return inner.readonly()
   }
   if (schema.description !== undefined) {
-    const inner = _fromJSONSchema({ ...schema, description: undefined })
+    const inner = _fromJSONSchema({ ...schema, description: undefined }, path)
     return inner.describe(schema.description)
   }
 
   if (schema.patternProperties !== undefined) {
-    throw new errors.UnsupportedJSONSchemaToZuiError({ patternProperties: schema.patternProperties })
+    throw new errors.UnsupportedJSONSchemaToZuiError({ patternProperties: schema.patternProperties }, path.toString())
   }
 
   if (schema.propertyNames !== undefined) {
-    throw new errors.UnsupportedJSONSchemaToZuiError({ propertyNames: schema.propertyNames })
+    throw new errors.UnsupportedJSONSchemaToZuiError({ propertyNames: schema.propertyNames }, path.toString())
   }
 
   if (schema.if !== undefined) {
-    throw new errors.UnsupportedJSONSchemaToZuiError({ if: schema.if })
+    throw new errors.UnsupportedJSONSchemaToZuiError({ if: schema.if }, path.toString())
   }
 
   if (schema.then !== undefined) {
-    throw new errors.UnsupportedJSONSchemaToZuiError({ then: schema.then })
+    throw new errors.UnsupportedJSONSchemaToZuiError({ then: schema.then }, path.toString())
   }
 
   if (schema.else !== undefined) {
-    throw new errors.UnsupportedJSONSchemaToZuiError({ else: schema.else })
+    throw new errors.UnsupportedJSONSchemaToZuiError({ else: schema.else }, path.toString())
   }
 
   if (schema.$ref !== undefined) {
@@ -74,7 +75,7 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
     if (schema.not === true) {
       return z.never()
     }
-    throw new errors.UnsupportedJSONSchemaToZuiError({ not: schema.not })
+    throw new errors.UnsupportedJSONSchemaToZuiError({ not: schema.not }, path.toString())
   }
 
   if (Array.isArray(schema.type)) {
@@ -82,10 +83,12 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
       return DEFAULT_TYPE
     }
     if (schema.type.length === 1) {
-      return _fromJSONSchema({ ...schema, type: schema.type[0] })
+      return _fromJSONSchema({ ...schema, type: schema.type[0] }, path.withIndexType('number', 0))
     }
     const { type: _, ...tmp } = schema
-    const types = schema.type.map((t) => _fromJSONSchema({ ...tmp, type: t })) as [z.ZodType, z.ZodType, ...z.ZodType[]]
+    const types = schema.type.map((t, index) =>
+      _fromJSONSchema({ ...tmp, type: t }, path.withIndexType('number', index))
+    ) as [z.ZodType, z.ZodType, ...z.ZodType[]]
     return z.union(types)
   }
 
@@ -93,11 +96,11 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
     if (schema.enum && schema.enum.length > 0) {
       return z.enum(schema.enum as [string, ...string[]])
     }
-    return toZuiPrimitive('string', schema)
+    return toZuiPrimitive('string', schema, path)
   }
 
   if (schema.type === 'integer') {
-    const zSchema = toZuiPrimitive('number', schema)
+    const zSchema = toZuiPrimitive('number', schema, path)
     if (zSchema.typeName === 'ZodNumber') {
       return zSchema.int()
     }
@@ -106,32 +109,32 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
   }
 
   if (schema.type === 'number') {
-    return toZuiPrimitive('number', schema)
+    return toZuiPrimitive('number', schema, path)
   }
 
   if (schema.type === 'boolean') {
-    return toZuiPrimitive('boolean', schema)
+    return toZuiPrimitive('boolean', schema, path)
   }
 
   if (schema.type === 'null') {
-    return toZuiPrimitive('null', schema)
+    return toZuiPrimitive('null', schema, path)
   }
 
   if (schema.type === 'array') {
-    return arrayJSONSchemaToZuiArray(schema as ArraySchema | TupleSchema | SetSchema, _fromJSONSchema)
+    return arrayJSONSchemaToZuiArray(schema as ArraySchema | TupleSchema | SetSchema, _fromJSONSchema, path)
   }
 
   if (schema.type === 'object') {
     if (schema.additionalProperties !== undefined && schema.properties !== undefined) {
-      const catchAll = _fromJSONSchema(schema.additionalProperties)
-      const inner = _fromJSONSchema({ ...schema, additionalProperties: undefined }) as z.ZodObject
+      const catchAll = _fromJSONSchema(schema.additionalProperties, path.withIndexType('string'))
+      const inner = _fromJSONSchema({ ...schema, additionalProperties: undefined }, path) as z.ZodObject
       return inner.catchall(catchAll)
     }
 
     if (schema.properties !== undefined) {
       const properties: Record<string, z.ZodType> = {}
       for (const [key, value] of Object.entries(schema.properties)) {
-        const mapped: z.ZodType = _fromJSONSchema(value)
+        const mapped: z.ZodType = _fromJSONSchema(value, path.withIndexType('key', key))
         const required: string[] = schema.required ?? []
         // If the property is already optional (e.g., has a default value), don't wrap it again
         properties[key] = required.includes(key) ? mapped : mapped.isOptional() ? mapped : mapped.optional()
@@ -140,7 +143,7 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
     }
 
     if (schema.additionalProperties !== undefined) {
-      const inner = _fromJSONSchema(schema.additionalProperties)
+      const inner = _fromJSONSchema(schema.additionalProperties, path.withIndexType('string'))
       return z.record(inner)
     }
 
@@ -153,22 +156,22 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
     }
 
     if (schema.anyOf.length === 1) {
-      return _fromJSONSchema(schema.anyOf[0])
+      return _fromJSONSchema(schema.anyOf[0], path)
     }
 
     if (guards.isOptionalSchema(schema)) {
-      const inner = _fromJSONSchema(schema.anyOf[0])
+      const inner = _fromJSONSchema(schema.anyOf[0], path)
       return inner.optional()
     }
 
     if (guards.isNullableSchema(schema)) {
-      const inner = _fromJSONSchema(schema.anyOf[0])
+      const inner = _fromJSONSchema(schema.anyOf[0], path)
       return inner.nullable()
     }
 
     if (guards.isDiscriminatedUnionSchema(schema) && schema['x-zui']?.def?.discriminator) {
       const { discriminator } = schema['x-zui'].def
-      const options = schema.anyOf.map(_fromJSONSchema) as [
+      const options = schema.anyOf.map((s, index) => _fromJSONSchema(s, path.withIndexType('number', index))) as [
         z.ZodDiscriminatedUnionOption<string>,
         z.ZodDiscriminatedUnionOption<string>,
         ...z.ZodDiscriminatedUnionOption<string>[],
@@ -176,7 +179,11 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
       return z.discriminatedUnion(discriminator, options)
     }
 
-    const options = schema.anyOf.map(_fromJSONSchema) as [z.ZodType, z.ZodType, ...z.ZodType[]]
+    const options = schema.anyOf.map((s, index) => _fromJSONSchema(s, path.withIndexType('number', index))) as [
+      z.ZodType,
+      z.ZodType,
+      ...z.ZodType[],
+    ]
     return z.union(options)
   }
 
@@ -186,13 +193,13 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
     }
 
     if (schema.oneOf.length === 1) {
-      return _fromJSONSchema(schema.oneOf[0])
+      return _fromJSONSchema(schema.oneOf[0], path)
     }
 
     if (guards.isExclusiveDiscriminatedUnionSchema(schema)) {
       const discriminator = schema.discriminator?.propertyName || schema['x-zui']?.def?.discriminator
       if (discriminator) {
-        const options = schema.oneOf.map(_fromJSONSchema) as [
+        const options = schema.oneOf.map((s, index) => _fromJSONSchema(s, path.withIndexType('number', index))) as [
           z.ZodDiscriminatedUnionOption<string>,
           z.ZodDiscriminatedUnionOption<string>,
           ...z.ZodDiscriminatedUnionOption<string>[],
@@ -201,7 +208,11 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
       }
     }
 
-    const options = schema.oneOf.map(_fromJSONSchema) as [z.ZodType, z.ZodType, ...z.ZodType[]]
+    const options = schema.oneOf.map((s, index) => _fromJSONSchema(s, path.withIndexType('number', index))) as [
+      z.ZodType,
+      z.ZodType,
+      ...z.ZodType[],
+    ]
     return z.union(options)
   }
 
@@ -210,11 +221,11 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
       return DEFAULT_TYPE
     }
     if (schema.allOf.length === 1) {
-      return _fromJSONSchema(schema.allOf[0])
+      return _fromJSONSchema(schema.allOf[0], path)
     }
     const [left, ...right] = schema.allOf as [JSONSchema7, ...JSONSchema7[]]
-    const zLeft = _fromJSONSchema(left)
-    const zRight = _fromJSONSchema({ allOf: right })
+    const zLeft = _fromJSONSchema(left, path.withIndexType('number', 0))
+    const zRight = _fromJSONSchema({ allOf: right }, path.withIndexType('number', 1))
     return z.intersection(zLeft, zRight)
   }
 

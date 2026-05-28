@@ -21,20 +21,20 @@ export abstract class ZuiTransformError extends Error {
 
 // json-schema-to-zui-error
 export class JSONSchemaToZuiError extends ZuiTransformError {
-  public constructor(message?: string) {
-    super('json-schema-to-zui', message)
+  public constructor(message?: string, path?: string) {
+    super('json-schema-to-zui', message, path)
   }
 }
 export class UnsupportedJSONSchemaToZuiError extends JSONSchemaToZuiError {
-  public constructor(schema: JSONSchema7) {
-    super(`JSON Schema ${JSON.stringify(schema)} cannot be transformed to ZUI type.`)
+  public constructor(schema: JSONSchema7, path: string) {
+    super(`JSON Schema ${JSON.stringify(schema)} cannot be transformed to ZUI type.`, path)
   }
 }
 
 // object-to-zui-error
 export class ObjectToZuiError extends ZuiTransformError {
-  public constructor(message?: string) {
-    super('object-to-zui', message)
+  public constructor(message: string, path: string) {
+    super('object-to-zui', message, path)
   }
 }
 
