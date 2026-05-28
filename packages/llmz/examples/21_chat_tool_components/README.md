@@ -26,12 +26,12 @@ async *handler({ from, date, to }) {
 
 ### Contrast with example 10
 
-| | Example 10 | Example 21 |
-|---|---|---|
-| Who yields components | LLM-generated JSX code | Tool handler itself |
-| Tool handler type | `async (input) => output` | `async function* (input)` |
-| LLM needs to know components | Yes — included as component aliases | No — tool handles it internally |
-| Progress updates mid-execution | Not possible | `yield` between steps |
+|                                | Example 10                          | Example 21                      |
+| ------------------------------ | ----------------------------------- | ------------------------------- |
+| Who yields components          | LLM-generated JSX code              | Tool handler itself             |
+| Tool handler type              | `async (input) => output`           | `async function* (input)`       |
+| LLM needs to know components   | Yes — included as component aliases | No — tool handles it internally |
+| Progress updates mid-execution | Not possible                        | `yield` between steps           |
 
 ## 🎥 Demo
 

@@ -440,7 +440,10 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
       input: IX | ((original: I | undefined) => IX)
       output: OX | ((original: O | undefined) => OX)
       staticInputValues?: SmartPartial<TypeOf<IX>>
-      handler: (args: TypeOf<IX>, ctx: ToolCallContext) => AsyncGenerator<RenderedComponent, TypeOf<OX>> | Promise<TypeOf<OX>>
+      handler: (
+        args: TypeOf<IX>,
+        ctx: ToolCallContext
+      ) => AsyncGenerator<RenderedComponent, TypeOf<OX>> | Promise<TypeOf<OX>>
       retry: ToolRetryFn<TypeOf<IX>>
     }> = {}
   ): Tool<IX, OX> {
@@ -491,7 +494,10 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
     }
   }
 
-  private _handler: (args: unknown, ctx: ToolCallContext) => AsyncGenerator<RenderedComponent, unknown, void> | Promise<unknown>
+  private _handler: (
+    args: unknown,
+    ctx: ToolCallContext
+  ) => AsyncGenerator<RenderedComponent, unknown, void> | Promise<unknown>
 
   /**
    * Creates a new Tool instance.
@@ -577,7 +583,10 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
     input?: I
     output?: O
     staticInputValues?: Partial<TypeOf<I>>
-    handler: (args: TypeOf<I>, ctx: ToolCallContext) => AsyncGenerator<RenderedComponent, TypeOf<O>> | Promise<TypeOf<O>>
+    handler: (
+      args: TypeOf<I>,
+      ctx: ToolCallContext
+    ) => AsyncGenerator<RenderedComponent, TypeOf<O>> | Promise<TypeOf<O>>
     retry?: ToolRetryFn<TypeOf<I>>
   }) {
     if (!isValidIdentifier(props.name)) {
@@ -655,6 +664,34 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
     this.retry = props.retry
   }
 
+  private async _executeHandler(
+    input: unknown,
+    ctx: ToolCallContext,
+    chat: Chat | undefined,
+    yieldedCount: number,
+    setYieldedCount: (n: number) => void
+  ): Promise<unknown> {
+    const handler = this._handler(input, ctx)
+    const isGen = typeof handler === 'object' && handler !== null && 'next' in handler
+
+    if (!isGen) {
+      return handler
+    }
+
+    let yieldIndex = 0
+    while (true) {
+      const { value, done } = await handler.next()
+      if (done) {
+        return value
+      }
+      if (yieldIndex >= yieldedCount) {
+        setYieldedCount(yieldIndex + 1)
+        await chat?.handler?.(value)
+      }
+      yieldIndex++
+    }
+  }
+
   /**
    * Executes the tool with the given input and context.
    *
@@ -690,33 +727,13 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
     }
 
     let attempt = 0
-    let yieldedComponents = 0
+    let yieldedCount = 0
 
     while (attempt < this.MAX_RETRIES) {
       try {
-        let result: unknown
-        const handler = this._handler(pInput.data, ctx)
-        const isGen = typeof handler === 'object' && handler !== null && 'next' in handler
-
-        if (isGen) {
-          let yieldIndex = 0
-          while (true) {
-            const { value, done } = await handler.next()
-            if (done) {
-              result = value
-              break
-            }
-
-            if (yieldIndex >= yieldedComponents) {
-              yieldedComponents++
-              await chat?.handler?.(value)
-            }
-            yieldIndex++
-          }
-        } else {
-          result = await handler
-        }
-        
+        const result = await this._executeHandler(pInput.data, ctx, chat, yieldedCount, (n) => {
+          yieldedCount = n
+        })
         const pOutput = (this.zOutput as any).safeParse(result)
         return pOutput.success ? pOutput.data : result
       } catch (err) {

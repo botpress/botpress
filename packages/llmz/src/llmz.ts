@@ -36,7 +36,6 @@ import { Trace } from './types.js'
 
 import { init, stripInvalidIdentifiers } from './utils.js'
 import { runAsyncFunction } from './vm.js'
-import { Component, ComponentDefinition, RenderedComponent } from './component.js'
 
 const getErrorMessage = (err: unknown) => (err instanceof Error ? err.message : JSON.stringify(err))
 
@@ -609,7 +608,15 @@ const executeIteration = async ({
   }
 
   for (const tool of iteration.tools) {
-    const wrapped = wrapTool({ chat: ctx.chat, tool, traces, iteration, beforeHook: onBeforeTool, afterHook: onAfterTool, controller })
+    const wrapped = wrapTool({
+      chat: ctx.chat,
+      tool,
+      traces,
+      iteration,
+      beforeHook: onBeforeTool,
+      afterHook: onAfterTool,
+      controller,
+    })
     for (const key of [tool.name, ...(tool.aliases ?? [])]) {
       vmContext[key] = wrapped
     }
@@ -868,9 +875,13 @@ function wrapTool({ chat, tool, traces, object, iteration, beforeHook, afterHook
           input = beforeRes.input
         }
 
-        let output = await tool.execute(input, {
-          callId: toolCallId,
-        }, chat)
+        let output = await tool.execute(
+          input,
+          {
+            callId: toolCallId,
+          },
+          chat
+        )
 
         const afterRes = await afterHook?.({
           iteration,

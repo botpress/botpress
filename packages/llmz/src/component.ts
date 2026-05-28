@@ -218,8 +218,11 @@ export class Component<T extends ComponentDefinition = ComponentDefinition> {
     this.definition = definition
   }
 
-  public render<TChildren extends any = any>(props: Component['propsType'], children: Array<TChildren> = []): RenderedComponent {
-    return createJsxComponent({type: this.definition.name, props, children})
+  public render<TChildren extends any = any>(
+    props: Component['propsType'],
+    children: Array<TChildren> = []
+  ): RenderedComponent {
+    return createJsxComponent({ type: this.definition.name, props, children })
   }
 }
 
