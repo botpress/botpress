@@ -688,12 +688,12 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
 
     let attempt = 0
 
-    let result: unknown
-    const handler = this._handler(pInput.data, ctx)
-    const isGen = typeof handler === 'object' && handler !== null && 'next' in handler
-
     while (attempt < this.MAX_RETRIES) {
       try {
+        let result: unknown
+        const handler = this._handler(pInput.data, ctx)
+        const isGen = typeof handler === 'object' && handler !== null && 'next' in handler
+        
         if (isGen) {
         while (true) {
           const { value, done } = await handler.next()
