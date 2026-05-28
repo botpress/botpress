@@ -8,18 +8,42 @@ import {
   CognitiveStreamChunk,
   TranscribeRequest,
   TranscribeResponse,
+  TtsRequest,
+  TtsResponse,
+  TtsStreamChunk,
+  TtsMetadata,
+  ImageRequest,
+  ImageResponse,
+  ImageMetadata,
+  Voice,
   Model,
 } from './types'
 
-export { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk, TranscribeRequest, TranscribeResponse }
+export {
+  CognitiveRequest,
+  CognitiveResponse,
+  CognitiveStreamChunk,
+  TranscribeRequest,
+  TranscribeResponse,
+  TtsRequest,
+  TtsResponse,
+  TtsStreamChunk,
+  TtsMetadata,
+  ImageRequest,
+  ImageResponse,
+  ImageMetadata,
+  Voice,
+}
 
 export type BetaTextRequest = { type: 'generateText'; input: CognitiveRequest }
 export type BetaTranscribeRequest = { type: 'transcribeAudio'; input: TranscribeRequest }
-export type BetaRequest = BetaTextRequest | BetaTranscribeRequest
+export type BetaTtsRequest = { type: 'generateAudio'; input: TtsRequest }
+export type BetaImageRequest = { type: 'generateImage'; input: ImageRequest }
+export type BetaRequest = BetaTextRequest | BetaTranscribeRequest | BetaTtsRequest | BetaImageRequest
 
 export type BetaEvents = {
   request: (req: BetaRequest) => void
-  response: (req: BetaRequest, res: CognitiveResponse | TranscribeResponse) => void
+  response: (req: BetaRequest, res: CognitiveResponse | TranscribeResponse | TtsResponse | ImageResponse) => void
   error: (req: BetaRequest, error: any) => void
   retry: (req: BetaRequest, error: any) => void
 }
@@ -135,6 +159,67 @@ export class CognitiveBeta {
     )
 
     return data.models
+  }
+
+  public async listVoices(filter: { model?: string; language?: string } = {}): Promise<Voice[]> {
+    const { data } = await this._withServerRetry(() =>
+      this._axiosClient.get<{ voices: Voice[] }>('/v2/cognitive/voices', {
+        params: filter,
+        paramsSerializer: { encode: encodeURIComponent },
+      })
+    )
+
+    return data.voices
+  }
+
+  public async generateAudio(input: TtsRequest, options: RequestOptions = {}): Promise<TtsResponse> {
+    const signal = options.signal ?? AbortSignal.timeout(this._timeout)
+    const req: BetaTtsRequest = { type: 'generateAudio', input }
+
+    this._events.emit('request', req)
+
+    try {
+      const { data } = await this._withServerRetry(
+        () =>
+          this._axiosClient.post<TtsResponse>('/v2/cognitive/generate-audio', input, {
+            signal,
+            timeout: options.timeout ?? this._timeout,
+          }),
+        options,
+        req
+      )
+
+      this._events.emit('response', req, data)
+      return data
+    } catch (error) {
+      this._events.emit('error', req, error)
+      throw error
+    }
+  }
+
+  public async generateImage(input: ImageRequest, options: RequestOptions = {}): Promise<ImageResponse> {
+    const signal = options.signal ?? AbortSignal.timeout(this._timeout)
+    const req: BetaImageRequest = { type: 'generateImage', input }
+
+    this._events.emit('request', req)
+
+    try {
+      const { data } = await this._withServerRetry(
+        () =>
+          this._axiosClient.post<ImageResponse>('/v2/cognitive/generate-image', input, {
+            signal,
+            timeout: options.timeout ?? this._timeout,
+          }),
+        options,
+        req
+      )
+
+      this._events.emit('response', req, data)
+      return data
+    } catch (error) {
+      this._events.emit('error', req, error)
+      throw error
+    }
   }
 
   public async transcribeAudio(input: TranscribeRequest, options: RequestOptions = {}) {
@@ -262,6 +347,97 @@ export class CognitiveBeta {
         this._events.emit('response', req, {
           output: chunks.map((c) => c.output || '').join(''),
           metadata: lastChunk.metadata,
+        })
+      }
+    } catch (error) {
+      this._events.emit('error', req, error)
+      throw error
+    }
+  }
+
+  public async *generateAudioStream(
+    input: TtsRequest,
+    options: RequestOptions = {}
+  ): AsyncGenerator<TtsStreamChunk, void, unknown> {
+    const signal = options.signal ?? AbortSignal.timeout(this._timeout)
+    const req: BetaTtsRequest = { type: 'generateAudio', input }
+    let finalChunk: Extract<TtsStreamChunk, { finished: true }> | undefined
+
+    this._events.emit('request', req)
+
+    try {
+      if (isBrowser()) {
+        const res = await fetch(`${this._apiUrl}/v2/cognitive/generate-audio-stream`, {
+          method: 'POST',
+          headers: {
+            ...this._headers,
+            'Content-Type': 'application/json',
+          },
+          credentials: this._withCredentials ? 'include' : 'omit',
+          body: JSON.stringify(input),
+          signal,
+        })
+
+        if (!res.ok) {
+          const text = await res.text().catch(() => '')
+          const err = new Error(`HTTP ${res.status}: ${text || res.statusText}`)
+          ;(err as any).response = { status: res.status, data: text }
+          throw err
+        }
+
+        const body = res.body
+        if (!body) {
+          throw new Error('No response body received for streaming request')
+        }
+
+        const reader = body.getReader()
+        const iterable = (async function* () {
+          for (;;) {
+            const { value, done } = await reader.read()
+            if (done) {
+              break
+            }
+            if (value) {
+              yield value
+            }
+          }
+        })()
+
+        for await (const obj of this._ndjson<TtsStreamChunk>(iterable)) {
+          if (obj.finished) {
+            finalChunk = obj
+          }
+          yield obj
+        }
+      } else {
+        const res = await this._withServerRetry(
+          () =>
+            this._axiosClient.post('/v2/cognitive/generate-audio-stream', input, {
+              responseType: 'stream',
+              signal,
+              timeout: options.timeout ?? this._timeout,
+            }),
+          options,
+          req
+        )
+
+        const nodeStream: AsyncIterable<Uint8Array> = res.data as any
+        if (!nodeStream) {
+          throw new Error('No response body received for streaming request')
+        }
+
+        for await (const obj of this._ndjson<TtsStreamChunk>(nodeStream)) {
+          if (obj.finished) {
+            finalChunk = obj
+          }
+          yield obj
+        }
+      }
+
+      if (finalChunk) {
+        this._events.emit('response', req, {
+          output: { audioUrl: finalChunk.audioUrl },
+          metadata: finalChunk.metadata,
         })
       }
     } catch (error) {
