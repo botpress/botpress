@@ -1178,8 +1178,7 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errs.ZuiTransformError)
-        expect((e as errs.ZuiTransformError).path).toContain('.foo')
-        expect((e as errs.ZuiTransformError).path).toContain('.bar')
+        expect((e as errs.ZuiTransformError).path).toBe('#.foo.bar')
       }
     })
 

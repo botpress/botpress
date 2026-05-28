@@ -83,7 +83,7 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined, path: Proper
       return DEFAULT_TYPE
     }
     if (schema.type.length === 1) {
-      return _fromJSONSchema({ ...schema, type: schema.type[0] }, path.withIndexType('number', 0))
+      return _fromJSONSchema({ ...schema, type: schema.type[0] }, path)
     }
     const { type: _, ...tmp } = schema
     const types = schema.type.map((t, index) =>
@@ -223,10 +223,11 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined, path: Proper
     if (schema.allOf.length === 1) {
       return _fromJSONSchema(schema.allOf[0], path)
     }
-    const [left, ...right] = schema.allOf as [JSONSchema7, ...JSONSchema7[]]
-    const zLeft = _fromJSONSchema(left, path.withIndexType('number', 0))
-    const zRight = _fromJSONSchema({ allOf: right }, path.withIndexType('number', 1))
-    return z.intersection(zLeft, zRight)
+    const schemas = schema.allOf as [JSONSchema7, JSONSchema7, ...JSONSchema7[]]
+    const zSchemas = schemas.map((s, index) => _fromJSONSchema(s, path.withIndexType('number', index)))
+    return zSchemas
+      .slice(2)
+      .reduce<z.ZodType>((acc, s) => z.intersection(acc, s), z.intersection(zSchemas[0]!, zSchemas[1]!))
   }
 
   schema.type satisfies undefined
