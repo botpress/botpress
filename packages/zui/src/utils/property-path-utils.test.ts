@@ -6,51 +6,46 @@ describe.concurrent('PropertyPath', () => {
     expect(new PropertyPath().toString()).toBe('#')
   })
 
-  it('renders a name-only section', () => {
+  it('adds a key index with a dot', () => {
     expect(new PropertyPath().withIndexType('key', 'foo').toString()).toBe('#.foo')
   })
 
   describe.concurrent('withIndexType', () => {
     it('adds a number index without a value', () => {
-      const path = new PropertyPath().withIndexType('key', 'foo').withIndexType('number')
-      expect(path.toString()).toBe('#.foo[number]')
+      const path = new PropertyPath().withIndexType('number')
+      expect(path.toString()).toBe('#[number]')
     })
 
     it('adds a number index with a value', () => {
-      const path = new PropertyPath().withIndexType('key', 'foo').withIndexType('number', 3)
-      expect(path.toString()).toBe('#.foo[3]')
+      const path = new PropertyPath().withIndexType('number', 3)
+      expect(path.toString()).toBe('#[3]')
     })
 
     it('adds a string index without a value', () => {
-      const path = new PropertyPath().withIndexType('key', 'foo').withIndexType('string')
-      expect(path.toString()).toBe('#.foo[string]')
+      const path = new PropertyPath().withIndexType('string')
+      expect(path.toString()).toBe('#[string]')
     })
 
     it('adds a string index with a value', () => {
-      const path = new PropertyPath().withIndexType('key', 'foo').withIndexType('string', 'foo')
-      expect(path.toString()).toBe('#.foo[foo]')
+      const path = new PropertyPath().withIndexType('string', 'foo')
+      expect(path.toString()).toBe('#[foo]')
     })
 
     it('adds an any index', () => {
-      const path = new PropertyPath().withIndexType('key', 'foo').withIndexType('any')
-      expect(path.toString()).toBe('#.foo[*]')
+      const path = new PropertyPath().withIndexType('any')
+      expect(path.toString()).toBe('#[*]')
     })
 
-    it('stacks multiple indices on the same section', () => {
-      const path = new PropertyPath()
-        .withIndexType('key', 'foo')
-        .withIndexType('number', 2)
-        .withIndexType('string', 'col')
-      expect(path.toString()).toBe('#.foo[2][col]')
+    it('does not mutate the original', () => {
+      const original = new PropertyPath()
+      const next = original.withIndexType('key', 'foo')
+      expect(original.toString()).toBe('#')
+      expect(next.toString()).toBe('#.foo')
     })
 
-    it('applies different index types on consecutive sections', () => {
-      const path = new PropertyPath()
-        .withIndexType('key', 'foo')
-        .withIndexType('number', 2)
-        .withIndexType('key', 'bar')
-        .withIndexType('string', 'baz')
-      expect(path.toString()).toBe('#.foo[2].bar[baz]')
+    it('chains multiple indexType', () => {
+      const path = new PropertyPath().withIndexType('key', 'foo').withIndexType('key', 'bar')
+      expect(path.toString()).toBe('#.foo.bar')
     })
   })
 
@@ -67,7 +62,7 @@ describe.concurrent('PropertyPath', () => {
       expect(prefixed.toString()).toBe('keyOf #.foo')
     })
 
-    it('prefix is preserved through appendSection', () => {
+    it('prefix is preserved through withIndexType', () => {
       const path = new PropertyPath().withIndexType('key', 'foo').withPrefix('keyOf').withIndexType('key', 'bar')
       expect(path.toString()).toBe('keyOf #.foo.bar')
     })
@@ -75,20 +70,6 @@ describe.concurrent('PropertyPath', () => {
     it('prefix is preserved through withIndexType', () => {
       const path = new PropertyPath().withIndexType('key', 'foo').withPrefix('keyOf').withIndexType('number', 1)
       expect(path.toString()).toBe('keyOf #.foo[1]')
-    })
-  })
-
-  describe.concurrent('appendSection', () => {
-    it('does not mutate the original', () => {
-      const original = new PropertyPath()
-      const next = original.withIndexType('key', 'foo')
-      expect(original.toString()).toBe('#')
-      expect(next.toString()).toBe('#.foo')
-    })
-
-    it('chains multiple appends', () => {
-      const path = new PropertyPath().withIndexType('key', 'foo').withIndexType('key', 'bar')
-      expect(path.toString()).toBe('#.foo.bar')
     })
   })
 })

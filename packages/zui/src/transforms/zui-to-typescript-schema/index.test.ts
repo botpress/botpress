@@ -1,6 +1,5 @@
 import { describe, expect, test, it } from 'vitest'
 import { toTypescriptSchema as toTypescript } from '.'
-import * as errs from '../common/errors'
 import { evalZuiString } from '../common/eval-zui-string'
 import * as errors from '../common/errors'
 import * as z from '../../z'
@@ -699,9 +698,9 @@ describe.concurrent('toTypescriptSchema', () => {
       toTypescript(z.object({ foo: z.object({ bar: z.string().refine((v) => v.length > 0) }) }))
       expect.fail('should have thrown')
     } catch (e) {
-      expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo')
-      expect((e as errs.ZuiTransformError).path).toContain('.bar')
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toContain('.foo')
+      expect((e as errors.ZuiTransformError).path).toContain('.bar')
     }
   })
 
@@ -710,8 +709,8 @@ describe.concurrent('toTypescriptSchema', () => {
       toTypescript(z.object({ foo: z.array(z.string().refine((v) => v.length > 0)) }))
       expect.fail('should have thrown')
     } catch (e) {
-      expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo[number]')
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toContain('.foo[number]')
     }
   })
 
@@ -720,8 +719,8 @@ describe.concurrent('toTypescriptSchema', () => {
       toTypescript(z.object({ foo: z.tuple([z.number(), z.string().refine((v) => v.length > 0)]) }))
       expect.fail('should have thrown')
     } catch (e) {
-      expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo[1]')
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toContain('.foo[1]')
     }
   })
 
@@ -730,8 +729,8 @@ describe.concurrent('toTypescriptSchema', () => {
       toTypescript(z.object({ foo: z.set(z.string().refine((v) => v.length > 0)) }))
       expect.fail('should have thrown')
     } catch (e) {
-      expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo[number]')
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toContain('.foo[number]')
     }
   })
 
@@ -747,8 +746,8 @@ describe.concurrent('toTypescriptSchema', () => {
       )
       expect.fail('should have thrown')
     } catch (e) {
-      expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('keyOf')
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toContain('keyOf')
     }
   })
 
@@ -764,8 +763,8 @@ describe.concurrent('toTypescriptSchema', () => {
       )
       expect.fail('should have thrown')
     } catch (e) {
-      expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo[string]')
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toContain('.foo[string]')
     }
   })
 
@@ -781,8 +780,8 @@ describe.concurrent('toTypescriptSchema', () => {
       )
       expect.fail('should have thrown')
     } catch (e) {
-      expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo[number]')
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toContain('.foo[number]')
     }
   })
 
@@ -798,8 +797,8 @@ describe.concurrent('toTypescriptSchema', () => {
       )
       expect.fail('should have thrown')
     } catch (e) {
-      expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo[*]')
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toContain('.foo[*]')
     }
   })
 
@@ -815,8 +814,8 @@ describe.concurrent('toTypescriptSchema', () => {
       )
       expect.fail('should have thrown')
     } catch (e) {
-      expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('keyOf')
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toContain('keyOf')
     }
   })
 
@@ -832,8 +831,8 @@ describe.concurrent('toTypescriptSchema', () => {
       )
       expect.fail('should have thrown')
     } catch (e) {
-      expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo[string]')
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toContain('.foo[string]')
     }
   })
 
@@ -849,8 +848,8 @@ describe.concurrent('toTypescriptSchema', () => {
       )
       expect.fail('should have thrown')
     } catch (e) {
-      expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo[number]')
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toContain('.foo[number]')
     }
   })
 
@@ -866,8 +865,8 @@ describe.concurrent('toTypescriptSchema', () => {
       )
       expect.fail('should have thrown')
     } catch (e) {
-      expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo[*]')
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toContain('.foo[*]')
     }
   })
 
@@ -876,8 +875,8 @@ describe.concurrent('toTypescriptSchema', () => {
       toTypescript(z.object({ foo: z.union([z.boolean(), z.string().refine((v) => v.length > 0)]) }))
       expect.fail('should have thrown')
     } catch (e) {
-      expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo[1]')
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toContain('.foo[1]')
     }
   })
 
@@ -893,8 +892,8 @@ describe.concurrent('toTypescriptSchema', () => {
       )
       expect.fail('should have thrown')
     } catch (e) {
-      expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.discriminatedUnion[1]')
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toContain('.discriminatedUnion[1]')
     }
   })
 
@@ -910,8 +909,8 @@ describe.concurrent('toTypescriptSchema', () => {
       )
       expect.fail('should have thrown')
     } catch (e) {
-      expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.intersection[0]')
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toContain('.intersection[0]')
     }
   })
 
@@ -924,8 +923,8 @@ describe.concurrent('toTypescriptSchema', () => {
       )
       expect.fail('should have thrown')
     } catch (e) {
-      expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.fn[1]')
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toContain('.fn[1]')
     }
   })
 
@@ -941,8 +940,8 @@ describe.concurrent('toTypescriptSchema', () => {
       )
       expect.fail('should have thrown')
     } catch (e) {
-      expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('returns')
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toContain('returns')
     }
   })
 
@@ -951,8 +950,8 @@ describe.concurrent('toTypescriptSchema', () => {
       toTypescript(z.object({ foo: z.object({}).catchall(z.string().refine((v) => v.length > 0)) }))
       expect.fail('should have thrown')
     } catch (e) {
-      expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('.foo[string]')
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toContain('.foo[string]')
     }
   })
 })
