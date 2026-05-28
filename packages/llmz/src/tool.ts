@@ -695,20 +695,20 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
         const isGen = typeof handler === 'object' && handler !== null && 'next' in handler
         
         if (isGen) {
-        while (true) {
-          const { value, done } = await handler.next()
-          if (done) {
-            result = value
-            break
-          }
+          while (true) {
+            const { value, done } = await handler.next()
+            if (done) {
+              result = value
+              break
+            }
 
-          await chat?.handler?.(value)
-        }
-         } else {
+            await chat?.handler?.(value)
+          }
+        } else {
           result = await handler
         }
         
-        const pOutput = (this.zOutput as any).safeParse(result)
+          const pOutput = (this.zOutput as any).safeParse(result)
         return pOutput.success ? pOutput.data : result
       } catch (err) {
         const shouldRetry = await this.retry?.({
