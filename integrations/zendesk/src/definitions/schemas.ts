@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { omit } from 'lodash'
+import { omit, pickBy } from 'lodash'
 
 const requesterSchema = z.object({
   name: z.string().optional().title('Name').describe('Requester name'),
@@ -73,23 +73,31 @@ export const userSchema = z.object({
   userFields: z.record(z.string()).optional().title('User Fields').describe('Custom user fields'),
 })
 
-const _zdUserSchema = userSchema.transform((data) => ({
-  ...omit(data, ['createdAt', 'updatedAt', 'externalId', 'userFields', 'remotePhotoUrl']),
-  created_at: data.createdAt,
-  updated_at: data.updatedAt,
-  external_id: data.externalId,
-  user_fields: data.userFields,
-  remote_photo_url: data.remotePhotoUrl,
-}))
+const _zdUserSchema = userSchema
+  .omit({ userFields: true })
+  .extend({
+    userFields: z.record(z.string().nullable()).optional(),
+  })
+  .transform((data) => ({
+    ...omit(data, ['createdAt', 'updatedAt', 'externalId', 'userFields', 'remotePhotoUrl']),
+    created_at: data.createdAt,
+    updated_at: data.updatedAt,
+    external_id: data.externalId,
+    user_fields: data.userFields,
+    remote_photo_url: data.remotePhotoUrl,
+  }))
 
 export type ZendeskUser = z.output<typeof _zdUserSchema>
 export type User = z.input<typeof userSchema>
 
 export const transformUser = (ticket: ZendeskUser): User => {
+  const userFields = ticket.user_fields
+    ? (pickBy(ticket.user_fields, (value): value is string => value !== null) as Record<string, string>)
+    : undefined
   return {
     ...omit(ticket, ['external_id', 'user_fields', 'created_at', 'updated_at', 'remote_photo_url']),
     externalId: ticket.external_id,
-    userFields: ticket.user_fields,
+    userFields,
     createdAt: ticket.created_at,
     updatedAt: ticket.updated_at,
     remotePhotoUrl: ticket.remote_photo_url,
