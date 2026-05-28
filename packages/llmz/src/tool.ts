@@ -480,7 +480,10 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
             : z.is.zuiType(props.output)
               ? props.output
               : (zOutput as unknown as OX),
-        handler: (props.handler ?? this._handler) as (args: TypeOf<IX>, ctx: ToolCallContext) => Promise<TypeOf<OX>>,
+        handler: (props.handler ?? this._handler) as (
+          args: TypeOf<IX>,
+          ctx: ToolCallContext
+        ) => AsyncGenerator<RenderedComponent, TypeOf<OX>, void> | Promise<TypeOf<OX>>,
         retry: props.retry ?? this.retry,
       }).setStaticInputValues((props.staticInputValues as any) ?? (this._staticInputValues as any))
     } catch (e) {
@@ -687,14 +690,16 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
     }
 
     let attempt = 0
+    let yieldedComponents = 0
 
     while (attempt < this.MAX_RETRIES) {
       try {
         let result: unknown
         const handler = this._handler(pInput.data, ctx)
         const isGen = typeof handler === 'object' && handler !== null && 'next' in handler
-        
+
         if (isGen) {
+          let yieldIndex = 0
           while (true) {
             const { value, done } = await handler.next()
             if (done) {
@@ -702,13 +707,17 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
               break
             }
 
-            await chat?.handler?.(value)
+            if (yieldIndex >= yieldedComponents) {
+              yieldedComponents++
+              await chat?.handler?.(value)
+            }
+            yieldIndex++
           }
         } else {
           result = await handler
         }
         
-          const pOutput = (this.zOutput as any).safeParse(result)
+        const pOutput = (this.zOutput as any).safeParse(result)
         return pOutput.success ? pOutput.data : result
       } catch (err) {
         const shouldRetry = await this.retry?.({
