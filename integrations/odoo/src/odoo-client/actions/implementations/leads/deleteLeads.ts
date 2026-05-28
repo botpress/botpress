@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import { z } from '@botpress/sdk'
 import { wrapAction } from '../../action-wrapper'
 import { getErrorMessage } from '../../errors'
 
@@ -16,12 +17,14 @@ type DeletableLead = {
 const getLeadOwnerId = (lead: Record<string, unknown>): number | undefined => {
   const owner = lead.user_id
 
-  if (Array.isArray(owner) && typeof owner[0] === 'number') {
-    return owner[0]
+  const isNumberArray = z.array(z.number()).safeParse(owner)
+  if (isNumberArray.success) {
+    return isNumberArray.data[0]
   }
 
-  if (typeof owner === 'number') {
-    return owner
+  const isNumber = z.number().safeParse(owner)
+  if (isNumber.success) {
+    return isNumber.data
   }
 
   return undefined
@@ -158,7 +161,6 @@ export const deleteLeads = wrapAction(
     }
 
     return {
-      message: getDeleteLeadsMessage(deletedIds, notDeletedLeads),
       deletedIds,
       notDeletedLeads,
     }
