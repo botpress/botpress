@@ -1048,7 +1048,7 @@ describe.concurrent('optional', () => {
 
     it('should add object keys to path', () => {
       try {
-        toTypescript(z.object({foo: z.object({ bar: z.nativeEnum(TestEnum) }) }))
+        toTypescript(z.object({ foo: z.object({ bar: z.nativeEnum(TestEnum) }) }))
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errors.ZuiTransformError)

@@ -714,7 +714,7 @@ describe.concurrent('toTypescriptSchema', () => {
 
   test('should add [number] section to array types', () => {
     try {
-      toTypescript(z.array(z.string().refine((v) => v.length > 0)) )
+      toTypescript(z.array(z.string().refine((v) => v.length > 0)))
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
@@ -724,7 +724,7 @@ describe.concurrent('toTypescriptSchema', () => {
 
   test('should add [index] section to tuple types', () => {
     try {
-      toTypescript(z.tuple([z.number(), z.string().refine((v) => v.length > 0)]) )
+      toTypescript(z.tuple([z.number(), z.string().refine((v) => v.length > 0)]))
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
@@ -734,7 +734,7 @@ describe.concurrent('toTypescriptSchema', () => {
 
   test('should add [number] section to set types', () => {
     try {
-      toTypescript(z.set(z.string().refine((v) => v.length > 0)) )
+      toTypescript(z.set(z.string().refine((v) => v.length > 0)))
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
@@ -748,7 +748,7 @@ describe.concurrent('toTypescriptSchema', () => {
         z.record(
           z.string().refine((v) => v.length > 0),
           z.string()
-        ),
+        )
       )
       expect.fail('should have thrown')
     } catch (e) {
@@ -763,7 +763,7 @@ describe.concurrent('toTypescriptSchema', () => {
         z.record(
           z.string(),
           z.string().refine((v) => v.length > 0)
-        ),
+        )
       )
       expect.fail('should have thrown')
     } catch (e) {
@@ -793,7 +793,7 @@ describe.concurrent('toTypescriptSchema', () => {
         z.record(
           z.boolean(),
           z.string().refine((v) => v.length > 0)
-        ),
+        )
       )
       expect.fail('should have thrown')
     } catch (e) {
@@ -808,7 +808,7 @@ describe.concurrent('toTypescriptSchema', () => {
         z.map(
           z.string().refine((v) => v.length > 0),
           z.string()
-        ),
+        )
       )
       expect.fail('should have thrown')
     } catch (e) {
@@ -823,7 +823,7 @@ describe.concurrent('toTypescriptSchema', () => {
         z.map(
           z.string(),
           z.string().refine((v) => v.length > 0)
-        ),
+        )
       )
       expect.fail('should have thrown')
     } catch (e) {
@@ -838,7 +838,7 @@ describe.concurrent('toTypescriptSchema', () => {
         z.map(
           z.number(),
           z.string().refine((v) => v.length > 0)
-        ),
+        )
       )
       expect.fail('should have thrown')
     } catch (e) {
@@ -853,7 +853,7 @@ describe.concurrent('toTypescriptSchema', () => {
         z.map(
           z.boolean(),
           z.string().refine((v) => v.length > 0)
-        ),
+        )
       )
       expect.fail('should have thrown')
     } catch (e) {
@@ -864,7 +864,7 @@ describe.concurrent('toTypescriptSchema', () => {
 
   test('should add [index] section to union types', () => {
     try {
-      toTypescript(z.union([z.boolean(), z.string().refine((v) => v.length > 0)]) )
+      toTypescript(z.union([z.boolean(), z.string().refine((v) => v.length > 0)]))
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
@@ -878,7 +878,7 @@ describe.concurrent('toTypescriptSchema', () => {
         z.discriminatedUnion('type', [
           z.object({ type: z.literal('a'), foo: z.string() }),
           z.object({ type: z.literal('b'), bar: z.number().refine((v) => v > 0) }),
-        ]),
+        ])
       )
       expect.fail('should have thrown')
     } catch (e) {
@@ -890,10 +890,7 @@ describe.concurrent('toTypescriptSchema', () => {
   test('should add [index] section to intersection types', () => {
     try {
       toTypescript(
-        z.intersection(
-          z.object({ foo: z.string().refine((v) => v.length > 0) }),
-          z.object({ bar: z.number() })
-        ),
+        z.intersection(z.object({ foo: z.string().refine((v) => v.length > 0) }), z.object({ bar: z.number() }))
       )
       expect.fail('should have thrown')
     } catch (e) {
@@ -904,9 +901,7 @@ describe.concurrent('toTypescriptSchema', () => {
 
   test('should add [index] section to function type', () => {
     try {
-      toTypescript(
-        z.function(z.tuple([z.boolean(), z.string().refine((v) => v.length > 0)]), z.string()),
-      )
+      toTypescript(z.function(z.tuple([z.boolean(), z.string().refine((v) => v.length > 0)]), z.string()))
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
@@ -920,7 +915,7 @@ describe.concurrent('toTypescriptSchema', () => {
         z.function(
           z.tuple([z.boolean(), z.number()]),
           z.string().refine((v) => v.length > 0)
-        ),
+        )
       )
       expect.fail('should have thrown')
     } catch (e) {
@@ -931,7 +926,7 @@ describe.concurrent('toTypescriptSchema', () => {
 
   test('should add [string] section to additional properties', () => {
     try {
-      toTypescript(z.object({}).catchall(z.string().refine((v) => v.length > 0)) )
+      toTypescript(z.object({}).catchall(z.string().refine((v) => v.length > 0)))
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
