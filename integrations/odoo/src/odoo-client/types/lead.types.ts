@@ -1,7 +1,5 @@
 import type { OdooContext, OdooDomain, OdooRecord } from './odoo.types'
 
-export type { OdooContext, OdooDomain, OdooMany2One, OdooRecord } from './odoo.types'
-
 /**
  * POST /json/2/crm.lead/fields_get
  */

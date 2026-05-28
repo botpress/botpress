@@ -8,6 +8,20 @@ type GraphQLQuery<TInput, TResponse> = {
 }
 
 export const GRAPHQL_QUERIES = {
+  validateAccessToken: {
+    query: `
+      query ValidateAccessToken {
+        boards(limit: 1) {
+          id
+        }
+      }`,
+    [QUERY_INPUT]: {} as Record<string, never>,
+    [QUERY_RESPONSE]: {} as {
+      boards: {
+        id: string
+      }[]
+    },
+  },
   createItem: {
     query: `
       mutation CreateNewItem($boardId: ID!, $itemName: String!) {
