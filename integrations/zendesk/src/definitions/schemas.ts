@@ -70,7 +70,7 @@ export const userSchema = z.object({
   createdAt: z.string().title('Created At').describe('User creation date'),
   updatedAt: z.string().title('Updated At').describe('User last update date'),
   externalId: z.string().nullable().title('External ID').describe('External user ID'),
-  userFields: z.record(z.string()).optional().title('User Fields').describe('Custom user fields'),
+  userFields: z.record(z.string().nullable()).optional().title('User Fields').describe('Custom user fields'),
 })
 
 const _zdUserSchema = userSchema.transform((data) => ({
