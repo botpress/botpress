@@ -9,7 +9,8 @@ import { registerYargs } from './register-yargs'
 
 const logError = (thrown: unknown) => {
   const error = errors.BotpressCLIError.map(thrown)
-  new Logger().error(error.message)
+  // genuine crashes only: print the full chain so headless callers (no -v) still get the reason.
+  new Logger().error(errors.BotpressCLIError.fullStack(error))
 }
 
 const onError = (thrown: unknown) => {
@@ -18,7 +19,8 @@ const onError = (thrown: unknown) => {
 }
 
 const yargsFail = (msg: string) => {
-  logError(`${msg}\n`)
+  // usage errors are bad input, not crashes; show the clean message and help, never a stack.
+  new Logger().error(`${msg}\n`)
   yargs.showHelp()
   process.exit(1)
 }
