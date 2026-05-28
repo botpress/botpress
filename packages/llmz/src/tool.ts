@@ -1,6 +1,8 @@
 import { TypeOf, z, transforms, ZodObject, ZodType } from '@bpinternal/zui'
 import { JSONSchema7 } from 'json-schema'
 import { isEmpty, uniq } from 'lodash-es'
+import { Chat } from './chat.js'
+import { RenderedComponent } from './component.js'
 import { Serializable } from './types.js'
 import { getTypings as generateTypings } from './typings.js'
 import { convertObjectToZuiLiterals, isJsonSchema, isValidIdentifier, isZuiSchema } from './utils.js'
@@ -438,7 +440,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
       input: IX | ((original: I | undefined) => IX)
       output: OX | ((original: O | undefined) => OX)
       staticInputValues?: SmartPartial<TypeOf<IX>>
-      handler: (args: TypeOf<IX>, ctx: ToolCallContext) => Promise<TypeOf<OX>>
+      handler: (args: TypeOf<IX>, ctx: ToolCallContext) => AsyncGenerator<RenderedComponent, TypeOf<OX>> | Promise<TypeOf<OX>>
       retry: ToolRetryFn<TypeOf<IX>>
     }> = {}
   ): Tool<IX, OX> {
@@ -486,7 +488,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
     }
   }
 
-  private _handler: (args: unknown, ctx: ToolCallContext) => Promise<unknown>
+  private _handler: (args: unknown, ctx: ToolCallContext) => AsyncGenerator<RenderedComponent, unknown, void> | Promise<unknown>
 
   /**
    * Creates a new Tool instance.
@@ -572,7 +574,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
     input?: I
     output?: O
     staticInputValues?: Partial<TypeOf<I>>
-    handler: (args: TypeOf<I>, ctx: ToolCallContext) => Promise<TypeOf<O>>
+    handler: (args: TypeOf<I>, ctx: ToolCallContext) => AsyncGenerator<RenderedComponent, TypeOf<O>> | Promise<TypeOf<O>>
     retry?: ToolRetryFn<TypeOf<I>>
   }) {
     if (!isValidIdentifier(props.name)) {
@@ -674,7 +676,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
    *
    * @internal This method is primarily used internally by the LLMz execution engine
    */
-  public async execute(rawInput: TypeOf<I>, ctx: ToolCallContext): Promise<TypeOf<O>> {
+  public async execute(rawInput: TypeOf<I>, ctx: ToolCallContext, chat?: Chat): Promise<TypeOf<O>> {
     const isZodObject = (this.zInput as any)._def.typeName === 'ZodObject'
     const input = isZodObject ? (rawInput ?? {}) : rawInput
 
@@ -686,9 +688,26 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
 
     let attempt = 0
 
+    let result: unknown
+    const handler = this._handler(pInput.data, ctx)
+    const isGen = typeof handler === 'object' && handler !== null && 'next' in handler
+
     while (attempt < this.MAX_RETRIES) {
       try {
-        const result = (await this._handler(pInput.data, ctx)) as any
+        if (isGen) {
+        while (true) {
+          const { value, done } = await handler.next()
+          if (done) {
+            result = value
+            break
+          }
+
+          await chat?.handler?.(value)
+        }
+         } else {
+          result = await handler
+        }
+        
         const pOutput = (this.zOutput as any).safeParse(result)
         return pOutput.success ? pOutput.data : result
       } catch (err) {

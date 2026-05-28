@@ -1,5 +1,5 @@
 import { z } from '@bpinternal/zui'
-import { isAnyJsxComponent, isJsxComponent } from './jsx.js'
+import { createJsxComponent, isAnyJsxComponent, isJsxComponent, JsxComponent } from './jsx.js'
 
 export type ExampleUsage = {
   name: string
@@ -206,12 +206,7 @@ type ExtractComponentProps<T extends ComponentDefinition> =
         : never
 
 // Rendered component type
-export type RenderedComponent<TProps = Record<string, any>> = {
-  __jsx: true
-  type: string
-  children: any[]
-  props: TProps
-}
+export type RenderedComponent<TProps extends {} = {}> = JsxComponent<string, TProps>
 
 // Component Class that infers props from component definition
 export class Component<T extends ComponentDefinition = ComponentDefinition> {
@@ -221,6 +216,10 @@ export class Component<T extends ComponentDefinition = ComponentDefinition> {
   public constructor(definition: T) {
     assertValidComponent(definition)
     this.definition = definition
+  }
+
+  public render<TChildren extends any = any>(props: Component['propsType'], children: Array<TChildren> = []): RenderedComponent {
+    return createJsxComponent({type: this.definition.name, props, children})
   }
 }
 

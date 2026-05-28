@@ -71,7 +71,12 @@ const purchaseTicket = new Tool({
     ticketNumber: z.string().describe('The unique ticket number for the purchased ticket'),
     confirmation: z.string().describe('Confirmation message for the ticket purchase'),
   }),
-  async handler({ from, date, to }) {
+  handler: async function* handler({ from, date, to }) {
+    yield PlaneTicketComponent.render({
+      price: 199.99,
+      ticketNumber: 'TICKET-73',
+    })
+
     // Simulate ticket purchase API call
     return {
       price: 299.99,

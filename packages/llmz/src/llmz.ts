@@ -36,6 +36,7 @@ import { Trace } from './types.js'
 
 import { init, stripInvalidIdentifiers } from './utils.js'
 import { runAsyncFunction } from './vm.js'
+import { Component, ComponentDefinition, RenderedComponent } from './component.js'
 
 const getErrorMessage = (err: unknown) => (err instanceof Error ? err.message : JSON.stringify(err))
 
@@ -590,6 +591,7 @@ const executeIteration = async ({
 
     for (const tool of obj.tools ?? []) {
       instance[tool.name] = wrapTool({
+        chat: ctx.chat,
         tool,
         traces,
         object: obj.name,
@@ -607,7 +609,7 @@ const executeIteration = async ({
   }
 
   for (const tool of iteration.tools) {
-    const wrapped = wrapTool({ tool, traces, iteration, beforeHook: onBeforeTool, afterHook: onAfterTool, controller })
+    const wrapped = wrapTool({ chat: ctx.chat, tool, traces, iteration, beforeHook: onBeforeTool, afterHook: onAfterTool, controller })
     for (const key of [tool.name, ...(tool.aliases ?? [])]) {
       vmContext[key] = wrapped
     }
@@ -784,6 +786,7 @@ const executeIteration = async ({
 }
 
 type Props = {
+  chat?: Chat
   tool: Tool
   object?: string
   traces: Trace[]
@@ -793,7 +796,7 @@ type Props = {
   controller: AbortController
 }
 
-function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, controller }: Props) {
+function wrapTool({ chat, tool, traces, object, iteration, beforeHook, afterHook, controller }: Props) {
   const getToolInput = (input: any) => (tool.zInput as any).safeParse(input).data ?? input
 
   return function (input: any) {
@@ -867,7 +870,7 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, cont
 
         let output = await tool.execute(input, {
           callId: toolCallId,
-        })
+        }, chat)
 
         const afterRes = await afterHook?.({
           iteration,
