@@ -945,7 +945,7 @@ describe.concurrent('toTypescriptSchema', () => {
     }
   })
 
-  test('should add [string] section to additionnal properties', () => {
+  test('should add [string] section to additional properties', () => {
     try {
       toTypescript(z.object({ foo: z.object({}).catchall(z.string().refine((v) => v.length > 0)) }))
       expect.fail('should have thrown')

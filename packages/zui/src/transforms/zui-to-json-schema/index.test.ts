@@ -549,7 +549,7 @@ describe('zuiToJSONSchemaNext', () => {
     }
   })
 
-  test('should add [string] section to additionnal properties', () => {
+  test('should add [string] section to additional properties', () => {
     try {
       toJSONSchema(z.object({ foo: z.object({}).catchall(z.void()) }))
       expect.fail('should have thrown')
