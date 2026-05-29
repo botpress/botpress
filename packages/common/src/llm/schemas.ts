@@ -71,6 +71,8 @@ export const ModelSchema = ModelRefSchema.extend({
       'reasoning',
       'preview',
       'speech-to-text',
+      'image-generation',
+      'text-to-speech',
     ])
   ),
   input: z.object({

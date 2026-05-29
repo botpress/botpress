@@ -3139,7 +3139,7 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       '@bpinternal/zui':
-        specifier: ^2.1.1
+        specifier: ^2.2.1
         version: link:../zui
       '@jitl/quickjs-singlefile-browser-release-sync':
         specifier: ^0.31.0
@@ -3239,7 +3239,7 @@ importers:
         specifier: 1.46.0
         version: link:../client
       '@bpinternal/zui':
-        specifier: ^2.1.1
+        specifier: ^2.2.1
         version: link:../zui
       browser-or-node:
         specifier: ^2.1.1
@@ -3279,7 +3279,7 @@ importers:
         specifier: ^1.0.1
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: ^2.1.1
+        specifier: ^2.2.1
         version: link:../zui
       json5:
         specifier: ^2.2.3
@@ -3325,7 +3325,7 @@ importers:
         specifier: ^1.0.0
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: ^2.1.1
+        specifier: ^2.2.1
         version: link:../zui
       json5:
         specifier: ^2.2.3
