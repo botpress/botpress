@@ -20,7 +20,7 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
               toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
             })
             .catch((thrown) => {
-              throw errors.BotpressCLIError.wrap(thrown, `ailed to convert ZUI to JSON schema for bot action ${actionName} input`)
+              throw errors.BotpressCLIError.wrap(thrown, `Failed to convert ZUI to JSON schema for bot action ${actionName} input`)
             }),
         },
         output: {
