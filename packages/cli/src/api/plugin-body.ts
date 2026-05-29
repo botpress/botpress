@@ -3,9 +3,7 @@ import * as sdk from '@botpress/sdk'
 import * as utils from '../utils'
 import * as types from './types'
 
-export const prepareCreatePluginBody = async (
-  plugin: sdk.PluginDefinition
-): Promise<types.CreatePluginRequestBody> => {
+export const prepareCreatePluginBody = async (plugin: sdk.PluginDefinition): Promise<types.CreatePluginRequestBody> => {
   const base = `plugin.${plugin.name}`
   return {
     name: plugin.name,
@@ -24,19 +22,27 @@ export const prepareCreatePluginBody = async (
     configuration: plugin.configuration
       ? {
           ...plugin.configuration,
-          schema: await utils.schema.mapZodToJsonSchema(plugin.configuration, {
-            useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
-            toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
-          }, `${base}.configuration`),
+          schema: await utils.schema.mapZodToJsonSchema(
+            plugin.configuration,
+            {
+              useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
+              toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
+            },
+            `${base}.configuration`
+          ),
         }
       : undefined,
     events: plugin.events
       ? await utils.records.mapValuesAsync(plugin.events, async (event, eventName) => ({
           ...event,
-          schema: await utils.schema.mapZodToJsonSchema(event, {
-            useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
-            toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
-          }, `${base}.events.${eventName}`),
+          schema: await utils.schema.mapZodToJsonSchema(
+            event,
+            {
+              useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
+              toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
+            },
+            `${base}.events.${eventName}`
+          ),
         }))
       : undefined,
     actions: plugin.actions
@@ -44,17 +50,25 @@ export const prepareCreatePluginBody = async (
           ...action,
           input: {
             ...action.input,
-            schema: await utils.schema.mapZodToJsonSchema(action.input, {
-              useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
-              toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
-            }, `${base}.actions.${actionName}.input`),
+            schema: await utils.schema.mapZodToJsonSchema(
+              action.input,
+              {
+                useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
+                toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
+              },
+              `${base}.actions.${actionName}.input`
+            ),
           },
           output: {
             ...action.output,
-            schema: await utils.schema.mapZodToJsonSchema(action.output, {
-              useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
-              toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
-            }, `${base}.actions.${actionName}.output`),
+            schema: await utils.schema.mapZodToJsonSchema(
+              action.output,
+              {
+                useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
+                toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
+              },
+              `${base}.actions.${actionName}.output`
+            ),
           },
         }))
       : undefined,
@@ -62,10 +76,14 @@ export const prepareCreatePluginBody = async (
       ? (utils.records.filterValues(
           await utils.records.mapValuesAsync(plugin.states, async (state, stateName) => ({
             ...state,
-            schema: await utils.schema.mapZodToJsonSchema(state, {
-              useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
-              toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
-            }, `${base}.states.${stateName}`),
+            schema: await utils.schema.mapZodToJsonSchema(
+              state,
+              {
+                useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
+                toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
+              },
+              `${base}.states.${stateName}`
+            ),
           })),
           ({ type }) => type !== 'workflow'
         ) as types.CreatePluginRequestBody['states'])
