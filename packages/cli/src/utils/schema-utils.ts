@@ -37,7 +37,7 @@ export async function mapZodToJsonSchema(
   } else {
     try {
       schema = sdk.z.transforms.toJSONSchema(definition.schema, options.toJSONSchemaOptions)
-    } catch (e) {
+    } catch (e: unknown) {
       throw errors.BotpressCLIError.wrap(e, path)
     }
   }
