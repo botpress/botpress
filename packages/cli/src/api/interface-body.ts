@@ -5,62 +5,65 @@ import * as types from './types'
 
 export const prepareCreateInterfaceBody = async (
   intrface: sdk.InterfaceDefinition
-): Promise<types.CreateInterfaceRequestBody> => ({
-  name: intrface.name,
-  version: intrface.version,
-  title: 'title' in intrface ? intrface.title : undefined,
-  description: 'description' in intrface ? intrface.description : undefined,
-  entities: intrface.entities
-    ? await utils.records.mapValuesAsync(intrface.entities, async (entity) => ({
-        ...entity,
-        schema: await utils.schema.mapZodToJsonSchema(entity, {
-          useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
-          toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
-        }),
-      }))
-    : {},
-  events: intrface.events
-    ? await utils.records.mapValuesAsync(intrface.events, async (event) => ({
-        ...event,
-        schema: await utils.schema.mapZodToJsonSchema(event, {
-          useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
-          toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
-        }),
-      }))
-    : {},
-  actions: intrface.actions
-    ? await utils.records.mapValuesAsync(intrface.actions, async (action) => ({
-        ...action,
-        input: {
-          ...action.input,
-          schema: await utils.schema.mapZodToJsonSchema(action.input, {
+): Promise<types.CreateInterfaceRequestBody> => {
+  const base = `interface.${intrface.name}`
+  return {
+    name: intrface.name,
+    version: intrface.version,
+    title: 'title' in intrface ? intrface.title : undefined,
+    description: 'description' in intrface ? intrface.description : undefined,
+    entities: intrface.entities
+      ? await utils.records.mapValuesAsync(intrface.entities, async (entity, entityName) => ({
+          ...entity,
+          schema: await utils.schema.mapZodToJsonSchema(entity, {
             useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
             toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
-          }),
-        },
-        output: {
-          ...action.output,
-          schema: await utils.schema.mapZodToJsonSchema(action.output, {
+          }, `${base}.entities.${entityName}`),
+        }))
+      : {},
+    events: intrface.events
+      ? await utils.records.mapValuesAsync(intrface.events, async (event, eventName) => ({
+          ...event,
+          schema: await utils.schema.mapZodToJsonSchema(event, {
             useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
             toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
-          }),
-        },
-      }))
-    : {},
-  channels: intrface.channels
-    ? await utils.records.mapValuesAsync(intrface.channels, async (channel) => ({
-        ...channel,
-        messages: await utils.records.mapValuesAsync(channel.messages, async (message) => ({
-          ...message,
-          schema: await utils.schema.mapZodToJsonSchema(message, {
-            useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
-            toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
-          }),
-        })),
-      }))
-    : {},
-  attributes: intrface.attributes,
-})
+          }, `${base}.events.${eventName}`),
+        }))
+      : {},
+    actions: intrface.actions
+      ? await utils.records.mapValuesAsync(intrface.actions, async (action, actionName) => ({
+          ...action,
+          input: {
+            ...action.input,
+            schema: await utils.schema.mapZodToJsonSchema(action.input, {
+              useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
+              toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
+            }, `${base}.actions.${actionName}.input`),
+          },
+          output: {
+            ...action.output,
+            schema: await utils.schema.mapZodToJsonSchema(action.output, {
+              useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
+              toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
+            }, `${base}.actions.${actionName}.output`),
+          },
+        }))
+      : {},
+    channels: intrface.channels
+      ? await utils.records.mapValuesAsync(intrface.channels, async (channel, channelName) => ({
+          ...channel,
+          messages: await utils.records.mapValuesAsync(channel.messages, async (message) => ({
+            ...message,
+            schema: await utils.schema.mapZodToJsonSchema(message, {
+              useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
+              toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
+            }, `${base}.channels.${channelName}`),
+          })),
+        }))
+      : {},
+    attributes: intrface.attributes,
+  }
+}
 
 export const prepareUpdateInterfaceBody = (
   localInterface: types.CreateInterfaceRequestBody & { id: string },

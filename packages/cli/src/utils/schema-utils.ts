@@ -1,6 +1,7 @@
 import { dereference } from '@apidevtools/json-schema-ref-parser'
 import * as sdk from '@botpress/sdk'
 import { JSONSchema7 } from 'json-schema'
+import * as errors from '../errors'
 
 type ZuiToJsonSchema = typeof sdk.z.transforms.toJSONSchemaLegacy
 type JsonSchema = ReturnType<ZuiToJsonSchema>
@@ -24,7 +25,8 @@ const isObjectSchema = (schema: JsonSchema): boolean => schema.type === 'object'
 
 export async function mapZodToJsonSchema(
   definition: SchemaDefinition,
-  options: MapSchemaOptions
+  options: MapSchemaOptions,
+  path: string
 ): Promise<ReturnType<typeof sdk.z.transforms.toJSONSchemaLegacy>> {
   let schema: JSONSchema7
   if (options.useLegacyZuiTransformer) {
@@ -33,7 +35,11 @@ export async function mapZodToJsonSchema(
       ...options.toJSONSchemaOptions,
     })
   } else {
-    schema = sdk.z.transforms.toJSONSchema(definition.schema, options.toJSONSchemaOptions)
+    try {
+      schema = sdk.z.transforms.toJSONSchema(definition.schema, options.toJSONSchemaOptions)
+    } catch (e) {
+      throw errors.BotpressCLIError.wrap(e, path)
+    }
   }
   schema = (await dereferenceSchema(schema)) as typeof schema
 

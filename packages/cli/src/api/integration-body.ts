@@ -5,73 +5,76 @@ import * as types from './types'
 
 export const prepareCreateIntegrationBody = async (
   integration: sdk.IntegrationDefinition
-): Promise<types.CreateIntegrationRequestBody> => ({
-  name: integration.name,
-  version: integration.version,
-  title: 'title' in integration ? integration.title : undefined,
-  description: 'description' in integration ? integration.description : undefined,
-  user: integration.user,
-  events: integration.events
-    ? await utils.records.mapValuesAsync(integration.events, async (event) => ({
-        ...event,
-        schema: await utils.schema.mapZodToJsonSchema(event, {
-          useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
-          toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
-        }),
-      }))
-    : undefined,
-  actions: integration.actions
-    ? await utils.records.mapValuesAsync(integration.actions, async (action) => ({
-        ...action,
-        input: {
-          ...action.input,
-          schema: await utils.schema.mapZodToJsonSchema(action.input, {
+): Promise<types.CreateIntegrationRequestBody> => {
+  const base = `integration.${integration.name}`
+  return {
+    name: integration.name,
+    version: integration.version,
+    title: 'title' in integration ? integration.title : undefined,
+    description: 'description' in integration ? integration.description : undefined,
+    user: integration.user,
+    events: integration.events
+      ? await utils.records.mapValuesAsync(integration.events, async (event, eventName) => ({
+          ...event,
+          schema: await utils.schema.mapZodToJsonSchema(event, {
             useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
             toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
-          }),
-        },
-        output: {
-          ...action.output,
-          schema: await utils.schema.mapZodToJsonSchema(action.output, {
+          }, `${base}.events.${eventName}`),
+        }))
+      : undefined,
+    actions: integration.actions
+      ? await utils.records.mapValuesAsync(integration.actions, async (action, actionName) => ({
+          ...action,
+          input: {
+            ...action.input,
+            schema: await utils.schema.mapZodToJsonSchema(action.input, {
+              useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
+              toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
+            }, `${base}.actions.${actionName}.input`),
+          },
+          output: {
+            ...action.output,
+            schema: await utils.schema.mapZodToJsonSchema(action.output, {
+              useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
+              toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
+            }, `${base}.actions.${actionName}.output`),
+          },
+        }))
+      : undefined,
+    channels: integration.channels
+      ? await utils.records.mapValuesAsync(integration.channels, async (channel, channelName) => ({
+          ...channel,
+          messages: await utils.records.mapValuesAsync(channel.messages, async (message) => ({
+            ...message,
+            schema: await utils.schema.mapZodToJsonSchema(message, {
+              useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
+              toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
+            }, `${base}.channels.${channelName}`),
+          })),
+        }))
+      : undefined,
+    states: integration.states
+      ? await utils.records.mapValuesAsync(integration.states, async (state, stateName) => ({
+          ...state,
+          schema: await utils.schema.mapZodToJsonSchema(state, {
             useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
             toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
-          }),
-        },
-      }))
-    : undefined,
-  channels: integration.channels
-    ? await utils.records.mapValuesAsync(integration.channels, async (channel) => ({
-        ...channel,
-        messages: await utils.records.mapValuesAsync(channel.messages, async (message) => ({
-          ...message,
-          schema: await utils.schema.mapZodToJsonSchema(message, {
+          }, `${base}.states.${stateName}`),
+        }))
+      : undefined,
+    entities: integration.entities
+      ? await utils.records.mapValuesAsync(integration.entities, async (entity, entityName) => ({
+          ...entity,
+          schema: await utils.schema.mapZodToJsonSchema(entity, {
             useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
             toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
-          }),
-        })),
-      }))
-    : undefined,
-  states: integration.states
-    ? await utils.records.mapValuesAsync(integration.states, async (state) => ({
-        ...state,
-        schema: await utils.schema.mapZodToJsonSchema(state, {
-          useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
-          toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
-        }),
-      }))
-    : undefined,
-  entities: integration.entities
-    ? await utils.records.mapValuesAsync(integration.entities, async (entity) => ({
-        ...entity,
-        schema: await utils.schema.mapZodToJsonSchema(entity, {
-          useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
-          toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
-        }),
-      }))
-    : undefined,
-  attributes: integration.attributes,
-  extraOperations: '__advanced' in integration ? integration.__advanced?.extraOperations : undefined,
-})
+          }, `${base}.entities.${entityName}`),
+        }))
+      : undefined,
+    attributes: integration.attributes,
+    extraOperations: '__advanced' in integration ? integration.__advanced?.extraOperations : undefined,
+  }
+}
 
 type UpdateIntegrationChannelsBody = NonNullable<types.UpdateIntegrationRequestBody['channels']>
 type UpdateIntegrationChannelBody = UpdateIntegrationChannelsBody[string]

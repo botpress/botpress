@@ -3,62 +3,65 @@ import * as sdk from '@botpress/sdk'
 import * as utils from '../utils'
 import * as types from './types'
 
-export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<types.CreateBotRequestBody> => ({
-  user: bot.user,
-  conversation: bot.conversation,
-  message: bot.message,
-  recurringEvents: bot.recurringEvents,
-  actions: bot.actions
-    ? await utils.records.mapValuesAsync(bot.actions, async (action) => ({
-        ...action,
-        input: {
-          ...action.input,
-          schema: await utils.schema.mapZodToJsonSchema(action.input, {
+export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<types.CreateBotRequestBody> => {
+  const base = `bot`
+  return {
+    user: bot.user,
+    conversation: bot.conversation,
+    message: bot.message,
+    recurringEvents: bot.recurringEvents,
+    actions: bot.actions
+      ? await utils.records.mapValuesAsync(bot.actions, async (action, actionName) => ({
+          ...action,
+          input: {
+            ...action.input,
+            schema: await utils.schema.mapZodToJsonSchema(action.input, {
+              useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
+              toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
+            }, `${base}.actions.${actionName}.input`),
+          },
+          output: {
+            ...action.output,
+            schema: await utils.schema.mapZodToJsonSchema(action.output, {
+              useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
+              toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
+            }, `${base}.actions.${actionName}.output`),
+          },
+        }))
+      : undefined,
+    configuration: bot.configuration
+      ? {
+          ...bot.configuration,
+          schema: await utils.schema.mapZodToJsonSchema(bot.configuration, {
             useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
             toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
-          }),
-        },
-        output: {
-          ...action.output,
-          schema: await utils.schema.mapZodToJsonSchema(action.output, {
+          }, `${base}.configuration`),
+        }
+      : undefined,
+    events: bot.events
+      ? await utils.records.mapValuesAsync(bot.events, async (event, eventName) => ({
+          ...event,
+          schema: await utils.schema.mapZodToJsonSchema(event, {
             useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
             toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
-          }),
-        },
-      }))
-    : undefined,
-  configuration: bot.configuration
-    ? {
-        ...bot.configuration,
-        schema: await utils.schema.mapZodToJsonSchema(bot.configuration, {
-          useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
-          toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
-        }),
-      }
-    : undefined,
-  events: bot.events
-    ? await utils.records.mapValuesAsync(bot.events, async (event) => ({
-        ...event,
-        schema: await utils.schema.mapZodToJsonSchema(event, {
-          useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
-          toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
-        }),
-      }))
-    : undefined,
-  states: bot.states
-    ? (utils.records.filterValues(
-        await utils.records.mapValuesAsync(bot.states, async (state) => ({
-          ...state,
-          schema: await utils.schema.mapZodToJsonSchema(state, {
-            useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
-            toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
-          }),
-        })),
-        ({ type }) => type !== 'workflow'
-      ) as types.CreateBotRequestBody['states'])
-    : undefined,
-  tags: bot.attributes,
-})
+          }, `${base}.events.${eventName}`),
+        }))
+      : undefined,
+    states: bot.states
+      ? (utils.records.filterValues(
+          await utils.records.mapValuesAsync(bot.states, async (state, stateName) => ({
+            ...state,
+            schema: await utils.schema.mapZodToJsonSchema(state, {
+              useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
+              toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
+            }, `${base}.states.${stateName}`),
+          })),
+          ({ type }) => type !== 'workflow'
+        ) as types.CreateBotRequestBody['states'])
+      : undefined,
+    tags: bot.attributes,
+  }
+}
 
 export const prepareUpdateBotBody = (
   localBot: types.UpdateBotRequestBody,
