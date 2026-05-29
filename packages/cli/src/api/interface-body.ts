@@ -7,7 +7,7 @@ import * as types from './types'
 export const prepareCreateInterfaceBody = async (
   intrface: sdk.InterfaceDefinition
 ): Promise<types.CreateInterfaceRequestBody> => {
-  const base = `interface.${intrface.name}`
+  const base = `Error in interface ${intrface.name}`
   return {
     name: intrface.name,
     version: intrface.version,
@@ -22,7 +22,7 @@ export const prepareCreateInterfaceBody = async (
               toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
             })
             .catch((thrown) => {
-              throw errors.BotpressCLIError.wrap(thrown, `${base}.entities.${entityName}`)
+              throw errors.BotpressCLIError.wrap(thrown, `${base} for entity ${entityName}`)
             }),
         }))
       : {},
@@ -35,7 +35,7 @@ export const prepareCreateInterfaceBody = async (
               toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
             })
             .catch((thrown) => {
-              throw errors.BotpressCLIError.wrap(thrown, `${base}.events.${eventName}`)
+              throw errors.BotpressCLIError.wrap(thrown, `${base} for event ${eventName}`)
             }),
         }))
       : {},
@@ -50,7 +50,7 @@ export const prepareCreateInterfaceBody = async (
                 toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
               })
               .catch((thrown) => {
-                throw errors.BotpressCLIError.wrap(thrown, `${base}.actions.${actionName}.input`)
+                throw errors.BotpressCLIError.wrap(thrown, `${base} for action ${actionName} input`)
               }),
           },
           output: {
@@ -61,7 +61,7 @@ export const prepareCreateInterfaceBody = async (
                 toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
               })
               .catch((thrown) => {
-                throw errors.BotpressCLIError.wrap(thrown, `${base}.actions.${actionName}.output`)
+                throw errors.BotpressCLIError.wrap(thrown, `${base} for action ${actionName} output`)
               }),
           },
         }))
@@ -77,7 +77,7 @@ export const prepareCreateInterfaceBody = async (
                 toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
               })
               .catch((thrown) => {
-                throw errors.BotpressCLIError.wrap(thrown, `${base}.channels.${channelName}.messages.${messageName}`)
+                throw errors.BotpressCLIError.wrap(thrown, `${base} for channel ${channelName} for message ${messageName}`)
               }),
           })),
         }))

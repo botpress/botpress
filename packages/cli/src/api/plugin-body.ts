@@ -5,7 +5,7 @@ import * as utils from '../utils'
 import * as types from './types'
 
 export const prepareCreatePluginBody = async (plugin: sdk.PluginDefinition): Promise<types.CreatePluginRequestBody> => {
-  const base = `plugin.${plugin.name}`
+  const base = `Error in plugin ${plugin.name}`
   return {
     name: plugin.name,
     version: plugin.version,
@@ -29,7 +29,7 @@ export const prepareCreatePluginBody = async (plugin: sdk.PluginDefinition): Pro
               toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
             })
             .catch((thrown) => {
-              throw errors.BotpressCLIError.wrap(thrown, `${base}.configuration`)
+              throw errors.BotpressCLIError.wrap(thrown, `${base} for configuration`)
             }),
         }
       : undefined,
@@ -42,7 +42,7 @@ export const prepareCreatePluginBody = async (plugin: sdk.PluginDefinition): Pro
               toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
             })
             .catch((thrown) => {
-              throw errors.BotpressCLIError.wrap(thrown, `${base}.events.${eventName}`)
+              throw errors.BotpressCLIError.wrap(thrown, `${base} for event ${eventName}`)
             }),
         }))
       : undefined,
@@ -57,7 +57,7 @@ export const prepareCreatePluginBody = async (plugin: sdk.PluginDefinition): Pro
                 toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
               })
               .catch((thrown) => {
-                throw errors.BotpressCLIError.wrap(thrown, `${base}.actions.${actionName}.input`)
+                throw errors.BotpressCLIError.wrap(thrown, `${base} for action ${actionName} input`)
               }),
           },
           output: {
@@ -68,7 +68,7 @@ export const prepareCreatePluginBody = async (plugin: sdk.PluginDefinition): Pro
                 toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
               })
               .catch((thrown) => {
-                throw errors.BotpressCLIError.wrap(thrown, `${base}.actions.${actionName}.output`)
+                throw errors.BotpressCLIError.wrap(thrown, `${base} for action ${actionName} output`)
               }),
           },
         }))
@@ -83,7 +83,7 @@ export const prepareCreatePluginBody = async (plugin: sdk.PluginDefinition): Pro
                 toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
               })
               .catch((thrown) => {
-                throw errors.BotpressCLIError.wrap(thrown, `${base}.states.${stateName}`)
+                throw errors.BotpressCLIError.wrap(thrown, `${base} for state ${stateName}`)
               }),
           })),
           ({ type }) => type !== 'workflow'

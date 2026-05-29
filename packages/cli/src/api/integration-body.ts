@@ -7,7 +7,7 @@ import * as types from './types'
 export const prepareCreateIntegrationBody = async (
   integration: sdk.IntegrationDefinition
 ): Promise<types.CreateIntegrationRequestBody> => {
-  const base = `integration.${integration.name}`
+  const base = `Error in integration ${integration.name}`
   return {
     name: integration.name,
     version: integration.version,
@@ -23,7 +23,7 @@ export const prepareCreateIntegrationBody = async (
               toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
             })
             .catch((thrown) => {
-              throw errors.BotpressCLIError.wrap(thrown, `${base}.events.${eventName}`)
+              throw errors.BotpressCLIError.wrap(thrown, `${base} for event ${eventName}`)
             }),
         }))
       : undefined,
@@ -38,7 +38,7 @@ export const prepareCreateIntegrationBody = async (
                 toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
               })
               .catch((thrown) => {
-                throw errors.BotpressCLIError.wrap(thrown, `${base}.actions.${actionName}.input`)
+                throw errors.BotpressCLIError.wrap(thrown, `${base} for action ${actionName} input`)
               }),
           },
           output: {
@@ -49,7 +49,7 @@ export const prepareCreateIntegrationBody = async (
                 toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
               })
               .catch((thrown) => {
-                throw errors.BotpressCLIError.wrap(thrown, `${base}.actions.${actionName}.output`)
+                throw errors.BotpressCLIError.wrap(thrown, `${base} for action ${actionName} output`)
               }),
           },
         }))
@@ -65,7 +65,7 @@ export const prepareCreateIntegrationBody = async (
                 toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
               })
               .catch((thrown) => {
-                throw errors.BotpressCLIError.wrap(thrown, `${base}.channels.${channelName}.messages.${messageName}`)
+                throw errors.BotpressCLIError.wrap(thrown, `${base} for channel ${channelName} for message ${messageName}`)
               }),
           })),
         }))
@@ -79,7 +79,7 @@ export const prepareCreateIntegrationBody = async (
               toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
             })
             .catch((thrown) => {
-              throw errors.BotpressCLIError.wrap(thrown, `${base}.states.${stateName}`)
+              throw errors.BotpressCLIError.wrap(thrown, `${base} for state ${stateName}`)
             }),
         }))
       : undefined,
@@ -92,7 +92,7 @@ export const prepareCreateIntegrationBody = async (
               toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
             })
             .catch((thrown) => {
-              throw errors.BotpressCLIError.wrap(thrown, `${base}.entities.${entityName}`)
+              throw errors.BotpressCLIError.wrap(thrown, `${base} for entity ${entityName}`)
             }),
         }))
       : undefined,
