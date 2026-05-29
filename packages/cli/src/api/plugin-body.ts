@@ -6,7 +6,7 @@ import * as types from './types'
 export const prepareCreatePluginBody = async (
   plugin: sdk.PluginDefinition
 ): Promise<types.CreatePluginRequestBody> => {
-  const base = `plugin${plugin.name}`
+  const base = `plugin.${plugin.name}`
   return {
     name: plugin.name,
     version: plugin.version,
