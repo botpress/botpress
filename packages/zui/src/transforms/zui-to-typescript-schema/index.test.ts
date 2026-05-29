@@ -692,4 +692,239 @@ describe.concurrent('toTypescriptSchema', () => {
       expect(evaluated.getMetadata().patate).toBe('pilée')
     })
   })
+
+  test('should add object keys to path', () => {
+    try {
+      toTypescript(z.object({ foo: z.object({ bar: z.string().refine((v) => v.length > 0) }) }))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toBe('#.foo.bar')
+    }
+  })
+
+  test('should add [number] section to array types', () => {
+    try {
+      toTypescript(z.array(z.string().refine((v) => v.length > 0)))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toBe('#[number]')
+    }
+  })
+
+  test('should add [index] section to tuple types', () => {
+    try {
+      toTypescript(z.tuple([z.number(), z.string().refine((v) => v.length > 0)]))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toBe('#[1]')
+    }
+  })
+
+  test('should add [number] section to set types', () => {
+    try {
+      toTypescript(z.set(z.string().refine((v) => v.length > 0)))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toBe('#[number]')
+    }
+  })
+
+  test('should add keyOf wrapper to record types with an invalid key', () => {
+    try {
+      toTypescript(
+        z.record(
+          z.string().refine((v) => v.length > 0),
+          z.string()
+        )
+      )
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toBe('KeyOf<#>')
+    }
+  })
+
+  test('should add [string] section to record types with string key', () => {
+    try {
+      toTypescript(
+        z.record(
+          z.string(),
+          z.string().refine((v) => v.length > 0)
+        )
+      )
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toBe('#[string]')
+    }
+  })
+
+  test('should add [number] section to record types with number key', () => {
+    try {
+      toTypescript(
+        z.record(
+          z.number(),
+          z.string().refine((v) => v.length > 0)
+        )
+      )
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toBe('#[number]')
+    }
+  })
+
+  test('should add [*] section to record types with any key', () => {
+    try {
+      toTypescript(
+        z.record(
+          z.boolean(),
+          z.string().refine((v) => v.length > 0)
+        )
+      )
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toBe('#[*]')
+    }
+  })
+
+  test('should add keyOf wrapper to map types with an invalid key', () => {
+    try {
+      toTypescript(
+        z.map(
+          z.string().refine((v) => v.length > 0),
+          z.string()
+        )
+      )
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toBe('KeyOf<#>')
+    }
+  })
+
+  test('should add [string] section to map types with string key', () => {
+    try {
+      toTypescript(
+        z.map(
+          z.string(),
+          z.string().refine((v) => v.length > 0)
+        )
+      )
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toBe('#[string]')
+    }
+  })
+
+  test('should add [number] section to map types with number key', () => {
+    try {
+      toTypescript(
+        z.map(
+          z.number(),
+          z.string().refine((v) => v.length > 0)
+        )
+      )
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toBe('#[number]')
+    }
+  })
+
+  test('should add [*] section to map types with any key', () => {
+    try {
+      toTypescript(
+        z.map(
+          z.boolean(),
+          z.string().refine((v) => v.length > 0)
+        )
+      )
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toBe('#[*]')
+    }
+  })
+
+  test('should add [index] section to union types', () => {
+    try {
+      toTypescript(z.union([z.boolean(), z.string().refine((v) => v.length > 0)]))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toBe('#[1]')
+    }
+  })
+
+  test('should add [index] section to discriminated union types', () => {
+    try {
+      toTypescript(
+        z.discriminatedUnion('type', [
+          z.object({ type: z.literal('a'), foo: z.string() }),
+          z.object({ type: z.literal('b'), bar: z.number().refine((v) => v > 0) }),
+        ])
+      )
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toBe('#[1].bar')
+    }
+  })
+
+  test('should add [index] section to intersection types', () => {
+    try {
+      toTypescript(
+        z.intersection(
+          z.string().refine((v) => v.length > 0),
+          z.number()
+        )
+      )
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toBe('#[0]')
+    }
+  })
+
+  test('should add parameters wrapper to function type and show index', () => {
+    try {
+      toTypescript(z.function(z.tuple([z.boolean(), z.string().refine((v) => v.length > 0)]), z.string()))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toBe('Parameters<#>[1]')
+    }
+  })
+
+  test('should add returnType wrapper to function return type invalid', () => {
+    try {
+      toTypescript(
+        z.function(
+          z.tuple([z.boolean(), z.number()]),
+          z.string().refine((v) => v.length > 0)
+        )
+      )
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toBe('ReturnType<#>')
+    }
+  })
+
+  test('should add [string] section to additional properties', () => {
+    try {
+      toTypescript(z.object({}).catchall(z.string().refine((v) => v.length > 0)))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.ZuiTransformError)
+      expect((e as errors.ZuiTransformError).path).toBe('#[string]')
+    }
+  })
 })
