@@ -4,7 +4,7 @@ export default new IntegrationDefinition({
   name: 'n8n',
   title: 'n8n',
   description: 'This integration allows you to interact with n8n workflows.',
-  version: '0.1.0',
+  version: '0.1.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -125,5 +125,9 @@ export default new IntegrationDefinition({
         data: z.record(z.string(), z.any()).title('Data').describe('Arbitrary data payload sent by the n8n workflow'),
       }),
     },
+  },
+  attributes: {
+    category: 'Developer Tools',
+    repo: 'botpress',
   },
 })
