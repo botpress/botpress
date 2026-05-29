@@ -69,11 +69,11 @@ jobs:
     needs: [deploy-chat-staging, deploy-chat-lambda]
     runs-on: ubuntu-latest
     steps:
-      - run: curl -m 10 --retry 5 ${{ secrets.CHAT_DEPLOY_STAGING_PING_URL }}
+      - run: curl -m 10 --retry 5 "${{ secrets.CHAT_DEPLOY_STAGING_PING_URL }}"
 
   ping-failure:
     needs: [deploy-chat-staging, deploy-chat-lambda]
     if: ${{ failure() }}
     runs-on: ubuntu-latest
     steps:
-      - run: curl -m 10 --retry 5 ${{ secrets.CHAT_DEPLOY_STAGING_PING_URL }}/fail
+      - run: curl -m 10 --retry 5 "${{ secrets.CHAT_DEPLOY_STAGING_PING_URL }}/fail"
