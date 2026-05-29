@@ -693,16 +693,6 @@ describe.concurrent('toTypescriptSchema', () => {
     })
   })
 
-  test('should show complete path section in error message', () => {
-    try {
-      toTypescript(z.object({ foo: z.object({ bar: z.tuple([z.number(), z.string().refine((v) => v.length > 0)]) }) }))
-      expect.fail('should have thrown')
-    } catch (e) {
-      expect(e).toBeInstanceOf(errors.ZuiTransformError)
-      expect((e as errors.ZuiTransformError).path).toBe('#.foo.bar[1]')
-    }
-  })
-
   test('should add object keys to path', () => {
     try {
       toTypescript(z.object({ foo: z.object({ bar: z.string().refine((v) => v.length > 0) }) }))

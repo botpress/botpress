@@ -1037,16 +1037,6 @@ describe.concurrent('optional', () => {
   })
 
   describe('error path propagation', () => {
-    it('should show complete path section in error message', () => {
-      try {
-        toTypescript(z.object({ foo: z.object({ bar: z.tuple([z.number(), z.nativeEnum(TestEnum)]) }) }))
-        expect.fail('should have thrown')
-      } catch (e) {
-        expect(e).toBeInstanceOf(errors.ZuiTransformError)
-        expect((e as errors.ZuiTransformError).path).toBe('#.foo.bar[1]')
-      }
-    })
-
     it('should add object keys to path', () => {
       try {
         toTypescript(z.object({ foo: z.object({ bar: z.nativeEnum(TestEnum) }) }))

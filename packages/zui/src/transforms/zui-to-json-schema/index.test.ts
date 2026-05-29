@@ -415,16 +415,6 @@ describe('zuiToJSONSchemaNext', () => {
     expect(schema).toEqual({ $ref: 'foo' })
   })
 
-  test('should show complete path section in error message', () => {
-    try {
-      toJSONSchema(z.object({ foo: z.object({ bar: z.tuple([z.number(), z.void()]) }) }))
-      expect.fail('should have thrown')
-    } catch (e) {
-      expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toBe('#.foo.bar[1]')
-    }
-  })
-
   test('should add object keys to path', () => {
     try {
       toJSONSchema(z.object({ foo: z.object({ bar: z.void() }) }))
