@@ -585,7 +585,10 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
                 toJSONSchemaOptions: integrationDef.__advanced?.toJSONSchemaOptions,
               })
               .catch((thrown) => {
-                throw errors.BotpressCLIError.wrap(thrown, `Error in integration ${integrationDef.name} for configuration`)
+                throw errors.BotpressCLIError.wrap(
+                  thrown,
+                  `Error in integration ${integrationDef.name} for configuration`
+                )
               }),
             identifier: {
               required: integrationDef.configuration.identifier?.required,

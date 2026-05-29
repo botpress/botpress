@@ -65,7 +65,10 @@ export const prepareCreateIntegrationBody = async (
                 toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
               })
               .catch((thrown) => {
-                throw errors.BotpressCLIError.wrap(thrown, `${base} for channel ${channelName} for message ${messageName}`)
+                throw errors.BotpressCLIError.wrap(
+                  thrown,
+                  `${base} for channel ${channelName} for message ${messageName}`
+                )
               }),
           })),
         }))
