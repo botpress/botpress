@@ -283,7 +283,7 @@ ${opts.join(' | ')}`
       return `[${items.join(', ')}]`
 
     case 'ZodRecord': {
-      const keyType = sUnwrapZod(s._def.keyType, path.withPrefix('keyOf'), newConfig)
+      const keyType = sUnwrapZod(s._def.keyType, path.withWrapper('KeyOf'), newConfig)
       const recordPath = z.is.zuiString(s._def.keyType)
         ? path.withIndexType('string')
         : z.is.zuiNumber(s._def.keyType)
@@ -299,15 +299,15 @@ ${opts.join(' | ')}`
         : z.is.zuiNumber(s._def.keyType)
           ? path.withIndexType('number')
           : path.withIndexType('any')
-      return `Map<${sUnwrapZod(s._def.keyType, path.withPrefix('keyOf'), newConfig)}, ${sUnwrapZod(s._def.valueType, recordPath, newConfig)}>`
+      return `Map<${sUnwrapZod(s._def.keyType, path.withWrapper('KeyOf'), newConfig)}, ${sUnwrapZod(s._def.valueType, recordPath, newConfig)}>`
     }
 
     case 'ZodSet':
       return `Set<${sUnwrapZod(s._def.valueType, path.withIndexType('number'), newConfig)}>`
 
     case 'ZodFunction':
-      const input = sUnwrapZod(new FnParameters(s._def.args), path, newConfig)
-      const output = sUnwrapZod(new FnReturn(s._def.returns), path.withPrefix('returns'), newConfig)
+      const input = sUnwrapZod(new FnParameters(s._def.args), path.withWrapper('Parameters'), newConfig)
+      const output = sUnwrapZod(new FnReturn(s._def.returns), path.withWrapper('ReturnType'), newConfig)
       const parentIsType = config?.parent instanceof Declaration && config?.parent.props.type === 'type'
 
       if (config?.declaration && !parentIsType) {

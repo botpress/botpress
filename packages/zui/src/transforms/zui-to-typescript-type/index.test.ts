@@ -1042,7 +1042,8 @@ describe.concurrent('optional', () => {
         toTypescript(z.object({ foo: z.object({ bar: z.tuple([z.number(), z.nativeEnum(TestEnum)]) }) }))
         expect.fail('should have thrown')
       } catch (e) {
-        expect(e instanceof Error && e.message).toContain('#.foo.bar[1]')
+        expect(e).toBeInstanceOf(errors.ZuiTransformError)
+        expect((e as errors.ZuiTransformError).path).toBe('#.foo.bar[1]')
       }
     })
 
@@ -1062,7 +1063,7 @@ describe.concurrent('optional', () => {
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errors.ZuiTransformError)
-        expect((e as errors.ZuiTransformError).path).toContain('[number]')
+        expect((e as errors.ZuiTransformError).path).toBe('#[number]')
       }
     })
 
@@ -1072,7 +1073,7 @@ describe.concurrent('optional', () => {
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errors.ZuiTransformError)
-        expect((e as errors.ZuiTransformError).path).toContain('[1]')
+        expect((e as errors.ZuiTransformError).path).toBe('#[1]')
       }
     })
 
@@ -1082,17 +1083,17 @@ describe.concurrent('optional', () => {
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errors.ZuiTransformError)
-        expect((e as errors.ZuiTransformError).path).toContain('[number]')
+        expect((e as errors.ZuiTransformError).path).toBe('#[number]')
       }
     })
 
-    it('should add keyOf prefix to record types with an invalid key', () => {
+    it('should add keyOf wrapper to record types with an invalid key', () => {
       try {
         toTypescript(z.record(z.nativeEnum(TestEnum), z.string()))
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errors.ZuiTransformError)
-        expect((e as errors.ZuiTransformError).path).toContain('keyOf')
+        expect((e as errors.ZuiTransformError).path).toBe('KeyOf<#>')
       }
     })
 
@@ -1102,7 +1103,7 @@ describe.concurrent('optional', () => {
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errors.ZuiTransformError)
-        expect((e as errors.ZuiTransformError).path).toContain('[string]')
+        expect((e as errors.ZuiTransformError).path).toBe('#[string]')
       }
     })
 
@@ -1112,7 +1113,7 @@ describe.concurrent('optional', () => {
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errors.ZuiTransformError)
-        expect((e as errors.ZuiTransformError).path).toContain('[number]')
+        expect((e as errors.ZuiTransformError).path).toBe('#[number]')
       }
     })
 
@@ -1122,17 +1123,17 @@ describe.concurrent('optional', () => {
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errors.ZuiTransformError)
-        expect((e as errors.ZuiTransformError).path).toContain('[*]')
+        expect((e as errors.ZuiTransformError).path).toBe('#[*]')
       }
     })
 
-    it('should add keyOf prefix to map types with an invalid key', () => {
+    it('should add keyOf wrapper to map types with an invalid key', () => {
       try {
         toTypescript(z.map(z.nativeEnum(TestEnum), z.string()))
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errors.ZuiTransformError)
-        expect((e as errors.ZuiTransformError).path).toContain('keyOf')
+        expect((e as errors.ZuiTransformError).path).toBe('KeyOf<#>')
       }
     })
 
@@ -1142,7 +1143,7 @@ describe.concurrent('optional', () => {
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errors.ZuiTransformError)
-        expect((e as errors.ZuiTransformError).path).toContain('[string]')
+        expect((e as errors.ZuiTransformError).path).toBe('#[string]')
       }
     })
 
@@ -1152,7 +1153,7 @@ describe.concurrent('optional', () => {
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errors.ZuiTransformError)
-        expect((e as errors.ZuiTransformError).path).toContain('[number]')
+        expect((e as errors.ZuiTransformError).path).toBe('#[number]')
       }
     })
 
@@ -1162,7 +1163,7 @@ describe.concurrent('optional', () => {
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errors.ZuiTransformError)
-        expect((e as errors.ZuiTransformError).path).toContain('[*]')
+        expect((e as errors.ZuiTransformError).path).toBe('#[*]')
       }
     })
 
@@ -1172,7 +1173,7 @@ describe.concurrent('optional', () => {
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errors.ZuiTransformError)
-        expect((e as errors.ZuiTransformError).path).toContain('[1]')
+        expect((e as errors.ZuiTransformError).path).toBe('#[1]')
       }
     })
 
@@ -1187,7 +1188,7 @@ describe.concurrent('optional', () => {
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errors.ZuiTransformError)
-        expect((e as errors.ZuiTransformError).path).toContain('[1]')
+        expect((e as errors.ZuiTransformError).path).toBe('#[1].bar')
       }
     })
 
@@ -1197,27 +1198,27 @@ describe.concurrent('optional', () => {
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errors.ZuiTransformError)
-        expect((e as errors.ZuiTransformError).path).toContain('[0]')
+        expect((e as errors.ZuiTransformError).path).toBe('#[0].foo')
       }
     })
 
-    it('should add [index] section to function type', () => {
+    it('should add parameters wrapper to function type and show index', () => {
       try {
         toTypescript(z.function(z.tuple([z.boolean(), z.nativeEnum(TestEnum)]), z.string()))
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errors.ZuiTransformError)
-        expect((e as errors.ZuiTransformError).path).toContain('[1]')
+        expect((e as errors.ZuiTransformError).path).toBe('Parameters<#>[1]')
       }
     })
 
-    it('should add returns prefix to function return type', () => {
+    it('should add ReturnType wrapper to function return type', () => {
       try {
         toTypescript(z.function(z.tuple([z.boolean(), z.number()]), z.nativeEnum(TestEnum)))
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errors.ZuiTransformError)
-        expect((e as errors.ZuiTransformError).path).toContain('returns')
+        expect((e as errors.ZuiTransformError).path).toBe('ReturnType<#>')
       }
     })
   }) // error path propagation

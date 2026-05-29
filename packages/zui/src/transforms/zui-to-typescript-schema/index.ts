@@ -111,7 +111,7 @@ function sUnwrapZod(schema: z.ZodType, path: PropertyPath): string {
       return `z.tuple([${items.join(', ')}])${_addMetadata(s._def)}`.trim()
 
     case 'ZodRecord':
-      const keyType = sUnwrapZod(s._def.keyType, path.withPrefix('keyOf'))
+      const keyType = sUnwrapZod(s._def.keyType, path.withWrapper('KeyOf'))
       const recordPath = z.is.zuiString(s._def.keyType)
         ? path.withIndexType('string')
         : z.is.zuiNumber(s._def.keyType)
@@ -121,7 +121,7 @@ function sUnwrapZod(schema: z.ZodType, path: PropertyPath): string {
       return `z.record(${keyType}, ${valueType})${_addMetadata(s._def)}`.trim()
 
     case 'ZodMap':
-      const mapKeyType = sUnwrapZod(s._def.keyType, path.withPrefix('keyOf'))
+      const mapKeyType = sUnwrapZod(s._def.keyType, path.withWrapper('KeyOf'))
       const mapPath = z.is.zuiString(s._def.keyType)
         ? path.withIndexType('string')
         : z.is.zuiNumber(s._def.keyType)
@@ -134,9 +134,11 @@ function sUnwrapZod(schema: z.ZodType, path: PropertyPath): string {
       return `z.set(${sUnwrapZod(s._def.valueType, path.withIndexType('number'))})${generateSetChecks(s._def)}${_addMetadata(s._def)}`.trim()
 
     case 'ZodFunction':
-      const args = s._def.args.items.map((arg, index) => sUnwrapZod(arg, path.withIndexType('number', index)))
+      const args = s._def.args.items.map((arg, index) =>
+        sUnwrapZod(arg, path.withWrapper('Parameters').withIndexType('number', index))
+      )
       const argsString = args.length ? `.args(${args.join(', ')})` : ''
-      const returns = sUnwrapZod(s._def.returns, path.withPrefix('returns'))
+      const returns = sUnwrapZod(s._def.returns, path.withWrapper('ReturnType'))
       return `z.function()${argsString}.returns(${returns})${_addMetadata(s._def)}`.trim()
 
     case 'ZodLazy':
