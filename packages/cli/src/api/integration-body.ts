@@ -1,5 +1,6 @@
 import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
+import * as errors from '../errors'
 import * as utils from '../utils'
 import * as types from './types'
 
@@ -16,14 +17,14 @@ export const prepareCreateIntegrationBody = async (
     events: integration.events
       ? await utils.records.mapValuesAsync(integration.events, async (event, eventName) => ({
           ...event,
-          schema: await utils.schema.mapZodToJsonSchema(
-            event,
-            {
+          schema: await utils.schema
+            .mapZodToJsonSchema(event, {
               useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
               toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
-            },
-            `${base}.events.${eventName}`
-          ),
+            })
+            .catch((thrown) => {
+              throw errors.BotpressCLIError.wrap(thrown, `${base}.events.${eventName}`)
+            }),
         }))
       : undefined,
     actions: integration.actions
@@ -31,25 +32,25 @@ export const prepareCreateIntegrationBody = async (
           ...action,
           input: {
             ...action.input,
-            schema: await utils.schema.mapZodToJsonSchema(
-              action.input,
-              {
+            schema: await utils.schema
+              .mapZodToJsonSchema(action.input, {
                 useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
                 toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
-              },
-              `${base}.actions.${actionName}.input`
-            ),
+              })
+              .catch((thrown) => {
+                throw errors.BotpressCLIError.wrap(thrown, `${base}.actions.${actionName}.input`)
+              }),
           },
           output: {
             ...action.output,
-            schema: await utils.schema.mapZodToJsonSchema(
-              action.output,
-              {
+            schema: await utils.schema
+              .mapZodToJsonSchema(action.output, {
                 useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
                 toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
-              },
-              `${base}.actions.${actionName}.output`
-            ),
+              })
+              .catch((thrown) => {
+                throw errors.BotpressCLIError.wrap(thrown, `${base}.actions.${actionName}.output`)
+              }),
           },
         }))
       : undefined,
@@ -58,41 +59,41 @@ export const prepareCreateIntegrationBody = async (
           ...channel,
           messages: await utils.records.mapValuesAsync(channel.messages, async (message, messageName) => ({
             ...message,
-            schema: await utils.schema.mapZodToJsonSchema(
-              message,
-              {
+            schema: await utils.schema
+              .mapZodToJsonSchema(message, {
                 useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
                 toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
-              },
-              `${base}.channels.${channelName}.messages.${messageName}`
-            ),
+              })
+              .catch((thrown) => {
+                throw errors.BotpressCLIError.wrap(thrown, `${base}.channels.${channelName}.messages.${messageName}`)
+              }),
           })),
         }))
       : undefined,
     states: integration.states
       ? await utils.records.mapValuesAsync(integration.states, async (state, stateName) => ({
           ...state,
-          schema: await utils.schema.mapZodToJsonSchema(
-            state,
-            {
+          schema: await utils.schema
+            .mapZodToJsonSchema(state, {
               useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
               toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
-            },
-            `${base}.states.${stateName}`
-          ),
+            })
+            .catch((thrown) => {
+              throw errors.BotpressCLIError.wrap(thrown, `${base}.states.${stateName}`)
+            }),
         }))
       : undefined,
     entities: integration.entities
       ? await utils.records.mapValuesAsync(integration.entities, async (entity, entityName) => ({
           ...entity,
-          schema: await utils.schema.mapZodToJsonSchema(
-            entity,
-            {
+          schema: await utils.schema
+            .mapZodToJsonSchema(entity, {
               useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
               toJSONSchemaOptions: integration.__advanced?.toJSONSchemaOptions,
-            },
-            `${base}.entities.${entityName}`
-          ),
+            })
+            .catch((thrown) => {
+              throw errors.BotpressCLIError.wrap(thrown, `${base}.entities.${entityName}`)
+            }),
         }))
       : undefined,
     attributes: integration.attributes,

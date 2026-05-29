@@ -1,5 +1,6 @@
 import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
+import * as errors from '../errors'
 import * as utils from '../utils'
 import * as types from './types'
 
@@ -15,66 +16,66 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
           ...action,
           input: {
             ...action.input,
-            schema: await utils.schema.mapZodToJsonSchema(
-              action.input,
-              {
+            schema: await utils.schema
+              .mapZodToJsonSchema(action.input, {
                 useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
                 toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
-              },
-              `${base}.actions.${actionName}.input`
-            ),
+              })
+              .catch((thrown) => {
+                throw errors.BotpressCLIError.wrap(thrown, `${base}.actions.${actionName}.input`)
+              }),
           },
           output: {
             ...action.output,
-            schema: await utils.schema.mapZodToJsonSchema(
-              action.output,
-              {
+            schema: await utils.schema
+              .mapZodToJsonSchema(action.output, {
                 useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
                 toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
-              },
-              `${base}.actions.${actionName}.output`
-            ),
+              })
+              .catch((thrown) => {
+                throw errors.BotpressCLIError.wrap(thrown, `${base}.actions.${actionName}.output`)
+              }),
           },
         }))
       : undefined,
     configuration: bot.configuration
       ? {
           ...bot.configuration,
-          schema: await utils.schema.mapZodToJsonSchema(
-            bot.configuration,
-            {
+          schema: await utils.schema
+            .mapZodToJsonSchema(bot.configuration, {
               useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
               toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
-            },
-            `${base}.configuration`
-          ),
+            })
+            .catch((thrown) => {
+              throw errors.BotpressCLIError.wrap(thrown, `${base}.configuration`)
+            }),
         }
       : undefined,
     events: bot.events
       ? await utils.records.mapValuesAsync(bot.events, async (event, eventName) => ({
           ...event,
-          schema: await utils.schema.mapZodToJsonSchema(
-            event,
-            {
+          schema: await utils.schema
+            .mapZodToJsonSchema(event, {
               useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
               toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
-            },
-            `${base}.events.${eventName}`
-          ),
+            })
+            .catch((thrown) => {
+              throw errors.BotpressCLIError.wrap(thrown, `${base}.events.${eventName}`)
+            }),
         }))
       : undefined,
     states: bot.states
       ? (utils.records.filterValues(
           await utils.records.mapValuesAsync(bot.states, async (state, stateName) => ({
             ...state,
-            schema: await utils.schema.mapZodToJsonSchema(
-              state,
-              {
+            schema: await utils.schema
+              .mapZodToJsonSchema(state, {
                 useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
                 toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
-              },
-              `${base}.states.${stateName}`
-            ),
+              })
+              .catch((thrown) => {
+                throw errors.BotpressCLIError.wrap(thrown, `${base}.states.${stateName}`)
+              }),
           })),
           ({ type }) => type !== 'workflow'
         ) as types.CreateBotRequestBody['states'])

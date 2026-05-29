@@ -150,27 +150,19 @@ const lintDefinition = async (definition: IntegrationDefinitionProps) => {
     configuration: integrationDefinition.configuration
       ? {
           ...integrationDefinition.configuration,
-          schema: await utils.schema.mapZodToJsonSchema(
-            integrationDefinition.configuration,
-            {
-              useLegacyZuiTransformer: integrationDefinition.__advanced?.useLegacyZuiTransformer,
-              toJSONSchemaOptions: integrationDefinition.__advanced?.toJSONSchemaOptions,
-            },
-            ''
-          ),
+          schema: await utils.schema.mapZodToJsonSchema(integrationDefinition.configuration, {
+            useLegacyZuiTransformer: integrationDefinition.__advanced?.useLegacyZuiTransformer,
+            toJSONSchemaOptions: integrationDefinition.__advanced?.toJSONSchemaOptions,
+          }),
         }
       : undefined,
     configurations: integrationDefinition.configurations
       ? await utils.records.mapValuesAsync(integrationDefinition.configurations, async (configuration) => ({
           ...configuration,
-          schema: await utils.schema.mapZodToJsonSchema(
-            configuration,
-            {
-              useLegacyZuiTransformer: integrationDefinition.__advanced?.useLegacyZuiTransformer,
-              toJSONSchemaOptions: integrationDefinition.__advanced?.toJSONSchemaOptions,
-            },
-            ''
-          ),
+          schema: await utils.schema.mapZodToJsonSchema(configuration, {
+            useLegacyZuiTransformer: integrationDefinition.__advanced?.useLegacyZuiTransformer,
+            toJSONSchemaOptions: integrationDefinition.__advanced?.toJSONSchemaOptions,
+          }),
         }))
       : undefined,
     readme: integrationDefinition.readme,

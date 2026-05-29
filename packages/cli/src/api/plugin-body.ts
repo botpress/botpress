@@ -1,5 +1,6 @@
 import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
+import * as errors from '../errors'
 import * as utils from '../utils'
 import * as types from './types'
 
@@ -22,27 +23,27 @@ export const prepareCreatePluginBody = async (plugin: sdk.PluginDefinition): Pro
     configuration: plugin.configuration
       ? {
           ...plugin.configuration,
-          schema: await utils.schema.mapZodToJsonSchema(
-            plugin.configuration,
-            {
+          schema: await utils.schema
+            .mapZodToJsonSchema(plugin.configuration, {
               useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
               toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
-            },
-            `${base}.configuration`
-          ),
+            })
+            .catch((thrown) => {
+              throw errors.BotpressCLIError.wrap(thrown, `${base}.configuration`)
+            }),
         }
       : undefined,
     events: plugin.events
       ? await utils.records.mapValuesAsync(plugin.events, async (event, eventName) => ({
           ...event,
-          schema: await utils.schema.mapZodToJsonSchema(
-            event,
-            {
+          schema: await utils.schema
+            .mapZodToJsonSchema(event, {
               useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
               toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
-            },
-            `${base}.events.${eventName}`
-          ),
+            })
+            .catch((thrown) => {
+              throw errors.BotpressCLIError.wrap(thrown, `${base}.events.${eventName}`)
+            }),
         }))
       : undefined,
     actions: plugin.actions
@@ -50,25 +51,25 @@ export const prepareCreatePluginBody = async (plugin: sdk.PluginDefinition): Pro
           ...action,
           input: {
             ...action.input,
-            schema: await utils.schema.mapZodToJsonSchema(
-              action.input,
-              {
+            schema: await utils.schema
+              .mapZodToJsonSchema(action.input, {
                 useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
                 toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
-              },
-              `${base}.actions.${actionName}.input`
-            ),
+              })
+              .catch((thrown) => {
+                throw errors.BotpressCLIError.wrap(thrown, `${base}.actions.${actionName}.input`)
+              }),
           },
           output: {
             ...action.output,
-            schema: await utils.schema.mapZodToJsonSchema(
-              action.output,
-              {
+            schema: await utils.schema
+              .mapZodToJsonSchema(action.output, {
                 useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
                 toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
-              },
-              `${base}.actions.${actionName}.output`
-            ),
+              })
+              .catch((thrown) => {
+                throw errors.BotpressCLIError.wrap(thrown, `${base}.actions.${actionName}.output`)
+              }),
           },
         }))
       : undefined,
@@ -76,14 +77,14 @@ export const prepareCreatePluginBody = async (plugin: sdk.PluginDefinition): Pro
       ? (utils.records.filterValues(
           await utils.records.mapValuesAsync(plugin.states, async (state, stateName) => ({
             ...state,
-            schema: await utils.schema.mapZodToJsonSchema(
-              state,
-              {
+            schema: await utils.schema
+              .mapZodToJsonSchema(state, {
                 useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
                 toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
-              },
-              `${base}.states.${stateName}`
-            ),
+              })
+              .catch((thrown) => {
+                throw errors.BotpressCLIError.wrap(thrown, `${base}.states.${stateName}`)
+              }),
           })),
           ({ type }) => type !== 'workflow'
         ) as types.CreatePluginRequestBody['states'])

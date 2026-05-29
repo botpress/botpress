@@ -1,5 +1,6 @@
 import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
+import * as errors from '../errors'
 import * as utils from '../utils'
 import * as types from './types'
 
@@ -15,27 +16,27 @@ export const prepareCreateInterfaceBody = async (
     entities: intrface.entities
       ? await utils.records.mapValuesAsync(intrface.entities, async (entity, entityName) => ({
           ...entity,
-          schema: await utils.schema.mapZodToJsonSchema(
-            entity,
-            {
+          schema: await utils.schema
+            .mapZodToJsonSchema(entity, {
               useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
               toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
-            },
-            `${base}.entities.${entityName}`
-          ),
+            })
+            .catch((thrown) => {
+              throw errors.BotpressCLIError.wrap(thrown, `${base}.entities.${entityName}`)
+            }),
         }))
       : {},
     events: intrface.events
       ? await utils.records.mapValuesAsync(intrface.events, async (event, eventName) => ({
           ...event,
-          schema: await utils.schema.mapZodToJsonSchema(
-            event,
-            {
+          schema: await utils.schema
+            .mapZodToJsonSchema(event, {
               useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
               toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
-            },
-            `${base}.events.${eventName}`
-          ),
+            })
+            .catch((thrown) => {
+              throw errors.BotpressCLIError.wrap(thrown, `${base}.events.${eventName}`)
+            }),
         }))
       : {},
     actions: intrface.actions
@@ -43,25 +44,25 @@ export const prepareCreateInterfaceBody = async (
           ...action,
           input: {
             ...action.input,
-            schema: await utils.schema.mapZodToJsonSchema(
-              action.input,
-              {
+            schema: await utils.schema
+              .mapZodToJsonSchema(action.input, {
                 useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
                 toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
-              },
-              `${base}.actions.${actionName}.input`
-            ),
+              })
+              .catch((thrown) => {
+                throw errors.BotpressCLIError.wrap(thrown, `${base}.actions.${actionName}.input`)
+              }),
           },
           output: {
             ...action.output,
-            schema: await utils.schema.mapZodToJsonSchema(
-              action.output,
-              {
+            schema: await utils.schema
+              .mapZodToJsonSchema(action.output, {
                 useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
                 toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
-              },
-              `${base}.actions.${actionName}.output`
-            ),
+              })
+              .catch((thrown) => {
+                throw errors.BotpressCLIError.wrap(thrown, `${base}.actions.${actionName}.output`)
+              }),
           },
         }))
       : {},
@@ -70,14 +71,14 @@ export const prepareCreateInterfaceBody = async (
           ...channel,
           messages: await utils.records.mapValuesAsync(channel.messages, async (message, messageName) => ({
             ...message,
-            schema: await utils.schema.mapZodToJsonSchema(
-              message,
-              {
+            schema: await utils.schema
+              .mapZodToJsonSchema(message, {
                 useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
                 toJSONSchemaOptions: intrface.__advanced?.toJSONSchemaOptions,
-              },
-              `${base}.channels.${channelName}.messages.${messageName}`
-            ),
+              })
+              .catch((thrown) => {
+                throw errors.BotpressCLIError.wrap(thrown, `${base}.channels.${channelName}.messages.${messageName}`)
+              }),
           })),
         }))
       : {},
