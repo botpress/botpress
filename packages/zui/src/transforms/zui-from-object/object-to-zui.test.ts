@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { fromObject } from '.'
+import * as errs from '../common/errors'
 import { toJSONSchemaLegacy } from '../zui-to-json-schema-legacy'
 import { JSONSchema7, JSONSchema7Definition } from 'json-schema'
 import { fromJSONSchemaLegacy } from '../zui-from-json-schema-legacy'
@@ -214,5 +215,29 @@ describe('object-to-zui', () => {
     expect(testSchema).toHaveProperty('additionalProperties', true)
     expect(testSchema?.properties?.output).toHaveProperty('additionalProperties', true)
     expect(fixedSchema).toHaveProperty('additionalProperties', true)
+  })
+
+  test('should add object keys to path', () => {
+    try {
+      fromObject({
+        foo: { bar: Symbol('x') as unknown as string },
+      })
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errs.ZuiTransformError)
+      expect((e as errs.ZuiTransformError).path).toBe('#.foo.bar')
+    }
+  })
+
+  test('should add [number] to path for array item error', () => {
+    try {
+      fromObject({
+        foo: [{ bar: Symbol('x') as unknown as string }],
+      })
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errs.ZuiTransformError)
+      expect((e as errs.ZuiTransformError).path).toBe('#.foo[number].bar')
+    }
   })
 })
