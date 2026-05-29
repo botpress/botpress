@@ -1191,7 +1191,7 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errs.ZuiTransformError)
-        expect((e as errs.ZuiTransformError).path).toContain('[number]')
+        expect((e as errs.ZuiTransformError).path).toBe('#[number]')
       }
     })
 
@@ -1204,7 +1204,7 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errs.ZuiTransformError)
-        expect((e as errs.ZuiTransformError).path).toContain('[2]')
+        expect((e as errs.ZuiTransformError).path).toBe('#[2]')
       }
     })
 
@@ -1218,7 +1218,7 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errs.ZuiTransformError)
-        expect((e as errs.ZuiTransformError).path).toContain('[number]')
+        expect((e as errs.ZuiTransformError).path).toBe('#[number]')
       }
     })
 
@@ -1233,7 +1233,7 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errs.ZuiTransformError)
-        expect((e as errs.ZuiTransformError).path).toContain('[1]')
+        expect((e as errs.ZuiTransformError).path).toBe('#.foo[1]')
       }
     })
 
@@ -1248,7 +1248,7 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errs.ZuiTransformError)
-        expect((e as errs.ZuiTransformError).path).toContain('[1]')
+        expect((e as errs.ZuiTransformError).path).toBe('#.foo[1]')
       }
     })
 
@@ -1268,7 +1268,7 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errs.ZuiTransformError)
-        expect((e as errs.ZuiTransformError).path).toContain('[1]')
+        expect((e as errs.ZuiTransformError).path).toBe('#.foo[1]')
       }
     })
 
@@ -1284,26 +1284,21 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errs.ZuiTransformError)
-        expect((e as errs.ZuiTransformError).path).toContain('[string]')
+        expect((e as errs.ZuiTransformError).path).toBe('#[string]')
       }
     })
 
     test('should add [number] to path for tuple rest (additionalItems) error', () => {
       try {
         fromJSONSchema({
-          type: 'object',
-          properties: {
-            foo: {
-              type: 'array',
-              items: [{ type: 'number' }, { type: 'number' }],
-              additionalItems: { patternProperties: { '^x_': { type: 'string' } } },
-            },
-          },
+          type: 'array',
+          items: [{ type: 'number' }, { type: 'number' }],
+          additionalItems: { patternProperties: { '^x_': { type: 'string' } } },
         })
         expect.fail('should have thrown')
       } catch (e) {
         expect(e).toBeInstanceOf(errs.ZuiTransformError)
-        expect((e as errs.ZuiTransformError).path).toContain('[number]')
+        expect((e as errs.ZuiTransformError).path).toBe('#[number]')
       }
     })
   }) // error path propagation

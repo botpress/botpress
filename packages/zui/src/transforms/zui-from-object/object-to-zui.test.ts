@@ -217,20 +217,6 @@ describe('object-to-zui', () => {
     expect(fixedSchema).toHaveProperty('additionalProperties', true)
   })
 
-  test('should add complete path to error message', () => {
-    try {
-      fromObject({
-        foo: [{ bar: Symbol('x') as unknown as string }],
-      })
-      expect.fail('should have thrown')
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error)
-      if (e instanceof Error) {
-        expect(e.message).toContain('#.foo[number].bar')
-      }
-    }
-  })
-
   test('should add object keys to path', () => {
     try {
       fromObject({
@@ -246,12 +232,12 @@ describe('object-to-zui', () => {
   test('should add [number] to path for array item error', () => {
     try {
       fromObject({
-        items: [{ name: Symbol('x') as unknown as string }],
+        foo: [{ bar: Symbol('x') as unknown as string }],
       })
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errs.ZuiTransformError)
-      expect((e as errs.ZuiTransformError).path).toContain('[number]')
+      expect((e as errs.ZuiTransformError).path).toBe('#.foo[number].bar')
     }
   })
 })
