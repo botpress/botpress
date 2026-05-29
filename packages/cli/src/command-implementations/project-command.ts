@@ -587,7 +587,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
               .catch((thrown) => {
                 throw errors.BotpressCLIError.wrap(
                   thrown,
-                  `Error in integration ${integrationDef.name} for configuration`
+                  `Failed to convert ZUI to JSON schema for integration ${integrationDef.name} for configuration`
                 )
               }),
             identifier: {
@@ -612,7 +612,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
                 .catch((thrown) => {
                   throw errors.BotpressCLIError.wrap(
                     thrown,
-                    `Error in integration ${integrationDef.name} for configuration ${configurationName}`
+                    `Failed to convert ZUI to JSON schema for integration ${integrationDef.name} for configuration ${configurationName}`
                   )
                 }),
               identifier: {

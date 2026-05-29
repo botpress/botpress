@@ -7,7 +7,7 @@ import * as types from './types'
 export const prepareCreateInterfaceBody = async (
   intrface: sdk.InterfaceDefinition
 ): Promise<types.CreateInterfaceRequestBody> => {
-  const base = `Error in interface ${intrface.name}`
+  const base = `Failed to convert ZUI to JSON schema for interface ${intrface.name}`
   return {
     name: intrface.name,
     version: intrface.version,

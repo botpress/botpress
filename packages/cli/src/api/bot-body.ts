@@ -20,7 +20,7 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
               toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
             })
             .catch((thrown) => {
-              throw errors.BotpressCLIError.wrap(thrown, `Error in bot action ${actionName} input`)
+              throw errors.BotpressCLIError.wrap(thrown, `ailed to convert ZUI to JSON schema for bot action ${actionName} input`)
             }),
         },
         output: {
@@ -31,7 +31,7 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
               toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
             })
             .catch((thrown) => {
-              throw errors.BotpressCLIError.wrap(thrown, `Error in bot action ${actionName} output`)
+              throw errors.BotpressCLIError.wrap(thrown, `Failed to convert ZUI to JSON schema for bot action ${actionName} output`)
             }),
         },
       }))
@@ -45,7 +45,7 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
             toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
           })
           .catch((thrown) => {
-            throw errors.BotpressCLIError.wrap(thrown, 'Error in bot configuration')
+            throw errors.BotpressCLIError.wrap(thrown, 'Failed to convert ZUI to JSON schema for bot configuration')
           }),
       }
     : undefined,
@@ -58,7 +58,7 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
             toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
           })
           .catch((thrown) => {
-            throw errors.BotpressCLIError.wrap(thrown, `Error in bot event ${eventName}`)
+            throw errors.BotpressCLIError.wrap(thrown, `Failed to convert ZUI to JSON schema for bot event ${eventName}`)
           }),
       }))
     : undefined,
@@ -72,7 +72,7 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
               toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
             })
             .catch((thrown) => {
-              throw errors.BotpressCLIError.wrap(thrown, `Error in bot state ${stateName}`)
+              throw errors.BotpressCLIError.wrap(thrown, `Failed to convert ZUI to JSON schema for bot state ${stateName}`)
             }),
         })),
         ({ type }) => type !== 'workflow'

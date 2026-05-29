@@ -7,7 +7,7 @@ import * as types from './types'
 export const prepareCreateIntegrationBody = async (
   integration: sdk.IntegrationDefinition
 ): Promise<types.CreateIntegrationRequestBody> => {
-  const base = `Error in integration ${integration.name}`
+  const base = `Failed to convert ZUI to JSON schema for integration ${integration.name}`
   return {
     name: integration.name,
     version: integration.version,

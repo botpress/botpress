@@ -5,7 +5,7 @@ import * as utils from '../utils'
 import * as types from './types'
 
 export const prepareCreatePluginBody = async (plugin: sdk.PluginDefinition): Promise<types.CreatePluginRequestBody> => {
-  const base = `Error in plugin ${plugin.name}`
+  const base = `Failed to convert ZUI to JSON schema for plugin ${plugin.name}`
   return {
     name: plugin.name,
     version: plugin.version,
