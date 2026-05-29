@@ -34,9 +34,9 @@ const _startHandler: WizardHandler = ({ ctx, responses }) => {
   return responses.displayButtons({
     pageTitle: 'Connect Monday.com',
     htmlOrMarkdownPageContents:
-      `1. Open the <a href="${getMondayInstallUrl()}" target="_blank" rel="noopener noreferrer">Monday.com install page</a> and install the Botpress app in your workspace.\n` +
-      '2. Come back to this page after the installation is complete.\n' +
-      '3. Click **Next step** to start the OAuth connection.' +
+      '1. Click **Next step** to open the Monday.com install page in a new tab.\n' +
+      '2. Install the Botpress app in your Monday.com workspace.\n' +
+      '3. Return to this wizard and confirm the installation to start the OAuth connection.' +
       `
       <script>
         function installMondayAppAndContinue() {
