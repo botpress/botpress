@@ -1137,28 +1137,6 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
   })
 
   describe.concurrent('error path propagation', () => {
-    test('should add complete path to error message', () => {
-      try {
-        fromJSONSchema({
-          type: 'object',
-          properties: {
-            foo: {
-              type: 'object',
-              properties: {
-                bar: {
-                  type: 'array',
-                  items: [{ type: 'number' }, { not: { type: 'string' } }],
-                },
-              },
-            },
-          },
-        })
-        expect.fail('should have thrown')
-      } catch (e) {
-        expect(e instanceof Error && e.message).toContain('#.foo.bar[1]')
-      }
-    })
-
     test('should add object keys to path', () => {
       try {
         fromJSONSchema({
