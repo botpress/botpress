@@ -236,6 +236,76 @@ describe('zai.patch', { timeout: 60_000 }, () => {
     expect(result.output[0].patch).toMatchInlineSnapshot(`"◼︎>3|## Installation"`)
   })
 
+  it('patches a markdown table by adding a row', async () => {
+    const tableFile: File = {
+      path: 'fruits.md',
+      name: 'fruits.md',
+      content: `# Fruits
+
+| Name   | Color  | Price |
+| ------ | ------ | ----- |
+| Apple  | Red    | 1.00  |
+| Banana | Yellow | 0.50  |`,
+    }
+
+    const result = await zai
+      .patch([tableFile], 'add a new row to the table for "Grape" with color "Purple" and price "2.00"')
+      .result()
+
+    expect(result.output).toHaveLength(1)
+    const patched = result.output[0].content
+
+    // Grape row exists and is well-formed (no doubled pipes like "||")
+    expect(patched).toContain('Grape')
+    expect(patched).toContain('Purple')
+    expect(patched).toContain('2.00')
+    expect(patched).not.toMatch(/\|\|/)
+
+    // Existing rows are preserved
+    expect(patched).toContain('| Apple  | Red    | 1.00  |')
+    expect(patched).toContain('| Banana | Yellow | 0.50  |')
+
+    // Every table row starts with a single pipe (not a double pipe)
+    const tableRows = patched.split('\n').filter((l) => l.trim().startsWith('|'))
+    for (const row of tableRows) {
+      expect(row.trimStart().startsWith('||')).toBe(false)
+    }
+  })
+
+  it('patches a markdown table by changing an existing row', async () => {
+    const tableFile: File = {
+      path: 'fruits.md',
+      name: 'fruits.md',
+      content: `# Fruits
+
+| Name   | Color  | Price |
+| ------ | ------ | ----- |
+| Apple  | Red    | 1.00  |
+| Banana | Yellow | 0.50  |`,
+    }
+
+    const result = await zai.patch([tableFile], 'change the price of Apple from 1.00 to 1.50').result()
+
+    expect(result.output).toHaveLength(1)
+    const patched = result.output[0].content
+
+    expect(patched).toContain('1.50')
+    expect(patched).not.toContain('| Apple  | Red    | 1.00  |')
+
+    // No doubled pipes — guards against a bug where lines starting with `|`
+    // get an extra leading pipe added by the patch protocol.
+    expect(patched).not.toMatch(/\|\|/)
+
+    // Banana row is untouched
+    expect(patched).toContain('| Banana | Yellow | 0.50  |')
+
+    // Every table row starts with a single pipe
+    const tableRows = patched.split('\n').filter((l) => l.trim().startsWith('|'))
+    for (const row of tableRows) {
+      expect(row.trimStart().startsWith('||')).toBe(false)
+    }
+  })
+
   it('can add multiple sections to different files', async () => {
     const file1: File = { path: 'file1.txt', name: 'file1.txt', content: 'Line 1\nLine 2' }
     const file2: File = { path: 'file2.txt', name: 'file2.txt', content: 'Content A\nContent B' }

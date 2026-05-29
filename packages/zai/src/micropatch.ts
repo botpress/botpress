@@ -153,7 +153,10 @@ export class Micropatch {
       const op = m[1] as '<' | '>' | '=' | '-'
       const aNum = parseInt(m[2], 10)
       const bNum = m[3] ? parseInt(m[3], 10) : undefined
-      const firstPayload = m[4] ?? ''
+      // LLMs sometimes "double" the leading `|` of a payload that itself begins with `|`
+      // (e.g. markdown table rows), as if escaping it. The protocol has no such escape,
+      // so a payload starting with `||` is treated as a single literal leading `|`.
+      const firstPayload = (m[4] ?? '').replace(/^\|\|/, '|')
 
       if (aNum < 1 || (bNum !== undefined && bNum < aNum)) {
         throw new Error(`Invalid line/range at line ${i + 1}: ${line}`)
