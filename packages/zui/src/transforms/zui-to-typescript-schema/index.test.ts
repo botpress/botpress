@@ -693,22 +693,13 @@ describe.concurrent('toTypescriptSchema', () => {
     })
   })
 
-  test('should show complete path section in error message', () => {
-    try {
-      toTypescript(z.object({ foo: z.object({ bar: z.tuple([z.number(), z.string().refine((v) => v.length > 0)]) }) }))
-      expect.fail('should have thrown')
-    } catch (e) {
-      expect(e instanceof Error && e.message).toContain('#.foo.bar[1]')
-    }
-  })
-
   test('should add object keys to path', () => {
     try {
       toTypescript(z.object({ foo: z.object({ bar: z.string().refine((v) => v.length > 0) }) }))
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
-      expect((e as errors.ZuiTransformError).path).toContain('#.foo.bar')
+      expect((e as errors.ZuiTransformError).path).toBe('#.foo.bar')
     }
   })
 
@@ -718,7 +709,7 @@ describe.concurrent('toTypescriptSchema', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
-      expect((e as errors.ZuiTransformError).path).toContain('[number]')
+      expect((e as errors.ZuiTransformError).path).toBe('#[number]')
     }
   })
 
@@ -728,7 +719,7 @@ describe.concurrent('toTypescriptSchema', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
-      expect((e as errors.ZuiTransformError).path).toContain('[1]')
+      expect((e as errors.ZuiTransformError).path).toBe('#[1]')
     }
   })
 
@@ -738,11 +729,11 @@ describe.concurrent('toTypescriptSchema', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
-      expect((e as errors.ZuiTransformError).path).toContain('[number]')
+      expect((e as errors.ZuiTransformError).path).toBe('#[number]')
     }
   })
 
-  test('should add keyOf prefix to record types with an invalid key', () => {
+  test('should add keyOf wrapper to record types with an invalid key', () => {
     try {
       toTypescript(
         z.record(
@@ -753,7 +744,7 @@ describe.concurrent('toTypescriptSchema', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
-      expect((e as errors.ZuiTransformError).path).toContain('keyOf')
+      expect((e as errors.ZuiTransformError).path).toBe('KeyOf<#>')
     }
   })
 
@@ -768,7 +759,7 @@ describe.concurrent('toTypescriptSchema', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
-      expect((e as errors.ZuiTransformError).path).toContain('[string]')
+      expect((e as errors.ZuiTransformError).path).toBe('#[string]')
     }
   })
 
@@ -783,7 +774,7 @@ describe.concurrent('toTypescriptSchema', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
-      expect((e as errors.ZuiTransformError).path).toContain('[number]')
+      expect((e as errors.ZuiTransformError).path).toBe('#[number]')
     }
   })
 
@@ -798,11 +789,11 @@ describe.concurrent('toTypescriptSchema', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
-      expect((e as errors.ZuiTransformError).path).toContain('[*]')
+      expect((e as errors.ZuiTransformError).path).toBe('#[*]')
     }
   })
 
-  test('should add keyOf prefix to map types with an invalid key', () => {
+  test('should add keyOf wrapper to map types with an invalid key', () => {
     try {
       toTypescript(
         z.map(
@@ -813,7 +804,7 @@ describe.concurrent('toTypescriptSchema', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
-      expect((e as errors.ZuiTransformError).path).toContain('keyOf')
+      expect((e as errors.ZuiTransformError).path).toBe('KeyOf<#>')
     }
   })
 
@@ -828,7 +819,7 @@ describe.concurrent('toTypescriptSchema', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
-      expect((e as errors.ZuiTransformError).path).toContain('[string]')
+      expect((e as errors.ZuiTransformError).path).toBe('#[string]')
     }
   })
 
@@ -843,7 +834,7 @@ describe.concurrent('toTypescriptSchema', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
-      expect((e as errors.ZuiTransformError).path).toContain('[number]')
+      expect((e as errors.ZuiTransformError).path).toBe('#[number]')
     }
   })
 
@@ -858,7 +849,7 @@ describe.concurrent('toTypescriptSchema', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
-      expect((e as errors.ZuiTransformError).path).toContain('[*]')
+      expect((e as errors.ZuiTransformError).path).toBe('#[*]')
     }
   })
 
@@ -868,7 +859,7 @@ describe.concurrent('toTypescriptSchema', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
-      expect((e as errors.ZuiTransformError).path).toContain('[1]')
+      expect((e as errors.ZuiTransformError).path).toBe('#[1]')
     }
   })
 
@@ -883,33 +874,36 @@ describe.concurrent('toTypescriptSchema', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
-      expect((e as errors.ZuiTransformError).path).toContain('[1]')
+      expect((e as errors.ZuiTransformError).path).toBe('#[1].bar')
     }
   })
 
   test('should add [index] section to intersection types', () => {
     try {
       toTypescript(
-        z.intersection(z.object({ foo: z.string().refine((v) => v.length > 0) }), z.object({ bar: z.number() }))
+        z.intersection(
+          z.string().refine((v) => v.length > 0),
+          z.number()
+        )
       )
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
-      expect((e as errors.ZuiTransformError).path).toContain('[0]')
+      expect((e as errors.ZuiTransformError).path).toBe('#[0]')
     }
   })
 
-  test('should add [index] section to function type', () => {
+  test('should add parameters wrapper to function type and show index', () => {
     try {
       toTypescript(z.function(z.tuple([z.boolean(), z.string().refine((v) => v.length > 0)]), z.string()))
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
-      expect((e as errors.ZuiTransformError).path).toContain('[1]')
+      expect((e as errors.ZuiTransformError).path).toBe('Parameters<#>[1]')
     }
   })
 
-  test('should add returns prefix to function return type invalid', () => {
+  test('should add returnType wrapper to function return type invalid', () => {
     try {
       toTypescript(
         z.function(
@@ -920,7 +914,7 @@ describe.concurrent('toTypescriptSchema', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
-      expect((e as errors.ZuiTransformError).path).toContain('returns')
+      expect((e as errors.ZuiTransformError).path).toBe('ReturnType<#>')
     }
   })
 
@@ -930,7 +924,7 @@ describe.concurrent('toTypescriptSchema', () => {
       expect.fail('should have thrown')
     } catch (e) {
       expect(e).toBeInstanceOf(errors.ZuiTransformError)
-      expect((e as errors.ZuiTransformError).path).toContain('[string]')
+      expect((e as errors.ZuiTransformError).path).toBe('#[string]')
     }
   })
 })

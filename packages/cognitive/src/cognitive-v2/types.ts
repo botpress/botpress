@@ -6,32 +6,45 @@ export type Models =
   | 'anthropic:claude-haiku-4-5-reasoning-20251001'
   | 'anthropic:claude-opus-4-5-20251101'
   | 'anthropic:claude-opus-4-6'
-  | 'anthropic:claude-sonnet-4-20250514'
+  | 'anthropic:claude-opus-4-7'
   | 'anthropic:claude-sonnet-4-5-20250929'
   | 'anthropic:claude-sonnet-4-6'
   | 'cerebras:gpt-oss-120b'
-  | 'cerebras:llama3.1-8b'
+  | 'elevenlabs:eleven_flash_v2_5'
+  | 'elevenlabs:eleven_multilingual_v2'
+  | 'elevenlabs:eleven_turbo_v2_5'
+  | 'elevenlabs:eleven_v3'
   | 'fireworks-ai:deepseek-v3p1'
   | 'fireworks-ai:deepseek-v3p2'
   | 'fireworks-ai:gpt-oss-120b'
   | 'fireworks-ai:gpt-oss-20b'
+  | 'fireworks-ai:kimi-k2p5'
+  | 'fireworks-ai:kimi-k2p6'
   | 'fireworks-ai:llama-v3p3-70b-instruct'
   | 'fireworks-ai:qwen3-8b'
   | 'google-ai:gemini-2.5-flash'
+  | 'google-ai:gemini-2.5-flash-image'
   | 'google-ai:gemini-2.5-flash-lite'
+  | 'google-ai:gemini-2.5-flash-preview-tts'
   | 'google-ai:gemini-2.5-pro'
+  | 'google-ai:gemini-2.5-pro-preview-tts'
   | 'google-ai:gemini-3-flash'
   | 'google-ai:gemini-3.1-flash-lite'
   | 'google-ai:gemini-3.1-pro'
+  | 'google-ai:imagen-4.0-fast-generate-001'
+  | 'google-ai:imagen-4.0-generate-001'
+  | 'google-ai:imagen-4.0-ultra-generate-001'
   | 'groq:gpt-oss-120b'
   | 'groq:gpt-oss-20b'
   | 'groq:llama-3.1-8b-instant'
   | 'groq:llama-3.3-70b-versatile'
+  | 'groq:llama-4-scout-17b-16e-instruct'
+  | 'groq:qwen3-32b'
   | 'openai:gpt-4.1-2025-04-14'
   | 'openai:gpt-4.1-mini-2025-04-14'
-  | 'openai:gpt-4.1-nano-2025-04-14'
   | 'openai:gpt-4o-2024-11-20'
   | 'openai:gpt-4o-mini-2024-07-18'
+  | 'openai:gpt-4o-mini-tts'
   | 'openai:gpt-5-2025-08-07'
   | 'openai:gpt-5-mini-2025-08-07'
   | 'openai:gpt-5-nano-2025-08-07'
@@ -41,10 +54,15 @@ export type Models =
   | 'openai:gpt-5.4-2026-03-05'
   | 'openai:gpt-5.4-mini-2026-03-17'
   | 'openai:gpt-5.4-nano-2026-03-17'
-  | 'openai:o1-2024-12-17'
+  | 'openai:gpt-5.5'
+  | 'openai:gpt-image-1'
+  | 'openai:gpt-image-1-mini'
+  | 'openai:gpt-image-1.5'
+  | 'openai:gpt-image-2'
   | 'openai:o3-2025-04-16'
-  | 'openai:o3-mini-2025-01-31'
   | 'openai:o4-mini-2025-04-16'
+  | 'openai:tts-1'
+  | 'openai:tts-1-hd'
   | 'openrouter:gpt-oss-120b'
   | 'xai:grok-3'
   | 'xai:grok-3-mini'
@@ -84,8 +102,12 @@ export type Models =
   | 'google-ai:gemini-3.1-flash-lite-preview'
   | 'google-ai:models/gemini-2.0-flash'
   | 'google-ai:gemini-3-pro-preview'
+  | 'groq:qwen/qwen3-32b'
+  | 'groq:meta-llama/llama-4-scout-17b-16e-instruct'
   | 'groq:openai/gpt-oss-20b'
   | 'groq:openai/gpt-oss-120b'
+  | 'fireworks-ai:accounts/fireworks/models/kimi-k2p6'
+  | 'fireworks-ai:accounts/fireworks/models/kimi-k2p5'
   | 'fireworks-ai:accounts/fireworks/models/qwen3-8b'
   | 'fireworks-ai:accounts/fireworks/models/gpt-oss-20b'
   | 'fireworks-ai:accounts/fireworks/models/gpt-oss-120b'
@@ -292,13 +314,12 @@ export type TranscribeRequest = {
   options?: CommonRequestOptions
 }
 
-/**
- * Transcription metadata. Picks shared fields from CognitiveMetadata and adds transcription-specific ones.
- */
-export type TranscribeMetadata = Pick<
+type BaseBetaMetadata = Pick<
   CognitiveMetadata,
   'requestId' | 'provider' | 'cost' | 'latency' | 'cached' | 'fallbackPath' | 'debug'
-> & {
+>
+
+export type TranscribeMetadata = BaseBetaMetadata & {
   /** Full model ID including provider (e.g. groq:whisper-large-v3-turbo) */
   model: string
   /** Audio duration in seconds */
@@ -311,6 +332,85 @@ export type TranscribeResponse = {
   error?: string
   metadata: TranscribeMetadata
 }
+
+export type TtsRequest = {
+  /** TTS model or ordered list of models to try. Additional models are used as fallback. */
+  model: string | string[]
+  input: string
+  /** Voice id (provider-specific). Use listVoices() to discover available voices. Omit to use the model default voice. */
+  voice?: string
+  /** Audio format. Defaults to mp3. */
+  format?: 'mp3' | 'opus' | 'wav'
+  speed?: number
+  /** Optional natural-language voice steering instructions (provider-dependent) */
+  instructions?: string
+  language?: string
+  options?: CommonRequestOptions & {
+    /** Number of days the generated audio URL should be retained */
+    expirationDays?: number
+  }
+  meta?: Record<string, unknown>
+}
+
+export type TtsMetadata = BaseBetaMetadata & {
+  /** Full model ID including provider (e.g. openai:tts-1) */
+  model: string
+  voice: string
+  format: string
+  /** Number of input characters synthesized */
+  characterCount: number
+  /** Generated audio duration in seconds (omitted by providers that do not expose duration) */
+  durationSeconds?: number
+}
+
+export type TtsResponse = {
+  output: { audioUrl: string | null }
+  metadata: TtsMetadata
+}
+
+export type TtsStreamChunk =
+  | { audio: string; finished: false }
+  | { audioUrl: string | null; metadata: TtsMetadata; finished: true; error?: string }
+
+export type Voice = {
+  id: string
+  displayName: string
+  provider: string
+  gender?: 'male' | 'female' | 'neutral'
+  description?: string
+  languages?: string[]
+  tags?: string[]
+  models: string[]
+}
+
+export type ImageRequest = {
+  /** Image model or ordered list of models to try. Additional models are used as fallback. Defaults to auto. */
+  model?: string | string[]
+  prompt: string
+  /** Output size in pixels (e.g. 1024x1024) or aspect ratio (e.g. 16:9). Defaults to the model default. */
+  size?: string
+  quality?: 'low' | 'medium' | 'high' | 'auto'
+  /** Output image format. Defaults to png. */
+  format?: 'png' | 'jpeg'
+  options?: CommonRequestOptions & {
+    /** Number of days the generated image URL should be retained */
+    expirationDays?: number
+  }
+  meta?: Record<string, unknown>
+}
+
+export type ImageMetadata = BaseBetaMetadata & {
+  /** Full model ID including provider (e.g. openai:gpt-image-1) */
+  model: string
+  /** Resolved output size (pixels or ratio) */
+  size: string
+  quality?: string
+  format: string
+}
+
+export type ImageResponse =
+  | { output: { imageUrl: string }; metadata: ImageMetadata; error?: never }
+  | { output: { imageUrl: null }; metadata: ImageMetadata; error: string }
 
 export type ModelTag =
   | 'recommended'
@@ -326,6 +426,8 @@ export type ModelTag =
   | 'reasoning'
   | 'preview'
   | 'speech-to-text'
+  | 'image-generation'
+  | 'text-to-speech'
 
 export type Model = {
   id: string

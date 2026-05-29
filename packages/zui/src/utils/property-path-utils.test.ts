@@ -6,6 +6,10 @@ describe.concurrent('PropertyPath', () => {
     expect(new PropertyPath().toString()).toBe('#')
   })
 
+  it('doesnt start with # when starting with wrapper', () => {
+    expect(new PropertyPath().withIndexType('key', 'foo').withWrapper('KeyOf').toString()).not.toMatch(/^#/)
+  })
+
   it('adds a key index with a dot', () => {
     expect(new PropertyPath().withIndexType('key', 'foo').toString()).toBe('#.foo')
   })
@@ -49,27 +53,31 @@ describe.concurrent('PropertyPath', () => {
     })
   })
 
-  describe.concurrent('withPrefix', () => {
-    it('prepends the prefix followed by a space before the #', () => {
-      const path = new PropertyPath().withIndexType('key', 'foo').withPrefix('keyOf')
-      expect(path.toString()).toBe('keyOf #.foo')
+  describe.concurrent('withWrapper', () => {
+    it('wraps the whole path', () => {
+      const path = new PropertyPath().withIndexType('key', 'foo').withWrapper('ReturnType')
+      expect(path.toString()).toBe('ReturnType<#.foo>')
     })
 
     it('does not mutate the original', () => {
       const original = new PropertyPath().withIndexType('key', 'foo')
-      const prefixed: PropertyPath = original.withPrefix('keyOf')
+      const wrapped: PropertyPath = original.withWrapper('ReturnType')
       expect(original.toString()).toBe('#.foo')
-      expect(prefixed.toString()).toBe('keyOf #.foo')
+      expect(wrapped.toString()).toBe('ReturnType<#.foo>')
     })
 
-    it('prefix is preserved through withIndexType', () => {
-      const path = new PropertyPath().withIndexType('key', 'foo').withPrefix('keyOf').withIndexType('key', 'bar')
-      expect(path.toString()).toBe('keyOf #.foo.bar')
+    it('wrapper is preserved through withIndexType', () => {
+      const path = new PropertyPath().withIndexType('key', 'foo').withWrapper('ReturnType').withIndexType('key', 'bar')
+      expect(path.toString()).toBe('ReturnType<#.foo>.bar')
     })
 
-    it('prefix is preserved through withIndexType', () => {
-      const path = new PropertyPath().withIndexType('key', 'foo').withPrefix('keyOf').withIndexType('number', 1)
-      expect(path.toString()).toBe('keyOf #.foo[1]')
+    it('should combine wrappers', () => {
+      const path = new PropertyPath()
+        .withIndexType('key', 'foo')
+        .withWrapper('ReturnType')
+        .withIndexType('key', 'bar')
+        .withWrapper('KeyOf')
+      expect(path.toString()).toBe('KeyOf<ReturnType<#.foo>.bar>')
     })
   })
 })
