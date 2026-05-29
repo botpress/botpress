@@ -69,7 +69,6 @@ const _confirmInstallHandler: WizardHandler = ({ responses }) => {
         navigateToStep: 'oauth-redirect',
         buttonType: 'primary',
       },
-
     ],
   })
 }
