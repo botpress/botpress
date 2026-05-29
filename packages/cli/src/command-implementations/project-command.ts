@@ -582,7 +582,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
             schema: await utils.schema.mapZodToJsonSchema(integrationDef.configuration, {
               useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
               toJSONSchemaOptions: integrationDef.__advanced?.toJSONSchemaOptions,
-            }, `${integrationDef.name}.configurations`),
+            }, `${integrationDef.name}.configuration`),
             identifier: {
               required: integrationDef.configuration.identifier?.required,
               linkTemplateScript: await this.readProjectFile(
