@@ -135,12 +135,16 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
             tunnel.send(res)
           })
           .catch((thrown) => {
-            const err = errors.BotpressCLIError.wrap(thrown, 'An error occurred while handling request')
+            const err = errors.BotpressCLIError.wrap(
+              thrown,
+              `An error occurred while handling request ${req.method} ${req.path}`
+            )
             this.logger.error(err.message)
+            this.logger.debug(errors.BotpressCLIError.fullStack(err))
             tunnel.send({
               requestId: req.id,
               status: 500,
-              body: err.message,
+              body: 'Internal error while handling request',
             })
           })
       })
@@ -210,6 +214,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     } catch (thrown) {
       const error = errors.BotpressCLIError.wrap(thrown, 'Build failed')
       this.logger.error(error.message)
+      this.logger.debug(errors.BotpressCLIError.fullStack(error))
       return
     }
 
@@ -296,7 +301,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       },
       this.logger
     ).catch((thrown) => {
-      throw errors.BotpressCLIError.wrap(thrown, 'Could not start dev worker')
+      throw errors.BotpressCLIError.wrap(thrown, `Could not start dev worker on port ${port}`)
     })
 
     return worker
@@ -321,6 +326,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       const resp = await api.client.getIntegration({ id: devId }).catch(async (thrown) => {
         const err = errors.BotpressCLIError.wrap(thrown, `Could not find existing dev integration with id "${devId}"`)
         this.logger.warn(err.message)
+        this.logger.debug(errors.BotpressCLIError.fullStack(err))
         return { integration: undefined }
       })
 
@@ -372,6 +378,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       const resp = await api.client.getBot({ id: devId }).catch(async (thrown) => {
         const err = errors.BotpressCLIError.wrap(thrown, `Could not find existing dev bot with id "${devId}"`)
         this.logger.warn(err.message)
+        this.logger.debug(errors.BotpressCLIError.fullStack(err))
         return { bot: undefined }
       })
 
