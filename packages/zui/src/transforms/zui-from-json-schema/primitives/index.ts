@@ -1,4 +1,5 @@
 import { JSONSchema7, JSONSchema7Type } from 'json-schema'
+import { PropertyPath } from '../../../utils/property-path-utils'
 import * as z from '../../../z'
 import * as errs from '../../common/errors'
 import { numberJSONSchemaToZuiNumber } from './number'
@@ -23,7 +24,11 @@ type ReturnType<T extends ZuiPrimitive> =
   | z.ZodLiteral<ZuiPrimitiveTypes[T]>
   | z.ZodUnion<[z.ZodLiteral<ZuiPrimitiveTypes[T]>, ...z.ZodLiteral<ZuiPrimitiveTypes[T]>[]]>
 
-export const toZuiPrimitive = <T extends ZuiPrimitive>(type: T, schema: JSONSchema7): ReturnType<T> => {
+export const toZuiPrimitive = <T extends ZuiPrimitive>(
+  type: T,
+  schema: JSONSchema7,
+  path?: PropertyPath
+): ReturnType<T> => {
   const values: JSONSchema7Type[] = []
   if (schema.enum !== undefined) {
     values.push(...schema.enum)
@@ -53,7 +58,7 @@ export const toZuiPrimitive = <T extends ZuiPrimitive>(type: T, schema: JSONSche
     }
 
     if (!zuiPrimitive) {
-      throw new errs.JSONSchemaToZuiError(`Unknown primitive type: "${type}"`)
+      throw new errs.JSONSchemaToZuiError(`Unknown primitive type: "${type}"`, path?.toString())
     }
   } else {
     if (primitiveValues.length === 1) {
