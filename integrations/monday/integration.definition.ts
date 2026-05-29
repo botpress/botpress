@@ -6,6 +6,7 @@ export default new IntegrationDefinition({
   title: 'Monday',
   description: 'Manage items in Monday boards.',
   version: '1.1.5',
+
   readme: 'hub.md',
   icon: 'icon.svg',
   states: {
