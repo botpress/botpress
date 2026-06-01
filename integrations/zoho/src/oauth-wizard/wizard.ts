@@ -1,9 +1,8 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import axios from 'axios'
-import { getZohoAuthUrl } from '../client'
+import { DATA_CENTER_CHOICES, getZohoAuthUrl, isDataCenter } from '../misc/data-centers'
 import * as bp from '.botpress'
 
-type DataCenter = 'us' | 'eu' | 'in' | 'au' | 'cn' | 'jp' | 'ca'
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
 
 const ZOHO_SCOPES = [
@@ -15,23 +14,6 @@ const ZOHO_SCOPES = [
   'ZohoCRM.files.CREATE',
   'ZohoCRM.files.READ',
 ]
-
-const DATA_CENTER_LABELS: Record<DataCenter, string> = {
-  us: 'US - accounts.zoho.com',
-  eu: 'EU - accounts.zoho.eu',
-  in: 'IN - accounts.zoho.in',
-  au: 'AU - accounts.zoho.com.au',
-  cn: 'CN - accounts.zoho.com.cn',
-  jp: 'JP - accounts.zoho.jp',
-  ca: 'CA - accounts.zohocloud.ca',
-}
-
-const DATA_CENTER_CHOICES: { label: string; value: DataCenter }[] = Object.entries(DATA_CENTER_LABELS).map(
-  ([value, label]) => ({ label, value: value as DataCenter })
-)
-
-const _isDataCenter = (value: string | undefined): value is DataCenter =>
-  DATA_CENTER_CHOICES.some((choice) => choice.value === value)
 
 const _getOAuthRedirectUri = () => oauthWizard.getWizardStepUrl('oauth-callback').toString()
 
@@ -55,7 +37,7 @@ const _startStep: WizardHandler = ({ responses }) => {
 }
 
 const _oauthRedirectStep: WizardHandler = async ({ selectedChoice, responses, ctx, client }) => {
-  if (!_isDataCenter(selectedChoice)) {
+  if (!isDataCenter(selectedChoice)) {
     return responses.endWizard({
       success: false,
       errorMessage: 'Please select a valid Zoho data center.',
@@ -102,7 +84,7 @@ const _oauthCallbackStep: WizardHandler = async ({ query, responses, client, ctx
     name: 'oauthWizard',
   })
   const dataCenter = state.payload.dataCenter
-  if (!_isDataCenter(dataCenter)) {
+  if (!isDataCenter(dataCenter)) {
     return responses.endWizard({ success: false, errorMessage: 'Zoho data center not found. Please reconnect.' })
   }
 

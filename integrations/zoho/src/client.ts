@@ -1,13 +1,13 @@
 import { IntegrationLogger } from '@botpress/sdk'
 import axios, { AxiosError } from 'axios'
 import FormData from 'form-data'
+import { DataCenter, getZohoApiBaseUrl, getZohoAuthUrl } from './misc/data-centers'
 import * as bp from '.botpress'
 
 const logger = new IntegrationLogger()
 const OAUTH_CLIENT_ID = bp.secrets.CLIENT_ID
 const OAUTH_CLIENT_SECRET = bp.secrets.CLIENT_SECRET
 
-type DataCenter = 'us' | 'eu' | 'in' | 'au' | 'cn' | 'jp' | 'ca'
 type AuthMode = 'oauth' | 'manual'
 type StoredCredentials = {
   accessToken: string
@@ -16,32 +16,6 @@ type StoredCredentials = {
   apiDomain?: string
   expiresAt?: number
 }
-
-// Define a Map for Zoho Data Centers
-const zohoAuthUrls: Record<DataCenter, string> = {
-  us: 'https://accounts.zoho.com',
-  eu: 'https://accounts.zoho.eu',
-  in: 'https://accounts.zoho.in',
-  au: 'https://accounts.zoho.com.au',
-  cn: 'https://accounts.zoho.com.cn',
-  jp: 'https://accounts.zoho.jp',
-  ca: 'https://accounts.zohocloud.ca',
-}
-
-const zohoDataCenterTLDs: Record<DataCenter, string> = {
-  us: 'com',
-  eu: 'eu',
-  in: 'in',
-  au: 'com.au',
-  cn: 'com.cn',
-  jp: 'jp',
-  ca: 'ca',
-}
-
-// Function to get the Zoho Auth URL
-export const getZohoAuthUrl = (region: DataCenter): string => zohoAuthUrls[region] ?? 'https://accounts.zoho.com'
-
-const getZohoDataCenterTLD = (region: DataCenter): string => zohoDataCenterTLDs[region] ?? 'com'
 
 export class ZohoApi {
   private _refreshToken: string
@@ -70,7 +44,7 @@ export class ZohoApi {
     this._ctx = ctx
     this._bpClient = bpClient
     this._authMode = authMode
-    this._baseUrl = apiDomain ?? `https://www.zohoapis.${getZohoDataCenterTLD(dataCenter)}`
+    this._baseUrl = apiDomain ?? getZohoApiBaseUrl(dataCenter)
   }
 
   /** Retrieves stored credentials from Botpress state */

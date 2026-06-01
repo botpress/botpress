@@ -1,17 +1,10 @@
 import { generateRedirection } from '@botpress/common/src/html-dialogs'
-import { getInterstitialUrl, isOAuthWizardUrl } from '@botpress/common/src/oauth-wizard'
+import { getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
 import * as wizard from './wizard'
 import * as bp from '.botpress'
 
 export const oauthWizardHandler: bp.IntegrationProps['handler'] = async (props) => {
-  const { req, logger } = props
-
-  if (!isOAuthWizardUrl(req.path)) {
-    return {
-      status: 404,
-      body: 'Invalid OAuth wizard endpoint',
-    }
-  }
+  const { logger } = props
 
   try {
     return await wizard.handler(props)

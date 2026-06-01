@@ -7,5 +7,8 @@ export const handler: Handler = async (props) => {
     return await oauthWizardHandler(props)
   }
 
-  return {}
+  return {
+    status: 404,
+    body: 'Invalid OAuth wizard endpoint',
+  }
 }

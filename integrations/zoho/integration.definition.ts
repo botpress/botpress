@@ -1,4 +1,5 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
+import { DATA_CENTERS } from './src/misc/data-centers'
 
 import {
   makeApiCallInputSchema,
@@ -60,10 +61,7 @@ export default new IntegrationDefinition({
         clientId: z.string().title('Client ID').describe('Your Zoho Client ID'),
         clientSecret: z.string().title('Client Secret').describe('Your Zoho Client Secret'),
         refreshToken: z.string().title('Refresh Token').describe('Your Zoho Refresh Token'),
-        dataCenter: z
-          .enum(['us', 'eu', 'in', 'au', 'cn', 'jp', 'ca'])
-          .title('Data Center Region')
-          .describe('Zoho Data Center Region'),
+        dataCenter: z.enum(DATA_CENTERS).title('Data Center Region').describe('Zoho Data Center Region'),
       }),
     },
   },
@@ -89,11 +87,7 @@ export default new IntegrationDefinition({
       schema: z.object({
         accessToken: z.string().title('Access Token').describe('Your Zoho Access Token'),
         refreshToken: z.string().optional().title('Refresh Token').describe('Your Zoho Refresh Token'),
-        dataCenter: z
-          .enum(['us', 'eu', 'in', 'au', 'cn', 'jp', 'ca'])
-          .optional()
-          .title('Data Center Region')
-          .describe('Zoho Data Center Region'),
+        dataCenter: z.enum(DATA_CENTERS).optional().title('Data Center Region').describe('Zoho Data Center Region'),
         apiDomain: z.string().optional().title('API Domain').describe('Zoho API domain returned by OAuth'),
         expiresAt: z.number().optional().title('Expiration Timestamp').describe('Access token expiration timestamp'),
       }),
@@ -102,7 +96,7 @@ export default new IntegrationDefinition({
       type: 'integration',
       schema: z.object({
         dataCenter: z
-          .enum(['us', 'eu', 'in', 'au', 'cn', 'jp', 'ca'])
+          .enum(DATA_CENTERS)
           .title('Data Center Region')
           .describe('Zoho Data Center Region selected during OAuth setup'),
       }),
