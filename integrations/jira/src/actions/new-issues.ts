@@ -6,7 +6,7 @@ import { buildRuntimeError, getClient, resolveIssueTypeIds, serializeErrorForLog
 
 type IssueInput = Version3Models.IssueUpdateDetails
 
-export const newIssues: Implementation['actions']['newIssues'] = async ({ ctx, input, logger }) => {
+export const newIssues: Implementation['actions']['newIssues'] = async ({ client, ctx, input, logger }) => {
   const validatedInput = newIssuesInputSchema.parse(input)
   if (validatedInput.issues.length === 0) {
     throw new RuntimeError('At least one issue must be provided')
@@ -14,7 +14,7 @@ export const newIssues: Implementation['actions']['newIssues'] = async ({ ctx, i
   if (validatedInput.issues.length > 50) {
     throw new RuntimeError(`Jira allows up to 50 issues per batch; received ${validatedInput.issues.length}`)
   }
-  const jiraClient = getClient(ctx.configuration)
+  const jiraClient = await getClient({ client, ctx, logger })
 
   try {
     const issueTypeIds = await resolveIssueTypeIds(jiraClient, validatedInput.issues)

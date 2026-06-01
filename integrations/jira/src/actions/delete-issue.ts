@@ -5,9 +5,9 @@ import type { Implementation } from '../misc/types'
 
 import { getClient, getErrorMessage, serializeErrorForLog } from '../utils'
 
-export const deleteIssue: Implementation['actions']['deleteIssue'] = async ({ ctx, input, logger }) => {
+export const deleteIssue: Implementation['actions']['deleteIssue'] = async ({ client, ctx, input, logger }) => {
   const validatedInput = deleteIssueInputSchema.parse(input)
-  const jiraClient = getClient(ctx.configuration)
+  const jiraClient = await getClient({ client, ctx, logger })
 
   try {
     await jiraClient.deleteIssue(validatedInput.issueKey, validatedInput.deleteSubtasks ?? false)

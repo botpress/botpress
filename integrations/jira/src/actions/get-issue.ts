@@ -5,9 +5,9 @@ import type { Implementation } from '../misc/types'
 
 import { ISSUE_SEARCH_FIELDS, flattenIssue, getClient, getErrorMessage, serializeErrorForLog } from '../utils'
 
-export const getIssue: Implementation['actions']['getIssue'] = async ({ ctx, input, logger }) => {
+export const getIssue: Implementation['actions']['getIssue'] = async ({ client, ctx, input, logger }) => {
   const validatedInput = getIssueInputSchema.parse(input)
-  const jiraClient = getClient(ctx.configuration)
+  const jiraClient = await getClient({ client, ctx, logger })
 
   try {
     const response = await jiraClient.getIssue({
@@ -15,7 +15,7 @@ export const getIssue: Implementation['actions']['getIssue'] = async ({ ctx, inp
       fields: ISSUE_SEARCH_FIELDS,
     })
     logger.forBot().info(`Successful - Get Issue - ${response.key}`)
-    return getIssueOutputSchema.parse(flattenIssue(response, ctx.configuration.host))
+    return getIssueOutputSchema.parse(flattenIssue(response, jiraClient.host))
   } catch (error) {
     logger.forBot().debug(`'Get Issue' exception ${serializeErrorForLog(error)}`)
     const message = getErrorMessage(error)
