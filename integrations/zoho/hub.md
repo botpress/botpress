@@ -16,33 +16,19 @@ This Botpress integration allows seamless interaction with **Zoho CRM**. It enab
 - **Emails:** Send emails and associate them with records.
 - **Organization & User Management:** Retrieve organization details and user information.
 
-## Register Your Application
+## Connect Zoho CRM
 
-Before making any API calls using the Zoho Botpress Integration, you must register your application with **Zoho CRM**.
+Use the **Connect with OAuth** setup flow in Botpress. The integration will ask for your Zoho data center, redirect you to Zoho for consent, request the required CRM scopes, and securely store the returned OAuth tokens.
 
-### **[Loom video walk through setting up the OAuth configuration.](https://www.loom.com/share/41c2811c047a48cbb08a2d1b0dc98f69?sid=8cb4d496-2cca-415d-be1d-536a87c73a3a)**
+The Zoho OAuth app must allow the Botpress callback URL shown by your integration setup. It should use the stable callback path `/oauth/wizard/oauth-callback`; the OAuth `state` value is sent separately and should not be included in the registered redirect URI.
 
-### Steps to Register
+The scopes are requested during the authorization flow. They are not configured directly on the Zoho application:
 
-1. **Go to the [Zoho Developer Console](https://accounts.zoho.com/developerconsole).**
-2. Click **Add Client**.
-3. Choose the client type: **Self Client**.
-4. Click the **Generate Code** tab and enter the following scopes:
+```text
+ZohoCRM.modules.ALL,ZohoCRM.org.ALL,ZohoCRM.users.ALL,ZohoCRM.settings.ALL,ZohoCRM.send_mail.all.CREATE,ZohoCRM.files.CREATE,ZohoCRM.files.READ
+```
 
-   ```
-   ZohoCRM.modules.ALL,ZohoCRM.org.ALL,ZohoCRM.users.ALL,ZohoCRM.settings.ALL,ZohoCRM.send_mail.all.CREATE,ZohoCRM.files.CREATE,ZohoCRM.files.READ
-   ```
-
-5. Set the **time duration** to **10 minutes**.
-6. Provide a scope description (This is not vital to the registration).
-7. Click **Create**, select your CRM, and click **Create** again.
-8. Download your **credentials file**.
-
-### Generate Refresh Token
-
-Now, execute the following **cURL** command to obtain a refresh token. Ensure you use the **correct region URL** for OAuth authentication.
-
-#### **Zoho Accounts Domains:**
+### Zoho Accounts Domains
 
 | Region            | Accounts URL                    |
 | ----------------- | ------------------------------- |
@@ -52,10 +38,23 @@ Now, execute the following **cURL** command to obtain a refresh token. Ensure yo
 | IN                | `https://accounts.zoho.in`      |
 | CN                | `https://accounts.zoho.com.cn`  |
 | JP                | `https://accounts.zoho.jp`      |
-| SA (Saudi Arabia) | `https://accounts.zoho.sa`      |
 | CA (Canada)       | `https://accounts.zohocloud.ca` |
 
-### Execute cURL Request
+## Manual Configuration
+
+Manual configuration is available as an advanced fallback. Use it only if you need to provide your own Zoho OAuth client credentials and refresh token.
+
+### Register Your Application
+
+1. Go to the [Zoho Developer Console](https://accounts.zoho.com/developerconsole).
+2. Click **Add Client**.
+3. Choose a server-based client type.
+4. Add the Botpress OAuth callback URL as an authorized redirect URI.
+5. Save the client ID and client secret.
+
+### Generate Refresh Token
+
+Create an authorization URL with the scopes above, `access_type=offline`, and `prompt=consent`. After granting consent, exchange the returned authorization code for OAuth tokens.
 
 Replace the placeholders (`CLIENT_ID`, `CLIENT_SECRET`, and `AUTHORIZATION_CODE`) with your actual values before executing the request.
 
@@ -70,9 +69,7 @@ curl --request POST \
   --data 'code=AUTHORIZATION_CODE'
 ```
 
-### Expected Response
-
-If the request is successful, you should receive a response similar to the following:
+If successful, Zoho returns a response similar to:
 
 ```json
 {
@@ -84,70 +81,12 @@ If the request is successful, you should receive a response similar to the follo
 }
 ```
 
-# Define the Zoho OAuth token endpoint based on your region
-
-$uri = "https://YOUR_REGION_ACCOUNT_URL/oauth/v2/token"
-
-# Define the request body with required parameters
-
-$body = @{
-grant_type = "authorization_code"
-client_id = "YOUR_CLIENT_ID"
-client_secret = "YOUR_CLIENT_SECRET"
-redirect_uri = "YOUR_REDIRECT_URI"
-code = "AUTHORIZATION_CODE"
-}
-
-### Generate Refresh Token using PowerShell (Windows Users)
-
-⚠️ Use this PowerShell command if you're on Windows. Do NOT use cURL—this is for PowerShell only! ⚠️
-
-#### Define the Zoho OAuth token endpoint based on your region
-
-$uri = "https://YOUR_REGION_ACCOUNT_URL/oauth/v2/token"
-
-# Define the request body with required parameters
-
-$body = @{
-grant_type = "authorization_code"
-client_id = "YOUR_CLIENT_ID"
-client_secret = "YOUR_CLIENT_SECRET"
-redirect_uri = "YOUR_REDIRECT_URI"
-code = "AUTHORIZATION_CODE"
-}
-
-##### Convert body to URL-encoded form data
-
-```
-$body = $body | ForEach-Object { "$( $_.Key )=$( $_.Value )" } -join "&"
-```
-
-#### Send the POST request using Invoke-RestMethod
-
-```
-$response = Invoke-RestMethod -Uri $uri -Method Post -ContentType "application/x-www-form-urlencoded" -Body $body
-```
-
-#### Output the response
-
-```
-$response
-```
-
-## Configure Zoho Botpress Integration
-
-Once you have the necessary credentials, navigate to the **Zoho Botpress Integration** configuration page and enter the following details:
+Enter these values in the **Manual configuration** setup:
 
 - **Client ID**
 - **Client Secret**
 - **Refresh Token**
 - **Region**
-
-This completes the registration and integration process for **Zoho Botpress**. You are now ready to start making authorized API calls.
-
----
-
-For more details, refer to the [Zoho API Documentation](https://www.zoho.com/crm/developer/docs/).
 
 ---
 
