@@ -30,15 +30,15 @@ ZohoCRM.modules.ALL,ZohoCRM.org.ALL,ZohoCRM.users.ALL,ZohoCRM.settings.ALL,ZohoC
 
 ### Zoho Accounts Domains
 
-| Region            | Accounts URL                    |
-| ----------------- | ------------------------------- |
-| US                | `https://accounts.zoho.com`     |
-| AU                | `https://accounts.zoho.com.au`  |
-| EU                | `https://accounts.zoho.eu`      |
-| IN                | `https://accounts.zoho.in`      |
-| CN                | `https://accounts.zoho.com.cn`  |
-| JP                | `https://accounts.zoho.jp`      |
-| CA (Canada)       | `https://accounts.zohocloud.ca` |
+| Region      | Accounts URL                    |
+| ----------- | ------------------------------- |
+| US          | `https://accounts.zoho.com`     |
+| AU          | `https://accounts.zoho.com.au`  |
+| EU          | `https://accounts.zoho.eu`      |
+| IN          | `https://accounts.zoho.in`      |
+| CN          | `https://accounts.zoho.com.cn`  |
+| JP          | `https://accounts.zoho.jp`      |
+| CA (Canada) | `https://accounts.zohocloud.ca` |
 
 ## Manual Configuration
 

@@ -19,23 +19,23 @@ type StoredCredentials = {
 
 // Define a Map for Zoho Data Centers
 const zohoAuthUrls: Record<DataCenter, string> = {
-  'us': 'https://accounts.zoho.com',
-  'eu': 'https://accounts.zoho.eu',
-  'in': 'https://accounts.zoho.in',
-  'au': 'https://accounts.zoho.com.au',
-  'cn': 'https://accounts.zoho.com.cn',
-  'jp': 'https://accounts.zoho.jp',
-  'ca': 'https://accounts.zohocloud.ca',
+  us: 'https://accounts.zoho.com',
+  eu: 'https://accounts.zoho.eu',
+  in: 'https://accounts.zoho.in',
+  au: 'https://accounts.zoho.com.au',
+  cn: 'https://accounts.zoho.com.cn',
+  jp: 'https://accounts.zoho.jp',
+  ca: 'https://accounts.zohocloud.ca',
 }
 
 const zohoDataCenterTLDs: Record<DataCenter, string> = {
-  'us': 'com',
-  'eu': 'eu',
-  'in': 'in',
-  'au': 'com.au',
-  'cn': 'com.cn',
-  'jp': 'jp',
-  'ca': 'ca',
+  us: 'com',
+  eu: 'eu',
+  in: 'in',
+  au: 'com.au',
+  cn: 'com.cn',
+  jp: 'jp',
+  ca: 'ca',
 }
 
 // Function to get the Zoho Auth URL
@@ -198,7 +198,9 @@ export class ZohoApi {
           refreshToken: this._authMode === 'oauth' ? this._refreshToken : currentCredentials?.refreshToken,
           dataCenter: this._authMode === 'oauth' ? this._dataCenter : currentCredentials?.dataCenter,
           apiDomain: response.data.api_domain ?? currentCredentials?.apiDomain,
-          expiresAt: response.data.expires_in ? Date.now() + response.data.expires_in * 1000 : currentCredentials?.expiresAt,
+          expiresAt: response.data.expires_in
+            ? Date.now() + response.data.expires_in * 1000
+            : currentCredentials?.expiresAt,
         },
       })
 
