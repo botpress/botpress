@@ -5,9 +5,9 @@ import type { Implementation } from '../misc/types'
 
 import { getClient, getErrorMessage, serializeErrorForLog, textToAdfDocument } from '../utils'
 
-export const transitionIssue: Implementation['actions']['transitionIssue'] = async ({ ctx, input, logger }) => {
+export const transitionIssue: Implementation['actions']['transitionIssue'] = async ({ client, ctx, input, logger }) => {
   const validatedInput = transitionIssueInputSchema.parse(input)
-  const jiraClient = getClient(ctx.configuration)
+  const jiraClient = await getClient({ client, ctx, logger })
 
   try {
     await jiraClient.transitionIssue({

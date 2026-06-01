@@ -3,9 +3,14 @@ import { getIssueTransitionsInputSchema, getIssueTransitionsOutputSchema } from 
 import type { Implementation } from '../misc/types'
 import { getClient, getErrorMessage, serializeErrorForLog } from '../utils'
 
-export const getIssueTransitions: Implementation['actions']['getIssueTransitions'] = async ({ ctx, input, logger }) => {
+export const getIssueTransitions: Implementation['actions']['getIssueTransitions'] = async ({
+  client,
+  ctx,
+  input,
+  logger,
+}) => {
   const validatedInput = getIssueTransitionsInputSchema.parse(input)
-  const jiraClient = getClient(ctx.configuration)
+  const jiraClient = await getClient({ client, ctx, logger })
 
   try {
     const response = await jiraClient.getIssueTransitions({
