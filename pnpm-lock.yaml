@@ -3101,13 +3101,13 @@ importers:
       remark-gfm:
         specifier: ^4.0.1
         version: 4.0.1
-      tsdown:
-        specifier: ^0.22.1
-        version: 0.22.1(tsx@4.19.2)(typescript@5.9.3)(unrun@0.3.0(synckit@0.11.11))
     devDependencies:
       '@types/mdast':
         specifier: ^4.0.4
         version: 4.0.4
+      esbuild:
+        specifier: ^0.25.10
+        version: 0.25.10
 
   packages/llmz:
     dependencies:

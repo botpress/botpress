@@ -10,7 +10,7 @@
   },
   "scripts": {
     "check:type": "tsc -p ./tsconfig.json --noEmit",
-    "build:type": "tsc -p ./tsconfig.package.json --emitDeclarationOnly --declaration",
+    "build:type": "tsc -p ./tsconfig.package.json --emitDeclarationOnly --declaration --noCheck",
     "build:browser": "ts-node -T ./build.ts --browser",
     "build:node": "ts-node -T ./build.ts --node",
     "build": "pnpm build:type && pnpm build:node && pnpm build:browser",
