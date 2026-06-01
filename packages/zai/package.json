@@ -1,7 +1,7 @@
 {
   "name": "@botpress/zai",
   "description": "Zui AI (zai) – An LLM utility library written on top of Zui and the Botpress API",
-  "version": "2.6.22",
+  "version": "2.6.23",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -57,7 +57,7 @@
   },
   "peerDependencies": {
     "@bpinternal/thicktoken": "^1.0.0",
-    "@bpinternal/zui": "^2.2.1"
+    "@bpinternal/zui": "^2.3.0"
   },
   "engines": {
     "node": ">=18.0.0"
