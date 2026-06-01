@@ -18,9 +18,11 @@ const onError = (thrown: unknown) => {
   process.exit(1)
 }
 
-const yargsFail = (msg: string) => {
+const yargsFail = (msg?: string) => {
   // usage errors are bad input, not crashes; show the clean message and help, never a stack.
-  new Logger().error(`${msg}\n`)
+  if (msg !== undefined) {
+    new Logger().error(`${msg}\n`)
+  }
   yargs.showHelp()
   process.exit(1)
 }
