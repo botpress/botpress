@@ -869,20 +869,22 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
   }
 
-  protected async manageWorkspaceHandle(
+  protected async manageWorkspaceHandle<T extends sdk.IntegrationDefinition | sdk.PluginDefinition>(
     api: apiUtils.ApiClient,
-    integration: sdk.IntegrationDefinition
-  ): Promise<
-    | {
-        integration: sdk.IntegrationDefinition
-        workspaceId?: string
+    definition: T
+  ): Promise<{ definition: T; workspaceId?: string } | undefined> {
+    const artifactType = definition instanceof sdk.IntegrationDefinition ? 'integration' : 'plugin'
+    const rebuild = (name: string): T => {
+      if (definition instanceof sdk.IntegrationDefinition) {
+        return new sdk.IntegrationDefinition({ ...(definition as sdk.IntegrationDefinition), name }) as T
       }
-    | undefined
-  > {
-    const { name: localName, workspaceHandle: localHandle } = this._parseIntegrationName(integration.name)
+      return new sdk.PluginDefinition({ ...(definition as sdk.PluginDefinition), name }) as T
+    }
+
+    const { name: localName, workspaceHandle: localHandle } = this._parseHandledName(definition.name)
     if (!localHandle && api.isBotpressWorkspace) {
       this.logger.debug('Botpress workspace detected; workspace handle omitted')
-      return { integration } // botpress has the right to omit workspace handle
+      return { definition } // botpress has the right to omit workspace handle
     }
 
     const { handle: remoteHandle, name: workspaceName } = await api.getWorkspace().catch((thrown) => {
@@ -897,27 +899,27 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         })
         if (!remoteWorkspace) {
           throw new errors.BotpressCLIError(
-            `The integration handle "${localHandle}" is not associated with any of your workspaces.`
+            `The ${artifactType} handle "${localHandle}" is not associated with any of your workspaces.`
           )
         }
         this.logger.warn(
-          `Your are logged in to workspace "${workspaceName}" but integration handle "${localHandle}" belongs to "${remoteWorkspace.name}".`
+          `Your are logged in to workspace "${workspaceName}" but ${artifactType} handle "${localHandle}" belongs to "${remoteWorkspace.name}".`
         )
         const confirmUseAlternateWorkspace = await this.prompt.confirm(
-          'Do you want to deploy integration on this workspace instead?'
+          `Do you want to deploy ${artifactType} on this workspace instead?`
         )
         if (!confirmUseAlternateWorkspace) {
           throw new errors.BotpressCLIError(
-            `Cannot deploy integration with handle "${localHandle}" on workspace "${workspaceName}"`
+            `Cannot deploy ${artifactType} with handle "${localHandle}" on workspace "${workspaceName}"`
           )
         }
 
         workspaceId = remoteWorkspace.id
       }
-      return { integration, workspaceId }
+      return { definition, workspaceId }
     }
 
-    const workspaceHandleIsMandatoryMsg = 'Cannot deploy integration without workspace handle'
+    const workspaceHandleIsMandatoryMsg = `Cannot deploy ${artifactType} without workspace handle`
 
     if (!localHandle && remoteHandle) {
       const confirmAddHandle = await this.prompt.confirm(
@@ -928,7 +930,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         return
       }
       const newName = `${remoteHandle}/${localName}`
-      return { integration: new sdk.IntegrationDefinition({ ...integration, name: newName }) }
+      return { definition: rebuild(newName) }
     }
 
     if (localHandle && !remoteHandle) {
@@ -952,7 +954,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       })
 
       this.logger.success(`Handle "${localHandle}" is now yours!`)
-      return { integration }
+      return { definition }
     }
 
     this.logger.warn("It seems you don't have a workspace handle yet.")
@@ -977,15 +979,13 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     this.logger.success(`Handle "${claimedHandle}" is yours!`)
     const newName = `${claimedHandle}/${localName}`
-    return { integration: new sdk.IntegrationDefinition({ ...integration, name: newName }) }
+    return { definition: rebuild(newName) }
   }
 
-  protected _parseIntegrationName = (integrationName: string): { name: string; workspaceHandle?: string } => {
-    const parts = integrationName.split('/')
+  protected _parseHandledName = (artifactName: string): { name: string; workspaceHandle?: string } => {
+    const parts = artifactName.split('/')
     if (parts.length > 2) {
-      throw new errors.BotpressCLIError(
-        `Invalid integration name "${integrationName}": a single forward slash is allowed`
-      )
+      throw new errors.BotpressCLIError(`Invalid name "${artifactName}": a single forward slash is allowed`)
     }
     if (parts.length === 2) {
       const [workspaceHandle, name] = parts as [string, string]

@@ -51,7 +51,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       if (handleResult.workspaceId) {
         api = api.switchWorkspace(handleResult.workspaceId)
       }
-      this._deployedIntegrationName = handleResult.integration.name
+      this._deployedIntegrationName = handleResult.definition.name
     }
 
     let env: Record<string, string> = {
