@@ -10,9 +10,9 @@ import {
   textToAdfDocument,
 } from '../utils'
 
-export const newIssue: Implementation['actions']['newIssue'] = async ({ ctx, input, logger }) => {
+export const newIssue: Implementation['actions']['newIssue'] = async ({ client, ctx, input, logger }) => {
   const validatedInput = newIssueInputSchema.parse(input)
-  const jiraClient = getClient(ctx.configuration)
+  const jiraClient = await getClient({ client, ctx, logger })
 
   try {
     const issueTypeIds = await resolveIssueTypeIds(jiraClient, [
