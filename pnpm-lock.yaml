@@ -3315,9 +3315,12 @@ importers:
       glob:
         specifier: ^9.3.4
         version: 9.3.5
-      tsup:
-        specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.49.0(@types/node@22.16.4))(postcss@8.4.47)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.9.3))(typescript@5.9.3)
+      tsdown:
+        specifier: ^0.22.1
+        version: 0.22.1(tsx@4.19.2)(typescript@5.9.3)(unrun@0.3.0(synckit@0.11.11))
+      unrun:
+        specifier: ^0.3.0
+        version: 0.3.0(synckit@0.11.11)
 
   packages/zai:
     dependencies:
