@@ -386,7 +386,8 @@ export default new IntegrationDefinition({
       },
       whatsappUserId: {
         title: 'WhatsApp User ID',
-        description: "WhatsApp's stable user ID (user_id) of the user, present in both opted-in and non-opted-in payloads",
+        description:
+          "WhatsApp's stable user ID (user_id) of the user, present in both opted-in and non-opted-in payloads",
       },
     },
   },
