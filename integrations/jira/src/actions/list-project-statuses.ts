@@ -3,9 +3,14 @@ import { listProjectStatusesInputSchema, listProjectStatusesOutputSchema } from 
 import type { Implementation } from '../misc/types'
 import { getClient, getErrorMessage, serializeErrorForLog } from '../utils'
 
-export const listProjectStatuses: Implementation['actions']['listProjectStatuses'] = async ({ ctx, input, logger }) => {
+export const listProjectStatuses: Implementation['actions']['listProjectStatuses'] = async ({
+  client,
+  ctx,
+  input,
+  logger,
+}) => {
   const validatedInput = listProjectStatusesInputSchema.parse(input)
-  const jiraClient = getClient(ctx.configuration)
+  const jiraClient = await getClient({ client, ctx, logger })
 
   try {
     const response = await jiraClient.listProjectStatuses(validatedInput.projectKey)

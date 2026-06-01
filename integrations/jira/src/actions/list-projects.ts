@@ -8,9 +8,9 @@ import { buildRuntimeError, getClient, serializeErrorForLog } from '../utils'
 const DEFAULT_MAX_RESULTS = 50
 const HARD_MAX_RESULTS = 100
 
-export const listProjects: Implementation['actions']['listProjects'] = async ({ ctx, input, logger }) => {
+export const listProjects: Implementation['actions']['listProjects'] = async ({ client, ctx, input, logger }) => {
   const validatedInput = listProjectsInputSchema.parse(input)
-  const jiraClient = getClient(ctx.configuration)
+  const jiraClient = await getClient({ client, ctx, logger })
 
   const startAt = validatedInput.nextToken ? Number(validatedInput.nextToken) : 0
   const maxResults = Math.min(validatedInput.maxResults ?? DEFAULT_MAX_RESULTS, HARD_MAX_RESULTS)
