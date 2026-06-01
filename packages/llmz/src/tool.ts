@@ -1,6 +1,8 @@
 import { TypeOf, z, transforms, ZodObject, ZodType } from '@bpinternal/zui'
 import { JSONSchema7 } from 'json-schema'
 import { isEmpty, uniq } from 'lodash-es'
+import { Chat } from './chat.js'
+import { RenderedComponent } from './component.js'
 import { Serializable } from './types.js'
 import { getTypings as generateTypings } from './typings.js'
 import { convertObjectToZuiLiterals, isJsonSchema, isValidIdentifier, isZuiSchema } from './utils.js'
@@ -438,7 +440,10 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
       input: IX | ((original: I | undefined) => IX)
       output: OX | ((original: O | undefined) => OX)
       staticInputValues?: SmartPartial<TypeOf<IX>>
-      handler: (args: TypeOf<IX>, ctx: ToolCallContext) => Promise<TypeOf<OX>>
+      handler: (
+        args: TypeOf<IX>,
+        ctx: ToolCallContext
+      ) => AsyncGenerator<RenderedComponent, TypeOf<OX>> | Promise<TypeOf<OX>>
       retry: ToolRetryFn<TypeOf<IX>>
     }> = {}
   ): Tool<IX, OX> {
@@ -478,7 +483,10 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
             : z.is.zuiType(props.output)
               ? props.output
               : (zOutput as unknown as OX),
-        handler: (props.handler ?? this._handler) as (args: TypeOf<IX>, ctx: ToolCallContext) => Promise<TypeOf<OX>>,
+        handler: (props.handler ?? this._handler) as (
+          args: TypeOf<IX>,
+          ctx: ToolCallContext
+        ) => AsyncGenerator<RenderedComponent, TypeOf<OX>, void> | Promise<TypeOf<OX>>,
         retry: props.retry ?? this.retry,
       }).setStaticInputValues((props.staticInputValues as any) ?? (this._staticInputValues as any))
     } catch (e) {
@@ -486,7 +494,10 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
     }
   }
 
-  private _handler: (args: unknown, ctx: ToolCallContext) => Promise<unknown>
+  private _handler: (
+    args: unknown,
+    ctx: ToolCallContext
+  ) => AsyncGenerator<RenderedComponent, unknown, void> | Promise<unknown>
 
   /**
    * Creates a new Tool instance.
@@ -572,7 +583,10 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
     input?: I
     output?: O
     staticInputValues?: Partial<TypeOf<I>>
-    handler: (args: TypeOf<I>, ctx: ToolCallContext) => Promise<TypeOf<O>>
+    handler: (
+      args: TypeOf<I>,
+      ctx: ToolCallContext
+    ) => AsyncGenerator<RenderedComponent, TypeOf<O>> | Promise<TypeOf<O>>
     retry?: ToolRetryFn<TypeOf<I>>
   }) {
     if (!isValidIdentifier(props.name)) {
@@ -650,6 +664,34 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
     this.retry = props.retry
   }
 
+  private async _executeHandler(
+    input: unknown,
+    ctx: ToolCallContext,
+    chat: Chat | undefined,
+    yieldedCount: number,
+    setYieldedCount: (n: number) => void
+  ): Promise<unknown> {
+    const handler = this._handler(input, ctx)
+    const isGen = typeof handler === 'object' && handler !== null && 'next' in handler
+
+    if (!isGen) {
+      return handler
+    }
+
+    let yieldIndex = 0
+    while (true) {
+      const { value, done } = await handler.next()
+      if (done) {
+        return value
+      }
+      if (yieldIndex >= yieldedCount) {
+        setYieldedCount(yieldIndex + 1)
+        await chat?.handler?.(value)
+      }
+      yieldIndex++
+    }
+  }
+
   /**
    * Executes the tool with the given input and context.
    *
@@ -674,7 +716,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
    *
    * @internal This method is primarily used internally by the LLMz execution engine
    */
-  public async execute(rawInput: TypeOf<I>, ctx: ToolCallContext): Promise<TypeOf<O>> {
+  public async execute(rawInput: TypeOf<I>, ctx: ToolCallContext, chat?: Chat): Promise<TypeOf<O>> {
     const isZodObject = (this.zInput as any)._def.typeName === 'ZodObject'
     const input = isZodObject ? (rawInput ?? {}) : rawInput
 
@@ -685,10 +727,13 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
     }
 
     let attempt = 0
+    let yieldedCount = 0
 
     while (attempt < this.MAX_RETRIES) {
       try {
-        const result = (await this._handler(pInput.data, ctx)) as any
+        const result = await this._executeHandler(pInput.data, ctx, chat, yieldedCount, (n) => {
+          yieldedCount = n
+        })
         const pOutput = (this.zOutput as any).safeParse(result)
         return pOutput.success ? pOutput.data : result
       } catch (err) {

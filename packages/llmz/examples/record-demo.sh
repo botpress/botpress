@@ -12,7 +12,7 @@ CAST_PATH="${FOLDER}/demo.cast"
 SVG_PATH="${FOLDER}/demo.svg"
 
 echo "🎬 Recording demo for ${FOLDER}..."
-asciinema rec "$CAST_PATH" --command "pnpm start ${FOLDER}" --overwrite
+asciinema rec "$CAST_PATH" --command "pnpm start ${FOLDER}" --overwrite -f asciicast-v2
 
 echo "🛠  Appending trailing empty frame..."
 node -e "

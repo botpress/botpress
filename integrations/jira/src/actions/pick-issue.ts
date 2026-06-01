@@ -3,9 +3,9 @@ import type { Implementation } from '../misc/types'
 
 import { buildRuntimeError, getClient, serializeErrorForLog } from '../utils'
 
-export const pickIssue: Implementation['actions']['pickIssue'] = async ({ ctx, input, logger }) => {
+export const pickIssue: Implementation['actions']['pickIssue'] = async ({ client, ctx, input, logger }) => {
   const validatedInput = pickIssueInputSchema.parse(input)
-  const jiraClient = getClient(ctx.configuration)
+  const jiraClient = await getClient({ client, ctx, logger })
 
   try {
     const response = await jiraClient.pickIssue(validatedInput.query, validatedInput.currentJql)

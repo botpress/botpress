@@ -1,3 +1,4 @@
+import { PropertyPath } from '../../utils/property-path-utils'
 import * as z from '../../z'
 import * as errors from '../common/errors'
 
@@ -15,8 +16,12 @@ export type ObjectToZuiOptions = { optional?: boolean; nullable?: boolean; passt
  * @returns A Zod schema representing the object.
  */
 export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true): z.ZodType => {
+  return _fromObject(obj, new PropertyPath(), opts, isRoot)
+}
+
+const _fromObject = (obj: object, path: PropertyPath, opts?: ObjectToZuiOptions, isRoot = true): z.ZodType => {
   if (typeof obj !== 'object') {
-    throw new errors.ObjectToZuiError('Input must be an object')
+    throw new errors.ObjectToZuiError('Input must be an object', path.toString())
   }
 
   const applyOptions = (zodType: z.ZodType) => {
@@ -34,6 +39,7 @@ export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true
   }
 
   const schema: z.ZodRawShape = Object.entries(obj).reduce((acc: z.ZodRawShape, [key, value]: [string, unknown]) => {
+    const _path = path.withIndexType('key', key)
     if (value === null) {
       acc[key] = applyOptions(z.null())
     } else {
@@ -53,17 +59,17 @@ export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true
             if (first === undefined || first === null) {
               acc[key] = applyOptions(z.array(z.unknown()))
             } else if (typeof first === 'object') {
-              acc[key] = applyOptions(z.array(fromObject(first, opts, false)))
+              acc[key] = applyOptions(z.array(_fromObject(first, _path.withIndexType('number'), opts, false)))
             } else if (typeof first === 'string' || typeof first === 'number' || typeof first === 'boolean') {
               const inner = _getInnerType(first)
               acc[key] = applyOptions(z.array(inner))
             }
           } else {
-            acc[key] = applyOptions(fromObject(value, opts, false))
+            acc[key] = applyOptions(_fromObject(value, _path, opts, false))
           }
           break
         default:
-          throw new errors.ObjectToZuiError(`Unsupported type for key ${key}`)
+          throw new errors.ObjectToZuiError(`Unsupported type for key ${key}`, _path.toString())
       }
     }
     return acc
