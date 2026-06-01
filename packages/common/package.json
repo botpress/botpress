@@ -1,10 +1,13 @@
 {
   "name": "@botpress/common",
   "private": true,
-  "main": "./src/index.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "test": "vitest --run"
+    "test": "vitest --run",
+    "build": "tsdown"
   },
   "dependencies": {
     "@botpress/client": "workspace:*",
@@ -16,7 +19,8 @@
     "preact": "^10.26.6",
     "preact-render-to-string": "^6.5.13",
     "remark": "^15.0.1",
-    "remark-gfm": "^4.0.1"
+    "remark-gfm": "^4.0.1",
+    "tsdown": "^0.22.1"
   },
   "devDependencies": {
     "@types/mdast": "^4.0.4"
