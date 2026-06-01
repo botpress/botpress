@@ -22,6 +22,7 @@ const getMondayInstallUrl = () => {
 export const handler = async (props: bp.HandlerProps) => {
   const wizard = new oauthWizard.OAuthWizardBuilder(props)
     .addStep({ id: 'start', handler: _startHandler })
+    .addStep({ id: 'confirm-install', handler: _confirmInstallHandler })
     .addStep({ id: 'oauth-redirect', handler: _oauthRedirectHandler })
     .addStep({ id: 'oauth-callback', handler: _oauthCallbackHandler })
     .build()
@@ -29,19 +30,50 @@ export const handler = async (props: bp.HandlerProps) => {
   return await wizard.handleRequest()
 }
 
-const _startHandler: WizardHandler = ({ responses }) => {
+const _startHandler: WizardHandler = ({ ctx, responses }) => {
   return responses.displayButtons({
     pageTitle: 'Connect Monday.com',
     htmlOrMarkdownPageContents:
-      `1. Open the <a href="${getMondayInstallUrl()}" target="_blank" rel="noopener noreferrer">Monday.com install page</a> and install the Botpress app in your workspace.\n` +
-      '2. Come back to this page after the installation is complete.\n' +
-      '3. Click **Next step** to start the OAuth connection.',
+      '1. Click **Next step** to open the Monday.com install page in a new tab.\n' +
+      '2. Install the Botpress app in your Monday.com workspace.\n' +
+      '3. Return to this wizard and confirm the installation to start the OAuth connection.' +
+      `
+      <script>
+        function installMondayAppAndContinue() {
+          window.open(${JSON.stringify(getMondayInstallUrl())}, '_blank', 'noopener,noreferrer');
+          window.location.href = ${JSON.stringify(getWizardStepUrl('confirm-install', ctx).toString())};
+        }
+      </script>
+      `,
+    buttons: [
+      {
+        action: 'javascript',
+        label: 'Next step',
+        callFunction: 'installMondayAppAndContinue',
+        buttonType: 'primary',
+      },
+    ],
+  })
+}
+
+const _confirmInstallHandler: WizardHandler = ({ responses }) => {
+  return responses.displayButtons({
+    pageTitle: 'Confirm Monday.com installation',
+    htmlOrMarkdownPageContents:
+      'Have you installed the Botpress app in your Monday.com workspace?\n\n' +
+      'Start OAuth only after the Monday app is installed in your workspace.',
     buttons: [
       {
         action: 'navigate',
-        label: 'Next step',
+        label: 'Yes, continue',
         navigateToStep: 'oauth-redirect',
         buttonType: 'primary',
+      },
+      {
+        action: 'navigate',
+        label: 'Go back',
+        navigateToStep: 'start',
+        buttonType: 'secondary',
       },
     ],
   })
@@ -125,7 +157,7 @@ const _exchangeCodeForTokens = async ({ code, redirectUri }: { code: string; red
   }
 }
 
-const getWizardStepUrl = (stepId: string) => oauthWizard.getWizardStepUrl(stepId)
+const getWizardStepUrl = (stepId: string, ctx?: { webhookId: string }) => oauthWizard.getWizardStepUrl(stepId, ctx)
 
 const getOAuthRedirectUri = () => getWizardStepUrl('oauth-callback')
 
