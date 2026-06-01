@@ -54,9 +54,8 @@ const _oauthRedirectStep: WizardHandler = async ({ selectedChoice, responses, ct
   await client.setState({
     id: ctx.integrationId,
     type: 'integration',
-    name: 'credentials',
+    name: 'oauthWizard',
     payload: {
-      accessToken: '',
       dataCenter: selectedChoice,
     },
   })
@@ -90,7 +89,7 @@ const _oauthCallbackStep: WizardHandler = async ({ query, responses, client, ctx
   const { state } = await client.getState({
     id: ctx.integrationId,
     type: 'integration',
-    name: 'credentials',
+    name: 'oauthWizard',
   })
   const dataCenter = state.payload.dataCenter
   if (!_isDataCenter(dataCenter)) {

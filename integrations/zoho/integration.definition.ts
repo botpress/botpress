@@ -98,6 +98,15 @@ export default new IntegrationDefinition({
         expiresAt: z.number().optional().title('Expiration Timestamp').describe('Access token expiration timestamp'),
       }),
     },
+    oauthWizard: {
+      type: 'integration',
+      schema: z.object({
+        dataCenter: z
+          .enum(['us', 'eu', 'in', 'au', 'cn', 'jp', 'ca'])
+          .title('Data Center Region')
+          .describe('Zoho Data Center Region selected during OAuth setup'),
+      }),
+    },
   },
   actions: {
     makeApiCall: {
