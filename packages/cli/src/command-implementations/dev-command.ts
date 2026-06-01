@@ -158,9 +158,9 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
 
     await this._runBuild()
     worker = await this._spawnWorker(env, port)
-    await this._deploy(api, httpTunnelUrl)
 
     try {
+      await this._deploy(api, httpTunnelUrl)
       const watcher = await utils.filewatcher.FileWatcher.watch(
         this.argv.workDir,
         async (events) => {
