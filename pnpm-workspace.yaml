@@ -5,3 +5,8 @@ packages:
   - interfaces/*
   - bots/*
   - plugins/*
+
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+  - '@botpress/*'
+  - '@bpinternal/*'
