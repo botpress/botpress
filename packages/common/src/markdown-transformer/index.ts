@@ -1,2 +1,2 @@
 export { transformMarkdown, stripAllHandlers } from './markdown-transformer'
-export { MarkdownHandlers } from './types'
+export type { MarkdownHandlers } from './types'
