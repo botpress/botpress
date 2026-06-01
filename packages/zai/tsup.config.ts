@@ -7,4 +7,6 @@ export default defineConfig({
   platform: 'neutral',
   clean: true,
   bundle: false,
+  format: 'cjs',
+  target: undefined,
 })
