@@ -1,6 +1,7 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import axios from 'axios'
 import { DATA_CENTER_CHOICES, getZohoAuthUrl, isDataCenter } from '../misc/data-centers'
+import { zohoTokenResponseSchema } from '../misc/oauth-schemas'
 import * as bp from '.botpress'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
@@ -102,11 +103,12 @@ const _oauthCallbackStep: WizardHandler = async ({ query, responses, client, ctx
     },
   })
 
-  if (!response.data.refresh_token) {
-    logger.forBot().warn('Zoho OAuth token response did not include a refresh token.')
+  const tokenResponse = zohoTokenResponseSchema.safeParse(response.data)
+  if (!tokenResponse.success) {
+    logger.forBot().warn('Zoho OAuth token response failed validation.', tokenResponse.error.message)
     return responses.endWizard({
       success: false,
-      errorMessage: 'Zoho did not return a refresh token. Please reconnect and grant consent.',
+      errorMessage: 'Zoho returned an invalid OAuth token response. Please reconnect and grant consent.',
     })
   }
 
@@ -115,11 +117,11 @@ const _oauthCallbackStep: WizardHandler = async ({ query, responses, client, ctx
     type: 'integration',
     name: 'credentials',
     payload: {
-      accessToken: response.data.access_token,
-      refreshToken: response.data.refresh_token,
+      accessToken: tokenResponse.data.access_token,
+      refreshToken: tokenResponse.data.refresh_token,
       dataCenter,
-      apiDomain: response.data.api_domain,
-      expiresAt: response.data.expires_in ? Date.now() + response.data.expires_in * 1000 : undefined,
+      apiDomain: tokenResponse.data.api_domain,
+      expiresAt: tokenResponse.data.expires_in ? Date.now() + tokenResponse.data.expires_in * 1000 : undefined,
     },
   })
 

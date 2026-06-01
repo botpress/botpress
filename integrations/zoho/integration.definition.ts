@@ -1,5 +1,6 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
 import { DATA_CENTERS } from './src/misc/data-centers'
+import { zohoCredentialsStateSchema, zohoOAuthWizardStateSchema } from './src/misc/oauth-schemas'
 
 import {
   makeApiCallInputSchema,
@@ -84,22 +85,11 @@ export default new IntegrationDefinition({
   states: {
     credentials: {
       type: 'integration',
-      schema: z.object({
-        accessToken: z.string().title('Access Token').describe('Your Zoho Access Token'),
-        refreshToken: z.string().optional().title('Refresh Token').describe('Your Zoho Refresh Token'),
-        dataCenter: z.enum(DATA_CENTERS).optional().title('Data Center Region').describe('Zoho Data Center Region'),
-        apiDomain: z.string().optional().title('API Domain').describe('Zoho API domain returned by OAuth'),
-        expiresAt: z.number().optional().title('Expiration Timestamp').describe('Access token expiration timestamp'),
-      }),
+      schema: zohoCredentialsStateSchema,
     },
     oauthWizard: {
       type: 'integration',
-      schema: z.object({
-        dataCenter: z
-          .enum(DATA_CENTERS)
-          .title('Data Center Region')
-          .describe('Zoho Data Center Region selected during OAuth setup'),
-      }),
+      schema: zohoOAuthWizardStateSchema,
     },
   },
   actions: {
