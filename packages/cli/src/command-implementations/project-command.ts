@@ -579,10 +579,17 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       },
       configuration: integrationDef.configuration
         ? {
-            schema: await utils.schema.mapZodToJsonSchema(integrationDef.configuration, {
-              useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
-              toJSONSchemaOptions: integrationDef.__advanced?.toJSONSchemaOptions,
-            }),
+            schema: await utils.schema
+              .mapZodToJsonSchema(integrationDef.configuration, {
+                useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
+                toJSONSchemaOptions: integrationDef.__advanced?.toJSONSchemaOptions,
+              })
+              .catch((thrown) => {
+                throw errors.BotpressCLIError.wrap(
+                  thrown,
+                  `Failed to convert ZUI to JSON schema for integration ${integrationDef.name} for configuration`
+                )
+              }),
             identifier: {
               required: integrationDef.configuration.identifier?.required,
               linkTemplateScript: await this.readProjectFile(
@@ -592,18 +599,28 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
           }
         : undefined,
       configurations: integrationDef.configurations
-        ? await utils.records.mapValuesAsync(integrationDef.configurations, async (configuration) => ({
-            title: configuration.title,
-            description: configuration.description,
-            schema: await utils.schema.mapZodToJsonSchema(configuration, {
-              useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
-              toJSONSchemaOptions: integrationDef.__advanced?.toJSONSchemaOptions,
-            }),
-            identifier: {
-              required: configuration.identifier?.required,
-              linkTemplateScript: await this.readProjectFile(configuration.identifier?.linkTemplateScript),
-            },
-          }))
+        ? await utils.records.mapValuesAsync(
+            integrationDef.configurations,
+            async (configuration, configurationName) => ({
+              title: configuration.title,
+              description: configuration.description,
+              schema: await utils.schema
+                .mapZodToJsonSchema(configuration, {
+                  useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
+                  toJSONSchemaOptions: integrationDef.__advanced?.toJSONSchemaOptions,
+                })
+                .catch((thrown) => {
+                  throw errors.BotpressCLIError.wrap(
+                    thrown,
+                    `Failed to convert ZUI to JSON schema for integration ${integrationDef.name} for configuration ${configurationName}`
+                  )
+                }),
+              identifier: {
+                required: configuration.identifier?.required,
+                linkTemplateScript: await this.readProjectFile(configuration.identifier?.linkTemplateScript),
+              },
+            })
+          )
         : undefined,
     }
   }

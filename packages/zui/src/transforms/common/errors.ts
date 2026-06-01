@@ -26,28 +26,28 @@ export class JSONSchemaToZuiError extends ZuiTransformError {
   }
 }
 export class UnsupportedJSONSchemaToZuiError extends JSONSchemaToZuiError {
-  public constructor(schema: JSONSchema7, path?: string) {
+  public constructor(schema: JSONSchema7, path: string) {
     super(`JSON Schema ${JSON.stringify(schema)} cannot be transformed to ZUI type.`, path)
   }
 }
 
 // object-to-zui-error
 export class ObjectToZuiError extends ZuiTransformError {
-  public constructor(message?: string, path?: string) {
+  public constructor(message: string, path: string) {
     super('object-to-zui', message, path)
   }
 }
 
 // zui-to-json-schema-error
 export class ZuiToJSONSchemaError extends ZuiTransformError {
-  public constructor(message?: string, path?: string) {
+  public constructor(message: string, path: string) {
     super('zui-to-json-schema', message, path)
   }
 }
 export class UnsupportedZuiToJSONSchemaError extends ZuiToJSONSchemaError {
   public constructor(
     type: ZodNativeTypeName,
-    path?: string,
+    path: string,
     { suggestedAlternative }: { suggestedAlternative?: string } = {}
   ) {
     const msg = suggestedAlternative
@@ -57,19 +57,19 @@ export class UnsupportedZuiToJSONSchemaError extends ZuiToJSONSchemaError {
   }
 }
 export class UnsupportedZuiCheckToJSONSchemaError extends ZuiToJSONSchemaError {
-  public constructor(zodType: ZodNativeTypeName, checkKind: string, path?: string) {
+  public constructor(zodType: ZodNativeTypeName, checkKind: string, path: string) {
     super(`Zod check .${checkKind}() of type ${zodType} cannot be transformed to JSON Schema.`, path)
   }
 }
 
 // zui-to-typescript-schema-error
 export class ZuiToTypescriptSchemaError extends ZuiTransformError {
-  public constructor(message?: string, path?: string) {
+  public constructor(message: string, path: string) {
     super('zui-to-typescript-schema', message, path)
   }
 }
 export class UnsupportedZuiToTypescriptSchemaError extends ZuiToTypescriptSchemaError {
-  public constructor(type: ZodNativeTypeName, path?: string) {
+  public constructor(type: ZodNativeTypeName, path: string) {
     super(`Zod type ${type} cannot be transformed to TypeScript schema.`, path)
   }
 }
@@ -81,17 +81,17 @@ export class ZuiToTypescriptTypeError extends ZuiTransformError {
   }
 }
 export class UnsupportedZuiToTypescriptTypeError extends ZuiToTypescriptTypeError {
-  public constructor(type: ZodNativeTypeName, path?: string) {
+  public constructor(type: ZodNativeTypeName, path: string) {
     super(`Zod type ${type} cannot be transformed to TypeScript type.`, path)
   }
 }
 export class UntitledDeclarationError extends ZuiToTypescriptTypeError {
-  public constructor(path?: string) {
-    super('Schema must have a title to be transformed to a TypeScript type with a declaration.', path)
+  public constructor() {
+    super('Schema must have a title to be transformed to a TypeScript type with a declaration.')
   }
 }
 export class UnrepresentableGenericError extends ZuiToTypescriptTypeError {
-  public constructor(path?: string) {
-    super('ZodRef can only be transformed to a TypeScript type with a "type" declaration.', path)
+  public constructor() {
+    super('ZodRef can only be transformed to a TypeScript type with a "type" declaration.')
   }
 }
