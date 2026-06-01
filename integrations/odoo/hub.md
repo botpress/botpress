@@ -1,4 +1,4 @@
-The Odoo integration lets your Botpress chatbot work with Odoo contact records through Odoo's JSON-2 API. You can search, read, create, update, and delete contacts, retrieve contact field metadata, and validate the configured Odoo API key against the current Odoo user.
+The Odoo integration lets your Botpress chatbot work with Odoo contact and CRM lead records through Odoo's JSON-2 API. You can search, read, create, update, and delete contacts and leads, retrieve field metadata, and validate the configured Odoo API key against the current Odoo user.
 
 ## Configuration
 
@@ -36,16 +36,17 @@ Odoo domains use the standard Odoo domain format. For example:
 [["email", "=", "ada@example.com"]]
 ```
 
-You can pass an optional Odoo context object to contact actions when you need to control Odoo-specific request behavior.
+You can pass an optional Odoo context object to contact and lead actions when you need to control Odoo-specific request behavior.
 
 ## Limitations
 
-- This version focuses on Odoo contacts (`res.partner`).
+- This version focuses on Odoo contacts (`res.partner`) and CRM leads (`crm.lead`).
 - The integration does not currently handle Odoo webhooks or incoming events.
 - The integration does not provide Botpress channels for Odoo conversations.
-- Delete protection depends on the contact's `user_id` owner field.
+- Delete protection depends on the record's `user_id` owner field.
 - Available fields, permissions, and validation rules depend on your Odoo instance and the permissions of the configured API key.
 
 ## Changelog
 
+- 0.2.0: Added Odoo CRM lead actions for field lookup, search, read, create, update, and delete.
 - 0.1.0: Added Odoo configuration validation and contact actions for field lookup, search, read, create, update, and delete.

@@ -1,8 +1,8 @@
+import { z } from '@botpress/sdk'
 import type {
   GetFieldsOutput,
   GetFieldsRequest,
   Model,
-  OdooRecord,
   ResPartnerCreateInput,
   ResPartnerCreateOutput,
   ResPartnerReadInput,
@@ -14,6 +14,30 @@ import type {
   ResPartnerWriteInput,
   ResPartnerWriteOutput,
   ResUsersContextGetOutput,
+  CrmLeadCreateInput,
+  CrmLeadCreateOutput,
+  CrmLeadFieldsGetInput,
+  CrmLeadFieldsGetOutput,
+  CrmLeadReadInput,
+  CrmLeadReadOutput,
+  CrmLeadSearchReadInput,
+  CrmLeadSearchReadOutput,
+  CrmLeadUnlinkInput,
+  CrmLeadUnlinkOutput,
+  CrmLeadWriteInput,
+  CrmLeadWriteOutput,
+  HelpdeskTicketCreateInput,
+  HelpdeskTicketCreateOutput,
+  HelpdeskTicketFieldsGetInput,
+  HelpdeskTicketFieldsGetOutput,
+  HelpdeskTicketReadInput,
+  HelpdeskTicketReadOutput,
+  HelpdeskTicketSearchReadInput,
+  HelpdeskTicketSearchReadOutput,
+  HelpdeskTicketUnlinkInput,
+  HelpdeskTicketUnlinkOutput,
+  HelpdeskTicketWriteInput,
+  HelpdeskTicketWriteOutput,
 } from './types'
 
 const modelMap: Record<Model, string> = {
@@ -21,33 +45,38 @@ const modelMap: Record<Model, string> = {
   Contact: 'res.partner',
   Ticket: 'helpdesk.ticket',
 }
+const recordSchema = z.record(z.string(), z.unknown()).and(z.object({ id: z.number().optional() }))
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value)
+const odooRecordArraySchema = z.array(recordSchema)
 
-const isOdooRecordArray = (value: unknown): value is OdooRecord[] => Array.isArray(value) && value.every(isRecord)
+const helpdeskTicketRecordSchema = recordSchema.and(z.object({ id: z.number() }))
+const helpdeskTicketRecordArraySchema = z.array(helpdeskTicketRecordSchema)
 
-const isNumberArray = (value: unknown): value is number[] =>
-  Array.isArray(value) && value.every((item) => typeof item === 'number')
+const recordMapSchema = z.record(z.string(), recordSchema)
 
-const isBoolean = (value: unknown): value is boolean => typeof value === 'boolean'
+const createdIdSchema = z.tuple([z.number()])
+
+const booleanSchema = z.boolean()
+const resUsersContextGetOutputSchema = recordSchema.and(z.object({ uid: z.number() }))
+
+const odooErrorSchema = recordSchema.and(z.object({ name: z.string().optional(), message: z.string().optional() }))
 
 const readOdooError = (errorMessage: string): string => {
   try {
     const errorBody = JSON.parse(errorMessage) as unknown
+    const result = odooErrorSchema.safeParse(errorBody)
 
-    if (isRecord(errorBody)) {
-      const name = typeof errorBody.name === 'string' ? errorBody.name : undefined
-      const message = typeof errorBody.message === 'string' ? errorBody.message : undefined
-
-      if (name && message) {
-        return `${name}: ${message}`
-      }
-
-      return message ?? name ?? errorMessage
+    if (!result.success) {
+      return errorMessage
     }
 
-    return errorMessage
+    const { name, message } = result.data
+
+    if (name && message) {
+      return `${name}: ${message}`
+    }
+
+    return message ?? name ?? errorMessage
   } catch {
     return errorMessage
   }
@@ -75,8 +104,7 @@ export class OdooClient {
   private async _postJson<TResponse>(
     endpoint: string,
     body: object,
-    isExpectedResponse: (data: unknown) => data is TResponse,
-    expectedResponseDescription: string
+    responseSchema: z.ZodType<TResponse>
   ): Promise<TResponse> {
     const headers = this._getHeaders()
 
@@ -94,48 +122,80 @@ export class OdooClient {
     }
 
     const data = (await response.json()) as unknown
-    if (!isExpectedResponse(data)) {
-      throw new Error(`Odoo API request failed: expected ${expectedResponseDescription} response`)
+    const parse = responseSchema.safeParse(data)
+    if (!parse.success) {
+      throw new Error(`Odoo API request failed: expected ${parse.error.message} response`)
     }
 
-    return data
+    return parse.data
   }
 
-  public async getFields(model: Model, request: GetFieldsRequest): Promise<GetFieldsOutput> {
-    return this._postJson(`/json/2/${modelMap[model]}/fields_get`, request, isRecord, 'JSON object')
+  public async listFields(model: Model, request: GetFieldsRequest): Promise<GetFieldsOutput> {
+    return this._postJson(`/json/2/${modelMap[model]}/fields_get`, request, recordSchema)
+  }
+
+  public async listLeadFields(input: CrmLeadFieldsGetInput): Promise<CrmLeadFieldsGetOutput> {
+    return this._postJson('/json/2/crm.lead/fields_get', input, recordMapSchema)
+  }
+
+  public async listTicketFields(input: HelpdeskTicketFieldsGetInput): Promise<HelpdeskTicketFieldsGetOutput> {
+    return this._postJson('/json/2/helpdesk.ticket/fields_get', input, recordMapSchema)
   }
 
   public async getCurrentUserId(): Promise<number> {
     const context = await this._postJson<ResUsersContextGetOutput>(
       '/json/2/res.users/context_get',
       {},
-      (data): data is ResUsersContextGetOutput => isRecord(data) && typeof data.uid === 'number',
-      'JSON object with uid'
+      resUsersContextGetOutputSchema
     )
 
     return context.uid
   }
 
   public async searchContacts(input: ResPartnerSearchReadInput): Promise<ResPartnerSearchReadOutput> {
-    return this._postJson('/json/2/res.partner/search_read', input, isOdooRecordArray, 'JSON array')
+    return this._postJson('/json/2/res.partner/search_read', input, odooRecordArraySchema)
   }
 
-  public async getContacts(input: ResPartnerReadInput): Promise<ResPartnerReadOutput> {
-    return this._postJson('/json/2/res.partner/read', input, isOdooRecordArray, 'JSON array')
+  public async searchLeads(input: CrmLeadSearchReadInput): Promise<CrmLeadSearchReadOutput> {
+    return this._postJson('/json/2/crm.lead/search_read', input, odooRecordArraySchema)
+  }
+
+  public async searchTickets(input: HelpdeskTicketSearchReadInput): Promise<HelpdeskTicketSearchReadOutput> {
+    return this._postJson('/json/2/helpdesk.ticket/search_read', input, helpdeskTicketRecordArraySchema)
+  }
+
+  public async listContacts(input: ResPartnerReadInput): Promise<ResPartnerReadOutput> {
+    return this._postJson('/json/2/res.partner/read', input, odooRecordArraySchema)
+  }
+
+  public async listLeads(input: CrmLeadReadInput): Promise<CrmLeadReadOutput> {
+    return this._postJson('/json/2/crm.lead/read', input, odooRecordArraySchema)
+  }
+
+  public async listTickets(input: HelpdeskTicketReadInput): Promise<HelpdeskTicketReadOutput> {
+    return this._postJson('/json/2/helpdesk.ticket/read', input, helpdeskTicketRecordArraySchema)
   }
 
   public async createContact(input: ResPartnerCreateInput): Promise<ResPartnerCreateOutput> {
     const { values, ...rest } = input
-    const ids = await this._postJson(
-      '/json/2/res.partner/create',
-      { ...rest, vals_list: [values] },
-      isNumberArray,
-      'number array'
-    )
+    const ids = await this._postJson('/json/2/res.partner/create', { ...rest, vals_list: [values] }, createdIdSchema)
+    return ids[0]
+  }
 
-    if (ids.length !== 1 || ids[0] === undefined) {
-      throw new Error('Odoo API request failed: expected one created contact id')
-    }
+  public async createLead(input: CrmLeadCreateInput): Promise<CrmLeadCreateOutput> {
+    const { values, ...rest } = input
+    const ids = await this._postJson('/json/2/crm.lead/create', { ...rest, vals_list: [values] }, createdIdSchema)
+
+    return ids[0]
+  }
+
+  public async createTicket(input: HelpdeskTicketCreateInput): Promise<HelpdeskTicketCreateOutput> {
+    const { values, ...rest } = input
+    const ids = await this._postJson(
+      '/json/2/helpdesk.ticket/create',
+      { ...rest, vals_list: [values] },
+      createdIdSchema
+    )
 
     return ids[0]
   }
@@ -143,11 +203,31 @@ export class OdooClient {
   public async updateContacts(input: ResPartnerWriteInput): Promise<ResPartnerWriteOutput> {
     const { values, ...rest } = input
 
-    return this._postJson('/json/2/res.partner/write', { ...rest, vals: values }, isBoolean, 'boolean')
+    return this._postJson('/json/2/res.partner/write', { ...rest, vals: values }, booleanSchema)
+  }
+
+  public async updateLeads(input: CrmLeadWriteInput): Promise<CrmLeadWriteOutput> {
+    const { values, ...rest } = input
+
+    return this._postJson('/json/2/crm.lead/write', { ...rest, vals: values }, booleanSchema)
+  }
+
+  public async updateTickets(input: HelpdeskTicketWriteInput): Promise<HelpdeskTicketWriteOutput> {
+    const { values, ...rest } = input
+
+    return this._postJson('/json/2/helpdesk.ticket/write', { ...rest, vals: values }, booleanSchema)
   }
 
   public async deleteContacts(input: ResPartnerUnlinkInput): Promise<ResPartnerUnlinkOutput> {
-    return this._postJson('/json/2/res.partner/unlink', input, isBoolean, 'boolean')
+    return this._postJson('/json/2/res.partner/unlink', input, booleanSchema)
+  }
+
+  public async deleteLeads(input: CrmLeadUnlinkInput): Promise<CrmLeadUnlinkOutput> {
+    return this._postJson('/json/2/crm.lead/unlink', input, booleanSchema)
+  }
+
+  public async deleteTickets(input: HelpdeskTicketUnlinkInput): Promise<HelpdeskTicketUnlinkOutput> {
+    return this._postJson('/json/2/helpdesk.ticket/unlink', input, booleanSchema)
   }
 }
 

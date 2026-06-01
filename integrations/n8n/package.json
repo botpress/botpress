@@ -1,0 +1,18 @@
+{
+  "name": "@botpresshub/n8n",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "build": "bp add -y && bp build",
+    "check:bplint": "bp lint"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "axios": "^1.7.9"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*"
+  }
+}

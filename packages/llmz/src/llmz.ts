@@ -431,6 +431,9 @@ const executeIteration = async ({
   let startedAt = Date.now()
   const traces = iteration.traces
 
+  // When an array is provided, additional entries act as ordered fallbacks at the
+  // cognitive layer. Token budget and stop-token computation only need the primary
+  // model's details, so we resolve those off the first entry.
   const modelRef = Array.isArray(iteration.model) ? iteration.model[0]! : iteration.model
   const model = await cognitive.getModelDetails(modelRef).catch((thrown) => {
     throw new CognitiveError(`Failed to fetch model details for model "${modelRef}": ${getErrorMessage(thrown)}`)
@@ -461,7 +464,9 @@ const executeIteration = async ({
     .generateContent({
       signal: controller.signal,
       systemPrompt: messages.find((x) => x.role === 'system')?.content,
-      model: model.ref,
+      // Validated upstream in Context (see context.ts isValidModel). Cast narrows
+      // Models' `({} & string)` escape hatch down to cognitive's stricter InputModel.
+      model: iteration.model as Required<Parameters<Cognitive['generateContent']>[0]>['model'],
       temperature: iteration.temperature,
       responseFormat: 'text',
       reasoningEffort: iteration.reasoningEffort,
@@ -585,6 +590,7 @@ const executeIteration = async ({
 
     for (const tool of obj.tools ?? []) {
       instance[tool.name] = wrapTool({
+        chat: ctx.chat,
         tool,
         traces,
         object: obj.name,
@@ -602,7 +608,15 @@ const executeIteration = async ({
   }
 
   for (const tool of iteration.tools) {
-    const wrapped = wrapTool({ tool, traces, iteration, beforeHook: onBeforeTool, afterHook: onAfterTool, controller })
+    const wrapped = wrapTool({
+      chat: ctx.chat,
+      tool,
+      traces,
+      iteration,
+      beforeHook: onBeforeTool,
+      afterHook: onAfterTool,
+      controller,
+    })
     for (const key of [tool.name, ...(tool.aliases ?? [])]) {
       vmContext[key] = wrapped
     }
@@ -779,6 +793,7 @@ const executeIteration = async ({
 }
 
 type Props = {
+  chat?: Chat
   tool: Tool
   object?: string
   traces: Trace[]
@@ -788,7 +803,7 @@ type Props = {
   controller: AbortController
 }
 
-function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, controller }: Props) {
+function wrapTool({ chat, tool, traces, object, iteration, beforeHook, afterHook, controller }: Props) {
   const getToolInput = (input: any) => (tool.zInput as any).safeParse(input).data ?? input
 
   return function (input: any) {
@@ -860,9 +875,13 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, cont
           input = beforeRes.input
         }
 
-        let output = await tool.execute(input, {
-          callId: toolCallId,
-        })
+        let output = await tool.execute(
+          input,
+          {
+            callId: toolCallId,
+          },
+          chat
+        )
 
         const afterRes = await afterHook?.({
           iteration,

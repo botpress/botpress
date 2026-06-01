@@ -17,7 +17,7 @@ export const registerYargs = (yargz: YargsInstance, commands: tree.CommandTree) 
     if (tree.guards.command.isSubTree(command)) {
       yargz.command(cmdName, command.description ?? cmdName, (y) => {
         registerYargs(y, command.subcommands)
-        return y
+        return y.demandCommand(1)
       })
       continue
     }

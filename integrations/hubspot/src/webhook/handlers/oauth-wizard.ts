@@ -1,9 +1,11 @@
 import { generateRawHtmlDialog } from '@botpress/common/src/html-dialogs'
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
+import { z } from '@botpress/sdk'
 import { exchangeCodeForOAuthCredentials, setOAuthCredentials } from '../../auth'
 import { getHitlClient } from '../../hitl/client'
 import { createHitlChannel, connectHitlChannel } from '../../hitl/setup'
 import { HubspotClient } from '../../hubspot-api'
+import { getEnvironment, setPortalId, useDeskOAuth } from '../../utils'
 import * as bp from '.botpress'
 
 const REDIRECT_URI = `${process.env.BP_WEBHOOK_URL}/oauth`
@@ -20,6 +22,17 @@ const CRM_SCOPES = [
   'crm.objects.leads.write',
   'crm.objects.deals.read',
   'crm.objects.deals.write',
+  'files',
+  'files.ui_hidden.read',
+]
+
+const DESK_SCOPES = [
+  'crm.objects.companies.read',
+  'crm.objects.contacts.read',
+  'crm.objects.owners.read',
+  'files',
+  'files.ui_hidden.read',
+  'oauth',
 ]
 
 const HITL_SCOPES = [
@@ -31,18 +44,40 @@ const HITL_SCOPES = [
 ]
 
 const _startStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async ({
-  selectedChoice,
   client,
   ctx,
+  query,
+  selectedChoice,
   responses,
 }) => {
   if (selectedChoice) {
-    const enableHitl = selectedChoice === 'with-hitl'
     await client.setState({
       type: 'integration',
       name: 'hitlSetupWizard',
       id: ctx.integrationId,
-      payload: { enableHitl },
+      payload: { enableHitl: selectedChoice === 'with-hitl' },
+    })
+    return responses.redirectToStep('oauth-redirect')
+  }
+
+  const environmentPayload = {
+    source: query.get('source') ?? undefined,
+    env: z.enum(['preview', 'production']).catch('preview').parse(query.get('env')),
+  } as bp.states.environment.Environment['payload']
+
+  await client.setState({
+    type: 'integration',
+    name: 'environment',
+    id: ctx.integrationId,
+    payload: environmentPayload,
+  })
+
+  if (environmentPayload.source === 'desk') {
+    await client.setState({
+      type: 'integration',
+      name: 'hitlSetupWizard',
+      id: ctx.integrationId,
+      payload: { enableHitl: false },
     })
     return responses.redirectToStep('oauth-redirect')
   }
@@ -72,13 +107,20 @@ const _oauthRedirectStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
     .getState({ type: 'integration', name: 'hitlSetupWizard', id: ctx.integrationId })
     .catch(() => null)
 
+  const environment = await getEnvironment({ client, ctx })
   const enableHitl = hitlSetupWizardState?.state?.payload?.enableHitl ?? false
-  const scopes = enableHitl ? [...CRM_SCOPES, ...HITL_SCOPES] : CRM_SCOPES
+  const scopes =
+    environment.source === 'desk' && environment.env === 'production'
+      ? DESK_SCOPES
+      : enableHitl
+        ? [...CRM_SCOPES, ...HITL_SCOPES]
+        : CRM_SCOPES
   const scopesStr = encodeURIComponent(scopes.join(' '))
+  const clientId = useDeskOAuth(environment) ? bp.secrets.DESK_CLIENT_ID : bp.secrets.CLIENT_ID
 
   const url =
     'https://app.hubspot.com/oauth/authorize' +
-    `?client_id=${bp.secrets.CLIENT_ID}` +
+    `?client_id=${clientId}` +
     `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
     `&state=${ctx.webhookId}` +
     `&scope=${scopesStr}`
@@ -105,7 +147,8 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
     return responses.endWizard({ success: false, errorMessage: 'Authorization code not present in OAuth callback' })
   }
 
-  const credentials = await exchangeCodeForOAuthCredentials({ code })
+  const environment = await getEnvironment({ client, ctx })
+  const credentials = await exchangeCodeForOAuthCredentials({ code, useDesk: useDeskOAuth(environment) })
   await setOAuthCredentials({ client, ctx, credentials })
 
   const hitlSetupWizardState = await client
@@ -117,6 +160,7 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
   const hsClient = new HubspotClient({ accessToken: credentials.accessToken, client, ctx, logger })
   const hubId = await hsClient.getHubId()
   setIntegrationIdentifier(hubId)
+  await setPortalId({ client, ctx, portalId: hubId })
 
   if (enableHitl) {
     return responses.redirectToStep('hitl-inbox-id')

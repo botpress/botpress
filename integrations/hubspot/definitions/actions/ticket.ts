@@ -12,7 +12,7 @@ export const ticketSchema = z.object({
 
 const createTicket: ActionDefinition = {
   title: 'Create Ticket',
-  description: 'Create a ticket in Hubspot',
+  description: 'Create a ticket in HubSpot',
   input: {
     schema: z.object({
       subject: z.string().title('Ticket name').describe('Short summary of ticket'),

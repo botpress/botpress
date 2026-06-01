@@ -51,4 +51,8 @@ export default new IntegrationDefinition({
     },
   },
   actions: actionDefinitions,
+  attributes: {
+    category: 'CRM & Sales',
+    repo: 'botpress',
+  },
 })
