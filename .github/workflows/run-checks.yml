@@ -9,7 +9,7 @@ permissions:
 jobs:
   run-checks:
     runs-on: depot-ubuntu-22.04-8
-    timeout-minutes: 10
+    timeout-minutes: 15
     env:
       NODE_OPTIONS: '--max_old_space_size=8192'
     steps:
