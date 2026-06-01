@@ -1,7 +1,7 @@
 import { IntegrationLogger } from '@botpress/sdk'
 import axios, { AxiosError } from 'axios'
 import FormData from 'form-data'
-import { DataCenter, getZohoApiBaseUrl, getZohoAuthUrl } from './misc/data-centers'
+import { DataCenter, getZohoApiBaseUrl, getZohoAuthUrl, isDataCenter } from './misc/data-centers'
 import * as bp from '.botpress'
 
 const logger = new IntegrationLogger()
@@ -15,6 +15,32 @@ type StoredCredentials = {
   dataCenter?: DataCenter
   apiDomain?: string
   expiresAt?: number
+}
+type LegacyConfiguration = {
+  clientId: string
+  clientSecret: string
+  refreshToken: string
+  dataCenter: DataCenter
+}
+
+const _getLegacyConfiguration = (configuration: unknown): LegacyConfiguration | null => {
+  if (!configuration || typeof configuration !== 'object') {
+    return null
+  }
+
+  const maybeConfiguration = configuration as Record<string, unknown>
+  const { clientId, clientSecret, refreshToken, dataCenter } = maybeConfiguration
+  if (
+    typeof clientId !== 'string' ||
+    typeof clientSecret !== 'string' ||
+    typeof refreshToken !== 'string' ||
+    typeof dataCenter !== 'string' ||
+    !isDataCenter(dataCenter)
+  ) {
+    return null
+  }
+
+  return { clientId, clientSecret, refreshToken, dataCenter }
 }
 
 export class ZohoApi {
@@ -295,12 +321,15 @@ export class ZohoApi {
 }
 
 export const getClient = async (ctx: bp.Context, bpClient: bp.Client): Promise<ZohoApi> => {
-  if (ctx.configurationType === 'manual') {
+  const manualConfiguration =
+    ctx.configurationType === 'manual' ? ctx.configuration : _getLegacyConfiguration(ctx.configuration)
+
+  if (manualConfiguration) {
     return new ZohoApi(
-      ctx.configuration.refreshToken,
-      ctx.configuration.clientId,
-      ctx.configuration.clientSecret,
-      ctx.configuration.dataCenter,
+      manualConfiguration.refreshToken,
+      manualConfiguration.clientId,
+      manualConfiguration.clientSecret,
+      manualConfiguration.dataCenter,
       ctx,
       bpClient,
       'manual'
