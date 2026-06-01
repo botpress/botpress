@@ -4,14 +4,7 @@ import type { RegisterFunction } from '../misc/types'
 
 export const register: RegisterFunction = async ({ ctx, client, logger }) => {
   try {
-    const zohoClient = getClient(
-      ctx.configuration.refreshToken,
-      ctx.configuration.clientId,
-      ctx.configuration.clientSecret,
-      ctx.configuration.dataCenter,
-      ctx,
-      client
-    )
+    const zohoClient = await getClient(ctx, client)
 
     await zohoClient.refreshAccessToken()
 
