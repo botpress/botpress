@@ -79,6 +79,12 @@ const _oauthCallbackStep: WizardHandler = async ({ query, responses, client, ctx
     return responses.endWizard({ success: false, errorMessage: 'Authorization code not present in OAuth callback.' })
   }
 
+  const returnedState = query.get('state')
+  if (returnedState !== ctx.webhookId) {
+    logger.forBot().warn('Invalid Zoho OAuth state parameter received.')
+    return responses.endWizard({ success: false, errorMessage: 'Invalid OAuth state parameter.' })
+  }
+
   const { state } = await client.getState({
     id: ctx.integrationId,
     type: 'integration',
