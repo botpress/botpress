@@ -38,6 +38,10 @@ export type RecurringEventDefinition<TEvents extends BaseEvents = BaseEvents> = 
 }[keyof TEvents]
 
 export type EventDefinition<TEvent extends BaseEvents[string] = BaseEvents[string]> = SchemaDefinition<TEvent> & {
+  recurring?: {
+    schedule: { cron: string }
+    payload: z.input<TEvent>
+  }
   attributes?: Record<string, string>
 }
 
