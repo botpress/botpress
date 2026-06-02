@@ -5,26 +5,11 @@ import * as utils from '../utils'
 import * as types from './types'
 
 export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<types.CreateBotRequestBody> => {
-  const recurringEventsFromEventDefs = bot.events
-    ? Object.fromEntries(
-        Object.entries(bot.events)
-          .filter(([_name, event]) => event.recurring)
-          .map(([eventName, event]) => [
-            `${eventName}Recurring`,
-            {
-              type: eventName,
-              payload: event.recurring!.payload,
-              schedule: event.recurring!.schedule,
-            },
-          ])
-      )
-    : {}
-
   return {
     user: bot.user,
     conversation: bot.conversation,
     message: bot.message,
-    recurringEvents: { ...recurringEventsFromEventDefs, ...bot.recurringEvents },
+    recurringEvents: bot.withPlugins.recurringEvents,
     actions: bot.actions
       ? await utils.records.mapValuesAsync(bot.actions, async (action, actionName) => ({
           ...action,

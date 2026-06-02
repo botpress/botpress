@@ -290,21 +290,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
               interfaces: pluginDefinition.interfaces,
               integrations: pluginDefinition.integrations,
             },
-            recurringEvents: {
-              ...Object.fromEntries(
-                Object.entries(pluginDefinition.events ?? {})
-                  .filter(([_name, event]) => event.recurring)
-                  .map(([eventName, event]) => [
-                    eventName,
-                    {
-                      type: eventName,
-                      payload: event.recurring!.payload,
-                      schedule: event.recurring!.schedule,
-                    },
-                  ])
-              ),
-              ...pluginDefinition.recurringEvents,
-            },
+            recurringEvents: pluginDefinition.resolvedRecurringEvents,
           },
         },
       }
