@@ -1,21 +1,21 @@
 import Stripe from 'stripe'
-import { getClient } from '../client'
 import { createSubsLinkInputSchema } from '../misc/custom-schemas'
 import type { IntegrationProps } from '../misc/types'
+import { StripeClient } from '../stripe-api/stripe-client'
 
-export const createSubsLink: IntegrationProps['actions']['createSubsLink'] = async ({ ctx, logger, input }) => {
+export const createSubsLink: IntegrationProps['actions']['createSubsLink'] = async ({ ctx, client, logger, input }) => {
   const validatedInput = createSubsLinkInputSchema.parse(input)
-  const StripeClient = getClient(ctx.configuration)
+  const stripeClient = await StripeClient.createFromStates({ client, ctx, logger })
   let response
   try {
-    const products = await StripeClient.listAllProductsBasic()
+    const products = await stripeClient.listAllProductsBasic()
     let product = products.find((p) => p.name === validatedInput.productName)
 
     if (!product) {
-      product = await StripeClient.createProduct(validatedInput.productName)
+      product = await stripeClient.createProduct(validatedInput.productName)
     }
 
-    const prices = await StripeClient.listPrices(product.id)
+    const prices = await stripeClient.listPrices(product.id)
     let price
     if (!validatedInput.unit_amount) {
       price = prices.data.find((p) => p.recurring)
@@ -33,7 +33,7 @@ export const createSubsLink: IntegrationProps['actions']['createSubsLink'] = asy
       : 'month'
 
     if (!price) {
-      price = await StripeClient.createSubsPrice(product.id, validatedInput.unit_amount, validatedInput.currency, {
+      price = await stripeClient.createSubsPrice(product.id, validatedInput.unit_amount, validatedInput.currency, {
         interval,
       })
     }
@@ -55,7 +55,7 @@ export const createSubsLink: IntegrationProps['actions']['createSubsLink'] = asy
         }
       : undefined
 
-    const paymentLink = await StripeClient.createSubsLink(lineItem, subscriptionData)
+    const paymentLink = await stripeClient.createSubsLink(lineItem, subscriptionData)
 
     response = {
       id: paymentLink.id,
