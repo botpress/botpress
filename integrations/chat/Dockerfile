@@ -27,19 +27,8 @@ COPY patches/source-map-js@1.2.1.patch patches/source-map-js@1.2.1.patch
 # install
 RUN pnpm install --frozen-lockfile
 
-# generate
-RUN pnpm --filter @botpress/client run generate
-RUN pnpm --filter @botpress/chat run generate
-RUN pnpm --filter @botpresshub/chat run generate
-
 # build
-RUN pnpm --filter @bpinternal/zui run build
-RUN pnpm --filter @botpress/chat run build
-RUN pnpm --filter @botpress/client run build
-RUN pnpm --filter @botpress/sdk run build
-RUN pnpm --filter @botpress/cognitive run build
-RUN pnpm --filter @botpress/cli run bundle
-RUN pnpm --filter @botpresshub/chat run build
+RUN pnpm turbo @botpresshub/chat#build
 
 FROM node:${NODE_VERSION}-bullseye-slim AS deploy
 
