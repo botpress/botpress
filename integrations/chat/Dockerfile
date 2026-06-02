@@ -13,7 +13,7 @@ FROM node:${NODE_VERSION}-bullseye-slim AS base
 
 WORKDIR /usr/app
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 
 # Install pnpm and build dependencies
 RUN npm install -g pnpm@${PNPM_VERSION} && echo "PNPM version: ${PNPM_VERSION}"
