@@ -46,7 +46,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     this._initialDef = projectDef
 
     if (projectDef.type === 'integration') {
-      const handleResult = await this.manageWorkspaceHandle(api, projectDef.definition)
+      const handleResult = await this.manageWorkspaceHandle(api, projectDef)
       if (!handleResult) return
       if (handleResult.workspaceId) {
         api = api.switchWorkspace(handleResult.workspaceId)

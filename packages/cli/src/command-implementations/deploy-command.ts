@@ -59,7 +59,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   }
 
   private async _deployIntegration(api: apiUtils.ApiClient, integrationDef: sdk.IntegrationDefinition) {
-    const res = await this.manageWorkspaceHandle(api, integrationDef)
+    const res = await this.manageWorkspaceHandle(api, { type: 'integration', definition: integrationDef })
     if (!res) return
     const { definition: updatedIntegrationDef, workspaceId } = res
     integrationDef = updatedIntegrationDef
@@ -270,7 +270,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   }
 
   private async _deployPlugin(api: apiUtils.ApiClient, pluginDef: sdk.PluginDefinition) {
-    const res = await this.manageWorkspaceHandle(api, pluginDef)
+    const res = await this.manageWorkspaceHandle(api, { type: 'plugin', definition: pluginDef })
     if (!res) return
     const { definition: updatedPluginDef, workspaceId } = res
     pluginDef = updatedPluginDef
