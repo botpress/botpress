@@ -409,10 +409,23 @@ export class BotDefinition<
       pluginPkg.definition.conversation
     )
     self.withPlugins.message = this._mergeMessage(self.withPlugins.message, pluginPkg.definition.message)
-    self.withPlugins.recurringEvents = this._mergeRecurringEvents(
-      self.withPlugins.recurringEvents,
-      pluginPkg.definition.recurringEvents
+    const recurringEventsFromPluginEventDefs = Object.fromEntries(
+      Object.entries(pluginPkg.definition.events ?? {})
+        .filter(([_name, event]) => event.recurring)
+        .map(([eventName, event]) => [
+          eventName,
+          {
+            type: eventName,
+            payload: event.recurring!.payload,
+            schedule: event.recurring!.schedule,
+          },
+        ])
     )
+
+    self.withPlugins.recurringEvents = this._mergeRecurringEvents(self.withPlugins.recurringEvents, {
+      ...recurringEventsFromPluginEventDefs,
+      ...pluginPkg.definition.recurringEvents,
+    })
     self.withPlugins.tables = this._mergeTables(self.withPlugins.tables, pluginPkg.definition.tables)
     self.withPlugins.workflows = this._mergeWorkflows(self.withPlugins.workflows, pluginPkg.definition.workflows)
 
