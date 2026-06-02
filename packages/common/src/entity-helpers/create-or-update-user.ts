@@ -29,7 +29,7 @@ export const createOrUpdateUser = async <
   }
 
   type UserTags = keyof TIntegration['user']['tags']
-  const updateTags: Partial<Record<UserTags, string | null>> = { ...matchingUsers[0]!.tags, ...props.tags }
+  const updateTags: Partial<Record<UserTags, string | null>> = { ...matchingUsers[0]?.tags, ...props.tags }
   return (
     matchingUsers.length === 1
       ? await props.client.updateUser({
