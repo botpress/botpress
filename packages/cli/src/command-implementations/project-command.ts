@@ -95,6 +95,11 @@ export class ProjectDefinitionContext {
   public rebuildEntrypoint(...args: Parameters<utils.esbuild.BuildEntrypointContext['rebuild']>) {
     return this._buildContext.rebuild(...args)
   }
+
+  public async dispose() {
+    this._codeCache.clear()
+    await this._buildContext.dispose()
+  }
 }
 
 type ResolvedDependency = { id: string }

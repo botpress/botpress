@@ -46,6 +46,17 @@ export abstract class BuildContext<T> {
     }
     return await this._context?.rebuild()
   }
+
+  public async dispose() {
+    if (!this._context) {
+      return
+    }
+
+    await this._context.dispose()
+    this._context = undefined
+    this._previousProps = undefined
+    this._previousOpts = {}
+  }
 }
 
 export class BuildCodeContext extends BuildContext<BuildCodeProps> {
