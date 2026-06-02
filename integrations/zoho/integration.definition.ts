@@ -41,7 +41,7 @@ import { zohoCredentialsStateSchema, zohoOAuthWizardStateSchema } from './src/mi
 
 export default new IntegrationDefinition({
   name: 'zoho',
-  version: '3.1.5',
+  version: '4.0.0',
   title: 'Zoho',
   readme: 'hub.md',
   icon: 'icon.svg',
