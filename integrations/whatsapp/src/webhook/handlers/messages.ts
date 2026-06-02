@@ -43,41 +43,61 @@ export const messagesHandler = async (
   const phoneNumberId = value.metadata.phone_number_id
   await whatsapp.markAsRead(phoneNumberId, message.id)
 
-  const formatPhoneNumberResponse = safeFormatPhoneNumber(message.from)
-  if (formatPhoneNumberResponse.success === false) {
-    const distinctId = formatPhoneNumberResponse.error.id
-    await posthogHelper.sendPosthogEvent(
-      {
-        distinctId: distinctId ?? 'no id',
-        event: 'invalid_phone_number',
-        properties: {
-          from: 'handler',
-          phoneNumber: message.from,
-        },
-      },
-      { integrationName: INTEGRATION_NAME, integrationVersion: INTEGRATION_VERSION, key: bp.secrets.POSTHOG_KEY }
-    )
-    const errorMessage = formatPhoneNumberResponse.error.message
-    logger.error(`Failed to parse phone number "${message.from}": ${errorMessage}`)
-  }
-
-  const { conversation } = await client.getOrCreateConversation({
-    channel: 'channel',
-    tags: {
-      userPhone: formatPhoneNumberResponse.success ? formatPhoneNumberResponse.phoneNumber : message.from,
-      botPhoneNumberId: value.metadata.phone_number_id,
-    },
-  })
-
   const { contacts } = value
   const contact = contacts?.[0]
   if (!contact) {
     logger.forBot().warn('No contacts found, ignoring message')
     return
   }
+
+  const waUserId = message.from_user_id ?? contact.user_id
+
+  let userPhone: string | undefined
+  if (message.from) {
+    const formatPhoneNumberResponse = safeFormatPhoneNumber(message.from)
+    if (formatPhoneNumberResponse.success === false) {
+      const distinctId = formatPhoneNumberResponse.error.id
+      await posthogHelper.sendPosthogEvent(
+        {
+          distinctId: distinctId ?? 'no id',
+          event: 'invalid_phone_number',
+          properties: {
+            from: 'handler',
+            phoneNumber: message.from,
+          },
+        },
+        { integrationName: INTEGRATION_NAME, integrationVersion: INTEGRATION_VERSION, key: bp.secrets.POSTHOG_KEY }
+      )
+      const errorMessage = formatPhoneNumberResponse.error.message
+      logger.error(`Failed to parse phone number "${message.from}": ${errorMessage}`)
+    }
+    userPhone = formatPhoneNumberResponse.success ? formatPhoneNumberResponse.phoneNumber : message.from
+  }
+
+  const { conversation } = await client.getOrCreateConversation({
+    channel: 'channel',
+    tags: {
+      ...(userPhone && { userPhone }),
+      ...(waUserId && { userId: waUserId }),
+      botPhoneNumberId: value.metadata.phone_number_id,
+    },
+    // Keep the legacy userPhone-based identity whenever a phone number is available so existing
+    // conversations keep matching. Only opted-in users (no phone) are identified by the stable
+    // WhatsApp user_id.
+    discriminateByTags: userPhone ? ['botPhoneNumberId', 'userPhone'] : ['botPhoneNumberId', 'userId'],
+  })
+
+  // Keep the legacy phone-based identity (`wa_id`) as the user key whenever it's available so
+  // existing users keep matching instead of being recreated. Opted-in users (no `wa_id`) are
+  // identified by the stable WhatsApp user_id. The user_id is additionally stored on every user
+  // for forward reference.
+  const userIdentity = contact.wa_id ?? contact.user_id
   const { user } = await client.getOrCreateUser({
     tags: {
-      userId: contact.wa_id,
+      ...(userIdentity && { userId: userIdentity }),
+      ...(contact.user_id && { whatsappUserId: contact.user_id }),
+      ...(contact.wa_id && { number: contact.wa_id }),
+      ...(contact.profile?.username && { username: contact.profile.username }),
       name: contact.profile?.name,
     },
     name: contact.profile?.name,

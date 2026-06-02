@@ -24,21 +24,23 @@ export const createOrUpdateUser = async <
 ): Promise<Awaited<ReturnType<Client['createUser']>>> => {
   const { users: matchingUsers } = await props.client.listUsers({ tags: _getFilteredTags(props) })
 
-  if (matchingUsers.length > 1) {
+  const [firstUser, ...otherUsers] = matchingUsers
+  if (otherUsers.length > 0) {
     throw new sdk.RuntimeError('Multiple users found with the same discriminating tags')
   }
 
   type UserTags = keyof TIntegration['user']['tags']
-  const updateTags: Partial<Record<UserTags, string | null>> = { ...matchingUsers[0]!.tags, ...props.tags }
-  return (
-    matchingUsers.length === 1
-      ? await props.client.updateUser({
-          ...matchingUsers[0]!,
-          ...props,
-          tags: updateTags as Cast<typeof updateTags, Record<string, string | null>>,
-        })
-      : await props.client.createUser(props)
-  ) as Awaited<ReturnType<Client['createUser']>>
+
+  if (firstUser) {
+    const updateTags: Partial<Record<UserTags, string | null>> = { ...firstUser.tags, ...props.tags }
+    return (await props.client.updateUser({
+      ...firstUser,
+      ...props,
+      tags: updateTags as Cast<typeof updateTags, Record<string, string | null>>,
+    })) as Awaited<ReturnType<Client['createUser']>>
+  }
+
+  return (await props.client.createUser(props)) as Awaited<ReturnType<Client['createUser']>>
 }
 
 const _getFilteredTags = <TAGS extends client.User['tags']>({
