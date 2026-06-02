@@ -205,6 +205,19 @@ export type BotDefinitionProps<
   __advanced?: SchemaTransformOptions
 }
 
+export function deriveRecurringEventsFromEventDefs(
+  events: Record<string, Pick<EventDefinition, 'recurring'>> | undefined
+): BotDefinitionProps['recurringEvents'] {
+  return Object.fromEntries(
+    Object.entries(events ?? {})
+      .filter(([_, event]) => event.recurring)
+      .map(([eventName, event]) => [
+        `${eventName}Recurring`,
+        { type: eventName, payload: event.recurring!.payload, schedule: event.recurring!.schedule },
+      ])
+  )
+}
+
 export class BotDefinition<
   TStates extends BaseStates = BaseStates,
   TEvents extends BaseEvents = BaseEvents,
@@ -257,7 +270,7 @@ export class BotDefinition<
       message: props.message,
       states: props.states,
       events: props.events,
-      recurringEvents: props.recurringEvents,
+      recurringEvents: { ...deriveRecurringEventsFromEventDefs(props.events), ...props.recurringEvents },
       actions: props.actions,
       tables: props.tables,
       workflows: props.workflows,
@@ -409,21 +422,8 @@ export class BotDefinition<
       pluginPkg.definition.conversation
     )
     self.withPlugins.message = this._mergeMessage(self.withPlugins.message, pluginPkg.definition.message)
-    const recurringEventsFromPluginEventDefs = Object.fromEntries(
-      Object.entries(pluginPkg.definition.events ?? {})
-        .filter(([_name, event]) => event.recurring)
-        .map(([eventName, event]) => [
-          eventName,
-          {
-            type: eventName,
-            payload: event.recurring!.payload,
-            schedule: event.recurring!.schedule,
-          },
-        ])
-    )
-
     self.withPlugins.recurringEvents = this._mergeRecurringEvents(self.withPlugins.recurringEvents, {
-      ...recurringEventsFromPluginEventDefs,
+      ...deriveRecurringEventsFromEventDefs(pluginPkg.definition.events, pluginAlias),
       ...pluginPkg.definition.recurringEvents,
     })
     self.withPlugins.tables = this._mergeTables(self.withPlugins.tables, pluginPkg.definition.tables)

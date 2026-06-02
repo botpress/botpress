@@ -8,6 +8,7 @@ import {
   ActionDefinition as BotActionDefinition,
   TableDefinition as BotTableDefinition,
   WorkflowDefinition,
+  deriveRecurringEventsFromEventDefs,
 } from '../bot/definition'
 import { SchemaTransformOptions } from '../common/types'
 import { DefinitionError } from '../errors'
@@ -337,6 +338,13 @@ export class PluginDefinition<
 
   public get metadata() {
     return { sdkVersion: SDK_VERSION } as const
+  }
+
+  public get resolvedRecurringEvents(): this['props']['recurringEvents'] {
+    return {
+      ...deriveRecurringEventsFromEventDefs(this.events),
+      ...this.recurringEvents,
+    }
   }
 
   /**
