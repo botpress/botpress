@@ -97,8 +97,13 @@ export class ProjectDefinitionContext {
   }
 
   public async dispose() {
+    // Drop the resolved-definition cache up front so a failed esbuild teardown can't leave stale state behind.
     this._codeCache.clear()
-    await this._buildContext.dispose()
+    try {
+      await this._buildContext.dispose()
+    } catch (thrown: unknown) {
+      throw errors.BotpressCLIError.map(thrown)
+    }
   }
 }
 

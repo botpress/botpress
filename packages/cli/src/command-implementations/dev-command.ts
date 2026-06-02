@@ -330,9 +330,16 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   }
 
   private async _disposeBuildResources({ stopEsbuild = false } = {}) {
-    await Promise.all([this._buildContext.dispose(), this.projectContext.dispose()])
-    if (stopEsbuild) {
-      await utils.esbuild.stop()
+    // Best-effort teardown: this runs from the `finally` of `run()`, so it must never throw —
+    // a failure here would mask the original error being propagated by the dev server.
+    try {
+      await Promise.all([this._buildContext.dispose(), this.projectContext.dispose()])
+      if (stopEsbuild) {
+        await utils.esbuild.stop()
+      }
+    } catch (thrown: unknown) {
+      const err = errors.BotpressCLIError.map(thrown)
+      this.logger.debug(`Failed to dispose build resources: ${err.message}`)
     }
   }
 
