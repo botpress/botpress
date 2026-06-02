@@ -158,7 +158,15 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
 
     await this._runBuild()
     worker = await this._spawnWorker(env, port)
-    await this._deploy(api, httpTunnelUrl)
+
+    try {
+      await this._deploy(api, httpTunnelUrl)
+    } catch (thrown) {
+      if (worker.running) {
+        await worker.kill()
+      }
+      throw errors.BotpressCLIError.wrap(thrown, 'An error occurred while deploying the dev server')
+    }
 
     try {
       const watcher = await utils.filewatcher.FileWatcher.watch(
