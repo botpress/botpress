@@ -2,24 +2,25 @@ Connect your Botpress chatbot with Stripe, a popular online payment platform tha
 
 ## Setup and Configuration
 
-To set up the integration, you will need to provide your Stripe `apiKey`. This can be obtained from the Stripe Dashboard. You can use the `Secret Key` or create a `Restricted Key`. Once the integration is set up, you can use the built-in actions to manage your Stripe data.
+The Stripe integration supports two authentication modes:
+
+- **OAuth (recommended)** — authorize Botpress on your Stripe account through Stripe's hosted consent screen. No keys to copy or rotate.
+- **API Key (manual)** — paste a Stripe Secret Key (`sk_live_…` / `sk_test_…`) or a Restricted Key.
 
 ### Prerequisites
 
-Before enabling the Botpress Stripe Integration, please ensure that you have the following:
-
 - A Botpress cloud account.
-- `apiKey` generated from Stripe.
+- A Stripe account.
 
 ### Enable Integration
 
-To enable the Stripe integration in Botpress, follow these steps:
-
-1. Access your Botpress admin panel.
-2. Navigate to the “Integrations” section.
-3. Locate the Stripe integration and click on “Enable” or “Configure.”
-4. Provide the required `apiKey`.
+1. Open your bot in the Botpress dashboard and navigate to the "Integrations" section.
+2. Locate the Stripe integration and click on "Configure".
+3. Click the configuration link to open the setup wizard.
+4. Choose **Connect with OAuth** to be redirected to Stripe's authorization page, or choose **Use a Stripe API Key** to paste a key from the [Stripe Dashboard](https://dashboard.stripe.com/apikeys).
 5. Save the configuration.
+
+The integration will create a webhook endpoint on your Stripe account on first use. The webhook signing secret is captured automatically and used to verify all incoming events.
 
 ## Usage
 
