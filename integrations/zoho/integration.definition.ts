@@ -38,7 +38,6 @@ import {
 import { DATA_CENTERS } from './src/misc/data-centers'
 import { zohoCredentialsStateSchema, zohoOAuthWizardStateSchema } from './src/misc/oauth-schemas'
 
-
 export default new IntegrationDefinition({
   name: 'zoho',
   version: '4.0.0',
