@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import { ResolvedIntegrationConfigInstance, IntegrationInstance, BotDefinition } from './definition'
+import { ResolvedIntegrationConfigInstance, IntegrationInstance, BotDefinition, deriveRecurringEventsFromEventDefs } from './definition'
 import * as utils from '../utils/type-utils'
 import { IntegrationDefinition } from '../integration'
 import { PluginDefinition } from '../plugin'
@@ -325,4 +325,93 @@ test('addPlugin falls back to raw config when schema validation fails', () => {
   const storedConfig = botDef.plugins?.['gollum']?.configuration
   // Falls back to raw config; default for sneaky is not applied since safeParse failed
   expect(storedConfig).toEqual({ preciousEmail: '$GOLLUM_EMAIL' })
+})
+
+// recurring event derivation
+
+test('deriveRecurringEventsFromEventDefs returns empty object when events is undefined', () => {
+  expect(deriveRecurringEventsFromEventDefs(undefined)).toEqual({})
+})
+
+test('deriveRecurringEventsFromEventDefs ignores events without a recurring field', () => {
+  const result = deriveRecurringEventsFromEventDefs({
+    plain: {},
+  })
+  expect(result).toEqual({})
+})
+
+test('deriveRecurringEventsFromEventDefs converts an inline recurring field to a recurringEvents entry', () => {
+  const result = deriveRecurringEventsFromEventDefs({
+    heartbeat: { recurring: { schedule: { cron: '*/5 * * * *' }, payload: { ts: '' } } },
+  })
+  expect(result).toEqual({
+    heartbeat: { type: 'heartbeat', schedule: { cron: '*/5 * * * *' }, payload: { ts: '' } },
+  })
+})
+
+test('deriveRecurringEventsFromEventDefs only converts events that have a recurring field', () => {
+  const result = deriveRecurringEventsFromEventDefs({
+    heartbeat: { recurring: { schedule: { cron: '*/5 * * * *' }, payload: { ts: '' } } },
+    plain: {},
+  })
+  expect(Object.keys(result ?? {})).toEqual(['heartbeat'])
+})
+
+test('addPlugin merges inline recurring events into withPlugins.recurringEvents', () => {
+  const def = new PluginDefinition({
+    name: 'pippin',
+    version: '1.0.0',
+    events: {
+      heartbeat: {
+        schema: z.object({ ts: z.string() }),
+        recurring: { schedule: { cron: '*/5 * * * *' }, payload: { ts: '' } },
+      },
+    },
+  })
+
+  const pkg = {
+    type: 'plugin' as const,
+    name: def.name,
+    version: def.version,
+    definition: def,
+    implementation: Buffer.from(''),
+  }
+
+  const botDef = new BotDefinition({}).addPlugin(pkg, { configuration: {}, dependencies: {} })
+
+  expect(botDef.withPlugins.recurringEvents).toEqual({
+    heartbeat: { type: 'heartbeat', schedule: { cron: '*/5 * * * *' }, payload: { ts: '' } },
+  })
+})
+
+test('addPlugin: explicit recurringEvents overrides inline recurring for the same key', () => {
+  const def = new PluginDefinition({
+    name: 'merry',
+    version: '1.0.0',
+    events: {
+      heartbeat: {
+        schema: z.object({ ts: z.string() }),
+        recurring: { schedule: { cron: '*/5 * * * *' }, payload: { ts: 'from-inline' } },
+      },
+    },
+    recurringEvents: {
+      heartbeat: { type: 'heartbeat', schedule: { cron: '0 * * * *' }, payload: { ts: 'from-explicit' } },
+    },
+  })
+
+  const pkg = {
+    type: 'plugin' as const,
+    name: def.name,
+    version: def.version,
+    definition: def,
+    implementation: Buffer.from(''),
+  }
+
+  const botDef = new BotDefinition({}).addPlugin(pkg, { configuration: {}, dependencies: {} })
+
+  expect(botDef.withPlugins.recurringEvents?.heartbeat).toEqual({
+    type: 'heartbeat',
+    schedule: { cron: '0 * * * *' },
+    payload: { ts: 'from-explicit' },
+  })
 })

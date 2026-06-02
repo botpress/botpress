@@ -212,7 +212,7 @@ export function deriveRecurringEventsFromEventDefs(
     Object.entries(events ?? {})
       .filter(([_, event]) => event.recurring)
       .map(([eventName, event]) => [
-        `${eventName}Recurring`,
+        eventName,
         { type: eventName, payload: event.recurring!.payload, schedule: event.recurring!.schedule },
       ])
   )
