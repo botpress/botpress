@@ -874,12 +874,6 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     definition: T
   ): Promise<{ definition: T; workspaceId?: string } | undefined> {
     const artifactType = definition instanceof sdk.IntegrationDefinition ? 'integration' : 'plugin'
-    const rebuild = (name: string): T => {
-      if (definition instanceof sdk.IntegrationDefinition) {
-        return new sdk.IntegrationDefinition({ ...(definition as sdk.IntegrationDefinition), name }) as T
-      }
-      return new sdk.PluginDefinition({ ...(definition as sdk.PluginDefinition), name }) as T
-    }
 
     const { name: localName, workspaceHandle: localHandle } = this._parseHandledName(definition.name)
     if (!localHandle && api.isBotpressWorkspace) {
@@ -930,7 +924,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         return
       }
       const newName = `${remoteHandle}/${localName}`
-      return { definition: rebuild(newName) }
+      return { definition: this._cloneDefinition(definition, { name: newName } as Partial<T['props']>) }
     }
 
     if (localHandle && !remoteHandle) {
@@ -979,7 +973,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     this.logger.success(`Handle "${claimedHandle}" is yours!`)
     const newName = `${claimedHandle}/${localName}`
-    return { definition: rebuild(newName) }
+    return { definition: this._cloneDefinition(definition, { name: newName } as Partial<T['props']>) }
   }
 
   protected _parseHandledName = (artifactName: string): { name: string; workspaceHandle?: string } => {
@@ -993,5 +987,20 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
     const [name] = parts as [string]
     return { name }
+  }
+
+  private _cloneDefinition = <T extends sdk.IntegrationDefinition | sdk.PluginDefinition>(
+    def: T,
+    props: Partial<T['props']>
+  ): T => {
+    if (def instanceof sdk.IntegrationDefinition) {
+      return new sdk.IntegrationDefinition({ ...def.props, ...props }) as T
+    }
+    if (def instanceof sdk.PluginDefinition) {
+      return new sdk.PluginDefinition({ ...def.props, ...props }) as T
+    }
+
+    def satisfies never
+    throw new errors.BotpressCLIError('Unsupported definition type')
   }
 }
