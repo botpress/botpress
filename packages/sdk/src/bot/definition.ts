@@ -423,7 +423,7 @@ export class BotDefinition<
     )
     self.withPlugins.message = this._mergeMessage(self.withPlugins.message, pluginPkg.definition.message)
     self.withPlugins.recurringEvents = this._mergeRecurringEvents(self.withPlugins.recurringEvents, {
-      ...deriveRecurringEventsFromEventDefs(pluginPkg.definition.events, pluginAlias),
+      ...deriveRecurringEventsFromEventDefs(pluginPkg.definition.events),
       ...pluginPkg.definition.recurringEvents,
     })
     self.withPlugins.tables = this._mergeTables(self.withPlugins.tables, pluginPkg.definition.tables)
