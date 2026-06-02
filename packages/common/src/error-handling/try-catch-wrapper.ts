@@ -89,7 +89,7 @@ export const defaultErrorRedactor: RedactFn = (error: Error, customMessage: stri
   // to expose more information to the user or log the error differently.
 
   console.warn(customMessage, error)
-  return new sdk.RuntimeError(`${customMessage}: ${error.message}`)
+  return new sdk.RuntimeError(customMessage)
 }
 
 /**
