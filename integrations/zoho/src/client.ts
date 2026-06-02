@@ -1,5 +1,5 @@
 import { IntegrationLogger } from '@botpress/sdk'
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
 import FormData from 'form-data'
 import { DataCenter, getZohoApiBaseUrl, getZohoAuthUrl, isDataCenter } from './misc/data-centers'
 import * as bp from '.botpress'
@@ -7,6 +7,10 @@ import * as bp from '.botpress'
 const logger = new IntegrationLogger()
 const OAUTH_CLIENT_ID = bp.secrets.CLIENT_ID
 const OAUTH_CLIENT_SECRET = bp.secrets.CLIENT_SECRET
+
+// Retry once after refreshing the access token. If Zoho still returns 401,
+// the credentials are likely revoked, mis-scoped, or tied to the wrong data center.
+const MAX_AUTH_RETRIES = 1
 
 type AuthMode = 'oauth' | 'manual'
 type StoredCredentials = {
@@ -21,6 +25,22 @@ type LegacyConfiguration = {
   clientSecret: string
   refreshToken: string
   dataCenter: DataCenter
+}
+
+const _getErrorMessage = (error: unknown): string => {
+  if (axios.isAxiosError(error)) {
+    return error.response?.data?.message ?? error.message
+  }
+
+  return error instanceof Error ? error.message : 'Unknown error'
+}
+
+const _getErrorLogData = (error: unknown): unknown => {
+  if (axios.isAxiosError(error)) {
+    return error.response?.data ?? error.message
+  }
+
+  return error instanceof Error ? error.message : error
 }
 
 const _getLegacyConfiguration = (configuration: unknown): LegacyConfiguration | null => {
@@ -104,7 +124,8 @@ export class ZohoApi {
     endpoint: string,
     method: string = 'GET',
     data: any = null,
-    params: any = {}
+    params: any = {},
+    retryCount: number = 0
   ): Promise<any> {
     try {
       const creds = await this._getStoredCredentials()
@@ -132,18 +153,18 @@ export class ZohoApi {
       })
 
       return { success: true, message: 'Request successful', data: response.data }
-    } catch (error: any) {
-      if (error.response?.status === 401) {
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 401 && retryCount < MAX_AUTH_RETRIES) {
         logger.forBot().warn('Access token expired. Refreshing...', error)
         await this.refreshAccessToken()
-        return this._makeRequest(endpoint, method, data, params)
+        return this._makeRequest(endpoint, method, data, params, retryCount + 1)
       }
-      logger.forBot().error(`Error in ${method} ${endpoint}:`, error.response?.data || error.message)
-      return { success: false, message: error.response?.data?.message || error.message, data: null }
+      logger.forBot().error(`Error in ${method} ${endpoint}:`, _getErrorLogData(error))
+      return { success: false, message: _getErrorMessage(error), data: null }
     }
   }
 
-  private async _makeFileUploadRequest(endpoint: string, formData: FormData): Promise<any> {
+  private async _makeFileUploadRequest(endpoint: string, formData: FormData, retryCount: number = 0): Promise<any> {
     try {
       const creds = await this._getStoredCredentials()
       if (!creds) {
@@ -161,14 +182,14 @@ export class ZohoApi {
       const response = await axios.post(`${this._baseUrl}${endpoint}`, formData, { headers })
 
       return { success: true, message: 'File uploaded successfully', data: response.data }
-    } catch (error: any) {
-      if (error.response?.status === 401) {
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 401 && retryCount < MAX_AUTH_RETRIES) {
         logger.forBot().warn('Access token expired. Refreshing...', error)
         await this.refreshAccessToken()
-        return this._makeFileUploadRequest(endpoint, formData)
+        return this._makeFileUploadRequest(endpoint, formData, retryCount + 1)
       }
-      logger.forBot().error(`Error in file upload ${endpoint}:`, error.response?.data || error.message)
-      return { success: false, message: error.response?.data?.message || error.message, data: null }
+      logger.forBot().error(`Error in file upload ${endpoint}:`, _getErrorLogData(error))
+      return { success: false, message: _getErrorMessage(error), data: null }
     }
   }
 
@@ -206,9 +227,8 @@ export class ZohoApi {
 
       logger.forBot().info('Access token refreshed successfully.')
     } catch (error: unknown) {
-      const err = error as AxiosError
-      logger.forBot().error(err.response?.data)
-      logger.forBot().error('Error refreshing access token:', err.response?.data || err.message)
+      logger.forBot().error(_getErrorLogData(error))
+      logger.forBot().error('Error refreshing access token:', _getErrorLogData(error))
       throw new Error('Authentication error. Please reauthorize the integration.')
     }
   }

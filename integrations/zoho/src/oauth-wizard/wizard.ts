@@ -103,11 +103,20 @@ const _oauthCallbackStep: WizardHandler = async ({ query, responses, client, ctx
     code,
   })
 
-  const response = await axios.post(`${getZohoAuthUrl(dataCenter)}/oauth/v2/token`, requestData.toString(), {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-  })
+  let response
+  try {
+    response = await axios.post(`${getZohoAuthUrl(dataCenter)}/oauth/v2/token`, requestData.toString(), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    })
+  } catch (error: unknown) {
+    logger.forBot().error('Zoho OAuth token exchange failed.', axios.isAxiosError(error) ? error.response?.data : error)
+    return responses.endWizard({
+      success: false,
+      errorMessage: 'Zoho could not exchange the authorization code. Please reconnect and try again.',
+    })
+  }
 
   const tokenResponse = zohoTokenResponseSchema.safeParse(response.data)
   if (!tokenResponse.success) {
