@@ -1,7 +1,4 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import { DATA_CENTERS } from './src/misc/data-centers'
-import { zohoCredentialsStateSchema, zohoOAuthWizardStateSchema } from './src/misc/oauth-schemas'
-
 import {
   makeApiCallInputSchema,
   makeApiCallOutputSchema,
@@ -38,6 +35,9 @@ import {
   getFileInputSchema,
   getFileOutputSchema,
 } from './src/misc/custom-schemas'
+import { DATA_CENTERS } from './src/misc/data-centers'
+import { zohoCredentialsStateSchema, zohoOAuthWizardStateSchema } from './src/misc/oauth-schemas'
+
 
 export default new IntegrationDefinition({
   name: 'zoho',
