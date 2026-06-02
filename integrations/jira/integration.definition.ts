@@ -7,7 +7,7 @@ export default new IntegrationDefinition({
   title: 'Jira',
   description:
     'This integration allows you to work with your Jira workspace, users, projects, and workflow transitions.',
-  version: '0.4.0',
+  version: '0.4.1',
   readme: 'readme.md',
   icon: 'icon.svg',
   configuration,
