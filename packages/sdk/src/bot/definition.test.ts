@@ -1,5 +1,10 @@
 import { test, expect } from 'vitest'
-import { ResolvedIntegrationConfigInstance, IntegrationInstance, BotDefinition, deriveRecurringEventsFromEventDefs } from './definition'
+import {
+  ResolvedIntegrationConfigInstance,
+  IntegrationInstance,
+  BotDefinition,
+  deriveRecurringEventsFromEventDefs,
+} from './definition'
 import * as utils from '../utils/type-utils'
 import { IntegrationDefinition } from '../integration'
 import { PluginDefinition } from '../plugin'
