@@ -2,7 +2,7 @@ import { Client } from '@botpress/client'
 import * as fs from 'fs'
 import pathlib from 'path'
 import impl from '../../src'
-import { ApiIntegration, fetchAllIntegrations } from '../api'
+import { ApiIntegration, fetchAllIntegrations, ApiPlugin, fetchAllPlugins } from '../api'
 import defaults from '../defaults'
 import * as retry from '../retry'
 import { Test } from '../typings'
@@ -13,7 +13,12 @@ const fetchIntegration = async (client: Client, integrationName: string): Promis
   return integrations.find(({ name }) => name === integrationName)
 }
 
-export const prependWorkspaceHandle: Test = {
+const fetchPlugin = async (client: Client, pluginName: string): Promise<ApiPlugin | undefined> => {
+  const plugins = await fetchAllPlugins(client)
+  return plugins.find(({ name }) => name === pluginName)
+}
+
+export const prependWorkspaceHandleIntegration: Test = {
   name: 'cli should automatically preprend the workspace handle to the integration name when deploying',
   handler: async ({ tmpDir, dependencies, workspaceHandle, logger, ...creds }) => {
     const botpressHomeDir = pathlib.join(tmpDir, '.botpresshome')
@@ -78,7 +83,71 @@ export const prependWorkspaceHandle: Test = {
   },
 }
 
-export const enforceWorkspaceHandle: Test = {
+export const prependWorkspaceHandlePlugin: Test = {
+  name: 'cli should automatically prepend the workspace handle to the plugin name when deploying',
+  handler: async ({ tmpDir, dependencies, workspaceHandle, logger, ...creds }) => {
+    const botpressHomeDir = pathlib.join(tmpDir, '.botpresshome')
+    const baseDir = pathlib.join(tmpDir, 'plugins')
+
+    const pluginSuffix = utils.getUUID()
+    const pluginName = `myplugin${pluginSuffix}`
+    const pluginNameWithHandle = `${workspaceHandle}/${pluginName}`
+    const pluginDir = pathlib.join(baseDir, pluginName)
+
+    const argv = {
+      ...defaults,
+      botpressHome: botpressHomeDir,
+      confirm: true,
+      ...creds,
+    }
+
+    const client = new Client({
+      apiUrl: creds.apiUrl,
+      token: creds.token,
+      workspaceId: creds.workspaceId,
+      retry: retry.config,
+    })
+
+    await impl
+      .init({ ...argv, workDir: baseDir, name: pluginNameWithHandle, type: 'plugin', template: 'empty' })
+      .then(utils.handleExitCode)
+
+    // Remove handle from package.json pluginName field:
+    const pkgJsonPath = pathlib.join(pluginDir, 'package.json')
+    const pkgJson = await fs.promises.readFile(pkgJsonPath, 'utf-8').then(JSON.parse)
+    pkgJson.pluginName = pluginName
+    await fs.promises.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 2))
+
+    await utils.fixBotpressDependencies({ workDir: pluginDir, target: dependencies })
+    await utils.npmInstall({ workDir: pluginDir }).then(utils.handleExitCode)
+    await impl.build({ ...argv, workDir: pluginDir }).then(utils.handleExitCode)
+    await impl.login({ ...argv }).then(utils.handleExitCode)
+
+    await impl
+      .deploy({ ...argv, createNewBot: undefined, botId: undefined, workDir: pluginDir })
+      .then(utils.handleExitCode)
+
+    logger.debug(`Fetching plugin "${pluginName}"`)
+    let plugin = await fetchPlugin(client, pluginName)
+    if (plugin) {
+      throw new Error(`Plugin ${pluginName} should not have been created without handle prefix`)
+    }
+
+    const expectedPluginName = `${workspaceHandle}/${pluginName}`
+    logger.debug(`Fetching plugin "${expectedPluginName}"`)
+    plugin = await fetchPlugin(client, expectedPluginName)
+    if (!plugin) {
+      throw new Error(`Plugin ${expectedPluginName} should have been created`)
+    }
+
+    logger.debug(`Deleting plugin "${expectedPluginName}"`)
+    await impl.plugins.delete({ ...argv, pluginRef: plugin.id }).then(({ exitCode }) => {
+      exitCode !== 0 && logger.warn(`Failed to delete plugin "${expectedPluginName}"`)
+    })
+  },
+}
+
+export const enforceWorkspaceHandleIntegration: Test = {
   name: 'cli should fail when attempting to deploy an integration with incorrect workspace handle',
   handler: async ({ tmpDir, dependencies, ...creds }) => {
     const botpressHomeDir = pathlib.join(tmpDir, '.botpresshome')
@@ -114,6 +183,46 @@ export const enforceWorkspaceHandle: Test = {
 
     if (exitCode === 0) {
       throw new Error(`Integration ${integrationName} should not have been deployed`)
+    }
+  },
+}
+
+export const enforceWorkspaceHandlePlugin: Test = {
+  name: 'cli should fail when attempting to deploy a plugin with incorrect workspace handle',
+  handler: async ({ tmpDir, dependencies, ...creds }) => {
+    const botpressHomeDir = pathlib.join(tmpDir, '.botpresshome')
+    const baseDir = pathlib.join(tmpDir, 'plugins')
+
+    const randomSuffix = utils.getUUID().slice(0, 8)
+
+    const name = 'myplugin'
+    const handle = `myhandle${randomSuffix}`
+    const pluginName = `${handle}/${name}`
+    const pluginDir = pathlib.join(baseDir, name)
+
+    const argv = {
+      ...defaults,
+      botpressHome: botpressHomeDir,
+      confirm: true,
+      ...creds,
+    }
+
+    await impl
+      .init({ ...argv, workDir: baseDir, name: pluginName, type: 'plugin', template: 'empty' })
+      .then(utils.handleExitCode)
+    await utils.fixBotpressDependencies({ workDir: pluginDir, target: dependencies })
+    await utils.npmInstall({ workDir: pluginDir }).then(utils.handleExitCode)
+    await impl.login({ ...argv }).then(utils.handleExitCode)
+
+    const { exitCode } = await impl.deploy({
+      ...argv,
+      createNewBot: undefined,
+      botId: undefined,
+      workDir: pluginDir,
+    })
+
+    if (exitCode === 0) {
+      throw new Error(`Plugin ${pluginName} should not have been deployed`)
     }
   },
 }
