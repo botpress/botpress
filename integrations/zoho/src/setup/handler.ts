@@ -7,8 +7,12 @@ export const handler: Handler = async (props) => {
     return await oauthWizardHandler(props)
   }
 
+  props.logger.forBot().warn('Received request for an invalid OAuth wizard endpoint.', {
+    path: props.req.path,
+  })
+
   return {
-    status: 404,
+    status: 200,
     body: 'Invalid OAuth wizard endpoint',
   }
 }
