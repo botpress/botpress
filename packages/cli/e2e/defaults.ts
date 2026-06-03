@@ -2,6 +2,7 @@ const noBuild = false
 const dryRun = false
 const secrets = [] satisfies string[]
 const sourceMap = false
+const watch = true
 const verbose = false
 const confirm = true
 const json = false
@@ -18,6 +19,7 @@ export default {
   dryRun,
   secrets,
   sourceMap,
+  watch,
   verbose,
   confirm,
   json,
