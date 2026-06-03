@@ -10,7 +10,6 @@ import {
   returnStatement,
   tryStatement,
   numericLiteral,
-  CallExpression,
   LVal,
   catchClause,
   throwStatement,
@@ -79,7 +78,7 @@ const extractLVal = (path: BabelCore.NodePath<BabelCore.types.LVal>): Assignment
 export const toolCallTrackingPlugin = (calls: Map<number, ToolCallEntry> = new Map()) =>
   function ({}: { types: typeof BabelCore.types }): BabelCore.PluginObj {
     let callId = 0
-    const skip = new Set<CallExpression>()
+    const skip = new Set<BabelCore.types.Node>()
 
     return {
       visitor: {
@@ -88,7 +87,7 @@ export const toolCallTrackingPlugin = (calls: Map<number, ToolCallEntry> = new M
           skip.clear()
         },
         CallExpression(path) {
-          if (skip.has(path.node) || path.findParent((p) => skip.has(p.node as any))) {
+          if (skip.has(path.node) || path.findParent((p) => skip.has(p.node))) {
             // has been replaced
             return
           }

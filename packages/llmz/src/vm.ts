@@ -100,7 +100,7 @@ export async function runAsyncFunction(
 
       // Find the actual offset by locating the user code start marker
       // Use codeWithMarkers which still has the markers before postProcessing removes them
-      const codeWithMarkers = (transformed as any).codeWithMarkers || transformed.code
+      const codeWithMarkers = transformed.codeWithMarkers || transformed.code
       const markerLines = codeWithMarkers.split('\n')
       const USER_CODE_START_MARKER = '/* __LLMZ_USER_CODE_START__ */'
       let userCodeStartLine = -1
@@ -664,7 +664,7 @@ ${transformed.code}
             // Check if aborted before processing promises
             if (signal?.aborted) {
               // Reject all pending promises with abort error
-              const reason = (signal as any).reason
+              const reason = signal.reason
               const abortMessage =
                 reason instanceof Error
                   ? `${reason.name}: ${reason.message}`
@@ -685,7 +685,7 @@ ${transformed.code}
             let abortListener: (() => void) | null = null
             if (signal) {
               abortListener = () => {
-                const reason = (signal as any).reason
+                const reason = signal.reason
                 const abortMessage =
                   reason instanceof Error
                     ? `${reason.name}: ${reason.message}`
@@ -778,7 +778,7 @@ ${transformed.code}
 
         // Check if aborted - take precedence over other errors
         if (signal?.aborted) {
-          const reason = (signal as any).reason
+          const reason = signal.reason
           if (reason instanceof Error) {
             throw reason
           }
@@ -843,7 +843,7 @@ ${transformed.code}
         // Check if execution was aborted
         if (signal?.aborted) {
           // Get abort reason if available
-          const reason = (signal as any).reason
+          const reason = signal.reason
           const abortError =
             reason instanceof Error ? reason : new Error(reason ? String(reason) : 'Execution was aborted')
           return handleErrorQuickJS(

@@ -902,7 +902,7 @@ function wrapTool({ chat, tool, traces, object, iteration, beforeHook, afterHook
 
       const result = withHooks(input)
 
-      if (result instanceof Promise || ((result as any)?.then && (result as any)?.catch)) {
+      if (result instanceof Promise || (result && typeof (result as PromiseLike<unknown>).then === 'function')) {
         return result
           .then((res: any) => {
             output = res

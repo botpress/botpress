@@ -216,9 +216,10 @@ export const convertObjectToZuiLiterals = (obj: unknown, nested = false): any =>
   }
 
   if (obj !== null && typeof obj === 'object') {
+    const record = obj as Record<string, unknown>
     const shape: { [key: string]: z.ZodTypeAny } = {}
-    for (const key in obj) {
-      shape[key] = convertObjectToZuiLiterals((obj as any)[key], true)
+    for (const key in record) {
+      shape[key] = convertObjectToZuiLiterals(record[key], true)
     }
     if (nested) {
       return z.object(shape).catch(() => shape)
