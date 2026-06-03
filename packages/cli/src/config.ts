@@ -102,6 +102,12 @@ const dev = {
   default: false,
 } satisfies CommandOption
 
+const watch = {
+  type: 'boolean',
+  description: 'Watch project files and hot reload on changes',
+  default: true,
+} satisfies CommandOption
+
 // base schemas
 
 const globalSchema = {
@@ -220,6 +226,7 @@ const devSchema = {
   ...secretsSchema,
   sourceMap,
   minify,
+  watch,
   port,
   tunnelUrl: {
     type: 'string',
