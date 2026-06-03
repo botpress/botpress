@@ -16,7 +16,12 @@ import {
   reinstallLocalIntegration,
 } from './tests/install-package'
 import { requiredIntegrationSecrets } from './tests/integration-secrets'
-import { enforceWorkspaceHandle, prependWorkspaceHandle } from './tests/manage-workspace-handle'
+import {
+  enforceWorkspaceHandleIntegration,
+  enforceWorkspaceHandlePlugin,
+  prependWorkspaceHandleIntegration,
+  prependWorkspaceHandlePlugin,
+} from './tests/manage-workspace-handle'
 import { removePackage } from './tests/remove-package'
 import { Test } from './typings'
 import { sleep, TmpDirectory } from './utils'
@@ -28,8 +33,10 @@ const tests: Test[] = [
   devBot,
   requiredBotSecrets,
   requiredIntegrationSecrets,
-  prependWorkspaceHandle,
-  enforceWorkspaceHandle,
+  prependWorkspaceHandleIntegration,
+  enforceWorkspaceHandleIntegration,
+  prependWorkspaceHandlePlugin,
+  enforceWorkspaceHandlePlugin,
   addIntegration,
   addPlugin,
   addLocalIntegrationKeepsRelativePath,
