@@ -1,0 +1,138 @@
+import { RuntimeError } from '@botpress/sdk'
+import { randomUUID } from 'crypto'
+import { getHitlClient } from '../hitl/client'
+import * as bp from '.botpress'
+
+export const createUser: bp.IntegrationProps['actions']['createUser'] = async ({ client, input, logger }) => {
+  try {
+    const { name = 'Unknown', email, pictureUrl } = input
+
+    if (!email || !email.trim()) {
+      throw new RuntimeError('An identifier (email or phone number) is required for HITL user creation.')
+    }
+
+    const trimmedIdentifier = email.trim()
+    const isEmail = trimmedIdentifier.includes('@')
+    const contactType = isEmail ? ('email' as const) : ('phone' as const)
+
+    const userTags: Record<string, string> = { contactType }
+    if (isEmail) {
+      userTags.email = trimmedIdentifier
+    } else {
+      userTags.phoneNumber = trimmedIdentifier
+    }
+
+    const { user: botpressUser } = await client.getOrCreateUser({
+      name,
+      pictureUrl,
+      tags: userTags,
+    })
+
+    await client.setState({
+      id: botpressUser.id,
+      type: 'user',
+      name: 'hitlUserInfo',
+      payload: {
+        name,
+        contactIdentifier: trimmedIdentifier,
+        contactType,
+      },
+    })
+
+    logger.forBot().debug(`createUser: created/found user ${botpressUser.id} (${contactType})`)
+
+    return { userId: botpressUser.id }
+  } catch (thrown: unknown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError(error.message)
+  }
+}
+
+export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ ctx, client, logger, input }) => {
+  const hitlClient = getHitlClient(ctx, client, logger)
+
+  try {
+    const { userId, title, description = 'No description available' } = input
+
+    const {
+      state: { payload: userInfo },
+    } = await client.getState({ id: userId, name: 'hitlUserInfo', type: 'user' })
+
+    if (!userInfo?.contactIdentifier) {
+      throw new RuntimeError('User identifier not found. Please ensure the user is created with createUser first.')
+    }
+
+    const channelState = await client
+      .getState({ id: ctx.integrationId, name: 'hitlConfig', type: 'integration' })
+      .catch(() => null)
+
+    const channelInfo = channelState?.state?.payload
+    if (!channelInfo?.channelId) {
+      throw new RuntimeError(
+        'HITL channel not configured. Please make sure you enabled/configured HITL for this Integration.'
+      )
+    }
+
+    const { name, contactIdentifier } = userInfo
+    const { channelId, defaultInboxId, channelAccounts } = channelInfo
+
+    const inboxId = input.hitlSession?.inboxId?.length ? input.hitlSession.inboxId : defaultInboxId
+    const channelAccountId = channelAccounts?.[inboxId]
+
+    if (!channelAccountId) {
+      throw new RuntimeError(
+        `No channel account found for inbox ${inboxId}. Make sure this inbox was selected during setup.`
+      )
+    }
+
+    const integrationThreadId = randomUUID()
+
+    const result = await hitlClient.createConversation(
+      channelId,
+      channelAccountId,
+      integrationThreadId,
+      name,
+      contactIdentifier,
+      title || 'New Support Request',
+      description
+    )
+
+    const hubspotConversationId = result.data.conversationsThreadId
+
+    const { conversation } = await client.createConversation({
+      channel: 'hitl',
+      tags: {
+        id: hubspotConversationId,
+        userId,
+        integrationThreadId,
+        inboxId,
+      },
+    })
+
+    return { conversationId: conversation.id }
+  } catch (thrown: unknown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    logger.forBot().error(`startHitl error: ${error.message}`)
+    throw new RuntimeError(error.message)
+  }
+}
+
+export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ ctx, client, input, logger }) => {
+  const { conversationId } = input
+  try {
+    const { conversation } = await client.getConversation({ id: conversationId })
+    const threadId = conversation.tags.id
+    if (!threadId) {
+      logger.forBot().warn(`stopHitl: no HubSpot thread ID on conversation ${conversationId} — skipping close`)
+      return {}
+    }
+    const hitlClient = getHitlClient(ctx, client, logger)
+    await hitlClient.closeThread(threadId)
+    logger.forBot().info(`stopHitl: closed HubSpot thread ${threadId}`)
+  } catch (thrown: unknown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    logger.forBot().error(`stopHitl error: ${error.message}`)
+    throw new RuntimeError(error.message)
+  }
+  return {}
+}

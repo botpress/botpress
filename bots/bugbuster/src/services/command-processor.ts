@@ -84,9 +84,13 @@ export class CommandProcessor {
 
     const existingChannel = channels.find((channel) => channel.name === channelToAdd)
     if (!existingChannel) {
+      const channelId = await this._resolveChannelId(channelToAdd)
+      if (!channelId) {
+        return { success: false, message: `Could not find a Slack channel matching '${channelToAdd}'.` }
+      }
       const conversation = await this._client.callAction({
-        type: 'slack:startChannelConversation',
-        input: { channelName: channelToAdd },
+        type: 'slack:getOrCreateChannelConversation',
+        input: { conversation: { channelId } },
       })
       channels.push({ conversationId: conversation.output.conversationId, name: channelToAdd, teams })
     } else {
@@ -108,6 +112,16 @@ export class CommandProcessor {
       success: true,
       message: `Notifications for team(s) ${teams.join(', ')} will be posted in channel ${channelToAdd}.`,
     }
+  }
+
+  private async _resolveChannelId(input: string): Promise<string | undefined> {
+    const { output } = await this._client.callAction({
+      type: 'slack:findTarget',
+      input: { query: input, channel: 'channel' },
+    })
+    const exact = output.targets.find((t) => t.displayName === input)
+    const match = exact ?? output.targets[0]
+    return match?.tags.id
   }
 
   private _removeNotifChannel: types.CommandImplementation = async ([channelToRemove]: string[]) => {

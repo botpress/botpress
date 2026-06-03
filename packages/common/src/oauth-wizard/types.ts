@@ -15,9 +15,18 @@ export type WizardStep<THandlerProps extends HandlerProps> = {
 
 export type WizardStepInputProps = {
   selectedChoice?: string
+  selectedChoices?: string[]
   inputValue?: string
   formValues?: Record<string, string | number | boolean>
   query: URLSearchParams
+  /**
+   * Records the integration identifier (e.g. an account or workspace id) by
+   * attaching the `x-bp-integration-identifier` response header to whatever
+   * Response this wizard step ultimately returns. The Botpress backend reads
+   * this header on the OAuth round-trip and treats it as proof that the
+   * integration owns the identifier, replacing any previous owner.
+   */
+  setIntegrationIdentifier: (identifier: string) => void
   responses: {
     redirectToStep: (stepId: string) => Response
     redirectToExternalUrl: (url: string) => Response
@@ -26,6 +35,8 @@ export type WizardStepInputProps = {
       htmlOrMarkdownPageContents: string
       choices: { label: string; value: string }[]
       nextStepId: string
+      multiple?: boolean
+      defaultValues?: string[]
     }) => Response
     displayButtons: (props: {
       pageTitle: string

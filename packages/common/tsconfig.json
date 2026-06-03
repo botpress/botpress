@@ -3,7 +3,6 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
-    "baseUrl": ".",
     "types": ["preact"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true

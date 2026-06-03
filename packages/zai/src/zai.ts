@@ -91,8 +91,13 @@ export type ZaiConfig = {
   client: BotpressClientLike | Cognitive
   /** Optional user ID for tracking and attribution */
   userId?: string
-  /** Model to use: 'best' (default), 'fast', or specific model like 'openai:gpt-4' */
-  modelId?: Models
+  /**
+   * Model to use: 'best' (default), 'fast', or specific model like 'openai:gpt-4'.
+   * An array can be provided to specify ordered fallback models if the primary
+   * model is unavailable. Server-side fallback is honored on the cognitive-v2
+   * path; the legacy integration path uses the first entry only.
+   */
+  modelId?: Models | Models[]
   /** Active learning configuration to improve operations over time */
   activeLearning?: ActiveLearning
   /** Namespace for organizing tasks (default: 'zai') */
@@ -113,23 +118,22 @@ const _ZaiConfig = z.object({
   client: z.custom<BotpressClientLike | Cognitive>(),
   userId: z.string().describe('The ID of the user consuming the API').optional(),
   modelId: z
-    .custom<Models>(
+    .custom<Models | Models[]>(
       (value) => {
-        if (typeof value !== 'string') {
-          return false
+        const isValidSingle = (v: unknown): v is string =>
+          typeof v === 'string' && (v === 'best' || v === 'fast' || v === 'auto' || v.includes(':'))
+
+        if (Array.isArray(value)) {
+          return value.length > 0 && value.every(isValidSingle)
         }
 
-        if (value !== 'best' && value !== 'fast' && !value.includes(':')) {
-          return false
-        }
-
-        return true
+        return isValidSingle(value)
       },
       {
-        message: 'Invalid model ID',
+        message: 'At least one model ID is invalid. Expected a model string or an array of model strings.',
       }
     )
-    .describe('The ID of the model you want to use')
+    .describe('The ID of the model you want to use, or an ordered list of fallback models')
     .default('best' satisfies Models),
   activeLearning: _ActiveLearning.default({ enable: false }),
   namespace: z
@@ -211,7 +215,7 @@ export class Zai {
 
   private _userId: string | undefined
 
-  protected Model: Models
+  protected Model: Models | Models[]
   protected ModelDetails: Model
   protected namespace: string
   protected adapter: Adapter
@@ -249,7 +253,7 @@ export class Zai {
 
     this.namespace = parsed.namespace
     this._userId = parsed.userId
-    this.Model = parsed.modelId as Models
+    this.Model = parsed.modelId as Models | Models[]
     this.activeLearning = parsed.activeLearning as ActiveLearning
 
     this.adapter = parsed.activeLearning?.enable
@@ -295,7 +299,11 @@ export class Zai {
 
   protected async fetchModelDetails(): Promise<void> {
     if (!this.ModelDetails) {
-      this.ModelDetails = await this.client.getModelDetails(this.Model)
+      // getModelDetails resolves a single model. When a fallback array is
+      // configured, we describe the primary model — fallbacks are only relevant
+      // at the request layer.
+      const primaryModel = Array.isArray(this.Model) ? this.Model[0] : this.Model
+      this.ModelDetails = await this.client.getModelDetails(primaryModel)
     }
   }
 

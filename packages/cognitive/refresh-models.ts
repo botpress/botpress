@@ -2,7 +2,7 @@ import 'dotenv/config'
 import axios from 'axios'
 import * as fs from 'fs'
 import * as path from 'path'
-import { Model } from 'src/cognitive-v2/types'
+import { Model } from './src/cognitive-v2/types'
 
 const builtInModels = ['auto', 'best', 'fast']
 const filteredLifecycles = ['deprecated', 'discontinued']
@@ -51,8 +51,12 @@ export const defaultModel: Model = ${JSON.stringify(defaultModel, undefined, 2)}
 
   fs.writeFileSync(modelsListPath, newFile, 'utf8')
 
-  const collectRefs = (list: Model[]) =>
-    Array.from(new Set(list.map(toRef).filter(Boolean))).sort((a, b) => a.localeCompare(b))
+  const collectRefs = (list: Model[]) => {
+    const refs = list.map(toRef).filter((x) => x !== null)
+    const uniqueRefs = Array.from(new Set(refs))
+    return uniqueRefs.sort((a, b) => a.localeCompare(b))
+  }
+
   const collectAliases = (list: Model[]) =>
     Array.from(new Set(list.flatMap((m) => (m.aliases || []).map((a) => `${m.id.split(':')[0]}:${a}`))))
 

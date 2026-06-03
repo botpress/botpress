@@ -1,7 +1,7 @@
 import { test } from 'vitest'
 import * as utils from '../../utils/type-utils'
 import { BasePlugin, DefaultPlugin } from './generic'
-import { BaseBot } from 'src/bot'
+import { BaseBot } from '../../bot'
 
 test('BasePlugin is a BaseBot', () => {
   type _assertion = utils.AssertExtends<BasePlugin, BaseBot>

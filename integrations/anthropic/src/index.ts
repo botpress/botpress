@@ -34,6 +34,20 @@ const LanguageModels: Record<ModelId, llm.ModelDetails> = {
   // NOTE: We don't support returning "thinking" blocks from Claude in the integration action output as the concept of "thinking" blocks is a Claude-specific feature that other providers don't have. For now we won't support this as an official feature in the integration so it needs to be taken into account when using reasoning mode and passing a multi-turn conversation history in the generateContent action input.
   // For more information, see: https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#preserving-thinking-blocks
   // NOTE: We intentionally didn't include the Opus model as it's the most expensive model in the market, it's not very popular, and no users have ever requested it so far.
+  'claude-opus-4-7': {
+    name: 'Claude Opus 4.7',
+    description:
+      "Claude Opus 4.7 is Anthropic's most capable model to date. Building on Opus 4.6, it advances frontier coding, agentic reasoning, and enterprise workflows.",
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    input: {
+      costPer1MTokens: 5,
+      maxTokens: 1_000_000,
+    },
+    output: {
+      costPer1MTokens: 15,
+      maxTokens: 128_000,
+    },
+  },
   'claude-opus-4-6': {
     name: 'Claude Opus 4.6',
     description:
@@ -171,20 +185,6 @@ const LanguageModels: Record<ModelId, llm.ModelDetails> = {
     },
     output: {
       costPer1MTokens: 15,
-      maxTokens: 4096,
-    },
-  },
-  'claude-3-haiku-20240307': {
-    name: 'Claude 3 Haiku',
-    description:
-      "Claude 3 Haiku is Anthropic's fastest and most compact model for near-instant responsiveness. Quick and accurate targeted performance.",
-    tags: ['low-cost', 'general-purpose'],
-    input: {
-      costPer1MTokens: 0.25,
-      maxTokens: 200_000,
-    },
-    output: {
-      costPer1MTokens: 1.25,
       maxTokens: 4096,
     },
   },

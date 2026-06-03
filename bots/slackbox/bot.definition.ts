@@ -31,12 +31,7 @@ export default new sdk.BotDefinition({
   })
   .addIntegration(slack, {
     enabled: true,
-    configurationType: 'refreshToken',
     configuration: {
-      refreshToken: genenv.SLACKBOX_SLACK_REFRESH_TOKEN,
-      clientId: genenv.SLACKBOX_SLACK_CLIENT_ID,
-      clientSecret: genenv.SLACKBOX_SLACK_CLIENT_SECRET,
-      signingSecret: genenv.SLACKBOX_SLACK_SIGNING_SECRET,
       typingIndicatorEmoji: false,
       replyBehaviour: {
         location: 'channel',

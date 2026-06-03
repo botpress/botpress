@@ -1,9 +1,11 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
+    "paths": { "*": ["./*"] },
     "outDir": "dist",
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
   },
   "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "*.ts"]
 }

@@ -68,9 +68,6 @@ const getFidStoreConfig = (b64Config: string | undefined): FidStoreConfig => {
 const signalUrl = bp.secrets.SIGNAL_URL
 const signalSecret = bp.secrets.SIGNAL_SECRET
 const fidStore = getFidStoreConfig(bp.secrets.FID_STORE_CONFIG)
-logger.info('SIGNAL_URL', signalUrl)
-logger.info('SIGNAL_SECRET', signalSecret)
-logger.info('FID_STORE_CONFIG', fidStore)
 
 export type Options = {
   botId: string

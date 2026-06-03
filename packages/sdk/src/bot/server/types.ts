@@ -236,7 +236,16 @@ export type WorkflowHandlers<TBot extends common.BaseBot> = {
   ) => Promise<void>
 }
 
-type BaseHookDefinition = { stoppable?: boolean; data: any }
+type BaseHookDefinition = {
+  stoppable?: boolean
+  data: any
+  /**
+   * Per-hook-type extra props injected into the hook handler input. Only set
+   * for hooks where the bot runtime already has the relevant context (e.g.
+   * incoming message hooks).
+   */
+  extraInputs?: object
+}
 type HookDefinition<THookDef extends BaseHookDefinition = BaseHookDefinition> = THookDef
 
 /**
@@ -254,6 +263,10 @@ export type HookDefinitions<TBot extends common.BaseBot> = {
   before_incoming_message: HookDefinition<{
     stoppable: true
     data: _IncomingMessages<TBot> & { '*': AnyIncomingMessage<TBot> }
+    extraInputs: {
+      user?: client.User
+      conversation?: client.Conversation
+    }
   }>
   before_outgoing_message: HookDefinition<{
     stoppable: false
@@ -274,6 +287,10 @@ export type HookDefinitions<TBot extends common.BaseBot> = {
   after_incoming_message: HookDefinition<{
     stoppable: true
     data: _IncomingMessages<TBot> & { '*': AnyIncomingMessage<TBot> }
+    extraInputs: {
+      user?: client.User
+      conversation?: client.Conversation
+    }
   }>
   after_outgoing_message: HookDefinition<{
     stoppable: false
@@ -297,11 +314,20 @@ export type HookData<TBot extends common.BaseBot> = {
   }
 }
 
+type _HookExtraInputs<TBot extends common.BaseBot> = {
+  [THookType in utils.StringKeys<HookDefinitions<TBot>>]: HookDefinitions<TBot>[THookType] extends {
+    extraInputs: infer T
+  }
+    ? T
+    : {}
+}
+
 export type HookInputs<TBot extends common.BaseBot> = {
   [THookType in utils.StringKeys<HookData<TBot>>]: {
-    [THookDataName in utils.StringKeys<HookData<TBot>[THookType]>]: ExtendedHandlerProps<TBot> & {
-      data: HookData<TBot>[THookType][THookDataName]
-    }
+    [THookDataName in utils.StringKeys<HookData<TBot>[THookType]>]: ExtendedHandlerProps<TBot> &
+      _HookExtraInputs<TBot>[THookType] & {
+        data: HookData<TBot>[THookType][THookDataName]
+      }
   }
 }
 

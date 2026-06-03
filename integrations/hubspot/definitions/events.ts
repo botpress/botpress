@@ -2,7 +2,7 @@ import { z, EventDefinition } from '@botpress/sdk'
 
 const contactCreated = {
   title: 'Contact Created',
-  description: 'A new contact has been created in Hubspot.',
+  description: 'A new contact has been created in HubSpot.',
   schema: z.object({
     contactId: z.string().title('Contact ID').describe('The ID of the created contact'),
     name: z.string().optional().title('Name').describe('The name of the created contact'),
@@ -13,7 +13,7 @@ const contactCreated = {
 
 const contactDeleted = {
   title: 'Contact Deleted',
-  description: 'A contact has been deleted in Hubspot.',
+  description: 'A contact has been deleted in HubSpot.',
   schema: z.object({
     contactId: z.string().title('Contact ID').describe('The ID of the deleted contact'),
   }),
@@ -21,7 +21,7 @@ const contactDeleted = {
 
 const companyCreated = {
   title: 'Company Created',
-  description: 'A new company has been created in Hubspot.',
+  description: 'A new company has been created in HubSpot.',
   schema: z.object({
     companyId: z.string().title('Company ID').describe('The ID of the created company'),
     name: z.string().optional().title('Name').describe('The name of the created company'),
@@ -32,7 +32,7 @@ const companyCreated = {
 
 const companyDeleted = {
   title: 'Company Deleted',
-  description: 'A company has been deleted in Hubspot.',
+  description: 'A company has been deleted in HubSpot.',
   schema: z.object({
     companyId: z.string().title('Company ID').describe('The ID of the deleted company'),
   }),
@@ -40,7 +40,7 @@ const companyDeleted = {
 
 const ticketCreated = {
   title: 'Ticket Created',
-  description: 'A new ticket has been created in Hubspot.',
+  description: 'A new ticket has been created in HubSpot.',
   schema: z.object({
     ticketId: z.string().title('Ticket ID').describe('The ID of the created ticket'),
     subject: z.string().optional().title('Subject').describe('The subject of the created ticket'),
@@ -53,7 +53,7 @@ const ticketCreated = {
 
 const ticketDeleted = {
   title: 'Ticket Deleted',
-  description: 'A ticket has been deleted in Hubspot.',
+  description: 'A ticket has been deleted in HubSpot.',
   schema: z.object({
     ticketId: z.string().title('Ticket ID').describe('The ID of the deleted ticket'),
   }),

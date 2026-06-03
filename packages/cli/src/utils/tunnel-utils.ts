@@ -1,4 +1,5 @@
 import { TunnelTail, ClientCloseEvent, ClientErrorEvent, errors } from '@bpinternal/tunnel'
+import { BotpressCLIError } from '../errors'
 import { Logger } from '../logger'
 import { EventEmitter } from './event-emitter'
 
@@ -22,9 +23,14 @@ export type ReconnectedEvent = {
 }
 
 export class ReconnectionFailedError extends Error {
-  public constructor(public readonly event: ReconnectionTriggerEvent) {
+  public constructor(
+    public readonly event: ReconnectionTriggerEvent,
+    cause?: Error
+  ) {
     const reason = ReconnectionFailedError._reason(event)
-    super(`Reconnection failed: ${reason}`)
+    const message = cause ? `Reconnection failed: ${reason}: ${cause.message}` : `Reconnection failed: ${reason}`
+    const options = cause ? { cause } : undefined
+    super(message, options)
   }
 
   private static _reason(event: ReconnectionTriggerEvent): string {
@@ -46,7 +52,7 @@ export class TunnelSupervisor {
   private _started = false
 
   public readonly events = new EventEmitter<{
-    connectionFailed: ReconnectionTriggerEvent
+    connectionFailed: { ev: ReconnectionTriggerEvent; cause: Error }
     manuallyClosed: null
     connected: {
       tunnel: TunnelTail
@@ -86,8 +92,8 @@ export class TunnelSupervisor {
     }
 
     return new Promise((resolve, reject) => {
-      this.events.on('connectionFailed', (ev) => {
-        reject(new ReconnectionFailedError(ev))
+      this.events.on('connectionFailed', ({ ev, cause }) => {
+        reject(new ReconnectionFailedError(ev, cause))
       })
 
       this.events.on('manuallyClosed', () => {
@@ -111,7 +117,11 @@ export class TunnelSupervisor {
       .then((t) => {
         this._tunnel = t
       })
-      .catch(() => this.events.emit('connectionFailed', ev))
+      .catch((thrown) => {
+        // carry the real failure as the cause; the dev server then tears down and the single
+        // "running the dev server" error surfaces this reason (avoids a duplicate log line here)
+        this.events.emit('connectionFailed', { ev, cause: BotpressCLIError.map(thrown) })
+      })
   }
 
   private async _reconnect(ev: ReconnectionTriggerEvent): Promise<TunnelTail> {

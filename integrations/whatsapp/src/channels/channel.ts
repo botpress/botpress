@@ -24,6 +24,7 @@ import * as carousel from './message-types/carousel'
 import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
 import * as image from './message-types/image'
+import { RawInteractiveMessage } from './message-types/raw-interactive'
 import * as bp from '.botpress'
 
 const PART_DELAY_MS = 1000
@@ -114,8 +115,8 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         message: new Location(payload.longitude, payload.latitude),
       })
     },
-    carousel: async ({ payload, logger, ...props }) => {
-      await _sendMany({ ...props, logger, generator: carousel.generateOutgoingMessages(payload, logger) })
+    carousel: async (props) => {
+      await _sendMany({ ...props, generator: carousel.generateOutgoingMessages(props) })
     },
     card: async ({ payload, logger, ...props }) => {
       await _sendMany({ ...props, logger, generator: card.generateOutgoingMessages(payload, logger) })
@@ -229,6 +230,7 @@ type OutgoingMessage =
   | Interactive
   | Template
   | Reaction
+  | RawInteractiveMessage
 
 type SendMessageProps = {
   client: bp.Client
@@ -265,7 +267,9 @@ async function _send({ client, ctx, conversation, logger, message, ack }: SendMe
 
   const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
   const botPhoneNumberId = conversation.tags.botPhoneNumberId
-  const userPhoneNumber = conversation.tags.userPhone
+  // For users opted in to username privacy, no phone number is available and the stable
+  // WhatsApp user_id is used as the recipient instead.
+  const recipient = conversation.tags.userPhone ?? conversation.tags.userId
   const messageType = message._type
 
   if (!botPhoneNumberId) {
@@ -275,10 +279,12 @@ async function _send({ client, ctx, conversation, logger, message, ack }: SendMe
     return
   }
 
-  if (!userPhoneNumber) {
+  if (!recipient) {
     logger
       .forBot()
-      .error("Cannot send message to WhatsApp because the user's phone number isn't set in the conversation tags")
+      .error(
+        "Cannot send message to WhatsApp because neither the user's phone number nor user ID is set in the conversation tags"
+      )
     return
   }
 
@@ -288,7 +294,7 @@ async function _send({ client, ctx, conversation, logger, message, ack }: SendMe
         logger.forBot().info(`Retrying to send ${messageType} message to WhatsApp (attempt ${i + 1}/${MAX_ATTEMPT})...`)
       }
 
-      const result = await whatsapp.sendMessage(botPhoneNumberId, userPhoneNumber, message)
+      const result = await whatsapp.sendMessage(botPhoneNumberId, recipient, message)
       const repeat = 'error' in result && THROTTLING_CODES.has(result.error?.code ?? 0)
       return {
         repeat,

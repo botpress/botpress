@@ -61,12 +61,19 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
       }
     }
 
-    return await step.handler({
+    const extraHeaders: Record<string, string> = {}
+
+    const response = await step.handler({
       ...this._handlerProps,
       query: searchParams,
       selectedChoice: searchParams.get(consts.CHOICE_PARAM) ?? undefined,
+      selectedChoices:
+        searchParams.getAll(consts.CHOICE_PARAM).length > 0 ? searchParams.getAll(consts.CHOICE_PARAM) : undefined,
       inputValue: searchParams.get(consts.INPUT_PARAM) ?? undefined,
       formValues: Object.keys(formValues).length > 0 ? formValues : undefined,
+      setIntegrationIdentifier(identifier: string) {
+        extraHeaders[sdk.OAUTH_IDENTIFIER_HEADER] = identifier
+      },
       responses: {
         displayButtons: ({ buttons, pageTitle, htmlOrMarkdownPageContents }) =>
           htmlDialogs.generateButtonDialog({
@@ -84,7 +91,7 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
                     : { navigateTo: new URL(`javascript:${button.callFunction}()`) }),
             })),
           }),
-        displayChoices: ({ choices, nextStepId, pageTitle, htmlOrMarkdownPageContents }) =>
+        displayChoices: ({ choices, nextStepId, pageTitle, htmlOrMarkdownPageContents, multiple, defaultValues }) =>
           htmlDialogs.generateSelectDialog({
             formFieldName: consts.CHOICE_PARAM,
             formSubmitUrl: getWizardStepUrl(nextStepId, this._handlerProps.ctx),
@@ -97,6 +104,8 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
               label: choice.label,
               value: choice.value,
             })),
+            multiple,
+            defaultValues,
           }),
         displayInput: ({ input, nextStepId, pageTitle, htmlOrMarkdownPageContents }) =>
           htmlDialogs.generateInputDialog({
@@ -137,6 +146,14 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
           ),
       },
     })
+
+    return {
+      ...response,
+      headers: {
+        ...response.headers,
+        ...extraHeaders,
+      },
+    }
   }
 }
 

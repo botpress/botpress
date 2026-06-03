@@ -337,7 +337,17 @@ export type WorkflowHandlers<TPlugin extends common.BasePlugin> = {
   ) => Promise<void>
 }
 
-type BaseHookDefinition = { stoppable?: boolean; data: any }
+type BaseHookDefinition = {
+  stoppable?: boolean
+  data: any
+  /**
+   * Per-hook-type extra props injected into the hook handler input. Only set
+   * for hooks where the bot runtime already has the relevant context (e.g.
+   * incoming message hooks). The `raw` shape uses `client.User`/
+   * `client.Conversation`; the `injected` shape replaces them with proxies.
+   */
+  extraInputs?: { raw: object; injected: object }
+}
 type HookDefinition<THookDef extends BaseHookDefinition = BaseHookDefinition> = THookDef
 
 /**
@@ -346,8 +356,6 @@ type HookDefinition<THookDef extends BaseHookDefinition = BaseHookDefinition> = 
  *   - after_register
  *   - before_state_expired
  *   - after_state_expired
- *   - before_incoming_call_action
- *   - after_incoming_call_action
  */
 
 export type HookDefinitionType = keyof HookDefinitions<common.BasePlugin>
@@ -360,6 +368,16 @@ export type HookDefinitions<TPlugin extends common.BasePlugin> = {
   before_incoming_message: HookDefinition<{
     stoppable: true
     data: _IncomingMessages<TPlugin> & { '*': AnyIncomingMessage<TPlugin> }
+    extraInputs: {
+      raw: {
+        user?: client.User
+        conversation?: client.Conversation
+      }
+      injected: {
+        user?: userProxy.ActionableUser<TPlugin, string>
+        conversation?: conversationProxy.ActionableConversation<TPlugin>
+      }
+    }
   }>
   before_outgoing_message: HookDefinition<{
     stoppable: false
@@ -380,6 +398,16 @@ export type HookDefinitions<TPlugin extends common.BasePlugin> = {
   after_incoming_message: HookDefinition<{
     stoppable: true
     data: _IncomingMessages<TPlugin> & { '*': AnyIncomingMessage<TPlugin> }
+    extraInputs: {
+      raw: {
+        user?: client.User
+        conversation?: client.Conversation
+      }
+      injected: {
+        user?: userProxy.ActionableUser<TPlugin, string>
+        conversation?: conversationProxy.ActionableConversation<TPlugin>
+      }
+    }
   }>
   after_outgoing_message: HookDefinition<{
     stoppable: false
@@ -396,30 +424,48 @@ export type HookDefinitions<TPlugin extends common.BasePlugin> = {
 }
 
 export type HookData<TPlugin extends common.BasePlugin> = {
-  [THookType in utils.StringKeys<HookDefinitions<TPlugin>>]: {
+  [THookType in HookDefinitionType]: {
     [THookDataName in utils.StringKeys<
       HookDefinitions<TPlugin>[THookType]['data']
     >]: HookDefinitions<TPlugin>[THookType]['data'][THookDataName]
   }
 }
 
+type _HookExtraInputsRaw<TPlugin extends common.BasePlugin> = {
+  [THookType in HookDefinitionType]: HookDefinitions<TPlugin>[THookType] extends {
+    extraInputs: { raw: infer T }
+  }
+    ? T
+    : {}
+}
+
+type _HookExtraInputsInjected<TPlugin extends common.BasePlugin> = {
+  [THookType in HookDefinitionType]: HookDefinitions<TPlugin>[THookType] extends {
+    extraInputs: { injected: infer T }
+  }
+    ? T
+    : {}
+}
+
 export type HookInputsWithoutInjectedProps<TPlugin extends common.BasePlugin> = {
-  [THookType in utils.StringKeys<HookData<TPlugin>>]: {
-    [THookDataName in utils.StringKeys<HookData<TPlugin>[THookType]>]: CommonHandlerProps<TPlugin> & {
-      data: HookData<TPlugin>[THookType][THookDataName]
-    }
+  [THookType in HookDefinitionType]: {
+    [THookDataName in utils.StringKeys<HookData<TPlugin>[THookType]>]: CommonHandlerProps<TPlugin> &
+      _HookExtraInputsRaw<TPlugin>[THookType] & {
+        data: HookData<TPlugin>[THookType][THookDataName]
+      }
   }
 }
 
 export type HookInputs<TPlugin extends common.BasePlugin> = {
-  [THookType in utils.StringKeys<HookData<TPlugin>>]: _WithInjectedProps<
+  [THookType in HookDefinitionType]: _WithInjectedProps<
     HookInputsWithoutInjectedProps<TPlugin>[THookType],
-    TPlugin
+    TPlugin,
+    _HookExtraInputsInjected<TPlugin>[THookType]
   >
 }
 
 export type HookOutputs<TPlugin extends common.BasePlugin> = {
-  [THookType in utils.StringKeys<HookData<TPlugin>>]: {
+  [THookType in HookDefinitionType]: {
     [THookDataName in utils.StringKeys<HookData<TPlugin>[THookType]>]: {
       data?: HookData<TPlugin>[THookType][THookDataName]
     } & (HookDefinitions<TPlugin>[THookType]['stoppable'] extends true ? { stop?: boolean } : {})
@@ -427,7 +473,7 @@ export type HookOutputs<TPlugin extends common.BasePlugin> = {
 }
 
 export type HookHandlersWithoutInjectedProps<TPlugin extends common.BasePlugin> = {
-  [THookType in utils.StringKeys<HookData<TPlugin>>]: {
+  [THookType in HookDefinitionType]: {
     [THookDataName in utils.StringKeys<HookData<TPlugin>[THookType]>]: (
       input: HookInputsWithoutInjectedProps<TPlugin>[THookType][THookDataName]
     ) => Promise<HookOutputs<TPlugin>[THookType][THookDataName] | undefined>
@@ -435,14 +481,27 @@ export type HookHandlersWithoutInjectedProps<TPlugin extends common.BasePlugin> 
 }
 
 export type HookHandlers<TPlugin extends common.BasePlugin> = {
-  [THookType in utils.StringKeys<HookData<TPlugin>>]: _WithInjectedPropsFn<
+  [THookType in HookDefinitionType]: _WithInjectedPropsFn<
     HookHandlersWithoutInjectedProps<TPlugin>[THookType],
-    TPlugin
+    TPlugin,
+    _HookExtraInputsInjected<TPlugin>[THookType]
   >
 }
 
+export type AnyHookHandler<TPlugin extends common.BasePlugin> = (
+  input: CommonHandlerProps<TPlugin> & {
+    data: any
+  } & InjectedHandlerProps<TPlugin>
+) => Promise<
+  | {
+      data?: any
+      stop?: boolean
+    }
+  | undefined
+>
+
 export type HookHandlersMap<TPlugin extends common.BasePlugin> = {
-  [THookType in utils.StringKeys<HookData<TPlugin>>]: {
+  [THookType in HookDefinitionType]: {
     [THookDataName in utils.StringKeys<
       HookData<TPlugin>[THookType]
     >]?: HookHandlersWithoutInjectedProps<TPlugin>[THookType][THookDataName][]
@@ -462,40 +521,40 @@ export type WorkflowHandlersMap<TPlugin extends common.BasePlugin> = {
   }
 }
 
-export type OrderedMessageHandlersMap<TPlugin extends common.BasePlugin> = {
-  [TMessageName in utils.StringKeys<IncomingMessages<TPlugin>>]?: {
-    handler: MessageHandlers<TPlugin>[TMessageName]
+export type OrderedMessageHandlersMap = {
+  [TMessageName in string]?: {
+    handler: MessageHandlers<common.BasePlugin>[TMessageName]
     order: number
   }[]
 }
 
-export type OrderedEventHandlersMap<TPlugin extends common.BasePlugin> = {
-  [TEventName in utils.StringKeys<IncomingEvents<TPlugin>>]?: {
-    handler: EventHandlers<TPlugin>[TEventName]
+export type OrderedEventHandlersMap = {
+  [TEventName in string]?: {
+    handler: EventHandlers<common.BasePlugin>['*']
     order: number
   }[]
 }
 
-export type OrderedStateExpiredHandlersMap<TPlugin extends common.BasePlugin> = {
-  [TStateName in utils.StringKeys<IncomingStates<TPlugin>>]?: {
-    handler: StateExpiredHandlers<TPlugin>[TStateName]
+export type OrderedStateExpiredHandlersMap = {
+  [TStateName in string]?: {
+    handler: StateExpiredHandlers<common.BasePlugin>['*']
     order: number
   }[]
 }
 
-export type OrderedHookHandlersMap<TPlugin extends common.BasePlugin> = {
-  [THookType in utils.StringKeys<HookData<TPlugin>>]: {
-    [THookDataName in utils.StringKeys<HookData<TPlugin>[THookType]>]?: {
-      handler: HookHandlers<TPlugin>[THookType][THookDataName]
+export type OrderedHookHandlersMap = {
+  [THookType in HookDefinitionType]: {
+    [THookDataName in string]?: {
+      handler: AnyHookHandler<common.BasePlugin>
       order: number
     }[]
   }
 }
 
-export type OrderedWorkflowHandlersMap<TPlugin extends common.BasePlugin> = {
+export type OrderedWorkflowHandlersMap = {
   [TWorkflowUpdateType in bot.WorkflowUpdateType]: {
-    [TWorkflowName in utils.StringKeys<TPlugin['workflows']>]?: {
-      handler: WorkflowHandlers<TPlugin>[TWorkflowName]
+    [TWorkflowName in string]?: {
+      handler: WorkflowHandlers<common.BasePlugin>['*']
       order: number
     }[]
   }
@@ -518,7 +577,7 @@ export type PluginHandlers<TPlugin extends common.BasePlugin> = {
     >]?: StateExpiredHandlersWithoutInjectedProps<TPlugin>[TStateName][]
   }
   hookHandlers: {
-    [THookType in utils.StringKeys<HookData<TPlugin>>]: {
+    [THookType in HookDefinitionType]: {
       [THookDataName in utils.StringKeys<
         HookData<TPlugin>[THookType]
       >]?: HookHandlersWithoutInjectedProps<TPlugin>[THookType][THookDataName][]
@@ -532,6 +591,7 @@ export type PluginHandlers<TPlugin extends common.BasePlugin> = {
     }
   }
 }
+
 /** identical to PluginHandlers, but contains the injected properties */
 export type InjectedPluginHandlers<TPlugin extends common.BasePlugin> = {
   actionHandlers: ActionHandlers<TPlugin>
@@ -545,7 +605,7 @@ export type InjectedPluginHandlers<TPlugin extends common.BasePlugin> = {
     [TStateName in utils.StringKeys<IncomingStates<TPlugin>>]?: StateExpiredHandlers<TPlugin>[TStateName][]
   }
   hookHandlers: {
-    [THookType in utils.StringKeys<HookData<TPlugin>>]: {
+    [THookType in HookDefinitionType]: {
       [THookDataName in utils.StringKeys<
         HookData<TPlugin>[THookType]
       >]?: HookHandlers<TPlugin>[THookType][THookDataName][]

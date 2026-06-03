@@ -1,10 +1,9 @@
 import { addReaction } from './add-reaction'
 import { findTarget } from './find-target'
 import { getChannelsInfo } from './get-channels-info'
+import { getOrCreateChannelConversation } from './get-or-create-channel-conversation'
 import { getUserProfile } from './get-user-profile'
 import { retrieveMessage } from './retrieve-message'
-import { startChannelConversation } from './start-channel-conversation'
-import { startDmConversation } from './start-dm'
 import { syncMembers } from './sync-members'
 import { startTypingIndicator, stopTypingIndicator } from './typing-indicator'
 import { updateChannelTopic } from './update-channel-topic'
@@ -14,10 +13,9 @@ export default {
   addReaction,
   findTarget,
   getChannelsInfo,
+  getOrCreateChannelConversation,
   retrieveMessage,
   syncMembers,
-  startDmConversation,
-  startChannelConversation,
   updateChannelTopic,
   startTypingIndicator,
   stopTypingIndicator,

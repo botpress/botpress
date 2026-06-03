@@ -581,7 +581,7 @@ export class HubspotClient {
     }
 
     if (!filters.length) {
-      throw new Error('No filters provided')
+      throw new sdk.RuntimeError('No filters provided')
     }
 
     const deals = await this._hsClient.crm.deals.searchApi.doSearch({
@@ -738,7 +738,7 @@ export class HubspotClient {
     }
 
     if (!filters.length) {
-      throw new Error('No filters provided')
+      throw new sdk.RuntimeError('No filters provided')
     }
 
     const leads = await this._hsClient.crm.objects.leads.searchApi.doSearch({
@@ -1037,6 +1037,31 @@ export class HubspotClient {
     })
 
     this._ticketPipelinesAlreadyRefreshed = true
+  }
+
+  @handleErrors('Failed to list contact properties')
+  public async listContactProperties() {
+    const properties = await this._hsClient.crm.properties.coreApi.getAll('contacts')
+    return properties.results
+  }
+
+  @handleErrors('Failed to get owner by ID')
+  public async getOwnerById({ ownerId }: { ownerId: string }) {
+    const numericOwnerId = Number(ownerId)
+    if (isNaN(numericOwnerId)) {
+      throw new sdk.RuntimeError(`Invalid owner ID "${ownerId}"`)
+    }
+    return await this._hsClient.crm.owners.ownersApi.getById(numericOwnerId)
+  }
+
+  @handleErrors('Failed to get URL for file')
+  public async getFileUrl({ fileName }: { fileName: string }): Promise<string | undefined> {
+    const response = await this._hsClient.apiRequest({
+      method: 'GET',
+      path: `/files/v3/files/stat/${encodeURIComponent(fileName)}`,
+    })
+    const body = (await response.json()) as { file?: { url?: string } }
+    return body.file?.url
   }
 
   @handleErrors('Failed to retrieve owner by email')

@@ -5,6 +5,7 @@ import { AuthKeyHandler } from './auth-key'
 import * as debug from './debug'
 import { makeHandler } from './handler'
 import { MemorySpace, ChatIdStore, InMemoryChatIdStore, DynamoDbChatIdStore } from './id-store'
+import { startMetricsServer } from './metrics-server'
 import { Options, options } from './options'
 import { CompositeSignalEmiter, PushpinEmitter, SignalEmitter, WebhookEmitter } from './signal-emitter'
 import { initTracing, normalizePath, runWithSpan, setSpanAttributes, SPAN_ATTRS } from './tracing'
@@ -156,7 +157,11 @@ const emitEvent = async (args: ActionArgs) => {
   })
 }
 
-export default new bp.Integration({
+class IntegrationWithMetrics extends bp.Integration {
+  public startMetricsServer = startMetricsServer
+}
+
+export default new IntegrationWithMetrics({
   register: async () => {},
   unregister: async () => {},
   __advanced: {

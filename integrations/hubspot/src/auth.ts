@@ -1,5 +1,6 @@
 import { RuntimeError, isApiError } from '@botpress/sdk'
 import { Client as OfficialHubspotClient } from '@hubspot/api-client'
+import { getEnvironment, useDeskOAuth } from './utils'
 import * as bp from '.botpress'
 
 const FIVE_MINUTES_IN_SECONDS = 300
@@ -16,14 +17,20 @@ const _getExpiresAtFromExpiresIn = (expiresIn: number) => {
   return nowSeconds + expiresIn
 }
 
-export const exchangeCodeForOAuthCredentials = async ({ code }: { code: string }) => {
+const _getOAuthAppCredentials = (useDesk: boolean) => ({
+  clientId: useDesk ? bp.secrets.DESK_CLIENT_ID : bp.secrets.CLIENT_ID,
+  clientSecret: useDesk ? bp.secrets.DESK_CLIENT_SECRET : bp.secrets.CLIENT_SECRET,
+})
+
+export const exchangeCodeForOAuthCredentials = async ({ code, useDesk }: { code: string; useDesk: boolean }) => {
+  const { clientId, clientSecret } = _getOAuthAppCredentials(useDesk)
   const hsClient = new OfficialHubspotClient({})
   const { refreshToken, accessToken, expiresIn } = await hsClient.oauth.tokensApi.create(
     'authorization_code',
     code,
     REDIRECT_URI,
-    bp.secrets.CLIENT_ID,
-    bp.secrets.CLIENT_SECRET
+    clientId,
+    clientSecret
   )
   return {
     refreshToken,
@@ -67,13 +74,15 @@ const _getOrRefreshOAuthAccessToken = async ({ client, ctx }: { client: bp.Clien
     return accessToken
   }
 
+  const environment = await getEnvironment({ client, ctx })
+  const { clientId, clientSecret } = _getOAuthAppCredentials(useDeskOAuth(environment))
   const hsClient = new OfficialHubspotClient({})
   const refreshResponse = await hsClient.oauth.tokensApi.create(
     'refresh_token',
     undefined,
     REDIRECT_URI,
-    bp.secrets.CLIENT_ID,
-    bp.secrets.CLIENT_SECRET,
+    clientId,
+    clientSecret,
     refreshToken
   )
   const newCredentials = {
@@ -90,26 +99,24 @@ const _getOrRefreshOAuthAccessToken = async ({ client, ctx }: { client: bp.Clien
 }
 
 export const getAccessToken = async ({ client, ctx }: { client: bp.Client; ctx: bp.Context }) => {
-  let accessToken: string | undefined
   if (ctx.configurationType === 'manual') {
-    accessToken = ctx.configuration.accessToken
-  } else {
-    accessToken = await _getOrRefreshOAuthAccessToken({ client, ctx })
+    const { accessToken } = ctx.configuration
+    if (!accessToken) {
+      throw new RuntimeError('Access token not found in saved credentials')
+    }
+    return accessToken
   }
 
-  if (!accessToken) {
-    throw new RuntimeError('Access token not found in saved credentials')
-  }
-
-  return accessToken
+  return _getOrRefreshOAuthAccessToken({ client, ctx })
 }
 
-export const getClientSecret = (ctx: bp.Context) => {
+export const getClientSecret = async ({ client, ctx }: { client: bp.Client; ctx: bp.Context }) => {
   let clientSecret: string | undefined
   if (ctx.configurationType === 'manual') {
     clientSecret = ctx.configuration.clientSecret
   } else {
-    clientSecret = bp.secrets.CLIENT_SECRET
+    const environment = await getEnvironment({ client, ctx })
+    clientSecret = useDeskOAuth(environment) ? bp.secrets.DESK_CLIENT_SECRET : bp.secrets.CLIENT_SECRET
   }
   return clientSecret?.length ? clientSecret : undefined
 }

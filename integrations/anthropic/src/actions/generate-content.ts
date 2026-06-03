@@ -99,7 +99,15 @@ export async function generateContent(
     messages,
   }
 
-  if (
+  // TODO: Remove this check once all 3.x models are removed,
+  // see https://platform.claude.com/docs/en/about-claude/models/migration-guide#breaking-changes
+  if (modelId === 'claude-opus-4-7') {
+    // This is a stricter check for Opuse 4.7 as it does not support sampling parameters
+    // see https://platform.claude.com/docs/en/about-claude/models/migration-guide#additional-breaking-changes
+    request.top_k = undefined
+    request.top_p = undefined
+    request.temperature = undefined
+  } else if (
     (modelId === 'claude-sonnet-4-5-20250929' ||
       modelId === 'claude-haiku-4-5-20251001' ||
       modelId === 'claude-sonnet-4-6' ||
@@ -107,8 +115,7 @@ export async function generateContent(
     request.temperature !== undefined &&
     request.top_p !== undefined
   ) {
-    // This model fails when setting both parameters with the error "`temperature` and `top_p` cannot both be specified for this model. Please use only one.", so we remove the top_p parameter if temperature is also set.
-    request.top_p = undefined
+    request.temperature = undefined
   }
 
   const thinkingBudgetTokens = ThinkingModeBudgetTokens[input.reasoningEffort ?? 'none'] // Default to not use reasoning as Claude models use optional reasoning

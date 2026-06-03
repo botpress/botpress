@@ -125,12 +125,8 @@ export default new sdk.BotDefinition({
   })
   .addIntegration(slack, {
     enabled: true,
-    configurationType: 'refreshToken',
+    configurationType: null,
     configuration: {
-      refreshToken: genenv.BUGBUSTER_SLACK_REFRESH_TOKEN,
-      clientId: genenv.BUGBUSTER_SLACK_CLIENT_ID,
-      clientSecret: genenv.BUGBUSTER_SLACK_CLIENT_SECRET,
-      signingSecret: genenv.BUGBUSTER_SLACK_SIGNING_SECRET,
       typingIndicatorEmoji: false,
       replyBehaviour: {
         location: 'channel',
