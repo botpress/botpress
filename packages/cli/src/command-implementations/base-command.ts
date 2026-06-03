@@ -27,9 +27,7 @@ export abstract class BaseCommand<C extends CommandDefinition> {
       const error = errors.BotpressCLIError.map(thrown)
 
       this.logger.error(error.message)
-
-      const stack = error.stack ?? 'No stack trace available'
-      this.logger.debug(`[${this._cmdName}] ${stack}`)
+      this.logger.debug(`[${this._cmdName}] ${errors.BotpressCLIError.fullStack(error)}`)
 
       exitCode = 1
     } finally {

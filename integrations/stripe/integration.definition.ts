@@ -34,19 +34,17 @@ import {
 
 export default new IntegrationDefinition({
   name: 'stripe',
-  version: '0.5.6',
+  version: '0.6.0',
   title: 'Stripe',
   readme: 'hub.md',
   icon: 'icon.svg',
   description:
     'Manage payments, subscriptions, and customers seamlessly. Execute workflows on charge failures and subscription updates.',
   configuration: {
+    identifier: {
+      linkTemplateScript: 'linkTemplate.vrl',
+    },
     schema: z.object({
-      apiKey: z
-        .string()
-        .min(1)
-        .describe('The secret key or a restricted key from your Stripe account')
-        .title('API Key'),
       apiVersion: z
         .string()
         .optional()
@@ -109,6 +107,39 @@ export default new IntegrationDefinition({
   },
   channels: {},
   states: {
+    oAuthCredentials: {
+      type: 'integration',
+      schema: z.object({
+        accessToken: z.string().secret().title('Access Token').describe('The OAuth access token'),
+        refreshToken: z.string().secret().title('Refresh Token').describe('The rotating OAuth refresh token'),
+        expiresAt: z
+          .string()
+          .datetime()
+          .title('Access Token Expires At')
+          .describe('The timestamp of when the access token expires'),
+        refreshExpiresAt: z
+          .string()
+          .datetime()
+          .title('Refresh Token Expires At')
+          .describe('The timestamp of when the refresh token expires'),
+        scopes: z.array(z.string()).title('Scopes').describe('The scopes granted to the token'),
+        stripeUserId: z
+          .string()
+          .title('Stripe Account ID')
+          .describe('The Stripe account ID (acct_xxx) the token was issued for'),
+        livemode: z.boolean().title('Live Mode').describe('Whether the token operates against Stripe live mode'),
+      }),
+    },
+    manualCredentials: {
+      type: 'integration',
+      schema: z.object({
+        apiKey: z
+          .string()
+          .secret()
+          .title('Stripe API Key')
+          .describe('The secret key or a restricted key from your Stripe account'),
+      }),
+    },
     stripeIntegrationInfo: {
       type: 'integration',
       schema: z.object({
@@ -116,7 +147,21 @@ export default new IntegrationDefinition({
           .string()
           .title('Stripe Webhook ID')
           .describe('The unique identifier for the Stripe webhook.'),
+        stripeWebhookSecret: z
+          .string()
+          .secret()
+          .optional()
+          .title('Stripe Webhook Signing Secret')
+          .describe('The signing secret returned by Stripe when the webhook endpoint was created.'),
       }),
+    },
+  },
+  secrets: {
+    CLIENT_ID: {
+      description: 'The client ID of the Stripe OAuth app.',
+    },
+    CLIENT_SECRET: {
+      description: 'The Stripe secret API key (sk_live_/sk_test_) used to authenticate to the OAuth token endpoint.',
     },
   },
   actions: {

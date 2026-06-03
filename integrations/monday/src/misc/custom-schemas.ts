@@ -1,13 +1,14 @@
 import { z } from '@botpress/sdk'
 
-export const configurationSchema = z.object({
+export const configurationSchema = z.object({})
+
+export const manualConfigurationSchema = z.object({
   personalAccessToken: z
     .string()
     .min(1)
+    .secret()
     .title('Personal Access Token')
-    .describe(
-      'The personal access token for your Monday.com account with sufficient access to manage items on your Monday.com boards.'
-    ),
+    .describe('A Monday.com personal access token with sufficient access to manage items on your Monday.com boards.'),
 })
 
 export const createItemSchema = z.object({

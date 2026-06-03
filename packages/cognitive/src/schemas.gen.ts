@@ -155,6 +155,8 @@ export type Model = {
     | 'reasoning'
     | 'preview'
     | 'speech-to-text'
+    | 'image-generation'
+    | 'text-to-speech'
   >
   input: {
     maxTokens: number

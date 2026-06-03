@@ -10,6 +10,11 @@ const isKnownApiError = (e: unknown): e is KnownApiError => client.isApiError(e)
 export class BotpressCLIError extends VError {
   public static wrap(thrown: unknown, message: string): BotpressCLIError {
     const err = BotpressCLIError.map(thrown)
+    if (!err.message.trim()) {
+      // the cause carries no message of its own; avoid rendering a dangling "<message>: "
+      // while still keeping it as a cause so fullStack can surface the deeper chain under --verbose
+      return new BotpressCLIError(message ?? '', { cause: err })
+    }
     return new BotpressCLIError(err, message ?? '')
   }
 
@@ -39,20 +44,60 @@ export class BotpressCLIError extends VError {
       return HTTPError.fromAxios(thrown)
     }
     if (thrown instanceof Error) {
-      const { message } = thrown
-      return new BotpressCLIError(message)
+      return new BotpressCLIError(thrown.message, { cause: thrown })
     }
     return new BotpressCLIError(String(thrown))
   }
 
   public constructor(error: BotpressCLIError, message: string)
   public constructor(message: string)
-  public constructor(first: BotpressCLIError | string, second?: string) {
+  public constructor(message: string, opts: { cause?: Error })
+  public constructor(first: BotpressCLIError | string, second?: string | { cause?: Error }) {
     if (typeof first === 'string') {
+      if (typeof second === 'object') {
+        // preserve the original error as a cause without duplicating its message into ours.
+        // `skipCauseMessage` is supported by verror at runtime (validated against verror@1.10.1)
+        // but missing from @types/verror, so the option object is typed inline rather than as
+        // VError.Options. The message-neutrality this relies on is guarded by errors.test.ts.
+        super({ cause: second.cause, skipCauseMessage: true } as { cause?: Error; skipCauseMessage: boolean }, first)
+        return
+      }
       super(first)
       return
     }
-    super(first, second!)
+    super(first, second as string)
+  }
+
+  // VError.fullStack only follows VError causes; this also follows native `Error.cause`/axios
+  // causes (with a cycle guard). static to mirror VError's own `fullStack(err)`.
+  public static fullStack(err: Error): string {
+    return BotpressCLIError._fullStack(err, new Set())
+  }
+
+  private static _fullStack(err: Error, seen: Set<Error>): string {
+    if (seen.has(err)) {
+      return '[Circular error cause]'
+    }
+    seen.add(err)
+
+    const stack = err.stack || err.message
+    const cause = BotpressCLIError._cause(err)
+
+    if (!cause) {
+      return stack
+    }
+
+    return `${stack}\ncaused by: ${BotpressCLIError._fullStack(cause, seen)}`
+  }
+
+  private static _cause(err: Error): Error | undefined {
+    const vErrorCause = VError.cause(err)
+    if (vErrorCause) {
+      return vErrorCause
+    }
+
+    const nativeCause = (err as { cause?: unknown }).cause
+    return nativeCause instanceof Error ? nativeCause : undefined
   }
 }
 
@@ -73,14 +118,21 @@ export class ExclusiveIntegrationFeatureError extends BotpressCLIError {
 export class HTTPError extends BotpressCLIError {
   public constructor(
     public readonly status: number | undefined,
-    message: string
+    message: string,
+    opts?: { cause?: Error }
   ) {
+    if (opts?.cause) {
+      super(message, opts)
+      return
+    }
     super(message)
   }
 
   public static fromAxios(e: AxiosError<{ message?: string }>): HTTPError {
     const message = this._axiosMsg(e)
-    return new HTTPError(e.response?.status, message)
+    // keep the axios error as a cause so fullStack can show the transport-level chain under --verbose.
+    // only its message/stack are ever rendered; never serialize this cause — its config holds auth headers.
+    return new HTTPError(e.response?.status, message, { cause: e })
   }
 
   public static fromApi(e: KnownApiError): HTTPError {

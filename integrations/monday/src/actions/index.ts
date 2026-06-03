@@ -1,14 +1,12 @@
-import { MondayClient } from 'src/misc/monday-client'
-import { IntegrationProps } from '.botpress'
+import { getMondayClient } from 'src/misc/auth'
+import * as bp from '.botpress'
 
-type CreateItem = IntegrationProps['actions']['createItem']
+type CreateItem = bp.IntegrationProps['actions']['createItem']
 
-export const createItem: CreateItem = async ({ input, ctx }) => {
-  const client = MondayClient.create({
-    personalAccessToken: ctx.configuration.personalAccessToken,
-  })
+export const createItem: CreateItem = async ({ input, ctx, client }) => {
+  const mondayClient = await getMondayClient({ client, ctx })
 
-  await client.createItem(input.boardId, {
+  await mondayClient.createItem(input.boardId, {
     name: input.itemName,
   })
 

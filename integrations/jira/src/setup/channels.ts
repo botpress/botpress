@@ -5,13 +5,13 @@ import { getClient } from '../utils'
 export const channels: Channels = {
   issueComments: {
     messages: {
-      text: async ({ ctx, payload, conversation, ack, logger }) => {
+      text: async ({ client, ctx, payload, conversation, ack, logger }) => {
         const issueKey = conversation.tags.issueKey
         if (!issueKey) {
           throw new RuntimeError('Issue key must be set on the Jira issue comments conversation')
         }
 
-        const jiraClient = getClient(ctx.configuration)
+        const jiraClient = await getClient({ client, ctx, logger })
         try {
           const commentId = await jiraClient.addCommentToIssue(issueKey, payload.text)
           logger.forBot().info(`Successful - Add Jira issue comment - ${issueKey} - ${commentId}`)

@@ -17,9 +17,9 @@
 
 ## AI
 /packages/cognitive @botpress/dragon
-/packages/llmz @slvnperron @botpress/swordfish 
-/packages/vai @slvnperron @botpress/swordfish  
-/packages/zai @slvnperron @botpress/swordfish  
+/packages/llmz @slvnperron @botpress/orca @botpress/swordfish 
+/packages/vai @slvnperron @botpress/orca @botpress/swordfish  
+/packages/zai @slvnperron @botpress/orca @botpress/swordfish  
 
 # Bots
 /bots @botpress/shell

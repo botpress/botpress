@@ -414,4 +414,134 @@ describe('zuiToJSONSchemaNext', () => {
     const schema = toJSONSchema(z.ref('foo'))
     expect(schema).toEqual({ $ref: 'foo' })
   })
+
+  test('should add object keys to path', () => {
+    try {
+      toJSONSchema(z.object({ foo: z.object({ bar: z.void() }) }))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errs.ZuiTransformError)
+      expect((e as errs.ZuiTransformError).path).toBe('#.foo.bar')
+    }
+  })
+
+  test('should add [number] section to array types', () => {
+    try {
+      toJSONSchema(z.array(z.void()))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errs.ZuiTransformError)
+      expect((e as errs.ZuiTransformError).path).toBe('#[number]')
+    }
+  })
+
+  test('should add [index] section to tuple types', () => {
+    try {
+      toJSONSchema(z.tuple([z.number(), z.void()]))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errs.ZuiTransformError)
+      expect((e as errs.ZuiTransformError).path).toBe('#[1]')
+    }
+  })
+
+  test('should add [number] section to tuple rest', () => {
+    try {
+      toJSONSchema(z.tuple([z.number(), z.string()]).rest(z.string().refine((v) => v.length > 0)))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errs.ZuiTransformError)
+      expect((e as errs.ZuiTransformError).path).toBe('#[number]')
+    }
+  })
+
+  test('should add [number] section to set types', () => {
+    try {
+      toJSONSchema(z.set(z.void()))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errs.ZuiTransformError)
+      expect((e as errs.ZuiTransformError).path).toBe('#[number]')
+    }
+  })
+
+  test('should add [string] section to record types with string key', () => {
+    try {
+      toJSONSchema(z.record(z.string(), z.void()))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errs.ZuiTransformError)
+      expect((e as errs.ZuiTransformError).path).toBe('#[string]')
+    }
+  })
+
+  test('should add [number] section to record types with number key', () => {
+    try {
+      toJSONSchema(z.record(z.number(), z.void()))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errs.ZuiTransformError)
+      expect((e as errs.ZuiTransformError).path).toBe('#[number]')
+    }
+  })
+
+  test('should add [*] section to record types with any key', () => {
+    try {
+      toJSONSchema(z.record(z.boolean(), z.void()))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errs.ZuiTransformError)
+      expect((e as errs.ZuiTransformError).path).toBe('#[*]')
+    }
+  })
+
+  test('should add [index] section to union types', () => {
+    try {
+      toJSONSchema(z.union([z.boolean(), z.void()]))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errs.ZuiTransformError)
+      expect((e as errs.ZuiTransformError).path).toBe('#[1]')
+    }
+  })
+
+  test('should add [index] section to discriminated union types', () => {
+    try {
+      toJSONSchema(
+        z.discriminatedUnion('type', [
+          z.object({ type: z.literal('a'), foo: z.string() }),
+          z.object({ type: z.literal('b'), bar: z.string().refine((v) => v.length > 0) }),
+        ])
+      )
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errs.ZuiTransformError)
+      expect((e as errs.ZuiTransformError).path).toBe('#[1].bar')
+    }
+  })
+
+  test('should add [index] section to intersection types', () => {
+    try {
+      toJSONSchema(
+        z.intersection(
+          z.string().refine((v) => v.length > 0),
+          z.string()
+        )
+      )
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errs.ZuiTransformError)
+      expect((e as errs.ZuiTransformError).path).toBe('#[0]')
+    }
+  })
+
+  test('should add [string] section to additional properties', () => {
+    try {
+      toJSONSchema(z.object({}).catchall(z.void()))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errs.ZuiTransformError)
+      expect((e as errs.ZuiTransformError).path).toBe('#[string]')
+    }
+  })
 })
