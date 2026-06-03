@@ -9,7 +9,7 @@
 /* oxlint-disable max-depth */
 
 import { isFunction, mapValues, maxBy } from 'lodash-es'
-import { newQuickJSWASMModuleFromVariant, shouldInterruptAfterDeadline } from 'quickjs-emscripten-core'
+import { newQuickJSWASMModuleFromVariant, QuickJSHandle, shouldInterruptAfterDeadline } from 'quickjs-emscripten-core'
 import { SourceMapConsumer } from 'source-map-js'
 
 import { compile, CompiledCode, Identifiers } from './compiler/index.js'
@@ -22,6 +22,7 @@ import { Trace, Traces, VMExecutionResult } from './types.js'
 const MAX_VM_EXECUTION_TIME = 60_000
 
 type Driver = 'quickjs' | 'node'
+type AsyncGeneratorCtor<T, TReturn = any, TNext = any> = (...args: unknown[]) => AsyncGenerator<T, TReturn, TNext>
 
 // These are the identifiers that we want to exclude from the variable tracking system
 const NO_TRACKING = [
@@ -48,7 +49,7 @@ function getCompiledCode(code: string, traces: Trace[] = []): CompiledCode {
 }
 
 export async function runAsyncFunction(
-  context: any,
+  context: Record<string, any>,
   code: string,
   traces: Trace[] = [],
   signal: AbortSignal | null = null,
@@ -225,7 +226,7 @@ export async function runAsyncFunction(
       }> = []
 
       // Helper to convert JS value to QuickJS handle
-      const toVmValue = (value: any): any => {
+      const toVmValue = (value: any): QuickJSHandle => {
         if (typeof value === 'string') {
           return vm.newString(value)
         } else if (typeof value === 'number') {
@@ -338,7 +339,7 @@ export async function runAsyncFunction(
             if (descriptor.get) {
               const getterBridge = vm.newFunction(`get_${key}`, () => {
                 try {
-                  const hostValue = (context as any)[key]
+                  const hostValue = context[key]
                   return toVmValue(hostValue)
                 } catch (err: any) {
                   const serialized = err instanceof Error ? err.message : String(err)
@@ -357,7 +358,7 @@ export async function runAsyncFunction(
               const setterBridge = vm.newFunction(`set_${key}`, (valueHandle: any) => {
                 try {
                   const jsValue = vm.dump(valueHandle)
-                  ;(context as any)[key] = jsValue
+                  context[key] = jsValue
                   return vm.undefined
                 } catch (err: any) {
                   const serialized = err instanceof Error ? err.message : String(err)
@@ -439,7 +440,7 @@ export async function runAsyncFunction(
               if (descriptor.get) {
                 const getterBridge = vm.newFunction(`get_${prop}`, () => {
                   try {
-                    const hostValue = (context as any)[key][prop]
+                    const hostValue = context[key][prop]
                     return toVmValue(hostValue)
                   } catch (err: any) {
                     const serialized = err instanceof Error ? err.message : String(err)
@@ -458,7 +459,7 @@ export async function runAsyncFunction(
                 const setterBridge = vm.newFunction(`set_${prop}`, (valueHandle: any) => {
                   try {
                     const jsValue = vm.dump(valueHandle)
-                    ;(context as any)[key][prop] = jsValue
+                    context[key][prop] = jsValue
                     return vm.undefined
                   } catch (err: any) {
                     const serialized = err instanceof Error ? err.message : String(err)
@@ -985,7 +986,7 @@ ${transformed.code}
     }
 
     const AsyncFunction: (...args: unknown[]) => (...args: unknown[]) => AsyncGenerator<JsxComponent> =
-      async function* () {}.constructor as any
+      async function* () {}.constructor as (...args: unknown[]) => AsyncGeneratorCtor<JsxComponent>
 
     return await (async () => {
       // We need to track the top-level properties of the context object
