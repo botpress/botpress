@@ -1893,18 +1893,27 @@ importers:
         specifier: ^14.1.2
         version: 14.1.2
 
-  integrations/shopify:
+  integrations/sharepoint:
     dependencies:
+      '@azure/msal-node':
+        specifier: ^3.6.2
+        version: 3.6.3
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      axios:
+        specifier: ^1.10.0
+        version: 1.13.6
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@sentry/cli':
+        specifier: ^2.39.1
+        version: 2.39.1
 
   integrations/shopify-admin:
     dependencies:
