@@ -1,7 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import { describe, expect, it } from 'vitest'
 import { prepareCreateBotBody } from './bot-body'
-import { forOwn } from 'lodash'
 
 describe('prepareCreateBotBody - inline recurring events', () => {
   it('strips recurring from event definitions before sending to the API', async () => {
