@@ -2,16 +2,19 @@ import { z } from '@botpress/sdk'
 import { qualityScoreSchema } from 'definitions/events'
 
 const WhatsAppContactSchema = z.object({
-  wa_id: z.string(),
+  wa_id: z.string().optional(),
+  user_id: z.string().optional(),
   profile: z
     .object({
       name: z.string().optional(),
+      username: z.string().optional(),
     })
     .optional(),
 })
 
 const WhatsAppBaseMessageSchema = z.object({
-  from: z.string(),
+  from: z.string().optional(),
+  from_user_id: z.string().optional(),
   id: z.string(),
   timestamp: z.string(),
   type: z.string(),
