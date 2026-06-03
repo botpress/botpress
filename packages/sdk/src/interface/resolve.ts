@@ -38,8 +38,8 @@ export const resolveInterface = (intrface: ResolveInterfaceInput): ResolveInterf
 
   // dereference actions
   for (const [actionName, action] of Object.entries(intrface.definition.actions ?? {})) {
-    const resolvedInputSchema = action.input.schema.dereference(entitySchemas) as z.AnyZodObject
-    const resolvedOutputSchema = action.output.schema.dereference(entitySchemas) as z.AnyZodObject
+    const resolvedInputSchema = action.input.schema.dereference(entitySchemas) as z.ZuiObjectSchema
+    const resolvedOutputSchema = action.output.schema.dereference(entitySchemas) as z.ZuiObjectSchema
 
     const newActionName = intrface.actions?.[actionName]?.name ?? actionName
     resolved.actions[newActionName] = {
@@ -53,7 +53,7 @@ export const resolveInterface = (intrface: ResolveInterfaceInput): ResolveInterf
 
   // dereference events
   for (const [eventName, event] of Object.entries(intrface.definition.events ?? {})) {
-    const resolvedEventSchema = event.schema.dereference(entitySchemas) as z.AnyZodObject
+    const resolvedEventSchema = event.schema.dereference(entitySchemas) as z.ZuiObjectSchema
     const newEventName = intrface.events?.[eventName]?.name ?? eventName
     resolved.events[newEventName] = {
       ...event,
@@ -65,9 +65,9 @@ export const resolveInterface = (intrface: ResolveInterfaceInput): ResolveInterf
 
   // dereference channels
   for (const [channelName, channel] of Object.entries(intrface.definition.channels ?? {})) {
-    const messages: Record<string, { schema: z.AnyZodObject }> = {}
+    const messages: Record<string, { schema: z.ZuiObjectSchema }> = {}
     for (const [messageName, message] of Object.entries(channel.messages)) {
-      const resolvedMessageSchema = message.schema.dereference(entitySchemas) as z.AnyZodObject
+      const resolvedMessageSchema = message.schema.dereference(entitySchemas) as z.ZuiObjectSchema
       // no renaming for messages as they are already contained within a channel that acts as a namespace
       messages[messageName] = { ...message, schema: resolvedMessageSchema }
     }
