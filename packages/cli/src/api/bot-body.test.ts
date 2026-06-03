@@ -72,7 +72,7 @@ describe('prepareCreateBotBody - inline recurring events', () => {
     })
   })
 
-  it('two recurringEvents entries with different keys but same type both survive', async () => {
+  it('second recurringEvents entry with same key override the first one', async () => {
     const bot = new sdk.BotDefinition({
       events: {
         foo: { schema: sdk.z.object({}) },
@@ -86,6 +86,23 @@ describe('prepareCreateBotBody - inline recurring events', () => {
     const body = await prepareCreateBotBody(bot)
 
     expect(body.recurringEvents?.foo).toEqual({ type: 'foo', schedule: { cron: '*/7 * * * *' }, payload: {} })
+  })
+
+  it('two recurringEvents entries with different keys but same type both survive', async () => {
+    const bot = new sdk.BotDefinition({
+      events: {
+        foo: { schema: sdk.z.object({}) },
+      },
+      recurringEvents: {
+        foo: { type: 'foo', schedule: { cron: '*/6 * * * *' }, payload: {} },
+        bar: { type: 'foo', schedule: { cron: '*/7 * * * *' }, payload: {} },
+      },
+    })
+
+    const body = await prepareCreateBotBody(bot)
+
+    expect(body.recurringEvents?.foo).toEqual({ type: 'foo', schedule: { cron: '*/6 * * * *' }, payload: {} })
+    expect(body.recurringEvents?.bar).toEqual({ type: 'foo', schedule: { cron: '*/7 * * * *' }, payload: {} })
   })
 
   it('preserves explicit recurringEvents that have no inline counterpart', async () => {
