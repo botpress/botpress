@@ -5,6 +5,8 @@ import { CodeExecutionError, Signals, SnapshotSignal, VMSignal } from '../errors
 import { cleanStackTrace } from '../stack-traces.js'
 import type { Traces, VMExecutionResult } from '../types.js'
 
+// Parse QuickJS stack traces ("<quickjs>:16") and map line numbers back through
+// the wrapper offset and user code start line to produce annotated source output.
 export const handleErrorQuickJS = (
   err: Error,
   code: string,
@@ -42,6 +44,8 @@ export const handleErrorQuickJS = (
   return formatError(err, lines, matches, traces, variables, lines_executed, currentToolCall, code)
 }
 
+// Parse Node VM stack traces ("<anonymous>:13:269") and use source maps to map
+// back to original line/column positions in the LLM-generated code.
 export const handleErrorNode = (
   err: Error,
   code: string,
@@ -90,6 +94,7 @@ export const handleErrorNode = (
   }
 }
 
+// Last-resort catch: wraps any error (including VMSignals) into a VMExecutionResult
 export const handleCatch = (
   err: Error,
   traces: Traces.Trace[],
@@ -107,6 +112,8 @@ export const handleCatch = (
   } satisfies VMExecutionResult
 }
 
+// Build annotated source listing with "> 003 | code" markers and "^^^^^^^^^^" carets
+// at error positions. truncatedCode stops after the deepest error line.
 function buildDebugCode(lines: string[], matches: Array<{ line: number; column: number }>) {
   const LINE_OFFSET = 1
   const lastLine = maxBy(matches, (x) => x.line ?? 0)?.line ?? 0
@@ -146,6 +153,8 @@ function buildDebugCode(lines: string[], matches: Array<{ line: number; column: 
   }
 }
 
+// Shared formatter: annotates the error with debug code, then returns a VMExecutionResult.
+// VMSignals are treated as successful (agent control flow), other errors as failures.
 function formatError(
   err: Error,
   lines: string[],
