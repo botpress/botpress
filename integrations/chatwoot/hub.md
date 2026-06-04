@@ -4,6 +4,14 @@ Connect your Botpress bot to Chatwoot for messaging and human handoff.
 
 ## Setup
 
-1. Get your **API Access Token** from Profile Settings
-2. Create an **API Inbox** and copy its ID from the URL
-3. Add a **Webhook** pointing to your Botpress webhook URL with `message_created` and `conversation_status_changed` events
+### Get your API Access Token
+
+1.  In the bottom left of the page, click on your profile -> Profile Settings
+2.  Copy your **Access Token** and paste it in the integration configuration.
+
+### Create an **API Inbox**
+
+1. In the **Settings** tab, click on **Inboxes**.
+2. Click on **Add Inbox** and select the **API** channel type.
+3. Add a **Webhook** pointing to your Botpress webhook URL
+4. Once your channel is created, copy the **Account ID** and **Inbox ID** from the URL and paste them in the integration configuration.

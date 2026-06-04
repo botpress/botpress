@@ -750,6 +750,37 @@ importers:
         specifier: ^9.0.1
         version: 9.0.1
 
+  integrations/chatwoot:
+    dependencies:
+      '@botpress/client':
+        specifier: 1.27.1
+        version: 1.27.1
+      '@botpress/sdk':
+        specifier: 4.21.0
+        version: 4.21.0(@bpinternal/zui@packages+zui)(esbuild@0.25.10)
+      axios:
+        specifier: ^1.8.1
+        version: 1.13.6
+      form-data:
+        specifier: ^4.0.5
+        version: 4.0.5
+      zod:
+        specifier: ^3.24.2
+        version: 3.25.76
+    devDependencies:
+      '@botpress/cli':
+        specifier: 4.27.4
+        version: 4.27.4(@bpinternal/zui@packages+zui)
+      '@types/node':
+        specifier: ^18.19.76
+        version: 18.19.130
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@types/node@18.19.130)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+
   integrations/clickup:
     dependencies:
       '@botpress/client':
@@ -1062,7 +1093,7 @@ importers:
         version: link:../../packages/sdk
       '@google/genai':
         specifier: ^1.7.0
-        version: 1.7.0(@modelcontextprotocol/sdk@1.27.1(zod@3.24.2))
+        version: 1.7.0(@modelcontextprotocol/sdk@1.27.1(zod@3.25.76))
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -4095,6 +4126,33 @@ packages:
   '@botpress/api@1.84.0':
     resolution: {integrity: sha512-5CfdMFOMExouMtydG+Ykv8K9OUj2Fy1H3Xp87xDsiMnD3mjq9hs2hMt5fwwn0RkybJtQuBtmAzLThS/+CJmlXg==}
 
+  '@botpress/chat@0.5.4':
+    resolution: {integrity: sha512-VS8CiX/NyyfFWa6bS8EbsbZxrrXKjHG12mx6Mm6i1XhJCaMo7r5tC6Nw6GNGkBJ0zMmrzcGuEFtLNIo3hefFbg==}
+    engines: {node: '>=18.0.0'}
+
+  '@botpress/cli@4.27.4':
+    resolution: {integrity: sha512-dC+T3dzUgxilLWsE38VaRLndd5uevKAqRBsppgtrBBO3vsSzzIwA5jhZ1p4Gh6xiydKdvQ6cy6soSO/6+q+t8Q==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
+
+  '@botpress/client@1.27.1':
+    resolution: {integrity: sha512-c6EDjUphVehm6WIZse4qTHaYL0oudObrdGnRg6r2040lNIF+nFl7e24EvbO5fB4pxp1/ApoQMPJaPA5nJVOVLg==}
+    engines: {node: '>=18.0.0'}
+
+  '@botpress/client@1.27.2':
+    resolution: {integrity: sha512-fTP42EDRnhRZDdRFAUQlMUDQ0CxMYchnhDsT/4Luubz6n8gKea9eBz5t0UngCzD98Eat5D+UbnfkAR89IQDWpA==}
+    engines: {node: '>=18.0.0'}
+
+  '@botpress/sdk@4.21.0':
+    resolution: {integrity: sha512-Jj6FgVFI6uE5vrgf6FcZhbDXRlQkgRti54Zodm+V49vQx/Uym3Ro1ifZmcfcrNWfp8HcJ840yEcKnLJK5f3GtQ==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@bpinternal/zui': 1.2.1
+      esbuild: ^0.16.12
+    peerDependenciesMeta:
+      esbuild:
+        optional: true
+
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
@@ -6415,6 +6473,9 @@ packages:
 
   '@types/node@10.17.60':
     resolution: {integrity: sha512-F0KIgDJfy2nA3zMLmWGKxcH2ZVEtCZXHHdOQs2gSaQ27+lNeEfGxzkIw90aXswATX7AZ33tahPbzy6KAfUreVw==}
+
+  '@types/node@18.19.130':
+    resolution: {integrity: sha512-GRaXQx6jGfL8sKfaIDD6OupbIHBr9jv7Jnaml9tB7l4v068PAOXqfcujMMo5PhbIs6ggR1XODELqahT2R8v0fg==}
 
   '@types/node@22.16.4':
     resolution: {integrity: sha512-PYRhNtZdm2wH/NT2k/oAJ6/f2VD2N2Dag0lGlx2vWgMSJXGNmlce5MiTQzoWAiIJtso30mjnfQCOKVH+kAQC/g==}
@@ -11731,6 +11792,9 @@ packages:
   unbzip2-stream@1.4.3:
     resolution: {integrity: sha512-mlExGW4w71ebDJviH16lQLtZS32VKqsSfk80GCfUlwT/4/hNRFsoscrF/c++9xinkMzECL1uL9DDwXqFWkruPg==}
 
+  undici-types@5.26.5:
+    resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
+
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
@@ -12261,9 +12325,6 @@ packages:
 
   zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
-
-  zod@3.23.8:
-    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
 
   zod@3.24.2:
     resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
@@ -13664,6 +13725,86 @@ snapshots:
       - openapi-types
       - supports-color
 
+  '@botpress/chat@0.5.4':
+    dependencies:
+      axios: 1.2.5
+      browser-or-node: 2.1.1
+      event-source-polyfill: 1.0.31
+      eventsource: 2.0.2
+      jsonwebtoken: 9.0.2
+      qs: 6.15.0
+      verror: 1.10.1
+      zod: 3.25.76
+    transitivePeerDependencies:
+      - debug
+
+  '@botpress/cli@4.27.4(@bpinternal/zui@packages+zui)':
+    dependencies:
+      '@apidevtools/json-schema-ref-parser': 11.7.0
+      '@botpress/chat': 0.5.4
+      '@botpress/client': 1.27.2
+      '@botpress/sdk': 4.21.0(@bpinternal/zui@packages+zui)(esbuild@0.25.10)
+      '@bpinternal/const': 0.1.0
+      '@bpinternal/tunnel': 0.1.1
+      '@bpinternal/verel': 0.2.0
+      '@bpinternal/yargs-extra': 0.0.3
+      '@parcel/watcher': 2.1.0
+      '@stoplight/spectral-core': 1.19.1
+      '@stoplight/spectral-functions': 1.9.0
+      '@stoplight/spectral-parsers': 1.0.4
+      '@types/lodash': 4.17.0
+      '@types/verror': 1.10.6
+      axios: 1.13.6
+      bluebird: 3.7.2
+      boxen: 5.1.2
+      chalk: 4.1.2
+      dotenv: 16.4.4
+      esbuild: 0.25.10
+      handlebars: 4.7.8
+      latest-version: 5.1.0
+      lodash: 4.17.21
+      prettier: 3.5.3
+      prompts: 2.4.2
+      semver: 7.7.2
+      uuid: 9.0.1
+      verror: 1.10.1
+      yn: 4.0.0
+    transitivePeerDependencies:
+      - '@bpinternal/zui'
+      - bufferutil
+      - debug
+      - encoding
+      - utf-8-validate
+
+  '@botpress/client@1.27.1':
+    dependencies:
+      axios: 1.13.6
+      axios-retry: 4.5.0(axios@1.13.6)
+      browser-or-node: 2.1.1
+      qs: 6.15.0
+    transitivePeerDependencies:
+      - debug
+
+  '@botpress/client@1.27.2':
+    dependencies:
+      axios: 1.13.6
+      axios-retry: 4.5.0(axios@1.13.6)
+      browser-or-node: 2.1.1
+      qs: 6.15.0
+    transitivePeerDependencies:
+      - debug
+
+  '@botpress/sdk@4.21.0(@bpinternal/zui@packages+zui)(esbuild@0.25.10)':
+    dependencies:
+      '@botpress/client': 1.27.2
+      '@bpinternal/zui': link:packages/zui
+      browser-or-node: 2.1.1
+      semver: 7.7.2
+    optionalDependencies:
+      esbuild: 0.25.10
+    transitivePeerDependencies:
+      - debug
+
   '@bpinternal/const@0.1.0': {}
 
   '@bpinternal/depsynky@0.3.0':
@@ -13727,7 +13868,7 @@ snapshots:
       node-fetch: 3.3.2
       pg: 8.13.1
       redis: 4.7.0
-      zod: 3.23.8
+      zod: 3.25.76
     transitivePeerDependencies:
       - aws-crt
       - pg-native
@@ -13755,7 +13896,7 @@ snapshots:
       browser-or-node: 2.1.1
       isomorphic-ws: 5.0.0(ws@8.13.0)
       ws: 8.13.0
-      zod: 3.24.2
+      zod: 3.25.76
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -14189,14 +14330,14 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
-  '@google/genai@1.7.0(@modelcontextprotocol/sdk@1.27.1(zod@3.24.2))':
+  '@google/genai@1.7.0(@modelcontextprotocol/sdk@1.27.1(zod@3.25.76))':
     dependencies:
       google-auth-library: 9.15.1
       ws: 8.18.2
-      zod: 3.24.2
-      zod-to-json-schema: 3.24.6(zod@3.24.2)
+      zod: 3.25.76
+      zod-to-json-schema: 3.24.6(zod@3.25.76)
     optionalDependencies:
-      '@modelcontextprotocol/sdk': 1.27.1(zod@3.24.2)
+      '@modelcontextprotocol/sdk': 1.27.1(zod@3.25.76)
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -14218,7 +14359,7 @@ snapshots:
       '@types/node-fetch': 2.6.12
       bottleneck: 2.19.5
       es6-promise: 4.2.8
-      form-data: 4.0.4
+      form-data: 4.0.5
       lodash.merge: 4.6.2
       node-fetch: 2.7.0
     transitivePeerDependencies:
@@ -14605,12 +14746,12 @@ snapshots:
 
   '@mistralai/mistralai@1.11.0':
     dependencies:
-      zod: 3.24.2
-      zod-to-json-schema: 3.24.6(zod@3.24.2)
+      zod: 3.25.76
+      zod-to-json-schema: 3.24.6(zod@3.25.76)
 
   '@mixmark-io/domino@2.2.0': {}
 
-  '@modelcontextprotocol/sdk@1.27.1(zod@3.24.2)':
+  '@modelcontextprotocol/sdk@1.27.1(zod@3.25.76)':
     dependencies:
       '@hono/node-server': 1.19.11(hono@4.12.8)
       ajv: 8.17.1
@@ -14627,8 +14768,8 @@ snapshots:
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
       raw-body: 3.0.2
-      zod: 3.24.2
-      zod-to-json-schema: 3.25.1(zod@3.24.2)
+      zod: 3.25.76
+      zod-to-json-schema: 3.25.1(zod@3.25.76)
     transitivePeerDependencies:
       - supports-color
     optional: true
@@ -16233,6 +16374,10 @@ snapshots:
 
   '@types/node@10.17.60': {}
 
+  '@types/node@18.19.130':
+    dependencies:
+      undici-types: 5.26.5
+
   '@types/node@22.16.4':
     dependencies:
       undici-types: 6.21.0
@@ -16783,6 +16928,11 @@ snapshots:
       '@babel/runtime': 7.24.7
       is-retry-allowed: 2.2.0
 
+  axios-retry@4.5.0(axios@1.13.6):
+    dependencies:
+      axios: 1.13.6
+      is-retry-allowed: 2.2.0
+
   axios-retry@4.5.0(axios@1.4.0):
     dependencies:
       axios: 1.4.0
@@ -16808,7 +16958,7 @@ snapshots:
   axios@0.27.2:
     dependencies:
       follow-redirects: 1.15.2
-      form-data: 4.0.4
+      form-data: 4.0.5
     transitivePeerDependencies:
       - debug
 
@@ -16823,7 +16973,7 @@ snapshots:
   axios@1.12.2:
     dependencies:
       follow-redirects: 1.15.6
-      form-data: 4.0.4
+      form-data: 4.0.5
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -16831,7 +16981,7 @@ snapshots:
   axios@1.13.1:
     dependencies:
       follow-redirects: 1.15.6
-      form-data: 4.0.4
+      form-data: 4.0.5
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -16855,7 +17005,7 @@ snapshots:
   axios@1.4.0:
     dependencies:
       follow-redirects: 1.15.2
-      form-data: 4.0.0
+      form-data: 4.0.5
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -16863,7 +17013,7 @@ snapshots:
   axios@1.5.1:
     dependencies:
       follow-redirects: 1.15.2
-      form-data: 4.0.4
+      form-data: 4.0.5
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -16871,7 +17021,7 @@ snapshots:
   axios@1.6.1:
     dependencies:
       follow-redirects: 1.15.2
-      form-data: 4.0.4
+      form-data: 4.0.5
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -16879,7 +17029,7 @@ snapshots:
   axios@1.6.2:
     dependencies:
       follow-redirects: 1.15.6
-      form-data: 4.0.0
+      form-data: 4.0.5
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -16887,7 +17037,7 @@ snapshots:
   axios@1.6.3:
     dependencies:
       follow-redirects: 1.15.2
-      form-data: 4.0.0
+      form-data: 4.0.5
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -16903,7 +17053,7 @@ snapshots:
   axios@1.6.8:
     dependencies:
       follow-redirects: 1.15.6
-      form-data: 4.0.4
+      form-data: 4.0.5
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -16919,7 +17069,7 @@ snapshots:
   axios@1.7.4:
     dependencies:
       follow-redirects: 1.15.6
-      form-data: 4.0.0
+      form-data: 4.0.5
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -16927,7 +17077,7 @@ snapshots:
   axios@1.7.7:
     dependencies:
       follow-redirects: 1.15.6
-      form-data: 4.0.0
+      form-data: 4.0.5
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -16935,7 +17085,7 @@ snapshots:
   axios@1.7.8:
     dependencies:
       follow-redirects: 1.15.6
-      form-data: 4.0.0
+      form-data: 4.0.5
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -16951,7 +17101,7 @@ snapshots:
   axios@1.8.4:
     dependencies:
       follow-redirects: 1.15.6
-      form-data: 4.0.2
+      form-data: 4.0.5
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -17092,7 +17242,7 @@ snapshots:
       botframework-connector: 4.23.3
       botframework-schema: 4.23.3
       uuid: 10.0.0
-      zod: 3.24.2
+      zod: 3.25.76
     transitivePeerDependencies:
       - debug
       - encoding
@@ -17128,7 +17278,7 @@ snapshots:
       fs-extra: 11.3.2
       htmlparser2: 9.1.0
       uuid: 10.0.0
-      zod: 3.24.2
+      zod: 3.25.76
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -17153,7 +17303,7 @@ snapshots:
       node-fetch: 2.7.0
       openssl-wrapper: 0.3.4
       rsa-pem-from-mod-exp: 0.8.6
-      zod: 3.24.2
+      zod: 3.25.76
     transitivePeerDependencies:
       - debug
       - encoding
@@ -17163,7 +17313,7 @@ snapshots:
     dependencies:
       adaptivecards: 1.2.3
       uuid: 10.0.0
-      zod: 3.24.2
+      zod: 3.25.76
 
   botframework-streaming@4.23.3:
     dependencies:
@@ -22619,7 +22769,7 @@ snapshots:
   trello.js@1.2.7:
     dependencies:
       axios: 1.13.6
-      form-data: 4.0.4
+      form-data: 4.0.5
       tslib: 2.6.2
     transitivePeerDependencies:
       - debug
@@ -22662,6 +22812,24 @@ snapshots:
       '@babel/core': 7.26.9
       '@jest/types': 29.5.0
       babel-jest: 29.5.0(@babel/core@7.26.9)
+
+  ts-node@10.9.2(@types/node@18.19.130)(typescript@5.9.3):
+    dependencies:
+      '@cspotcode/source-map-support': 0.8.1
+      '@tsconfig/node10': 1.0.9
+      '@tsconfig/node12': 1.0.11
+      '@tsconfig/node14': 1.0.3
+      '@tsconfig/node16': 1.0.4
+      '@types/node': 18.19.130
+      acorn: 8.15.0
+      acorn-walk: 8.2.0
+      arg: 4.1.3
+      create-require: 1.1.1
+      diff: 4.0.2
+      make-error: 1.3.6
+      typescript: 5.9.3
+      v8-compile-cache-lib: 3.0.1
+      yn: 3.1.1
 
   ts-node@10.9.2(@types/node@22.16.4)(typescript@5.6.3):
     dependencies:
@@ -22908,6 +23076,8 @@ snapshots:
     dependencies:
       buffer: 5.7.1
       through: 2.3.8
+
+  undici-types@5.26.5: {}
 
   undici-types@6.21.0: {}
 
@@ -23452,19 +23622,20 @@ snapshots:
     dependencies:
       zod: 3.24.2
 
-  zod-to-json-schema@3.25.1(zod@3.24.2):
+  zod-to-json-schema@3.24.6(zod@3.25.76):
     dependencies:
-      zod: 3.24.2
+      zod: 3.25.76
+
+  zod-to-json-schema@3.25.1(zod@3.25.76):
+    dependencies:
+      zod: 3.25.76
     optional: true
 
   zod@3.22.4: {}
 
-  zod@3.23.8: {}
-
   zod@3.24.2: {}
 
-  zod@3.25.76:
-    optional: true
+  zod@3.25.76: {}
 
   zwitch@1.0.5: {}
 
