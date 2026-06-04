@@ -16,7 +16,7 @@ import type { DriverExecutionContext, VMDriver } from '../types.js'
 // Sandboxed execution via QuickJS WASM. All host values must be manually marshalled
 // across the boundary — QuickJS has its own heap, separate from Node.js.
 export class QuickJSDriver implements VMDriver {
-  async execute(ctx: DriverExecutionContext): Promise<VMExecutionResult> {
+  public async execute(ctx: DriverExecutionContext): Promise<VMExecutionResult> {
     const { transformed, consumer, context, traces, signal, timeout, code, lines_executed, variables } = ctx
 
     const userCodeStartLine = findUserCodeStartLine(transformed)
@@ -97,7 +97,7 @@ export class QuickJSDriver implements VMDriver {
     }
 
     // Wrap a host function so QuickJS can call it: unmarshal args, call host, marshal result back.
-    // Async results become QuickJS deferred promises, resolved by pumpEventLoop.
+    // Async results become QuickJS deferred promises, resolved by _pumpEventLoop.
     const bridgeFunction = (fn: Function, _fnName: string = 'anonymous') => {
       return (...argHandles: any[]) => {
         const args = argHandles.map((h: any) => vm.dump(h))
@@ -157,7 +157,7 @@ export class QuickJSDriver implements VMDriver {
       }
       execResult.value.dispose()
 
-      await this.pumpEventLoop(runtime, vm, pendingPromises, signal, toVmValue, disposeIfNeeded)
+      await this._pumpEventLoop(runtime, vm, pendingPromises, signal, toVmValue, disposeIfNeeded)
 
       const errorResult = vm.evalCode('globalThis.__llmz_error')
       const errorValue = vm.dump(errorResult.unwrap())
@@ -267,7 +267,7 @@ export class QuickJSDriver implements VMDriver {
 
   // QuickJS has no event loop — we manually drain pending microtasks and resolve
   // host promises in a loop until all async work completes or the signal aborts.
-  private async pumpEventLoop(
+  private async _pumpEventLoop(
     runtime: any,
     vm: any,
     pendingPromises: Array<{ hostPromise: Promise<any>; deferredPromise: any }>,

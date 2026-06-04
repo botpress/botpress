@@ -11,7 +11,7 @@ import type { DriverExecutionContext, VMDriver } from '../types.js'
 // Unsandboxed execution via Node's AsyncGeneratorFunction constructor.
 // No isolation — shares the same heap. Used as fallback when QuickJS WASM can't load.
 export class NodeDriver implements VMDriver {
-  async execute(ctx: DriverExecutionContext): Promise<VMExecutionResult> {
+  public async execute(ctx: DriverExecutionContext): Promise<VMExecutionResult> {
     const { transformed, consumer, context, traces, code, lines_executed, variables } = ctx
 
     const { currentToolCall } = instrumentContext(context, transformed, traces, variables, lines_executed, consumer, 0)
