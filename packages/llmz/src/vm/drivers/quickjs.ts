@@ -21,7 +21,7 @@ export class QuickJSDriver implements VMDriver {
     const { transformed, consumer, context, traces, signal, timeout, code, lines_executed, variables } = ctx
 
     const userCodeStartLine = findUserCodeStartLine(transformed)
-    const { currentToolCall } = instrumentContext(
+    const state = instrumentContext(
       context,
       transformed,
       traces,
@@ -226,7 +226,7 @@ export class QuickJSDriver implements VMDriver {
           variables,
           lines_executed,
           userCodeStartLine,
-          ctx.currentToolCall ?? currentToolCall
+          ctx.currentToolCall ?? state.currentToolCall
         )
       }
 
@@ -254,7 +254,7 @@ export class QuickJSDriver implements VMDriver {
         variables,
         lines_executed,
         userCodeStartLine,
-        ctx.currentToolCall ?? currentToolCall
+        ctx.currentToolCall ?? state.currentToolCall
       )
     } finally {
       try {
