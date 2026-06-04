@@ -4,8 +4,10 @@ import type { CompiledCode } from '../compiler/index.js'
 import type { SnapshotSignal } from '../errors.js'
 import type { Trace, VMExecutionResult } from '../types.js'
 
+export type VMContext = Record<string, any>
+
 export type ExecutionOptions = {
-  context: any
+  context: VMContext
   code: string
   traces: Trace[]
   signal: AbortSignal | null
@@ -15,7 +17,7 @@ export type ExecutionOptions = {
 export type DriverExecutionContext = {
   transformed: CompiledCode
   consumer: SourceMapConsumer
-  context: any
+  context: VMContext
   traces: Trace[]
   signal: AbortSignal | null
   timeout: number

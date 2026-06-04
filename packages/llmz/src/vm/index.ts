@@ -6,12 +6,12 @@ import { BundledReleaseSyncVariant } from '../quickjs-variant.js'
 import type { Trace, VMExecutionResult } from '../types.js'
 import { NodeDriver } from './drivers/node.js'
 import { QuickJSDriver } from './drivers/quickjs.js'
-import type { VMDriver } from './types.js'
+import type { VMContext, VMDriver } from './types.js'
 
 const MAX_VM_EXECUTION_TIME = 60_000
 
 export async function runAsyncFunction(
-  context: any,
+  context: VMContext,
   code: string,
   traces: Trace[] = [],
   signal: AbortSignal | null = null,
