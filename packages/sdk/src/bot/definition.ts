@@ -1,4 +1,5 @@
 import { Table } from '@botpress/client'
+import { stripRecurringFromEvents, resolveRecurringEvents } from '../common/recurring-events'
 import { SchemaTransformOptions } from '../common/types'
 import * as consts from '../consts'
 import { DefinitionError } from '../errors'
@@ -9,7 +10,6 @@ import * as utils from '../utils'
 import { ValueOf, Writable, Merge, StringKeys } from '../utils/type-utils'
 import { SDK_VERSION } from '../version'
 import { z } from '../zui'
-import { deriveRecurringEventsFromEventDefs } from './common/recurring-events'
 
 type BaseConfig = z.ZuiObjectSchema
 type BaseStates = Record<string, z.ZuiObjectOrRefSchema>
@@ -30,6 +30,9 @@ export type StateDefinition<TState extends BaseStates[string] = BaseStates[strin
   expiry?: number
 }
 
+/*
+ * @deprecate
+ */
 export type RecurringEventDefinition<TEvents extends BaseEvents = BaseEvents> = {
   [K in keyof TEvents]: {
     type: K
@@ -236,6 +239,12 @@ export class BotDefinition<
   >
 
   public constructor(public readonly props: BotDefinitionProps<TStates, TEvents, TActions, TTables, TWorkflows>) {
+    const events = stripRecurringFromEvents(props.events)
+    const recurringEvents = resolveRecurringEvents(
+      props.events,
+      props.recurringEvents as BotDefinitionProps['recurringEvents']
+    )
+
     this.integrations = props.integrations
     this.plugins = props.plugins
     this.user = props.user
@@ -243,8 +252,8 @@ export class BotDefinition<
     this.message = props.message
     this.states = props.states
     this.configuration = props.configuration
-    this.events = props.events
-    this.recurringEvents = props.recurringEvents
+    this.events = events
+    this.recurringEvents = recurringEvents
     this.actions = props.actions
     this.tables = props.tables
     this.secrets = props.secrets
@@ -257,12 +266,8 @@ export class BotDefinition<
       conversation: props.conversation,
       message: props.message,
       states: props.states,
-      events: props.events,
-      recurringEvents: (() => {
-        const derived = deriveRecurringEventsFromEventDefs(props.events)
-        const merged = { ...derived, ...props.recurringEvents }
-        return Object.keys(merged).length ? merged : undefined
-      })(),
+      events,
+      recurringEvents,
       actions: props.actions,
       tables: props.tables,
       workflows: props.workflows,
@@ -414,10 +419,10 @@ export class BotDefinition<
       pluginPkg.definition.conversation
     )
     self.withPlugins.message = this._mergeMessage(self.withPlugins.message, pluginPkg.definition.message)
-    self.withPlugins.recurringEvents = this._mergeRecurringEvents(self.withPlugins.recurringEvents, {
-      ...deriveRecurringEventsFromEventDefs(pluginPkg.definition.events),
-      ...pluginPkg.definition.recurringEvents,
-    })
+    self.withPlugins.recurringEvents = this._mergeRecurringEvents(
+      self.withPlugins.recurringEvents,
+      pluginPkg.definition.recurringEvents
+    )
     self.withPlugins.tables = this._mergeTables(self.withPlugins.tables, pluginPkg.definition.tables)
     self.withPlugins.workflows = this._mergeWorkflows(self.withPlugins.workflows, pluginPkg.definition.workflows)
 

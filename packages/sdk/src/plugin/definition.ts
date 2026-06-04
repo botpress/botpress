@@ -1,5 +1,6 @@
-import { deriveRecurringEventsFromEventDefs } from '../bot/common/recurring-events'
+import { stripRecurringFromEvents, resolveRecurringEvents } from '../common/recurring-events'
 import {
+  BotDefinitionProps,
   StateDefinition as BotStateDefinition,
   EventDefinition as BotEventDefinition,
   ConfigurationDefinition as BotConfigurationDefinition,
@@ -247,7 +248,6 @@ export class PluginDefinition<
     this.user = props.user
     this.conversation = props.conversation
     this.message = props.message
-    this.recurringEvents = props.recurringEvents
     this.workflows = props.workflows
     this.attributes = props.attributes
     this.__advanced = props.__advanced
@@ -286,7 +286,7 @@ export class PluginDefinition<
       )
     ) as { [K in keyof TStates]: StateDefinition<TStates[K]> }
 
-    this.events = Object.fromEntries(
+    const resolvedEvents = Object.fromEntries(
       Object.entries(props.events ?? {}).map(
         ([eventName, eventDef]: [keyof TEvents, NonNullable<(typeof props)['events']>[keyof TEvents]]) => [
           eventName,
@@ -297,6 +297,13 @@ export class PluginDefinition<
         ]
       )
     ) as { [K in keyof TEvents]: EventDefinition<TEvents[K]> }
+
+    this.events =
+      stripRecurringFromEvents(resolvedEvents) ?? ({} as { [K in keyof TEvents]: EventDefinition<TEvents[K]> })
+    this.recurringEvents = resolveRecurringEvents(
+      resolvedEvents,
+      props.recurringEvents as BotDefinitionProps['recurringEvents']
+    )
 
     this.actions = Object.fromEntries(
       Object.entries(props.actions ?? {}).map(
@@ -338,13 +345,6 @@ export class PluginDefinition<
 
   public get metadata() {
     return { sdkVersion: SDK_VERSION } as const
-  }
-
-  public get resolvedRecurringEvents(): this['props']['recurringEvents'] {
-    return {
-      ...deriveRecurringEventsFromEventDefs(this.events),
-      ...this.recurringEvents,
-    }
   }
 
   /**

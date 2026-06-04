@@ -290,7 +290,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
               interfaces: pluginDefinition.interfaces,
               integrations: pluginDefinition.integrations,
             },
-            recurringEvents: pluginDefinition.resolvedRecurringEvents,
+            recurringEvents: pluginDefinition.recurringEvents,
           },
         },
       }

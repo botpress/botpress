@@ -6,7 +6,6 @@ import * as types from './types'
 
 export const prepareCreatePluginBody = async (plugin: sdk.PluginDefinition): Promise<types.CreatePluginRequestBody> => {
   const base = `Failed to convert ZUI to JSON schema for plugin ${plugin.name}`
-
   return {
     name: plugin.name,
     version: plugin.version,
@@ -35,20 +34,17 @@ export const prepareCreatePluginBody = async (plugin: sdk.PluginDefinition): Pro
         }
       : undefined,
     events: plugin.events
-      ? await utils.records.mapValuesAsync(plugin.events, async (event, eventName) => {
-          const { recurring: _, ...eventWithoutRecurring } = event
-          return {
-            ...eventWithoutRecurring,
-            schema: await utils.schema
-              .mapZodToJsonSchema(event, {
-                useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
-                toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
-              })
-              .catch((thrown) => {
-                throw errors.BotpressCLIError.wrap(thrown, `${base} for event ${eventName}`)
-              }),
-          }
-        })
+      ? await utils.records.mapValuesAsync(plugin.events, async (event, eventName) => ({
+          ...event,
+          schema: await utils.schema
+            .mapZodToJsonSchema(event, {
+              useLegacyZuiTransformer: plugin.__advanced?.useLegacyZuiTransformer,
+              toJSONSchemaOptions: plugin.__advanced?.toJSONSchemaOptions,
+            })
+            .catch((thrown) => {
+              throw errors.BotpressCLIError.wrap(thrown, `${base} for event ${eventName}`)
+            }),
+        }))
       : undefined,
     actions: plugin.actions
       ? await utils.records.mapValuesAsync(plugin.actions, async (action, actionName) => ({

@@ -4,108 +4,94 @@ import * as errors from '../errors'
 import * as utils from '../utils'
 import * as types from './types'
 
-export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<types.CreateBotRequestBody> => {
-  const recurringEventsFromEventDefs = Object.fromEntries(
-    Object.entries(bot.events ?? {})
-      .filter(([_name, event]) => event.recurring)
-      .map(([eventName, event]) => [
-        eventName,
-        { type: eventName, payload: event.recurring!.payload, schedule: event.recurring!.schedule },
-      ])
-  )
-
-  return {
-    user: bot.user,
-    conversation: bot.conversation,
-    message: bot.message,
-    recurringEvents: { ...recurringEventsFromEventDefs, ...bot.recurringEvents },
-    actions: bot.actions
-      ? await utils.records.mapValuesAsync(bot.actions, async (action, actionName) => ({
-          ...action,
-          input: {
-            ...action.input,
-            schema: await utils.schema
-              .mapZodToJsonSchema(action.input, {
-                useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
-                toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
-              })
-              .catch((thrown) => {
-                throw errors.BotpressCLIError.wrap(
-                  thrown,
-                  `Failed to convert ZUI to JSON schema for bot action ${actionName} input`
-                )
-              }),
-          },
-          output: {
-            ...action.output,
-            schema: await utils.schema
-              .mapZodToJsonSchema(action.output, {
-                useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
-                toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
-              })
-              .catch((thrown) => {
-                throw errors.BotpressCLIError.wrap(
-                  thrown,
-                  `Failed to convert ZUI to JSON schema for bot action ${actionName} output`
-                )
-              }),
-          },
-        }))
-      : undefined,
-    configuration: bot.configuration
-      ? {
-          ...bot.configuration,
+export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<types.CreateBotRequestBody> => ({
+  user: bot.user,
+  conversation: bot.conversation,
+  message: bot.message,
+  recurringEvents: bot.recurringEvents,
+  actions: bot.actions
+    ? await utils.records.mapValuesAsync(bot.actions, async (action, actionName) => ({
+        ...action,
+        input: {
+          ...action.input,
           schema: await utils.schema
-            .mapZodToJsonSchema(bot.configuration, {
+            .mapZodToJsonSchema(action.input, {
               useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
               toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
             })
             .catch((thrown) => {
-              throw errors.BotpressCLIError.wrap(thrown, 'Failed to convert ZUI to JSON schema for bot configuration')
+              throw errors.BotpressCLIError.wrap(
+                thrown,
+                `Failed to convert ZUI to JSON schema for bot action ${actionName} input`
+              )
             }),
-        }
-      : undefined,
-    events: bot.events
-      ? await utils.records.mapValuesAsync(bot.events, async (event, eventName) => {
-          const { recurring: _, ...eventWithoutRecurring } = event
-          return {
-            ...eventWithoutRecurring,
-            schema: await utils.schema
-              .mapZodToJsonSchema(event, {
-                useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
-                toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
-              })
-              .catch((thrown) => {
-                throw errors.BotpressCLIError.wrap(
-                  thrown,
-                  `Failed to convert ZUI to JSON schema for bot event ${eventName}`
-                )
-              }),
-          }
-        })
-      : undefined,
-    states: bot.states
-      ? (utils.records.filterValues(
-          await utils.records.mapValuesAsync(bot.states, async (state, stateName) => ({
-            ...state,
-            schema: await utils.schema
-              .mapZodToJsonSchema(state, {
-                useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
-                toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
-              })
-              .catch((thrown) => {
-                throw errors.BotpressCLIError.wrap(
-                  thrown,
-                  `Failed to convert ZUI to JSON schema for bot state ${stateName}`
-                )
-              }),
-          })),
-          ({ type }) => type !== 'workflow'
-        ) as types.CreateBotRequestBody['states'])
-      : undefined,
-    tags: bot.attributes,
-  }
-}
+        },
+        output: {
+          ...action.output,
+          schema: await utils.schema
+            .mapZodToJsonSchema(action.output, {
+              useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
+              toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
+            })
+            .catch((thrown) => {
+              throw errors.BotpressCLIError.wrap(
+                thrown,
+                `Failed to convert ZUI to JSON schema for bot action ${actionName} output`
+              )
+            }),
+        },
+      }))
+    : undefined,
+  configuration: bot.configuration
+    ? {
+        ...bot.configuration,
+        schema: await utils.schema
+          .mapZodToJsonSchema(bot.configuration, {
+            useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
+            toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
+          })
+          .catch((thrown) => {
+            throw errors.BotpressCLIError.wrap(thrown, 'Failed to convert ZUI to JSON schema for bot configuration')
+          }),
+      }
+    : undefined,
+  events: bot.events
+    ? await utils.records.mapValuesAsync(bot.events, async (event, eventName) => ({
+        ...event,
+        schema: await utils.schema
+          .mapZodToJsonSchema(event, {
+            useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
+            toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
+          })
+          .catch((thrown) => {
+            throw errors.BotpressCLIError.wrap(
+              thrown,
+              `Failed to convert ZUI to JSON schema for bot event ${eventName}`
+            )
+          }),
+      }))
+    : undefined,
+  states: bot.states
+    ? (utils.records.filterValues(
+        await utils.records.mapValuesAsync(bot.states, async (state, stateName) => ({
+          ...state,
+          schema: await utils.schema
+            .mapZodToJsonSchema(state, {
+              useLegacyZuiTransformer: bot.__advanced?.useLegacyZuiTransformer,
+              toJSONSchemaOptions: bot.__advanced?.toJSONSchemaOptions,
+            })
+            .catch((thrown) => {
+              throw errors.BotpressCLIError.wrap(
+                thrown,
+                `Failed to convert ZUI to JSON schema for bot state ${stateName}`
+              )
+            }),
+        })),
+        ({ type }) => type !== 'workflow'
+      ) as types.CreateBotRequestBody['states'])
+    : undefined,
+  tags: bot.attributes,
+})
 
 export const prepareUpdateBotBody = (
   localBot: types.UpdateBotRequestBody,
