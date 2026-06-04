@@ -1,5 +1,9 @@
 import { isFunction, mapValues } from 'lodash-es'
-import { newQuickJSWASMModuleFromVariant, type QuickJSHandle, shouldInterruptAfterDeadline } from 'quickjs-emscripten-core'
+import {
+  newQuickJSWASMModuleFromVariant,
+  type QuickJSHandle,
+  shouldInterruptAfterDeadline,
+} from 'quickjs-emscripten-core'
 
 import { Identifiers } from '../../compiler/index.js'
 import { Signals, VMSignal } from '../../errors.js'
@@ -515,29 +519,32 @@ function bridgeGetterSetter(
 
 // QuickJS-specific variable tracking: uses vm.callFunction to invoke getter handles inside the VM
 function setupVariableTrackingBridge(vm: any, variables: Record<string, any>) {
-  const varTrackFnHandle = vm.newFunction(Identifiers.VariableTrackingFnIdentifier, (nameHandle: any, getterHandle: any) => {
-    const name = vm.getString(nameHandle)
-    if (NO_TRACKING.includes(name)) return
+  const varTrackFnHandle = vm.newFunction(
+    Identifiers.VariableTrackingFnIdentifier,
+    (nameHandle: any, getterHandle: any) => {
+      const name = vm.getString(nameHandle)
+      if (NO_TRACKING.includes(name)) return
 
-    try {
-      const valueResult = vm.callFunction(getterHandle, vm.undefined)
-      if ('error' in valueResult) {
-        variables[name] = '[[non-primitive]]'
-        valueResult.error?.dispose()
-        return
-      }
-      const value = vm.dump(valueResult.value)
-      valueResult.value.dispose()
+      try {
+        const valueResult = vm.callFunction(getterHandle, vm.undefined)
+        if ('error' in valueResult) {
+          variables[name] = '[[non-primitive]]'
+          valueResult.error?.dispose()
+          return
+        }
+        const value = vm.dump(valueResult.value)
+        valueResult.value.dispose()
 
-      if (typeof value === 'function' || (typeof value === 'string' && value.includes('=>'))) {
+        if (typeof value === 'function' || (typeof value === 'string' && value.includes('=>'))) {
+          variables[name] = '[[non-primitive]]'
+        } else {
+          variables[name] = value
+        }
+      } catch {
         variables[name] = '[[non-primitive]]'
-      } else {
-        variables[name] = value
       }
-    } catch {
-      variables[name] = '[[non-primitive]]'
     }
-  })
+  )
   vm.setProp(vm.global, Identifiers.VariableTrackingFnIdentifier, varTrackFnHandle)
   varTrackFnHandle.dispose()
 }

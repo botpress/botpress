@@ -14,15 +14,7 @@ export class NodeDriver implements VMDriver {
   async execute(ctx: DriverExecutionContext): Promise<VMExecutionResult> {
     const { transformed, consumer, context, traces, code, lines_executed, variables } = ctx
 
-    const { currentToolCall } = instrumentContext(
-      context,
-      transformed,
-      traces,
-      variables,
-      lines_executed,
-      consumer,
-      0
-    )
+    const { currentToolCall } = instrumentContext(context, transformed, traces, variables, lines_executed, consumer, 0)
 
     // No built-in AsyncGeneratorFunction type in TS — extract the constructor at runtime
     type AsyncGeneratorCtor = (...args: unknown[]) => (...args: unknown[]) => AsyncGenerator<JsxComponent>
