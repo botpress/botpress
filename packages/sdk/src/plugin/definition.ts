@@ -1,3 +1,4 @@
+import { deriveRecurringEventsFromEventDefs } from '../bot/common/recurring-events'
 import {
   StateDefinition as BotStateDefinition,
   EventDefinition as BotEventDefinition,
@@ -8,7 +9,6 @@ import {
   ActionDefinition as BotActionDefinition,
   TableDefinition as BotTableDefinition,
   WorkflowDefinition,
-  deriveRecurringEventsFromEventDefs,
 } from '../bot/definition'
 import { SchemaTransformOptions } from '../common/types'
 import { DefinitionError } from '../errors'

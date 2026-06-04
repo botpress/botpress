@@ -9,6 +9,7 @@ import * as utils from '../utils'
 import { ValueOf, Writable, Merge, StringKeys } from '../utils/type-utils'
 import { SDK_VERSION } from '../version'
 import { z } from '../zui'
+import { deriveRecurringEventsFromEventDefs } from './common/recurring-events'
 
 type BaseConfig = z.ZuiObjectSchema
 type BaseStates = Record<string, z.ZuiObjectOrRefSchema>
@@ -205,19 +206,6 @@ export type BotDefinitionProps<
   __advanced?: SchemaTransformOptions
 }
 
-export function deriveRecurringEventsFromEventDefs(
-  events: Record<string, Pick<EventDefinition, 'recurring'>> | undefined
-): BotDefinitionProps['recurringEvents'] {
-  return Object.fromEntries(
-    Object.entries(events ?? {})
-      .filter(([_, event]) => event.recurring)
-      .map(([eventName, event]) => [
-        eventName,
-        { type: eventName, payload: event.recurring!.payload, schedule: event.recurring!.schedule },
-      ])
-  )
-}
-
 export class BotDefinition<
   TStates extends BaseStates = BaseStates,
   TEvents extends BaseEvents = BaseEvents,
@@ -270,7 +258,11 @@ export class BotDefinition<
       message: props.message,
       states: props.states,
       events: props.events,
-      recurringEvents: { ...deriveRecurringEventsFromEventDefs(props.events), ...props.recurringEvents },
+      recurringEvents: (() => {
+        const derived = deriveRecurringEventsFromEventDefs(props.events)
+        const merged = { ...derived, ...props.recurringEvents }
+        return Object.keys(merged).length ? merged : undefined
+      })(),
       actions: props.actions,
       tables: props.tables,
       workflows: props.workflows,

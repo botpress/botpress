@@ -3,8 +3,8 @@ import {
   ResolvedIntegrationConfigInstance,
   IntegrationInstance,
   BotDefinition,
-  deriveRecurringEventsFromEventDefs,
 } from './definition'
+import { deriveRecurringEventsFromEventDefs } from './common/recurring-events'
 import * as utils from '../utils/type-utils'
 import { IntegrationDefinition } from '../integration'
 import { PluginDefinition } from '../plugin'
