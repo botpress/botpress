@@ -1,18 +1,5 @@
 import { BotDefinitionProps, EventDefinition, RecurringEventDefinition } from '../bot/definition'
 
-export function stripRecurringFromEvents<TEvents extends Record<string, EventDefinition<any>>>(events: TEvents): TEvents
-export function stripRecurringFromEvents<TEvents extends Record<string, EventDefinition<any>>>(
-  events: TEvents | undefined
-): TEvents | undefined
-export function stripRecurringFromEvents<TEvents extends Record<string, EventDefinition<any>>>(
-  events: TEvents | undefined
-): TEvents | undefined {
-  if (!events) {
-    return undefined
-  }
-  return Object.fromEntries(Object.entries(events).map(([key, { recurring: _, ...rest }]) => [key, rest])) as TEvents
-}
-
 export function resolveRecurringEvents(
   events: Record<string, EventDefinition<any>> | undefined,
   explicitRecurringEvents: BotDefinitionProps['recurringEvents']

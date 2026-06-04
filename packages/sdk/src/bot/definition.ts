@@ -1,5 +1,5 @@
 import { Table } from '@botpress/client'
-import { stripRecurringFromEvents, resolveRecurringEvents } from '../common/recurring-events'
+import { resolveRecurringEvents } from '../common/recurring-events'
 import { SchemaTransformOptions } from '../common/types'
 import * as consts from '../consts'
 import { DefinitionError } from '../errors'
@@ -240,7 +240,11 @@ export class BotDefinition<
   >
 
   public constructor(public readonly props: BotDefinitionProps<TStates, TEvents, TActions, TTables, TWorkflows>) {
-    const events = stripRecurringFromEvents(props.events)
+    const events = props.events
+      ? (Object.fromEntries(
+          Object.entries(props.events).map(([key, { recurring: _, ...rest }]) => [key, rest])
+        ) as this['props']['events'])
+      : undefined
     const recurringEvents = resolveRecurringEvents(
       props.events,
       props.recurringEvents as BotDefinitionProps['recurringEvents']

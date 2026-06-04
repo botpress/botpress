@@ -1,38 +1,6 @@
 import { test, expect } from 'vitest'
-import { stripRecurringFromEvents, resolveRecurringEvents } from './recurring-events'
+import { resolveRecurringEvents } from './recurring-events'
 import { z } from '../zui'
-
-// stripRecurringFromEvents
-
-test('stripRecurringFromEvents returns undefined when events is undefined', () => {
-  expect(stripRecurringFromEvents(undefined)).toBeUndefined()
-})
-
-test('stripRecurringFromEvents removes the recurring field from events', () => {
-  const result = stripRecurringFromEvents({
-    heartbeat: { schema: z.object({}), recurring: { schedule: { cron: '*/5 * * * *' }, payload: {} } },
-  })
-  expect(result?.heartbeat).not.toHaveProperty('recurring')
-})
-
-test('stripRecurringFromEvents preserves other event fields', () => {
-  const result = stripRecurringFromEvents({
-    heartbeat: {
-      schema: z.object({}),
-      attributes: { foo: 'bar' },
-      recurring: { schedule: { cron: '*/5 * * * *' }, payload: {} },
-    },
-  })
-  expect(result?.heartbeat).toHaveProperty('attributes', { foo: 'bar' })
-  expect(result?.heartbeat).toHaveProperty('schema')
-})
-
-test('stripRecurringFromEvents handles events without a recurring field', () => {
-  const input = { plain: { schema: z.object({}) } }
-  const result = stripRecurringFromEvents(input)
-  expect(result?.plain).not.toHaveProperty('recurring')
-  expect(result?.plain?.schema).toBe(input.plain.schema)
-})
 
 // resolveRecurringEvents
 
@@ -77,12 +45,7 @@ test('resolveRecurringEvents preserves explicit recurringEvents when there are n
 
 test('resolveRecurringEvents: explicit recurringEvents overrides inline recurring for the same key', () => {
   const result = resolveRecurringEvents(
-    {
-      heartbeat: {
-        schema: z.object({}),
-        recurring: { schedule: { cron: '*/5 * * * *' }, payload: { from: 'inline' } },
-      },
-    },
+    { heartbeat: { schema: z.object({}), recurring: { schedule: { cron: '*/5 * * * *' }, payload: { from: 'inline' } } } },
     { heartbeat: { type: 'heartbeat', schedule: { cron: '0 * * * *' }, payload: { from: 'explicit' } } }
   )
   expect(result?.heartbeat).toEqual({
