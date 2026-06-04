@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { runAsyncFunction } from './vm.js'
+import { runAsyncFunction } from './vm/index.js'
 
 const user = { name: 'John', age: 30, email: 'john@test.com' }
 

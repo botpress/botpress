@@ -127,7 +127,7 @@ export const init = async () => {
   await import('./tool.js')
   await import('./exit.js')
   await import('./jsx.js')
-  await import('./vm.js')
+  await import('./vm/index.js')
   await import('./utils.js')
   await import('./truncator.js')
   await import('./typings.js')
