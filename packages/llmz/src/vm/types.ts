@@ -6,14 +6,6 @@ import type { Trace, VMExecutionResult } from '../types.js'
 
 export type VMContext = Record<string, any>
 
-export type ExecutionOptions = {
-  context: VMContext
-  code: string
-  traces: Trace[]
-  signal: AbortSignal | null
-  timeout: number
-}
-
 export type DriverExecutionContext = {
   transformed: CompiledCode
   consumer: SourceMapConsumer

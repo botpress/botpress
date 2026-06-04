@@ -92,7 +92,7 @@ export async function runAsyncFunction(
   }
 
   driver = new NodeDriver()
-  return driver.execute({
+  return await driver.execute({
     transformed,
     consumer,
     context,
