@@ -1,6 +1,7 @@
 import { isFunction, mapValues } from 'lodash-es'
 import {
   newQuickJSWASMModuleFromVariant,
+  QuickJSContext,
   type QuickJSHandle,
   shouldInterruptAfterDeadline,
 } from 'quickjs-emscripten-core'
@@ -11,7 +12,7 @@ import { BundledReleaseSyncVariant } from '../../quickjs-variant.js'
 import type { VMExecutionResult } from '../../types.js'
 import { handleErrorQuickJS } from '../errors.js'
 import { NO_TRACKING, findUserCodeStartLine, instrumentContext } from '../instrument.js'
-import type { DriverExecutionContext, VMDriver } from '../types.js'
+import type { DriverExecutionContext, VMContext, VMDriver } from '../types.js'
 
 // Sandboxed execution via QuickJS WASM. All host values must be manually marshalled
 // across the boundary — QuickJS has its own heap, separate from Node.js.
@@ -379,8 +380,9 @@ export class QuickJSDriver implements VMDriver {
 // Marshal all context entries (functions, objects, arrays, primitives, getter/setters)
 // onto QuickJS globalThis so generated code can access them.
 function bridgeContextToVM(
-  context: any,
-  vm: any,
+  // TODO: rename these and their associated concepts, these types ain't making sense
+  context: VMContext,
+  vm: QuickJSContext,
   trackedProperties: Set<string>,
   referenceProperties: Set<string>,
   toVmValue: (value: any) => QuickJSHandle,
@@ -456,11 +458,11 @@ function bridgeContextToVM(
 
 // Bridge a getter/setter property across the host-QuickJS boundary using Object.defineProperty
 function bridgeGetterSetter(
-  vm: any,
+  vm: QuickJSContext,
   key: string,
   prop: string | undefined,
   descriptor: PropertyDescriptor,
-  context: any,
+  context: VMContext,
   toVmValue: (value: any) => QuickJSHandle
 ) {
   const target = prop ? `${key}` : 'globalThis'
@@ -518,7 +520,7 @@ function bridgeGetterSetter(
 }
 
 // QuickJS-specific variable tracking: uses vm.callFunction to invoke getter handles inside the VM
-function setupVariableTrackingBridge(vm: any, variables: Record<string, any>) {
+function setupVariableTrackingBridge(vm: QuickJSContext, variables: Record<string, any>) {
   const varTrackFnHandle = vm.newFunction(
     Identifiers.VariableTrackingFnIdentifier,
     (nameHandle: any, getterHandle: any) => {

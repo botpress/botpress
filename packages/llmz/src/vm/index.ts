@@ -34,6 +34,8 @@ export async function runAsyncFunction(
   const lines_executed = new Map<number, number>()
   const variables: Record<string, any> = {}
 
+  // TODO: transformed.map (the result of compile above) needs typing,
+  // once that's done, we can remove the null assertions here
   const consumer = new SourceMapConsumer({
     version: transformed.map!.version.toString(),
     mappings: transformed.map!.mappings,
@@ -76,10 +78,10 @@ export async function runAsyncFunction(
       const debugInfo = {
         error: quickjsError?.message || String(quickjsError),
         errorStack: quickjsError?.stack,
-        wasmSource: (BundledReleaseSyncVariant as any)._wasmSource,
-        wasmLoadedSuccessfully: (BundledReleaseSyncVariant as any)._wasmLoadedSuccessfully,
-        wasmSize: (BundledReleaseSyncVariant as any)._wasmSize,
-        wasmLoadError: (BundledReleaseSyncVariant as any)._wasmLoadError,
+        wasmSource: BundledReleaseSyncVariant._wasmSource,
+        wasmLoadedSuccessfully: BundledReleaseSyncVariant._wasmLoadedSuccessfully,
+        wasmSize: BundledReleaseSyncVariant._wasmSize,
+        wasmLoadError: BundledReleaseSyncVariant._wasmLoadError,
         nodeVersion: typeof process !== 'undefined' && process.version ? process.version : 'undefined',
         platform: typeof process !== 'undefined' && process.platform ? process.platform : 'undefined',
       }

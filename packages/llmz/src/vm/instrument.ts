@@ -9,6 +9,7 @@ const USER_CODE_MARKER_TAG_END = '__LLMZ_USER_CODE_END__'
 import { Signals, SnapshotSignal } from '../errors.js'
 import { createJsxComponent, JsxComponent } from '../jsx.js'
 import type { Trace } from '../types.js'
+import { VMContext } from './types.js'
 
 // Internal identifiers injected by the compiler — excluded from variable tracking
 export const NO_TRACKING = [
@@ -27,7 +28,7 @@ export type InstrumentationState = {
 // Injects tracking functions (comments, lines, variables, tools, console, yield) into the context.
 // Shared by both QuickJS and Node drivers.
 export function instrumentContext(
-  context: any,
+  context: VMContext,
   transformed: CompiledCode,
   traces: Trace[],
   variables: Record<string, any>,
@@ -51,7 +52,7 @@ export function instrumentContext(
     lines_executed.set(userCodeLine, (lines_executed.get(userCodeLine) ?? 0) + 1)
   }
 
-  context[Identifiers.JSXFnIdentifier] = (tool: any, props: any, ...children: any[]) =>
+  context[Identifiers.JSXFnIdentifier] = (tool: string, props: Object, ...children: any[]) =>
     createJsxComponent({ type: tool, props, children })
 
   context[Identifiers.VariableTrackingFnIdentifier] = (name: string, getter: () => any) => {
@@ -74,7 +75,7 @@ export function instrumentContext(
   context[Identifiers.ToolCallTrackerFnIdentifier] = (
     callId: number,
     type: 'start' | 'end',
-    outputOrError?: any
+    outputOrError?: Error
   ) => {
     const temp = Signals.maybeDeserializeError(outputOrError?.message)
     if (type === 'end' && temp instanceof SnapshotSignal && temp?.toolCall) {
@@ -116,7 +117,7 @@ export function instrumentContext(
 
 // Locates the __LLMZ_USER_CODE_START__ marker to calculate line offsets for stack traces
 export function findUserCodeStartLine(transformed: CompiledCode): number {
-  const codeWithMarkers = (transformed as any).codeWithMarkers || transformed.code
+  const codeWithMarkers = transformed.codeWithMarkers || transformed.code
   const markerLines = codeWithMarkers.split('\n')
   for (let i = 0; i < markerLines.length; i++) {
     if (markerLines[i]?.includes(USER_CODE_START_MARKER)) {
