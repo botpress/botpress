@@ -9,9 +9,11 @@
   "private": true,
   "dependencies": {
     "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "axios": "^1.4.0",
-    "form-data": "^4.0.0"
+    "form-data": "^4.0.0",
+    "preact": "^10.26.6"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

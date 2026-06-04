@@ -6,14 +6,7 @@ export const getOrganizationDetails: IntegrationProps['actions']['getOrganizatio
   client,
   logger,
 }) => {
-  const zohoClient = getClient(
-    ctx.configuration.refreshToken,
-    ctx.configuration.clientId,
-    ctx.configuration.clientSecret,
-    ctx.configuration.dataCenter,
-    ctx,
-    client
-  )
+  const zohoClient = await getClient(ctx, client)
 
   try {
     const result = await zohoClient.getOrganizationDetails()
