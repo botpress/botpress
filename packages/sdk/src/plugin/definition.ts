@@ -65,6 +65,9 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
   }
 >
 
+/*
+ * @deprecated Use the `recurring` field on `EventDefinition` instead.
+ */
 export type RecurringEventDefinition<TEvents extends BaseEvents = BaseEvents> = {
   [K in keyof TEvents]: {
     type: K
@@ -142,6 +145,7 @@ export type PluginDefinitionProps<
   events?: {
     [K in keyof TEvents]: GenericDefinition<TInterfaces, EventDefinition<TEvents[K]>>
   }
+  /** @deprecated Use the `recurring` field on each event in `events` instead. */
   recurringEvents?: Record<string, RecurringEventDefinition<TEvents>>
   actions?: {
     [K in keyof TActions]: GenericNestedDefinition<TInterfaces, ActionDefinition<TActions[K]>, 'input' | 'output'>

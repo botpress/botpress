@@ -186,6 +186,7 @@ export type BotDefinitionProps<
   events?: {
     [K in keyof TEvents]: EventDefinition<TEvents[K]>
   }
+  /** @deprecated Use the `recurring` field on each event in `events` instead. */
   recurringEvents?: Record<string, RecurringEventDefinition<TEvents>>
   actions?: {
     [K in keyof TActions]: ActionDefinition<TActions[K]>
