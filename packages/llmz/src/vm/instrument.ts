@@ -1,7 +1,6 @@
 import type { SourceMapConsumer } from 'source-map-js'
 
-import type { CompiledCode } from '../compiler/index.js'
-import { Identifiers } from '../compiler/index.js'
+import { type CompiledCode, Identifiers } from '../compiler/index.js'
 import { USER_CODE_START_MARKER } from '../compiler/plugins/async-iterator.js'
 
 const USER_CODE_MARKER_TAG_START = '__LLMZ_USER_CODE_START__'
@@ -72,11 +71,7 @@ export function instrumentContext(
     }
   }
 
-  context[Identifiers.ToolCallTrackerFnIdentifier] = (
-    callId: number,
-    type: 'start' | 'end',
-    outputOrError?: Error
-  ) => {
+  context[Identifiers.ToolCallTrackerFnIdentifier] = (callId: number, type: 'start' | 'end', outputOrError?: Error) => {
     const temp = Signals.maybeDeserializeError(outputOrError?.message)
     if (type === 'end' && temp instanceof SnapshotSignal && temp?.toolCall) {
       state.currentToolCall = {

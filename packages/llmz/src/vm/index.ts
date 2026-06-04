@@ -55,8 +55,7 @@ export async function runAsyncFunction(
 
   let driver: VMDriver
 
-  const useQuickJS =
-    typeof process === 'undefined' || process?.env?.USE_QUICKJS !== 'false'
+  const useQuickJS = typeof process === 'undefined' || process?.env?.USE_QUICKJS !== 'false'
 
   if (useQuickJS) {
     try {

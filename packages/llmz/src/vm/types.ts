@@ -27,7 +27,7 @@ export type DriverExecutionContext = {
   currentToolCall: SnapshotSignal['toolCall'] | undefined
 }
 
-// Any execution driver (QuickJS, Node, future drivers) must implement this interface
-export interface VMDriver {
+// Any execution driver (QuickJS, Node, future drivers) must implement this type
+export type VMDriver = {
   execute(ctx: DriverExecutionContext): Promise<VMExecutionResult>
 }
