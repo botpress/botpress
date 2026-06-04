@@ -1,4 +1,3 @@
-import { stripRecurringFromEvents, resolveRecurringEvents } from '../common/recurring-events'
 import {
   BotDefinitionProps,
   StateDefinition as BotStateDefinition,
@@ -11,6 +10,7 @@ import {
   TableDefinition as BotTableDefinition,
   WorkflowDefinition,
 } from '../bot/definition'
+import { stripRecurringFromEvents, resolveRecurringEvents } from '../common/recurring-events'
 import { SchemaTransformOptions } from '../common/types'
 import { DefinitionError } from '../errors'
 import { IntegrationPackage, InterfacePackage } from '../package'
@@ -298,8 +298,7 @@ export class PluginDefinition<
       )
     ) as { [K in keyof TEvents]: EventDefinition<TEvents[K]> }
 
-    this.events =
-      stripRecurringFromEvents(resolvedEvents) ?? ({} as { [K in keyof TEvents]: EventDefinition<TEvents[K]> })
+    this.events = stripRecurringFromEvents(resolvedEvents)
     this.recurringEvents = resolveRecurringEvents(
       resolvedEvents,
       props.recurringEvents as BotDefinitionProps['recurringEvents']

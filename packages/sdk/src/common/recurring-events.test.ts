@@ -77,7 +77,12 @@ test('resolveRecurringEvents preserves explicit recurringEvents when there are n
 
 test('resolveRecurringEvents: explicit recurringEvents overrides inline recurring for the same key', () => {
   const result = resolveRecurringEvents(
-    { heartbeat: { schema: z.object({}), recurring: { schedule: { cron: '*/5 * * * *' }, payload: { from: 'inline' } } } },
+    {
+      heartbeat: {
+        schema: z.object({}),
+        recurring: { schedule: { cron: '*/5 * * * *' }, payload: { from: 'inline' } },
+      },
+    },
     { heartbeat: { type: 'heartbeat', schedule: { cron: '0 * * * *' }, payload: { from: 'explicit' } } }
   )
   expect(result?.heartbeat).toEqual({

@@ -1,5 +1,9 @@
 import { BotDefinitionProps, EventDefinition, RecurringEventDefinition } from '../bot/definition'
 
+export function stripRecurringFromEvents<TEvents extends Record<string, EventDefinition<any>>>(events: TEvents): TEvents
+export function stripRecurringFromEvents<TEvents extends Record<string, EventDefinition<any>>>(
+  events: TEvents | undefined
+): TEvents | undefined
 export function stripRecurringFromEvents<TEvents extends Record<string, EventDefinition<any>>>(
   events: TEvents | undefined
 ): TEvents | undefined {
