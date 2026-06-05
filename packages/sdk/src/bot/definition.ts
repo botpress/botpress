@@ -31,7 +31,7 @@ export type StateDefinition<TState extends BaseStates[string] = BaseStates[strin
 }
 
 /*
- * @deprecate
+ * @deprecated
  */
 export type RecurringEventDefinition<TEvents extends BaseEvents = BaseEvents> = {
   [K in keyof TEvents]: {
@@ -242,7 +242,7 @@ export class BotDefinition<
   public constructor(public readonly props: BotDefinitionProps<TStates, TEvents, TActions, TTables, TWorkflows>) {
     const events = props.events
       ? (Object.fromEntries(
-          Object.entries(props.events).map(([key, { recurring: _, ...rest }]) => [key, rest])
+          Object.entries(props.events).map(([key, { recurring: _, ...any }]) => [key, any])
         ) as this['props']['events'])
       : undefined
     const recurringEvents = resolveRecurringEvents(

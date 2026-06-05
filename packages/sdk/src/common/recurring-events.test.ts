@@ -14,18 +14,18 @@ test('resolveRecurringEvents returns undefined when events have no recurring fie
 
 test('resolveRecurringEvents derives a recurringEvents entry from an inline recurring field', () => {
   const result = resolveRecurringEvents(
-    { heartbeat: { schema: z.object({}), recurring: { schedule: { cron: '*/5 * * * *' }, payload: { ts: '' } } } },
+    { heartbeat: { schema: z.object({}), recurring: { schedule: { cron: '*/5 * * * *' }, payload: {} } } },
     undefined
   )
   expect(result).toEqual({
-    heartbeat: { type: 'heartbeat', schedule: { cron: '*/5 * * * *' }, payload: { ts: '' } },
+    heartbeat: { type: 'heartbeat', schedule: { cron: '*/5 * * * *' }, payload: {} },
   })
 })
 
 test('resolveRecurringEvents only derives entries for events that have a recurring field', () => {
   const result = resolveRecurringEvents(
     {
-      heartbeat: { schema: z.object({}), recurring: { schedule: { cron: '*/5 * * * *' }, payload: { ts: '' } } },
+      heartbeat: { schema: z.object({}), recurring: { schedule: { cron: '*/5 * * * *' }, payload: {} } },
       plain: { schema: z.object({}) },
     },
     undefined
