@@ -13,6 +13,7 @@
     "@botpress/sdk": "workspace:*"
   },
   "devDependencies": {
-    "@botpress/cli": "workspace:*"
+    "@botpress/cli": "workspace:*",
+    "@shopify/cli": "~4.1.0"
   }
 }
