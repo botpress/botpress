@@ -327,27 +327,27 @@ test('addPlugin falls back to raw config when schema validation fails', () => {
   expect(storedConfig).toEqual({ preciousEmail: '$GOLLUM_EMAIL' })
 })
 
-// BotDefinition constructor — recurring field handling
+// BotDefinition constructor — recurrence field handling
 
-test('BotDefinition strips recurring from events', () => {
+test('BotDefinition strips recurrence from events', () => {
   const bot = new BotDefinition({
     events: {
       heartbeat: {
         schema: z.object({}),
-        recurring: { schedule: { cron: '*/5 * * * *' }, payload: {} },
+        recurrence: { cron: '*/5 * * * *', payload: {} },
       },
     },
   })
 
-  expect(bot.events?.heartbeat).not.toHaveProperty('recurring')
+  expect(bot.events?.heartbeat).not.toHaveProperty('recurrence')
 })
 
-test('BotDefinition converts inline recurring to a recurringEvents entry', () => {
+test('BotDefinition converts inline recurrence to a recurringEvents entry', () => {
   const bot = new BotDefinition({
     events: {
       heartbeat: {
         schema: z.object({}),
-        recurring: { schedule: { cron: '*/5 * * * *' }, payload: {} },
+        recurrence: { cron: '*/5 * * * *', payload: {} },
       },
     },
   })
@@ -369,23 +369,23 @@ test('BotDefinition recurringEvents is undefined when no recurring events are de
   expect(bot.recurringEvents).toBeUndefined()
 })
 
-test('BotDefinition: explicit recurringEvents overrides inline recurring for the same key', () => {
+test('BotDefinition: explicit recurringEvents overrides inline recurrence for the same key', () => {
   const bot = new BotDefinition({
     events: {
       heartbeat: {
         schema: z.object({}),
-        recurring: { schedule: { cron: '*/5 * * * *' }, payload: { from: 'inline' } },
+        recurrence: { cron: '*/5 * * * *', payload: { foo: 'foo' } },
       },
     },
     recurringEvents: {
-      heartbeat: { type: 'heartbeat', schedule: { cron: '0 * * * *' }, payload: { from: 'explicit' } },
+      heartbeat: { type: 'heartbeat', schedule: { cron: '0 * * * *' }, payload: { bar: 'bar' } },
     },
   })
 
   expect(bot.recurringEvents?.heartbeat).toEqual({
     type: 'heartbeat',
     schedule: { cron: '0 * * * *' },
-    payload: { from: 'explicit' },
+    payload: { bar: 'bar' },
   })
 })
 

@@ -145,7 +145,7 @@ export type PluginDefinitionProps<
   events?: {
     [K in keyof TEvents]: GenericDefinition<TInterfaces, EventDefinition<TEvents[K]>>
   }
-  /** @deprecated Use the `recurring` field on each event in `events` instead. */
+  /** @deprecated Use the `recurrence` field on each event in `events` instead. */
   recurringEvents?: Record<string, RecurringEventDefinition<TEvents>>
   actions?: {
     [K in keyof TActions]: GenericNestedDefinition<TInterfaces, ActionDefinition<TActions[K]>, 'input' | 'output'>

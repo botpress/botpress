@@ -2,29 +2,29 @@ import { test, expect } from 'vitest'
 import { PluginDefinition } from './definition'
 import { z } from '../zui'
 
-test('PluginDefinition strips recurring from events', () => {
+test('PluginDefinition strips recurrence from events', () => {
   const plugin = new PluginDefinition({
     name: 'myplugin',
     version: '1.0.0',
     events: {
       heartbeat: {
         schema: z.object({}),
-        recurring: { schedule: { cron: '*/5 * * * *' }, payload: {} },
+        recurrence: { cron: '*/5 * * * *', payload: {} },
       },
     },
   })
 
-  expect(plugin.events?.heartbeat).not.toHaveProperty('recurring')
+  expect(plugin.events?.heartbeat).not.toHaveProperty('recurrence')
 })
 
-test('PluginDefinition converts inline recurring to a recurringEvents entry', () => {
+test('PluginDefinition converts inline recurrence to a recurringEvents entry', () => {
   const plugin = new PluginDefinition({
     name: 'myplugin',
     version: '1.0.0',
     events: {
       heartbeat: {
         schema: z.object({}),
-        recurring: { schedule: { cron: '*/5 * * * *' }, payload: {} },
+        recurrence: { cron: '*/5 * * * *', payload: {} },
       },
     },
   })
@@ -48,25 +48,25 @@ test('PluginDefinition recurringEvents is undefined when no recurring events are
   expect(plugin.recurringEvents).toBeUndefined()
 })
 
-test('PluginDefinition: explicit recurringEvents overrides inline recurring for the same key', () => {
+test('PluginDefinition: explicit recurringEvents overrides inline recurrence for the same key', () => {
   const plugin = new PluginDefinition({
     name: 'myplugin',
     version: '1.0.0',
     events: {
       heartbeat: {
         schema: z.object({}),
-        recurring: { schedule: { cron: '*/5 * * * *' }, payload: { from: 'inline' } },
+        recurrence: { cron: '*/5 * * * *', payload: { foo: 'foo' } },
       },
     },
     recurringEvents: {
-      heartbeat: { type: 'heartbeat', schedule: { cron: '0 * * * *' }, payload: { from: 'explicit' } },
+      heartbeat: { type: 'heartbeat', schedule: { cron: '0 * * * *' }, payload: { bar: 'bar' } },
     },
   })
 
   expect(plugin.recurringEvents?.heartbeat).toEqual({
     type: 'heartbeat',
     schedule: { cron: '0 * * * *' },
-    payload: { from: 'explicit' },
+    payload: { bar: 'bar' },
   })
 })
 

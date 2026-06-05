@@ -4,7 +4,7 @@ export function stripRecurringFromEvents(
   events: Record<string, EventDefinition> | undefined
 ): Record<string, EventDefinition> | undefined {
   if (!events) return undefined
-  return Object.fromEntries(Object.entries(events).map(([key, { recurring: _, ...rest }]) => [key, rest]))
+  return Object.fromEntries(Object.entries(events).map(([key, { recurrence: _, ...rest }]) => [key, rest]))
 }
 
 export function resolveRecurringEvents(
@@ -14,8 +14,11 @@ export function resolveRecurringEvents(
   const derived: NonNullable<BotDefinitionProps['recurringEvents']> = Object.fromEntries(
     Object.entries(events ?? {})
       .map(([eventName, event]): [string, RecurringEventDefinition] | null =>
-        event.recurring
-          ? [eventName, { type: eventName, payload: event.recurring.payload, schedule: event.recurring.schedule }]
+        event.recurrence
+          ? [
+              eventName,
+              { type: eventName, payload: event.recurrence.payload, schedule: { cron: event.recurrence.cron } },
+            ]
           : null
       )
       .filter((x) => x !== null)
