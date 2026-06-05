@@ -19,4 +19,4 @@ api_version = "2026-04"
 
 [[webhooks.subscription]]
 compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
-uri = "https://webhook.botpress.cloud/{webhookId}"
+uri = "https://webhook.botpress.cloud/integration/global/shopify-storefront"
