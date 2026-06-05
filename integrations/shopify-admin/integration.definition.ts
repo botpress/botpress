@@ -9,6 +9,9 @@ export default new IntegrationDefinition({
     'Connect your Shopify store via the Admin GraphQL API to manage products, customers, and orders via OAuth 2.0.',
   icon: 'icon.svg',
   readme: 'hub.md',
+  identifier: {
+    extractScript: 'extract.vrl',
+  },
   configuration,
   actions,
   events,

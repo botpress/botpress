@@ -1,0 +1,4 @@
+# GDPR compliance webhooks (the only topics delivered to the global endpoint — see
+# shopify.app*.toml) carry the numeric shop id in their payload. Must match the
+# identifier configured during OAuth / register (numeric Shopify shop ID as a string).
+to_string!(parse_json!(.body).shop_id)

@@ -5,6 +5,11 @@ export const states = {
     type: 'integration',
     schema: z.object({
       shopDomain: z.string().optional().title('Shop Domain').describe('The myshopify.com domain of the store'),
+      shopId: z
+        .string()
+        .optional()
+        .title('Shop ID')
+        .describe('The immutable numeric Shopify shop ID; used as the integration routing identifier'),
       accessToken: z
         .string()
         .optional()

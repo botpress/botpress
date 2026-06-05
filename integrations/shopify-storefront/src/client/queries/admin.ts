@@ -32,3 +32,11 @@ export const STOREFRONT_ACCESS_TOKEN_CREATE = `
     }
   }
 `
+
+export const SHOP_ID_QUERY = `
+  query shopId {
+    shop {
+      id
+    }
+  }
+`

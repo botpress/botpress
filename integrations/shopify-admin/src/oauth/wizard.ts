@@ -1,6 +1,7 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import * as sdk from '@botpress/sdk'
 import { exchangeCodeForAccessToken } from '../auth'
+import { ShopifyClient } from '../client'
 import { verifyOAuthCallbackHmac } from './hmac'
 import * as bp from '.botpress'
 
@@ -60,7 +61,7 @@ const _validateShopHandler: WizardHandler = async ({ client, ctx, inputValue, re
     })
   }
 
-  await _patchCredentialsState(client, ctx, { shopDomain, accessToken: undefined })
+  await _patchCredentialsState(client, ctx, { shopDomain, shopId: undefined, accessToken: undefined })
 
   return responses.displayButtons({
     pageTitle: 'Confirm Shopify Store',
@@ -126,15 +127,19 @@ const _oauthCallbackHandler: WizardHandler = async ({ query, client, ctx, logger
 
     const credentials = await exchangeCodeForAccessToken({ shop: shopDomainFromCallback, code })
 
+    const shopify = new ShopifyClient({ shopDomain: shopDomainFromCallback, accessToken: credentials.accessToken })
+    const shopId = await shopify.getShopId()
+
     await _patchCredentialsState(client, ctx, {
       shopDomain: shopDomainFromCallback,
+      shopId,
       accessToken: credentials.accessToken,
       refreshToken: credentials.refreshToken,
       accessTokenExpiresAtSeconds: credentials.accessTokenExpiresAtSeconds,
       refreshTokenExpiresAtSeconds: credentials.refreshTokenExpiresAtSeconds,
     })
 
-    await client.configureIntegration({ identifier: shopDomainFromCallback })
+    await client.configureIntegration({ identifier: shopId })
 
     return responses.redirectToStep('end')
   } catch (e) {
@@ -158,6 +163,7 @@ export const normalizeShopDomain = (raw: string): string =>
 
 type CredentialsPatch = {
   shopDomain?: string
+  shopId?: string
   accessToken?: string
   refreshToken?: string
   accessTokenExpiresAtSeconds?: number
