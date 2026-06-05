@@ -5,6 +5,27 @@ import * as bp from '.botpress'
 const _isWebhookManuallyRegistered = (ctx: bp.HandlerProps['ctx']) =>
   ctx.configurationType === 'apiKey' && ctx.configuration.webhookSigningSecret
 
+const _revokeCredentials = async (credentials: { accessToken?: string; refreshToken?: string }) => {
+  if (credentials.accessToken) {
+    await revokeToken(credentials.accessToken, 'access_token')
+  }
+  if (credentials.refreshToken) {
+    await revokeToken(credentials.refreshToken, 'refresh_token')
+  }
+}
+
+const _getWebhookRegistrationErrorMessage = (errorMessage: string) => {
+  if (errorMessage.includes('Invalid role: admin required')) {
+    return (
+      'You must be an admin on the Linear workspace to automatically register webhooks. ' +
+      'You may still use the integration without webhooks, but some functionality will be limited or unavailable. ' +
+      'In order to fully configure the integration, please connect to a Linear account on which you are an admin.'
+    )
+  }
+
+  return `Failed to register webhook: ${errorMessage}`
+}
+
 export const register: bp.IntegrationProps['register'] = async ({ client, ctx, logger }) => {
   const manuallyRegistered = _isWebhookManuallyRegistered(ctx)
   logger.forBot().info('Registering Linear integration.')
@@ -18,7 +39,7 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
       logger.forBot().info('Linear webhook registered')
     } catch (thrown) {
       const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
-      throw new RuntimeError(`Failed to register webhook: ${errorMessage}`)
+      throw new RuntimeError(_getWebhookRegistrationErrorMessage(errorMessage))
     }
   } else {
     logger
@@ -47,12 +68,8 @@ export const unregister: bp.IntegrationProps['unregister'] = async ({ client, ct
       client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId }),
       client.getState({ type: 'integration', name: 'adminCredentials', id: ctx.integrationId }),
     ])
-    if (appState.payload.accessToken) {
-      await revokeToken(appState.payload.accessToken)
-    }
-    if (adminState.payload.accessToken) {
-      await revokeToken(adminState.payload.accessToken)
-    }
+    await _revokeCredentials(appState.payload)
+    await _revokeCredentials(adminState.payload)
     logger.forBot().info('Linear integration unregistration completed.')
   } catch (thrown) {
     const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
