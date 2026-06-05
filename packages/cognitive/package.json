@@ -43,9 +43,9 @@
     "axios": "^1.7.9",
     "dotenv": "^16.4.4",
     "esbuild": "^0.25.10",
-    "size-limit": "^11.1.6",
     "rollup": "^4.60.4",
-    "rollup-plugin-dts": "^6.4.1"
+    "rollup-plugin-dts": "^6.4.1",
+    "size-limit": "^11.1.6"
   },
   "engines": {
     "node": ">=18.0.0"
