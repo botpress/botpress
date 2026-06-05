@@ -7,7 +7,7 @@ import * as bp from '.botpress'
 
 const REDIRECT_URI = `${process.env.BP_WEBHOOK_URL}/oauth`
 const APP_SCOPES = 'read,write,issues:create,comments:create'
-const ADMIN_SCOPES = 'read,write,admin'
+const ADMIN_SCOPES = 'read,write,admin,issues:create,comments:create'
 
 const _buildAuthorizeUrl = ({
   clientId,
@@ -60,17 +60,6 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
   responses,
   setIntegrationIdentifier,
 }) => {
-  const error = query.get('error')
-  if (error) {
-    const description = query.get('error_description') ?? ''
-    return responses.endWizard({ success: false, errorMessage: `OAuth error: ${error} - ${description}` })
-  }
-
-  const code = query.get('code')
-  if (!code) {
-    return responses.endWizard({ success: false, errorMessage: 'Authorization code not present in OAuth callback' })
-  }
-
   const {
     state: { payload: environment },
   } = await client.getState({
@@ -78,6 +67,29 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
     name: 'environment',
     id: ctx.integrationId,
   })
+
+  const error = query.get('error')
+  if (error) {
+    if (environment.wizardPhase !== 'app') {
+      const description = query.get('error_description') ?? ''
+      return responses.endWizard({ success: false, errorMessage: `OAuth error: ${error} - ${description}` })
+    }
+    return responses.displayButtons({
+      pageTitle: 'Use user actor?',
+      buttons: [
+        { action: 'navigate', label: 'Yes', buttonType: 'success', navigateToStep: 'use-user-actor' },
+        { action: 'close', label: 'No', buttonType: 'danger' },
+      ],
+      htmlOrMarkdownPageContents:
+        'Failed to obtain app credentials. Do you want to use user credentials for creating issues and comments?',
+    })
+  }
+
+  const code = query.get('code')
+  if (!code) {
+    return responses.endWizard({ success: false, errorMessage: 'Authorization code not present in OAuth callback' })
+  }
+
   const useDesk = useDeskOAuth(environment)
   const linearOauthClient = new LinearOauthClient(useDesk)
   const tokenActor = environment.wizardPhase === 'app' ? 'app' : 'user'
@@ -123,7 +135,7 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
   })
 
   const clientId = useDesk ? bp.secrets.DESK_CLIENT_ID : bp.secrets.CLIENT_ID
-  return responses.redirectToExternalUrl(
+  const res = responses.redirectToExternalUrl(
     _buildAuthorizeUrl({
       clientId,
       actor: 'app',
@@ -131,10 +143,42 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
       state: ctx.webhookId,
     })
   )
+  logger.debug(res.body)
+  logger.debug(JSON.stringify(res.headers, null, 2))
+  logger.debug(res.status)
+  return res
+}
+
+const _useUserActorStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async ({
+  ctx,
+  client,
+  responses,
+  setIntegrationIdentifier,
+}) => {
+  const {
+    state: { payload: adminCreds },
+  } = await client.getState({
+    type: 'integration',
+    name: 'adminCredentials',
+    id: ctx.integrationId,
+  })
+
+  const linearClient = new LinearClient({ accessToken: adminCreds.accessToken })
+  const organization = await linearClient.organization
+  setIntegrationIdentifier(organization.id)
+
+  await client.setState({
+    type: 'integration',
+    name: 'credentials',
+    id: ctx.integrationId,
+    payload: adminCreds,
+  })
+  return responses.endWizard({ success: true })
 }
 
 export const buildOAuthWizard = (props: bp.HandlerProps) =>
   new oauthWizard.OAuthWizardBuilder(props)
     .addStep({ id: 'start', handler: _startStep })
     .addStep({ id: 'oauth-callback', handler: _oauthCallbackStep })
+    .addStep({ id: 'use-user-actor', handler: _useUserActorStep })
     .build()
