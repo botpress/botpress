@@ -243,8 +243,7 @@ export class LinearOauthClient {
     })
     const useDesk = useDeskOAuth(environment)
     const linearOauthClient = new LinearOauthClient(useDesk)
-    const actor: Actor =
-      effectiveStateName === 'adminCredentials' ? 'user' : (environment.runtimeActor ?? 'app')
+    const actor: Actor = effectiveStateName === 'adminCredentials' ? 'user' : (environment.runtimeActor ?? 'app')
     const credentials = await linearOauthClient.resolveValidCredentials(effectivePayload, actor)
 
     if (credentials.accessToken !== effectivePayload.accessToken) {
