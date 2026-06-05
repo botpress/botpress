@@ -5,9 +5,6 @@ name = "Admin Integration Staging"
 application_url = "https://webhook.botpress.dev/oauth/wizard/start"
 embedded = false
 
-[webhooks]
-api_version = "2026-04"
-
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = "read_customers,read_orders,read_products"
@@ -16,3 +13,10 @@ use_legacy_install_flow = false
 
 [auth]
 redirect_urls = [ "https://webhook.botpress.dev/oauth/wizard/oauth-callback" ]
+
+[webhooks]
+api_version = "2026-04"
+
+[[webhooks.subscription]]
+compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+uri = "https://webhook.botpress.dev/{webhookId}"
