@@ -125,10 +125,10 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
       return responses.displayButtons({
         pageTitle: 'Linear app authorization failed',
         htmlOrMarkdownPageContents:
-          'Linear did not authorize the app actor. You can still install this integration with the user actor, but Linear actions will be attributed to the authorizing user and some admin-only operations may be unavailable.',
+          'You can continue without automatic webhooks. Botpress will still be able to call Linear using your account, but Linear events will not be sent back to Botpress unless webhooks are configured by a workspace admin.',
         buttons: [
           {
-            label: 'Install with user actor',
+            label: 'Install without webhooks',
             buttonType: 'primary',
             action: 'navigate',
             navigateToStep: USER_ACTOR_FALLBACK_STEP,
