@@ -1,0 +1,25 @@
+# Shopify app config-as-code for the Botpress "Shopify Storefront" integration.
+# Link + push with: `shopify app config link` then `shopify app deploy`.
+# https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration
+
+name = "Botpress Shopify Storefront"
+client_id = "eb491c945dae316d4b1a669e0d217036"
+application_url = "https://botpress.com/integrations/shopify-storefront"
+embedded = false
+
+[access_scopes]
+scopes = "unauthenticated_read_product_listings,unauthenticated_write_checkouts,unauthenticated_read_checkouts"
+
+[auth]
+redirect_urls = [
+  "https://webhook.botpress.cloud/oauth/wizard/oauth-callback",
+  "https://webhook.botpress.dev/oauth/wizard/oauth-callback",
+]
+
+[webhooks]
+api_version = "2026-04"
+
+# Storefront integration's handler.ts already no-ops these GDPR topics (200 OK).
+[[webhooks.subscriptions]]
+compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+uri = "https://webhook.botpress.cloud/"

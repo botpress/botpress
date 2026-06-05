@@ -1,0 +1,28 @@
+# Shopify app config-as-code for the Botpress "Shopify Admin" integration.
+# Link + push with: `shopify app config link` then `shopify app deploy`.
+# https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration
+
+name = "Botpress Shopify Admin"
+client_id = "87f9bef36e5c65232d4b3dc16d788792"
+application_url = "https://botpress.com/integrations/shopify-admin"
+embedded = false
+
+[access_scopes]
+scopes = "read_products,read_orders,read_customers"
+
+[auth]
+redirect_urls = [
+  "https://webhook.botpress.cloud/oauth/wizard/oauth-callback",
+  "https://webhook.botpress.dev/oauth/wizard/oauth-callback",
+]
+
+[webhooks]
+api_version = "2026-04"
+
+# GDPR / mandatory privacy-compliance webhooks (required for any public/distributed app).
+# Answered by src/handler.ts (no-ops, 200 OK — integration persists no customer data).
+# NOTE: the ORDERS_* webhooks are NOT listed here — they're registered per-shop at runtime
+# via webhookSubscriptionCreate in src/setup.ts. Do not duplicate them in the toml.
+[[webhooks.subscriptions]]
+compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+uri = "https://webhook.botpress.cloud/"
