@@ -302,9 +302,7 @@ export class PluginDefinition<
       )
     ) as { [K in keyof TEvents]: EventDefinition<TEvents[K]> }
 
-    this.events = stripRecurringFromEvents(resolvedEvents as Record<string, EventDefinition>) as {
-      [K in keyof TEvents]: EventDefinition<TEvents[K]>
-    }
+    this.events = stripRecurringFromEvents(resolvedEvents)
     this.recurringEvents = resolveRecurringEvents(
       resolvedEvents as Record<string, EventDefinition>,
       props.recurringEvents as BotDefinitionProps['recurringEvents']

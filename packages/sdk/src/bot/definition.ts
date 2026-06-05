@@ -240,7 +240,9 @@ export class BotDefinition<
   >
 
   public constructor(public readonly props: BotDefinitionProps<TStates, TEvents, TActions, TTables, TWorkflows>) {
-    const events = stripRecurringFromEvents(props.events as Record<string, EventDefinition>) as this['props']['events']
+    const events = stripRecurringFromEvents(
+      props.events as Record<string, EventDefinition> | undefined
+    ) as this['props']['events']
     const recurringEvents = resolveRecurringEvents(
       props.events as Record<string, EventDefinition>,
       props.recurringEvents as BotDefinitionProps['recurringEvents']
