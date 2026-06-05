@@ -5,14 +5,7 @@ import type { IntegrationProps } from '../misc/types'
 export const getFile: IntegrationProps['actions']['getFile'] = async ({ ctx, client, logger, input }) => {
   const validatedInput = getFileInputSchema.parse(input)
 
-  const zohoClient = getClient(
-    ctx.configuration.refreshToken,
-    ctx.configuration.clientId,
-    ctx.configuration.clientSecret,
-    ctx.configuration.dataCenter,
-    ctx,
-    client
-  )
+  const zohoClient = await getClient(ctx, client)
 
   logger.forBot().debug(`Validated Input - ${JSON.stringify(validatedInput)}`)
 

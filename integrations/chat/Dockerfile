@@ -7,7 +7,7 @@
 # docker run -it -e SECRET_SIGNAL_URL=https://chat.botpress.dev botpress-chat
 
 ARG NODE_VERSION=22.17.0
-ARG PNPM_VERSION=10.12.4
+ARG PNPM_VERSION=10.29.3
 
 FROM node:${NODE_VERSION}-bullseye-slim AS base
 
