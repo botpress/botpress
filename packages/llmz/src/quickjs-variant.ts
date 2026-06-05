@@ -11,7 +11,14 @@ const getVariant = async (): Promise<QuickJSSyncVariant> => {
   return module.default as unknown as QuickJSSyncVariant
 }
 
-export const BundledReleaseSyncVariant: QuickJSSyncVariant = {
+export type QuickJSSyncVariantEx = QuickJSSyncVariant & {
+  _wasmSource?: any
+  _wasmLoadedSuccessfully?: any
+  _wasmSize?: any
+  _wasmLoadError?: any
+}
+
+export const BundledReleaseSyncVariant: QuickJSSyncVariantEx = {
   type: 'sync',
   importFFI: async () => {
     const variant = await getVariant()
