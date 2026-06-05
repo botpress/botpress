@@ -1,82 +1,101 @@
 import { test, expect } from 'vitest'
-import { resolveRecurrence } from './recurring-events'
+import { stripRecurringFromEvents, resolveRecurringEvents } from './recurring-events'
 import { z } from '../zui'
 
-// resolveRecurrence
+// stripRecurringFromEvents
 
-test('resolveRecurrence returns undefined events and recurringEvents when no events passed', () => {
-  const result = resolveRecurrence(undefined, undefined)
-  expect(result.events).toBeUndefined()
-  expect(result.recurringEvents).toBeUndefined()
+test('stripRecurringFromEvents returns undefined when events is undefined', () => {
+  expect(stripRecurringFromEvents(undefined)).toBeUndefined()
 })
 
-test('resolveRecurrence returns events and undefined recurringEvents when events have no recurrence field', () => {
-  const schema = z.object({})
-  const result = resolveRecurrence({ plain: { schema } }, undefined)
-  expect(result.events?.plain?.schema).toBe(schema)
-  expect(result.recurringEvents).toBeUndefined()
+test('stripRecurringFromEvents removes the recurring field from events', () => {
+  const result = stripRecurringFromEvents({
+    heartbeat: { schema: z.object({}), recurring: { schedule: { cron: '*/5 * * * *' }, payload: {} } },
+  })
+  expect(result?.heartbeat).not.toHaveProperty('recurring')
 })
 
-test('resolveRecurrence strips recurrence from events', () => {
-  const result = resolveRecurrence(
-    { heartbeat: { schema: z.object({}), recurrence: { cron: '*/5 * * * *', payload: {} } } },
+test('stripRecurringFromEvents preserves other event fields', () => {
+  const result = stripRecurringFromEvents({
+    heartbeat: {
+      schema: z.object({}),
+      attributes: { foo: 'bar' },
+      recurring: { schedule: { cron: '*/5 * * * *' }, payload: {} },
+    },
+  })
+  expect(result?.heartbeat).toHaveProperty('attributes', { foo: 'bar' })
+  expect(result?.heartbeat).toHaveProperty('schema')
+})
+
+test('stripRecurringFromEvents handles events without a recurring field', () => {
+  const input = { plain: { schema: z.object({}) } }
+  const result = stripRecurringFromEvents(input)
+  expect(result?.plain).not.toHaveProperty('recurring')
+  expect(result?.plain?.schema).toBe(input.plain.schema)
+})
+
+// resolveRecurringEvents
+
+test('resolveRecurringEvents returns undefined when there are no events and no explicit recurringEvents', () => {
+  expect(resolveRecurringEvents(undefined, undefined)).toBeUndefined()
+})
+
+test('resolveRecurringEvents returns undefined when events have no recurring field and no explicit recurringEvents', () => {
+  expect(resolveRecurringEvents({ plain: { schema: z.object({}) } }, undefined)).toBeUndefined()
+})
+
+test('resolveRecurringEvents derives a recurringEvents entry from an inline recurring field', () => {
+  const result = resolveRecurringEvents(
+    { heartbeat: { schema: z.object({}), recurring: { schedule: { cron: '*/5 * * * *' }, payload: { ts: '' } } } },
     undefined
   )
-  expect(result.events?.heartbeat).not.toHaveProperty('recurrence')
-})
-
-test('resolveRecurrence derives a recurringEvents entry from an inline recurrence field', () => {
-  const result = resolveRecurrence(
-    { heartbeat: { schema: z.object({}), recurrence: { cron: '*/5 * * * *', payload: {} } } },
-    undefined
-  )
-  expect(result.recurringEvents).toEqual({
-    heartbeat: { type: 'heartbeat', schedule: { cron: '*/5 * * * *' }, payload: {} },
+  expect(result).toEqual({
+    heartbeat: { type: 'heartbeat', schedule: { cron: '*/5 * * * *' }, payload: { ts: '' } },
   })
 })
 
-test('resolveRecurrence only derives recurringEvents entries for events that have a recurrence field', () => {
-  const result = resolveRecurrence(
+test('resolveRecurringEvents only derives entries for events that have a recurring field', () => {
+  const result = resolveRecurringEvents(
     {
-      heartbeat: { schema: z.object({}), recurrence: { cron: '*/5 * * * *', payload: {} } },
+      heartbeat: { schema: z.object({}), recurring: { schedule: { cron: '*/5 * * * *' }, payload: { ts: '' } } },
       plain: { schema: z.object({}) },
     },
     undefined
   )
-  expect(Object.keys(result.recurringEvents ?? {})).toEqual(['heartbeat'])
+  expect(Object.keys(result ?? {})).toEqual(['heartbeat'])
 })
 
-test('resolveRecurrence preserves explicit recurringEvents when there are no inline recurrence events', () => {
-  const result = resolveRecurrence(
+test('resolveRecurringEvents preserves explicit recurringEvents when there are no inline recurring events', () => {
+  const result = resolveRecurringEvents(
     { plain: { schema: z.object({}) } },
     { dailyDigest: { type: 'plain', schedule: { cron: '0 9 * * *' }, payload: {} } }
   )
-  expect(result.recurringEvents).toEqual({
+  expect(result).toEqual({
     dailyDigest: { type: 'plain', schedule: { cron: '0 9 * * *' }, payload: {} },
   })
 })
 
-test('resolveRecurrence: explicit recurringEvents overrides inline recurrence for the same key', () => {
-  const result = resolveRecurrence(
+test('resolveRecurringEvents: explicit recurringEvents overrides inline recurring for the same key', () => {
+  const result = resolveRecurringEvents(
     {
       heartbeat: {
         schema: z.object({}),
-        recurrence: { cron: '*/5 * * * *', payload: { from: 'inline' } },
+        recurring: { schedule: { cron: '*/5 * * * *' }, payload: { from: 'inline' } },
       },
     },
     { heartbeat: { type: 'heartbeat', schedule: { cron: '0 * * * *' }, payload: { from: 'explicit' } } }
   )
-  expect(result.recurringEvents?.heartbeat).toEqual({
+  expect(result?.heartbeat).toEqual({
     type: 'heartbeat',
     schedule: { cron: '0 * * * *' },
     payload: { from: 'explicit' },
   })
 })
 
-test('resolveRecurrence merges derived and explicit entries with different keys', () => {
-  const result = resolveRecurrence(
-    { heartbeat: { schema: z.object({}), recurrence: { cron: '*/5 * * * *', payload: {} } } },
+test('resolveRecurringEvents merges derived and explicit entries with different keys', () => {
+  const result = resolveRecurringEvents(
+    { heartbeat: { schema: z.object({}), recurring: { schedule: { cron: '*/5 * * * *' }, payload: {} } } },
     { dailyDigest: { type: 'heartbeat', schedule: { cron: '0 9 * * *' }, payload: {} } }
   )
-  expect(Object.keys(result.recurringEvents ?? {}).sort()).toEqual(['dailyDigest', 'heartbeat'])
+  expect(Object.keys(result ?? {}).sort()).toEqual(['dailyDigest', 'heartbeat'])
 })

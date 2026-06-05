@@ -27,7 +27,8 @@
   "devDependencies": {
     "@types/semver": "^7.3.11",
     "esbuild": "^0.25.10",
-    "esbuild-plugin-polyfill-node": "^0.3.0"
+    "esbuild-plugin-polyfill-node": "^0.3.0",
+    "tsup": "^8.0.2"
   },
   "peerDependencies": {
     "@bpinternal/zui": "^2.3.0",
@@ -41,5 +42,5 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "pnpm@10.29.3"
+  "packageManager": "pnpm@10.12.4"
 }

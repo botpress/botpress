@@ -327,27 +327,27 @@ test('addPlugin falls back to raw config when schema validation fails', () => {
   expect(storedConfig).toEqual({ preciousEmail: '$GOLLUM_EMAIL' })
 })
 
-// BotDefinition constructor — recurrence field handling
+// BotDefinition constructor — recurring field handling
 
-test('BotDefinition strips recurrence from events', () => {
+test('BotDefinition strips recurring from events', () => {
   const bot = new BotDefinition({
     events: {
       heartbeat: {
         schema: z.object({}),
-        recurrence: { cron: '*/5 * * * *', payload: {} },
+        recurring: { schedule: { cron: '*/5 * * * *' }, payload: {} },
       },
     },
   })
 
-  expect(bot.events?.heartbeat).not.toHaveProperty('recurrence')
+  expect(bot.events?.heartbeat).not.toHaveProperty('recurring')
 })
 
-test('BotDefinition converts inline recurrence to a recurringEvents entry', () => {
+test('BotDefinition converts inline recurring to a recurringEvents entry', () => {
   const bot = new BotDefinition({
     events: {
       heartbeat: {
         schema: z.object({}),
-        recurrence: { cron: '*/5 * * * *', payload: {} },
+        recurring: { schedule: { cron: '*/5 * * * *' }, payload: {} },
       },
     },
   })
@@ -369,12 +369,12 @@ test('BotDefinition recurringEvents is undefined when no recurring events are de
   expect(bot.recurringEvents).toBeUndefined()
 })
 
-test('BotDefinition: explicit recurringEvents overrides inline recurrence for the same key', () => {
+test('BotDefinition: explicit recurringEvents overrides inline recurring for the same key', () => {
   const bot = new BotDefinition({
     events: {
       heartbeat: {
         schema: z.object({}),
-        recurrence: { cron: '*/5 * * * *', payload: { from: 'inline' } },
+        recurring: { schedule: { cron: '*/5 * * * *' }, payload: { from: 'inline' } },
       },
     },
     recurringEvents: {
