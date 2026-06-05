@@ -312,28 +312,6 @@ importers:
         specifier: ^6.9.7
         version: 6.9.7
 
-  bots/my-test-bot:
-    dependencies:
-      '@botpress/client':
-        specifier: workspace:*
-        version: link:../../packages/client
-      '@botpress/sdk':
-        specifier: workspace:*
-        version: link:../../packages/sdk
-    devDependencies:
-      '@botpress/cli':
-        specifier: workspace:*
-        version: link:../../packages/cli
-      '@bp-templates/empty-pluginn':
-        specifier: workspace:*
-        version: link:../../plugins/myplugin
-      '@types/node':
-        specifier: ^22.16.4
-        version: 22.16.4
-      typescript:
-        specifier: ^5.6.3
-        version: 5.9.3
-
   bots/notionaut:
     dependencies:
       '@botpress/client':
@@ -2528,9 +2506,6 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
-      '@botpress/common':
-        specifier: workspace:*
-        version: link:../../packages/common
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
@@ -2540,9 +2515,6 @@ importers:
       form-data:
         specifier: ^4.0.0
         version: 4.0.0
-      preact:
-        specifier: ^10.26.6
-        version: 10.26.6
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -3288,6 +3260,9 @@ importers:
       esbuild-plugin-polyfill-node:
         specifier: ^0.3.0
         version: 0.3.0(esbuild@0.25.10)
+      tsup:
+        specifier: ^8.0.2
+        version: 8.0.2(@microsoft/api-extractor@7.49.0(@types/node@22.16.4))(postcss@8.4.47)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.9.3))(typescript@5.9.3)
 
   packages/sdk-addons:
     dependencies:
@@ -3603,22 +3578,6 @@ importers:
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
-
-  plugins/myplugin:
-    dependencies:
-      '@botpress/sdk':
-        specifier: workspace:*
-        version: link:../../packages/sdk
-    devDependencies:
-      '@botpress/cli':
-        specifier: workspace:*
-        version: link:../../packages/cli
-      '@types/node':
-        specifier: ^22.16.4
-        version: 22.16.4
-      typescript:
-        specifier: ^5.6.3
-        version: 5.9.3
 
   plugins/personality:
     dependencies:
@@ -4430,10 +4389,6 @@ packages:
 
   '@bpinternal/yargs-extra@0.0.3':
     resolution: {integrity: sha512-e/unlq0LX4CJUv1jGOv1UgwB/h2M0NCXnwD4lEw496GpkQikO668RS+BBlRhkqdGfZmvKDkXZZ96xJCn+i6Ymg==}
-
-  '@bpinternal/zui@2.3.0':
-    resolution: {integrity: sha512-U7LJnejsjB4tyzozP4ZuW2gs5CRqRtl4d1yAys56x0NDIlbxR5xF4lSSfSewLg9+gn0seyxDVRjZYrfMd2MbTg==}
-    engines: {node: '>=18.0.0'}
 
   '@colors/colors@1.6.0':
     resolution: {integrity: sha512-Ir+AOibqzrIsL6ajt3Rz3LskB7OiMVHqltZmspbW/TJuTVuyOMirVqAkjfY6JISiLHgyNqicAC8AyHHGzNd/dA==}
@@ -14856,8 +14811,6 @@ snapshots:
       lodash: 4.17.21
       yargs: 17.7.2
       yn: 4.0.0
-
-  '@bpinternal/zui@2.3.0': {}
 
   '@colors/colors@1.6.0': {}
 
