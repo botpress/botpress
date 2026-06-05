@@ -1,5 +1,5 @@
 import { Table } from '@botpress/client'
-import { resolveRecurringEvents } from '../common/recurring-events'
+import { resolveRecurrence } from '../common/recurring-events'
 import { SchemaTransformOptions } from '../common/types'
 import * as consts from '../consts'
 import { DefinitionError } from '../errors'
@@ -42,8 +42,8 @@ export type RecurringEventDefinition<TEvents extends BaseEvents = BaseEvents> = 
 }[keyof TEvents]
 
 export type EventDefinition<TEvent extends BaseEvents[string] = BaseEvents[string]> = SchemaDefinition<TEvent> & {
-  recurring?: {
-    schedule: { cron: string }
+  recurrence?: {
+    cron: string
     payload: z.input<TEvent>
   }
   attributes?: Record<string, string>
@@ -186,7 +186,7 @@ export type BotDefinitionProps<
   events?: {
     [K in keyof TEvents]: EventDefinition<TEvents[K]>
   }
-  /** @deprecated Use the `recurring` field on each event in `events` instead. */
+  /** @deprecated Use the `recurrence` field on each event in `events` instead. */
   recurringEvents?: Record<string, RecurringEventDefinition<TEvents>>
   actions?: {
     [K in keyof TActions]: ActionDefinition<TActions[K]>
@@ -240,15 +240,13 @@ export class BotDefinition<
   >
 
   public constructor(public readonly props: BotDefinitionProps<TStates, TEvents, TActions, TTables, TWorkflows>) {
-    const events = props.events
-      ? (Object.fromEntries(
-          Object.entries(props.events).map(([key, { recurring: _, ...any }]) => [key, any])
-        ) as this['props']['events'])
-      : undefined
-    const recurringEvents = resolveRecurringEvents(
+    const { events, recurringEvents } = resolveRecurrence(
       props.events,
       props.recurringEvents as BotDefinitionProps['recurringEvents']
-    )
+    ) as {
+      events: { [K in keyof TEvents]: EventDefinition<TEvents[K]> } | undefined
+      recurringEvents: BotDefinitionProps['recurringEvents']
+    }
 
     this.integrations = props.integrations
     this.plugins = props.plugins
