@@ -46,6 +46,24 @@ export abstract class BuildContext<T> {
     }
     return await this._context?.rebuild()
   }
+
+  public async dispose() {
+    if (!this._context) {
+      return
+    }
+
+    // Clear our handle in `finally` so a failed teardown can't leave a stale context behind
+    // that a later dispose would try to tear down a second time.
+    try {
+      await this._context.dispose()
+    } catch (thrown: unknown) {
+      throw thrown instanceof Error ? thrown : new Error(String(thrown))
+    } finally {
+      this._context = undefined
+      this._previousProps = undefined
+      this._previousOpts = {}
+    }
+  }
 }
 
 export class BuildCodeContext extends BuildContext<BuildCodeProps> {

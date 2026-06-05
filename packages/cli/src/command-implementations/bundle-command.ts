@@ -42,18 +42,22 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
     props: Partial<utils.esbuild.BuildOptions> = {}
   ) {
     const abs = this.projectPaths.abs
-    const context = buildContext ?? new utils.esbuild.BuildCodeContext()
-    await context.rebuild(
-      {
-        outfile,
-        absWorkingDir: abs.workDir,
-        code: this._code,
-      },
-      {
-        ...this._buildOptions,
-        ...props,
-      }
-    )
+    const buildProps = {
+      outfile,
+      absWorkingDir: abs.workDir,
+      code: this._code,
+    }
+    const buildOptions = {
+      ...this._buildOptions,
+      ...props,
+    }
+
+    if (buildContext) {
+      await buildContext.rebuild(buildProps, buildOptions)
+      return
+    }
+
+    await utils.esbuild.buildCode(buildProps, buildOptions)
   }
 
   private get _code() {
