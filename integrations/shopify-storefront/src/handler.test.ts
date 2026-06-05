@@ -58,11 +58,11 @@ describe('Shopify Storefront webhook handler', () => {
     })
   })
 
-  it('falls through on unknown topic after HMAC passes', async () => {
+  it('returns 200 on unknown topic after HMAC passes', async () => {
     const { handler } = await import('./handler')
     const response = await handler(
       buildProps({ topic: 'products/create', hmac: computeHmac(validBody), body: validBody })
     )
-    expect(response).toBeUndefined()
+    expect(response).toEqual({ status: 200, body: '' })
   })
 })

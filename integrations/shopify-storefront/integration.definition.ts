@@ -11,6 +11,7 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   identifier: {
     extractScript: 'extract.vrl',
+    fallbackHandlerScript: 'fallbackHandler.vrl',
   },
   configuration,
   actions,

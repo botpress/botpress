@@ -40,6 +40,6 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
       return { status: 200, body: '' }
     default:
       logger.forBot().warn(`Unhandled Shopify webhook topic: ${topic}`)
-      return
+      return { status: 200, body: '' }
   }
 }
