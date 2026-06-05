@@ -85,7 +85,7 @@ export const detectColumnType = (values: unknown[]): ColumnType => {
 
 /**
  * Coerces a single cell value according to the target column type.
- * - number columns: Number(value), falling back to the original value if NaN;
+ * - number columns: Number(value), falling back to its string form if not numeric;
  *   empty cells become null.
  * - string columns: String(value); empty cells become ''.
  */
@@ -97,7 +97,7 @@ export const coerceValue = (value: unknown, columnType: ColumnType): string | nu
       return null
     }
     const numValue = Number(value)
-    return isNaN(numValue) ? (value as number) : numValue
+    return isNaN(numValue) ? String(value) : numValue
   }
 
   return isEmpty ? '' : String(value)
