@@ -31,6 +31,16 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
   logger.forBot().info('Registering Linear integration.')
 
   if (!manuallyRegistered) {
+    const {
+      state: { payload: environment },
+    } = await client.getState({ type: 'integration', name: 'environment', id: ctx.integrationId })
+
+    if (environment.runtimeActor === 'user') {
+      logger.forBot().info('Skipping automatic Linear webhook registration: integration is using user-actor OAuth.')
+      logger.forBot().info(`Linear integration registered successfully (integrationId="${ctx.integrationId}").`)
+      return
+    }
+
     const linearClient = await LinearOauthClient.createAdmin({ client, ctx })
     const webhookUrl = `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
     logger.forBot().info('Registering Linear webhook')
@@ -69,7 +79,9 @@ export const unregister: bp.IntegrationProps['unregister'] = async ({ client, ct
       client.getState({ type: 'integration', name: 'adminCredentials', id: ctx.integrationId }),
     ])
     await _revokeCredentials(appState.payload)
-    await _revokeCredentials(adminState.payload)
+    if (adminState.payload.accessToken !== appState.payload.accessToken) {
+      await _revokeCredentials(adminState.payload)
+    }
     logger.forBot().info('Linear integration unregistration completed.')
   } catch (thrown) {
     const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
