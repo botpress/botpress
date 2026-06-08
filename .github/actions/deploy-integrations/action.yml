@@ -158,7 +158,7 @@ runs:
                     echo "::warning::Found $manifest_file but no Shopify automation token for $integration - skipping manifest deploy"
                 else
                     echo -e "\nDeploying Shopify app manifest ($INPUT_ENVIRONMENT): ### $integration ###\n"
-                    shopify_deploy_command="shopify app deploy --config $INPUT_ENVIRONMENT --allow-updates --source-control-url $COMMIT_URL"
+                    shopify_deploy_command="pnpm shopify app deploy --config $INPUT_ENVIRONMENT --allow-updates --source-control-url $COMMIT_URL"
                     SHOPIFY_APP_AUTOMATION_TOKEN="$shopify_token" \
                       pnpm retry -n 2 -- pnpm -F "{integrations/$integration}" -c exec -- "$shopify_deploy_command"
                 fi
