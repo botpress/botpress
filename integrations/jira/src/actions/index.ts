@@ -1,10 +1,12 @@
 import { assignIssue } from './assign-issue'
 import { countIssues } from './count-issues'
+import { createComment } from './create-comment'
 import { deleteIssue } from './delete-issue'
 import { findAllUsers } from './find-all-users'
 import { findUser } from './find-user'
 import { getIssue } from './get-issue'
 import { getIssueTransitions } from './get-issue-transitions'
+import { getWorkflowStates } from './get-workflow-states'
 import { listIssueTypes } from './list-issue-types'
 import { listProjectStatuses } from './list-project-statuses'
 import { listProjects } from './list-projects'
@@ -32,4 +34,6 @@ export default {
   transitionIssue,
   listIssueTypes,
   listProjectStatuses,
+  getWorkflowStates,
+  createComment,
 }
