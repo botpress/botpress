@@ -259,7 +259,12 @@ export const addAttachmentInputSchema = z.object({
     .optional()
     .title('Content Type')
     .describe('MIME content type of the file, such as image/png or application/pdf'),
-  fileUrl: z.string().url().optional().title('File URL').describe('URL to download the file from before uploading to Jira'),
+  fileUrl: z
+    .string()
+    .url()
+    .optional()
+    .title('File URL')
+    .describe('URL to download the file from before uploading to Jira'),
   data: z.string().optional().title('Data').describe('Base64-encoded file content to upload to Jira'),
 })
 
