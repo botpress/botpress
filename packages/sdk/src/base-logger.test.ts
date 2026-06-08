@@ -25,7 +25,7 @@ const MOCK_ISSUE = {
 
 afterEach(() => vi.restoreAllMocks())
 
-describe.concurrent('BaseLogger.issue()', () => {
+describe.sequential('BaseLogger.issue()', () => {
   it('emits JSON with no extra keys when context is empty', ({ expect }) => {
     // Arrange
     const logger = new TestLogger()
@@ -53,7 +53,7 @@ describe.concurrent('BaseLogger.issue()', () => {
   })
 })
 
-describe.concurrent('IntegrationLogger.issue(): with identity options', () => {
+describe.sequential('IntegrationLogger.issue(): with identity options', () => {
   it('includes botId, integrationId, and integrationAlias at the top level', ({ expect }) => {
     // Arrange
     const logger = new IntegrationLogger({
@@ -76,7 +76,7 @@ describe.concurrent('IntegrationLogger.issue(): with identity options', () => {
   })
 })
 
-describe.concurrent('IntegrationLogger.issue(): without identity options', () => {
+describe.sequential('IntegrationLogger.issue(): without identity options', () => {
   it('emits exactly the original args keys (no extra keys, none undefined)', ({ expect }) => {
     // Arrange
     const logger = new IntegrationLogger()
