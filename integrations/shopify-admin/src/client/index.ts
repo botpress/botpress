@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
 import { getOrRefreshCredentials } from '../auth'
-import { SHOP_ID_QUERY, WEBHOOK_SUBSCRIPTION_CREATE, WEBHOOK_SUBSCRIPTION_DELETE } from './queries/admin'
+import { WEBHOOK_SUBSCRIPTION_CREATE, WEBHOOK_SUBSCRIPTION_DELETE } from './queries/admin'
 import { SHOPIFY_API_VERSION } from './queries/common'
 import * as bp from '.botpress'
 
@@ -21,10 +21,6 @@ type WebhookSubscriptionCreateResponse = {
     webhookSubscription: { id: string } | null
     userErrors: Array<{ field: string[] | null; message: string }>
   }
-}
-
-type ShopIdResponse = {
-  shop: { id: string }
 }
 
 type WebhookSubscriptionDeleteResponse = {
@@ -86,17 +82,6 @@ export class ShopifyClient {
     }
 
     return json.data as T
-  }
-
-  // Returns the shop's immutable numeric ID (e.g. "548380009"), extracted from the
-  // GraphQL GID (`gid://shopify/Shop/548380009`). Used as the integration routing identifier.
-  public async getShopId(): Promise<string> {
-    const data = await this.query<ShopIdResponse>(SHOP_ID_QUERY)
-    const numericId = data.shop.id.split('/').pop()
-    if (!numericId || !/^\d+$/.test(numericId)) {
-      throw new RuntimeError(`Unexpected Shopify shop GID format: ${data.shop.id}`)
-    }
-    return numericId
   }
 
   public async subscribeWebhook(topic: string, uri: string): Promise<string | null> {

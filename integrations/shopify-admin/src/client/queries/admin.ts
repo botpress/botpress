@@ -210,11 +210,3 @@ export const WEBHOOK_SUBSCRIPTIONS_QUERY = `
     }
   }
 `
-
-export const SHOP_ID_QUERY = `
-  query shopId {
-    shop {
-      id
-    }
-  }
-`

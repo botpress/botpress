@@ -68,7 +68,6 @@ const _validateShopHandler: WizardHandler = async ({ client, ctx, inputValue, re
 
   await _patchCredentialsState(client, ctx, {
     shopDomain,
-    shopId: undefined,
     storefrontAccessToken: undefined,
   })
 
@@ -137,7 +136,6 @@ const _oauthCallbackHandler: WizardHandler = async ({ query, client, ctx, logger
     const accessToken = await exchangeCodeForAccessToken({ shop: shopDomainFromCallback, code })
 
     const admin = new ShopifyAdminClient({ shopDomain: shopDomainFromCallback, accessToken })
-    const shopId = await admin.getShopId()
     const storefrontAccessToken = await _provisionStorefrontToken(admin)
     if (!storefrontAccessToken) {
       return responses.endWizard({
@@ -149,11 +147,10 @@ const _oauthCallbackHandler: WizardHandler = async ({ query, client, ctx, logger
 
     await _patchCredentialsState(client, ctx, {
       shopDomain: shopDomainFromCallback,
-      shopId,
       storefrontAccessToken,
     })
 
-    await client.configureIntegration({ identifier: shopId })
+    await client.configureIntegration({ identifier: shopDomainFromCallback })
 
     return responses.redirectToStep('end')
   } catch (e) {
@@ -214,7 +211,6 @@ const _provisionStorefrontToken = async (admin: ShopifyAdminClient): Promise<str
 
 type CredentialsPatch = {
   shopDomain?: string
-  shopId?: string
   storefrontAccessToken?: string
 }
 

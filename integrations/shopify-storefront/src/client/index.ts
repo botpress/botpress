@@ -1,5 +1,4 @@
 import { RuntimeError } from '@botpress/sdk'
-import { SHOP_ID_QUERY } from './queries/admin'
 import { SHOPIFY_API_VERSION } from './queries/common'
 import * as bp from '.botpress'
 
@@ -43,17 +42,6 @@ export class ShopifyAdminClient {
     }
 
     return json.data as T
-  }
-
-  // Returns the shop's immutable numeric ID (e.g. "548380009"), extracted from the
-  // GraphQL GID (`gid://shopify/Shop/548380009`). Used as the integration routing identifier.
-  public async getShopId(): Promise<string> {
-    const data = await this.query<{ shop: { id: string } }>(SHOP_ID_QUERY)
-    const numericId = data.shop.id.split('/').pop()
-    if (!numericId || !/^\d+$/.test(numericId)) {
-      throw new RuntimeError(`Unexpected Shopify shop GID format: ${data.shop.id}`)
-    }
-    return numericId
   }
 }
 
