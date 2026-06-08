@@ -9,7 +9,6 @@ export default {
   plugins: [
     dts({
       tsconfig: './tsconfig.build.json',
-      respectExternal: true,
     }),
   ],
 }
