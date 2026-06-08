@@ -26,6 +26,8 @@ import {
   listProjectStatusesOutputSchema,
   createCommentInputSchema,
   createCommentOutputSchema,
+  addAttachmentInputSchema,
+  addAttachmentOutputSchema,
   assignIssueInputSchema,
   assignIssueOutputSchema,
   deleteIssueInputSchema,
@@ -186,6 +188,17 @@ const createComment = {
   },
 } satisfies SdkAction
 
+const addAttachment = {
+  title: 'Add Attachment',
+  description: 'Upload a file or image as an attachment on a Jira issue.',
+  input: {
+    schema: addAttachmentInputSchema,
+  },
+  output: {
+    schema: addAttachmentOutputSchema,
+  },
+} satisfies SdkAction
+
 const assignIssue = {
   title: 'Assign Issue',
   description:
@@ -236,4 +249,5 @@ export const actions = {
   listIssueTypes,
   listProjectStatuses,
   createComment,
+  addAttachment,
 } satisfies SdkActions

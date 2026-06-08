@@ -1,3 +1,4 @@
+import { addAttachment } from './add-attachment'
 import { assignIssue } from './assign-issue'
 import { countIssues } from './count-issues'
 import { createComment } from './create-comment'
@@ -34,4 +35,5 @@ export default {
   listIssueTypes,
   listProjectStatuses,
   createComment,
+  addAttachment,
 }

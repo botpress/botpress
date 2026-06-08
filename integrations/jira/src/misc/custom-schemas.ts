@@ -247,6 +247,33 @@ export const createCommentOutputSchema = z.object({
   commentId: z.string().title('Comment ID').describe('Jira identifier of the created comment'),
 })
 
+export const jiraAttachmentSchema = z.object({
+  id: z.string().title('Attachment ID').describe('Jira identifier of the uploaded attachment'),
+  filename: z.string().optional().title('Filename').describe('Attachment filename'),
+  mimeType: z.string().optional().title('MIME Type').describe('Attachment MIME type'),
+  size: z.number().optional().title('Size').describe('Attachment size in bytes'),
+  self: z.string().optional().title('Self URL').describe('Jira API URL for the attachment metadata'),
+  content: z.string().optional().title('Content URL').describe('Jira API URL for downloading the attachment content'),
+  thumbnail: z.string().optional().title('Thumbnail URL').describe('Jira API URL for the attachment thumbnail, when available'),
+})
+
+export const addAttachmentInputSchema = z.object({
+  issueKey: z.string().title('Issue Key').describe('Key or ID of the Jira issue to attach the file to'),
+  filename: z.string().title('Filename').describe('Name Jira should use for the uploaded attachment'),
+  contentType: z
+    .string()
+    .optional()
+    .title('Content Type')
+    .describe('MIME content type of the file, such as image/png or application/pdf'),
+  fileUrl: z.string().optional().title('File URL').describe('URL to download the file from before uploading to Jira'),
+  data: z.string().optional().title('Data').describe('Base64-encoded file content to upload to Jira'),
+})
+
+export const addAttachmentOutputSchema = z.object({
+  issueKey: z.string().title('Issue Key').describe('Key or ID of the Jira issue that received the attachment'),
+  attachments: z.array(jiraAttachmentSchema).title('Attachments').describe('Attachments returned by Jira'),
+})
+
 export const newIssuesInputSchema = z.object({
   issues: z
     .array(newIssueInputSchema)
