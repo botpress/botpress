@@ -1,4 +1,4 @@
-import { describe, it, vi } from 'vitest'
+import { describe, it, vi, afterEach } from 'vitest'
 import { BaseLogger, type IssueLogEvent } from './base-logger'
 import { IntegrationLogger } from './integration/server/integration-logger'
 
@@ -23,6 +23,8 @@ const MOCK_ISSUE = {
   groupBy: [],
 } as const satisfies IssueLogEvent
 
+afterEach(() => vi.restoreAllMocks())
+
 describe.concurrent('BaseLogger.issue()', () => {
   it('emits JSON with no extra keys when context is empty', ({ expect }) => {
     // Arrange
@@ -35,8 +37,6 @@ describe.concurrent('BaseLogger.issue()', () => {
     // Assert
     const emitted = JSON.parse(spy.mock.calls[0]![0] as string)
     expect(emitted).toEqual(MOCK_ISSUE)
-
-    vi.restoreAllMocks()
   })
 
   it('emits the exact substring "type":"issue" (no spaces in JSON)', ({ expect }) => {
@@ -50,8 +50,6 @@ describe.concurrent('BaseLogger.issue()', () => {
     // Assert
     const raw = spy.mock.calls[0]![0] as string
     expect(raw).toContain('"type":"issue"')
-
-    vi.restoreAllMocks()
   })
 })
 
@@ -75,8 +73,6 @@ describe.concurrent('IntegrationLogger.issue(): with identity options', () => {
     expect(emitted.integrationAlias).toBe('myIntegration')
     expect(emitted.type).toBe('issue')
     expect(emitted.code).toBe(MOCK_ISSUE.code)
-
-    vi.restoreAllMocks()
   })
 })
 
@@ -95,7 +91,5 @@ describe.concurrent('IntegrationLogger.issue(): without identity options', () =>
     const expectedKeys = Object.keys(MOCK_ISSUE).sort()
     expect(emittedKeys).toEqual(expectedKeys)
     expect(Object.values(emitted).every((v) => v !== undefined)).toBe(true)
-
-    vi.restoreAllMocks()
   })
 })
