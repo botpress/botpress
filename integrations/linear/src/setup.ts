@@ -2,6 +2,12 @@ import { RuntimeError } from '@botpress/client'
 import { LinearOauthClient, registerWebhook, revokeToken, unregisterWebhook } from './misc/linear'
 import * as bp from '.botpress'
 
+const INSUFFICIENT_LINEAR_ROLE_ERROR = 'Invalid role: admin required'
+const WEBHOOK_REGISTRATION_ADMIN_REQUIRED_MESSAGE =
+  'You must be an admin on the Linear workspace to automatically register webhooks. ' +
+  'You may still use the integration without webhooks, but some functionality will be limited or unavailable. ' +
+  'In order to fully configure the integration, please connect to a Linear account on which you are an admin.'
+
 const _isWebhookManuallyRegistered = (ctx: bp.HandlerProps['ctx']) =>
   ctx.configurationType === 'apiKey' && ctx.configuration.webhookSigningSecret
 
@@ -15,15 +21,32 @@ const _revokeCredentials = async (credentials: { accessToken?: string; refreshTo
 }
 
 const _getWebhookRegistrationErrorMessage = (errorMessage: string) => {
-  if (errorMessage.includes('Invalid role: admin required')) {
-    return (
-      'You must be an admin on the Linear workspace to automatically register webhooks. ' +
-      'You may still use the integration without webhooks, but some functionality will be limited or unavailable. ' +
-      'In order to fully configure the integration, please connect to a Linear account on which you are an admin.'
-    )
+  if (errorMessage.includes(INSUFFICIENT_LINEAR_ROLE_ERROR)) {
+    return WEBHOOK_REGISTRATION_ADMIN_REQUIRED_MESSAGE
   }
 
   return `Failed to register webhook: ${errorMessage}`
+}
+
+const _reportWebhookRegistrationIssue = (logger: bp.HandlerProps['logger'], errorMessage: string) => {
+  if (!errorMessage.includes(INSUFFICIENT_LINEAR_ROLE_ERROR)) {
+    return
+  }
+
+  logger.issue({
+    type: 'issue',
+    title: 'Linear webhook registration requires an admin',
+    description: WEBHOOK_REGISTRATION_ADMIN_REQUIRED_MESSAGE,
+    category: 'configuration',
+    groupBy: ['linear_webhook_admin_required'],
+    code: 'linear_webhook_admin_required',
+    data: {
+      details: {
+        raw: INSUFFICIENT_LINEAR_ROLE_ERROR,
+        pretty: WEBHOOK_REGISTRATION_ADMIN_REQUIRED_MESSAGE,
+      },
+    },
+  })
 }
 
 export const register: bp.IntegrationProps['register'] = async ({ client, ctx, logger }) => {
@@ -49,6 +72,7 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
       logger.forBot().info('Linear webhook registered')
     } catch (thrown) {
       const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+      _reportWebhookRegistrationIssue(logger, errorMessage)
       throw new RuntimeError(_getWebhookRegistrationErrorMessage(errorMessage))
     }
   } else {
