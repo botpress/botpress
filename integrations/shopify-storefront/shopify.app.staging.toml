@@ -17,6 +17,6 @@ redirect_urls = [ "https://webhook.botpress.dev/oauth/wizard/oauth-callback" ]
 [webhooks]
 api_version = "2026-04"
 
-[[webhooks.subscription]]
+[[webhooks.subscriptions]]
 compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
-uri = "https://webhook.botpress.dev/integration/global/shopify-storefront"
+uri = "https://api.botpress.dev/v1/integration/shopify-storefront"

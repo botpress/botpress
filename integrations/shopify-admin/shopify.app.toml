@@ -17,6 +17,6 @@ redirect_urls = [ "https://webhook.botpress.cloud/oauth/wizard/oauth-callback" ]
 [webhooks]
 api_version = "2026-04"
 
-[[webhooks.subscription]]
+[[webhooks.subscriptions]]
 compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
-uri = "https://webhook.botpress.cloud/integration/global/shopify-admin"
+uri = "https://api.botpress.cloud/v1/integration/shopify-admin"
