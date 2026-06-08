@@ -24,8 +24,6 @@ import {
   listIssueTypesOutputSchema,
   listProjectStatusesInputSchema,
   listProjectStatusesOutputSchema,
-  getWorkflowStatesInputSchema,
-  getWorkflowStatesOutputSchema,
   createCommentInputSchema,
   createCommentOutputSchema,
   assignIssueInputSchema,
@@ -177,17 +175,6 @@ const listProjectStatuses = {
   },
 } satisfies SdkAction
 
-const getWorkflowStates = {
-  title: 'Get Workflow States',
-  description: 'List the workflow states available in a Jira project, grouped per issue type.',
-  input: {
-    schema: getWorkflowStatesInputSchema,
-  },
-  output: {
-    schema: getWorkflowStatesOutputSchema,
-  },
-} satisfies SdkAction
-
 const createComment = {
   title: 'Create Comment',
   description: 'Create a plain-text comment on a Jira issue.',
@@ -248,6 +235,5 @@ export const actions = {
   transitionIssue,
   listIssueTypes,
   listProjectStatuses,
-  getWorkflowStates,
   createComment,
 } satisfies SdkActions

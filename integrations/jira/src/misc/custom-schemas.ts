@@ -237,10 +237,6 @@ export const listProjectStatusesOutputSchema = z.object({
   items: z.array(jiraStatusSchema).title('Items').describe('Statuses grouped per issue type for the project'),
 })
 
-export const getWorkflowStatesInputSchema = listProjectStatusesInputSchema
-
-export const getWorkflowStatesOutputSchema = listProjectStatusesOutputSchema
-
 export const createCommentInputSchema = z.object({
   issueKey: z.string().title('Issue Key').describe('Key or ID of the Jira issue to comment on'),
   body: z.string().title('Body').describe('Plain-text comment body to add to the Jira issue'),

@@ -32,7 +32,7 @@ To enable the Jira Software integration in Botpress, follow these steps:
 Once the integration is enabled, you can start using Jira from your Botpress chatbot. The integration offers the following actions:
 
 - **Issues**: `searchIssues` (JQL with cursor pagination), `countIssues`, `pickIssue`, `getIssue`, `newIssue`, `newIssues` (batch up to 50), `updateIssue`, `assignIssue`, `deleteIssue`, `createComment`, `getIssueTransitions`, `transitionIssue`
-- **Projects**: `listProjects`, `listProjectStatuses`, `getWorkflowStates`, `listIssueTypes` (per project)
+- **Projects**: `listProjects`, `listProjectStatuses`, `listIssueTypes` (per project)
 - **Users**: `findUser`, `findAllUsers`
 
 To post comments to Jira issues, call `createComment` or send text messages through the `issueComments` channel with the target `issueKey` conversation tag.
