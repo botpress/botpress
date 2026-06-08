@@ -31,6 +31,11 @@ export const states = {
         .optional()
         .title('Wizard Phase')
         .describe('Which leg of the two-phase OAuth wizard is currently expected on /oauth callback'),
+      runtimeActor: z
+        .enum(['user', 'app'])
+        .optional()
+        .title('Runtime Actor')
+        .describe('Which Linear OAuth actor type was used for the runtime credentials'),
     }),
   },
 
