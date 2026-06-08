@@ -2,6 +2,7 @@ import { RuntimeError } from '@botpress/sdk'
 import { listProjectStatusesInputSchema, listProjectStatusesOutputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 import { getClient, getErrorMessage, serializeErrorForLog } from '../utils'
+import { listFlattenedProjectStatuses } from './helper'
 
 export const listProjectStatuses: Implementation['actions']['listProjectStatuses'] = async ({
   client,
@@ -13,16 +14,7 @@ export const listProjectStatuses: Implementation['actions']['listProjectStatuses
   const jiraClient = await getClient({ client, ctx, logger })
 
   try {
-    const response = await jiraClient.listProjectStatuses(validatedInput.projectKey)
-    const items = response.flatMap((typeWithStatus) =>
-      (typeWithStatus.statuses ?? []).map((s) => ({
-        id: s.id,
-        name: s.name,
-        description: s.description,
-        category: s.statusCategory?.name,
-        issueType: typeWithStatus.name,
-      }))
-    )
+    const items = await listFlattenedProjectStatuses(jiraClient, validatedInput.projectKey)
     logger.forBot().info(`Successful - List Project Statuses - ${items.length} for ${validatedInput.projectKey}`)
     return listProjectStatusesOutputSchema.parse({ items })
   } catch (error) {
