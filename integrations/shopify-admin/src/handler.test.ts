@@ -71,4 +71,27 @@ describe('Shopify webhook handler', () => {
     )
     expect(response).toEqual({ status: 200, body: '' })
   })
+
+  // Shopify retries non-2xx responses and disables the webhook after repeated failures, so a
+  // malformed payload or a transient event-dispatch error must never escalate into a 4xx/5xx.
+  describe('error handling returns 200 to avoid Shopify retry loops', () => {
+    it('returns 200 on malformed JSON body after HMAC passes', async () => {
+      const malformed = '{not-json'
+      const { handler } = await import('./handler')
+      const response = await handler(
+        buildProps({ topic: 'orders/create', hmac: computeHmac(malformed), body: malformed })
+      )
+      expect(response).toEqual({ status: 200, body: '' })
+    })
+
+    it('returns 200 when an event handler throws', async () => {
+      const { fireOrderCreated } = await import('./events/order-created')
+      vi.mocked(fireOrderCreated).mockRejectedValueOnce(new Error('createEvent failed'))
+      const { handler } = await import('./handler')
+      const response = await handler(
+        buildProps({ topic: 'orders/create', hmac: computeHmac(validBody), body: validBody })
+      )
+      expect(response).toEqual({ status: 200, body: '' })
+    })
+  })
 })

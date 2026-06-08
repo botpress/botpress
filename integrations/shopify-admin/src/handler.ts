@@ -32,30 +32,36 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     return { status: 401, body: 'Invalid HMAC signature' }
   }
 
-  const payload = JSON.parse(req.body)
+  try {
+    const payload = JSON.parse(req.body)
 
-  switch (topic) {
-    case 'orders/create':
-      return await fireOrderCreated({ payload, ...props })
-    case 'orders/updated':
-      return await fireOrderUpdated({ payload, ...props })
-    case 'orders/cancelled':
-      return await fireOrderCancelled({ payload, ...props })
-    case 'orders/fulfilled':
-      return await fireOrderFulfilled({ payload, ...props })
-    case 'orders/paid':
-      return await fireOrderPaid({ payload, ...props })
-    case 'customers/data_request':
-    case 'customers/redact':
-    case 'shop/redact':
-      // GDPR compliance webhooks. This integration does not persist Shopify customer data —
-      // Admin API responses flow straight through to bot actions. Per-shop credentials
-      // are cleared by unregister(); shop/redact (fired 48h after uninstall) is a safety-net no-op.
-      // https://shopify.dev/docs/apps/build/compliance/privacy-law-compliance
-      logger.forBot().info(`Received Shopify compliance webhook: ${topic}`)
-      return { status: 200, body: '' }
-    default:
-      logger.forBot().warn(`Unhandled Shopify webhook topic: ${topic}`)
-      return { status: 200, body: '' }
+    switch (topic) {
+      case 'orders/create':
+        return await fireOrderCreated({ payload, ...props })
+      case 'orders/updated':
+        return await fireOrderUpdated({ payload, ...props })
+      case 'orders/cancelled':
+        return await fireOrderCancelled({ payload, ...props })
+      case 'orders/fulfilled':
+        return await fireOrderFulfilled({ payload, ...props })
+      case 'orders/paid':
+        return await fireOrderPaid({ payload, ...props })
+      case 'customers/data_request':
+      case 'customers/redact':
+      case 'shop/redact':
+        // GDPR compliance webhooks. This integration does not persist Shopify customer data —
+        // Admin API responses flow straight through to bot actions. Per-shop credentials
+        // are cleared by unregister(); shop/redact (fired 48h after uninstall) is a safety-net no-op.
+        // https://shopify.dev/docs/apps/build/compliance/privacy-law-compliance
+        logger.forBot().info(`Received Shopify compliance webhook: ${topic}`)
+        return { status: 200, body: '' }
+      default:
+        logger.forBot().warn(`Unhandled Shopify webhook topic: ${topic}`)
+        return { status: 200, body: '' }
+    }
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    logger.forBot().error(`Failed to process Shopify webhook (topic: ${topic}): ${error.message}`)
+    return { status: 200, body: '' }
   }
 }
