@@ -1,0 +1,22 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "eb491c945dae316d4b1a669e0d217036"
+name = "Botpress Storefront Connector"
+application_url = "https://webhook.botpress.cloud/oauth/wizard/start"
+embedded = false
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "unauthenticated_write_checkouts,unauthenticated_read_checkouts,unauthenticated_read_product_listings"
+optional_scopes = [ ]
+use_legacy_install_flow = false
+
+[auth]
+redirect_urls = [ "https://webhook.botpress.cloud/oauth/wizard/oauth-callback" ]
+
+[webhooks]
+api_version = "2026-04"
+
+[[webhooks.subscriptions]]
+compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+uri = "https://controller.botpress.cloud/v1/interation/shopify-storefront"
