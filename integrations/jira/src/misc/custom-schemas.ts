@@ -254,7 +254,11 @@ export const jiraAttachmentSchema = z.object({
   size: z.number().optional().title('Size').describe('Attachment size in bytes'),
   self: z.string().optional().title('Self URL').describe('Jira API URL for the attachment metadata'),
   content: z.string().optional().title('Content URL').describe('Jira API URL for downloading the attachment content'),
-  thumbnail: z.string().optional().title('Thumbnail URL').describe('Jira API URL for the attachment thumbnail, when available'),
+  thumbnail: z
+    .string()
+    .optional()
+    .title('Thumbnail URL')
+    .describe('Jira API URL for the attachment thumbnail, when available'),
 })
 
 export const addAttachmentInputSchema = z.object({
