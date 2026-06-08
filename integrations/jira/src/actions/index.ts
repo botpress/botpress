@@ -1,7 +1,6 @@
 import { addAttachment } from './add-attachment'
 import { assignIssue } from './assign-issue'
 import { countIssues } from './count-issues'
-import { createComment } from './create-comment'
 import { deleteIssue } from './delete-issue'
 import { findAllUsers } from './find-all-users'
 import { findUser } from './find-user'
@@ -34,6 +33,5 @@ export default {
   transitionIssue,
   listIssueTypes,
   listProjectStatuses,
-  createComment,
   addAttachment,
 }

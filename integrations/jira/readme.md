@@ -1,6 +1,6 @@
 # Botpress Jira Software Integration
 
-This integration allows you to connect your Botpress chatbot with Jira Software, a popular platform for project management and issue tracking. With this integration, you can search, create, update, and transition issues, list projects, find Jira users, and post issue comments from your chatbot.
+This integration allows you to connect your Botpress chatbot with Jira Software, a popular platform for project management and issue tracking. With this integration, you can search, create, update, and transition issues, list projects, find Jira users, and post issue comments through the comments channel.
 
 This version supports the Jira OAuth setup wizard. If you are testing the OAuth build, the setup flow should offer **Connect with OAuth** and **Use an API Token**.
 
@@ -31,11 +31,11 @@ To enable the Jira Software integration in Botpress, follow these steps:
 
 Once the integration is enabled, you can start using Jira from your Botpress chatbot. The integration offers the following actions:
 
-- **Issues**: `searchIssues` (JQL with cursor pagination), `countIssues`, `pickIssue`, `getIssue`, `newIssue`, `newIssues` (batch up to 50), `updateIssue`, `assignIssue`, `deleteIssue`, `createComment`, `addAttachment`, `getIssueTransitions`, `transitionIssue`
+- **Issues**: `searchIssues` (JQL with cursor pagination), `countIssues`, `pickIssue`, `getIssue`, `newIssue`, `newIssues` (batch up to 50), `updateIssue`, `assignIssue`, `deleteIssue`, `addAttachment`, `getIssueTransitions`, `transitionIssue`
 - **Projects**: `listProjects`, `listProjectStatuses`, `listIssueTypes` (per project)
 - **Users**: `findUser`, `findAllUsers`
 
-To post comments to Jira issues, call `createComment` or send text messages through the `issueComments` channel with the target `issueKey` conversation tag.
+To post comments to Jira issues, send text messages through the `issueComments` channel with the target `issueKey` conversation tag.
 
 To upload an image or file to a Jira issue, call `addAttachment` with an `issueKey`, `filename`, and either a `fileUrl` or base64-encoded `data`.
 
