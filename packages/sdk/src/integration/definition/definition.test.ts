@@ -130,9 +130,9 @@ test('extending discriminated unions with duplicate discriminator values throws'
     },
   })
 
-  expect(() => integration.extend(makeDiscriminatedUnionPkg(z.discriminatedUnion('type', [variantA])), () => ({ entities: {} }))).toThrow(
-    "Cannot merge discriminated unions: duplicate discriminator value 'a' for key 'type'"
-  )
+  expect(() =>
+    integration.extend(makeDiscriminatedUnionPkg(z.discriminatedUnion('type', [variantA])), () => ({ entities: {} }))
+  ).toThrow("Cannot merge discriminated unions: duplicate discriminator value 'a' for key 'type'")
 })
 
 test('extending discriminated unions with different discriminator keys throws', () => {
