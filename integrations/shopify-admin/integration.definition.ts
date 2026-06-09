@@ -14,4 +14,8 @@ export default new IntegrationDefinition({
   events,
   states,
   secrets,
+  attributes: {
+    category: 'E-commerce & Payments',
+    repo: 'botpress',
+  },
 })
