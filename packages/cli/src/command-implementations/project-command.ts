@@ -98,6 +98,16 @@ export class ProjectDefinitionContext {
   public rebuildEntrypoint(...args: Parameters<utils.esbuild.BuildEntrypointContext['rebuild']>) {
     return this._buildContext.rebuild(...args)
   }
+
+  public async dispose() {
+    // Drop the resolved-definition cache up front so a failed esbuild teardown can't leave stale state behind.
+    this._codeCache.clear()
+    try {
+      await this._buildContext.dispose()
+    } catch (thrown: unknown) {
+      throw errors.BotpressCLIError.map(thrown)
+    }
+  }
 }
 
 type ResolvedDependency = { id: string }
