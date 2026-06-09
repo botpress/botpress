@@ -121,6 +121,20 @@ test('extending with discriminated union actions merges input and output variant
   expect(mergedOutput._def.options).toHaveLength(2)
 })
 
+test('extending discriminated unions with duplicate discriminator values throws', () => {
+  const integration = new IntegrationDefinition({
+    name: 'foo',
+    version: '0.0.0',
+    events: {
+      theEvent: { schema: z.discriminatedUnion('type', [variantA]) },
+    },
+  })
+
+  expect(() => integration.extend(makeDiscriminatedUnionPkg(z.discriminatedUnion('type', [variantA])), () => ({ entities: {} }))).toThrow(
+    "Cannot merge discriminated unions: duplicate discriminator value 'a' for key 'type'"
+  )
+})
+
 test('extending discriminated unions with different discriminator keys throws', () => {
   const withOtherDiscriminator = z.discriminatedUnion('kind', [z.object({ kind: z.literal('x'), foo: z.string() })])
 
