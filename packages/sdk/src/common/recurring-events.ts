@@ -1,14 +1,23 @@
 import { BotDefinitionProps, EventDefinition, RecurringEventDefinition } from '../bot/definition'
+import { SafeOmit } from '../utils/type-utils'
 
-export function stripRecurringFromEvents<TEvents extends Record<string, EventDefinition>>(events: TEvents): TEvents
+type StrippedEvents<TEvents extends Record<string, EventDefinition>> = {
+  [K in keyof TEvents]: SafeOmit<TEvents[K], 'recurrence'>
+}
+
+export function stripRecurringFromEvents<TEvents extends Record<string, EventDefinition>>(
+  events: TEvents
+): StrippedEvents<TEvents>
 export function stripRecurringFromEvents<TEvents extends Record<string, EventDefinition>>(
   events: TEvents | undefined
-): TEvents | undefined
+): StrippedEvents<TEvents> | undefined
 export function stripRecurringFromEvents<TEvents extends Record<string, EventDefinition>>(
   events: TEvents | undefined
-): TEvents | undefined {
+): StrippedEvents<TEvents> | undefined {
   if (!events) return undefined
-  return Object.fromEntries(Object.entries(events).map(([key, { recurrence: _, ...rest }]) => [key, rest])) as TEvents
+  return Object.fromEntries(
+    Object.entries(events).map(([key, { recurrence: _, ...rest }]) => [key, rest])
+  ) as StrippedEvents<TEvents>
 }
 
 export function resolveRecurringEvents(
