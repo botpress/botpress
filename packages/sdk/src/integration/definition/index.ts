@@ -409,6 +409,13 @@ export class IntegrationDefinition<
       if (aDef.discriminator !== bDef.discriminator) {
         throw new Error(`Cannot merge discriminated unions with different discriminator keys: '${aDef.discriminator}' and '${bDef.discriminator}'`)
       }
+      const aValues = new Set(aDef.options.map((o: z.ZodDiscriminatedUnionOption<string>) => o.shape[aDef.discriminator]?._def?.value))
+      for (const option of bDef.options as z.ZodDiscriminatedUnionOption<string>[]) {
+        const value = option.shape[aDef.discriminator]?._def?.value
+        if (aValues.has(value)) {
+          throw new Error(`Cannot merge discriminated unions: duplicate discriminator value '${String(value)}' for key '${aDef.discriminator}'`)
+        }
+      }
       const merged = [...aDef.options, ...bDef.options] as [z.ZodDiscriminatedUnionOption<string>, ...z.ZodDiscriminatedUnionOption<string>[]]
       return z.discriminatedUnion(aDef.discriminator, merged)
     }
