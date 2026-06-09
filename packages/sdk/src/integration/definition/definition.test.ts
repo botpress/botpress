@@ -122,9 +122,7 @@ test('extending with discriminated union actions merges input and output variant
 })
 
 test('extending discriminated unions with different discriminator keys throws', () => {
-  const withOtherDiscriminator = z.discriminatedUnion('kind', [
-    z.object({ kind: z.literal('x'), foo: z.string() }),
-  ])
+  const withOtherDiscriminator = z.discriminatedUnion('kind', [z.object({ kind: z.literal('x'), foo: z.string() })])
 
   const integration = new IntegrationDefinition({
     name: 'foo',
@@ -134,7 +132,7 @@ test('extending discriminated unions with different discriminator keys throws', 
     },
   })
 
-  expect(() =>
-    integration.extend(makeDiscriminatedUnionPkg(withOtherDiscriminator), () => ({ entities: {} }))
-  ).toThrow("Cannot merge discriminated unions with different discriminator keys: 'type' and 'kind'")
+  expect(() => integration.extend(makeDiscriminatedUnionPkg(withOtherDiscriminator), () => ({ entities: {} }))).toThrow(
+    "Cannot merge discriminated unions with different discriminator keys: 'type' and 'kind'"
+  )
 })

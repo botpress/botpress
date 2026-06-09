@@ -392,6 +392,12 @@ export class IntegrationDefinition<
     }
   }
 
+  private _getDiscriminatorValue = (option: z.ZodDiscriminatedUnionOption<string>, key: string): unknown => {
+    const field = option.shape[key]
+    if (field?._def.typeName !== 'ZodLiteral') return undefined
+    return (field._def as z.ZodLiteralDef).value
+  }
+
   private _mergeObjectSchemas = (a: z.ZuiObjectSchema, b: z.ZuiObjectSchema): z.ZuiObjectSchema => {
     const aDef = a._def
     const bDef = b._def
@@ -407,16 +413,27 @@ export class IntegrationDefinition<
 
     if (aDef.typeName === 'ZodDiscriminatedUnion' && bDef.typeName === 'ZodDiscriminatedUnion') {
       if (aDef.discriminator !== bDef.discriminator) {
-        throw new Error(`Cannot merge discriminated unions with different discriminator keys: '${aDef.discriminator}' and '${bDef.discriminator}'`)
+        throw new Error(
+          `Cannot merge discriminated unions with different discriminator keys: '${aDef.discriminator}' and '${bDef.discriminator}'`
+        )
       }
-      const aValues = new Set(aDef.options.map((o: z.ZodDiscriminatedUnionOption<string>) => o.shape[aDef.discriminator]?._def?.value))
+      const aValues = new Set(
+        aDef.options.map((o: z.ZodDiscriminatedUnionOption<string>) =>
+          this._getDiscriminatorValue(o, aDef.discriminator)
+        )
+      )
       for (const option of bDef.options as z.ZodDiscriminatedUnionOption<string>[]) {
-        const value = option.shape[aDef.discriminator]?._def?.value
+        const value = this._getDiscriminatorValue(option, aDef.discriminator)
         if (aValues.has(value)) {
-          throw new Error(`Cannot merge discriminated unions: duplicate discriminator value '${String(value)}' for key '${aDef.discriminator}'`)
+          throw new DefinitionError(
+            `Cannot merge discriminated unions: duplicate discriminator value '${String(value)}' for key '${aDef.discriminator}'`
+          )
         }
       }
-      const merged = [...aDef.options, ...bDef.options] as [z.ZodDiscriminatedUnionOption<string>, ...z.ZodDiscriminatedUnionOption<string>[]]
+      const merged = [...aDef.options, ...bDef.options] as [
+        z.ZodDiscriminatedUnionOption<string>,
+        ...z.ZodDiscriminatedUnionOption<string>[],
+      ]
       return z.discriminatedUnion(aDef.discriminator, merged)
     }
 
