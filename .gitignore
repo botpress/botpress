@@ -11,6 +11,7 @@ __snapshots__
 .botpress
 .botpresshome
 .botpresshome.*
+.shopify
 .turbo
 .genenv/
 .genenv.*
