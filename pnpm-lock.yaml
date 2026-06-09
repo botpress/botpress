@@ -2833,7 +2833,7 @@ importers:
         version: link:../client
       '@botpress/sdk':
         specifier: 6.11.1
-        version: link:../sdk
+        version: 6.11.1(@bpinternal/zui@packages+zui)(esbuild@0.25.10)
       '@bpinternal/const':
         specifier: ^0.1.0
         version: 0.1.0
@@ -2957,7 +2957,7 @@ importers:
         version: link:../../../client
       '@botpress/sdk':
         specifier: 6.11.1
-        version: link:../../../sdk
+        version: 6.11.1(@bpinternal/zui@packages+zui)(esbuild@0.25.10)
     devDependencies:
       '@types/node':
         specifier: ^22.16.4
@@ -2973,7 +2973,7 @@ importers:
         version: link:../../../client
       '@botpress/sdk':
         specifier: 6.11.1
-        version: link:../../../sdk
+        version: 6.11.1(@bpinternal/zui@packages+zui)(esbuild@0.25.10)
     devDependencies:
       '@types/node':
         specifier: ^22.16.4
@@ -2986,7 +2986,7 @@ importers:
     dependencies:
       '@botpress/sdk':
         specifier: 6.11.1
-        version: link:../../../sdk
+        version: 6.11.1(@bpinternal/zui@packages+zui)(esbuild@0.25.10)
     devDependencies:
       '@types/node':
         specifier: ^22.16.4
@@ -3002,7 +3002,7 @@ importers:
         version: link:../../../client
       '@botpress/sdk':
         specifier: 6.11.1
-        version: link:../../../sdk
+        version: 6.11.1(@bpinternal/zui@packages+zui)(esbuild@0.25.10)
     devDependencies:
       '@types/node':
         specifier: ^22.16.4
@@ -3018,7 +3018,7 @@ importers:
         version: link:../../../client
       '@botpress/sdk':
         specifier: 6.11.1
-        version: link:../../../sdk
+        version: 6.11.1(@bpinternal/zui@packages+zui)(esbuild@0.25.10)
       axios:
         specifier: ^1.6.8
         version: 1.6.8
@@ -3301,9 +3301,6 @@ importers:
       esbuild-plugin-polyfill-node:
         specifier: ^0.3.0
         version: 0.3.0(esbuild@0.25.10)
-      tsup:
-        specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.49.0(@types/node@22.16.4))(postcss@8.4.47)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.9.3))(typescript@5.9.3)
 
   packages/sdk-addons:
     dependencies:
@@ -4426,6 +4423,20 @@ packages:
 
   '@botpress/api@1.108.0':
     resolution: {integrity: sha512-8NZATBHQy2s+HkNn4C4yQL1Yti4KMBJrdwzBVqqJfFblnkbFSPfzzkylb3Io+4YAamYTse61nEIYZCtY6a/Jhg==}
+
+  '@botpress/client@1.46.0':
+    resolution: {integrity: sha512-g3K+vB2VgAoZT8qchx69V5zymMRdcZnncmwB50MhAL0eyfz6TQbLcoWBfcbbeZqqTjiQEJPqXH4GChO0Ohl0HQ==}
+    engines: {node: '>=18.0.0'}
+
+  '@botpress/sdk@6.11.1':
+    resolution: {integrity: sha512-/SGWCgu7AfAMCf4YtjPZHluZcM2JjDuT/x9mwHI/cMwZ7QHGOvbunN3bM2kVRzl4xukZNxBjKwolDUCNogf86A==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@bpinternal/zui': ^2.1.1
+      esbuild: ^0.16.12
+    peerDependenciesMeta:
+      esbuild:
+        optional: true
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -14956,6 +14967,26 @@ snapshots:
       - openapi-types
       - supports-color
 
+  '@botpress/client@1.46.0':
+    dependencies:
+      axios: 1.13.6
+      axios-retry: 4.5.0(axios@1.13.6)
+      browser-or-node: 2.1.1
+      qs: 6.15.0
+    transitivePeerDependencies:
+      - debug
+
+  '@botpress/sdk@6.11.1(@bpinternal/zui@packages+zui)(esbuild@0.25.10)':
+    dependencies:
+      '@botpress/client': 1.46.0
+      '@bpinternal/zui': link:packages/zui
+      browser-or-node: 2.1.1
+      semver: 7.8.1
+    optionalDependencies:
+      esbuild: 0.25.10
+    transitivePeerDependencies:
+      - debug
+
   '@bpinternal/const@0.1.0': {}
 
   '@bpinternal/depsynky@0.3.2':
@@ -18096,7 +18127,7 @@ snapshots:
       fast-glob: 3.3.2
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.7.2
+      semver: 7.8.1
       ts-api-utils: 2.1.0(typescript@5.6.3)
       typescript: 5.6.3
     transitivePeerDependencies:
@@ -18503,6 +18534,11 @@ snapshots:
   axios-retry@3.9.1:
     dependencies:
       '@babel/runtime': 7.24.7
+      is-retry-allowed: 2.2.0
+
+  axios-retry@4.5.0(axios@1.13.6):
+    dependencies:
+      axios: 1.13.6
       is-retry-allowed: 2.2.0
 
   axios-retry@4.5.0(axios@1.4.0):
@@ -19618,7 +19654,7 @@ snapshots:
       '@one-ini/wasm': 0.1.1
       commander: 10.0.1
       minimatch: 9.0.1
-      semver: 7.7.4
+      semver: 7.8.1
 
   ee-first@1.1.1: {}
 
@@ -21746,7 +21782,7 @@ snapshots:
       jest-util: 29.5.0
       natural-compare: 1.4.0
       pretty-format: 29.5.0
-      semver: 7.7.4
+      semver: 7.8.1
     transitivePeerDependencies:
       - supports-color
 
@@ -24510,7 +24546,7 @@ snapshots:
       mime: 2.6.0
       qs: 6.15.0
       readable-stream: 3.6.2
-      semver: 7.7.2
+      semver: 7.8.1
     transitivePeerDependencies:
       - supports-color
 
@@ -24526,7 +24562,7 @@ snapshots:
       mime: 2.6.0
       qs: 6.15.0
       readable-stream: 3.6.2
-      semver: 7.7.4
+      semver: 7.8.1
     transitivePeerDependencies:
       - supports-color
 
