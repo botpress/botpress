@@ -40,7 +40,15 @@ export abstract class BaseLogger<TOptions extends object> {
   }
 
   public issue(args: IssueLogEvent) {
-    console.info(JSON.stringify(args))
+    console.info(JSON.stringify({ ...args, ...this.getIssueContext() }))
+  }
+
+  /**
+   * Identity fields merged into every issue line so downstream ingestion can
+   * attribute and validate the issue without out-of-band context.
+   */
+  protected getIssueContext(): Record<string, string> {
+    return {}
   }
 
   private _log(level: LogLevel, args: Parameters<typeof console.info>) {
