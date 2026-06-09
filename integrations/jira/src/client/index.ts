@@ -46,6 +46,12 @@ export type IssuePickerResponse = {
   }>
 }
 
+export type AttachmentInput = {
+  filename: string
+  contentType?: string
+  data: ArrayBuffer | Uint8Array
+}
+
 export class JiraApi {
   private _client: Version3Client
   public readonly host: string
@@ -189,6 +195,31 @@ export class JiraApi {
       throw new Error(`Jira did not return a comment ID for issue ${issueIdOrKey}`)
     }
     return id
+  }
+
+  public async addAttachmentToIssue(
+    issueIdOrKey: string,
+    attachment: AttachmentInput
+  ): Promise<Version3Models.Attachment[]> {
+    const form = new FormData()
+    form.append(
+      'file',
+      new Blob([attachment.data], attachment.contentType ? { type: attachment.contentType } : undefined),
+      attachment.filename
+    )
+
+    return await this._client.sendRequest<Version3Models.Attachment[]>(
+      {
+        url: `/rest/api/3/issue/${encodeURIComponent(issueIdOrKey)}/attachments`,
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'X-Atlassian-Token': 'no-check',
+        },
+        data: form,
+      },
+      undefined as never
+    )
   }
 
   public async findUser(query: string): Promise<Version3Models.User> {

@@ -36,6 +36,8 @@ jobs:
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           token_cloud_ops_account: ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
+          shopify_admin_automation_token: ${{ secrets.PRODUCTION_SHOPIFY_ADMIN_AUTOMATION_TOKEN }}
+          shopify_storefront_automation_token: ${{ secrets.PRODUCTION_SHOPIFY_STOREFRONT_AUTOMATION_TOKEN }}
       - name: Deploy Plugins
         uses: ./.github/actions/deploy-plugins
         with:

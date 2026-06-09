@@ -243,7 +243,7 @@ export class LinearOauthClient {
     })
     const useDesk = useDeskOAuth(environment)
     const linearOauthClient = new LinearOauthClient(useDesk)
-    const actor: Actor = effectiveStateName === 'adminCredentials' ? 'user' : 'app'
+    const actor: Actor = effectiveStateName === 'adminCredentials' ? 'user' : (environment.runtimeActor ?? 'app')
     const credentials = await linearOauthClient.resolveValidCredentials(effectivePayload, actor)
 
     if (credentials.accessToken !== effectivePayload.accessToken) {
@@ -319,8 +319,8 @@ export const registerWebhook = async ({
   logger.forBot().info('Linear webhook registered successfully.')
 }
 
-export const revokeToken = async (token: string) => {
-  const form = new URLSearchParams({ token, token_type_hint: 'access_token' })
+export const revokeToken = async (token: string, tokenTypeHint: 'access_token' | 'refresh_token' = 'access_token') => {
+  const form = new URLSearchParams({ token, token_type_hint: tokenTypeHint })
   try {
     await axios.post(`${linearEndpoint}/oauth/revoke`, form.toString(), { headers: oauthHeaders })
   } catch (err: unknown) {
