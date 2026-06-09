@@ -54,6 +54,13 @@ export const handler = async (props: bp.HandlerProps): Promise<Response> => {
 
 const _startConfirmHandler: WizardHandler = async (props) => {
   const { responses } = props
+
+  // When nothing is connected yet there's nothing to reset, so skip the
+  // confirmation and go straight to the next step.
+  if (!(await _isAlreadyConnected(props))) {
+    return _setupHandler(props)
+  }
+
   return responses.displayButtons({
     pageTitle: 'Reset Configuration',
     htmlOrMarkdownPageContents:
@@ -63,6 +70,15 @@ const _startConfirmHandler: WizardHandler = async (props) => {
       { label: 'No', buttonType: 'secondary', action: 'close' },
     ],
   })
+}
+
+const _isAlreadyConnected = async ({ client, ctx }: bp.HandlerProps): Promise<boolean> => {
+  try {
+    const { accessToken } = await _getCredentialsState(client, ctx)
+    return Boolean(accessToken)
+  } catch {
+    return false
+  }
 }
 
 const _setupHandler: WizardHandler = async (props) => {

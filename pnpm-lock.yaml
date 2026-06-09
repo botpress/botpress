@@ -2832,8 +2832,8 @@ importers:
         specifier: 1.46.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 6.11.1
-        version: 6.11.1(@bpinternal/zui@packages+zui)(esbuild@0.25.10)
+        specifier: 6.11.2
+        version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
         version: 0.1.0
@@ -2956,8 +2956,8 @@ importers:
         specifier: 1.46.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.11.1
-        version: 6.11.1(@bpinternal/zui@packages+zui)(esbuild@0.25.10)
+        specifier: 6.11.2
+        version: link:../../../sdk
     devDependencies:
       '@types/node':
         specifier: ^22.16.4
@@ -2972,8 +2972,8 @@ importers:
         specifier: 1.46.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.11.1
-        version: 6.11.1(@bpinternal/zui@packages+zui)(esbuild@0.25.10)
+        specifier: 6.11.2
+        version: link:../../../sdk
     devDependencies:
       '@types/node':
         specifier: ^22.16.4
@@ -2985,8 +2985,8 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 6.11.1
-        version: 6.11.1(@bpinternal/zui@packages+zui)(esbuild@0.25.10)
+        specifier: 6.11.2
+        version: link:../../../sdk
     devDependencies:
       '@types/node':
         specifier: ^22.16.4
@@ -3001,8 +3001,8 @@ importers:
         specifier: 1.46.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.11.1
-        version: 6.11.1(@bpinternal/zui@packages+zui)(esbuild@0.25.10)
+        specifier: 6.11.2
+        version: link:../../../sdk
     devDependencies:
       '@types/node':
         specifier: ^22.16.4
@@ -3017,8 +3017,8 @@ importers:
         specifier: 1.46.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.11.1
-        version: 6.11.1(@bpinternal/zui@packages+zui)(esbuild@0.25.10)
+        specifier: 6.11.2
+        version: link:../../../sdk
       axios:
         specifier: ^1.6.8
         version: 1.6.8
