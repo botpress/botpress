@@ -1,52 +1,87 @@
 import { IntegrationLogger } from '@botpress/sdk'
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
 import FormData from 'form-data'
+import { DataCenter, getZohoApiBaseUrl, getZohoAuthUrl, isDataCenter } from './misc/data-centers'
 import * as bp from '.botpress'
 
 const logger = new IntegrationLogger()
+const OAUTH_CLIENT_ID = bp.secrets.CLIENT_ID
+const OAUTH_CLIENT_SECRET = bp.secrets.CLIENT_SECRET
 
-// Define a Map for Zoho Data Centers
-const zohoAuthUrls = new Map<string, string>([
-  ['us', 'https://accounts.zoho.com'],
-  ['eu', 'https://accounts.zoho.eu'],
-  ['in', 'https://accounts.zoho.in'],
-  ['au', 'https://accounts.zoho.com.au'],
-  ['cn', 'https://accounts.zoho.com.cn'],
-  ['jp', 'https://accounts.zoho.jp'],
-  ['ca', 'https://accounts.zohocloud.ca'],
-])
+// Retry once after refreshing the access token. If Zoho still returns 401,
+// the credentials are likely revoked, mis-scoped, or tied to the wrong data center.
+const MAX_AUTH_RETRIES = 1
 
-const zohoDataCenterTLDs = new Map<string, string>([
-  ['us', 'com'],
-  ['eu', 'eu'],
-  ['in', 'in'],
-  ['au', 'com.au'],
-  ['cn', 'com.cn'],
-  ['jp', 'jp'],
-  ['ca', 'ca'],
-])
+type AuthMode = 'oauth' | 'manual'
+type StoredCredentials = {
+  accessToken: string
+  refreshToken?: string
+  dataCenter?: DataCenter
+  apiDomain?: string
+  expiresAt?: number
+}
+type LegacyConfiguration = {
+  clientId: string
+  clientSecret: string
+  refreshToken: string
+  dataCenter: DataCenter
+}
 
-// Function to get the Zoho Auth URL
-const getZohoAuthUrl = (region: string): string => zohoAuthUrls.get(region) ?? 'https://accounts.zoho.com'
+const _getErrorMessage = (error: unknown): string => {
+  if (axios.isAxiosError(error)) {
+    return error.response?.data?.message ?? error.message
+  }
 
-const getZohoDataCenterTLD = (region: string): string => zohoDataCenterTLDs.get(region) ?? 'com'
+  return error instanceof Error ? error.message : 'Unknown error'
+}
+
+const _getErrorLogData = (error: unknown): unknown => {
+  if (axios.isAxiosError(error)) {
+    return error.response?.data ?? error.message
+  }
+
+  return error instanceof Error ? error.message : error
+}
+
+const _getLegacyConfiguration = (configuration: unknown): LegacyConfiguration | null => {
+  if (!configuration || typeof configuration !== 'object') {
+    return null
+  }
+
+  const maybeConfiguration = configuration as Record<string, unknown>
+  const { clientId, clientSecret, refreshToken, dataCenter } = maybeConfiguration
+  if (
+    typeof clientId !== 'string' ||
+    typeof clientSecret !== 'string' ||
+    typeof refreshToken !== 'string' ||
+    typeof dataCenter !== 'string' ||
+    !isDataCenter(dataCenter)
+  ) {
+    return null
+  }
+
+  return { clientId, clientSecret, refreshToken, dataCenter }
+}
 
 export class ZohoApi {
   private _refreshToken: string
   private _clientId: string
   private _clientSecret: string
-  private _dataCenter: string
+  private _dataCenter: DataCenter
   private _baseUrl: string
   private _ctx: bp.Context
   private _bpClient: bp.Client
+  private _authMode: AuthMode
 
   public constructor(
     refreshToken: string,
     clientId: string,
     clientSecret: string,
-    dataCenter: string,
+    dataCenter: DataCenter,
     ctx: bp.Context,
-    bpClient: bp.Client
+    bpClient: bp.Client,
+    authMode: AuthMode = 'manual',
+    apiDomain?: string
   ) {
     this._refreshToken = refreshToken
     this._clientId = clientId
@@ -54,11 +89,12 @@ export class ZohoApi {
     this._dataCenter = dataCenter
     this._ctx = ctx
     this._bpClient = bpClient
-    this._baseUrl = `https://www.zohoapis.${getZohoDataCenterTLD(dataCenter)}`
+    this._authMode = authMode
+    this._baseUrl = apiDomain ?? getZohoApiBaseUrl(dataCenter)
   }
 
   /** Retrieves stored credentials from Botpress state */
-  private async _getStoredCredentials(): Promise<{ accessToken: string } | null> {
+  private async _getStoredCredentials(): Promise<StoredCredentials | null> {
     try {
       const { state } = await this._bpClient.getState({
         id: this._ctx.integrationId,
@@ -73,6 +109,10 @@ export class ZohoApi {
 
       return {
         accessToken: state.payload.accessToken,
+        refreshToken: state.payload.refreshToken,
+        dataCenter: state.payload.dataCenter,
+        apiDomain: state.payload.apiDomain,
+        expiresAt: state.payload.expiresAt,
       }
     } catch (error) {
       logger.forBot().error('Error retrieving credentials from state:', error)
@@ -84,7 +124,8 @@ export class ZohoApi {
     endpoint: string,
     method: string = 'GET',
     data: any = null,
-    params: any = {}
+    params: any = {},
+    retryCount: number = 0
   ): Promise<any> {
     try {
       const creds = await this._getStoredCredentials()
@@ -97,7 +138,6 @@ export class ZohoApi {
         Authorization: `Bearer ${creds.accessToken}`,
         Accept: 'application/json',
       }
-      logger.forBot().info('accessToken', creds.accessToken)
       if (method !== 'GET' && method !== 'DELETE') {
         headers['Content-Type'] = 'application/json'
       }
@@ -113,18 +153,18 @@ export class ZohoApi {
       })
 
       return { success: true, message: 'Request successful', data: response.data }
-    } catch (error: any) {
-      if (error.response?.status === 401) {
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 401 && retryCount < MAX_AUTH_RETRIES) {
         logger.forBot().warn('Access token expired. Refreshing...', error)
         await this.refreshAccessToken()
-        return this._makeRequest(endpoint, method, data, params)
+        return this._makeRequest(endpoint, method, data, params, retryCount + 1)
       }
-      logger.forBot().error(`Error in ${method} ${endpoint}:`, error.response?.data || error.message)
-      return { success: false, message: error.response?.data?.message || error.message, data: null }
+      logger.forBot().error(`Error in ${method} ${endpoint}:`, _getErrorLogData(error))
+      return { success: false, message: _getErrorMessage(error), data: null }
     }
   }
 
-  private async _makeFileUploadRequest(endpoint: string, formData: FormData): Promise<any> {
+  private async _makeFileUploadRequest(endpoint: string, formData: FormData, retryCount: number = 0): Promise<any> {
     try {
       const creds = await this._getStoredCredentials()
       if (!creds) {
@@ -142,14 +182,14 @@ export class ZohoApi {
       const response = await axios.post(`${this._baseUrl}${endpoint}`, formData, { headers })
 
       return { success: true, message: 'File uploaded successfully', data: response.data }
-    } catch (error: any) {
-      if (error.response?.status === 401) {
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 401 && retryCount < MAX_AUTH_RETRIES) {
         logger.forBot().warn('Access token expired. Refreshing...', error)
         await this.refreshAccessToken()
-        return this._makeFileUploadRequest(endpoint, formData)
+        return this._makeFileUploadRequest(endpoint, formData, retryCount + 1)
       }
-      logger.forBot().error(`Error in file upload ${endpoint}:`, error.response?.data || error.message)
-      return { success: false, message: error.response?.data?.message || error.message, data: null }
+      logger.forBot().error(`Error in file upload ${endpoint}:`, _getErrorLogData(error))
+      return { success: false, message: _getErrorMessage(error), data: null }
     }
   }
 
@@ -161,30 +201,34 @@ export class ZohoApi {
       requestData.append('refresh_token', this._refreshToken)
       requestData.append('grant_type', 'refresh_token')
 
-      const response = await axios.post(
-        `${getZohoAuthUrl(this._ctx.configuration.dataCenter)}/oauth/v2/token`,
-        requestData.toString(),
-        {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        }
-      )
+      const response = await axios.post(`${getZohoAuthUrl(this._dataCenter)}/oauth/v2/token`, requestData.toString(), {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      })
+
+      const currentCredentials = await this._getStoredCredentials()
 
       await this._bpClient.setState({
         id: this._ctx.integrationId,
         type: 'integration',
         name: 'credentials',
         payload: {
+          ...currentCredentials,
           accessToken: response.data.access_token,
+          refreshToken: this._authMode === 'oauth' ? this._refreshToken : currentCredentials?.refreshToken,
+          dataCenter: this._authMode === 'oauth' ? this._dataCenter : currentCredentials?.dataCenter,
+          apiDomain: response.data.api_domain ?? currentCredentials?.apiDomain,
+          expiresAt: response.data.expires_in
+            ? Date.now() + response.data.expires_in * 1000
+            : currentCredentials?.expiresAt,
         },
       })
 
       logger.forBot().info('Access token refreshed successfully.')
     } catch (error: unknown) {
-      const err = error as AxiosError
-      logger.forBot().error(err.response?.data)
-      logger.forBot().error('Error refreshing access token:', err.response?.data || err.message)
+      logger.forBot().error(_getErrorLogData(error))
+      logger.forBot().error('Error refreshing access token:', _getErrorLogData(error))
       throw new Error('Authentication error. Please reauthorize the integration.')
     }
   }
@@ -246,8 +290,6 @@ export class ZohoApi {
   }
 
   public async uploadFile(fileUrl: string) {
-    logger.forBot().error('FILE URL SHARK: ', fileUrl)
-
     try {
       const file = await this.downloadFileBuffer(fileUrl)
 
@@ -298,13 +340,40 @@ export class ZohoApi {
   }
 }
 
-export const getClient = (
-  refreshToken: string,
-  clientId: string,
-  clientSecret: string,
-  dataCenter: string,
-  ctx: bp.Context,
-  bpClient: bp.Client
-) => {
-  return new ZohoApi(refreshToken, clientId, clientSecret, dataCenter, ctx, bpClient)
+export const getClient = async (ctx: bp.Context, bpClient: bp.Client): Promise<ZohoApi> => {
+  const manualConfiguration =
+    ctx.configurationType === 'manual' ? ctx.configuration : _getLegacyConfiguration(ctx.configuration)
+
+  if (manualConfiguration) {
+    return new ZohoApi(
+      manualConfiguration.refreshToken,
+      manualConfiguration.clientId,
+      manualConfiguration.clientSecret,
+      manualConfiguration.dataCenter,
+      ctx,
+      bpClient,
+      'manual'
+    )
+  }
+
+  const { state } = await bpClient.getState({
+    id: ctx.integrationId,
+    name: 'credentials',
+    type: 'integration',
+  })
+  const credentials = state.payload
+  if (!credentials.refreshToken || !credentials.dataCenter) {
+    throw new Error('Zoho OAuth credentials not found. Please reconnect the integration.')
+  }
+
+  return new ZohoApi(
+    credentials.refreshToken,
+    OAUTH_CLIENT_ID,
+    OAUTH_CLIENT_SECRET,
+    credentials.dataCenter,
+    ctx,
+    bpClient,
+    'oauth',
+    credentials.apiDomain
+  )
 }

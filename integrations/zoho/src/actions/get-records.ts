@@ -6,14 +6,7 @@ export const getRecords: IntegrationProps['actions']['getRecords'] = async ({ ct
   const validatedInput = getRecordsInputSchema.parse(input)
   const params = validatedInput.params ?? '{}' // Default to empty JSON if no params provided
 
-  const zohoClient = getClient(
-    ctx.configuration.refreshToken,
-    ctx.configuration.clientId,
-    ctx.configuration.clientSecret,
-    ctx.configuration.dataCenter,
-    ctx,
-    client
-  )
+  const zohoClient = await getClient(ctx, client)
 
   logger.forBot().info(`Validated Input - Module: ${validatedInput.module}, Params: ${params}`)
 

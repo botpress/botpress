@@ -87,4 +87,13 @@ export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
       options: this.defaultOptions,
     })
   }
+
+  protected override getIssueContext(): Record<string, string> {
+    const { botId, integrationId, integrationAlias } = this.defaultOptions
+    return {
+      ...(botId && { botId }),
+      ...(integrationId && { integrationId }),
+      ...(integrationAlias && { integrationAlias }),
+    }
+  }
 }

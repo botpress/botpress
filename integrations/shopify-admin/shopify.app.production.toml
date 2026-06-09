@@ -1,0 +1,22 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "87f9bef36e5c65232d4b3dc16d788792"
+name = "Botpress Admin Connector"
+application_url = "https://webhook.botpress.cloud/oauth/wizard/start"
+embedded = false
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_customers,read_orders,read_products"
+optional_scopes = [ ]
+use_legacy_install_flow = false
+
+[auth]
+redirect_urls = [ "https://webhook.botpress.cloud/oauth/wizard/oauth-callback" ]
+
+[webhooks]
+api_version = "2026-04"
+
+[[webhooks.subscriptions]]
+compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+uri = "https://controller.botpress.cloud/v1/interation/shopify-admin"

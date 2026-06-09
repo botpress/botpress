@@ -35,7 +35,7 @@ import { truncateWrappedContent } from './truncator.js'
 import { Trace } from './types.js'
 
 import { init, stripInvalidIdentifiers } from './utils.js'
-import { runAsyncFunction } from './vm.js'
+import { runAsyncFunction } from './vm/index.js'
 
 const getErrorMessage = (err: unknown) => (err instanceof Error ? err.message : JSON.stringify(err))
 
