@@ -1,4 +1,5 @@
 import {
+  BotDefinitionProps,
   StateDefinition as BotStateDefinition,
   EventDefinition as BotEventDefinition,
   ConfigurationDefinition as BotConfigurationDefinition,
@@ -9,6 +10,7 @@ import {
   TableDefinition as BotTableDefinition,
   WorkflowDefinition,
 } from '../bot/definition'
+import { stripRecurringFromEvents, resolveRecurringEvents } from '../common/recurring-events'
 import { SchemaTransformOptions } from '../common/types'
 import { DefinitionError } from '../errors'
 import { IntegrationPackage, InterfacePackage } from '../package'
@@ -63,6 +65,9 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
   }
 >
 
+/*
+ * @deprecated Use the `recurring` field on `EventDefinition` instead.
+ */
 export type RecurringEventDefinition<TEvents extends BaseEvents = BaseEvents> = {
   [K in keyof TEvents]: {
     type: K
@@ -140,6 +145,7 @@ export type PluginDefinitionProps<
   events?: {
     [K in keyof TEvents]: GenericDefinition<TInterfaces, EventDefinition<TEvents[K]>>
   }
+  /** @deprecated Use the `recurrence` field on each event in `events` instead. */
   recurringEvents?: Record<string, RecurringEventDefinition<TEvents>>
   actions?: {
     [K in keyof TActions]: GenericNestedDefinition<TInterfaces, ActionDefinition<TActions[K]>, 'input' | 'output'>
@@ -246,7 +252,6 @@ export class PluginDefinition<
     this.user = props.user
     this.conversation = props.conversation
     this.message = props.message
-    this.recurringEvents = props.recurringEvents
     this.workflows = props.workflows
     this.attributes = props.attributes
     this.__advanced = props.__advanced
@@ -285,7 +290,7 @@ export class PluginDefinition<
       )
     ) as { [K in keyof TStates]: StateDefinition<TStates[K]> }
 
-    this.events = Object.fromEntries(
+    const resolvedEvents = Object.fromEntries(
       Object.entries(props.events ?? {}).map(
         ([eventName, eventDef]: [keyof TEvents, NonNullable<(typeof props)['events']>[keyof TEvents]]) => [
           eventName,
@@ -296,6 +301,12 @@ export class PluginDefinition<
         ]
       )
     ) as { [K in keyof TEvents]: EventDefinition<TEvents[K]> }
+
+    this.events = stripRecurringFromEvents(resolvedEvents)
+    this.recurringEvents = resolveRecurringEvents(
+      resolvedEvents as Record<string, EventDefinition>,
+      props.recurringEvents as BotDefinitionProps['recurringEvents']
+    )
 
     this.actions = Object.fromEntries(
       Object.entries(props.actions ?? {}).map(

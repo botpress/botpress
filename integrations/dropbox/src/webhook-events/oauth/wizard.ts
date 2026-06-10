@@ -16,8 +16,15 @@ export const handler = async (props: bp.HandlerProps) => {
   return response
 }
 
-const _startHandler: WizardHandler = (props) => {
+const _startHandler: WizardHandler = async (props) => {
   const { responses } = props
+
+  // When nothing is connected yet there's nothing to reset, so skip the
+  // confirmation and go straight to authorizing with Dropbox.
+  if (!(await _isAlreadyConnected(props))) {
+    return _redirectToDropboxHandler(props)
+  }
+
   return responses.displayButtons({
     pageTitle: 'Reset Configuration',
     htmlOrMarkdownPageContents:
@@ -36,6 +43,19 @@ const _startHandler: WizardHandler = (props) => {
       },
     ],
   })
+}
+
+const _isAlreadyConnected = async ({ client, ctx }: bp.HandlerProps): Promise<boolean> => {
+  try {
+    const result = await client.getState({
+      id: ctx.integrationId,
+      type: 'integration',
+      name: 'authorization',
+    })
+    return Boolean(result?.state?.payload?.refreshToken)
+  } catch {
+    return false
+  }
 }
 
 const _redirectToDropboxHandler: WizardHandler = async (props) => {
