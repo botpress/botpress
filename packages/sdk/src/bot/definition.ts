@@ -1,4 +1,5 @@
 import { Table } from '@botpress/client'
+import { stripRecurringFromEvents, resolveRecurringEvents } from '../common/recurring-events'
 import { SchemaTransformOptions } from '../common/types'
 import * as consts from '../consts'
 import { DefinitionError } from '../errors'
@@ -29,6 +30,9 @@ export type StateDefinition<TState extends BaseStates[string] = BaseStates[strin
   expiry?: number
 }
 
+/*
+ * @deprecate
+ */
 export type RecurringEventDefinition<TEvents extends BaseEvents = BaseEvents> = {
   [K in keyof TEvents]: {
     type: K
@@ -38,6 +42,10 @@ export type RecurringEventDefinition<TEvents extends BaseEvents = BaseEvents> = 
 }[keyof TEvents]
 
 export type EventDefinition<TEvent extends BaseEvents[string] = BaseEvents[string]> = SchemaDefinition<TEvent> & {
+  recurrence?: {
+    cron: string
+    payload: z.input<TEvent>
+  }
   attributes?: Record<string, string>
 }
 
@@ -178,6 +186,7 @@ export type BotDefinitionProps<
   events?: {
     [K in keyof TEvents]: EventDefinition<TEvents[K]>
   }
+  /** @deprecated Use the `recurrence` field on each event in `events` instead. */
   recurringEvents?: Record<string, RecurringEventDefinition<TEvents>>
   actions?: {
     [K in keyof TActions]: ActionDefinition<TActions[K]>
@@ -231,6 +240,14 @@ export class BotDefinition<
   >
 
   public constructor(public readonly props: BotDefinitionProps<TStates, TEvents, TActions, TTables, TWorkflows>) {
+    const events = stripRecurringFromEvents(
+      props.events as Record<string, EventDefinition> | undefined
+    ) as this['props']['events']
+    const recurringEvents = resolveRecurringEvents(
+      props.events as Record<string, EventDefinition>,
+      props.recurringEvents as BotDefinitionProps['recurringEvents']
+    )
+
     this.integrations = props.integrations
     this.plugins = props.plugins
     this.user = props.user
@@ -238,8 +255,8 @@ export class BotDefinition<
     this.message = props.message
     this.states = props.states
     this.configuration = props.configuration
-    this.events = props.events
-    this.recurringEvents = props.recurringEvents
+    this.events = events
+    this.recurringEvents = recurringEvents
     this.actions = props.actions
     this.tables = props.tables
     this.secrets = props.secrets
@@ -252,8 +269,8 @@ export class BotDefinition<
       conversation: props.conversation,
       message: props.message,
       states: props.states,
-      events: props.events,
-      recurringEvents: props.recurringEvents,
+      events,
+      recurringEvents,
       actions: props.actions,
       tables: props.tables,
       workflows: props.workflows,

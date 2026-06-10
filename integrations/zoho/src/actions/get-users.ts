@@ -6,14 +6,7 @@ export const getUsers: IntegrationProps['actions']['getUsers'] = async ({ ctx, c
   const validatedInput = getUsersInputSchema.parse(input)
   const params = validatedInput.params ?? '{}' // Ensure params is always a valid JSON string
 
-  const zohoClient = getClient(
-    ctx.configuration.refreshToken,
-    ctx.configuration.clientId,
-    ctx.configuration.clientSecret,
-    ctx.configuration.dataCenter,
-    ctx,
-    client
-  )
+  const zohoClient = await getClient(ctx, client)
 
   logger.forBot().info(`Validated Input - Params: ${params}`)
 

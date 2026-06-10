@@ -5,14 +5,7 @@ import type { IntegrationProps } from '../misc/types'
 export const makeApiCall: IntegrationProps['actions']['makeApiCall'] = async ({ ctx, client, logger, input }) => {
   const validatedInput = makeApiCallInputSchema.parse(input)
   const params = validatedInput.params ?? '{}' // Default to empty JSON if no params provided
-  const zohoClient = getClient(
-    ctx.configuration.refreshToken,
-    ctx.configuration.clientId,
-    ctx.configuration.clientSecret,
-    ctx.configuration.dataCenter,
-    ctx,
-    client
-  )
+  const zohoClient = await getClient(ctx, client)
 
   try {
     const result = await zohoClient.makeApiCall(

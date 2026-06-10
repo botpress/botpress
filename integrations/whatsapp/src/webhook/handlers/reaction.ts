@@ -22,13 +22,21 @@ export const reactionHandler = async (reactionMessage: WhatsAppReactionMessage, 
     return
   }
 
+  // Prefer the legacy phone identity so existing users keep matching; fall back to the stable
+  // user_id only for opted-in users with no phone number.
+  const reactingUserId = reactionMessage.from ?? reactionMessage.from_user_id
+  if (!reactingUserId) {
+    logger.forBot().warn('No user identifier found on reaction message, ignoring reaction')
+    return
+  }
+
   const previousReaction = message.tags.reaction
   const reactionHasChanged = currentReaction !== previousReaction
   if (previousReaction && reactionHasChanged) {
     await _handleReaction({
       message,
       reactionEventType: 'reactionRemoved',
-      userId: reactionMessage.from,
+      userId: reactingUserId,
       newReactionTagValue: undefined,
       eventReaction: previousReaction,
       ...props,
@@ -39,7 +47,7 @@ export const reactionHandler = async (reactionMessage: WhatsAppReactionMessage, 
     await _handleReaction({
       message,
       reactionEventType: 'reactionAdded',
-      userId: reactionMessage.from,
+      userId: reactingUserId,
       newReactionTagValue: currentReaction,
       eventReaction: currentReaction,
       ...props,

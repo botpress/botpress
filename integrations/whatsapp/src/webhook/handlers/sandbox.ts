@@ -14,6 +14,7 @@ export const isSandboxCommand = (props: bp.HandlerProps): boolean => {
 }
 
 const NO_MESSAGE_ERROR = { status: 400, body: 'No message found in request' } as const
+const NO_PHONE_ERROR = { status: 400, body: 'No phone number found on message' } as const
 
 export const sandboxHandler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) => {
   const { req } = props
@@ -39,6 +40,9 @@ const _handleJoinCommand = async (props: bp.HandlerProps) => {
   }
 
   const userPhoneNumber = message.from
+  if (!userPhoneNumber) {
+    return NO_PHONE_ERROR
+  }
   const botPhoneNumberId = value.metadata.phone_number_id
   const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
 
@@ -56,6 +60,9 @@ const _handleLeaveCommand = async (props: bp.HandlerProps) => {
   }
 
   const userPhoneNumber = message.from
+  if (!userPhoneNumber) {
+    return NO_PHONE_ERROR
+  }
   const botPhoneNumberId = value.metadata.phone_number_id
   const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
 

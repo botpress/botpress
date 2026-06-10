@@ -157,7 +157,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.15.1'
+export const INTEGRATION_VERSION = '4.16.2'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
@@ -358,6 +358,10 @@ export default new IntegrationDefinition({
             title: 'User Phone Number',
             description: 'Phone number of the WhatsApp user having a conversation with the bot.',
           },
+          userId: {
+            title: 'User ID',
+            description: 'WhatsApp stable user ID of the user having a conversation with the bot.',
+          },
         },
       },
     },
@@ -375,6 +379,15 @@ export default new IntegrationDefinition({
       number: {
         title: 'Phone Number',
         description: 'WhatsApp phone number of the user',
+      },
+      username: {
+        title: 'Username',
+        description: 'WhatsApp username of the user (when opted in to username privacy)',
+      },
+      whatsappUserId: {
+        title: 'WhatsApp User ID',
+        description:
+          "WhatsApp's stable user ID (user_id) of the user, present in both opted-in and non-opted-in payloads",
       },
     },
   },
