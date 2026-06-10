@@ -1,7 +1,8 @@
+import { RuntimeError } from '@botpress/sdk'
 import { google } from 'googleapis'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { RequestMapping, ResponseMapping } from './mapping'
-import { exchangeAuthCodeAndSaveRefreshToken, getAuthenticatedOAuth2Client } from './oauth-client'
+import { getAuthenticatedOAuth2Client } from './oauth-client'
 import { CreateEventRequest, GoogleCalendarClient, GoogleOAuth2Client, Event, UpdateEventRequest } from './types'
 import * as bp from '.botpress'
 
@@ -17,23 +18,32 @@ export class GoogleClient {
 
   public static async create({ ctx, client }: { ctx: bp.Context; client: bp.Client }) {
     const oauth2Client = await getAuthenticatedOAuth2Client({ ctx, client })
+    const calendarId = await this._resolveCalendarId({ ctx, client })
 
-    return new GoogleClient({
-      oauthClient: oauth2Client,
-      calendarId: ctx.configuration.calendarId,
-    })
+    return new GoogleClient({ oauthClient: oauth2Client, calendarId })
   }
 
-  public static async authenticateWithAuthorizationCode({
-    ctx,
-    client,
-    authorizationCode,
-  }: {
-    ctx: bp.Context
-    client: bp.Client
-    authorizationCode: string
-  }) {
-    await exchangeAuthCodeAndSaveRefreshToken({ ctx, client, authorizationCode })
+  private static async _resolveCalendarId({ ctx, client }: { ctx: bp.Context; client: bp.Client }): Promise<string> {
+    if (ctx.configurationType === 'serviceAccountKey') {
+      return ctx.configuration.calendarId
+    }
+
+    const stateResult = await client
+      .getState({ type: 'integration', name: 'configuration', id: ctx.integrationId })
+      .catch((thrown: unknown) => {
+        // The SDK doesn't expose a typed not-found error, so we string-match.
+        const err = thrown instanceof Error ? thrown : new Error(String(thrown))
+        if (err.message.toLowerCase().includes('not found')) {
+          return null
+        }
+        throw err
+      })
+
+    const calendarId = stateResult?.state.payload.calendarId ?? ctx.configuration.calendarId
+    if (typeof calendarId !== 'string' || calendarId.trim().length === 0) {
+      throw new RuntimeError('Calendar ID is missing. Please reconfigure the integration.')
+    }
+    return calendarId
   }
 
   @handleErrors('Failed to get calendar summary')
