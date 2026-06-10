@@ -422,9 +422,12 @@ line2
       const source = 'line1\nline2\nline3\n'
       const ops = '\n\n◼︎=2|REPLACED\n\n'
       const result = Micropatch.applyText(source, ops)
+      console.log(result)
       expect(result).toMatchInlineSnapshot(`
 "line1
 REPLACED
+
+
 line3
 "
 `)
