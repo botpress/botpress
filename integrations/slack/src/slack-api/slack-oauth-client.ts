@@ -1,5 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import { type OauthV2AccessResponse, WebClient as SlackWebClient } from '@slack/web-api'
+import { backOff } from 'exponential-backoff'
 import { handleErrorsDecorator as handleErrors, redactSlackError } from './error-handling'
 import * as bp from '.botpress'
 
@@ -279,24 +280,30 @@ export class SlackOAuthClient {
       throw new sdk.RuntimeError('No credentials to save')
     }
 
-    await this._client.setState({
-      type: 'integration',
-      name: 'oAuthCredentialsV2',
-      id: this._ctx.integrationId,
-      payload: {
-        shortLivedAccessToken: {
-          currentAccessToken: this._currentAuthState.accessToken.token,
-          issuedAt: this._currentAuthState.accessToken.issuedAt.toISOString(),
-          expiresAt: this._currentAuthState.accessToken.expiresAt.toISOString(),
-        },
-        rotatingRefreshToken: {
-          token: this._currentAuthState.refreshToken.token,
-          issuedAt: this._currentAuthState.refreshToken.issuedAt.toISOString(),
-        },
-        grantedScopes: this._currentAuthState.scopes,
-        botUserId: this._currentAuthState.botUserId,
-        teamId: this._currentAuthState.teamId,
-      },
-    })
+    const authState = this._currentAuthState
+
+    await backOff(
+      () =>
+        this._client.setState({
+          type: 'integration',
+          name: 'oAuthCredentialsV2',
+          id: this._ctx.integrationId,
+          payload: {
+            shortLivedAccessToken: {
+              currentAccessToken: authState.accessToken.token,
+              issuedAt: authState.accessToken.issuedAt.toISOString(),
+              expiresAt: authState.accessToken.expiresAt.toISOString(),
+            },
+            rotatingRefreshToken: {
+              token: authState.refreshToken.token,
+              issuedAt: authState.refreshToken.issuedAt.toISOString(),
+            },
+            grantedScopes: authState.scopes,
+            botUserId: authState.botUserId,
+            teamId: authState.teamId,
+          },
+        }),
+      { numOfAttempts: 3, startingDelay: 500 }
+    )
   }
 }

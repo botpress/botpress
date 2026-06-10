@@ -19,6 +19,7 @@
     "@slack/types": "^2.20.0",
     "@slack/web-api": "^6.13.0",
     "axios": "^1.3.4",
+    "exponential-backoff": "^3.1.1",
     "fuse.js": "^6.6.2"
   },
   "devDependencies": {
