@@ -2,7 +2,7 @@ import { z, IntegrationDefinition } from '@botpress/sdk'
 
 export default new IntegrationDefinition({
   name: 'zoom',
-  version: '0.1.0',
+  version: '0.1.1',
   title: 'Zoom',
   description: 'Receives Zoom webhook and processes transcript for meetings.',
   icon: 'icon.svg',
@@ -41,5 +41,9 @@ export default new IntegrationDefinition({
         rawVtt: z.string().title('Raw VTT').describe('The raw VTT file content of the meeting transcript').optional(),
       }),
     },
+  },
+  attributes: {
+    category: 'Communication & Channels',
+    repo: 'botpress',
   },
 })

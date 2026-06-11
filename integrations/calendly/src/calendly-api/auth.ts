@@ -1,3 +1,4 @@
+import { handleErrorsDecorator as handleErrors } from '@botpress/common'
 import { RuntimeError } from '@botpress/sdk'
 import axios, { type AxiosInstance } from 'axios'
 import type { CommonHandlerProps, Result } from '../types'
@@ -47,6 +48,7 @@ export class CalendlyAuthClient {
     return { success: true, data: result.data }
   }
 
+  @handleErrors('Failed to obtain Calendly OAuth access token from authorization code')
   public async getAccessTokenWithCode(code: string): Promise<Result<GetOAuthAccessTokenResp>> {
     return this._getAccessToken({
       grant_type: 'authorization_code',
@@ -55,6 +57,7 @@ export class CalendlyAuthClient {
     })
   }
 
+  @handleErrors('Failed to refresh Calendly OAuth access token')
   public async getAccessTokenWithRefreshToken(refreshToken: string): Promise<Result<GetOAuthAccessTokenResp>> {
     return this._getAccessToken({
       grant_type: 'refresh_token',
