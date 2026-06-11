@@ -6,7 +6,10 @@ fi
 integration=$1
 
 integration_path="integrations/$integration"
-integration_def=$(pnpm bp read --work-dir "$integration_path" --json)
+if ! integration_def=$(pnpm bp read --work-dir "$integration_path" --json); then
+  echo "Error: Failed to read integration definition for \"$integration\". Check the integration for TypeScript errors." >&2
+  exit 1
+fi
 
 category=$(echo "$integration_def" | jq -r '.attributes.category // empty')
 
