@@ -259,9 +259,6 @@ export class IntegrationDefinition<
   ): this {
     const { entities, actions, events, channels } = this._callBuilder(interfacePkg, builder)
 
-    const self = this as utils.types.Writable<IntegrationDefinition>
-    self.interfaces ??= {}
-
     const entityNames = Object.values(entities).map((e) => e.name)
 
     const key = entityNames.length === 0 ? interfacePkg.name : `${interfacePkg.name}<${entityNames.join(',')}>`
@@ -279,16 +276,22 @@ export class IntegrationDefinition<
      * This allows setting more specific properties in the integration, while staying compatible with the interface.
      * Same goes for channels and events.
      */
-    self.actions = utils.records.mergeRecords(self.actions ?? {}, resolved.actions, this._mergeActions)
-    self.channels = utils.records.mergeRecords(self.channels ?? {}, resolved.channels, this._mergeChannels)
-    self.events = utils.records.mergeRecords(self.events ?? {}, resolved.events, this._mergeEvents)
+    const base = this as IntegrationDefinition
+    const extended: IntegrationDefinition = new IntegrationDefinition({
+      ...base.props,
+      actions: utils.records.mergeRecords(base.actions ?? {}, resolved.actions, this._mergeActions),
+      channels: utils.records.mergeRecords(base.channels ?? {}, resolved.channels, this._mergeChannels),
+      events: utils.records.mergeRecords(base.events ?? {}, resolved.events, this._mergeEvents),
+      interfaces: {
+        ...base.interfaces,
+        [key]: {
+          id: interfacePkg.id,
+          ...statement,
+        },
+      },
+    })
 
-    self.interfaces[key] = {
-      id: interfacePkg.id,
-      ...statement,
-    }
-
-    return this
+    return extended as this
   }
 
   private _callBuilder<P extends InterfacePackage>(
