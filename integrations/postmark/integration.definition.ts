@@ -20,7 +20,7 @@ export default new sdk.IntegrationDefinition({
   name: 'postmark',
   title: 'Postmark',
   description: 'Send and receive emails through Postmark',
-  version: '0.1.0',
+  version: '0.1.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -195,6 +195,10 @@ export default new sdk.IntegrationDefinition({
       description: 'A user in the Postmark channel',
       schema: sdk.z.object({}),
     },
+  },
+  attributes: {
+    category: 'Marketing & Email',
+    repo: 'botpress',
   },
 })
   .extend(proactiveConversation, ({ entities }) => ({
