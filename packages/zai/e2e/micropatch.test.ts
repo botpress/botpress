@@ -422,13 +422,27 @@ line2
       const source = 'line1\nline2\nline3\n'
       const ops = '\n\n◼︎=2|REPLACED\n\n'
       const result = Micropatch.applyText(source, ops)
-      console.log(result)
       expect(result).toMatchInlineSnapshot(`
 "line1
 REPLACED
 
 
 line3
+"
+`)
+    })
+
+    test('two subsequent replace ops', () => {
+      const source = 'line1\nline2\nline3\nline4\nline5\n'
+      const ops = '◼︎=2|REPLACED\n\n◼︎=5|REPLACED2'
+      const result = Micropatch.applyText(source, ops)
+      expect(result).toMatchInlineSnapshot(`
+"line1
+REPLACED
+
+line3
+line4
+REPLACED2
 "
 `)
     })

@@ -194,8 +194,7 @@ export class Micropatch {
         let j = i + 1
         while (j < lines.length) {
           const nextLine = lines[j]
-          // check if the nextLine really doesn't exixt or is just empty (!"" == true)
-          if ((!nextLine && nextLine != "") || nextLine.startsWith('◼︎')) break
+          if (nextLine.startsWith('◼︎')) break
           payload.push(Micropatch._unescapeMarker(nextLine))
           j++
         }
