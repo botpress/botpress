@@ -197,7 +197,7 @@ export default new sdk.IntegrationDefinition({
     },
   },
   attributes: {
-    category: 'Marketing & Email',
+    category: 'Communication & Channels',
     repo: 'botpress',
   },
 })
