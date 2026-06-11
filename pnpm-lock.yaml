@@ -996,6 +996,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpresshub/hitl':
+        specifier: workspace:*
+        version: link:../../interfaces/hitl
 
   integrations/github:
     dependencies:

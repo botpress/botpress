@@ -8,6 +8,7 @@ import type {
   FreshdeskTicket,
   GetTicketInput,
   ListTicketsInput,
+  ReplyToTicketInput,
   SearchTicketsInput,
   SearchTicketsOutput,
   UpdateTicketInput,
@@ -136,6 +137,10 @@ export class FreshdeskClient {
     return this._request<SearchTicketsOutput>('GET', '/search/tickets', params)
   }
 
+  public async replyToTicket(ticketId: number, input: ReplyToTicketInput): Promise<FreshdeskConversation> {
+    return this._request<FreshdeskConversation>('POST', `/tickets/${ticketId}/reply`, undefined, input)
+  }
+
   public async addNote(ticketId: number, input: AddNoteInput): Promise<FreshdeskConversation> {
     return this._request<FreshdeskConversation>('POST', `/tickets/${ticketId}/notes`, undefined, {
       private: true,
@@ -153,5 +158,9 @@ export class FreshdeskClient {
 
   public async searchContactsByName(term: string): Promise<Array<{ id: number; name: string }>> {
     return this._request<Array<{ id: number; name: string }>>('GET', '/contacts/autocomplete', { term })
+  }
+
+  public async createContact(name: string, email: string): Promise<FreshdeskContact> {
+    return this._request<FreshdeskContact>('POST', '/contacts', undefined, { name, email })
   }
 }

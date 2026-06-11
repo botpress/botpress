@@ -234,7 +234,24 @@ export const actions = {
       }),
     },
   },
-  // TODO: re-add replyToTicket action
+  replyToTicket: {
+    title: 'Reply to Ticket',
+    description: 'Sends a customer-facing reply on a Freshdesk ticket.',
+    input: {
+      schema: z.object({
+        ticketId: z.string().title('Ticket ID').describe('The Freshdesk ticket ID to reply to.'),
+        body: z.string().title('Body').describe('HTML content of the reply.'),
+        cc_emails: z.array(z.string()).optional().title('CC Emails').describe('Email addresses to CC on the reply.'),
+      }),
+    },
+    output: {
+      schema: z.object({
+        id: z.number().title('ID').describe('Unique ID of the reply.'),
+        body: z.string().title('Body').describe('HTML content of the reply.'),
+        createdAt: z.string().title('Created At').describe('ISO 8601 timestamp of reply creation.'),
+      }),
+    },
+  },
   addNote: {
     title: 'Add Note',
     description: 'Adds an internal note to a Freshdesk ticket (not visible to the requester by default).',

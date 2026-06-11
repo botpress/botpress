@@ -96,6 +96,11 @@ export type FreshdeskConversation = {
   user_id: number
 }
 
+export type ReplyToTicketInput = {
+  body: string
+  cc_emails?: string[]
+}
+
 export type AddNoteInput = {
   body: string
   private?: boolean

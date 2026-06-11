@@ -1,4 +1,7 @@
 import { timingSafeEqual } from 'crypto'
+import { executeHitlAssigned } from './events/hitlAssigned'
+import { executeHitlMessageReceived } from './events/hitlMessageReceived'
+import { executeHitlStopped } from './events/hitlStopped'
 import { executeTicketCreated } from './events/ticketCreated'
 import { executeTicketReplied } from './events/ticketReplied'
 import { executeTicketUpdated } from './events/ticketUpdated'
@@ -56,6 +59,27 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
       log.debug(`Firing ticketReplied, ticket=${JSON.stringify(body['ticket'])}`)
       const result = await executeTicketReplied({ ...props, body })
       log.info('ticketReplied event fired successfully')
+      return result
+    }
+
+    if (req.path === '/hitl-message-received') {
+      log.debug(`Firing hitlMessageReceived, body=${JSON.stringify(body)}`)
+      const result = await executeHitlMessageReceived({ ...props, body })
+      log.info('hitlMessageReceived processed successfully')
+      return result
+    }
+
+    if (req.path === '/hitl-assigned') {
+      log.debug(`Firing hitlAssigned, body=${JSON.stringify(body)}`)
+      const result = await executeHitlAssigned({ ...props, body })
+      log.info('hitlAssigned event fired successfully')
+      return result
+    }
+
+    if (req.path === '/hitl-stopped') {
+      log.debug(`Firing hitlStopped, body=${JSON.stringify(body)}`)
+      const result = await executeHitlStopped({ ...props, body })
+      log.info('hitlStopped event fired successfully')
       return result
     }
 
