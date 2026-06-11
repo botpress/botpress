@@ -100,6 +100,14 @@ const _oauthRedirectHandler: WizardHandler = async ({ ctx, client, responses }) 
 
 const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, logger, responses, query }) => {
   try {
+    const error = query.get('error')
+    if (error) {
+      return responses.endWizard({
+        success: false,
+        errorMessage: `${error} - ${query.get('error_description') ?? ''}`,
+      })
+    }
+
     const code = query.get('code')
     if (!code) {
       return responses.endWizard({ success: false, errorMessage: 'Jira did not return an authorization code' })
