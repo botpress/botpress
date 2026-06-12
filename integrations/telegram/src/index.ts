@@ -36,7 +36,7 @@ const integration = new bp.Integration({
     let botToken: string
     try {
       botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
-    } catch (err) {
+    } catch (err: unknown) {
       if (!(err instanceof RuntimeError)) {
         throw err
       }
@@ -51,7 +51,7 @@ const integration = new bp.Integration({
     let botToken: string
     try {
       botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
-    } catch (err) {
+    } catch (err: unknown) {
       if (err instanceof RuntimeError) {
         return
       }
