@@ -119,16 +119,23 @@ export const botHandler =
     } catch (thrown: unknown) {
       const error = thrown instanceof Error ? thrown : new Error(String(thrown))
 
-      if (isApiError(error)) {
-        const runtimeError = error.type === 'Runtime' ? error : new RuntimeError(error.message, error)
-        logger.error(runtimeError.message)
+      // A deliberately thrown RuntimeError is the bot signaling a handled,
+      // user-facing failure and keeps its 4xx status. Anything else is an
+      // unhandled crash and answers 500 so callers can treat it as transient:
+      if (isApiError(error) && error.type === 'Runtime') {
+        logger.error(error.message)
+        return { status: error.code, body: JSON.stringify(error.toJSON()) }
+      }
 
-        return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
+      if (isApiError(error)) {
+        const runtimeError = new RuntimeError(error.message, error)
+        logger.error(runtimeError.message)
+        return { status: 500, body: JSON.stringify(runtimeError.toJSON()) }
       }
 
       const runtimeError = new RuntimeError('An unexpected error occurred in the bot.', error)
       logger.error(runtimeError.message, error)
-      return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
+      return { status: 500, body: JSON.stringify(runtimeError.toJSON()) }
     }
   }
 
