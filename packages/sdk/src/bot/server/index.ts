@@ -1,6 +1,6 @@
-import { isApiError, Client, RuntimeError, Message, State, User, Conversation } from '@botpress/client'
+import { Client, InvalidPayloadError, Message, State, User, Conversation } from '@botpress/client'
 import { retryConfig } from '../../retry'
-import { Request, Response, parseBody } from '../../serve'
+import { Request, Response, parseBody, handlerErrorToHttpResponse } from '../../serve'
 import * as utils from '../../utils/type-utils'
 import { BotLogger } from '../bot-logger'
 import { BotSpecificClient } from '../client'
@@ -114,28 +114,16 @@ export const botHandler =
         case 'ping':
           return await onPing(props)
         default:
-          throw new Error(`Unknown operation ${ctx.operation}`)
+          throw new InvalidPayloadError(`Unknown operation ${ctx.operation}`)
       }
     } catch (thrown: unknown) {
-      const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+      const { status, body, error } = handlerErrorToHttpResponse({
+        thrown,
+        unexpectedErrorMessage: 'An unexpected error occurred in the bot.',
+      })
 
-      // A deliberately thrown RuntimeError is the bot signaling a handled,
-      // user-facing failure and keeps its 4xx status. Anything else is an
-      // unhandled crash and answers 500 so callers can treat it as transient:
-      if (isApiError(error) && error.type === 'Runtime') {
-        logger.error(error.message)
-        return { status: error.code, body: JSON.stringify(error.toJSON()) }
-      }
-
-      if (isApiError(error)) {
-        const runtimeError = new RuntimeError(error.message, error)
-        logger.error(runtimeError.message)
-        return { status: 500, body: JSON.stringify(runtimeError.toJSON()) }
-      }
-
-      const runtimeError = new RuntimeError('An unexpected error occurred in the bot.', error)
-      logger.error(runtimeError.message, error)
-      return { status: 500, body: JSON.stringify(runtimeError.toJSON()) }
+      status >= 500 ? logger.error(error.message, thrown) : logger.error(error.message)
+      return { status, body }
     }
   }
 
@@ -285,7 +273,7 @@ const onActionTriggered = async ({ ctx, logger, req, client, self }: types.Serve
   let { input, type } = parseBody<AnyActionPayload>(req)
 
   if (!type) {
-    throw new Error('Missing action type')
+    throw new InvalidPayloadError('Missing action type')
   }
 
   // TODO: this should probably run even if the action is called in memory
@@ -306,7 +294,7 @@ const onActionTriggered = async ({ ctx, logger, req, client, self }: types.Serve
 
   const action = self.actionHandlers[type]
   if (!action) {
-    throw new Error(`Action ${type} not found`)
+    throw new InvalidPayloadError(`Action ${type} not found`)
   }
 
   let output = await action({ ctx, logger, input, client, type })
