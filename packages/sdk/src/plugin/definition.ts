@@ -350,6 +350,11 @@ export class PluginDefinition<
     return { sdkVersion: SDK_VERSION } as const
   }
 
+  public readonly clone?: (overrides?: Partial<PluginDefinitionProps>) => PluginDefinition = (overrides?) => {
+    // TODO: make non-optional on next major (CLI and SDK share the same major, so the CLI can always rely on clone being present)
+    return new PluginDefinition({ ...this.props, ...overrides } as PluginDefinitionProps)
+  }
+
   /**
    * Returns a copy of the plugin definition where all entity references are
    * resolved to the base entity schema defined by the interface. This does not
