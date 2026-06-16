@@ -1,3 +1,4 @@
+import { InvalidPayloadError, isApiError, RuntimeError } from '@botpress/client'
 import { isNode } from 'browser-or-node'
 import * as http from 'node:http'
 import { log } from './log'
@@ -20,9 +21,44 @@ export type Handler = (req: Request) => Promise<Response | void>
 
 export function parseBody<T>(req: Request): T {
   if (!req.body) {
-    throw new Error('Missing body')
+    throw new InvalidPayloadError('Missing body')
   }
-  return JSON.parse(req.body)
+
+  try {
+    return JSON.parse(req.body)
+  } catch (thrown: unknown) {
+    throw new InvalidPayloadError(thrown instanceof Error ? thrown.message : String(thrown))
+  }
+}
+
+/**
+ * Maps a thrown handler error to an HTTP response.
+ *
+ * A deliberately thrown `RuntimeError` indicates a handled, user-facing failure,
+ * and an `InvalidPayloadError` indicates a malformed request. Both preserve
+ * their original 4xx status so callers do not retry them.
+ *
+ * Any other error is treated as unhandled and returned as a 500 response so
+ * callers can consider it transient.
+ */
+export const handlerErrorToHttpResponse = ({
+  thrown,
+  unexpectedErrorMessage,
+}: {
+  thrown: unknown
+  unexpectedErrorMessage: string
+}): { status: number; body: string; error: Error } => {
+  const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+
+  if (isApiError(error) && (error.type === 'Runtime' || error.type === 'InvalidPayload')) {
+    return { status: error.code, body: JSON.stringify(error.toJSON()), error }
+  }
+
+  const runtimeError = isApiError(error)
+    ? new RuntimeError(error.message, error)
+    : new RuntimeError(unexpectedErrorMessage, error)
+
+  return { status: 500, body: JSON.stringify(runtimeError.toJSON()), error: runtimeError }
 }
 
 export async function serve(
