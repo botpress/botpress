@@ -1,11 +1,10 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import typingIndicator from 'bp_modules/typing-indicator'
 import { actions, channels, user, states } from 'definitions'
 
 export default new IntegrationDefinition({
   name: 'teams',
-  version: '2.0.4',
+  version: '2.0.5',
   title: 'Microsoft Teams',
   description: 'Interact with users, deliver notifications, and perform actions within Microsoft Teams.',
   icon: 'icon.svg',
@@ -22,7 +21,7 @@ export default new IntegrationDefinition({
   actions,
   events: {},
   states,
-  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+
   attributes: {
     category: 'Communication & Channels',
     guideSlug: 'teams',

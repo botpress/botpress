@@ -23,7 +23,6 @@
     "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpresshub/typing-indicator": "workspace:*",
-    "@sentry/cli": "^2.39.1",
     "@types/lodash": "^4.14.191",
     "@types/markdown-it": "^14.1.2",
     "@types/sanitize-html": "^2.16.0"

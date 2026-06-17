@@ -141,8 +141,4 @@ const integration = new bp.Integration({
   },
 })
 
-export default common.sentry.wrapIntegration(integration, {
-  dsn: bp.secrets.SENTRY_DSN,
-  environment: bp.secrets.SENTRY_ENVIRONMENT,
-  release: bp.secrets.SENTRY_RELEASE,
-})
+export default common.reporting.wrapIntegration(integration)

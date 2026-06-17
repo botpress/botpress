@@ -1,5 +1,0 @@
-[defaults]
-project=integration-dropbox
-
-[auth]
-dsn=https://637b68d27272f81c8e9e7289b43a86f8@o363631.ingest.us.sentry.io/4508740248403968

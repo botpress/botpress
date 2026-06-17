@@ -18,7 +18,6 @@
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "@sentry/cli": "^2.39.1",
     "preact": "^10.26.6"
   }
 }

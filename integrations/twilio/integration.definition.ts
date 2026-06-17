@@ -1,12 +1,11 @@
 import { IntegrationDefinition } from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 import typingIndicator from 'bp_modules/typing-indicator'
 import { channels, configuration, entities, user } from './definitions'
 
 export const INTEGRATION_NAME = 'twilio'
-export const INTEGRATION_VERSION = '1.3.2'
+export const INTEGRATION_VERSION = '1.3.3'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -22,7 +21,6 @@ export default new IntegrationDefinition({
   actions: {},
   events: {},
   secrets: {
-    ...sentryHelpers.COMMON_SECRET_NAMES,
     POSTHOG_KEY: {
       description: 'Posthog key for error dashboards',
     },
