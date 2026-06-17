@@ -2,7 +2,7 @@ import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 
 export default new IntegrationDefinition({
   name: 'viber',
-  version: '1.0.5',
+  version: '1.0.6',
   title: 'Viber',
   description: 'Send and receive SMS messages.',
   icon: 'icon.svg',

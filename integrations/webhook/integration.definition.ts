@@ -2,7 +2,7 @@ import { z, IntegrationDefinition } from '@botpress/sdk'
 
 export default new IntegrationDefinition({
   name: 'webhook',
-  version: '1.1.5',
+  version: '1.1.6',
   title: 'Webhook',
   description: 'Use webhooks to send and receive data from external systems and trigger workflows.',
   icon: 'icon.svg',

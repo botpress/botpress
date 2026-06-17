@@ -8,7 +8,7 @@ export const INTEGRATION_NAME = 'sunco'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.0.2',
+  version: '2.0.3',
   title: 'Sunshine Conversations',
   description: 'Give your bot access to a powerful omnichannel messaging platform.',
   icon: 'icon.svg',

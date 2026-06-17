@@ -4,7 +4,7 @@ import proactiveUser from 'bp_modules/proactive-user'
 
 export default new IntegrationDefinition({
   name: 'intercom',
-  version: '2.0.5',
+  version: '2.0.6',
   title: 'Intercom',
   description: 'Engage with customers in realtime with personalized messaging.',
   icon: 'icon.svg',

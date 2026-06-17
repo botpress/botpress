@@ -5,7 +5,7 @@ import { configuration, states, user, channels, actions } from './src/definition
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '0.3.13',
+  version: '0.3.14',
   title: 'Asana',
   readme: 'hub.md',
   description: 'Connect your bot to your Asana inbox, create and update tasks, add comments, and locate users.',

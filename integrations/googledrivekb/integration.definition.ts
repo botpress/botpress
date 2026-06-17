@@ -25,7 +25,7 @@ export default new sdk.IntegrationDefinition({
   name: 'googledrivekb',
   title: 'Google Drive (Knowledge Base)',
   description: 'Sync Google Drive files into a Botpress knowledge base using read-only access to all files.',
-  version: '0.1.0',
+  version: '0.1.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   attributes: {

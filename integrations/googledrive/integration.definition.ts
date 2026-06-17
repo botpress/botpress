@@ -29,7 +29,7 @@ export default new sdk.IntegrationDefinition({
   name: 'googledrive',
   title: 'Google Drive',
   description: 'Access and manage your Google Drive files from your bot.',
-  version: '0.4.2',
+  version: '0.4.3',
   readme: 'hub.md',
   icon: 'icon.svg',
   attributes: {
