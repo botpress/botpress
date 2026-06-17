@@ -11,9 +11,15 @@ const hasCreds = !!botId && !!token
 describe.skipIf(!hasCreds)('CognitiveBeta e2e — TTS', () => {
   let beta: CognitiveBeta
 
-  beforeAll(() => {
+  beforeAll(async () => {
     beta = new CognitiveBeta({ apiUrl, botId, token, timeout: 120_000 })
-  })
+
+    // The first TTS request against a freshly-created bot is a cold start that can
+    // exceed the client's per-request timeout. Warm the path once here (tolerating
+    // failure) so the assertions below run against a warm backend instead of racing
+    // the cold-start latency.
+    await beta.generateAudio({ model: 'openai:tts-1', input: 'warmup', voice: 'alloy', format: 'mp3' }).catch(() => {})
+  }, 150_000)
 
   test('listVoices returns a non-empty array of well-formed voices', async () => {
     const voices = await beta.listVoices()
@@ -51,7 +57,7 @@ describe.skipIf(!hasCreds)('CognitiveBeta e2e — TTS', () => {
     expect(res.metadata.format).toBe('mp3')
     expect(res.metadata.characterCount).toBe('Hello world.'.length)
     expect(res.metadata.cost).toBeGreaterThanOrEqual(0)
-  }, 130_000)
+  }, 60_000)
 
   test('generateAudioStream yields chunks ending with a finished chunk', async () => {
     const chunks: TtsStreamChunk[] = []
@@ -147,7 +153,10 @@ describe.skipIf(!hasCreds)('CognitiveBeta e2e — Transcription', () => {
       throw new Error('generateAudio returned no audioUrl; cannot run transcription e2e')
     }
     audioUrl = audio.output.audioUrl
-  }, 130_000)
+    // This block uses its own client instance, so it pays the TTS cold start again
+    // (warming the TTS describe block does not warm this one). Allow enough budget
+    // for the client's internal retries to ride out a cold backend.
+  }, 150_000)
 
   test('transcribeAudio returns text and metadata', async () => {
     const res = await beta.transcribeAudio({

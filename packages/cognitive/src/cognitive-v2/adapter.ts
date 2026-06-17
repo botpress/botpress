@@ -1,5 +1,5 @@
-import type { InputProps, Response } from '../types'
 import type { Model, ModelRef } from '../models'
+import type { InputProps, Response } from '../types'
 // `CognitiveBeta` + `getCognitiveV2Model` live in ./index. This creates an
 // import cycle (index re-exports this adapter), but it's safe: both bindings
 // are only referenced inside function bodies, never at module-eval time.
