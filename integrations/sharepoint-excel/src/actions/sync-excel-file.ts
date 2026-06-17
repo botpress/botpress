@@ -28,28 +28,21 @@ const syncExcelFile: bp.IntegrationProps['actions']['syncExcelFile'] = async (pr
   const sheetsToProcess = Object.keys(sheetToTable)
   logger.forBot().info(`Parsed sheetTableMapping: ${JSON.stringify(sheetToTable)}`)
 
-  // Fetch the workbook, with a 404 -> document-library diagnostic to aid debugging.
-  let fileContentBuffer: Buffer
-  try {
-    fileContentBuffer = await spClient.getFileContentByUrl(input.sharepointFileUrl)
-    logger.forBot().info('Successfully fetched Excel file content.')
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error)
-    if (message.includes('404') || message.toLowerCase().includes('not found')) {
-      logger.forBot().warn('File not found. Listing available document libraries to help diagnose the issue...')
-      try {
-        const libraries = await spClient.listDocumentLibraries()
-        logger.forBot().info(`Available document libraries in site "${config.siteName}":`)
-        libraries.forEach((lib) => {
-          logger.forBot().info(`- ${lib.name} (Web URL: ${lib.webUrl})`)
-        })
-        logger.forBot().info('Please ensure your file URL matches one of these document libraries.')
-      } catch (listError) {
-        logger.forBot().error('Could not list document libraries:', listError)
-      }
+  // Fetch the workbook. A null result means "not found" -> list the available
+  // document libraries to help the user correct their file URL.
+  const fileContentBuffer = await spClient.getFileContentByUrl(input.sharepointFileUrl)
+  if (!fileContentBuffer) {
+    logger.forBot().warn('File not found. Listing available document libraries to help diagnose the issue...')
+    const libraries = await spClient.listDocumentLibraries()
+    logger.forBot().info(`Available document libraries in site "${config.siteName}":`)
+    for (const lib of libraries) {
+      logger.forBot().info(`- ${lib.name} (Web URL: ${lib.webUrl})`)
     }
-    throw error
+    throw new sdk.RuntimeError(
+      `File not found at "${input.sharepointFileUrl}". Ensure the file URL matches one of the document libraries listed above.`
+    )
   }
+  logger.forBot().info('Successfully fetched Excel file content.')
 
   const workbook = xlsx.read(fileContentBuffer, { type: 'buffer' })
   logger
@@ -96,15 +89,15 @@ const syncExcelFile: bp.IntegrationProps['actions']['syncExcelFile'] = async (pr
 
     // Build the desired schema from the sheet by auto-detecting column types.
     const properties: TableProperties = {}
-    excelHeaders.forEach((header, index) => {
+    for (const [index, header] of excelHeaders.entries()) {
       const cleanHeader = String(header).trim()
-      if (cleanHeader) {
-        const columnValues = rowsData.map((row) => row[index])
-        const columnType = detectColumnType(columnValues)
-        properties[cleanHeader] = { type: columnType }
-        logger.forBot().debug(`Column "${cleanHeader}" detected as type: ${columnType}`)
+      if (!cleanHeader) {
+        continue
       }
-    })
+      const columnType = detectColumnType(rowsData.map((row) => row[index]))
+      properties[cleanHeader] = { type: columnType }
+      logger.forBot().debug(`Column "${cleanHeader}" detected as type: ${columnType}`)
+    }
 
     if (Object.keys(properties).length === 0) {
       throw new sdk.RuntimeError(
@@ -127,27 +120,32 @@ const syncExcelFile: bp.IntegrationProps['actions']['syncExcelFile'] = async (pr
       await botpressVanillaClient.deleteTableRows({ table: tableNameForSheet, deleteAllRows: true })
       logger.forBot().info(`Cleared existing rows from table "${tableNameForSheet}".`)
     } catch (deleteError) {
+      const deleteErrorMsg = deleteError instanceof Error ? deleteError.message : `${deleteError}`
       logger
         .forBot()
         .warn(
-          `Could not clear rows from table "${tableNameForSheet}". Preserving table to maintain KB links; ` +
-            'proceeding with insert. This may result in duplicate data.',
-          deleteError
+          `Could not clear rows from table "${tableNameForSheet}" (${deleteErrorMsg}). Preserving table to maintain ` +
+            'KB links; proceeding with insert. This may result in duplicate data.'
         )
     }
 
-    const rowsToInsert = rowsData
-      .map((rowArray) => {
-        const rowObject: Record<string, string | number | null> = {}
-        excelHeaders.forEach((header, index) => {
-          const cleanHeader = String(header).trim()
-          if (cleanHeader) {
-            const columnType: ColumnType = tableSchemaProperties[cleanHeader]?.type === 'number' ? 'number' : 'string'
-            rowObject[cleanHeader] = coerceValue(rowArray[index], columnType)
-          }
-        })
-        return rowObject
+    // Pair each header with its cell value for a single row, coercing to the
+    // table's column type. Empty/missing headers are skipped.
+    const zip = (headers: unknown[], values: unknown[]): Record<string, string | number | null> => {
+      const rowObject: Record<string, string | number | null> = {}
+      headers.forEach((header, index) => {
+        const cleanHeader = String(header).trim()
+        if (!cleanHeader) {
+          return
+        }
+        const columnType: ColumnType = tableSchemaProperties[cleanHeader]?.type === 'number' ? 'number' : 'string'
+        rowObject[cleanHeader] = coerceValue(values[index], columnType)
       })
+      return rowObject
+    }
+
+    const rowsToInsert = rowsData
+      .map((rowArray) => zip(excelHeaders, rowArray))
       .filter((obj) => Object.keys(obj).length > 0)
 
     if (rowsToInsert.length === 0) {

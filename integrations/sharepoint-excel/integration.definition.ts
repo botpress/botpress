@@ -1,5 +1,5 @@
 import { IntegrationDefinition } from '@botpress/sdk'
-import { configuration, states, actions } from './src/definitions/index'
+import { configuration, states, actions } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'sharepoint-excel',

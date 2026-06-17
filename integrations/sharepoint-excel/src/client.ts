@@ -79,7 +79,13 @@ export class SharepointClient {
     }
   }
 
-  public async getFileContentByUrl(fileUrl: string): Promise<Buffer> {
+  /**
+   * Downloads the file content, or returns `null` when the file does not exist
+   * (unknown document library or a 404 from Graph). Any other failure throws.
+   * Returning `null` lets callers branch on "not found" type-safely instead of
+   * pattern-matching error messages.
+   */
+  public async getFileContentByUrl(fileUrl: string): Promise<Buffer | null> {
     const relativePath = fileUrl.startsWith('/') ? fileUrl.substring(1) : fileUrl
     const siteId = await this.getSiteId()
 
@@ -102,33 +108,19 @@ export class SharepointClient {
           d.name.toLowerCase() === decodeURIComponent(documentLibraryName).toLowerCase()
       )
 
+      // No matching document library means the file cannot exist; surface as not-found.
       if (!drive) {
-        throw new sdk.RuntimeError(
-          `Document library "${documentLibraryName}" not found. Available libraries: ${drives
-            .map((d) => d.name)
-            .join(', ')}`
-        )
+        return null
       }
 
       const graphApiUrl = `/sites/${siteId}/drives/${drive.id}/root:${filePath}:/content`
       const response = await this._graphApi.get(graphApiUrl, { responseType: 'arraybuffer' })
       return Buffer.from(response.data)
     } catch (error) {
-      if (error instanceof sdk.RuntimeError) {
-        throw error
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return null
       }
-
-      let message = `Failed to fetch file content from SharePoint URL "${fileUrl}".`
-      if (axios.isAxiosError(error)) {
-        const status = error.response?.status
-        if (status === 404) {
-          message += ` File not found in document library "${documentLibraryName}" at path "${filePath}".`
-        }
-        message += ` ${describe(error)}`
-      } else {
-        message += ` ${describe(error)}`
-      }
-      throw new sdk.RuntimeError(message)
+      throw new sdk.RuntimeError(`Failed to fetch file content from SharePoint URL "${fileUrl}". ${describe(error)}`)
     }
   }
 }

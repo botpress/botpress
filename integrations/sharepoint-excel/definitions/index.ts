@@ -27,7 +27,10 @@ export const actions = {
           .string()
           .min(1)
           .title('SharePoint File URL')
-          .describe('Relative path to the Excel file, e.g. /{DocumentLibrary}/{path}/Book.xlsx'),
+          .describe(
+            'Relative path to the Excel file, formatted as /{DocumentLibrary}/{path}/Book.xlsx ' +
+              '(e.g. /Documents/Book.xlsx or "/Shared Documents/Reports/2024/Book.xlsx").'
+          ),
         sheetTableMapping: z
           .string()
           .min(1)

@@ -17,23 +17,11 @@ To set up the connector, you need an App registration with the correct API permi
 
 ## Action: Sync Excel File
 
-### Inputs
+The action's inputs and outputs are documented automatically from the integration's schemas. A few behavioral notes:
 
-- **sharepointFileUrl**: Relative path to the Excel file in SharePoint. The path should be in the format `/{DOCUMENT_LIBRARY}/{file_path}` where:
-  - `DOCUMENT_LIBRARY` is the name of your SharePoint document library (e.g., "Documents", "Shared Documents", or any custom library name)
-  - `file_path` is the path to your Excel file within that library, including any subfolders
-  - Examples:
-    - `/Documents/Book.xlsx` - File in the root of the Documents library
-    - `/Shared Documents/Reports/2024/Book.xlsx` - File in a nested folder structure
-    - `/MyCustomLibrary/Data/Book.xlsx` - File in a custom document library
-- **sheetTableMapping**: Map sheets to tables. Format can be either:
-
-  - Comma-separated: `Sheet1:CustomersTable,Sheet2:OrdersTable`
-  - JSON: `{ "Sheet1": "CustomersTable", "Sheet2": "OrdersTable" }`
-
-  Each sheet listed will be synced to the specified table. If a table does not exist, it will be created with a schema matching the sheet's columns. If it exists, all rows will be cleared before new data is inserted. **Note:** If providing a pre-existing table, ensure its column names match the Excel sheet headers exactly, as the integration will not alter an existing table's schema.
-
-  **Table naming:** Botpress requires each table name to **end with `Table`**, be **30 characters or fewer**, contain only letters, numbers, and underscores, and **not start with a number** (e.g. `CustomersTable`, `target_products_Table`).
+- Each sheet listed in `sheetTableMapping` is synced to its mapped table. If a table does not exist, it is created with a schema matching the sheet's columns. If it exists, all rows are cleared before new data is inserted.
+- **If you pre-create a table**, ensure its column names match the Excel sheet headers exactly — the integration will not alter an existing table's schema.
+- **Table naming:** Botpress requires each table name to **end with `Table`**, be **30 characters or fewer**, contain only letters, numbers, and underscores, and **not start with a number** (e.g. `CustomersTable`, `target_products_Table`).
 
 ### Example
 
