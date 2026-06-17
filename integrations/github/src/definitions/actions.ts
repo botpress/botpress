@@ -11,12 +11,23 @@ export type Target = {
 export const actions = {
   findTarget: {
     title: 'Find Target',
-    description: 'Find a target in a repository',
+    description: 'List open pull requests or issues in a repository (optionally filtered by a title search).',
     input: {
       schema: z.object({
-        query: z.string().title('Query').describe('The query used to find the target'),
+        query: z
+          .string()
+          .optional()
+          .title('Query')
+          .describe(
+            'Optional fuzzy filter applied to the "<number> - <title>" of each open PR/issue. Leave empty to return all open items. This is NOT GitHub search syntax — qualifiers like "is:open", "author:x", or "state:open" will match nothing.'
+          ),
         channel: z.enum(Channels).title('Channel').describe('The channel of the target'),
-        repo: z.string().title('Repository').describe('The repository name'),
+        repo: z
+          .string()
+          .title('Repository')
+          .describe(
+            'The repository name, optionally including the owner as "owner/repo" (e.g. "botpress/botpress"). If the owner is omitted, the owner of the connected installation is used. The repository must belong to the account the GitHub App is installed on.'
+          ),
       }),
     },
     output: {
