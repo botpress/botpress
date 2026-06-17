@@ -1,4 +1,5 @@
 import { isOAuthWizardUrl } from '@botpress/common/src/oauth-wizard'
+import { RuntimeError } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { ok } from 'assert/strict'
 import { Telegraf } from 'telegraf'
@@ -32,14 +33,30 @@ import * as bp from '.botpress'
 
 const integration = new bp.Integration({
   register: async ({ webhookUrl, ctx, client }) => {
-    const botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
+    let botToken: string
+    try {
+      botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
+    } catch (err: unknown) {
+      if (!(err instanceof RuntimeError)) {
+        throw err
+      }
+      return
+    }
     const telegraf = new Telegraf(botToken)
     await telegraf.telegram
       .setWebhook(webhookUrl)
       .catch(mapToRuntimeErrorAndThrow('Fail to set webhook. Check your bot token'))
   },
   unregister: async ({ ctx, client }) => {
-    const botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
+    let botToken: string
+    try {
+      botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
+    } catch (err: unknown) {
+      if (err instanceof RuntimeError) {
+        return
+      }
+      throw err
+    }
     const telegraf = new Telegraf(botToken)
     await telegraf.telegram
       .deleteWebhook({ drop_pending_updates: true })

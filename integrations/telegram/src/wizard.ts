@@ -54,9 +54,10 @@ const _finalizeHandler: WizardHandler = async ({
 
   const { botToken } = parsed.data
 
+  const telegraf = new Telegraf(botToken)
+
   let botUsername: string
   try {
-    const telegraf = new Telegraf(botToken)
     const bot = await telegraf.telegram.getMe()
     botUsername = bot.username ?? String(bot.id)
   } catch (thrown: unknown) {
@@ -78,6 +79,16 @@ const _finalizeHandler: WizardHandler = async ({
     id: ctx.integrationId,
     payload: { botToken },
   })
+
+  const base = (process.env.BP_WEBHOOK_URL ?? 'https://webhook.botpress.dev').replace(/\/+$/, '')
+  const webhookUrl = `${base}/${ctx.webhookId}`
+  try {
+    await telegraf.telegram.setWebhook(webhookUrl)
+  } catch (thrown: unknown) {
+    const err = thrown instanceof Error ? thrown : new Error(String(thrown))
+    logger.forBot().error('Failed to set Telegram webhook:', err)
+    return responses.endWizard({ success: false, errorMessage: 'Failed to set webhook. Please try again.' })
+  }
 
   setIntegrationIdentifier(botUsername)
   return responses.endWizard({ success: true })
