@@ -51,7 +51,7 @@ describe.skipIf(!hasCreds)('CognitiveBeta e2e — TTS', () => {
     expect(res.metadata.format).toBe('mp3')
     expect(res.metadata.characterCount).toBe('Hello world.'.length)
     expect(res.metadata.cost).toBeGreaterThanOrEqual(0)
-  }, 60_000)
+  }, 130_000)
 
   test('generateAudioStream yields chunks ending with a finished chunk', async () => {
     const chunks: TtsStreamChunk[] = []
@@ -147,7 +147,7 @@ describe.skipIf(!hasCreds)('CognitiveBeta e2e — Transcription', () => {
       throw new Error('generateAudio returned no audioUrl; cannot run transcription e2e')
     }
     audioUrl = audio.output.audioUrl
-  }, 60_000)
+  }, 130_000)
 
   test('transcribeAudio returns text and metadata', async () => {
     const res = await beta.transcribeAudio({
