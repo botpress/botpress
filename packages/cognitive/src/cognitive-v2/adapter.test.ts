@@ -116,7 +116,7 @@ describe('cognitiveFromBeta — generation', () => {
 })
 
 describe('cognitiveFromBeta — getModelDetails (v2-only, no v1)', () => {
-  test("resolves best/fast/auto from the static table without hitting listModels", async () => {
+  test('resolves best/fast/auto from the static table without hitting listModels', async () => {
     const beta = fakeBeta()
     const cog = cognitiveFromBeta(beta)
     const md = await cog.getModelDetails('best')
