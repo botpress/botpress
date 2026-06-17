@@ -2,7 +2,7 @@ import { backOff } from 'exponential-backoff'
 import { createNanoEvents, Unsubscribe } from 'nanoevents'
 
 import { ExtendedClient, getExtendedClient } from './bp-client'
-import { CognitiveBeta, getCognitiveV2Model, isKnownV2Model } from './cognitive-v2'
+import { CognitiveBeta, getCognitiveV2Model, isKnownV2Model, buildResponseFromBetaMetadata } from './cognitive-v2'
 
 import { getActionFromError } from './errors'
 import { InterceptorManager } from './interceptors'
@@ -279,44 +279,9 @@ export class Cognitive {
       timeout: this._timeoutMs,
     })
 
-    const result: Response = {
-      output: {
-        id: 'beta-output',
-        provider: response.metadata.provider,
-        model: response.metadata.model!,
-        choices: [
-          {
-            type: 'text',
-            content: response.output,
-            role: 'assistant',
-            index: 0,
-            stopReason: response.metadata.stopReason ?? 'stop',
-          },
-        ],
-        usage: {
-          inputTokens: response.metadata.usage.inputTokens,
-          inputCost: 0,
-          outputTokens: response.metadata.usage.outputTokens,
-          outputCost: response.metadata.cost ?? 0,
-        },
-        botpress: {
-          cost: response.metadata.cost ?? 0,
-        },
-      },
-      meta: {
-        cached: response.metadata.cached,
-        model: { integration: response.metadata.provider, model: response.metadata.model! },
-        latency: response.metadata.latency!,
-        cost: {
-          input: 0,
-          output: response.metadata.cost || 0,
-        },
-        tokens: {
-          input: response.metadata.usage.inputTokens,
-          output: response.metadata.usage.outputTokens,
-        },
-      },
-    }
+    // Shared with the beta adapter (cognitiveFromBeta) so the Cognitive wrapper
+    // and a standalone CognitiveBeta produce an identical `Response` shape.
+    const result = buildResponseFromBetaMetadata(response.output, response.metadata)
 
     // Emit final response event with actual data
     this._events.emit('response', props, result)
