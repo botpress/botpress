@@ -21,7 +21,7 @@ export default new sdk.IntegrationDefinition({
   identifier: {
     extractScript: 'extract.vrl',
   },
-  secrets: { ...secrets,  },
+  secrets: { ...secrets },
   attributes: {
     category: 'Developer Tools',
     repo: 'botpress',
