@@ -49,7 +49,9 @@ export const findTarget = wrapActionAndInjectOctokit(
       if (query) {
         fuse.setCollection(items)
         const matched = fuse.search<Target>(query).map((x) => x.item)
-        logger.forBot().info(`findTarget: pulls.list returned ${items.length} open PRs, ${matched.length} matched query`)
+        logger
+          .forBot()
+          .info(`findTarget: pulls.list returned ${items.length} open PRs, ${matched.length} matched query`)
         targets.push(...matched)
       } else {
         logger.forBot().info(`findTarget: pulls.list returned ${items.length} open PRs (no query filter)`)
@@ -94,7 +96,9 @@ export const findTarget = wrapActionAndInjectOctokit(
       if (query) {
         fuse.setCollection(items)
         const matched = fuse.search<Target>(query).map((x) => x.item)
-        logger.forBot().info(`findTarget: issues.listForRepo returned ${items.length} open issues, ${matched.length} matched query`)
+        logger
+          .forBot()
+          .info(`findTarget: issues.listForRepo returned ${items.length} open issues, ${matched.length} matched query`)
         targets.push(...matched)
       } else {
         logger.forBot().info(`findTarget: issues.listForRepo returned ${items.length} open issues (no query filter)`)
