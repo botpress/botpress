@@ -281,6 +281,16 @@ export class BotDefinition<
     return { sdkVersion: SDK_VERSION } as const
   }
 
+  public readonly clone?: (overrides?: Partial<BotDefinitionProps>) => BotDefinition = (overrides?) => {
+    // TODO: make non-optional on next major (CLI and SDK share the same major, so the CLI can always rely on clone being present)
+    return new BotDefinition({
+      ...this.props,
+      integrations: this.integrations,
+      plugins: this.plugins,
+      ...overrides,
+    } as BotDefinitionProps)
+  }
+
   public addIntegration<I extends IntegrationPackage>(integrationPkg: I, config?: IntegrationConfigInstance<I>): this {
     const self = this as Writable<BotDefinition>
     if (!self.integrations) {
