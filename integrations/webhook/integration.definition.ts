@@ -1,5 +1,4 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'webhook',
@@ -44,7 +43,7 @@ export default new IntegrationDefinition({
         .passthrough(),
     },
   },
-  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+
   attributes: {
     category: 'Developer Tools',
     guideSlug: 'webhook',

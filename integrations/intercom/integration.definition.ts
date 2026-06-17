@@ -1,5 +1,4 @@
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 
@@ -77,7 +76,6 @@ export default new IntegrationDefinition({
     extractScript: 'extract.vrl',
   },
   secrets: {
-    ...sentryHelpers.COMMON_SECRET_NAMES,
     CLIENT_ID: { description: "The Client ID in your app's basic informations" },
     CLIENT_SECRET: { description: "The Client secret in your app's basic informations" },
   },

@@ -1,5 +1,4 @@
 import * as sdk from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import hitl from './bp_modules/hitl'
 import { actions, events, configuration, channels, states, user } from './src/definitions'
 
@@ -18,7 +17,6 @@ export default new sdk.IntegrationDefinition({
   actions,
   events,
   secrets: {
-    ...sentryHelpers.COMMON_SECRET_NAMES,
     CLIENT_ID: {
       description: 'The client ID of your app',
     },

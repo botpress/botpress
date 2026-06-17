@@ -1,5 +1,4 @@
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 import typingIndicator from 'bp_modules/typing-indicator'
@@ -94,7 +93,6 @@ export default new IntegrationDefinition({
     MARKETPLACE_BOT_ID: {
       description: 'The bot ID for the Zendesk marketplace',
     },
-    ...sentryHelpers.COMMON_SECRET_NAMES,
   },
   user: {
     tags: {

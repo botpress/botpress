@@ -1,5 +1,4 @@
 import * as sdk from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import hitl from './bp_modules/hitl'
 
 export const INTEGRATION_NAME = 'zendesk-messaging-hitl'
@@ -148,7 +147,6 @@ export default new sdk.IntegrationDefinition({
     MARKETPLACE_BOT_ID: {
       description: 'The bot ID for the Zendesk marketplace',
     },
-    ...sentryHelpers.COMMON_SECRET_NAMES,
   },
 }).extend(hitl, (self) => ({
   entities: { hitlSession: self.entities.hitlConversation },

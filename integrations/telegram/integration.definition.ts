@@ -1,5 +1,4 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import typingIndicator from './bp_modules/typing-indicator'
 import { telegramMessageChannels } from './definitions/channels'
 
@@ -62,7 +61,7 @@ export default new IntegrationDefinition({
   },
   actions: {},
   events: {},
-  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+
   user: {
     tags: {
       id: { title: 'ID', description: 'The id of the user' },

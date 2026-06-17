@@ -1,5 +1,4 @@
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 
@@ -44,7 +43,7 @@ export default new IntegrationDefinition({
       channel: { title: 'Channel', description: 'The channel of the user' },
     },
   },
-  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+
   entities: {
     conversation: {
       schema: z.object({

@@ -24,9 +24,6 @@ inputs:
     description: 'Ask the backend to perform validation without actually deploying'
     default: false
     required: false
-  sentry_auth_token:
-    description: 'Sentry auth token'
-    required: true
   token_cloud_ops_account:
     description: 'Cloud Ops account token'
     required: true
@@ -45,32 +42,6 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: List Sentry Integrations
-      id: list_sentry_integrations
-      shell: bash
-      run: |
-        script_path="./.github/scripts/ls-sentry-integrations.sh"
-        chmod +x "$script_path"
-        filter=$("$script_path")
-        echo "filter=$filter" >> "$GITHUB_OUTPUT"
-    - name: Inject SourceMaps
-      shell: bash
-      env:
-        SENTRY_FILTER: ${{ steps.list_sentry_integrations.outputs.filter }}
-      run: |
-        # shellcheck disable=SC2086 # SENTRY_FILTER contains multiple space-separated -F flags that must be split into individual arguments
-        pnpm -r --stream $SENTRY_FILTER exec sentry-cli sourcemaps inject .botpress/dist
-    - name: Upload SourceMaps
-      shell: bash
-      env:
-        SENTRY_AUTH_TOKEN: ${{ inputs.sentry_auth_token }}
-        SENTRY_ORG: botpress-rm
-        SENTRY_RELEASE: ${{ github.sha }}
-        SENTRY_FILTER: ${{ steps.list_sentry_integrations.outputs.filter }}
-        GITHUB_SHA: ${{ github.sha }}
-      run: |
-        # shellcheck disable=SC2086 # SENTRY_FILTER contains multiple space-separated -F flags that must be split into individual arguments
-        pnpm -r --stream $SENTRY_FILTER exec sentry-cli sourcemaps upload --release="$GITHUB_SHA" --url-prefix '~' .botpress/dist
     - name: Deploys Integrations
       env:
         INPUT_ENVIRONMENT: ${{ inputs.environment }}
@@ -82,8 +53,6 @@ runs:
         SHOPIFY_ADMIN_AUTOMATION_TOKEN: ${{ inputs.shopify_admin_automation_token }}
         SHOPIFY_STOREFRONT_AUTOMATION_TOKEN: ${{ inputs.shopify_storefront_automation_token }}
         COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
-        SENTRY_RELEASE: ${{ github.sha }}
-        SENTRY_ENVIRONMENT: ${{ inputs.environment }}
       shell: bash
       run: |
         if [ "$INPUT_ENVIRONMENT" = "staging" ]; then

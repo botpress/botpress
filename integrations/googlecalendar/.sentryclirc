@@ -1,5 +1,0 @@
-[defaults]
-project=integration-googlecalendar
-
-[auth]
-dsn=https://af740fa88390218c1ba3e7bcb2b519be@o363631.ingest.us.sentry.io/4508292498980864
