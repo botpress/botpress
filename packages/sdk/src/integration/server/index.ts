@@ -1,6 +1,6 @@
-import { isApiError, Client, RuntimeError, InvalidPayloadError } from '@botpress/client'
+import { Client, InvalidPayloadError } from '@botpress/client'
 import { retryConfig } from '../../retry'
-import { Request, Response, parseBody } from '../../serve'
+import { Request, Response, parseBody, handlerErrorToHttpResponse } from '../../serve'
 import { IntegrationSpecificClient } from '../client'
 import { BaseIntegration } from '../common'
 import { ActionMetadataStore } from './action-metadata'
@@ -107,22 +107,20 @@ export const integrationHandler =
 
       response = await handleOperation(props)
       return response ? { ...response, status: response.status ?? 200 } : { status: 200 }
-    } catch (error) {
-      if (isApiError(error)) {
-        const runtimeError = error.type === 'Runtime' ? error : new RuntimeError(error.message, error)
-        logger.forBot().error(runtimeError.message)
+    } catch (thrown: unknown) {
+      const { status, body, error } = handlerErrorToHttpResponse({
+        thrown,
+        unexpectedErrorMessage:
+          'An unexpected error occurred in the integration. Bot owners: Check logs for more informations. Integration owners: throw a RuntimeError to return a custom error message instead.',
+      })
 
-        return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
+      if (status >= 500) {
+        // prints the error in the integration logs
+        console.error(thrown)
       }
 
-      // prints the error in the integration logs
-      console.error(error)
-
-      const runtimeError = new RuntimeError(
-        'An unexpected error occurred in the integration. Bot owners: Check logs for more informations. Integration owners: throw a RuntimeError to return a custom error message instead.'
-      )
-      logger.forBot().error(runtimeError.message)
-      return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
+      logger.forBot().error(error.message)
+      return { status, body }
     }
   }
 
@@ -171,13 +169,13 @@ const onMessageCreated = async ({ ctx, req, client, logger, instance }: ServerPr
   const channelHandler = instance.channels[conversation.channel]
 
   if (!channelHandler) {
-    throw new Error(`Channel ${conversation.channel} not found`)
+    throw new InvalidPayloadError(`Channel ${conversation.channel} not found`)
   }
 
   const messageHandler = channelHandler.messages[type]
 
   if (!messageHandler) {
-    throw new Error(`Message of type ${type} not found in channel ${conversation.channel}`)
+    throw new InvalidPayloadError(`Message of type ${type} not found in channel ${conversation.channel}`)
   }
 
   type UpdateMessageProps = Parameters<(typeof client)['updateMessage']>[0]
@@ -195,13 +193,13 @@ const onActionTriggered = async ({ req, ctx, client, logger, instance }: ServerP
   const { input, type } = parseBody<ActionPayload<string, any>>(req)
 
   if (!type) {
-    throw new Error('Missing action type')
+    throw new InvalidPayloadError('Missing action type')
   }
 
   const action = instance.actions[type]
 
   if (!action) {
-    throw new Error(`Action ${type} not found`)
+    throw new InvalidPayloadError(`Action ${type} not found`)
   }
 
   const metadata = new ActionMetadataStore()
