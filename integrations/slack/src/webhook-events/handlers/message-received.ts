@@ -14,6 +14,7 @@ import { textSchema } from 'definitions/channels/text-input-schema'
 import {
   getBotpressConversationFromSlackThread,
   getBotpressUserFromSlackUser,
+  getReplyDispatch,
   updateBotpressUserFromSlackUser,
 } from 'src/misc/utils'
 import * as bp from '.botpress'
@@ -51,8 +52,6 @@ export const handleEvent = async (props: HandleEventProps) => {
   await updateBotpressUserFromSlackUser(slackEvent.user, botpressUser, client, ctx, logger)
 
   const mentionsBot = await _isBotMentionedInMessage({ slackEvent, client, ctx })
-  const isSentInChannel = !slackEvent.thread_ts
-  const replyLocation = ctx.configuration.replyBehaviour?.location ?? 'channel'
   const replyOnlyOnBotMention = ctx.configuration.replyBehaviour?.onlyOnBotMention ?? false
 
   if (replyOnlyOnBotMention && !mentionsBot) {
@@ -60,9 +59,11 @@ export const handleEvent = async (props: HandleEventProps) => {
     return
   }
 
-  const shouldRespondInChannel =
-    isSentInChannel && (replyLocation === 'channel' || replyLocation === 'channelAndThread')
-  const shouldRespondInThread = !isSentInChannel || replyLocation === 'thread' || replyLocation === 'channelAndThread'
+  const { isSentInChannel, shouldRespondInChannel, shouldRespondInThread, threadTsForReply } = getReplyDispatch({
+    slackThreadTs: slackEvent.thread_ts,
+    slackMessageTs: slackEvent.ts,
+    replyLocation: ctx.configuration.replyBehaviour?.location,
+  })
 
   if (shouldRespondInChannel) {
     const { botpressConversation } = await getBotpressConversationFromSlackThread(
@@ -89,11 +90,9 @@ export const handleEvent = async (props: HandleEventProps) => {
   }
 
   if (shouldRespondInThread) {
-    const threadTs = slackEvent.thread_ts ?? slackEvent.ts
-
     const { conversation: threadConversation } = await client.getOrCreateConversation({
       channel: 'thread',
-      tags: { id: slackEvent.channel, thread: threadTs, isBotReplyThread: 'true' },
+      tags: { id: slackEvent.channel, thread: threadTsForReply, isBotReplyThread: 'true' },
       discriminateByTags: ['id', 'thread'],
     })
 
