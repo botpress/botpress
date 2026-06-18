@@ -1,5 +1,5 @@
 import { isOAuthWizardUrl } from '@botpress/common/src/oauth-wizard'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import { reporting } from '@botpress/sdk-addons'
 import { ok } from 'assert/strict'
 import { Telegraf } from 'telegraf'
 import type { User } from 'telegraf/typings/core/types/typegram'
@@ -205,8 +205,4 @@ const integration = new bp.Integration({
   },
 })
 
-export default sentryHelpers.wrapIntegration(integration, {
-  dsn: bp.secrets.SENTRY_DSN,
-  environment: bp.secrets.SENTRY_ENVIRONMENT,
-  release: bp.secrets.SENTRY_RELEASE,
-})
+export default reporting.wrapIntegration(integration)

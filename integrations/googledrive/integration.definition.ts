@@ -1,5 +1,4 @@
 import * as sdk from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import filesReadonly from './bp_modules/files-readonly'
 import {
   fileSchema,
@@ -30,7 +29,7 @@ export default new sdk.IntegrationDefinition({
   name: 'googledrive',
   title: 'Google Drive',
   description: 'Access and manage your Google Drive files from your bot.',
-  version: '0.4.2',
+  version: '0.4.3',
   readme: 'hub.md',
   icon: 'icon.svg',
   attributes: {
@@ -193,7 +192,6 @@ export default new sdk.IntegrationDefinition({
     },
   },
   secrets: {
-    ...sentryHelpers.COMMON_SECRET_NAMES,
     CLIENT_ID: {
       description: 'The client ID in your Google Cloud Credentials',
     },

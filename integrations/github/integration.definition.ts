@@ -1,5 +1,4 @@
 import * as sdk from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import filesReadonly from './bp_modules/files-readonly'
 
 import { INTEGRATION_NAME } from './src/const'
@@ -22,7 +21,7 @@ export default new sdk.IntegrationDefinition({
   identifier: {
     extractScript: 'extract.vrl',
   },
-  secrets: { ...secrets, ...sentryHelpers.COMMON_SECRET_NAMES },
+  secrets: { ...secrets },
   attributes: {
     category: 'Developer Tools',
     repo: 'botpress',
