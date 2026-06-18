@@ -1,5 +1,0 @@
-[defaults]
-project=integration-gsheets
-
-[auth]
-dsn=https://302f1b38be88851b1529ae8cfd9b0a18@o363631.ingest.us.sentry.io/4508246681255936

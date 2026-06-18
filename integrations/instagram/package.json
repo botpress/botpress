@@ -13,15 +13,14 @@
   "dependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "axios": "^1.6.2"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@botpress/common": "workspace:*",
-    "@botpress/sdk": "workspace:*",
-    "@sentry/cli": "^2.39.1"
+    "@botpress/sdk": "workspace:*"
   },
   "bpDependencies": {
     "proactive-user": "../../interfaces/proactive-user",

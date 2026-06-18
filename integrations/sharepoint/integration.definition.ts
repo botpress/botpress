@@ -4,7 +4,7 @@ import { actions, configuration, states } from './definitions'
 
 export default new sdk.IntegrationDefinition({
   name: 'sharepoint',
-  version: '1.0.1',
+  version: '1.0.2',
   title: 'SharePoint',
   description: 'Sync SharePoint document libraries with Botpress knowledge bases.',
   readme: 'hub.md',

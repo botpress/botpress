@@ -1001,16 +1001,24 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     props: Partial<T['definition']['props']>
   ): T['definition'] => {
     if (def.type === 'integration') {
-      return new sdk.IntegrationDefinition({ ...def.definition.props, ...props }) as T['definition']
+      const overrides = props as Partial<sdk.IntegrationDefinitionProps>
+      return (def.definition.clone?.(overrides) ??
+        new sdk.IntegrationDefinition({ ...def.definition.props, ...overrides })) as T['definition']
     }
     if (def.type === 'plugin') {
-      return new sdk.PluginDefinition({ ...def.definition.props, ...props }) as T['definition']
+      const overrides = props as Partial<sdk.PluginDefinitionProps>
+      return (def.definition.clone?.(overrides) ??
+        new sdk.PluginDefinition({ ...def.definition.props, ...overrides })) as T['definition']
     }
     if (def.type === 'interface') {
-      return new sdk.InterfaceDefinition({ ...def.definition.props, ...props }) as T['definition']
+      const overrides = props as Partial<sdk.InterfaceDefinitionProps>
+      return (def.definition.clone?.(overrides) ??
+        new sdk.InterfaceDefinition({ ...def.definition.props, ...overrides })) as T['definition']
     }
     if (def.type === 'bot') {
-      return new sdk.BotDefinition({ ...def.definition.props, ...props }) as T['definition']
+      const overrides = props as Partial<sdk.BotDefinitionProps>
+      return (def.definition.clone?.(overrides) ??
+        new sdk.BotDefinition({ ...def.definition.props, ...overrides })) as T['definition']
     }
     def satisfies never
     throw new errors.BotpressCLIError('Unsupported definition type')

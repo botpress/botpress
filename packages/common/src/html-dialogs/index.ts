@@ -4,14 +4,6 @@ import * as preact from 'preact-render-to-string'
 import { DISABLE_INTERSTITIAL_HEADER } from '../oauth-wizard'
 import { ButtonDialogPage, SelectDialogPage, InputDialogPage, FormDialogPage } from './components'
 
-export const generateRedirection = (url: URL): sdk.Response => ({
-  status: 303,
-  headers: {
-    ...DISABLE_INTERSTITIAL_HEADER,
-    location: url.toString(),
-  },
-})
-
 type CommonDialogProps = {
   pageTitle: string
 }

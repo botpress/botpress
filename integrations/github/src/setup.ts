@@ -41,12 +41,33 @@ const _configureOrganizationHandle = async ({
 }) => {
   const { organizationHandle } = await gh.getAuthenticatedEntity()
 
+  // Merge with the existing configuration state so we don't clobber the
+  // githubInstallationId saved by the OAuth callback (setState replaces the
+  // whole payload).
+  const existing = await _readConfigurationState({ ctx, client })
+
   await client.setState({
     type: 'integration',
     name: 'configuration',
     id: ctx.integrationId,
     payload: {
+      ...existing,
       organizationHandle,
     },
   })
+}
+
+const _readConfigurationState = async ({
+  ctx,
+  client,
+}: {
+  ctx: bp.Context
+  client: bp.Client
+}): Promise<{ githubInstallationId?: number; organizationHandle?: string }> => {
+  try {
+    const { state } = await client.getState({ type: 'integration', name: 'configuration', id: ctx.integrationId })
+    return state.payload ?? {}
+  } catch {
+    return {}
+  }
 }

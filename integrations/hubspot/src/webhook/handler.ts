@@ -1,4 +1,3 @@
-import { generateRedirection } from '@botpress/common/src/html-dialogs'
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import { OAUTH_IDENTIFIER_HEADER } from '@botpress/sdk'
 import { Signature } from '@hubspot/api-client'
@@ -19,7 +18,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
       return await buildOAuthWizard(props).handleRequest()
     } catch (thrown: unknown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-      return generateRedirection(oauthWizard.getInterstitialUrl(false, errMsg))
+      return oauthWizard.generateRedirection(oauthWizard.getInterstitialUrl(false, errMsg))
     }
   }
 
@@ -36,7 +35,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
         : wizardResult
     } catch (thrown: unknown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-      return generateRedirection(oauthWizard.getInterstitialUrl(false, errMsg))
+      return oauthWizard.generateRedirection(oauthWizard.getInterstitialUrl(false, errMsg))
     }
   }
 

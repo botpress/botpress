@@ -80,6 +80,23 @@ export type {
 } from './types'
 
 export class CognitiveBeta {
+  /**
+   * Nominal brand used by {@link CognitiveBeta.isBetaClient}. We brand the
+   * instance (rather than rely on `instanceof`) so the check survives across
+   * duplicated/duelling copies of this package in a dependency tree or bundle,
+   * mirroring `Cognitive`'s `$$IS_COGNITIVE` brand.
+   */
+  public readonly ['$$IS_COGNITIVE_BETA'] = 'v2' as const
+
+  /**
+   * Brand-based type guard. Returns true for any `CognitiveBeta` instance,
+   * including ones created by a different copy of this package. Prefer this
+   * over `instanceof CognitiveBeta`, which is unreliable across bundles.
+   */
+  public static isBetaClient(obj: any): obj is CognitiveBeta {
+    return obj?.['$$IS_COGNITIVE_BETA'] === 'v2'
+  }
+
   private _axiosClient: AxiosInstance
   private readonly _apiUrl: string
   private readonly _timeout: number
@@ -569,3 +586,9 @@ export const getCognitiveV2Model = (model: string): Model | undefined => {
   }
   return undefined
 }
+
+// Adapter that exposes a `CognitiveBeta` through the `Cognitive`-shaped surface
+// (`generateContent`/`generateContentStream`/`getModelDetails`) that downstream
+// consumers like llmz expect. Exported last so the cycle with ./adapter
+// resolves after CognitiveBeta/getCognitiveV2Model are defined.
+export { cognitiveFromBeta, buildResponseFromBetaMetadata, type CognitiveLike } from './adapter'

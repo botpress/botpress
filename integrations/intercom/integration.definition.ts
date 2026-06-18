@@ -1,11 +1,10 @@
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 
 export default new IntegrationDefinition({
   name: 'intercom',
-  version: '2.0.4',
+  version: '2.0.6',
   title: 'Intercom',
   description: 'Engage with customers in realtime with personalized messaging.',
   icon: 'icon.svg',
@@ -77,7 +76,6 @@ export default new IntegrationDefinition({
     extractScript: 'extract.vrl',
   },
   secrets: {
-    ...sentryHelpers.COMMON_SECRET_NAMES,
     CLIENT_ID: { description: "The Client ID in your app's basic informations" },
     CLIENT_SECRET: { description: "The Client secret in your app's basic informations" },
   },

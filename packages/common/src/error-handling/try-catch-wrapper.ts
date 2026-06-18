@@ -130,3 +130,15 @@ export const createErrorHandlingDecorator =
       return asyncFnWrapperWithErrorRedaction(_originalMethod.bind(this), errorMessage).apply(this, args)
     }
   }
+
+/**
+ * Default async function wrapper that uses {@link defaultErrorRedactor} to
+ * convert thrown errors into `sdk.RuntimeError` instances with a custom message.
+ */
+export const wrapAsyncFnWithTryCatch = createAsyncFnWrapperWithErrorRedaction(defaultErrorRedactor)
+
+/**
+ * Default class method decorator that wraps the method with the default
+ * try-catch wrapper.
+ */
+export const handleErrorsDecorator = createErrorHandlingDecorator(wrapAsyncFnWithTryCatch)

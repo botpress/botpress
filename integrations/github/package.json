@@ -14,13 +14,14 @@
     "@octokit/webhooks-methods": "^3.0.2",
     "@octokit/webhooks-types": "^7.6.1",
     "fuse.js": "^6.6.2",
-    "octokit": "^2.0.19"
+    "octokit": "^2.0.19",
+    "preact": "^10.26.6",
+    "preact-render-to-string": "^6.5.13"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
-    "@botpress/sdk": "workspace:*",
-    "@sentry/cli": "^2.39.1"
+    "@botpress/sdk": "workspace:*"
   },
   "bpDependencies": {
     "files-readonly": "../../interfaces/files-readonly"
