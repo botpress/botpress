@@ -114,4 +114,12 @@ export const secrets: sdk.IntegrationDefinitionProps['secrets'] = {
   GITHUB_WEBHOOK_SECRET: {
     description: 'GitHub Webhook Secret. Should be a high-entropy string that only Botpress knows',
   },
+  GITHUB_CLIENT_ID: {
+    description:
+      "The Botpress GitHub App's OAuth Client ID (found on the GitHub App settings page). Used for the user-authorization OAuth flow.",
+  },
+  GITHUB_CLIENT_SECRET: {
+    description:
+      "The Botpress GitHub App's OAuth Client Secret (generated on the GitHub App settings page). Used to exchange the authorization code for a user access token.",
+  },
 }
