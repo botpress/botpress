@@ -175,6 +175,11 @@ const _sendBloc = async (props: SlackMessageProps<'bloc'>) => {
       case 'text':
         await defaultMessages.text({ ...props, type: 'text', payload: item.payload })
         break
+      case 'markdown':
+        // The bloc message uses the (deprecated) markdownBloc schema, so items may be markdown.
+        // Render them through the text handler, which already transforms markdown for Slack.
+        await defaultMessages.text({ ...props, type: 'text', payload: { text: item.payload.markdown } })
+        break
       case 'image':
         await defaultMessages.image({ ...props, type: 'image', payload: item.payload })
         break
