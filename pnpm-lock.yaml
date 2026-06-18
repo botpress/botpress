@@ -1011,6 +1011,12 @@ importers:
       octokit:
         specifier: ^2.0.19
         version: 2.0.19
+      preact:
+        specifier: ^10.26.6
+        version: 10.26.6
+      preact-render-to-string:
+        specifier: ^6.5.13
+        version: 6.5.13(preact@10.26.6)
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -2177,6 +2183,8 @@ importers:
       '@botpresshub/typing-indicator':
         specifier: workspace:*
         version: link:../../interfaces/typing-indicator
+
+  integrations/uber-eats: {}
 
   integrations/viber:
     dependencies:
