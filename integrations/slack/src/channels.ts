@@ -1,4 +1,3 @@
-import { RuntimeError } from '@botpress/client'
 import { ChatPostMessageArguments } from '@slack/web-api'
 import { textSchema } from '../definitions/channels/text-input-schema'
 import { transformMarkdownForSlack } from './misc/markdown-to-slack'
@@ -160,12 +159,42 @@ const defaultMessages = {
       }
     )
   },
-  bloc: () => {
-    throw new RuntimeError('Not implemented')
-  },
+  bloc: (props) => _sendBloc(props),
 } satisfies bp.IntegrationProps['channels']['channel']['messages'] &
   bp.IntegrationProps['channels']['dm']['messages'] &
   bp.IntegrationProps['channels']['thread']['messages']
+
+type SlackMessageProps<TMessage extends keyof bp.IntegrationProps['channels']['channel']['messages']> =
+  | Parameters<bp.IntegrationProps['channels']['channel']['messages'][TMessage]>[0]
+  | Parameters<bp.IntegrationProps['channels']['dm']['messages'][TMessage]>[0]
+  | Parameters<bp.IntegrationProps['channels']['thread']['messages'][TMessage]>[0]
+
+const _sendBloc = async (props: SlackMessageProps<'bloc'>) => {
+  for (const item of props.payload.items) {
+    switch (item.type) {
+      case 'text':
+        await defaultMessages.text({ ...props, type: 'text', payload: item.payload })
+        break
+      case 'image':
+        await defaultMessages.image({ ...props, type: 'image', payload: item.payload })
+        break
+      case 'audio':
+        await defaultMessages.audio({ ...props, type: 'audio', payload: item.payload })
+        break
+      case 'video':
+        await defaultMessages.video({ ...props, type: 'video', payload: item.payload })
+        break
+      case 'file':
+        await defaultMessages.file({ ...props, type: 'file', payload: item.payload })
+        break
+      case 'location':
+        await defaultMessages.location({ ...props, type: 'location', payload: item.payload })
+        break
+      default:
+        props.logger.forBot().warn(`Unsupported bloc item type: ${(item as { type: string }).type}`)
+    }
+  }
+}
 
 const _getSlackTarget = (conversation: bp.ClientResponses['getConversation']['conversation']) => {
   const channel = conversation.tags.id
