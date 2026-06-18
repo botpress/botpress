@@ -59,28 +59,36 @@ const channel: bp.IntegrationProps['channels']['channel'] = {
       _sendMessage(props, async (messenger, recipient) => {
         let lastMessageId = ''
         for (const item of props.payload.items) {
-          if (item.type === 'text') {
-            const { messageId } = await messenger.sendText(recipient, item.payload.text)
-            lastMessageId = messageId
-          } else if (item.type === 'image') {
-            const { messageId } = await messenger.sendImage(recipient, item.payload.imageUrl)
-            lastMessageId = messageId
-          } else if (item.type === 'audio') {
-            const { messageId } = await messenger.sendAudio(recipient, item.payload.audioUrl)
-            lastMessageId = messageId
-          } else if (item.type === 'video') {
-            const { messageId } = await messenger.sendVideo(recipient, item.payload.videoUrl)
-            lastMessageId = messageId
-          } else if (item.type === 'file') {
-            const { messageId } = await messenger.sendFile(recipient, item.payload.fileUrl)
-            lastMessageId = messageId
-          } else if (item.type === 'location') {
-            const googleMapLink = getGoogleMapLinkFromLocation(item.payload)
-            const { messageId } = await messenger.sendText(recipient, googleMapLink)
-            lastMessageId = messageId
-          } else {
-            props.logger.forBot().warn(`Unsupported bloc item type: ${(item as any).type}`)
+          try {
+            if (item.type === 'text') {
+              const { messageId } = await messenger.sendText(recipient, item.payload.text)
+              lastMessageId = messageId
+            } else if (item.type === 'image') {
+              const { messageId } = await messenger.sendImage(recipient, item.payload.imageUrl)
+              lastMessageId = messageId
+            } else if (item.type === 'audio') {
+              const { messageId } = await messenger.sendAudio(recipient, item.payload.audioUrl)
+              lastMessageId = messageId
+            } else if (item.type === 'video') {
+              const { messageId } = await messenger.sendVideo(recipient, item.payload.videoUrl)
+              lastMessageId = messageId
+            } else if (item.type === 'file') {
+              const { messageId } = await messenger.sendFile(recipient, item.payload.fileUrl)
+              lastMessageId = messageId
+            } else if (item.type === 'location') {
+              const googleMapLink = getGoogleMapLinkFromLocation(item.payload)
+              const { messageId } = await messenger.sendText(recipient, googleMapLink)
+              lastMessageId = messageId
+            } else {
+              props.logger.forBot().warn(`Unsupported bloc item type: ${(item as any).type}`)
+            }
+          } catch (thrown) {
+            const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+            props.logger.forBot().error(`Failed to send bloc item of type "${item.type}": ${error.message}`)
           }
+        }
+        if (!lastMessageId) {
+          throw new Error('No bloc items were successfully sent')
         }
         return { messageId: lastMessageId }
       }),
