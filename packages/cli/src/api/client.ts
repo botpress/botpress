@@ -99,7 +99,13 @@ export class ApiClient {
 
   public withExtraHeaders(headers: Record<string, string>): ApiClient {
     return ApiClient.newClient(
-      { apiUrl: this.url, token: this.token, workspaceId: this.workspaceId, botId: this.botId, extraHeaders: { ...this.extraHeaders, ...headers } },
+      {
+        apiUrl: this.url,
+        token: this.token,
+        workspaceId: this.workspaceId,
+        botId: this.botId,
+        extraHeaders: { ...this.extraHeaders, ...headers },
+      },
       this._logger
     )
   }

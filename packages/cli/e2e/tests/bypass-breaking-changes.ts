@@ -14,32 +14,52 @@ const fetchIntegration = async (client: Client, integrationName: string): Promis
   return integrations.find(({ name }) => name === integrationName)
 }
 
-const withAction = (originalTsContent: string): string =>
-  originalTsContent
-    .replace(
-      "import { IntegrationDefinition } from '@botpress/sdk'",
-      "import { IntegrationDefinition, z } from '@botpress/sdk'"
+const applyReplacement = (content: string, search: string, replacement: string, label: string): string => {
+  if (!content.includes(search)) {
+    throw new Error(
+      `Test fixture error: could not find "${label}" in integration.definition.ts — template may have changed`
     )
-    .replace(
-      'new IntegrationDefinition({',
-      `new IntegrationDefinition({
+  }
+  return content.replace(search, replacement)
+}
+
+const withAction = (originalTsContent: string): string =>
+  applyReplacement(
+    applyReplacement(
+      originalTsContent,
+      "import { IntegrationDefinition } from '@botpress/sdk'",
+      "import { IntegrationDefinition, z } from '@botpress/sdk'",
+      'IntegrationDefinition import'
+    ),
+    'new IntegrationDefinition({',
+    `new IntegrationDefinition({
   actions: {
     myAction: {
       input: { schema: z.object({ existingField: z.string() }) },
       output: { schema: z.object({}) },
     },
-  },`
-    )
+  },`,
+    'IntegrationDefinition constructor'
+  )
 
 const withBreakingChange = (tsContent: string): string =>
-  tsContent.replace(
+  applyReplacement(
+    tsContent,
     'existingField: z.string()',
-    'existingField: z.string(), newRequiredField: z.string()'
+    'existingField: z.string(), newRequiredField: z.string()',
+    'existingField in action input schema'
   )
+
+const withBumpedVersion = (tsContent: string): string =>
+  applyReplacement(tsContent, "version: '0.1.0'", "version: '0.1.1'", 'version field')
 
 export const bypassBreakingChanges: Test = {
   name: 'cli should allow bypassing breaking changes with --bypassBreakingChanges',
-  handler: async ({ tmpDir, workspaceHandle, dependencies, ...creds }) => {
+  handler: async ({ tmpDir, workspaceHandle, dependencies, logger, ...creds }) => {
+    if (workspaceHandle !== 'botpress') {
+      logger.info('Skipping test: bypassBreakingChanges is only supported for Botpress internal workspaces')
+      return
+    }
     const botpressHomeDir = pathlib.join(tmpDir, '.botpresshome')
     const baseDir = pathlib.join(tmpDir, 'integrations')
 
@@ -70,24 +90,25 @@ export const bypassBreakingChanges: Test = {
     await utils.fixBotpressDependencies({ workDir: integrationDir, target: dependencies })
     await utils.npmInstall({ workDir: integrationDir }).then(utils.handleExitCode)
 
-    // initial deploy: action with one existing input field
+    // initial deploy: action with one existing input field, public so breaking change check applies
     const originalDefinition = fs.readFileSync(definitionPath, 'utf-8')
     fs.writeFileSync(definitionPath, withAction(originalDefinition), 'utf-8')
     await impl.build({ ...argv, workDir: integrationDir }).then(utils.handleExitCode)
     await impl.login({ ...argv }).then(utils.handleExitCode)
     await impl
-      .deploy({ ...argv, workDir: integrationDir, botId: undefined, createNewBot: undefined })
+      .deploy({ ...argv, workDir: integrationDir, visibility: 'public', botId: undefined, createNewBot: undefined })
       .then(utils.handleExitCode)
 
-    // introduce a breaking change: add a new required field to the existing action
+    // introduce a breaking change: bump version and add a new required field to the existing action
     const actionDefinition = fs.readFileSync(definitionPath, 'utf-8')
-    fs.writeFileSync(definitionPath, withBreakingChange(actionDefinition), 'utf-8')
+    fs.writeFileSync(definitionPath, withBumpedVersion(withBreakingChange(actionDefinition)), 'utf-8')
     await impl.build({ ...argv, workDir: integrationDir }).then(utils.handleExitCode)
 
     // deploy without bypass flag — should fail
     const { exitCode } = await impl.deploy({
       ...argv,
       workDir: integrationDir,
+      visibility: 'public',
       bypassBreakingChanges: false,
       botId: undefined,
       createNewBot: undefined,
@@ -101,6 +122,7 @@ export const bypassBreakingChanges: Test = {
       .deploy({
         ...argv,
         workDir: integrationDir,
+        visibility: 'public',
         bypassBreakingChanges: true,
         botId: undefined,
         createNewBot: undefined,
