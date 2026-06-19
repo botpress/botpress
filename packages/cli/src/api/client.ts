@@ -111,12 +111,15 @@ export class ApiClient {
   }
 
   public switchWorkspace(workspaceId: string): ApiClient {
-    return ApiClient.newClient({ apiUrl: this.url, token: this.token, workspaceId }, this._logger)
+    return ApiClient.newClient(
+      { apiUrl: this.url, token: this.token, workspaceId, extraHeaders: this.extraHeaders },
+      this._logger
+    )
   }
 
   public switchBot(botId: string): ApiClient {
     return ApiClient.newClient(
-      { apiUrl: this.url, token: this.token, botId, workspaceId: this.workspaceId },
+      { apiUrl: this.url, token: this.token, botId, workspaceId: this.workspaceId, extraHeaders: this.extraHeaders },
       this._logger
     )
   }
