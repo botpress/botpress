@@ -218,6 +218,11 @@ const deploySchema = {
     type: 'string',
     description: 'Custom URL for the integration. Only used when deploying an integration',
   },
+  bypassBreakingChanges: {
+    type: 'boolean',
+    hidden: true,
+    default: false,
+  },
 } as const satisfies CommandSchema
 
 const devSchema = {
