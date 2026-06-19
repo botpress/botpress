@@ -20,6 +20,7 @@ export const handler = async (props: bp.HandlerProps) => {
   }
 
   await handleIncomingEmail(props)
+  return {}
 }
 
 /*

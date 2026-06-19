@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import { transformMarkdown } from '@botpress/common'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import { reporting } from '@botpress/sdk-addons'
 import { messagingApi as lineMessagingApi } from '@line/bot-sdk'
 import crypto from 'crypto'
 import getOrCreateConversation from './proactive-conversation'
@@ -459,11 +459,7 @@ const integration = new bp.Integration({
   },
 })
 
-export default sentryHelpers.wrapIntegration(integration, {
-  dsn: bp.secrets.SENTRY_DSN,
-  environment: bp.secrets.SENTRY_ENVIRONMENT,
-  release: bp.secrets.SENTRY_RELEASE,
-})
+export default reporting.wrapIntegration(integration)
 
 async function handleMessage(events: LineEvents, destination: string, client: bp.Client) {
   const message = events.message

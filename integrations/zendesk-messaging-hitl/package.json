@@ -21,8 +21,7 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@botpress/common": "workspace:*",
-    "@sentry/cli": "^2.39.1"
+    "@botpress/common": "workspace:*"
   },
   "bpDependencies": {
     "hitl": "../../interfaces/hitl"

@@ -29,7 +29,6 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "@sentry/cli": "^2.39.1",
     "@types/jsonwebtoken": "^9.0.3",
     "@types/mdast": "^4.0.4",
     "@types/sanitize-html": "^2.16.0",

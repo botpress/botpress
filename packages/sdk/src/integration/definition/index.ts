@@ -244,6 +244,18 @@ export class IntegrationDefinition<
     return { sdkVersion: SDK_VERSION } as const
   }
 
+  public readonly clone?: (overrides?: Partial<IntegrationDefinitionProps>) => IntegrationDefinition = (overrides?) => {
+    // TODO: make non-optional on next major (CLI and SDK share the same major, so the CLI can always rely on clone being present)
+    return new IntegrationDefinition({
+      ...this.props,
+      actions: this.actions,
+      events: this.events,
+      channels: this.channels,
+      interfaces: this.interfaces,
+      ...overrides,
+    } as IntegrationDefinitionProps)
+  }
+
   public extend<P extends InterfacePackage>(
     interfacePkg: P,
     builder: ExtensionBuilder<

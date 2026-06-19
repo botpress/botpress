@@ -1,5 +1,4 @@
-import { generateRedirection } from '@botpress/common/src/html-dialogs'
-import { isOAuthWizardUrl, getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
+import { isOAuthWizardUrl, getInterstitialUrl, generateRedirection } from '@botpress/common/src/oauth-wizard'
 import { getErrorFromUnknown } from '../../../misc/utils'
 import * as wizard from './wizard'
 import * as bp from '.botpress'

@@ -1,6 +1,6 @@
 {
   "name": "@botpresshub/freshchat",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Integration for Freshchat",
   "private": true,
   "scripts": {
@@ -23,7 +23,6 @@
     "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpresshub/hitl": "workspace:*",
-    "@sentry/cli": "^2.39.1",
     "@types/lodash": "^4.14.191"
   },
   "bpDependencies": {
