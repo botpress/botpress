@@ -144,7 +144,11 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       } else {
         await api.client.updateIntegration(updateBody).catch((thrown) => {
           const error = errors.BotpressCLIError.wrap(thrown, `Could not update integration "${name}"`)
-          if (api.isBotpressWorkspace && !this.argv.bypassBreakingChanges && error.message.includes('breaking changes')) {
+          if (
+            api.isBotpressWorkspace &&
+            !this.argv.bypassBreakingChanges &&
+            error.message.includes('breaking changes')
+          ) {
             this.logger.warn('Tip: redeploy with --bypassBreakingChanges to skip this check')
           }
           throw error
@@ -181,7 +185,11 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       } else {
         await api.client.createIntegration(createBody).catch((thrown) => {
           const error = errors.BotpressCLIError.wrap(thrown, `Could not create integration "${name}"`)
-          if (api.isBotpressWorkspace && !this.argv.bypassBreakingChanges && error.message.includes('breaking changes')) {
+          if (
+            api.isBotpressWorkspace &&
+            !this.argv.bypassBreakingChanges &&
+            error.message.includes('breaking changes')
+          ) {
             this.logger.warn('Tip: redeploy with --bypassBreakingChanges to skip this check')
           }
           throw error
