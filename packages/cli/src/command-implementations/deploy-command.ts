@@ -67,7 +67,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       api = api.switchWorkspace(workspaceId)
     }
     if (this.argv.bypassBreakingChanges) {
-      api = api.withExtraHeaders({ 'x-bypass-breaking-changes': 'true' })
+      api = api.withExtraHeaders({ 'x-bypass-breaking-changes-detection': 'true' })
     }
 
     const { name, version } = integrationDef
