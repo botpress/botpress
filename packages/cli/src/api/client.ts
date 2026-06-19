@@ -21,7 +21,6 @@ import {
   PublicOrPrivatePlugin,
   BotSummary,
 } from './types'
-
 export * from './types'
 
 /**
@@ -40,14 +39,14 @@ export class ApiClient {
     props: ApiClientProps,
     private _logger: Logger
   ) {
-    const { apiUrl, token, workspaceId, botId } = props
+    const { apiUrl, token, workspaceId, botId, extraHeaders } = props
     this.client = new client.Client({
       apiUrl,
       token,
       workspaceId,
       botId,
       retry: retry.config,
-      headers: { 'x-multiple-integrations': 'true' },
+      headers: { 'x-multiple-integrations': 'true', ...extraHeaders },
     })
     this.url = apiUrl
     this.token = token
@@ -94,6 +93,13 @@ export class ApiClient {
   public async findWorkspaceByHandle(handle: string): Promise<client.ClientOutputs['getWorkspace'] | undefined> {
     const { workspaces } = await this.client.listWorkspaces({ handle })
     return workspaces[0] // There should be only one workspace with a given handle
+  }
+
+  public withExtraHeaders(headers: Record<string, string>): ApiClient {
+    return ApiClient.newClient(
+      { apiUrl: this.url, token: this.token, workspaceId: this.workspaceId, botId: this.botId, extraHeaders: headers },
+      this._logger
+    )
   }
 
   public switchWorkspace(workspaceId: string): ApiClient {
