@@ -32,6 +32,7 @@ export class ApiClient {
   public readonly token: string
   public readonly workspaceId: string
   public readonly botId?: string
+  public readonly extraHeaders: Record<string, string>
 
   public static newClient = (props: ApiClientProps, logger: Logger) => new ApiClient(props, logger)
 
@@ -39,7 +40,7 @@ export class ApiClient {
     props: ApiClientProps,
     private _logger: Logger
   ) {
-    const { apiUrl, token, workspaceId, botId, extraHeaders } = props
+    const { apiUrl, token, workspaceId, botId, extraHeaders = {} } = props
     this.client = new client.Client({
       apiUrl,
       token,
@@ -52,6 +53,7 @@ export class ApiClient {
     this.token = token
     this.workspaceId = workspaceId
     this.botId = botId
+    this.extraHeaders = extraHeaders
   }
 
   public get isBotpressWorkspace(): boolean {
@@ -97,7 +99,7 @@ export class ApiClient {
 
   public withExtraHeaders(headers: Record<string, string>): ApiClient {
     return ApiClient.newClient(
-      { apiUrl: this.url, token: this.token, workspaceId: this.workspaceId, botId: this.botId, extraHeaders: headers },
+      { apiUrl: this.url, token: this.token, workspaceId: this.workspaceId, botId: this.botId, extraHeaders: { ...this.extraHeaders, ...headers } },
       this._logger
     )
   }
