@@ -12,6 +12,7 @@ const visibility = 'private' as const
 const minify = true
 const profile = undefined
 const url = undefined
+const bypassBreakingChangeDetection = false
 
 export default {
   minify,
@@ -28,4 +29,5 @@ export default {
   visibility,
   profile,
   url,
+  bypassBreakingChangeDetection,
 } as const
