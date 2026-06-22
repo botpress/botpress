@@ -147,7 +147,8 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
           if (
             api.isBotpressWorkspace &&
             !this.argv.bypassBreakingChangeDetection &&
-            thrown instanceof client.BreakingChangesError
+            client.isApiError(thrown) &&
+            thrown.type === 'BreakingChanges'
           ) {
             this.logger.warn('Tip: redeploy with --bypassBreakingChangeDetection to skip this check')
           }
@@ -188,7 +189,8 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
           if (
             api.isBotpressWorkspace &&
             !this.argv.bypassBreakingChangeDetection &&
-            thrown instanceof client.BreakingChangesError
+            client.isApiError(thrown) &&
+            thrown.type === 'BreakingChanges'
           ) {
             this.logger.warn('Tip: redeploy with --bypassBreakingChangeDetection to skip this check')
           }
