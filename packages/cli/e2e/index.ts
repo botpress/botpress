@@ -2,7 +2,6 @@ import { Logger } from '@bpinternal/log4bot'
 import yargs, { YargsConfig, YargsSchema } from '@bpinternal/yargs-extra'
 import * as consts from '../src/consts'
 import { requiredBotSecrets } from './tests/bot-secrets'
-import { bypassBreakingChanges } from './tests/bypass-breaking-changes'
 import { createDeployBot } from './tests/create-deploy-bot'
 import { createDeployBotWithDependencies } from './tests/create-deploy-bot-with-dependencies'
 import { createDeployIntegration } from './tests/create-deploy-integration'
@@ -31,7 +30,6 @@ const tests: Test[] = [
   createDeployBot,
   createDeployBotWithDependencies,
   createDeployIntegration,
-  bypassBreakingChanges,
   devBot,
   requiredBotSecrets,
   requiredIntegrationSecrets,
