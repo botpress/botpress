@@ -184,14 +184,16 @@ export class MetaOauthClient {
       if (!data?.success) {
         throw new Error('No Success')
       }
-    } catch (e: any) {
-      this._logger
-        .forBot()
-        .error(
-          `Error configuring app webhook subscription for app ${appId}: ${e.message} -> ${JSON.stringify(
-            e.response?.data
-          )}`
-        )
+    } catch (e: unknown) {
+      if (e instanceof AxiosError) {
+        this._logger
+          .forBot()
+          .error(
+            `Error configuring app webhook subscription for app ${appId}: ${e.message} -> ${JSON.stringify(
+              e.response?.data
+            )}`
+          )
+      }
       throw new RuntimeError(
         'Failed to automatically configure the webhook on your Meta app. Please verify your App ID and Client Secret, or configure the webhook manually in the Meta app dashboard.'
       )

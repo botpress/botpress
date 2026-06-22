@@ -190,7 +190,7 @@ export default new IntegrationDefinition({
             .optional()
             .title('App ID')
             .describe(
-              'Your Meta app ID. Provide this together with the Client Secret to let Botpress automatically configure the webhook (callback URL, verify token and subscribed fields) on your Meta app during setup, so you don\'t have to configure it manually in the Meta dashboard. Optional: if left empty, you must configure the webhook yourself in the Meta app dashboard.'
+              "Your Meta app ID. Provide this together with the Client Secret to let Botpress automatically configure the webhook (callback URL, verify token and subscribed fields) on your Meta app during setup, so you don't have to configure it manually in the Meta dashboard. Optional: if left empty, you must configure the webhook yourself in the Meta app dashboard."
             ),
           clientSecret: z
             .string()

@@ -42,9 +42,7 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
         })
       } catch (thrown: unknown) {
         const errMsg = thrown instanceof Error ? thrown.message : 'Unknown error thrown'
-        props.logger
-          .forBot()
-          .warn(`Could not automatically configure the webhook on your Meta app: ${errMsg}`)
+        props.logger.forBot().warn(`Could not automatically configure the webhook on your Meta app: ${errMsg}`)
       }
     }
   } else {
@@ -52,7 +50,7 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
   }
 }
 
-export const unregister: bp.IntegrationProps['unregister'] = async () => { }
+export const unregister: bp.IntegrationProps['unregister'] = async () => {}
 
 async function _checkManualConfiguration(accessToken: string) {
   // get appId first
