@@ -1,4 +1,4 @@
-import type * as client from '@botpress/client'
+import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
 import chalk from 'chalk'
 import * as fs from 'fs'
@@ -147,7 +147,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
           if (
             api.isBotpressWorkspace &&
             !this.argv.bypassBreakingChangeDetection &&
-            error.message.includes('breaking changes')
+            thrown instanceof client.BreakingChangesError
           ) {
             this.logger.warn('Tip: redeploy with --bypassBreakingChangeDetection to skip this check')
           }
@@ -188,7 +188,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
           if (
             api.isBotpressWorkspace &&
             !this.argv.bypassBreakingChangeDetection &&
-            error.message.includes('breaking changes')
+            thrown instanceof client.BreakingChangesError
           ) {
             this.logger.warn('Tip: redeploy with --bypassBreakingChangeDetection to skip this check')
           }
