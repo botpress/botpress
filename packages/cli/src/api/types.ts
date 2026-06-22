@@ -8,6 +8,7 @@ export type ApiClientProps = {
   token: string
   workspaceId: string
   botId?: string
+  extraHeaders?: Record<string, string>
 }
 
 export type ApiClientFactory = {
