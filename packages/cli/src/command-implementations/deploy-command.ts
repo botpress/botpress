@@ -66,7 +66,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     if (workspaceId) {
       api = api.switchWorkspace(workspaceId)
     }
-    if (this.argv.bypassBreakingChanges) {
+    if (this.argv.bypassBreakingChangeDetection) {
       api = api.withExtraHeaders({ 'x-bypass-breaking-changes-detection': 'true' })
     }
 
@@ -146,10 +146,10 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
           const error = errors.BotpressCLIError.wrap(thrown, `Could not update integration "${name}"`)
           if (
             api.isBotpressWorkspace &&
-            !this.argv.bypassBreakingChanges &&
+            !this.argv.bypassBreakingChangeDetection &&
             error.message.includes('breaking changes')
           ) {
-            this.logger.warn('Tip: redeploy with --bypassBreakingChanges to skip this check')
+            this.logger.warn('Tip: redeploy with --bypassBreakingChangeDetection to skip this check')
           }
           throw error
         })
@@ -187,10 +187,10 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
           const error = errors.BotpressCLIError.wrap(thrown, `Could not create integration "${name}"`)
           if (
             api.isBotpressWorkspace &&
-            !this.argv.bypassBreakingChanges &&
+            !this.argv.bypassBreakingChangeDetection &&
             error.message.includes('breaking changes')
           ) {
-            this.logger.warn('Tip: redeploy with --bypassBreakingChanges to skip this check')
+            this.logger.warn('Tip: redeploy with --bypassBreakingChangeDetection to skip this check')
           }
           throw error
         })
