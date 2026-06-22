@@ -132,17 +132,22 @@ export class MetaOauthClient {
         throw new Error('No Success')
       }
     } catch (e: unknown) {
-      if (!(e instanceof AxiosError)) return
-      // 403 -> Number already registered
-      if (e.response?.status !== 403) {
-        this._logger
-          .forBot()
-          .error(
-            `(OAuth registration) Error registering the provided phone number ID: ${e.message} -> ${JSON.stringify(
-              e.response?.data
-            )}`
-          )
+      if (e instanceof AxiosError) {
+        // 403 -> Number already registered
+        if (e.response?.status !== 403) {
+          this._logger
+            .forBot()
+            .error(
+              `(OAuth registration) Error registering the provided phone number ID: ${e.message} -> ${JSON.stringify(
+                e.response?.data
+              )}`
+            )
+        }
       }
+      const errorMessage = e instanceof Error ? e.message : String(e)
+      this._logger
+        .forBot()
+        .error(`(OAuth registration) Error registering the provided phone number ID: ${errorMessage}`)
     }
   }
 
@@ -215,12 +220,14 @@ export class MetaOauthClient {
       if (!data.success) {
         throw new Error('No Success')
       }
-    } catch (e: any) {
-      this._logger
-        .forBot()
-        .error(
-          `(OAuth registration) Error subscribing to webhooks for WABA ${wabaId}: ${e.message} -> ${e.response?.data}`
-        )
+    } catch (e: unknown) {
+      if (e instanceof AxiosError) {
+        this._logger
+          .forBot()
+          .error(
+            `(OAuth registration) Error subscribing to webhooks for WABA ${wabaId}: ${e.message} -> ${e.response?.data}`
+          )
+      }
       throw new Error('Issue subscribing to Webhooks for WABA, please try again.')
     }
   }
