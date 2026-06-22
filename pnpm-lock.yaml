@@ -2184,8 +2184,6 @@ importers:
         specifier: workspace:*
         version: link:../../interfaces/typing-indicator
 
-  integrations/uber-eats: {}
-
   integrations/viber:
     dependencies:
       '@botpress/client':
