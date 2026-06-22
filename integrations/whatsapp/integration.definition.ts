@@ -157,7 +157,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.16.3'
+export const INTEGRATION_VERSION = '4.17.0'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
@@ -185,12 +185,21 @@ export default new IntegrationDefinition({
             .secret()
             .title('Access Token')
             .describe('Access Token from a System Account that has permission to the Meta app'),
+          appId: z
+            .string()
+            .optional()
+            .title('App ID')
+            .describe(
+              'Your Meta app ID. Provide this together with the Client Secret to let Botpress automatically configure the webhook (callback URL, verify token and subscribed fields) on your Meta app during setup, so you don\'t have to configure it manually in the Meta dashboard. Optional: if left empty, you must configure the webhook yourself in the Meta app dashboard.'
+            ),
           clientSecret: z
             .string()
             .secret()
             .optional()
             .title('Client Secret')
-            .describe('Meta app secret used for webhook signature check'),
+            .describe(
+              'Your Meta app secret. Used to verify incoming webhook request signatures, and—when provided together with the App ID—to automatically configure the webhook on your Meta app during setup. Optional: if left empty, webhook signature verification is skipped and you must configure the webhook yourself in the Meta app dashboard.'
+            ),
           defaultBotPhoneNumberId: z
             .string()
             .min(1)

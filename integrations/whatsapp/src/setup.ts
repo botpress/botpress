@@ -1,4 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
+import { MetaOauthClient } from './auth'
 import * as bp from '.botpress'
 
 export const register: bp.IntegrationProps['register'] = async (props) => {
@@ -18,21 +19,40 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
     return // nothing more to do if we're not using manual configuration
   }
 
-  const { accessToken, defaultBotPhoneNumberId, verifyToken } = props.ctx.configuration
+  const { accessToken, defaultBotPhoneNumberId, verifyToken, appId, clientSecret } = props.ctx.configuration
 
-  // clientSecret is optional and not required for validation
+  // appId and clientSecret are optional and not required for validation
   if (accessToken && defaultBotPhoneNumberId && verifyToken) {
     // let's check the credentials
     const isValidConfiguration = await _checkManualConfiguration(accessToken)
     if (!isValidConfiguration) {
       throw new RuntimeError('Error! Please check your credentials and webhook.')
     }
+
+    // When both the App ID and Client Secret are provided, automatically configure the webhook on
+    // the user's Meta app so they don't have to do it manually in the Meta dashboard.
+    if (appId && clientSecret) {
+      try {
+        const oauthClient = new MetaOauthClient(props.logger)
+        await oauthClient.configureAppWebhookSubscription({
+          appId,
+          appSecret: clientSecret,
+          verifyToken,
+          callbackUrl: props.webhookUrl,
+        })
+      } catch (thrown: unknown) {
+        const errMsg = thrown instanceof Error ? thrown.message : 'Unknown error thrown'
+        props.logger
+          .forBot()
+          .warn(`Could not automatically configure the webhook on your Meta app: ${errMsg}`)
+      }
+    }
   } else {
     throw new RuntimeError('Error! Please add the missing fields and save.')
   }
 }
 
-export const unregister: bp.IntegrationProps['unregister'] = async () => {}
+export const unregister: bp.IntegrationProps['unregister'] = async () => { }
 
 async function _checkManualConfiguration(accessToken: string) {
   // get appId first

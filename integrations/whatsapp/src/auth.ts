@@ -7,6 +7,17 @@ import * as bp from '.botpress'
 
 const MAX_BUSINESSES_PER_REQUEST = 50
 
+// Webhook fields the integration relies on. These are subscribed at the Meta app
+// level so the app's configured callback URL receives the corresponding events.
+const WEBHOOK_FIELDS = [
+  'messages',
+  'smb_message_echoes',
+  'message_template_status_update',
+  'message_template_quality_update',
+  'message_template_components_update',
+  'template_category_update',
+] as const
+
 const getWabaIdsFromTokenResponseSchema = z
   .object({
     data: z.object({
@@ -131,6 +142,58 @@ export class MetaOauthClient {
             )}`
           )
       }
+    }
+  }
+
+  /**
+   * Configures the app-level webhook (callback URL, verify token and subscribed fields) on a
+   * user-owned Meta app via `POST /{app-id}/subscriptions`.
+   *
+   * This mirrors the WhatsApp > Configuration screen in the Meta dashboard, and is the app-level
+   * counterpart to `subscribeToWebhooks` (which subscribes a single WABA to the app). It requires
+   * an app access token (`{appId}|{appSecret}`), which is why both the App ID and Client Secret
+   * must be provided in the manual configuration. Meta calls back the `callbackUrl` with a
+   * verification challenge (using `verifyToken`) before persisting, so the Botpress webhook must
+   * already be live.
+   */
+  public async configureAppWebhookSubscription({
+    appId,
+    appSecret,
+    verifyToken,
+    callbackUrl,
+  }: {
+    appId: string
+    appSecret: string
+    verifyToken: string
+    callbackUrl: string
+  }): Promise<void> {
+    const appAccessToken = `${appId}|${appSecret}`
+    try {
+      const { data } = await axios.post(
+        `${WHATSAPP.API_URL}/${appId}/subscriptions`,
+        {
+          object: 'whatsapp_business_account',
+          callback_url: callbackUrl,
+          verify_token: verifyToken,
+          fields: WEBHOOK_FIELDS.join(','),
+        },
+        { params: { access_token: appAccessToken } }
+      )
+
+      if (!data?.success) {
+        throw new Error('No Success')
+      }
+    } catch (e: any) {
+      this._logger
+        .forBot()
+        .error(
+          `Error configuring app webhook subscription for app ${appId}: ${e.message} -> ${JSON.stringify(
+            e.response?.data
+          )}`
+        )
+      throw new RuntimeError(
+        'Failed to automatically configure the webhook on your Meta app. Please verify your App ID and Client Secret, or configure the webhook manually in the Meta app dashboard.'
+      )
     }
   }
 
