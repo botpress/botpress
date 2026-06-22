@@ -1,0 +1,20 @@
+{
+  "name": "@botpresshub/mixpanel",
+  "scripts": {
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "test": "vitest --run"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "axios": "^1.6.2",
+    "mixpanel": "^0.18.0"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@types/node": "^22.16.4"
+  }
+}
