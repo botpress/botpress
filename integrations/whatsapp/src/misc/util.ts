@@ -56,3 +56,31 @@ export function logForBotAndThrow(message: string, logger: bp.Logger): never {
   logger.forBot().error(message)
   throw new sdk.RuntimeError(message)
 }
+
+type IssueLogEvent = Parameters<bp.Logger['issue']>[0]
+type ReportIssueOptions = Omit<IssueLogEvent, 'type' | 'groupBy' | 'data'> & {
+  /** Defaults to `[code]`. */
+  groupBy?: string[]
+  /** Defaults to `{}`. */
+  data?: IssueLogEvent['data']
+  /** Message for the thrown RuntimeError. Defaults to `description`. */
+  throwMessage?: string
+}
+
+/**
+ * Logs the error for the bot, reports a structured issue (so it surfaces in Desk),
+ * then throws a RuntimeError so the failure is never silently swallowed.
+ */
+export function reportIssueAndThrow(
+  logger: bp.Logger,
+  { throwMessage, groupBy, data, ...issue }: ReportIssueOptions
+): never {
+  logger.forBot().error(issue.description)
+  logger.issue({
+    ...issue,
+    type: 'issue',
+    groupBy: groupBy ?? [issue.code],
+    data: data ?? {},
+  })
+  throw new sdk.RuntimeError(throwMessage ?? issue.description)
+}
