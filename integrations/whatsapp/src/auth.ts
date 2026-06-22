@@ -1,5 +1,5 @@
 import { RuntimeError, z } from '@botpress/sdk'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { WhatsAppAPI } from 'whatsapp-api-js'
 import { WHATSAPP } from './misc/constants'
 import { chunkArray } from './misc/util'
@@ -131,7 +131,8 @@ export class MetaOauthClient {
       if (!data.success) {
         throw new Error('No Success')
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
+      if (!(e instanceof AxiosError)) return
       // 403 -> Number already registered
       if (e.response?.status !== 403) {
         this._logger
