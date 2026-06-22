@@ -218,7 +218,7 @@ const deploySchema = {
     type: 'string',
     description: 'Custom URL for the integration. Only used when deploying an integration',
   },
-  bypassBreakingChanges: {
+  bypassBreakingChangeDetection: {
     type: 'boolean',
     hidden: true,
     default: false,
