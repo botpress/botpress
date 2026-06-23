@@ -80,7 +80,7 @@ const channel: bp.IntegrationProps['channels']['channel'] = {
               const { messageId } = await messenger.sendText(recipient, googleMapLink)
               lastMessageId = messageId
             } else {
-              props.logger.forBot().warn(`Unsupported bloc item type: ${(item as any).type}`)
+              props.logger.forBot().warn(`Unsupported bloc item type: ${item.type}`)
             }
           } catch (thrown) {
             const error = thrown instanceof Error ? thrown : new Error(String(thrown))
