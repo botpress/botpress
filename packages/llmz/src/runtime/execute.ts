@@ -105,7 +105,7 @@ const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionR
           return new ErrorExecutionResult(ctx, controller.signal.reason ?? 'The operation was aborted')
         }
 
-        const executionResult = await executeIterationWithErrorHandling({
+        const iterationResult = await executeIterationWithErrorHandling({
           iteration,
           ctx,
           cognitive,
@@ -116,8 +116,8 @@ const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionR
           onBeforeTool,
           onIterationEnd,
         })
-        if (executionResult.type === 'return') {
-          return executionResult.result
+        if (iterationResult.type === 'return') {
+          return iterationResult.result
         }
 
         const selectedResult = transformIterationResult({ ctx, iteration })
