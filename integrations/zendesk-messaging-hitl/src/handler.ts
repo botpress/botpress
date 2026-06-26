@@ -1,5 +1,4 @@
-import { generateRedirection } from '@botpress/common/src/html-dialogs'
-import { getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
+import { generateRedirection, getInterstitialUrl } from '@botpress/common/src/oauth-wizard'
 import { RuntimeError } from '@botpress/sdk'
 import { INTEGRATION_NAME } from './../integration.definition'
 import { getCredentials } from './api/get-credentials'

@@ -157,7 +157,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.15.0'
+export const INTEGRATION_VERSION = '4.18.0'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
@@ -185,12 +185,21 @@ export default new IntegrationDefinition({
             .secret()
             .title('Access Token')
             .describe('Access Token from a System Account that has permission to the Meta app'),
+          appId: z
+            .string()
+            .optional()
+            .title('App ID')
+            .describe(
+              "Your Meta app ID. Provide this together with the Client Secret to let Botpress automatically configure the webhook (callback URL, verify token and subscribed fields) on your Meta app during setup, so you don't have to configure it manually in the Meta dashboard. Optional: if left empty, you must configure the webhook yourself in the Meta app dashboard."
+            ),
           clientSecret: z
             .string()
             .secret()
             .optional()
             .title('Client Secret')
-            .describe('Meta app secret used for webhook signature check'),
+            .describe(
+              'Your Meta app secret. Used to verify incoming webhook request signatures, and—when provided together with the App ID—to automatically configure the webhook on your Meta app during setup. Optional: if left empty, webhook signature verification is skipped and you must configure the webhook yourself in the Meta app dashboard.'
+            ),
           defaultBotPhoneNumberId: z
             .string()
             .min(1)
@@ -358,6 +367,10 @@ export default new IntegrationDefinition({
             title: 'User Phone Number',
             description: 'Phone number of the WhatsApp user having a conversation with the bot.',
           },
+          userId: {
+            title: 'User ID',
+            description: 'WhatsApp stable user ID of the user having a conversation with the bot.',
+          },
         },
       },
     },
@@ -375,6 +388,15 @@ export default new IntegrationDefinition({
       number: {
         title: 'Phone Number',
         description: 'WhatsApp phone number of the user',
+      },
+      username: {
+        title: 'Username',
+        description: 'WhatsApp username of the user (when opted in to username privacy)',
+      },
+      whatsappUserId: {
+        title: 'WhatsApp User ID',
+        description:
+          "WhatsApp's stable user ID (user_id) of the user, present in both opted-in and non-opted-in payloads",
       },
     },
   },

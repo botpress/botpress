@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/client'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import { reporting } from '@botpress/sdk-addons'
 import qs from 'qs'
 import { getCorsHeaders } from './cors'
 import * as bp from '.botpress'
@@ -77,8 +77,4 @@ const integration = new bp.Integration({
   channels: {},
 })
 
-export default sentryHelpers.wrapIntegration(integration, {
-  dsn: bp.secrets.SENTRY_DSN,
-  environment: bp.secrets.SENTRY_ENVIRONMENT,
-  release: bp.secrets.SENTRY_RELEASE,
-})
+export default reporting.wrapIntegration(integration)

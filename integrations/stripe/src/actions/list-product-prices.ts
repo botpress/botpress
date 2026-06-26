@@ -1,12 +1,12 @@
 import type { Product } from 'src/misc/custom-types'
-import { getClient } from '../client'
 import type { IntegrationProps } from '../misc/types'
+import { StripeClient } from '../stripe-api/stripe-client'
 
-export const listProductPrices: IntegrationProps['actions']['listProductPrices'] = async ({ ctx, logger }) => {
-  const StripeClient = getClient(ctx.configuration)
+export const listProductPrices: IntegrationProps['actions']['listProductPrices'] = async ({ ctx, client, logger }) => {
+  const stripeClient = await StripeClient.createFromStates({ client, ctx, logger })
   let response
   try {
-    const prices = await StripeClient.listAllPricesBasic(undefined, true)
+    const prices = await stripeClient.listAllPricesBasic(undefined, true)
 
     prices.map((price) => {
       return {

@@ -1,5 +1,4 @@
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 import typingIndicator from 'bp_modules/typing-indicator'
@@ -9,7 +8,7 @@ export const INTEGRATION_NAME = 'sunco'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.0.1',
+  version: '2.0.3',
   title: 'Sunshine Conversations',
   description: 'Give your bot access to a powerful omnichannel messaging platform.',
   icon: 'icon.svg',
@@ -94,7 +93,6 @@ export default new IntegrationDefinition({
     MARKETPLACE_BOT_ID: {
       description: 'The bot ID for the Zendesk marketplace',
     },
-    ...sentryHelpers.COMMON_SECRET_NAMES,
   },
   user: {
     tags: {

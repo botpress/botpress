@@ -4,7 +4,7 @@ import { actions, configuration, states } from './definitions'
 
 export default new sdk.IntegrationDefinition({
   name: 'sharepoint',
-  version: '1.0.0',
+  version: '1.0.2',
   title: 'SharePoint',
   description: 'Sync SharePoint document libraries with Botpress knowledge bases.',
   readme: 'hub.md',
@@ -13,7 +13,7 @@ export default new sdk.IntegrationDefinition({
   states,
   actions,
   attributes: {
-    category: 'Knowledge Base',
+    category: 'File Management',
     repo: 'botpress',
   },
 }).extend(filesReadonly, ({}) => ({

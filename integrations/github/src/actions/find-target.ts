@@ -17,11 +17,28 @@ const fuse = new Fuse<Target>([], {
 
 export const findTarget = wrapActionAndInjectOctokit(
   { actionName: 'findTarget', errorMessage: 'Failed to find target' },
-  async ({ octokit, owner }, { repo, query, channel }) => {
+  async ({ octokit, owner, logger }, { repo, query, channel }) => {
     const targets: Target[] = []
 
+    // Allow the repo input to be a full "owner/repo" path; otherwise fall back
+    // to the owner of the connected installation. Note: the installation token
+    // can only access repos owned by the account the app is installed on, so
+    // the owner here must still be within that installation.
+    const slashIndex = repo.indexOf('/')
+    const effectiveOwner = slashIndex >= 0 ? repo.slice(0, slashIndex) : owner
+    const effectiveRepo = slashIndex >= 0 ? repo.slice(slashIndex + 1) : repo
+
+    logger
+      .forBot()
+      .info(`findTarget: querying ${effectiveOwner}/${effectiveRepo} channel=${channel} query=${JSON.stringify(query)}`)
+
     const queryPullRequests = async () => {
-      const pullRequests = await octokit.rest.pulls.list({ owner, repo, per_page: 200, state: 'open' })
+      const pullRequests = await octokit.rest.pulls.list({
+        owner: effectiveOwner,
+        repo: effectiveRepo,
+        per_page: 100,
+        state: 'open',
+      })
 
       const items = (pullRequests.data || []).map<Target>((item) => ({
         displayName: `${item.number} - ${item.title}`,
@@ -31,17 +48,22 @@ export const findTarget = wrapActionAndInjectOctokit(
 
       if (query) {
         fuse.setCollection(items)
-        targets.push(...fuse.search<Target>(query).map((x) => x.item))
+        const matched = fuse.search<Target>(query).map((x) => x.item)
+        logger
+          .forBot()
+          .info(`findTarget: pulls.list returned ${items.length} open PRs, ${matched.length} matched query`)
+        targets.push(...matched)
       } else {
+        logger.forBot().info(`findTarget: pulls.list returned ${items.length} open PRs (no query filter)`)
         targets.push(...items)
       }
     }
 
     const queryIssues = async () => {
       const response = await octokit.rest.issues.listForRepo({
-        owner,
-        repo,
-        per_page: 200,
+        owner: effectiveOwner,
+        repo: effectiveRepo,
+        per_page: 100,
         state: 'open',
       })
 
@@ -73,8 +95,13 @@ export const findTarget = wrapActionAndInjectOctokit(
 
       if (query) {
         fuse.setCollection(items)
-        targets.push(...fuse.search<Target>(query).map((x) => x.item))
+        const matched = fuse.search<Target>(query).map((x) => x.item)
+        logger
+          .forBot()
+          .info(`findTarget: issues.listForRepo returned ${items.length} open issues, ${matched.length} matched query`)
+        targets.push(...matched)
       } else {
+        logger.forBot().info(`findTarget: issues.listForRepo returned ${items.length} open issues (no query filter)`)
         targets.push(...items)
       }
     }

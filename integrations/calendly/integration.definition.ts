@@ -5,7 +5,7 @@ import { inviteeEventOutputSchema } from 'definitions/events'
 export default new IntegrationDefinition({
   name: 'calendly',
   title: 'Calendly',
-  version: '0.0.5',
+  version: '0.0.6',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Schedule meetings and manage events using the Calendly scheduling platform.',

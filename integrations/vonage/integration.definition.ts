@@ -1,11 +1,10 @@
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 
 export default new IntegrationDefinition({
   name: 'vonage',
-  version: '1.0.4',
+  version: '1.0.5',
   title: 'Vonage',
   description: 'Send and receive SMS messages.',
   icon: 'icon.svg',
@@ -44,7 +43,7 @@ export default new IntegrationDefinition({
       channel: { title: 'Channel', description: 'The channel of the user' },
     },
   },
-  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+
   entities: {
     conversation: {
       schema: z.object({

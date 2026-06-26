@@ -1,4 +1,4 @@
-import { Version3Client, Version3Models, Version3Parameters } from 'jira.js'
+import { Version3Client, Version3Models, Version3Parameters, type Config } from 'jira.js'
 import { textToAdfDocument } from '../misc/adf'
 
 export type EnhancedSearchRequest = {
@@ -46,20 +46,44 @@ export type IssuePickerResponse = {
   }>
 }
 
+export type AttachmentInput = {
+  filename: string
+  contentType?: string
+  data: ArrayBuffer | Uint8Array
+}
+
 export class JiraApi {
   private _client: Version3Client
+  public readonly host: string
 
-  public constructor(host: string, email: string, apiToken: string) {
+  private constructor(requestHost: string, authentication: Config.Authentication, browseHost: string = requestHost) {
+    this.host = browseHost.replace(/\/$/, '')
     this._client = new Version3Client({
-      host,
-      authentication: {
-        basic: {
-          email,
-          apiToken,
-        },
-      },
+      host: requestHost.replace(/\/$/, ''),
+      authentication,
       newErrorHandling: true,
     })
+  }
+
+  public static fromBasicAuth(host: string, email: string, apiToken: string): JiraApi {
+    return new JiraApi(host, {
+      basic: {
+        email,
+        apiToken,
+      },
+    })
+  }
+
+  public static fromOAuth(cloudId: string, accessToken: string, host: string): JiraApi {
+    return new JiraApi(
+      `https://api.atlassian.com/ex/jira/${cloudId}`,
+      {
+        oauth2: {
+          accessToken,
+        },
+      },
+      host
+    )
   }
 
   public async newIssue(issue: Version3Parameters.CreateIssue): Promise<string> {
@@ -171,6 +195,31 @@ export class JiraApi {
       throw new Error(`Jira did not return a comment ID for issue ${issueIdOrKey}`)
     }
     return id
+  }
+
+  public async addAttachmentToIssue(
+    issueIdOrKey: string,
+    attachment: AttachmentInput
+  ): Promise<Version3Models.Attachment[]> {
+    const form = new FormData()
+    form.append(
+      'file',
+      new Blob([attachment.data], attachment.contentType ? { type: attachment.contentType } : undefined),
+      attachment.filename
+    )
+
+    return await this._client.sendRequest<Version3Models.Attachment[]>(
+      {
+        url: `/rest/api/3/issue/${encodeURIComponent(issueIdOrKey)}/attachments`,
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'X-Atlassian-Token': 'no-check',
+        },
+        data: form,
+      },
+      undefined as never
+    )
   }
 
   public async findUser(query: string): Promise<Version3Models.User> {

@@ -1,3 +1,4 @@
+import { handleErrorsDecorator as handleErrors } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 import { linkedInErrorResponseSchema, linkedInTokenResponseSchema, userInfoSchema, type UserInfo } from './schemas'
 import * as bp from '.botpress'
@@ -86,6 +87,7 @@ export class LinkedInOAuthClient {
    * Creates OAuth client using Botpress's official LinkedIn app credentials.
    * Used for automatic OAuth configuration flow.
    */
+  @handleErrors('Failed to obtain LinkedIn OAuth access token from authorization code')
   public static async createFromAuthorizationCode({
     authorizationCode,
     client,
@@ -107,6 +109,7 @@ export class LinkedInOAuthClient {
     })
   }
 
+  @handleErrors('Failed to obtain LinkedIn OAuth access token from manual config')
   public static async createFromManualConfig({
     authorizationCode,
     clientId,

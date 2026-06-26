@@ -4,7 +4,7 @@ import { actionDefinitions } from './definitions'
 export default new IntegrationDefinition({
   name: 'salesforce',
   title: 'Salesforce',
-  version: '1.0.0',
+  version: '1.0.2',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Salesforce integration allows you to create, search, update and delete a variety of Salesforce objects',
@@ -51,4 +51,8 @@ export default new IntegrationDefinition({
     },
   },
   actions: actionDefinitions,
+  attributes: {
+    category: 'CRM & Sales',
+    repo: 'botpress',
+  },
 })

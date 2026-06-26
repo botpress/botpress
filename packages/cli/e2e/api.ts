@@ -10,3 +10,4 @@ export const fetchAllIntegrations = async (client: Client): Promise<ApiIntegrati
 export type ApiInterface = Awaited<ReturnType<Client['listInterfaces']>>['interfaces'][0]
 
 export type ApiPlugin = Awaited<ReturnType<Client['listPlugins']>>['plugins'][0]
+export const fetchAllPlugins = async (client: Client): Promise<ApiPlugin[]> => await client.list.plugins({}).collect()

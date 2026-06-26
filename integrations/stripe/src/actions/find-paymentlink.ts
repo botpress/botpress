@@ -1,13 +1,18 @@
-import { getClient } from '../client'
 import { findPaymentLinkInputSchema } from '../misc/custom-schemas'
 import type { IntegrationProps } from '../misc/types'
+import { StripeClient } from '../stripe-api/stripe-client'
 
-export const findPaymentLink: IntegrationProps['actions']['findPaymentLink'] = async ({ ctx, logger, input }) => {
+export const findPaymentLink: IntegrationProps['actions']['findPaymentLink'] = async ({
+  ctx,
+  client,
+  logger,
+  input,
+}) => {
   const validatedInput = findPaymentLinkInputSchema.parse(input)
-  const StripeClient = getClient(ctx.configuration)
+  const stripeClient = await StripeClient.createFromStates({ client, ctx, logger })
   let response = {}
   try {
-    const paymentLinks = await StripeClient.listAllPaymentLinksBasic()
+    const paymentLinks = await stripeClient.listAllPaymentLinksBasic()
     const paymentLink = paymentLinks.find((link) => link.url === validatedInput.url)
 
     if (paymentLink) {

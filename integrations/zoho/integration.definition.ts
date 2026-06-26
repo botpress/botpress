@@ -1,5 +1,4 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
-
 import {
   makeApiCallInputSchema,
   makeApiCallOutputSchema,
@@ -36,25 +35,43 @@ import {
   getFileInputSchema,
   getFileOutputSchema,
 } from './src/misc/custom-schemas'
+import { DATA_CENTERS } from './src/misc/data-centers'
+import { zohoCredentialsStateSchema, zohoOAuthWizardStateSchema } from './src/misc/oauth-schemas'
 
 export default new IntegrationDefinition({
   name: 'zoho',
-  version: '3.1.4',
+  version: '4.0.1',
   title: 'Zoho',
   readme: 'hub.md',
   icon: 'icon.svg',
   description:
     'Integrate your Botpress chatbot with Zoho CRM to manage customer interactions. Add, update, and retrieve contacts, deals, orders, and appointments directly through your chatbot.',
   configuration: {
-    schema: z.object({
-      clientId: z.string().title('Client ID').describe('Your Zoho Client ID'),
-      clientSecret: z.string().title('Client Secret').describe('Your Zoho Client Secret'),
-      refreshToken: z.string().title('Refresh Token').describe('Your Zoho Refresh Token'),
-      dataCenter: z
-        .enum(['us', 'eu', 'in', 'au', 'cn', 'jp', 'ca'])
-        .title('Data Center Region')
-        .describe('Zoho Data Center Region'),
-    }),
+    identifier: {
+      linkTemplateScript: 'linkTemplate.vrl',
+      required: true,
+    },
+    schema: z.object({}),
+  },
+  configurations: {
+    manual: {
+      title: 'Manual configuration',
+      description: 'Configure manually with Zoho OAuth client credentials and a refresh token',
+      schema: z.object({
+        clientId: z.string().title('Client ID').describe('Your Zoho Client ID'),
+        clientSecret: z.string().title('Client Secret').describe('Your Zoho Client Secret'),
+        refreshToken: z.string().title('Refresh Token').describe('Your Zoho Refresh Token'),
+        dataCenter: z.enum(DATA_CENTERS).title('Data Center Region').describe('Zoho Data Center Region'),
+      }),
+    },
+  },
+  secrets: {
+    CLIENT_ID: {
+      description: 'The OAuth Client ID provided by Zoho.',
+    },
+    CLIENT_SECRET: {
+      description: 'The OAuth Client Secret provided by Zoho.',
+    },
   },
   user: {
     tags: {
@@ -67,9 +84,11 @@ export default new IntegrationDefinition({
   states: {
     credentials: {
       type: 'integration',
-      schema: z.object({
-        accessToken: z.string().title('Access Token').describe('Your Zoho Access Token'),
-      }),
+      schema: zohoCredentialsStateSchema,
+    },
+    oauthWizard: {
+      type: 'integration',
+      schema: zohoOAuthWizardStateSchema,
     },
   },
   actions: {

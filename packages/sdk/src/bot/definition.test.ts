@@ -326,3 +326,97 @@ test('addPlugin falls back to raw config when schema validation fails', () => {
   // Falls back to raw config; default for sneaky is not applied since safeParse failed
   expect(storedConfig).toEqual({ preciousEmail: '$GOLLUM_EMAIL' })
 })
+
+// BotDefinition constructor — recurrence field handling
+
+test('BotDefinition strips recurrence from events', () => {
+  const bot = new BotDefinition({
+    events: {
+      heartbeat: {
+        schema: z.object({}),
+        recurrence: { cron: '*/5 * * * *', payload: {} },
+      },
+    },
+  })
+
+  expect(bot.events?.heartbeat).not.toHaveProperty('recurrence')
+})
+
+test('BotDefinition converts inline recurrence to a recurringEvents entry', () => {
+  const bot = new BotDefinition({
+    events: {
+      heartbeat: {
+        schema: z.object({}),
+        recurrence: { cron: '*/5 * * * *', payload: {} },
+      },
+    },
+  })
+
+  expect(bot.recurringEvents?.heartbeat).toEqual({
+    type: 'heartbeat',
+    schedule: { cron: '*/5 * * * *' },
+    payload: {},
+  })
+})
+
+test('BotDefinition recurringEvents is undefined when no recurring events are defined', () => {
+  const bot = new BotDefinition({
+    events: {
+      plain: { schema: z.object({}) },
+    },
+  })
+
+  expect(bot.recurringEvents).toBeUndefined()
+})
+
+test('BotDefinition: explicit recurringEvents overrides inline recurrence for the same key', () => {
+  const bot = new BotDefinition({
+    events: {
+      heartbeat: {
+        schema: z.object({}),
+        recurrence: { cron: '*/5 * * * *', payload: { foo: 'foo' } },
+      },
+    },
+    recurringEvents: {
+      heartbeat: { type: 'heartbeat', schedule: { cron: '0 * * * *' }, payload: { bar: 'bar' } },
+    },
+  })
+
+  expect(bot.recurringEvents?.heartbeat).toEqual({
+    type: 'heartbeat',
+    schedule: { cron: '0 * * * *' },
+    payload: { bar: 'bar' },
+  })
+})
+
+test('BotDefinition: two recurringEvents entries with different keys but same type both survive', () => {
+  const bot = new BotDefinition({
+    events: {
+      foo: { schema: z.object({}) },
+    },
+    recurringEvents: {
+      fooEvery6: { type: 'foo', schedule: { cron: '*/6 * * * *' }, payload: {} },
+      fooEvery7: { type: 'foo', schedule: { cron: '*/7 * * * *' }, payload: {} },
+    },
+  })
+
+  expect(bot.recurringEvents?.fooEvery6).toEqual({ type: 'foo', schedule: { cron: '*/6 * * * *' }, payload: {} })
+  expect(bot.recurringEvents?.fooEvery7).toEqual({ type: 'foo', schedule: { cron: '*/7 * * * *' }, payload: {} })
+})
+
+test('BotDefinition: explicit recurringEvents with no inline counterpart is preserved', () => {
+  const bot = new BotDefinition({
+    events: {
+      heartbeat: { schema: z.object({}) },
+    },
+    recurringEvents: {
+      dailyDigest: { type: 'heartbeat', schedule: { cron: '0 9 * * *' }, payload: {} },
+    },
+  })
+
+  expect(bot.recurringEvents?.dailyDigest).toEqual({
+    type: 'heartbeat',
+    schedule: { cron: '0 9 * * *' },
+    payload: {},
+  })
+})

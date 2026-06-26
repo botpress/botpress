@@ -42,12 +42,12 @@
   "peerDependencies": {
     "@botpress/client": "1.46.0",
     "@bpinternal/thicktoken": "^1.0.1",
-    "@bpinternal/zui": "^2.2.1",
+    "@bpinternal/zui": "^2.3.0",
     "lodash": "^4.17.21",
     "vitest": "^2 || ^3 || ^4 || ^5"
   },
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "pnpm@10.12.4"
+  "packageManager": "pnpm@10.29.3"
 }

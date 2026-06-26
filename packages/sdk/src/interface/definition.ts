@@ -169,6 +169,11 @@ export class InterfaceDefinition<
     return { sdkVersion: SDK_VERSION } as const
   }
 
+  public readonly clone?: (overrides?: Partial<InterfaceDefinitionProps>) => InterfaceDefinition = (overrides?) => {
+    // TODO: make non-optional on next major (CLI and SDK share the same major, so the CLI can always rely on clone being present)
+    return new InterfaceDefinition({ ...this.props, ...overrides } as InterfaceDefinitionProps)
+  }
+
   private _getEntityReference = (entities: Record<string, EntityDefinition>): EntityReferences<TEntities> => {
     const entityReferences: Record<string, z.ZodRef> = {} as EntityReferences<TEntities>
     for (const [entityName, entityDef] of Object.entries(entities)) {

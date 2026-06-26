@@ -1,5 +1,12 @@
 import { Client } from '@botpress/client'
-import { Cognitive, Models, type BotpressClientLike } from '@botpress/cognitive'
+import {
+  Cognitive,
+  CognitiveBeta,
+  cognitiveFromBeta,
+  type CognitiveLike,
+  Models,
+  type BotpressClientLike,
+} from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 
 import { clamp, isEqual, isPlainObject, omit } from 'lodash-es'
@@ -35,7 +42,7 @@ import { truncateWrappedContent } from './truncator.js'
 import { Trace } from './types.js'
 
 import { init, stripInvalidIdentifiers } from './utils.js'
-import { runAsyncFunction } from './vm.js'
+import { runAsyncFunction } from './vm/index.js'
 
 const getErrorMessage = (err: unknown) => (err instanceof Error ? err.message : JSON.stringify(err))
 
@@ -223,7 +230,7 @@ export type ExecutionProps = {
    * This is used to generate content using the LLM and to access the Botpress API.
    * If not provided, a default client will be created using environment variables.
    */
-  client?: Cognitive | BotpressClientLike
+  client?: Cognitive | CognitiveBeta | BotpressClientLike
 
   /**
    * When provided, the execution will immediately stop when the signal is aborted.
@@ -281,7 +288,14 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
 
   const client = props.client ?? new Client()
 
-  const cognitive = Cognitive.isCognitiveClient(client) ? client : new Cognitive({ client, __experimental_beta: true })
+  // Accept a Cognitive client, a standalone v2 CognitiveBeta client (adapted to
+  // the Cognitive surface — stays strictly on the v2 path, no v1 fallback), or
+  // a raw Botpress client (wrapped in Cognitive with beta enabled).
+  const cognitive = Cognitive.isCognitiveClient(client)
+    ? client
+    : CognitiveBeta.isBetaClient(client)
+      ? cognitiveFromBeta(client)
+      : new Cognitive({ client, __experimental_beta: true })
   const cleanups: (() => void)[] = []
 
   const ctx = new Context({
@@ -425,7 +439,9 @@ const executeIteration = async ({
 }: {
   ctx: Context
   iteration: Iteration
-  cognitive: Cognitive
+  // Accepts a full Cognitive client or the v2 beta adapter (CognitiveLike) —
+  // both expose the getModelDetails/generateContent methods used here.
+  cognitive: Cognitive | CognitiveLike
   controller: AbortController
 } & ExecutionHooks): Promise<void> => {
   let startedAt = Date.now()
