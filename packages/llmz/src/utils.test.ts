@@ -107,6 +107,13 @@ describe('convertObjectToZuiLiterals', () => {
       }"
     `)
   })
+
+  it('produces a clonable, parseable schema for array-of-object static inputs', () => {
+    const obj = { items: [{ a: 'x', b: 1 }] }
+    const result = z.object(convertObjectToZuiLiterals(obj))
+    expect(() => result.clone()).not.toThrow()
+    expect(result.parse(obj)).toEqual(obj)
+  })
 })
 
 describe('isValidJsonSchema', () => {

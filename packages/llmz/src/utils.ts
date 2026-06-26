@@ -206,26 +206,20 @@ export const convertObjectToZuiLiterals = (obj: unknown, nested = false): any =>
     if (obj.length === 0) {
       return z.tuple([]).catch(() => obj as any)
     }
-    return z
-      .tuple([
-        // the tuple needs to have at least one element
-        convertObjectToZuiLiterals(obj[0]),
-        ...obj.slice(1).map((child) => convertObjectToZuiLiterals(child)),
-      ])
-      .catch(() => obj as any)
+    return z.tuple(obj.map((child) => convertObjectToZuiLiterals(child, true)) as any).catch(() => obj as any)
   }
 
   if (obj !== null && typeof obj === 'object') {
     const shape: { [key: string]: z.ZodTypeAny } = {}
-    for (const key in obj) {
+    for (const key of Object.keys(obj)) {
       shape[key] = convertObjectToZuiLiterals((obj as any)[key], true)
     }
     if (nested) {
-      return z.object(shape).catch(() => shape)
+      return z.object(shape).catch(() => obj as any)
     }
     // We need to return a zod empty object for empty objects otherwise clone doesn't work properly
     if (Object.keys(shape).length === 0) {
-      return z.object({}).catch(() => shape)
+      return z.object({}).catch(() => obj as any)
     }
     return shape
   }
