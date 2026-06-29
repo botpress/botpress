@@ -1,11 +1,12 @@
 import { transforms, z } from '@bpinternal/zui'
+import { JSONSchema7 } from 'json-schema'
 import { beforeAll, describe, expect, it } from 'vitest'
 
+import { convertObjectToZuiLiterals } from './convert.js'
 import { getTypings } from './typings.js'
 import {
   Tokens,
   awaitObject,
-  convertObjectToZuiLiterals,
   escapeString,
   getMultilineComment,
   init,
@@ -13,7 +14,6 @@ import {
   stripInvalidIdentifiers,
   toValidObjectName,
 } from './utils.js'
-import { JSONSchema7 } from 'json-schema'
 
 describe('Tokens', () => {
   beforeAll(async () => {
