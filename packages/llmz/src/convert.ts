@@ -1,13 +1,6 @@
 import { z } from '@bpinternal/zui'
 
-export type StaticValue =
-  | string
-  | number
-  | boolean
-  | null
-  | undefined
-  | readonly StaticValue[]
-  | StaticObject
+export type StaticValue = string | number | boolean | null | undefined | readonly StaticValue[] | StaticObject
 
 export type StaticObject = { readonly [key: string]: StaticValue }
 
