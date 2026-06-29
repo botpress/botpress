@@ -273,3 +273,5 @@ export function isValidMessageName(name: string): boolean {
 
   return /^[A-Z]{1,50}$/i.test(name)
 }
+
+export const getErrorMessage = (err: unknown) => (err instanceof Error ? err.message : JSON.stringify(err))

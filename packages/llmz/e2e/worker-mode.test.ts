@@ -1,7 +1,7 @@
 import { z } from '@bpinternal/zui'
 
 import { beforeAll, afterAll, assert, describe, expect, it } from 'vitest'
-import * as llmz from '../src/llmz.js'
+import * as llmz from '../src/runtime/execute.js'
 import { Tool } from '../src/tool.js'
 
 import { ExecutionResult, SuccessExecutionResult } from '../src/result.js'
