@@ -186,61 +186,6 @@ export const stripInvalidIdentifiers = (object: unknown): any => {
   return pickBy(object, (__, key) => Identifier.safeParse(key).success)
 }
 
-/**
- * Transforms a Zui schema to narrow it down to literal values when they are manually provided by the user
- */
-export const convertObjectToZuiLiterals = (obj: unknown, nested = false): any => {
-  if (typeof obj === 'string') {
-    return z.literal(obj).catch(() => obj)
-  }
-
-  if (typeof obj === 'number') {
-    return z.literal(obj).catch(() => obj)
-  }
-
-  if (typeof obj === 'boolean') {
-    return z.literal(obj).catch(() => obj)
-  }
-
-  if (Array.isArray(obj)) {
-    if (obj.length === 0) {
-      return z.tuple([]).catch(() => obj as any)
-    }
-    return z
-      .tuple([
-        // the tuple needs to have at least one element
-        convertObjectToZuiLiterals(obj[0]),
-        ...obj.slice(1).map((child) => convertObjectToZuiLiterals(child)),
-      ])
-      .catch(() => obj as any)
-  }
-
-  if (obj !== null && typeof obj === 'object') {
-    const shape: { [key: string]: z.ZodTypeAny } = {}
-    for (const key in obj) {
-      shape[key] = convertObjectToZuiLiterals((obj as any)[key], true)
-    }
-    if (nested) {
-      return z.object(shape).catch(() => shape)
-    }
-    // We need to return a zod empty object for empty objects otherwise clone doesn't work properly
-    if (Object.keys(shape).length === 0) {
-      return z.object({}).catch(() => shape)
-    }
-    return shape
-  }
-
-  if (obj === undefined) {
-    return z.undefined().catch(() => undefined)
-  }
-
-  if (obj === null) {
-    return z.null().catch(() => null)
-  }
-
-  throw new Error(`Unsupported object type ${typeof obj}, ${obj})`)
-}
-
 export const isValidSchema = (schema: JSONSchema7): boolean => {
   try {
     transforms.fromJSONSchemaLegacy(schema)
