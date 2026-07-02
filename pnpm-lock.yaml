@@ -3095,8 +3095,8 @@ importers:
         specifier: 0.6.1
         version: link:../cognitive
       '@bpinternal/thicktoken':
-        specifier: ^3.0.0
-        version: 3.0.0
+        specifier: ^2.0.0
+        version: 2.0.0
       '@bpinternal/zui':
         specifier: ^2.3.0
         version: link:../zui
@@ -4379,6 +4379,10 @@ packages:
 
   '@bpinternal/thicktoken@1.0.2':
     resolution: {integrity: sha512-3PJXxIPkoFwFl+RmZMoMj0usHchP2krMKUlGyvDSd/sEHf+qA1rJjRJq7em/Y+lXDNlzis7k6j3QBYudGPvLAQ==}
+
+  '@bpinternal/thicktoken@2.0.0':
+    resolution: {integrity: sha512-K0HmBei6I9wY/jLq0xTgvPJ2hcdhv5lBMB8Vb00cUXFmMwjapzO53mKdHeQzyMC5E9mlwtFSN7ylcTlQDNf5Jw==}
+    engines: {node: '>=16.0.0', pnpm: 8.6.2}
 
   '@bpinternal/thicktoken@3.0.0':
     resolution: {integrity: sha512-oFfQeQHvC+DbngcbSSf97N6NMcUs7O3R04EL0IJhk54li3zppNhg5Ymt5fnToW7WMK4CohdScMBcFoK2kAWSAw==}
@@ -14761,6 +14765,8 @@ snapshots:
   '@bpinternal/thicktoken@1.0.2':
     dependencies:
       tiktoken: 1.0.19
+
+  '@bpinternal/thicktoken@2.0.0': {}
 
   '@bpinternal/thicktoken@3.0.0': {}
 
