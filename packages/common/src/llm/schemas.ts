@@ -182,6 +182,12 @@ export const GenerateContentInputSchema = <S extends z.ZodSchema>(modelRefSchema
           .string()
           .optional()
           .describe('Name of the integration that originally received the message that initiated this action'),
+        metadata: z
+          .record(z.string().max(128))
+          .optional()
+          .describe(
+            'Arbitrary key-value metadata to attach to usage records for this call, e.g. a conversationId to break down usage by conversation'
+          ),
       })
       .optional()
       .hidden()
