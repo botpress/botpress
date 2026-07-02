@@ -244,14 +244,24 @@ export function truncateWrappedContent<T extends MessageLike>({
     }
 
     const preserve = biggest.attributes?.preserve ?? DEFAULT_TRUNCATE_OPTIONS.preserve
-    const targetTokens = Math.max(biggest.tokens - toRemove, biggest.attributes?.minTokens ?? 0)
-    const mode = preserve === 'bottom' ? 'tail' : preserve === 'both' ? 'middle' : 'head'
+    const split = tokenizer.splitAndSlice(biggest.content)
 
-    biggest.content = tokenizer.truncate(biggest.content, targetTokens, mode)
+    if (preserve === 'bottom') {
+      biggest.content = split.slice(toRemove).join('')
+    } else if (preserve === 'top') {
+      biggest.content = split.slice(0, -toRemove).join('')
+    } else {
+      // Preserve both top and bottom
+      // Remove from the middle-out
+      const anchor = Math.ceil(split.length / 2)
+      const radius = Math.ceil(toRemove / 2)
+      const left = anchor - radius
+      const right = anchor + radius
+      biggest.content = split.slice(0, left).join('') + split.slice(right).join('')
+    }
 
-    const nextTokens = tokenizer.count(biggest.content)
-    currentCount -= biggest.tokens - nextTokens
-    biggest.tokens = nextTokens
+    biggest.tokens -= toRemove
+    currentCount -= toRemove
   }
 
   // Reconstruct the messages

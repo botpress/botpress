@@ -1,4 +1,5 @@
-import { TextTokenizer, getWasmTokenizer } from '@bpinternal/thicktoken/micro'
+// @ts-ignore
+import { TextTokenizer, getWasmTokenizer } from '@bpinternal/thicktoken'
 
 import { z, transforms } from '@bpinternal/zui'
 import { JSONSchema7 } from 'json-schema'
@@ -9,6 +10,10 @@ let tokenizer: TextTokenizer = null!
 export const init = async () => {
   if (tokenizer) {
     return
+  }
+
+  while (typeof getWasmTokenizer !== 'function') {
+    await new Promise((resolve) => setTimeout(resolve, 50))
   }
 
   tokenizer = (await getWasmTokenizer()) as TextTokenizer
