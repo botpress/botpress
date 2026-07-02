@@ -1,14 +1,25 @@
-import { getWasmTokenizer, TextTokenizer } from '@bpinternal/thicktoken'
+import { getWasmTokenizer } from '@bpinternal/thicktoken/micro'
+
+type TruncateMode = 'head' | 'tail' | 'middle'
+type CountOptions = {
+  approximate?: boolean
+}
+
+export type TextTokenizer = {
+  count(text: string, options?: CountOptions): number
+  truncate(text: string, maxTokens: number, mode?: TruncateMode): string
+  split(text: string): string[]
+}
 
 let tokenizer: TextTokenizer | null = null
 
 export async function getTokenizer(): Promise<TextTokenizer> {
   if (!tokenizer) {
-    while (!getWasmTokenizer) {
-      // there's an issue with wasm, it doesn't load immediately
-      await new Promise((resolve) => setTimeout(resolve, 25))
+    try {
+      tokenizer = await getWasmTokenizer()
+    } catch (err) {
+      throw new Error('Failed to initialize ThickToken tokenizer', { cause: err })
     }
-    tokenizer = getWasmTokenizer() as TextTokenizer
   }
   return tokenizer
 }

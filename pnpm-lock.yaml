@@ -3275,8 +3275,8 @@ importers:
         specifier: 0.6.1
         version: link:../cognitive
       '@bpinternal/thicktoken':
-        specifier: ^1.0.0
-        version: 1.0.2
+        specifier: ^3.0.0
+        version: 3.0.0
       '@bpinternal/zui':
         specifier: ^2.3.0
         version: link:../zui
