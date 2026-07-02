@@ -1,5 +1,4 @@
-// @ts-ignore
-import { TextTokenizer } from '@bpinternal/thicktoken'
+import { TextTokenizer } from '@bpinternal/thicktoken/micro'
 
 import { beforeAll, describe, expect, it } from 'vitest'
 
@@ -53,10 +52,7 @@ Footer
       TOKEN
       TOKEN
       TOKEN
-      TOKEN
-      TOKEN
-      TOKEN
-      TOKEN
+
       -----------
       Footer
       "
@@ -91,10 +87,7 @@ Footer
       TOKEN
       TOKEN
       TOKEN
-      TOKEN
-      TOKEN
-      TOKEN
-      TOKEN */
+      T */
       -----------
       Footer
       "
@@ -166,10 +159,10 @@ ${wrapContent(ONE_TOKEN.repeat(1000))}
 
     expect(before).toMatchInlineSnapshot(`
       [
-        14057,
-        20056,
-        20023,
-        2023,
+        21057,
+        30056,
+        30023,
+        3023,
       ]
     `)
     expect(totalTokens).toBeGreaterThan(tokenLimit - 500)
@@ -177,9 +170,9 @@ ${wrapContent(ONE_TOKEN.repeat(1000))}
     expect(after).toMatchInlineSnapshot(`
       [
         3013,
-        3480,
-        1751,
-        1751,
+        3481,
+        1752,
+        1752,
       ]
     `)
   })
@@ -280,6 +273,7 @@ ${wrapContent(N_TOKENS(1_000), { preserve: 'both' })}
       """
       1
       2
+
       998
       999
 
@@ -330,90 +324,6 @@ ${wrapContent(N_TOKENS(1_000), { preserve: 'bottom' })}
       9
       10
       11
-      12
-      13
-      14
-      15
-      16
-      17
-      18
-      19
-      20
-      21
-      22
-      23
-      24
-      25
-      26
-      27
-      28
-      29
-      30
-      31
-      32
-      33
-      34
-      35
-      36
-      37
-      38
-      39
-      40
-      41
-      42
-      43
-      44
-      45
-      46
-      47
-      48
-      49
-      50
-      51
-      52
-      53
-      54
-      55
-      56
-      57
-      58
-      59
-      60
-      61
-      621459
-      1460
-      1461
-      1462
-      1463
-      1464
-      1465
-      1466
-      1467
-      1468
-      1469
-      1470
-      1471
-      1472
-      1473
-      1474
-      1475
-      1476
-      1477
-      1478
-      1479
-      1480
-      1481
-      1482
-      1483
-      1484
-      1485
-      1486
-      1487
-      1488
-      1489
-      1490
-      1491
-      1492
       1493
       1494
       1495
@@ -422,31 +332,9 @@ ${wrapContent(N_TOKENS(1_000), { preserve: 'bottom' })}
       1498
       1499
 
+
       ---------
 
-
-      978
-      979
-      980
-      981
-      982
-      983
-      984
-      985
-      986
-      987
-      988
-      989
-      990
-      991
-      992
-      993
-      994
-      995
-      996
-      997
-      998
-      999
 
       """
       "
@@ -469,8 +357,8 @@ ${wrapContent(N_TOKENS(1_000), { preserve: 'bottom' })}
     const tokens = truncated.map((msg) => tokenizer.count(msg.content))
     expect(tokens).toMatchInlineSnapshot(`
       [
-        1502,
-        498,
+        1411,
+        589,
       ]
     `)
   })
