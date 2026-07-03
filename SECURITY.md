@@ -15,35 +15,13 @@ Please include as much of the following as you can:
 
 ### What to expect
 
-- We will acknowledge your report within 3 business days.
+- We will acknowledge your report within 10 business days.
 - We will keep you informed as we triage, confirm, and fix the issue.
 - We coordinate disclosure with you. We aim to fix confirmed vulnerabilities within 90 days of the initial report. Once a fix is released, we publish a GitHub security advisory and credit you for the discovery unless you prefer to stay anonymous. If we need more time, we will communicate this and work out a mutually agreed extension before any disclosure.
 
 ## Scope
 
-This repository contains the Botpress SDK, CLI, client libraries, and the source of official integrations and plugins. Reports are in scope if the vulnerability is in code that lives here, including:
-
-| Package                       | Description                                      |
-| ----------------------------- | ------------------------------------------------ |
-| `@botpress/sdk`               | SDK for building integrations, bots, and plugins |
-| `@botpress/cli`               | CLI for building and deploying on Botpress       |
-| `@botpress/client`            | Botpress API client                              |
-| `@botpress/chat`              | Chat API client                                  |
-| `@botpress/cognitive`         | LLM abstraction layer                            |
-| `@botpress/zai`               | AI utility library                               |
-| `@botpress/vai`               | AI testing utilities for Vitest                  |
-| `llmz`                        | LLM-native TypeScript agent runtime              |
-| `@bpinternal/zui`             | Schema library (Zod extension)                   |
-| `integrations/*`, `plugins/*` | Official integrations and plugins                |
-
-Only the latest published version of each package receives security fixes.
-
-Reports we are especially interested in:
-
-- **Sandbox escapes in `llmz`**: any way for generated code to break out of the VM isolation, reach the host system, or access tools and variables it was not granted
-- **Code execution or path traversal in the CLI**: e.g. through malicious integration definitions or project files
-- **Credential exposure**: tokens or secrets leaking through logs, error messages, or integration code
-- **Authentication or authorization flaws** in client libraries or integration webhook handling
+This repository contains the Botpress SDK, CLI, client libraries, and the source of official integrations and plugins. Reports are in scope if the vulnerability is in code that lives here. Only the latest published version of each package receives security fixes.
 
 ### Out of scope
 
