@@ -15,7 +15,7 @@ Please include as much of the following as you can:
 
 ### What to expect
 
-- We will acknowledge your report within 10 business days.
+- We will acknowledge your report within a reasonable time.
 - We will keep you informed as we triage, confirm, and fix the issue.
 - We coordinate disclosure with you. We aim to fix confirmed vulnerabilities within 90 days of the initial report. Once a fix is released, we publish a GitHub security advisory and credit you for the discovery unless you prefer to stay anonymous. If we need more time, we will communicate this and work out a mutually agreed extension before any disclosure.
 
