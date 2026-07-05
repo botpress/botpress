@@ -962,6 +962,39 @@ return { action: 'listen' }
       }
     `)
   })
+
+  it('template literals after a less-than comparison are not treated as inline code', async () => {
+    const code = `
+const rows = [
+  { day: '07/04', condition: 'overcast', lowC: 18.7, highC: 26.7 },
+  { day: '07/05', condition: 'sunny', lowC: 16.1, highC: 24.2 },
+]
+const coldest = rows.reduce((a, b) => (b.lowC < a.lowC ? b : a))
+const parts = []
+parts.push(\`Expect **\${rows[0].condition} to \${rows[rows.length - 1].condition}** conditions.\`)
+if (rows.length > 0) {
+  parts.push(\`Coldest day is \${coldest.day}.\`)
+}
+parts.push(\`Highs up to \${Math.max(...rows.map((r) => r.highC))}°C.\`)
+yield <Message>{parts.join(' ')}</Message>
+return { action: 'listen' }
+`
+
+    const Message = vi.fn()
+    const result = await runAsyncFunction({ Message, user }, code)
+    expect(result.success).toBe(true)
+    expect(Message.mock.calls.length).toBe(1)
+    expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
+      {
+        "__jsx": true,
+        "children": [
+          "Expect **overcast to sunny** conditions. Coldest day is 07/05. Highs up to 26.7°C.",
+        ],
+        "props": {},
+        "type": "MESSAGE",
+      }
+    `)
+  })
 })
 
 describe('undefined variable references', () => {

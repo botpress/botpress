@@ -101,6 +101,10 @@ const HTML_ENTITIES: Record<string, string> = {
  *
  * Important: We only escape inline code backticks that appear inside JSX text content,
  * not those inside JSX expressions (between {}).
+ *
+ * This scanner can't tell JSX from TypeScript on its own (a `<` comparison or a generic looks
+ * like a tag opening and corrupts template literals that follow), so it must only run on known
+ * JSX ranges — see escapeCodeFencesInJsxChildren.
  */
 function escapeBracesInCodeFences(tsx: string): string {
   let i = 0
@@ -185,9 +189,81 @@ function escapeBracesInCodeFences(tsx: string): string {
   return output
 }
 
+/**
+ * Collects the source ranges of the outermost JSX elements/fragments in an AST.
+ * Nested JSX is skipped (covered by its ancestor's range), so no range overlaps another.
+ */
+function collectOutermostJsxRanges(node: unknown, insideJsx: boolean, out: Array<[number, number]>): void {
+  if (!node || typeof node !== 'object') {
+    return
+  }
+  const n = node as { type?: unknown; start?: unknown; end?: unknown; [key: string]: unknown }
+  if (typeof n.type !== 'string') {
+    return
+  }
+
+  const isJsx = n.type === 'JSXElement' || n.type === 'JSXFragment'
+  if (isJsx && !insideJsx && typeof n.start === 'number' && typeof n.end === 'number') {
+    out.push([n.start, n.end])
+  }
+
+  const childrenAreInsideJsx = insideJsx || isJsx
+  for (const key of Object.keys(n)) {
+    if (key === 'loc' || key === 'start' || key === 'end' || key === 'type') {
+      continue
+    }
+    const value = n[key]
+    if (Array.isArray(value)) {
+      for (const child of value) {
+        collectOutermostJsxRanges(child, childrenAreInsideJsx, out)
+      }
+    } else if (value && typeof value === 'object') {
+      collectOutermostJsxRanges(value, childrenAreInsideJsx, out)
+    }
+  }
+}
+
+/**
+ * Escapes markdown code fences / inline code in JSX children without touching the surrounding
+ * TypeScript: parse the code, then run escapeBracesInCodeFences only over the source ranges of
+ * the outermost JSX elements — template literals and comparisons in plain TS are never scanned.
+ * If the code doesn't parse (e.g. raw braces in JSX text), fall back to the whole-file scan;
+ * fixTSXUntilNoErrors (run afterwards) makes such input parseable.
+ */
+function escapeCodeFencesInJsxChildren(code: string): string {
+  let ast: { program?: unknown }
+  try {
+    ast = parse(code, {
+      sourceType: 'module',
+      plugins: ['typescript', 'jsx'],
+      allowReturnOutsideFunction: true,
+      allowAwaitOutsideFunction: true,
+    })
+  } catch {
+    // Unparseable as-is: preserve historical behaviour (whole-file scan + later brace fixing).
+    return escapeBracesInCodeFences(code)
+  }
+
+  const ranges: Array<[number, number]> = []
+  collectOutermostJsxRanges(ast.program, false, ranges)
+  if (ranges.length === 0) {
+    return code
+  }
+
+  // Splice right-to-left so earlier offsets stay valid.
+  ranges.sort((a, b) => a[0] - b[0])
+  let output = code
+  for (let idx = ranges.length - 1; idx >= 0; idx--) {
+    const [start, end] = ranges[idx]!
+    const escaped = escapeBracesInCodeFences(code.slice(start, end))
+    output = output.slice(0, start) + escaped + output.slice(end)
+  }
+  return output
+}
+
 export const JSXMarkdown = {
   preProcessing: (code: string) => {
-    code = escapeBracesInCodeFences(code)
+    code = escapeCodeFencesInJsxChildren(code)
     code = fixTSXUntilNoErrors(code)
     return code
   },
