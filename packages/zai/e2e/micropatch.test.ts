@@ -418,6 +418,28 @@ line2
 `)
     })
 
+    test('insert before a line deleted at the top of the file lands where it was', () => {
+      const source = 'line1\nline2\n'
+      const ops = '◼︎-1\n◼︎<1|NEW' // Delete + insert as a replace of line 1
+      const result = Micropatch.applyText(source, ops)
+      expect(result).toMatchInlineSnapshot(`
+"NEW
+line2
+"
+`)
+    })
+
+    test('insert after a range deleted at the top of the file lands where it was', () => {
+      const source = 'line1\nline2\nline3\n'
+      const ops = '◼︎-1-2\n◼︎>1|NEW'
+      const result = Micropatch.applyText(source, ops)
+      expect(result).toMatchInlineSnapshot(`
+"NEW
+line3
+"
+`)
+    })
+
     test('handles empty op text', () => {
       const source = 'line1\nline2\n'
       const ops = ''

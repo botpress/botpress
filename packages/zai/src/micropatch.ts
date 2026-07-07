@@ -320,21 +320,17 @@ export class Micropatch {
           break
         }
         case '<': {
-          const i = map(o.n)
-          if (i >= 0) {
-            const at = Math.min(i, lines.length)
-            lines.splice(at, 0, o.s)
-            bump(at, +1)
-          }
+          if (o.n > idx.length) break // line never existed in the original → stale ref, skip
+          const i = Math.max(0, Math.min(map(o.n), lines.length))
+          lines.splice(i, 0, o.s)
+          bump(i, +1)
           break
         }
         case '>': {
-          const i = map(o.n)
-          if (i >= 0) {
-            const at = Math.min(i + 1, lines.length)
-            lines.splice(at, 0, o.s)
-            bump(at, +1)
-          }
+          if (o.n > idx.length) break
+          const i = Math.max(0, Math.min(map(o.n) + 1, lines.length))
+          lines.splice(i, 0, o.s)
+          bump(i, +1)
           break
         }
         default:
