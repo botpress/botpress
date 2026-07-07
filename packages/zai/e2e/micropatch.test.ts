@@ -407,6 +407,17 @@ REPLACED
 `)
     })
 
+    test('skips inserts targeting non-existent lines', () => {
+      const source = 'line1\nline2\n'
+      const ops = '◼︎<5|BEFORE\n◼︎>9|AFTER' // Stale references beyond EOF
+      const result = Micropatch.applyText(source, ops)
+      expect(result).toMatchInlineSnapshot(`
+"line1
+line2
+"
+`)
+    })
+
     test('handles empty op text', () => {
       const source = 'line1\nline2\n'
       const ops = ''
