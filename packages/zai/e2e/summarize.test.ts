@@ -12,7 +12,7 @@ describe('zai.summarize', () => {
     const result = await zai
       .summarize(BotpressDocumentation, {
         length: 2000,
-        prompt: `Extract the Table of Contents for the Botpress Documentation. Pay special attention to all the different features. Focus on horizontal coverage of features rather than going in depth into one feature. The goal is to have a complete overview of what the documentation covers.`,
+        prompt: `Extract the Table of Contents for the Botpress Documentation. Start with a short sentence explaining what Botpress is. Pay special attention to all the different features. Focus on horizontal coverage of features rather than going in depth into one feature. The goal is to have a complete overview of what the documentation covers.`,
       })
       .on('progress', () => (progress = progress + 1))
 
