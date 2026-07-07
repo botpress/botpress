@@ -663,7 +663,11 @@ describe('group', () => {
       }
 
       // Shuffle the array to make grouping more challenging (with seed for deterministic results)
-      const shuffled = items.sort(() => seededRandom() - 0.5)
+      const shuffled = [...items]
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(seededRandom() * (i + 1))
+        ;[shuffled[i], shuffled[j]] = [shuffled[j]!, shuffled[i]!]
+      }
 
       const result = await zai.group(shuffled, {
         instructions: 'Group by date field (YYYY-MM-DD). Each date should have its own group.',
