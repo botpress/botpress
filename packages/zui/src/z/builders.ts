@@ -274,7 +274,7 @@ export const setType: ZodBuilders['set'] = (valueType, params) =>
   new ZodSetImpl({ valueType, minSize: null, maxSize: null, typeName: 'ZodSet', ..._processCreateParams(params) })
 
 export const lazyType: ZodBuilders['lazy'] = (getter, params) =>
-  new ZodLazyImpl({ getter, typeName: 'ZodLazy', uid: Symbol('ZodLazy'), ..._processCreateParams(params) })
+  new ZodLazyImpl({ getter, typeName: 'ZodLazy', ..._processCreateParams(params), uid: Symbol('ZodLazy') })
 
 export const promiseType: ZodBuilders['promise'] = (schema, params) =>
   new ZodPromiseImpl({ type: schema, typeName: 'ZodPromise', ..._processCreateParams(params) })

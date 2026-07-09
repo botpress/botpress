@@ -6,6 +6,8 @@ export class ZodLazyImpl<T extends IZodType = IZodType>
   implements IZodLazy<T>
 {
   // keyed by ZodLazyDef.uid, not object identity — see ZodLazyDef.uid
+  // static rather than threaded through getReferences(): that would require changing the signature
+  // on all 22 types implementing it, not just this one.
   private static readonly _expandingReferences = new Set<symbol>()
 
   get schema(): T {

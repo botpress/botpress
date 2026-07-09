@@ -113,9 +113,7 @@ function sUnwrapZod(schema: z.ZodType, path: PropertyPath, visiting: Set<symbol>
       return `z.intersection(${left}, ${right})${_addMetadata(s._def)}`.trim()
 
     case 'ZodTuple':
-      const items = s._def.items.map((item, index) =>
-        sUnwrapZod(item, path.withIndexType('number', index), visiting)
-      )
+      const items = s._def.items.map((item, index) => sUnwrapZod(item, path.withIndexType('number', index), visiting))
       return `z.tuple([${items.join(', ')}])${_addMetadata(s._def)}`.trim()
 
     case 'ZodRecord':
