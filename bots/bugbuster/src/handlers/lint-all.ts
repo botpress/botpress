@@ -53,13 +53,16 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
       lintResults.push(lintResult)
 
       await workflow.acknowledgeStartOfProcessing().catch(_handleError('trying to acknowledge start of processing'))
+
+      endCursor = issue.id
+
       await Promise.all([
         client
           .setState({
             id: workflow.id,
             name: 'lastLintedId',
             type: 'workflow',
-            payload: { id: lastLintedId },
+            payload: { id: endCursor },
           })
           .catch(_handleError('trying to update last linted issue ID')),
         client
@@ -74,7 +77,6 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
     }
 
     hasNextPage = pagedIssues.pagination?.hasNextPage ?? false
-    endCursor = pagedIssues.pagination?.endCursor
 
     if (verbose && conversation?.id) {
       const failedCount = lintResults.filter((result) => result.result === 'failed').length
