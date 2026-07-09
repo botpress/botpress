@@ -13,21 +13,11 @@ export type LintResult =
       result: 'succeeded' | 'ignored'
     }
 
-const STATE_KEYS = [
-  'IN_PROGRESS',
-  'STAGING',
-  'PRODUCTION_DONE',
-  'BACKLOG',
-  'TODO',
-  'TRIAGE',
-  'CANCELED',
-  'BLOCKED',
-  'STALE',
-] as const
-export type StateKey = (typeof STATE_KEYS)[number]
+const STATE_TYPES = ['triage', 'backlog', 'unstarted', 'started', 'completed', 'canceled', 'duplicate'] as const
+export type StateType = (typeof STATE_TYPES)[number]
 
 export type StateAttributes = {
-  stateKey: StateKey
+  stateKey: string
   maxTimeSinceLastUpdate: ISO8601Duration
   warningComment: string
   buildWarningReason: (issueIdentifier: string) => string

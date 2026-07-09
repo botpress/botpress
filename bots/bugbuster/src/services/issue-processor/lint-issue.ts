@@ -1,4 +1,3 @@
-import * as types from '../../types'
 import * as lin from '../../utils/linear-utils'
 import { isIssueTitleFormatValid } from './issue-title-format-validator'
 
@@ -6,7 +5,7 @@ export type IssueLint = {
   message: string
 }
 
-export const lintIssue = (issue: lin.Issue, state: types.StateKey): IssueLint[] => {
+export const lintIssue = (issue: lin.Issue): IssueLint[] => {
   const lints: string[] = []
 
   if (!_hasLabelOfCategory(issue, 'type')) {
@@ -15,14 +14,15 @@ export const lintIssue = (issue: lin.Issue, state: types.StateKey): IssueLint[] 
 
   const hasBlockedLabel = _hasLabelOfCategory(issue, 'blocked')
   const hasBlockedRelation = issue.inverseRelations.nodes.some((relation) => relation.type === 'blocks')
+  const isBlocked = issue.state.name.toLowerCase().includes('blocked')
 
-  if (state === 'BLOCKED' && !issue.assignee && !hasBlockedRelation) {
+  if (isBlocked && !issue.assignee && !hasBlockedRelation) {
     lints.push(`Issue ${issue.identifier} is blocked but has no assignee.`)
   }
-  if (state === 'BLOCKED' && !hasBlockedLabel && !hasBlockedRelation) {
+  if (isBlocked && !hasBlockedLabel && !hasBlockedRelation) {
     lints.push(`Issue ${issue.identifier} is blocked but missing a "blocked" label or a blocking issue.`)
   }
-  if (state === 'BACKLOG' && issue.assignee) {
+  if (issue.state.type === 'backlog' && issue.assignee) {
     lints.push(`Issue ${issue.identifier} has an assignee but is still in the backlog.`)
   }
 
@@ -35,7 +35,7 @@ export const lintIssue = (issue: lin.Issue, state: types.StateKey): IssueLint[] 
     lints.push(`Issue ${issue.identifier} is missing a priority.`)
   }
 
-  if (issue.estimate === null && state !== 'BLOCKED') {
+  if (issue.estimate === null && isBlocked) {
     // blocked issues can be unestimated
     lints.push(`Issue ${issue.identifier} is missing an estimate.`)
   }

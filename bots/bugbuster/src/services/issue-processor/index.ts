@@ -4,7 +4,7 @@ import * as lin from '../../utils/linear-utils'
 import * as tm from '../teams-manager'
 import { lintIssue } from './lint-issue'
 
-const IGNORED_STATES: types.StateKey[] = ['TRIAGE', 'BACKLOG', 'PRODUCTION_DONE', 'CANCELED', 'STALE']
+const IGNORED_STATE_TYPES: types.StateType[] = ['triage', 'backlog', 'completed', 'canceled']
 const LINTIGNORE_LABEL_NAME = 'lintignore'
 
 export class IssueProcessor {
@@ -48,19 +48,18 @@ export class IssueProcessor {
     return await this._linear.listIssues(
       {
         teamKeys: watchedTeams,
-        statesToOmit: IGNORED_STATES,
+        typesToOmit: IGNORED_STATE_TYPES,
       },
       endCursor
     )
   }
 
   public async lintIssue(issue: lin.Issue, isRecentlyLinted?: boolean): Promise<types.LintResult> {
-    const state = await this._linear.issueState(issue)
-    if (IGNORED_STATES.includes(state) || issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)) {
+    if (issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)) {
       return { identifier: issue.identifier, result: 'ignored' }
     }
 
-    const errors = lintIssue(issue, state)
+    const errors = lintIssue(issue)
 
     if (errors.length === 0) {
       this._logger.info(`Issue ${issue.identifier} passed all lint checks.`)

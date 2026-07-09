@@ -20,6 +20,8 @@ export type Issue = {
   } | null
   state: {
     id: string
+    name: string
+    type: string
   }
   labels: {
     nodes: {
@@ -83,6 +85,8 @@ export const GRAPHQL_QUERIES = {
             },
             state {
               id
+              name
+              type
             },
             labels {
               nodes {
@@ -121,9 +125,11 @@ export const GRAPHQL_QUERIES = {
         team?: { key: { in: string[] } }
         number?: { eq: number }
         state?: {
-          name: {
-            nin?: string[]
-            in?: string[]
+          name?: {
+            containsIgnoreCase?: string
+          }
+          type?: {
+            nin?: types.StateType[]
           }
         }
         updatedAt?: {
