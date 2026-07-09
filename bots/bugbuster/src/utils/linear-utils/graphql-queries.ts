@@ -116,6 +116,10 @@ export const GRAPHQL_QUERIES = {
               }
             }
           }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
         }
       }`,
     [QUERY_INPUT]: {} as {
@@ -139,8 +143,8 @@ export const GRAPHQL_QUERIES = {
     [QUERY_RESPONSE]: {} as {
       issues: {
         nodes: Issue[]
+        pageInfo: Pagination
       }
-      pageInfo: Pagination
     },
   },
   listStates: {

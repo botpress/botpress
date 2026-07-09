@@ -87,7 +87,7 @@ export class LinearApi {
 
     const data = await this._executeGraphqlQuery('listIssues', queryInput)
 
-    return { issues: data.issues.nodes, pagination: data.pageInfo }
+    return { issues: data.issues.nodes, pagination: data.issues.pageInfo }
   }
 
   public async resolveComments(issue: graphql.Issue): Promise<void> {
