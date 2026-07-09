@@ -81,6 +81,7 @@ export class LinearApi {
       },
       ...(nextPage && { after: nextPage }),
       first: RESULTS_PER_PAGE,
+      orderBy: 'createdAt',
     }
 
     const data = await this._executeGraphqlQuery('listIssues', queryInput)
