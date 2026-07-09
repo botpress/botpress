@@ -7,6 +7,9 @@ const LINEAR_ISSUE_BASE_URL = 'https://linear.app/botpress/issue/'
 export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
   const { client, workflow, ctx, conversation } = props
 
+  const verbose = workflow.input.verbose ?? false
+  const comment = workflow.input.comment ?? true
+
   const { botpress, issueProcessor } = boot.bootstrap(props)
 
   const _handleError = (context: string) => (thrown: unknown) => botpress.handleError({ context }, thrown)
@@ -43,20 +46,26 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
     const pagedIssues = await issueProcessor
       .listRelevantIssues(endCursor)
       .catch(_handleError('trying to list all issues'))
+
+    const pageResults: types.LintResult[] = []
     for (const issue of pagedIssues.issues) {
       const lintResult = await issueProcessor
-        .lintIssue(issue)
+        .lintIssue(issue, undefined, { comment })
         .catch(_handleError(`trying to lint issue ${issue.identifier}`))
       lintResults.push(lintResult)
+      pageResults.push(lintResult)
 
       await workflow.acknowledgeStartOfProcessing().catch(_handleError('trying to acknowledge start of processing'))
+
+      endCursor = issue.id
+
       await Promise.all([
         client
           .setState({
             id: workflow.id,
             name: 'lastLintedId',
             type: 'workflow',
-            payload: { id: lastLintedId },
+            payload: { id: endCursor },
           })
           .catch(_handleError('trying to update last linted issue ID')),
         client
@@ -71,11 +80,22 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
     }
 
     hasNextPage = pagedIssues.pagination?.hasNextPage ?? false
-    endCursor = pagedIssues.pagination?.endCursor
+
+    if (verbose && conversation?.id) {
+      const failedCount = lintResults.filter((result) => result.result === 'failed').length
+      const newlyFailed = pageResults.filter((result) => result.result === 'failed')
+
+      const progressLine = `Linting... linted ${lintResults.length} issue(s) so far (${failedCount} with errors).`
+      const failedList = newlyFailed.map((result) => `- ${_issueLink(result.identifier)}`).join('\n')
+      const message = newlyFailed.length > 0 ? `${progressLine}\nIssues with lint errors:\n${failedList}` : progressLine
+
+      await botpress.respondText(conversation.id, message).catch(() => {})
+    }
   } while (hasNextPage)
 
   if (conversation?.id) {
-    await botpress.respondText(conversation.id, _buildResultMessage(lintResults)).catch(() => {})
+    const message = verbose ? _buildDetailedResultMessage(lintResults) : _buildResultMessage(lintResults)
+    await botpress.respondText(conversation.id, message).catch(() => {})
     await workflow.setCompleted()
     return
   }
@@ -113,10 +133,12 @@ export const handleLintAllTimeout: bp.WorkflowHandlers['lintAll'] = async (props
   }
 }
 
+const _issueLink = (identifier: string) => `[${identifier}](${LINEAR_ISSUE_BASE_URL + identifier})`
+
 const _buildResultMessage = (results: types.LintResult[]) => {
   const failedIssuesLinks = results
     .filter((result) => result.result === 'failed')
-    .map((result) => `[${result.identifier}](${LINEAR_ISSUE_BASE_URL + result.identifier})`)
+    .map((result) => _issueLink(result.identifier))
 
   let messageDetail = 'No issue contained lint errors.'
   if (failedIssuesLinks.length === 1) {
@@ -126,4 +148,22 @@ const _buildResultMessage = (results: types.LintResult[]) => {
   }
 
   return `Linting complete. ${messageDetail}`
+}
+
+const _buildDetailedResultMessage = (results: types.LintResult[]) => {
+  const failedIssues = results.filter(
+    (result): result is Extract<types.LintResult, { result: 'failed' }> => result.result === 'failed'
+  )
+
+  if (failedIssues.length === 0) {
+    return 'Linting complete. No issue contained lint errors.'
+  }
+
+  const sections = failedIssues.map((issue) => {
+    const link = _issueLink(issue.identifier)
+    const details = issue.messages.map((message) => `  - ${message}`).join('\n')
+    return `${link}:\n${details}`
+  })
+
+  return `Linting complete. The following issues contained lint errors:\n\n${sections.join('\n\n')}`
 }

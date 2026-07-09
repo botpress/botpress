@@ -71,8 +71,8 @@ export type Pagination = {
 export const GRAPHQL_QUERIES = {
   listIssues: {
     query: `
-      query FindIssue($filter: IssueFilter, $first: Int, $after: String) {
-        issues(filter: $filter, first: $first, after: $after) {
+      query FindIssue($filter: IssueFilter, $first: Int, $after: String, $orderBy: PaginationOrderBy) {
+        issues(filter: $filter, first: $first, after: $after, orderBy: $orderBy) {
           nodes {
             id,
             identifier,
@@ -134,6 +134,7 @@ export const GRAPHQL_QUERIES = {
       }
       after?: string
       first?: number
+      orderBy?: 'createdAt' | 'updatedAt'
     },
     [QUERY_RESPONSE]: {} as {
       issues: {
