@@ -91,13 +91,7 @@ type InternalOptions = {
   declaration?: boolean | TypescriptDeclarationType
   includeClosingTags?: boolean
   treatDefaultAsOptional?: boolean
-  /**
-   * uids (ZodLazyDef.uid) of ZodLazy nodes currently being expanded on the current path, to detect
-   * self-referential schemas. Keyed by uid rather than by the ZodLazy instance itself because
-   * .describe('') clones schemas (recursively, including any nested ZodLazy) before recursing into
-   * them, so the same logical lazy node can show up as a different object on each occurrence; the
-   * uid is preserved across .clone()/.dereference()/.mandatory() since those only override `getter`.
-   */
+  // ZodLazyDef.uid values currently being expanded, to detect self-referential schemas — see ZodLazyDef.uid
   visiting: Set<symbol>
 }
 

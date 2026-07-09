@@ -76,7 +76,7 @@ export class UnsupportedZuiToTypescriptSchemaError extends ZuiToTypescriptSchema
 export class CircularZuiToTypescriptSchemaError extends ZuiToTypescriptSchemaError {
   public constructor(path: string) {
     super(
-      'Schema is self-referential (z.lazy() references itself with no base case) and cannot be expanded into TypeScript schema source. Give the recursive schema a name and reference it with z.ref(), or restructure it to break the cycle.',
+      'Schema is self-referential (z.lazy() with no base case) and cannot be expanded into TypeScript schema source. Use z.ref() instead.',
       path
     )
   }
@@ -106,7 +106,7 @@ export class UnrepresentableGenericError extends ZuiToTypescriptTypeError {
 export class CircularZuiToTypescriptTypeError extends ZuiToTypescriptTypeError {
   public constructor(path: string) {
     super(
-      'Schema is self-referential (z.lazy() references itself with no base case) and cannot be expanded into an inline TypeScript type. Give the recursive schema a name and reference it with z.ref(), or restructure it to break the cycle.',
+      'Schema is self-referential (z.lazy() with no base case) and cannot be expanded into a TypeScript type. Use z.ref() instead.',
       path
     )
   }
