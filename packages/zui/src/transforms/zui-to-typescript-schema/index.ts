@@ -30,11 +30,11 @@ export function toTypescriptSchema(schema: z.ZodType): string {
 
 function _toTypescriptSchema(schema: z.ZodType, path: PropertyPath): string {
   const wrappedSchema: z.ZodType = schema
-  const dts = sUnwrapZod(wrappedSchema, path, new Set())
+  const dts = sUnwrapZod(wrappedSchema, path)
   return dts
 }
 
-function sUnwrapZod(schema: z.ZodType, path: PropertyPath, visiting: Set<symbol>): string {
+function sUnwrapZod(schema: z.ZodType, path: PropertyPath): string {
   const s = schema as z.ZodNativeType
   switch (s.typeName) {
     case 'ZodString':
@@ -74,17 +74,15 @@ function sUnwrapZod(schema: z.ZodType, path: PropertyPath, visiting: Set<symbol>
       return `z.void()${_addMetadata(s._def)}`.trim()
 
     case 'ZodArray':
-      return `z.array(${sUnwrapZod(s._def.type, path.withIndexType('number'), visiting)})${generateArrayChecks(s._def)}${_addMetadata(s._def, s._def.type)}`
+      return `z.array(${sUnwrapZod(s._def.type, path.withIndexType('number'))})${generateArrayChecks(s._def)}${_addMetadata(s._def, s._def.type)}`
 
     case 'ZodObject':
       const props: Record<string, string> = {}
       for (const [key, value] of Object.entries(s.shape)) {
-        props[key] = sUnwrapZod(value, path.withIndexType('key', key), visiting)
+        props[key] = sUnwrapZod(value, path.withIndexType('key', key))
       }
       const catchall = s.additionalProperties()
-      const catchallString = catchall
-        ? `.catchall(${sUnwrapZod(catchall, path.withIndexType('string'), visiting)})`
-        : ''
+      const catchallString = catchall ? `.catchall(${sUnwrapZod(catchall, path.withIndexType('string'))})` : ''
       return [
         //
         'z.object({',
@@ -95,68 +93,56 @@ function sUnwrapZod(schema: z.ZodType, path: PropertyPath, visiting: Set<symbol>
         .trim()
 
     case 'ZodUnion':
-      const options = s._def.options.map((option, index) =>
-        sUnwrapZod(option, path.withIndexType('number', index), visiting)
-      )
+      const options = s._def.options.map((option, index) => sUnwrapZod(option, path.withIndexType('number', index)))
       return `z.union([${options.join(', ')}])${_addMetadata(s._def)}`.trim()
 
     case 'ZodDiscriminatedUnion':
-      const opts = s._def.options.map((option, index) =>
-        sUnwrapZod(option, path.withIndexType('number', index), visiting)
-      )
+      const opts = s._def.options.map((option, index) => sUnwrapZod(option, path.withIndexType('number', index)))
       const discriminator = primitiveToTypescriptValue(s._def.discriminator)
       return `z.discriminatedUnion(${discriminator}, [${opts.join(', ')}])${_addMetadata(s._def)}`.trim()
 
     case 'ZodIntersection':
-      const left: string = sUnwrapZod(s._def.left, path.withIndexType('number', 0), visiting)
-      const right: string = sUnwrapZod(s._def.right, path.withIndexType('number', 1), visiting)
+      const left: string = sUnwrapZod(s._def.left, path.withIndexType('number', 0))
+      const right: string = sUnwrapZod(s._def.right, path.withIndexType('number', 1))
       return `z.intersection(${left}, ${right})${_addMetadata(s._def)}`.trim()
 
     case 'ZodTuple':
-      const items = s._def.items.map((item, index) => sUnwrapZod(item, path.withIndexType('number', index), visiting))
+      const items = s._def.items.map((item, index) => sUnwrapZod(item, path.withIndexType('number', index)))
       return `z.tuple([${items.join(', ')}])${_addMetadata(s._def)}`.trim()
 
     case 'ZodRecord':
-      const keyType = sUnwrapZod(s._def.keyType, path.withWrapper('KeyOf'), visiting)
+      const keyType = sUnwrapZod(s._def.keyType, path.withWrapper('KeyOf'))
       const recordPath = z.is.zuiString(s._def.keyType)
         ? path.withIndexType('string')
         : z.is.zuiNumber(s._def.keyType)
           ? path.withIndexType('number')
           : path.withIndexType('any')
-      const valueType = sUnwrapZod(s._def.valueType, recordPath, visiting)
+      const valueType = sUnwrapZod(s._def.valueType, recordPath)
       return `z.record(${keyType}, ${valueType})${_addMetadata(s._def)}`.trim()
 
     case 'ZodMap':
-      const mapKeyType = sUnwrapZod(s._def.keyType, path.withWrapper('KeyOf'), visiting)
+      const mapKeyType = sUnwrapZod(s._def.keyType, path.withWrapper('KeyOf'))
       const mapPath = z.is.zuiString(s._def.keyType)
         ? path.withIndexType('string')
         : z.is.zuiNumber(s._def.keyType)
           ? path.withIndexType('number')
           : path.withIndexType('any')
-      const mapValueType = sUnwrapZod(s._def.valueType, mapPath, visiting)
+      const mapValueType = sUnwrapZod(s._def.valueType, mapPath)
       return `z.map(${mapKeyType}, ${mapValueType})${_addMetadata(s._def)}`.trim()
 
     case 'ZodSet':
-      return `z.set(${sUnwrapZod(s._def.valueType, path.withIndexType('number'), visiting)})${generateSetChecks(s._def)}${_addMetadata(s._def)}`.trim()
+      return `z.set(${sUnwrapZod(s._def.valueType, path.withIndexType('number'))})${generateSetChecks(s._def)}${_addMetadata(s._def)}`.trim()
 
     case 'ZodFunction':
       const args = s._def.args.items.map((arg, index) =>
-        sUnwrapZod(arg, path.withWrapper('Parameters').withIndexType('number', index), visiting)
+        sUnwrapZod(arg, path.withWrapper('Parameters').withIndexType('number', index))
       )
       const argsString = args.length ? `.args(${args.join(', ')})` : ''
-      const returns = sUnwrapZod(s._def.returns, path.withWrapper('ReturnType'), visiting)
+      const returns = sUnwrapZod(s._def.returns, path.withWrapper('ReturnType'))
       return `z.function()${argsString}.returns(${returns})${_addMetadata(s._def)}`.trim()
 
     case 'ZodLazy':
-      if (visiting.has(s._def.uid)) {
-        throw new errors.CircularZuiToTypescriptSchemaError(path.toString())
-      }
-      visiting.add(s._def.uid)
-      try {
-        return `z.lazy(() => ${sUnwrapZod(s._def.getter(), path, visiting)})${_addMetadata(s._def)}`.trim()
-      } finally {
-        visiting.delete(s._def.uid)
-      }
+      return `z.lazy(() => ${sUnwrapZod(s._def.getter(), path)})${_addMetadata(s._def)}`.trim()
 
     case 'ZodLiteral':
       const value = primitiveToTypescriptValue(s._def.value)
@@ -173,20 +159,20 @@ function sUnwrapZod(schema: z.ZodType, path: PropertyPath, visiting: Set<symbol>
       throw new errors.UnsupportedZuiToTypescriptSchemaError('ZodNativeEnum', path.toString())
 
     case 'ZodOptional':
-      return `z.optional(${sUnwrapZod(s._def.innerType, path, visiting)})${_addMetadata(s._def, s._def.innerType)}`.trim()
+      return `z.optional(${sUnwrapZod(s._def.innerType, path)})${_addMetadata(s._def, s._def.innerType)}`.trim()
 
     case 'ZodNullable':
-      return `z.nullable(${sUnwrapZod(s._def.innerType, path, visiting)})${_addMetadata(s._def, s._def.innerType)}`.trim()
+      return `z.nullable(${sUnwrapZod(s._def.innerType, path)})${_addMetadata(s._def, s._def.innerType)}`.trim()
 
     case 'ZodDefault':
       const defaultValue = unknownToTypescriptValue(s._def.defaultValue())
-      return `z.default(${sUnwrapZod(s._def.innerType, path, visiting)}, ${defaultValue})${_addMetadata(s._def, s._def.innerType)}`.trim()
+      return `z.default(${sUnwrapZod(s._def.innerType, path)}, ${defaultValue})${_addMetadata(s._def, s._def.innerType)}`.trim()
 
     case 'ZodCatch':
       throw new errors.UnsupportedZuiToTypescriptSchemaError('ZodCatch', path.toString())
 
     case 'ZodPromise':
-      return `z.promise(${sUnwrapZod(s._def.type, path, visiting)})${_addMetadata(s._def, s._def.type)}`.trim()
+      return `z.promise(${sUnwrapZod(s._def.type, path)})${_addMetadata(s._def, s._def.type)}`.trim()
 
     case 'ZodBranded':
       throw new errors.UnsupportedZuiToTypescriptSchemaError('ZodBranded', path.toString())
@@ -198,7 +184,7 @@ function sUnwrapZod(schema: z.ZodType, path: PropertyPath, visiting: Set<symbol>
       throw new errors.UnsupportedZuiToTypescriptSchemaError('ZodSymbol', path.toString())
 
     case 'ZodReadonly':
-      return `z.readonly(${sUnwrapZod(s._def.innerType, path, visiting)})${_addMetadata(s._def, s._def.innerType)}`.trim()
+      return `z.readonly(${sUnwrapZod(s._def.innerType, path)})${_addMetadata(s._def, s._def.innerType)}`.trim()
 
     case 'ZodRef':
       const uri = primitiveToTypescriptValue(s._def.uri)

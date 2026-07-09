@@ -73,14 +73,6 @@ export class UnsupportedZuiToTypescriptSchemaError extends ZuiToTypescriptSchema
     super(`Zod type ${type} cannot be transformed to TypeScript schema.`, path)
   }
 }
-export class CircularZuiToTypescriptSchemaError extends ZuiToTypescriptSchemaError {
-  public constructor(path: string) {
-    super(
-      'Schema is self-referential (z.lazy() with no base case) and cannot be expanded into TypeScript schema source. Use z.ref() instead.',
-      path
-    )
-  }
-}
 
 // zui-to-typescript-type-error
 export class ZuiToTypescriptTypeError extends ZuiTransformError {
@@ -101,13 +93,5 @@ export class UntitledDeclarationError extends ZuiToTypescriptTypeError {
 export class UnrepresentableGenericError extends ZuiToTypescriptTypeError {
   public constructor() {
     super('ZodRef can only be transformed to a TypeScript type with a "type" declaration.')
-  }
-}
-export class CircularZuiToTypescriptTypeError extends ZuiToTypescriptTypeError {
-  public constructor(path: string) {
-    super(
-      'Schema is self-referential (z.lazy() with no base case) and cannot be expanded into a TypeScript type. Use z.ref() instead.',
-      path
-    )
   }
 }

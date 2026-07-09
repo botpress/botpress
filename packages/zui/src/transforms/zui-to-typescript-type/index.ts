@@ -91,8 +91,6 @@ type InternalOptions = {
   declaration?: boolean | TypescriptDeclarationType
   includeClosingTags?: boolean
   treatDefaultAsOptional?: boolean
-  // ZodLazyDef.uid values currently being expanded, to detect self-referential schemas — see ZodLazyDef.uid
-  visiting: Set<symbol>
 }
 
 /**
@@ -108,7 +106,7 @@ export function toTypescriptType(schema: z.ZodType, options: TypescriptGeneratio
 function _toTypescriptType(schema: z.ZodType, path: PropertyPath, options: TypescriptGenerationOptions = {}): string {
   const wrappedSchema: Declaration = getDeclarationProps(schema, options)
 
-  let dts = sUnwrapZod(wrappedSchema, path, { ...options, visiting: new Set() })
+  let dts = sUnwrapZod(wrappedSchema, path, options)
 
   if (options.formatter) {
     dts = options.formatter(dts)
@@ -321,15 +319,7 @@ ${opts.join(' | ')}`
 (${input}) => ${output}`
 
     case 'ZodLazy':
-      if (config.visiting.has(s._def.uid)) {
-        throw new errors.CircularZuiToTypescriptTypeError(path.toString())
-      }
-      config.visiting.add(s._def.uid)
-      try {
-        return sUnwrapZod(s._def.getter(), path, newConfig)
-      } finally {
-        config.visiting.delete(s._def.uid)
-      }
+      return sUnwrapZod(s._def.getter(), path, newConfig)
 
     case 'ZodLiteral':
       const value: string = primitiveToTypscriptLiteralType(s._def.value)
