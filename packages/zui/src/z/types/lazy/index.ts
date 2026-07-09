@@ -5,6 +5,13 @@ export class ZodLazyImpl<T extends IZodType = IZodType>
   extends ZodBaseTypeImpl<output<T>, ZodLazyDef<T>, input<T>>
   implements IZodLazy<T>
 {
+  // uids (ZodLazyDef.uid) currently being expanded by getReferences(), shared across all
+  // ZodLazyImpl instances. Keyed by uid rather than by `this` because .title()/.describe()
+  // clone schemas (cascading into any nested ZodLazy), so the same logical lazy node can show
+  // up as a different object on each occurrence; uid survives .clone()/.dereference()/.mandatory()
+  // since those only override `getter`.
+  private static readonly _expandingReferences = new Set<symbol>()
+
   get schema(): T {
     return this._def.getter()
   }
@@ -17,7 +24,17 @@ export class ZodLazyImpl<T extends IZodType = IZodType>
   }
 
   getReferences(): string[] {
-    return this._def.getter().getReferences()
+    const uid = this._def.uid
+    if (ZodLazyImpl._expandingReferences.has(uid)) {
+      // cycle: anything reachable past this point was already collected by the enclosing call
+      return []
+    }
+    ZodLazyImpl._expandingReferences.add(uid)
+    try {
+      return this._def.getter().getReferences()
+    } finally {
+      ZodLazyImpl._expandingReferences.delete(uid)
+    }
   }
 
   clone(): IZodLazy<T> {

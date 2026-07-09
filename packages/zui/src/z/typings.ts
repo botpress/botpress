@@ -1160,6 +1160,13 @@ export interface IZodIntersection<T extends IZodType = IZodType, U extends IZodT
 export type ZodLazyDef<T extends IZodType = IZodType> = {
   getter: () => T
   typeName: 'ZodLazy'
+  /**
+   * Stable identity for this z.lazy() node, set once at creation time. Unlike the ZodLazy
+   * instance itself, it survives .clone()/.dereference()/.mandatory() (which spread the rest
+   * of `_def` unchanged), so it can be used to detect a self-referential schema even after
+   * one of its occurrences has been cloned (e.g. by .describe()) into a distinct object.
+   */
+  uid: symbol
 } & ZodTypeDef
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */

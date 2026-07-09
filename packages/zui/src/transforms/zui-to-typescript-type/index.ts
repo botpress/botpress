@@ -91,6 +91,14 @@ type InternalOptions = {
   declaration?: boolean | TypescriptDeclarationType
   includeClosingTags?: boolean
   treatDefaultAsOptional?: boolean
+  /**
+   * uids (ZodLazyDef.uid) of ZodLazy nodes currently being expanded on the current path, to detect
+   * self-referential schemas. Keyed by uid rather than by the ZodLazy instance itself because
+   * .describe('') clones schemas (recursively, including any nested ZodLazy) before recursing into
+   * them, so the same logical lazy node can show up as a different object on each occurrence; the
+   * uid is preserved across .clone()/.dereference()/.mandatory() since those only override `getter`.
+   */
+  visiting: Set<symbol>
 }
 
 /**
@@ -106,7 +114,7 @@ export function toTypescriptType(schema: z.ZodType, options: TypescriptGeneratio
 function _toTypescriptType(schema: z.ZodType, path: PropertyPath, options: TypescriptGenerationOptions = {}): string {
   const wrappedSchema: Declaration = getDeclarationProps(schema, options)
 
-  let dts = sUnwrapZod(wrappedSchema, path, options)
+  let dts = sUnwrapZod(wrappedSchema, path, { ...options, visiting: new Set() })
 
   if (options.formatter) {
     dts = options.formatter(dts)
@@ -319,7 +327,15 @@ ${opts.join(' | ')}`
 (${input}) => ${output}`
 
     case 'ZodLazy':
-      return sUnwrapZod(s._def.getter(), path, newConfig)
+      if (config.visiting.has(s._def.uid)) {
+        throw new errors.CircularZuiToTypescriptTypeError(path.toString())
+      }
+      config.visiting.add(s._def.uid)
+      try {
+        return sUnwrapZod(s._def.getter(), path, newConfig)
+      } finally {
+        config.visiting.delete(s._def.uid)
+      }
 
     case 'ZodLiteral':
       const value: string = primitiveToTypscriptLiteralType(s._def.value)

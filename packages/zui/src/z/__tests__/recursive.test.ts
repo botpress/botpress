@@ -1,4 +1,4 @@
-import { test } from 'vitest'
+import { test, expect } from 'vitest'
 import * as z from '../index'
 
 interface Category {
@@ -77,4 +77,23 @@ test('recursion involving union type', () => {
     ])
   )
   LinkedListSchema.parse(linkedListExample)
+})
+
+test('getReferences does not stack overflow on a self-referential lazy schema', () => {
+  type TreeNode = { name: string; children?: TreeNode[] }
+  const treeNode: z.ZodType<TreeNode> = z.lazy(() =>
+    z.object({ name: z.string(), children: z.array(treeNode).optional() })
+  )
+  const recursive = z.object({ tree: z.array(treeNode) })
+
+  expect(recursive.getReferences()).toEqual([])
+})
+
+test('getReferences finds refs reachable through a self-referential lazy schema', () => {
+  type TreeNode = { name: string; tag: unknown; children?: TreeNode[] }
+  const treeNode: z.ZodType<TreeNode> = z.lazy(() =>
+    z.object({ name: z.string(), tag: z.ref('Tag'), children: z.array(treeNode).optional() })
+  )
+
+  expect(treeNode.getReferences()).toEqual(['Tag'])
 })
