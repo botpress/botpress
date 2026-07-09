@@ -5,7 +5,7 @@ import { StateService } from '../state-service'
 import * as tm from '../teams-manager'
 import { lintIssue } from './lint-issue'
 
-const IGNORED_STATES: types.CommonStateName[] = ['TRIAGE', 'BACKLOG', 'DONE', 'CANCELED', 'STALE']
+const IGNORED_STATES: types.CommonStateName[] = ['TRIAGE', 'BACKLOG', 'DONE', 'CANCELED', 'STALE', 'DUPLICATE']
 const LINTIGNORE_LABEL_NAME = 'lintignore'
 
 export class IssueProcessor {
