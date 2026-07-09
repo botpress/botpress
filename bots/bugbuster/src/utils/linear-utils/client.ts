@@ -75,9 +75,9 @@ export class LinearApi {
         team: { key: { in: teamKeys } },
         ...(issueNumber && { number: { eq: issueNumber } }),
         state: {
-          name: {
-            ...(statesToOmit && { nin: await this._commonStatesToStates(statesToOmit) }),
-            ...(statesToInclude && { in: await this._commonStatesToStates(statesToInclude) }),
+          id: {
+            ...(statesToOmit && { nin: await this._commonStatesToStateIds(statesToOmit) }),
+            ...(statesToInclude && { in: await this._commonStatesToStateIds(statesToInclude) }),
           },
         },
         ...(updatedBefore && { updatedAt: { lt: updatedBefore } }),
@@ -155,22 +155,18 @@ export class LinearApi {
   public async getStates(): Promise<State[]> {
     if (!this._states) {
       const states = await this._listAllStates()
-      this._states = LinearApi._toStateObjects(states)
+      this._states = this._toStateObjects(states)
     }
     return this._states
   }
 
-  private async _commonStatesToStates(keys: types.CommonState[]) {
+  private async _commonStatesToStateIds(keys: types.CommonState[]) {
     const states = await this.getStates()
-    return keys
-      .map((key) => {
-        const matchingStates = states.filter((state) => state.key === key)
-        if (matchingStates[0]) {
-          return matchingStates[0].state.name
-        }
-        return null
-      })
-      .filter((stateName) => stateName !== null)
+    return keys.flatMap((key) => {
+      const relevantStates = states.filter((state) => state.key === key)
+      const ids = relevantStates.map((state) => state.state.id)
+      return ids
+    })
   }
 
   private _listAllTeams = async (): Promise<types.LinearTeam[]> => {
@@ -197,7 +193,7 @@ export class LinearApi {
     return states
   }
 
-  private static _toStateObjects(states: types.LinearState[]): State[] {
+  private _toStateObjects(states: types.LinearState[]): State[] {
     const stateObjects: State[] = []
     for (const state of states) {
       const key = findCommonState(state)

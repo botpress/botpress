@@ -123,7 +123,7 @@ export const GRAPHQL_QUERIES = {
         team?: { key: { in: string[] } }
         number?: { eq: number }
         state?: {
-          name: {
+          id: {
             nin?: string[]
             in?: string[]
           }
