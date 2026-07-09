@@ -46,11 +46,14 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
     const pagedIssues = await issueProcessor
       .listRelevantIssues(endCursor)
       .catch(_handleError('trying to list all issues'))
+
+    const pageResults: types.LintResult[] = []
     for (const issue of pagedIssues.issues) {
       const lintResult = await issueProcessor
         .lintIssue(issue, undefined, { comment })
         .catch(_handleError(`trying to lint issue ${issue.identifier}`))
       lintResults.push(lintResult)
+      pageResults.push(lintResult)
 
       await workflow.acknowledgeStartOfProcessing().catch(_handleError('trying to acknowledge start of processing'))
 
@@ -80,12 +83,13 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
 
     if (verbose && conversation?.id) {
       const failedCount = lintResults.filter((result) => result.result === 'failed').length
-      await botpress
-        .respondText(
-          conversation.id,
-          `Linting... linted ${lintResults.length} issue(s) so far (${failedCount} with errors).`
-        )
-        .catch(() => {})
+      const newlyFailed = pageResults.filter((result) => result.result === 'failed')
+
+      const progressLine = `Linting... linted ${lintResults.length} issue(s) so far (${failedCount} with errors).`
+      const failedList = newlyFailed.map((result) => `- ${_issueLink(result.identifier)}`).join('\n')
+      const message = newlyFailed.length > 0 ? `${progressLine}\nIssues with lint errors:\n${failedList}` : progressLine
+
+      await botpress.respondText(conversation.id, message).catch(() => {})
     }
   } while (hasNextPage)
 
@@ -129,10 +133,12 @@ export const handleLintAllTimeout: bp.WorkflowHandlers['lintAll'] = async (props
   }
 }
 
+const _issueLink = (identifier: string) => `[${identifier}](${LINEAR_ISSUE_BASE_URL + identifier})`
+
 const _buildResultMessage = (results: types.LintResult[]) => {
   const failedIssuesLinks = results
     .filter((result) => result.result === 'failed')
-    .map((result) => `[${result.identifier}](${LINEAR_ISSUE_BASE_URL + result.identifier})`)
+    .map((result) => _issueLink(result.identifier))
 
   let messageDetail = 'No issue contained lint errors.'
   if (failedIssuesLinks.length === 1) {
@@ -154,7 +160,7 @@ const _buildDetailedResultMessage = (results: types.LintResult[]) => {
   }
 
   const sections = failedIssues.map((issue) => {
-    const link = `[${issue.identifier}](${LINEAR_ISSUE_BASE_URL + issue.identifier})`
+    const link = _issueLink(issue.identifier)
     const details = issue.messages.map((message) => `  - ${message}`).join('\n')
     return `${link}:\n${details}`
   })
