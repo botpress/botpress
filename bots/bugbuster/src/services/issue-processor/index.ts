@@ -4,7 +4,7 @@ import * as lin from '../../utils/linear-utils'
 import * as tm from '../teams-manager'
 import { lintIssue } from './lint-issue'
 
-const IGNORED_STATES: types.StateKey[] = ['TRIAGE', 'BACKLOG', 'PRODUCTION_DONE', 'CANCELED', 'STALE']
+const IGNORED_STATES: types.CommonState[] = ['TRIAGE', 'BACKLOG', 'DONE', 'CANCELED', 'STALE']
 const LINTIGNORE_LABEL_NAME = 'lintignore'
 
 export class IssueProcessor {
@@ -56,6 +56,13 @@ export class IssueProcessor {
 
   public async lintIssue(issue: lin.Issue, isRecentlyLinted?: boolean): Promise<types.LintResult> {
     const state = await this._linear.issueState(issue)
+    if (!state) {
+      this._logger.warn(
+        `Issue ${issue.identifier} has an unknown state ${issue.state.name}. Ignoring linting for this issue.`
+      )
+      return { identifier: issue.identifier, result: 'ignored' }
+    }
+
     if (IGNORED_STATES.includes(state) || issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)) {
       return { identifier: issue.identifier, result: 'ignored' }
     }

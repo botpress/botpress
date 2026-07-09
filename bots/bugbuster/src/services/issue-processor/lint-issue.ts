@@ -6,7 +6,7 @@ export type IssueLint = {
   message: string
 }
 
-export const lintIssue = (issue: lin.Issue, state: types.StateKey): IssueLint[] => {
+export const lintIssue = (issue: lin.Issue, state: types.CommonState): IssueLint[] => {
   const lints: string[] = []
 
   if (!_hasLabelOfCategory(issue, 'type')) {

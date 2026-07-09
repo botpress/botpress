@@ -18,7 +18,7 @@ export class IssueStateChecker {
       const { issues, pagination } = await this._linear.listIssues(
         {
           teamKeys: teams,
-          statesToInclude: [stateAttributes.stateKey],
+          statesToInclude: [stateAttributes.state],
           updatedBefore: stateAttributes.maxTimeSinceLastUpdate,
         },
         endCursor

@@ -1,9 +1,9 @@
-import * as utils from '..'
 import * as types from '../../types'
 import * as graphql from './graphql-queries'
+import { findCommonState } from './states'
 import { Client } from '.botpress'
 
-type State = { state: types.LinearState; key: types.StateKey }
+type State = { state: types.LinearState; key?: types.CommonState }
 
 const RESULTS_PER_PAGE = 200
 
@@ -56,8 +56,8 @@ export class LinearApi {
     filter: {
       teamKeys: string[]
       issueNumber?: number
-      statesToOmit?: types.StateKey[]
-      statesToInclude?: types.StateKey[]
+      statesToOmit?: types.CommonState[]
+      statesToInclude?: types.CommonState[]
       updatedBefore?: types.ISO8601Duration
     },
     nextPage?: string
@@ -76,8 +76,8 @@ export class LinearApi {
         ...(issueNumber && { number: { eq: issueNumber } }),
         state: {
           name: {
-            ...(statesToOmit && { nin: await this._stateKeysToStates(statesToOmit) }),
-            ...(statesToInclude && { in: await this._stateKeysToStates(statesToInclude) }),
+            ...(statesToOmit && { nin: await this._commonStatesToStates(statesToOmit) }),
+            ...(statesToInclude && { in: await this._commonStatesToStates(statesToInclude) }),
           },
         },
         ...(updatedBefore && { updatedAt: { lt: updatedBefore } }),
@@ -91,7 +91,7 @@ export class LinearApi {
     return { issues: data.issues.nodes, pagination: data.pageInfo }
   }
 
-  public async issueState(issue: graphql.Issue): Promise<types.StateKey> {
+  public async issueState(issue: graphql.Issue): Promise<types.CommonState | undefined> {
     const states = await this.getStates()
     const state = states.find((s) => s.state.id === issue.state.id)
     if (!state) {
@@ -160,15 +160,17 @@ export class LinearApi {
     return this._states
   }
 
-  private async _stateKeysToStates(keys: types.StateKey[]) {
+  private async _commonStatesToStates(keys: types.CommonState[]) {
     const states = await this.getStates()
-    return keys?.map((key) => {
-      const matchingStates = states.filter((state) => state.key === key)
-      if (matchingStates[0]) {
-        return matchingStates[0].state.name
-      }
-      return ''
-    })
+    return keys
+      .map((key) => {
+        const matchingStates = states.filter((state) => state.key === key)
+        if (matchingStates[0]) {
+          return matchingStates[0].state.name
+        }
+        return null
+      })
+      .filter((stateName) => stateName !== null)
   }
 
   private _listAllTeams = async (): Promise<types.LinearTeam[]> => {
@@ -177,28 +179,28 @@ export class LinearApi {
   }
 
   private _listAllStates = async (): Promise<types.LinearState[]> => {
-    let response = await this._bpClient.callAction<'linear:listStates'>({
-      type: 'linear:listStates',
-      input: { count: 100 },
-    })
-    let states: types.LinearState[] = response.output.states
-    let startCursor = response.output.nextCursor
+    // We fetch states via GraphQL rather than the linear:listStates action because the action's
+    // output does not include the state `type`, which we need to normalize states across teams.
+    let states: types.LinearState[] = []
+    let after: string | undefined = undefined
 
-    while (startCursor) {
-      response = await this._bpClient.callAction<'linear:listStates'>({
-        type: 'linear:listStates',
-        input: { count: 100, startCursor },
-      })
-      states = states.concat(response.output.states)
-      startCursor = response.output.nextCursor
-    }
+    do {
+      const queryInput: graphql.GRAPHQL_QUERIES['listStates'][graphql.QUERY_INPUT] = {
+        first: RESULTS_PER_PAGE,
+        ...(after && { after }),
+      }
+      const data = await this._executeGraphqlQuery('listStates', queryInput)
+      states = states.concat(data.workflowStates.nodes)
+      after = data.workflowStates.pageInfo.hasNextPage ? data.workflowStates.pageInfo.endCursor : undefined
+    } while (after)
+
     return states
   }
 
   private static _toStateObjects(states: types.LinearState[]): State[] {
     const stateObjects: State[] = []
     for (const state of states) {
-      const key = utils.string.toScreamingSnakeCase(state.name) as types.StateKey
+      const key = findCommonState(state)
       stateObjects.push({ key, state })
     }
     return stateObjects

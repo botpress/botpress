@@ -4,13 +4,13 @@ import * as bp from '.botpress'
 
 const statesToProcess: types.StateAttributes[] = [
   {
-    stateKey: 'STAGING',
+    state: 'STAGING',
     maxTimeSinceLastUpdate: '-P1W',
     warningComment: 'BugBuster bot detected that this issue has been in staging for over a week',
     buildWarningReason: (issueIdentifier) => `Issue ${issueIdentifier} has been in staging for over a week`,
   },
   {
-    stateKey: 'BLOCKED',
+    state: 'BLOCKED',
     maxTimeSinceLastUpdate: '-P1M',
     warningComment: 'BugBuster bot detected that this issue has been blocked for over a month',
     buildWarningReason: (issueIdentifier) => `Issue ${issueIdentifier} has been blocked for over a month`,
