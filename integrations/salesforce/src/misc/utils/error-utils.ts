@@ -1,8 +1,29 @@
+import { z } from '@botpress/sdk'
 import { isAxiosError } from 'axios'
 import * as bp from '.botpress'
 
-type SalesforceApiError = { message?: string; errorCode?: string; statusCode?: string }
-type SalesforceOAuthError = { error?: string; error_description?: string }
+const _salesforceApiErrorSchema = z.object({
+  message: z.string().optional(),
+  errorCode: z.string().optional(),
+  statusCode: z.string().optional(),
+})
+type SalesforceApiError = z.infer<typeof _salesforceApiErrorSchema>
+
+const _salesforceOAuthErrorSchema = z.object({
+  error: z.string().optional(),
+  error_description: z.string().optional(),
+})
+type SalesforceOAuthError = z.infer<typeof _salesforceOAuthErrorSchema>
+
+const _parseSalesforceApiError = (err: unknown): SalesforceApiError => {
+  const result = _salesforceApiErrorSchema.safeParse(err)
+  return result.success ? result.data : {}
+}
+
+const _parseSalesforceOAuthError = (data: unknown): SalesforceOAuthError => {
+  const result = _salesforceOAuthErrorSchema.safeParse(data)
+  return result.success ? result.data : {}
+}
 
 const _describeSalesforceApiError = (err: SalesforceApiError): string =>
   [err.errorCode ?? err.statusCode, err.message].filter(Boolean).join(': ') || 'Unknown Salesforce API error'
@@ -19,7 +40,7 @@ export const describeSalesforceError = (error: unknown): string => {
   if (Array.isArray(error)) {
     return (
       error
-        .map((err) => (typeof err === 'string' ? err : _describeSalesforceApiError(err as SalesforceApiError)))
+        .map((err) => (typeof err === 'string' ? err : _describeSalesforceApiError(_parseSalesforceApiError(err))))
         .filter(Boolean)
         .join('; ') || 'Unknown Salesforce API error'
     )
@@ -34,12 +55,12 @@ export const describeSalesforceError = (error: unknown): string => {
     }
 
     if (data && typeof data === 'object') {
-      const oauthError = data as SalesforceOAuthError
+      const oauthError = _parseSalesforceOAuthError(data)
       if (oauthError.error) {
         const detail = [oauthError.error, oauthError.error_description].filter(Boolean).join(': ')
         return `${detail}${status ? ` (HTTP ${status})` : ''}`
       }
-      return `${_describeSalesforceApiError(data as SalesforceApiError)}${status ? ` (HTTP ${status})` : ''}`
+      return `${_describeSalesforceApiError(_parseSalesforceApiError(data))}${status ? ` (HTTP ${status})` : ''}`
     }
 
     return `${error.message}${status ? ` (HTTP ${status})` : ''}`
@@ -50,7 +71,7 @@ export const describeSalesforceError = (error: unknown): string => {
   }
 
   if (error && typeof error === 'object' && ('errorCode' in error || 'statusCode' in error)) {
-    return _describeSalesforceApiError(error as SalesforceApiError)
+    return _describeSalesforceApiError(_parseSalesforceApiError(error))
   }
 
   return String(error)
