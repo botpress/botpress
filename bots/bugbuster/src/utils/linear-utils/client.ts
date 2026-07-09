@@ -2,7 +2,8 @@ import * as types from '../../types'
 import * as graphql from './graphql-queries'
 import { Client } from '.botpress'
 
-const RESULTS_PER_PAGE = 200
+const ISSUES_PER_PAGE = 50
+const STATES_PER_PAGE = 200
 
 export class LinearApi {
   private _teams?: types.LinearTeam[] = undefined
@@ -80,7 +81,7 @@ export class LinearApi {
         ...(updatedBefore && { updatedAt: { lt: updatedBefore } }),
       },
       ...(nextPage && { after: nextPage }),
-      first: RESULTS_PER_PAGE,
+      first: ISSUES_PER_PAGE,
       orderBy: 'createdAt',
     }
 
@@ -161,7 +162,7 @@ export class LinearApi {
 
     do {
       const queryInput: graphql.GRAPHQL_QUERIES['listStates'][graphql.QUERY_INPUT] = {
-        first: RESULTS_PER_PAGE,
+        first: STATES_PER_PAGE,
         ...(after && { after }),
       }
       const data = await this._executeGraphqlQuery('listStates', queryInput)
