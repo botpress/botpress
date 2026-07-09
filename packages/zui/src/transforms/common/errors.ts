@@ -95,3 +95,11 @@ export class UnrepresentableGenericError extends ZuiToTypescriptTypeError {
     super('ZodRef can only be transformed to a TypeScript type with a "type" declaration.')
   }
 }
+export class CircularZuiToTypescriptTypeError extends ZuiToTypescriptTypeError {
+  public constructor(path: string) {
+    super(
+      'Schema is self-referential (z.lazy() with no base case) and cannot be expanded into a TypeScript type. Use z.ref() instead.',
+      path
+    )
+  }
+}
