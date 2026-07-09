@@ -87,14 +87,14 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
 
       const progressLine = `Linting... linted ${lintResults.length} issue(s) so far (${failedCount} with errors).`
       const failedList = newlyFailed.map((result) => `- ${_issueLink(result.identifier)}`).join('\n')
-      const message = newlyFailed.length > 0 ? `${progressLine}\nIssues with lint errors:\n${failedList}` : progressLine
+      const message = newlyFailed.length > 0 ? `${progressLine}\n${failedList}` : progressLine
 
       await botpress.respondText(conversation.id, message).catch(() => {})
     }
   } while (hasNextPage)
 
   if (conversation?.id) {
-    const message = verbose ? _buildDetailedResultMessage(lintResults) : _buildResultMessage(lintResults)
+    const message = _buildResultMessage(lintResults)
     await botpress.respondText(conversation.id, message).catch(() => {})
     await workflow.setCompleted()
     return
@@ -148,22 +148,4 @@ const _buildResultMessage = (results: types.LintResult[]) => {
   }
 
   return `Linting complete. ${messageDetail}`
-}
-
-const _buildDetailedResultMessage = (results: types.LintResult[]) => {
-  const failedIssues = results.filter(
-    (result): result is Extract<types.LintResult, { result: 'failed' }> => result.result === 'failed'
-  )
-
-  if (failedIssues.length === 0) {
-    return 'Linting complete. No issue contained lint errors.'
-  }
-
-  const sections = failedIssues.map((issue) => {
-    const link = _issueLink(issue.identifier)
-    const details = issue.messages.map((message) => `  - ${message}`).join('\n')
-    return `${link}:\n${details}`
-  })
-
-  return `Linting complete. The following issues contained lint errors:\n\n${sections.join('\n\n')}`
 }
