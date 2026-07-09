@@ -1,16 +1,18 @@
 import * as sdk from '@botpress/sdk'
 import * as types from '../../types'
 import * as lin from '../../utils/linear-utils'
+import { StateService } from '../state-service'
 import * as tm from '../teams-manager'
 import { lintIssue } from './lint-issue'
 
-const IGNORED_STATES: types.StateKey[] = ['TRIAGE', 'BACKLOG', 'PRODUCTION_DONE', 'CANCELED', 'STALE']
+const IGNORED_STATES: types.CommonStateName[] = ['TRIAGE', 'BACKLOG', 'DONE', 'CANCELED', 'STALE']
 const LINTIGNORE_LABEL_NAME = 'lintignore'
 
 export class IssueProcessor {
   public constructor(
     private _logger: sdk.BotLogger,
     private _linear: lin.LinearApi,
+    private _stateService: StateService,
     private _teamsManager: tm.TeamsManager,
     private _botId: string
   ) {}
@@ -45,17 +47,26 @@ export class IssueProcessor {
       throw new Error('You have no watched teams.')
     }
 
+    const stateIdsToOmit = await this._stateService.mapToStateIds(IGNORED_STATES)
+
     return await this._linear.listIssues(
       {
         teamKeys: watchedTeams,
-        statesToOmit: IGNORED_STATES,
+        stateIdsToOmit,
       },
       endCursor
     )
   }
 
   public async lintIssue(issue: lin.Issue, isRecentlyLinted?: boolean): Promise<types.LintResult> {
-    const state = await this._linear.issueState(issue)
+    const state = await this._stateService.getIssueCommonStateName(issue)
+    if (!state) {
+      this._logger.warn(
+        `Issue ${issue.identifier} has an unknown state ${issue.state.name}. Ignoring linting for this issue.`
+      )
+      return { identifier: issue.identifier, result: 'ignored' }
+    }
+
     if (IGNORED_STATES.includes(state) || issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)) {
       return { identifier: issue.identifier, result: 'ignored' }
     }

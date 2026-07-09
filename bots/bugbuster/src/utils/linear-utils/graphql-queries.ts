@@ -20,6 +20,7 @@ export type Issue = {
   } | null
   state: {
     id: string
+    name: string
   }
   labels: {
     nodes: {
@@ -83,6 +84,7 @@ export const GRAPHQL_QUERIES = {
             },
             state {
               id
+              name
             },
             labels {
               nodes {
@@ -121,7 +123,7 @@ export const GRAPHQL_QUERIES = {
         team?: { key: { in: string[] } }
         number?: { eq: number }
         state?: {
-          name: {
+          id: {
             nin?: string[]
             in?: string[]
           }
@@ -138,6 +140,32 @@ export const GRAPHQL_QUERIES = {
         nodes: Issue[]
       }
       pageInfo: Pagination
+    },
+  },
+  listStates: {
+    query: `
+      query ListStates($first: Int, $after: String) {
+        workflowStates(first: $first, after: $after) {
+          nodes {
+            id
+            name
+            type
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+        }
+      }`,
+    [QUERY_INPUT]: {} as {
+      first?: number
+      after?: string
+    },
+    [QUERY_RESPONSE]: {} as {
+      workflowStates: {
+        nodes: types.LinearState[]
+        pageInfo: Pagination
+      }
     },
   },
   findTeamStates: {
