@@ -138,6 +138,7 @@ const _issueLink = (identifier: string) => `[${identifier}](${LINEAR_ISSUE_BASE_
 const _buildResultMessage = (results: types.LintResult[]) => {
   const failedIssuesLinks = results
     .filter((result) => result.result === 'failed')
+    .slice(0, 10) // Limit to 10 issues to avoid spamming the message
     .map((result) => _issueLink(result.identifier))
 
   let messageDetail = 'No issue contained lint errors.'
