@@ -30,10 +30,10 @@ export class ZodUnionImpl<T extends ZodUnionOptions = DefaultZodUnionOptions>
     })
   }
 
-  getReferences(): string[] {
+  _getReferences(visiting: Set<symbol>): string[] {
     return utils.fn.unique(
       this._def.options.reduce<string[]>((acc, option) => {
-        return [...acc, ...option.getReferences()]
+        return [...acc, ...option._getReferences(visiting)]
       }, [])
     )
   }

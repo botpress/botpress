@@ -417,6 +417,8 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
   dereference(_defs: Record<string, IZodType>): IZodType
   /** deeply scans the schema to check if it contains references */
   getReferences(): string[]
+  /** internal recursive worker for getReferences() — do not call directly */
+  _getReferences(visiting: Set<symbol>): string[]
   clone(): IZodType<Output, Def, Input>
   parse(data: unknown, params?: Partial<ParseParams>): Output
   safeParse(data: unknown, params?: Partial<ParseParams>): SafeParseReturnType<Input, Output>

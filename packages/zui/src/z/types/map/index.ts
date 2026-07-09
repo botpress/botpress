@@ -27,8 +27,11 @@ export class ZodMapImpl<Key extends IZodType = IZodType, Value extends IZodType 
     })
   }
 
-  getReferences(): string[] {
-    return utils.fn.unique([...this._def.keyType.getReferences(), ...this._def.valueType.getReferences()])
+  _getReferences(visiting: Set<symbol>): string[] {
+    return utils.fn.unique([
+      ...this._def.keyType._getReferences(visiting),
+      ...this._def.valueType._getReferences(visiting),
+    ])
   }
 
   clone(): IZodMap<Key, Value> {
