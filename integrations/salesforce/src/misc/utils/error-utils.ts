@@ -45,12 +45,12 @@ export const describeSalesforceError = (error: unknown): string => {
     return `${error.message}${status ? ` (HTTP ${status})` : ''}`
   }
 
-  if (error && typeof error === 'object' && ('errorCode' in error || 'message' in error)) {
-    return _describeSalesforceApiError(error as SalesforceApiError)
-  }
-
   if (error instanceof Error) {
     return error.message
+  }
+
+  if (error && typeof error === 'object' && ('errorCode' in error || 'statusCode' in error)) {
+    return _describeSalesforceApiError(error as SalesforceApiError)
   }
 
   return String(error)
