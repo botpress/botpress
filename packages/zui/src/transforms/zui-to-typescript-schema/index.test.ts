@@ -918,6 +918,20 @@ describe.concurrent('toTypescriptSchema', () => {
     }
   })
 
+  test('should throw CircularZuiToTypescriptSchemaError for a self-referential lazy schema', () => {
+    type TreeNode = { name: string; children?: TreeNode[] }
+    const treeNode: z.ZodType<TreeNode> = z.lazy(() =>
+      z.object({ name: z.string(), children: z.array(treeNode).optional() })
+    )
+    try {
+      toTypescript(z.object({ tree: z.array(treeNode) }))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.CircularZuiToTypescriptSchemaError)
+      expect((e as errors.ZuiTransformError).path).toBe('#.tree[number].children[number]')
+    }
+  })
+
   test('should add [string] section to additional properties', () => {
     try {
       toTypescript(z.object({}).catchall(z.string().refine((v) => v.length > 0)))
