@@ -26,11 +26,6 @@ const COMMON_STATE_BY_TYPE: Record<types.LinearStateType, StateResolver> = {
 
 type StateEntry = { state: types.LinearState; key?: types.CommonStateName }
 
-/**
- * Owns the mapping between Linear's per-team workflow states and BugBuster's
- * team-agnostic `CommonState` vocabulary. The Linear client stays agnostic and
- * only deals in raw states/ids; this service holds the business knowledge.
- */
 export class StateService {
   private _stateEntries?: StateEntry[] = undefined
 
@@ -44,10 +39,6 @@ export class StateService {
     return this._stateEntries
   }
 
-  /**
-   * Resolves common states to the ids of every matching Linear state across all
-   * teams, so that filtering issues by a common state spans all teams that use it.
-   */
   public async mapToStateIds(keys: types.CommonStateName[]): Promise<string[]> {
     const states = await this._getClassifiedStates()
     return keys.flatMap((key) => {

@@ -27,7 +27,7 @@ export type CommonStateName =
   | 'DUPLICATE'
 
 export type StateAttributes = {
-  state: CommonStateName
+  commonStateName: CommonStateName
   maxTimeSinceLastUpdate: ISO8601Duration
   warningComment: string
   buildWarningReason: (issueIdentifier: string) => string
