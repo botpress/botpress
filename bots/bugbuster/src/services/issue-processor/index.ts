@@ -58,7 +58,12 @@ export class IssueProcessor {
     )
   }
 
-  public async lintIssue(issue: lin.Issue, isRecentlyLinted?: boolean): Promise<types.LintResult> {
+  public async lintIssue(
+    issue: lin.Issue,
+    isRecentlyLinted?: boolean,
+    options?: { comment?: boolean }
+  ): Promise<types.LintResult> {
+    const shouldComment = options?.comment ?? true
     const state = await this._stateService.getIssueCommonStateName(issue)
     if (!state) {
       this._logger.warn(
@@ -87,15 +92,17 @@ export class IssueProcessor {
 
     this._logger.warn(warningMessage)
 
-    await this._linear.createComment({
-      issueId: issue.id,
-      botId: this._botId,
-      body: [
-        `BugBuster Bot found the following problems with ${issue.identifier}:`,
-        '',
-        ...errors.map((error) => `- ${error.message}`),
-      ].join('\n'),
-    })
+    if (shouldComment) {
+      await this._linear.createComment({
+        issueId: issue.id,
+        botId: this._botId,
+        body: [
+          `BugBuster Bot found the following problems with ${issue.identifier}:`,
+          '',
+          ...errors.map((error) => `- ${error.message}`),
+        ].join('\n'),
+      })
+    }
 
     return { identifier: issue.identifier, messages: errors.map((error) => error.message), result: 'failed' }
   }

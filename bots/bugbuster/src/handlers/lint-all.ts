@@ -7,6 +7,9 @@ const LINEAR_ISSUE_BASE_URL = 'https://linear.app/botpress/issue/'
 export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
   const { client, workflow, ctx, conversation } = props
 
+  const verbose = workflow.input.verbose ?? false
+  const comment = workflow.input.comment ?? true
+
   const { botpress, issueProcessor } = boot.bootstrap(props)
 
   const _handleError = (context: string) => (thrown: unknown) => botpress.handleError({ context }, thrown)
@@ -45,7 +48,7 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
       .catch(_handleError('trying to list all issues'))
     for (const issue of pagedIssues.issues) {
       const lintResult = await issueProcessor
-        .lintIssue(issue)
+        .lintIssue(issue, undefined, { comment })
         .catch(_handleError(`trying to lint issue ${issue.identifier}`))
       lintResults.push(lintResult)
 
@@ -75,7 +78,8 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
   } while (hasNextPage)
 
   if (conversation?.id) {
-    await botpress.respondText(conversation.id, _buildResultMessage(lintResults)).catch(() => {})
+    const message = verbose ? _buildDetailedResultMessage(lintResults) : _buildResultMessage(lintResults)
+    await botpress.respondText(conversation.id, message).catch(() => {})
     await workflow.setCompleted()
     return
   }
@@ -126,4 +130,22 @@ const _buildResultMessage = (results: types.LintResult[]) => {
   }
 
   return `Linting complete. ${messageDetail}`
+}
+
+const _buildDetailedResultMessage = (results: types.LintResult[]) => {
+  const failedIssues = results.filter(
+    (result): result is Extract<types.LintResult, { result: 'failed' }> => result.result === 'failed'
+  )
+
+  if (failedIssues.length === 0) {
+    return 'Linting complete. No issue contained lint errors.'
+  }
+
+  const sections = failedIssues.map((issue) => {
+    const link = `[${issue.identifier}](${LINEAR_ISSUE_BASE_URL + issue.identifier})`
+    const details = issue.messages.map((message) => `  - ${message}`).join('\n')
+    return `${link}:\n${details}`
+  })
+
+  return `Linting complete. The following issues contained lint errors:\n\n${sections.join('\n\n')}`
 }
