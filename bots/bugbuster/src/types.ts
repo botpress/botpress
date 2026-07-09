@@ -13,8 +13,8 @@ export type LintResult =
       result: 'succeeded' | 'ignored'
     }
 
-export type StateType = 'triage' | 'backlog' | 'unstarted' | 'started' | 'completed' | 'canceled' | 'duplicate'
-export type CommonState =
+export type LinearStateType = 'triage' | 'backlog' | 'unstarted' | 'started' | 'completed' | 'canceled' | 'duplicate'
+export type CommonStateName =
   | 'IN_PROGRESS'
   | 'STAGING'
   | 'DONE'
@@ -27,7 +27,7 @@ export type CommonState =
   | 'DUPLICATE'
 
 export type StateAttributes = {
-  state: CommonState
+  state: CommonStateName
   maxTimeSinceLastUpdate: ISO8601Duration
   warningComment: string
   buildWarningReason: (issueIdentifier: string) => string
@@ -44,7 +44,7 @@ export type LinearTeam = {
 export type LinearState = {
   id: string
   name: string
-  type: StateType
+  type: LinearStateType
 }
 
 export type ISO8601Duration = string

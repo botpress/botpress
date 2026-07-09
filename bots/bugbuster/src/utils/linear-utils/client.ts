@@ -1,15 +1,12 @@
 import * as types from '../../types'
 import * as graphql from './graphql-queries'
-import { findCommonState } from './states'
 import { Client } from '.botpress'
-
-type State = { state: types.LinearState; key?: types.CommonState }
 
 const RESULTS_PER_PAGE = 200
 
 export class LinearApi {
   private _teams?: types.LinearTeam[] = undefined
-  private _states?: State[] = undefined
+  private _states?: types.LinearState[] = undefined
   private _viewerId?: string = undefined
 
   private constructor(private _bpClient: Client) {}
@@ -56,13 +53,13 @@ export class LinearApi {
     filter: {
       teamKeys: string[]
       issueNumber?: number
-      statesToOmit?: types.CommonState[]
-      statesToInclude?: types.CommonState[]
+      stateIdsToOmit?: string[]
+      stateIdsToInclude?: string[]
       updatedBefore?: types.ISO8601Duration
     },
     nextPage?: string
   ): Promise<{ issues: graphql.Issue[]; pagination?: graphql.Pagination }> {
-    const { teamKeys, issueNumber, statesToOmit, statesToInclude, updatedBefore } = filter
+    const { teamKeys, issueNumber, stateIdsToOmit, stateIdsToInclude, updatedBefore } = filter
 
     const teams = await this.getTeams()
     const teamsExist = teamKeys.every((key) => teams.some((team) => team.key === key))
@@ -76,8 +73,8 @@ export class LinearApi {
         ...(issueNumber && { number: { eq: issueNumber } }),
         state: {
           id: {
-            ...(statesToOmit && { nin: await this._commonStatesToStateIds(statesToOmit) }),
-            ...(statesToInclude && { in: await this._commonStatesToStateIds(statesToInclude) }),
+            ...(stateIdsToOmit && { nin: stateIdsToOmit }),
+            ...(stateIdsToInclude && { in: stateIdsToInclude }),
           },
         },
         ...(updatedBefore && { updatedAt: { lt: updatedBefore } }),
@@ -89,15 +86,6 @@ export class LinearApi {
     const data = await this._executeGraphqlQuery('listIssues', queryInput)
 
     return { issues: data.issues.nodes, pagination: data.pageInfo }
-  }
-
-  public async issueState(issue: graphql.Issue): Promise<types.CommonState | undefined> {
-    const states = await this.getStates()
-    const state = states.find((s) => s.state.id === issue.state.id)
-    if (!state) {
-      throw new Error(`State with ID "${issue.state.id}" not found.`)
-    }
-    return state.key
   }
 
   public async resolveComments(issue: graphql.Issue): Promise<void> {
@@ -152,21 +140,11 @@ export class LinearApi {
     return this._teams
   }
 
-  public async getStates(): Promise<State[]> {
+  public async getStates(): Promise<types.LinearState[]> {
     if (!this._states) {
-      const states = await this._listAllStates()
-      this._states = this._toStateObjects(states)
+      this._states = await this._listAllStates()
     }
     return this._states
-  }
-
-  private async _commonStatesToStateIds(keys: types.CommonState[]) {
-    const states = await this.getStates()
-    return keys.flatMap((key) => {
-      const relevantStates = states.filter((state) => state.key === key)
-      const ids = relevantStates.map((state) => state.state.id)
-      return ids
-    })
   }
 
   private _listAllTeams = async (): Promise<types.LinearTeam[]> => {
@@ -191,15 +169,6 @@ export class LinearApi {
     } while (after)
 
     return states
-  }
-
-  private _toStateObjects(states: types.LinearState[]): State[] {
-    const stateObjects: State[] = []
-    for (const state of states) {
-      const key = findCommonState(state)
-      stateObjects.push({ key, state })
-    }
-    return stateObjects
   }
 
   private async _executeGraphqlQuery<K extends keyof graphql.GRAPHQL_QUERIES>(

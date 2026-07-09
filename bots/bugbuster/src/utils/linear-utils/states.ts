@@ -13,11 +13,11 @@ import * as types from '../../types'
  * entry can accidentally shadow another: order within this record is irrelevant.
  */
 type StateResolver = {
-  byName?: Record<string, types.CommonState>
-  default: types.CommonState
+  byName?: Record<string, types.CommonStateName>
+  default: types.CommonStateName
 }
 
-const COMMON_STATE_BY_TYPE: Record<types.StateType, StateResolver> = {
+const COMMON_STATE_BY_TYPE: Record<types.LinearStateType, StateResolver> = {
   triage: { default: 'TRIAGE' },
   backlog: { default: 'BACKLOG' },
   unstarted: { default: 'TODO' },
@@ -35,7 +35,7 @@ const COMMON_STATE_BY_TYPE: Record<types.StateType, StateResolver> = {
   },
 }
 
-export const findCommonState = (state: types.LinearState): types.CommonState | undefined => {
+export const findCommonState = (state: types.LinearState): types.CommonStateName | undefined => {
   const resolver = COMMON_STATE_BY_TYPE[state.type]
   if (!resolver) {
     return

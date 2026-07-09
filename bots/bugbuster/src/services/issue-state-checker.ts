@@ -1,10 +1,12 @@
 import * as sdk from '@botpress/sdk'
 import * as types from '../types'
 import * as lin from '../utils/linear-utils'
+import * as sts from './state-service'
 
 export class IssueStateChecker {
   public constructor(
     private _linear: lin.LinearApi,
+    private _stateService: sts.StateService,
     private _logger: sdk.BotLogger,
     private _botId: string
   ) {}
@@ -12,13 +14,15 @@ export class IssueStateChecker {
   public async processIssues(props: { stateAttributes: types.StateAttributes; teams: string[] }) {
     const { stateAttributes, teams } = props
 
+    const stateIdsToInclude = await this._stateService.mapToStateIds([stateAttributes.state])
+
     let hasNextPage = false
     let endCursor: string | undefined = undefined
     do {
       const { issues, pagination } = await this._linear.listIssues(
         {
           teamKeys: teams,
-          statesToInclude: [stateAttributes.state],
+          stateIdsToInclude,
           updatedBefore: stateAttributes.maxTimeSinceLastUpdate,
         },
         endCursor
