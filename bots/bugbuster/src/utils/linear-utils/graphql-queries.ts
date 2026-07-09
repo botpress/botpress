@@ -21,7 +21,7 @@ export type Issue = {
   state: {
     id: string
     name: string
-    type: string
+    type: types.StateType
   }
   labels: {
     nodes: {

@@ -55,7 +55,10 @@ export class IssueProcessor {
   }
 
   public async lintIssue(issue: lin.Issue, isRecentlyLinted?: boolean): Promise<types.LintResult> {
-    if (issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)) {
+    if (
+      IGNORED_STATE_TYPES.includes(issue.state.type) ||
+      issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)
+    ) {
       return { identifier: issue.identifier, result: 'ignored' }
     }
 
