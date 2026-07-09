@@ -75,6 +75,16 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
 
     hasNextPage = pagedIssues.pagination?.hasNextPage ?? false
     endCursor = pagedIssues.pagination?.endCursor
+
+    if (verbose && conversation?.id) {
+      const failedCount = lintResults.filter((result) => result.result === 'failed').length
+      await botpress
+        .respondText(
+          conversation.id,
+          `Linting... linted ${lintResults.length} issue(s) so far (${failedCount} with errors).`
+        )
+        .catch(() => {})
+    }
   } while (hasNextPage)
 
   if (conversation?.id) {
