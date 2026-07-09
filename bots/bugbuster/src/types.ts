@@ -24,6 +24,7 @@ export type CommonState =
   | 'CANCELED'
   | 'BLOCKED'
   | 'STALE'
+  | 'DUPLICATE'
 
 export type StateAttributes = {
   state: CommonState
