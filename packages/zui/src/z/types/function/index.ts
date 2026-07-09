@@ -37,10 +37,7 @@ export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Retur
   }
 
   _getReferences(visiting: Set<symbol>): string[] {
-    return utils.fn.unique([
-      ...this._def.args._getReferences(visiting),
-      ...this._def.returns._getReferences(visiting),
-    ])
+    return utils.fn.unique([...this._def.args._getReferences(visiting), ...this._def.returns._getReferences(visiting)])
   }
 
   clone(): IZodFunction<Args, Returns> {
