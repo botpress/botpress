@@ -3,6 +3,7 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import axiosRetry from 'axios-retry'
 import type { ZendeskUser, ZendeskTicket, ZendeskWebhook } from './definitions/schemas'
 import { summarizeAxiosError } from './misc/axios-utils'
+import { refreshAccessToken } from './oauth/token'
 import { ConditionsData, getTriggerTemplate, type TriggerNames } from './triggers'
 import type { ZendeskEventType } from './webhookEvents'
 import * as bp from '.botpress'
@@ -270,7 +271,10 @@ export const getZendeskClient = async (client: bp.Client, ctx: bp.Context, logge
   }
 
   if (needsRefresh(refreshToken, expiresAt)) {
-    const refreshed = await _refreshAccessToken(subdomain, refreshToken!)
+    const refreshed = await refreshAccessToken(subdomain, refreshToken!).catch((thrown) => {
+      logger.forBotOnly().error('Failed to refresh Zendesk access token', { error: `${thrown}` })
+      throw new sdk.RuntimeError('Failed to refresh the Zendesk access token, please re-run the OAuth setup')
+    })
     accessToken = refreshed.accessToken
     await client.setState({
       type: 'integration',
@@ -281,30 +285,4 @@ export const getZendeskClient = async (client: bp.Client, ctx: bp.Context, logge
   }
 
   return new ZendeskApi({ type: 'OAuth', accessToken, subdomain }, logger)
-}
-
-const _refreshAccessToken = async (subdomain: string, refreshToken: string) => {
-  const { data } = await axios.post(
-    `${_makeBaseUrl(subdomain)}/oauth/tokens`,
-    {
-      grant_type: 'refresh_token',
-      refresh_token: refreshToken,
-      client_id: bp.secrets.CLIENT_ID,
-      client_secret: bp.secrets.CLIENT_SECRET,
-      scope: 'read write',
-    },
-    { headers: { 'Content-Type': 'application/json' } }
-  )
-  const parsed = sdk.z
-    .object({
-      access_token: sdk.z.string(),
-      refresh_token: sdk.z.string(),
-      expires_in: sdk.z.number().optional(),
-    })
-    .parse(data)
-  return {
-    accessToken: parsed.access_token,
-    refreshToken: parsed.refresh_token,
-    expiresAt: parsed.expires_in ? Date.now() + parsed.expires_in * 1000 : undefined,
-  }
 }
