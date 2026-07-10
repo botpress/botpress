@@ -18,15 +18,10 @@ export class ZodLazyImpl<T extends IZodType = IZodType>
 
   _getReferences(visiting: Set<symbol>): string[] {
     if (visiting.has(this._def.uid)) {
-      // cycle: anything reachable past this point was already collected by the enclosing call
       return []
     }
     visiting.add(this._def.uid)
-    try {
-      return this._def.getter()._getReferences(visiting)
-    } finally {
-      visiting.delete(this._def.uid)
-    }
+    return this._def.getter()._getReferences(visiting)
   }
 
   clone(): IZodLazy<T> {

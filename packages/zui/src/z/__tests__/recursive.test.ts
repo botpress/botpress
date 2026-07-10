@@ -120,13 +120,15 @@ test('getReferences does not stack overflow on a 3-node mutual recursion cycle',
   expect(A.getReferences()).toEqual([])
 })
 
-test('getReferences explores the same lazy schema fully from two independent, non-cyclic sibling branches', () => {
-  type TreeNode = { name: string; tag: unknown; children?: TreeNode[] }
-  const treeNode: z.ZodType<TreeNode> = z.lazy(() =>
-    z.object({ name: z.string(), tag: z.ref('Tag'), children: z.array(treeNode).optional() })
-  )
-  // treeNode is reused twice here, as two unrelated sibling properties — not a cycle
-  const schema = z.object({ left: treeNode, right: treeNode })
+test('getReferences only expands a shared lazy schema once, even when referenced from multiple places', () => {
+  let calls = 0
+  const treeNode: z.ZodType<any> = z.lazy(() => {
+    calls++
+    return z.object({ tag: z.ref('Tag'), children: z.array(treeNode).optional() })
+  })
+  const schema = z.object({ a: treeNode, b: treeNode, c: treeNode })
 
   expect(schema.getReferences()).toEqual(['Tag'])
+  // 3 occurrences of the same lazy schema, but its getter should only run once — the rest are memoized
+  expect(calls).toBe(1)
 })
