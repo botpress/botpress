@@ -249,10 +249,19 @@ class ZendeskApi {
 
 export type ZendeskClient = InstanceType<typeof ZendeskApi>
 
+// Renew the token a minute before it actually expires to cover clock skew and request latency.
+const _TOKEN_REFRESH_BUFFER_MS = 60_000
+
+// Non-expiring tokens (clients created before 2026-04-30) have no refreshToken/expiresAt and never need refreshing.
+export const needsRefresh = (refreshToken?: string, expiresAt?: number, now: number = Date.now()): boolean =>
+  Boolean(refreshToken && expiresAt && now > expiresAt - _TOKEN_REFRESH_BUFFER_MS)
+
 export const getZendeskClient = async (client: bp.Client, ctx: bp.Context, logger: bp.Logger): Promise<ZendeskApi> => {
-  const { accessToken, subdomain } = await client
+  const credentials = await client
     .getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
     .then((result) => result.state.payload)
+  let { accessToken } = credentials
+  const { subdomain, refreshToken, expiresAt } = credentials
   if (accessToken === undefined) {
     throw new sdk.RuntimeError('Failed to get the OAuth accessToken')
   }
@@ -260,5 +269,42 @@ export const getZendeskClient = async (client: bp.Client, ctx: bp.Context, logge
     throw new sdk.RuntimeError('Failed to get the subdomain')
   }
 
+  if (needsRefresh(refreshToken, expiresAt)) {
+    const refreshed = await _refreshAccessToken(subdomain, refreshToken!)
+    accessToken = refreshed.accessToken
+    await client.setState({
+      type: 'integration',
+      name: 'credentials',
+      id: ctx.integrationId,
+      payload: { ...credentials, ...refreshed },
+    })
+  }
+
   return new ZendeskApi({ type: 'OAuth', accessToken, subdomain }, logger)
+}
+
+const _refreshAccessToken = async (subdomain: string, refreshToken: string) => {
+  const { data } = await axios.post(
+    `${_makeBaseUrl(subdomain)}/oauth/tokens`,
+    {
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+      client_id: bp.secrets.CLIENT_ID,
+      client_secret: bp.secrets.CLIENT_SECRET,
+      scope: 'read write',
+    },
+    { headers: { 'Content-Type': 'application/json' } }
+  )
+  const parsed = sdk.z
+    .object({
+      access_token: sdk.z.string(),
+      refresh_token: sdk.z.string(),
+      expires_in: sdk.z.number().optional(),
+    })
+    .parse(data)
+  return {
+    accessToken: parsed.access_token,
+    refreshToken: parsed.refresh_token,
+    expiresAt: parsed.expires_in ? Date.now() + parsed.expires_in * 1000 : undefined,
+  }
 }

@@ -157,9 +157,9 @@ const _oauthCallbackHandler: WizardHandler = async (props) => {
   if (subdomain === undefined) {
     throw new sdk.RuntimeError('The subdomain given was empty')
   }
-  const accessToken = await _exchangeAuthorizationCodeForAccessToken(authorizationCode, subdomain)
+  const tokens = await _exchangeAuthorizationCodeForAccessToken(authorizationCode, subdomain)
 
-  const newCredentials = { ...credentials, accessToken }
+  const newCredentials = { ...credentials, ...tokens }
   await _patchCredentialsState(client, ctx, newCredentials)
 
   setIntegrationIdentifier(ctx.webhookId)
@@ -204,10 +204,16 @@ const _exchangeAuthorizationCodeForAccessToken = async (authorizationCode: strin
     .object({
       access_token: sdk.z.string(),
       refresh_token: sdk.z.string(),
+      expires_in: sdk.z.number().optional(),
     })
     .parse(res.data)
 
-  return data.access_token
+  return {
+    accessToken: data.access_token,
+    refreshToken: data.refresh_token,
+    // Non-expiring tokens (clients created before 2026-04-30) omit expires_in.
+    expiresAt: data.expires_in ? Date.now() + data.expires_in * 1000 : undefined,
+  }
 }
 
 // client.patchState is not working correctly
