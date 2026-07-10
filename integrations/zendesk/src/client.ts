@@ -280,7 +280,14 @@ export const getZendeskClient = async (client: bp.Client, ctx: bp.Context, logge
       type: 'integration',
       name: 'credentials',
       id: ctx.integrationId,
-      payload: { ...credentials, ...refreshed },
+      // Fall back to stored values so a refresh response that omits refresh_token/expires_in
+      // doesn't erase them (which would permanently disable future refreshes).
+      payload: {
+        ...credentials,
+        accessToken: refreshed.accessToken,
+        refreshToken: refreshed.refreshToken ?? refreshToken,
+        expiresAt: refreshed.expiresAt ?? expiresAt,
+      },
     })
   }
 
