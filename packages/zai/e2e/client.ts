@@ -35,7 +35,11 @@ function readJSONL<T>(filePath: string, keyProperty: keyof T): Map<string, T> {
   for (const line of lines) {
     try {
       const obj = JSON.parse(line) as T
-      const key = String(obj[keyProperty])
+      const value = obj[keyProperty]
+      if (value === undefined || value === null) {
+        continue
+      }
+      const key = String(value)
       map.set(key, obj)
     } catch {}
   }
@@ -43,7 +47,7 @@ function readJSONL<T>(filePath: string, keyProperty: keyof T): Map<string, T> {
   return map
 }
 
-type CacheEntry = { key: string; value: any; test: string; input: string }
+type CacheEntry = { key: string; value: any; test?: string; input: string }
 
 const cache: Map<string, CacheEntry> = readJSONL(path.resolve(__dirname, './data/cache.jsonl'), 'key')
 const cacheByTest: Map<string, CacheEntry> = readJSONL(path.resolve(__dirname, './data/cache.jsonl'), 'test')
@@ -71,13 +75,20 @@ class CachedClient extends Client {
       return cached.value
     }
 
-    if (process.env.CI && cacheByTest.has(testKey)) {
-      console.info(`Cache miss for ${key} in test ${testKey}`)
-      console.info(
-        diffLines(
-          JSON.stringify(JSON.parse(cacheByTest.get(testKey)?.input!), null, 2),
-          JSON.stringify(JSON.parse(stringifyWithSortedKeys(args)), null, 2)
+    if (process.env.CI) {
+      const previous = cacheByTest.get(testKey)
+      if (previous) {
+        console.info(`Cache miss for ${key} in test ${testKey}`)
+        console.info(
+          diffLines(
+            JSON.stringify(JSON.parse(previous.input), null, 2),
+            JSON.stringify(JSON.parse(stringifyWithSortedKeys(args)), null, 2)
+          )
         )
+      }
+
+      throw new Error(
+        `Missing cached Botpress action response for ${key} in ${testKey}. Run pnpm test:e2e:update to refresh packages/zai/e2e/data/cache.jsonl.`
       )
     }
 

@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { OAuth2, Connection } from 'jsforce'
 import { getBotpressWebhookUrl, getSfCredentials } from './bp-utils'
+import { describeSalesforceError } from './error-utils'
 import * as bp from '.botpress'
 
 export const getOAuth2 = (ctx: bp.Context): OAuth2 => {
@@ -18,8 +19,8 @@ export const getConnection = async (client: bp.Client, ctx: bp.Context, logger: 
   try {
     sfCredentials = await getSfCredentials(client, ctx.integrationId)
   } catch (e) {
-    const errorMsg = `Error fetching Salesforce credentials: ${JSON.stringify(e)}`
-    logger.forBot().info(errorMsg)
+    const errorMsg = `Error fetching Salesforce credentials: ${describeSalesforceError(e)}`
+    logger.forBot().error(errorMsg)
     throw new Error(errorMsg)
   }
 
@@ -34,6 +35,7 @@ export const getConnection = async (client: bp.Client, ctx: bp.Context, logger: 
 
   //When access token is refreshed, update it in the state
   connection.on('refresh', (newAccessToken: string) => {
+    logger.forBot().info('Salesforce access token expired and was refreshed successfully')
     client
       .setState({
         type: 'integration',
@@ -47,20 +49,21 @@ export const getConnection = async (client: bp.Client, ctx: bp.Context, logger: 
         },
       })
       .catch((thrown: unknown) => {
-        const msg = thrown instanceof Error ? thrown.message : String(thrown)
-        console.error('Error updating Salesforce credentials:', msg)
+        logger.forBot().error(`Error persisting refreshed Salesforce access token: ${describeSalesforceError(thrown)}`)
       })
   })
 
   return connection
 }
 
-export const refreshSfToken = async (client: bp.Client, ctx: bp.Context): Promise<void> => {
+export const refreshSfToken = async (client: bp.Client, ctx: bp.Context, logger: bp.Logger): Promise<void> => {
   const url = `${getEnvironmentUrl(ctx)}/services/oauth2/token`
   const sfCredentials = await getSfCredentials(client, ctx.integrationId)
 
   if (!sfCredentials.refreshToken) {
-    throw new Error('No refresh token available. Please re-authenticate with Salesforce.')
+    const errorMsg = 'No refresh token available. Please re-authenticate with Salesforce.'
+    logger.forBot().error(errorMsg)
+    throw new Error(errorMsg)
   }
 
   const params = new URLSearchParams()
@@ -87,9 +90,12 @@ export const refreshSfToken = async (client: bp.Client, ctx: bp.Context): Promis
         refreshToken: sfCredentials.refreshToken,
       },
     })
+
+    logger.forBot().info('Salesforce access token expired and was refreshed successfully')
   } catch (error) {
-    console.error('Error refreshing token:', error)
-    throw new Error(`Error refreshing Salesforce token: ${JSON.stringify(error)}`)
+    const errorMsg = `Error refreshing Salesforce token: ${describeSalesforceError(error)}`
+    logger.forBot().error(errorMsg)
+    throw new Error(errorMsg)
   }
 }
 

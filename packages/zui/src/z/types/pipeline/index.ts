@@ -22,8 +22,8 @@ export class ZodPipelineImpl<A extends IZodType = IZodType, B extends IZodType =
     })
   }
 
-  getReferences(): string[] {
-    return utils.fn.unique([...this._def.in.getReferences(), ...this._def.out.getReferences()])
+  _getReferences(visiting: Set<symbol>): string[] {
+    return utils.fn.unique([...this._def.in._getReferences(visiting), ...this._def.out._getReferences(visiting)])
   }
 
   clone(): IZodPipeline<A, B> {
