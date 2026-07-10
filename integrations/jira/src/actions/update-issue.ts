@@ -11,9 +11,9 @@ import {
   textToAdfDocument,
 } from '../utils'
 
-export const updateIssue: Implementation['actions']['updateIssue'] = async ({ ctx, input, logger }) => {
+export const updateIssue: Implementation['actions']['updateIssue'] = async ({ client, ctx, input, logger }) => {
   const validatedInput = updateIssueInputSchema.parse(input)
-  const jiraClient = getClient(ctx.configuration)
+  const jiraClient = await getClient({ client, ctx, logger })
   const fields: NonNullable<Version3Parameters.EditIssue['fields']> = {}
 
   if (validatedInput.summary !== undefined) {

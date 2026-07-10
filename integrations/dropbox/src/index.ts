@@ -1,4 +1,4 @@
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import { reporting } from '@botpress/sdk-addons'
 import { File as FileEntity, Folder as FolderEntity } from '../definitions'
 import { wrapAction } from './action-wrapper'
 import * as filesReadonlyMapping from './files-readonly/mapping'
@@ -131,8 +131,4 @@ const integration = new bp.Integration({
   channels: {},
 })
 
-export default sentryHelpers.wrapIntegration(integration, {
-  dsn: bp.secrets.SENTRY_DSN,
-  environment: bp.secrets.SENTRY_ENVIRONMENT,
-  release: bp.secrets.SENTRY_RELEASE,
-})
+export default reporting.wrapIntegration(integration)

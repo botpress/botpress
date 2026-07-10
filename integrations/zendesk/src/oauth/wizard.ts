@@ -39,8 +39,15 @@ export const handler = async (props: bp.HandlerProps) => {
   return response
 }
 
-const _startHandler: WizardHandler = (props) => {
+const _startHandler: WizardHandler = async (props) => {
   const { responses } = props
+
+  // When nothing is connected yet there's nothing to reset, so skip the
+  // confirmation and go straight to the next step.
+  if (!(await _isAlreadyConnected(props))) {
+    return _getSubdomain(props)
+  }
+
   return responses.displayButtons({
     pageTitle: 'Reset Configuration',
     htmlOrMarkdownPageContents:
@@ -59,6 +66,15 @@ const _startHandler: WizardHandler = (props) => {
       },
     ],
   })
+}
+
+const _isAlreadyConnected = async ({ client, ctx }: bp.HandlerProps): Promise<boolean> => {
+  try {
+    const result = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+    return Boolean(result?.state?.payload?.accessToken)
+  } catch {
+    return false
+  }
 }
 
 const _getSubdomain: WizardHandler = async (props) => {

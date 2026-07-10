@@ -1,12 +1,11 @@
 import * as sdk from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import hitl from './bp_modules/hitl'
 import { actions, events, configuration, channels, states, user } from './src/definitions'
 
 export default new sdk.IntegrationDefinition({
   name: 'zendesk',
   title: 'Zendesk',
-  version: '3.1.2',
+  version: '3.1.7',
   icon: 'icon.svg',
   description:
     'Optimize your support workflow. Trigger workflows from ticket updates as well as manage tickets, access conversations, and engage with customers.',
@@ -18,7 +17,6 @@ export default new sdk.IntegrationDefinition({
   actions,
   events,
   secrets: {
-    ...sentryHelpers.COMMON_SECRET_NAMES,
     CLIENT_ID: {
       description: 'The client ID of your app',
     },

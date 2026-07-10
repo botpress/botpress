@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import { transformMarkdown } from '@botpress/common'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import { reporting } from '@botpress/sdk-addons'
 import axios from 'axios'
 import * as bp from '.botpress'
 
@@ -244,11 +244,7 @@ const integration = new bp.Integration({
   },
 })
 
-export default sentryHelpers.wrapIntegration(integration, {
-  dsn: bp.secrets.SENTRY_DSN,
-  environment: bp.secrets.SENTRY_ENVIRONMENT,
-  release: bp.secrets.SENTRY_RELEASE,
-})
+export default reporting.wrapIntegration(integration)
 
 type SendMessageProps = Pick<bp.AnyMessageProps, 'ctx' | 'conversation' | 'ack'> & {
   payload: any // TODO: type this

@@ -42,25 +42,28 @@ export type ProjectDefinition = LintIgnoredConfig &
 
 type ProjectDefinitionResolver<T> = () => Promise<LintIgnoredConfig & T>
 
+type ResolvedProjectDefinition =
+  | { type: 'bot'; definition: sdk.BotDefinition }
+  | { type: 'integration'; definition: sdk.IntegrationDefinition }
+  | { type: 'interface'; definition: sdk.InterfaceDefinition }
+  | { type: 'plugin'; definition: sdk.PluginDefinition }
+
 export type ProjectDefinitionLazy =
   | {
       projectType: 'integration'
-      resolveProjectDefinition: ProjectDefinitionResolver<{
-        type: 'integration'
-        definition: sdk.IntegrationDefinition
-      }>
+      resolveProjectDefinition: ProjectDefinitionResolver<Extract<ResolvedProjectDefinition, { type: 'integration' }>>
     }
   | {
       projectType: 'bot'
-      resolveProjectDefinition: ProjectDefinitionResolver<{ type: 'bot'; definition: sdk.BotDefinition }>
+      resolveProjectDefinition: ProjectDefinitionResolver<Extract<ResolvedProjectDefinition, { type: 'bot' }>>
     }
   | {
       projectType: 'interface'
-      resolveProjectDefinition: ProjectDefinitionResolver<{ type: 'interface'; definition: sdk.InterfaceDefinition }>
+      resolveProjectDefinition: ProjectDefinitionResolver<Extract<ResolvedProjectDefinition, { type: 'interface' }>>
     }
   | {
       projectType: 'plugin'
-      resolveProjectDefinition: ProjectDefinitionResolver<{ type: 'plugin'; definition: sdk.PluginDefinition }>
+      resolveProjectDefinition: ProjectDefinitionResolver<Extract<ResolvedProjectDefinition, { type: 'plugin' }>>
     }
 
 type UpdatedBot = client.Bot
@@ -94,6 +97,16 @@ export class ProjectDefinitionContext {
 
   public rebuildEntrypoint(...args: Parameters<utils.esbuild.BuildEntrypointContext['rebuild']>) {
     return this._buildContext.rebuild(...args)
+  }
+
+  public async dispose() {
+    // Drop the resolved-definition cache up front so a failed esbuild teardown can't leave stale state behind.
+    this._codeCache.clear()
+    try {
+      await this._buildContext.dispose()
+    } catch (thrown: unknown) {
+      throw errors.BotpressCLIError.map(thrown)
+    }
   }
 }
 
@@ -579,10 +592,17 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       },
       configuration: integrationDef.configuration
         ? {
-            schema: await utils.schema.mapZodToJsonSchema(integrationDef.configuration, {
-              useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
-              toJSONSchemaOptions: integrationDef.__advanced?.toJSONSchemaOptions,
-            }),
+            schema: await utils.schema
+              .mapZodToJsonSchema(integrationDef.configuration, {
+                useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
+                toJSONSchemaOptions: integrationDef.__advanced?.toJSONSchemaOptions,
+              })
+              .catch((thrown) => {
+                throw errors.BotpressCLIError.wrap(
+                  thrown,
+                  `Failed to convert ZUI to JSON schema for integration ${integrationDef.name} for configuration`
+                )
+              }),
             identifier: {
               required: integrationDef.configuration.identifier?.required,
               linkTemplateScript: await this.readProjectFile(
@@ -592,18 +612,28 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
           }
         : undefined,
       configurations: integrationDef.configurations
-        ? await utils.records.mapValuesAsync(integrationDef.configurations, async (configuration) => ({
-            title: configuration.title,
-            description: configuration.description,
-            schema: await utils.schema.mapZodToJsonSchema(configuration, {
-              useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
-              toJSONSchemaOptions: integrationDef.__advanced?.toJSONSchemaOptions,
-            }),
-            identifier: {
-              required: configuration.identifier?.required,
-              linkTemplateScript: await this.readProjectFile(configuration.identifier?.linkTemplateScript),
-            },
-          }))
+        ? await utils.records.mapValuesAsync(
+            integrationDef.configurations,
+            async (configuration, configurationName) => ({
+              title: configuration.title,
+              description: configuration.description,
+              schema: await utils.schema
+                .mapZodToJsonSchema(configuration, {
+                  useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
+                  toJSONSchemaOptions: integrationDef.__advanced?.toJSONSchemaOptions,
+                })
+                .catch((thrown) => {
+                  throw errors.BotpressCLIError.wrap(
+                    thrown,
+                    `Failed to convert ZUI to JSON schema for integration ${integrationDef.name} for configuration ${configurationName}`
+                  )
+                }),
+              identifier: {
+                required: configuration.identifier?.required,
+                linkTemplateScript: await this.readProjectFile(configuration.identifier?.linkTemplateScript),
+              },
+            })
+          )
         : undefined,
     }
   }
@@ -854,18 +884,21 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
   protected async manageWorkspaceHandle(
     api: apiUtils.ApiClient,
-    integration: sdk.IntegrationDefinition
-  ): Promise<
-    | {
-        integration: sdk.IntegrationDefinition
-        workspaceId?: string
-      }
-    | undefined
-  > {
-    const { name: localName, workspaceHandle: localHandle } = this._parseIntegrationName(integration.name)
+    project: Extract<ResolvedProjectDefinition, { type: 'integration' }>
+  ): Promise<{ definition: sdk.IntegrationDefinition; workspaceId?: string } | undefined>
+  protected async manageWorkspaceHandle(
+    api: apiUtils.ApiClient,
+    project: Extract<ResolvedProjectDefinition, { type: 'plugin' }>
+  ): Promise<{ definition: sdk.PluginDefinition; workspaceId?: string } | undefined>
+  protected async manageWorkspaceHandle(
+    api: apiUtils.ApiClient,
+    project: Extract<ResolvedProjectDefinition, { type: 'integration' | 'plugin' }>
+  ): Promise<{ definition: sdk.IntegrationDefinition | sdk.PluginDefinition; workspaceId?: string } | undefined> {
+    const { type, definition } = project
+    const { name: localName, workspaceHandle: localHandle } = this._parseHandledName(definition.name)
     if (!localHandle && api.isBotpressWorkspace) {
       this.logger.debug('Botpress workspace detected; workspace handle omitted')
-      return { integration } // botpress has the right to omit workspace handle
+      return { definition } // botpress has the right to omit workspace handle
     }
 
     const { handle: remoteHandle, name: workspaceName } = await api.getWorkspace().catch((thrown) => {
@@ -880,27 +913,27 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         })
         if (!remoteWorkspace) {
           throw new errors.BotpressCLIError(
-            `The integration handle "${localHandle}" is not associated with any of your workspaces.`
+            `The ${type} handle "${localHandle}" is not associated with any of your workspaces.`
           )
         }
         this.logger.warn(
-          `Your are logged in to workspace "${workspaceName}" but integration handle "${localHandle}" belongs to "${remoteWorkspace.name}".`
+          `Your are logged in to workspace "${workspaceName}" but ${type} handle "${localHandle}" belongs to "${remoteWorkspace.name}".`
         )
         const confirmUseAlternateWorkspace = await this.prompt.confirm(
-          'Do you want to deploy integration on this workspace instead?'
+          `Do you want to deploy ${type} on this workspace instead?`
         )
         if (!confirmUseAlternateWorkspace) {
           throw new errors.BotpressCLIError(
-            `Cannot deploy integration with handle "${localHandle}" on workspace "${workspaceName}"`
+            `Cannot deploy ${type} with handle "${localHandle}" on workspace "${workspaceName}"`
           )
         }
 
         workspaceId = remoteWorkspace.id
       }
-      return { integration, workspaceId }
+      return { definition, workspaceId }
     }
 
-    const workspaceHandleIsMandatoryMsg = 'Cannot deploy integration without workspace handle'
+    const workspaceHandleIsMandatoryMsg = `Cannot deploy ${type} without workspace handle`
 
     if (!localHandle && remoteHandle) {
       const confirmAddHandle = await this.prompt.confirm(
@@ -911,7 +944,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         return
       }
       const newName = `${remoteHandle}/${localName}`
-      return { integration: new sdk.IntegrationDefinition({ ...integration, name: newName }) }
+      return { definition: this._cloneDefinition(project, { name: newName }) }
     }
 
     if (localHandle && !remoteHandle) {
@@ -935,7 +968,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       })
 
       this.logger.success(`Handle "${localHandle}" is now yours!`)
-      return { integration }
+      return { definition }
     }
 
     this.logger.warn("It seems you don't have a workspace handle yet.")
@@ -960,15 +993,41 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     this.logger.success(`Handle "${claimedHandle}" is yours!`)
     const newName = `${claimedHandle}/${localName}`
-    return { integration: new sdk.IntegrationDefinition({ ...integration, name: newName }) }
+    return { definition: this._cloneDefinition(project, { name: newName }) }
   }
 
-  protected _parseIntegrationName = (integrationName: string): { name: string; workspaceHandle?: string } => {
-    const parts = integrationName.split('/')
+  private _cloneDefinition = <T extends ResolvedProjectDefinition>(
+    def: T,
+    props: Partial<T['definition']['props']>
+  ): T['definition'] => {
+    if (def.type === 'integration') {
+      const overrides = props as Partial<sdk.IntegrationDefinitionProps>
+      return (def.definition.clone?.(overrides) ??
+        new sdk.IntegrationDefinition({ ...def.definition.props, ...overrides })) as T['definition']
+    }
+    if (def.type === 'plugin') {
+      const overrides = props as Partial<sdk.PluginDefinitionProps>
+      return (def.definition.clone?.(overrides) ??
+        new sdk.PluginDefinition({ ...def.definition.props, ...overrides })) as T['definition']
+    }
+    if (def.type === 'interface') {
+      const overrides = props as Partial<sdk.InterfaceDefinitionProps>
+      return (def.definition.clone?.(overrides) ??
+        new sdk.InterfaceDefinition({ ...def.definition.props, ...overrides })) as T['definition']
+    }
+    if (def.type === 'bot') {
+      const overrides = props as Partial<sdk.BotDefinitionProps>
+      return (def.definition.clone?.(overrides) ??
+        new sdk.BotDefinition({ ...def.definition.props, ...overrides })) as T['definition']
+    }
+    def satisfies never
+    throw new errors.BotpressCLIError('Unsupported definition type')
+  }
+
+  protected _parseHandledName = (artifactName: string): { name: string; workspaceHandle?: string } => {
+    const parts = artifactName.split('/')
     if (parts.length > 2) {
-      throw new errors.BotpressCLIError(
-        `Invalid integration name "${integrationName}": a single forward slash is allowed`
-      )
+      throw new errors.BotpressCLIError(`Invalid name "${artifactName}": a single forward slash is allowed`)
     }
     if (parts.length === 2) {
       const [workspaceHandle, name] = parts as [string, string]

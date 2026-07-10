@@ -16,8 +16,12 @@ export class ZodLazyImpl<T extends IZodType = IZodType>
     })
   }
 
-  getReferences(): string[] {
-    return this._def.getter().getReferences()
+  _getReferences(visiting: Set<symbol>): string[] {
+    if (visiting.has(this._def.uid)) {
+      return []
+    }
+    visiting.add(this._def.uid)
+    return this._def.getter()._getReferences(visiting)
   }
 
   clone(): IZodLazy<T> {

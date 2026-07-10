@@ -9,7 +9,7 @@ const fieldLookupActionByModel: Record<string, string> = {
 
 export const createOdooRuntimeError = (thrown: unknown): sdk.RuntimeError => {
   const message = getErrorMessage(thrown)
-  const invalidFieldMatch = /Invalid field '([^']+)' on '([^']+)'/.exec(message)
+  const invalidFieldMatch = /Invalid field '([^']+)' (?:on|in) '([^']+)'/.exec(message)
 
   if (invalidFieldMatch) {
     const [, field, model] = invalidFieldMatch

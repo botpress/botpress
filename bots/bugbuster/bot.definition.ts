@@ -67,7 +67,20 @@ export default new sdk.BotDefinition({
   },
   workflows: {
     lintAll: {
-      input: { schema: sdk.z.object({}) },
+      input: {
+        schema: sdk.z.object({
+          verbose: sdk.z
+            .boolean()
+            .optional()
+            .title('Verbose')
+            .describe('Post the detailed lint results (per issue) to the Slack channel'),
+          comment: sdk.z
+            .boolean()
+            .optional()
+            .title('Comment')
+            .describe('Whether to comment the lint results on the Linear issues themselves (defaults to true)'),
+        }),
+      },
       output: { schema: sdk.z.object({}) },
     },
   },

@@ -15,7 +15,7 @@ export class ZodRefImpl extends ZodBaseTypeImpl<NonNullable<unknown>, ZodRefDef>
     return def as ZodBaseTypeImpl
   }
 
-  getReferences(): string[] {
+  _getReferences(_visiting: Set<symbol>): string[] {
     return [this._def.uri]
   }
 

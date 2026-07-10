@@ -102,6 +102,12 @@ const dev = {
   default: false,
 } satisfies CommandOption
 
+const watch = {
+  type: 'boolean',
+  description: 'Watch project files and hot reload on changes',
+  default: true,
+} satisfies CommandOption
+
 // base schemas
 
 const globalSchema = {
@@ -212,6 +218,11 @@ const deploySchema = {
     type: 'string',
     description: 'Custom URL for the integration. Only used when deploying an integration',
   },
+  bypassBreakingChangeDetection: {
+    type: 'boolean',
+    hidden: true,
+    default: false,
+  },
 } as const satisfies CommandSchema
 
 const devSchema = {
@@ -220,6 +231,7 @@ const devSchema = {
   ...secretsSchema,
   sourceMap,
   minify,
+  watch,
   port,
   tunnelUrl: {
     type: 'string',

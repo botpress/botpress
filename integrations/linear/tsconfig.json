@@ -4,7 +4,9 @@
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
     "paths": { "*": ["./*"] },
-    "outDir": "dist"
+    "outDir": "dist",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "*.ts"]
 }

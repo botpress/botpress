@@ -36,6 +36,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   public async run(): Promise<void> {
     this.logger.warn('This command is experimental and subject to breaking changes without notice.')
 
+    const watchEnabled = this.argv.watch !== false
     let api = await this.ensureLoginAndCreateClient(this.argv)
 
     const { projectType, resolveProjectDefinition } = this.readProjectDefinitionFromFS()
@@ -46,12 +47,12 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     this._initialDef = projectDef
 
     if (projectDef.type === 'integration') {
-      const handleResult = await this.manageWorkspaceHandle(api, projectDef.definition)
+      const handleResult = await this.manageWorkspaceHandle(api, projectDef)
       if (!handleResult) return
       if (handleResult.workspaceId) {
         api = api.switchWorkspace(handleResult.workspaceId)
       }
-      this._deployedIntegrationName = handleResult.integration.name
+      this._deployedIntegrationName = handleResult.definition.name
     }
 
     let env: Record<string, string> = {
@@ -135,12 +136,16 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
             tunnel.send(res)
           })
           .catch((thrown) => {
-            const err = errors.BotpressCLIError.wrap(thrown, 'An error occurred while handling request')
+            const err = errors.BotpressCLIError.wrap(
+              thrown,
+              `An error occurred while handling request ${req.method} ${req.path}`
+            )
             this.logger.error(err.message)
+            this.logger.debug(errors.BotpressCLIError.fullStack(err))
             tunnel.send({
               requestId: req.id,
               status: 500,
-              body: err.message,
+              body: 'Internal error while handling request',
             })
           })
       })
@@ -152,48 +157,62 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
 
     await supervisor.start()
 
-    await this._runBuild()
+    await this._runBuild(watchEnabled)
     worker = await this._spawnWorker(env, port)
-    await this._deploy(api, httpTunnelUrl)
 
     try {
-      const watcher = await utils.filewatcher.FileWatcher.watch(
-        this.argv.workDir,
-        async (events) => {
-          if (!worker) {
-            this.logger.debug('Worker not ready yet, ignoring file change event')
-            return
+      await this._deploy(api, httpTunnelUrl)
+    } catch (thrown) {
+      if (worker.running) {
+        await worker.kill()
+      }
+      throw errors.BotpressCLIError.wrap(thrown, 'An error occurred while deploying the dev server')
+    }
+
+    try {
+      let watcher: Awaited<ReturnType<typeof utils.filewatcher.FileWatcher.watch>> | undefined
+      if (!watchEnabled) {
+        await this._disposeBuildResources({ stopEsbuild: true })
+        await Promise.race([worker.wait(), supervisor.wait()])
+      } else {
+        watcher = await utils.filewatcher.FileWatcher.watch(
+          this.argv.workDir,
+          async (events) => {
+            if (!worker) {
+              this.logger.debug('Worker not ready yet, ignoring file change event')
+              return
+            }
+
+            const typescriptEvents = events
+              .filter((e) => !e.path.startsWith(this.projectPaths.abs.outDir))
+              .filter((e) => pathlib.extname(e.path) === '.ts')
+
+            const packageJsonEvents = events
+              .filter((e) => !e.path.startsWith(this.projectPaths.abs.outDir))
+              .filter((e) => pathlib.basename(e.path) === 'package.json')
+
+            const distEvents = events.filter((e) => e.path.startsWith(this.projectPaths.abs.distDir))
+
+            if (typescriptEvents.length > 0 || packageJsonEvents.length > 0) {
+              this.logger.log('Changes detected, rebuilding')
+              await this._restart(api, worker, httpTunnelUrl)
+            } else if (distEvents.length > 0) {
+              this.logger.log('Changes detected in output directory, reloading worker')
+              await worker.reload()
+            }
+          },
+          {
+            debounceMs: FILEWATCHER_DEBOUNCE_MS,
           }
+        )
 
-          const typescriptEvents = events
-            .filter((e) => !e.path.startsWith(this.projectPaths.abs.outDir))
-            .filter((e) => pathlib.extname(e.path) === '.ts')
-
-          const packageJsonEvents = events
-            .filter((e) => !e.path.startsWith(this.projectPaths.abs.outDir))
-            .filter((e) => pathlib.basename(e.path) === 'package.json')
-
-          const distEvents = events.filter((e) => e.path.startsWith(this.projectPaths.abs.distDir))
-
-          if (typescriptEvents.length > 0 || packageJsonEvents.length > 0) {
-            this.logger.log('Changes detected, rebuilding')
-            await this._restart(api, worker, httpTunnelUrl)
-          } else if (distEvents.length > 0) {
-            this.logger.log('Changes detected in output directory, reloading worker')
-            await worker.reload()
-          }
-        },
-        {
-          debounceMs: FILEWATCHER_DEBOUNCE_MS,
-        }
-      )
-
-      await Promise.race([worker.wait(), watcher.wait(), supervisor.wait()])
+        await Promise.race([worker.wait(), watcher.wait(), supervisor.wait()])
+      }
 
       if (worker.running) {
         await worker.kill()
       }
-      await watcher.close()
+      await watcher?.close()
       supervisor.close()
     } catch (thrown) {
       throw errors.BotpressCLIError.wrap(thrown, 'An error occurred while running the dev server')
@@ -201,6 +220,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       if (worker.running) {
         await worker.kill()
       }
+      await this._disposeBuildResources()
     }
   }
 
@@ -210,6 +230,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     } catch (thrown) {
       const error = errors.BotpressCLIError.wrap(thrown, 'Build failed')
       this.logger.error(error.message)
+      this.logger.debug(errors.BotpressCLIError.fullStack(error))
       return
     }
 
@@ -296,16 +317,30 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       },
       this.logger
     ).catch((thrown) => {
-      throw errors.BotpressCLIError.wrap(thrown, 'Could not start dev worker')
+      throw errors.BotpressCLIError.wrap(thrown, `Could not start dev worker on port ${port}`)
     })
 
     return worker
   }
 
-  private _runBuild() {
+  private _runBuild(watchEnabled = true) {
     return new BuildCommand(this.api, this.prompt, this.logger, this.argv)
       .setProjectContext(this.projectContext)
-      .run(this._buildContext)
+      .run(watchEnabled ? this._buildContext : undefined)
+  }
+
+  private async _disposeBuildResources({ stopEsbuild = false } = {}) {
+    // Best-effort teardown: this runs from the `finally` of `run()`, so it must never throw —
+    // a failure here would mask the original error being propagated by the dev server.
+    try {
+      await Promise.all([this._buildContext.dispose(), this.projectContext.dispose()])
+      if (stopEsbuild) {
+        await utils.esbuild.stop()
+      }
+    } catch (thrown: unknown) {
+      const err = errors.BotpressCLIError.map(thrown)
+      this.logger.debug(`Failed to dispose build resources: ${err.message}`)
+    }
   }
 
   private async _deployDevIntegration(
@@ -321,6 +356,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       const resp = await api.client.getIntegration({ id: devId }).catch(async (thrown) => {
         const err = errors.BotpressCLIError.wrap(thrown, `Could not find existing dev integration with id "${devId}"`)
         this.logger.warn(err.message)
+        this.logger.debug(errors.BotpressCLIError.fullStack(err))
         return { integration: undefined }
       })
 
@@ -372,6 +408,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       const resp = await api.client.getBot({ id: devId }).catch(async (thrown) => {
         const err = errors.BotpressCLIError.wrap(thrown, `Could not find existing dev bot with id "${devId}"`)
         this.logger.warn(err.message)
+        this.logger.debug(errors.BotpressCLIError.fullStack(err))
         return { bot: undefined }
       })
 

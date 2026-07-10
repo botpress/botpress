@@ -1,6 +1,6 @@
 import { assert, describe, expect, test } from 'vitest'
 
-import * as llmz from '../src/llmz.js'
+import * as llmz from '../src/runtime/execute.js'
 import { Tool } from '../src/tool.js'
 
 import { z } from '@bpinternal/zui'

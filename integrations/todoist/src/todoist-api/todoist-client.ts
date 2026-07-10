@@ -21,6 +21,7 @@ export class TodoistClient {
     return new TodoistClient({ accessToken })
   }
 
+  @handleErrors('Failed to authenticate Todoist with authorization code')
   public static async authenticateWithAuthorizationCode({
     ctx,
     client,

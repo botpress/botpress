@@ -1,6 +1,6 @@
 {
   "name": "@botpress/client",
-  "version": "1.45.0",
+  "version": "1.47.0",
   "description": "Botpress Client",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -16,7 +16,7 @@
   },
   "scripts": {
     "check:type": "tsc --noEmit",
-    "build:type": "tsup --tsconfig tsconfig.build.json ./src/index.ts --dts-resolve --dts-only",
+    "build:type": "rollup -c rollup.dts.config.mjs",
     "build:browser": "ts-node -T ./build.ts --browser",
     "build:node": "ts-node -T ./build.ts --node",
     "build:bundle": "ts-node -T ./build.ts --bundle",
@@ -34,10 +34,11 @@
     "@types/qs": "^6.9.7",
     "esbuild": "^0.25.10",
     "lodash": "^4.17.21",
-    "tsup": "^8.0.2"
+    "rollup": "^4.60.4",
+    "rollup-plugin-dts": "^6.4.1"
   },
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "pnpm@10.12.4"
+  "packageManager": "pnpm@10.29.3"
 }

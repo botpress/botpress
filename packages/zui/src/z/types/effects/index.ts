@@ -38,8 +38,8 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
     }) as IZodEffects
   }
 
-  getReferences(): string[] {
-    return this._def.schema.getReferences()
+  _getReferences(visiting: Set<symbol>): string[] {
+    return this._def.schema._getReferences(visiting)
   }
 
   clone(): IZodEffects<T, Output, Input> {

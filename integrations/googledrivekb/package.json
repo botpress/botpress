@@ -1,0 +1,30 @@
+{
+  "name": "@botpresshub/googledrivekb",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build",
+    "test": "vitest --run"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "@botpress/sdk-addons": "workspace:*",
+    "axios": "^1.7.7",
+    "googleapis": "^144.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "@types/jsonwebtoken": "^9.0.3",
+    "@types/uuid": "^9.0.1",
+    "preact": "^10.26.6"
+  },
+  "bpDependencies": {
+    "files-readonly": "../../interfaces/files-readonly"
+  }
+}

@@ -1,4 +1,4 @@
-import { generateRedirection } from '@botpress/common/src/html-dialogs'
+import { generateRedirection } from '@botpress/common/src/oauth-wizard'
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import { Request, RuntimeError, OAUTH_IDENTIFIER_HEADER } from '@botpress/sdk'
 import { LinearWebhookClient } from '@linear/sdk/webhooks'

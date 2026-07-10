@@ -43,19 +43,40 @@ export class CommandProcessor {
     }
   }
 
-  private _lintAll: types.CommandImplementation = async (_: string[], conversationId: string) => {
+  private _lintAll: types.CommandImplementation = async (args: string[], conversationId: string) => {
+    let verbose = false
+    let comment = true
+
+    for (const arg of args) {
+      if (arg === '--verbose') {
+        verbose = true
+      } else if (arg === '--no-comments') {
+        comment = false
+      } else {
+        return {
+          success: false,
+          message: `Unknown argument '${arg}'. Supported arguments are '--verbose' and '--no-comments'.`,
+        }
+      }
+    }
+
     await this._client.getOrCreateWorkflow({
       name: 'lintAll',
-      input: {},
+      input: { verbose, comment },
       discriminateByStatusGroup: 'active',
       conversationId,
       status: 'pending',
     })
 
-    return {
-      success: true,
-      message: "Launched 'lintAll' workflow.",
-    }
+    const details = [
+      verbose ? 'detailed lint results will be posted here' : null,
+      comment ? null : 'issues will not be commented on Linear',
+    ].filter((detail) => detail !== null)
+
+    const message =
+      details.length > 0 ? `Launched 'lintAll' workflow: ${details.join(', ')}.` : "Launched 'lintAll' workflow."
+
+    return { success: true, message }
   }
 
   private _addNotifChannel: types.CommandImplementation = async ([channelToAdd, ...teams]: string[]) => {
@@ -256,6 +277,7 @@ export class CommandProcessor {
     {
       name: '#lintAll',
       implementation: this._lintAll,
+      optionalArgs: ['--verbose', '--no-comments'],
     },
     {
       name: '#addNotifChannel',

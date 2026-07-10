@@ -1,6 +1,7 @@
 import { RuntimeError, z } from '@botpress/sdk'
 import { LinearClient } from '@linear/sdk'
 import axios from 'axios'
+import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { useDeskOAuth } from './utils'
 import * as bp from '.botpress'
 
@@ -151,6 +152,7 @@ export class LinearOauthClient {
     }
   }
 
+  @handleErrors('Failed to migrate old Linear OAuth token')
   public async migrateOldToken(oldAccessToken: string): Promise<Credentials> {
     const data = await this._handleOAuthRequest<typeof migrateTokenRequestSchema>(
       `${linearEndpoint}/oauth/migrate_old_token`,
@@ -161,6 +163,7 @@ export class LinearOauthClient {
     return this._parseCredentials(data)
   }
 
+  @handleErrors('Failed to refresh Linear OAuth access token')
   public async getAccessTokenFromRefreshToken(oldRefreshToken: string, actor: Actor): Promise<Credentials> {
     const data = await this._handleOAuthRequest<typeof refreshTokenRequestSchema>(`${linearEndpoint}/oauth/token`, {
       grant_type: 'refresh_token',
@@ -171,6 +174,7 @@ export class LinearOauthClient {
     return this._parseCredentials(data)
   }
 
+  @handleErrors('Failed to obtain Linear OAuth access token from authorization code')
   public async getAccessTokenFromOAuthCode(code: string, actor: Actor) {
     const data = await this._handleOAuthRequest<typeof getAccessTokenRequestSchema>(`${linearEndpoint}/oauth/token`, {
       grant_type: 'authorization_code',
@@ -184,6 +188,7 @@ export class LinearOauthClient {
     return this._parseCredentials(data)
   }
 
+  @handleErrors('Failed to resolve valid Linear OAuth credentials')
   public async resolveValidCredentials(current: Credentials, actor: Actor): Promise<Credentials> {
     const FIVE_MINUTES_MS = 5 * 60 * 1000
     const isExpired = new Date(current.expiresAt).getTime() <= Date.now() + FIVE_MINUTES_MS
@@ -195,6 +200,7 @@ export class LinearOauthClient {
     return current
   }
 
+  @handleErrors('Failed to create Linear client')
   public static async create(props: { client: bp.Client; ctx: bp.Context }) {
     return LinearOauthClient._createFromStoredCredentials(props, 'credentials')
   }
@@ -243,7 +249,7 @@ export class LinearOauthClient {
     })
     const useDesk = useDeskOAuth(environment)
     const linearOauthClient = new LinearOauthClient(useDesk)
-    const actor: Actor = effectiveStateName === 'adminCredentials' ? 'user' : 'app'
+    const actor: Actor = effectiveStateName === 'adminCredentials' ? 'user' : (environment.runtimeActor ?? 'app')
     const credentials = await linearOauthClient.resolveValidCredentials(effectivePayload, actor)
 
     if (credentials.accessToken !== effectivePayload.accessToken) {
@@ -317,4 +323,17 @@ export const registerWebhook = async ({
     label: 'Botpress',
   })
   logger.forBot().info('Linear webhook registered successfully.')
+}
+
+export const revokeToken = async (token: string, tokenTypeHint: 'access_token' | 'refresh_token' = 'access_token') => {
+  const form = new URLSearchParams({ token, token_type_hint: tokenTypeHint })
+  try {
+    await axios.post(`${linearEndpoint}/oauth/revoke`, form.toString(), { headers: oauthHeaders })
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      const message = err.response?.data?.error_description || err.message
+      throw new RuntimeError(`Failed to revoke token: ${message}`)
+    }
+    throw new RuntimeError(`Failed to revoke token: ${String(err)}`)
+  }
 }

@@ -153,7 +153,10 @@ export class Micropatch {
       const op = m[1] as '<' | '>' | '=' | '-'
       const aNum = parseInt(m[2], 10)
       const bNum = m[3] ? parseInt(m[3], 10) : undefined
-      const firstPayload = m[4] ?? ''
+      // LLMs sometimes "double" the leading `|` of a payload that itself begins with `|`
+      // (e.g. markdown table rows), as if escaping it. The protocol has no such escape,
+      // so a payload starting with `||` is treated as a single literal leading `|`.
+      const firstPayload = (m[4] ?? '').replace(/^\|\|/, '|')
 
       if (aNum < 1 || (bNum !== undefined && bNum < aNum)) {
         throw new Error(`Invalid line/range at line ${i + 1}: ${line}`)
@@ -191,7 +194,7 @@ export class Micropatch {
         let j = i + 1
         while (j < lines.length) {
           const nextLine = lines[j]
-          if (!nextLine || nextLine.startsWith('◼︎')) break
+          if (nextLine.startsWith('◼︎')) break
           payload.push(Micropatch._unescapeMarker(nextLine))
           j++
         }
@@ -317,19 +320,17 @@ export class Micropatch {
           break
         }
         case '<': {
+          if (o.n > idx.length) break // line never existed in the original → stale ref, skip
           const i = Math.max(0, Math.min(map(o.n), lines.length))
-          if (i >= 0) {
-            lines.splice(i, 0, o.s)
-            bump(i, +1)
-          }
+          lines.splice(i, 0, o.s)
+          bump(i, +1)
           break
         }
         case '>': {
+          if (o.n > idx.length) break
           const i = Math.max(0, Math.min(map(o.n) + 1, lines.length))
-          if (i >= 0) {
-            lines.splice(i, 0, o.s)
-            bump(i, +1)
-          }
+          lines.splice(i, 0, o.s)
+          bump(i, +1)
           break
         }
         default:

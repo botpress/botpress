@@ -1,4 +1,4 @@
-import type * as client from '@botpress/client'
+import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
 import chalk from 'chalk'
 import * as fs from 'fs'
@@ -59,12 +59,15 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   }
 
   private async _deployIntegration(api: apiUtils.ApiClient, integrationDef: sdk.IntegrationDefinition) {
-    const res = await this.manageWorkspaceHandle(api, integrationDef)
+    const res = await this.manageWorkspaceHandle(api, { type: 'integration', definition: integrationDef })
     if (!res) return
-    const { integration: updatedIntegrationDef, workspaceId } = res
+    const { definition: updatedIntegrationDef, workspaceId } = res
     integrationDef = updatedIntegrationDef
     if (workspaceId) {
       api = api.switchWorkspace(workspaceId)
+    }
+    if (this.argv.bypassBreakingChangeDetection) {
+      api = api.withExtraHeaders({ 'x-bypass-breaking-changes-detection': 'true' })
     }
 
     const { name, version } = integrationDef
@@ -140,7 +143,16 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         })
       } else {
         await api.client.updateIntegration(updateBody).catch((thrown) => {
-          throw errors.BotpressCLIError.wrap(thrown, `Could not update integration "${name}"`)
+          const error = errors.BotpressCLIError.wrap(thrown, `Could not update integration "${name}"`)
+          if (
+            api.isBotpressWorkspace &&
+            !this.argv.bypassBreakingChangeDetection &&
+            client.isApiError(thrown) &&
+            thrown.type === 'BreakingChanges'
+          ) {
+            this.logger.warn('Tip: redeploy with --bypassBreakingChangeDetection to skip this check')
+          }
+          throw error
         })
       }
 
@@ -173,7 +185,16 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         })
       } else {
         await api.client.createIntegration(createBody).catch((thrown) => {
-          throw errors.BotpressCLIError.wrap(thrown, `Could not create integration "${name}"`)
+          const error = errors.BotpressCLIError.wrap(thrown, `Could not create integration "${name}"`)
+          if (
+            api.isBotpressWorkspace &&
+            !this.argv.bypassBreakingChangeDetection &&
+            client.isApiError(thrown) &&
+            thrown.type === 'BreakingChanges'
+          ) {
+            this.logger.warn('Tip: redeploy with --bypassBreakingChangeDetection to skip this check')
+          }
+          throw error
         })
       }
 
@@ -270,6 +291,14 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   }
 
   private async _deployPlugin(api: apiUtils.ApiClient, pluginDef: sdk.PluginDefinition) {
+    const res = await this.manageWorkspaceHandle(api, { type: 'plugin', definition: pluginDef })
+    if (!res) return
+    const { definition: updatedPluginDef, workspaceId } = res
+    pluginDef = updatedPluginDef
+    if (workspaceId) {
+      api = api.switchWorkspace(workspaceId)
+    }
+
     const codeCJS = await fs.promises.readFile(this.projectPaths.abs.outFileCJS, 'utf-8')
     const codeESM = await fs.promises.readFile(this.projectPaths.abs.outFileESM, 'utf-8')
 

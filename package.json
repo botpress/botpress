@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.564.0",
-    "@botpress/api": "1.105.0",
+    "@botpress/api": "1.112.0",
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
@@ -64,7 +64,7 @@
     "typescript-eslint": "^8.42.0",
     "vitest": "^2.1.4"
   },
-  "packageManager": "pnpm@10.12.4",
+  "packageManager": "pnpm@10.29.3",
   "pnpm": {
     "patchedDependencies": {
       "source-map-js@1.2.1": "patches/source-map-js@1.2.1.patch"

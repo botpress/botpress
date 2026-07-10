@@ -1,0 +1,23 @@
+{
+  "name": "@botpresshub/sharepoint",
+  "dependencies": {
+    "@azure/msal-node": "^3.6.2",
+    "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "axios": "^1.10.0"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*"
+  },
+  "private": true,
+  "scripts": {
+    "build": "bp add -y && bp build",
+    "check:bplint": "bp lint",
+    "check:type": "tsc --noEmit",
+    "test": "vitest --run"
+  },
+  "bpDependencies": {
+    "files-readonly": "../../interfaces/files-readonly"
+  }
+}
