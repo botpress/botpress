@@ -26,8 +26,8 @@ export class ZodArrayImpl<T extends IZodType = IZodType, Cardinality extends Arr
     })
   }
 
-  getReferences(): string[] {
-    return this._def.type.getReferences()
+  _getReferences(visiting: Set<symbol>): string[] {
+    return this._def.type._getReferences(visiting)
   }
 
   clone(): ZodArrayImpl<T, Cardinality> {

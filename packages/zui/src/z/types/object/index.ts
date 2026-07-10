@@ -52,11 +52,11 @@ export class ZodObjectImpl<
     })
   }
 
-  getReferences(): string[] {
+  _getReferences(visiting: Set<symbol>): string[] {
     const shape = this._def.shape()
     const refs: string[] = []
     for (const key in shape) {
-      refs.push(...shape[key]!.getReferences())
+      refs.push(...shape[key]!._getReferences(visiting))
     }
     return utils.fn.unique(refs)
   }

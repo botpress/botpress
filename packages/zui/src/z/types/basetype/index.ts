@@ -75,6 +75,10 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   }
 
   getReferences(): string[] {
+    return this._getReferences(new Set())
+  }
+
+  _getReferences(_visiting: Set<symbol>): string[] {
     return []
   }
 

@@ -17,8 +17,8 @@ export class ZodPromiseImpl<T extends IZodType = IZodType>
     })
   }
 
-  getReferences(): string[] {
-    return this._def.type.getReferences()
+  _getReferences(visiting: Set<symbol>): string[] {
+    return this._def.type._getReferences(visiting)
   }
 
   clone(): IZodPromise<T> {
