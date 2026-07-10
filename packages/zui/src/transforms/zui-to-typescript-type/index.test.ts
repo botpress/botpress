@@ -1252,7 +1252,7 @@ describe.concurrent('optional', () => {
     it('should not throw when the same finite lazy schema is reused across sibling branches', () => {
       const shared: z.ZodType<any> = z.lazy(() => z.object({ x: z.string() }))
       const typings = toTypescript(z.object({ a: shared, b: shared }))
-      expect(typings).toContain('x: string')
+      expect((typings.match(/x: string/g) || []).length).toBe(2)
     })
   }) // error path propagation
 })
