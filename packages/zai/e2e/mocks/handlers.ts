@@ -80,6 +80,15 @@ export const handlers = [
       return HttpResponse.json(cached)
     }
 
+    if (process.env.CI && shouldCache) {
+      return HttpResponse.json(
+        {
+          error: `Missing cached Botpress Cloud response for ${hash}. Run pnpm test:e2e:update to refresh packages/zai/e2e/data/cache.jsonl.`,
+        },
+        { status: 500 }
+      )
+    }
+
     // Not in cache - fetch from real API
     try {
       // Use bypass to avoid infinite recursion
@@ -103,7 +112,7 @@ export const handlers = [
 
       return HttpResponse.json(responseData, { status: response.status })
     } catch (error) {
-      console.error('  ❌ Error fetching from real API:', error)
+      console.error('Error fetching from real API:', error)
       return HttpResponse.json({ error: 'Failed to fetch from real API' }, { status: 500 })
     }
   }),

@@ -2,7 +2,7 @@ import { Client } from '@botpress/client'
 import { Cognitive, CognitiveBeta, Model } from '@botpress/cognitive'
 import { describe, expect, test, vi } from 'vitest'
 import { Context } from './context.js'
-import { executeContext } from './llmz.js'
+import { executeContext } from './runtime/execute.js'
 import { ErrorExecutionResult } from './result.js'
 import { CognitiveError } from './errors.js'
 
@@ -67,6 +67,110 @@ test('executeContext accepts a standalone CognitiveBeta and routes it through th
   expect(output.status).toBe('error')
   expect((output as ErrorExecutionResult).error).toBeInstanceOf(CognitiveError)
   expect(((output as ErrorExecutionResult).error as Error).message).toContain('v2 boom')
+})
+
+test('executeContext does not execute an iteration after onIterationStart throws', async () => {
+  let generated = false
+
+  class TrackingCognitive extends Cognitive {
+    public constructor() {
+      super({ client: new Client({ botId: 'test-bot' }) })
+    }
+
+    public async getModelDetails(model: string): Promise<Model> {
+      return makeFakeModel(model)
+    }
+
+    public async generateContent(): Promise<never> {
+      generated = true
+      throw new Error('should not generate content')
+    }
+  }
+
+  const onIterationEnd = vi.fn()
+  const output = await executeContext({
+    client: new TrackingCognitive(),
+    options: { loop: 1 },
+    onIterationStart: () => {
+      throw new Error('start hook boom')
+    },
+    onIterationEnd,
+  })
+
+  expect(generated).toBe(false)
+  expect(onIterationEnd).toHaveBeenCalledTimes(1)
+  expect(output.iterations).toHaveLength(1)
+  expect(output.iterations[0]!.status.type).toBe('execution_error')
+  if (output.iterations[0]!.status.type === 'execution_error') {
+    expect(output.iterations[0]!.status.execution_error.message).toContain('start hook boom')
+  }
+})
+
+test('executeContext calls onIterationEnd when onIterationStart aborts', async () => {
+  let generated = false
+
+  class TrackingCognitive extends Cognitive {
+    public constructor() {
+      super({ client: new Client({ botId: 'test-bot' }) })
+    }
+
+    public async getModelDetails(model: string): Promise<Model> {
+      return makeFakeModel(model)
+    }
+
+    public async generateContent(): Promise<never> {
+      generated = true
+      throw new Error('should not generate content')
+    }
+  }
+
+  const onIterationEnd = vi.fn()
+  const output = await executeContext({
+    client: new TrackingCognitive(),
+    options: { loop: 1 },
+    onIterationStart: (_iteration, controller) => {
+      controller.abort('ABORTED')
+    },
+    onIterationEnd,
+  })
+
+  expect(generated).toBe(false)
+  expect(onIterationEnd).toHaveBeenCalledTimes(1)
+  expect(output.iterations).toHaveLength(1)
+  expect(output.iterations[0]!.status.type).toBe('aborted')
+  expect((output as ErrorExecutionResult).error).toBe('ABORTED')
+})
+
+test('executeContext calls onIterationEnd when LLM generation aborts', async () => {
+  const controller = new AbortController()
+
+  class AbortingCognitive extends Cognitive {
+    public constructor() {
+      super({ client: new Client({ botId: 'test-bot' }) })
+    }
+
+    public async getModelDetails(model: string): Promise<Model> {
+      return makeFakeModel(model)
+    }
+
+    public async generateContent(): Promise<never> {
+      controller.abort('ABORTED')
+      throw new Error('generation aborted')
+    }
+  }
+
+  const onIterationEnd = vi.fn()
+  const output = await executeContext({
+    client: new AbortingCognitive(),
+    options: { loop: 1 },
+    signal: controller.signal,
+    onIterationEnd,
+  })
+
+  expect(onIterationEnd).toHaveBeenCalledTimes(1)
+  expect(output.iterations).toHaveLength(1)
+  expect(output.iterations[0]!.status.type).toBe('aborted')
+  expect((output as ErrorExecutionResult).error).toBe('ABORTED')
 })
 
 describe('reasoningEffort', () => {

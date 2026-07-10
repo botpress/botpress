@@ -25,8 +25,8 @@ export { DefaultComponents } from './component.default.js'
 export { Snapshot } from './snapshots.js'
 export { Chat, type MessageHandler } from './chat.js'
 
-import { type ExecutionProps } from './llmz.js'
 import { ExecutionResult } from './result.js'
+import { type ExecutionProps } from './runtime/types.js'
 import { truncateWrappedContent, wrapContent } from './truncator.js'
 import { toValidFunctionName, toValidObjectName } from './utils.js'
 export { Transcript } from './transcript.js'
@@ -112,7 +112,7 @@ export const utils = {
  */
 export const execute = async (props: ExecutionProps) => {
   // Code splitting to improve import performance
-  const { executeContext } = await import('./llmz.js')
+  const { executeContext } = await import('./runtime/execute.js')
   return executeContext(props) as Promise<ExecutionResult>
 }
 
@@ -122,7 +122,7 @@ export const execute = async (props: ExecutionProps) => {
  * It's recommended to call this function at the beginning of your application without awaiting it (void init())
  */
 export const init = async () => {
-  await import('./llmz.js')
+  await import('./runtime/execute.js')
   await import('./component.js')
   await import('./tool.js')
   await import('./exit.js')
