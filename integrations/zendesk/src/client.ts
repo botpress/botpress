@@ -271,22 +271,35 @@ export const getZendeskClient = async (client: bp.Client, ctx: bp.Context, logge
   }
 
   if (needsRefresh(refreshToken, expiresAt)) {
-    const refreshed = await refreshAccessToken(subdomain, refreshToken!).catch((thrown) => {
+    let refreshed: Awaited<ReturnType<typeof refreshAccessToken>> | undefined
+    try {
+      refreshed = await refreshAccessToken(subdomain, refreshToken!)
+    } catch (thrown) {
+      // Concurrent handlers near expiry all fire refresh with the same single-use token; only the
+      // first wins. If another request already refreshed, re-read the state and use its token.
+      const latest = await client
+        .getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+        .then((result) => result.state.payload)
+      if (latest.accessToken && latest.accessToken !== accessToken) {
+        return new ZendeskApi({ type: 'OAuth', accessToken: latest.accessToken, subdomain }, logger)
+      }
       logger.forBotOnly().error('Failed to refresh Zendesk access token', { error: `${thrown}` })
       throw new sdk.RuntimeError('Failed to refresh the Zendesk access token, please re-run the OAuth setup')
-    })
+    }
     accessToken = refreshed.accessToken
     await client.setState({
       type: 'integration',
       name: 'credentials',
       id: ctx.integrationId,
-      // Fall back to stored values so a refresh response that omits refresh_token/expires_in
-      // doesn't erase them (which would permanently disable future refreshes).
+      // Carry the old refresh token forward if the response omitted a new one (non-rotating clients).
+      // expiresAt is NOT carried forward: the stored value is already past the refresh threshold, so
+      // reusing it would make every subsequent call re-refresh in a loop. undefined disables further
+      // auto-refresh until the next expires_in (Zendesk always returns it for expiring tokens).
       payload: {
         ...credentials,
         accessToken: refreshed.accessToken,
         refreshToken: refreshed.refreshToken ?? refreshToken,
-        expiresAt: refreshed.expiresAt ?? expiresAt,
+        expiresAt: refreshed.expiresAt,
       },
     })
   }
