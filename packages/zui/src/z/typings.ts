@@ -1080,10 +1080,14 @@ export interface IZodObject<
 // ZodRawShape` forced deep structural resolution of object output types (excessive
 // stack depth). The weak type `{ [K in Discriminator]?: unknown }` rejects options
 // missing the discriminator key at compile time (no properties in common), and
-// _getOptionsMap enforces it at runtime as a backstop. The base is IZodType with
-// `unknown` input — NOT AnyZodObject, whose `_input` would intersect in an index
-// signature and defeat weak-type detection.
-export type ZodDiscriminatedUnionOption<Discriminator extends string> = IZodType<any, ZodObjectDef, unknown> & {
+// _getOptionsMap enforces it at runtime as a backstop.
+//
+// The base must be IZodType with `unknown` input — NOT AnyZodObject, whose `_input`
+// is an index signature that would intersect with the weak type and defeat weak-type
+// detection. Output is `unknown` (not `any`): options are only ever bound by this as a
+// constraint, never read through it, so the stricter `unknown` accepts every object
+// schema's output just as well while keeping the type free of `any`.
+export type ZodDiscriminatedUnionOption<Discriminator extends string> = IZodType<unknown, ZodObjectDef, unknown> & {
   shape: ZodRawShape
   _input: { [K in Discriminator]?: unknown }
 }
