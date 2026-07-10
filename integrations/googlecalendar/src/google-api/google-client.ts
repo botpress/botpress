@@ -1,4 +1,4 @@
-import { RuntimeError } from '@botpress/sdk'
+import { isApiError, RuntimeError } from '@botpress/sdk'
 import { google } from 'googleapis'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { RequestMapping, ResponseMapping } from './mapping'
@@ -30,13 +30,12 @@ export class GoogleClient {
 
     const stateResult = await client
       .getState({ type: 'integration', name: 'configuration', id: ctx.integrationId })
-      .catch((thrown: unknown) => {
-        // The SDK doesn't expose a typed not-found error, so we string-match.
-        const err = thrown instanceof Error ? thrown : new Error(String(thrown))
-        if (err.message.toLowerCase().includes('not found')) {
+      .catch((error: unknown) => {
+        // Old installs configured before the wizard existed never wrote this state
+        if (isApiError(error) && error.type === 'ResourceNotFound') {
           return null
         }
-        throw err
+        throw error
       })
 
     const calendarId = stateResult?.state.payload.calendarId ?? ctx.configuration.calendarId
