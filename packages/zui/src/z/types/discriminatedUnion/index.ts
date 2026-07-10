@@ -6,7 +6,6 @@ import type {
   ZodDiscriminatedUnionOption,
   input,
   output,
-  IZodObject,
   Primitive,
   ZodNativeType,
   ParseInput,
