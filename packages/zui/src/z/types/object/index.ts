@@ -405,7 +405,7 @@ export class ZodObjectImpl<
   >
   partial(mask?: {
     [k in keyof T]?: true
-  }): any {
+  }): IZodObject<ZodRawShape, UnknownKeys> {
     const newShape: Record<string, IZodType | undefined> = {}
 
     Object.keys(this.shape).forEach((key) => {
@@ -446,7 +446,7 @@ export class ZodObjectImpl<
   >
   required(mask?: {
     [k in keyof T]?: true
-  }): any {
+  }): IZodObject<ZodRawShape, UnknownKeys> {
     const newShape: Record<string, IZodType> = {}
 
     Object.entries(this.shape).forEach(([key, value]) => {
@@ -467,7 +467,7 @@ export class ZodObjectImpl<
     return new ZodObjectImpl({
       ...this._def,
       shape: () => newShape,
-    }) as IZodObject
+    }) as IZodObject<ZodRawShape, UnknownKeys>
   }
 
   keyof(): IZodEnum<KeyOfObject<T>> {
