@@ -31,15 +31,13 @@ If you are migrating from version `1.x` to `2.x`, please note the following chan
 
 ### Automatic configuration with OAuth (recommended)
 
-To set up the Google Calendar integration using OAuth, click the authorization button and follow the on-screen instructions to connect your Botpress chatbot to Google Calendar.
+To set up the Google Calendar integration using OAuth, click the authorization button and follow the on-screen instructions in the setup wizard to connect your Botpress chatbot to Google Calendar.
 
 When using this configuration mode, a Botpress-managed Google Calendar application will be used to connect to your Google account. However, actions taken by the bot will be attributed to the user who authorized the connection, rather than the application. For this reason, **we do not recommend using personal Google accounts** for this integration. You should set up a service account and use this account to authorize the connection.
 
-Once the connection is established, you must specify the identifier of the calendar you want to interact with. This identifier can be found by navigating to the calendar in Google Calendar and opening the settings for that calendar. Once in the settings, you will find the _Calendar ID_ in the `Integrate calendar` section. This is the value you need to provide in the configuration.
-
-1. Find your Google Calendar ID for the calendar you want to interact with.
-2. Authorize the Google Calendar integration by clicking the authorization button.
-3. Fill in the **Calendar ID** field and save the configuration.
+1. Click the authorization button to open the setup wizard.
+2. Enter the identifier of the calendar you want to interact with. You can find it by opening the settings of your calendar in Google Calendar: the _Calendar ID_ is located in the `Integrate calendar` section.
+3. Sign in with Google and grant the requested permissions to complete the setup.
 
 ### Manual configuration using a service account
 
