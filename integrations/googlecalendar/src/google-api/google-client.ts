@@ -18,7 +18,7 @@ export class GoogleClient {
 
   public static async create({ ctx, client }: { ctx: bp.Context; client: bp.Client }) {
     const oauth2Client = await getAuthenticatedOAuth2Client({ ctx, client })
-    const calendarId = await this._resolveCalendarId({ ctx, client })
+    const calendarId = await GoogleClient._resolveCalendarId({ ctx, client })
 
     return new GoogleClient({ oauthClient: oauth2Client, calendarId })
   }
