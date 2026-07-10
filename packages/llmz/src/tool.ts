@@ -3,9 +3,10 @@ import { JSONSchema7 } from 'json-schema'
 import { isEmpty, uniq } from 'lodash-es'
 import { Chat } from './chat.js'
 import { RenderedComponent } from './component.js'
+import { convertObjectToZuiLiterals, type StaticObject, type StaticValue } from './convert.js'
 import { Serializable } from './types.js'
 import { getTypings as generateTypings } from './typings.js'
-import { convertObjectToZuiLiterals, isJsonSchema, isValidIdentifier, isZuiSchema } from './utils.js'
+import { isJsonSchema, isValidIdentifier, isZuiSchema } from './utils.js'
 
 /**
  * Input parameters passed to tool retry functions.
@@ -313,13 +314,17 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
     }
 
     if (!isEmpty(this._staticInputValues)) {
-      const inputExtensions = convertObjectToZuiLiterals(this._staticInputValues)
       if (z.is.zuiObject(input)) {
+        const inputExtensions = convertObjectToZuiLiterals(this._staticInputValues as StaticObject)
         input = input.extend(inputExtensions) as typeof input
       } else if (z.is.zuiArray(input)) {
+        const inputExtensions = convertObjectToZuiLiterals(this._staticInputValues as StaticObject)
         input = z.array((input.element as z.ZodObject).extend(inputExtensions))
       } else {
         // if input is z.string() or z.number() etc
+        const inputExtensions = convertObjectToZuiLiterals(
+          this._staticInputValues as Exclude<StaticValue, StaticObject>
+        )
         input = inputExtensions as typeof input
       }
     }
@@ -794,10 +799,10 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
       !isEmpty(this._staticInputValues)
     ) {
       // If input is an object and static values are set, extend the input with those values
-      const inputExtensions = convertObjectToZuiLiterals(this._staticInputValues)
+      const inputExtensions = convertObjectToZuiLiterals(this._staticInputValues as StaticObject)
       input = (input as ZodObject).extend(inputExtensions)
     } else if (this._staticInputValues !== undefined) {
-      input = convertObjectToZuiLiterals(this._staticInputValues) as typeof input
+      input = convertObjectToZuiLiterals(this._staticInputValues as Exclude<StaticValue, StaticObject>) as typeof input
     }
 
     const fnType = z

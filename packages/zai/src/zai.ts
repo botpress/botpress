@@ -1,12 +1,12 @@
 import { Client } from '@botpress/client'
 import { BotpressClientLike, Cognitive, Model, Models } from '@botpress/cognitive'
 
-import { type TextTokenizer, getWasmTokenizer } from '@bpinternal/thicktoken'
 import { z } from '@bpinternal/zui'
 
 import { Adapter } from './adapters/adapter'
 import { TableAdapter } from './adapters/botpress-table'
 import { MemoryAdapter } from './adapters/memory'
+import { type TextTokenizer, getTokenizer } from './tokenizer'
 
 /**
  * A memoizer that caches the result of async operations by a unique key.
@@ -287,13 +287,7 @@ export class Zai {
   }
 
   protected async getTokenizer() {
-    Zai.tokenizer ??= await (async () => {
-      while (!getWasmTokenizer) {
-        // there's an issue with wasm, it doesn't load immediately
-        await new Promise((resolve) => setTimeout(resolve, 25))
-      }
-      return getWasmTokenizer() as TextTokenizer
-    })()
+    Zai.tokenizer ??= await getTokenizer()
     return Zai.tokenizer
   }
 
