@@ -1225,5 +1225,34 @@ describe.concurrent('optional', () => {
         expect((e as errors.ZuiTransformError).path).toBe('#.tree[number].children[number]')
       }
     })
+
+    it('should throw CircularZuiToTypescriptTypeError for mutual recursion between two distinct lazy schemas', () => {
+      let A: z.ZodType<any> = z.lazy(() => z.object({ b: B }))
+      let B: z.ZodType<any> = z.lazy(() => z.object({ a: A }))
+      try {
+        toTypescript(z.object({ root: A }))
+        expect.fail('should have thrown')
+      } catch (e) {
+        expect(e).toBeInstanceOf(errors.CircularZuiToTypescriptTypeError)
+      }
+    })
+
+    it('should throw CircularZuiToTypescriptTypeError for a 3-node mutual recursion cycle', () => {
+      let A: z.ZodType<any> = z.lazy(() => z.object({ b: B }))
+      let B: z.ZodType<any> = z.lazy(() => z.object({ c: C }))
+      let C: z.ZodType<any> = z.lazy(() => z.object({ a: A }))
+      try {
+        toTypescript(z.object({ root: A }))
+        expect.fail('should have thrown')
+      } catch (e) {
+        expect(e).toBeInstanceOf(errors.CircularZuiToTypescriptTypeError)
+      }
+    })
+
+    it('should not throw when the same finite lazy schema is reused across sibling branches', () => {
+      const shared: z.ZodType<any> = z.lazy(() => z.object({ x: z.string() }))
+      const typings = toTypescript(z.object({ a: shared, b: shared }))
+      expect(typings).toContain('x: string')
+    })
   }) // error path propagation
 })
