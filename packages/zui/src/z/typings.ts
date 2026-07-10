@@ -1075,11 +1075,18 @@ export interface IZodObject<
 
 //* ─────────────────────────── ZodDiscriminatedUnion ──────────────────────────
 
-// Loosened from a shape-level `{ [key in Discriminator]: IZodType } & ZodRawShape`
-// constraint: relating generic option types to that index-signature shape forces deep
-// structural resolution of the object output types (excessive stack depth). Presence
-// of the discriminator key is enforced at runtime, mirroring zod v4.
-export type ZodDiscriminatedUnionOption<_Discriminator extends string> = AnyZodObject
+// Constrained via the option's input type rather than its shape, mirroring zod v4's
+// $ZodTypeDiscriminable: the old shape-level `{ [key in Discriminator]: IZodType } &
+// ZodRawShape` forced deep structural resolution of object output types (excessive
+// stack depth). The weak type `{ [K in Discriminator]?: unknown }` rejects options
+// missing the discriminator key at compile time (no properties in common), and
+// _getOptionsMap enforces it at runtime as a backstop. The base is IZodType with
+// `unknown` input — NOT AnyZodObject, whose `_input` would intersect in an index
+// signature and defeat weak-type detection.
+export type ZodDiscriminatedUnionOption<Discriminator extends string> = IZodType<any, ZodObjectDef, unknown> & {
+  shape: ZodRawShape
+  _input: { [K in Discriminator]?: unknown }
+}
 
 export type ZodDiscriminatedUnionDef<
   Discriminator extends string = string,
