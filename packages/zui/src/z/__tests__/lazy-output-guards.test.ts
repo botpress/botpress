@@ -105,6 +105,21 @@ test('output-constrained APIs still reject wrong-shaped object schemas', () => {
   expect(true).toBe(true)
 })
 
+test('discriminatedUnion rejects options missing the discriminator key at compile time', () => {
+  const ok = z.discriminatedUnion('type', [
+    z.object({ type: z.literal('a'), x: z.string() }),
+    z.object({ type: z.literal('b'), y: z.number() }),
+  ])
+  expect(ok.parse({ type: 'a', x: 'hi' })).toEqual({ type: 'a', x: 'hi' })
+
+  // compile-time: rejected by ZodDiscriminatedUnionOption's weak input type;
+  // runtime backstop: construction throws in _getOptionsMap
+  expect(() =>
+    // @ts-expect-error second option is missing the `type` discriminator key
+    z.discriminatedUnion('type', [z.object({ type: z.literal('a') }), z.object({ name: z.string() })])
+  ).toThrow('discriminator')
+})
+
 test('z.input diverges from z.output through defaults on object fields', () => {
   const WithDefault = z.object({
     id: z.string(),
