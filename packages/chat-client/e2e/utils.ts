@@ -1,6 +1,6 @@
-import * as jwt from 'jsonwebtoken'
 import * as uuid from 'uuid'
 import * as chat from '../src'
+import { signJwt } from '../src/jwt'
 import * as config from './config'
 
 const encryptionKey = config.get('ENCRYPTION_KEY')
@@ -11,7 +11,7 @@ export const halfId = () => {
 }
 export const getUserFid = (): string => `test-user-${halfId()}`
 export const getConversationFid = (): string => `test-conversation-${halfId()}`
-export const getUserKey = (userId: string): string => jwt.sign({ id: userId }, encryptionKey, { algorithm: 'HS256' })
+export const getUserKey = (userId: string): Promise<string> => signJwt({ id: userId }, encryptionKey)
 
 export const waitFor = <S extends keyof chat.Signals>(
   listener: chat.SignalListener,
