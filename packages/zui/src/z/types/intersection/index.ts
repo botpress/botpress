@@ -23,8 +23,8 @@ export class ZodIntersectionImpl<T extends IZodType = IZodType, U extends IZodTy
     })
   }
 
-  getReferences(): string[] {
-    return utils.fn.unique([...this._def.left.getReferences(), ...this._def.right.getReferences()])
+  _getReferences(visiting: Set<symbol>): string[] {
+    return utils.fn.unique([...this._def.left._getReferences(visiting), ...this._def.right._getReferences(visiting)])
   }
 
   clone(): IZodIntersection<T, U> {

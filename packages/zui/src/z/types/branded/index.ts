@@ -14,8 +14,8 @@ export class ZodBrandedImpl<T extends IZodType = IZodType, B extends Key = Key>
     })
   }
 
-  getReferences(): string[] {
-    return this._def.type.getReferences()
+  _getReferences(visiting: Set<symbol>): string[] {
+    return this._def.type._getReferences(visiting)
   }
 
   clone(): IZodBranded<T, B> {
