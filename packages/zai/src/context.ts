@@ -164,6 +164,7 @@ export class ZaiContext {
         s: props.systemPrompt,
         m: props.messages?.map((m) => ('content' in m ? m.content : '')),
         st: props.stopSequences,
+        mt: props.maxTokens,
       })
     )}`
 
