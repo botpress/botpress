@@ -78,6 +78,15 @@ const _saveCalendarIdHandler: WizardHandler = async ({ ctx, client, formValues, 
 }
 
 const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, logger, responses, query }) => {
+  const oauthError = query.get('error')
+  if (oauthError) {
+    const description = query.get('error_description')
+    return responses.endWizard({
+      success: false,
+      errorMessage: `Google returned an error: ${oauthError}${description ? ` - ${description}` : ''}`,
+    })
+  }
+
   const code = query.get('code')
   if (!code) {
     return responses.endWizard({ success: false, errorMessage: 'Google did not return an authorization code' })
