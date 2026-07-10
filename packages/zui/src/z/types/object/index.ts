@@ -20,11 +20,12 @@ import type {
 } from '../../typings'
 import { addIssueToContext, ParseStatus, ParseInputLazyPath, ZodBaseTypeImpl, type MergeObjectPair } from '../basetype'
 
-export class ZodObjectImpl<
-    T extends ZodRawShape = ZodRawShape,
-    UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
+export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys extends UnknownKeysParam = UnknownKeysParam>
+  extends ZodBaseTypeImpl<
+    ObjectOutputType<T, UnknownKeys>,
+    ZodObjectDef<T, UnknownKeys>,
+    ObjectInputType<T, UnknownKeys>
   >
-  extends ZodBaseTypeImpl<ObjectOutputType<T, UnknownKeys>, ZodObjectDef<T, UnknownKeys>, ObjectInputType<T, UnknownKeys>>
   implements IZodObject<T, UnknownKeys>
 {
   /** Safe cast: ZodObject structurally satisfies IZodObject but TS can't prove it due to recursive type depth */

@@ -423,7 +423,10 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
   parse(data: unknown, params?: Partial<ParseParams>): this['_output']
   safeParse(data: unknown, params?: Partial<ParseParams>): SafeParseReturnType<this['_input'], this['_output']>
   parseAsync(data: unknown, params?: Partial<ParseParams>): Promise<this['_output']>
-  safeParseAsync(data: unknown, params?: Partial<ParseParams>): Promise<SafeParseReturnType<this['_input'], this['_output']>>
+  safeParseAsync(
+    data: unknown,
+    params?: Partial<ParseParams>
+  ): Promise<SafeParseReturnType<this['_input'], this['_output']>>
   /** Alias of safeParseAsync */
   spa: (data: unknown, params?: Partial<ParseParams>) => Promise<SafeParseReturnType<this['_input'], this['_output']>>
   refine<RefinedOutput extends this['_output']>(
@@ -444,11 +447,15 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
   /**
    * @deprecated use downstream instead which handle issues with a better semantic
    */
-  superRefine(refinement: (arg: this['_output'], ctx: RefinementCtx) => void): IZodEffects<this, this['_output'], this['_input']>
+  superRefine(
+    refinement: (arg: this['_output'], ctx: RefinementCtx) => void
+  ): IZodEffects<this, this['_output'], this['_input']>
   /**
    * @deprecated use downstream instead which handle issues with a better semantic
    */
-  superRefine(refinement: (arg: this['_output'], ctx: RefinementCtx) => Promise<void>): IZodEffects<this, this['_output'], this['_input']>
+  superRefine(
+    refinement: (arg: this['_output'], ctx: RefinementCtx) => Promise<void>
+  ): IZodEffects<this, this['_output'], this['_input']>
 
   optional(): IZodOptional<this>
   nullable(): IZodNullable<this>
