@@ -13,21 +13,21 @@ export type LintResult =
       result: 'succeeded' | 'ignored'
     }
 
-const STATE_KEYS = [
-  'IN_PROGRESS',
-  'STAGING',
-  'PRODUCTION_DONE',
-  'BACKLOG',
-  'TODO',
-  'TRIAGE',
-  'CANCELED',
-  'BLOCKED',
-  'STALE',
-] as const
-export type StateKey = (typeof STATE_KEYS)[number]
+export type LinearStateType = 'triage' | 'backlog' | 'unstarted' | 'started' | 'completed' | 'canceled' | 'duplicate'
+export type CommonStateName =
+  | 'IN_PROGRESS'
+  | 'STAGING'
+  | 'DONE'
+  | 'BACKLOG'
+  | 'TODO'
+  | 'TRIAGE'
+  | 'CANCELED'
+  | 'BLOCKED'
+  | 'STALE'
+  | 'DUPLICATE'
 
 export type StateAttributes = {
-  stateKey: StateKey
+  commonStateName: CommonStateName
   maxTimeSinceLastUpdate: ISO8601Duration
   warningComment: string
   buildWarningReason: (issueIdentifier: string) => string
@@ -44,6 +44,7 @@ export type LinearTeam = {
 export type LinearState = {
   id: string
   name: string
+  type: LinearStateType
 }
 
 export type ISO8601Duration = string

@@ -1,6 +1,6 @@
 import { z } from '@bpinternal/zui'
 import { beforeAll, beforeEach, afterAll, assert, describe, expect, it } from 'vitest'
-import * as llmz from '../src/llmz.js'
+import * as llmz from '../src/runtime/execute.js'
 import { Tool } from '../src/tool.js'
 import { Exit } from '../src/exit.js'
 import { ThinkSignal } from '../src/errors.js'

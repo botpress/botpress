@@ -6,7 +6,7 @@ import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
 import { fastHash, stringify, takeUntilTokens } from '../utils'
 import { Zai } from '../zai'
-import { PROMPT_INPUT_BUFFER } from './constants'
+import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
 
 type Example = {
   input: string
@@ -152,6 +152,10 @@ const rewrite = async (
   const instructions: string[] = []
 
   const originalSize = tokenizer.count(original)
+  const generationLength = options.length
+    ? Math.min(Math.max(options.length * 10, 500), model.output.maxTokens - PROMPT_OUTPUT_BUFFER)
+    : undefined
+
   if (options.length && originalSize > options.length) {
     instructions.push(`The original text is ${originalSize} tokens long – it should be less than ${options.length}`)
     instructions.push(
@@ -225,6 +229,7 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
 `.trim(),
     messages: [...examples, { type: 'text', content: format(original, prompt), role: 'user' }],
     stopSequences: [END],
+    ...(generationLength ? { maxTokens: generationLength } : {}),
     transform: (text) => {
       if (!text.trim().length) {
         throw new Error('The model did not return a valid rewrite. The response was empty.')
@@ -242,6 +247,12 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
 
   if (result.includes(END)) {
     result = result.slice(0, result.indexOf(END))
+  }
+
+  result = result.trim()
+
+  if (options.length && tokenizer.count(result) > options.length) {
+    result = tokenizer.truncate(result, options.length).trim()
   }
 
   if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {

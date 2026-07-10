@@ -28,6 +28,7 @@ export default new sdk.BotDefinition({
   },
 }).addIntegration(slack, {
   enabled: true,
+  configurationType: null,
   configuration: {
     typingIndicatorEmoji: false,
     botName: 'Clog',
