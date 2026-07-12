@@ -5,7 +5,7 @@ export type RuntimeGenerateContentInput = Parameters<RuntimeCognitive['generateC
 export type RuntimeGenerateContentOutput = Awaited<ReturnType<RuntimeCognitive['generateContent']>>
 
 export abstract class CustomClient implements RuntimeCognitive {
-  public readonly ['$$COGNITIVE'] = 'runtime' as const
+  private readonly ['$$COGNITIVE'] = 'runtime' as const
 
   public static isCustomClient(obj: any): obj is CustomClient {
     return obj instanceof CustomClient || obj?.['$$COGNITIVE'] === 'runtime'
