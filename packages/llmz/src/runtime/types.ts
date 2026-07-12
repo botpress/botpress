@@ -2,7 +2,7 @@ import { Cognitive, CognitiveBeta, type BotpressClientLike, Models } from '@botp
 
 import { Chat } from '../chat.js'
 import { Context, Iteration } from '../context.js'
-import { CustomClient } from '../custom-client.js'
+import { _CustomModelClient } from '../custom-client.js'
 import { Exit, ExitResult } from '../exit.js'
 import { ValueOrGetter } from '../getter.js'
 import { type ObjectInstance } from '../objects.js'
@@ -180,7 +180,7 @@ export type ExecutionProps = {
    * This is used to generate content using the LLM and to access the Botpress API.
    * If not provided, a default client will be created using environment variables.
    */
-  client?: Cognitive | CognitiveBeta | BotpressClientLike | CustomClient
+  client?: Cognitive | CognitiveBeta | BotpressClientLike | _CustomModelClient
 
   /**
    * When provided, the execution will immediately stop when the signal is aborted.
