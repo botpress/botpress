@@ -1238,11 +1238,13 @@ describe.concurrent('optional', () => {
     })
 
     it('should not throw CircularZuiToTypescriptTypeError for non-recursion of zero distinct lazy schemas', () => {
-      const schema = z.lazy(() =>
-        z.object({
-          foo: z.lazy(() => z.string()),
-        })
-      )
+      const schema = z.object({
+        root: z.lazy(() =>
+          z.object({
+            foo: z.lazy(() => z.string()),
+          })
+        ),
+      })
       expect(() => toTypescript(schema)).not.toThrow()
     })
 
