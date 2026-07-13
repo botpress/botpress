@@ -16,16 +16,6 @@ export const getAuthenticatedGoogleClient = async ({
   return google.drive({ version: 'v3', auth: oauth2Client })
 }
 
-export const getAccessToken = async (props: { client: bp.Client; ctx: bp.Context }) => {
-  const oauth2Client = await _getAuthenticatedOAuthClient(props)
-  const { token } = await oauth2Client.getAccessToken()
-
-  if (!token) {
-    throw new sdk.RuntimeError('Unable to obtain access token. Please try the OAuth flow again.')
-  }
-  return token
-}
-
 /**
  * @return The updated refresh token
  */
