@@ -4,8 +4,11 @@ import * as bp from '.botpress'
 
 type GoogleOAuth2Client = InstanceType<(typeof google.auth)['OAuth2']>
 
-const OAUTH_SCOPES = ['https://www.googleapis.com/auth/calendar.events', 'https://www.googleapis.com/auth/calendar']
-const GLOBAL_OAUTH_ENDPOINT = `${process.env.BP_WEBHOOK_URL}/oauth`
+const SERVICE_ACCOUNT_SCOPES = [
+  'https://www.googleapis.com/auth/calendar.events',
+  'https://www.googleapis.com/auth/calendar',
+]
+const GLOBAL_OAUTH_ENDPOINT = `${process.env.BP_WEBHOOK_URL}/oauth/wizard/oauth-callback`
 
 export const exchangeAuthCodeAndSaveRefreshToken = async ({
   ctx,
@@ -45,18 +48,28 @@ export const getAuthenticatedOAuth2Client = async ({
     return new google.auth.JWT({
       email: ctx.configuration.clientEmail,
       key: ctx.configuration.privateKey.split(String.raw`\n`).join('\n'),
-      scopes: OAUTH_SCOPES,
+      scopes: SERVICE_ACCOUNT_SCOPES,
       subject: ctx.configuration?.impersonateEmail || undefined, // Ensure that the impersonate email is undefined if empty string
     })
   }
 
   const oauth2Client = _getPlainOAuth2Client()
 
-  const { state } = await client.getState({
-    id: ctx.integrationId,
-    type: 'integration',
-    name: 'oAuthConfig',
-  })
+  const { state } = await client
+    .getState({
+      id: ctx.integrationId,
+      type: 'integration',
+      name: 'oAuthConfig',
+    })
+    .catch((error: unknown) => {
+      // Happens when the OAuth wizard was started but the token exchange never completed
+      if (sdk.isApiError(error) && error.type === 'ResourceNotFound') {
+        throw new sdk.RuntimeError(
+          'Not authenticated with Google. Please reconfigure the integration using the OAuth wizard.'
+        )
+      }
+      throw error
+    })
 
   oauth2Client.setCredentials({ refresh_token: state.payload.refreshToken })
   return oauth2Client
