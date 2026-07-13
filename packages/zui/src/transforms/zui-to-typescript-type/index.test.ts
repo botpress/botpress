@@ -1237,6 +1237,15 @@ describe.concurrent('optional', () => {
       }
     })
 
+    it('should not throw CircularZuiToTypescriptTypeError for non-recursion of zero distinct lazy schemas', () => {
+      const schema = z.lazy(() =>
+        z.object({
+          foo: z.lazy(() => z.string()),
+        })
+      )
+      expect(() => toTypescript(schema)).not.toThrow()
+    })
+
     it('should throw CircularZuiToTypescriptTypeError for a 3-node mutual recursion cycle', () => {
       let A: z.ZodType<any> = z.lazy(() => z.object({ b: B }))
       let B: z.ZodType<any> = z.lazy(() => z.object({ c: C }))
