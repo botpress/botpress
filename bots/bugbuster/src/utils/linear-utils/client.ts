@@ -9,6 +9,7 @@ export class LinearApi {
   private _teams?: types.LinearTeam[] = undefined
   private _states?: types.LinearState[] = undefined
   private _viewerId?: string = undefined
+  private _labelIds: Record<string, string> = {}
 
   private constructor(private _bpClient: Client) {}
 
@@ -119,6 +120,38 @@ export class LinearApi {
       tags: {},
       userId: botId,
     })
+  }
+
+  public async addLabel(issue: graphql.Issue, labelName: string): Promise<void> {
+    if (issue.labels.nodes.some((label) => label.name === labelName)) {
+      return
+    }
+    const labelId = await this._getLabelId(labelName)
+    await this._executeGraphqlQuery('addLabelToIssue', { id: issue.id, labelId })
+  }
+
+  public async removeLabel(issue: graphql.Issue, labelName: string): Promise<void> {
+    if (!issue.labels.nodes.some((label) => label.name === labelName)) {
+      return
+    }
+    const labelId = await this._getLabelId(labelName)
+    await this._executeGraphqlQuery('removeLabelFromIssue', { id: issue.id, labelId })
+  }
+
+  private async _getLabelId(labelName: string): Promise<string> {
+    const cached = this._labelIds[labelName]
+    if (cached) {
+      return cached
+    }
+
+    const found = await this._executeGraphqlQuery('findLabel', { filter: { name: { eq: labelName } } })
+    const label = found.issueLabels.nodes.find((node) => node.name === labelName)
+    if (!label) {
+      throw new Error(`Label "${labelName}" does not exist in the Linear workspace.`)
+    }
+
+    this._labelIds[labelName] = label.id
+    return label.id
   }
 
   public async findTeamStates(teamKey: string): Promise<graphql.TeamStates | undefined> {

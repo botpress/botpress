@@ -173,6 +173,60 @@ export const GRAPHQL_QUERIES = {
       }
     },
   },
+  findLabel: {
+    query: `
+      query FindLabel($filter: IssueLabelFilter) {
+        issueLabels(filter: $filter) {
+          nodes {
+            id
+            name
+          }
+        }
+      }`,
+    [QUERY_INPUT]: {} as {
+      filter: {
+        name: { eq: string }
+      }
+    },
+    [QUERY_RESPONSE]: {} as {
+      issueLabels: {
+        nodes: {
+          id: string
+          name: string
+        }[]
+      }
+    },
+  },
+  addLabelToIssue: {
+    query: `
+      mutation AddLabel($id: String!, $labelId: String!) {
+        issueAddLabel(id: $id, labelId: $labelId) {
+          success
+        }
+      }`,
+    [QUERY_INPUT]: {} as {
+      id: string
+      labelId: string
+    },
+    [QUERY_RESPONSE]: {} as {
+      issueAddLabel: { success: boolean }
+    },
+  },
+  removeLabelFromIssue: {
+    query: `
+      mutation RemoveLabel($id: String!, $labelId: String!) {
+        issueRemoveLabel(id: $id, labelId: $labelId) {
+          success
+        }
+      }`,
+    [QUERY_INPUT]: {} as {
+      id: string
+      labelId: string
+    },
+    [QUERY_RESPONSE]: {} as {
+      issueRemoveLabel: { success: boolean }
+    },
+  },
   findTeamStates: {
     query: `
       query GetAllTeams($filter: TeamFilter) {
