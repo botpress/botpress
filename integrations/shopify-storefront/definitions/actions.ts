@@ -27,6 +27,31 @@ export const actions = {
     },
   },
 
+  listProducts: {
+    title: 'List Products',
+    description: 'List public-facing products via the Shopify Storefront API',
+    input: {
+      schema: z.object({
+        query: z.string().optional().title('Search Query').describe('Search query to filter products'),
+        first: z
+          .number()
+          .min(1)
+          .max(250)
+          .optional()
+          .default(50)
+          .title('Limit')
+          .describe('Number of products to return'),
+        after: z.string().optional().title('After Cursor').describe('Cursor for pagination'),
+      }),
+    },
+    output: {
+      schema: z.object({
+        products: z.array(storefrontProductSchema).title('Products').describe('List of products'),
+        pageInfo: pageInfoSchema.title('Page Info').describe('Pagination info'),
+      }),
+    },
+  },
+
   getProduct: {
     title: 'Get Product',
     description: 'Get a single product from the Shopify Storefront API by handle or ID',
