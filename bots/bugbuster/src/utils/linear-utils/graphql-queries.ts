@@ -89,6 +89,41 @@ export const GRAPHQL_QUERIES = {
       }
     },
   },
+  listComments: {
+    query: `
+      query ListComments($filter: CommentFilter, $first: Int, $after: String) {
+        comments(filter: $filter, first: $first, after: $after) {
+          nodes {
+            id
+            body
+            user {
+              id
+            }
+            parentId
+            resolvedAt
+            createdAt
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+        }
+      }`,
+    [QUERY_INPUT]: {} as {
+      filter: {
+        issue: { id: { eq: string } }
+        user: { id: { eq: string } }
+      }
+      first?: number
+      after?: string
+    },
+    [QUERY_RESPONSE]: {} as {
+      comments: {
+        nodes: types.IssueComment[]
+        pageInfo: types.Pagination
+      }
+    },
+  },
   listStates: {
     query: `
       query ListStates($first: Int, $after: String) {
