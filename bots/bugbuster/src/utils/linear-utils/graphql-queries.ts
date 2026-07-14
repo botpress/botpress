@@ -48,6 +48,7 @@ export const GRAPHQL_QUERIES = {
             comments {
               nodes {
                 id,
+                body,
                 user {
                   id
                 },
@@ -169,6 +170,21 @@ export const GRAPHQL_QUERIES = {
     },
     [QUERY_RESPONSE]: {} as {
       issueRemoveLabel: { success: boolean }
+    },
+  },
+  updateComment: {
+    query: `
+      mutation UpdateComment($id: String!, $input: CommentUpdateInput!) {
+        commentUpdate(id: $id, input: $input) {
+          success
+        }
+      }`,
+    [QUERY_INPUT]: {} as {
+      id: string
+      input: { body: string }
+    },
+    [QUERY_RESPONSE]: {} as {
+      commentUpdate: { success: boolean }
     },
   },
   findTeamStates: {

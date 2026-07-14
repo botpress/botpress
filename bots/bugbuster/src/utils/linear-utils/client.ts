@@ -5,6 +5,8 @@ import * as bp from '.botpress'
 const ISSUES_PER_PAGE = 50
 const STATES_PER_PAGE = 200
 
+type CommentPredicate = (comment: types.IssueComment) => boolean
+
 export class LinearApi {
   private _teams?: types.Team[] = undefined
   private _states?: types.State[] = undefined
@@ -91,17 +93,50 @@ export class LinearApi {
     return { issues: data.issues.nodes, pagination: data.issues.pageInfo }
   }
 
-  public async resolveComments(issue: types.Issue): Promise<void> {
-    const comments = issue.comments.nodes
+  public async resolveComments(props: { issue: types.Issue; predicate?: CommentPredicate }): Promise<void> {
     const me = await this.getViewerId()
+    const openComments = this._listOpenBotComments(props.issue, me, props.predicate)
+    const openCommentIds = openComments.map((comment) => comment.id)
+    await this._resolveCommentsByIds(openCommentIds)
+  }
 
-    const promises: ReturnType<typeof this._bpClient.callAction<'linear:resolveComment'>>[] = []
-    for (const comment of comments) {
-      if (comment.user?.id === me && !comment.parentId && !comment.resolvedAt) {
-        promises.push(this._bpClient.callAction({ type: 'linear:resolveComment', input: { id: comment.id } }))
-      }
+  public async upsertComment(props: {
+    issue: types.Issue
+    body: string
+    botId: string
+    predicate?: (comment: types.IssueComment) => boolean
+  }): Promise<void> {
+    const { issue, body, botId } = props
+
+    const me = await this.getViewerId()
+    const [existing] = this._listOpenBotComments(issue, me, props.predicate)
+
+    if (!existing) {
+      await this.createComment({ body, issueId: issue.id, botId })
+      return
     }
-    await Promise.all(promises)
+
+    if (existing.body.trim() === body.trim()) {
+      return
+    }
+
+    await this._executeGraphqlQuery('updateComment', { id: existing.id, input: { body } })
+  }
+
+  private _listOpenBotComments(
+    issue: types.Issue,
+    viewerId: string,
+    predicate: CommentPredicate = () => true
+  ): types.Issue['comments']['nodes'] {
+    return issue.comments.nodes.filter(
+      (comment) => comment.user?.id === viewerId && !comment.parentId && !comment.resolvedAt && predicate(comment)
+    )
+  }
+
+  private async _resolveCommentsByIds(commentIds: string[]): Promise<void> {
+    await Promise.all(
+      commentIds.map((id) => this._bpClient.callAction({ type: 'linear:resolveComment', input: { id } }))
+    )
   }
 
   public async createComment(props: { body: string; issueId: string; botId: string }): Promise<void> {

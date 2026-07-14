@@ -1,4 +1,5 @@
 import { CommandProcessor } from './services/command-processor'
+import { CommentService } from './services/comment-service'
 import { IssueProcessor } from './services/issue-processor'
 import { IssueStateChecker } from './services/issue-state-checker'
 import { RecentlyLintedManager } from './services/recently-linted-manager'
@@ -14,8 +15,9 @@ export const bootstrap = (props: utils.botpress.CommonHandlerProps) => {
   const stateService = new StateService(linear)
   const teamsManager = new TeamsManager(linear, client, ctx.botId)
   const recentlyLintedManager = new RecentlyLintedManager(linear)
-  const issueProcessor = new IssueProcessor(logger, linear, stateService, teamsManager, ctx.botId)
-  const issueStateChecker = new IssueStateChecker(linear, stateService, logger, ctx.botId)
+  const commentService = new CommentService(linear, ctx.botId)
+  const issueProcessor = new IssueProcessor(logger, linear, commentService, stateService, teamsManager)
+  const issueStateChecker = new IssueStateChecker(linear, commentService, stateService, logger)
   const commandProcessor = new CommandProcessor(client, teamsManager, ctx.botId)
 
   return {
@@ -24,6 +26,7 @@ export const bootstrap = (props: utils.botpress.CommonHandlerProps) => {
     stateService,
     teamsManager,
     recentlyLintedManager,
+    commentService,
     issueProcessor,
     issueStateChecker,
     commandProcessor,
