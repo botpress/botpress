@@ -2,8 +2,6 @@ import { z } from '@botpress/sdk'
 
 export const languageModelId = z
   .enum([
-    'accounts/fireworks/models/deepseek-r1-0528',
-    'accounts/fireworks/models/deepseek-v3-0324',
     'accounts/fireworks/models/llama4-maverick-instruct-basic',
     'accounts/fireworks/models/llama4-scout-instruct-basic',
     'accounts/fireworks/models/llama-v3p3-70b-instruct',

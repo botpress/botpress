@@ -43,34 +43,6 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
       maxTokens: 16_000,
     },
   },
-  'accounts/fireworks/models/deepseek-r1-0528': {
-    name: 'DeepSeek R1 0528',
-    description:
-      'The updated DeepSeek R1 0528 model delivers major improvements in reasoning, inference, and accuracy through enhanced post-training optimization and greater computational resources. It now performs at a level approaching top-tier models like OpenAI o3 and Gemini 2.5 Pro, with notable gains in complex tasks such as math and programming. The update also reduces hallucinations, improves function calling, and enhances the coding experience.',
-    tags: ['recommended', 'reasoning', 'general-purpose', 'coding'],
-    input: {
-      costPer1MTokens: 3,
-      maxTokens: 160_000,
-    },
-    output: {
-      costPer1MTokens: 8,
-      maxTokens: 16_384,
-    },
-  },
-  'accounts/fireworks/models/deepseek-v3-0324': {
-    name: 'DeepSeek V3 0324',
-    description:
-      'DeepSeek V3, a 685B-parameter, mixture-of-experts model, is the latest iteration of the flagship chat model family from the DeepSeek team. It succeeds the DeepSeek V3 model and performs really well on a variety of tasks.',
-    tags: ['recommended', 'general-purpose'],
-    input: {
-      costPer1MTokens: 0.9,
-      maxTokens: 160_000,
-    },
-    output: {
-      costPer1MTokens: 0.9,
-      maxTokens: 16_384,
-    },
-  },
   'accounts/fireworks/models/llama4-maverick-instruct-basic': {
     name: 'Llama 4 Maverick Instruct (Basic)',
     description:
@@ -208,21 +180,7 @@ export default new bp.Integration({
           models: languageModels,
           defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
           overrideRequest: (request) => {
-            if (input.model?.id === 'accounts/fireworks/models/deepseek-r1-0528') {
-              // The DeepSeek R1 model card recommends using a fixed temperature of 0.6 and only using a user prompt rather than a system prompt. See: https://huggingface.co/deepseek-ai/DeepSeek-R1#usage-recommendations
-              request.temperature = 0.6
-              const systemPrompt = request.messages?.find((message) => message.role === 'system')
-              if (systemPrompt) {
-                // Remove system prompt from messages
-                request.messages = request.messages.filter((x) => x.role !== 'system')
-
-                // Pass system prompt as the first user message instead
-                request.messages.unshift({
-                  role: 'user',
-                  content: systemPrompt.content,
-                })
-              }
-            } else if (
+            if (
               input.model?.id === 'accounts/fireworks/models/gpt-oss-20b' ||
               input.model?.id === 'accounts/fireworks/models/gpt-oss-120b'
             ) {
@@ -236,18 +194,6 @@ export default new bp.Integration({
             }
 
             return request
-          },
-          overrideResponse: (response) => {
-            if (input.model?.id === 'accounts/fireworks/models/deepseek-r1-0528') {
-              for (const choice of response.choices) {
-                if (choice.message.content) {
-                  // DeepSeek R1 returns its CoT in its response between <think> tags so we remove it.
-                  choice.message.content = choice.message.content.replace(/<think>.*<\/think>/gis, '')
-                }
-              }
-            }
-
-            return response
           },
         }
       )
