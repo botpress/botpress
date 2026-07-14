@@ -96,8 +96,7 @@ export class LinearApi {
   public async resolveComments(props: { issue: types.Issue; predicate?: CommentPredicate }): Promise<void> {
     const me = await this.getViewerId()
     const openComments = this._listOpenBotComments(props.issue, me, props.predicate)
-    const openCommentIds = openComments.map((comment) => comment.id)
-    await this._resolveCommentsByIds(openCommentIds)
+    await this._resolveComments(openComments)
   }
 
   public async upsertComment(props: {
@@ -109,7 +108,12 @@ export class LinearApi {
     const { issue, body, botId } = props
 
     const me = await this.getViewerId()
-    const [existing] = this._listOpenBotComments(issue, me, props.predicate)
+    const openComments = this._listOpenBotComments(issue, me, props.predicate).sort(this._byCreatedAtDesc)
+
+    // Self-heal a broken state (e.g. two racing upserts each created a comment): keep the most
+    // recent matching comment as the canonical one and resolve the older extras, converging to one.
+    const [existing, ...duplicates] = openComments
+    await this._resolveComments(duplicates)
 
     if (!existing) {
       await this.createComment({ body, issueId: issue.id, botId })
@@ -133,9 +137,9 @@ export class LinearApi {
     )
   }
 
-  private async _resolveCommentsByIds(commentIds: string[]): Promise<void> {
+  private async _resolveComments(comments: types.IssueComment[]): Promise<void> {
     await Promise.all(
-      commentIds.map((id) => this._bpClient.callAction({ type: 'linear:resolveComment', input: { id } }))
+      comments.map(({ id }) => this._bpClient.callAction({ type: 'linear:resolveComment', input: { id } }))
     )
   }
 
@@ -260,4 +264,7 @@ export class LinearApi {
     })
     return result.output.result as graphql.GRAPHQL_QUERIES[K][graphql.QUERY_RESPONSE]
   }
+
+  private _byCreatedAtDesc = (a: { createdAt: string }, b: { createdAt: string }) =>
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
 }
