@@ -1,15 +1,13 @@
-import * as utils from '..'
 import * as types from '../../types'
 import * as graphql from './graphql-queries'
 import { Client } from '.botpress'
 
-type State = { state: types.LinearState; key: types.StateKey }
-
-const RESULTS_PER_PAGE = 200
+const ISSUES_PER_PAGE = 50
+const STATES_PER_PAGE = 200
 
 export class LinearApi {
   private _teams?: types.LinearTeam[] = undefined
-  private _states?: State[] = undefined
+  private _states?: types.LinearState[] = undefined
   private _viewerId?: string = undefined
 
   private constructor(private _bpClient: Client) {}
@@ -56,13 +54,13 @@ export class LinearApi {
     filter: {
       teamKeys: string[]
       issueNumber?: number
-      statesToOmit?: types.StateKey[]
-      statesToInclude?: types.StateKey[]
+      stateIdsToOmit?: string[]
+      stateIdsToInclude?: string[]
       updatedBefore?: types.ISO8601Duration
     },
     nextPage?: string
   ): Promise<{ issues: graphql.Issue[]; pagination?: graphql.Pagination }> {
-    const { teamKeys, issueNumber, statesToOmit, statesToInclude, updatedBefore } = filter
+    const { teamKeys, issueNumber, stateIdsToOmit, stateIdsToInclude, updatedBefore } = filter
 
     const teams = await this.getTeams()
     const teamsExist = teamKeys.every((key) => teams.some((team) => team.key === key))
@@ -75,29 +73,21 @@ export class LinearApi {
         team: { key: { in: teamKeys } },
         ...(issueNumber && { number: { eq: issueNumber } }),
         state: {
-          name: {
-            ...(statesToOmit && { nin: await this._stateKeysToStates(statesToOmit) }),
-            ...(statesToInclude && { in: await this._stateKeysToStates(statesToInclude) }),
+          id: {
+            ...(stateIdsToOmit && { nin: stateIdsToOmit }),
+            ...(stateIdsToInclude && { in: stateIdsToInclude }),
           },
         },
         ...(updatedBefore && { updatedAt: { lt: updatedBefore } }),
       },
       ...(nextPage && { after: nextPage }),
-      first: RESULTS_PER_PAGE,
+      first: ISSUES_PER_PAGE,
+      orderBy: 'createdAt',
     }
 
     const data = await this._executeGraphqlQuery('listIssues', queryInput)
 
-    return { issues: data.issues.nodes, pagination: data.pageInfo }
-  }
-
-  public async issueState(issue: graphql.Issue): Promise<types.StateKey> {
-    const states = await this.getStates()
-    const state = states.find((s) => s.state.id === issue.state.id)
-    if (!state) {
-      throw new Error(`State with ID "${issue.state.id}" not found.`)
-    }
-    return state.key
+    return { issues: data.issues.nodes, pagination: data.issues.pageInfo }
   }
 
   public async resolveComments(issue: graphql.Issue): Promise<void> {
@@ -152,23 +142,11 @@ export class LinearApi {
     return this._teams
   }
 
-  public async getStates(): Promise<State[]> {
+  public async getStates(): Promise<types.LinearState[]> {
     if (!this._states) {
-      const states = await this._listAllStates()
-      this._states = LinearApi._toStateObjects(states)
+      this._states = await this._listAllStates()
     }
     return this._states
-  }
-
-  private async _stateKeysToStates(keys: types.StateKey[]) {
-    const states = await this.getStates()
-    return keys?.map((key) => {
-      const matchingStates = states.filter((state) => state.key === key)
-      if (matchingStates[0]) {
-        return matchingStates[0].state.name
-      }
-      return ''
-    })
   }
 
   private _listAllTeams = async (): Promise<types.LinearTeam[]> => {
@@ -177,31 +155,22 @@ export class LinearApi {
   }
 
   private _listAllStates = async (): Promise<types.LinearState[]> => {
-    let response = await this._bpClient.callAction<'linear:listStates'>({
-      type: 'linear:listStates',
-      input: { count: 100 },
-    })
-    let states: types.LinearState[] = response.output.states
-    let startCursor = response.output.nextCursor
+    // We fetch states via GraphQL rather than the linear:listStates action because the action's
+    // output does not include the state `type`, which we need to normalize states across teams.
+    let states: types.LinearState[] = []
+    let after: string | undefined = undefined
 
-    while (startCursor) {
-      response = await this._bpClient.callAction<'linear:listStates'>({
-        type: 'linear:listStates',
-        input: { count: 100, startCursor },
-      })
-      states = states.concat(response.output.states)
-      startCursor = response.output.nextCursor
-    }
+    do {
+      const queryInput: graphql.GRAPHQL_QUERIES['listStates'][graphql.QUERY_INPUT] = {
+        first: STATES_PER_PAGE,
+        ...(after && { after }),
+      }
+      const data = await this._executeGraphqlQuery('listStates', queryInput)
+      states = states.concat(data.workflowStates.nodes)
+      after = data.workflowStates.pageInfo.hasNextPage ? data.workflowStates.pageInfo.endCursor : undefined
+    } while (after)
+
     return states
-  }
-
-  private static _toStateObjects(states: types.LinearState[]): State[] {
-    const stateObjects: State[] = []
-    for (const state of states) {
-      const key = utils.string.toScreamingSnakeCase(state.name) as types.StateKey
-      stateObjects.push({ key, state })
-    }
-    return stateObjects
   }
 
   private async _executeGraphqlQuery<K extends keyof graphql.GRAPHQL_QUERIES>(

@@ -13,8 +13,8 @@ export class ZodSetImpl<Value extends IZodType = IZodType>
     })
   }
 
-  getReferences(): string[] {
-    return this._def.valueType.getReferences()
+  _getReferences(visiting: Set<symbol>): string[] {
+    return this._def.valueType._getReferences(visiting)
   }
 
   clone(): IZodSet<Value> {
