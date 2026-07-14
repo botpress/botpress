@@ -37,6 +37,8 @@ export { type Context } from './context.js'
 export type { LLMzPrompts } from './prompts/prompt.js'
 export { type ValueOrGetter, getValue } from './getter.js'
 
+export * from './custom-client.js'
+
 export const utils = {
   toValidObjectName,
   toValidFunctionName,

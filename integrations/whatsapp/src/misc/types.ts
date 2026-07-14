@@ -292,7 +292,9 @@ export const WhatsAppTemplateCategoryUpdateValueSchema = z.object({
 })
 
 const WhatsAppEchoMessageSchema = WhatsAppMessageSchema.and(
-  z.object({ to: z.string(), message_creation_type: z.string() })
+  // `message_creation_type` is not part of Meta's real smb_message_echoes payload, so it must be
+  // optional — requiring it rejected every genuine echo with HTTP 500 (SHK-1506).
+  z.object({ to: z.string(), message_creation_type: z.string().optional() })
 )
 export type WhatsAppEchoMessage = z.infer<typeof WhatsAppEchoMessageSchema>
 

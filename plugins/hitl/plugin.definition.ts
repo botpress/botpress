@@ -102,7 +102,7 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '1.4.0',
+  version: '1.4.1',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',
@@ -202,6 +202,10 @@ export default new sdk.PluginDefinition({
       integrationName: {
         title: 'HITL Integration Name',
         description: 'Name of the integration which created the downstream user',
+      },
+      integrationAlias: {
+        title: 'HITL Integration Alias',
+        description: 'Alias of the integration instance which created the downstream user',
       },
     },
   },
