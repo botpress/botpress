@@ -186,6 +186,9 @@ export const GRAPHQL_QUERIES = {
     [QUERY_INPUT]: {} as {
       filter: {
         name: { eq: string }
+        // The lintdetected label is a workspace-level label; scoping to team-less labels avoids
+        // matching (and caching) a same-named label that belongs to a specific team.
+        team: { null: boolean }
       }
     },
     [QUERY_RESPONSE]: {} as {

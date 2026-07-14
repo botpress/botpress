@@ -144,7 +144,9 @@ export class LinearApi {
       return cached
     }
 
-    const found = await this._executeGraphqlQuery('findLabel', { filter: { name: { eq: labelName } } })
+    const found = await this._executeGraphqlQuery('findLabel', {
+      filter: { name: { eq: labelName }, team: { null: true } },
+    })
     const label = found.issueLabels.nodes.find((node) => node.name === labelName)
     if (!label) {
       throw new Error(`Label "${labelName}" does not exist in the Linear workspace.`)
