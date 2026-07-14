@@ -34,8 +34,11 @@ export class UserLinker {
 
   private async _getExistingDownstreamUserId(upstreamUser: types.ActionableUser) {
     const downstreamUserId = upstreamUser?.tags?.downstream
+    const isLinkedToCurrentIntegration = upstreamUser?.tags?.integrationAlias
+      ? upstreamUser.tags.integrationAlias === this._props.interfaces.hitl.integrationAlias
+      : upstreamUser?.tags?.integrationName === this._props.interfaces.hitl.name
 
-    if (!downstreamUserId || upstreamUser?.tags?.integrationName !== this._props.interfaces.hitl.name) {
+    if (!downstreamUserId || !isLinkedToCurrentIntegration) {
       return null
     }
 
@@ -65,12 +68,14 @@ export class UserLinker {
         tags: {
           downstream: downstreamUserId,
           integrationName: this._props.interfaces.hitl.name,
+          integrationAlias: this._props.interfaces.hitl.integrationAlias,
         },
       }),
       downstreamUser.update({
         tags: {
           upstream: upstreamUser.id,
           integrationName: this._props.interfaces.hitl.name,
+          integrationAlias: this._props.interfaces.hitl.integrationAlias,
         },
       }),
     ])
