@@ -1,19 +1,19 @@
-import * as types from '../../types'
 import * as graphql from './graphql-queries'
-import { Client } from '.botpress'
+import * as types from './types'
+import * as bp from '.botpress'
 
 const ISSUES_PER_PAGE = 50
 const STATES_PER_PAGE = 200
 
 export class LinearApi {
-  private _teams?: types.LinearTeam[] = undefined
-  private _states?: types.LinearState[] = undefined
+  private _teams?: types.Team[] = undefined
+  private _states?: types.State[] = undefined
   private _viewerId?: string = undefined
   private _labelIds: Record<string, string> = {}
 
-  private constructor(private _bpClient: Client) {}
+  private constructor(private _bpClient: bp.Client) {}
 
-  public static create(bpClient: Client): LinearApi {
+  public static create(bpClient: bp.Client): LinearApi {
     return new LinearApi(bpClient)
   }
 
@@ -36,7 +36,7 @@ export class LinearApi {
     return (await this.getTeams()).some((team) => team.key === teamKey)
   }
 
-  public async findIssue(filter: { teamKey: string; issueNumber: number }): Promise<graphql.Issue | undefined> {
+  public async findIssue(filter: { teamKey: string; issueNumber: number }): Promise<types.Issue | undefined> {
     const { teamKey, issueNumber } = filter
 
     const { issues } = await this.listIssues({
@@ -60,7 +60,7 @@ export class LinearApi {
       updatedBefore?: types.ISO8601Duration
     },
     nextPage?: string
-  ): Promise<{ issues: graphql.Issue[]; pagination?: graphql.Pagination }> {
+  ): Promise<{ issues: types.Issue[]; pagination?: types.Pagination }> {
     const { teamKeys, issueNumber, stateIdsToOmit, stateIdsToInclude, updatedBefore } = filter
 
     const teams = await this.getTeams()
@@ -91,7 +91,7 @@ export class LinearApi {
     return { issues: data.issues.nodes, pagination: data.issues.pageInfo }
   }
 
-  public async resolveComments(issue: graphql.Issue): Promise<void> {
+  public async resolveComments(issue: types.Issue): Promise<void> {
     const comments = issue.comments.nodes
     const me = await this.getViewerId()
 
@@ -122,7 +122,7 @@ export class LinearApi {
     })
   }
 
-  public async addLabel(issue: graphql.Issue, labelName: string): Promise<void> {
+  public async addLabel(issue: types.Issue, labelName: string): Promise<void> {
     if (issue.labels.nodes.some((label) => label.name === labelName)) {
       return
     }
@@ -130,7 +130,7 @@ export class LinearApi {
     await this._executeGraphqlQuery('addLabelToIssue', { id: issue.id, labelId })
   }
 
-  public async removeLabel(issue: graphql.Issue, labelName: string): Promise<void> {
+  public async removeLabel(issue: types.Issue, labelName: string): Promise<void> {
     if (!issue.labels.nodes.some((label) => label.name === labelName)) {
       return
     }
@@ -156,7 +156,7 @@ export class LinearApi {
     return label.id
   }
 
-  public async findTeamStates(teamKey: string): Promise<graphql.TeamStates | undefined> {
+  public async findTeamStates(teamKey: string): Promise<types.TeamStates | undefined> {
     const queryInput: graphql.GRAPHQL_QUERIES['findTeamStates'][graphql.QUERY_INPUT] = {
       filter: { key: { eq: teamKey } },
     }
@@ -170,29 +170,29 @@ export class LinearApi {
     return team
   }
 
-  public async getTeams(): Promise<types.LinearTeam[]> {
+  public async getTeams(): Promise<types.Team[]> {
     if (!this._teams) {
       this._teams = await this._listAllTeams()
     }
     return this._teams
   }
 
-  public async getStates(): Promise<types.LinearState[]> {
+  public async getStates(): Promise<types.State[]> {
     if (!this._states) {
       this._states = await this._listAllStates()
     }
     return this._states
   }
 
-  private _listAllTeams = async (): Promise<types.LinearTeam[]> => {
+  private _listAllTeams = async (): Promise<types.Team[]> => {
     const response = await this._bpClient.callAction({ type: 'linear:listTeams', input: {} })
     return response.output.teams
   }
 
-  private _listAllStates = async (): Promise<types.LinearState[]> => {
+  private _listAllStates = async (): Promise<types.State[]> => {
     // We fetch states via GraphQL rather than the linear:listStates action because the action's
     // output does not include the state `type`, which we need to normalize states across teams.
-    let states: types.LinearState[] = []
+    let states: types.State[] = []
     let after: string | undefined = undefined
 
     do {

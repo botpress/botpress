@@ -1,5 +1,5 @@
-import * as types from 'src/types'
 import * as boot from '../bootstrap'
+import * as types from '../types'
 import * as bp from '.botpress'
 
 const statesToProcess: types.StateAttributes[] = [

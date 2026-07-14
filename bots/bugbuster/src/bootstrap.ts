@@ -4,10 +4,9 @@ import { IssueStateChecker } from './services/issue-state-checker'
 import { RecentlyLintedManager } from './services/recently-linted-manager'
 import { StateService } from './services/state-service'
 import { TeamsManager } from './services/teams-manager'
-import * as types from './types'
 import * as utils from './utils'
 
-export const bootstrap = (props: types.CommonHandlerProps) => {
+export const bootstrap = (props: utils.botpress.CommonHandlerProps) => {
   const { client, logger, ctx } = props
   const botpress = utils.botpress.BotpressApi.create(props)
 

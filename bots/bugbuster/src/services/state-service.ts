@@ -6,7 +6,7 @@ type StateResolver = {
   default: types.CommonStateName
 }
 
-const COMMON_STATE_BY_TYPE: Record<types.LinearStateType, StateResolver> = {
+const COMMON_STATE_BY_TYPE: Record<lin.StateType, StateResolver> = {
   triage: { default: 'TRIAGE' },
   backlog: { default: 'BACKLOG' },
   unstarted: { default: 'TODO' },
@@ -24,7 +24,7 @@ const COMMON_STATE_BY_TYPE: Record<types.LinearStateType, StateResolver> = {
   },
 }
 
-type StateEntry = { state: types.LinearState; key?: types.CommonStateName }
+type StateEntry = { state: lin.State; key?: types.CommonStateName }
 
 export class StateService {
   private _stateEntries?: StateEntry[] = undefined
@@ -57,7 +57,7 @@ export class StateService {
     return state.key
   }
 
-  private _findCommonState = (state: types.LinearState): types.CommonStateName | undefined => {
+  private _findCommonState = (state: lin.State): types.CommonStateName | undefined => {
     const resolver = COMMON_STATE_BY_TYPE[state.type]
     if (!resolver) {
       return
