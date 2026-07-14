@@ -76,7 +76,7 @@ export class UnsupportedZuiToTypescriptSchemaError extends ZuiToTypescriptSchema
 export class CircularZuiToTypescriptSchemaError extends ZuiToTypescriptSchemaError {
   public constructor(path: string) {
     super(
-      'Schema is self-referential and cannot be inlined into TypeScript schema source without a name to reference. Use z.ref() instead.',
+      'Schema is self-referential and cannot be inlined into TypeScript schema source without a name to reference.',
       path
     )
   }
