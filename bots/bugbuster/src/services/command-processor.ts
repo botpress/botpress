@@ -1,13 +1,13 @@
 import * as types from '../types'
-import { TeamsManager } from './teams-manager'
-import { Client } from '.botpress'
+import * as tm from './teams-manager'
+import * as bp from '.botpress'
 
 const MISSING_ARGS_ERROR = 'More arguments are required with this command.'
 
 export class CommandProcessor {
   public constructor(
-    private _client: Client,
-    private _teamsManager: TeamsManager,
+    private _client: bp.Client,
+    private _teamsManager: tm.TeamsManager,
     private _botId: string
   ) {}
 

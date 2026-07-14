@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import * as types from '../../types'
 import * as lin from '../../utils/linear-utils'
-import { StateService } from '../state-service'
+import * as sts from '../state-service'
 import * as tm from '../teams-manager'
 import { lintIssue } from './lint-issue'
 
@@ -13,7 +13,7 @@ export class IssueProcessor {
   public constructor(
     private _logger: sdk.BotLogger,
     private _linear: lin.LinearApi,
-    private _stateService: StateService,
+    private _stateService: sts.StateService,
     private _teamsManager: tm.TeamsManager,
     private _botId: string
   ) {}

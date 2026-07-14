@@ -1,6 +1,4 @@
-import * as bp from '.botpress'
-
-export type CommonHandlerProps = bp.WorkflowHandlerProps['lintAll'] | bp.EventHandlerProps | bp.MessageHandlerProps
+import * as lin from './utils/linear-utils'
 
 export type LintResult =
   | {
@@ -13,7 +11,6 @@ export type LintResult =
       result: 'succeeded' | 'ignored'
     }
 
-export type LinearStateType = 'triage' | 'backlog' | 'unstarted' | 'started' | 'completed' | 'canceled' | 'duplicate'
 export type CommonStateName =
   | 'IN_PROGRESS'
   | 'STAGING'
@@ -28,26 +25,10 @@ export type CommonStateName =
 
 export type StateAttributes = {
   commonStateName: CommonStateName
-  maxTimeSinceLastUpdate: ISO8601Duration
+  maxTimeSinceLastUpdate: lin.ISO8601Duration
   warningComment: string
   buildWarningReason: (issueIdentifier: string) => string
 }
-
-export type LinearTeam = {
-  id: string
-  key: string
-  name: string
-  description?: string | undefined
-  icon?: string | undefined
-}
-
-export type LinearState = {
-  id: string
-  name: string
-  type: LinearStateType
-}
-
-export type ISO8601Duration = string
 
 type CommandResult = { success: boolean; message: string }
 export type CommandImplementation = (args: string[], conversationId: string) => CommandResult | Promise<CommandResult>
