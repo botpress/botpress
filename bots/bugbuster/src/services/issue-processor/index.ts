@@ -7,6 +7,7 @@ import { lintIssue } from './lint-issue'
 
 const IGNORED_STATES: types.CommonStateName[] = ['TRIAGE', 'BACKLOG', 'DONE', 'CANCELED', 'STALE', 'DUPLICATE']
 const LINTIGNORE_LABEL_NAME = 'lintignore'
+const LINTDETECTED_LABEL_NAME = 'lintdetected'
 
 export class IssueProcessor {
   public constructor(
@@ -81,6 +82,12 @@ export class IssueProcessor {
     if (errors.length === 0) {
       this._logger.info(`Issue ${issue.identifier} passed all lint checks.`)
       await this._linear.resolveComments(issue)
+      await this._linear.removeLabel(issue, LINTDETECTED_LABEL_NAME).catch((thrown) => {
+        const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+        this._logger.error(
+          `Failed to remove label ${LINTDETECTED_LABEL_NAME} from issue ${issue.identifier}: ${errMsg}`
+        )
+      })
       return { identifier: issue.identifier, result: 'succeeded' }
     }
 
@@ -101,6 +108,10 @@ export class IssueProcessor {
           '',
           ...errors.map((error) => `- ${error.message}`),
         ].join('\n'),
+      })
+      await this._linear.addLabel(issue, LINTDETECTED_LABEL_NAME).catch((thrown) => {
+        const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+        this._logger.error(`Failed to add label ${LINTDETECTED_LABEL_NAME} to issue ${issue.identifier}: ${errMsg}`)
       })
     }
 
