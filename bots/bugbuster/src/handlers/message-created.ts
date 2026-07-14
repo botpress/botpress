@@ -1,5 +1,5 @@
-import { CommandDefinition } from 'src/types'
 import * as boot from '../bootstrap'
+import * as types from '../types'
 import * as bp from '.botpress'
 
 const MESSAGING_INTEGRATIONS = ['telegram', 'slack']
@@ -61,12 +61,12 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
   }
 }
 
-const _buildListCommandsMessage = (definitions: CommandDefinition[]) => {
+const _buildListCommandsMessage = (definitions: types.CommandDefinition[]) => {
   const commands = definitions.map(_buildCommandMessage).join('\n')
   return `Unknown command. Here's a list of possible commands:\n${commands}`
 }
 
-const _buildCommandMessage = (definition: CommandDefinition) => {
+const _buildCommandMessage = (definition: types.CommandDefinition) => {
   const requiredArgs = definition.requiredArgs?.map((arg) => `&lt;${arg}&gt;`).join(' ')
   const optionalArgs = definition.optionalArgs?.map((arg) => `[${arg}]`).join(' ')
 

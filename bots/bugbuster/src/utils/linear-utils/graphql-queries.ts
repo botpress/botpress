@@ -1,4 +1,4 @@
-import * as types from 'src/types'
+import * as types from './types'
 
 const QUERY_INPUT = Symbol('graphqlInputType')
 const QUERY_RESPONSE = Symbol('graphqlResponseType')
@@ -7,65 +7,6 @@ type GraphQLQuery<TInput, TResponse> = {
   query: string
   [QUERY_INPUT]: TInput
   [QUERY_RESPONSE]: TResponse
-}
-
-export type Issue = {
-  id: string
-  identifier: string
-  title: string
-  estimate: number | null
-  priority: number
-  assignee: {
-    id: string
-  } | null
-  state: {
-    id: string
-    name: string
-  }
-  labels: {
-    nodes: {
-      name: string
-      parent: {
-        name: string
-      } | null
-    }[]
-  }
-  inverseRelations: {
-    nodes: {
-      type: string
-    }[]
-  }
-  project: {
-    id: string
-    name: string
-    completedAt: string | null
-  } | null
-  comments: {
-    nodes: {
-      id: string
-      resolvedAt: string | null
-      createdAt: string
-      user: {
-        id: string
-      } | null
-      parentId: string | null
-    }[]
-  }
-}
-
-export type TeamStates = {
-  id: string
-  states: {
-    nodes: {
-      id: string
-      name: string
-    }[]
-  }
-}
-
-export type Pagination = {
-  hasNextPage: boolean
-  endCursor: string
 }
 
 export const GRAPHQL_QUERIES = {
@@ -142,8 +83,8 @@ export const GRAPHQL_QUERIES = {
     },
     [QUERY_RESPONSE]: {} as {
       issues: {
-        nodes: Issue[]
-        pageInfo: Pagination
+        nodes: types.Issue[]
+        pageInfo: types.Pagination
       }
     },
   },
@@ -168,9 +109,66 @@ export const GRAPHQL_QUERIES = {
     },
     [QUERY_RESPONSE]: {} as {
       workflowStates: {
-        nodes: types.LinearState[]
-        pageInfo: Pagination
+        nodes: types.State[]
+        pageInfo: types.Pagination
       }
+    },
+  },
+  findLabel: {
+    query: `
+      query FindLabel($filter: IssueLabelFilter) {
+        issueLabels(filter: $filter) {
+          nodes {
+            id
+            name
+          }
+        }
+      }`,
+    [QUERY_INPUT]: {} as {
+      filter: {
+        name: { eq: string }
+        // The lintdetected label is a workspace-level label; scoping to team-less labels avoids
+        // matching (and caching) a same-named label that belongs to a specific team.
+        team: { null: boolean }
+      }
+    },
+    [QUERY_RESPONSE]: {} as {
+      issueLabels: {
+        nodes: {
+          id: string
+          name: string
+        }[]
+      }
+    },
+  },
+  addLabelToIssue: {
+    query: `
+      mutation AddLabel($id: String!, $labelId: String!) {
+        issueAddLabel(id: $id, labelId: $labelId) {
+          success
+        }
+      }`,
+    [QUERY_INPUT]: {} as {
+      id: string
+      labelId: string
+    },
+    [QUERY_RESPONSE]: {} as {
+      issueAddLabel: { success: boolean }
+    },
+  },
+  removeLabelFromIssue: {
+    query: `
+      mutation RemoveLabel($id: String!, $labelId: String!) {
+        issueRemoveLabel(id: $id, labelId: $labelId) {
+          success
+        }
+      }`,
+    [QUERY_INPUT]: {} as {
+      id: string
+      labelId: string
+    },
+    [QUERY_RESPONSE]: {} as {
+      issueRemoveLabel: { success: boolean }
     },
   },
   findTeamStates: {
