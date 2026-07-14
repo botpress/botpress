@@ -4,7 +4,8 @@
     "postinstall": "genenv -o ./.genenv/index.ts -e BUGBUSTER_GITHUB_TOKEN -e BUGBUSTER_GITHUB_WEBHOOK_SECRET -e BUGBUSTER_LINEAR_API_KEY -e BUGBUSTER_LINEAR_WEBHOOK_SIGNING_SECRET -e BUGBUSTER_TELEGRAM_BOT_TOKEN",
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",
-    "build": "bp add -y && bp build"
+    "build": "bp add -y && bp build",
+    "test": "vitest --run"
   },
   "private": true,
   "dependencies": {

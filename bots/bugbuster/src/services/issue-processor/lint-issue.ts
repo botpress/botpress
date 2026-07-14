@@ -25,6 +25,9 @@ export const lintIssue = (issue: lin.Issue, state: types.CommonStateName): Issue
   if (state === 'BACKLOG' && issue.assignee) {
     lints.push(`Issue ${issue.identifier} has an assignee but is still in the backlog.`)
   }
+  if (state === 'IN_PROGRESS' && !issue.assignee) {
+    lints.push(`Issue ${issue.identifier} is in progress but has no assignee.`)
+  }
 
   const hasArea = issue.labels.nodes.some((label) => label.name.startsWith('area/'))
   if (!hasArea) {
