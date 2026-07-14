@@ -1,37 +1,11 @@
 import { STOREFRONT_LIST_PRODUCTS } from '../client/queries/storefront'
 import { StorefrontClient } from '../client/storefront'
-import { transformStorefrontProduct } from '../transformers'
+import { transformStorefrontProduct, StorefrontProductNode } from '../transformers'
 import * as bp from '.botpress'
 
 type ProductsResponse = {
   products: {
-    edges: Array<{
-      node: {
-        id: string
-        title: string
-        handle: string
-        description: string | null
-        productType: string | null
-        vendor: string | null
-        availableForSale: boolean
-        onlineStoreUrl: string | null
-        priceRange?: {
-          minVariantPrice: { amount: string; currencyCode: string }
-          maxVariantPrice: { amount: string; currencyCode: string }
-        }
-        variants: {
-          edges: Array<{
-            node: {
-              id: string
-              title: string
-              availableForSale: boolean
-              price: { amount: string; currencyCode: string }
-            }
-          }>
-        }
-        images: { edges: Array<{ node: { url: string; altText: string | null } }> }
-      }
-    }>
+    edges: Array<{ node: StorefrontProductNode }>
     pageInfo: {
       hasNextPage: boolean
       endCursor: string | null
