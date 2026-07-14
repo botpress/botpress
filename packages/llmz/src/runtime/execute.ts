@@ -3,6 +3,7 @@ import { Cognitive, CognitiveBeta, cognitiveFromBeta, type BotpressClientLike } 
 
 import { createJoinedAbortController } from '../abort-signal.js'
 import { Context, Iteration } from '../context.js'
+import { _CustomModelClient } from '../custom-client.js'
 import { CognitiveError, LoopExceededError, ThinkSignal } from '../errors.js'
 import { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from '../result.js'
 import { Snapshot } from '../snapshots.js'
@@ -43,11 +44,12 @@ const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionR
 
   const client = props.client ?? new Client()
 
-  const cognitive = Cognitive.isCognitiveClient(client)
-    ? client
-    : CognitiveBeta.isBetaClient(client)
-      ? cognitiveFromBeta(client)
-      : new Cognitive({ client: client as BotpressClientLike, __experimental_beta: true })
+  const cognitive: RuntimeCognitive =
+    Cognitive.isCognitiveClient(client) || _CustomModelClient.isCustomClient(client)
+      ? client
+      : CognitiveBeta.isBetaClient(client)
+        ? cognitiveFromBeta(client)
+        : new Cognitive({ client: client as BotpressClientLike, __experimental_beta: true })
 
   const ctx = new Context({
     chat: props.chat,
