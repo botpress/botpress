@@ -2,14 +2,19 @@ import * as types from '../types'
 import * as lin from '../utils/linear-utils'
 
 /**
- * The marker appended to each kind of bot comment so it can be found and updated later. Keeping a
- * comment's kind out of the Linear client (which only sees an opaque predicate/body) means all of
- * this — the marker convention and the one-open-comment-per-kind behavior — lives here.
+ * Stable identifier for each kind of bot comment, embedded verbatim in the comment footer so the bot
+ * can find and update its own comment later. The predicate matches ONLY this token, decoupled from
+ * how the footer is styled: the decoration built around the marker (emoji, wording, divider) can
+ * change freely and stay backward compatible, but a marker value itself must never change — doing so
+ * would orphan every comment already posted with the old one. Keeping the Linear client unaware of
+ * comment kinds means this convention and the one-open-comment-per-kind behavior live entirely here.
  */
 const COMMENT_MARKERS: Record<types.CommentType, string> = {
-  lint: '#lint',
-  stale: '#stale',
+  lint: 'BugBuster · lint',
+  stale: 'BugBuster · stale',
 }
+
+const _buildFooter = (marker: string): string => `---\n_🐛 via ${marker}_`
 
 export class CommentService {
   public constructor(
@@ -23,7 +28,7 @@ export class CommentService {
     await this._linear.upsertComment({
       issue,
       botId: this._botId,
-      body: `${body}\n\n${marker}`,
+      body: `${body}\n\n${_buildFooter(marker)}`,
       predicate: (comment) => comment.body.includes(marker),
     })
   }
