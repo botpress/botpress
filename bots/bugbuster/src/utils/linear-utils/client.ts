@@ -4,6 +4,9 @@ import * as bp from '.botpress'
 
 const ISSUES_PER_PAGE = 50
 const STATES_PER_PAGE = 200
+const COMMENTS_PER_PAGE = 100
+
+type CommentPredicate = (comment: types.IssueComment) => boolean
 
 export class LinearApi {
   private _teams?: types.Team[] = undefined
@@ -91,17 +94,75 @@ export class LinearApi {
     return { issues: data.issues.nodes, pagination: data.issues.pageInfo }
   }
 
-  public async resolveComments(issue: types.Issue): Promise<void> {
-    const comments = issue.comments.nodes
-    const me = await this.getViewerId()
+  public async resolveComments(props: { issue: types.Issue; predicate?: CommentPredicate }): Promise<void> {
+    const botComments = await this._listBotComments(props.issue.id)
+    const openComments = this._filterOpenComments(botComments, props.predicate)
+    await this._resolveComments(openComments)
+  }
 
-    const promises: ReturnType<typeof this._bpClient.callAction<'linear:resolveComment'>>[] = []
-    for (const comment of comments) {
-      if (comment.user?.id === me && !comment.parentId && !comment.resolvedAt) {
-        promises.push(this._bpClient.callAction({ type: 'linear:resolveComment', input: { id: comment.id } }))
-      }
+  public async upsertComment(props: {
+    issue: types.Issue
+    body: string
+    botId: string
+    predicate?: CommentPredicate
+  }): Promise<void> {
+    const { issue, body, botId } = props
+
+    const botComments = await this._listBotComments(issue.id)
+    const openComments = this._filterOpenComments(botComments, props.predicate).sort(this._byCreatedAtDesc)
+
+    // Self-heal a broken state (e.g. two racing upserts each created a comment): keep the most
+    // recent matching comment as the canonical one and resolve the older extras, converging to one.
+    const [existing, ...duplicates] = openComments
+    await this._resolveComments(duplicates)
+
+    if (!existing) {
+      await this.createComment({ body, issueId: issue.id, botId })
+      return
     }
-    await Promise.all(promises)
+
+    if (existing.body.trim() === body.trim()) {
+      return
+    }
+
+    await this._executeGraphqlQuery('updateComment', { id: existing.id, input: { body } })
+  }
+
+  /**
+   * Fetches all of the bot's own comments on the issue, following pagination. Filtering by the bot
+   * user server-side means a busy thread can't push the bot's comment out of view (which would make
+   * upsert miss it and post a duplicate).
+   */
+  private async _listBotComments(issueId: string): Promise<types.IssueComment[]> {
+    const me = await this.getViewerId()
+    let comments: types.IssueComment[] = []
+    let after: string | undefined = undefined
+
+    do {
+      const queryInput: graphql.GRAPHQL_QUERIES['listComments'][graphql.QUERY_INPUT] = {
+        filter: { issue: { id: { eq: issueId } }, user: { id: { eq: me } } },
+        first: COMMENTS_PER_PAGE,
+        ...(after && { after }),
+      }
+      const data = await this._executeGraphqlQuery('listComments', queryInput)
+      comments = comments.concat(data.comments.nodes)
+      after = data.comments.pageInfo.hasNextPage ? data.comments.pageInfo.endCursor : undefined
+    } while (after)
+
+    return comments
+  }
+
+  private _filterOpenComments(
+    comments: types.IssueComment[],
+    predicate: CommentPredicate = () => true
+  ): types.IssueComment[] {
+    return comments.filter((comment) => !comment.parentId && !comment.resolvedAt && predicate(comment))
+  }
+
+  private async _resolveComments(comments: types.IssueComment[]): Promise<void> {
+    await Promise.all(
+      comments.map(({ id }) => this._bpClient.callAction({ type: 'linear:resolveComment', input: { id } }))
+    )
   }
 
   public async createComment(props: { body: string; issueId: string; botId: string }): Promise<void> {
@@ -225,4 +286,7 @@ export class LinearApi {
     })
     return result.output.result as graphql.GRAPHQL_QUERIES[K][graphql.QUERY_RESPONSE]
   }
+
+  private _byCreatedAtDesc = (a: { createdAt: string }, b: { createdAt: string }) =>
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
 }
