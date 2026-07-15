@@ -10,7 +10,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { ROOT, SCENARIOS, runCase, pad, asNum } from './lib'
 
-const ZUI_IMPORT = `import { z } from '@bpinternal/zui'`
+const ZUI_IMPORT = "import { z } from '@bpinternal/zui'"
 
 const THRESHOLDS_FILE = join(ROOT, 'instantiation-thresholds.json')
 
@@ -27,7 +27,7 @@ const results = Object.keys(SCENARIOS).map((scenario) => {
 })
 
 let failed = false
-console.log('\nzui instantiations vs threshold:')
+console.error('\nzui instantiations vs threshold:')
 for (const r of results) {
   const threshold = thresholds[r.scenario]
   const count = asNum(r['Instantiations'])
@@ -38,7 +38,7 @@ for (const r of results) {
   }
   const over = count > threshold
   if (over) failed = true
-  console.log(
+  console.error(
     `  ${pad(r.scenario, 20)} ${pad(count.toLocaleString(), 12)} / ${pad(threshold.toLocaleString(), 12)}${over ? '  <-- OVER THRESHOLD' : ''}`
   )
 }
@@ -48,4 +48,4 @@ if (failed) {
   process.exit(1)
 }
 
-console.log('\nOK - within thresholds.')
+console.error('\nOK - within thresholds.')
