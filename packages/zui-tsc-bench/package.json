@@ -1,9 +1,9 @@
 {
   "name": "@bpinternal/zui-tsc-bench",
-  "version": "0.0.0",
   "private": true,
   "description": "CI check for zui's TypeScript instantiation cost per schema pattern",
   "scripts": {
+    "check:type": "tsc --noEmit",
     "check:instantiations": "ts-node -T check-instantiations.ts"
   },
   "devDependencies": {
