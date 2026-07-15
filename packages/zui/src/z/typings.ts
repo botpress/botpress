@@ -884,6 +884,14 @@ export type ZodRawShape = {
   [k: string]: IZodType
 }
 
+// Deliberately loose — used only as the *inference-site* constraint on z.object()/z.strictObject()'s
+// public shape parameter, so a self-referential getter (e.g. `get subcategories() { return z.array(Category) }`)
+// doesn't force TypeScript to resolve the getter's return type (Category's own type) just to check
+// assignability against the constraint, which is circular and unresolvable without a manual annotation.
+// The real, structurally-checked ZodRawShape is still used everywhere else (ObjectOutputType, ZodObjectImpl, etc.) —
+// only this one call-site boundary is widened. See RECURSIVE_SCHEMAS.md.
+export type ZodRawShapeArg = Record<string, any>
+
 export type UnknownKeysParam = 'passthrough' | 'strict' | 'strip' | IZodType
 export type ZodObjectDef<
   T extends ZodRawShape = ZodRawShape,
@@ -1795,8 +1803,8 @@ export declare function createEnum(
 
 export declare function createNativeEnum<T extends EnumLike>(values: T, params?: ZodCreateParams): IZodNativeEnum<T>
 export declare function createArray<T extends IZodType>(schema: T, params?: ZodCreateParams): IZodArray<T>
-export declare function createObject<T extends ZodRawShape>(shape: T, params?: ZodCreateParams): IZodObject<T, 'strip'>
-export declare function createStrictObject<T extends ZodRawShape>(
+export declare function createObject<T extends ZodRawShapeArg>(shape: T, params?: ZodCreateParams): IZodObject<T, 'strip'>
+export declare function createStrictObject<T extends ZodRawShapeArg>(
   shape: T,
   params?: ZodCreateParams
 ): IZodObject<T, 'strict'>
