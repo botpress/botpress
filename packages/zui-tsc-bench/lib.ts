@@ -63,7 +63,7 @@ const manyObjects = (n: number, keyCount = 10): string => {
 }
 
 export const SCENARIOS: Record<string, () => string> = {
-  control: () => `export const c = z.object({ a: z.string(), b: z.number() })\nexport type C = z.infer<typeof c>`,
+  control: () => 'export const c = z.object({ a: z.string(), b: z.number() })\nexport type C = z.infer<typeof c>',
   'extend-chain-10': () => extendChain(10),
   'extend-chain-25': () => extendChain(25),
   'pick-omit-chain-10': () => pickOmitChain(10),
@@ -86,7 +86,7 @@ const caseTsconfig = {
 
 const METRICS = ['Types', 'Instantiations', 'Memory used', 'Check time', 'Total time'] as const
 
-export interface CaseResult {
+export type CaseResult = {
   subject: string
   scenario: string
   errors: number
