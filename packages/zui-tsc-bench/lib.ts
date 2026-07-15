@@ -114,8 +114,11 @@ export function runCase(subject: string, subjectImport: string, scenario: string
   try {
     stdout = execFileSync(process.execPath, [TSC, '-p', dir], { encoding: 'utf8' })
   } catch (e) {
-    // tsc exits non-zero on type errors (e.g. TS2589) but still prints diagnostics
     const err = e as { stdout?: string; stderr?: string }
+    if (err.stdout === undefined) {
+      throw new Error(`Failed to run tsc for ${subject}/${scenario}: ${(e as Error).message}`)
+    }
+    // tsc exits non-zero on type errors (e.g. TS2589) but still prints diagnostics
     stdout = (err.stdout ?? '') + (err.stderr ?? '')
     failed = true
   }
@@ -125,6 +128,13 @@ export function runCase(subject: string, subjectImport: string, scenario: string
     const m = stdout.match(new RegExp(`^${metric}:\\s+([\\d.,]+[a-zA-Z]*)`, 'm'))
     result[metric] = m?.[1] ?? 'n/a'
   }
+
+  if (result.Instantiations === 'n/a') {
+    throw new Error(
+      `Could not parse "Instantiations" from tsc's --extendedDiagnostics output for ${subject}/${scenario}. Raw output:\n${stdout}`
+    )
+  }
+
   return result
 }
 

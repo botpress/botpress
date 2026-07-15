@@ -23,7 +23,12 @@ const thresholds: Record<string, number> = JSON.parse(readFileSync(THRESHOLDS_FI
 
 const results = Object.keys(SCENARIOS).map((scenario) => {
   process.stderr.write(`running zui / ${scenario}...\n`)
-  return runCase('zui', ZUI_IMPORT, scenario)
+  try {
+    return runCase('zui', ZUI_IMPORT, scenario)
+  } catch (e) {
+    console.error(`\n${(e as Error).message}`)
+    process.exit(1)
+  }
 })
 
 let failed = false
