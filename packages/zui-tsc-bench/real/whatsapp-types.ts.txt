@@ -1,0 +1,433 @@
+// Lifted from integrations/whatsapp/src/misc/types.ts — a real schema-heavy file.
+// Kept verbatim except: subject import prepended by bench, qualityScoreSchema inlined,
+// one zui-specific .title() removed for zod3/zod4 portability.
+const qualityScoreSchema = z.enum(['GREEN', 'RED', 'YELLOW', 'UNKNOWN'])
+
+const WhatsAppContactSchema = z.object({
+  wa_id: z.string().optional(),
+  user_id: z.string().optional(),
+  profile: z
+    .object({
+      name: z.string().optional(),
+      username: z.string().optional(),
+    })
+    .optional(),
+})
+
+const WhatsAppBaseMessageSchema = z.object({
+  from: z.string().optional(),
+  from_user_id: z.string().optional(),
+  id: z.string(),
+  timestamp: z.string(),
+  type: z.string(),
+  context: z
+    .object({
+      forwarded: z.boolean().optional(),
+      frequently_forwarded: z.boolean().optional(),
+      from: z.string().optional(),
+      id: z.string().optional(),
+    })
+    .optional(),
+  // there are other fields in the referral object, but we don't need them
+  referral: z
+    .object({
+      source_url: z.string().optional(),
+      source_id: z.string().optional(),
+    })
+    .optional(),
+  errors: z
+    .array(
+      z.object({
+        code: z.number(),
+        title: z.string(),
+        message: z.string(),
+        error_data: z.object({
+          details: z.string(),
+        }),
+      })
+    )
+    .optional(),
+})
+
+const WhatsAppMessageInteractiveSchema = z.union([
+  z.object({
+    type: z.literal('button_reply'),
+    button_reply: z.object({
+      id: z.string(),
+      title: z.string(),
+    }),
+  }),
+  z.object({
+    type: z.literal('list_reply'),
+    list_reply: z.object({
+      id: z.string(),
+      title: z.string(),
+      description: z.string(),
+    }),
+  }),
+])
+
+const WhatsAppMessageSchema = z.union([
+  WhatsAppBaseMessageSchema.extend({
+    type: z.literal('text'),
+    text: z.object({
+      body: z.string(),
+    }),
+  }),
+  WhatsAppBaseMessageSchema.extend({
+    type: z.literal('image'),
+    image: z.object({
+      caption: z.string().optional(),
+      sha256: z.string(),
+      id: z.string(),
+      mime_type: z.string(),
+    }),
+  }),
+  WhatsAppBaseMessageSchema.extend({
+    type: z.literal('button'),
+    button: z.object({
+      payload: z.string(),
+      text: z.string(),
+    }),
+  }),
+  WhatsAppBaseMessageSchema.extend({
+    type: z.literal('location'),
+    location: z.object({
+      address: z.string().optional(),
+      latitude: z.number(),
+      longitude: z.number(),
+      name: z.string().optional(),
+      url: z.string().optional(),
+    }),
+  }),
+  WhatsAppBaseMessageSchema.extend({
+    type: z.literal('document'),
+    document: z.object({
+      caption: z.string().optional(),
+      filename: z.string(),
+      sha256: z.string(),
+      mime_type: z.string(),
+      id: z.string(),
+    }),
+  }),
+  WhatsAppBaseMessageSchema.extend({
+    type: z.literal('audio'),
+    //could be audio file, or voice note
+    audio: z.object({
+      id: z.string(),
+      mime_type: z.string(),
+    }),
+  }),
+  WhatsAppBaseMessageSchema.extend({
+    type: z.literal('video'),
+    video: z.object({
+      caption: z.string().optional(),
+      sha256: z.string(),
+      id: z.string(),
+      mime_type: z.string(),
+    }),
+  }),
+  WhatsAppBaseMessageSchema.extend({
+    type: z.literal('interactive'),
+    interactive: WhatsAppMessageInteractiveSchema,
+  }),
+  WhatsAppBaseMessageSchema.extend({
+    type: z.literal('sticker'),
+    sticker: z.object({
+      mime_type: z.string(),
+      sha256: z.string(),
+      id: z.string(),
+      animated: z.boolean(),
+    }),
+  }),
+  WhatsAppBaseMessageSchema.extend({
+    type: z.literal('reaction'), // not documented but can be received
+    reaction: z.object({
+      message_id: z.string(),
+      emoji: z
+        .string()
+        .optional()
+        .describe('The emoji used in the reaction or undefined if the reaction was removed'),
+    }),
+  }),
+  WhatsAppBaseMessageSchema.extend({
+    type: z.union([
+      z.literal('order'),
+      z.literal('system'),
+      z.literal('unknown'),
+      z.literal('unsupported'), // not documented but can be received
+      z.literal('contacts'), // not documented but can be received
+    ]),
+  }),
+])
+export type WhatsAppMessage = z.infer<typeof WhatsAppMessageSchema>
+export type WhatsAppReactionMessage = WhatsAppMessage & {
+  type: 'reaction'
+}
+
+const WhatsAppStatusSchema = z.object({
+  id: z.string(),
+  status: z.enum(['sent', 'delivered', 'read', 'failed']),
+  timestamp: z.string(),
+  recipient_id: z.string(),
+  errors: z
+    .array(
+      z.object({
+        code: z.number(),
+        title: z.string(),
+        message: z.string(),
+        error_data: z
+          .object({
+            details: z.string(),
+          })
+          .optional(),
+      })
+    )
+    .optional(),
+})
+
+export type WhatsAppStatusValue = z.infer<typeof WhatsAppStatusSchema>
+
+const WhatsAppMessageValueSchema = z.object({
+  messaging_product: z.literal('whatsapp'),
+  metadata: z.object({
+    display_phone_number: z.string(),
+    phone_number_id: z.string(),
+  }),
+  contacts: z.array(WhatsAppContactSchema).optional(),
+  messages: z.array(WhatsAppMessageSchema).optional(),
+  statuses: z.array(WhatsAppStatusSchema).optional(),
+})
+export type WhatsAppMessageValue = z.infer<typeof WhatsAppMessageValueSchema>
+
+export const WhatsAppMessageTemplateComponentsUpdateValueSchema = z.object({
+  message_template_id: z.number(),
+  message_template_name: z.string(),
+  message_template_language: z.string(),
+  message_template_element: z.string(),
+  message_template_title: z.string().optional(),
+  message_template_footer: z.string().optional(),
+  message_template_buttons: z
+    .array(
+      z.object({
+        message_template_button_type: z.enum([
+          'CATALOG',
+          'COPY_CODE',
+          'EXTENSION',
+          'FLOW',
+          'MPM',
+          'ORDER_DETAILS',
+          'OTP',
+          'PHONE_NUMBER',
+          'POSTBACK',
+          'REMINDER',
+          'SEND_LOCATION',
+          'SPM',
+          'QUICK_REPLY',
+          'URL',
+          'VOICE_CALL',
+        ]),
+        message_template_button_text: z.string(),
+        message_template_button_url: z.string().optional(),
+        message_template_button_phone_number: z.string().optional(),
+      })
+    )
+    .optional(),
+})
+
+export const WhatsAppMessageTemplateQualityUpdateValueSchema = z.object({
+  previous_quality_score: qualityScoreSchema,
+  new_quality_score: qualityScoreSchema,
+  message_template_id: z.number(),
+  message_template_name: z.string(),
+  message_template_language: z.string(),
+})
+
+export const WhatsAppMessageTemplateStatusUpdateValueSchema = z.object({
+  event: z.enum([
+    'APPROVED',
+    'ARCHIVED',
+    'DELETED',
+    'DISABLED',
+    'FLAGGED',
+    'IN_APPEAL',
+    'LIMIT_EXCEEDED',
+    'LOCKED',
+    'PAUSED',
+    'PENDING',
+    'REINSTATED',
+    'PENDING_DELETION',
+    'REJECTED',
+  ]),
+  message_template_id: z.number(),
+  message_template_name: z.string(),
+  message_template_language: z.string(),
+  reason: z
+    .enum([
+      'ABUSIVE_CONTENT',
+      'CATEGORY_NOT_AVAILABLE',
+      'INCORRECT_CATEGORY',
+      'INVALID_FORMAT',
+      'NONE',
+      'PROMOTIONAL',
+      'SCAM',
+      'TAG_CONTENT_MISMATCH',
+    ])
+    .nullable(),
+  disable_info: z.object({ disable_date: z.number() }).optional(),
+  other_info: z
+    .object({
+      title: z.enum(['FIRST_PAUSE', 'SECOND_PAUSE', 'RATE_LIMITING_PAUSE', 'UNPAUSE', 'DISABLED']),
+      description: z.string(),
+    })
+    .optional(),
+})
+
+export const WhatsAppTemplateCategoryUpdateValueSchema = z.object({
+  message_template_id: z.number(),
+  message_template_name: z.string(),
+  message_template_language: z.string(),
+  correct_category: z.string().optional(),
+  previous_category: z.string().optional(),
+  new_category: z.string().optional(),
+})
+
+const WhatsAppEchoMessageSchema = WhatsAppMessageSchema.and(
+  z.object({ to: z.string(), message_creation_type: z.string() })
+)
+export type WhatsAppEchoMessage = z.infer<typeof WhatsAppEchoMessageSchema>
+
+const WhatsAppMessageEchoValueSchema = z.object({
+  messaging_product: z.literal('whatsapp'),
+  metadata: z.object({
+    display_phone_number: z.string(),
+    phone_number_id: z.string(),
+  }),
+  message_echoes: z.array(WhatsAppEchoMessageSchema),
+})
+export type WhatsAppMessageEchoValue = z.infer<typeof WhatsAppMessageEchoValueSchema>
+
+const WhatsAppChangesSchema = z.discriminatedUnion('field', [
+  z.object({
+    field: z.literal('messages'),
+    value: WhatsAppMessageValueSchema,
+  }),
+  z.object({
+    field: z.literal('smb_message_echoes'),
+    value: WhatsAppMessageEchoValueSchema,
+  }),
+  z.object({
+    field: z.literal('message_template_components_update'),
+    value: WhatsAppMessageTemplateComponentsUpdateValueSchema,
+  }),
+  z.object({
+    field: z.literal('message_template_quality_update'),
+    value: WhatsAppMessageTemplateQualityUpdateValueSchema,
+  }),
+  z.object({
+    field: z.literal('message_template_status_update'),
+    value: WhatsAppMessageTemplateStatusUpdateValueSchema,
+  }),
+  z.object({
+    field: z.literal('template_category_update'),
+    value: WhatsAppTemplateCategoryUpdateValueSchema,
+  }),
+])
+
+const WhatsAppEntrySchema = z.object({
+  id: z.string(),
+  changes: z.array(WhatsAppChangesSchema),
+})
+
+export const WhatsAppPayloadSchema = z.object({
+  object: z.literal('whatsapp_business_account'),
+  entry: z.array(WhatsAppEntrySchema),
+})
+export type WhatsAppPayload = z.infer<typeof WhatsAppPayloadSchema>
+
+// Schema from https://developers.facebook.com/docs/whatsapp/business-management-api/message-templates/components
+const componentSchema = z.union([
+  z.object({
+    type: z.literal('HEADER'),
+    format: z.literal('TEXT'),
+    text: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal('HEADER'),
+    format: z.enum(['IMAGE', 'VIDEO', 'GIF', 'DOCUMENT']),
+    example: z.object({
+      header_handle: z.array(z.string()),
+    }),
+  }),
+  z.object({
+    type: z.literal('HEADER'),
+    format: z.undefined(),
+    parameters: z.array(
+      z.object({
+        type: z.literal('location'),
+        location: z.object({
+          latitude: z.string(),
+          longitude: z.string(),
+          name: z.string(),
+          address: z.string(),
+        }),
+      })
+    ),
+  }),
+  z.object({
+    type: z.literal('BODY'),
+    text: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal('FOOTER'),
+    text: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal('BUTTONS'),
+    buttons: z.array(z.object({ text: z.string().optional() })),
+  }),
+  z.object({
+    type: z.literal('FLOW'),
+    text: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal('PHONE_NUMBER'),
+    text: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal('QUICK_REPLY'),
+    text: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal('URL'),
+    text: z.string().optional(),
+  }),
+])
+export type Component = z.infer<typeof componentSchema>
+export const positionalVariablesSchema = z.array(z.string().or(z.number()))
+export type PositionalVariables = z.infer<typeof positionalVariablesSchema>
+
+export const namedVariablesSchema = z.record(z.string(), z.string().or(z.number()))
+export type NamedVariables = z.infer<typeof namedVariablesSchema>
+
+export const templateVariablesSchema = z.union([positionalVariablesSchema, namedVariablesSchema])
+export type TemplateVariables = z.infer<typeof templateVariablesSchema>
+
+export const keyValuePairSchema = z.object({ key: z.string(), value: z.string() })
+export type KeyValuePair = z.infer<typeof keyValuePairSchema>
+
+export type TemplateHeaderParam =
+  | { type: 'text'; value: string; parameterName?: string }
+  | { type: 'image'; url: string }
+  | { type: 'video'; url: string }
+  | { type: 'document'; url: string; filename?: string }
+
+export type TemplateBodyParams =
+  | { type: 'positional'; values: string[] }
+  | { type: 'named'; values: Record<string, string> }
+
+export type TemplateButtonParam =
+  | { type: 'url'; value: string }
+  | { type: 'quick_reply'; payload: string }
+  | { type: 'copy_code'; code: string }
+  | { type: 'skip' }
