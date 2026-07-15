@@ -1,5 +1,8 @@
 import * as lin from './utils/linear-utils'
 
+export type ValueOf<T> = T[keyof T]
+export type Satisfies<T, U extends T> = U
+
 export type LintResult =
   | {
       identifier: string
@@ -11,20 +14,28 @@ export type LintResult =
       result: 'succeeded' | 'ignored'
     }
 
-export type CommonStateName =
-  | 'IN_PROGRESS'
-  | 'STAGING'
-  | 'DONE'
-  | 'BACKLOG'
-  | 'TODO'
-  | 'TRIAGE'
-  | 'CANCELED'
-  | 'BLOCKED'
-  | 'STALE'
-  | 'DUPLICATE'
+export type CommonStates = Satisfies<
+  Record<lin.StateType, string>,
+  {
+    triage: 'TRIAGE'
+    backlog: 'BACKLOG'
+    unstarted: 'TODO'
+    started: 'IN_PROGRESS' | 'BLOCKED' | 'IN_REVIEW' | 'STAGING' | 'MONITORING'
+    completed: 'DONE'
+    canceled: 'CANCELED' | 'STALE'
+    duplicate: 'DUPLICATE'
+  }
+>
 
+export type CommonStateName = ValueOf<CommonStates>
+
+export type StateEntry = lin.State & {
+  commonName?: CommonStateName
+}
+
+export type StatePredicate = (state: StateEntry) => boolean
 export type StateAttributes = {
-  commonStateName: CommonStateName
+  filter: StatePredicate
   maxTimeSinceLastUpdate: lin.ISO8601Duration
   warningComment: string
   buildWarningReason: (issueIdentifier: string) => string
