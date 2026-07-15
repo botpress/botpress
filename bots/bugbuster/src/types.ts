@@ -12,19 +12,26 @@ export type LintResult =
     }
 
 export type CommonStateName =
-  | 'IN_PROGRESS'
-  | 'STAGING'
-  | 'DONE'
+  | 'TRIAGE'
   | 'BACKLOG'
   | 'TODO'
-  | 'TRIAGE'
-  | 'CANCELED'
+  | 'IN_PROGRESS'
   | 'BLOCKED'
+  | 'IN_REVIEW'
+  | 'STAGING'
+  | 'MONITORING'
+  | 'DONE'
+  | 'CANCELED'
   | 'STALE'
   | 'DUPLICATE'
 
+export type StateEntry = lin.State & {
+  commonName?: CommonStateName
+}
+
+export type StatePredicate = (state: StateEntry) => boolean
 export type StateAttributes = {
-  commonStateName: CommonStateName
+  filter: StatePredicate
   maxTimeSinceLastUpdate: lin.ISO8601Duration
   warningComment: string
   buildWarningReason: (issueIdentifier: string) => string
