@@ -2,7 +2,6 @@ import { CommandProcessor } from './services/command-processor'
 import { CommentService } from './services/comment-service'
 import { IssueProcessor } from './services/issue-processor'
 import { IssueStateChecker } from './services/issue-state-checker'
-import { RecentlyLintedManager } from './services/recently-linted-manager'
 import { StateService } from './services/state-service'
 import { TeamsManager } from './services/teams-manager'
 import * as utils from './utils'
@@ -14,7 +13,6 @@ export const bootstrap = (props: utils.botpress.CommonHandlerProps) => {
   const linear = utils.linear.LinearApi.create(client)
   const stateService = new StateService(linear)
   const teamsManager = new TeamsManager(linear, client, ctx.botId)
-  const recentlyLintedManager = new RecentlyLintedManager(linear)
   const commentService = new CommentService(linear, ctx.botId)
   const issueProcessor = new IssueProcessor(logger, linear, commentService, stateService, teamsManager)
   const issueStateChecker = new IssueStateChecker(linear, commentService, stateService, logger)
@@ -25,7 +23,6 @@ export const bootstrap = (props: utils.botpress.CommonHandlerProps) => {
     linear,
     stateService,
     teamsManager,
-    recentlyLintedManager,
     commentService,
     issueProcessor,
     issueStateChecker,

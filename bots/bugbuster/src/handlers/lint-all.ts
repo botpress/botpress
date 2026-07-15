@@ -50,7 +50,7 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
     const pageResults: types.LintResult[] = []
     for (const issue of pagedIssues.issues) {
       const lintResult = await issueProcessor
-        .lintIssue(issue, undefined, { comment })
+        .lintIssue(issue, { comment })
         .catch(_handleError(`trying to lint issue ${issue.identifier}`))
       lintResults.push(lintResult)
       pageResults.push(lintResult)
