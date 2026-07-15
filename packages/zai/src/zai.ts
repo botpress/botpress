@@ -20,6 +20,20 @@ export type Memoizer = {
 }
 
 /**
+ * Arbitrary key-value metadata attached to every cognitive call made by a Zai instance.
+ *
+ * Forwarded on the request `meta` and recorded on usage events server-side, enabling
+ * usage breakdowns by custom dimensions (e.g. conversation).
+ *
+ * @example
+ * ```typescript
+ * const convZai = zai.with({ metadata: { conversationId: message.conversationId } })
+ * await convZai.check(text, 'Is this a refund request?')
+ * ```
+ */
+export type ZaiMetadata = Record<string, string>
+
+/**
  * Active learning configuration for improving AI operations over time.
  *
  * When enabled, Zai stores successful operation results in a table and uses them as examples
@@ -112,6 +126,11 @@ export type ZaiConfig = {
    * If a factory function is provided, it is called once per Zai operation invocation.
    */
   memoize?: Memoizer | (() => Memoizer)
+  /**
+   * Arbitrary key-value metadata attached to every cognitive call, recorded on usage
+   * events server-side. Use `zai.with({ metadata })` to scope it, e.g. per conversation.
+   */
+  metadata?: ZaiMetadata
 }
 
 const _ZaiConfig = z.object({
@@ -143,6 +162,10 @@ const _ZaiConfig = z.object({
       'Namespace must be alphanumeric and contain only letters, numbers, underscores, hyphens and slashes'
     )
     .default('zai'),
+  metadata: z
+    .record(z.string().max(128))
+    .describe('Arbitrary key-value metadata attached to every cognitive call and recorded on usage events')
+    .optional(),
 })
 
 /**
@@ -221,6 +244,7 @@ export class Zai {
   protected adapter: Adapter
   protected activeLearning: ActiveLearning
   protected _memoize?: Memoizer | (() => Memoizer)
+  protected metadata?: ZaiMetadata
 
   /**
    * Creates a new Zai instance with the specified configuration.
@@ -255,6 +279,7 @@ export class Zai {
     this._userId = parsed.userId
     this.Model = parsed.modelId as Models | Models[]
     this.activeLearning = parsed.activeLearning as ActiveLearning
+    this.metadata = parsed.metadata
 
     this.adapter = parsed.activeLearning?.enable
       ? new TableAdapter({
