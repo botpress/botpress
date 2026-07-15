@@ -19,7 +19,7 @@ export const lintIssue = (issue: lin.Issue, state: types.StateEntry): IssueLint[
   if (state.commonName === 'BLOCKED' && !issue.assignee && !hasBlockedRelation) {
     lints.push(`Issue ${issue.identifier} is blocked but has no assignee.`)
   }
-  if (state.commonName && !hasBlockedLabel && !hasBlockedRelation) {
+  if (state.commonName === 'BLOCKED' && !hasBlockedLabel && !hasBlockedRelation) {
     lints.push(`Issue ${issue.identifier} is blocked but missing a "blocked" label or a blocking issue.`)
   }
   if (state.type === 'backlog' && issue.assignee) {
