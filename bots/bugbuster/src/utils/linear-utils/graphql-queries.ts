@@ -48,6 +48,7 @@ export const GRAPHQL_QUERIES = {
             comments {
               nodes {
                 id,
+                body,
                 user {
                   id
                 },
@@ -84,6 +85,41 @@ export const GRAPHQL_QUERIES = {
     [QUERY_RESPONSE]: {} as {
       issues: {
         nodes: types.Issue[]
+        pageInfo: types.Pagination
+      }
+    },
+  },
+  listComments: {
+    query: `
+      query ListComments($filter: CommentFilter, $first: Int, $after: String) {
+        comments(filter: $filter, first: $first, after: $after) {
+          nodes {
+            id
+            body
+            user {
+              id
+            }
+            parentId
+            resolvedAt
+            createdAt
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+        }
+      }`,
+    [QUERY_INPUT]: {} as {
+      filter: {
+        issue: { id: { eq: string } }
+        user: { id: { eq: string } }
+      }
+      first?: number
+      after?: string
+    },
+    [QUERY_RESPONSE]: {} as {
+      comments: {
+        nodes: types.IssueComment[]
         pageInfo: types.Pagination
       }
     },
@@ -169,6 +205,21 @@ export const GRAPHQL_QUERIES = {
     },
     [QUERY_RESPONSE]: {} as {
       issueRemoveLabel: { success: boolean }
+    },
+  },
+  updateComment: {
+    query: `
+      mutation UpdateComment($id: String!, $input: CommentUpdateInput!) {
+        commentUpdate(id: $id, input: $input) {
+          success
+        }
+      }`,
+    [QUERY_INPUT]: {} as {
+      id: string
+      input: { body: string }
+    },
+    [QUERY_RESPONSE]: {} as {
+      commentUpdate: { success: boolean }
     },
   },
   findTeamStates: {

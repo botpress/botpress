@@ -30,6 +30,8 @@ export type StateAttributes = {
   buildWarningReason: (issueIdentifier: string) => string
 }
 
+export type CommentType = 'lint' | 'stale'
+
 type CommandResult = { success: boolean; message: string }
 export type CommandImplementation = (args: string[], conversationId: string) => CommandResult | Promise<CommandResult>
 export type CommandDefinition = {
