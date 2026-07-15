@@ -60,11 +60,7 @@ export class IssueProcessor {
     )
   }
 
-  public async lintIssue(
-    issue: lin.Issue,
-    isRecentlyLinted?: boolean,
-    options?: { comment?: boolean }
-  ): Promise<types.LintResult> {
+  public async lintIssue(issue: lin.Issue, options?: { comment?: boolean }): Promise<types.LintResult> {
     const shouldComment = options?.comment ?? true
     const state = await this._stateService.getIssueCommonStateName(issue)
     if (!state) {
@@ -93,10 +89,6 @@ export class IssueProcessor {
     }
 
     const warningMessage = `Issue ${issue.identifier} has ${errors.length} lint errors.`
-    if (isRecentlyLinted) {
-      this._logger.warn(`${warningMessage} Not commenting the issue because it has been linted recently.`)
-      return { identifier: issue.identifier, result: 'succeeded' }
-    }
 
     this._logger.warn(warningMessage)
 
