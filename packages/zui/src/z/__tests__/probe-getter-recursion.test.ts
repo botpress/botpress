@@ -3,6 +3,9 @@ import * as z from '../index'
 import { toJSONSchema } from '../../transforms/zui-to-json-schema'
 import { toTypescriptType } from '../../transforms/zui-to-typescript-type'
 import { toTypescriptSchema } from '../../transforms/zui-to-typescript-schema'
+import { execFileSync } from 'node:child_process'
+import * as path from 'node:path'
+import { Bad } from './fixtures/non-schema-shape-value.fixture'
 
 // --- self recursion ---
 const Category = z.object({
@@ -106,16 +109,33 @@ test('toTypescriptSchema: mutual recursion does not stack overflow', () => {
   expect(ts).toBeTruthy()
 })
 
-test('probe: what happens at runtime if a shape value is not a real schema', () => {
-  const Bad = z.object({
-    name: z.string(),
-    // @ts-expect-error - intentionally not wrapped in z.number(), simulating the typo
-    age: 42,
-  })
+// Tracks the type-safety trade-off from RECURSIVE_SCHEMAS.md. Uses the isolated fixture at
+// fixtures/non-schema-shape-value.fixture.ts (kept free of Category/User's own circular-inference
+// errors, which were found to cascade and mask unrelated diagnostics when checked in the same file)
+// as the single source of truth for both the runtime and compile-time sides of this behavior.
+test('shape validation (before the loosening): a non-schema value is only caught once .parse() runs, not at construction', () => {
+  expect(() => Bad.parse({ name: 'x', age: 42 })).toThrow('keyValidator._parse is not a function')
+})
+
+// This is expected to FAIL today, on purpose: it documents that the compile-time guardrail is still
+// intact (ZodRawShape's strict `IZodType` constraint), so trying to prove "this doesn't error at
+// compile time" is currently a false claim. If the shape constraint is ever loosened to support
+// annotation-free recursion, this test should start passing — flip it into a real, non-inverted
+// assertion at that point instead of leaving it red.
+test('shape validation (after the loosening, not yet implemented): a non-schema value should NOT be a compile error', () => {
+  const tscBin = require.resolve('typescript/bin/tsc')
+  const fixture = path.join(__dirname, 'fixtures', 'non-schema-shape-value.fixture.ts')
+  let output = ''
   try {
-    Bad.parse({ name: 'x', age: 42 })
-    expect(true).toBe(false) // should not reach here
+    execFileSync(
+      process.execPath,
+      [tscBin, '--noEmit', fixture, '--module', 'ESNext', '--moduleResolution', 'Node', '--target', 'ES2017', '--strict', '--skipLibCheck', '--esModuleInterop', '--lib', 'dom,ESNext,dom.iterable'],
+      { encoding: 'utf-8', stdio: 'pipe' }
+    )
   } catch (e) {
-    console.log('ACTUAL ERROR THROWN:', (e as Error).message)
+    output = String((e as { stdout?: string }).stdout ?? '')
   }
+
+  // Currently fails: tsc DOES report a diagnostic on the `age: 42` line today.
+  expect(output).not.toMatch(/non-schema-shape-value\.fixture\.ts/)
 })
