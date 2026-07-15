@@ -1,8 +1,10 @@
 import * as types from '../../types'
 import * as lin from '../../utils/linear-utils'
 
-type StateNameParse = [RegExp, types.CommonStateName]
-const COMMON_STATE_NAME_BY_TYPE: Record<lin.StateType, StateNameParse[]> = {
+type StateNameParse<T extends lin.StateType> = [RegExp, types.CommonStates[T]]
+const COMMON_STATE_NAME_BY_TYPE: {
+  [T in lin.StateType]?: StateNameParse<T>[]
+} = {
   triage: [
     //
     [/^triage$/i, 'TRIAGE'],
@@ -39,10 +41,10 @@ const COMMON_STATE_NAME_BY_TYPE: Record<lin.StateType, StateNameParse[]> = {
   ],
 }
 
-export const findCommonStateName = (state: {
-  type: lin.StateType
+export const findCommonStateName = <T extends lin.StateType>(state: {
+  type: T
   name: string
-}): types.CommonStateName | undefined => {
+}): types.CommonStates[T] | undefined => {
   const resolver = COMMON_STATE_NAME_BY_TYPE[state.type]
   if (!resolver) {
     return
