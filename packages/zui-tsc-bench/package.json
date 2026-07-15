@@ -1,0 +1,16 @@
+{
+  "name": "@bpinternal/zui-tsc-bench",
+  "version": "0.0.0",
+  "private": true,
+  "description": "CI check for zui's TypeScript instantiation cost per schema pattern",
+  "scripts": {
+    "check:instantiations": "ts-node -T check-instantiations.ts"
+  },
+  "devDependencies": {
+    "@bpinternal/zui": "workspace:*"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@10.29.3"
+}
