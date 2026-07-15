@@ -813,6 +813,7 @@ Zai.prototype.answer = function <T>(
     taskType: 'zai.answer',
     adapter: this.adapter,
     memoizer: this._resolveMemoizer(),
+    metadata: this.metadata,
   })
 
   if (!parse.success) {

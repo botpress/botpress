@@ -15,6 +15,17 @@ export type State = {
 
 export type ISO8601Duration = string
 
+export type IssueComment = {
+  id: string
+  body: string
+  resolvedAt: string | null
+  createdAt: string
+  user: {
+    id: string
+  } | null
+  parentId: string | null
+}
+
 export type Issue = {
   id: string
   identifier: string
@@ -47,15 +58,7 @@ export type Issue = {
     completedAt: string | null
   } | null
   comments: {
-    nodes: {
-      id: string
-      resolvedAt: string | null
-      createdAt: string
-      user: {
-        id: string
-      } | null
-      parentId: string | null
-    }[]
+    nodes: IssueComment[]
   }
 }
 

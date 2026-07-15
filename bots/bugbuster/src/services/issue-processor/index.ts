@@ -1,6 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import * as types from '../../types'
 import * as lin from '../../utils/linear-utils'
+import * as cmts from '../comment-service'
 import * as sts from '../state-service'
 import * as tm from '../teams-manager'
 import { lintIssue } from './lint-issue'
@@ -13,9 +14,9 @@ export class IssueProcessor {
   public constructor(
     private _logger: sdk.BotLogger,
     private _linear: lin.LinearApi,
+    private _commentService: cmts.CommentService,
     private _stateService: sts.StateService,
-    private _teamsManager: tm.TeamsManager,
-    private _botId: string
+    private _teamsManager: tm.TeamsManager
   ) {}
 
   /**
@@ -59,11 +60,7 @@ export class IssueProcessor {
     )
   }
 
-  public async lintIssue(
-    issue: lin.Issue,
-    isRecentlyLinted?: boolean,
-    options?: { comment?: boolean }
-  ): Promise<types.LintResult> {
+  public async lintIssue(issue: lin.Issue, options?: { comment?: boolean }): Promise<types.LintResult> {
     const shouldComment = options?.comment ?? true
     const state = await this._stateService.getIssueCommonStateName(issue)
     if (!state) {
@@ -81,7 +78,7 @@ export class IssueProcessor {
 
     if (errors.length === 0) {
       this._logger.info(`Issue ${issue.identifier} passed all lint checks.`)
-      await this._linear.resolveComments(issue)
+      await this._commentService.resolveComments({ issue, type: 'lint' })
       await this._linear.removeLabel(issue, LINTDETECTED_LABEL_NAME).catch((thrown) => {
         const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
         this._logger.error(
@@ -92,17 +89,13 @@ export class IssueProcessor {
     }
 
     const warningMessage = `Issue ${issue.identifier} has ${errors.length} lint errors.`
-    if (isRecentlyLinted) {
-      this._logger.warn(`${warningMessage} Not commenting the issue because it has been linted recently.`)
-      return { identifier: issue.identifier, result: 'succeeded' }
-    }
 
     this._logger.warn(warningMessage)
 
     if (shouldComment) {
-      await this._linear.createComment({
-        issueId: issue.id,
-        botId: this._botId,
+      await this._commentService.upsertComment({
+        issue,
+        type: 'lint',
         body: [
           `BugBuster Bot found the following problems with ${issue.identifier}:`,
           '',
