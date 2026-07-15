@@ -6,7 +6,7 @@ import * as sts from '../state-service'
 import * as tm from '../teams-manager'
 import { lintIssue } from './lint-issue'
 
-const IGNORED_STATES: types.CommonStateName[] = ['TRIAGE', 'BACKLOG', 'DONE', 'CANCELED', 'STALE', 'DUPLICATE']
+const IGNORED_STATES: lin.StateType[] = ['triage', 'backlog', 'completed', 'canceled', 'duplicate']
 const LINTIGNORE_LABEL_NAME = 'lintignore'
 const LINTDETECTED_LABEL_NAME = 'lintdetected'
 
@@ -49,7 +49,8 @@ export class IssueProcessor {
       throw new Error('You have no watched teams.')
     }
 
-    const stateIdsToOmit = await this._stateService.mapToStateIds(IGNORED_STATES)
+    const allStates = await this._stateService.getStates()
+    const stateIdsToOmit = allStates.filter((state) => IGNORED_STATES.includes(state.type)).map((state) => state.id)
 
     return await this._linear.listIssues(
       {
@@ -62,15 +63,12 @@ export class IssueProcessor {
 
   public async lintIssue(issue: lin.Issue, options?: { comment?: boolean }): Promise<types.LintResult> {
     const shouldComment = options?.comment ?? true
-    const state = await this._stateService.getIssueCommonStateName(issue)
-    if (!state) {
-      this._logger.warn(
-        `Issue ${issue.identifier} has an unknown state ${issue.state.name}. Ignoring linting for this issue.`
-      )
-      return { identifier: issue.identifier, result: 'ignored' }
-    }
+    const state = await this._stateService.getIssueState(issue)
 
-    if (IGNORED_STATES.includes(state) || issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)) {
+    if (
+      IGNORED_STATES.includes(state.type) ||
+      issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)
+    ) {
       return { identifier: issue.identifier, result: 'ignored' }
     }
 

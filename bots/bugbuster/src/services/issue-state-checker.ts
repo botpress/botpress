@@ -15,7 +15,8 @@ export class IssueStateChecker {
   public async processIssues(props: { stateAttributes: types.StateAttributes; teams: string[] }) {
     const { stateAttributes, teams } = props
 
-    const stateIdsToInclude = await this._stateService.mapToStateIds([stateAttributes.commonStateName])
+    const allStates = await this._stateService.getStates()
+    const stateIdsToInclude = allStates.filter(stateAttributes.filter).map((state) => state.id)
 
     let hasNextPage = false
     let endCursor: string | undefined = undefined
