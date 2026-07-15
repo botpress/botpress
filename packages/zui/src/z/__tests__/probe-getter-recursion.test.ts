@@ -117,12 +117,13 @@ test('shape validation (before the loosening): a non-schema value is only caught
   expect(() => Bad.parse({ name: 'x', age: 42 })).toThrow('keyValidator._parse is not a function')
 })
 
-// This is expected to FAIL today, on purpose: it documents that the compile-time guardrail is still
-// intact (ZodRawShape's strict `IZodType` constraint), so trying to prove "this doesn't error at
-// compile time" is currently a false claim. If the shape constraint is ever loosened to support
-// annotation-free recursion, this test should start passing — flip it into a real, non-inverted
-// assertion at that point instead of leaving it red.
-test('shape validation (after the loosening, not yet implemented): a non-schema value should NOT be a compile error', () => {
+// Regression guard: passes today because ZodRawShape's strict `IZodType` constraint still rejects a
+// non-schema shape value at compile time. If ZodRawShape is ever loosened (e.g. to Record<string, any>,
+// to support annotation-free getter recursion — see RECURSIVE_SCHEMAS.md) without an equivalent
+// replacement check, tsc will stop reporting this diagnostic and this test will start FAILING — that's
+// the signal that the guardrail was removed and needs to be replaced by whatever mechanism takes over
+// (a construction-time runtime check, etc.), not silently dropped.
+test('shape validation: a non-schema value is a compile-time error (breaks if the shape constraint is loosened)', () => {
   const tscBin = require.resolve('typescript/bin/tsc')
   const fixture = path.join(__dirname, 'fixtures', 'non-schema-shape-value.fixture.ts')
   let output = ''
@@ -136,6 +137,8 @@ test('shape validation (after the loosening, not yet implemented): a non-schema 
     output = String((e as { stdout?: string }).stdout ?? '')
   }
 
-  // Currently fails: tsc DOES report a diagnostic on the `age: 42` line today.
-  expect(output).not.toMatch(/non-schema-shape-value\.fixture\.ts/)
+  // (7,3) is the `age: 42,` line/column in the fixture; TS2322 is "not assignable to" — the diagnostic
+  // that fires when a shape value isn't a real schema.
+  expect(output).toMatch(/non-schema-shape-value\.fixture\.ts\(7,3\)/)
+  expect(output).toMatch(/TS2322/)
 })

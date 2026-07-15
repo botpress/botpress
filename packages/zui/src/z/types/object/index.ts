@@ -31,8 +31,6 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
   /** Safe cast: ZodObject structurally satisfies IZodObject but TS can't prove it due to recursive type depth */
 
   private _cached: { shape: T; keys: string[] } | null = null
-  private readonly _uid = Symbol()
-  private static _comparing = new WeakMap<ZodObjectImpl<any, any>, Set<IZodType>>()
 
   _getCached(): { shape: T; keys: string[] } {
     if (this._cached !== null) return this._cached
@@ -42,22 +40,18 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
   }
 
   dereference(defs: Record<string, IZodType>): IZodType {
+    const currentShape = this._def.shape()
+    const shape: Record<string, IZodType> = {}
+    for (const key in currentShape) {
+      shape[key] = currentShape[key]!.dereference(defs)
+    }
     return new ZodObjectImpl({
       ...this._def,
-      shape: () => {
-        const currentShape = this._def.shape()
-        const shape: Record<string, IZodType> = {}
-        for (const key in currentShape) {
-          shape[key] = currentShape[key]!.dereference(defs)
-        }
-        return shape
-      },
+      shape: () => shape,
     })
   }
 
   _getReferences(visiting: Set<symbol>): string[] {
-    if (visiting.has(this._uid)) return []
-    visiting.add(this._uid)
     const shape = this._def.shape()
     const refs: string[] = []
     for (const key in shape) {
@@ -67,17 +61,17 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
   }
 
   clone(): IZodObject<T, UnknownKeys> {
-    return new ZodObjectImpl<T, UnknownKeys>({
+    const newShape: Record<string, IZodType> = {}
+    const currentShape = this._def.shape()
+    for (const [key, value] of Object.entries(currentShape)) {
+      newShape[key] = value.clone()
+    }
+    const objSchema = new ZodObjectImpl<T, UnknownKeys>({
       ...this._def,
-      shape: () => {
-        const currentShape = this._def.shape()
-        const newShape: Record<string, IZodType> = {}
-        for (const [key, value] of Object.entries(currentShape)) {
-          newShape[key] = value.clone()
-        }
-        return newShape as T
-      },
+      shape: () => newShape as T,
     })
+
+    return objSchema
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
@@ -486,24 +480,15 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     if (!(schema instanceof ZodObjectImpl)) return false
     if (!this._unknownKeysEqual(schema)) return false
 
-    let inProgress = ZodObjectImpl._comparing.get(this)
-    if (inProgress?.has(schema)) return true // already comparing this exact pair higher up the call stack
-    if (!inProgress) ZodObjectImpl._comparing.set(this, (inProgress = new Set()))
-    inProgress.add(schema)
+    const thisShape = this._def.shape()
+    const thatShape = schema._def.shape()
 
-    try {
-      const thisShape = this._def.shape()
-      const thatShape = schema._def.shape()
+    type Property = [string, IZodType]
+    const compare = (a: Property, b: Property) => a[0] === b[0] && a[1].isEqual(b[1])
+    const thisProps = new utils.ds.CustomSet<Property>(Object.entries(thisShape), { compare })
+    const thatProps = new utils.ds.CustomSet<Property>(Object.entries(thatShape), { compare })
 
-      type Property = [string, IZodType]
-      const compare = (a: Property, b: Property) => a[0] === b[0] && a[1].isEqual(b[1])
-      const thisProps = new utils.ds.CustomSet<Property>(Object.entries(thisShape), { compare })
-      const thatProps = new utils.ds.CustomSet<Property>(Object.entries(thatShape), { compare })
-
-      return thisProps.isEqual(thatProps)
-    } finally {
-      inProgress.delete(schema)
-    }
+    return thisProps.isEqual(thatProps)
   }
 
   private _unknownKeysEqual(that: ZodObjectImpl<any, any>): boolean {
