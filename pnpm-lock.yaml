@@ -2174,9 +2174,6 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
-      '@botpresshub/conversation-started':
-        specifier: workspace:*
-        version: link:../../interfaces/conversation-started
       '@botpresshub/proactive-conversation':
         specifier: workspace:*
         version: link:../../interfaces/proactive-conversation
