@@ -902,10 +902,104 @@ export type ZodObjectDef<
   unknownKeys: UnknownKeys
 } & ZodTypeDef
 
+// Shallow, wrapper-structure-based optionality tests — zui's equivalent of zod4's optin/optout markers.
+// Required-vs-optional key partitioning used to be decided via `undefined extends Shape[k]['_output']`
+// (AddQuestionMarks), which forces resolution of every member's output type while the object's own type
+// is still being inferred — for a self-referential getter-based shape that resolution is circular:
+// it either trips TS2615 (two-stage re-mapping) or silently collapses the recursive key to optional
+// (single-pass `as`-remapping). These conditionals instead discriminate ONLY on the schema wrapper
+// interfaces (their _def.typeName literals and type parameters), so they resolve without ever touching
+// a member's _output/_input — which is exactly how zod4's $InferObjectOutput stays precise on recursive
+// schemas (it tests a shallow `optout` marker, never the output type). Semantics preserved from the old
+// formula: optional()/undefined/void/any/unknown/literal(undefined) keys are optional (note: zui keeps
+// any/unknown optional, deliberately NOT adopting zod4's v4 breaking change that made them required);
+// default() is output-required/input-optional; catch() is input-optional; wrappers (lazy/nullable/
+// readonly/branded) forward; unions are optional if any option is; intersections if both sides are.
+// Known trade-off (same as zod4): a still-generic schema member (e.g. TData extends z.ZodType inside a
+// generic helper) cannot be partitioned and degrades — see generics.test.ts. See RECURSIVE_SCHEMAS.md.
+export type IsOptionalOut<S> = S extends IZodOptional<any>
+  ? true
+  : S extends IZodUndefined | IZodVoid | IZodAny | IZodUnknown
+    ? true
+    : S extends IZodDefault<any>
+      ? false
+      : S extends IZodLiteral<infer V>
+        ? undefined extends V
+          ? true
+          : false
+        : S extends IZodLazy<infer I>
+          ? IsOptionalOut<I>
+          : S extends IZodNullable<infer I>
+            ? IsOptionalOut<I>
+            : S extends IZodReadonly<infer I>
+              ? IsOptionalOut<I>
+              : S extends IZodBranded<infer I, any>
+                ? IsOptionalOut<I>
+                : S extends IZodCatch<infer I>
+                  ? IsOptionalOut<I>
+                  : S extends IZodEffects<any, infer O, any>
+                    ? undefined extends O
+                      ? true
+                      : false
+                    : S extends IZodUnion<infer Opts>
+                      ? true extends IsOptionalOut<Opts[number]>
+                        ? true
+                        : false
+                      : S extends IZodIntersection<infer A, infer B>
+                        ? IsOptionalOut<A> extends true
+                          ? IsOptionalOut<B>
+                          : false
+                        : S extends IZodPipeline<any, infer B>
+                          ? IsOptionalOut<B>
+                          : false
+
+export type IsOptionalIn<S> = S extends IZodOptional<any>
+  ? true
+  : S extends IZodDefault<any>
+    ? true
+    : S extends IZodCatch<any>
+      ? true
+      : S extends IZodUndefined | IZodVoid | IZodAny | IZodUnknown
+        ? true
+        : S extends IZodLiteral<infer V>
+          ? undefined extends V
+            ? true
+            : false
+          : S extends IZodLazy<infer I>
+            ? IsOptionalIn<I>
+            : S extends IZodNullable<infer I>
+              ? IsOptionalIn<I>
+              : S extends IZodReadonly<infer I>
+                ? IsOptionalIn<I>
+                : S extends IZodBranded<infer I, any>
+                  ? IsOptionalIn<I>
+                  : S extends IZodEffects<any, any, infer In>
+                    ? undefined extends In
+                      ? true
+                      : false
+                    : S extends IZodUnion<infer Opts>
+                      ? true extends IsOptionalIn<Opts[number]>
+                        ? true
+                        : false
+                      : S extends IZodIntersection<infer A, infer B>
+                        ? IsOptionalIn<A> extends true
+                          ? IsOptionalIn<B>
+                          : false
+                        : S extends IZodPipeline<infer A, any>
+                          ? IsOptionalIn<A>
+                          : false
+
 export type ObjectOutputType<
   Shape extends ZodRawShape,
   UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-> = UnknownKeysOutputType<UnknownKeys> & Flatten<AddQuestionMarks<BaseObjectOutputType<Shape>>>
+> = UnknownKeysOutputType<UnknownKeys> &
+  Flatten<
+    {
+      -readonly [k in keyof Shape as IsOptionalOut<Shape[k]> extends true ? never : k]: Shape[k]['_output']
+    } & {
+      -readonly [k in keyof Shape as IsOptionalOut<Shape[k]> extends true ? k : never]?: Shape[k]['_output']
+    }
+  >
 
 export type BaseObjectOutputType<Shape extends ZodRawShape> = {
   [k in keyof Shape]: Shape[k]['_output']
@@ -913,7 +1007,14 @@ export type BaseObjectOutputType<Shape extends ZodRawShape> = {
 export type ObjectInputType<
   Shape extends ZodRawShape,
   UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-> = Flatten<BaseObjectInputType<Shape>> & UnknownKeysInputType<UnknownKeys>
+> = Flatten<
+  {
+    -readonly [k in keyof Shape as IsOptionalIn<Shape[k]> extends true ? never : k]: Shape[k]['_input']
+  } & {
+    -readonly [k in keyof Shape as IsOptionalIn<Shape[k]> extends true ? k : never]?: Shape[k]['_input']
+  }
+> &
+  UnknownKeysInputType<UnknownKeys>
 
 export type BaseObjectInputType<Shape extends ZodRawShape> = AddQuestionMarks<{
   [k in keyof Shape]: Shape[k]['_input']
