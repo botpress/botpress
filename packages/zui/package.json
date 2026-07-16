@@ -15,9 +15,11 @@
   "scripts": {
     "build": "tsup",
     "check:type": "tsc --noEmit",
+    "check:instantiations": "node --loader ts-node/esm bench/check-instantiations.mts",
     "test": "vitest --run"
   },
   "devDependencies": {
+    "@bpinternal/tsc-bench": "workspace:*",
     "@types/json-schema": "^7.0.12",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^22.16.4",

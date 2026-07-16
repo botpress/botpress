@@ -1,0 +1,27 @@
+name: TSC Bench
+
+on:
+  pull_request:
+    paths:
+      - 'packages/zui/**'
+      - 'packages/tsc-bench/**'
+      - '.github/workflows/run-tsc-bench.yml'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  check-instantiations:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NODE_OPTIONS: '--max_old_space_size=8192'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          extra_filters: '-F @bpinternal/zui...'
+      - name: Check type instantiation counts
+        run: pnpm --filter @bpinternal/zui run check:instantiations

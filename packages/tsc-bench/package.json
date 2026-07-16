@@ -1,0 +1,12 @@
+{
+  "name": "@bpinternal/tsc-bench",
+  "private": true,
+  "description": "Measures the TypeScript instantiation cost of a source file",
+  "scripts": {
+    "check:type": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@10.29.3"
+}

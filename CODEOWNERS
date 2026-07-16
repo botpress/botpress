@@ -10,6 +10,7 @@
 /packages/cli @botpress/kraken
 /packages/sdk @botpress/kraken
 /packages/zui @botpress/swordfish
+/packages/tsc-bench @botpress/swordfish
 
 ## Common / Utils
 /packages/common @botpress/shell
