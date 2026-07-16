@@ -1,6 +1,5 @@
 import * as types from '../../types'
 import * as lin from '../../utils/linear-utils'
-import { isIssueTitleFormatValid } from './issue-title-format-validator'
 
 export type IssueLint = {
   message: string
@@ -44,12 +43,6 @@ export const lintIssue = (issue: lin.Issue, state: types.StateEntry): IssueLint[
   if (issue.estimate && issue.estimate > 8 && !issueIsEpic) {
     lints.push(
       `Issue ${issue.identifier} has an estimate greater than 8 (${issue.estimate}). Consider breaking it down or making it an epic.`
-    )
-  }
-
-  if (!isIssueTitleFormatValid(issue.title)) {
-    lints.push(
-      `Issue ${issue.identifier} has unconventional commit syntax in the title. Issue title should not attempt to follow a formal syntax.`
     )
   }
 
