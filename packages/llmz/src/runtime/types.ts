@@ -221,6 +221,11 @@ export type ExecutionProps = {
    * If not provided, the model will not use reasoning for models with optional reasoning.
    */
   reasoningEffort?: ValueOrGetter<'low' | 'medium' | 'high' | 'dynamic' | 'none', Context>
+
+  /**
+   * Arbitrary key-value metadata to attach to cognitive usage records for each LLM call.
+   */
+  metadata?: Record<string, string>
 } & ExecutionHooks
 
 export type RuntimeCognitive = Pick<Cognitive, 'getModelDetails' | 'generateContent'>

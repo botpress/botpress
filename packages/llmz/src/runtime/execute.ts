@@ -117,6 +117,7 @@ const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionR
           onAfterTool,
           onBeforeTool,
           onIterationEnd,
+          metadata: props.metadata,
         })
         if (iterationResult.type === 'return') {
           return iterationResult.result
@@ -200,6 +201,7 @@ const executeIterationWithErrorHandling = async ({
   onAfterTool,
   onBeforeTool,
   onIterationEnd,
+  metadata,
 }: {
   ctx: Context
   iteration: Iteration
@@ -210,6 +212,7 @@ const executeIterationWithErrorHandling = async ({
   onAfterTool?: ExecutionHooks['onAfterTool']
   onBeforeTool?: ExecutionHooks['onBeforeTool']
   onIterationEnd?: ExecutionHooks['onIterationEnd']
+  metadata?: ExecutionProps['metadata']
 }): Promise<Result<'proceed' | 'return'>> => {
   try {
     await executeIteration({
@@ -221,6 +224,7 @@ const executeIterationWithErrorHandling = async ({
       onBeforeExecution,
       onAfterTool,
       onBeforeTool,
+      metadata,
     })
 
     await finalizeIteration({ iteration, controller, onIterationEnd })
@@ -336,6 +340,7 @@ const executeIteration = async ({
   onBeforeExecution,
   onBeforeTool,
   onAfterTool,
+  metadata,
 }: {
   ctx: Context
   iteration: Iteration
@@ -345,8 +350,9 @@ const executeIteration = async ({
   onBeforeExecution?: ExecutionHooks['onBeforeExecution']
   onBeforeTool?: ExecutionHooks['onBeforeTool']
   onAfterTool?: ExecutionHooks['onAfterTool']
+  metadata?: ExecutionProps['metadata']
 }): Promise<void> => {
-  await generateCode({ iteration, ctx, cognitive, controller })
+  await generateCode({ iteration, ctx, cognitive, controller, metadata })
 
   if (typeof onBeforeExecution === 'function') {
     try {

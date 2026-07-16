@@ -57,7 +57,7 @@ const searchContact: ActionDefinition = {
 
 const listContactProperties: ActionDefinition = {
   title: 'List Contact Properties',
-  description: 'List all available Hubspot contact properties with their metadata',
+  description: 'List all available HubSpot contact properties with their metadata',
   input: {
     schema: z.object({}).title('Empty').describe('No input required'),
   },
