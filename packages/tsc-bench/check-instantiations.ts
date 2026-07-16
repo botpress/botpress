@@ -1,12 +1,3 @@
-// CI regression gate: measures the TypeScript instantiation count of each bench
-// case (packages/zui/bench/*.ts) and fails if any case exceeds its ceiling in
-// instantiation-thresholds.ts.
-//
-// instantiation-thresholds.ts is hand-maintained (not auto-generated): it pins
-// the max acceptable count per case. This fails only when a case goes OVER its
-// threshold — small fluctuations under the cap are fine. Raise a threshold
-// intentionally by editing the file yourself.
-
 import { listBenchCases, readBenchCase, measureCase, pad, asNum, TS_VERSION } from './lib'
 import { thresholds } from './instantiation-thresholds'
 
