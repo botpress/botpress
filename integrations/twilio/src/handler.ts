@@ -31,7 +31,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx
     throw new Error('Handler received an invalid active phone number')
   }
 
-  const { conversation } = await client.getOrCreateConversation({
+  const { conversation, meta } = await client.getOrCreateConversation({
     channel: 'channel',
     tags: {
       userPhone,
@@ -45,14 +45,11 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx
     },
   })
 
-  const { events: existingConversationStartedEvents } = await client.listEvents({
-    type: 'conversationStarted',
-    conversationId: conversation.id,
-  })
-
-  if (!existingConversationStartedEvents.length) {
+  if (meta.created) {
     await client.createEvent({
       type: 'conversationStarted',
+      conversationId: conversation.id,
+      userId: user.id,
       payload: { conversationId: conversation.id, userId: user.id },
     })
   }
