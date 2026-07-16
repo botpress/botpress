@@ -34,6 +34,7 @@ export type Issue = {
   priority: number
   assignee: {
     id: string
+    active: boolean
   } | null
   state: {
     id: string
