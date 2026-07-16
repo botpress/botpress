@@ -108,8 +108,8 @@ const startConversationProps = {
             .title('Template header parameters')
             .describe(
               'Header parameter. ' +
-                'For text headers: type="text", value is the replacement text, parameterName is optional (for named params). ' +
-                'For media headers: type="image"|"video"|"document", url is the media URL. Documents may include a filename.'
+              'For text headers: type="text", value is the replacement text, parameterName is optional (for named params). ' +
+              'For media headers: type="image"|"video"|"document", url is the media URL. Documents may include a filename.'
             ),
           templateBodyParams: z
             .discriminatedUnion('type', [
@@ -120,8 +120,8 @@ const startConversationProps = {
             .title('Template body parameters')
             .describe(
               'Body parameters. ' +
-                'For positional params ({{1}}, {{2}}, ...): type="positional", values is an ordered array of strings. ' +
-                'For named params ({{buyer_name}}): type="named", values is a record mapping param names to values.'
+              'For positional params ({{1}}, {{2}}, ...): type="positional", values is an ordered array of strings. ' +
+              'For named params ({{buyer_name}}): type="named", values is a record mapping param names to values.'
             ),
           templateButtonParams: z
             .array(
@@ -136,8 +136,8 @@ const startConversationProps = {
             .title('Template button parameters')
             .describe(
               'Button parameters as an ordered array. ' +
-                'url: value is the URL suffix. quick_reply: payload is the callback data. ' +
-                'copy_code: code is the coupon code. skip: no parameter needed (for phone number buttons, etc.).'
+              'url: value is the URL suffix. quick_reply: payload is the callback data. ' +
+              'copy_code: code is the coupon code. skip: no parameter needed (for phone number buttons, etc.).'
             ),
           botPhoneNumberId: z
             .string()
@@ -157,7 +157,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.18.1'
+export const INTEGRATION_VERSION = '4.18.2'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
