@@ -1,5 +1,5 @@
 import * as types from '../types'
-import * as lin from '../utils/linear-utils'
+import * as utils from '../utils'
 
 /**
  * Stable identifier for each kind of bot comment, embedded verbatim in the comment footer so the bot
@@ -18,11 +18,15 @@ const _buildFooter = (marker: string): string => `---\n_🐛 via ${marker}_`
 
 export class CommentService {
   public constructor(
-    private _linear: lin.LinearApi,
+    private _linear: utils.linear.LinearApi,
     private _botId: string
   ) {}
 
-  public async upsertComment(props: { issue: lin.Issue; type: types.CommentType; body: string }): Promise<void> {
+  public async upsertComment(props: {
+    issue: utils.linear.Issue
+    type: types.CommentType
+    body: string
+  }): Promise<void> {
     const { issue, type, body } = props
     const marker = COMMENT_MARKERS[type]
     await this._linear.upsertComment({
@@ -33,12 +37,25 @@ export class CommentService {
     })
   }
 
-  public async resolveComments(props: { issue: lin.Issue; type: types.CommentType }): Promise<void> {
+  public async resolveComments(props: { issue: utils.linear.Issue; type: types.CommentType }): Promise<void> {
     const { issue, type } = props
-    const marker = COMMENT_MARKERS[type]
     await this._linear.resolveComments({
       issue,
-      predicate: (comment) => comment.body.includes(marker),
+      predicate: (comment) => this._hasType(comment, type) || this._getType(comment) === null, // resolve any comment that has no type, to avoid orphaning comments from older versions of the bot
     })
+  }
+
+  private _getType = (comment: utils.linear.IssueComment): types.CommentType | null => {
+    for (const type of utils.records.keys(COMMENT_MARKERS)) {
+      if (this._hasType(comment, type)) {
+        return type
+      }
+    }
+    return null
+  }
+
+  private _hasType = (comment: utils.linear.IssueComment, type: types.CommentType): boolean => {
+    const marker = COMMENT_MARKERS[type]
+    return comment.body.includes(marker)
   }
 }
