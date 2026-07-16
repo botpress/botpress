@@ -22,11 +22,13 @@
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
+    "@botpresshub/conversation-started": "workspace:*",
     "@botpresshub/proactive-conversation": "workspace:*",
     "@botpresshub/proactive-user": "workspace:*",
     "@botpresshub/typing-indicator": "workspace:*"
   },
   "bpDependencies": {
+    "conversation-started": "../../interfaces/conversation-started",
     "proactive-conversation": "../../interfaces/proactive-conversation",
     "proactive-user": "../../interfaces/proactive-user",
     "typing-indicator": "../../interfaces/typing-indicator"

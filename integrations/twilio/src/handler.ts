@@ -45,6 +45,18 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx
     },
   })
 
+  const { events: existingConversationStartedEvents } = await client.listEvents({
+    type: 'conversationStarted',
+    conversationId: conversation.id,
+  })
+
+  if (!existingConversationStartedEvents.length) {
+    await client.createEvent({
+      type: 'conversationStarted',
+      payload: { conversationId: conversation.id, userId: user.id },
+    })
+  }
+
   const messageSid = data.MessageSid
 
   if (typeof messageSid !== 'string') {

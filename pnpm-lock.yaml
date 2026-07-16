@@ -2174,6 +2174,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpresshub/conversation-started':
+        specifier: workspace:*
+        version: link:../../interfaces/conversation-started
       '@botpresshub/proactive-conversation':
         specifier: workspace:*
         version: link:../../interfaces/proactive-conversation
@@ -2487,6 +2490,16 @@ importers:
       exponential-backoff:
         specifier: ^3.1.1
         version: 3.1.1
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
+  interfaces/conversation-started:
+    dependencies:
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
