@@ -6,7 +6,7 @@ export default [
     ignores: ['templates/**/*', 'e2e/fixtures/**/*'],
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.json'],
+        project: ['./tsconfig.json', './bench/tsconfig.json'],
         tsconfigRootDir: import.meta.dirname,
       },
     },

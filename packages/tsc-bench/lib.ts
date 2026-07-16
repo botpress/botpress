@@ -1,7 +1,7 @@
-import ts from 'typescript'
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
+import ts from 'typescript'
 
 export const ROOT = __dirname
 export const TSC = require.resolve('typescript/bin/tsc')
