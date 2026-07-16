@@ -22,6 +22,6 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          extra_filters: '-F @bpinternal/tsc-bench...'
+          extra_filters: '-F @bpinternal/zui...'
       - name: Check type instantiation counts
-        run: pnpm --filter @bpinternal/tsc-bench run check:instantiations
+        run: pnpm --filter @bpinternal/zui run check:instantiations

@@ -3242,11 +3242,7 @@ importers:
         specifier: workspace:*
         version: link:../sdk
 
-  packages/tsc-bench:
-    devDependencies:
-      '@bpinternal/zui':
-        specifier: workspace:*
-        version: link:../zui
+  packages/tsc-bench: {}
 
   packages/vai:
     dependencies:
@@ -3366,6 +3362,9 @@ importers:
 
   packages/zui:
     devDependencies:
+      '@bpinternal/tsc-bench':
+        specifier: workspace:*
+        version: link:../tsc-bench
       '@types/json-schema':
         specifier: ^7.0.12
         version: 7.0.15
