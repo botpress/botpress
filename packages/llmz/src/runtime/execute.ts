@@ -22,9 +22,17 @@ type Result<TType extends 'proceed' | 'continue' | 'return'> = TType extends 're
       type: TType
     }
 
-export const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
+/**
+ * Optional seed for {@link executeContext}: an initial block of code to run as the
+ * first iteration instead of generating it with the LLM. See `executeWithCode`.
+ */
+type ExecutionSeed = {
+  initialCode?: string
+}
+
+export const executeContext = async (props: ExecutionProps, seed?: ExecutionSeed): Promise<ExecutionResult> => {
   await init()
-  const result = await executeContextInternal(props)
+  const result = await executeContextInternal(props, seed)
   try {
     result.context.chat?.onExecutionDone?.(result)
   } catch (err: unknown) {
@@ -34,7 +42,7 @@ export const executeContext = async (props: ExecutionProps): Promise<ExecutionRe
   return result
 }
 
-const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionResult> => {
+const executeContextInternal = async (props: ExecutionProps, seed?: ExecutionSeed): Promise<ExecutionResult> => {
   const controller = createJoinedAbortController([props.signal])
   const { onIterationStart, onIterationEnd, onTrace, onExit, onBeforeExecution, onAfterTool, onBeforeTool } = props
 
@@ -53,6 +61,10 @@ const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionR
     temperature: props.temperature,
     reasoningEffort: props.reasoningEffort,
   })
+
+  // Seed the first iteration with pre-supplied code (skipping the LLM call).
+  // Ignored when resuming from a snapshot, since resume drives its own iteration.
+  let pendingInitialCode = props.snapshot ? undefined : seed?.initialCode
 
   try {
     while (true) {
@@ -106,7 +118,10 @@ const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionR
           onAfterTool,
           onBeforeTool,
           onIterationEnd,
+          predefinedCode: pendingInitialCode,
         })
+        // The seed only applies to the first iteration; clear it afterwards.
+        pendingInitialCode = undefined
         if (iterationResult.type === 'return') {
           return iterationResult.result
         }
@@ -189,6 +204,7 @@ const executeIterationWithErrorHandling = async ({
   onAfterTool,
   onBeforeTool,
   onIterationEnd,
+  predefinedCode,
 }: {
   ctx: Context
   iteration: Iteration
@@ -199,6 +215,7 @@ const executeIterationWithErrorHandling = async ({
   onAfterTool?: ExecutionHooks['onAfterTool']
   onBeforeTool?: ExecutionHooks['onBeforeTool']
   onIterationEnd?: ExecutionHooks['onIterationEnd']
+  predefinedCode?: string
 }): Promise<Result<'proceed' | 'return'>> => {
   try {
     await executeIteration({
@@ -210,6 +227,7 @@ const executeIterationWithErrorHandling = async ({
       onBeforeExecution,
       onAfterTool,
       onBeforeTool,
+      predefinedCode,
     })
 
     await finalizeIteration({ iteration, controller, onIterationEnd })
@@ -325,6 +343,7 @@ const executeIteration = async ({
   onBeforeExecution,
   onBeforeTool,
   onAfterTool,
+  predefinedCode,
 }: {
   ctx: Context
   iteration: Iteration
@@ -334,8 +353,34 @@ const executeIteration = async ({
   onBeforeExecution?: ExecutionHooks['onBeforeExecution']
   onBeforeTool?: ExecutionHooks['onBeforeTool']
   onAfterTool?: ExecutionHooks['onAfterTool']
+  predefinedCode?: string
 }): Promise<void> => {
-  await generateCode({ iteration, ctx, cognitive, controller })
+  if (predefinedCode !== undefined) {
+    // Seeded iteration: run the caller-provided code instead of generating it.
+    // A synthetic `llm` record makes this iteration look like a normal LLM turn so
+    // that, on failure, the next iteration surfaces this code to the model (the
+    // execution-error prompt replays `iteration.llm.output` as the assistant turn).
+    const now = Date.now()
+    iteration.code = predefinedCode
+    iteration.llm = {
+      started_at: now,
+      ended_at: now,
+      status: 'success',
+      cached: false,
+      tokens: 0,
+      spend: 0,
+      output: `■fn_start\n${predefinedCode}\n■fn_end`,
+      model: 'provided-code',
+      usage: {
+        inputCost: 0,
+        outputCost: 0,
+        inputTokens: 0,
+        outputTokens: 0,
+      },
+    }
+  } else {
+    await generateCode({ iteration, ctx, cognitive, controller })
+  }
 
   if (typeof onBeforeExecution === 'function') {
     try {

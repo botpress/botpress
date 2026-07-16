@@ -52,6 +52,7 @@ export const generateCode = async ({ iteration, ctx, cognitive, controller }: Ge
     model: model.ref,
   })
 
+  console.log('PROMPT\n', messages.map((m) => m.content).join('\n\n==================\n\n'))
   const output = await cognitive
     .generateContent({
       signal: controller.signal,
