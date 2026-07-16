@@ -1,5 +1,5 @@
-import { listBenchCases, readBenchCase, measureCase, pad, asNum, TS_VERSION } from './lib'
 import { thresholds } from './instantiation-thresholds'
+import { listBenchCases, readBenchCase, measureCase, pad, asNum, TS_VERSION } from './lib'
 
 console.error(`TypeScript ${TS_VERSION}`)
 
