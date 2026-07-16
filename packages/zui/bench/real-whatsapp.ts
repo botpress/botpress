@@ -1,6 +1,7 @@
 // Lifted from integrations/whatsapp/src/misc/types.ts — a real schema-heavy file.
-// Kept verbatim except: subject import prepended by bench, qualityScoreSchema inlined,
-// one zui-specific .title() removed for zod3/zod4 portability.
+// Kept verbatim except: qualityScoreSchema inlined.
+import { z } from '@bpinternal/zui'
+
 const qualityScoreSchema = z.enum(['GREEN', 'RED', 'YELLOW', 'UNKNOWN'])
 
 const WhatsAppContactSchema = z.object({
@@ -144,10 +145,7 @@ const WhatsAppMessageSchema = z.union([
     type: z.literal('reaction'), // not documented but can be received
     reaction: z.object({
       message_id: z.string(),
-      emoji: z
-        .string()
-        .optional()
-        .describe('The emoji used in the reaction or undefined if the reaction was removed'),
+      emoji: z.string().optional().describe('The emoji used in the reaction or undefined if the reaction was removed'),
     }),
   }),
   WhatsAppBaseMessageSchema.extend({
