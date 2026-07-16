@@ -1,9 +1,5 @@
-import { Client } from '@botpress/client'
-import { Cognitive, CognitiveBeta, cognitiveFromBeta, type BotpressClientLike } from '@botpress/cognitive'
-
 import { createJoinedAbortController } from '../abort-signal.js'
 import { Context, Iteration } from '../context.js'
-import { _CustomModelClient } from '../custom-client.js'
 import { CognitiveError, LoopExceededError, ThinkSignal } from '../errors.js'
 import { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from '../result.js'
 import { Snapshot } from '../snapshots.js'
@@ -14,7 +10,7 @@ import { runAsyncFunction } from '../vm/index.js'
 import { generateCode } from './generate.js'
 import { interpretVMResult } from './interpret-result.js'
 import { ExecutionHooks, ExecutionProps, RuntimeCognitive } from './types.js'
-import { finalizeIteration } from './utils.js'
+import { finalizeIteration, initCognitiveClient } from './utils.js'
 import { buildVMContext } from './vm-context.js'
 
 type Result<TType extends 'proceed' | 'continue' | 'return'> = TType extends 'return'
@@ -42,14 +38,7 @@ const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionR
   const controller = createJoinedAbortController([props.signal])
   const { onIterationStart, onIterationEnd, onTrace, onExit, onBeforeExecution, onAfterTool, onBeforeTool } = props
 
-  const client = props.client ?? new Client()
-
-  const cognitive: RuntimeCognitive =
-    Cognitive.isCognitiveClient(client) || _CustomModelClient.isCustomClient(client)
-      ? client
-      : CognitiveBeta.isBetaClient(client)
-        ? cognitiveFromBeta(client)
-        : new Cognitive({ client: client as BotpressClientLike, __experimental_beta: true })
+  const cognitive = initCognitiveClient(props.client)
 
   const ctx = new Context({
     chat: props.chat,

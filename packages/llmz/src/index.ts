@@ -25,6 +25,8 @@ export { DefaultComponents } from './component.default.js'
 export { Snapshot } from './snapshots.js'
 export { Chat, type MessageHandler } from './chat.js'
 
+import { executeCode } from './one-shot/index.js'
+import { generateCode } from './one-shot/generation.js'
 import { ExecutionResult } from './result.js'
 import { type ExecutionProps } from './runtime/types.js'
 import { truncateWrappedContent, wrapContent } from './truncator.js'
@@ -33,7 +35,7 @@ export { Transcript } from './transcript.js'
 export { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from './result.js'
 export { type Trace, type Traces } from './types.js'
 export { type Iteration, ListenExit, ThinkExit, DefaultExit, IterationStatuses, IterationStatus } from './context.js'
-export { type Context } from './context.js'
+export { Context } from './context.js'
 export type { LLMzPrompts } from './prompts/prompt.js'
 export { type ValueOrGetter, getValue } from './getter.js'
 
@@ -44,6 +46,11 @@ export const utils = {
   toValidFunctionName,
   wrapContent,
   truncateWrappedContent,
+}
+
+export const oneShot = {
+  executeCode,
+  generateCode,
 }
 
 /**
