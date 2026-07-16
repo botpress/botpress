@@ -1,11 +1,10 @@
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import ts from 'typescript'
 
 export const ROOT = __dirname
 export const TSC = require.resolve('typescript/bin/tsc')
-export const TS_VERSION = ts.version
+export const TS_VERSION: string = require('typescript/package.json').version
 
 const METRICS = ['Types', 'Instantiations', 'Memory used', 'Check time', 'Total time'] as const
 
