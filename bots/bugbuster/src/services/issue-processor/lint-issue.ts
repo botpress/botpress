@@ -60,6 +60,10 @@ export const lintIssue = (issue: lin.Issue, state: types.StateEntry): IssueLint[
     )
   }
 
+  if (issue.assignee?.active === false) {
+    lints.push(`Issue ${issue.identifier} is assigned to a deactivated user. Consider reassigning the issue.`)
+  }
+
   return lints.map((message) => ({ message }))
 }
 
