@@ -1,7 +1,3 @@
-// TypeScript instantiation measurement engine: type-checks a given TypeScript
-// source string in isolation with `tsc --extendedDiagnostics`. Knows nothing
-// about zui specifically — it just measures whatever source it's handed.
-
 import ts from 'typescript'
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
@@ -11,8 +7,6 @@ export const ROOT = __dirname
 export const TSC = require.resolve('typescript/bin/tsc')
 export const TS_VERSION = ts.version
 
-/** Walk up from the resolved entry point to find the package root — `@bpinternal/zui`'s
- * `exports` map blocks resolving `./package.json` directly, so we can't just require.resolve it. */
 const findPackageRoot = (fromFile: string): string => {
   let dir = dirname(fromFile)
   while (!existsSync(join(dir, 'package.json'))) {
@@ -69,7 +63,6 @@ export function measureCase(caseName: string, sourceCode: string): CaseResult {
     if (err.stdout === undefined) {
       throw new Error(`Failed to run tsc for ${caseName}: ${(e as Error).message}`)
     }
-    // tsc exits non-zero on type errors (e.g. TS2589) but still prints diagnostics
     stdout = (err.stdout ?? '') + (err.stderr ?? '')
     failed = true
   }

@@ -1,11 +1,11 @@
-name: Zui TSC Bench
+name: TSC Bench
 
 on:
   pull_request:
     paths:
       - 'packages/zui/**'
-      - 'packages/zui-tsc-bench/**'
-      - '.github/workflows/run-zui-bench.yml'
+      - 'packages/tsc-bench/**'
+      - '.github/workflows/run-tsc-bench.yml'
 
 permissions:
   id-token: write
@@ -22,6 +22,6 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          extra_filters: '-F @bpinternal/zui-tsc-bench...'
+          extra_filters: '-F @bpinternal/tsc-bench...'
       - name: Check type instantiation counts
-        run: pnpm --filter @bpinternal/zui-tsc-bench run check:instantiations
+        run: pnpm --filter @bpinternal/tsc-bench run check:instantiations

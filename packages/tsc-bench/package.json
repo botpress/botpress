@@ -1,5 +1,5 @@
 {
-  "name": "@bpinternal/zui-tsc-bench",
+  "name": "@bpinternal/tsc-bench",
   "private": true,
   "description": "CI check for zui's TypeScript instantiation cost per schema pattern",
   "scripts": {
