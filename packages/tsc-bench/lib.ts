@@ -2,9 +2,8 @@ import { execFileSync } from 'node:child_process'
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-export const ROOT = __dirname
-export const TSC = require.resolve('typescript/bin/tsc')
-export const TS_VERSION: string = require('typescript/package.json').version
+const ROOT = __dirname
+const TSC = require.resolve('typescript/bin/tsc')
 
 const METRICS = ['Types', 'Instantiations', 'Memory used', 'Check time', 'Total time'] as const
 
@@ -64,6 +63,3 @@ export function measureCase(caseName: string, sourceCode: string, paths?: Record
 
   return result
 }
-
-export const pad = (s: unknown, n: number) => String(s).padEnd(n)
-export const asNum = (s: unknown) => Number(String(s).replace(/[^\d]/g, ''))

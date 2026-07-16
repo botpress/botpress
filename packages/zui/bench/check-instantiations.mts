@@ -1,11 +1,12 @@
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import ts from 'typescript'
 import { thresholds } from './instantiation-thresholds.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
+const TS_VERSION: string = createRequire(import.meta.url)('typescript/package.json').version
 const TSC_BENCH_DIR = join(__dirname, '..', '..', 'tsc-bench')
 const MEASURE_CASE = join(TSC_BENCH_DIR, 'measure-case.ts')
 const ZUI_DIST_INDEX = join(__dirname, '..', 'dist', 'index.d.ts')
@@ -14,7 +15,7 @@ const PATHS_JSON = JSON.stringify({ '@bpinternal/zui': ZUI_DIST_INDEX })
 const pad = (s: unknown, n: number) => String(s).padEnd(n)
 const asNum = (s: unknown) => Number(String(s).replace(/[^\d]/g, ''))
 
-console.error(`TypeScript ${ts.version}`)
+console.error(`TypeScript ${TS_VERSION}`)
 
 const results = Object.keys(thresholds).map((caseName) => {
   process.stderr.write(`running ${caseName}...\n`)
