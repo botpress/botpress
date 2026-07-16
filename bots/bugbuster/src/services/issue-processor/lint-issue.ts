@@ -26,9 +26,9 @@ export const lintIssue = (issue: lin.Issue, state: types.StateEntry): IssueLint[
     lints.push(`Issue ${issue.identifier} is started but has no assignee.`)
   }
 
-  const hasArea = issue.labels.nodes.some((label) => label.name.startsWith('area/'))
+  const hasArea = issue.labels.nodes.some((label) => label.name.startsWith('area.'))
   if (!hasArea) {
-    lints.push(`Issue ${issue.identifier} is missing an "area/" label.`)
+    lints.push(`Issue ${issue.identifier} is missing an "area." label.`)
   }
 
   if (!issue.priority) {
