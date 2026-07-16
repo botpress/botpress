@@ -21,7 +21,7 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
     return await sandboxHandler(props)
   }
 
-  logger.debug('Received request with body:', req.body ?? '[empty]')
+  logger.forBot().error('Received request with body:', req.body ?? '[empty]')
   const queryParams = new URLSearchParams(req.query)
   if (queryParams.has('hub.mode')) {
     return await subscribeHandler(props)

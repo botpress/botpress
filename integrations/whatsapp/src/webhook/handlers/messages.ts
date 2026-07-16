@@ -66,7 +66,11 @@ export const messagesHandler = async (
             phoneNumber: message.from,
           },
         },
-        { integrationName: INTEGRATION_NAME, integrationVersion: INTEGRATION_VERSION, key: bp.secrets.POSTHOG_KEY }
+        {
+          integrationName: INTEGRATION_NAME,
+          integrationVersion: INTEGRATION_VERSION,
+          key: bp.secrets.POSTHOG_KEY,
+        }
       )
       const errorMessage = formatPhoneNumberResponse.error.message
       logger.error(`Failed to parse phone number "${message.from}": ${errorMessage}`)
@@ -141,6 +145,22 @@ export async function _handleMessage(args: HandleMessageArgs) {
     args.createMessageOverride ??
     (async ({ type, payload, incomingMessageType }) => {
       logger.forBot().debug(`Received ${incomingMessageType ?? type} message from WhatsApp:`, payload)
+      if ('caption' in payload) {
+        return client.getOrCreateMessage({
+          tags,
+          type: 'bloc',
+          payload: {
+            items: [
+              { type, payload },
+              { type: 'text', payload: { text: payload.caption } },
+            ],
+          },
+          userId,
+          conversationId,
+          discriminateByTags: ['id'],
+          origin,
+        })
+      }
       return client.getOrCreateMessage({
         tags,
         type,
@@ -188,7 +208,11 @@ export async function _handleMessage(args: HandleMessageArgs) {
     const documentUrl = await _getOrDownloadWhatsappMedia(message.document.id, client, ctx)
     return _createMessage({
       type: 'file',
-      payload: { fileUrl: documentUrl, filename: message.document.filename },
+      payload: {
+        fileUrl: documentUrl,
+        filename: message.document.filename,
+        ...(message.document.caption && { caption: message.document.caption }),
+      },
     })
   } else if (type === 'video') {
     const videoUrl = await _getOrDownloadWhatsappMedia(message.video.id, client, ctx)
