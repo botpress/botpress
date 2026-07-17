@@ -1,4 +1,4 @@
-import { VERSION } from 'src/version'
+import { VERSION } from '../version'
 import * as types from '../types'
 import * as tm from './teams-manager'
 import * as bp from '.botpress'
