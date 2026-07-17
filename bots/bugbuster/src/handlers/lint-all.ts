@@ -146,7 +146,7 @@ const _buildResultMessage = (results: types.LintResult[]) => {
     messageDetail = 'All issues passed lint checks.'
   } else if (failedIssues.length === 1) {
     messageDetail = `This issue contained lint errors: ${failedIssuesLinks[0]}.`
-  } else if (failedIssues.length < RESULT_MESSAGE_LIMIT) {
+  } else if (failedIssues.length <= RESULT_MESSAGE_LIMIT) {
     messageDetail = `These issues contained lint errors: ${failedIssuesLinks.join(', ')}.`
   } else {
     const moreCount = failedIssues.length - RESULT_MESSAGE_LIMIT
