@@ -11,6 +11,10 @@ export const channels = {
           title: 'ID',
           description: 'Teams activity ID',
         },
+        locale: {
+          title: 'Locale',
+          description: "Sender's Teams client locale for this activity (e.g. en-US), when provided",
+        },
       },
     },
     conversation: {
