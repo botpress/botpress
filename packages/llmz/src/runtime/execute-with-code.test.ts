@@ -65,10 +65,11 @@ describe('executeContext with an initial code seed', () => {
   test('runs the provided code as the first iteration without calling the LLM when it succeeds', async () => {
     const cognitive = new ThrowingCognitive()
 
-    const result = await executeContext(
-      { client: cognitive, options: { loop: 3 } },
-      { initialCode: `return { action: 'done', value: { success: true, result: 42 } }` }
-    )
+    const result = await executeContext({
+      client: cognitive,
+      options: { loop: 3 },
+      initialCode: `return { action: 'done', value: { success: true, result: 42 } }`,
+    })
 
     expect(result.isSuccess()).toBe(true)
     expect(result.iterations.length).toBe(1)
@@ -82,7 +83,11 @@ describe('executeContext with an initial code seed', () => {
     const seed = `throw new Error('seed-boom')`
     const cognitive = new FixedCodeCognitive(`return { action: 'done', value: { success: true, result: 'fixed' } }`)
 
-    const result = await executeContext({ client: cognitive, options: { loop: 3 } }, { initialCode: seed })
+    const result = await executeContext({
+      client: cognitive,
+      options: { loop: 3 },
+      initialCode: seed,
+    })
 
     expect(result.isSuccess()).toBe(true)
     // Iteration 1 = failed seed, iteration 2 = LLM fix.
@@ -98,10 +103,11 @@ describe('executeContext with an initial code seed', () => {
   test('returns LoopExceededError when the seed fails and no fallback iterations are allowed', async () => {
     const cognitive = new ThrowingCognitive()
 
-    const result = await executeContext(
-      { client: cognitive, options: { loop: 1 } },
-      { initialCode: `throw new Error('seed-boom')` }
-    )
+    const result = await executeContext({
+      client: cognitive,
+      options: { loop: 1 },
+      initialCode: `throw new Error('seed-boom')`,
+    })
 
     expect(result.isError()).toBe(true)
     expect(result.iterations.length).toBe(1)
