@@ -82,7 +82,21 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return []
   }
 
-  clone(): IZodType<Output, Def, Input> {
+  clone(memo: WeakMap<IZodType, IZodType> = new WeakMap()): IZodType<Output, Def, Input> {
+    const hit = memo.get(this)
+    if (hit) return hit as IZodType<Output, Def, Input>
+    // All cycle-preserving memo bookkeeping lives here, once. Each type overrides `_cloneSelf` to build
+    // its structural copy, deep-cloning child schemas via `memo`. Registering BOTH the source and the
+    // clone — after `_cloneSelf` returns but before any lazy shape/getter thunk runs — is what lets a
+    // getter-recursive schema clone into a cycle instead of an infinite tree. See RECURSIVE_SCHEMAS.md.
+    const cloned = this._cloneSelf(memo)
+    memo.set(this, cloned)
+    memo.set(cloned, cloned)
+    return cloned as IZodType<Output, Def, Input>
+  }
+
+  /** Builds a structural copy of this schema, deep-cloning child schemas via `memo`. Overridden per type. */
+  protected _cloneSelf(_memo: WeakMap<IZodType, IZodType>): IZodType {
     const This = (this as any).constructor
     return new This({
       ...this._def,

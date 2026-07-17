@@ -66,14 +66,16 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     return utils.fn.unique(refs)
   }
 
-  clone(): IZodObject<T, UnknownKeys> {
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): IZodObject<T, UnknownKeys> {
+    // The shape thunk is lazy, so it runs after the base has registered this clone in `memo`; a
+    // self-reference reached through it therefore resolves back to this same clone. See RECURSIVE_SCHEMAS.md.
     return new ZodObjectImpl<T, UnknownKeys>({
       ...this._def,
       shape: () => {
         const currentShape = this._def.shape()
         const newShape: Record<string, IZodType> = {}
         for (const [key, value] of Object.entries(currentShape)) {
-          newShape[key] = value.clone()
+          newShape[key] = value.clone(memo)
         }
         return newShape as T
       },

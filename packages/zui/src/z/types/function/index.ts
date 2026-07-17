@@ -40,11 +40,11 @@ export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Retur
     return utils.fn.unique([...this._def.args._getReferences(visiting), ...this._def.returns._getReferences(visiting)])
   }
 
-  clone(): IZodFunction<Args, Returns> {
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): IZodFunction<Args, Returns> {
     return new ZodFunctionImpl({
       ...this._def,
-      args: this._def.args.clone() as Args,
-      returns: this._def.returns.clone() as Returns,
+      args: this._def.args.clone(memo) as Args,
+      returns: this._def.returns.clone(memo) as Returns,
     })
   }
 

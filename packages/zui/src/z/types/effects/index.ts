@@ -42,10 +42,10 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
     return this._def.schema._getReferences(visiting)
   }
 
-  clone(): IZodEffects<T, Output, Input> {
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): IZodEffects<T, Output, Input> {
     return new ZodEffectsImpl({
       ...this._def,
-      schema: this._def.schema.clone() as T,
+      schema: this._def.schema.clone(memo) as T,
     }) as IZodEffects<T, Output, Input>
   }
 

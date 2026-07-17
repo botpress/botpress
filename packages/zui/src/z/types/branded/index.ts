@@ -18,10 +18,10 @@ export class ZodBrandedImpl<T extends IZodType = IZodType, B extends Key = Key>
     return this._def.type._getReferences(visiting)
   }
 
-  clone(): IZodBranded<T, B> {
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): IZodBranded<T, B> {
     return new ZodBrandedImpl({
       ...this._def,
-      type: this._def.type.clone() as T,
+      type: this._def.type.clone(memo) as T,
     })
   }
 

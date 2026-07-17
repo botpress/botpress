@@ -85,10 +85,10 @@ export class ZodCatchImpl<T extends IZodType = IZodType>
     return this._def.innerType._getReferences(visiting)
   }
 
-  clone(): IZodCatch<T> {
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): IZodCatch<T> {
     return new ZodCatchImpl({
       ...this._def,
-      innerType: this._def.innerType.clone() as T,
+      innerType: this._def.innerType.clone(memo) as T,
     })
   }
 

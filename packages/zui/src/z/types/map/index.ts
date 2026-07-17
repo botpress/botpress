@@ -34,11 +34,11 @@ export class ZodMapImpl<Key extends IZodType = IZodType, Value extends IZodType 
     ])
   }
 
-  clone(): IZodMap<Key, Value> {
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): IZodMap<Key, Value> {
     return new ZodMapImpl({
       ...this._def,
-      keyType: this._def.keyType.clone() as Key,
-      valueType: this._def.valueType.clone() as Value,
+      keyType: this._def.keyType.clone(memo) as Key,
+      valueType: this._def.valueType.clone(memo) as Value,
     })
   }
 

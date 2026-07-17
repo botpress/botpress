@@ -16,10 +16,10 @@ export class ZodOptionalImpl<T extends IZodType = IZodType>
     return this._def.innerType._getReferences(visiting)
   }
 
-  clone(): IZodOptional<T> {
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): IZodOptional<T> {
     return new ZodOptionalImpl({
       ...this._def,
-      innerType: this._def.innerType.clone() as T,
+      innerType: this._def.innerType.clone(memo) as T,
     })
   }
 

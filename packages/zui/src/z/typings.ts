@@ -399,6 +399,9 @@ export type ZodSchema<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input =
  */
 export type Schema<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input = Output> = IZodType<Output, Def, Input>
 
+/** Maps each source schema instance to its clone during a deep clone, so cyclic schemas clone into cycles. */
+export type CloneMemo = WeakMap<IZodType, IZodType>
+
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
 export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input = Output> {
   readonly __type__: 'ZuiType'
@@ -419,7 +422,13 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
   getReferences(): string[]
   /** internal recursive worker for getReferences() — do not call directly */
   _getReferences(visiting: Set<symbol>): string[]
-  clone(): IZodType<Output, Def, Input>
+  /**
+   * Deep-copies the schema. `memo` maps each source schema instance to its clone so a cyclic
+   * (self- or mutually-recursive, getter-based) schema is cloned into a cycle rather than an
+   * infinite tree: re-encountering an already-cloned node returns the same clone. Callers pass
+   * nothing; it is threaded internally. See RECURSIVE_SCHEMAS.md.
+   */
+  clone(memo?: CloneMemo): IZodType<Output, Def, Input>
   parse(data: unknown, params?: Partial<ParseParams>): this['_output']
   safeParse(data: unknown, params?: Partial<ParseParams>): SafeParseReturnType<this['_input'], this['_output']>
   parseAsync(data: unknown, params?: Partial<ParseParams>): Promise<this['_output']>

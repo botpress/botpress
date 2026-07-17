@@ -30,10 +30,10 @@ export class ZodArrayImpl<T extends IZodType = IZodType, Cardinality extends Arr
     return this._def.type._getReferences(visiting)
   }
 
-  clone(): ZodArrayImpl<T, Cardinality> {
-    return new ZodArrayImpl({
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): ZodArrayImpl<T, Cardinality> {
+    return new ZodArrayImpl<T, Cardinality>({
       ...this._def,
-      type: this._def.type.clone() as T,
+      type: this._def.type.clone(memo) as T,
     })
   }
 

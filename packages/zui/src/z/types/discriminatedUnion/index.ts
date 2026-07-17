@@ -81,8 +81,8 @@ export class ZodDiscriminatedUnionImpl<
     return utils.fn.unique(this.options.flatMap((option) => option._getReferences(visiting)))
   }
 
-  clone(): ZodDiscriminatedUnionImpl<Discriminator, Options> {
-    const options = this.options.map((option) => option.clone() as ZodDiscriminatedUnionOption<Discriminator>)
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): ZodDiscriminatedUnionImpl<Discriminator, Options> {
+    const options = this.options.map((option) => option.clone(memo) as ZodDiscriminatedUnionOption<Discriminator>)
     return new ZodDiscriminatedUnionImpl({
       ...this._def,
       options: options as [ZodDiscriminatedUnionOption<Discriminator>, ...ZodDiscriminatedUnionOption<Discriminator>[]],

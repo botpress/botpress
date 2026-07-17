@@ -17,10 +17,10 @@ export class ZodSetImpl<Value extends IZodType = IZodType>
     return this._def.valueType._getReferences(visiting)
   }
 
-  clone(): IZodSet<Value> {
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): IZodSet<Value> {
     return new ZodSetImpl({
       ...this._def,
-      valueType: this._def.valueType.clone() as Value,
+      valueType: this._def.valueType.clone(memo) as Value,
     })
   }
 

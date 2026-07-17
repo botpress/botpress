@@ -24,10 +24,10 @@ export class ZodReadonlyImpl<T extends IZodType = IZodType>
     return this._def.innerType._getReferences(visiting)
   }
 
-  clone(): IZodReadonly<T> {
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): IZodReadonly<T> {
     return new ZodReadonlyImpl({
       ...this._def,
-      innerType: this._def.innerType.clone() as T,
+      innerType: this._def.innerType.clone(memo) as T,
     })
   }
 
