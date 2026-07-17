@@ -1,5 +1,5 @@
-import * as types from 'src/types'
 import * as boot from '../bootstrap'
+import * as types from '../types'
 import * as bp from '.botpress'
 
 const LINEAR_ISSUE_BASE_URL = 'https://linear.app/botpress/issue/'
@@ -50,7 +50,7 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
     const pageResults: types.LintResult[] = []
     for (const issue of pagedIssues.issues) {
       const lintResult = await issueProcessor
-        .lintIssue(issue, undefined, { comment })
+        .lintIssue(issue, { comment })
         .catch(_handleError(`trying to lint issue ${issue.identifier}`))
       lintResults.push(lintResult)
       pageResults.push(lintResult)

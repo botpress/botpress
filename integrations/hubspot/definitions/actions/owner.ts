@@ -14,7 +14,7 @@ export const ownerSchema = z.object({
 
 const getOwner: ActionDefinition = {
   title: 'Get Owner',
-  description: 'Get a Hubspot owner (user) by ID. Used to resolve owner references on contacts, deals, etc.',
+  description: 'Get a HubSpot owner (user) by ID. Used to resolve owner references on contacts, deals, etc.',
   input: {
     schema: z.object({
       ownerId: z.string().title('Owner ID').describe('The ID of the owner to fetch'),

@@ -117,7 +117,7 @@ function _processToken(token: Token, ctx: Context): string {
       // Handle any other token types by processing their tokens if they exist
       if ('tokens' in token && token.tokens) {
         // No support for nested unknown tokens, processing as inline
-        _processInlineTokens(_convertMarkedTokensToTokens(token.tokens), ctx)
+        return _processInlineTokens(_convertMarkedTokensToTokens(token.tokens), ctx)
       }
       if ('text' in token) {
         return token.text

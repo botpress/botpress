@@ -1,52 +1,71 @@
-import { createJoinedAbortController } from '../abort-signal.js'
-import { Context, Iteration } from '../context.js'
-import { CognitiveError, LoopExceededError, ThinkSignal } from '../errors.js'
-import { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from '../result.js'
-import { Snapshot } from '../snapshots.js'
-import { cleanStackTrace } from '../stack-traces.js'
-import { VMExecutionResult } from '../types.js'
-import { getErrorMessage, init } from '../utils.js'
-import { runAsyncFunction } from '../vm/index.js'
-import { generateCode } from './generate.js'
-import { interpretVMResult } from './interpret-result.js'
-import { ExecutionHooks, ExecutionProps, RuntimeCognitive } from './types.js'
-import { finalizeIteration, initCognitiveClient } from './utils.js'
-import { buildVMContext } from './vm-context.js'
+import { createJoinedAbortController } from "../abort-signal.js";
+import { Context, Iteration } from "../context.js";
+import { CognitiveError, LoopExceededError, ThinkSignal } from "../errors.js";
+import {
+  ErrorExecutionResult,
+  ExecutionResult,
+  PartialExecutionResult,
+  SuccessExecutionResult,
+} from "../result.js";
+import { Snapshot } from "../snapshots.js";
+import { cleanStackTrace } from "../stack-traces.js";
+import { VMExecutionResult } from "../types.js";
+import { getErrorMessage, init } from "../utils.js";
+import { runAsyncFunction } from "../vm/index.js";
+import { generateCode } from "./generate.js";
+import { interpretVMResult } from "./interpret-result.js";
+import { ExecutionHooks, ExecutionProps, RuntimeCognitive } from "./types.js";
+import { finalizeIteration, initCognitiveClient } from "./utils.js";
+import { buildVMContext } from "./vm-context.js";
 
-type Result<TType extends 'proceed' | 'continue' | 'return'> = TType extends 'return'
+type Result<TType extends "proceed" | "continue" | "return"> = TType extends "return"
   ? {
-      type: TType
-      result: ExecutionResult
+      type: TType;
+      result: ExecutionResult;
     }
   : {
-      type: TType
-    }
+      type: TType;
+    };
 
 /**
  * Optional seed for {@link executeContext}: an initial block of code to run as the
  * first iteration instead of generating it with the LLM. See `executeWithCode`.
  */
 type ExecutionSeed = {
-  initialCode?: string
-}
+  initialCode?: string;
+};
 
-export const executeContext = async (props: ExecutionProps, seed?: ExecutionSeed): Promise<ExecutionResult> => {
-  await init()
-  const result = await executeContextInternal(props, seed)
+export const executeContext = async (
+  props: ExecutionProps,
+  seed?: ExecutionSeed,
+): Promise<ExecutionResult> => {
+  await init();
+  const result = await executeContextInternal(props, seed);
   try {
-    result.context.chat?.onExecutionDone?.(result)
+    result.context.chat?.onExecutionDone?.(result);
   } catch (err: unknown) {
-    void err
+    void err;
     // Best-effort hook; preserve execution result even if the callback fails.
   }
-  return result
-}
+  return result;
+};
 
-const executeContextInternal = async (props: ExecutionProps, seed?: ExecutionSeed): Promise<ExecutionResult> => {
-  const controller = createJoinedAbortController([props.signal])
-  const { onIterationStart, onIterationEnd, onTrace, onExit, onBeforeExecution, onAfterTool, onBeforeTool } = props
+const executeContextInternal = async (
+  props: ExecutionProps,
+  seed?: ExecutionSeed,
+): Promise<ExecutionResult> => {
+  const controller = createJoinedAbortController([props.signal]);
+  const {
+    onIterationStart,
+    onIterationEnd,
+    onTrace,
+    onExit,
+    onBeforeExecution,
+    onAfterTool,
+    onBeforeTool,
+  } = props;
 
-  const cognitive = initCognitiveClient(props.client)
+  const cognitive = initCognitiveClient(props.client);
 
   const ctx = new Context({
     chat: props.chat,
@@ -60,25 +79,25 @@ const executeContextInternal = async (props: ExecutionProps, seed?: ExecutionSee
     model: props.model,
     temperature: props.temperature,
     reasoningEffort: props.reasoningEffort,
-  })
+  });
 
   // Seed the first iteration with pre-supplied code (skipping the LLM call).
   // Ignored when resuming from a snapshot, since resume drives its own iteration.
-  let pendingInitialCode = props.snapshot ? undefined : seed?.initialCode
+  let pendingInitialCode = props.snapshot ? undefined : seed?.initialCode;
 
   try {
     while (true) {
       if (ctx.iterations.length >= ctx.loop) {
-        return new ErrorExecutionResult(ctx, new LoopExceededError())
+        return new ErrorExecutionResult(ctx, new LoopExceededError());
       }
 
-      const iteration = await ctx.nextIteration()
+      const iteration = await ctx.nextIteration();
 
       const unsubscribeTrace = iteration.traces.onPush((traces) => {
         for (const trace of traces) {
-          onTrace?.({ trace, iteration: ctx.iterations.length })
+          onTrace?.({ trace, iteration: ctx.iterations.length });
         }
-      })
+      });
 
       try {
         const startHookResult = await executeIterationStartHook({
@@ -87,9 +106,9 @@ const executeContextInternal = async (props: ExecutionProps, seed?: ExecutionSee
           controller,
           onIterationStart,
           onIterationEnd,
-        })
-        if (startHookResult.type === 'continue') {
-          continue
+        });
+        if (startHookResult.type === "continue") {
+          continue;
         }
 
         if (controller.signal.aborted) {
@@ -98,14 +117,17 @@ const executeContextInternal = async (props: ExecutionProps, seed?: ExecutionSee
             controller,
             onIterationEnd,
             status: {
-              type: 'aborted',
+              type: "aborted",
               aborted: {
-                reason: controller.signal.reason ?? 'The operation was aborted',
+                reason: controller.signal.reason ?? "The operation was aborted",
               },
             },
-          })
+          });
 
-          return new ErrorExecutionResult(ctx, controller.signal.reason ?? 'The operation was aborted')
+          return new ErrorExecutionResult(
+            ctx,
+            controller.signal.reason ?? "The operation was aborted",
+          );
         }
 
         const iterationResult = await executeIterationWithErrorHandling({
@@ -119,32 +141,33 @@ const executeContextInternal = async (props: ExecutionProps, seed?: ExecutionSee
           onBeforeTool,
           onIterationEnd,
           predefinedCode: pendingInitialCode,
-        })
+          metadata: props.metadata,
+        });
         // The seed only applies to the first iteration; clear it afterwards.
-        pendingInitialCode = undefined
-        if (iterationResult.type === 'return') {
-          return iterationResult.result
+        pendingInitialCode = undefined;
+        if (iterationResult.type === "return") {
+          return iterationResult.result;
         }
 
-        const selectedResult = transformIterationResult({ ctx, iteration })
-        if (selectedResult.type === 'continue') {
-          continue
+        const selectedResult = transformIterationResult({ ctx, iteration });
+        if (selectedResult.type === "continue") {
+          continue;
         }
 
-        return selectedResult.result
+        return selectedResult.result;
       } finally {
         try {
-          unsubscribeTrace()
+          unsubscribeTrace();
         } catch (err: unknown) {
-          void err
+          void err;
           // Best-effort cleanup; trace subscribers should not affect execution.
         }
       }
     }
   } catch (error) {
-    return new ErrorExecutionResult(ctx, error ?? 'Unknown error')
+    return new ErrorExecutionResult(ctx, error ?? "Unknown error");
   }
-}
+};
 
 const executeIterationStartHook = async ({
   ctx,
@@ -153,18 +176,18 @@ const executeIterationStartHook = async ({
   onIterationStart,
   onIterationEnd,
 }: {
-  ctx: Context
-  iteration: Iteration
-  controller: AbortController
-  onIterationStart?: ExecutionHooks['onIterationStart']
-  onIterationEnd?: ExecutionHooks['onIterationEnd']
-}): Promise<Result<'proceed' | 'continue'>> => {
+  ctx: Context;
+  iteration: Iteration;
+  controller: AbortController;
+  onIterationStart?: ExecutionHooks["onIterationStart"];
+  onIterationEnd?: ExecutionHooks["onIterationEnd"];
+}): Promise<Result<"proceed" | "continue">> => {
   try {
-    const hookRes = await onIterationStart?.(iteration, controller, ctx)
+    const hookRes = await onIterationStart?.(iteration, controller, ctx);
     if (hookRes) {
-      Object.assign(iteration, hookRes)
+      Object.assign(iteration, hookRes);
     }
-    return { type: 'proceed' }
+    return { type: "proceed" };
   } catch (err) {
     await finalizeIteration({
       iteration,
@@ -173,26 +196,28 @@ const executeIterationStartHook = async ({
       status:
         err instanceof ThinkSignal
           ? {
-              type: 'thinking_requested',
+              type: "thinking_requested",
               thinking_requested: {
                 variables: err.context,
                 reason: err.reason,
               },
             }
           : {
-              type: 'execution_error',
+              type: "execution_error",
               execution_error: {
                 message: `Error in onIterationStart hook: ${getErrorMessage(err)}`,
                 stack: cleanStackTrace(
-                  err instanceof Error ? (err.stack ?? 'No stack trace available') : 'No stack trace available'
+                  err instanceof Error
+                    ? (err.stack ?? "No stack trace available")
+                    : "No stack trace available",
                 ),
               },
             },
-    })
+    });
 
-    return { type: 'continue' }
+    return { type: "continue" };
   }
-}
+};
 
 const executeIterationWithErrorHandling = async ({
   iteration,
@@ -205,18 +230,20 @@ const executeIterationWithErrorHandling = async ({
   onBeforeTool,
   onIterationEnd,
   predefinedCode,
+  metadata,
 }: {
-  ctx: Context
-  iteration: Iteration
-  cognitive: RuntimeCognitive
-  controller: AbortController
-  onExit?: ExecutionHooks['onExit']
-  onBeforeExecution?: ExecutionHooks['onBeforeExecution']
-  onAfterTool?: ExecutionHooks['onAfterTool']
-  onBeforeTool?: ExecutionHooks['onBeforeTool']
-  onIterationEnd?: ExecutionHooks['onIterationEnd']
-  predefinedCode?: string
-}): Promise<Result<'proceed' | 'return'>> => {
+  ctx: Context;
+  iteration: Iteration;
+  cognitive: RuntimeCognitive;
+  controller: AbortController;
+  onExit?: ExecutionHooks["onExit"];
+  onBeforeExecution?: ExecutionHooks["onBeforeExecution"];
+  onAfterTool?: ExecutionHooks["onAfterTool"];
+  onBeforeTool?: ExecutionHooks["onBeforeTool"];
+  onIterationEnd?: ExecutionHooks["onIterationEnd"];
+  predefinedCode?: string;
+  metadata?: ExecutionProps["metadata"];
+}): Promise<Result<"proceed" | "return">> => {
   try {
     await executeIteration({
       iteration,
@@ -228,10 +255,11 @@ const executeIterationWithErrorHandling = async ({
       onAfterTool,
       onBeforeTool,
       predefinedCode,
-    })
+      metadata,
+    });
 
-    await finalizeIteration({ iteration, controller, onIterationEnd })
-    return { type: 'proceed' }
+    await finalizeIteration({ iteration, controller, onIterationEnd });
+    return { type: "proceed" };
   } catch (err) {
     if (!(err instanceof CognitiveError)) {
       await finalizeIteration({
@@ -239,26 +267,28 @@ const executeIterationWithErrorHandling = async ({
         controller,
         onIterationEnd,
         status:
-          iteration.status.type === 'pending'
+          iteration.status.type === "pending"
             ? {
-                type: 'execution_error',
+                type: "execution_error",
                 execution_error: {
-                  message: 'An unexpected error occurred: ' + getErrorMessage(err),
+                  message: "An unexpected error occurred: " + getErrorMessage(err),
                   stack: cleanStackTrace(
-                    err instanceof Error ? (err.stack ?? 'No stack trace available') : 'No stack trace available'
+                    err instanceof Error
+                      ? (err.stack ?? "No stack trace available")
+                      : "No stack trace available",
                   ),
                 },
               }
             : undefined,
-      })
-      return { type: 'proceed' }
+      });
+      return { type: "proceed" };
     }
 
     if (!controller.signal.aborted) {
       return {
-        type: 'return',
+        type: "return",
         result: new ErrorExecutionResult(ctx, err),
-      }
+      };
     }
 
     await finalizeIteration({
@@ -266,73 +296,79 @@ const executeIterationWithErrorHandling = async ({
       controller,
       onIterationEnd,
       status:
-        iteration.status.type === 'pending'
+        iteration.status.type === "pending"
           ? {
-              type: 'aborted',
+              type: "aborted",
               aborted: {
-                reason: controller.signal.reason ?? 'The operation was aborted',
+                reason: controller.signal.reason ?? "The operation was aborted",
               },
             }
           : undefined,
-    })
+    });
 
     return {
-      type: 'return',
-      result: new ErrorExecutionResult(ctx, controller.signal.reason ?? 'The operation was aborted'),
-    }
+      type: "return",
+      result: new ErrorExecutionResult(
+        ctx,
+        controller.signal.reason ?? "The operation was aborted",
+      ),
+    };
   }
-}
+};
 
 const transformIterationResult = ({
   ctx,
   iteration,
 }: {
-  ctx: Context
-  iteration: Iteration
-}): Result<'continue' | 'return'> => {
-  if (iteration.status.type === 'exit_success') {
-    const exitName = iteration.status.exit_success.exit_name
+  ctx: Context;
+  iteration: Iteration;
+}): Result<"continue" | "return"> => {
+  if (iteration.status.type === "exit_success") {
+    const exitName = iteration.status.exit_success.exit_name;
     return {
-      type: 'return',
+      type: "return",
       result: new SuccessExecutionResult(ctx, {
         exit: iteration.exits.find((x) => x.name === exitName)!,
         result: iteration.status.exit_success.return_value,
       }),
-    }
+    };
   }
 
-  if (iteration.status.type === 'callback_requested') {
+  if (iteration.status.type === "callback_requested") {
     return {
-      type: 'return',
+      type: "return",
       result: new PartialExecutionResult(
         ctx,
         iteration.status.callback_requested.signal,
-        Snapshot.fromSignal(iteration.status.callback_requested.signal)
+        Snapshot.fromSignal(iteration.status.callback_requested.signal),
       ),
-    }
+    };
   }
 
-  if (iteration.status.type === 'aborted') {
+  if (iteration.status.type === "aborted") {
     return {
-      type: 'return',
-      result: new ErrorExecutionResult(ctx, iteration.error ?? 'The operation was aborted'),
-    }
+      type: "return",
+      result: new ErrorExecutionResult(ctx, iteration.error ?? "The operation was aborted"),
+    };
   }
 
   if (
-    iteration.status.type === 'thinking_requested' ||
-    iteration.status.type === 'exit_error' ||
-    iteration.status.type === 'execution_error' ||
-    iteration.status.type === 'invalid_code_error'
+    iteration.status.type === "thinking_requested" ||
+    iteration.status.type === "exit_error" ||
+    iteration.status.type === "execution_error" ||
+    iteration.status.type === "invalid_code_error"
   ) {
-    return { type: 'continue' }
+    return { type: "continue" };
   }
 
   return {
-    type: 'return',
-    result: new ErrorExecutionResult(ctx, iteration.error ?? `Unknown error. Status: ${iteration.status.type}`),
-  }
-}
+    type: "return",
+    result: new ErrorExecutionResult(
+      ctx,
+      iteration.error ?? `Unknown error. Status: ${iteration.status.type}`,
+    ),
+  };
+};
 
 const executeIteration = async ({
   iteration,
@@ -344,101 +380,105 @@ const executeIteration = async ({
   onBeforeTool,
   onAfterTool,
   predefinedCode,
+  metadata,
 }: {
-  ctx: Context
-  iteration: Iteration
-  cognitive: RuntimeCognitive
-  controller: AbortController
-  onExit?: ExecutionHooks['onExit']
-  onBeforeExecution?: ExecutionHooks['onBeforeExecution']
-  onBeforeTool?: ExecutionHooks['onBeforeTool']
-  onAfterTool?: ExecutionHooks['onAfterTool']
-  predefinedCode?: string
+  ctx: Context;
+  iteration: Iteration;
+  cognitive: RuntimeCognitive;
+  controller: AbortController;
+  onExit?: ExecutionHooks["onExit"];
+  onBeforeExecution?: ExecutionHooks["onBeforeExecution"];
+  onBeforeTool?: ExecutionHooks["onBeforeTool"];
+  onAfterTool?: ExecutionHooks["onAfterTool"];
+  predefinedCode?: string;
+  metadata?: ExecutionProps["metadata"];
 }): Promise<void> => {
   if (predefinedCode !== undefined) {
     // Seeded iteration: run the caller-provided code instead of generating it.
     // A synthetic `llm` record makes this iteration look like a normal LLM turn so
     // that, on failure, the next iteration surfaces this code to the model (the
     // execution-error prompt replays `iteration.llm.output` as the assistant turn).
-    const now = Date.now()
-    iteration.code = predefinedCode
+    const now = Date.now();
+    iteration.code = predefinedCode;
     iteration.llm = {
       started_at: now,
       ended_at: now,
-      status: 'success',
+      status: "success",
       cached: false,
       tokens: 0,
       spend: 0,
       output: `■fn_start\n${predefinedCode}\n■fn_end`,
-      model: 'provided-code',
+      model: "provided-code",
       usage: {
         inputCost: 0,
         outputCost: 0,
         inputTokens: 0,
         outputTokens: 0,
       },
-    }
+    };
   } else {
-    await generateCode({ iteration, ctx, cognitive, controller })
+    await generateCode({ iteration, ctx, cognitive, controller, metadata });
   }
 
-  if (typeof onBeforeExecution === 'function') {
+  if (typeof onBeforeExecution === "function") {
     try {
-      const hookRes = await onBeforeExecution(iteration, controller)
-      if (typeof hookRes?.code === 'string' && hookRes.code.trim().length > 0) {
-        iteration.code = hookRes.code.trim()
+      const hookRes = await onBeforeExecution(iteration, controller);
+      if (typeof hookRes?.code === "string" && hookRes.code.trim().length > 0) {
+        iteration.code = hookRes.code.trim();
       }
     } catch (err) {
       if (err instanceof ThinkSignal) {
         iteration.end({
-          type: 'thinking_requested',
+          type: "thinking_requested",
           thinking_requested: {
             variables: err.context,
             reason: err.reason,
           },
-        })
-        return
+        });
+        return;
       }
 
       iteration.end({
-        type: 'execution_error',
+        type: "execution_error",
         execution_error: {
           message: `Error in onBeforeExecution hook: ${getErrorMessage(err)}`,
           stack: cleanStackTrace(
-            err instanceof Error ? (err.stack ?? 'No stack trace available') : 'No stack trace available'
+            err instanceof Error
+              ? (err.stack ?? "No stack trace available")
+              : "No stack trace available",
           ),
         },
-      })
-      return
+      });
+      return;
     }
   }
 
-  const traces = iteration.traces
-  const vmContext = buildVMContext({ ctx, iteration, controller, onBeforeTool, onAfterTool })
+  const traces = iteration.traces;
+  const vmContext = buildVMContext({ ctx, iteration, controller, onBeforeTool, onAfterTool });
 
   if (controller.signal.aborted) {
     traces.push({
-      type: 'abort_signal',
+      type: "abort_signal",
       started_at: Date.now(),
-      reason: 'The operation was aborted by user.',
-    })
+      reason: "The operation was aborted by user.",
+    });
 
     iteration.end({
-      type: 'aborted',
+      type: "aborted",
       aborted: {
-        reason: controller.signal.reason ?? 'The operation was aborted',
+        reason: controller.signal.reason ?? "The operation was aborted",
       },
-    })
-    return
+    });
+    return;
   }
 
-  const startedAt = Date.now()
+  const startedAt = Date.now();
   const result: VMExecutionResult = await runAsyncFunction(
     vmContext,
-    iteration.code ?? '',
+    iteration.code ?? "",
     traces,
     controller.signal,
-    ctx.timeout
+    ctx.timeout,
   ).catch((err) => {
     return {
       success: false,
@@ -446,8 +486,8 @@ const executeIteration = async ({
       lines_executed: [],
       traces: [],
       variables: {},
-    } satisfies VMExecutionResult
-  })
+    } satisfies VMExecutionResult;
+  });
 
   await interpretVMResult({
     iteration,
@@ -455,5 +495,5 @@ const executeIteration = async ({
     controller,
     startedAt,
     onExit,
-  })
-}
+  });
+};

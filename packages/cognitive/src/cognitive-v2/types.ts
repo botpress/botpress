@@ -231,6 +231,8 @@ export type CognitiveRequest = {
     promptCategory?: string
     /** Name of the integration that originally received the message that initiated this action */
     integrationName?: string
+    /** Arbitrary key-value metadata to attach to usage records for this call, e.g. a conversationId to break down usage by conversation */
+    metadata?: { [key: string]: string }
   }
 }
 

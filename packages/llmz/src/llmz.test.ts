@@ -173,6 +173,33 @@ test('executeContext calls onIterationEnd when LLM generation aborts', async () 
   expect((output as ErrorExecutionResult).error).toBe('ABORTED')
 })
 
+test('executeContext forwards metadata to cognitive generation', async () => {
+  let capturedInput: { meta?: { metadata?: Record<string, string> } } | undefined
+
+  class CapturingCognitive extends Cognitive {
+    public constructor() {
+      super({ client: new Client({ botId: 'test-bot' }) })
+    }
+
+    public async getModelDetails(model: string): Promise<Model> {
+      return makeFakeModel(model)
+    }
+
+    public async generateContent(input: Parameters<Cognitive['generateContent']>[0]): Promise<never> {
+      capturedInput = input as typeof capturedInput
+      throw new Error('stop after capture')
+    }
+  }
+
+  await executeContext({
+    client: new CapturingCognitive(),
+    options: { loop: 1 },
+    metadata: { conversationId: 'conv-123', workflowId: 'wf-456' },
+  })
+
+  expect(capturedInput?.meta?.metadata).toEqual({ conversationId: 'conv-123', workflowId: 'wf-456' })
+})
+
 describe('reasoningEffort', () => {
   test('reasoningEffort is available on iteration and in toJSON', async () => {
     const ctx = new Context({ reasoningEffort: 'low' })

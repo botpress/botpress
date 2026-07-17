@@ -3,6 +3,7 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import axiosRetry from 'axios-retry'
 import type { ZendeskUser, ZendeskTicket, ZendeskWebhook } from './definitions/schemas'
 import { summarizeAxiosError } from './misc/axios-utils'
+import { refreshAccessToken } from './oauth/token'
 import { ConditionsData, getTriggerTemplate, type TriggerNames } from './triggers'
 import type { ZendeskEventType } from './webhookEvents'
 import * as bp from '.botpress'
@@ -249,15 +250,58 @@ class ZendeskApi {
 
 export type ZendeskClient = InstanceType<typeof ZendeskApi>
 
+// Renew the token a minute before it actually expires to cover clock skew and request latency.
+const _TOKEN_REFRESH_BUFFER_MS = 60_000
+
+// Non-expiring tokens (clients created before 2026-04-30) have no refreshToken/expiresAt and never need refreshing.
+export const needsRefresh = (refreshToken?: string, expiresAt?: number, now: number = Date.now()): boolean =>
+  Boolean(refreshToken && expiresAt && now > expiresAt - _TOKEN_REFRESH_BUFFER_MS)
+
 export const getZendeskClient = async (client: bp.Client, ctx: bp.Context, logger: bp.Logger): Promise<ZendeskApi> => {
-  const { accessToken, subdomain } = await client
+  const credentials = await client
     .getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
     .then((result) => result.state.payload)
+  let { accessToken } = credentials
+  const { subdomain, refreshToken, expiresAt } = credentials
   if (accessToken === undefined) {
     throw new sdk.RuntimeError('Failed to get the OAuth accessToken')
   }
   if (subdomain === undefined) {
     throw new sdk.RuntimeError('Failed to get the subdomain')
+  }
+
+  if (needsRefresh(refreshToken, expiresAt)) {
+    let refreshed: Awaited<ReturnType<typeof refreshAccessToken>> | undefined
+    try {
+      refreshed = await refreshAccessToken(subdomain, refreshToken!)
+    } catch (thrown) {
+      // Concurrent handlers near expiry all fire refresh with the same single-use token; only the
+      // first wins. If another request already refreshed, re-read the state and use its token.
+      const latest = await client
+        .getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+        .then((result) => result.state.payload)
+      if (latest.accessToken && latest.accessToken !== accessToken) {
+        return new ZendeskApi({ type: 'OAuth', accessToken: latest.accessToken, subdomain }, logger)
+      }
+      logger.forBotOnly().error('Failed to refresh Zendesk access token', { error: `${thrown}` })
+      throw new sdk.RuntimeError('Failed to refresh the Zendesk access token, please re-run the OAuth setup')
+    }
+    accessToken = refreshed.accessToken
+    await client.setState({
+      type: 'integration',
+      name: 'credentials',
+      id: ctx.integrationId,
+      // Carry the old refresh token forward if the response omitted a new one (non-rotating clients).
+      // expiresAt is NOT carried forward: the stored value is already past the refresh threshold, so
+      // reusing it would make every subsequent call re-refresh in a loop. undefined disables further
+      // auto-refresh until the next expires_in (Zendesk always returns it for expiring tokens).
+      payload: {
+        ...credentials,
+        accessToken: refreshed.accessToken,
+        refreshToken: refreshed.refreshToken ?? refreshToken,
+        expiresAt: refreshed.expiresAt,
+      },
+    })
   }
 
   return new ZendeskApi({ type: 'OAuth', accessToken, subdomain }, logger)

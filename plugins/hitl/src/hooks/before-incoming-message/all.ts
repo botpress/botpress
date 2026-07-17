@@ -19,7 +19,7 @@ export const handleMessage: bp.HookHandlers['before_incoming_message']['*'] = as
   })
 
   const { integration } = conversation
-  if (integration === props.interfaces.hitl.name) {
+  if (integration === props.interfaces.hitl.integrationAlias) {
     return await _handleDownstreamMessage(props, conversation)
   }
   return await _handleUpstreamMessage(props, conversation)

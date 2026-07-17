@@ -105,6 +105,7 @@ export const generate = generateCode
  * @param props.signal - Optional AbortSignal to cancel execution
  * @param props.model - Optional model name (or array or models to use as fallback) (static or dynamic function)
  * @param props.temperature - Optional temperature value (static or dynamic function)
+ * @param props.metadata - Optional metadata attached to cognitive usage records for each LLM call
  * @param props.options - Optional execution options (loop limit, timeout)
  * @param props.onTrace - Optional non-blocking hook for monitoring traces during execution
  * @param props.onIterationEnd - Optional blocking hook called after each iteration

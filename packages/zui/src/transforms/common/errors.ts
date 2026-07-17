@@ -73,6 +73,14 @@ export class UnsupportedZuiToTypescriptSchemaError extends ZuiToTypescriptSchema
     super(`Zod type ${type} cannot be transformed to TypeScript schema.`, path)
   }
 }
+export class CircularZuiToTypescriptSchemaError extends ZuiToTypescriptSchemaError {
+  public constructor(path: string) {
+    super(
+      'Schema is self-referential and cannot be inlined into TypeScript schema source without a name to reference.',
+      path
+    )
+  }
+}
 
 // zui-to-typescript-type-error
 export class ZuiToTypescriptTypeError extends ZuiTransformError {
