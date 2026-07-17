@@ -50,7 +50,7 @@ export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.H
 
       const message = _extractMessage(activity)
       await client.getOrCreateMessage({
-        tags: { id: activity.id },
+        tags: { id: activity.id, locale: activity.locale },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,
