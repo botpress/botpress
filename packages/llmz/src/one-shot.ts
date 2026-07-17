@@ -1,6 +1,6 @@
+import { createJoinedAbortController } from './abort-signal.js'
 import { validateGeneratedCode } from './compiler/validate.js'
 import { Context, type Iteration } from './context.js'
-import { createJoinedAbortController } from './abort-signal.js'
 import { BAIL_END_TOKEN, BAIL_START_TOKEN, OneShotPrompt } from './prompts/one-shot.js'
 import { generateCode as generateIterationCode } from './runtime/generate.js'
 import { type ExecutionHooks, type ExecutionProps, type RuntimeCognitive } from './runtime/types.js'
@@ -157,7 +157,12 @@ export async function generateCode(props: GenerateCodeProps): Promise<GenerateCo
   let lastInvalid: { code: string; errors: string[] } | null = null
 
   for (let attempt = 0; attempt <= MAX_FIX_ATTEMPTS; attempt++) {
-    const iteration = await generateIteration({ ctx, cognitive, controller, onTrace: props.onTrace })
+    const iteration = await generateIteration({
+      ctx,
+      cognitive,
+      controller,
+      onTrace: props.onTrace,
+    })
 
     // The LLM may bail instead of generating code when the task cannot be done
     // correctly with the available tools. The bail is emitted in the raw output.
@@ -167,7 +172,10 @@ export async function generateCode(props: GenerateCodeProps): Promise<GenerateCo
     }
 
     const code = iteration.code ?? ''
-    const validation = validateGeneratedCode(code, { tools: iteration.tools, objects: iteration.objects })
+    const validation = validateGeneratedCode(code, {
+      tools: iteration.tools,
+      objects: iteration.objects,
+    })
     if (validation.valid) {
       return { status: 'success', code }
     }
