@@ -1,6 +1,11 @@
-import { cases } from './cases'
-import { measureCase } from '@bpinternal/tsc-bench'
+// tsc-bench's `main` points at raw .ts, so tsc mis-sees it as ESM (named exports)
+// while at runtime under ESM it resolves as CJS (default export only). Import the
+// default and destructure to work at runtime; bench runs transpile-only.
+// @ts-ignore
+import tscBench from '@bpinternal/tsc-bench'
+const { measureCase } = tscBench
 import pathlib from 'path'
+import { cases } from './cases'
 
 const ROOT_DIR = pathlib.resolve(pathlib.join(import.meta.dirname, '..'))
 const ZUI_DIST_DIR = pathlib.join(ROOT_DIR, 'dist')

@@ -3403,6 +3403,9 @@ importers:
       tsup:
         specifier: ^8.0.2
         version: 8.0.2(@microsoft/api-extractor@7.49.0(@types/node@22.16.4))(postcss@8.4.47)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.9.3))(typescript@5.9.3)
+      tsx:
+        specifier: ^4.19.2
+        version: 4.19.2
 
   plugins/analytics:
     dependencies:
