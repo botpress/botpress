@@ -1,3 +1,9 @@
+import * as types from '../types'
+
+export default {
+  name: 'extend-chain-25',
+  instantiationThreshold: 58000,
+  sourceCode: `
 import { z } from '@bpinternal/zui'
 
 export const s0 = z.object({
@@ -211,3 +217,5 @@ export const s25 = s24.extend({
 export type Out = z.infer<typeof s25>
 
 export type In = z.input<typeof s25>
+`,
+} satisfies types.BenchmarkCase
