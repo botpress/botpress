@@ -97,9 +97,9 @@ export class IssueProcessor {
           ...errors.map((error) => `- ${error.message}`),
         ].join('\n'),
       })
-      await this._addLintDetectedLabel(issue)
     }
 
+    await this._addLintDetectedLabel(issue)
     return { identifier: issue.identifier, messages: errors.map((error) => error.message), result: 'failed' }
   }
 
