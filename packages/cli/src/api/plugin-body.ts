@@ -120,7 +120,12 @@ export const prepareUpdatePluginBody = (
     ),
   }
 
-  // TODO: set null to conversation, user and message tags that are removed
+  const conversationTags = utils.records.setNullOnMissingValues(
+    localPlugin.conversation?.tags,
+    remotePlugin.conversation?.tags
+  )
+  const userTags = utils.records.setNullOnMissingValues(localPlugin.user?.tags, remotePlugin.user?.tags)
+  const messageTags = utils.records.setNullOnMissingValues(localPlugin.message?.tags, remotePlugin.message?.tags)
 
   return {
     ...localPlugin,
@@ -129,5 +134,17 @@ export const prepareUpdatePluginBody = (
     states,
     attributes,
     dependencies,
+    conversation: {
+      ...localPlugin.conversation,
+      tags: conversationTags,
+    },
+    user: {
+      ...localPlugin.user,
+      tags: userTags,
+    },
+    message: {
+      ...localPlugin.message,
+      tags: messageTags,
+    },
   }
 }
