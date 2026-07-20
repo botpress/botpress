@@ -1,3 +1,9 @@
+import * as types from '../types'
+
+export default {
+  name: 'real-whatsapp',
+  instantiationThreshold: 205000,
+  sourceCode: `
 // Lifted from integrations/whatsapp/src/misc/types.ts — a real schema-heavy file.
 // Kept verbatim except: qualityScoreSchema inlined.
 import { z } from '@bpinternal/zui'
@@ -429,3 +435,5 @@ export type TemplateButtonParam =
   | { type: 'quick_reply'; payload: string }
   | { type: 'copy_code'; code: string }
   | { type: 'skip' }
+`,
+} satisfies types.BenchmarkCase

@@ -15,7 +15,7 @@
   "scripts": {
     "build": "tsup",
     "check:type": "tsc --noEmit",
-    "check:instantiations": "node --loader ts-node/esm bench/check-instantiations.mts",
+    "bench": "bun bench/index.mts",
     "test": "vitest --run"
   },
   "devDependencies": {

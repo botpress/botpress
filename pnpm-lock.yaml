@@ -3242,7 +3242,21 @@ importers:
         specifier: workspace:*
         version: link:../sdk
 
-  packages/tsc-bench: {}
+  packages/tsc-bench:
+    dependencies:
+      ms:
+        specifier: ^2.1.3
+        version: 2.1.3
+      tmp:
+        specifier: ^0.2.1
+        version: 0.2.1
+    devDependencies:
+      '@types/ms':
+        specifier: ^0.7.34
+        version: 0.7.34
+      '@types/tmp':
+        specifier: ^0.2.3
+        version: 0.2.3
 
   packages/vai:
     dependencies:
@@ -7061,9 +7075,6 @@ packages:
 
   '@types/minimatch@5.1.2':
     resolution: {integrity: sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==}
-
-  '@types/ms@0.7.31':
-    resolution: {integrity: sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==}
 
   '@types/ms@0.7.34':
     resolution: {integrity: sha512-nG96G3Wp6acyAgJqGasjODb+acrI7KltPiRxzHPXnP3NgI28bpQDRv53olbqGXbfcgF5aiiHmO3xpwEpS5Ld9g==}
@@ -17412,7 +17423,7 @@ snapshots:
 
   '@types/debug@4.1.12':
     dependencies:
-      '@types/ms': 0.7.31
+      '@types/ms': 0.7.34
 
   '@types/docusign-esign@5.19.9':
     dependencies:
@@ -17540,8 +17551,6 @@ snapshots:
   '@types/mime@3.0.1': {}
 
   '@types/minimatch@5.1.2': {}
-
-  '@types/ms@0.7.31': {}
 
   '@types/ms@0.7.34': {}
 

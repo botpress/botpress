@@ -21,7 +21,7 @@
     "noErrorTruncation": true
   },
   "exclude": ["node_modules", "dist"],
-  "include": ["src/**/*", "*.ts"],
+  "include": ["src/**/*", "bench/**/*", "*.ts"],
   "ts-node": {
     "esm": true
   }
