@@ -3,10 +3,9 @@ import fs from 'fs/promises'
 import ms from 'ms'
 import path from 'path'
 import tmp from 'tmp'
-import url from 'url'
+import * as consts from './paths'
 
 const DIR_PREFIX = 'tsc-bench-'
-const TSC = url.fileURLToPath(import.meta.resolve('typescript/bin/tsc'))
 
 export type CaseResult = {
   types: number | null
@@ -16,20 +15,19 @@ export type CaseResult = {
   totalTime: number | null
 }
 
+export async function getTscVersion(): Promise<string> {
+  const { stdout } = await _runTsc('--version').catch((thrown) => {
+    const errMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    throw new Error(`Failed to run tsc --version. Make sure you have typescirpt installed and available: ${errMessage}`)
+  })
+  return stdout.trim()
+}
+
 export async function runTsc(
   caseName: string,
   sourceCode: string,
   paths?: Record<string, string>
 ): Promise<CaseResult> {
-  const { stdout: versionStdout } = await _runTsc('--version').catch((thrown) => {
-    const errMessage = thrown instanceof Error ? thrown.message : String(thrown)
-    throw new Error(
-      `Failed to run tsc --version for ${caseName}. Make sure you have typescirpt installed and available: ${errMessage}`
-    )
-  })
-
-  console.log(`Running tsc --version for ${caseName}: ${versionStdout.trim()}`)
-
   const dir = tmp.dirSync({ prefix: DIR_PREFIX, unsafeCleanup: true }).name
 
   const caseTsconfig = {
@@ -113,7 +111,7 @@ const _runTsc = async (
   stdout: string
   stderr: string
 }> => {
-  const child = childProcess.execFile(process.execPath, [TSC, ...args], { encoding: 'utf8' })
+  const child = childProcess.execFile(process.execPath, [consts.TSC_BIN, ...args], { encoding: 'utf8' })
   return new Promise((resolve, reject) => {
     let stdout = ''
     let stderr = ''
