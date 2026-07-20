@@ -69,6 +69,8 @@ export class IssueProcessor {
       IGNORED_STATES.includes(state.type) ||
       issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)
     ) {
+      await this._commentService.resolveComments({ issue, type: 'lint' })
+      await this._rmLintDetectedLabel(issue)
       return { identifier: issue.identifier, result: 'ignored' }
     }
 
@@ -77,12 +79,7 @@ export class IssueProcessor {
     if (errors.length === 0) {
       this._logger.info(`Issue ${issue.identifier} passed all lint checks.`)
       await this._commentService.resolveComments({ issue, type: 'lint' })
-      await this._linear.removeLabel(issue, LINTDETECTED_LABEL_NAME).catch((thrown) => {
-        const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-        this._logger.error(
-          `Failed to remove label ${LINTDETECTED_LABEL_NAME} from issue ${issue.identifier}: ${errMsg}`
-        )
-      })
+      await this._rmLintDetectedLabel(issue)
       return { identifier: issue.identifier, result: 'succeeded' }
     }
 
@@ -100,12 +97,28 @@ export class IssueProcessor {
           ...errors.map((error) => `- ${error.message}`),
         ].join('\n'),
       })
-      await this._linear.addLabel(issue, LINTDETECTED_LABEL_NAME).catch((thrown) => {
-        const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-        this._logger.error(`Failed to add label ${LINTDETECTED_LABEL_NAME} to issue ${issue.identifier}: ${errMsg}`)
-      })
     }
 
+    await this._addLintDetectedLabel(issue)
     return { identifier: issue.identifier, messages: errors.map((error) => error.message), result: 'failed' }
   }
+
+  private _rmLintDetectedLabel = async (issue: lin.Issue): Promise<void> => {
+    await this._linear
+      .removeLabel(issue, LINTDETECTED_LABEL_NAME)
+      .catch(this._swallowError(`Failed to remove label ${LINTDETECTED_LABEL_NAME} from issue ${issue.identifier}`))
+  }
+
+  private _addLintDetectedLabel = async (issue: lin.Issue): Promise<void> => {
+    await this._linear
+      .addLabel(issue, LINTDETECTED_LABEL_NAME)
+      .catch(this._swallowError(`Failed to add label ${LINTDETECTED_LABEL_NAME} to issue ${issue.identifier}`))
+  }
+
+  private _swallowError =
+    (context: string) =>
+    (thrown: unknown): void => {
+      const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+      this._logger.error(`${context}: ${errMsg}`)
+    }
 }
