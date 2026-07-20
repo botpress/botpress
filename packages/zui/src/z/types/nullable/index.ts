@@ -5,10 +5,10 @@ export class ZodNullableImpl<T extends IZodType = IZodType>
   extends ZodBaseTypeImpl<T['_output'] | null, ZodNullableDef<T>, T['_input'] | null>
   implements IZodNullable<T>
 {
-  dereference(defs: Record<string, IZodType>): ZodBaseTypeImpl {
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
     return new ZodNullableImpl({
       ...this._def,
-      innerType: this._def.innerType.dereference(defs),
+      innerType: this._def.innerType.dereference(defs, memo),
     })
   }
 

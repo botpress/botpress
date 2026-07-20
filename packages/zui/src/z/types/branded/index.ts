@@ -7,10 +7,10 @@ export class ZodBrandedImpl<T extends IZodType = IZodType, B extends Key = Key>
   extends ZodBaseTypeImpl<T['_output'] & BRAND<B>, ZodBrandedDef<T>, T['_input']>
   implements IZodBranded<T, B>
 {
-  dereference(defs: Record<string, IZodType>): IZodType {
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
     return new ZodBrandedImpl({
       ...this._def,
-      type: this._def.type.dereference(defs),
+      type: this._def.type.dereference(defs, memo),
     })
   }
 

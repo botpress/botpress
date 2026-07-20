@@ -51,24 +51,30 @@ test('getReferences: mutual recursion does not stack overflow', () => {
   expect(User.getReferences()).toEqual([])
 })
 
-test('clone: self recursion does not stack overflow', () => {
+test('clone: self recursion does not stack overflow (incl. traversing the result)', () => {
   const cloned = Category.clone()
   expect(cloned).toBeTruthy()
+  // traverse the clone — a non-cycle-preserving clone overflows here, not above
+  expect(cloned.getReferences()).toEqual([])
 })
 
-test('clone: mutual recursion does not stack overflow', () => {
+test('clone: mutual recursion does not stack overflow (incl. traversing the result)', () => {
   const cloned = User.clone()
   expect(cloned).toBeTruthy()
+  expect(cloned.getReferences()).toEqual([])
 })
 
-test('dereference: self recursion does not stack overflow', () => {
+test('dereference: self recursion does not stack overflow (incl. traversing the result)', () => {
   const deref = Category.dereference({})
   expect(deref).toBeTruthy()
+  // traverse the dereferenced result — a non-cycle-preserving deref overflows here, not above
+  expect(deref.getReferences()).toEqual([])
 })
 
-test('dereference: mutual recursion does not stack overflow', () => {
+test('dereference: mutual recursion does not stack overflow (incl. traversing the result)', () => {
   const deref = User.dereference({})
   expect(deref).toBeTruthy()
+  expect(deref.getReferences()).toEqual([])
 })
 
 test('isEqual: self recursion does not stack overflow', () => {

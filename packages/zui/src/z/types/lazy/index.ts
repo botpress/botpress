@@ -9,10 +9,10 @@ export class ZodLazyImpl<T extends IZodType = IZodType>
     return this._def.getter()
   }
 
-  dereference(defs: Record<string, IZodType>): IZodType {
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
     return new ZodLazyImpl({
       ...this._def,
-      getter: () => this._def.getter().dereference(defs),
+      getter: () => this._def.getter().dereference(defs, memo),
     })
   }
 

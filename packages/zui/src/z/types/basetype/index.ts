@@ -70,7 +70,21 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
 
   abstract _parse(input: ParseInput): ParseReturnType<Output>
 
-  dereference(_defs: Record<string, IZodType>): IZodType {
+  dereference(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType> = new WeakMap()): IZodType {
+    const hit = memo.get(this)
+    if (hit) return hit
+    // Mirrors clone(): the cycle-preserving memo bookkeeping lives here once. Each type overrides
+    // `_dereferenceSelf` to build its structural copy, dereferencing children via `defs`/`memo`.
+    // Registering both source and result before any lazy shape/getter thunk runs is what lets a
+    // getter-recursive schema dereference into a cycle instead of an unbounded chain. See RECURSIVE_SCHEMAS.md.
+    const derefed = this._dereferenceSelf(defs, memo)
+    memo.set(this, derefed)
+    memo.set(derefed, derefed)
+    return derefed
+  }
+
+  /** Structural copy of this schema with child schemas dereferenced. Overridden per type; primitives have none. */
+  protected _dereferenceSelf(_defs: Record<string, IZodType>, _memo: WeakMap<IZodType, IZodType>): IZodType {
     return this
   }
 

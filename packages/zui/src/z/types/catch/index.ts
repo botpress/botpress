@@ -74,10 +74,10 @@ export class ZodCatchImpl<T extends IZodType = IZodType>
     )
   }
 
-  dereference(defs: Record<string, IZodType>): IZodType {
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
     return new ZodCatchImpl({
       ...this._def,
-      innerType: this._def.innerType.dereference(defs),
+      innerType: this._def.innerType.dereference(defs, memo),
     })
   }
 

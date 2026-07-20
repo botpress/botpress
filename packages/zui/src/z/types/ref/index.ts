@@ -7,7 +7,9 @@ import {
 export type { ZodRefDef }
 
 export class ZodRefImpl extends ZodBaseTypeImpl<NonNullable<unknown>, ZodRefDef> implements IZodRef {
-  dereference(defs: Record<string, IZodType>): ZodBaseTypeImpl {
+  // Terminal resolver: overrides `dereference` directly (not `_dereferenceSelf`) because it returns an
+  // external schema from `defs` rather than building a structural copy. `memo` is unused here.
+  dereference(defs: Record<string, IZodType>, _memo?: WeakMap<IZodType, IZodType>): ZodBaseTypeImpl {
     const def = defs[this._def.uri]
     if (!def) {
       return this

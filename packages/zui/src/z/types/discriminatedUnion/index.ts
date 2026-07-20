@@ -66,8 +66,8 @@ export class ZodDiscriminatedUnionImpl<
     })
   }
 
-  dereference(defs: Record<string, IZodType>): ZodBaseTypeImpl {
-    const options = this.options.map((option) => option.dereference(defs)) as [
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
+    const options = this.options.map((option) => option.dereference(defs, memo)) as [
       ZodDiscriminatedUnionOption<Discriminator>,
       ...ZodDiscriminatedUnionOption<Discriminator>[],
     ]

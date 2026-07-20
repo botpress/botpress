@@ -41,14 +41,14 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     return (this._cached = { shape, keys })
   }
 
-  dereference(defs: Record<string, IZodType>): IZodType {
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
     return new ZodObjectImpl({
       ...this._def,
       shape: () => {
         const currentShape = this._def.shape()
         const shape: Record<string, IZodType> = {}
         for (const key in currentShape) {
-          shape[key] = currentShape[key]!.dereference(defs)
+          shape[key] = currentShape[key]!.dereference(defs, memo)
         }
         return shape
       },

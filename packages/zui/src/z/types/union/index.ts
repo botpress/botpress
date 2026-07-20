@@ -22,8 +22,12 @@ export class ZodUnionImpl<T extends ZodUnionOptions = DefaultZodUnionOptions>
   extends ZodBaseTypeImpl<T[number]['_output'], ZodUnionDef<T>, T[number]['_input']>
   implements IZodUnion<T>
 {
-  dereference(defs: Record<string, IZodType>): IZodType {
-    const options = this._def.options.map((option) => option.dereference(defs)) as [IZodType, IZodType, ...IZodType[]]
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
+    const options = this._def.options.map((option) => option.dereference(defs, memo)) as [
+      IZodType,
+      IZodType,
+      ...IZodType[],
+    ]
     return new ZodUnionImpl({
       ...this._def,
       options,

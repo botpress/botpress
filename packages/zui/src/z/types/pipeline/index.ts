@@ -14,11 +14,11 @@ export class ZodPipelineImpl<A extends IZodType = IZodType, B extends IZodType =
   extends ZodBaseTypeImpl<B['_output'], ZodPipelineDef<A, B>, A['_input']>
   implements IZodPipeline<A, B>
 {
-  dereference(defs: Record<string, IZodType>): ZodBaseTypeImpl {
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
     return new ZodPipelineImpl({
       ...this._def,
-      in: this._def.in.dereference(defs),
-      out: this._def.out.dereference(defs),
+      in: this._def.in.dereference(defs, memo),
+      out: this._def.out.dereference(defs, memo),
     })
   }
 

@@ -17,9 +17,9 @@ export class ZodMapImpl<Key extends IZodType = IZodType, Value extends IZodType 
     return this._def.valueType
   }
 
-  dereference(defs: Record<string, IZodType>): ZodBaseTypeImpl {
-    const keyType = this._def.keyType.dereference(defs)
-    const valueType = this._def.valueType.dereference(defs)
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
+    const keyType = this._def.keyType.dereference(defs, memo)
+    const valueType = this._def.valueType.dereference(defs, memo)
     return new ZodMapImpl({
       ...this._def,
       keyType,

@@ -416,8 +416,8 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
 
   description: string | undefined
   typeName: Def['typeName']
-  /** deeply replace all references in the schema */
-  dereference(_defs: Record<string, IZodType>): IZodType
+  /** deeply replace all references in the schema. `memo` is threaded internally to preserve cycles. */
+  dereference(defs: Record<string, IZodType>, memo?: CloneMemo): IZodType
   /** deeply scans the schema to check if it contains references */
   getReferences(): string[]
   /** internal recursive worker for getReferences() — do not call directly */

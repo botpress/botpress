@@ -31,10 +31,10 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
       : (this._def.schema as T)
   }
 
-  dereference(defs: Record<string, IZodType>): IZodEffects {
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
     return new ZodEffectsImpl({
       ...this._def,
-      schema: this._def.schema.dereference(defs),
+      schema: this._def.schema.dereference(defs, memo),
     }) as IZodEffects
   }
 

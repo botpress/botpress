@@ -26,9 +26,9 @@ export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Retur
   >
   implements IZodFunction<Args, Returns>
 {
-  dereference(defs: Record<string, IZodType>): IZodType {
-    const args = this._def.args.dereference(defs) as IZodTuple<[], IZodUnknown>
-    const returns = this._def.returns.dereference(defs)
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
+    const args = this._def.args.dereference(defs, memo) as IZodTuple<[], IZodUnknown>
+    const returns = this._def.returns.dereference(defs, memo)
     return new ZodFunctionImpl({
       ...this._def,
       args,
