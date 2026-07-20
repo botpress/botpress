@@ -5,7 +5,6 @@ import { toTypescriptType } from '../../transforms/zui-to-typescript-type'
 import { toTypescriptSchema } from '../../transforms/zui-to-typescript-schema'
 import { execFileSync } from 'node:child_process'
 import * as path from 'node:path'
-import { Bad } from './fixtures/non-schema-shape-value.fixture'
 
 // --- self recursion ---
 const Category = z.object({
@@ -115,12 +114,26 @@ test('toTypescriptSchema: mutual recursion does not stack overflow', () => {
   expect(ts).toBeTruthy()
 })
 
-// Tracks the type-safety trade-off from RECURSIVE_SCHEMAS.md. Uses the isolated fixture at
-// fixtures/non-schema-shape-value.fixture.ts (kept free of Category/User's own circular-inference
-// errors, which were found to cascade and mask unrelated diagnostics when checked in the same file)
-// as the single source of truth for both the runtime and compile-time sides of this behavior.
-test('shape validation (before the loosening): a non-schema value is only caught once .parse() runs, not at construction', () => {
-  expect(() => Bad.parse({ name: 'x', age: 42 })).toThrow('keyValidator._parse is not a function')
+// The runtime mitigation for the loosened shape constraint (RECURSIVE_SCHEMAS.md): a non-schema shape
+// value can no longer be caught at compile time, so z.object() validates plain values at construction and
+// throws immediately with a clear, key-named message — for module-scoped schemas this fires on import,
+// long before any .parse(). Getter-valued keys (the recursion mechanism) are skipped, never invoked.
+test('shape validation: a non-schema value throws at construction with a clear message', () => {
+  expect(() => z.object({ name: z.string(), age: 42 as unknown as z.ZodType })).toThrow(/not a zui schema/)
+  expect(() => z.strictObject({ age: 42 as unknown as z.ZodType })).toThrow(/not a zui schema/)
+})
+
+test('shape validation: a getter-valued key is NOT invoked at construction (recursion still works)', () => {
+  let invoked = false
+  const Node = z.object({
+    name: z.string(),
+    get self() {
+      invoked = true
+      return z.array(Node)
+    },
+  })
+  expect(invoked).toBe(false) // the guard must not have called the getter
+  expect(Node).toBeTruthy()
 })
 
 // Regression guard: passes today because ZodRawShape's strict `IZodType` constraint still rejects a
