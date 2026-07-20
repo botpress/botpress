@@ -926,77 +926,79 @@ export type ZodObjectDef<
 // readonly/branded) forward; unions are optional if any option is; intersections if both sides are.
 // Known trade-off (same as zod4): a still-generic schema member (e.g. TData extends z.ZodType inside a
 // generic helper) cannot be partitioned and degrades — see generics.test.ts. See RECURSIVE_SCHEMAS.md.
-export type IsOptionalOut<S> = S extends IZodOptional<any>
-  ? true
-  : S extends IZodUndefined | IZodVoid | IZodAny | IZodUnknown
+export type IsOptionalOut<S> =
+  S extends IZodOptional<any>
     ? true
-    : S extends IZodDefault<any>
-      ? false
-      : S extends IZodLiteral<infer V>
-        ? undefined extends V
-          ? true
-          : false
-        : S extends IZodLazy<infer I>
-          ? IsOptionalOut<I>
-          : S extends IZodNullable<infer I>
-            ? IsOptionalOut<I>
-            : S extends IZodReadonly<infer I>
-              ? IsOptionalOut<I>
-              : S extends IZodBranded<infer I, any>
-                ? IsOptionalOut<I>
-                : S extends IZodCatch<infer I>
-                  ? IsOptionalOut<I>
-                  : S extends IZodEffects<any, infer O, any>
-                    ? undefined extends O
-                      ? true
-                      : false
-                    : S extends IZodUnion<infer Opts>
-                      ? true extends IsOptionalOut<Opts[number]>
-                        ? true
-                        : false
-                      : S extends IZodIntersection<infer A, infer B>
-                        ? IsOptionalOut<A> extends true
-                          ? IsOptionalOut<B>
-                          : false
-                        : S extends IZodPipeline<any, infer B>
-                          ? IsOptionalOut<B>
-                          : false
-
-export type IsOptionalIn<S> = S extends IZodOptional<any>
-  ? true
-  : S extends IZodDefault<any>
-    ? true
-    : S extends IZodCatch<any>
+    : S extends IZodUndefined | IZodVoid | IZodAny | IZodUnknown
       ? true
-      : S extends IZodUndefined | IZodVoid | IZodAny | IZodUnknown
-        ? true
+      : S extends IZodDefault<any>
+        ? false
         : S extends IZodLiteral<infer V>
           ? undefined extends V
             ? true
             : false
           : S extends IZodLazy<infer I>
-            ? IsOptionalIn<I>
+            ? IsOptionalOut<I>
             : S extends IZodNullable<infer I>
-              ? IsOptionalIn<I>
+              ? IsOptionalOut<I>
               : S extends IZodReadonly<infer I>
-                ? IsOptionalIn<I>
+                ? IsOptionalOut<I>
                 : S extends IZodBranded<infer I, any>
-                  ? IsOptionalIn<I>
-                  : S extends IZodEffects<any, any, infer In>
-                    ? undefined extends In
-                      ? true
-                      : false
-                    : S extends IZodUnion<infer Opts>
-                      ? true extends IsOptionalIn<Opts[number]>
+                  ? IsOptionalOut<I>
+                  : S extends IZodCatch<infer I>
+                    ? IsOptionalOut<I>
+                    : S extends IZodEffects<any, infer O, any>
+                      ? undefined extends O
                         ? true
                         : false
-                      : S extends IZodIntersection<infer A, infer B>
-                        ? IsOptionalIn<A> extends true
-                          ? IsOptionalIn<B>
+                      : S extends IZodUnion<infer Opts>
+                        ? true extends IsOptionalOut<Opts[number]>
+                          ? true
                           : false
-                        : S extends IZodPipeline<infer A, any>
-                          ? IsOptionalIn<A>
+                        : S extends IZodIntersection<infer A, infer B>
+                          ? IsOptionalOut<A> extends true
+                            ? IsOptionalOut<B>
+                            : false
+                          : S extends IZodPipeline<any, infer B>
+                            ? IsOptionalOut<B>
+                            : false
+
+export type IsOptionalIn<S> =
+  S extends IZodOptional<any>
+    ? true
+    : S extends IZodDefault<any>
+      ? true
+      : S extends IZodCatch<any>
+        ? true
+        : S extends IZodUndefined | IZodVoid | IZodAny | IZodUnknown
+          ? true
+          : S extends IZodLiteral<infer V>
+            ? undefined extends V
+              ? true
+              : false
+            : S extends IZodLazy<infer I>
+              ? IsOptionalIn<I>
+              : S extends IZodNullable<infer I>
+                ? IsOptionalIn<I>
+                : S extends IZodReadonly<infer I>
+                  ? IsOptionalIn<I>
+                  : S extends IZodBranded<infer I, any>
+                    ? IsOptionalIn<I>
+                    : S extends IZodEffects<any, any, infer In>
+                      ? undefined extends In
+                        ? true
+                        : false
+                      : S extends IZodUnion<infer Opts>
+                        ? true extends IsOptionalIn<Opts[number]>
+                          ? true
                           : false
+                        : S extends IZodIntersection<infer A, infer B>
+                          ? IsOptionalIn<A> extends true
+                            ? IsOptionalIn<B>
+                            : false
+                          : S extends IZodPipeline<infer A, any>
+                            ? IsOptionalIn<A>
+                            : false
 
 export type ObjectOutputType<
   Shape extends ZodRawShape,
@@ -1913,7 +1915,10 @@ export declare function createEnum(
 
 export declare function createNativeEnum<T extends EnumLike>(values: T, params?: ZodCreateParams): IZodNativeEnum<T>
 export declare function createArray<T extends IZodType>(schema: T, params?: ZodCreateParams): IZodArray<T>
-export declare function createObject<T extends ZodRawShapeArg>(shape: T, params?: ZodCreateParams): IZodObject<T, 'strip'>
+export declare function createObject<T extends ZodRawShapeArg>(
+  shape: T,
+  params?: ZodCreateParams
+): IZodObject<T, 'strip'>
 export declare function createStrictObject<T extends ZodRawShapeArg>(
   shape: T,
   params?: ZodCreateParams

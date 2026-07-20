@@ -130,7 +130,22 @@ test('shape validation: a non-schema value is a compile-time error (breaks if th
   try {
     execFileSync(
       process.execPath,
-      [tscBin, '--noEmit', fixture, '--module', 'ESNext', '--moduleResolution', 'Node', '--target', 'ES2017', '--strict', '--skipLibCheck', '--esModuleInterop', '--lib', 'dom,ESNext,dom.iterable'],
+      [
+        tscBin,
+        '--noEmit',
+        fixture,
+        '--module',
+        'ESNext',
+        '--moduleResolution',
+        'Node',
+        '--target',
+        'ES2017',
+        '--strict',
+        '--skipLibCheck',
+        '--esModuleInterop',
+        '--lib',
+        'dom,ESNext,dom.iterable',
+      ],
       { encoding: 'utf-8', stdio: 'pipe' }
     )
   } catch (e) {

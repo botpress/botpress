@@ -7,7 +7,12 @@ import { toJSONSchema } from '../../transforms/zui-to-json-schema'
 // See RECURSIVE_SCHEMAS.md.
 
 let cat: any
-cat = z.object({ name: z.string(), get subcategories() { return z.array(cat) } })
+cat = z.object({
+  name: z.string(),
+  get subcategories() {
+    return z.array(cat)
+  },
+})
 
 test('clone() of a recursive schema is traversable (getReferences)', () => {
   expect(cat.clone().getReferences()).toEqual([])
@@ -30,7 +35,14 @@ test('describe() on a recursive schema is traversable', () => {
 })
 
 test('title() on a recursive schema is used as the JSON-schema definition name', () => {
-  const Node: any = z.object({ name: z.string(), get children() { return z.array(Node) } }).title('Node')
+  const Node: any = z
+    .object({
+      name: z.string(),
+      get children() {
+        return z.array(Node)
+      },
+    })
+    .title('Node')
   const s = toJSONSchema(Node) as any
   expect(s.$ref).toBe('#/definitions/Node')
   expect(s.definitions.Node.properties.children.items.$ref).toBe('#/definitions/Node')
