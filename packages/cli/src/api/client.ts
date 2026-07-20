@@ -1,6 +1,7 @@
 import * as client from '@botpress/client'
 import semver from 'semver'
 import yn from 'yn'
+import * as consts from '../consts'
 import * as errors from '../errors'
 import type { Logger } from '../logger'
 import { formatPackageRef, ApiPackageRef, NamePackageRef } from '../package-ref'
@@ -46,6 +47,7 @@ export class ApiClient {
       token,
       workspaceId,
       botId,
+      timeout: consts.defaultBotpressApiTimeout,
       retry: retry.config,
       headers: { 'x-multiple-integrations': 'true', ...extraHeaders },
     })
