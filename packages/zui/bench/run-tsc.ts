@@ -7,7 +7,7 @@ import * as consts from './paths'
 
 const DIR_PREFIX = 'tsc-bench-'
 
-export type CaseResult = {
+export type CompilationResult = {
   types: number | null
   memoryUsed: string | null
   instantiations: number | null
@@ -23,11 +23,7 @@ export async function getTscVersion(): Promise<string> {
   return stdout.trim()
 }
 
-export async function runTsc(
-  caseName: string,
-  sourceCode: string,
-  paths?: Record<string, string>
-): Promise<CaseResult> {
+export async function runTsc(sourceCode: string, paths?: Record<string, string>): Promise<CompilationResult> {
   const dir = tmp.dirSync({ prefix: DIR_PREFIX, unsafeCleanup: true }).name
 
   const caseTsconfig = {
@@ -70,7 +66,7 @@ export async function runTsc(
   const checkTimeStr = _parseMetric(checkStdOut, 'Check time')
   const totalTimeStr = _parseMetric(checkStdOut, 'Total time')
 
-  const result: CaseResult = {
+  const result: CompilationResult = {
     types: null,
     instantiations: null,
     memoryUsed: null,
@@ -105,6 +101,9 @@ export async function runTsc(
   return result
 }
 
+/**
+ * Unfortunately, TypeScript does not provide a programmatic API to run the compiler and get the extended diagnostics. Therefore, we have to spawn a child process to run tsc and parse its output.
+ */
 const _runTsc = async (
   ...args: string[]
 ): Promise<{
