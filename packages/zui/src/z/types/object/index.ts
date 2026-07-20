@@ -66,10 +66,16 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     return utils.fn.unique(refs)
   }
 
-  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): IZodObject<T, UnknownKeys> {
-    // The shape thunk is lazy, so it runs after the base has registered this clone in `memo`; a
-    // self-reference reached through it therefore resolves back to this same clone. See RECURSIVE_SCHEMAS.md.
-    return new ZodObjectImpl<T, UnknownKeys>({
+  // ZodObject keeps an explicit `clone` (rather than the base's `_cloneSelf` template the other types use):
+  // omitting the concrete `IZodObject<T, UnknownKeys>` return here lets declaration-emit fully resolve
+  // ZodObjectImpl's assignability to IZodObject<T, 'strict'> in strict()/strictObject(), which surfaces a
+  // latent additionalProperties() variance error (TS2322). The explicit return defers that check. The memo
+  // logic mirrors the base: register both source and clone, before the lazy shape thunk runs, so a
+  // getter-recursive schema clones into a cycle instead of an infinite tree. See RECURSIVE_SCHEMAS.md.
+  clone(memo: WeakMap<IZodType, IZodType> = new WeakMap()): IZodObject<T, UnknownKeys> {
+    const hit = memo.get(this)
+    if (hit) return hit as IZodObject<T, UnknownKeys>
+    const cloned: IZodObject<T, UnknownKeys> = new ZodObjectImpl<T, UnknownKeys>({
       ...this._def,
       shape: () => {
         const currentShape = this._def.shape()
@@ -80,6 +86,9 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
         return newShape as T
       },
     })
+    memo.set(this, cloned)
+    memo.set(cloned, cloned)
+    return cloned
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
