@@ -15,7 +15,7 @@
   "scripts": {
     "build": "tsup",
     "check:type": "tsc --noEmit",
-    "bench": "bun bench/index.mts",
+    "bench": "tsx bench/index.ts",
     "test": "vitest --run"
   },
   "devDependencies": {
@@ -27,7 +27,8 @@
     "ajv-formats": "^3.0.1",
     "local-ref-resolver": "^0.2.0",
     "lodash-es": "^4.17.21",
-    "tsup": "^8.0.2"
+    "tsup": "^8.0.2",
+    "tsx": "^4.19.2"
   },
   "repository": {
     "type": "git",
