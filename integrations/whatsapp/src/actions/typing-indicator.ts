@@ -12,8 +12,12 @@ export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIn
   if (ctx.configuration.messageReadBehavior === 'none') {
     return {}
   }
-  const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
   const { conversationId, messageId } = input
+  if (!messageId) {
+    // Read receipts and typing indicators are tied to the message being replied to
+    return {}
+  }
+  const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
   const { botPhoneNumberId, userPhone } = await _getConversationInfos(client, conversationId)
   const { whatsappMessageId } = await _getMessageInfos(client, messageId)
   const indicator = ctx.configuration.messageReadBehavior === 'typing_indicator' ? 'text' : undefined
@@ -38,8 +42,11 @@ export const stopTypingIndicator: bp.IntegrationProps['actions']['stopTypingIndi
   if (ctx.configuration.messageReadBehavior === 'none' || !ctx.configuration.typingIndicatorEmoji) {
     return {}
   }
-  const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
   const { conversationId, messageId } = input
+  if (!messageId) {
+    return {}
+  }
+  const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
   const { botPhoneNumberId, userPhone } = await _getConversationInfos(client, conversationId)
   const { whatsappMessageId } = await _getMessageInfos(client, messageId)
   await whatsapp.sendMessage(botPhoneNumberId, userPhone, new Reaction(whatsappMessageId))

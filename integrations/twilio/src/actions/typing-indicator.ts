@@ -51,6 +51,10 @@ export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIn
 }) => {
   try {
     const { conversationId, messageId } = input
+    if (!messageId) {
+      // The typing indicator is attached to the message being replied to; without it there is nothing to send
+      return {}
+    }
     await sendTypingIndicator({ client, ctx, conversationId, messageId })
   } catch (error) {
     const thrown = error instanceof Error ? error : new Error(String(error))

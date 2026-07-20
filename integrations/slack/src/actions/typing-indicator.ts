@@ -6,6 +6,13 @@ const TYPING_INDICATOR_EMOJI = 'eyes'
 export const startTypingIndicator = wrapActionAndInjectSlackClient(
   { actionName: 'startTypingIndicator', errorMessage: 'Failed to start typing indicator' },
   async ({ ctx, client, slackClient, logger }, { conversationId, messageId }) => {
+    if (!messageId) {
+      logger
+        .forBot()
+        .debug('No message ID provided — Slack attaches the typing indicator to a message; skipping (typing indicator)')
+      return
+    }
+
     const { channel, ts } = await retrieveChannelAndMessageTs({
       client,
       messageId,
@@ -36,6 +43,13 @@ export const startTypingIndicator = wrapActionAndInjectSlackClient(
 export const stopTypingIndicator = wrapActionAndInjectSlackClient(
   { actionName: 'stopTypingIndicator', errorMessage: 'Failed to stop typing indicator' },
   async ({ client, slackClient, logger, ctx }, { messageId, conversationId }) => {
+    if (!messageId) {
+      logger
+        .forBot()
+        .debug('No message ID provided — Slack attaches the typing indicator to a message; skipping (typing indicator)')
+      return
+    }
+
     const { channel, ts } = await retrieveChannelAndMessageTs({
       client,
       messageId,

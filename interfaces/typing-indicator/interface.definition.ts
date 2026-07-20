@@ -2,7 +2,7 @@ import * as sdk from '@botpress/sdk'
 
 export default new sdk.InterfaceDefinition({
   name: 'typing-indicator',
-  version: '0.0.4',
+  version: '0.0.5',
   entities: {},
   events: {},
   actions: {
@@ -19,8 +19,11 @@ export default new sdk.InterfaceDefinition({
               .describe('The ID of the conversation where the typing indicator should be shown'),
             messageId: sdk.z
               .string()
+              .optional()
               .title('Message ID')
-              .describe('The message ID to which the typing indicator should be attached'),
+              .describe(
+                'The message ID to which the typing indicator should be attached, for channels that support it'
+              ),
             timeout: sdk.z
               .number()
               .optional()
@@ -45,8 +48,11 @@ export default new sdk.InterfaceDefinition({
               .describe('The ID of the conversation where the typing indicator should be removed'),
             messageId: sdk.z
               .string()
+              .optional()
               .title('Message ID')
-              .describe('The message ID from which the typing indicator should be removed'),
+              .describe(
+                'The message ID from which the typing indicator should be removed, for channels that support it'
+              ),
           }),
       },
       output: {
