@@ -1,14 +1,14 @@
+import childProcess from 'child_process'
+import fs from 'fs/promises'
 import ms from 'ms'
-import { execFileSync } from 'node:child_process'
-import { writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import path from 'path'
 import tmp from 'tmp'
+import url from 'url'
 
 const DIR_PREFIX = 'tsc-bench-'
-const TSC = require.resolve('typescript/bin/tsc')
+const TSC = url.fileURLToPath(import.meta.resolve('typescript/bin/tsc'))
 
 export type CaseResult = {
-  case: string | null
   types: number | null
   memoryUsed: string | null
   instantiations: number | null
@@ -16,16 +16,19 @@ export type CaseResult = {
   totalTime: number | null
 }
 
-export function measureCase(caseName: string, sourceCode: string, paths?: Record<string, string>): CaseResult {
-  try {
-    const output = _runTsc('--version')
-    console.debug(`tsc version: ${output}`)
-  } catch (thrown) {
+export async function runTsc(
+  caseName: string,
+  sourceCode: string,
+  paths?: Record<string, string>
+): Promise<CaseResult> {
+  const { stdout: versionStdout } = await _runTsc('--version').catch((thrown) => {
     const errMessage = thrown instanceof Error ? thrown.message : String(thrown)
     throw new Error(
       `Failed to run tsc --version for ${caseName}. Make sure you have typescirpt installed and available: ${errMessage}`
     )
-  }
+  })
+
+  console.log(`Running tsc --version for ${caseName}: ${versionStdout.trim()}`)
 
   const dir = tmp.dirSync({ prefix: DIR_PREFIX, unsafeCleanup: true }).name
 
@@ -58,19 +61,18 @@ export function measureCase(caseName: string, sourceCode: string, paths?: Record
     files: ['index.ts'],
   }
 
-  writeFileSync(join(dir, 'tsconfig.json'), JSON.stringify(caseTsconfig, null, 2))
-  writeFileSync(join(dir, 'index.ts'), sourceCode)
+  await fs.writeFile(path.join(dir, 'tsconfig.json'), JSON.stringify(caseTsconfig, null, 2))
+  await fs.writeFile(path.join(dir, 'index.ts'), sourceCode)
 
-  const stdout = _runTsc('-p', dir)
+  const { stdout: checkStdOut } = await _runTsc('-p', dir)
 
-  const typesStr = _parseMetric(stdout, 'Types')
-  const instantiationsStr = _parseMetric(stdout, 'Instantiations')
-  const memoryUsedStr = _parseMetric(stdout, 'Memory used')
-  const checkTimeStr = _parseMetric(stdout, 'Check time')
-  const totalTimeStr = _parseMetric(stdout, 'Total time')
+  const typesStr = _parseMetric(checkStdOut, 'Types')
+  const instantiationsStr = _parseMetric(checkStdOut, 'Instantiations')
+  const memoryUsedStr = _parseMetric(checkStdOut, 'Memory used')
+  const checkTimeStr = _parseMetric(checkStdOut, 'Check time')
+  const totalTimeStr = _parseMetric(checkStdOut, 'Total time')
 
   const result: CaseResult = {
-    case: null,
     types: null,
     instantiations: null,
     memoryUsed: null,
@@ -105,7 +107,41 @@ export function measureCase(caseName: string, sourceCode: string, paths?: Record
   return result
 }
 
-const _runTsc = (...args: string[]): string => execFileSync(process.execPath, [TSC, ...args], { encoding: 'utf8' })
+const _runTsc = async (
+  ...args: string[]
+): Promise<{
+  stdout: string
+  stderr: string
+}> => {
+  const child = childProcess.execFile(process.execPath, [TSC, ...args], { encoding: 'utf8' })
+  return new Promise((resolve, reject) => {
+    let stdout = ''
+    let stderr = ''
+
+    child.stdout?.on('data', (data) => {
+      stdout += data
+    })
+
+    child.stderr?.on('data', (data) => {
+      stderr += data
+    })
+
+    child.on('error', (err) => {
+      reject(err)
+    })
+
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve({
+          stdout,
+          stderr,
+        })
+      } else {
+        reject(new Error(`tsc exited with code ${code}. Stderr: ${stderr}`))
+      }
+    })
+  })
+}
 
 const _parseMetric = (stdout: string, metric: string): string | null => {
   const m = stdout.match(new RegExp(`^${metric}:\\s+([\\d.,]+[a-zA-Z]*)`, 'm'))
