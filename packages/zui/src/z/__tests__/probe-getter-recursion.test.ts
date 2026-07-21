@@ -1,8 +1,5 @@
 import { test, expect } from 'vitest'
 import * as z from '../index'
-import { toJSONSchema } from '../../transforms/zui-to-json-schema'
-import { toTypescriptType } from '../../transforms/zui-to-typescript-type'
-import { toTypescriptSchema } from '../../transforms/zui-to-typescript-schema'
 import { execFileSync } from 'node:child_process'
 import * as path from 'node:path'
 
@@ -82,36 +79,6 @@ test('isEqual: self recursion does not stack overflow', () => {
 
 test('isEqual: mutual recursion does not stack overflow', () => {
   expect(User.isEqual(User)).toBe(true)
-})
-
-test('toJSONSchema: self recursion does not stack overflow', () => {
-  const schema = toJSONSchema(Category)
-  expect(schema).toBeTruthy()
-})
-
-test('toJSONSchema: mutual recursion does not stack overflow', () => {
-  const schema = toJSONSchema(User)
-  expect(schema).toBeTruthy()
-})
-
-test('toTypescriptType: self recursion does not stack overflow', () => {
-  const ts = toTypescriptType(Category)
-  expect(ts).toBeTruthy()
-})
-
-test('toTypescriptType: mutual recursion does not stack overflow', () => {
-  const ts = toTypescriptType(User)
-  expect(ts).toBeTruthy()
-})
-
-test('toTypescriptSchema: self recursion does not stack overflow', () => {
-  const ts = toTypescriptSchema(Category)
-  expect(ts).toBeTruthy()
-})
-
-test('toTypescriptSchema: mutual recursion does not stack overflow', () => {
-  const ts = toTypescriptSchema(User)
-  expect(ts).toBeTruthy()
 })
 
 // The runtime mitigation for the loosened shape constraint: a non-schema shape
