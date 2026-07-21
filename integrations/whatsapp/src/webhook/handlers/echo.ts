@@ -32,6 +32,12 @@ export const echoHandler = async (
     discriminateByTags: ['number'],
   })
 
+  // `message_creation_type` is absent from Meta's real echo payloads, so only tag it when present.
+  const messageTags = {
+    id: echo.id,
+    ...(echo.message_creation_type ? { echoCreationType: echo.message_creation_type } : {}),
+  }
+
   const newMessage = await _handleMessage({
     message: echo,
     conversationId: conversation.id,
@@ -39,7 +45,7 @@ export const echoHandler = async (
     ctx,
     client,
     logger,
-    tags: { id: echo.id, echoCreationType: echo.message_creation_type },
+    tags: messageTags,
     createMessageOverride: async ({ type, payload }) => {
       const { messages } = await client._inner.importMessages({
         messages: [
@@ -48,7 +54,7 @@ export const echoHandler = async (
             payload,
             userId: user.id,
             conversationId: conversation.id,
-            tags: { id: echo.id, echoCreationType: echo.message_creation_type },
+            tags: messageTags,
             createdAt: new Date(parseInt(echo.timestamp) * 1000).toISOString(),
             discriminateByTags: ['id'],
           },

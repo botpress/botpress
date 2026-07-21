@@ -1,41 +1,40 @@
 import * as types from '../../types'
 import * as lin from '../../utils/linear-utils'
-import { isIssueTitleFormatValid } from './issue-title-format-validator'
 
 export type IssueLint = {
   message: string
 }
 
-export const lintIssue = (issue: lin.Issue, state: types.CommonStateName): IssueLint[] => {
+export const lintIssue = (issue: lin.Issue, state: types.StateEntry): IssueLint[] => {
   const lints: string[] = []
 
   if (!_hasLabelOfCategory(issue, 'type')) {
     lints.push(`Issue ${issue.identifier} is missing a type label.`)
   }
 
-  const hasBlockedLabel = _hasLabelOfCategory(issue, 'blocked')
+  const hasBlockedLabel = _hasLabelOfCategory(issue, 'blocked') || _hasLabelOfCategory(issue, 'blocked-reason')
   const hasBlockedRelation = issue.inverseRelations.nodes.some((relation) => relation.type === 'blocks')
 
-  if (state === 'BLOCKED' && !issue.assignee && !hasBlockedRelation) {
-    lints.push(`Issue ${issue.identifier} is blocked but has no assignee.`)
+  if (state.commonName === 'BLOCKED' && !hasBlockedLabel && !hasBlockedRelation) {
+    lints.push(`Issue ${issue.identifier} is blocked but missing a "blocked-reason" label or a blocking issue.`)
   }
-  if (state === 'BLOCKED' && !hasBlockedLabel && !hasBlockedRelation) {
-    lints.push(`Issue ${issue.identifier} is blocked but missing a "blocked" label or a blocking issue.`)
-  }
-  if (state === 'BACKLOG' && issue.assignee) {
+  if (state.type === 'backlog' && issue.assignee) {
     lints.push(`Issue ${issue.identifier} has an assignee but is still in the backlog.`)
   }
+  if (state.type === 'started' && !issue.assignee) {
+    lints.push(`Issue ${issue.identifier} is started but has no assignee.`)
+  }
 
-  const hasArea = issue.labels.nodes.some((label) => label.name.startsWith('area/'))
+  const hasArea = issue.labels.nodes.some((label) => label.name.startsWith('area.'))
   if (!hasArea) {
-    lints.push(`Issue ${issue.identifier} is missing an "area/" label.`)
+    lints.push(`Issue ${issue.identifier} is missing an "area." label.`)
   }
 
   if (!issue.priority) {
     lints.push(`Issue ${issue.identifier} is missing a priority.`)
   }
 
-  if (issue.estimate === null && state !== 'BLOCKED') {
+  if (issue.estimate === null && state.commonName !== 'BLOCKED') {
     // blocked issues can be unestimated
     lints.push(`Issue ${issue.identifier} is missing an estimate.`)
   }
@@ -47,17 +46,15 @@ export const lintIssue = (issue: lin.Issue, state: types.CommonStateName): Issue
     )
   }
 
-  if (!isIssueTitleFormatValid(issue.title)) {
-    lints.push(
-      `Issue ${issue.identifier} has unconventional commit syntax in the title. Issue title should not attempt to follow a formal syntax.`
-    )
-  }
-
   const issueProject = issue.project
   if (issueProject && issueProject.completedAt) {
     lints.push(
       `Issue ${issue.identifier} is associated with a completed project (${issueProject.name}). Consider removing the project association.`
     )
+  }
+
+  if (issue.assignee?.active === false) {
+    lints.push(`Issue ${issue.identifier} is assigned to a deactivated user. Consider reassigning the issue.`)
   }
 
   return lints.map((message) => ({ message }))

@@ -1,3 +1,9 @@
+import * as types from '../types'
+
+export default {
+  name: 'pick-omit-chain-10',
+  instantiationThreshold: 67000,
+  sourceCode: `
 import { z } from '@bpinternal/zui'
 
 export const s0 = z.object({
@@ -142,3 +148,5 @@ export const s10 = s9.pick({
 })
 
 export type Out = z.infer<typeof s10>
+`,
+} satisfies types.BenchmarkCase

@@ -2,7 +2,7 @@ import { z, ActionDefinition } from '@botpress/sdk'
 
 const getFileUrl: ActionDefinition = {
   title: 'Get File URL',
-  description: 'Get a URL to access a file stored in Hubspot Files',
+  description: 'Get a URL to access a file stored in HubSpot Files',
   input: {
     schema: z.object({
       fileName: z.string().title('File path').describe('The path to the Hubspot file'),

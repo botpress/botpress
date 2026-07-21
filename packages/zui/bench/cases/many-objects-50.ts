@@ -1,3 +1,9 @@
+import * as types from '../types'
+
+export default {
+  name: 'many-objects-50',
+  instantiationThreshold: 134000,
+  sourceCode: `
 import { z } from '@bpinternal/zui'
 
 export const o0 = z.object({
@@ -1049,3 +1055,5 @@ export const o49x = o49.extend({
 })
 
 export type O49 = z.infer<typeof o49x>
+`,
+} satisfies types.BenchmarkCase

@@ -22,7 +22,10 @@ export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) =
   const upstreamConversation = await props.conversations.hitl.hitl.getById({ id: upstreamConversationId })
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversation)
 
-  if (upstreamConversation.tags.upstream || upstreamConversation.integration === props.interfaces.hitl.name) {
+  if (
+    upstreamConversation.tags.upstream ||
+    upstreamConversation.integration === props.interfaces.hitl.integrationAlias
+  ) {
     // Without this check, closing the downstream conversation (the ticket) can
     // result in the bot calling startHitl a second time, but using the
     // downstream conversation as if it was the upstream conversation. Human
