@@ -25,9 +25,10 @@ type GenerateCodeProps = {
   ctx: Context
   cognitive: RuntimeCognitive
   controller: AbortController
+  metadata?: Record<string, string>
 }
 
-export const generateCode = async ({ iteration, ctx, cognitive, controller }: GenerateCodeProps) => {
+export const generateCode = async ({ iteration, ctx, cognitive, controller, metadata }: GenerateCodeProps) => {
   const startedAt = Date.now()
   const traces = iteration.traces
 
@@ -62,6 +63,9 @@ export const generateCode = async ({ iteration, ctx, cognitive, controller }: Ge
       reasoningEffort: iteration.reasoningEffort,
       messages: messages.filter((x) => x.role !== 'system'),
       stopSequences: ctx.version.getStopTokens(),
+      meta: metadata
+        ? ({ metadata } as NonNullable<Parameters<RuntimeCognitive['generateContent']>[0]['meta']>)
+        : undefined,
     })
     .catch((thrown: unknown) => {
       throw new CognitiveError(`LLM generation failed: ${getErrorMessage(thrown)}`)

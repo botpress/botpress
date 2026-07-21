@@ -355,6 +355,7 @@ Zai.prototype.check = function (
     taskType: 'zai.check',
     adapter: this.adapter,
     memoizer: this._resolveMemoizer(),
+    metadata: this.metadata,
   })
 
   return new Response<

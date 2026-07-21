@@ -826,11 +826,16 @@ export class HubspotClient {
         }
         return { propertyName: property.name, coercedValue: asDate.toISOString() }
       case 'enumeration':
-        if (property.options && !property.options.includes(value)) {
+        // Only validate against inline options when the property actually defines some. Properties with
+        // `externalOptions: true` (e.g. pipeline stages like `hs_pipeline_stage`/`dealstage`, owners) return an
+        // empty options array because their valid values live outside the property definition (in the pipeline
+        // config). Treating an empty array as "no value is valid" would reject every value before it ever reaches
+        // HubSpot, so we skip the client-side check and let HubSpot validate against the real options.
+        if (property.options?.length && !property.options.includes(value)) {
           propertiesCache.invalidate()
           const refreshedProperty = await propertiesCache.getProperty({ nameOrLabel })
           // Check if options have been updated since last refresh
-          if (refreshedProperty.options && !refreshedProperty.options.includes(value)) {
+          if (refreshedProperty.options?.length && !refreshedProperty.options.includes(value)) {
             throw new sdk.RuntimeError(
               `Unable to coerce value "${value}" to enumeration for property "${nameOrLabel}", valid options are ${refreshedProperty.options.join(', ')}`
             )

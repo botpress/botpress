@@ -1,18 +1,22 @@
-import * as types from '../../types'
 import * as graphql from './graphql-queries'
-import { Client } from '.botpress'
+import * as types from './types'
+import * as bp from '.botpress'
 
 const ISSUES_PER_PAGE = 50
 const STATES_PER_PAGE = 200
+const COMMENTS_PER_PAGE = 100
+
+type CommentPredicate = (comment: types.IssueComment) => boolean
 
 export class LinearApi {
-  private _teams?: types.LinearTeam[] = undefined
-  private _states?: types.LinearState[] = undefined
+  private _teams?: types.Team[] = undefined
+  private _states?: types.State[] = undefined
   private _viewerId?: string = undefined
+  private _labelIds: Record<string, string> = {}
 
-  private constructor(private _bpClient: Client) {}
+  private constructor(private _bpClient: bp.Client) {}
 
-  public static create(bpClient: Client): LinearApi {
+  public static create(bpClient: bp.Client): LinearApi {
     return new LinearApi(bpClient)
   }
 
@@ -35,7 +39,7 @@ export class LinearApi {
     return (await this.getTeams()).some((team) => team.key === teamKey)
   }
 
-  public async findIssue(filter: { teamKey: string; issueNumber: number }): Promise<graphql.Issue | undefined> {
+  public async findIssue(filter: { teamKey: string; issueNumber: number }): Promise<types.Issue | undefined> {
     const { teamKey, issueNumber } = filter
 
     const { issues } = await this.listIssues({
@@ -59,7 +63,7 @@ export class LinearApi {
       updatedBefore?: types.ISO8601Duration
     },
     nextPage?: string
-  ): Promise<{ issues: graphql.Issue[]; pagination?: graphql.Pagination }> {
+  ): Promise<{ issues: types.Issue[]; pagination?: types.Pagination }> {
     const { teamKeys, issueNumber, stateIdsToOmit, stateIdsToInclude, updatedBefore } = filter
 
     const teams = await this.getTeams()
@@ -90,17 +94,75 @@ export class LinearApi {
     return { issues: data.issues.nodes, pagination: data.issues.pageInfo }
   }
 
-  public async resolveComments(issue: graphql.Issue): Promise<void> {
-    const comments = issue.comments.nodes
-    const me = await this.getViewerId()
+  public async resolveComments(props: { issue: types.Issue; predicate?: CommentPredicate }): Promise<void> {
+    const botComments = await this._listBotComments(props.issue.id)
+    const openComments = this._filterOpenComments(botComments, props.predicate)
+    await this._resolveComments(openComments)
+  }
 
-    const promises: ReturnType<typeof this._bpClient.callAction<'linear:resolveComment'>>[] = []
-    for (const comment of comments) {
-      if (comment.user?.id === me && !comment.parentId && !comment.resolvedAt) {
-        promises.push(this._bpClient.callAction({ type: 'linear:resolveComment', input: { id: comment.id } }))
-      }
+  public async upsertComment(props: {
+    issue: types.Issue
+    body: string
+    botId: string
+    predicate?: CommentPredicate
+  }): Promise<void> {
+    const { issue, body, botId } = props
+
+    const botComments = await this._listBotComments(issue.id)
+    const openComments = this._filterOpenComments(botComments, props.predicate).sort(this._byCreatedAtDesc)
+
+    // Self-heal a broken state (e.g. two racing upserts each created a comment): keep the most
+    // recent matching comment as the canonical one and resolve the older extras, converging to one.
+    const [existing, ...duplicates] = openComments
+    await this._resolveComments(duplicates)
+
+    if (!existing) {
+      await this.createComment({ body, issueId: issue.id, botId })
+      return
     }
-    await Promise.all(promises)
+
+    if (existing.body.trim() === body.trim()) {
+      return
+    }
+
+    await this._executeGraphqlQuery('updateComment', { id: existing.id, input: { body } })
+  }
+
+  /**
+   * Fetches all of the bot's own comments on the issue, following pagination. Filtering by the bot
+   * user server-side means a busy thread can't push the bot's comment out of view (which would make
+   * upsert miss it and post a duplicate).
+   */
+  private async _listBotComments(issueId: string): Promise<types.IssueComment[]> {
+    const me = await this.getViewerId()
+    let comments: types.IssueComment[] = []
+    let after: string | undefined = undefined
+
+    do {
+      const queryInput: graphql.GRAPHQL_QUERIES['listComments'][graphql.QUERY_INPUT] = {
+        filter: { issue: { id: { eq: issueId } }, user: { id: { eq: me } } },
+        first: COMMENTS_PER_PAGE,
+        ...(after && { after }),
+      }
+      const data = await this._executeGraphqlQuery('listComments', queryInput)
+      comments = comments.concat(data.comments.nodes)
+      after = data.comments.pageInfo.hasNextPage ? data.comments.pageInfo.endCursor : undefined
+    } while (after)
+
+    return comments
+  }
+
+  private _filterOpenComments(
+    comments: types.IssueComment[],
+    predicate: CommentPredicate = () => true
+  ): types.IssueComment[] {
+    return comments.filter((comment) => !comment.parentId && !comment.resolvedAt && predicate(comment))
+  }
+
+  private async _resolveComments(comments: types.IssueComment[]): Promise<void> {
+    await Promise.all(
+      comments.map(({ id }) => this._bpClient.callAction({ type: 'linear:resolveComment', input: { id } }))
+    )
   }
 
   public async createComment(props: { body: string; issueId: string; botId: string }): Promise<void> {
@@ -121,7 +183,41 @@ export class LinearApi {
     })
   }
 
-  public async findTeamStates(teamKey: string): Promise<graphql.TeamStates | undefined> {
+  public async addLabel(issue: types.Issue, labelName: string): Promise<void> {
+    if (issue.labels.nodes.some((label) => label.name === labelName)) {
+      return
+    }
+    const labelId = await this._getLabelId(labelName)
+    await this._executeGraphqlQuery('addLabelToIssue', { id: issue.id, labelId })
+  }
+
+  public async removeLabel(issue: types.Issue, labelName: string): Promise<void> {
+    if (!issue.labels.nodes.some((label) => label.name === labelName)) {
+      return
+    }
+    const labelId = await this._getLabelId(labelName)
+    await this._executeGraphqlQuery('removeLabelFromIssue', { id: issue.id, labelId })
+  }
+
+  private async _getLabelId(labelName: string): Promise<string> {
+    const cached = this._labelIds[labelName]
+    if (cached) {
+      return cached
+    }
+
+    const found = await this._executeGraphqlQuery('findLabel', {
+      filter: { name: { eq: labelName }, team: { null: true } },
+    })
+    const label = found.issueLabels.nodes.find((node) => node.name === labelName)
+    if (!label) {
+      throw new Error(`Label "${labelName}" does not exist in the Linear workspace.`)
+    }
+
+    this._labelIds[labelName] = label.id
+    return label.id
+  }
+
+  public async findTeamStates(teamKey: string): Promise<types.TeamStates | undefined> {
     const queryInput: graphql.GRAPHQL_QUERIES['findTeamStates'][graphql.QUERY_INPUT] = {
       filter: { key: { eq: teamKey } },
     }
@@ -135,29 +231,29 @@ export class LinearApi {
     return team
   }
 
-  public async getTeams(): Promise<types.LinearTeam[]> {
+  public async getTeams(): Promise<types.Team[]> {
     if (!this._teams) {
       this._teams = await this._listAllTeams()
     }
     return this._teams
   }
 
-  public async getStates(): Promise<types.LinearState[]> {
+  public async getStates(): Promise<types.State[]> {
     if (!this._states) {
       this._states = await this._listAllStates()
     }
     return this._states
   }
 
-  private _listAllTeams = async (): Promise<types.LinearTeam[]> => {
+  private _listAllTeams = async (): Promise<types.Team[]> => {
     const response = await this._bpClient.callAction({ type: 'linear:listTeams', input: {} })
     return response.output.teams
   }
 
-  private _listAllStates = async (): Promise<types.LinearState[]> => {
+  private _listAllStates = async (): Promise<types.State[]> => {
     // We fetch states via GraphQL rather than the linear:listStates action because the action's
     // output does not include the state `type`, which we need to normalize states across teams.
-    let states: types.LinearState[] = []
+    let states: types.State[] = []
     let after: string | undefined = undefined
 
     do {
@@ -190,4 +286,7 @@ export class LinearApi {
     })
     return result.output.result as graphql.GRAPHQL_QUERIES[K][graphql.QUERY_RESPONSE]
   }
+
+  private _byCreatedAtDesc = (a: { createdAt: string }, b: { createdAt: string }) =>
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
 }

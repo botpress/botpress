@@ -918,6 +918,49 @@ describe.concurrent('toTypescriptSchema', () => {
     }
   })
 
+  test('should throw CircularZuiToTypescriptSchemaError for a self-referential lazy schema', () => {
+    type TreeNode = { name: string; children?: TreeNode[] }
+    const treeNode: z.ZodType<TreeNode> = z.lazy(() =>
+      z.object({ name: z.string(), children: z.array(treeNode).optional() })
+    )
+    try {
+      toTypescript(z.object({ tree: z.array(treeNode) }))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.CircularZuiToTypescriptSchemaError)
+      expect((e as errors.ZuiTransformError).path).toBe('#.tree[number].children[number]')
+    }
+  })
+
+  test('should throw CircularZuiToTypescriptSchemaError for mutual recursion between two distinct lazy schemas', () => {
+    let A: z.ZodType<any> = z.lazy(() => z.object({ b: B }))
+    let B: z.ZodType<any> = z.lazy(() => z.object({ a: A }))
+    try {
+      toTypescript(z.object({ root: A }))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.CircularZuiToTypescriptSchemaError)
+    }
+  })
+
+  test('should throw CircularZuiToTypescriptSchemaError for a 3-node mutual recursion cycle', () => {
+    let A: z.ZodType<any> = z.lazy(() => z.object({ b: B }))
+    let B: z.ZodType<any> = z.lazy(() => z.object({ c: C }))
+    let C: z.ZodType<any> = z.lazy(() => z.object({ a: A }))
+    try {
+      toTypescript(z.object({ root: A }))
+      expect.fail('should have thrown')
+    } catch (e) {
+      expect(e).toBeInstanceOf(errors.CircularZuiToTypescriptSchemaError)
+    }
+  })
+
+  test('should not throw when the same finite lazy schema is reused across sibling branches', () => {
+    const shared: z.ZodType<any> = z.lazy(() => z.object({ x: z.string() }))
+    const generated = toTypescript(z.object({ a: shared, b: shared }))
+    expect((generated.match(/x: z\.string\(\)/g) || []).length).toBe(2)
+  })
+
   test('should add [string] section to additional properties', () => {
     try {
       toTypescript(z.object({}).catchall(z.string().refine((v) => v.length > 0)))

@@ -1,7 +1,7 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import * as sdk from '@botpress/sdk'
-import axios from 'axios'
 import { webcrypto } from 'crypto'
+import { exchangeAuthorizationCode } from './token'
 import { stripSubdomain } from './utils'
 import * as bp from '.botpress'
 
@@ -157,9 +157,9 @@ const _oauthCallbackHandler: WizardHandler = async (props) => {
   if (subdomain === undefined) {
     throw new sdk.RuntimeError('The subdomain given was empty')
   }
-  const accessToken = await _exchangeAuthorizationCodeForAccessToken(authorizationCode, subdomain)
+  const tokens = await exchangeAuthorizationCode(authorizationCode, subdomain, _getOAuthRedirectUri())
 
-  const newCredentials = { ...credentials, accessToken }
+  const newCredentials = { ...credentials, ...tokens }
   await _patchCredentialsState(client, ctx, newCredentials)
 
   setIntegrationIdentifier(ctx.webhookId)
@@ -180,35 +180,6 @@ const sha256 = async (str: string) => {
 }
 
 const _getOAuthRedirectUri = (ctx?: bp.Context) => oauthWizard.getWizardStepUrl('oauth-callback', ctx).toString()
-
-const _exchangeAuthorizationCodeForAccessToken = async (authorizationCode: string, subdomain: string) => {
-  const url = 'https://' + subdomain + '.zendesk.com/oauth/tokens'
-  const res = await axios.post(
-    url,
-    {
-      grant_type: 'authorization_code',
-      code: authorizationCode,
-      client_id: bp.secrets.CLIENT_ID,
-      redirect_uri: _getOAuthRedirectUri(),
-      scope: 'read write',
-      code_verifier: bp.secrets.CODE_CHALLENGE,
-    },
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }
-  )
-
-  const data = sdk.z
-    .object({
-      access_token: sdk.z.string(),
-      refresh_token: sdk.z.string(),
-    })
-    .parse(res.data)
-
-  return data.access_token
-}
 
 // client.patchState is not working correctly
 const _patchCredentialsState = async (
