@@ -53,7 +53,7 @@ const DEFAULT_OPTIONS: JSONSchemaGenerationOptions = {
  * `onPath` is the set of schema instances currently on the active recursion path (DFS stack); re-entering
  * one is a cycle back-edge. `defs` collects the schemas that must be hoisted into the root `definitions`
  * block, keyed by instance identity. Non-recursive conversions never populate `defs`, so their output is
- * byte-identical to before. See RECURSIVE_SCHEMAS.md.
+ * byte-identical to before.
  */
 type JSONSchemaCtx = {
   opts: JSONSchemaGenerationOptions

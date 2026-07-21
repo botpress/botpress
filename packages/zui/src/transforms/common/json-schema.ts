@@ -35,7 +35,7 @@ type BaseZuiJSONSchema<Def extends Partial<z.ZodTypeDef> = {}> = utils.Satisfies
      * Draft-07 definitions block. Only emitted at the root when a recursive (self- or mutually-
      * referential) schema is converted: the cyclic schemas are hoisted here and referenced by
      * `{ $ref: '#/definitions/<name>' }`. Non-recursive schemas never carry it, so their output
-     * is unchanged. See RECURSIVE_SCHEMAS.md.
+     * is unchanged.
      */
     definitions?: { [key: string]: Schema }
   },
