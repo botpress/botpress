@@ -211,7 +211,7 @@ export const arrayType: ZodBuilders['array'] = (schema, params) =>
 
 /**
  * Runtime guard for z.object()/z.strictObject(). The public shape type was widened to Record<string, any>
- * to support annotation-free recursive schemas (see RECURSIVE_SCHEMAS.md), which means TypeScript no longer
+ * to support annotation-free recursive schemas, which means TypeScript no longer
  * rejects a non-schema value like `{ age: 42 }` at compile time. This restores an *immediate, clear* failure
  * at construction time (it fires on import for module-scoped schemas — before any .parse()) instead of the
  * cryptic `keyValidator._parse is not a function` on first parse.

@@ -114,7 +114,7 @@ test('toTypescriptSchema: mutual recursion does not stack overflow', () => {
   expect(ts).toBeTruthy()
 })
 
-// The runtime mitigation for the loosened shape constraint (RECURSIVE_SCHEMAS.md): a non-schema shape
+// The runtime mitigation for the loosened shape constraint: a non-schema shape
 // value can no longer be caught at compile time, so z.object() validates plain values at construction and
 // throws immediately with a clear, key-named message — for module-scoped schemas this fires on import,
 // long before any .parse(). Getter-valued keys (the recursion mechanism) are skipped, never invoked.
@@ -138,7 +138,7 @@ test('shape validation: a getter-valued key is NOT invoked at construction (recu
 
 // Regression guard: passes today because ZodRawShape's strict `IZodType` constraint still rejects a
 // non-schema shape value at compile time. If ZodRawShape is ever loosened (e.g. to Record<string, any>,
-// to support annotation-free getter recursion — see RECURSIVE_SCHEMAS.md) without an equivalent
+// to support annotation-free getter recursion) without an equivalent
 // replacement check, tsc will stop reporting this diagnostic and this test will start FAILING — that's
 // the signal that the guardrail was removed and needs to be replaced by whatever mechanism takes over
 // (a construction-time runtime check, etc.), not silently dropped.

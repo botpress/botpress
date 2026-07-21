@@ -426,7 +426,7 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
    * Deep-copies the schema. `memo` maps each source schema instance to its clone so a cyclic
    * (self- or mutually-recursive, getter-based) schema is cloned into a cycle rather than an
    * infinite tree: re-encountering an already-cloned node returns the same clone. Callers pass
-   * nothing; it is threaded internally. See RECURSIVE_SCHEMAS.md.
+   * nothing; it is threaded internally.
    */
   clone(memo?: CloneMemo): IZodType<Output, Def, Input>
   parse(data: unknown, params?: Partial<ParseParams>): this['_output']
@@ -898,7 +898,7 @@ export type ZodRawShape = {
 // doesn't force TypeScript to resolve the getter's return type (Category's own type) just to check
 // assignability against the constraint, which is circular and unresolvable without a manual annotation.
 // The real, structurally-checked ZodRawShape is still used everywhere else (ObjectOutputType, ZodObjectImpl, etc.) —
-// only this one call-site boundary is widened. See RECURSIVE_SCHEMAS.md.
+// only this one call-site boundary is widened.
 export type ZodRawShapeArg = Record<string, any>
 
 export type UnknownKeysParam = 'passthrough' | 'strict' | 'strip' | IZodType
@@ -925,7 +925,7 @@ export type ZodObjectDef<
 // default() is output-required/input-optional; catch() is input-optional; wrappers (lazy/nullable/
 // readonly/branded) forward; unions are optional if any option is; intersections if both sides are.
 // Known trade-off (same as zod4): a still-generic schema member (e.g. TData extends z.ZodType inside a
-// generic helper) cannot be partitioned and degrades — see generics.test.ts. See RECURSIVE_SCHEMAS.md.
+// generic helper) cannot be partitioned and degrades — see generics.test.ts.
 export type IsOptionalOut<S> =
   S extends IZodOptional<any>
     ? true

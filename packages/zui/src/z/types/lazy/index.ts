@@ -26,7 +26,7 @@ export class ZodLazyImpl<T extends IZodType = IZodType>
 
   protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): IZodLazy<T> {
     // The getter is lazy, so it runs after the base registers this clone; a self-reference through it
-    // resolves back to this clone. Objects and z.lazy are the only recursion anchors. See RECURSIVE_SCHEMAS.md.
+    // resolves back to this clone. Objects and z.lazy are the only recursion anchors.
     return new ZodLazyImpl({
       ...this._def,
       getter: () => this._def.getter().clone(memo) as T,

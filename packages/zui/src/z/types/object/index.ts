@@ -71,7 +71,7 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
   // ZodObjectImpl's assignability to IZodObject<T, 'strict'> in strict()/strictObject(), which surfaces a
   // latent additionalProperties() variance error (TS2322). The explicit return defers that check. The memo
   // logic mirrors the base: register both source and clone, before the lazy shape thunk runs, so a
-  // getter-recursive schema clones into a cycle instead of an infinite tree. See RECURSIVE_SCHEMAS.md.
+  // getter-recursive schema clones into a cycle instead of an infinite tree.
   clone(memo: WeakMap<IZodType, IZodType> = new WeakMap()): IZodObject<T, UnknownKeys> {
     const hit = memo.get(this)
     if (hit) return hit as IZodObject<T, UnknownKeys>

@@ -4,7 +4,6 @@ import { toJSONSchema } from '../../transforms/zui-to-json-schema'
 
 // clone()/describe()/title()/metadata() all deep-clone. Cloning a getter-recursive schema must produce
 // a cyclic clone (not an infinite tree), so traversal (getReferences, toJSONSchema, parse) terminates.
-// See RECURSIVE_SCHEMAS.md.
 
 let cat: any
 cat = z.object({
