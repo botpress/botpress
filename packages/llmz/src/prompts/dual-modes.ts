@@ -20,7 +20,15 @@ type ExitType = {
   typings?: string
 }
 
-const getSystemMessage: Prompt['getSystemMessage'] = async (props) => {
+/**
+ * Builds a system message from the given template.
+ * Shared by the dual-mode (chat/worker) prompt and the one-shot prompt, so that
+ * tool/object/exit/variable rendering stays identical across prompt variants.
+ */
+export const buildSystemMessage = async (
+  props: Parameters<Prompt['getSystemMessage']>[0],
+  template: string
+): Promise<LLMzPrompts.Message> => {
   let dts = ''
 
   const tool_names: string[] = []
@@ -105,7 +113,7 @@ ${variables_example}
 
   return {
     role: 'system' as const,
-    content: replacePlaceholders(canTalk ? CHAT_SYSTEM_PROMPT_TEXT : WORKER_SYSTEM_PROMPT_TEXT, {
+    content: replacePlaceholders(template, {
       is_message_enabled: canTalk,
       'tools.d.ts': wrapContent(dts, {
         preserve: 'both',
@@ -133,6 +141,11 @@ ${variables_example}
       ),
     }).trim(),
   }
+}
+
+const getSystemMessage: Prompt['getSystemMessage'] = async (props) => {
+  const canTalk = props.components.length > 0
+  return buildSystemMessage(props, canTalk ? CHAT_SYSTEM_PROMPT_TEXT : WORKER_SYSTEM_PROMPT_TEXT)
 }
 
 const getInitialUserMessage: Prompt['getInitialUserMessage'] = async (props) => {

@@ -25,6 +25,7 @@ export { DefaultComponents } from './component.default.js'
 export { Snapshot } from './snapshots.js'
 export { Chat, type MessageHandler } from './chat.js'
 
+import { generateCode } from './one-shot.js'
 import { ExecutionResult } from './result.js'
 import { type ExecutionProps } from './runtime/types.js'
 import { truncateWrappedContent, wrapContent } from './truncator.js'
@@ -33,7 +34,7 @@ export { Transcript } from './transcript.js'
 export { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from './result.js'
 export { type Trace, type Traces } from './types.js'
 export { type Iteration, ListenExit, ThinkExit, DefaultExit, IterationStatuses, IterationStatus } from './context.js'
-export { type Context } from './context.js'
+export { Context } from './context.js'
 export type { LLMzPrompts } from './prompts/prompt.js'
 export { type ValueOrGetter, getValue } from './getter.js'
 
@@ -45,6 +46,46 @@ export const utils = {
   wrapContent,
   truncateWrappedContent,
 }
+
+/**
+ * Generates a single block of TypeScript code from the LLM for the given task,
+ * without executing it.
+ *
+ * Unlike {@link execute}, this performs exactly one LLM call — it does not run the
+ * generated code, invoke tools, or iterate. It uses the one-shot prompt, so the model
+ * is instructed to produce complete, correct code on the first (and only) try.
+ *
+ * The generated code is validated (it must compile and only reference tools, objects
+ * and variables that exist); if validation fails, the model is asked to fix it a few
+ * times before giving up. The result is one of:
+ * - `{ status: 'success', code }` — valid code was produced.
+ * - `{ status: 'bailed', reason }` — the task cannot be accomplished correctly with the
+ *   available tools (e.g. a required tool is missing, or a tool's output is too vague to
+ *   use with confidence), so the model bailed instead of producing subpar code.
+ * - `{ status: 'invalid', code, errors }` — code was produced but never passed validation
+ *   within the retry budget.
+ *
+ * @param props - Generation inputs (a subset of {@link ExecutionProps}: client,
+ *   instructions, tools, objects, exits, model settings, etc.).
+ * @returns Promise<GenerateCodeResult> - The generated code, the bail reason, or the
+ *   invalid code with its validation errors.
+ *
+ * @example
+ * const result = await generate({
+ *   client: cognitiveClient,
+ *   instructions: 'Summarize the input',
+ *   tools: [summarizeTool],
+ * })
+ *
+ * if (result.status === 'success') {
+ *   console.log('Generated code:', result.code)
+ * } else if (result.status === 'bailed') {
+ *   console.log('Could not generate code:', result.reason)
+ * } else {
+ *   console.log('Generated code was invalid:', result.errors)
+ * }
+ */
+export const generate = generateCode
 
 /**
  * Executes an LLMz agent in either Chat Mode or Worker Mode.
@@ -72,6 +113,7 @@ export const utils = {
  * @param props.onBeforeExecution - Optional blocking hook to modify code before VM execution
  * @param props.onBeforeTool - Optional blocking hook to modify tool inputs before execution
  * @param props.onAfterTool - Optional blocking hook to modify tool outputs after execution
+ * @param props.initialCode - Optional code for the first iteration of the execution
  *
  * @returns Promise<ExecutionResult> - Result containing success/error/interrupted status with type-safe exit checking
  *

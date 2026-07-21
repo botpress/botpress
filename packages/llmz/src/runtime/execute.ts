@@ -1,9 +1,5 @@
-import { Client } from '@botpress/client'
-import { Cognitive, CognitiveBeta, cognitiveFromBeta, type BotpressClientLike } from '@botpress/cognitive'
-
 import { createJoinedAbortController } from '../abort-signal.js'
 import { Context, Iteration } from '../context.js'
-import { _CustomModelClient } from '../custom-client.js'
 import { CognitiveError, LoopExceededError, ThinkSignal } from '../errors.js'
 import { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from '../result.js'
 import { Snapshot } from '../snapshots.js'
@@ -14,7 +10,7 @@ import { runAsyncFunction } from '../vm/index.js'
 import { generateCode } from './generate.js'
 import { interpretVMResult } from './interpret-result.js'
 import { ExecutionHooks, ExecutionProps, RuntimeCognitive } from './types.js'
-import { finalizeIteration } from './utils.js'
+import { finalizeIteration, initCognitiveClient } from './utils.js'
 import { buildVMContext } from './vm-context.js'
 
 type Result<TType extends 'proceed' | 'continue' | 'return'> = TType extends 'return'
@@ -42,14 +38,7 @@ const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionR
   const controller = createJoinedAbortController([props.signal])
   const { onIterationStart, onIterationEnd, onTrace, onExit, onBeforeExecution, onAfterTool, onBeforeTool } = props
 
-  const client = props.client ?? new Client()
-
-  const cognitive: RuntimeCognitive =
-    Cognitive.isCognitiveClient(client) || _CustomModelClient.isCustomClient(client)
-      ? client
-      : CognitiveBeta.isBetaClient(client)
-        ? cognitiveFromBeta(client)
-        : new Cognitive({ client: client as BotpressClientLike, __experimental_beta: true })
+  const cognitive = initCognitiveClient(props.client)
 
   const ctx = new Context({
     chat: props.chat,
@@ -64,6 +53,10 @@ const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionR
     temperature: props.temperature,
     reasoningEffort: props.reasoningEffort,
   })
+
+  // Seed the first iteration with pre-supplied code (skipping the LLM call).
+  // Ignored when resuming from a snapshot, since resume drives its own iteration.
+  let pendingInitialCode = props.snapshot ? undefined : props?.initialCode
 
   try {
     while (true) {
@@ -117,8 +110,11 @@ const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionR
           onAfterTool,
           onBeforeTool,
           onIterationEnd,
+          predefinedCode: pendingInitialCode,
           metadata: props.metadata,
         })
+        // The seed only applies to the first iteration; clear it afterwards.
+        pendingInitialCode = undefined
         if (iterationResult.type === 'return') {
           return iterationResult.result
         }
@@ -201,6 +197,7 @@ const executeIterationWithErrorHandling = async ({
   onAfterTool,
   onBeforeTool,
   onIterationEnd,
+  predefinedCode,
   metadata,
 }: {
   ctx: Context
@@ -212,6 +209,7 @@ const executeIterationWithErrorHandling = async ({
   onAfterTool?: ExecutionHooks['onAfterTool']
   onBeforeTool?: ExecutionHooks['onBeforeTool']
   onIterationEnd?: ExecutionHooks['onIterationEnd']
+  predefinedCode?: string
   metadata?: ExecutionProps['metadata']
 }): Promise<Result<'proceed' | 'return'>> => {
   try {
@@ -224,6 +222,7 @@ const executeIterationWithErrorHandling = async ({
       onBeforeExecution,
       onAfterTool,
       onBeforeTool,
+      predefinedCode,
       metadata,
     })
 
@@ -340,6 +339,7 @@ const executeIteration = async ({
   onBeforeExecution,
   onBeforeTool,
   onAfterTool,
+  predefinedCode,
   metadata,
 }: {
   ctx: Context
@@ -350,9 +350,35 @@ const executeIteration = async ({
   onBeforeExecution?: ExecutionHooks['onBeforeExecution']
   onBeforeTool?: ExecutionHooks['onBeforeTool']
   onAfterTool?: ExecutionHooks['onAfterTool']
+  predefinedCode?: string
   metadata?: ExecutionProps['metadata']
 }): Promise<void> => {
-  await generateCode({ iteration, ctx, cognitive, controller, metadata })
+  if (predefinedCode !== undefined) {
+    // Seeded iteration: run the caller-provided code instead of generating it.
+    // A synthetic `llm` record makes this iteration look like a normal LLM turn so
+    // that, on failure, the next iteration surfaces this code to the model (the
+    // execution-error prompt replays `iteration.llm.output` as the assistant turn).
+    const now = Date.now()
+    iteration.code = predefinedCode
+    iteration.llm = {
+      started_at: now,
+      ended_at: now,
+      status: 'success',
+      cached: false,
+      tokens: 0,
+      spend: 0,
+      output: `■fn_start\n${predefinedCode}\n■fn_end`,
+      model: 'provided-code',
+      usage: {
+        inputCost: 0,
+        outputCost: 0,
+        inputTokens: 0,
+        outputTokens: 0,
+      },
+    }
+  } else {
+    await generateCode({ iteration, ctx, cognitive, controller, metadata })
+  }
 
   if (typeof onBeforeExecution === 'function') {
     try {
