@@ -110,7 +110,10 @@ test('discriminatedUnion rejects options missing the discriminator key at compil
     z.object({ type: z.literal('a'), x: z.string() }),
     z.object({ type: z.literal('b'), y: z.number() }),
   ])
-  expect(ok.parse({ type: 'a', x: 'hi' })).toEqual({ type: 'a', x: 'hi' })
+
+  const parsed = ok.parse({ type: 'a', x: 'hi' })
+  assert.assertEqual<typeof parsed.type, 'a' | 'b'>(true)
+  expect(parsed).toEqual({ type: 'a', x: 'hi' })
 
   // compile-time: rejected by ZodDiscriminatedUnionOption's weak input type;
   // runtime backstop: construction throws in _getOptionsMap

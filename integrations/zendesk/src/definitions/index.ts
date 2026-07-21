@@ -64,6 +64,16 @@ export const states = {
     type: 'integration',
     schema: z.object({
       accessToken: z.string().optional().title('Access token').describe('The access token obtained by OAuth'),
+      refreshToken: z
+        .string()
+        .optional()
+        .title('Refresh token')
+        .describe('The refresh token used to renew expiring access tokens'),
+      expiresAt: z
+        .number()
+        .optional()
+        .title('Expires at')
+        .describe('Unix ms timestamp when the access token expires (absent for non-expiring tokens)'),
       subdomain: z.string().optional().title('Subdomain').describe('The bot subdomain'),
     }),
   },

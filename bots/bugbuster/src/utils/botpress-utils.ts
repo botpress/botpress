@@ -1,5 +1,4 @@
 import * as sdk from '@botpress/sdk'
-import * as types from '../types'
 import * as bp from '.botpress'
 
 type BotMessage = Pick<bp.ClientInputs['createMessage'], 'type' | 'payload'>
@@ -9,6 +8,8 @@ type ErrorHandlerProps = {
   conversationId?: string
 }
 
+export type CommonHandlerProps = bp.WorkflowHandlerProps['lintAll'] | bp.EventHandlerProps | bp.MessageHandlerProps
+
 export class BotpressApi {
   private constructor(
     private _client: bp.Client,
@@ -16,7 +17,7 @@ export class BotpressApi {
     private _logger: sdk.BotLogger
   ) {}
 
-  public static create(props: types.CommonHandlerProps): BotpressApi {
+  public static create(props: CommonHandlerProps): BotpressApi {
     return new BotpressApi(props.client, props.ctx.botId, props.logger)
   }
 

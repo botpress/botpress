@@ -10,7 +10,7 @@ type StorefrontVariantNode = {
   price: MoneyV2
 }
 
-type StorefrontProductNode = {
+export type StorefrontProductNode = {
   id: string
   title: string
   handle: string

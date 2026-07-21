@@ -461,6 +461,7 @@ Zai.prototype.extract = function <S extends OfType<AnyObjectOrArray>>(
     taskType: 'zai.extract',
     adapter: this.adapter,
     memoizer: this._resolveMemoizer(),
+    metadata: this.metadata,
   })
 
   return new Response<S['_output']>(context, extract(input, schema, _options, context), (result) => result)
