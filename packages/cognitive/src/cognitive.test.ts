@@ -119,4 +119,35 @@ describe('generateText systemPrompt migration', () => {
       { role: 'user', content: 'hi' },
     ])
   })
+
+  test('systemPrompt merges into an existing leading system message', async () => {
+    const cognitive = new Cognitive({ apiUrl: 'http://x' })
+    const post = vi.fn().mockResolvedValue({
+      data: {
+        output: 'ok',
+        metadata: {
+          provider: 'p',
+          model: 'm',
+          usage: { inputTokens: 1, inputCost: 0, outputTokens: 1, outputCost: 0 },
+          cost: 0,
+        },
+      },
+    })
+    ;(cognitive as any)._httpClient = { post }
+
+    await cognitive.generateText({
+      systemPrompt: 'be nice',
+      messages: [
+        { role: 'system', content: 'be concise' },
+        { role: 'user', content: 'hi' },
+      ],
+    })
+
+    const body = post.mock.lastCall?.[1]
+    expect(body.systemPrompt).toBeUndefined()
+    expect(body.messages).toEqual([
+      { role: 'system', content: 'be nice\n\nbe concise' },
+      { role: 'user', content: 'hi' },
+    ])
+  })
 })

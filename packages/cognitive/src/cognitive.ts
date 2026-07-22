@@ -217,13 +217,19 @@ export class Cognitive {
 
   /**
    * `systemPrompt` is deprecated in favor of a leading system message; migrate
-   * it automatically so both spellings produce the same request.
+   * it automatically so both spellings produce the same request. If the
+   * messages already start with a system message, merge into it instead of
+   * emitting two system messages.
    */
   private _migrateSystemPrompt(input: CognitiveRequest): CognitiveRequest {
     if (!input.systemPrompt) {
       return input
     }
     const { systemPrompt, ...rest } = input
+    const [first, ...others] = input.messages
+    if (first?.role === 'system' && typeof first.content === 'string') {
+      return { ...rest, messages: [{ ...first, content: `${systemPrompt}\n\n${first.content}` }, ...others] }
+    }
     return { ...rest, messages: [{ role: 'system', content: systemPrompt }, ...input.messages] }
   }
 

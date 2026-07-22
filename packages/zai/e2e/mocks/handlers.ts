@@ -94,8 +94,9 @@ export const handlers = [
       return HttpResponse.json(cached)
     }
 
-    if (process.env.DEBUG_CACHE_MISS && shouldCache && url.includes('generate-text')) {
-      console.error('CACHE_MISS_BODY::' + requestData)
+    if ((process.env.DEBUG_CACHE_MISS || process.env.CI) && shouldCache && url.includes('/v2/cognitive/')) {
+      // dump the body on misses so a CI failure shows what diverged from the recorded cache
+      console.error(`CACHE_MISS_BODY ${hash} :: ` + requestData.slice(0, 20_000))
     }
 
     if (process.env.CI && shouldCache) {
