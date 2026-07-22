@@ -63,12 +63,16 @@ export const handleErrorNode = (
 
   const regex = /<anonymous>:(\d+):(\d+)/g
 
+  // Lines the AsyncFunction wrapper + compiler wrapper add before user code:
+  // 2 from the AsyncFunction constructor header, 1 blank, 1 user-code marker
+  const NODE_WRAPPER_OFFSET = 4
+
   const matches = [...stackTrace.matchAll(regex)].map((x) => {
     const originalLine = consumer.originalPositionFor({
       line: Number(x[1]),
       column: Number(x[2]),
     })
-    const line = originalLine.line ?? Number(x[1])
+    const line = (originalLine.line ?? Number(x[1])) - NODE_WRAPPER_OFFSET
     const actualLine = lines[line - LINE_OFFSET] ?? ''
     const whiteSpacesCount = actualLine.length - actualLine.trimStart().length
     const minColumn = Math.max(whiteSpacesCount, originalLine.column)

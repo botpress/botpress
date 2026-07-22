@@ -53,27 +53,27 @@ Hi!
       log: 0
       comment: line 3
       comment: Comments on multiple lines
-          Hi!
+      Hi!
       log: 1
       comment: line 3
       comment: Comments on multiple lines
-          Hi!
+      Hi!
       log: 2
       comment: line 3
       comment: Comments on multiple lines
-          Hi!
+      Hi!
       log: 3
       comment: line 3
       comment: Comments on multiple lines
-          Hi!
+      Hi!
       log: 4
       comment: line 3
       comment: Comments on multiple lines
-          Hi!
+      Hi!
       log: 5
       comment: line 3
       comment: Comments on multiple lines
-          Hi!
+      Hi!
       comment: I will throw an error here
       code_execution_exception: "
     `)

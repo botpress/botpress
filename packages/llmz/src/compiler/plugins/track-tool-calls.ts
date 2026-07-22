@@ -1,27 +1,4 @@
-import type * as BabelCore from '@babel/core'
-import {
-  expressionStatement,
-  identifier,
-  stringLiteral,
-  callExpression,
-  arrowFunctionExpression,
-  blockStatement,
-  VariableDeclaration,
-  returnStatement,
-  tryStatement,
-  numericLiteral,
-  CallExpression,
-  LVal,
-  catchClause,
-  throwStatement,
-  awaitExpression,
-  variableDeclaration,
-  variableDeclarator,
-  newExpression,
-  memberExpression,
-  assignmentExpression,
-  binaryExpression,
-} from '@babel/types'
+import { walk, type AnyNode, type Ctx } from '../ast.js'
 
 export const ToolCallTrackerFnIdentifier = '__toolc__'
 export const ToolTrackerRetIdentifier = '__ret__'
@@ -38,212 +15,120 @@ export type ToolCallEntry = {
   assignment: Assignment
 }
 
-const extractLVal = (path: BabelCore.NodePath<BabelCore.types.LVal>): Assignment => {
-  let source = path.getSource()
-  if (path.isIdentifier()) {
-    return {
-      type: 'single',
-      left: source,
-      evalFn: `let ${source} = arguments[0]; return { ${source} };`,
+/**
+ * Wraps every outermost call expression in an IIFE that reports
+ * `__toolc__(<id>, "start" | "end", …)` events around the call:
+ *
+ *     const x = (() => {
+ *       try {
+ *         __toolc__(0, "start");
+ *         const __ret__ = tool();
+ *         __toolc__(0, "end", __ret__);
+ *         return __ret__;
+ *       } catch (err) { __toolc__(1, "end", err); throw new Error(err.message); }
+ *     })()
+ *
+ * Calls assigned to a variable are registered in `calls` (keyed by the id used
+ * in the catch clause — the id the runtime sees when a tool throws a
+ * SnapshotSignal). Awaited calls get an async IIFE that awaits the call.
+ *
+ * Returns the wrapped source ranges so later passes can avoid editing inside.
+ */
+export function applyToolCallTracking(ctx: Ctx, calls: Map<number, ToolCallEntry>): Array<[number, number]> {
+  let callId = 0
+  const wrappedRanges: Array<[number, number]> = []
+  const src = ctx.code
+
+  const sliceOf = (node: AnyNode) => src.slice(node.start, node.end)
+
+  const extractAssignment = (lval: AnyNode): Assignment => {
+    const source = sliceOf(lval)
+    if (lval.type === 'Identifier') {
+      return { type: 'single', left: source, evalFn: `let ${source} = arguments[0]; return { ${source} };` }
     }
-  }
-
-  if (path.isArrayPattern()) {
-    source = path
-      .get('elements')
-      .map((el) => el.getSource())
-      .join(', ')
-
-    return {
-      type: 'array',
-      left: source,
-      evalFn: `let [${source}] = arguments[0] ?? []; return { ${source} };`,
+    if (lval.type === 'ArrayPattern') {
+      const elements = (lval.elements as (AnyNode | null)[]).map((el) => (el ? sliceOf(el) : '')).join(', ')
+      return {
+        type: 'array',
+        left: elements,
+        evalFn: `let [${elements}] = arguments[0] ?? []; return { ${elements} };`,
+      }
     }
-  }
-
-  if (path.isObjectPattern()) {
-    return {
-      type: 'object',
-      left: source,
-      evalFn: `let ${source} = arguments[0] ?? {}; return ${source};`,
+    if (lval.type === 'ObjectPattern') {
+      return { type: 'object', left: source, evalFn: `let ${source} = arguments[0] ?? {}; return ${source};` }
     }
+    return { type: 'unsupported', left: '', evalFn: '' }
   }
 
-  return {
-    type: 'unsupported',
-    evalFn: '',
-    left: '',
-  }
+  walk(ctx.ast, (node, parent, ancestors) => {
+    if (node.type !== 'CallExpression') {
+      return
+    }
+    if (wrappedRanges.some(([start, end]) => node.start >= start && node.end <= end)) {
+      return // nested inside an already-wrapped call
+    }
+    if (parent?.type === 'YieldExpression') {
+      return
+    }
+
+    const declaration = [...ancestors].reverse().find((n) => n.type === 'VariableDeclaration')
+    const assignment = [...ancestors].reverse().find((n) => n.type === 'AssignmentExpression')
+
+    let lval: AnyNode | null = null
+    if (declaration) {
+      lval = (declaration.declarations as AnyNode[])[0]?.id ?? null
+    }
+    if (assignment) {
+      lval = assignment.left
+    }
+
+    const isAsync = parent?.type === 'AwaitExpression'
+
+    const start = (id: number) => `${ToolCallTrackerFnIdentifier}(${id}, "start");`
+    const end = (id: number, value: string) => `${ToolCallTrackerFnIdentifier}(${id}, "end", ${value});`
+
+    const prefix = (id: number) =>
+      `(${isAsync ? 'async ' : ''}() => {try {${start(id)}const ${ToolTrackerRetIdentifier} = ${isAsync ? 'await ' : ''}`
+    const successSuffix = (id: number) => `;${end(id, ToolTrackerRetIdentifier)}return ${ToolTrackerRetIdentifier};}`
+
+    if (!lval) {
+      if (!sliceOf(node).trim().length) {
+        return
+      }
+      // bare calls: report and rethrow with the original stack appended
+      const catchClause =
+        ` catch (err) {${end(callId, 'err')}` +
+        `const __newError = new Error(err.message);` +
+        `__newError.stack = err.stack + ("\\n" + __newError.stack);` +
+        `throw __newError;}})()`
+
+      ctx.ms.appendLeft(node.start, prefix(callId))
+      ctx.ms.appendRight(node.end, successSuffix(callId) + catchClause)
+      wrappedRanges.push([node.start, node.end])
+      callId++
+      return
+    }
+
+    const assign = extractAssignment(lval)
+    if (assign.type === 'unsupported') {
+      return
+    }
+
+    const tryId = callId
+    callId++ // the catch clause and the registry use the incremented id
+
+    const calleeParts = sliceOf(node.callee).split('.')
+    const object = calleeParts.length === 1 ? 'global' : calleeParts[0]!
+    const tool = calleeParts.length === 1 ? calleeParts[0]! : calleeParts[1]!
+
+    const catchClause = ` catch (err) {${end(callId, 'err')}throw new Error(err.message);}})()`
+
+    ctx.ms.appendLeft(node.start, prefix(tryId))
+    ctx.ms.appendRight(node.end, successSuffix(tryId) + catchClause)
+    wrappedRanges.push([node.start, node.end])
+
+    calls.set(callId, { object, tool, assignment: assign })
+  })
+
+  return wrappedRanges
 }
-
-export const toolCallTrackingPlugin = (calls: Map<number, ToolCallEntry> = new Map()) =>
-  function ({}: { types: typeof BabelCore.types }): BabelCore.PluginObj {
-    let callId = 0
-    const skip = new Set<CallExpression>()
-
-    return {
-      visitor: {
-        Program() {
-          callId = 0
-          skip.clear()
-        },
-        CallExpression(path) {
-          if (skip.has(path.node) || path.findParent((p) => skip.has(p.node as any))) {
-            // has been replaced
-            return
-          }
-
-          if (path.parentPath.isYieldExpression()) {
-            // we don't track yield expressions
-            return
-          }
-
-          let lval: BabelCore.NodePath<LVal> | null = null
-
-          const declaration = path.findParent((p) =>
-            p.isVariableDeclaration()
-          ) as BabelCore.NodePath<VariableDeclaration>
-          // const a = myFunc()
-          //       ^
-
-          const assignment = path.findParent((p) =>
-            p.isAssignmentExpression()
-          ) as BabelCore.NodePath<BabelCore.types.AssignmentExpression>
-
-          // let a;
-          // a = myFunc()
-          // ^
-
-          if (declaration) {
-            lval = declaration.get('declarations')[0]?.get('id')!
-          }
-
-          if (assignment) {
-            const left = assignment.get('left')
-            if (left.isLVal()) {
-              lval = left
-            }
-          }
-
-          const endStatement = (value: BabelCore.types.Expression) =>
-            expressionStatement(
-              callExpression(identifier(ToolCallTrackerFnIdentifier), [
-                numericLiteral(callId),
-                stringLiteral('end'),
-                value,
-              ])
-            )
-
-          const isAsync = path.parentPath.isAwaitExpression()
-
-          const tryBodyStatement = blockStatement([
-            expressionStatement(
-              callExpression(identifier(ToolCallTrackerFnIdentifier), [numericLiteral(callId), stringLiteral('start')])
-            ),
-            variableDeclaration('const', [
-              variableDeclarator(
-                identifier(ToolTrackerRetIdentifier),
-                isAsync ? awaitExpression(path.node) : path.node
-              ),
-            ]),
-            endStatement(identifier(ToolTrackerRetIdentifier)),
-            returnStatement(identifier(ToolTrackerRetIdentifier)),
-          ])
-
-          if (!lval) {
-            if (path.getSource().trim().length) {
-              // rethrow errors from the call expression here
-              const newError = identifier('__newError')
-
-              const newCall = callExpression(
-                arrowFunctionExpression(
-                  [], // params
-                  blockStatement([
-                    tryStatement(
-                      tryBodyStatement,
-                      catchClause(
-                        identifier('err'),
-                        blockStatement([
-                          endStatement(identifier('err')),
-                          variableDeclaration('const', [
-                            variableDeclarator(
-                              newError,
-                              newExpression(identifier('Error'), [
-                                memberExpression(identifier('err'), identifier('message')),
-                              ])
-                            ),
-                          ]),
-
-                          expressionStatement(
-                            assignmentExpression(
-                              '=',
-                              memberExpression(newError, identifier('stack')),
-                              binaryExpression(
-                                '+',
-                                memberExpression(identifier('err'), identifier('stack')),
-                                binaryExpression(
-                                  '+',
-                                  stringLiteral('\n'),
-                                  memberExpression(newError, identifier('stack'))
-                                )
-                              )
-                            )
-                          ),
-
-                          throwStatement(newError),
-                        ])
-                      )
-                    ),
-                  ]),
-                  isAsync
-                ),
-                [] // args
-              )
-
-              callId++
-              skip.add(newCall)
-              path.replaceWith(newCall)
-            }
-
-            return
-          }
-
-          callId++
-          const parts = path.get('callee').getSource().split('.')
-          const object = parts.length === 1 ? 'global' : parts[0]!
-          const tool = parts.length === 1 ? parts[0]! : parts[1]!
-          const assign = extractLVal(lval)
-
-          if (assign.type === 'unsupported') {
-            return
-          }
-
-          const newCall = callExpression(
-            arrowFunctionExpression(
-              [], // params
-              blockStatement([
-                tryStatement(
-                  tryBodyStatement,
-                  catchClause(
-                    identifier('err'),
-                    blockStatement([
-                      endStatement(identifier('err')),
-                      throwStatement(
-                        newExpression(identifier('Error'), [memberExpression(identifier('err'), identifier('message'))])
-                      ),
-                    ])
-                  )
-                ),
-              ]),
-              isAsync
-            ),
-            [] // args
-          )
-
-          calls.set(callId, { object, tool, assignment: assign })
-          skip.add(newCall)
-          path.replaceWith(newCall)
-        },
-      },
-    }
-  }

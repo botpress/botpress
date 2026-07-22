@@ -13,16 +13,16 @@
 const WIDTH = 80
 const INDENT = '  '
 
-type TokKind = 'word' | 'string' | 'punct' | 'block-comment' | 'line-comment'
+export type TokKind = 'word' | 'string' | 'punct' | 'block-comment' | 'line-comment'
 
-type Tok = {
+export type Tok = {
   kind: TokKind
   text: string
   /** number of newlines in the source right before this token */
   nl: number
 }
 
-type Group = {
+export type Group = {
   kind: 'group'
   open: string
   close: string
@@ -30,16 +30,16 @@ type Group = {
   nl: number
 }
 
-type Node = Tok | Group
+export type Node = Tok | Group
 
-const isGroup = (n: Node): n is Group => n.kind === 'group'
-const isPunct = (n: Node, text: string): boolean => !isGroup(n) && n.kind === 'punct' && n.text === text
+export const isGroup = (n: Node): n is Group => n.kind === 'group'
+export const isPunct = (n: Node, text: string): boolean => !isGroup(n) && n.kind === 'punct' && n.text === text
 
 // ---------------------------------------------------------------- tokenizer
 
 const WORD_CHAR = /[A-Za-z0-9_$.]/
 
-function tokenize(src: string): Tok[] {
+export function tokenize(src: string): Tok[] {
   const toks: Tok[] = []
   let i = 0
   let nl = 0
@@ -125,7 +125,7 @@ function tokenize(src: string): Tok[] {
 
 const CLOSER: Record<string, string> = { '{': '}', '(': ')', '[': ']', '<': '>' }
 
-function parse(toks: Tok[]): Node[] {
+export function parse(toks: Tok[]): Node[] {
   const root: Node[] = []
   const stack: Group[] = []
   const siblings = () => (stack.length ? stack[stack.length - 1]!.children : root)

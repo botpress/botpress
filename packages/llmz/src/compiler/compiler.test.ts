@@ -21,26 +21,23 @@ Hi!
 }
 `
     expect(compile(code).code).toMatchInlineSnapshot(`
-      "__track__(6);__comment__("line 1", 5);__comment__("__LLMZ_USER_CODE_START__", 3);
-
-
-
-        for (let i = 0; i < 10; i++) {__track__(7);
-          (() => {try {__toolc__(0, "start");const __ret__ = console.log(i);__toolc__(0, "end", __ret__);return __ret__;} catch (err) {__toolc__(0, "end", err);const __newError = new Error(err.message);__newError.stack = err.stack + ("\\n" + __newError.stack);throw __newError;}})();__comment__("line 3", 7);__comment__("--", 8);__comment__("Comments on multiple lines\\n    Hi!", 10);__track__(14);
-
-
-
-
-
-
-          if (i === 5) {__track__(16);__comment__("I will throw an error here", 15);
-
-            throw new Error('Something went wrong');
-          }
-        }__comment__("__LLMZ_USER_CODE_END__", 20);
-
-
       "
+                                    
+
+      ;__comment__("line 1", 5);
+      __track__(6);for (let i = 0; i < 10; i++) {
+        __track__(7);(() => {try {__toolc__(0, "start");const __ret__ = console.log(i);__toolc__(0, "end", __ret__);return __ret__;} catch (err) {__toolc__(0, "end", err);const __newError = new Error(err.message);__newError.stack = err.stack + ("\\n" + __newError.stack);throw __newError;}})() ;__comment__("line 3", 7);
+      ;__comment__("--", 8);
+
+      ;__comment__("Comments on multiple lines\\nHi!", 10);
+
+
+
+        __track__(14);if (i === 5) {
+          ;__comment__("I will throw an error here", 15);
+          __track__(16);throw new Error('Something went wrong')
+        }
+      }"
     `)
   })
 
@@ -57,24 +54,21 @@ Hi!
       `
 
     expect(compile(code).code).toMatchInlineSnapshot(`
-      "__track__(5);__comment__("__LLMZ_USER_CODE_START__", 3);
-
-
-        for (let i = 0; __comment__("this is left as-is", 5), i < 10; i++) {__track__(7);__comment__("this is a comment that will be replaces", 6);
-
-          const a = {
-            b: i,
-            c: 1
-
-          };__var__("a", () => eval("a"));
-        }__comment__("__LLMZ_USER_CODE_END__", 14);
-
-
       "
+                                    
+
+        __track__(5);for(let i = 0;                           i < 10; i++) {
+         ;__comment__("this is a comment that will be replaces", 6);
+         __track__(7);const a = {
+            b: i,              
+            c: 1
+                         
+         };__var__("a", () => eval("a"));
+        }"
     `)
   })
 
-  it('transpiles typescript to javascript', async () => {
+  it('rejects typescript with a helpful error', async () => {
     const code = `
       async function sayHello(message: string) {
         type User = {
@@ -86,22 +80,9 @@ Hi!
       }
       await sayHello('Hello');`
 
-    expect(compile(code).code).toMatchInlineSnapshot(`
-      "__track__(5);__comment__("__LLMZ_USER_CODE_START__", 3);
-
-
-        async function sayHello(message) {__var__("message", () => eval("message"));__track__(9);
-
-
-
-          const user = { name: 'John' };__var__("user", () => eval("user"));__track__(10);
-          (() => {try {__toolc__(0, "start");const __ret__ = console.log(message, user);__toolc__(0, "end", __ret__);return __ret__;} catch (err) {__toolc__(0, "end", err);const __newError = new Error(err.message);__newError.stack = err.stack + ("\\n" + __newError.stack);throw __newError;}})();__track__(11);
-          return user;
-        }__track__(12);return await (
-          await (async () => {try {__toolc__(1, "start");const __ret__ = await sayHello('Hello');__toolc__(1, "end", __ret__);return __ret__;} catch (err) {__toolc__(1, "end", err);const __newError = new Error(err.message);__newError.stack = err.stack + ("\\n" + __newError.stack);throw __newError;}})());__comment__("__LLMZ_USER_CODE_END__", 14);
-
-      "
-    `)
+    expect(() => compile(code)).toThrowErrorMatchingInlineSnapshot(
+      `[SyntaxError: Unexpected token (5:37). The code must be plain JavaScript: do not use TypeScript syntax (type annotations, "as" casts, generics, interfaces or type aliases).]`
+    )
   })
 
   it('should work with async functions 3', async () => {
@@ -129,33 +110,30 @@ Hi!
   await addNewEntries(newEntries);
       `
     expect(compile(code).code).toMatchInlineSnapshot(`
-      "__track__(6);__comment__("Adding new entries to the computed table", 5);__comment__("__LLMZ_USER_CODE_START__", 3);
-
-
-
-        const newEntries = [
-        { Name: "Fleur" },
-        { Name: "Pikachu" },
-        { Name: "Ash" },
-        { Name: "Misty" }];__var__("newEntries", () => eval("newEntries"));__comment__("Function to add the new entries", 13);__track__(14);
-
-
-
-        async function addNewEntries(entries) {__var__("entries", () => eval("entries"));__track__(15);
-          for (const entry of entries) {__track__(16);
-            await (async () => {try {__toolc__(0, "start");const __ret__ = await ComputedTable.createTableRow(entry);__toolc__(0, "end", __ret__);return __ret__;} catch (err) {__toolc__(0, "end", err);const __newError = new Error(err.message);__newError.stack = err.stack + ("\\n" + __newError.stack);throw __newError;}})();
-          }__comment__("Send a confirmation message to the user", 18);__track__(19);
-
-          (() => {try {__toolc__(1, "start");const __ret__ = chat.sendText({
-                message: "I have successfully added the new persons: Fleur, Pikachu, Ash, and Misty to the computed table."
-              });__toolc__(1, "end", __ret__);return __ret__;} catch (err) {__toolc__(1, "end", err);const __newError = new Error(err.message);__newError.stack = err.stack + ("\\n" + __newError.stack);throw __newError;}})();
-        }__comment__("Execute the function to add the new entries", 24);__track__(25);
-
-
-        return await await (async () => {try {__toolc__(2, "start");const __ret__ = await addNewEntries(newEntries);__toolc__(2, "end", __ret__);return __ret__;} catch (err) {__toolc__(2, "end", err);const __newError = new Error(err.message);__newError.stack = err.stack + ("\\n" + __newError.stack);throw __newError;}})();__comment__("__LLMZ_USER_CODE_END__", 27);
-
-
       "
+                                    
+
+            ;__comment__("Adding new entries to the computed table", 5);
+        __track__(6);const newEntries = [
+          { Name: "Fleur" },
+          { Name: "Pikachu" },
+          { Name: "Ash" },
+          { Name: "Misty" }
+        ];__var__("newEntries", () => eval("newEntries"));
+        
+        ;__comment__("Function to add the new entries", 13);
+        __track__(14);async function addNewEntries(entries) {__var__("entries", () => eval("entries"));
+          __track__(15);for (const entry of entries) {
+            __track__(16);await (async () => {try {__toolc__(0, "start");const __ret__ = await ComputedTable.createTableRow(entry);__toolc__(0, "end", __ret__);return __ret__;} catch (err) {__toolc__(0, "end", err);const __newError = new Error(err.message);__newError.stack = err.stack + ("\\n" + __newError.stack);throw __newError;}})();
+          }
+          ;__comment__("Send a confirmation message to the user", 18);
+          __track__(19);(() => {try {__toolc__(1, "start");const __ret__ = chat.sendText({
+            message: "I have successfully added the new persons: Fleur, Pikachu, Ash, and Misty to the computed table."
+          });__toolc__(1, "end", __ret__);return __ret__;} catch (err) {__toolc__(1, "end", err);const __newError = new Error(err.message);__newError.stack = err.stack + ("\\n" + __newError.stack);throw __newError;}})();
+        }
+        
+        ;__comment__("Execute the function to add the new entries", 24);
+        __track__(25);return await (await (async () => {try {__toolc__(2, "start");const __ret__ = await addNewEntries(newEntries);__toolc__(2, "end", __ret__);return __ret__;} catch (err) {__toolc__(2, "end", err);const __newError = new Error(err.message);__newError.stack = err.stack + ("\\n" + __newError.stack);throw __newError;}})());"
     `)
   })
 })
