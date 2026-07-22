@@ -111,7 +111,12 @@ export class HttpClient {
         return new HttpError('canceled', 'ERR_CANCELED', undefined, thrown)
       }
       const cause = (thrown as Error)?.cause as { code?: string } | undefined
-      return new HttpError((thrown as Error)?.message ?? 'Network Error', cause?.code ?? 'ERR_NETWORK', undefined, thrown)
+      return new HttpError(
+        (thrown as Error)?.message ?? 'Network Error',
+        cause?.code ?? 'ERR_NETWORK',
+        undefined,
+        thrown
+      )
     }
 
     // the timeout covers the whole request including reading the response body;
