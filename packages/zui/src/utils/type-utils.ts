@@ -45,4 +45,14 @@ export type NoNever<T> = Identity<{
   [k in _NoNeverKeys<T>]: k extends keyof T ? T[k] : never
 }>
 
-export type ExtendShape<A, B> = Flatten<Omit<A, keyof B> & B>
+// fast path when the key sets don't overlap: a plain intersection avoids the
+// per-key remapping that deepens the instantiation tower on chained .extend()
+export type ExtendShape<A, B> = Flatten<
+  keyof A & keyof B extends never
+    ? A & B
+    : {
+        [K in keyof A as K extends keyof B ? never : K]: A[K]
+      } & {
+        [K in keyof B]: B[K]
+      }
+>
