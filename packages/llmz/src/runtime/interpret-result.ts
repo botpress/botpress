@@ -104,7 +104,7 @@ export const interpretVMResult = async ({
   const codeRequestsInspection = /\breturn\b/.test(iteration.code ?? '')
 
   if (iteration.next && !codeRequestsInspection) {
-    await applyNextExit({ iteration, onExit })
+    await applyNextExit({ iteration, controller, onExit })
     return
   }
 
@@ -135,9 +135,11 @@ export const interpretVMResult = async ({
  */
 export const applyNextExit = async ({
   iteration,
+  controller,
   onExit,
 }: {
   iteration: Iteration
+  controller: AbortController
   onExit?: ExecutionHooks['onExit']
 }): Promise<void> => {
   const next = iteration.next
@@ -181,10 +183,13 @@ export const applyNextExit = async ({
   const returnExit = parsedExit.exit
 
   try {
-    await onExit?.({
-      exit: returnExit,
-      result: parsedExit.value,
-    })
+    await onExit?.(
+      {
+        exit: returnExit,
+        result: parsedExit.value,
+      },
+      controller
+    )
   } catch (err) {
     iteration.end({
       type: 'exit_error',

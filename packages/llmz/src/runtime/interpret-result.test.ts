@@ -74,7 +74,7 @@ describe('interpretVMResult', () => {
     const iteration = makeIteration([new Exit({ name: 'done', description: 'done' })])
     iteration.next = { name: 'missing', props: {} }
 
-    await applyNextExit({ iteration })
+    await applyNextExit({ iteration, controller: new AbortController() })
 
     expect(iteration.status).toMatchObject({
       type: 'exit_error',
@@ -93,7 +93,7 @@ describe('interpretVMResult', () => {
     const iteration = makeIteration([done])
     iteration.next = { name: 'done', props: { greeting: 'hello' } }
 
-    await applyNextExit({ iteration })
+    await applyNextExit({ iteration, controller: new AbortController() })
 
     expect(iteration.status).toEqual({
       type: 'exit_success',
@@ -109,7 +109,7 @@ describe('interpretVMResult', () => {
     const iteration = makeIteration([done])
     iteration.next = { name: 'DONE', props: {} }
 
-    await applyNextExit({ iteration })
+    await applyNextExit({ iteration, controller: new AbortController() })
 
     expect(iteration.status).toMatchObject({
       type: 'exit_success',
@@ -124,6 +124,7 @@ describe('interpretVMResult', () => {
 
     await applyNextExit({
       iteration,
+      controller: new AbortController(),
       onExit: async () => {
         throw new Error('not allowed')
       },
@@ -215,7 +216,7 @@ describe('interpretVMResult', () => {
     const iteration = makeIteration([done])
     iteration.next = { name: 'done', props: { props: { ticketId: 'T-123' } } }
 
-    await applyNextExit({ iteration })
+    await applyNextExit({ iteration, controller: new AbortController() })
 
     expect(iteration.status).toEqual({
       type: 'exit_success',

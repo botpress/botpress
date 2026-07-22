@@ -544,6 +544,31 @@ describe('message-stream protocol execution', () => {
     expect(capped.limit).toBe(10_000)
   })
 
+  test('onExit and onTrace hooks receive the abort controller', async () => {
+    const done = new Exit({ name: 'done', description: 'Task completed' })
+    const client = new ScriptedCognitive(['■next=done'])
+
+    let exitController: AbortController | undefined
+    let traceController: AbortController | undefined
+
+    const result = await executeContext({
+      client,
+      exits: [done],
+      options: { loop: 2 },
+      onExit: (_result, controller) => {
+        exitController = controller
+      },
+      onTrace: ({ controller }) => {
+        traceController ??= controller
+      },
+    })
+
+    expect(result).toBeInstanceOf(SuccessExecutionResult)
+    expect(exitController).toBeInstanceOf(AbortController)
+    expect(traceController).toBeInstanceOf(AbortController)
+    expect(exitController).toBe(traceController)
+  })
+
   test('an unknown ■next exit yields exit_error and retries', async () => {
     const done = new Exit({ name: 'done', description: 'Task completed' })
     const client = new ScriptedCognitive(['■next=nonexistent', '■next=done'])

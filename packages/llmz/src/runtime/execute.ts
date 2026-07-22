@@ -77,7 +77,7 @@ const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionR
 
       const unsubscribeTrace = iteration.traces.onPush((traces) => {
         for (const trace of traces) {
-          onTrace?.({ trace, iteration: ctx.iterations.length })
+          onTrace?.({ trace, iteration: ctx.iterations.length, controller })
         }
       })
 
@@ -474,14 +474,14 @@ const executeIteration = async ({
   if (!iteration.code) {
     // No ■run block: the response is messages and/or an exit
     if (iteration.next) {
-      await applyNextExit({ iteration, onExit })
+      await applyNextExit({ iteration, controller, onExit })
       return
     }
 
     if (ctx.chat && iteration.sends?.length) {
       // Message-only response in chat mode: hand the turn back to the user
       iteration.next = { name: 'listen', props: {} }
-      await applyNextExit({ iteration, onExit })
+      await applyNextExit({ iteration, controller, onExit })
       return
     }
 
