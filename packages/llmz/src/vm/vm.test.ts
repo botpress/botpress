@@ -79,6 +79,35 @@ Hi!
     `)
   })
 
+  it('stack traces point to the right line with the node driver', async () => {
+    vi.stubEnv('USE_QUICKJS', 'false')
+    try {
+      const code = `
+// line 1
+const x = 1
+if (x === 1) {
+  throw new Error('Something went wrong')
+}
+`
+      const result = await runAsyncFunction({}, code)
+
+      assert(result.success === false)
+      assert(result.error instanceof CodeExecutionError)
+      expect(result.error.stacktrace).toMatchInlineSnapshot(`
+        "001 | 
+          002 | // line 1
+          003 | const x = 1
+          004 | if (x === 1) {
+        > 005 |   throw new Error('Something went wrong')
+        ...^^^^^^^^^^
+          006 | }
+          007 |"
+      `)
+    } finally {
+      vi.unstubAllEnvs()
+    }
+  })
+
   it('should throw on errors inside functions', async () => {
     const code = `
     async function test() { 

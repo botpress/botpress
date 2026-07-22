@@ -240,9 +240,38 @@ describe('toolCallTracking', () => {
               "left": "z",
               "type": "single",
             },
-            "object": "obj // ",
-            "tool": "",
+            "object": "obj",
+            "tool": "getNumber",
           },
+        ],
+      ]
+    `)
+  })
+
+  it('computed member calls keep their tool identity', async () => {
+    const code = `
+      const a = tools[name]();
+      const b = tools['send']();
+      const c = client.tables.listRows();
+    `
+    await transform(code)
+
+    expect([...calls].map(([id, { object, tool }]) => [id, object, tool])).toMatchInlineSnapshot(`
+      [
+        [
+          1,
+          "tools",
+          "name",
+        ],
+        [
+          2,
+          "tools",
+          "send",
+        ],
+        [
+          3,
+          "client.tables",
+          "listRows",
         ],
       ]
     `)

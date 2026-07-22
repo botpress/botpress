@@ -117,9 +117,20 @@ export function applyToolCallTracking(ctx: Ctx, calls: Map<number, ToolCallEntry
     const tryId = callId
     callId++ // the catch clause and the registry use the incremented id
 
-    const calleeParts = sliceOf(node.callee).split('.')
-    const object = calleeParts.length === 1 ? 'global' : calleeParts[0]!
-    const tool = calleeParts.length === 1 ? calleeParts[0]! : calleeParts[1]!
+    // tool identity from the AST: `obj.tool()`, `obj[tool]()` or a global `tool()`
+    const callee = node.callee as AnyNode
+    let object = 'global'
+    let tool = callee.type === 'Identifier' ? callee.name : sliceOf(callee)
+    if (callee.type === 'MemberExpression') {
+      object = sliceOf(callee.object)
+      const property = callee.property as AnyNode
+      tool =
+        property.type === 'Identifier'
+          ? property.name
+          : property.type === 'Literal'
+            ? String(property.value)
+            : sliceOf(property)
+    }
 
     const catchClause = ` catch (err) {${end(callId, 'err')}throw new Error(err.message);}})()`
 
