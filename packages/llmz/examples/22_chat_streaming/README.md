@@ -5,7 +5,7 @@ A "space travel agency" that shows everything an execution produces, rendered li
 - **Streamed messages** — `Chat.onMessageDelta` fires with each body chunk while the LLM is still generating (`{ id, component, props, delta, content }`); print `delta` keyed by `id` for a typewriter effect. `handler` stays the authoritative delivery (and the only one for body-less components like buttons).
 - **Generated code** — the `onTrace` hook receives an `llm_call_success` trace carrying the code the LLM wrote; the example renders it in a box before it runs.
 - **Live tool calls** — `tool_call` traces render as `⚙ tool(input) → output (ms)` inline in the transcript as they complete.
-- **Chained tools** — booking is a two-step process: `bookTrip` only reserves, and `processPayment` must pay the reservation to obtain the confirmation id the `booked` exit requires. The agent chains both (plus `checkAvailability`) in a *single* generated code block — something JSON tool-calling would need multiple roundtrips for.
+- **Chained tools** — booking is a two-step process: `bookTrip` only reserves, and `processPayment` must pay the reservation to obtain the confirmation id the `booked` exit requires. The agent chains both (plus `checkAvailability`) in a _single_ generated code block — something JSON tool-calling would need multiple roundtrips for.
 - **Typed exits** — `booked` and `cancelled` exits with zui schemas; `result.is(exit)` narrows the payload for a typed end-of-conversation banner. The built-in `ListenExit` keeps the loop going.
 - **Stats footer** — after every turn: model, total turns, iterations, code generation time, tokens in/out and time-to-first-token, read from `result.iteration.llm` and `result.iteration.tokens`.
 
