@@ -2,12 +2,14 @@
   "name": "llmz",
   "type": "module",
   "description": "LLMz - An LLM-native Typescript VM built on top of Zui",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "types": "./dist/index.d.ts",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
+      "workerd": "./dist/index.workerd.js",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     }
@@ -34,7 +36,6 @@
     "acorn": "^8.17.0",
     "bytes": "^3.1.2",
     "exponential-backoff": "^3.1.1",
-    "handlebars": "^4.7.8",
     "json5": "^2.2.3",
     "jsonrepair": "^3.10.0",
     "lodash-es": "^4.17.21",
@@ -45,6 +46,7 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
+    "@jitl/quickjs-wasmfile-release-sync": "^0.31.0",
     "@microsoft/api-extractor": "^7.49.0",
     "@types/bytes": "^3.1.5",
     "@types/json-schema": "^7.0.12",
@@ -64,7 +66,7 @@
   "peerDependencies": {
     "@botpress/client": "1.49.0",
     "@botpress/cognitive": "0.6.2",
-    "@bpinternal/thicktoken": "^3.0.0",
+    "@bpinternal/thicktoken": "^3.1.0",
     "@bpinternal/zui": "^2.4.0"
   },
   "dependenciesMeta": {
