@@ -199,9 +199,24 @@ export const stripInvalidIdentifiers = (object: unknown): any => {
   return pickBy(object, (__, key) => Identifier.safeParse(key).success)
 }
 
+/**
+ * JSON Schema → Zui via the legacy transform, falling back to the eval-free one.
+ * The legacy transform builds the schema by evaluating generated code, which is
+ * banned on some platforms (e.g. Cloudflare Workers / workerd) — there it throws
+ * and the eval-free transform takes over. Kept legacy-first because the two
+ * transforms differ on some shapes (e.g. discriminated unions).
+ */
+export const fromJSONSchemaCompat = (schema: JSONSchema7): z.ZodType => {
+  try {
+    return transforms.fromJSONSchemaLegacy(schema) as z.ZodType
+  } catch {
+    return transforms.fromJSONSchema(schema)
+  }
+}
+
 export const isValidSchema = (schema: JSONSchema7): boolean => {
   try {
-    transforms.fromJSONSchemaLegacy(schema)
+    fromJSONSchemaCompat(schema)
     return typeof schema.type === 'string'
   } catch {
     return false
