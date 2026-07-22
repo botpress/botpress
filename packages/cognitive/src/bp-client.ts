@@ -1,11 +1,20 @@
 import { type Client } from '@botpress/client'
-import { type AxiosInstance } from 'axios'
 import { BotpressClientLike } from './types'
+
+/**
+ * Structural view of the transport instance carried by a `@botpress/client`
+ * Client: the fetch-based http client on recent versions, an axios instance on
+ * older ones. Both expose this surface.
+ */
+type HttpClientLike = {
+  defaults: { signal?: AbortSignal }
+  get: (url: string, config?: { headers?: Record<string, string | undefined> }) => Promise<{ data: any }>
+}
 
 /** @internal */
 export type ExtendedClient = Client & {
   botId: string
-  axios: AxiosInstance
+  http: HttpClientLike
   clone: () => ExtendedClient
   abortable: (signal: AbortSignal) => ExtendedClient
 }
@@ -51,11 +60,12 @@ export const getExtendedClient = (_client: unknown): ExtendedClient => {
   return {
     ...client,
     botId: client.config.headers['x-bot-id'] as string,
-    axios: (client as any).axiosInstance as AxiosInstance,
+    // recent @botpress/client versions carry `httpClient`, older ones `axiosInstance`
+    http: ((client as any).httpClient ?? (client as any).axiosInstance) as HttpClientLike,
     clone,
     abortable: (signal: AbortSignal) => {
       const abortable = clone()
-      const instance = abortable.axios
+      const instance = abortable.http
       instance.defaults.signal = signal
       return abortable
     },

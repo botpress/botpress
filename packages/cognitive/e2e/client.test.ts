@@ -26,14 +26,14 @@ class MockProvider extends RemoteModelProvider {
 
 class TestClient {
   callAction = vi.fn().mockImplementation(() => {
-    if (this.axiosInstance.defaults?.signal?.aborted) {
-      throw this.axiosInstance.defaults?.signal.reason ?? 'Aborted'
+    if (this.httpClient.defaults?.signal?.aborted) {
+      throw this.httpClient.defaults?.signal.reason ?? 'Aborted'
     }
     return Promise.resolve(RandomResponse)
   })
   getBot = vi.fn()
   getFile = vi.fn()
-  axiosInstance = {
+  httpClient = {
     defaults: { signal: new AbortController().signal },
   }
   config = { headers: { 'x-bot-id': 'test' } }

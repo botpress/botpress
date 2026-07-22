@@ -170,8 +170,8 @@ export class RemoteModelProvider extends ModelProvider {
         const response = await fetch(file.url)
         return (await response.json()) as ModelPreferences
       } else {
-        const { data } = await this._client.axios.get(file.url, {
-          // we piggy-back axios to avoid adding a new dependency
+        const { data } = await this._client.http.get(file.url, {
+          // we piggy-back the botpress client's http client to avoid adding a new dependency
           // unset all headers to avoid S3 pre-signed signature mismatch
           headers: Object.keys(this._client.config.headers).reduce(
             (acc, key) => {

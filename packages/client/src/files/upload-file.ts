@@ -1,4 +1,3 @@
-import axios, { AxiosError } from 'axios'
 import * as common from '../common'
 import * as errors from '../errors'
 import { UpsertFileInput, UpsertFileResponse } from '../gen/files/operations/upsertFile'
@@ -37,8 +36,8 @@ export const upload = async (
   }
 
   if (url) {
-    content = await axios
-      .get(url, { responseType: 'arraybuffer' })
+    content = await new common.http.HttpClient()
+      .get<ArrayBuffer>(url, { responseType: 'arraybuffer' })
       .then((res) => res.data)
       .catch((err) => {
         throw new errors.UploadFileError(`Failed to download file from provided URL: ${err.message}`, err)
@@ -94,13 +93,10 @@ export const upload = async (
   }
 
   try {
-    await axios.put(file.uploadUrl, buffer, {
-      maxBodyLength: Infinity,
-      headers,
-    })
+    await new common.http.HttpClient().put(file.uploadUrl, buffer, { headers })
   } catch (thrown: unknown) {
     const err = thrown instanceof Error ? thrown : new Error(String(thrown))
-    throw new errors.UploadFileError(`Failed to upload file: ${err.message}`, err as AxiosError, file)
+    throw new errors.UploadFileError(`Failed to upload file: ${err.message}`, err, file)
   }
 
   return {

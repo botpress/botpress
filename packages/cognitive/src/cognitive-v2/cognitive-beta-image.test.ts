@@ -10,7 +10,7 @@ describe('CognitiveBeta.generateImage', () => {
         metadata: { provider: 'openai', model: 'openai:gpt-image-1', size: '1024x1024', format: 'png', cost: 0.04 },
       },
     })
-    ;(beta as any)._axiosClient = { post }
+    ;(beta as any)._httpClient = { post }
 
     const result = await beta.generateImage({ prompt: 'a corgi astronaut', size: '1024x1024' })
 
@@ -32,7 +32,7 @@ describe('CognitiveBeta.generateImage', () => {
         metadata: { provider: 'openai', model: 'openai:gpt-image-1', size: '1024x1024', format: 'png', cost: 0 },
       },
     })
-    ;(beta as any)._axiosClient = { post }
+    ;(beta as any)._httpClient = { post }
 
     const onRequest = vi.fn()
     const onResponse = vi.fn()
@@ -50,7 +50,7 @@ describe('CognitiveBeta.generateImage', () => {
   test('emits error event when the call rejects', async () => {
     const beta = new CognitiveBeta({ apiUrl: 'http://x' })
     const post = vi.fn().mockRejectedValue(new Error('boom'))
-    ;(beta as any)._axiosClient = { post }
+    ;(beta as any)._httpClient = { post }
 
     const onError = vi.fn()
     beta.on('error', onError)

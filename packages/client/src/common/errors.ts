@@ -1,8 +1,8 @@
-import axios from 'axios'
 import * as errors from '../errors'
+import { isHttpError } from './http'
 
 export const toApiError = (err: unknown): Error => {
-  if (axios.isAxiosError(err) && err.response?.data) {
+  if (isHttpError(err) && err.response?.data) {
     return errors.errorFrom(err.response.data)
   }
   return errors.errorFrom(err)

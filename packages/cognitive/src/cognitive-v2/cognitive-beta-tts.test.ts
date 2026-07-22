@@ -10,7 +10,7 @@ describe('CognitiveBeta.generateAudio', () => {
         metadata: { provider: 'openai', cost: 0.0001 },
       },
     })
-    ;(beta as any)._axiosClient = { post }
+    ;(beta as any)._httpClient = { post }
 
     const result = await beta.generateAudio({ model: 'auto', input: 'hi', voice: 'alloy' })
 
@@ -28,7 +28,7 @@ describe('CognitiveBeta.generateAudio', () => {
     const post = vi.fn().mockResolvedValue({
       data: { output: { audioUrl: 'https://x/y.mp3' }, metadata: { provider: 'openai', cost: 0 } },
     })
-    ;(beta as any)._axiosClient = { post }
+    ;(beta as any)._httpClient = { post }
 
     const onRequest = vi.fn()
     const onResponse = vi.fn()
@@ -52,7 +52,7 @@ describe('CognitiveBeta.listVoices', () => {
         voices: [{ id: 'alloy', displayName: 'Alloy', provider: 'openai', models: ['tts-1'] }],
       },
     })
-    ;(beta as any)._axiosClient = { get }
+    ;(beta as any)._httpClient = { get }
 
     const voices = await beta.listVoices({ model: 'openai:tts-1' })
 
@@ -67,7 +67,7 @@ describe('CognitiveBeta.listVoices', () => {
   test('GETs without params when no filter provided', async () => {
     const beta = new CognitiveBeta({ apiUrl: 'http://x' })
     const get = vi.fn().mockResolvedValue({ data: { voices: [] } })
-    ;(beta as any)._axiosClient = { get }
+    ;(beta as any)._httpClient = { get }
 
     await beta.listVoices()
 

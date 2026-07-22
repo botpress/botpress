@@ -1,6 +1,6 @@
-import axios, { AxiosInstance } from 'axios'
 import { backOff } from 'exponential-backoff'
 import { createNanoEvents, Unsubscribe } from 'nanoevents'
+import { HttpClient, isHttpError } from '../http-client'
 import { defaultModel, models } from './models'
 import {
   CognitiveRequest,
@@ -63,8 +63,6 @@ type RequestOptions = {
   timeout?: number
 }
 
-const isBrowser = () => typeof window !== 'undefined' && typeof window.fetch === 'function'
-
 export { Models, SttModels } from './types'
 export type {
   CommonRequestOptions,
@@ -97,7 +95,7 @@ export class CognitiveBeta {
     return obj?.['$$IS_COGNITIVE_BETA'] === 'v2'
   }
 
-  private _axiosClient: AxiosInstance
+  private _httpClient: HttpClient
   private readonly _apiUrl: string
   private readonly _timeout: number
   private readonly _withCredentials: boolean
@@ -124,7 +122,7 @@ export class CognitiveBeta {
       this._headers['X-Debug'] = '1'
     }
 
-    this._axiosClient = axios.create({
+    this._httpClient = new HttpClient({
       headers: this._headers,
       withCredentials: this._withCredentials,
       baseURL: this._apiUrl,
@@ -154,7 +152,7 @@ export class CognitiveBeta {
     try {
       const { data } = await this._withServerRetry(
         () =>
-          this._axiosClient.post<CognitiveResponse>('/v2/cognitive/generate-text', input, {
+          this._httpClient.post<CognitiveResponse>('/v2/cognitive/generate-text', input, {
             signal,
             timeout: options.timeout ?? this._timeout,
           }),
@@ -172,7 +170,7 @@ export class CognitiveBeta {
 
   public async listModels() {
     const { data } = await this._withServerRetry(() =>
-      this._axiosClient.get<{ models: Model[] }>('/v2/cognitive/models')
+      this._httpClient.get<{ models: Model[] }>('/v2/cognitive/models')
     )
 
     return data.models
@@ -180,9 +178,8 @@ export class CognitiveBeta {
 
   public async listVoices(filter: { model?: string; language?: string } = {}): Promise<Voice[]> {
     const { data } = await this._withServerRetry(() =>
-      this._axiosClient.get<{ voices: Voice[] }>('/v2/cognitive/voices', {
+      this._httpClient.get<{ voices: Voice[] }>('/v2/cognitive/voices', {
         params: filter,
-        paramsSerializer: { encode: encodeURIComponent },
       })
     )
 
@@ -198,7 +195,7 @@ export class CognitiveBeta {
     try {
       const { data } = await this._withServerRetry(
         () =>
-          this._axiosClient.post<TtsResponse>('/v2/cognitive/generate-audio', input, {
+          this._httpClient.post<TtsResponse>('/v2/cognitive/generate-audio', input, {
             signal,
             timeout: options.timeout ?? this._timeout,
           }),
@@ -223,7 +220,7 @@ export class CognitiveBeta {
     try {
       const { data } = await this._withServerRetry(
         () =>
-          this._axiosClient.post<ImageResponse>('/v2/cognitive/generate-image', input, {
+          this._httpClient.post<ImageResponse>('/v2/cognitive/generate-image', input, {
             signal,
             timeout: options.timeout ?? this._timeout,
           }),
@@ -248,7 +245,7 @@ export class CognitiveBeta {
     try {
       const { data } = await this._withServerRetry(
         () =>
-          this._axiosClient.post<TranscribeResponse>('/v2/cognitive/transcribe-audio', input, {
+          this._httpClient.post<TranscribeResponse>('/v2/cognitive/transcribe-audio', input, {
             signal,
             timeout: options.timeout ?? this._timeout,
           }),
@@ -280,62 +277,9 @@ export class CognitiveBeta {
     this._events.emit('request', req)
 
     try {
-      if (isBrowser()) {
-        const res = await fetch(`${this._apiUrl}/v2/cognitive/generate-text-stream`, {
-          method: 'POST',
-          headers: {
-            ...this._headers,
-            'Content-Type': 'application/json',
-          },
-          credentials: this._withCredentials ? 'include' : 'omit',
-          body: JSON.stringify({ ...request, stream: true }),
-          signal,
-        })
-
-        if (!res.ok) {
-          const text = await res.text().catch(() => '')
-          const err = new Error(`HTTP ${res.status}: ${text || res.statusText}`)
-          ;(err as any).response = { status: res.status, data: text }
-          throw err
-        }
-
-        const body = res.body
-        if (!body) {
-          throw new Error('No response body received for streaming request')
-        }
-
-        const reader = body.getReader()
-        const iterable = (async function* () {
-          for (;;) {
-            const { value, done } = await reader.read()
-            if (done) {
-              break
-            }
-            if (value) {
-              yield value
-            }
-          }
-        })()
-
-        for await (const obj of this._ndjson<CognitiveStreamChunk>(iterable)) {
-          chunks.push(obj)
-          lastChunk = obj
-          yield obj
-        }
-
-        // Emit response event with the final chunk metadata
-        if (lastChunk?.metadata) {
-          this._events.emit('response', req, {
-            output: chunks.map((c) => c.output || '').join(''),
-            metadata: lastChunk.metadata,
-          })
-        }
-        return
-      }
-
       const res = await this._withServerRetry(
         () =>
-          this._axiosClient.post(
+          this._httpClient.post(
             '/v2/cognitive/generate-text-stream',
             { ...request, stream: true },
             {
@@ -348,12 +292,12 @@ export class CognitiveBeta {
         req
       )
 
-      const nodeStream: AsyncIterable<Uint8Array> = res.data as any
-      if (!nodeStream) {
+      const stream: AsyncIterable<Uint8Array> = res.data as any
+      if (!stream) {
         throw new Error('No response body received for streaming request')
       }
 
-      for await (const obj of this._ndjson<CognitiveStreamChunk>(nodeStream)) {
+      for await (const obj of this._ndjson<CognitiveStreamChunk>(stream)) {
         chunks.push(obj)
         lastChunk = obj
         yield obj
@@ -383,72 +327,27 @@ export class CognitiveBeta {
     this._events.emit('request', req)
 
     try {
-      if (isBrowser()) {
-        const res = await fetch(`${this._apiUrl}/v2/cognitive/generate-audio-stream`, {
-          method: 'POST',
-          headers: {
-            ...this._headers,
-            'Content-Type': 'application/json',
-          },
-          credentials: this._withCredentials ? 'include' : 'omit',
-          body: JSON.stringify(input),
-          signal,
-        })
+      const res = await this._withServerRetry(
+        () =>
+          this._httpClient.post('/v2/cognitive/generate-audio-stream', input, {
+            responseType: 'stream',
+            signal,
+            timeout: options.timeout ?? this._timeout,
+          }),
+        options,
+        req
+      )
 
-        if (!res.ok) {
-          const text = await res.text().catch(() => '')
-          const err = new Error(`HTTP ${res.status}: ${text || res.statusText}`)
-          ;(err as any).response = { status: res.status, data: text }
-          throw err
+      const stream: AsyncIterable<Uint8Array> = res.data as any
+      if (!stream) {
+        throw new Error('No response body received for streaming request')
+      }
+
+      for await (const obj of this._ndjson<TtsStreamChunk>(stream)) {
+        if (obj.finished) {
+          finalChunk = obj
         }
-
-        const body = res.body
-        if (!body) {
-          throw new Error('No response body received for streaming request')
-        }
-
-        const reader = body.getReader()
-        const iterable = (async function* () {
-          for (;;) {
-            const { value, done } = await reader.read()
-            if (done) {
-              break
-            }
-            if (value) {
-              yield value
-            }
-          }
-        })()
-
-        for await (const obj of this._ndjson<TtsStreamChunk>(iterable)) {
-          if (obj.finished) {
-            finalChunk = obj
-          }
-          yield obj
-        }
-      } else {
-        const res = await this._withServerRetry(
-          () =>
-            this._axiosClient.post('/v2/cognitive/generate-audio-stream', input, {
-              responseType: 'stream',
-              signal,
-              timeout: options.timeout ?? this._timeout,
-            }),
-          options,
-          req
-        )
-
-        const nodeStream: AsyncIterable<Uint8Array> = res.data as any
-        if (!nodeStream) {
-          throw new Error('No response body received for streaming request')
-        }
-
-        for await (const obj of this._ndjson<TtsStreamChunk>(nodeStream)) {
-          if (obj.finished) {
-            finalChunk = obj
-          }
-          yield obj
-        }
+        yield obj
       }
 
       if (finalChunk) {
@@ -496,7 +395,7 @@ export class CognitiveBeta {
   }
 
   private _isRetryableServerError(error: any): boolean {
-    if (axios.isAxiosError(error)) {
+    if (isHttpError(error)) {
       if (!error.response) {
         return true
       }

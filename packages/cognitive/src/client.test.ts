@@ -85,7 +85,7 @@ class TestClient {
   callAction = vi.fn().mockResolvedValue(INTEGRATION_RESPONSE)
   getBot = vi.fn()
   getFile = vi.fn()
-  axiosInstance = { defaults: { signal: new AbortController().signal } }
+  httpClient = { defaults: { signal: new AbortController().signal } }
   config = { headers: { 'x-bot-id': 'test' } }
   clone = () => this
 }
