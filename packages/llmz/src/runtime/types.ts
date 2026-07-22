@@ -1,4 +1,4 @@
-import { Cognitive, CognitiveBeta, type BotpressClientLike, Models } from '@botpress/cognitive'
+import { Cognitive, CognitiveBeta, type BotpressClientLike, type CognitiveLike, Models } from '@botpress/cognitive'
 
 import { Chat } from '../chat.js'
 import { Context, Iteration } from '../context.js'
@@ -228,4 +228,11 @@ export type ExecutionProps = {
   metadata?: Record<string, string>
 } & ExecutionHooks
 
-export type RuntimeCognitive = Pick<Cognitive, 'getModelDetails' | 'generateContent'>
+export type RuntimeCognitive = Pick<Cognitive, 'getModelDetails' | 'generateContent'> & {
+  /**
+   * Streaming generation. Only available on clients backed by the Cognitive v2
+   * (beta) API — when present, the runtime streams the response and parses
+   * ■ blocks incrementally.
+   */
+  generateContentStream?: CognitiveLike['generateContentStream']
+}

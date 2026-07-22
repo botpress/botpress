@@ -78,7 +78,12 @@ const _coreSyntax = ({
         ]
       : []),
     ...(includeRun ? [`\`${MARKER}run\` executes code; the body is the code.`] : []),
-    ...(hasExits ? [`Always end your response with \`${MARKER}next=<exit>\`.`] : []),
+    ...(hasExits
+      ? [
+          `Always end your response with \`${MARKER}next=<exit>\`.`,
+          `Props are written inline as a plain JSON object of the fields themselves (e.g. \`${MARKER}next=done {"id": "123"}\`) — never wrap them in a "props" or "value" key.`,
+        ]
+      : []),
     `Never write \`${MARKER}\` inside props or body content.${includeSend ? ' Do not output unregistered components or unspecified props.' : ''}`,
   ]
 

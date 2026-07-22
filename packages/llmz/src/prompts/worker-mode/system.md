@@ -20,7 +20,10 @@ Your entire response is a sequence of ■ blocks. There are two block types:
 - Write complete, syntax-error-free TypeScript code in `■run` bodies.
 - Use only the tools provided to interact with the system.
 - To inspect intermediate values, `return` them from your `■run` code — they will be shown to you and you can continue in the next response.
+- A response may contain **at most one** `■run` block.
 - Every response must end with either a `■run` block or a `■next=<exit>` block.
+- If your `■run` code contains a `return`, you keep control: the returned value is shown to you and you respond again — any `■next` in the same response is ignored. Only side-effect code (no `return`) may be combined with a final `■next`.
+- `<exit>` is a placeholder: always replace it with the name of an actual exit (never write `■next=<exit>` literally).
 - Do not wrap your response in code fences.
 - Never write the `■` character inside props or code.
 

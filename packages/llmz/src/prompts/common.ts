@@ -1,5 +1,6 @@
 import Handlebars from 'handlebars'
 import { StreamingMessageParser } from '../message-stream/parser.js'
+import type { ParsedItem } from '../message-stream/types.js'
 import { ParsedAssistantResponse } from './prompt.js'
 
 /** Strips wrapping code fences the model may have added around the whole response. */
@@ -16,13 +17,8 @@ const stripWrappingFences = (text: string): string =>
     })
     .join('\n')
 
-export const parseAssistantResponse = (response: string): ParsedAssistantResponse => {
-  const parser = new StreamingMessageParser()
-  parser.push(stripWrappingFences(response))
-  parser.finish()
-
-  const items = parser.items
-
+/** Builds a {@link ParsedAssistantResponse} from parsed protocol items. */
+export const toParsedAssistantResponse = (items: ParsedItem[], raw: string): ParsedAssistantResponse => {
   const sends = items
     .filter((item) => item.kind === 'send')
     .map((item) => ({ name: item.name, props: item.props, body: item.body }))
@@ -31,12 +27,20 @@ export const parseAssistantResponse = (response: string): ParsedAssistantRespons
   const next = items.find((item) => item.kind === 'next' && item.status !== 'invalid')
 
   return {
-    raw: response,
+    raw,
     items,
     sends,
     code: run?.body?.trim() || undefined,
     next: next ? { name: next.name, props: next.props } : undefined,
   }
+}
+
+export const parseAssistantResponse = (response: string): ParsedAssistantResponse => {
+  const parser = new StreamingMessageParser()
+  parser.push(stripWrappingFences(response))
+  parser.finish()
+
+  return toParsedAssistantResponse(parser.items, response)
 }
 
 export const replacePlaceholders = (prompt: string, values: Record<string, unknown>) => {

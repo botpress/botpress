@@ -353,7 +353,35 @@ const executeIteration = async ({
   onAfterTool?: ExecutionHooks['onAfterTool']
   metadata?: ExecutionProps['metadata']
 }): Promise<void> => {
-  await generateCode({ iteration, ctx, cognitive, controller, metadata })
+  // ■send blocks are dispatched to the chat as soon as they are parsed — on
+  // streaming clients this happens while the model is still generating.
+  await generateCode({
+    iteration,
+    ctx,
+    cognitive,
+    controller,
+    metadata,
+    onSend: async (send) => {
+      if (!ctx.chat) {
+        return
+      }
+
+      const sendStartedAt = Date.now()
+      const component = createJsxComponent({
+        type: send.name,
+        props: send.props,
+        children: send.body ? [send.body] : [],
+      })
+
+      try {
+        await ctx.chat.handler(component)
+      } catch (err) {
+        throw new Error(`Error while sending message (■send=${send.name}): ${getErrorMessage(err)}`)
+      }
+
+      iteration.traces.push({ type: 'yield', value: component, started_at: sendStartedAt, ended_at: Date.now() })
+    },
+  })
 
   if (typeof onBeforeExecution === 'function') {
     try {
@@ -401,12 +429,6 @@ const executeIteration = async ({
         reason: controller.signal.reason ?? 'The operation was aborted',
       },
     })
-    return
-  }
-
-  // ■send blocks are dispatched to the chat before any code runs
-  const sendsDispatched = await dispatchSends({ ctx, iteration })
-  if (!sendsDispatched) {
     return
   }
 
@@ -460,43 +482,4 @@ const executeIteration = async ({
     startedAt,
     onExit,
   })
-}
-
-/**
- * Delivers the parsed ■send blocks to the chat handler, in order.
- * Returns false (and ends the iteration) when a handler throws.
- */
-const dispatchSends = async ({ ctx, iteration }: { ctx: Context; iteration: Iteration }): Promise<boolean> => {
-  const sends = iteration.sends ?? []
-
-  if (!sends.length || !ctx.chat) {
-    return true
-  }
-
-  for (const send of sends) {
-    const startedAt = Date.now()
-    const component = createJsxComponent({
-      type: send.name,
-      props: send.props,
-      children: send.body ? [send.body] : [],
-    })
-
-    try {
-      await ctx.chat.handler(component)
-      iteration.traces.push({ type: 'yield', value: component, started_at: startedAt, ended_at: Date.now() })
-    } catch (err) {
-      iteration.end({
-        type: 'execution_error',
-        execution_error: {
-          message: `Error while sending message (■send=${send.name}): ${getErrorMessage(err)}`,
-          stack: cleanStackTrace(
-            err instanceof Error ? (err.stack ?? 'No stack trace available') : 'No stack trace available'
-          ),
-        },
-      })
-      return false
-    }
-  }
-
-  return true
 }

@@ -92,20 +92,38 @@ export const interpretVMResult = async ({
     return
   }
 
-  // The code executed successfully. If the response declared a ■next exit, apply it now.
-  if (iteration.next) {
+  // The code executed successfully.
+  const returnValue = result.return_value
+
+  // An explicit `return` in the code means the model wants to inspect the
+  // value before continuing — control goes back to it, and any ■next in the
+  // same response is ignored. Models often append a premature ■next (both
+  // `listen` and final exits) to code whose outcome they cannot know yet;
+  // honoring it would end the turn or the task half-done. Side-effect-only
+  // code (no `return` keyword) may be combined with a final ■next.
+  const codeRequestsInspection = /\breturn\b/.test(iteration.code ?? '')
+
+  if (iteration.next && !codeRequestsInspection) {
     await applyNextExit({ iteration, onExit })
     return
   }
 
-  // No ■next: the returned value is handed back to the model for another iteration
-  const returnValue = result.return_value
+  const localVariables = Object.fromEntries(
+    Object.entries(result.variables ?? {}).filter(([, value]) => value !== '[[non-primitive]]')
+  )
 
   iteration.end({
     type: 'thinking_requested',
     thinking_requested: {
-      reason: 'Code execution completed',
-      variables: returnValue === undefined ? iteration.variables : returnValue,
+      reason: iteration.next
+        ? `Code execution completed. The ■next=${iteration.next.name} exit was NOT applied because your code returns a value — inspect it below, then end your next response with ■next.`
+        : 'Code execution completed',
+      variables:
+        returnValue !== undefined
+          ? returnValue
+          : Object.keys(localVariables).length
+            ? localVariables
+            : iteration.variables,
     },
   })
 }
@@ -128,9 +146,25 @@ export const applyNextExit = async ({
     throw new Error('applyNextExit called without a ■next block on the iteration')
   }
 
-  const returnValue = Object.keys(next.props).length ? { action: next.name, value: next.props } : { action: next.name }
+  const attempt = (props: Record<string, unknown>) =>
+    parseExit(Object.keys(props).length ? { action: next.name, value: props } : { action: next.name }, iteration.exits)
 
-  const parsedExit = parseExit(returnValue, iteration.exits)
+  let parsedExit = attempt(next.props)
+
+  // Leniency: models sometimes wrap the exit props in a superfluous single key
+  // (e.g. `■next=done {props: {ticketId: "..."}}`). Retry unwrapped when validation fails.
+  const keys = Object.keys(next.props)
+  if (!parsedExit.success && keys.length === 1 && ['props', 'value', 'data'].includes(keys[0]!)) {
+    const inner = next.props[keys[0]!]
+    if (inner && typeof inner === 'object' && !Array.isArray(inner)) {
+      const unwrapped = attempt(inner as Record<string, unknown>)
+      if (unwrapped.success) {
+        parsedExit = unwrapped
+      }
+    }
+  }
+
+  const returnValue = { action: next.name, value: parsedExit.success ? parsedExit.value : next.props }
 
   if (!parsedExit.success) {
     iteration.end({

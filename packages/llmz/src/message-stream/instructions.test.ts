@@ -78,7 +78,7 @@ describe('instruction generator', () => {
 
       ■next=<exit> {props}
 
-      \`■send\` sends a message component to the user. Props are a JSON object on the same line as the header; the body is everything after the header line, until the next \`■\`. \`■run\` executes code; the body is the code. Always end your response with \`■next=<exit>\`. Never write \`■\` inside props or body content. Do not output unregistered components or unspecified props.
+      \`■send\` sends a message component to the user. Props are a JSON object on the same line as the header; the body is everything after the header line, until the next \`■\`. \`■run\` executes code; the body is the code. Always end your response with \`■next=<exit>\`. Props are written inline as a plain JSON object of the fields themselves (e.g. \`■next=done {"id": "123"}\`) — never wrap them in a "props" or "value" key. Never write \`■\` inside props or body content. Do not output unregistered components or unspecified props.
 
       Components:
 

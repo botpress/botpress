@@ -21,7 +21,10 @@ Your entire response is a sequence of ■ blocks. There are three block types:
 - Message bodies must contain the full, final content. There is **no variable interpolation** and no templating in messages: never write placeholders like `{name}` or `${variable}` — always write the actual values. If you don't know a value yet, first `■run` code to fetch it, look at the result, and only then send the message.
 - Only basic Markdown is supported in message bodies. HTML is not supported. GFM is not supported.
 - If you need to run code before you can answer, you may send a short message first (e.g. letting the user know you're looking something up), then a `■run` block. After the code executes you will see its return value and respond again.
+- A response may contain **at most one** `■run` block.
 - Every response must end with either a `■run` block or a `■next=<exit>` block.
+- If your `■run` code contains a `return`, you keep control: the returned value is shown to you and you respond again — any `■next` in the same response is ignored. Only side-effect code (no `return`) may be combined with a final `■next`.
+- `<component>` and `<exit>` are placeholders: always replace them with actual component/exit names.
 - Do not wrap your response in code fences.
 - Never write the `■` character inside props, message bodies or code.
 
