@@ -2398,7 +2398,7 @@ importers:
         version: 29.5.0(@types/node@22.16.4)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.9.3))
       ts-jest:
         specifier: ^29.1.0
-        version: 29.1.0(@babel/core@7.28.0)(@jest/types@29.5.0)(babel-jest@29.5.0(@babel/core@7.28.0))(jest@29.5.0(@types/node@22.16.4)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.9.3)))(typescript@5.9.3)
+        version: 29.1.0(@babel/core@7.26.9)(@jest/types@29.5.0)(babel-jest@29.5.0(@babel/core@7.26.9))(jest@29.5.0(@types/node@22.16.4)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.9.3)))(typescript@5.9.3)
 
   integrations/zendesk:
     dependencies:
@@ -2766,7 +2766,7 @@ importers:
         specifier: 1.49.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 6.13.3
+        specifier: 6.13.4
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2890,7 +2890,7 @@ importers:
         specifier: 1.49.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.13.3
+        specifier: 6.13.4
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2906,7 +2906,7 @@ importers:
         specifier: 1.49.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.13.3
+        specifier: 6.13.4
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2919,7 +2919,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 6.13.3
+        specifier: 6.13.4
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2935,7 +2935,7 @@ importers:
         specifier: 1.49.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.13.3
+        specifier: 6.13.4
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2951,7 +2951,7 @@ importers:
         specifier: 1.49.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.13.3
+        specifier: 6.13.4
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -3108,7 +3108,7 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       '@bpinternal/zui':
-        specifier: ^2.3.1
+        specifier: ^2.4.0
         version: link:../zui
       '@jitl/quickjs-singlefile-browser-release-sync':
         specifier: ^0.31.0
@@ -3217,7 +3217,7 @@ importers:
         specifier: 1.49.0
         version: link:../client
       '@bpinternal/zui':
-        specifier: ^2.3.1
+        specifier: ^2.4.0
         version: link:../zui
       browser-or-node:
         specifier: ^2.1.1
@@ -3251,7 +3251,7 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       '@bpinternal/zui':
-        specifier: ^2.3.1
+        specifier: ^2.4.0
         version: link:../zui
       json5:
         specifier: ^2.2.3
@@ -3297,7 +3297,7 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       '@bpinternal/zui':
-        specifier: ^2.3.1
+        specifier: ^2.4.0
         version: link:../zui
       json5:
         specifier: ^2.2.3
@@ -14490,55 +14490,25 @@ snapshots:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
 
-  '@babel/plugin-syntax-async-generators@7.8.4(@babel/core@7.28.0)':
-    dependencies:
-      '@babel/core': 7.28.0
-      '@babel/helper-plugin-utils': 7.27.1
-    optional: true
-
   '@babel/plugin-syntax-bigint@7.8.3(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
-
-  '@babel/plugin-syntax-bigint@7.8.3(@babel/core@7.28.0)':
-    dependencies:
-      '@babel/core': 7.28.0
-      '@babel/helper-plugin-utils': 7.27.1
-    optional: true
 
   '@babel/plugin-syntax-class-properties@7.12.13(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
 
-  '@babel/plugin-syntax-class-properties@7.12.13(@babel/core@7.28.0)':
-    dependencies:
-      '@babel/core': 7.28.0
-      '@babel/helper-plugin-utils': 7.27.1
-    optional: true
-
   '@babel/plugin-syntax-import-meta@7.10.4(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
 
-  '@babel/plugin-syntax-import-meta@7.10.4(@babel/core@7.28.0)':
-    dependencies:
-      '@babel/core': 7.28.0
-      '@babel/helper-plugin-utils': 7.27.1
-    optional: true
-
   '@babel/plugin-syntax-json-strings@7.8.3(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
-
-  '@babel/plugin-syntax-json-strings@7.8.3(@babel/core@7.28.0)':
-    dependencies:
-      '@babel/core': 7.28.0
-      '@babel/helper-plugin-utils': 7.27.1
-    optional: true
 
   '@babel/plugin-syntax-jsx@7.27.1(@babel/core@7.26.9)':
     dependencies:
@@ -14550,77 +14520,35 @@ snapshots:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
 
-  '@babel/plugin-syntax-logical-assignment-operators@7.10.4(@babel/core@7.28.0)':
-    dependencies:
-      '@babel/core': 7.28.0
-      '@babel/helper-plugin-utils': 7.27.1
-    optional: true
-
   '@babel/plugin-syntax-nullish-coalescing-operator@7.8.3(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
-
-  '@babel/plugin-syntax-nullish-coalescing-operator@7.8.3(@babel/core@7.28.0)':
-    dependencies:
-      '@babel/core': 7.28.0
-      '@babel/helper-plugin-utils': 7.27.1
-    optional: true
 
   '@babel/plugin-syntax-numeric-separator@7.10.4(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
 
-  '@babel/plugin-syntax-numeric-separator@7.10.4(@babel/core@7.28.0)':
-    dependencies:
-      '@babel/core': 7.28.0
-      '@babel/helper-plugin-utils': 7.27.1
-    optional: true
-
   '@babel/plugin-syntax-object-rest-spread@7.8.3(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
-
-  '@babel/plugin-syntax-object-rest-spread@7.8.3(@babel/core@7.28.0)':
-    dependencies:
-      '@babel/core': 7.28.0
-      '@babel/helper-plugin-utils': 7.27.1
-    optional: true
 
   '@babel/plugin-syntax-optional-catch-binding@7.8.3(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
 
-  '@babel/plugin-syntax-optional-catch-binding@7.8.3(@babel/core@7.28.0)':
-    dependencies:
-      '@babel/core': 7.28.0
-      '@babel/helper-plugin-utils': 7.27.1
-    optional: true
-
   '@babel/plugin-syntax-optional-chaining@7.8.3(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
 
-  '@babel/plugin-syntax-optional-chaining@7.8.3(@babel/core@7.28.0)':
-    dependencies:
-      '@babel/core': 7.28.0
-      '@babel/helper-plugin-utils': 7.27.1
-    optional: true
-
   '@babel/plugin-syntax-top-level-await@7.14.5(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
-
-  '@babel/plugin-syntax-top-level-await@7.14.5(@babel/core@7.28.0)':
-    dependencies:
-      '@babel/core': 7.28.0
-      '@babel/helper-plugin-utils': 7.27.1
-    optional: true
 
   '@babel/plugin-syntax-typescript@7.27.1(@babel/core@7.26.9)':
     dependencies:
@@ -18339,20 +18267,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  babel-jest@29.5.0(@babel/core@7.28.0):
-    dependencies:
-      '@babel/core': 7.28.0
-      '@jest/transform': 29.5.0
-      '@types/babel__core': 7.20.5
-      babel-plugin-istanbul: 6.1.1
-      babel-preset-jest: 29.5.0(@babel/core@7.28.0)
-      chalk: 4.1.2
-      graceful-fs: 4.2.11
-      slash: 3.0.0
-    transitivePeerDependencies:
-      - supports-color
-    optional: true
-
   babel-plugin-istanbul@6.1.1:
     dependencies:
       '@babel/helper-plugin-utils': 7.27.1
@@ -18386,35 +18300,11 @@ snapshots:
       '@babel/plugin-syntax-optional-chaining': 7.8.3(@babel/core@7.26.9)
       '@babel/plugin-syntax-top-level-await': 7.14.5(@babel/core@7.26.9)
 
-  babel-preset-current-node-syntax@1.0.1(@babel/core@7.28.0):
-    dependencies:
-      '@babel/core': 7.28.0
-      '@babel/plugin-syntax-async-generators': 7.8.4(@babel/core@7.28.0)
-      '@babel/plugin-syntax-bigint': 7.8.3(@babel/core@7.28.0)
-      '@babel/plugin-syntax-class-properties': 7.12.13(@babel/core@7.28.0)
-      '@babel/plugin-syntax-import-meta': 7.10.4(@babel/core@7.28.0)
-      '@babel/plugin-syntax-json-strings': 7.8.3(@babel/core@7.28.0)
-      '@babel/plugin-syntax-logical-assignment-operators': 7.10.4(@babel/core@7.28.0)
-      '@babel/plugin-syntax-nullish-coalescing-operator': 7.8.3(@babel/core@7.28.0)
-      '@babel/plugin-syntax-numeric-separator': 7.10.4(@babel/core@7.28.0)
-      '@babel/plugin-syntax-object-rest-spread': 7.8.3(@babel/core@7.28.0)
-      '@babel/plugin-syntax-optional-catch-binding': 7.8.3(@babel/core@7.28.0)
-      '@babel/plugin-syntax-optional-chaining': 7.8.3(@babel/core@7.28.0)
-      '@babel/plugin-syntax-top-level-await': 7.14.5(@babel/core@7.28.0)
-    optional: true
-
   babel-preset-jest@29.5.0(@babel/core@7.26.9):
     dependencies:
       '@babel/core': 7.26.9
       babel-plugin-jest-hoist: 29.5.0
       babel-preset-current-node-syntax: 1.0.1(@babel/core@7.26.9)
-
-  babel-preset-jest@29.5.0(@babel/core@7.28.0):
-    dependencies:
-      '@babel/core': 7.28.0
-      babel-plugin-jest-hoist: 29.5.0
-      babel-preset-current-node-syntax: 1.0.1(@babel/core@7.28.0)
-    optional: true
 
   bail@1.0.5: {}
 
@@ -24380,7 +24270,7 @@ snapshots:
     dependencies:
       tslib: 1.14.1
 
-  ts-jest@29.1.0(@babel/core@7.28.0)(@jest/types@29.5.0)(babel-jest@29.5.0(@babel/core@7.28.0))(jest@29.5.0(@types/node@22.16.4)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.9.3)))(typescript@5.9.3):
+  ts-jest@29.1.0(@babel/core@7.26.9)(@jest/types@29.5.0)(babel-jest@29.5.0(@babel/core@7.26.9))(jest@29.5.0(@types/node@22.16.4)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.9.3)))(typescript@5.9.3):
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
@@ -24393,9 +24283,9 @@ snapshots:
       typescript: 5.9.3
       yargs-parser: 21.1.1
     optionalDependencies:
-      '@babel/core': 7.28.0
+      '@babel/core': 7.26.9
       '@jest/types': 29.5.0
-      babel-jest: 29.5.0(@babel/core@7.28.0)
+      babel-jest: 29.5.0(@babel/core@7.26.9)
 
   ts-node@10.9.2(@types/node@22.16.4)(typescript@5.6.3):
     dependencies:
