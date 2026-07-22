@@ -57,10 +57,21 @@ const DEFAULT_OPTIONS: JSONSchemaGenerationOptions = {
  */
 type JSONSchemaCtx = {
   opts: JSONSchemaGenerationOptions
-  onPath: Set<z.ZodType>
-  defs: Map<z.ZodType, { name: string; schema: json.Schema | null }>
+  onPath: Set<z.ZodType | symbol>
+  defs: Map<z.ZodType | symbol, { name: string; schema: json.Schema | null }>
   usedNames: Set<string>
   counter: { n: number }
+}
+
+/**
+ * The clone-stable key for cycle detection. Objects and z.lazy carry a `_def.uid` (see ZodObjectDef.uid /
+ * ZodLazyDef.uid) that survives cloning — essential for titled/cloned schemas, where traversal mints fresh
+ * clones and instance identity would never repeat. Other schema types fall back to instance identity (they
+ * are not recursion anchors, so the cycle is always caught at the object/lazy they route through).
+ */
+const cycleKey = (schema: z.ZodType): z.ZodType | symbol => {
+  const uid = (schema._def as { uid?: symbol }).uid
+  return typeof uid === 'symbol' ? uid : schema
 }
 
 export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGenerationOptions> = {}): json.Schema {
@@ -84,7 +95,7 @@ export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGener
     definitions[entry.name] = entry.schema!
   }
 
-  const rootDef = ctx.defs.get(schema)
+  const rootDef = ctx.defs.get(cycleKey(schema))
   if (rootDef) {
     // The top-level schema is itself part of a cycle: reference it rather than inlining a copy.
     return { $ref: `#/definitions/${rootDef.name}`, definitions }
@@ -111,26 +122,28 @@ function assignDefName(schema: z.ZodType, ctx: JSONSchemaCtx): string {
 }
 
 function _toJSONSchema(schema: z.ZodType, ctx: JSONSchemaCtx, path: PropertyPath): json.Schema {
-  // Cycle detection: re-entering a schema already on the active path is a back-edge. Emit a $ref to it
-  // (registering it for hoisting into `definitions`) instead of recursing forever.
-  if (ctx.onPath.has(schema)) {
-    let d = ctx.defs.get(schema)
+  // Cycle detection keyed on the clone-stable cycleKey (see cycleKey): re-entering a schema already on the
+  // active path is a back-edge. Emit a $ref to it (registering it for hoisting into `definitions`) instead
+  // of recursing forever.
+  const key = cycleKey(schema)
+  if (ctx.onPath.has(key)) {
+    let d = ctx.defs.get(key)
     if (!d) {
       d = { name: assignDefName(schema, ctx), schema: null }
-      ctx.defs.set(schema, d)
+      ctx.defs.set(key, d)
     }
     return { $ref: `#/definitions/${d.name}` }
   }
 
-  ctx.onPath.add(schema)
+  ctx.onPath.add(key)
   let result: json.Schema
   try {
     result = buildJSONSchema(schema, ctx, path)
   } finally {
-    ctx.onPath.delete(schema)
+    ctx.onPath.delete(key)
   }
 
-  const d = ctx.defs.get(schema)
+  const d = ctx.defs.get(key)
   if (d) {
     d.schema = result
   }
