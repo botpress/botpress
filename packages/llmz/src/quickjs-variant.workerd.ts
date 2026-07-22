@@ -1,11 +1,15 @@
-// @ts-ignore - no types for the raw variant module shape we need here
-import wasmfileVariant from '@jitl/quickjs-wasmfile-release-sync'
+import wasmfileVariantImport from '@jitl/quickjs-wasmfile-release-sync'
 // Static import of the engine .wasm: the workerd tsup build copies it to dist as a
 // separate file and Cloudflare Workers compiles it at deploy time, handing us a
 // precompiled WebAssembly.Module (runtime WASM compilation is banned on workerd).
-// @ts-ignore - resolved by the workerd build's .wasm copy loader
 import wasmModule from '@jitl/quickjs-wasmfile-release-sync/wasm'
 import { newVariant, type QuickJSSyncVariant } from 'quickjs-emscripten-core'
+
+// TS (NodeNext) types the package's CJS-flavored d.ts as a namespace ({ default: variant })
+// while the bundled ESM build resolves the default import to the variant itself — unwrap
+// defensively so both module shapes work.
+const wasmfileVariant = ((wasmfileVariantImport as { default?: QuickJSSyncVariant }).default ??
+  wasmfileVariantImport) as QuickJSSyncVariant
 
 /**
  * Workerd (Cloudflare Workers) drop-in replacement for `./quickjs-variant.ts` —
@@ -21,10 +25,7 @@ export type QuickJSSyncVariantEx = QuickJSSyncVariant & {
   _wasmLoadError?: any
 }
 
-export const BundledReleaseSyncVariant: QuickJSSyncVariantEx = newVariant(
-  wasmfileVariant as unknown as QuickJSSyncVariant,
-  { wasmModule: wasmModule as WebAssembly.Module }
-) as QuickJSSyncVariantEx
+export const BundledReleaseSyncVariant: QuickJSSyncVariantEx = newVariant(wasmfileVariant, { wasmModule })
 
 let _activeVariant: QuickJSSyncVariant = BundledReleaseSyncVariant
 
