@@ -1,79 +1,469 @@
-import { ModelProvider, ModelRef } from './models'
-import { type GenerateContentInput, type GenerateContentOutput } from './schemas.gen'
+export type Models =
+  | 'auto'
+  | 'best'
+  | 'fast'
+  | 'anthropic:claude-haiku-4-5-20251001'
+  | 'anthropic:claude-haiku-4-5-reasoning-20251001'
+  | 'anthropic:claude-opus-4-5-20251101'
+  | 'anthropic:claude-opus-4-6'
+  | 'anthropic:claude-opus-4-7'
+  | 'anthropic:claude-sonnet-4-5-20250929'
+  | 'anthropic:claude-sonnet-4-6'
+  | 'cerebras:gpt-oss-120b'
+  | 'elevenlabs:eleven_flash_v2_5'
+  | 'elevenlabs:eleven_multilingual_v2'
+  | 'elevenlabs:eleven_turbo_v2_5'
+  | 'elevenlabs:eleven_v3'
+  | 'fireworks-ai:deepseek-v3p1'
+  | 'fireworks-ai:deepseek-v3p2'
+  | 'fireworks-ai:gpt-oss-120b'
+  | 'fireworks-ai:gpt-oss-20b'
+  | 'fireworks-ai:kimi-k2p5'
+  | 'fireworks-ai:kimi-k2p6'
+  | 'fireworks-ai:llama-v3p3-70b-instruct'
+  | 'fireworks-ai:qwen3-8b'
+  | 'google-ai:gemini-2.5-flash'
+  | 'google-ai:gemini-2.5-flash-image'
+  | 'google-ai:gemini-2.5-flash-lite'
+  | 'google-ai:gemini-2.5-flash-preview-tts'
+  | 'google-ai:gemini-2.5-pro'
+  | 'google-ai:gemini-2.5-pro-preview-tts'
+  | 'google-ai:gemini-3-flash'
+  | 'google-ai:gemini-3.1-flash-lite'
+  | 'google-ai:gemini-3.1-pro'
+  | 'google-ai:imagen-4.0-fast-generate-001'
+  | 'google-ai:imagen-4.0-generate-001'
+  | 'google-ai:imagen-4.0-ultra-generate-001'
+  | 'groq:gpt-oss-120b'
+  | 'groq:gpt-oss-20b'
+  | 'groq:llama-3.1-8b-instant'
+  | 'groq:llama-3.3-70b-versatile'
+  | 'groq:llama-4-scout-17b-16e-instruct'
+  | 'groq:qwen3-32b'
+  | 'openai:gpt-4.1-2025-04-14'
+  | 'openai:gpt-4.1-mini-2025-04-14'
+  | 'openai:gpt-4o-2024-11-20'
+  | 'openai:gpt-4o-mini-2024-07-18'
+  | 'openai:gpt-4o-mini-tts'
+  | 'openai:gpt-5-2025-08-07'
+  | 'openai:gpt-5-mini-2025-08-07'
+  | 'openai:gpt-5-nano-2025-08-07'
+  | 'openai:gpt-5.1-2025-11-13'
+  | 'openai:gpt-5.2-2025-12-11'
+  | 'openai:gpt-5.3-chat'
+  | 'openai:gpt-5.4-2026-03-05'
+  | 'openai:gpt-5.4-mini-2026-03-17'
+  | 'openai:gpt-5.4-nano-2026-03-17'
+  | 'openai:gpt-5.5'
+  | 'openai:gpt-image-1'
+  | 'openai:gpt-image-1-mini'
+  | 'openai:gpt-image-1.5'
+  | 'openai:gpt-image-2'
+  | 'openai:o3-2025-04-16'
+  | 'openai:o4-mini-2025-04-16'
+  | 'openai:tts-1'
+  | 'openai:tts-1-hd'
+  | 'openrouter:gpt-oss-120b'
+  | 'xai:grok-3'
+  | 'xai:grok-3-mini'
+  | 'xai:grok-4-0709'
+  | 'xai:grok-4-1-fast-non-reasoning'
+  | 'xai:grok-4-1-fast-reasoning'
+  | 'xai:grok-4-fast-non-reasoning'
+  | 'xai:grok-4-fast-reasoning'
+  | 'xai:grok-4.20-0309-non-reasoning'
+  | 'xai:grok-4.20-0309-reasoning'
+  | 'xai:grok-code-fast-1'
+  | 'openai:gpt-5.4'
+  | 'openai:gpt-5.4-mini'
+  | 'openai:gpt-5.4-nano'
+  | 'openai:gpt-5.3-chat-latest'
+  | 'openai:gpt-5'
+  | 'openai:gpt-5-mini'
+  | 'openai:gpt-5-nano'
+  | 'openai:o4-mini'
+  | 'openai:o3'
+  | 'openai:gpt-4.1'
+  | 'openai:gpt-4.1-mini'
+  | 'openai:gpt-4.1-nano'
+  | 'openai:o3-mini'
+  | 'openai:o1-mini'
+  | 'openai:gpt-4o-mini'
+  | 'openai:gpt-4o'
+  | 'anthropic:claude-opus-4-5'
+  | 'anthropic:claude-sonnet-4-5'
+  | 'anthropic:claude-sonnet-4'
+  | 'anthropic:claude-sonnet-4-reasoning'
+  | 'anthropic:claude-haiku-4-5'
+  | 'anthropic:claude-haiku-4-5-reasoning'
+  | 'anthropic:claude-haiku-4-5-20251001'
+  | 'google-ai:gemini-3.1-pro-preview'
+  | 'google-ai:gemini-3-flash-preview'
+  | 'google-ai:gemini-3.1-flash-lite-preview'
+  | 'google-ai:models/gemini-2.0-flash'
+  | 'google-ai:gemini-3-pro-preview'
+  | 'groq:qwen/qwen3-32b'
+  | 'groq:meta-llama/llama-4-scout-17b-16e-instruct'
+  | 'groq:openai/gpt-oss-20b'
+  | 'groq:openai/gpt-oss-120b'
+  | 'fireworks-ai:accounts/fireworks/models/kimi-k2p6'
+  | 'fireworks-ai:accounts/fireworks/models/kimi-k2p5'
+  | 'fireworks-ai:accounts/fireworks/models/qwen3-8b'
+  | 'fireworks-ai:accounts/fireworks/models/gpt-oss-20b'
+  | 'fireworks-ai:accounts/fireworks/models/gpt-oss-120b'
+  | 'fireworks-ai:accounts/fireworks/models/deepseek-v3p2'
+  | 'fireworks-ai:accounts/fireworks/models/deepseek-v3p1'
+  | 'fireworks-ai:accounts/fireworks/models/deepseek-r1-0528'
+  | 'fireworks-ai:accounts/fireworks/models/deepseek-v3-0324'
+  | 'fireworks-ai:accounts/fireworks/models/llama4-maverick-instruct-basic'
+  | 'fireworks-ai:accounts/fireworks/models/llama4-scout-instruct-basic'
+  | 'fireworks-ai:accounts/fireworks/models/llama-v3p3-70b-instruct'
+  | 'fireworks-ai:accounts/fireworks/models/deepseek-r1'
+  | 'fireworks-ai:accounts/fireworks/models/deepseek-r1-basic'
+  | 'fireworks-ai:accounts/fireworks/models/deepseek-v3'
+  | 'fireworks-ai:accounts/fireworks/models/llama-v3p1-405b-instruct'
+  | 'fireworks-ai:accounts/fireworks/models/llama-v3p1-70b-instruct'
+  | 'fireworks-ai:accounts/fireworks/models/llama-v3p1-8b-instruct'
+  | 'fireworks-ai:accounts/fireworks/models/mixtral-8x22b-instruct'
+  | 'fireworks-ai:accounts/fireworks/models/mixtral-8x7b-instruct'
+  | 'fireworks-ai:accounts/fireworks/models/mythomax-l2-13b'
+  | 'fireworks-ai:accounts/fireworks/models/gemma2-9b-it'
+  | ({} & string)
 
-export type BotpressClientLike = {
-  callAction(...params: any): Promise<any>
-  constructor: Function
+export type SttModels =
+  | 'auto'
+  | 'best'
+  | 'fast'
+  | 'fireworks-ai:whisper-v3'
+  | 'groq:whisper-large-v3'
+  | 'groq:whisper-large-v3-turbo'
+  | 'openai:whisper-1'
+  | ({} & string)
+
+export type CognitiveContentPart = {
+  type: 'text' | 'image' | 'audio'
+  text?: string
+  url?: string
+  mimeType?: string
 }
 
-export type GenerationMetadata = {
-  cached: boolean
-  model: string
-  cost: {
-    input: number
-    output: number
-  }
-  latency: number
-  tokens: {
-    input: number
-    output: number
-  }
+export type CognitiveToolCall = {
+  id: string
+  name: string
+  input: Record<string, unknown>
 }
 
-/**
- * Model selector accepted by `generateContent`.
- *
- * - `'best'` / `'auto'`: aliases. `'best'` is the original SDK selector;
- *   `'auto'` was added when cognitive-v2 landed (the v2 server uses that
- *   name). Both pick the first available entry from `preferences.best` on
- *   the legacy path, and are forwarded as-is on the v2 path.
- * - `'fast'`: same shape — first available from `preferences.fast` on the
- *   legacy path, forwarded on the v2 path.
- * - `ModelRef`: any `provider:model` string.
- */
-export type InputModel = 'auto' | 'best' | 'fast' | ModelRef
+export type CognitiveMessage = {
+  role: 'user' | 'assistant' | 'system'
+  content: string | CognitiveContentPart[] | null
+  type?: 'text' | 'tool_calls' | 'tool_result' | 'multipart'
+  toolCalls?: {
+    id: string
+    type: 'function'
+    function: { name: string; arguments: Record<string, unknown> | null }
+  }[]
+  toolResultCallId?: string
+}
 
-export type InputProps = Omit<GenerateContentInput, 'model'> & {
+export type CognitiveTool = {
+  name: string
+  description?: string
+  parameters?: Record<string, unknown>
+  strict?: boolean
+}
+
+export type CognitiveToolControl =
+  | { mode: 'auto'; parallel?: boolean }
+  | { mode: 'none' }
+  | { mode: 'required'; parallel?: boolean }
+  | { mode: 'specific'; toolName: string; parallel?: boolean }
+
+export type CommonRequestOptions = {
+  /** Include additional metadata in the response */
+  debug?: boolean
+  /** Bypass the cache and force a new request */
+  skipCache?: boolean
+  /** Client-provided request ID. Acts as an idempotency key — if provided, the result is stored and a retry with the same ID returns the stored result instead of re-running the operation */
+  requestId?: string
+}
+
+export type CognitiveRequest = {
   /**
-   * Model to use, or an ordered list of fallback models. Ordered fallback is honored only on the cognitive-v2 path;
-   * the legacy integration path uses the first entry and falls back to server-side preferences instead.
+   * @minItems 1
    */
-  model?: InputModel | InputModel[]
-  signal?: AbortSignal
-}
-
-export type Request = {
-  input: InputProps
-}
-
-export type Response = {
-  output: GenerateContentOutput
-  meta: {
-    cached?: boolean
-    model: { integration: string; model: string }
-    latency: number
-    cost: { input: number; output: number }
-    tokens: { input: number; output: number }
+  messages: CognitiveMessage[]
+  /**
+   * Model to query. Additional models are used as fallback if the main model is unavailable
+   */
+  model?: Models | Models[]
+  temperature?: number
+  /**
+   * DEPRECATED: Use a message with role "system"
+   */
+  systemPrompt?: string
+  maxTokens?: number
+  stopSequences?: string | string[]
+  stream?: boolean
+  /**
+   * json_object is deprecated, use json
+   */
+  responseFormat?: 'text' | 'json' | 'json_object'
+  reasoningEffort?: 'low' | 'medium' | 'high' | 'dynamic' | 'none'
+  /** Enable web search. The model can search the web and fetch pages to ground its response with real-time information. */
+  search?:
+    | true
+    | {
+        excludedDomains?: string[]
+      }
+  /** Tools the model may call */
+  tools?: CognitiveTool[]
+  /** Controls how the model uses tools. Defaults to auto when tools are provided */
+  toolControl?: CognitiveToolControl
+  options?: CommonRequestOptions & {
+    /** Maximum time to wait for the first token before falling back to the next provider */
+    maxTimeToFirstToken?: number
+    /** STT model to use when transcribing audio parts for models that do not support audio natively */
+    transcriptionModel?: SttModels
+  }
+  meta?: {
+    /** Source of the prompt, e.g. agent/:id/:version, cards/ai-generate, cards/ai-task, nodes/autonomous, etc. */
+    promptSource?: string
+    promptCategory?: string
+    /** Name of the integration that originally received the message that initiated this action */
+    integrationName?: string
+    /** Arbitrary key-value metadata to attach to usage records for this call, e.g. a conversationId to break down usage by conversation */
+    metadata?: { [key: string]: string }
   }
 }
 
-export type CognitiveProps = {
-  client: BotpressClientLike
-  provider?: ModelProvider
-  /** Timeout in milliseconds */
-  timeout?: number
-  /** Max retry attempts */
-  maxRetries?: number
-  /** Whether to use the beta client. Restricted to authorized users. */
-  __experimental_beta?: boolean
-  __debug?: boolean
+export type StopReason = 'stop' | 'max_tokens' | 'content_filter' | 'tool_calls' | 'other'
+
+export type WarningType =
+  | 'parameter_ignored'
+  | 'provider_limitation'
+  | 'deprecated_model'
+  | 'discontinued_model'
+  | 'fallback_used'
+  | 'timeout'
+
+export type CognitiveMetadata = {
+  requestId?: string
+  provider: string
+  model?: string
+  usage: {
+    inputTokens: number
+    inputCost: number
+    outputTokens: number
+    outputCost: number
+  }
+  /** Total cost of the request in U.S. dollars */
+  cost: number
+  cached?: boolean
+  /** Time it took for the provider to respond to the LLM query, in milliseconds */
+  latency?: number
+  /** Time it took for the first token to be received from the provider, in milliseconds */
+  ttft?: number
+  /** Time spent on reasoning in milliseconds */
+  reasoningTime?: number
+  stopReason?: StopReason
+  reasoningEffort?: string
+  /** Web sources cited by the model when search is enabled */
+  citations?: { url: string; title?: string }[]
+  warnings?: { type: WarningType; message: string }[]
+  /** List of models that were tried and failed before the successful one */
+  fallbackPath?: string[]
+  /** Present when audio content was transcribed to text before being sent to the LLM */
+  transcription?: {
+    /** Full STT model ID including provider (e.g. groq:whisper-large-v3-turbo) */
+    model: string
+    provider: string
+    /** Transcription cost in U.S. dollars */
+    cost: number
+    /** Total audio duration transcribed in seconds */
+    durationSeconds: number
+    /** Number of audio parts transcribed */
+    parts: number
+  }
+  debug?: { type: string; data?: unknown }[]
 }
 
-export type Events = {
-  aborted: (req: Request, reason?: string) => void
-  request: (req: Request) => void
-  response: (req: Request, res: Response) => void
-  error: (req: Request, error: any) => void
-  retry: (req: Request, error: any) => void
-  fallback: (req: Request, error: any) => void
+export type CognitiveStreamChunk = {
+  output?: string
+  reasoning?: string
+  /** Tool calls requested by the model (emitted with the final chunk) */
+  toolCalls?: CognitiveToolCall[]
+  created: number
+  finished?: boolean
+  metadata?: CognitiveMetadata
+}
+
+export type CognitiveResponse = {
+  output: string
+  reasoning?: string
+  /** Tool calls requested by the model */
+  toolCalls?: CognitiveToolCall[]
+  metadata: CognitiveMetadata
+  error?: string
+}
+
+export type TranscribeRequest = {
+  /** URL of the audio file to transcribe (supports http(s) URLs and data URIs) */
+  url: string
+  /** MIME type of the audio file. Auto-detected from URL if not provided. */
+  mimeType?: string
+  /** STT model or ordered list of models to try. Additional models are used as fallback. Defaults to auto. */
+  model?: SttModels | SttModels[]
+  options?: CommonRequestOptions
+}
+
+type BaseBetaMetadata = Pick<
+  CognitiveMetadata,
+  'requestId' | 'provider' | 'cost' | 'latency' | 'cached' | 'fallbackPath' | 'debug'
+>
+
+export type TranscribeMetadata = BaseBetaMetadata & {
+  /** Full model ID including provider (e.g. groq:whisper-large-v3-turbo) */
+  model: string
+  /** Audio duration in seconds */
+  durationSeconds: number
+}
+
+export type TranscribeResponse = {
+  /** Transcribed text */
+  output: string
+  error?: string
+  metadata: TranscribeMetadata
+}
+
+export type TtsRequest = {
+  /** TTS model or ordered list of models to try. Additional models are used as fallback. */
+  model: string | string[]
+  input: string
+  /** Voice id (provider-specific). Use listVoices() to discover available voices. Omit to use the model default voice. */
+  voice?: string
+  /** Audio format. Defaults to mp3. */
+  format?: 'mp3' | 'opus' | 'wav'
+  speed?: number
+  /** Optional natural-language voice steering instructions (provider-dependent) */
+  instructions?: string
+  language?: string
+  options?: CommonRequestOptions & {
+    /** Number of days the generated audio URL should be retained */
+    expirationDays?: number
+  }
+  meta?: Record<string, unknown>
+}
+
+export type TtsMetadata = BaseBetaMetadata & {
+  /** Full model ID including provider (e.g. openai:tts-1) */
+  model: string
+  voice: string
+  format: string
+  /** Number of input characters synthesized */
+  characterCount: number
+  /** Generated audio duration in seconds (omitted by providers that do not expose duration) */
+  durationSeconds?: number
+}
+
+export type TtsResponse = {
+  output: { audioUrl: string | null }
+  metadata: TtsMetadata
+}
+
+export type TtsStreamChunk =
+  | { audio: string; finished: false }
+  | { audioUrl: string | null; metadata: TtsMetadata; finished: true; error?: string }
+
+export type Voice = {
+  id: string
+  displayName: string
+  provider: string
+  gender?: 'male' | 'female' | 'neutral'
+  description?: string
+  languages?: string[]
+  tags?: string[]
+  models: string[]
+}
+
+export type ImageRequest = {
+  /** Image model or ordered list of models to try. Additional models are used as fallback. Defaults to auto. */
+  model?: string | string[]
+  prompt: string
+  /** Output size in pixels (e.g. 1024x1024) or aspect ratio (e.g. 16:9). Defaults to the model default. */
+  size?: string
+  quality?: 'low' | 'medium' | 'high' | 'auto'
+  /** Output image format. Defaults to png. */
+  format?: 'png' | 'jpeg'
+  options?: CommonRequestOptions & {
+    /** Number of days the generated image URL should be retained */
+    expirationDays?: number
+  }
+  meta?: Record<string, unknown>
+}
+
+export type ImageMetadata = BaseBetaMetadata & {
+  /** Full model ID including provider (e.g. openai:gpt-image-1) */
+  model: string
+  /** Resolved output size (pixels or ratio) */
+  size: string
+  quality?: string
+  format: string
+}
+
+export type ImageResponse =
+  | { output: { imageUrl: string }; metadata: ImageMetadata; error?: never }
+  | { output: { imageUrl: null }; metadata: ImageMetadata; error: string }
+
+export type ModelTag =
+  | 'recommended'
+  | 'deprecated'
+  | 'general-purpose'
+  | 'low-cost'
+  | 'vision'
+  | 'coding'
+  | 'agents'
+  | 'function-calling'
+  | 'roleplay'
+  | 'storytelling'
+  | 'reasoning'
+  | 'preview'
+  | 'speech-to-text'
+  | 'image-generation'
+  | 'text-to-speech'
+
+export type Model = {
+  id: string
+  name: string
+  description: string
+  /**
+   * Aliases that are also resolving to this model
+   */
+  aliases?: string[]
+  tags: ModelTag[]
+  input: {
+    maxTokens: number
+    /**
+     * Cost per 1 million tokens, in U.S. dollars
+     */
+    costPer1MTokens: number
+    costPerMinute?: number
+  }
+  output: {
+    maxTokens: number
+    /**
+     * Cost per 1 million tokens, in U.S. dollars
+     */
+    costPer1MTokens: number
+    costPerMinute?: number
+  }
+  /**
+   * The lifecycle state of the model. Deprecated models are still available, but a warning will be shown to the user. Discontinued models will be directed to a replacement model.
+   */
+  lifecycle: 'production' | 'preview' | 'deprecated' | 'discontinued'
+  capabilities?: {
+    supportsImages?: boolean
+    supportsAudio?: boolean
+    supportsTranscription?: boolean
+    supportsSearch?: boolean
+  }
 }

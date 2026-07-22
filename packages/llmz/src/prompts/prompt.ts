@@ -1,4 +1,4 @@
-import { type GenerateContentInput } from '@botpress/cognitive'
+import { type CognitiveMessage } from '@botpress/cognitive'
 
 import { Component } from '../component.js'
 import { Exit } from '../exit.js'
@@ -34,7 +34,7 @@ export type ParsedAssistantResponse = {
 }
 
 export namespace LLMzPrompts {
-  export type Message = GenerateContentInput['messages'][number] | { role: 'system'; content: string }
+  export type Message = CognitiveMessage
 
   /**
    * The raw (pre-truncation, unwrapped) content of each named section of the
@@ -55,7 +55,7 @@ export namespace LLMzPrompts {
     message: Message
     parts: SystemPromptParts
   }
-  export type MessageContent = Extract<GenerateContentInput['messages'][number]['content'], any[]>[number]
+  export type MessageContent = Extract<CognitiveMessage['content'], any[]>[number]
   export type InitialStateProps = {
     instructions?: string
     transcript: TranscriptArray

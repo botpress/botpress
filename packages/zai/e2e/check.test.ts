@@ -72,18 +72,18 @@ describe('zai.check', { timeout: 60_000 }, () => {
 
     let callCount = 0
 
-    const mock = vi.fn().mockImplementation(async (input) => {
-      const output = await cognitive.generateContent(input)
+    const mock = vi.fn().mockImplementation(async (input, options) => {
+      const response = await cognitive.generateText(input, options)
 
       if (callCount++ < 1) {
-        output.output.choices[0].content = '...'
+        return { ...response, output: '...' }
       }
 
-      return output
+      return response
     })
 
     mocked.clone = vi.fn().mockReturnValue(mocked)
-    mocked.generateContent = mock
+    mocked.generateText = mock
 
     const isEnglish = await getZai(mocked).check(
       'This text is very clearly written in English',

@@ -27,12 +27,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@botpress/cognitive": "1.0.0",
     "json5": "^2.2.3",
     "jsonrepair": "^3.10.0"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@botpress/common": "workspace:*",
     "@types/lodash": "^4.14.191",
     "dotenv": "^16.4.4",
     "esbuild": "^0.25.10",

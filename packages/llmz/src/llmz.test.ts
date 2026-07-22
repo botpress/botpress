@@ -1,5 +1,4 @@
-import { Client } from '@botpress/client'
-import { Cognitive, CognitiveBeta, Model } from '@botpress/cognitive'
+import { Cognitive, Model } from '@botpress/cognitive'
 import { describe, expect, test, vi } from 'vitest'
 import { Context } from './context.js'
 import { executeContext } from './runtime/execute.js'
@@ -9,31 +8,30 @@ import { CognitiveError } from './errors.js'
 const makeFakeModel = (model: string): Model => ({
   id: model,
   name: 'Fake Model',
-  integration: 'botpress',
   description: 'A fake model for testing',
   input: { maxTokens: 8192, costPer1MTokens: 0 },
   output: { maxTokens: 2048, costPer1MTokens: 0 },
-  ref: `fake:${model}`,
   tags: [],
+  lifecycle: 'production',
 })
 
+/**
+ * Branded non-streaming Cognitive mock. Plain object rather than a subclass:
+ * subclassing the real Cognitive would inherit `generateTextStream` and route
+ * the runtime through the streaming path (and the network).
+ */
+const makeCognitive = (generateText: (input: any, options?: any) => Promise<never>): Cognitive =>
+  ({
+    ['$$IS_COGNITIVE_BETA']: 'v2',
+    getModelDetails: async (model: string) => makeFakeModel(model),
+    generateText,
+  }) as unknown as Cognitive
+
 test('executeContext should early exit when cognitive service is unreachable', async () => {
-  class FailingCognitive extends Cognitive {
-    public constructor(private _err: Error) {
-      super({ client: new Client({ botId: 'test-bot' }) })
-    }
-
-    public async getModelDetails(model: string): Promise<Model> {
-      return makeFakeModel(model)
-    }
-
-    public async generateContent(): Promise<never> {
-      throw this._err
-    }
-  }
-
   const err = new Error('Simulated connection error')
-  const cognitive = new FailingCognitive(err)
+  const cognitive = makeCognitive(async () => {
+    throw err
+  })
 
   const output = await executeContext({ client: cognitive, options: { loop: 5 } })
 
@@ -43,30 +41,28 @@ test('executeContext should early exit when cognitive service is unreachable', a
   expect(((output as ErrorExecutionResult).error as Error).message).toContain(err.message)
 })
 
-test('executeContext accepts a standalone CognitiveBeta and routes it through the v2 streaming path', async () => {
-  // A standalone CognitiveBeta (not wrapped in Cognitive). execute() should
-  // detect it via the brand guard and adapt it — going straight to the v2
-  // streaming surface (`generateTextStream`), never the v1 integration path.
+test('executeContext prefers the streaming path when the client exposes generateTextStream', async () => {
   const generateText = vi.fn().mockRejectedValue(new Error('v2 boom'))
-  const generateTextStream = vi.fn(() => {
+  // like the real client, the stream is an async generator: the error surfaces
+  // on the first next() call, not at invocation time
+  const generateTextStream = vi.fn(async function* (): AsyncGenerator<never, void, unknown> {
     throw new Error('v2 boom')
   })
-  const listModels = vi.fn().mockResolvedValue([])
+  const getModelDetails = vi.fn().mockImplementation(async (model: string) => makeFakeModel(model))
 
-  const beta = {
+  const cognitive = {
     ['$$IS_COGNITIVE_BETA']: 'v2',
     generateText,
-    listModels,
+    getModelDetails,
     generateTextStream,
-  } as unknown as CognitiveBeta
+  } as unknown as Cognitive
 
-  expect(CognitiveBeta.isBetaClient(beta)).toBe(true)
+  expect(Cognitive.isCognitiveClient(cognitive)).toBe(true)
 
-  const output = await executeContext({ client: beta, options: { loop: 5 } })
+  const output = await executeContext({ client: cognitive, options: { loop: 5 } })
 
-  // Reaching generateTextStream proves the beta adapter streaming path was
-  // taken (model details resolved without throwing, then streaming generation
-  // was attempted on v2).
+  // Reaching generateTextStream proves the streaming path was taken (model
+  // details resolved without throwing, then streaming generation attempted).
   expect(generateTextStream).toHaveBeenCalled()
   expect(generateText).not.toHaveBeenCalled()
   expect(output.status).toBe('error')
@@ -77,24 +73,14 @@ test('executeContext accepts a standalone CognitiveBeta and routes it through th
 test('executeContext does not execute an iteration after onIterationStart throws', async () => {
   let generated = false
 
-  class TrackingCognitive extends Cognitive {
-    public constructor() {
-      super({ client: new Client({ botId: 'test-bot' }) })
-    }
-
-    public async getModelDetails(model: string): Promise<Model> {
-      return makeFakeModel(model)
-    }
-
-    public async generateContent(): Promise<never> {
-      generated = true
-      throw new Error('should not generate content')
-    }
-  }
+  const cognitive = makeCognitive(async () => {
+    generated = true
+    throw new Error('should not generate content')
+  })
 
   const onIterationEnd = vi.fn()
   const output = await executeContext({
-    client: new TrackingCognitive(),
+    client: cognitive,
     options: { loop: 1 },
     onIterationStart: () => {
       throw new Error('start hook boom')
@@ -114,24 +100,14 @@ test('executeContext does not execute an iteration after onIterationStart throws
 test('executeContext calls onIterationEnd when onIterationStart aborts', async () => {
   let generated = false
 
-  class TrackingCognitive extends Cognitive {
-    public constructor() {
-      super({ client: new Client({ botId: 'test-bot' }) })
-    }
-
-    public async getModelDetails(model: string): Promise<Model> {
-      return makeFakeModel(model)
-    }
-
-    public async generateContent(): Promise<never> {
-      generated = true
-      throw new Error('should not generate content')
-    }
-  }
+  const cognitive = makeCognitive(async () => {
+    generated = true
+    throw new Error('should not generate content')
+  })
 
   const onIterationEnd = vi.fn()
   const output = await executeContext({
-    client: new TrackingCognitive(),
+    client: cognitive,
     options: { loop: 1 },
     onIterationStart: (_iteration, controller) => {
       controller.abort('ABORTED')
@@ -149,24 +125,14 @@ test('executeContext calls onIterationEnd when onIterationStart aborts', async (
 test('executeContext calls onIterationEnd when LLM generation aborts', async () => {
   const controller = new AbortController()
 
-  class AbortingCognitive extends Cognitive {
-    public constructor() {
-      super({ client: new Client({ botId: 'test-bot' }) })
-    }
-
-    public async getModelDetails(model: string): Promise<Model> {
-      return makeFakeModel(model)
-    }
-
-    public async generateContent(): Promise<never> {
-      controller.abort('ABORTED')
-      throw new Error('generation aborted')
-    }
-  }
+  const cognitive = makeCognitive(async () => {
+    controller.abort('ABORTED')
+    throw new Error('generation aborted')
+  })
 
   const onIterationEnd = vi.fn()
   const output = await executeContext({
-    client: new AbortingCognitive(),
+    client: cognitive,
     options: { loop: 1 },
     signal: controller.signal,
     onIterationEnd,
@@ -181,23 +147,13 @@ test('executeContext calls onIterationEnd when LLM generation aborts', async () 
 test('executeContext forwards metadata to cognitive generation', async () => {
   let capturedInput: { meta?: { metadata?: Record<string, string> } } | undefined
 
-  class CapturingCognitive extends Cognitive {
-    public constructor() {
-      super({ client: new Client({ botId: 'test-bot' }) })
-    }
-
-    public async getModelDetails(model: string): Promise<Model> {
-      return makeFakeModel(model)
-    }
-
-    public async generateContent(input: Parameters<Cognitive['generateContent']>[0]): Promise<never> {
-      capturedInput = input as typeof capturedInput
-      throw new Error('stop after capture')
-    }
-  }
+  const cognitive = makeCognitive(async (input) => {
+    capturedInput = input as typeof capturedInput
+    throw new Error('stop after capture')
+  })
 
   await executeContext({
-    client: new CapturingCognitive(),
+    client: cognitive,
     options: { loop: 1 },
     metadata: { conversationId: 'conv-123', workflowId: 'wf-456' },
   })

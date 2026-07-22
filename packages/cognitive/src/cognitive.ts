@@ -1,6 +1,7 @@
 import { backOff } from 'exponential-backoff'
 import { createNanoEvents, Unsubscribe } from 'nanoevents'
-import { HttpClient, isHttpError } from '../http-client'
+import { BotpressClientLike, extractClientConfig } from './bp-client'
+import { HttpClient, isHttpError } from './http-client'
 import { defaultModel, models } from './models'
 import {
   CognitiveRequest,
@@ -48,7 +49,7 @@ export type BetaEvents = {
   retry: (req: BetaRequest, error: any) => void
 }
 
-type ClientProps = {
+export type CognitiveProps = {
   apiUrl?: string
   timeout?: number
   botId?: string
@@ -56,6 +57,11 @@ type ClientProps = {
   withCredentials?: boolean
   debug?: boolean
   headers?: Record<string, string | string[]>
+  /**
+   * A botpress client (`@botpress/client`, or anything wrapping one) to derive
+   * the api url, auth headers and bot id from. Explicit props take precedence.
+   */
+  client?: BotpressClientLike | unknown
 }
 
 type RequestOptions = {
@@ -77,23 +83,32 @@ export type {
   ModelTag,
 } from './types'
 
-export class CognitiveBeta {
+export class Cognitive {
   /**
-   * Nominal brand used by {@link CognitiveBeta.isBetaClient}. We brand the
+   * Nominal brand used by {@link Cognitive.isCognitiveClient}. We brand the
    * instance (rather than rely on `instanceof`) so the check survives across
-   * duplicated/duelling copies of this package in a dependency tree or bundle,
-   * mirroring `Cognitive`'s `$$IS_COGNITIVE` brand.
+   * duplicated/duelling copies of this package in a dependency tree or bundle.
+   * The key is kept from the beta era so pre-1.0 `CognitiveBeta` instances are
+   * still recognized.
    */
   public readonly ['$$IS_COGNITIVE_BETA'] = 'v2' as const
 
   /**
-   * Brand-based type guard. Returns true for any `CognitiveBeta` instance,
+   * Brand-based type guard. Returns true for any `Cognitive` instance,
    * including ones created by a different copy of this package. Prefer this
-   * over `instanceof CognitiveBeta`, which is unreliable across bundles.
+   * over `instanceof Cognitive`, which is unreliable across bundles.
    */
-  public static isBetaClient(obj: any): obj is CognitiveBeta {
+  public static isCognitiveClient(obj: any): obj is Cognitive {
     return obj?.['$$IS_COGNITIVE_BETA'] === 'v2'
   }
+
+  /** @deprecated Use {@link Cognitive.isCognitiveClient} */
+  public static isBetaClient(obj: any): obj is Cognitive {
+    return Cognitive.isCognitiveClient(obj)
+  }
+
+  /** The botpress client this instance was constructed from, if any */
+  public readonly client?: BotpressClientLike
 
   private _httpClient: HttpClient
   private readonly _apiUrl: string
@@ -102,12 +117,16 @@ export class CognitiveBeta {
   private readonly _headers: Record<string, string | string[]>
   private readonly _debug: boolean = false
   private _events = createNanoEvents<BetaEvents>()
+  private _remoteModels: Map<string, Model> | null = null
 
-  public constructor(props: ClientProps) {
-    this._apiUrl = props.apiUrl || 'https://api.botpress.cloud'
-    this._timeout = props.timeout || 60_001
-    this._withCredentials = props.withCredentials || false
-    this._headers = { ...props.headers }
+  public constructor(props: CognitiveProps = {}) {
+    const clientConfig = props.client ? extractClientConfig(props.client) : undefined
+    this.client = props.client as BotpressClientLike | undefined
+
+    this._apiUrl = props.apiUrl || clientConfig?.apiUrl || 'https://api.botpress.cloud'
+    this._timeout = props.timeout || clientConfig?.timeout || 60_001
+    this._withCredentials = props.withCredentials ?? clientConfig?.withCredentials ?? false
+    this._headers = { ...clientConfig?.headers, ...props.headers }
 
     if (props.botId) {
       this._headers['X-Bot-Id'] = props.botId
@@ -129,8 +148,9 @@ export class CognitiveBeta {
     })
   }
 
-  public clone(): CognitiveBeta {
-    return new CognitiveBeta({
+  public clone(): Cognitive {
+    return new Cognitive({
+      client: this.client,
       apiUrl: this._apiUrl,
       timeout: this._timeout,
       withCredentials: this._withCredentials,
@@ -139,11 +159,76 @@ export class CognitiveBeta {
     })
   }
 
+  /**
+   * Resolves the details (context window sizes, costs, tags, lifecycle) of a
+   * model id like `openai:gpt-4o` or a special selector (`auto`, `best`,
+   * `fast`). Resolution order: the static model table shipped with this
+   * package, then the live `/v2/cognitive/models` endpoint, then a permissive
+   * default — this never throws; an invalid model surfaces its real error on
+   * the generate call instead.
+   */
+  public async getModelDetails(model: string): Promise<Model> {
+    const resolved = getCognitiveV2Model(model)
+    if (resolved) {
+      return resolved
+    }
+
+    try {
+      const found = (await this._fetchRemoteModels()).get(model)
+      if (found) {
+        return found
+      }
+    } catch {
+      // fall through to permissive default
+    }
+
+    return {
+      id: model,
+      name: model,
+      description: '',
+      tags: [],
+      lifecycle: 'production',
+      input: { maxTokens: 128_000, costPer1MTokens: 0 },
+      output: { maxTokens: 8_192, costPer1MTokens: 0 },
+    }
+  }
+
+  private async _fetchRemoteModels(): Promise<Map<string, Model>> {
+    if (this._remoteModels) {
+      return this._remoteModels
+    }
+
+    const list = await this.listModels()
+    const map = new Map<string, Model>()
+    for (const model of list) {
+      map.set(model.id, model)
+      for (const alias of model.aliases ?? []) {
+        map.set(alias, model)
+      }
+    }
+
+    this._remoteModels = map
+    return map
+  }
+
   public on<K extends keyof BetaEvents>(event: K, cb: BetaEvents[K]): Unsubscribe {
     return this._events.on(event, cb)
   }
 
+  /**
+   * `systemPrompt` is deprecated in favor of a leading system message; migrate
+   * it automatically so both spellings produce the same request.
+   */
+  private _migrateSystemPrompt(input: CognitiveRequest): CognitiveRequest {
+    if (!input.systemPrompt) {
+      return input
+    }
+    const { systemPrompt, ...rest } = input
+    return { ...rest, messages: [{ role: 'system', content: systemPrompt }, ...input.messages] }
+  }
+
   public async generateText(input: CognitiveRequest, options: RequestOptions = {}) {
+    input = this._migrateSystemPrompt(input)
     const signal = options.signal ?? AbortSignal.timeout(this._timeout)
     const req: BetaTextRequest = { type: 'generateText', input }
 
@@ -272,6 +357,7 @@ export class CognitiveBeta {
     request: CognitiveRequest,
     options: RequestOptions = {}
   ): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
+    request = this._migrateSystemPrompt(request)
     const signal = options.signal ?? AbortSignal.timeout(this._timeout)
     const req: BetaTextRequest = { type: 'generateText', input: request }
     const chunks: CognitiveStreamChunk[] = []
@@ -489,8 +575,7 @@ export const getCognitiveV2Model = (model: string): Model | undefined => {
   return undefined
 }
 
-// Adapter that exposes a `CognitiveBeta` through the `Cognitive`-shaped surface
-// (`generateContent`/`generateContentStream`/`getModelDetails`) that downstream
-// consumers like llmz expect. Exported last so the cycle with ./adapter
-// resolves after CognitiveBeta/getCognitiveV2Model are defined.
-export { cognitiveFromBeta, buildResponseFromBetaMetadata, type CognitiveLike } from './adapter'
+/** @deprecated Use {@link Cognitive} — the beta client is now the one and only Cognitive */
+export const CognitiveBeta = Cognitive
+/** @deprecated Use {@link Cognitive} */
+export type CognitiveBeta = Cognitive

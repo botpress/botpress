@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import { describe, test, expect, beforeAll } from 'vitest'
-import { CognitiveBeta, CognitiveStreamChunk, TtsStreamChunk } from '../src/cognitive-v2'
+import { Cognitive, CognitiveStreamChunk, TtsStreamChunk } from '../src'
 
 const apiUrl = process.env.COGNITIVE_API_URL ?? process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.dev'
 const botId = process.env.CLOUD_BOT_ID
@@ -8,11 +8,11 @@ const token = process.env.CLOUD_PAT
 
 const hasCreds = !!botId && !!token
 
-describe.skipIf(!hasCreds)('CognitiveBeta e2e — TTS', () => {
-  let beta: CognitiveBeta
+describe.skipIf(!hasCreds)('Cognitive e2e — TTS', () => {
+  let beta: Cognitive
 
   beforeAll(async () => {
-    beta = new CognitiveBeta({ apiUrl, botId, token, timeout: 120_000 })
+    beta = new Cognitive({ apiUrl, botId, token, timeout: 120_000 })
 
     // The first TTS request against a freshly-created bot is a cold start that can
     // exceed the client's per-request timeout. Warm the path once here (tolerating
@@ -90,11 +90,11 @@ describe.skipIf(!hasCreds)('CognitiveBeta e2e — TTS', () => {
   }, 90_000)
 })
 
-describe.skipIf(!hasCreds)('CognitiveBeta e2e — Text generation', () => {
-  let beta: CognitiveBeta
+describe.skipIf(!hasCreds)('Cognitive e2e — Text generation', () => {
+  let beta: Cognitive
 
   beforeAll(() => {
-    beta = new CognitiveBeta({ apiUrl, botId, token, timeout: 120_000 })
+    beta = new Cognitive({ apiUrl, botId, token, timeout: 120_000 })
   })
 
   test('generateText returns output and usage metadata', async () => {
@@ -135,12 +135,12 @@ describe.skipIf(!hasCreds)('CognitiveBeta e2e — Text generation', () => {
   }, 90_000)
 })
 
-describe.skipIf(!hasCreds)('CognitiveBeta e2e — Transcription', () => {
-  let beta: CognitiveBeta
+describe.skipIf(!hasCreds)('Cognitive e2e — Transcription', () => {
+  let beta: Cognitive
   let audioUrl: string
 
   beforeAll(async () => {
-    beta = new CognitiveBeta({ apiUrl, botId, token, timeout: 120_000 })
+    beta = new Cognitive({ apiUrl, botId, token, timeout: 120_000 })
 
     const audio = await beta.generateAudio({
       model: 'openai:tts-1',
@@ -174,11 +174,11 @@ describe.skipIf(!hasCreds)('CognitiveBeta e2e — Transcription', () => {
   }, 90_000)
 })
 
-describe.skipIf(!hasCreds)('CognitiveBeta e2e — Models', () => {
-  let beta: CognitiveBeta
+describe.skipIf(!hasCreds)('Cognitive e2e — Models', () => {
+  let beta: Cognitive
 
   beforeAll(() => {
-    beta = new CognitiveBeta({ apiUrl, botId, token, timeout: 60_000 })
+    beta = new Cognitive({ apiUrl, botId, token, timeout: 60_000 })
   })
 
   test('listModels returns a non-empty array of well-formed models', async () => {
@@ -199,11 +199,11 @@ describe.skipIf(!hasCreds)('CognitiveBeta e2e — Models', () => {
   }, 30_000)
 })
 
-describe.skipIf(!hasCreds)('CognitiveBeta e2e — Image generation', () => {
-  let beta: CognitiveBeta
+describe.skipIf(!hasCreds)('Cognitive e2e — Image generation', () => {
+  let beta: Cognitive
 
   beforeAll(() => {
-    beta = new CognitiveBeta({ apiUrl, botId, token, timeout: 180_000 })
+    beta = new Cognitive({ apiUrl, botId, token, timeout: 180_000 })
   })
 
   test('generateImage returns a hosted image URL with sensible metadata', async () => {

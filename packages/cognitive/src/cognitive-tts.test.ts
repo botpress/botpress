@@ -1,9 +1,9 @@
 import { describe, test, expect, vi } from 'vitest'
-import { CognitiveBeta } from './index'
+import { Cognitive } from './index'
 
-describe('CognitiveBeta.generateAudio', () => {
+describe('Cognitive.generateAudio', () => {
   test('POSTs to /v2/cognitive/generate-audio and returns parsed body', async () => {
-    const beta = new CognitiveBeta({ apiUrl: 'http://x', botId: 'b', token: 't' })
+    const beta = new Cognitive({ apiUrl: 'http://x', botId: 'b', token: 't' })
     const post = vi.fn().mockResolvedValue({
       data: {
         output: { audioUrl: 'https://x/abc.mp3' },
@@ -24,7 +24,7 @@ describe('CognitiveBeta.generateAudio', () => {
   })
 
   test('emits request and response events around the call', async () => {
-    const beta = new CognitiveBeta({ apiUrl: 'http://x' })
+    const beta = new Cognitive({ apiUrl: 'http://x' })
     const post = vi.fn().mockResolvedValue({
       data: { output: { audioUrl: 'https://x/y.mp3' }, metadata: { provider: 'openai', cost: 0 } },
     })
@@ -44,9 +44,9 @@ describe('CognitiveBeta.generateAudio', () => {
   })
 })
 
-describe('CognitiveBeta.listVoices', () => {
+describe('Cognitive.listVoices', () => {
   test('GETs /v2/cognitive/voices with optional filter', async () => {
-    const beta = new CognitiveBeta({ apiUrl: 'http://x' })
+    const beta = new Cognitive({ apiUrl: 'http://x' })
     const get = vi.fn().mockResolvedValue({
       data: {
         voices: [{ id: 'alloy', displayName: 'Alloy', provider: 'openai', models: ['tts-1'] }],
@@ -65,7 +65,7 @@ describe('CognitiveBeta.listVoices', () => {
   })
 
   test('GETs without params when no filter provided', async () => {
-    const beta = new CognitiveBeta({ apiUrl: 'http://x' })
+    const beta = new Cognitive({ apiUrl: 'http://x' })
     const get = vi.fn().mockResolvedValue({ data: { voices: [] } })
     ;(beta as any)._httpClient = { get }
 

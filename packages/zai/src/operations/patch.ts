@@ -633,7 +633,7 @@ Generate patches for each file that needs modification:
             output: ctx.usage.cost.output,
           },
           latency: Date.now(),
-          model: ctx.modelId,
+          model: ctx.modelName,
           tokens: {
             input: ctx.usage.tokens.input,
             output: ctx.usage.tokens.output,

@@ -1,9 +1,9 @@
 import { describe, test, expect, vi } from 'vitest'
-import { CognitiveBeta } from './index'
+import { Cognitive } from './index'
 
-describe('CognitiveBeta.generateImage', () => {
+describe('Cognitive.generateImage', () => {
   test('POSTs to /v2/cognitive/generate-image and returns parsed body', async () => {
-    const beta = new CognitiveBeta({ apiUrl: 'http://x', botId: 'b', token: 't' })
+    const beta = new Cognitive({ apiUrl: 'http://x', botId: 'b', token: 't' })
     const post = vi.fn().mockResolvedValue({
       data: {
         output: { imageUrl: 'https://x/abc.png' },
@@ -25,7 +25,7 @@ describe('CognitiveBeta.generateImage', () => {
   })
 
   test('emits request and response events around the call', async () => {
-    const beta = new CognitiveBeta({ apiUrl: 'http://x' })
+    const beta = new Cognitive({ apiUrl: 'http://x' })
     const post = vi.fn().mockResolvedValue({
       data: {
         output: { imageUrl: 'https://x/y.png' },
@@ -48,7 +48,7 @@ describe('CognitiveBeta.generateImage', () => {
   })
 
   test('emits error event when the call rejects', async () => {
-    const beta = new CognitiveBeta({ apiUrl: 'http://x' })
+    const beta = new Cognitive({ apiUrl: 'http://x' })
     const post = vi.fn().mockRejectedValue(new Error('boom'))
     ;(beta as any)._httpClient = { post }
 

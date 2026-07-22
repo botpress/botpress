@@ -935,7 +935,7 @@ ${END}`.trim()
       metadata: {
         cost: { input: 0, output: 0 },
         latency: 0,
-        model: ctx.modelId,
+        model: ctx.modelName,
         tokens: { input: 0, output: 0 },
       },
     })

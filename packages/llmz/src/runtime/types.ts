@@ -1,4 +1,4 @@
-import { Cognitive, CognitiveBeta, type BotpressClientLike, type CognitiveLike, Models } from '@botpress/cognitive'
+import { Cognitive, type BotpressClientLike, Models } from '@botpress/cognitive'
 
 import { Chat } from '../chat.js'
 import { Context, Iteration } from '../context.js'
@@ -192,12 +192,11 @@ export type ExecutionProps = {
   options?: Options
 
   /**
-   * An instance of a Botpress Client, an instance of Cognitive Client (@botpress/cognitive),
-   * or a standalone CognitiveBeta client.
+   * An instance of a Botpress Client or an instance of a Cognitive client (@botpress/cognitive).
    * This is used to generate content using the LLM and to access the Botpress API.
    * If not provided, a default client will be created using environment variables.
    */
-  client?: Cognitive | CognitiveBeta | BotpressClientLike | _CustomModelClient
+  client?: Cognitive | BotpressClientLike | _CustomModelClient
 
   /**
    * When provided, the execution will immediately stop when the signal is aborted.
@@ -245,11 +244,10 @@ export type ExecutionProps = {
   metadata?: Record<string, string>
 } & ExecutionHooks
 
-export type RuntimeCognitive = Pick<Cognitive, 'getModelDetails' | 'generateContent'> & {
+export type RuntimeCognitive = Pick<Cognitive, 'getModelDetails' | 'generateText'> & {
   /**
-   * Streaming generation. Only available on clients backed by the Cognitive v2
-   * (beta) API — when present, the runtime streams the response and parses
-   * ■ blocks incrementally.
+   * Streaming generation. When present, the runtime streams the response and
+   * parses ■ blocks incrementally.
    */
-  generateContentStream?: CognitiveLike['generateContentStream']
+  generateTextStream?: Cognitive['generateTextStream']
 }

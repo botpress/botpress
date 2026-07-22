@@ -1,5 +1,4 @@
-import { Client } from '@botpress/client'
-import { Cognitive, Model } from '@botpress/cognitive'
+import { CognitiveMetadata, CognitiveResponse, CognitiveStreamChunk, Model } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import { describe, expect, test } from 'vitest'
 
@@ -10,26 +9,40 @@ import { ListenExit } from '../context.js'
 import { CognitiveError } from '../errors.js'
 import { Exit } from '../exit.js'
 import { ErrorExecutionResult, SuccessExecutionResult } from '../result.js'
+import { _CustomModelClient } from '../custom-client.js'
 import { Tool } from '../tool.js'
 import { executeContext } from './execute.js'
 
 const makeFakeModel = (model: string): Model => ({
   id: model,
   name: 'Fake Model',
-  integration: 'botpress',
   description: 'A fake model for testing',
   input: { maxTokens: 128_000, costPer1MTokens: 0 },
   output: { maxTokens: 8_000, costPer1MTokens: 0 },
-  ref: `fake:${model}`,
   tags: [],
+  lifecycle: 'production',
 })
 
-/** A cognitive client that replays scripted ■ protocol responses, one per iteration. */
-class ScriptedCognitive extends Cognitive {
+const makeFakeMetadata = (): CognitiveMetadata => ({
+  provider: 'fake',
+  model: 'fake',
+  usage: { inputTokens: 10, inputCost: 0, outputTokens: 10, outputCost: 0 },
+  cost: 0,
+  cached: false,
+  latency: 1,
+})
+
+/**
+ * A cognitive client that replays scripted ■ protocol responses, one per
+ * iteration. Built on the runtime's custom-client escape hatch so it exposes
+ * exactly the minimal surface (no network-backed streaming inherited from the
+ * real Cognitive class).
+ */
+class ScriptedCognitive extends _CustomModelClient {
   private _index = 0
 
   public constructor(private _responses: string[]) {
-    super({ client: new Client({ botId: 'test-bot' }) })
+    super()
   }
 
   public async getModelDetails(model: string): Promise<Model> {
@@ -44,41 +57,22 @@ class ScriptedCognitive extends Cognitive {
     return content
   }
 
-  protected _buildResponse(content: string): any {
-    return {
-      output: {
-        id: 'res_1',
-        provider: 'fake',
-        model: 'fake',
-        choices: [{ type: 'text', content, role: 'assistant', index: 0, stopReason: 'stop' }],
-        usage: { inputTokens: 10, inputCost: 0, outputTokens: 10, outputCost: 0 },
-        botpress: { cost: 0 },
-      },
-      meta: {
-        cached: false,
-        model: { integration: 'fake', model: 'fake' },
-        latency: 1,
-        cost: { input: 0, output: 0 },
-        tokens: { input: 10, output: 10 },
-      },
-    }
+  protected _buildResponse(content: string): CognitiveResponse {
+    return { output: content, metadata: makeFakeMetadata() }
   }
 
-  public async generateContent(): Promise<any> {
+  public async generateText(): Promise<CognitiveResponse> {
     return this._buildResponse(this._nextContent())
   }
 }
 
 /**
- * A scripted client guaranteed to have no `generateContentStream`, forcing the
- * true non-streaming code path in generate.ts regardless of whether the
- * Cognitive build ships a streaming shim on the base class.
+ * A scripted client guaranteed to have no `generateTextStream`, forcing the
+ * true non-streaming code path in generate.ts.
  */
-class ScriptedNonStreamingCognitive extends ScriptedCognitive {
-  public generateContentStream: any = undefined
-}
+class ScriptedNonStreamingCognitive extends ScriptedCognitive {}
 
-/** Streams the scripted responses in small chunks, like a Cognitive v2 (beta) client. */
+/** Streams the scripted responses in small chunks, like the real Cognitive client. */
 class ScriptedStreamingCognitive extends ScriptedCognitive {
   /** Value of the probe function recorded after each chunk was consumed downstream. */
   public probes: number[] = []
@@ -91,13 +85,13 @@ class ScriptedStreamingCognitive extends ScriptedCognitive {
     super(responses)
   }
 
-  public async *generateContentStream(): AsyncGenerator<any, any, void> {
+  public async *generateTextStream(): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
     const content = this._nextContent()
     for (let i = 0; i < content.length; i += this._chunkSize) {
       yield { output: content.slice(i, i + this._chunkSize), created: Date.now() }
       this.probes.push(this._probe())
     }
-    return this._buildResponse(content)
+    yield { created: Date.now(), finished: true, metadata: makeFakeMetadata() }
   }
 }
 
@@ -433,14 +427,14 @@ describe('message-stream protocol execution', () => {
      * only started after the stream ended, this would deadlock.
      */
     class GatedStreamingCognitive extends ScriptedCognitive {
-      public async *generateContentStream(): AsyncGenerator<any, any, void> {
+      public async *generateTextStream(): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
         const content = this._nextContent()
         const gateAt = content.indexOf('■next')
-        yield { output: content.slice(0, gateAt) }
-        yield { output: content.slice(gateAt, gateAt + 5) } // '■next' — completes the ■run item
+        yield { output: content.slice(0, gateAt), created: Date.now() }
+        yield { output: content.slice(gateAt, gateAt + 5), created: Date.now() } // '■next' — completes the ■run item
         await toolRan
-        yield { output: content.slice(gateAt + 5) }
-        return this._buildResponse(content)
+        yield { output: content.slice(gateAt + 5), created: Date.now() }
+        yield { created: Date.now(), finished: true, metadata: makeFakeMetadata() }
       }
     }
 
@@ -564,9 +558,9 @@ describe('message-stream protocol execution', () => {
   test('options.maxTimeToFirstToken is forwarded to the streaming request', async () => {
     let received: any
     class ProbeCognitive extends ScriptedStreamingCognitive {
-      public async *generateContentStream(input?: any): AsyncGenerator<any, any, void> {
+      public override async *generateTextStream(input?: any): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
         received = input
-        return yield* super.generateContentStream()
+        yield* super.generateTextStream()
       }
     }
 
