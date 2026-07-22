@@ -69,11 +69,12 @@ class ScriptedCognitive extends Cognitive {
 }
 
 /**
- * The base Cognitive class ships a streaming shim (single-chunk fallback);
- * removing it forces the true non-streaming code path in generate.ts.
+ * A scripted client guaranteed to have no `generateContentStream`, forcing the
+ * true non-streaming code path in generate.ts regardless of whether the
+ * Cognitive build ships a streaming shim on the base class.
  */
 class ScriptedNonStreamingCognitive extends ScriptedCognitive {
-  public override generateContentStream: any = undefined
+  public generateContentStream: any = undefined
 }
 
 /** Streams the scripted responses in small chunks, like a Cognitive v2 (beta) client. */
