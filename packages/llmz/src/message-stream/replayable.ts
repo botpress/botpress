@@ -2,19 +2,23 @@
  * Wraps an async iterable so it can be iterated multiple times: chunks pulled
  * from the source are cached, and every iteration replays the cache before
  * pulling new chunks. Concurrent iterations are safe — pulls on the underlying
- * source are serialized.
+ * source are serialized. If the source fails, the failure is cached too:
+ * every iteration replays the chunks received before the failure, then
+ * rethrows the source error.
  */
 export class ReplayableAsyncIterable<T> implements AsyncIterable<T> {
   private _source: AsyncIterator<T>
   private _chunks: T[] = []
   private _done = false
+  private _failed = false
+  private _error: unknown
   private _lock: Promise<unknown> = Promise.resolve()
 
   public constructor(source: AsyncIterable<T>) {
     this._source = source[Symbol.asyncIterator]()
   }
 
-  /** True once the underlying source has been fully consumed. */
+  /** True once the underlying source has been fully consumed (or has failed). */
   public get done(): boolean {
     return this._done
   }
@@ -29,6 +33,8 @@ export class ReplayableAsyncIterable<T> implements AsyncIterable<T> {
     while (true) {
       if (index < this._chunks.length) {
         yield this._chunks[index++]!
+      } else if (this._failed) {
+        throw this._error
       } else if (this._done) {
         return
       } else {
@@ -50,11 +56,21 @@ export class ReplayableAsyncIterable<T> implements AsyncIterable<T> {
       if (this._done) {
         return
       }
-      const { value, done } = await this._source.next()
-      if (done) {
+      let result: IteratorResult<T>
+      try {
+        result = await this._source.next()
+      } catch (thrown: unknown) {
+        // Cache the failure so replays rethrow it instead of silently
+        // ending short or pulling a dead iterator again
+        this._done = true
+        this._failed = true
+        this._error = thrown
+        throw thrown
+      }
+      if (result.done) {
         this._done = true
       } else {
-        this._chunks.push(value)
+        this._chunks.push(result.value)
       }
     })
     this._lock = next.catch(() => {})

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { compile } from './compiler.js'
+import { compile, hasTopLevelReturn } from './compiler.js'
 
 describe('compiler', () => {
   it('should work', () => {
@@ -157,5 +157,37 @@ Hi!
 
       "
     `)
+  })
+})
+
+describe('hasTopLevelReturn', () => {
+  it('detects a top-level return', () => {
+    expect(hasTopLevelReturn('return { some: "value" }')).toBe(true)
+    expect(hasTopLevelReturn('const x = await tool()\nreturn x')).toBe(true)
+    expect(hasTopLevelReturn('if (ok) {\n  return 1\n}')).toBe(true)
+    expect(hasTopLevelReturn('return')).toBe(true)
+  })
+
+  it('ignores return inside comments and strings', () => {
+    expect(hasTopLevelReturn('// return the summary to the user\nawait tool()')).toBe(false)
+    expect(hasTopLevelReturn('/* we return early here */\nawait tool()')).toBe(false)
+    expect(hasTopLevelReturn('await sendEmail({ subject: "Please return the form" })')).toBe(false)
+    expect(hasTopLevelReturn('const msg = `return to sender`')).toBe(false)
+  })
+
+  it('ignores return inside nested functions', () => {
+    expect(hasTopLevelReturn('const pick = (m) => { return m.title }\nawait tool(pick)')).toBe(false)
+    expect(hasTopLevelReturn('function helper() { return 42 }\nawait helper()')).toBe(false)
+    expect(hasTopLevelReturn('const movies = list.filter((m) => { return m.year > 2000 })')).toBe(false)
+    expect(hasTopLevelReturn('async function helper() { return 1 }\nreturn await helper()')).toBe(true)
+  })
+
+  it('falls back to a word-boundary match when the code cannot be parsed', () => {
+    expect(hasTopLevelReturn('return {{{')).toBe(true)
+    expect(hasTopLevelReturn('await tool({{{')).toBe(false)
+  })
+
+  it('handles empty code', () => {
+    expect(hasTopLevelReturn('')).toBe(false)
   })
 })

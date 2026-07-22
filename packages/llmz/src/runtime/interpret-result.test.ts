@@ -246,6 +246,44 @@ describe('interpretVMResult', () => {
     })
   })
 
+  test('■next combined with code that only mentions "return" in comments/strings is honored', async () => {
+    const done = new Exit({ name: 'done', description: 'done' })
+    const iteration = makeIteration([done])
+    iteration.code = '// return the confirmation to the user\nawait sendEmail({ subject: "Please return the form" })'
+    iteration.next = { name: 'done', props: {} }
+
+    await interpretVMResult({
+      iteration,
+      result: successResult(undefined),
+      controller: new AbortController(),
+      startedAt: Date.now(),
+    })
+
+    expect(iteration.status).toMatchObject({
+      type: 'exit_success',
+      exit_success: { exit_name: 'done' },
+    })
+  })
+
+  test('■next combined with code whose return lives in a nested function is honored', async () => {
+    const done = new Exit({ name: 'done', description: 'done' })
+    const iteration = makeIteration([done])
+    iteration.code = 'const titles = movies.map((m) => { return m.title })\nawait saveTitles(titles)'
+    iteration.next = { name: 'done', props: {} }
+
+    await interpretVMResult({
+      iteration,
+      result: successResult(undefined),
+      controller: new AbortController(),
+      startedAt: Date.now(),
+    })
+
+    expect(iteration.status).toMatchObject({
+      type: 'exit_success',
+      exit_success: { exit_name: 'done' },
+    })
+  })
+
   test('■next=listen combined with returning code is ignored, even when the value is undefined', async () => {
     const listen = new Exit({ name: 'listen', description: 'listen' })
     const iteration = makeIteration([listen], { previous: true })

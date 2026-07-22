@@ -1,3 +1,4 @@
+import { hasTopLevelReturn } from '../compiler/index.js'
 import { Iteration } from '../context.js'
 import { CodeExecutionError, InvalidCodeError, SnapshotSignal, ThinkSignal } from '../errors.js'
 import { parseExit } from '../exit-parser.js'
@@ -100,8 +101,8 @@ export const interpretVMResult = async ({
   // same response is ignored. Models often append a premature ■next (both
   // `listen` and final exits) to code whose outcome they cannot know yet;
   // honoring it would end the turn or the task half-done. Side-effect-only
-  // code (no `return` keyword) may be combined with a final ■next.
-  const codeRequestsInspection = /\breturn\b/.test(iteration.code ?? '')
+  // code (no top-level `return` statement) may be combined with a final ■next.
+  const codeRequestsInspection = hasTopLevelReturn(iteration.code ?? '')
 
   if (iteration.next && !codeRequestsInspection) {
     await applyNextExit({ iteration, controller, onExit })

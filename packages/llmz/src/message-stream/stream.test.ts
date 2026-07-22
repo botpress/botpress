@@ -226,4 +226,44 @@ describe('replayable async iterable', () => {
     expect(second).toBe('abcd')
     expect(produced).toBe(4) // source consumed exactly once
   })
+
+  it('caches a source failure and rethrows it on every iteration', async () => {
+    // Explicit iterator (not a generator) so pulls after the failure are observable
+    let pulls = 0
+    const chunks = ['a', 'b']
+    const source: AsyncIterable<string> = {
+      [Symbol.asyncIterator]: () => ({
+        next: async () => {
+          pulls++
+          const value = chunks.shift()
+          if (value === undefined) {
+            throw new Error('transport died')
+          }
+          return { value, done: false }
+        },
+      }),
+    }
+    const replayable = new ReplayableAsyncIterable(source)
+
+    // First consumer gets the chunks received before the failure, then the error
+    const received: string[] = []
+    await expect(async () => {
+      for await (const chunk of replayable) {
+        received.push(chunk)
+      }
+    }).rejects.toThrow('transport died')
+    expect(received).toEqual(['a', 'b'])
+    expect(replayable.done).toBe(true)
+
+    // Replays deliver the cached chunks then rethrow the same error —
+    // instead of silently ending short or pulling the dead iterator again
+    const replayed: string[] = []
+    await expect(async () => {
+      for await (const chunk of replayable) {
+        replayed.push(chunk)
+      }
+    }).rejects.toThrow('transport died')
+    expect(replayed).toEqual(['a', 'b'])
+    expect(pulls).toBe(3) // 2 chunks + 1 failure; the dead source is never pulled again
+  })
 })

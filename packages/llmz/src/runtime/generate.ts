@@ -124,11 +124,23 @@ export const generateCode = async ({
     iteration.tokens.limit = modelLimit
   }
 
-  const messages = truncateWrappedContent({
-    messages: iteration.messages,
-    tokenLimit: modelLimit - responseLengthBuffer,
-    throwOnFailure: true,
-  }).filter((x) => typeof x.content !== 'string' || x.content.trim().length > 0)
+  let messages: typeof iteration.messages
+  try {
+    messages = truncateWrappedContent({
+      messages: iteration.messages,
+      tokenLimit: modelLimit - responseLengthBuffer,
+      throwOnFailure: true,
+    }).filter((x) => typeof x.content !== 'string' || x.content.trim().length > 0)
+  } catch (thrown: unknown) {
+    // A prompt that doesn't fit the context window is a terminal configuration
+    // error: the failure happens before any LLM call and the prompt only grows
+    // across iterations, so retrying can never succeed. CognitiveError stops
+    // the execution loop instead of burning iterations until the loop limit.
+    const cap = ctx.maxTokens
+      ? ` (context window capped at ${modelLimit} tokens by options.maxTokens — consider raising or removing it)`
+      : ` (model context window: ${modelLimit} tokens)`
+    throw new CognitiveError(`The prompt does not fit in the context window${cap}: ${getErrorMessage(thrown)}`)
+  }
   iteration.messages = messages
 
   traces.push({

@@ -7,8 +7,9 @@ import { Chat, MessageDelta } from '../chat.js'
 import { DefaultComponents } from '../component.default.js'
 import { RenderedComponent } from '../component.js'
 import { ListenExit } from '../context.js'
+import { CognitiveError } from '../errors.js'
 import { Exit } from '../exit.js'
-import { SuccessExecutionResult } from '../result.js'
+import { ErrorExecutionResult, SuccessExecutionResult } from '../result.js'
 import { Tool } from '../tool.js'
 import { executeContext } from './execute.js'
 
@@ -542,6 +543,22 @@ describe('message-stream protocol execution', () => {
     // the effective limit is min(override, model max)
     expect(unbounded.limit).toBe(128_000)
     expect(capped.limit).toBe(10_000)
+  })
+
+  test('a maxTokens too small to fit the prompt fails fast instead of looping', async () => {
+    const done = new Exit({ name: 'done', description: 'Task completed' })
+    // No scripted responses: the failure must happen before any LLM call
+    const client = new ScriptedCognitive([])
+
+    const result = await executeContext({ client, exits: [done], options: { loop: 10, maxTokens: 100 } })
+
+    expect(result).toBeInstanceOf(ErrorExecutionResult)
+    // Terminal on the first iteration — not an execution_error retried until the loop limit
+    expect(result.iterations.length).toBeLessThanOrEqual(1)
+    const error = (result as ErrorExecutionResult).error
+    expect(error).toBeInstanceOf(CognitiveError)
+    expect((error as Error).message).toContain('context window')
+    expect((error as Error).message).toContain('options.maxTokens')
   })
 
   test('options.maxTimeToFirstToken is forwarded to the streaming request', async () => {

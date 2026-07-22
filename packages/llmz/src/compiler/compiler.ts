@@ -1,3 +1,4 @@
+import type * as BabelCore from '@babel/core'
 import { type TransformOptions } from '@babel/core'
 
 import * as Babel from '@babel/standalone'
@@ -37,6 +38,43 @@ export const Identifiers = {
 }
 
 export type CompiledCode = ReturnType<typeof compile>
+
+/**
+ * Whether the code contains a top-level `return` statement (one that would
+ * return from the generated code itself, not from a nested function). Unlike a
+ * regex, this ignores `return` inside comments, strings and nested functions.
+ * Falls back to a word-boundary match if the code cannot be parsed.
+ */
+export function hasTopLevelReturn(code: string): boolean {
+  let found = false
+
+  const detectTopLevelReturnPlugin = (): BabelCore.PluginObj => ({
+    visitor: {
+      ReturnStatement(path) {
+        if (!path.getFunctionParent()) {
+          found = true
+        }
+      },
+    },
+  })
+
+  try {
+    Babel.transform(code, {
+      parserOpts: {
+        allowReturnOutsideFunction: true,
+        allowAwaitOutsideFunction: true,
+      },
+      presets: ['typescript'],
+      plugins: [detectTopLevelReturnPlugin],
+      filename: '<anonymous>.ts',
+      code: false,
+    })
+  } catch {
+    return /\breturn\b/.test(code)
+  }
+
+  return found
+}
 
 export function compile(code: string) {
   code = AsyncWrapper.preProcessing(code)
