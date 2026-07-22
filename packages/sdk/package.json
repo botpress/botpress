@@ -1,6 +1,6 @@
 {
   "name": "@botpress/sdk",
-  "version": "6.13.3",
+  "version": "6.13.4",
   "description": "Botpress SDK",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -30,7 +30,7 @@
     "esbuild-plugin-polyfill-node": "^0.3.0"
   },
   "peerDependencies": {
-    "@bpinternal/zui": "^2.3.1",
+    "@bpinternal/zui": "^2.4.0",
     "esbuild": "^0.16.12"
   },
   "peerDependenciesMeta": {

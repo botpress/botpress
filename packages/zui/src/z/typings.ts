@@ -407,9 +407,9 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
   _input: Input
   _def: Def
 
-  _parse(input: ParseInput): ParseReturnType<Output>
-  _parseAsync(input: ParseInput): AsyncParseReturnType<Output>
-  _parseSync(input: ParseInput): SyncParseReturnType<Output>
+  _parse(input: ParseInput): ParseReturnType<this['_output']>
+  _parseAsync(input: ParseInput): AsyncParseReturnType<this['_output']>
+  _parseSync(input: ParseInput): SyncParseReturnType<this['_output']>
 
   description: string | undefined
   typeName: Def['typeName']
@@ -420,35 +420,42 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
   /** internal recursive worker for getReferences() — do not call directly */
   _getReferences(visiting: Set<symbol>): string[]
   clone(): IZodType<Output, Def, Input>
-  parse(data: unknown, params?: Partial<ParseParams>): Output
-  safeParse(data: unknown, params?: Partial<ParseParams>): SafeParseReturnType<Input, Output>
-  parseAsync(data: unknown, params?: Partial<ParseParams>): Promise<Output>
-  safeParseAsync(data: unknown, params?: Partial<ParseParams>): Promise<SafeParseReturnType<Input, Output>>
+  parse(data: unknown, params?: Partial<ParseParams>): this['_output']
+  safeParse(data: unknown, params?: Partial<ParseParams>): SafeParseReturnType<this['_input'], this['_output']>
+  parseAsync(data: unknown, params?: Partial<ParseParams>): Promise<this['_output']>
+  safeParseAsync(
+    data: unknown,
+    params?: Partial<ParseParams>
+  ): Promise<SafeParseReturnType<this['_input'], this['_output']>>
   /** Alias of safeParseAsync */
-  spa: (data: unknown, params?: Partial<ParseParams>) => Promise<SafeParseReturnType<Input, Output>>
-  refine<RefinedOutput extends Output>(
-    check: (arg: Output) => arg is RefinedOutput,
-    message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams)
-  ): IZodEffects<this, RefinedOutput, Input>
+  spa: (data: unknown, params?: Partial<ParseParams>) => Promise<SafeParseReturnType<this['_input'], this['_output']>>
+  refine<RefinedOutput extends this['_output']>(
+    check: (arg: this['_output']) => arg is RefinedOutput,
+    message?: string | CustomErrorParams | ((arg: this['_output']) => CustomErrorParams)
+  ): IZodEffects<this, RefinedOutput, this['_input']>
   refine(
-    check: (arg: Output) => unknown | Promise<unknown>,
-    message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams)
-  ): IZodEffects<this, Output, Input>
+    check: (arg: this['_output']) => unknown | Promise<unknown>,
+    message?: string | CustomErrorParams | ((arg: this['_output']) => CustomErrorParams)
+  ): IZodEffects<this, this['_output'], this['_input']>
 
   /**
    * @deprecated use downstream instead which handle issues with a better semantic
    */
-  superRefine<RefinedOutput extends Output>(
-    refinement: (arg: Output, ctx: RefinementCtx) => arg is RefinedOutput
-  ): IZodEffects<this, RefinedOutput, Input>
+  superRefine<RefinedOutput extends this['_output']>(
+    refinement: (arg: this['_output'], ctx: RefinementCtx) => arg is RefinedOutput
+  ): IZodEffects<this, RefinedOutput, this['_input']>
   /**
    * @deprecated use downstream instead which handle issues with a better semantic
    */
-  superRefine(refinement: (arg: Output, ctx: RefinementCtx) => void): IZodEffects<this, Output, Input>
+  superRefine(
+    refinement: (arg: this['_output'], ctx: RefinementCtx) => void
+  ): IZodEffects<this, this['_output'], this['_input']>
   /**
    * @deprecated use downstream instead which handle issues with a better semantic
    */
-  superRefine(refinement: (arg: Output, ctx: RefinementCtx) => Promise<void>): IZodEffects<this, Output, Input>
+  superRefine(
+    refinement: (arg: this['_output'], ctx: RefinementCtx) => Promise<void>
+  ): IZodEffects<this, this['_output'], this['_input']>
 
   optional(): IZodOptional<this>
   nullable(): IZodNullable<this>
@@ -472,18 +479,20 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
   mandatory(): IZodType
   or<T extends IZodType>(option: T): IZodUnion<[this, T]>
   and<T extends IZodType>(incoming: T): IZodIntersection<this, T>
-  transform<NewOut>(transform: (arg: Output, ctx: RefinementCtx) => NewOut | Promise<NewOut>): IZodEffects<this, NewOut>
+  transform<NewOut>(
+    transform: (arg: this['_output'], ctx: RefinementCtx) => NewOut | Promise<NewOut>
+  ): IZodEffects<this, NewOut>
   downstream<NewOut>(
     fn: (
-      output: Output,
+      output: this['_output'],
       ctx: EffectContext
     ) => EffectReturnType<NewOut> | Promise<EffectReturnType<NewOut> | undefined> | undefined,
     params?: { failFast?: boolean }
   ): IZodEffects<this, NewOut>
-  default(def: NoUndefined<Input>): IZodDefault<this>
-  default(def: () => NoUndefined<Input>): IZodDefault<this>
+  default(def: NoUndefined<this['_input']>): IZodDefault<this>
+  default(def: () => NoUndefined<this['_input']>): IZodDefault<this>
   brand<B extends string | number | symbol>(brand?: B): IZodBranded<this, B>
-  catch(def: Output | CatchFn<Output>): IZodCatch<this>
+  catch(def: this['_output'] | CatchFn<this['_output']>): IZodCatch<this>
   describe(description: string): this
   pipe<T extends IZodType>(target: T): IZodPipeline<this, T>
   readonly(): IZodReadonly<this>
@@ -967,11 +976,23 @@ export type AnyZodObject = IZodObject<any, any>
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
 export interface IZodObject<
-  T extends ZodRawShape = ZodRawShape,
-  UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-  Output = ObjectOutputType<T, UnknownKeys>,
-  Input = ObjectInputType<T, UnknownKeys>,
-> extends IZodType<Output, ZodObjectDef<T, UnknownKeys>, Input> {
+  // `out` is a manual variance assertion: ObjectOutputType/ObjectInputType are
+  // covariant in T (and UnknownKeys) for every real schema, but the checker
+  // can't prove it from the mapped-type definitions and reports TS2636. The
+  // directive below is load-bearing — it suppresses that variance error, which
+  // is what lets the `any` heritage stay assignable. Re-audit if any member
+  // starts consuming T/UnknownKeys in a contravariant (parameter) position.
+  // @ts-ignore variance TS2636 (see note above)
+  out T extends ZodRawShape = ZodRawShape,
+  out UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
+> extends IZodType<any, ZodObjectDef<T, UnknownKeys>, any> {
+  // Output/Input are declared as members rather than generic defaults: interface
+  // members resolve lazily (only when z.infer/z.input asks), whereas generic
+  // defaults are instantiated eagerly at every .extend()/.pick()/.omit() return
+  // type, which made chained calls explode combinatorially (see zui-tsc-bench).
+  _type: ObjectOutputType<T, UnknownKeys>
+  _output: ObjectOutputType<T, UnknownKeys>
+  _input: ObjectInputType<T, UnknownKeys>
   shape: T
   strict(message?: ErrMessage): IZodObject<T, 'strict'>
   strip(): IZodObject<T, 'strip'>
@@ -1067,12 +1088,25 @@ export interface IZodObject<
 
 //* ─────────────────────────── ZodDiscriminatedUnion ──────────────────────────
 
-export type ZodDiscriminatedUnionOption<Discriminator extends string> = IZodObject<
-  {
-    [key in Discriminator]: IZodType
-  } & ZodRawShape,
-  UnknownKeysParam
->
+// Constrained via the option's input type rather than its shape, mirroring zod v4's
+// $ZodTypeDiscriminable: the old shape-level `{ [key in Discriminator]: IZodType } &
+// ZodRawShape` forced deep structural resolution of object output types (excessive
+// stack depth). The weak type `{ [K in Discriminator]?: unknown }` rejects options
+// missing the discriminator key at compile time (no properties in common), and
+// _getOptionsMap enforces it at runtime as a backstop.
+//
+// The base must be IZodType with `unknown` input — NOT AnyZodObject, whose `_input`
+// is an index signature that would intersect with the weak type and defeat weak-type
+// detection. Output is `unknown` (not `any`): options are only ever bound by this as a
+// constraint, never read through it, so the stricter `unknown` accepts every object
+// schema's output just as well while keeping the type free of `any`.
+export type ZodDiscriminatedUnionOption<Discriminator extends string> = IZodType<
+  unknown,
+  ZodObjectDef,
+  { [K in Discriminator]?: unknown }
+> & {
+  shape: ZodRawShape
+}
 
 export type ZodDiscriminatedUnionDef<
   Discriminator extends string = string,
