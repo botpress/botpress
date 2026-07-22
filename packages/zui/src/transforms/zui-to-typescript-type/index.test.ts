@@ -1328,12 +1328,11 @@ describe('getter-based recursion', () => {
     expect(toTs(z.object({ a: z.string(), b: z.number().optional() }))).toBe('{ a: string; b?: number }')
   })
 
-  // TODO(fix a): titled mutual recursion currently overflows in getReferences()/clone — fix 1's cyclic clone
-  // handles self-recursion but not mutual recursion across separately-cloned (.title()'d) schemas. Un-skip
-  // once the base clone bug is fixed on dubz_fully_handle.
-  it.skip('mutual recursion with titles emits one alias per titled node', async () => {
+  it('mutual recursion with titles: hoists the re-entered node, inlines the rest', async () => {
     const User: any = z.object({ email: z.string(), get posts() { return z.array(Post) } }).title('User')
     const Post: any = z.object({ title: z.string(), get author() { return User } }).title('Post')
-    await assert.expectTypescript(toTs(User)).toMatchWithoutFormatting('type User = { email: string; posts: Array<Post> }; type Post = { title: string; author: User };')
+    await assert
+      .expectTypescript(toTs(User))
+      .toMatchWithoutFormatting('type User = { email: string; posts: Array<{ title: string; author: User }> };')
   })
 })

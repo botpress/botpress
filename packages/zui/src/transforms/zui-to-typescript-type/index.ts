@@ -346,7 +346,9 @@ function sUnwrapZod(
       return `Array<${item}>`
 
     case 'ZodObject':
-      return withCycleGuard(s, s, config.recursion, () => {
+      // Key on the clone-stable _def.uid (not the instance): traversal mints fresh clones for titled/cloned
+      // schemas, but they share the source uid, so mutual recursion is detected. See ZodObjectDef.uid.
+      return withCycleGuard(s._def.uid, s, config.recursion, () => {
         const props = Object.entries(s._def.shape()).map(([key, value]) => {
           if (z.is.zuiType(value)) {
             return sUnwrapZod(new KeyValue(toPropertyKey(key), value), path.withIndexType('key', key), newConfig)
