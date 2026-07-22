@@ -7,6 +7,19 @@ import { pickBy, startCase, camelCase, isPlainObject, deburr } from 'lodash-es'
 
 let tokenizer: TextTokenizer = null!
 
+/**
+ * Injects the tokenizer used for prompt budgeting instead of the default
+ * `@bpinternal/thicktoken` WASM tokenizer.
+ *
+ * The default tokenizer compiles its WASM at runtime (`new WebAssembly.Module(bytes)`),
+ * which is disallowed on some platforms (e.g. Cloudflare Workers / workerd). On those
+ * platforms, build a tokenizer from a statically imported precompiled `WebAssembly.Module`
+ * and inject it here before calling `execute()`.
+ */
+export const configureTokenizer = (customTokenizer: TextTokenizer) => {
+  tokenizer = customTokenizer
+}
+
 export const init = async () => {
   if (tokenizer) {
     return

@@ -3,13 +3,14 @@ import {
   newQuickJSWASMModuleFromVariant,
   QuickJSContext,
   type QuickJSHandle,
+  type QuickJSSyncVariant,
   type QuickJSWASMModule,
   shouldInterruptAfterDeadline,
 } from 'quickjs-emscripten-core'
 
 import { Identifiers } from '../../compiler/index.js'
 import { Signals, VMSignal } from '../../errors.js'
-import { BundledReleaseSyncVariant } from '../../quickjs-variant.js'
+import { getQuickJSVariant } from '../../quickjs-variant.js'
 import type { VMExecutionResult } from '../../types.js'
 import { handleErrorQuickJS } from '../errors.js'
 import { NO_TRACKING, findUserCodeStartLine, instrumentContext } from '../instrument.js'
@@ -18,9 +19,18 @@ import type { DriverExecutionContext, VMContext, VMDriver } from '../types.js'
 // The WASM module is compiled once per process and shared by every execution
 // (each execution still gets its own runtime + context). Loading it eagerly —
 // e.g. while the LLM is still generating code — hides the instantiation cost.
+// The cache is keyed on the active variant so a configureQuickJS() call made
+// after a load takes effect on the next execution.
 let _quickJSModule: Promise<QuickJSWASMModule> | undefined
-export const loadQuickJSModule = (): Promise<QuickJSWASMModule> =>
-  (_quickJSModule ??= newQuickJSWASMModuleFromVariant(BundledReleaseSyncVariant))
+let _loadedVariant: QuickJSSyncVariant | undefined
+export const loadQuickJSModule = (): Promise<QuickJSWASMModule> => {
+  const variant = getQuickJSVariant()
+  if (!_quickJSModule || _loadedVariant !== variant) {
+    _loadedVariant = variant
+    _quickJSModule = newQuickJSWASMModuleFromVariant(variant)
+  }
+  return _quickJSModule
+}
 
 // Sandboxed execution via QuickJS WASM. All host values must be manually marshalled
 // across the boundary — QuickJS has its own heap, separate from Node.js.

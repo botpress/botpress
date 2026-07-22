@@ -1,4 +1,3 @@
-import Handlebars from 'handlebars'
 import { StreamingMessageParser } from '../message-stream/parser.js'
 import type { ParsedItem } from '../message-stream/types.js'
 import { ParsedAssistantResponse } from './prompt.js'
@@ -47,14 +46,7 @@ export const replacePlaceholders = (prompt: string, values: Record<string, unkno
   const regex = new RegExp('■■■([A-Z0-9_\\.-]+)■■■', 'gi')
   const obj = Object.assign({}, values)
 
-  const compile = Handlebars.compile(prompt)
-
-  const compiled = compile({
-    is_message_enabled: false,
-    ...values,
-  })
-
-  const replaced = compiled.replace(regex, (_match, name) => {
+  const replaced = prompt.replace(regex, (_match, name) => {
     if (name in values) {
       delete obj[name]
       return typeof values[name] === 'string' ? (values[name] as string) : JSON.stringify(values[name])

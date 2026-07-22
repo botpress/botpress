@@ -2,7 +2,7 @@ import { SourceMapConsumer } from 'source-map-js'
 
 import { compile } from '../compiler/index.js'
 import { InvalidCodeError } from '../errors.js'
-import { BundledReleaseSyncVariant } from '../quickjs-variant.js'
+import { getQuickJSVariant, type QuickJSSyncVariantEx } from '../quickjs-variant.js'
 import type { Trace, VMExecutionResult } from '../types.js'
 import { NodeDriver } from './drivers/node.js'
 import { loadQuickJSModule, QuickJSDriver } from './drivers/quickjs.js'
@@ -11,6 +11,11 @@ import type { VMContext, VMDriver } from './types.js'
 const MAX_VM_EXECUTION_TIME = 60_000
 
 const useQuickJS = () => typeof process === 'undefined' || process?.env?.USE_QUICKJS !== 'false'
+
+// The Node driver runs code through AsyncFunction(...), which workerd bans
+// ("Code generation from strings disallowed") — falling back to it would only
+// mask the real QuickJS load failure behind a confusing EvalError.
+const isWorkerd = () => typeof navigator !== 'undefined' && navigator?.userAgent === 'Cloudflare-Workers'
 
 /**
  * Pre-warms the VM so the first execution doesn't pay the QuickJS WASM
@@ -85,18 +90,30 @@ export async function runAsyncFunction(
         currentToolCall: undefined,
       })
     } catch (quickjsError: any) {
-      // QuickJS WASM failed to load — fall back to unsandboxed Node driver
+      const variant = getQuickJSVariant() as QuickJSSyncVariantEx
       const debugInfo = {
         error: quickjsError?.message || String(quickjsError),
         errorStack: quickjsError?.stack,
-        wasmSource: BundledReleaseSyncVariant._wasmSource,
-        wasmLoadedSuccessfully: BundledReleaseSyncVariant._wasmLoadedSuccessfully,
-        wasmSize: BundledReleaseSyncVariant._wasmSize,
-        wasmLoadError: BundledReleaseSyncVariant._wasmLoadError,
+        wasmSource: variant._wasmSource,
+        wasmLoadedSuccessfully: variant._wasmLoadedSuccessfully,
+        wasmSize: variant._wasmSize,
+        wasmLoadError: variant._wasmLoadError,
         nodeVersion: typeof process !== 'undefined' && process.version ? process.version : 'undefined',
         platform: typeof process !== 'undefined' && process.platform ? process.platform : 'undefined',
       }
 
+      if (isWorkerd()) {
+        // No fallback possible on workerd — surface the actual QuickJS failure
+        console.error('QuickJS failed to load and the node driver is unavailable on Cloudflare Workers.')
+        console.error('Debug info:', JSON.stringify(debugInfo, null, 2))
+        if (quickjsError instanceof Error) {
+          ;(quickjsError as any).debugInfo = debugInfo
+          throw quickjsError
+        }
+        throw new Error(`QuickJS failed to load on Cloudflare Workers: ${debugInfo.error}`)
+      }
+
+      // QuickJS WASM failed to load — fall back to unsandboxed Node driver
       console.warn('QuickJS failed to load, falling back to node driver.')
       console.warn('Error:', quickjsError?.message || quickjsError)
       console.warn('Debug info:', JSON.stringify(debugInfo, null, 2))
