@@ -240,6 +240,12 @@ while (true) {
     // Live feed of everything happening inside the iteration: show the code
     // the LLM generated, then each tool call as it completes
     onTrace: ({ trace }) => {
+      // Fires as soon as the model starts writing a ■run block — the code is
+      // still being generated at this point
+      if (trace.type === 'code_generation_started') {
+        console.log(chalk.dim('   ⏳ writing code…'))
+      }
+
       if (trace.type === 'llm_call_success' && trace.code.trim().length) {
         console.log(chalk.dim('   ┌─ generated code'))
         for (const line of trace.code.trim().split('\n')) {

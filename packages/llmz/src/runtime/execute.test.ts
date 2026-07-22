@@ -382,6 +382,36 @@ describe('message-stream protocol execution', () => {
     expect(llm!.time_to_last_token).toBeUndefined()
   })
 
+  test('streaming clients emit code_generation_started when a ■run block begins', async () => {
+    const { chat } = makeChat()
+    const getNumber = new Tool({
+      name: 'getNumber',
+      description: 'Returns a number',
+      output: z.number(),
+      handler: async () => 21,
+    })
+
+    const client = new ScriptedStreamingCognitive([
+      '■send=message\nComputing...\n■run\nconst x = await getNumber()\nreturn { x }',
+      '■send=message\nDone!\n■next=listen',
+    ])
+
+    const result = await executeContext({ client, chat, tools: [getNumber], options: { loop: 5 } })
+
+    expect(result).toBeInstanceOf(SuccessExecutionResult)
+
+    // the trace fires as soon as the ■run directive is parsed, before the
+    // generation completes (llm_call_success) and the code executes
+    const traces = result.iterations[0]!.traces
+    const generationIndex = traces.findIndex((t) => t.type === 'code_generation_started')
+    const successIndex = traces.findIndex((t) => t.type === 'llm_call_success')
+    expect(generationIndex).toBeGreaterThanOrEqual(0)
+    expect(generationIndex).toBeLessThan(successIndex)
+
+    // the second response has no ■run block: no trace
+    expect(result.iterations[1]!.traces.some((t) => t.type === 'code_generation_started')).toBe(false)
+  })
+
   test('streaming clients strip a wrapping code fence', async () => {
     const { chat, messages } = makeChat()
     const client = new ScriptedStreamingCognitive(['```\n■send=message\nFenced hello!\n■next=listen'])

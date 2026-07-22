@@ -149,11 +149,19 @@ export const generateCode = async ({
 
   const liveItems = new Map<string, ParsedItem>()
   const liveContent = new Map<string, string>()
+  let codeGenerationTraced = false
 
   const dispatchSends = async (events: MessageStreamEvent[]) => {
     for (const event of events) {
       if (event.type === 'item-start') {
         liveItems.set(event.item.id, event.item)
+        if (event.item.kind === 'run' && !codeGenerationTraced) {
+          // The model just opened a ■run block: signal that code is being
+          // generated so consumers can show progress while waiting for the
+          // code to complete and execute
+          codeGenerationTraced = true
+          traces.push({ type: 'code_generation_started', started_at: Date.now() })
+        }
       } else if (event.type === 'body-delta' && onSendDelta) {
         const item = liveItems.get(event.itemId)
         if (item?.kind !== 'send') {

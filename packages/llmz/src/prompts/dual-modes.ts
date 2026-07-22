@@ -286,6 +286,7 @@ ${wrapContent(context, { preserve: 'top' })}
 -------------------
 
 Continue with a new response using ■ blocks. Do not re-run the code above; use its result.
+Any ■send messages from your previous response have already been delivered to the user — never repeat or rephrase them; continue from where you left off.
 `.trim(),
   }
 }
