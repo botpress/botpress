@@ -5,6 +5,7 @@ import { createJoinedAbortController } from '../abort-signal.js'
 import { Context, Iteration } from '../context.js'
 import { _CustomModelClient } from '../custom-client.js'
 import { CognitiveError, LoopExceededError, ThinkSignal } from '../errors.js'
+import { createJsxComponent } from '../jsx.js'
 import { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from '../result.js'
 import { Snapshot } from '../snapshots.js'
 import { cleanStackTrace } from '../stack-traces.js'
@@ -12,7 +13,7 @@ import { VMExecutionResult } from '../types.js'
 import { getErrorMessage, init } from '../utils.js'
 import { runAsyncFunction } from '../vm/index.js'
 import { generateCode } from './generate.js'
-import { interpretVMResult } from './interpret-result.js'
+import { applyNextExit, interpretVMResult } from './interpret-result.js'
 import { ExecutionHooks, ExecutionProps, RuntimeCognitive } from './types.js'
 import { finalizeIteration } from './utils.js'
 import { buildVMContext } from './vm-context.js'
@@ -386,7 +387,6 @@ const executeIteration = async ({
   }
 
   const traces = iteration.traces
-  const vmContext = buildVMContext({ ctx, iteration, controller, onBeforeTool, onAfterTool })
 
   if (controller.signal.aborted) {
     traces.push({
@@ -403,6 +403,38 @@ const executeIteration = async ({
     })
     return
   }
+
+  // ■send blocks are dispatched to the chat before any code runs
+  const sendsDispatched = await dispatchSends({ ctx, iteration })
+  if (!sendsDispatched) {
+    return
+  }
+
+  if (!iteration.code) {
+    // No ■run block: the response is messages and/or an exit
+    if (iteration.next) {
+      await applyNextExit({ iteration, onExit })
+      return
+    }
+
+    if (ctx.chat && iteration.sends?.length) {
+      // Message-only response in chat mode: hand the turn back to the user
+      iteration.next = { name: 'listen', props: {} }
+      await applyNextExit({ iteration, onExit })
+      return
+    }
+
+    iteration.end({
+      type: 'invalid_code_error',
+      invalid_code_error: {
+        message:
+          'The response did not include a ■run block or a ■next exit. Reply using ■ blocks and end your response with ■run or ■next=<exit>.',
+      },
+    })
+    return
+  }
+
+  const vmContext = buildVMContext({ ctx, iteration, controller, onBeforeTool, onAfterTool })
 
   const startedAt = Date.now()
   const result: VMExecutionResult = await runAsyncFunction(
@@ -428,4 +460,43 @@ const executeIteration = async ({
     startedAt,
     onExit,
   })
+}
+
+/**
+ * Delivers the parsed ■send blocks to the chat handler, in order.
+ * Returns false (and ends the iteration) when a handler throws.
+ */
+const dispatchSends = async ({ ctx, iteration }: { ctx: Context; iteration: Iteration }): Promise<boolean> => {
+  const sends = iteration.sends ?? []
+
+  if (!sends.length || !ctx.chat) {
+    return true
+  }
+
+  for (const send of sends) {
+    const startedAt = Date.now()
+    const component = createJsxComponent({
+      type: send.name,
+      props: send.props,
+      children: send.body ? [send.body] : [],
+    })
+
+    try {
+      await ctx.chat.handler(component)
+      iteration.traces.push({ type: 'yield', value: component, started_at: startedAt, ended_at: Date.now() })
+    } catch (err) {
+      iteration.end({
+        type: 'execution_error',
+        execution_error: {
+          message: `Error while sending message (■send=${send.name}): ${getErrorMessage(err)}`,
+          stack: cleanStackTrace(
+            err instanceof Error ? (err.stack ?? 'No stack trace available') : 'No stack trace available'
+          ),
+        },
+      })
+      return false
+    }
+  }
+
+  return true
 }

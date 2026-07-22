@@ -7,6 +7,8 @@ export type InstructionGeneratorOptions = {
   exits?: NormalizedExitDefinition[]
   /** Whether the `■run` directive is available. Default: true. */
   includeRun?: boolean
+  /** Whether the `■send` directive is available. Default: true when at least one component is registered. */
+  includeSend?: boolean
   verbosity?: InstructionVerbosity
   /** Defaults to true, except in compact mode. */
   includeExamples?: boolean
@@ -30,9 +32,11 @@ export function generateInstructions(
   const includeRun = options.includeRun ?? true
   const exits = [...(options.exits ?? [])].sort((a, b) => a.name.localeCompare(b.name))
 
+  const includeSend = options.includeSend ?? components.length > 0
+
   const sorted = options.sortComponents === false ? [...components] : _sortComponents(components)
 
-  const sections: string[] = [_coreSyntax({ includeRun, hasExits: exits.length > 0 })]
+  const sections: string[] = [_coreSyntax({ includeSend, includeRun, hasExits: exits.length > 0 })]
 
   if (sorted.length) {
     sections.push('Components:\n\n' + sorted.map((c) => _componentEntry(c, verbosity)).join('\n\n'))
@@ -52,18 +56,30 @@ export function generateInstructions(
   return sections.join('\n\n')
 }
 
-const _coreSyntax = ({ includeRun, hasExits }: { includeRun: boolean; hasExits: boolean }): string => {
+const _coreSyntax = ({
+  includeSend,
+  includeRun,
+  hasExits,
+}: {
+  includeSend: boolean
+  includeRun: boolean
+  hasExits: boolean
+}): string => {
   const blocks = [
-    `${MARKER}send=<component> {props}\nbody content`,
+    ...(includeSend ? [`${MARKER}send=<component> {props}\nbody content`] : []),
     ...(includeRun ? [`${MARKER}run\n// TypeScript code to execute`] : []),
     ...(hasExits ? [`${MARKER}next=<exit> {props}`] : []),
   ]
 
   const rules = [
-    `\`${MARKER}send\` sends a message component to the user. Props are a JSON object on the same line as the header; the body is everything after the header line, until the next \`${MARKER}\`.`,
+    ...(includeSend
+      ? [
+          `\`${MARKER}send\` sends a message component to the user. Props are a JSON object on the same line as the header; the body is everything after the header line, until the next \`${MARKER}\`.`,
+        ]
+      : []),
     ...(includeRun ? [`\`${MARKER}run\` executes code; the body is the code.`] : []),
     ...(hasExits ? [`Always end your response with \`${MARKER}next=<exit>\`.`] : []),
-    `Never write \`${MARKER}\` inside props or body content. Do not output unregistered components or unspecified props.`,
+    `Never write \`${MARKER}\` inside props or body content.${includeSend ? ' Do not output unregistered components or unspecified props.' : ''}`,
   ]
 
   return `Respond using only ${MARKER} blocks, with this exact syntax:\n\n${blocks.join('\n\n')}\n\n${rules.join(' ')}`
@@ -223,7 +239,7 @@ const _buildExamples = (
   maxExamples: number
 ): string[] => {
   const defaultExit = exits.find((e) => e.name === 'listen') ?? exits[0]
-  const suffix = defaultExit ? `\n${MARKER}next=${defaultExit.name}` : ''
+  const suffix = defaultExit ? `\n${_exitExample(defaultExit)}` : ''
 
   const bodyOnly = components.find((c) => c.body && !_propEntries(c.propsJsonSchema).some((p) => p.required))
   const propsOnly = components.find((c) => !c.body && _propEntries(c.propsJsonSchema).length > 0)
@@ -244,6 +260,19 @@ const _buildExamples = (
   }
 
   return examples.slice(0, maxExamples)
+}
+
+const _exitExample = (exit: NormalizedExitDefinition): string => {
+  const props: Record<string, unknown> = {}
+  if (exit.propsJsonSchema) {
+    const required = new Set(exit.propsJsonSchema.required ?? [])
+    for (const [key, propSchema] of Object.entries(exit.propsJsonSchema.properties ?? {})) {
+      if (required.has(key) && typeof propSchema === 'object') {
+        props[key] = _exampleValue(propSchema, key)
+      }
+    }
+  }
+  return `${MARKER}next=${exit.name}${Object.keys(props).length ? ` ${JSON.stringify(props)}` : ''}`
 }
 
 const _exampleProps = (definition: NormalizedComponentDefinition): string => {

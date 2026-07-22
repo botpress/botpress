@@ -78,7 +78,9 @@ export const generateCode = async ({ iteration, ctx, cognitive, controller, meta
   }
 
   const assistantResponse = ctx.version.parseAssistantResponse(out)
-  iteration.code = assistantResponse.code.trim()
+  iteration.code = assistantResponse.code
+  iteration.sends = assistantResponse.sends
+  iteration.next = assistantResponse.next
 
   iteration.llm = {
     cached: output.meta.cached || false,
@@ -97,6 +99,6 @@ export const generateCode = async ({ iteration, ctx, cognitive, controller, meta
     started_at: startedAt,
     ended_at: iteration.llm.ended_at,
     model: model.ref,
-    code: iteration.code,
+    code: iteration.code ?? '',
   })
 }

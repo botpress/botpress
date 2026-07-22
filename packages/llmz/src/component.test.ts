@@ -219,7 +219,7 @@ describe('getComponentReference', () => {
 
       ### <Message>
 
-      Markdown-formatted text that appears directly inside components like <Message>.
+      A Markdown-formatted text message.
 
       **Props:**
 

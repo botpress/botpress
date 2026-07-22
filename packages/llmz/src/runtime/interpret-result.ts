@@ -1,5 +1,3 @@
-import { isPlainObject, omit } from 'lodash-es'
-
 import { Iteration } from '../context.js'
 import { CodeExecutionError, InvalidCodeError, SnapshotSignal, ThinkSignal } from '../errors.js'
 import { parseExit } from '../exit-parser.js'
@@ -94,33 +92,43 @@ export const interpretVMResult = async ({
     return
   }
 
-  let returnValue: { action: string; value?: unknown } | null =
-    result.success && result.return_value ? result.return_value : null
-
-  const returnAction = returnValue?.action
-
-  if (returnAction === 'think') {
-    const variables = omit(returnValue ?? {}, 'action')
-    if (isPlainObject(variables) && Object.keys(variables).length > 0) {
-      iteration.end({
-        type: 'thinking_requested',
-        thinking_requested: {
-          variables,
-          reason: 'Thinking requested',
-        },
-      })
-      return
-    }
-
-    iteration.end({
-      type: 'thinking_requested',
-      thinking_requested: {
-        reason: 'Thinking requested',
-        variables: iteration.variables,
-      },
-    })
+  // The code executed successfully. If the response declared a ■next exit, apply it now.
+  if (iteration.next) {
+    await applyNextExit({ iteration, onExit })
     return
   }
+
+  // No ■next: the returned value is handed back to the model for another iteration
+  const returnValue = result.return_value
+
+  iteration.end({
+    type: 'thinking_requested',
+    thinking_requested: {
+      reason: 'Code execution completed',
+      variables: returnValue === undefined ? iteration.variables : returnValue,
+    },
+  })
+}
+
+/**
+ * Applies the `■next=<exit>` block of the current iteration: validates the exit
+ * name and props against the available exits, runs the onExit hook, and ends
+ * the iteration with exit_success or exit_error.
+ */
+export const applyNextExit = async ({
+  iteration,
+  onExit,
+}: {
+  iteration: Iteration
+  onExit?: ExecutionHooks['onExit']
+}): Promise<void> => {
+  const next = iteration.next
+
+  if (!next) {
+    throw new Error('applyNextExit called without a ■next block on the iteration')
+  }
+
+  const returnValue = Object.keys(next.props).length ? { action: next.name, value: next.props } : { action: next.name }
 
   const parsedExit = parseExit(returnValue, iteration.exits)
 
@@ -128,7 +136,7 @@ export const interpretVMResult = async ({
     iteration.end({
       type: 'exit_error',
       exit_error: {
-        exit: returnValue?.action ?? 'n/a',
+        exit: next.name,
         message: parsedExit.error,
         return_value: returnValue,
       },
@@ -137,12 +145,11 @@ export const interpretVMResult = async ({
   }
 
   const returnExit = parsedExit.exit
-  returnValue = { action: returnExit.name, value: parsedExit.value }
 
   try {
     await onExit?.({
       exit: returnExit,
-      result: returnValue?.value,
+      result: parsedExit.value,
     })
   } catch (err) {
     iteration.end({
@@ -160,8 +167,7 @@ export const interpretVMResult = async ({
     type: 'exit_success',
     exit_success: {
       exit_name: returnExit.name,
-      return_value: returnValue?.value,
+      return_value: parsedExit.value,
     },
   })
-  return
 }

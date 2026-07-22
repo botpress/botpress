@@ -33,12 +33,12 @@ const successResult = (returnValue: unknown): VMExecutionResult => ({
 })
 
 describe('interpretVMResult', () => {
-  test('maps a think action to thinking_requested', async () => {
+  test('a returned value with no ■next maps to thinking_requested', async () => {
     const iteration = makeIteration([], { previous: true })
 
     await interpretVMResult({
       iteration,
-      result: successResult({ action: 'think', value: 1 }),
+      result: successResult({ value: 1 }),
       controller: new AbortController(),
       startedAt: Date.now(),
     })
@@ -47,17 +47,36 @@ describe('interpretVMResult', () => {
       type: 'thinking_requested',
       thinking_requested: {
         variables: { value: 1 },
-        reason: 'Thinking requested',
+        reason: 'Code execution completed',
       },
     })
   })
 
-  test('maps an unknown action to exit_error', async () => {
-    const iteration = makeIteration([new Exit({ name: 'done', description: 'done' })])
+  test('a run with no return value maps to thinking_requested with the iteration variables', async () => {
+    const iteration = makeIteration([], { previous: true })
 
     await interpretVMResult({
       iteration,
-      result: successResult({ action: 'missing' }),
+      result: successResult(undefined),
+      controller: new AbortController(),
+      startedAt: Date.now(),
+    })
+
+    expect(iteration.status).toMatchObject({
+      type: 'thinking_requested',
+      thinking_requested: {
+        variables: { previous: true },
+      },
+    })
+  })
+
+  test('an unknown ■next exit maps to exit_error', async () => {
+    const iteration = makeIteration([new Exit({ name: 'done', description: 'done' })])
+    iteration.next = { name: 'missing', props: {} }
+
+    await interpretVMResult({
+      iteration,
+      result: successResult(undefined),
       controller: new AbortController(),
       startedAt: Date.now(),
     })
@@ -70,17 +89,18 @@ describe('interpretVMResult', () => {
     })
   })
 
-  test('maps a valid exit to exit_success', async () => {
+  test('a valid ■next exit maps to exit_success', async () => {
     const done = new Exit({
       name: 'done',
       description: 'done',
       schema: z.object({ greeting: z.string() }),
     })
     const iteration = makeIteration([done])
+    iteration.next = { name: 'done', props: { greeting: 'hello' } }
 
     await interpretVMResult({
       iteration,
-      result: successResult({ action: 'done', value: { greeting: 'hello' } }),
+      result: successResult(undefined),
       controller: new AbortController(),
       startedAt: Date.now(),
     })
@@ -94,13 +114,32 @@ describe('interpretVMResult', () => {
     })
   })
 
-  test('turns onExit failures into exit_error', async () => {
+  test('■next exit names are matched case-insensitively', async () => {
     const done = new Exit({ name: 'done', description: 'done' })
     const iteration = makeIteration([done])
+    iteration.next = { name: 'DONE', props: {} }
 
     await interpretVMResult({
       iteration,
-      result: successResult({ action: 'done' }),
+      result: successResult(undefined),
+      controller: new AbortController(),
+      startedAt: Date.now(),
+    })
+
+    expect(iteration.status).toMatchObject({
+      type: 'exit_success',
+      exit_success: { exit_name: 'done' },
+    })
+  })
+
+  test('turns onExit failures into exit_error', async () => {
+    const done = new Exit({ name: 'done', description: 'done' })
+    const iteration = makeIteration([done])
+    iteration.next = { name: 'done', props: {} }
+
+    await interpretVMResult({
+      iteration,
+      result: successResult(undefined),
       controller: new AbortController(),
       startedAt: Date.now(),
       onExit: async () => {
@@ -162,5 +201,23 @@ describe('interpretVMResult', () => {
     if (iteration.status.type === 'execution_error') {
       expect(iteration.status.execution_error.message).toContain('boom')
     }
+  })
+
+  test('■next takes precedence over the returned value', async () => {
+    const done = new Exit({ name: 'done', description: 'done' })
+    const iteration = makeIteration([done])
+    iteration.next = { name: 'done', props: {} }
+
+    await interpretVMResult({
+      iteration,
+      result: successResult({ some: 'value' }),
+      controller: new AbortController(),
+      startedAt: Date.now(),
+    })
+
+    expect(iteration.status).toMatchObject({
+      type: 'exit_success',
+      exit_success: { exit_name: 'done' },
+    })
   })
 })

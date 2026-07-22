@@ -10,7 +10,7 @@ import { getValue, ValueOrGetter } from './getter.js'
 import { HookedArray } from './handlers.js'
 import { ObjectInstance } from './objects.js'
 import { DualModePrompt } from './prompts/dual-modes.js'
-import { LLMzPrompts, Prompt } from './prompts/prompt.js'
+import { LLMzPrompts, ParsedNext, ParsedSend, Prompt } from './prompts/prompt.js'
 import { Snapshot } from './snapshots.js'
 import { Tool } from './tool.js'
 import { Transcript, TranscriptArray } from './transcript.js'
@@ -71,7 +71,8 @@ export namespace IterationStatuses {
     type: 'thinking_requested'
     thinking_requested: {
       reason?: string
-      variables: Record<string, unknown>
+      /** The value returned by the executed code (or the context provided by a ThinkSignal). */
+      variables: unknown
       metadata?: Record<string, unknown>
     }
   }
@@ -384,6 +385,10 @@ export class Iteration implements Serializable<Iteration.JSON> {
   public id: string
   public messages: LLMzPrompts.Message[]
   public code?: string
+  /** Messages (`■send` blocks) parsed from the assistant response, in order. */
+  public sends?: ParsedSend[]
+  /** The `■next` exit parsed from the assistant response, if any. */
+  public next?: ParsedNext
   public traces: HookedArray<Trace>
   public variables: Record<string, any>
 
@@ -432,7 +437,7 @@ export class Iteration implements Serializable<Iteration.JSON> {
   }
 
   public get exits() {
-    const exits = [...this._parameters.exits, ThinkExit]
+    const exits = [...this._parameters.exits]
 
     if (this.isChatEnabled) {
       exits.push(ListenExit)
@@ -672,16 +677,19 @@ export class Context implements Serializable<Context.JSON> {
   private async _getIterationMessages(parameters: IterationParameters): Promise<LLMzPrompts.Message[]> {
     const lastIteration = this.iterations.at(-1)
 
+    const promptProps: LLMzPrompts.InitialStateProps = {
+      globalTools: parameters.tools,
+      objects: parameters.objects,
+      instructions: parameters.instructions,
+      transcript: parameters.transcript,
+      // ListenExit is protocol-level in chat mode: it must be documented alongside user-defined exits
+      exits: parameters.components.length ? [...parameters.exits, ListenExit] : parameters.exits,
+      components: parameters.components,
+    }
+
     if (this.snapshot?.status.type === 'resolved') {
       return [
-        await this.version.getSystemMessage({
-          globalTools: parameters.tools,
-          objects: parameters.objects,
-          instructions: parameters.instructions,
-          transcript: parameters.transcript,
-          exits: parameters.exits,
-          components: parameters.components,
-        }),
+        await this.version.getSystemMessage(promptProps),
         this.version.getSnapshotResolvedMessage({
           snapshot: this.snapshot,
         }),
@@ -690,14 +698,7 @@ export class Context implements Serializable<Context.JSON> {
 
     if (this.snapshot?.status.type === 'rejected') {
       return [
-        await this.version.getSystemMessage({
-          globalTools: parameters.tools,
-          objects: parameters.objects,
-          instructions: parameters.instructions,
-          transcript: parameters.transcript,
-          exits: parameters.exits,
-          components: parameters.components,
-        }),
+        await this.version.getSystemMessage(promptProps),
         this.version.getSnapshotRejectedMessage({
           snapshot: this.snapshot,
         }),
@@ -710,35 +711,11 @@ export class Context implements Serializable<Context.JSON> {
     // probably we need to check if max tokens is 75% reached and then summarize messages and variables if needed
 
     if (!lastIteration) {
-      return [
-        await this.version.getSystemMessage({
-          globalTools: parameters.tools,
-          objects: parameters.objects,
-          instructions: parameters.instructions,
-          transcript: parameters.transcript,
-          exits: parameters.exits,
-          components: parameters.components,
-        }),
-        await this.version.getInitialUserMessage({
-          globalTools: parameters.tools,
-          objects: parameters.objects,
-          instructions: parameters.instructions,
-          transcript: parameters.transcript,
-          exits: parameters.exits,
-          components: parameters.components,
-        }),
-      ]
+      return [await this.version.getSystemMessage(promptProps), await this.version.getInitialUserMessage(promptProps)]
     }
 
     const lastIterationMessages = [
-      await this.version.getSystemMessage({
-        globalTools: parameters.tools,
-        objects: parameters.objects,
-        instructions: parameters.instructions,
-        transcript: parameters.transcript,
-        exits: parameters.exits,
-        components: parameters.components,
-      }),
+      await this.version.getSystemMessage(promptProps),
       ...lastIteration.messages.filter((x) => x.role !== 'system'),
     ]
 

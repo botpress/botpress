@@ -2,10 +2,36 @@ import { type GenerateContentInput } from '@botpress/cognitive'
 
 import { Component } from '../component.js'
 import { Exit } from '../exit.js'
+import type { ParsedItem } from '../message-stream/types.js'
 import type { ObjectInstance } from '../objects.js'
 import { Snapshot } from '../snapshots.js'
 import { type Tool } from '../tool.js'
 import type { TranscriptArray } from '../transcript.js'
+
+/** A `■send=<component>` block parsed from the assistant response. */
+export type ParsedSend = {
+  name: string
+  props: Record<string, unknown>
+  body?: string
+}
+
+/** A `■next=<exit>` block parsed from the assistant response. */
+export type ParsedNext = {
+  name: string
+  props: Record<string, unknown>
+}
+
+export type ParsedAssistantResponse = {
+  raw: string
+  /** All protocol items, in order of appearance. */
+  items: ParsedItem[]
+  /** Messages to send to the user, in order. */
+  sends: ParsedSend[]
+  /** The body of the `■run` block, if any. */
+  code?: string
+  /** The `■next` exit, if any. */
+  next?: ParsedNext
+}
 
 export namespace LLMzPrompts {
   export type Message = GenerateContentInput['messages'][number] | { role: 'system'; content: string }
@@ -52,5 +78,5 @@ export type Prompt = {
   getSnapshotResolvedMessage: (props: LLMzPrompts.SnapshotResolvedProps) => LLMzPrompts.Message
   getSnapshotRejectedMessage: (props: LLMzPrompts.SnapshotRejectedProps) => LLMzPrompts.Message
   getStopTokens: () => string[]
-  parseAssistantResponse: (response: string) => { type: 'code'; raw: string; code: string }
+  parseAssistantResponse: (response: string) => ParsedAssistantResponse
 }
