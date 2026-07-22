@@ -976,7 +976,13 @@ export type AnyZodObject = IZodObject<any, any>
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
 export interface IZodObject<
-  /** @ts-ignore Cast variance: ObjectOutputType is covariant in T but the checker can't prove it */
+  // `out` is a manual variance assertion: ObjectOutputType/ObjectInputType are
+  // covariant in T (and UnknownKeys) for every real schema, but the checker
+  // can't prove it from the mapped-type definitions and reports TS2636. The
+  // directive below is load-bearing — it suppresses that variance error, which
+  // is what lets the `any` heritage stay assignable. Re-audit if any member
+  // starts consuming T/UnknownKeys in a contravariant (parameter) position.
+  // @ts-ignore variance TS2636 (see note above)
   out T extends ZodRawShape = ZodRawShape,
   out UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
 > extends IZodType<any, ZodObjectDef<T, UnknownKeys>, any> {
