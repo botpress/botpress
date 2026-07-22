@@ -3090,8 +3090,8 @@ importers:
         specifier: 0.6.2
         version: link:../cognitive
       '@bpinternal/thicktoken':
-        specifier: ^3.0.0
-        version: 3.0.0
+        specifier: ^3.1.0
+        version: 3.1.0
       '@bpinternal/zui':
         specifier: ^2.4.0
         version: link:../zui
@@ -4345,6 +4345,10 @@ packages:
 
   '@bpinternal/thicktoken@3.0.0':
     resolution: {integrity: sha512-oFfQeQHvC+DbngcbSSf97N6NMcUs7O3R04EL0IJhk54li3zppNhg5Ymt5fnToW7WMK4CohdScMBcFoK2kAWSAw==}
+    engines: {node: '>=16.0.0', pnpm: 8.6.2}
+
+  '@bpinternal/thicktoken@3.1.0':
+    resolution: {integrity: sha512-CP8Q+YBi2bXBGB57YNAFrVxPDkx9auW5XjF5QpSc8rer+PYbBHNGMypppnq1lG3WDUVkxsU8nP+GqIP3iELJPA==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
 
   '@bpinternal/tunnel@0.1.1':
@@ -14777,6 +14781,8 @@ snapshots:
       ts-regex-builder: 1.8.2
 
   '@bpinternal/thicktoken@3.0.0': {}
+
+  '@bpinternal/thicktoken@3.1.0': {}
 
   '@bpinternal/tunnel@0.1.1':
     dependencies:
