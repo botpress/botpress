@@ -2,13 +2,12 @@ import { isFunction, mapValues } from 'lodash-es'
 
 import { Identifiers } from '../../compiler/index.js'
 import { Signals, VMSignal } from '../../errors.js'
-import type { JsxComponent } from '../../jsx.js'
 import type { VMExecutionResult } from '../../types.js'
 import { handleCatch, handleErrorNode } from '../errors.js'
 import { instrumentContext, NO_TRACKING } from '../instrument.js'
 import type { DriverExecutionContext, VMDriver } from '../types.js'
 
-// Unsandboxed execution via Node's AsyncGeneratorFunction constructor.
+// Unsandboxed execution via Node's AsyncFunction constructor.
 // No isolation — shares the same heap. Used as fallback when QuickJS WASM can't load.
 export class NodeDriver implements VMDriver {
   public async execute(ctx: DriverExecutionContext): Promise<VMExecutionResult> {
@@ -16,9 +15,9 @@ export class NodeDriver implements VMDriver {
 
     const state = instrumentContext(context, transformed, traces, variables, lines_executed, consumer, 0)
 
-    // No built-in AsyncGeneratorFunction type in TS — extract the constructor at runtime
-    type AsyncGeneratorCtor = (...args: unknown[]) => (...args: unknown[]) => AsyncGenerator<JsxComponent>
-    const AsyncFunction: AsyncGeneratorCtor = async function* () {}.constructor as AsyncGeneratorCtor
+    // No built-in AsyncFunction type in TS — extract the constructor at runtime
+    type AsyncFunctionCtor = (...args: unknown[]) => (...args: unknown[]) => Promise<unknown>
+    const AsyncFunction: AsyncFunctionCtor = async function () {}.constructor as AsyncFunctionCtor
 
     return await (async () => {
       const descriptors = Object.getOwnPropertyDescriptors(context)
@@ -46,16 +45,7 @@ export class NodeDriver implements VMDriver {
       const wrapper = `"use strict"; try { ${assigner};${transformed.code} } finally { ${reportAll} };`
 
       const fn = AsyncFunction(...Object.keys(context), wrapper)
-      const res = fn(...Object.values(context))
-
-      do {
-        const { value, done } = await res.next()
-        if (done) {
-          return value
-        }
-        await context[Identifiers.AsyncIterYieldFnIdentifier](value)
-        // oxlint-disable-next-line no-constant-condition
-      } while (true)
+      return await fn(...Object.values(context))
     })()
       .then((res) => {
         res = Signals.maybeDeserializeError(res)

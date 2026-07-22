@@ -23,7 +23,8 @@ export const handleErrorQuickJS = (
   const LINE_OFFSET = 1
 
   const regex = /<quickjs>:(\d+)/g
-  const QUICKJS_WRAPPER_OFFSET = 10
+  // Number of wrapper lines before the user code in buildScriptCode (quickjs.ts)
+  const QUICKJS_WRAPPER_OFFSET = 9
 
   const matches = Array.from(stackTrace.matchAll(regex)).map((x) => {
     const quickjsLine = Number(x[1])

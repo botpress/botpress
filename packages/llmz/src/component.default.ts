@@ -208,7 +208,7 @@ const Text = new Component({
   type: 'default',
   name: 'Message',
   aliases: ['Text', 'Markdown'],
-  description: 'Markdown-formatted text that appears directly inside components like <Message>.',
+  description: 'A Markdown-formatted text message.',
   examples: [
     {
       name: 'Basic Markdown',

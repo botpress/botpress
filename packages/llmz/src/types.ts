@@ -78,6 +78,13 @@ export namespace Traces {
 
   export type LLMCallStart = TraceTemplate<'llm_call_started', { model: string }>
   export type LLMCallSuccess = TraceTemplate<'llm_call_success', { model: string; code: string }>
+  /**
+   * Emitted on streaming clients the moment the model starts writing a `■run`
+   * block — before the code is fully generated. Useful to show a
+   * "writing code..." indicator while waiting for `llm_call_success` (which
+   * carries the final code) and the subsequent execution.
+   */
+  export type CodeGenerationStart = TraceTemplate<'code_generation_started', {}>
 
   export type AbortTrace = TraceTemplate<'abort_signal', { reason: string }>
   export type YieldTrace = TraceTemplate<'yield', { value: any }>
@@ -94,6 +101,7 @@ export namespace Traces {
     | YieldTrace
     | LLMCallStart
     | LLMCallSuccess
+    | CodeGenerationStart
     | ThinkSignal
     | CodeExecution
     | CodeExecutionException
