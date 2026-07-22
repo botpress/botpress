@@ -1094,9 +1094,12 @@ export interface IZodObject<
 // detection. Output is `unknown` (not `any`): options are only ever bound by this as a
 // constraint, never read through it, so the stricter `unknown` accepts every object
 // schema's output just as well while keeping the type free of `any`.
-export type ZodDiscriminatedUnionOption<Discriminator extends string> = IZodType<unknown, ZodObjectDef, unknown> & {
+export type ZodDiscriminatedUnionOption<Discriminator extends string> = IZodType<
+  unknown,
+  ZodObjectDef,
+  { [K in Discriminator]?: unknown }
+> & {
   shape: ZodRawShape
-  _input: { [K in Discriminator]?: unknown }
 }
 
 export type ZodDiscriminatedUnionDef<
