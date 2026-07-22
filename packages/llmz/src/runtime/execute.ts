@@ -11,7 +11,7 @@ import { Snapshot } from '../snapshots.js'
 import { cleanStackTrace } from '../stack-traces.js'
 import { VMExecutionResult } from '../types.js'
 import { getErrorMessage, init } from '../utils.js'
-import { runAsyncFunction } from '../vm/index.js'
+import { runAsyncFunction, warmupVM } from '../vm/index.js'
 import { generateCode } from './generate.js'
 import { applyNextExit, interpretVMResult } from './interpret-result.js'
 import { ExecutionHooks, ExecutionProps, RuntimeCognitive } from './types.js'
@@ -354,6 +354,26 @@ const executeIteration = async ({
   onAfterTool?: ExecutionHooks['onAfterTool']
   metadata?: ExecutionProps['metadata']
 }): Promise<void> => {
+  const runCode = (code: string): Promise<VMExecutionResult> => {
+    const vmContext = buildVMContext({ ctx, iteration, controller, onBeforeTool, onAfterTool })
+    return runAsyncFunction(vmContext, code, iteration.traces, controller.signal, ctx.timeout).catch((err) => {
+      return {
+        success: false,
+        error: err instanceof Error ? err : new Error(getErrorMessage(err)),
+        lines_executed: [],
+        traces: [],
+        variables: {},
+      } satisfies VMExecutionResult
+    })
+  }
+
+  // On streaming clients, execution starts as soon as the ■run block is fully
+  // parsed — while the rest of the response (■next, stream metadata) may
+  // still be streaming. Disabled when an onBeforeExecution hook is registered,
+  // since the hook must run (and may mutate the code) before execution.
+  const canExecuteEarly = typeof onBeforeExecution !== 'function'
+  let earlyExecution: { code: string; started_at: number; promise: Promise<VMExecutionResult> } | undefined
+
   // ■send blocks are dispatched to the chat as soon as they are parsed — on
   // streaming clients this happens while the model is still generating.
   await generateCode({
@@ -362,6 +382,17 @@ const executeIteration = async ({
     cognitive,
     controller,
     metadata,
+    // Pre-warm the VM while the model is still writing the ■run block
+    onRunStart: () => warmupVM(),
+    onRunComplete: canExecuteEarly
+      ? (code) => {
+          if (!code.length || controller.signal.aborted || earlyExecution) {
+            return
+          }
+          iteration.code = code
+          earlyExecution = { code, started_at: Date.now(), promise: runCode(code) }
+        }
+      : undefined,
     onSend: async (send) => {
       if (!ctx.chat) {
         return
@@ -384,6 +415,12 @@ const executeIteration = async ({
     },
     onSendDelta: ctx.chat?.onMessageDelta ? (delta) => ctx.chat!.onMessageDelta!(delta) : undefined,
   })
+
+  if (earlyExecution) {
+    // generateCode re-derives iteration.code from the full parsed response;
+    // keep the code that actually ran
+    iteration.code = earlyExecution.code
+  }
 
   if (typeof onBeforeExecution === 'function') {
     try {
@@ -458,24 +495,8 @@ const executeIteration = async ({
     return
   }
 
-  const vmContext = buildVMContext({ ctx, iteration, controller, onBeforeTool, onAfterTool })
-
-  const startedAt = Date.now()
-  const result: VMExecutionResult = await runAsyncFunction(
-    vmContext,
-    iteration.code ?? '',
-    traces,
-    controller.signal,
-    ctx.timeout
-  ).catch((err) => {
-    return {
-      success: false,
-      error: err instanceof Error ? err : new Error(getErrorMessage(err)),
-      lines_executed: [],
-      traces: [],
-      variables: {},
-    } satisfies VMExecutionResult
-  })
+  const startedAt = earlyExecution?.started_at ?? Date.now()
+  const result: VMExecutionResult = earlyExecution ? await earlyExecution.promise : await runCode(iteration.code ?? '')
 
   await interpretVMResult({
     iteration,

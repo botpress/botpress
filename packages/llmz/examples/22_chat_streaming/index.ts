@@ -258,7 +258,9 @@ while (true) {
         const duration = chalk.dim(`(${(trace.ended_at ?? trace.started_at) - trace.started_at}ms)`)
         const call = chalk.cyan(`${trace.tool_name}(${trace.input === undefined ? '' : compact(trace.input)})`)
         if (trace.success) {
-          console.log(`   ${chalk.dim('⚙')} ${call} ${chalk.dim('→')} ${chalk.green(compact(trace.output))} ${duration}`)
+          console.log(
+            `   ${chalk.dim('⚙')} ${call} ${chalk.dim('→')} ${chalk.green(compact(trace.output))} ${duration}`
+          )
         } else {
           console.log(`   ${chalk.dim('⚙')} ${call} ${chalk.dim('→')} ${chalk.red(compact(trace.error))} ${duration}`)
         }

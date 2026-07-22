@@ -412,6 +412,45 @@ describe('message-stream protocol execution', () => {
     expect(result.iterations[1]!.traces.some((t) => t.type === 'code_generation_started')).toBe(false)
   })
 
+  test('streaming clients start executing the ■run block before the stream ends', { timeout: 10_000 }, async () => {
+    const done = new Exit({ name: 'done', description: 'Task completed' })
+
+    let release!: () => void
+    const toolRan = new Promise<void>((resolve) => (release = resolve))
+    const sideEffect = new Tool({
+      name: 'sideEffect',
+      description: 'Does something',
+      handler: async () => {
+        release()
+      },
+    })
+
+    /**
+     * Streams the ■run block and the start of the ■next block (which
+     * completes the run item and triggers early execution), then BLOCKS the
+     * rest of the stream until the tool inside the code has run. If execution
+     * only started after the stream ended, this would deadlock.
+     */
+    class GatedStreamingCognitive extends ScriptedCognitive {
+      public async *generateContentStream(): AsyncGenerator<any, any, void> {
+        const content = this._nextContent()
+        const gateAt = content.indexOf('■next')
+        yield { output: content.slice(0, gateAt) }
+        yield { output: content.slice(gateAt, gateAt + 5) } // '■next' — completes the ■run item
+        await toolRan
+        yield { output: content.slice(gateAt + 5) }
+        return this._buildResponse(content)
+      }
+    }
+
+    const client = new GatedStreamingCognitive(['■run\nawait sideEffect()\n■next=done'])
+    const result = await executeContext({ client, tools: [sideEffect], exits: [done], options: { loop: 2 } })
+
+    expect(result).toBeInstanceOf(SuccessExecutionResult)
+    expect(result.iterations).toHaveLength(1)
+    expect((result as SuccessExecutionResult).result.exit.name).toBe('done')
+  })
+
   test('streaming clients strip a wrapping code fence', async () => {
     const { chat, messages } = makeChat()
     const client = new ScriptedStreamingCognitive(['```\n■send=message\nFenced hello!\n■next=listen'])

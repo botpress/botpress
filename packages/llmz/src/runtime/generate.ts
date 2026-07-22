@@ -45,6 +45,17 @@ type GenerateCodeProps = {
    * (streaming clients only). Best-effort: errors are ignored.
    */
   onSendDelta?: (delta: MessageDelta) => Promise<void> | void
+  /**
+   * Called as soon as the model opens a `■run` block, while the code is still
+   * being generated (streaming clients only). Used to pre-warm the VM.
+   */
+  onRunStart?: () => void
+  /**
+   * Called with the code of the first `■run` block the moment it is fully
+   * parsed — the rest of the response (e.g. `■next`) may still be streaming
+   * (streaming clients only). Used to start executing the code early.
+   */
+  onRunComplete?: (code: string) => void
 }
 
 /**
@@ -92,6 +103,8 @@ export const generateCode = async ({
   metadata,
   onSend,
   onSendDelta,
+  onRunStart,
+  onRunComplete,
 }: GenerateCodeProps) => {
   const startedAt = Date.now()
   const traces = iteration.traces
@@ -150,6 +163,7 @@ export const generateCode = async ({
   const liveItems = new Map<string, ParsedItem>()
   const liveContent = new Map<string, string>()
   let codeGenerationTraced = false
+  let runCompleted = false
 
   const dispatchSends = async (events: MessageStreamEvent[]) => {
     for (const event of events) {
@@ -161,6 +175,7 @@ export const generateCode = async ({
           // code to complete and execute
           codeGenerationTraced = true
           traces.push({ type: 'code_generation_started', started_at: Date.now() })
+          onRunStart?.()
         }
       } else if (event.type === 'body-delta' && onSendDelta) {
         const item = liveItems.get(event.itemId)
@@ -181,8 +196,16 @@ export const generateCode = async ({
         } catch (err: unknown) {
           void err
         }
-      } else if (event.type === 'item-complete' && event.item.kind === 'send' && onSend) {
-        await onSend({ name: event.item.name, props: event.item.props, body: event.item.body })
+      } else if (event.type === 'item-complete') {
+        if (event.item.kind === 'send' && onSend) {
+          await onSend({ name: event.item.name, props: event.item.props, body: event.item.body })
+        } else if (event.item.kind === 'run' && event.item.status === 'complete' && !runCompleted) {
+          // The ■run block is fully parsed (only the first one counts — the
+          // response may invalidly contain more): execution can start while
+          // the rest of the response streams
+          runCompleted = true
+          onRunComplete?.((event.item.body ?? '').trim())
+        }
       }
     }
   }

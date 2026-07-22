@@ -3,6 +3,7 @@ import {
   newQuickJSWASMModuleFromVariant,
   QuickJSContext,
   type QuickJSHandle,
+  type QuickJSWASMModule,
   shouldInterruptAfterDeadline,
 } from 'quickjs-emscripten-core'
 
@@ -13,6 +14,13 @@ import type { VMExecutionResult } from '../../types.js'
 import { handleErrorQuickJS } from '../errors.js'
 import { NO_TRACKING, findUserCodeStartLine, instrumentContext } from '../instrument.js'
 import type { DriverExecutionContext, VMContext, VMDriver } from '../types.js'
+
+// The WASM module is compiled once per process and shared by every execution
+// (each execution still gets its own runtime + context). Loading it eagerly —
+// e.g. while the LLM is still generating code — hides the instantiation cost.
+let _quickJSModule: Promise<QuickJSWASMModule> | undefined
+export const loadQuickJSModule = (): Promise<QuickJSWASMModule> =>
+  (_quickJSModule ??= newQuickJSWASMModuleFromVariant(BundledReleaseSyncVariant))
 
 // Sandboxed execution via QuickJS WASM. All host values must be manually marshalled
 // across the boundary — QuickJS has its own heap, separate from Node.js.
@@ -31,7 +39,7 @@ export class QuickJSDriver implements VMDriver {
       userCodeStartLine
     )
 
-    const QuickJS = await newQuickJSWASMModuleFromVariant(BundledReleaseSyncVariant)
+    const QuickJS = await loadQuickJSModule()
     const runtime = QuickJS.newRuntime()
     runtime.setMemoryLimit(128 * 1024 * 1024)
 
