@@ -194,27 +194,66 @@ export class HttpClient {
       console.debug(formatRequestLog(resolvedConfig, headers, requestId))
     }
 
-    let res: Response
+    const toHttpError = (thrown: unknown): HttpError => {
+      if (timedOut) {
+        return new HttpError(`timeout of ${timeout}ms exceeded`, resolvedConfig, 'ECONNABORTED', undefined, thrown)
+      }
+      if (config.signal?.aborted || this.defaults.signal?.aborted) {
+        return new HttpError('canceled', resolvedConfig, 'ERR_CANCELED', undefined, thrown)
+      }
+      const cause = (thrown as Error)?.cause as { code?: string } | undefined
+      const message = (thrown as Error)?.message ?? 'Network Error'
+      return new HttpError(message, resolvedConfig, cause?.code ?? 'ERR_NETWORK', undefined, thrown)
+    }
+
+    // the timeout covers the whole request including reading the response body;
+    // for streams it covers up to the response headers, after which the
+    // caller's signal governs the (potentially long-lived) body
     try {
-      res = await fetch(url, {
+      const res = await fetch(url, {
         method,
         headers,
         body,
         signal: combineSignals(signals),
         credentials: (config.withCredentials ?? this.defaults.withCredentials) ? 'include' : undefined,
       })
-    } catch (thrown) {
-      let error: HttpError
-      if (timedOut) {
-        error = new HttpError(`timeout of ${timeout}ms exceeded`, resolvedConfig, 'ECONNABORTED', undefined, thrown)
-      } else if (config.signal?.aborted || this.defaults.signal?.aborted) {
-        error = new HttpError('canceled', resolvedConfig, 'ERR_CANCELED', undefined, thrown)
+
+      const responseHeaders: HttpResponseHeaders = {}
+      res.headers.forEach((value, key) => {
+        responseHeaders[key] = value
+      })
+
+      let data: any
+      const responseType = config.responseType ?? 'json'
+      if (!res.ok || responseType === 'json' || responseType === 'text') {
+        const text = await res.text()
+        data = !res.ok || responseType === 'json' ? tryParseJson(text) : text
+      } else if (responseType === 'arraybuffer') {
+        data = await res.arrayBuffer()
       } else {
-        const cause = (thrown as Error)?.cause as { code?: string } | undefined
-        const message = (thrown as Error)?.message ?? 'Network Error'
-        error = new HttpError(message, resolvedConfig, cause?.code ?? 'ERR_NETWORK', undefined, thrown)
+        data = res.body ? streamBody(res.body) : undefined
       }
+
+      const response: HttpResponse<T> = {
+        data,
+        status: res.status,
+        statusText: res.statusText,
+        headers: responseHeaders,
+        config: resolvedConfig,
+      }
+
       if (debug) {
+        console.debug(formatResponseLog(response, requestId, startTime))
+      }
+
+      if (!res.ok) {
+        throw new HttpError(`Request failed with status code ${res.status}`, resolvedConfig, undefined, response)
+      }
+
+      return response
+    } catch (thrown) {
+      const error = isHttpError(thrown) ? thrown : toHttpError(thrown)
+      if (debug && !error.response) {
         console.debug(formatErrorLog(error, requestId, startTime))
       }
       throw error
@@ -223,40 +262,6 @@ export class HttpClient {
         clearTimeout(timer)
       }
     }
-
-    const responseHeaders: HttpResponseHeaders = {}
-    res.headers.forEach((value, key) => {
-      responseHeaders[key] = value
-    })
-
-    let data: any
-    const responseType = config.responseType ?? 'json'
-    if (!res.ok || responseType === 'json' || responseType === 'text') {
-      const text = await res.text()
-      data = !res.ok || responseType === 'json' ? tryParseJson(text) : text
-    } else if (responseType === 'arraybuffer') {
-      data = await res.arrayBuffer()
-    } else {
-      data = res.body ? streamBody(res.body) : undefined
-    }
-
-    const response: HttpResponse<T> = {
-      data,
-      status: res.status,
-      statusText: res.statusText,
-      headers: responseHeaders,
-      config: resolvedConfig,
-    }
-
-    if (debug) {
-      console.debug(formatResponseLog(response, requestId, startTime))
-    }
-
-    if (!res.ok) {
-      throw new HttpError(`Request failed with status code ${res.status}`, resolvedConfig, undefined, response)
-    }
-
-    return response
   }
 }
 

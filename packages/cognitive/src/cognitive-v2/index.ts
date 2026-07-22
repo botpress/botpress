@@ -170,7 +170,9 @@ export class CognitiveBeta {
 
   public async listModels() {
     const { data } = await this._withServerRetry(() =>
-      this._httpClient.get<{ models: Model[] }>('/v2/cognitive/models')
+      this._httpClient.get<{ models: Model[] }>('/v2/cognitive/models', {
+        timeout: this._timeout,
+      })
     )
 
     return data.models
@@ -180,6 +182,7 @@ export class CognitiveBeta {
     const { data } = await this._withServerRetry(() =>
       this._httpClient.get<{ voices: Voice[] }>('/v2/cognitive/voices', {
         params: filter,
+        timeout: this._timeout,
       })
     )
 

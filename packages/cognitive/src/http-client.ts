@@ -103,53 +103,59 @@ export class HttpClient {
       signals.push(timeoutController.signal)
     }
 
-    let res: Response
+    const toHttpError = (thrown: unknown): HttpError => {
+      if (timedOut) {
+        return new HttpError(`timeout of ${options.timeout}ms exceeded`, 'ECONNABORTED', undefined, thrown)
+      }
+      if (options.signal?.aborted || this.defaults.signal?.aborted) {
+        return new HttpError('canceled', 'ERR_CANCELED', undefined, thrown)
+      }
+      const cause = (thrown as Error)?.cause as { code?: string } | undefined
+      return new HttpError((thrown as Error)?.message ?? 'Network Error', cause?.code ?? 'ERR_NETWORK', undefined, thrown)
+    }
+
+    // the timeout covers the whole request including reading the response body;
+    // for streams it covers up to the response headers, after which the
+    // caller's signal governs the (potentially long-lived) body
     try {
-      res = await fetch(fullUrl, {
+      const res = await fetch(fullUrl, {
         method,
         headers,
         body,
         signal: combineSignals(signals),
         credentials: this._config.withCredentials ? 'include' : undefined,
       })
+
+      const responseHeaders: Record<string, string> = {}
+      res.headers.forEach((value, key) => {
+        responseHeaders[key] = value
+      })
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        throw new HttpError(`HTTP ${res.status}: ${text || res.statusText}`, undefined, {
+          status: res.status,
+          statusText: res.statusText,
+          headers: responseHeaders,
+          data: tryParseJson(text),
+        })
+      }
+
+      let responseData: any
+      if (options.responseType === 'stream') {
+        responseData = res.body ? streamBody(res.body) : undefined
+      } else {
+        responseData = tryParseJson(await res.text())
+      }
+
+      return { data: responseData as T, status: res.status, headers: responseHeaders }
     } catch (thrown) {
-      if (timedOut) {
-        throw new HttpError(`timeout of ${options.timeout}ms exceeded`, 'ECONNABORTED', undefined, thrown)
-      }
-      if (options.signal?.aborted || this.defaults.signal?.aborted) {
-        throw new HttpError('canceled', 'ERR_CANCELED', undefined, thrown)
-      }
-      const cause = (thrown as Error)?.cause as { code?: string } | undefined
-      throw new HttpError((thrown as Error)?.message ?? 'Network Error', cause?.code ?? 'ERR_NETWORK', undefined, thrown)
+      throw isHttpError(thrown) ? thrown : toHttpError(thrown)
     } finally {
       if (timer !== undefined) {
         clearTimeout(timer)
       }
     }
-
-    const responseHeaders: Record<string, string> = {}
-    res.headers.forEach((value, key) => {
-      responseHeaders[key] = value
-    })
-
-    if (!res.ok) {
-      const text = await res.text().catch(() => '')
-      throw new HttpError(`HTTP ${res.status}: ${text || res.statusText}`, undefined, {
-        status: res.status,
-        statusText: res.statusText,
-        headers: responseHeaders,
-        data: tryParseJson(text),
-      })
-    }
-
-    let responseData: any
-    if (options.responseType === 'stream') {
-      responseData = res.body ? streamBody(res.body) : undefined
-    } else {
-      responseData = tryParseJson(await res.text())
-    }
-
-    return { data: responseData as T, status: res.status, headers: responseHeaders }
   }
 
   private _buildUrl(url: string, params: Record<string, string | undefined> | undefined): string {
