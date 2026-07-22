@@ -7,7 +7,7 @@ import { ThinkSignal } from '../src/errors.js'
 import { ExecutionResult, SuccessExecutionResult } from '../src/result.js'
 import { getCachedCognitiveClient } from './__tests__/index.js'
 import { Component } from '../src/component.js'
-import { Chat } from '../src/chat.js'
+import { Chat, MessageDelta } from '../src/chat.js'
 import { TranscriptArray } from '../src/transcript.js'
 
 const client = getCachedCognitiveClient()
@@ -1968,5 +1968,90 @@ IMPORTANT: This is production code - show it EXACTLY as-is with all HTML tags an
         ]
       `)
     })
+  })
+})
+
+describe('message streaming', { retry: 0, timeout: 60_000 }, () => {
+  const StreamMarkdown = new Component({
+    name: 'Markdown',
+    type: 'leaf',
+    description: 'Renders markdown content',
+    leaf: {
+      props: z.object({}),
+    },
+    examples: [
+      {
+        code: '<Markdown>Here is some text.</Markdown>',
+        description: 'Simple markdown component',
+        name: 'Simple Markdown',
+      },
+    ],
+  })
+
+  it('streams message chunks to the client as they arrive from cognitive', async () => {
+    const deltas: MessageDelta[] = []
+    const messagesSent: string[] = []
+
+    const transcript = new TranscriptArray([
+      {
+        role: 'user',
+        content: 'Please tell me a short story (about two paragraphs) about a brave corgi named Biscuit.',
+      },
+    ])
+
+    const chat = new Chat({
+      transcript,
+      components: [StreamMarkdown],
+      handler: async (component) => {
+        messagesSent.push(component.children.map((c) => (typeof c === 'string' ? c : '')).join(''))
+      },
+      onMessageDelta: (delta) => {
+        deltas.push(delta)
+      },
+    })
+
+    const result = await llmz.executeContext({
+      instructions: 'Answer the user request directly.',
+      chat,
+      options: { loop: 3 },
+      client,
+    })
+
+    assertSuccess(result)
+    expect(messagesSent.length).toBeGreaterThanOrEqual(1)
+
+    // The message body arrived progressively, split across many stream chunks
+    expect(deltas.length).toBeGreaterThan(1)
+
+    // Each streamed message is fully reconstructible from its chunks and matches
+    // the final message delivered to the handler
+    const deltasById = new Map<string, MessageDelta[]>()
+    for (const delta of deltas) {
+      deltasById.set(delta.id, [...(deltasById.get(delta.id) ?? []), delta])
+    }
+    for (const [, messageDeltas] of deltasById) {
+      const joined = messageDeltas.map((d) => d.delta).join('')
+      expect(messageDeltas.at(-1)!.content).toBe(joined)
+      expect(messagesSent).toContain(joined)
+    }
+
+    // Token timings are recorded on the iteration
+    const llmMeta = result.iterations[0]!.llm
+    expect(llmMeta?.time_to_first_token).toBeTypeOf('number')
+    expect(llmMeta?.time_to_last_token).toBeTypeOf('number')
+    expect(llmMeta!.time_to_first_token!).toBeGreaterThanOrEqual(0)
+    expect(llmMeta!.time_to_last_token!).toBeGreaterThanOrEqual(llmMeta!.time_to_first_token!)
+
+    // Token usage is measured per iteration and aggregated on the result
+    const usage = result.iterations[0]!.tokens!
+    expect(usage.input).toBeGreaterThan(0)
+    expect(usage.output).toBeGreaterThan(0)
+    expect(usage.limit).toBeGreaterThan(0)
+    expect(usage.context.total).toBeLessThan(usage.limit!)
+    expect(usage.context.framework).toBeGreaterThan(0)
+    expect(usage.context.instructions).toBeGreaterThan(0)
+    expect(usage.context.transcript).toBeGreaterThan(0)
+    expect(usage.context.protocol).toBeGreaterThan(0)
+    expect(result.tokens.total).toBe(usage.total)
   })
 })

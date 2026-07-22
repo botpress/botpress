@@ -2,10 +2,11 @@ import { Cognitive } from '@botpress/cognitive'
 import { clamp } from 'lodash-es'
 
 import { createJoinedAbortController } from '../abort-signal.js'
+import type { MessageDelta } from '../chat.js'
 import { Context, Iteration } from '../context.js'
 import { CognitiveError } from '../errors.js'
 import { StreamingMessageParser } from '../message-stream/parser.js'
-import type { MessageStreamEvent } from '../message-stream/types.js'
+import type { MessageStreamEvent, ParsedItem } from '../message-stream/types.js'
 import { toParsedAssistantResponse } from '../prompts/common.js'
 import type { ParsedAssistantResponse, ParsedSend } from '../prompts/prompt.js'
 import { truncateWrappedContent } from '../truncator.js'
@@ -39,6 +40,11 @@ type GenerateCodeProps = {
    * while the model is still generating — messages are delivered progressively.
    */
   onSend?: (send: ParsedSend) => Promise<void>
+  /**
+   * Called for each `■send` body chunk as it is parsed from the stream
+   * (streaming clients only). Best-effort: errors are ignored.
+   */
+  onSendDelta?: (delta: MessageDelta) => Promise<void> | void
 }
 
 /**
@@ -78,7 +84,15 @@ class LeadingFenceFilter {
   }
 }
 
-export const generateCode = async ({ iteration, ctx, cognitive, controller, metadata, onSend }: GenerateCodeProps) => {
+export const generateCode = async ({
+  iteration,
+  ctx,
+  cognitive,
+  controller,
+  metadata,
+  onSend,
+  onSendDelta,
+}: GenerateCodeProps) => {
   const startedAt = Date.now()
   const traces = iteration.traces
 
@@ -86,8 +100,16 @@ export const generateCode = async ({ iteration, ctx, cognitive, controller, meta
   const model = await cognitive.getModelDetails(modelRef).catch((thrown: unknown) => {
     throw new CognitiveError(`Failed to fetch model details for model "${modelRef}": ${getErrorMessage(thrown)}`)
   })
-  const modelLimit = Math.max(model.input.maxTokens, 8_000)
+  let modelLimit = Math.max(model.input.maxTokens, 8_000)
+  if (ctx.maxTokens) {
+    // User-provided cap on the context window: effective max = min(override, model max)
+    modelLimit = Math.min(ctx.maxTokens, modelLimit)
+  }
   const responseLengthBuffer = getModelOutputLimit(modelLimit)
+
+  if (iteration.tokens) {
+    iteration.tokens.limit = modelLimit
+  }
 
   const messages = truncateWrappedContent({
     messages: iteration.messages,
@@ -121,12 +143,37 @@ export const generateCode = async ({ iteration, ctx, cognitive, controller, meta
   let raw: string
   let assistantResponse: ParsedAssistantResponse
 
+  /** Milliseconds between the stream request and the first/last streamed tokens. */
+  let timeToFirstToken: number | undefined
+  let timeToLastToken: number | undefined
+
+  const liveItems = new Map<string, ParsedItem>()
+  const liveContent = new Map<string, string>()
+
   const dispatchSends = async (events: MessageStreamEvent[]) => {
-    if (!onSend) {
-      return
-    }
     for (const event of events) {
-      if (event.type === 'item-complete' && event.item.kind === 'send') {
+      if (event.type === 'item-start') {
+        liveItems.set(event.item.id, event.item)
+      } else if (event.type === 'body-delta' && onSendDelta) {
+        const item = liveItems.get(event.itemId)
+        if (item?.kind !== 'send') {
+          continue
+        }
+        const content = (liveContent.get(item.id) ?? '') + event.delta
+        liveContent.set(item.id, content)
+        try {
+          // Progressive previews are best-effort; the authoritative delivery is onSend.
+          await onSendDelta({
+            id: `${iteration.id}:${item.id}`,
+            component: item.name,
+            props: item.props,
+            delta: event.delta,
+            content,
+          })
+        } catch (err: unknown) {
+          void err
+        }
+      } else if (event.type === 'item-complete' && event.item.kind === 'send' && onSend) {
         await onSend({ name: event.item.name, props: event.item.props, body: event.item.body })
       }
     }
@@ -141,6 +188,7 @@ export const generateCode = async ({ iteration, ctx, cognitive, controller, meta
     // Guard against stalled streams: the transport has no timeout of its own
     // when a signal is provided, so a silent connection would hang forever.
     const streamController = createJoinedAbortController([controller.signal])
+    const requestedAt = Date.now()
     const stream = cognitive.generateContentStream({ ...input, signal: streamController.signal })
 
     const nextChunk = async () => {
@@ -177,6 +225,9 @@ export const generateCode = async ({ iteration, ctx, cognitive, controller, meta
       if (!delta) {
         continue
       }
+
+      timeToLastToken = Date.now() - requestedAt
+      timeToFirstToken ??= timeToLastToken
 
       raw += delta
       await dispatchSends(parser.push(fence.push(delta)))
@@ -221,7 +272,15 @@ export const generateCode = async ({ iteration, ctx, cognitive, controller, meta
     spend: output.meta.cost.input + output.meta.cost.output,
     output: assistantResponse.raw,
     model: `${output.meta.model.integration}:${output.meta.model.model}`,
+    time_to_first_token: timeToFirstToken,
+    time_to_last_token: timeToLastToken,
     usage: output.output.usage,
+  }
+
+  if (iteration.tokens) {
+    iteration.tokens.input = output.meta.tokens.input
+    iteration.tokens.output = output.meta.tokens.output
+    iteration.tokens.total = output.meta.tokens.input + output.meta.tokens.output
   }
 
   traces.push({

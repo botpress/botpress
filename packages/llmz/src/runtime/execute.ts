@@ -59,6 +59,7 @@ const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionR
     tools: props.tools,
     loop: props.options?.loop,
     timeout: props.options?.timeout,
+    maxTokens: props.options?.maxTokens,
     exits: props.exits,
     snapshot: props.snapshot,
     model: props.model,
@@ -381,6 +382,7 @@ const executeIteration = async ({
 
       iteration.traces.push({ type: 'yield', value: component, started_at: sendStartedAt, ended_at: Date.now() })
     },
+    onSendDelta: ctx.chat?.onMessageDelta ? (delta) => ctx.chat!.onMessageDelta!(delta) : undefined,
   })
 
   if (typeof onBeforeExecution === 'function') {

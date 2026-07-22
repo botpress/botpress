@@ -108,7 +108,14 @@ export type ExecutionHooks = {
   }) => Promise<{ output?: any } | void>
 }
 
-type Options = Partial<Pick<Context, 'loop' | 'timeout'>>
+type Options = Partial<Pick<Context, 'loop' | 'timeout'>> & {
+  /**
+   * Optional cap on the model's context window, in tokens.
+   * The effective limit is `min(maxTokens, model's max input tokens)`.
+   * Useful to reduce cost and latency on models with very large context windows.
+   */
+  maxTokens?: number
+}
 
 export type ExecutionProps = {
   /**

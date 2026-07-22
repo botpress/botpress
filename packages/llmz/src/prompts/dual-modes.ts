@@ -77,31 +77,43 @@ ${variables_example}
 \`\`\``
   }
 
+  const identity = props.instructions?.length ? props.instructions : 'No specific instructions provided'
+  const transcript = props.transcript.toString()
+  const protocol = getProtocolInstructions({ components: props.components, exits: props.exits })
+
   return {
-    role: 'system' as const,
-    content: replacePlaceholders(canTalk ? CHAT_SYSTEM_PROMPT_TEXT : WORKER_SYSTEM_PROMPT_TEXT, {
-      is_message_enabled: canTalk,
-      'tools.d.ts': wrapContent(dts, {
-        preserve: 'both',
-        minTokens: 500,
-      }),
-      identity: wrapContent(props.instructions?.length ? props.instructions : 'No specific instructions provided', {
-        preserve: 'both',
-        minTokens: 1000,
-      }),
-      transcript: wrapContent(props.transcript.toString(), {
-        preserve: 'bottom',
-        minTokens: 500,
-      }),
-      tool_names: tool_names.join(', '),
-      readonly_vars: readonly_vars.join(', '),
-      writeable_vars: writeable_vars.join(', '),
-      variables_example,
-      protocol: wrapContent(getProtocolInstructions({ components: props.components, exits: props.exits }), {
-        preserve: 'both',
-        minTokens: 500,
-      }),
-    }).trim(),
+    message: {
+      role: 'system' as const,
+      content: replacePlaceholders(canTalk ? CHAT_SYSTEM_PROMPT_TEXT : WORKER_SYSTEM_PROMPT_TEXT, {
+        is_message_enabled: canTalk,
+        'tools.d.ts': wrapContent(dts, {
+          preserve: 'both',
+          minTokens: 500,
+        }),
+        identity: wrapContent(identity, {
+          preserve: 'both',
+          minTokens: 1000,
+        }),
+        transcript: wrapContent(transcript, {
+          preserve: 'bottom',
+          minTokens: 500,
+        }),
+        tool_names: tool_names.join(', '),
+        readonly_vars: readonly_vars.join(', '),
+        writeable_vars: writeable_vars.join(', '),
+        variables_example,
+        protocol: wrapContent(protocol, {
+          preserve: 'both',
+          minTokens: 500,
+        }),
+      }).trim(),
+    },
+    parts: {
+      instructions: identity,
+      tools: dts,
+      transcript,
+      protocol,
+    },
   }
 }
 

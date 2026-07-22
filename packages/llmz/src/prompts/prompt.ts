@@ -35,6 +35,26 @@ export type ParsedAssistantResponse = {
 
 export namespace LLMzPrompts {
   export type Message = GenerateContentInput['messages'][number] | { role: 'system'; content: string }
+
+  /**
+   * The raw (pre-truncation, unwrapped) content of each named section of the
+   * system prompt. Used to measure the context size of each part of the prompt.
+   */
+  export type SystemPromptParts = {
+    /** The identity / instructions section. */
+    instructions: string
+    /** tools.d.ts — tools, objects and variable typings. */
+    tools: string
+    /** The conversation transcript. */
+    transcript: string
+    /** The ■ protocol reference documenting components and exits. */
+    protocol: string
+  }
+
+  export type SystemMessage = {
+    message: Message
+    parts: SystemPromptParts
+  }
   export type MessageContent = Extract<GenerateContentInput['messages'][number]['content'], any[]>[number]
   export type InitialStateProps = {
     instructions?: string
@@ -70,7 +90,7 @@ export namespace LLMzPrompts {
 }
 
 export type Prompt = {
-  getSystemMessage: (props: LLMzPrompts.InitialStateProps) => Promise<LLMzPrompts.Message>
+  getSystemMessage: (props: LLMzPrompts.InitialStateProps) => Promise<LLMzPrompts.SystemMessage>
   getInitialUserMessage: (props: LLMzPrompts.InitialStateProps) => Promise<LLMzPrompts.Message>
   getThinkingMessage: (props: LLMzPrompts.ThinkingProps) => Promise<LLMzPrompts.Message>
   getInvalidCodeMessage: (props: LLMzPrompts.InvalidCodeProps) => Promise<LLMzPrompts.Message>

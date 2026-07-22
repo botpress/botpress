@@ -325,6 +325,9 @@ const _createRegex = () => new RegExp(REGEXP, 'g')
 
 const _renderRemainingWrappers = (content: string) => content.replace(_createRegex(), '$2')
 
+/** Removes truncation wrapper tags from content, leaving the wrapped content intact. */
+export const stripTruncationTags = (content: string) => _renderRemainingWrappers(content)
+
 const _countTotalTokens = (parts: Part[][]) =>
   parts.reduce((acc, x) => acc + x.reduce((acc, y) => acc + y.tokens, 0), 0)
 

@@ -14,8 +14,49 @@ import { LLMzPrompts, ParsedNext, ParsedSend, Prompt } from './prompts/prompt.js
 import { Snapshot } from './snapshots.js'
 import { Tool } from './tool.js'
 import { Transcript, TranscriptArray } from './transcript.js'
-import { wrapContent } from './truncator.js'
+import { stripTruncationTags, wrapContent } from './truncator.js'
 import { ObjectMutation, Serializable, Trace } from './types.js'
+import { getTokenizer } from './utils.js'
+
+/**
+ * Tokenizer-measured size of each part of the prompt, before truncation.
+ * Useful to understand what is eating up the context window.
+ */
+export type ContextTokens = {
+  /** Total measured size of the prompt (sum of all the parts below). */
+  total: number
+  /** Static prompt scaffolding: response format, VM rules, security guidelines, recap. */
+  framework: number
+  /** The identity / instructions section. */
+  instructions: number
+  /** tools.d.ts — tools, objects and variable typings. */
+  tools: number
+  /** The conversation transcript. */
+  transcript: number
+  /** The ■ protocol reference documenting components and exits. */
+  protocol: number
+  /** Messages carried over from previous iterations (assistant responses, execution results, errors). */
+  iterations: number
+}
+
+/** Token usage of a single iteration's LLM call. */
+export type TokenUsage = {
+  /** Input tokens consumed, as reported by the LLM provider. Zero until the call completes. */
+  input: number
+  /** Output tokens produced, as reported by the LLM provider. Zero until the call completes. */
+  output: number
+  /** Total tokens (input + output). */
+  total: number
+  /**
+   * The effective context window limit of this call, in tokens:
+   * `min(options.maxTokens, model's max input tokens)`. Use it to compute the
+   * percentage of context used (e.g. `context.total / limit`).
+   * Undefined until the LLM call starts.
+   */
+  limit?: number
+  /** Measured context size by part of the prompt (pre-truncation). */
+  context: ContextTokens
+}
 
 export type IterationParameters = {
   transcript: TranscriptArray
@@ -369,7 +410,10 @@ export namespace Iteration {
       spend: number
       output: string
       model: string
+      time_to_first_token?: number
+      time_to_last_token?: number
     }
+    tokens?: TokenUsage
     transcript: Transcript.Message[]
     tools: Tool.JSON[]
     objects: ObjectInstance.JSON[]
@@ -391,6 +435,13 @@ export class Iteration implements Serializable<Iteration.JSON> {
   public next?: ParsedNext
   public traces: HookedArray<Trace>
   public variables: Record<string, any>
+
+  /**
+   * Token usage of this iteration's LLM call. The `context` breakdown is measured
+   * when the prompt is assembled; `input`/`output` are filled in once the LLM call
+   * completes, from the provider-reported usage.
+   */
+  public tokens?: TokenUsage
 
   public started_ts: number
   public ended_ts?: number
@@ -459,6 +510,10 @@ export class Iteration implements Serializable<Iteration.JSON> {
     spend: number
     output: string
     model: string
+    /** Milliseconds between the LLM call start and the first streamed token. Only set on streaming clients. */
+    time_to_first_token?: number
+    /** Milliseconds between the LLM call start and the last streamed token. Only set on streaming clients. */
+    time_to_last_token?: number
     usage: {
       inputCost: number
       outputCost: number
@@ -574,6 +629,7 @@ export class Iteration implements Serializable<Iteration.JSON> {
       status: this.status,
       mutations: [...this._mutations.values()],
       llm: this.llm,
+      tokens: this.tokens,
       transcript: [...this._parameters.transcript],
       tools: this._parameters.tools.map((tool) => tool.toJSON()),
       objects: this._parameters.objects.map((obj) => obj.toJSON()),
@@ -613,6 +669,11 @@ export class Context implements Serializable<Context.JSON> {
   public version: Prompt = DualModePrompt
   public timeout: number = 60_000 // Default timeout of 60 seconds
   public loop: number
+  /**
+   * Optional cap on the model's context window. The effective limit is
+   * `min(maxTokens, model's max input tokens)`.
+   */
+  public maxTokens?: number
   public metadata: Record<string, any>
 
   public snapshot?: Snapshot
@@ -632,7 +693,8 @@ export class Context implements Serializable<Context.JSON> {
     }
 
     const parameters = await this._refreshIterationParameters()
-    const messages = await this._getIterationMessages(parameters)
+    const { messages, parts } = await this._getIterationMessages(parameters)
+    const contextTokens = this._measureContextTokens(messages, parts)
 
     const iteration = new Iteration({
       id: `${this.id}_${this.iterations.length + 1}`,
@@ -640,6 +702,8 @@ export class Context implements Serializable<Context.JSON> {
       parameters,
       messages,
     })
+
+    iteration.tokens = { input: 0, output: 0, total: 0, context: contextTokens }
 
     this.iterations.push(iteration)
     this.iteration = this.iterations.length
@@ -674,7 +738,55 @@ export class Context implements Serializable<Context.JSON> {
     return variables
   }
 
-  private async _getIterationMessages(parameters: IterationParameters): Promise<LLMzPrompts.Message[]> {
+  /**
+   * Measures the token size of each part of the prompt (pre-truncation).
+   * The named parts come from the system prompt; everything else in the system
+   * message is `framework`. Non-system messages count towards `iterations`,
+   * except the very first user message of a fresh execution (task recap),
+   * which is prompt scaffolding.
+   */
+  private _measureContextTokens(messages: LLMzPrompts.Message[], parts: LLMzPrompts.SystemPromptParts): ContextTokens {
+    const tokenizer = getTokenizer()
+
+    const countText = (text: string | undefined) => (text?.length ? tokenizer.count(stripTruncationTags(text)) : 0)
+    const countMessage = (message: LLMzPrompts.Message): number => {
+      if (typeof message.content === 'string') {
+        return countText(message.content)
+      }
+      if (Array.isArray(message.content)) {
+        // Images and other non-text parts are not counted
+        return message.content.reduce((acc, part) => acc + (part.type === 'text' ? countText(part.text) : 0), 0)
+      }
+      return 0
+    }
+
+    const instructions = countText(parts.instructions)
+    const tools = countText(parts.tools)
+    const transcript = countText(parts.transcript)
+    const protocol = countText(parts.protocol)
+
+    const systemTokens = messages.filter((x) => x.role === 'system').reduce((acc, x) => acc + countMessage(x), 0)
+    const otherTokens = messages.filter((x) => x.role !== 'system').reduce((acc, x) => acc + countMessage(x), 0)
+
+    const isFirstIteration = this.iterations.length === 0 && !this.snapshot
+    const framework = Math.max(0, systemTokens - (instructions + tools + transcript + protocol))
+    const iterations = isFirstIteration ? 0 : otherTokens
+
+    return {
+      total:
+        framework + instructions + tools + transcript + protocol + iterations + (isFirstIteration ? otherTokens : 0),
+      framework: framework + (isFirstIteration ? otherTokens : 0),
+      instructions,
+      tools,
+      transcript,
+      protocol,
+      iterations,
+    }
+  }
+
+  private async _getIterationMessages(
+    parameters: IterationParameters
+  ): Promise<{ messages: LLMzPrompts.Message[]; parts: LLMzPrompts.SystemPromptParts }> {
     const lastIteration = this.iterations.at(-1)
 
     const promptProps: LLMzPrompts.InitialStateProps = {
@@ -687,22 +799,25 @@ export class Context implements Serializable<Context.JSON> {
       components: parameters.components,
     }
 
+    const { message: systemMessage, parts } = await this.version.getSystemMessage(promptProps)
+    const withParts = (messages: LLMzPrompts.Message[]) => ({ messages, parts })
+
     if (this.snapshot?.status.type === 'resolved') {
-      return [
-        await this.version.getSystemMessage(promptProps),
+      return withParts([
+        systemMessage,
         this.version.getSnapshotResolvedMessage({
           snapshot: this.snapshot,
         }),
-      ]
+      ])
     }
 
     if (this.snapshot?.status.type === 'rejected') {
-      return [
-        await this.version.getSystemMessage(promptProps),
+      return withParts([
+        systemMessage,
         this.version.getSnapshotRejectedMessage({
           snapshot: this.snapshot,
         }),
-      ]
+      ])
     }
 
     // TODO: truncate messages when too many / too long...
@@ -711,16 +826,13 @@ export class Context implements Serializable<Context.JSON> {
     // probably we need to check if max tokens is 75% reached and then summarize messages and variables if needed
 
     if (!lastIteration) {
-      return [await this.version.getSystemMessage(promptProps), await this.version.getInitialUserMessage(promptProps)]
+      return withParts([systemMessage, await this.version.getInitialUserMessage(promptProps)])
     }
 
-    const lastIterationMessages = [
-      await this.version.getSystemMessage(promptProps),
-      ...lastIteration.messages.filter((x) => x.role !== 'system'),
-    ]
+    const lastIterationMessages = [systemMessage, ...lastIteration.messages.filter((x) => x.role !== 'system')]
 
     if (lastIteration?.status.type === 'thinking_requested') {
-      return [
+      return withParts([
         ...lastIterationMessages,
         {
           role: 'assistant',
@@ -730,11 +842,11 @@ export class Context implements Serializable<Context.JSON> {
           reason: lastIteration.status.thinking_requested.reason,
           variables: lastIteration.status.thinking_requested.variables,
         }),
-      ]
+      ])
     }
 
     if (lastIteration?.status.type === 'exit_error') {
-      return [
+      return withParts([
         ...lastIterationMessages,
         {
           role: 'assistant',
@@ -744,11 +856,11 @@ export class Context implements Serializable<Context.JSON> {
           code: lastIteration.code ?? '// No code generated',
           message: `Invalid return statement (action: ${lastIteration.status.exit_error.exit}): ${lastIteration.status.exit_error.message}`,
         }),
-      ]
+      ])
     }
 
     if (lastIteration?.status.type === 'invalid_code_error') {
-      return [
+      return withParts([
         ...lastIterationMessages,
         {
           role: 'assistant',
@@ -758,11 +870,11 @@ export class Context implements Serializable<Context.JSON> {
           code: lastIteration.code ?? '// No code generated',
           message: lastIteration.status.invalid_code_error.message,
         }),
-      ]
+      ])
     }
 
     if (lastIteration?.status.type === 'execution_error') {
-      return [
+      return withParts([
         ...lastIterationMessages,
         {
           role: 'assistant',
@@ -772,7 +884,7 @@ export class Context implements Serializable<Context.JSON> {
           message: lastIteration.status.execution_error.message,
           stacktrace: lastIteration.status.execution_error.stack,
         }),
-      ]
+      ])
     }
 
     throw new Error(
@@ -929,6 +1041,7 @@ export class Context implements Serializable<Context.JSON> {
     metadata?: Record<string, any>
     snapshot?: Snapshot
     timeout?: number
+    maxTokens?: number
   }) {
     this.id = `llmz_${ulid()}`
     this.instructions = props.instructions
@@ -945,9 +1058,14 @@ export class Context implements Serializable<Context.JSON> {
     this.iterations = []
     this.metadata = props.metadata ?? {}
     this.snapshot = props.snapshot
+    this.maxTokens = props.maxTokens
 
     if (this.loop < 1 || this.loop > 100) {
       throw new Error('Invalid loop. Expected a number between 1 and 100.')
+    }
+
+    if (this.maxTokens !== undefined && (!Number.isFinite(this.maxTokens) || this.maxTokens < 1)) {
+      throw new Error('Invalid maxTokens. Expected a positive number.')
     }
   }
 

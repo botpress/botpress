@@ -3,7 +3,7 @@ import { Cognitive, Model } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import { describe, expect, test } from 'vitest'
 
-import { Chat } from '../chat.js'
+import { Chat, MessageDelta } from '../chat.js'
 import { DefaultComponents } from '../component.default.js'
 import { RenderedComponent } from '../component.js'
 import { ListenExit } from '../context.js'
@@ -68,6 +68,14 @@ class ScriptedCognitive extends Cognitive {
   }
 }
 
+/**
+ * The base Cognitive class ships a streaming shim (single-chunk fallback);
+ * removing it forces the true non-streaming code path in generate.ts.
+ */
+class ScriptedNonStreamingCognitive extends ScriptedCognitive {
+  public override generateContentStream: any = undefined
+}
+
 /** Streams the scripted responses in small chunks, like a Cognitive v2 (beta) client. */
 class ScriptedStreamingCognitive extends ScriptedCognitive {
   /** Value of the probe function recorded after each chunk was consumed downstream. */
@@ -91,7 +99,7 @@ class ScriptedStreamingCognitive extends ScriptedCognitive {
   }
 }
 
-const makeChat = () => {
+const makeChat = (onMessageDelta?: (delta: MessageDelta) => Promise<void> | void) => {
   const messages: Array<{ type: string; text: string; props: Record<string, unknown> }> = []
   const chat = new Chat({
     components: [DefaultComponents.Text, DefaultComponents.Button],
@@ -103,6 +111,7 @@ const makeChat = () => {
         props: component.props,
       })
     },
+    onMessageDelta,
   })
   return { chat, messages }
 }
@@ -302,6 +311,76 @@ describe('message-stream protocol execution', () => {
     expect(result.iterations).toHaveLength(2)
   })
 
+  test('streaming clients forward message body chunks to Chat.onMessageDelta', async () => {
+    const deltas: MessageDelta[] = []
+    const { chat, messages } = makeChat((delta) => {
+      deltas.push(delta)
+    })
+
+    const client = new ScriptedStreamingCognitive(
+      ['■send=message\nThis is a fairly long streamed message body!\n■next=listen'],
+      () => deltas.length,
+      5 // small chunks so the body spans many stream chunks
+    )
+
+    const result = await executeContext({ client, chat, options: { loop: 3 } })
+
+    expect(result).toBeInstanceOf(SuccessExecutionResult)
+    expect(messages.map((m) => m.text)).toEqual(['This is a fairly long streamed message body!'])
+
+    // the body was delivered progressively, chunk by chunk
+    expect(deltas.length).toBeGreaterThan(1)
+    expect(deltas.map((d) => d.delta).join('')).toBe('This is a fairly long streamed message body!')
+    expect(deltas.at(-1)!.content).toBe('This is a fairly long streamed message body!')
+    expect(new Set(deltas.map((d) => d.id)).size).toBe(1)
+    expect(deltas.every((d) => d.component === 'message')).toBe(true)
+
+    // deltas were flowing while the stream was still in flight
+    expect(client.probes.slice(0, -1).some((count) => count >= 1)).toBe(true)
+  })
+
+  test('onMessageDelta errors are ignored and the message is still delivered', async () => {
+    const { chat, messages } = makeChat(() => {
+      throw new Error('delta handler boom')
+    })
+
+    const client = new ScriptedStreamingCognitive(['■send=message\nStill delivered!\n■next=listen'])
+
+    const result = await executeContext({ client, chat, options: { loop: 3 } })
+
+    expect(result).toBeInstanceOf(SuccessExecutionResult)
+    expect(messages.map((m) => m.text)).toEqual(['Still delivered!'])
+  })
+
+  test('streaming iterations record time to first and last token', async () => {
+    const { chat } = makeChat()
+    const client = new ScriptedStreamingCognitive(['■send=message\nHello there, streaming world!\n■next=listen'])
+
+    const result = await executeContext({ client, chat, options: { loop: 3 } })
+
+    expect(result).toBeInstanceOf(SuccessExecutionResult)
+    const llm = result.iterations[0]!.llm
+    expect(llm).toBeDefined()
+    expect(typeof llm!.time_to_first_token).toBe('number')
+    expect(typeof llm!.time_to_last_token).toBe('number')
+    expect(llm!.time_to_first_token!).toBeGreaterThanOrEqual(0)
+    expect(llm!.time_to_last_token!).toBeGreaterThanOrEqual(llm!.time_to_first_token!)
+    expect(llm!.ended_at - llm!.started_at).toBeGreaterThanOrEqual(llm!.time_to_last_token!)
+  })
+
+  test('non-streaming iterations do not record token timings', async () => {
+    const { chat } = makeChat()
+    const client = new ScriptedNonStreamingCognitive(['■send=message\nHello!\n■next=listen'])
+
+    const result = await executeContext({ client, chat, options: { loop: 3 } })
+
+    expect(result).toBeInstanceOf(SuccessExecutionResult)
+    const llm = result.iterations[0]!.llm
+    expect(llm).toBeDefined()
+    expect(llm!.time_to_first_token).toBeUndefined()
+    expect(llm!.time_to_last_token).toBeUndefined()
+  })
+
   test('streaming clients strip a wrapping code fence', async () => {
     const { chat, messages } = makeChat()
     const client = new ScriptedStreamingCognitive(['```\n■send=message\nFenced hello!\n■next=listen'])
@@ -310,6 +389,89 @@ describe('message-stream protocol execution', () => {
 
     expect(messages.map((m) => m.text)).toEqual(['Fenced hello!'])
     expect(result).toBeInstanceOf(SuccessExecutionResult)
+  })
+
+  test('iterations expose token usage and a context breakdown', async () => {
+    const { chat } = makeChat()
+    const getNumber = new Tool({
+      name: 'getNumber',
+      description: 'Returns a number',
+      output: z.number(),
+      handler: async () => 21,
+    })
+
+    const client = new ScriptedCognitive([
+      '■run\nconst x = await getNumber()\nreturn { value: x }',
+      '■send=message\nThe number is **21**.\n■next=listen',
+    ])
+
+    const result = await executeContext({
+      client,
+      chat,
+      tools: [getNumber],
+      instructions: 'Help the user with numbers.',
+      options: { loop: 3 },
+    })
+
+    expect(result).toBeInstanceOf(SuccessExecutionResult)
+    expect(result.iterations).toHaveLength(2)
+
+    const first = result.iterations[0]!.tokens!
+    expect(first.input).toBe(10)
+    expect(first.output).toBe(10)
+    expect(first.total).toBe(20)
+
+    // the effective context window limit allows computing % of context used
+    expect(first.limit).toBe(128_000)
+    expect(first.context.total / first.limit!).toBeGreaterThan(0)
+    expect(first.context.total / first.limit!).toBeLessThan(1)
+
+    // every part of the prompt is measured
+    expect(first.context.framework).toBeGreaterThan(0)
+    expect(first.context.instructions).toBeGreaterThan(0)
+    expect(first.context.tools).toBeGreaterThan(0)
+    expect(first.context.transcript).toBeGreaterThan(0)
+    expect(first.context.protocol).toBeGreaterThan(0)
+    expect(first.context.iterations).toBe(0)
+    expect(first.context.total).toBe(
+      first.context.framework +
+        first.context.instructions +
+        first.context.tools +
+        first.context.transcript +
+        first.context.protocol +
+        first.context.iterations
+    )
+
+    // the second iteration carries the previous iteration's messages
+    const second = result.iterations[1]!.tokens!
+    expect(second.context.iterations).toBeGreaterThan(0)
+    expect(second.context.total).toBeGreaterThan(first.context.total)
+
+    // the final result aggregates the usage of all iterations
+    expect(result.tokens).toEqual({ input: 20, output: 20, total: 40 })
+  })
+
+  test('options.maxTokens caps the context window and truncates the prompt', async () => {
+    const instructions = 'Reply to the user. ' + 'The sky is blue and the grass is green. '.repeat(3_000)
+    const done = new Exit({ name: 'done', description: 'Task completed' })
+
+    const run = async (maxTokens?: number) => {
+      const client = new ScriptedCognitive(['■next=done'])
+      const result = await executeContext({ client, exits: [done], instructions, options: { loop: 2, maxTokens } })
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      const system = result.iterations[0]!.messages.find((m) => m.role === 'system')!
+      return { length: (system.content as string).length, limit: result.iterations[0]!.tokens!.limit }
+    }
+
+    const unbounded = await run()
+    const capped = await run(10_000)
+
+    // the fake model allows 128k input tokens, so without the cap nothing is truncated
+    expect(capped.length).toBeLessThan(unbounded.length)
+
+    // the effective limit is min(override, model max)
+    expect(unbounded.limit).toBe(128_000)
+    expect(capped.limit).toBe(10_000)
   })
 
   test('an unknown ■next exit yields exit_error and retries', async () => {
