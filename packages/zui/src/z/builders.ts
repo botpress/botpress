@@ -238,6 +238,7 @@ export const objectType: ZodBuilders['object'] = (shape, params) => {
     shape: () => shape,
     unknownKeys: 'strip',
     typeName: 'ZodObject',
+    uid: Symbol('ZodObject'),
     ..._processCreateParams(params),
   })
 }
@@ -248,6 +249,7 @@ export const strictObjectType: ZodBuilders['strictObject'] = (shape, params) => 
     shape: () => shape,
     unknownKeys: 'strict',
     typeName: 'ZodObject',
+    uid: Symbol('ZodObject'),
     ..._processCreateParams(params),
   })
 }

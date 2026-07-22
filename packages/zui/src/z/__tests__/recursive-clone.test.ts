@@ -54,3 +54,26 @@ test('cloned recursive schema is independent of the original', () => {
   expect(cat.getReferences()).toEqual([])
   expect(cloned.getReferences()).toEqual([])
 })
+
+// Mutual recursion via titled (i.e. cloned) schemas: .title() clones each schema separately, so traversal
+// must key cycle detection on a clone-stable id — otherwise reading one clone's shape keeps minting fresh
+// clones of the sibling and never terminates. See object _def.uid.
+test('titled mutual recursion is traversable (getReferences)', () => {
+  const User: any = z.object({ email: z.string(), get posts() { return z.array(Post) } }).title('User')
+  const Post: any = z.object({ title: z.string(), get author() { return User } }).title('Post')
+  expect(User.getReferences()).toEqual([])
+})
+
+test('titled mutual recursion is clonable and parses', () => {
+  const User: any = z.object({ email: z.string(), get posts() { return z.array(Post) } }).title('User')
+  const Post: any = z.object({ title: z.string(), get author() { return User } }).title('Post')
+  const parsed = User.clone().parse({ email: 'a@b.c', posts: [{ title: 't', author: { email: 'x@y.z', posts: [] } }] })
+  expect(parsed.email).toBe('a@b.c')
+})
+
+test('titled mutual recursion is comparable (isEqual terminates)', () => {
+  const User: any = z.object({ email: z.string(), get posts() { return z.array(Post) } }).title('User')
+  const Post: any = z.object({ title: z.string(), get author() { return User } }).title('Post')
+  expect(User.isEqual(User)).toBe(true)
+  expect(User.isEqual(User.clone())).toBe(true)
+})

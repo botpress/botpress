@@ -909,6 +909,14 @@ export type ZodObjectDef<
   typeName: 'ZodObject'
   shape: () => T
   unknownKeys: UnknownKeys
+  /**
+   * Clone-stable identity for this object schema. Set once at creation; preserved across identity-only ops
+   * (clone/describe/metadata/mandatory/strict/strip/passthrough) because they spread `_def`, and regenerated
+   * by shape-changing derives (extend/merge/pick/omit/partial/required) which produce a different schema.
+   * Structural traversals (getReferences/isEqual) key cycle detection on it so they terminate even when
+   * traversal mints fresh clones — mirrors ZodLazyDef.uid.
+   */
+  uid: symbol
 } & ZodTypeDef
 
 // Shallow, wrapper-structure-based optionality tests — zui's equivalent of zod4's optin/optout markers.
