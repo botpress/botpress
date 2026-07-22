@@ -14,7 +14,7 @@ const main = async () => {
   for (const { sourceCode, name: caseName, instantiationThreshold } of cases) {
     console.info(`running ${caseName}...`)
 
-    const result = await tsc.runTsc(caseName, sourceCode, {
+    const result = await tsc.runTsc(sourceCode, {
       '@bpinternal/zui': pathlib.join(consts.ZUI_DIST_DIR, 'index.d.ts'),
     })
 
