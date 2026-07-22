@@ -31,8 +31,8 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
   /** Safe cast: ZodObject structurally satisfies IZodObject but TS can't prove it due to recursive type depth */
 
   private _cached: { shape: T; keys: string[] } | null = null
-  private readonly _uid = Symbol()
-  private static _comparing = new WeakMap<ZodObjectImpl<any, any>, Set<IZodType>>()
+  // In-progress isEqual comparisons, keyed on clone-stable _def.uid pairs (source uid -> set of other uids).
+  private static _comparing = new Map<symbol, Set<symbol>>()
 
   _getCached(): { shape: T; keys: string[] } {
     if (this._cached !== null) return this._cached
@@ -56,8 +56,10 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
   }
 
   _getReferences(visiting: Set<symbol>): string[] {
-    if (visiting.has(this._uid)) return []
-    visiting.add(this._uid)
+    // Key on the clone-stable _def.uid (not instance identity): traversing a cloned recursive schema mints
+    // fresh clones, but they all carry the source's uid, so mutual/self cycles terminate. See ZodObjectDef.uid.
+    if (visiting.has(this._def.uid)) return []
+    visiting.add(this._def.uid)
     const shape = this._def.shape()
     const refs: string[] = []
     for (const key in shape) {
@@ -277,6 +279,7 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
         ...this._def.shape(),
         ...augmentation,
       }),
+      uid: Symbol('ZodObject'), // shape-changing derive → a different schema, so a fresh identity
     }) as unknown as IZodObject<utils.types.ExtendShape<T, Augmentation>, UnknownKeys>
   }
   // extend<
@@ -333,6 +336,7 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
           ...merging._def.shape(),
         }) as utils.types.ExtendShape<T, Augmentation>,
       typeName: 'ZodObject',
+      uid: Symbol('ZodObject'), // shape-changing derive → a different schema, so a fresh identity
     })
     return merged as IZodObject<utils.types.ExtendShape<T, Augmentation>, Incoming['_def']['unknownKeys']>
   }
@@ -377,6 +381,7 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     const objSchema: IZodObject<Pick<T, Extract<keyof T, keyof Mask>>, UnknownKeys> = new ZodObjectImpl({
       ...this._def,
       shape: () => shape as Pick<T, Extract<keyof T, keyof Mask>>,
+      uid: Symbol('ZodObject'), // shape-changing derive → a different schema, so a fresh identity
     })
 
     return objSchema
@@ -398,6 +403,7 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     const objSchema: IZodObject<Omit<T, keyof Mask>, UnknownKeys> = new ZodObjectImpl({
       ...this._def,
       shape: () => shape as Omit<T, keyof Mask>,
+      uid: Symbol('ZodObject'), // shape-changing derive → a different schema, so a fresh identity
     })
 
     return objSchema
@@ -439,6 +445,7 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     const objSchema: IZodObject<ZodRawShape, UnknownKeys> = new ZodObjectImpl({
       ...this._def,
       shape: () => newShape as ZodRawShape,
+      uid: Symbol('ZodObject'), // shape-changing derive → a different schema, so a fresh identity
     })
 
     return objSchema
@@ -485,6 +492,7 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     return new ZodObjectImpl({
       ...this._def,
       shape: () => newShape,
+      uid: Symbol('ZodObject'), // shape-changing derive → a different schema, so a fresh identity
     }) as IZodObject<ZodRawShape, UnknownKeys>
   }
 
@@ -497,10 +505,14 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     if (!(schema instanceof ZodObjectImpl)) return false
     if (!this._unknownKeysEqual(schema)) return false
 
-    let inProgress = ZodObjectImpl._comparing.get(this)
-    if (inProgress?.has(schema)) return true // already comparing this exact pair higher up the call stack
-    if (!inProgress) ZodObjectImpl._comparing.set(this, (inProgress = new Set()))
-    inProgress.add(schema)
+    // Key the guard on clone-stable _def.uid pairs (not instances): comparing cloned recursive schemas mints
+    // fresh clones, but each carries its source's uid, so the cycle is detected and comparison terminates.
+    const thisUid = this._def.uid
+    const otherUid = schema._def.uid
+    let inProgress = ZodObjectImpl._comparing.get(thisUid)
+    if (inProgress?.has(otherUid)) return true // already comparing this exact pair higher up the call stack
+    if (!inProgress) ZodObjectImpl._comparing.set(thisUid, (inProgress = new Set()))
+    inProgress.add(otherUid)
 
     try {
       const thisShape = this._def.shape()
@@ -513,7 +525,8 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
 
       return thisProps.isEqual(thatProps)
     } finally {
-      inProgress.delete(schema)
+      inProgress.delete(otherUid)
+      if (inProgress.size === 0) ZodObjectImpl._comparing.delete(thisUid)
     }
   }
 
