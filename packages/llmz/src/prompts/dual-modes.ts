@@ -51,7 +51,7 @@ const getSystemMessage: Prompt['getSystemMessage'] = async (props) => {
 `
   }
 
-  for (const tool of props.globalTools.filter((t) => t.name.toLowerCase() !== 'message')) {
+  for (const tool of props.globalTools) {
     dts += (await tool.getTypings()) + '\n'
     tool_names.push(tool.name)
   }
@@ -118,8 +118,7 @@ ${variables_example}
 }
 
 const getInitialUserMessage: Prompt['getInitialUserMessage'] = async (props) => {
-  // TODO: iteration.mode -> chat vs worker based on tools
-  const isChatMode = props.globalTools.find((tool) => tool.name.toLowerCase() === 'message')
+  const isChatMode = props.components.length > 0
   const transcript = [...props.transcript].reverse()
   let recap = isChatMode
     ? 'Nobody has spoken yet in this conversation. You can start by saying something.'

@@ -1,15 +1,8 @@
 import { type TransformOptions } from '@babel/core'
 
-// @ts-ignore
-import jsxPlugin from '@babel/plugin-transform-react-jsx'
 import * as Babel from '@babel/standalone'
 
-import { AsyncIterator } from './plugins/async-iterator.js'
-import { JSXMarkdown } from './plugins/braces-tsx.js'
-import { htmlToMarkdownPlugin } from './plugins/html-to-markdown.js'
-import { JSXNewLines } from './plugins/jsx-preserve-newlines.js'
-import { jsxUndefinedVarsPlugin } from './plugins/jsx-undefined-vars.js'
-
+import { AsyncWrapper } from './plugins/async-wrapper.js'
 import { LineTrackingFnIdentifier, lineTrackingBabelPlugin } from './plugins/line-tracking.js'
 import { CommentFnIdentifier, replaceCommentBabelPlugin } from './plugins/replace-comment.js'
 import { instrumentLastLinePlugin } from './plugins/return-async.js'
@@ -35,8 +28,6 @@ export const DEFAULT_TRANSFORM_OPTIONS: TransformOptions = {
 }
 
 export const Identifiers = {
-  JSXFnIdentifier: '__jsx__',
-  AsyncIterYieldFnIdentifier: '__async_iter_yield__',
   ConsoleObjIdentifier: 'console',
   LineTrackingFnIdentifier,
   VariableTrackingFnIdentifier,
@@ -48,30 +39,15 @@ export const Identifiers = {
 export type CompiledCode = ReturnType<typeof compile>
 
 export function compile(code: string) {
-  code = AsyncIterator.preProcessing(code)
-  code = JSXMarkdown.preProcessing(code)
-  // console.log('Compiling code:\n', code)
+  code = AsyncWrapper.preProcessing(code)
   let output = Babel.transform(code, {
     parserOpts: {
       allowReturnOutsideFunction: true,
       allowAwaitOutsideFunction: true,
     },
     presets: ['typescript'],
-    plugins: [
-      JSXNewLines.babelPlugin,
-      htmlToMarkdownPlugin, // Convert simple HTML to markdown first
-      jsxUndefinedVarsPlugin, // Must run BEFORE JSX transform
-      [
-        jsxPlugin,
-        {
-          throwIfNamespace: false,
-          runtime: 'classic',
-          pragma: Identifiers.JSXFnIdentifier,
-        },
-      ],
-      instrumentLastLinePlugin,
-    ],
-    filename: '<anonymous>.tsx',
+    plugins: [instrumentLastLinePlugin],
+    filename: '<anonymous>.ts',
     sourceFileName: '<anonymous>',
     sourceMaps: true,
     minified: false,
@@ -99,8 +75,7 @@ export function compile(code: string) {
   })
 
   let outputCode = output.code!
-  outputCode = AsyncIterator.postProcessing(outputCode)
-  outputCode = JSXNewLines.postProcessing(outputCode)
+  outputCode = AsyncWrapper.postProcessing(outputCode)
 
   return {
     code: outputCode,

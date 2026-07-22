@@ -17,7 +17,6 @@ export {
   assertValidComponent,
   isComponent,
   isAnyComponent,
-  renderToTsx,
 } from './component.js'
 
 export { Citation, CitationsManager } from './citations.js'

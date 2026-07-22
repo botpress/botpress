@@ -551,7 +551,7 @@ function setupVariableTrackingBridge(vm: QuickJSContext, variables: Record<strin
   varTrackFnHandle.dispose()
 }
 
-// Wraps transformed code in an async generator IIFE that stores results/errors on globalThis.
+// Wraps transformed code in an async IIFE that stores the result/error on globalThis.
 // QuickJS can't return values from async code directly, so we read them back after the event loop.
 function buildScriptCode(transformedCode: string): string {
   return `
@@ -560,35 +560,15 @@ globalThis.__llmz_result = undefined;
 globalThis.__llmz_result_set = false;
 globalThis.__llmz_error = null;
 globalThis.__llmz_error_stack = null;
-globalThis.__llmz_yields = [];
 
 (async () => {
   try {
-    async function* __fn__() {
+    async function __fn__() {
 ${transformedCode}
     }
 
-    const fn = __fn__();
-    let iteration = 0;
-    const maxIterations = 10000;
-
-    while (iteration < maxIterations) {
-      const { value, done } = await fn.next();
-
-      if (done) {
-        globalThis.__llmz_result = value;
-        globalThis.__llmz_result_set = true;
-        break;
-      }
-
-      globalThis.__llmz_yields.push(value);
-      await ${Identifiers.AsyncIterYieldFnIdentifier}(value);
-      iteration++;
-    }
-
-    if (iteration >= maxIterations) {
-      throw new Error('Maximum iterations exceeded');
-    }
+    globalThis.__llmz_result = await __fn__();
+    globalThis.__llmz_result_set = true;
   } catch (err) {
     globalThis.__llmz_error = typeof err === 'string' ? err : String(err.message || err || '');
     globalThis.__llmz_error_stack = '' + (err.stack || '');

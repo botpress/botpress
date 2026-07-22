@@ -586,7 +586,7 @@ export class Iteration implements Serializable<Iteration.JSON> {
   }
 
   public get isChatEnabled() {
-    return this._parameters.tools.find((x) => x.name.toLowerCase() === 'message') !== undefined
+    return this._parameters.components.length > 0
   }
 
   public constructor(props: {
@@ -933,20 +933,6 @@ export class Context implements Serializable<Context.JSON> {
       'array',
     ]
 
-    const MessageTool =
-      this.chat && components.length
-        ? new Tool({
-            name: 'Message',
-            description: 'Send a message to the user',
-            aliases: Array.from(
-              new Set(['message', ...components.flatMap((x) => [x.definition.name, ...(x.definition.aliases ?? [])])])
-            ),
-            handler: async (message) => await this.chat?.handler?.(message as RenderedComponent),
-          })
-        : null
-
-    const allTools = MessageTool ? [MessageTool, ...tools] : tools
-
     for (const tool of tools) {
       for (let name of [...tool.aliases, tool.name]) {
         name = name.toLowerCase()
@@ -1017,7 +1003,7 @@ export class Context implements Serializable<Context.JSON> {
 
     return {
       transcript,
-      tools: allTools,
+      tools,
       objects,
       exits,
       instructions,
