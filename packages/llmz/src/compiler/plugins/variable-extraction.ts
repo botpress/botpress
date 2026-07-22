@@ -116,7 +116,7 @@ export function applyVariableTracking(ctx: Ctx, variables: Set<string>): void {
       } else {
         // expression-bodied arrow: introduce a block so the trackers can run first
         ctx.ms.appendLeft(body.start, `{${trackers}return (`)
-        ctx.ms.appendRight(body.end, `);}`)
+        ctx.ms.appendRight(body.end, ');}')
       }
     }
   })

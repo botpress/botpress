@@ -98,9 +98,9 @@ export function applyToolCallTracking(ctx: Ctx, calls: Map<number, ToolCallEntry
       // bare calls: report and rethrow with the original stack appended
       const catchClause =
         ` catch (err) {${end(callId, 'err')}` +
-        `const __newError = new Error(err.message);` +
-        `__newError.stack = err.stack + ("\\n" + __newError.stack);` +
-        `throw __newError;}})()`
+        'const __newError = new Error(err.message);' +
+        '__newError.stack = err.stack + ("\\n" + __newError.stack);' +
+        'throw __newError;}})()'
 
       ctx.ms.appendLeft(node.start, prefix(callId))
       ctx.ms.appendRight(node.end, successSuffix(callId) + catchClause)
