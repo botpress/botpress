@@ -1212,29 +1212,26 @@ describe.concurrent('optional', () => {
       }
     })
 
-    it('should throw CircularZuiToTypescriptTypeError for a self-referential lazy schema', () => {
+    it('emits a named recursive alias for a self-referential lazy schema', async () => {
       type TreeNode = { name: string; children?: TreeNode[] }
       const treeNode: z.ZodType<TreeNode> = z.lazy(() =>
         z.object({ name: z.string(), children: z.array(treeNode).optional() })
       )
-      try {
-        toTypescript(z.object({ tree: z.array(treeNode) }))
-        expect.fail('should have thrown')
-      } catch (e) {
-        expect(e).toBeInstanceOf(errors.CircularZuiToTypescriptTypeError)
-        expect((e as errors.ZuiTransformError).path).toBe('#.tree[number].children[number]')
-      }
+      const typings = toTypescript(z.object({ tree: z.array(treeNode) }))
+      await assert
+        .expectTypescript(typings)
+        .toMatchWithoutFormatting(
+          'type Schema0 = { name: string; children?: Array<Schema0> }; declare const x: { tree: Array<Schema0> };'
+        )
     })
 
-    it('should throw CircularZuiToTypescriptTypeError for mutual recursion between two distinct lazy schemas', () => {
+    it('emits named recursive aliases for mutual recursion between two distinct lazy schemas', async () => {
       let A: z.ZodType<any> = z.lazy(() => z.object({ b: B }))
       let B: z.ZodType<any> = z.lazy(() => z.object({ a: A }))
-      try {
-        toTypescript(z.object({ root: A }))
-        expect.fail('should have thrown')
-      } catch (e) {
-        expect(e).toBeInstanceOf(errors.CircularZuiToTypescriptTypeError)
-      }
+      const typings = toTypescript(z.object({ root: A }))
+      await assert
+        .expectTypescript(typings)
+        .toMatchWithoutFormatting('type Schema0 = { b: { a: Schema0 } }; declare const x: { root: Schema0 };')
     })
 
     it('should not throw CircularZuiToTypescriptTypeError for non-recursion of zero distinct lazy schemas', () => {
@@ -1248,16 +1245,14 @@ describe.concurrent('optional', () => {
       expect(() => toTypescript(schema)).not.toThrow()
     })
 
-    it('should throw CircularZuiToTypescriptTypeError for a 3-node mutual recursion cycle', () => {
+    it('emits a named recursive alias for a 3-node mutual recursion cycle', async () => {
       let A: z.ZodType<any> = z.lazy(() => z.object({ b: B }))
       let B: z.ZodType<any> = z.lazy(() => z.object({ c: C }))
       let C: z.ZodType<any> = z.lazy(() => z.object({ a: A }))
-      try {
-        toTypescript(z.object({ root: A }))
-        expect.fail('should have thrown')
-      } catch (e) {
-        expect(e).toBeInstanceOf(errors.CircularZuiToTypescriptTypeError)
-      }
+      const typings = toTypescript(z.object({ root: A }))
+      await assert
+        .expectTypescript(typings)
+        .toMatchWithoutFormatting('type Schema0 = { b: { c: { a: Schema0 } } }; declare const x: { root: Schema0 };')
     })
 
     it('should not throw when the same finite lazy schema is reused across sibling branches', () => {
@@ -1266,4 +1261,79 @@ describe.concurrent('optional', () => {
       expect((typings.match(/x: string/g) || []).length).toBe(2)
     })
   }) // error path propagation
+})
+
+describe('getter-based recursion', () => {
+  it('self-recursion (untitled): emits a synthetic named recursive alias (none mode)', async () => {
+    const Category: any = z.object({
+      name: z.string(),
+      get subcategories() {
+        return z.array(Category)
+      },
+    })
+    await assert
+      .expectTypescript(toTs(Category))
+      .toMatchWithoutFormatting('type Schema0 = { name: string; subcategories: Array<Schema0> };')
+  })
+
+  it('self-recursion: uses the schema title as the alias name', async () => {
+    const Category: any = z
+      .object({
+        name: z.string(),
+        get subcategories() {
+          return z.array(Category)
+        },
+      })
+      .title('Category')
+    await assert
+      .expectTypescript(toTs(Category))
+      .toMatchWithoutFormatting('type Category = { name: string; subcategories: Array<Category> };')
+  })
+
+  it('self-recursion: variable declaration references the hoisted alias', async () => {
+    const Category: any = z
+      .object({
+        name: z.string(),
+        get subcategories() {
+          return z.array(Category)
+        },
+      })
+      .title('Category')
+    await assert
+      .expectTypescript(toTs(Category, { declaration: true }))
+      .toMatchWithoutFormatting(
+        'type Category = { name: string; subcategories: Array<Category> }; declare const Category: Category;'
+      )
+  })
+
+  it('mutual recursion (untitled): hoists the re-entered node and inlines the rest', async () => {
+    const User: any = z.object({
+      email: z.string(),
+      get posts() {
+        return z.array(Post)
+      },
+    })
+    const Post: any = z.object({
+      title: z.string(),
+      get author() {
+        return User
+      },
+    })
+    await assert
+      .expectTypescript(toTs(User))
+      .toMatchWithoutFormatting('type Schema0 = { email: string; posts: Array<{ title: string; author: Schema0 }> };')
+  })
+
+  it('does not affect non-recursive schemas', () => {
+    expect(toTs(z.object({ a: z.string(), b: z.number().optional() }))).toBe('{ a: string; b?: number }')
+  })
+
+  // TODO(fix a): titled mutual recursion currently overflows in getReferences()/clone — fix 1's cyclic clone
+  // handles self-recursion but not mutual recursion across separately-cloned (.title()'d) schemas. Un-skip
+  // once the base clone bug is fixed on dubz_fully_handle.
+  it.skip('mutual recursion with titles emits one alias per titled node', async () => {
+    const User: any = z.object({ email: z.string(), get posts() { return z.array(Post) } }).title('User')
+    const Post: any = z.object({ title: z.string(), get author() { return User } }).title('Post')
+    await assert.expectTypescript(toTs(User)).toMatchWithoutFormatting('type User = { email: string; posts: Array<Post> }; type Post = { title: string; author: User };')
+  })
 })

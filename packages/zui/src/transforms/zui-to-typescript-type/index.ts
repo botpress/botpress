@@ -86,13 +86,81 @@ export type TypescriptGenerationOptions = {
 
 type SchemaTypes = z.ZodType | KeyValue | FnParameters | Declaration | null
 
+/**
+ * Shared, mutable state for turning recursive (self- or mutually-referential) schemas into named TypeScript
+ * type aliases. A recursive type cannot be written inline, so a schema that is re-entered while being expanded
+ * (a cycle) is hoisted into a named `type X = {…}` alias and referenced by name at every recurrence.
+ *
+ * Cycle keys are the schema instance for getter-based recursion (Object → z.array → same Object) and the
+ * ZodLazy uid for z.lazy-based recursion (its getter returns a fresh instance per call, so identity can't be
+ * used there). Non-recursive schemas never populate `defs`, so their output is unchanged.
+ */
+type RecursionCtx = {
+  onPath: Set<z.ZodType | symbol> // cycle keys currently being expanded (the DFS stack)
+  nameOf: Map<z.ZodType | symbol, string> // cycle key -> hoisted alias name, once promoted to a definition
+  defs: Map<string, string> // alias name -> type body, in insertion order
+  usedNames: Set<string>
+  counter: { n: number }
+}
+
 type InternalOptions = {
   parent?: SchemaTypes
   declaration?: boolean | TypescriptDeclarationType
   includeClosingTags?: boolean
   treatDefaultAsOptional?: boolean
-  // ZodLazyDef.uid values currently being expanded, to detect self-referential schemas — see ZodLazyDef.uid
-  visiting: Set<symbol>
+  recursion: RecursionCtx
+  // Suppress this one schema's own leading description comment (its parent KeyValue/declaration already emits
+  // it). Replaces the former `.describe('')` clone-to-strip, which minted a fresh identity at every level and
+  // defeated getter-recursion cycle detection. Applies to the current node only — reset for children.
+  dropTopDescription?: boolean
+}
+
+/** Assigns a stable alias name for a cyclic schema: its title when present, else a synthetic `Schema<N>`. */
+const assignRecursionName = (schema: z.ZodType, ctx: RecursionCtx): string => {
+  const meta = schema.getMetadata()
+  const title = typeof meta.title === 'string' && meta.title.length > 0 ? meta.title : undefined
+  const base = title ?? `Schema${ctx.counter.n++}`
+  let name = base
+  let i = 1
+  while (ctx.usedNames.has(name)) {
+    name = `${base}${i++}`
+  }
+  ctx.usedNames.add(name)
+  return name
+}
+
+/**
+ * Wraps a schema expansion with cycle detection and hoisting. `key` is the cycle key (object instance for
+ * getter recursion, ZodLazy uid for z.lazy); `schema` is used only for naming; `expand` produces the inline
+ * body. On a back-edge the schema is promoted to a named definition and its name is emitted instead of
+ * recursing; non-cyclic schemas are expanded inline exactly as before.
+ */
+const withCycleGuard = (
+  key: z.ZodType | symbol,
+  schema: z.ZodType,
+  ctx: RecursionCtx,
+  expand: () => string
+): string => {
+  const hoisted = ctx.nameOf.get(key)
+  if (hoisted) return hoisted
+  if (ctx.onPath.has(key)) {
+    const name = assignRecursionName(schema, ctx)
+    ctx.nameOf.set(key, name)
+    return name
+  }
+  ctx.onPath.add(key)
+  let body: string
+  try {
+    body = expand()
+  } finally {
+    ctx.onPath.delete(key)
+  }
+  const name = ctx.nameOf.get(key)
+  if (name) {
+    ctx.defs.set(name, body)
+    return name
+  }
+  return body
 }
 
 /**
@@ -108,7 +176,23 @@ export function toTypescriptType(schema: z.ZodType, options: TypescriptGeneratio
 function _toTypescriptType(schema: z.ZodType, path: PropertyPath, options: TypescriptGenerationOptions = {}): string {
   const wrappedSchema: Declaration = getDeclarationProps(schema, options)
 
-  let dts = sUnwrapZod(wrappedSchema, path, { ...options, visiting: new Set() })
+  const recursion: RecursionCtx = {
+    onPath: new Set(),
+    nameOf: new Map(),
+    defs: new Map(),
+    usedNames: new Set(),
+    counter: { n: 0 },
+  }
+
+  const entry = sUnwrapZod(wrappedSchema, path, { ...options, recursion })
+
+  let dts = entry
+  if (recursion.defs.size > 0) {
+    const declarations = [...recursion.defs].map(([name, body]) => `type ${name} = ${body};`).join('\n')
+    // When the entry is exactly a hoisted alias name (the root schema is itself recursive), the alias
+    // declaration already fully describes it — otherwise the entry references the aliases and is appended.
+    dts = recursion.defs.has(entry.trim()) ? declarations : `${declarations}\n${entry}`
+  }
 
   if (options.formatter) {
     dts = options.formatter(dts)
@@ -128,7 +212,13 @@ function sUnwrapZod(
     ...config,
     declaration: false,
     parent: schema,
+    dropTopDescription: false,
   }
+
+  // Transparent metadata wrappers (optional/nullable/default/catch/readonly/branded/effects/pipeline) share
+  // their naked root's description with their inner type, so a request to drop the top description must reach
+  // that inner type — otherwise it would re-emit the description the parent already printed.
+  const innerConfig: InternalOptions = { ...newConfig, dropTopDescription: config.dropTopDescription }
 
   if (schema === null) {
     return ''
@@ -158,11 +248,13 @@ function sUnwrapZod(
 
     const description = getMultilineComment(schema.value._def.description || schema.value.description)
     const delimiter = description?.trim().length > 0 ? '\n' : ''
-    const withoutDesc = schema.value.describe('')
+    // The description is emitted here at the key level; suppress the value's own copy via the flag rather
+    // than cloning it with `.describe('')` (which would break getter-recursion cycle detection).
+    const valueTypings = sUnwrapZod(schema.value, path, { ...newConfig, dropTopDescription: true })
 
     const isOptional = z.is.zuiAny(schema.value) // any is treated as optional for backwards compatibility
     const key = isOptional ? _optionalKey(schema.key) : schema.key
-    return `${delimiter}${description}${delimiter}${key}: ${sUnwrapZod(withoutDesc, path, newConfig)}${delimiter}`
+    return `${delimiter}${description}${delimiter}${key}: ${valueTypings}${delimiter}`
   }
 
   if (schema instanceof FnParameters) {
@@ -207,38 +299,42 @@ function sUnwrapZod(
 
   const s = schema as z.ZodFirstPartySchemaTypes
 
+  // This node's own leading description comment, unless the parent asked to suppress it (see dropTopDescription).
+  const leadingComment = (description?: string): string =>
+    config.dropTopDescription ? '' : getMultilineComment(description)
+
   switch (s.typeName) {
     case 'ZodString':
-      return `${getMultilineComment(s.description)} string`.trim()
+      return `${leadingComment(s.description)} string`.trim()
 
     case 'ZodNumber':
     case 'ZodNaN':
     case 'ZodBigInt':
-      return `${getMultilineComment(s.description)} number`.trim()
+      return `${leadingComment(s.description)} number`.trim()
 
     case 'ZodBoolean':
-      return `${getMultilineComment(s.description)} boolean`.trim()
+      return `${leadingComment(s.description)} boolean`.trim()
 
     case 'ZodDate':
-      return `${getMultilineComment(s.description)} Date`.trim()
+      return `${leadingComment(s.description)} Date`.trim()
 
     case 'ZodUndefined':
-      return `${getMultilineComment(s.description)} undefined`.trim()
+      return `${leadingComment(s.description)} undefined`.trim()
 
     case 'ZodNull':
-      return `${getMultilineComment(s.description)} null`.trim()
+      return `${leadingComment(s.description)} null`.trim()
 
     case 'ZodAny':
-      return `${getMultilineComment(s.description)} any`.trim()
+      return `${leadingComment(s.description)} any`.trim()
 
     case 'ZodUnknown':
-      return `${getMultilineComment(s.description)} unknown`.trim()
+      return `${leadingComment(s.description)} unknown`.trim()
 
     case 'ZodNever':
-      return `${getMultilineComment(s.description)} never`.trim()
+      return `${leadingComment(s.description)} never`.trim()
 
     case 'ZodVoid':
-      return `${getMultilineComment(s.description)} void`.trim()
+      return `${leadingComment(s.description)} void`.trim()
 
     case 'ZodArray':
       const item = sUnwrapZod(s._def.type, path.withIndexType('number'), newConfig)
@@ -250,27 +346,29 @@ function sUnwrapZod(
       return `Array<${item}>`
 
     case 'ZodObject':
-      const props = Object.entries(s._def.shape()).map(([key, value]) => {
-        if (z.is.zuiType(value)) {
-          return sUnwrapZod(new KeyValue(toPropertyKey(key), value), path.withIndexType('key', key), newConfig)
-        }
-        return `${key}: unknown`
-      })
+      return withCycleGuard(s, s, config.recursion, () => {
+        const props = Object.entries(s._def.shape()).map(([key, value]) => {
+          if (z.is.zuiType(value)) {
+            return sUnwrapZod(new KeyValue(toPropertyKey(key), value), path.withIndexType('key', key), newConfig)
+          }
+          return `${key}: unknown`
+        })
 
-      return `{ ${props.join('; ')} }`
+        return `{ ${props.join('; ')} }`
+      })
 
     case 'ZodUnion':
       const options = s._def.options.map((option, index) => {
         return sUnwrapZod(option, path.withIndexType('number', index), newConfig)
       })
-      return `${getMultilineComment(s.description)}
+      return `${leadingComment(s.description)}
 ${options.join(' | ')}`
 
     case 'ZodDiscriminatedUnion':
       const opts = s._def.options.map((option, index) => {
         return sUnwrapZod(option, path.withIndexType('number', index), newConfig)
       })
-      return `${getMultilineComment(s.description)}
+      return `${leadingComment(s.description)}
 ${opts.join(' | ')}`
 
     case 'ZodIntersection':
@@ -292,7 +390,7 @@ ${opts.join(' | ')}`
           ? path.withIndexType('number')
           : path.withIndexType('any')
       const valueType = sUnwrapZod(s._def.valueType, recordPath, newConfig)
-      return `${getMultilineComment(s.description)} { [key: ${keyType}]: ${valueType} }`
+      return `${leadingComment(s.description)} { [key: ${keyType}]: ${valueType} }`
     }
 
     case 'ZodMap': {
@@ -313,27 +411,19 @@ ${opts.join(' | ')}`
       const parentIsType = config?.parent instanceof Declaration && config?.parent.props.type === 'type'
 
       if (config?.declaration && !parentIsType) {
-        return `${getMultilineComment(s.description)}
+        return `${leadingComment(s.description)}
 (${input}): ${output}`
       }
 
-      return `${getMultilineComment(s.description)}
+      return `${leadingComment(s.description)}
 (${input}) => ${output}`
 
     case 'ZodLazy':
-      if (config.visiting.has(s._def.uid)) {
-        throw new errors.CircularZuiToTypescriptTypeError(path.toString())
-      }
-      config.visiting.add(s._def.uid)
-      try {
-        return sUnwrapZod(s._def.getter(), path, newConfig)
-      } finally {
-        config.visiting.delete(s._def.uid)
-      }
+      return withCycleGuard(s._def.uid, s, config.recursion, () => sUnwrapZod(s._def.getter(), path, newConfig))
 
     case 'ZodLiteral':
       const value: string = primitiveToTypscriptLiteralType(s._def.value)
-      return `${getMultilineComment(s.description)}
+      return `${leadingComment(s.description)}
 ${value}`.trim()
 
     case 'ZodEnum':
@@ -341,38 +431,38 @@ ${value}`.trim()
       return values.join(' | ')
 
     case 'ZodEffects':
-      return sUnwrapZod(s._def.schema, path, newConfig)
+      return sUnwrapZod(s._def.schema, path, innerConfig)
 
     case 'ZodNativeEnum':
       throw new errors.UnsupportedZuiToTypescriptTypeError('ZodNativeEnum', path.toString())
 
     case 'ZodOptional':
-      return `${sUnwrapZod(s._def.innerType, path, newConfig)} | undefined`
+      return `${sUnwrapZod(s._def.innerType, path, innerConfig)} | undefined`
 
     case 'ZodNullable':
-      return `${sUnwrapZod(s._def.innerType, path, newConfig)} | null`
+      return `${sUnwrapZod(s._def.innerType, path, innerConfig)} | null`
 
     case 'ZodDefault':
       const defaultInnerType = config.treatDefaultAsOptional ? s._def.innerType.optional() : s._def.innerType
-      return sUnwrapZod(defaultInnerType, path, newConfig)
+      return sUnwrapZod(defaultInnerType, path, innerConfig)
 
     case 'ZodCatch':
-      return sUnwrapZod(s._def.innerType, path, newConfig)
+      return sUnwrapZod(s._def.innerType, path, innerConfig)
 
     case 'ZodPromise':
       return `Promise<${sUnwrapZod(s._def.type, path, newConfig)}>`
 
     case 'ZodBranded':
-      return sUnwrapZod(s._def.type, path, newConfig)
+      return sUnwrapZod(s._def.type, path, innerConfig)
 
     case 'ZodPipeline':
-      return sUnwrapZod(s._def.in, path, newConfig)
+      return sUnwrapZod(s._def.in, path, innerConfig)
 
     case 'ZodSymbol':
-      return `${getMultilineComment(s.description)} symbol`.trim()
+      return `${leadingComment(s.description)} symbol`.trim()
 
     case 'ZodReadonly':
-      return `Readonly<${sUnwrapZod(s._def.innerType, path, newConfig)}>`
+      return `Readonly<${sUnwrapZod(s._def.innerType, path, innerConfig)}>`
 
     case 'ZodRef':
       return toTypeArgumentName(s._def.uri)
@@ -389,8 +479,9 @@ const unwrapDeclaration = (declaration: Declaration, path: PropertyPath, options
 
   const { schema, identifier } = declaration.props
   const description = getMultilineComment(schema.description)
-  const withoutDesc = schema.describe('')
-  const typings = sUnwrapZod(withoutDesc, path, { ...options, declaration: true })
+  // The description is emitted here at the declaration level; suppress the schema's own copy via the flag
+  // rather than cloning it with `.describe('')` (which would break getter-recursion cycle detection).
+  const typings = sUnwrapZod(schema, path, { ...options, declaration: true, dropTopDescription: true })
 
   const isLargeDeclaration = typings.split('\n').length >= LARGE_DECLARATION_LINES
   const closingTag = isLargeDeclaration && options.includeClosingTags ? `// end of ${identifier}` : ''
@@ -404,9 +495,20 @@ declare function ${identifier}${typings};${closingTag}`)
     return stripSpaces(`${description}declare const ${identifier}: ${typings};${closingTag}`)
   }
 
+  // If the root schema is itself recursive it was hoisted under this exact identifier; fold its body into
+  // this declaration rather than emitting a broken `type Id = Id` plus a duplicate alias.
+  let body = typings
+  let typeClosingTag = closingTag
+  if (typings.trim() === identifier && options.recursion.defs.has(identifier)) {
+    body = options.recursion.defs.get(identifier)!
+    options.recursion.defs.delete(identifier)
+    const isLargeBody = body.split('\n').length >= LARGE_DECLARATION_LINES
+    typeClosingTag = isLargeBody && options.includeClosingTags ? `// end of ${identifier}` : ''
+  }
+
   const generics =
     declaration.props.args.length > 0 ? `<${declaration.props.args.map(toTypeArgumentName).join(', ')}>` : ''
-  return stripSpaces(`${description}type ${declaration.props.identifier}${generics} = ${typings};${closingTag}`)
+  return stripSpaces(`${description}type ${declaration.props.identifier}${generics} = ${body};${typeClosingTag}`)
 }
 
 const getDeclarationType = (options: TypescriptGenerationOptions): TypescriptDeclarationType => {
