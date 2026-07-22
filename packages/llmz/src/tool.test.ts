@@ -384,17 +384,14 @@ describe('tool default values', () => {
     expect(await obj.getTypings()).toMatchInlineSnapshot(
       `"declare function add(args: { a: 10; b: number }): Promise<number>"`
     )
-    expect(await str.getTypings()).toMatchInlineSnapshot(`"declare function str(args: "hello"): Promise<void>"`)
+    expect(await str.getTypings()).toMatchInlineSnapshot(`"declare function str(args: 'hello'): Promise<void>"`)
     expect(await num.getTypings()).toMatchInlineSnapshot(`"declare function num(args: 42): Promise<void>"`)
-    expect(await arr.getTypings()).toMatchInlineSnapshot(`"declare function arr(args: ["a", "b", "c"]): Promise<void>"`)
+    expect(await arr.getTypings()).toMatchInlineSnapshot(`"declare function arr(args: ['a', 'b', 'c']): Promise<void>"`)
     expect(await tuple.getTypings()).toMatchInlineSnapshot(
-      `"declare function tuple(args: ["hello", 42]): Promise<void>"`
+      `"declare function tuple(args: ['hello', 42]): Promise<void>"`
     )
     expect(await bool.getTypings()).toMatchInlineSnapshot(`"declare function bool(args: true): Promise<void>"`)
-    expect(await nullable.getTypings()).toMatchInlineSnapshot(`
-      "declare function nullable
-      (string | null): Promise<void>;"
-    `)
+    expect(await nullable.getTypings()).toMatchInlineSnapshot(`"declare function nullable(string | null): Promise<void>"`)
   })
 
   it('tools input schemas', async () => {
@@ -440,16 +437,14 @@ describe('tool default values', () => {
     expect(await unknownSchema.clone().getTypings()).toMatchInlineSnapshot(
       `"declare function unknownSchema(unknown): Promise<void>"`
     )
-    expect(await enumSchema.clone().getTypings()).toMatchInlineSnapshot(`
-      "declare function enumSchema
-      ('a' | 'b' | 'c'): Promise<void>;"
-    `)
+    expect(await enumSchema.clone().getTypings()).toMatchInlineSnapshot(`"declare function enumSchema('a' | 'b' | 'c'): Promise<void>"`)
     expect(await neverSchema.clone().getTypings()).toMatchInlineSnapshot(
       `"declare function neverSchema(never): Promise<void>"`
     )
     expect(await defaultValueSchema.clone().getTypings()).toMatchInlineSnapshot(`
-      "declare function defaultValueSchema
-      ({ a?: number; b?: string } | null): Promise<void>;"
+      "declare function defaultValueSchema(
+        { a?: number; b?: string } | null,
+      ): Promise<void>"
     `)
   })
 
@@ -519,10 +514,7 @@ describe('tool default values', () => {
         c?: number
       }): Promise<number>"
     `)
-    expect(await newTool2.getTypings()).toMatchInlineSnapshot(`
-      "declare function add
-      (null): Promise<number>;"
-    `)
+    expect(await newTool2.getTypings()).toMatchInlineSnapshot(`"declare function add(null): Promise<number>"`)
     expect(await newTool3.getTypings()).toMatchInlineSnapshot(
       `"declare function add(args: { a: number; b: number }): Promise<string>"`
     )
