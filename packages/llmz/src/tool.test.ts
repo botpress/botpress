@@ -391,7 +391,9 @@ describe('tool default values', () => {
       `"declare function tuple(args: ['hello', 42]): Promise<void>"`
     )
     expect(await bool.getTypings()).toMatchInlineSnapshot(`"declare function bool(args: true): Promise<void>"`)
-    expect(await nullable.getTypings()).toMatchInlineSnapshot(`"declare function nullable(string | null): Promise<void>"`)
+    expect(await nullable.getTypings()).toMatchInlineSnapshot(
+      `"declare function nullable(string | null): Promise<void>"`
+    )
   })
 
   it('tools input schemas', async () => {
@@ -437,7 +439,9 @@ describe('tool default values', () => {
     expect(await unknownSchema.clone().getTypings()).toMatchInlineSnapshot(
       `"declare function unknownSchema(unknown): Promise<void>"`
     )
-    expect(await enumSchema.clone().getTypings()).toMatchInlineSnapshot(`"declare function enumSchema('a' | 'b' | 'c'): Promise<void>"`)
+    expect(await enumSchema.clone().getTypings()).toMatchInlineSnapshot(
+      `"declare function enumSchema('a' | 'b' | 'c'): Promise<void>"`
+    )
     expect(await neverSchema.clone().getTypings()).toMatchInlineSnapshot(
       `"declare function neverSchema(never): Promise<void>"`
     )
