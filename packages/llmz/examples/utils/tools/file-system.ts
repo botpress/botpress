@@ -141,7 +141,7 @@ export const makeFileSystem = (client: Client) =>
             file: file.tags?.name || file.key,
             createdAt: file.createdAt,
             updatedAt: file.updatedAt,
-            size: file.size,
+            size: file.size ?? 0,
             url: file.url,
             contentType: file.contentType,
           }))

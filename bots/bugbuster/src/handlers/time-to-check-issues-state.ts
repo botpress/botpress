@@ -1,16 +1,16 @@
-import * as types from 'src/types'
 import * as boot from '../bootstrap'
+import * as types from '../types'
 import * as bp from '.botpress'
 
 const statesToProcess: types.StateAttributes[] = [
   {
-    stateKey: 'STAGING',
+    filter: (state) => state.commonName === 'STAGING',
     maxTimeSinceLastUpdate: '-P1W',
     warningComment: 'BugBuster bot detected that this issue has been in staging for over a week',
     buildWarningReason: (issueIdentifier) => `Issue ${issueIdentifier} has been in staging for over a week`,
   },
   {
-    stateKey: 'BLOCKED',
+    filter: (state) => state.commonName === 'BLOCKED',
     maxTimeSinceLastUpdate: '-P1M',
     warningComment: 'BugBuster bot detected that this issue has been blocked for over a month',
     buildWarningReason: (issueIdentifier) => `Issue ${issueIdentifier} has been blocked for over a month`,

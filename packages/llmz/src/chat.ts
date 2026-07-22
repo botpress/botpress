@@ -28,6 +28,35 @@ import { TranscriptArray, Transcript } from './transcript.js'
 export type MessageHandler = (input: RenderedComponent) => Promise<void> | void
 
 /**
+ * A chunk of a message body streamed live from the LLM, before the message is complete.
+ *
+ * On streaming cognitive clients, message bodies (`■send` blocks) arrive token by token.
+ * Each chunk is forwarded to {@link Chat} `onMessageDelta` as soon as it is parsed, so the
+ * client can render the message progressively (e.g. typewriter effect in a chat UI).
+ *
+ * The complete message is always delivered to the regular `handler` afterwards — deltas
+ * are a progressive preview, the `handler` call remains the authoritative delivery.
+ */
+export type MessageDelta = {
+  /** Identifies the message being streamed. Unique within an `execute()` call. */
+  id: string
+  /** Component name of the message being streamed (e.g. 'message', 'button'). */
+  component: string
+  /** Props of the message being streamed. Final by the time the body starts streaming. */
+  props: Record<string, unknown>
+  /** The new chunk of body text. */
+  delta: string
+  /** The full body text accumulated so far, including this chunk. */
+  content: string
+}
+
+/**
+ * Function type for handling message chunks as they are streamed from the LLM.
+ * Errors thrown by this handler are ignored — streaming previews are best-effort.
+ */
+export type MessageDeltaHandler = (delta: MessageDelta) => Promise<void> | void
+
+/**
  * Base class for implementing chat interfaces in LLMz agents.
  *
  * The Chat class provides the foundation for interactive conversational agents by defining
@@ -229,6 +258,7 @@ export type MessageHandler = (input: RenderedComponent) => Promise<void> | void
  */
 export class Chat {
   public readonly handler: MessageHandler
+  public readonly onMessageDelta?: MessageDeltaHandler
   public readonly transcript: ValueOrGetter<TranscriptArray, Context>
   public readonly components: ValueOrGetter<Component[], Context>
 
@@ -282,10 +312,17 @@ export class Chat {
    */
   public constructor(props: {
     handler: MessageHandler
+    /**
+     * Called with each message body chunk as it is streamed from the LLM (streaming
+     * clients only). Enables progressive rendering; the complete message is still
+     * delivered to `handler` once fully parsed.
+     */
+    onMessageDelta?: MessageDeltaHandler
     components: ValueOrGetter<Component[], Context>
     transcript?: ValueOrGetter<Transcript.Message[], Context>
   }) {
     this.handler = props.handler
+    this.onMessageDelta = props.onMessageDelta
     this.components = props.components
     this.transcript = props.transcript || []
   }

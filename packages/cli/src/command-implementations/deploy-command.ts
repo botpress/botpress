@@ -1,4 +1,4 @@
-import type * as client from '@botpress/client'
+import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
 import chalk from 'chalk'
 import * as fs from 'fs'
@@ -65,6 +65,9 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     integrationDef = updatedIntegrationDef
     if (workspaceId) {
       api = api.switchWorkspace(workspaceId)
+    }
+    if (this.argv.bypassBreakingChangeDetection) {
+      api = api.withExtraHeaders({ 'x-bypass-breaking-changes-detection': 'true' })
     }
 
     const { name, version } = integrationDef
@@ -140,7 +143,16 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         })
       } else {
         await api.client.updateIntegration(updateBody).catch((thrown) => {
-          throw errors.BotpressCLIError.wrap(thrown, `Could not update integration "${name}"`)
+          const error = errors.BotpressCLIError.wrap(thrown, `Could not update integration "${name}"`)
+          if (
+            api.isBotpressWorkspace &&
+            !this.argv.bypassBreakingChangeDetection &&
+            client.isApiError(thrown) &&
+            thrown.type === 'BreakingChanges'
+          ) {
+            this.logger.warn('Tip: redeploy with --bypassBreakingChangeDetection to skip this check')
+          }
+          throw error
         })
       }
 
@@ -173,7 +185,16 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         })
       } else {
         await api.client.createIntegration(createBody).catch((thrown) => {
-          throw errors.BotpressCLIError.wrap(thrown, `Could not create integration "${name}"`)
+          const error = errors.BotpressCLIError.wrap(thrown, `Could not create integration "${name}"`)
+          if (
+            api.isBotpressWorkspace &&
+            !this.argv.bypassBreakingChangeDetection &&
+            client.isApiError(thrown) &&
+            thrown.type === 'BreakingChanges'
+          ) {
+            this.logger.warn('Tip: redeploy with --bypassBreakingChangeDetection to skip this check')
+          }
+          throw error
         })
       }
 

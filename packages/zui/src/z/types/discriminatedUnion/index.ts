@@ -78,8 +78,8 @@ export class ZodDiscriminatedUnionImpl<
     })
   }
 
-  getReferences(): string[] {
-    return utils.fn.unique(this.options.flatMap((option) => option.getReferences()))
+  _getReferences(visiting: Set<symbol>): string[] {
+    return utils.fn.unique(this.options.flatMap((option) => option._getReferences(visiting)))
   }
 
   clone(): ZodDiscriminatedUnionImpl<Discriminator, Options> {

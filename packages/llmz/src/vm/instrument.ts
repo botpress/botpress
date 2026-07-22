@@ -1,12 +1,11 @@
 import type { SourceMapConsumer } from 'source-map-js'
 
 import { type CompiledCode, Identifiers } from '../compiler/index.js'
-import { USER_CODE_START_MARKER } from '../compiler/plugins/async-iterator.js'
+import { USER_CODE_START_MARKER } from '../compiler/plugins/async-wrapper.js'
 
 const USER_CODE_MARKER_TAG_START = '__LLMZ_USER_CODE_START__'
 const USER_CODE_MARKER_TAG_END = '__LLMZ_USER_CODE_END__'
 import { Signals, SnapshotSignal } from '../errors.js'
-import { createJsxComponent, JsxComponent } from '../jsx.js'
 import type { Trace } from '../types.js'
 import { VMContext } from './types.js'
 
@@ -16,7 +15,6 @@ export const NO_TRACKING = [
   Identifiers.ToolCallTrackerFnIdentifier,
   Identifiers.ToolTrackerRetIdentifier,
   Identifiers.VariableTrackingFnIdentifier,
-  Identifiers.JSXFnIdentifier,
   Identifiers.ConsoleObjIdentifier,
 ] as const
 
@@ -24,7 +22,7 @@ export type InstrumentationState = {
   currentToolCall: SnapshotSignal['toolCall'] | undefined
 }
 
-// Injects tracking functions (comments, lines, variables, tools, console, yield) into the context.
+// Injects tracking functions (comments, lines, variables, tools, console) into the context.
 // Shared by both QuickJS and Node drivers.
 export function instrumentContext(
   context: VMContext,
@@ -50,9 +48,6 @@ export function instrumentContext(
     const userCodeLine = Math.max(1, mappedLine - userCodeStartLine)
     lines_executed.set(userCodeLine, (lines_executed.get(userCodeLine) ?? 0) + 1)
   }
-
-  context[Identifiers.JSXFnIdentifier] = (tool: string, props: Object, ...children: any[]) =>
-    createJsxComponent({ type: tool, props, children })
 
   context[Identifiers.VariableTrackingFnIdentifier] = (name: string, getter: () => any) => {
     if (NO_TRACKING.includes(name)) {
@@ -86,25 +81,6 @@ export function instrumentContext(
       const message = args.shift()
       traces.push({ type: 'log', message, args, started_at: Date.now() })
     },
-  }
-
-  context[Identifiers.AsyncIterYieldFnIdentifier] = async function (value: JsxComponent) {
-    const startedAt = Date.now()
-    try {
-      if (typeof value.type !== 'string' || value.type.trim().length === 0) {
-        throw new Error('A yield statement must yield a valid tool')
-      }
-
-      const toolName = Object.keys(context).find((x) => x.toUpperCase() === value.type.toUpperCase())
-
-      if (!toolName) {
-        throw new Error(`Yield tool "${value.type}", but tool is not found`)
-      }
-
-      await context[toolName](value)
-    } finally {
-      traces.push({ type: 'yield', value, started_at: startedAt, ended_at: Date.now() })
-    }
   }
 
   return state

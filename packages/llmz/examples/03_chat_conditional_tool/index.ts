@@ -134,8 +134,8 @@ login.getTypings()
 // Instructions change based on authentication status
 const InstructionsForUser: Record<Identity, string> = {
   unknown: 'The user is not authenticated. Please ask them to log in before proceeding. Use buttons to list users.',
-  admin: `User is logged in as "${userId}". At every turn, send a <Message> to the user with the list of all the tools available for the user and ask them to choose one. Use buttons to list tools.`,
-  customer: `User is logged in as "${userId}". At every turn, send a <Message> to the user with the list of all the tools available for the user and ask them to choose one. Use buttons to list tools.`,
+  admin: `User is logged in as "${userId}". At every turn, send a message to the user with the list of all the tools available for the user and ask them to choose one. Use buttons to list tools.`,
+  customer: `User is logged in as "${userId}". At every turn, send a message to the user with the list of all the tools available for the user and ask them to choose one. Use buttons to list tools.`,
 }
 
 const chat = new CLIChat()

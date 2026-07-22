@@ -1,11 +1,16 @@
-import * as types from 'src/types'
 import * as boot from '../bootstrap'
+import * as types from '../types'
 import * as bp from '.botpress'
 
 const LINEAR_ISSUE_BASE_URL = 'https://linear.app/botpress/issue/'
+const LINTED_ISSUES_LINK = 'https://linear.app/botpress/issue-label/lintdetected'
+const RESULT_MESSAGE_LIMIT = 5 // Limit to avoid spamming the message
 
 export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
   const { client, workflow, ctx, conversation } = props
+
+  const verbose = workflow.input.verbose ?? false
+  const comment = workflow.input.comment ?? true
 
   const { botpress, issueProcessor } = boot.bootstrap(props)
 
@@ -43,20 +48,26 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
     const pagedIssues = await issueProcessor
       .listRelevantIssues(endCursor)
       .catch(_handleError('trying to list all issues'))
+
+    const pageResults: types.LintResult[] = []
     for (const issue of pagedIssues.issues) {
       const lintResult = await issueProcessor
-        .lintIssue(issue)
+        .lintIssue(issue, { comment })
         .catch(_handleError(`trying to lint issue ${issue.identifier}`))
       lintResults.push(lintResult)
+      pageResults.push(lintResult)
 
       await workflow.acknowledgeStartOfProcessing().catch(_handleError('trying to acknowledge start of processing'))
+
+      endCursor = issue.id
+
       await Promise.all([
         client
           .setState({
             id: workflow.id,
             name: 'lastLintedId',
             type: 'workflow',
-            payload: { id: lastLintedId },
+            payload: { id: endCursor },
           })
           .catch(_handleError('trying to update last linted issue ID')),
         client
@@ -71,11 +82,22 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
     }
 
     hasNextPage = pagedIssues.pagination?.hasNextPage ?? false
-    endCursor = pagedIssues.pagination?.endCursor
+
+    if (verbose && conversation?.id) {
+      const failedCount = lintResults.filter((result) => result.result === 'failed').length
+      const newlyFailed = pageResults.filter((result) => result.result === 'failed')
+
+      const progressLine = `Linting... linted ${lintResults.length} issue(s) so far (${failedCount} with errors).`
+      const failedList = newlyFailed.map((result) => `- ${_issueLink(result.identifier)}`).join('\n')
+      const message = newlyFailed.length > 0 ? `${progressLine}\n${failedList}` : progressLine
+
+      await botpress.respondText(conversation.id, message).catch(() => {})
+    }
   } while (hasNextPage)
 
   if (conversation?.id) {
-    await botpress.respondText(conversation.id, _buildResultMessage(lintResults)).catch(() => {})
+    const message = _buildResultMessage(lintResults)
+    await botpress.respondText(conversation.id, message).catch(() => {})
     await workflow.setCompleted()
     return
   }
@@ -113,16 +135,23 @@ export const handleLintAllTimeout: bp.WorkflowHandlers['lintAll'] = async (props
   }
 }
 
-const _buildResultMessage = (results: types.LintResult[]) => {
-  const failedIssuesLinks = results
-    .filter((result) => result.result === 'failed')
-    .map((result) => `[${result.identifier}](${LINEAR_ISSUE_BASE_URL + result.identifier})`)
+const _issueLink = (identifier: string) => `[${identifier}](${LINEAR_ISSUE_BASE_URL + identifier})`
 
-  let messageDetail = 'No issue contained lint errors.'
-  if (failedIssuesLinks.length === 1) {
+const _buildResultMessage = (results: types.LintResult[]) => {
+  const failedIssues = results.filter((result) => result.result === 'failed')
+  const failedIssuesLinks = failedIssues.slice(0, RESULT_MESSAGE_LIMIT).map((result) => _issueLink(result.identifier))
+
+  let messageDetail: string
+  if (failedIssues.length < 1) {
+    messageDetail = 'All issues passed lint checks.'
+  } else if (failedIssues.length === 1) {
     messageDetail = `This issue contained lint errors: ${failedIssuesLinks[0]}.`
-  } else if (failedIssuesLinks.length > 1) {
+  } else if (failedIssues.length <= RESULT_MESSAGE_LIMIT) {
     messageDetail = `These issues contained lint errors: ${failedIssuesLinks.join(', ')}.`
+  } else {
+    const moreCount = failedIssues.length - RESULT_MESSAGE_LIMIT
+    messageDetail = `These issues contained lint errors: ${failedIssuesLinks.join(', ')} and ${moreCount} more.`
+    messageDetail += `\n\nSee all issues with lint errors here: ${LINTED_ISSUES_LINK}`
   }
 
   return `Linting complete. ${messageDetail}`

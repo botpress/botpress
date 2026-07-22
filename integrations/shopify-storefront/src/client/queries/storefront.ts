@@ -76,6 +76,22 @@ export const STOREFRONT_SEARCH_PRODUCTS = `
   }
 `
 
+export const STOREFRONT_LIST_PRODUCTS = `
+  query listProducts($query: String, $first: Int!, $after: String) {
+    products(query: $query, first: $first, after: $after) {
+      edges {
+        node {
+          ${PRODUCT_FIELDS}
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`
+
 export const STOREFRONT_GET_PRODUCT_BY_HANDLE = `
   query getProductByHandle($handle: String!) {
     product(handle: $handle) {

@@ -17,31 +17,38 @@ export {
   assertValidComponent,
   isComponent,
   isAnyComponent,
-  renderToTsx,
 } from './component.js'
 
 export { Citation, CitationsManager } from './citations.js'
 export { DefaultComponents } from './component.default.js'
 export { Snapshot } from './snapshots.js'
-export { Chat, type MessageHandler } from './chat.js'
+export { Chat, type MessageHandler, type MessageDelta, type MessageDeltaHandler } from './chat.js'
 
-import { type ExecutionProps } from './llmz.js'
 import { ExecutionResult } from './result.js'
-import { truncateWrappedContent, wrapContent } from './truncator.js'
+import { type ExecutionProps } from './runtime/types.js'
+import { stripTruncationTags, truncateWrappedContent, wrapContent } from './truncator.js'
 import { toValidFunctionName, toValidObjectName } from './utils.js'
 export { Transcript } from './transcript.js'
 export { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from './result.js'
 export { type Trace, type Traces } from './types.js'
 export { type Iteration, ListenExit, ThinkExit, DefaultExit, IterationStatuses, IterationStatus } from './context.js'
-export { type Context } from './context.js'
-export type { LLMzPrompts } from './prompts/prompt.js'
+export { type Context, type TokenUsage, type ContextTokens } from './context.js'
+export type { LLMzPrompts, ParsedSend, ParsedNext, ParsedAssistantResponse } from './prompts/prompt.js'
+export type { ExecutionProps, ExecutionHooks } from './runtime/types.js'
 export { type ValueOrGetter, getValue } from './getter.js'
+
+// The ■ message-stream protocol: streaming parser, response objects, component
+// registry/validation and instruction generation
+export * from './message-stream/index.js'
+
+export * from './custom-client.js'
 
 export const utils = {
   toValidObjectName,
   toValidFunctionName,
   wrapContent,
   truncateWrappedContent,
+  stripTruncationTags,
 }
 
 /**
@@ -62,7 +69,8 @@ export const utils = {
  * @param props.signal - Optional AbortSignal to cancel execution
  * @param props.model - Optional model name (or array or models to use as fallback) (static or dynamic function)
  * @param props.temperature - Optional temperature value (static or dynamic function)
- * @param props.options - Optional execution options (loop limit, timeout)
+ * @param props.metadata - Optional metadata attached to cognitive usage records for each LLM call
+ * @param props.options - Optional execution options (loop limit, timeout, maxTokens context cap)
  * @param props.onTrace - Optional non-blocking hook for monitoring traces during execution
  * @param props.onIterationEnd - Optional blocking hook called after each iteration
  * @param props.onExit - Optional blocking hook called when an exit is reached (can prevent exit)
@@ -112,7 +120,7 @@ export const utils = {
  */
 export const execute = async (props: ExecutionProps) => {
   // Code splitting to improve import performance
-  const { executeContext } = await import('./llmz.js')
+  const { executeContext } = await import('./runtime/execute.js')
   return executeContext(props) as Promise<ExecutionResult>
 }
 
@@ -122,7 +130,7 @@ export const execute = async (props: ExecutionProps) => {
  * It's recommended to call this function at the beginning of your application without awaiting it (void init())
  */
 export const init = async () => {
-  await import('./llmz.js')
+  await import('./runtime/execute.js')
   await import('./component.js')
   await import('./tool.js')
   await import('./exit.js')

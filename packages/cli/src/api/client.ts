@@ -1,6 +1,7 @@
 import * as client from '@botpress/client'
 import semver from 'semver'
 import yn from 'yn'
+import * as consts from '../consts'
 import * as errors from '../errors'
 import type { Logger } from '../logger'
 import { formatPackageRef, ApiPackageRef, NamePackageRef } from '../package-ref'
@@ -21,7 +22,6 @@ import {
   PublicOrPrivatePlugin,
   BotSummary,
 } from './types'
-
 export * from './types'
 
 /**
@@ -33,6 +33,7 @@ export class ApiClient {
   public readonly token: string
   public readonly workspaceId: string
   public readonly botId?: string
+  public readonly extraHeaders: Record<string, string>
 
   public static newClient = (props: ApiClientProps, logger: Logger) => new ApiClient(props, logger)
 
@@ -40,19 +41,21 @@ export class ApiClient {
     props: ApiClientProps,
     private _logger: Logger
   ) {
-    const { apiUrl, token, workspaceId, botId } = props
+    const { apiUrl, token, workspaceId, botId, extraHeaders = {} } = props
     this.client = new client.Client({
       apiUrl,
       token,
       workspaceId,
       botId,
+      timeout: consts.defaultBotpressApiTimeout,
       retry: retry.config,
-      headers: { 'x-multiple-integrations': 'true' },
+      headers: { 'x-multiple-integrations': 'true', ...extraHeaders },
     })
     this.url = apiUrl
     this.token = token
     this.workspaceId = workspaceId
     this.botId = botId
+    this.extraHeaders = extraHeaders
   }
 
   public get isBotpressWorkspace(): boolean {
@@ -96,13 +99,29 @@ export class ApiClient {
     return workspaces[0] // There should be only one workspace with a given handle
   }
 
+  public withExtraHeaders(headers: Record<string, string>): ApiClient {
+    return ApiClient.newClient(
+      {
+        apiUrl: this.url,
+        token: this.token,
+        workspaceId: this.workspaceId,
+        botId: this.botId,
+        extraHeaders: { ...this.extraHeaders, ...headers },
+      },
+      this._logger
+    )
+  }
+
   public switchWorkspace(workspaceId: string): ApiClient {
-    return ApiClient.newClient({ apiUrl: this.url, token: this.token, workspaceId }, this._logger)
+    return ApiClient.newClient(
+      { apiUrl: this.url, token: this.token, workspaceId, extraHeaders: this.extraHeaders },
+      this._logger
+    )
   }
 
   public switchBot(botId: string): ApiClient {
     return ApiClient.newClient(
-      { apiUrl: this.url, token: this.token, botId, workspaceId: this.workspaceId },
+      { apiUrl: this.url, token: this.token, botId, workspaceId: this.workspaceId, extraHeaders: this.extraHeaders },
       this._logger
     )
   }

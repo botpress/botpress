@@ -320,6 +320,33 @@ export abstract class ExecutionResult implements Serializable<ExecutionResult.JS
     return this.context.iterations ?? []
   }
 
+  /**
+   * Gets the total token usage of the execution, aggregated across all iterations.
+   *
+   * `input`/`output` are the provider-reported token counts of every LLM call made
+   * during the execution. Per-iteration detail (including the measured context size
+   * breakdown by prompt part) is available on each iteration's `tokens` property.
+   *
+   * @example
+   * ```typescript
+   * const result = await execute({ ... })
+   * console.log(`Execution used ${result.tokens.total} tokens`)
+   *
+   * for (const iteration of result.iterations) {
+   *   console.log(iteration.id, iteration.tokens?.context)
+   * }
+   * ```
+   */
+  public get tokens(): { input: number; output: number; total: number } {
+    let input = 0
+    let output = 0
+    for (const iteration of this.iterations) {
+      input += iteration.tokens?.input ?? 0
+      output += iteration.tokens?.output ?? 0
+    }
+    return { input, output, total: input + output }
+  }
+
   public abstract toJSON(): ExecutionResult.JSON
 }
 

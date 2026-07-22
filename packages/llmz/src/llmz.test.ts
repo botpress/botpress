@@ -2,7 +2,7 @@ import { Client } from '@botpress/client'
 import { Cognitive, CognitiveBeta, Model } from '@botpress/cognitive'
 import { describe, expect, test, vi } from 'vitest'
 import { Context } from './context.js'
-import { executeContext } from './llmz.js'
+import { executeContext } from './runtime/execute.js'
 import { ErrorExecutionResult } from './result.js'
 import { CognitiveError } from './errors.js'
 
@@ -43,30 +43,166 @@ test('executeContext should early exit when cognitive service is unreachable', a
   expect(((output as ErrorExecutionResult).error as Error).message).toContain(err.message)
 })
 
-test('executeContext accepts a standalone CognitiveBeta and routes it through the v2 path', async () => {
+test('executeContext accepts a standalone CognitiveBeta and routes it through the v2 streaming path', async () => {
   // A standalone CognitiveBeta (not wrapped in Cognitive). execute() should
   // detect it via the brand guard and adapt it — going straight to the v2
-  // `generateText`/`listModels` surface, never the v1 integration path.
+  // streaming surface (`generateTextStream`), never the v1 integration path.
   const generateText = vi.fn().mockRejectedValue(new Error('v2 boom'))
+  const generateTextStream = vi.fn(() => {
+    throw new Error('v2 boom')
+  })
   const listModels = vi.fn().mockResolvedValue([])
 
   const beta = {
     ['$$IS_COGNITIVE_BETA']: 'v2',
     generateText,
     listModels,
-    generateTextStream: vi.fn(),
+    generateTextStream,
   } as unknown as CognitiveBeta
 
   expect(CognitiveBeta.isBetaClient(beta)).toBe(true)
 
   const output = await executeContext({ client: beta, options: { loop: 5 } })
 
-  // Reaching generateText proves the beta adapter path was taken (model
-  // details resolved without throwing, then generation was attempted on v2).
-  expect(generateText).toHaveBeenCalled()
+  // Reaching generateTextStream proves the beta adapter streaming path was
+  // taken (model details resolved without throwing, then streaming generation
+  // was attempted on v2).
+  expect(generateTextStream).toHaveBeenCalled()
+  expect(generateText).not.toHaveBeenCalled()
   expect(output.status).toBe('error')
   expect((output as ErrorExecutionResult).error).toBeInstanceOf(CognitiveError)
   expect(((output as ErrorExecutionResult).error as Error).message).toContain('v2 boom')
+})
+
+test('executeContext does not execute an iteration after onIterationStart throws', async () => {
+  let generated = false
+
+  class TrackingCognitive extends Cognitive {
+    public constructor() {
+      super({ client: new Client({ botId: 'test-bot' }) })
+    }
+
+    public async getModelDetails(model: string): Promise<Model> {
+      return makeFakeModel(model)
+    }
+
+    public async generateContent(): Promise<never> {
+      generated = true
+      throw new Error('should not generate content')
+    }
+  }
+
+  const onIterationEnd = vi.fn()
+  const output = await executeContext({
+    client: new TrackingCognitive(),
+    options: { loop: 1 },
+    onIterationStart: () => {
+      throw new Error('start hook boom')
+    },
+    onIterationEnd,
+  })
+
+  expect(generated).toBe(false)
+  expect(onIterationEnd).toHaveBeenCalledTimes(1)
+  expect(output.iterations).toHaveLength(1)
+  expect(output.iterations[0]!.status.type).toBe('execution_error')
+  if (output.iterations[0]!.status.type === 'execution_error') {
+    expect(output.iterations[0]!.status.execution_error.message).toContain('start hook boom')
+  }
+})
+
+test('executeContext calls onIterationEnd when onIterationStart aborts', async () => {
+  let generated = false
+
+  class TrackingCognitive extends Cognitive {
+    public constructor() {
+      super({ client: new Client({ botId: 'test-bot' }) })
+    }
+
+    public async getModelDetails(model: string): Promise<Model> {
+      return makeFakeModel(model)
+    }
+
+    public async generateContent(): Promise<never> {
+      generated = true
+      throw new Error('should not generate content')
+    }
+  }
+
+  const onIterationEnd = vi.fn()
+  const output = await executeContext({
+    client: new TrackingCognitive(),
+    options: { loop: 1 },
+    onIterationStart: (_iteration, controller) => {
+      controller.abort('ABORTED')
+    },
+    onIterationEnd,
+  })
+
+  expect(generated).toBe(false)
+  expect(onIterationEnd).toHaveBeenCalledTimes(1)
+  expect(output.iterations).toHaveLength(1)
+  expect(output.iterations[0]!.status.type).toBe('aborted')
+  expect((output as ErrorExecutionResult).error).toBe('ABORTED')
+})
+
+test('executeContext calls onIterationEnd when LLM generation aborts', async () => {
+  const controller = new AbortController()
+
+  class AbortingCognitive extends Cognitive {
+    public constructor() {
+      super({ client: new Client({ botId: 'test-bot' }) })
+    }
+
+    public async getModelDetails(model: string): Promise<Model> {
+      return makeFakeModel(model)
+    }
+
+    public async generateContent(): Promise<never> {
+      controller.abort('ABORTED')
+      throw new Error('generation aborted')
+    }
+  }
+
+  const onIterationEnd = vi.fn()
+  const output = await executeContext({
+    client: new AbortingCognitive(),
+    options: { loop: 1 },
+    signal: controller.signal,
+    onIterationEnd,
+  })
+
+  expect(onIterationEnd).toHaveBeenCalledTimes(1)
+  expect(output.iterations).toHaveLength(1)
+  expect(output.iterations[0]!.status.type).toBe('aborted')
+  expect((output as ErrorExecutionResult).error).toBe('ABORTED')
+})
+
+test('executeContext forwards metadata to cognitive generation', async () => {
+  let capturedInput: { meta?: { metadata?: Record<string, string> } } | undefined
+
+  class CapturingCognitive extends Cognitive {
+    public constructor() {
+      super({ client: new Client({ botId: 'test-bot' }) })
+    }
+
+    public async getModelDetails(model: string): Promise<Model> {
+      return makeFakeModel(model)
+    }
+
+    public async generateContent(input: Parameters<Cognitive['generateContent']>[0]): Promise<never> {
+      capturedInput = input as typeof capturedInput
+      throw new Error('stop after capture')
+    }
+  }
+
+  await executeContext({
+    client: new CapturingCognitive(),
+    options: { loop: 1 },
+    metadata: { conversationId: 'conv-123', workflowId: 'wf-456' },
+  })
+
+  expect(capturedInput?.meta?.metadata).toEqual({ conversationId: 'conv-123', workflowId: 'wf-456' })
 })
 
 describe('reasoningEffort', () => {

@@ -1,10 +1,11 @@
 import { Client } from '@botpress/client'
 import { Cognitive } from '@botpress/cognitive'
-import { type TextTokenizer, getWasmTokenizer } from '@bpinternal/thicktoken'
+import { getWasmTokenizer } from '@bpinternal/thicktoken/micro'
 import fs from 'node:fs'
 import path from 'node:path'
 import { beforeAll } from 'vitest'
 import { Zai } from '../src'
+import { type TextTokenizer } from '../src/tokenizer'
 import { getCachedCognitiveClient } from './client'
 
 const DATA_PATH = path.join(__dirname, 'data')
@@ -30,7 +31,7 @@ export const getZai = (cognitive?: Cognitive) => {
 export let tokenizer: TextTokenizer = null!
 
 beforeAll(async () => {
-  tokenizer = (await getWasmTokenizer()) as TextTokenizer
+  tokenizer = await getWasmTokenizer()
 })
 
 export const BotpressDocumentation = fs.readFileSync(DOC_PATH, 'utf-8').trim()

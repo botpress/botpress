@@ -10,6 +10,7 @@ export const defaultBotpressHome = pathlib.join(os.homedir(), '.botpress')
 export const defaultWorkDir = process.cwd()
 export const defaultInstallPath = process.cwd()
 export const defaultBotpressApiUrl = `https://api.${productionBotpressDomain}`
+export const defaultBotpressApiTimeout = 180_000
 export const defaultBotpressAppUrl = `https://app.${productionBotpressDomain}`
 export const defaultTunnelUrl = `https://tunnel.${productionBotpressDomain}`
 export const defaultChatApiUrl = `https://chat.${productionBotpressDomain}`

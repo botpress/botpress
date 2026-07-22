@@ -20,8 +20,8 @@ export class ZodReadonlyImpl<T extends IZodType = IZodType>
     })
   }
 
-  getReferences(): string[] {
-    return this._def.innerType.getReferences()
+  _getReferences(visiting: Set<symbol>): string[] {
+    return this._def.innerType._getReferences(visiting)
   }
 
   clone(): IZodReadonly<T> {

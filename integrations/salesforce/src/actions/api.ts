@@ -22,23 +22,39 @@ export const makeApiRequest: bp.IntegrationProps['actions']['makeApiRequest'] = 
     }
   } catch (e) {
     const errorMsg = "'Make API request' error:"
-    if (isAxiosError(e) && e.response?.status === 401) {
-      try {
-        await refreshSfToken(client, ctx)
 
-        const newSfCredentials = await getSfCredentials(client, ctx.integrationId)
+    if (isAxiosError(e)) {
+      const status = e.response?.status
+      logger
+        .forBot()
+        .warn(
+          `Salesforce API request failed with HTTP status ${status ?? 'unknown'} (axios code: ${e.code ?? 'unknown'})`
+        )
 
-        logger.forBot().info('Refreshed token')
+      if (status === 401) {
+        try {
+          logger.forBot().info('Salesforce access token expired, attempting to refresh it')
+          await refreshSfToken(client, ctx, logger)
 
-        const res = await makeRequest(url, input, newSfCredentials.accessToken)
+          const newSfCredentials = await getSfCredentials(client, ctx.integrationId)
 
-        return {
-          success: true,
-          body: res.data,
+          const res = await makeRequest(url, input, newSfCredentials.accessToken)
+
+          return {
+            success: true,
+            status: res.status,
+            body: res.data,
+          }
+        } catch (e) {
+          return handleError(errorMsg, e, logger)
         }
-      } catch (e) {
-        return handleError(errorMsg, e, logger)
       }
+
+      logger
+        .forBot()
+        .warn(
+          `Salesforce API request error is not an expired access token, skipping token refresh (HTTP ${status ?? 'unknown'})`
+        )
     }
 
     return handleError(errorMsg, e, logger)

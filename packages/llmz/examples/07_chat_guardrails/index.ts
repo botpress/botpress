@@ -61,7 +61,8 @@ while (await chat.iterate()) {
       loading(true, chalk.dim('👀 Checking guardrails...'))
 
       // Use Zai to analyze the generated code against our guardrails
-      const checks = await zai.label(iteration.code, guardrails)
+      // (.result() returns the rich shape with confidence and explanations)
+      const { output: checks } = await zai.label(iteration.code, guardrails).result()
       loading(false)
 
       // Collect any guardrail violations

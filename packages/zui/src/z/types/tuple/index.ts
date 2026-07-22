@@ -28,10 +28,10 @@ export class ZodTupleImpl<
     })
   }
 
-  getReferences(): string[] {
+  _getReferences(visiting: Set<symbol>): string[] {
     return utils.fn.unique([
-      ...this._def.items.flatMap((item) => item.getReferences()),
-      ...(this._def.rest ? this._def.rest.getReferences() : []),
+      ...this._def.items.flatMap((item) => item._getReferences(visiting)),
+      ...(this._def.rest ? this._def.rest._getReferences(visiting) : []),
     ])
   }
 

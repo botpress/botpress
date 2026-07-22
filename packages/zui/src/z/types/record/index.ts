@@ -35,8 +35,11 @@ export class ZodRecordImpl<Key extends KeySchema = KeySchema, Value extends IZod
     })
   }
 
-  getReferences(): string[] {
-    return utils.fn.unique([...this._def.keyType.getReferences(), ...this._def.valueType.getReferences()])
+  _getReferences(visiting: Set<symbol>): string[] {
+    return utils.fn.unique([
+      ...this._def.keyType._getReferences(visiting),
+      ...this._def.valueType._getReferences(visiting),
+    ])
   }
 
   clone(): IZodRecord<Key, Value> {

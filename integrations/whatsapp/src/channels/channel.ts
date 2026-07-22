@@ -1,4 +1,5 @@
 import { posthogHelper } from '@botpress/common'
+import { RuntimeError } from '@botpress/sdk'
 import { INTEGRATION_NAME, INTEGRATION_VERSION } from 'integration.definition'
 import {
   Text,
@@ -17,7 +18,7 @@ import { getAuthenticatedWhatsappClient } from '../auth'
 import { WHATSAPP } from '../misc/constants'
 import { convertMarkdownToWhatsApp } from '../misc/markdown-to-whatsapp-rtf'
 import { splitTextMessageIfNeeded } from '../misc/split-text-message'
-import { sleep } from '../misc/util'
+import { reportIssueAndThrow, sleep } from '../misc/util'
 import { repeat } from '../repeat'
 import * as card from './message-types/card'
 import * as carousel from './message-types/carousel'
@@ -273,19 +274,25 @@ async function _send({ client, ctx, conversation, logger, message, ack }: SendMe
   const messageType = message._type
 
   if (!botPhoneNumberId) {
-    logger
-      .forBot()
-      .error("Cannot send message to WhatsApp because the bot phone number ID wasn't set in the conversation tags")
-    return
+    reportIssueAndThrow(logger, {
+      code: 'whatsapp_missing_bot_phone_number',
+      category: 'configuration',
+      title: 'Missing bot phone number ID',
+      description:
+        "Cannot send message to WhatsApp because the bot phone number ID wasn't set in the conversation tags",
+      data: { messageType: { raw: messageType } },
+    })
   }
 
   if (!recipient) {
-    logger
-      .forBot()
-      .error(
-        "Cannot send message to WhatsApp because neither the user's phone number nor user ID is set in the conversation tags"
-      )
-    return
+    reportIssueAndThrow(logger, {
+      code: 'whatsapp_missing_recipient',
+      category: 'other',
+      title: 'Missing WhatsApp recipient',
+      description:
+        "Cannot send message to WhatsApp because neither the user's phone number nor user ID is set in the conversation tags",
+      data: { messageType: { raw: messageType } },
+    })
   }
 
   const feedback = await repeat(
@@ -308,22 +315,36 @@ async function _send({ client, ctx, conversation, logger, message, ack }: SendMe
   )
 
   if ('error' in feedback) {
-    logger
-      .forBot()
-      .error(
-        `Failed to send ${messageType} message from bot to WhatsApp. Reason:`,
-        feedback.error?.message ?? 'Unknown error'
-      )
-    return
+    const reason = feedback.error?.message ?? 'Unknown error'
+    const errorCode = feedback.error?.code
+
+    reportIssueAndThrow(logger, {
+      code: 'whatsapp_send_message_failed',
+      category: 'other',
+      title: `Failed to send ${messageType} message to WhatsApp`,
+      description: `WhatsApp rejected the ${messageType} message sent from the bot. Reason: ${reason}`,
+      groupBy: ['whatsapp_send_message_failed', String(errorCode ?? 'unknown')],
+      data: {
+        messageType: { raw: messageType },
+        reason: { raw: reason },
+        errorCode: { raw: String(errorCode ?? 'unknown') },
+      },
+      throwMessage: `Failed to send ${messageType} message to WhatsApp: ${reason}`,
+    })
   }
 
   if (!('messages' in feedback)) {
-    logger
-      .forBot()
-      .error(
-        `A ${messageType} message from the bot was sent to WhatsApp but no messages were found in their response. Response: ${JSON.stringify(feedback)}`
-      )
-    return
+    reportIssueAndThrow(logger, {
+      code: 'whatsapp_no_message_id_returned',
+      category: 'other',
+      title: `WhatsApp returned no message ID for the sent ${messageType} message`,
+      description: `A ${messageType} message from the bot was sent to WhatsApp but no messages were found in their response. Response: ${JSON.stringify(feedback)}`,
+      data: {
+        messageType: { raw: messageType },
+        response: { raw: JSON.stringify(feedback) },
+      },
+      throwMessage: `WhatsApp returned no message ID for the sent ${messageType} message, so delivery could not be confirmed`,
+    })
   }
 
   logger.forBot().debug(`Successfully sent ${messageType} message from bot to WhatsApp:`, message)
@@ -346,7 +367,21 @@ async function _sendMany({
       await _send({ ctx, conversation, ack, message, logger, client })
     }
   } catch (err) {
-    logger.forBot().error('Failed to generate messages for sending to WhatsApp. Reason:', err)
+    if (err instanceof RuntimeError) {
+      // _send already reported the issue; just propagate so the failure isn't swallowed.
+      throw err
+    }
+
+    const reason = err instanceof Error ? err.message : String(err)
+
+    reportIssueAndThrow(logger, {
+      code: 'whatsapp_generate_messages_failed',
+      category: 'other',
+      title: 'Failed to generate messages for sending to WhatsApp',
+      description: `An error occurred while generating messages to send to WhatsApp. Reason: ${reason}`,
+      data: { reason: { raw: reason } },
+      throwMessage: `Failed to send messages to WhatsApp: ${reason}`,
+    })
   }
 }
 

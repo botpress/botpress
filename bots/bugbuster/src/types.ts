@@ -1,6 +1,7 @@
-import * as bp from '.botpress'
+import * as lin from './utils/linear-utils'
 
-export type CommonHandlerProps = bp.WorkflowHandlerProps['lintAll'] | bp.EventHandlerProps | bp.MessageHandlerProps
+export type ValueOf<T> = T[keyof T]
+export type Satisfies<T, U extends T> = U
 
 export type LintResult =
   | {
@@ -13,40 +14,34 @@ export type LintResult =
       result: 'succeeded' | 'ignored'
     }
 
-const STATE_KEYS = [
-  'IN_PROGRESS',
-  'STAGING',
-  'PRODUCTION_DONE',
-  'BACKLOG',
-  'TODO',
-  'TRIAGE',
-  'CANCELED',
-  'BLOCKED',
-  'STALE',
-] as const
-export type StateKey = (typeof STATE_KEYS)[number]
+export type CommonStates = Satisfies<
+  Record<lin.StateType, string>,
+  {
+    triage: 'TRIAGE'
+    backlog: 'BACKLOG'
+    unstarted: 'TODO'
+    started: 'IN_PROGRESS' | 'BLOCKED' | 'IN_REVIEW' | 'STAGING' | 'MONITORING'
+    completed: 'DONE'
+    canceled: 'CANCELED' | 'STALE'
+    duplicate: 'DUPLICATE'
+  }
+>
 
+export type CommonStateName = ValueOf<CommonStates>
+
+export type StateEntry = lin.State & {
+  commonName?: CommonStateName
+}
+
+export type StatePredicate = (state: StateEntry) => boolean
 export type StateAttributes = {
-  stateKey: StateKey
-  maxTimeSinceLastUpdate: ISO8601Duration
+  filter: StatePredicate
+  maxTimeSinceLastUpdate: lin.ISO8601Duration
   warningComment: string
   buildWarningReason: (issueIdentifier: string) => string
 }
 
-export type LinearTeam = {
-  id: string
-  key: string
-  name: string
-  description?: string | undefined
-  icon?: string | undefined
-}
-
-export type LinearState = {
-  id: string
-  name: string
-}
-
-export type ISO8601Duration = string
+export type CommentType = 'lint' | 'stale'
 
 type CommandResult = { success: boolean; message: string }
 export type CommandImplementation = (args: string[], conversationId: string) => CommandResult | Promise<CommandResult>

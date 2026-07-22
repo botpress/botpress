@@ -2,7 +2,7 @@ import { Cognitive, Model, GenerateContentInput, GenerateContentOutput } from '@
 import { Adapter } from './adapters/adapter'
 import { EventEmitter } from './emitter'
 import { fastHash } from './utils'
-import type { Memoizer } from './zai'
+import type { Memoizer, ZaiMetadata } from './zai'
 
 type Meta = Awaited<ReturnType<Cognitive['generateContent']>>['meta']
 
@@ -19,6 +19,7 @@ export type ZaiContextProps = {
   adapter?: Adapter
   source?: GenerateContentInput['meta']
   memoizer?: Memoizer
+  metadata?: ZaiMetadata
 }
 
 /**
@@ -95,6 +96,7 @@ export class ZaiContext {
   public modelId: GenerateContentInput['model']
   public adapter?: Adapter
   public source?: GenerateContentInput['meta']
+  public metadata?: ZaiMetadata
 
   private _eventEmitter: EventEmitter<ContextEvents>
   private _memoizer: Memoizer
@@ -110,6 +112,7 @@ export class ZaiContext {
     this.modelId = props.modelId
     this.adapter = props.adapter
     this.source = props.source
+    this.metadata = props.metadata
     this.taskType = props.taskType
     this._memoizer = props.memoizer ?? ZaiContext._noopMemoizer
     this._eventEmitter = new EventEmitter<ContextEvents>()
@@ -164,6 +167,7 @@ export class ZaiContext {
         s: props.systemPrompt,
         m: props.messages?.map((m) => ('content' in m ? m.content : '')),
         st: props.stopSequences,
+        mt: props.maxTokens,
       })
     )}`
 
@@ -189,6 +193,7 @@ export class ZaiContext {
             integrationName: props.meta?.integrationName || 'zai',
             promptCategory: props.meta?.promptCategory || `zai:${this.taskType}`,
             promptSource: props.meta?.promptSource || `zai:${this.taskType}:${this.taskId ?? 'default'}`,
+            metadata: props.meta?.metadata || this.metadata,
           },
         })
 

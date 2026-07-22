@@ -1,18 +1,22 @@
 import * as sdk from '@botpress/sdk'
 import * as types from '../../types'
 import * as lin from '../../utils/linear-utils'
+import * as cmts from '../comment-service'
+import * as sts from '../state-service'
 import * as tm from '../teams-manager'
 import { lintIssue } from './lint-issue'
 
-const IGNORED_STATES: types.StateKey[] = ['TRIAGE', 'PRODUCTION_DONE', 'CANCELED', 'STALE']
+const IGNORED_STATES: lin.StateType[] = ['triage', 'backlog', 'completed', 'canceled', 'duplicate']
 const LINTIGNORE_LABEL_NAME = 'lintignore'
+const LINTDETECTED_LABEL_NAME = 'lintdetected'
 
 export class IssueProcessor {
   public constructor(
     private _logger: sdk.BotLogger,
     private _linear: lin.LinearApi,
-    private _teamsManager: tm.TeamsManager,
-    private _botId: string
+    private _commentService: cmts.CommentService,
+    private _stateService: sts.StateService,
+    private _teamsManager: tm.TeamsManager
   ) {}
 
   /**
@@ -45,18 +49,28 @@ export class IssueProcessor {
       throw new Error('You have no watched teams.')
     }
 
+    const allStates = await this._stateService.getStates()
+    const stateIdsToOmit = allStates.filter((state) => IGNORED_STATES.includes(state.type)).map((state) => state.id)
+
     return await this._linear.listIssues(
       {
         teamKeys: watchedTeams,
-        statesToOmit: IGNORED_STATES,
+        stateIdsToOmit,
       },
       endCursor
     )
   }
 
-  public async lintIssue(issue: lin.Issue, isRecentlyLinted?: boolean): Promise<types.LintResult> {
-    const state = await this._linear.issueState(issue)
-    if (IGNORED_STATES.includes(state) || issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)) {
+  public async lintIssue(issue: lin.Issue, options?: { comment?: boolean }): Promise<types.LintResult> {
+    const shouldComment = options?.comment ?? true
+    const state = await this._stateService.getIssueState(issue)
+
+    if (
+      IGNORED_STATES.includes(state.type) ||
+      issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)
+    ) {
+      await this._commentService.resolveComments({ issue, type: 'lint' })
+      await this._rmLintDetectedLabel(issue)
       return { identifier: issue.identifier, result: 'ignored' }
     }
 
@@ -64,28 +78,47 @@ export class IssueProcessor {
 
     if (errors.length === 0) {
       this._logger.info(`Issue ${issue.identifier} passed all lint checks.`)
-      await this._linear.resolveComments(issue)
+      await this._commentService.resolveComments({ issue, type: 'lint' })
+      await this._rmLintDetectedLabel(issue)
       return { identifier: issue.identifier, result: 'succeeded' }
     }
 
     const warningMessage = `Issue ${issue.identifier} has ${errors.length} lint errors.`
-    if (isRecentlyLinted) {
-      this._logger.warn(`${warningMessage} Not commenting the issue because it has been linted recently.`)
-      return { identifier: issue.identifier, result: 'succeeded' }
-    }
 
     this._logger.warn(warningMessage)
 
-    await this._linear.createComment({
-      issueId: issue.id,
-      botId: this._botId,
-      body: [
-        `BugBuster Bot found the following problems with ${issue.identifier}:`,
-        '',
-        ...errors.map((error) => `- ${error.message}`),
-      ].join('\n'),
-    })
+    if (shouldComment) {
+      await this._commentService.upsertComment({
+        issue,
+        type: 'lint',
+        body: [
+          `BugBuster Bot found the following problems with ${issue.identifier}:`,
+          '',
+          ...errors.map((error) => `- ${error.message}`),
+        ].join('\n'),
+      })
+    }
 
+    await this._addLintDetectedLabel(issue)
     return { identifier: issue.identifier, messages: errors.map((error) => error.message), result: 'failed' }
   }
+
+  private _rmLintDetectedLabel = async (issue: lin.Issue): Promise<void> => {
+    await this._linear
+      .removeLabel(issue, LINTDETECTED_LABEL_NAME)
+      .catch(this._swallowError(`Failed to remove label ${LINTDETECTED_LABEL_NAME} from issue ${issue.identifier}`))
+  }
+
+  private _addLintDetectedLabel = async (issue: lin.Issue): Promise<void> => {
+    await this._linear
+      .addLabel(issue, LINTDETECTED_LABEL_NAME)
+      .catch(this._swallowError(`Failed to add label ${LINTDETECTED_LABEL_NAME} to issue ${issue.identifier}`))
+  }
+
+  private _swallowError =
+    (context: string) =>
+    (thrown: unknown): void => {
+      const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+      this._logger.error(`${context}: ${errMsg}`)
+    }
 }

@@ -1,12 +1,12 @@
 import { Client } from '@botpress/client'
 import { BotpressClientLike, Cognitive, Model, Models } from '@botpress/cognitive'
 
-import { type TextTokenizer, getWasmTokenizer } from '@bpinternal/thicktoken'
 import { z } from '@bpinternal/zui'
 
 import { Adapter } from './adapters/adapter'
 import { TableAdapter } from './adapters/botpress-table'
 import { MemoryAdapter } from './adapters/memory'
+import { type TextTokenizer, getTokenizer } from './tokenizer'
 
 /**
  * A memoizer that caches the result of async operations by a unique key.
@@ -18,6 +18,20 @@ import { MemoryAdapter } from './adapters/memory'
 export type Memoizer = {
   run: <T>(id: string, fn: () => Promise<T>) => Promise<T>
 }
+
+/**
+ * Arbitrary key-value metadata attached to every cognitive call made by a Zai instance.
+ *
+ * Forwarded on the request `meta` and recorded on usage events server-side, enabling
+ * usage breakdowns by custom dimensions (e.g. conversation).
+ *
+ * @example
+ * ```typescript
+ * const convZai = zai.with({ metadata: { conversationId: message.conversationId } })
+ * await convZai.check(text, 'Is this a refund request?')
+ * ```
+ */
+export type ZaiMetadata = Record<string, string>
 
 /**
  * Active learning configuration for improving AI operations over time.
@@ -112,6 +126,11 @@ export type ZaiConfig = {
    * If a factory function is provided, it is called once per Zai operation invocation.
    */
   memoize?: Memoizer | (() => Memoizer)
+  /**
+   * Arbitrary key-value metadata attached to every cognitive call, recorded on usage
+   * events server-side. Use `zai.with({ metadata })` to scope it, e.g. per conversation.
+   */
+  metadata?: ZaiMetadata
 }
 
 const _ZaiConfig = z.object({
@@ -143,6 +162,10 @@ const _ZaiConfig = z.object({
       'Namespace must be alphanumeric and contain only letters, numbers, underscores, hyphens and slashes'
     )
     .default('zai'),
+  metadata: z
+    .record(z.string().max(128))
+    .describe('Arbitrary key-value metadata attached to every cognitive call and recorded on usage events')
+    .optional(),
 })
 
 /**
@@ -221,6 +244,7 @@ export class Zai {
   protected adapter: Adapter
   protected activeLearning: ActiveLearning
   protected _memoize?: Memoizer | (() => Memoizer)
+  protected metadata?: ZaiMetadata
 
   /**
    * Creates a new Zai instance with the specified configuration.
@@ -255,6 +279,7 @@ export class Zai {
     this._userId = parsed.userId
     this.Model = parsed.modelId as Models | Models[]
     this.activeLearning = parsed.activeLearning as ActiveLearning
+    this.metadata = parsed.metadata
 
     this.adapter = parsed.activeLearning?.enable
       ? new TableAdapter({
@@ -287,13 +312,7 @@ export class Zai {
   }
 
   protected async getTokenizer() {
-    Zai.tokenizer ??= await (async () => {
-      while (!getWasmTokenizer) {
-        // there's an issue with wasm, it doesn't load immediately
-        await new Promise((resolve) => setTimeout(resolve, 25))
-      }
-      return getWasmTokenizer() as TextTokenizer
-    })()
+    Zai.tokenizer ??= await getTokenizer()
     return Zai.tokenizer
   }
 

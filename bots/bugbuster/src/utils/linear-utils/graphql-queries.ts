@@ -1,4 +1,4 @@
-import * as types from 'src/types'
+import * as types from './types'
 
 const QUERY_INPUT = Symbol('graphqlInputType')
 const QUERY_RESPONSE = Symbol('graphqlResponseType')
@@ -9,69 +9,11 @@ type GraphQLQuery<TInput, TResponse> = {
   [QUERY_RESPONSE]: TResponse
 }
 
-export type Issue = {
-  id: string
-  identifier: string
-  title: string
-  estimate: number | null
-  priority: number
-  assignee: {
-    id: string
-  } | null
-  state: {
-    id: string
-  }
-  labels: {
-    nodes: {
-      name: string
-      parent: {
-        name: string
-      } | null
-    }[]
-  }
-  inverseRelations: {
-    nodes: {
-      type: string
-    }[]
-  }
-  project: {
-    id: string
-    name: string
-    completedAt: string | null
-  } | null
-  comments: {
-    nodes: {
-      id: string
-      resolvedAt: string | null
-      createdAt: string
-      user: {
-        id: string
-      } | null
-      parentId: string | null
-    }[]
-  }
-}
-
-export type TeamStates = {
-  id: string
-  states: {
-    nodes: {
-      id: string
-      name: string
-    }[]
-  }
-}
-
-export type Pagination = {
-  hasNextPage: boolean
-  endCursor: string
-}
-
 export const GRAPHQL_QUERIES = {
   listIssues: {
     query: `
-      query FindIssue($filter: IssueFilter, $first: Int, $after: String) {
-        issues(filter: $filter, first: $first, after: $after) {
+      query FindIssue($filter: IssueFilter, $first: Int, $after: String, $orderBy: PaginationOrderBy) {
+        issues(filter: $filter, first: $first, after: $after, orderBy: $orderBy) {
           nodes {
             id,
             identifier,
@@ -80,9 +22,11 @@ export const GRAPHQL_QUERIES = {
             priority,
             assignee {
               id
+              active
             },
             state {
               id
+              name
             },
             labels {
               nodes {
@@ -105,6 +49,7 @@ export const GRAPHQL_QUERIES = {
             comments {
               nodes {
                 id,
+                body,
                 user {
                   id
                 },
@@ -114,6 +59,10 @@ export const GRAPHQL_QUERIES = {
               }
             }
           }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
         }
       }`,
     [QUERY_INPUT]: {} as {
@@ -121,7 +70,7 @@ export const GRAPHQL_QUERIES = {
         team?: { key: { in: string[] } }
         number?: { eq: number }
         state?: {
-          name: {
+          id: {
             nin?: string[]
             in?: string[]
           }
@@ -132,12 +81,146 @@ export const GRAPHQL_QUERIES = {
       }
       after?: string
       first?: number
+      orderBy?: 'createdAt' | 'updatedAt'
     },
     [QUERY_RESPONSE]: {} as {
       issues: {
-        nodes: Issue[]
+        nodes: types.Issue[]
+        pageInfo: types.Pagination
       }
-      pageInfo: Pagination
+    },
+  },
+  listComments: {
+    query: `
+      query ListComments($filter: CommentFilter, $first: Int, $after: String) {
+        comments(filter: $filter, first: $first, after: $after) {
+          nodes {
+            id
+            body
+            user {
+              id
+            }
+            parentId
+            resolvedAt
+            createdAt
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+        }
+      }`,
+    [QUERY_INPUT]: {} as {
+      filter: {
+        issue: { id: { eq: string } }
+        user: { id: { eq: string } }
+      }
+      first?: number
+      after?: string
+    },
+    [QUERY_RESPONSE]: {} as {
+      comments: {
+        nodes: types.IssueComment[]
+        pageInfo: types.Pagination
+      }
+    },
+  },
+  listStates: {
+    query: `
+      query ListStates($first: Int, $after: String) {
+        workflowStates(first: $first, after: $after) {
+          nodes {
+            id
+            name
+            type
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+        }
+      }`,
+    [QUERY_INPUT]: {} as {
+      first?: number
+      after?: string
+    },
+    [QUERY_RESPONSE]: {} as {
+      workflowStates: {
+        nodes: types.State[]
+        pageInfo: types.Pagination
+      }
+    },
+  },
+  findLabel: {
+    query: `
+      query FindLabel($filter: IssueLabelFilter) {
+        issueLabels(filter: $filter) {
+          nodes {
+            id
+            name
+          }
+        }
+      }`,
+    [QUERY_INPUT]: {} as {
+      filter: {
+        name: { eq: string }
+        // The lintdetected label is a workspace-level label; scoping to team-less labels avoids
+        // matching (and caching) a same-named label that belongs to a specific team.
+        team: { null: boolean }
+      }
+    },
+    [QUERY_RESPONSE]: {} as {
+      issueLabels: {
+        nodes: {
+          id: string
+          name: string
+        }[]
+      }
+    },
+  },
+  addLabelToIssue: {
+    query: `
+      mutation AddLabel($id: String!, $labelId: String!) {
+        issueAddLabel(id: $id, labelId: $labelId) {
+          success
+        }
+      }`,
+    [QUERY_INPUT]: {} as {
+      id: string
+      labelId: string
+    },
+    [QUERY_RESPONSE]: {} as {
+      issueAddLabel: { success: boolean }
+    },
+  },
+  removeLabelFromIssue: {
+    query: `
+      mutation RemoveLabel($id: String!, $labelId: String!) {
+        issueRemoveLabel(id: $id, labelId: $labelId) {
+          success
+        }
+      }`,
+    [QUERY_INPUT]: {} as {
+      id: string
+      labelId: string
+    },
+    [QUERY_RESPONSE]: {} as {
+      issueRemoveLabel: { success: boolean }
+    },
+  },
+  updateComment: {
+    query: `
+      mutation UpdateComment($id: String!, $input: CommentUpdateInput!) {
+        commentUpdate(id: $id, input: $input) {
+          success
+        }
+      }`,
+    [QUERY_INPUT]: {} as {
+      id: string
+      input: { body: string }
+    },
+    [QUERY_RESPONSE]: {} as {
+      commentUpdate: { success: boolean }
     },
   },
   findTeamStates: {
