@@ -220,15 +220,25 @@ export const generateCode = async ({
     // when a signal is provided, so a silent connection would hang forever.
     const streamController = createJoinedAbortController([controller.signal])
     const requestedAt = Date.now()
-    const stream = cognitive.generateContentStream({ ...input, signal: streamController.signal })
+    const stream = cognitive.generateContentStream({
+      ...input,
+      signal: streamController.signal,
+      // Passed through to the cognitive v2 request: fall back to the next
+      // model/provider when the first token takes too long
+      ...(ctx.maxTimeToFirstToken ? { options: { maxTimeToFirstToken: ctx.maxTimeToFirstToken } } : {}),
+    } as typeof input)
+
+    // The client-side stall guard must leave room for the server-side
+    // maxTimeToFirstToken fallback chain to run through its models
+    const inactivityTimeout = Math.max(STREAM_INACTIVITY_TIMEOUT, ctx.maxTimeToFirstToken ?? 0)
 
     const nextChunk = async () => {
       let timer: NodeJS.Timeout | undefined
       const stalled = new Promise<never>((_, reject) => {
         timer = setTimeout(() => {
           streamController.abort('LLM stream stalled')
-          reject(new Error(`LLM stream stalled: no data received for ${STREAM_INACTIVITY_TIMEOUT}ms`))
-        }, STREAM_INACTIVITY_TIMEOUT)
+          reject(new Error(`LLM stream stalled: no data received for ${inactivityTimeout}ms`))
+        }, inactivityTimeout)
       })
       try {
         return await Promise.race([stream.next(), stalled])

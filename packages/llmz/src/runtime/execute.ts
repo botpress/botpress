@@ -60,6 +60,7 @@ const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionR
     loop: props.options?.loop,
     timeout: props.options?.timeout,
     maxTokens: props.options?.maxTokens,
+    maxTimeToFirstToken: props.options?.maxTimeToFirstToken,
     exits: props.exits,
     snapshot: props.snapshot,
     model: props.model,

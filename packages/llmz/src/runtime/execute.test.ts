@@ -544,6 +544,28 @@ describe('message-stream protocol execution', () => {
     expect(capped.limit).toBe(10_000)
   })
 
+  test('options.maxTimeToFirstToken is forwarded to the streaming request', async () => {
+    let received: any
+    class ProbeCognitive extends ScriptedStreamingCognitive {
+      public async *generateContentStream(input?: any): AsyncGenerator<any, any, void> {
+        received = input
+        return yield* super.generateContentStream()
+      }
+    }
+
+    const { chat } = makeChat()
+    const client = new ProbeCognitive(['■send=message\nHello!\n■next=listen'])
+
+    const result = await executeContext({
+      client,
+      chat,
+      options: { loop: 2, maxTimeToFirstToken: 1_234 },
+    })
+
+    expect(result).toBeInstanceOf(SuccessExecutionResult)
+    expect(received?.options?.maxTimeToFirstToken).toBe(1_234)
+  })
+
   test('onExit and onTrace hooks receive the abort controller', async () => {
     const done = new Exit({ name: 'done', description: 'Task completed' })
     const client = new ScriptedCognitive(['■next=done'])

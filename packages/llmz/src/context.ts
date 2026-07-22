@@ -674,6 +674,11 @@ export class Context implements Serializable<Context.JSON> {
    * `min(maxTokens, model's max input tokens)`.
    */
   public maxTokens?: number
+  /**
+   * Maximum time to wait for the first streamed token, in milliseconds,
+   * before the cognitive service falls back to the next model/provider.
+   */
+  public maxTimeToFirstToken?: number
   public metadata: Record<string, any>
 
   public snapshot?: Snapshot
@@ -1028,6 +1033,7 @@ export class Context implements Serializable<Context.JSON> {
     snapshot?: Snapshot
     timeout?: number
     maxTokens?: number
+    maxTimeToFirstToken?: number
   }) {
     this.id = `llmz_${ulid()}`
     this.instructions = props.instructions
@@ -1045,6 +1051,7 @@ export class Context implements Serializable<Context.JSON> {
     this.metadata = props.metadata ?? {}
     this.snapshot = props.snapshot
     this.maxTokens = props.maxTokens
+    this.maxTimeToFirstToken = props.maxTimeToFirstToken
 
     if (this.loop < 1 || this.loop > 100) {
       throw new Error('Invalid loop. Expected a number between 1 and 100.')
@@ -1052,6 +1059,13 @@ export class Context implements Serializable<Context.JSON> {
 
     if (this.maxTokens !== undefined && (!Number.isFinite(this.maxTokens) || this.maxTokens < 1)) {
       throw new Error('Invalid maxTokens. Expected a positive number.')
+    }
+
+    if (
+      this.maxTimeToFirstToken !== undefined &&
+      (!Number.isFinite(this.maxTimeToFirstToken) || this.maxTimeToFirstToken < 1)
+    ) {
+      throw new Error('Invalid maxTimeToFirstToken. Expected a positive number of milliseconds.')
     }
   }
 

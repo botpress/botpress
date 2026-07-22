@@ -118,6 +118,13 @@ type Options = Partial<Pick<Context, 'loop' | 'timeout'>> & {
    * Useful to reduce cost and latency on models with very large context windows.
    */
   maxTokens?: number
+  /**
+   * Maximum time to wait for the first streamed token, in milliseconds, before
+   * the cognitive service falls back to the next model/provider. Only applies
+   * to streaming clients (CognitiveBeta / Cognitive v2), and works best when
+   * `model` is an array of fallback models.
+   */
+  maxTimeToFirstToken?: number
 }
 
 export type ExecutionProps = {
