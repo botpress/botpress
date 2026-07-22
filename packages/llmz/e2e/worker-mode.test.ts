@@ -877,9 +877,9 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
       expect(deletedFiles.sort()).toEqual(['old_project.txt', 'legacy_data.csv', 'deprecated_config.json'].sort())
       expect(deleteAttempts).toMatchInlineSnapshot(`
         {
-          "deprecated_config.json": 3,
-          "legacy_data.csv": 3,
-          "old_project.txt": 3,
+          "deprecated_config.json": 2,
+          "legacy_data.csv": 1,
+          "old_project.txt": 2,
         }
       `)
     })

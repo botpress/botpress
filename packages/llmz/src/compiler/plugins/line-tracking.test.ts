@@ -1,26 +1,24 @@
-import * as Babel from '@babel/standalone'
+import MagicString from 'magic-string'
 import { describe, expect, it } from 'vitest'
 
-import { lineTrackingBabelPlugin } from './line-tracking.js'
-import { DEFAULT_TRANSFORM_OPTIONS } from '../compiler.js'
+import { applyLineTracking } from './line-tracking.js'
+import { parseScript } from '../ast.js'
 
 function lineTrackingTransform(code: string) {
-  return Babel.transform(code, {
-    ...DEFAULT_TRANSFORM_OPTIONS,
-    plugins: [lineTrackingBabelPlugin],
-  })
+  const ms = new MagicString(code)
+  applyLineTracking({ code, ms, ast: parseScript(code), comments: [] })
+  return { code: ms.toString().trim() }
 }
 
-describe('lineTrackingBabelPlugin', () => {
+describe('lineTracking', () => {
   it('should transform constant and variable declarations', async () => {
     const code = `
       const a = 10;
       let x = 5;
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      const a = 10;__track__(3);
-      let x = 5;"
+      "__track__(2);const a = 10;
+            __track__(3);let x = 5;"
     `)
   })
 
@@ -32,11 +30,10 @@ describe('lineTrackingBabelPlugin', () => {
       }
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      function test() {__track__(3);
-        const b = 20;__track__(4);
-        console.log(a + b);
-      }"
+      "__track__(2);function test() {
+              __track__(3);const b = 20;
+              __track__(4);console.log(a + b);
+            }"
     `)
   })
 
@@ -47,10 +44,9 @@ describe('lineTrackingBabelPlugin', () => {
       }
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      const foo = () => {__track__(3);
-        console.log('foo');
-      };"
+      "__track__(2);const foo = () => {
+              __track__(3);console.log('foo');
+            }"
     `)
   })
 
@@ -58,10 +54,7 @@ describe('lineTrackingBabelPlugin', () => {
     const code = `
       const boo = () => 1 + 1;
     `
-    expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      const boo = () => 1 + 1;"
-    `)
+    expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`"__track__(2);const boo = () => 1 + 1;"`)
   })
 
   it('should transform class declarations', async () => {
@@ -75,14 +68,13 @@ describe('lineTrackingBabelPlugin', () => {
       const fooInstance = new Foo();
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "
-      class Foo {__track__(3);
-        constructor() {__track__(4);
-          const b = 20;__track__(5);
-          console.log('Foo');
-        }
-      }__track__(8);
-      const fooInstance = new Foo();"
+      "__track__(3);class Foo {
+              constructor() {
+                __track__(4);const b = 20;
+                __track__(5);console.log('Foo');
+              }
+            }
+            __track__(8);const fooInstance = new Foo();"
     `)
   })
 
@@ -93,10 +85,9 @@ describe('lineTrackingBabelPlugin', () => {
       }
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "
-      for (let i = 0; i < 3; i++) {__track__(3);
-        console.log(i);
-      }"
+      "for (let i = 0; i < 3; i++) {
+              __track__(3);console.log(i);
+            }"
     `)
   })
 
@@ -110,13 +101,12 @@ describe('lineTrackingBabelPlugin', () => {
       test();
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      function test() {__track__(3);
-        const b = 20;__track__(4);
-        console.log(a + b);__track__(5);
-        return a + b;
-      }__track__(7);
-      test();"
+      "__track__(2);function test() {
+              __track__(3);const b = 20;
+              __track__(4);console.log(a + b);
+              __track__(5);return a + b;
+            }
+            __track__(7);test();"
     `)
   })
 
@@ -131,14 +121,13 @@ describe('lineTrackingBabelPlugin', () => {
       obj.greet();
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      const obj = {
-        name: 'Test',
-        greet() {__track__(5);
-          console.log('Hello ' + this.name);
-        }
-      };__track__(8);
-      obj.greet();"
+      "__track__(2);const obj = {
+              name: 'Test',
+              greet() {
+                __track__(5);console.log('Hello ' + this.name);
+              }
+            };
+            __track__(8);obj.greet();"
     `)
   })
 
@@ -148,9 +137,8 @@ describe('lineTrackingBabelPlugin', () => {
       const doubled = arr.map(num => num * 2);
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      const arr = [1, 2, 3, 4, 5];__track__(3);
-      const doubled = arr.map((num) => num * 2);"
+      "__track__(2);const arr = [1, 2, 3, 4, 5];
+            __track__(3);const doubled = arr.map(num => num * 2);"
     `)
   })
   it('should transform array operations', async () => {
@@ -159,9 +147,8 @@ describe('lineTrackingBabelPlugin', () => {
       const doubled = arr.map(num => num * 2);
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      const arr = [1, 2, 3, 4, 5];__track__(3);
-      const doubled = arr.map((num) => num * 2);"
+      "__track__(2);const arr = [1, 2, 3, 4, 5];
+            __track__(3);const doubled = arr.map(num => num * 2);"
     `)
   })
   it('should transform array operations with return statement', async () => {
@@ -172,11 +159,10 @@ describe('lineTrackingBabelPlugin', () => {
       });
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      const arr = [1, 2, 3, 4, 5];__track__(3);
-      const doubled = arr.map((num) => {__track__(4);
-        return num + 2;
-      });"
+      "__track__(2);const arr = [1, 2, 3, 4, 5];
+            __track__(3);const doubled = arr.map(num => {
+              __track__(4);return num + 2;
+            });"
     `)
   })
 
@@ -184,10 +170,7 @@ describe('lineTrackingBabelPlugin', () => {
     const code = `
       const add = a => b => a + b;
     `
-    expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      const add = (a) => (b) => a + b;"
-    `)
+    expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`"__track__(2);const add = a => b => a + b;"`)
   })
   it('should transform curry functions - function notation', async () => {
     const code = `
@@ -198,12 +181,11 @@ describe('lineTrackingBabelPlugin', () => {
     }
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      function add(a) {__track__(3);
-        return function (b) {__track__(4);
-          return a + b;
-        };
-      }"
+      "__track__(2);function add(a) {
+            __track__(3);return function(b) {
+              __track__(4);return a + b;
+            }
+          }"
     `)
   })
 
@@ -215,11 +197,10 @@ describe('lineTrackingBabelPlugin', () => {
       asyncFunction();
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      const asyncFunction = async () => {__track__(3);
-        console.log('Done!');
-      };__track__(5);
-      asyncFunction();"
+      "__track__(2);const asyncFunction = async () => {
+              __track__(3);console.log('Done!');
+            };
+            __track__(5);asyncFunction();"
     `)
   })
 
@@ -231,11 +212,10 @@ describe('lineTrackingBabelPlugin', () => {
       asyncFunction();
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      const asyncFunction = async () => {__track__(3);
-        await something(200);
-      };__track__(5);
-      asyncFunction();"
+      "__track__(2);const asyncFunction = async () => {
+                __track__(3);await something(200)        
+            };
+            __track__(5);asyncFunction();"
     `)
   })
 
@@ -247,11 +227,10 @@ describe('lineTrackingBabelPlugin', () => {
       asyncFunction();
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      const asyncFunction = async () => {__track__(3);
-        return await something(200);
-      };__track__(5);
-      asyncFunction();"
+      "__track__(2);const asyncFunction = async () => {
+               __track__(3);return await something(200)        
+            };
+            __track__(5);asyncFunction();"
     `)
   })
 
@@ -259,10 +238,9 @@ describe('lineTrackingBabelPlugin', () => {
     const code = `
       setTimeout(() => resolve('Done!'), 1000);
     `
-    expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      setTimeout(() => resolve('Done!'), 1000);"
-    `)
+    expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(
+      `"__track__(2);setTimeout(() => resolve('Done!'), 1000);"`
+    )
   })
   it('should transform promises and async/await', async () => {
     const code = `
@@ -271,10 +249,9 @@ describe('lineTrackingBabelPlugin', () => {
      });
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      setTimeout(() => {__track__(3);
-        return resolve('Done!');
-      });"
+      "__track__(2);setTimeout(() => {
+              __track__(3);return resolve('Done!')
+           });"
     `)
   })
 
@@ -285,10 +262,9 @@ describe('lineTrackingBabelPlugin', () => {
       console.log(first, second);
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      const arr = [1, 2, 3, 4, 5];__track__(3);
-      const [first, second] = arr;__track__(4);
-      console.log(first, second);"
+      "__track__(2);const arr = [1, 2, 3, 4, 5];
+            __track__(3);const [first, second] = arr;
+            __track__(4);console.log(first, second);"
     `)
   })
 
@@ -298,9 +274,8 @@ describe('lineTrackingBabelPlugin', () => {
       console.log(\`Hello, \${name}!\`);
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      const name = 'World';__track__(3);
-      console.log(\`Hello, \${name}!\`);"
+      "__track__(2);const name = 'World';
+            __track__(3);console.log(\`Hello, \${name}!\`);"
     `)
   })
 
@@ -311,10 +286,9 @@ describe('lineTrackingBabelPlugin', () => {
       console.log(newArr);
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      const arr = [1, 2, 3, 4, 5];__track__(3);
-      const newArr = [...arr, 6, 7, 8];__track__(4);
-      console.log(newArr);"
+      "__track__(2);const arr = [1, 2, 3, 4, 5];
+            __track__(3);const newArr = [...arr, 6, 7, 8];
+            __track__(4);console.log(newArr);"
     `)
   })
 
@@ -326,11 +300,10 @@ describe('lineTrackingBabelPlugin', () => {
       console.log(sum(1, 2, 3, 4));
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      const sum = (...numbers) => {__track__(3);
-        return numbers.reduce((total, num) => total + num, 0);
-      };__track__(5);
-      console.log(sum(1, 2, 3, 4));"
+      "__track__(2);const sum = (...numbers) => {
+              __track__(3);return numbers.reduce((total, num) => total + num, 0);
+            };
+            __track__(5);console.log(sum(1, 2, 3, 4));"
     `)
   })
 
@@ -343,12 +316,11 @@ describe('lineTrackingBabelPlugin', () => {
       greet('John');
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      function greet(name = 'stranger') {__track__(3);
-        console.log(\`Hello, \${name}!\`);
-      }__track__(5);
-      greet();__track__(6);
-      greet('John');"
+      "__track__(2);function greet(name = 'stranger') {
+              __track__(3);console.log(\`Hello, \${name}!\`);
+            }
+            __track__(5);greet();
+            __track__(6);greet('John');"
     `)
   })
 
@@ -359,10 +331,9 @@ describe('lineTrackingBabelPlugin', () => {
       console.log(canVote);
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      const age = 18;__track__(3);
-      const canVote = age >= 18 ? 'Yes' : 'No';__track__(4);
-      console.log(canVote);"
+      "__track__(2);const age = 18;
+            __track__(3);const canVote = age >= 18 ? 'Yes' : 'No';
+            __track__(4);console.log(canVote);"
     `)
   })
 
@@ -373,10 +344,9 @@ describe('lineTrackingBabelPlugin', () => {
       console.log(value);
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      const nullValue = null;__track__(3);
-      const value = nullValue ?? 'Default value';__track__(4);
-      console.log(value);"
+      "__track__(2);const nullValue = null;
+            __track__(3);const value = nullValue ?? 'Default value';
+            __track__(4);console.log(value);"
     `)
   })
 
@@ -391,14 +361,13 @@ describe('lineTrackingBabelPlugin', () => {
       console.log(user?.contact?.phone);
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      const user = {
-        address: {
-          street: 'Main St'
-        }
-      };__track__(7);
-      console.log(user?.address?.street);__track__(8);
-      console.log(user?.contact?.phone);"
+      "__track__(2);const user = {
+              address: {
+                street: 'Main St',
+              },
+            };
+            __track__(7);console.log(user?.address?.street);
+            __track__(8);console.log(user?.contact?.phone);"
     `)
   })
 
@@ -409,10 +378,9 @@ describe('lineTrackingBabelPlugin', () => {
       })();
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      (function () {__track__(3);
-        console.log('IIFE executed');
-      })();"
+      "__track__(2);(function() {
+              __track__(3);console.log('IIFE executed');
+            })();"
     `)
   })
 
@@ -422,9 +390,8 @@ describe('lineTrackingBabelPlugin', () => {
       return await fetch('https://api.example.com');
     `
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      const a = await myFunction();__track__(3);
-      return await fetch('https://api.example.com');"
+      "__track__(2);const a = await myFunction();
+            __track__(3);return await fetch('https://api.example.com');"
     `)
   })
 
@@ -442,17 +409,16 @@ describe('lineTrackingBabelPlugin', () => {
   }`
 
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(3);
-      // Function to add the new entries
-      async function addNewEntries(entries) {__track__(4);
-        for (const entry of entries) {__track__(5);
-          await ComputedTable.createTableRow(entry);
-        }
-        // Send a confirmation message to the user
-        __track__(8);chat.sendText({
-          message: 'I have successfully added the new persons: Fleur, Pikachu, Ash, and Misty to the computed table.'
-        });
-      }"
+      "// Function to add the new entries
+        __track__(3);async function addNewEntries(entries) {
+          __track__(4);for (const entry of entries) {
+            __track__(5);await ComputedTable.createTableRow(entry)
+          }
+          // Send a confirmation message to the user
+          __track__(8);chat.sendText({
+            message: 'I have successfully added the new persons: Fleur, Pikachu, Ash, and Misty to the computed table.'
+          })
+        }"
     `)
   })
 
@@ -475,8 +441,7 @@ void chat.sendText({
 `
 
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      const value = await chat.sendText({
+      "__track__(2);const value = await chat.sendText({
         message: \`
         Hello, world!
         \`
@@ -485,9 +450,9 @@ void chat.sendText({
       // A comment here
       __track__(9);await chat.sendText({
         message: generateText()
-      });__track__(13);
+      });
 
-      void chat.sendText({
+      __track__(13);void chat.sendText({
         message: generateText()
       });"
     `)
@@ -513,21 +478,20 @@ myTool({
 `
 
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      myTool({
+      "__track__(2);myTool({
         message: generateText()
-      });__track__(6);
+      });
 
-      myTool({
+      __track__(6);myTool({
         message: (() => generateText())()
-      });__track__(10);
+      });
 
-      myTool({
+      __track__(10);myTool({
         message: await generateData()
-      });__track__(14);
+      });
 
-      myTool({
-        message: function () {__track__(15);return generateText();}()
+      __track__(14);myTool({
+        message: function(){ __track__(15);return generateText() }()
       });"
     `)
   })
@@ -544,14 +508,13 @@ return await myTool({
 `
 
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      return await myTool({
+      "__track__(2);return await myTool({
         message: generateText(),
-        [getKey()]: {
+        [ getKey() ]: {
           value: await getValue()
         },
-        [(() => getKey())()]: true
-      });"
+        [ (() => getKey())() ]: true
+      })"
     `)
   })
 
@@ -565,11 +528,9 @@ return await myTool({
 `
 
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(3);
-
-      const text = void getText();__track__(4);
-      const index = text[getIndex()];__track__(5);
-      const value = index.indexOf(getValue());"
+      "__track__(3);const text = void getText();
+          __track__(4);const index = text[getIndex()];
+          __track__(5);const value = index.indexOf(getValue());"
     `)
   })
 
@@ -586,14 +547,12 @@ return await myTool({
 `
 
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(3);
-
-      let a = 1 + getNumber();__track__(4);
-      a += 2 + getNumber();__track__(5);
-      const b = await getNumber();
-      if (--d && e()) {__track__(7);
-        f();
-      }"
+      "__track__(3);let a = (1 + getNumber());
+          __track__(4);a += (2 + getNumber());
+          __track__(5);const b = (await getNumber());
+          if (--d && e()) {
+            __track__(7);f();
+          }"
     `)
   })
   it('should add track object property assignments', async () => {
@@ -606,12 +565,11 @@ return await myTool({
 `
 
     expect(lineTrackingTransform(code).code).toMatchInlineSnapshot(`
-      "__track__(2);
-      workflow.variable_values['name'] = 'John';__track__(3);
-      workflow.name = 'John';__track__(4);
-      workflow.address = {
-        street: 'Main St',
-        city: 'New York' };"
+      "__track__(2);workflow.variable_values['name'] = 'John';
+            __track__(3);workflow.name = 'John';
+            __track__(4);workflow.address = {
+              street: 'Main St',
+              city: 'New York'}"
     `)
   })
 })

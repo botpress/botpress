@@ -51,16 +51,13 @@ export async function runAsyncFunction(
   const lines_executed = new Map<number, number>()
   const variables: Record<string, any> = {}
 
-  // TODO: transformed.map (the result of compile above) needs typing,
-  // once that's done, we can remove the null assertions here
   const consumer = new SourceMapConsumer({
-    version: transformed.map!.version.toString(),
-    mappings: transformed.map!.mappings,
-    names: transformed.map!.names!,
-    sources: [transformed.map!.file!],
-    sourcesContent: [transformed.code!],
-    file: transformed.map!.file!,
-    sourceRoot: transformed.map!.sourceRoot!,
+    version: transformed.map.version.toString(),
+    mappings: transformed.map.mappings,
+    names: transformed.map.names,
+    sources: transformed.map.sources,
+    sourcesContent: [transformed.code],
+    file: transformed.map.file!,
   })
 
   context ??= {}

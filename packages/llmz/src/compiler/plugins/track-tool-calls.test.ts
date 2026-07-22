@@ -1,20 +1,18 @@
-import * as Babel from '@babel/standalone'
+import MagicString from 'magic-string'
 import babel from 'prettier/plugins/babel'
 import estree from 'prettier/plugins/estree'
 import typescript from 'prettier/plugins/typescript'
 import { format } from 'prettier/standalone'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { ToolCallEntry, toolCallTrackingPlugin } from './track-tool-calls.js'
-import { DEFAULT_TRANSFORM_OPTIONS } from '../compiler.js'
+import { ToolCallEntry, applyToolCallTracking } from './track-tool-calls.js'
+import { parseScript } from '../ast.js'
 
 const calls = new Map<number, ToolCallEntry>()
 async function transform(original: string) {
-  const { code } = Babel.transform(original, {
-    ...DEFAULT_TRANSFORM_OPTIONS,
-    plugins: [toolCallTrackingPlugin(calls)],
-  })
+  const ms = new MagicString(original)
+  applyToolCallTracking({ code: original, ms, ast: parseScript(original), comments: [] }, calls)
 
-  const result = await format(code!, {
+  const result = await format(ms.toString(), {
     singleAttributePerLine: true,
     bracketSameLine: true,
     semi: true,
@@ -27,7 +25,7 @@ async function transform(original: string) {
   return result.trim()
 }
 
-describe('toolCallTrackingPlugin', () => {
+describe('toolCallTracking', () => {
   beforeEach(() => {
     calls.clear()
   })
@@ -242,9 +240,38 @@ describe('toolCallTrackingPlugin', () => {
               "left": "z",
               "type": "single",
             },
-            "object": "obj // ",
-            "tool": "",
+            "object": "obj",
+            "tool": "getNumber",
           },
+        ],
+      ]
+    `)
+  })
+
+  it('computed member calls keep their tool identity', async () => {
+    const code = `
+      const a = tools[name]();
+      const b = tools['send']();
+      const c = client.tables.listRows();
+    `
+    await transform(code)
+
+    expect([...calls].map(([id, { object, tool }]) => [id, object, tool])).toMatchInlineSnapshot(`
+      [
+        [
+          1,
+          "tools",
+          "name",
+        ],
+        [
+          2,
+          "tools",
+          "send",
+        ],
+        [
+          3,
+          "client.tables",
+          "listRows",
         ],
       ]
     `)
