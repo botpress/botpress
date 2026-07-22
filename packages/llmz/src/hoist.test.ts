@@ -61,10 +61,7 @@ describe('hoist', () => {
       `)
 
       expect(after).toMatchInlineSnapshot(`
-        "type MyObjectPersonWithDifferentFormattingPerson = {
-          name: string
-          age: number
-        }
+        "type MyObjectPersonWithDifferentFormattingPerson = { name: string; age: number }
         type MyObjectMySecondToolArgs = {
           children: Array<MyObjectPersonWithDifferentFormattingPerson>
         }
@@ -74,7 +71,8 @@ describe('hoist', () => {
           c: Array<MyObjectPersonWithDifferentFormattingPerson>
         }
         type MyObjectMySecondTool = {
-          /* with comment */ abc: number
+          /* with comment */
+          abc: number
         }
         type PersonWithId = {
           id: number
@@ -84,7 +82,6 @@ describe('hoist', () => {
           // ---------------- //
           //    Properties    //
           // ---------------- //
-
           someone: PersonWithId
           someoneElse: PersonWithId
           readonly anOtherPerson: Optional<PersonWithId>
@@ -93,16 +90,12 @@ describe('hoist', () => {
             id: number
           }
           personWithComments: PersonWithId
-
           // ---------------- //
           //       Tools      //
           // ---------------- //
-
           myTool(args: MyObjectMySecondToolArgs): MyObjectMySecondTool
-
           // Second tool
           MySecondTool(args: MyObjectMySecondToolArgs): MyObjectMySecondTool
-
           // 3rd Tool
           MyThirdTool(args: MyObjectMySecondToolArgs): MyObjectMySecondTool
         }

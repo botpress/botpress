@@ -74,12 +74,12 @@ describe('Object typings', () => {
         // ---------------- //
 
         const age: Readonly<number> = 20
-        const name: Readonly<string> = "John Smith"
+        const name: Readonly<string> = 'John Smith'
         const isAlive: Readonly<boolean> = true
         const isDead: Readonly<boolean> = false
         const nothing: Readonly<object> = null
         const empty: Readonly<unknown> = undefined
-        const emptyString: Readonly<string> = ""
+        const emptyString: Readonly<string> = ''
         const emptyArray: Readonly<object> = []
         const emptyObject: Readonly<object> = {}
         const simpleObject: Readonly<object> = { a: 1 }
@@ -154,7 +154,7 @@ describe('Object typings', () => {
         // ---------------- //
 
         const age: Readonly<number> = 20
-        const name: Readonly<string> = "John Smith"
+        const name: Readonly<string> = 'John Smith'
 
         // ---------------- //
         //       Tools      //
@@ -195,8 +195,8 @@ describe('Object typings', () => {
         // ---------------- //
 
         const AgeOfUser: Writable<number> = 20
-        const name: Writable<string> = "john"
-        const nationality: Readonly<string> = "canada"
+        const name: Writable<string> = 'john'
+        const nationality: Readonly<string> = 'canada'
       }"
     `)
   })
@@ -229,10 +229,10 @@ describe('Object typings', () => {
 
         const AgeOfUser: Readonly<number> = 20
         const name: Writable<string> = undefined
-        const address: Readonly<{
-          street: string
-          city: string
-        }> = { street: "123 Main St", city: "Toronto" }
+        const address: Readonly<{ street: string; city: string }> = {
+          street: "123 Main St",
+          city: "Toronto"
+        }
       }"
     `)
   })

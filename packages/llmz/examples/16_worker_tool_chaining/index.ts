@@ -116,7 +116,7 @@ if (result.is(exit)) {
   console.log(
     box([
       'The LLM wrote the code to solve the problem:',
-      ...result.iteration.code!.split('\n'),
+      ...(result.iterations.filter((i) => i.code).at(-1)?.code ?? '// no code generated').split('\n'),
       '',
       'It then executed it and returned the result:',
       chalk.cyan.bold(result.output.result.toString()),

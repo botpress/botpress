@@ -1,19 +1,30 @@
 import * as Babel from '@babel/standalone'
+import babel from 'prettier/plugins/babel'
+import estree from 'prettier/plugins/estree'
+import typescript from 'prettier/plugins/typescript'
+import { format } from 'prettier/standalone'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { ToolCallEntry, toolCallTrackingPlugin } from './track-tool-calls.js'
 import { DEFAULT_TRANSFORM_OPTIONS } from '../compiler.js'
-import { formatTypings } from '../../formatting.js'
 
 const calls = new Map<number, ToolCallEntry>()
-function transform(original: string) {
+async function transform(original: string) {
   const { code } = Babel.transform(original, {
     ...DEFAULT_TRANSFORM_OPTIONS,
     plugins: [toolCallTrackingPlugin(calls)],
   })
 
-  return formatTypings(code!, {
+  const result = await format(code!, {
+    singleAttributePerLine: true,
+    bracketSameLine: true,
     semi: true,
+    embeddedLanguageFormatting: 'off',
+    plugins: [estree, babel, typescript],
+    parser: 'typescript',
+    filepath: 'tools.d.ts',
   })
+
+  return result.trim()
 }
 
 describe('toolCallTrackingPlugin', () => {

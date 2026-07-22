@@ -1,4 +1,4 @@
-import { Cognitive, CognitiveBeta, type BotpressClientLike, Models } from '@botpress/cognitive'
+import { Cognitive, CognitiveBeta, type BotpressClientLike, type CognitiveLike, Models } from '@botpress/cognitive'
 
 import { Chat } from '../chat.js'
 import { Context, Iteration } from '../context.js'
@@ -19,8 +19,10 @@ export type ExecutionHooks = {
    *
    * This hook is called for each trace that is generated during the iteration.
    * It is useful for logging, debugging, or monitoring the execution of the iteration.
+   * The abort controller can be used to stop the execution when a trace reveals
+   * something that should halt it (e.g. a forbidden tool call).
    */
-  onTrace?: (event: { trace: Trace; iteration: number }) => void
+  onTrace?: (event: { trace: Trace; iteration: number; controller: AbortController }) => void
 
   /**
    * BLOCKING HOOK
@@ -56,8 +58,9 @@ export type ExecutionHooks = {
    * It is useful for logging, sending notifications, or performing actions based on the exit.
    * It can also be used to throw an error and preventing the exit from being successful.
    * If this hook throws an error, the execution will keep iterating with the error as context.
+   * The abort controller can be used to stop the execution entirely instead of iterating.
    */
-  onExit?: <T = unknown>(result: ExitResult<T>) => Promise<void> | void
+  onExit?: <T = unknown>(result: ExitResult<T>, controller: AbortController) => Promise<void> | void
 
   /**
    * BLOCKING HOOK
@@ -108,7 +111,21 @@ export type ExecutionHooks = {
   }) => Promise<{ output?: any } | void>
 }
 
-type Options = Partial<Pick<Context, 'loop' | 'timeout'>>
+type Options = Partial<Pick<Context, 'loop' | 'timeout'>> & {
+  /**
+   * Optional cap on the model's context window, in tokens.
+   * The effective limit is `min(maxTokens, model's max input tokens)`.
+   * Useful to reduce cost and latency on models with very large context windows.
+   */
+  maxTokens?: number
+  /**
+   * Maximum time to wait for the first streamed token, in milliseconds, before
+   * the cognitive service falls back to the next model/provider. Only applies
+   * to streaming clients (CognitiveBeta / Cognitive v2), and works best when
+   * `model` is an array of fallback models.
+   */
+  maxTimeToFirstToken?: number
+}
 
 export type ExecutionProps = {
   /**
@@ -228,4 +245,11 @@ export type ExecutionProps = {
   metadata?: Record<string, string>
 } & ExecutionHooks
 
-export type RuntimeCognitive = Pick<Cognitive, 'getModelDetails' | 'generateContent'>
+export type RuntimeCognitive = Pick<Cognitive, 'getModelDetails' | 'generateContent'> & {
+  /**
+   * Streaming generation. Only available on clients backed by the Cognitive v2
+   * (beta) API — when present, the runtime streams the response and parses
+   * ■ blocks incrementally.
+   */
+  generateContentStream?: CognitiveLike['generateContentStream']
+}

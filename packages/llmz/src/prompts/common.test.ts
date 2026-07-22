@@ -2,93 +2,77 @@ import { describe, it, expect } from 'vitest'
 
 import { parseAssistantResponse, replacePlaceholders } from './common.js'
 
-describe('October Prompt', { timeout: 60_000 }, () => {
+describe('message-stream prompt', { timeout: 60_000 }, () => {
   describe('parseAssistantResponse', () => {
-    it('strips tsx code markers at the beginning', async () => {
+    it('parses sends, run and next blocks', async () => {
       const input = `
-\`\`\`tsx
-■fn_start
-// Start the onboarding capability as the user greeted with "Hi"
-await startCapability({ capabilityId: "hello" })
-return { action: 'listen' }
-■fn_end
+■send=md
+Let me check that for you.
+■run
+// Fetch the user data
+const data = await fetchUserData({ id: 'usr_1' })
+return data
+`.trim()
+
+      const response = parseAssistantResponse(input)
+
+      expect(response.sends).toEqual([{ name: 'md', props: {}, body: 'Let me check that for you.' }])
+      expect(response.code).toMatchInlineSnapshot(`
+        "// Fetch the user data
+        const data = await fetchUserData({ id: 'usr_1' })
+        return data"
+      `)
+      expect(response.next).toBeUndefined()
+    })
+
+    it('parses a next exit with props', async () => {
+      const response = parseAssistantResponse(
+        '■send=md\nTransferring you now!\n■next=book_meeting { reason: "demo", email: "a@b.com" }'
+      )
+
+      expect(response.code).toBeUndefined()
+      expect(response.next).toEqual({ name: 'book_meeting', props: { reason: 'demo', email: 'a@b.com' } })
+    })
+
+    it('strips code fences wrapping the whole response', async () => {
+      const input = `
+\`\`\`
+■send=md
+Hello!
+■next=listen
 \`\`\`
 `.trim()
 
       const response = parseAssistantResponse(input)
 
-      expect(response.code).toMatchInlineSnapshot(`
-        "// Start the onboarding capability as the user greeted with "Hi"
-        await startCapability({ capabilityId: "hello" })
-        return { action: 'listen' }"
-      `)
+      expect(response.sends).toEqual([{ name: 'md', props: {}, body: 'Hello!' }])
+      expect(response.next).toEqual({ name: 'listen', props: {} })
     })
 
-    it('strips tsx code markers inside fn_start', async () => {
-      const input = `
+    it('recovers plain text into an implicit send', async () => {
+      const response = parseAssistantResponse('Hello! How can I help you today?')
 
-■fn_start
-\`\`\`tsx
-// Start the onboarding capability as the user greeted with "Hi"
-await startCapability({ capabilityId: "hello" })
-return { action: 'listen' }
-\`\`\`
-■fn_end
-`.trim()
+      expect(response.sends).toEqual([{ name: 'md', props: {}, body: 'Hello! How can I help you today?' }])
+      expect(response.code).toBeUndefined()
+      expect(response.next).toBeUndefined()
+    })
+
+    it('keeps code fences inside message bodies', async () => {
+      const input = '■send=md\nHere is an example:\n```js\nconsole.log(1)\n```\n■next=listen'
 
       const response = parseAssistantResponse(input)
 
-      expect(response.code).toMatchInlineSnapshot(`
-        "// Start the onboarding capability as the user greeted with "Hi"
-        await startCapability({ capabilityId: "hello" })
-        return { action: 'listen' }"
-      `)
+      expect(response.sends[0]!.body).toBe('Here is an example:\n```js\nconsole.log(1)\n```')
     })
 
-    it('missing fn_ blocks is OK', async () => {
-      const input = `
+    it('parses multiple sends in order', async () => {
+      const response = parseAssistantResponse(
+        '■send=md\nPick an option:\n■send=buttons { buttons: [{ label: "A" }, { label: "B" }] }\n■next=listen'
+      )
 
-\`\`\`tsx
-// Start the onboarding capability as the user greeted with "Hi"
-await startCapability({ capabilityId: "hello" })
-return { action: 'listen' }
-\`\`\`
-`.trim()
-
-      const response = parseAssistantResponse(input)
-
-      if (response.type !== 'code') {
-        throw 'Expected a code response'
-      }
-
-      expect(response.code).toMatchInlineSnapshot(`
-        "// Start the onboarding capability as the user greeted with "Hi"
-        await startCapability({ capabilityId: "hello" })
-        return { action: 'listen' }"
-      `)
-    })
-
-    it('no tsx code markers is OK', async () => {
-      const input = `
-
-
-// Start the onboarding capability as the user greeted with "Hi"
-await startCapability({ capabilityId: "hello" })
-return { action: 'listen' }
-
-`.trim()
-
-      const response = parseAssistantResponse(input)
-
-      if (response.type !== 'code') {
-        throw 'Expected a code response'
-      }
-
-      expect(response.code).toMatchInlineSnapshot(`
-        "// Start the onboarding capability as the user greeted with "Hi"
-        await startCapability({ capabilityId: "hello" })
-        return { action: 'listen' }"
-      `)
+      expect(response.sends.map((s) => s.name)).toEqual(['md', 'buttons'])
+      expect(response.sends[1]!.props).toEqual({ buttons: [{ label: 'A' }, { label: 'B' }] })
+      expect(response.next).toEqual({ name: 'listen', props: {} })
     })
   })
 
