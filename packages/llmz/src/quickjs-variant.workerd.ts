@@ -1,4 +1,3 @@
-import { newVariant, type QuickJSSyncVariant } from 'quickjs-emscripten-core'
 // @ts-ignore - no types for the raw variant module shape we need here
 import wasmfileVariant from '@jitl/quickjs-wasmfile-release-sync'
 // Static import of the engine .wasm: the workerd tsup build copies it to dist as a
@@ -6,6 +5,7 @@ import wasmfileVariant from '@jitl/quickjs-wasmfile-release-sync'
 // precompiled WebAssembly.Module (runtime WASM compilation is banned on workerd).
 // @ts-ignore - resolved by the workerd build's .wasm copy loader
 import wasmModule from '@jitl/quickjs-wasmfile-release-sync/wasm'
+import { newVariant, type QuickJSSyncVariant } from 'quickjs-emscripten-core'
 
 /**
  * Workerd (Cloudflare Workers) drop-in replacement for `./quickjs-variant.ts` —
