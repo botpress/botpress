@@ -3,14 +3,14 @@ import * as client from '@botpress/client'
 export const retryConfig: client.RetryConfig = {
   retries: 3,
   retryCondition: (err) =>
-    client.axiosRetry.isNetworkOrIdempotentRequestError(err) || [429, 502].includes(err.response?.status ?? 0),
-  retryDelay: (retryCount, axiosError) => {
-    const retryAfterSeconds = _getRetryAfterSeconds(axiosError.response?.headers ?? {})
+    client.http.isNetworkOrIdempotentRequestError(err) || [429, 502].includes(err.response?.status ?? 0),
+  retryDelay: (retryCount, error) => {
+    const retryAfterSeconds = _getRetryAfterSeconds(error.response?.headers ?? {})
     return (retryAfterSeconds ?? retryCount) * 1000
   },
 }
 
-const _getRetryAfterSeconds = (headers: client.axios.RawAxiosResponseHeaders) => {
+const _getRetryAfterSeconds = (headers: client.http.HttpResponseHeaders) => {
   const headerNames = [
     // Standard rate limiting headers:
     'RateLimit-Reset',

@@ -1,8 +1,9 @@
 import { Model } from '@botpress/cognitive'
 import { RuntimeCognitive } from './runtime/types.js'
 
-export type RuntimeGenerateContentInput = Parameters<RuntimeCognitive['generateContent']>[0]
-export type RuntimeGenerateContentOutput = Awaited<ReturnType<RuntimeCognitive['generateContent']>>
+export type RuntimeGenerateContentInput = Parameters<RuntimeCognitive['generateText']>[0]
+export type RuntimeGenerateContentOptions = Parameters<RuntimeCognitive['generateText']>[1]
+export type RuntimeGenerateContentOutput = Awaited<ReturnType<RuntimeCognitive['generateText']>>
 
 /**
  * Internal escape hatch for supplying a custom model client that bypasses Cognitive.
@@ -20,5 +21,8 @@ export abstract class _CustomModelClient implements RuntimeCognitive {
   }
 
   public abstract getModelDetails(model: string): Promise<Model>
-  public abstract generateContent(input: RuntimeGenerateContentInput): Promise<RuntimeGenerateContentOutput>
+  public abstract generateText(
+    input: RuntimeGenerateContentInput,
+    options?: RuntimeGenerateContentOptions
+  ): Promise<RuntimeGenerateContentOutput>
 }

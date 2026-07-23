@@ -34,8 +34,7 @@ function getRetryAfterMs(error: Parameters<NonNullable<client.RetryConfig['retry
 export const config: client.RetryConfig = {
   retries: 3,
   retryCondition: (err) =>
-    client.axiosRetry.isNetworkOrIdempotentRequestError(err) ||
-    HTTP_STATUS_TO_RETRY_ON.includes(err.response?.status ?? 0),
+    client.http.isNetworkOrIdempotentRequestError(err) || HTTP_STATUS_TO_RETRY_ON.includes(err.response?.status ?? 0),
   retryDelay: (retryCount, error) => {
     if (error?.response?.status === 429) {
       const retryAfterMs = getRetryAfterMs(error)

@@ -41,7 +41,7 @@ import {
   ZodVoidImpl,
 } from './types'
 
-import { ZodBaseTypeImpl } from './types/basetype'
+import { ZodBaseTypeImpl, assertShapeValueIsSchema } from './types/basetype'
 
 import type {
   IZodRecord,
@@ -209,26 +209,11 @@ export const arrayType: ZodBuilders['array'] = (schema, params) =>
     ..._processCreateParams(params),
   })
 
-/**
- * Runtime guard for z.object()/z.strictObject(). The public shape type was widened to Record<string, any>
- * to support annotation-free recursive schemas, which means TypeScript no longer
- * rejects a non-schema value like `{ age: 42 }` at compile time. This restores an *immediate, clear* failure
- * at construction time (it fires on import for module-scoped schemas — before any .parse()) instead of the
- * cryptic `keyValidator._parse is not a function` on first parse.
- *
- * Getter-valued keys are the recursion mechanism and MUST stay lazy — they are detected via their property
- * descriptor and never invoked here, so this only validates plain (eagerly-provided) shape values.
- */
 const _assertShapeValuesAreSchemas = (shape: Record<string, unknown>): void => {
   for (const key of Object.keys(shape)) {
     const descriptor = Object.getOwnPropertyDescriptor(shape, key)
     if (descriptor?.get) continue
-    if (!(descriptor?.value instanceof ZodBaseTypeImpl)) {
-      throw new Error(
-        `z.object(): the value at key "${key}" is not a zui schema (received ${typeof descriptor?.value}). ` +
-          'Did you forget to wrap it, e.g. z.number()?'
-      )
-    }
+    assertShapeValueIsSchema(key, descriptor?.value)
   }
 }
 
