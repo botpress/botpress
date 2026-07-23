@@ -7,7 +7,7 @@ import { Exit } from '../src/exit.js'
 import { DualModePrompt } from '../src/prompts/dual-modes.js'
 import { ExecutionResult, SuccessExecutionResult } from '../src/result.js'
 import { Transcript, TranscriptArray } from '../src/transcript.js'
-import { getCachedCognitiveClient, getVoiceMessageDataUri } from './__tests__/index.js'
+import { getCachedCognitiveClient, getScreenShareFixtures, getVoiceMessageDataUri } from './__tests__/index.js'
 
 const client = getCachedCognitiveClient()
 
@@ -117,5 +117,70 @@ describe('voice messages', () => {
       expect(result.iterations).toHaveLength(1)
       expect(replies).toMatch(/voice|spoke|spoken|audio/)
     }, 30_000)
+  })
+
+  describe('multi-modality: screen share + voice + text events', () => {
+    // Simulates a screen-sharing session: the user's interactions arrive as
+    // UI events (text), screenshots capture the screen at key moments (images)
+    // and the user narrates by voice (audio) — all in a single user turn.
+    const screenShareMessage = (): Transcript.UserMessage => {
+      const { screenshotA, screenshotB, screenshotC, voice } = getScreenShareFixtures()
+      return {
+        role: 'user',
+        content: `
+<navigation t=0 route="/purchase">
+<ui_click t=23 element="button#buy" element_text="Buy now!">
+<screenshot-A t=40>
+<ui_input t=2300 element="textarea" text="Hello, world">
+<screenshot-B t=3000>
+<navigation t=4210 route="/purchase/error">
+<screenshot-C t=4280>
+`.trim(),
+        attachments: [
+          { type: 'image', url: screenshotA },
+          { type: 'image', url: screenshotB },
+          { type: 'image', url: screenshotC },
+          { type: 'audio', url: voice },
+        ],
+      }
+    }
+
+    it('renders mixed image and voice attachments distinctly', () => {
+      const rendered = new TranscriptArray([screenShareMessage()]).toString()
+
+      expect(rendered).toContain('modality="voice"')
+      expect(rendered).toContain('[Attachment user-001-A]')
+      expect(rendered).toContain('[Attachment user-001-B]')
+      expect(rendered).toContain('[Attachment user-001-C]')
+      expect(rendered).toContain('[Voice message user-001-D]')
+    })
+
+    it('grounds its answer in the screenshots, guided by the voice narration', async () => {
+      let replies = ''
+      const exit = new Exit({ name: 'done', description: 'call this when you are done' })
+      const chat = new Chat({
+        components: [DefaultComponents.Text],
+        transcript: [screenShareMessage()],
+        handler: async (msg) => {
+          replies += JSON.stringify(msg).toLowerCase()
+        },
+      })
+
+      const result = await llmz.executeContext({
+        instructions:
+          'You are a support agent watching the user share their screen. Their UI interactions arrive as timestamped events, screenshots show their screen at key moments, and the user narrates by voice. Answer their spoken questions using what you see on their screen.',
+        options: { loop: 2 },
+        exits: [exit],
+        chat,
+        client,
+      })
+
+      assertSuccess(result)
+      // The voice asks what went wrong and whether they were charged; the
+      // answer is only in screenshot C (declined for insufficient funds, no
+      // charge was made)
+      expect(replies).toMatch(/insufficient funds|card was declined|card_declined/)
+      expect(replies).toMatch(/no charge|not charged|not been charged|wasn'?t charged|nothing was charged/)
+    }, 60_000)
   })
 })
