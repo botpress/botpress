@@ -1,10 +1,30 @@
 import { z } from '@bpinternal/zui'
 import { createJsxComponent, isAnyJsxComponent, isJsxComponent, JsxComponent } from './jsx.js'
+import type { BodyFormat, GenerativeComponentMetadata } from './message-stream/types.js'
 
+/**
+ * @deprecated TSX-era examples are no longer shown to the model — llmz
+ * generates ■-protocol blocks, not TSX. Use `generation.examples`
+ * ({ props?, body? }) instead.
+ */
 export type ExampleUsage = {
   name: string
   description: string
   code: string
+}
+
+/**
+ * Optional body configuration for components that accept a message body
+ * (`default` and `container` types). Controls how the body is documented to
+ * the model in the ■ protocol reference.
+ */
+export type ComponentBodyOptions = {
+  /** How the body should be written: 'markdown' (default), 'text' (plain prose) or 'code'. */
+  format?: BodyFormat
+  /** Model-facing description of what the body must contain. */
+  description?: string
+  /** Whether a body is required. Defaults to true. */
+  required?: boolean
 }
 
 export type ComponentChild = {
@@ -56,7 +76,12 @@ export type DefaultComponentDefinition<T extends z.ZodObject<any> = z.ZodObject<
   name: string
   aliases: string[]
   description: string
+  /** @deprecated Not shown to the model. Use `generation.examples` instead. */
   examples?: ExampleUsage[]
+  /** Body configuration for the ■ protocol reference (format, description, required). */
+  body?: ComponentBodyOptions
+  /** Model-facing generation metadata: usage guidance and ■-protocol examples ({ props?, body? }). */
+  generation?: GenerativeComponentMetadata
   default: {
     props: T
     children: Array<ComponentChild>
@@ -68,7 +93,10 @@ export type LeafComponentDefinition<T extends z.ZodObject<any> = z.ZodObject<any
   name: string
   description: string
   aliases?: string[]
+  /** @deprecated Not shown to the model. Use `generation.examples` instead. */
   examples?: ExampleUsage[]
+  /** Model-facing generation metadata: usage guidance and ■-protocol examples ({ props? }). */
+  generation?: GenerativeComponentMetadata
   leaf: {
     props: T
   }
@@ -79,7 +107,12 @@ export type ContainerComponentDefinition<T extends z.ZodObject<any> = z.ZodObjec
   name: string
   description: string
   aliases?: string[]
+  /** @deprecated Not shown to the model. Use `generation.examples` instead. */
   examples?: ExampleUsage[]
+  /** Body configuration for the ■ protocol reference (format, description, required). */
+  body?: ComponentBodyOptions
+  /** Model-facing generation metadata: usage guidance and ■-protocol examples ({ props?, body? }). */
+  generation?: GenerativeComponentMetadata
   container: {
     props: T
     children: Array<ComponentChild>

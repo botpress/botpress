@@ -578,6 +578,46 @@ describe('message-stream protocol execution', () => {
     expect(received?.options?.maxTimeToFirstToken).toBe(1_234)
   })
 
+  test('JSON-wrapped message bodies are unwrapped before reaching the chat handler', async () => {
+    const run = async (body: string) => {
+      const { chat, messages } = makeChat()
+      const client = new ScriptedCognitive([`■send=message\n${body}\n■next=listen`])
+      const result = await executeContext({ client, chat, options: { loop: 2 } })
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      return { text: messages[0]?.text, result }
+    }
+
+    // single-key wrappers are unwrapped, whatever the key
+    const long = 'Cloudflare Workers are like tiny couriers. '.repeat(5).trim()
+    expect((await run(`{"body": ${JSON.stringify(long)}}`)).text).toBe(long)
+    expect((await run('{"content": "Hello!"}')).text).toBe('Hello!')
+
+    // the unwrap is traced
+    const { result } = await run('{"body": "traced"}')
+    const logs = result.iterations[0]!.traces.filter((t) => t.type === 'log')
+    expect(logs.some((t) => 'message' in t && t.message.includes('Unwrapped JSON-wrapped message body'))).toBe(true)
+
+    // legitimate bodies that merely look JSON-ish are delivered untouched
+    expect((await run('{"a": 1, "b": 2}')).text).toBe('{"a": 1, "b": 2}')
+    expect((await run('{not json}')).text).toBe('{not json}')
+    expect((await run('plain markdown **body**')).text).toBe('plain markdown **body**')
+  })
+
+  test('progressive deltas are suppressed for JSON-looking bodies', async () => {
+    const deltas: string[] = []
+    const { chat, messages } = makeChat((delta) => {
+      deltas.push(delta.content)
+    })
+    const client = new ScriptedStreamingCognitive(['■send=message\n{"body": "Hello from JSON"}\n■next=listen'])
+    const result = await executeContext({ client, chat, options: { loop: 2 } })
+
+    expect(result).toBeInstanceOf(SuccessExecutionResult)
+    // no raw JSON was ever streamed as a preview
+    expect(deltas.every((d) => !d.trimStart().startsWith('{'))).toBe(true)
+    // the authoritative delivery got the unwrapped body
+    expect(messages[0]?.text).toBe('Hello from JSON')
+  })
+
   test('options.transcriptionModel is forwarded when the transcript has audio', async () => {
     let received: any
     class ProbeCognitive extends ScriptedStreamingCognitive {

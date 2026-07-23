@@ -199,6 +199,12 @@ export const generateCode = async ({
         }
         const content = (liveContent.get(item.id) ?? '') + event.delta
         liveContent.set(item.id, content)
+        if (content.trimStart().startsWith('{')) {
+          // Likely a JSON-wrapped body ({"body": "..."}): suppress progressive
+          // previews so raw JSON is never streamed to the client — the
+          // authoritative onSend delivery unwraps it
+          continue
+        }
         try {
           // Progressive previews are best-effort; the authoritative delivery is onSend.
           await onSendDelta({
