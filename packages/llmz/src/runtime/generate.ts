@@ -1,4 +1,4 @@
-import { Cognitive } from '@botpress/cognitive'
+import type { CognitiveMetadata, CognitiveStreamChunk } from '@botpress/cognitive'
 import { clamp } from 'lodash-es'
 
 import { createJoinedAbortController } from '../abort-signal.js'
@@ -147,24 +147,20 @@ export const generateCode = async ({
     type: 'llm_call_started',
     started_at: startedAt,
     ended_at: startedAt,
-    model: model.ref,
+    model: model.id,
   })
 
-  const input = {
-    signal: controller.signal,
-    systemPrompt: messages.find((x) => x.role === 'system')?.content as string | undefined,
-    model: iteration.model as Required<Parameters<Cognitive['generateContent']>[0]>['model'],
+  const input: Parameters<RuntimeCognitive['generateText']>[0] = {
+    model: iteration.model,
     temperature: iteration.temperature,
-    responseFormat: 'text' as const,
+    responseFormat: 'text',
     reasoningEffort: iteration.reasoningEffort,
-    messages: messages.filter((x) => x.role !== 'system') as Parameters<Cognitive['generateContent']>[0]['messages'],
+    messages,
     stopSequences: ctx.version.getStopTokens(),
-    meta: metadata
-      ? ({ metadata } as NonNullable<Parameters<RuntimeCognitive['generateContent']>[0]['meta']>)
-      : undefined,
+    meta: metadata ? { metadata } : undefined,
   }
 
-  let output: Awaited<ReturnType<RuntimeCognitive['generateContent']>>
+  let responseMetadata: CognitiveMetadata | undefined
   let raw: string
   let assistantResponse: ParsedAssistantResponse
 
@@ -222,9 +218,9 @@ export const generateCode = async ({
     }
   }
 
-  if (typeof cognitive.generateContentStream === 'function') {
-    // Streaming path (Cognitive v2 / beta): parse ■ blocks incrementally and
-    // dispatch messages while the model is still generating.
+  if (typeof cognitive.generateTextStream === 'function') {
+    // Streaming path: parse ■ blocks incrementally and dispatch messages while
+    // the model is still generating.
     const parser = new StreamingMessageParser()
     const fence = new LeadingFenceFilter()
 
@@ -232,13 +228,15 @@ export const generateCode = async ({
     // when a signal is provided, so a silent connection would hang forever.
     const streamController = createJoinedAbortController([controller.signal])
     const requestedAt = Date.now()
-    const stream = cognitive.generateContentStream({
-      ...input,
-      signal: streamController.signal,
-      // Passed through to the cognitive v2 request: fall back to the next
-      // model/provider when the first token takes too long
-      ...(ctx.maxTimeToFirstToken ? { options: { maxTimeToFirstToken: ctx.maxTimeToFirstToken } } : {}),
-    } as typeof input)
+    const stream = cognitive.generateTextStream(
+      {
+        ...input,
+        // Passed through to the cognitive request: fall back to the next
+        // model/provider when the first token takes too long
+        ...(ctx.maxTimeToFirstToken ? { options: { maxTimeToFirstToken: ctx.maxTimeToFirstToken } } : {}),
+      },
+      { signal: streamController.signal }
+    )
 
     // The client-side stall guard must leave room for the server-side
     // maxTimeToFirstToken fallback chain to run through its models
@@ -262,7 +260,7 @@ export const generateCode = async ({
     raw = ''
 
     while (true) {
-      let chunk: IteratorResult<Awaited<ReturnType<(typeof stream)['next']>>['value'], unknown>
+      let chunk: IteratorResult<CognitiveStreamChunk, unknown>
       try {
         chunk = await nextChunk()
       } catch (thrown: unknown) {
@@ -270,11 +268,14 @@ export const generateCode = async ({
       }
 
       if (chunk.done) {
-        output = chunk.value as Awaited<ReturnType<RuntimeCognitive['generateContent']>>
         break
       }
 
-      const delta = (chunk.value as { output?: string })?.output
+      if (chunk.value?.metadata) {
+        responseMetadata = chunk.value.metadata
+      }
+
+      const delta = chunk.value?.output
       if (!delta) {
         continue
       }
@@ -286,6 +287,10 @@ export const generateCode = async ({
       await dispatchSends(parser.push(fence.push(delta)))
     }
 
+    if (!responseMetadata) {
+      throw new CognitiveError('LLM streaming completed without metadata')
+    }
+
     const remaining = fence.flush()
     if (remaining) {
       await dispatchSends(parser.push(remaining))
@@ -294,18 +299,17 @@ export const generateCode = async ({
 
     assistantResponse = toParsedAssistantResponse(parser.items, raw)
   } else {
-    output = await cognitive.generateContent(input).catch((thrown: unknown) => {
+    const response = await cognitive.generateText(input, { signal: controller.signal }).catch((thrown: unknown) => {
       throw new CognitiveError(`LLM generation failed: ${getErrorMessage(thrown)}`)
     })
 
-    const out = typeof output.output.choices?.[0]?.content === 'string' ? output.output.choices[0].content : null
-
-    if (!out) {
+    if (!response.output) {
       throw new CognitiveError('LLM did not return any text output')
     }
 
-    raw = out
-    assistantResponse = ctx.version.parseAssistantResponse(out)
+    responseMetadata = response.metadata
+    raw = response.output
+    assistantResponse = ctx.version.parseAssistantResponse(raw)
 
     for (const send of assistantResponse.sends) {
       await onSend?.(send)
@@ -316,31 +320,38 @@ export const generateCode = async ({
   iteration.sends = assistantResponse.sends
   iteration.next = assistantResponse.next
 
+  const usage = responseMetadata.usage
+
   iteration.llm = {
-    cached: output.meta.cached || false,
+    cached: responseMetadata.cached || false,
     ended_at: Date.now(),
     started_at: startedAt,
     status: 'success',
-    tokens: output.meta.tokens.input + output.meta.tokens.output,
-    spend: output.meta.cost.input + output.meta.cost.output,
+    tokens: usage.inputTokens + usage.outputTokens,
+    spend: responseMetadata.cost ?? usage.inputCost + usage.outputCost,
     output: assistantResponse.raw,
-    model: `${output.meta.model.integration}:${output.meta.model.model}`,
+    model: `${responseMetadata.provider}:${responseMetadata.model}`,
     time_to_first_token: timeToFirstToken,
     time_to_last_token: timeToLastToken,
-    usage: output.output.usage,
+    usage: {
+      inputTokens: usage.inputTokens,
+      inputCost: usage.inputCost,
+      outputTokens: usage.outputTokens,
+      outputCost: usage.outputCost,
+    },
   }
 
   if (iteration.tokens) {
-    iteration.tokens.input = output.meta.tokens.input
-    iteration.tokens.output = output.meta.tokens.output
-    iteration.tokens.total = output.meta.tokens.input + output.meta.tokens.output
+    iteration.tokens.input = usage.inputTokens
+    iteration.tokens.output = usage.outputTokens
+    iteration.tokens.total = usage.inputTokens + usage.outputTokens
   }
 
   traces.push({
     type: 'llm_call_success',
     started_at: startedAt,
     ended_at: iteration.llm.ended_at,
-    model: model.ref,
+    model: model.id,
     code: iteration.code ?? '',
   })
 }

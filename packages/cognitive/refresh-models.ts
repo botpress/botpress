@@ -2,13 +2,13 @@ import 'dotenv/config'
 import axios from 'axios'
 import * as fs from 'fs'
 import * as path from 'path'
-import { Model } from './src/cognitive-v2/types'
+import { Model } from './src/types'
 
 const builtInModels = ['auto', 'best', 'fast']
 const filteredLifecycles = ['deprecated', 'discontinued']
 
-const modelsListPath = path.resolve(__dirname, 'src/cognitive-v2', 'models.ts')
-const typesPath = path.resolve(__dirname, 'src/cognitive-v2', 'types.ts')
+const modelsListPath = path.resolve(__dirname, 'src', 'models.ts')
+const typesPath = path.resolve(__dirname, 'src', 'types.ts')
 
 const toRef = (m: Model | string | null | undefined): string | null => {
   if (!m) return null

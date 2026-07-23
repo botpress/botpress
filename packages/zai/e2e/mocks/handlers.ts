@@ -15,8 +15,9 @@ const loadCache = () => {
   for (const line of lines) {
     try {
       const entry = JSON.parse(line)
-      const inputHash = fastHash(entry.input)
-      cache.set(inputHash, entry.value)
+      const input = JSON.parse(entry.input)
+      const normalized = stringifyWithSortedKeys({ ...input, body: normalizeBody(input.body) })
+      cache.set(fastHash(normalized), entry.value)
     } catch {}
   }
 
@@ -34,6 +35,19 @@ function fastHash(str: string): string {
 }
 
 const cache = loadCache()
+
+/**
+ * Older clients serialized junk keys into the request body (an AbortSignal
+ * under `signal` that stringified to `{}`). Strip them so cache entries
+ * recorded by old clients keep matching requests from new ones.
+ */
+function normalizeBody(body: any): any {
+  if (body && typeof body === 'object' && !Array.isArray(body)) {
+    const { signal: _signal, ...rest } = body
+    return rest
+  }
+  return body
+}
 
 function stringifyWithSortedKeys(obj: any): string {
   function sortKeys(input: any): any {
@@ -69,7 +83,7 @@ export const handlers = [
     const requestData = stringifyWithSortedKeys({
       method,
       url: url.toString().replace('.dev/', '.cloud/'), // Normalize dev/cloud URLs
-      body: body ? JSON.parse(body) : null,
+      body: body ? normalizeBody(JSON.parse(body)) : null,
     })
 
     const hash = fastHash(requestData)
@@ -78,6 +92,11 @@ export const handlers = [
     const cached = cache.get(hash)
     if (cached && shouldCache) {
       return HttpResponse.json(cached)
+    }
+
+    if ((process.env.DEBUG_CACHE_MISS || process.env.CI) && shouldCache && url.includes('/v2/cognitive/')) {
+      // dump the body on misses so a CI failure shows what diverged from the recorded cache
+      console.error(`CACHE_MISS_BODY ${hash} :: ` + requestData.slice(0, 20_000))
     }
 
     if (process.env.CI && shouldCache) {

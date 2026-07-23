@@ -2,9 +2,7 @@ import * as cognitive from '@botpress/cognitive'
 import * as sdk from '@botpress/sdk'
 import { jsonrepair } from 'jsonrepair'
 
-export type LLMInput = cognitive.GenerateContentInput
-
-type LLMChoice = cognitive.GenerateContentOutput['choices'][number]
+export type LLMInput = cognitive.CognitiveRequest
 
 export type PredictResponse<T> = {
   success: boolean
@@ -17,13 +15,11 @@ const parseJson = <T>(expectedSchema: sdk.z.ZodSchema, str: string): T => {
   return expectedSchema.parse(parsed)
 }
 
-type ParseLLMOutputProps = cognitive.GenerateContentOutput & { schema: sdk.z.ZodSchema }
+type ParseLLMOutputProps = Pick<cognitive.CognitiveResponse, 'output'> & { schema: sdk.z.ZodSchema }
 export const parseLLMOutput = <T>(props: ParseLLMOutputProps): PredictResponse<T> => {
-  const mappedChoices: LLMChoice['content'][] = props.choices.map((choice) => choice.content)
-  if (!mappedChoices[0]) throw new sdk.RuntimeError('Could not parse LLM output')
-  const firstChoice = mappedChoices[0]
+  if (!props.output) throw new sdk.RuntimeError('Could not parse LLM output')
   return {
     success: true,
-    json: parseJson<T>(props.schema, firstChoice.toString()),
+    json: parseJson<T>(props.schema, props.output),
   }
 }
