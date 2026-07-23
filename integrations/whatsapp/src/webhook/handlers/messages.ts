@@ -1,14 +1,14 @@
-import { RuntimeError } from '@botpress/client';
-import { posthogHelper } from '@botpress/common';
-import { ValueOf } from '@botpress/sdk/dist/utils/type-utils';
-import axios from 'axios';
-import { INTEGRATION_NAME, INTEGRATION_VERSION } from 'integration.definition';
-import { getAccessToken, getAuthenticatedWhatsappClient } from '../../auth';
-import { safeFormatPhoneNumber } from '../../misc/phone-number-to-whatsapp';
-import { WhatsAppMessage, WhatsAppMessageValue } from '../../misc/types';
-import { getMessageFromWhatsappMessageId } from '../../misc/util';
-import { getMediaInfos } from '../../misc/whatsapp-utils';
-import * as bp from '.botpress';
+import { RuntimeError } from '@botpress/client'
+import { posthogHelper } from '@botpress/common'
+import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
+import axios from 'axios'
+import { INTEGRATION_NAME, INTEGRATION_VERSION } from 'integration.definition'
+import { getAccessToken, getAuthenticatedWhatsappClient } from '../../auth'
+import { safeFormatPhoneNumber } from '../../misc/phone-number-to-whatsapp'
+import { WhatsAppMessage, WhatsAppMessageValue } from '../../misc/types'
+import { getMessageFromWhatsappMessageId } from '../../misc/util'
+import { getMediaInfos } from '../../misc/whatsapp-utils'
+import * as bp from '.botpress'
 
 type IncomingMessages = {
   [TMessage in keyof bp.channels.channel.Messages]: {
