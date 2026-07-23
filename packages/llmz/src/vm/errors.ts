@@ -23,7 +23,8 @@ export const handleErrorQuickJS = (
   const LINE_OFFSET = 1
 
   const regex = /<quickjs>:(\d+)/g
-  const QUICKJS_WRAPPER_OFFSET = 10
+  // Number of wrapper lines before the user code in buildScriptCode (quickjs.ts)
+  const QUICKJS_WRAPPER_OFFSET = 9
 
   const matches = Array.from(stackTrace.matchAll(regex)).map((x) => {
     const quickjsLine = Number(x[1])
@@ -62,12 +63,25 @@ export const handleErrorNode = (
 
   const regex = /<anonymous>:(\d+):(\d+)/g
 
+  // The Node driver evaluates the post-processed code inside an AsyncFunction,
+  // whose constructor prepends 2 header lines. The source map however is in
+  // pre-slice coordinates: post-processing dropped the 2 compiler-wrapper lines
+  // but kept their trailing newline (1 leading blank line).
+  const ASYNC_FUNCTION_HEADER_LINES = 2
+  const SLICED_WRAPPER_LINES = 2
+  const KEPT_BLANK_LINES = 1
+  const RUNTIME_TO_MAP_OFFSET = SLICED_WRAPPER_LINES - ASYNC_FUNCTION_HEADER_LINES - KEPT_BLANK_LINES
+  // In the wrapped source, user code starts after `"use strict"`, the `__fn__`
+  // declaration and the user-code marker
+  const WRAPPED_HEADER_LINES = 3
+
   const matches = [...stackTrace.matchAll(regex)].map((x) => {
+    const mapLine = Number(x[1]) + RUNTIME_TO_MAP_OFFSET
     const originalLine = consumer.originalPositionFor({
-      line: Number(x[1]),
+      line: mapLine,
       column: Number(x[2]),
     })
-    const line = originalLine.line ?? Number(x[1])
+    const line = (originalLine.line ?? mapLine) - WRAPPED_HEADER_LINES
     const actualLine = lines[line - LINE_OFFSET] ?? ''
     const whiteSpacesCount = actualLine.length - actualLine.trimStart().length
     const minColumn = Math.max(whiteSpacesCount, originalLine.column)

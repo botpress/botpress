@@ -100,7 +100,7 @@ if (result.is(exit)) {
       [
         'The LLM wrote this code:',
         // Show the generated code that used the wrapped tool
-        ...result.iteration.code!.split('\n'),
+        ...(result.iterations.filter((i) => i.code).at(-1)?.code ?? '// no code generated').split('\n'),
         '',
         'It then executed it and returned the result:',
         // Display the confirmation code from the wrapped tool

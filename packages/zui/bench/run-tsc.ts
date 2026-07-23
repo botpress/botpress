@@ -18,7 +18,7 @@ export type CompilationResult = {
 export async function getTscVersion(): Promise<string> {
   const { stdout } = await _runTsc('--version').catch((thrown) => {
     const errMessage = thrown instanceof Error ? thrown.message : String(thrown)
-    throw new Error(`Failed to run tsc --version. Make sure you have typescirpt installed and available: ${errMessage}`)
+    throw new Error(`Failed to run tsc --version. Make sure you have typescript installed and available: ${errMessage}`)
   })
   return stdout.trim()
 }

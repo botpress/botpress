@@ -45,13 +45,17 @@ const result = await execute({
 
 // Check if execution was successful and display results
 if (result.isSuccess()) {
+  // The final iteration may be a pure ■next exit with no code — show the
+  // last iteration that actually ran code
+  const code = result.iterations.filter((i) => i.code).at(-1)?.code ?? '// no code generated'
+
   // Display both the generated code and the computed result
   console.log(
     box(
       [
         'The LLM wrote the code to solve the problem:',
         // Show the actual TypeScript code that was generated
-        ...result.iteration.code!.split('\n'),
+        ...code.split('\n'),
         '',
         'It then executed it and returned the result:',
         // Display the final computed answer

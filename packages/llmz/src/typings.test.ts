@@ -29,7 +29,7 @@ describe('functions', () => {
        * Add two numbers together.
        * This is a multiline description
        */
-      declare function greeting(arg0: "Hello, world!"): number"
+      declare function greeting(arg0: 'Hello, world!'): number"
     `)
   })
 
@@ -123,7 +123,7 @@ describe('functions', () => {
        * yoyoyo
        * multiline
        */
-      "Hello, world!" | "Yoyoyoyo""
+      'Hello, world!' | 'Yoyoyoyo'"
     `)
   })
 
@@ -235,7 +235,7 @@ describe('objects', () => {
             /** This is f */
             f?: boolean
             /** This is g */
-            g?: "ga" | "gb"
+            g?: 'ga' | 'gb'
             /** This is h */
             h?: string[]
           }
@@ -265,11 +265,7 @@ describe('objects', () => {
 
     const typings = await getTypings(obj)
 
-    expect(typings).toMatchInlineSnapshot(`
-      "{
-        a: "hello" | "world"
-      }"
-    `)
+    expect(typings).toMatchInlineSnapshot(`"{ a: 'hello' | 'world' }"`)
   })
 
   it('object with a description & optional', async () => {
@@ -455,9 +451,9 @@ describe('objects', () => {
 
     expect(typings).toMatchInlineSnapshot(`
       "declare const MyObject: {
-        "Hello World!": string
-        "Hey?"?: string
-        "Hey!"?: string
+        'Hello World!': string
+        'Hey?'?: string
+        'Hey!'?: string
       }"
     `)
   })
@@ -481,15 +477,13 @@ describe('objects', () => {
 
     expect(typings).toMatchInlineSnapshot(`
       "{
-        stringLiteral: "1"
+        stringLiteral: '1'
         numberLiteral: 1
         booleanLiteral: true
-        arrayLiteral: Array<"a">
-        tupleLiteral: ["a", 1]
+        arrayLiteral: Array<'a'>
+        tupleLiteral: ['a', 1]
         emptyTyple: []
-        nested: {
-          nestedLiteral: "nested"
-        }
+        nested: { nestedLiteral: 'nested' }
       }"
     `)
   })
@@ -530,10 +524,11 @@ describe('objects', () => {
 
     const typings = await getTypings(obj)
     expect(typings).toMatchInlineSnapshot(`
-      "{ 
-      /** Test2 */
-      Date: string
-      ; 'Hello World!'?: string }"
+      "{
+        /** Test2 */
+        Date: string
+        'Hello World!'?: string
+      }"
     `)
   })
 

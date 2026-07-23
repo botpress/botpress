@@ -43,27 +43,32 @@ test('executeContext should early exit when cognitive service is unreachable', a
   expect(((output as ErrorExecutionResult).error as Error).message).toContain(err.message)
 })
 
-test('executeContext accepts a standalone CognitiveBeta and routes it through the v2 path', async () => {
+test('executeContext accepts a standalone CognitiveBeta and routes it through the v2 streaming path', async () => {
   // A standalone CognitiveBeta (not wrapped in Cognitive). execute() should
   // detect it via the brand guard and adapt it — going straight to the v2
-  // `generateText`/`listModels` surface, never the v1 integration path.
+  // streaming surface (`generateTextStream`), never the v1 integration path.
   const generateText = vi.fn().mockRejectedValue(new Error('v2 boom'))
+  const generateTextStream = vi.fn(() => {
+    throw new Error('v2 boom')
+  })
   const listModels = vi.fn().mockResolvedValue([])
 
   const beta = {
     ['$$IS_COGNITIVE_BETA']: 'v2',
     generateText,
     listModels,
-    generateTextStream: vi.fn(),
+    generateTextStream,
   } as unknown as CognitiveBeta
 
   expect(CognitiveBeta.isBetaClient(beta)).toBe(true)
 
   const output = await executeContext({ client: beta, options: { loop: 5 } })
 
-  // Reaching generateText proves the beta adapter path was taken (model
-  // details resolved without throwing, then generation was attempted on v2).
-  expect(generateText).toHaveBeenCalled()
+  // Reaching generateTextStream proves the beta adapter streaming path was
+  // taken (model details resolved without throwing, then streaming generation
+  // was attempted on v2).
+  expect(generateTextStream).toHaveBeenCalled()
+  expect(generateText).not.toHaveBeenCalled()
   expect(output.status).toBe('error')
   expect((output as ErrorExecutionResult).error).toBeInstanceOf(CognitiveError)
   expect(((output as ErrorExecutionResult).error as Error).message).toContain('v2 boom')

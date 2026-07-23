@@ -1,261 +1,249 @@
-// oxlint-disable no-duplicate-imports
-import { CodeGenerator } from '@babel/generator'
-import { parse } from '@babel/parser'
-import { NodePath } from '@babel/traverse'
-import Traverse from '@babel/traverse'
-import * as t from '@babel/types'
-import { upperFirst, cloneDeep } from 'lodash-es'
+import { upperFirst } from 'lodash-es'
 
 import { CodeFormattingError } from './errors.js'
 import { CodeFormatOptions, formatTypings } from './formatting.js'
+import { isGroup, isPunct, parse, tokenize, type Group, type Node } from './typings-formatter.js'
 
-const traverse = Traverse as unknown as typeof import('@babel/traverse').default
+/**
+ * Hoists object types (`{ ... }`) that appear more than once in a block of
+ * typings into named `type` aliases, replacing every occurrence with a
+ * reference. Runs repeatedly until a fixpoint so nested duplicates converge.
+ */
 
-function getTypingsWithoutComments(type: t.TSType) {
-  const typeClone = cloneDeep(type)
-  removeBabelComments(typeClone)
-  return new CodeGenerator(typeClone, { comments: false }).generate().code
-}
+// ------------------------------------------------------------------ printing
 
-function removeBabelComments(node: t.Node) {
-  // Babel stores comments as `leadingComments`, `trailingComments`, etc.
-  // Setting them to null removes them.
-  node.leadingComments = null
-  node.trailingComments = null
-  node.innerComments = null
-  Object.keys(node).forEach((key) => {
-    const val = (node as any)[key]
-    if (Array.isArray(val)) {
-      val.forEach((child) => child && typeof child === 'object' && removeBabelComments(child))
-    } else if (val && typeof val === 'object' && val.type) {
-      removeBabelComments(val)
+/** Prints a node tree back to text, preserving line structure (formatTypings normalizes later) */
+function printNodes(nodes: Node[]): string {
+  let out = ''
+  let afterLineComment = false
+
+  const emit = (n: Node) => {
+    const newlines = Math.min(n.nl ?? 0, 2)
+    if (newlines > 0) {
+      out += '\n'.repeat(newlines)
+    } else if (afterLineComment) {
+      out += '\n'
+    } else if (out.length && !out.endsWith('\n')) {
+      out += ' '
     }
-  })
-}
+    afterLineComment = false
 
-function extractAndHoistTypes(ast: t.File) {
-  const typeMap = new Map<string, t.TSTypeAliasDeclaration>()
-  const typeCounts = new Map<string, number>()
-  const hoistedTypes: t.TSTypeAliasDeclaration[] = []
-
-  function addTypeToMap(typeNode: t.TSTypeAliasDeclaration) {
-    const typeString = getTypingsWithoutComments(typeNode.typeAnnotation)
-    if (!typeMap.has(typeString)) {
-      typeMap.set(typeString, typeNode)
+    if (isGroup(n)) {
+      out += n.open
+      for (const child of n.children) {
+        emit(child)
+      }
+      if (afterLineComment) {
+        out += '\n'
+        afterLineComment = false
+      }
+      out += n.close
+    } else {
+      out += n.text
+      afterLineComment = n.kind === 'line-comment'
     }
   }
 
-  function generateUniqueTypeName(baseName: string) {
-    let typeName = baseName
+  for (const n of nodes) {
+    emit(n)
+  }
+  return out
+}
+
+/** Canonical structural key of a type literal: comments and separators ignored */
+function keyOf(group: Group): string {
+  const parts: string[] = []
+  const visit = (n: Node) => {
+    if (isGroup(n)) {
+      parts.push(n.open)
+      n.children.forEach(visit)
+      parts.push(n.close)
+    } else if (n.kind === 'word' || n.kind === 'string' || (n.kind === 'punct' && n.text !== ';' && n.text !== ',')) {
+      parts.push(n.text)
+    }
+  }
+  visit(group)
+  return parts.join(' ')
+}
+
+// ------------------------------------------------------------------- walking
+
+type LiteralVisit = (args: {
+  siblings: Node[]
+  index: number
+  group: Group
+  path: string[]
+  aliasName?: string
+}) => void
+
+const prevMeaningful = (siblings: Node[], index: number): Node | undefined => {
+  for (let i = index - 1; i >= 0; i--) {
+    const n = siblings[i]!
+    if (isGroup(n) || (n.kind !== 'block-comment' && n.kind !== 'line-comment')) {
+      return n
+    }
+  }
+  return undefined
+}
+
+const asName = (text: string): string => upperFirst(text.replace(/['"]/g, '').replace(/[^A-Za-z0-9_$]/g, ''))
+
+/** The naming segment for a `{`/`<` group from its surrounding tokens (`key:`, `fn(...)`, `): `, `=>`) */
+function segmentsAt(siblings: Node[], index: number): string[] {
+  const prev = prevMeaningful(siblings, index)
+  if (!prev || isGroup(prev)) {
+    return []
+  }
+  if (isPunct(prev, '=>')) {
+    return ['Output']
+  }
+  if (isPunct(prev, ':') || isPunct(prev, '<')) {
+    let i = siblings.indexOf(prev) - 1
+    while (i >= 0 && !isGroup(siblings[i]!) && (siblings[i] as any).kind?.includes('comment')) {
+      i--
+    }
+    let q = siblings[i]
+    if (q && !isGroup(q) && q.kind === 'punct' && q.text === '?') {
+      q = siblings[--i]
+    }
+    if (q && isGroup(q) && q.open === '(') {
+      // `fn(...): {` — a return type
+      const fnWord = prevMeaningful(siblings, i)
+      return fnWord && !isGroup(fnWord) && fnWord.kind === 'word' ? [asName(fnWord.text), 'Output'] : ['Output']
+    }
+    if (q && !isGroup(q) && (q.kind === 'word' || q.kind === 'string')) {
+      return [asName(q.text)]
+    }
+  }
+  return []
+}
+
+/**
+ * Visits every hoistable `{ ... }` type literal with its naming path. Value
+ * objects (after `=`) are skipped — except `type X = { ... }` alias bodies,
+ * which are visited with their alias name so they can act as the canonical
+ * definition.
+ */
+function walkLiterals(siblings: Node[], path: string[], visit: LiteralVisit): void {
+  for (let i = 0; i < siblings.length; i++) {
+    const node = siblings[i]!
+    if (!isGroup(node)) {
+      continue
+    }
+
+    if (node.open === '(') {
+      const fnWord = prevMeaningful(siblings, i)
+      const fnName = fnWord && !isGroup(fnWord) && fnWord.kind === 'word' ? [asName(fnWord.text)] : []
+      walkLiterals(node.children, [...path, ...fnName], visit)
+      continue
+    }
+
+    if (node.open === '<' || node.open === '[') {
+      walkLiterals(node.children, [...path, ...segmentsAt(siblings, i)], visit)
+      continue
+    }
+
+    // '{'
+    const prev = prevMeaningful(siblings, i)
+    if (prev && isPunct(prev, '=')) {
+      // `type NAME = { ... }` is a canonical alias body; any other `=` is a value
+      const eqIdx = siblings.indexOf(prev)
+      const nameTok = siblings[eqIdx - 1]
+      const typeTok = siblings[eqIdx - 2]
+      const isAlias =
+        nameTok &&
+        typeTok &&
+        !isGroup(nameTok) &&
+        !isGroup(typeTok) &&
+        nameTok.kind === 'word' &&
+        typeTok.kind === 'word' &&
+        typeTok.text === 'type'
+      if (!isAlias) {
+        continue
+      }
+      const aliasName = (nameTok as { text: string }).text
+      visit({ siblings, index: i, group: node, path: [aliasName], aliasName })
+      if (siblings[i] === node) {
+        walkLiterals(node.children, [aliasName], visit)
+      }
+      continue
+    }
+
+    const prevIsNamespace =
+      prev &&
+      !isGroup(prev) &&
+      prev.kind === 'word' &&
+      prevMeaningful(siblings, siblings.indexOf(prev))?.kind === 'word'
+    const namespaceLike =
+      prevIsNamespace &&
+      ['namespace', 'module'].includes((prevMeaningful(siblings, siblings.indexOf(prev!)) as { text: string }).text)
+
+    const segments = segmentsAt(siblings, i)
+    const newPath = [...path, ...segments]
+
+    if (!namespaceLike) {
+      visit({ siblings, index: i, group: node, path: newPath })
+    }
+    if (siblings[i] === node) {
+      walkLiterals(node.children, namespaceLike ? [...path, asName((prev as { text: string }).text)] : newPath, visit)
+    }
+  }
+}
+
+// ------------------------------------------------------------------ hoisting
+
+function extractAndHoistTypes(code: string): string {
+  const top = parse(tokenize(code))
+
+  const counts = new Map<string, number>()
+  const aliasByKey = new Map<string, string>()
+  const usedNames = new Set<string>()
+
+  walkLiterals(top, [], ({ group, path, aliasName }) => {
+    const key = keyOf(group)
+    counts.set(key, (counts.get(key) ?? 0) + 1)
+    if (aliasName && !aliasByKey.has(key)) {
+      aliasByKey.set(key, aliasName)
+    }
+    for (const segment of path) {
+      usedNames.add(segment)
+    }
+    if (aliasName) {
+      usedNames.add(aliasName)
+    }
+  })
+
+  const uniqueName = (base: string): string => {
+    let name = base
     let counter = 1
-    while ([...typeMap.values()].some((typeNode) => typeNode.id.name === typeName)) {
-      typeName = `${baseName}${counter++}`
+    while (usedNames.has(name)) {
+      name = `${base}${counter++}`
     }
-    return typeName
+    usedNames.add(name)
+    return name
   }
 
-  function createTypeAlias(name: string, type: t.TSType) {
-    // Babel’s TSTypeAliasDeclaration signature: tsTypeAliasDeclaration(id, typeParameters, typeAnnotation)
-    return t.tsTypeAliasDeclaration(t.identifier(name), null, type)
-  }
+  const newAliases: string[] = []
 
-  function getTypePaths(path: NodePath<t.TSTypeLiteral>) {
-    let currPath: NodePath | null = path
-    const parts = new Set<string>()
-
-    while (currPath) {
-      const { node, parentPath } = currPath as { node: t.Node; parentPath: NodePath }
-
-      if (t.isIdentifier(node) && node.name) {
-        parts.add(node.name)
-      }
-      if (t.isTSMethodSignature(node) && currPath.key === 'parameters') {
-        parts.add('Input')
-      }
-      if (currPath.key === 'returnType') {
-        parts.add('Output')
-        const methodName = 'id' in parentPath.node && 'name' in parentPath.node.id! && parentPath?.node?.id?.name
-        if (methodName) {
-          parts.add(methodName)
-        }
-      }
-      if ((node as any)?.key?.type === 'Identifier') {
-        parts.add((node as any).key.name)
-      }
-      if (t.isTSParameterProperty(node) || t.isTSFunctionType(node)) {
-        parts.add('Input')
-      }
-      if (t.isTSFunctionType(node)) {
-        parts.add('Output')
-      }
-
-      currPath = parentPath
-    }
-    return parts.size ? Array.from(parts).reverse().map(upperFirst) : ['UnnamedType']
-  }
-
-  function generateTypeName(path: NodePath<t.TSTypeLiteral>) {
-    return getTypePaths(path).join('')
-  }
-
-  function findNestedTypes(path: NodePath<t.Node>) {
-    const node = path.node
-
-    // TSTypeLiteral
-    if (t.isTSTypeLiteral(node)) {
-      const typeString = getTypingsWithoutComments(node)
-      typeCounts.set(typeString, (typeCounts.get(typeString) || 0) + 1)
-
-      if (typeMap.has(typeString) && (typeCounts.get(typeString) || 0) > 1) {
-        path.replaceWith(t.tsTypeReference(typeMap.get(typeString)!.id))
-      } else if (!typeMap.has(typeString) && (typeCounts.get(typeString) || 0) > 1) {
-        const typeName = generateUniqueTypeName(generateTypeName(path as NodePath<t.TSTypeLiteral>))
-        const typeAlias = createTypeAlias(typeName, node as t.TSType)
-        addTypeToMap(typeAlias)
-        path.replaceWith(t.tsTypeReference(t.identifier(typeName)))
-      }
-
-      // Babel might return a single NodePath instead of an array
-      const members = path.get('members')
-      const memberPaths = Array.isArray(members) ? members : [members]
-
-      memberPaths.forEach((memberPath) => {
-        findNestedTypes(memberPath)
-      })
+  walkLiterals(top, [], ({ siblings, index, group, aliasName, path }) => {
+    const key = keyOf(group)
+    if ((counts.get(key) ?? 0) < 2 || aliasName) {
+      return // unique literal, or the canonical alias definition itself
     }
 
-    // TSPropertySignature
-    if (t.isTSPropertySignature(node) && path.get('typeAnnotation')) {
-      const annPath = path.get('typeAnnotation.typeAnnotation') as NodePath
-      if (annPath?.node) {
-        findNestedTypes(annPath)
-      }
+    let name = aliasByKey.get(key)
+    if (!name) {
+      const deduped = [...new Set(path)]
+      name = uniqueName(deduped.length ? deduped.join('') : 'UnnamedType')
+      aliasByKey.set(key, name)
+      newAliases.push(`type ${name} = ${printNodes([{ ...group, nl: 0 }])}`)
     }
 
-    // TSArrayType
-    if (t.isTSArrayType(node)) {
-      findNestedTypes(path.get('elementType') as NodePath)
-    }
-
-    // TSUnionType / TSIntersectionType
-    if (t.isTSUnionType(node) || t.isTSIntersectionType(node)) {
-      ;(path.get('types') as NodePath[]).forEach((p) => findNestedTypes(p))
-    }
-
-    // TSTypeReference
-    if (t.isTSTypeReference(node) && node.typeParameters) {
-      ;(path.get('typeParameters.params') as NodePath[]).forEach((param) => findNestedTypes(param))
-    }
-
-    // TSFunctionType
-    if (t.isTSFunctionType(node)) {
-      const returnPath = path.get('typeAnnotation') as NodePath
-      if (returnPath?.node) findNestedTypes(returnPath)
-
-      const params = path.get('parameters') as NodePath[]
-      params.forEach((paramPath) => {
-        const ta = paramPath.get('typeAnnotation.typeAnnotation') as NodePath
-        if (ta?.node) findNestedTypes(ta)
-      })
-    }
-
-    // TSMethodSignature
-    if (t.isTSMethodSignature(node)) {
-      const returnPath = path.get('typeAnnotation') as NodePath
-      if (returnPath?.node) {
-        findNestedTypes(returnPath)
-      }
-      const params = path.get('parameters') as NodePath[]
-      params.forEach((paramPath) => {
-        const ta = paramPath.get('typeAnnotation.typeAnnotation') as NodePath
-        if (ta?.node) findNestedTypes(ta)
-      })
-    }
-
-    // TSDeclareFunction
-    if (t.isTSDeclareFunction(node)) {
-      const params = path.get('params') as NodePath[]
-      params.forEach((p) => {
-        const ta = p.get('typeAnnotation.typeAnnotation') as NodePath
-        if (ta?.node) findNestedTypes(ta)
-      })
-      const returnType = path.get('returnType.typeAnnotation') as NodePath
-      if (returnType?.node) findNestedTypes(returnType)
-    }
-  }
-
-  traverse(ast, {
-    TSTypeAliasDeclaration(path) {
-      const typeString = getTypingsWithoutComments(path.node.typeAnnotation)
-      typeCounts.set(typeString, (typeCounts.get(typeString) || 0) + 1)
-
-      if (typeMap.has(typeString) && (typeCounts.get(typeString) || 0) > 1) {
-        const existing = typeMap.get(typeString)!
-        path.replaceWith(
-          t.tsTypeAliasDeclaration(path.node.id, null, t.tsTypeReference(t.identifier(existing.id.name)))
-        )
-      } else {
-        addTypeToMap(path.node)
-      }
-    },
-    TSPropertySignature(path) {
-      const annPath = path.get('typeAnnotation.typeAnnotation') as NodePath
-      if (annPath?.node) findNestedTypes(annPath)
-    },
-    TSFunctionType(path) {
-      const returnPath = path.get('typeAnnotation') as NodePath
-      if (returnPath.node) findNestedTypes(returnPath)
-      const params = path.get('parameters') as NodePath[]
-      params.forEach((param) => {
-        const ta = param.get('typeAnnotation.typeAnnotation') as NodePath
-        if (ta?.node) findNestedTypes(ta)
-      })
-    },
-    TSMethodSignature(path) {
-      const returnPath = path.get('typeAnnotation.typeAnnotation') as NodePath
-      if (returnPath?.node) {
-        findNestedTypes(returnPath)
-      }
-      const params = path.get('parameters') as NodePath[]
-      params.forEach((param) => {
-        const ta = param.get('typeAnnotation.typeAnnotation') as NodePath
-        if (ta?.node) findNestedTypes(ta)
-      })
-    },
-    TSDeclareFunction(path) {
-      const params = path.get('params') as NodePath[]
-      params.forEach((p) => {
-        const ta = p.get('typeAnnotation.typeAnnotation') as NodePath
-        if (ta?.node) findNestedTypes(ta)
-      })
-      const returnPath = path.get('returnType.typeAnnotation') as NodePath
-      if (returnPath?.node) findNestedTypes(returnPath)
-    },
+    siblings[index] = { kind: 'word', text: name, nl: group.nl }
   })
 
-  // Hoist types that appear more than once
-  typeMap.forEach((typeNode, typeString) => {
-    // oxlint-disable-next-line no-lonely-if
-    if ((typeCounts.get(typeString) || 0) > 1) {
-      if (
-        !hoistedTypes.some((ht) => {
-          return getTypingsWithoutComments(ht.typeAnnotation) === getTypingsWithoutComments(typeNode.typeAnnotation)
-        })
-      ) {
-        hoistedTypes.push(typeNode)
-      }
-    }
-  })
-
-  // Rebuild program body with hoisted types first
-  ast.program.body = [
-    ...hoistedTypes,
-    ...ast.program.body.filter(
-      (node) => !hoistedTypes.some((ht) => t.isTSTypeAliasDeclaration(node) && node.id.name === ht.id.name)
-    ),
-  ]
-
-  return ast
+  const body = printNodes(top)
+  return newAliases.length ? `${newAliases.join('\n')}\n${body}` : body
 }
 
 export async function hoistTypings(code: string, formatOptions?: CodeFormatOptions) {
@@ -265,15 +253,7 @@ export async function hoistTypings(code: string, formatOptions?: CodeFormatOptio
   for (let i = 1; i <= 5; i++) {
     try {
       const initialCode = code
-      const ast = parse(code, {
-        sourceType: 'module',
-        plugins: ['typescript'],
-      })
-      const transformedAst = extractAndHoistTypes(ast as t.File)
-      code = new CodeGenerator(transformedAst, {
-        // quotes: 'single',
-        compact: false,
-      }).generate().code
+      code = extractAndHoistTypes(code)
       if (initialCode === code) {
         break
       }

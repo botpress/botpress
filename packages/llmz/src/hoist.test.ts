@@ -61,58 +61,45 @@ describe('hoist', () => {
       `)
 
       expect(after).toMatchInlineSnapshot(`
-        "type MyObjectPersonWithDifferentFormattingPerson = {
-          name: string
-          age: number
+        "type PersonWithIdPerson = { name: string; age: number }
+        type MyObjectMyToolArgs = { children: Array<PersonWithIdPerson> }
+        type MyObjectMyToolOutput = {
+          /* with comment */
+          abc: number
         }
-        type MyObjectMySecondToolArgs = {
-          children: Array<MyObjectPersonWithDifferentFormattingPerson>
-        }
-        type AppendChildren2Output = {
+        type AppendChildrenOutput = {
           a: number
           b: number
-          c: Array<MyObjectPersonWithDifferentFormattingPerson>
+          c: Array<PersonWithIdPerson>
         }
-        type MyObjectMySecondTool = {
-          /* with comment */ abc: number
-        }
-        type PersonWithId = {
-          id: number
-          person: MyObjectPersonWithDifferentFormattingPerson
-        }
+
+        type PersonWithId = { id: number; person: PersonWithIdPerson }
+
         declare const MyObject: {
           // ---------------- //
           //    Properties    //
           // ---------------- //
-
           someone: PersonWithId
           someoneElse: PersonWithId
           readonly anOtherPerson: Optional<PersonWithId>
-          personWithDifferentFormatting: {
-            person: MyObjectPersonWithDifferentFormattingPerson
-            id: number
-          }
+          personWithDifferentFormatting: { person: PersonWithIdPerson; id: number }
           personWithComments: PersonWithId
-
           // ---------------- //
           //       Tools      //
           // ---------------- //
-
-          myTool(args: MyObjectMySecondToolArgs): MyObjectMySecondTool
-
+          myTool(args: MyObjectMyToolArgs): MyObjectMyToolOutput
           // Second tool
-          MySecondTool(args: MyObjectMySecondToolArgs): MyObjectMySecondTool
-
+          MySecondTool(args: MyObjectMyToolArgs): MyObjectMyToolOutput
           // 3rd Tool
-          MyThirdTool(args: MyObjectMySecondToolArgs): MyObjectMySecondTool
+          MyThirdTool(args: MyObjectMyToolArgs): MyObjectMyToolOutput
         }
 
         // ----------------------- //
         //       Global Tools      //
         // ----------------------- //
 
-        declare function appendChildren(): AppendChildren2Output
-        declare function appendChildren2(): AppendChildren2Output"
+        declare function appendChildren(): AppendChildrenOutput
+        declare function appendChildren2(): AppendChildrenOutput"
       `)
     })
   })

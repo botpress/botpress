@@ -76,7 +76,7 @@ if (result.isSuccess()) {
     box([
       'The LLM wrote the code to solve the problem:',
       // Show the final working code (after any error recovery)
-      ...result.iteration.code!.split('\n'),
+      ...(result.iterations.filter((i) => i.code).at(-1)?.code ?? '// no code generated').split('\n'),
       '',
       'It then executed it and returned the result:',
       // Display the successfully extracted secret code

@@ -1,2 +1,2 @@
-export { Identifiers, compile } from './compiler.js'
+export { Identifiers, compile, hasTopLevelReturn } from './compiler.js'
 export type { CompiledCode } from './compiler.js'

@@ -240,7 +240,6 @@ pnpm generate
 - `tsup`: Fast TypeScript bundler (ESM + CJS output)
 - `vitest`: Modern test framework with TypeScript support
 - `prettier`: Code formatting
-- `handlebars`: Template processing for prompts
 
 ## Code Architecture Patterns
 

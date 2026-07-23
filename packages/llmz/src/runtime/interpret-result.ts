@@ -1,5 +1,4 @@
-import { isPlainObject, omit } from 'lodash-es'
-
+import { hasTopLevelReturn } from '../compiler/index.js'
 import { Iteration } from '../context.js'
 import { CodeExecutionError, InvalidCodeError, SnapshotSignal, ThinkSignal } from '../errors.js'
 import { parseExit } from '../exit-parser.js'
@@ -94,41 +93,87 @@ export const interpretVMResult = async ({
     return
   }
 
-  let returnValue: { action: string; value?: unknown } | null =
-    result.success && result.return_value ? result.return_value : null
+  // The code executed successfully.
+  const returnValue = result.return_value
 
-  const returnAction = returnValue?.action
+  // An explicit `return` in the code means the model wants to inspect the
+  // value before continuing — control goes back to it, and any ■next in the
+  // same response is ignored. Models often append a premature ■next (both
+  // `listen` and final exits) to code whose outcome they cannot know yet;
+  // honoring it would end the turn or the task half-done. Side-effect-only
+  // code (no top-level `return` statement) may be combined with a final ■next.
+  const codeRequestsInspection = hasTopLevelReturn(iteration.code ?? '')
 
-  if (returnAction === 'think') {
-    const variables = omit(returnValue ?? {}, 'action')
-    if (isPlainObject(variables) && Object.keys(variables).length > 0) {
-      iteration.end({
-        type: 'thinking_requested',
-        thinking_requested: {
-          variables,
-          reason: 'Thinking requested',
-        },
-      })
-      return
-    }
-
-    iteration.end({
-      type: 'thinking_requested',
-      thinking_requested: {
-        reason: 'Thinking requested',
-        variables: iteration.variables,
-      },
-    })
+  if (iteration.next && !codeRequestsInspection) {
+    await applyNextExit({ iteration, controller, onExit })
     return
   }
 
-  const parsedExit = parseExit(returnValue, iteration.exits)
+  const localVariables = Object.fromEntries(
+    Object.entries(result.variables ?? {}).filter(([, value]) => value !== '[[non-primitive]]')
+  )
+
+  iteration.end({
+    type: 'thinking_requested',
+    thinking_requested: {
+      reason: iteration.next
+        ? `Code execution completed. The ■next=${iteration.next.name} exit was NOT applied because your code returns a value — inspect it below, then end your next response with ■next.`
+        : 'Code execution completed',
+      variables:
+        returnValue !== undefined
+          ? returnValue
+          : Object.keys(localVariables).length
+            ? localVariables
+            : iteration.variables,
+    },
+  })
+}
+
+/**
+ * Applies the `■next=<exit>` block of the current iteration: validates the exit
+ * name and props against the available exits, runs the onExit hook, and ends
+ * the iteration with exit_success or exit_error.
+ */
+export const applyNextExit = async ({
+  iteration,
+  controller,
+  onExit,
+}: {
+  iteration: Iteration
+  controller: AbortController
+  onExit?: ExecutionHooks['onExit']
+}): Promise<void> => {
+  const next = iteration.next
+
+  if (!next) {
+    throw new Error('applyNextExit called without a ■next block on the iteration')
+  }
+
+  const attempt = (props: Record<string, unknown>) =>
+    parseExit(Object.keys(props).length ? { action: next.name, value: props } : { action: next.name }, iteration.exits)
+
+  let parsedExit = attempt(next.props)
+
+  // Leniency: models sometimes wrap the exit props in a superfluous single key
+  // (e.g. `■next=done {props: {ticketId: "..."}}`). Retry unwrapped when validation fails.
+  const keys = Object.keys(next.props)
+  if (!parsedExit.success && keys.length === 1 && ['props', 'value', 'data'].includes(keys[0]!)) {
+    const inner = next.props[keys[0]!]
+    if (inner && typeof inner === 'object' && !Array.isArray(inner)) {
+      const unwrapped = attempt(inner as Record<string, unknown>)
+      if (unwrapped.success) {
+        parsedExit = unwrapped
+      }
+    }
+  }
+
+  const returnValue = { action: next.name, value: parsedExit.success ? parsedExit.value : next.props }
 
   if (!parsedExit.success) {
     iteration.end({
       type: 'exit_error',
       exit_error: {
-        exit: returnValue?.action ?? 'n/a',
+        exit: next.name,
         message: parsedExit.error,
         return_value: returnValue,
       },
@@ -137,13 +182,15 @@ export const interpretVMResult = async ({
   }
 
   const returnExit = parsedExit.exit
-  returnValue = { action: returnExit.name, value: parsedExit.value }
 
   try {
-    await onExit?.({
-      exit: returnExit,
-      result: returnValue?.value,
-    })
+    await onExit?.(
+      {
+        exit: returnExit,
+        result: parsedExit.value,
+      },
+      controller
+    )
   } catch (err) {
     iteration.end({
       type: 'exit_error',
@@ -160,8 +207,7 @@ export const interpretVMResult = async ({
     type: 'exit_success',
     exit_success: {
       exit_name: returnExit.name,
-      return_value: returnValue?.value,
+      return_value: parsedExit.value,
     },
   })
-  return
 }
