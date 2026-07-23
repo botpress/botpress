@@ -18,7 +18,14 @@ import type {
   ParseReturnType,
   SyncParseReturnType,
 } from '../../typings'
-import { addIssueToContext, ParseStatus, ParseInputLazyPath, ZodBaseTypeImpl, type MergeObjectPair } from '../basetype'
+import {
+  addIssueToContext,
+  ParseStatus,
+  ParseInputLazyPath,
+  ZodBaseTypeImpl,
+  assertShapeValueIsSchema,
+  type MergeObjectPair,
+} from '../basetype'
 
 export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys extends UnknownKeysParam = UnknownKeysParam>
   extends ZodBaseTypeImpl<
@@ -38,6 +45,9 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     if (this._cached !== null) return this._cached
     const shape = this._def.shape()
     const keys = Object.keys(shape)
+    for (const key of keys) {
+      assertShapeValueIsSchema(key, shape[key])
+    }
     return (this._cached = { shape, keys })
   }
 
@@ -56,8 +66,6 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
   }
 
   _getReferences(visiting: Set<symbol>): string[] {
-    // Key on the clone-stable _def.uid (not instance identity): traversing a cloned recursive schema mints
-    // fresh clones, but they all carry the source's uid, so mutual/self cycles terminate. See ZodObjectDef.uid.
     if (visiting.has(this._def.uid)) return []
     visiting.add(this._def.uid)
     const shape = this._def.shape()
@@ -68,12 +76,6 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     return utils.fn.unique(refs)
   }
 
-  // ZodObject keeps an explicit `clone` (rather than the base's `_cloneSelf` template the other types use):
-  // omitting the concrete `IZodObject<T, UnknownKeys>` return here lets declaration-emit fully resolve
-  // ZodObjectImpl's assignability to IZodObject<T, 'strict'> in strict()/strictObject(), which surfaces a
-  // latent additionalProperties() variance error (TS2322). The explicit return defers that check. The memo
-  // logic mirrors the base: register both source and clone, before the lazy shape thunk runs, so a
-  // getter-recursive schema clones into a cycle instead of an infinite tree.
   clone(memo: WeakMap<IZodType, IZodType> = new WeakMap()): IZodObject<T, UnknownKeys> {
     const hit = memo.get(this)
     if (hit) return hit as IZodObject<T, UnknownKeys>
@@ -191,7 +193,9 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
   }
 
   get shape() {
-    return this._def.shape()
+    // Route through _getCached so the materialization-time getter guard also fires on shape reads from
+    // the transforms (e.g. toJSONSchema during `bp deploy`), not only on .parse().
+    return this._getCached().shape
   }
 
   strict(message?: utils.errors.ErrMessage): IZodObject<T, 'strict'> {
@@ -279,7 +283,7 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
         ...this._def.shape(),
         ...augmentation,
       }),
-      uid: Symbol('ZodObject'), // shape-changing derive → a different schema, so a fresh identity
+      uid: Symbol('ZodObject'),
     }) as unknown as IZodObject<utils.types.ExtendShape<T, Augmentation>, UnknownKeys>
   }
   // extend<
@@ -336,7 +340,7 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
           ...merging._def.shape(),
         }) as utils.types.ExtendShape<T, Augmentation>,
       typeName: 'ZodObject',
-      uid: Symbol('ZodObject'), // shape-changing derive → a different schema, so a fresh identity
+      uid: Symbol('ZodObject'),
     })
     return merged as IZodObject<utils.types.ExtendShape<T, Augmentation>, Incoming['_def']['unknownKeys']>
   }
@@ -381,7 +385,7 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     const objSchema: IZodObject<Pick<T, Extract<keyof T, keyof Mask>>, UnknownKeys> = new ZodObjectImpl({
       ...this._def,
       shape: () => shape as Pick<T, Extract<keyof T, keyof Mask>>,
-      uid: Symbol('ZodObject'), // shape-changing derive → a different schema, so a fresh identity
+      uid: Symbol('ZodObject'),
     })
 
     return objSchema
@@ -403,7 +407,7 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     const objSchema: IZodObject<Omit<T, keyof Mask>, UnknownKeys> = new ZodObjectImpl({
       ...this._def,
       shape: () => shape as Omit<T, keyof Mask>,
-      uid: Symbol('ZodObject'), // shape-changing derive → a different schema, so a fresh identity
+      uid: Symbol('ZodObject'),
     })
 
     return objSchema
@@ -445,7 +449,7 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     const objSchema: IZodObject<ZodRawShape, UnknownKeys> = new ZodObjectImpl({
       ...this._def,
       shape: () => newShape as ZodRawShape,
-      uid: Symbol('ZodObject'), // shape-changing derive → a different schema, so a fresh identity
+      uid: Symbol('ZodObject'),
     })
 
     return objSchema
@@ -492,7 +496,7 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     return new ZodObjectImpl({
       ...this._def,
       shape: () => newShape,
-      uid: Symbol('ZodObject'), // shape-changing derive → a different schema, so a fresh identity
+      uid: Symbol('ZodObject'),
     }) as IZodObject<ZodRawShape, UnknownKeys>
   }
 
@@ -505,12 +509,10 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     if (!(schema instanceof ZodObjectImpl)) return false
     if (!this._unknownKeysEqual(schema)) return false
 
-    // Key the guard on clone-stable _def.uid pairs (not instances): comparing cloned recursive schemas mints
-    // fresh clones, but each carries its source's uid, so the cycle is detected and comparison terminates.
     const thisUid = this._def.uid
     const otherUid = schema._def.uid
     let inProgress = ZodObjectImpl._comparing.get(thisUid)
-    if (inProgress?.has(otherUid)) return true // already comparing this exact pair higher up the call stack
+    if (inProgress?.has(otherUid)) return true
     if (!inProgress) ZodObjectImpl._comparing.set(thisUid, (inProgress = new Set()))
     inProgress.add(otherUid)
 

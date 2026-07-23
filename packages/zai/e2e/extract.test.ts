@@ -188,7 +188,9 @@ Feature 4: Integrations`
 
   it('extract an array of discriminated union', async () => {
     cognitive.on('request', (req) => {
-      console.log(req.input.messages)
+      if (req.type === 'generateText') {
+        console.log(req.input.messages)
+      }
     })
 
     const schema = z

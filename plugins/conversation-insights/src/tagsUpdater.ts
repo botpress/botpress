@@ -63,17 +63,17 @@ const _generateContentWithRetries = async <T>(props: ParsePromptProps): Promise<
   let attemptCount = 0
   const maxRetries = 3
 
-  const cognitiveClient = new cognitive.Cognitive({ client: props.client, __experimental_beta: true })
-  let llmOutput = await cognitiveClient.generateContent(props.prompt)
-  let parsed = gen.parseLLMOutput<T>({ schema: props.schema, ...llmOutput.output })
+  const cognitiveClient = new cognitive.Cognitive({ client: props.client })
+  let llmOutput = await cognitiveClient.generateText(props.prompt)
+  let parsed = gen.parseLLMOutput<T>({ schema: props.schema, output: llmOutput.output })
 
   while (!parsed.success && attemptCount < maxRetries) {
     props.logger.debug(
       `Attempt ${attemptCount + 1}: The LLM output did not respect the schema. It submitted: `,
       parsed.json
     )
-    llmOutput = await cognitiveClient.generateContent(props.prompt)
-    parsed = gen.parseLLMOutput<T>({ schema: props.schema, ...llmOutput.output })
+    llmOutput = await cognitiveClient.generateText(props.prompt)
+    parsed = gen.parseLLMOutput<T>({ schema: props.schema, output: llmOutput.output })
     attemptCount++
   }
 

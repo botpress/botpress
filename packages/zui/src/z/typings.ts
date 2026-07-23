@@ -422,12 +422,6 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
   getReferences(): string[]
   /** internal recursive worker for getReferences() — do not call directly */
   _getReferences(visiting: Set<symbol>): string[]
-  /**
-   * Deep-copies the schema. `memo` maps each source schema instance to its clone so a cyclic
-   * (self- or mutually-recursive, getter-based) schema is cloned into a cycle rather than an
-   * infinite tree: re-encountering an already-cloned node returns the same clone. Callers pass
-   * nothing; it is threaded internally.
-   */
   clone(memo?: CloneMemo): IZodType<Output, Def, Input>
   parse(data: unknown, params?: Partial<ParseParams>): this['_output']
   safeParse(data: unknown, params?: Partial<ParseParams>): SafeParseReturnType<this['_input'], this['_output']>
@@ -893,12 +887,6 @@ export type ZodRawShape = {
   [k: string]: IZodType
 }
 
-// Deliberately loose — used only as the *inference-site* constraint on z.object()/z.strictObject()'s
-// public shape parameter, so a self-referential getter (e.g. `get subcategories() { return z.array(Category) }`)
-// doesn't force TypeScript to resolve the getter's return type (Category's own type) just to check
-// assignability against the constraint, which is circular and unresolvable without a manual annotation.
-// The real, structurally-checked ZodRawShape is still used everywhere else (ObjectOutputType, ZodObjectImpl, etc.) —
-// only this one call-site boundary is widened.
 export type ZodRawShapeArg = Record<string, any>
 
 export type UnknownKeysParam = 'passthrough' | 'strict' | 'strip' | IZodType
@@ -909,31 +897,13 @@ export type ZodObjectDef<
   typeName: 'ZodObject'
   shape: () => T
   unknownKeys: UnknownKeys
-  /**
-   * Clone-stable identity for this object schema. Set once at creation; preserved across identity-only ops
-   * (clone/describe/metadata/mandatory/strict/strip/passthrough) because they spread `_def`, and regenerated
-   * by shape-changing derives (extend/merge/pick/omit/partial/required) which produce a different schema.
-   * Structural traversals (getReferences/isEqual) key cycle detection on it so they terminate even when
-   * traversal mints fresh clones — mirrors ZodLazyDef.uid.
-   */
   uid: symbol
 } & ZodTypeDef
 
 // Shallow, wrapper-structure-based optionality tests — zui's equivalent of zod4's optin/optout markers.
 // Required-vs-optional key partitioning used to be decided via `undefined extends Shape[k]['_output']`
 // (AddQuestionMarks), which forces resolution of every member's output type while the object's own type
-// is still being inferred — for a self-referential getter-based shape that resolution is circular:
-// it either trips TS2615 (two-stage re-mapping) or silently collapses the recursive key to optional
-// (single-pass `as`-remapping). These conditionals instead discriminate ONLY on the schema wrapper
-// interfaces (their _def.typeName literals and type parameters), so they resolve without ever touching
-// a member's _output/_input — which is exactly how zod4's $InferObjectOutput stays precise on recursive
-// schemas (it tests a shallow `optout` marker, never the output type). Semantics preserved from the old
-// formula: optional()/undefined/void/any/unknown/literal(undefined) keys are optional (note: zui keeps
-// any/unknown optional, deliberately NOT adopting zod4's v4 breaking change that made them required);
-// default() is output-required/input-optional; catch() is input-optional; wrappers (lazy/nullable/
-// readonly/branded) forward; unions are optional if any option is; intersections if both sides are.
-// Known trade-off (same as zod4): a still-generic schema member (e.g. TData extends z.ZodType inside a
-// generic helper) cannot be partitioned and degrades — see generics.test.ts.
+// is still being inferred
 export type IsOptionalOut<S> =
   S extends IZodOptional<any>
     ? true
@@ -1216,18 +1186,6 @@ export interface IZodObject<
 
 //* ─────────────────────────── ZodDiscriminatedUnion ──────────────────────────
 
-// Constrained via the option's input type rather than its shape, mirroring zod v4's
-// $ZodTypeDiscriminable: the old shape-level `{ [key in Discriminator]: IZodType } &
-// ZodRawShape` forced deep structural resolution of object output types (excessive
-// stack depth). The weak type `{ [K in Discriminator]?: unknown }` rejects options
-// missing the discriminator key at compile time (no properties in common), and
-// _getOptionsMap enforces it at runtime as a backstop.
-//
-// The base must be IZodType with `unknown` input — NOT AnyZodObject, whose `_input`
-// is an index signature that would intersect with the weak type and defeat weak-type
-// detection. Output is `unknown` (not `any`): options are only ever bound by this as a
-// constraint, never read through it, so the stricter `unknown` accepts every object
-// schema's output just as well while keeping the type free of `any`.
 export type ZodDiscriminatedUnionOption<Discriminator extends string> = IZodType<
   unknown,
   ZodObjectDef,
@@ -1324,12 +1282,6 @@ export interface IZodIntersection<T extends IZodType = IZodType, U extends IZodT
 export type ZodLazyDef<T extends IZodType = IZodType> = {
   getter: () => T
   typeName: 'ZodLazy'
-  /**
-   * Stable identity for this z.lazy() node, set once at creation time. Unlike the ZodLazy
-   * instance itself, it survives .clone()/.dereference()/.mandatory() (which spread the rest
-   * of `_def` unchanged), so it can be used to detect a self-referential schema even after
-   * one of its occurrences has been cloned (e.g. by .describe()) into a distinct object.
-   */
   uid: symbol
 } & ZodTypeDef
 

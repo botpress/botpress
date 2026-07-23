@@ -2398,7 +2398,7 @@ importers:
         version: 29.5.0(@types/node@22.16.4)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.9.3))
       ts-jest:
         specifier: ^29.1.0
-        version: 29.1.0(@babel/core@7.26.9)(@jest/types@29.5.0)(babel-jest@29.5.0(@babel/core@7.26.9))(jest@29.5.0(@types/node@22.16.4)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.9.3)))(typescript@5.9.3)
+        version: 29.1.0(@babel/core@7.28.0)(@jest/types@29.5.0)(babel-jest@29.5.0(@babel/core@7.28.0))(jest@29.5.0(@types/node@22.16.4)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.9.3)))(typescript@5.9.3)
 
   integrations/zendesk:
     dependencies:
@@ -2763,7 +2763,7 @@ importers:
         specifier: 1.0.0
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.49.0
+        specifier: 2.0.0
         version: link:../client
       '@botpress/sdk':
         specifier: 6.13.4
@@ -2887,7 +2887,7 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.49.0
+        specifier: 2.0.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 6.13.4
@@ -2903,7 +2903,7 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.49.0
+        specifier: 2.0.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 6.13.4
@@ -2932,7 +2932,7 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.49.0
+        specifier: 2.0.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 6.13.4
@@ -2948,7 +2948,7 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.49.0
+        specifier: 2.0.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 6.13.4
@@ -2966,12 +2966,6 @@ importers:
 
   packages/client:
     dependencies:
-      axios:
-        specifier: ^1.6.1
-        version: 1.6.1
-      axios-retry:
-        specifier: ^4.5.0
-        version: 4.5.0(axios@1.6.1)
       browser-or-node:
         specifier: ^2.1.1
         version: 2.1.1
@@ -3010,24 +3004,12 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../client
-      '@botpress/common':
-        specifier: workspace:*
-        version: link:../common
-      '@bpinternal/zui':
-        specifier: workspace:*
-        version: link:../zui
       '@size-limit/file':
         specifier: ^11.1.6
         version: 11.1.6(size-limit@11.1.6)
-      '@types/axios':
-        specifier: ^0.14.4
-        version: 0.14.4
       '@types/debug':
         specifier: ^4.1.12
         version: 4.1.12
-      axios:
-        specifier: ^1.7.9
-        version: 1.7.9
       dotenv:
         specifier: ^16.4.4
         version: 16.4.4
@@ -3084,10 +3066,10 @@ importers:
   packages/llmz:
     dependencies:
       '@botpress/client':
-        specifier: 1.49.0
+        specifier: 2.0.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.6.2
+        specifier: 1.0.1
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^3.1.0
@@ -3187,7 +3169,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.49.0
+        specifier: 2.0.0
         version: link:../client
       '@bpinternal/zui':
         specifier: ^2.4.0
@@ -3218,8 +3200,11 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.49.0
+        specifier: 2.0.0
         version: link:../client
+      '@botpress/cognitive':
+        specifier: 1.0.1
+        version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^3.0.0
         version: 3.0.0
@@ -3242,9 +3227,6 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../cli
-      '@botpress/common':
-        specifier: workspace:*
-        version: link:../common
       '@types/lodash':
         specifier: ^4.14.191
         version: 4.14.195
@@ -3264,7 +3246,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.6.2
+        specifier: 1.0.1
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^3.0.0
@@ -3395,7 +3377,7 @@ importers:
   plugins/conversation-insights:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.6.2
+        specifier: 1.0.1
         version: link:../../packages/cognitive
       '@botpress/sdk':
         specifier: workspace:*
@@ -6891,10 +6873,6 @@ packages:
   '@types/aws-lambda@8.10.116':
     resolution: {integrity: sha512-LSvIyxYCsIMOiBnb5D6HTf7JXLCh3KPiZWL6Pkn1MqV/v5OoP42GDqn5H4wHKGGKN0mJB+4y1r0oat1dLBAkuA==}
 
-  '@types/axios@0.14.4':
-    resolution: {integrity: sha512-9JgOaunvQdsQ/qW2OPmE5+hCeUB52lQSolecrFrthct55QekhmXEwT203s20RL+UHtCQc15y3VXpby9E7Kkh/g==}
-    deprecated: This is a stub types definition. axios provides its own type definitions, so you do not need this installed.
-
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
 
@@ -7593,9 +7571,6 @@ packages:
 
   axios@1.5.1:
     resolution: {integrity: sha512-Q28iYCWzNHjAm+yEAot5QaAMxhMghWLFVf7rRdwhUI+c2jix2DUXjAHXVi+s1ibs3mjPO/cCgbA++3BjD0vP/A==}
-
-  axios@1.6.1:
-    resolution: {integrity: sha512-vfBmhDpKafglh0EldBEbVuoe7DyAavGSLWhuSm5ZSEKQnHhBf0xAAwybbNH1IkrJNGnS/VG4I5yxig1pCEXE4g==}
 
   axios@1.6.2:
     resolution: {integrity: sha512-7i24Ri4pmDRfJTR7LDBhsOTtcm+9kjX5WiY1X3wIisx6G9So3pfMkEiU7emUBe46oceVImccTEM3k6C5dbVW8A==}
@@ -14458,25 +14433,55 @@ snapshots:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
 
+  '@babel/plugin-syntax-async-generators@7.8.4(@babel/core@7.28.0)':
+    dependencies:
+      '@babel/core': 7.28.0
+      '@babel/helper-plugin-utils': 7.27.1
+    optional: true
+
   '@babel/plugin-syntax-bigint@7.8.3(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
+
+  '@babel/plugin-syntax-bigint@7.8.3(@babel/core@7.28.0)':
+    dependencies:
+      '@babel/core': 7.28.0
+      '@babel/helper-plugin-utils': 7.27.1
+    optional: true
 
   '@babel/plugin-syntax-class-properties@7.12.13(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
 
+  '@babel/plugin-syntax-class-properties@7.12.13(@babel/core@7.28.0)':
+    dependencies:
+      '@babel/core': 7.28.0
+      '@babel/helper-plugin-utils': 7.27.1
+    optional: true
+
   '@babel/plugin-syntax-import-meta@7.10.4(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
 
+  '@babel/plugin-syntax-import-meta@7.10.4(@babel/core@7.28.0)':
+    dependencies:
+      '@babel/core': 7.28.0
+      '@babel/helper-plugin-utils': 7.27.1
+    optional: true
+
   '@babel/plugin-syntax-json-strings@7.8.3(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
+
+  '@babel/plugin-syntax-json-strings@7.8.3(@babel/core@7.28.0)':
+    dependencies:
+      '@babel/core': 7.28.0
+      '@babel/helper-plugin-utils': 7.27.1
+    optional: true
 
   '@babel/plugin-syntax-jsx@7.27.1(@babel/core@7.26.9)':
     dependencies:
@@ -14488,35 +14493,77 @@ snapshots:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
 
+  '@babel/plugin-syntax-logical-assignment-operators@7.10.4(@babel/core@7.28.0)':
+    dependencies:
+      '@babel/core': 7.28.0
+      '@babel/helper-plugin-utils': 7.27.1
+    optional: true
+
   '@babel/plugin-syntax-nullish-coalescing-operator@7.8.3(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
+
+  '@babel/plugin-syntax-nullish-coalescing-operator@7.8.3(@babel/core@7.28.0)':
+    dependencies:
+      '@babel/core': 7.28.0
+      '@babel/helper-plugin-utils': 7.27.1
+    optional: true
 
   '@babel/plugin-syntax-numeric-separator@7.10.4(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
 
+  '@babel/plugin-syntax-numeric-separator@7.10.4(@babel/core@7.28.0)':
+    dependencies:
+      '@babel/core': 7.28.0
+      '@babel/helper-plugin-utils': 7.27.1
+    optional: true
+
   '@babel/plugin-syntax-object-rest-spread@7.8.3(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
+
+  '@babel/plugin-syntax-object-rest-spread@7.8.3(@babel/core@7.28.0)':
+    dependencies:
+      '@babel/core': 7.28.0
+      '@babel/helper-plugin-utils': 7.27.1
+    optional: true
 
   '@babel/plugin-syntax-optional-catch-binding@7.8.3(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
 
+  '@babel/plugin-syntax-optional-catch-binding@7.8.3(@babel/core@7.28.0)':
+    dependencies:
+      '@babel/core': 7.28.0
+      '@babel/helper-plugin-utils': 7.27.1
+    optional: true
+
   '@babel/plugin-syntax-optional-chaining@7.8.3(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
 
+  '@babel/plugin-syntax-optional-chaining@7.8.3(@babel/core@7.28.0)':
+    dependencies:
+      '@babel/core': 7.28.0
+      '@babel/helper-plugin-utils': 7.27.1
+    optional: true
+
   '@babel/plugin-syntax-top-level-await@7.14.5(@babel/core@7.26.9)':
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-plugin-utils': 7.27.1
+
+  '@babel/plugin-syntax-top-level-await@7.14.5(@babel/core@7.28.0)':
+    dependencies:
+      '@babel/core': 7.28.0
+      '@babel/helper-plugin-utils': 7.27.1
+    optional: true
 
   '@babel/plugin-syntax-typescript@7.27.1(@babel/core@7.26.9)':
     dependencies:
@@ -17261,12 +17308,6 @@ snapshots:
 
   '@types/aws-lambda@8.10.116': {}
 
-  '@types/axios@0.14.4':
-    dependencies:
-      axios: 1.13.6
-    transitivePeerDependencies:
-      - debug
-
   '@types/babel__core@7.20.5':
     dependencies:
       '@babel/parser': 7.26.9
@@ -18038,11 +18079,6 @@ snapshots:
       axios: 1.4.0
       is-retry-allowed: 2.2.0
 
-  axios-retry@4.5.0(axios@1.6.1):
-    dependencies:
-      axios: 1.6.1
-      is-retry-allowed: 2.2.0
-
   axios@0.21.4(debug@4.4.1):
     dependencies:
       follow-redirects: 1.15.11(debug@4.4.1)
@@ -18111,14 +18147,6 @@ snapshots:
       - debug
 
   axios@1.5.1:
-    dependencies:
-      follow-redirects: 1.15.2
-      form-data: 4.0.4
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
-
-  axios@1.6.1:
     dependencies:
       follow-redirects: 1.15.2
       form-data: 4.0.4
@@ -18227,6 +18255,20 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  babel-jest@29.5.0(@babel/core@7.28.0):
+    dependencies:
+      '@babel/core': 7.28.0
+      '@jest/transform': 29.5.0
+      '@types/babel__core': 7.20.5
+      babel-plugin-istanbul: 6.1.1
+      babel-preset-jest: 29.5.0(@babel/core@7.28.0)
+      chalk: 4.1.2
+      graceful-fs: 4.2.11
+      slash: 3.0.0
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   babel-plugin-istanbul@6.1.1:
     dependencies:
       '@babel/helper-plugin-utils': 7.27.1
@@ -18260,11 +18302,35 @@ snapshots:
       '@babel/plugin-syntax-optional-chaining': 7.8.3(@babel/core@7.26.9)
       '@babel/plugin-syntax-top-level-await': 7.14.5(@babel/core@7.26.9)
 
+  babel-preset-current-node-syntax@1.0.1(@babel/core@7.28.0):
+    dependencies:
+      '@babel/core': 7.28.0
+      '@babel/plugin-syntax-async-generators': 7.8.4(@babel/core@7.28.0)
+      '@babel/plugin-syntax-bigint': 7.8.3(@babel/core@7.28.0)
+      '@babel/plugin-syntax-class-properties': 7.12.13(@babel/core@7.28.0)
+      '@babel/plugin-syntax-import-meta': 7.10.4(@babel/core@7.28.0)
+      '@babel/plugin-syntax-json-strings': 7.8.3(@babel/core@7.28.0)
+      '@babel/plugin-syntax-logical-assignment-operators': 7.10.4(@babel/core@7.28.0)
+      '@babel/plugin-syntax-nullish-coalescing-operator': 7.8.3(@babel/core@7.28.0)
+      '@babel/plugin-syntax-numeric-separator': 7.10.4(@babel/core@7.28.0)
+      '@babel/plugin-syntax-object-rest-spread': 7.8.3(@babel/core@7.28.0)
+      '@babel/plugin-syntax-optional-catch-binding': 7.8.3(@babel/core@7.28.0)
+      '@babel/plugin-syntax-optional-chaining': 7.8.3(@babel/core@7.28.0)
+      '@babel/plugin-syntax-top-level-await': 7.14.5(@babel/core@7.28.0)
+    optional: true
+
   babel-preset-jest@29.5.0(@babel/core@7.26.9):
     dependencies:
       '@babel/core': 7.26.9
       babel-plugin-jest-hoist: 29.5.0
       babel-preset-current-node-syntax: 1.0.1(@babel/core@7.26.9)
+
+  babel-preset-jest@29.5.0(@babel/core@7.28.0):
+    dependencies:
+      '@babel/core': 7.28.0
+      babel-plugin-jest-hoist: 29.5.0
+      babel-preset-current-node-syntax: 1.0.1(@babel/core@7.28.0)
+    optional: true
 
   bail@1.0.5: {}
 
@@ -24224,7 +24290,7 @@ snapshots:
     dependencies:
       tslib: 1.14.1
 
-  ts-jest@29.1.0(@babel/core@7.26.9)(@jest/types@29.5.0)(babel-jest@29.5.0(@babel/core@7.26.9))(jest@29.5.0(@types/node@22.16.4)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.9.3)))(typescript@5.9.3):
+  ts-jest@29.1.0(@babel/core@7.28.0)(@jest/types@29.5.0)(babel-jest@29.5.0(@babel/core@7.28.0))(jest@29.5.0(@types/node@22.16.4)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.9.3)))(typescript@5.9.3):
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
@@ -24237,9 +24303,9 @@ snapshots:
       typescript: 5.9.3
       yargs-parser: 21.1.1
     optionalDependencies:
-      '@babel/core': 7.26.9
+      '@babel/core': 7.28.0
       '@jest/types': 29.5.0
-      babel-jest: 29.5.0(@babel/core@7.26.9)
+      babel-jest: 29.5.0(@babel/core@7.28.0)
 
   ts-node@10.9.2(@types/node@22.16.4)(typescript@5.6.3):
     dependencies:

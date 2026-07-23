@@ -1,63 +1,53 @@
-import { type Client } from '@botpress/client'
-import { type AxiosInstance } from 'axios'
-import { BotpressClientLike } from './types'
-
-/** @internal */
-export type ExtendedClient = Client & {
-  botId: string
-  axios: AxiosInstance
-  clone: () => ExtendedClient
-  abortable: (signal: AbortSignal) => ExtendedClient
+export type BotpressClientLike = {
+  callAction(...params: any): Promise<any>
+  constructor: Function
 }
 
-type InternalClientType = BotpressClientLike & {
-  _client?: InternalClientType
-  config: {
-    headers: Record<string, string>
+export type ExtractedClientConfig = {
+  apiUrl?: string
+  headers: Record<string, string | string[]>
+  timeout?: number
+  withCredentials?: boolean
+}
+
+type ClientWithConfig = {
+  _client?: unknown
+  config?: {
+    apiUrl?: string
+    headers?: Record<string, string | string[]>
+    timeout?: number
+    withCredentials?: boolean
   }
 }
 
-export const getExtendedClient = (_client: unknown): ExtendedClient => {
-  const client = _client as InternalClientType
+const INVALID_CLIENT_MESSAGE = 'Client must be a valid instance of a Botpress client (@botpress/client)'
 
-  if (!client || client === null || typeof client !== 'object') {
-    throw new Error('Client must be a valid instance of a Botpress client (@botpress/client)')
+/**
+ * Extracts the http configuration (api url, auth/bot headers, timeout) from a
+ * `@botpress/client` Client — or anything wrapping one under `_client`, like
+ * the sdk's client — so a {@link import('./cognitive').Cognitive} can be
+ * constructed directly from it.
+ */
+export const extractClientConfig = (client: unknown): ExtractedClientConfig => {
+  const c = client as ClientWithConfig | null
+  if (!c || typeof c !== 'object') {
+    throw new Error(INVALID_CLIENT_MESSAGE)
   }
 
-  if (typeof client._client === 'object' && !!client._client) {
+  if (typeof c._client === 'object' && !!c._client) {
     try {
-      return getExtendedClient(client._client)
+      return extractClientConfig(c._client)
     } catch {}
   }
 
-  if (
-    typeof client.constructor !== 'function' ||
-    typeof client.callAction !== 'function' ||
-    !client.config ||
-    typeof client.config !== 'object' ||
-    !client.config.headers
-  ) {
-    throw new Error('Client must be a valid instance of a Botpress client (@botpress/client)')
-  }
-
-  const clone = () => {
-    const c = client as any
-    if (c.clone && typeof c.clone === 'function') {
-      return getExtendedClient(c.clone())
-    }
-    return getExtendedClient(new c.constructor(c.config))
+  if (!c.config || typeof c.config !== 'object' || !c.config.headers) {
+    throw new Error(INVALID_CLIENT_MESSAGE)
   }
 
   return {
-    ...client,
-    botId: client.config.headers['x-bot-id'] as string,
-    axios: (client as any).axiosInstance as AxiosInstance,
-    clone,
-    abortable: (signal: AbortSignal) => {
-      const abortable = clone()
-      const instance = abortable.axios
-      instance.defaults.signal = signal
-      return abortable
-    },
-  } as ExtendedClient
+    apiUrl: c.config.apiUrl,
+    headers: { ...c.config.headers },
+    timeout: c.config.timeout,
+    withCredentials: c.config.withCredentials,
+  }
 }

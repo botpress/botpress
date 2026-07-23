@@ -1,6 +1,10 @@
 {
   "name": "@botpress/vai",
-  "version": "0.0.39",
+  "version": "0.0.41",
+  "files": [
+    "dist",
+    "ensure-env.cjs"
+  ],
   "description": "Vitest AI (vai) – a vitest extension for testing with LLMs",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -27,12 +31,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@botpress/cognitive": "1.0.1",
     "json5": "^2.2.3",
     "jsonrepair": "^3.10.0"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@botpress/common": "workspace:*",
     "@types/lodash": "^4.14.191",
     "dotenv": "^16.4.4",
     "esbuild": "^0.25.10",
@@ -40,7 +44,7 @@
     "tsup": "^8.0.2"
   },
   "peerDependencies": {
-    "@botpress/client": "1.49.0",
+    "@botpress/client": "2.0.0",
     "@bpinternal/thicktoken": "^3.0.0",
     "@bpinternal/zui": "^2.4.0",
     "lodash": "^4.17.21",

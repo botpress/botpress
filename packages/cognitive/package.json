@@ -1,6 +1,9 @@
 {
   "name": "@botpress/cognitive",
-  "version": "0.6.2",
+  "version": "1.0.1",
+  "files": [
+    "dist"
+  ],
   "description": "Wrapper around the Botpress Client to call LLMs",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -16,7 +19,7 @@
     "build": "pnpm build:neutral && pnpm build:type && size-limit",
     "test:e2e": "vitest run --dir ./e2e",
     "test": "vitest --run",
-    "refresh:models": "ts-node -T ./refresh-models.ts && pnpm prettier src/cognitive-v2/models.ts --write"
+    "refresh:models": "ts-node -T ./refresh-models.ts && pnpm prettier src/models.ts --write"
   },
   "size-limit": [
     {
@@ -35,12 +38,8 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
-    "@botpress/common": "workspace:*",
-    "@bpinternal/zui": "workspace:*",
     "@size-limit/file": "^11.1.6",
-    "@types/axios": "^0.14.4",
     "@types/debug": "^4.1.12",
-    "axios": "^1.7.9",
     "dotenv": "^16.4.4",
     "esbuild": "^0.25.10",
     "rollup": "^4.60.4",

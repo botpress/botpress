@@ -1,4 +1,4 @@
-import { axios } from '@botpress/client'
+import { http } from '@botpress/client'
 import { IntegrationLogger, Response, RuntimeError } from '@botpress/sdk'
 import { ok } from 'assert'
 import _ from 'lodash'
@@ -112,11 +112,11 @@ const getMimeTypeFromExtension = (extension: string): string => {
 const getDataUriFromImgHref = async (imgHref: string): Promise<string> => {
   const fileExtension = imgHref.substring(imgHref.lastIndexOf('.') + 1)
 
-  const { data } = await axios.default
-    .get(imgHref, { responseType: 'arraybuffer' })
+  const { data } = await new http.HttpClient()
+    .get<ArrayBuffer>(imgHref, { responseType: 'arraybuffer' })
     .catch(mapToRuntimeErrorAndThrow('Fail to get image'))
 
-  const base64File = Buffer.from(data, 'binary').toString('base64')
+  const base64File = Buffer.from(data).toString('base64')
 
   return `data:${getMimeTypeFromExtension(fileExtension)};base64,${base64File}`
 }

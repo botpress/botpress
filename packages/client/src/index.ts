@@ -1,5 +1,4 @@
-export * as axios from 'axios'
-export * as axiosRetry from 'axios-retry'
+export * as http from './common/http'
 export * as runtime from './runtime'
 export * as admin from './admin'
 export * as billing from './billing'
