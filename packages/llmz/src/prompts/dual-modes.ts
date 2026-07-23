@@ -126,13 +126,19 @@ const getInitialUserMessage: Prompt['getInitialUserMessage'] = async (props) => 
 
   if (transcript.length && transcript[0]?.role === 'user') {
     const lastContent = transcript[0].content.trim()
-    const lastIsVoice = transcript[0].attachments?.some((attachment) => attachment.type === 'audio')
+    const lastHasVoiceAudio = transcript[0].attachments?.some((attachment) => attachment.type === 'audio')
+    const lastIsVoice = lastHasVoiceAudio || transcript[0].modality === 'voice'
 
-    if (lastIsVoice && !lastContent.length) {
+    if (lastHasVoiceAudio && !lastContent.length) {
       recap =
         'The user spoke last. They sent a voice message: what they said is spoken out loud in the attached audio, not typed as text.'
-    } else if (lastIsVoice) {
+    } else if (lastHasVoiceAudio) {
       recap = `The user spoke last. They sent a voice message (spoken audio, attached below) along with this text:
+■im_start
+${lastContent}
+■im_end`.trim()
+    } else if (lastIsVoice) {
+      recap = `The user spoke last. They sent a voice message — the text below is a transcript of what they said out loud:
 ■im_start
 ${lastContent}
 ■im_end`.trim()
@@ -172,12 +178,13 @@ ${inspect(transcript[0]?.payload, transcript[0]?.name, { tokens: 5000 })}
           }).trim(),
         },
         ...attachments.flatMap<LLMzPrompts.MessageContent>((attachment, idx) => {
-          const ref = alphabet[idx % alphabet.length]
+          const ref = attachment.id ?? alphabet[idx % alphabet.length]
+          const alt = attachment.alt ? ` (${attachment.alt})` : ''
           if (attachment.type === 'audio') {
             return [
               {
                 type: 'text',
-                text: `The user spoke this message aloud. Here's the voice message [${ref}] — what is said in this audio is what the user said:`,
+                text: `The user spoke this message aloud. Here's the voice message [${ref}]${alt} — what is said in this audio is what the user said:`,
               },
               {
                 type: 'audio',
@@ -188,7 +195,7 @@ ${inspect(transcript[0]?.payload, transcript[0]?.name, { tokens: 5000 })}
           return [
             {
               type: 'text',
-              text: `Here's the attachment [${ref}]`,
+              text: `Here's the attachment [${ref}]${alt}`,
             },
             {
               type: 'image',

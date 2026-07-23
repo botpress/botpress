@@ -42,6 +42,29 @@ describe('voice messages', () => {
       expect(rendered).toContain('<user-003 role="user" modality="voice">')
     })
 
+    it('marks pre-transcribed spoken turns via the explicit modality field', async () => {
+      const transcript = new TranscriptArray([
+        { role: 'user', content: 'What is the capital of France?', modality: 'voice' },
+      ])
+
+      const rendered = transcript.toString()
+      expect(rendered).toContain('<user-001 role="user" modality="voice">')
+      // No audio attached: no voice message marker, the content IS the transcript
+      expect(rendered).not.toContain('[Voice message')
+
+      const message = await DualModePrompt.getInitialUserMessage({
+        transcript,
+        objects: [],
+        globalTools: [],
+        exits: [],
+        components: [DefaultComponents.Text],
+      })
+
+      assert(typeof message.content === 'string', 'Expected a plain text message')
+      expect(message.content).toContain('the text below is a transcript of what they said out loud')
+      expect(message.content).toContain('What is the capital of France?')
+    })
+
     it('sends the audio to the model with explicit voice framing', async () => {
       const message = await DualModePrompt.getInitialUserMessage({
         transcript: new TranscriptArray([voiceMessage()]),
@@ -137,22 +160,28 @@ describe('voice messages', () => {
 <screenshot-C t=4280>
 `.trim(),
         attachments: [
-          { type: 'image', url: screenshotA },
-          { type: 'image', url: screenshotB },
-          { type: 'image', url: screenshotC },
-          { type: 'audio', url: voice },
+          { type: 'image', url: screenshotA, id: 'screenshot-A' },
+          { type: 'image', url: screenshotB, id: 'screenshot-B' },
+          { type: 'image', url: screenshotC, id: 'screenshot-C' },
+          { type: 'audio', url: voice, id: 'voice-note', alt: "the user's spoken narration" },
         ],
       }
     }
 
-    it('renders mixed image and voice attachments distinctly', () => {
+    it('references attachments by their id and describes them with alt', () => {
       const rendered = new TranscriptArray([screenShareMessage()]).toString()
 
       expect(rendered).toContain('modality="voice"')
-      expect(rendered).toContain('[Attachment user-001-A]')
-      expect(rendered).toContain('[Attachment user-001-B]')
-      expect(rendered).toContain('[Attachment user-001-C]')
-      expect(rendered).toContain('[Voice message user-001-D]')
+      expect(rendered).toContain('[Attachment screenshot-A]')
+      expect(rendered).toContain('[Attachment screenshot-B]')
+      expect(rendered).toContain('[Attachment screenshot-C]')
+      expect(rendered).toContain("[Voice message voice-note: the user's spoken narration]")
+
+      // Without an id, attachments keep the auto-assigned positional letters
+      const anonymous = new TranscriptArray([
+        { role: 'user', content: 'look', attachments: [{ type: 'image', url: 'data:image/png;base64,x' }] },
+      ]).toString()
+      expect(anonymous).toContain('[Attachment user-001-A]')
     })
 
     it('grounds its answer in the screenshots, guided by the voice narration', async () => {
