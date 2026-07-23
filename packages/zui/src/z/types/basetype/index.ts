@@ -73,10 +73,6 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   dereference(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType> = new WeakMap()): IZodType {
     const hit = memo.get(this)
     if (hit) return hit
-    // Mirrors clone(): the cycle-preserving memo bookkeeping lives here once. Each type overrides
-    // `_dereferenceSelf` to build its structural copy, dereferencing children via `defs`/`memo`.
-    // Registering both source and result before any lazy shape/getter thunk runs is what lets a
-    // getter-recursive schema dereference into a cycle instead of an unbounded chain.
     const derefed = this._dereferenceSelf(defs, memo)
     memo.set(this, derefed)
     memo.set(derefed, derefed)
@@ -99,10 +95,6 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   clone(memo: WeakMap<IZodType, IZodType> = new WeakMap()): IZodType<Output, Def, Input> {
     const hit = memo.get(this)
     if (hit) return hit as IZodType<Output, Def, Input>
-    // All cycle-preserving memo bookkeeping lives here, once. Each type overrides `_cloneSelf` to build
-    // its structural copy, deep-cloning child schemas via `memo`. Registering BOTH the source and the
-    // clone — after `_cloneSelf` returns but before any lazy shape/getter thunk runs — is what lets a
-    // getter-recursive schema clone into a cycle instead of an infinite tree.
     const cloned = this._cloneSelf(memo)
     memo.set(this, cloned)
     memo.set(cloned, cloned)
