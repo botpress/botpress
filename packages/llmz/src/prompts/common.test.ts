@@ -76,53 +76,50 @@ Hello!
     })
   })
 
-  describe('replacePlaceholders - Handlebars injection security', () => {
-    // Template that simulates the real system prompt structure
-    const templateWithExits = `
+  describe('replacePlaceholders', () => {
+    it('replaces ■■■name■■■ placeholders with their values', () => {
+      const result = replacePlaceholders('Instructions: ■■■identity■■■', {
+        identity: 'Be helpful',
+      })
+
+      expect(result).toBe('Instructions: Be helpful')
+    })
+
+    it('throws on placeholders with no matching value', () => {
+      expect(() => replacePlaceholders('Instructions: ■■■identity■■■', {})).toThrow(/Placeholder not found/)
+    })
+
+    it('throws on values with no matching placeholder', () => {
+      expect(() => replacePlaceholders('Hello', { identity: 'Be helpful' })).toThrow(/Missing placeholders/)
+    })
+
+    it('treats template syntax like {{ }} as inert text (no template engine)', () => {
+      // Templates and injected values must never be evaluated by a template engine.
+      // Anything that looks like Handlebars/Mustache syntax is passed through verbatim.
+      const template = `
 Instructions: ■■■identity■■■
 
 Available exits:
 {{#each exits}}
 - {{name}}: {{description}}
 {{/each}}
-`
+`.trim()
 
-    it('should NOT allow user input to access exits array via Handlebars injection', () => {
-      // Attack: User tries to iterate over exits to extract exit names/descriptions
       const maliciousInstructions = `{{#each exits}}LEAKED: {{name}} - {{description}}{{/each}}`
 
-      const result = replacePlaceholders(templateWithExits, {
+      const result = replacePlaceholders(template, {
         identity: maliciousInstructions,
-        exits: [
-          { name: 'secret_exit', description: 'This is a secret exit with sensitive info' },
-          { name: 'admin_exit', description: 'Admin-only exit with password: hunter2' },
-        ],
       })
 
       expect(result).toMatchInlineSnapshot(`
         "Instructions: {{#each exits}}LEAKED: {{name}} - {{description}}{{/each}}
 
         Available exits:
-        - secret_exit: This is a secret exit with sensitive info
-        - admin_exit: Admin-only exit with password: hunter2"
+        {{#each exits}}
+        - {{name}}: {{description}}
+        {{/each}}"
       `)
-    })
-
-    it('should safely handle nested Handlebars-like syntax in user messages', () => {
-      // User legitimately wants to talk about Handlebars syntax
-      const legitimateContent = `Here is an example of Handlebars:
-{{#each items}}
-  <li>{{name}}</li>
-{{/each}}`
-
-      const result = replacePlaceholders(templateWithExits, {
-        identity: legitimateContent,
-        exits: [{ name: 'items', description: 'not leaked' }],
-      })
-
-      // The user's example code should appear as-is (escaped or literal)
-      // and should NOT iterate over the actual 'items' exit
-      expect(result).not.toContain('<li>items</li>')
+      expect(result).not.toContain('LEAKED: secret_exit')
     })
   })
 })

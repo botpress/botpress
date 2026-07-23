@@ -95,17 +95,7 @@ describe('convertObjectToZuiLiterals', () => {
     const obj = { a: 'b', c: 1, d: true, e: ['f', 'g'], f: { g: 'h' } }
     const result = z.object(convertObjectToZuiLiterals(obj))
     const types = await getTypings(result)
-    expect(types).toMatchInlineSnapshot(`
-      "{
-        a: "b"
-        c: 1
-        d: true
-        e: ["f", "g"]
-        f: {
-          g: "h"
-        }
-      }"
-    `)
+    expect(types).toMatchInlineSnapshot(`"{ a: 'b'; c: 1; d: true; e: ['f', 'g']; f: { g: 'h' } }"`)
   })
 
   it('produces a clonable, parseable schema for array-of-object static inputs', () => {

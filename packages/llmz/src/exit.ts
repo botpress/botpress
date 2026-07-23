@@ -2,7 +2,7 @@ import { transforms } from '@bpinternal/zui'
 import { JSONSchema7 } from 'json-schema'
 import { uniq } from 'lodash-es'
 import { Serializable, ZuiType } from './types.js'
-import { isJsonSchema, isValidIdentifier, isZuiSchema } from './utils.js'
+import { fromJSONSchemaCompat, isJsonSchema, isValidIdentifier, isZuiSchema } from './utils.js'
 
 /**
  * Represents the result of an agent execution that exited with a specific Exit.
@@ -243,7 +243,7 @@ export class Exit<T = unknown> implements Serializable<Exit.JSON> {
    * Used internally for validation and type inference.
    */
   public get zSchema() {
-    return this.schema ? transforms.fromJSONSchemaLegacy(this.schema) : undefined
+    return this.schema ? fromJSONSchemaCompat(this.schema) : undefined
   }
 
   /**

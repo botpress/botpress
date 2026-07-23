@@ -1,45 +1,50 @@
-import type * as BabelCore from '@babel/core'
+import { type Program } from 'acorn'
+import { type AnyNode } from '../ast.js'
 
-export const instrumentLastLinePlugin = function ({
-  types: t,
-}: {
-  types: typeof BabelCore.types
-}): BabelCore.PluginObj {
-  return {
-    visitor: {
-      FunctionDeclaration(path) {
-        // We only want to instrument the async generator __fn__ function
-        if (path.node.id?.name !== '__fn__') {
-          return
-        }
+export type LastLineEdit = {
+  prefixPos: number
+  prefix: string
+  suffixPos: number
+  suffix: string
+}
 
-        const statements = path.node.body.body
-        if (statements.length === 0) {
-          return
-        }
-
-        const lastStatement = statements[statements.length - 1]
-
-        if (t.isReturnStatement(lastStatement)) {
-          // We need to make sure that we always return an awaited expression
-          // This is because isolated VM code can't return a Promise from this function, we need to return a value
-          if (t.isExpression(lastStatement.argument)) {
-            lastStatement.argument = t.awaitExpression(lastStatement.argument)
-          }
-
-          return
-        } // Already a return statement
-
-        // Check if the last statement is a function call, await expression, or promise
-        if (
-          t.isExpressionStatement(lastStatement) &&
-          (t.isCallExpression(lastStatement.expression) || t.isAwaitExpression(lastStatement.expression))
-        ) {
-          // Replace the last statement with a return statement
-          const returnStatement = t.returnStatement(t.awaitExpression(lastStatement.expression))
-          path.get('body').get('body')[statements.length - 1]?.replaceWith(returnStatement)
-        }
-      },
-    },
+/**
+ * Plans the instrumentation of the last statement of the `__fn__` wrapper so
+ * the generated code always returns an awaited value (the isolated VM cannot
+ * return a pending Promise):
+ * - `return expr` → `return await (expr)`
+ * - a trailing `call()` / `await call()` statement → `return await (…)`
+ *
+ * The prefix must be applied before, and the suffix after, all other edits so
+ * they wrap around the tool-call instrumentation.
+ */
+export function planLastLineInstrumentation(ast: Program): LastLineEdit | null {
+  const fn = ast.body.find((node) => node.type === 'FunctionDeclaration' && (node as AnyNode).id?.name === '__fn__') as
+    | AnyNode
+    | undefined
+  if (!fn) {
+    return null
   }
+
+  const statements: AnyNode[] = fn.body.body
+  const last = statements[statements.length - 1]
+  if (!last) {
+    return null
+  }
+
+  if (last.type === 'ReturnStatement') {
+    if (!last.argument) {
+      return null
+    }
+    return { prefixPos: last.argument.start, prefix: 'await (', suffixPos: last.argument.end, suffix: ')' }
+  }
+
+  if (
+    last.type === 'ExpressionStatement' &&
+    (last.expression.type === 'CallExpression' || last.expression.type === 'AwaitExpression')
+  ) {
+    return { prefixPos: last.expression.start, prefix: 'return await (', suffixPos: last.expression.end, suffix: ')' }
+  }
+
+  return null
 }

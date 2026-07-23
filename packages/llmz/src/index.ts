@@ -43,6 +43,11 @@ export * from './message-stream/index.js'
 
 export * from './custom-client.js'
 
+// Runtime environment configuration — needed on platforms that ban runtime WASM
+// compilation and code generation from strings (e.g. Cloudflare Workers / workerd)
+export { configureQuickJS } from './quickjs-variant.js'
+export { configureTokenizer } from './utils.js'
+
 export const utils = {
   toValidObjectName,
   toValidFunctionName,

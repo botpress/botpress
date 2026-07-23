@@ -21,10 +21,12 @@ ${Close}
 `.trim()
   },
   postProcessing: (code: string) => {
-    code = code.slice(code.indexOf(Open) + Open.length).trim()
+    // deterministic layout for the error handlers: dropping the two wrapper
+    // lines and prepending one blank line puts user line N at output line N + 2
+    code = code.slice(code.indexOf(Open) + Open.length)
     code = code.slice(0, code.lastIndexOf(Close))
     // Remove markers from final output
     code = code.replace(USER_CODE_START_MARKER, '').replace(USER_CODE_END_MARKER, '')
-    return code
+    return code.trimEnd()
   },
 }

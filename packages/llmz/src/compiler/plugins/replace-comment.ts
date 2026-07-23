@@ -1,60 +1,45 @@
-import type * as BabelCore from '@babel/core'
+import { innermostContaining, isStatementContainer, type Ctx } from '../ast.js'
+import { USER_CODE_END_MARKER, USER_CODE_START_MARKER } from './async-wrapper.js'
 
 export const CommentFnIdentifier = '__comment__'
 
-export const replaceCommentBabelPlugin = function ({
-  types: t,
-}: {
-  types: typeof BabelCore.types
-}): BabelCore.PluginObj {
-  return {
-    visitor: {
-      Program(path) {
-        const processed = new Set()
+const MARKER_TAGS = [USER_CODE_START_MARKER, USER_CODE_END_MARKER].map((m) => m.replace(/\/\*|\*\/|\s/g, ''))
 
-        path.traverse({
-          enter(path) {
-            const node = path.node
+/** Blanks a range, keeping newlines so line numbers are preserved */
+const blank = (ctx: Ctx, start: number, end: number) => {
+  ctx.ms.update(start, end, ctx.code.slice(start, end).replace(/[^\n]/g, ' '))
+}
 
-            function processComments(
-              comments: BabelCore.types.Comment[],
-              insertMethod: (commentCall: BabelCore.types.Statement) => void
-            ) {
-              if (!comments) {
-                return
-              }
-              comments
-                .sort((a, b) => (a.start! > b.start! ? -1 : 1))
-                .forEach((comment) => {
-                  if (processed.has(comment.loc)) {
-                    return
-                  }
-                  processed.add(comment.loc)
+/**
+ * Replaces comments at statement position with `__comment__("<text>", <line>)`
+ * calls so the agent's inline "thinking" comments show up as traces at runtime.
+ * Comments inside expressions and the user-code markers are blanked; comments
+ * inside instrumented tool-call ranges are left verbatim.
+ */
+export function applyCommentReplacement(ctx: Ctx, skipRanges: Array<[number, number]>): void {
+  for (const comment of ctx.comments) {
+    const text = comment.value.trim()
 
-                  const commentCall = t.expressionStatement(
-                    t.callExpression(t.identifier(CommentFnIdentifier), [
-                      t.stringLiteral(comment.value.trim()),
-                      t.numericLiteral(comment.loc?.start.line ?? 0),
-                    ])
-                  )
+    if (MARKER_TAGS.some((tag) => text.includes(tag))) {
+      blank(ctx, comment.start, comment.end)
+      continue
+    }
 
-                  // Check if the current path is inside an object property
-                  const isInsideObjectProperty =
-                    t.isObjectProperty(node) || path.findParent((path) => t.isObjectProperty(path.node))
+    if (skipRanges.some(([start, end]) => comment.start >= start && comment.end <= end)) {
+      continue
+    }
 
-                  if (!isInsideObjectProperty) {
-                    insertMethod(commentCall)
-                  }
-                })
-              comments.length = 0 // Clear comments array
-            }
-
-            processComments(node.trailingComments ?? [], (commentCall) => path.insertAfter(commentCall))
-            processComments(node.leadingComments ?? [], (commentCall) => path.insertBefore(commentCall))
-            processComments(node.innerComments ?? [], (commentCall) => path.insertAfter(commentCall))
-          },
-        })
-      },
-    },
+    const container = innermostContaining(ctx.ast, comment.start, comment.end)
+    if (isStatementContainer(container)) {
+      // pad with the newlines of the original comment so lines stay 1:1
+      const newlines = ctx.code.slice(comment.start, comment.end).replace(/[^\n]/g, '')
+      ctx.ms.update(
+        comment.start,
+        comment.end,
+        `;${CommentFnIdentifier}(${JSON.stringify(text)}, ${comment.loc!.start.line});${newlines}`
+      )
+    } else {
+      blank(ctx, comment.start, comment.end)
+    }
   }
 }

@@ -6,7 +6,7 @@ import { RenderedComponent } from './component.js'
 import { convertObjectToZuiLiterals, type StaticObject, type StaticValue } from './convert.js'
 import { Serializable } from './types.js'
 import { getTypings as generateTypings } from './typings.js'
-import { isJsonSchema, isValidIdentifier, isZuiSchema } from './utils.js'
+import { fromJSONSchemaCompat, isJsonSchema, isValidIdentifier, isZuiSchema } from './utils.js'
 
 /**
  * Input parameters passed to tool retry functions.
@@ -274,7 +274,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
       return this
     }
 
-    const input = this.input ? transforms.fromJSONSchemaLegacy(this.input) : z.any()
+    const input = this.input ? fromJSONSchemaCompat(this.input) : z.any()
 
     if (z.is.zuiObject(input) && typeof values !== 'object') {
       throw new Error(
