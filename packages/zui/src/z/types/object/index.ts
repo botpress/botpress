@@ -45,11 +45,6 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     if (this._cached !== null) return this._cached
     const shape = this._def.shape()
     const keys = Object.keys(shape)
-    // Materialization-time guard for getter-valued keys: the construction-time guard in builders MUST
-    // skip getters (they stay lazy for recursion), so a getter returning a non-schema can only be caught
-    // once the shape is read. Every consumer path funnels through here — parse (below) and `get shape()`
-    // (used by the transforms, incl. toJSONSchema on `bp deploy`) — and the result is cached, so this runs
-    // once per schema. The check is shallow (each value must be a schema instance), so recursion is unaffected.
     for (const key of keys) {
       assertShapeValueIsSchema(key, shape[key])
     }
@@ -71,8 +66,6 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
   }
 
   _getReferences(visiting: Set<symbol>): string[] {
-    // Key on the clone-stable _def.uid (not instance identity): traversing a cloned recursive schema mints
-    // fresh clones, but they all carry the source's uid, so mutual/self cycles terminate. See ZodObjectDef.uid.
     if (visiting.has(this._def.uid)) return []
     visiting.add(this._def.uid)
     const shape = this._def.shape()
@@ -83,12 +76,6 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     return utils.fn.unique(refs)
   }
 
-  // ZodObject keeps an explicit `clone` (rather than the base's `_cloneSelf` template the other types use):
-  // omitting the concrete `IZodObject<T, UnknownKeys>` return here lets declaration-emit fully resolve
-  // ZodObjectImpl's assignability to IZodObject<T, 'strict'> in strict()/strictObject(), which surfaces a
-  // latent additionalProperties() variance error (TS2322). The explicit return defers that check. The memo
-  // logic mirrors the base: register both source and clone, before the lazy shape thunk runs, so a
-  // getter-recursive schema clones into a cycle instead of an infinite tree.
   clone(memo: WeakMap<IZodType, IZodType> = new WeakMap()): IZodObject<T, UnknownKeys> {
     const hit = memo.get(this)
     if (hit) return hit as IZodObject<T, UnknownKeys>
