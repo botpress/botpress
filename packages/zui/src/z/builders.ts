@@ -41,7 +41,7 @@ import {
   ZodVoidImpl,
 } from './types'
 
-import { ZodBaseTypeImpl } from './types/basetype'
+import { ZodBaseTypeImpl, assertShapeValueIsSchema } from './types/basetype'
 
 import type {
   IZodRecord,
@@ -209,21 +209,35 @@ export const arrayType: ZodBuilders['array'] = (schema, params) =>
     ..._processCreateParams(params),
   })
 
-export const objectType: ZodBuilders['object'] = (shape, params) =>
-  new ZodObjectImpl({
+const _assertShapeValuesAreSchemas = (shape: Record<string, unknown>): void => {
+  for (const key of Object.keys(shape)) {
+    const descriptor = Object.getOwnPropertyDescriptor(shape, key)
+    if (descriptor?.get) continue
+    assertShapeValueIsSchema(key, descriptor?.value)
+  }
+}
+
+export const objectType: ZodBuilders['object'] = (shape, params) => {
+  _assertShapeValuesAreSchemas(shape)
+  return new ZodObjectImpl({
     shape: () => shape,
     unknownKeys: 'strip',
     typeName: 'ZodObject',
+    uid: Symbol('ZodObject'),
     ..._processCreateParams(params),
   })
+}
 
-export const strictObjectType: ZodBuilders['strictObject'] = (shape, params) =>
-  new ZodObjectImpl({
+export const strictObjectType: ZodBuilders['strictObject'] = (shape, params) => {
+  _assertShapeValuesAreSchemas(shape)
+  return new ZodObjectImpl({
     shape: () => shape,
     unknownKeys: 'strict',
     typeName: 'ZodObject',
+    uid: Symbol('ZodObject'),
     ..._processCreateParams(params),
   })
+}
 
 export const unionType: ZodBuilders['union'] = (types, params) =>
   new ZodUnionImpl({ options: types, typeName: 'ZodUnion', ..._processCreateParams(params) })

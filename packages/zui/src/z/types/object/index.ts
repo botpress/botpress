@@ -18,7 +18,14 @@ import type {
   ParseReturnType,
   SyncParseReturnType,
 } from '../../typings'
-import { addIssueToContext, ParseStatus, ParseInputLazyPath, ZodBaseTypeImpl, type MergeObjectPair } from '../basetype'
+import {
+  addIssueToContext,
+  ParseStatus,
+  ParseInputLazyPath,
+  ZodBaseTypeImpl,
+  assertShapeValueIsSchema,
+  type MergeObjectPair,
+} from '../basetype'
 
 export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys extends UnknownKeysParam = UnknownKeysParam>
   extends ZodBaseTypeImpl<
@@ -31,27 +38,36 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
   /** Safe cast: ZodObject structurally satisfies IZodObject but TS can't prove it due to recursive type depth */
 
   private _cached: { shape: T; keys: string[] } | null = null
+  // In-progress isEqual comparisons, keyed on clone-stable _def.uid pairs (source uid -> set of other uids).
+  private static _comparing = new Map<symbol, Set<symbol>>()
 
   _getCached(): { shape: T; keys: string[] } {
     if (this._cached !== null) return this._cached
     const shape = this._def.shape()
     const keys = Object.keys(shape)
+    for (const key of keys) {
+      assertShapeValueIsSchema(key, shape[key])
+    }
     return (this._cached = { shape, keys })
   }
 
-  dereference(defs: Record<string, IZodType>): IZodType {
-    const currentShape = this._def.shape()
-    const shape: Record<string, IZodType> = {}
-    for (const key in currentShape) {
-      shape[key] = currentShape[key]!.dereference(defs)
-    }
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
     return new ZodObjectImpl({
       ...this._def,
-      shape: () => shape,
+      shape: () => {
+        const currentShape = this._def.shape()
+        const shape: Record<string, IZodType> = {}
+        for (const key in currentShape) {
+          shape[key] = currentShape[key]!.dereference(defs, memo)
+        }
+        return shape
+      },
     })
   }
 
   _getReferences(visiting: Set<symbol>): string[] {
+    if (visiting.has(this._def.uid)) return []
+    visiting.add(this._def.uid)
     const shape = this._def.shape()
     const refs: string[] = []
     for (const key in shape) {
@@ -60,18 +76,23 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     return utils.fn.unique(refs)
   }
 
-  clone(): IZodObject<T, UnknownKeys> {
-    const newShape: Record<string, IZodType> = {}
-    const currentShape = this._def.shape()
-    for (const [key, value] of Object.entries(currentShape)) {
-      newShape[key] = value.clone()
-    }
-    const objSchema = new ZodObjectImpl<T, UnknownKeys>({
+  clone(memo: WeakMap<IZodType, IZodType> = new WeakMap()): IZodObject<T, UnknownKeys> {
+    const hit = memo.get(this)
+    if (hit) return hit as IZodObject<T, UnknownKeys>
+    const cloned: IZodObject<T, UnknownKeys> = new ZodObjectImpl<T, UnknownKeys>({
       ...this._def,
-      shape: () => newShape as T,
+      shape: () => {
+        const currentShape = this._def.shape()
+        const newShape: Record<string, IZodType> = {}
+        for (const [key, value] of Object.entries(currentShape)) {
+          newShape[key] = value.clone(memo)
+        }
+        return newShape as T
+      },
     })
-
-    return objSchema
+    memo.set(this, cloned)
+    memo.set(cloned, cloned)
+    return cloned
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
@@ -172,7 +193,9 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
   }
 
   get shape() {
-    return this._def.shape()
+    // Route through _getCached so the materialization-time getter guard also fires on shape reads from
+    // the transforms (e.g. toJSONSchema during `bp deploy`), not only on .parse().
+    return this._getCached().shape
   }
 
   strict(message?: utils.errors.ErrMessage): IZodObject<T, 'strict'> {
@@ -260,6 +283,7 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
         ...this._def.shape(),
         ...augmentation,
       }),
+      uid: Symbol('ZodObject'),
     }) as unknown as IZodObject<utils.types.ExtendShape<T, Augmentation>, UnknownKeys>
   }
   // extend<
@@ -316,6 +340,7 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
           ...merging._def.shape(),
         }) as utils.types.ExtendShape<T, Augmentation>,
       typeName: 'ZodObject',
+      uid: Symbol('ZodObject'),
     })
     return merged as IZodObject<utils.types.ExtendShape<T, Augmentation>, Incoming['_def']['unknownKeys']>
   }
@@ -360,6 +385,7 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     const objSchema: IZodObject<Pick<T, Extract<keyof T, keyof Mask>>, UnknownKeys> = new ZodObjectImpl({
       ...this._def,
       shape: () => shape as Pick<T, Extract<keyof T, keyof Mask>>,
+      uid: Symbol('ZodObject'),
     })
 
     return objSchema
@@ -381,6 +407,7 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     const objSchema: IZodObject<Omit<T, keyof Mask>, UnknownKeys> = new ZodObjectImpl({
       ...this._def,
       shape: () => shape as Omit<T, keyof Mask>,
+      uid: Symbol('ZodObject'),
     })
 
     return objSchema
@@ -422,6 +449,7 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     const objSchema: IZodObject<ZodRawShape, UnknownKeys> = new ZodObjectImpl({
       ...this._def,
       shape: () => newShape as ZodRawShape,
+      uid: Symbol('ZodObject'),
     })
 
     return objSchema
@@ -468,6 +496,7 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     return new ZodObjectImpl({
       ...this._def,
       shape: () => newShape,
+      uid: Symbol('ZodObject'),
     }) as IZodObject<ZodRawShape, UnknownKeys>
   }
 
@@ -480,15 +509,27 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     if (!(schema instanceof ZodObjectImpl)) return false
     if (!this._unknownKeysEqual(schema)) return false
 
-    const thisShape = this._def.shape()
-    const thatShape = schema._def.shape()
+    const thisUid = this._def.uid
+    const otherUid = schema._def.uid
+    let inProgress = ZodObjectImpl._comparing.get(thisUid)
+    if (inProgress?.has(otherUid)) return true
+    if (!inProgress) ZodObjectImpl._comparing.set(thisUid, (inProgress = new Set()))
+    inProgress.add(otherUid)
 
-    type Property = [string, IZodType]
-    const compare = (a: Property, b: Property) => a[0] === b[0] && a[1].isEqual(b[1])
-    const thisProps = new utils.ds.CustomSet<Property>(Object.entries(thisShape), { compare })
-    const thatProps = new utils.ds.CustomSet<Property>(Object.entries(thatShape), { compare })
+    try {
+      const thisShape = this._def.shape()
+      const thatShape = schema._def.shape()
 
-    return thisProps.isEqual(thatProps)
+      type Property = [string, IZodType]
+      const compare = (a: Property, b: Property) => a[0] === b[0] && a[1].isEqual(b[1])
+      const thisProps = new utils.ds.CustomSet<Property>(Object.entries(thisShape), { compare })
+      const thatProps = new utils.ds.CustomSet<Property>(Object.entries(thatShape), { compare })
+
+      return thisProps.isEqual(thatProps)
+    } finally {
+      inProgress.delete(otherUid)
+      if (inProgress.size === 0) ZodObjectImpl._comparing.delete(thisUid)
+    }
   }
 
   private _unknownKeysEqual(that: ZodObjectImpl<any, any>): boolean {

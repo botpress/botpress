@@ -13,10 +13,10 @@ export class ZodReadonlyImpl<T extends IZodType = IZodType>
   extends ZodBaseTypeImpl<MakeReadonly<T['_output']>, ZodReadonlyDef<T>, MakeReadonly<T['_input']>>
   implements IZodReadonly<T>
 {
-  dereference(defs: Record<string, IZodType>): ZodBaseTypeImpl {
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
     return new ZodReadonlyImpl({
       ...this._def,
-      innerType: this._def.innerType.dereference(defs),
+      innerType: this._def.innerType.dereference(defs, memo),
     })
   }
 
@@ -24,10 +24,10 @@ export class ZodReadonlyImpl<T extends IZodType = IZodType>
     return this._def.innerType._getReferences(visiting)
   }
 
-  clone(): IZodReadonly<T> {
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): IZodReadonly<T> {
     return new ZodReadonlyImpl({
       ...this._def,
-      innerType: this._def.innerType.clone() as T,
+      innerType: this._def.innerType.clone(memo) as T,
     })
   }
 

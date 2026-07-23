@@ -10,10 +10,10 @@ export class ZodPromiseImpl<T extends IZodType = IZodType>
     return this._def.type
   }
 
-  dereference(defs: Record<string, IZodType>): IZodType {
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
     return new ZodPromiseImpl({
       ...this._def,
-      type: this._def.type.dereference(defs),
+      type: this._def.type.dereference(defs, memo),
     })
   }
 
@@ -21,10 +21,10 @@ export class ZodPromiseImpl<T extends IZodType = IZodType>
     return this._def.type._getReferences(visiting)
   }
 
-  clone(): IZodPromise<T> {
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): IZodPromise<T> {
     return new ZodPromiseImpl({
       ...this._def,
-      type: this._def.type.clone() as T,
+      type: this._def.type.clone(memo) as T,
     })
   }
 

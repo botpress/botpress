@@ -25,9 +25,9 @@ export class ZodRecordImpl<Key extends KeySchema = KeySchema, Value extends IZod
     return this._def.valueType
   }
 
-  dereference(defs: Record<string, IZodType>): IZodType {
-    const keyType = this._def.keyType.dereference(defs)
-    const valueType = this._def.valueType.dereference(defs)
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
+    const keyType = this._def.keyType.dereference(defs, memo)
+    const valueType = this._def.valueType.dereference(defs, memo)
     return new ZodRecordImpl({
       ...this._def,
       keyType,
@@ -42,11 +42,11 @@ export class ZodRecordImpl<Key extends KeySchema = KeySchema, Value extends IZod
     ])
   }
 
-  clone(): IZodRecord<Key, Value> {
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): IZodRecord<Key, Value> {
     return new ZodRecordImpl({
       ...this._def,
-      keyType: this._def.keyType.clone() as Key,
-      valueType: this._def.valueType.clone() as Value,
+      keyType: this._def.keyType.clone(memo) as Key,
+      valueType: this._def.valueType.clone(memo) as Value,
     })
   }
 

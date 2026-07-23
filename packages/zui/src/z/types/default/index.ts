@@ -24,10 +24,10 @@ export class ZodDefaultImpl<T extends IZodType = IZodType>
     return this._def.innerType
   }
 
-  dereference(defs: Record<string, IZodType>): IZodType {
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
     return new ZodDefaultImpl({
       ...this._def,
-      innerType: this._def.innerType.dereference(defs),
+      innerType: this._def.innerType.dereference(defs, memo),
     })
   }
 
@@ -35,10 +35,10 @@ export class ZodDefaultImpl<T extends IZodType = IZodType>
     return this._def.innerType._getReferences(visiting)
   }
 
-  clone(): IZodDefault<T> {
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): IZodDefault<T> {
     return new ZodDefaultImpl({
       ...this._def,
-      innerType: this._def.innerType.clone() as T,
+      innerType: this._def.innerType.clone(memo) as T,
     })
   }
 

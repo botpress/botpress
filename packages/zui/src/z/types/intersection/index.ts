@@ -15,11 +15,11 @@ export class ZodIntersectionImpl<T extends IZodType = IZodType, U extends IZodTy
   extends ZodBaseTypeImpl<T['_output'] & U['_output'], ZodIntersectionDef<T, U>, T['_input'] & U['_input']>
   implements IZodIntersection<T, U>
 {
-  dereference(defs: Record<string, IZodType>): IZodType {
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
     return new ZodIntersectionImpl({
       ...this._def,
-      left: this._def.left.dereference(defs),
-      right: this._def.right.dereference(defs),
+      left: this._def.left.dereference(defs, memo),
+      right: this._def.right.dereference(defs, memo),
     })
   }
 
@@ -27,11 +27,11 @@ export class ZodIntersectionImpl<T extends IZodType = IZodType, U extends IZodTy
     return utils.fn.unique([...this._def.left._getReferences(visiting), ...this._def.right._getReferences(visiting)])
   }
 
-  clone(): IZodIntersection<T, U> {
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): IZodIntersection<T, U> {
     return new ZodIntersectionImpl({
       ...this._def,
-      left: this._def.left.clone() as T,
-      right: this._def.right.clone() as U,
+      left: this._def.left.clone(memo) as T,
+      right: this._def.right.clone(memo) as U,
     })
   }
 

@@ -399,6 +399,9 @@ export type ZodSchema<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input =
  */
 export type Schema<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input = Output> = IZodType<Output, Def, Input>
 
+/** Maps each source schema instance to its clone during a deep clone, so cyclic schemas clone into cycles. */
+export type CloneMemo = WeakMap<IZodType, IZodType>
+
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
 export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input = Output> {
   readonly __type__: 'ZuiType'
@@ -413,13 +416,13 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
 
   description: string | undefined
   typeName: Def['typeName']
-  /** deeply replace all references in the schema */
-  dereference(_defs: Record<string, IZodType>): IZodType
+  /** deeply replace all references in the schema. `memo` is threaded internally to preserve cycles. */
+  dereference(defs: Record<string, IZodType>, memo?: CloneMemo): IZodType
   /** deeply scans the schema to check if it contains references */
   getReferences(): string[]
   /** internal recursive worker for getReferences() — do not call directly */
   _getReferences(visiting: Set<symbol>): string[]
-  clone(): IZodType<Output, Def, Input>
+  clone(memo?: CloneMemo): IZodType<Output, Def, Input>
   parse(data: unknown, params?: Partial<ParseParams>): this['_output']
   safeParse(data: unknown, params?: Partial<ParseParams>): SafeParseReturnType<this['_input'], this['_output']>
   parseAsync(data: unknown, params?: Partial<ParseParams>): Promise<this['_output']>
@@ -884,6 +887,8 @@ export type ZodRawShape = {
   [k: string]: IZodType
 }
 
+export type ZodRawShapeArg = Record<string, any>
+
 export type UnknownKeysParam = 'passthrough' | 'strict' | 'strip' | IZodType
 export type ZodObjectDef<
   T extends ZodRawShape = ZodRawShape,
@@ -892,12 +897,98 @@ export type ZodObjectDef<
   typeName: 'ZodObject'
   shape: () => T
   unknownKeys: UnknownKeys
+  uid: symbol
 } & ZodTypeDef
+
+// Shallow, wrapper-structure-based optionality tests — zui's equivalent of zod4's optin/optout markers.
+// Required-vs-optional key partitioning used to be decided via `undefined extends Shape[k]['_output']`
+// (AddQuestionMarks), which forces resolution of every member's output type while the object's own type
+// is still being inferred
+export type IsOptionalOut<S> =
+  S extends IZodOptional<any>
+    ? true
+    : S extends IZodUndefined | IZodVoid | IZodAny | IZodUnknown
+      ? true
+      : S extends IZodDefault<any>
+        ? false
+        : S extends IZodLiteral<infer V>
+          ? undefined extends V
+            ? true
+            : false
+          : S extends IZodLazy<infer I>
+            ? IsOptionalOut<I>
+            : S extends IZodNullable<infer I>
+              ? IsOptionalOut<I>
+              : S extends IZodReadonly<infer I>
+                ? IsOptionalOut<I>
+                : S extends IZodBranded<infer I, any>
+                  ? IsOptionalOut<I>
+                  : S extends IZodCatch<infer I>
+                    ? IsOptionalOut<I>
+                    : S extends IZodEffects<any, infer O, any>
+                      ? undefined extends O
+                        ? true
+                        : false
+                      : S extends IZodUnion<infer Opts>
+                        ? true extends IsOptionalOut<Opts[number]>
+                          ? true
+                          : false
+                        : S extends IZodIntersection<infer A, infer B>
+                          ? IsOptionalOut<A> extends true
+                            ? IsOptionalOut<B>
+                            : false
+                          : S extends IZodPipeline<any, infer B>
+                            ? IsOptionalOut<B>
+                            : false
+
+export type IsOptionalIn<S> =
+  S extends IZodOptional<any>
+    ? true
+    : S extends IZodDefault<any>
+      ? true
+      : S extends IZodCatch<any>
+        ? true
+        : S extends IZodUndefined | IZodVoid | IZodAny | IZodUnknown
+          ? true
+          : S extends IZodLiteral<infer V>
+            ? undefined extends V
+              ? true
+              : false
+            : S extends IZodLazy<infer I>
+              ? IsOptionalIn<I>
+              : S extends IZodNullable<infer I>
+                ? IsOptionalIn<I>
+                : S extends IZodReadonly<infer I>
+                  ? IsOptionalIn<I>
+                  : S extends IZodBranded<infer I, any>
+                    ? IsOptionalIn<I>
+                    : S extends IZodEffects<any, any, infer In>
+                      ? undefined extends In
+                        ? true
+                        : false
+                      : S extends IZodUnion<infer Opts>
+                        ? true extends IsOptionalIn<Opts[number]>
+                          ? true
+                          : false
+                        : S extends IZodIntersection<infer A, infer B>
+                          ? IsOptionalIn<A> extends true
+                            ? IsOptionalIn<B>
+                            : false
+                          : S extends IZodPipeline<infer A, any>
+                            ? IsOptionalIn<A>
+                            : false
 
 export type ObjectOutputType<
   Shape extends ZodRawShape,
   UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-> = UnknownKeysOutputType<UnknownKeys> & Flatten<AddQuestionMarks<BaseObjectOutputType<Shape>>>
+> = UnknownKeysOutputType<UnknownKeys> &
+  Flatten<
+    {
+      -readonly [k in keyof Shape as IsOptionalOut<Shape[k]> extends true ? never : k]: Shape[k]['_output']
+    } & {
+      -readonly [k in keyof Shape as IsOptionalOut<Shape[k]> extends true ? k : never]?: Shape[k]['_output']
+    }
+  >
 
 export type BaseObjectOutputType<Shape extends ZodRawShape> = {
   [k in keyof Shape]: Shape[k]['_output']
@@ -905,7 +996,14 @@ export type BaseObjectOutputType<Shape extends ZodRawShape> = {
 export type ObjectInputType<
   Shape extends ZodRawShape,
   UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-> = Flatten<BaseObjectInputType<Shape>> & UnknownKeysInputType<UnknownKeys>
+> = Flatten<
+  {
+    -readonly [k in keyof Shape as IsOptionalIn<Shape[k]> extends true ? never : k]: Shape[k]['_input']
+  } & {
+    -readonly [k in keyof Shape as IsOptionalIn<Shape[k]> extends true ? k : never]?: Shape[k]['_input']
+  }
+> &
+  UnknownKeysInputType<UnknownKeys>
 
 export type BaseObjectInputType<Shape extends ZodRawShape> = AddQuestionMarks<{
   [k in keyof Shape]: Shape[k]['_input']
@@ -1088,18 +1186,6 @@ export interface IZodObject<
 
 //* ─────────────────────────── ZodDiscriminatedUnion ──────────────────────────
 
-// Constrained via the option's input type rather than its shape, mirroring zod v4's
-// $ZodTypeDiscriminable: the old shape-level `{ [key in Discriminator]: IZodType } &
-// ZodRawShape` forced deep structural resolution of object output types (excessive
-// stack depth). The weak type `{ [K in Discriminator]?: unknown }` rejects options
-// missing the discriminator key at compile time (no properties in common), and
-// _getOptionsMap enforces it at runtime as a backstop.
-//
-// The base must be IZodType with `unknown` input — NOT AnyZodObject, whose `_input`
-// is an index signature that would intersect with the weak type and defeat weak-type
-// detection. Output is `unknown` (not `any`): options are only ever bound by this as a
-// constraint, never read through it, so the stricter `unknown` accepts every object
-// schema's output just as well while keeping the type free of `any`.
 export type ZodDiscriminatedUnionOption<Discriminator extends string> = IZodType<
   unknown,
   ZodObjectDef,
@@ -1196,12 +1282,6 @@ export interface IZodIntersection<T extends IZodType = IZodType, U extends IZodT
 export type ZodLazyDef<T extends IZodType = IZodType> = {
   getter: () => T
   typeName: 'ZodLazy'
-  /**
-   * Stable identity for this z.lazy() node, set once at creation time. Unlike the ZodLazy
-   * instance itself, it survives .clone()/.dereference()/.mandatory() (which spread the rest
-   * of `_def` unchanged), so it can be used to detect a self-referential schema even after
-   * one of its occurrences has been cloned (e.g. by .describe()) into a distinct object.
-   */
   uid: symbol
 } & ZodTypeDef
 
@@ -1804,8 +1884,11 @@ export declare function createEnum(
 
 export declare function createNativeEnum<T extends EnumLike>(values: T, params?: ZodCreateParams): IZodNativeEnum<T>
 export declare function createArray<T extends IZodType>(schema: T, params?: ZodCreateParams): IZodArray<T>
-export declare function createObject<T extends ZodRawShape>(shape: T, params?: ZodCreateParams): IZodObject<T, 'strip'>
-export declare function createStrictObject<T extends ZodRawShape>(
+export declare function createObject<T extends ZodRawShapeArg>(
+  shape: T,
+  params?: ZodCreateParams
+): IZodObject<T, 'strip'>
+export declare function createStrictObject<T extends ZodRawShapeArg>(
   shape: T,
   params?: ZodCreateParams
 ): IZodObject<T, 'strict'>
