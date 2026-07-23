@@ -138,7 +138,8 @@ const getInitialUserMessage: Prompt['getInitialUserMessage'] = async (props) => 
 ${lastContent}
 ■im_end`.trim()
     } else if (lastIsVoice) {
-      recap = `The user spoke last. They sent a voice message — the text below is a transcript of what they said out loud:
+      recap =
+        `The user spoke last. They sent a voice message — the text below is a transcript of what they said out loud:
 ■im_start
 ${lastContent}
 ■im_end`.trim()

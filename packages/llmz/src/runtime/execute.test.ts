@@ -11,6 +11,7 @@ import { Exit } from '../exit.js'
 import { ErrorExecutionResult, SuccessExecutionResult } from '../result.js'
 import { _CustomModelClient } from '../custom-client.js'
 import { Tool } from '../tool.js'
+import { Transcript } from '../transcript.js'
 import { executeContext } from './execute.js'
 
 const makeFakeModel = (model: string): Model => ({
@@ -575,6 +576,42 @@ describe('message-stream protocol execution', () => {
 
     expect(result).toBeInstanceOf(SuccessExecutionResult)
     expect(received?.options?.maxTimeToFirstToken).toBe(1_234)
+  })
+
+  test('options.transcriptionModel is forwarded when the transcript has audio', async () => {
+    let received: any
+    class ProbeCognitive extends ScriptedStreamingCognitive {
+      public override async *generateTextStream(input?: any): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
+        received = input
+        yield* super.generateTextStream()
+      }
+    }
+
+    const run = async (options: Record<string, unknown>, attachments?: Transcript.Attachment[]) => {
+      received = undefined
+      const chat = new Chat({
+        components: [DefaultComponents.Text],
+        transcript: [{ role: 'user', content: 'hello', attachments }],
+        handler: async () => {},
+      })
+      const client = new ProbeCognitive(['■send=message\nHello!\n■next=listen'])
+      const result = await executeContext({ client, chat, options: { loop: 2, ...options } })
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+    }
+
+    const audio: Transcript.Attachment[] = [{ type: 'audio', url: 'data:audio/wav;base64,AAAA' }]
+
+    // explicit model
+    await run({ transcriptionModel: 'groq:whisper-large-v3' }, audio)
+    expect(received?.options?.transcriptionModel).toBe('groq:whisper-large-v3')
+
+    // defaults to 'fast' when audio is present
+    await run({}, audio)
+    expect(received?.options?.transcriptionModel).toBe('fast')
+
+    // not sent at all when the prompt has no audio
+    await run({ transcriptionModel: 'groq:whisper-large-v3' })
+    expect(received?.options).toBeUndefined()
   })
 
   test('onExit and onTrace hooks receive the abort controller', async () => {

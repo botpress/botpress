@@ -1,6 +1,6 @@
 {
   "name": "@botpress/vai",
-  "version": "0.0.41",
+  "version": "0.0.42",
   "files": [
     "dist",
     "ensure-env.cjs"
@@ -31,7 +31,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@botpress/cognitive": "1.0.1",
+    "@botpress/cognitive": "1.0.2",
     "json5": "^2.2.3",
     "jsonrepair": "^3.10.0"
   },

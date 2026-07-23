@@ -1,4 +1,4 @@
-import { Cognitive, type BotpressClientLike, Models } from '@botpress/cognitive'
+import { Cognitive, type BotpressClientLike, Models, type SttModels } from '@botpress/cognitive'
 
 import { Chat } from '../chat.js'
 import { Context, Iteration } from '../context.js'
@@ -125,6 +125,12 @@ type Options = Partial<Pick<Context, 'loop' | 'timeout'>> & {
    * `model` is an array of fallback models.
    */
   maxTimeToFirstToken?: number
+  /**
+   * STT model used to transcribe audio attachments (voice messages) when the
+   * target LLM does not support audio natively. Audio-capable models receive
+   * the raw audio and ignore this. Defaults to 'fast'.
+   */
+  transcriptionModel?: SttModels
 }
 
 export type ExecutionProps = {
