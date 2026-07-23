@@ -1,14 +1,14 @@
-import { RuntimeError } from '@botpress/client'
-import { posthogHelper } from '@botpress/common'
-import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
-import axios from 'axios'
-import { INTEGRATION_NAME, INTEGRATION_VERSION } from 'integration.definition'
-import { getAccessToken, getAuthenticatedWhatsappClient } from '../../auth'
-import { safeFormatPhoneNumber } from '../../misc/phone-number-to-whatsapp'
-import { WhatsAppMessage, WhatsAppMessageValue } from '../../misc/types'
-import { getMessageFromWhatsappMessageId } from '../../misc/util'
-import { getMediaInfos } from '../../misc/whatsapp-utils'
-import * as bp from '.botpress'
+import { RuntimeError } from '@botpress/client';
+import { posthogHelper } from '@botpress/common';
+import { ValueOf } from '@botpress/sdk/dist/utils/type-utils';
+import axios from 'axios';
+import { INTEGRATION_NAME, INTEGRATION_VERSION } from 'integration.definition';
+import { getAccessToken, getAuthenticatedWhatsappClient } from '../../auth';
+import { safeFormatPhoneNumber } from '../../misc/phone-number-to-whatsapp';
+import { WhatsAppMessage, WhatsAppMessageValue } from '../../misc/types';
+import { getMessageFromWhatsappMessageId } from '../../misc/util';
+import { getMediaInfos } from '../../misc/whatsapp-utils';
+import * as bp from '.botpress';
 
 type IncomingMessages = {
   [TMessage in keyof bp.channels.channel.Messages]: {
@@ -17,7 +17,10 @@ type IncomingMessages = {
   }
 }
 
-type CreateMessageArgs = ValueOf<IncomingMessages> & { incomingMessageType?: string }
+type CreateMessageArgs = ValueOf<IncomingMessages> & {
+  incomingMessageType?: string
+  caption?: string
+}
 type CreateMessageFn = (args: CreateMessageArgs) => Promise<{ message: { id: string } } | undefined>
 
 export type HandleMessageArgs = {
@@ -143,17 +146,18 @@ export async function _handleMessage(args: HandleMessageArgs) {
 
   const _createMessage: CreateMessageFn =
     args.createMessageOverride ??
-    (async ({ type, payload, incomingMessageType }) => {
+    (async ({ type, payload, caption, incomingMessageType }) => {
       logger.forBot().debug(`Received ${incomingMessageType ?? type} message from WhatsApp:`, payload)
-      if ('caption' in payload) {
+      if (caption && (type === 'image' || type === 'video' || type === 'file')) {
+        const mediaItem = {
+          type,
+          payload,
+        } as bp.channels.channel.Messages['bloc']['items'][number]
         return client.getOrCreateMessage({
           tags,
           type: 'bloc',
           payload: {
-            items: [
-              { type, payload },
-              { type: 'text', payload: { text: payload.caption } },
-            ],
+            items: [mediaItem, { type: 'text', payload: { text: caption } }],
           },
           userId,
           conversationId,
@@ -193,10 +197,8 @@ export async function _handleMessage(args: HandleMessageArgs) {
     const imageUrl = await _getOrDownloadWhatsappMedia(message.image.id, client, ctx)
     return _createMessage({
       type,
-      payload: {
-        imageUrl,
-        ...(message.image.caption && { caption: message.image.caption }),
-      },
+      payload: { imageUrl },
+      caption: message.image.caption,
     })
   } else if (type === 'sticker') {
     const stickerUrl = await _getOrDownloadWhatsappMedia(message.sticker.id, client, ctx)
@@ -211,12 +213,12 @@ export async function _handleMessage(args: HandleMessageArgs) {
       payload: {
         fileUrl: documentUrl,
         filename: message.document.filename,
-        ...(message.document.caption && { caption: message.document.caption }),
       },
+      caption: message.document.caption,
     })
   } else if (type === 'video') {
     const videoUrl = await _getOrDownloadWhatsappMedia(message.video.id, client, ctx)
-    return _createMessage({ type, payload: { videoUrl } })
+    return _createMessage({ type, payload: { videoUrl }, caption: message.video.caption })
   } else if (message.type === 'interactive') {
     if (message.interactive.type === 'button_reply') {
       const { id: value, title: text } = message.interactive.button_reply
