@@ -46,7 +46,6 @@ if (price > 500) {
 }
 
 const ticketId = await buyTicket({ from: 'quebec', to: 'new york' })
-return { action: 'done', result: ticketId }
 ```
 
 **Why this works:**
@@ -57,6 +56,28 @@ return { action: 'done', result: ticketId }
 - Full type safety via Zui schemas and TypeScript inference
 
 **Real-world impact**: Anthropic reduced agent costs by 98.7% using code execution patterns ([source](https://www.anthropic.com/engineering/code-execution-with-mcp)).
+
+---
+
+## The ■ Protocol
+
+Every model response is a sequence of streaming-native `■` blocks:
+
+```
+■send=message
+Let me check the next launch dates for the Moon...
+■run
+const dates = await checkAvailability({ destination: 'moon' })
+const reservation = await bookTrip({ destination: 'moon', date: dates[0], travelerName: 'Ada' })
+const payment = await processPayment({ reservationId: reservation.reservationId })
+return { ...payment, date: dates[0] }
+```
+
+- **`■send=<component> {props?}`** — sends a message to the user, delivered (and streamable) the moment it is parsed
+- **`■run`** — executes the TypeScript body in the sandbox; the returned value is fed back to the model
+- **`■next=<exit> {props?}`** — ends the turn through a typed exit (the built-in `listen` hands the turn back to the user)
+
+Because the protocol is parsed incrementally, messages stream to your UI token-by-token, tool calls surface live, and code execution can start before the response has even finished streaming.
 
 ---
 
@@ -107,64 +128,61 @@ const result = await execute({
 console.log(result.output) // 271575
 ```
 
-**Generated code:**
+**Generated response:**
 
-```typescript
+```
+■run
 let sum = 0
 for (let i = 14; i <= 1078; i++) {
   if (i % 3 === 0 || i % 9 === 0 || i % 5 === 0) {
     sum += i
   }
 }
-return { action: 'done', value: { success: true, result: sum } }
+return sum
 ```
 
 ### Chat Mode: Interactive Agents
 
 ```typescript
-import { execute } from 'llmz'
-import { Text, Button } from './components'
+import { execute, Chat, DefaultComponents, ListenExit } from 'llmz'
 
-const tools = [searchFlights, bookTicket, cancelBooking]
+const transcript = []
 
-let state = { transcript: [] }
+const chat = new Chat({
+  components: [DefaultComponents.Text, DefaultComponents.Button],
+  transcript: () => transcript,
+
+  // Complete messages, delivered as soon as they are parsed
+  handler: async (component) => {
+    render(component)
+  },
+
+  // Optional: message body chunks, streamed while the LLM is still generating
+  onMessageDelta: (delta) => {
+    appendToBubble(delta.id, delta.delta)
+  },
+})
 
 while (true) {
-  const result = await execute({
-    client,
-    tools,
-    chat: {
-      transcript: state.transcript,
-      components: { Text, Button },
-    },
-  })
+  const result = await execute({ client, chat, tools: [searchFlights, bookTicket] })
 
-  if (result.is('listen')) {
-    // Agent yielded UI and is waiting for user input
-    console.log('Agent:', result.value.components)
-    const userInput = await getUserInput()
-    state.transcript.push({ role: 'user', content: userInput })
+  if (result.is(ListenExit)) {
+    // Agent handed the turn back — wait for user input
+    transcript.push({ role: 'user', content: await getUserInput() })
   } else {
-    // Agent completed the task
-    break
+    break // Agent completed (custom exit) or errored
   }
 }
 ```
 
-**Generated code:**
+**Generated response:**
 
-```typescript
-const flights = await searchFlights({ from: 'SFO', to: 'NYC' })
-
-yield (
-  <Text>
-    Found {flights.length} flights. Cheapest is ${flights[0].price}. Book it?
-  </Text>
-)
-yield <Button>Book Flight</Button>
-yield <Button>Cancel</Button>
-
-return { action: 'listen' }
+```
+■send=message
+Found 12 flights. The cheapest is **$249**. Want me to book it?
+■send=button {"label": "Book flight", "action": "postback", "value": "book"}
+■send=button {"label": "Cancel", "action": "postback", "value": "cancel"}
+■next=listen
 ```
 
 ---
@@ -189,10 +207,7 @@ const result = await execute({
 const result = await execute({
   client,
   tools,
-  chat: {
-    transcript: conversationHistory,
-    components: { Text, Button, Form },
-  },
+  chat, // a Chat instance: components + transcript + message handler
 })
 ```
 
@@ -224,7 +239,9 @@ const searchFlights = new Tool({
 })
 ```
 
-Tools are exposed to agents with full TypeScript signatures. Agents call them like regular async functions.
+Tools are exposed to agents with full TypeScript signatures. Agents call them like regular async functions — and chain them freely inside a single `■run` block.
+
+Tool handlers can also be **async generators** that push UI components to the chat mid-execution (progress bars, previews) before returning their result — see [example 21](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/21_chat_tool_components).
 
 ### Objects: Namespaced State
 
@@ -286,19 +303,80 @@ const result = await execute({
 })
 
 if (result.is(TicketBooked)) {
-  console.log('Booked:', result.value.ticketId) // Fully typed
+  console.log('Booked:', result.output.ticketId) // Fully typed
 }
 ```
 
-Agents use exits via return statements:
+Agents invoke exits with a `■next` block:
+
+```
+■next=ticket_booked {"ticketId": "TKT-12345", "price": 299, "confirmation": "ABC123"}
+```
+
+---
+
+## Streaming
+
+With a streaming client (`CognitiveBeta` / Cognitive v2), everything an execution produces surfaces in real time:
 
 ```typescript
-return {
-  action: 'ticket_booked',
-  ticketId: 'TKT-12345',
-  price: 299,
-  confirmation: 'ABC123',
-}
+const chat = new Chat({
+  components: [DefaultComponents.Text],
+  transcript: () => transcript,
+  handler: async (component) => finalizeBubble(component),
+  // Fires per token-chunk while the LLM is still generating
+  onMessageDelta: (delta) => appendToBubble(delta.id, delta.delta),
+})
+
+const result = await execute({
+  client, // CognitiveBeta
+  chat,
+  tools,
+  onTrace: ({ trace }) => {
+    if (trace.type === 'llm_call_started') showSpinner()
+    if (trace.type === 'code_generation_started') showStatus('writing code…')
+    if (trace.type === 'llm_call_success') showCode(trace.code)
+    if (trace.type === 'tool_call') showToolCall(trace)
+  },
+})
+```
+
+- **Message deltas** stream to your UI token-by-token (`handler` remains the authoritative delivery)
+- **Live traces** cover the full turn lifecycle: `llm_call_started` → message deltas → `code_generation_started` → `llm_call_success` (with the code) → `tool_call`s → exit
+- **Early execution**: the `■run` block starts executing while the tail of the response is still streaming, and the VM pre-warms the moment the model starts writing code
+
+Forward these events over a websocket or SSE stream and your frontend renders the agent live — see [example 22](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/22_chat_streaming).
+
+### Token Usage & Timings
+
+Every iteration reports what it consumed:
+
+```typescript
+const { input, output, total, limit, context } = result.iteration.tokens
+// context measures the prompt size by part (pre-truncation):
+// { framework, instructions, tools, transcript, protocol, iterations, total }
+console.log(`context used: ${Math.round((context.total / limit) * 100)}%`)
+
+const { time_to_first_token, time_to_last_token } = result.iteration.llm
+
+// Aggregated across all iterations:
+console.log(result.tokens) // { input, output, total }
+```
+
+### Execution Options
+
+```typescript
+const result = await execute({
+  client,
+  model: ['cerebras:gpt-oss-120b', 'anthropic:claude-haiku-4-5'], // fallback chain
+  reasoningEffort: 'low', // 'low' | 'medium' | 'high' | 'dynamic' | 'none'
+  options: {
+    loop: 5, // max iterations
+    timeout: 60_000, // VM execution timeout (ms)
+    maxTokens: 32_000, // context window cap: min(maxTokens, model max)
+    maxTimeToFirstToken: 5_000, // fall back to the next model if the first token is late (ms)
+  },
+})
 ```
 
 ---
@@ -307,7 +385,7 @@ return {
 
 ### Thinking: Forced Reflection
 
-Prevent agents from rushing to conclusions:
+Tools can force the agent to look at data before acting on it:
 
 ```typescript
 import { ThinkSignal } from 'llmz'
@@ -322,12 +400,12 @@ const complexAnalysis = new Tool({
 })
 ```
 
-Agents can also self-initiate thinking:
+Agents self-initiate reflection by returning values from their code — the returned value is shown to them and they respond again:
 
-```typescript
-// Agent-generated code
+```
+■run
 const data = await fetchLargeDataset()
-return { action: 'think' } // Pause to process information
+return data.summary
 ```
 
 ### Snapshots: Pause and Resume
@@ -359,24 +437,30 @@ const result = await execute({
 const result = await execute({
   client,
   tools,
-  hooks: {
-    onTrace: (trace) => {
-      // Non-blocking: log tool calls, errors, outputs
-      logger.info(trace)
-    },
-    onExit: (exit) => {
-      // Validate before allowing exit
-      if (exit.action === 'transfer_money' && exit.amount > 10000) {
-        throw new Error('Amount exceeds limit')
-      }
-    },
-    onBeforeExecution: (code) => {
-      // Inspect/modify generated code before execution
-      if (code.includes('dangerousOperation')) {
-        throw new Error('Blocked unsafe operation')
-      }
-    },
+
+  // Non-blocking: observe everything (and abort when needed)
+  onTrace: ({ trace, controller }) => {
+    logger.info(trace)
+    if (trace.type === 'tool_call' && trace.tool_name === 'forbidden') {
+      controller.abort('Forbidden tool call')
+    }
   },
+
+  // Validate before allowing an exit — throw to retry, abort to stop
+  onExit: (result, controller) => {
+    if (result.exit.name === 'transfer_money' && result.result.amount > 10_000) {
+      throw new Error('Amount exceeds limit')
+    }
+  },
+
+  // Inspect/modify generated code before execution
+  onBeforeExecution: (iteration) => {
+    if (iteration.code?.includes('dangerousOperation')) {
+      return { code: '// blocked' }
+    }
+  },
+
+  // Also available: onIterationStart, onIterationEnd, onBeforeTool, onAfterTool
 })
 ```
 
@@ -400,7 +484,7 @@ LLMz has been running in production for over a year:
 - **Hundreds of thousands** of deployed agents handling real-world workloads
 - **Secure sandbox**: Uses QuickJS WASM for isolated code execution
 - **Type-safe**: Full TypeScript inference and Zui validation
-- **Observable**: Comprehensive tracing and error handling
+- **Observable**: Comprehensive tracing, token accounting and error handling
 
 ---
 
@@ -409,10 +493,10 @@ LLMz has been running in production for over a year:
 **Execution Pipeline:**
 
 1. **Prompt Generation**: Injects tools, schemas, and context into dual-mode prompts
-2. **Code Generation**: LLM generates TypeScript with tool calls and logic
-3. **Compilation**: Babel AST transformation with custom plugins (tracking, JSX, source maps)
-4. **Execution**: Runs in QuickJS WASM sandbox with full isolation
-5. **Result Processing**: Type-safe exit handling and error recovery
+2. **Streaming Generation**: The LLM streams ■ blocks — messages dispatch to the chat as they are parsed
+3. **Compilation**: Babel AST transformation with instrumentation plugins (line tracking, tool call tracking, variable extraction)
+4. **Execution**: Runs in QuickJS WASM sandbox with full isolation — starting while the response tail is still streaming
+5. **Result Processing**: Type-safe exit handling, thinking loops and error recovery
 
 **Security:**
 
@@ -432,6 +516,7 @@ LLMz has been running in production for over a year:
 | Multi-tool orchestration | Multiple LLM calls     | Multiple LLM calls     | Single LLM call           |
 | Complex logic            | Limited                | Limited                | Full language support     |
 | Type safety              | Partial                | Schema-based           | Full TypeScript + Zui     |
+| Streaming                | Text only              | Text only              | Messages, code, tools     |
 | Execution environment    | Python/JS runtime      | Cross-process          | QuickJS WASM sandbox      |
 | Cost (complex workflows) | High (many roundtrips) | High (many roundtrips) | Low (one-shot generation) |
 | Production scale         | Varies                 | Emerging               | Battle-tested (1M+ users) |
@@ -442,28 +527,30 @@ LLMz has been running in production for over a year:
 
 Check out the [examples folder](https://github.com/botpress/botpress/tree/master/packages/llmz/examples) for complete working examples:
 
-| Title                                                                                                                 | Mode   | Description                                          |
-| --------------------------------------------------------------------------------------------------------------------- | ------ | ---------------------------------------------------- |
-| [Basic Chat](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/01_chat_basic)                   | Chat   | Simple interactive chat with button-based navigation |
-| [Chat with Exits](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/02_chat_exits)              | Chat   | Custom exit conditions with type-safe validation     |
-| [Conditional Tools](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/03_chat_conditional_tool) | Chat   | Dynamic tool availability based on context           |
-| [Small Models](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/04_chat_small_models)          | Chat   | Optimized prompts for smaller language models        |
-| [Web Search](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/05_chat_web_search)              | Chat   | Integrate web search and content browsing            |
-| [Tool Confirmation](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/06_chat_confirm_tool)     | Chat   | User confirmation before executing tools             |
-| [Guardrails](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/07_chat_guardrails)              | Chat   | Safety constraints and content filtering             |
-| [Multi-Agent](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/08_chat_multi_agent)            | Chat   | Coordinating multiple agents in one system           |
-| [Variables](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/09_chat_variables)                | Chat   | Stateful properties that persist across iterations   |
-| [Components](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/10_chat_components)              | Chat   | Rich UI components for interactive experiences       |
-| [Minimal Worker](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/11_worker_minimal)           | Worker | One-shot computational task execution                |
-| [File System](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/12_worker_fs)                   | Worker | Automated file operations with conditional logic     |
-| [Sandbox](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/13_worker_sandbox)                  | Worker | Secure isolated code execution environment           |
-| [Snapshots](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/14_worker_snapshot)               | Worker | Pause and resume long-running workflows              |
-| [Stack Traces](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/15_worker_stacktraces)         | Worker | Error handling and debugging patterns                |
-| [Tool Chaining](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/16_worker_tool_chaining)      | Worker | Sequential multi-tool orchestration                  |
-| [Error Recovery](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/17_worker_error_recovery)    | Worker | Graceful failure handling and retries                |
-| [Security](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/18_worker_security)                | Worker | Code inspection and security validation              |
-| [Wrap Tools](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/19_worker_wrap_tool)             | Worker | Creating higher-order tool abstractions              |
-| [RAG](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/20_chat_rag)                            | Chat   | Retrieval-augmented generation with knowledge bases  |
+| Title                                                                                                                 | Mode   | Description                                                                               |
+| --------------------------------------------------------------------------------------------------------------------- | ------ | ----------------------------------------------------------------------------------------- |
+| [Basic Chat](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/01_chat_basic)                   | Chat   | Simple interactive chat with button-based navigation                                      |
+| [Chat with Exits](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/02_chat_exits)              | Chat   | Custom exit conditions with type-safe validation                                          |
+| [Conditional Tools](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/03_chat_conditional_tool) | Chat   | Dynamic tool availability based on context                                                |
+| [Small Models](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/04_chat_small_models)          | Chat   | Optimized prompts for smaller language models                                             |
+| [Web Search](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/05_chat_web_search)              | Chat   | Integrate web search and content browsing                                                 |
+| [Tool Confirmation](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/06_chat_confirm_tool)     | Chat   | User confirmation before executing tools                                                  |
+| [Guardrails](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/07_chat_guardrails)              | Chat   | Safety constraints and content filtering                                                  |
+| [Multi-Agent](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/08_chat_multi_agent)            | Chat   | Coordinating multiple agents in one system                                                |
+| [Variables](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/09_chat_variables)                | Chat   | Stateful properties that persist across iterations                                        |
+| [Components](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/10_chat_components)              | Chat   | Rich UI components for interactive experiences                                            |
+| [Minimal Worker](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/11_worker_minimal)           | Worker | One-shot computational task execution                                                     |
+| [File System](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/12_worker_fs)                   | Worker | Automated file operations with conditional logic                                          |
+| [Sandbox](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/13_worker_sandbox)                  | Worker | Secure isolated code execution environment                                                |
+| [Snapshots](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/14_worker_snapshot)               | Worker | Pause and resume long-running workflows                                                   |
+| [Stack Traces](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/15_worker_stacktraces)         | Worker | Error handling and debugging patterns                                                     |
+| [Tool Chaining](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/16_worker_tool_chaining)      | Worker | Sequential multi-tool orchestration                                                       |
+| [Error Recovery](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/17_worker_error_recovery)    | Worker | Graceful failure handling and retries                                                     |
+| [Security](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/18_worker_security)                | Worker | Code inspection and security validation                                                   |
+| [Wrap Tools](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/19_worker_wrap_tool)             | Worker | Creating higher-order tool abstractions                                                   |
+| [RAG](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/20_chat_rag)                            | Chat   | Retrieval-augmented generation with knowledge bases                                       |
+| [Tool Components](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/21_chat_tool_components)    | Chat   | Tool handlers pushing UI components mid-execution                                         |
+| [Streaming](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/22_chat_streaming)                | Chat   | Guided simulation: streamed messages, live code + tool calls, typed exits, per-turn stats |
 
 ---
 

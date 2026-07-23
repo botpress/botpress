@@ -53,6 +53,8 @@
     "check:type": {},
     "check:bplint": {},
     "test": {},
-    "bench": {}
+    "bench": {
+      "dependsOn": ["build"]
+    }
   }
 }

@@ -1,5 +1,4 @@
 import { isPlainObject } from 'lodash-es'
-import { getComponentReference } from '../component.js'
 import { inspect } from '../inspect.js'
 import { cleanStackTrace } from '../stack-traces.js'
 import { wrapContent } from '../truncator.js'
@@ -9,16 +8,10 @@ import CHAT_USER_PROMPT_TEXT from './chat-mode/user.md.js'
 
 import { parseAssistantResponse, replacePlaceholders } from './common.js'
 import { LLMzPrompts, Prompt } from './prompt.js'
+import { getProtocolInstructions } from './protocol.js'
 
 import WORKER_SYSTEM_PROMPT_TEXT from './worker-mode/system.md.js'
 import WORKER_USER_PROMPT_TEXT from './worker-mode/user.md.js'
-
-type ExitType = {
-  name: string
-  description: string
-  has_typings: boolean
-  typings?: string
-}
 
 const getSystemMessage: Prompt['getSystemMessage'] = async (props) => {
   let dts = ''
@@ -58,28 +51,9 @@ const getSystemMessage: Prompt['getSystemMessage'] = async (props) => {
 `
   }
 
-  for (const tool of props.globalTools.filter((t) => t.name.toLowerCase() !== 'message')) {
+  for (const tool of props.globalTools) {
     dts += (await tool.getTypings()) + '\n'
     tool_names.push(tool.name)
-  }
-
-  const exits: ExitType[] = []
-
-  for (const exit of props.exits) {
-    if (exit.zSchema) {
-      exits.push({
-        name: exit.name,
-        description: exit.description,
-        has_typings: true,
-        typings: exit.zSchema.toTypescriptType({ treatDefaultAsOptional: true }),
-      })
-    } else {
-      exits.push({
-        name: exit.name,
-        description: exit.description,
-        has_typings: false,
-      })
-    }
   }
 
   let variables_example = ''
@@ -98,46 +72,53 @@ const value = ${readonly_vars[0]} // reading a Readonly variable is valid
   if (variables_example) {
     variables_example = `
 
-\`\`\`tsx
+\`\`\`ts
 ${variables_example}
 \`\`\``
   }
 
+  const identity = props.instructions?.length ? props.instructions : 'No specific instructions provided'
+  const transcript = props.transcript.toString()
+  const protocol = getProtocolInstructions({ components: props.components, exits: props.exits })
+
   return {
-    role: 'system' as const,
-    content: replacePlaceholders(canTalk ? CHAT_SYSTEM_PROMPT_TEXT : WORKER_SYSTEM_PROMPT_TEXT, {
-      is_message_enabled: canTalk,
-      'tools.d.ts': wrapContent(dts, {
-        preserve: 'both',
-        minTokens: 500,
-      }),
-      identity: wrapContent(props.instructions?.length ? props.instructions : 'No specific instructions provided', {
-        preserve: 'both',
-        minTokens: 1000,
-      }),
-      transcript: wrapContent(props.transcript.toString(), {
-        preserve: 'bottom',
-        minTokens: 500,
-      }),
-      tool_names: tool_names.join(', '),
-      readonly_vars: readonly_vars.join(', '),
-      writeable_vars: writeable_vars.join(', '),
-      variables_example,
-      exits,
-      components: wrapContent(
-        props.components.map((component) => getComponentReference(component.definition)).join('\n\n'),
-        {
-          preserve: 'top',
+    message: {
+      role: 'system' as const,
+      content: replacePlaceholders(canTalk ? CHAT_SYSTEM_PROMPT_TEXT : WORKER_SYSTEM_PROMPT_TEXT, {
+        is_message_enabled: canTalk,
+        'tools.d.ts': wrapContent(dts, {
+          preserve: 'both',
           minTokens: 500,
-        }
-      ),
-    }).trim(),
+        }),
+        identity: wrapContent(identity, {
+          preserve: 'both',
+          minTokens: 1000,
+        }),
+        transcript: wrapContent(transcript, {
+          preserve: 'bottom',
+          minTokens: 500,
+        }),
+        tool_names: tool_names.join(', '),
+        readonly_vars: readonly_vars.join(', '),
+        writeable_vars: writeable_vars.join(', '),
+        variables_example,
+        protocol: wrapContent(protocol, {
+          preserve: 'both',
+          minTokens: 500,
+        }),
+      }).trim(),
+    },
+    parts: {
+      instructions: identity,
+      tools: dts,
+      transcript,
+      protocol,
+    },
   }
 }
 
 const getInitialUserMessage: Prompt['getInitialUserMessage'] = async (props) => {
-  // TODO: iteration.mode -> chat vs worker based on tools
-  const isChatMode = props.globalTools.find((tool) => tool.name.toLowerCase() === 'message')
+  const isChatMode = props.components.length > 0
   const transcript = [...props.transcript].reverse()
   let recap = isChatMode
     ? 'Nobody has spoken yet in this conversation. You can start by saying something.'
@@ -207,14 +188,12 @@ const getInvalidCodeMessage = async (props: LLMzPrompts.InvalidCodeProps): Promi
     content: `
 ## Important message from the VM
 
-The code you provided is invalid. Here's the error:
+The response you provided is invalid. Here's the error:
 
 Code:
 
-\`\`\`tsx
-■fn_start
+\`\`\`ts
 ${wrapContent(props.code)}
-■fn_end
 \`\`\`
 
 Error:
@@ -224,13 +203,14 @@ ${wrapContent(props.message, { flex: 4 })}
 
 Please fix the error and try again.
 
-Expected output:
+Expected response format (■ blocks):
 
-\`\`\`tsx
-■fn_start
+■run
 // code here
-■fn_end
-\`\`\`
+
+Or end your turn with:
+
+■next=<exit> {props?}
 `.trim(),
   }
 }
@@ -254,13 +234,7 @@ ${wrapContent(cleanStackTrace(props.stacktrace), { flex: 6, preserve: 'top' })}
 
 Let the user know that an error occurred, and if possible, try something else. Do not repeat yourself in the message.
 
-Expected output:
-
-\`\`\`tsx
-■fn_start
-// code here
-■fn_end
-\`\`\`
+Continue with a new response using ■ blocks (■send / ■run / ■next).
 `.trim(),
   }
 }
@@ -304,14 +278,15 @@ const getThinkingMessage = async (props: LLMzPrompts.ThinkingProps): Promise<LLM
     content: `
 ## Important message from the VM
 
-The assistant requested to think. Here's the context:
+The code execution completed. Here's the context:
 -------------------
-Reason: ${props.reason || 'Thinking requested'}
+Reason: ${props.reason || 'Code execution returned a value'}
 Context:
 ${wrapContent(context, { preserve: 'top' })}
 -------------------
 
-Please continue with the conversation (■fn_start).
+Continue with a new response using ■ blocks. Do not re-run the code above; use its result.
+Any ■send messages from your previous response have already been delivered to the user — never repeat or rephrase them; continue from where you left off.
 `.trim(),
   }
 }
@@ -371,13 +346,7 @@ There are NO OTHER VARIABLES than the ones listed above.
 
 IMPORTANT: Do NOT re-run the code that was already executed. This would be a critical error. Instead, continue the conversation from here.
 
-Expected output:
-
-\`\`\`tsx
-■fn_start
-// code here
-■fn_end
-\`\`\`
+Continue with a new response using ■ blocks (■send / ■run / ■next).
 `.trim(),
   }
 }
@@ -410,17 +379,12 @@ ${output}
 Continue the conversation from here, without repeating the above code, as it has already been executed.
 IMPORTANT: Do NOT re-run the code that was already executed. This would be a critical error. Instead, continue the conversation from here.
 
-Expected output:
-\`\`\`tsx
-■fn_start
-// code here
-■fn_end
-\`\`\`
+Continue with a new response using ■ blocks (■send / ■run / ■next).
 `.trim(),
   }
 }
 
-const getStopTokens = () => ['■fn_end']
+const getStopTokens = () => []
 
 export const DualModePrompt: Prompt = {
   getSystemMessage,

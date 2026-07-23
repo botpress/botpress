@@ -166,8 +166,8 @@ ${wrapContent(ONE_TOKEN.repeat(1000))}
 
     expect(before).toMatchInlineSnapshot(`
       [
-        14056,
-        20055,
+        14057,
+        20056,
         20023,
         2023,
       ]

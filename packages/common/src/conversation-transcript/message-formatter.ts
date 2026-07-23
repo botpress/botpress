@@ -145,15 +145,11 @@ const DEFAULT_CARD_FORMATTER: MessageFormatter<'card'> = {
     }
 
     if (message.payload.actions.length) {
-      parts.push(...message.payload.actions.map(_formatAction))
+      parts.push(...message.payload.actions.map((action) => `${action.action}: "${action.label}" => ${action.value}`))
     }
 
     return parts
   },
-}
-
-const _formatAction = (action: { action: string; label: string; value: string }): string => {
-  return `${action.action}: "${action.label}" => ${action.value}`
 }
 
 const DEFAULT_BLOC_FORMATTER: MessageFormatter<'bloc'> = {

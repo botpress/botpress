@@ -544,6 +544,8 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
         instructions: 'Call the complexOperation tool and return its result as status.',
         tools: [tRequireThinking],
         client,
+        // Requires retrying the tool after a ThinkSignal: needs a stronger model
+        model: 'anthropic:claude-haiku-4-5-20251001',
       })
 
       assertSuccess(result)
@@ -747,9 +749,12 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
         options: { loop: 5 },
         exits: [eResult],
         instructions:
-          'Find and delete work-related files with corrupted data. Return the list of deleted files, total work files found, and count of corrupted files. The only way to identify corrupted files is by reading their contents.',
+          'Find and delete work-related files with corrupted data. Return the list of deleted files, total work files found, and count of corrupted files. The only way to identify corrupted files is by reading their contents and inspecting them yourself — corruption cannot be reliably detected by code heuristics, so return the contents and look at them before deciding which files to delete. Only read work-related files — never open personal files.',
         tools: [tListFiles, tReadFile, tDeleteFile],
         client,
+        // Multi-step judgement task (corruption must be identified by inspecting
+        // file contents, not by code): requires a stronger model
+        model: 'anthropic:claude-haiku-4-5-20251001',
       })
 
       assertSuccess(result)
@@ -940,15 +945,19 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
       })
 
       const result = await llmz.executeContext({
-        options: { loop: 1 },
+        options: { loop: 2 },
         exits: [eResult],
         instructions: 'Call the original tool and return its value.',
         tools: [tOriginal, tModified],
         client,
 
-        onBeforeExecution: async () => {
-          // Replace the code to call modified instead
-          return { code: 'const res = await modified();\nreturn { action: "done", result: res.value };' }
+        onBeforeExecution: async (iteration) => {
+          // Replace the code of the first iteration to call modified instead.
+          // The returned value is fed back to the model, which then exits.
+          if (iteration.id.endsWith('_1')) {
+            return { code: 'const res = await modified();\nreturn { value: res.value };' }
+          }
+          return {}
         },
       })
 

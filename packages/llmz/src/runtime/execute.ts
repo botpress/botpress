@@ -5,14 +5,15 @@ import { createJoinedAbortController } from '../abort-signal.js'
 import { Context, Iteration } from '../context.js'
 import { _CustomModelClient } from '../custom-client.js'
 import { CognitiveError, LoopExceededError, ThinkSignal } from '../errors.js'
+import { createJsxComponent } from '../jsx.js'
 import { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from '../result.js'
 import { Snapshot } from '../snapshots.js'
 import { cleanStackTrace } from '../stack-traces.js'
 import { VMExecutionResult } from '../types.js'
 import { getErrorMessage, init } from '../utils.js'
-import { runAsyncFunction } from '../vm/index.js'
+import { runAsyncFunction, warmupVM } from '../vm/index.js'
 import { generateCode } from './generate.js'
-import { interpretVMResult } from './interpret-result.js'
+import { applyNextExit, interpretVMResult } from './interpret-result.js'
 import { ExecutionHooks, ExecutionProps, RuntimeCognitive } from './types.js'
 import { finalizeIteration } from './utils.js'
 import { buildVMContext } from './vm-context.js'
@@ -58,6 +59,8 @@ const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionR
     tools: props.tools,
     loop: props.options?.loop,
     timeout: props.options?.timeout,
+    maxTokens: props.options?.maxTokens,
+    maxTimeToFirstToken: props.options?.maxTimeToFirstToken,
     exits: props.exits,
     snapshot: props.snapshot,
     model: props.model,
@@ -75,7 +78,7 @@ const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionR
 
       const unsubscribeTrace = iteration.traces.onPush((traces) => {
         for (const trace of traces) {
-          onTrace?.({ trace, iteration: ctx.iterations.length })
+          onTrace?.({ trace, iteration: ctx.iterations.length, controller })
         }
       })
 
@@ -352,7 +355,73 @@ const executeIteration = async ({
   onAfterTool?: ExecutionHooks['onAfterTool']
   metadata?: ExecutionProps['metadata']
 }): Promise<void> => {
-  await generateCode({ iteration, ctx, cognitive, controller, metadata })
+  const runCode = (code: string): Promise<VMExecutionResult> => {
+    const vmContext = buildVMContext({ ctx, iteration, controller, onBeforeTool, onAfterTool })
+    return runAsyncFunction(vmContext, code, iteration.traces, controller.signal, ctx.timeout).catch((err) => {
+      return {
+        success: false,
+        error: err instanceof Error ? err : new Error(getErrorMessage(err)),
+        lines_executed: [],
+        traces: [],
+        variables: {},
+      } satisfies VMExecutionResult
+    })
+  }
+
+  // On streaming clients, execution starts as soon as the ■run block is fully
+  // parsed — while the rest of the response (■next, stream metadata) may
+  // still be streaming. Disabled when an onBeforeExecution hook is registered,
+  // since the hook must run (and may mutate the code) before execution.
+  const canExecuteEarly = typeof onBeforeExecution !== 'function'
+  let earlyExecution: { code: string; started_at: number; promise: Promise<VMExecutionResult> } | undefined
+
+  // ■send blocks are dispatched to the chat as soon as they are parsed — on
+  // streaming clients this happens while the model is still generating.
+  await generateCode({
+    iteration,
+    ctx,
+    cognitive,
+    controller,
+    metadata,
+    // Pre-warm the VM while the model is still writing the ■run block
+    onRunStart: () => warmupVM(),
+    onRunComplete: canExecuteEarly
+      ? (code) => {
+          if (!code.length || controller.signal.aborted || earlyExecution) {
+            return
+          }
+          iteration.code = code
+          earlyExecution = { code, started_at: Date.now(), promise: runCode(code) }
+        }
+      : undefined,
+    onSend: async (send) => {
+      if (!ctx.chat) {
+        return
+      }
+
+      const sendStartedAt = Date.now()
+      const component = createJsxComponent({
+        type: send.name,
+        props: send.props,
+        children: send.body ? [send.body] : [],
+      })
+
+      try {
+        await ctx.chat.handler(component)
+      } catch (err) {
+        throw new Error(`Error while sending message (■send=${send.name}): ${getErrorMessage(err)}`)
+      }
+
+      iteration.traces.push({ type: 'yield', value: component, started_at: sendStartedAt, ended_at: Date.now() })
+    },
+    onSendDelta: ctx.chat?.onMessageDelta ? (delta) => ctx.chat!.onMessageDelta!(delta) : undefined,
+  })
+
+  if (earlyExecution) {
+    // generateCode re-derives iteration.code from the full parsed response;
+    // keep the code that actually ran
+    iteration.code = earlyExecution.code
+  }
 
   if (typeof onBeforeExecution === 'function') {
     try {
@@ -386,7 +455,6 @@ const executeIteration = async ({
   }
 
   const traces = iteration.traces
-  const vmContext = buildVMContext({ ctx, iteration, controller, onBeforeTool, onAfterTool })
 
   if (controller.signal.aborted) {
     traces.push({
@@ -404,22 +472,32 @@ const executeIteration = async ({
     return
   }
 
-  const startedAt = Date.now()
-  const result: VMExecutionResult = await runAsyncFunction(
-    vmContext,
-    iteration.code ?? '',
-    traces,
-    controller.signal,
-    ctx.timeout
-  ).catch((err) => {
-    return {
-      success: false,
-      error: err instanceof Error ? err : new Error(getErrorMessage(err)),
-      lines_executed: [],
-      traces: [],
-      variables: {},
-    } satisfies VMExecutionResult
-  })
+  if (!iteration.code) {
+    // No ■run block: the response is messages and/or an exit
+    if (iteration.next) {
+      await applyNextExit({ iteration, controller, onExit })
+      return
+    }
+
+    if (ctx.chat && iteration.sends?.length) {
+      // Message-only response in chat mode: hand the turn back to the user
+      iteration.next = { name: 'listen', props: {} }
+      await applyNextExit({ iteration, controller, onExit })
+      return
+    }
+
+    iteration.end({
+      type: 'invalid_code_error',
+      invalid_code_error: {
+        message:
+          'The response did not include a ■run block or a ■next exit. Reply using ■ blocks and end your response with ■run or ■next=<exit>.',
+      },
+    })
+    return
+  }
+
+  const startedAt = earlyExecution?.started_at ?? Date.now()
+  const result: VMExecutionResult = earlyExecution ? await earlyExecution.promise : await runCode(iteration.code ?? '')
 
   await interpretVMResult({
     iteration,

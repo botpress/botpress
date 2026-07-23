@@ -37,10 +37,6 @@ export function assertValidComponent(component: ComponentDefinition): asserts co
     throw new Error('Component must have a description')
   }
 
-  if (!component.examples || component.examples.length === 0) {
-    throw new Error('Component must have at least one example')
-  }
-
   if (component.type === 'default' && !component.default) {
     throw new Error('Default component must have default props and children')
   }
@@ -54,116 +50,13 @@ export function assertValidComponent(component: ComponentDefinition): asserts co
   }
 }
 
-const getDefaultValue = (schema: z.ZodTypeAny): string => {
-  if (schema._def.defaultValue !== undefined) {
-    if (typeof schema._def.defaultValue === 'function') {
-      return String(schema._def.defaultValue()).toString()
-    } else {
-      return String(schema._def.defaultValue)
-    }
-  }
-  return ''
-}
-
-export function getComponentReference(component: ComponentDefinition): string {
-  let doc = `### <${component.name}>\n\n`
-  doc += `${component.description}\n\n`
-
-  const getPropsDoc = (props: z.ZodObject<any>) => {
-    const shape = props.shape as Record<string, z.ZodTypeAny>
-    if (Object.keys(shape).length === 0) return '_No props._\n\n'
-
-    const zodTypeToTsType: Record<string, string> = {
-      ZodString: 'string',
-      ZodNumber: 'number',
-      ZodBoolean: 'boolean',
-      ZodEnum: 'enum',
-      ZodArray: 'array',
-      ZodObject: 'object',
-      ZodDate: 'date',
-      ZodBigInt: 'bigint',
-      ZodSymbol: 'symbol',
-      ZodUndefined: 'undefined',
-      ZodNull: 'null',
-      ZodVoid: 'void',
-      ZodNever: 'never',
-      ZodUnknown: 'unknown',
-      ZodAny: 'any',
-    }
-
-    return (
-      Object.entries(shape)
-        .map(([name, schema]) => {
-          const naked = schema.naked()
-          const zodType = naked._def.typeName
-          const defValue = getDefaultValue(schema)
-          const typings = z.is.zuiEnum(naked)
-            ? naked._def.values.map((x: string) => `"${x}"`).join(' | ')
-            : zodTypeToTsType[zodType] || zodType
-          const required = !schema.isOptional() ? '**(required)**' : '(optional)'
-          const def = defValue ? ` _Default: \`${defValue}\`_` : ''
-          const description = schema.description || schema.naked().description || schema?._def.description || ''
-
-          return `- \`${name}: ${typings}\` ${required} — ${description}${def}`
-        })
-        .join('\n') + '\n\n'
-    )
-  }
-
-  const getChildrenDoc = (children: ComponentChild[]) => {
-    if (children.length === 0) return '_None allowed._\n\n'
-    return (
-      'Can contain:\n' +
-      children.map((child) => `- ${child.description} — \`<${child.component.name}>\``).join('\n') +
-      '\n\n'
-    )
-  }
-
-  const getExamplesDoc = (examples: ExampleUsage[]) => {
-    if (!examples.length) return ''
-    return (
-      '**Examples:**\n\n' +
-      examples
-        .map((example) => `**${example.name}** — ${example.description}\n\n\`\`\`tsx\n${example.code.trim()}\n\`\`\`\n`)
-        .join('\n')
-    )
-  }
-
-  switch (component.type) {
-    case 'leaf':
-      doc += '**Props:**\n\n'
-      doc += getPropsDoc(component.leaf.props)
-      doc += '**Children:**\n\n'
-      doc += getChildrenDoc([])
-      doc += getExamplesDoc(component.examples)
-      break
-
-    case 'container':
-      doc += '**Props:**\n\n'
-      doc += getPropsDoc(component.container.props)
-      doc += '**Children:**\n\n'
-      doc += getChildrenDoc(component.container.children)
-      doc += getExamplesDoc(component.examples)
-      break
-
-    case 'default':
-    default:
-      doc += '**Props:**\n\n'
-      doc += getPropsDoc(component.default.props)
-      doc += getExamplesDoc(component.examples)
-      break
-  }
-
-  return doc.trim()
-}
-
 // Component definition types with inferred props
 export type DefaultComponentDefinition<T extends z.ZodObject<any> = z.ZodObject<any>> = {
   type: 'default'
   name: string
   aliases: string[]
   description: string
-  examples: ExampleUsage[]
+  examples?: ExampleUsage[]
   default: {
     props: T
     children: Array<ComponentChild>
@@ -175,7 +68,7 @@ export type LeafComponentDefinition<T extends z.ZodObject<any> = z.ZodObject<any
   name: string
   description: string
   aliases?: string[]
-  examples: ExampleUsage[]
+  examples?: ExampleUsage[]
   leaf: {
     props: T
   }
@@ -186,7 +79,7 @@ export type ContainerComponentDefinition<T extends z.ZodObject<any> = z.ZodObjec
   name: string
   description: string
   aliases?: string[]
-  examples: ExampleUsage[]
+  examples?: ExampleUsage[]
   container: {
     props: T
     children: Array<ComponentChild>
@@ -237,47 +130,4 @@ export function isComponent<T extends ComponentDefinition>(
 // Type guard function that checks if something is any rendered component
 export function isAnyComponent(message: unknown): message is RenderedComponent {
   return isAnyJsxComponent(message)
-}
-
-/**
- * Converts a RenderedComponent back to TSX code
- * @param component The rendered component to convert
- * @returns A string containing the TSX representation of the component
- */
-export function renderToTsx(component: RenderedComponent): string {
-  const props = Object.entries(component.props)
-    .map(([key, value]) => {
-      if (typeof value === 'string') {
-        return `${key}="${value}"`
-      }
-      if (typeof value === 'boolean') {
-        return value ? key : ''
-      }
-      if (typeof value === 'number') {
-        return `${key}={${value}}`
-      }
-      if (value === null || value === undefined) {
-        return ''
-      }
-      if (typeof value === 'object') {
-        return `${key}={${JSON.stringify(value)}}`
-      }
-      return `${key}={${String(value)}}`
-    })
-    .filter(Boolean)
-    .join(' ')
-
-  const children = component.children
-    .map((child) => {
-      if (typeof child === 'string') {
-        return child
-      }
-      if (isAnyComponent(child)) {
-        return renderToTsx(child)
-      }
-      return String(child)
-    })
-    .join('')
-
-  return `<${component.type}${props ? ' ' + props : ''}>${children}</${component.type}>`
 }
