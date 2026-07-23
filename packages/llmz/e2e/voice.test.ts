@@ -7,7 +7,12 @@ import { Exit } from '../src/exit.js'
 import { DualModePrompt } from '../src/prompts/dual-modes.js'
 import { ExecutionResult, SuccessExecutionResult } from '../src/result.js'
 import { Transcript, TranscriptArray } from '../src/transcript.js'
-import { getCachedCognitiveClient, getScreenShareFixtures, getVoiceMessageDataUri } from './__tests__/index.js'
+import {
+  getCachedCognitiveClient,
+  getFixtureDataUri,
+  getScreenShareFixtures,
+  getVoiceMessageDataUri,
+} from './__tests__/index.js'
 
 const client = getCachedCognitiveClient()
 
@@ -170,6 +175,98 @@ describe('voice messages', () => {
       expect(replies).toContain('pineapple')
       expect(replies).toContain('paris')
     }, 30_000)
+  })
+
+  // Regression (llmz 0.4.0): long assistant replies to voice-modality turns
+  // came back with the ■send body wrapped in a JSON object ({"body": "..."}).
+  // Short replies and typed turns were unaffected.
+  describe('long voice replies stay plain markdown', () => {
+    const runLongStory = async (message: Transcript.UserMessage, model?: string) => {
+      let replies = ''
+      const chat = new Chat({
+        components: [DefaultComponents.Text],
+        transcript: [message],
+        handler: async (msg: any) => {
+          const collect = (c: any): string =>
+            typeof c === 'string' ? c : Array.isArray(c.children) ? c.children.map(collect).join('') : ''
+          replies += collect(msg)
+        },
+      })
+
+      const result = await llmz.executeContext({
+        instructions: 'Do as the user says. You can hear voice messages.',
+        options: { loop: 2 },
+        chat,
+        client,
+        ...(model ? { model } : {}),
+      })
+
+      assertSuccess(result)
+
+      // The raw parsed sends must be plain prose, not a JSON-wrapped body
+      // ({"body": "..."}) — there is no runtime unwrapping, the prompt alone
+      // must prevent this
+      for (const iteration of result.iterations) {
+        for (const send of iteration.sends ?? []) {
+          expect(send.body?.trim().startsWith('{')).not.toBe(true)
+        }
+      }
+
+      // The delivered reply is long-form prose, not serialized data
+      expect(replies.length).toBeGreaterThan(300)
+      expect(replies.trimStart().startsWith('{')).toBe(false)
+      expect(replies.toLowerCase()).toContain('cloudflare')
+      return replies
+    }
+
+    const longStoryVoiceMessage = (): Transcript.UserMessage => ({
+      role: 'user',
+      content: '',
+      attachments: [{ type: 'audio', url: getFixtureDataUri('./voice-long-story.wav', 'audio/wav') }],
+    })
+
+    it('with an audio attachment (STT fallback chain)', async () => {
+      await runLongStory(longStoryVoiceMessage())
+    }, 60_000)
+
+    it('with an audio attachment on a native-audio model (gemini)', async () => {
+      await runLongStory(longStoryVoiceMessage(), 'google-ai:gemini-3-flash')
+    }, 60_000)
+
+    it('with a pre-transcribed voice turn (explicit modality)', async () => {
+      await runLongStory({
+        role: 'user',
+        content: 'Can you tell me a fun story about Cloudflare Workers? Around one hundred words please.',
+        modality: 'voice',
+      })
+    }, 60_000)
+
+    it('replies with plain prose when the Speech component is used', async () => {
+      const sent: { type: string; text: string }[] = []
+      const chat = new Chat({
+        components: [DefaultComponents.Speech],
+        transcript: [longStoryVoiceMessage()],
+        handler: async (msg: any) => {
+          const collect = (c: any): string =>
+            typeof c === 'string' ? c : Array.isArray(c.children) ? c.children.map(collect).join('') : ''
+          sent.push({ type: msg.type, text: collect(msg) })
+        },
+      })
+
+      const result = await llmz.executeContext({
+        instructions: 'You are a voice assistant: your replies are spoken aloud to the user.',
+        options: { loop: 2 },
+        chat,
+        client,
+      })
+
+      assertSuccess(result)
+      const speech = sent.map((s) => s.text).join(' ')
+      expect(sent.every((s) => s.type.toLowerCase() === 'speech')).toBe(true)
+      expect(speech.length).toBeGreaterThan(200)
+      // spoken prose: no markdown emphasis/headings/lists/links
+      expect(speech).not.toMatch(/\*\*|__|^#|\n#|\n[-*] |https?:\/\//)
+    }, 60_000)
   })
 
   describe('multi-modality: screen share + voice + text events', () => {

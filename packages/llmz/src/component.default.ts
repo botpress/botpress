@@ -6,24 +6,10 @@ const Button = new Component({
   description: 'A button component that can perform actions when clicked',
   name: 'Button',
   aliases: ['btn'],
-  examples: [
-    {
-      name: 'Say action',
-      description: 'A button that triggers a say action',
-      code: `yield <Message>
-  <Button action="say" label="Hello" />
-</Message>`,
-    },
-    {
-      name: 'Postback action',
-      description: 'A button that sends a postback value',
-      code: `yield <Message>
-  Choose an option:
-  <Button action="postback" label="Buy" value="buy_product" />
-  <Button action="postback" label="Buy" value="buy_product2" />
-</Message>`,
-    },
-  ],
+  generation: {
+    usage: 'Attach quick actions to a message, e.g. postback choices or a URL to open.',
+    examples: [{ props: { action: 'postback', label: 'Buy', value: 'buy_product' } }],
+  },
   leaf: {
     props: z.object({
       action: z
@@ -45,16 +31,9 @@ const Image = new Component({
   name: 'Image',
   description: 'Displays an image from a URL.',
   aliases: [],
-  examples: [
-    {
-      name: 'Basic image',
-      description: 'A simple image with alt text',
-      code: `yield <Message>
-  An example image:
-  <Image url="https://example.com/photo.jpg" alt="Example image" />
-</Message>`,
-    },
-  ],
+  generation: {
+    examples: [{ props: { url: 'https://example.com/photo.jpg', alt: 'Example image' } }],
+  },
   leaf: {
     props: z.object({
       url: z.string().describe('The URL of the image (must be valid)'),
@@ -68,16 +47,9 @@ const File = new Component({
   name: 'File',
   description: 'Sends a downloadable file to the user.',
   aliases: [],
-  examples: [
-    {
-      name: 'PDF download',
-      description: 'Send a PDF file with a name',
-      code: `yield <Message>
-  Here is your report:
-  <File url="https://example.com/report.pdf" name="Report.pdf" />
-</Message>`,
-    },
-  ],
+  generation: {
+    examples: [{ props: { url: 'https://example.com/report.pdf', name: 'Report.pdf' } }],
+  },
   leaf: {
     props: z.object({
       url: z.string().describe('The URL of the file (must be valid)'),
@@ -91,16 +63,9 @@ const Video = new Component({
   name: 'Video',
   description: 'Embeds a video from a URL.',
   aliases: [],
-  examples: [
-    {
-      name: 'Intro video',
-      description: 'A video with a title',
-      code: `yield <Message>
-  Watch this video:
-  <Video url="https://example.com/intro.mp4" title="Welcome" />
-</Message>`,
-    },
-  ],
+  generation: {
+    examples: [{ props: { url: 'https://example.com/intro.mp4', title: 'Welcome' } }],
+  },
   leaf: {
     props: z.object({
       url: z.string().describe('The URL of the video (must be valid)'),
@@ -114,16 +79,9 @@ const Audio = new Component({
   name: 'Audio',
   description: 'Plays an audio clip from a URL.',
   aliases: [],
-  examples: [
-    {
-      name: 'Sample audio',
-      description: 'Play a short audio clip with a title',
-      code: `yield <Message>
-  Listen to this audio:
-  <Audio url="https://example.com/audio.mp3" title="Sample" />
-</Message>`,
-    },
-  ],
+  generation: {
+    examples: [{ props: { url: 'https://example.com/audio.mp3', title: 'Sample' } }],
+  },
   leaf: {
     props: z.object({
       url: z.string().describe('The URL of the audio clip (must be valid)'),
@@ -137,20 +95,9 @@ const Card = new Component({
   name: 'Card',
   description: 'A visual card component that can include an image and buttons.',
   aliases: [],
-  examples: [
-    {
-      name: 'Product card',
-      description: 'A card with an image and two buttons',
-      code: `yield <Message>
-  Featured product:
-  <Card title="Product Name" subtitle="Limited offer">
-    <Image url="https://example.com/product.jpg" alt="Product image" />
-    <Button action="postback" label="Buy" value="buy_product" />
-    <Button action="postback" label="Wishlist" value="wishlist" />
-  </Card>
-</Message>`,
-    },
-  ],
+  generation: {
+    examples: [{ props: { title: 'Product Name', subtitle: 'Limited offer' }, body: 'Featured product of the week.' }],
+  },
   container: {
     props: z.object({
       title: z.string().min(1).max(250).describe('Title text (1–250 characters)'),
@@ -174,25 +121,6 @@ const Carousel = new Component({
   name: 'Carousel',
   description: 'A virtual container for displaying 1 to 10 Card components as a carousel.',
   aliases: [],
-  examples: [
-    {
-      name: 'Product carousel',
-      description: 'A carousel with multiple cards',
-      code: `yield <Message>
-  Here are some products you might like:
-  <Carousel>
-    <Card title="Item 1" subtitle="First product">
-      <Image url="https://example.com/item1.jpg" alt="Item 1" />
-      <Button action="postback" label="Buy" value="buy_1" />
-    </Card>
-    <Card title="Item 2" subtitle="Second product">
-      <Image url="https://example.com/item2.jpg" alt="Item 2" />
-      <Button action="postback" label="Buy" value="buy_2" />
-    </Card>
-  </Carousel>
-</Message>`,
-    },
-  ],
   container: {
     props: z.object({}),
     children: [
@@ -208,16 +136,48 @@ const Text = new Component({
   type: 'default',
   name: 'Message',
   aliases: ['Text', 'Markdown'],
-  description: 'A Markdown-formatted text message.',
-  examples: [
-    {
-      name: 'Basic Markdown',
-      description: 'Simple markdown content inside a message',
-      code: `yield <Message>
-  **Hello**, welcome to our service!
-</Message>`,
-    },
-  ],
+  description: 'A Markdown-formatted text message. Long answers are written the same way: plain Markdown prose.',
+  generation: {
+    examples: [
+      // A long-form example matters: models shown only short bodies have been
+      // observed drifting into JSON-wrapping long replies ({"body": "..."})
+      {
+        body: `Great question! Deploying happens in three steps.
+
+First, connect your repository from the dashboard — we support GitHub and GitLab. Once connected, every push to your main branch triggers a build automatically.
+
+Then configure your build settings:
+
+- **Build command** — usually \`npm run build\`
+- **Output directory** — where the compiled assets end up
+
+Finally, hit **Deploy**. The first build takes a couple of minutes; subsequent ones are incremental and much faster. Want me to walk you through connecting your repository?`,
+      },
+      { body: '**Hello**, welcome to our service!' },
+    ],
+  },
+  default: {
+    props: z.object({}),
+    children: [],
+  },
+})
+
+const Speech = new Component({
+  type: 'default',
+  name: 'Speech',
+  aliases: ['speak', 'spoken'],
+  description: 'A message spoken aloud to the user via text-to-speech.',
+  body: {
+    format: 'text',
+    description:
+      'Plain conversational prose only, written to be read aloud: no Markdown, no links or URLs, no emojis, no code, no bullet points, tables or headings. Write everything the way it should be pronounced — spell out numbers, dates, units and abbreviations (e.g. "June third at three thirty PM", not "06/03 @ 3:30pm").',
+  },
+  generation: {
+    usage: 'Use when the reply will be played back as audio (voice conversations).',
+    examples: [
+      { body: 'Sure! Your order shipped this morning and should arrive on Tuesday, June third, around noon.' },
+    ],
+  },
   default: {
     props: z.object({}),
     children: [],
@@ -233,4 +193,5 @@ export const DefaultComponents = {
   Card,
   Carousel,
   Text,
+  Speech,
 }

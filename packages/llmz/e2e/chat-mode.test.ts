@@ -152,20 +152,19 @@ Key points:
       expect(messagesSent.length).toBeGreaterThan(0)
       expect(messagesSent).toMatchInlineSnapshot(`
         [
-          "Let me look up the documentation for creating React components with state for you...",
+          "Let me look up the documentation on creating React components with state for you...",
           "To create a React component with state, you typically use the \`useState\` hook. This allows you to add local state to functional components.
 
-        Here is a comprehensive example of a component that manages state for a user profile, including a loading state and an effect to fetch data:
+        Here is an example of a component that manages state for a user profile:
 
         \`\`\`jsx
         import React, { useState, useEffect } from 'react';
 
         function UserProfile({ userId }) {
-          // Declare state variables using the useState hook
+          // Initialize state using the useState hook
           const [user, setUser] = useState(null);
           const [loading, setLoading] = useState(true);
 
-          // useEffect handles side effects, such as fetching data when the component mounts or userId changes
           useEffect(() => {
             fetch(\`/api/users/\${userId}\`)
               .then(res => res.json())
@@ -175,7 +174,6 @@ Key points:
               });
           }, [userId]);
 
-          // Conditional rendering based on state
           if (loading) return <div>Loading...</div>;
 
           return (
@@ -194,10 +192,11 @@ Key points:
 
         ### Key Concepts:
         *   **\`useState\`**: This hook returns a pair: the current state value and a function that lets you update it.
-        *   **\`useEffect\`**: Used for operations that affect the component outside its return value (like API calls). The second argument \`[userId]\` is the dependency array; the effect runs whenever \`userId\` changes.
-        *   **JSX Expressions**: Use curly braces \`{}\` to embed JavaScript expressions (like variables or function calls) directly into your HTML-like markup.
+        *   **\`useEffect\`**: Used for side effects, such as fetching data when the component mounts or when a specific dependency (like \`userId\`) changes.
+        *   **JSX Expressions**: Use curly braces \`{}\` to embed JavaScript expressions directly within your HTML-like markup.
+        *   **Updating State**: Always use the setter function (e.g., \`setUser\`) to update state rather than mutating the state variable directly.
 
-        Does this help, or would you like to see a simpler example without the API call?",
+        Does this help, or would you like to see a simpler example, such as a counter?",
         ]
       `)
     })
@@ -282,9 +281,9 @@ Special characters handled:
       expect(messagesSent).toMatchInlineSnapshot(`
         [
           "Let me look up the documentation on HTML forms for you...",
-          "To create an HTML form, you use the \`<form>\` element, which acts as a container for various input elements like text fields, checkboxes, radio buttons, and submit buttons.
+          "To create an HTML form, you use the \`<form>\` element, which acts as a container for various input elements like text fields, passwords, and submit buttons.
 
-        Here is a complete example of a form that includes basic validation, styling for valid/invalid inputs, and a script to handle submission:
+        Here is a complete example of a form that includes basic validation, styling for valid/invalid inputs, and a simple JavaScript check:
 
         \`\`\`html
         <form action="/submit" method="POST" onsubmit="return validate()">
@@ -320,16 +319,12 @@ Special characters handled:
         </style>
         \`\`\`
 
-        ### Key Components Explained:
-        *   **\`<form>\`**: The main wrapper. The \`action\` attribute specifies where to send the form data, and \`method="POST"\` is used for secure data submission.
-        *   **\`<input>\`**: 
-            *   \`type="text"\` and \`type="password"\` define the kind of data expected.
-            *   \`required\` ensures the field is not left empty.
-            *   \`pattern\` uses a regular expression to validate the format (e.g., ensuring the email looks like an email).
-        *   **\`<button type="submit">\`**: The trigger that sends the form data to the server.
-        *   **CSS Pseudo-classes**: \`:invalid\` and \`:valid\` provide immediate visual feedback to the user based on the input's validity.
-
-        Would you like to know more about specific input types or how to handle the form data on a server?",
+        ### Key Components Used:
+        *   **\`<form>\`**: The main wrapper. The \`action\` attribute defines where to send the data, and \`method="POST"\` is used for secure data submission.
+        *   **\`<input type="text">\`**: A standard text field. The \`required\` attribute ensures the field isn't empty, and \`pattern\` uses a Regular Expression to validate the email format.
+        *   **\`<input type="password">\`**: Masks the characters entered by the user.
+        *   **\`<button type="submit">\`**: Triggers the form submission.
+        *   **CSS Pseudo-classes**: \`:invalid\` and \`:valid\` are used to provide immediate visual feedback to the user based on the input constraints.",
         ]
       `)
     })
@@ -421,40 +416,61 @@ Features demonstrated:
       expect(messagesSent).toMatchInlineSnapshot(`
         [
           "Let me look up the documentation on advanced TypeScript types for you...",
-          "Advanced TypeScript types allow you to create highly flexible and type-safe code by leveraging the type system to perform logic. Based on the documentation, here are some of the key advanced features:
+          "Advanced TypeScript types allow you to create highly flexible and type-safe code by manipulating types dynamically. Based on the documentation, here are some of the key advanced features:
 
         ### 1. Generic Constraints
-        Generic constraints use the \`extends\` keyword to limit the types that a generic type parameter can accept. This ensures that the passed type possesses specific properties.
-        **Example:** \`class ApiClient<T extends { id: string }>\` ensures that any type passed to \`ApiClient\` must have at least an \`id\` property of type \`string\`.
+        Generic constraints use the \`extends\` keyword to limit what types a generic parameter can be. For example, ensuring a type has at least an \`id\` property:
+        \`\`\`typescript
+        class ApiClient<T extends { id: string }> {
+          // T must be an object with a string id
+        }
+        \`\`\`
 
         ### 2. Conditional Types
-        Conditional types allow you to choose a type based on a condition, similar to a ternary operator in JavaScript.
-        **Example:** \`T[K] extends string ? string : number\` means "if the value of type \`T\` at key \`K\` is a string, the result is a string; otherwise, it is a number."
+        Conditional types allow you to choose one type over another based on a condition, similar to a ternary operator in JavaScript:
+        \`\`\`typescript
+        // If T[K] is a string, return string; otherwise, return number
+        transform<K extends keyof T>(key: K): T[K] extends string ? string : number {
+          return this.data[key] as any;
+        }
+        \`\`\`
 
         ### 3. Mapped Types & Template Literal Types
-        Mapped types allow you to create new types based on existing ones. When combined with template literal types, you can dynamically generate property names.
-        **Example:**
+        Mapped types allow you to create new types based on existing ones. When combined with template literal types, you can dynamically generate property names:
         \`\`\`typescript
         type EventMap = {
           click: MouseEvent;
           keypress: KeyboardEvent;
         };
 
+        // Generates types like 'onClick' and 'onKeypress'
         type EventHandlers = {
           [K in keyof EventMap as \`on\${Capitalize<K>}\`]: (e: EventMap[K]) => void;
         };
-        // Result: { onClick: (e: MouseEvent) => void, onKeypress: (e: KeyboardEvent) => void }
         \`\`\`
 
-        ### 4. Template Literal Types with Inference
-        You can use the \`infer\` keyword within template literal types to extract specific parts of a string type.
-        **Example:** The \`RouteParams\` type can parse a URL string (like \`/user/:id/profile\`) and automatically generate a type for the required parameters.
+        ### 4. Template Literal Inference
+        You can use the \`infer\` keyword within template literal types to extract specific parts of a string type:
+        \`\`\`typescript
+        type RouteParams<T extends string> = T extends \`\${infer Start}/:\${infer Param}/\${infer Rest}\`
+          ? { [K in Param]: string } & RouteParams<\`\${Start}/\${Rest}\`>
+          : {};
+        \`\`\`
 
         ### 5. Decorators
-        Decorators are a special kind of declaration that can be attached to a class, method, or property to modify its behavior.
-        **Example:** The \`@Log\` decorator shown in the documentation intercepts method calls to log the arguments being passed to the function.
+        Decorators provide a way to add annotations and a meta-programming syntax for class declarations and members:
+        \`\`\`typescript
+        function Log(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+          // Logic to log method calls
+        }
 
-        Would you like to dive deeper into any of these specific features?",
+        class ApiClient {
+          @Log
+          async fetch(id: string) { /* ... */ }
+        }
+        \`\`\`
+
+        Would you like to dive deeper into any of these specific concepts?",
         ]
       `)
     })
@@ -544,13 +560,13 @@ Key syntax:
 
       expect(messagesSent).toMatchInlineSnapshot(`
         [
-          "Writing SQL queries involves using a structured language to communicate with a database. To give you the most accurate guidance and examples, I'll retrieve some documentation on SQL basics for you.",
-          "SQL (Structured Query Language) is used to manage and manipulate databases. Depending on what you want to do, you'll use different types of commands.
+          "Let me look up the documentation on how to write SQL queries for you...",
+          "Writing SQL queries involves using a structured language to communicate with a database. Depending on what you want to do (retrieve, insert, or manipulate data), the syntax varies.
 
-        ### 1. Basic Retrieval (SELECT)
-        The most common task is retrieving data using the \`SELECT\` statement.
+        ### 1. Basic Data Retrieval (\`SELECT\`)
+        The most common operation is the \`SELECT\` statement, used to fetch data from a table.
 
-        **Basic Example:**
+        **Example: Basic Selection**
         \`\`\`sql
         SELECT name, email 
         FROM users 
@@ -558,8 +574,10 @@ Key syntax:
           AND name != 'Admin';
         \`\`\`
 
-        **Advanced Example (Using CTEs and Window Functions):**
-        For more complex analysis, you can use Common Table Expressions (CTEs) and window functions like \`ROW_NUMBER()\` to rank your data.
+        ### 2. Advanced Queries
+        For more complex data analysis, you can use **Common Table Expressions (CTEs)** and **Window Functions** to organize your data before the final selection.
+
+        **Example: Ranking Users**
         \`\`\`sql
         WITH ranked_users AS (
           SELECT
@@ -582,20 +600,21 @@ Key syntax:
         WHERE daily_rank <= 100;
         \`\`\`
 
-        ### 2. Adding Data (INSERT)
-        To add new records, use the \`INSERT INTO\` statement. Note that strings must be wrapped in single quotes. If your text contains a quote, you escape it by using two single quotes (\`''\`).
+        ### 3. Inserting Data (\`INSERT\`)
+        To add new records to a table, use the \`INSERT INTO\` statement. Note that strings must be enclosed in single quotes.
 
+        **Example: Inserting Records**
         \`\`\`sql
         INSERT INTO messages (content, metadata) VALUES
           ('User said: "Hello!"', '{"sender": "user", "timestamp": "2024-01-01"}'),
           ('It''s a nice day', '{"type": "greeting"}');
         \`\`\`
+        *Tip: To include a single quote inside a string (like in "It's"), use two single quotes (\`''\`) to escape it.*
 
-        ### 3. Working with JSON
-        Many modern databases (like PostgreSQL) allow you to store and query JSON data directly.
-        - \`->>\` extracts a field as text.
-        - \`@>\` checks if the JSON contains a specific key/value pair.
+        ### 4. Working with JSON
+        Many modern databases (like PostgreSQL) allow you to query JSON data directly using special operators.
 
+        **Example: JSON Extraction**
         \`\`\`sql
         SELECT
           data->>'name' as name,
@@ -604,13 +623,16 @@ Key syntax:
         WHERE data @> '{"status": "active"}';
         \`\`\`
 
-        ### Quick Syntax Tips:
-        *   **Strings**: Always use single quotes (\`'text'\`).
-        *   **Identifiers**: Use double quotes (\`"column_name"\`) if the name contains spaces or is a reserved keyword.
+        ### Quick Syntax Reference:
+        *   **Strings**: Use single quotes (e.g., \`'text'\`).
+        *   **Identifiers**: Use double quotes for column or table names if they contain spaces or reserved words (e.g., \`"column_name"\`).
         *   **Comments**: Use \`--\` for single-line comments or \`/* ... */\` for multi-line blocks.
-        *   **Operators**: Use \`!=\` or \`<>\` for "not equal", and \`LIKE\` for pattern matching.
+        *   **Operators**: 
+            *   \`!=\` : Not equal to
+            *   \`>=\` / \`<=\` : Greater than or equal / Less than or equal
+            *   \`->\` / \`->>\` : JSON object/text extraction
 
-        Would you like to see examples for other operations, such as updating data or joining multiple tables?",
+        Would you like me to explain a specific part of this syntax or help you write a query for a particular goal?",
         ]
       `)
     })
@@ -713,54 +735,49 @@ Important syntax:
       expect(messagesSent).toMatchInlineSnapshot(`
         [
           "Let me look up the documentation on how to write Bash scripts for you...",
-          "Writing Bash scripts is a powerful way to automate tasks in Unix-like environments. To get started, you create a text file (usually ending in \`.sh\`) and begin with a "shebang" line to tell the system which interpreter to use.
+          "Writing Bash scripts allows you to automate repetitive tasks in a Unix-like environment. Here is a guide based on the documentation.
 
-        ### Basic Structure and Examples
+        ### 1. The Shebang
+        Every Bash script should start with a "shebang" line. This tells the system which interpreter to use to execute the script.
+        \`\`\`bash
+        #!/bin/bash
+        \`\`\`
 
-        Here is a comprehensive example demonstrating key Bash concepts:
+        ### 2. Basic Concepts
+        *   **Variables**: Defined without spaces around the \`=\` sign. Use \`$\` to access them.
+            *   Example: \`NAME="John Doe"\` $\\rightarrow$ \`echo $NAME\`
+        *   **Command Substitution**: Use \`$(command)\` to save the output of a command into a variable.
+            *   Example: \`TIMESTAMP=$(date +%Y-%m-%d)\`
+        *   **Quotes**: Use double quotes (\`"\`) if you want variables to be expanded, and single quotes (\`'\`) to treat everything as literal text.
+
+        ### 3. Control Structures
+        **Conditionals**: Use \`if\` statements with double brackets \`[[ ]]\` for more robust testing.
+        \`\`\`bash
+        if [[ -f "file.txt" ]]; then
+          echo "The file exists."
+        fi
+        \`\`\`
+
+        **Loops**: Use \`for\` loops to iterate over lists or arrays.
+        \`\`\`bash
+        FILES=("file1.txt" "file2.txt")
+        for file in "\${FILES[@]}"; do
+          echo "Processing $file"
+        done
+        \`\`\`
+
+        ### 4. Putting it all together
+        Here is a comprehensive example showing functions, error handling, and string manipulation:
 
         \`\`\`bash
         #!/bin/bash
 
-        # Variables and parameter expansion
+        # Variable and string manipulation
         NAME="John Doe"
-        FILE_PATH="/home/\${USER}/documents"
-        TIMESTAMP=$(date +%Y-%m-%d_%H:%M:%S)
-
-        # String manipulation
         echo "Hello \${NAME}!"
         echo "Uppercase: \${NAME^^}"
-        echo "Lowercase: \${NAME,,}"
-        echo "Replace: \${NAME/John/Jane}"
 
-        # Conditionals with test operators
-        if [[ "\${NAME}" =~ ^[A-Z] ]] && [[ -f "\${FILE_PATH}" ]]; then
-          echo "Name starts with capital and file exists"
-        elif [[ ! -z "\${NAME}" ]]; then
-          echo "Name is not empty"
-        fi
-
-        # Arrays and loops
-        FILES=("file1.txt" "file2.txt" "file with spaces.txt")
-        for file in "\${FILES[@]}"; do
-          if [[ -f "$file" ]]; then
-            echo "Processing: '$file'"
-            cat "$file" | grep -E "pattern|another" > "output_\${file}"
-          fi
-        done
-
-        # Command substitution and pipes
-        LINES=$(wc -l < input.txt)
-        RESULT=$(cat file.txt | sed 's/old/new/g' | awk '{print $1}')
-
-        # Here documents (writing multi-line text to a file)
-        cat << 'EOF' > output.txt
-        This is a here document.
-        Variables like $HOME are not expanded.
-        Special chars: < > | & ; ' " \` $
-        EOF
-
-        # Function with error handling
+        # A function to process files with error handling
         process_file() {
           local file="$1"
           if [[ ! -r "$file" ]]; then
@@ -769,23 +786,17 @@ Important syntax:
           fi
           echo "Success: $file"
         }
+
+        # Using the function
+        process_file "test.txt"
         \`\`\`
 
-        ### Key Syntax Guide
+        ### 5. Running your script
+        To run your script, you first need to give it execution permissions:
+        1. \`chmod +x myscript.sh\`
+        2. \`./myscript.sh\`
 
-        *   **Variables**: Access them using \`$VAR\` or \`\${VAR}\`.
-        *   **Command Substitution**: Use \`$(command)\` to save the output of a command into a variable.
-        *   **Quotes**: 
-            *   \`"Double quotes"\` allow variable expansion.
-            *   \`'Single quotes'\` treat everything as literal text.
-        *   **Special Characters**: Be mindful of characters like \`$\`, \`\` \` \`\`, \`!\`, \`&\`, \`|\`, \`<\`, \`>\`, \`;\`, \`(\`, \`)\`, \`{\`, \`}\`, \`[\`, and \`]\`, as they have special meanings in Bash.
-
-        ### How to Run Your Script
-        1.  **Create the file**: \`nano myscript.sh\`
-        2.  **Make it executable**: \`chmod +x myscript.sh\`
-        3.  **Execute it**: \`./myscript.sh\`
-
-        Would you like me to explain any specific part of this syntax or help you write a script for a particular task?",
+        Do you have a specific task you are trying to automate with a script?",
         ]
       `)
     })
@@ -884,54 +895,48 @@ String types:
 
       expect(messagesSent).toMatchInlineSnapshot(`
         [
-          "Let me look up the documentation for Python string formatting for you...",
-          "Python offers several ways to format strings. The most modern and preferred method is using **f-strings**, but there are other useful types depending on your needs.
+          "Let me look up the documentation on Python string formatting for you...",
+          "Python offers several ways to format strings, with **f-strings** being the most modern and preferred method. Here are the primary ways to handle string formatting:
 
         ### 1. F-Strings (Formatted String Literals)
-        Introduced in Python 3.6, f-strings are the most readable and efficient way to format strings. You prefix the string with \`f\` and use curly braces \`{}\` to embed expressions.
+        Introduced in Python 3.6, f-strings are fast and easy to read. You simply prefix the string with \`f\` and use curly braces \`{}\` to embed expressions.
 
-        **Basic Usage:**
         \`\`\`python
         name = "Alice"
         age = 30
+        # Basic interpolation
         print(f"Hello {name}! You are {age} years old.")
-        # Output: Hello Alice! You are 30 years old.
+
+        # Expressions inside braces
+        print(f"Next year: {age + 1}")
+        print(f"Uppercase: {name.upper()}")
         \`\`\`
 
-        **Expressions inside f-strings:**
-        You can perform calculations or call methods directly inside the braces:
-        \`\`\`python
-        print(f"Next year: {age + 1}")      # Output: Next year: 31
-        print(f"Uppercase: {name.upper()}") # Output: Uppercase: ALICE
-        \`\`\`
+        ### 2. Format Specifiers
+        You can control how values are displayed (like decimal places or padding) using a colon \`:\` inside the braces.
 
-        **Format Specifiers:**
-        You can control how numbers are displayed (e.g., decimal places or percentages):
         \`\`\`python
         price = 19.99
-        print(f"Price: \${price:.2f}")       # Output: Price: $19.99
-        print(f"Percentage: {0.846:.1%}")   # Output: Percentage: 84.6%
+        print(f"Price: \${price:.2f}")      # 2 decimal places
+        print(f"Hex: {255:#x}")            # Hexadecimal format
+        print(f"Percentage: {0.846:.1%}")  # Percentage format
         \`\`\`
 
-        ### 2. The \`.format()\` Method
-        This is an older but still powerful method. It is useful when the string template is defined separately from the data.
+        ### 3. The \`.format()\` Method
+        This is useful for templates where the values are provided later.
 
         \`\`\`python
         template = "Hello {name}, you have {count} messages"
-        result = template.format(name="Charlie", count=5)
-        print(result) 
-        # Output: Hello Charlie, you have 5 messages
+        print(template.format(name="Charlie", count=5))
         \`\`\`
 
-        ### 3. Special String Types
-        Depending on your use case, you might need these variations:
-
-        *   **Raw Strings (\`r""\`)**: Used primarily for regular expressions or Windows file paths to treat backslashes as literal characters rather than escape characters.
+        ### 4. Special String Types
+        *   **Raw Strings (\`r""\`)**: Used primarily for regular expressions or Windows file paths to treat backslashes as literal characters.
             \`\`\`python
-            path = r"C:\\Users\\Documents"
             pattern = r"\\d{3}-\\d{3}-\\d{4}"
+            path = r"C:\\Users\\Name\\Documents"
             \`\`\`
-        *   **Triple-Quoted Strings (\`""" """\`)**: Used for multi-line strings, such as SQL queries or long blocks of text.
+        *   **Triple-Quoted Strings (\`""" """\`)**: Used for multi-line strings.
             \`\`\`python
             sql_query = """
             SELECT * FROM users
@@ -939,7 +944,13 @@ String types:
             """
             \`\`\`
 
-        Would you like to see more advanced examples of any of these methods?",
+        ### Summary Table
+        | Type | Syntax | Best Use Case |
+        | :--- | :--- | :--- |
+        | **F-String** | \`f"Text {var}"\` | Most general purpose formatting |
+        | **.format()** | \`"Text {}".format(var)\` | Reusable templates |
+        | **Raw String** | \`r"C:\\path"\` | Regex and file paths |
+        | **Triple Quote**| \`"""Text"""\` | Multi-line text/docs |",
         ]
       `)
     })
@@ -1035,12 +1046,10 @@ Escaping rules:
 
       expect(messagesSent).toMatchInlineSnapshot(`
         [
-          "Let me find some documentation and examples on how to work with JSON for you...",
-          "Working with JSON involves understanding its structure and the specific rules for formatting data. JSON (JavaScript Object Notation) is a lightweight data-interchange format that is easy for humans to read and write and easy for machines to parse and generate.
+          "Let me find the documentation on how to work with JSON for you...",
+          "To work with JSON, you need to follow a specific structure of key-value pairs and arrays. Here is a comprehensive example and a guide on the rules:
 
         ### JSON Structure Example
-        Here is a comprehensive example showing how different data types are represented:
-
         \`\`\`json
         {
           "user": {
@@ -1087,17 +1096,18 @@ Escaping rules:
         }
         \`\`\`
 
-        ### Key Formatting Rules
-        To ensure your JSON is valid, follow these escaping and formatting rules:
+        ### Key Escaping Rules
+        When working with strings in JSON, certain characters must be escaped using a backslash (\`\\\`):
 
-        *   **Strings**: Must be enclosed in double quotes (\`" "\`).
         *   **Quotes**: Use \`\\"\` to include a double quote inside a string.
-        *   **Backslashes**: Use \`\\\\\` to represent a single backslash.
-        *   **Control Characters**: Use \`\\n\` for newlines, \`\\t\` for tabs, \`\\r\` for carriage returns, \`\\b\` for backspaces, and \`\\f\` for form feeds.
+        *   **Backslash**: Use \`\\\\\` to represent a single backslash.
+        *   **Control Characters**: 
+            *   \`\\n\` for a newline
+            *   \`\\t\` for a tab
+            *   \`\\r\` for carriage return
         *   **Unicode**: Use \`\\uXXXX\` (where XXXX is the hex code) to represent unicode characters.
-        *   **Data Types**: JSON supports strings, numbers, booleans (\`true\`/\`false\`), \`null\`, arrays (\`[ ]\`), and objects (\`{ }\`).
 
-        Do you have a specific programming language you are using to parse this JSON, or do you need help with a particular part of the structure?",
+        Do you have a specific project or language you are using JSON with?",
         ]
       `)
     })
@@ -1203,57 +1213,54 @@ Special CSS features:
       expect(messagesSent).toMatchInlineSnapshot(`
         [
           "Let me look up the documentation on CSS selectors for you...",
-          "CSS selectors are used to "find" or select the HTML elements you want to style. They range from simple type selectors to complex combinations.
+          "CSS selectors are used to "find" (or select) the HTML elements you want to style. They can range from simple type selectors to complex combinations.
 
         ### 1. Basic Selectors
-        *   **Type Selector**: Targets elements by their node name.
-            \`\`\`css
-            p { color: black; } /* Targets all <p> elements */
-            \`\`\`
-        *   **Class Selector**: Targets elements with a specific class attribute (starts with a dot).
-            \`\`\`css
-            .button { background: blue; } /* Targets all elements with class="button" */
-            \`\`\`
-        *   **ID Selector**: Targets a unique element with a specific ID (starts with a hash).
-            \`\`\`css
-            #header { height: 100px; } /* Targets the element with id="header" */
-            \`\`\`
+        While the advanced documentation focuses on complex patterns, the foundation consists of:
+        - **Element Selector**: Selects elements based on the element name.
+          \`\`\`css
+          p { color: red; } /* Selects all <p> elements */
+          \`\`\`
+        - **Class Selector**: Selects elements with a specific class attribute.
+          \`\`\`css
+          .button { background: blue; } /* Selects all elements with class="button" */
+          \`\`\`
+        - **ID Selector**: Selects a unique element with a specific ID.
+          \`\`\`css
+          #header { height: 100px; } /* Selects the element with id="header" */
+          \`\`\`
 
         ### 2. Advanced Selectors
-        For more precise targeting, you can use attribute selectors, pseudo-classes, and pseudo-elements:
+        For more precise targeting, you can use these advanced patterns:
 
-        *   **Attribute Selectors**: Target elements based on their attributes.
-            \`\`\`css
-            a[href^="https://"] { color: green; } /* Links starting with https:// */
-            a[href$=".pdf"] { background: url('icon.pdf'); } /* Links ending in .pdf */
-            \`\`\`
-        *   **Pseudo-classes**: Target elements based on their state.
-            \`\`\`css
-            input[type="text"]:focus { border: 2px solid blue; } /* When an input is focused */
-            li:nth-child(2n+1) { background: #f0f0f0; } /* Every odd list item */
-            \`\`\`
-        *   **Pseudo-elements**: Style specific parts of an element.
-            \`\`\`css
-            p::first-letter { font-size: 2em; } /* The first letter of every paragraph */
-            p::before { content: "→ "; } /* Inserts content before the element */
-            \`\`\`
+        **Attribute Selectors**
+        Target elements based on their attributes or the value of those attributes:
+        - \`a[href^="https://"]\`: Selects links starting with "https://".
+        - \`a[href$=".pdf"]\`: Selects links ending with ".pdf".
+        - \`div[data-theme~="dark"]\`: Selects elements where the attribute contains the word "dark".
 
-        ### 3. Combinators and Complex Selectors
-        You can combine selectors to create highly specific rules:
-        *   **Child Combinator (\`>\`)**: Targets direct children.
-        *   **Descendant Combinator (space)**: Targets any child, grandchild, etc.
-        *   **\`:not()\`**: Excludes elements that match a selector.
-        *   **\`:has()\`**: Targets an element if it contains another specific element.
+        **Pseudo-classes and Pseudo-elements**
+        Target elements based on their state or specific parts of the element:
+        - \`:nth-child(2n+1)\`: Selects every odd element.
+        - \`:not(.active)\`: Selects elements that do *not* have the class "active".
+        - \`::first-letter\`: Styles only the first letter of a block of text.
+        - \`::before\` / \`::after\`: Inserts content before or after an element.
 
-        **Example of a complex selector:**
+        **Combinators**
+        Define the relationship between selectors:
+        - \`nav > ul\`: The child combinator (selects \`ul\` that is a direct child of \`nav\`).
+        - \`div.container:has(> img)\`: The \`:has()\` relational pseudo-class (selects the container only if it contains an image).
+
+        ### Example: Putting it all together
         \`\`\`css
-        nav > ul > li:not(.active) a:hover { 
-          text-decoration: underline; 
+        /* Select a link inside a list item that is NOT active, when hovered */
+        nav > ul > li:not(.active) a:hover {
+          text-decoration: underline;
+          color: var(--primary-color);
         }
         \`\`\`
-        *This targets any link (\`a\`) that is hovered, inside a list item (\`li\`) that is NOT active, which is a direct child of a list (\`ul\`), which is a direct child of a navigation bar (\`nav\`).*
 
-        Would you like to see more examples of a specific type of selector?",
+        Do you have a specific HTML structure you are trying to target?",
         ]
       `)
     })
@@ -1358,50 +1365,55 @@ Markdown features:
           "Here is a guide on how to use Markdown syntax:
 
         ### Headings
-        Use the \`#\` symbol at the start of a line.
+        Use the \`#\` symbol followed by a space. More \`#\` symbols create smaller headings.
         \`# Heading 1\`
         \`## Heading 2\`
         \`### Heading 3\`
 
         ### Text Formatting
-        - **Bold**: \`**text**\` or \`__text__\`
-        - *Italic*: \`*text*\` or \`_text_\`
-        - ~~Strikethrough~~: \`~~text~~\`
-        - \`Inline Code\`: Use backticks \`\` \`code\` \`\`
+        - **Bold**: Wrap text in double asterisks \`**bold**\` or double underscores \`__bold__\`.
+        - *Italic*: Wrap text in single asterisks \`*italic*\` or single underscores \`_italic_\`.
+        - ~~Strikethrough~~: Wrap text in double tildes \`~~strikethrough~~\`.
+        - \`Inline Code\`: Wrap text in single backticks \`\` \`code\` \`\`.
 
         ### Lists
-        **Ordered Lists:**
+        **Ordered Lists**:
         1. First item
         2. Second item
 
-        **Unordered Lists:**
-        - Item one
-        - Item two
-          - Nested item
+        **Unordered Lists**:
+        - Item A
+        - Item B
+          - Nested Item
 
         ### Links and Images
-        - **Link**: \`[Link Text](https://example.com "Title")\`
-        - **Image**: \`![Alt Text](https://example.com/img.png)\`
-        - **Auto-link**: \`<https://auto-link.com>\`
+        - **Links**: \`[Link Text](https://example.com "Optional Title")\`
+        - **Images**: \`![Alt Text](https://example.com/image.png)\`
+        - **Auto-links**: \`<https://example.com>\`
 
         ### Code Blocks
-        Use triple backticks with an optional language identifier for syntax highlighting:
+        For multi-line code blocks, use triple backticks. You can specify the language for syntax highlighting:
+
         \`\`\`javascript
         const greeting = \`Hello World!\`;
+        console.log(greeting);
         \`\`\`
 
         ### Blockquotes
-        Use the \`>\` character:
+        Use the \`>\` symbol at the start of the line:
         > This is a blockquote.
+        > > This is a nested blockquote.
 
         ### Tables
+        Use pipes \`|\` and dashes \`-\` to create tables:
+
         | Header 1 | Header 2 |
         |----------|----------|
         | Cell 1    | Cell 2    |
         | Cell 3    | Cell 4    |
 
         ### Special Characters
-        If you need to display a character that is normally used for formatting (like \`*\` or \`#\`), escape it with a backslash: \`\\*\` or \`\\#\`.
+        If you need to display a character that is normally used for formatting (like \`*\` or \`#\`), escape it with a backslash \`\\\`. For example: \`\\*not italic\\*\`.
 
         Do you have any specific questions about these features?",
         ]
@@ -1462,8 +1474,8 @@ IMPORTANT RULES:
 
       expect(messagesSent).toMatchInlineSnapshot(`
         [
-          "<p><em>Let me search for the available products for you...</em></p>",
-          "<p>Here are the products I found in the database:</p>
+          "<p><em>Searching for available products...</em></p>",
+          "<p>Here are the search results I found for you:</p>
         <p><strong>Product A</strong> is available at <a href="https://example.com/productA">this link</a></p>
         <p>The price is <em>$99.99</em> with a <span class="discount">20% discount</span></p>
         <p>Customer review: "This is <strong>amazing</strong>!" - <cite>John Doe</cite></p>
@@ -1529,7 +1541,7 @@ CRITICAL: The user expects to see HTML tags rendered, not as plain text!`,
 
       expect(messagesSent).toMatchInlineSnapshot(`
         [
-          "Let me retrieve that content for you...",
+          "Let me fetch that content for you...",
           "<div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px;">
         <div class="article">
           <h1>Article Title &amp; Subtitle</h1>
@@ -1625,38 +1637,44 @@ CRITICAL: Your output must be valid HTML that includes the raw HTML from the exa
       expect(messagesSent).toMatchInlineSnapshot(`
         [
           "<div>
-          <p><em>Let me find some <strong>HTML templating</strong> examples for you...</em></p>
+          <section>
+            <p><em>Let me find some <strong>HTML templating</strong> examples for you...</em></p>
+          </section>
         </div>",
-          "<div class="coding-tutor-response">
+          "<div>
           <section>
             <p>Here are the <strong>HTML templating</strong> examples you requested:</p>
-            <div class="examples-container">
+            <article>
               <div class="example">
-                <h3>Example 1: Basic Usage</h3>
-                <code>const html = '&lt;div&gt;{content}&lt;/div&gt;';</code>
-                <p>This creates a <strong>template string</strong> with HTML.</p>
-              </div>
+          <h3>Example 1: Basic Usage</h3>
+          <code>const html = '&lt;div&gt;{content}&lt;/div&gt;';</code>
+          <p>This creates a <strong>template string</strong> with HTML.</p>
+        </div>
+            </article>
+            <article>
               <section>
-                <h3>Example 2: JSX Component</h3>
-                <pre>
+          <h3>Example 2: JSX Component</h3>
+          <pre>
         function Button({ label }) {
           return &lt;button onClick={() =&gt; alert(\`Clicked \${label}!\`)}&gt;{label}&lt;/button&gt;;
         }
-                </pre>
-                <p>Notice the <em>curly braces</em> for expressions: <code>{label}</code></p>
-              </section>
+          </pre>
+          <p>Notice the <em>curly braces</em> for expressions: <code>{label}</code></p>
+        </section>
+            </article>
+            <article>
               <article>
-                <h3>Example 3: HTML Entities</h3>
-                <p>Common entities:</p>
-                <ul>
-                  <li>&amp;lt; for &lt;</li>
-                  <li>&amp;gt; for &gt;</li>
-                  <li>&amp;amp; for &amp;</li>
-                  <li>&amp;quot; for &quot;</li>
-                </ul>
-                <code>text.replace(/&lt;/g, '&amp;lt;').replace(/&gt;/g, '&amp;gt;')</code>
-              </article>
-            </div>
+          <h3>Example 3: HTML Entities</h3>
+          <p>Common entities:</p>
+          <ul>
+            <li>&amp;lt; for &lt;</li>
+            <li>&amp;gt; for &gt;</li>
+            <li>&amp;amp; for &amp;</li>
+            <li>&amp;quot; for &quot;</li>
+          </ul>
+          <code>text.replace(/&lt;/g, '&amp;lt;').replace(/&gt;/g, '&amp;gt;')</code>
+        </article>
+            </article>
           </section>
         </div>",
         ]
@@ -1738,12 +1756,12 @@ This is for EDUCATIONAL purposes - show real-world template patterns!`,
       expect(result.iteration.code).toMatchInlineSnapshot(`undefined`)
       expect(messagesSent).toMatchInlineSnapshot(`
         [
-          "Let me fetch those HTML templates for you...",
-          "Here are several examples of HTML templates using template literal syntax. These are designed to be "copy-paste ready" for educational purposes, demonstrating how to handle dynamic data injection, attribute binding, and basic sanitization.
+          "Let me fetch some HTML templates with template literals for you...",
+          "Here are several real-world examples of HTML templates using template literal syntax. These are designed to be copy-paste ready for your educational use.
 
         <section>
-          <h3>1. Component Template (Standard)</h3>
-          <p>This pattern is ideal for reusable UI components like user profiles.</p>
+          <h3>1. Component-Based Template</h3>
+          <p>This pattern is common for user interfaces where data is injected into a reusable card component.</p>
           <pre><code>&lt;template id="user-card"&gt;
           &lt;div class="card" data-user="\${userId}"&gt;
             &lt;h2&gt;\${name}&lt;/h2&gt;
@@ -1755,7 +1773,7 @@ This is for EDUCATIONAL purposes - show real-world template patterns!`,
 
         <section>
           <h3>2. Script-Based Template</h3>
-          <p>Commonly used in legacy systems or specific frameworks to store HTML strings inside a script tag.</p>
+          <p>Using <code>text/template</code> prevents the browser from rendering the content immediately, allowing JavaScript to clone and populate it.</p>
           <pre><code>&lt;script type="text/template"&gt;
           &lt;div class="message"&gt;
             &lt;strong&gt;\${author}&lt;/strong&gt; said:
@@ -1767,13 +1785,17 @@ This is for EDUCATIONAL purposes - show real-world template patterns!`,
 
         <section>
           <h3>3. Dynamic Content with Logic</h3>
-          <p>This example demonstrates <strong>safe patterns</strong>, such as providing default values (fallback) and basic string replacement to prevent script injection.</p>
+          <p>This demonstrates safe patterns, such as providing fallback values (OR operator) and basic sanitization (replace method) to prevent XSS attacks.</p>
           <pre><code>&lt;div class="dynamic-content"&gt;
           &lt;h1&gt;\${title || 'Untitled'}&lt;/h1&gt;
           &lt;div class="body"&gt;\${content?.replace(/&lt;script&gt;/g, '&amp;lt;script&amp;gt;')}&lt;/div&gt;
           &lt;a href="/edit?id=\${id}&amp;action=update"&gt;Edit&lt;/a&gt;
         &lt;/div&gt;</code></pre>
-        </section>",
+        </section>
+
+        <div style="margin-top: 20px; padding: 10px; border: 1px solid #ccc;">
+          <strong>Educational Tip:</strong> Always remember to sanitize user-provided data (like the <code>.replace()</code> example above) before injecting it into your HTML to ensure the application remains secure.
+        </div>",
         ]
       `)
     })
@@ -1865,8 +1887,8 @@ IMPORTANT: This is production code - show it EXACTLY as-is with all HTML tags an
       expect(result.iteration.code).toMatchInlineSnapshot(`undefined`)
       expect(messagesSent).toMatchInlineSnapshot(`
         [
-          "Let me get the shopping cart widget code for you...",
-          "Here is the complete, ready-to-use code for the shopping cart widget.
+          "Let me fetch the shopping cart widget code for you...",
+          "Here is the complete production code for the shopping cart widget.
 
         ### HTML
         <pre><code>&lt;div class="widget" id="widget-\${id}"&gt;

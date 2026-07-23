@@ -33,6 +33,7 @@ const getPropsSchema = (definition: ComponentDefinition): z.ZodObject<any> => {
 export const componentToProtocolDefinition = (component: Component): NormalizedComponentDefinition => {
   const definition = component.definition
   const supportsBody = definition.type !== 'leaf'
+  const bodyOptions = definition.type !== 'leaf' ? definition.body : undefined
 
   return {
     name: definition.name.toLowerCase(),
@@ -40,11 +41,13 @@ export const componentToProtocolDefinition = (component: Component): NormalizedC
     propsJsonSchema: toJsonSchema(getPropsSchema(definition)),
     body: supportsBody
       ? {
-          format: 'markdown',
-          description: 'The full, final message content. No variable interpolation or placeholders.',
-          required: true,
+          format: bodyOptions?.format ?? 'markdown',
+          description:
+            bodyOptions?.description ?? 'The full, final message content. No variable interpolation or placeholders.',
+          required: bodyOptions?.required ?? true,
         }
       : undefined,
+    generation: definition.generation,
   }
 }
 

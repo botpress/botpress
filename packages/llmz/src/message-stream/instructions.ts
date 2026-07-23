@@ -117,7 +117,26 @@ const _componentEntry = (definition: NormalizedComponentDefinition, verbosity: I
     lines.push(`Body: ${requirement} ${definition.body.format}${description}`)
   }
 
+  if (verbosity !== 'compact') {
+    const example = _componentExample(definition)
+    if (example) {
+      lines.push(`Example:\n${example}`)
+    }
+  }
+
   return lines.join('\n')
+}
+
+/** Renders a component's first curated example ({ props?, body? }) as a ■send block. */
+const _componentExample = (definition: NormalizedComponentDefinition): string | undefined => {
+  const example = definition.generation?.examples?.[0]
+  if (!example) {
+    return undefined
+  }
+
+  const props = example.props ? ` ${JSON.stringify(example.props)}` : ''
+  const body = definition.body ? (example.body ?? _exampleBody(definition)) : undefined
+  return `${MARKER}send=${definition.name}${props}${body ? `\n${body}` : ''}`
 }
 
 const _exitEntry = (exit: NormalizedExitDefinition, verbosity: InstructionVerbosity): string => {
@@ -246,21 +265,28 @@ const _buildExamples = (
   const defaultExit = exits.find((e) => e.name === 'listen') ?? exits[0]
   const suffix = defaultExit ? `\n${_exitExample(defaultExit)}` : ''
 
-  const bodyOnly = components.find((c) => c.body && !_propEntries(c.propsJsonSchema).some((p) => p.required))
-  const propsOnly = components.find((c) => !c.body && _propEntries(c.propsJsonSchema).length > 0)
-  const propsAndBody = components.find((c) => c.body && _propEntries(c.propsJsonSchema).some((p) => p.required))
+  // Prefer components with curated examples over auto-generated filler
+  const pick = (predicate: (c: NormalizedComponentDefinition) => boolean | undefined) =>
+    components.find((c) => c.generation?.examples?.length && predicate(c)) ?? components.find(predicate)
+
+  const bodyOnly = pick((c) => c.body && !_propEntries(c.propsJsonSchema).some((p) => p.required))
+  const propsOnly = pick((c) => !c.body && _propEntries(c.propsJsonSchema).length > 0)
+  const propsAndBody = pick((c) => c.body && _propEntries(c.propsJsonSchema).some((p) => p.required))
 
   const examples: string[] = []
 
+  // The global examples demonstrate the overall response shape (including the
+  // closing ■next), so prefer the shortest curated body — the representative,
+  // possibly long-form example is already rendered under the component entry
   if (bodyOnly) {
-    examples.push(`${MARKER}send=${bodyOnly.name}\n${_exampleBody(bodyOnly)}${suffix}`)
+    examples.push(`${MARKER}send=${bodyOnly.name}\n${_exampleBody(bodyOnly, { compact: true })}${suffix}`)
   }
   if (propsOnly) {
     examples.push(`${MARKER}send=${propsOnly.name} ${_exampleProps(propsOnly)}${suffix}`)
   }
   if (propsAndBody) {
     examples.push(
-      `${MARKER}send=${propsAndBody.name} ${_exampleProps(propsAndBody)}\n${_exampleBody(propsAndBody)}${suffix}`
+      `${MARKER}send=${propsAndBody.name} ${_exampleProps(propsAndBody)}\n${_exampleBody(propsAndBody, { compact: true })}${suffix}`
     )
   }
 
@@ -334,8 +360,9 @@ const _exampleValue = (schema: JsonSchema, name: string): unknown => {
   }
 }
 
-const _exampleBody = (definition: NormalizedComponentDefinition): string => {
-  const custom = definition.generation?.examples?.[0]?.body
+const _exampleBody = (definition: NormalizedComponentDefinition, options: { compact?: boolean } = {}): string => {
+  const bodies = (definition.generation?.examples ?? []).map((e) => e.body).filter((b): b is string => !!b)
+  const custom = options.compact ? bodies.sort((a, b) => a.length - b.length)[0] : bodies[0]
   if (custom) {
     return custom
   }
