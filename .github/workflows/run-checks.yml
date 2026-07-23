@@ -24,3 +24,4 @@ jobs:
       - run: pnpm run check:bplint
       - run: pnpm run check:type
       - run: pnpm run test
+      - run: pnpm run bench # maybe move in own workflow if it gets too big

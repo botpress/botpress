@@ -4,18 +4,8 @@ import * as sdk from '@botpress/sdk'
 import { z } from '@botpress/sdk'
 import * as cognitive from '@botpress/cognitive'
 
-const COGNITIVE_OUTPUT = (content: string): cognitive.GenerateContentOutput => ({
-  provider: 'test-provider',
-  model: 'test-model',
-  botpress: { cost: 0 },
-  id: '',
-  usage: {
-    inputCost: 0,
-    inputTokens: 0,
-    outputTokens: 0,
-    outputCost: 0,
-  },
-  choices: [{ content, index: 0, role: 'assistant', stopReason: 'other' }],
+const COGNITIVE_OUTPUT = (content: string): Pick<cognitive.CognitiveResponse, 'output'> => ({
+  output: content,
 })
 
 const CONTENT_PARSE_SCHEMA = z.object({ foo: z.string(), bar: z.number() })
@@ -44,7 +34,7 @@ describe('parseLLMOutput', () => {
   })
 
   it('empty choices parsing throws an error', () => {
-    expect(() => parseLLMOutput<any>({ choices: [] } as any)).toThrow(sdk.RuntimeError)
+    expect(() => parseLLMOutput<any>({ output: '' } as any)).toThrow(sdk.RuntimeError)
   })
 
   it('valid json with whitespaces parsing is successful', () => {

@@ -1,20 +1,29 @@
-import * as Babel from '@babel/standalone'
+import MagicString from 'magic-string'
+import babel from 'prettier/plugins/babel'
+import estree from 'prettier/plugins/estree'
+import typescript from 'prettier/plugins/typescript'
+import { format } from 'prettier/standalone'
 import { describe, expect, it, beforeEach } from 'vitest'
 
-import { variableTrackingPlugin } from './variable-extraction.js'
-import { DEFAULT_TRANSFORM_OPTIONS } from '../compiler.js'
-import { formatTypings } from '../../formatting.js'
+import { applyVariableTracking } from './variable-extraction.js'
+import { parseScript } from '../ast.js'
 
 const variables = new Set<string>()
-function transform(original: string) {
-  const { code } = Babel.transform(original, {
-    ...DEFAULT_TRANSFORM_OPTIONS,
-    plugins: [variableTrackingPlugin(variables)],
+async function transform(original: string) {
+  const ms = new MagicString(original)
+  applyVariableTracking({ code: original, ms, ast: parseScript(original), comments: [] }, variables)
+
+  const result = await format(ms.toString(), {
+    singleAttributePerLine: true,
+    bracketSameLine: true,
+    semi: true,
+    embeddedLanguageFormatting: 'off',
+    plugins: [estree, babel, typescript],
+    parser: 'typescript',
+    filepath: 'tools.d.ts',
   })
 
-  return formatTypings(code!, {
-    semi: true,
-  })
+  return result.trim()
 }
 
 describe('variableExtractionBabelPlugin', () => {

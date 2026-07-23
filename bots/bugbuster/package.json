@@ -1,5 +1,6 @@
 {
   "name": "@bp-bots/bugbuster",
+  "version": "1.0.0",
   "scripts": {
     "postinstall": "genenv -o ./.genenv/index.ts -e BUGBUSTER_GITHUB_TOKEN -e BUGBUSTER_GITHUB_WEBHOOK_SECRET -e BUGBUSTER_LINEAR_API_KEY -e BUGBUSTER_LINEAR_WEBHOOK_SIGNING_SECRET -e BUGBUSTER_TELEGRAM_BOT_TOKEN",
     "check:type": "tsc --noEmit",

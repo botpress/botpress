@@ -22,6 +22,7 @@ export const GRAPHQL_QUERIES = {
             priority,
             assignee {
               id
+              active
             },
             state {
               id

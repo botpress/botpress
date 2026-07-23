@@ -26,6 +26,17 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     const modifiedProps = { ...props, req: { ...props.req, path: '/oauth/wizard/oauth-callback' } }
     try {
       const wizardResult = await buildOAuthWizard(modifiedProps).handleRequest()
+
+      // When the callback continues the wizard (e.g. the HITL branch redirects to inbox selection),
+      // preserve that redirect. The callback sets the integration identifier, which the wizard framework
+      // attaches to *every* response — including this redirect. Collapsing to a bare 200 whenever the
+      // identifier header is present (below) would drop the redirect and strand the user right after
+      // authorization, so the HITL channel-setup steps would never run.
+      const location = wizardResult.headers?.location
+      if (typeof location === 'string' && location.includes('/oauth/wizard/')) {
+        return wizardResult
+      }
+
       const identifier = wizardResult.headers?.[OAUTH_IDENTIFIER_HEADER]
       return identifier
         ? {

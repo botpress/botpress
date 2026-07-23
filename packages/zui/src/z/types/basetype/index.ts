@@ -374,7 +374,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     )
   }
 
-  default(def: utils.types.NoUndefined<Input> | (() => utils.types.NoUndefined<Input>)) {
+  default(def: utils.types.NoUndefined<this['_input']> | (() => utils.types.NoUndefined<this['_input']>)) {
     const defaultValueFunc = typeof def === 'function' ? def : () => def
     return builders.default(this, defaultValueFunc)
   }

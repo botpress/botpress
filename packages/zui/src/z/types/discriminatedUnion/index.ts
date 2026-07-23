@@ -6,7 +6,6 @@ import type {
   ZodDiscriminatedUnionOption,
   input,
   output,
-  IZodObject,
   Primitive,
   ZodNativeType,
   ParseInput,
@@ -183,9 +182,9 @@ export class ZodDiscriminatedUnionImpl<
     if (!(schema instanceof ZodDiscriminatedUnionImpl)) return false
     if (this._def.discriminator !== schema._def.discriminator) return false
 
-    const compare = (a: IZodObject, b: IZodObject) => a.isEqual(b)
-    const thisOptions = new utils.ds.CustomSet<IZodObject>(this._def.options, { compare })
-    const thatOptions = new utils.ds.CustomSet<IZodObject>(schema._def.options, { compare })
+    const compare = (a: IZodType, b: IZodType) => a.isEqual(b)
+    const thisOptions = new utils.ds.CustomSet<IZodType>(this._def.options, { compare })
+    const thatOptions = new utils.ds.CustomSet<IZodType>(schema._def.options, { compare })
 
     // no need to compare optionsMap, as it is derived from discriminator + options
 

@@ -1,42 +1,20 @@
-import { type TransformOptions } from '@babel/core'
+import { type Comment } from 'acorn'
+import MagicString from 'magic-string'
 
-// @ts-ignore
-import jsxPlugin from '@babel/plugin-transform-react-jsx'
-import * as Babel from '@babel/standalone'
-
-import { AsyncIterator } from './plugins/async-iterator.js'
-import { JSXMarkdown } from './plugins/braces-tsx.js'
-import { htmlToMarkdownPlugin } from './plugins/html-to-markdown.js'
-import { JSXNewLines } from './plugins/jsx-preserve-newlines.js'
-import { jsxUndefinedVarsPlugin } from './plugins/jsx-undefined-vars.js'
-
-import { LineTrackingFnIdentifier, lineTrackingBabelPlugin } from './plugins/line-tracking.js'
-import { CommentFnIdentifier, replaceCommentBabelPlugin } from './plugins/replace-comment.js'
-import { instrumentLastLinePlugin } from './plugins/return-async.js'
+import { parseScript, walk, type Ctx } from './ast.js'
+import { AsyncWrapper } from './plugins/async-wrapper.js'
+import { LineTrackingFnIdentifier, applyLineTracking } from './plugins/line-tracking.js'
+import { CommentFnIdentifier, applyCommentReplacement } from './plugins/replace-comment.js'
+import { planLastLineInstrumentation } from './plugins/return-async.js'
 import {
   ToolCallEntry,
   ToolCallTrackerFnIdentifier,
   ToolTrackerRetIdentifier,
-  toolCallTrackingPlugin,
+  applyToolCallTracking,
 } from './plugins/track-tool-calls.js'
-import { VariableTrackingFnIdentifier, variableTrackingPlugin } from './plugins/variable-extraction.js'
-
-export const DEFAULT_TRANSFORM_OPTIONS: TransformOptions = {
-  parserOpts: {
-    allowReturnOutsideFunction: true,
-    allowAwaitOutsideFunction: true,
-    strictMode: true,
-    startLine: 1,
-  },
-  sourceFileName: '<anonymous>',
-  sourceMaps: true,
-  minified: false,
-  retainLines: true,
-}
+import { VariableTrackingFnIdentifier, applyVariableTracking } from './plugins/variable-extraction.js'
 
 export const Identifiers = {
-  JSXFnIdentifier: '__jsx__',
-  AsyncIterYieldFnIdentifier: '__async_iter_yield__',
   ConsoleObjIdentifier: 'console',
   LineTrackingFnIdentifier,
   VariableTrackingFnIdentifier,
@@ -47,65 +25,85 @@ export const Identifiers = {
 
 export type CompiledCode = ReturnType<typeof compile>
 
+const FUNCTION_TYPES = new Set(['FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression'])
+
+/**
+ * Whether the code contains a top-level `return` statement (one that would
+ * return from the generated code itself, not from a nested function). Unlike a
+ * regex, this ignores `return` inside comments, strings and nested functions.
+ * Falls back to a word-boundary match if the code cannot be parsed.
+ */
+export function hasTopLevelReturn(code: string): boolean {
+  try {
+    const ast = parseScript(code)
+    let found = false
+    walk(ast, (node, _parent, ancestors) => {
+      if (node.type === 'ReturnStatement' && !ancestors.some((a) => FUNCTION_TYPES.has(a.type))) {
+        found = true
+      }
+    })
+    return found
+  } catch {
+    return /\breturn\b/.test(code)
+  }
+}
+
+/**
+ * Compiles the agent's generated JavaScript for VM execution:
+ *
+ * 1. wraps it in an async `__fn__` so top-level `await`/`return` parse
+ * 2. instruments it in a single parse + text-edit pass:
+ *    line tracking, last-line return, tool-call tracking, comment tracing
+ *    and variable tracking
+ * 3. unwraps it — the VM drivers re-wrap the bare statements themselves
+ *
+ * All edits preserve line numbers 1:1 with the wrapped source, so positions
+ * reported at runtime map straight back to the user code.
+ */
 export function compile(code: string) {
-  code = AsyncIterator.preProcessing(code)
-  code = JSXMarkdown.preProcessing(code)
-  // console.log('Compiling code:\n', code)
-  let output = Babel.transform(code, {
-    parserOpts: {
-      allowReturnOutsideFunction: true,
-      allowAwaitOutsideFunction: true,
-    },
-    presets: ['typescript'],
-    plugins: [
-      JSXNewLines.babelPlugin,
-      htmlToMarkdownPlugin, // Convert simple HTML to markdown first
-      jsxUndefinedVarsPlugin, // Must run BEFORE JSX transform
-      [
-        jsxPlugin,
-        {
-          throwIfNamespace: false,
-          runtime: 'classic',
-          pragma: Identifiers.JSXFnIdentifier,
-        },
-      ],
-      instrumentLastLinePlugin,
-    ],
-    filename: '<anonymous>.tsx',
-    sourceFileName: '<anonymous>',
-    sourceMaps: true,
-    minified: false,
-    retainLines: true,
-  })
+  const wrapped = AsyncWrapper.preProcessing(code)
+  const comments: Comment[] = []
+  const ast = parseScript(wrapped, { comments })
 
   const variables = new Set<string>()
   const toolCalls = new Map<number, ToolCallEntry>()
 
-  // Keep this version with markers intact (before plugins transform them)
-  const codeWithMarkers = output.code!
+  const lastLine = planLastLineInstrumentation(ast)
 
-  output = Babel.transform(output.code!, {
-    ...DEFAULT_TRANSFORM_OPTIONS,
-    parserOpts: {
-      ...DEFAULT_TRANSFORM_OPTIONS.parserOpts,
-    },
-    plugins: [
-      lineTrackingBabelPlugin,
-      replaceCommentBabelPlugin,
-      variableTrackingPlugin(variables),
-      toolCallTrackingPlugin(toolCalls),
-    ],
-    retainLines: true,
-  })
+  // user code with only the last-line instrumentation — used for line offsets
+  // and user-facing display
+  const msMarkers = new MagicString(wrapped)
+  if (lastLine) {
+    msMarkers.appendLeft(lastLine.prefixPos, lastLine.prefix)
+    msMarkers.appendRight(lastLine.suffixPos, lastLine.suffix)
+  }
+  const codeWithMarkers = msMarkers.toString()
 
-  let outputCode = output.code!
-  outputCode = AsyncIterator.postProcessing(outputCode)
-  outputCode = JSXNewLines.postProcessing(outputCode)
+  const ms = new MagicString(wrapped)
+  const ctx: Ctx = { code: wrapped, ms, ast, comments }
+
+  // order matters: at identical positions MagicString emits appendLeft content
+  // in call order and appendRight content in call order, so the line tracker
+  // lands before `return await (`, which lands before the tool-call IIFE — and
+  // the closing edits nest in reverse
+  applyLineTracking(ctx)
+  if (lastLine) {
+    ms.appendLeft(lastLine.prefixPos, lastLine.prefix)
+  }
+  const wrappedRanges = applyToolCallTracking(ctx, toolCalls)
+  applyCommentReplacement(ctx, wrappedRanges)
+  applyVariableTracking(ctx, variables)
+  if (lastLine) {
+    ms.appendRight(lastLine.suffixPos, lastLine.suffix)
+  }
+
+  const outputCode = AsyncWrapper.postProcessing(ms.toString())
+  const map = ms.generateMap({ hires: true, source: '<anonymous>' })
 
   return {
     code: outputCode,
-    codeWithMarkers, // Code from before second transform, still has literal markers
-    map: output.map,
+    codeWithMarkers,
+    map,
     variables,
     toolCalls,
   }

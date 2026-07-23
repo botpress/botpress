@@ -1,6 +1,6 @@
 ## Yielding Components from Tool Handlers
 
-This demo shows how tool handlers can directly yield UI components back to the chat using **async generator functions** (`async function*`). Unlike example 10 where the LLM yields components after calling a tool, here the tool handler itself controls what to display and when.
+This demo shows how tool handlers can directly yield UI components back to the chat using **async generator functions** (`async function*`). Unlike example 10 where the LLM sends components after calling a tool, here the tool handler itself controls what to display and when.
 
 The `purchase_ticket` tool handler is an async generator that yields progress updates and the final ticket — the LLM doesn't need to know about components at all.
 

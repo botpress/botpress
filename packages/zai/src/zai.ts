@@ -292,14 +292,18 @@ export class Zai {
   }
 
   /** @internal */
-  protected async callModel(
-    props: Parameters<Cognitive['generateContent']>[0]
-  ): ReturnType<Cognitive['generateContent']> {
-    return this.client.generateContent({
+  protected async callModel(props: Parameters<Cognitive['generateText']>[0]): ReturnType<Cognitive['generateText']> {
+    return this.client.generateText({
       reasoningEffort: 'none',
       ...props,
-      model: this.Model as Required<Parameters<Cognitive['generateContent']>[0]>['model'],
-      userId: this._userId,
+      model: this.Model,
+      meta: {
+        ...props.meta,
+        metadata: {
+          ...(this._userId ? { userId: this._userId } : {}),
+          ...props.meta?.metadata,
+        },
+      },
     })
   }
 

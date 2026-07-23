@@ -11,7 +11,7 @@ const buildNode = () =>
     ...common,
     platform: 'node',
     format: 'cjs',
-    external: ['axios', 'browser-or-node'],
+    external: ['browser-or-node'],
     outfile: 'dist/index.cjs',
     entryPoints: ['src/index.ts'],
   })
@@ -21,7 +21,7 @@ const buildBrowser = () =>
     ...common,
     platform: 'browser',
     format: 'esm',
-    external: ['crypto', 'axios', 'browser-or-node'],
+    external: ['browser-or-node'],
     outfile: 'dist/index.mjs',
     entryPoints: ['src/index.ts'],
   })

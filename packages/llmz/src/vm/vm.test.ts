@@ -53,30 +53,59 @@ Hi!
       log: 0
       comment: line 3
       comment: Comments on multiple lines
-          Hi!
+      Hi!
       log: 1
       comment: line 3
       comment: Comments on multiple lines
-          Hi!
+      Hi!
       log: 2
       comment: line 3
       comment: Comments on multiple lines
-          Hi!
+      Hi!
       log: 3
       comment: line 3
       comment: Comments on multiple lines
-          Hi!
+      Hi!
       log: 4
       comment: line 3
       comment: Comments on multiple lines
-          Hi!
+      Hi!
       log: 5
       comment: line 3
       comment: Comments on multiple lines
-          Hi!
+      Hi!
       comment: I will throw an error here
       code_execution_exception: "
     `)
+  })
+
+  it('stack traces point to the right line with the node driver', async () => {
+    vi.stubEnv('USE_QUICKJS', 'false')
+    try {
+      const code = `
+// line 1
+const x = 1
+if (x === 1) {
+  throw new Error('Something went wrong')
+}
+`
+      const result = await runAsyncFunction({}, code)
+
+      assert(result.success === false)
+      assert(result.error instanceof CodeExecutionError)
+      expect(result.error.stacktrace).toMatchInlineSnapshot(`
+        "001 | 
+          002 | // line 1
+          003 | const x = 1
+          004 | if (x === 1) {
+        > 005 |   throw new Error('Something went wrong')
+        ...^^^^^^^^^^
+          006 | }
+          007 |"
+      `)
+    } finally {
+      vi.unstubAllEnvs()
+    }
   })
 
   it('should throw on errors inside functions', async () => {
@@ -234,115 +263,6 @@ console.log( /* this is a comment */ test(5, 6));
           "doThrow": "[[non-primitive]]",
         }
       `)
-    })
-  })
-
-  describe('yield statements', () => {
-    it('nested yield components', async () => {
-      const message = vi.fn()
-      const code = `
-yield <message prop1={{ hey: 'there' }}>
-<message:button my-bool />
-Hey!
-</message>  
-`.trim()
-
-      const result = await runAsyncFunction({ message }, code)
-      expect(result.success).toBe(true)
-      expect(message.mock.calls.length).toBe(1)
-      expect(message.mock.calls[0]![0]).toMatchInlineSnapshot(`
-        {
-          "__jsx": true,
-          "children": [
-            "
-        ",
-            {
-              "__jsx": true,
-              "children": [],
-              "props": {
-                "my-bool": true,
-              },
-              "type": "MESSAGE:BUTTON",
-            },
-            "
-        Hey! 
-        ",
-          ],
-          "props": {
-            "prop1": {
-              "hey": "there",
-            },
-          },
-          "type": "MESSAGE",
-        }
-      `)
-    })
-
-    it('multiple yields', async () => {
-      const message = vi.fn()
-      const button = vi.fn()
-      const code = `
-  yield <message id={1} />;
-  yield <message id={2} />;
-  yield <message id={3} />;
-  yield <button id={4} />;
-  `.trim()
-
-      const result = await runAsyncFunction({ message, button }, code)
-      expect(result.success).toBe(true)
-      expect(message.mock.calls.length).toBe(3)
-      expect(button.mock.calls.length).toBe(1)
-    })
-
-    it('multi-line yield', async () => {
-      const mEssAge = vi.fn()
-      const code = `
-yield <Message id={1}>
-# Hello world!
-This is a multi-line message
-  - List item 1
-  - List item 2
-\`\`\`
-console.log('Hello')
-\`\`\`
-
-End.
-</Message>
-`.trim()
-
-      const result = await runAsyncFunction({ mEssAge }, code)
-      expect(result.success).toBe(true)
-      expect(mEssAge.mock.calls.length).toBe(1)
-      expect(mEssAge.mock.calls[0]![0].props.id).toBe(1)
-      expect(mEssAge.mock.calls[0]![0].children[0]).toMatchInlineSnapshot(`
-        "
-        # Hello world! 
-        This is a multi-line message 
-          - List item 1 
-          - List item 2 
-        \`\`\` 
-        console.log('Hello') 
-        \`\`\` 
-         
-        End. 
-        "
-      `)
-    })
-
-    it('yield throwing fails the execution', async () => {
-      const message = vi.fn()
-      const err = () => {
-        throw new Error('Oops')
-      }
-      const code = `
-yield <message id={1} />;
-yield err();
-`.trim()
-
-      const result = await runAsyncFunction({ message, err }, code)
-      expect(result.success).toBe(false)
-      expect(message.mock.calls.length).toBe(1)
-      expect(result.success === false && result.error.message).toBe('Oops')
     })
   })
 

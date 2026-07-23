@@ -20,14 +20,13 @@ import type {
 } from '../../typings'
 import { addIssueToContext, ParseStatus, ParseInputLazyPath, ZodBaseTypeImpl, type MergeObjectPair } from '../basetype'
 
-export class ZodObjectImpl<
-    T extends ZodRawShape = ZodRawShape,
-    UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-    Output = ObjectOutputType<T, UnknownKeys>,
-    Input = ObjectInputType<T, UnknownKeys>,
+export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys extends UnknownKeysParam = UnknownKeysParam>
+  extends ZodBaseTypeImpl<
+    ObjectOutputType<T, UnknownKeys>,
+    ZodObjectDef<T, UnknownKeys>,
+    ObjectInputType<T, UnknownKeys>
   >
-  extends ZodBaseTypeImpl<Output, ZodObjectDef<T, UnknownKeys>, Input>
-  implements IZodObject<T, UnknownKeys, Output, Input>
+  implements IZodObject<T, UnknownKeys>
 {
   /** Safe cast: ZodObject structurally satisfies IZodObject but TS can't prove it due to recursive type depth */
 
@@ -61,13 +60,13 @@ export class ZodObjectImpl<
     return utils.fn.unique(refs)
   }
 
-  clone(): IZodObject<T, UnknownKeys, Output, Input> {
+  clone(): IZodObject<T, UnknownKeys> {
     const newShape: Record<string, IZodType> = {}
     const currentShape = this._def.shape()
     for (const [key, value] of Object.entries(currentShape)) {
       newShape[key] = value.clone()
     }
-    const objSchema = new ZodObjectImpl<T, UnknownKeys, Output, Input>({
+    const objSchema = new ZodObjectImpl<T, UnknownKeys>({
       ...this._def,
       shape: () => newShape as T,
     })
@@ -407,7 +406,7 @@ export class ZodObjectImpl<
   >
   partial(mask?: {
     [k in keyof T]?: true
-  }): IZodObject<Record<string, IZodType>, UnknownKeys> {
+  }): IZodObject<ZodRawShape, UnknownKeys> {
     const newShape: Record<string, IZodType | undefined> = {}
 
     Object.keys(this.shape).forEach((key) => {
@@ -448,7 +447,7 @@ export class ZodObjectImpl<
   >
   required(mask?: {
     [k in keyof T]?: true
-  }): IZodObject {
+  }): IZodObject<ZodRawShape, UnknownKeys> {
     const newShape: Record<string, IZodType> = {}
 
     Object.entries(this.shape).forEach(([key, value]) => {
@@ -469,7 +468,7 @@ export class ZodObjectImpl<
     return new ZodObjectImpl({
       ...this._def,
       shape: () => newShape,
-    }) as IZodObject
+    }) as IZodObject<ZodRawShape, UnknownKeys>
   }
 
   keyof(): IZodEnum<KeyOfObject<T>> {
@@ -492,7 +491,7 @@ export class ZodObjectImpl<
     return thisProps.isEqual(thatProps)
   }
 
-  private _unknownKeysEqual(that: IZodObject): boolean {
+  private _unknownKeysEqual(that: ZodObjectImpl<any, any>): boolean {
     const thisAdditionalProperties = this.additionalProperties()
     const thatAdditionalProperties = that.additionalProperties()
     if (thisAdditionalProperties === undefined || thatAdditionalProperties === undefined) {

@@ -1,14 +1,29 @@
-import { Cognitive, Model, GenerateContentInput, GenerateContentOutput } from '@botpress/cognitive'
+import { Cognitive, Model, CognitiveMetadata, CognitiveRequest, CognitiveResponse } from '@botpress/cognitive'
 import { Adapter } from './adapters/adapter'
 import { EventEmitter } from './emitter'
 import { fastHash } from './utils'
 import type { Memoizer, ZaiMetadata } from './zai'
 
-type Meta = Awaited<ReturnType<Cognitive['generateContent']>>['meta']
+/** Per-request accounting in the shape zai has always tracked it. */
+type Meta = {
+  cached: boolean
+  model: { integration: string; model: string }
+  latency: number
+  cost: { input: number; output: number }
+  tokens: { input: number; output: number }
+}
 
-type GenerateContentProps<T> = Omit<GenerateContentInput, 'model' | 'signal'> & {
+const toMeta = (metadata: CognitiveMetadata): Meta => ({
+  cached: metadata.cached ?? false,
+  model: { integration: metadata.provider, model: metadata.model ?? '' },
+  latency: metadata.latency ?? 0,
+  cost: { input: metadata.usage.inputCost, output: metadata.usage.outputCost },
+  tokens: { input: metadata.usage.inputTokens, output: metadata.usage.outputTokens },
+})
+
+type GenerateContentProps<T> = Omit<CognitiveRequest, 'model'> & {
   maxRetries?: number
-  transform?: (text: string | undefined, output: GenerateContentOutput) => T
+  transform?: (text: string | undefined, response: CognitiveResponse) => T
 }
 
 export type ZaiContextProps = {
@@ -17,7 +32,7 @@ export type ZaiContextProps = {
   taskId: string
   modelId: string | string[]
   adapter?: Adapter
-  source?: GenerateContentInput['meta']
+  source?: CognitiveRequest['meta']
   memoizer?: Memoizer
   metadata?: ZaiMetadata
 }
@@ -93,9 +108,9 @@ export class ZaiContext {
 
   public taskId: string
   public taskType: string
-  public modelId: GenerateContentInput['model']
+  public modelId: CognitiveRequest['model']
   public adapter?: Adapter
-  public source?: GenerateContentInput['meta']
+  public source?: CognitiveRequest['meta']
   public metadata?: ZaiMetadata
 
   private _eventEmitter: EventEmitter<ContextEvents>
@@ -125,13 +140,13 @@ export class ZaiContext {
     this._client.on('response', (_req, res) => {
       this._totalResponses++
 
-      if (res.meta.cached) {
+      if (res.metadata.cached) {
         this._totalCachedResponses++
-      } else {
-        this._inputTokens += res.meta.tokens.input || 0
-        this._outputTokens += res.meta.tokens.output || 0
-        this._inputCost += res.meta.cost.input || 0
-        this._outputCost += res.meta.cost.output || 0
+      } else if ('usage' in res.metadata) {
+        this._inputTokens += res.metadata.usage.inputTokens || 0
+        this._outputTokens += res.metadata.usage.outputTokens || 0
+        this._inputCost += res.metadata.usage.inputCost || 0
+        this._outputCost += res.metadata.usage.outputCost || 0
       }
 
       this._eventEmitter.emit('update', this.usage)
@@ -143,10 +158,16 @@ export class ZaiContext {
     })
   }
 
+  /** The primary model id as a plain string (first entry when fallbacks are configured). */
+  public get modelName(): string {
+    const primary = Array.isArray(this.modelId) ? this.modelId[0] : this.modelId
+    return primary ?? 'auto'
+  }
+
   public async getModel(): Promise<Model> {
     // getModelDetails resolves a single model; for a fallback array we report
     // the primary entry's details. Fallbacks are honored at the request layer.
-    const primary = Array.isArray(this.modelId) ? this.modelId[0] : this.modelId
+    const primary = (Array.isArray(this.modelId) ? this.modelId[0] : this.modelId) ?? 'auto'
     return this._client.getModelDetails(primary)
   }
 
@@ -161,7 +182,7 @@ export class ZaiContext {
 
   public async generateContent<Out = string>(
     props: GenerateContentProps<Out>
-  ): Promise<{ meta: Meta; output: GenerateContentOutput; text: string | undefined; extracted: Out }> {
+  ): Promise<{ meta: Meta; output: CognitiveResponse; text: string | undefined; extracted: Out }> {
     const memoKey = `zai:memo:${this.taskType}:${this.taskId || 'default'}:${fastHash(
       JSON.stringify({
         s: props.systemPrompt,
@@ -176,33 +197,34 @@ export class ZaiContext {
 
   private async _generateContentInner<Out = string>(
     props: GenerateContentProps<Out>
-  ): Promise<{ meta: Meta; output: GenerateContentOutput; text: string | undefined; extracted: Out }> {
+  ): Promise<{ meta: Meta; output: CognitiveResponse; text: string | undefined; extracted: Out }> {
     const maxRetries = Math.max(props.maxRetries ?? 3, 0)
-    const transform = props.transform
+    const { maxRetries: _mr, transform, ...request } = props
     let lastError: Error | null = null
     const messages = [...(props.messages || [])]
 
     for (let attempt = 0; attempt <= maxRetries && !this.controller.signal.aborted; attempt++) {
       try {
-        const response = await this._client.generateContent({
-          ...props,
-          messages,
-          signal: this.controller.signal,
-          model: this.modelId,
-          meta: {
-            integrationName: props.meta?.integrationName || 'zai',
-            promptCategory: props.meta?.promptCategory || `zai:${this.taskType}`,
-            promptSource: props.meta?.promptSource || `zai:${this.taskType}:${this.taskId ?? 'default'}`,
-            metadata: props.meta?.metadata || this.metadata,
+        const response = await this._client.generateText(
+          {
+            ...request,
+            messages,
+            model: this.modelId,
+            meta: {
+              integrationName: props.meta?.integrationName || 'zai',
+              promptCategory: props.meta?.promptCategory || `zai:${this.taskType}`,
+              promptSource: props.meta?.promptSource || `zai:${this.taskType}:${this.taskId ?? 'default'}`,
+              metadata: props.meta?.metadata || this.metadata,
+            },
           },
-        })
+          { signal: this.controller.signal }
+        )
 
         if (this.controller.signal.aborted) {
           throw this.controller.signal.reason
         }
 
-        const content = response.output.choices[0]?.content
-        const str = typeof content === 'string' ? content : content?.[0]?.text || ''
+        const str = response.output
         let output: Out
 
         messages.push({
@@ -213,10 +235,10 @@ export class ZaiContext {
         if (!transform) {
           output = str as Out
         } else {
-          output = transform(str, response.output)
+          output = transform(str, response)
         }
 
-        return { meta: response.meta, output: response.output, text: str, extracted: output }
+        return { meta: toMeta(response.metadata), output: response, text: str, extracted: output }
       } catch (error) {
         if (this.controller.signal.aborted) {
           throw this.controller.signal.reason

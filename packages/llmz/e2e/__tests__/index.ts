@@ -1,13 +1,23 @@
 import { Client } from '@botpress/client'
-import { Cognitive } from '@botpress/cognitive'
-import { diffLines } from 'diff'
+import { Cognitive, type CognitiveRequest, type CognitiveStreamChunk } from '@botpress/cognitive'
 import fs from 'node:fs'
 import path from 'node:path'
 import { expect } from 'vitest'
 
+/**
+ * The models used by the e2e suites, as a fallback chain. Every request that
+ * does not pin an explicit model is rewritten to this list.
+ */
+export const TEST_MODELS = [
+  'cerebras:gemma-4-31b',
+  'cerebras:gpt-oss-120b',
+  'anthropic:claude-haiku-4-5-20251001',
+  'google-ai:gemini-3.5-flash',
+] as const
+
 export async function getCorgiUrl() {
-  const client = new CachedClient({
-    apiUrl: process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.dev',
+  const client = new Client({
+    apiUrl: process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.cloud',
     botId: process.env.CLOUD_BOT_ID,
     token: process.env.CLOUD_PAT,
   })
@@ -45,6 +55,10 @@ function stringifyWithSortedKeys(obj: any, space?: number): string {
 }
 
 function readJSONL<T>(filePath: string, keyProperty: keyof T): Map<string, T> {
+  if (!fs.existsSync(filePath)) {
+    return new Map()
+  }
+
   const lines = fs.readFileSync(filePath, 'utf-8').split(/\r?\n/).filter(Boolean)
 
   const map = new Map<string, T>()
@@ -60,103 +74,19 @@ function readJSONL<T>(filePath: string, keyProperty: keyof T): Map<string, T> {
   return map
 }
 
-type CacheEntry = { key: string; value: any; test: string; input: string }
-
-const cache: Map<string, CacheEntry> = readJSONL(path.resolve(__dirname, './cache.jsonl'), 'key')
-const cacheByTest: Map<string, CacheEntry> = readJSONL(path.resolve(__dirname, './cache.jsonl'), 'test')
-
-class CachedClient extends Client {
-  #client: Client
-  #callsByTest: Record<string, number> = {}
-
-  public constructor(options: ConstructorParameters<typeof Client>[0]) {
-    super(options)
-    this.#client = new Client(options)
-  }
-
-  public callAction = async (...args: Parameters<Client['callAction']>) => {
-    const currentTestName = expect.getState().currentTestName ?? 'default'
-    this.#callsByTest[currentTestName] ||= 0
-    this.#callsByTest[currentTestName]++
-
-    const testKey = `${currentTestName}-${this.#callsByTest[currentTestName]}`
-
-    const key = fastHash(stringifyWithSortedKeys(args))
-    const cached = cache.get(key)
-
-    if (cached) {
-      return cached.value
-    }
-
-    if (process.env.CI && cacheByTest.has(testKey)) {
-      console.info(`Cache miss for ${key} in test ${testKey}`)
-      console.info(
-        diffLines(
-          JSON.stringify(JSON.parse(cacheByTest.get(testKey)?.input!), null, 2),
-          JSON.stringify(JSON.parse(stringifyWithSortedKeys(args)), null, 2)
-        )
-      )
-    }
-
-    const response = await this.#client.callAction(...args)
-    cache.set(key, { key, value: response, test: testKey, input: stringifyWithSortedKeys(args) })
-
-    fs.appendFileSync(
-      path.resolve(__dirname, './cache.jsonl'),
-      JSON.stringify({
-        test: testKey,
-        key,
-        input: stringifyWithSortedKeys(args),
-        value: response,
-      }) + '\n'
-    )
-
-    return response
-  }
-
-  public clone() {
-    return this
-  }
+type CacheEntry = {
+  key: string
+  test: string
+  input: string
+  /** Present for non-streaming generateText calls */
+  value?: any
+  /** Present for streaming generateTextStream calls */
+  chunks?: CognitiveStreamChunk[]
 }
 
-export const getCachedCognitiveClient = () => {
-  const cognitive = new Cognitive({
-    client: new CachedClient({
-      apiUrl: process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.dev',
-      botId: process.env.CLOUD_BOT_ID,
-      token: process.env.CLOUD_PAT,
-    }),
-    provider: {
-      deleteModelPreferences: async () => {},
-      saveModelPreferences: async () => {},
-      fetchInstalledModels: async () => [
-        {
-          id: 'gpt-4o-2024-11-20',
-          ref: 'openai:gpt-4o-2024-11-20',
-          description: '',
-          name: 'GPT-4o',
-          integration: 'openai',
-          input: {
-            costPer1MTokens: 0.00015,
-            maxTokens: 128000,
-          },
-          output: {
-            costPer1MTokens: 0.00015,
-            maxTokens: 128000,
-          },
-          tags: [],
-        },
-      ],
-      fetchModelPreferences: async () => ({
-        best: ['openai:gpt-4o-2024-11-20'] as const,
-        fast: ['openai:gpt-4o-2024-11-20'] as const,
-        downtimes: [],
-      }),
-    },
-  })
+const CACHE_PATH = path.resolve(__dirname, './cache.jsonl')
 
-  return cognitive
-}
+const cache: Map<string, CacheEntry> = readJSONL(CACHE_PATH, 'key')
 
 function fastHash(str: string): string {
   let hash = 0
@@ -165,4 +95,100 @@ function fastHash(str: string): string {
     hash |= 0 // Convert to 32bit integer
   }
   return (hash >>> 0).toString(16) // Convert to unsigned and then to hex
+}
+
+/** Rewrites unpinned/auto model selection to the deterministic test model chain. */
+const pinModels = <T extends CognitiveRequest>(input: T): T => {
+  const model = input.model
+  if (!model || model === 'best' || model === 'fast' || model === 'auto') {
+    return { ...input, model: [...TEST_MODELS] as CognitiveRequest['model'] }
+  }
+  return input
+}
+
+/** Strips non-deterministic / non-serializable fields before hashing. */
+const cacheKeyOf = (kind: 'text' | 'stream', input: CognitiveRequest): string => {
+  const { signal: _signal, ...rest } = input as CognitiveRequest & { signal?: unknown }
+  return fastHash(stringifyWithSortedKeys({ kind, input: rest }))
+}
+
+/**
+ * A Cognitive client that replays LLM responses from a JSONL cache.
+ * Both the streaming and non-streaming surfaces are cached; streamed responses
+ * are replayed chunk by chunk, exactly as they were received.
+ */
+class CachedCognitive extends Cognitive {
+  private _callsByTest: Record<string, number> = {}
+
+  private _testKey(): string {
+    const currentTestName = expect.getState().currentTestName ?? 'default'
+    this._callsByTest[currentTestName] ||= 0
+    this._callsByTest[currentTestName]++
+    return `${currentTestName}-${this._callsByTest[currentTestName]}`
+  }
+
+  private _persist(entry: CacheEntry): void {
+    cache.set(entry.key, entry)
+    fs.appendFileSync(CACHE_PATH, JSON.stringify(entry) + '\n')
+  }
+
+  public override async generateText(
+    input: CognitiveRequest,
+    options?: Parameters<Cognitive['generateText']>[1]
+  ): Promise<any> {
+    const pinned = pinModels(input)
+    const key = cacheKeyOf('text', pinned)
+    const testKey = this._testKey()
+
+    const cached = cache.get(key)
+    if (cached?.value) {
+      return cached.value
+    }
+
+    if (process.env.CI) {
+      console.info(`LLM cache miss (generateText) for ${key} in test ${testKey}`)
+    }
+
+    const response = await super.generateText(pinned, options)
+    this._persist({ key, test: testKey, input: stringifyWithSortedKeys(pinned), value: response })
+    return response
+  }
+
+  public override async *generateTextStream(
+    input: CognitiveRequest,
+    options?: Parameters<Cognitive['generateTextStream']>[1]
+  ): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
+    const pinned = pinModels(input)
+    const key = cacheKeyOf('stream', pinned)
+    const testKey = this._testKey()
+
+    const cached = cache.get(key)
+    if (cached?.chunks) {
+      for (const chunk of cached.chunks) {
+        yield chunk
+      }
+      return
+    }
+
+    if (process.env.CI) {
+      console.info(`LLM cache miss (generateTextStream) for ${key} in test ${testKey}`)
+    }
+
+    const chunks: CognitiveStreamChunk[] = []
+    for await (const chunk of super.generateTextStream(pinned, options)) {
+      chunks.push(chunk)
+      yield chunk
+    }
+
+    this._persist({ key, test: testKey, input: stringifyWithSortedKeys(pinned), chunks })
+  }
+}
+
+export const getCachedCognitiveClient = () => {
+  return new CachedCognitive({
+    apiUrl: process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.cloud',
+    botId: process.env.CLOUD_BOT_ID,
+    token: process.env.CLOUD_PAT,
+    timeout: 60_000,
+  })
 }

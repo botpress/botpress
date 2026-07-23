@@ -8,6 +8,7 @@
 
 # include files to format
 !*.ts
+!*.mts
 !*.tsx
 !*.json
 !*.yaml

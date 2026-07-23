@@ -1,25 +1,10 @@
-import Handlebars from 'handlebars'
+import { StreamingMessageParser } from '../message-stream/parser.js'
+import type { ParsedItem } from '../message-stream/types.js'
+import { ParsedAssistantResponse } from './prompt.js'
 
-export const parseAssistantResponse = (response: string) => {
-  const raw = response
-  let code = response
-
-  const START_TOKEN = '■fn_start'
-  const END_TOKEN = '■fn_end'
-
-  if (!code.includes(START_TOKEN)) {
-    code = `${START_TOKEN}\n${code.trim()}`
-  }
-
-  if (!code.includes(END_TOKEN)) {
-    code = `${code.trim()}\n${END_TOKEN}`
-  }
-
-  const start = Math.max(code.indexOf(START_TOKEN) + START_TOKEN.length, 0)
-  const end = Math.min(code.indexOf(END_TOKEN), code.length)
-
-  code = code
-    .slice(start, end)
+/** Strips wrapping code fences the model may have added around the whole response. */
+const stripWrappingFences = (text: string): string =>
+  text
     .trim()
     .split('\n')
     .filter((line, index, arr) => {
@@ -31,25 +16,37 @@ export const parseAssistantResponse = (response: string) => {
     })
     .join('\n')
 
+/** Builds a {@link ParsedAssistantResponse} from parsed protocol items. */
+export const toParsedAssistantResponse = (items: ParsedItem[], raw: string): ParsedAssistantResponse => {
+  const sends = items
+    .filter((item) => item.kind === 'send')
+    .map((item) => ({ name: item.name, props: item.props, body: item.body }))
+
+  const run = items.find((item) => item.kind === 'run')
+  const next = items.find((item) => item.kind === 'next' && item.status !== 'invalid')
+
   return {
-    type: 'code',
     raw,
-    code,
-  } as const
+    items,
+    sends,
+    code: run?.body?.trim() || undefined,
+    next: next ? { name: next.name, props: next.props } : undefined,
+  }
+}
+
+export const parseAssistantResponse = (response: string): ParsedAssistantResponse => {
+  const parser = new StreamingMessageParser()
+  parser.push(stripWrappingFences(response))
+  parser.finish()
+
+  return toParsedAssistantResponse(parser.items, response)
 }
 
 export const replacePlaceholders = (prompt: string, values: Record<string, unknown>) => {
   const regex = new RegExp('■■■([A-Z0-9_\\.-]+)■■■', 'gi')
   const obj = Object.assign({}, values)
 
-  const compile = Handlebars.compile(prompt)
-
-  const compiled = compile({
-    is_message_enabled: false,
-    ...values,
-  })
-
-  const replaced = compiled.replace(regex, (_match, name) => {
+  const replaced = prompt.replace(regex, (_match, name) => {
     if (name in values) {
       delete obj[name]
       return typeof values[name] === 'string' ? (values[name] as string) : JSON.stringify(values[name])
