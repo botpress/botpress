@@ -140,6 +140,36 @@ describe('voice messages', () => {
       expect(result.iterations).toHaveLength(1)
       expect(replies).toMatch(/voice|spoke|spoken|audio/)
     }, 30_000)
+
+    // The default test model chain is served by Cerebras models, which have no
+    // native audio support — those tests exercise cognitive's STT fallback
+    // (audio transcribed to text before the LLM call). This one pins Gemini,
+    // the only provider with supportsAudio, so the model hears the raw audio.
+    it('hears the audio natively on an audio-capable model (gemini)', async () => {
+      let replies = ''
+      const exit = new Exit({ name: 'done', description: 'call this when you are done' })
+      const chat = new Chat({
+        components: [DefaultComponents.Text],
+        transcript: [voiceMessage()],
+        handler: async (msg) => {
+          replies += JSON.stringify(msg).toLowerCase()
+        },
+      })
+
+      const result = await llmz.executeContext({
+        instructions: 'Do as the user says. You can hear voice messages.',
+        options: { loop: 1 },
+        exits: [exit],
+        chat,
+        client,
+        model: 'google-ai:gemini-3-flash',
+      })
+
+      assertSuccess(result)
+      expect(result.iterations).toHaveLength(1)
+      expect(replies).toContain('pineapple')
+      expect(replies).toContain('paris')
+    }, 30_000)
   })
 
   describe('multi-modality: screen share + voice + text events', () => {
