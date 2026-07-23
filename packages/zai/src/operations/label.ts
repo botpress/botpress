@@ -507,7 +507,7 @@ For example, you can say: "According to Expert Example #1, ..."`.trim(),
           output: meta.cost.output,
         },
         latency: meta.latency,
-        model: ctx.modelId,
+        model: ctx.modelName,
         tokens: {
           input: meta.tokens.input,
           output: meta.tokens.output,

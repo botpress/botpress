@@ -436,7 +436,7 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
           output: meta.cost.output,
         },
         latency: meta.latency,
-        model: ctx.modelId,
+        model: ctx.modelName,
         tokens: {
           input: meta.tokens.input,
           output: meta.tokens.output,

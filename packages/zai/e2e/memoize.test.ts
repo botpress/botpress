@@ -5,16 +5,25 @@ import { Zai, type Memoizer } from '../src'
 
 let _responseText = ''
 
+const fakeMetadata = () => ({
+  provider: 'fake',
+  model: 'fake',
+  usage: { inputTokens: 10, inputCost: 0.001, outputTokens: 10, outputCost: 0.001 },
+  cost: 0.002,
+  cached: false,
+  latency: 1,
+})
+
 const createMockCognitive = () => {
   const mock: any = {
-    $$IS_COGNITIVE: true,
+    $$IS_COGNITIVE_BETA: 'v2',
     clone() {
       return { ...mock, clone: mock.clone, on: mock.on }
     },
     on: vi.fn(() => () => {}),
-    generateContent: vi.fn(async () => ({
-      output: { choices: [{ content: _responseText }] },
-      meta: { cached: false, tokens: { input: 10, output: 10 }, cost: { input: 0.001, output: 0.001 } },
+    generateText: vi.fn(async () => ({
+      output: _responseText,
+      metadata: fakeMetadata(),
     })),
     getModelDetails: vi.fn(async () => ({
       input: { maxTokens: 100_000 },
@@ -27,12 +36,12 @@ const createMockCognitive = () => {
 const createSequenceMock = (responses: string[]) => {
   let callCount = 0
   const mock = createMockCognitive()
-  mock.generateContent = vi.fn(async () => {
+  mock.generateText = vi.fn(async () => {
     const text = responses[callCount] ?? responses[responses.length - 1]
     callCount++
     return {
-      output: { choices: [{ content: text }] },
-      meta: { cached: false, tokens: { input: 10, output: 10 }, cost: { input: 0.001, output: 0.001 } },
+      output: text,
+      metadata: fakeMetadata(),
     }
   })
   return mock
@@ -227,7 +236,7 @@ describe('memoizer integration', { timeout: 10_000 }, () => {
     const result = await zai.check('anything', 'anything')
     expect(result).toBe(true)
     expect(spy).toHaveBeenCalledTimes(1)
-    expect(mock.generateContent).not.toHaveBeenCalled()
+    expect(mock.generateText).not.toHaveBeenCalled()
   })
 
   it('works with .with() chaining', async () => {
@@ -245,6 +254,6 @@ describe('memoizer integration', { timeout: 10_000 }, () => {
     const mock = createMockCognitive()
     const zai = new Zai({ client: mock })
     await zai.check('Hello', 'is english')
-    expect(mock.generateContent).toHaveBeenCalled()
+    expect(mock.generateText).toHaveBeenCalled()
   })
 })

@@ -1,214 +1,2709 @@
-import { ExtendedClient, getExtendedClient } from './bp-client'
-import { isForbiddenOrUnauthorizedError, isNotFoundError } from './errors'
-import { Model as RawModel } from './schemas.gen'
-import { BotpressClientLike } from './types'
+import { Model } from './types'
 
-export const DOWNTIME_THRESHOLD_MINUTES = 5
-const PREFERENCES_FILE_SUFFIX = 'models.config.json'
-
-export const DEFAULT_INTEGRATIONS = ['google-ai', 'anthropic', 'openai', 'cerebras', 'fireworks-ai', 'groq']
-
-// Biases for vendors and models
-const VendorPreferences = ['google-ai', 'anthropic', 'openai']
-const BestModelPreferences = ['4.1', '4o', '3-5-sonnet', 'gemini-1.5-pro']
-const FastModelPreferences = ['gemini-1.5-flash', '4.1-mini', '4.1-nano', '4o-mini', 'flash', 'haiku']
-
-const InputPricePenalty = 3 // $3 per 1M tokens
-const OutputPricePenalty = 10 // $10 per 1M tokens
-const LowTokensPenalty = 128_000 // 128k tokens
-
-export type Model = RawModel & {
-  ref: ModelRef
-  integration: string
+export const models: Record<string, Model> = {
+  'openai:gpt-5.5': {
+    id: 'openai:gpt-5.5',
+    name: 'GPT-5.5',
+    description:
+      'GPT-5.5 is OpenAI\'s latest frontier model, described as "a new class of intelligence for coding and professional work". It features a 1M+ context window with adaptive reasoning and configurable effort levels, and supports vision, tool use, structured outputs, and server-side web search.',
+    input: {
+      maxTokens: 1047576,
+      costPer1MTokens: 5,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 30,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision', 'coding', 'agents'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
+  'openai:gpt-5.4-2026-03-05': {
+    id: 'openai:gpt-5.4-2026-03-05',
+    name: 'GPT-5.4',
+    description:
+      'GPT-5.4 is the latest frontier model in the GPT-5 series, featuring a 1M+ context window and adaptive reasoning. It delivers state-of-the-art performance on professional knowledge work, coding, and agentic tasks with improved long-context understanding.',
+    input: {
+      maxTokens: 1047576,
+      costPer1MTokens: 2.5,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 15,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision', 'coding', 'agents'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+    aliases: ['gpt-5.4'],
+  },
+  'openai:gpt-5.4-mini-2026-03-17': {
+    id: 'openai:gpt-5.4-mini-2026-03-17',
+    name: 'GPT-5.4 Mini',
+    description:
+      'GPT-5.4 Mini brings the strengths of GPT-5.4 to a faster, more efficient model designed for high-volume workloads. It is optimized for speed and cost while retaining strong reasoning and vision capabilities.',
+    input: {
+      maxTokens: 400000,
+      costPer1MTokens: 0.75,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 4.5,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['gpt-5.4-mini'],
+  },
+  'openai:gpt-5.4-nano-2026-03-17': {
+    id: 'openai:gpt-5.4-nano-2026-03-17',
+    name: 'GPT-5.4 Nano',
+    description:
+      'GPT-5.4 Nano is the smallest and cheapest GPT-5.4 variant, designed for tasks where speed and cost matter most like classification, data extraction, ranking, and coding sub-agents.',
+    input: {
+      maxTokens: 400000,
+      costPer1MTokens: 0.2,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 1.25,
+    },
+    tags: ['low-cost', 'reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['gpt-5.4-nano'],
+  },
+  'openai:gpt-5.3-chat': {
+    id: 'openai:gpt-5.3-chat',
+    name: 'GPT-5.3 Chat',
+    description:
+      'GPT-5.3 Chat is the GPT-5.3 Instant model used in ChatGPT, exposed via the API. Rolling alias that points to the latest snapshot.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 1.75,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 14,
+    },
+    tags: ['reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['gpt-5.3-chat-latest'],
+  },
+  'openai:gpt-5.2-2025-12-11': {
+    id: 'openai:gpt-5.2-2025-12-11',
+    name: 'GPT-5.2',
+    description:
+      'GPT-5.2 is the latest frontier-grade model in the GPT-5 series, offering stronger agentic and long context perfomance compared to GPT-5.1. It uses adaptive reasoning to allocate computation dynamically, responding quickly to simple queries while spending more depth on complex tasks.',
+    input: {
+      maxTokens: 400000,
+      costPer1MTokens: 1.75,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 14,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
+  'openai:gpt-5.1-2025-11-13': {
+    id: 'openai:gpt-5.1-2025-11-13',
+    name: 'GPT-5.1',
+    description:
+      "GPT-5.1 is OpenAI's latest and most advanced AI model. It is a reasoning model that chooses the best way to respond based on task complexity and user intent. GPT-5.1 delivers expert-level performance across coding, math, writing, health, and visual perception, with improved accuracy, speed, and reduced hallucinations. It excels in complex tasks, long-context understanding, multimodal inputs (text and images), and safe, nuanced responses.",
+    input: {
+      maxTokens: 400000,
+      costPer1MTokens: 1.25,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 10,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
+  'openai:gpt-5-2025-08-07': {
+    id: 'openai:gpt-5-2025-08-07',
+    name: 'GPT-5',
+    description:
+      'GPT-5 is a reasoning model that chooses the best way to respond based on task complexity and user intent. GPT-5 delivers expert-level performance across coding, math, writing, health, and visual perception, with improved accuracy, speed, and reduced hallucinations. It excels in complex tasks, long-context understanding, multimodal inputs (text and images), and safe, nuanced responses.',
+    input: {
+      maxTokens: 400000,
+      costPer1MTokens: 1.25,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 10,
+    },
+    tags: ['reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['gpt-5'],
+  },
+  'openai:gpt-5-mini-2025-08-07': {
+    id: 'openai:gpt-5-mini-2025-08-07',
+    name: 'GPT-5 Mini',
+    description:
+      'GPT-5 Mini is a lightweight and cost-effective version of GPT-5, optimized for applications where speed and efficiency matter more than full advanced capabilities. It is designed for cost-sensitive use cases such as chatbots, content generation, and high-volume usage, striking a balance between performance and affordability, making it suitable for simpler tasks that do not require deep multi-step reasoning or the full reasoning power of GPT-5',
+    input: {
+      maxTokens: 400000,
+      costPer1MTokens: 0.25,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 2,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['gpt-5-mini'],
+  },
+  'openai:gpt-5-nano-2025-08-07': {
+    id: 'openai:gpt-5-nano-2025-08-07',
+    name: 'GPT-5 Nano',
+    description:
+      'GPT-5 Nano is an ultra-lightweight version of GPT-5 optimized for speed and very low latency, making it ideal for use cases like simple chatbots, basic content generation, summarization, and classification tasks.',
+    input: {
+      maxTokens: 400000,
+      costPer1MTokens: 0.05,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.4,
+    },
+    tags: ['low-cost', 'reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['gpt-5-nano'],
+  },
+  'openai:o4-mini-2025-04-16': {
+    id: 'openai:o4-mini-2025-04-16',
+    name: 'GPT o4-mini',
+    description:
+      "o4-mini is OpenAI's latest small o-series model. It's optimized for fast, effective reasoning with exceptionally efficient performance in coding and visual tasks.",
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 1.1,
+    },
+    output: {
+      maxTokens: 100000,
+      costPer1MTokens: 4.4,
+    },
+    tags: ['reasoning', 'vision', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['o4-mini'],
+  },
+  'openai:o3-2025-04-16': {
+    id: 'openai:o3-2025-04-16',
+    name: 'GPT o3',
+    description:
+      'o3 is a well-rounded and powerful model across domains. It sets a new standard for math, science, coding, and visual reasoning tasks. It also excels at technical writing and instruction-following.',
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 2,
+    },
+    output: {
+      maxTokens: 100000,
+      costPer1MTokens: 8,
+    },
+    tags: ['reasoning', 'vision', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['o3'],
+  },
+  'openai:gpt-4.1-2025-04-14': {
+    id: 'openai:gpt-4.1-2025-04-14',
+    name: 'GPT 4.1',
+    description:
+      'GPT 4.1 is a model suited for complex tasks and problem solving across domains. The knowledge cutoff is June 2024.',
+    input: {
+      maxTokens: 1047576,
+      costPer1MTokens: 2,
+    },
+    output: {
+      maxTokens: 32768,
+      costPer1MTokens: 8,
+    },
+    tags: ['recommended', 'vision', 'general-purpose'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['gpt-4.1'],
+  },
+  'openai:gpt-4.1-mini-2025-04-14': {
+    id: 'openai:gpt-4.1-mini-2025-04-14',
+    name: 'GPT 4.1 Mini',
+    description:
+      'GPT 4.1 mini provides a balance between intelligence, speed, and cost that makes it an attractive model for many use cases. The knowledge cutoff is June 2024.',
+    input: {
+      maxTokens: 1047576,
+      costPer1MTokens: 0.4,
+    },
+    output: {
+      maxTokens: 32768,
+      costPer1MTokens: 1.6,
+    },
+    tags: ['recommended', 'vision', 'general-purpose'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['gpt-4.1-mini'],
+  },
+  'openai:gpt-4.1-nano-2025-04-14': {
+    id: 'openai:gpt-4.1-nano-2025-04-14',
+    name: 'GPT 4.1 Nano',
+    description: 'GPT-4.1 nano is the fastest, most cost-effective GPT 4.1 model. The knowledge cutoff is June 2024.',
+    input: {
+      maxTokens: 1047576,
+      costPer1MTokens: 0.1,
+    },
+    output: {
+      maxTokens: 32768,
+      costPer1MTokens: 0.4,
+    },
+    tags: ['deprecated', 'low-cost', 'vision', 'general-purpose'],
+    lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['gpt-4.1-nano'],
+  },
+  'openai:o3-mini-2025-01-31': {
+    id: 'openai:o3-mini-2025-01-31',
+    name: 'GPT o3-mini',
+    description:
+      'o3-mini is a small reasoning model, providing high intelligence at the same cost and latency targets of o1-mini. Also supports key developer features like Structured Outputs and function calling.',
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 1.1,
+    },
+    output: {
+      maxTokens: 100000,
+      costPer1MTokens: 4.4,
+    },
+    tags: ['deprecated', 'reasoning', 'general-purpose', 'coding'],
+    lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['o3-mini'],
+  },
+  'openai:o1-2024-12-17': {
+    id: 'openai:o1-2024-12-17',
+    name: 'GPT o1',
+    description:
+      'The o1 model is designed to solve hard problems across domains. Trained with reinforcement learning to perform complex reasoning with a long internal chain of thought.',
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 15,
+    },
+    output: {
+      maxTokens: 100000,
+      costPer1MTokens: 60,
+    },
+    tags: ['deprecated', 'reasoning', 'vision', 'general-purpose'],
+    lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'openai:o1-mini-2024-09-12': {
+    id: 'openai:o1-mini-2024-09-12',
+    name: 'GPT o1-mini',
+    description:
+      'The o1-mini model is a fast and affordable reasoning model for specialized tasks. Trained with reinforcement learning to perform complex reasoning.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 1.1,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 4.4,
+    },
+    tags: ['reasoning', 'vision', 'general-purpose'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['o1-mini'],
+  },
+  'openai:gpt-4o-mini-2024-07-18': {
+    id: 'openai:gpt-4o-mini-2024-07-18',
+    name: 'GPT-4o Mini',
+    description:
+      'GPT-4o mini is an advanced model in the small models category, and their cheapest model yet. Multimodal with higher intelligence than gpt-3.5-turbo but just as fast.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.15,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 0.6,
+    },
+    tags: ['recommended', 'vision', 'low-cost', 'general-purpose'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['gpt-4o-mini'],
+  },
+  'openai:gpt-4o-2024-11-20': {
+    id: 'openai:gpt-4o-2024-11-20',
+    name: 'GPT-4o (November 2024)',
+    description:
+      'GPT-4o is an advanced multimodal model with the same high intelligence as GPT-4 Turbo but cheaper and more efficient.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 2.5,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 10,
+    },
+    tags: ['recommended', 'vision', 'general-purpose', 'coding', 'agents'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['gpt-4o'],
+  },
+  'openai:gpt-4o-2024-08-06': {
+    id: 'openai:gpt-4o-2024-08-06',
+    name: 'GPT-4o (August 2024)',
+    description:
+      'GPT-4o is an advanced multimodal model with the same high intelligence as GPT-4 Turbo but cheaper and more efficient.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 2.5,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 10,
+    },
+    tags: ['deprecated', 'vision', 'general-purpose', 'coding', 'agents'],
+    lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'openai:gpt-4o-2024-05-13': {
+    id: 'openai:gpt-4o-2024-05-13',
+    name: 'GPT-4o (May 2024)',
+    description:
+      'GPT-4o is an advanced multimodal model with the same high intelligence as GPT-4 Turbo but cheaper and more efficient.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 5,
+    },
+    output: {
+      maxTokens: 4096,
+      costPer1MTokens: 15,
+    },
+    tags: ['deprecated', 'vision', 'general-purpose', 'coding', 'agents'],
+    lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'openai:gpt-4-turbo-2024-04-09': {
+    id: 'openai:gpt-4-turbo-2024-04-09',
+    name: 'GPT-4 Turbo',
+    description:
+      'GPT-4 is a large multimodal model that can solve difficult problems with greater accuracy than previous models, thanks to its broader general knowledge and advanced reasoning capabilities.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 10,
+    },
+    output: {
+      maxTokens: 4096,
+      costPer1MTokens: 30,
+    },
+    tags: ['deprecated', 'general-purpose', 'coding', 'agents'],
+    lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'openai:gpt-3.5-turbo-0125': {
+    id: 'openai:gpt-3.5-turbo-0125',
+    name: 'GPT-3.5 Turbo',
+    description:
+      'GPT-3.5 Turbo can understand and generate natural language or code and has been optimized for chat but works well for non-chat tasks as well.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.5,
+    },
+    output: {
+      maxTokens: 4096,
+      costPer1MTokens: 1.5,
+    },
+    tags: ['deprecated', 'general-purpose', 'low-cost'],
+    lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'openai:whisper-1': {
+    id: 'openai:whisper-1',
+    name: 'Whisper V2',
+    description: 'OpenAI Whisper V2 — general-purpose speech recognition model supporting 99 languages.',
+    input: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+      costPerMinute: 0.006,
+    },
+    output: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+    },
+    tags: ['general-purpose', 'speech-to-text'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: true,
+      supportsSearch: false,
+    },
+  },
+  'openai:tts-1': {
+    id: 'openai:tts-1',
+    name: 'OpenAI TTS-1',
+    description: 'Standard text-to-speech, low latency',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['text-to-speech', 'recommended'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'openai:tts-1-hd': {
+    id: 'openai:tts-1-hd',
+    name: 'OpenAI TTS-1 HD',
+    description: 'High-definition text-to-speech',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['text-to-speech'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'openai:gpt-4o-mini-tts': {
+    id: 'openai:gpt-4o-mini-tts',
+    name: 'GPT-4o Mini TTS',
+    description: 'Steerable text-to-speech with voice instructions',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['text-to-speech', 'recommended'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'openai:gpt-image-2': {
+    id: 'openai:gpt-image-2',
+    name: 'OpenAI gpt-image-2',
+    description:
+      "OpenAI's newest native multimodal image generation model. Highest quality, accepts input images for editing.",
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['image-generation', 'recommended'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'openai:gpt-image-1.5': {
+    id: 'openai:gpt-image-1.5',
+    name: 'OpenAI gpt-image-1.5',
+    description:
+      'Flagship native multimodal image generation. Strong text rendering, accepts input images for editing.',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['image-generation', 'recommended'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'openai:gpt-image-1-mini': {
+    id: 'openai:gpt-image-1-mini',
+    name: 'OpenAI gpt-image-1-mini',
+    description: 'Affordable variant of gpt-image-1.5 for high-volume, cost-sensitive image generation.',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['image-generation', 'low-cost'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'openai:gpt-image-1': {
+    id: 'openai:gpt-image-1',
+    name: 'OpenAI gpt-image-1',
+    description: 'Original OpenAI native multimodal image generation model. Superseded by gpt-image-1.5 / gpt-image-2.',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['image-generation'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'anthropic:claude-opus-4-7': {
+    id: 'anthropic:claude-opus-4-7',
+    name: 'Claude Opus 4.7',
+    description:
+      "Claude Opus 4.7 is Anthropic's most capable generally available model, with a step-change improvement in agentic coding over Claude Opus 4.6. Features adaptive thinking for dynamic reasoning allocation, substantially improved vision capabilities, and task budgets for agentic loops. Uses a new tokenizer that may use up to 35% more tokens for the same text.",
+    input: {
+      maxTokens: 1000000,
+      costPer1MTokens: 5,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 25,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
+  'anthropic:claude-opus-4-6': {
+    id: 'anthropic:claude-opus-4-6',
+    name: 'Claude Opus 4.6',
+    description:
+      'Claude Opus 4.6 is the most intelligent Claude model, built for complex agents and coding workflows. It excels at long-running professional tasks, large codebases, complex refactors, and multi-step debugging with a 128K max output.',
+    input: {
+      maxTokens: 1000000,
+      costPer1MTokens: 5,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 25,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
+  'anthropic:claude-sonnet-4-6': {
+    id: 'anthropic:claude-sonnet-4-6',
+    name: 'Claude Sonnet 4.6',
+    description:
+      'Claude Sonnet 4.6 offers the best combination of speed and intelligence in the Claude family. It features adaptive thinking for dynamic reasoning allocation, delivering fast responses for simple queries and deeper analysis for complex tasks.',
+    input: {
+      maxTokens: 1000000,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 64000,
+      costPer1MTokens: 15,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
+  'anthropic:claude-opus-4-5-20251101': {
+    id: 'anthropic:claude-opus-4-5-20251101',
+    name: 'Claude Opus 4.5',
+    description:
+      'Claude Opus 4.5 is a highly capable model with strong reasoning, coding, and agentic performance. It offers the same pricing tier as Opus 4.6 with a 200K context window.',
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 5,
+    },
+    output: {
+      maxTokens: 64000,
+      costPer1MTokens: 25,
+    },
+    tags: ['reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+    aliases: ['claude-opus-4-5'],
+  },
+  'anthropic:claude-sonnet-4-5-20250929': {
+    id: 'anthropic:claude-sonnet-4-5-20250929',
+    name: 'Claude Sonnet 4.5',
+    description:
+      "Claude Sonnet 4.5 is Anthropic's most advanced Sonnet model to date, optimized for real-world agents and coding workflows. It delivers state-of-the-art performance on coding benchmarks, with improvements across system design, code security, and specification adherence.",
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 64000,
+      costPer1MTokens: 15,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+    aliases: ['claude-sonnet-4-5'],
+  },
+  'anthropic:claude-sonnet-4-20250514': {
+    id: 'anthropic:claude-sonnet-4-20250514',
+    name: 'Claude Sonnet 4',
+    description:
+      'Claude Sonnet 4 significantly enhances the capabilities of its predecessor, Sonnet 3.7, excelling in both coding and reasoning tasks with improved precision and controllability. Sonnet 4 balances capability and computational efficiency, making it suitable for a broad range of applications from routine coding tasks to complex software development projects. Key enhancements include improved autonomous codebase navigation, reduced error rates in agent-driven workflows, and increased reliability in following intricate instructions.',
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 64000,
+      costPer1MTokens: 15,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['claude-sonnet-4'],
+  },
+  'anthropic:claude-sonnet-4-reasoning-20250514': {
+    id: 'anthropic:claude-sonnet-4-reasoning-20250514',
+    name: 'Claude Sonnet 4 (Reasoning Mode)',
+    description:
+      'This model uses the "Extended Thinking" mode and will use a significantly higher amount of output tokens than the Standard Mode, so this model should only be used for tasks that actually require it.\n\nClaude Sonnet 4 significantly enhances the capabilities of its predecessor, Sonnet 3.7, excelling in both coding and reasoning tasks with improved precision and controllability.',
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 64000,
+      costPer1MTokens: 15,
+    },
+    tags: ['deprecated', 'vision', 'reasoning', 'general-purpose', 'agents', 'coding'],
+    lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['claude-sonnet-4-reasoning'],
+  },
+  'anthropic:claude-haiku-4-5-20251001': {
+    id: 'anthropic:claude-haiku-4-5-20251001',
+    name: 'Claude Haiku 4.5',
+    description:
+      "Claude Haiku 4.5 is Anthropic's fastest and most efficient model, delivering near-frontier intelligence at a fraction of the cost and latency of larger Claude models. Matching Claude Sonnet 4's performance across reasoning, coding, and computer-use tasks, Haiku 4.5 brings frontier-level capability to real-time and high-volume applications.",
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 1,
+    },
+    output: {
+      maxTokens: 64000,
+      costPer1MTokens: 5,
+    },
+    tags: ['recommended', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['claude-haiku-4-5'],
+  },
+  'anthropic:claude-haiku-4-5-reasoning-20251001': {
+    id: 'anthropic:claude-haiku-4-5-reasoning-20251001',
+    name: 'Claude Haiku 4.5 (Reasoning Mode)',
+    description:
+      'This model uses the "Extended Thinking" mode and will use a significantly higher amount of output tokens than the Standard Mode, so this model should only be used for tasks that actually require it.\n\nClaude Haiku 4.5 is Anthropic\'s fastest and most efficient model, delivering near-frontier intelligence at a fraction of the cost and latency of larger Claude models. Matching Claude Sonnet 4\'s performance across reasoning, coding, and computer-use tasks, Haiku 4.5 brings frontier-level capability to real-time and high-volume applications.',
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 1,
+    },
+    output: {
+      maxTokens: 64000,
+      costPer1MTokens: 5,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['claude-haiku-4-5-reasoning', 'claude-haiku-4-5-20251001'],
+  },
+  'anthropic:claude-3-7-sonnet-20250219': {
+    id: 'anthropic:claude-3-7-sonnet-20250219',
+    name: 'Claude 3.7 Sonnet',
+    description:
+      'Claude 3.7 Sonnet is an advanced large language model with improved reasoning, coding, and problem-solving capabilities. The model demonstrates notable improvements in coding, particularly in front-end development and full-stack updates, and excels in agentic workflows, where it can autonomously navigate multi-step processes.',
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 64000,
+      costPer1MTokens: 15,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'anthropic:claude-3-7-sonnet-reasoning-20250219': {
+    id: 'anthropic:claude-3-7-sonnet-reasoning-20250219',
+    name: 'Claude 3.7 Sonnet (Reasoning Mode)',
+    description:
+      'This model uses the "Extended Thinking" mode and will use a significantly higher amount of output tokens than the Standard Mode, so this model should only be used for tasks that actually require it.\n\nClaude 3.7 Sonnet is an advanced large language model with improved reasoning, coding, and problem-solving capabilities.',
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 64000,
+      costPer1MTokens: 15,
+    },
+    tags: ['deprecated', 'vision', 'reasoning', 'general-purpose', 'agents', 'coding'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'anthropic:claude-3-5-haiku-20241022': {
+    id: 'anthropic:claude-3-5-haiku-20241022',
+    name: 'Claude 3.5 Haiku',
+    description:
+      'Claude 3.5 Haiku features offers enhanced capabilities in speed, coding accuracy, and tool use. Engineered to excel in real-time applications, it delivers quick response times that are essential for dynamic tasks such as chat interactions and immediate coding suggestions.',
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 0.8,
+    },
+    output: {
+      maxTokens: 8192,
+      costPer1MTokens: 4,
+    },
+    tags: ['general-purpose', 'low-cost'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'anthropic:claude-3-5-sonnet-20241022': {
+    id: 'anthropic:claude-3-5-sonnet-20241022',
+    name: 'Claude 3.5 Sonnet (October 2024)',
+    description:
+      'Claude 3.5 Sonnet delivers better-than-Opus capabilities, faster-than-Sonnet speeds, at the same Sonnet prices. Sonnet is particularly good at coding, data science, visual processing, and agentic tasks.',
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 8192,
+      costPer1MTokens: 15,
+    },
+    tags: ['vision', 'general-purpose', 'agents', 'coding', 'storytelling'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'anthropic:claude-3-5-sonnet-20240620': {
+    id: 'anthropic:claude-3-5-sonnet-20240620',
+    name: 'Claude 3.5 Sonnet (June 2024)',
+    description:
+      'Claude 3.5 Sonnet delivers better-than-Opus capabilities, faster-than-Sonnet speeds, at the same Sonnet prices. Sonnet is particularly good at coding, data science, visual processing, and agentic tasks.',
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 4096,
+      costPer1MTokens: 15,
+    },
+    tags: ['vision', 'general-purpose', 'agents', 'coding', 'storytelling'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'anthropic:claude-3-haiku-20240307': {
+    id: 'anthropic:claude-3-haiku-20240307',
+    name: 'Claude 3 Haiku',
+    description:
+      "Claude 3 Haiku is Anthropic's fastest and most compact model for near-instant responsiveness. Quick and accurate targeted performance.",
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 0.25,
+    },
+    output: {
+      maxTokens: 4096,
+      costPer1MTokens: 1.25,
+    },
+    tags: ['deprecated', 'low-cost', 'general-purpose'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'google-ai:gemini-3.1-pro': {
+    id: 'google-ai:gemini-3.1-pro',
+    name: 'Gemini 3.1 Pro',
+    description:
+      "Google's most powerful agentic and coding model, delivering state-of-the-art reasoning with rich multimodal understanding. Successor to Gemini 3 Pro (shut down March 9, 2026).",
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 2,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 12,
+    },
+    tags: ['reasoning', 'agents', 'general-purpose', 'vision', 'coding'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+    aliases: ['gemini-3.1-pro-preview'],
+  },
+  'google-ai:gemini-3-flash': {
+    id: 'google-ai:gemini-3-flash',
+    name: 'Gemini 3 Flash',
+    description: "Google's most balanced model built for speed, scale, and frontier intelligence.",
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 0.5,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 3,
+    },
+    tags: ['reasoning', 'agents', 'general-purpose', 'vision'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+    aliases: ['gemini-3-flash-preview'],
+  },
+  'google-ai:gemini-3.1-flash-lite': {
+    id: 'google-ai:gemini-3.1-flash-lite',
+    name: 'Gemini 3.1 Flash-Lite',
+    description:
+      "Google's most cost-effective AI model for high-volume, low-latency tasks. Offers strong performance at a fraction of the cost of larger models.",
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 0.25,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 1.5,
+    },
+    tags: ['low-cost', 'general-purpose', 'vision'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+    aliases: ['gemini-3.1-flash-lite-preview'],
+  },
+  'google-ai:gemini-2.5-pro': {
+    id: 'google-ai:gemini-2.5-pro',
+    name: 'Gemini 2.5 Pro',
+    description:
+      'Google\'s most advanced stable AI model designed for complex reasoning, coding, mathematics, and scientific tasks. Features "thinking" capabilities for superior human-preference alignment and problem-solving.',
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 1.25,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 10,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
+  'google-ai:gemini-2.5-flash': {
+    id: 'google-ai:gemini-2.5-flash',
+    name: 'Gemini 2.5 Flash',
+    description:
+      'Google\'s state-of-the-art workhorse model with advanced reasoning, coding, mathematics, and scientific capabilities. Includes built-in "thinking" capabilities for enhanced accuracy.',
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 0.3,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 2.5,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
+  'google-ai:gemini-2.5-flash-lite': {
+    id: 'google-ai:gemini-2.5-flash-lite',
+    name: 'Gemini 2.5 Flash-Lite',
+    description:
+      'Lightweight, cost-efficient Gemini model optimized for high-volume, low-latency tasks. Successor to Gemini 2.0 Flash with improved capabilities.',
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 0.1,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 0.4,
+    },
+    tags: ['recommended', 'low-cost', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
+  'google-ai:gemini-2.0-flash': {
+    id: 'google-ai:gemini-2.0-flash',
+    name: 'Gemini 2.0 Flash',
+    description:
+      'Next-gen Gemini model with improved capabilities, superior speed, native tool use, multimodal generation, and 1M token context window.',
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 0.1,
+    },
+    output: {
+      maxTokens: 8192,
+      costPer1MTokens: 0.4,
+    },
+    tags: ['low-cost', 'general-purpose', 'vision'],
+    lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['models/gemini-2.0-flash'],
+  },
+  'google-ai:gemini-3-pro': {
+    id: 'google-ai:gemini-3-pro',
+    name: 'Gemini 3 Pro (Shut Down)',
+    description: 'Gemini 3 Pro Preview was shut down on March 9, 2026. Use Gemini 3.1 Pro instead.',
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 2,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 12,
+    },
+    tags: ['reasoning', 'agents', 'general-purpose', 'vision'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+    aliases: ['gemini-3-pro-preview'],
+  },
+  'google-ai:gemini-2.5-flash-preview-tts': {
+    id: 'google-ai:gemini-2.5-flash-preview-tts',
+    name: 'Gemini 2.5 Flash TTS',
+    description: 'Native Gemini text-to-speech, fast tier',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['text-to-speech', 'preview'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'google-ai:gemini-2.5-pro-preview-tts': {
+    id: 'google-ai:gemini-2.5-pro-preview-tts',
+    name: 'Gemini 2.5 Pro TTS',
+    description: 'Native Gemini text-to-speech, pro tier',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['text-to-speech', 'preview'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'google-ai:imagen-4.0-ultra-generate-001': {
+    id: 'google-ai:imagen-4.0-ultra-generate-001',
+    name: 'Imagen 4 Ultra',
+    description: "Google's highest-fidelity Imagen 4 variant.",
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['image-generation', 'recommended'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'google-ai:imagen-4.0-generate-001': {
+    id: 'google-ai:imagen-4.0-generate-001',
+    name: 'Imagen 4',
+    description: "Google's standard Imagen 4 image generation model.",
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['image-generation', 'recommended'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'google-ai:imagen-4.0-fast-generate-001': {
+    id: 'google-ai:imagen-4.0-fast-generate-001',
+    name: 'Imagen 4 Fast',
+    description: 'Speed-optimized Imagen 4 variant.',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['image-generation', 'low-cost'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'google-ai:gemini-2.5-flash-image': {
+    id: 'google-ai:gemini-2.5-flash-image',
+    name: 'Gemini 2.5 Flash Image',
+    description:
+      'Gemini-native image generation (formerly "Nano Banana"). Token-billed; ~$0.039 per 1024×1024 image. Supports image editing.',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['image-generation'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'cerebras:gpt-oss-120b': {
+    id: 'cerebras:gpt-oss-120b',
+    name: 'GPT-OSS 120B (Preview)',
+    description:
+      'gpt-oss-120b is a high-performance, open-weight language model designed for production-grade, general-purpose use cases. It excels at complex reasoning and supports configurable reasoning effort, full chain-of-thought transparency for easier debugging and trust, and native agentic capabilities for function calling, tool use, and structured outputs.',
+    input: {
+      maxTokens: 131000,
+      costPer1MTokens: 0.35,
+    },
+    output: {
+      maxTokens: 16000,
+      costPer1MTokens: 0.75,
+    },
+    tags: ['preview', 'general-purpose', 'reasoning'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'cerebras:qwen-3-32b': {
+    id: 'cerebras:qwen-3-32b',
+    name: 'Qwen3 32B',
+    description:
+      'Qwen3-32B is a world-class reasoning model with comparable quality to DeepSeek R1 while outperforming GPT-4.1 and Claude Sonnet 3.7. It excels in code-gen, tool-calling, and advanced reasoning, making it an exceptional model for a wide range of production use cases.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.4,
+    },
+    output: {
+      maxTokens: 16000,
+      costPer1MTokens: 0.8,
+    },
+    tags: ['general-purpose', 'reasoning'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'cerebras:llama-4-scout-17b-16e-instruct': {
+    id: 'cerebras:llama-4-scout-17b-16e-instruct',
+    name: 'Llama 4 Scout 17B',
+    description:
+      'Llama 4 Scout 17B Instruct (16E) is a mixture-of-experts (MoE) language model developed by Meta, uses 16 experts per forward pass, activating 17 billion parameters out of a total of 109B. It supports native multimodal input (text and image) and multilingual output (text and code) across 12 supported languages.',
+    input: {
+      maxTokens: 32000,
+      costPer1MTokens: 0.65,
+    },
+    output: {
+      maxTokens: 16000,
+      costPer1MTokens: 0.85,
+    },
+    tags: ['general-purpose', 'vision'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'cerebras:llama3.1-8b': {
+    id: 'cerebras:llama3.1-8b',
+    name: 'Llama 3.1 8B',
+    description:
+      'Meta developed and released the Meta Llama 3 family of large language models (LLMs), a collection of pretrained and instruction tuned generative text models in 8B and 70B sizes. The Llama 3 instruction tuned models are optimized for dialogue use cases and outperform many of the available open source chat models on common industry benchmarks.',
+    input: {
+      maxTokens: 32000,
+      costPer1MTokens: 0.1,
+    },
+    output: {
+      maxTokens: 16000,
+      costPer1MTokens: 0.1,
+    },
+    tags: ['deprecated', 'low-cost', 'general-purpose'],
+    lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'cerebras:llama3.3-70b': {
+    id: 'cerebras:llama3.3-70b',
+    name: 'Llama 3.3 70B',
+    description:
+      'Meta developed and released the Meta Llama 3 family of large language models (LLMs), a collection of pretrained and instruction tuned generative text models in 8B and 70B sizes. The Llama 3 instruction tuned models are optimized for dialogue use cases and outperform many of the available open source chat models on common industry benchmarks.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.85,
+    },
+    output: {
+      maxTokens: 16000,
+      costPer1MTokens: 1.2,
+    },
+    tags: ['general-purpose'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'groq:qwen3-32b': {
+    id: 'groq:qwen3-32b',
+    name: 'Qwen3 32B (Preview)',
+    description:
+      'Qwen3-32B is a reasoning model from Alibaba. It excels in code-gen, tool-calling, and advanced reasoning. Served as a preview model on Groq with fast inference speeds.',
+    input: {
+      maxTokens: 131000,
+      costPer1MTokens: 0.29,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 0.59,
+    },
+    tags: ['preview', 'reasoning', 'general-purpose'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['qwen/qwen3-32b'],
+  },
+  'groq:llama-4-scout-17b-16e-instruct': {
+    id: 'groq:llama-4-scout-17b-16e-instruct',
+    name: 'Llama 4 Scout 17B (Preview)',
+    description:
+      'Llama 4 Scout 17B Instruct (16E) is a mixture-of-experts (MoE) language model developed by Meta, using 16 experts per forward pass and activating 17 billion parameters out of a total of 109B. Supports multimodal input (text and image) with multilingual output. Served as a preview model on Groq.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.11,
+    },
+    output: {
+      maxTokens: 8192,
+      costPer1MTokens: 0.34,
+    },
+    tags: ['preview', 'vision', 'general-purpose', 'low-cost'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['meta-llama/llama-4-scout-17b-16e-instruct'],
+  },
+  'groq:gpt-oss-20b': {
+    id: 'groq:gpt-oss-20b',
+    name: 'GPT-OSS 20B (Preview)',
+    description:
+      'gpt-oss-20b is a compact, open-weight language model optimized for low-latency. It shares the same training foundation and capabilities as the GPT-OSS 120B model, with faster responses and lower cost.',
+    input: {
+      maxTokens: 131000,
+      costPer1MTokens: 0.075,
+    },
+    output: {
+      maxTokens: 32000,
+      costPer1MTokens: 0.3,
+    },
+    tags: ['preview', 'general-purpose', 'reasoning', 'low-cost'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['openai/gpt-oss-20b'],
+  },
+  'groq:gpt-oss-120b': {
+    id: 'groq:gpt-oss-120b',
+    name: 'GPT-OSS 120B (Preview)',
+    description:
+      'gpt-oss-120b is a high-performance, open-weight language model designed for production-grade, general-purpose use cases. It excels at complex reasoning and supports configurable reasoning effort, full chain-of-thought transparency for easier debugging and trust, and native agentic capabilities for function calling, tool use, and structured outputs.',
+    input: {
+      maxTokens: 131000,
+      costPer1MTokens: 0.15,
+    },
+    output: {
+      maxTokens: 32000,
+      costPer1MTokens: 0.75,
+    },
+    tags: ['preview', 'general-purpose', 'reasoning'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['openai/gpt-oss-120b'],
+  },
+  'groq:deepseek-r1-distill-llama-70b': {
+    id: 'groq:deepseek-r1-distill-llama-70b',
+    name: 'DeepSeek R1-Distill Llama 3.3 70B (Preview)',
+    description:
+      'A fine-tuned version of Llama 3.3 70B using samples generated by DeepSeek-R1, making it smarter than the original Llama 70B, particularly for tasks requiring mathematical and factual precision.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.75,
+    },
+    output: {
+      maxTokens: 32768,
+      costPer1MTokens: 0.99,
+    },
+    tags: ['general-purpose', 'reasoning', 'preview'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'groq:llama-3.3-70b-versatile': {
+    id: 'groq:llama-3.3-70b-versatile',
+    name: 'LLaMA 3.3 70B',
+    description:
+      'The Meta Llama 3.3 multilingual large language model (LLM) is a pretrained and instruction tuned generative model in 70B (text in/text out). The Llama 3.3 instruction tuned text only model is optimized for multilingual dialogue use cases and outperforms many of the available open source and closed chat models on common industry benchmarks.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.59,
+    },
+    output: {
+      maxTokens: 32768,
+      costPer1MTokens: 0.79,
+    },
+    tags: ['recommended', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'groq:llama-3.2-1b-preview': {
+    id: 'groq:llama-3.2-1b-preview',
+    name: 'LLaMA 3.2 1B (Preview)',
+    description:
+      'The Llama 3.2 instruction-tuned, text-only models are optimized for multilingual dialogue use cases, including agentic retrieval and summarization tasks.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.04,
+    },
+    output: {
+      maxTokens: 8192,
+      costPer1MTokens: 0.04,
+    },
+    tags: ['low-cost', 'deprecated'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'groq:llama-3.2-3b-preview': {
+    id: 'groq:llama-3.2-3b-preview',
+    name: 'LLaMA 3.2 3B (Preview)',
+    description:
+      'The Llama 3.2 instruction-tuned, text-only models are optimized for multilingual dialogue use cases, including agentic retrieval and summarization tasks.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.06,
+    },
+    output: {
+      maxTokens: 8192,
+      costPer1MTokens: 0.06,
+    },
+    tags: ['low-cost', 'general-purpose', 'deprecated'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'groq:llama-3.2-11b-vision-preview': {
+    id: 'groq:llama-3.2-11b-vision-preview',
+    name: 'LLaMA 3.2 11B Vision (Preview)',
+    description:
+      'The Llama 3.2-Vision instruction-tuned models are optimized for visual recognition, image reasoning, captioning, and answering general questions about an image.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.18,
+    },
+    output: {
+      maxTokens: 8192,
+      costPer1MTokens: 0.18,
+    },
+    tags: ['low-cost', 'vision', 'general-purpose', 'deprecated'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'groq:llama-3.2-90b-vision-preview': {
+    id: 'groq:llama-3.2-90b-vision-preview',
+    name: 'LLaMA 3.2 90B Vision (Preview)',
+    description:
+      'The Llama 3.2-Vision instruction-tuned models are optimized for visual recognition, image reasoning, captioning, and answering general questions about an image.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.9,
+    },
+    output: {
+      maxTokens: 8192,
+      costPer1MTokens: 0.9,
+    },
+    tags: ['vision', 'general-purpose', 'deprecated'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'groq:llama-3.1-8b-instant': {
+    id: 'groq:llama-3.1-8b-instant',
+    name: 'LLaMA 3.1 8B',
+    description: 'The Llama 3.1 instruction-tuned, text-only models are optimized for multilingual dialogue use cases.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.05,
+    },
+    output: {
+      maxTokens: 8192,
+      costPer1MTokens: 0.08,
+    },
+    tags: ['low-cost', 'general-purpose'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'groq:llama3-8b-8192': {
+    id: 'groq:llama3-8b-8192',
+    name: 'LLaMA 3 8B',
+    description:
+      'Meta developed and released the Meta Llama 3 family of large language models (LLMs), a collection of pretrained and instruction tuned generative text models in 8 and 70B sizes. The Llama 3 instruction tuned models are optimized for dialogue use cases and outperform many of the available open source chat models on common industry benchmarks.',
+    input: {
+      maxTokens: 8192,
+      costPer1MTokens: 0.05,
+    },
+    output: {
+      maxTokens: 8192,
+      costPer1MTokens: 0.08,
+    },
+    tags: ['low-cost', 'general-purpose', 'deprecated'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'groq:llama3-70b-8192': {
+    id: 'groq:llama3-70b-8192',
+    name: 'LLaMA 3 70B',
+    description:
+      'Meta developed and released the Meta Llama 3 family of large language models (LLMs), a collection of pretrained and instruction tuned generative text models in 8 and 70B sizes. The Llama 3 instruction tuned models are optimized for dialogue use cases and outperform many of the available open source chat models on common industry benchmarks.',
+    input: {
+      maxTokens: 8192,
+      costPer1MTokens: 0.59,
+    },
+    output: {
+      maxTokens: 8192,
+      costPer1MTokens: 0.79,
+    },
+    tags: ['general-purpose', 'deprecated'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'groq:gemma2-9b-it': {
+    id: 'groq:gemma2-9b-it',
+    name: 'Gemma2 9B',
+    description:
+      'Redesigned for outsized performance and unmatched efficiency, Gemma 2 optimizes for blazing-fast inference on diverse hardware. Gemma is a family of lightweight, state-of-the-art open models from Google, built from the same research and technology used to create the Gemini models. They are text-to-text, decoder-only large language models, available in English, with open weights, pre-trained variants, and instruction-tuned variants. Gemma models are well-suited for a variety of text generation tasks, including question answering, summarization, and reasoning.',
+    input: {
+      maxTokens: 8192,
+      costPer1MTokens: 0.2,
+    },
+    output: {
+      maxTokens: 8192,
+      costPer1MTokens: 0.2,
+    },
+    tags: ['low-cost', 'general-purpose'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'groq:whisper-large-v3': {
+    id: 'groq:whisper-large-v3',
+    name: 'Whisper V3',
+    description: 'Whisper Large V3 on Groq — fast, accurate multilingual speech recognition.',
+    input: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+      costPerMinute: 0.00185,
+    },
+    output: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+    },
+    tags: ['general-purpose', 'speech-to-text'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: true,
+      supportsSearch: false,
+    },
+  },
+  'groq:whisper-large-v3-turbo': {
+    id: 'groq:whisper-large-v3-turbo',
+    name: 'Whisper V3 Turbo',
+    description: 'Whisper Large V3 Turbo on Groq — optimized for speed with near-identical accuracy to V3.',
+    input: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+      costPerMinute: 0.000667,
+    },
+    output: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+    },
+    tags: ['low-cost', 'general-purpose', 'speech-to-text'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: true,
+      supportsSearch: false,
+    },
+  },
+  'groq:distil-whisper-large-v3-en': {
+    id: 'groq:distil-whisper-large-v3-en',
+    name: 'Distil Whisper V3 (English)',
+    description: 'Distilled Whisper Large V3 on Groq — decommissioned, replaced by whisper-large-v3-turbo.',
+    input: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+      costPerMinute: 0.000333,
+    },
+    output: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+    },
+    tags: ['low-cost', 'speech-to-text'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: true,
+      supportsSearch: false,
+    },
+  },
+  'xai:grok-4-1-fast-reasoning': {
+    id: 'xai:grok-4-1-fast-reasoning',
+    name: 'Grok 4.1 Fast (Reasoning)',
+    description:
+      'Latest fast Grok model with reasoning capabilities and a massive 2M context window. Extremely cost-effective for a frontier-class model.',
+    input: {
+      maxTokens: 2000000,
+      costPer1MTokens: 0.2,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.5,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision', 'low-cost'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'xai:grok-4-1-fast-non-reasoning': {
+    id: 'xai:grok-4-1-fast-non-reasoning',
+    name: 'Grok 4.1 Fast (Non-Reasoning)',
+    description:
+      'Latest fast Grok model for non-reasoning tasks with a massive 2M context window. Extremely cost-effective for a frontier-class model.',
+    input: {
+      maxTokens: 2000000,
+      costPer1MTokens: 0.2,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.5,
+    },
+    tags: ['recommended', 'general-purpose', 'vision', 'low-cost'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'xai:grok-4.20-0309-reasoning': {
+    id: 'xai:grok-4.20-0309-reasoning',
+    name: 'Grok 4.20 (Reasoning)',
+    description: 'xAI flagship model with deep reasoning capabilities and 2M context window.',
+    input: {
+      maxTokens: 2000000,
+      costPer1MTokens: 2,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 6,
+    },
+    tags: ['reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'xai:grok-4.20-0309-non-reasoning': {
+    id: 'xai:grok-4.20-0309-non-reasoning',
+    name: 'Grok 4.20 (Non-Reasoning)',
+    description: 'xAI flagship model for non-reasoning tasks with 2M context window.',
+    input: {
+      maxTokens: 2000000,
+      costPer1MTokens: 2,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 6,
+    },
+    tags: ['general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'xai:grok-code-fast-1': {
+    id: 'xai:grok-code-fast-1',
+    name: 'Grok Code Fast 1',
+    description: 'Fast coding-optimized Grok model with large context window.',
+    input: {
+      maxTokens: 256000,
+      costPer1MTokens: 0.2,
+    },
+    output: {
+      maxTokens: 32768,
+      costPer1MTokens: 1.5,
+    },
+    tags: ['coding', 'general-purpose', 'low-cost'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'xai:grok-4-fast-reasoning': {
+    id: 'xai:grok-4-fast-reasoning',
+    name: 'Grok 4 Fast (Reasoning)',
+    description: 'Advanced fast Grok model with reasoning and very large context.',
+    input: {
+      maxTokens: 2000000,
+      costPer1MTokens: 0.2,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.5,
+    },
+    tags: ['reasoning', 'general-purpose'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'xai:grok-4-fast-non-reasoning': {
+    id: 'xai:grok-4-fast-non-reasoning',
+    name: 'Grok 4 Fast (Non-Reasoning)',
+    description: 'Fast, cost-effective Grok model for non-reasoning tasks.',
+    input: {
+      maxTokens: 2000000,
+      costPer1MTokens: 0.2,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.5,
+    },
+    tags: ['low-cost', 'general-purpose'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'xai:grok-4-0709': {
+    id: 'xai:grok-4-0709',
+    name: 'Grok 4 (0709)',
+    description: 'Comprehensive Grok 4 model for general-purpose tasks.',
+    input: {
+      maxTokens: 256000,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 32768,
+      costPer1MTokens: 15,
+    },
+    tags: ['reasoning', 'general-purpose'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'xai:grok-3-mini': {
+    id: 'xai:grok-3-mini',
+    name: 'Grok 3 Mini',
+    description: 'Lightweight Grok model for cost-sensitive workloads.',
+    input: {
+      maxTokens: 131072,
+      costPer1MTokens: 0.3,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 0.5,
+    },
+    tags: ['low-cost', 'general-purpose'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'xai:grok-3': {
+    id: 'xai:grok-3',
+    name: 'Grok 3',
+    description: 'Enterprise-grade Grok model for general-purpose tasks.',
+    input: {
+      maxTokens: 131072,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 15,
+    },
+    tags: ['general-purpose'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'openrouter:gpt-oss-120b': {
+    id: 'openrouter:gpt-oss-120b',
+    name: 'GPT-OSS 120B (Preview)',
+    description:
+      'gpt-oss-120b is a high-performance, open-weight language model designed for production-grade, general-purpose use cases. It excels at complex reasoning and supports configurable reasoning effort, full chain-of-thought transparency for easier debugging and trust, and native agentic capabilities for function calling, tool use, and structured outputs.',
+    input: {
+      maxTokens: 131000,
+      costPer1MTokens: 0.15,
+    },
+    output: {
+      maxTokens: 32000,
+      costPer1MTokens: 0.75,
+    },
+    tags: ['preview', 'general-purpose', 'reasoning'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'fireworks-ai:kimi-k2p6': {
+    id: 'fireworks-ai:kimi-k2p6',
+    name: 'Kimi K2.6',
+    description:
+      'Kimi K2.6 is an open-source, native multimodal agentic model with a 1 trillion parameter mixture-of-experts architecture. It delivers strong performance on agentic and reasoning tasks with a 262K context window.',
+    input: {
+      maxTokens: 262144,
+      costPer1MTokens: 0.95,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 4,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'agents', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/kimi-k2p6'],
+  },
+  'fireworks-ai:kimi-k2p5': {
+    id: 'fireworks-ai:kimi-k2p5',
+    name: 'Kimi K2.5',
+    description:
+      'Kimi K2.5 is an open-source mixture-of-experts agentic model with strong reasoning and tool-use capabilities. Features a 262K context window at a cost-effective price point.',
+    input: {
+      maxTokens: 262144,
+      costPer1MTokens: 0.6,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 3,
+    },
+    tags: ['reasoning', 'general-purpose', 'agents'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/kimi-k2p5'],
+  },
+  'fireworks-ai:qwen3-8b': {
+    id: 'fireworks-ai:qwen3-8b',
+    name: 'Qwen3 8B',
+    description:
+      'Qwen3 8B is a newer-generation small model with better architecture than Llama 3.1 8B. Same price tier with improved quality across reasoning and coding tasks.',
+    input: {
+      maxTokens: 40960,
+      costPer1MTokens: 0.2,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 0.2,
+    },
+    tags: ['low-cost', 'general-purpose', 'reasoning'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/qwen3-8b'],
+  },
+  'fireworks-ai:gpt-oss-20b': {
+    id: 'fireworks-ai:gpt-oss-20b',
+    name: 'GPT-OSS 20B',
+    description:
+      'gpt-oss-20b is a compact, open-weight language model optimized for low-latency. It shares the same training foundation and capabilities as the GPT-OSS 120B model, with faster responses and lower cost.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.07,
+    },
+    output: {
+      maxTokens: 16000,
+      costPer1MTokens: 0.3,
+    },
+    tags: ['general-purpose', 'reasoning', 'low-cost'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/gpt-oss-20b'],
+  },
+  'fireworks-ai:gpt-oss-120b': {
+    id: 'fireworks-ai:gpt-oss-120b',
+    name: 'GPT-OSS 120B',
+    description:
+      'gpt-oss-120b is a high-performance, open-weight language model designed for production-grade, general-purpose use cases. It excels at complex reasoning and supports configurable reasoning effort, full chain-of-thought transparency for easier debugging and trust, and native agentic capabilities for function calling, tool use, and structured outputs.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.15,
+    },
+    output: {
+      maxTokens: 16000,
+      costPer1MTokens: 0.6,
+    },
+    tags: ['general-purpose', 'reasoning'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/gpt-oss-120b'],
+  },
+  'fireworks-ai:deepseek-v3p2': {
+    id: 'fireworks-ai:deepseek-v3p2',
+    name: 'DeepSeek V3.2',
+    description:
+      'DeepSeek V3.2 is a 675B-parameter mixture-of-experts model with superior reasoning and agent performance. It delivers high computational efficiency with strong results across coding, math, and general-purpose tasks.',
+    input: {
+      maxTokens: 163840,
+      costPer1MTokens: 0.56,
+    },
+    output: {
+      maxTokens: 160000,
+      costPer1MTokens: 1.68,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/deepseek-v3p2'],
+  },
+  'fireworks-ai:deepseek-v3p1': {
+    id: 'fireworks-ai:deepseek-v3p1',
+    name: 'DeepSeek V3.1',
+    description:
+      'DeepSeek V3.1 is a 685B-parameter hybrid LLM with mixture-of-experts architecture (37B activated per token). Features thinking and non-thinking chat modes for complex agentic behaviors and reasoning tasks.',
+    input: {
+      maxTokens: 163840,
+      costPer1MTokens: 0.56,
+    },
+    output: {
+      maxTokens: 163840,
+      costPer1MTokens: 1.68,
+    },
+    tags: ['reasoning', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/deepseek-v3p1'],
+  },
+  'fireworks-ai:deepseek-r1-0528': {
+    id: 'fireworks-ai:deepseek-r1-0528',
+    name: 'DeepSeek R1 0528',
+    description:
+      'The updated DeepSeek R1 0528 model delivers major improvements in reasoning, inference, and accuracy through enhanced post-training optimization and greater computational resources. It now performs at a level approaching top-tier models like OpenAI o3 and Gemini 2.5 Pro, with notable gains in complex tasks such as math and programming. The update also reduces hallucinations, improves function calling, and enhances the coding experience.',
+    input: {
+      maxTokens: 160000,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 8,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'coding'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/deepseek-r1-0528'],
+  },
+  'fireworks-ai:deepseek-v3-0324': {
+    id: 'fireworks-ai:deepseek-v3-0324',
+    name: 'DeepSeek V3 0324',
+    description:
+      'DeepSeek V3, a 685B-parameter, mixture-of-experts model, is the latest iteration of the flagship chat model family from the DeepSeek team. It succeeds the DeepSeek V3 model and performs really well on a variety of tasks.',
+    input: {
+      maxTokens: 160000,
+      costPer1MTokens: 0.9,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 0.9,
+    },
+    tags: ['recommended', 'general-purpose'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/deepseek-v3-0324'],
+  },
+  'fireworks-ai:llama4-maverick-instruct-basic': {
+    id: 'fireworks-ai:llama4-maverick-instruct-basic',
+    name: 'Llama 4 Maverick Instruct (Basic)',
+    description:
+      'Llama 4 Maverick 17B Instruct (128E) is a high-capacity multimodal language model from Meta, built on a mixture-of-experts (MoE) architecture with 128 experts and 17 billion active parameters per forward pass (400B total). It supports multilingual text and image input, and produces multilingual text and code output across 12 supported languages. Optimized for vision-language tasks, Maverick is instruction-tuned for assistant-like behavior, image reasoning, and general-purpose multimodal interaction, and suited for research and commercial applications requiring advanced multimodal understanding and high model throughput.',
+    input: {
+      maxTokens: 1000000,
+      costPer1MTokens: 0.22,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 0.88,
+    },
+    tags: ['general-purpose', 'vision'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/llama4-maverick-instruct-basic'],
+  },
+  'fireworks-ai:llama4-scout-instruct-basic': {
+    id: 'fireworks-ai:llama4-scout-instruct-basic',
+    name: 'Llama 4 Scout Instruct (Basic)',
+    description:
+      'Llama 4 Scout 17B Instruct (16E) is a mixture-of-experts (MoE) language model developed by Meta, uses 16 experts per forward pass, activating 17 billion parameters out of a total of 109B. It supports native multimodal input (text and image) and multilingual output (text and code) across 12 supported languages. Designed for assistant-style interaction and visual reasoning, it is instruction-tuned for use in multilingual chat, captioning, and image understanding tasks.',
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 0.15,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 0.6,
+    },
+    tags: ['general-purpose', 'vision'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/llama4-scout-instruct-basic'],
+  },
+  'fireworks-ai:llama-v3p3-70b-instruct': {
+    id: 'fireworks-ai:llama-v3p3-70b-instruct',
+    name: 'Llama 3.3 70B Instruct',
+    description:
+      'Llama 3.3 70B Instruct is the December update of Llama 3.1 70B. The model improves upon Llama 3.1 70B (released July 2024) with advances in tool calling, multilingual text support, math and coding. The model achieves industry leading results in reasoning, math and instruction following and provides similar performance as 3.1 405B but with significant speed and cost improvements.',
+    input: {
+      maxTokens: 131072,
+      costPer1MTokens: 0.9,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 0.9,
+    },
+    tags: ['general-purpose'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/llama-v3p3-70b-instruct'],
+  },
+  'fireworks-ai:deepseek-r1': {
+    id: 'fireworks-ai:deepseek-r1',
+    name: 'DeepSeek R1 (Fast)',
+    description:
+      'This version of the R1 model has a perfect balance between speed and cost-efficiency for real-time interactive experiences, with speeds up to 90 tokens per second.\n\nDeepSeek-R1 is a state-of-the-art large language model optimized with reinforcement learning and cold-start data for exceptional reasoning, math, and code performance. **Note**: This model will always use a temperature of 0.6 as recommended by DeepSeek.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 32768,
+      costPer1MTokens: 8,
+    },
+    tags: ['reasoning', 'general-purpose', 'coding'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/deepseek-r1'],
+  },
+  'fireworks-ai:deepseek-r1-basic': {
+    id: 'fireworks-ai:deepseek-r1-basic',
+    name: 'DeepSeek R1 (Basic)',
+    description:
+      'This version of the R1 model is optimized for throughput and cost-effectiveness and has a lower cost but slightly higher latency than the "Fast" version of the model.\n\nDeepSeek-R1 is a state-of-the-art large language model optimized with reinforcement learning and cold-start data for exceptional reasoning, math, and code performance. **Note**: This model will always use a temperature of 0.6 as recommended by DeepSeek.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.55,
+    },
+    output: {
+      maxTokens: 32768,
+      costPer1MTokens: 2.19,
+    },
+    tags: ['reasoning', 'general-purpose', 'coding'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/deepseek-r1-basic'],
+  },
+  'fireworks-ai:deepseek-v3': {
+    id: 'fireworks-ai:deepseek-v3',
+    name: 'DeepSeek V3',
+    description:
+      'A a strong Mixture-of-Experts (MoE) language model with 671B total parameters with 37B activated for each token from Deepseek.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.9,
+    },
+    output: {
+      maxTokens: 8000,
+      costPer1MTokens: 0.9,
+    },
+    tags: ['deprecated', 'general-purpose'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/deepseek-v3'],
+  },
+  'fireworks-ai:llama-v3p1-405b-instruct': {
+    id: 'fireworks-ai:llama-v3p1-405b-instruct',
+    name: 'Llama 3.1 405B Instruct',
+    description:
+      'The Meta Llama 3.1 collection of multilingual large language models (LLMs) is a collection of pretrained and instruction tuned generative models in 8B, 70B and 405B sizes. The Llama 3.1 instruction tuned text only models (8B, 70B, 405B) are optimized for multilingual dialogue use cases and outperform many of the available open source and closed chat models on common industry benchmarks.',
+    input: {
+      maxTokens: 131072,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 131072,
+      costPer1MTokens: 3,
+    },
+    tags: ['deprecated', 'general-purpose'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/llama-v3p1-405b-instruct'],
+  },
+  'fireworks-ai:llama-v3p1-70b-instruct': {
+    id: 'fireworks-ai:llama-v3p1-70b-instruct',
+    name: 'Llama 3.1 70B Instruct',
+    description:
+      'The Meta Llama 3.1 collection of multilingual large language models (LLMs) is a collection of pretrained and instruction tuned generative models in 8B, 70B and 405B sizes. The Llama 3.1 instruction tuned text only models (8B, 70B, 405B) are optimized for multilingual dialogue use cases and outperform many of the available open source and closed chat models on common industry benchmarks.',
+    input: {
+      maxTokens: 131072,
+      costPer1MTokens: 0.9,
+    },
+    output: {
+      maxTokens: 131072,
+      costPer1MTokens: 0.9,
+    },
+    tags: ['deprecated', 'general-purpose'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/llama-v3p1-70b-instruct'],
+  },
+  'fireworks-ai:llama-v3p1-8b-instruct': {
+    id: 'fireworks-ai:llama-v3p1-8b-instruct',
+    name: 'Llama 3.1 8B Instruct',
+    description:
+      'The Meta Llama 3.1 collection of multilingual large language models (LLMs) is a collection of pretrained and instruction tuned generative models in 8B, 70B and 405B sizes. The Llama 3.1 instruction tuned text only models (8B, 70B, 405B) are optimized for multilingual dialogue use cases and outperform many of the available open source and closed chat models on common industry benchmarks.',
+    input: {
+      maxTokens: 131072,
+      costPer1MTokens: 0.2,
+    },
+    output: {
+      maxTokens: 131072,
+      costPer1MTokens: 0.2,
+    },
+    tags: ['low-cost', 'general-purpose'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/llama-v3p1-8b-instruct'],
+  },
+  'fireworks-ai:mixtral-8x22b-instruct': {
+    id: 'fireworks-ai:mixtral-8x22b-instruct',
+    name: 'Mixtral MoE 8x22B Instruct',
+    description:
+      'Mistral MoE 8x22B Instruct v0.1 model with Sparse Mixture of Experts. Fine tuned for instruction following.',
+    input: {
+      maxTokens: 65536,
+      costPer1MTokens: 1.2,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 1.2,
+    },
+    tags: ['deprecated', 'general-purpose'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/mixtral-8x22b-instruct'],
+  },
+  'fireworks-ai:mixtral-8x7b-instruct': {
+    id: 'fireworks-ai:mixtral-8x7b-instruct',
+    name: 'Mixtral MoE 8x7B Instruct',
+    description:
+      'Mistral MoE 8x7B Instruct v0.1 model with Sparse Mixture of Experts. Fine tuned for instruction following',
+    input: {
+      maxTokens: 32768,
+      costPer1MTokens: 0.5,
+    },
+    output: {
+      maxTokens: 32768,
+      costPer1MTokens: 0.5,
+    },
+    tags: ['low-cost', 'general-purpose'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/mixtral-8x7b-instruct'],
+  },
+  'fireworks-ai:mythomax-l2-13b': {
+    id: 'fireworks-ai:mythomax-l2-13b',
+    name: 'MythoMax L2 13b',
+    description:
+      'MythoMax L2 is designed to excel at both roleplaying and storytelling, and is an improved variant of the previous MythoMix model, combining the MythoLogic-L2 and Huginn models.',
+    input: {
+      maxTokens: 4096,
+      costPer1MTokens: 0.2,
+    },
+    output: {
+      maxTokens: 4096,
+      costPer1MTokens: 0.2,
+    },
+    tags: ['roleplay', 'storytelling', 'low-cost'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/mythomax-l2-13b'],
+  },
+  'fireworks-ai:gemma2-9b-it': {
+    id: 'fireworks-ai:gemma2-9b-it',
+    name: 'Gemma 2 9B Instruct',
+    description:
+      'Redesigned for outsized performance and unmatched efficiency, Gemma 2 optimizes for blazing-fast inference on diverse hardware. Gemma is a family of lightweight, state-of-the-art open models from Google, built from the same research and technology used to create the Gemini models. They are text-to-text, decoder-only large language models, available in English, with open weights, pre-trained variants, and instruction-tuned variants. Gemma models are well-suited for a variety of text generation tasks, including question answering, summarization, and reasoning.',
+    input: {
+      maxTokens: 8192,
+      costPer1MTokens: 0.2,
+    },
+    output: {
+      maxTokens: 8192,
+      costPer1MTokens: 0.2,
+    },
+    tags: ['deprecated', 'low-cost', 'general-purpose'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/gemma2-9b-it'],
+  },
+  'fireworks-ai:whisper-v3': {
+    id: 'fireworks-ai:whisper-v3',
+    name: 'Whisper V3',
+    description: 'Whisper V3 on Fireworks AI — multilingual speech recognition with high accuracy.',
+    input: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+      costPerMinute: 0.0015,
+    },
+    output: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+    },
+    tags: ['general-purpose', 'speech-to-text'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: true,
+      supportsSearch: false,
+    },
+  },
+  'elevenlabs:eleven_v3': {
+    id: 'elevenlabs:eleven_v3',
+    name: 'ElevenLabs v3 (Alpha)',
+    description: 'Most expressive ElevenLabs model, alpha quality',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['text-to-speech', 'preview'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'elevenlabs:eleven_multilingual_v2': {
+    id: 'elevenlabs:eleven_multilingual_v2',
+    name: 'ElevenLabs Multilingual v2',
+    description: 'Production multilingual voice synthesis (29 languages)',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['text-to-speech', 'recommended'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'elevenlabs:eleven_turbo_v2_5': {
+    id: 'elevenlabs:eleven_turbo_v2_5',
+    name: 'ElevenLabs Turbo v2.5',
+    description: 'Fast multilingual TTS',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['text-to-speech', 'low-cost'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'elevenlabs:eleven_flash_v2_5': {
+    id: 'elevenlabs:eleven_flash_v2_5',
+    name: 'ElevenLabs Flash v2.5',
+    description: 'Lowest latency TTS, ~75ms TTFB',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['text-to-speech', 'low-cost', 'recommended'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
 }
 
-export type ModelRef = `${string}:${string}`
-
-export type ModelPreferences = {
-  best: ModelRef[]
-  fast: ModelRef[]
-  downtimes: Array<{ ref: ModelRef; startedAt: string; reason: string }>
-}
-
-const isRecommended = (model: Model) => model.tags.includes('recommended')
-const isDeprecated = (model: Model) => model.tags.includes('deprecated')
-const isLowCost = (model: Model) => model.tags.includes('low-cost')
-const hasVisionSupport = (model: Model) => model.tags.includes('vision')
-const isGeneralPurpose = (model: Model) => model.tags.includes('general-purpose')
-
-const scoreModel = (model: Model, type: 'best' | 'fast', boosts: Record<ModelRef, number> = {}) => {
-  let score: number = 0
-
-  const scores: Array<[string, boolean, number]> = [
-    ['input price penalty', model.input.costPer1MTokens > InputPricePenalty, -1],
-    ['output price penalty', model.output.costPer1MTokens > OutputPricePenalty, -1],
-    ['low tokens penalty', (model.input.maxTokens ?? 0) + (model.output.maxTokens ?? 0) < LowTokensPenalty, -1],
-    ['recommended', isRecommended(model), 2],
-    ['deprecated', isDeprecated(model), -2],
-    ['vision support', hasVisionSupport(model), 1],
-    ['general purpose', isGeneralPurpose(model), 1],
-    ['vendor preference', VendorPreferences.includes(model.integration), 1],
-    ['best model preference', type === 'best' && BestModelPreferences.some((x) => model.id.includes(x)), 1],
-    ['fast model preference penalty', type === 'best' && FastModelPreferences.some((x) => model.id.includes(x)), -2],
-    ['fast model preference', type === 'fast' && FastModelPreferences.some((x) => model.id.includes(x)), 2],
-    ['low cost', type === 'fast' && isLowCost(model), 1],
-  ]
-
-  for (const rule in boosts) {
-    if (model.ref.includes(rule)) {
-      scores.push([`boost (${rule})`, true, Number(boosts[rule as ModelRef]) ?? 0] as const)
-    }
-  }
-
-  for (const [, condition, value] of scores) {
-    if (condition) {
-      score += value
-    }
-  }
-
-  return score
-}
-
-export const getBestModels = (models: Model[], boosts: Record<ModelRef, number> = {}) =>
-  models.sort((a, b) => scoreModel(b, 'best', boosts) - scoreModel(a, 'best', boosts))
-
-export const getFastModels = (models: Model[], boosts: Record<ModelRef, number> = {}) =>
-  models.sort((a, b) => scoreModel(b, 'fast', boosts) - scoreModel(a, 'fast', boosts))
-
-export const pickModel = (models: ModelRef[], downtimes: ModelPreferences['downtimes'] = []) => {
-  const copy = [...models]
-  const elasped = (date: string) => new Date().getTime() - new Date(date).getTime()
-  const DOWNTIME_THRESHOLD = 1000 * 60 * DOWNTIME_THRESHOLD_MINUTES
-
-  if (!copy.length) {
-    throw new Error('At least one model is required')
-  }
-
-  while (copy.length) {
-    const ref = copy.shift() as ModelRef
-    const downtime = downtimes.find((o) => o.ref === ref && elasped(o.startedAt) < DOWNTIME_THRESHOLD)
-    if (downtime) {
-      continue
-    } else {
-      return ref
-    }
-  }
-
-  throw new Error(`All models are down: ${models.join(', ')}`)
-}
-
-export abstract class ModelProvider {
-  public abstract fetchInstalledModels(): Promise<Model[]>
-  public abstract fetchModelPreferences(): Promise<ModelPreferences | null>
-  public abstract saveModelPreferences(preferences: ModelPreferences): Promise<void>
-  public abstract deleteModelPreferences(): Promise<void>
-}
-
-export class RemoteModelProvider extends ModelProvider {
-  private _client: ExtendedClient
-
-  public constructor(client: BotpressClientLike) {
-    super()
-    this._client = getExtendedClient(client)
-  }
-
-  private async _fetchInstalledIntegrationNames() {
-    try {
-      const { bot } = await this._client.getBot({ id: this._client.botId })
-      const integrations = Object.values(bot.integrations).filter((x) => x.status === 'registered')
-      return integrations.map((x) => x.name)
-    } catch (err) {
-      if (isForbiddenOrUnauthorizedError(err)) {
-        // This happens when the bot (with a BAK token) tries to access the .getBot endpoint
-        return DEFAULT_INTEGRATIONS
-      }
-
-      throw err
-    }
-  }
-
-  public async fetchInstalledModels() {
-    const integrationNames = await this._fetchInstalledIntegrationNames()
-    const models: Model[] = []
-
-    await Promise.allSettled(
-      integrationNames.map(async (integration) => {
-        const { output } = await this._client.callAction({
-          type: `${integration}:listLanguageModels`,
-          input: {},
-        })
-
-        if (!output?.models?.length) {
-          return
-        }
-
-        for (const model of output.models as RawModel[]) {
-          if (model.name && model.id && model.input && model.tags) {
-            models.push({
-              ref: `${integration}:${model.id}`,
-              integration,
-              id: model.id,
-              name: model.name,
-              description: model.description,
-              input: model.input,
-              output: model.output,
-              tags: model.tags,
-            })
-          }
-        }
-      })
-    )
-
-    return models
-  }
-
-  public async fetchModelPreferences(): Promise<ModelPreferences | null> {
-    try {
-      const { file } = await this._client.getFile({ id: this._preferenceFileKey })
-
-      if (globalThis.fetch !== undefined) {
-        const response = await fetch(file.url)
-        return (await response.json()) as ModelPreferences
-      } else {
-        const { data } = await this._client.http.get(file.url, {
-          // we piggy-back the botpress client's http client to avoid adding a new dependency
-          // unset all headers to avoid S3 pre-signed signature mismatch
-          headers: Object.keys(this._client.config.headers).reduce(
-            (acc, key) => {
-              acc[key] = undefined
-              return acc
-            },
-            {} as Record<string, undefined>
-          ),
-        })
-        return data as ModelPreferences
-      }
-    } catch (err) {
-      if (isNotFoundError(err)) {
-        return null
-      }
-
-      throw err
-    }
-  }
-
-  public async saveModelPreferences(preferences: ModelPreferences) {
-    await this._client.uploadFile({
-      key: this._preferenceFileKey,
-      content: JSON.stringify(preferences, null, 2),
-      index: false,
-      tags: {
-        system: 'true',
-        purpose: 'config',
-      },
-    })
-  }
-
-  public async deleteModelPreferences() {
-    await this._client.deleteFile({ id: this._preferenceFileKey }).catch(() => {})
-  }
-
-  private get _preferenceFileKey() {
-    return `bot->${this._client.botId}->${PREFERENCES_FILE_SUFFIX}`
-  }
+export const defaultModel: Model = {
+  id: '',
+  name: '',
+  description: '',
+  input: {
+    costPer1MTokens: 0,
+    maxTokens: 1000000,
+  },
+  output: {
+    costPer1MTokens: 0,
+    maxTokens: 1000000,
+  },
+  tags: [],
+  lifecycle: 'production',
 }

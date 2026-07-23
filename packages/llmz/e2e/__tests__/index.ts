@@ -1,5 +1,5 @@
 import { Client } from '@botpress/client'
-import { CognitiveBeta, type CognitiveRequest, type CognitiveStreamChunk } from '@botpress/cognitive'
+import { Cognitive, type CognitiveRequest, type CognitiveStreamChunk } from '@botpress/cognitive'
 import fs from 'node:fs'
 import path from 'node:path'
 import { expect } from 'vitest'
@@ -113,11 +113,11 @@ const cacheKeyOf = (kind: 'text' | 'stream', input: CognitiveRequest): string =>
 }
 
 /**
- * A CognitiveBeta client that replays LLM responses from a JSONL cache.
+ * A Cognitive client that replays LLM responses from a JSONL cache.
  * Both the streaming and non-streaming surfaces are cached; streamed responses
  * are replayed chunk by chunk, exactly as they were received.
  */
-class CachedCognitiveBeta extends CognitiveBeta {
+class CachedCognitive extends Cognitive {
   private _callsByTest: Record<string, number> = {}
 
   private _testKey(): string {
@@ -134,7 +134,7 @@ class CachedCognitiveBeta extends CognitiveBeta {
 
   public override async generateText(
     input: CognitiveRequest,
-    options?: Parameters<CognitiveBeta['generateText']>[1]
+    options?: Parameters<Cognitive['generateText']>[1]
   ): Promise<any> {
     const pinned = pinModels(input)
     const key = cacheKeyOf('text', pinned)
@@ -156,7 +156,7 @@ class CachedCognitiveBeta extends CognitiveBeta {
 
   public override async *generateTextStream(
     input: CognitiveRequest,
-    options?: Parameters<CognitiveBeta['generateTextStream']>[1]
+    options?: Parameters<Cognitive['generateTextStream']>[1]
   ): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
     const pinned = pinModels(input)
     const key = cacheKeyOf('stream', pinned)
@@ -185,7 +185,7 @@ class CachedCognitiveBeta extends CognitiveBeta {
 }
 
 export const getCachedCognitiveClient = () => {
-  return new CachedCognitiveBeta({
+  return new CachedCognitive({
     apiUrl: process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.cloud',
     botId: process.env.CLOUD_BOT_ID,
     token: process.env.CLOUD_PAT,

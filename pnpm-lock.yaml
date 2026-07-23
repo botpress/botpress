@@ -3004,12 +3004,6 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../client
-      '@botpress/common':
-        specifier: workspace:*
-        version: link:../common
-      '@bpinternal/zui':
-        specifier: workspace:*
-        version: link:../zui
       '@size-limit/file':
         specifier: ^11.1.6
         version: 11.1.6(size-limit@11.1.6)
@@ -3075,7 +3069,7 @@ importers:
         specifier: 1.49.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.6.2
+        specifier: 1.0.0
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^3.1.0
@@ -3208,6 +3202,9 @@ importers:
       '@botpress/client':
         specifier: 1.49.0
         version: link:../client
+      '@botpress/cognitive':
+        specifier: 1.0.0
+        version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^3.0.0
         version: 3.0.0
@@ -3230,9 +3227,6 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../cli
-      '@botpress/common':
-        specifier: workspace:*
-        version: link:../common
       '@types/lodash':
         specifier: ^4.14.191
         version: 4.14.195
@@ -3252,7 +3246,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.6.2
+        specifier: 1.0.0
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^3.0.0
@@ -3383,7 +3377,7 @@ importers:
   plugins/conversation-insights:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.6.2
+        specifier: 1.0.0
         version: link:../../packages/cognitive
       '@botpress/sdk':
         specifier: workspace:*
