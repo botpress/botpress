@@ -1,4 +1,3 @@
-import axiosRetry from 'axios-retry'
 import * as common from '../common'
 import * as uploadFile from '../files/upload-file'
 import * as gen from '../gen/public'
@@ -26,14 +25,14 @@ export class Client extends gen.Client implements IClient {
 
   public constructor(clientProps: ClientProps = {}) {
     const clientConfig = common.config.getClientConfig(clientProps)
-    const axiosInstance = common.axios.createAxiosInstance(clientConfig)
+    const httpClient = common.http.createHttpClient(clientConfig)
 
-    super(axiosInstance, {
+    super(httpClient, {
       toApiError: common.errors.toApiError,
     })
 
     if (clientProps.retry) {
-      axiosRetry(axiosInstance, clientProps.retry)
+      httpClient.retry = clientProps.retry
     }
 
     this.config = clientConfig

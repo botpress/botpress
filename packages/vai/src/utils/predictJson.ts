@@ -1,10 +1,7 @@
+import { Cognitive } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import JSON5 from 'json5'
 import { Context } from '../context'
-import * as llm from '../llm'
-
-type GenerateContentInput = llm.GenerateContentInput
-type GenerateContentOutput = llm.GenerateContentOutput
 
 const nonEmptyString = z.string().trim().min(1)
 const nonEmptyObject = z
@@ -58,9 +55,10 @@ const isValidExample =
 
 export async function predictJson<T extends z.ZodSchema>(_options: InputOptions<T>): Promise<Output<z.infer<T>>> {
   const options = Options.parse(_options)
-  const [integration, model] = options.model.split('__')
+  // legacy evaluator ids used `integration__model`; cognitive expects `provider:model`
+  const model = options.model.replace('__', ':')
 
-  if (!model?.length) {
+  if (!model.split(':')[1]?.length) {
     throw new Error('Invalid model')
   }
 
@@ -75,10 +73,7 @@ export async function predictJson<T extends z.ZodSchema>(_options: InputOptions<
     result: options.outputSchema.describe(Output.shape.result.description!),
   })
 
-  const result = await Context.client.callAction({
-    type: `${integration}:generateContent`,
-    input: {
-      systemPrompt: `
+  const systemPrompt = `
 ${options.systemMessage}
 
 ---
@@ -86,27 +81,24 @@ Please generate a JSON response with the following format:
 \`\`\`typescript
 ${outputSchema.toTypescriptType({ treatDefaultAsOptional: true })}
 \`\`\`
-`.trim(),
-      messages: [
-        ...exampleMessages,
-        {
-          role: 'user',
-          content: JSON.stringify(options.input, null, 2),
-        },
-      ],
-      temperature: 0,
-      responseFormat: 'json_object',
-      model: { id: model! },
-    } as GenerateContentInput,
+`.trim()
+
+  const cognitive = new Cognitive({ client: Context.client })
+  const response = await cognitive.generateText({
+    messages: [
+      { role: 'system', content: systemPrompt },
+      ...exampleMessages,
+      {
+        role: 'user',
+        content: JSON.stringify(options.input, null, 2),
+      },
+    ],
+    temperature: 0,
+    responseFormat: 'json',
+    model,
   })
 
-  const output = result.output as GenerateContentOutput
-
-  if (!output.choices.length || typeof output.choices?.[0]?.content !== 'string') {
-    throw new Error('Invalid response from the model')
-  }
-
-  const json = output.choices[0].content.trim()
+  const json = response.output.trim()
 
   if (!json.length) {
     throw new Error('No response from the model')

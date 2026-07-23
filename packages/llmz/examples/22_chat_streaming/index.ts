@@ -21,7 +21,7 @@
  * two roundtrips for.
  */
 
-import { CognitiveBeta } from '@botpress/cognitive'
+import { Cognitive } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import chalk from 'chalk'
 import { Chat, DefaultComponents, Exit, ListenExit, Tool, execute, isComponent, type ExecutionResult } from 'llmz'
@@ -30,7 +30,7 @@ import { prompt } from '../utils/buttons'
 
 // Streaming requires the Cognitive v2 (beta) client. A regular Botpress
 // client also works, but messages are then delivered whole, not streamed.
-const client = new CognitiveBeta({
+const client = new Cognitive({
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
 })

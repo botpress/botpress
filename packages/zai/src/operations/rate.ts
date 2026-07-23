@@ -587,7 +587,7 @@ ${END}`,
           output: totalMeta.cost.output,
         },
         latency: totalMeta.latency,
-        model: ctx.modelId,
+        model: ctx.modelName,
         tokens: {
           input: totalMeta.tokens.input,
           output: totalMeta.tokens.output,

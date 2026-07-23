@@ -1,8 +1,4 @@
-import { llm } from '@botpress/common'
-import { z } from '@botpress/sdk'
 import esbuild from 'esbuild'
-import { writeFileSync } from 'fs'
-import { format, resolveConfig } from 'prettier'
 
 import { devDependencies } from './package.json'
 
@@ -10,21 +6,6 @@ const common: esbuild.BuildOptions = {
   bundle: true,
   minify: true,
   sourcemap: true,
-}
-
-async function generateTypes() {
-  const code =
-    `export type GenerateContentInput = ${llm.schemas.GenerateContentInputSchema(z.any()).toTypescriptType({ treatDefaultAsOptional: true })};
-
-export type GenerateContentOutput = ${llm.schemas.GenerateContentOutputSchema.toTypescriptType({ treatDefaultAsOptional: true })};
-
-export type Model = ${llm.schemas.ModelSchema.toTypescriptType({ treatDefaultAsOptional: true })};
-`.trim()
-
-  const filePath = './src/schemas.gen.ts'
-  const prettierConfig = await resolveConfig(filePath)
-  const formattedCode = await format(code, { ...prettierConfig!, filepath: filePath })
-  writeFileSync(filePath, formattedCode)
 }
 
 const external = Object.keys(devDependencies)
@@ -54,8 +35,6 @@ const buildEsm = () =>
   })
 
 const main = async (argv: string[]) => {
-  await generateTypes()
-
   if (argv.includes('--neutral')) {
     await buildCjs()
     await buildEsm()
