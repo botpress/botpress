@@ -125,10 +125,23 @@ const getInitialUserMessage: Prompt['getInitialUserMessage'] = async (props) => 
     : 'Nobody has spoken yet in this conversation.'
 
   if (transcript.length && transcript[0]?.role === 'user') {
-    recap = `The user spoke last. Here's what they said:
+    const lastContent = transcript[0].content.trim()
+    const lastIsVoice = transcript[0].attachments?.some((attachment) => attachment.type === 'audio')
+
+    if (lastIsVoice && !lastContent.length) {
+      recap =
+        'The user spoke last. They sent a voice message: what they said is spoken out loud in the attached audio, not typed as text.'
+    } else if (lastIsVoice) {
+      recap = `The user spoke last. They sent a voice message (spoken audio, attached below) along with this text:
 ■im_start
-${transcript[0]?.content.trim()}
+${lastContent}
 ■im_end`.trim()
+    } else {
+      recap = `The user spoke last. Here's what they said:
+■im_start
+${lastContent}
+■im_end`.trim()
+    }
   } else if (transcript.length && transcript[0]?.role === 'assistant') {
     recap = `You are the one who spoke last. Here's what you said last:
 ■im_start
@@ -159,10 +172,23 @@ ${inspect(transcript[0]?.payload, transcript[0]?.name, { tokens: 5000 })}
           }).trim(),
         },
         ...attachments.flatMap<LLMzPrompts.MessageContent>((attachment, idx) => {
+          const ref = alphabet[idx % alphabet.length]
+          if (attachment.type === 'audio') {
+            return [
+              {
+                type: 'text',
+                text: `The user spoke this message aloud. Here's the voice message [${ref}] — what is said in this audio is what the user said:`,
+              },
+              {
+                type: 'audio',
+                url: attachment.url,
+              },
+            ]
+          }
           return [
             {
               type: 'text',
-              text: `Here's the attachment [${alphabet[idx % alphabet.length]}]`,
+              text: `Here's the attachment [${ref}]`,
             },
             {
               type: 'image',

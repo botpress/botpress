@@ -32,6 +32,16 @@ export async function getCorgiUrl() {
   return file.url
 }
 
+/**
+ * A short spoken voice message (macOS TTS), base64-encoded as a data URI.
+ * The speaker says: "Hey! Please say the word pineapple, and also tell me
+ * what the capital of France is."
+ */
+export function getVoiceMessageDataUri() {
+  const audio = fs.readFileSync(path.resolve(__dirname, './voice-message.wav'))
+  return `data:audio/wav;base64,${audio.toString('base64')}`
+}
+
 function stringifyWithSortedKeys(obj: any, space?: number): string {
   function sortKeys(input: any): any {
     if (Array.isArray(input)) {

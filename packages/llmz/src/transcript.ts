@@ -4,7 +4,7 @@ const MAX_MESSAGE_LENGTH = 5000
 
 export namespace Transcript {
   export type Attachment = {
-    type: 'image'
+    type: 'image' | 'audio'
     url: string
   }
 
@@ -106,12 +106,24 @@ export class TranscriptArray extends Array<Transcript.Message> {
       if ((item.role === 'event' || item.role === 'user') && item.attachments?.length) {
         for (let i = 0; i < item.attachments.length; i++) {
           const attachmentIdx = alphabet[i % alphabet.length]
-          preview += `\n[Attachment ${msgIdx}-${attachmentIdx}]`
+          preview +=
+            item.attachments[i]?.type === 'audio'
+              ? `\n[Voice message ${msgIdx}-${attachmentIdx}]`
+              : `\n[Attachment ${msgIdx}-${attachmentIdx}]`
         }
       }
 
       const tags: Array<{ key: string; value: string }> = []
       tags.push({ key: 'role', value: item.role })
+
+      // Mark spoken turns so the modality stays visible even when the audio
+      // attachment itself is no longer included in the prompt
+      if (
+        (item.role === 'event' || item.role === 'user') &&
+        item.attachments?.some((attachment) => attachment.type === 'audio')
+      ) {
+        tags.push({ key: 'modality', value: 'voice' })
+      }
 
       if ('name' in item && item.name?.length) {
         tags.push({ key: 'name', value: item.name })
