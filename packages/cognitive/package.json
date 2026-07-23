@@ -1,6 +1,9 @@
 {
   "name": "@botpress/cognitive",
   "version": "1.0.0",
+  "files": [
+    "dist"
+  ],
   "description": "Wrapper around the Botpress Client to call LLMs",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

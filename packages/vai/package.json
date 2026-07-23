@@ -1,6 +1,10 @@
 {
   "name": "@botpress/vai",
   "version": "0.0.40",
+  "files": [
+    "dist",
+    "ensure-env.cjs"
+  ],
   "description": "Vitest AI (vai) – a vitest extension for testing with LLMs",
   "types": "./dist/index.d.ts",
   "exports": {
