@@ -117,7 +117,26 @@ const _componentEntry = (definition: NormalizedComponentDefinition, verbosity: I
     lines.push(`Body: ${requirement} ${definition.body.format}${description}`)
   }
 
+  if (verbosity !== 'compact') {
+    const example = _componentExample(definition)
+    if (example) {
+      lines.push(`Example:\n${example}`)
+    }
+  }
+
   return lines.join('\n')
+}
+
+/** Renders a component's first curated example ({ props?, body? }) as a ■send block. */
+const _componentExample = (definition: NormalizedComponentDefinition): string | undefined => {
+  const example = definition.generation?.examples?.[0]
+  if (!example) {
+    return undefined
+  }
+
+  const props = example.props ? ` ${JSON.stringify(example.props)}` : ''
+  const body = definition.body ? (example.body ?? _exampleBody(definition)) : undefined
+  return `${MARKER}send=${definition.name}${props}${body ? `\n${body}` : ''}`
 }
 
 const _exitEntry = (exit: NormalizedExitDefinition, verbosity: InstructionVerbosity): string => {
@@ -246,9 +265,13 @@ const _buildExamples = (
   const defaultExit = exits.find((e) => e.name === 'listen') ?? exits[0]
   const suffix = defaultExit ? `\n${_exitExample(defaultExit)}` : ''
 
-  const bodyOnly = components.find((c) => c.body && !_propEntries(c.propsJsonSchema).some((p) => p.required))
-  const propsOnly = components.find((c) => !c.body && _propEntries(c.propsJsonSchema).length > 0)
-  const propsAndBody = components.find((c) => c.body && _propEntries(c.propsJsonSchema).some((p) => p.required))
+  // Prefer components with curated examples over auto-generated filler
+  const pick = (predicate: (c: NormalizedComponentDefinition) => boolean | undefined) =>
+    components.find((c) => c.generation?.examples?.length && predicate(c)) ?? components.find(predicate)
+
+  const bodyOnly = pick((c) => c.body && !_propEntries(c.propsJsonSchema).some((p) => p.required))
+  const propsOnly = pick((c) => !c.body && _propEntries(c.propsJsonSchema).length > 0)
+  const propsAndBody = pick((c) => c.body && _propEntries(c.propsJsonSchema).some((p) => p.required))
 
   const examples: string[] = []
 
