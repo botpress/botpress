@@ -31,6 +31,7 @@ type BaseZuiJSONSchema<Def extends Partial<z.ZodTypeDef> = {}> = utils.Satisfies
     readOnly?: boolean
     default?: JsonData
     ['x-zui']?: ZuiExtension<Def>
+    definitions?: { [key: string]: Schema }
   },
   JSONSchema7
 >

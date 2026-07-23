@@ -918,47 +918,46 @@ describe.concurrent('toTypescriptSchema', () => {
     }
   })
 
-  test('should throw CircularZuiToTypescriptSchemaError for a self-referential lazy schema', () => {
+  test('should emit a hoisted recursive const for a self-referential lazy schema', () => {
     type TreeNode = { name: string; children?: TreeNode[] }
     const treeNode: z.ZodType<TreeNode> = z.lazy(() =>
       z.object({ name: z.string(), children: z.array(treeNode).optional() })
     )
-    try {
-      toTypescript(z.object({ tree: z.array(treeNode) }))
-      expect.fail('should have thrown')
-    } catch (e) {
-      expect(e).toBeInstanceOf(errors.CircularZuiToTypescriptSchemaError)
-      expect((e as errors.ZuiTransformError).path).toBe('#.tree[number].children[number]')
-    }
+    const out = toTypescript(z.object({ tree: z.array(treeNode) }))
+    const name = out.match(/const (Schema\d+) =/)?.[1]
+    expect(name).toBeTruthy()
+    expect(out).toContain(`z.lazy(() => ${name})`)
   })
 
-  test('should throw CircularZuiToTypescriptSchemaError for mutual recursion between two distinct lazy schemas', () => {
+  test('should emit hoisted recursive consts for mutual recursion between two distinct lazy schemas', () => {
     let A: z.ZodType<any> = z.lazy(() => z.object({ b: B }))
     let B: z.ZodType<any> = z.lazy(() => z.object({ a: A }))
-    try {
-      toTypescript(z.object({ root: A }))
-      expect.fail('should have thrown')
-    } catch (e) {
-      expect(e).toBeInstanceOf(errors.CircularZuiToTypescriptSchemaError)
-    }
+    const out = toTypescript(z.object({ root: A }))
+    expect(out).toMatch(/const Schema\d+ =/)
+    expect(out).toMatch(/z\.lazy\(\(\) => Schema\d+\)/)
   })
 
-  test('should throw CircularZuiToTypescriptSchemaError for a 3-node mutual recursion cycle', () => {
+  test('should emit hoisted recursive consts for a 3-node mutual recursion cycle', () => {
     let A: z.ZodType<any> = z.lazy(() => z.object({ b: B }))
     let B: z.ZodType<any> = z.lazy(() => z.object({ c: C }))
     let C: z.ZodType<any> = z.lazy(() => z.object({ a: A }))
-    try {
-      toTypescript(z.object({ root: A }))
-      expect.fail('should have thrown')
-    } catch (e) {
-      expect(e).toBeInstanceOf(errors.CircularZuiToTypescriptSchemaError)
-    }
+    const out = toTypescript(z.object({ root: A }))
+    expect(out).toMatch(/const Schema\d+ =/)
+    expect(out).toMatch(/z\.lazy\(\(\) => Schema\d+\)/)
   })
 
   test('should not throw when the same finite lazy schema is reused across sibling branches', () => {
     const shared: z.ZodType<any> = z.lazy(() => z.object({ x: z.string() }))
     const generated = toTypescript(z.object({ a: shared, b: shared }))
     expect((generated.match(/x: z\.string\(\)/g) || []).length).toBe(2)
+  })
+
+  test('generated source for a recursive schema evaluates back into a working schema', () => {
+    const Category: z.ZodType<any> = z.object({ name: z.string(), subcategories: z.array(z.lazy(() => Category)) })
+    const src = toTypescript(Category)
+    const rebuilt = new Function('z', src.replace(/\n(\w+)\s*$/, '\nreturn $1;'))(z) as z.ZodType
+    const result = rebuilt.safeParse({ name: 'root', subcategories: [{ name: 'child', subcategories: [] }] })
+    expect(result.success).toBe(true)
   })
 
   test('should add [string] section to additional properties', () => {

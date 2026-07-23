@@ -86,13 +86,54 @@ export type TypescriptGenerationOptions = {
 
 type SchemaTypes = z.ZodType | KeyValue | FnParameters | Declaration | null
 
+type RecursionCtx = {
+  onPath: Set<symbol>
+  nameOf: Map<symbol, string>
+  defs: Map<string, string>
+  usedNames: Set<string>
+  counter: { n: number }
+}
+
 type InternalOptions = {
   parent?: SchemaTypes
   declaration?: boolean | TypescriptDeclarationType
   includeClosingTags?: boolean
   treatDefaultAsOptional?: boolean
-  // ZodLazyDef.uid values currently being expanded, to detect self-referential schemas — see ZodLazyDef.uid
-  visiting: Set<symbol>
+  recursion: RecursionCtx
+}
+
+const assignRecursionName = (schema: z.ZodType, ctx: RecursionCtx): string => {
+  const meta = schema.getMetadata()
+  const title = typeof meta.title === 'string' && meta.title.length > 0 ? meta.title : undefined
+  const base = title ?? `Schema${ctx.counter.n++}`
+  let name = base
+  let i = 1
+  while (ctx.usedNames.has(name)) name = `${base}${i++}`
+  ctx.usedNames.add(name)
+  return name
+}
+
+const withCycleGuard = (key: symbol, schema: z.ZodType, ctx: RecursionCtx, expand: () => string): string => {
+  const hoisted = ctx.nameOf.get(key)
+  if (hoisted) return hoisted
+  if (ctx.onPath.has(key)) {
+    const name = assignRecursionName(schema, ctx)
+    ctx.nameOf.set(key, name)
+    return name
+  }
+  ctx.onPath.add(key)
+  let body: string
+  try {
+    body = expand()
+  } finally {
+    ctx.onPath.delete(key)
+  }
+  const name = ctx.nameOf.get(key)
+  if (name) {
+    ctx.defs.set(name, body)
+    return name
+  }
+  return body
 }
 
 /**
@@ -108,7 +149,20 @@ export function toTypescriptType(schema: z.ZodType, options: TypescriptGeneratio
 function _toTypescriptType(schema: z.ZodType, path: PropertyPath, options: TypescriptGenerationOptions = {}): string {
   const wrappedSchema: Declaration = getDeclarationProps(schema, options)
 
-  let dts = sUnwrapZod(wrappedSchema, path, { ...options, visiting: new Set() })
+  const recursion: RecursionCtx = {
+    onPath: new Set(),
+    nameOf: new Map(),
+    defs: new Map(),
+    usedNames: new Set(),
+    counter: { n: 0 },
+  }
+
+  let dts = sUnwrapZod(wrappedSchema, path, { ...options, recursion })
+
+  if (recursion.defs.size > 0) {
+    const declarations = [...recursion.defs].map(([name, body]) => `type ${name} = ${body};`).join('\n')
+    dts = recursion.defs.has(dts.trim()) ? declarations : `${declarations}\n${dts}`
+  }
 
   if (options.formatter) {
     dts = options.formatter(dts)
@@ -321,15 +375,7 @@ ${opts.join(' | ')}`
 (${input}) => ${output}`
 
     case 'ZodLazy':
-      if (config.visiting.has(s._def.uid)) {
-        throw new errors.CircularZuiToTypescriptTypeError(path.toString())
-      }
-      config.visiting.add(s._def.uid)
-      try {
-        return sUnwrapZod(s._def.getter(), path, newConfig)
-      } finally {
-        config.visiting.delete(s._def.uid)
-      }
+      return withCycleGuard(s._def.uid, s, config.recursion, () => sUnwrapZod(s._def.getter(), path, newConfig))
 
     case 'ZodLiteral':
       const value: string = primitiveToTypscriptLiteralType(s._def.value)

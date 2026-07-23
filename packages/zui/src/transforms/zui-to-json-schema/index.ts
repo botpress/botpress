@@ -48,16 +48,42 @@ const DEFAULT_OPTIONS: JSONSchemaGenerationOptions = {
  * @param schema zui schema
  * @returns ZUI flavored JSON schema
  */
-export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGenerationOptions> = {}): json.Schema {
-  return _toJSONSchema(schema, options, new PropertyPath())
+type JSONSchemaCtx = {
+  opts: JSONSchemaGenerationOptions
+  onPath: Set<symbol>
+  defs: Map<symbol, { name: string; schema: json.Schema | null }>
+  usedNames: Set<string>
+  counter: { n: number }
 }
 
-function _toJSONSchema(
-  schema: z.ZodType,
-  options: Partial<JSONSchemaGenerationOptions> = {},
-  path: PropertyPath
-): json.Schema {
-  const opts = { ...DEFAULT_OPTIONS, ...options }
+export function toJSONSchema(schema: z.ZodType, options: Partial<JSONSchemaGenerationOptions> = {}): json.Schema {
+  const ctx: JSONSchemaCtx = {
+    opts: { ...DEFAULT_OPTIONS, ...options },
+    onPath: new Set(),
+    defs: new Map(),
+    usedNames: new Set(),
+    counter: { n: 0 },
+  }
+  const root = _toJSONSchema(schema, ctx, new PropertyPath())
+  if (ctx.defs.size === 0) return root
+  const definitions: Record<string, json.Schema> = {}
+  for (const d of ctx.defs.values()) definitions[d.name] = d.schema!
+  return { ...root, definitions }
+}
+
+function assignDefName(schema: z.ZodType, ctx: JSONSchemaCtx): string {
+  const meta = schema.getMetadata()
+  const title = typeof meta.title === 'string' && meta.title.length > 0 ? meta.title : undefined
+  const base = title ?? `Schema${ctx.counter.n++}`
+  let name = base
+  let i = 1
+  while (ctx.usedNames.has(name)) name = `${base}${i++}`
+  ctx.usedNames.add(name)
+  return name
+}
+
+function _toJSONSchema(schema: z.ZodType, ctx: JSONSchemaCtx, path: PropertyPath): json.Schema {
+  const opts = ctx.opts
   const s = schema as z.ZodNativeType
 
   switch (s.typeName) {
@@ -117,7 +143,7 @@ function _toJSONSchema(
 
     case 'ZodArray':
       return zodArrayToJsonArray(s, (i) =>
-        _toJSONSchema(i, opts, path.withIndexType('number'))
+        _toJSONSchema(i, ctx,path.withIndexType('number'))
       ) satisfies json.ArraySchema
 
     case 'ZodObject':
@@ -128,7 +154,7 @@ function _toJSONSchema(
         .map(([key, value]) => [key, value.mandatory()] satisfies [string, z.ZodType])
         .map(
           ([key, value]) =>
-            [key, _toJSONSchema(value, opts, path.withIndexType('key', key))] satisfies [string, json.Schema]
+            [key, _toJSONSchema(value, ctx,path.withIndexType('key', key))] satisfies [string, json.Schema]
         )
 
       return {
@@ -136,7 +162,7 @@ function _toJSONSchema(
         description: s.description,
         properties: Object.fromEntries(properties),
         required,
-        additionalProperties: additionalPropertiesSchema(s._def, opts, path),
+        additionalProperties: additionalPropertiesSchema(s._def, ctx,path),
         'x-zui': s._def['x-zui'],
       } satisfies json.ObjectSchema
 
@@ -144,13 +170,13 @@ function _toJSONSchema(
       if (opts.unionStrategy === 'oneOf') {
         return {
           description: s.description,
-          oneOf: s.options.map((option, index) => _toJSONSchema(option, opts, path.withIndexType('number', index))),
+          oneOf: s.options.map((option, index) => _toJSONSchema(option, ctx,path.withIndexType('number', index))),
           'x-zui': s._def['x-zui'],
         } satisfies json.UnionSchema
       }
       return {
         description: s.description,
-        anyOf: s.options.map((option, index) => _toJSONSchema(option, opts, path.withIndexType('number', index))),
+        anyOf: s.options.map((option, index) => _toJSONSchema(option, ctx,path.withIndexType('number', index))),
         'x-zui': s._def['x-zui'],
       } satisfies json.UnionSchema
 
@@ -159,7 +185,7 @@ function _toJSONSchema(
         const discriminator = opts.discriminator ? { propertyName: s.discriminator } : undefined
         return {
           description: s.description,
-          oneOf: s.options.map((option, index) => _toJSONSchema(option, opts, path.withIndexType('number', index))),
+          oneOf: s.options.map((option, index) => _toJSONSchema(option, ctx,path.withIndexType('number', index))),
           discriminator,
           'x-zui': {
             ...s._def['x-zui'],
@@ -169,7 +195,7 @@ function _toJSONSchema(
       }
       return {
         description: s.description,
-        anyOf: s.options.map((option, index) => _toJSONSchema(option, opts, path.withIndexType('number', index))),
+        anyOf: s.options.map((option, index) => _toJSONSchema(option, ctx,path.withIndexType('number', index))),
         'x-zui': {
           ...s._def['x-zui'],
           def: { typeName: 'ZodDiscriminatedUnion', discriminator: s.discriminator },
@@ -177,8 +203,8 @@ function _toJSONSchema(
       } satisfies json.DiscriminatedUnionSchema
 
     case 'ZodIntersection':
-      const left = _toJSONSchema(s._def.left, opts, path.withIndexType('number', 0))
-      const right = _toJSONSchema(s._def.right, opts, path.withIndexType('number', 1))
+      const left = _toJSONSchema(s._def.left, ctx,path.withIndexType('number', 0))
+      const right = _toJSONSchema(s._def.right, ctx,path.withIndexType('number', 1))
 
       /**
        * TODO: Potential conflict between `additionalProperties` in the left and right schemas.
@@ -203,7 +229,7 @@ function _toJSONSchema(
       } satisfies json.IntersectionSchema
 
     case 'ZodTuple':
-      return zodTupleToJsonTuple(s, (i, p) => _toJSONSchema(i, opts, p), path) satisfies json.TupleSchema
+      return zodTupleToJsonTuple(s, (i, p) => _toJSONSchema(i, ctx,p), path) satisfies json.TupleSchema
 
     case 'ZodRecord': {
       const keyType = s._def.keyType
@@ -215,7 +241,7 @@ function _toJSONSchema(
       return {
         type: 'object',
         description: s.description,
-        additionalProperties: _toJSONSchema(s._def.valueType, opts, recordPath),
+        additionalProperties: _toJSONSchema(s._def.valueType, ctx,recordPath),
         'x-zui': s._def['x-zui'],
       } satisfies json.RecordSchema
     }
@@ -224,13 +250,35 @@ function _toJSONSchema(
       throw new err.UnsupportedZuiToJSONSchemaError('ZodMap', path.toString())
 
     case 'ZodSet':
-      return zodSetToJsonSet(s, (i) => _toJSONSchema(i, opts, path.withIndexType('number'))) satisfies json.SetSchema
+      return zodSetToJsonSet(s, (i) => _toJSONSchema(i, ctx,path.withIndexType('number'))) satisfies json.SetSchema
 
     case 'ZodFunction':
       throw new err.UnsupportedZuiToJSONSchemaError('ZodFunction', path.toString())
 
-    case 'ZodLazy':
-      throw new err.UnsupportedZuiToJSONSchemaError('ZodLazy', path.toString())
+    case 'ZodLazy': {
+      const uid = s._def.uid
+      if (ctx.onPath.has(uid)) {
+        let d = ctx.defs.get(uid)
+        if (!d) {
+          d = { name: assignDefName(s, ctx), schema: null }
+          ctx.defs.set(uid, d)
+        }
+        return { $ref: `#/definitions/${d.name}` }
+      }
+      ctx.onPath.add(uid)
+      let inner: json.Schema
+      try {
+        inner = _toJSONSchema(s._def.getter(), ctx, path)
+      } finally {
+        ctx.onPath.delete(uid)
+      }
+      const d = ctx.defs.get(uid)
+      if (d) {
+        d.schema = inner
+        return { $ref: `#/definitions/${d.name}` }
+      }
+      return inner
+    }
 
     case 'ZodLiteral':
       if (typeof s.value === 'string') {
@@ -281,7 +329,7 @@ function _toJSONSchema(
     case 'ZodOptional':
       return {
         description: s.description,
-        anyOf: [_toJSONSchema(s._def.innerType, opts, path), undefinedSchema()],
+        anyOf: [_toJSONSchema(s._def.innerType, ctx,path), undefinedSchema()],
         'x-zui': {
           ...s._def['x-zui'],
           def: { typeName: 'ZodOptional' },
@@ -290,7 +338,7 @@ function _toJSONSchema(
 
     case 'ZodNullable':
       return {
-        anyOf: [_toJSONSchema(s._def.innerType, opts, path), nullSchema()],
+        anyOf: [_toJSONSchema(s._def.innerType, ctx,path), nullSchema()],
         'x-zui': {
           ...s._def['x-zui'],
           def: { typeName: 'ZodNullable' },
@@ -300,7 +348,7 @@ function _toJSONSchema(
     case 'ZodDefault':
       // ZodDefault is not treated as a metadata root so we don't need to preserve x-zui
       return {
-        ..._toJSONSchema(s._def.innerType, opts, path),
+        ..._toJSONSchema(s._def.innerType, ctx,path),
         default: s._def.defaultValue(),
       }
 
@@ -323,7 +371,7 @@ function _toJSONSchema(
     case 'ZodReadonly':
       // ZodReadonly is not treated as a metadata root so we don't need to preserve x-zui
       return {
-        ..._toJSONSchema(s._def.innerType, opts, path),
+        ..._toJSONSchema(s._def.innerType, ctx,path),
         readOnly: true,
       }
 
@@ -353,7 +401,7 @@ const nullSchema = (def?: z.ZodTypeDef): json.NullSchema => ({
 
 const additionalPropertiesSchema = (
   def: z.ZodObjectDef,
-  opts: Partial<JSONSchemaGenerationOptions>,
+  ctx: JSONSchemaCtx,
   path: PropertyPath
 ): NonNullable<json.ObjectSchema['additionalProperties']> => {
   if (def.unknownKeys === 'passthrough') {
@@ -372,5 +420,5 @@ const additionalPropertiesSchema = (
     return false
   }
 
-  return _toJSONSchema(def.unknownKeys, opts, path.withIndexType('string'))
+  return _toJSONSchema(def.unknownKeys, ctx,path.withIndexType('string'))
 }

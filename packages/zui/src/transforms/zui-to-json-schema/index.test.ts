@@ -309,8 +309,16 @@ describe('zuiToJSONSchemaNext', () => {
     expect(() => toJSONSchema(z.function())).toThrowError(errs.UnsupportedZuiToJSONSchemaError)
   })
 
-  test('should not support ZodLazy', () => {
-    expect(() => toJSONSchema(z.lazy(() => z.string()))).toThrowError(errs.UnsupportedZuiToJSONSchemaError)
+  test('should inline a non-recursive ZodLazy', () => {
+    expect(toJSONSchema(z.lazy(() => z.string()))).toMatchObject({ type: 'string' })
+  })
+
+  test('should convert a self-referential ZodLazy to a $ref + definitions', () => {
+    const Category = z.object({ name: z.string(), children: z.array(z.lazy(() => Category)) }).title('Category')
+    const result = toJSONSchema(Category) as any
+    expect(result.properties.children.items).toEqual({ $ref: '#/definitions/Category' })
+    expect(Object.keys(result.definitions)).toEqual(['Category'])
+    expect(result.definitions.Category.properties.children.items).toEqual({ $ref: '#/definitions/Category' })
   })
 
   test('should map ZodLiteral to LiteralSchema', () => {

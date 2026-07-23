@@ -1212,29 +1212,23 @@ describe.concurrent('optional', () => {
       }
     })
 
-    it('should throw CircularZuiToTypescriptTypeError for a self-referential lazy schema', () => {
+    it('should emit a hoisted recursive type for a self-referential lazy schema', () => {
       type TreeNode = { name: string; children?: TreeNode[] }
       const treeNode: z.ZodType<TreeNode> = z.lazy(() =>
         z.object({ name: z.string(), children: z.array(treeNode).optional() })
       )
-      try {
-        toTypescript(z.object({ tree: z.array(treeNode) }))
-        expect.fail('should have thrown')
-      } catch (e) {
-        expect(e).toBeInstanceOf(errors.CircularZuiToTypescriptTypeError)
-        expect((e as errors.ZuiTransformError).path).toBe('#.tree[number].children[number]')
-      }
+      const out = toTypescript(z.object({ tree: z.array(treeNode) }))
+      const name = out.match(/type (Schema\d+) =/)?.[1]
+      expect(name).toBeTruthy()
+      expect(out).toContain(`Array<${name}>`)
     })
 
-    it('should throw CircularZuiToTypescriptTypeError for mutual recursion between two distinct lazy schemas', () => {
+    it('should emit hoisted recursive types for mutual recursion between two distinct lazy schemas', () => {
       let A: z.ZodType<any> = z.lazy(() => z.object({ b: B }))
       let B: z.ZodType<any> = z.lazy(() => z.object({ a: A }))
-      try {
-        toTypescript(z.object({ root: A }))
-        expect.fail('should have thrown')
-      } catch (e) {
-        expect(e).toBeInstanceOf(errors.CircularZuiToTypescriptTypeError)
-      }
+      const out = toTypescript(z.object({ root: A }))
+      expect(out).toMatch(/type Schema\d+ =/)
+      expect(() => toTypescript(z.object({ root: A }))).not.toThrow()
     })
 
     it('should not throw CircularZuiToTypescriptTypeError for non-recursion of zero distinct lazy schemas', () => {
@@ -1248,16 +1242,13 @@ describe.concurrent('optional', () => {
       expect(() => toTypescript(schema)).not.toThrow()
     })
 
-    it('should throw CircularZuiToTypescriptTypeError for a 3-node mutual recursion cycle', () => {
+    it('should emit hoisted recursive types for a 3-node mutual recursion cycle', () => {
       let A: z.ZodType<any> = z.lazy(() => z.object({ b: B }))
       let B: z.ZodType<any> = z.lazy(() => z.object({ c: C }))
       let C: z.ZodType<any> = z.lazy(() => z.object({ a: A }))
-      try {
-        toTypescript(z.object({ root: A }))
-        expect.fail('should have thrown')
-      } catch (e) {
-        expect(e).toBeInstanceOf(errors.CircularZuiToTypescriptTypeError)
-      }
+      const out = toTypescript(z.object({ root: A }))
+      expect(out).toMatch(/type Schema\d+ =/)
+      expect(() => toTypescript(z.object({ root: A }))).not.toThrow()
     })
 
     it('should not throw when the same finite lazy schema is reused across sibling branches', () => {
