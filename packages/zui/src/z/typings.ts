@@ -422,12 +422,6 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
   getReferences(): string[]
   /** internal recursive worker for getReferences() — do not call directly */
   _getReferences(visiting: Set<symbol>): string[]
-  /**
-   * Deep-copies the schema. `memo` maps each source schema instance to its clone so a cyclic
-   * (self- or mutually-recursive, getter-based) schema is cloned into a cycle rather than an
-   * infinite tree: re-encountering an already-cloned node returns the same clone. Callers pass
-   * nothing; it is threaded internally.
-   */
   clone(memo?: CloneMemo): IZodType<Output, Def, Input>
   parse(data: unknown, params?: Partial<ParseParams>): this['_output']
   safeParse(data: unknown, params?: Partial<ParseParams>): SafeParseReturnType<this['_input'], this['_output']>
