@@ -136,9 +136,25 @@ const Text = new Component({
   type: 'default',
   name: 'Message',
   aliases: ['Text', 'Markdown'],
-  description: 'A Markdown-formatted text message.',
+  description: 'A Markdown-formatted text message. Long answers are written the same way: plain Markdown prose.',
   generation: {
-    examples: [{ body: '**Hello**, welcome to our service!' }],
+    examples: [
+      // A long-form example matters: models shown only short bodies have been
+      // observed drifting into JSON-wrapping long replies ({"body": "..."})
+      {
+        body: `Great question! Deploying happens in three steps.
+
+First, connect your repository from the dashboard — we support GitHub and GitLab. Once connected, every push to your main branch triggers a build automatically.
+
+Then configure your build settings:
+
+- **Build command** — usually \`npm run build\`
+- **Output directory** — where the compiled assets end up
+
+Finally, hit **Deploy**. The first build takes a couple of minutes; subsequent ones are incremental and much faster. Want me to walk you through connecting your repository?`,
+      },
+      { body: '**Hello**, welcome to our service!' },
+    ],
   },
   default: {
     props: z.object({}),

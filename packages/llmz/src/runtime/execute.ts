@@ -6,7 +6,6 @@ import { Context, Iteration } from '../context.js'
 import { _CustomModelClient } from '../custom-client.js'
 import { CognitiveError, LoopExceededError, ThinkSignal } from '../errors.js'
 import { createJsxComponent } from '../jsx.js'
-import { unwrapJsonWrappedBody } from '../message-stream/sanitize.js'
 import { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from '../result.js'
 import { Snapshot } from '../snapshots.js'
 import { cleanStackTrace } from '../stack-traces.js'
@@ -400,26 +399,10 @@ const executeIteration = async ({
       }
 
       const sendStartedAt = Date.now()
-
-      // Guard: models occasionally JSON-wrap long bodies ({"body": "..."});
-      // unwrap before the message reaches the chat handler
-      let body = send.body
-      const unwrapped = body ? unwrapJsonWrappedBody(body) : undefined
-      if (unwrapped !== undefined) {
-        body = unwrapped
-        iteration.traces.push({
-          type: 'log',
-          message: `Unwrapped JSON-wrapped message body (■send=${send.name})`,
-          args: [],
-          started_at: sendStartedAt,
-          ended_at: Date.now(),
-        })
-      }
-
       const component = createJsxComponent({
         type: send.name,
         props: send.props,
-        children: body ? [body] : [],
+        children: send.body ? [send.body] : [],
       })
 
       try {

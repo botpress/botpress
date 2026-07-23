@@ -275,15 +275,18 @@ const _buildExamples = (
 
   const examples: string[] = []
 
+  // The global examples demonstrate the overall response shape (including the
+  // closing ■next), so prefer the shortest curated body — the representative,
+  // possibly long-form example is already rendered under the component entry
   if (bodyOnly) {
-    examples.push(`${MARKER}send=${bodyOnly.name}\n${_exampleBody(bodyOnly)}${suffix}`)
+    examples.push(`${MARKER}send=${bodyOnly.name}\n${_exampleBody(bodyOnly, { compact: true })}${suffix}`)
   }
   if (propsOnly) {
     examples.push(`${MARKER}send=${propsOnly.name} ${_exampleProps(propsOnly)}${suffix}`)
   }
   if (propsAndBody) {
     examples.push(
-      `${MARKER}send=${propsAndBody.name} ${_exampleProps(propsAndBody)}\n${_exampleBody(propsAndBody)}${suffix}`
+      `${MARKER}send=${propsAndBody.name} ${_exampleProps(propsAndBody)}\n${_exampleBody(propsAndBody, { compact: true })}${suffix}`
     )
   }
 
@@ -357,8 +360,9 @@ const _exampleValue = (schema: JsonSchema, name: string): unknown => {
   }
 }
 
-const _exampleBody = (definition: NormalizedComponentDefinition): string => {
-  const custom = definition.generation?.examples?.[0]?.body
+const _exampleBody = (definition: NormalizedComponentDefinition, options: { compact?: boolean } = {}): string => {
+  const bodies = (definition.generation?.examples ?? []).map((e) => e.body).filter((b): b is string => !!b)
+  const custom = options.compact ? bodies.sort((a, b) => a.length - b.length)[0] : bodies[0]
   if (custom) {
     return custom
   }

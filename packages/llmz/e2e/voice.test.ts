@@ -7,7 +7,6 @@ import { Exit } from '../src/exit.js'
 import { DualModePrompt } from '../src/prompts/dual-modes.js'
 import { ExecutionResult, SuccessExecutionResult } from '../src/result.js'
 import { Transcript, TranscriptArray } from '../src/transcript.js'
-import { unwrapJsonWrappedBody } from '../src/message-stream/sanitize.js'
 import {
   getCachedCognitiveClient,
   getFixtureDataUri,
@@ -204,13 +203,12 @@ describe('voice messages', () => {
 
       assertSuccess(result)
 
-      // The raw parsed sends must not be JSON-wrapped (prompt-level check,
-      // stricter than the handler-level guard which would mask it)
+      // The raw parsed sends must be plain prose, not a JSON-wrapped body
+      // ({"body": "..."}) — there is no runtime unwrapping, the prompt alone
+      // must prevent this
       for (const iteration of result.iterations) {
         for (const send of iteration.sends ?? []) {
-          if (send.body) {
-            expect(unwrapJsonWrappedBody(send.body)).toBeUndefined()
-          }
+          expect(send.body?.trim().startsWith('{')).not.toBe(true)
         }
       }
 
