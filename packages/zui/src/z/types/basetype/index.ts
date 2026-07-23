@@ -551,3 +551,17 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     }
   }
 }
+
+/**
+ * Throws the canonical "not a zui schema" error for a shape value that isn't a schema instance.
+ * Shared by the two places that validate object shapes: the construction-time guard in builders
+ * (plain values, eager) and the materialization-time check in ZodObject (getter values, lazy).
+ */
+export const assertShapeValueIsSchema = (key: string, value: unknown): void => {
+  if (!(value instanceof ZodBaseTypeImpl)) {
+    throw new Error(
+      `z.object(): the value at key "${key}" is not a zui schema (received ${typeof value}). ` +
+        'Did you forget to wrap it, e.g. z.number()?'
+    )
+  }
+}

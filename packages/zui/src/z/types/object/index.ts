@@ -18,7 +18,14 @@ import type {
   ParseReturnType,
   SyncParseReturnType,
 } from '../../typings'
-import { addIssueToContext, ParseStatus, ParseInputLazyPath, ZodBaseTypeImpl, type MergeObjectPair } from '../basetype'
+import {
+  addIssueToContext,
+  ParseStatus,
+  ParseInputLazyPath,
+  ZodBaseTypeImpl,
+  assertShapeValueIsSchema,
+  type MergeObjectPair,
+} from '../basetype'
 
 export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys extends UnknownKeysParam = UnknownKeysParam>
   extends ZodBaseTypeImpl<
@@ -38,6 +45,14 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
     if (this._cached !== null) return this._cached
     const shape = this._def.shape()
     const keys = Object.keys(shape)
+    // Materialization-time guard for getter-valued keys: the construction-time guard in builders MUST
+    // skip getters (they stay lazy for recursion), so a getter returning a non-schema can only be caught
+    // once the shape is read. Every consumer path funnels through here — parse (below) and `get shape()`
+    // (used by the transforms, incl. toJSONSchema on `bp deploy`) — and the result is cached, so this runs
+    // once per schema. The check is shallow (each value must be a schema instance), so recursion is unaffected.
+    for (const key of keys) {
+      assertShapeValueIsSchema(key, shape[key])
+    }
     return (this._cached = { shape, keys })
   }
 
@@ -191,7 +206,9 @@ export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys exte
   }
 
   get shape() {
-    return this._def.shape()
+    // Route through _getCached so the materialization-time getter guard also fires on shape reads from
+    // the transforms (e.g. toJSONSchema during `bp deploy`), not only on .parse().
+    return this._getCached().shape
   }
 
   strict(message?: utils.errors.ErrMessage): IZodObject<T, 'strict'> {

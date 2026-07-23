@@ -41,7 +41,7 @@ import {
   ZodVoidImpl,
 } from './types'
 
-import { ZodBaseTypeImpl } from './types/basetype'
+import { ZodBaseTypeImpl, assertShapeValueIsSchema } from './types/basetype'
 
 import type {
   IZodRecord,
@@ -223,12 +223,7 @@ const _assertShapeValuesAreSchemas = (shape: Record<string, unknown>): void => {
   for (const key of Object.keys(shape)) {
     const descriptor = Object.getOwnPropertyDescriptor(shape, key)
     if (descriptor?.get) continue
-    if (!(descriptor?.value instanceof ZodBaseTypeImpl)) {
-      throw new Error(
-        `z.object(): the value at key "${key}" is not a zui schema (received ${typeof descriptor?.value}). ` +
-          'Did you forget to wrap it, e.g. z.number()?'
-      )
-    }
+    assertShapeValueIsSchema(key, descriptor?.value)
   }
 }
 
