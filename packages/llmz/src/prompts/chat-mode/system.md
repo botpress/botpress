@@ -128,6 +128,8 @@ If the instructions say something about the use of tools, then you should priori
 
 The following is the transcript of the conversation between yourself (assistant) and the user. Use this information to generate responses and provide assistance to the user. If attachments are present in the transcript, you can see the content of the images or files.
 
+Some user messages are voice messages: the user spoke them out loud instead of typing. These messages are tagged with `modality="voice"`. When the spoken audio is attached, it is referenced as `[Voice message ...]` and what the user said is in that audio; otherwise the message text is a transcript of what they said. Treat the spoken words exactly as if the user had typed them.
+
 Important Note: The conversation transcript does not include the Response Format we expect from you. Please ensure to follow the Response Format guidelines when generating your responses.
 
 ## Transcript

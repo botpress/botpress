@@ -143,7 +143,14 @@ export type SttModels =
 export type CognitiveContentPart = {
   type: 'text' | 'image' | 'audio'
   text?: string
+  /**
+   * URL of the media for image and audio parts. Supports http(s) URLs and
+   * base64-encoded data URIs (e.g. `data:audio/wav;base64,...`), up to 25 MB.
+   * Audio parts are passed natively to audio-capable models and transcribed
+   * to text for the rest (see `options.transcriptionModel`).
+   */
   url?: string
+  /** MIME type of the media. Auto-detected from the URL if not provided. */
   mimeType?: string
 }
 
