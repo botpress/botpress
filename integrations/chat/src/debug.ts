@@ -34,7 +34,7 @@ export const debugResponse = (id: string, res: Response) => {
   logger.info(`[${id}] Outgoing response ${res.status} ${headersSummary} ${bodySummary}`)
 }
 
-export const debugSignal = (args: types.MessageArgs | types.ActionArgs) => {
+export const debugSignal = (args: types.MessageArgs | types.ActionArgs<'sendEvent'>) => {
   if ('input' in args) {
     logger.debug(
       `Sending signal conversationId=${args.input.conversationId} event=${summarize(
