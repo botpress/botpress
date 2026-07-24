@@ -52,6 +52,12 @@ class _CircularDependencyError extends Error {
   }
 }
 
+export class _SyncParseEncounteredPromiseError extends Error {
+  public constructor(message = 'Synchronous parse encountered promise.') {
+    super(message)
+  }
+}
+
 export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input = Output>
   implements IZodType<Output, Def, Input>
 {
@@ -133,7 +139,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   _parseSync(input: ParseInput): SyncParseReturnType<Output> {
     const result = this._parse(input)
     if (isAsync(result)) {
-      throw new Error('Synchronous parse encountered promise.')
+      throw new _SyncParseEncounteredPromiseError()
     }
     return result
   }
@@ -202,7 +208,10 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
         try {
           const result = this.safeParse(value)
           return result.success ? { value: result.data } : { issues: result.error.issues }
-        } catch {
+        } catch (err) {
+          if (!(err instanceof _SyncParseEncounteredPromiseError)) {
+            throw err
+          }
           return this.safeParseAsync(value).then((result) =>
             result.success ? { value: result.data } : { issues: result.error.issues }
           )

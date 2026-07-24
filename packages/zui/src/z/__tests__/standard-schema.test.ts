@@ -29,6 +29,17 @@ test('~standard validate resolves synchronously for sync schemas', () => {
   expect(result).toEqual({ value: 'hello' })
 })
 
+test('~standard validate rethrows synchronously and only runs the refinement once when a sync refinement throws', () => {
+  let calls = 0
+  const schema = z.string().refine((data) => {
+    calls++
+    throw new Error(`boom: ${data}`)
+  })
+
+  expect(() => schema['~standard'].validate('x')).toThrow('boom: x')
+  expect(calls).toEqual(1)
+})
+
 test('~standard validate returns a Promise for schemas with async refinements', async () => {
   const schema = z.string().refine(async (val) => val.length > 2)
 
@@ -41,4 +52,14 @@ test('~standard validate returns a Promise for schemas with async refinements', 
 
   const success = await schema['~standard'].validate('hello')
   expect(success).toEqual({ value: 'hello' })
+})
+
+test('~standard validate returns a Promise for schemas with async transforms', async () => {
+  const schema = z.string().transform(async (val) => val.toUpperCase())
+
+  const pending = schema['~standard'].validate('hi')
+  expect(pending).toBeInstanceOf(Promise)
+
+  const result = await pending
+  expect(result).toEqual({ value: 'HI' })
 })
