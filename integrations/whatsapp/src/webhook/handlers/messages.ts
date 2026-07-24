@@ -92,15 +92,17 @@ export const messagesHandler = async (
   // identified by the stable WhatsApp user_id. The user_id is additionally stored on every user
   // for forward reference.
   const userIdentity = contact.wa_id ?? contact.user_id
+  const profileName = contact.profile?.name
+  const profileUsername = contact.profile?.username
   const { user } = await client.getOrCreateUser({
     tags: {
       ...(userIdentity && { userId: userIdentity }),
       ...(contact.user_id && { whatsappUserId: contact.user_id }),
       ...(contact.wa_id && { number: contact.wa_id }),
-      ...(contact.profile?.username && { username: contact.profile.username }),
-      name: contact.profile?.name,
+      ...(profileUsername && { username: profileUsername }),
+      ...(profileName && { name: profileName }),
     },
-    name: contact.profile?.name,
+    ...(profileName && { name: profileName }),
     discriminateByTags: ['userId'],
   })
 
