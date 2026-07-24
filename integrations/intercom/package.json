@@ -14,7 +14,7 @@
     "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "axios": "^1.7.8",
+    "axios": "^0.33.0",
     "intercom-client": "^4.0.0"
   },
   "devDependencies": {
