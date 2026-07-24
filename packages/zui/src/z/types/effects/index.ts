@@ -12,7 +12,7 @@ import type {
   ParseContext,
   ValidParseReturnType,
 } from '../../typings'
-import { ZodBaseTypeImpl, addIssueToContext, _SyncParseEncounteredPromiseError } from '../basetype'
+import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, Input = input<T>>
   extends ZodBaseTypeImpl<Output, ZodEffectsDef<T>, Input>
@@ -76,7 +76,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
         })
       } else {
         if (processed instanceof Promise) {
-          throw new _SyncParseEncounteredPromiseError(
+          throw new Error(
             'Asynchronous upstream transform encountered during synchronous parse operation. Use .parseAsync instead.'
           )
         }
@@ -114,7 +114,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
 
         let result = effect.effect(base.value, { path: ctx.path })
         if (result instanceof Promise) {
-          throw new _SyncParseEncounteredPromiseError(
+          throw new Error(
             'Asynchronous transform encountered during synchronous parse operation. Use .parseAsync instead.'
           )
         }
