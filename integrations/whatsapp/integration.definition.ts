@@ -99,10 +99,18 @@ const startConversationProps = {
             ),
           templateHeaderParams: z
             .discriminatedUnion('type', [
-              z.object({ type: z.literal('text'), value: z.string(), parameterName: z.string().optional() }),
+              z.object({
+                type: z.literal('text'),
+                value: z.string(),
+                parameterName: z.string().optional(),
+              }),
               z.object({ type: z.literal('image'), url: z.string() }),
               z.object({ type: z.literal('video'), url: z.string() }),
-              z.object({ type: z.literal('document'), url: z.string(), filename: z.string().optional() }),
+              z.object({
+                type: z.literal('document'),
+                url: z.string(),
+                filename: z.string().optional(),
+              }),
             ])
             .optional()
             .title('Template header parameters')
@@ -157,7 +165,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.18.2'
+export const INTEGRATION_VERSION = '4.18.3'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
