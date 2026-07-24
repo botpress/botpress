@@ -2,7 +2,7 @@
 
 client_id = "5dc1bbd9b4da1425005409a89e959df6"
 name = "Admin Integration Staging"
-application_url = "https://app.botpress.cloud/"
+application_url = "https://app.botpress.dev/"
 embedded = false
 
 [access_scopes]
