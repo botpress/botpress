@@ -204,19 +204,10 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return {
       version: 1,
       vendor: 'zui',
-      validate: (value: unknown) => {
-        try {
-          const result = this.safeParse(value)
-          return result.success ? { value: result.data } : { issues: result.error.issues }
-        } catch (err) {
-          if (!(err instanceof _SyncParseEncounteredPromiseError)) {
-            throw err
-          }
-          return this.safeParseAsync(value).then((result) =>
-            result.success ? { value: result.data } : { issues: result.error.issues }
-          )
-        }
-      },
+      validate: (value: unknown) =>
+        this.safeParseAsync(value).then((result) =>
+          result.success ? { value: result.data } : { issues: result.error.issues }
+        ),
     }
   }
 
