@@ -13,6 +13,7 @@ import type {
   IZodType,
   ZodTypeDef,
   SafeParseReturnType,
+  StandardSchemaV1,
   CatchFn,
   IZodArray,
   IZodBranded,
@@ -192,6 +193,23 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   }
 
   spa = this.safeParseAsync
+
+  get '~standard'(): StandardSchemaV1.Props<Input, Output> {
+    return {
+      version: 1,
+      vendor: 'zui',
+      validate: (value: unknown) => {
+        try {
+          const result = this.safeParse(value)
+          return result.success ? { value: result.data } : { issues: result.error.issues }
+        } catch {
+          return this.safeParseAsync(value).then((result) =>
+            result.success ? { value: result.data } : { issues: result.error.issues }
+          )
+        }
+      },
+    }
+  }
 
   refine(
     check: (arg: Output) => unknown,
