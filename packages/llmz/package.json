@@ -68,7 +68,7 @@
     "tsx": "^4.19.2"
   },
   "peerDependencies": {
-    "@botpress/client": "2.0.0",
+    "@botpress/client": "2.1.0",
     "@botpress/cognitive": "1.0.2",
     "@bpinternal/thicktoken": "^3.1.0",
     "@bpinternal/zui": "^2.4.0"

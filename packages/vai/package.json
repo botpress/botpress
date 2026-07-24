@@ -44,7 +44,7 @@
     "tsup": "^8.0.2"
   },
   "peerDependencies": {
-    "@botpress/client": "2.0.0",
+    "@botpress/client": "2.1.0",
     "@bpinternal/thicktoken": "^3.0.0",
     "@bpinternal/zui": "^2.4.0",
     "lodash": "^4.17.21",
