@@ -47,4 +47,5 @@ export type ClientResponses = {
 export type ActionInputs = {
   [K in keyof bp.Integration['actions']]: Parameters<bp.Integration['actions'][K]>[0]
 }
-export type ActionArgs = Simplify<ValueOf<ActionInputs>>
+export type ActionName = keyof ActionInputs
+export type ActionArgs<TAction extends ActionName = ActionName> = Simplify<ActionInputs[TAction]>

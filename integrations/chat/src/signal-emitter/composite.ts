@@ -7,6 +7,10 @@ export class CompositeSignalEmiter implements SignalEmitter {
     await Promise.all(this._emitters.map((emitter) => emitter.emit(channel, signal)))
   }
 
+  public async emitOrThrow(channel: string, signal: Signal): Promise<void> {
+    await Promise.all(this._emitters.map((emitter) => emitter.emitOrThrow(channel, signal)))
+  }
+
   public async close(channel: string): Promise<void> {
     await Promise.all(this._emitters.map((emitter) => emitter.close(channel)))
   }

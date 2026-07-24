@@ -7,5 +7,6 @@ export type EventCreatedSignal = Signals['eventCreated']
 
 export type SignalEmitter = {
   emit(channel: string, signal: Signal): Promise<void>
+  emitOrThrow(channel: string, signal: Signal): Promise<void>
   close(channel: string): Promise<void>
 }
