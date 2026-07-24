@@ -60,7 +60,7 @@
     "chalk": "^4.1.2",
     "diff": "^8.0.1",
     "dotenv": "^16.4.4",
-    "esbuild": "^0.25.10",
+    "esbuild": "^0.28.1",
     "glob": "^9.3.4",
     "prettier": "^3.4.2",
     "source-map-js": "1.2.1",
