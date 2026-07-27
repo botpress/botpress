@@ -1,7 +1,7 @@
 import { ShopifyClient } from '../client'
 import { PRODUCTS_QUERY } from '../client/queries/admin'
 import { transformProduct } from '../transformers'
-import * as bp from '.botpress'
+import * as bp from '../../.botpress'
 
 type ProductsQueryResponse = {
   products: {
