@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/sdk'
 import { CART_QUERY } from '../client/queries/storefront'
 import { StorefrontClient } from '../client/storefront'
 import { CartNode, transformCart } from '../transformers'
-import * as bp from '.botpress'
+import * as bp from '../../.botpress'
 
 type CartQueryResponse = {
   cart: CartNode | null

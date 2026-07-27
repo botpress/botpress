@@ -1,5 +1,5 @@
 import { transformOrderWebhookPayload, type OrderWebhookPayload } from '../transformers'
-import * as bp from '.botpress'
+import * as bp from '../../.botpress'
 
 type FireEventProps = bp.HandlerProps & { payload: OrderWebhookPayload }
 

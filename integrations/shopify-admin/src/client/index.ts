@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/sdk'
 import { getOrRefreshCredentials } from '../auth'
 import { WEBHOOK_SUBSCRIPTION_CREATE, WEBHOOK_SUBSCRIPTION_DELETE } from './queries/admin'
 import { SHOPIFY_API_VERSION } from './queries/common'
-import * as bp from '.botpress'
+import * as bp from '../../.botpress'
 
 type ShopifyClientProps = {
   shopDomain: string
