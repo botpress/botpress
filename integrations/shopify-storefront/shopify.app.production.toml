@@ -2,7 +2,7 @@
 
 client_id = "eb491c945dae316d4b1a669e0d217036"
 name = "Botpress Storefront Connector"
-application_url = "https://webhook.botpress.cloud/oauth/wizard/start"
+application_url = "https://app.botpress.cloud/"
 embedded = false
 
 [access_scopes]

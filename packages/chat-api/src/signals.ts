@@ -8,6 +8,32 @@ export const signalSchemas = {
       isBot: z.boolean().describe('Whether the message was created by the bot or not'),
     }),
   }),
+  messageStreamDelta: z.object({
+    type: z.literal('message_stream_delta'),
+    data: z.object({
+      streamId: z.string(),
+      conversationId: z.string(),
+      userId: z.string(),
+      createdAt: z.string(),
+      clientMessageId: z.string().optional(),
+      sequence: z.number(),
+      delta: z.string(),
+    }),
+  }),
+  messageStreamComplete: z.object({
+    type: z.literal('message_stream_complete'),
+    data: z.object({
+      streamId: z.string(),
+      message: message.messageSchema,
+    }),
+  }),
+  messageStreamAbort: z.object({
+    type: z.literal('message_stream_abort'),
+    data: z.object({
+      streamId: z.string(),
+      conversationId: z.string(),
+    }),
+  }),
   eventCreated: z.object({
     type: z.literal('event_created'),
     data: event.eventSchema.omit({ id: true }).extend({

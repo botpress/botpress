@@ -1,4 +1,4 @@
-import { Models } from '@botpress/cognitive'
+import { Models, SttModels } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import { cloneDeep, isPlainObject } from 'lodash-es'
 import { ulid } from 'ulid'
@@ -679,6 +679,11 @@ export class Context implements Serializable<Context.JSON> {
    * before the cognitive service falls back to the next model/provider.
    */
   public maxTimeToFirstToken?: number
+  /**
+   * STT model used by the cognitive service to transcribe audio attachments
+   * when the target LLM does not support audio natively. Defaults to 'fast'.
+   */
+  public transcriptionModel?: SttModels
   public metadata: Record<string, any>
 
   public snapshot?: Snapshot
@@ -1034,6 +1039,7 @@ export class Context implements Serializable<Context.JSON> {
     timeout?: number
     maxTokens?: number
     maxTimeToFirstToken?: number
+    transcriptionModel?: SttModels
   }) {
     this.id = `llmz_${ulid()}`
     this.instructions = props.instructions
@@ -1052,6 +1058,7 @@ export class Context implements Serializable<Context.JSON> {
     this.snapshot = props.snapshot
     this.maxTokens = props.maxTokens
     this.maxTimeToFirstToken = props.maxTimeToFirstToken
+    this.transcriptionModel = props.transcriptionModel
 
     if (this.loop < 1 || this.loop > 100) {
       throw new Error('Invalid loop. Expected a number between 1 and 100.')
