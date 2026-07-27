@@ -13,7 +13,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "axios": "^1.7.7",
+    "axios": "^0.33.0",
     "jsforce": "^1.11.1",
     "preact": "^10.26.6",
     "preact-render-to-string": "^6.5.13"

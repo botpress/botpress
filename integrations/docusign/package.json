@@ -11,7 +11,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "axios": "^1.12.2",
+    "axios": "^0.33.0",
     "docusign-esign": "^8.4.0"
   },
   "devDependencies": {
