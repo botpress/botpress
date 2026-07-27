@@ -148,27 +148,22 @@ export async function _handleMessage(args: HandleMessageArgs) {
     args.createMessageOverride ??
     (async ({ type, payload, caption, incomingMessageType }) => {
       logger.forBot().debug(`Received ${incomingMessageType ?? type} message from WhatsApp:`, payload)
-      if (caption && (type === 'image' || type === 'video' || type === 'file')) {
-        const mediaItem = {
-          type,
-          payload,
-        } as bp.channels.channel.Messages['bloc']['items'][number]
-        return client.getOrCreateMessage({
-          tags,
-          type: 'bloc',
-          payload: {
-            items: [mediaItem, { type: 'text', payload: { text: caption } }],
-          },
-          userId,
-          conversationId,
-          discriminateByTags: ['id'],
-          origin,
-        })
-      }
+      const messageToCreate =
+        caption && (type === 'image' || type === 'video' || type === 'file')
+          ? {
+              type: 'bloc' as const,
+              payload: {
+                items: [
+                  { type, payload } as bp.channels.channel.Messages['bloc']['items'][number],
+                  { type: 'text' as const, payload: { text: caption } },
+                ],
+              },
+            }
+          : { type, payload }
+
       return client.getOrCreateMessage({
         tags,
-        type,
-        payload,
+        ...messageToCreate,
         userId,
         conversationId,
         discriminateByTags: ['id'],
