@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
-import * as bp from '.botpress'
+import * as bp from '../.botpress'
 
 const REFRESH_BUFFER_SECONDS = 300
 

@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/sdk'
 import { STOREFRONT_GET_COLLECTION_BY_HANDLE, STOREFRONT_GET_COLLECTION_BY_ID } from '../client/queries/storefront'
 import { StorefrontClient } from '../client/storefront'
 import { transformCollection, transformStorefrontProduct } from '../transformers'
-import * as bp from '.botpress'
+import * as bp from '../../.botpress'
 
 type CollectionResponse = {
   collection: {

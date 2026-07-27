@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/sdk'
 import { CART_DISCOUNT_CODES_UPDATE } from '../client/queries/storefront'
 import { StorefrontClient } from '../client/storefront'
 import { CartNode, transformCart } from '../transformers'
-import * as bp from '.botpress'
+import * as bp from '../../.botpress'
 
 type CartDiscountCodesUpdateResponse = {
   cartDiscountCodesUpdate: {

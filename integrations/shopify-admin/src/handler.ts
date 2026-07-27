@@ -6,7 +6,7 @@ import { fireOrderPaid } from './events/order-paid'
 import { fireOrderUpdated } from './events/order-updated'
 import { verifyWebhookHmac } from './oauth/hmac'
 import { oauthWizardHandler } from './oauth/wizard'
-import * as bp from '.botpress'
+import * as bp from '../.botpress'
 
 const SHOPIFY_TOPIC_HEADER = 'x-shopify-topic'
 const SHOPIFY_HMAC_HEADER = 'x-shopify-hmac-sha256'

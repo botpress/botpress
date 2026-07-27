@@ -1,7 +1,7 @@
 import { STOREFRONT_SEARCH_PRODUCTS } from '../client/queries/storefront'
 import { StorefrontClient } from '../client/storefront'
 import { transformStorefrontProduct } from '../transformers'
-import * as bp from '.botpress'
+import * as bp from '../../.botpress'
 
 type SearchProductsResponse = {
   search: {

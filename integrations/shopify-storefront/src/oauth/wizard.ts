@@ -3,7 +3,7 @@ import * as sdk from '@botpress/sdk'
 import { exchangeCodeForAccessToken, ShopifyAdminClient } from '../client'
 import { STOREFRONT_ACCESS_TOKEN_CREATE, STOREFRONT_ACCESS_TOKENS_QUERY } from '../client/queries/admin'
 import { verifyOAuthCallbackHmac } from './hmac'
-import * as bp from '.botpress'
+import * as bp from '../../.botpress'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
 

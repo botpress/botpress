@@ -1337,6 +1337,10 @@ importers:
       axios:
         specifier: ^1.6.2
         version: 1.7.4
+    devDependencies:
+      dotenv:
+        specifier: ^16.4.4
+        version: 16.4.4
 
   integrations/intercom:
     dependencies:

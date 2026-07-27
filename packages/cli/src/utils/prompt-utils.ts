@@ -94,7 +94,8 @@ export class CLIPrompt {
       choices: transformedChoices as prompts.PromptObject['choices'],
     })
 
-    return prompted !== undefined ? (isNumber && prompted === Symbol.for('0') ? 0 : prompted) : undefined
+    // isNumber guarantees V is number here.
+    return prompted !== undefined ? (isNumber && prompted === Symbol.for('0') ? (0 as V) : prompted) : undefined
   }
 
   public async text(message: string, opts: TextOptions = {}): Promise<string | undefined> {
