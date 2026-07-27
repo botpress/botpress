@@ -2514,6 +2514,16 @@ importers:
         specifier: workspace:*
         version: link:../../packages/cli
 
+  interfaces/conversation-started:
+    dependencies:
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   interfaces/creatable:
     dependencies:
       '@botpress/sdk':
