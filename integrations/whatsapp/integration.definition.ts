@@ -157,7 +157,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.18.2'
+export const INTEGRATION_VERSION = '4.19.0'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
@@ -346,6 +346,38 @@ export default new IntegrationDefinition({
           referralSourceId: {
             title: 'Referral Source ID',
             description: 'The ID of the ad or content that led to the conversation',
+          },
+          referralSourceType: {
+            title: 'Referral Source Type',
+            description: 'The type of referral source, such as an ad or post',
+          },
+          referralHeadline: {
+            title: 'Referral Headline',
+            description: 'The headline of the ad or content that led to the conversation',
+          },
+          referralBody: {
+            title: 'Referral Body',
+            description: 'The body text of the ad or content that led to the conversation',
+          },
+          referralMediaType: {
+            title: 'Referral Media Type',
+            description: 'The media type of the ad or content that led to the conversation',
+          },
+          referralImageUrl: {
+            title: 'Referral Image URL',
+            description: 'The image URL from the ad or content that led to the conversation',
+          },
+          referralVideoUrl: {
+            title: 'Referral Video URL',
+            description: 'The video URL from the ad or content that led to the conversation',
+          },
+          referralThumbnailUrl: {
+            title: 'Referral Thumbnail URL',
+            description: 'The thumbnail URL from the ad or content that led to the conversation',
+          },
+          referralCtwaClid: {
+            title: 'Referral Click ID',
+            description: 'The Click-to-WhatsApp click ID used for ad attribution',
           },
           echoCreationType: {
             title: 'Echo Creation Type',

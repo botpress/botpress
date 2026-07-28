@@ -12,6 +12,21 @@ const WhatsAppContactSchema = z.object({
     .optional(),
 })
 
+// https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/components#referral-object
+export const WhatsAppReferralSchema = z.object({
+  source_url: z.string().optional(),
+  source_id: z.string().optional(),
+  source_type: z.string().optional(),
+  headline: z.string().optional(),
+  body: z.string().optional(),
+  media_type: z.string().optional(),
+  image_url: z.string().optional(),
+  video_url: z.string().optional(),
+  thumbnail_url: z.string().optional(),
+  ctwa_clid: z.string().optional(),
+})
+export type WhatsAppReferral = z.infer<typeof WhatsAppReferralSchema>
+
 const WhatsAppBaseMessageSchema = z.object({
   from: z.string().optional(),
   from_user_id: z.string().optional(),
@@ -26,13 +41,7 @@ const WhatsAppBaseMessageSchema = z.object({
       id: z.string().optional(),
     })
     .optional(),
-  // there are other fields in the referral object, but we don't need them
-  referral: z
-    .object({
-      source_url: z.string().optional(),
-      source_id: z.string().optional(),
-    })
-    .optional(),
+  referral: WhatsAppReferralSchema.optional(),
   errors: z
     .array(
       z.object({
@@ -65,7 +74,7 @@ const WhatsAppMessageInteractiveSchema = z.union([
   }),
 ])
 
-const WhatsAppMessageSchema = z.union([
+export const WhatsAppMessageSchema = z.union([
   WhatsAppBaseMessageSchema.extend({
     type: z.literal('text'),
     text: z.object({
