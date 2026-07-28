@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
-import { ShopifyClient } from './client'
 import * as bp from '../.botpress'
+import { ShopifyClient } from './client'
 
 const WEBHOOK_TOPICS = ['ORDERS_CREATE', 'ORDERS_UPDATED', 'ORDERS_CANCELLED', 'ORDERS_FULFILLED', 'ORDERS_PAID']
 

@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
-import { SHOPIFY_API_VERSION } from './queries/common'
 import * as bp from '../../.botpress'
+import { SHOPIFY_API_VERSION } from './queries/common'
 
 type ShopifyAdminClientProps = {
   shopDomain: string
