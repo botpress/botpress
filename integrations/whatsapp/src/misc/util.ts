@@ -1,6 +1,8 @@
 import * as sdk from '@botpress/sdk'
-import { AtLeastOne } from 'whatsapp-api-js/lib/utils'
 import * as bp from '.botpress'
+
+// whatsapp-api-js declares this internally (lib/utils.ts) but never exports it publicly.
+type AtLeastOne<T> = [T, ...T[]]
 
 type Message = Awaited<ReturnType<bp.Client['listMessages']>>['messages'][number]
 
