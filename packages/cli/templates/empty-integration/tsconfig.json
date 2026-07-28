@@ -22,8 +22,6 @@
     "exactOptionalPropertyTypes": false,
     "resolveJsonModule": true,
     "noPropertyAccessFromIndexSignature": false,
-    "noUnusedLocals": false,
-    "ignoreDeprecations": "6.0"
-  },
+    "noUnusedLocals": false  },
   "include": [".botpress/**/*", "src/**/*", "*.ts", "*.json"]
 }
