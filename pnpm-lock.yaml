@@ -2908,8 +2908,8 @@ importers:
         specifier: ^22.16.4
         version: 22.16.4
       typescript:
-        specifier: ^5.6.3
-        version: 5.6.3
+        specifier: ^6.0.0
+        version: 6.0.3
 
   packages/cli/templates/empty-integration:
     dependencies:
@@ -2924,8 +2924,8 @@ importers:
         specifier: ^22.16.4
         version: 22.16.4
       typescript:
-        specifier: ^5.6.3
-        version: 5.6.3
+        specifier: ^6.0.0
+        version: 6.0.3
 
   packages/cli/templates/empty-plugin:
     dependencies:
@@ -2937,8 +2937,8 @@ importers:
         specifier: ^22.16.4
         version: 22.16.4
       typescript:
-        specifier: ^5.6.3
-        version: 5.6.3
+        specifier: ^6.0.0
+        version: 6.0.3
 
   packages/cli/templates/hello-world:
     dependencies:
@@ -2953,8 +2953,8 @@ importers:
         specifier: ^22.16.4
         version: 22.16.4
       typescript:
-        specifier: ^5.6.3
-        version: 5.6.3
+        specifier: ^6.0.0
+        version: 6.0.3
 
   packages/cli/templates/webhook-message:
     dependencies:
@@ -2972,8 +2972,8 @@ importers:
         specifier: ^22.16.4
         version: 22.16.4
       typescript:
-        specifier: ^5.6.3
-        version: 5.6.3
+        specifier: ^6.0.0
+        version: 6.0.3
 
   packages/client:
     dependencies:
@@ -12648,11 +12648,6 @@ packages:
 
   typescript-event-target@1.1.1:
     resolution: {integrity: sha512-dFSOFBKV6uwaloBCCUhxlD3Pr/P1a/tJdcmPrTXCHlEFD3faj0mztjcGn6VBAhQ0/Bdy8K3VWrrqwbt/ffsYsg==}
-
-  typescript@5.6.3:
-    resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
-    engines: {node: '>=14.17'}
-    hasBin: true
 
   typescript@5.7.2:
     resolution: {integrity: sha512-i5t66RHxDvVN40HfDd1PsEThGNnlMCMT3jMUuoh9/0TaqWevNontacunWyN02LA9/fIbEWlcHZcgTKb9QoaLfg==}
@@ -24532,8 +24527,6 @@ snapshots:
       - supports-color
 
   typescript-event-target@1.1.1: {}
-
-  typescript@5.6.3: {}
 
   typescript@5.7.2: {}
 
