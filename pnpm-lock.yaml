@@ -11465,10 +11465,6 @@ packages:
     resolution: {integrity: sha512-+38qI9SOr8tfZ4QmJNplMUxqjbe7LKvvZgWdExBOmd+egZTtjLB67Gu0HRX3u/XOq7UU2Nx6nsjvS16Z9uwfpg==}
     engines: {node: '>=0.6'}
 
-  qs@6.15.0:
-    resolution: {integrity: sha512-mAZTtNCeetKMH+pSjrb76NAM8V9a05I9aBZOHztWy/UqcJdQYNsf59vrRKWnojAT9Y+GbIvoTBC++CPHqpDBhQ==}
-    engines: {node: '>=0.6'}
-
   qs@6.15.3:
     resolution: {integrity: sha512-O9gl3zCl5h5blw1KGUzQKhA5oUXSl8rwUIM5o0S3nCXMliSvy5Dzx7/DJcI+SwgICv+IneSZwhBh1oSyEHA71A==}
     engines: {node: '>=0.6'}
@@ -11954,10 +11950,6 @@ packages:
 
   side-channel@1.0.4:
     resolution: {integrity: sha512-q5XPytqFEIKHkGdiMIrY10mvLRvnQh42/+GoBlFW3b2LXLE2xxJpZFdm94we0BaoV3RwJyGqg5wS7epxTv0Zvw==}
-
-  side-channel@1.1.0:
-    resolution: {integrity: sha512-ZX99e6tRweoUXqR+VBrslhda51Nh5MTQwou5tnUDgbtyM0dBgmhEDtWGP/xbKn6hqfPRHujUNwz5fy/wbbhnpw==}
-    engines: {node: '>= 0.4'}
 
   side-channel@1.1.1:
     resolution: {integrity: sha512-6x6dK6zJdpTzF4sQeNYxwtvBzf6Eg4GtlesS94HOvTudUeyK2WXAaIfmDgsyslYrRBeFIlsi54AYsFGUuhmvrQ==}
@@ -19370,7 +19362,7 @@ snapshots:
       es-errors: 1.3.0
       get-intrinsic: 1.3.0
       has-tostringtag: 1.0.2
-      hasown: 2.0.2
+      hasown: 2.0.4
 
   es-shim-unscopables@1.0.2:
     dependencies:
@@ -20253,7 +20245,7 @@ snapshots:
       get-proto: 1.0.1
       gopd: 1.2.0
       has-symbols: 1.1.0
-      hasown: 2.0.2
+      hasown: 2.0.4
       math-intrinsics: 1.1.0
 
   get-intrinsic@1.3.0:
@@ -20447,7 +20439,7 @@ snapshots:
       extend: 3.0.2
       gaxios: 5.1.0
       google-auth-library: 8.8.0
-      qs: 6.13.0
+      qs: 6.15.3
       url-template: 2.0.8
       uuid: 9.0.1
     transitivePeerDependencies:
@@ -20459,7 +20451,7 @@ snapshots:
       extend: 3.0.2
       gaxios: 6.1.1
       google-auth-library: 9.0.0
-      qs: 6.13.0
+      qs: 6.15.3
       url-template: 2.0.8
       uuid: 9.0.1
     transitivePeerDependencies:
@@ -20471,7 +20463,7 @@ snapshots:
       extend: 3.0.2
       gaxios: 7.1.4
       google-auth-library: 10.6.2
-      qs: 6.15.0
+      qs: 6.15.3
       url-template: 2.0.8
     transitivePeerDependencies:
       - supports-color
@@ -20860,7 +20852,7 @@ snapshots:
 
   is-core-module@2.16.1:
     dependencies:
-      hasown: 2.0.2
+      hasown: 2.0.4
 
   is-data-view@1.0.2:
     dependencies:
@@ -23122,10 +23114,6 @@ snapshots:
 
   qs@6.13.0:
     dependencies:
-      side-channel: 1.1.0
-
-  qs@6.15.0:
-    dependencies:
       side-channel: 1.1.1
 
   qs@6.15.3:
@@ -23784,14 +23772,6 @@ snapshots:
       get-intrinsic: 1.2.7
       object-inspect: 1.13.3
 
-  side-channel@1.1.0:
-    dependencies:
-      es-errors: 1.3.0
-      object-inspect: 1.13.4
-      side-channel-list: 1.0.1
-      side-channel-map: 1.0.1
-      side-channel-weakmap: 1.0.2
-
   side-channel@1.1.1:
     dependencies:
       es-errors: 1.3.0
@@ -24049,7 +24029,7 @@ snapshots:
       formidable: 1.2.6
       methods: 1.1.2
       mime: 1.6.0
-      qs: 6.15.0
+      qs: 6.15.3
       readable-stream: 2.3.8
     transitivePeerDependencies:
       - supports-color
@@ -24064,7 +24044,7 @@ snapshots:
       formidable: 1.2.6
       methods: 1.1.2
       mime: 2.6.0
-      qs: 6.15.0
+      qs: 6.15.3
       readable-stream: 3.6.2
       semver: 7.8.1
     transitivePeerDependencies:
