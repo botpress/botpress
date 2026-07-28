@@ -1,3 +1,4 @@
+import * as bp from '../../.botpress'
 import { addCartLines } from './add-cart-lines'
 import { applyCartDiscount } from './apply-cart-discount'
 import { createCart } from './create-cart'
@@ -7,7 +8,6 @@ import { getProduct } from './get-product'
 import { listCollections } from './list-collections'
 import { listProducts } from './list-products'
 import { searchProducts } from './search-products'
-import * as bp from '../../.botpress'
 
 export default {
   searchProducts,
