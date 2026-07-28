@@ -6,7 +6,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
     "noFallthroughCasesInSwitch": true,
@@ -22,8 +22,6 @@
     "exactOptionalPropertyTypes": false,
     "resolveJsonModule": true,
     "noPropertyAccessFromIndexSignature": false,
-    "noUnusedLocals": false,
-    "ignoreDeprecations": "6.0"
-  },
+    "noUnusedLocals": false  },
   "include": [".botpress/**/*", "src/**/*", "*.ts", "*.json"]
 }
