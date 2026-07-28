@@ -21,7 +21,7 @@
     "check:type": "tsc --noEmit",
     "build": "pnpm run build:types && pnpm run build:neutral",
     "build:neutral": "ts-node -T ./build.ts",
-    "build:types": "tsup",
+    "build:types": "tsup && tsc -p tsconfig.package.json --emitDeclarationOnly",
     "watch": "tsup --watch",
     "test:e2e": "vitest run --config vitest.config.ts",
     "test:e2e:update": "vitest -u run --config vitest.config.ts",
