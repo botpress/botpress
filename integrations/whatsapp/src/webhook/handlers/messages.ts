@@ -18,7 +18,10 @@ type IncomingMessages = {
   }
 }
 
-type CreateMessageArgs = ValueOf<IncomingMessages> & { incomingMessageType?: string }
+type CreateMessageArgs = ValueOf<IncomingMessages> & {
+  incomingMessageType?: string
+  caption?: string
+}
 type CreateMessageFn = (args: CreateMessageArgs) => Promise<{ message: { id: string } } | undefined>
 
 export type HandleMessageArgs = {
@@ -67,7 +70,11 @@ export const messagesHandler = async (
             phoneNumber: message.from,
           },
         },
-        { integrationName: INTEGRATION_NAME, integrationVersion: INTEGRATION_VERSION, key: bp.secrets.POSTHOG_KEY }
+        {
+          integrationName: INTEGRATION_NAME,
+          integrationVersion: INTEGRATION_VERSION,
+          key: bp.secrets.POSTHOG_KEY,
+        }
       )
       const errorMessage = formatPhoneNumberResponse.error.message
       logger.error(`Failed to parse phone number "${message.from}": ${errorMessage}`)
@@ -140,12 +147,24 @@ export async function _handleMessage(args: HandleMessageArgs) {
 
   const _createMessage: CreateMessageFn =
     args.createMessageOverride ??
-    (async ({ type, payload, incomingMessageType }) => {
+    (async ({ type, payload, caption, incomingMessageType }) => {
       logger.forBot().debug(`Received ${incomingMessageType ?? type} message from WhatsApp:`, payload)
+      const messageToCreate =
+        caption && (type === 'image' || type === 'video' || type === 'file')
+          ? {
+              type: 'bloc' as const,
+              payload: {
+                items: [
+                  { type, payload } as bp.channels.channel.Messages['bloc']['items'][number],
+                  { type: 'text' as const, payload: { text: caption } },
+                ],
+              },
+            }
+          : { type, payload }
+
       return client.getOrCreateMessage({
         tags,
-        type,
-        payload,
+        ...messageToCreate,
         userId,
         conversationId,
         discriminateByTags: ['id'],
@@ -174,10 +193,8 @@ export async function _handleMessage(args: HandleMessageArgs) {
     const imageUrl = await _getOrDownloadWhatsappMedia(message.image.id, client, ctx)
     return _createMessage({
       type,
-      payload: {
-        imageUrl,
-        ...(message.image.caption && { caption: message.image.caption }),
-      },
+      payload: { imageUrl },
+      caption: message.image.caption,
     })
   } else if (type === 'sticker') {
     const stickerUrl = await _getOrDownloadWhatsappMedia(message.sticker.id, client, ctx)
@@ -189,11 +206,15 @@ export async function _handleMessage(args: HandleMessageArgs) {
     const documentUrl = await _getOrDownloadWhatsappMedia(message.document.id, client, ctx)
     return _createMessage({
       type: 'file',
-      payload: { fileUrl: documentUrl, filename: message.document.filename },
+      payload: {
+        fileUrl: documentUrl,
+        filename: message.document.filename,
+      },
+      caption: message.document.caption,
     })
   } else if (type === 'video') {
     const videoUrl = await _getOrDownloadWhatsappMedia(message.video.id, client, ctx)
-    return _createMessage({ type, payload: { videoUrl } })
+    return _createMessage({ type, payload: { videoUrl }, caption: message.video.caption })
   } else if (message.type === 'interactive') {
     if (message.interactive.type === 'button_reply') {
       const { id: value, title: text } = message.interactive.button_reply

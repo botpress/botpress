@@ -99,10 +99,18 @@ const startConversationProps = {
             ),
           templateHeaderParams: z
             .discriminatedUnion('type', [
-              z.object({ type: z.literal('text'), value: z.string(), parameterName: z.string().optional() }),
+              z.object({
+                type: z.literal('text'),
+                value: z.string(),
+                parameterName: z.string().optional(),
+              }),
               z.object({ type: z.literal('image'), url: z.string() }),
               z.object({ type: z.literal('video'), url: z.string() }),
-              z.object({ type: z.literal('document'), url: z.string(), filename: z.string().optional() }),
+              z.object({
+                type: z.literal('document'),
+                url: z.string(),
+                filename: z.string().optional(),
+              }),
             ])
             .optional()
             .title('Template header parameters')
