@@ -1,4 +1,5 @@
 import type { WhatsAppMessage, WhatsAppReferral } from './types'
+import * as bp from '.botpress'
 
 const REFERRAL_TAGS = {
   source_url: 'referralSourceUrl',
@@ -15,9 +16,7 @@ const REFERRAL_TAGS = {
 
 const MAX_TAG_VALUE_LENGTH = 500
 
-import * as bp from '.botpress'
-
-export function getReferralTags(message: WhatsAppMessage, logger: Logger): Record<string, string> {
+export function getReferralTags(message: WhatsAppMessage, logger: bp.Logger): Record<string, string> {
   const { referral } = message
   if (!referral) {
     return {}
