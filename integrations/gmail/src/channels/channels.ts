@@ -65,9 +65,14 @@ export const channels = {
       text: wrapChannel({ channelName: 'channel', messageType: 'text' }, async (props) => {
         const { text: textContent } = props.payload
 
+        // Botpress `text` messages are conventionally markdown (as rendered by webchat and other channels),
+        // so render the HTML part as markdown. The raw text remains the plain-text fallback.
+        const htmlContent = generateMarkdownMessage({ markdown: textContent })
+
         await _sendEmailReply({
           ...props,
           textContent,
+          htmlContent,
         })
       }),
       choice: wrapChannel({ channelName: 'channel', messageType: 'choice' }, async (props) => {
@@ -78,9 +83,12 @@ export const channels = {
           content += `- ${option.label}\n`
         }
 
+        const htmlContent = generateMarkdownMessage({ markdown: content })
+
         await _sendEmailReply({
           ...props,
           textContent: content,
+          htmlContent,
         })
       }),
       markdown: wrapChannel({ channelName: 'channel', messageType: 'markdown' }, async (props) => {
