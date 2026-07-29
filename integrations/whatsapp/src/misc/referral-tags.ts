@@ -15,11 +15,7 @@ const REFERRAL_TAGS = {
 
 const MAX_TAG_VALUE_LENGTH = 500
 
-type Logger = {
-  forBot: () => {
-    warn: (message: string) => void
-  }
-}
+import * as bp from '.botpress'
 
 export function getReferralTags(message: WhatsAppMessage, logger: Logger): Record<string, string> {
   const { referral } = message
