@@ -35,7 +35,17 @@ export const generateFileDownloadMessage = (props: Parameters<typeof _FileDownlo
   _renderMessage(_FileDownloadMessage(props))
 
 export const generateMarkdownMessage = ({ markdown }: { markdown: string }) =>
-  _renderMessage(<Markdown>{markdown}</Markdown>)
+  _renderMessage(<Markdown>{_normalizeMarkdown(markdown)}</Markdown>)
+
+// LLM / pipeline output frequently arrives with spurious leading indentation on every line and
+// whitespace-only "blank" lines. Both break the markdown block parser (lists, blockquotes, and headings
+// collapse into a single mis-parsed block), even though inline formatting still works. Trimming each line
+// dedents block markers to column 0 and makes blank lines truly empty, restoring block-level structure.
+const _normalizeMarkdown = (markdown: string): string =>
+  markdown
+    .split('\n')
+    .map((line) => line.trim())
+    .join('\n')
 
 export const generateCardMessage = (props: Parameters<typeof _CardMessage>[0]) => _renderMessage(_CardMessage(props))
 
@@ -51,7 +61,11 @@ const _BaseMessage = ({ children }: react.PropsWithChildren) => (
   <Html>
     <Head />
     <Body style={_bodyStyle}>
-      <Container style={_innerContainerStyle}>{children}</Container>
+      {/* align="left" overrides Container's hardcoded align="center" table attribute, which Gmail honors
+          over CSS text-align and would otherwise center all content. */}
+      <Container align="left" style={_innerContainerStyle}>
+        {children}
+      </Container>
     </Body>
   </Html>
 )
@@ -63,7 +77,8 @@ const _bodyStyle = {
 const _innerContainerStyle = {
   paddingLeft: '12px',
   paddingRight: '12px',
-  margin: '0 auto',
+  margin: '0',
+  textAlign: 'left',
 } as const
 
 const _primaryButtonStyle = {
