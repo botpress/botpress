@@ -37,14 +37,17 @@ export const generateFileDownloadMessage = (props: Parameters<typeof _FileDownlo
 export const generateMarkdownMessage = ({ markdown }: { markdown: string }) =>
   _renderMessage(<Markdown>{_normalizeMarkdown(markdown)}</Markdown>)
 
-// LLM / pipeline output frequently arrives with spurious leading indentation on every line and
-// whitespace-only "blank" lines. Both break the markdown block parser (lists, blockquotes, and headings
-// collapse into a single mis-parsed block), even though inline formatting still works. Trimming each line
-// dedents block markers to column 0 and makes blank lines truly empty, restoring block-level structure.
+// LLM / pipeline output frequently arrives with "blank" separator lines that actually contain whitespace.
+// The markdown block parser only treats truly empty lines as block separators, so these whitespace-only
+// lines cause lists, blockquotes, and headings to collapse into a single mis-parsed block. Collapse only
+// whitespace-only lines to empty; content lines are left byte-for-byte intact so that whitespace-sensitive
+// constructs — nested-list indentation, indented/fenced code, and trailing-space hard line breaks — are
+// preserved. (The parser already tolerates up to 3 leading spaces on block markers, so real indentation is
+// not the issue.)
 const _normalizeMarkdown = (markdown: string): string =>
   markdown
     .split('\n')
-    .map((line) => line.trim())
+    .map((line) => (line.trim() === '' ? '' : line))
     .join('\n')
 
 export const generateCardMessage = (props: Parameters<typeof _CardMessage>[0]) => _renderMessage(_CardMessage(props))
