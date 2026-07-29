@@ -8,13 +8,7 @@ import type {
   ParseInput,
   ParseReturnType,
 } from '../../typings'
-import {
-  ParseInputLazyPath,
-  ZodBaseTypeImpl,
-  addIssueToContext,
-  ParseStatus,
-  type MergeObjectPair,
-} from '../basetype'
+import { ParseInputLazyPath, ZodBaseTypeImpl, addIssueToContext, ParseStatus, type MergeObjectPair } from '../basetype'
 
 export class ZodRecordImpl<Key extends KeySchema = KeySchema, Value extends IZodType = IZodType>
   extends ZodBaseTypeImpl<
