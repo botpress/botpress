@@ -18,13 +18,7 @@ import type {
   ParseReturnType,
   SyncParseReturnType,
 } from '../../typings'
-import {
-  addIssueToContext,
-  ParseStatus,
-  ParseInputLazyPath,
-  ZodBaseTypeImpl,
-  type MergeObjectPair,
-} from '../basetype'
+import { addIssueToContext, ParseStatus, ParseInputLazyPath, ZodBaseTypeImpl, type MergeObjectPair } from '../basetype'
 
 export class ZodObjectImpl<T extends ZodRawShape = ZodRawShape, UnknownKeys extends UnknownKeysParam = UnknownKeysParam>
   extends ZodBaseTypeImpl<
