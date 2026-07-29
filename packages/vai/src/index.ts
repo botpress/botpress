@@ -1,9 +1,9 @@
-export { compare } from './task/compare'
+export { compare } from './task/compare.js'
 
-export { check } from './assertions/check'
-export { extract } from './assertions/extract'
-export { filter } from './assertions/filter'
-export { rate } from './assertions/rate'
+export { check } from './assertions/check.js'
+export { extract } from './assertions/extract.js'
+export { filter } from './assertions/filter.js'
+export { rate } from './assertions/rate.js'
 
-export { setEvaluator } from './hooks/setEvaluator'
-export { setupClient } from './hooks/setupClient'
+export { setEvaluator } from './hooks/setEvaluator.js'
+export { setupClient } from './hooks/setupClient.js'

@@ -1,7 +1,7 @@
 import { Cognitive } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import JSON5 from 'json5'
-import { Context } from '../context'
+import { Context } from '../context.js'
 
 const nonEmptyString = z.string().trim().min(1)
 const nonEmptyObject = z.record(z.unknown()).refine((value) => Object.keys(value).length > 0, {
