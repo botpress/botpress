@@ -1,7 +1,7 @@
 import { Assertion, expect } from 'vitest'
 import { getCurrentTest } from 'vitest/suite'
-import { Context } from '../context'
-import { Output } from './predictJson'
+import { Context } from '../context.js'
+import { Output } from './predictJson.js'
 
 export class AsyncExpectError<T> extends Error {
   public constructor(

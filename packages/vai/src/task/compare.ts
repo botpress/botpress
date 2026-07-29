@@ -2,8 +2,8 @@ import { z } from '@bpinternal/zui'
 
 import { TestFunction } from 'vitest'
 import { createTaskCollector, getCurrentSuite } from 'vitest/suite'
-import { TestMetadata } from '../context'
-import { Deferred } from '../utils/deferred'
+import { TestMetadata } from '../context.js'
+import { Deferred } from '../utils/deferred.js'
 
 const scenarioId = z
   .string()

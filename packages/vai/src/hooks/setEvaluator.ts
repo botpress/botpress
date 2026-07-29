@@ -1,5 +1,5 @@
 import { getCurrentTest } from 'vitest/suite'
-import { EvaluatorModel, TestMetadata } from '../context'
+import { EvaluatorModel, TestMetadata } from '../context.js'
 
 export const setEvaluator = (model: EvaluatorModel) => {
   const test = getCurrentTest()
