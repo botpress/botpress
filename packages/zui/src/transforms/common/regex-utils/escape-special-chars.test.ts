@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { escapeSpecialChars } from './escape-special-chars'
+import { escapeSpecialChars } from './escape-special-chars.js'
 
 describe.concurrent('escapeSpecialChars', () => {
   test('should not modify a string with no special characters', () => {

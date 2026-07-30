@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseString } from './parseString'
+import { parseString } from './parseString.js'
 
 describe('parseString', () => {
   // TODO: this is error prone since the test now depends on the build artefact

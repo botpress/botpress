@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest'
-import * as z from '../../index'
-import * as assert from '../../../assertions.utils.test'
-import { ZodError } from '../../error'
+import * as z from '../../index.js'
+import * as assert from '../../../assertions.utils.test.js'
+import { ZodError } from '../../error/index.js'
 
 const testTuple = z.tuple([z.string(), z.object({ name: z.literal('Rudy') }), z.array(z.literal('blue'))])
 const testData = ['asdf', { name: 'Rudy' }, ['blue']]

@@ -1,5 +1,5 @@
 import { test, assert } from 'vitest'
-import * as z from '../index'
+import * as z from '../index.js'
 
 test('naked object', () => {
   assert.equal(z.object({ name: z.string() }).naked().typeName, 'ZodObject')

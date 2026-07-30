@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest'
-import { fromObject } from '.'
-import * as errs from '../common/errors'
-import { toJSONSchemaLegacy } from '../zui-to-json-schema-legacy'
+import { fromObject } from './index.js'
+import * as errs from '../common/errors.js'
+import { toJSONSchemaLegacy } from '../zui-to-json-schema-legacy/index.js'
 import { JSONSchema7, JSONSchema7Definition } from 'json-schema'
-import { fromJSONSchemaLegacy } from '../zui-from-json-schema-legacy'
+import { fromJSONSchemaLegacy } from '../zui-from-json-schema-legacy/index.js'
 
 function asSchema(s: JSONSchema7Definition | undefined): JSONSchema7 | undefined {
   if (s === undefined) {

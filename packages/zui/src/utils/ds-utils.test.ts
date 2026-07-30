@@ -1,5 +1,5 @@
 import { it, expect, describe } from 'vitest'
-import { CustomSet } from './ds-utils'
+import { CustomSet } from './ds-utils.js'
 
 describe.concurrent('CustomSet', () => {
   describe.concurrent('sets of primitives', () => {

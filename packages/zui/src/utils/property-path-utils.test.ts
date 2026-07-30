@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { PropertyPath } from './property-path-utils'
+import { PropertyPath } from './property-path-utils.js'
 
 describe.concurrent('PropertyPath', () => {
   it('returns only # for an empty path', () => {

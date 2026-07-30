@@ -1,4 +1,4 @@
-import * as z from '../../index'
+import * as z from '../../index.js'
 import { test, expect } from 'vitest'
 
 const minFive = z.string().min(5, 'min5')

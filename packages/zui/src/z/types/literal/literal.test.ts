@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import * as z from '../../index'
+import * as z from '../../index.js'
 
 const literalTuna = z.literal('tuna')
 const literalFortyTwo = z.literal(42)

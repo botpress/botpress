@@ -1,7 +1,7 @@
 import pathlib from 'path'
-import { cases } from './cases'
-import * as consts from './paths'
-import * as tsc from './run-tsc'
+import { cases } from './cases/index.js'
+import * as consts from './paths.js'
+import * as tsc from './run-tsc.js'
 
 const main = async () => {
   const tscVersion = await tsc.getTscVersion()

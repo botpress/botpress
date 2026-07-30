@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest'
-import * as z from '../index'
-import * as assert from '../../assertions.utils.test'
-import { Mocker } from './Mocker'
+import * as z from '../index.js'
+import * as assert from '../../assertions.utils.test.js'
+import { Mocker } from './Mocker.js'
 
 const literalStringSchema = z.literal('asdf')
 const literalNumberSchema = z.literal(12)

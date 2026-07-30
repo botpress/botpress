@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import * as z from '../../index'
+import * as z from '../../index.js'
 
 test('function parsing', () => {
   const schema = z.union([z.string().refine(() => false), z.number().refine(() => false)])
