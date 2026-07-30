@@ -49,7 +49,7 @@ export type IssuePickerResponse = {
 export type AttachmentInput = {
   filename: string
   contentType?: string
-  data: ArrayBuffer | Uint8Array
+  data: ArrayBuffer | Uint8Array<ArrayBuffer>
 }
 
 export class JiraApi {
@@ -201,12 +201,10 @@ export class JiraApi {
     issueIdOrKey: string,
     attachment: AttachmentInput
   ): Promise<Version3Models.Attachment[]> {
-    // Copy to guarantee an ArrayBuffer-backed view, which BlobPart requires.
-    const blobData = attachment.data instanceof Uint8Array ? new Uint8Array(attachment.data) : attachment.data
     const form = new FormData()
     form.append(
       'file',
-      new Blob([blobData], attachment.contentType ? { type: attachment.contentType } : undefined),
+      new Blob([attachment.data], attachment.contentType ? { type: attachment.contentType } : undefined),
       attachment.filename
     )
 
