@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest'
-import * as z from '../index'
-import { defaultErrorMap, setErrorMap, ZodError } from './index'
-import { ZodErrorMap } from '../typings'
+import * as z from '../index.js'
+import { defaultErrorMap, setErrorMap, ZodError } from './index.js'
+import { ZodErrorMap } from '../typings.js'
 
 test('error creation', () => {
   const err1 = ZodError.create([])

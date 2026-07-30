@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import * as z from '../../index'
+import * as z from '../../index.js'
 
 const gtFive = z.bigint().gt(BigInt(5))
 const gteFive = z.bigint().gte(BigInt(5))

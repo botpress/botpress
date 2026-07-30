@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
-import * as assert from '../../../assertions.utils.test'
-import * as z from '../../index'
+import * as assert from '../../../assertions.utils.test.js'
+import * as z from '../../index.js'
 
 const booleanRecord = z.record(z.boolean())
 type booleanRecord = z.infer<typeof booleanRecord>

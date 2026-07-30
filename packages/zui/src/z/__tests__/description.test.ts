@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import * as z from '../index'
+import * as z from '../index.js'
 
 const description = 'a description'
 

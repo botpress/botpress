@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseDiscriminator } from './parseDiscriminator'
+import { parseDiscriminator } from './parseDiscriminator.js'
 
 describe('parseDiscriminator', () => {
   it('should create a discriminated union from two or more schemas', () => {

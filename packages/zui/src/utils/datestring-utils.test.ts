@@ -1,5 +1,5 @@
 import { it, describe, expect } from 'vitest'
-import { generateDatetimeRegex, extractPrecisionAndOffset } from './datestring-utils'
+import { generateDatetimeRegex, extractPrecisionAndOffset } from './datestring-utils.js'
 
 describe.concurrent('datetime tests', () => {
   describe.concurrent('extractPrecisionAndOffset', () => {

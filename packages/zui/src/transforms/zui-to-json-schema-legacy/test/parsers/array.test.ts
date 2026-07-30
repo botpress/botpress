@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { JSONSchema7Type } from 'json-schema'
-import * as z from '../../../../z'
-import { parseArrayDef } from '../../parsers/array'
-import { getRefs } from '../../Refs'
-import { errorReferences } from './errorReferences'
+import * as z from '../../../../z/index.js'
+import { parseArrayDef } from '../../parsers/array.js'
+import { getRefs } from '../../Refs.js'
+import { errorReferences } from './errorReferences.js'
 import deref from 'local-ref-resolver'
 
 const { zuiKey } = z

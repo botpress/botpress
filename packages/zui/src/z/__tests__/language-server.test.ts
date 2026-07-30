@@ -2,7 +2,7 @@ import { test } from 'vitest'
 // import path from "path";
 // import { Node, Project, SyntaxKind } from "ts-morph";
 
-// import { filePath } from "./language-server.source";
+// import { filePath } from "./language-server.source.js";
 
 // The following tool is helpful for understanding the TypeScript AST associated with these tests:
 // https://ts-ast-viewer.com/ (just copy the contents of language-server.source into the viewer)

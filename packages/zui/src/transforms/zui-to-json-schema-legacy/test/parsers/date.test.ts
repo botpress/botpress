@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { JSONSchema7Type } from 'json-schema'
-import * as z from '../../../../z'
-import { parseDateDef } from '../../parsers/date'
-import { getRefs } from '../../Refs'
-import { errorReferences } from './errorReferences'
+import * as z from '../../../../z/index.js'
+import { parseDateDef } from '../../parsers/date.js'
+import { getRefs } from '../../Refs.js'
+import { errorReferences } from './errorReferences.js'
 
 describe('Number validations', () => {
   it('should be possible to date as a string type', () => {

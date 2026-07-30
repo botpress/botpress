@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
-import * as assert from '../../assertions.utils.test'
-import * as z from '../index'
+import * as assert from '../../assertions.utils.test.js'
+import * as z from '../index.js'
 
 /**
  * Guards for the lazy-output convention on IZodObject.

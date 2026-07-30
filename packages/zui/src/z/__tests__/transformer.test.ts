@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
-import * as z from '../index'
-import * as assert from '../../assertions.utils.test'
+import * as z from '../index.js'
+import * as assert from '../../assertions.utils.test.js'
 
 const stringToNumber = z.string().transform((arg) => parseFloat(arg))
 const asyncNumberToString = z.number().transform(async (n) => String(n))

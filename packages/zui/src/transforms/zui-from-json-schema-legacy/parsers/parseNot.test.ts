@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseNot } from './parseNot'
+import { parseNot } from './parseNot.js'
 
 describe('parseNot', () => {
   it('Not a string', () => {

@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { JSONSchema7Type } from 'json-schema'
-import * as z from '../../../../z'
-import { parseUnionDef } from '../../parsers/union'
-import { getRefs } from '../../Refs'
+import * as z from '../../../../z/index.js'
+import { parseUnionDef } from '../../parsers/union.js'
+import { getRefs } from '../../Refs.js'
 import deref from 'local-ref-resolver'
 
 const { zuiKey } = z

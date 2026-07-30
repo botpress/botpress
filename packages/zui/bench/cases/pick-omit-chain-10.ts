@@ -1,4 +1,4 @@
-import * as types from '../types'
+import * as types from '../types.js'
 
 export default {
   name: 'pick-omit-chain-10',

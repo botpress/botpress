@@ -5,7 +5,7 @@ import {
   unknownToTypescriptValue,
   getMultilineComment,
   escapeString,
-} from './utils'
+} from './utils.js'
 
 describe.concurrent('primitiveToTypscriptLiteral', () => {
   it('converts a string to a valid typescript string value', () => {

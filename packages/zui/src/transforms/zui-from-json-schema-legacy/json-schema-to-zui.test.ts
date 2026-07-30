@@ -1,9 +1,9 @@
 import { describe, expect, test, it } from 'vitest'
-import * as z from '../../z'
-import { jsonSchemaToZodStr, fromJSONSchemaLegacy, traverseZodDefinitions } from '.'
-import { toJSONSchemaLegacy } from '../zui-to-json-schema-legacy/zui-extension'
+import * as z from '../../z/index.js'
+import { jsonSchemaToZodStr, fromJSONSchemaLegacy, traverseZodDefinitions } from './index.js'
+import { toJSONSchemaLegacy } from '../zui-to-json-schema-legacy/zui-extension.js'
 import { JSONSchema7 } from 'json-schema'
-import * as assert from '../../assertions.utils.test'
+import * as assert from '../../assertions.utils.test.js'
 
 const { zuiKey } = z
 

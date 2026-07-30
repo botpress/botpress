@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest'
-import Ajv from 'ajv'
-import * as z from '../../../z'
-import { zodToJsonSchema } from '../zodToJsonSchema'
+import { Ajv } from 'ajv'
+import * as z from '../../../z/index.js'
+import { zodToJsonSchema } from '../zodToJsonSchema.js'
 const ajv = new Ajv()
 import deref from 'local-ref-resolver'
 
