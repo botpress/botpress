@@ -1,8 +1,8 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import * as sdk from '@botpress/sdk'
-import * as bp from '../../.botpress'
 import { exchangeCodeForAccessToken } from '../auth'
 import { verifyOAuthCallbackHmac } from './hmac'
+import * as bp from '.botpress'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
 
