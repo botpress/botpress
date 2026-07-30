@@ -4,7 +4,7 @@
   "scripts": {
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",
-    "generate": "ts-node -T ./openapi.ts ./src/gen",
+    "generate": "ts-node -T -P tsconfig.ts-node.json ./openapi.ts ./src/gen",
     "build": "bp add -y && bp build",
     "test": "vitest --run"
   },
