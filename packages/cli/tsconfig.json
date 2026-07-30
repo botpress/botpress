@@ -9,8 +9,7 @@
     "moduleResolution": "node16",
     "outDir": "dist",
     "esModuleInterop": true,
-    "sourceMap": true,
-    "rootDir": "."
+    "sourceMap": true
   },
   "include": ["./src/**/*", "./e2e/**/*", "*.ts"],
   "exclude": ["./templates/**", "./e2e/fixtures/**", "./vitest.config.ts"]

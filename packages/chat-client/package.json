@@ -11,10 +11,10 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "generate": "ts-node -T ./openapi.ts ./src/gen",
+    "generate": "ts-node -T -P tsconfig.ts-node.json ./openapi.ts ./src/gen",
     "build:type": "tsc -p ./tsconfig.build.json",
-    "build:browser": "ts-node -T ./build.ts --browser",
-    "build:node": "ts-node -T ./build.ts --node",
+    "build:browser": "ts-node -T -P tsconfig.ts-node.json ./build.ts --browser",
+    "build:node": "ts-node -T -P tsconfig.ts-node.json ./build.ts --node",
     "build": "pnpm build:type && pnpm build:node && pnpm build:browser",
     "test:e2e": "vitest run --config vitest.config.ts"
   },
