@@ -17,8 +17,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.117.0
-        version: 1.117.0
+        specifier: 1.119.0
+        version: 1.119.0
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -2760,13 +2760,13 @@ importers:
         specifier: ^11.7.0
         version: 11.7.0
       '@botpress/chat':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../chat-client
       '@botpress/client':
-        specifier: 2.0.0
+        specifier: 2.1.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 6.13.4
+        specifier: 7.0.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2887,10 +2887,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 2.0.0
+        specifier: 2.1.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.13.4
+        specifier: 7.0.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2903,10 +2903,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 2.0.0
+        specifier: 2.1.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.13.4
+        specifier: 7.0.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2919,7 +2919,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 6.13.4
+        specifier: 7.0.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2932,10 +2932,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 2.0.0
+        specifier: 2.1.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.13.4
+        specifier: 7.0.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2948,10 +2948,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 2.0.0
+        specifier: 2.1.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 6.13.4
+        specifier: 7.0.0
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -3066,10 +3066,10 @@ importers:
   packages/llmz:
     dependencies:
       '@botpress/client':
-        specifier: 2.0.0
+        specifier: 2.1.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: 1.0.1
+        specifier: 1.1.0
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^3.1.0
@@ -3108,8 +3108,8 @@ importers:
         specifier: ^0.31.0
         version: 0.31.0
       ulid:
-        specifier: ^2.3.0
-        version: 2.4.0
+        specifier: ^3.0.2
+        version: 3.0.2
     dependenciesMeta:
       '@bpinternal/zui':
         injected: true
@@ -3169,7 +3169,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 2.0.0
+        specifier: 2.1.0
         version: link:../client
       '@bpinternal/zui':
         specifier: ^2.4.0
@@ -3200,10 +3200,10 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 2.0.0
+        specifier: 2.1.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: 1.0.1
+        specifier: 1.1.0
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^3.0.0
@@ -3246,7 +3246,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 1.0.1
+        specifier: 1.1.0
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^3.0.0
@@ -3377,7 +3377,7 @@ importers:
   plugins/conversation-insights:
     dependencies:
       '@botpress/cognitive':
-        specifier: 1.0.1
+        specifier: 1.1.0
         version: link:../../packages/cognitive
       '@botpress/sdk':
         specifier: workspace:*
@@ -4281,8 +4281,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@botpress/api@1.117.0':
-    resolution: {integrity: sha512-91+dxcOdxO1q0dJveWl1ziOeNxBfh5TGEuL5hj+MTkHFHnOEQauxaPYOa2QVYwUmc78C2uirbv6MYBT/L48QGA==}
+  '@botpress/api@1.119.0':
+    resolution: {integrity: sha512-x/1LS/35IseQZ0dvpVN+rQmJF41YWRcbGYa5HapH8PcgqiJusrzIkWNZaeoRUnKFoPYiGh9YH5ENDegss6RrVQ==}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -12649,8 +12649,8 @@ packages:
   uid2@0.0.4:
     resolution: {integrity: sha512-IevTus0SbGwQzYh3+fRsAMTVVPOoIVufzacXcHPmdlle1jUpq7BRL+mw3dgeLanvGZdwwbWhRV6XrcFNdBmjWA==}
 
-  ulid@2.4.0:
-    resolution: {integrity: sha512-fIRiVTJNcSRmXKPZtGzFQv9WRrZ3M9eoptl/teFJvjOzmpU+/K/JH6HZ8deBfb5vMEpicJcLn7JmvdknlMq7Zg==}
+  ulid@3.0.2:
+    resolution: {integrity: sha512-yu26mwteFYzBAot7KVMqFGCVpsF6g8wXfJzQUHvu1no3+rRRSFcSV2nKeYvNPLD2J4b08jYBDhHUjeH0ygIl9w==}
     hasBin: true
 
   unbox-primitive@1.1.0:
@@ -14662,7 +14662,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.117.0':
+  '@botpress/api@1.119.0':
     dependencies:
       '@bpinternal/opapi': 1.0.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -24566,7 +24566,7 @@ snapshots:
 
   uid2@0.0.4: {}
 
-  ulid@2.4.0: {}
+  ulid@3.0.2: {}
 
   unbox-primitive@1.1.0:
     dependencies:

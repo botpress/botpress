@@ -49,6 +49,10 @@ export class PushpinEmitter implements SignalEmitter {
   }
 
   public async emit(channel: string, signal: Signal): Promise<void> {
+    await this.emitOrThrow(channel, signal).catch(this._handleError)
+  }
+
+  public async emitOrThrow(channel: string, signal: Signal): Promise<void> {
     await this._publish({
       items: [
         {
@@ -65,7 +69,7 @@ export class PushpinEmitter implements SignalEmitter {
           },
         },
       ],
-    }).catch(this._handleError)
+    })
   }
 
   public async close(channel: string): Promise<void> {
