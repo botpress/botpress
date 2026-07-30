@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
-import * as bp from '../.botpress'
 import { GoogleAnalyticsClient, parseError, parseJsonObject } from './client'
+import * as bp from '.botpress'
 
 export default new bp.Integration({
   register: async ({ ctx, logger }) => {

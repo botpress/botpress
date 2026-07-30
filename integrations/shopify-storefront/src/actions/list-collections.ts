@@ -1,7 +1,7 @@
-import * as bp from '../../.botpress'
 import { STOREFRONT_LIST_COLLECTIONS } from '../client/queries/storefront'
 import { StorefrontClient } from '../client/storefront'
 import { transformCollection } from '../transformers'
+import * as bp from '.botpress'
 
 type CollectionsResponse = {
   collections: {

@@ -1,8 +1,8 @@
 import { RuntimeError } from '@botpress/sdk'
-import * as bp from '../../.botpress'
 import { CART_LINES_ADD } from '../client/queries/storefront'
 import { StorefrontClient } from '../client/storefront'
 import { CartNode, transformCart } from '../transformers'
+import * as bp from '.botpress'
 
 type CartLinesAddResponse = {
   cartLinesAdd: {

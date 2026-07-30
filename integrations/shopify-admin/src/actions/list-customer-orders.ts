@@ -1,8 +1,8 @@
 import { RuntimeError } from '@botpress/sdk'
-import * as bp from '../../.botpress'
 import { ShopifyClient } from '../client'
 import { CUSTOMER_ORDERS_QUERY } from '../client/queries/admin'
 import { transformOrder } from '../transformers'
+import * as bp from '.botpress'
 
 type CustomerOrdersQueryResponse = {
   customer: {
