@@ -4,13 +4,13 @@
   "description": "Botpress CLI",
   "scripts": {
     "build": "pnpm run build:types && pnpm run bundle && pnpm run template:gen",
-    "dev": "ts-node -T src/cli.ts",
+    "dev": "ts-node -T -P tsconfig.ts-node.json src/cli.ts",
     "start": "node dist/cli.js",
     "check:type": "tsc --noEmit",
-    "bundle": "ts-node -T build.ts",
+    "bundle": "ts-node -T -P tsconfig.ts-node.json build.ts",
     "build:types": "tsc -p ./tsconfig.build.json",
     "template:gen": "pnpm -r --stream -F @bp-templates/* exec bp gen",
-    "test:e2e": "ts-node -T ./e2e",
+    "test:e2e": "ts-node -T -P tsconfig.ts-node.json ./e2e",
     "test": "vitest --run"
   },
   "repository": {
