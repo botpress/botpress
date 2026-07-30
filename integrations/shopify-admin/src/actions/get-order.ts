@@ -1,8 +1,8 @@
 import { RuntimeError } from '@botpress/sdk'
-import * as bp from '../../.botpress'
 import { ShopifyClient } from '../client'
 import { ORDER_QUERY } from '../client/queries/admin'
 import { transformOrder } from '../transformers'
+import * as bp from '.botpress'
 
 type VariantShape = {
   id: string
