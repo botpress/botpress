@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "paths": { "*": ["./*"] },
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
     "outDir": "dist"

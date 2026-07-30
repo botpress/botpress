@@ -1,8 +1,8 @@
 import { RuntimeError } from '@botpress/sdk'
-import * as bp from '../../.botpress'
 import { STOREFRONT_GET_PRODUCT_BY_HANDLE, STOREFRONT_GET_PRODUCT_BY_ID } from '../client/queries/storefront'
 import { StorefrontClient } from '../client/storefront'
 import { transformStorefrontProduct } from '../transformers'
+import * as bp from '.botpress'
 
 type ProductResponse = {
   product: {

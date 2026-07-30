@@ -1,7 +1,7 @@
-import * as bp from '../../.botpress'
 import { ShopifyClient } from '../client'
 import { CUSTOMERS_QUERY } from '../client/queries/admin'
 import { transformCustomer } from '../transformers'
+import * as bp from '.botpress'
 
 type CustomersQueryResponse = {
   customers: {

@@ -1,7 +1,7 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
-import * as bp from '../.botpress'
 import { verifyWebhookHmac } from './oauth/hmac'
 import { oauthWizardHandler } from './oauth/wizard'
+import * as bp from '.botpress'
 
 const SHOPIFY_TOPIC_HEADER = 'x-shopify-topic'
 const SHOPIFY_HMAC_HEADER = 'x-shopify-hmac-sha256'
