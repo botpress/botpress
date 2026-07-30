@@ -99,10 +99,18 @@ const startConversationProps = {
             ),
           templateHeaderParams: z
             .discriminatedUnion('type', [
-              z.object({ type: z.literal('text'), value: z.string(), parameterName: z.string().optional() }),
+              z.object({
+                type: z.literal('text'),
+                value: z.string(),
+                parameterName: z.string().optional(),
+              }),
               z.object({ type: z.literal('image'), url: z.string() }),
               z.object({ type: z.literal('video'), url: z.string() }),
-              z.object({ type: z.literal('document'), url: z.string(), filename: z.string().optional() }),
+              z.object({
+                type: z.literal('document'),
+                url: z.string(),
+                filename: z.string().optional(),
+              }),
             ])
             .optional()
             .title('Template header parameters')
@@ -514,6 +522,29 @@ export default new IntegrationDefinition({
             .optional()
             .title('Next Cursor')
             .describe('Cursor for fetching the next page. Undefined if no more pages.'),
+        }),
+      },
+    },
+    getPhoneNumbers: {
+      title: 'Get Phone Numbers',
+      description: 'Returns the WhatsApp phone number(s) linked with the current integration',
+      input: {
+        schema: z.object({}),
+      },
+      output: {
+        schema: z.object({
+          phoneNumbers: z
+            .array(
+              z.object({
+                id: z.string().title('Phone Number ID').describe('WhatsApp phone number ID'),
+                displayPhoneNumber: z
+                  .string()
+                  .title('Display Phone Number')
+                  .describe('Phone number in international display format'),
+              })
+            )
+            .title('Phone Numbers')
+            .describe('Phone numbers linked with the current integration'),
         }),
       },
     },
