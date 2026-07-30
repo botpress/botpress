@@ -7,14 +7,6 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext"
   },
-  "include": [
-    "./src/**/*",
-    "./e2e/**/*",
-    "*.ts"
-  ],
-  "exclude": [
-    "./templates/**",
-    "./e2e/fixtures/**",
-    "vitest.config.ts"
-  ]
+  "include": ["./src/**/*", "./e2e/**/*", "*.ts"],
+  "exclude": ["./templates/**", "./e2e/fixtures/**", "vitest.config.ts"]
 }
