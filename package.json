@@ -52,7 +52,9 @@
     "sherif": "1.0.1",
     "ts-node": "^10.9.2",
     "turbo": "^2.3.3",
-    "typescript": "^6.0.0",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "typescript-editor": "npm:typescript@^6.0.0",
     "vitest": "^2.1.4"
   },
   "packageManager": "pnpm@10.29.3",
