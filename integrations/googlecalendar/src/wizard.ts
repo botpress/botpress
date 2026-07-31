@@ -38,7 +38,7 @@ const _calendarIdForm = {
   htmlOrMarkdownPageContents:
     '<b>Step 1:</b> Enter your Google account email below. For most calendars, your Calendar ID is simply your email (e.g. <b>you@gmail.com</b>).<br><br>' +
     "<b>Step 2 (only if your email didn't work):</b> Find your Calendar ID manually:<br>" +
-    'a. In Google Calendar, go to <b>Settings</b><br>'  +
+    'a. In Google Calendar, go to <b>Settings</b><br>' +
     'b. In the left sidebar, scroll down to "Settings for my calendars" and select the calendar you would like to connect.<br>' +
     'c. Scroll to <b>Integrate calendar</b> to find your Calendar ID.<br>' +
     'd. Copy the Calendar ID and paste it below.',
