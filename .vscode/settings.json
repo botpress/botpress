@@ -8,5 +8,5 @@
   "editor.tabSize": 2,
   "git.branchProtection": ["master"],
   "vitest.disableWorkspaceWarning": true,
-  "js/ts.tsdk.path": "node_modules/typescript/lib"
+  "js/ts.tsdk.path": "node_modules/typescript-editor/lib"
 }
