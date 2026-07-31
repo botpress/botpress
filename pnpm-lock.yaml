@@ -225,6 +225,8 @@ importers:
         specifier: workspace:*
         version: link:../../integrations/chat
 
+  bots/grafana-sdkbot: {}
+
   bots/hello-world:
     dependencies:
       '@botpress/cli':
@@ -318,6 +320,8 @@ importers:
         specifier: ^6.9.7
         version: 6.9.7
 
+  bots/my-test-bot: {}
+
   bots/notionaut:
     dependencies:
       '@botpress/client':
@@ -345,6 +349,8 @@ importers:
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
+
+  bots/ooga: {}
 
   bots/sheetzy:
     dependencies:
@@ -906,6 +912,8 @@ importers:
         specifier: ^6.4.4
         version: 6.4.8
 
+  integrations/error-integration: {}
+
   integrations/feature-base:
     dependencies:
       '@botpress/client':
@@ -1231,6 +1239,8 @@ importers:
       preact:
         specifier: ^10.26.6
         version: 10.26.6
+
+  integrations/grafana: {}
 
   integrations/groq:
     dependencies:
@@ -2131,6 +2141,10 @@ importers:
       '@types/sanitize-html':
         specifier: ^2.16.0
         version: 2.16.0
+
+  integrations/test-discriminated: {}
+
+  integrations/test-message-schema: {}
 
   integrations/todoist:
     dependencies:
@@ -3540,6 +3554,8 @@ importers:
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
+
+  plugins/myplugin: {}
 
   plugins/personality:
     dependencies:

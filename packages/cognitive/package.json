@@ -39,13 +39,13 @@
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
     "@size-limit/file": "^11.1.6",
-    "typescript": "npm:@typescript/typescript6@^6.0.2",
     "@types/debug": "^4.1.12",
     "dotenv": "^16.4.4",
     "esbuild": "^0.25.10",
     "rollup": "^4.60.4",
     "rollup-plugin-dts": "^6.4.1",
-    "size-limit": "^11.1.6"
+    "size-limit": "^11.1.6",
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
   "engines": {
     "node": ">=18.0.0"

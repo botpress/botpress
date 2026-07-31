@@ -30,9 +30,9 @@
     "@types/qs": "^6.9.7",
     "esbuild": "^0.25.10",
     "lodash": "^4.17.21",
-    "typescript": "npm:@typescript/typescript6@^6.0.2",
     "rollup": "^4.60.4",
-    "rollup-plugin-dts": "^6.4.1"
+    "rollup-plugin-dts": "^6.4.1",
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
   "engines": {
     "node": ">=18.0.0"
