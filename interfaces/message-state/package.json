@@ -1,0 +1,16 @@
+{
+  "name": "@botpresshub/message-state",
+  "description": "Shared message state events for Botpress integrations",
+  "private": true,
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint"
+  },
+  "dependencies": {
+    "@botpress/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*"
+  }
+}

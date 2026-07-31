@@ -2577,6 +2577,16 @@ importers:
         specifier: workspace:*
         version: link:../../packages/cli
 
+  interfaces/message-state:
+    dependencies:
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   interfaces/proactive-conversation:
     dependencies:
       '@botpress/sdk':
