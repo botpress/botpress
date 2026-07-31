@@ -1,0 +1,32 @@
+name: Deploy Telegram Integration Production
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # required for OIDC
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .tool-versions
+          registry-url: https://npm.pkg.github.com
+          scope: '@botpress-private'
+      - run: pnpm install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.PRIVATE_NPM_TOKEN }}
+      - uses: botpress/dab/setup@action-v1
+        with:
+          environment: production
+          infisical-client-id: ${{ secrets.INFISICAL_CLIENT_ID }}
+          infisical-client-secret: ${{ secrets.INFISICAL_CLIENT_SECRET }}
+      - run: pnpm exec dab deploy --env=production --file=telegram.ts
+        working-directory: .ci
