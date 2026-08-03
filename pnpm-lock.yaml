@@ -1468,9 +1468,6 @@ importers:
       '@types/node':
         specifier: ^22.16.4
         version: 22.16.4
-      typescript:
-        specifier: ^5.6.3
-        version: 5.9.3
 
   integrations/loops:
     dependencies:
@@ -7348,6 +7345,26 @@ packages:
   '@types/yargs@17.0.33':
     resolution: {integrity: sha512-WpxBCKWPLr4xSsHgz511rFJAM+wS28w2zEO1QDNY5zM/S8ok70NNfztH0xwhqKyaK0OHCbN98LDAZuy1ctxDkA==}
 
+  '@typescript-eslint/eslint-plugin@8.42.0': {}
+
+  '@typescript-eslint/parser@8.42.0': {}
+
+  '@typescript-eslint/project-service@8.42.0': {}
+
+  '@typescript-eslint/scope-manager@8.42.0': {}
+
+  '@typescript-eslint/tsconfig-utils@8.42.0': {}
+
+  '@typescript-eslint/type-utils@8.42.0': {}
+
+  '@typescript-eslint/types@8.42.0': {}
+
+  '@typescript-eslint/typescript-estree@8.42.0': {}
+
+  '@typescript-eslint/utils@8.42.0': {}
+
+  '@typescript-eslint/visitor-keys@8.42.0': {}
+
   '@typespec/ts-http-runtime@0.3.0':
     resolution: {integrity: sha512-sOx1PKSuFwnIl7z4RN0Ls7N9AQawmR9r66eI5rFCzLDIs8HTIYrIpH9QjYWoX0lkgGrkLxXhi4QnK7MizPRrIg==}
     engines: {node: '>=20.0.0'}
@@ -11657,10 +11674,6 @@ packages:
     resolution: {integrity: sha512-+38qI9SOr8tfZ4QmJNplMUxqjbe7LKvvZgWdExBOmd+egZTtjLB67Gu0HRX3u/XOq7UU2Nx6nsjvS16Z9uwfpg==}
     engines: {node: '>=0.6'}
 
-  qs@6.15.0:
-    resolution: {integrity: sha512-mAZTtNCeetKMH+pSjrb76NAM8V9a05I9aBZOHztWy/UqcJdQYNsf59vrRKWnojAT9Y+GbIvoTBC++CPHqpDBhQ==}
-    engines: {node: '>=0.6'}
-
   qs@6.15.3:
     resolution: {integrity: sha512-O9gl3zCl5h5blw1KGUzQKhA5oUXSl8rwUIM5o0S3nCXMliSvy5Dzx7/DJcI+SwgICv+IneSZwhBh1oSyEHA71A==}
     engines: {node: '>=0.6'}
@@ -12048,11 +12061,6 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  semver@7.7.4:
-    resolution: {integrity: sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA==}
-    engines: {node: '>=10'}
-    hasBin: true
-
   semver@7.8.1:
     resolution: {integrity: sha512-rkVq3IXh+4FDGch+KwzX3aV9W3kO54GyEgpvBzSyctDA6Xtd7RJQV1xmXbeQp5v7+VzLOfVqiutSE6GICgPFvg==}
     engines: {node: '>=10'}
@@ -12142,10 +12150,6 @@ packages:
   shimmer@1.2.1:
     resolution: {integrity: sha512-sQTKC1Re/rM6XyFM6fIAGHRPVGvyXfgzIDvzoq608vM+jeyVD0Tu1E6Np0Kc2zAIFWIj963V2800iF/9LPieQw==}
 
-  side-channel-list@1.0.0:
-    resolution: {integrity: sha512-FCLHtRD/gnpCiCHEiJLOwdmFP+wzCmDEkc9y7NsYxeF4u7Btsn1ZuwgwJGxImImHicJArLP4R0yX4c2KCrMrTA==}
-    engines: {node: '>= 0.4'}
-
   side-channel-list@1.0.1:
     resolution: {integrity: sha512-mjn/0bi/oUURjc5Xl7IaWi/OJJJumuoJFQJfDDyO46+hBWsfaVM65TBHq2eoZBhzl9EchxOijpkbRC8SVBQU0w==}
     engines: {node: '>= 0.4'}
@@ -12160,10 +12164,6 @@ packages:
 
   side-channel@1.0.4:
     resolution: {integrity: sha512-q5XPytqFEIKHkGdiMIrY10mvLRvnQh42/+GoBlFW3b2LXLE2xxJpZFdm94we0BaoV3RwJyGqg5wS7epxTv0Zvw==}
-
-  side-channel@1.1.0:
-    resolution: {integrity: sha512-ZX99e6tRweoUXqR+VBrslhda51Nh5MTQwou5tnUDgbtyM0dBgmhEDtWGP/xbKn6hqfPRHujUNwz5fy/wbbhnpw==}
-    engines: {node: '>= 0.4'}
 
   side-channel@1.1.1:
     resolution: {integrity: sha512-6x6dK6zJdpTzF4sQeNYxwtvBzf6Eg4GtlesS94HOvTudUeyK2WXAaIfmDgsyslYrRBeFIlsi54AYsFGUuhmvrQ==}
@@ -17894,6 +17894,99 @@ snapshots:
     dependencies:
       '@types/yargs-parser': 21.0.0
 
+  '@typescript-eslint/eslint-plugin@8.42.0(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.7.0))(typescript@5.6.3))(eslint@9.34.0(jiti@2.7.0))(typescript@5.6.3)':
+    dependencies:
+      '@eslint-community/regexpp': 4.12.1
+      '@typescript-eslint/parser': 8.42.0(eslint@9.34.0(jiti@2.7.0))(typescript@5.6.3)
+      '@typescript-eslint/scope-manager': 8.42.0
+      '@typescript-eslint/type-utils': 8.42.0(eslint@9.34.0(jiti@2.7.0))(typescript@5.6.3)
+      '@typescript-eslint/utils': 8.42.0(eslint@9.34.0(jiti@2.7.0))(typescript@5.6.3)
+      '@typescript-eslint/visitor-keys': 8.42.0
+      eslint: 9.34.0(jiti@2.7.0)
+      graphemer: 1.4.0
+      ignore: 7.0.5
+      natural-compare: 1.4.0
+      ts-api-utils: 2.1.0(typescript@5.6.3)
+      typescript: 5.6.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.7.0))(typescript@5.6.3)':
+    dependencies:
+      '@typescript-eslint/scope-manager': 8.42.0
+      '@typescript-eslint/types': 8.42.0
+      '@typescript-eslint/typescript-estree': 8.42.0(typescript@5.6.3)
+      '@typescript-eslint/visitor-keys': 8.42.0
+      debug: 4.4.1
+      eslint: 9.34.0(jiti@2.7.0)
+      typescript: 5.6.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/project-service@8.42.0(typescript@5.6.3)':
+    dependencies:
+      '@typescript-eslint/tsconfig-utils': 8.42.0(typescript@5.6.3)
+      '@typescript-eslint/types': 8.42.0
+      debug: 4.4.3
+      typescript: 5.6.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/scope-manager@8.42.0':
+    dependencies:
+      '@typescript-eslint/types': 8.42.0
+      '@typescript-eslint/visitor-keys': 8.42.0
+
+  '@typescript-eslint/tsconfig-utils@8.42.0(typescript@5.6.3)':
+    dependencies:
+      typescript: 5.6.3
+
+  '@typescript-eslint/type-utils@8.42.0(eslint@9.34.0(jiti@2.7.0))(typescript@5.6.3)':
+    dependencies:
+      '@typescript-eslint/types': 8.42.0
+      '@typescript-eslint/typescript-estree': 8.42.0(typescript@5.6.3)
+      '@typescript-eslint/utils': 8.42.0(eslint@9.34.0(jiti@2.7.0))(typescript@5.6.3)
+      debug: 4.4.1
+      eslint: 9.34.0(jiti@2.7.0)
+      ts-api-utils: 2.1.0(typescript@5.6.3)
+      typescript: 5.6.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/types@8.42.0': {}
+
+  '@typescript-eslint/typescript-estree@8.42.0(typescript@5.6.3)':
+    dependencies:
+      '@typescript-eslint/project-service': 8.42.0(typescript@5.6.3)
+      '@typescript-eslint/tsconfig-utils': 8.42.0(typescript@5.6.3)
+      '@typescript-eslint/types': 8.42.0
+      '@typescript-eslint/visitor-keys': 8.42.0
+      debug: 4.4.1
+      fast-glob: 3.3.2
+      is-glob: 4.0.3
+      minimatch: 9.0.5
+      semver: 7.8.1
+      ts-api-utils: 2.1.0(typescript@5.6.3)
+      typescript: 5.6.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.7.0))(typescript@5.6.3)':
+    dependencies:
+      '@eslint-community/eslint-utils': 4.8.0(eslint@9.34.0(jiti@2.7.0))
+      '@typescript-eslint/scope-manager': 8.42.0
+      '@typescript-eslint/types': 8.42.0
+      '@typescript-eslint/typescript-estree': 8.42.0(typescript@5.6.3)
+      eslint: 9.34.0(jiti@2.7.0)
+      typescript: 5.6.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/visitor-keys@8.42.0':
+    dependencies:
+      '@typescript-eslint/types': 8.42.0
+      eslint-visitor-keys: 4.2.1
+
   '@typespec/ts-http-runtime@0.3.0':
     dependencies:
       http-proxy-agent: 7.0.2
@@ -19455,7 +19548,7 @@ snapshots:
       '@one-ini/wasm': 0.1.1
       commander: 10.0.1
       minimatch: 9.0.1
-      semver: 7.7.4
+      semver: 7.8.1
 
   ee-first@1.1.1: {}
 
@@ -19522,7 +19615,7 @@ snapshots:
       has-property-descriptors: 1.0.2
       has-proto: 1.2.0
       has-symbols: 1.1.0
-      hasown: 2.0.2
+      hasown: 2.0.4
       internal-slot: 1.1.0
       is-array-buffer: 3.0.5
       is-callable: 1.2.7
@@ -19576,7 +19669,7 @@ snapshots:
       has-property-descriptors: 1.0.2
       has-proto: 1.2.0
       has-symbols: 1.1.0
-      hasown: 2.0.2
+      hasown: 2.0.4
       internal-slot: 1.1.0
       is-array-buffer: 3.0.5
       is-callable: 1.2.7
@@ -19635,15 +19728,15 @@ snapshots:
       es-errors: 1.3.0
       get-intrinsic: 1.3.0
       has-tostringtag: 1.0.2
-      hasown: 2.0.2
+      hasown: 2.0.4
 
   es-shim-unscopables@1.0.2:
     dependencies:
-      hasown: 2.0.2
+      hasown: 2.0.4
 
   es-shim-unscopables@1.1.0:
     dependencies:
-      hasown: 2.0.2
+      hasown: 2.0.4
 
   es-to-primitive@1.3.0:
     dependencies:
@@ -20353,7 +20446,7 @@ snapshots:
       dezalgo: 1.0.4
       hexoid: 1.0.0
       once: 1.4.0
-      qs: 6.15.0
+      qs: 6.15.3
 
   forwarded-parse@2.1.2: {}
 
@@ -20397,7 +20490,7 @@ snapshots:
       call-bound: 1.0.4
       define-properties: 1.2.1
       functions-have-names: 1.2.3
-      hasown: 2.0.2
+      hasown: 2.0.4
       is-callable: 1.2.7
 
   functions-have-names@1.2.3: {}
@@ -20475,7 +20568,7 @@ snapshots:
       get-proto: 1.0.1
       gopd: 1.2.0
       has-symbols: 1.1.0
-      hasown: 2.0.2
+      hasown: 2.0.4
       math-intrinsics: 1.1.0
 
   get-intrinsic@1.3.0:
@@ -20488,7 +20581,7 @@ snapshots:
       get-proto: 1.0.1
       gopd: 1.2.0
       has-symbols: 1.1.0
-      hasown: 2.0.2
+      hasown: 2.0.4
       math-intrinsics: 1.1.0
 
   get-package-type@0.1.0: {}
@@ -20667,7 +20760,7 @@ snapshots:
       extend: 3.0.2
       gaxios: 5.1.0
       google-auth-library: 8.8.0
-      qs: 6.13.0
+      qs: 6.15.3
       url-template: 2.0.8
       uuid: 9.0.1
     transitivePeerDependencies:
@@ -20679,7 +20772,7 @@ snapshots:
       extend: 3.0.2
       gaxios: 6.1.1
       google-auth-library: 9.0.0
-      qs: 6.13.0
+      qs: 6.15.3
       url-template: 2.0.8
       uuid: 9.0.1
     transitivePeerDependencies:
@@ -20691,7 +20784,7 @@ snapshots:
       extend: 3.0.2
       gaxios: 7.1.4
       google-auth-library: 10.6.2
-      qs: 6.15.0
+      qs: 6.15.3
       url-template: 2.0.8
     transitivePeerDependencies:
       - supports-color
@@ -20807,7 +20900,6 @@ snapshots:
   hasown@2.0.4:
     dependencies:
       function-bind: 1.1.2
-    optional: true
 
   hast-util-to-html@9.0.5:
     dependencies:
@@ -21008,8 +21100,8 @@ snapshots:
   internal-slot@1.1.0:
     dependencies:
       es-errors: 1.3.0
-      hasown: 2.0.2
-      side-channel: 1.1.0
+      hasown: 2.0.4
+      side-channel: 1.1.1
 
   ioredis@5.4.1:
     dependencies:
@@ -21073,11 +21165,11 @@ snapshots:
 
   is-core-module@2.15.1:
     dependencies:
-      hasown: 2.0.2
+      hasown: 2.0.4
 
   is-core-module@2.16.1:
     dependencies:
-      hasown: 2.0.2
+      hasown: 2.0.4
 
   is-data-view@1.0.2:
     dependencies:
@@ -21167,7 +21259,7 @@ snapshots:
       call-bound: 1.0.4
       gopd: 1.2.0
       has-tostringtag: 1.0.2
-      hasown: 2.0.2
+      hasown: 2.0.4
 
   is-retry-allowed@2.2.0: {}
 
@@ -21540,7 +21632,7 @@ snapshots:
       jest-util: 29.5.0
       natural-compare: 1.4.0
       pretty-format: 29.5.0
-      semver: 7.7.4
+      semver: 7.8.1
     transitivePeerDependencies:
       - supports-color
 
@@ -23355,17 +23447,12 @@ snapshots:
 
   qs@6.13.0:
     dependencies:
-      side-channel: 1.1.0
-
-  qs@6.15.0:
-    dependencies:
-      side-channel: 1.1.0
+      side-channel: 1.1.1
 
   qs@6.15.3:
     dependencies:
       es-define-property: 1.0.1
       side-channel: 1.1.1
-    optional: true
 
   qs@6.5.3: {}
 
@@ -23890,8 +23977,6 @@ snapshots:
 
   semver@7.7.2: {}
 
-  semver@7.7.4: {}
-
   semver@7.8.1: {}
 
   send@0.19.0:
@@ -24013,16 +24098,10 @@ snapshots:
 
   shimmer@1.2.1: {}
 
-  side-channel-list@1.0.0:
-    dependencies:
-      es-errors: 1.3.0
-      object-inspect: 1.13.4
-
   side-channel-list@1.0.1:
     dependencies:
       es-errors: 1.3.0
       object-inspect: 1.13.4
-    optional: true
 
   side-channel-map@1.0.1:
     dependencies:
@@ -24045,14 +24124,6 @@ snapshots:
       get-intrinsic: 1.2.7
       object-inspect: 1.13.3
 
-  side-channel@1.1.0:
-    dependencies:
-      es-errors: 1.3.0
-      object-inspect: 1.13.4
-      side-channel-list: 1.0.0
-      side-channel-map: 1.0.1
-      side-channel-weakmap: 1.0.2
-
   side-channel@1.1.1:
     dependencies:
       es-errors: 1.3.0
@@ -24060,7 +24131,6 @@ snapshots:
       side-channel-list: 1.0.1
       side-channel-map: 1.0.1
       side-channel-weakmap: 1.0.2
-    optional: true
 
   siginfo@2.0.0: {}
 
@@ -24302,7 +24372,7 @@ snapshots:
       formidable: 1.2.6
       methods: 1.1.2
       mime: 1.6.0
-      qs: 6.15.0
+      qs: 6.15.3
       readable-stream: 2.3.8
     transitivePeerDependencies:
       - supports-color
@@ -24317,9 +24387,9 @@ snapshots:
       formidable: 1.2.6
       methods: 1.1.2
       mime: 2.6.0
-      qs: 6.15.0
+      qs: 6.15.3
       readable-stream: 3.6.2
-      semver: 7.7.2
+      semver: 7.8.1
     transitivePeerDependencies:
       - supports-color
 
@@ -24333,9 +24403,9 @@ snapshots:
       formidable: 2.1.2
       methods: 1.1.2
       mime: 2.6.0
-      qs: 6.15.0
+      qs: 6.15.3
       readable-stream: 3.6.2
-      semver: 7.7.4
+      semver: 7.8.1
     transitivePeerDependencies:
       - supports-color
 

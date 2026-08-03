@@ -14,6 +14,7 @@
     "check:oxlint": "oxlint -c .oxlintrc.json --type-aware",
     "check:lint": "pnpm check:bplint && pnpm check:oxlint",
     "check:type": "turbo check:type",
+    "check:type:ts6": "bash scripts/ts6-shim/run.sh",
     "fix:dep": "depsynky sync --ignore-dev",
     "fix:sherif": "sherif -i zod -i axios -i query-string -i googleapis -i @linear/sdk -i openai --fix",
     "fix:format": "oxfmt .",
