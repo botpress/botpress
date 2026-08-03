@@ -19,7 +19,8 @@
     "noPropertyAccessFromIndexSignature": false,
     "noUnusedLocals": false,
     "noImplicitOverride": false,
-    "checkJs": false
+    "checkJs": false,
+    "types": ["node"]
   },
   "exclude": ["node_modules"]
 }
