@@ -19,8 +19,7 @@
     "noPropertyAccessFromIndexSignature": false,
     "noUnusedLocals": false,
     "noImplicitOverride": false,
-    "checkJs": false,
-    "types": ["node"]
+    "checkJs": false
   },
   // "module": "preserve" routes scripts to Node's loader for ECMAScript
   // modules, which cannot read TypeScript. CommonJS emit puts them back on the
