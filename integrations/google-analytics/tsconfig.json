@@ -6,5 +6,6 @@
     "paths": { "*": ["./*"] },
     "outDir": "dist"
   },
-  "include": [".botpress/**/*", "src/**/*", "*.ts"]
+  "include": [".botpress/**/*", "src/**/*", "*.ts"],
+  "exclude": ["vitest.config.ts"]
 }
