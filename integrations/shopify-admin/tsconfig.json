@@ -6,5 +6,6 @@
     "baseUrl": ".",
     "outDir": "dist"
   },
-  "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "*.ts", "*.json"]
+  "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "*.ts", "*.json"],
+  "exclude": ["vitest.config.ts"]
 }

@@ -6,5 +6,5 @@
     "sourceMap": true
   },
   "include": ["./src/**/*", "./e2e/**/*", "*.ts"],
-  "exclude": ["./templates/**", "./e2e/fixtures/**"]
+  "exclude": ["./templates/**", "./e2e/fixtures/**", "vitest.config.ts"]
 }
