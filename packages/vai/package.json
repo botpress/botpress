@@ -21,8 +21,8 @@
     "check:type": "tsc --noEmit",
     "build": "pnpm run build:types && pnpm run build:neutral",
     "build:neutral": "ts-node -T ./build.ts",
-    "build:types": "tsup && tsc -p tsconfig.package.json --emitDeclarationOnly",
-    "watch": "concurrently \"tsup --watch\" \"tsc -p tsconfig.package.json --emitDeclarationOnly --watch\"",
+    "build:types": "tsdown",
+    "watch": "tsdown --watch",
     "test:e2e": "vitest run --config vitest.config.ts",
     "test:e2e:update": "vitest -u run --config vitest.config.ts",
     "test:e2e:watch": "vitest --config vitest.config.ts"
@@ -38,11 +38,10 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@types/lodash": "^4.14.191",
-    "concurrently": "^9.2.4",
     "dotenv": "^16.4.4",
     "esbuild": "^0.25.10",
     "glob": "^9.3.4",
-    "tsup": "^8.0.2"
+    "tsdown": "^0.22.1"
   },
   "peerDependencies": {
     "@botpress/client": "2.1.0",
