@@ -1,8 +1,8 @@
 import { z, AnyZodObject } from '@bpinternal/zui'
-import { Context } from '../context.js'
-import { asyncExpect } from '../utils/asyncAssertion.js'
-import { Input, predictJson } from '../utils/predictJson.js'
-import { makeToMatchInlineSnapshot, toAssertion } from './extension.js'
+import { Context } from '../context'
+import { asyncExpect } from '../utils/asyncAssertion'
+import { Input, predictJson } from '../utils/predictJson'
+import { makeToMatchInlineSnapshot, toAssertion } from './extension'
 
 export type ExtractOptions<T, S> = {
   description?: string

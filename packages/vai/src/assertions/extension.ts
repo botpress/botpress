@@ -2,8 +2,8 @@ import json5 from 'json5'
 import { expect } from 'vitest'
 import { getCurrentTest } from 'vitest/suite'
 
-import { asyncExpect } from '../utils/asyncAssertion.js'
-import { Output } from '../utils/predictJson.js'
+import { asyncExpect } from '../utils/asyncAssertion'
+import { Output } from '../utils/predictJson'
 
 export type ExtendedPromise<T> = PromiseLike<Output<T>> & {
   value: PromiseLike<T>
