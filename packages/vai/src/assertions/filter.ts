@@ -1,9 +1,9 @@
 import { z } from '@bpinternal/zui'
 
-import { Context } from '../context.js'
-import { asyncExpect } from '../utils/asyncAssertion.js'
-import { predictJson } from '../utils/predictJson.js'
-import { makeToMatchInlineSnapshot, toAssertion } from './extension.js'
+import { Context } from '../context'
+import { asyncExpect } from '../utils/asyncAssertion'
+import { predictJson } from '../utils/predictJson'
+import { makeToMatchInlineSnapshot, toAssertion } from './extension'
 
 export type FilterOptions<T> = {
   examples?: { value: T; reason: string; keep: boolean }[]
