@@ -17,6 +17,7 @@ import {
 import { getAuthenticatedWhatsappClient } from '../auth'
 import { WHATSAPP } from '../misc/constants'
 import { convertMarkdownToWhatsApp } from '../misc/markdown-to-whatsapp-rtf'
+import { resolveWhatsAppDestination, sendWhatsAppMessage } from '../misc/send-whatsapp-message'
 import { splitTextMessageIfNeeded } from '../misc/split-text-message'
 import { reportIssueAndThrow, sleep } from '../misc/util'
 import { repeat } from '../repeat'
@@ -268,9 +269,7 @@ async function _send({ client, ctx, conversation, logger, message, ack }: SendMe
 
   const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
   const botPhoneNumberId = conversation.tags.botPhoneNumberId
-  // For users opted in to username privacy, no phone number is available and the stable
-  // WhatsApp user_id is used as the recipient instead.
-  const recipient = conversation.tags.userPhone ?? conversation.tags.userId
+  const destination = resolveWhatsAppDestination(conversation.tags)
   const messageType = message._type
 
   if (!botPhoneNumberId) {
@@ -284,7 +283,7 @@ async function _send({ client, ctx, conversation, logger, message, ack }: SendMe
     })
   }
 
-  if (!recipient) {
+  if (!destination) {
     reportIssueAndThrow(logger, {
       code: 'whatsapp_missing_recipient',
       category: 'other',
@@ -301,7 +300,7 @@ async function _send({ client, ctx, conversation, logger, message, ack }: SendMe
         logger.forBot().info(`Retrying to send ${messageType} message to WhatsApp (attempt ${i + 1}/${MAX_ATTEMPT})...`)
       }
 
-      const result = await whatsapp.sendMessage(botPhoneNumberId, recipient, message)
+      const result = await sendWhatsAppMessage(whatsapp, botPhoneNumberId, destination, message)
       const repeat = 'error' in result && THROTTLING_CODES.has(result.error?.code ?? 0)
       return {
         repeat,
