@@ -1,5 +1,7 @@
 import { createHmac } from 'crypto'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
+import { fireOrderCreated } from './events/order-created'
+import { handler } from './handler'
 
 const SECRET = 'test-shopify-secret'
 
@@ -37,13 +39,11 @@ describe('Shopify webhook handler', () => {
 
     for (const topic of topics) {
       it(`returns 200 on valid HMAC for ${topic}`, async () => {
-        const { handler } = await import('./handler')
         const response = await handler(buildProps({ topic, hmac: computeHmac(validBody), body: validBody }))
         expect(response).toEqual({ status: 200, body: '' })
       })
 
       it(`returns 401 on invalid HMAC for ${topic}`, async () => {
-        const { handler } = await import('./handler')
         const response = await handler(buildProps({ topic, hmac: 'invalid-hmac', body: validBody }))
         expect(response).toMatchObject({ status: 401 })
       })
@@ -52,20 +52,17 @@ describe('Shopify webhook handler', () => {
 
   describe('request validation', () => {
     it('returns 400 when topic header is missing', async () => {
-      const { handler } = await import('./handler')
       const response = await handler(buildProps({ hmac: computeHmac(validBody), body: validBody }))
       expect(response).toMatchObject({ status: 400 })
     })
 
     it('returns 400 when hmac header is missing', async () => {
-      const { handler } = await import('./handler')
       const response = await handler(buildProps({ topic: 'customers/redact', body: validBody }))
       expect(response).toMatchObject({ status: 400 })
     })
   })
 
   it('returns 200 on unknown topic after HMAC passes', async () => {
-    const { handler } = await import('./handler')
     const response = await handler(
       buildProps({ topic: 'products/create', hmac: computeHmac(validBody), body: validBody })
     )
@@ -77,7 +74,6 @@ describe('Shopify webhook handler', () => {
   describe('error handling returns 200 to avoid Shopify retry loops', () => {
     it('returns 200 on malformed JSON body after HMAC passes', async () => {
       const malformed = '{not-json'
-      const { handler } = await import('./handler')
       const response = await handler(
         buildProps({ topic: 'orders/create', hmac: computeHmac(malformed), body: malformed })
       )
@@ -85,9 +81,7 @@ describe('Shopify webhook handler', () => {
     })
 
     it('returns 200 when an event handler throws', async () => {
-      const { fireOrderCreated } = await import('./events/order-created')
       vi.mocked(fireOrderCreated).mockRejectedValueOnce(new Error('createEvent failed'))
-      const { handler } = await import('./handler')
       const response = await handler(
         buildProps({ topic: 'orders/create', hmac: computeHmac(validBody), body: validBody })
       )
