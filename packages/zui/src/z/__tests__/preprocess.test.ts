@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest'
-import * as assert from '../../assertions.utils.test.js'
-import * as z from '../index.js'
-import { ZodError } from '../error/index.js'
+import * as assert from '../../assertions.utils.test'
+import * as z from '../index'
+import { ZodError } from '../error'
 
 test('preprocess', () => {
   const schema = z.preprocess((data) => [data], z.string().array())

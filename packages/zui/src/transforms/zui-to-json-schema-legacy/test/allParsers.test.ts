@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { zodToJsonSchema } from '../zodToJsonSchema.js'
-import * as z from '../../../z/index.js'
+import { zodToJsonSchema } from '../zodToJsonSchema'
+import * as z from '../../../z'
 
 enum nativeEnum {
   a,

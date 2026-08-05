@@ -1,4 +1,4 @@
-import * as types from '../types.js'
+import * as types from '../types'
 
 export default {
   name: 'extend-chain-10',

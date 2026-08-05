@@ -1,7 +1,7 @@
 import { test } from 'vitest'
-import * as z from '../../index.js'
-import * as assert from '../../../assertions.utils.test.js'
-import { BRAND } from '../../typings.js'
+import * as z from '../../index'
+import * as assert from '../../../assertions.utils.test'
+import { BRAND } from '../../typings'
 
 test('branded types', () => {
   const mySchema = z

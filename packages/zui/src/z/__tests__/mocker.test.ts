@@ -1,5 +1,5 @@
 import { test } from 'vitest'
-import { Mocker } from './Mocker.js'
+import { Mocker } from './Mocker'
 
 test('mocker', () => {
   const mocker = new Mocker()

@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import * as z from '../../index.js'
+import * as z from '../../index'
 
 test('string to number pipeline', () => {
   const schema = z.string().transform(Number).pipe(z.number())

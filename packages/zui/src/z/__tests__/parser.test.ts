@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import * as z from '../index.js'
+import * as z from '../index'
 
 test('parse strict object with unknown keys', () => {
   expect(() => z.object({ name: z.string() }).strict().parse({ name: 'bill', unknownKey: 12 })).toThrow()

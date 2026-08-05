@@ -1,13 +1,13 @@
-import * as z from '../../z/index.js'
+import * as z from '../../z'
 import { describe, test, expect } from 'vitest'
-import { fromJSONSchema } from './index.js'
-import * as errs from '../common/errors.js'
+import { fromJSONSchema } from './index'
+import * as errs from '../common/errors'
 import { JSONSchema7 } from 'json-schema'
-import { Schema as ZuiJSONSchema } from '../common/json-schema.js'
-import { toJSONSchema } from '../zui-to-json-schema/index.js'
-import { toTypescriptType } from '../zui-to-typescript-type/index.js'
-import { toZuiPrimitive } from './primitives/index.js'
-import { toTypescriptSchema } from '../zui-to-typescript-schema/index.js'
+import { Schema as ZuiJSONSchema } from '../common/json-schema'
+import { toJSONSchema } from '../zui-to-json-schema'
+import { toTypescriptType } from '../zui-to-typescript-type'
+import { toZuiPrimitive } from './primitives'
+import { toTypescriptSchema } from '../zui-to-typescript-schema'
 
 const buildSchema = (s: JSONSchema7, xZui: ZuiJSONSchema['x-zui'] = undefined): JSONSchema7 => {
   return { ...s, 'x-zui': xZui } as JSONSchema7

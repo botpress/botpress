@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseSchema } from './parseSchema.js'
+import { parseSchema } from './parseSchema'
 
 describe('parseNullable', () => {
   it('parseSchema should not add default twice', () => {

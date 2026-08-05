@@ -1,9 +1,9 @@
 import { describe, expect, test, it } from 'vitest'
-import { toTypescriptSchema as toTypescript } from './index.js'
-import { evalZuiString } from '../common/eval-zui-string.js'
-import * as errors from '../common/errors.js'
-import * as z from '../../z/index.js'
-import { UIComponentDefinitions } from '../../z/typings.js'
+import { toTypescriptSchema as toTypescript } from '.'
+import { evalZuiString } from '../common/eval-zui-string'
+import * as errors from '../common/errors'
+import * as z from '../../z'
+import { UIComponentDefinitions } from '../../z/typings'
 
 const evalZui = (source: string): z.ZodType => {
   const evalResult = evalZuiString(source)

@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { JSONSchema7Type } from 'json-schema'
-import * as z from '../../../../z/index.js'
-import { JsonSchema7Type } from '../../parseDef.js'
-import { JsonSchema7StringType, zodPatterns, parseStringDef } from '../../parsers/string.js'
-import { Ajv } from 'ajv'
+import * as z from '../../../../z'
+import { JsonSchema7Type } from '../../parseDef'
+import { JsonSchema7StringType, zodPatterns, parseStringDef } from '../../parsers/string'
+import Ajv from 'ajv'
 import addFormats from 'ajv-formats'
-import { ErrorMessages } from '../../errorMessages.js'
-import { errorReferences } from './errorReferences.js'
-import { getRefs } from '../../Refs.js'
+import { ErrorMessages } from '../../errorMessages'
+import { errorReferences } from './errorReferences'
+import { getRefs } from '../../Refs'
 
 const ajv = addFormats(new Ajv())
 

@@ -1,6 +1,6 @@
 import { describe, test, expect, it } from 'vitest'
-import { toJSONSchemaLegacy } from './zui-extension.js'
-import * as z from '../../z/index.js'
+import { toJSONSchemaLegacy } from './zui-extension'
+import * as z from '../../z'
 
 const { zuiKey } = z
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseConst } from './parseConst.js'
+import { parseConst } from './parseConst'
 
 describe('parseConst', () => {
   it('should handle falsy constants', () => {
