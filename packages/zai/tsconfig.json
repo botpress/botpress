@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "module": "preserve",
+    "module": "CommonJS",
     "moduleResolution": "Bundler",
     "outDir": "dist",
     "strict": false,

@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "module": "preserve",
+    "module": "CommonJS",
     "moduleResolution": "Bundler",
     "paths": {
       "esbuild-plugin-polyfill-node": ["./node_modules/esbuild-plugin-polyfill-node/dist/index.d.ts"]
