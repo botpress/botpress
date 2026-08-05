@@ -57,25 +57,33 @@ export const sendWhatsAppMessage = async (
   destination: WhatsAppDestination,
   message: ClientMessage
 ): Promise<WhatsAppSendResponse> => {
-  if (destination.type === 'phone') {
-    const response = await whatsapp.sendMessage(botPhoneNumberId, destination.phoneNumber, message)
-    return await _parseResponse(response)
-  }
+  try {
+    if (destination.type === 'phone') {
+      const response = await whatsapp.sendMessage(botPhoneNumberId, destination.phoneNumber, message)
+      return await _parseResponse(response)
+    }
 
-  // using $$apiFetch$$ since the library does not expose BSUID message yet
-  const response = await whatsapp.$$apiFetch$$(`${WHATSAPP.API_URL}/${botPhoneNumberId}/messages`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(buildBsuidMessageRequest(destination, message)),
-  })
-  return await _parseResponse(response)
+    // using $$apiFetch$$ since the library does not expose BSUID message yet
+    const response = await whatsapp.$$apiFetch$$(`${WHATSAPP.API_URL}/${botPhoneNumberId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(buildBsuidMessageRequest(destination, message)),
+    })
+    return await _parseResponse(response)
+  } catch (thrown: unknown) {
+    throw thrown instanceof Error ? thrown : new Error(String(thrown))
+  }
 }
 
 const _parseResponse = async (response: ServerMessageResponse | Response): Promise<WhatsAppSendResponse> => {
-  if (response instanceof Response) {
-    return (await response.json()) as WhatsAppSendResponse
+  try {
+    if (response instanceof Response) {
+      return (await response.json()) as WhatsAppSendResponse
+    }
+    return response as WhatsAppSendResponse
+  } catch (thrown: unknown) {
+    throw thrown instanceof Error ? thrown : new Error(String(thrown))
   }
-  return response as WhatsAppSendResponse
 }
