@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import * as z from '../../index.js'
+import * as z from '../../index'
 
 const beforeBenchmarkDate = new Date(2022, 10, 4)
 const benchmarkDate = new Date(2022, 10, 5)

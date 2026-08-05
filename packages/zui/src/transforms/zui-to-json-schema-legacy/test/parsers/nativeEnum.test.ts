@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { JSONSchema7Type } from 'json-schema'
-import * as z from '../../../../z/index.js'
-import { parseNativeEnumDef } from '../../parsers/nativeEnum.js'
+import * as z from '../../../../z'
+import { parseNativeEnumDef } from '../../parsers/nativeEnum'
 
 describe('Native enums', () => {
   it('should be possible to convert a basic native number enum', () => {

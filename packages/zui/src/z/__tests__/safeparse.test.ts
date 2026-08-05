@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
-import * as z from '../index.js'
-import { ZodError } from '../error/index.js'
+import * as z from '../index'
+import { ZodError } from '../error'
 const stringSchema = z.string()
 
 test('safeparse fail', () => {

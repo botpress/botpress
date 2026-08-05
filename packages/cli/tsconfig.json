@@ -4,8 +4,8 @@
     "outDir": "dist",
     "esModuleInterop": true,
     "sourceMap": true,
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext"
+    "module": "commonjs",
+    "moduleResolution": "Bundler"
   },
   "include": ["./src/**/*", "./e2e/**/*", "*.ts"],
   "exclude": ["./templates/**", "./e2e/fixtures/**", "vitest.config.ts"]

@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest'
-import * as z from '../../../z/index.js'
-import { zodToJsonSchema } from '../zodToJsonSchema.js'
+import * as z from '../../../z'
+import { zodToJsonSchema } from '../zodToJsonSchema'
 
 const { zuiKey } = z
 

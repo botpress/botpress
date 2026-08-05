@@ -1,7 +1,7 @@
-import * as errs from '../common/errors.js'
-import * as z from '../../z/index.js'
+import * as errs from '../common/errors'
+import * as z from '../../z'
 import { describe, test, expect } from 'vitest'
-import { toJSONSchema } from './index.js'
+import { toJSONSchema } from './index'
 
 describe('zuiToJSONSchemaNext', () => {
   test('should map ZodString to StringSchema', () => {

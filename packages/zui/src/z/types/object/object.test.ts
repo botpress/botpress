@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
-import * as assert from '../../../assertions.utils.test.js'
-import * as z from '../../index.js'
+import * as assert from '../../../assertions.utils.test'
+import * as z from '../../index'
 
 const Test = z.object({
   f1: z.number(),

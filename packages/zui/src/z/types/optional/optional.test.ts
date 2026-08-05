@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import * as z from '../../index.js'
+import * as z from '../../index'
 
 function checkErrors(a: z.ZodType, bad: any) {
   let expected: z.ZodError | undefined = undefined

@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { toTypescriptType as toTs } from './index.js'
-import * as z from '../../z/index.js'
-import * as errors from '../common/errors.js'
-import * as assert from '../../assertions.utils.test.js'
+import { toTypescriptType as toTs } from '.'
+import * as z from '../../z'
+import * as errors from '../common/errors'
+import * as assert from '../../assertions.utils.test'
 
 enum TestEnum {
   A = 'A',

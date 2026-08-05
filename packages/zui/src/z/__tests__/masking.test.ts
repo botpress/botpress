@@ -1,5 +1,5 @@
 import { test } from 'vitest'
-import * as z from '../index.js'
+import * as z from '../index'
 
 test('masking test', () => {})
 

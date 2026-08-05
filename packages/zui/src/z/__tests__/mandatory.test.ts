@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest'
-import * as z from '../index.js'
-import * as transforms from '../../transforms/index.js'
-import { IZodType } from '../typings.js'
+import * as z from '../index'
+import * as transforms from '../../transforms'
+import { IZodType } from '../typings'
 
 const expectZui = (actual: z.ZodType) => ({
   not: {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseAnyOf } from './parseAnyOf.js'
+import { parseAnyOf } from './parseAnyOf'
 
 describe('parseAnyOf', () => {
   it('should create a union from two or more schemas', () => {

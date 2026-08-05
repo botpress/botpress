@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest'
-import { z } from '../../../index.js'
-import * as assert from '../../../assertions.utils.test.js'
-import { ZodError } from '../../error/index.js'
+import { z } from '../../../index'
+import * as assert from '../../../assertions.utils.test'
+import { ZodError } from '../../error'
 
 test('basic catch', () => {
   expect(z.string().catch('default').parse(undefined)).toBe('default')

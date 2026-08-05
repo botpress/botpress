@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { JSONSchema7Type } from 'json-schema'
-import * as z from '../../../../z/index.js'
-import { parseNumberDef } from '../../parsers/number.js'
-import { getRefs } from '../../Refs.js'
-import { errorReferences } from './errorReferences.js'
+import * as z from '../../../../z'
+import { parseNumberDef } from '../../parsers/number'
+import { getRefs } from '../../Refs'
+import { errorReferences } from './errorReferences'
 
 describe('Number validations', () => {
   it('should be possible to describe minimum number', () => {

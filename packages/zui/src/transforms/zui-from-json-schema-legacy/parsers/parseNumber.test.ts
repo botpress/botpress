@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseNumber } from './parseNumber.js'
+import { parseNumber } from './parseNumber'
 
 describe('parseNumber', () => {
   it('should accept errorMessage', () => {

@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { JSONSchema7Type } from 'json-schema'
-import * as z from '../../../../z/index.js'
-import { parseDef } from '../../parseDef.js'
-import { getRefs } from '../../Refs.js'
+import * as z from '../../../../z'
+import { parseDef } from '../../parseDef'
+import { getRefs } from '../../Refs'
 
 const { zuiKey } = z
 

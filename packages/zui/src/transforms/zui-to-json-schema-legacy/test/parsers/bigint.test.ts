@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { JSONSchema7Type } from 'json-schema'
-import { parseBigintDef } from '../../parsers/bigint.js'
-import * as z from '../../../../z/index.js'
-import { getRefs } from '../../Refs.js'
+import { parseBigintDef } from '../../parsers/bigint'
+import * as z from '../../../../z'
+import { getRefs } from '../../Refs'
 
 describe('bigint', () => {
   it('should be possible to use bigint', () => {

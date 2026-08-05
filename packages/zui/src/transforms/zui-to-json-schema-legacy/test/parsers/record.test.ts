@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import * as z from '../../../../z/index.js'
-import { parseRecordDef } from '../../parsers/record.js'
-import { getRefs } from '../../Refs.js'
+import * as z from '../../../../z'
+import { parseRecordDef } from '../../parsers/record'
+import { getRefs } from '../../Refs'
 
 const { zuiKey } = z
 

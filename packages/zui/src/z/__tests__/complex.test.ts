@@ -1,5 +1,5 @@
 import { test } from 'vitest'
-import { crazySchema } from './crazySchema.js'
+import { crazySchema } from './crazySchema'
 
 test('parse', () => {
   crazySchema.parse({
