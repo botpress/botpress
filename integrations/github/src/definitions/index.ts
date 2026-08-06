@@ -40,7 +40,7 @@ export const configurations = {
         .secret()
         .title('GitHub App Private Key')
         .describe('The raw contents of the RSA private key. Can be downloaded from the GitHub App settings.')
-        .placeholder('-----BEGIN RSA PRIVATE KEY-----\n\n...\n\n-----END RSA PRIVATE KE-----'),
+        .placeholder('-----BEGIN RSA PRIVATE KEY-----\n\n...\n\n-----END RSA PRIVATE KEY-----'),
       githubAppInstallationId: z
         .number()
         .positive()
