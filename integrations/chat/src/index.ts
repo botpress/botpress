@@ -2,9 +2,11 @@ import * as dynamodb from '@aws-sdk/client-dynamodb'
 import { mapBotpressMessageToChat } from './api/message-payload'
 import { makeApiUtils } from './api-utils'
 import { AuthKeyHandler } from './auth-key'
+import { emitBotMessageSignals } from './bot-message-signals'
 import * as debug from './debug'
 import { makeHandler } from './handler'
 import { MemorySpace, ChatIdStore, InMemoryChatIdStore, DynamoDbChatIdStore } from './id-store'
+import { emitMessageStream } from './message-stream'
 import { startMetricsServer } from './metrics-server'
 import { Options, options } from './options'
 import { CompositeSignalEmiter, PushpinEmitter, SignalEmitter, WebhookEmitter } from './signal-emitter'
@@ -79,7 +81,10 @@ const mapMessageSignalFid = async (idStores: ChatIdStores, args: MessageArgs): P
   }
 }
 
-const mapEventSignalFid = async (idStores: ChatIdStores, args: ActionArgs): Promise<ActionArgs> => {
+const mapEventSignalFid = async (
+  idStores: ChatIdStores,
+  args: ActionArgs<'sendEvent'>
+): Promise<ActionArgs<'sendEvent'>> => {
   const { input } = args
   const conversationId = await idStores.convIdStore.byId.get(input.conversationId)
   return {
@@ -111,22 +116,22 @@ const emitMessage = async (args: MessageArgs) => {
     })
 
     const { metadata, payload } = mapBotpressMessageToChat(args)
-    await signalEmitter.emit(channel, {
-      type: 'message_created',
-      data: {
+    await emitBotMessageSignals({
+      channel,
+      signalEmitter,
+      message: {
         id: args.message.id,
         conversationId: args.conversation.id,
         userId: args.user.id,
         createdAt: args.message.createdAt,
         payload,
         metadata,
-        isBot: true,
       },
     })
   })
 }
 
-const emitEvent = async (args: ActionArgs) => {
+const emitEvent = async (args: ActionArgs<'sendEvent'>) => {
   await runWithSpan('emit.event', async () => {
     const opts = options(args)
     const signalEmitter = makeEmitter(opts)
@@ -168,6 +173,15 @@ export default new IntegrationWithMetrics({
     managesOwnTracePropagation: !!tracingProvider,
   },
   actions: {
+    publishMessageStream: async (props) => {
+      await runWithSpan('emit.message_stream', async () => {
+        const opts = options(props)
+        const signalEmitter = makeEmitter(opts)
+        const idStores = makeIdStores(opts)
+        await emitMessageStream(props, { ...idStores, signalEmitter })
+      })
+      return {}
+    },
     sendEvent: async (props) => {
       await emitEvent(props)
       return {}

@@ -1,6 +1,72 @@
 import { Model } from './types'
 
 export const models: Record<string, Model> = {
+  'openai:gpt-5.6-sol': {
+    id: 'openai:gpt-5.6-sol',
+    name: 'GPT-5.6 Sol',
+    description:
+      'GPT-5.6 Sol is the flagship model of the GPT-5.6 family, optimized for complex reasoning and coding. It features a 1M+ context window with adaptive reasoning and configurable effort levels, and supports vision, tool use, structured outputs, and server-side web search.',
+    input: {
+      maxTokens: 1047576,
+      costPer1MTokens: 5,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 30,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision', 'coding', 'agents'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
+  'openai:gpt-5.6-terra': {
+    id: 'openai:gpt-5.6-terra',
+    name: 'GPT-5.6 Terra',
+    description:
+      'GPT-5.6 Terra balances intelligence and cost, delivering performance competitive with GPT-5.5 at a lower price point. It features a 1M+ context window with adaptive reasoning and supports vision, tool use, structured outputs, and server-side web search.',
+    input: {
+      maxTokens: 1047576,
+      costPer1MTokens: 2.5,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 15,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision', 'coding', 'agents'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
+  'openai:gpt-5.6-luna': {
+    id: 'openai:gpt-5.6-luna',
+    name: 'GPT-5.6 Luna',
+    description:
+      'GPT-5.6 Luna is the fastest and cheapest GPT-5.6 variant, optimized for high-volume workloads. It retains strong reasoning and vision capabilities with a 1M+ context window.',
+    input: {
+      maxTokens: 1047576,
+      costPer1MTokens: 1,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 6,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
   'openai:gpt-5.5': {
     id: 'openai:gpt-5.5',
     name: 'GPT-5.5',
@@ -105,8 +171,8 @@ export const models: Record<string, Model> = {
       maxTokens: 16384,
       costPer1MTokens: 14,
     },
-    tags: ['reasoning', 'general-purpose', 'vision'],
-    lifecycle: 'preview',
+    tags: ['deprecated', 'reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
@@ -114,6 +180,29 @@ export const models: Record<string, Model> = {
       supportsSearch: false,
     },
     aliases: ['gpt-5.3-chat-latest'],
+  },
+  'openai:gpt-5.3-2026-02-06': {
+    id: 'openai:gpt-5.3-2026-02-06',
+    name: 'GPT-5.3',
+    description:
+      'GPT-5.3 is a frontier model in the GPT-5 series, featuring a 1M+ context window and adaptive reasoning. It offers improved coding, agentic, and long-context performance over GPT-5.2, with enhanced instruction-following and reduced hallucinations.',
+    input: {
+      maxTokens: 1047576,
+      costPer1MTokens: 2,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 14,
+    },
+    tags: ['reasoning', 'general-purpose', 'vision', 'coding', 'agents', 'deprecated'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+    aliases: ['gpt-5.3'],
   },
   'openai:gpt-5.2-2025-12-11': {
     id: 'openai:gpt-5.2-2025-12-11',
@@ -172,8 +261,8 @@ export const models: Record<string, Model> = {
       maxTokens: 128000,
       costPer1MTokens: 10,
     },
-    tags: ['reasoning', 'general-purpose', 'vision'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
@@ -195,8 +284,8 @@ export const models: Record<string, Model> = {
       maxTokens: 128000,
       costPer1MTokens: 2,
     },
-    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
@@ -218,8 +307,8 @@ export const models: Record<string, Model> = {
       maxTokens: 128000,
       costPer1MTokens: 0.4,
     },
-    tags: ['low-cost', 'reasoning', 'general-purpose', 'vision'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'low-cost', 'reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
@@ -241,8 +330,8 @@ export const models: Record<string, Model> = {
       maxTokens: 100000,
       costPer1MTokens: 4.4,
     },
-    tags: ['reasoning', 'vision', 'coding'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'reasoning', 'vision', 'coding'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
@@ -264,8 +353,8 @@ export const models: Record<string, Model> = {
       maxTokens: 100000,
       costPer1MTokens: 8,
     },
-    tags: ['reasoning', 'vision', 'coding'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'reasoning', 'vision', 'coding'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
@@ -715,6 +804,28 @@ export const models: Record<string, Model> = {
       supportsSearch: false,
     },
   },
+  'anthropic:claude-opus-4-8': {
+    id: 'anthropic:claude-opus-4-8',
+    name: 'Claude Opus 4.8',
+    description:
+      "Claude Opus 4.8 is Anthropic's most capable model for complex reasoning, long-horizon agentic coding, and high-autonomy work. Features adaptive thinking (default effort `high`), a 1M-token context window, and 128k max output. Continues the Opus 4.7 lineage with further gains on agentic and coding benchmarks.",
+    input: {
+      maxTokens: 1000000,
+      costPer1MTokens: 5,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 25,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
   'anthropic:claude-opus-4-7': {
     id: 'anthropic:claude-opus-4-7',
     name: 'Claude Opus 4.7',
@@ -749,6 +860,28 @@ export const models: Record<string, Model> = {
     output: {
       maxTokens: 128000,
       costPer1MTokens: 25,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
+  'anthropic:claude-sonnet-5': {
+    id: 'anthropic:claude-sonnet-5',
+    name: 'Claude Sonnet 5',
+    description:
+      'Claude Sonnet 5 offers the best combination of speed and intelligence in the Claude family, succeeding Sonnet 4.6. It features adaptive thinking (on by default) for dynamic reasoning allocation, a 1M-token context window, and 128k max output. Uses the newer tokenizer.',
+    input: {
+      maxTokens: 1000000,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 15,
     },
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
     lifecycle: 'production',
@@ -827,6 +960,29 @@ export const models: Record<string, Model> = {
     },
     aliases: ['claude-sonnet-4-5'],
   },
+  'anthropic:claude-sonnet-4-5-reasoning-20250929': {
+    id: 'anthropic:claude-sonnet-4-5-reasoning-20250929',
+    name: 'Claude Sonnet 4.5 (Reasoning Mode)',
+    description:
+      'This model uses the "Extended Thinking" mode and will use a significantly higher amount of output tokens than the Standard Mode, so this model should only be used for tasks that actually require it.\n\nClaude Sonnet 4.5 is Anthropic\'s most advanced Sonnet model to date, optimized for real-world agents and coding workflows. It delivers state-of-the-art performance on coding benchmarks, with improvements across system design, code security, and specification adherence.',
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 64000,
+      costPer1MTokens: 15,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+    aliases: ['claude-sonnet-4-5-reasoning', 'claude-sonnet-4-5-20250929'],
+  },
   'anthropic:claude-sonnet-4-20250514': {
     id: 'anthropic:claude-sonnet-4-20250514',
     name: 'Claude Sonnet 4',
@@ -841,7 +997,7 @@ export const models: Record<string, Model> = {
       costPer1MTokens: 15,
     },
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
-    lifecycle: 'deprecated',
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
@@ -864,14 +1020,14 @@ export const models: Record<string, Model> = {
       costPer1MTokens: 15,
     },
     tags: ['deprecated', 'vision', 'reasoning', 'general-purpose', 'agents', 'coding'],
-    lifecycle: 'deprecated',
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
       supportsTranscription: false,
       supportsSearch: false,
     },
-    aliases: ['claude-sonnet-4-reasoning'],
+    aliases: ['claude-sonnet-4-reasoning', 'claude-sonnet-4-20250514'],
   },
   'anthropic:claude-haiku-4-5-20251001': {
     id: 'anthropic:claude-haiku-4-5-20251001',
@@ -1051,6 +1207,28 @@ export const models: Record<string, Model> = {
       supportsSearch: false,
     },
   },
+  'google-ai:gemini-3.5-flash': {
+    id: 'google-ai:gemini-3.5-flash',
+    name: 'Gemini 3.5 Flash',
+    description:
+      "Google's most intelligent stable Flash model for sustained frontier performance on agentic and coding tasks. Combines speed with frontier-class reasoning and multimodal understanding.",
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 1.5,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 9,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
   'google-ai:gemini-3.1-pro': {
     id: 'google-ai:gemini-3.1-pro',
     name: 'Gemini 3.1 Pro',
@@ -1110,14 +1288,14 @@ export const models: Record<string, Model> = {
       costPer1MTokens: 1.5,
     },
     tags: ['low-cost', 'general-purpose', 'vision'],
-    lifecycle: 'preview',
+    lifecycle: 'production',
     capabilities: {
       supportsImages: true,
       supportsAudio: true,
       supportsTranscription: false,
       supportsSearch: true,
     },
-    aliases: ['gemini-3.1-flash-lite-preview'],
+    aliases: ['gemini-3.1-flash-lite'],
   },
   'google-ai:gemini-2.5-pro': {
     id: 'google-ai:gemini-2.5-pro',
@@ -1132,8 +1310,8 @@ export const models: Record<string, Model> = {
       maxTokens: 65536,
       costPer1MTokens: 10,
     },
-    tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision', 'coding'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'reasoning', 'agents', 'general-purpose', 'vision', 'coding'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: true,
       supportsAudio: true,
@@ -1154,8 +1332,8 @@ export const models: Record<string, Model> = {
       maxTokens: 65536,
       costPer1MTokens: 2.5,
     },
-    tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'reasoning', 'agents', 'general-purpose', 'vision'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: true,
       supportsAudio: true,
@@ -1176,8 +1354,8 @@ export const models: Record<string, Model> = {
       maxTokens: 65536,
       costPer1MTokens: 0.4,
     },
-    tags: ['recommended', 'low-cost', 'general-purpose', 'vision'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'low-cost', 'general-purpose', 'vision'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: true,
       supportsAudio: true,
@@ -1199,7 +1377,7 @@ export const models: Record<string, Model> = {
       costPer1MTokens: 0.4,
     },
     tags: ['low-cost', 'general-purpose', 'vision'],
-    lifecycle: 'deprecated',
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: true,
       supportsAudio: true,
@@ -1357,6 +1535,50 @@ export const models: Record<string, Model> = {
       supportsSearch: false,
     },
   },
+  'cerebras:zai-glm-4.7': {
+    id: 'cerebras:zai-glm-4.7',
+    name: 'GLM 4.7 (Preview)',
+    description:
+      'GLM 4.7 is a 355B-parameter frontier model from Z.ai delivering strong reasoning, coding, and agentic performance at record speed on Cerebras. It features interleaved thinking, where the model reasons before each action, and preserved thinking that persists reasoning context across turns, making it well suited for tool-driven agent workflows and multi-turn interactions.',
+    input: {
+      maxTokens: 131000,
+      costPer1MTokens: 2.25,
+    },
+    output: {
+      maxTokens: 40000,
+      costPer1MTokens: 2.75,
+    },
+    tags: ['preview', 'general-purpose', 'reasoning', 'coding', 'agents'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'cerebras:gemma-4-31b': {
+    id: 'cerebras:gemma-4-31b',
+    name: 'Gemma 4 31B (Preview)',
+    description:
+      'Gemma 4 31B is a multimodal open-weight model from Google that runs at over 1,800 tokens per second on Cerebras. It supports text and image inputs, tool calling with parallel tool calls, structured outputs via constrained decoding, and optional reasoning (disabled by default, enabled via reasoning_effort).',
+    input: {
+      maxTokens: 131000,
+      costPer1MTokens: 0.99,
+    },
+    output: {
+      maxTokens: 40000,
+      costPer1MTokens: 1.49,
+    },
+    tags: ['preview', 'general-purpose', 'vision', 'reasoning'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
   'cerebras:gpt-oss-120b': {
     id: 'cerebras:gpt-oss-120b',
     name: 'GPT-OSS 120B (Preview)',
@@ -1467,6 +1689,29 @@ export const models: Record<string, Model> = {
       supportsSearch: false,
     },
   },
+  'groq:qwen3.6-27b': {
+    id: 'groq:qwen3.6-27b',
+    name: 'Qwen3.6 27B (Preview)',
+    description:
+      "Qwen3.6-27B is a reasoning model from Alibaba served as a preview model on Groq with fast inference speeds. Groq's recommended replacement for the deprecated Qwen3-32B and Llama 4 Scout preview models.",
+    input: {
+      maxTokens: 131072,
+      costPer1MTokens: 0.6,
+    },
+    output: {
+      maxTokens: 32768,
+      costPer1MTokens: 3,
+    },
+    tags: ['preview', 'reasoning', 'general-purpose'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['qwen/qwen3.6-27b'],
+  },
   'groq:qwen3-32b': {
     id: 'groq:qwen3-32b',
     name: 'Qwen3 32B (Preview)',
@@ -1480,8 +1725,8 @@ export const models: Record<string, Model> = {
       maxTokens: 16384,
       costPer1MTokens: 0.59,
     },
-    tags: ['preview', 'reasoning', 'general-purpose'],
-    lifecycle: 'preview',
+    tags: ['deprecated', 'reasoning', 'general-purpose'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -1503,8 +1748,8 @@ export const models: Record<string, Model> = {
       maxTokens: 8192,
       costPer1MTokens: 0.34,
     },
-    tags: ['preview', 'vision', 'general-purpose', 'low-cost'],
-    lifecycle: 'preview',
+    tags: ['deprecated', 'vision', 'general-purpose', 'low-cost'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
@@ -1547,7 +1792,7 @@ export const models: Record<string, Model> = {
     },
     output: {
       maxTokens: 32000,
-      costPer1MTokens: 0.75,
+      costPer1MTokens: 0.6,
     },
     tags: ['preview', 'general-purpose', 'reasoning'],
     lifecycle: 'production',
@@ -1594,8 +1839,8 @@ export const models: Record<string, Model> = {
       maxTokens: 32768,
       costPer1MTokens: 0.79,
     },
-    tags: ['recommended', 'general-purpose', 'coding'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'general-purpose', 'coding'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -1703,8 +1948,8 @@ export const models: Record<string, Model> = {
       maxTokens: 8192,
       costPer1MTokens: 0.08,
     },
-    tags: ['low-cost', 'general-purpose'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'low-cost', 'general-purpose'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -1844,6 +2089,113 @@ export const models: Record<string, Model> = {
       supportsSearch: false,
     },
   },
+  'xai:grok-4.5': {
+    id: 'xai:grok-4.5',
+    name: 'Grok 4.5',
+    description:
+      "xAI's most intelligent and fastest model, recommended for code and chat. Features a 500K context window, configurable reasoning effort (high by default), and vision. Frontier-class performance at a low price point.",
+    input: {
+      maxTokens: 500000,
+      costPer1MTokens: 2,
+    },
+    output: {
+      maxTokens: 30000,
+      costPer1MTokens: 6,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'xai:grok-4.3': {
+    id: 'xai:grok-4.3',
+    name: 'Grok 4.3',
+    description:
+      "xAI's most intelligent and fastest Grok model, with native video input, a 1M context window, and configurable reasoning effort. Frontier-class performance at a low price point.",
+    input: {
+      maxTokens: 1000000,
+      costPer1MTokens: 1.25,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 2.5,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'xai:grok-4.20-0309-reasoning': {
+    id: 'xai:grok-4.20-0309-reasoning',
+    name: 'Grok 4.20 (Reasoning)',
+    description: 'xAI flagship model with deep reasoning capabilities and 2M context window.',
+    input: {
+      maxTokens: 2000000,
+      costPer1MTokens: 1.25,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 2.5,
+    },
+    tags: ['reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'xai:grok-4.20-0309-non-reasoning': {
+    id: 'xai:grok-4.20-0309-non-reasoning',
+    name: 'Grok 4.20 (Non-Reasoning)',
+    description: 'xAI flagship model for non-reasoning tasks with 2M context window.',
+    input: {
+      maxTokens: 2000000,
+      costPer1MTokens: 1.25,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 2.5,
+    },
+    tags: ['general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'xai:grok-build-0.1': {
+    id: 'xai:grok-build-0.1',
+    name: 'Grok Build 0.1',
+    description: 'Fast coding-optimized Grok model with a 256k context window. Successor to grok-code-fast-1.',
+    input: {
+      maxTokens: 256000,
+      costPer1MTokens: 1,
+    },
+    output: {
+      maxTokens: 32768,
+      costPer1MTokens: 2,
+    },
+    tags: ['coding', 'general-purpose'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
   'xai:grok-4-1-fast-reasoning': {
     id: 'xai:grok-4-1-fast-reasoning',
     name: 'Grok 4.1 Fast (Reasoning)',
@@ -1857,8 +2209,8 @@ export const models: Record<string, Model> = {
       maxTokens: 128000,
       costPer1MTokens: 0.5,
     },
-    tags: ['recommended', 'reasoning', 'general-purpose', 'vision', 'low-cost'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'reasoning', 'general-purpose', 'vision', 'low-cost'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
@@ -1879,50 +2231,8 @@ export const models: Record<string, Model> = {
       maxTokens: 128000,
       costPer1MTokens: 0.5,
     },
-    tags: ['recommended', 'general-purpose', 'vision', 'low-cost'],
-    lifecycle: 'production',
-    capabilities: {
-      supportsImages: true,
-      supportsAudio: false,
-      supportsTranscription: false,
-      supportsSearch: false,
-    },
-  },
-  'xai:grok-4.20-0309-reasoning': {
-    id: 'xai:grok-4.20-0309-reasoning',
-    name: 'Grok 4.20 (Reasoning)',
-    description: 'xAI flagship model with deep reasoning capabilities and 2M context window.',
-    input: {
-      maxTokens: 2000000,
-      costPer1MTokens: 2,
-    },
-    output: {
-      maxTokens: 128000,
-      costPer1MTokens: 6,
-    },
-    tags: ['reasoning', 'general-purpose', 'vision'],
-    lifecycle: 'production',
-    capabilities: {
-      supportsImages: true,
-      supportsAudio: false,
-      supportsTranscription: false,
-      supportsSearch: false,
-    },
-  },
-  'xai:grok-4.20-0309-non-reasoning': {
-    id: 'xai:grok-4.20-0309-non-reasoning',
-    name: 'Grok 4.20 (Non-Reasoning)',
-    description: 'xAI flagship model for non-reasoning tasks with 2M context window.',
-    input: {
-      maxTokens: 2000000,
-      costPer1MTokens: 2,
-    },
-    output: {
-      maxTokens: 128000,
-      costPer1MTokens: 6,
-    },
-    tags: ['general-purpose', 'vision'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'general-purpose', 'vision', 'low-cost'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
@@ -1942,8 +2252,8 @@ export const models: Record<string, Model> = {
       maxTokens: 32768,
       costPer1MTokens: 1.5,
     },
-    tags: ['coding', 'general-purpose', 'low-cost'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'coding', 'general-purpose', 'low-cost'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -1963,8 +2273,8 @@ export const models: Record<string, Model> = {
       maxTokens: 128000,
       costPer1MTokens: 0.5,
     },
-    tags: ['reasoning', 'general-purpose'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'reasoning', 'general-purpose'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
@@ -1984,8 +2294,8 @@ export const models: Record<string, Model> = {
       maxTokens: 128000,
       costPer1MTokens: 0.5,
     },
-    tags: ['low-cost', 'general-purpose'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'low-cost', 'general-purpose'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
@@ -2005,8 +2315,8 @@ export const models: Record<string, Model> = {
       maxTokens: 32768,
       costPer1MTokens: 15,
     },
-    tags: ['reasoning', 'general-purpose'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'reasoning', 'general-purpose'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
@@ -2047,14 +2357,37 @@ export const models: Record<string, Model> = {
       maxTokens: 16384,
       costPer1MTokens: 15,
     },
-    tags: ['general-purpose'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'general-purpose'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
       supportsTranscription: false,
       supportsSearch: false,
     },
+  },
+  'openrouter:glm-4.7': {
+    id: 'openrouter:glm-4.7',
+    name: 'GLM 4.7',
+    description:
+      'GLM 4.7 is a frontier model from Z.ai delivering strong reasoning, coding, and agentic performance. It features interleaved thinking, where the model reasons before each action, and preserved thinking that persists reasoning context across turns, making it well suited for tool-driven agent workflows and multi-turn interactions.',
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 0.4,
+    },
+    output: {
+      maxTokens: 32000,
+      costPer1MTokens: 1.75,
+    },
+    tags: ['general-purpose', 'reasoning', 'coding', 'agents'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['z-ai/glm-4.7'],
   },
   'openrouter:gpt-oss-120b': {
     id: 'openrouter:gpt-oss-120b',
@@ -2114,8 +2447,8 @@ export const models: Record<string, Model> = {
       maxTokens: 16384,
       costPer1MTokens: 3,
     },
-    tags: ['reasoning', 'general-purpose', 'agents'],
-    lifecycle: 'production',
+    tags: ['reasoning', 'general-purpose', 'agents', 'deprecated'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -2123,6 +2456,98 @@ export const models: Record<string, Model> = {
       supportsSearch: false,
     },
     aliases: ['accounts/fireworks/models/kimi-k2p5'],
+  },
+  'fireworks-ai:glm-5p2': {
+    id: 'fireworks-ai:glm-5p2',
+    name: 'GLM 5.2',
+    description:
+      'GLM 5.2 is a frontier model from Z.ai with strong reasoning, coding, and agentic performance and a 1M+ context window. Well suited for tool-driven agent workflows and multi-turn interactions.',
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 1.4,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 4.4,
+    },
+    tags: ['reasoning', 'general-purpose', 'coding', 'agents'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/glm-5p2'],
+  },
+  'fireworks-ai:minimax-m3': {
+    id: 'fireworks-ai:minimax-m3',
+    name: 'MiniMax M3',
+    description:
+      'MiniMax M3 is a multimodal mixture-of-experts model with a 512K context window, supporting text and image input, tool calling, and reasoning. Optimized for cost-effective agentic and long-context workloads.',
+    input: {
+      maxTokens: 512000,
+      costPer1MTokens: 0.3,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 1.2,
+    },
+    tags: ['reasoning', 'general-purpose', 'vision', 'agents'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/minimax-m3'],
+  },
+  'fireworks-ai:qwen3p7-plus': {
+    id: 'fireworks-ai:qwen3p7-plus',
+    name: 'Qwen3.7 Plus',
+    description:
+      'Qwen3.7 Plus is a multimodal model from Alibaba with a 262K context window, supporting text and image input, tool calling, and reasoning across coding and general-purpose tasks.',
+    input: {
+      maxTokens: 262144,
+      costPer1MTokens: 0.4,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 1.6,
+    },
+    tags: ['reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/qwen3p7-plus'],
+  },
+  'fireworks-ai:kimi-k2p7-code': {
+    id: 'fireworks-ai:kimi-k2p7-code',
+    name: 'Kimi K2.7 Code',
+    description:
+      'Kimi K2.7 Code is a coding-focused mixture-of-experts agentic model with strong long-horizon task performance and a 262K context window. Supports text and image input and tool calling.',
+    input: {
+      maxTokens: 262144,
+      costPer1MTokens: 0.95,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 4,
+    },
+    tags: ['reasoning', 'general-purpose', 'agents', 'coding', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/kimi-k2p7-code'],
   },
   'fireworks-ai:qwen3-8b': {
     id: 'fireworks-ai:qwen3-8b',
@@ -2137,8 +2562,8 @@ export const models: Record<string, Model> = {
       maxTokens: 16384,
       costPer1MTokens: 0.2,
     },
-    tags: ['low-cost', 'general-purpose', 'reasoning'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'low-cost', 'general-purpose', 'reasoning'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -2206,8 +2631,8 @@ export const models: Record<string, Model> = {
       maxTokens: 160000,
       costPer1MTokens: 1.68,
     },
-    tags: ['recommended', 'reasoning', 'general-purpose', 'coding'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'reasoning', 'general-purpose', 'coding'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -2229,8 +2654,8 @@ export const models: Record<string, Model> = {
       maxTokens: 163840,
       costPer1MTokens: 1.68,
     },
-    tags: ['reasoning', 'general-purpose', 'coding'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'reasoning', 'general-purpose', 'coding'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -2344,8 +2769,8 @@ export const models: Record<string, Model> = {
       maxTokens: 16384,
       costPer1MTokens: 0.9,
     },
-    tags: ['general-purpose'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'general-purpose'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -2603,6 +3028,116 @@ export const models: Record<string, Model> = {
       supportsImages: false,
       supportsAudio: false,
       supportsTranscription: true,
+      supportsSearch: false,
+    },
+  },
+  'inception:mercury-2': {
+    id: 'inception:mercury-2',
+    name: 'Mercury 2',
+    description:
+      "Inception Labs' diffusion language model. Generates tokens in parallel rather than autoregressively for very high throughput. Supports native tool use, schema-aligned JSON output, and tunable reasoning, with a 128K context window.",
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.25,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 0.75,
+    },
+    tags: ['preview', 'general-purpose', 'coding', 'agents', 'reasoning', 'low-cost'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'cohere:command-a-03-2025': {
+    id: 'cohere:command-a-03-2025',
+    name: 'Command A',
+    description:
+      "Cohere's most performant general-purpose model. Excels at agentic tool use, RAG, and multilingual tasks with a 256K context window.",
+    input: {
+      maxTokens: 256000,
+      costPer1MTokens: 2.5,
+    },
+    output: {
+      maxTokens: 8192,
+      costPer1MTokens: 10,
+    },
+    tags: ['recommended', 'general-purpose', 'agents'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'cohere:command-r7b-12-2024': {
+    id: 'cohere:command-r7b-12-2024',
+    name: 'Command R7B',
+    description:
+      "Cohere's smallest and fastest Command model. Optimized for low-cost, high-throughput RAG and tool-use workloads with a 128K context window.",
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.0375,
+    },
+    output: {
+      maxTokens: 4096,
+      costPer1MTokens: 0.15,
+    },
+    tags: ['general-purpose', 'low-cost'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'cohere:command-r-plus-08-2024': {
+    id: 'cohere:command-r-plus-08-2024',
+    name: 'Command R+',
+    description:
+      'Cohere flagship of the previous generation, tuned for complex RAG and multi-step tool use with a 128K context window.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 2.5,
+    },
+    output: {
+      maxTokens: 4096,
+      costPer1MTokens: 10,
+    },
+    tags: ['general-purpose'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'cohere:command-r-08-2024': {
+    id: 'cohere:command-r-08-2024',
+    name: 'Command R',
+    description:
+      'Cost-effective Cohere model for RAG and tool use, with strong multilingual performance and a 128K context window.',
+    input: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.15,
+    },
+    output: {
+      maxTokens: 4096,
+      costPer1MTokens: 0.6,
+    },
+    tags: ['general-purpose', 'low-cost'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
       supportsSearch: false,
     },
   },

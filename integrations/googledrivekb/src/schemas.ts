@@ -141,6 +141,14 @@ function createListOutputSchema<T extends z.ZodTypeAny>(itemSchema: T) {
 export const readFileArgSchema = z.object({ id: fileIdSchema.title('File ID') })
 export const listItemsInputSchema = z.object({
   nextToken: z.string().optional().title('Next Token').describe('The token to use to get the next page of results'),
+  pageSize: z
+    .number()
+    .int()
+    .min(1)
+    .max(1000)
+    .optional()
+    .title('Page Size')
+    .describe('The maximum number of items to return per page. If not set, a default page size is used'),
 })
 export const listItemsOutputSchema = createListOutputSchema(z.any())
 export const listFilesOutputSchema = createListOutputSchema(fileSchema)

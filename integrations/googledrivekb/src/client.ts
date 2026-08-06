@@ -103,8 +103,8 @@ export class Client {
     }
   }
 
-  public async listFiles({ nextToken }: ListItemsInput): Promise<ListFilesOutput> {
-    const { items: baseFiles, meta } = await this._listBaseNormalFiles({ nextToken })
+  public async listFiles({ nextToken, pageSize }: ListItemsInput): Promise<ListFilesOutput> {
+    const { items: baseFiles, meta } = await this._listBaseNormalFiles({ nextToken, pageSize })
     const completeFilesPromises = baseFiles.map((f) => this._getCompleteFileFromBaseFile(f))
     const items = await Promise.all(completeFilesPromises)
     return {
@@ -113,12 +113,16 @@ export class Client {
     }
   }
 
-  private async _listBaseNormalFiles({ nextToken }: ListItemsInput): Promise<ListItemsOutput<BaseNormalFile>> {
+  private async _listBaseNormalFiles({
+    nextToken,
+    pageSize,
+  }: ListItemsInput): Promise<ListItemsOutput<BaseNormalFile>> {
     const {
       items: newFiles,
       meta: { nextToken: newNextToken },
     } = await this._listBaseGenericFiles({
       nextToken,
+      pageSize,
       args: {
         searchQuery: `mimeType != '${APP_GOOGLE_FOLDER_MIMETYPE}' and mimeType != '${APP_GOOGLE_SHORTCUT_MIMETYPE}'`,
       },
@@ -133,8 +137,8 @@ export class Client {
     }
   }
 
-  public async listFolders({ nextToken }: ListItemsInput): Promise<ListFoldersOutput> {
-    const { items: baseFolders, meta } = await this._listBaseFolderFiles({ nextToken })
+  public async listFolders({ nextToken, pageSize }: ListItemsInput): Promise<ListFoldersOutput> {
+    const { items: baseFolders, meta } = await this._listBaseFolderFiles({ nextToken, pageSize })
 
     const completeFoldersPromises = baseFolders.map((f) => this._getCompleteFolderFromBaseFolder(f))
     const items = await Promise.all(completeFoldersPromises)
@@ -144,12 +148,16 @@ export class Client {
     }
   }
 
-  private async _listBaseFolderFiles({ nextToken }: ListItemsInput): Promise<ListItemsOutput<BaseFolderFile>> {
+  private async _listBaseFolderFiles({
+    nextToken,
+    pageSize,
+  }: ListItemsInput): Promise<ListItemsOutput<BaseFolderFile>> {
     const {
       items: newFiles,
       meta: { nextToken: newNextToken },
     } = await this._listBaseGenericFiles({
       nextToken,
+      pageSize,
       args: {
         searchQuery: `mimeType = '${APP_GOOGLE_FOLDER_MIMETYPE}'`,
       },
@@ -179,10 +187,12 @@ export class Client {
     folderId,
     extraQuery,
     nextToken,
+    pageSize,
   }: {
     folderId: string
     extraQuery?: string
     nextToken?: string
+    pageSize?: number
   }) {
     const searchQuery = this._getParentsFilter(folderId) + (extraQuery ? ` and ${extraQuery}` : '')
     const listResponse = await this._googleClient.files.list({
@@ -190,7 +200,7 @@ export class Client {
       fields: GOOGLE_API_FILELIST_FIELDS,
       q: `${searchQuery} and trashed != true`,
       pageToken: nextToken,
-      pageSize: PAGE_SIZE,
+      pageSize: pageSize ?? PAGE_SIZE,
       spaces: 'drive',
       ...INCLUDE_FILES_FROM_ALL_DRIVES,
     })
@@ -392,6 +402,7 @@ export class Client {
 
   private async _listBaseGenericFiles({
     nextToken,
+    pageSize,
     args,
   }: ListItemsInputWithArgs<{ searchQuery?: string }>): Promise<ListItemsOutput<BaseDiscriminatedFile>> {
     const searchQuery = args?.searchQuery
@@ -400,7 +411,7 @@ export class Client {
       fields: GOOGLE_API_FILELIST_FIELDS,
       q: (searchQuery ?? '') + (searchQuery?.length ? ' and ' : '') + 'trashed != true',
       pageToken: nextToken,
-      pageSize: PAGE_SIZE,
+      pageSize: pageSize ?? PAGE_SIZE,
       spaces: 'drive',
       ...INCLUDE_FILES_FROM_ALL_DRIVES,
     })
