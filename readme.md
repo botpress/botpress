@@ -17,7 +17,7 @@
 [Plugins](#plugins)
 
 <img src="https://user-images.githubusercontent.com/10071388/248040379-8aee1b03-c483-4040-8ee0-741554310e88.png" width="800">
-  
+
 </div>
 
 ## This Repository
@@ -104,8 +104,8 @@ Coming soon.
 | **Package**                                                          | **Description**                                         | **Docs**                                                               | **Code**               |
 | -------------------------------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------- |
 | [`@botpress/cli`](https://www.npmjs.com/package/@botpress/cli)       | Build, Deploy and Manage Bots, Integrations and Plugins | [Docs](https://www.botpress.com/docs/for-developers/sdk/cli-reference) | [Code](./packages/cli) |
-| [`@botpress/client`](https://www.npmjs.com/package/@botpress/client) | Type-safe clients to consume the Botpress APIs          | [Docs]()                                                               | [Code]()               |
-| [`@botpress/sdk`](https://www.npmjs.com/package/@botpress/sdk)       | SDK used by to build integrations                       | [Docs]()                                                               | [Code]()               |
+| [`@botpress/client`](https://www.npmjs.com/package/@botpress/client) | Type-safe clients to consume the Botpress APIs          | [Docs](<>)                                                             | [Code](<>)             |
+| [`@botpress/sdk`](https://www.npmjs.com/package/@botpress/sdk)       | SDK used by to build integrations                       | [Docs](<>)                                                             | [Code](<>)             |
 
 ## Local Development
 

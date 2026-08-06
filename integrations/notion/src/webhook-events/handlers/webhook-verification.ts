@@ -8,8 +8,8 @@ const NOTIFICATION_PAYLOAD = sdk.z.object({
 export const isWebhookVerificationRequest = (props: bp.HandlerProps): boolean =>
   Boolean(
     props.req.method.toUpperCase() === 'POST' &&
-      props.req.body?.length &&
-      NOTIFICATION_PAYLOAD.safeParse(JSON.parse(props.req.body)).success
+    props.req.body?.length &&
+    NOTIFICATION_PAYLOAD.safeParse(JSON.parse(props.req.body)).success
   )
 
 export const handleWebhookVerificationRequest: bp.IntegrationProps['handler'] = async (props) => {
