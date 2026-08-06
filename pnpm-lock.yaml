@@ -1070,6 +1070,9 @@ importers:
       '@types/react-dom':
         specifier: ^18.3.1
         version: 18.3.1
+      oxfmt:
+        specifier: ^0.61.0
+        version: 0.61.0
 
   integrations/google-ai:
     dependencies:
@@ -1954,6 +1957,9 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
+      oxfmt:
+        specifier: ^0.61.0
+        version: 0.61.0
 
   integrations/stripe:
     dependencies:
@@ -3023,6 +3029,9 @@ importers:
       esbuild:
         specifier: ^0.25.10
         version: 0.25.10
+      oxfmt:
+        specifier: ^0.61.0
+        version: 0.61.0
       rollup:
         specifier: ^4.60.4
         version: 4.60.4
