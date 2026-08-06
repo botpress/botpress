@@ -3169,9 +3169,9 @@ importers:
       glob:
         specifier: ^9.3.4
         version: 9.3.5
-      prettier:
-        specifier: ^3.4.2
-        version: 3.4.2
+      oxfmt:
+        specifier: ^0.61.0
+        version: 0.61.0
       source-map-js:
         specifier: 1.2.1
         version: 1.2.1(patch_hash=0354139cbc5dbd66e1bc59167ff8e42d3a9a2169038a35f1b7b1b4b843e08a6c)
