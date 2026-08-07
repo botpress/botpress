@@ -15,12 +15,13 @@ _Donnez le contexte de ce projet et expliquez comment il s'inscrit dans les obje
 ## \uD83D\uDCCA Métriques de réussite
 
 _Répertoriez les objectifs de projet et métriques que vous utiliserez pour évaluer la réussite de celui-ci._
-| **Objectif** | **Métrique** |
-| --- | --- |
-| _P. ex., simplifier l'expérience utilisateur_
-| _P. ex., le score de satisfaction client augmente_
-|
-| | |
+
+| **Objectif**                                       | **Métrique** |
+| -------------------------------------------------- | ------------ |
+| _P. ex., simplifier l'expérience utilisateur_      |
+| _P. ex., le score de satisfaction client augmente_ |
+|                                                    |
+|                                                    |              |
 
 ## \uD83E\uDD14 Hypothèses
 

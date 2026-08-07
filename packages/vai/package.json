@@ -46,7 +46,7 @@
   "peerDependencies": {
     "@botpress/client": "2.1.0",
     "@bpinternal/thicktoken": "^3.0.0",
-    "@bpinternal/zui": "^2.4.0",
+    "@bpinternal/zui": "^2.4.1",
     "lodash": "^4.17.21",
     "vitest": "^2 || ^3 || ^4 || ^5"
   },

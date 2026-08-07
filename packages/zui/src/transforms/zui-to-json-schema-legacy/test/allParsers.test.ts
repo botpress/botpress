@@ -3,9 +3,9 @@ import { zodToJsonSchema } from '../zodToJsonSchema'
 import * as z from '../../../z'
 
 enum nativeEnum {
-  'a',
-  'b',
-  'c',
+  a,
+  b,
+  c,
 }
 
 export const allParsersSchema = z

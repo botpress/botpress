@@ -6,8 +6,8 @@
     "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",
-    "check:format": "prettier --check .",
-    "fix:format": "prettier --write .",
+    "check:format": "oxfmt --check .",
+    "fix:format": "oxfmt .",
     "check:lint": "eslint ./ --ext .ts --ext .tsx",
     "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx",
     "test": "vitest --run"
@@ -31,6 +31,7 @@
     "@botpress/sdk": "workspace:*",
     "@types/nodemailer": "^6.4.4",
     "@types/react": "^18.3.11",
-    "@types/react-dom": "^18.3.1"
+    "@types/react-dom": "^18.3.1",
+    "oxfmt": "^0.61.0"
   }
 }

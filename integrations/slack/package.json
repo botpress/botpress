@@ -5,8 +5,8 @@
     "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",
-    "check:format": "prettier --check .",
-    "fix:format": "prettier --write .",
+    "check:format": "oxfmt --check .",
+    "fix:format": "oxfmt .",
     "check:lint": "eslint ./ --ext .ts --ext .tsx",
     "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx",
     "test": "vitest --run"
@@ -24,7 +24,8 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
-    "@botpress/sdk": "workspace:*"
+    "@botpress/sdk": "workspace:*",
+    "oxfmt": "^0.61.0"
   },
   "bpDependencies": {
     "typing-indicator": "../../interfaces/typing-indicator",

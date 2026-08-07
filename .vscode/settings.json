@@ -1,9 +1,9 @@
 {
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "editor.tabSize": 2,
   "git.branchProtection": ["master"],

@@ -12,9 +12,7 @@ const LanguageModels: Record<ModelId, llm.ModelDetails> = {
     name: 'Mistral Large 3',
     description:
       'Mistral Large 3, is a state-of-the-art, open-weight, general-purpose multimodal model with a granular Mixture-of-Experts architecture. It features 41B active parameters and 675B total parameters.',
-    tags: [
-      /* TODO: Add tags */
-    ],
+    tags: [/* TODO: Add tags */],
     input: {
       costPer1MTokens: 0.5,
       maxTokens: 256_000,
@@ -27,9 +25,7 @@ const LanguageModels: Record<ModelId, llm.ModelDetails> = {
   'mistral-medium-2508': {
     name: 'Mistral Medium 3.1',
     description: 'Frontier-class multimodal model released August 2025. Improving tone and performance.',
-    tags: [
-      /* TODO: Add tags */
-    ],
+    tags: [/* TODO: Add tags */],
     input: {
       costPer1MTokens: 0.4,
       maxTokens: 128_000,
@@ -42,9 +38,7 @@ const LanguageModels: Record<ModelId, llm.ModelDetails> = {
   'mistral-small-2506': {
     name: 'Mistral Small 3.2',
     description: 'An update to the previous small model, released June 2025.',
-    tags: [
-      /* TODO: Add tags */
-    ],
+    tags: [/* TODO: Add tags */],
     input: {
       costPer1MTokens: 0.1,
       maxTokens: 128_000,
@@ -58,9 +52,7 @@ const LanguageModels: Record<ModelId, llm.ModelDetails> = {
     name: 'Ministral 3 14B',
     description:
       'Ministral 3 14B is the largest model in the Ministral 3 family, offering state-of-the-art capabilities and performance comparable to its larger Mistral Small 3.2 24B counterpart.',
-    tags: [
-      /* TODO: Add tags */
-    ],
+    tags: [/* TODO: Add tags */],
     input: {
       costPer1MTokens: 0.2,
       maxTokens: 256_000,
@@ -74,9 +66,7 @@ const LanguageModels: Record<ModelId, llm.ModelDetails> = {
     name: 'Ministral 3 8B',
     description:
       'Ministral 3 8B is a powerful and efficient model in the Ministral 3 family, offering best-in-class text and vision capabilities.',
-    tags: [
-      /* TODO: Add tags */
-    ],
+    tags: [/* TODO: Add tags */],
     input: {
       costPer1MTokens: 0.15,
       maxTokens: 256_000,
@@ -90,9 +80,7 @@ const LanguageModels: Record<ModelId, llm.ModelDetails> = {
     name: 'Ministral 3 3B',
     description:
       'Ministral 3 3B is the smallest and most efficient model in the Ministral 3 family, offering robust language and vision capabilities in a compact package.',
-    tags: [
-      /* TODO: Add tags */
-    ],
+    tags: [/* TODO: Add tags */],
     input: {
       costPer1MTokens: 0.1,
       maxTokens: 256_000,
@@ -105,9 +93,7 @@ const LanguageModels: Record<ModelId, llm.ModelDetails> = {
   'magistral-medium-2509': {
     name: 'Magistral Medium 1.2',
     description: 'Frontier-class multimodal reasoning model update of September 2025.',
-    tags: [
-      /* TODO: Add tags */
-    ],
+    tags: [/* TODO: Add tags */],
     input: {
       costPer1MTokens: 2,
       maxTokens: 128_000,
@@ -120,9 +106,7 @@ const LanguageModels: Record<ModelId, llm.ModelDetails> = {
   'magistral-small-2509': {
     name: 'Magistral Small 1.2',
     description: 'Small multimodal reasoning model update of September 2025.',
-    tags: [
-      /* TODO: Add tags */
-    ],
+    tags: [/* TODO: Add tags */],
     input: {
       costPer1MTokens: 0.5,
       maxTokens: 128_000,

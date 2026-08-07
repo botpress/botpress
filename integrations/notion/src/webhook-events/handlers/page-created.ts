@@ -14,8 +14,8 @@ const NOTIFICATION_PAYLOAD = BASE_EVENT_PAYLOAD.extend({
 export const isPageCreatedEvent = (props: bp.HandlerProps): boolean =>
   Boolean(
     props.req.method.toUpperCase() === 'POST' &&
-      props.req.body?.length &&
-      NOTIFICATION_PAYLOAD.safeParse(JSON.parse(props.req.body)).success
+    props.req.body?.length &&
+    NOTIFICATION_PAYLOAD.safeParse(JSON.parse(props.req.body)).success
   )
 
 export const handlePageCreatedEvent: bp.IntegrationProps['handler'] = async (props) => {
