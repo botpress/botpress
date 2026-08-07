@@ -45,7 +45,7 @@ export const configurations = {
         .number()
         .positive()
         .title('GitHub App Installation ID')
-        .describe('Please refer to the integration documentation for details on how to obtain this.'),
+        .describe('Please refer to the integration documentation for details on how to obtain this.')
       ...webhookSecret,
     }),
   },
