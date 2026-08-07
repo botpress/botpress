@@ -53,6 +53,7 @@ To set up the Gmail integration manually, you must create a Google Cloud Platfor
    https://www.googleapis.com/auth/userinfo.profile
    https://www.googleapis.com/auth/gmail.readonly
    https://www.googleapis.com/auth/gmail.send
+   https://www.googleapis.com/auth/gmail.compose
    ```
 
 8. Click the `Add to table` button, followed by the `Update` button.
@@ -155,7 +156,7 @@ To set up the Gmail integration manually, you must create a Google Cloud Platfor
 2. Once logged in, go to the following URL in your browser:
 
    ```
-   https://accounts.google.com/o/oauth2/auth?response_type=code&scope=https://www.googleapis.com/auth/gmail.readonly%20https://www.googleapis.com/auth/gmail.send&access_type=offline&prompt=consent&redirect_uri=https://botpress.com&client_id=
+   https://accounts.google.com/o/oauth2/auth?response_type=code&scope=https://www.googleapis.com/auth/gmail.readonly%20https://www.googleapis.com/auth/gmail.send%20https://www.googleapis.com/auth/gmail.compose&access_type=offline&prompt=consent&redirect_uri=https://botpress.com&client_id=
    ```
 
    > Make sure to add your OAuth **client ID** to the end of the URL. For example, if your OAuth client ID is `abcd`, the URL should end with `&client_id=abcd`.
