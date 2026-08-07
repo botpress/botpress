@@ -2776,7 +2776,7 @@ importers:
         specifier: 2.1.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 7.0.1
+        specifier: 7.0.2
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2900,7 +2900,7 @@ importers:
         specifier: 2.1.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 7.0.1
+        specifier: 7.0.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2916,7 +2916,7 @@ importers:
         specifier: 2.1.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 7.0.1
+        specifier: 7.0.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2929,7 +2929,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 7.0.1
+        specifier: 7.0.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2945,7 +2945,7 @@ importers:
         specifier: 2.1.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 7.0.1
+        specifier: 7.0.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2961,7 +2961,7 @@ importers:
         specifier: 2.1.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 7.0.1
+        specifier: 7.0.2
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -3182,7 +3182,7 @@ importers:
         specifier: 2.1.0
         version: link:../client
       '@bpinternal/zui':
-        specifier: ^2.4.0
+        specifier: ^2.4.1
         version: link:../zui
       browser-or-node:
         specifier: ^2.1.1
