@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
-    "module": "ESNext",
+    "module": "preserve",
     "moduleResolution": "Bundler",
     "target": "ES2017",
     "strict": true,

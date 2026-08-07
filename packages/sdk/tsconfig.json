@@ -1,6 +1,8 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "noErrorTruncation": true,
     "paths": {
       "esbuild-plugin-polyfill-node": ["./node_modules/esbuild-plugin-polyfill-node/dist/index.d.ts"]
