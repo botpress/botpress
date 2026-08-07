@@ -1,6 +1,6 @@
 {
   "name": "@botpress/vai",
-  "version": "0.0.43",
+  "version": "0.0.44",
   "files": [
     "dist",
     "ensure-env.cjs"
@@ -21,8 +21,8 @@
     "check:type": "tsc --noEmit",
     "build": "pnpm run build:types && pnpm run build:neutral",
     "build:neutral": "ts-node -T ./build.ts",
-    "build:types": "tsup",
-    "watch": "tsup --watch",
+    "build:types": "tsdown",
+    "watch": "tsdown --watch",
     "test:e2e": "vitest run --config vitest.config.ts",
     "test:e2e:update": "vitest -u run --config vitest.config.ts",
     "test:e2e:watch": "vitest --config vitest.config.ts"
@@ -41,7 +41,7 @@
     "dotenv": "^16.4.4",
     "esbuild": "^0.25.10",
     "glob": "^9.3.4",
-    "tsup": "^8.0.2"
+    "tsdown": "^0.22.1"
   },
   "peerDependencies": {
     "@botpress/client": "2.1.0",
