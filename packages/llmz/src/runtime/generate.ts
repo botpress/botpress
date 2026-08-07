@@ -150,6 +150,12 @@ export const generateCode = async ({
     model: model.id,
   })
 
+  // Only set when the prompt carries audio (voice messages): tells cognitive
+  // which STT model to transcribe with when the LLM lacks native audio support
+  const hasAudioParts = messages.some(
+    (message) => Array.isArray(message.content) && message.content.some((part) => part.type === 'audio')
+  )
+
   const input: Parameters<RuntimeCognitive['generateText']>[0] = {
     model: iteration.model,
     temperature: iteration.temperature,
@@ -158,6 +164,7 @@ export const generateCode = async ({
     messages,
     stopSequences: ctx.version.getStopTokens(),
     meta: metadata ? { metadata } : undefined,
+    options: hasAudioParts ? { transcriptionModel: ctx.transcriptionModel ?? 'fast' } : undefined,
   }
 
   let responseMetadata: CognitiveMetadata | undefined
@@ -233,7 +240,9 @@ export const generateCode = async ({
         ...input,
         // Passed through to the cognitive request: fall back to the next
         // model/provider when the first token takes too long
-        ...(ctx.maxTimeToFirstToken ? { options: { maxTimeToFirstToken: ctx.maxTimeToFirstToken } } : {}),
+        ...(ctx.maxTimeToFirstToken
+          ? { options: { ...input.options, maxTimeToFirstToken: ctx.maxTimeToFirstToken } }
+          : {}),
       },
       { signal: streamController.signal }
     )

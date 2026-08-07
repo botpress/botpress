@@ -1,5 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import { z } from '@botpress/sdk'
+import { publishMessageStreamInputSchema } from './definitions/actions'
 import { messages } from './definitions/channels/messages'
 import { apiVersion } from './src/gen/version'
 
@@ -48,6 +49,16 @@ export default new sdk.IntegrationDefinition({
     },
   },
   actions: {
+    publishMessageStream: {
+      title: 'Publish Message Stream',
+      description: 'Publish a transient message stream delta or abort signal',
+      input: {
+        schema: publishMessageStreamInputSchema,
+      },
+      output: {
+        schema: z.object({}),
+      },
+    },
     sendEvent: {
       title: 'Send Custom Event',
       description: 'Send a custom event from the bot to the chat client',

@@ -46,12 +46,24 @@ export const echoHandler = async (
     client,
     logger,
     tags: messageTags,
-    createMessageOverride: async ({ type, payload }) => {
+    createMessageOverride: async ({ type, payload, caption }) => {
+      const importedMessage =
+        caption && (type === 'image' || type === 'video' || type === 'file')
+          ? {
+              type: 'bloc' as const,
+              payload: {
+                items: [
+                  { type, payload } as bp.channels.channel.Messages['bloc']['items'][number],
+                  { type: 'text' as const, payload: { text: caption } },
+                ],
+              },
+            }
+          : { type, payload }
+
       const { messages } = await client._inner.importMessages({
         messages: [
           {
-            type,
-            payload,
+            ...importedMessage,
             userId: user.id,
             conversationId: conversation.id,
             tags: messageTags,

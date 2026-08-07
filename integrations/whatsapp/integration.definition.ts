@@ -1,5 +1,5 @@
 import { posthogHelper } from '@botpress/common'
-import { z, IntegrationDefinition, messages } from '@botpress/sdk'
+import { z, IntegrationDefinition, messages, WELL_KNOWN_ATTRIBUTES } from '@botpress/sdk'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import typingIndicator from 'bp_modules/typing-indicator'
 import {
@@ -99,10 +99,18 @@ const startConversationProps = {
             ),
           templateHeaderParams: z
             .discriminatedUnion('type', [
-              z.object({ type: z.literal('text'), value: z.string(), parameterName: z.string().optional() }),
+              z.object({
+                type: z.literal('text'),
+                value: z.string(),
+                parameterName: z.string().optional(),
+              }),
               z.object({ type: z.literal('image'), url: z.string() }),
               z.object({ type: z.literal('video'), url: z.string() }),
-              z.object({ type: z.literal('document'), url: z.string(), filename: z.string().optional() }),
+              z.object({
+                type: z.literal('document'),
+                url: z.string(),
+                filename: z.string().optional(),
+              }),
             ])
             .optional()
             .title('Template header parameters')
@@ -157,7 +165,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.18.2'
+export const INTEGRATION_VERSION = '4.18.3'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
@@ -514,6 +522,30 @@ export default new IntegrationDefinition({
             .optional()
             .title('Next Cursor')
             .describe('Cursor for fetching the next page. Undefined if no more pages.'),
+        }),
+      },
+    },
+    getBusinessPhoneNumbers: {
+      title: 'Get Business Phone Numbers',
+      description: 'Returns the WhatsApp phone number(s) of the business linked with the current integration',
+      attributes: { ...WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO },
+      input: {
+        schema: z.object({}),
+      },
+      output: {
+        schema: z.object({
+          phoneNumbers: z
+            .array(
+              z.object({
+                id: z.string().title('Phone Number ID').describe('WhatsApp phone number ID'),
+                displayPhoneNumber: z
+                  .string()
+                  .title('Display Phone Number')
+                  .describe('Phone number in international display format'),
+              })
+            )
+            .title('Phone Numbers')
+            .describe('Phone numbers linked with the current integration'),
         }),
       },
     },

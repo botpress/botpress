@@ -18,7 +18,11 @@ export class WebhookEmitter implements SignalEmitter {
   }
 
   public async emit(_channel: string, signal: Signal): Promise<void> {
-    await this._client.post('/', signal).catch(this._handleError)
+    await this.emitOrThrow(_channel, signal).catch(this._handleError)
+  }
+
+  public async emitOrThrow(_channel: string, signal: Signal): Promise<void> {
+    await this._client.post('/', signal)
   }
 
   public async close(): Promise<void> {

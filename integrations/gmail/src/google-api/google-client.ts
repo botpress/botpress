@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import { gmail_v1, google } from 'googleapis'
 import { IntegrationConfig } from 'src/config/integration-config'
-import { composeRawEmail } from 'src/utils/mail-composing'
+import { composeRawEmail, generateMarkdownMessage } from 'src/utils/mail-composing'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { GmailClient, GoogleOAuth2Client } from './types'
 import * as bp from '.botpress'
@@ -263,7 +263,9 @@ class MessageManagement {
       to,
       subject,
       text: body,
-      html: body,
+      // Render the body as markdown for the HTML part (parity with the channel handlers), keeping the raw
+      // body as the plain-text fallback. Lets draft actions send formatted email instead of literal markdown.
+      html: generateMarkdownMessage({ markdown: body }),
       textEncoding: 'base64',
     })
 
