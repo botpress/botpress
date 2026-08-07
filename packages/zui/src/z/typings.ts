@@ -343,6 +343,49 @@ export type SafeParseError<Input> = {
 
 export type SafeParseReturnType<Input, Output> = SafeParseSuccess<Output> | SafeParseError<Input>
 
+//* ─────────────────────────── Standard Schema (https://standardschema.dev) ──
+
+export interface StandardSchemaV1<Input = unknown, Output = Input> {
+  readonly '~standard': StandardSchemaV1.Props<Input, Output>
+}
+
+export declare namespace StandardSchemaV1 {
+  export interface Props<Input = unknown, Output = Input> {
+    readonly version: 1
+    readonly vendor: string
+    readonly validate: (value: unknown) => Result<Output> | Promise<Result<Output>>
+    readonly types?: Types<Input, Output> | undefined
+  }
+
+  export type Result<Output> = SuccessResult<Output> | FailureResult
+
+  export interface SuccessResult<Output> {
+    readonly value: Output
+    readonly issues?: undefined
+  }
+
+  export interface FailureResult {
+    readonly issues: ReadonlyArray<Issue>
+  }
+
+  export interface Issue {
+    readonly message: string
+    readonly path?: ReadonlyArray<PropertyKey | PathSegment> | undefined
+  }
+
+  export interface PathSegment {
+    readonly key: PropertyKey
+  }
+
+  export interface Types<Input = unknown, Output = Input> {
+    readonly input: Input
+    readonly output: Output
+  }
+
+  export type InferInput<Schema extends StandardSchemaV1> = NonNullable<Schema['~standard']['types']>['input']
+  export type InferOutput<Schema extends StandardSchemaV1> = NonNullable<Schema['~standard']['types']>['output']
+}
+
 export type ParseParams = {
   path: (string | number)[]
   errorMap: ZodErrorMap
@@ -429,6 +472,7 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
   ): Promise<SafeParseReturnType<this['_input'], this['_output']>>
   /** Alias of safeParseAsync */
   spa: (data: unknown, params?: Partial<ParseParams>) => Promise<SafeParseReturnType<this['_input'], this['_output']>>
+  readonly '~standard': StandardSchemaV1.Props<Input, Output>
   refine<RefinedOutput extends this['_output']>(
     check: (arg: this['_output']) => arg is RefinedOutput,
     message?: string | CustomErrorParams | ((arg: this['_output']) => CustomErrorParams)
