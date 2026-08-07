@@ -1,5 +1,6 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {},
-  "include": ["src/**/*", "e2e/**/*", "*.ts"]
+  "include": ["src/**/*", "e2e/**/*", "*.ts"],
+  "exclude": ["vitest.config.ts"]
 }

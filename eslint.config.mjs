@@ -23,6 +23,7 @@ const ignores = [
   '**/.genenv/',
   '**/.ignore.me.*',
   '**/*.md.ts',
+  '**/vitest.config.ts',
 ]
 
 const oxlintRules = oxlint
