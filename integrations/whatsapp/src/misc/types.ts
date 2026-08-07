@@ -168,7 +168,9 @@ const WhatsAppStatusSchema = z.object({
   id: z.string(),
   status: z.enum(['sent', 'delivered', 'read', 'failed']),
   timestamp: z.string(),
-  recipient_id: z.string(),
+  recipient_id: z.string().optional(),
+  recipient_user_id: z.string().optional(),
+  recipient_parent_user_id: z.string().optional(),
   errors: z
     .array(
       z.object({
