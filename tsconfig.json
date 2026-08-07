@@ -20,7 +20,8 @@
     "noUnusedLocals": false,
     "noImplicitOverride": false,
     "checkJs": false,
-    "types": ["node"]
+    "types": ["node"],
+    "ignoreDeprecations": "6.0"
   },
   "exclude": ["node_modules"]
 }
