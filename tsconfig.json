@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
     "lib": ["es2022", "dom"],
-    "module": "commonjs",
+    "module": "nodenext",
     "target": "es2022",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
     "noFallthroughCasesInSwitch": true,
@@ -20,8 +20,7 @@
     "noUnusedLocals": false,
     "noImplicitOverride": false,
     "checkJs": false,
-    "types": ["node"],
-    "ignoreDeprecations": "6.0"
+    "types": ["node"]
   },
   "exclude": ["node_modules"]
 }
