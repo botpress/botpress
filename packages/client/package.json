@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@types/qs": "^6.9.7",
-    "esbuild": "^0.25.10",
+    "esbuild": "^0.28.1",
     "lodash": "^4.17.21",
     "rollup": "^4.60.4",
     "rollup-plugin-dts": "^6.4.1"
