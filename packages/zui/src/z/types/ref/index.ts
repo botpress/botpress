@@ -7,7 +7,7 @@ import {
 export type { ZodRefDef }
 
 export class ZodRefImpl extends ZodBaseTypeImpl<NonNullable<unknown>, ZodRefDef> implements IZodRef {
-  dereference(defs: Record<string, IZodType>): ZodBaseTypeImpl {
+  dereference(defs: Record<string, IZodType>, _memo?: WeakMap<IZodType, IZodType>): ZodBaseTypeImpl {
     const def = defs[this._def.uri]
     if (!def) {
       return this

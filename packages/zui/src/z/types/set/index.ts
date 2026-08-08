@@ -6,10 +6,10 @@ export class ZodSetImpl<Value extends IZodType = IZodType>
   extends ZodBaseTypeImpl<Set<Value['_output']>, ZodSetDef<Value>, Set<Value['_input']>>
   implements IZodSet<Value>
 {
-  dereference(defs: Record<string, IZodType>): IZodType {
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
     return new ZodSetImpl({
       ...this._def,
-      valueType: this._def.valueType.dereference(defs),
+      valueType: this._def.valueType.dereference(defs, memo),
     })
   }
 
@@ -17,10 +17,10 @@ export class ZodSetImpl<Value extends IZodType = IZodType>
     return this._def.valueType._getReferences(visiting)
   }
 
-  clone(): IZodSet<Value> {
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): IZodSet<Value> {
     return new ZodSetImpl({
       ...this._def,
-      valueType: this._def.valueType.clone() as Value,
+      valueType: this._def.valueType.clone(memo) as Value,
     })
   }
 

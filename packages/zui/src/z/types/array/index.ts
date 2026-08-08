@@ -19,10 +19,10 @@ export class ZodArrayImpl<T extends IZodType = IZodType, Cardinality extends Arr
   >
   implements IZodArray<T, Cardinality>
 {
-  dereference(defs: Record<string, IZodType>): IZodType {
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
     return new ZodArrayImpl({
       ...this._def,
-      type: this._def.type.dereference(defs),
+      type: this._def.type.dereference(defs, memo),
     })
   }
 
@@ -30,10 +30,10 @@ export class ZodArrayImpl<T extends IZodType = IZodType, Cardinality extends Arr
     return this._def.type._getReferences(visiting)
   }
 
-  clone(): ZodArrayImpl<T, Cardinality> {
-    return new ZodArrayImpl({
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): ZodArrayImpl<T, Cardinality> {
+    return new ZodArrayImpl<T, Cardinality>({
       ...this._def,
-      type: this._def.type.clone() as T,
+      type: this._def.type.clone(memo) as T,
     })
   }
 

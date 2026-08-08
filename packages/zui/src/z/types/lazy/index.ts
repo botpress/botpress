@@ -9,10 +9,10 @@ export class ZodLazyImpl<T extends IZodType = IZodType>
     return this._def.getter()
   }
 
-  dereference(defs: Record<string, IZodType>): IZodType {
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
     return new ZodLazyImpl({
       ...this._def,
-      getter: () => this._def.getter().dereference(defs),
+      getter: () => this._def.getter().dereference(defs, memo),
     })
   }
 
@@ -24,10 +24,12 @@ export class ZodLazyImpl<T extends IZodType = IZodType>
     return this._def.getter()._getReferences(visiting)
   }
 
-  clone(): IZodLazy<T> {
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): IZodLazy<T> {
+    // The getter is lazy, so it runs after the base registers this clone; a self-reference through it
+    // resolves back to this clone. Objects and z.lazy are the only recursion anchors.
     return new ZodLazyImpl({
       ...this._def,
-      getter: () => this._def.getter().clone() as T,
+      getter: () => this._def.getter().clone(memo) as T,
     })
   }
 

@@ -5,10 +5,10 @@ export class ZodOptionalImpl<T extends IZodType = IZodType>
   extends ZodBaseTypeImpl<T['_output'] | undefined, ZodOptionalDef<T>, T['_input'] | undefined>
   implements IZodOptional<T>
 {
-  dereference(defs: Record<string, IZodType>): IZodType {
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
     return new ZodOptionalImpl({
       ...this._def,
-      innerType: this._def.innerType.dereference(defs),
+      innerType: this._def.innerType.dereference(defs, memo),
     })
   }
 
@@ -16,10 +16,10 @@ export class ZodOptionalImpl<T extends IZodType = IZodType>
     return this._def.innerType._getReferences(visiting)
   }
 
-  clone(): IZodOptional<T> {
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): IZodOptional<T> {
     return new ZodOptionalImpl({
       ...this._def,
-      innerType: this._def.innerType.clone() as T,
+      innerType: this._def.innerType.clone(memo) as T,
     })
   }
 

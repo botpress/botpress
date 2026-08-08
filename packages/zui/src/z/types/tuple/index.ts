@@ -18,9 +18,9 @@ export class ZodTupleImpl<
   extends ZodBaseTypeImpl<OutputTypeOfTupleWithRest<T, Rest>, ZodTupleDef<T, Rest>, InputTypeOfTupleWithRest<T, Rest>>
   implements IZodTuple<T, Rest>
 {
-  dereference(defs: Record<string, IZodType>): IZodType {
-    const items = this._def.items.map((item) => item.dereference(defs)) as [IZodType, ...IZodType[]]
-    const rest = this._def.rest ? this._def.rest.dereference(defs) : null
+  protected _dereferenceSelf(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType>): IZodType {
+    const items = this._def.items.map((item) => item.dereference(defs, memo)) as [IZodType, ...IZodType[]]
+    const rest = this._def.rest ? this._def.rest.dereference(defs, memo) : null
     return new ZodTupleImpl({
       ...this._def,
       items,
@@ -35,9 +35,9 @@ export class ZodTupleImpl<
     ])
   }
 
-  clone(): IZodTuple<T, Rest> {
-    const items = this._def.items.map((item) => item.clone()) as [IZodType, ...IZodType[]]
-    const rest = this._def.rest ? this._def.rest.clone() : null
+  protected _cloneSelf(memo: WeakMap<IZodType, IZodType>): IZodTuple<T, Rest> {
+    const items = this._def.items.map((item) => item.clone(memo)) as [IZodType, ...IZodType[]]
+    const rest = this._def.rest ? this._def.rest.clone(memo) : null
     return new ZodTupleImpl({
       ...this._def,
       items: items as T,

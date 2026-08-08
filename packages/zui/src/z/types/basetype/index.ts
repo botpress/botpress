@@ -72,7 +72,17 @@ export abstract class ZodBaseTypeImpl<
 
   abstract _parse(input: ParseInput): ParseReturnType<Output>
 
-  dereference(_defs: Record<string, IZodType>): IZodType {
+  dereference(defs: Record<string, IZodType>, memo: WeakMap<IZodType, IZodType> = new WeakMap()): IZodType {
+    const hit = memo.get(this)
+    if (hit) return hit
+    const derefed = this._dereferenceSelf(defs, memo)
+    memo.set(this, derefed)
+    memo.set(derefed, derefed)
+    return derefed
+  }
+
+  /** Structural copy of this schema with child schemas dereferenced. Overridden per type; primitives have none. */
+  protected _dereferenceSelf(_defs: Record<string, IZodType>, _memo: WeakMap<IZodType, IZodType>): IZodType {
     return this
   }
 
@@ -84,7 +94,17 @@ export abstract class ZodBaseTypeImpl<
     return []
   }
 
-  clone(): IZodType<Output, Def, Input> {
+  clone(memo: WeakMap<IZodType, IZodType> = new WeakMap()): IZodType<Output, Def, Input> {
+    const hit = memo.get(this)
+    if (hit) return hit as IZodType<Output, Def, Input>
+    const cloned = this._cloneSelf(memo)
+    memo.set(this, cloned)
+    memo.set(cloned, cloned)
+    return cloned as IZodType<Output, Def, Input>
+  }
+
+  /** Builds a structural copy of this schema, deep-cloning child schemas via `memo`. Overridden per type. */
+  protected _cloneSelf(_memo: WeakMap<IZodType, IZodType>): IZodType {
     const This = (this as any).constructor
     return new This({
       ...this._def,
@@ -523,5 +543,14 @@ export abstract class ZodBaseTypeImpl<
         },
       }
     }
+  }
+}
+
+export const assertShapeValueIsSchema = (key: string, value: unknown): void => {
+  if (!(value instanceof ZodBaseTypeImpl)) {
+    throw new Error(
+      `z.object(): the value at key "${key}" is not a zui schema (received ${typeof value}). ` +
+        'Did you forget to wrap it, e.g. z.number()?'
+    )
   }
 }
