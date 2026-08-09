@@ -29,10 +29,10 @@ RUN pnpm install --frozen-lockfile
 # generate
 RUN turbo run build --filter='!@botpress/vai' --filter='!@botpress/zai'
 
-FROM node:${NODE_VERSION}-bullseye-slim AS telegram
+FROM node:${NODE_VERSION}-bullseye-slim AS chat
 
-COPY --from=base /usr/app/integrations/telegram/.botpress/dist/index.cjs ./index.cjs
-COPY integrations/telegram/server.js ./server.js
+COPY --from=base /usr/app/integrations/chat/.botpress/dist/index.cjs ./index.cjs
+COPY integrations/chat/server.js ./server.js
 
 # set port env and expose it
 ENV PORT=8081
@@ -40,10 +40,10 @@ EXPOSE ${PORT}
 
 ENTRYPOINT ["node", "server.js"]
 
-FROM node:${NODE_VERSION}-bullseye-slim AS chat
+FROM node:${NODE_VERSION}-bullseye-slim AS telegram
 
-COPY --from=base /usr/app/integrations/chat/.botpress/dist/index.cjs ./index.cjs
-COPY integrations/chat/server.js ./server.js
+COPY --from=base /usr/app/integrations/telegram/.botpress/dist/index.cjs ./index.cjs
+COPY integrations/telegram/server.js ./server.js
 
 # set port env and expose it
 ENV PORT=8081
