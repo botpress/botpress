@@ -6,7 +6,7 @@ export default dab.defineProject((ctx) => ({
   build: {
     docker: {
       context: '..',
-      file: '../integrations/telegram/Dockerfile',
+      file: '../Dockerfile',
     },
   },
   env: {

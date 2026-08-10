@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Build this Dockerfile from the monorepo root:
-# docker build -f integrations/telegram/Dockerfile -t botpress-telegram .
+# docker build -f Dockerfile -t botpress-chat --target chat .
 
 ARG NODE_VERSION=22.17.0
 ARG PNPM_VERSION=10.29.3

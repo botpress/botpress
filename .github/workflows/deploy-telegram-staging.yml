@@ -21,6 +21,7 @@ jobs:
           registry-url: https://npm.pkg.github.com
           scope: '@botpress-private'
       - run: pnpm install --frozen-lockfile
+        working-directory: .ci
         env:
           NODE_AUTH_TOKEN: ${{ secrets.PRIVATE_NPM_TOKEN }}
       - uses: botpress/dab/setup@action-v1
