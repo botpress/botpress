@@ -142,12 +142,6 @@ export type UnknownOperationHandler<TIntegration extends BaseIntegration> = (
   }
 ) => Promise<Response | void>
 
-/**
- * Operation names that are opt-in via `__advanced.extraOperations` on the integration definition, as opposed to
- * the operations that are always sent to every integration (e.g. `message_created`, `register`, etc).
- */
-export type ExtraOperationName = 'message_status_changed'
-
 export type UpdateMessagePayload<
   TIntegration extends BaseIntegration,
   TChannel extends keyof TIntegration['channels'] = keyof TIntegration['channels'],
