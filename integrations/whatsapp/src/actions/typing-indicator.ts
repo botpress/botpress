@@ -27,7 +27,9 @@ export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIn
     if (!destination) {
       logger.forBot().error('Error sending typing indicator emoji: missing WhatsApp recipient in conversation tags')
     } else {
-      void sendWhatsAppMessage(whatsapp, botPhoneNumberId, destination, new Reaction(whatsappMessageId, '👀'))
+      void sendWhatsAppMessage(whatsapp, botPhoneNumberId, destination, new Reaction(whatsappMessageId, '👀')).catch(
+        (e) => logger.forBot().error(`Error sending typing indicator emoji: ${e ?? '[Unknown error]'}`)
+      )
     }
   }
   return {}
