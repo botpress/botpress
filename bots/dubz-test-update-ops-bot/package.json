@@ -1,0 +1,21 @@
+{
+  "name": "@bp-bots/dubz-test-update-ops-bot",
+  "description": "Throwaway bot for manually testing the updateMessage/updateConversation typed callbacks",
+  "private": true,
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "build": "bp add -y && bp build"
+  },
+  "dependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*"
+  },
+  "bpDependencies": {
+    "testUpdateOps": "../../integrations/dubz-test-update-ops"
+  }
+}
