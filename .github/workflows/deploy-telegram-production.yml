@@ -29,5 +29,6 @@ jobs:
           environment: production
           infisical-client-id: ${{ secrets.INFISICAL_CLIENT_ID }}
           infisical-client-secret: ${{ secrets.INFISICAL_CLIENT_SECRET }}
+          config-file: ./.ci/telegram.ts
       - run: pnpm exec dab deploy --env=production --file=telegram.ts
         working-directory: .ci
