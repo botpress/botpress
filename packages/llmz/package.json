@@ -3,10 +3,7 @@
   "type": "module",
   "description": "LLMz - An LLM-native Typescript VM built on top of Zui",
   "version": "0.6.0",
-  "files": [
-    "dist",
-    "DOCS.md"
-  ],
+  "files": ["dist", "DOCS.md"],
   "types": "./dist/index.d.ts",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

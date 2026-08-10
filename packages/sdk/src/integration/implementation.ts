@@ -27,13 +27,7 @@ export type IntegrationImplementationProps<TIntegration extends BaseIntegration 
    * @deprecated
    */
   createConversation?: CreateConversationFunction<TIntegration>
-  /**
-   * Called when the bot edits/updates a message it previously sent.
-   */
   updateMessage?: UpdateMessageFunction<TIntegration>
-  /**
-   * Called when a conversation's tags or properties change.
-   */
   updateConversation?: UpdateConversationFunction<TIntegration>
   actions: ActionFunctions<TIntegration>
   channels: ChannelFunctions<TIntegration>
