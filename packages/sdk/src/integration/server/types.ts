@@ -145,7 +145,8 @@ export type UnknownOperationHandler<TIntegration extends BaseIntegration> = (
 export type UpdateMessagePayload<
   TIntegration extends BaseIntegration,
   TChannel extends keyof TIntegration['channels'] = keyof TIntegration['channels'],
-  TMessage extends keyof TIntegration['channels'][TChannel]['messages'] = keyof TIntegration['channels'][TChannel]['messages'],
+  TMessage extends keyof TIntegration['channels'][TChannel]['messages'] =
+    keyof TIntegration['channels'][TChannel]['messages'],
 > = {
   type: TMessage
   payload: TIntegration['channels'][TChannel]['messages'][TMessage]
