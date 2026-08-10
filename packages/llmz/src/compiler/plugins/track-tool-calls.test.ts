@@ -1,8 +1,5 @@
 import MagicString from 'magic-string'
-import babel from 'prettier/plugins/babel'
-import estree from 'prettier/plugins/estree'
-import typescript from 'prettier/plugins/typescript'
-import { format } from 'prettier/standalone'
+import { format } from 'oxfmt'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { ToolCallEntry, applyToolCallTracking } from './track-tool-calls.js'
 import { parseScript } from '../ast.js'
@@ -12,17 +9,14 @@ async function transform(original: string) {
   const ms = new MagicString(original)
   applyToolCallTracking({ code: original, ms, ast: parseScript(original), comments: [] }, calls)
 
-  const result = await format(ms.toString(), {
+  const result = await format('tools.ts', ms.toString(), {
     singleAttributePerLine: true,
     bracketSameLine: true,
     semi: true,
     embeddedLanguageFormatting: 'off',
-    plugins: [estree, babel, typescript],
-    parser: 'typescript',
-    filepath: 'tools.d.ts',
   })
 
-  return result.trim()
+  return result.code.trim()
 }
 
 describe('toolCallTracking', () => {

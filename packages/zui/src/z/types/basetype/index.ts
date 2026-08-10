@@ -51,9 +51,11 @@ class _CircularDependencyError extends Error {
   }
 }
 
-export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input = Output>
-  implements IZodType<Output, Def, Input>
-{
+export abstract class ZodBaseTypeImpl<
+  Output = any,
+  Def extends ZodTypeDef = ZodTypeDef,
+  Input = Output,
+> implements IZodType<Output, Def, Input> {
   readonly __type__ = 'ZuiType'
   readonly _type!: Output
   readonly _output!: Output

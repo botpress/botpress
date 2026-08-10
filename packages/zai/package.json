@@ -60,7 +60,7 @@
   },
   "peerDependencies": {
     "@bpinternal/thicktoken": "^3.0.0",
-    "@bpinternal/zui": "^2.4.0"
+    "@bpinternal/zui": "^2.4.1"
   },
   "engines": {
     "node": ">=18.0.0"
