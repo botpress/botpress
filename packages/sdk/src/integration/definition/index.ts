@@ -6,6 +6,7 @@ import { InterfacePackage } from '../../package'
 import * as utils from '../../utils'
 import { SDK_VERSION } from '../../version'
 import { z } from '../../zui'
+import type { ExtraOperationName } from '../server/types'
 import { SchemaStore, BrandedSchema, createStore, isBranded, getName } from './branded-schema'
 import { BaseConfig, BaseEvents, BaseActions, BaseChannels, BaseStates, BaseEntities, BaseConfigs } from './generic'
 import {
@@ -81,7 +82,7 @@ export type IntegrationDefinitionProps<
 
   __advanced?: SchemaTransformOptions & {
     esbuild?: Partial<esbuild.BuildOptions>
-    extraOperations?: Record<string, { enabled: boolean }>
+    extraOperations?: Record<ExtraOperationName | (string & {}), { enabled: boolean }>
   }
 }
 

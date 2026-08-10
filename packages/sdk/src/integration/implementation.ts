@@ -7,6 +7,8 @@ import {
   WebhookHandler as WebhookFunction,
   CreateUserHandler as CreateUserFunction,
   CreateConversationHandler as CreateConversationFunction,
+  UpdateMessageHandler as UpdateMessageFunction,
+  UpdateConversationHandler as UpdateConversationFunction,
   ActionHandlers as ActionFunctions,
   ChannelHandlers as ChannelFunctions,
   UnknownOperationHandler as UnknownOperationFunction,
@@ -25,6 +27,14 @@ export type IntegrationImplementationProps<TIntegration extends BaseIntegration 
    * @deprecated
    */
   createConversation?: CreateConversationFunction<TIntegration>
+  /**
+   * Called when the bot edits/updates a message it previously sent.
+   */
+  updateMessage?: UpdateMessageFunction<TIntegration>
+  /**
+   * Called when a conversation's tags or properties change.
+   */
+  updateConversation?: UpdateConversationFunction<TIntegration>
   actions: ActionFunctions<TIntegration>
   channels: ChannelFunctions<TIntegration>
   __advanced?: {
@@ -40,6 +50,8 @@ export class IntegrationImplementation<TIntegration extends BaseIntegration = Ba
   public readonly unregister: IntegrationImplementationProps<TIntegration>['unregister']
   public readonly createUser: IntegrationImplementationProps<TIntegration>['createUser']
   public readonly createConversation: IntegrationImplementationProps<TIntegration>['createConversation']
+  public readonly updateMessage: IntegrationImplementationProps<TIntegration>['updateMessage']
+  public readonly updateConversation: IntegrationImplementationProps<TIntegration>['updateConversation']
   public readonly webhook: IntegrationImplementationProps<TIntegration>['handler']
   public readonly unknownOperationHandler: NonNullable<
     IntegrationImplementationProps<TIntegration>['__advanced']
@@ -55,6 +67,8 @@ export class IntegrationImplementation<TIntegration extends BaseIntegration = Ba
     this.unregister = props.unregister
     this.createUser = props.createUser
     this.createConversation = props.createConversation
+    this.updateMessage = props.updateMessage
+    this.updateConversation = props.updateConversation
     this.webhook = props.handler
     this.unknownOperationHandler = props.__advanced?.unknownOperationHandler
     this.managesOwnTracePropagation = props.__advanced?.managesOwnTracePropagation

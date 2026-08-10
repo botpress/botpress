@@ -142,12 +142,73 @@ export type UnknownOperationHandler<TIntegration extends BaseIntegration> = (
   }
 ) => Promise<Response | void>
 
+/**
+ * Operation names that are opt-in via `__advanced.extraOperations` on the integration definition, as opposed to
+ * the operations that are always sent to every integration (e.g. `message_created`, `register`, etc).
+ */
+export type ExtraOperationName = 'message_status_changed'
+
+export type UpdateMessagePayload<
+  TIntegration extends BaseIntegration,
+  TChannel extends keyof TIntegration['channels'] = keyof TIntegration['channels'],
+  TMessage extends keyof TIntegration['channels'][TChannel]['messages'] = keyof TIntegration['channels'][TChannel]['messages'],
+> = {
+  type: TMessage
+  payload: TIntegration['channels'][TChannel]['messages'][TMessage]
+  conversation: Merge<
+    Conversation,
+    {
+      channel: TChannel
+      tags: commonTypes.ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags']>
+    }
+  >
+  user: Merge<
+    User,
+    {
+      tags: commonTypes.ToTags<keyof TIntegration['user']['tags']>
+    }
+  >
+  /** The message after the update. */
+  currentMessage: Merge<
+    Message,
+    {
+      tags: commonTypes.ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
+    }
+  >
+  /** The message as it was before the update. */
+  previousMessage: Merge<
+    Message,
+    {
+      tags: commonTypes.ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
+    }
+  >
+}
+export type UpdateMessageHandlerProps<TIntegration extends BaseIntegration> = CommonHandlerProps<TIntegration> &
+  UpdateMessagePayload<TIntegration>
+export type UpdateMessageHandler<TIntegration extends BaseIntegration> = (
+  props: UpdateMessageHandlerProps<TIntegration>
+) => Promise<Response | void>
+
+export type UpdateConversationPayload = {
+  /** The conversation after the update. */
+  currentConversation: Conversation
+  /** The conversation as it was before the update. */
+  previousConversation: Conversation
+}
+export type UpdateConversationHandlerProps<TIntegration extends BaseIntegration> = CommonHandlerProps<TIntegration> &
+  UpdateConversationPayload
+export type UpdateConversationHandler<TIntegration extends BaseIntegration> = (
+  props: UpdateConversationHandlerProps<TIntegration>
+) => Promise<Response | void>
+
 export type IntegrationHandlers<TIntegration extends BaseIntegration> = {
   register: RegisterHandler<TIntegration>
   unregister: UnregisterHandler<TIntegration>
   webhook: WebhookHandler<TIntegration>
   createUser?: CreateUserHandler<TIntegration>
   createConversation?: CreateConversationHandler<TIntegration>
+  updateMessage?: UpdateMessageHandler<TIntegration>
+  updateConversation?: UpdateConversationHandler<TIntegration>
   actions: ActionHandlers<TIntegration>
   channels: ChannelHandlers<TIntegration>
   unknownOperationHandler?: UnknownOperationHandler<TIntegration>

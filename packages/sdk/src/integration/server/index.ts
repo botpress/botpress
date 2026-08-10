@@ -16,6 +16,8 @@ import {
   CreateUserPayload,
   UnregisterPayload,
   CreateConversationPayload,
+  UpdateMessagePayload,
+  UpdateConversationPayload,
   IntegrationContext,
 } from './types'
 
@@ -86,6 +88,10 @@ const handleOperation = async (props: ServerProps) => {
       return await onCreateUser(props)
     case 'create_conversation':
       return await onCreateConversation(props)
+    case 'message_updated':
+      return await onUpdateMessage(props)
+    case 'conversation_updated':
+      return await onUpdateConversation(props)
     default:
       throw new InvalidPayloadError(`Unknown operation ${ctx.operation}`)
   }
@@ -187,6 +193,22 @@ const onMessageCreated = async ({ ctx, req, client, logger, instance }: ServerPr
   }
 
   await messageHandler({ ctx, conversation, message, user, type, client, payload, ack, logger })
+}
+
+const onUpdateMessage = async ({ ctx, req, client, logger, instance }: ServerProps) => {
+  if (!instance.updateMessage) {
+    return
+  }
+  const payload = parseBody<UpdateMessagePayload<BaseIntegration>>(req)
+  return await instance.updateMessage({ ctx, client, logger, ...payload })
+}
+
+const onUpdateConversation = async ({ ctx, req, client, logger, instance }: ServerProps) => {
+  if (!instance.updateConversation) {
+    return
+  }
+  const payload = parseBody<UpdateConversationPayload>(req)
+  return await instance.updateConversation({ ctx, client, logger, ...payload })
 }
 
 const onActionTriggered = async ({ req, ctx, client, logger, instance }: ServerProps) => {
