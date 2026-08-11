@@ -29,13 +29,13 @@ export async function runTsc(sourceCode: string, paths?: Record<string, string>)
   const caseTsconfig = {
     compilerOptions: {
       lib: ['es2022', 'dom'],
-      module: 'commonjs',
+      module: 'nodenext',
       target: 'es2022',
       strict: true,
       esModuleInterop: true,
       skipLibCheck: true,
       forceConsistentCasingInFileNames: true,
-      moduleResolution: 'node',
+      moduleResolution: 'nodenext',
       allowUnusedLabels: false,
       allowUnreachableCode: false,
       noFallthroughCasesInSwitch: true,
@@ -51,7 +51,7 @@ export async function runTsc(sourceCode: string, paths?: Record<string, string>)
       noEmit: true,
       extendedDiagnostics: true,
       ignoreDeprecations: '6.0',
-      ...(paths ? { baseUrl: '.', paths: Object.fromEntries(Object.entries(paths).map(([k, v]) => [k, [v]])) } : {}),
+      ...(paths ? { paths: Object.fromEntries(Object.entries(paths).map(([k, v]) => [k, [v]])) } : {}),
     },
     files: ['index.ts'],
   }

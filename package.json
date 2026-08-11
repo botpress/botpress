@@ -41,6 +41,7 @@
     "@bpinternal/retry-cli": "^0.1.1",
     "@linear/sdk": "^55.0.0",
     "@types/node": "^22.16.4",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "axios": "1.9.0",
     "eslint-plugin-import": "^2.32.0",
     "husky": "^9.1.7",
@@ -52,7 +53,8 @@
     "sherif": "1.0.1",
     "ts-node": "^10.9.2",
     "turbo": "^2.3.3",
-    "typescript": "^6.0.0",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "typescript-editor": "npm:typescript@^6.0.0",
     "vitest": "^2.1.4"
   },
   "packageManager": "pnpm@10.29.3",
