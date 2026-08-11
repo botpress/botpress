@@ -1,9 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import * as bp from '.botpress'
 
-// whatsapp-api-js declares this internally (lib/utils.ts) but never exports it publicly.
-type AtLeastOne<T> = [T, ...T[]]
-
 type Message = Awaited<ReturnType<bp.Client['listMessages']>>['messages'][number]
 
 export function chunkArray<T>(array: T[], chunkSize: number) {
