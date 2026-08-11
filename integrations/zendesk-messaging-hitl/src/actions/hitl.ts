@@ -62,11 +62,20 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
 
     // The transcript is best-effort: it is untrusted, user-sized content, and a ticket
     // without a transcript is far better than no ticket at all. Never let it abort the handover.
-    try {
-      await suncoClient.sendMessages(suncoConversation.id, { displayName: 'HITL Session' }, transcriptParts)
-    } catch (thrown: unknown) {
-      const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-      logger.forBot().error(`Failed to send the conversation transcript to the agent workspace: ${errMsg}`)
+    //
+    // One part per call, each guarded on its own: sendMessages posts parts sequentially and
+    // stops at the first failure, and the parts are chronological. Guarding the batch as a
+    // whole would let one transient failure drop every later part — including the most recent
+    // messages, which are exactly the ones the truncation logic works to preserve.
+    for (const [index, part] of transcriptParts.entries()) {
+      try {
+        await suncoClient.sendMessages(suncoConversation.id, { displayName: 'HITL Session' }, [part])
+      } catch (thrown: unknown) {
+        const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+        logger
+          .forBot()
+          .error(`Failed to send transcript part ${index + 1} of ${transcriptParts.length}: ${errMsg}`)
+      }
     }
 
     const metadata = _buildMetadata(input.hitlSession, user)
