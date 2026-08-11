@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
     "lib": ["es2022", "dom"],
-    "module": "commonjs",
+    "module": "preserve",
     "target": "es2022",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
     "noFallthroughCasesInSwitch": true,
@@ -21,5 +21,19 @@
     "noImplicitOverride": false,
     "checkJs": false
   },
-  "exclude": ["node_modules"]
+  // "module": "preserve" routes scripts to Node's loader for ECMAScript
+  // modules, which cannot read TypeScript. CommonJS emit puts them back on the
+  // require hook ts-node registers.
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs",
+      "moduleResolution": "node"
+    }
+  },
+  // Each package's test-runner configuration imports the shared one at the
+  // repository root. That puts a file from outside the package into its
+  // program, so the checker behind the type-aware lint rules resolves the
+  // common source directory above the package and rejects the configuration.
+  // Removing these two patterns costs 80 packages their type-aware rules.
+  "exclude": ["node_modules", "**/vitest.config.ts", "**/vitest.*.config.ts"]
 }

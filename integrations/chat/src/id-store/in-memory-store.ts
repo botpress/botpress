@@ -1,10 +1,11 @@
-import { logger } from '../logger'
 import * as errors from './errors'
 import * as types from './types'
+import * as bp from '.botpress'
 
 class InMemoryMap implements types.IncomingIdMap, types.OutoingIdMap {
   public constructor(
     private _direction: 'incoming' | 'outgoing',
+    private _logger: bp.Logger,
     private _incoming: Record<string, string> = {},
     private _outgoing: Record<string, string> = {}
   ) {}
@@ -60,9 +61,9 @@ class InMemoryMap implements types.IncomingIdMap, types.OutoingIdMap {
 
   private _debug = (operation: string, src: string, dest: string) => {
     if (this._direction === 'incoming') {
-      logger.debug(`${operation} ${src} -> ${dest}`)
+      this._logger.debug(`${operation} ${src} -> ${dest}`)
     } else {
-      logger.debug(`${operation} ${dest} <- ${src}`)
+      this._logger.debug(`${operation} ${dest} <- ${src}`)
     }
   }
 }
@@ -88,17 +89,20 @@ export class InMemoryChatIdStore implements types.ChatIdStore {
   private _byFid: Record<string, string> = {}
   private _byId: Record<string, string> = {}
 
-  public constructor(memSpace?: MemorySpace) {
+  public constructor(
+    private _logger: bp.Logger,
+    memSpace?: MemorySpace
+  ) {
     memSpace = memSpace ?? new MemorySpace()
     this._byFid = memSpace.instanciate('byFid', {})
     this._byId = memSpace.instanciate('byId', {})
   }
 
   public get byFid() {
-    return new InMemoryMap('incoming', this._byFid, this._byId)
+    return new InMemoryMap('incoming', this._logger, this._byFid, this._byId)
   }
 
   public get byId() {
-    return new InMemoryMap('outgoing', this._byId, this._byFid)
+    return new InMemoryMap('outgoing', this._logger, this._byId, this._byFid)
   }
 }
