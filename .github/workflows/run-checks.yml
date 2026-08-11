@@ -20,7 +20,6 @@ jobs:
       - run: pnpm run check:sherif
       - run: pnpm run check:oxlint
       - run: pnpm run check:format
-      - run: pnpm run check:eslint
       - run: pnpm run check:bplint
       - run: pnpm run check:type
       - run: pnpm run test

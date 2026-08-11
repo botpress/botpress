@@ -1,7 +1,9 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
+    // The type checker the linter runs does not support baseUrl; this
+    // mapping reproduces it.
+    "paths": { "*": ["./*"] },
     "outDir": "dist"
   },
   "include": [".botpress/**/*", "src/**/*", "*.ts"]
