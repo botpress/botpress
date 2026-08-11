@@ -1,7 +1,10 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "noErrorTruncation": true
+    "noErrorTruncation": true,
+    "paths": {
+      "esbuild-plugin-polyfill-node": ["./node_modules/esbuild-plugin-polyfill-node/dist/index.d.ts"]
+    }
   },
   "include": ["src/**/*", "*.ts"],
   "exclude": ["dist", "vitest.config.ts"]
