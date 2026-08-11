@@ -3230,7 +3230,7 @@ importers:
         specifier: ^9.3.4
         version: 9.3.5
       tsdown:
-        specifier: ^0.22.1
+        specifier: ^0.22.14
         version: 0.22.14(tsx@4.19.2)(typescript@6.0.3)(unrun@0.3.0(synckit@0.11.11))
 
   packages/zai:
