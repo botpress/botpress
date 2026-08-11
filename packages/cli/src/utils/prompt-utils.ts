@@ -94,7 +94,13 @@ export class CLIPrompt {
       choices: transformedChoices as prompts.PromptObject['choices'],
     })
 
-    return prompted !== undefined ? (isNumber && prompted === Symbol.for('0') ? 0 : prompted) : undefined
+    if (prompted === undefined) {
+      return undefined
+    }
+    if (isNumber && prompted === Symbol.for('0')) {
+      return opts?.choices?.find((c) => c.value === 0)?.value
+    }
+    return prompted
   }
 
   public async text(message: string, opts: TextOptions = {}): Promise<string | undefined> {
