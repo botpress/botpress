@@ -1,4 +1,5 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+import { exchangeCodeForAccessToken, getOrRefreshCredentials, refreshAccessToken } from './auth'
 
 beforeAll(() => {
   process.env.SECRET_SHOPIFY_CLIENT_ID = 'test-client-id'
@@ -27,8 +28,6 @@ describe('exchangeCodeForAccessToken', () => {
   it('sends expiring=1 in the JSON body', async () => {
     const fetchMock = vi.fn().mockResolvedValue(_expiringResponse())
     vi.stubGlobal('fetch', fetchMock)
-
-    const { exchangeCodeForAccessToken } = await import('./auth')
     await exchangeCodeForAccessToken({ shop: 'example', code: 'abc' })
 
     const body = JSON.parse(fetchMock.mock.calls[0]![1].body as string)
@@ -45,8 +44,6 @@ describe('exchangeCodeForAccessToken', () => {
     vi.setSystemTime(new Date('2026-05-03T00:00:00Z'))
     const nowSeconds = Math.floor(Date.now() / 1000)
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(_expiringResponse()))
-
-    const { exchangeCodeForAccessToken } = await import('./auth')
     const credentials = await exchangeCodeForAccessToken({ shop: 'example', code: 'abc' })
 
     expect(credentials).toEqual({
@@ -59,8 +56,6 @@ describe('exchangeCodeForAccessToken', () => {
 
   it('throws when refresh_token is missing in response', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(_expiringResponse({ refresh_token: undefined })))
-
-    const { exchangeCodeForAccessToken } = await import('./auth')
     await expect(exchangeCodeForAccessToken({ shop: 'example', code: 'abc' })).rejects.toThrow(
       /missing one or more required expiring-token fields/
     )
@@ -71,8 +66,6 @@ describe('exchangeCodeForAccessToken', () => {
       'fetch',
       vi.fn().mockResolvedValue(new Response('Bad client_secret', { status: 401, statusText: 'Unauthorized' }))
     )
-
-    const { exchangeCodeForAccessToken } = await import('./auth')
     await expect(exchangeCodeForAccessToken({ shop: 'example', code: 'abc' })).rejects.toThrow(
       /401 Unauthorized — Bad client_secret/
     )
@@ -83,8 +76,6 @@ describe('refreshAccessToken', () => {
   it('sends grant_type=refresh_token and the supplied refresh_token', async () => {
     const fetchMock = vi.fn().mockResolvedValue(_expiringResponse())
     vi.stubGlobal('fetch', fetchMock)
-
-    const { refreshAccessToken } = await import('./auth')
     await refreshAccessToken({ shop: 'example', refreshToken: 'shprt_old' })
 
     const body = JSON.parse(fetchMock.mock.calls[0]![1].body as string)
@@ -104,8 +95,6 @@ describe('refreshAccessToken', () => {
       'fetch',
       vi.fn().mockResolvedValue(_expiringResponse({ access_token: 'shpat_new', refresh_token: 'shprt_new' }))
     )
-
-    const { refreshAccessToken } = await import('./auth')
     const next = await refreshAccessToken({ shop: 'example', refreshToken: 'shprt_old' })
 
     expect(next).toEqual({
@@ -121,8 +110,6 @@ describe('refreshAccessToken', () => {
       'fetch',
       vi.fn().mockResolvedValue(new Response('refresh_token expired', { status: 401, statusText: 'Unauthorized' }))
     )
-
-    const { refreshAccessToken } = await import('./auth')
     await expect(refreshAccessToken({ shop: 'example', refreshToken: 'shprt_old' })).rejects.toThrow(
       /re-authorize the integration/
     )
@@ -150,8 +137,6 @@ describe('getOrRefreshCredentials', () => {
       accessTokenExpiresAtSeconds: nowSeconds + 3600,
       refreshTokenExpiresAtSeconds: nowSeconds + 7776000,
     })
-
-    const { getOrRefreshCredentials } = await import('./auth')
     const creds = await getOrRefreshCredentials({ client, ctx })
 
     expect(creds.accessToken).toBe('shpat_a')
@@ -174,8 +159,6 @@ describe('getOrRefreshCredentials', () => {
       accessTokenExpiresAtSeconds: nowSeconds + 60, // within buffer
       refreshTokenExpiresAtSeconds: nowSeconds + 7776000,
     })
-
-    const { getOrRefreshCredentials } = await import('./auth')
     const creds = await getOrRefreshCredentials({ client, ctx })
 
     expect(creds.accessToken).toBe('shpat_new')
@@ -191,8 +174,6 @@ describe('getOrRefreshCredentials', () => {
 
   it('throws when refreshToken is missing from state', async () => {
     const { client, ctx } = _stubClient({ shopDomain: 'example', accessToken: 'shpat_a' })
-
-    const { getOrRefreshCredentials } = await import('./auth')
     await expect(getOrRefreshCredentials({ client, ctx })).rejects.toThrow(/credentials not found or incomplete/)
   })
 
@@ -208,8 +189,6 @@ describe('getOrRefreshCredentials', () => {
       accessTokenExpiresAtSeconds: nowSeconds - 100,
       refreshTokenExpiresAtSeconds: nowSeconds - 1, // expired
     })
-
-    const { getOrRefreshCredentials } = await import('./auth')
     await expect(getOrRefreshCredentials({ client, ctx })).rejects.toThrow(/refresh token expired \(90-day TTL\)/)
   })
 })

@@ -20,16 +20,12 @@
     "noUnusedLocals": false,
     "noImplicitOverride": false,
     "checkJs": false,
-    "types": ["node"],
-    "ignoreDeprecations": "6.0"
+    "types": ["node"]
   },
-  // "module": "preserve" routes scripts to Node's loader for ECMAScript
-  // modules, which cannot read TypeScript. CommonJS emit puts them back on the
-  // require hook ts-node registers.
   "ts-node": {
     "compilerOptions": {
-      "module": "commonjs",
-      "moduleResolution": "node"
+      "module": "nodenext",
+      "moduleResolution": "nodenext"
     }
   },
   // Each package's test-runner configuration imports the shared one at the
