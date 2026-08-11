@@ -62,7 +62,7 @@
     "dotenv": "^16.4.4",
     "esbuild": "^0.25.10",
     "glob": "^9.3.4",
-    "prettier": "^3.4.2",
+    "oxfmt": "^0.61.0",
     "source-map-js": "1.2.1",
     "tsup": "^8.0.2",
     "tsx": "^4.19.2"
@@ -71,7 +71,7 @@
     "@botpress/client": "2.1.0",
     "@botpress/cognitive": "1.1.0",
     "@bpinternal/thicktoken": "^3.1.0",
-    "@bpinternal/zui": "^2.4.0"
+    "@bpinternal/zui": "^2.4.1"
   },
   "dependenciesMeta": {
     "@bpinternal/zui": {

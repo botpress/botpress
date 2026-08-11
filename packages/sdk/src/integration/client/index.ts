@@ -7,9 +7,9 @@ export * from './types'
 /**
  * Just like the regular botpress client, but typed with the integration's properties.
  */
-export class IntegrationSpecificClient<TIntegration extends common.BaseIntegration>
-  implements types.ClientOperations<TIntegration>
-{
+export class IntegrationSpecificClient<
+  TIntegration extends common.BaseIntegration,
+> implements types.ClientOperations<TIntegration> {
   public constructor(private readonly _client: client.Client) {}
 
   /**

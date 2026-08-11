@@ -36,7 +36,7 @@
   "overrides": [
     {
       "files": ["**/*.{ts,tsx}"],
-      "jsPlugins": ["eslint-plugin-prettier", "@stylistic/eslint-plugin"],
+      "jsPlugins": ["@stylistic/eslint-plugin"],
       "rules": {
         "eslint/no-console": [
           "warn",
@@ -97,7 +97,6 @@
         ],
         "unicorn/no-empty-file": "error",
         "unicorn/no-lonely-if": "off",
-        "prettier/prettier": "error",
         "arrow-body-style": "off",
         "complexity": ["off"],
         "prefer-const": "warn",

@@ -48,9 +48,9 @@ const getDiscriminator = (_type: IZodType | undefined): Primitive[] => {
 }
 
 export class ZodDiscriminatedUnionImpl<
-    Discriminator extends string = string,
-    Options extends ZodDiscriminatedUnionOption<Discriminator>[] = ZodDiscriminatedUnionOption<Discriminator>[],
-  >
+  Discriminator extends string = string,
+  Options extends ZodDiscriminatedUnionOption<Discriminator>[] = ZodDiscriminatedUnionOption<Discriminator>[],
+>
   extends ZodBaseTypeImpl<
     output<Options[number]>,
     ZodDiscriminatedUnionDef<Discriminator, Options>,

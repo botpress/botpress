@@ -64,10 +64,10 @@ Welcome to the Human Resources (HR) Handbook. This guide provides essential info
 
 ### Performance Ratings
 
-| Rating               | Meaning                               |
-| -------------------- | ------------------------------------- |
-| 🔥 Exceeds           | Top performer, exceeding expectations |
-| ✅ Meets             | Consistently meets all expectations   |
+| Rating              | Meaning                               |
+| ------------------- | ------------------------------------- |
+| 🔥 Exceeds          | Top performer, exceeding expectations |
+| ✅ Meets            | Consistently meets all expectations   |
 | ⚠ Needs Improvement | Below expectations, coaching required |
 
 ### Promotion Criteria
