@@ -4,5 +4,5 @@
     "noErrorTruncation": true
   },
   "include": ["src/**/*", "*.ts"],
-  "exclude": ["dist"]
+  "exclude": ["dist", "vitest.config.ts"]
 }

@@ -6,5 +6,6 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "*.ts"]
+  "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "*.ts"],
+  "exclude": ["vitest.config.ts"]
 }
