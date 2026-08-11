@@ -18,7 +18,7 @@
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp add -y && pnpm run build:types && pnpm run build:neutral && size-limit",
-    "build:neutral": "ts-node -T ./build.ts",
+    "build:neutral": "ts-node -T -P tsconfig.ts-node.json ./build.ts",
     "build:types": "tsdown",
     "watch": "tsdown --watch",
     "test:e2e": "vitest run --config vitest.config.ts",
