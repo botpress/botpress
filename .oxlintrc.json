@@ -32,11 +32,9 @@
     "**/.adk/",
     "**/.ignore.me.*"
   ],
-  "rules": {},
   "overrides": [
     {
       "files": ["**/*.{ts,tsx}"],
-      "jsPlugins": ["@stylistic/eslint-plugin"],
       "rules": {
         "eslint/no-console": [
           "warn",
@@ -100,33 +98,34 @@
         "arrow-body-style": "off",
         "complexity": ["off"],
         "prefer-const": "warn",
-        "@stylistic/member-delimiter-style": [
+        "no-shadow": "off",
+        "typescript/no-floating-promises": [
           "error",
           {
-            "multiline": {
-              "delimiter": "none",
-              "requireLast": true
+            "checkThenables": true
+          }
+        ],
+        "typescript/no-misused-promises": "error",
+        "typescript/explicit-member-accessibility": "error",
+        "eslint/object-shorthand": "error",
+        "naming/private-member-underscore": "error",
+        "import-js/order": [
+          "error",
+          {
+            "groups": [["builtin", "external"], "parent", "index", "sibling"],
+            "alphabetize": {
+              "order": "asc",
+              "caseInsensitive": true
             },
-            "singleline": {
-              "delimiter": "semi",
-              "requireLast": false
-            }
+            "pathGroupsExcludedImportTypes": ["builtin"]
           }
-        ],
-        "@stylistic/quotes": [
-          "error",
-          "single",
-          {
-            "avoidEscape": true
-          }
-        ],
-        "@stylistic/semi": ["error", "never"],
-        "@stylistic/type-annotation-spacing": "error",
-        "@stylistic/brace-style": "off",
-        "@stylistic/eol-last": "error",
-        "@stylistic/linebreak-style": ["error", "unix"],
-        "@stylistic/no-trailing-spaces": "error",
-        "no-shadow": "off"
+        ]
+      }
+    },
+    {
+      "files": ["packages/zui/**"],
+      "rules": {
+        "typescript/explicit-member-accessibility": "off"
       }
     }
   ],
@@ -135,5 +134,13 @@
     "pedantic": "off",
     "perf": "off",
     "suspicious": "off"
-  }
+  },
+  "jsPlugins": [
+    "./scripts/oxlint-plugin-naming.mjs",
+    {
+      "name": "import-js",
+      "specifier": "eslint-plugin-import"
+    }
+  ],
+  "rules": {}
 }
