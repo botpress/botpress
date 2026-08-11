@@ -345,12 +345,12 @@ export type SafeParseReturnType<Input, Output> = SafeParseSuccess<Output> | Safe
 
 //* ─────────────────────────── Standard Schema (https://standardschema.dev) ──
 
-export interface StandardSchemaV1<Input = unknown, Output = Input> {
+export type StandardSchemaV1<Input = unknown, Output = Input> = {
   readonly '~standard': StandardSchemaV1.Props<Input, Output>
 }
 
 export declare namespace StandardSchemaV1 {
-  export interface Props<Input = unknown, Output = Input> {
+  export type Props<Input = unknown, Output = Input> = {
     readonly version: 1
     readonly vendor: string
     readonly validate: (value: unknown) => Result<Output> | Promise<Result<Output>>
@@ -359,25 +359,25 @@ export declare namespace StandardSchemaV1 {
 
   export type Result<Output> = SuccessResult<Output> | FailureResult
 
-  export interface SuccessResult<Output> {
+  export type SuccessResult<Output> = {
     readonly value: Output
     readonly issues?: undefined
   }
 
-  export interface FailureResult {
+  export type FailureResult = {
     readonly issues: ReadonlyArray<Issue>
   }
 
-  export interface Issue {
+  export type Issue = {
     readonly message: string
     readonly path?: ReadonlyArray<PropertyKey | PathSegment> | undefined
   }
 
-  export interface PathSegment {
+  export type PathSegment = {
     readonly key: PropertyKey
   }
 
-  export interface Types<Input = unknown, Output = Input> {
+  export type Types<Input = unknown, Output = Input> = {
     readonly input: Input
     readonly output: Output
   }
