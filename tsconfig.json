@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
     "lib": ["es2022", "dom"],
-    "module": "preserve",
+    "module": "NodeNext",
     "target": "es2022",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "bundler",
+    "moduleResolution": "NodeNext",
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
     "noFallthroughCasesInSwitch": true,
