@@ -18,7 +18,8 @@
     "noEmit": false,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noErrorTruncation": true
+    "noErrorTruncation": true,
+    "ignoreDeprecations": "6.0"
   },
   "exclude": ["node_modules", "dist", "vitest.config.ts"],
   "include": ["src/**/*", "bench/**/*", "*.ts"],
