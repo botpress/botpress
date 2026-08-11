@@ -4,10 +4,13 @@ import { randomUUID } from 'node:crypto'
 import { getSuncoClient } from 'src/client'
 import { getStoredCredentials } from 'src/get-stored-credentials'
 import { getAgentWorkspaceSwitchboardIntegrationName } from 'src/setup/util'
+import { buildTranscriptParts } from 'src/transcript-chunking'
 import { Client, IntegrationCtx, User, HitlSession, MessageHistory } from 'src/types'
 import * as bp from '.botpress'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+type TextMessage = { type: 'text'; text: string }
 
 export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ ctx, client, input, logger }) => {
   try {
@@ -44,20 +47,27 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
     // Reason: If the ticket is created because of the initial message, we can't specify ticket metadata anymore (ticket fields, priority, etc.)
     await suncoClient.switchboardActionsPassControl(suncoConversation.id, botpressIntegrationName)
 
-    // Send a initial message with the conversation title, description and transcript
+    const { summary, transcriptParts } = await _buildInitialMessages({
+      ctx,
+      client,
+      user,
+      title,
+      description,
+      messageHistory,
+    })
+
+    // Send a initial message with the conversation title and description
     // Having a message will allow us to pass control to the agent workspace without requiring a 'reason'
-    await suncoClient.sendMessages(
-      suncoConversation.id,
-      { displayName: 'HITL Session' },
-      await _buildInitialMessages({
-        ctx,
-        client,
-        user,
-        title,
-        description,
-        messageHistory,
-      })
-    )
+    await suncoClient.sendMessages(suncoConversation.id, { displayName: 'HITL Session' }, [summary])
+
+    // The transcript is best-effort: it is untrusted, user-sized content, and a ticket
+    // without a transcript is far better than no ticket at all. Never let it abort the handover.
+    try {
+      await suncoClient.sendMessages(suncoConversation.id, { displayName: 'HITL Session' }, transcriptParts)
+    } catch (thrown: unknown) {
+      const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+      logger.forBot().error(`Failed to send the conversation transcript to the agent workspace: ${errMsg}`)
+    }
 
     const metadata = _buildMetadata(input.hitlSession, user)
 
@@ -214,7 +224,7 @@ async function _buildInitialMessages(args: {
   title?: string
   description?: string
   messageHistory: MessageHistory
-}): Promise<Array<{ type: 'text'; text: string }>> {
+}): Promise<{ summary: TextMessage; transcriptParts: TextMessage[] }> {
   const { ctx, client, user, title, description, messageHistory } = args
 
   const transcript = await buildConversationTranscript({
@@ -225,8 +235,8 @@ async function _buildInitialMessages(args: {
       msgs.map((msg) => (msg.isBot ? 'Bot: ' : 'User: ') + msg.text.join('\n')).join('\n\n'),
   })
 
-  return [
-    {
+  return {
+    summary: {
       type: 'text' as const,
       text: `New Conversation Started
 
@@ -235,9 +245,8 @@ Title: ${title || 'Untitled'}
 Description: ${description || 'No description provided'}
         `,
     },
-    {
-      type: 'text' as const,
-      text: 'Transcript:\n\n' + transcript,
-    },
-  ]
+    // Sunco caps a message at 4096 characters; a long conversation must be split
+    // across several messages or the whole handover fails.
+    transcriptParts: buildTranscriptParts(transcript).map((text) => ({ type: 'text' as const, text })),
+  }
 }
