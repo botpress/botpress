@@ -72,9 +72,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
         await suncoClient.sendMessages(suncoConversation.id, { displayName: 'HITL Session' }, [part])
       } catch (thrown: unknown) {
         const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-        logger
-          .forBot()
-          .error(`Failed to send transcript part ${index + 1} of ${transcriptParts.length}: ${errMsg}`)
+        logger.forBot().error(`Failed to send transcript part ${index + 1} of ${transcriptParts.length}: ${errMsg}`)
       }
     }
 

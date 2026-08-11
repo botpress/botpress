@@ -26,11 +26,7 @@ const TURN_SEPARATOR = '\n\n'
  * notice), so only the first chunk pays for them — `firstChunkMaxLength` applies
  * to chunk 0 and `maxLength` to every chunk after it.
  */
-export const splitIntoChunks = (
-  text: string,
-  maxLength: number,
-  firstChunkMaxLength: number = maxLength
-): string[] => {
+export const splitIntoChunks = (text: string, maxLength: number, firstChunkMaxLength: number = maxLength): string[] => {
   if (maxLength <= 0 || firstChunkMaxLength <= 0) {
     throw new Error(`chunk lengths must be positive, got maxLength=${maxLength}, first=${firstChunkMaxLength}`)
   }
@@ -124,8 +120,7 @@ export const buildTranscriptParts = (
   const prefix = `${TRANSCRIPT_HEADER}${OMISSION_NOTICE}`
   const firstChunkMaxLength = maxLength - prefix.length
   const turns = text.split(TURN_SEPARATOR)
-  const pack = (from: number) =>
-    splitIntoChunks(turns.slice(from).join(TURN_SEPARATOR), maxLength, firstChunkMaxLength)
+  const pack = (from: number) => splitIntoChunks(turns.slice(from).join(TURN_SEPARATOR), maxLength, firstChunkMaxLength)
 
   // Start from an estimate of what maxParts messages hold, then give back turns
   // until it genuinely fits — greedy packing wastes some room at turn boundaries.
