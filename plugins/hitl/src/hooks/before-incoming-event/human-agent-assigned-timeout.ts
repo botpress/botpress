@@ -1,6 +1,11 @@
 import { DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE, DEFAULT_USER_HITL_CANCELLED_MESSAGE } from '../../../plugin.definition'
+import {
+  callBackingIntegrationAction,
+  resolveBackingIntegrationForDownstreamConversation,
+} from '../../backing-integration'
 import * as configuration from '../../configuration'
 import * as conv from '../../conv-manager'
+import type * as types from '../../types'
 import * as consts from '../consts'
 import * as bp from '.botpress'
 
@@ -43,7 +48,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['humanAgentAs
     return consts.STOP_EVENT_HANDLING
   }
 
-  await _handleTimeout(props, upstreamCm, downstreamCm, sessionConfig)
+  await _handleTimeout(props, upstreamCm, downstreamCm, downstreamConversation, sessionConfig)
 
   if (sessionConfig.flowOnHitlStopped) {
     // the bot will continue the conversation without the patient having to send another message
@@ -77,6 +82,7 @@ const _handleTimeout = async (
   props: bp.HookHandlerProps['before_incoming_event'],
   upstreamCm: conv.ConversationManager,
   downstreamCm: conv.ConversationManager,
+  downstreamConversation: types.ActionableConversation,
   sessionConfig: bp.configuration.Configuration
 ) => {
   await downstreamCm.maybeRespondText(sessionConfig.onUserHitlCancelledMessage, DEFAULT_USER_HITL_CANCELLED_MESSAGE)
@@ -91,8 +97,15 @@ const _handleTimeout = async (
     .withConversationId(downstreamCm.conversationId)
     .info('HITL session ended due to agent assignment timeout')
 
-  // Call stopHitl in the hitl integration (zendesk, etc.):
-  await props.actions.hitl.stopHitl({ conversationId: downstreamCm.conversationId })
+  await callBackingIntegrationAction({
+    client: props.client,
+    backingIntegration: resolveBackingIntegrationForDownstreamConversation({
+      props,
+      downstreamIntegrationAlias: downstreamConversation.integration,
+    }),
+    name: 'stopHitl',
+    input: { conversationId: downstreamCm.conversationId },
+  })
 
   await upstreamCm.maybeRespondText(sessionConfig.onAgentAssignedTimeoutMessage, DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE)
 }

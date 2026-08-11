@@ -14,6 +14,10 @@ export const DEFAULT_USER_HITL_COMMAND_MESSAGE =
   'You have ended the session with the human agent. I will continue assisting you.'
 export const DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE =
   'No human agent is available at the moment. Please try again later. I will continue assisting you for the time being.'
+export const DEFAULT_SESSION_MIGRATED_MESSAGE =
+  '( This conversation has been migrated to another system and can be closed. )'
+export const DEFAULT_AGENT_DISCONNECTED_MESSAGE =
+  'The human agent has been disconnected. Please wait while we find a new person to assist you.'
 
 const _nullCodeDescription = `Use "${NULL_MESSAGE_CODE}" to indicate that no message should be sent.`
 const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
@@ -69,6 +73,29 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
     )
     .optional()
     .placeholder(DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE),
+  onSessionMigratedMessage: sdk.z
+    .string()
+    .title('Session Migrated Notice')
+    .describe(
+      `Message posted in the previous system's conversation when an active session migrates to another integration. ${_nullCodeDescription}`
+    )
+    .optional()
+    .placeholder(DEFAULT_SESSION_MIGRATED_MESSAGE),
+  onAgentDisconnectedMessage: sdk.z
+    .string()
+    .title('Agent Disconnected Message')
+    .describe(
+      `Message sent to the user when their active session migrates to another integration. ${_nullCodeDescription}`
+    )
+    .optional()
+    .placeholder(DEFAULT_AGENT_DISCONNECTED_MESSAGE),
+  automaticSessionMigrationEnabled: sdk.z
+    .boolean()
+    .default(true)
+    .title('Migrate Active Sessions Automatically')
+    .describe(
+      'When the Human Handoff integration changes, move active sessions to the new integration on the next end-user message. When disabled, active sessions stay on the integration that opened them.'
+    ),
   userHitlCloseCommand: sdk.z
     .string()
     .title('Termination Command')
@@ -102,7 +129,7 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '1.4.2',
+  version: '1.5.0',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',

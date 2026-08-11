@@ -12,7 +12,10 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlSto
 
   const isHitlActive = await downstreamCm.isHitlActive()
   if (!isHitlActive) {
-    return consts.STOP_EVENT_HANDLING
+    // An inactive conversation that was never linked is not a downstream
+    // conversation of this plugin (another installed integration may emit
+    // hitl events); let the bot's own handlers see the event:
+    return downstreamConversation.tags.upstream ? consts.STOP_EVENT_HANDLING : undefined
   }
 
   const upstreamConversationId = downstreamConversation.tags.upstream
@@ -25,6 +28,10 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlSto
 
   const upstreamConversation = await props.conversations.hitl.hitl.getById({ id: upstreamConversationId })
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversation)
+
+  if (!conv.isCurrentDownstreamConversation({ upstreamConversation, downstreamConversationId })) {
+    return consts.STOP_EVENT_HANDLING
+  }
 
   const sessionConfig = await configuration.retrieveSessionConfig({
     ...props,

@@ -17,9 +17,21 @@ export const HITL_END_REASON = {
   // AGENT_RESPONSE_TIMEOUT: 'agent-response-timeout',
   AGENT_CLOSED_TICKET: 'agent-closed-ticket',
   CLOSE_ACTION_CALLED: 'close-action-called',
+  SESSION_MIGRATED: 'session-migrated',
   INTERNAL_ERROR: 'internal-error',
 } as const
 type HitlEndReason = (typeof HITL_END_REASON)[keyof typeof HITL_END_REASON]
+
+/**
+ * The current downstream conversation of a session is the one the upstream
+ * conversation's downstream tag points at. Any other downstream conversation
+ * belongs to a session that has since moved (including the one this plugin
+ * itself closes while migrating a session).
+ */
+export const isCurrentDownstreamConversation = (props: {
+  upstreamConversation: { tags: { downstream?: string } }
+  downstreamConversationId: string
+}): boolean => props.upstreamConversation.tags.downstream === props.downstreamConversationId
 
 export class ConversationManager {
   public static from(props: types.AnyHandlerProps, conversation: types.ActionableConversation): ConversationManager {

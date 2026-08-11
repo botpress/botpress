@@ -1,4 +1,8 @@
 import { DEFAULT_USER_HITL_CANCELLED_MESSAGE } from 'plugin.definition'
+import {
+  callBackingIntegrationAction,
+  resolveBackingIntegrationForDownstreamConversation,
+} from '../backing-integration'
 import * as configuration from '../configuration'
 import * as conv from '../conv-manager'
 import * as bp from '.botpress'
@@ -37,8 +41,15 @@ export const stopHitl: bp.PluginProps['actions']['stopHitl'] = async (props) => 
     downstreamCm.setHitlInactive(conv.HITL_END_REASON.CLOSE_ACTION_CALLED),
   ])
 
-  // Call stopHitl in the hitl integration (zendesk, etc.):
-  await props.actions.hitl.stopHitl({ conversationId: downstreamConversationId })
+  await callBackingIntegrationAction({
+    client: props.client,
+    backingIntegration: resolveBackingIntegrationForDownstreamConversation({
+      props,
+      downstreamIntegrationAlias: downstreamConversation.integration,
+    }),
+    name: 'stopHitl',
+    input: { conversationId: downstreamConversationId },
+  })
 
   // TODO: possibly send the workflowContinue event here
 

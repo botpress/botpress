@@ -1,5 +1,10 @@
 import * as sdk from '@botpress/sdk'
 import { DEFAULT_HITL_HANDOFF_MESSAGE } from '../../plugin.definition'
+import {
+  callBackingIntegrationAction,
+  resolveBackingIntegration,
+  type HitlBackingIntegration,
+} from '../backing-integration'
 import * as configuration from '../configuration'
 import * as conv from '../conv-manager'
 import type * as types from '../types'
@@ -22,10 +27,13 @@ export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) =
   const upstreamConversation = await props.conversations.hitl.hitl.getById({ id: upstreamConversationId })
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversation)
 
-  if (
+  const backingIntegration = resolveBackingIntegration(props)
+  const isDownstreamConversation =
     upstreamConversation.tags.upstream ||
+    upstreamConversation.integration === backingIntegration.alias ||
     upstreamConversation.integration === props.interfaces.hitl.integrationAlias
-  ) {
+
+  if (isDownstreamConversation) {
     // Without this check, closing the downstream conversation (the ticket) can
     // result in the bot calling startHitl a second time, but using the
     // downstream conversation as if it was the upstream conversation. Human
@@ -53,17 +61,18 @@ export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) =
   })
   await _sendHandoffMessage(upstreamCm, sessionConfig)
 
-  const users = new user.UserLinker(props)
+  const users = new user.UserLinker(props, backingIntegration)
   const downstreamUserId = await users.getDownstreamUserId(upstreamUserId, { email: upstreamUserEmail })
 
-  const messageHistory = await _buildMessageHistory(upstreamConversation, users)
+  const messageHistory = await buildMessageHistory(upstreamConversation, users)
 
-  const downstreamConversation = await _createDownstreamConversation(
+  const downstreamConversation = await _createDownstreamConversation({
     props,
+    backingIntegration,
     downstreamUserId,
-    props.input,
-    messageHistory
-  )
+    input: props.input,
+    messageHistory,
+  })
   const downstreamCm = conv.ConversationManager.from(props, downstreamConversation)
 
   await upstreamCm.setUserId(upstreamUserId)
@@ -81,7 +90,7 @@ const _sendHandoffMessage = (
   sessionConfig: bp.configuration.Configuration
 ): Promise<void> => upstreamCm.maybeRespondText(sessionConfig.onHitlHandoffMessage, DEFAULT_HITL_HANDOFF_MESSAGE)
 
-const _buildMessageHistory = async (
+export const buildMessageHistory = async (
   upstreamConversation: types.ActionableConversation,
   users: user.UserLinker
 ): Promise<MessageHistoryElement[]> => {
@@ -110,19 +119,25 @@ const _buildMessageHistory = async (
   return messageHistory
 }
 
-const _createDownstreamConversation = async (
-  props: Props,
-  downstreamUserId: string,
-  input: StartHitlInput,
+const _createDownstreamConversation = async (args: {
+  props: Props
+  backingIntegration: HitlBackingIntegration
+  downstreamUserId: string
+  input: StartHitlInput
   messageHistory: MessageHistoryElement[]
-): Promise<types.ActionableConversation> => {
-  // Call startHitl in the hitl integration (zendesk, etc.):
-  const { conversationId: downstreamConversationId } = await props.actions.hitl.startHitl({
-    title: input.title,
-    description: input.description,
-    hitlSession: input.hitlSession,
-    userId: downstreamUserId,
-    messageHistory,
+}): Promise<types.ActionableConversation> => {
+  const { props, backingIntegration, downstreamUserId, input, messageHistory } = args
+  const { conversationId: downstreamConversationId } = await callBackingIntegrationAction({
+    client: props.client,
+    backingIntegration,
+    name: 'startHitl',
+    input: {
+      title: input.title,
+      description: input.description,
+      hitlSession: input.hitlSession,
+      userId: downstreamUserId,
+      messageHistory,
+    },
   })
 
   return await props.conversations.hitl.hitl.getById({ id: downstreamConversationId })

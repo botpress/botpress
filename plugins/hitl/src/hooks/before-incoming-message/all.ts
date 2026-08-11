@@ -1,14 +1,22 @@
 import * as client from '@botpress/client'
 import {
   DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE,
+  DEFAULT_SESSION_MIGRATED_MESSAGE,
   DEFAULT_USER_HITL_CANCELLED_MESSAGE,
   DEFAULT_USER_HITL_CLOSE_COMMAND,
   DEFAULT_USER_HITL_COMMAND_MESSAGE,
 } from 'plugin.definition'
 import { assignAgent } from 'src/hooks/operations'
 import { tryLinkWebchatUser } from 'src/webchat'
+import {
+  callBackingIntegrationAction,
+  resolveBackingIntegration,
+  resolveBackingIntegrationForDownstreamConversation,
+  type HitlBackingIntegration,
+} from '../../backing-integration'
 import * as configuration from '../../configuration'
 import * as conv from '../../conv-manager'
+import { tryMigrateSession } from '../../session-migration'
 import type * as types from '../../types'
 import * as consts from '../consts'
 import * as bp from '.botpress'
@@ -18,11 +26,12 @@ export const handleMessage: bp.HookHandlers['before_incoming_message']['*'] = as
     id: props.data.conversationId,
   })
 
-  const { integration } = conversation
-  if (integration === props.interfaces.hitl.integrationAlias) {
+  const backingIntegration = resolveBackingIntegration(props)
+
+  if (conversation.tags.upstream || conversation.integration === backingIntegration.alias) {
     return await _handleDownstreamMessage(props, conversation)
   }
-  return await _handleUpstreamMessage(props, conversation)
+  return await _handleUpstreamMessage(props, conversation, backingIntegration)
 }
 
 const _handleDownstreamMessage = async (
@@ -49,10 +58,21 @@ const _handleDownstreamMessage = async (
     })
   }
 
+  const upstreamConversation = await props.conversations.hitl.hitl.getById({ id: upstreamConversationId })
   const sessionConfig = await configuration.retrieveSessionConfig({
     ...props,
     upstreamConversationId,
   })
+
+  if (
+    !conv.isCurrentDownstreamConversation({ upstreamConversation, downstreamConversationId: downstreamConversation.id })
+  ) {
+    // A migrated session left this conversation behind; agents replying here
+    // must not reach the end user, whose session now lives in another
+    // downstream conversation:
+    await downstreamCm.maybeRespondText(sessionConfig.onSessionMigratedMessage, DEFAULT_SESSION_MIGRATED_MESSAGE)
+    return consts.STOP_EVENT_HANDLING
+  }
 
   const messagePayload = _getMessagePayloadIfSupported(props.data)
 
@@ -65,7 +85,6 @@ const _handleDownstreamMessage = async (
     return consts.STOP_EVENT_HANDLING
   }
 
-  const upstreamConversation = await props.conversations.hitl.hitl.getById({ id: upstreamConversationId })
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversation)
 
   props.logger.withConversationId(downstreamConversation.id).info('Sending message to upstream')
@@ -104,7 +123,8 @@ const _getMessageAdditionalData = (msg: client.Message): string | undefined => {
 
 const _handleUpstreamMessage = async (
   props: bp.HookHandlerProps['before_incoming_message'],
-  upstreamConversation: types.ActionableConversation
+  upstreamConversation: types.ActionableConversation,
+  backingIntegration: HitlBackingIntegration & { source: 'configuration' | 'compiled' }
 ) => {
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversation)
   const isHitlActive = await upstreamCm.isHitlActive()
@@ -156,7 +176,11 @@ const _handleUpstreamMessage = async (
   const downstreamCm = conv.ConversationManager.from(props, downstreamConversation)
 
   if (_isHitlCloseCommand(props, sessionConfig)) {
-    await _handleHitlCloseCommand(props, { downstreamCm, upstreamCm, sessionConfig })
+    const downstreamBackingIntegration = resolveBackingIntegrationForDownstreamConversation({
+      props,
+      downstreamIntegrationAlias: downstreamConversation.integration,
+    })
+    await _handleHitlCloseCommand(props, { downstreamCm, downstreamBackingIntegration, upstreamCm, sessionConfig })
 
     if (sessionConfig.flowOnHitlStopped) {
       // the bot will continue the conversation without the patient having to send another message
@@ -164,6 +188,23 @@ const _handleUpstreamMessage = async (
     }
 
     return consts.STOP_EVENT_HANDLING
+  }
+
+  if (
+    backingIntegration.source === 'configuration' &&
+    downstreamConversation.integration !== backingIntegration.alias &&
+    sessionConfig.automaticSessionMigrationEnabled !== false
+  ) {
+    const { migrated } = await tryMigrateSession({
+      props,
+      upstreamConversation,
+      downstreamConversation,
+      backingIntegration,
+      sessionConfig,
+    })
+    if (migrated) {
+      return consts.STOP_EVENT_HANDLING
+    }
   }
 
   props.logger.withConversationId(upstreamConversation.id).info('Sending message to downstream')
@@ -206,10 +247,12 @@ const _handleHitlCloseCommand = async (
   props: bp.HookHandlerProps['before_incoming_message'],
   {
     downstreamCm,
+    downstreamBackingIntegration,
     upstreamCm,
     sessionConfig,
   }: {
     downstreamCm: conv.ConversationManager
+    downstreamBackingIntegration: HitlBackingIntegration
     upstreamCm: conv.ConversationManager
     sessionConfig: bp.configuration.Configuration
   }
@@ -228,8 +271,12 @@ const _handleHitlCloseCommand = async (
     .withConversationId(downstreamCm.conversationId)
     .info('User ended the HITL session using the termination command')
 
-  // Call stopHitl in the hitl integration (zendesk, etc.):
-  await props.actions.hitl.stopHitl({ conversationId: downstreamCm.conversationId })
+  await callBackingIntegrationAction({
+    client: props.client,
+    backingIntegration: downstreamBackingIntegration,
+    name: 'stopHitl',
+    input: { conversationId: downstreamCm.conversationId },
+  })
 
   await upstreamCm.maybeRespondText(sessionConfig.onUserHitlCloseMessage, DEFAULT_USER_HITL_COMMAND_MESSAGE)
 }

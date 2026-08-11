@@ -11,6 +11,22 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlAss
 
   const isHitlActive = await downstreamCm.isHitlActive()
   if (!isHitlActive) {
+    // An inactive conversation that was never linked is not a downstream
+    // conversation of this plugin (another installed integration may emit
+    // hitl events); let the bot's own handlers see the event:
+    return downstreamConversation.tags.upstream ? consts.STOP_EVENT_HANDLING : undefined
+  }
+
+  const upstreamConversationId = downstreamConversation.tags.upstream
+  if (!upstreamConversationId) {
+    props.logger
+      .withConversationId(downstreamConversationId)
+      .error('Downstream conversation was not bound to upstream conversation')
+    return consts.STOP_EVENT_HANDLING
+  }
+
+  const upstreamConversation = await props.conversations.hitl.hitl.getById({ id: upstreamConversationId })
+  if (!conv.isCurrentDownstreamConversation({ upstreamConversation, downstreamConversationId })) {
     return consts.STOP_EVENT_HANDLING
   }
 
