@@ -247,7 +247,7 @@ export type ZodFormattedError<T, U = string> = {
   _errors: U[]
 } & _RecursiveZodFormattedError<NonNullable<T>>
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodError<T = unknown> extends Error {
   readonly __type__: 'ZuiError'
   issues: ZodIssue[]
@@ -399,7 +399,7 @@ export type ZodSchema<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input =
  */
 export type Schema<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input = Output> = IZodType<Output, Def, Input>
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input = Output> {
   readonly __type__: 'ZuiType'
   _type: Output
@@ -577,7 +577,7 @@ export type ZodAnyDef = {
   typeName: 'ZodAny'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodAny extends IZodType<any, ZodAnyDef> {}
 
 //* ─────────────────────────── ZodArray ─────────────────────────────────────
@@ -605,7 +605,7 @@ export type ArrayOutputType<
   Cardinality extends ArrayCardinality = 'many',
 > = Cardinality extends 'atleastone' ? [T['_output'], ...T['_output'][]] : T['_output'][]
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodArray<
   T extends IZodType = IZodType,
   Cardinality extends ArrayCardinality = 'many',
@@ -648,7 +648,7 @@ export type ZodBigIntDef = {
   coerce: boolean
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodBigInt extends IZodType<bigint, ZodBigIntDef> {
   gte(value: bigint, message?: ErrMessage): IZodBigInt
   min: (value: bigint, message?: ErrMessage) => IZodBigInt
@@ -672,7 +672,7 @@ export type ZodBooleanDef = {
   coerce: boolean
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodBoolean extends IZodType<boolean, ZodBooleanDef> {}
 
 //* ─────────────────────────── ZodBranded ───────────────────────────────────
@@ -691,7 +691,7 @@ export type BRAND<T extends _Key = _Key> = {
   }
 }
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodBranded<T extends IZodType = IZodType, B extends _Key = _Key> extends IZodType<
   T['_output'] & BRAND<B>,
   ZodBrandedDef<T>,
@@ -709,7 +709,7 @@ export type ZodCatchDef<T extends IZodType = IZodType> = {
   typeName: 'ZodCatch'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodCatch<T extends IZodType = IZodType> extends IZodType<T['_output'], ZodCatchDef<T>, unknown> {
   removeCatch(): T
 }
@@ -734,7 +734,7 @@ export type ZodDateDef = {
   typeName: 'ZodDate'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodDate extends IZodType<Date, ZodDateDef> {
   min(minDate: Date, message?: ErrMessage): IZodDate
   max(maxDate: Date, message?: ErrMessage): IZodDate
@@ -750,7 +750,7 @@ export type ZodDefaultDef<T extends IZodType = IZodType> = {
   typeName: 'ZodDefault'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodDefault<T extends IZodType = IZodType> extends IZodType<
   NoUndefined<T['_output']>,
   ZodDefaultDef<T>,
@@ -783,7 +783,7 @@ export type FilterEnum<Values, ToExclude> = Values extends []
 
 export type NeverCast<A, T> = A extends T ? A : never
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodEnum<T extends [string, ...string[]] = [string, ...string[]]> extends IZodType<
   T[number],
   ZodEnumDef<T>
@@ -810,7 +810,7 @@ export type ZodNeverDef = {
   typeName: 'ZodNever'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodNever extends IZodType<never, ZodNeverDef> {}
 
 //* ─────────────────────────── ZodNullable ─────────────────────────────────
@@ -820,7 +820,7 @@ export type ZodNullableDef<T extends IZodType = IZodType> = {
   typeName: 'ZodNullable'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodNullable<T extends IZodType = IZodType> extends IZodType<
   T['_output'] | null,
   ZodNullableDef<T>,
@@ -836,7 +836,7 @@ export type ZodOptionalDef<T extends IZodType = IZodType> = {
   typeName: 'ZodOptional'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodOptional<T extends IZodType = IZodType> extends IZodType<
   T['_output'] | undefined,
   ZodOptionalDef<T>,
@@ -877,7 +877,7 @@ export type ZodTupleDef<T extends ZodTupleItems | [] = ZodTupleItems, Rest exten
 
 export type AnyZodTuple = IZodTuple<[IZodType, ...IZodType[]] | [], IZodType | null>
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodTuple<
   T extends [IZodType, ...IZodType[]] | [] = [IZodType, ...IZodType[]] | [],
   Rest extends IZodType | null = IZodType | null,
@@ -990,7 +990,7 @@ export type SomeZodObject = IZodObject<ZodRawShape, UnknownKeysParam>
 
 export type AnyZodObject = IZodObject<any, any>
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodObject<
   // `out` is a manual variance assertion: ObjectOutputType/ObjectInputType are
   // covariant in T (and UnknownKeys) for every real schema, but the checker
@@ -1134,7 +1134,7 @@ export type ZodDiscriminatedUnionDef<
   typeName: 'ZodDiscriminatedUnion'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodDiscriminatedUnion<
   Discriminator extends string = string,
   Options extends ZodDiscriminatedUnionOption<Discriminator>[] = ZodDiscriminatedUnionOption<Discriminator>[],
@@ -1150,7 +1150,7 @@ export type ZodUnknownDef = {
   typeName: 'ZodUnknown'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodUnknown extends IZodType<unknown, ZodUnknownDef> {}
 
 //* ─────────────────────────── ZodFunction ───────────────────────────────────
@@ -1169,7 +1169,7 @@ export type InnerTypeOfFunction<Args extends AnyZodTuple, Returns extends IZodTy
   ? (...args: Args['_output']) => Returns['_input']
   : never
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodFunction<
   Args extends AnyZodTuple = AnyZodTuple,
   Returns extends IZodType = IZodType,
@@ -1205,7 +1205,7 @@ export type ZodIntersectionDef<T extends IZodType = IZodType, U extends IZodType
   typeName: 'ZodIntersection'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodIntersection<T extends IZodType = IZodType, U extends IZodType = IZodType> extends IZodType<
   T['_output'] & U['_output'],
   ZodIntersectionDef<T, U>,
@@ -1226,7 +1226,7 @@ export type ZodLazyDef<T extends IZodType = IZodType> = {
   uid: symbol
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodLazy<T extends IZodType = IZodType> extends IZodType<output<T>, ZodLazyDef<T>, input<T>> {
   schema: T
 }
@@ -1239,7 +1239,7 @@ export type ZodLiteralDef<T extends Primitive = Primitive> = {
   typeName: 'ZodLiteral'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodLiteral<T extends Primitive = Primitive> extends IZodType<T, ZodLiteralDef<T>> {
   value: T
 }
@@ -1252,7 +1252,7 @@ export type ZodMapDef<Key extends IZodType = IZodType, Value extends IZodType = 
   typeName: 'ZodMap'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodMap<Key extends IZodType = IZodType, Value extends IZodType = IZodType> extends IZodType<
   Map<Key['_output'], Value['_output']>,
   ZodMapDef<Key, Value>,
@@ -1268,7 +1268,7 @@ export type ZodNaNDef = {
   typeName: 'ZodNaN'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodNaN extends IZodType<number, ZodNaNDef> {}
 
 //* ─────────────────────────── ZodNativeEnum ────────────────────────────────
@@ -1283,7 +1283,7 @@ export type ZodNativeEnumDef<T extends EnumLike = EnumLike> = {
   typeName: 'ZodNativeEnum'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodNativeEnum<T extends EnumLike = EnumLike> extends IZodType<T[keyof T], ZodNativeEnumDef<T>> {
   enum: T
 }
@@ -1294,7 +1294,7 @@ export type ZodNullDef = {
   typeName: 'ZodNull'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodNull extends IZodType<null, ZodNullDef> {}
 
 //* ─────────────────────────── ZodNumber ────────────────────────────────────
@@ -1332,7 +1332,7 @@ export type ZodNumberDef = {
   coerce: boolean
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodNumber extends IZodType<number, ZodNumberDef> {
   gte(value: number, message?: ErrMessage): IZodNumber
   min: (value: number, message?: ErrMessage) => IZodNumber
@@ -1363,7 +1363,7 @@ export type ZodPipelineDef<A extends IZodType = IZodType, B extends IZodType = I
   typeName: 'ZodPipeline'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodPipeline<A extends IZodType = IZodType, B extends IZodType = IZodType> extends IZodType<
   B['_output'],
   ZodPipelineDef<A, B>,
@@ -1379,7 +1379,7 @@ export type ZodPromiseDef<T extends IZodType = IZodType> = {
   typeName: 'ZodPromise'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodPromise<T extends IZodType = IZodType> extends IZodType<
   Promise<T['_output']>,
   ZodPromiseDef<T>,
@@ -1419,7 +1419,7 @@ export type ZodReadonlyDef<T extends IZodType = IZodType> = {
   typeName: 'ZodReadonly'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodReadonly<T extends IZodType = IZodType> extends IZodType<
   MakeReadonly<T['_output']>,
   ZodReadonlyDef<T>,
@@ -1525,7 +1525,7 @@ export type ZodStringDef = {
   coerce: boolean
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodString extends IZodType<string, ZodStringDef> {
   email(message?: ErrMessage): IZodString
   url(message?: ErrMessage): IZodString
@@ -1605,7 +1605,7 @@ export type RecordType<K extends string | number | symbol, V> = [string] extends
         ? Record<K, V>
         : Partial<Record<K, V>>
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodRecord<Key extends KeySchema = KeySchema, Value extends IZodType = IZodType> extends IZodType<
   RecordType<Key['_output'], Value['_output']>,
   ZodRecordDef<Key, Value>,
@@ -1623,7 +1623,7 @@ export type ZodRefDef = {
   uri: string
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodRef extends IZodType<NonNullable<unknown>, ZodRefDef> {}
 
 //* ─────────────────────────── ZodSet ───────────────────────────────────────
@@ -1641,7 +1641,7 @@ export type ZodSetDef<Value extends IZodType = IZodType> = {
   } | null
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodSet<Value extends IZodType = IZodType> extends IZodType<
   Set<Value['_output']>,
   ZodSetDef<Value>,
@@ -1660,7 +1660,7 @@ export type ZodSymbolDef = {
   typeName: 'ZodSymbol'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodSymbol extends IZodType<symbol, ZodSymbolDef> {}
 
 //* ─────────────────────────── ZodEffects ───────────────────────────────────
@@ -1698,7 +1698,7 @@ export type ZodEffectsDef<T extends IZodType = IZodType> = {
   effect: Effect
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodEffects<T extends IZodType = IZodType, Output = output<T>, Input = input<T>> extends IZodType<
   Output,
   ZodEffectsDef<T>,
@@ -1717,7 +1717,7 @@ export type ZodUndefinedDef = {
   typeName: 'ZodUndefined'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodUndefined extends IZodType<undefined, ZodUndefinedDef> {}
 
 //* ─────────────────────────── ZodUnion ────────────────────────────────────
@@ -1729,7 +1729,7 @@ export type ZodUnionDef<T extends ZodUnionOptions = DefaultZodUnionOptions> = {
   typeName: 'ZodUnion'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extends IZodType<
   T[number]['_output'],
   ZodUnionDef<T>,
@@ -1744,7 +1744,7 @@ export type ZodVoidDef = {
   typeName: 'ZodVoid'
 } & ZodTypeDef
 
-/* oxlint-disable typescript-eslint(consistent-type-definitions) */
+// oxlint-disable-next-line typescript/consistent-type-definitions
 export interface IZodVoid extends IZodType<void, ZodVoidDef> {}
 
 //* ─────────────────────────── ZodNativeType ───────────────────────────────
