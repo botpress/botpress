@@ -1,5 +1,6 @@
 import { test, expect } from 'vitest'
 import * as z from '../index'
+import type { StandardSchemaV1 } from '../typings'
 
 test('~standard exposes version and vendor', () => {
   const schema = z.string()
@@ -21,12 +22,17 @@ test('~standard validate resolves to { value } on success', async () => {
 })
 
 test('~standard validate resolves to { issues } on failure, with path to the failing field', async () => {
+  type Schema = typeof schema
+  type Success = StandardSchemaV1.SuccessResult<Schema['_output']>
+  type Failure = StandardSchemaV1.FailureResult
+
   const schema = z.object({ name: z.string(), age: z.number().min(0) })
-  const result: any = await schema['~standard'].validate({ name: 'seb', age: -1 })
-  expect(result.value).toBeUndefined()
-  expect(result.issues).toHaveLength(1)
-  expect(result.issues[0].path).toEqual(['age'])
-  expect(result.issues[0].message).toBeTypeOf('string')
+  const result = await schema['~standard'].validate({ name: 'seb', age: -1 })
+
+  expect((result as Success).value).toBeUndefined()
+  expect((result as Failure).issues).toHaveLength(1)
+  expect((result as Failure).issues[0]?.path).toEqual(['age'])
+  expect((result as Failure).issues[0]?.message).toBeTypeOf('string')
 })
 
 test('~standard validate throws synchronously, once, when a sync refinement throws', () => {
@@ -41,6 +47,9 @@ test('~standard validate throws synchronously, once, when a sync refinement thro
 })
 
 test('~standard validate returns a Promise for schemas with async refinements', async () => {
+  type Success = StandardSchemaV1.SuccessResult<string>
+  type Failure = StandardSchemaV1.FailureResult
+
   let calls = 0
   const schema = z.string().refine(async (val) => {
     calls++
@@ -49,9 +58,9 @@ test('~standard validate returns a Promise for schemas with async refinements', 
 
   const failurePromise = schema['~standard'].validate('hi')
   expect(failurePromise).toBeInstanceOf(Promise)
-  const failure: any = await failurePromise
-  expect(failure.value).toBeUndefined()
-  expect(failure.issues).toHaveLength(1)
+  const failure = await failurePromise
+  expect((failure as Success).value).toBeUndefined()
+  expect((failure as Failure).issues).toHaveLength(1)
   expect(calls).toEqual(2)
 
   calls = 0
