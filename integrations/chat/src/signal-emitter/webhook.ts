@@ -1,11 +1,15 @@
 import axios, { AxiosInstance } from 'axios'
-import { logger } from '../logger'
 import { SignalEmitter, Signal } from './typings'
+import * as bp from '.botpress'
 
 export class WebhookEmitter implements SignalEmitter {
   private _client: AxiosInstance
 
-  public constructor(webhookUrl: string, secreKey: string | undefined) {
+  public constructor(
+    webhookUrl: string,
+    secreKey: string | undefined,
+    private _logger: bp.Logger
+  ) {
     const headers: Record<string, string> = !secreKey
       ? {}
       : {
@@ -31,6 +35,8 @@ export class WebhookEmitter implements SignalEmitter {
 
   private _handleError = (thrown: unknown): void => {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    logger.error(`An error occured when emitting a signal to Webhook: "${error.message}"`)
+    // The webhook URL comes from the bot's configuration, so a delivery
+    // failure is only actionable by the bot owner:
+    this._logger.forBot().error(`An error occured when emitting a signal to Webhook: "${error.message}"`)
   }
 }
