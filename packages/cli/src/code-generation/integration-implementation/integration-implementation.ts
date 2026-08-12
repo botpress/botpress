@@ -57,11 +57,15 @@ export class IntegrationImplementationModule extends Module {
       '}',
       'export type AnyActionProps = ValueOf<ActionProps>',
       '',
+      // `messages` and `messageCreated` are mutually exclusive on a channel (see ExactlyOneProperty in the SDK) -
+      // this resolves to whichever one the integration actually defines for a given channel
+      "type ChannelMessages<TChannel extends keyof IntegrationProps['channels']> = NonNullable<",
+      "  IntegrationProps['channels'][TChannel]['messageCreated'] | IntegrationProps['channels'][TChannel]['messages']",
+      '>',
+      '',
       'export type MessageProps = {',
       "  [TChannel in keyof IntegrationProps['channels']]: {",
-      "    [TMessage in keyof IntegrationProps['channels'][TChannel]['messages']]: Parameters<",
-      "      IntegrationProps['channels'][TChannel]['messages'][TMessage]",
-      '    >[0]',
+      '    [TMessage in keyof ChannelMessages<TChannel>]: Parameters<ChannelMessages<TChannel>[TMessage]>[0]',
       '  }',
       '}',
       'export type AnyMessageProps = ValueOf<ValueOf<MessageProps>>',

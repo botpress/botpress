@@ -29,7 +29,9 @@ export type Message = Awaited<ReturnType<bp.Client['getMessage']>>['message']
 export type User = Awaited<ReturnType<bp.Client['getUser']>>['user']
 export type Event = Awaited<ReturnType<bp.Client['getEvent']>>['event']
 
-export type MessageCallback = ValueOf<bp.Integration['channels']['channel']['messages']>
+export type MessageCallback = ValueOf<
+  NonNullable<bp.Integration['channels']['channel']['messageCreated'] | bp.Integration['channels']['channel']['messages']>
+>
 export type MessageArgs = Simplify<Parameters<MessageCallback>[0]>
 
 type AsyncFunc = (...args: any[]) => Promise<any>

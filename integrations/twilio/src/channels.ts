@@ -7,7 +7,8 @@ import { getPhoneNumbers, getTwilioChannelType, renderCard, renderChoiceMessage 
 import * as bp from '.botpress'
 
 type Channels = bp.Integration['channels']
-type Messages = Channels[keyof Channels]['messages']
+type AnyChannel = Channels[keyof Channels]
+type Messages = NonNullable<AnyChannel['messageCreated'] | AnyChannel['messages']>
 type MessageHandler = Messages[keyof Messages]
 type MessageHandlerProps = Parameters<MessageHandler>[0]
 
