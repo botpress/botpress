@@ -196,9 +196,8 @@ const onMessageCreated = async ({ ctx, req, client, logger, instance }: ServerPr
 }
 
 const onUpdateMessage = async ({ ctx, req, client, logger, instance }: ServerProps) => {
-  const { conversation, user, type, payload, currentMessage, previousMessage } = parseBody<
-    UpdateMessagePayload<BaseIntegration, string, string>
-  >(req)
+  const { conversation, user, type, payload, currentMessage, previousMessage } =
+    parseBody<UpdateMessagePayload<BaseIntegration, string, string>>(req)
 
   const channelHandler = instance.channels[conversation.channel]
 
@@ -212,13 +211,22 @@ const onUpdateMessage = async ({ ctx, req, client, logger, instance }: ServerPro
     return
   }
 
-  await updateMessageHandler({ ctx, conversation, currentMessage, previousMessage, user, type, client, payload, logger })
+  await updateMessageHandler({
+    ctx,
+    conversation,
+    currentMessage,
+    previousMessage,
+    user,
+    type,
+    client,
+    payload,
+    logger,
+  })
 }
 
 const onUpdateConversation = async ({ ctx, req, client, logger, instance }: ServerProps) => {
-  const { currentConversation, previousConversation } = parseBody<
-    UpdateConversationPayload<BaseIntegration, string>
-  >(req)
+  const { currentConversation, previousConversation } =
+    parseBody<UpdateConversationPayload<BaseIntegration, string>>(req)
 
   const channelHandler = instance.channels[currentConversation.channel]
 
