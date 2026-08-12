@@ -1,8 +1,10 @@
-import 'dotenv/config'
 import { Client } from '@botpress/client'
 import { z } from '@botpress/sdk'
 import axios from 'axios'
+import dotenv from 'dotenv'
 import { parseArgs } from 'node:util'
+
+dotenv.config()
 
 const argsSchema = z.object({
   apiUrl: z.string(),

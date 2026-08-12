@@ -237,7 +237,7 @@ pnpm generate
 
 **Development**:
 
-- `tsup`: Fast TypeScript bundler (ESM + CJS output)
+- `tsdown`: TypeScript bundler (ESM + CJS output)
 - `vitest`: Modern test framework with TypeScript support
 - `prettier`: Code formatting
 
@@ -318,7 +318,7 @@ LLMz includes a React-like component system for building interactive UIs:
 - Code splitting with dynamic imports for faster startup
 - LRU caching for compiled code and results
 - Lazy loading of heavy dependencies
-- Bundle size optimization with tsup configuration
+- Bundle size optimization through the bundler configuration
 
 ## Exit System
 

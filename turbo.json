@@ -1,6 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalEnv": ["BP_*"],
+  "globalDependencies": ["tsconfig.json"],
   "tasks": {
     "generate": {
       "outputs": ["src/gen/**"],

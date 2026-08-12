@@ -18,7 +18,7 @@
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp add -y && pnpm run build:types && pnpm run build:neutral && size-limit",
-    "build:neutral": "ts-node -T ./build.ts",
+    "build:neutral": "ts-node -T -P tsconfig.ts-node.json ./build.ts",
     "build:types": "tsdown",
     "watch": "tsdown --watch",
     "test:e2e": "vitest run --config vitest.config.ts",
@@ -55,12 +55,12 @@
     "lodash": "^4.17.21",
     "msw": "^2.12.0",
     "size-limit": "^11.1.6",
-    "tsdown": "^0.22.1",
+    "tsdown": "^0.22.14",
     "unrun": "^0.3.0"
   },
   "peerDependencies": {
     "@bpinternal/thicktoken": "^3.0.0",
-    "@bpinternal/zui": "^2.4.0"
+    "@bpinternal/zui": "^2.4.1"
   },
   "engines": {
     "node": ">=18.0.0"

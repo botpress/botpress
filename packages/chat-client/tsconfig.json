@@ -1,5 +1,11 @@
 {
   "extends": "../../tsconfig.json",
-  "compilerOptions": {},
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "paths": {
+      "esbuild-plugin-polyfill-node": ["./node_modules/esbuild-plugin-polyfill-node/dist/index.d.ts"]
+    }
+  },
   "include": ["src/**/*", "e2e/**/*", "package.json", "*.ts"]
 }

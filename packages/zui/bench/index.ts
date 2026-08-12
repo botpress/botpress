@@ -9,7 +9,7 @@ const main = async () => {
 
   let failed = false
 
-  let results: { 'Test Name': string; 'Type Instantiations': string; Threshold: string; pass: '❌' | '✅' }[] = []
+  const results: { 'Test Name': string; 'Type Instantiations': string; Threshold: string; pass: '❌' | '✅' }[] = []
 
   for (const { sourceCode, name: caseName, instantiationThreshold } of cases) {
     console.info(`running ${caseName}...`)

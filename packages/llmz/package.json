@@ -2,7 +2,7 @@
   "name": "llmz",
   "type": "module",
   "description": "LLMz - An LLM-native Typescript VM built on top of Zui",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "files": [
     "dist",
     "DOCS.md"
@@ -23,9 +23,9 @@
   },
   "scripts": {
     "generate": "pnpm build:markdown",
-    "build": "tsup && pnpm tsc --emitDeclarationOnly --noCheck",
+    "build": "tsdown && pnpm tsc --emitDeclarationOnly --noCheck",
     "check:type": "tsc --noEmit",
-    "watch": "tsup --watch",
+    "watch": "tsdown --watch",
     "test": "vitest --run",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "test:e2e:update": "vitest -u run --config vitest.e2e.config.ts",
@@ -62,16 +62,16 @@
     "dotenv": "^16.4.4",
     "esbuild": "^0.25.10",
     "glob": "^9.3.4",
-    "prettier": "^3.4.2",
+    "oxfmt": "^0.61.0",
     "source-map-js": "1.2.1",
-    "tsup": "^8.0.2",
+    "tsdown": "^0.22.14",
     "tsx": "^4.19.2"
   },
   "peerDependencies": {
-    "@botpress/client": "2.1.0",
+    "@botpress/client": "2.2.0",
     "@botpress/cognitive": "1.1.0",
     "@bpinternal/thicktoken": "^3.1.0",
-    "@bpinternal/zui": "^2.4.0"
+    "@bpinternal/zui": "^2.4.1"
   },
   "dependenciesMeta": {
     "@bpinternal/zui": {

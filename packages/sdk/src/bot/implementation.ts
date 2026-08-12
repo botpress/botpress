@@ -40,9 +40,10 @@ export type BotImplementationProps<TBot extends BaseBot = BaseBot, TPlugins exte
   }
 }
 
-export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends Record<string, BasePlugin> = {}>
-  implements InjectedBotHandlers<TBot>
-{
+export class BotImplementation<
+  TBot extends BaseBot = BaseBot,
+  TPlugins extends Record<string, BasePlugin> = {},
+> implements InjectedBotHandlers<TBot> {
   private _registerHandler: RegisterHandler<TBot> | undefined
   private _actionHandlers: ActionHandlers<any>
   private _messageHandlers: OrderedMessageHandlersMap<any> = {}

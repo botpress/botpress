@@ -2,7 +2,7 @@ import { isOAuthWizardUrl } from '@botpress/common/src/oauth-wizard'
 import { reporting } from '@botpress/sdk-addons'
 import { ok } from 'assert/strict'
 import { Telegraf } from 'telegraf'
-import type { User } from 'telegraf/typings/core/types/typegram'
+import type { User } from 'telegraf/types'
 import { getStoredBotToken } from './botToken'
 import {
   handleAudioMessage,

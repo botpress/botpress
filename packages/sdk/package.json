@@ -1,6 +1,6 @@
 {
   "name": "@botpress/sdk",
-  "version": "7.0.0",
+  "version": "7.1.0",
   "description": "Botpress SDK",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -20,7 +20,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "2.1.0",
+    "@botpress/client": "2.2.0",
     "browser-or-node": "^2.1.1",
     "semver": "^7.3.8"
   },
@@ -30,7 +30,7 @@
     "esbuild-plugin-polyfill-node": "^0.3.0"
   },
   "peerDependencies": {
-    "@bpinternal/zui": "^2.4.0",
+    "@bpinternal/zui": "^2.4.1",
     "esbuild": "^0.16.12"
   },
   "peerDependenciesMeta": {

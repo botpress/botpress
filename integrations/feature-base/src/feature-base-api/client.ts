@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/client'
-import axios, { Axios, AxiosResponse } from 'axios'
+import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import { CreateCommentInput, CreateCommentOutput } from './sub-schemas'
 import * as bp from '.botpress'
 
@@ -23,7 +23,7 @@ type PagedApiOutput<K extends keyof Actions> =
     })
 
 export class FeatureBaseClient {
-  private _client: Axios
+  private _client: AxiosInstance
 
   public constructor(apiKey: string) {
     this._client = axios.create({

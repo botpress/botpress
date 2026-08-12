@@ -1,10 +1,10 @@
 import { expect } from 'vitest'
-import { format } from 'prettier'
+import { format } from 'oxfmt'
 
 const _formatTs = async (code: string): Promise<string> => {
   code = code.replace(/\s+/g, ' ')
-  code = await format(code, { parser: 'typescript' })
-  return code
+  const result = await format('assertions.utils.test.ts', code)
+  return result.code
 }
 
 export const assertIs = <T>(_arg: T): void => {}

@@ -13,6 +13,7 @@ import type {
   IZodType,
   ZodTypeDef,
   SafeParseReturnType,
+  StandardSchemaV1,
   CatchFn,
   IZodArray,
   IZodBranded,
@@ -39,7 +40,7 @@ import type {
   EffectIssue,
 } from '../../typings'
 
-import { getParsedType, isAsync, ParseStatus } from './parseUtil'
+import { getParsedType, isAsync, ParseStatus, SyncParseEncounteredAsyncError } from './parseUtil'
 
 export * from './parseUtil'
 
@@ -51,9 +52,11 @@ class _CircularDependencyError extends Error {
   }
 }
 
-export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input = Output>
-  implements IZodType<Output, Def, Input>
-{
+export abstract class ZodBaseTypeImpl<
+  Output = any,
+  Def extends ZodTypeDef = ZodTypeDef,
+  Input = Output,
+> implements IZodType<Output, Def, Input> {
   readonly __type__ = 'ZuiType'
   readonly _type!: Output
   readonly _output!: Output
@@ -132,7 +135,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   _parseSync(input: ParseInput): SyncParseReturnType<Output> {
     const result = this._parse(input)
     if (isAsync(result)) {
-      throw new Error('Synchronous parse encountered promise.')
+      throw new SyncParseEncounteredAsyncError('Synchronous parse encountered promise.')
     }
     return result
   }
@@ -192,6 +195,32 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   }
 
   spa = this.safeParseAsync
+
+  /** Once a schema is found to contain async parts, skip the sync attempt on future calls. */
+  private _standardAsync = false
+
+  get '~standard'(): StandardSchemaV1.Props<Input, Output> {
+    return {
+      version: 1,
+      vendor: 'zui',
+      validate: (value: unknown): StandardSchemaV1.Result<Output> | Promise<StandardSchemaV1.Result<Output>> => {
+        if (!this._standardAsync) {
+          try {
+            const result = this.safeParse(value)
+            return result.success ? { value: result.data } : { issues: result.error.issues }
+          } catch (err) {
+            if (!(err instanceof SyncParseEncounteredAsyncError)) {
+              throw err
+            }
+            this._standardAsync = true
+          }
+        }
+        return this.safeParseAsync(value).then((result) =>
+          result.success ? { value: result.data } : { issues: result.error.issues }
+        )
+      },
+    }
+  }
 
   refine(
     check: (arg: Output) => unknown,

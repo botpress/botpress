@@ -144,7 +144,7 @@ const _getDiffBatches = function* ({ added, updated, deleted }: FileTreeDiff) {
   while (addedCursor < added.length || updatedCursor < updated.length || deletedCursor < deleted.length) {
     const currentBatch: FileTreeDiff = { added: [], deleted: [], updated: [] }
 
-    for (let currentBatchSize = 0; currentBatchSize < MAX_BATCH_SIZE; ) {
+    for (let currentBatchSize = 0; currentBatchSize < MAX_BATCH_SIZE;) {
       const startSize = currentBatchSize
 
       if (addedCursor < added.length && currentBatchSize < MAX_BATCH_SIZE) {
