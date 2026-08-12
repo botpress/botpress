@@ -1,5 +1,6 @@
 import * as http from 'http'
 import { collectDefaultMetrics } from 'prom-client'
+import { bareLogger } from './logger'
 import { registry } from './metrics'
 
 export const startMetricsServer = (port: number) => {
@@ -21,7 +22,7 @@ export const startMetricsServer = (port: number) => {
 
         res.writeHead(404).end('Not Found')
       } catch (err) {
-        console.error('Metrics server error:', err)
+        bareLogger.error('Metrics server error:', err)
         if (!res.headersSent) {
           res.writeHead(500).end('Internal Server Error')
         }
@@ -30,10 +31,10 @@ export const startMetricsServer = (port: number) => {
   })
 
   server.on('error', (err) => {
-    console.error(`Metrics server failed to start: ${err.message}`)
+    bareLogger.error(`Metrics server failed to start: ${err.message}`)
   })
 
   server.listen(port, () => {
-    console.info(`Metrics server listening on port ${port}`)
+    bareLogger.info(`Metrics server listening on port ${port}`)
   })
 }
