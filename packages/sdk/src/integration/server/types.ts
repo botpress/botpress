@@ -126,27 +126,10 @@ export type MessageHandlerProps<
       tags: commonTypes.ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
     }) => Promise<void>
   }
-export type ChannelHandlers<TIntegration extends BaseIntegration> = {
-  [ChannelName in keyof TIntegration['channels']]: {
-    messages: {
-      [MessageType in keyof TIntegration['channels'][ChannelName]['messages']]: (
-        props: CommonHandlerProps<TIntegration> & MessageHandlerProps<TIntegration, ChannelName, MessageType>
-      ) => Promise<void>
-    }
-  }
-}
-
-export type UnknownOperationHandler<TIntegration extends BaseIntegration> = (
-  props: CommonHandlerProps<TIntegration> & {
-    req: Request
-  }
-) => Promise<Response | void>
-
 export type UpdateMessagePayload<
   TIntegration extends BaseIntegration,
-  TChannel extends keyof TIntegration['channels'] = keyof TIntegration['channels'],
-  TMessage extends keyof TIntegration['channels'][TChannel]['messages'] =
-    keyof TIntegration['channels'][TChannel]['messages'],
+  TChannel extends keyof TIntegration['channels'],
+  TMessage extends keyof TIntegration['channels'][TChannel]['messages'],
 > = {
   type: TMessage
   payload: TIntegration['channels'][TChannel]['messages'][TMessage]
@@ -178,22 +161,58 @@ export type UpdateMessagePayload<
     }
   >
 }
-export type UpdateMessageHandlerProps<TIntegration extends BaseIntegration> = CommonHandlerProps<TIntegration> &
-  UpdateMessagePayload<TIntegration>
-export type UpdateMessageHandler<TIntegration extends BaseIntegration> = (
-  props: UpdateMessageHandlerProps<TIntegration>
-) => Promise<Response | void>
+export type UpdateMessageHandlerProps<
+  TIntegration extends BaseIntegration,
+  TChannel extends keyof TIntegration['channels'],
+  TMessage extends keyof TIntegration['channels'][TChannel]['messages'],
+> = CommonHandlerProps<TIntegration> & UpdateMessagePayload<TIntegration, TChannel, TMessage>
 
-export type UpdateConversationPayload = {
+export type UpdateConversationPayload<
+  TIntegration extends BaseIntegration,
+  TChannel extends keyof TIntegration['channels'],
+> = {
   /** The conversation after the update. */
-  currentConversation: Conversation
+  currentConversation: Merge<
+    Conversation,
+    {
+      channel: TChannel
+      tags: commonTypes.ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags']>
+    }
+  >
   /** The conversation as it was before the update. */
-  previousConversation: Conversation
+  previousConversation: Merge<
+    Conversation,
+    {
+      channel: TChannel
+      tags: commonTypes.ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags']>
+    }
+  >
 }
-export type UpdateConversationHandlerProps<TIntegration extends BaseIntegration> = CommonHandlerProps<TIntegration> &
-  UpdateConversationPayload
-export type UpdateConversationHandler<TIntegration extends BaseIntegration> = (
-  props: UpdateConversationHandlerProps<TIntegration>
+export type UpdateConversationHandlerProps<
+  TIntegration extends BaseIntegration,
+  TChannel extends keyof TIntegration['channels'],
+> = CommonHandlerProps<TIntegration> & UpdateConversationPayload<TIntegration, TChannel>
+
+export type ChannelHandlers<TIntegration extends BaseIntegration> = {
+  [ChannelName in keyof TIntegration['channels']]: {
+    messages: {
+      [MessageType in keyof TIntegration['channels'][ChannelName]['messages']]: (
+        props: CommonHandlerProps<TIntegration> & MessageHandlerProps<TIntegration, ChannelName, MessageType>
+      ) => Promise<void>
+    }
+    messageUpdated?: {
+      [MessageType in keyof TIntegration['channels'][ChannelName]['messages']]: (
+        props: UpdateMessageHandlerProps<TIntegration, ChannelName, MessageType>
+      ) => Promise<void>
+    }
+    conversationUpdated?: (props: UpdateConversationHandlerProps<TIntegration, ChannelName>) => Promise<void>
+  }
+}
+
+export type UnknownOperationHandler<TIntegration extends BaseIntegration> = (
+  props: CommonHandlerProps<TIntegration> & {
+    req: Request
+  }
 ) => Promise<Response | void>
 
 export type IntegrationHandlers<TIntegration extends BaseIntegration> = {
@@ -202,8 +221,6 @@ export type IntegrationHandlers<TIntegration extends BaseIntegration> = {
   webhook: WebhookHandler<TIntegration>
   createUser?: CreateUserHandler<TIntegration>
   createConversation?: CreateConversationHandler<TIntegration>
-  updateMessage?: UpdateMessageHandler<TIntegration>
-  updateConversation?: UpdateConversationHandler<TIntegration>
   actions: ActionHandlers<TIntegration>
   channels: ChannelHandlers<TIntegration>
   unknownOperationHandler?: UnknownOperationHandler<TIntegration>
