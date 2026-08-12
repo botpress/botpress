@@ -1,5 +1,6 @@
 import { z } from '@botpress/sdk'
 import { EncryptionMode } from './auth-key'
+import { bareLogger } from './logger'
 import { ActionArgs, HandlerProps, MessageArgs } from './types'
 import * as bp from '.botpress'
 
@@ -41,13 +42,13 @@ const jsonSafeParse = <T = unknown>(str: string): JsonSafeParseResult<T> => {
 }
 
 /**
- * Runs at module load, before any request exists, so there is no integration
- * logger to report against.
+ * Runs at module load, before any request exists, so it reports through
+ * bareLogger rather than a request-scoped logger.
  */
 const getFidStoreConfig = (b64Config: string | undefined): FidStoreConfig => {
   const warningMessage = 'falling back on in-memory chat id store. This will break if used in production.'
   if (!b64Config) {
-    console.warn(`FID_STORE_CONFIG secret is unset; ${warningMessage}`)
+    bareLogger.warn(`FID_STORE_CONFIG secret is unset; ${warningMessage}`)
     return DEFAULT_FID_STORE_CONFIG
   }
 
@@ -55,13 +56,13 @@ const getFidStoreConfig = (b64Config: string | undefined): FidStoreConfig => {
 
   const jsonParseResult = jsonSafeParse(fidStoreConfigDecoded)
   if (!jsonParseResult.success) {
-    console.warn(`FID_STORE_CONFIG should be a base64 encoded JSON string; ${warningMessage}`)
+    bareLogger.warn(`FID_STORE_CONFIG should be a base64 encoded JSON string; ${warningMessage}`)
     return DEFAULT_FID_STORE_CONFIG
   }
 
   const zodParseResult = fidStoreConfigSchema.safeParse(jsonParseResult.data)
   if (!zodParseResult.success) {
-    console.warn(`FID_STORE_CONFIG is invalid; ${warningMessage}`)
+    bareLogger.warn(`FID_STORE_CONFIG is invalid; ${warningMessage}`)
     return DEFAULT_FID_STORE_CONFIG
   }
 
