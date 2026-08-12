@@ -8,7 +8,7 @@ import * as bp from '.botpress'
 
 type Channels = bp.Integration['channels']
 type AnyChannel = Channels[keyof Channels]
-type Messages = NonNullable<AnyChannel['messageCreated'] | AnyChannel['messages']>
+type Messages = NonNullable<AnyChannel['messages']>
 type MessageHandler = Messages[keyof Messages]
 type MessageHandlerProps = Parameters<MessageHandler>[0]
 

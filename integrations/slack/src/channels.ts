@@ -162,16 +162,11 @@ const defaultMessages = {
   bloc: (props) => _sendBloc(props),
 } satisfies ChannelMessages & DmMessages & ThreadMessages
 
-// `messages` and `messageCreated` are mutually exclusive per channel - these resolve to whichever is actually defined
-type ChannelMessages = NonNullable<
-  bp.IntegrationProps['channels']['channel']['messageCreated'] | bp.IntegrationProps['channels']['channel']['messages']
->
-type DmMessages = NonNullable<
-  bp.IntegrationProps['channels']['dm']['messageCreated'] | bp.IntegrationProps['channels']['dm']['messages']
->
-type ThreadMessages = NonNullable<
-  bp.IntegrationProps['channels']['thread']['messageCreated'] | bp.IntegrationProps['channels']['thread']['messages']
->
+// `messages` and `messageCreated` share the same underlying type per channel - this resolves correctly regardless
+// of which one is actually defined
+type ChannelMessages = NonNullable<bp.IntegrationProps['channels']['channel']['messages']>
+type DmMessages = NonNullable<bp.IntegrationProps['channels']['dm']['messages']>
+type ThreadMessages = NonNullable<bp.IntegrationProps['channels']['thread']['messages']>
 
 type SlackMessageProps<TMessage extends keyof ChannelMessages> =
   | Parameters<ChannelMessages[TMessage]>[0]

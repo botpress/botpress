@@ -31,7 +31,7 @@ export type Dropdown = bp.channels.channel.dropdown.Dropdown
 export type Location = bp.channels.channel.location.Location
 
 type Channels = bp.Integration['channels']
-type MessengerMessages = NonNullable<Channels['channel']['messageCreated'] | Channels['channel']['messages']>
+type MessengerMessages = NonNullable<Channels['channel']['messages']>
 type MessengerMessageHandler = MessengerMessages[keyof MessengerMessages]
 type MessengerMessageHandlerProps = Parameters<MessengerMessageHandler>[0]
 
