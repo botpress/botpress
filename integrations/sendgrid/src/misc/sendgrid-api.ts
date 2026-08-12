@@ -1,5 +1,6 @@
 import sgClient from '@sendgrid/client'
-import sgMail, { MailDataRequired } from '@sendgrid/mail'
+import type { MailDataRequired } from '@sendgrid/helpers/classes/mail'
+import sgMail from '@sendgrid/mail'
 
 /** A class for making http requests to the SendGrid API
  *

@@ -13,7 +13,7 @@ export default new IntegrationDefinition({
   name: 'workable',
   title: 'Workable',
   description: 'Integration with Workable for Botpress',
-  version: '0.1.2',
+  version: '0.1.3',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {

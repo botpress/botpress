@@ -1,4 +1,5 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+import { exchangeCodeForAccessToken } from './index'
 
 beforeAll(() => {
   process.env.SECRET_SHOPIFY_CLIENT_ID = 'test-client-id'
@@ -15,8 +16,6 @@ describe('exchangeCodeForAccessToken', () => {
       .fn()
       .mockResolvedValue(new Response(JSON.stringify({ access_token: 'shpat_x' }), { status: 200 }))
     vi.stubGlobal('fetch', fetchMock)
-
-    const { exchangeCodeForAccessToken } = await import('./index')
     await exchangeCodeForAccessToken({ shop: 'example', code: 'abc' })
 
     const body = JSON.parse(fetchMock.mock.calls[0]![1].body as string)
@@ -35,15 +34,11 @@ describe('exchangeCodeForAccessToken', () => {
         .fn()
         .mockResolvedValue(new Response(JSON.stringify({ access_token: 'shpat_x', expires_in: 3600 }), { status: 200 }))
     )
-
-    const { exchangeCodeForAccessToken } = await import('./index')
     await expect(exchangeCodeForAccessToken({ shop: 'example', code: 'abc' })).resolves.toBe('shpat_x')
   })
 
   it('throws when access_token is missing from the response', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ scope: 'x' }), { status: 200 })))
-
-    const { exchangeCodeForAccessToken } = await import('./index')
     await expect(exchangeCodeForAccessToken({ shop: 'example', code: 'abc' })).rejects.toThrow(/access_token/)
   })
 })
