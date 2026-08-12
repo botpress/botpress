@@ -1,7 +1,7 @@
 import { type Conversation, type Message, type User } from '@botpress/client'
 import type { commonTypes } from '../../common'
 import { Request, Response } from '../../serve'
-import { Cast, Merge, ValueOf } from '../../utils/type-utils'
+import { Cast, ExactlyOneProperty, Merge, ValueOf } from '../../utils/type-utils'
 import { IntegrationSpecificClient } from '../client'
 import { BaseIntegration } from '../common'
 import { type IntegrationLogger } from './integration-logger'
@@ -193,13 +193,23 @@ export type UpdateConversationHandlerProps<
   TChannel extends keyof TIntegration['channels'],
 > = CommonHandlerProps<TIntegration> & UpdateConversationPayload<TIntegration, TChannel>
 
+type MessageCreatedHandlers<
+  TIntegration extends BaseIntegration,
+  ChannelName extends keyof TIntegration['channels'],
+> = {
+  [MessageType in keyof TIntegration['channels'][ChannelName]['messages']]: (
+    props: CommonHandlerProps<TIntegration> & MessageHandlerProps<TIntegration, ChannelName, MessageType>
+  ) => Promise<void>
+}
+
 export type ChannelHandlers<TIntegration extends BaseIntegration> = {
-  [ChannelName in keyof TIntegration['channels']]: {
-    messages: {
-      [MessageType in keyof TIntegration['channels'][ChannelName]['messages']]: (
-        props: CommonHandlerProps<TIntegration> & MessageHandlerProps<TIntegration, ChannelName, MessageType>
-      ) => Promise<void>
-    }
+  [ChannelName in keyof TIntegration['channels']]: ExactlyOneProperty<{
+    /**
+     * @deprecated Use `messageCreated` instead.
+     */
+    messages: MessageCreatedHandlers<TIntegration, ChannelName>
+    messageCreated: MessageCreatedHandlers<TIntegration, ChannelName>
+  }> & {
     messageUpdated?: {
       [MessageType in keyof TIntegration['channels'][ChannelName]['messages']]: (
         props: UpdateMessageHandlerProps<TIntegration, ChannelName, MessageType>

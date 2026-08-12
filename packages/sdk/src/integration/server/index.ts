@@ -178,7 +178,9 @@ const onMessageCreated = async ({ ctx, req, client, logger, instance }: ServerPr
     throw new InvalidPayloadError(`Channel ${conversation.channel} not found`)
   }
 
-  const messageHandler = channelHandler.messages[type]
+  // messageCreated takes precedence over the deprecated messages map when both are defined for a channel
+  const messageHandlers = channelHandler.messageCreated ?? channelHandler.messages
+  const messageHandler = messageHandlers?.[type]
 
   if (!messageHandler) {
     throw new InvalidPayloadError(`Message of type ${type} not found in channel ${conversation.channel}`)
