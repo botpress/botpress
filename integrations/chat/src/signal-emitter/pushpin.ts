@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
-import { logger } from '../logger'
 import { SignalEmitter, Signal } from './typings'
+import * as bp from '.botpress'
 
 type PublishBody = {
   items: PublishItem[]
@@ -36,7 +36,11 @@ type PublishItem = {
 export class PushpinEmitter implements SignalEmitter {
   private _client: AxiosInstance
 
-  public constructor(emitUrl: string, secreKey: string | undefined) {
+  public constructor(
+    emitUrl: string,
+    secreKey: string | undefined,
+    private _logger: bp.Logger
+  ) {
     const headers: Record<string, string> = !secreKey
       ? {}
       : {
@@ -101,6 +105,6 @@ export class PushpinEmitter implements SignalEmitter {
 
   private _handleError = (thrown: unknown): void => {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    logger.error(`An error occured when publishing to Pushpin: "${error.message}"`)
+    this._logger.error(`An error occured when publishing to Pushpin: "${error.message}"`)
   }
 }

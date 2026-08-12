@@ -1,4 +1,5 @@
 import { getAuthenticatedWhatsappClient } from 'src/auth'
+import { resolveWhatsAppDestination, sendWhatsAppMessage } from 'src/misc/send-whatsapp-message'
 import { getMessageFromWhatsappMessageId } from 'src/misc/util'
 import { Text } from 'whatsapp-api-js/messages'
 import { WhatsAppStatusValue } from '../../misc/types'
@@ -93,10 +94,11 @@ export const statusHandler = async (value: WhatsAppStatusValue, props: bp.Handle
           )
           .join('; ') || 'Unknown error'
 
+      const recipient = value.recipient_id ?? value.recipient_user_id ?? '[Unknown recipient]'
       logger
         .forBot()
         .error(
-          `WhatsApp message delivery failed. Message ID: ${value.id}, Recipient: ${value.recipient_id}, Errors: ${errorDetails}`
+          `WhatsApp message delivery failed. Message ID: ${value.id}, Recipient: ${recipient}, Errors: ${errorDetails}`
         )
 
       const mediaErrorCode = value.errors?.find((e) => MEDIA_FAILURE_CODES.has(e.code))?.code
@@ -104,15 +106,16 @@ export const statusHandler = async (value: WhatsAppStatusValue, props: bp.Handle
       if (!isStale && mediaErrorCode && mediaUrl) {
         try {
           const { conversation } = await client.getConversation({ id: message.conversationId })
-          const { botPhoneNumberId, userPhone } = conversation.tags
-          if (botPhoneNumberId && userPhone) {
+          const { botPhoneNumberId } = conversation.tags
+          const destination = resolveWhatsAppDestination(conversation.tags)
+          if (botPhoneNumberId && destination) {
             logger
               .forBot()
               .warn(
-                `WhatsApp rejected the ${message.type} (code ${mediaErrorCode}); sending the URL as a plain text fallback to ${userPhone}.`
+                `WhatsApp rejected the ${message.type} (code ${mediaErrorCode}); sending the URL as a plain text fallback.`
               )
             const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
-            await whatsapp.sendMessage(botPhoneNumberId, userPhone, new Text(mediaUrl))
+            await sendWhatsAppMessage(whatsapp, botPhoneNumberId, destination, new Text(mediaUrl))
           }
         } catch (err) {
           logger.forBot().error('Failed to send the plain text URL fallback for the rejected media:', err)

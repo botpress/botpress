@@ -1,4 +1,4 @@
-import axios, { Axios } from 'axios'
+import axios, { AxiosInstance } from 'axios'
 
 export type CannyClientConfiguration = {
   apiKey: string
@@ -183,7 +183,7 @@ export type ListBoardsResponse = {
 
 export class CannyClient {
   private constructor(
-    private readonly _client: Axios,
+    private readonly _client: AxiosInstance,
     private readonly _apiKey: string
   ) {}
 

@@ -196,19 +196,43 @@ const onMessageCreated = async ({ ctx, req, client, logger, instance }: ServerPr
 }
 
 const onUpdateMessage = async ({ ctx, req, client, logger, instance }: ServerProps) => {
-  if (!instance.updateMessage) {
+  const { conversation, user, type, payload, currentMessage, previousMessage } = parseBody<
+    UpdateMessagePayload<BaseIntegration, string, string>
+  >(req)
+
+  const channelHandler = instance.channels[conversation.channel]
+
+  if (!channelHandler) {
+    throw new InvalidPayloadError(`Channel ${conversation.channel} not found`)
+  }
+
+  const updateMessageHandler = channelHandler.messageUpdated?.[type]
+
+  if (!updateMessageHandler) {
     return
   }
-  const payload = parseBody<UpdateMessagePayload<BaseIntegration>>(req)
-  return await instance.updateMessage({ ctx, client, logger, ...payload })
+
+  await updateMessageHandler({ ctx, conversation, currentMessage, previousMessage, user, type, client, payload, logger })
 }
 
 const onUpdateConversation = async ({ ctx, req, client, logger, instance }: ServerProps) => {
-  if (!instance.updateConversation) {
+  const { currentConversation, previousConversation } = parseBody<
+    UpdateConversationPayload<BaseIntegration, string>
+  >(req)
+
+  const channelHandler = instance.channels[currentConversation.channel]
+
+  if (!channelHandler) {
+    throw new InvalidPayloadError(`Channel ${currentConversation.channel} not found`)
+  }
+
+  const updateConversationHandler = channelHandler.conversationUpdated
+
+  if (!updateConversationHandler) {
     return
   }
-  const payload = parseBody<UpdateConversationPayload>(req)
-  return await instance.updateConversation({ ctx, client, logger, ...payload })
+
+  await updateConversationHandler({ ctx, currentConversation, previousConversation, client, logger })
 }
 
 const onActionTriggered = async ({ req, ctx, client, logger, instance }: ServerProps) => {
