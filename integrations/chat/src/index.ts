@@ -6,6 +6,7 @@ import { emitBotMessageSignals } from './bot-message-signals'
 import * as debug from './debug'
 import { makeHandler } from './handler'
 import { MemorySpace, ChatIdStore, InMemoryChatIdStore, DynamoDbChatIdStore } from './id-store'
+import { bareLogger } from './logger'
 import { emitMessageStream } from './message-stream'
 import { startMetricsServer } from './metrics-server'
 import { Options, options } from './options'
@@ -16,7 +17,13 @@ import * as bp from '.botpress'
 
 const tracingProvider = initTracing()
 if (tracingProvider) {
-  process.on('SIGTERM', () => void tracingProvider.shutdown().catch(console.error))
+  process.on(
+    'SIGTERM',
+    () =>
+      void tracingProvider
+        .shutdown()
+        .catch((thrown: unknown) => bareLogger.error('Failed to shut down tracing provider', thrown))
+  )
 }
 
 const memSpace = new MemorySpace()
