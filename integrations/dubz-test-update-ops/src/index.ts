@@ -26,13 +26,15 @@ export default new bp.Integration({
           })
         },
       },
+      messageUpdated: {
+        text: async ({ logger, currentMessage, previousMessage, conversation, user }) => {
+          logger.forBot().info('[typed] messageUpdated fired', { currentMessage, previousMessage, conversation, user })
+        },
+      },
+      conversationUpdated: async ({ logger, currentConversation, previousConversation }) => {
+        logger.forBot().info('[typed] conversationUpdated fired', { currentConversation, previousConversation })
+      },
     },
-  },
-  updateMessage: async ({ logger, currentMessage, previousMessage, conversation, user }) => {
-    logger.forBot().info('[typed] updateMessage fired', { currentMessage, previousMessage, conversation, user })
-  },
-  updateConversation: async ({ logger, currentConversation, previousConversation }) => {
-    logger.forBot().info('[typed] updateConversation fired', { currentConversation, previousConversation })
   },
   handler: async ({ client, req, logger }) => {
     if (!req.body) {
