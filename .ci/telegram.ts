@@ -7,6 +7,8 @@ export default dab.defineProject((ctx) => ({
     docker: {
       context: '..',
       file: '../Dockerfile',
+      args: { '--target': 'telegram' },
+      platform: 'linux/arm64',
     },
   },
   env: {
