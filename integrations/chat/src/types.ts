@@ -30,7 +30,9 @@ export type User = Awaited<ReturnType<bp.Client['getUser']>>['user']
 export type Event = Awaited<ReturnType<bp.Client['getEvent']>>['event']
 
 export type MessageCallback = ValueOf<
-  NonNullable<bp.Integration['channels']['channel']['messageCreated'] | bp.Integration['channels']['channel']['messages']>
+  NonNullable<
+    bp.Integration['channels']['channel']['messageCreated'] | bp.Integration['channels']['channel']['messages']
+  >
 >
 export type MessageArgs = Simplify<Parameters<MessageCallback>[0]>
 
