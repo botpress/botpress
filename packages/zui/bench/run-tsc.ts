@@ -24,81 +24,87 @@ export async function getTscVersion(): Promise<string> {
 }
 
 export async function runTsc(sourceCode: string, paths?: Record<string, string>): Promise<CompilationResult> {
-  const dir = tmp.dirSync({ prefix: DIR_PREFIX, unsafeCleanup: true }).name
+  const tmpDir = tmp.dirSync({ prefix: DIR_PREFIX, unsafeCleanup: true })
 
-  const caseTsconfig = {
-    compilerOptions: {
-      lib: ['es2022', 'dom'],
-      module: 'nodenext',
-      target: 'es2022',
-      strict: true,
-      esModuleInterop: true,
-      skipLibCheck: true,
-      forceConsistentCasingInFileNames: true,
-      moduleResolution: 'nodenext',
-      allowUnusedLabels: false,
-      allowUnreachableCode: false,
-      noFallthroughCasesInSwitch: true,
-      noImplicitReturns: true,
-      noUncheckedIndexedAccess: true,
-      noUnusedParameters: true,
-      exactOptionalPropertyTypes: false,
-      resolveJsonModule: true,
-      noPropertyAccessFromIndexSignature: false,
-      noUnusedLocals: false,
-      noImplicitOverride: false,
-      checkJs: false,
-      noEmit: true,
-      extendedDiagnostics: true,
-      ...(paths ? { paths: Object.fromEntries(Object.entries(paths).map(([k, v]) => [k, [v]])) } : {}),
-    },
-    files: ['index.ts'],
+  try {
+    const dir = tmpDir.name
+
+    const caseTsconfig = {
+      compilerOptions: {
+        lib: ['es2022', 'dom'],
+        module: 'nodenext',
+        target: 'es2022',
+        strict: true,
+        esModuleInterop: true,
+        skipLibCheck: true,
+        forceConsistentCasingInFileNames: true,
+        moduleResolution: 'nodenext',
+        allowUnusedLabels: false,
+        allowUnreachableCode: false,
+        noFallthroughCasesInSwitch: true,
+        noImplicitReturns: true,
+        noUncheckedIndexedAccess: true,
+        noUnusedParameters: true,
+        exactOptionalPropertyTypes: false,
+        resolveJsonModule: true,
+        noPropertyAccessFromIndexSignature: false,
+        noUnusedLocals: false,
+        noImplicitOverride: false,
+        checkJs: false,
+        noEmit: true,
+        extendedDiagnostics: true,
+        ...(paths ? { paths: Object.fromEntries(Object.entries(paths).map(([k, v]) => [k, [v]])) } : {}),
+      },
+      files: ['index.ts'],
+    }
+
+    await fs.writeFile(path.join(dir, 'tsconfig.json'), JSON.stringify(caseTsconfig, null, 2))
+    await fs.writeFile(path.join(dir, 'index.ts'), sourceCode)
+
+    const { stdout: checkStdOut } = await _runTsc('-p', dir)
+
+    const typesStr = _parseMetric(checkStdOut, 'Types')
+    const instantiationsStr = _parseMetric(checkStdOut, 'Instantiations')
+    const memoryUsedStr = _parseMetric(checkStdOut, 'Memory used')
+    const checkTimeStr = _parseMetric(checkStdOut, 'Check time')
+    const totalTimeStr = _parseMetric(checkStdOut, 'Total time')
+
+    const result: CompilationResult = {
+      types: null,
+      instantiations: null,
+      memoryUsed: null,
+      checkTime: null,
+      totalTime: null,
+    }
+
+    if (typesStr) {
+      const types = Number(typesStr.replaceAll(',', ''))
+      if (!Number.isNaN(types)) result.types = types
+    }
+
+    if (instantiationsStr) {
+      const instantiations = Number(instantiationsStr.replaceAll(',', ''))
+      if (!Number.isNaN(instantiations)) result.instantiations = instantiations
+    }
+
+    if (memoryUsedStr) {
+      result.memoryUsed = memoryUsedStr
+    }
+
+    if (checkTimeStr) {
+      const checkTime = ms(checkTimeStr)
+      if (!Number.isNaN(checkTime)) result.checkTime = checkTime
+    }
+
+    if (totalTimeStr) {
+      const totalTime = ms(totalTimeStr)
+      if (!Number.isNaN(totalTime)) result.totalTime = totalTime
+    }
+
+    return result
+  } finally {
+    tmpDir.removeCallback()
   }
-
-  await fs.writeFile(path.join(dir, 'tsconfig.json'), JSON.stringify(caseTsconfig, null, 2))
-  await fs.writeFile(path.join(dir, 'index.ts'), sourceCode)
-
-  const { stdout: checkStdOut } = await _runTsc('-p', dir)
-
-  const typesStr = _parseMetric(checkStdOut, 'Types')
-  const instantiationsStr = _parseMetric(checkStdOut, 'Instantiations')
-  const memoryUsedStr = _parseMetric(checkStdOut, 'Memory used')
-  const checkTimeStr = _parseMetric(checkStdOut, 'Check time')
-  const totalTimeStr = _parseMetric(checkStdOut, 'Total time')
-
-  const result: CompilationResult = {
-    types: null,
-    instantiations: null,
-    memoryUsed: null,
-    checkTime: null,
-    totalTime: null,
-  }
-
-  if (typesStr) {
-    const types = Number(typesStr.replace(/,/g, ''))
-    if (!Number.isNaN(types)) result.types = types
-  }
-
-  if (instantiationsStr) {
-    const instantiations = Number(instantiationsStr.replace(/,/g, ''))
-    if (!Number.isNaN(instantiations)) result.instantiations = instantiations
-  }
-
-  if (memoryUsedStr) {
-    result.memoryUsed = memoryUsedStr
-  }
-
-  if (checkTimeStr) {
-    const checkTime = ms(checkTimeStr)
-    if (!Number.isNaN(checkTime)) result.checkTime = checkTime
-  }
-
-  if (totalTimeStr) {
-    const totalTime = ms(totalTimeStr)
-    if (!Number.isNaN(totalTime)) result.totalTime = totalTime
-  }
-
-  return result
 }
 
 /**

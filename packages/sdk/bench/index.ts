@@ -44,9 +44,10 @@ const main = async () => {
   console.info('OK - within thresholds.')
 }
 
-void main()
-  .then(() => process.exit(0))
-  .catch((err) => {
-    console.error(err)
-    process.exit(1)
-  })
+try {
+  await main()
+  process.exit(0)
+} catch (err) {
+  console.error(err)
+  process.exit(1)
+}
