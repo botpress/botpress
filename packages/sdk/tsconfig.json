@@ -8,6 +8,6 @@
       "esbuild-plugin-polyfill-node": ["./node_modules/esbuild-plugin-polyfill-node/dist/index.d.ts"]
     }
   },
-  "include": ["src/**/*", "*.ts"],
+  "include": ["src/**/*", "bench/**/*", "*.ts"],
   "exclude": ["dist", "vitest.config.ts"]
 }
