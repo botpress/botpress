@@ -2,7 +2,7 @@ import * as types from '../types.js'
 
 export default {
   name: 'many-actions-30',
-  instantiationThreshold: 42000,
+  instantiationThreshold: 35000,
   sourceCode: `
 import { z, IntegrationDefinition } from "@botpress/sdk"
 

@@ -2,7 +2,7 @@ import * as types from '../types.js'
 
 export default {
   name: 'extend-chain-10',
-  instantiationThreshold: 36000,
+  instantiationThreshold: 31000,
   sourceCode: `
 import { z, IntegrationDefinition, InterfacePackage } from "@botpress/sdk"
 

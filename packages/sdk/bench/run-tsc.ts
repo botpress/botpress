@@ -50,7 +50,6 @@ export async function runTsc(sourceCode: string, paths?: Record<string, string>)
       checkJs: false,
       noEmit: true,
       extendedDiagnostics: true,
-      ignoreDeprecations: '6.0',
       ...(paths ? { paths: Object.fromEntries(Object.entries(paths).map(([k, v]) => [k, [v]])) } : {}),
     },
     files: ['index.ts'],

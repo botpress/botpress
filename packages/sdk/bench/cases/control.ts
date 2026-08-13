@@ -2,7 +2,7 @@ import * as types from '../types.js'
 
 export default {
   name: 'control',
-  instantiationThreshold: 35000,
+  instantiationThreshold: 29000,
   sourceCode: `
 import { z, IntegrationDefinition } from '@botpress/sdk'
 

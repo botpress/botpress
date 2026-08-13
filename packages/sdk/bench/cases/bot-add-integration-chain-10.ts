@@ -2,7 +2,7 @@ import * as types from '../types.js'
 
 export default {
   name: 'bot-add-integration-chain-10',
-  instantiationThreshold: 36000,
+  instantiationThreshold: 30000,
   sourceCode: `
 import { z, BotDefinition, IntegrationPackage } from "@botpress/sdk"
 

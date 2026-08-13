@@ -2,7 +2,7 @@ import * as types from '../types.js'
 
 export default {
   name: 'real-hitl-plugin',
-  instantiationThreshold: 40000,
+  instantiationThreshold: 34000,
   sourceCode: `
 // Adapted from plugins/hitl/plugin.definition.ts — a real, schema-heavy plugin.
 // The dependency on the 'hitl' interface package (bp_modules/hitl) was removed
