@@ -175,7 +175,7 @@ const onMessageCreated = async ({ ctx, req, client, logger, instance }: ServerPr
   const channelHandler = instance.channels[conversation.channel]
 
   if (!channelHandler) {
-    throw new InvalidPayloadError(`Channel ${conversation.channel} not found`)
+    throw new InvalidPayloadError(`No handler registered for channel "${conversation.channel}"`)
   }
 
   // messageCreated takes precedence over the deprecated messages map when both are defined for a channel
@@ -204,7 +204,7 @@ const onUpdateMessage = async ({ ctx, req, client, logger, instance }: ServerPro
   const channelHandler = instance.channels[conversation.channel]
 
   if (!channelHandler) {
-    throw new InvalidPayloadError(`Channel ${conversation.channel} not found`)
+    throw new InvalidPayloadError(`No handler registered for channel "${conversation.channel}"`)
   }
 
   const updateMessageHandler = channelHandler.messageUpdated?.[type]
@@ -233,7 +233,7 @@ const onUpdateConversation = async ({ ctx, req, client, logger, instance }: Serv
   const channelHandler = instance.channels[currentConversation.channel]
 
   if (!channelHandler) {
-    throw new InvalidPayloadError(`Channel ${currentConversation.channel} not found`)
+    throw new InvalidPayloadError(`No handler registered for channel "${currentConversation.channel}"`)
   }
 
   const updateConversationHandler = channelHandler.conversationUpdated
