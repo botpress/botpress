@@ -8,7 +8,7 @@ type ValueOf<T> = T[Extract<keyof T, string>]
 type CommonChannelProps<
   IP extends sdk.IntegrationProps<TIntegration>,
   TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never,
-> = Parameters<ValueOf<ValueOf<IP['channels']>['messages']>>[0]
+> = Parameters<ValueOf<NonNullable<ValueOf<IP['channels']>['messageCreated']>>>[0]
 
 type ToolFactory<
   ReturnType,
@@ -82,8 +82,8 @@ export const createChannelWrapper =
    */
   <
     CNAME extends Extract<keyof CHANNELS, string>,
-    MTYPE extends Extract<keyof CHANNELS[CNAME]['messages'], string>,
-    CFUNC extends CHANNELS[CNAME]['messages'][MTYPE],
+    MTYPE extends Extract<keyof NonNullable<CHANNELS[CNAME]['messageCreated']>, string>,
+    CFUNC extends NonNullable<CHANNELS[CNAME]['messageCreated']>[MTYPE],
     CFUNCPROPS extends Parameters<CFUNC>[0],
   >(
     _metadata: { channelName: CNAME; messageType: MTYPE } & EXTRAMETA,

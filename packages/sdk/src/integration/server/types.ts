@@ -1,7 +1,7 @@
 import { type Conversation, type Message, type User } from '@botpress/client'
 import type { commonTypes } from '../../common'
 import { Request, Response } from '../../serve'
-import { Cast, Merge, ValueOf } from '../../utils/type-utils'
+import { Cast, ExactlyOneProperty, Merge, ValueOf } from '../../utils/type-utils'
 import { IntegrationSpecificClient } from '../client'
 import { BaseIntegration } from '../common'
 import { type IntegrationLogger } from './integration-logger'
@@ -126,13 +126,96 @@ export type MessageHandlerProps<
       tags: commonTypes.ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
     }) => Promise<void>
   }
+export type UpdateMessagePayload<
+  TIntegration extends BaseIntegration,
+  TChannel extends keyof TIntegration['channels'],
+  TMessage extends keyof TIntegration['channels'][TChannel]['messages'],
+> = {
+  type: TMessage
+  payload: TIntegration['channels'][TChannel]['messages'][TMessage]
+  conversation: Merge<
+    Conversation,
+    {
+      channel: TChannel
+      tags: commonTypes.ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags']>
+    }
+  >
+  user: Merge<
+    User,
+    {
+      tags: commonTypes.ToTags<keyof TIntegration['user']['tags']>
+    }
+  >
+  /** The message after the update. */
+  currentMessage: Merge<
+    Message,
+    {
+      tags: commonTypes.ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
+    }
+  >
+  /** The message as it was before the update. */
+  previousMessage: Merge<
+    Message,
+    {
+      tags: commonTypes.ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
+    }
+  >
+}
+export type UpdateMessageHandlerProps<
+  TIntegration extends BaseIntegration,
+  TChannel extends keyof TIntegration['channels'],
+  TMessage extends keyof TIntegration['channels'][TChannel]['messages'],
+> = CommonHandlerProps<TIntegration> & UpdateMessagePayload<TIntegration, TChannel, TMessage>
+
+export type UpdateConversationPayload<
+  TIntegration extends BaseIntegration,
+  TChannel extends keyof TIntegration['channels'],
+> = {
+  /** The conversation after the update. */
+  currentConversation: Merge<
+    Conversation,
+    {
+      channel: TChannel
+      tags: commonTypes.ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags']>
+    }
+  >
+  /** The conversation as it was before the update. */
+  previousConversation: Merge<
+    Conversation,
+    {
+      channel: TChannel
+      tags: commonTypes.ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags']>
+    }
+  >
+}
+export type UpdateConversationHandlerProps<
+  TIntegration extends BaseIntegration,
+  TChannel extends keyof TIntegration['channels'],
+> = CommonHandlerProps<TIntegration> & UpdateConversationPayload<TIntegration, TChannel>
+
+type MessageCreatedHandlers<
+  TIntegration extends BaseIntegration,
+  ChannelName extends keyof TIntegration['channels'],
+> = {
+  [MessageType in keyof TIntegration['channels'][ChannelName]['messages']]: (
+    props: CommonHandlerProps<TIntegration> & MessageHandlerProps<TIntegration, ChannelName, MessageType>
+  ) => Promise<void>
+}
+
 export type ChannelHandlers<TIntegration extends BaseIntegration> = {
-  [ChannelName in keyof TIntegration['channels']]: {
-    messages: {
+  [ChannelName in keyof TIntegration['channels']]: ExactlyOneProperty<{
+    /**
+     * @deprecated Use `messageCreated` instead.
+     */
+    messages: MessageCreatedHandlers<TIntegration, ChannelName>
+    messageCreated: MessageCreatedHandlers<TIntegration, ChannelName>
+  }> & {
+    messageUpdated?: {
       [MessageType in keyof TIntegration['channels'][ChannelName]['messages']]: (
-        props: CommonHandlerProps<TIntegration> & MessageHandlerProps<TIntegration, ChannelName, MessageType>
+        props: UpdateMessageHandlerProps<TIntegration, ChannelName, MessageType>
       ) => Promise<void>
     }
+    conversationUpdated?: (props: UpdateConversationHandlerProps<TIntegration, ChannelName>) => Promise<void>
   }
 }
 
