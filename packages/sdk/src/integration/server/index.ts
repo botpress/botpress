@@ -197,7 +197,7 @@ const onMessageCreated = async ({ ctx, req, client, logger, instance }: ServerPr
   await messageHandler({ ctx, conversation, message, user, type, client, payload, ack, logger })
 }
 
-const onUpdateMessage = async ({ ctx, req, client, logger, instance }: ServerProps) => {
+const onMessageUpdated = async ({ ctx, req, client, logger, instance }: ServerProps) => {
   const { conversation, user, type, payload, currentMessage, previousMessage } =
     parseBody<UpdateMessagePayload<BaseIntegration, string, string>>(req)
 
@@ -226,7 +226,7 @@ const onUpdateMessage = async ({ ctx, req, client, logger, instance }: ServerPro
   })
 }
 
-const onUpdateConversation = async ({ ctx, req, client, logger, instance }: ServerProps) => {
+const onConversationUpdated = async ({ ctx, req, client, logger, instance }: ServerProps) => {
   const { currentConversation, previousConversation } =
     parseBody<UpdateConversationPayload<BaseIntegration, string>>(req)
 
