@@ -5,15 +5,10 @@ type BaseIntegration = never
 
 type ValueOf<T> = T[Extract<keyof T, string>]
 
-// `messages` and `messageCreated` share the same underlying type on a channel (see ExactlyOneProperty in the SDK),
-// so this resolves correctly regardless of which one a given channel actually defines
-type AnyChannel<IP extends sdk.IntegrationProps<any>> = ValueOf<IP['channels']>
-type AnyChannelMessages<IP extends sdk.IntegrationProps<any>> = NonNullable<AnyChannel<IP>['messageCreated']>
-
 type CommonChannelProps<
   IP extends sdk.IntegrationProps<TIntegration>,
   TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never,
-> = Parameters<ValueOf<AnyChannelMessages<IP>>>[0]
+> = Parameters<ValueOf<NonNullable<ValueOf<IP['channels']>['messageCreated']>>>[0]
 
 type ToolFactory<
   ReturnType,
