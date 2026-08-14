@@ -20,7 +20,7 @@ export default new sdk.IntegrationDefinition({
   name: 'postmark',
   title: 'Postmark',
   description: 'Send and receive emails through Postmark',
-  version: '0.1.1',
+  version: '0.1.2',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
