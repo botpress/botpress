@@ -82,6 +82,8 @@ export class IntegrationSpecificClient<
     this._client.patchState(x)) as types.PatchState<TIntegration>
 
   public configureIntegration: types.ConfigureIntegration<TIntegration> = (x) => this._client.configureIntegration(x)
+  public getIntegrationInstanceIdentifiers: types.GetIntegrationInstanceIdentifiers<TIntegration> = () =>
+    this._client.getIntegrationInstanceIdentifiers({}) //  Arguments omitted for convenience
 
   public uploadFile: types.UploadFile<TIntegration> = (x) => this._client.uploadFile(x)
   public upsertFile: types.UpsertFile<TIntegration> = (x) => this._client.upsertFile(x)
