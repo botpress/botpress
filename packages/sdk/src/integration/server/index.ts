@@ -89,9 +89,9 @@ const handleOperation = async (props: ServerProps) => {
     case 'create_conversation':
       return await onCreateConversation(props)
     case 'message_updated':
-      return await onUpdateMessage(props)
+      return await onMessageUpdated(props)
     case 'conversation_updated':
-      return await onUpdateConversation(props)
+      return await onConversationUpdated(props)
     default:
       throw new InvalidPayloadError(`Unknown operation ${ctx.operation}`)
   }
