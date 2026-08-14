@@ -175,7 +175,7 @@ const onMessageCreated = async ({ ctx, req, client, logger, instance }: ServerPr
   const channelHandler = instance.channels[conversation.channel]
 
   if (!channelHandler) {
-    throw new InvalidPayloadError(`No handler registered for channel "${conversation.channel}"`)
+    throw new InvalidPayloadError(`Integration has no handler registered for channel "${conversation.channel}"`)
   }
 
   // messageCreated takes precedence over the deprecated messages map when both are defined for a channel
@@ -204,7 +204,7 @@ const onMessageUpdated = async ({ ctx, req, client, logger, instance }: ServerPr
   const channelHandler = instance.channels[conversation.channel]
 
   if (!channelHandler) {
-    throw new InvalidPayloadError(`No handler registered for channel "${conversation.channel}"`)
+    throw new InvalidPayloadError(`Integration has no handler registered for channel "${conversation.channel}"`)
   }
 
   const updateMessageHandler = channelHandler.messageUpdated?.[type]
@@ -233,7 +233,7 @@ const onConversationUpdated = async ({ ctx, req, client, logger, instance }: Ser
   const channelHandler = instance.channels[currentConversation.channel]
 
   if (!channelHandler) {
-    throw new InvalidPayloadError(`No handler registered for channel "${currentConversation.channel}"`)
+    throw new InvalidPayloadError(`Integration has no handler registered for channel "${currentConversation.channel}"`)
   }
 
   const updateConversationHandler = channelHandler.conversationUpdated
