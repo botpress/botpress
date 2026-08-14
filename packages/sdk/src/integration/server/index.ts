@@ -175,12 +175,19 @@ const onMessageCreated = async ({ ctx, req, client, logger, instance }: ServerPr
   const channelHandler = instance.channels[conversation.channel]
 
   if (!channelHandler) {
-    throw new InvalidPayloadError(`Integration has no handler registered for channel "${conversation.channel}"`)
+    throw new InvalidPayloadError(`Channel ${conversation.channel} not found`)
   }
 
   // messageCreated takes precedence over the deprecated messages map when both are defined for a channel
   const messageHandlers = channelHandler.messageCreated ?? channelHandler.messages
-  const messageHandler = messageHandlers?.[type]
+
+  if (!messageHandlers) {
+    throw new InvalidPayloadError(
+      `Integration has no messages or messageCreated handler registered for channel ${conversation.channel}`
+    )
+  }
+
+  const messageHandler = messageHandlers[type]
 
   if (!messageHandler) {
     throw new InvalidPayloadError(`Message of type ${type} not found in channel ${conversation.channel}`)
@@ -204,7 +211,7 @@ const onMessageUpdated = async ({ ctx, req, client, logger, instance }: ServerPr
   const channelHandler = instance.channels[conversation.channel]
 
   if (!channelHandler) {
-    throw new InvalidPayloadError(`Integration has no handler registered for channel "${conversation.channel}"`)
+    throw new InvalidPayloadError(`Channel ${conversation.channel} not found`)
   }
 
   const updateMessageHandler = channelHandler.messageUpdated?.[type]
@@ -233,7 +240,7 @@ const onConversationUpdated = async ({ ctx, req, client, logger, instance }: Ser
   const channelHandler = instance.channels[currentConversation.channel]
 
   if (!channelHandler) {
-    throw new InvalidPayloadError(`Integration has no handler registered for channel "${currentConversation.channel}"`)
+    throw new InvalidPayloadError(`Channel ${currentConversation.channel} not found`)
   }
 
   const updateConversationHandler = channelHandler.conversationUpdated
