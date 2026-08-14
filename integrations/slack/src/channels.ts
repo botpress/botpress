@@ -164,9 +164,9 @@ const defaultMessages = {
 
 // `messages` and `messageCreated` share the same underlying type per channel - this resolves correctly regardless
 // of which one is actually defined
-type ChannelMessages = NonNullable<bp.IntegrationProps['channels']['channel']['messages']>
-type DmMessages = NonNullable<bp.IntegrationProps['channels']['dm']['messages']>
-type ThreadMessages = NonNullable<bp.IntegrationProps['channels']['thread']['messages']>
+type ChannelMessages = NonNullable<bp.IntegrationProps['channels']['channel']['messageCreated']>
+type DmMessages = NonNullable<bp.IntegrationProps['channels']['dm']['messageCreated']>
+type ThreadMessages = NonNullable<bp.IntegrationProps['channels']['thread']['messageCreated']>
 
 type SlackMessageProps<TMessage extends keyof ChannelMessages> =
   | Parameters<ChannelMessages[TMessage]>[0]

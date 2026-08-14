@@ -60,7 +60,7 @@ export class IntegrationImplementationModule extends Module {
       // `messages` and `messageCreated` share the same underlying type on a channel (see ExactlyOneProperty in the
       // SDK), so this resolves correctly regardless of which one the integration actually defines
       "type ChannelMessages<TChannel extends keyof IntegrationProps['channels']> = NonNullable<",
-      "  IntegrationProps['channels'][TChannel]['messages']",
+      "  IntegrationProps['channels'][TChannel]['messageCreated']",
       '>',
       '',
       'export type MessageProps = {',

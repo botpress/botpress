@@ -8,7 +8,7 @@ type ValueOf<T> = T[Extract<keyof T, string>]
 // `messages` and `messageCreated` share the same underlying type on a channel (see ExactlyOneProperty in the SDK),
 // so this resolves correctly regardless of which one a given channel actually defines
 type AnyChannel<IP extends sdk.IntegrationProps<any>> = ValueOf<IP['channels']>
-type AnyChannelMessages<IP extends sdk.IntegrationProps<any>> = NonNullable<AnyChannel<IP>['messages']>
+type AnyChannelMessages<IP extends sdk.IntegrationProps<any>> = NonNullable<AnyChannel<IP>['messageCreated']>
 
 type CommonChannelProps<
   IP extends sdk.IntegrationProps<TIntegration>,
@@ -87,8 +87,8 @@ export const createChannelWrapper =
    */
   <
     CNAME extends Extract<keyof CHANNELS, string>,
-    MTYPE extends Extract<keyof NonNullable<CHANNELS[CNAME]['messages']>, string>,
-    CFUNC extends NonNullable<CHANNELS[CNAME]['messages']>[MTYPE],
+    MTYPE extends Extract<keyof NonNullable<CHANNELS[CNAME]['messageCreated']>, string>,
+    CFUNC extends NonNullable<CHANNELS[CNAME]['messageCreated']>[MTYPE],
     CFUNCPROPS extends Parameters<CFUNC>[0],
   >(
     _metadata: { channelName: CNAME; messageType: MTYPE } & EXTRAMETA,

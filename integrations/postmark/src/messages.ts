@@ -3,7 +3,7 @@ import { Buffer } from 'node:buffer'
 import { send, type SendEmailInput } from './send-email'
 import * as bp from '.botpress'
 
-type MessageHandlers = NonNullable<bp.IntegrationProps['channels']['mail']['messages']>
+type MessageHandlers = NonNullable<bp.IntegrationProps['channels']['mail']['messageCreated']>
 
 export const escapeHtml = (str: string): string =>
   str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
