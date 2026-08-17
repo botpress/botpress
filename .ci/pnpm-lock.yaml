@@ -9,13 +9,13 @@ importers:
   .:
     dependencies:
       '@botpress-private/dab':
-        specifier: 0.4.3
-        version: 0.4.3(@effect/cluster@0.59.0(@effect/platform@0.96.3(effect@3.22.1))(@effect/rpc@0.75.1(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/sql@0.51.1(@effect/experimental@0.60.0(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/workflow@0.18.2(@effect/experimental@0.60.0(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.96.3(effect@3.22.1))(@effect/rpc@0.75.1(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.96.3(effect@3.22.1))(@effect/printer-ansi@0.49.0(@effect/typeclass@0.40.0(effect@3.22.1))(effect@3.22.1))(@effect/printer@0.49.0(@effect/typeclass@0.40.0(effect@3.22.1))(effect@3.22.1))(@effect/rpc@0.75.1(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/sql@0.51.1(@effect/experimental@0.60.0(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))
+        specifier: 0.4.6
+        version: 0.4.6(@effect/cluster@0.59.0(@effect/platform@0.96.3(effect@3.22.1))(@effect/rpc@0.75.1(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/sql@0.51.1(@effect/experimental@0.60.0(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/workflow@0.18.2(@effect/experimental@0.60.0(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.96.3(effect@3.22.1))(@effect/rpc@0.75.1(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.96.3(effect@3.22.1))(@effect/printer-ansi@0.49.0(@effect/typeclass@0.40.0(effect@3.22.1))(effect@3.22.1))(@effect/printer@0.49.0(@effect/typeclass@0.40.0(effect@3.22.1))(effect@3.22.1))(@effect/rpc@0.75.1(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/sql@0.51.1(@effect/experimental@0.60.0(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))
 
 packages:
 
-  '@botpress-private/dab@0.4.3':
-    resolution: {integrity: sha512-mWat0Upu8wWT+uWIW15t+6aJ2YTc7ES8HGZYnqpaAXNEaSKnqTf0EFU1UfdAfj+R33q4zO5Eu0Urc3skDqq8Mw==, tarball: https://npm.pkg.github.com/download/@botpress-private/dab/0.4.3/dc3ac48ab75eb841d379883017ef5fd15c38299c}
+  '@botpress-private/dab@0.4.6':
+    resolution: {integrity: sha512-1aVMxAcdRLPJdIq/r5ZbhkUxLCV2/fJCopX0AwKK6p2P9CA199euFDCnBkMExRmMmg3d82LJ/tGdUyMtULqHvw==, tarball: https://npm.pkg.github.com/download/@botpress-private/dab/0.4.6/eeae3fffa04adda99a88e384535341071ffbed75}
     hasBin: true
 
   '@dagger.io/dagger@0.20.8':
@@ -1224,7 +1224,7 @@ packages:
 
 snapshots:
 
-  '@botpress-private/dab@0.4.3(@effect/cluster@0.59.0(@effect/platform@0.96.3(effect@3.22.1))(@effect/rpc@0.75.1(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/sql@0.51.1(@effect/experimental@0.60.0(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/workflow@0.18.2(@effect/experimental@0.60.0(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.96.3(effect@3.22.1))(@effect/rpc@0.75.1(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.96.3(effect@3.22.1))(@effect/printer-ansi@0.49.0(@effect/typeclass@0.40.0(effect@3.22.1))(effect@3.22.1))(@effect/printer@0.49.0(@effect/typeclass@0.40.0(effect@3.22.1))(effect@3.22.1))(@effect/rpc@0.75.1(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/sql@0.51.1(@effect/experimental@0.60.0(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))':
+  '@botpress-private/dab@0.4.6(@effect/cluster@0.59.0(@effect/platform@0.96.3(effect@3.22.1))(@effect/rpc@0.75.1(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/sql@0.51.1(@effect/experimental@0.60.0(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/workflow@0.18.2(@effect/experimental@0.60.0(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.96.3(effect@3.22.1))(@effect/rpc@0.75.1(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.96.3(effect@3.22.1))(@effect/printer-ansi@0.49.0(@effect/typeclass@0.40.0(effect@3.22.1))(effect@3.22.1))(@effect/printer@0.49.0(@effect/typeclass@0.40.0(effect@3.22.1))(effect@3.22.1))(@effect/rpc@0.75.1(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/sql@0.51.1(@effect/experimental@0.60.0(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))(@effect/platform@0.96.3(effect@3.22.1))(effect@3.22.1))':
     dependencies:
       '@dagger.io/dagger': 0.20.8
       '@effect/cli': 0.75.2(@effect/platform@0.96.3(effect@3.22.1))(@effect/printer-ansi@0.49.0(@effect/typeclass@0.40.0(effect@3.22.1))(effect@3.22.1))(@effect/printer@0.49.0(@effect/typeclass@0.40.0(effect@3.22.1))(effect@3.22.1))(effect@3.22.1)
