@@ -29,11 +29,11 @@
     },
     "@botpress/sdk#build": {
       "outputs": ["dist/**"],
-      "dependsOn": ["generate", "^build", "@botpress/client#build", "@bpinternal/zui#build"]
+      "dependsOn": ["generate", "^build", "@bpinternal/zui#build"]
     },
     "@botpress/cli#build": {
       "outputs": ["dist/**", "templates/*/.botpress/**"],
-      "dependsOn": ["generate", "^build", "@botpress/sdk#build"]
+      "dependsOn": ["generate", "^build"]
     },
     "@botpress/cognitive#build": {
       "outputs": ["dist/**"],
