@@ -4,7 +4,7 @@ import * as bp from '.botpress'
 const _updateAllConversationsOrFail = async (props: bp.WorkflowHandlerProps['updateAllConversations']) => {
   try {
     await updateAllConversations(props)
-  } catch (thrown) {
+  } catch (thrown: unknown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
     await props.workflow.setFailed({
       failureReason: `Failed to update conversation insights after the AI call retries were exhausted: ${error.message}`,
