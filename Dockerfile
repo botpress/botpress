@@ -14,7 +14,6 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json turbo.json .n
 
 # Install pnpm and build dependencies
 RUN npm install -g pnpm@${PNPM_VERSION} && echo "PNPM version: ${PNPM_VERSION}"
-RUN npm install turbo --global
 
 # `bp add` resolves the `bpDependencies` of the integration from source, so the
 # referenced interfaces must be present in the build context
@@ -26,7 +25,7 @@ COPY ./patches ./patches
 RUN pnpm install --frozen-lockfile
 
 # generate
-RUN turbo run build --filter='!@botpress/vai' --filter='!@botpress/zai' --filter='!llmz'
+RUN pnpm build --filter='!@botpress/vai' --filter='!@botpress/zai' --filter='!llmz'
 
 FROM node:${NODE_VERSION}-bullseye-slim AS base
 
