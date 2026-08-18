@@ -20,4 +20,5 @@ export default dab.defineProject((ctx) => ({
   probes: {
     readiness: '/health',
   },
+  strategy: 'RollingUpdate',
 }))
