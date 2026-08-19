@@ -1,6 +1,8 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     "outDir": "dist"
   },
-  "include": ["**/*"]
+  "include": ["**/*.ts"],
+  "exclude": [".dab/**", "node_modules/**", ".dab-state/**"]
 }

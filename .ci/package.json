@@ -1,5 +1,11 @@
 {
+  "scripts": {
+    "check:type": "tsc --noEmit"
+  },
   "dependencies": {
     "@botpress-private/dab": "0.4.6"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3"
   }
 }
