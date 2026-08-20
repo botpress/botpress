@@ -12,10 +12,18 @@ fi
 integration_def=$(pnpm bp read --work-dir "integrations/$integration" --json)
 name=$(echo "$integration_def" | jq -r '.name')
 version=$(echo "$integration_def" | jq -r '.version')
-latest_version=$(pnpm bp integrations ls --name "$name" --json \
-  | jq -r '.[] | select(.public) | .version' \
-  | sort -V \
-  | tail -1)
+# Do not mistake API, authentication, or parsing failures for a new integration.
+if ! integrations_json=$(pnpm bp integrations ls --name "$name" --json); then
+  echo "Failed to list deployed versions for integration $integration."
+  exit 1
+fi
+
+if ! public_versions=$(jq -r '.[] | select(.public) | .version' <<< "$integrations_json"); then
+  echo "Failed to parse deployed versions for integration $integration."
+  exit 1
+fi
+
+latest_version=$(printf '%s\n' "$public_versions" | sort -V | tail -1)
 
 if ! [[ "$version" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
   echo "Integration $integration has invalid version $version."
