@@ -90,13 +90,6 @@ const startConversationProps = {
             .describe(
               'Language of the WhatsApp Message Template to start the conversation with. Defaults to "en" (English)'
             ),
-          templateVariablesJson: z
-            .string()
-            .optional()
-            .title('[DEPRECATED] Message Template variables')
-            .describe(
-              'Deprecated: use templateBodyParams instead. JSON array of body variable values: ["val1", "val2"].'
-            ),
           templateHeaderParams: z
             .discriminatedUnion('type', [
               z.object({
@@ -165,7 +158,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.17.0'
+export const INTEGRATION_VERSION = '4.18.5'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
