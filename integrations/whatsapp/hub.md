@@ -58,7 +58,7 @@ actions.whatsapp.startConversation({
     userPhone: '+1 123 456 7890',
     templateName: 'test_message',
     templateLanguage: 'en',
-    templateVariablesJson: JSON.stringify(['First value', 'Second value'])
+    templateBodyParams: { type: 'positional', values: ['First value', 'Second value'] },
     botPhoneNumberId: '1234567890'
   }
 })
