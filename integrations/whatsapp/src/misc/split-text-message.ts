@@ -6,12 +6,18 @@ export function splitTextMessageIfNeeded(message: string): string[] {
     return [message]
   }
 
-  const numChunks = Math.ceil(textLength / WHATSAPP_MAX_TEXT_LENGTH)
-  const chunks = Array.from({ length: numChunks }, (_, i) => {
-    const start = i * WHATSAPP_MAX_TEXT_LENGTH
-    const end = (i + 1) * WHATSAPP_MAX_TEXT_LENGTH
-    return message.slice(start, end)
-  })
+  const chunks: string[] = []
+  let start = 0
+
+  while (start < textLength) {
+    let end = Math.min(start + WHATSAPP_MAX_TEXT_LENGTH, textLength)
+    const lastCodeUnit = message.charCodeAt(end - 1)
+    if (end < textLength && lastCodeUnit >= 0xd800 && lastCodeUnit <= 0xdbff) {
+      end--
+    }
+    chunks.push(message.slice(start, end))
+    start = end
+  }
 
   return chunks
 }
