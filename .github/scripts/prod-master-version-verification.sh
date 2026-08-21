@@ -10,8 +10,13 @@ set -euo pipefail
 SKIP_INTEGRATIONS=("chat" "docusign")
 production_workflow="deploy-integrations-production.yml"
 
-if ! deployed_sha=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/actions/workflows/$production_workflow/runs?status=success&per_page=100" --jq '[.[] | .workflow_runs[]][0].head_sha'); then
+if ! deployment_runs=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/actions/workflows/$production_workflow/runs?status=success&per_page=100"); then
   echo "Failed to find successful production deployment workflow runs." >&2
+  exit 2
+fi
+
+if ! deployed_sha=$(jq -r '[.[] | .workflow_runs[]][0].head_sha' <<< "$deployment_runs"); then
+  echo "Failed to parse successful production deployment workflow runs." >&2
   exit 2
 fi
 
