@@ -5,12 +5,18 @@ on:
     - cron: '0 8 * * 1-5'
   workflow_dispatch: # optional manual trigger
 
+permissions:
+  actions: read
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: master
       - name: Setup
         uses: ./.github/actions/setup
       - name: Login to Botpress
@@ -22,5 +28,6 @@ jobs:
         env:
           SERVER_URL: ${{ github.server_url }}
           REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WORKFLOW_SEAGULL_WEBHOOK_URL }}
         run: bash ./.github/scripts/prod-master-version-verification.sh
