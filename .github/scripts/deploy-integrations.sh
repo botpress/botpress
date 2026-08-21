@@ -38,7 +38,7 @@ for integration_path in $integration_paths; do
     base_command="bp deploy -v -y --noBuild --visibility public --allowDeprecated $dryrun"
 
     integration_deployed=false
-    if ./.github/scripts/integration-changed.sh "$integration"; then
+    if bash ./.github/scripts/integration-changed.sh "$integration"; then
         echo -e "\nDeploying integration: ### $integration ###\n"
         pnpm retry -n 2 -- pnpm -F "{integrations/$integration}" -c exec -- "$base_command"
         integration_deployed=true
