@@ -32,13 +32,42 @@ all_filters="-F '{integrations/*}' $INPUT_EXTRA_FILTER"
 list_integrations_cmd="pnpm list $all_filters --json"
 integration_paths=$(eval "$list_integrations_cmd" | jq -r 'map(.path) | .[]')
 
+: "${GITHUB_REPOSITORY:?GITHUB_REPOSITORY must be set}"
+: "${GITHUB_RUN_ID:?GITHUB_RUN_ID must be set}"
+
+if ! workflow_id=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq '.workflow_id'); then
+  echo "Failed to determine the current workflow." >&2
+  exit 2
+fi
+
+if ! previous_runs=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/actions/workflows/$workflow_id/runs?status=success&per_page=100"); then
+  echo "Failed to find previous successful workflow runs." >&2
+  exit 2
+fi
+
+if ! previous_sha=$(jq -r '[.[] | .workflow_runs[] | select(.event != "pull_request")][0].head_sha' <<< "$previous_runs"); then
+  echo "Failed to parse previous successful workflow runs." >&2
+  exit 2
+fi
+
+if [ "$previous_sha" = "null" ]; then
+  previous_sha=""
+fi
+
+if [ -n "$previous_sha" ] && ! git cat-file -e "$previous_sha^{commit}" 2>/dev/null; then
+  if ! git fetch --no-tags origin "$previous_sha"; then
+    echo "Failed to fetch the previous workflow commit: $previous_sha" >&2
+    exit 2
+  fi
+fi
+
 for integration_path in $integration_paths; do
     integration=$(basename "$integration_path")
 
     base_command="bp deploy -v -y --noBuild --visibility public --allowDeprecated $dryrun"
 
     integration_deployed=false
-    if bash ./.github/scripts/integration-changed.sh "$integration"; then
+    if bash ./.github/scripts/integration-changed.sh "$integration" "$previous_sha"; then
         echo -e "\nDeploying integration: ### $integration ###\n"
         pnpm retry -n 2 -- pnpm -F "{integrations/$integration}" -c exec -- "$base_command"
         integration_deployed=true
