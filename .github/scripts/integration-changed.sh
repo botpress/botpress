@@ -26,8 +26,13 @@ if ! workflow_id=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
   exit 2
 fi
 
-if ! previous_sha=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/actions/workflows/$workflow_id/runs?status=success&per_page=100" --jq '[.[] | .workflow_runs[] | select(.event != "pull_request")][0].head_sha'); then
+if ! previous_runs=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/actions/workflows/$workflow_id/runs?status=success&per_page=100"); then
   echo "Failed to find previous successful workflow runs." >&2
+  exit 2
+fi
+
+if ! previous_sha=$(jq -r '[.[] | .workflow_runs[] | select(.event != "pull_request")][0].head_sha' <<< "$previous_runs"); then
+  echo "Failed to parse previous successful workflow runs." >&2
   exit 2
 fi
 
