@@ -1,1 +1,3 @@
 This integration provides actions for web interaction, specifically for capturing screenshots and browsing web pages. The captureScreenshot action takes a URL as input and returns a URL pointing to the captured screenshot of the page. The browsePage action also takes a URL as input and returns the content of the web page along with metadata including the title, description, favicon, author, and date published. These actions facilitate automated web data extraction and visualization, enhancing the ability to interact with and analyze web content programmatically.
+
+The integration configuration includes a `Crawler Header Value` field that controls the value sent in the `X-Botpress-Crawler` header for Firecrawl scrape requests. It defaults to `botpress`.
