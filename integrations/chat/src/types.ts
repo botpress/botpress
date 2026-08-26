@@ -1,3 +1,4 @@
+import * as sdk from '@botpress/sdk'
 import * as bp from '.botpress'
 
 export type ValueOf<T> = T[keyof T]
@@ -6,13 +7,15 @@ export type Simplify<T> = T extends (...args: infer A) => infer R
   ? (...args: Simplify<A>) => Simplify<R>
   : T extends Buffer
     ? Buffer
-    : T extends Promise<infer R>
-      ? Promise<Simplify<R>>
-      : T extends object
-        ? T extends infer O
-          ? { [K in keyof O]: Simplify<O[K]> }
-          : never
-        : T
+    : T extends sdk.IntegrationLogger
+      ? sdk.IntegrationLogger
+      : T extends Promise<infer R>
+        ? Promise<Simplify<R>>
+        : T extends object
+          ? T extends infer O
+            ? { [K in keyof O]: Simplify<O[K]> }
+            : never
+          : T
 
 export type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>
@@ -26,7 +29,7 @@ export type Message = Awaited<ReturnType<bp.Client['getMessage']>>['message']
 export type User = Awaited<ReturnType<bp.Client['getUser']>>['user']
 export type Event = Awaited<ReturnType<bp.Client['getEvent']>>['event']
 
-export type MessageCallback = ValueOf<bp.Integration['channels']['channel']['messages']>
+export type MessageCallback = ValueOf<NonNullable<bp.Integration['channels']['channel']['messageCreated']>>
 export type MessageArgs = Simplify<Parameters<MessageCallback>[0]>
 
 type AsyncFunc = (...args: any[]) => Promise<any>

@@ -14,6 +14,32 @@ export type IssueLogEvent = {
   traceId?: string
 }
 
+const LOG_LEVEL_RANKS: Record<LogLevel, number> = { debug: 0, info: 1, warn: 2, error: 3 }
+
+let _hasWarnedAboutInvalidLogLevel = false
+
+const _readConfiguredLogLevel = (): LogLevel | undefined => {
+  const rawLogLevel = process.env['LOG_LEVEL']
+  if (!rawLogLevel) {
+    return undefined
+  }
+
+  const normalizedLogLevel = rawLogLevel.toLowerCase()
+  if (_isLogLevel(normalizedLogLevel)) {
+    return normalizedLogLevel
+  }
+
+  if (!_hasWarnedAboutInvalidLogLevel) {
+    _hasWarnedAboutInvalidLogLevel = true
+    console.warn(
+      `Invalid LOG_LEVEL "${rawLogLevel}", expected one of: ${Object.keys(LOG_LEVEL_RANKS).join(', ')}. Logging is not filtered.`
+    )
+  }
+  return undefined
+}
+
+const _isLogLevel = (value: string): value is LogLevel => Object.hasOwn(LOG_LEVEL_RANKS, value)
+
 export abstract class BaseLogger<TOptions extends object> {
   protected defaultOptions: TOptions
 
@@ -52,7 +78,15 @@ export abstract class BaseLogger<TOptions extends object> {
   }
 
   private _log(level: LogLevel, args: Parameters<typeof console.info>) {
+    if (!this._isLevelEnabled(level)) {
+      return
+    }
     this._getConsoleMethod(level)(this._serializeMessage(level, args))
+  }
+
+  private _isLevelEnabled(level: LogLevel): boolean {
+    const configuredLogLevel = _readConfiguredLogLevel()
+    return configuredLogLevel === undefined || LOG_LEVEL_RANKS[level] >= LOG_LEVEL_RANKS[configuredLogLevel]
   }
 
   private _serializeMessage(level: LogLevel, args: Parameters<typeof console.info>) {

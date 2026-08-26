@@ -4,12 +4,9 @@ import JSON5 from 'json5'
 import { Context } from '../context'
 
 const nonEmptyString = z.string().trim().min(1)
-const nonEmptyObject = z
-  .object({})
-  .passthrough()
-  .refine((value) => Object.keys(value).length > 0, {
-    message: 'Expected a non-empty object',
-  })
+const nonEmptyObject = z.record(z.unknown()).refine((value) => Object.keys(value).length > 0, {
+  message: 'Expected a non-empty object',
+})
 
 export type Input = z.infer<typeof Input>
 const Input = nonEmptyString.or(nonEmptyObject).or(z.array(z.any()))

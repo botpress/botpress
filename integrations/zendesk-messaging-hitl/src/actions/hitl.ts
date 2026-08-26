@@ -56,7 +56,8 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
         title,
         description,
         messageHistory,
-      })
+      }),
+      logger
     )
 
     const metadata = _buildMetadata(input.hitlSession, user)

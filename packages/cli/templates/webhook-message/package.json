@@ -6,12 +6,12 @@
   },
   "private": true,
   "dependencies": {
-    "@botpress/client": "2.1.0",
-    "@botpress/sdk": "7.0.2",
+    "@botpress/client": "2.3.0",
+    "@botpress/sdk": "7.2.2",
     "axios": "^1.6.8"
   },
   "devDependencies": {
     "@types/node": "^22.16.4",
-    "typescript": "^5.6.3"
+    "typescript": "^6.0.0"
   }
 }

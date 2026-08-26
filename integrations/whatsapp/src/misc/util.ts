@@ -1,5 +1,4 @@
 import * as sdk from '@botpress/sdk'
-import { AtLeastOne } from 'whatsapp-api-js/lib/utils'
 import * as bp from '.botpress'
 
 type Message = Awaited<ReturnType<bp.Client['listMessages']>>['messages'][number]
@@ -36,6 +35,12 @@ export function getSubpath(path: string) {
   }
   return subpath ? subpath : undefined
 }
+/**
+ * Mirrors the shape whatsapp-api-js expects for its non-empty list
+ * parameters. The library keeps this type outside its published entrypoints.
+ */
+type AtLeastOne<T> = [T, ...T[]]
+
 export const hasAtleastOne = <T>(obj: T[]): obj is AtLeastOne<T> => {
   return obj.length > 0
 }

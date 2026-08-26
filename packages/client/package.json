@@ -1,6 +1,6 @@
 {
   "name": "@botpress/client",
-  "version": "2.1.0",
+  "version": "2.3.0",
   "files": [
     "dist"
   ],
@@ -15,12 +15,12 @@
   "scripts": {
     "check:type": "tsc --noEmit",
     "build:type": "rollup -c rollup.dts.config.mjs",
-    "build:browser": "ts-node -T ./build.ts --browser",
-    "build:node": "ts-node -T ./build.ts --node",
-    "build:bundle": "ts-node -T ./build.ts --bundle",
+    "build:browser": "ts-node -T -P tsconfig.ts-node.json ./build.ts --browser",
+    "build:node": "ts-node -T -P tsconfig.ts-node.json ./build.ts --node",
+    "build:bundle": "ts-node -T -P tsconfig.ts-node.json ./build.ts --bundle",
     "build": "pnpm build:type && pnpm build:node && pnpm build:browser && pnpm build:bundle",
-    "generate": "ts-node ./openapi.ts",
-    "test:e2e": "ts-node -T ./e2e/node.ts"
+    "generate": "ts-node -P tsconfig.ts-node.json ./openapi.ts",
+    "test:e2e": "ts-node -T -P tsconfig.ts-node.json ./e2e/node.ts"
   },
   "dependencies": {
     "browser-or-node": "^2.1.1",
@@ -31,7 +31,8 @@
     "esbuild": "^0.25.10",
     "lodash": "^4.17.21",
     "rollup": "^4.60.4",
-    "rollup-plugin-dts": "^6.4.1"
+    "rollup-plugin-dts": "^6.4.1",
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
   "engines": {
     "node": ">=18.0.0"

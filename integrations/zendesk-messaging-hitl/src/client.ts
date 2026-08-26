@@ -1,6 +1,7 @@
 import { RuntimeError } from '@botpress/client'
 import axios from 'axios'
 import { BASE_HEADERS } from './api/const'
+import { splitTextMessageIfNeeded } from './misc/split-text-message'
 import {
   SunshineConversationsApi,
   type AppsApi,
@@ -14,7 +15,7 @@ import {
   type MessageContent,
   Message,
 } from './sunshine-api'
-import { StoredCredentials } from './types'
+import { Logger, StoredCredentials } from './types'
 
 export class SuncoClientError extends RuntimeError {
   public readonly operationName: string
@@ -284,7 +285,8 @@ class SuncoClient {
           displayName?: string
           avatarUrl?: string
         },
-    messageParts: Array<MessageContent>
+    messageParts: Array<MessageContent>,
+    logger?: Logger
   ) {
     try {
       let message: Message | undefined
@@ -311,7 +313,22 @@ class SuncoClient {
         }
       }
 
-      for (const part of messageParts) {
+      const partsToSend = messageParts.flatMap<MessageContent>((part) => {
+        if (part.type !== 'text') {
+          return [part]
+        }
+
+        const splitMessages = splitTextMessageIfNeeded(part.text)
+        if (splitMessages.length > 1) {
+          logger
+            ?.forBotOnly()
+            .debug(`Split a ${part.text.length}-character message into ${splitMessages.length} Sunco messages`)
+        }
+
+        return splitMessages.map((text) => ({ ...part, text }))
+      })
+
+      for (const part of partsToSend) {
         const messagePost: PostMessageRequest = {
           author,
           content: part,

@@ -7,8 +7,6 @@
     "check:bplint": "bp lint",
     "check:format": "oxfmt --check .",
     "fix:format": "oxfmt .",
-    "check:lint": "eslint ./ --ext .ts --ext .tsx",
-    "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx",
     "test": "vitest --run"
   },
   "dependencies": {

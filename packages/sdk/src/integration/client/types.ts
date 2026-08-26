@@ -360,6 +360,9 @@ export type PatchState<TIntegration extends common.BaseIntegration> = <TState ex
 ) => Promise<StateResponse<TIntegration, TState>>
 
 export type ConfigureIntegration<_TIntegration extends common.BaseIntegration> = client.Client['configureIntegration']
+export type GetIntegrationInstanceIdentifiers<_TIntegration extends common.BaseIntegration> = (
+  x?: Arg<client.Client['getIntegrationInstanceIdentifiers']> // Arguments optional for convenience
+) => Res<client.Client['getIntegrationInstanceIdentifiers']>
 
 export type UploadFile<_TIntegration extends common.BaseIntegration> = client.Client['uploadFile']
 export type UpsertFile<_TIntegration extends common.BaseIntegration> = client.Client['upsertFile']
