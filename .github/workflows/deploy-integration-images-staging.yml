@@ -6,6 +6,7 @@ on:
       - Build Integration Images
     branches:
       - master
+      - ng/private-integration-deploys
     types:
       - completed
   workflow_dispatch:
