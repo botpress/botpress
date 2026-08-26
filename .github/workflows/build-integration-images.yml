@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - ng/private-integration-deploys
     paths:
       - Dockerfile
       - integrations/telegram/**
