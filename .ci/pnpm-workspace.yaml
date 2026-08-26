@@ -1,0 +1,2 @@
+minimumReleaseAgeExclude:
+  - '@botpress-private/*'

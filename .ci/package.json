@@ -3,7 +3,7 @@
     "check:type": "tsc --noEmit"
   },
   "dependencies": {
-    "@botpress-private/dab": "0.4.6"
+    "@botpress-private/dab": "0.4.8"
   },
   "devDependencies": {
     "typescript": "6.0.3"
