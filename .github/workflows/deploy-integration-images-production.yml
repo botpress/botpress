@@ -1,13 +1,6 @@
 name: Deploy Integration Images Production
 
 on:
-  workflow_run:
-    workflows:
-      - Build Integration Images
-    branches:
-      - master
-    types:
-      - completed
   workflow_dispatch:
 
 permissions:
