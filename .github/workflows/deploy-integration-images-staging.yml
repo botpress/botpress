@@ -1,0 +1,96 @@
+name: Deploy Integration Images Staging
+
+on:
+  workflow_run:
+    workflows:
+      - Build Integration Images
+    branches:
+      - master
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  ECR_REPOSITORY: integration-images
+
+jobs:
+  tag-and-deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - integration: telegram
+            deploy_workflow: Deploy Telegram Integration Staging
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-session-name: container_pusher
+          role-to-assume: arn:aws:iam::986677156374:role/actions/build/container_pusher
+          aws-region: us-east-1
+
+      - name: Tag latest image as staging
+        env:
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          INTEGRATION: ${{ matrix.integration }}
+        run: |
+          latest_tag="${INTEGRATION}-latest"
+          staging_tag="${INTEGRATION}-staging"
+          latest_digest=$(aws ecr describe-images \
+            --repository-name "$ECR_REPOSITORY" \
+            --image-ids imageTag="$latest_tag" \
+            --query 'imageDetails[0].imageDigest' \
+            --output text)
+          image_manifest=$(aws ecr batch-get-image \
+            --repository-name "$ECR_REPOSITORY" \
+            --image-ids imageTag="$latest_tag" \
+            --query 'images[0].imageManifest' \
+            --output text)
+
+          if [ -z "$image_manifest" ] || [ "$image_manifest" = "None" ]; then
+            echo "No ECR image found for $ECR_REPOSITORY:$latest_tag"
+            exit 1
+          fi
+
+          if ! aws ecr put-image \
+            --repository-name "$ECR_REPOSITORY" \
+            --image-tag "$staging_tag" \
+            --image-manifest "$image_manifest" \
+            > /dev/null; then
+            staging_digest=$(aws ecr describe-images \
+              --repository-name "$ECR_REPOSITORY" \
+              --image-ids imageTag="$staging_tag" \
+              --query 'imageDetails[0].imageDigest' \
+              --output text 2> /dev/null || true)
+
+            if [ "$staging_digest" = "$latest_digest" ]; then
+              echo "$ECR_REPOSITORY:$staging_tag already points at $latest_digest"
+              exit 0
+            fi
+
+            exit 1
+          fi
+
+      - name: Generate private-deploys token
+        id: private-deploys-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.SYNC_SECRET_APP_ID }}
+          private-key: ${{ secrets.SYNC_SECRET_APP_PRIVATE_KEY }}
+          owner: botpress
+          repositories: private-deploys
+
+      - name: Trigger private-deploys deploy
+        env:
+          GH_TOKEN: ${{ steps.private-deploys-token.outputs.token }}
+          DEPLOY_WORKFLOW: ${{ matrix.deploy_workflow }}
+        run: gh workflow run "$DEPLOY_WORKFLOW" --repo botpress/private-deploys --ref master
