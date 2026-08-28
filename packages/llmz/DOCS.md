@@ -446,7 +446,9 @@ const tool = new Tool({
 Clone and modify existing tools:
 
 ```typescript
-const originalTool = new Tool({/* definition */})
+const originalTool = new Tool({
+  /* definition */
+})
 
 const wrappedTool = originalTool.clone({
   name: 'wrappedVersion',
