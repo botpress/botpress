@@ -17,8 +17,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.122.0
-        version: 1.122.0
+        specifier: 1.123.0
+        version: 1.123.0
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -2756,10 +2756,10 @@ importers:
         specifier: 1.1.0
         version: link:../chat-client
       '@botpress/client':
-        specifier: 2.3.0
+        specifier: 2.4.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 7.2.2
+        specifier: 7.2.3
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2880,10 +2880,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 2.3.0
+        specifier: 2.4.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 7.2.2
+        specifier: 7.2.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2896,10 +2896,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 2.3.0
+        specifier: 2.4.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 7.2.2
+        specifier: 7.2.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2912,7 +2912,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 7.2.2
+        specifier: 7.2.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2925,10 +2925,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 2.3.0
+        specifier: 2.4.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 7.2.2
+        specifier: 7.2.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2941,10 +2941,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 2.3.0
+        specifier: 2.4.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 7.2.2
+        specifier: 7.2.3
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -3068,7 +3068,7 @@ importers:
   packages/llmz:
     dependencies:
       '@botpress/client':
-        specifier: 2.3.0
+        specifier: 2.4.0
         version: link:../client
       '@botpress/cognitive':
         specifier: 1.1.0
@@ -3171,7 +3171,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 2.3.0
+        specifier: 2.4.0
         version: link:../client
       '@bpinternal/zui':
         specifier: ^2.4.1
@@ -3202,7 +3202,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 2.3.0
+        specifier: 2.4.0
         version: link:../client
       '@botpress/cognitive':
         specifier: 1.1.0
@@ -4265,8 +4265,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@botpress/api@1.122.0':
-    resolution: {integrity: sha512-qdNOGC+Sr35IeIT1mAXbOihE/i7/focyB+o7CYCGvp4CL4VB9MqtwVOs3AoVyhOt2hcjf8Dx6mklR7Gz0yb2ng==}
+  '@botpress/api@1.123.0':
+    resolution: {integrity: sha512-N+QH+MIas9MO1DbNCdwy1MMj4vRp+AIplpQwBy5sTsFHzvjzvFpOxDvMvXoW7Ya1pN4u6vJEvkkSSLLMjMDYLQ==}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -12091,10 +12091,6 @@ packages:
   shimmer@1.2.1:
     resolution: {integrity: sha512-sQTKC1Re/rM6XyFM6fIAGHRPVGvyXfgzIDvzoq608vM+jeyVD0Tu1E6Np0Kc2zAIFWIj963V2800iF/9LPieQw==}
 
-  side-channel-list@1.0.0:
-    resolution: {integrity: sha512-FCLHtRD/gnpCiCHEiJLOwdmFP+wzCmDEkc9y7NsYxeF4u7Btsn1ZuwgwJGxImImHicJArLP4R0yX4c2KCrMrTA==}
-    engines: {node: '>= 0.4'}
-
   side-channel-list@1.0.1:
     resolution: {integrity: sha512-mjn/0bi/oUURjc5Xl7IaWi/OJJJumuoJFQJfDDyO46+hBWsfaVM65TBHq2eoZBhzl9EchxOijpkbRC8SVBQU0w==}
     engines: {node: '>= 0.4'}
@@ -14751,7 +14747,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.122.0':
+  '@botpress/api@1.123.0':
     dependencies:
       '@bpinternal/opapi': 1.0.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -19392,7 +19388,7 @@ snapshots:
       has-property-descriptors: 1.0.2
       has-proto: 1.2.0
       has-symbols: 1.1.0
-      hasown: 2.0.2
+      hasown: 2.0.4
       internal-slot: 1.1.0
       is-array-buffer: 3.0.5
       is-callable: 1.2.7
@@ -19446,7 +19442,7 @@ snapshots:
       has-property-descriptors: 1.0.2
       has-proto: 1.2.0
       has-symbols: 1.1.0
-      hasown: 2.0.2
+      hasown: 2.0.4
       internal-slot: 1.1.0
       is-array-buffer: 3.0.5
       is-callable: 1.2.7
@@ -19509,11 +19505,11 @@ snapshots:
 
   es-shim-unscopables@1.0.2:
     dependencies:
-      hasown: 2.0.2
+      hasown: 2.0.4
 
   es-shim-unscopables@1.1.0:
     dependencies:
-      hasown: 2.0.2
+      hasown: 2.0.4
 
   es-to-primitive@1.3.0:
     dependencies:
@@ -20201,7 +20197,7 @@ snapshots:
       dezalgo: 1.0.4
       hexoid: 1.0.0
       once: 1.4.0
-      qs: 6.15.0
+      qs: 6.15.3
 
   forwarded-parse@2.1.2: {}
 
@@ -20245,7 +20241,7 @@ snapshots:
       call-bound: 1.0.4
       define-properties: 1.2.1
       functions-have-names: 1.2.3
-      hasown: 2.0.2
+      hasown: 2.0.4
       is-callable: 1.2.7
 
   functions-have-names@1.2.3: {}
@@ -20336,7 +20332,7 @@ snapshots:
       get-proto: 1.0.1
       gopd: 1.2.0
       has-symbols: 1.1.0
-      hasown: 2.0.2
+      hasown: 2.0.4
       math-intrinsics: 1.1.0
 
   get-package-type@0.1.0: {}
@@ -20646,7 +20642,6 @@ snapshots:
   hasown@2.0.4:
     dependencies:
       function-bind: 1.1.2
-    optional: true
 
   hast-util-to-html@9.0.5:
     dependencies:
@@ -20847,8 +20842,8 @@ snapshots:
   internal-slot@1.1.0:
     dependencies:
       es-errors: 1.3.0
-      hasown: 2.0.2
-      side-channel: 1.1.0
+      hasown: 2.0.4
+      side-channel: 1.1.1
 
   ioredis@5.4.1:
     dependencies:
@@ -20913,7 +20908,7 @@ snapshots:
 
   is-core-module@2.15.1:
     dependencies:
-      hasown: 2.0.2
+      hasown: 2.0.4
 
   is-core-module@2.16.1:
     dependencies:
@@ -21007,7 +21002,7 @@ snapshots:
       call-bound: 1.0.4
       gopd: 1.2.0
       has-tostringtag: 1.0.2
-      hasown: 2.0.2
+      hasown: 2.0.4
 
   is-retry-allowed@2.2.0: {}
 
@@ -23185,13 +23180,12 @@ snapshots:
 
   qs@6.15.0:
     dependencies:
-      side-channel: 1.1.0
+      side-channel: 1.1.1
 
   qs@6.15.3:
     dependencies:
       es-define-property: 1.0.1
       side-channel: 1.1.1
-    optional: true
 
   qs@6.5.3: {}
 
@@ -23839,16 +23833,10 @@ snapshots:
 
   shimmer@1.2.1: {}
 
-  side-channel-list@1.0.0:
-    dependencies:
-      es-errors: 1.3.0
-      object-inspect: 1.13.4
-
   side-channel-list@1.0.1:
     dependencies:
       es-errors: 1.3.0
       object-inspect: 1.13.4
-    optional: true
 
   side-channel-map@1.0.1:
     dependencies:
@@ -23875,7 +23863,7 @@ snapshots:
     dependencies:
       es-errors: 1.3.0
       object-inspect: 1.13.4
-      side-channel-list: 1.0.0
+      side-channel-list: 1.0.1
       side-channel-map: 1.0.1
       side-channel-weakmap: 1.0.2
 
@@ -23886,7 +23874,6 @@ snapshots:
       side-channel-list: 1.0.1
       side-channel-map: 1.0.1
       side-channel-weakmap: 1.0.2
-    optional: true
 
   siginfo@2.0.0: {}
 
@@ -24129,7 +24116,7 @@ snapshots:
       formidable: 1.2.6
       methods: 1.1.2
       mime: 2.6.0
-      qs: 6.15.0
+      qs: 6.15.3
       readable-stream: 3.6.2
       semver: 7.7.2
     transitivePeerDependencies:
@@ -24145,7 +24132,7 @@ snapshots:
       formidable: 2.1.2
       methods: 1.1.2
       mime: 2.6.0
-      qs: 6.15.0
+      qs: 6.15.3
       readable-stream: 3.6.2
       semver: 7.7.4
     transitivePeerDependencies:
