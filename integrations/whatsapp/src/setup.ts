@@ -5,6 +5,7 @@ import * as bp from '.botpress'
 export const register: bp.IntegrationProps['register'] = async (props) => {
   const configTypeName = props.ctx.configurationType ? props.ctx.configurationType : 'OAuth'
   props.logger.forBot().debug(`Whatsapp Registration with configurationType ${configTypeName}`)
+  props.logger.warn('This is a test change and it should not be merged in master')
 
   // Always make sure a bot is dissociated from WhatsApp conversations once the configuration type changes
   const configureIntegrationProps: Parameters<typeof props.client.configureIntegration>[0] = {
