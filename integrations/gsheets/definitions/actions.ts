@@ -240,6 +240,45 @@ const addSheet = {
   },
 } as const satisfies ActionDef
 
+const duplicateSheet = {
+  title: 'Duplicate Sheet',
+  description:
+    'Duplicates an existing sheet (tab) into a new one, preserving all formatting, merged cells, and layout. Useful for creating a new sheet from a formatted template.',
+  input: {
+    schema: z.object({
+      sourceSheetName: z
+        .string()
+        .optional()
+        .title('Source Sheet Name')
+        .describe('The name of the sheet (tab) to duplicate. Defaults to the first visible sheet if omitted.'),
+      newSheetName: z
+        .string()
+        .optional()
+        .title('New Sheet Name')
+        .describe('The name for the duplicated sheet. If omitted, Google Sheets assigns a default name.'),
+      insertSheetIndex: z
+        .number()
+        .optional()
+        .title('Insert Index')
+        .describe('The zero-based index at which to insert the duplicated sheet. Appended at the end if omitted.'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      spreadsheetId: z.string().title('Spreadsheet ID').describe('The spreadsheet the sheet was duplicated in.'),
+      newSheet: z
+        .object({
+          sheetId: z.number().title('Sheet ID').describe('The ID of the duplicated sheet.'),
+          title: z.string().title('Title').describe('The title of the duplicated sheet.'),
+          index: z.number().title('Index').describe('The index of the duplicated sheet within the spreadsheet.'),
+          isHidden: z.boolean().title('Is Hidden').describe('Whether the duplicated sheet is hidden.'),
+        })
+        .title('New Sheet')
+        .describe('The sheet that was created by duplicating the source sheet.'),
+    }),
+  },
+} as const satisfies ActionDef
+
 const deleteSheet = {
   title: 'Delete Sheet',
   description: 'Deletes a sheet from the spreadsheet.',
@@ -663,6 +702,7 @@ const upsertRow = {
 
 export const actions = {
   addSheet,
+  duplicateSheet,
   appendValues,
   clearValues,
   createNamedRangeInSheet,

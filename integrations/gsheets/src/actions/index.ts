@@ -4,6 +4,7 @@ import { clearValues } from './implementations/clear-values'
 import { createNamedRangeInSheet } from './implementations/create-named-range-in-sheet'
 import { deleteRows } from './implementations/delete-rows'
 import { deleteSheet } from './implementations/delete-sheet'
+import { duplicateSheet } from './implementations/duplicate-sheet'
 import { findRow } from './implementations/find-row'
 import { findRows } from './implementations/find-rows'
 import { getAllSheetsInSpreadsheet } from './implementations/get-all-sheets-in-spreadsheet'
@@ -25,6 +26,7 @@ import * as bp from '.botpress'
 
 export default {
   addSheet,
+  duplicateSheet,
   appendValues,
   clearValues,
   createNamedRangeInSheet,

@@ -105,6 +105,34 @@ export class GoogleClient {
     return ResponseMapping.mapAddSheet(response.data)
   }
 
+  @handleErrors('Failed to duplicate sheet in spreadsheet')
+  public async duplicateSheetInSpreadsheet({
+    sourceSheetName,
+    newSheetName,
+    insertSheetIndex,
+  }: {
+    sourceSheetName?: string
+    newSheetName?: string
+    insertSheetIndex?: number
+  }) {
+    const { sheetId } = await this.getSheetIdByName(sourceSheetName)
+    const response = await this._sheetsClient.spreadsheets.batchUpdate({
+      spreadsheetId: this._spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            duplicateSheet: {
+              sourceSheetId: sheetId,
+              newSheetName,
+              ...(insertSheetIndex !== undefined ? { insertSheetIndex } : {}),
+            },
+          },
+        ],
+      },
+    })
+    return ResponseMapping.mapDuplicateSheet(response.data)
+  }
+
   @handleErrors('Failed to get sheets from spreadsheet')
   public async getAllSheetsInSpreadsheet() {
     const meta = await this.getSpreadsheetMetadata({

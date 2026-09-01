@@ -37,6 +37,12 @@ export namespace ResponseMapping {
       newSheet: mapSheet(response.replies?.[0]?.addSheet ?? {}),
     }) as const
 
+  export const mapDuplicateSheet = (response: sheets_v4.Schema$BatchUpdateSpreadsheetResponse) =>
+    ({
+      spreadsheetId: response.spreadsheetId ?? '',
+      newSheet: mapSheet({ properties: response.replies?.[0]?.duplicateSheet?.properties ?? {} }),
+    }) as const
+
   export const mapSheet = (sheet: sheets_v4.Schema$Sheet) =>
     ({
       sheetId: sheet.properties?.sheetId ?? 0,
