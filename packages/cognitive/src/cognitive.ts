@@ -78,6 +78,7 @@ export type {
   CognitiveTool,
   CognitiveToolControl,
   CognitiveMetadata,
+  CognitiveStreamRestart,
   TranscribeMetadata,
   StopReason,
   ModelTag,
@@ -393,6 +394,11 @@ export class Cognitive {
       }
 
       for await (const obj of this._ndjson<CognitiveStreamChunk>(stream)) {
+        if (obj.restart) {
+          // The prefix is void, so drop it here too: otherwise the response event below reports the
+          // abandoned attempt concatenated onto the one the consumer actually kept.
+          chunks.length = 0
+        }
         chunks.push(obj)
         lastChunk = obj
         yield obj

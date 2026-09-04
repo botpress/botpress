@@ -3071,7 +3071,7 @@ importers:
         specifier: 2.4.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: 1.1.0
+        specifier: 1.2.0
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^3.1.0
@@ -3205,7 +3205,7 @@ importers:
         specifier: 2.4.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: 1.1.0
+        specifier: 1.2.0
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^3.0.0
@@ -3248,7 +3248,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 1.1.0
+        specifier: 1.2.0
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^3.0.0
@@ -3382,7 +3382,7 @@ importers:
   plugins/conversation-insights:
     dependencies:
       '@botpress/cognitive':
-        specifier: 1.1.0
+        specifier: 1.2.0
         version: link:../../packages/cognitive
       '@botpress/sdk':
         specifier: workspace:*
@@ -8900,6 +8900,7 @@ packages:
   eslint@9.34.0:
     resolution: {integrity: sha512-RNCHRX5EwdrESy3Jc9o8ie8Bog+PeYvvSR8sDGoZxNFTvZ4dlxUB3WzQ3bQMztFrSRODGrLLj8g6OFuGY/aiQg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
