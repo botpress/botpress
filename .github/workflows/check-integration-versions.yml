@@ -50,15 +50,13 @@ jobs:
             fi
 
             echo "Checking $integration"
-            exists=$(./.github/scripts/integration-exists.sh "$integration")
-
-            if [ "$exists" -ne 0 ]; then
-              echo "Integration $integration is already deployed publicly with the same version. Please update the version of your integration."
+            if ! ./.github/scripts/validate-integration-version.sh "$integration"; then
+              echo "Integration $integration has an invalid version update."
               should_fail=1
             fi
           done
 
           if [ "$should_fail" -ne 0 ]; then
-            echo "Please update the version of your integration before pushing your changes."
+            echo "Integration version validation failed. Keep the current version for non-breaking changes, or bump to the next major version for breaking changes."
             exit 1
           fi
