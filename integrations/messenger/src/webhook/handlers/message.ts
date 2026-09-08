@@ -47,7 +47,7 @@ const _messageHandler = async (messagingItem: MessengerMessagingItemMessage, han
 
   const incomingMessages: IncomingMessage[] = []
   const { text, attachments } = message
-  if (message.quick_reply?.payload) {
+  if (message.quick_reply) {
     incomingMessages.push({
       type: 'text',
       payload: { value: message.quick_reply.payload, text: text ?? message.quick_reply.payload },
