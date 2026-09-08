@@ -6,6 +6,11 @@ const _textMessageDefinition = {
     text: messages.defaults.text.schema.shape.text
       .max(4096)
       .describe('The text content of the Telegram message (Limit 4096 characters)'),
+    value: z
+      .string()
+      .optional()
+      .title('value')
+      .describe('Underlying value of the message, if any (e.g. the payload of a selected choice option)'),
   }),
 }
 

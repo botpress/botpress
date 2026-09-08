@@ -36,6 +36,17 @@ export default new IntegrationDefinition({
         botToken: z.string().title('Bot Token').min(1).secret().describe('The Telegram bot token'),
       }),
     },
+    choicePrompts: {
+      type: 'conversation',
+      schema: z.object({
+        prompts: z.array(
+          z.object({
+            messageId: z.number(),
+            entries: z.array(z.object({ label: z.string(), value: z.string() })),
+          })
+        ),
+      }),
+    },
   },
   channels: {
     channel: {
