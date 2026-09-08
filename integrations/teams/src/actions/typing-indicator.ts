@@ -1,4 +1,5 @@
 import { ActivityTypes } from 'botbuilder'
+import { getCredentials } from '../credentials'
 import { getAdapter, getConversationReference } from '../utils'
 import * as bp from '.botpress'
 
@@ -11,7 +12,8 @@ export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIn
 }) => {
   const { conversationId, timeout } = input
   const expiration = new Date(Date.now() + (timeout ?? DEFAULT_TIMEOUT))
-  const adapter = getAdapter(ctx.configuration)
+  const credentials = await getCredentials({ client, ctx })
+  const adapter = getAdapter(credentials)
   const convRef = await getConversationReference({ conversationId, client })
   await adapter.continueConversation(convRef, async (turnContext) => {
     await turnContext.sendActivity({

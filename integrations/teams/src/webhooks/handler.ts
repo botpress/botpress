@@ -1,11 +1,18 @@
+import { isOAuthWizardUrl } from '@botpress/common/src/oauth-wizard'
 import { Activity } from 'botbuilder'
 import { processInboundChannelMessage } from '../channels/inbound'
+import { oauthWizardHandler } from '../oauth-wizard'
 import { teamsActivitySchema } from '../schemas'
 import { authorizeRequest } from './signature'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
   const { req } = props
+
+  if (isOAuthWizardUrl(req.path)) {
+    return await oauthWizardHandler(props)
+  }
+
   await authorizeRequest(req)
 
   if (!req.body) {

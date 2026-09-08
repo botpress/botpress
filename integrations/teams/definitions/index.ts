@@ -1,4 +1,5 @@
-export { states } from './states'
+export { states, credentialsSchema } from './states'
+export type { TeamsConfig } from './states'
 export { actions } from './actions'
 export { channels } from './channels'
 export { user } from './user'

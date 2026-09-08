@@ -28,9 +28,20 @@ type ConvReferenceState = z.infer<typeof _convReferenceStateSchema>
 // this builds only if the state schema is the same type as ConversationReference from 'botbuilder'
 type _Test = Expect<Is<ConvReferenceState, Partial<ConversationReference>>>
 
+export const credentialsSchema = z.object({
+  appId: z.string().min(1).title('App ID').describe('Teams application ID'),
+  appPassword: z.string().min(1).secret().title('App Password').describe('Teams application password'),
+  tenantId: z.string().optional().title('Tenant ID').describe('Teams tenant ID'),
+})
+export type TeamsConfig = z.infer<typeof credentialsSchema>
+
 export const states = {
   conversation: {
     type: 'conversation',
     schema: _convReferenceStateSchema,
+  },
+  credentials: {
+    type: 'integration',
+    schema: credentialsSchema,
   },
 } satisfies IntegrationDefinitionProps['states']

@@ -1,4 +1,5 @@
 import { Activity, ConversationReference, TurnContext, TeamsInfo, TeamsChannelAccount } from 'botbuilder'
+import { getCredentials } from '../credentials'
 import { transformTeamsHtmlToStdMarkdown } from '../markdown/teams-html-to-markdown'
 import { getAdapter, sleep } from '../utils'
 import { DROPDOWN_VALUE_ID, DROPDOWN_VALUE_KIND } from './constants'
@@ -8,7 +9,8 @@ export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.H
   const convRef: Partial<ConversationReference> = TurnContext.getConversationReference(activity)
 
   const senderChannelAccount = activity.from!
-  const adapter = getAdapter(ctx.configuration)
+  const credentials = await getCredentials({ client, ctx })
+  const adapter = getAdapter(credentials)
 
   const getUserPromise = new Promise<TeamsChannelAccount | undefined>((resolve, reject) => {
     void adapter

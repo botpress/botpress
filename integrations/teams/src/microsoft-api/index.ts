@@ -1,12 +1,12 @@
 import { ClientSecretCredential } from '@azure/identity'
 import { Client } from '@microsoft/microsoft-graph-client'
-import * as bp from '.botpress'
+import type { TeamsConfig } from 'definitions'
 
 export class MicrosoftClient {
   private _graphClient: Client
 
-  private constructor(ctx: bp.Context) {
-    const { tenantId, appId, appPassword } = ctx.configuration
+  private constructor(credentials: TeamsConfig) {
+    const { tenantId, appId, appPassword } = credentials
 
     const credential = new ClientSecretCredential(tenantId as string, appId, appPassword)
 
@@ -31,7 +31,7 @@ export class MicrosoftClient {
     }
   }
 
-  public static create(ctx: bp.Context) {
-    return new MicrosoftClient(ctx)
+  public static create(credentials: TeamsConfig) {
+    return new MicrosoftClient(credentials)
   }
 }

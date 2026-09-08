@@ -8,6 +8,7 @@ import {
   Attachment,
   MessageFactory,
 } from 'botbuilder'
+import { getCredentials } from '../credentials'
 import { transformMarkdownToTeamsXml } from '../markdown/markdown-to-teams-xml'
 import { getAdapter } from '../utils'
 import { DROPDOWN_VALUE_ID, DROPDOWN_VALUE_KIND } from './constants'
@@ -30,8 +31,8 @@ const _renderTeams = async (
   { ctx, ack, conversation, client, logger }: bp.AnyMessageProps,
   activity: Partial<Activity>
 ) => {
-  const { configuration } = ctx
-  const adapter = getAdapter(configuration)
+  const credentials = await getCredentials({ client, ctx })
+  const adapter = getAdapter(credentials)
 
   const stateRes = await client.getState({
     id: conversation.id,

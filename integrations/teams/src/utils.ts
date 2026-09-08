@@ -1,7 +1,7 @@
 import { BotFrameworkAdapter, ConversationReference } from 'botbuilder'
+import type { TeamsConfig } from 'definitions'
 import * as bp from '.botpress'
 
-type TeamsConfig = bp.configuration.Configuration
 
 export const getAdapter = (config: TeamsConfig) => {
   return new BotFrameworkAdapter({
