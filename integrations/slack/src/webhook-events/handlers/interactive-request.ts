@@ -9,12 +9,12 @@ export const isInteractiveRequest = (req: sdk.Request) =>
 export const handleInteractiveRequest = async ({ req, client, logger }: bp.HandlerProps) => {
   const body = _parseInteractiveBody(req)
 
-  const { value, text } = await _respondInteractive(body)
-
   if (body.type !== 'block_actions') {
     logger.forBot().error(`Interaction type ${body.type} received from Slack is not supported yet`)
     return
   }
+
+  const { value, text } = await _respondInteractive(body)
 
   if (typeof value !== 'string' || !value.length) {
     logger.forBot().debug('No action value was returned, so the message was ignored')
