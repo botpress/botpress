@@ -9,14 +9,14 @@ export const isInteractiveRequest = (req: sdk.Request) =>
 export const handleInteractiveRequest = async ({ req, client, logger }: bp.HandlerProps) => {
   const body = _parseInteractiveBody(req)
 
-  const actionValue = await _respondInteractive(body)
+  const { value, text } = await _respondInteractive(body)
 
   if (body.type !== 'block_actions') {
     logger.forBot().error(`Interaction type ${body.type} received from Slack is not supported yet`)
     return
   }
 
-  if (typeof actionValue !== 'string' || !actionValue?.length) {
+  if (typeof value !== 'string' || !value.length) {
     logger.forBot().debug('No action value was returned, so the message was ignored')
     return
   }
@@ -34,7 +34,7 @@ export const handleInteractiveRequest = async ({ req, client, logger }: bp.Handl
       channelId: body.channel.id,
     },
     type: 'text',
-    payload: { text: actionValue },
+    payload: { text, value },
     userId,
     conversationId,
   })
@@ -47,7 +47,8 @@ type InteractiveBody = {
     block_id?: string
     value?: string
     type: string
-    selected_option?: { value: string }
+    text?: { text: string }
+    selected_option?: { value: string; text?: { text: string } }
   }[]
   type: string
   channel: {
@@ -70,21 +71,23 @@ const _parseInteractiveBody = (req: sdk.Request): InteractiveBody => {
   }
 }
 
-const _respondInteractive = async (body: InteractiveBody): Promise<string> => {
+const _respondInteractive = async (body: InteractiveBody): Promise<{ value: string; text: string }> => {
   if (!body.actions.length) {
     throw new sdk.RuntimeError('No action in body')
   }
 
   const action = body.actions[0]
-  const text = action?.value || action?.selected_option?.value || action?.action_id
-  if (text === undefined) {
+  const value = action?.value || action?.selected_option?.value || action?.action_id
+  if (value === undefined) {
     throw new sdk.RuntimeError('Action value cannot be undefined')
   }
 
-  try {
-    await axios.post(body.response_url, { text })
+  const label = action?.text?.text ?? action?.selected_option?.text?.text ?? value
 
-    return text
+  try {
+    await axios.post(body.response_url, { replace_original: true, text: label })
+
+    return { value, text: label }
   } catch (thrown: unknown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
     throw new sdk.RuntimeError('Error while responding to interactive request', error)
