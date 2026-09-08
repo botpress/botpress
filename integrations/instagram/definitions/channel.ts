@@ -13,11 +13,7 @@ const channelMessages = {
   text: {
     schema: sdk.messages.defaults.text.schema
       .extend({
-        value: z
-          .string()
-          .optional()
-          .title('value')
-          .describe('Underlying value, e.g. quick reply / postback payload'),
+        value: z.string().optional().title('value').describe('Underlying value, e.g. quick reply / postback payload'),
       })
       .merge(commentIdSchema),
   },
