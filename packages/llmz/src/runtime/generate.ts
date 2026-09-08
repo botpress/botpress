@@ -20,7 +20,7 @@ const RESPONSE_LENGTH_BUFFER = {
 } as const
 
 /** Maximum time to wait between two stream chunks before considering the stream stalled. */
-const STREAM_INACTIVITY_TIMEOUT = 60_000
+const STREAM_INACTIVITY_TIMEOUT = 180_000
 
 const getModelOutputLimit = (inputLength: number) =>
   clamp(
