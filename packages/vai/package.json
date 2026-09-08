@@ -1,6 +1,6 @@
 {
   "name": "@botpress/vai",
-  "version": "0.0.46",
+  "version": "0.0.48",
   "files": [
     "dist",
     "ensure-env.cjs"
@@ -31,7 +31,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@botpress/cognitive": "1.1.0",
+    "@botpress/cognitive": "1.2.0",
     "json5": "^2.2.3",
     "jsonrepair": "^3.10.0"
   },
@@ -44,7 +44,7 @@
     "tsdown": "^0.22.14"
   },
   "peerDependencies": {
-    "@botpress/client": "2.3.0",
+    "@botpress/client": "2.4.0",
     "@bpinternal/thicktoken": "^3.0.0",
     "@bpinternal/zui": "^2.4.1",
     "lodash": "^4.17.21",
