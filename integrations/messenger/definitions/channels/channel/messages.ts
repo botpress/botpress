@@ -10,7 +10,17 @@ const commentIdSchema = z.object({
 })
 
 export const messages = {
-  text: { schema: sdk.messages.defaults.text.schema.merge(commentIdSchema) },
+  text: {
+    schema: sdk.messages.defaults.text.schema
+      .extend({
+        value: z
+          .string()
+          .optional()
+          .title('value')
+          .describe('Underlying value, e.g. quick reply / postback payload'),
+      })
+      .merge(commentIdSchema),
+  },
   image: { schema: sdk.messages.defaults.image.schema.merge(commentIdSchema) },
   audio: { schema: sdk.messages.defaults.audio.schema.merge(commentIdSchema) },
   video: { schema: sdk.messages.defaults.video.schema.merge(commentIdSchema) },
