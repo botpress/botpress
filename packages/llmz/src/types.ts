@@ -78,6 +78,11 @@ export namespace Traces {
 
   export type LLMCallStart = TraceTemplate<'llm_call_started', { model: string }>
   export type LLMCallSuccess = TraceTemplate<'llm_call_success', { model: string; code: string }>
+  /** Diagnostic only: content and effects from the preceding attempt are discarded. */
+  export type LLMCallRestart = TraceTemplate<
+    'llm_call_restarted',
+    { attempt: number; fromModel: string; toModel: string; reason: string }
+  >
   /**
    * Emitted on streaming clients the moment the model starts writing a `■run`
    * block — before the code is fully generated. Useful to show a
@@ -101,6 +106,7 @@ export namespace Traces {
     | YieldTrace
     | LLMCallStart
     | LLMCallSuccess
+    | LLMCallRestart
     | CodeGenerationStart
     | ThinkSignal
     | CodeExecution

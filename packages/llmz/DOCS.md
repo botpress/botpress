@@ -1582,6 +1582,31 @@ await execute({
 
 ---
 
+### Buffered Delivery (midStreamFallback)
+
+By default, LLMz streams responses: send blocks are dispatched as soon as they are parsed, and the ■run block starts executing while the model is still generating the rest of the response. This gives the lowest time-to-first-token but runs code before the response is complete.
+
+Set `options.midStreamFallback: true` to allow Cognitive to restart a failed stream on another model safely. LLMz buffers delivery and discards all content from abandoned attempts:
+
+```typescript
+await execute({
+  // ...
+  options: { midStreamFallback: true },
+})
+```
+
+When enabled, the runtime buffers the full generated response and only dispatches it (sends and code execution) once the stream has finished. Trade-offs:
+
+- **Latency**: higher time-to-first-send/token, since nothing is delivered until the response completes.
+- **No early code**: the VM is not run mid-stream; code executes only after the full response is parsed.
+- **Cancellation**: cancellation still aborts the original generation request as usual.
+- **No extra retry loop**: Cognitive owns fallback, bounded by the model chain. LLMz does not retry abandoned attempts itself.
+- **Not exactly-once**: abandoned attempts deliver nothing, but successful-attempt callbacks cannot be rolled back if delivery fails or cancellation arrives during delivery. Caller retries can duplicate effects.
+
+This option defaults to false and applies only to streaming clients. Non-streaming Cognitive requests already fall back transparently. It can be combined with `maxTimeToFirstToken` and `transcriptionModel`; do not enable it globally underneath LLMz without also enabling LLMz's buffering option.
+
+Restarts emit `llm_call_restarted` traces with the attempt, source/destination models, and reason. Token timings remain relative to the original request and describe the surviving attempt (including time spent on prior attempts). Usage and cost retain Cognitive's final reported metadata; LLMz does not infer or sum abandoned-attempt billing. Cancellation deadlines are not reset, and the existing stream inactivity guard remains active during handoffs.
+
 ## API Reference
 
 ### Core Functions
