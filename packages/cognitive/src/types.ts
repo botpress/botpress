@@ -239,6 +239,14 @@ export type CognitiveRequest = {
     maxTimeToFirstToken?: number
     /** STT model to use when transcribing audio parts for models that do not support audio natively */
     transcriptionModel?: SttModels
+    /**
+     * Streaming only. Allow generation to restart on another model after content has already been
+     * streamed. When enabled, the consumer MUST discard everything received before a chunk carrying
+     * `restart`, or partial answers concatenate. The attempt cap is the model chain itself, so pass
+     * additional models to widen it. Non-streaming generateText already falls back transparently and
+     * ignores this.
+     */
+    midStreamFallback?: boolean
   }
   meta?: {
     /** Source of the prompt, e.g. agent/:id/:version, cards/ai-generate, cards/ai-task, nodes/autonomous, etc. */
@@ -309,7 +317,24 @@ export type CognitiveStreamChunk = {
   toolCalls?: CognitiveToolCall[]
   created: number
   finished?: boolean
+  /**
+   * Present on a control-only chunk: the previous attempt failed mid-stream and generation restarted
+   * on another model. Everything received before this chunk is void and must be discarded. Only
+   * emitted when the request set `options.midStreamFallback`.
+   */
+  restart?: CognitiveStreamRestart
   metadata?: CognitiveMetadata
+}
+
+export type CognitiveStreamRestart = {
+  /** 1-based index of the attempt that is now starting */
+  attempt: number
+  /** Model whose stream was abandoned */
+  fromModel: string
+  /** Model the generation is restarting on */
+  toModel: string
+  /** Classified type of the error that ended the previous attempt */
+  reason: string
 }
 
 export type CognitiveResponse = {
