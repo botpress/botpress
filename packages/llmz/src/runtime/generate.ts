@@ -312,11 +312,12 @@ export const generateCode = async ({
           break
         }
 
+        if (chunk.value?.restart && !bufferedDelivery) {
+          streamController.abort('Unexpected LLM stream restart')
+          throw new CognitiveError('LLM stream restarted without options.midStreamFallback enabled')
+        }
+
         if (chunk.value?.restart) {
-          if (!bufferedDelivery) {
-            streamController.abort('Unexpected LLM stream restart')
-            throw new CognitiveError('LLM stream restarted without options.midStreamFallback enabled')
-          }
           traces.push({ type: 'llm_call_restarted', started_at: Date.now(), ...chunk.value.restart })
           raw = ''
           parser = new StreamingMessageParser()
