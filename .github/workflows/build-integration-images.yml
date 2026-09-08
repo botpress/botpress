@@ -1,0 +1,88 @@
+name: Build Integration Images
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - Dockerfile
+      - integrations/telegram/**
+      - integrations/build-utils/**
+      - interfaces/**
+      - packages/**
+      - patches/**
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - tsconfig.json
+      - turbo.json
+      - .github/workflows/build-integration-images.yml
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  ECR_REPOSITORY: integration-images
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - integration: telegram
+            target: telegram
+            platform: linux/arm64
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-session-name: container_pusher
+          role-to-assume: arn:aws:iam::986677156374:role/actions/build/container_pusher
+          aws-region: us-east-1
+
+      - uses: aws-actions/amazon-ecr-login@v1
+        id: ecr
+        with:
+          mask-password: true
+
+      - uses: docker/metadata-action@v4
+        id: meta
+        with:
+          images: ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}
+          flavor: |
+            latest=false
+          tags: |
+            type=raw,value=${{ matrix.integration }}-${{ github.sha }}
+            type=raw,value=${{ matrix.integration }}-latest,enable=${{ github.ref == 'refs/heads/master' }}
+
+      - name: Create ECR repository
+        env:
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+        run: |
+          aws ecr create-repository --repository-name "$ECR_REPOSITORY" || true
+          aws ssm get-parameter --name '/cloud/container-registry/ecr-policy-document' --query 'Parameter.Value' | jq -r > repository-policy.json
+          aws ecr set-repository-policy --repository-name "$ECR_REPOSITORY" --policy-text file://repository-policy.json > /dev/null
+
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
+      - name: Build and push ${{ matrix.integration }} image
+        uses: depot/build-push-action@v1
+        with:
+          project: ${{ secrets.DEPOT_PROJECT_ID }}
+          file: ./Dockerfile
+          context: .
+          target: ${{ matrix.target }}
+          platforms: ${{ matrix.platform }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
