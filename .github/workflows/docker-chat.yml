@@ -55,14 +55,14 @@ jobs:
               exit 0
             fi
             if docker ps -a --filter "name=chat-test" --filter "status=exited" | grep -q chat-test; then
-              echo "Container exited prematurely!"
+              echo "::error::Container exited prematurely!"
               docker logs chat-test
               exit 1
             fi
             echo "Waiting for container... ($i/30)"
             sleep 2
           done
-          echo "Container did not start within expected time"
+          echo "::error::Container did not start within expected time"
           docker ps -a
           exit 1
 
@@ -77,7 +77,7 @@ jobs:
             echo "Attempt $i/15 failed, retrying..."
             sleep 2
           done
-          echo "Health check failed after 15 attempts"
+          echo "::error::Health check failed after 15 attempts"
           exit 1
 
       - name: Show container logs on failure

@@ -680,6 +680,17 @@ export class Context implements Serializable<Context.JSON> {
    */
   public maxTimeToFirstToken?: number
   /**
+   * Allow Cognitive to restart a failed stream on another model. With fallback
+   * enabled, there is no buffered delivery and no final delivery queue: delta
+   * text and completed Chat.handler sends stream immediately during generation.
+   * A reset-only delta (restart: true) on Chat.onMessageDelta invalidates ALL
+   * current-iteration messages, including completed sends — consumers must
+   * retract/replace them, which is unsafe for irreversible external transports.
+   * Only TOOL/CODE execution waits for a successful stream. Streaming-only;
+   * defaults to false, which leaves progressive sending unchanged.
+   */
+  public midStreamFallback?: boolean
+  /**
    * STT model used by the cognitive service to transcribe audio attachments
    * when the target LLM does not support audio natively. Defaults to 'fast'.
    */
@@ -1039,6 +1050,7 @@ export class Context implements Serializable<Context.JSON> {
     timeout?: number
     maxTokens?: number
     maxTimeToFirstToken?: number
+    midStreamFallback?: boolean
     transcriptionModel?: SttModels
   }) {
     this.id = `llmz_${ulid()}`
@@ -1058,6 +1070,7 @@ export class Context implements Serializable<Context.JSON> {
     this.snapshot = props.snapshot
     this.maxTokens = props.maxTokens
     this.maxTimeToFirstToken = props.maxTimeToFirstToken
+    this.midStreamFallback = props.midStreamFallback
     this.transcriptionModel = props.transcriptionModel
 
     if (this.loop < 1 || this.loop > 100) {
@@ -1073,6 +1086,10 @@ export class Context implements Serializable<Context.JSON> {
       (!Number.isFinite(this.maxTimeToFirstToken) || this.maxTimeToFirstToken < 1)
     ) {
       throw new Error('Invalid maxTimeToFirstToken. Expected a positive number of milliseconds.')
+    }
+
+    if (this.midStreamFallback !== undefined && typeof this.midStreamFallback !== 'boolean') {
+      throw new Error('Invalid midStreamFallback. Expected a boolean.')
     }
   }
 

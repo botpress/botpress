@@ -59,6 +59,7 @@ const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionR
     timeout: props.options?.timeout,
     maxTokens: props.options?.maxTokens,
     maxTimeToFirstToken: props.options?.maxTimeToFirstToken,
+    midStreamFallback: props.options?.midStreamFallback,
     transcriptionModel: props.options?.transcriptionModel,
     exits: props.exits,
     snapshot: props.snapshot,
@@ -371,11 +372,21 @@ const executeIteration = async ({
   // parsed — while the rest of the response (■next, stream metadata) may
   // still be streaming. Disabled when an onBeforeExecution hook is registered,
   // since the hook must run (and may mutate the code) before execution.
-  const canExecuteEarly = typeof onBeforeExecution !== 'function'
+  // Early/streaming execution is also disabled in midStreamFallback mode: code
+  // runs only after a stream completes successfully (never from an abandoned
+  // attempt), even though deltas and completed Chat.handler sends stream
+  // immediately during generation.
+  const canExecuteEarly = typeof onBeforeExecution !== 'function' && !ctx.midStreamFallback
   let earlyExecution: { code: string; started_at: number; promise: Promise<VMExecutionResult> } | undefined
 
   // ■send blocks are dispatched to the chat as soon as they are parsed — on
-  // streaming clients this happens while the model is still generating.
+  // streaming clients this happens while the model is still generating. In
+  // midStreamFallback mode there is no buffered delivery and no final delivery
+  // queue: deltas and completed Chat.handler sends both stream immediately via
+  // onMessageDelta (below) — a restart:true delta invalidates ALL the current
+  // iteration's messages (including completed sends), for consumers to
+  // retract/replace. Only code/tool execution (below) waits for the stream to
+  // complete successfully.
   await generateCode({
     iteration,
     ctx,
@@ -393,7 +404,7 @@ const executeIteration = async ({
           earlyExecution = { code, started_at: Date.now(), promise: runCode(code) }
         }
       : undefined,
-    onSend: async (send) => {
+    onSend: async (send, messageMetadata) => {
       if (!ctx.chat) {
         return
       }
@@ -406,8 +417,8 @@ const executeIteration = async ({
       })
 
       try {
-        await ctx.chat.handler(component)
-      } catch (err) {
+        await ctx.chat.handler(component, messageMetadata)
+      } catch (err: unknown) {
         throw new Error(`Error while sending message (■send=${send.name}): ${getErrorMessage(err)}`)
       }
 

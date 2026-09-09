@@ -37,7 +37,7 @@ runs:
         refresh_result=$(pnpm -F 'instagram' exec -- pnpm run --silent refreshTokens --json --refreshToken "${{ inputs.current_token }}")
         new_token=$(echo "$refresh_result" | jq -r '.refreshedToken')
         if [ -z "$new_token" ]; then
-          echo "❌ Error: Failed to refresh token" >&2
+          echo "::error::Failed to refresh token" >&2
           exit 1
         fi
 

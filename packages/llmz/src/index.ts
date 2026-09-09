@@ -22,7 +22,7 @@ export {
 export { type Citation, CitationsManager } from './citations.js'
 export { DefaultComponents } from './component.default.js'
 export { Snapshot } from './snapshots.js'
-export { Chat, type MessageHandler, type MessageDelta, type MessageDeltaHandler } from './chat.js'
+export { Chat, type MessageHandler, type MessageMetadata, type MessageDelta, type MessageDeltaHandler } from './chat.js'
 
 import { ExecutionResult } from './result.js'
 import { type ExecutionProps } from './runtime/types.js'

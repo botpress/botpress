@@ -2,7 +2,7 @@ import type { CognitiveMetadata, CognitiveStreamChunk } from '@botpress/cognitiv
 import { clamp } from 'lodash-es'
 
 import { createJoinedAbortController } from '../abort-signal.js'
-import type { MessageDelta } from '../chat.js'
+import type { MessageDelta, MessageMetadata } from '../chat.js'
 import { Context, Iteration } from '../context.js'
 import { CognitiveError } from '../errors.js'
 import { StreamingMessageParser } from '../message-stream/parser.js'
@@ -39,10 +39,11 @@ type GenerateCodeProps = {
    * Called for each completed `■send` block. On streaming clients this fires
    * while the model is still generating — messages are delivered progressively.
    */
-  onSend?: (send: ParsedSend) => Promise<void>
+  onSend?: (send: ParsedSend, metadata: MessageMetadata) => Promise<void>
   /**
    * Called for each `■send` body chunk as it is parsed from the stream
-   * (streaming clients only). Best-effort: errors are ignored.
+   * (streaming clients only), or with a restart delta before replacement output.
+   * Text errors are best-effort; restart errors terminate generation.
    */
   onSendDelta?: (delta: MessageDelta) => Promise<void> | void
   /**
@@ -175,6 +176,27 @@ export const generateCode = async ({
   let timeToFirstToken: number | undefined
   let timeToLastToken: number | undefined
 
+  const midStreamFallback = ctx.midStreamFallback === true
+  let attempt = 1
+  const messageMetadata = (itemId: string): MessageMetadata => ({
+    iterationId: iteration.id,
+    id: midStreamFallback ? `${iteration.id}:${attempt}:${itemId}` : `${iteration.id}:${itemId}`,
+  })
+  // Previews are always live, including reset-only deltas. Await the callback
+  // so consumers observe the reset before replacement text, even when async.
+  const preview = async (delta: MessageDelta) => {
+    try {
+      await onSendDelta?.(delta)
+    } catch (err: unknown) {
+      // Retraction is required for safe replacement delivery. Treat its failure
+      // as terminal so the execution loop cannot start another generation.
+      if (delta.restart) {
+        throw new CognitiveError(`LLM stream restart handler failed: ${getErrorMessage(err)}`)
+      }
+      // Ordinary text previews remain best-effort.
+      void err
+    }
+  }
   const liveItems = new Map<string, ParsedItem>()
   const liveContent = new Map<string, string>()
   let codeGenerationTraced = false
@@ -199,37 +221,39 @@ export const generateCode = async ({
         }
         const content = (liveContent.get(item.id) ?? '') + event.delta
         liveContent.set(item.id, content)
-        try {
-          // Progressive previews are best-effort; the authoritative delivery is onSend.
-          await onSendDelta({
-            id: `${iteration.id}:${item.id}`,
-            component: item.name,
-            props: item.props,
-            delta: event.delta,
-            content,
-          })
-        } catch (err: unknown) {
-          void err
+        const delta: MessageDelta = {
+          restart: false,
+          ...messageMetadata(item.id),
+          component: item.name,
+          props: item.props,
+          delta: event.delta,
+          content,
         }
+        await preview(delta)
       } else if (event.type === 'item-complete') {
         if (event.item.kind === 'send' && onSend) {
-          await onSend({ name: event.item.name, props: event.item.props, body: event.item.body })
+          const send = {
+            name: event.item.name,
+            props: event.item.props,
+            body: event.item.body,
+          }
+          await onSend(send, messageMetadata(event.item.id))
         } else if (event.item.kind === 'run' && event.item.status === 'complete' && !runCompleted) {
           // The ■run block is fully parsed (only the first one counts — the
           // response may invalidly contain more): execution can start while
           // the rest of the response streams
           runCompleted = true
-          onRunComplete?.((event.item.body ?? '').trim())
+          const code = (event.item.body ?? '').trim()
+          onRunComplete?.(code)
         }
       }
     }
   }
 
   if (typeof cognitive.generateTextStream === 'function') {
-    // Streaming path: parse ■ blocks incrementally and dispatch messages while
-    // the model is still generating.
-    const parser = new StreamingMessageParser()
-    const fence = new LeadingFenceFilter()
+    // Parse and deliver messages incrementally, including in fallback mode.
+    let parser = new StreamingMessageParser()
+    let fence = new LeadingFenceFilter()
 
     // Guard against stalled streams: the transport has no timeout of its own
     // when a signal is provided, so a silent connection would hang forever.
@@ -240,8 +264,14 @@ export const generateCode = async ({
         ...input,
         // Passed through to the cognitive request: fall back to the next
         // model/provider when the first token takes too long
-        ...(ctx.maxTimeToFirstToken
-          ? { options: { ...input.options, maxTimeToFirstToken: ctx.maxTimeToFirstToken } }
+        ...(ctx.maxTimeToFirstToken || midStreamFallback
+          ? {
+              options: {
+                ...input.options,
+                ...(ctx.maxTimeToFirstToken ? { maxTimeToFirstToken: ctx.maxTimeToFirstToken } : {}),
+                ...(midStreamFallback ? { midStreamFallback: true } : {}),
+              },
+            }
           : {}),
       },
       { signal: streamController.signal }
@@ -267,46 +297,93 @@ export const generateCode = async ({
     }
 
     raw = ''
+    let streamCompleted = false
 
-    while (true) {
-      let chunk: IteratorResult<CognitiveStreamChunk, unknown>
-      try {
-        chunk = await nextChunk()
-      } catch (thrown: unknown) {
-        throw new CognitiveError(`LLM generation failed: ${getErrorMessage(thrown)}`)
+    try {
+      while (true) {
+        let chunk: IteratorResult<CognitiveStreamChunk, unknown>
+        try {
+          chunk = await nextChunk()
+        } catch (thrown: unknown) {
+          throw new CognitiveError(`LLM generation failed: ${getErrorMessage(thrown)}`)
+        }
+
+        if (chunk.done) {
+          streamCompleted = true
+          break
+        }
+
+        if (chunk.value?.restart && !midStreamFallback) {
+          streamController.abort('Unexpected LLM stream restart')
+          throw new CognitiveError('LLM stream restarted without options.midStreamFallback enabled')
+        }
+
+        if (chunk.value?.restart) {
+          traces.push({ type: 'llm_call_restarted', started_at: Date.now(), ...chunk.value.restart })
+          raw = ''
+          parser = new StreamingMessageParser()
+          fence = new LeadingFenceFilter()
+          liveItems.clear()
+          liveContent.clear()
+          codeGenerationTraced = false
+          runCompleted = false
+          responseMetadata = undefined
+          attempt = chunk.value.restart.attempt
+          // Emit even when the replacement has no sends: previous previews
+          // must disappear immediately, not wait for another text delta.
+          await preview({ ...chunk.value.restart, restart: true, iterationId: iteration.id })
+          // Keep request-relative timing (including handoff latency), but only
+          // report tokens from the surviving attempt.
+          timeToFirstToken = undefined
+          timeToLastToken = undefined
+          continue
+        }
+
+        if (chunk.value?.metadata) {
+          responseMetadata = chunk.value.metadata
+        }
+
+        const delta = chunk.value?.output
+        if (!delta) {
+          continue
+        }
+
+        timeToLastToken = Date.now() - requestedAt
+        timeToFirstToken ??= timeToLastToken
+
+        raw += delta
+        await dispatchSends(parser.push(fence.push(delta)))
       }
 
-      if (chunk.done) {
-        break
+      if (!responseMetadata) {
+        throw new CognitiveError('LLM streaming completed without metadata')
       }
 
-      if (chunk.value?.metadata) {
-        responseMetadata = chunk.value.metadata
+      const remaining = fence.flush()
+      if (remaining) {
+        await dispatchSends(parser.push(remaining))
       }
+      await dispatchSends(parser.finish())
 
-      const delta = chunk.value?.output
-      if (!delta) {
-        continue
+      assistantResponse = toParsedAssistantResponse(parser.items, raw)
+    } finally {
+      // Release transport resources and the joined signal's parent listener,
+      // including when a callback throws or an unexpected restart is rejected.
+      streamController.abort('LLM stream closed')
+      if (!streamCompleted) {
+        // Do not wait: a stalled custom iterator may never settle its next().
+        void stream.return(undefined).catch((err: unknown) => {
+          // Cleanup is best-effort; preserve the original generation failure.
+          void err
+        })
       }
-
-      timeToLastToken = Date.now() - requestedAt
-      timeToFirstToken ??= timeToLastToken
-
-      raw += delta
-      await dispatchSends(parser.push(fence.push(delta)))
     }
 
-    if (!responseMetadata) {
-      throw new CognitiveError('LLM streaming completed without metadata')
+    // Tool execution still waits for successful generation in fallback mode.
+    // Cancellation/deadlines are never renewed across attempts.
+    if (midStreamFallback) {
+      controller.signal.throwIfAborted()
     }
-
-    const remaining = fence.flush()
-    if (remaining) {
-      await dispatchSends(parser.push(remaining))
-    }
-    await dispatchSends(parser.finish())
-
-    assistantResponse = toParsedAssistantResponse(parser.items, raw)
   } else {
     const response = await cognitive.generateText(input, { signal: controller.signal }).catch((thrown: unknown) => {
       throw new CognitiveError(`LLM generation failed: ${getErrorMessage(thrown)}`)
@@ -320,8 +397,8 @@ export const generateCode = async ({
     raw = response.output
     assistantResponse = ctx.version.parseAssistantResponse(raw)
 
-    for (const send of assistantResponse.sends) {
-      await onSend?.(send)
+    for (const [index, send] of assistantResponse.sends.entries()) {
+      await onSend?.(send, messageMetadata(`send-${index}`))
     }
   }
 
@@ -360,7 +437,7 @@ export const generateCode = async ({
     type: 'llm_call_success',
     started_at: startedAt,
     ended_at: iteration.llm.ended_at,
-    model: model.id,
+    model: iteration.llm.model,
     code: iteration.code ?? '',
   })
 }

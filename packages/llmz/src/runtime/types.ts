@@ -126,6 +126,16 @@ type Options = Partial<Pick<Context, 'loop' | 'timeout'>> & {
    */
   maxTimeToFirstToken?: number
   /**
+   * Allow Cognitive to restart failed streams on another model. No buffered
+   * delivery and no final delivery queue: delta text and completed Chat.handler
+   * sends stream immediately during generation. A reset-only delta (restart:
+   * true) on Chat.onMessageDelta invalidates ALL current-iteration messages,
+   * including completed sends — consumers must retract/replace them (not safe for
+   * irreversible transports). Only TOOL/CODE execution waits for a successful
+   * stream. Streaming-only; defaults to false, preserving progressive sending.
+   */
+  midStreamFallback?: boolean
+  /**
    * STT model used to transcribe audio attachments (voice messages) when the
    * target LLM does not support audio natively. Audio-capable models receive
    * the raw audio and ignore this. Defaults to 'fast'.
