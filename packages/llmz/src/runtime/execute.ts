@@ -59,6 +59,7 @@ const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionR
     timeout: props.options?.timeout,
     maxTokens: props.options?.maxTokens,
     maxTimeToFirstToken: props.options?.maxTimeToFirstToken,
+    midStreamFallback: props.options?.midStreamFallback,
     transcriptionModel: props.options?.transcriptionModel,
     exits: props.exits,
     snapshot: props.snapshot,
@@ -371,7 +372,9 @@ const executeIteration = async ({
   // parsed — while the rest of the response (■next, stream metadata) may
   // still be streaming. Disabled when an onBeforeExecution hook is registered,
   // since the hook must run (and may mutate the code) before execution.
-  const canExecuteEarly = typeof onBeforeExecution !== 'function'
+  // Early/streaming execution is also disabled in buffered (midStreamFallback) mode,
+  // so the full response is parsed before code runs.
+  const canExecuteEarly = typeof onBeforeExecution !== 'function' && !ctx.midStreamFallback
   let earlyExecution: { code: string; started_at: number; promise: Promise<VMExecutionResult> } | undefined
 
   // ■send blocks are dispatched to the chat as soon as they are parsed — on
