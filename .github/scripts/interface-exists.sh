@@ -1,6 +1,6 @@
 #!/bin/bash
 if [ -z "$1" ]; then
-  echo "Error: interface name is not provided" >&2 
+  echo "::error::Interface name is not provided" >&2
   exit 1
 fi
 interface=$1

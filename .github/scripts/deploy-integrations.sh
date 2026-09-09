@@ -37,7 +37,7 @@ integration_paths=$(eval "$list_integrations_cmd" | jq -r 'map(.path) | .[]')
 : "${GITHUB_EVENT_NAME:?GITHUB_EVENT_NAME must be set}"
 
 if ! workflow_id=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq '.workflow_id'); then
-  echo "Failed to determine the current workflow." >&2
+  echo "::error::Failed to determine the current workflow." >&2
   exit 2
 fi
 
@@ -53,7 +53,7 @@ case "$GITHUB_EVENT_NAME" in
     deployment_branch="$GITHUB_BASE_REF"
     ;;
   *)
-    echo "Unsupported workflow event: $GITHUB_EVENT_NAME" >&2
+    echo "::error::Unsupported workflow event: $GITHUB_EVENT_NAME" >&2
     exit 2
     ;;
 esac
@@ -64,13 +64,13 @@ if ! previous_sha=$(gh api -X GET "repos/$GITHUB_REPOSITORY/actions/workflows/$w
   -f branch="$deployment_branch" \
   -F per_page=1 \
   --jq '.workflow_runs[0].head_sha // ""'); then
-  echo "Failed to find previous successful workflow run." >&2
+  echo "::error::Failed to find previous successful workflow run." >&2
   exit 2
 fi
 
 if [ -n "$previous_sha" ] && ! git cat-file -e "$previous_sha^{commit}" 2>/dev/null; then
   if ! git fetch --no-tags origin "$previous_sha"; then
-    echo "Failed to fetch the previous workflow commit: $previous_sha" >&2
+    echo "::error::Failed to fetch the previous workflow commit: $previous_sha" >&2
     exit 2
   fi
 fi
@@ -81,7 +81,7 @@ integration_changed() {
     local integration_path="integrations/$integration"
 
     if [ ! -d "$integration_path" ]; then
-        echo "Integration directory does not exist: $integration_path" >&2
+        echo "::error::Integration directory does not exist: $integration_path" >&2
         return 2
     fi
 
@@ -98,7 +98,7 @@ integration_changed() {
     fi
 
     if [ "$diff_status" -ne 1 ]; then
-        echo "Failed to compare $integration_path with $previous_sha." >&2
+        echo "::error::Failed to compare $integration_path with $previous_sha." >&2
         return 2
     fi
 
@@ -119,7 +119,7 @@ deploy_integration() {
     else
         local changed_status=$?
         if [ "$changed_status" -ne 1 ]; then
-            echo "Failed to determine whether integration $integration changed." >&2
+            echo "::error::Failed to determine whether integration $integration changed." >&2
             return "$changed_status"
         elif [ "$redeploy" -eq 1 ]; then
             echo -e "\nRe-deploying integration: ### $integration ###\n"
