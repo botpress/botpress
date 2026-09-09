@@ -34,21 +34,40 @@ export type MessageHandler = (input: RenderedComponent) => Promise<void> | void
  * Each chunk is forwarded to {@link Chat} `onMessageDelta` as soon as it is parsed, so the
  * client can render the message progressively (e.g. typewriter effect in a chat UI).
  *
- * The complete message is always delivered to the regular `handler` afterwards — deltas
- * are a progressive preview, the `handler` call remains the authoritative delivery.
+ * In mid-stream fallback mode, both deltas and completed `handler` messages
+ * are live and retractable: restart deltas invalidate every message from that
+ * iteration. Consumers must retract them; only code execution waits for success.
  */
-export type MessageDelta = {
-  /** Identifies the message being streamed. Unique within an `execute()` call. */
-  id: string
-  /** Component name of the message being streamed (e.g. 'message', 'button'). */
-  component: string
-  /** Props of the message being streamed. Final by the time the body starts streaming. */
-  props: Record<string, unknown>
-  /** The new chunk of body text. */
-  delta: string
-  /** The full body text accumulated so far, including this chunk. */
-  content: string
-}
+export type MessageDelta =
+  | {
+      restart: false
+      /** Generation whose provisional messages must be cleared on a restart. */
+      iterationId: string
+      /** Identifies the message being streamed. Unique within an `execute()` call. */
+      id: string
+      /** Component name of the message being streamed (e.g. 'message', 'button'). */
+      component: string
+      /** Props of the message being streamed. Final by the time the body starts streaming. */
+      props: Record<string, unknown>
+      /** The new chunk of body text. */
+      delta: string
+      /** The full body text accumulated so far, including this chunk. */
+      content: string
+    }
+  | {
+      /**
+       * Reset-only delta, emitted before replacement text (even if none follows).
+       * Clear ALL messages for iterationId, including completed `handler` sends.
+       * Other iterations are unaffected. Irreversible sends cannot be undone.
+       */
+      restart: true
+      iterationId: string
+      /** 1-based index of the new attempt. */
+      attempt: number
+      fromModel: string
+      toModel: string
+      reason: string
+    }
 
 /**
  * Function type for handling message chunks as they are streamed from the LLM.

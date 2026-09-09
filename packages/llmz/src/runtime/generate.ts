@@ -175,16 +175,18 @@ export const generateCode = async ({
   let timeToFirstToken: number | undefined
   let timeToLastToken: number | undefined
 
-  const bufferedDelivery = ctx.midStreamFallback === true
-  let pendingDeliveries: (() => Promise<void> | void)[] = []
-  const deliver = async (callback: () => Promise<void> | void) => {
-    if (bufferedDelivery) {
-      pendingDeliveries.push(callback)
-    } else {
-      await callback()
+  const midStreamFallback = ctx.midStreamFallback === true
+  let attempt = 1
+  // Previews are always live, including reset-only deltas. Await the callback
+  // so consumers observe the reset before replacement text, even when async.
+  const preview = async (delta: MessageDelta) => {
+    try {
+      await onSendDelta?.(delta)
+    } catch (err: unknown) {
+      // Preview failures never prevent authoritative delivery.
+      void err
     }
   }
-
   const liveItems = new Map<string, ParsedItem>()
   const liveContent = new Map<string, string>()
   let codeGenerationTraced = false
@@ -199,11 +201,8 @@ export const generateCode = async ({
           // generated so consumers can show progress while waiting for the
           // code to complete and execute
           codeGenerationTraced = true
-          const started_at = Date.now()
-          await deliver(() => {
-            traces.push({ type: 'code_generation_started', started_at })
-            onRunStart?.()
-          })
+          traces.push({ type: 'code_generation_started', started_at: Date.now() })
+          onRunStart?.()
         }
       } else if (event.type === 'body-delta' && onSendDelta) {
         const item = liveItems.get(event.itemId)
@@ -212,45 +211,38 @@ export const generateCode = async ({
         }
         const content = (liveContent.get(item.id) ?? '') + event.delta
         liveContent.set(item.id, content)
-        // Parser items are live references. Capture the delivery payload now,
-        // rather than queueing parser events that will continue to mutate.
         const delta: MessageDelta = {
-          id: `${iteration.id}:${item.id}`,
+          restart: false,
+          id: midStreamFallback ? `${iteration.id}:${attempt}:${item.id}` : `${iteration.id}:${item.id}`,
+          iterationId: iteration.id,
           component: item.name,
-          props: bufferedDelivery ? structuredClone(item.props) : item.props,
+          props: item.props,
           delta: event.delta,
           content,
         }
-        await deliver(async () => {
-          try {
-            // Progressive previews are best-effort; authoritative delivery is onSend.
-            await onSendDelta(delta)
-          } catch (err: unknown) {
-            void err
-          }
-        })
+        await preview(delta)
       } else if (event.type === 'item-complete') {
         if (event.item.kind === 'send' && onSend) {
           const send = {
             name: event.item.name,
-            props: bufferedDelivery ? structuredClone(event.item.props) : event.item.props,
+            props: event.item.props,
             body: event.item.body,
           }
-          await deliver(() => onSend(send))
+          await onSend(send)
         } else if (event.item.kind === 'run' && event.item.status === 'complete' && !runCompleted) {
           // The ■run block is fully parsed (only the first one counts — the
           // response may invalidly contain more): execution can start while
           // the rest of the response streams
           runCompleted = true
           const code = (event.item.body ?? '').trim()
-          await deliver(() => onRunComplete?.(code))
+          onRunComplete?.(code)
         }
       }
     }
   }
 
   if (typeof cognitive.generateTextStream === 'function') {
-    // Parse incrementally; fallback-enabled calls defer delivery until commit.
+    // Parse and deliver messages incrementally, including in fallback mode.
     let parser = new StreamingMessageParser()
     let fence = new LeadingFenceFilter()
 
@@ -263,12 +255,12 @@ export const generateCode = async ({
         ...input,
         // Passed through to the cognitive request: fall back to the next
         // model/provider when the first token takes too long
-        ...(ctx.maxTimeToFirstToken || bufferedDelivery
+        ...(ctx.maxTimeToFirstToken || midStreamFallback
           ? {
               options: {
                 ...input.options,
                 ...(ctx.maxTimeToFirstToken ? { maxTimeToFirstToken: ctx.maxTimeToFirstToken } : {}),
-                ...(bufferedDelivery ? { midStreamFallback: true } : {}),
+                ...(midStreamFallback ? { midStreamFallback: true } : {}),
               },
             }
           : {}),
@@ -312,7 +304,7 @@ export const generateCode = async ({
           break
         }
 
-        if (chunk.value?.restart && !bufferedDelivery) {
+        if (chunk.value?.restart && !midStreamFallback) {
           streamController.abort('Unexpected LLM stream restart')
           throw new CognitiveError('LLM stream restarted without options.midStreamFallback enabled')
         }
@@ -324,10 +316,13 @@ export const generateCode = async ({
           fence = new LeadingFenceFilter()
           liveItems.clear()
           liveContent.clear()
-          pendingDeliveries = []
           codeGenerationTraced = false
           runCompleted = false
           responseMetadata = undefined
+          attempt = chunk.value.restart.attempt
+          // Emit even when the replacement has no sends: previous previews
+          // must disappear immediately, not wait for another text delta.
+          await preview({ ...chunk.value.restart, restart: true, iterationId: iteration.id })
           // Keep request-relative timing (including handoff latency), but only
           // report tokens from the surviving attempt.
           timeToFirstToken = undefined
@@ -372,16 +367,10 @@ export const generateCode = async ({
       }
     }
 
-    // A restart cannot retract callbacks, so commit only after the iterator
-    // completes normally and the final attempt has metadata and parsed output.
+    // Tool execution still waits for successful generation in fallback mode.
     // Cancellation/deadlines are never renewed across attempts.
-    if (bufferedDelivery) {
+    if (midStreamFallback) {
       controller.signal.throwIfAborted()
-      for (const callback of pendingDeliveries) {
-        controller.signal.throwIfAborted()
-        await callback()
-      }
-      pendingDeliveries = []
     }
   } else {
     const response = await cognitive.generateText(input, { signal: controller.signal }).catch((thrown: unknown) => {

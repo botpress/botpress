@@ -680,8 +680,14 @@ export class Context implements Serializable<Context.JSON> {
    */
   public maxTimeToFirstToken?: number
   /**
-   * Allow Cognitive mid-stream fallback, buffering delivery until generation
-   * succeeds and discarding abandoned attempts. Streaming-only; defaults to false.
+   * Allow Cognitive to restart a failed stream on another model. With fallback
+   * enabled, there is no buffered delivery and no final delivery queue: delta
+   * text and completed Chat.handler sends stream immediately during generation.
+   * A reset-only delta (restart: true) on Chat.onMessageDelta invalidates ALL
+   * current-iteration messages, including completed sends — consumers must
+   * retract/replace them, which is unsafe for irreversible external transports.
+   * Only TOOL/CODE execution waits for a successful stream. Streaming-only;
+   * defaults to false, which leaves progressive sending unchanged.
    */
   public midStreamFallback?: boolean
   /**

@@ -159,8 +159,8 @@ class ScriptedRestartStreamingCognitive extends ScriptedCognitive {
 /**
  * Streams one chunk, then waits for the stream's abort signal before throwing —
  * mimicking a real HTTP-backed client whose stream dies when its AbortController
- * fires. Used to prove that cancelling a mid-stream-fallback generation never
- * flushes buffered content.
+ * fires. Used to prove that cancelling a mid-stream-fallback generation keeps
+ * whatever the parser completed before the transport died.
  */
 class ScriptedAbortAwareCognitive extends ScriptedCognitive {
   public async *generateTextStream(
@@ -213,6 +213,14 @@ const makeChat = (onMessageDelta?: (delta: MessageDelta) => Promise<void> | void
   })
   return { chat, messages }
 }
+
+/** Text-delta members of a delta sequence (never control deltas). */
+type TextDelta = Extract<MessageDelta, { restart: false }>
+const textDeltas = (deltas: MessageDelta[]): TextDelta[] => deltas.filter((d): d is TextDelta => !d.restart)
+
+/** Restart-control members of a delta sequence (`restart: true`). */
+type RestartDelta = Extract<MessageDelta, { restart: true }>
+const restartDeltas = (deltas: MessageDelta[]): RestartDelta[] => deltas.filter((d): d is RestartDelta => d.restart)
 
 describe('message-stream protocol execution', () => {
   test('a message-only response sends the message and listens', async () => {
@@ -427,11 +435,16 @@ describe('message-stream protocol execution', () => {
     expect(messages.map((m) => m.text)).toEqual(['This is a fairly long streamed message body!'])
 
     // the body was delivered progressively, chunk by chunk
-    expect(deltas.length).toBeGreaterThan(1)
-    expect(deltas.map((d) => d.delta).join('')).toBe('This is a fairly long streamed message body!')
-    expect(deltas.at(-1)!.content).toBe('This is a fairly long streamed message body!')
-    expect(new Set(deltas.map((d) => d.id)).size).toBe(1)
-    expect(deltas.every((d) => d.component === 'message')).toBe(true)
+    const text = textDeltas(deltas)
+    expect(text.length).toBeGreaterThan(1)
+    expect(text.map((d) => d.delta).join('')).toBe('This is a fairly long streamed message body!')
+    expect(text.at(-1)!.content).toBe('This is a fairly long streamed message body!')
+    expect(new Set(text.map((d) => d.id)).size).toBe(1)
+    expect(text.every((d) => d.component === 'message')).toBe(true)
+
+    // default (no fallback): one message, one stable iteration id, no control deltas
+    expect(new Set(text.map((d) => d.iterationId)).size).toBe(1)
+    expect(restartDeltas(deltas)).toEqual([])
 
     // deltas were flowing while the stream was still in flight
     expect(client.probes.slice(0, -1).some((count) => count >= 1)).toBe(true)
@@ -752,7 +765,7 @@ describe('message-stream protocol execution', () => {
   })
 
   describe('options.midStreamFallback', () => {
-    test('buffers messages until the stream completes', async () => {
+    test('sends are delivered immediately even with midStreamFallback enabled', async () => {
       const { chat, messages } = makeChat()
       const client = new ScriptedStreamingCognitive(
         ['■send=message\nBuffered hello!\n■send=message\nBuffered second\n■next=listen'],
@@ -765,11 +778,12 @@ describe('message-stream protocol execution', () => {
       expect((result as SuccessExecutionResult).result.exit.name).toBe(ListenExit.name)
       expect(messages.map((m) => m.text)).toEqual(['Buffered hello!', 'Buffered second'])
 
-      // nothing was delivered while the stream was still in flight
-      expect(client.probes.slice(0, -1).every((count) => count === 0)).toBe(true)
+      // there is no delivery queue: the first authoritative send reached the
+      // chat while the stream was still in flight
+      expect(client.probes.slice(0, -1).some((count) => count >= 1)).toBe(true)
     })
 
-    test('buffers message deltas until the stream completes', async () => {
+    test('previews stream immediately even with midStreamFallback enabled', async () => {
       const deltas: MessageDelta[] = []
       const { chat, messages } = makeChat((delta) => {
         deltas.push(delta)
@@ -786,13 +800,16 @@ describe('message-stream protocol execution', () => {
       expect(result).toBeInstanceOf(SuccessExecutionResult)
       expect(messages.map((m) => m.text)).toEqual(['This is a fairly long streamed message body!'])
 
-      // the body was replayed in order once the stream completed
-      expect(deltas.length).toBeGreaterThan(1)
-      expect(deltas.map((d) => d.delta).join('')).toBe('This is a fairly long streamed message body!')
-      expect(new Set(deltas.map((d) => d.id)).size).toBe(1)
+      // previews are no longer buffered: the body arrived progressively, chunk by chunk
+      const text = textDeltas(deltas)
+      expect(text.length).toBeGreaterThan(1)
+      expect(text.map((d) => d.delta).join('')).toBe('This is a fairly long streamed message body!')
+      expect(new Set(text.map((d) => d.id)).size).toBe(1)
+      expect(new Set(text.map((d) => d.iterationId)).size).toBe(1)
+      expect(restartDeltas(deltas)).toEqual([])
 
-      // nothing streamed to the client while the model was still generating
-      expect(client.probes.slice(0, -1).every((count) => count === 0)).toBe(true)
+      // and the previews reached the client while the model was still generating
+      expect(client.probes.slice(0, -1).some((count) => count >= 1)).toBe(true)
     })
 
     test('disables early code execution', async () => {
@@ -826,7 +843,7 @@ describe('message-stream protocol execution', () => {
       expect(client.probes.every((value) => value === 0)).toBe(true)
     })
 
-    test('content streamed before a restart never reaches the chat', async () => {
+    test("sends completed before a restart stay delivered (retraction is the consumer's job)", async () => {
       const { chat, messages } = makeChat()
       // first attempt: a completed ■send and a second ■send cut off mid-body
       const client = new ScriptedRestartStreamingCognitive([
@@ -837,7 +854,11 @@ describe('message-stream protocol execution', () => {
       const result = await executeContext({ client, chat, options: midStreamOptions(3) })
 
       expect(result).toBeInstanceOf(SuccessExecutionResult)
-      expect(messages.map((m) => m.text)).toEqual(['Kept!'])
+      // the completed send was committed before the restart; the mid-body second
+      // send never completed, and the restart resets the parser state so it is
+      // dropped — already-sent messages are retracted by consumers via the
+      // restart delta (clearPreview), not by the runtime
+      expect(messages.map((m) => m.text)).toEqual(['Abandoned!', 'Kept!'])
     })
 
     test('an unexpected restart throws a CognitiveError when fallback is disabled', async () => {
@@ -902,10 +923,12 @@ describe('message-stream protocol execution', () => {
       const result = await executeContext({ client, tools: [mark], exits: [done], options: midStreamOptions(1) })
       expect(result).toBeInstanceOf(SuccessExecutionResult)
       expect(ran).toEqual(['replacement'])
-      expect(result.iterations[0]!.traces.filter((trace) => trace.type === 'code_generation_started')).toHaveLength(1)
+      // the trace fires immediately per attempt (never buffered until success):
+      // the abandoned ■run and the replacement ■run each emit one
+      expect(result.iterations[0]!.traces.filter((trace) => trace.type === 'code_generation_started')).toHaveLength(2)
     })
 
-    test('cancellation after the last chunk but before commit drops all buffered effects', async () => {
+    test('cancellation still fails the run but the committed send stays delivered', async () => {
       const controller = new AbortController()
       class CancelOnCompletion extends ScriptedStreamingCognitive {
         public override async *generateTextStream(): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
@@ -920,11 +943,19 @@ describe('message-stream protocol execution', () => {
       const client = new CancelOnCompletion(['■send=message\nBuffered\n■next=listen'])
       const result = await executeContext({ client, chat, signal: controller.signal, options: midStreamOptions(1) })
       expect(result).toBeInstanceOf(ErrorExecutionResult)
-      expect(messages).toEqual([])
-      expect(deltas).toEqual([])
+      // the send completed while the stream was still in flight; the terminal
+      // abort fails the run but does not revoke already-delivered content
+      expect(messages.map((m) => m.text)).toEqual(['Buffered'])
+      // previews were streamed live alongside the committed send
+      expect(
+        textDeltas(deltas)
+          .map((d) => d.delta)
+          .join('')
+      ).toBe('Buffered')
+      expect(restartDeltas(deltas)).toEqual([])
     })
 
-    test('multiple restarts discard everything streamed before the last attempt', async () => {
+    test('multiple restarts keep every completed send; previews retract to the survivor', async () => {
       const { chat, messages } = makeChat()
       const client = new ScriptedRestartStreamingCognitive([
         '■send=message\nFirst attempt\n■next=listen',
@@ -935,7 +966,10 @@ describe('message-stream protocol execution', () => {
       const result = await executeContext({ client, chat, options: midStreamOptions(3) })
 
       expect(result).toBeInstanceOf(SuccessExecutionResult)
-      expect(messages.map((m) => m.text)).toEqual(['Final!'])
+      // each attempt sent immediately as it was parsed; the runtime keeps what
+      // it already delivered and consumers retract previews per iteration on
+      // each restart delta
+      expect(messages.map((m) => m.text)).toEqual(['First attempt', 'Second attempt', 'Final!'])
     })
 
     test.each(['```', '```\n■send=message\nAbandoned!\n', '■send=button { "label":'])(
@@ -953,7 +987,7 @@ describe('message-stream protocol execution', () => {
       }
     )
 
-    test('a restart whose replacement stream ends without metadata dispatches nothing', async () => {
+    test('a metadata-less replacement fails but its completed sends stay delivered', async () => {
       const cases = [
         // the stream simply runs dry after the replacement content
         null,
@@ -964,7 +998,7 @@ describe('message-stream protocol execution', () => {
       for (const finalChunk of cases) {
         const { chat, messages } = makeChat()
         const client = new ScriptedRestartStreamingCognitive(
-          ['■send=message\nAbandoned!\n■next=listen', '■send=message\nStill buffered\n■next=listen'],
+          ['■send=message\nAbandoned!\n■next=listen', '■send=message\nStill sent\n■next=listen'],
           () => 0,
           7,
           finalChunk
@@ -976,13 +1010,18 @@ describe('message-stream protocol execution', () => {
         const error = (result as ErrorExecutionResult).error
         expect(error).toBeInstanceOf(CognitiveError)
         expect((error as Error).message).toContain('without metadata')
-        expect(messages).toEqual([])
+        // sends parsed before the metadata failure were committed immediately;
+        // unfinished trailing blocks are dropped because parser.finish() never runs
+        expect(messages.map((m) => m.text)).toEqual(['Abandoned!', 'Still sent'])
       }
     })
 
-    test('cancelling the stream never dispatches buffered content', async () => {
+    test('cancelling mid-stream keeps the already completed send', async () => {
       const guard = new AbortController()
-      const { chat, messages } = makeChat()
+      const deltas: MessageDelta[] = []
+      const { chat, messages } = makeChat((delta) => {
+        deltas.push(delta)
+      })
       const client = new ScriptedAbortAwareCognitive(['■send=message\nAbandoned!\n■next=listen'])
 
       const execution = executeContext({ client, chat, signal: guard.signal, options: midStreamOptions(3) })
@@ -994,12 +1033,21 @@ describe('message-stream protocol execution', () => {
 
       expect(result).toBeInstanceOf(ErrorExecutionResult)
       expect((result as ErrorExecutionResult).error).toMatchObject({ message: 'cancelled' })
-      expect(messages).toEqual([])
+      // the send item completed (■next opened) before the abort: it stays
+      // committed even though the run fails terminally
+      expect(messages.map((m) => m.text)).toEqual(['Abandoned!'])
       expect(result.iterations[0]!.status.type).toBe('aborted')
+
+      // the preview that streamed before the abort is left in place (best effort)
+      expect(textDeltas(deltas).some((d) => d.delta.includes('Abandoned!'))).toBe(true)
+      expect(restartDeltas(deltas)).toEqual([])
     })
 
-    test('a stream error after buffered sends and runs delivers nothing', async () => {
-      const { chat, messages } = makeChat()
+    test('a stream error delivers completed sends but never abandoned code', async () => {
+      const deltas: MessageDelta[] = []
+      const { chat, messages } = makeChat((delta) => {
+        deltas.push(delta)
+      })
       let ran = false
       const mark = new Tool({
         name: 'mark',
@@ -1020,9 +1068,339 @@ describe('message-stream protocol execution', () => {
       expect((result as ErrorExecutionResult).error).toBeInstanceOf(CognitiveError)
       expect(((result as ErrorExecutionResult).error as Error).message).toContain('LLM generation failed')
 
-      // Buffered delivery commits only after a successful stream: no effects leak
-      expect(messages).toEqual([])
+      // the ■send was committed as soon as it was parsed; the ■run's tool never
+      // executed because tool execution stays deferred until the stream succeeds
+      expect(
+        textDeltas(deltas)
+          .map((d) => d.delta)
+          .join('')
+      ).toBe('Buffered!')
+      expect(messages.map((m) => m.text)).toEqual(['Buffered!'])
       expect(ran).toBe(false)
+    })
+
+    test('a restart delta is emitted even when the replacement attempt has no send', async () => {
+      const deltas: MessageDelta[] = []
+      const ran: string[] = []
+      const mark = new Tool({
+        name: 'mark',
+        description: 'Records the attempt',
+        input: z.object({ attempt: z.string() }),
+        handler: async ({ attempt }) => {
+          ran.push(attempt)
+        },
+      })
+      const done = new Exit({ name: 'done', description: 'Done' })
+      const { chat, messages } = makeChat((delta) => {
+        deltas.push(delta)
+      })
+      const client = new ScriptedRestartStreamingCognitive([
+        '■send=message\nAbandoned!\n■next=listen',
+        '■run\nawait mark({ attempt: "replacement" })\n■next=done',
+      ])
+      const result = await executeContext({ client, chat, tools: [mark], exits: [done], options: midStreamOptions(1) })
+
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect((result as SuccessExecutionResult).result.exit.name).toBe('done')
+      // only the abandoned attempt's send was committed (immediately as parsed);
+      // the replacement attempt only runs code
+      expect(messages.map((m) => m.text)).toEqual(['Abandoned!'])
+      expect(ran).toEqual(['replacement'])
+
+      const restarts = restartDeltas(deltas)
+      expect(restarts).toHaveLength(1)
+      expect(restarts[0]).toMatchObject({
+        restart: true,
+        attempt: 2,
+        fromModel: 'fake',
+        toModel: 'fake',
+        reason: 'timeout',
+      })
+      expect(typeof restarts[0]!.iterationId).toBe('string')
+    })
+
+    test('a restart delta is emitted even when the replacement attempt fails', async () => {
+      const deltas: MessageDelta[] = []
+      const { chat, messages } = makeChat((delta) => {
+        deltas.push(delta)
+      })
+      // the replacement attempt runs dry without metadata: the generation fails,
+      // but the restart control delta was already delivered
+      const client = new ScriptedRestartStreamingCognitive(
+        ['■send=message\nAbandoned!\n■next=listen', '■send=message\nStill buffered\n■next=listen'],
+        () => 0,
+        7,
+        null
+      )
+      const result = await executeContext({ client, chat, options: midStreamOptions(3) })
+
+      expect(result).toBeInstanceOf(ErrorExecutionResult)
+      const error = (result as ErrorExecutionResult).error
+      expect(error).toBeInstanceOf(CognitiveError)
+      expect((error as Error).message).toContain('without metadata')
+      // both attempts' completed sends were committed before the failure
+      expect(messages.map((m) => m.text)).toEqual(['Abandoned!', 'Still buffered'])
+
+      const restarts = restartDeltas(deltas)
+      expect(restarts).toHaveLength(1)
+      expect(restarts[0]).toMatchObject({
+        restart: true,
+        attempt: 2,
+        fromModel: 'fake',
+        toModel: 'fake',
+        reason: 'timeout',
+      })
+    })
+
+    test('renderers reset their preview when restart deltas arrive (multiple sends, multiple restarts)', async () => {
+      // A minimal renderer: previews accumulate per message id inside a bucket
+      // per generation. A restart tells the renderer the whole generation is
+      // void, so it clears the bucket for that iteration — not just the latest
+      // message — while tracking each message id separately.
+      const events: Array<
+        { kind: 'text'; id: string; iterationId: string } | { kind: 'restart'; attempt: number; iterationId: string }
+      > = []
+      const previews = new Map<string, Map<string, string>>()
+      const resets: number[] = []
+      const { chat, messages } = makeChat((delta) => {
+        if (delta.restart) {
+          resets.push(delta.attempt)
+          events.push({ kind: 'restart', attempt: delta.attempt, iterationId: delta.iterationId })
+          previews.delete(delta.iterationId)
+        } else {
+          let iterationPreviews = previews.get(delta.iterationId)
+          if (iterationPreviews === undefined) {
+            previews.set(delta.iterationId, (iterationPreviews = new Map()))
+          }
+          iterationPreviews.set(delta.id, (iterationPreviews.get(delta.id) ?? '') + delta.delta)
+          events.push({ kind: 'text', id: delta.id, iterationId: delta.iterationId })
+        }
+      })
+      const client = new ScriptedRestartStreamingCognitive([
+        '■send=message\nAbandoned!\n■send=message\nBeta abandoned\n■next=listen',
+        '■send=message\nMid attempt\n■next=listen',
+        '■send=message\nDelta!\n■next=listen',
+      ])
+
+      const result = await executeContext({ client, chat, options: midStreamOptions(3) })
+
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect((result as SuccessExecutionResult).result.exit.name).toBe(ListenExit.name)
+
+      const restartAt = events
+        .map((event, index) => (event.kind === 'restart' ? index : -1))
+        .filter((index) => index !== -1)
+      expect(restartAt).toHaveLength(2)
+      const firstRestart = restartAt[0]!
+      const secondRestart = restartAt[1]!
+
+      const isText = (event: (typeof events)[number]): event is { kind: 'text'; id: string; iterationId: string } =>
+        event.kind === 'text'
+
+      // every attempt belongs to the same generation: the iteration id stays
+      // stable across restarts, unlike the per-message id
+      expect(new Set(events.filter(isText).map((event) => event.iterationId)).size).toBe(1)
+
+      // the first attempt streamed two sends → two distinct message ids
+      const firstAttemptIds = new Set(
+        events
+          .slice(0, firstRestart)
+          .filter(isText)
+          .map((event) => event.id)
+      )
+      expect(firstAttemptIds.size).toBe(2)
+
+      // each replacement attempt only started previewing after its restart
+      // delta, under a message id that never appeared before
+      const middleIds = new Set(
+        events
+          .slice(firstRestart + 1, secondRestart)
+          .filter(isText)
+          .map((event) => event.id)
+      )
+      expect(middleIds.size).toBe(1)
+      expect([...middleIds].every((id) => !firstAttemptIds.has(id))).toBe(true)
+
+      const finalIds = new Set(
+        events
+          .slice(secondRestart + 1)
+          .filter(isText)
+          .map((event) => event.id)
+      )
+      expect(finalIds.size).toBe(1)
+      expect([...finalIds].every((id) => !firstAttemptIds.has(id) && !middleIds.has(id))).toBe(true)
+
+      // each restart cleared the generation's previews (all of its messages):
+      // only the surviving message is still rendered
+      expect(resets).toEqual([2, 3])
+      expect(previews.size).toBe(1)
+      expect([...[...previews.values()][0]!.values()]).toEqual(['Delta!'])
+
+      // every send was committed as it was parsed, across all attempts
+      expect(messages.map((m) => m.text)).toEqual(['Abandoned!', 'Beta abandoned', 'Mid attempt', 'Delta!'])
+    })
+
+    test('text deltas from the replacement carry a fresh message id under a stable iteration id', async () => {
+      const deltas: MessageDelta[] = []
+      const { chat, messages } = makeChat((delta) => {
+        deltas.push(delta)
+      })
+      const client = new ScriptedRestartStreamingCognitive([
+        '■send=message\nAbandoned!\n■next=listen',
+        '■send=message\nKept over here!\n■next=listen',
+      ])
+
+      const result = await executeContext({ client, chat, options: midStreamOptions(3) })
+
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect(messages.map((m) => m.text)).toEqual(['Abandoned!', 'Kept over here!'])
+
+      const text = textDeltas(deltas)
+      const bodies = new Map<string, string>()
+      for (const delta of text) {
+        bodies.set(delta.id, (bodies.get(delta.id) ?? '') + delta.delta)
+      }
+
+      // the per-message id is fresh across the restart: one stable id per
+      // message, differing between the abandoned and the replacement attempt
+      expect(bodies.size).toBe(2)
+      expect([...bodies.values()].sort()).toEqual(['Abandoned!', 'Kept over here!'])
+      const ids = [...bodies.keys()]
+      expect(ids[0]!).not.toBe(ids[1])
+      expect(ids.every((id) => id.length > 0)).toBe(true)
+
+      // but the iteration id is the generation id: identical across attempts
+      expect(new Set(text.map((d) => d.iterationId)).size).toBe(1)
+
+      expect(restartDeltas(deltas)).toHaveLength(1)
+    })
+
+    test('an async restart handler is awaited before the next preview', async () => {
+      const events: string[] = []
+      let releaseReset!: () => void
+      const resetGate = new Promise<void>((resolve) => (releaseReset = resolve))
+      let textBeforeResetSettled = false
+      const { chat, messages } = makeChat(async (delta) => {
+        if (delta.restart) {
+          // block the reset handler until the test releases the gate
+          events.push('reset:start')
+          await resetGate
+          events.push('reset:end')
+        } else {
+          if (events.includes('reset:start') && !events.includes('reset:end')) {
+            textBeforeResetSettled = true
+          }
+          events.push('text')
+        }
+      })
+      const client = new ScriptedRestartStreamingCognitive([
+        '■send=message\nAbandoned!\n■next=listen',
+        '■send=message\nKept!\n■next=listen',
+      ])
+
+      const execution = executeContext({ client, chat, options: midStreamOptions(3) })
+
+      // wait for the restart to arrive and the async reset handler to start
+      await vi.waitFor(() => expect(events).toContain('reset:start'))
+      // the replacement preview must not be delivered while the reset is pending
+      expect(textBeforeResetSettled).toBe(false)
+      expect(events).not.toContain('reset:end')
+
+      releaseReset()
+      const result = await execution
+
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect((result as SuccessExecutionResult).result.exit.name).toBe(ListenExit.name)
+      expect(messages.map((m) => m.text)).toEqual(['Abandoned!', 'Kept!'])
+
+      // reset events settled (start → end) before any replacement preview
+      const resetStart = events.indexOf('reset:start')
+      const resetEnd = events.indexOf('reset:end')
+      expect(resetStart).toBeGreaterThanOrEqual(0)
+      expect(resetEnd).toBe(resetStart + 1)
+      // abandoned previews streamed before the restart; the replacement only after
+      expect(events.slice(0, resetStart).every((event) => event === 'text')).toBe(true)
+      expect(events.slice(resetEnd + 1).length).toBeGreaterThan(0)
+      expect(events.slice(resetEnd + 1).every((event) => event === 'text')).toBe(true)
+      expect(textBeforeResetSettled).toBe(false)
+    })
+
+    test('a restart clears only the current iteration and leaves earlier previews intact', async () => {
+      // A renderer keeps previews from previous generations on screen in
+      // per-iteration buckets. A restart must only remove the bucket it names.
+      const previews = new Map<string, Map<string, string>>()
+      previews.set('previous-iteration', new Map([['prev-msg', 'Committed earlier message']]))
+
+      const { chat, messages } = makeChat((delta) => {
+        if (delta.restart) {
+          previews.delete(delta.iterationId)
+        } else {
+          let iterationPreviews = previews.get(delta.iterationId)
+          if (iterationPreviews === undefined) {
+            previews.set(delta.iterationId, (iterationPreviews = new Map()))
+          }
+          iterationPreviews.set(delta.id, (iterationPreviews.get(delta.id) ?? '') + delta.delta)
+        }
+      })
+      const client = new ScriptedRestartStreamingCognitive([
+        '■send=message\nAbandoned!\n■next=listen',
+        '■send=message\nKept!\n■next=listen',
+      ])
+
+      const result = await executeContext({ client, chat, options: midStreamOptions(3) })
+
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect((result as SuccessExecutionResult).result.exit.name).toBe(ListenExit.name)
+      expect(messages.map((m) => m.text)).toEqual(['Abandoned!', 'Kept!'])
+
+      // the earlier generation's preview survived the restart untouched
+      expect(previews.get('previous-iteration')).toEqual(new Map([['prev-msg', 'Committed earlier message']]))
+
+      // only the current generation still holds provisional previews, with the
+      // surviving attempt's message
+      expect(previews.size).toBe(2)
+      const current = [...previews.entries()].find(([key]) => key !== 'previous-iteration')![1]
+      expect([...current.values()]).toEqual(['Kept!'])
+    })
+
+    test('restart delta errors are best effort and the reset precedes replacement previews', async () => {
+      const events: string[] = []
+      const seenMessageIds = new Set<string>()
+      let resetDelivered = false
+      let replacementResumedAfterReset = false
+      const { chat, messages } = makeChat((delta) => {
+        if (delta.restart) {
+          resetDelivered = true
+          events.push(`reset:${delta.attempt}`)
+        } else {
+          // the replacement attempt streams fresh message ids, so the first
+          // unseen id proves the reset side effects ran before this preview
+          if (resetDelivered && !seenMessageIds.has(delta.id)) {
+            replacementResumedAfterReset = true
+          }
+          seenMessageIds.add(delta.id)
+          events.push(`text:${delta.id}`)
+        }
+        // callback errors are best-effort: they must neither fail the run nor
+        // prevent the restart control delta from being delivered
+        throw new Error('preview handler boom')
+      })
+
+      const client = new ScriptedRestartStreamingCognitive([
+        '■send=message\nAbandoned!\n■next=listen',
+        '■send=message\nKept!\n■next=listen',
+      ])
+      const result = await executeContext({ client, chat, options: midStreamOptions(3) })
+
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect((result as SuccessExecutionResult).result.exit.name).toBe(ListenExit.name)
+      expect(messages.map((m) => m.text)).toEqual(['Abandoned!', 'Kept!'])
+
+      // the control delta was delivered (and its side effects ran) before any
+      // replacement preview, even though every callback threw
+      expect(resetDelivered).toBe(true)
+      expect(replacementResumedAfterReset).toBe(true)
+      expect(events.filter((event) => event.startsWith('reset:'))).toHaveLength(1)
     })
 
     test('metadata from an abandoned attempt does not satisfy a metadata-less replacement', async () => {
@@ -1043,7 +1421,8 @@ describe('message-stream protocol execution', () => {
       const error = (result as ErrorExecutionResult).error
       expect(error).toBeInstanceOf(CognitiveError)
       expect((error as Error).message).toContain('without metadata')
-      expect(messages).toEqual([])
+      // both attempts' sends completed and were committed before the failure
+      expect(messages.map((m) => m.text)).toEqual(['Abandoned!', 'Still buffered'])
     })
 
     test('a replacement handoff within the stall guard still succeeds', async () => {
@@ -1123,7 +1502,7 @@ describe('message-stream protocol execution', () => {
       const result = await executeContext({ client, chat, options: midStreamOptions(3) })
 
       expect(result).toBeInstanceOf(SuccessExecutionResult)
-      expect(messages.map((m) => m.text)).toEqual(['Final!'])
+      expect(messages.map((m) => m.text)).toEqual(['First attempt', 'More abandoned output', 'Final!'])
 
       const iteration = result.iterations[0]!
       const restartTraces = iteration.traces.filter((t) => t.type === 'llm_call_restarted')
