@@ -3,12 +3,9 @@ import axios from 'axios'
 import {
   Component,
   KeyValuePair,
-  NamedVariables,
   TemplateBodyParams,
   TemplateButtonParam,
   TemplateHeaderParam,
-  TemplateVariables,
-  templateVariablesSchema,
 } from 'src/misc/types'
 import {
   BodyComponent,
@@ -132,35 +129,6 @@ export const fetchTemplates = async (
   }
 
   return parsedResult.data
-}
-
-// TODO: Remove in the next major
-export function parseTemplateVariablesJSON(templateVariablesJson: string, logger: bp.Logger): TemplateVariables {
-  let templateVariablesRaw: unknown
-
-  try {
-    templateVariablesRaw = JSON.parse(templateVariablesJson)
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : ''
-    logForBotAndThrow(
-      `Value provided for Template Variables JSON isn't valid JSON (error: ${message}). Received: ${templateVariablesJson}`,
-      logger
-    )
-  }
-
-  const validationResult = templateVariablesSchema.safeParse(templateVariablesRaw)
-  if (!validationResult.success) {
-    logForBotAndThrow(
-      `Template variables should be an array or an object of strings/numbers (error: ${validationResult.error})`,
-      logger
-    )
-  }
-
-  return validationResult.data
-}
-
-function isNamedVariables(variables: TemplateVariables): variables is NamedVariables {
-  return !Array.isArray(variables)
 }
 
 function headerParamToKVPairs(param: TemplateHeaderParam | undefined): KeyValuePair[] {
@@ -393,25 +361,6 @@ export function buildBodyComponent(params: TemplateBodyParams): TemplateComponen
       return new NamedBodyComponent(params.values)
     }
   }
-}
-
-export function buildBodyComponentFromLegacy(variables: TemplateVariables): TemplateComponent | undefined {
-  if (isNamedVariables(variables)) {
-    if (Object.keys(variables).length === 0) {
-      return undefined
-    }
-    const stringValues: Record<string, string> = {}
-    for (const [key, value] of Object.entries(variables)) {
-      stringValues[key] = value.toString()
-    }
-    return new NamedBodyComponent(stringValues)
-  }
-
-  const bodyParams: BodyParameter[] = variables.map((v) => new BodyParameter(v.toString()))
-  if (hasAtleastOne(bodyParams)) {
-    return new BodyComponent(...bodyParams)
-  }
-  return undefined
 }
 
 export function buildButtonComponents(params: TemplateButtonParam[]): TemplateComponent[] {

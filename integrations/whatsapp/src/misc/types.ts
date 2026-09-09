@@ -407,15 +407,6 @@ const componentSchema = z.union([
   }),
 ])
 export type Component = z.infer<typeof componentSchema>
-export const positionalVariablesSchema = z.array(z.string().or(z.number()))
-export type PositionalVariables = z.infer<typeof positionalVariablesSchema>
-
-export const namedVariablesSchema = z.record(z.string(), z.string().or(z.number()))
-export type NamedVariables = z.infer<typeof namedVariablesSchema>
-
-export const templateVariablesSchema = z.union([positionalVariablesSchema, namedVariablesSchema])
-export type TemplateVariables = z.infer<typeof templateVariablesSchema>
-
 export const keyValuePairSchema = z.object({ key: z.string(), value: z.string() })
 export type KeyValuePair = z.infer<typeof keyValuePairSchema>
 

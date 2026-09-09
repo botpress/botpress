@@ -95,6 +95,13 @@ describe('splitTextMessageIfNeeded', () => {
       expect(reconstructed).toBe(message)
     })
 
+    it('should not split an emoji between chunks', () => {
+      const message = 'a'.repeat(WHATSAPP_MAX_TEXT_LENGTH - 1) + '🌍'
+      const result = splitTextMessageIfNeeded(message)
+
+      expect(result).toEqual(['a'.repeat(WHATSAPP_MAX_TEXT_LENGTH - 1), '🌍'])
+    })
+
     it('should handle newlines and special characters', () => {
       const baseMessage = 'Line 1\nLine 2\nLine 3\n' + 'Special: !@#$%^&*()'
       const message = baseMessage + 'x'.repeat(WHATSAPP_MAX_TEXT_LENGTH)
