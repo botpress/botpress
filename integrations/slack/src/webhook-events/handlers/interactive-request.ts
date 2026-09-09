@@ -64,7 +64,11 @@ type InteractiveBody = {
 
 const _parseInteractiveBody = (req: sdk.Request): InteractiveBody => {
   try {
-    return JSON.parse(decodeURIComponent(req.body!).replace('payload=', ''))
+    const payload = new URLSearchParams(req.body!).get('payload')
+    if (payload === null) {
+      throw new Error('Missing "payload" field in interactive request body')
+    }
+    return JSON.parse(payload)
   } catch (thrown: unknown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
     throw new sdk.RuntimeError('Body is invalid for interactive request', error)
