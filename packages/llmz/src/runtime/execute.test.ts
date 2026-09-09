@@ -1,6 +1,6 @@
 import { CognitiveMetadata, CognitiveResponse, CognitiveStreamChunk, Model } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
 import { Chat, MessageDelta } from '../chat.js'
 import { DefaultComponents } from '../component.default.js'
@@ -95,6 +95,107 @@ class ScriptedStreamingCognitive extends ScriptedCognitive {
     yield { created: Date.now(), finished: true, metadata: makeFakeMetadata() }
   }
 }
+
+/**
+ * Streams scripted responses chunk by chunk, emitting a control-only `restart`
+ * chunk between consecutive responses — the signature of a mid-stream model
+ * fallback, where everything streamed before the restart is void and must be
+ * discarded. Ends with a metadata-carrying chunk (or runs dry when `undefined`
+ * is passed as the final chunk).
+ */
+class ScriptedRestartStreamingCognitive extends ScriptedCognitive {
+  /** Value of the probe function recorded after each chunk was consumed downstream. */
+  public probes: number[] = []
+
+  /** True once the stream is paused in the handoff gap after a restart. */
+  public handoffStarted = false
+
+  public constructor(
+    private _segments: string[],
+    private _probe: () => number = () => 0,
+    private _chunkSize = 7,
+    private _finalChunk: CognitiveStreamChunk | null = {
+      created: Date.now(),
+      finished: true,
+      metadata: makeFakeMetadata(),
+    },
+    private _metadataPerAttempt = false,
+    private _handoffDelayMs = 0
+  ) {
+    super(_segments)
+  }
+
+  public async *generateTextStream(): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
+    for (let i = 0; i < this._segments.length; i++) {
+      const content = this._segments[i]!
+      for (let j = 0; j < content.length; j += this._chunkSize) {
+        yield { output: content.slice(j, j + this._chunkSize), created: Date.now() }
+        this.probes.push(this._probe())
+      }
+      if (i < this._segments.length - 1) {
+        if (this._metadataPerAttempt) {
+          // Real streams end each attempt with metadata; it must not survive the restart
+          yield { created: Date.now(), finished: true, metadata: makeFakeMetadata() }
+          this.probes.push(this._probe())
+        }
+        yield {
+          created: Date.now(),
+          restart: { attempt: i + 2, fromModel: 'fake', toModel: 'fake', reason: 'timeout' },
+        }
+        this.probes.push(this._probe())
+        if (this._handoffDelayMs > 0) {
+          this.handoffStarted = true
+          await new Promise<void>((resolve) => setTimeout(resolve, this._handoffDelayMs))
+        }
+      }
+    }
+    if (this._finalChunk) {
+      yield this._finalChunk
+      this.probes.push(this._probe())
+    }
+  }
+}
+
+/**
+ * Streams one chunk, then waits for the stream's abort signal before throwing —
+ * mimicking a real HTTP-backed client whose stream dies when its AbortController
+ * fires. Used to prove that cancelling a mid-stream-fallback generation never
+ * flushes buffered content.
+ */
+class ScriptedAbortAwareCognitive extends ScriptedCognitive {
+  public async *generateTextStream(
+    _input: any,
+    options?: { signal?: AbortSignal }
+  ): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
+    const content = this._nextContent()
+    yield { output: content.slice(0, 30), created: Date.now() }
+
+    const signal: AbortSignal | undefined = options?.signal
+    await new Promise<void>((resolve) => {
+      if (signal?.aborted) {
+        resolve()
+      } else {
+        signal?.addEventListener('abort', () => resolve(), { once: true })
+      }
+    })
+
+    throw new Error('stream interrupted by abort')
+  }
+}
+
+/**
+ * Streams a complete response, then throws — the transport-level failure that
+ * ends a mid-stream fallback chain once every model candidate has failed.
+ */
+class ScriptedChainErrorCognitive extends ScriptedCognitive {
+  public async *generateTextStream(): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
+    yield { output: this._nextContent(), created: Date.now() }
+    throw new Error('model chain exhausted')
+  }
+}
+
+/** Options that opt in to mid-stream model fallback (options.midStreamFallback). */
+const midStreamOptions = (loop: number) => ({ loop, midStreamFallback: true })
 
 const makeChat = (onMessageDelta?: (delta: MessageDelta) => Promise<void> | void) => {
   const messages: Array<{ type: string; text: string; props: Record<string, unknown> }> = []
@@ -648,5 +749,430 @@ describe('message-stream protocol execution', () => {
     expect(result).toBeInstanceOf(SuccessExecutionResult)
     expect(result.iterations[0]!.status.type).toBe('exit_error')
     expect((result as SuccessExecutionResult).result.exit.name).toBe('done')
+  })
+
+  describe('options.midStreamFallback', () => {
+    test('buffers messages until the stream completes', async () => {
+      const { chat, messages } = makeChat()
+      const client = new ScriptedStreamingCognitive(
+        ['■send=message\nBuffered hello!\n■send=message\nBuffered second\n■next=listen'],
+        () => messages.length
+      )
+
+      const result = await executeContext({ client, chat, options: midStreamOptions(3) })
+
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect((result as SuccessExecutionResult).result.exit.name).toBe(ListenExit.name)
+      expect(messages.map((m) => m.text)).toEqual(['Buffered hello!', 'Buffered second'])
+
+      // nothing was delivered while the stream was still in flight
+      expect(client.probes.slice(0, -1).every((count) => count === 0)).toBe(true)
+    })
+
+    test('buffers message deltas until the stream completes', async () => {
+      const deltas: MessageDelta[] = []
+      const { chat, messages } = makeChat((delta) => {
+        deltas.push(delta)
+      })
+
+      const client = new ScriptedStreamingCognitive(
+        ['■send=message\nThis is a fairly long streamed message body!\n■next=listen'],
+        () => deltas.length,
+        5 // small chunks so the body spans many stream chunks
+      )
+
+      const result = await executeContext({ client, chat, options: midStreamOptions(3) })
+
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect(messages.map((m) => m.text)).toEqual(['This is a fairly long streamed message body!'])
+
+      // the body was replayed in order once the stream completed
+      expect(deltas.length).toBeGreaterThan(1)
+      expect(deltas.map((d) => d.delta).join('')).toBe('This is a fairly long streamed message body!')
+      expect(new Set(deltas.map((d) => d.id)).size).toBe(1)
+
+      // nothing streamed to the client while the model was still generating
+      expect(client.probes.slice(0, -1).every((count) => count === 0)).toBe(true)
+    })
+
+    test('disables early code execution', async () => {
+      const done = new Exit({ name: 'done', description: 'Task completed' })
+      const { chat } = makeChat()
+
+      let toolRan = false
+      const mark = new Tool({
+        name: 'mark',
+        description: 'Marks that the code executed',
+        handler: async () => {
+          toolRan = true
+        },
+      })
+
+      const client = new ScriptedStreamingCognitive(['■run\nawait mark()\n■next=done'], () => (toolRan ? 1 : 0), 7)
+
+      const result = await executeContext({
+        client,
+        chat,
+        tools: [mark],
+        exits: [done],
+        options: midStreamOptions(2),
+      })
+
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect((result as SuccessExecutionResult).result.exit.name).toBe('done')
+
+      // the code only executed after the stream had fully completed
+      expect(toolRan).toBe(true)
+      expect(client.probes.every((value) => value === 0)).toBe(true)
+    })
+
+    test('content streamed before a restart never reaches the chat', async () => {
+      const { chat, messages } = makeChat()
+      // first attempt: a completed ■send and a second ■send cut off mid-body
+      const client = new ScriptedRestartStreamingCognitive([
+        '■send=message\nAbandoned!\n■send=message\nPartial',
+        '■send=message\nKept!\n■next=listen',
+      ])
+
+      const result = await executeContext({ client, chat, options: midStreamOptions(3) })
+
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect(messages.map((m) => m.text)).toEqual(['Kept!'])
+    })
+
+    test('an unexpected restart throws a CognitiveError when fallback is disabled', async () => {
+      const { chat } = makeChat()
+      const client = new ScriptedRestartStreamingCognitive([
+        '■send=message\nAbandoned!\n■next=listen',
+        '■send=message\nKept!\n■next=listen',
+      ])
+
+      // midStreamFallback is off: a restart chunk is unexpected and must fail
+      // instead of silently concatenating the attempts
+      const result = await executeContext({ client, chat, options: { loop: 3 } })
+
+      expect(result).toBeInstanceOf(ErrorExecutionResult)
+      const error = (result as ErrorExecutionResult).error
+      expect(error).toBeInstanceOf(CognitiveError)
+    })
+
+    test('a ■run block completed before a restart never executes', async () => {
+      const ran: string[] = []
+      const log = new Tool({
+        name: 'log',
+        description: 'Logs a value',
+        handler: async () => {
+          ran.push('log')
+        },
+      })
+
+      const { chat } = makeChat()
+      const client = new ScriptedRestartStreamingCognitive([
+        '■run\nawait log()\n■next=listen',
+        '■send=message\nKept!\n■next=listen',
+      ])
+
+      const result = await executeContext({
+        client,
+        chat,
+        tools: [log],
+        options: midStreamOptions(3),
+      })
+
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect(ran).toEqual([])
+      expect(result.iterations).toHaveLength(1)
+    })
+
+    test('only replacement code executes after a completed run is abandoned', async () => {
+      const ran: string[] = []
+      const mark = new Tool({
+        name: 'mark',
+        description: 'Records the attempt',
+        input: z.object({ attempt: z.string() }),
+        handler: async ({ attempt }) => {
+          ran.push(attempt)
+        },
+      })
+      const done = new Exit({ name: 'done', description: 'Done' })
+      const client = new ScriptedRestartStreamingCognitive([
+        '■run\nawait mark({ attempt: "abandoned" })\n■next=done',
+        '■run\nawait mark({ attempt: "replacement" })\n■next=done',
+      ])
+      const result = await executeContext({ client, tools: [mark], exits: [done], options: midStreamOptions(1) })
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect(ran).toEqual(['replacement'])
+      expect(result.iterations[0]!.traces.filter((trace) => trace.type === 'code_generation_started')).toHaveLength(1)
+    })
+
+    test('cancellation after the last chunk but before commit drops all buffered effects', async () => {
+      const controller = new AbortController()
+      class CancelOnCompletion extends ScriptedStreamingCognitive {
+        public override async *generateTextStream(): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
+          yield* super.generateTextStream()
+          controller.abort(new Error('deadline expired'))
+        }
+      }
+      const deltas: MessageDelta[] = []
+      const { chat, messages } = makeChat((delta) => {
+        deltas.push(delta)
+      })
+      const client = new CancelOnCompletion(['■send=message\nBuffered\n■next=listen'])
+      const result = await executeContext({ client, chat, signal: controller.signal, options: midStreamOptions(1) })
+      expect(result).toBeInstanceOf(ErrorExecutionResult)
+      expect(messages).toEqual([])
+      expect(deltas).toEqual([])
+    })
+
+    test('multiple restarts discard everything streamed before the last attempt', async () => {
+      const { chat, messages } = makeChat()
+      const client = new ScriptedRestartStreamingCognitive([
+        '■send=message\nFirst attempt\n■next=listen',
+        '■send=message\nSecond attempt\n■next=listen',
+        '■send=message\nFinal!\n■next=listen',
+      ])
+
+      const result = await executeContext({ client, chat, options: midStreamOptions(3) })
+
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect(messages.map((m) => m.text)).toEqual(['Final!'])
+    })
+
+    test.each(['```', '```\n■send=message\nAbandoned!\n', '■send=button { "label":'])(
+      'a restart resets incomplete parser/fence state: %s',
+      async (abandoned) => {
+        const { chat, messages } = makeChat()
+        // both attempts are wrapped in a code fence; the first fence must not
+        // leak into the replacement after the restart
+        const client = new ScriptedRestartStreamingCognitive([abandoned, '```\n■send=message\nKept!\n■next=listen'])
+
+        const result = await executeContext({ client, chat, options: midStreamOptions(3) })
+
+        expect(result).toBeInstanceOf(SuccessExecutionResult)
+        expect(messages.map((m) => m.text)).toEqual(['Kept!'])
+      }
+    )
+
+    test('a restart whose replacement stream ends without metadata dispatches nothing', async () => {
+      const cases = [
+        // the stream simply runs dry after the replacement content
+        null,
+        // the stream ends with a finished chunk but no replacement metadata
+        { created: Date.now(), finished: true } as CognitiveStreamChunk,
+      ]
+
+      for (const finalChunk of cases) {
+        const { chat, messages } = makeChat()
+        const client = new ScriptedRestartStreamingCognitive(
+          ['■send=message\nAbandoned!\n■next=listen', '■send=message\nStill buffered\n■next=listen'],
+          () => 0,
+          7,
+          finalChunk
+        )
+
+        const result = await executeContext({ client, chat, options: midStreamOptions(3) })
+
+        expect(result).toBeInstanceOf(ErrorExecutionResult)
+        const error = (result as ErrorExecutionResult).error
+        expect(error).toBeInstanceOf(CognitiveError)
+        expect((error as Error).message).toContain('without metadata')
+        expect(messages).toEqual([])
+      }
+    })
+
+    test('cancelling the stream never dispatches buffered content', async () => {
+      const guard = new AbortController()
+      const { chat, messages } = makeChat()
+      const client = new ScriptedAbortAwareCognitive(['■send=message\nAbandoned!\n■next=listen'])
+
+      const execution = executeContext({ client, chat, signal: guard.signal, options: midStreamOptions(3) })
+
+      // let the first chunk flow through the pipeline, then cancel the stream
+      setTimeout(() => guard.abort(new Error('cancelled')), 20)
+
+      const result = await execution
+
+      expect(result).toBeInstanceOf(ErrorExecutionResult)
+      expect((result as ErrorExecutionResult).error).toMatchObject({ message: 'cancelled' })
+      expect(messages).toEqual([])
+      expect(result.iterations[0]!.status.type).toBe('aborted')
+    })
+
+    test('a stream error after buffered sends and runs delivers nothing', async () => {
+      const { chat, messages } = makeChat()
+      let ran = false
+      const mark = new Tool({
+        name: 'mark',
+        description: 'Marks that the code executed',
+        handler: async () => {
+          ran = true
+        },
+      })
+      const done = new Exit({ name: 'done', description: 'Task completed' })
+
+      // The attempt fully parses a ■send and a ■run before the transport dies,
+      // as when the whole model chain exhausts mid-stream
+      const client = new ScriptedChainErrorCognitive(['■send=message\nBuffered!\n■run\nawait mark()\n■next=done'])
+
+      const result = await executeContext({ client, chat, tools: [mark], exits: [done], options: midStreamOptions(3) })
+
+      expect(result).toBeInstanceOf(ErrorExecutionResult)
+      expect((result as ErrorExecutionResult).error).toBeInstanceOf(CognitiveError)
+      expect(((result as ErrorExecutionResult).error as Error).message).toContain('LLM generation failed')
+
+      // Buffered delivery commits only after a successful stream: no effects leak
+      expect(messages).toEqual([])
+      expect(ran).toBe(false)
+    })
+
+    test('metadata from an abandoned attempt does not satisfy a metadata-less replacement', async () => {
+      const { chat, messages } = makeChat()
+      // The first attempt ends with metadata, then restarts; the replacement
+      // finishes without providing its own
+      const client = new ScriptedRestartStreamingCognitive(
+        ['■send=message\nAbandoned!\n■next=listen', '■send=message\nStill buffered\n■next=listen'],
+        () => 0,
+        7,
+        { created: Date.now(), finished: true },
+        true
+      )
+
+      const result = await executeContext({ client, chat, options: midStreamOptions(3) })
+
+      expect(result).toBeInstanceOf(ErrorExecutionResult)
+      const error = (result as ErrorExecutionResult).error
+      expect(error).toBeInstanceOf(CognitiveError)
+      expect((error as Error).message).toContain('without metadata')
+      expect(messages).toEqual([])
+    })
+
+    test('a replacement handoff within the stall guard still succeeds', async () => {
+      try {
+        vi.useFakeTimers()
+        const { chat, messages } = makeChat()
+        // The replacement attempt starts after a 60s handoff — well inside the
+        // 180s inactivity guard the runtime arms between chunks
+        const client = new ScriptedRestartStreamingCognitive(
+          ['■send=message\nAbandoned!\n', '■send=message\nReplacement output!\n■next=listen'],
+          () => 0,
+          7,
+          undefined,
+          false,
+          60_000
+        )
+
+        const execution = executeContext({ client, chat, options: midStreamOptions(3) })
+
+        // Drive the stream through the restart, then release the handoff
+        for (let i = 0; i < 100 && !client.handoffStarted; i++) {
+          await vi.advanceTimersByTimeAsync(1)
+        }
+        expect(client.handoffStarted).toBe(true)
+        await vi.advanceTimersByTimeAsync(60_000)
+
+        const result = await execution
+        expect(result).toBeInstanceOf(SuccessExecutionResult)
+        expect((result as SuccessExecutionResult).result.exit.name).toBe(ListenExit.name)
+        expect(messages.map((m) => m.text)).toEqual(['Replacement output!'])
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    test('a replacement handoff past the stall guard fails', async () => {
+      try {
+        vi.useFakeTimers()
+        const { chat, messages } = makeChat()
+        // The replacement handoff takes 240s — past the 180s inactivity guard
+        const client = new ScriptedRestartStreamingCognitive(
+          ['■send=message\nAbandoned!\n', '■send=message\nNever delivered\n■next=listen'],
+          () => 0,
+          7,
+          undefined,
+          false,
+          240_000
+        )
+
+        const execution = executeContext({ client, chat, options: midStreamOptions(3) })
+
+        for (let i = 0; i < 100 && !client.handoffStarted; i++) {
+          await vi.advanceTimersByTimeAsync(1)
+        }
+        expect(client.handoffStarted).toBe(true)
+
+        // Exceed the stall timeout armed after the restart chunk: the guard must
+        // still be running across the handoff
+        await vi.advanceTimersByTimeAsync(180_001)
+
+        const result = await execution
+        expect(result).toBeInstanceOf(ErrorExecutionResult)
+        expect(((result as ErrorExecutionResult).error as Error).message).toContain('LLM stream stalled')
+        expect(messages).toEqual([])
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    test('restarts are traced with the chain fields and usage reflects only the surviving attempt', async () => {
+      const { chat, messages } = makeChat()
+      const client = new ScriptedRestartStreamingCognitive([
+        '■send=message\nFirst attempt\n■send=message\nMore abandoned output\n■next=listen',
+        '■send=message\nFinal!\n■next=listen',
+      ])
+
+      const result = await executeContext({ client, chat, options: midStreamOptions(3) })
+
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect(messages.map((m) => m.text)).toEqual(['Final!'])
+
+      const iteration = result.iterations[0]!
+      const restartTraces = iteration.traces.filter((t) => t.type === 'llm_call_restarted')
+      expect(restartTraces).toHaveLength(1)
+      expect(restartTraces[0]).toMatchObject({ attempt: 2, fromModel: 'fake', toModel: 'fake', reason: 'timeout' })
+
+      // raw output and usage come from the surviving attempt only
+      expect(iteration.llm!.output).toBe('■send=message\nFinal!\n■next=listen')
+      expect(iteration.llm!.usage).toEqual({ inputTokens: 10, inputCost: 0, outputTokens: 10, outputCost: 0 })
+      expect(iteration.tokens!.input).toBe(10)
+      expect(iteration.tokens!.output).toBe(10)
+      expect(iteration.tokens!.total).toBe(20)
+    })
+
+    test('options.midStreamFallback is forwarded to the streaming request', async () => {
+      let received: any
+      class ProbeCognitive extends ScriptedStreamingCognitive {
+        public override async *generateTextStream(input?: any): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
+          received = input
+          yield* super.generateTextStream()
+        }
+      }
+
+      const run = async (options: Record<string, unknown>, attachments?: Transcript.Attachment[]) => {
+        received = undefined
+        const chat = new Chat({
+          components: [DefaultComponents.Text],
+          transcript: [{ role: 'user', content: 'hello', attachments }],
+          handler: async () => {},
+        })
+        const client = new ProbeCognitive(['■send=message\nHello!\n■next=listen'])
+        const result = await executeContext({ client, chat, options: { loop: 2, ...options } })
+        expect(result).toBeInstanceOf(SuccessExecutionResult)
+      }
+
+      // the flag alone is forwarded
+      await run({ midStreamFallback: true })
+      expect(received?.options?.midStreamFallback).toBe(true)
+
+      // combined with the time-to-first-token fallback
+      await run({ midStreamFallback: true, maxTimeToFirstToken: 1_234 })
+      expect(received?.options?.midStreamFallback).toBe(true)
+      expect(received?.options?.maxTimeToFirstToken).toBe(1_234)
+
+      // combined with audio transcription
+      const audio: Transcript.Attachment[] = [{ type: 'audio', url: 'data:audio/wav;base64,AAAA' }]
+      await run({ midStreamFallback: true }, audio)
+      expect(received?.options?.midStreamFallback).toBe(true)
+      expect(received?.options?.transcriptionModel).toBe('fast')
+    })
   })
 })
