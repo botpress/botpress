@@ -1649,6 +1649,12 @@ Consumer rules:
 
 Outside of fallback (the default), `onMessageDelta` behavior is unchanged: ordinary chunks carry `iterationId`/`id`/`component`/`props`/`delta`/`content` with a single stable message id, and no restart/reset deltas are produced.
 
+#### Completed-send correlation
+
+`Chat.handler(component, metadata)` receives `{ iterationId: string, id: string }` for **every send**, including empty-body and non-text components, without requiring `onMessageDelta`. For streamed messages, `metadata.id` matches the text delta's `id`; it changes across attempts while `iterationId` stays stable. Existing one-argument handlers continue to work.
+
+Record **all** persisted message IDs created while awaiting that handler under its metadata (one component may produce multiple persisted messages). A restart can then retract everything for the matching iteration, even after a message's stream tracking has completed. Non-streaming sends also receive metadata. Tool-yielded messages get unique per-yield IDs and the runtime iteration ID; standalone `Tool.execute` calls without an iteration use their `callId` as the scope.
+
 #### Migrating consumers
 
 - **No final delivery queue**: messages are not withheld until the stream ends. Deltas and completed `handler` sends arrive during generation; drop any "promote on success" design — treat every delivered message as provisional until the iteration completes without a reset.

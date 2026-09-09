@@ -2,10 +2,11 @@ import { CognitiveMetadata, CognitiveResponse, CognitiveStreamChunk, Model } fro
 import { z } from '@bpinternal/zui'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Chat, MessageDelta } from '../chat.js'
+import { Chat, MessageDelta, MessageMetadata } from '../chat.js'
 import { DefaultComponents } from '../component.default.js'
 import { RenderedComponent } from '../component.js'
 import { ListenExit } from '../context.js'
+import { createJsxComponent } from '../jsx.js'
 import { CognitiveError } from '../errors.js'
 import { Exit } from '../exit.js'
 import { ErrorExecutionResult, SuccessExecutionResult } from '../result.js'
@@ -1553,5 +1554,160 @@ describe('message-stream protocol execution', () => {
       expect(received?.options?.midStreamFallback).toBe(true)
       expect(received?.options?.transcriptionModel).toBe('fast')
     })
+  })
+})
+
+describe('Chat.handler message metadata', () => {
+  type Sent = { type: string; metadata: MessageMetadata }
+
+  /** Chat whose handler captures the new second metadata argument. */
+  const makeMetadataChat = (onMessageDelta?: (delta: MessageDelta) => Promise<void> | void) => {
+    const sent: Sent[] = []
+    const chat = new Chat({
+      components: [DefaultComponents.Text, DefaultComponents.Button],
+      transcript: [{ role: 'user', content: 'hello', name: 'user' }],
+      handler: async (component: RenderedComponent, metadata: MessageMetadata) => {
+        sent.push({ type: component.type, metadata })
+      },
+      onMessageDelta,
+    })
+    return { chat, sent }
+  }
+
+  test('tool-yielded messages also receive unique ids scoped to the runtime iteration', async () => {
+    const { chat, sent } = makeMetadataChat()
+    const notify = new Tool({
+      name: 'notify',
+      description: 'Emits two messages',
+      handler: async function* () {
+        yield createJsxComponent({ type: 'MESSAGE', props: {}, children: ['One'] })
+        yield createJsxComponent({ type: 'MESSAGE', props: {}, children: ['Two'] })
+      },
+    })
+    const client = new ScriptedStreamingCognitive(['■run\nawait notify()\n■next=listen'])
+    const result = await executeContext({ client, chat, tools: [notify], options: { loop: 1 } })
+    expect(result).toBeInstanceOf(SuccessExecutionResult)
+    expect(sent).toHaveLength(2)
+    expect(new Set(sent.map(({ metadata }) => metadata.id)).size).toBe(2)
+    expect(sent.every(({ metadata }) => metadata.iterationId === result.iterations[0]!.id)).toBe(true)
+  })
+
+  test('streaming: a completed send shares its ids with the text deltas for the same component', async () => {
+    const deltas: MessageDelta[] = []
+    const { chat, sent } = makeMetadataChat((delta) => {
+      deltas.push(delta)
+    })
+    const client = new ScriptedStreamingCognitive([
+      '■send=message\nFirst message!\n■send=message\nSecond message!\n■next=listen',
+    ])
+
+    await executeContext({ client, chat, options: { loop: 3 } })
+
+    const text = textDeltas(deltas)
+    const deltaIds = [...new Set(text.map((d) => d.id))]
+    expect(deltaIds).toHaveLength(2)
+
+    // the consumer persists under both the delta id and the handler metadata
+    // id (two records, one per message) — both must point at the same send
+    expect(sent.map((s) => s.metadata.id)).toEqual(deltaIds)
+    expect(new Set(sent.map((s) => s.metadata.id)).size).toBe(2)
+    expect(sent.every((s) => s.metadata.iterationId === text[0]!.iterationId)).toBe(true)
+  })
+
+  test('components without body text get handler metadata even though no deltas stream', async () => {
+    const deltas: MessageDelta[] = []
+    const { chat, sent } = makeMetadataChat((delta) => {
+      deltas.push(delta)
+    })
+    const client = new ScriptedStreamingCognitive([
+      '■send=button { label: "Buy", action: "postback", value: "buy" }\n■next=listen',
+    ])
+
+    await executeContext({ client, chat, options: { loop: 3 } })
+
+    // a prop-only component has no body characters, so no deltas are emitted
+    expect(textDeltas(deltas)).toEqual([])
+    expect(sent).toHaveLength(1)
+    expect(sent[0]!.type).toBe('BUTTON')
+    expect(sent[0]!.metadata.id.startsWith(`${sent[0]!.metadata.iterationId}:`)).toBe(true)
+    expect(sent[0]!.metadata.iterationId.length).toBeGreaterThan(0)
+  })
+
+  test('handler metadata flows even when onMessageDelta is not registered', async () => {
+    const { chat, sent } = makeMetadataChat()
+    const client = new ScriptedStreamingCognitive(['■send=message\nStill metadated!\n■next=listen'])
+
+    await executeContext({ client, chat, options: { loop: 3 } })
+
+    expect(sent).toHaveLength(1)
+    expect(sent[0]!.metadata.id.startsWith(`${sent[0]!.metadata.iterationId}:`)).toBe(true)
+    expect(sent[0]!.metadata.id).not.toBe(sent[0]!.metadata.iterationId)
+  })
+
+  test('across a fallback restart handler ids are attempt-specific while the iteration id stays stable', async () => {
+    const { chat, sent } = makeMetadataChat(() => {})
+    const client = new ScriptedRestartStreamingCognitive([
+      '■send=message\nAbandoned!\n■next=listen',
+      '■send=message\nSurvivor!\n■next=listen',
+    ])
+
+    await executeContext({ client, chat, options: midStreamOptions(3) })
+
+    expect(sent).toHaveLength(2)
+    // fallback ids embed the attempt: :1: for the abandoned, :2: for the survivor
+    expect(sent[0]!.metadata.id.includes(':1:')).toBe(true)
+    expect(sent[1]!.metadata.id.includes(':2:')).toBe(true)
+    expect(sent[0]!.metadata.id).not.toBe(sent[1]!.metadata.id)
+    // one stable iteration id across both attempts
+    expect(new Set(sent.map((s) => s.metadata.iterationId)).size).toBe(1)
+  })
+
+  test('non-streaming sends get unique send-index metadata ids', async () => {
+    const { chat, sent } = makeMetadataChat()
+    const client = new ScriptedCognitive([
+      '■send=message\nOne!\n■send=message\nTwo!\n■send=button { label: "Go", action: "say", value: "go" }\n■next=listen',
+    ])
+
+    await executeContext({ client, chat, options: { loop: 3 } })
+
+    expect(sent).toHaveLength(3)
+    expect(new Set(sent.map((s) => s.metadata.id)).size).toBe(3)
+    const iterationId = sent[0]!.metadata.iterationId
+    expect(sent.map((s) => s.metadata.id)).toEqual([
+      `${iterationId}:send-0`,
+      `${iterationId}:send-1`,
+      `${iterationId}:send-2`,
+    ])
+  })
+
+  test('handler deliveries are awaited: abandoned and replacement sends settle in stream order across a restart', async () => {
+    const events: string[] = []
+    const chat = new Chat({
+      components: [DefaultComponents.Text],
+      transcript: [{ role: 'user', content: 'hello', name: 'user' }],
+      handler: async (_component: RenderedComponent, metadata: MessageMetadata) => {
+        // simulate slow persistence: the runtime must await it before moving on
+        await new Promise<void>((resolve) => setTimeout(resolve, 10))
+        events.push(`handler:${metadata.id}`)
+      },
+      onMessageDelta: (delta) => {
+        events.push(delta.restart ? 'reset' : `delta:${delta.id}`)
+      },
+    })
+    const client = new ScriptedRestartStreamingCognitive([
+      '■send=message\nAbandoned!\n■next=listen',
+      '■send=message\nSurvivor!\n■next=listen',
+    ])
+
+    await executeContext({ client, chat, options: midStreamOptions(3) })
+
+    const handlerEvents = events.filter((e) => e.startsWith('handler:')).map((e) => e.slice('handler:'.length))
+    expect(handlerEvents).toHaveLength(2)
+    expect(handlerEvents[0]).not.toBe(handlerEvents[1])
+
+    // the abandoned send's handler settled before the reset delta was emitted,
+    // and the survivor's after it — every delivery is awaited in stream order
+    expect(events.indexOf('reset')).toBeGreaterThan(events.indexOf(`handler:${handlerEvents[0]}`))
+    expect(events.indexOf('reset')).toBeLessThan(events.indexOf(`handler:${handlerEvents[1]}`))
   })
 })

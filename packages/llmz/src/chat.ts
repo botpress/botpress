@@ -25,7 +25,15 @@ import { TranscriptArray, Transcript } from './transcript.js'
  * }
  * ```
  */
-export type MessageHandler = (input: RenderedComponent) => Promise<void> | void
+/** Correlates every generated send with its deltas and restart scope. */
+export type MessageMetadata = {
+  /** Stable across generation attempts; standalone tool calls use their callId. */
+  iterationId: string
+  /** Logical send ID; matches MessageDelta.id when text deltas exist. Unique across attempts. */
+  id: string
+}
+
+export type MessageHandler = (input: RenderedComponent, metadata: MessageMetadata) => Promise<void> | void
 
 /**
  * A chunk of a message body streamed live from the LLM, before the message is complete.

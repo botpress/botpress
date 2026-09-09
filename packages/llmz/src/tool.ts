@@ -58,6 +58,8 @@ type SmartPartial<T> = IsObject<T> extends true ? Partial<T> : T
 type ToolCallContext = {
   /** Unique identifier for this specific tool call */
   callId: string
+  /** Set by the runtime; standalone calls use callId as their message scope. */
+  iterationId?: string
 }
 
 export namespace Tool {
@@ -691,7 +693,10 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
       }
       if (yieldIndex >= yieldedCount) {
         setYieldedCount(yieldIndex + 1)
-        await chat?.handler?.(value)
+        await chat?.handler?.(value, {
+          iterationId: ctx.iterationId ?? ctx.callId,
+          id: `${ctx.callId}:yield-${yieldIndex}`,
+        })
       }
       yieldIndex++
     }

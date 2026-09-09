@@ -404,7 +404,7 @@ const executeIteration = async ({
           earlyExecution = { code, started_at: Date.now(), promise: runCode(code) }
         }
       : undefined,
-    onSend: async (send) => {
+    onSend: async (send, messageMetadata) => {
       if (!ctx.chat) {
         return
       }
@@ -417,7 +417,7 @@ const executeIteration = async ({
       })
 
       try {
-        await ctx.chat.handler(component)
+        await ctx.chat.handler(component, messageMetadata)
       } catch (err) {
         throw new Error(`Error while sending message (■send=${send.name}): ${getErrorMessage(err)}`)
       }

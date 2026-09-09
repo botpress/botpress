@@ -2,7 +2,7 @@ import type { CognitiveMetadata, CognitiveStreamChunk } from '@botpress/cognitiv
 import { clamp } from 'lodash-es'
 
 import { createJoinedAbortController } from '../abort-signal.js'
-import type { MessageDelta } from '../chat.js'
+import type { MessageDelta, MessageMetadata } from '../chat.js'
 import { Context, Iteration } from '../context.js'
 import { CognitiveError } from '../errors.js'
 import { StreamingMessageParser } from '../message-stream/parser.js'
@@ -39,7 +39,7 @@ type GenerateCodeProps = {
    * Called for each completed `■send` block. On streaming clients this fires
    * while the model is still generating — messages are delivered progressively.
    */
-  onSend?: (send: ParsedSend) => Promise<void>
+  onSend?: (send: ParsedSend, metadata: MessageMetadata) => Promise<void>
   /**
    * Called for each `■send` body chunk as it is parsed from the stream
    * (streaming clients only). Best-effort: errors are ignored.
@@ -177,6 +177,10 @@ export const generateCode = async ({
 
   const midStreamFallback = ctx.midStreamFallback === true
   let attempt = 1
+  const messageMetadata = (itemId: string): MessageMetadata => ({
+    iterationId: iteration.id,
+    id: midStreamFallback ? `${iteration.id}:${attempt}:${itemId}` : `${iteration.id}:${itemId}`,
+  })
   // Previews are always live, including reset-only deltas. Await the callback
   // so consumers observe the reset before replacement text, even when async.
   const preview = async (delta: MessageDelta) => {
@@ -213,8 +217,7 @@ export const generateCode = async ({
         liveContent.set(item.id, content)
         const delta: MessageDelta = {
           restart: false,
-          id: midStreamFallback ? `${iteration.id}:${attempt}:${item.id}` : `${iteration.id}:${item.id}`,
-          iterationId: iteration.id,
+          ...messageMetadata(item.id),
           component: item.name,
           props: item.props,
           delta: event.delta,
@@ -228,7 +231,7 @@ export const generateCode = async ({
             props: event.item.props,
             body: event.item.body,
           }
-          await onSend(send)
+          await onSend(send, messageMetadata(event.item.id))
         } else if (event.item.kind === 'run' && event.item.status === 'complete' && !runCompleted) {
           // The ■run block is fully parsed (only the first one counts — the
           // response may invalidly contain more): execution can start while
@@ -385,8 +388,8 @@ export const generateCode = async ({
     raw = response.output
     assistantResponse = ctx.version.parseAssistantResponse(raw)
 
-    for (const send of assistantResponse.sends) {
-      await onSend?.(send)
+    for (const [index, send] of assistantResponse.sends.entries()) {
+      await onSend?.(send, messageMetadata(`send-${index}`))
     }
   }
 
