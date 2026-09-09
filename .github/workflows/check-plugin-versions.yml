@@ -38,12 +38,12 @@ jobs:
             exists=$(./.github/scripts/plugin-exists.sh "$plugin")
 
             if [ "$exists" -ne 0 ]; then
-              echo "Plugin $plugin is already deployed publicly with the same version. Please update the version of your plugin."
+              echo "::error::Plugin $plugin is already deployed publicly with the same version. Please update the version of your plugin."
               should_fail=1
             fi
           done
 
           if [ "$should_fail" -ne 0 ]; then
-            echo "Please update the version of your plugin before pushing your changes."
+            echo "::error::Please update the version of your plugin before pushing your changes."
             exit 1
           fi

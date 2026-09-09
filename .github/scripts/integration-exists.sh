@@ -1,13 +1,13 @@
 #!/bin/bash
 if [ -z "$1" ]; then
-  echo "Error: integration name is not provided" >&2 
+  echo "::error::Integration name is not provided" >&2
   exit 1
 fi
 integration=$1
             
 integration_path="integrations/$integration"
 if ! integration_def=$(pnpm bp read --work-dir "$integration_path" --json); then
-  echo "Error: Failed to read integration definition for \"$integration\". Check the integration for TypeScript errors." >&2
+  echo "::error::Failed to read integration definition for \"$integration\". Check the integration for TypeScript errors." >&2
   exit 1
 fi
 
