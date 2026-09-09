@@ -1582,30 +1582,94 @@ await execute({
 
 ---
 
-### Buffered Delivery (midStreamFallback)
+### Mid-Stream Model Fallback (midStreamFallback)
 
-By default, LLMz streams responses: send blocks are dispatched as soon as they are parsed, and the ■run block starts executing while the model is still generating the rest of the response. This gives the lowest time-to-first-token but runs code before the response is complete.
+By default, LLMz streams responses: message bodies (`■send` blocks) and completed `Chat.handler` sends are dispatched as soon as they are produced, and the ■run block starts executing while the model is still generating the rest of the response. This gives the lowest time-to-first-token but runs code before the response is complete.
 
-Set `options.midStreamFallback: true` to allow Cognitive to restart a failed stream on another model safely. LLMz buffers delivery and discards all content from abandoned attempts:
+Set `options.midStreamFallback: true` to allow Cognitive to restart a failed stream on another model. There is **no buffered delivery and no final delivery queue**: with fallback enabled, delta text and completed `Chat.handler` sends both stream immediately during generation. Only **TOOL/CODE execution** waits for a stream to complete successfully. When Cognitive abandons an attempt, a reset-only delta (`restart: true`) is delivered through the existing `Chat.onMessageDelta`; it invalidates **all** messages of the current iteration — **including messages already committed through `handler`** — so consumers must retract and replace them:
 
 ```typescript
 await execute({
   // ...
+  chat: new MyChat({
+    onMessageDelta: (delta) => {
+      if (delta.restart) {
+        // invalidates ALL current-iteration messages, including completed handler
+        // sends: retract/replace them before the replacement streams
+        return retractIteration(delta.iterationId)
+      } else {
+        // stream this message's text as it arrives (same iterationId as below)
+        updateMessage(delta)
+      }
+    },
+  }),
   options: { midStreamFallback: true },
 })
 ```
 
-When enabled, the runtime buffers the full generated response and only dispatches it (sends and code execution) once the stream has finished. Trade-offs:
+`retractIteration`/`updateMessage` are placeholder names for your consumer's message store. **This option is not safe to enable blindly**: a reset invalidates messages that were already delivered through `handler`. If your transport cannot retract or replace an already-sent message — an external irreversible send such as SMS, email, or a third-party webhook — those sends cannot be undone, so keep `midStreamFallback` disabled unless your consumer can retract and replace invalidated messages.
 
-- **Latency**: higher time-to-first-send/token, since nothing is delivered until the response completes.
-- **No early code**: the VM is not run mid-stream; code executes only after the full response is parsed.
-- **Cancellation**: cancellation still aborts the original generation request as usual.
+#### MessageDelta contract
+
+`Chat.onMessageDelta` receives a single typed `MessageDelta` discriminated union:
+
+- **Ordinary text chunk** (`restart: false`) — the next piece of one message's body; all fields are required:
+  ```typescript
+  {
+    restart: false,
+    iterationId: string, // stable across ALL attempts of this LLM generation iteration
+    id: string, // message id — DIFFERENT per attempt (unique when fallback is on)
+    component: string,
+    props: Record<string, unknown>, // final by the time the body starts streaming
+    delta: string, // new chunk of body text
+    content: string, // full body text accumulated so far, including this chunk
+  }
+  ```
+- **Reset-only delta** (`restart: true`) — carries no text; signals the current generation attempt was abandoned and a replacement is being attempted:
+  ```typescript
+  {
+    restart: true,
+    iterationId: string, // the iteration whose messages (incl. handler sends) must be retracted/replaced
+    attempt: number,
+    fromModel: string,
+    toModel: string,
+    reason: string,
+  }
+  ```
+
+IDs: `iterationId` is **stable across attempts** — every restart of the same iteration keeps the same `iterationId` — while `id` is **different per attempt**. After a reset, replacement chunks arrive under new `id`s within the same `iterationId`.
+
+Consumer rules:
+
+- On `restart: true`, retract/replace **all** current-iteration messages bearing that `iterationId` — streamed text **and** messages already delivered through `handler`.
+- On an ordinary chunk, update the message for `delta.id` (create it if new, otherwise append).
+- A reset is emitted and awaited **before** replacement output begins, **even if the replacement yields no message at all**. Return/await the retraction promise in your handler. If it throws or rejects, generation fails without delivering replacement output or executing code; ordinary text-preview errors remain best-effort.
+- A reset only invalidates the messages of its own `iterationId`; it **never** invalidates messages from earlier, completed iterations.
+- Only TOOL/CODE execution is gated on a successful stream: generated code and tool calls never run from an abandoned attempt.
+
+Outside of fallback (the default), `onMessageDelta` behavior is unchanged: ordinary chunks carry `iterationId`/`id`/`component`/`props`/`delta`/`content` with a single stable message id, and no restart/reset deltas are produced.
+
+#### Completed-send correlation
+
+`Chat.handler(component, metadata)` receives `{ iterationId: string, id: string }` for **every send**, including empty-body and non-text components, without requiring `onMessageDelta`. For streamed messages, `metadata.id` matches the text delta's `id`; it changes across attempts while `iterationId` stays stable. Existing one-argument handlers continue to work.
+
+Record **all** persisted message IDs created while awaiting that handler under its metadata (one component may produce multiple persisted messages). A restart can then retract everything for the matching iteration, even after a message's stream tracking has completed. Non-streaming sends also receive metadata. Tool-yielded messages get unique per-yield IDs and the runtime iteration ID; standalone `Tool.execute` calls without an iteration use their `callId` as the scope.
+
+#### Migrating consumers
+
+- **No final delivery queue**: messages are not withheld until the stream ends. Deltas and completed `handler` sends arrive during generation; drop any "promote on success" design — treat every delivered message as provisional until the iteration completes without a reset.
+- **Retract, don't just clear previews**: on `restart: true`, retraction must cascade to every current-iteration message, including ones already committed through `handler`. If your UI or transport cannot do that, keep `midStreamFallback` disabled.
+- **Clear on errors and cancellation**: a failed or cancelled generation can leave current-iteration messages on screen, incomplete, or unresettable. Explicitly clear/roll back current-iteration state when execution errors or ends — there is no exactly-once guarantee, and caller retries can duplicate effects.
+- **Irreversible transports**: external sends that cannot be undone (SMS, email, webhooks) must not blindly enable fallback without a reset-capable gateway.
+
+#### Caveats
+
 - **No extra retry loop**: Cognitive owns fallback, bounded by the model chain. LLMz does not retry abandoned attempts itself.
-- **Not exactly-once**: abandoned attempts deliver nothing, but successful-attempt callbacks cannot be rolled back if delivery fails or cancellation arrives during delivery. Caller retries can duplicate effects.
+- **Cancellation**: cancellation still aborts the original generation request as usual; consumers must clear current-iteration state on abort (see above). Cancellation deadlines are not reset, and the existing stream inactivity guard remains active during handoffs.
 
-This option defaults to false and applies only to streaming clients. Non-streaming Cognitive requests already fall back transparently. It can be combined with `maxTimeToFirstToken` and `transcriptionModel`; do not enable it globally underneath LLMz without also enabling LLMz's buffering option.
+This option defaults to false and applies only to streaming clients. Non-streaming Cognitive requests already fall back transparently. It can be combined with `maxTimeToFirstToken` and `transcriptionModel`; do not enable it globally underneath LLMz without also enabling LLMz's fallback option and a reset-capable consumer.
 
-Restarts emit `llm_call_restarted` traces with the attempt, source/destination models, and reason. Token timings remain relative to the original request and describe the surviving attempt (including time spent on prior attempts). Usage and cost retain Cognitive's final reported metadata; LLMz does not infer or sum abandoned-attempt billing. Cancellation deadlines are not reset, and the existing stream inactivity guard remains active during handoffs.
+Restarts emit `llm_call_restarted` traces with the attempt, source/destination models, and reason. Token timings remain relative to the original request and describe the surviving attempt (including time spent on prior attempts). Usage and cost retain Cognitive's final reported metadata; LLMz does not infer or sum abandoned-attempt billing.
 
 ## API Reference
 

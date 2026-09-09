@@ -137,6 +137,7 @@ export function wrapTool({
         effectiveInput,
         {
           callId: toolCallId,
+          iterationId: iteration.id,
         },
         chat
       )
