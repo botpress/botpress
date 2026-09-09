@@ -372,7 +372,10 @@ export const generateCode = async ({
       streamController.abort('LLM stream closed')
       if (!streamCompleted) {
         // Do not wait: a stalled custom iterator may never settle its next().
-        void stream.return(undefined).catch(() => {})
+        void stream.return(undefined).catch((err: unknown) => {
+          // Cleanup is best-effort; preserve the original generation failure.
+          void err
+        })
       }
     }
 

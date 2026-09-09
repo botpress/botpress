@@ -418,7 +418,7 @@ const executeIteration = async ({
 
       try {
         await ctx.chat.handler(component, messageMetadata)
-      } catch (err) {
+      } catch (err: unknown) {
         throw new Error(`Error while sending message (■send=${send.name}): ${getErrorMessage(err)}`)
       }
 
