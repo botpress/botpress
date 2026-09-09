@@ -20,7 +20,7 @@ const RESPONSE_LENGTH_BUFFER = {
 } as const
 
 /** Maximum time to wait between two stream chunks before considering the stream stalled. */
-const STREAM_INACTIVITY_TIMEOUT = 60_000
+const STREAM_INACTIVITY_TIMEOUT = 180_000
 
 const getModelOutputLimit = (inputLength: number) =>
   clamp(
@@ -175,6 +175,16 @@ export const generateCode = async ({
   let timeToFirstToken: number | undefined
   let timeToLastToken: number | undefined
 
+  const bufferedDelivery = ctx.midStreamFallback === true
+  let pendingDeliveries: (() => Promise<void> | void)[] = []
+  const deliver = async (callback: () => Promise<void> | void) => {
+    if (bufferedDelivery) {
+      pendingDeliveries.push(callback)
+    } else {
+      await callback()
+    }
+  }
+
   const liveItems = new Map<string, ParsedItem>()
   const liveContent = new Map<string, string>()
   let codeGenerationTraced = false
@@ -189,8 +199,11 @@ export const generateCode = async ({
           // generated so consumers can show progress while waiting for the
           // code to complete and execute
           codeGenerationTraced = true
-          traces.push({ type: 'code_generation_started', started_at: Date.now() })
-          onRunStart?.()
+          const started_at = Date.now()
+          await deliver(() => {
+            traces.push({ type: 'code_generation_started', started_at })
+            onRunStart?.()
+          })
         }
       } else if (event.type === 'body-delta' && onSendDelta) {
         const item = liveItems.get(event.itemId)
@@ -199,37 +212,47 @@ export const generateCode = async ({
         }
         const content = (liveContent.get(item.id) ?? '') + event.delta
         liveContent.set(item.id, content)
-        try {
-          // Progressive previews are best-effort; the authoritative delivery is onSend.
-          await onSendDelta({
-            id: `${iteration.id}:${item.id}`,
-            component: item.name,
-            props: item.props,
-            delta: event.delta,
-            content,
-          })
-        } catch (err: unknown) {
-          void err
+        // Parser items are live references. Capture the delivery payload now,
+        // rather than queueing parser events that will continue to mutate.
+        const delta: MessageDelta = {
+          id: `${iteration.id}:${item.id}`,
+          component: item.name,
+          props: bufferedDelivery ? structuredClone(item.props) : item.props,
+          delta: event.delta,
+          content,
         }
+        await deliver(async () => {
+          try {
+            // Progressive previews are best-effort; authoritative delivery is onSend.
+            await onSendDelta(delta)
+          } catch (err: unknown) {
+            void err
+          }
+        })
       } else if (event.type === 'item-complete') {
         if (event.item.kind === 'send' && onSend) {
-          await onSend({ name: event.item.name, props: event.item.props, body: event.item.body })
+          const send = {
+            name: event.item.name,
+            props: bufferedDelivery ? structuredClone(event.item.props) : event.item.props,
+            body: event.item.body,
+          }
+          await deliver(() => onSend(send))
         } else if (event.item.kind === 'run' && event.item.status === 'complete' && !runCompleted) {
           // The ■run block is fully parsed (only the first one counts — the
           // response may invalidly contain more): execution can start while
           // the rest of the response streams
           runCompleted = true
-          onRunComplete?.((event.item.body ?? '').trim())
+          const code = (event.item.body ?? '').trim()
+          await deliver(() => onRunComplete?.(code))
         }
       }
     }
   }
 
   if (typeof cognitive.generateTextStream === 'function') {
-    // Streaming path: parse ■ blocks incrementally and dispatch messages while
-    // the model is still generating.
-    const parser = new StreamingMessageParser()
-    const fence = new LeadingFenceFilter()
+    // Parse incrementally; fallback-enabled calls defer delivery until commit.
+    let parser = new StreamingMessageParser()
+    let fence = new LeadingFenceFilter()
 
     // Guard against stalled streams: the transport has no timeout of its own
     // when a signal is provided, so a silent connection would hang forever.
@@ -240,8 +263,14 @@ export const generateCode = async ({
         ...input,
         // Passed through to the cognitive request: fall back to the next
         // model/provider when the first token takes too long
-        ...(ctx.maxTimeToFirstToken
-          ? { options: { ...input.options, maxTimeToFirstToken: ctx.maxTimeToFirstToken } }
+        ...(ctx.maxTimeToFirstToken || bufferedDelivery
+          ? {
+              options: {
+                ...input.options,
+                ...(ctx.maxTimeToFirstToken ? { maxTimeToFirstToken: ctx.maxTimeToFirstToken } : {}),
+                ...(bufferedDelivery ? { midStreamFallback: true } : {}),
+              },
+            }
           : {}),
       },
       { signal: streamController.signal }
@@ -267,46 +296,93 @@ export const generateCode = async ({
     }
 
     raw = ''
+    let streamCompleted = false
 
-    while (true) {
-      let chunk: IteratorResult<CognitiveStreamChunk, unknown>
-      try {
-        chunk = await nextChunk()
-      } catch (thrown: unknown) {
-        throw new CognitiveError(`LLM generation failed: ${getErrorMessage(thrown)}`)
+    try {
+      while (true) {
+        let chunk: IteratorResult<CognitiveStreamChunk, unknown>
+        try {
+          chunk = await nextChunk()
+        } catch (thrown: unknown) {
+          throw new CognitiveError(`LLM generation failed: ${getErrorMessage(thrown)}`)
+        }
+
+        if (chunk.done) {
+          streamCompleted = true
+          break
+        }
+
+        if (chunk.value?.restart && !bufferedDelivery) {
+          streamController.abort('Unexpected LLM stream restart')
+          throw new CognitiveError('LLM stream restarted without options.midStreamFallback enabled')
+        }
+
+        if (chunk.value?.restart) {
+          traces.push({ type: 'llm_call_restarted', started_at: Date.now(), ...chunk.value.restart })
+          raw = ''
+          parser = new StreamingMessageParser()
+          fence = new LeadingFenceFilter()
+          liveItems.clear()
+          liveContent.clear()
+          pendingDeliveries = []
+          codeGenerationTraced = false
+          runCompleted = false
+          responseMetadata = undefined
+          // Keep request-relative timing (including handoff latency), but only
+          // report tokens from the surviving attempt.
+          timeToFirstToken = undefined
+          timeToLastToken = undefined
+          continue
+        }
+
+        if (chunk.value?.metadata) {
+          responseMetadata = chunk.value.metadata
+        }
+
+        const delta = chunk.value?.output
+        if (!delta) {
+          continue
+        }
+
+        timeToLastToken = Date.now() - requestedAt
+        timeToFirstToken ??= timeToLastToken
+
+        raw += delta
+        await dispatchSends(parser.push(fence.push(delta)))
       }
 
-      if (chunk.done) {
-        break
+      if (!responseMetadata) {
+        throw new CognitiveError('LLM streaming completed without metadata')
       }
 
-      if (chunk.value?.metadata) {
-        responseMetadata = chunk.value.metadata
+      const remaining = fence.flush()
+      if (remaining) {
+        await dispatchSends(parser.push(remaining))
       }
+      await dispatchSends(parser.finish())
 
-      const delta = chunk.value?.output
-      if (!delta) {
-        continue
+      assistantResponse = toParsedAssistantResponse(parser.items, raw)
+    } finally {
+      // Release transport resources and the joined signal's parent listener,
+      // including when a callback throws or an unexpected restart is rejected.
+      streamController.abort('LLM stream closed')
+      if (!streamCompleted) {
+        // Do not wait: a stalled custom iterator may never settle its next().
+        void stream.return(undefined).catch(() => {})
       }
-
-      timeToLastToken = Date.now() - requestedAt
-      timeToFirstToken ??= timeToLastToken
-
-      raw += delta
-      await dispatchSends(parser.push(fence.push(delta)))
     }
 
-    if (!responseMetadata) {
-      throw new CognitiveError('LLM streaming completed without metadata')
+    // A restart cannot retract callbacks, so commit only after the iterator
+    // completes normally and the final attempt has metadata and parsed output.
+    // Cancellation/deadlines are never renewed across attempts.
+    if (bufferedDelivery) {
+      controller.signal.throwIfAborted()
+      for (const callback of pendingDeliveries) {
+        controller.signal.throwIfAborted()
+        await callback()
+      }
+      pendingDeliveries = []
     }
-
-    const remaining = fence.flush()
-    if (remaining) {
-      await dispatchSends(parser.push(remaining))
-    }
-    await dispatchSends(parser.finish())
-
-    assistantResponse = toParsedAssistantResponse(parser.items, raw)
   } else {
     const response = await cognitive.generateText(input, { signal: controller.signal }).catch((thrown: unknown) => {
       throw new CognitiveError(`LLM generation failed: ${getErrorMessage(thrown)}`)
@@ -360,7 +436,7 @@ export const generateCode = async ({
     type: 'llm_call_success',
     started_at: startedAt,
     ended_at: iteration.llm.ended_at,
-    model: model.id,
+    model: iteration.llm.model,
     code: iteration.code ?? '',
   })
 }

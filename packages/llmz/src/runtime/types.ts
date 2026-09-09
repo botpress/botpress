@@ -126,6 +126,13 @@ type Options = Partial<Pick<Context, 'loop' | 'timeout'>> & {
    */
   maxTimeToFirstToken?: number
   /**
+   * Allow Cognitive to restart failed streams on another model. Buffers message
+   * previews, sends, and code execution until generation succeeds; abandoned
+   * attempts deliver nothing. Streaming-only; defaults to false, preserving
+   * progressive sends and early code execution.
+   */
+  midStreamFallback?: boolean
+  /**
    * STT model used to transcribe audio attachments (voice messages) when the
    * target LLM does not support audio natively. Audio-capable models receive
    * the raw audio and ignore this. Defaults to 'fast'.

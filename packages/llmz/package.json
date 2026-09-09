@@ -2,7 +2,7 @@
   "name": "llmz",
   "type": "module",
   "description": "LLMz - An LLM-native Typescript VM built on top of Zui",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "files": [
     "dist",
     "DOCS.md"
