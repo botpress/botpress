@@ -79,7 +79,8 @@ export type MessageDelta =
 
 /**
  * Function type for handling message chunks as they are streamed from the LLM.
- * Errors thrown by this handler are ignored — streaming previews are best-effort.
+ * Text-preview errors are ignored. Restart-handler errors stop generation:
+ * replacement output must not be delivered if retraction fails.
  */
 export type MessageDeltaHandler = (delta: MessageDelta) => Promise<void> | void
 

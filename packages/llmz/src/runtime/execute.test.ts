@@ -1364,45 +1364,51 @@ describe('message-stream protocol execution', () => {
       expect([...current.values()]).toEqual(['Kept!'])
     })
 
-    test('restart delta errors are best effort and the reset precedes replacement previews', async () => {
-      const events: string[] = []
-      const seenMessageIds = new Set<string>()
-      let resetDelivered = false
-      let replacementResumedAfterReset = false
-      const { chat, messages } = makeChat((delta) => {
-        if (delta.restart) {
-          resetDelivered = true
-          events.push(`reset:${delta.attempt}`)
-        } else {
-          // the replacement attempt streams fresh message ids, so the first
-          // unseen id proves the reset side effects ran before this preview
-          if (resetDelivered && !seenMessageIds.has(delta.id)) {
-            replacementResumedAfterReset = true
+    test.each(['sync', 'async'] as const)(
+      'a %s restart handler failure stops replacement delivery and execution',
+      async (mode) => {
+        const events: string[] = []
+        const { chat, messages } = makeChat((delta) => {
+          if (delta.restart) {
+            events.push('reset')
+            if (mode === 'async') {
+              return Promise.resolve().then(() => {
+                throw new Error('retraction failed')
+              })
+            }
+            throw new Error('retraction failed')
           }
-          seenMessageIds.add(delta.id)
-          events.push(`text:${delta.id}`)
-        }
-        // callback errors are best-effort: they must neither fail the run nor
-        // prevent the restart control delta from being delivered
-        throw new Error('preview handler boom')
-      })
+          events.push('text')
+          // Text-preview errors still allow the first completed send through.
+          throw new Error('preview failed')
+        })
+        let ran = false
+        const mark = new Tool({
+          name: 'mark',
+          description: 'Side effect',
+          handler: async () => {
+            ran = true
+          },
+        })
+        const client = new ScriptedRestartStreamingCognitive([
+          '■send=message\nAbandoned!\n■run\nawait mark()\n■next=listen',
+          '■send=message\nReplacement!\n■run\nawait mark()\n■next=listen',
+        ])
+        const result = await executeContext({ client, chat, tools: [mark], options: midStreamOptions(3) })
 
-      const client = new ScriptedRestartStreamingCognitive([
-        '■send=message\nAbandoned!\n■next=listen',
-        '■send=message\nKept!\n■next=listen',
-      ])
-      const result = await executeContext({ client, chat, options: midStreamOptions(3) })
-
-      expect(result).toBeInstanceOf(SuccessExecutionResult)
-      expect((result as SuccessExecutionResult).result.exit.name).toBe(ListenExit.name)
-      expect(messages.map((m) => m.text)).toEqual(['Abandoned!', 'Kept!'])
-
-      // the control delta was delivered (and its side effects ran) before any
-      // replacement preview, even though every callback threw
-      expect(resetDelivered).toBe(true)
-      expect(replacementResumedAfterReset).toBe(true)
-      expect(events.filter((event) => event.startsWith('reset:'))).toHaveLength(1)
-    })
+        expect(result).toBeInstanceOf(ErrorExecutionResult)
+        expect((result as ErrorExecutionResult).error).toBeInstanceOf(CognitiveError)
+        expect(((result as ErrorExecutionResult).error as Error).message).toContain(
+          'restart handler failed: retraction failed'
+        )
+        expect(result.iterations).toHaveLength(1)
+        expect(messages.map((m) => m.text)).toEqual(['Abandoned!'])
+        expect(events).toContain('text')
+        expect(events.filter((event) => event === 'reset')).toHaveLength(1)
+        expect(events.at(-1)).toBe('reset')
+        expect(ran).toBe(false)
+      }
+    )
 
     test('metadata from an abandoned attempt does not satisfy a metadata-less replacement', async () => {
       const { chat, messages } = makeChat()

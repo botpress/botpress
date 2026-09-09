@@ -42,7 +42,8 @@ type GenerateCodeProps = {
   onSend?: (send: ParsedSend, metadata: MessageMetadata) => Promise<void>
   /**
    * Called for each `■send` body chunk as it is parsed from the stream
-   * (streaming clients only). Best-effort: errors are ignored.
+   * (streaming clients only), or with a restart delta before replacement output.
+   * Text errors are best-effort; restart errors terminate generation.
    */
   onSendDelta?: (delta: MessageDelta) => Promise<void> | void
   /**
@@ -187,7 +188,12 @@ export const generateCode = async ({
     try {
       await onSendDelta?.(delta)
     } catch (err: unknown) {
-      // Preview failures never prevent authoritative delivery.
+      // Retraction is required for safe replacement delivery. Treat its failure
+      // as terminal so the execution loop cannot start another generation.
+      if (delta.restart) {
+        throw new CognitiveError(`LLM stream restart handler failed: ${getErrorMessage(err)}`)
+      }
+      // Ordinary text previews remain best-effort.
       void err
     }
   }

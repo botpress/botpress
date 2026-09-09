@@ -1596,7 +1596,7 @@ await execute({
       if (delta.restart) {
         // invalidates ALL current-iteration messages, including completed handler
         // sends: retract/replace them before the replacement streams
-        retractIteration(delta.iterationId)
+        return retractIteration(delta.iterationId)
       } else {
         // stream this message's text as it arrives (same iterationId as below)
         updateMessage(delta)
@@ -1643,7 +1643,7 @@ Consumer rules:
 
 - On `restart: true`, retract/replace **all** current-iteration messages bearing that `iterationId` — streamed text **and** messages already delivered through `handler`.
 - On an ordinary chunk, update the message for `delta.id` (create it if new, otherwise append).
-- A reset is emitted **before** the replacement output begins, **even if the replacement yields no message at all** — consumers can always rely on it to wipe the previous attempt.
+- A reset is emitted and awaited **before** replacement output begins, **even if the replacement yields no message at all**. Return/await the retraction promise in your handler. If it throws or rejects, generation fails without delivering replacement output or executing code; ordinary text-preview errors remain best-effort.
 - A reset only invalidates the messages of its own `iterationId`; it **never** invalidates messages from earlier, completed iterations.
 - Only TOOL/CODE execution is gated on a successful stream: generated code and tool calls never run from an abandoned attempt.
 
