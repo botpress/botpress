@@ -9,9 +9,15 @@ if [ -z "$integration" ]; then
   exit 1
 fi
 
-integration_def=$(pnpm bp read --work-dir "integrations/$integration" --json)
-name=$(echo "$integration_def" | jq -r '.name')
-version=$(echo "$integration_def" | jq -r '.version')
+# Redirect to a file, not $(): a pipe makes Node's stdout async, truncating large definitions (e.g. slack) on process exit.
+integration_def_file=$(mktemp)
+trap 'rm -f "$integration_def_file"' EXIT
+if ! pnpm bp read --work-dir "integrations/$integration" --json >"$integration_def_file"; then
+  echo "::error::Failed to read integration definition for $integration."
+  exit 1
+fi
+name=$(jq -r '.name' "$integration_def_file")
+version=$(jq -r '.version' "$integration_def_file")
 # Do not mistake API, authentication, or parsing failures for a new integration.
 if ! integrations_json=$(pnpm bp integrations ls --name "$name" --json); then
   echo "::error::Failed to list deployed versions for integration $integration."
