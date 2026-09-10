@@ -177,7 +177,7 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
 
     .addStep({
       id: 'end',
-      async handler({ responses, query, client, ctx }) {
+      async handler({ responses, query, client, ctx, logger }) {
         // Selection order is preserved: the first id is the default spreadsheet.
         const spreadsheetIds = [
           ...new Set(
@@ -189,12 +189,22 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
         ]
 
         if (spreadsheetIds.length) {
-          await client.setState({
-            id: ctx.integrationId,
-            type: 'integration',
-            name: 'spreadsheetConfig',
-            payload: { spreadsheetIds },
-          })
+          try {
+            await client.setState({
+              id: ctx.integrationId,
+              type: 'integration',
+              name: 'spreadsheetConfig',
+              payload: { spreadsheetIds },
+            })
+          } catch (thrown: unknown) {
+            const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+            logger.forBot().error('Failed to save the selected spreadsheets:', error)
+
+            return responses.endWizard({
+              success: false,
+              errorMessage: `Failed to save your spreadsheet selection: ${error.message}`,
+            })
+          }
         }
 
         return responses.endWizard({

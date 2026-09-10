@@ -25,6 +25,7 @@ export class GoogleClient {
     this._sheetsClient = google.sheets({ version: 'v4', auth: oauthClient })
   }
 
+  @handleErrors('Failed to initialize the Google Sheets client')
   public static async create({
     ctx,
     client,

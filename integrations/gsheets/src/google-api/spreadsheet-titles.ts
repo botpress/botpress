@@ -13,9 +13,11 @@ export const resolveSpreadsheetTitles = async (
 
   const entries = await Promise.all(
     uniqueIds.map(async (spreadsheetId) => {
-      const title = await fetchTitle(spreadsheetId).catch(() => undefined)
-
-      return [spreadsheetId, title] as const
+      try {
+        return [spreadsheetId, await fetchTitle(spreadsheetId)] as const
+      } catch (_thrown: unknown) {
+        return [spreadsheetId, undefined] as const
+      }
     })
   )
 

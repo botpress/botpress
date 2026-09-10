@@ -3,7 +3,6 @@ From tracking inventory and managing project tasks to organizing event attendees
 Give your bot new abilities like add new entries, update existing records, and retrieve essential information.
 Stay agile and organized by dynamically adding new sheets to accommodate evolving data needs, ensuring your spreadsheets remain flexible and scalable.
 
-
 ## Upgrading from 2.1.7 or earlier
 
 If you use **automatic configuration with OAuth** and you are coming from version `2.1.7` or earlier, re-run the setup wizard. Those versions took the spreadsheet from a **Spreadsheet ID** configuration field, which has since been replaced by a Google file picker. Until you re-run the wizard and pick your spreadsheets, actions fail with _"No spreadsheet is configured for this integration."_
