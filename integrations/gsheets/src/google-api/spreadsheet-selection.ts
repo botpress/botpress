@@ -23,7 +23,7 @@ export const getAllowedSpreadsheetIds = wrapAsyncFnWithTryCatch(
         name: 'spreadsheetConfig',
       })
       payload = state.payload
-    } catch (_thrown: unknown) {
+    } catch {
       // The state is absent until the wizard's file picker step completes, and
       // `getState` rejects rather than returning an empty result in that case.
       payload = undefined

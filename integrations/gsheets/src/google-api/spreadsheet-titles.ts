@@ -15,7 +15,7 @@ export const resolveSpreadsheetTitles = async (
     uniqueIds.map(async (spreadsheetId) => {
       try {
         return [spreadsheetId, await fetchTitle(spreadsheetId)] as const
-      } catch (_thrown: unknown) {
+      } catch {
         return [spreadsheetId, undefined] as const
       }
     })
