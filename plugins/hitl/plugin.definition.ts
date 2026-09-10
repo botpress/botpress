@@ -1,5 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import hitl from './bp_modules/hitl'
+import { SUPPORTED_MESSAGE_TYPES } from './src/consts'
 
 export const NULL_MESSAGE_CODE = 'NULL'
 export const DEFAULT_HITL_HANDOFF_MESSAGE =
@@ -9,6 +10,8 @@ export const DEFAULT_HITL_STOPPED_MESSAGE = 'The human agent closed the conversa
 export const DEFAULT_USER_HITL_CANCELLED_MESSAGE = '( The user has ended the session. )'
 export const DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE =
   'Sorry, the user can not receive this type of message. Please resend your message as a text message.'
+export const DEFAULT_USER_INCOMPATIBLE_MSGTYPE_MESSAGE = `Sorry, I can only handle one of the following message types: ${SUPPORTED_MESSAGE_TYPES.join(', ')}`
+export const DEFAULT_HITL_ERROR_MESSAGE = 'Something went wrong, you are not connected to a human agent...'
 export const DEFAULT_USER_HITL_CLOSE_COMMAND = '/end'
 export const DEFAULT_USER_HITL_COMMAND_MESSAGE =
   'You have ended the session with the human agent. I will continue assisting you.'
@@ -53,6 +56,22 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
     )
     .optional()
     .placeholder(DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE),
+  onUserIncompatibleMsgTypeMessage: sdk.z
+    .string()
+    .title('Unsupported Customer Message Warning')
+    .describe(
+      `The warning to send to the user when they send an unsupported message during a HITL session. ${_nullCodeDescription}`
+    )
+    .optional()
+    .placeholder(DEFAULT_USER_INCOMPATIBLE_MSGTYPE_MESSAGE),
+  onUserHitlErrorMessage: sdk.z
+    .string()
+    .title('Customer Session Link Error Message')
+    .describe(
+      `The message to send to the user when their HITL session is aborted because a conversation or user link is missing. This does not change messages sent to the human agent. ${_nullCodeDescription}`
+    )
+    .optional()
+    .placeholder(DEFAULT_HITL_ERROR_MESSAGE),
   onUserHitlCloseMessage: sdk.z
     .string()
     .title('Termination Command Message')
@@ -102,7 +121,7 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '1.4.2',
+  version: '1.4.3',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',

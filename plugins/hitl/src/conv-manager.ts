@@ -148,9 +148,9 @@ export class ConversationManager {
     }
   }
 
-  public async abortHitlSession(errorMessage: string): Promise<void> {
+  public async abortHitlSession(errorMessage: string, configuredMessage?: string): Promise<void> {
     await this.setHitlInactive(HITL_END_REASON.INTERNAL_ERROR)
-    await this.respond({ type: 'text', text: errorMessage })
+    await this.maybeRespondText(configuredMessage, errorMessage)
   }
 
   public async setUserId(userId: string): Promise<void> {

@@ -1,6 +1,8 @@
 import * as client from '@botpress/client'
 import {
+  DEFAULT_HITL_ERROR_MESSAGE,
   DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE,
+  DEFAULT_USER_INCOMPATIBLE_MSGTYPE_MESSAGE,
   DEFAULT_USER_HITL_CANCELLED_MESSAGE,
   DEFAULT_USER_HITL_CLOSE_COMMAND,
   DEFAULT_USER_HITL_COMMAND_MESSAGE,
@@ -44,7 +46,7 @@ const _handleDownstreamMessage = async (
     return await _abortHitlSession({
       cm: downstreamCm,
       internalReason: 'Downstream conversation was not bound to upstream conversation',
-      reasonShownToUser: 'Something went wrong, you are not connected to a human agent...',
+      reasonShownToUser: DEFAULT_HITL_ERROR_MESSAGE,
       props,
     })
   }
@@ -122,11 +124,10 @@ const _handleUpstreamMessage = async (
   if (!messagePayload) {
     props.logger.with(props.data).error('Upstream conversation received a non-text message')
 
-    const supportedMessageTypes = consts.SUPPORTED_MESSAGE_TYPES.join(', ')
-    await upstreamCm.respond({
-      type: 'text',
-      text: `Sorry, I can only handle one of the following message types: ${supportedMessageTypes}`,
-    })
+    await upstreamCm.maybeRespondText(
+      sessionConfig.onUserIncompatibleMsgTypeMessage,
+      DEFAULT_USER_INCOMPATIBLE_MSGTYPE_MESSAGE
+    )
     return consts.STOP_EVENT_HANDLING
   }
 
@@ -135,7 +136,8 @@ const _handleUpstreamMessage = async (
     return await _abortHitlSession({
       cm: upstreamCm,
       internalReason: 'Upstream conversation was not bound to downstream conversation',
-      reasonShownToUser: 'Something went wrong, you are not connected to a human agent...',
+      reasonShownToUser: DEFAULT_HITL_ERROR_MESSAGE,
+      configuredMessage: sessionConfig.onUserHitlErrorMessage,
       props,
     })
   }
@@ -147,7 +149,8 @@ const _handleUpstreamMessage = async (
     return await _abortHitlSession({
       cm: upstreamCm,
       internalReason: 'Upstream user was not bound to downstream user',
-      reasonShownToUser: 'Something went wrong, you are not connected to a human agent...',
+      reasonShownToUser: DEFAULT_HITL_ERROR_MESSAGE,
+      configuredMessage: sessionConfig.onUserHitlErrorMessage,
       props,
     })
   }
@@ -176,16 +179,18 @@ const _abortHitlSession = async ({
   cm,
   internalReason,
   reasonShownToUser,
+  configuredMessage,
   props,
 }: {
   cm: conv.ConversationManager
   internalReason: string
   reasonShownToUser: string
+  configuredMessage?: string
   props: bp.HookHandlerProps['before_incoming_message']
 }) => {
   props.logger.withConversationId(cm.conversationId).error(internalReason)
 
-  await cm.abortHitlSession(reasonShownToUser)
+  await cm.abortHitlSession(reasonShownToUser, configuredMessage)
 
   return consts.STOP_EVENT_HANDLING
 }
