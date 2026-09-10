@@ -1,6 +1,6 @@
 #!/bin/bash
 if [ -z "$1" ]; then
-  echo "Error: plugin name is not provided" >&2 
+  echo "::error::Plugin name is not provided" >&2
   exit 1
 fi
 plugin=$1

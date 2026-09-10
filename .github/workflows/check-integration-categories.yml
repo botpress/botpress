@@ -41,6 +41,6 @@ jobs:
           done
 
           if [ "$should_fail" -ne 0 ]; then
-            echo "Please add a valid category attribute to your integration definition before pushing your changes."
+            echo "::error::Please add a valid category attribute to your integration definition before pushing your changes."
             exit 1
           fi

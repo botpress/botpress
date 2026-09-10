@@ -1,13 +1,13 @@
 #!/bin/bash
 if [ -z "$1" ]; then
-  echo "Error: integration name is not provided" >&2
+  echo "::error::Integration name is not provided" >&2
   exit 1
 fi
 integration=$1
 
 integration_path="integrations/$integration"
 if ! integration_def=$(pnpm bp read --work-dir "$integration_path" --json); then
-  echo "Error: Failed to read integration definition for \"$integration\". Check the integration for TypeScript errors." >&2
+  echo "::error::Failed to read integration definition for \"$integration\". Check the integration for TypeScript errors." >&2
   exit 1
 fi
 
@@ -28,8 +28,7 @@ valid_categories=(
 )
 
 if [ -z "$category" ]; then
-  echo "Integration \"$integration\" is missing the \"category\" attribute in its definition file" >&2
-  echo "Valid categories are: $(printf '"%s", ' "${valid_categories[@]}" | sed 's/, $//')" >&2
+  echo "::error::Integration \"$integration\" is missing the \"category\" attribute in its definition file. Valid categories are: $(printf '"%s", ' "${valid_categories[@]}" | sed 's/, $//')" >&2
   exit 1
 fi
 
@@ -40,6 +39,5 @@ for valid_category in "${valid_categories[@]}"; do
   fi
 done
 
-echo "Integration \"$integration\" has an invalid category: \"$category\"" >&2
-echo "Valid categories are: $(printf '"%s", ' "${valid_categories[@]}" | sed 's/, $//')" >&2
+echo "::error::Integration \"$integration\" has an invalid category: \"$category\". Valid categories are: $(printf '"%s", ' "${valid_categories[@]}" | sed 's/, $//')" >&2
 exit 1

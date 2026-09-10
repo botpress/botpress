@@ -51,12 +51,12 @@ jobs:
 
             echo "Checking $integration"
             if ! ./.github/scripts/validate-integration-version.sh "$integration"; then
-              echo "Integration $integration has an invalid version update."
+              echo "::error::Integration $integration has an invalid version update."
               should_fail=1
             fi
           done
 
           if [ "$should_fail" -ne 0 ]; then
-            echo "Integration version validation failed. Keep the current version for non-breaking changes, or bump to the next major version for breaking changes."
+            echo "::error::Integration version validation failed. Keep the current version for non-breaking changes, or bump to the next major version for breaking changes."
             exit 1
           fi

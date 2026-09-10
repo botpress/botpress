@@ -15,18 +15,18 @@ if ! deployed_sha=$(gh api \
   -f status=success \
   -F per_page=1 \
   --jq '.workflow_runs[0].head_sha // ""'); then
-  echo "Failed to find successful production deployment workflow runs." >&2
+  echo "::error::Failed to find successful production deployment workflow runs." >&2
   exit 2
 fi
 
 if [ -z "$deployed_sha" ] || [ "$deployed_sha" = "null" ]; then
-  echo "No successful production deployment workflow run was found." >&2
+  echo "::error::No successful production deployment workflow run was found." >&2
   exit 2
 fi
 
 if ! git cat-file -e "$deployed_sha^{commit}" 2>/dev/null; then
   if ! git fetch --no-tags origin "$deployed_sha"; then
-    echo "Failed to fetch the latest production deployment commit: $deployed_sha" >&2
+    echo "::error::Failed to fetch the latest production deployment commit: $deployed_sha" >&2
     exit 2
   fi
 fi
@@ -60,7 +60,7 @@ for integration in $integrations; do
   fi
 
   if [ "$diff_status" -ne 1 ]; then
-    echo "Failed to compare integrations/$integration with $deployed_sha." >&2
+    echo "::error::Failed to compare integrations/$integration with $deployed_sha." >&2
     exit 2
   fi
 
@@ -84,6 +84,6 @@ if [ "$should_fail" -eq 1 ]; then
     }'
   echo -e "\nCurl request sent"
 
-  echo -e "$message"
+  echo "::error::Production deployments are required for the integrations listed in the log."
   exit 1
 fi
