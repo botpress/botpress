@@ -4,6 +4,8 @@ import { A1NotationParser } from './a1-notation-utils/a1-parser'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { ResponseMapping } from './mapping/response-mapping'
 import { getAuthenticatedOAuth2Client, exchangeAuthCodeAndSaveRefreshToken } from './oauth-client'
+import { resolveSpreadsheetId } from './spreadsheet-selection'
+import { resolveSpreadsheetTitles } from './spreadsheet-titles'
 import * as bp from '.botpress'
 
 type GoogleSheetsClient = ReturnType<typeof google.sheets>
@@ -23,25 +25,17 @@ export class GoogleClient {
     this._sheetsClient = google.sheets({ version: 'v4', auth: oauthClient })
   }
 
-  public static async create({ ctx, client }: { ctx: bp.Context; client: bp.Client }) {
+  public static async create({
+    ctx,
+    client,
+    input,
+  }: {
+    ctx: bp.Context
+    client: bp.Client
+    input?: { spreadsheetId?: string }
+  }) {
     const oauth2Client = await getAuthenticatedOAuth2Client({ ctx, client })
-
-    const getSpreadsheetIdFromState = async (): Promise<string> => {
-      let spreadsheetId: string
-      if (ctx.configurationType === 'serviceAccountKey') {
-        spreadsheetId = ctx.configuration.spreadsheetId
-      } else {
-        const { state } = await client.getState({
-          id: ctx.integrationId,
-          type: 'integration',
-          name: 'spreadsheetConfig',
-        })
-        spreadsheetId = state.payload.spreadsheetId
-      }
-      return spreadsheetId
-    }
-
-    const spreadsheetId = await getSpreadsheetIdFromState()
+    const spreadsheetId = await resolveSpreadsheetId({ ctx, client, requestedSpreadsheetId: input?.spreadsheetId })
 
     return new GoogleClient({
       oauthClient: oauth2Client,
@@ -314,6 +308,16 @@ export class GoogleClient {
 
     const namedRangeId = response.data.replies?.[0]?.addNamedRange?.namedRange?.namedRangeId ?? ''
     return { namedRangeId }
+  }
+
+  /** Resolves the human-readable title of each given spreadsheet. */
+  @handleErrors('Failed to get spreadsheet titles')
+  public async getSpreadsheetTitles(spreadsheetIds: string[]): Promise<Record<string, string | undefined>> {
+    return await resolveSpreadsheetTitles(spreadsheetIds, async (spreadsheetId) => {
+      const response = await this._sheetsClient.spreadsheets.get({ spreadsheetId, fields: 'properties.title' })
+
+      return response.data.properties?.title ?? undefined
+    })
   }
 
   public async getSpreadsheetSummary(): Promise<string> {
