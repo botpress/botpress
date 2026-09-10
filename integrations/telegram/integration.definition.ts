@@ -39,12 +39,15 @@ export default new IntegrationDefinition({
     choicePrompts: {
       type: 'conversation',
       schema: z.object({
-        prompts: z.array(
-          z.object({
-            messageId: z.number(),
-            entries: z.array(z.object({ label: z.string(), value: z.string() })),
-          })
-        ),
+        prompts: z
+          .array(
+            z.object({
+              messageId: z.number(),
+              entries: z.array(z.object({ label: z.string(), value: z.string() })),
+            })
+          )
+          .title('Choice prompts')
+          .describe('Recently sent choice prompts, mapping each message to its options for callback resolution'),
       }),
     },
   },

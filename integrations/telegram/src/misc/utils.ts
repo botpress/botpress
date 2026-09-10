@@ -97,13 +97,23 @@ export const storeChoicePrompt = async (
   })
 }
 
-export const getChoicePromptEntries = async (
+export const consumeChoicePrompt = async (
   client: bp.Client,
   conversationId: string,
   messageId: number
 ): Promise<ChoiceEntry[] | null> => {
   const prompts = await getChoicePromptsState(client, conversationId)
-  return prompts.find((prompt) => prompt.messageId === messageId)?.entries ?? null
+  const prompt = prompts.find((entry) => entry.messageId === messageId)
+  if (!prompt) {
+    return null
+  }
+  await client.setState({
+    type: 'conversation',
+    name: 'choicePrompts',
+    id: conversationId,
+    payload: { prompts: prompts.filter((entry) => entry.messageId !== messageId) },
+  })
+  return prompt.entries
 }
 
 export function getChat(conversation: MessageHandlerProps['conversation']): string {

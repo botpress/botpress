@@ -26,7 +26,7 @@ import {
   wrapHandler,
   getMessageId,
   mapToRuntimeErrorAndThrow,
-  getChoicePromptEntries,
+  consumeChoicePrompt,
 } from './misc/utils'
 import { handler as wizardHandler } from './wizard'
 import * as bp from '.botpress'
@@ -165,7 +165,7 @@ const integration = new bp.Integration({
           .answerCbQuery(callbackQuery.id)
           .catch(mapToRuntimeErrorAndThrow('Fail to answer callback query'))
 
-        const entries = await getChoicePromptEntries(client, conversation.id, cbMessageId)
+        const entries = await consumeChoicePrompt(client, conversation.id, cbMessageId)
         const index = Number(String(callbackQuery.data ?? '').replace(/^c:/, ''))
         const entry = entries?.[index]
 
