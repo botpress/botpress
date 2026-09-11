@@ -108,9 +108,12 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
         return responses.displayButtons({
           pageTitle: 'Google Sheets Integration',
           htmlOrMarkdownPageContents: `
-            You will now be asked to select the spreadsheet you wish to use
+            You will now be asked to select the spreadsheets you wish to use
             with this integration. This is necessary for the integration to work
             properly.
+
+            You may select more than one. The first spreadsheet you select becomes
+            the default: actions that don't name a spreadsheet will use it.
 
             <script>
               let pickerApiLoaded = false;
@@ -131,16 +134,17 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
                       .setSelectFolderEnabled(false)
                       .setMode(google.picker.DocsViewMode.LIST))
                     .enableFeature(google.picker.Feature.NAV_HIDDEN)
-                    .setTitle('Select the spreadsheet you wish to use with Botpress')
+                    .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
+                    .setTitle('Select the spreadsheets you wish to use with Botpress. The first one selected is the default.')
                     .setOAuthToken(${JSON.stringify(accessToken)})
                     .setDeveloperKey(${JSON.stringify(bp.secrets.FILE_PICKER_API_KEY)})
                     .setCallback((data) => {
                       if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
                         const docs = data[google.picker.Response.DOCUMENTS];
-                        if (docs && docs.length > 0) {
-                          const spreadsheetId = docs[0].id;
+                        const spreadsheetIds = (docs || []).map((doc) => doc.id).filter(Boolean);
+                        if (spreadsheetIds.length > 0) {
                           const nextUrl = new URL(${JSON.stringify(oauthWizard.getWizardStepUrl('end', ctx).href)});
-                          nextUrl.searchParams.set('spreadsheetId', spreadsheetId);
+                          nextUrl.searchParams.set('spreadsheetIds', spreadsheetIds.join(','));
                           document.location.href = nextUrl.href;
                         } else {
                           document.location.href = ${JSON.stringify(oauthWizard.getWizardStepUrl('end', ctx).href)};
@@ -162,7 +166,7 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
           buttons: [
             {
               action: 'javascript',
-              label: 'Select spreadsheet',
+              label: 'Select spreadsheets',
               callFunction: 'createPicker',
               buttonType: 'primary',
             },
@@ -173,16 +177,34 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
 
     .addStep({
       id: 'end',
-      async handler({ responses, query, client, ctx }) {
-        const spreadsheetId = query.get('spreadsheetId')
+      async handler({ responses, query, client, ctx, logger }) {
+        // Selection order is preserved: the first id is the default spreadsheet.
+        const spreadsheetIds = [
+          ...new Set(
+            (query.get('spreadsheetIds') ?? '')
+              .split(',')
+              .map((id) => id.trim())
+              .filter(Boolean)
+          ),
+        ]
 
-        if (spreadsheetId) {
-          await client.setState({
-            id: ctx.integrationId,
-            type: 'integration',
-            name: 'spreadsheetConfig',
-            payload: { spreadsheetId },
-          })
+        if (spreadsheetIds.length) {
+          try {
+            await client.setState({
+              id: ctx.integrationId,
+              type: 'integration',
+              name: 'spreadsheetConfig',
+              payload: { spreadsheetIds },
+            })
+          } catch (thrown: unknown) {
+            const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+            logger.forBot().error('Failed to save the selected spreadsheets:', error)
+
+            return responses.endWizard({
+              success: false,
+              errorMessage: `Failed to save your spreadsheet selection: ${error.message}`,
+            })
+          }
         }
 
         return responses.endWizard({

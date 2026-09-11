@@ -14,10 +14,21 @@ export const states = {
   spreadsheetConfig: {
     type: 'integration',
     schema: z.object({
+      spreadsheetIds: z
+        .array(z.string().min(1))
+        .min(1)
+        .optional()
+        .title('Spreadsheet IDs')
+        .describe(
+          'The IDs of the Google Spreadsheets selected during OAuth setup, in selection order. The first one is the default used by actions that do not specify a spreadsheet.'
+        ),
       spreadsheetId: z
         .string()
-        .title('Spreadsheet ID')
-        .describe('The ID of the Google Spreadsheet selected during OAuth setup'),
+        .optional()
+        .title('Spreadsheet ID (legacy)')
+        .describe(
+          'Deprecated: the single spreadsheet ID written by versions of this integration that only supported one spreadsheet. Read as a fallback when "spreadsheetIds" is absent; never written by new setups.'
+        ),
     }),
   },
 } as const satisfies sdk.IntegrationDefinitionProps['states']
