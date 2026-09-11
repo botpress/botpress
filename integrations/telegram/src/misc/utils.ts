@@ -62,6 +62,60 @@ export async function sendCard(payload: Card, client: Telegraf<Context<Update>>,
   }
 }
 
+const MAX_STORED_CHOICE_PROMPTS = 20
+
+type ChoiceEntry = { label: string; value: string }
+
+const getChoicePromptsState = async (client: bp.Client, conversationId: string) => {
+  const result = await client
+    .getState({ type: 'conversation', name: 'choicePrompts', id: conversationId })
+    .catch((thrown: unknown) => {
+      const err = thrown instanceof Error ? thrown : new Error(String(thrown))
+      if (err.message.toLowerCase().includes('not found')) {
+        return null
+      }
+      throw err
+    })
+  return result?.state.payload.prompts ?? []
+}
+
+export const storeChoicePrompt = async (
+  client: bp.Client,
+  conversationId: string,
+  messageId: number,
+  entries: ChoiceEntry[]
+) => {
+  const prompts = await getChoicePromptsState(client, conversationId)
+  const next = [...prompts.filter((prompt) => prompt.messageId !== messageId), { messageId, entries }].slice(
+    -MAX_STORED_CHOICE_PROMPTS
+  )
+  await client.setState({
+    type: 'conversation',
+    name: 'choicePrompts',
+    id: conversationId,
+    payload: { prompts: next },
+  })
+}
+
+export const consumeChoicePrompt = async (
+  client: bp.Client,
+  conversationId: string,
+  messageId: number
+): Promise<ChoiceEntry[] | null> => {
+  const prompts = await getChoicePromptsState(client, conversationId)
+  const prompt = prompts.find((entry) => entry.messageId === messageId)
+  if (!prompt) {
+    return null
+  }
+  await client.setState({
+    type: 'conversation',
+    name: 'choicePrompts',
+    id: conversationId,
+    payload: { prompts: prompts.filter((entry) => entry.messageId !== messageId) },
+  })
+  return prompt.entries
+}
+
 export function getChat(conversation: MessageHandlerProps['conversation']): string {
   const chat = conversation.tags.chatId
 

@@ -3,7 +3,7 @@ import { Markup, Telegraf, Telegram } from 'telegraf'
 import { getStoredBotToken } from '../botToken'
 import { markdownHtmlToTelegramPayloads, stdMarkdownToTelegramHtml } from './markdown-to-telegram-html'
 import { TelegramMessage } from './types'
-import { ackMessage, getChat, mapToRuntimeErrorAndThrow, sendCard } from './utils'
+import { ackMessage, getChat, mapToRuntimeErrorAndThrow, sendCard, storeChoicePrompt } from './utils'
 import * as bp from '.botpress'
 
 export type MessageHandlerProps<T extends keyof bp.MessageProps['channel']> = bp.MessageProps['channel'][T]
@@ -217,10 +217,16 @@ export const handleChoiceMessage = async ({
   const telegraf = new Telegraf(botToken)
   const chat = getChat(conversation)
   logger.forBot().debug(`Sending choice message to Telegram chat ${chat}:`, payload)
-  const buttons = payload.options.map((choice) => Markup.button.callback(choice.label, choice.value))
+  const buttons = payload.options.map((choice, index) => Markup.button.callback(choice.label, `c:${index}`))
   const message = await telegraf.telegram
-    .sendMessage(chat, payload.text, Markup.keyboard(buttons).oneTime())
+    .sendMessage(chat, payload.text, Markup.inlineKeyboard(buttons, { columns: 1 }))
     .catch(mapToRuntimeErrorAndThrow('Fail to send message'))
+  await storeChoicePrompt(
+    client,
+    conversation.id,
+    message.message_id,
+    payload.options.map((option) => ({ label: option.label, value: option.value }))
+  )
   await ackMessage(message, ack)
 }
 
