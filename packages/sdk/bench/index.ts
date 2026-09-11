@@ -1,7 +1,7 @@
 import pathlib from 'path'
-import { cases } from './cases'
-import * as consts from './paths'
-import * as tsc from './run-tsc'
+import { cases } from './cases/index.js'
+import * as consts from './paths.js'
+import * as tsc from './run-tsc.js'
 
 const main = async () => {
   const tscVersion = await tsc.getTscVersion()
@@ -15,6 +15,7 @@ const main = async () => {
     console.info(`running ${caseName}...`)
 
     const result = await tsc.runTsc(sourceCode, {
+      '@botpress/sdk': pathlib.join(consts.SDK_DIST_DIR, 'index.d.ts'),
       '@bpinternal/zui': pathlib.join(consts.ZUI_DIST_DIR, 'index.d.ts'),
     })
 
@@ -37,7 +38,7 @@ const main = async () => {
   console.table(results)
 
   if (failed) {
-    throw new Error('Type instantiation count exceeds threshold. See instantiation-thresholds.ts.')
+    throw new Error('Type instantiation count exceeds threshold.')
   }
 
   console.info('OK - within thresholds.')
