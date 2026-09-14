@@ -165,8 +165,13 @@ const integration = new bp.Integration({
           .answerCbQuery(callbackQuery.id)
           .catch(mapToRuntimeErrorAndThrow('Fail to answer callback query'))
 
+        const callbackData = String(callbackQuery.data ?? '')
+        if (!callbackData.startsWith('c:')) {
+          return
+        }
+        const index = Number(callbackData.slice(2))
+
         const entries = await consumeChoicePrompt(client, conversation.id, cbMessageId)
-        const index = Number(String(callbackQuery.data ?? '').replace(/^c:/, ''))
         const entry = entries?.[index]
 
         if (!entry) {
