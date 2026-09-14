@@ -67,16 +67,13 @@ const MAX_STORED_CHOICE_PROMPTS = 20
 type ChoiceEntry = { label: string; value: string }
 
 const getChoicePromptsState = async (client: bp.Client, conversationId: string) => {
-  const result = await client
-    .getState({ type: 'conversation', name: 'choicePrompts', id: conversationId })
-    .catch((thrown: unknown) => {
-      const err = thrown instanceof Error ? thrown : new Error(String(thrown))
-      if (err.message.toLowerCase().includes('not found')) {
-        return null
-      }
-      throw err
-    })
-  return result?.state.payload.prompts ?? []
+  const { state } = await client.getOrSetState({
+    type: 'conversation',
+    name: 'choicePrompts',
+    id: conversationId,
+    payload: { prompts: [] },
+  })
+  return state.payload.prompts
 }
 
 export const storeChoicePrompt = async (
