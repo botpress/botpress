@@ -142,6 +142,27 @@ export const getUserNameFromTelegramUser = (telegramUser: User) => {
   return telegramUser.first_name
 }
 
+export const resolveConversationAndUser = async (client: bp.Client, chatId: number, fromUser: User) => {
+  const userName = getUserNameFromTelegramUser(fromUser)
+  const { conversation } = await client.getOrCreateConversation({
+    channel: 'channel',
+    tags: {
+      id: chatId.toString(),
+      fromUserId: fromUser.id.toString(),
+      fromUserUsername: fromUser.username,
+      fromUserName: userName,
+      chatId: chatId.toString(),
+    },
+    discriminateByTags: ['id'],
+  })
+  const { user } = await client.getOrCreateUser({
+    tags: { id: fromUser.id.toString() },
+    ...(userName && { name: userName }),
+    discriminateByTags: ['id'],
+  })
+  return { conversation, user }
+}
+
 const getMimeTypeFromExtension = (extension: string): string => {
   switch (extension.toLowerCase()) {
     case 'jpg':

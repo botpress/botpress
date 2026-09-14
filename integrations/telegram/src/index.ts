@@ -27,6 +27,7 @@ import {
   getMessageId,
   mapToRuntimeErrorAndThrow,
   consumeChoicePrompt,
+  resolveConversationAndUser,
 } from './misc/utils'
 import { handler as wizardHandler } from './wizard'
 import * as bp from '.botpress'
@@ -138,25 +139,7 @@ const integration = new bp.Integration({
         ok(cbMessageId, 'Handler received a callback query with empty "message.message_id" value')
 
         const cbFromUser = callbackQuery.from as User
-        const cbUserName = getUserNameFromTelegramUser(cbFromUser)
-
-        const { conversation } = await client.getOrCreateConversation({
-          channel: 'channel',
-          tags: {
-            id: cbChatId.toString(),
-            fromUserId: cbUserId.toString(),
-            fromUserUsername: cbFromUser.username,
-            fromUserName: cbUserName,
-            chatId: cbChatId.toString(),
-          },
-          discriminateByTags: ['id'],
-        })
-
-        const { user } = await client.getOrCreateUser({
-          tags: { id: cbUserId.toString() },
-          ...(cbUserName && { name: cbUserName }),
-          discriminateByTags: ['id'],
-        })
+        const { conversation, user } = await resolveConversationAndUser(client, cbChatId, cbFromUser)
 
         const botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
         const telegraf = new Telegraf(botToken)
@@ -210,26 +193,7 @@ const integration = new bp.Integration({
 
       const fromUser = message.from as User
       const userName = getUserNameFromTelegramUser(fromUser)
-
-      const { conversation } = await client.getOrCreateConversation({
-        channel: 'channel',
-        tags: {
-          id: telegramConversationId.toString(),
-          fromUserId: telegramUserId.toString(),
-          fromUserUsername: fromUser.username,
-          fromUserName: userName,
-          chatId: telegramConversationId.toString(),
-        },
-        discriminateByTags: ['id'],
-      })
-
-      const { user } = await client.getOrCreateUser({
-        tags: {
-          id: telegramUserId.toString(),
-        },
-        ...(userName && { name: userName }),
-        discriminateByTags: ['id'],
-      })
+      const { conversation, user } = await resolveConversationAndUser(client, telegramConversationId, fromUser)
 
       const botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
 
