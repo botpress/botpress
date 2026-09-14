@@ -26,6 +26,8 @@ import {
   wrapHandler,
   getMessageId,
   mapToRuntimeErrorAndThrow,
+  consumeChoicePrompt,
+  resolveConversationAndUser,
 } from './misc/utils'
 import { handler as wizardHandler } from './wizard'
 import * as bp from '.botpress'
@@ -124,6 +126,59 @@ const integration = new bp.Integration({
       ok(!data.channel_post, 'Handler received a channel post, so the message was ignored')
       ok(!data.edited_channel_post, 'Handler received an edited channel post, so the message was ignored')
       ok(!data.edited_message, 'Handler received an edited message, so the message was ignored')
+
+      if (data.callback_query) {
+        const callbackQuery = data.callback_query
+        const cbChatId = callbackQuery.message?.chat?.id
+        const cbUserId = callbackQuery.from?.id
+        const cbMessageId = callbackQuery.message?.message_id
+
+        ok(!callbackQuery.from?.is_bot, 'Handler received a callback query from a bot, so it was ignored')
+        ok(cbChatId, 'Handler received a callback query with empty "message.chat.id" value')
+        ok(cbUserId, 'Handler received a callback query with empty "from.id" value')
+        ok(cbMessageId, 'Handler received a callback query with empty "message.message_id" value')
+
+        const cbFromUser = callbackQuery.from as User
+        const { conversation, user } = await resolveConversationAndUser(client, cbChatId, cbFromUser)
+
+        const botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
+        const telegraf = new Telegraf(botToken)
+
+        await telegraf.telegram
+          .answerCbQuery(callbackQuery.id)
+          .catch(mapToRuntimeErrorAndThrow('Fail to answer callback query'))
+
+        const callbackData = String(callbackQuery.data ?? '')
+        if (!callbackData.startsWith('c:')) {
+          return
+        }
+        const index = Number(callbackData.slice(2))
+
+        const entries = await consumeChoicePrompt(client, conversation.id, cbMessageId)
+        const entry = entries?.[index]
+
+        if (!entry) {
+          logger
+            .forBot()
+            .warn(`No stored choice option found for message ${cbMessageId} at index ${index}; ignoring callback`)
+          return
+        }
+
+        await client.createMessage({
+          type: 'text',
+          payload: { value: entry.value, text: entry.label },
+          userId: user.id,
+          conversationId: conversation.id,
+          tags: { id: `${cbMessageId}:cb`, chatId: cbChatId.toString() },
+        })
+
+        await telegraf.telegram
+          .editMessageText(cbChatId, cbMessageId, undefined, entry.label)
+          .catch(mapToRuntimeErrorAndThrow('Fail to edit message'))
+
+        return
+      }
+
       ok(data.message, 'Handler received a non-message update, so the event was ignored')
 
       const message = data.message as TelegramMessage
@@ -138,26 +193,7 @@ const integration = new bp.Integration({
 
       const fromUser = message.from as User
       const userName = getUserNameFromTelegramUser(fromUser)
-
-      const { conversation } = await client.getOrCreateConversation({
-        channel: 'channel',
-        tags: {
-          id: telegramConversationId.toString(),
-          fromUserId: telegramUserId.toString(),
-          fromUserUsername: fromUser.username,
-          fromUserName: userName,
-          chatId: telegramConversationId.toString(),
-        },
-        discriminateByTags: ['id'],
-      })
-
-      const { user } = await client.getOrCreateUser({
-        tags: {
-          id: telegramUserId.toString(),
-        },
-        ...(userName && { name: userName }),
-        discriminateByTags: ['id'],
-      })
+      const { conversation, user } = await resolveConversationAndUser(client, telegramConversationId, fromUser)
 
       const botToken = await getStoredBotToken(client, ctx.integrationId, ctx.configuration.botToken)
 
