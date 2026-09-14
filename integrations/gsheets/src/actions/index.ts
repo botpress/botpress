@@ -11,6 +11,7 @@ import { getInfoSpreadsheet } from './implementations/get-info-spread-sheet'
 import { getNamedRanges } from './implementations/get-named-ranges'
 import { getProtectedRanges } from './implementations/get-protected-ranges'
 import { getRow } from './implementations/get-row'
+import { getSelectedSpreadsheets } from './implementations/get-selected-spreadsheets'
 import { getValues } from './implementations/get-values'
 import { insertRowAtIndex } from './implementations/insert-row-at-index'
 import { moveSheetHorizontally } from './implementations/move-sheet-horizontally'
@@ -37,6 +38,7 @@ export default {
   getNamedRanges,
   getProtectedRanges,
   getRow,
+  getSelectedSpreadsheets,
   getValues,
   insertRowAtIndex,
   moveSheetHorizontally,

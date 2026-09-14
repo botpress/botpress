@@ -3,10 +3,11 @@ From tracking inventory and managing project tasks to organizing event attendees
 Give your bot new abilities like add new entries, update existing records, and retrieve essential information.
 Stay agile and organized by dynamically adding new sheets to accommodate evolving data needs, ensuring your spreadsheets remain flexible and scalable.
 
-## Important note
+## Upgrading from 2.1.7 or earlier
 
-Unfortunately, **automatic configuration is temporarily unavailable**.
-We are currently in the process of getting our Google Sheets integration verified by Google. Once this verification is complete, you will be able to use the automatic configuration method to set up the Google Sheets integration with just a few clicks. Until then, you will need to create your own Google Cloud Platform (GCP) Service Account by following the steps outlined in the `Manual configuration using a service account` section below.
+If you use **automatic configuration with OAuth** and you are coming from version `2.1.7` or earlier, re-run the setup wizard. Those versions took the spreadsheet from a **Spreadsheet ID** configuration field, which has since been replaced by a Google file picker. Until you re-run the wizard and pick your spreadsheets, actions fail with _"No spreadsheet is configured for this integration."_
+
+Manual configurations using a service account are unaffected: they keep reading the **Spreadsheet ID** from the integration configuration.
 
 ## Migrating from 1.x.x to 2.x.x
 
@@ -46,13 +47,15 @@ To set up the Google Sheets integration using OAuth, click the authorization but
 
 When using this configuration mode, a Botpress-managed Google Sheets application will be used to connect to your Google account. However, actions taken by the bot will be attributed to the user who authorized the connection, rather than the application. For this reason, **we do not recommend using personal Google accounts** for this integration. You should set up a service account and use this account to authorize the connection.
 
-Once the connection is established, you must specify the identifier of the Google Spreadsheet you want to interact with. This identifier is the long string of characters in the URL between `/spreadsheets/d/` and `/edit` when you are editing a spreadsheet.
+Once the connection is established, a Google file picker opens so you can choose the spreadsheets the integration is allowed to reach. The integration only ever gets access to the files you pick here.
 
-> For example, if the URL is `https://docs.google.com/spreadsheets/d/1a2b3c4d5e6f7g8h9i0j/edit`, the identifier of the spreadsheet is `1a2b3c4d5e6f7g8h9i0j`.
+You may select more than one spreadsheet. **The first spreadsheet you select becomes the default**: actions that don't name a spreadsheet operate on it. See [Managing several spreadsheets](#managing-several-spreadsheets) to target the others.
 
-1. Find your Google Spreadsheet ID for the spreadsheet you want to interact with.
-2. Authorize the Google Sheets integration by clicking the authorization button.
-3. Fill in the **Spreadsheet ID** field and save the configuration.
+1. Authorize the Google Sheets integration by clicking the authorization button.
+2. In the file picker, select one or more spreadsheets. Select the one you use most first, so it becomes the default.
+3. Confirm your selection to finish the setup.
+
+> To change the selection later, re-run the setup wizard. The spreadsheets you pick then replace the previous selection.
 
 ### Manual configuration using a service account
 
@@ -119,9 +122,32 @@ Once the connection is established, you must specify the identifier of the Googl
    - **Service account private key**: The private key from the Google service account. You can get it from the downloaded JSON file.
    - **Service account email**: The client email from the Google service account. You can get it from the downloaded JSON file.
 
+## Managing several spreadsheets
+
+When you configure the integration with OAuth, you may select several spreadsheets in the file picker. The first one you select is the default, and every action operates on it unless told otherwise.
+
+To target one of the other selected spreadsheets, fill in the optional **Spreadsheet ID** field on the action. Leave it empty to use the default.
+
+To find those IDs without digging through Google Drive URLs, use the _Get Selected Spreadsheets_ action. It returns the ID and title of every spreadsheet you picked during setup, in the order you picked them, and flags which one is the default:
+
+```json
+{
+  "spreadsheets": [
+    { "spreadsheetId": "1a2b3c4d5e6f7g8h9i0j", "title": "Support Tickets", "isDefault": true },
+    { "spreadsheetId": "9z8y7x6w5v4u3t2s1r0q", "title": "Customer Feedback", "isDefault": false }
+  ]
+}
+```
+
+> A spreadsheet with no `title` could not be reached. That usually means it was deleted, or the integration's access to it was revoked in Google Drive.
+
+> The ID must be one of the spreadsheets selected during setup. Any other ID is rejected with an error, since the integration has no access to files you did not pick. To use a new spreadsheet, re-run the setup wizard and include it in your selection.
+
+Manual configurations using a service account interact with the single spreadsheet named in the configuration. Because access there comes from sharing the file with the service account, the **Spreadsheet ID** field on an action may name any spreadsheet shared with that account.
+
 ## Managing several sheets
 
-While this integration allows you to interact with a single Google Spreadsheet, you can manage multiple sheets within that spreadsheet. To interact with a specific sheet, you must specify the sheet name as part of the range when performing operations.
+Within any one spreadsheet, you can manage multiple sheets. To interact with a specific sheet, you must specify the sheet name as part of the range when performing operations.
 
 The range field uses the same notation as Google Sheets. For example, to interact with a sheet named `Sheet1`, you would use the range `Sheet1!A1:B2`.
 
