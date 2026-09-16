@@ -266,6 +266,8 @@ export type CognitiveRequest = {
     serviceTier?: 'fast'
     /** Maximum time to wait for the first token before falling back to the next provider */
     maxTimeToFirstToken?: number
+    /** Maximum silence between provider chunks after the first token, in milliseconds. Default: 10000. */
+    maxIdleTime?: number
     /** STT model to use when transcribing audio parts for models that do not support audio natively */
     transcriptionModel?: SttModels
     /**
@@ -346,6 +348,8 @@ export type CognitiveStreamChunk = {
   toolCalls?: CognitiveToolCall[]
   created: number
   finished?: boolean
+  /** Terminal generation failure. Discard partial output. The SDK throws when this is present. */
+  error?: string
   /**
    * Present on a control-only chunk: the previous attempt failed mid-stream and generation restarted
    * on another model. Everything received before this chunk is void and must be discarded. Only
