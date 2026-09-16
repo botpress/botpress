@@ -8,6 +8,7 @@ import { LoopExceededError, SnapshotSignal } from './errors.js'
 import { Exit } from './exit.js'
 import { getValue, ValueOrGetter } from './getter.js'
 import { HookedArray } from './handlers.js'
+import type { Diagnostic } from './message-stream/types.js'
 import { ObjectInstance } from './objects.js'
 import { DualModePrompt } from './prompts/dual-modes.js'
 import { LLMzPrompts, ParsedNext, ParsedSend, Prompt } from './prompts/prompt.js'
@@ -409,6 +410,7 @@ export namespace Iteration {
       tokens: number
       spend: number
       output: string
+      diagnostics?: Diagnostic[]
       model: string
       time_to_first_token?: number
       time_to_last_token?: number
@@ -509,6 +511,8 @@ export class Iteration implements Serializable<Iteration.JSON> {
     tokens: number
     spend: number
     output: string
+    /** Syntax diagnostics from the response parser; raw output remains available above. */
+    diagnostics?: Diagnostic[]
     model: string
     /** Milliseconds between the LLM call start and the first streamed token. Only set on streaming clients. */
     time_to_first_token?: number

@@ -144,14 +144,20 @@ describe('message stream', () => {
     expect(responses[0].item.status).toBe('complete')
   })
 
-  it('exposes diagnostics on recovered responses', async () => {
+  it('discards unexpected text while preserving an explicit exit', async () => {
     const responses = await collectResponses(parseText('Hello there\n■next=listen'))
 
+    expect(responses).toHaveLength(1)
+    assert(responses[0] instanceof NextResponse)
+    expect(responses[0].name).toBe('listen')
+  })
+
+  it('drops unexpected text in the async response API', async () => {
+    const responses = await collectResponses(parseText('Private preamble\n■send=md\n**Hello**\n■next=listen'))
     expect(responses).toHaveLength(2)
     assert(responses[0] instanceof SendResponse)
-    expect(responses[0].component).toBe('md')
-    expect(await collectText(responses[0].content)).toBe('Hello there')
-    expect(responses[0].diagnostics.some((d) => d.code === 'unexpected-text')).toBe(true)
+    expect(await collectText(responses[0].content)).toBe('**Hello**')
+    assert(responses[1] instanceof NextResponse)
   })
 
   it('marks items interrupted when the transport fails mid-stream', async () => {

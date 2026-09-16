@@ -17,6 +17,50 @@ const strip = (item: ParsedItem) => ({
 })
 
 describe('streaming message parser', () => {
+  describe('reasoning preamble regression', () => {
+    const preamble =
+      'I have already provided the greeting in assistant message 5. The user has now said "ok". I should wait for their actual question or request.'
+    const reply = "Sounds good! Whenever you're ready, just let me know how I can help. 😊"
+    const output = `${preamble}\n\n■send=message\n${reply}\n■next=listen`
+
+    it('never emits preamble events at any two-chunk boundary', () => {
+      for (let split = 0; split <= output.length; split++) {
+        const parser = new StreamingMessageParser()
+        const events = [...parser.push(output.slice(0, split)), ...parser.push(output.slice(split)), ...parser.finish()]
+
+        expect(parser.items.map((item) => [item.kind, item.name])).toEqual([
+          ['send', 'message'],
+          ['next', 'listen'],
+        ])
+        expect(
+          events
+            .filter((event) => event.type === 'body-delta')
+            .map((event) => event.delta)
+            .join('')
+        ).toBe(reply)
+        expect(events.filter((event) => event.type === 'item-complete' && event.item.kind === 'send')).toHaveLength(1)
+        expect(events.filter((event) => event.type === 'diagnostic')).toEqual([
+          { type: 'diagnostic', diagnostic: { code: 'unexpected-text', message: expect.any(String) } },
+        ])
+        expect(parser.diagnostics).toEqual([{ code: 'unexpected-text', message: expect.any(String) }])
+      }
+    })
+
+    it('discards malformed-only output without producing body or item events', () => {
+      const parser = new StreamingMessageParser()
+      const events = [...preamble.split('').flatMap((char) => parser.push(char)), ...parser.finish()]
+      expect(parser.items).toEqual([])
+      expect(events).toEqual([
+        { type: 'diagnostic', diagnostic: { code: 'unexpected-text', message: expect.any(String) } },
+      ])
+      expect(parser.diagnostics).toHaveLength(1)
+      parser.reset()
+      expect(parser.diagnostics).toEqual([])
+      expect(parser.push(preamble).map((event) => event.type)).toEqual(['diagnostic'])
+      expect(parser.items).toEqual([])
+    })
+  })
+
   describe('basic parsing', () => {
     it('parses a markdown send followed by a next', () => {
       const { items } = parseAll('■send=md\nHello! How can I help?\n■next=listen')
@@ -206,27 +250,19 @@ describe('streaming message parser', () => {
   })
 
   describe('error recovery', () => {
-    it('recovers unexpected text into an implicit send', () => {
-      const { items } = parseAll('Hello\n■send=md\nWorld')
+    it('cannot restore implicit sends with legacy options passed by JavaScript callers', () => {
+      const legacyOptions = { maxPropsLength: 100_000, strict: false, recoveryComponent: 'text' }
+      const { items, events } = parseAll('Hello\n■send=md\nWorld', legacyOptions)
 
-      expect(items.map(strip)).toEqual([
-        { kind: 'send', name: 'md', props: {}, body: 'Hello', status: 'complete' },
-        { kind: 'send', name: 'md', props: {}, body: 'World', status: 'complete' },
-      ])
-      expect(items[0]!.diagnostics.some((d) => d.code === 'unexpected-text')).toBe(true)
+      expect(items.map(strip)).toEqual([{ kind: 'send', name: 'md', props: {}, body: 'World', status: 'complete' }])
+      expect(events.filter((event) => event.type === 'body-delta').map((event) => event.delta)).toEqual(['World'])
     })
 
-    it('drops unexpected text in strict mode', () => {
-      const { items, events } = parseAll('Hello\n■send=md\nWorld', { strict: true })
+    it('drops unexpected text with a diagnostic', () => {
+      const { items, events } = parseAll('Hello\n■send=md\nWorld')
 
       expect(items.map(strip)).toEqual([{ kind: 'send', name: 'md', props: {}, body: 'World', status: 'complete' }])
       expect(events.some((e) => e.type === 'diagnostic' && e.diagnostic.code === 'unexpected-text')).toBe(true)
-    })
-
-    it('supports a custom recovery component', () => {
-      const { items } = parseAll('Hello', { recoveryComponent: 'text' })
-      expect(items[0]!.name).toBe('text')
-      expect(items[0]!.body).toBe('Hello')
     })
 
     it('skips unknown directives until the next block', () => {
@@ -254,12 +290,12 @@ describe('streaming message parser', () => {
       expect(items[0]!.body).toBe('Hello')
     })
 
-    it('recovers free text after a next header', () => {
-      const { items } = parseAll('■next=listen ok then')
+    it('drops free text after a next header by default', () => {
+      const { items, parser } = parseAll('■next=listen ok then')
+      expect(items).toHaveLength(1)
       expect(items[0]!.kind).toBe('next')
       expect(items[0]!.status).toBe('complete')
-      expect(items[1]!.kind).toBe('send')
-      expect(items[1]!.body).toBe('ok then')
+      expect(parser.diagnostics).toEqual([{ code: 'unexpected-text', message: expect.any(String) }])
     })
   })
 
@@ -398,17 +434,15 @@ describe('streaming message parser', () => {
       const { items } = parseAll(FIXTURE)
 
       expect(items.map((i) => [i.kind, i.name])).toEqual([
-        ['send', 'md'], // recovered preamble
         ['send', 'md'],
         ['send', 'buttons'],
         ['run', ''],
         ['send', 'callout'],
         ['next', 'book_meeting'],
       ])
-      expect(items[0]!.body).toBe('preamble text')
-      expect(items[2]!.props).toEqual({ buttons: [{ label: 'A ■ A' }, { label: 'B' }], cols: 2 })
-      expect(items[3]!.body).toBe('const x = { a: [1, 2, 3] }\nreturn await tool({ x })')
-      expect(items[5]!.props).toEqual({ reason: 'demo', email: 'a@b.com' })
+      expect(items[1]!.props).toEqual({ buttons: [{ label: 'A ■ A' }, { label: 'B' }], cols: 2 })
+      expect(items[2]!.body).toBe('const x = { a: [1, 2, 3] }\nreturn await tool({ x })')
+      expect(items[4]!.props).toEqual({ reason: 'demo', email: 'a@b.com' })
     })
   })
 })

@@ -79,6 +79,10 @@ return { ...payment, date: dates[0] }
 
 Because the protocol is parsed incrementally, messages stream to your UI token-by-token, tool calls surface live, and code execution can start before the response has even finished streaming.
 
+Only explicit `■send` blocks produce messages or message deltas. Unexpected text outside protocol blocks is discarded in streaming, fallback restarts, and nonstreaming execution. Explicit Markdown (`■send=md`) is supported. A response with only unexpected text follows the normal invalid-response retry/error path. For debugging, `iteration.llm.output` retains the raw response and `iteration.llm.diagnostics` records parser diagnostics, including `unexpected-text`.
+
+As of 0.7.0, the parser options `strict` and `recoveryComponent` have been removed. All parsing requires explicit send blocks; callers relying on implicit messages must emit `■send=<component>` instead.
+
 ---
 
 ## Quick Start
@@ -323,15 +327,22 @@ With a streaming client (`CognitiveBeta` / Cognitive v2), everything an executio
 const chat = new Chat({
   components: [DefaultComponents.Text],
   transcript: () => transcript,
-  handler: async (component) => finalizeBubble(component),
+  handler: async (component, metadata) => finalizeBubble(component, metadata),
   // Fires per token-chunk while the LLM is still generating
-  onMessageDelta: (delta) => appendToBubble(delta.id, delta.delta),
+  onMessageDelta: (delta) => {
+    if (delta.restart) {
+      // Remove ALL this iteration's messages, including completed handler sends.
+      return clearIterationMessages(delta.iterationId)
+    }
+    return updateBubble(delta.iterationId, delta.id, delta.content)
+  },
 })
 
 const result = await execute({
   client, // CognitiveBeta
   chat,
   tools,
+  options: { midStreamFallback: true },
   onTrace: ({ trace }) => {
     if (trace.type === 'llm_call_started') showSpinner()
     if (trace.type === 'code_generation_started') showStatus('writing code…')
@@ -343,7 +354,14 @@ const result = await execute({
 
 - **Message deltas** stream to your UI token-by-token (`handler` remains the authoritative delivery)
 - **Live traces** cover the full turn lifecycle: `llm_call_started` → message deltas → `code_generation_started` → `llm_call_success` (with the code) → `tool_call`s → exit
-- **Early execution**: the `■run` block starts executing while the tail of the response is still streaming, and the VM pre-warms the moment the model starts writing code
+- **Fallback**: a `restart: true` delta invalidates the current iteration's messages before replacement output arrives. Replacement messages have fresh IDs under the same `iterationId`. Code executes only after the replacement stream succeeds; abandoned code never runs.
+- **Early execution**: without `midStreamFallback`, a closed `■run` block can start executing while the response tail is still streaming. A later generation failure returns an error without retrying the code. The VM pre-warms when code generation begins in either mode.
+
+Terminal failures return an `ErrorExecutionResult`; they do not emit a restart delta because there is no replacement attempt. Handle that result to clear or mark unfinished messages as failed. Already delivered messages remain delivered unless your consumer retracts them. Nonstreaming Cognitive fallback exposes only the successful response, so no message reset is needed.
+
+LLMz rejects explicit Cognitive errors, error metadata (`provider: "unknown"`), and responses stopped by a token limit or content filter before finalizing unfinished blocks. Such failures cannot turn a partial code prefix into executable code. With fallback disabled, this cannot undo code that already ran after a block boundary.
+
+`■run` followed by `■send` is currently accepted, but that message was generated without seeing the code's result. Prefer sending an acknowledgement before `■run`, returning the needed data, then answering in the next iteration. A top-level `return` always requests another iteration; side-effect-only code can finish immediately with `■next`.
 
 Forward these events over a websocket or SSE stream and your frontend renders the agent live — see [example 22](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/22_chat_streaming).
 

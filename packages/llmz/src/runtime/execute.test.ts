@@ -224,6 +224,240 @@ type RestartDelta = Extract<MessageDelta, { restart: true }>
 const restartDeltas = (deltas: MessageDelta[]): RestartDelta[] => deltas.filter((d): d is RestartDelta => d.restart)
 
 describe('message-stream protocol execution', () => {
+  describe('nonstreaming generation failures', () => {
+    test('Cognitive fallback exposes only the successful response to LLMz', async () => {
+      const calls = vi.fn()
+      const mark = new Tool({
+        name: 'mark',
+        description: 'Records a side effect',
+        handler: async () => {
+          calls()
+        },
+      })
+      const { chat, messages } = makeChat()
+      class RecoveredCognitive extends ScriptedNonStreamingCognitive {
+        public override async generateText(): Promise<CognitiveResponse> {
+          const response = await super.generateText()
+          response.metadata.fallbackPath = ['failed-provider:failed-model']
+          response.metadata.warnings = [{ type: 'fallback_used', message: 'First model failed; replacement succeeded' }]
+          return response
+        }
+      }
+      const client = new RecoveredCognitive(['■send=message\nReplacement reply\n■run\nawait mark()\n■next=listen'])
+      const generate = vi.spyOn(client, 'generateText')
+      const result = await executeContext({ client, chat, tools: [mark], options: { loop: 1 } })
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect(generate).toHaveBeenCalledTimes(1)
+      expect(calls).toHaveBeenCalledTimes(1)
+      expect(messages.map((message) => message.text)).toEqual(['Replacement reply'])
+    })
+
+    test.each(['transport', 'error response', 'token limit', 'content filter', 'unknown provider'] as const)(
+      '%s fails without delivering messages or running code',
+      async (failure) => {
+        const calls = vi.fn()
+        const mark = new Tool({
+          name: 'mark',
+          description: 'Records a side effect',
+          handler: async () => {
+            calls()
+          },
+        })
+        const deltas: MessageDelta[] = []
+        const { chat, messages } = makeChat((delta) => {
+          deltas.push(delta)
+        })
+        class FailingCognitive extends ScriptedNonStreamingCognitive {
+          public override async generateText(): Promise<CognitiveResponse> {
+            if (failure === 'transport') throw new Error('model chain exhausted')
+            const response = await super.generateText()
+            if (failure === 'error response') response.error = 'model chain exhausted'
+            if (failure === 'token limit') response.metadata.stopReason = 'max_tokens'
+            if (failure === 'content filter') response.metadata.stopReason = 'content_filter'
+            if (failure === 'unknown provider') response.metadata.provider = 'unknown'
+            return response
+          }
+        }
+        const client = new FailingCognitive(['■send=message\nIncomplete response\n■run\nawait mark()\n■next=listen'])
+        const result = await executeContext({ client, chat, tools: [mark], options: { loop: 3 } })
+        expect(result).toBeInstanceOf(ErrorExecutionResult)
+        expect((result as ErrorExecutionResult).error).toBeInstanceOf(CognitiveError)
+        expect(result.iterations).toHaveLength(1)
+        expect(calls).not.toHaveBeenCalled()
+        expect(messages).toEqual([])
+        expect(deltas).toEqual([])
+      }
+    )
+  })
+
+  test.each(['nonstreaming', 'streaming', 'fallback'] as const)(
+    '%s currently accepts code followed by a message, and returned values require another iteration',
+    async (mode) => {
+      const calls = vi.fn()
+      const mark = new Tool({
+        name: 'mark',
+        description: 'Records a side effect',
+        handler: async () => {
+          calls()
+        },
+      })
+      const { chat, messages } = makeChat()
+      const responses = [
+        '■run\nawait mark()\nreturn 42\n■send=message\nThis was generated before seeing the result\n■next=listen',
+        '■send=message\nThe result is 42\n■next=listen',
+      ]
+      const client =
+        mode === 'nonstreaming'
+          ? new ScriptedNonStreamingCognitive(responses)
+          : new ScriptedStreamingCognitive(responses)
+      const result = await executeContext({
+        client,
+        chat,
+        tools: [mark],
+        options: { loop: 2, midStreamFallback: mode === 'fallback' },
+      })
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect(result.iterations).toHaveLength(2)
+      expect(result.iterations[0]!.status.type).toBe('thinking_requested')
+      expect(calls).toHaveBeenCalledTimes(1)
+      expect(messages.map((message) => message.text)).toEqual([
+        'This was generated before seeing the result',
+        'The result is 42',
+      ])
+    }
+  )
+
+  describe('reasoning preamble regression', () => {
+    const preamble =
+      'I have already provided the greeting in assistant message 5. The user has now said "ok". I should wait for their actual question or request.'
+    const reply = "Sounds good! Whenever you're ready, just let me know how I can help. 😊"
+    const output = `${preamble}\n\n■send=message\n${reply}\n■next=listen`
+    const modes = ['nonstreaming', 'whole', 'characters', 'chunks', 'restart'] as const
+
+    const makeClient = (mode: (typeof modes)[number], responses: string[]) => {
+      if (mode === 'nonstreaming') {
+        return new ScriptedNonStreamingCognitive(responses)
+      }
+      if (mode === 'restart') {
+        // The abandoned attempt completes a send before the replacement starts.
+        // Keep all callback history: a later retraction cannot undo a leak.
+        return new ScriptedRestartStreamingCognitive([output, ...responses], undefined, 1)
+      }
+      return new ScriptedStreamingCognitive(
+        responses,
+        undefined,
+        mode === 'whole' ? 100_000 : mode === 'characters' ? 1 : 7
+      )
+    }
+
+    test.each(modes)('%s only delivers explicit sends, including every temporary preview', async (mode) => {
+      const deltas: MessageDelta[] = []
+      const { chat, messages } = makeChat((delta) => {
+        deltas.push({ ...delta })
+      })
+      const result = await executeContext({
+        client: makeClient(mode, [output]),
+        chat,
+        options: { loop: 1, midStreamFallback: mode === 'restart' },
+      })
+
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect((result as SuccessExecutionResult).result.exit.name).toBe(ListenExit.name)
+      const count = mode === 'restart' ? 2 : 1
+      expect(messages).toEqual(Array.from({ length: count }, () => ({ type: 'MESSAGE', text: reply, props: {} })))
+      expect(result.iterations[0]!.traces.filter((trace) => trace.type === 'yield')).toHaveLength(count)
+      expect(result.iterations[0]!.llm?.output).toBe(output)
+      expect(result.iterations[0]!.llm?.diagnostics).toEqual([{ code: 'unexpected-text', message: expect.any(String) }])
+      expect(result.iterations[0]!.toJSON().llm?.diagnostics).toEqual(result.iterations[0]!.llm?.diagnostics)
+      const previews = textDeltas(deltas)
+      expect(previews.map((delta) => delta.delta).join('')).toBe(mode === 'nonstreaming' ? '' : reply.repeat(count))
+      expect(previews.every((delta) => delta.component === 'message' && reply.startsWith(delta.content))).toBe(true)
+      expect(restartDeltas(deltas)).toHaveLength(mode === 'restart' ? 1 : 0)
+    })
+
+    test.each(modes)('%s preserves explicit Markdown, clean sends, run and exit', async (mode) => {
+      const deltas: MessageDelta[] = []
+      const { chat, messages } = makeChat((delta) => {
+        deltas.push({ ...delta })
+      })
+      const called = vi.fn()
+      const tool = new Tool({
+        name: 'record',
+        description: 'Records a call',
+        handler: async () => {
+          called()
+        },
+      })
+      const clean = '■send=md\n**Markdown**\n■send=message\nHello!\n■run\nawait record()\n■next=listen'
+      const result = await executeContext({
+        client: makeClient(mode, [clean]),
+        chat,
+        tools: [tool],
+        options: { loop: 1, midStreamFallback: mode === 'restart' },
+      })
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect(called).toHaveBeenCalledTimes(1)
+      expect(result.iterations[0]!.llm?.diagnostics).toEqual([])
+      expect(messages).toEqual([
+        ...(mode === 'restart' ? [{ type: 'MESSAGE', text: reply, props: {} }] : []),
+        { type: 'MD', text: '**Markdown**', props: {} },
+        { type: 'MESSAGE', text: 'Hello!', props: {} },
+      ])
+      expect(
+        textDeltas(deltas)
+          .map((delta) => delta.delta)
+          .join('')
+      ).toBe(mode === 'nonstreaming' ? '' : `${mode === 'restart' ? reply : ''}**Markdown**Hello!`)
+    })
+
+    test.each(modes)('%s malformed-only output fails safely without sending it', async (mode) => {
+      const deltas: MessageDelta[] = []
+      const { chat, messages } = makeChat((delta) => {
+        deltas.push({ ...delta })
+      })
+      const result = await executeContext({
+        client: makeClient(mode, [preamble]),
+        chat,
+        options: { loop: 1, midStreamFallback: mode === 'restart' },
+      })
+      expect(result).toBeInstanceOf(ErrorExecutionResult)
+      expect(result.iterations[0]!.status.type).toBe('invalid_code_error')
+      expect(result.iterations[0]!.llm?.output).toBe(preamble)
+      expect(result.iterations[0]!.llm?.diagnostics).toEqual([{ code: 'unexpected-text', message: expect.any(String) }])
+      expect(result.iterations[0]!.sends).toEqual([])
+      expect(messages).toEqual(mode === 'restart' ? [{ type: 'MESSAGE', text: reply, props: {} }] : [])
+      expect(
+        textDeltas(deltas)
+          .map((delta) => delta.delta)
+          .join('')
+      ).toBe(mode === 'restart' ? reply : '')
+    })
+
+    test.each(['nonstreaming', 'characters'] as const)(
+      '%s retries malformed-only output through the existing error path',
+      async (mode) => {
+        const deltas: MessageDelta[] = []
+        const { chat, messages } = makeChat((delta) => {
+          deltas.push({ ...delta })
+        })
+        const result = await executeContext({
+          client: makeClient(mode, [preamble, output]),
+          chat,
+          options: { loop: 2 },
+        })
+        expect(result).toBeInstanceOf(SuccessExecutionResult)
+        expect(result.iterations).toHaveLength(2)
+        expect(result.iterations[0]!.status.type).toBe('invalid_code_error')
+        expect(messages).toEqual([{ type: 'MESSAGE', text: reply, props: {} }])
+        expect(
+          textDeltas(deltas)
+            .map((delta) => delta.delta)
+            .join('')
+        ).toBe(mode === 'nonstreaming' ? '' : reply)
+      }
+    )
+  })
+
   test('a message-only response sends the message and listens', async () => {
     const { chat, messages } = makeChat()
     const client = new ScriptedCognitive(['■send=message\nHello **world**!\n■next=listen'])
@@ -562,6 +796,37 @@ describe('message-stream protocol execution', () => {
     expect((result as SuccessExecutionResult).result.exit.name).toBe('done')
   })
 
+  test('without fallback, closed code can run before a later transport failure but LLMz does not retry it', async () => {
+    let release!: () => void
+    const toolRan = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    const calls = vi.fn()
+    const mark = new Tool({
+      name: 'mark',
+      description: 'Records a side effect',
+      handler: async () => {
+        calls()
+        release()
+      },
+    })
+    class FailAfterCode extends ScriptedCognitive {
+      public async *generateTextStream(): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
+        yield { output: this._nextContent(), created: Date.now() }
+        await toolRan
+        throw new Error('transport failed after code ran')
+      }
+    }
+    const { chat, messages } = makeChat()
+    const client = new FailAfterCode(['■run\nawait mark()\n■send=message\nUnfinished reply'])
+    const result = await executeContext({ client, chat, tools: [mark], options: { loop: 3 } })
+    expect(result).toBeInstanceOf(ErrorExecutionResult)
+    expect((result as ErrorExecutionResult).error).toBeInstanceOf(CognitiveError)
+    expect(result.iterations).toHaveLength(1)
+    expect(calls).toHaveBeenCalledTimes(1)
+    expect(messages).toEqual([])
+  })
+
   test('streaming clients strip a wrapping code fence', async () => {
     const { chat, messages } = makeChat()
     const client = new ScriptedStreamingCognitive(['```\n■send=message\nFenced hello!\n■next=listen'])
@@ -766,6 +1031,165 @@ describe('message-stream protocol execution', () => {
   })
 
   describe('options.midStreamFallback', () => {
+    const interruptedAttempts = [
+      { name: 'thoughts', output: 'I should privately reason about the user\n', preview: '', completed: [] },
+      { name: 'partial message', output: '■send=message\nPartial reply', preview: 'Partial reply', completed: [] },
+      { name: 'partial code', output: '■run\nawait mark()', preview: '', completed: [] },
+      {
+        name: 'message then partial code',
+        output: '■send=message\nChecking now\n■run\nawait mark()',
+        preview: 'Checking now',
+        completed: ['Checking now'],
+      },
+      {
+        name: 'completed code then partial message',
+        output: '■run\nawait mark()\n■send=message\nPartial reply',
+        preview: 'Partial reply',
+        completed: [],
+      },
+    ]
+
+    describe.each([1, 7, 10000])('failure matrix with chunk size %i', (chunkSize) => {
+      test.each(interruptedAttempts)(
+        '$name is retracted before replacement; only surviving code executes',
+        async (scenario) => {
+          const events: Array<{ type: 'delta' | 'complete' | 'reset'; id: string; text?: string }> = []
+          const displayed = new Map<string, { iterationId: string; text: string }>()
+          displayed.set('earlier-message', { iterationId: 'earlier-iteration', text: 'Keep earlier messages' })
+          const calls = vi.fn()
+          const mark = new Tool({
+            name: 'mark',
+            description: 'Records a side effect',
+            handler: async () => {
+              calls()
+            },
+          })
+          const chat = new Chat({
+            components: [DefaultComponents.Text],
+            transcript: [{ role: 'user', content: 'hello' }],
+            handler: async (component, metadata) => {
+              const text = component.children.filter((child) => typeof child === 'string').join('')
+              events.push({ type: 'complete', id: metadata.id, text })
+              displayed.set(metadata.id, { iterationId: metadata.iterationId, text })
+            },
+            onMessageDelta: async (delta) => {
+              if (delta.restart) {
+                events.push({ type: 'reset', id: delta.iterationId })
+                for (const [id, message] of displayed) {
+                  if (message.iterationId === delta.iterationId) displayed.delete(id)
+                }
+              } else {
+                events.push({ type: 'delta', id: delta.id, text: delta.delta })
+                displayed.set(delta.id, { iterationId: delta.iterationId, text: delta.content })
+              }
+            },
+          })
+          const replacement = '■send=message\nReplacement reply\n■run\nawait mark()\n■next=listen'
+          const client = new ScriptedRestartStreamingCognitive(
+            [scenario.output, replacement],
+            () => calls.mock.calls.length,
+            chunkSize
+          )
+
+          const result = await executeContext({ client, chat, tools: [mark], options: midStreamOptions(1) })
+
+          expect(result).toBeInstanceOf(SuccessExecutionResult)
+          expect(calls).toHaveBeenCalledTimes(1)
+          expect(client.probes.every((count) => count === 0)).toBe(true)
+          expect(result.iterations[0]!.llm?.output).toBe(replacement)
+          expect(events.filter((event) => event.type === 'reset')).toHaveLength(1)
+          const resetAt = events.findIndex((event) => event.type === 'reset')
+          const before = events.slice(0, resetAt)
+          const after = events.slice(resetAt + 1)
+          expect(
+            before
+              .filter((event) => event.type === 'delta')
+              .map((event) => event.text)
+              .join('')
+          ).toBe(scenario.preview)
+          expect(before.filter((event) => event.type === 'complete').map((event) => event.text)).toEqual(
+            scenario.completed
+          )
+          expect(
+            after
+              .filter((event) => event.type === 'delta')
+              .map((event) => event.text)
+              .join('')
+          ).toBe('Replacement reply')
+          expect(after.filter((event) => event.type === 'complete').map((event) => event.text)).toEqual([
+            'Replacement reply',
+          ])
+          expect(after.every((event) => before.every((old) => old.id !== event.id))).toBe(true)
+          expect([...displayed.values()].map((message) => message.text)).toEqual([
+            'Keep earlier messages',
+            'Replacement reply',
+          ])
+        }
+      )
+    })
+
+    test.each(interruptedAttempts)(
+      'terminal failure during $name never executes code or invents a restart',
+      async (scenario) => {
+        const calls = vi.fn()
+        const mark = new Tool({
+          name: 'mark',
+          description: 'Records a side effect',
+          handler: async () => {
+            calls()
+          },
+        })
+        const deltas: MessageDelta[] = []
+        const { chat, messages } = makeChat((delta) => {
+          deltas.push(delta)
+        })
+        const client = new ScriptedChainErrorCognitive([scenario.output])
+        const result = await executeContext({ client, chat, tools: [mark], options: midStreamOptions(3) })
+        expect(result).toBeInstanceOf(ErrorExecutionResult)
+        expect((result as ErrorExecutionResult).error).toBeInstanceOf(CognitiveError)
+        expect(result.iterations).toHaveLength(1)
+        expect(calls).not.toHaveBeenCalled()
+        expect(messages.map((message) => message.text)).toEqual(scenario.completed)
+        expect(
+          textDeltas(deltas)
+            .map((delta) => delta.delta)
+            .join('')
+        ).toBe(scenario.preview)
+        expect(restartDeltas(deltas)).toEqual([])
+      }
+    )
+
+    test.each(
+      [true, false].flatMap((midStreamFallback) =>
+        ['unknown provider', 'token limit', 'content filter'].map((failure) => ({ failure, midStreamFallback }))
+      )
+    )(
+      '$failure metadata cannot finalize partial code (fallback=$midStreamFallback)',
+      async ({ failure, midStreamFallback }) => {
+        const calls = vi.fn()
+        const mark = new Tool({
+          name: 'mark',
+          description: 'Records a side effect',
+          handler: async () => {
+            calls()
+          },
+        })
+        const metadata = makeFakeMetadata()
+        if (failure === 'unknown provider') metadata.provider = 'unknown'
+        else metadata.stopReason = failure === 'token limit' ? 'max_tokens' : 'content_filter'
+        // A syntactically valid prefix is not proof the model finished its code.
+        const client = new ScriptedRestartStreamingCognitive(['■run\nawait mark()'], undefined, 1, {
+          created: Date.now(),
+          finished: true,
+          metadata,
+        })
+        const result = await executeContext({ client, tools: [mark], options: { loop: 1, midStreamFallback } })
+        expect(result).toBeInstanceOf(ErrorExecutionResult)
+        expect((result as ErrorExecutionResult).error).toBeInstanceOf(CognitiveError)
+        expect(calls).not.toHaveBeenCalled()
+      }
+    )
+
     test('sends are delivered immediately even with midStreamFallback enabled', async () => {
       const { chat, messages } = makeChat()
       const client = new ScriptedStreamingCognitive(

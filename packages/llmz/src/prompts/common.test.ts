@@ -49,10 +49,14 @@ Hello!
       expect(response.next).toEqual({ name: 'listen', props: {} })
     })
 
-    it('recovers plain text into an implicit send', async () => {
-      const response = parseAssistantResponse('Hello! How can I help you today?')
+    it('retains plain text for debugging without creating an implicit send', async () => {
+      const raw = 'Hello! How can I help you today?'
+      const response = parseAssistantResponse(raw)
 
-      expect(response.sends).toEqual([{ name: 'md', props: {}, body: 'Hello! How can I help you today?' }])
+      expect(response.raw).toBe(raw)
+      expect(response.items).toEqual([])
+      expect(response.sends).toEqual([])
+      expect(response.diagnostics).toEqual([{ code: 'unexpected-text', message: expect.any(String) }])
       expect(response.code).toBeUndefined()
       expect(response.next).toBeUndefined()
     })

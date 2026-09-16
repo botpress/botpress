@@ -1,6 +1,190 @@
 import { Model } from './types'
 
 export const models: Record<string, Model> = {
+  'anthropic-bedrock:claude-opus-5': {
+    id: 'anthropic-bedrock:claude-opus-5',
+    name: 'Claude Opus 5 (Bedrock)',
+    description:
+      "Claude Opus 5 is Anthropic's model for complex agentic coding and enterprise work. It features adaptive thinking (default effort `high`), a 1M-token context window, and 128k max output, at the same $5/$25 pricing as the Opus 4.x line. Uses the tokenizer introduced with Opus 4.7.",
+    input: {
+      maxTokens: 1000000,
+      costPer1MTokens: 5,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 25,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['anthropic.claude-opus-5'],
+  },
+  'anthropic-bedrock:claude-opus-4-8': {
+    id: 'anthropic-bedrock:claude-opus-4-8',
+    name: 'Claude Opus 4.8 (Bedrock)',
+    description:
+      "Claude Opus 4.8 is Anthropic's most capable model for complex reasoning, long-horizon agentic coding, and high-autonomy work. Features adaptive thinking (default effort `high`), a 1M-token context window, and 128k max output. Continues the Opus 4.7 lineage with further gains on agentic and coding benchmarks.",
+    input: {
+      maxTokens: 1000000,
+      costPer1MTokens: 5,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 25,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['anthropic.claude-opus-4-8'],
+  },
+  'anthropic-bedrock:claude-opus-4-7': {
+    id: 'anthropic-bedrock:claude-opus-4-7',
+    name: 'Claude Opus 4.7 (Bedrock)',
+    description:
+      "Claude Opus 4.7 is Anthropic's most capable generally available model, with a step-change improvement in agentic coding over Claude Opus 4.6. Features adaptive thinking for dynamic reasoning allocation, substantially improved vision capabilities, and task budgets for agentic loops. Uses a new tokenizer that may use up to 35% more tokens for the same text.",
+    input: {
+      maxTokens: 1000000,
+      costPer1MTokens: 5,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 25,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['anthropic.claude-opus-4-7'],
+  },
+  'anthropic-bedrock:claude-sonnet-5': {
+    id: 'anthropic-bedrock:claude-sonnet-5',
+    name: 'Claude Sonnet 5 (Bedrock)',
+    description:
+      'Claude Sonnet 5 offers the best combination of speed and intelligence in the Claude family, succeeding Sonnet 4.6. It features adaptive thinking (on by default) for dynamic reasoning allocation, a 1M-token context window, and 128k max output. Uses the newer tokenizer.',
+    input: {
+      maxTokens: 1000000,
+      costPer1MTokens: 2,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 10,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['anthropic.claude-sonnet-5'],
+  },
+  'anthropic-bedrock:claude-haiku-4-5-20251001': {
+    id: 'anthropic-bedrock:claude-haiku-4-5-20251001',
+    name: 'Claude Haiku 4.5 (Bedrock)',
+    description:
+      "Claude Haiku 4.5 is Anthropic's fastest and most efficient model, delivering near-frontier intelligence at a fraction of the cost and latency of larger Claude models. Matching Claude Sonnet 4's performance across reasoning, coding, and computer-use tasks, Haiku 4.5 brings frontier-level capability to real-time and high-volume applications.",
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 1,
+    },
+    output: {
+      maxTokens: 64000,
+      costPer1MTokens: 5,
+    },
+    tags: ['recommended', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['anthropic.claude-haiku-4-5'],
+  },
+  'openai-bedrock:gpt-5.6-sol': {
+    id: 'openai-bedrock:gpt-5.6-sol',
+    name: 'GPT-5.6 Sol (Bedrock)',
+    description:
+      'GPT-5.6 Sol is the flagship model of the GPT-5.6 family, optimized for complex reasoning and coding. It features a 1M+ context window with adaptive reasoning and configurable effort levels, and supports vision, tool use, structured outputs, and server-side web search.',
+    input: {
+      maxTokens: 1047576,
+      costPer1MTokens: 4,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 20,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision', 'coding', 'agents'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['us.openai.gpt-5.6-sol'],
+  },
+  'openai-bedrock:gpt-5.6-terra': {
+    id: 'openai-bedrock:gpt-5.6-terra',
+    name: 'GPT-5.6 Terra (Bedrock)',
+    description:
+      'GPT-5.6 Terra balances intelligence and cost, delivering performance competitive with GPT-5.5 at a lower price point. It features a 1M+ context window with adaptive reasoning and supports vision, tool use, structured outputs, and server-side web search.',
+    input: {
+      maxTokens: 1047576,
+      costPer1MTokens: 2,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 12,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision', 'coding', 'agents'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['us.openai.gpt-5.6-terra'],
+  },
+  'openai-bedrock:gpt-5.6-luna': {
+    id: 'openai-bedrock:gpt-5.6-luna',
+    name: 'GPT-5.6 Luna (Bedrock)',
+    description:
+      'GPT-5.6 Luna is the fastest and cheapest GPT-5.6 variant, optimized for high-volume workloads. It retains strong reasoning and vision capabilities with a 1M+ context window.',
+    input: {
+      maxTokens: 1047576,
+      costPer1MTokens: 0.2,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 1.2,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision', 'low-cost'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['us.openai.gpt-5.6-luna'],
+  },
   'openai:gpt-5.6-sol': {
     id: 'openai:gpt-5.6-sol',
     name: 'GPT-5.6 Sol',
@@ -8,11 +192,11 @@ export const models: Record<string, Model> = {
       'GPT-5.6 Sol is the flagship model of the GPT-5.6 family, optimized for complex reasoning and coding. It features a 1M+ context window with adaptive reasoning and configurable effort levels, and supports vision, tool use, structured outputs, and server-side web search.',
     input: {
       maxTokens: 1047576,
-      costPer1MTokens: 5,
+      costPer1MTokens: 4,
     },
     output: {
       maxTokens: 128000,
-      costPer1MTokens: 30,
+      costPer1MTokens: 20,
     },
     tags: ['recommended', 'reasoning', 'general-purpose', 'vision', 'coding', 'agents'],
     lifecycle: 'production',
@@ -30,11 +214,11 @@ export const models: Record<string, Model> = {
       'GPT-5.6 Terra balances intelligence and cost, delivering performance competitive with GPT-5.5 at a lower price point. It features a 1M+ context window with adaptive reasoning and supports vision, tool use, structured outputs, and server-side web search.',
     input: {
       maxTokens: 1047576,
-      costPer1MTokens: 2.5,
+      costPer1MTokens: 2,
     },
     output: {
       maxTokens: 128000,
-      costPer1MTokens: 15,
+      costPer1MTokens: 12,
     },
     tags: ['recommended', 'reasoning', 'general-purpose', 'vision', 'coding', 'agents'],
     lifecycle: 'production',
@@ -52,13 +236,13 @@ export const models: Record<string, Model> = {
       'GPT-5.6 Luna is the fastest and cheapest GPT-5.6 variant, optimized for high-volume workloads. It retains strong reasoning and vision capabilities with a 1M+ context window.',
     input: {
       maxTokens: 1047576,
-      costPer1MTokens: 1,
+      costPer1MTokens: 0.2,
     },
     output: {
       maxTokens: 128000,
-      costPer1MTokens: 6,
+      costPer1MTokens: 1.2,
     },
-    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision', 'low-cost'],
     lifecycle: 'production',
     capabilities: {
       supportsImages: true,
@@ -172,7 +356,7 @@ export const models: Record<string, Model> = {
       costPer1MTokens: 14,
     },
     tags: ['deprecated', 'reasoning', 'general-purpose', 'vision'],
-    lifecycle: 'deprecated',
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
@@ -633,6 +817,29 @@ export const models: Record<string, Model> = {
       supportsSearch: false,
     },
   },
+  'openai:gpt-transcribe': {
+    id: 'openai:gpt-transcribe',
+    name: 'GPT Transcribe',
+    description:
+      'OpenAI GPT Transcribe — the successor to Whisper, offering higher accuracy across 99 languages at roughly a quarter of the per-minute cost. Batch transcription; `gpt-live-transcribe` is the realtime variant.',
+    input: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+      costPerMinute: 0.0045,
+    },
+    output: {
+      maxTokens: 0,
+      costPer1MTokens: 0,
+    },
+    tags: ['general-purpose', 'speech-to-text', 'recommended'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: true,
+      supportsSearch: false,
+    },
+  },
   'openai:whisper-1': {
     id: 'openai:whisper-1',
     name: 'Whisper V2',
@@ -646,8 +853,8 @@ export const models: Record<string, Model> = {
       maxTokens: 0,
       costPer1MTokens: 0,
     },
-    tags: ['general-purpose', 'speech-to-text'],
-    lifecycle: 'production',
+    tags: ['general-purpose', 'speech-to-text', 'deprecated'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -753,8 +960,8 @@ export const models: Record<string, Model> = {
       maxTokens: 1,
       costPer1MTokens: 0,
     },
-    tags: ['image-generation', 'recommended'],
-    lifecycle: 'production',
+    tags: ['image-generation', 'deprecated'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -774,8 +981,8 @@ export const models: Record<string, Model> = {
       maxTokens: 1,
       costPer1MTokens: 0,
     },
-    tags: ['image-generation', 'low-cost'],
-    lifecycle: 'production',
+    tags: ['image-generation', 'low-cost', 'deprecated'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -795,13 +1002,35 @@ export const models: Record<string, Model> = {
       maxTokens: 1,
       costPer1MTokens: 0,
     },
-    tags: ['image-generation'],
-    lifecycle: 'production',
+    tags: ['image-generation', 'deprecated'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
       supportsTranscription: false,
       supportsSearch: false,
+    },
+  },
+  'anthropic:claude-opus-5': {
+    id: 'anthropic:claude-opus-5',
+    name: 'Claude Opus 5',
+    description:
+      "Claude Opus 5 is Anthropic's model for complex agentic coding and enterprise work. It features adaptive thinking (default effort `high`), a 1M-token context window, and 128k max output, at the same $5/$25 pricing as the Opus 4.x line. Uses the tokenizer introduced with Opus 4.7.",
+    input: {
+      maxTokens: 1000000,
+      costPer1MTokens: 5,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 25,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: true,
     },
   },
   'anthropic:claude-opus-4-8': {
@@ -877,11 +1106,11 @@ export const models: Record<string, Model> = {
       'Claude Sonnet 5 offers the best combination of speed and intelligence in the Claude family, succeeding Sonnet 4.6. It features adaptive thinking (on by default) for dynamic reasoning allocation, a 1M-token context window, and 128k max output. Uses the newer tokenizer.',
     input: {
       maxTokens: 1000000,
-      costPer1MTokens: 3,
+      costPer1MTokens: 2,
     },
     output: {
       maxTokens: 128000,
-      costPer1MTokens: 15,
+      costPer1MTokens: 10,
     },
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
     lifecycle: 'production',
@@ -902,7 +1131,7 @@ export const models: Record<string, Model> = {
       costPer1MTokens: 3,
     },
     output: {
-      maxTokens: 64000,
+      maxTokens: 128000,
       costPer1MTokens: 15,
     },
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
@@ -1207,6 +1436,72 @@ export const models: Record<string, Model> = {
       supportsSearch: false,
     },
   },
+  'google-ai:gemini-3.8-flash': {
+    id: 'google-ai:gemini-3.8-flash',
+    name: 'Gemini 3.8 Flash',
+    description:
+      "Google's most intelligent Flash model and its latest stable release, succeeding Gemini 3.7 Flash. Engineered for long-horizon software engineering, autonomous agents, and complex enterprise workflows, with a 1M-token context window, 64k max output, and tunable thinking levels (low/medium/high). Accepts text, image, speech, and video input.",
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 0.75,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 3.75,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
+  'google-ai:gemini-3.7-flash': {
+    id: 'google-ai:gemini-3.7-flash',
+    name: 'Gemini 3.7 Flash',
+    description:
+      "Google's previous stable Flash model, succeeded by Gemini 3.8 Flash. Built for complex coding, agentic workflows, and reliable multi-step execution, with a 1M-token context window, 64k max output, and tunable thinking levels.",
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 0.75,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 3.75,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
+  'google-ai:gemini-3.6-flash': {
+    id: 'google-ai:gemini-3.6-flash',
+    name: 'Gemini 3.6 Flash',
+    description:
+      'Stable Flash model succeeding Gemini 3.5 Flash, since superseded by Gemini 3.7 Flash. Same 1M-token context and multimodal reach at half the price of Gemini 3.5 Flash.',
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 0.75,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 3.75,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
   'google-ai:gemini-3.5-flash': {
     id: 'google-ai:gemini-3.5-flash',
     name: 'Gemini 3.5 Flash',
@@ -1221,6 +1516,28 @@ export const models: Record<string, Model> = {
       costPer1MTokens: 9,
     },
     tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision', 'coding'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: true,
+      supportsTranscription: false,
+      supportsSearch: true,
+    },
+  },
+  'google-ai:gemini-3.5-flash-lite': {
+    id: 'google-ai:gemini-3.5-flash-lite',
+    name: 'Gemini 3.5 Flash-Lite',
+    description:
+      'Gemini 3.5 Flash-Lite offers a strong price-to-performance ratio for high-throughput production traffic, with markedly better quality than Gemini 3.1 Flash-Lite. Accepts text, image, video, audio, and PDF input across a 1M-token context window, and supports thinking, function calling, structured outputs, and search grounding.',
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 0.3,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 2.5,
+    },
+    tags: ['general-purpose', 'reasoning', 'vision', 'low-cost'],
     lifecycle: 'production',
     capabilities: {
       supportsImages: true,
@@ -1264,8 +1581,8 @@ export const models: Record<string, Model> = {
       maxTokens: 65536,
       costPer1MTokens: 3,
     },
-    tags: ['reasoning', 'agents', 'general-purpose', 'vision'],
-    lifecycle: 'preview',
+    tags: ['reasoning', 'agents', 'general-purpose', 'vision', 'deprecated'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: true,
       supportsAudio: true,
@@ -1408,6 +1725,29 @@ export const models: Record<string, Model> = {
     },
     aliases: ['gemini-3-pro-preview'],
   },
+  'google-ai:gemini-3.1-flash-tts': {
+    id: 'google-ai:gemini-3.1-flash-tts',
+    name: 'Gemini 3.1 Flash TTS',
+    description:
+      'Native Gemini text-to-speech and the migration target for both 2.5-era TTS endpoints. 30 prebuilt voices, single- and multi-speaker output, and the only Gemini TTS model that streams audio chunks.',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['text-to-speech', 'preview', 'recommended'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['gemini-3.1-flash-tts-preview'],
+  },
   'google-ai:gemini-2.5-flash-preview-tts': {
     id: 'google-ai:gemini-2.5-flash-preview-tts',
     name: 'Gemini 2.5 Flash TTS',
@@ -1420,8 +1760,8 @@ export const models: Record<string, Model> = {
       maxTokens: 1,
       costPer1MTokens: 0,
     },
-    tags: ['text-to-speech', 'preview'],
-    lifecycle: 'preview',
+    tags: ['text-to-speech', 'deprecated'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -1441,8 +1781,8 @@ export const models: Record<string, Model> = {
       maxTokens: 1,
       costPer1MTokens: 0,
     },
-    tags: ['text-to-speech', 'preview'],
-    lifecycle: 'preview',
+    tags: ['text-to-speech', 'deprecated'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -1462,8 +1802,8 @@ export const models: Record<string, Model> = {
       maxTokens: 1,
       costPer1MTokens: 0,
     },
-    tags: ['image-generation', 'recommended'],
-    lifecycle: 'production',
+    tags: ['image-generation', 'deprecated'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -1483,8 +1823,8 @@ export const models: Record<string, Model> = {
       maxTokens: 1,
       costPer1MTokens: 0,
     },
-    tags: ['image-generation', 'recommended'],
-    lifecycle: 'production',
+    tags: ['image-generation', 'deprecated'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -1504,7 +1844,73 @@ export const models: Record<string, Model> = {
       maxTokens: 1,
       costPer1MTokens: 0,
     },
-    tags: ['image-generation', 'low-cost'],
+    tags: ['image-generation', 'deprecated'],
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'google-ai:gemini-3-pro-image': {
+    id: 'google-ai:gemini-3-pro-image',
+    name: 'Gemini 3 Pro Image',
+    description:
+      'Gemini-native premium image generation and editing ("Nano Banana Pro"), the highest-fidelity tier of the Nano Banana line and the successor to the retired Imagen 4 Ultra endpoint.',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['image-generation', 'image-editing'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'google-ai:gemini-3.1-flash-image': {
+    id: 'google-ai:gemini-3.1-flash-image',
+    name: 'Gemini 3.1 Flash Image',
+    description:
+      'Gemini-native image generation and editing ("Nano Banana 2"), the workhorse successor to Gemini 2.5 Flash Image and the migration target for the retired Imagen 4 endpoints. Supports up to 4K output.',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['image-generation', 'image-editing', 'recommended'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'google-ai:gemini-3.1-flash-lite-image': {
+    id: 'google-ai:gemini-3.1-flash-lite-image',
+    name: 'Gemini 3.1 Flash Lite Image',
+    description:
+      'Gemini-native low-cost image generation and editing ("Nano Banana 2 Lite"), capped at 1K output. The cheapest Nano Banana tier and the replacement for Gemini 2.5 Flash Image.',
+    input: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    output: {
+      maxTokens: 1,
+      costPer1MTokens: 0,
+    },
+    tags: ['image-generation', 'image-editing', 'low-cost'],
     lifecycle: 'production',
     capabilities: {
       supportsImages: false,
@@ -1517,7 +1923,7 @@ export const models: Record<string, Model> = {
     id: 'google-ai:gemini-2.5-flash-image',
     name: 'Gemini 2.5 Flash Image',
     description:
-      'Gemini-native image generation (formerly "Nano Banana"). Token-billed; ~$0.039 per 1024×1024 image. Supports image editing.',
+      'Gemini-native image generation (the original "Nano Banana"), now the legacy tier — Google recommends moving to the Nano Banana 2 line. Token-billed; ~$0.039 per 1024×1024 image. Supports image editing.',
     input: {
       maxTokens: 1,
       costPer1MTokens: 0,
@@ -1526,10 +1932,32 @@ export const models: Record<string, Model> = {
       maxTokens: 1,
       costPer1MTokens: 0,
     },
-    tags: ['image-generation'],
-    lifecycle: 'production',
+    tags: ['image-generation', 'deprecated'],
+    lifecycle: 'deprecated',
     capabilities: {
       supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
+  'cerebras:qwen-3.8-27b': {
+    id: 'cerebras:qwen-3.8-27b',
+    name: 'Qwen 3.8 27B',
+    description:
+      "Qwen 3.8 27B is Alibaba's 27B dense multimodal model for agentic coding, tool use, research, and long-running workflows, served at roughly 1,500 tokens per second on Cerebras. It takes text plus base64-encoded PNG/JPEG images (up to 10 per request), does parallel tool calls and strict structured outputs, and reasons at high effort by default — set reasoning_effort to none to turn that off.",
+    input: {
+      maxTokens: 131072,
+      costPer1MTokens: 0.99,
+    },
+    output: {
+      maxTokens: 40960,
+      costPer1MTokens: 1.49,
+    },
+    tags: ['general-purpose', 'vision', 'reasoning', 'coding', 'agents'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
       supportsAudio: false,
       supportsTranscription: false,
       supportsSearch: false,
@@ -1548,8 +1976,8 @@ export const models: Record<string, Model> = {
       maxTokens: 40000,
       costPer1MTokens: 2.75,
     },
-    tags: ['preview', 'general-purpose', 'reasoning', 'coding', 'agents'],
-    lifecycle: 'preview',
+    tags: ['preview', 'general-purpose', 'reasoning', 'coding', 'agents', 'deprecated'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -1559,7 +1987,7 @@ export const models: Record<string, Model> = {
   },
   'cerebras:gemma-4-31b': {
     id: 'cerebras:gemma-4-31b',
-    name: 'Gemma 4 31B (Preview)',
+    name: 'Gemma 4 31B',
     description:
       'Gemma 4 31B is a multimodal open-weight model from Google that runs at over 1,800 tokens per second on Cerebras. It supports text and image inputs, tool calling with parallel tool calls, structured outputs via constrained decoding, and optional reasoning (disabled by default, enabled via reasoning_effort).',
     input: {
@@ -1570,8 +1998,8 @@ export const models: Record<string, Model> = {
       maxTokens: 40000,
       costPer1MTokens: 1.49,
     },
-    tags: ['preview', 'general-purpose', 'vision', 'reasoning'],
-    lifecycle: 'preview',
+    tags: ['general-purpose', 'vision', 'reasoning', 'deprecated'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
@@ -1581,7 +2009,7 @@ export const models: Record<string, Model> = {
   },
   'cerebras:gpt-oss-120b': {
     id: 'cerebras:gpt-oss-120b',
-    name: 'GPT-OSS 120B (Preview)',
+    name: 'GPT-OSS 120B',
     description:
       'gpt-oss-120b is a high-performance, open-weight language model designed for production-grade, general-purpose use cases. It excels at complex reasoning and supports configurable reasoning effort, full chain-of-thought transparency for easier debugging and trust, and native agentic capabilities for function calling, tool use, and structured outputs.',
     input: {
@@ -1589,10 +2017,10 @@ export const models: Record<string, Model> = {
       costPer1MTokens: 0.35,
     },
     output: {
-      maxTokens: 16000,
+      maxTokens: 40000,
       costPer1MTokens: 0.75,
     },
-    tags: ['preview', 'general-purpose', 'reasoning'],
+    tags: ['general-purpose', 'reasoning'],
     lifecycle: 'production',
     capabilities: {
       supportsImages: false,
@@ -1659,7 +2087,7 @@ export const models: Record<string, Model> = {
       costPer1MTokens: 0.1,
     },
     tags: ['deprecated', 'low-cost', 'general-purpose'],
-    lifecycle: 'deprecated',
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -1689,6 +2117,29 @@ export const models: Record<string, Model> = {
       supportsSearch: false,
     },
   },
+  'groq:qwen3.8-27b': {
+    id: 'groq:qwen3.8-27b',
+    name: 'Qwen3.8 27B (Preview)',
+    description:
+      'Qwen3.8-27B is the successor to Qwen3.6-27B, a reasoning model from Alibaba served as a preview model on Groq at ~450 tokens/s. Same 27B class and 16k max output as 3.6, with stronger reasoning and agentic performance. Unlike 3.6 it is multimodal, accepting up to 3 images per request at 2048 input tokens each.',
+    input: {
+      maxTokens: 131042,
+      costPer1MTokens: 0.8,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 4,
+    },
+    tags: ['preview', 'reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['qwen/qwen3.8-27b'],
+  },
   'groq:qwen3.6-27b': {
     id: 'groq:qwen3.6-27b',
     name: 'Qwen3.6 27B (Preview)',
@@ -1699,11 +2150,11 @@ export const models: Record<string, Model> = {
       costPer1MTokens: 0.6,
     },
     output: {
-      maxTokens: 32768,
+      maxTokens: 16384,
       costPer1MTokens: 3,
     },
-    tags: ['preview', 'reasoning', 'general-purpose'],
-    lifecycle: 'preview',
+    tags: ['deprecated', 'reasoning', 'general-purpose'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -1768,7 +2219,7 @@ export const models: Record<string, Model> = {
       costPer1MTokens: 0.075,
     },
     output: {
-      maxTokens: 32000,
+      maxTokens: 65536,
       costPer1MTokens: 0.3,
     },
     tags: ['preview', 'general-purpose', 'reasoning', 'low-cost'],
@@ -1791,7 +2242,7 @@ export const models: Record<string, Model> = {
       costPer1MTokens: 0.15,
     },
     output: {
-      maxTokens: 32000,
+      maxTokens: 65536,
       costPer1MTokens: 0.6,
     },
     tags: ['preview', 'general-purpose', 'reasoning'],
@@ -1840,7 +2291,7 @@ export const models: Record<string, Model> = {
       costPer1MTokens: 0.79,
     },
     tags: ['deprecated', 'general-purpose', 'coding'],
-    lifecycle: 'deprecated',
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -1949,7 +2400,7 @@ export const models: Record<string, Model> = {
       costPer1MTokens: 0.08,
     },
     tags: ['deprecated', 'low-cost', 'general-purpose'],
-    lifecycle: 'deprecated',
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -2089,6 +2540,28 @@ export const models: Record<string, Model> = {
       supportsSearch: false,
     },
   },
+  'xai:grok-4.6': {
+    id: 'xai:grok-4.6',
+    name: 'Grok 4.6',
+    description:
+      "xAI's most intelligent and fastest model, succeeding Grok 4.5. Features a 500K context window, configurable reasoning effort (high by default), and vision, at the same price point as Grok 4.5.",
+    input: {
+      maxTokens: 500000,
+      costPer1MTokens: 2,
+    },
+    output: {
+      maxTokens: 30000,
+      costPer1MTokens: 6,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+  },
   'xai:grok-4.5': {
     id: 'xai:grok-4.5',
     name: 'Grok 4.5',
@@ -2136,9 +2609,9 @@ export const models: Record<string, Model> = {
   'xai:grok-4.20-0309-reasoning': {
     id: 'xai:grok-4.20-0309-reasoning',
     name: 'Grok 4.20 (Reasoning)',
-    description: 'xAI flagship model with deep reasoning capabilities and 2M context window.',
+    description: 'xAI flagship model with deep reasoning capabilities and 1M context window.',
     input: {
-      maxTokens: 2000000,
+      maxTokens: 1000000,
       costPer1MTokens: 1.25,
     },
     output: {
@@ -2157,9 +2630,9 @@ export const models: Record<string, Model> = {
   'xai:grok-4.20-0309-non-reasoning': {
     id: 'xai:grok-4.20-0309-non-reasoning',
     name: 'Grok 4.20 (Non-Reasoning)',
-    description: 'xAI flagship model for non-reasoning tasks with 2M context window.',
+    description: 'xAI flagship model for non-reasoning tasks with 1M context window.',
     input: {
-      maxTokens: 2000000,
+      maxTokens: 1000000,
       costPer1MTokens: 1.25,
     },
     output: {
@@ -2336,8 +2809,8 @@ export const models: Record<string, Model> = {
       maxTokens: 16384,
       costPer1MTokens: 0.5,
     },
-    tags: ['low-cost', 'general-purpose'],
-    lifecycle: 'production',
+    tags: ['low-cost', 'general-purpose', 'deprecated'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -2366,17 +2839,109 @@ export const models: Record<string, Model> = {
       supportsSearch: false,
     },
   },
+  'openrouter:glm-5.3': {
+    id: 'openrouter:glm-5.3',
+    name: 'GLM 5.3',
+    description:
+      "GLM 5.3 is Z.ai's frontier model succeeding GLM 4.7, with a hybrid sparse architecture tuned for coding and long-horizon agent tasks. Reasoning is always enabled with low/high/max effort levels, across a 1M-token context window and 128k max output.",
+    input: {
+      maxTokens: 1310720,
+      costPer1MTokens: 1.4,
+    },
+    output: {
+      maxTokens: 131072,
+      costPer1MTokens: 4.4,
+    },
+    tags: ['general-purpose', 'reasoning', 'coding', 'agents'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['z-ai/glm-5.3'],
+  },
+  'openrouter:glm-5.3-flash': {
+    id: 'openrouter:glm-5.3-flash',
+    name: 'GLM 5.3 Flash',
+    description:
+      "GLM 5.3 Flash is the low-latency tier of Z.ai's GLM 5.3 line, sharing its hybrid sparse and linear attention architecture and 1.31M-token context window. Accepts text, images, and video, and costs roughly a twentieth of GLM 5.3 — the cheapest capable model in this provider.",
+    input: {
+      maxTokens: 1310720,
+      costPer1MTokens: 0.09,
+    },
+    output: {
+      maxTokens: 131072,
+      costPer1MTokens: 0.3,
+    },
+    tags: ['low-cost', 'general-purpose', 'reasoning', 'coding', 'agents', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['z-ai/glm-5.3-flash'],
+  },
+  'openrouter:qwen3.8-max': {
+    id: 'openrouter:qwen3.8-max',
+    name: 'Qwen3.8 Max',
+    description:
+      "Qwen3.8 Max is Alibaba's flagship hosted model for the Qwen3.8 generation, with a 1M-token context window, 131k max output, and configurable reasoning effort. Strong on reasoning, coding, and agentic tool use. Text-only.",
+    input: {
+      maxTokens: 1000000,
+      costPer1MTokens: 2,
+    },
+    output: {
+      maxTokens: 131072,
+      costPer1MTokens: 6,
+    },
+    tags: ['general-purpose', 'reasoning', 'coding', 'agents'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['qwen/qwen3.8-max-0902'],
+  },
+  'openrouter:qwen3.8-flash': {
+    id: 'openrouter:qwen3.8-flash',
+    name: 'Qwen3.8 Flash',
+    description:
+      "Qwen3.8 Flash is Alibaba's low-latency tier for the Qwen3.8 generation, with a 1M-token context window, 131k max output, and configurable reasoning. Text-only.",
+    input: {
+      maxTokens: 1000000,
+      costPer1MTokens: 0.15,
+    },
+    output: {
+      maxTokens: 131072,
+      costPer1MTokens: 0.47,
+    },
+    tags: ['low-cost', 'general-purpose', 'reasoning'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['qwen/qwen3.8-flash'],
+  },
   'openrouter:glm-4.7': {
     id: 'openrouter:glm-4.7',
     name: 'GLM 4.7',
     description:
       'GLM 4.7 is a frontier model from Z.ai delivering strong reasoning, coding, and agentic performance. It features interleaved thinking, where the model reasons before each action, and preserved thinking that persists reasoning context across turns, making it well suited for tool-driven agent workflows and multi-turn interactions.',
     input: {
-      maxTokens: 200000,
+      maxTokens: 204800,
       costPer1MTokens: 0.4,
     },
     output: {
-      maxTokens: 32000,
+      maxTokens: 131072,
       costPer1MTokens: 1.75,
     },
     tags: ['general-purpose', 'reasoning', 'coding', 'agents'],
@@ -2388,6 +2953,29 @@ export const models: Record<string, Model> = {
       supportsSearch: false,
     },
     aliases: ['z-ai/glm-4.7'],
+  },
+  'openrouter:gemma-4-31b-it': {
+    id: 'openrouter:gemma-4-31b-it',
+    name: 'Gemma 4 31B',
+    description:
+      "Gemma 4 31B Instruct is Google DeepMind's 30.7B dense multimodal open-weight model (Apache 2.0), accepting text and image input across 140+ languages with configurable thinking. Served here as the cross-provider backup for the Cerebras deployment of the same weights.",
+    input: {
+      maxTokens: 262144,
+      costPer1MTokens: 0.09,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 0.34,
+    },
+    tags: ['low-cost', 'general-purpose', 'vision', 'reasoning'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['google/gemma-4-31b-it'],
   },
   'openrouter:gpt-oss-120b': {
     id: 'openrouter:gpt-oss-120b',
@@ -2410,6 +2998,29 @@ export const models: Record<string, Model> = {
       supportsTranscription: false,
       supportsSearch: false,
     },
+  },
+  'fireworks-ai:kimi-k3': {
+    id: 'fireworks-ai:kimi-k3',
+    name: 'Kimi K3',
+    description:
+      'Kimi K3 is the successor to Kimi K2.6, an open-source native multimodal agentic model with a ~1M-token context window and stronger agentic and reasoning performance.',
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 131072,
+      costPer1MTokens: 15,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'agents', 'vision'],
+    lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+      supportsAudio: false,
+      supportsTranscription: false,
+      supportsSearch: false,
+    },
+    aliases: ['accounts/fireworks/models/kimi-k3'],
   },
   'fireworks-ai:kimi-k2p6': {
     id: 'fireworks-ai:kimi-k2p6',
@@ -2516,8 +3127,8 @@ export const models: Record<string, Model> = {
       maxTokens: 16384,
       costPer1MTokens: 1.6,
     },
-    tags: ['reasoning', 'general-purpose', 'vision'],
-    lifecycle: 'production',
+    tags: ['deprecated', 'reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: true,
       supportsAudio: false,
@@ -2576,7 +3187,7 @@ export const models: Record<string, Model> = {
     id: 'fireworks-ai:gpt-oss-20b',
     name: 'GPT-OSS 20B',
     description:
-      'gpt-oss-20b is a compact, open-weight language model optimized for low-latency. It shares the same training foundation and capabilities as the GPT-OSS 120B model, with faster responses and lower cost.',
+      'gpt-oss-20b is a compact, open-weight language model optimized for low-latency. It shares the same training foundation and capabilities as the GPT-OSS 120B model, with faster responses and lower cost. No longer served on Fireworks serverless — use groq:gpt-oss-20b, which is the same model.',
     input: {
       maxTokens: 128000,
       costPer1MTokens: 0.07,
@@ -2586,7 +3197,7 @@ export const models: Record<string, Model> = {
       costPer1MTokens: 0.3,
     },
     tags: ['general-purpose', 'reasoning', 'low-cost'],
-    lifecycle: 'production',
+    lifecycle: 'discontinued',
     capabilities: {
       supportsImages: false,
       supportsAudio: false,
@@ -3028,6 +3639,28 @@ export const models: Record<string, Model> = {
       supportsImages: false,
       supportsAudio: false,
       supportsTranscription: true,
+      supportsSearch: false,
+    },
+  },
+  'inception:mercury-2.5': {
+    id: 'inception:mercury-2.5',
+    name: 'Mercury 2.5',
+    description:
+      "Inception Labs' latest diffusion language model, succeeding Mercury 2. Refines tokens in parallel rather than decoding autoregressively, for very low latency. Supports tunable reasoning effort, parallel tool calls, and schema-aligned JSON output, with a 260K context window and 64K max output.",
+    input: {
+      maxTokens: 260000,
+      costPer1MTokens: 0.04,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 0.15,
+    },
+    tags: ['preview', 'general-purpose', 'coding', 'agents', 'reasoning', 'low-cost'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: false,
+      supportsAudio: false,
+      supportsTranscription: false,
       supportsSearch: false,
     },
   },

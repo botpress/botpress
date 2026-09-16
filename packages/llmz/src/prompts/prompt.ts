@@ -2,7 +2,7 @@ import { type CognitiveMessage } from '@botpress/cognitive'
 
 import { Component } from '../component.js'
 import { Exit } from '../exit.js'
-import type { ParsedItem } from '../message-stream/types.js'
+import type { Diagnostic, ParsedItem } from '../message-stream/types.js'
 import type { ObjectInstance } from '../objects.js'
 import { Snapshot } from '../snapshots.js'
 import { type Tool } from '../tool.js'
@@ -25,6 +25,8 @@ export type ParsedAssistantResponse = {
   raw: string
   /** All protocol items, in order of appearance. */
   items: ParsedItem[]
+  /** Syntax diagnostics, including unexpected text discarded outside protocol blocks. */
+  diagnostics?: Diagnostic[]
   /** Messages to send to the user, in order. */
   sends: ParsedSend[]
   /** The body of the `■run` block, if any. */

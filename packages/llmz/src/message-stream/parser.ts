@@ -12,10 +12,6 @@ import {
 export type StreamingParserOptions = {
   /** Maximum number of characters buffered for a props object before the item is marked invalid. Default: 100 000. */
   maxPropsLength?: number
-  /** When true, unexpected free text is dropped (with a diagnostic) instead of being recovered into an implicit `send`. Default: false. */
-  strict?: boolean
-  /** Component used to recover unexpected free text into an implicit `■send`. Default: 'md'. */
-  recoveryComponent?: string
 }
 
 type ParserState =
@@ -52,6 +48,8 @@ export const tryParseJson = (text: string): unknown => {
  * The parser is purely syntactic: it knows the reserved `■` symbol and the
  * directive grammar, but nothing about registered components, exits or their
  * schemas. Semantic validation is a separate step (see `validator.ts`).
+ * Text outside protocol blocks is always discarded with a diagnostic; only
+ * explicit `■send` blocks can produce messages.
  *
  * Pushing the same text split across arbitrary chunk boundaries always produces
  * the same items and the same concatenated body deltas. For a higher-level
@@ -59,11 +57,10 @@ export const tryParseJson = (text: string): unknown => {
  */
 export class StreamingMessageParser {
   private _maxPropsLength: number
-  private _strict: boolean
-  private _recoveryComponent: string
 
   private _state: ParserState = 'idle'
   private _items: ParsedItem[] = []
+  private _diagnostics: Diagnostic[] = []
   private _current: ParsedItem | undefined
   private _currentReady = false
   private _counter = 0
@@ -83,13 +80,16 @@ export class StreamingMessageParser {
 
   public constructor(options: StreamingParserOptions = {}) {
     this._maxPropsLength = options.maxPropsLength ?? 100_000
-    this._strict = options.strict ?? false
-    this._recoveryComponent = options.recoveryComponent ?? 'md'
   }
 
   /** All items parsed so far, in order of appearance. */
   public get items(): ParsedItem[] {
     return [...this._items]
+  }
+
+  /** All syntax diagnostics, including discarded text that has no protocol item. */
+  public get diagnostics(): Diagnostic[] {
+    return [...this._diagnostics]
   }
 
   public push(chunk: string): MessageStreamEvent[] {
@@ -153,6 +153,7 @@ export class StreamingMessageParser {
   public reset(): void {
     this._state = 'idle'
     this._items = []
+    this._diagnostics = []
     this._current = undefined
     this._currentReady = false
     this._counter = 0
@@ -174,7 +175,7 @@ export class StreamingMessageParser {
         if (char === MARKER) {
           this._beginItem()
         } else if (!isWhitespace(char)) {
-          this._beginRecovery(char, events)
+          this._skipUnexpectedText(events)
         }
         return
       }
@@ -293,9 +294,9 @@ export class StreamingMessageParser {
     }
 
     if (item.kind === 'next') {
-      // Free text after a completed ■next header: finish the item, recover the text
+      // Free text after a completed ■next header: finish the item, discard the text
       this._completeCurrent(events)
-      this._beginRecovery(char, events)
+      this._skipUnexpectedText(events)
       return
     }
 
@@ -595,43 +596,16 @@ export class StreamingMessageParser {
     this._currentReady = false
   }
 
-  private _beginRecovery(char: string, events: MessageStreamEvent[]): void {
-    if (this._strict) {
-      this._diagnostic(events, {
-        code: 'unexpected-text',
-        message: 'Encountered text outside of a ■ block',
-      })
-      this._state = 'skip'
-      return
-    }
-
-    const item: ParsedItem = {
-      id: `item-${this._counter++}`,
-      kind: 'send',
-      name: this._recoveryComponent,
-      props: {},
-      body: '',
-      status: 'pending',
-      diagnostics: [],
-    }
-    this._items.push(item)
-    this._current = item
-    this._currentReady = false
-    this._pendingWhitespace = ''
-
+  private _skipUnexpectedText(events: MessageStreamEvent[]): void {
     this._diagnostic(events, {
       code: 'unexpected-text',
-      message: `Encountered text outside of a ■ block; recovered it into an implicit ■send=${this._recoveryComponent}`,
-      itemId: item.id,
+      message: 'Encountered text outside of a ■ block',
     })
-    events.push({ type: 'item-start', item })
-    this._ready(events)
-    events.push({ type: 'body-start', itemId: item.id })
-    this._state = 'body'
-    this._appendBody(char)
+    this._state = 'skip'
   }
 
   private _diagnostic(events: MessageStreamEvent[], diagnostic: Diagnostic): void {
+    this._diagnostics.push(diagnostic)
     if (diagnostic.itemId) {
       const item = this._items.find((i) => i.id === diagnostic.itemId)
       item?.diagnostics.push(diagnostic)
