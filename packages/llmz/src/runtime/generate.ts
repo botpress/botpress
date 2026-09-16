@@ -22,6 +22,18 @@ const RESPONSE_LENGTH_BUFFER = {
 /** Maximum time to wait between two stream chunks before considering the stream stalled. */
 const STREAM_INACTIVITY_TIMEOUT = 180_000
 
+/** A syntactically valid prefix must not execute when generation did not finish successfully. */
+const assertSuccessfulGeneration = (metadata: CognitiveMetadata) => {
+  // Cognitive's stream error envelope ends normally with provider "unknown".
+  // Transport EOF plus metadata alone therefore does not prove success.
+  if (metadata.provider === 'unknown') {
+    throw new CognitiveError('LLM generation failed: received error metadata with unknown provider')
+  }
+  if (metadata.stopReason === 'max_tokens' || metadata.stopReason === 'content_filter') {
+    throw new CognitiveError(`LLM generation did not complete: stopReason=${metadata.stopReason}`)
+  }
+}
+
 const getModelOutputLimit = (inputLength: number) =>
   clamp(
     RESPONSE_LENGTH_BUFFER.PERCENTAGE * inputLength,
@@ -61,8 +73,8 @@ type GenerateCodeProps = {
 
 /**
  * Models sometimes wrap their whole response in a code fence. The fence has to
- * be removed before it reaches the incremental parser, otherwise it would be
- * recovered as an unexpected-text message. Works on arbitrary chunk boundaries
+ * be removed before it reaches the incremental parser to avoid a spurious
+ * unexpected-text diagnostic. Works on arbitrary chunk boundaries
  * by holding content back until the first newline.
  */
 class LeadingFenceFilter {
@@ -251,7 +263,7 @@ export const generateCode = async ({
   }
 
   if (typeof cognitive.generateTextStream === 'function') {
-    // Parse and deliver messages incrementally, including in fallback mode.
+    // Only explicit sends may reach either preview or completed-message callbacks.
     let parser = new StreamingMessageParser()
     let fence = new LeadingFenceFilter()
 
@@ -358,6 +370,7 @@ export const generateCode = async ({
       if (!responseMetadata) {
         throw new CognitiveError('LLM streaming completed without metadata')
       }
+      assertSuccessfulGeneration(responseMetadata)
 
       const remaining = fence.flush()
       if (remaining) {
@@ -365,7 +378,7 @@ export const generateCode = async ({
       }
       await dispatchSends(parser.finish())
 
-      assistantResponse = toParsedAssistantResponse(parser.items, raw)
+      assistantResponse = toParsedAssistantResponse(parser.items, raw, parser.diagnostics)
     } finally {
       // Release transport resources and the joined signal's parent listener,
       // including when a callback throws or an unexpected restart is rejected.
@@ -389,11 +402,15 @@ export const generateCode = async ({
       throw new CognitiveError(`LLM generation failed: ${getErrorMessage(thrown)}`)
     })
 
+    if (response.error) {
+      throw new CognitiveError(`LLM generation failed: ${response.error}`)
+    }
     if (!response.output) {
       throw new CognitiveError('LLM did not return any text output')
     }
 
     responseMetadata = response.metadata
+    assertSuccessfulGeneration(responseMetadata)
     raw = response.output
     assistantResponse = ctx.version.parseAssistantResponse(raw)
 
@@ -416,6 +433,7 @@ export const generateCode = async ({
     tokens: usage.inputTokens + usage.outputTokens,
     spend: responseMetadata.cost ?? usage.inputCost + usage.outputCost,
     output: assistantResponse.raw,
+    diagnostics: assistantResponse.diagnostics,
     model: `${responseMetadata.provider}:${responseMetadata.model}`,
     time_to_first_token: timeToFirstToken,
     time_to_last_token: timeToLastToken,
