@@ -6,12 +6,14 @@ const token = process.env.CLOUD_PAT
 const botId = process.env.CLOUD_BOT_ID
 const apiUrl = process.env.COGNITIVE_API_URL ?? process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.cloud'
 
-describe.skipIf(!token || !botId)('Cognitive e2e — Mercury 2.5 and service tier', () => {
+// Live model output and provider availability can vary; retain the same assertions on every attempt.
+describe.skipIf(!token || !botId)('Cognitive e2e — Mercury 2.5 and service tier', { retry: 2 }, () => {
   const cases = [
     // Mercury requires reasoning and needs room for it before producing the reply.
     {
       model: 'inception:mercury-2.5',
       provider: 'inception',
+      temperature: 0,
       reasoningEffort: 'low' as const,
       maxTokens: 512,
       options: { skipCache: true },
@@ -19,6 +21,7 @@ describe.skipIf(!token || !botId)('Cognitive e2e — Mercury 2.5 and service tie
     {
       model: 'openai:gpt-5.4-mini',
       provider: 'openai',
+      temperature: undefined,
       reasoningEffort: 'none' as const,
       maxTokens: 64,
       options: { skipCache: true, serviceTier: 'fast' as const },
@@ -27,12 +30,13 @@ describe.skipIf(!token || !botId)('Cognitive e2e — Mercury 2.5 and service tie
 
   test.each(cases)(
     '$model supports nonstreaming generation ($options.serviceTier)',
-    async ({ model, provider, options, reasoningEffort, maxTokens }) => {
+    async ({ model, provider, options, reasoningEffort, maxTokens, temperature }) => {
       const cognitive = new Cognitive({ apiUrl, token, botId, timeout: 30000 })
       const response = await cognitive.generateText({
         model,
         messages: [{ role: 'user', content: 'Reply with exactly: pong' }],
         maxTokens,
+        temperature,
         reasoningEffort,
         options,
       })
@@ -53,12 +57,13 @@ describe.skipIf(!token || !botId)('Cognitive e2e — Mercury 2.5 and service tie
 
   test.each(cases)(
     '$model supports streaming generation ($options.serviceTier)',
-    async ({ model, provider, options, reasoningEffort, maxTokens }) => {
+    async ({ model, provider, options, reasoningEffort, maxTokens, temperature }) => {
       const cognitive = new Cognitive({ apiUrl, token, botId, timeout: 30000 })
       const request: CognitiveRequest = {
         model,
         messages: [{ role: 'user', content: 'Reply with exactly: pong' }],
         maxTokens,
+        temperature,
         reasoningEffort,
         options,
       }
