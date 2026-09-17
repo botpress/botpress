@@ -22,6 +22,13 @@ export const interpretVMResult = async ({
   startedAt,
   onExit,
 }: InterpretVMResultProps) => {
+  // Preserve locals independently of the returned value. Returning a scalar
+  // (or failing after a successful call) must not erase variables needed later.
+  Object.assign(
+    iteration.variables,
+    Object.fromEntries(Object.entries(result.variables ?? {}).filter(([, value]) => value !== '[[non-primitive]]'))
+  )
+
   if (result.error && result.error instanceof InvalidCodeError) {
     iteration.end({
       type: 'invalid_code_error',
@@ -78,6 +85,7 @@ export const interpretVMResult = async ({
         variables: result.signal.context,
         reason: result.signal.reason,
         metadata: result.signal.metadata,
+        interrupted: true,
       },
     })
     return
@@ -170,11 +178,14 @@ export const applyNextExit = async ({
   const returnValue = { action: next.name, value: parsedExit.success ? parsedExit.value : next.props }
 
   if (!parsedExit.success) {
+    const details = parsedExit.validationErrors?.join('; ')
+    const error = [parsedExit.error.split('\n')[0], details].filter(Boolean).join('. ')
+
     iteration.end({
       type: 'exit_error',
       exit_error: {
         exit: next.name,
-        message: parsedExit.error,
+        message: `${error}. Received props: ${JSON.stringify(next.props)}. Choose an exit from <exits> and supply its required props as ONE JSON object on the SAME LINE as ■next=${next.name}. Do not use a JavaScript return statement or wrap the fields in "value" or "props".`,
         return_value: returnValue,
       },
     })

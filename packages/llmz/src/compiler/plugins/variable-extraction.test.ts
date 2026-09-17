@@ -334,18 +334,14 @@ describe('variableExtractionBabelPlugin', () => {
       bar(3, 4);
     `
     expect(await transform(code)).toMatchInlineSnapshot(`
-      "const foo = (a, b) => {
-        __var__("a", () => eval("a"));
-        __var__("b", () => eval("b"));
-        return console.log(a, b);
-      };
+      "const foo = (a, b) => (
+        __var__("a", () => eval("a")),
+        __var__("b", () => eval("b")),
+        console.log(a, b)
+      );
       __var__("foo", () => eval("foo"));
       foo(1, 2);
-      const bar = (a, b) => {
-        __var__("a", () => eval("a"));
-        __var__("b", () => eval("b"));
-        return a + b;
-      };
+      const bar = (a, b) => (__var__("a", () => eval("a")), __var__("b", () => eval("b")), a + b);
       __var__("bar", () => eval("bar"));
       bar(3, 4);"
     `)

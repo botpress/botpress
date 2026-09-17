@@ -8,7 +8,10 @@ import { expect } from 'vitest'
  * The models used by the e2e suites, as a fallback chain. Every request that
  * does not pin an explicit model is rewritten to this list.
  */
+// Runtime integration tests use a reference model. The opt-in model suites
+// separately exercise GPT-OSS, Qwen, Mercury, and the reference model without fallbacks.
 export const TEST_MODELS = [
+  'openai:gpt-5.6-luna',
   'cerebras:gemma-4-31b',
   'cerebras:gpt-oss-120b',
   'anthropic:claude-haiku-4-5-20251001',
@@ -119,7 +122,8 @@ type CacheEntry = {
   chunks?: CognitiveStreamChunk[]
 }
 
-const CACHE_PATH = path.resolve(__dirname, './cache.jsonl')
+// Override with a new path to run against a fresh cache without growing the checked-in fixture.
+const CACHE_PATH = process.env.LLMZ_E2E_CACHE_PATH ?? path.resolve(__dirname, './cache.jsonl')
 
 const cache: Map<string, CacheEntry> = readJSONL(CACHE_PATH, 'key')
 

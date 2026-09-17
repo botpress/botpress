@@ -5,6 +5,37 @@ import { Trace, Traces } from '../types.js'
 import { runAsyncFunction } from './index.js'
 
 describe('llmz/vm', () => {
+  it('executes parenthesized arrow expressions without corrupting their syntax', async () => {
+    const result = await runAsyncFunction(
+      {},
+      `
+const values = [1, 3, 2].map(value => ({ value }));
+return values.reduce((a, b) => (a.value > b.value ? a : b));
+`,
+      []
+    )
+    expect(result.success).toBe(true)
+    assert(result.success)
+    expect(result.return_value).toEqual({ value: 3 })
+  })
+
+  it('preserves await expressions inside synchronous call arguments', async () => {
+    const result = await runAsyncFunction(
+      {},
+      `
+const values = [];
+for (let i = 0; i < 3; i++) {
+  values.push(await Promise.resolve(i + 1));
+}
+return values;
+`,
+      []
+    )
+    expect(result.success).toBe(true)
+    assert(result.success)
+    expect(result.return_value).toEqual([1, 2, 3])
+  })
+
   it('stack traces points to original source map code', async () => {
     const code = `
 // line 1

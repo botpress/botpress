@@ -9,6 +9,7 @@ import { Traces } from '../src/types.js'
 import { getCachedCognitiveClient } from './__tests__/index.js'
 import { ObjectInstance } from '../src/objects.js'
 import { Exit } from '../src/exit.js'
+import { Example } from '../src/example.js'
 import { ThinkSignal } from '../src/errors.js'
 
 const client = getCachedCognitiveClient()
@@ -248,18 +249,23 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
       const result = await llmz.executeContext({
         options: { loop: 3 },
         exits: [eStrict],
-        instructions:
-          'First try to return invalid data: email="not-an-email", age=200. When that fails, return valid data: email="user@example.com", age=25.',
+        instructions: 'Return email user@example.com and age 25 through the result exit.',
         tools: [tNoOp],
         client,
+        onBeforeExecution: async (iteration) => {
+          if (iteration.id.endsWith('_1')) {
+            // Inject the validation failure deterministically, rather than
+            // asking the model to deliberately generate a malformed response.
+            iteration.next = { name: 'result', props: { email: 'not-an-email', age: 200 } }
+          }
+          return {}
+        },
       })
 
-      // Should eventually succeed with valid data
+      expect(result.iterations[0]!.status.type).toBe('exit_error')
       assertSuccess(result)
       assert(result.is(eStrict))
-      expect(result.output.email).toContain('@')
-      expect(result.output.age).toBeGreaterThanOrEqual(0)
-      expect(result.output.age).toBeLessThanOrEqual(150)
+      expect(result.output).toEqual({ email: 'user@example.com', age: 25 })
     })
   })
 
@@ -749,7 +755,20 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
         options: { loop: 5 },
         exits: [eResult],
         instructions:
-          'Find and delete work-related files with corrupted data. Return the list of deleted files, total work files found, and count of corrupted files. The only way to identify corrupted files is by reading their contents and inspecting them yourself — corruption cannot be reliably detected by code heuristics, so return the contents and look at them before deciding which files to delete. Only read work-related files — never open personal files.',
+          'Find and delete work-related files with corrupted data. Return the list of deleted files, total work files found, and count of corrupted files. First return the list of filenames and inspect it before choosing which files to read. Select work files by the meaning of their names, not a guessed keyword or extension filter. Then read the selected files, return their contents, and inspect them yourself before deciding which files to delete — corruption cannot be reliably detected by code heuristics. Only read work-related files — never open personal files.',
+        examples: [
+          new Example({
+            situation: 'The task requires inspecting work files, but no filenames have been listed yet.',
+            code: 'return await listFiles()',
+            reason: 'Inspect the actual names before deciding which files are in scope.',
+          }),
+          new Example({
+            situation:
+              'The returned filenames are invoice.txt, holiday.jpg, and project_notes.md. The task is to inspect work files only.',
+            code: 'return await Promise.all([readFile({ filename: "invoice.txt" }), readFile({ filename: "project_notes.md" })])',
+            reason: 'These two names concern work; the holiday photo is personal and must not be opened.',
+          }),
+        ],
         tools: [tListFiles, tReadFile, tDeleteFile],
         client,
         // Multi-step judgement task (corruption must be identified by inspecting
@@ -947,7 +966,8 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
       const result = await llmz.executeContext({
         options: { loop: 2 },
         exits: [eResult],
-        instructions: 'Call the original tool and return its value.',
+        instructions:
+          'Call original once. After code execution returns a value, immediately finish with done using that returned value.',
         tools: [tOriginal, tModified],
         client,
 

@@ -1,17 +1,19 @@
 import { isPlainObject } from 'lodash-es'
+import { renderExamples } from '../example.js'
 import { inspect } from '../inspect.js'
 import { cleanStackTrace } from '../stack-traces.js'
 import { wrapContent } from '../truncator.js'
 
-import CHAT_SYSTEM_PROMPT_TEXT from './chat-mode/system.md.js'
-import CHAT_USER_PROMPT_TEXT from './chat-mode/user.md.js'
+import CHAT_SYSTEM_PROMPT_TEXT from './chat-mode/system.js'
+import CHAT_USER_PROMPT_TEXT from './chat-mode/user.js'
 
 import { parseAssistantResponse, replacePlaceholders } from './common.js'
+import { getExecutionState } from './execution-state.js'
 import { LLMzPrompts, Prompt } from './prompt.js'
 import { getProtocolInstructions } from './protocol.js'
 
-import WORKER_SYSTEM_PROMPT_TEXT from './worker-mode/system.md.js'
-import WORKER_USER_PROMPT_TEXT from './worker-mode/user.md.js'
+import WORKER_SYSTEM_PROMPT_TEXT from './worker-mode/system.js'
+import WORKER_USER_PROMPT_TEXT from './worker-mode/user.js'
 
 const getSystemMessage: Prompt['getSystemMessage'] = async (props) => {
   let dts = ''
@@ -79,6 +81,7 @@ ${variables_example}
 
   const identity = props.instructions?.length ? props.instructions : 'No specific instructions provided'
   const transcript = props.transcript.toString()
+  const examples = await renderExamples(props.examples ?? [], props.components, props.exits)
   const protocol = getProtocolInstructions({ components: props.components, exits: props.exits })
 
   return {
@@ -102,6 +105,7 @@ ${variables_example}
         readonly_vars: readonly_vars.join(', '),
         writeable_vars: writeable_vars.join(', '),
         variables_example,
+        few_shots: examples,
         protocol: wrapContent(protocol, {
           preserve: 'both',
           minTokens: 500,
@@ -113,6 +117,7 @@ ${variables_example}
       tools: dts,
       transcript,
       protocol,
+      examples,
     },
   }
 }
@@ -122,7 +127,7 @@ const getInitialUserMessage: Prompt['getInitialUserMessage'] = async (props) => 
   const transcript = [...props.transcript].reverse()
   let recap = isChatMode
     ? 'Nobody has spoken yet in this conversation. You can start by saying something.'
-    : 'Nobody has spoken yet in this conversation.'
+    : 'Carry out the assigned task.'
 
   if (transcript.length && transcript[0]?.role === 'user') {
     const lastContent = transcript[0].content.trim()
@@ -134,31 +139,31 @@ const getInitialUserMessage: Prompt['getInitialUserMessage'] = async (props) => 
         'The user spoke last. They sent a voice message: what they said is spoken out loud in the attached audio, not typed as text.'
     } else if (lastHasVoiceAudio) {
       recap = `The user spoke last. They sent a voice message (spoken audio, attached below) along with this text:
-■im_start
+<last_message>
 ${lastContent}
-■im_end`.trim()
+</last_message>`.trim()
     } else if (lastIsVoice) {
       recap =
         `The user spoke last. They sent a voice message — the text below is a transcript of what they said out loud:
-■im_start
+<last_message>
 ${lastContent}
-■im_end`.trim()
+</last_message>`.trim()
     } else {
       recap = `The user spoke last. Here's what they said:
-■im_start
+<last_message>
 ${lastContent}
-■im_end`.trim()
+</last_message>`.trim()
     }
   } else if (transcript.length && transcript[0]?.role === 'assistant') {
     recap = `You are the one who spoke last. Here's what you said last:
-■im_start
+<last_message>
 ${transcript[0]?.content.trim()}
-■im_end`.trim()
+</last_message>`.trim()
   } else if (transcript.length && transcript[0]?.role === 'event') {
     recap = `An event was triggered last. Here's what it was:
-■im_start
+<last_message>
 ${inspect(transcript[0]?.payload, transcript[0]?.name, { tokens: 5000 })}
-■im_end`.trim()
+</last_message>`.trim()
   }
 
   const attachments = transcript
@@ -216,6 +221,9 @@ ${inspect(transcript[0]?.payload, transcript[0]?.name, { tokens: 5000 })}
   }
 }
 
+const recoveryReminder =
+  'Recover SILENTLY by default: do not send apologies, error reports, or retry announcements between attempts. Keep attempts bounded. Give the final answer when ready; mention a failure only if it still blocks completion or requires user input. Explicit requests or applicable examples for recovery updates override these defaults. If updates are requested after EACH failure, send one for THIS failure before retrying, even if its wording matches an earlier update.'
+
 const getInvalidCodeMessage = async (props: LLMzPrompts.InvalidCodeProps): Promise<LLMzPrompts.Message> => {
   return {
     role: 'user',
@@ -235,14 +243,17 @@ Error:
 ${wrapContent(props.message, { flex: 4 })}
 \`\`\`
 
-Please fix the error and try again.
+Fix the error within the remaining generation budget. If the task also sets a tool-attempt limit, count actual tool calls only: an invalid response that executed no tool does not consume a tool attempt.
+${/\n\s*<\/run>\s*$/.test(props.code) ? 'The trailing </run> is the syntax error. DELETE that line. A ■run block is plain JavaScript, not XML: end your response after the last JavaScript line, with NO closing tag.' : ''}
+${props.isChatEnabled === false ? '' : `${recoveryReminder}\nAny messages already sent have been delivered. Do not repeat them while correcting the code or exit.`}
 
 Expected response format (■ blocks):
+For an exit, put ALL required props in a JSON object on the SAME LINE as ■next=<exit>. An exit has NO body: putting the object on the next line leaves its props missing.
 
 ■run
 // code here
 
-Or end your turn with:
+Or finish with:
 
 ■next=<exit> {props?}
 `.trim(),
@@ -266,9 +277,13 @@ Stack Trace:
 ${wrapContent(cleanStackTrace(props.stacktrace), { flex: 6, preserve: 'top' })}
 \`\`\`
 
-Let the user know that an error occurred, and if possible, try something else. Do not repeat yourself in the message.
+${props.variables ? `Variables preserved from execution:\n${wrapContent(inspect(props.variables) ?? '', { preserve: 'top' })}` : ''}
+${props.toolCalls ? `Tool results from this attempt (including parallel calls):\n${wrapContent(inspect(props.toolCalls) ?? '', { preserve: 'top' })}` : ''}
 
-Continue with a new response using ■ blocks (■send / ■run / ■next).
+If the task sets a tool-attempt limit, count actual calls across ALL previous responses, including the call that just failed. The initial call counts as one attempt; retries use the remaining attempts. Invalid code that called no tool is not a tool attempt. If the limit is reached, DO NOT call the tool again; finish with the available outcome. Do not invent a tool-attempt limit when none was assigned. Always respect the generation budget separately.
+Otherwise, resume at the FAILED operation; do not restart the whole code block. Reuse preserved data instead of repeating successful reads or side effects. For a temporary failure, retry the failed operation when attempts remain; for invalid code or inputs, correct the cause first. Then continue the remaining work. ${props.isChatEnabled === false ? 'If completion is blocked, use an available exit to report the outcome according to the assigned task.' : recoveryReminder}
+
+Continue with a new response using the available ■ blocks.
 `.trim(),
   }
 }
@@ -312,15 +327,21 @@ const getThinkingMessage = async (props: LLMzPrompts.ThinkingProps): Promise<LLM
     content: `
 ## Important message from the VM
 
-The code execution completed. Here's the context:
+${props.interrupted ? 'A tool paused code execution to request your attention. Its reason and context below may supply a result or request further work.' : "The code execution completed. Here's the context:"}
 -------------------
 Reason: ${props.reason || 'Code execution returned a value'}
 Context:
 ${wrapContent(context, { preserve: 'top' })}
 -------------------
 
-Continue with a new response using ■ blocks. Do not re-run the code above; use its result.
-Any ■send messages from your previous response have already been delivered to the user — never repeat or rephrase them; continue from where you left off.
+Continue with a new response using ■ blocks. ${props.interrupted ? "Follow the tool's request. If it supplied no result and the task still needs one, call that tool again after addressing its request. Do not repeat earlier operations that already succeeded." : 'Do not re-run successful code or tools. An empty result is normal for tools that return no value; it does NOT mean execution failed. Do not repeat reads just to verify these successful operations. Use the available results; if the task is complete, finish with an available exit.'} A successful search with NO matches has not answered the question: run a refined query when it could help. A different query is new work, not a repeat of the successful call. Keep internal deliberation private.
+${
+  props.isChatEnabled === false
+    ? ''
+    : props.discardedMessages
+      ? 'Messages generated after the returning code were discarded: you wrote them before seeing the result. They were NOT delivered and are NOT evidence. Answer now using the actual result above. Any messages before that code were already delivered; do not repeat those.'
+      : 'Any ■send messages from your previous response have already been delivered to the user — never repeat or rephrase them; continue from where you left off.'
+}
 `.trim(),
   }
 }
@@ -369,7 +390,7 @@ ${cleanStackTrace(props.snapshot.stack).split('\n').slice(0, -1).join('\n')}
  * */
 \`\`\`
 
-Continue the conversation from here, without repeating the above code, as it has already been executed. Here's the variables you can rely on:
+Continue the task from here, without repeating the above code, as it has already been executed. Here's the variables you can rely on:
 
 \`\`\`tsx
 ${wrapContent(variablesMessage)}
@@ -378,9 +399,9 @@ ${wrapContent(variablesMessage)}
 You can now assume that the code you about to generate can rely on the variables "${Object.keys(injectedVariables).join('", "')}" being available.
 There are NO OTHER VARIABLES than the ones listed above.
 
-IMPORTANT: Do NOT re-run the code that was already executed. This would be a critical error. Instead, continue the conversation from here.
+IMPORTANT: Do NOT re-run the code that was already executed. This would be a critical error. Instead, continue the task from here.
 
-Continue with a new response using ■ blocks (■send / ■run / ■next).
+Continue with a new response using the available ■ blocks.
 `.trim(),
   }
 }
@@ -410,10 +431,10 @@ ${cleanStackTrace(props.snapshot.stack).split('\n').slice(0, -1).join('\n')}
 Here's the error:
 ${output}
 
-Continue the conversation from here, without repeating the above code, as it has already been executed.
-IMPORTANT: Do NOT re-run the code that was already executed. This would be a critical error. Instead, continue the conversation from here.
+Continue the task from here, without repeating the above code, as it has already been executed.
+IMPORTANT: Do NOT re-run the code that was already executed. This would be a critical error. Instead, continue the task from here.
 
-Continue with a new response using ■ blocks (■send / ■run / ■next).
+Continue with a new response using the available ■ blocks.
 `.trim(),
   }
 }
@@ -422,6 +443,7 @@ const getStopTokens = () => []
 
 export const DualModePrompt: Prompt = {
   getSystemMessage,
+  getExecutionState,
   getInitialUserMessage,
   getThinkingMessage,
   getInvalidCodeMessage,

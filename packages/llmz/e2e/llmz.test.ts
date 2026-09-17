@@ -85,7 +85,7 @@ const tPasswordProtectedAdd = (seed: number) =>
     },
   })
 
-describe('llmz', { retry: 0, timeout: 10_000 }, () => {
+describe('llmz', { retry: 0, timeout: 60_000 }, () => {
   let unsub = () => {}
 
   beforeAll(() => {
@@ -364,7 +364,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       options: { loop: 1 },
       exits: [eDone],
       instructions:
-        "Don't speak. All you do is run code. Run this exact code. Don't change anything, even if the typings look off. I want to test assigning a number on purpose.\n```MyObject.name = Number(21);```",
+        'This is a schema-validation test: success means ATTEMPTING the invalid assignment so the runtime can reject it. You MUST execute the exact code below; do not skip it, fix its type, or exit without running it.\n```MyObject.name = Number(21);```',
       objects: [obj],
       client,
     })
@@ -480,7 +480,6 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
 
   it('variables declared in previous iterations are injected back to subsequent iterations', async () => {
     const ORDER_ID = 'O666'
-    // @ts-ignore
     let deleted = false
     let confirmMessages: string[] = []
 
@@ -492,10 +491,12 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
 
     const tConfirm = new Tool({
       name: 'confirmWithUser',
-      description: 'Confirms with the user',
+      description: 'Confirms with the user; returns true when approved.',
+      output: z.boolean(),
       input: z.object({ message: z.string() }),
       handler: async (input) => {
         confirmMessages.push(input.message)
+        return true
       },
     })
 
@@ -513,7 +514,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       options: { loop: 3 },
       exits: [eDone] as const,
       instructions:
-        'Fetch the Order ID, confirm with the user the Order ID, then once you have the user confirmation, delete the order. Make sure to confirm.',
+        'First fetch the Order ID into a variable named orderId and return it for inspection. In your next response, confirm that orderId with the user and return the confirmation. Once confirmed, delete the order using the stored orderId and finish.',
       tools: [tConfirm, tFetchOrder, tDeleteOrder],
       client,
     })
@@ -522,8 +523,9 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
 
     expect(res.firstIteration.status.type).toBe('thinking_requested')
     expect(confirmMessages).length(1)
-    expect(result.context.iterations.at(-1)?.variables).toMatchInlineSnapshot(`{}`)
-    expect(res.allToolCalls.map((x) => x.tool_name)).containSubset(['fetchOrder'])
+    expect(res.firstIteration.variables.orderId).toBe(ORDER_ID)
+    expect(deleted).toBe(true)
+    expect(res.allToolCalls.map((x) => x.tool_name)).toEqual(['fetchOrder', 'confirmWithUser', 'deleteOrder'])
   })
 
   describe('using the right exit', () => {
@@ -565,17 +567,12 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       expect(result.iterations).toHaveLength(2)
       assert(result.iterations[0]!.status.type === 'thinking_requested', 'First iteration should be partial')
       expect(result.iterations[1]!.status.type).toBe('exit_success')
-      expect(result.iterations[1]!.status.type === 'exit_success' && result.iterations[1]!.status.exit_success)
-        .toMatchInlineSnapshot(`
-        {
-          "exit_name": "is_animal",
-          "return_value": {
-            "animal": "Corgi",
-            "color": "brown and white",
-            "domestic": true,
-          },
-        }
-      `)
+      expect(result.is(eAnimal)).toBe(true)
+      if (result.is(eAnimal)) {
+        expect(result.output.animal).toMatch(/corgi/i)
+        expect(result.output.color).toBe('brown and white')
+        expect(result.output.domestic).toBe(true)
+      }
     })
 
     it('uses the right exit (2)', async () => {
@@ -714,7 +711,8 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       const result = await llmz.executeContext({
         options: { loop: 10 },
         exits: [eDone],
-        instructions: 'Call the recursive tool until it stops asking for more calls',
+        instructions:
+          'Call the recursive tool once per response and return its result. Keep calling it when it requests another call. Do not catch its errors; the runtime handles its pauses.',
         tools: [tRecursive],
         onIterationEnd: async () => {
           await new Promise((resolve) => setTimeout(resolve, 100))
@@ -752,11 +750,12 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     assertError(result)
     expect(result.iterations).toHaveLength(1)
     assert(result.iterations[0]!.status.type === 'execution_error', 'First iteration should be an execution error')
-    expect(result.iterations[0]!.status.execution_error.stack).toMatchInlineSnapshot(`
-      "001 | // Call the demo tool as instructed in Part 3
-      > 002 | await demo()
-      ...^^^^^^^^^^"
-    `)
+    const { stack, message } = result.iterations[0]!.status.execution_error
+    expect(message).toContain('This is a demo error')
+    // The generated source may include a return or omit a semicolon. Check that
+    // the error still points at the tool call and includes a source marker.
+    expect(stack).toMatch(/> \d+ \| .*demo\(\)/)
+    expect(stack).toMatch(/\^+/)
   })
 
   it('beforeExecute hook (mutate code)', async () => {

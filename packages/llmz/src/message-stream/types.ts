@@ -31,6 +31,8 @@ export type DiagnosticCode =
   | 'invalid-props'
   | 'props-too-long'
   | 'unexpected-text'
+  // Execution-level: messages emitted after code returning a value are premature.
+  | 'send-after-run'
   | 'interrupted'
   // Validation-level (emitted by the component validator)
   | 'unknown-component'

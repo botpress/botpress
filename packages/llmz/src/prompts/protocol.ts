@@ -1,6 +1,7 @@
 import { transforms, z } from '@bpinternal/zui'
 import { JSONSchema7 } from 'json-schema'
 
+import { DefaultComponents } from '../component.default.js'
 import { Component, ComponentDefinition } from '../component.js'
 import { Exit } from '../exit.js'
 import { generateInstructions } from '../message-stream/instructions.js'
@@ -32,8 +33,8 @@ const getPropsSchema = (definition: ComponentDefinition): z.ZodObject<any> => {
  */
 export const componentToProtocolDefinition = (component: Component): NormalizedComponentDefinition => {
   const definition = component.definition
-  const supportsBody = definition.type !== 'leaf'
-  const bodyOptions = definition.type !== 'leaf' ? definition.body : undefined
+  const supportsBody = definition.type !== 'leaf' && definition.body !== false
+  const bodyOptions = definition.type !== 'leaf' && definition.body ? definition.body : undefined
 
   return {
     name: definition.name.toLowerCase(),
@@ -61,10 +62,35 @@ export const exitToProtocolDefinition = (exit: Exit): NormalizedExitDefinition =
  * Builds the model-facing protocol reference (syntax, component catalog, exit
  * catalog and examples) for the current iteration.
  */
-export const getProtocolInstructions = ({ components, exits }: { components: Component[]; exits: Exit[] }): string =>
-  generateInstructions(components.map(componentToProtocolDefinition), {
+export const getProtocolInstructions = ({ components, exits }: { components: Component[]; exits: Exit[] }): string => {
+  const instructions = generateInstructions(components.map(componentToProtocolDefinition), {
     exits: exits.map(exitToProtocolDefinition),
     includeRun: true,
     verbosity: 'standard',
     includeExamples: true,
   })
+
+  const listen = exits.map(exitToProtocolDefinition).find((exit) => exit.name === 'listen')
+  if (
+    !components.includes(DefaultComponents.Text) ||
+    !components.includes(DefaultComponents.Button) ||
+    !listen ||
+    listen.propsJsonSchema?.required?.length
+  ) {
+    return instructions
+  }
+
+  return `${instructions}
+
+<button_choices_example>
+One response can contain a question and several button choices. Send each button as its own block, then wait for the user with ONE final exit.
+<example>
+■send=message
+How can I help with your order?
+■send=button {"action":"say","label":"Track my order"}
+■send=button {"action":"say","label":"Return an item"}
+■send=button {"action":"say","label":"Contact support"}
+■next=listen
+</example>
+</button_choices_example>`
+}
