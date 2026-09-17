@@ -65,7 +65,7 @@ export const getTicket: bp.IntegrationProps['actions']['getTicket'] = async ({ c
   const propertyKeys = await _getTicketPropertyKeys(hsClient)
 
   const ticket = await hsClient.getTicketById({
-    ticketId: Number(input.ticketId),
+    ticketId: input.ticketId,
     propertiesToReturn: propertyKeys,
   })
 

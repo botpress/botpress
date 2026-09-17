@@ -330,8 +330,8 @@ export class HubspotClient {
   }
 
   @handleErrors('Failed to get ticket by ID')
-  public async getTicketById({ ticketId, propertiesToReturn }: { ticketId: number; propertiesToReturn?: string[] }) {
-    const ticket = await this._hsClient.crm.tickets.basicApi.getById(ticketId.toString(), [
+  public async getTicketById({ ticketId, propertiesToReturn }: { ticketId: string; propertiesToReturn?: string[] }) {
+    const ticket = await this._hsClient.crm.tickets.basicApi.getById(ticketId, [
       ...DEFAULT_TICKET_PROPERTIES,
       ...(propertiesToReturn ?? []),
     ])
@@ -611,7 +611,9 @@ export class HubspotClient {
 
     const ticketCreateInput: Parameters<OfficialHubspotClient['crm']['tickets']['basicApi']['create']>[0] = {
       properties: {
-        subject,
+        // Trimmed on write because searchTicket trims its input too, so an untrimmed subject would be
+        // unreachable by an exact-match search:
+        subject: subject.trim(),
         ...(resolvedCategory ? { hs_ticket_category: resolvedCategory.coercedValue.toString() } : {}),
         ...(description ? { content: description } : {}),
         ...(pipeline ? { hs_pipeline: pipeline.id } : {}),
@@ -678,35 +680,30 @@ export class HubspotClient {
     source?: string
     additionalProperties: Record<string, string>
   }) {
-    const resolvedCategory = category
-      ? await this._resolveAndCoerceProperty({
-          nameOrLabel: 'hs_ticket_category',
-          value: category,
-          type: 'ticket',
-        })
-      : undefined
+    const resolvedCategory = await this._resolveUpdatedProperty({
+      nameOrLabel: 'hs_ticket_category',
+      value: category,
+      type: 'ticket',
+    })
 
-    const resolvedPriority = priority
-      ? await this._resolveAndCoerceProperty({
-          nameOrLabel: 'hs_ticket_priority',
-          value: priority,
-          type: 'ticket',
-        })
-      : undefined
+    const resolvedPriority = await this._resolveUpdatedProperty({
+      nameOrLabel: 'hs_ticket_priority',
+      value: priority,
+      type: 'ticket',
+    })
 
-    const resolvedSource = source
-      ? await this._resolveAndCoerceProperty({
-          nameOrLabel: 'source_type',
-          value: source,
-          type: 'ticket',
-        })
-      : undefined
+    const resolvedSource = await this._resolveUpdatedProperty({
+      nameOrLabel: 'source_type',
+      value: source,
+      type: 'ticket',
+    })
 
-    let pipeline = pipelineNameOrId ? await this._getTicketPipeline({ nameOrLabel: pipelineNameOrId }) : undefined
+    let pipeline =
+      pipelineNameOrId !== undefined ? await this._getTicketPipeline({ nameOrLabel: pipelineNameOrId }) : undefined
 
     // A stage only exists within a pipeline. Moving a ticket to another stage of the pipeline it is already in is
     // the common case, so fall back to that pipeline instead of silently dropping the requested stage:
-    if (pipelineStageNameOrId && !pipeline) {
+    if (pipelineStageNameOrId !== undefined && !pipeline) {
       const currentTicket = await this._hsClient.crm.tickets.basicApi.getById(ticketId, ['hs_pipeline'])
 
       if (!currentTicket.properties.hs_pipeline) {
@@ -717,7 +714,7 @@ export class HubspotClient {
     }
 
     const pipelineStage =
-      pipelineStageNameOrId && pipeline
+      pipelineStageNameOrId !== undefined && pipeline
         ? this._getTicketPipelineStage({
             nameOrLabel: pipelineStageNameOrId,
             stages: pipeline.stages,
@@ -729,25 +726,31 @@ export class HubspotClient {
       type: 'ticket',
     })
 
-    const ticketOwner = ticketOwnerEmailOrId
-      ? ticketOwnerEmailOrId.includes('@')
-        ? await this._retrieveOwnerByEmail({ email: ticketOwnerEmailOrId }).catch(() => {
-            throw new sdk.RuntimeError('Unable to find owner for ticket')
-          })
-        : { id: ticketOwnerEmailOrId }
-      : undefined
+    // Normalized like in createTicket. A blank subject trims down to an empty string, which clears it:
+    const trimmedSubject = subject?.trim()
 
+    const ticketOwner =
+      ticketOwnerEmailOrId !== undefined
+        ? ticketOwnerEmailOrId.includes('@')
+          ? await this._retrieveOwnerByEmail({ email: ticketOwnerEmailOrId }).catch(() => {
+              throw new sdk.RuntimeError('Unable to find owner for ticket')
+            })
+          : { id: ticketOwnerEmailOrId }
+        : undefined
+
+    // Every property is gated on `undefined` rather than truthiness: an empty string is a value the caller asked
+    // for, and is how Hubspot clears a property:
     const updatedTicket = await this._hsClient.crm.tickets.basicApi.update(ticketId, {
       properties: {
         ...resolvedProperties,
-        ...(subject ? { subject } : {}),
-        ...(resolvedCategory ? { hs_ticket_category: resolvedCategory.coercedValue.toString() } : {}),
-        ...(description ? { content: description } : {}),
+        ...(trimmedSubject !== undefined ? { subject: trimmedSubject } : {}),
+        ...(resolvedCategory !== undefined ? { hs_ticket_category: resolvedCategory } : {}),
+        ...(description !== undefined ? { content: description } : {}),
         ...(pipeline ? { hs_pipeline: pipeline.id } : {}),
         ...(pipelineStage ? { hs_pipeline_stage: pipelineStage.id } : {}),
-        ...(resolvedPriority ? { hs_ticket_priority: resolvedPriority.coercedValue.toString() } : {}),
-        ...(resolvedSource ? { source_type: resolvedSource.coercedValue.toString() } : {}),
-        ...(ticketOwner ? { hubspot_owner_id: ticketOwner.id } : {}),
+        ...(resolvedPriority !== undefined ? { hs_ticket_priority: resolvedPriority } : {}),
+        ...(resolvedSource !== undefined ? { source_type: resolvedSource } : {}),
+        ...(ticketOwner !== undefined ? { hubspot_owner_id: ticketOwner.id } : {}),
       },
     })
 
@@ -962,6 +965,25 @@ export class HubspotClient {
     if (unknownProperties.length) {
       throw new sdk.RuntimeError(`Unknown properties: ${unknownProperties.join(', ')}`)
     }
+  }
+
+  // Variant of _resolveAndCoerceProperty for updates: `undefined` means the caller left the property alone, while
+  // an empty string is how Hubspot clears one. Neither is a valid enumeration option, so neither is validated:
+  private async _resolveUpdatedProperty({
+    nameOrLabel,
+    value,
+    type,
+  }: {
+    nameOrLabel: string
+    value: string | undefined
+    type: CrmObjectType
+  }): Promise<string | undefined> {
+    if (value === undefined || value === '') {
+      return value
+    }
+
+    const { coercedValue } = await this._resolveAndCoerceProperty({ nameOrLabel, value, type })
+    return coercedValue.toString()
   }
 
   private async _resolveAndCoerceProperties({
