@@ -6,6 +6,7 @@ import {
 } from '@hubspot/api-client/lib/codegen/crm/contacts'
 import { FilterOperatorEnum as DealFilterOperator } from '@hubspot/api-client/lib/codegen/crm/deals'
 import { FilterOperatorEnum as LeadFilterOperator } from '@hubspot/api-client/lib/codegen/crm/objects/leads'
+import { FilterOperatorEnum as TicketFilterOperator } from '@hubspot/api-client/lib/codegen/crm/tickets'
 import { CrmObjectType } from '../../definitions/states'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { PropertiesCache } from './properties-cache'
@@ -241,6 +242,91 @@ export class HubspotClient {
       properties: resolvedProperties,
     })
     return updatedCompany
+  }
+
+  @handleErrors('Failed to search ticket')
+  public async searchTicket({
+    subject,
+    category,
+    priority,
+    propertiesToReturn,
+  }: {
+    subject?: string
+    category?: string
+    priority?: string
+    propertiesToReturn?: string[]
+  }) {
+    type SearchRequest = Parameters<OfficialHubspotClient['crm']['tickets']['searchApi']['doSearch']>[0]
+    type Filter = NonNullable<SearchRequest['filterGroups']>[number]['filters'][number]
+
+    // Resolved the same way as in createTicket, so a value that creates a ticket also finds it back:
+    const resolvedCategory = category
+      ? await this._resolveAndCoerceProperty({
+          nameOrLabel: 'hs_ticket_category',
+          value: category,
+          type: 'ticket',
+        })
+      : undefined
+
+    const resolvedPriority = priority
+      ? await this._resolveAndCoerceProperty({
+          nameOrLabel: 'hs_ticket_priority',
+          value: priority,
+          type: 'ticket',
+        })
+      : undefined
+
+    const filters: Filter[] = []
+
+    if (subject) {
+      filters.push({
+        propertyName: 'subject',
+        operator: TicketFilterOperator.Eq,
+        value: subject.trim(),
+      })
+    }
+
+    if (resolvedCategory) {
+      filters.push({
+        propertyName: resolvedCategory.propertyName,
+        operator: TicketFilterOperator.Eq,
+        value: resolvedCategory.coercedValue.toString(),
+      })
+    }
+
+    if (resolvedPriority) {
+      filters.push({
+        propertyName: resolvedPriority.propertyName,
+        operator: TicketFilterOperator.Eq,
+        value: resolvedPriority.coercedValue.toString(),
+      })
+    }
+
+    if (!filters.length) {
+      throw new sdk.RuntimeError('Missing required filters: subject, category and/or priority')
+    }
+
+    await this._validateProperties({ properties: propertiesToReturn ?? [], type: 'ticket' })
+
+    const tickets = await this._hsClient.crm.tickets.searchApi.doSearch({
+      filterGroups: [
+        {
+          filters,
+        },
+      ],
+      properties: [...DEFAULT_TICKET_PROPERTIES, ...(propertiesToReturn ?? [])],
+    })
+
+    const ticket = tickets.results[0]
+
+    if (!ticket) {
+      this._logger
+        .forBot()
+        .debug(`No ticket found for subject: ${subject}, category: ${category} and priority: ${priority}`)
+      return undefined
+    }
+
+    return ticket
   }
 
   @handleErrors('Failed to get ticket by ID')
@@ -566,6 +652,111 @@ export class HubspotClient {
     }
 
     return await this._hsClient.crm.tickets.basicApi.create(ticketCreateInput)
+  }
+
+  @handleErrors('Failed to update ticket')
+  public async updateTicket({
+    ticketId,
+    subject,
+    category,
+    description,
+    pipelineNameOrId,
+    pipelineStageNameOrId,
+    priority,
+    ticketOwnerEmailOrId,
+    source,
+    additionalProperties,
+  }: {
+    ticketId: string
+    subject?: string
+    category?: string
+    description?: string
+    pipelineNameOrId?: string
+    pipelineStageNameOrId?: string
+    priority?: string
+    ticketOwnerEmailOrId?: string
+    source?: string
+    additionalProperties: Record<string, string>
+  }) {
+    const resolvedCategory = category
+      ? await this._resolveAndCoerceProperty({
+          nameOrLabel: 'hs_ticket_category',
+          value: category,
+          type: 'ticket',
+        })
+      : undefined
+
+    const resolvedPriority = priority
+      ? await this._resolveAndCoerceProperty({
+          nameOrLabel: 'hs_ticket_priority',
+          value: priority,
+          type: 'ticket',
+        })
+      : undefined
+
+    const resolvedSource = source
+      ? await this._resolveAndCoerceProperty({
+          nameOrLabel: 'source_type',
+          value: source,
+          type: 'ticket',
+        })
+      : undefined
+
+    let pipeline = pipelineNameOrId ? await this._getTicketPipeline({ nameOrLabel: pipelineNameOrId }) : undefined
+
+    // A stage only exists within a pipeline. Moving a ticket to another stage of the pipeline it is already in is
+    // the common case, so fall back to that pipeline instead of silently dropping the requested stage:
+    if (pipelineStageNameOrId && !pipeline) {
+      const currentTicket = await this._hsClient.crm.tickets.basicApi.getById(ticketId, ['hs_pipeline'])
+
+      if (!currentTicket.properties.hs_pipeline) {
+        throw new sdk.RuntimeError('Ticket is missing pipeline information')
+      }
+
+      pipeline = await this._getTicketPipeline({ nameOrLabel: currentTicket.properties.hs_pipeline })
+    }
+
+    const pipelineStage =
+      pipelineStageNameOrId && pipeline
+        ? this._getTicketPipelineStage({
+            nameOrLabel: pipelineStageNameOrId,
+            stages: pipeline.stages,
+          })
+        : undefined
+
+    const resolvedProperties = await this._resolveAndCoerceProperties({
+      properties: additionalProperties,
+      type: 'ticket',
+    })
+
+    const ticketOwner = ticketOwnerEmailOrId
+      ? ticketOwnerEmailOrId.includes('@')
+        ? await this._retrieveOwnerByEmail({ email: ticketOwnerEmailOrId }).catch(() => {
+            throw new sdk.RuntimeError('Unable to find owner for ticket')
+          })
+        : { id: ticketOwnerEmailOrId }
+      : undefined
+
+    const updatedTicket = await this._hsClient.crm.tickets.basicApi.update(ticketId, {
+      properties: {
+        ...resolvedProperties,
+        ...(subject ? { subject } : {}),
+        ...(resolvedCategory ? { hs_ticket_category: resolvedCategory.coercedValue.toString() } : {}),
+        ...(description ? { content: description } : {}),
+        ...(pipeline ? { hs_pipeline: pipeline.id } : {}),
+        ...(pipelineStage ? { hs_pipeline_stage: pipelineStage.id } : {}),
+        ...(resolvedPriority ? { hs_ticket_priority: resolvedPriority.coercedValue.toString() } : {}),
+        ...(resolvedSource ? { source_type: resolvedSource.coercedValue.toString() } : {}),
+        ...(ticketOwner ? { hubspot_owner_id: ticketOwner.id } : {}),
+      },
+    })
+
+    return updatedTicket
+  }
+
+  @handleErrors('Failed to delete ticket')
+  public async deleteTicket({ ticketId }: { ticketId: string }) {
+    await this._hsClient.crm.tickets.basicApi.archive(ticketId)
   }
 
   @handleErrors('Failed to search deal')
