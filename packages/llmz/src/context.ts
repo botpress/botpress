@@ -5,19 +5,21 @@ import { ulid } from 'ulid'
 import { Chat } from './chat.js'
 import { assertValidComponent, Component } from './component.js'
 import { LoopExceededError, SnapshotSignal } from './errors.js'
+import type { Example } from './example.js'
 import { Exit } from './exit.js'
 import { getValue, ValueOrGetter } from './getter.js'
 import { HookedArray } from './handlers.js'
 import type { Diagnostic } from './message-stream/types.js'
 import { ObjectInstance } from './objects.js'
 import { DualModePrompt } from './prompts/dual-modes.js'
+import { summarizeIterations } from './prompts/execution-history.js'
 import { LLMzPrompts, ParsedNext, ParsedSend, Prompt } from './prompts/prompt.js'
 import { Snapshot } from './snapshots.js'
 import { Tool } from './tool.js'
 import { Transcript, TranscriptArray } from './transcript.js'
 import { stripTruncationTags, wrapContent } from './truncator.js'
 import { ObjectMutation, Serializable, Trace } from './types.js'
-import { getTokenizer } from './utils.js'
+import { getErrorMessage, getTokenizer } from './utils.js'
 
 /**
  * Tokenizer-measured size of each part of the prompt, before truncation.
@@ -36,6 +38,8 @@ export type ContextTokens = {
   transcript: number
   /** The ■ protocol reference documenting components and exits. */
   protocol: number
+  /** Consumer few-shot demonstrations, separate from the live transcript. */
+  examples: number
   /** Messages carried over from previous iterations (assistant responses, execution results, errors). */
   iterations: number
 }
@@ -65,6 +69,7 @@ export type IterationParameters = {
   objects: ObjectInstance[]
   exits: Exit[]
   instructions?: string
+  examples?: Example[]
   components: Component[]
   model: Models | Models[]
   temperature: number
@@ -116,6 +121,8 @@ export namespace IterationStatuses {
       /** The value returned by the executed code (or the context provided by a ThinkSignal). */
       variables: unknown
       metadata?: Record<string, unknown>
+      /** A tool paused execution; it did not finish or return normally. */
+      interrupted?: boolean
     }
   }
 
@@ -284,7 +291,7 @@ export const ThinkExit = new Exit({
  */
 export const ListenExit = new Exit({
   name: 'listen',
-  description: 'Listen to the user and provide a response',
+  description: 'Stop talking and wait for the user to talk next.',
 })
 
 /**
@@ -461,6 +468,10 @@ export class Iteration implements Serializable<Iteration.JSON> {
   }
 
   private _parameters: IterationParameters
+
+  public get components(): Component[] {
+    return this._parameters.components
+  }
   public get transcript() {
     return this._parameters.transcript
   }
@@ -663,6 +674,7 @@ export class Context implements Serializable<Context.JSON> {
 
   public chat?: Chat
   public instructions?: ValueOrGetter<string, Context>
+  public examples?: ValueOrGetter<Example[], Context>
   public objects?: ValueOrGetter<ObjectInstance[], Context>
   public tools?: ValueOrGetter<Tool[], Context>
   public exits?: ValueOrGetter<Exit[], Context>
@@ -702,6 +714,9 @@ export class Context implements Serializable<Context.JSON> {
   public metadata: Record<string, any>
 
   public snapshot?: Snapshot
+
+  // Keep the latest message without its per-request state so old budgets never enter history.
+  private _lastMessageWithoutExecutionState?: LLMzPrompts.Message
 
   public iteration: number = 0
   public iterations: Iteration[]
@@ -789,22 +804,31 @@ export class Context implements Serializable<Context.JSON> {
     const tools = countText(parts.tools)
     const transcript = countText(parts.transcript)
     const protocol = countText(parts.protocol)
+    const examples = countText(parts.examples)
 
     const systemTokens = messages.filter((x) => x.role === 'system').reduce((acc, x) => acc + countMessage(x), 0)
     const otherTokens = messages.filter((x) => x.role !== 'system').reduce((acc, x) => acc + countMessage(x), 0)
 
     const isFirstIteration = this.iterations.length === 0 && !this.snapshot
-    const framework = Math.max(0, systemTokens - (instructions + tools + transcript + protocol))
+    const framework = Math.max(0, systemTokens - (instructions + tools + transcript + protocol + examples))
     const iterations = isFirstIteration ? 0 : otherTokens
 
     return {
       total:
-        framework + instructions + tools + transcript + protocol + iterations + (isFirstIteration ? otherTokens : 0),
+        framework +
+        instructions +
+        tools +
+        transcript +
+        protocol +
+        examples +
+        iterations +
+        (isFirstIteration ? otherTokens : 0),
       framework: framework + (isFirstIteration ? otherTokens : 0),
       instructions,
       tools,
       transcript,
       protocol,
+      examples,
       iterations,
     }
   }
@@ -815,9 +839,16 @@ export class Context implements Serializable<Context.JSON> {
     const lastIteration = this.iterations.at(-1)
 
     const promptProps: LLMzPrompts.InitialStateProps = {
+      iteration: {
+        current: this.iterations.length + 1,
+        limit: this.loop,
+        resumed: !!this.snapshot,
+        ...summarizeIterations(this.iterations, parameters.components.length > 0),
+      },
       globalTools: parameters.tools,
       objects: parameters.objects,
       instructions: parameters.instructions,
+      examples: parameters.examples,
       transcript: parameters.transcript,
       // ListenExit is protocol-level in chat mode: it must be documented alongside user-defined exits
       exits: parameters.components.length ? [...parameters.exits, ListenExit] : parameters.exits,
@@ -825,7 +856,21 @@ export class Context implements Serializable<Context.JSON> {
     }
 
     const { message: systemMessage, parts } = await this.version.getSystemMessage(promptProps)
-    const withParts = (messages: LLMzPrompts.Message[]) => ({ messages, parts })
+    const previousLastMessage = this._lastMessageWithoutExecutionState
+    const withParts = (messages: LLMzPrompts.Message[]) => {
+      const last = messages.at(-1)!
+      this._lastMessageWithoutExecutionState = last
+
+      const state = this.version.getExecutionState?.(promptProps) ?? ''
+
+      if (state) {
+        messages[messages.length - 1] = Array.isArray(last.content)
+          ? { ...last, content: [...last.content, { type: 'text', text: state.trim() }] }
+          : { ...last, content: (last.content ?? '') + state }
+      }
+
+      return { messages, parts }
+    }
 
     if (this.snapshot?.status.type === 'resolved') {
       return withParts([
@@ -854,7 +899,12 @@ export class Context implements Serializable<Context.JSON> {
       return withParts([systemMessage, await this.version.getInitialUserMessage(promptProps)])
     }
 
-    const lastIterationMessages = [systemMessage, ...lastIteration.messages.filter((x) => x.role !== 'system')]
+    const history = lastIteration.messages.slice()
+    if (previousLastMessage) {
+      history[history.length - 1] = previousLastMessage
+    }
+
+    const lastIterationMessages = [systemMessage, ...history.filter((x) => x.role !== 'system')]
 
     if (lastIteration?.status.type === 'thinking_requested') {
       return withParts([
@@ -864,8 +914,11 @@ export class Context implements Serializable<Context.JSON> {
           content: wrapContent(lastIteration.llm?.output ?? '', { preserve: 'top', flex: 4, minTokens: 25 }),
         },
         await this.version.getThinkingMessage({
+          isChatEnabled: parameters.components.length > 0,
           reason: lastIteration.status.thinking_requested.reason,
           variables: lastIteration.status.thinking_requested.variables,
+          interrupted: lastIteration.status.thinking_requested.interrupted,
+          discardedMessages: lastIteration.llm?.diagnostics?.some((diagnostic) => diagnostic.code === 'send-after-run'),
         }),
       ])
     }
@@ -878,8 +931,11 @@ export class Context implements Serializable<Context.JSON> {
           content: wrapContent(lastIteration.llm?.output ?? '', { preserve: 'top', flex: 4, minTokens: 25 }),
         },
         await this.version.getInvalidCodeMessage({
-          code: lastIteration.code ?? '// No code generated',
-          message: `Invalid return statement (action: ${lastIteration.status.exit_error.exit}): ${lastIteration.status.exit_error.message}`,
+          isChatEnabled: parameters.components.length > 0,
+          code: lastIteration.next
+            ? `■next=${lastIteration.next.name} ${JSON.stringify(lastIteration.next.props)}`
+            : (lastIteration.code ?? '// No code generated'),
+          message: `Invalid ■next block (${lastIteration.status.exit_error.exit}): ${lastIteration.status.exit_error.message}`,
         }),
       ])
     }
@@ -892,6 +948,7 @@ export class Context implements Serializable<Context.JSON> {
           content: wrapContent(lastIteration.llm?.output ?? '', { preserve: 'top', flex: 4, minTokens: 25 }),
         },
         await this.version.getInvalidCodeMessage({
+          isChatEnabled: parameters.components.length > 0,
           code: lastIteration.code ?? '// No code generated',
           message: lastIteration.status.invalid_code_error.message,
         }),
@@ -906,6 +963,16 @@ export class Context implements Serializable<Context.JSON> {
           content: wrapContent(lastIteration.llm?.output ?? '', { preserve: 'top', flex: 4, minTokens: 25 }),
         },
         await this.version.getCodeExecutionErrorMessage({
+          isChatEnabled: parameters.components.length > 0,
+          variables: lastIteration.variables,
+          toolCalls: lastIteration.traces
+            .filter((trace) => trace.type === 'tool_call')
+            .map((trace) => ({
+              tool: trace.tool_name,
+              input: trace.input,
+              success: trace.success,
+              ...(trace.success ? { output: trace.output } : { error: getErrorMessage(trace.error) }),
+            })),
           message: lastIteration.status.execution_error.message,
           stacktrace: lastIteration.status.execution_error.stack,
         }),
@@ -919,6 +986,7 @@ export class Context implements Serializable<Context.JSON> {
 
   private async _refreshIterationParameters(): Promise<IterationParameters> {
     const instructions = await getValue(this.instructions, this)
+    const examples = await getValue(this.examples, this)
     const transcript = new TranscriptArray(await getValue(this.chat?.transcript ?? [], this))
     const tools = Tool.withUniqueNames((await getValue(this.tools, this)) ?? [])
     const objects = (await getValue(this.objects, this)) ?? []
@@ -1032,6 +1100,7 @@ export class Context implements Serializable<Context.JSON> {
       objects,
       exits,
       instructions,
+      examples,
       components,
       model,
       temperature,
@@ -1042,6 +1111,7 @@ export class Context implements Serializable<Context.JSON> {
   public constructor(props: {
     chat?: Chat
     instructions?: ValueOrGetter<string, Context>
+    examples?: ValueOrGetter<Example[], Context>
     objects?: ValueOrGetter<ObjectInstance[], Context>
     tools?: ValueOrGetter<Tool[], Context>
     exits?: ValueOrGetter<Exit[], Context>
@@ -1059,6 +1129,7 @@ export class Context implements Serializable<Context.JSON> {
   }) {
     this.id = `llmz_${ulid()}`
     this.instructions = props.instructions
+    this.examples = props.examples
     this.objects = props.objects
     this.tools = props.tools
     this.exits = props.exits

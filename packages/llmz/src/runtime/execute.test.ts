@@ -4,11 +4,12 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { Chat, MessageDelta, MessageMetadata } from '../chat.js'
 import { DefaultComponents } from '../component.default.js'
-import { RenderedComponent } from '../component.js'
+import { Component, RenderedComponent } from '../component.js'
 import { ListenExit } from '../context.js'
 import { createJsxComponent } from '../jsx.js'
-import { CognitiveError } from '../errors.js'
+import { CognitiveError, ThinkSignal } from '../errors.js'
 import { Exit } from '../exit.js'
+import { Example } from '../example.js'
 import { ErrorExecutionResult, SuccessExecutionResult } from '../result.js'
 import { _CustomModelClient } from '../custom-client.js'
 import { Tool } from '../tool.js'
@@ -224,6 +225,421 @@ type RestartDelta = Extract<MessageDelta, { restart: true }>
 const restartDeltas = (deltas: MessageDelta[]): RestartDelta[] => deltas.filter((d): d is RestartDelta => d.restart)
 
 describe('message-stream protocol execution', () => {
+  test('reports field-level exit validation errors without legacy return syntax', async () => {
+    const done = new Exit({ name: 'done', description: 'Finish', schema: z.object({ total: z.number() }) })
+    const result = await executeContext({
+      client: new ScriptedNonStreamingCognitive(['■next=done {"total":"4"}', '■next=done {"total":4}']),
+      exits: [done],
+      options: { loop: 2 },
+    })
+
+    expect(result.isSuccess()).toBe(true)
+    const correction = String(result.iterations[1]!.messages.at(-1)!.content)
+    expect(correction).toMatch(/total:.*number.*string/i)
+    expect(correction).not.toMatch(/return\s*\{\s*action/)
+  })
+
+  test('preserves local variables when code returns an unrelated scalar', async () => {
+    const done = new Exit({ name: 'done', description: 'Finish', schema: z.object({ total: z.number() }) })
+    const result = await executeContext({
+      client: new ScriptedNonStreamingCognitive([
+        '■run\nconst values = [5, 8]; return values.length',
+        '■run\nconst total = values[0] + values[1]; return total',
+        '■next=done {"total":13}',
+      ]),
+      exits: [done],
+      options: { loop: 3 },
+    })
+
+    expect(result.isSuccess()).toBe(true)
+    expect(result.iterations[0]!.variables.values).toEqual([5, 8])
+    expect(result.iterations[1]!.variables.total).toBe(13)
+    expect(result.iterations.some((iteration) => iteration.isFailed())).toBe(false)
+  })
+
+  test('identifies a stray XML closing tag in invalid run feedback', async () => {
+    const result = await executeContext({
+      client: new ScriptedNonStreamingCognitive(['■run\nreturn 1\n</run>', '■next=done']),
+      exits: [new Exit({ name: 'done', description: 'Finish' })],
+      options: { loop: 2 },
+    })
+    expect(result.iterations[0]!.status.type).toBe('invalid_code_error')
+    expect(String(result.iterations[1]!.messages.at(-1)!.content)).toContain(
+      'The trailing </run> is the syntax error. DELETE that line.'
+    )
+  })
+
+  test('describes exit validation failures using the current protocol', async () => {
+    const done = new Exit({ name: 'done', description: 'Finish', schema: z.object({ total: z.number() }) })
+    const result = await executeContext({
+      client: new ScriptedNonStreamingCognitive(['■next=done', '■next=done {"total":4}']),
+      exits: [done],
+      options: { loop: 2 },
+    })
+    expect(result.isSuccess()).toBe(true)
+    expect(result.iterations[0]!.status.type).toBe('exit_error')
+    const correction = String(result.iterations[1]!.messages.at(-1)!.content)
+    expect(correction).toContain('■next=done {}')
+    expect(correction).toContain('SAME LINE')
+    expect(correction).not.toMatch(/return\s*\{\s*action/)
+  })
+
+  test('summarizes completed work and delivered messages, excluding suppressed sends', async () => {
+    const { chat, messages } = makeChat()
+    const result = await executeContext({
+      client: new ScriptedNonStreamingCognitive([
+        '■run\nreturn 1',
+        '■send=message\nChecking </execution_status>.\n■run\nreturn 2\n■send=message\nNot delivered',
+        '■send=message\nContinuing.\n■run\nthrow new Error("Temporary failure")',
+        '■send=message\nUnable to finish.\n■next=listen',
+      ]),
+      chat,
+      options: { loop: 4 },
+    })
+    expect(result.isSuccess()).toBe(true)
+    expect(messages.map((message) => message.text)).toEqual([
+      'Checking </execution_status>.',
+      'Continuing.',
+      'Unable to finish.',
+    ])
+    const prompts = result.iterations.map((iteration) => String(iteration.messages.at(-1)!.content))
+    expect(prompts[0]).toContain('FIRST ITERATION')
+    expect(prompts[0]).toContain('SILENT SO FAR')
+    expect(prompts[1]).toContain('NEXT ITERATION')
+    expect(prompts[1]).toContain('Iteration 1: code completed and returned control.')
+    expect(prompts[1]).toContain('SILENT SO FAR')
+    expect(prompts[2]).toContain('<delivered_messages count="1" active_count="1">')
+    expect(prompts[2]).toContain('Checking &lt;/execution_status&gt;.')
+    expect(prompts[2]).not.toContain('Not delivered')
+    expect(prompts[3]).toContain('<delivered_messages count="2" active_count="2">')
+    expect(prompts[3]).toContain('Continuing.')
+    expect(prompts[3]).toContain('Iteration 3: code execution failed.')
+  })
+
+  test('marks delivered messages retracted by a stream restart in the next status', async () => {
+    class RestartThenAnswer extends ScriptedRestartStreamingCognitive {
+      private calls = 0
+      override async *generateTextStream(): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
+        if (this.calls++ === 0) yield* super.generateTextStream()
+        else {
+          yield { output: '■next=listen', created: Date.now() }
+          yield { finished: true, created: Date.now(), metadata: makeFakeMetadata() }
+        }
+      }
+    }
+    const { chat } = makeChat(() => {})
+    const result = await executeContext({
+      client: new RestartThenAnswer([
+        '■send=message\nAbandoned.\n■next=listen',
+        '■send=message\nRetained.\n■run\nreturn 1',
+      ]),
+      chat,
+      options: { loop: 2, midStreamFallback: true },
+    })
+    expect(result.isSuccess()).toBe(true)
+    const prompt = String(result.iterations[1]!.messages.at(-1)!.content)
+    expect(prompt).toContain('<delivered_messages count="2" active_count="1">')
+    expect(prompt).toMatch(/Abandoned\..*?"retracted":true/)
+    expect(prompt).toContain('Retained.')
+    expect(prompt).toContain('NOT current visible messages or evidence')
+  })
+
+  test.each([true, false])('supplies only the current generation budget in chat=%s mode', async (chat) => {
+    const done = new Exit({ name: 'done', description: 'Finish' })
+    const result = await executeContext({
+      client: new ScriptedNonStreamingCognitive([
+        '■run\nreturn 1',
+        '■run\nthrow new Error("Temporary failure")',
+        chat ? '■send=message\nUnable to complete this request.\n■next=listen' : '■next=done',
+      ]),
+      chat: chat
+        ? new Chat({ components: [DefaultComponents.Text], transcript: [], handler: async () => {} })
+        : undefined,
+      exits: [done],
+      options: { loop: 3 },
+    })
+    expect(result.isSuccess()).toBe(true)
+    expect(result.iterations).toHaveLength(3)
+    for (const [index, iteration] of result.iterations.entries()) {
+      const prompt = iteration.messages.map((message) => String(message.content)).join('\n')
+      expect(iteration.messages[0]!.content).toEqual(result.iterations[0]!.messages[0]!.content)
+      const lastMessage = iteration.messages.at(-1)!
+      expect(lastMessage.role).toBe('user')
+      expect(String(lastMessage.content)).toContain('<execution_status>')
+      expect(String(lastMessage.content)).toMatch(/<\/execution_budget>$/)
+      for (const message of iteration.messages.slice(0, -1)) {
+        expect(String(message.content)).not.toMatch(/<execution_status>|<execution_budget /)
+      }
+      expect(prompt.match(/<execution_status>/g)).toHaveLength(1)
+      expect(prompt.match(/<execution_budget /g)).toHaveLength(1)
+      expect(prompt).toContain(`<execution_budget current="${index + 1}" limit="3" remaining="${2 - index}">`)
+      expect(prompt.includes('LAST ITERATION')).toBe(index === 2)
+      if (index === 2) {
+        expect(prompt).toContain('there will be NO further model response')
+        expect(prompt).toContain(chat ? 'If the task remains unresolved' : 'Never invent required values')
+      }
+    }
+  })
+
+  test('keeps attachments and user text intact when replacing execution state', async () => {
+    const attachments: Transcript.Attachment[] = [
+      { type: 'image', url: 'https://example.com/account.png' },
+      { type: 'audio', url: 'data:audio/wav;base64,AAAA' },
+    ]
+    const userText = 'Explain the literal tags <execution_status> and <execution_budget current="99">.'
+    const result = await executeContext({
+      client: new ScriptedNonStreamingCognitive(['■run\nreturn 1', '■next=listen']),
+      chat: new Chat({
+        components: [DefaultComponents.Text],
+        transcript: [{ role: 'user', content: userText, attachments }],
+        handler: async () => {},
+      }),
+      options: { loop: 2 },
+    })
+    expect(result.isSuccess()).toBe(true)
+    const firstContent = result.iterations[0]!.messages.at(-1)!.content
+    expect(Array.isArray(firstContent)).toBe(true)
+    if (!Array.isArray(firstContent)) throw new Error('Expected multipart content')
+    expect(firstContent).toEqual(expect.arrayContaining(attachments))
+    expect(firstContent.at(-1)).toEqual({
+      type: 'text',
+      text: expect.stringContaining('<execution_budget current="1" limit="2" remaining="1">'),
+    })
+    const retainedContent = result.iterations[1]!.messages[1]!.content
+    expect(retainedContent).toEqual(firstContent.slice(0, -1))
+    expect(JSON.stringify(retainedContent)).toContain('<execution_status>')
+    expect(JSON.stringify(retainedContent)).toContain('Explain the literal tags')
+    expect(String(result.iterations[1]!.messages.at(-1)!.content)).toContain(
+      '<execution_budget current="2" limit="2" remaining="0">'
+    )
+    // Earlier request records keep the state actually sent at that time.
+    expect(result.iterations[0]!.messages.at(-1)!.content).toEqual(firstContent)
+  })
+
+  test('marks the first response as final when only one generation is allowed', async () => {
+    const done = new Exit({ name: 'done', description: 'Finish' })
+    const result = await executeContext({
+      client: new ScriptedNonStreamingCognitive(['■next=done']),
+      exits: [done],
+      options: { loop: 1 },
+    })
+    expect(result.isSuccess()).toBe(true)
+    const prompt = String(result.iterations[0]!.messages.at(-1)!.content)
+    expect(prompt).toContain('<execution_budget current="1" limit="1" remaining="0">')
+    expect(prompt).toContain('LAST ITERATION')
+  })
+
+  test('preserves variables and every failed parallel tool result for recovery', async () => {
+    const failures = new Tool({
+      name: 'failOperation',
+      input: z.object({ id: z.number() }),
+      handler: async ({ id }) => {
+        throw new Error(`blocked-${id}`)
+      },
+    })
+    const done = new Exit({ name: 'done', description: 'Finish', schema: z.object({ count: z.number() }) })
+    const result = await executeContext({
+      client: new ScriptedNonStreamingCognitive([
+        '■run\nconst ids = [1, 2]; await Promise.all(ids.map(id => failOperation({ id })));',
+        '■run\nreturn ids.length',
+        '■next=done {"count":2}',
+      ]),
+      tools: [failures],
+      exits: [done],
+      options: { loop: 3 },
+    })
+    expect(result.isSuccess()).toBe(true)
+    expect(result.iterations[0]!.variables.ids).toEqual([1, 2])
+    const recovery = String(result.iterations[1]!.messages.at(-1)!.content)
+    expect(recovery).toContain('blocked-1')
+    expect(recovery).toContain('blocked-2')
+    expect(recovery).toContain('Variables preserved')
+    expect(recovery).toContain('Actual tool calls so far (including failed calls): {"failOperation":2}')
+    expect(String(result.iterations[1]!.messages.at(-1)!.content)).toContain(
+      'failOperation: failed or paused; failOperation: failed or paused'
+    )
+    expect(result.iterations[1]!.status.type).toBe('thinking_requested')
+  })
+
+  test('distinguishes a tool-requested pause from completed code in follow-up prompts', async () => {
+    let attempts = 0
+    const tool = new Tool({
+      name: 'operation',
+      handler: async () => {
+        if (++attempts === 1) throw new ThinkSignal('Review the request, then retry this operation.')
+        return 'completed'
+      },
+    })
+    const done = new Exit({ name: 'done', description: 'Finish' })
+    const result = await executeContext({
+      client: new ScriptedNonStreamingCognitive([
+        '■run\nreturn await operation()',
+        '■run\nreturn await operation()',
+        '■next=done',
+      ]),
+      tools: [tool],
+      exits: [done],
+      options: { loop: 3 },
+    })
+    expect(result.isSuccess()).toBe(true)
+    expect(attempts).toBe(2)
+    const pause = String(result.iterations[1]!.messages.at(-1)!.content)
+    expect(pause).toContain('A tool paused code execution')
+    expect(pause).toContain('operation: paused for attention')
+    expect(pause).not.toContain('operation: succeeded')
+    expect(pause).toContain('Actual tool calls so far (including failed calls): {"operation":1}')
+    expect(pause).not.toContain('The code execution completed')
+    expect(pause).toContain('call that tool again')
+    expect(String(result.iterations[2]!.messages.at(-1)!.content)).toContain('The code execution completed')
+  })
+
+  test('aborting from an iteration hook prevents further tool calls', async () => {
+    const controller = new AbortController()
+    let calls = 0
+    const recursive = new Tool({
+      name: 'recursive',
+      handler: async () => {
+        calls++
+        throw new ThinkSignal('Call this tool again.')
+      },
+    })
+    const result = await executeContext({
+      client: new ScriptedNonStreamingCognitive(Array(4).fill('■run\nreturn await recursive()')),
+      tools: [recursive],
+      exits: [new Exit({ name: 'done', description: 'Finish' })],
+      signal: controller.signal,
+      onIterationEnd: async () => {
+        if (calls === 3) controller.abort('ABORTED')
+      },
+      options: { loop: 10 },
+    })
+    expect(result.isError()).toBe(true)
+    expect(calls).toBe(3)
+    expect(result.iterations.at(-1)!.status.type).toBe('aborted')
+    if (result.isError()) expect(String(result.error)).toContain('ABORTED')
+  })
+
+  test('keeps worker prompts free of chat components and listening across results and errors', async () => {
+    const done = new Exit({ name: 'done', description: 'Finish the task.', schema: z.object({ total: z.number() }) })
+    const result = await executeContext({
+      client: new ScriptedNonStreamingCognitive([
+        '■run\nreturn 4',
+        '■run\nconst =;',
+        '■run\nthrow new Error("Try a different approach")',
+        '■next=done {"total":4}',
+      ]),
+      instructions: 'Calculate the total and return it through the done exit.',
+      exits: [done],
+      examples: [new Example({ situation: 'The total is 10.', exit: done, props: { total: 10 } })],
+      options: { loop: 4 },
+    })
+    expect(result.isSuccess()).toBe(true)
+    expect(result.iterations).toHaveLength(4)
+    expect(result.iterations.map((iteration) => iteration.status.type)).toEqual([
+      'thinking_requested',
+      'invalid_code_error',
+      'execution_error',
+      'exit_success',
+    ])
+    for (const iteration of result.iterations) {
+      const prompts = iteration.messages
+        .filter((message) => message.role !== 'assistant')
+        .map((message) => String(message.content))
+        .join('\n')
+      expect(prompts).not.toMatch(
+        /■send|\blisten(?:ing)?\b|\bcomponents?\b|sends messages|user-facing|delivered to the user|final answer|delivered_messages|SILENT SO FAR/i
+      )
+      expect(prompts).toContain('■run')
+      expect(prompts).toContain('■next=done')
+      expect(prompts).toContain('<few_shots>')
+    }
+  })
+
+  test.each([false, true])(
+    'delivers carousel cards with nested images and buttons (streaming: %s)',
+    async (streaming) => {
+      const cards = [
+        {
+          title: 'Blue mug',
+          subtitle: '$12',
+          body: 'Dishwasher safe.',
+          image: { url: 'https://example.com/blue.jpg', alt: 'Blue mug' },
+          buttons: [{ action: 'url', label: 'View Blue', url: 'https://example.com/blue' }],
+        },
+        {
+          title: 'Green mug',
+          buttons: [
+            { action: 'postback', label: 'Choose Green', value: 'green_mug' },
+            { action: 'say', label: 'More details' },
+          ],
+        },
+      ]
+      const raw = `■send=carousel ${JSON.stringify({ cards })}\n■next=listen`
+      const client = streaming
+        ? new ScriptedStreamingCognitive([raw], undefined, 7)
+        : new ScriptedNonStreamingCognitive([raw])
+      const sent: RenderedComponent[] = []
+      const result = await executeContext({
+        client,
+        chat: new Chat({
+          components: [DefaultComponents.Carousel],
+          transcript: [],
+          handler: (message) => {
+            sent.push(message)
+          },
+        }),
+        options: { loop: 1 },
+      })
+      expect(result.isSuccess()).toBe(true)
+      expect(sent).toEqual([
+        createJsxComponent({
+          type: 'Carousel',
+          props: {},
+          children: [
+            createJsxComponent({
+              type: 'Card',
+              props: { title: 'Blue mug', subtitle: '$12' },
+              children: [
+                'Dishwasher safe.',
+                createJsxComponent({ type: 'Image', props: cards[0]!.image!, children: [] }),
+                createJsxComponent({ type: 'Button', props: cards[0]!.buttons[0]!, children: [] }),
+              ],
+            }),
+            createJsxComponent({
+              type: 'Card',
+              props: { title: 'Green mug' },
+              children: cards[1]!.buttons.map((props) => createJsxComponent({ type: 'Button', props, children: [] })),
+            }),
+          ],
+        }),
+      ])
+      expect(result.iterations[0]!.llm?.diagnostics).toEqual([])
+    }
+  )
+
+  test('preserves custom carousel components instead of converting their props', async () => {
+    const custom = new Component({
+      type: 'leaf',
+      name: 'Carousel',
+      description: 'Custom carousel',
+      leaf: { props: z.object({ items: z.array(z.string()) }) },
+    })
+    const sent: RenderedComponent[] = []
+    const result = await executeContext({
+      client: new ScriptedNonStreamingCognitive(['■send=carousel {"items":["first","second"]}\n■next=listen']),
+      chat: new Chat({
+        components: [custom],
+        transcript: [],
+        handler: (message) => {
+          sent.push(message)
+        },
+      }),
+      options: { loop: 1 },
+    })
+    expect(result.isSuccess()).toBe(true)
+    expect(sent).toEqual([custom.render({ items: ['first', 'second'] })])
+  })
+
   describe('nonstreaming generation failures', () => {
     test('Cognitive fallback exposes only the successful response to LLMz', async () => {
       const calls = vi.fn()
@@ -291,7 +707,7 @@ describe('message-stream protocol execution', () => {
   })
 
   test.each(['nonstreaming', 'streaming', 'fallback'] as const)(
-    '%s currently accepts code followed by a message, and returned values require another iteration',
+    '%s suppresses messages after returning code until the model has observed its result',
     async (mode) => {
       const calls = vi.fn()
       const mark = new Tool({
@@ -301,7 +717,10 @@ describe('message-stream protocol execution', () => {
           calls()
         },
       })
-      const { chat, messages } = makeChat()
+      const deltas: MessageDelta[] = []
+      const { chat, messages } = makeChat((delta) => {
+        deltas.push(delta)
+      })
       const responses = [
         '■run\nawait mark()\nreturn 42\n■send=message\nThis was generated before seeing the result\n■next=listen',
         '■send=message\nThe result is 42\n■next=listen',
@@ -320,12 +739,42 @@ describe('message-stream protocol execution', () => {
       expect(result.iterations).toHaveLength(2)
       expect(result.iterations[0]!.status.type).toBe('thinking_requested')
       expect(calls).toHaveBeenCalledTimes(1)
-      expect(messages.map((message) => message.text)).toEqual([
-        'This was generated before seeing the result',
-        'The result is 42',
-      ])
+      expect(messages.map((message) => message.text)).toEqual(['The result is 42'])
+      expect(
+        textDeltas(deltas)
+          .map((delta) => delta.delta)
+          .join('')
+      ).not.toContain('before seeing')
+      expect(result.iterations[0]!.sends).toEqual([])
+      expect(result.iterations[0]!.llm?.diagnostics).toEqual([expect.objectContaining({ code: 'send-after-run' })])
+      expect(result.iterations[0]!.llm?.output).toContain('This was generated before seeing the result')
+      expect(JSON.stringify(result.iterations[1]!.messages)).toContain('They were NOT delivered and are NOT evidence.')
     }
   )
+
+  test('a stream restart clears the guard for sends after returning code', async () => {
+    const deltas: MessageDelta[] = []
+    const { chat, messages } = makeChat((delta) => {
+      deltas.push(delta)
+    })
+    const client = new ScriptedRestartStreamingCognitive(
+      [
+        '■run\nreturn 42\n■send=message\nInvented result.\n■next=listen',
+        '■send=message\nReplacement answer.\n■next=listen',
+      ],
+      undefined,
+      1
+    )
+    const result = await executeContext({ client, chat, options: midStreamOptions(2) })
+    expect(result).toBeInstanceOf(SuccessExecutionResult)
+    expect(messages.map((message) => message.text)).toEqual(['Replacement answer.'])
+    expect(
+      textDeltas(deltas)
+        .map((delta) => delta.delta)
+        .join('')
+    ).toBe('Replacement answer.')
+    expect(result.iterations[0]!.llm?.diagnostics).toEqual([])
+  })
 
   describe('reasoning preamble regression', () => {
     const preamble =
@@ -333,6 +782,48 @@ describe('message-stream protocol execution', () => {
     const reply = "Sounds good! Whenever you're ready, just let me know how I can help. 😊"
     const output = `${preamble}\n\n■send=message\n${reply}\n■next=listen`
     const modes = ['nonstreaming', 'whole', 'characters', 'chunks', 'restart'] as const
+
+    test.each(['nonstreaming', 'whole', 'characters', 'chunks', 'fallback'] as const)(
+      '%s ignores prose mentioning a run block without regenerating or losing the actual code',
+      async (mode) => {
+        const called = vi.fn()
+        const tool = new Tool({
+          name: 'record',
+          handler: async () => {
+            called()
+          },
+        })
+        const raw = 'We need to produce a ■run block with the query.■run\nawait record()\n■next=listen'
+        const client =
+          mode === 'nonstreaming'
+            ? new ScriptedNonStreamingCognitive([raw])
+            : new ScriptedStreamingCognitive(
+                [raw],
+                undefined,
+                mode === 'whole' ? 100_000 : mode === 'characters' ? 1 : 7
+              )
+        const deltas: MessageDelta[] = []
+        const { chat, messages } = makeChat((delta) => {
+          deltas.push({ ...delta })
+        })
+        const result = await executeContext({
+          client,
+          chat,
+          tools: [tool],
+          options: { loop: 1, midStreamFallback: mode === 'fallback' },
+        })
+        expect(result).toBeInstanceOf(SuccessExecutionResult)
+        expect(result.iterations).toHaveLength(1)
+        expect(called).toHaveBeenCalledTimes(1)
+        expect(messages).toEqual([])
+        expect(textDeltas(deltas)).toEqual([])
+        expect(result.iterations[0]!.code).toBe('await record()')
+        expect(result.iterations[0]!.llm?.output).toBe(raw)
+        expect(result.iterations[0]!.llm?.diagnostics).toEqual([
+          { code: 'unexpected-text', message: expect.any(String) },
+        ])
+      }
+    )
 
     const makeClient = (mode: (typeof modes)[number], responses: string[]) => {
       if (mode === 'nonstreaming') {
@@ -2140,4 +2631,56 @@ describe('Chat.handler message metadata', () => {
     expect(events.indexOf('reset')).toBeGreaterThan(events.indexOf(`handler:${handlerEvents[0]}`))
     expect(events.indexOf('reset')).toBeLessThan(events.indexOf(`handler:${handlerEvents[1]}`))
   })
+})
+
+describe('consumer few-shot examples', () => {
+  test.each([ScriptedNonStreamingCognitive, ScriptedStreamingCognitive])(
+    'keeps examples out of execution and refreshes them each iteration (%s)',
+    async (ClientType) => {
+      const { Example } = await import('../example.js')
+      const { chat, messages } = makeChat()
+      const queries: string[] = []
+      const searchKnowledge = new Tool({
+        name: 'searchKnowledge',
+        description: 'Search the knowledge base',
+        input: z.object({ query: z.string() }),
+        output: z.array(z.string()),
+        handler: async ({ query }) => {
+          queries.push(query)
+          return queries.length === 1 ? [] : ['Use the reset link.']
+        },
+      })
+      const example = new Example({
+        situation: 'HYPOTHETICAL_INPUT',
+        code: 'return await searchKnowledge({ query: "EXAMPLE_QUERY" })',
+      })
+      const examples = vi.fn(async () => [example])
+      const client = new ClientType([
+        '■run\nreturn await searchKnowledge({ query: "password recovery" })',
+        '■run\nreturn await searchKnowledge({ query: "reset forgotten password" })',
+        '■send=message\nUse the reset link.\n■next=listen',
+      ])
+      const result = await executeContext({ client, chat, tools: [searchKnowledge], examples, options: { loop: 4 } })
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect(queries).toEqual(['password recovery', 'reset forgotten password'])
+      expect(messages.map((message) => message.text)).toEqual(['Use the reset link.'])
+      expect(examples).toHaveBeenCalledTimes(3)
+      for (const iteration of result.iterations) {
+        const system = iteration.messages.find((message) => message.role === 'system')!
+        expect(String(system.content)).toContain('EXAMPLE_QUERY')
+        expect(
+          iteration.messages
+            .filter((message) => message.role !== 'system')
+            .map((message) => JSON.stringify(message))
+            .join('')
+        ).not.toContain('EXAMPLE_QUERY')
+        expect(iteration.tokens!.context.examples).toBeGreaterThan(0)
+        const { total, ...parts } = iteration.tokens!.context
+        expect(total).toBe(Object.values(parts).reduce((sum, count) => sum + count, 0))
+        expect(iteration.toJSON().transcript).not.toContainEqual(
+          expect.objectContaining({ content: 'HYPOTHETICAL_INPUT' })
+        )
+      }
+    }
+  )
 })

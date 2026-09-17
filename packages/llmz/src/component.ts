@@ -78,8 +78,8 @@ export type DefaultComponentDefinition<T extends z.ZodObject<any> = z.ZodObject<
   description: string
   /** @deprecated Not shown to the model. Use `generation.examples` instead. */
   examples?: ExampleUsage[]
-  /** Body configuration for the ■ protocol reference (format, description, required). */
-  body?: ComponentBodyOptions
+  /** Body configuration for the ■ protocol reference, or false to disallow a body. */
+  body?: ComponentBodyOptions | false
   /** Model-facing generation metadata: usage guidance and ■-protocol examples ({ props?, body? }). */
   generation?: GenerativeComponentMetadata
   default: {
@@ -109,8 +109,8 @@ export type ContainerComponentDefinition<T extends z.ZodObject<any> = z.ZodObjec
   aliases?: string[]
   /** @deprecated Not shown to the model. Use `generation.examples` instead. */
   examples?: ExampleUsage[]
-  /** Body configuration for the ■ protocol reference (format, description, required). */
-  body?: ComponentBodyOptions
+  /** Body configuration for the ■ protocol reference, or false to disallow a body. */
+  body?: ComponentBodyOptions | false
   /** Model-facing generation metadata: usage guidance and ■-protocol examples ({ props?, body? }). */
   generation?: GenerativeComponentMetadata
   container: {

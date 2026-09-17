@@ -114,9 +114,11 @@ export function applyVariableTracking(ctx: Ctx, variables: Set<string>): void {
       if (body.type === 'BlockStatement') {
         ctx.ms.appendRight(body.start + 1, trackers)
       } else {
-        // expression-bodied arrow: introduce a block so the trackers can run first
-        ctx.ms.appendLeft(body.start, `{${trackers}return (`)
-        ctx.ms.appendRight(body.end, ');}')
+        // Acorn excludes surrounding parentheses from body.start/end. Keep an
+        // expression here: inserting a block inside `(expression)` is invalid.
+        const expressions = trackers.slice(0, -1).replaceAll(';', ',')
+        ctx.ms.prependLeft(body.start, `(${expressions}, (`)
+        ctx.ms.appendRight(body.end, '))')
       }
     }
   })

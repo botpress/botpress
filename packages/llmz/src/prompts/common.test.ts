@@ -69,6 +69,23 @@ Hello!
       expect(response.sends[0]!.body).toBe('Here is an example:\n```js\nconsole.log(1)\n```')
     })
 
+    it('keeps messages before returning code and diagnoses messages after it', () => {
+      const parsed = parseAssistantResponse(
+        '■send=md\nRequested progress update.\n■run\nreturn await search()\n■send=md\nInvented result.\n■send=image {"url":"https://example.com/invented.jpg"}\n■next=listen'
+      )
+      expect(parsed.sends).toEqual([{ name: 'md', props: {}, body: 'Requested progress update.' }])
+      expect(parsed.diagnostics?.map((diagnostic) => diagnostic.code)).toEqual(['send-after-run', 'send-after-run'])
+      expect(parsed.code).toBe('return await search()')
+    })
+
+    it('preserves sends after side-effect code without a top-level return', () => {
+      const parsed = parseAssistantResponse(
+        '■run\nconst label = "return"; await save({ label })\n■send=md\nSaved.\n■next=listen'
+      )
+      expect(parsed.sends).toEqual([{ name: 'md', props: {}, body: 'Saved.' }])
+      expect(parsed.diagnostics).toEqual([])
+    })
+
     it('parses multiple sends in order', async () => {
       const response = parseAssistantResponse(
         '■send=md\nPick an option:\n■send=buttons { buttons: [{ label: "A" }, { label: "B" }] }\n■next=listen'

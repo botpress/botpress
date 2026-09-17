@@ -53,6 +53,7 @@ const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionR
   const ctx = new Context({
     chat: props.chat,
     instructions: props.instructions,
+    examples: props.examples,
     objects: props.objects,
     tools: props.tools,
     loop: props.options?.loop,
@@ -410,11 +411,11 @@ const executeIteration = async ({
       }
 
       const sendStartedAt = Date.now()
-      const component = createJsxComponent({
-        type: send.name,
-        props: send.props,
-        children: send.body ? [send.body] : [],
-      })
+      const registered = iteration.components.find((component) => component.definition.name.toLowerCase() === send.name)
+      const children = send.body ? [send.body] : []
+      const component = registered
+        ? registered.render(send.props, children)
+        : createJsxComponent({ type: send.name, props: send.props, children })
 
       try {
         await ctx.chat.handler(component, messageMetadata)

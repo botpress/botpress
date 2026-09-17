@@ -3,6 +3,7 @@ import { Cognitive, type BotpressClientLike, Models, type SttModels } from '@bot
 import { Chat } from '../chat.js'
 import { Context, Iteration } from '../context.js'
 import { _CustomModelClient } from '../custom-client.js'
+import type { Example } from '../example.js'
 import { Exit, ExitResult } from '../exit.js'
 import { ValueOrGetter } from '../getter.js'
 import { type ObjectInstance } from '../objects.js'
@@ -161,6 +162,15 @@ export type ExecutionProps = {
    * Dynamic instructions are evaluated at the start of each iteration, allowing for context-aware instructions.
    */
   instructions?: ValueOrGetter<string, Context>
+
+  /**
+   * Labeled examples of one situation and one response, kept outside the live transcript.
+   * Use `new Example({ situation, code })` or `new Example({ situation, messages, exit })`.
+   * Evaluated each iteration, like instructions. Examples must use the current
+   * component/exit catalog. They are kept intact when the prompt is truncated;
+   * select a small relevant set to leave room for tools and conversation.
+   */
+  examples?: ValueOrGetter<Example[], Context>
 
   /**
    * Objects available in the context.

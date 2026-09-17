@@ -3,6 +3,7 @@ import { clamp } from 'lodash-es'
 
 import { createJoinedAbortController } from '../abort-signal.js'
 import type { MessageDelta, MessageMetadata } from '../chat.js'
+import { hasTopLevelReturn } from '../compiler/index.js'
 import { Context, Iteration } from '../context.js'
 import { CognitiveError } from '../errors.js'
 import { StreamingMessageParser } from '../message-stream/parser.js'
@@ -213,6 +214,7 @@ export const generateCode = async ({
   const liveContent = new Map<string, string>()
   let codeGenerationTraced = false
   let runCompleted = false
+  let awaitsRunResult = false
 
   const dispatchSends = async (events: MessageStreamEvent[]) => {
     for (const event of events) {
@@ -228,7 +230,7 @@ export const generateCode = async ({
         }
       } else if (event.type === 'body-delta' && onSendDelta) {
         const item = liveItems.get(event.itemId)
-        if (item?.kind !== 'send') {
+        if (item?.kind !== 'send' || awaitsRunResult) {
           continue
         }
         const content = (liveContent.get(item.id) ?? '') + event.delta
@@ -243,7 +245,7 @@ export const generateCode = async ({
         }
         await preview(delta)
       } else if (event.type === 'item-complete') {
-        if (event.item.kind === 'send' && onSend) {
+        if (event.item.kind === 'send' && onSend && !awaitsRunResult) {
           const send = {
             name: event.item.name,
             props: event.item.props,
@@ -256,6 +258,9 @@ export const generateCode = async ({
           // the rest of the response streams
           runCompleted = true
           const code = (event.item.body ?? '').trim()
+          // The model has not observed this return value yet. Anything it
+          // writes after the run in this generation cannot use the result.
+          awaitsRunResult = hasTopLevelReturn(code)
           onRunComplete?.(code)
         }
       }
@@ -339,6 +344,7 @@ export const generateCode = async ({
           liveContent.clear()
           codeGenerationTraced = false
           runCompleted = false
+          awaitsRunResult = false
           responseMetadata = undefined
           attempt = chunk.value.restart.attempt
           // Emit even when the replacement has no sends: previous previews

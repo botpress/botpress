@@ -37,6 +37,17 @@ export const tryParseJson = (text: string): unknown => {
     try {
       return JSON5.parse(jsonrepair(text))
     } catch {
+      // Some models repeat the props braces: {{"number":17}}. Accept only
+      // a complete object inside one extra pair; never guess missing values.
+      const trimmed = text.trim()
+      if (/^\{\s*\{/.test(trimmed) && /\}\s*\}$/.test(trimmed)) {
+        try {
+          return JSON5.parse(trimmed.slice(1, -1))
+        } catch {
+          // Other malformed objects still use the normal invalid-props path.
+        }
+      }
+
       return undefined
     }
   }
@@ -77,6 +88,11 @@ export class StreamingMessageParser {
 
   private _bodyDelta = ''
   private _pendingWhitespace = ''
+  // When recovering from unformatted leading text, a marker mentioned in prose
+  // is not a block. Wait for a complete header before emitting any item events.
+  private _preambleHeader: string | undefined
+  // A closing Markdown fence after a completed exit is wrapper noise, never a body.
+  private _closingFenceTicks: number | undefined
 
   public constructor(options: StreamingParserOptions = {}) {
     this._maxPropsLength = options.maxPropsLength ?? 100_000
@@ -118,7 +134,16 @@ export class StreamingMessageParser {
     this._finished = true
 
     const events: MessageStreamEvent[] = []
+    if (this._closingFenceTicks !== undefined && this._closingFenceTicks !== 3) {
+      this._skipUnexpectedText(events)
+    }
+
+    this._closingFenceTicks = undefined
     const status: ItemStatus | undefined = reason === 'interrupted' ? 'interrupted' : undefined
+
+    if (this._state === 'skip' && this._preambleHeader) {
+      this._recoverPreambleHeader(events)
+    }
 
     switch (this._state) {
       case 'directive':
@@ -167,15 +192,40 @@ export class StreamingMessageParser {
     this._propsBroken = false
     this._bodyDelta = ''
     this._pendingWhitespace = ''
+    this._preambleHeader = undefined
+    this._closingFenceTicks = undefined
   }
 
   private _processChar(char: string, events: MessageStreamEvent[]): void {
+    if (this._closingFenceTicks !== undefined) {
+      if (char === '`' && this._closingFenceTicks < 3) {
+        this._closingFenceTicks++
+        return
+      }
+
+      if (isWhitespace(char) && this._closingFenceTicks === 3) {
+        return
+      }
+
+      this._closingFenceTicks = undefined
+      this._skipUnexpectedText(events)
+    }
+
     switch (this._state) {
       case 'idle': {
         if (char === MARKER) {
           this._beginItem()
         } else if (!isWhitespace(char)) {
+          const last = this._items.at(-1)
+          if (char === '`' && last?.kind === 'next' && last.status === 'complete') {
+            this._closingFenceTicks = 1
+            return
+          }
           this._skipUnexpectedText(events)
+
+          if (!this._items.length) {
+            this._preambleHeader = ''
+          }
         }
         return
       }
@@ -253,11 +303,43 @@ export class StreamingMessageParser {
       }
 
       case 'skip': {
+        if (this._preambleHeader !== undefined) {
+          if (char === MARKER) {
+            this._preambleHeader = MARKER
+          } else if (this._preambleHeader) {
+            this._preambleHeader += char
+
+            if (char === '\n') {
+              this._recoverPreambleHeader(events)
+            } else if (this._preambleHeader.length > this._maxPropsLength) {
+              // Bound malformed header buffering just like props buffering.
+              this._preambleHeader = ''
+            }
+          }
+          return
+        }
         if (char === MARKER) {
           this._beginItem()
         }
         return
       }
+    }
+  }
+
+  private _recoverPreambleHeader(events: MessageStreamEvent[]): void {
+    const header = this._preambleHeader ?? ''
+
+    // A real run header is alone on its line. For sends/exits allow inline
+    // props, but not prose such as "we need a ■run block with the query".
+    if (/^■(?:run|(?:send|next)=[a-z][a-z0-9_-]*(?:[ \t]*\{[^\r\n]*\})?)[ \t]*\r?\n?$/i.test(header)) {
+      this._preambleHeader = undefined
+      this._state = 'idle'
+
+      for (const char of header) {
+        this._processChar(char, events)
+      }
+    } else {
+      this._preambleHeader = ''
     }
   }
 

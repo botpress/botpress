@@ -23,6 +23,31 @@ describe('streaming message parser', () => {
     const reply = "Sounds good! Whenever you're ready, just let me know how I can help. 😊"
     const output = `${preamble}\n\n■send=message\n${reply}\n■next=listen`
 
+    it.each([
+      'We need a run block.■run\nreturn await search()\n■next=done',
+      'We need to produce a ■run block with the query.■run\nreturn await search()\n■next=done',
+      'Use ■send=message for the answer.\n■run\nreturn await search()\n■next=done',
+    ])('ignores protocol names mentioned in prose at every split: %s', (raw) => {
+      for (let split = 0; split <= raw.length; split++) {
+        const parser = new StreamingMessageParser()
+        const events = [...parser.push(raw.slice(0, split)), ...parser.push(raw.slice(split)), ...parser.finish()]
+        expect(parser.items.map((item) => item.kind)).toEqual(['run', 'next'])
+        expect(parser.items[0]!.body).toBe('return await search()')
+        expect(events.filter((event) => event.type === 'item-start')).toHaveLength(2)
+        expect(parser.diagnostics).toEqual([{ code: 'unexpected-text', message: expect.any(String) }])
+        parser.reset()
+        parser.push('■send=message\nClean answer.\n■next=listen')
+        parser.finish()
+        expect(parser.items.map((item) => item.kind)).toEqual(['send', 'next'])
+        expect(parser.diagnostics).toEqual([])
+      }
+    })
+
+    it('recovers a final exit header without a trailing newline', () => {
+      const { items } = parseAll('The work is done.■next=done {"count":2}')
+      expect(items.map(strip)).toEqual([{ kind: 'next', name: 'done', props: { count: 2 }, status: 'complete' }])
+    })
+
     it('never emits preamble events at any two-chunk boundary', () => {
       for (let split = 0; split <= output.length; split++) {
         const parser = new StreamingMessageParser()
@@ -62,6 +87,47 @@ describe('streaming message parser', () => {
   })
 
   describe('basic parsing', () => {
+    it('ignores a trailing wrapper fence after an exit, preserving fenced message content', () => {
+      const body = 'Example:\n```js\nconst answer = 42\n```'
+      const raw = `■send=message\n${body}\n■next=listen\n\x60\x60\x60\n`
+      for (let split = 0; split <= raw.length; split++) {
+        const parser = new StreamingMessageParser()
+        const events = [...parser.push(raw.slice(0, split)), ...parser.push(raw.slice(split)), ...parser.finish()]
+        expect(parser.items.map((item) => item.kind)).toEqual(['send', 'next'])
+        expect(parser.items[0]!.body).toBe(body)
+        expect(parser.diagnostics).toEqual([])
+        expect(events.filter((event) => event.type === 'diagnostic')).toEqual([])
+        parser.reset()
+        parser.push('■next=listen\n`not a fence')
+        parser.finish()
+        expect(parser.diagnostics.map((diagnostic) => diagnostic.code)).toEqual(['unexpected-text'])
+      }
+    })
+
+    it.each(['`', '``', '````', '```\nextra prose'])('still diagnoses invalid trailing text: %s', (suffix) => {
+      const { parser } = parseAll(`■next=listen\n${suffix}`)
+      expect(parser.diagnostics.map((diagnostic) => diagnostic.code)).toEqual(['unexpected-text'])
+    })
+
+    it('recovers one duplicate props wrapper at every stream split', () => {
+      const raw = '■next=odd_prime {{"number":17}}'
+      for (let split = 0; split <= raw.length; split++) {
+        const parser = new StreamingMessageParser()
+        parser.push(raw.slice(0, split))
+        parser.push(raw.slice(split))
+        parser.finish()
+        expect(parser.items.map(strip)).toEqual([
+          { kind: 'next', name: 'odd_prime', props: { number: 17 }, status: 'complete' },
+        ])
+      }
+    })
+
+    it('does not recover duplicate wrappers around conflicting objects', () => {
+      const { items } = parseAll('■next=done {{"number":17},{"number":2}}')
+      expect(items[0]!.status).toBe('invalid')
+      expect(items[0]!.diagnostics.some((diagnostic) => diagnostic.code === 'invalid-props')).toBe(true)
+    })
+
     it('parses a markdown send followed by a next', () => {
       const { items } = parseAll('■send=md\nHello! How can I help?\n■next=listen')
 

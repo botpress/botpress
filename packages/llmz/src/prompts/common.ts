@@ -1,3 +1,4 @@
+import { hasTopLevelReturn } from '../compiler/index.js'
 import { StreamingMessageParser } from '../message-stream/parser.js'
 import type { Diagnostic, ParsedItem } from '../message-stream/types.js'
 import { ParsedAssistantResponse } from './prompt.js'
@@ -22,17 +23,30 @@ export const toParsedAssistantResponse = (
   raw: string,
   diagnostics: Diagnostic[] = []
 ): ParsedAssistantResponse => {
+  const runIndex = items.findIndex((item) => item.kind === 'run')
+  const run = items[runIndex]
+  const awaitsResult = !!run?.body && hasTopLevelReturn(run.body)
+  const prematureSends = awaitsResult ? items.slice(runIndex + 1).filter((item) => item.kind === 'send') : []
   const sends = items
-    .filter((item) => item.kind === 'send')
+    .filter((item, index) => item.kind === 'send' && (!awaitsResult || index < runIndex))
     .map((item) => ({ name: item.name, props: item.props, body: item.body }))
 
-  const run = items.find((item) => item.kind === 'run')
   const next = items.find((item) => item.kind === 'next' && item.status !== 'invalid')
 
   return {
     raw,
     items,
-    diagnostics,
+    diagnostics: [
+      ...diagnostics,
+      ...prematureSends.map(
+        (item): Diagnostic => ({
+          code: 'send-after-run',
+          itemId: item.id,
+          message:
+            'Discarded a message generated after code returning a result, before that result was available to the model.',
+        })
+      ),
+    ],
     sends,
     code: run?.body?.trim() || undefined,
     next: next ? { name: next.name, props: next.props } : undefined,

@@ -36,25 +36,35 @@ export function generateInstructions(
 
   const sorted = options.sortComponents === false ? [...components] : _sortComponents(components)
 
-  const sections: string[] = [_coreSyntax({ includeSend, includeRun, hasExits: exits.length > 0 })]
+  const sections: string[] = [_section('syntax', _coreSyntax({ includeSend, includeRun, hasExits: exits.length > 0 }))]
 
   if (sorted.length) {
-    sections.push('Components:\n\n' + sorted.map((c) => _componentEntry(c, verbosity)).join('\n\n'))
+    sections.push(
+      _section(
+        'components',
+        sorted.map((c) => _componentEntry(c, verbosity, includeExamples && includeSend)).join('\n\n')
+      )
+    )
   }
 
   if (exits.length) {
-    sections.push('Exits:\n\n' + exits.map((e) => _exitEntry(e, verbosity)).join('\n\n'))
+    sections.push(_section('exits', exits.map((e) => _exitEntry(e, verbosity)).join('\n\n')))
   }
 
   if (includeExamples) {
-    const examples = _buildExamples(sorted, exits, maxExamples)
+    const examples = _buildExamples(includeSend ? sorted : [], exits, maxExamples)
     if (examples.length) {
-      sections.push('Examples:\n\n' + examples.join('\n\n'))
+      sections.push(_section('response_examples', examples.map((example) => _section('example', example)).join('\n\n')))
     }
   }
 
   return sections.join('\n\n')
 }
+
+const _section = (tag: string, content: string): string => `<${tag}>\n${content}\n</${tag}>`
+
+const _attribute = (value: string): string =>
+  value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
 const _coreSyntax = ({
   includeSend,
@@ -65,29 +75,60 @@ const _coreSyntax = ({
   includeRun: boolean
   hasExits: boolean
 }): string => {
-  const blocks = [
-    ...(includeSend ? [`${MARKER}send=<component> {props}\nbody content`] : []),
-    ...(includeRun ? [`${MARKER}run\n// TypeScript code to execute`] : []),
-    ...(hasExits ? [`${MARKER}next=<exit> {props}`] : []),
-  ]
+  const blocks: string[] = []
+
+  if (includeSend) {
+    blocks.push(`SEND A MESSAGE
+${MARKER}send=<component> {props}
+body content
+
+A component is a kind of user-facing message, such as text, an image, or a button. Choose a name from <components>. Its props are named settings; its body is the content after the header line. If its body is "none", do not put any content after the header. Each send block is delivered to the user, so include ONLY content intended for them. You may send several components using separate blocks.`)
+  }
+
+  if (includeRun) {
+    blocks.push(`EXECUTE CODE
+${MARKER}run
+// JavaScript code to execute
+
+The program executes this block as JavaScript. Call the available tools here as JavaScript, NOT XML tool-call tags or standalone JSON. Writing about a tool does not call it. The code runs inside an async function, so you can use await and return directly. Use at most ONE run block per response; several tool calls can go inside that block. To inspect a result, return it. The program will give you that result in a NEW message, and you can then generate your next response.`)
+  }
+
+  if (hasExits) {
+    blocks.push(`FINISH OR HAND OVER CONTROL
+${MARKER}next=<exit> {props}
+
+An exit tells the program what happens next. Choose a name from <exits> and supply its required props. This block has NO body. It ends this response; do not write anything after it.`)
+  }
 
   const rules = [
-    ...(includeSend
+    `START DIRECTLY with ${MARKER}. Do not put a greeting, explanation, reasoning, or Markdown code fence before the first block. Keep internal deliberation out of ALL output blocks.`,
+    `Write each block header on its own line, starting with ${MARKER}. A block ends when the next header starts or your response ends. There is NO closing marker: never write a standalone ${MARKER}, an end tag, or a closing code fence to finish a block.`,
+    ...(includeSend || hasExits
       ? [
-          `\`${MARKER}send\` sends a message component to the user. Props are a JSON object on the same line as the header; the body is everything after the header line, until the next \`${MARKER}\`.`,
+          `In the forms above, angle-bracket names and {props} are placeholders, NOT literal output. Replace the name with an available name, without angle brackets. Write props as a JSON object on the SAME LINE as the header, with double-quoted keys and strings. Include required props; omit the object when no props are needed. Put the fields directly in the object, never inside a "props" or "value" wrapper.`,
         ]
       : []),
-    ...(includeRun ? [`\`${MARKER}run\` executes code; the body is the code.`] : []),
+    ...(includeRun
+      ? [
+          `When code returns a result, STOP GENERATING after the code. Do not append ${includeSend ? 'a message, ' : ''}an exit, or an explanation. The program supplies the result automatically; do not ask for it, invent it, or write the next response yet. "Stop" means end your output; do not write the word STOP.`,
+        ]
+      : []),
     ...(hasExits
       ? [
-          `Always end your response with \`${MARKER}next=<exit>\`.`,
-          `Props are written inline as a plain JSON object of the fields themselves (e.g. \`${MARKER}next=done {"id": "123"}\`) — never wrap them in a "props" or "value" key.`,
+          includeRun
+            ? `End your response with either a \`${MARKER}run\` block to inspect results or \`${MARKER}next=<exit>\` to finish.`
+            : `Always end your response with \`${MARKER}next=<exit>\`.`,
         ]
       : []),
     `Never write \`${MARKER}\` inside props or body content.${includeSend ? ' Do not output unregistered components or unspecified props.' : ''}`,
+    `The XML tags in these instructions separate documentation sections. DO NOT copy those tags into your response. Examples illustrate the format; substitute the actual facts and inputs for the current task.`,
   ]
 
-  return `Respond using only ${MARKER} blocks, with this exact syntax:\n\n${blocks.join('\n\n')}\n\n${rules.join(' ')}`
+  const purpose = includeSend
+    ? 'Your response is read by a program that sends messages, executes code, and hands over control. It recognizes the exact block headers described below. Ordinary prose outside these blocks is not a user-facing message or an action.'
+    : 'Your response is read by a program that executes code and hands over control. It recognizes the exact block headers described below. Ordinary prose outside these blocks does not perform an action.'
+
+  return `${purpose}\n\nA BLOCK consists of a header line and, when allowed, a body on the following lines. The character ${MARKER} starts every header. These are the available block forms, NOT a sequence to copy in full. Choose only the blocks needed for your next action.\n\n${blocks.join('\n\n')}\n\nFormatting rules:\n${rules.map((rule) => `- ${rule}`).join('\n')}`
 }
 
 const _sortComponents = (components: NormalizedComponentDefinition[]): NormalizedComponentDefinition[] =>
@@ -96,70 +137,66 @@ const _sortComponents = (components: NormalizedComponentDefinition[]): Normalize
     return priority !== 0 ? priority : a.name.localeCompare(b.name)
   })
 
-const _componentEntry = (definition: NormalizedComponentDefinition, verbosity: InstructionVerbosity): string => {
-  const lines: string[] = [_titleLine(definition.name, definition.description, definition.generation)]
+const _componentEntry = (
+  definition: NormalizedComponentDefinition,
+  verbosity: InstructionVerbosity,
+  includeExamples: boolean
+): string => {
+  const description = _description(definition.description, definition.generation)
+  const lines: string[] = [`<component name="${_attribute(definition.name)}">`]
+
+  if (description) {
+    lines.push(_section('description', description))
+  }
 
   const props = _propEntries(definition.propsJsonSchema)
   if (!props.length) {
-    lines.push('Props: none')
+    lines.push(_section('props', 'none'))
   } else if (verbosity === 'compact') {
-    lines.push(`Props: ${props.map((p) => _inlineProp(p)).join('; ')}`)
+    lines.push(_section('props', props.map((p) => _inlineProp(p)).join('; ')))
   } else {
-    lines.push('Props:')
-    lines.push(...props.map((p) => _bulletProp(p, verbosity)))
+    lines.push(_section('props', props.map((p) => _bulletProp(p, verbosity)).join('\n')))
   }
 
   if (!definition.body) {
-    lines.push('Body: none')
+    lines.push(_section('body', 'none'))
   } else {
     const requirement = definition.body.required ? 'required' : 'optional'
     const description = definition.body.description ? ` — ${_oneLine(definition.body.description)}` : ''
-    lines.push(`Body: ${requirement} ${definition.body.format}${description}`)
+    lines.push(_section('body', `${requirement} ${definition.body.format}${description}`))
   }
 
-  if (verbosity !== 'compact') {
-    const example = _componentExample(definition)
-    if (example) {
-      lines.push(`Example:\n${example}`)
+  if (verbosity !== 'compact' && includeExamples) {
+    for (const example of (definition.generation?.examples ?? []).slice(0, 3)) {
+      const props = example.props ? ` ${JSON.stringify(example.props)}` : ''
+      const body = definition.body ? (example.body ?? _exampleBody(definition)) : undefined
+      lines.push(_section('example', `${MARKER}send=${definition.name}${props}${body ? `\n${body}` : ''}`))
     }
   }
 
-  return lines.join('\n')
-}
-
-/** Renders a component's first curated example ({ props?, body? }) as a ■send block. */
-const _componentExample = (definition: NormalizedComponentDefinition): string | undefined => {
-  const example = definition.generation?.examples?.[0]
-  if (!example) {
-    return undefined
-  }
-
-  const props = example.props ? ` ${JSON.stringify(example.props)}` : ''
-  const body = definition.body ? (example.body ?? _exampleBody(definition)) : undefined
-  return `${MARKER}send=${definition.name}${props}${body ? `\n${body}` : ''}`
+  return [...lines, '</component>'].join('\n')
 }
 
 const _exitEntry = (exit: NormalizedExitDefinition, verbosity: InstructionVerbosity): string => {
-  const lines: string[] = [_titleLine(exit.name, exit.description)]
+  const lines: string[] = [`<exit name="${_attribute(exit.name)}">`]
+
+  if (exit.description) {
+    lines.push(_section('description', _description(exit.description)))
+  }
 
   const props = exit.propsJsonSchema ? _propEntries(exit.propsJsonSchema) : []
   if (!props.length) {
-    lines.push('Props: none')
+    lines.push(_section('props', 'none'))
   } else if (verbosity === 'compact') {
-    lines.push(`Props: ${props.map((p) => _inlineProp(p)).join('; ')}`)
+    lines.push(_section('props', props.map((p) => _inlineProp(p)).join('; ')))
   } else {
-    lines.push('Props:')
-    lines.push(...props.map((p) => _bulletProp(p, verbosity)))
+    lines.push(_section('props', props.map((p) => _bulletProp(p, verbosity)).join('\n')))
   }
 
-  return lines.join('\n')
+  return [...lines, '</exit>'].join('\n')
 }
 
-const _titleLine = (
-  name: string,
-  description?: string,
-  generation?: NormalizedComponentDefinition['generation']
-): string => {
+const _description = (description?: string, generation?: NormalizedComponentDefinition['generation']): string => {
   const parts: string[] = []
   if (description) {
     parts.push(_sentence(description))
@@ -170,7 +207,7 @@ const _titleLine = (
   if (generation?.doNotUseWhen) {
     parts.push(_sentence(generation.doNotUseWhen))
   }
-  return parts.length ? `${name} — ${parts.join(' ')}` : name
+  return parts.join(' ')
 }
 
 type PropEntry = {
@@ -242,7 +279,7 @@ const _renderType = (schema: JsonSchema | boolean | undefined, depth = 0): strin
         return 'object'
       }
       const inner = Object.entries(schema.properties)
-        .map(([key, value]) => `${key}:${_renderType(value, depth + 1)}`)
+        .map(([key, value]) => `${key}${schema.required?.includes(key) ? '' : '?'}:${_renderType(value, depth + 1)}`)
         .join(',')
       return `{${inner}}`
     }
@@ -275,19 +312,25 @@ const _buildExamples = (
 
   const examples: string[] = []
 
-  // The global examples demonstrate the overall response shape (including the
-  // closing ■next), so prefer the shortest curated body — the representative,
-  // possibly long-form example is already rendered under the component entry
+  // Keep each curated props/body pair together when choosing a short example.
+  // Mixing the first example's props with another example's body teaches a
+  // response the component author never intended.
+  const completeExample = (definition: NormalizedComponentDefinition): string => {
+    const custom = [...(definition.generation?.examples ?? [])].sort(
+      (a, b) => (a.body?.length ?? 0) - (b.body?.length ?? 0)
+    )[0]
+    const props = custom ? (custom.props ? ` ${JSON.stringify(custom.props)}` : '') : ` ${_exampleProps(definition)}`
+    const body = definition.body ? (custom?.body ?? _exampleBody(definition)) : undefined
+    return `${MARKER}send=${definition.name}${props === ' {}' ? '' : props}${body ? `\n${body}` : ''}${suffix}`
+  }
   if (bodyOnly) {
-    examples.push(`${MARKER}send=${bodyOnly.name}\n${_exampleBody(bodyOnly, { compact: true })}${suffix}`)
+    examples.push(completeExample(bodyOnly))
   }
   if (propsOnly) {
-    examples.push(`${MARKER}send=${propsOnly.name} ${_exampleProps(propsOnly)}${suffix}`)
+    examples.push(completeExample(propsOnly))
   }
   if (propsAndBody) {
-    examples.push(
-      `${MARKER}send=${propsAndBody.name} ${_exampleProps(propsAndBody)}\n${_exampleBody(propsAndBody, { compact: true })}${suffix}`
-    )
+    examples.push(completeExample(propsAndBody))
   }
 
   return examples.slice(0, maxExamples)
@@ -360,9 +403,9 @@ const _exampleValue = (schema: JsonSchema, name: string): unknown => {
   }
 }
 
-const _exampleBody = (definition: NormalizedComponentDefinition, options: { compact?: boolean } = {}): string => {
+const _exampleBody = (definition: NormalizedComponentDefinition): string => {
   const bodies = (definition.generation?.examples ?? []).map((e) => e.body).filter((b): b is string => !!b)
-  const custom = options.compact ? bodies.sort((a, b) => a.length - b.length)[0] : bodies[0]
+  const custom = bodies[0]
   if (custom) {
     return custom
   }

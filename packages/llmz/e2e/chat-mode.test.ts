@@ -19,10 +19,16 @@ function assertSuccess(result: ExecutionResult): asserts result is SuccessExecut
   )
 }
 
+// HTML source may be shown literally or entity-escaped inside a code sample.
+// Decode exactly once so double-escaped entities and interpolation stay testable.
+const decodeHtml = (text: string): string =>
+  text.replaceAll('&lt;', '<').replaceAll('&gt;', '>').replaceAll('&quot;', '"').replaceAll('&amp;', '&')
+
 describe('chat mode code snippets', { retry: 0, timeout: 60_000 }, () => {
   let unsub = () => {}
   let chat: Chat
   let messagesSent: string[]
+  let expectedSnippets: string[]
   let transcript: TranscriptArray
 
   beforeAll(() => {
@@ -37,10 +43,12 @@ describe('chat mode code snippets', { retry: 0, timeout: 60_000 }, () => {
 
   const MarkdownComponent = new Component({
     name: 'Markdown',
-    type: 'leaf',
+    aliases: [],
+    type: 'default',
     description: 'Renders markdown content',
-    leaf: {
+    default: {
       props: z.object({}),
+      children: [],
     },
     examples: [
       {
@@ -53,6 +61,7 @@ describe('chat mode code snippets', { retry: 0, timeout: 60_000 }, () => {
 
   beforeEach(() => {
     messagesSent = []
+    expectedSnippets = []
     transcript = new TranscriptArray()
     chat = new Chat({
       transcript,
@@ -80,7 +89,7 @@ describe('chat mode code snippets', { retry: 0, timeout: 60_000 }, () => {
         description: 'Gets documentation for a topic',
         input: z.object({ topic: z.string() }),
         output: z.object({ content: z.string() }),
-        handler: async ({ topic }) => {
+        handler: async () => {
           const content = `
 Here's how to create a React component with state:
 
@@ -122,6 +131,7 @@ Key points:
 - Template literals use \${} for interpolation
 - JSX uses {} for JavaScript expressions
 `
+          expectedSnippets = [...content.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].map((match) => match[1]!.trim())
           throw new ThinkSignal(content)
         },
       })
@@ -132,7 +142,8 @@ Key points:
       })
 
       const result = await llmz.executeContext({
-        instructions: 'Answer the user question by retrieving relevant documentation and providing code examples.',
+        instructions:
+          'Retrieve the relevant documentation and answer with its full code examples copied unchanged. Preserve every character inside the examples, including escapes. You may add a brief explanation outside the code blocks.',
         chat,
         options: { loop: 5 },
         tools: [tGetDocs],
@@ -150,55 +161,12 @@ Key points:
 
       // Should have yielded components with the code snippet
       expect(messagesSent.length).toBeGreaterThan(0)
-      expect(messagesSent).toMatchInlineSnapshot(`
-        [
-          "Let me look up the documentation on creating React components with state for you...",
-          "To create a React component with state, you typically use the \`useState\` hook. This allows you to add local state to functional components.
-
-        Here is an example of a component that manages state for a user profile:
-
-        \`\`\`jsx
-        import React, { useState, useEffect } from 'react';
-
-        function UserProfile({ userId }) {
-          // Initialize state using the useState hook
-          const [user, setUser] = useState(null);
-          const [loading, setLoading] = useState(true);
-
-          useEffect(() => {
-            fetch(\`/api/users/\${userId}\`)
-              .then(res => res.json())
-              .then(data => {
-                setUser(data);
-                setLoading(false);
-              });
-          }, [userId]);
-
-          if (loading) return <div>Loading...</div>;
-
-          return (
-            <div className="user-profile">
-              <h1>{user?.name || "Unknown"}</h1>
-              <p>Email: {user?.email}</p>
-              <button onClick={() => alert(\`Hello \${user.name}!\`)}>
-                Greet User
-              </button>
-            </div>
-          );
-        }
-
-        export default UserProfile;
-        \`\`\`
-
-        ### Key Concepts:
-        *   **\`useState\`**: This hook returns a pair: the current state value and a function that lets you update it.
-        *   **\`useEffect\`**: Used for side effects, such as fetching data when the component mounts or when a specific dependency (like \`userId\`) changes.
-        *   **JSX Expressions**: Use curly braces \`{}\` to embed JavaScript expressions directly within your HTML-like markup.
-        *   **Updating State**: Always use the setter function (e.g., \`setUser\`) to update state rather than mutating the state variable directly.
-
-        Does this help, or would you like to see a simpler example, such as a counter?",
-        ]
-      `)
+      // Check the supplied code, not incidental headings or explanatory prose.
+      expect(expectedSnippets.length).toBeGreaterThan(0)
+      const answer = messagesSent.join('\n')
+      for (const snippet of expectedSnippets) {
+        expect(answer).toContain(snippet)
+      }
     })
 
     it('should handle HTML with special characters and attributes', async () => {
@@ -207,7 +175,7 @@ Key points:
         description: 'Gets HTML documentation',
         input: z.object({ topic: z.string() }),
         output: z.object({ content: z.string() }),
-        handler: async ({ topic }) => {
+        handler: async () => {
           const content = `
 HTML Form with validation:
 
@@ -251,6 +219,7 @@ Special characters handled:
 - Ampersands: &rarr; &lt; &gt;
 - Brackets: [] {} ()
 `
+          expectedSnippets = [...content.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].map((match) => match[1]!.trim())
           throw new ThinkSignal(content)
         },
       })
@@ -262,7 +231,8 @@ Special characters handled:
 
       const result = await llmz.executeContext({
         chat,
-        instructions: 'Answer the user question by retrieving relevant documentation and providing code examples.',
+        instructions:
+          'Retrieve the relevant documentation and answer with its full code examples copied unchanged. Preserve every character inside the examples, including escapes. You may add a brief explanation outside the code blocks.',
         options: { loop: 5 },
 
         tools: [tGetDocs],
@@ -278,55 +248,12 @@ Special characters handled:
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
       expect(result.iterations.length).toBeLessThanOrEqual(4)
 
-      expect(messagesSent).toMatchInlineSnapshot(`
-        [
-          "Let me look up the documentation on HTML forms for you...",
-          "To create an HTML form, you use the \`<form>\` element, which acts as a container for various input elements like text fields, passwords, and submit buttons.
-
-        Here is a complete example of a form that includes basic validation, styling for valid/invalid inputs, and a simple JavaScript check:
-
-        \`\`\`html
-        <form action="/submit" method="POST" onsubmit="return validate()">
-          <input
-            type="text"
-            name="email"
-            placeholder="Enter email"
-            required
-            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$"
-          />
-          <input type="password" name="pwd" minlength="8" required />
-          <button type="submit">Submit &rarr;</button>
-        </form>
-
-        <script>
-        function validate() {
-          const email = document.querySelector('input[name="email"]').value;
-          if (!email.includes('@')) {
-            alert("Invalid email!");
-            return false;
-          }
-          return true;
-        }
-        </script>
-
-        <style>
-        input:invalid {
-          border: 2px solid red;
-        }
-        input:valid {
-          border: 2px solid green;
-        }
-        </style>
-        \`\`\`
-
-        ### Key Components Used:
-        *   **\`<form>\`**: The main wrapper. The \`action\` attribute defines where to send the data, and \`method="POST"\` is used for secure data submission.
-        *   **\`<input type="text">\`**: A standard text field. The \`required\` attribute ensures the field isn't empty, and \`pattern\` uses a Regular Expression to validate the email format.
-        *   **\`<input type="password">\`**: Masks the characters entered by the user.
-        *   **\`<button type="submit">\`**: Triggers the form submission.
-        *   **CSS Pseudo-classes**: \`:invalid\` and \`:valid\` are used to provide immediate visual feedback to the user based on the input constraints.",
-        ]
-      `)
+      // Check the supplied code, not incidental headings or explanatory prose.
+      expect(expectedSnippets.length).toBeGreaterThan(0)
+      const answer = messagesSent.join('\n')
+      for (const snippet of expectedSnippets) {
+        expect(answer).toContain(snippet)
+      }
     })
 
     it('should handle TypeScript with generics, decorators, and complex types', async () => {
@@ -335,7 +262,7 @@ Special characters handled:
         description: 'Gets TypeScript documentation',
         input: z.object({ topic: z.string() }),
         output: z.object({ content: z.string() }),
-        handler: async ({ topic }) => {
+        handler: async () => {
           const content = `
 TypeScript Advanced Types:
 
@@ -386,6 +313,7 @@ Features demonstrated:
 - Decorators with @ symbol
 - Mapped types and conditional types
 `
+          expectedSnippets = [...content.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].map((match) => match[1]!.trim())
           throw new ThinkSignal(content)
         },
       })
@@ -397,7 +325,8 @@ Features demonstrated:
 
       const result = await llmz.executeContext({
         chat,
-        instructions: 'Answer the user question by retrieving relevant documentation and providing code examples.',
+        instructions:
+          'Retrieve the relevant documentation and answer with its full code examples copied unchanged. Preserve every character inside the examples, including escapes. You may add a brief explanation outside the code blocks.',
         options: { loop: 5 },
 
         tools: [tGetDocs],
@@ -413,66 +342,12 @@ Features demonstrated:
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
       expect(result.iterations.length).toBeLessThanOrEqual(4)
 
-      expect(messagesSent).toMatchInlineSnapshot(`
-        [
-          "Let me look up the documentation on advanced TypeScript types for you...",
-          "Advanced TypeScript types allow you to create highly flexible and type-safe code by manipulating types dynamically. Based on the documentation, here are some of the key advanced features:
-
-        ### 1. Generic Constraints
-        Generic constraints use the \`extends\` keyword to limit what types a generic parameter can be. For example, ensuring a type has at least an \`id\` property:
-        \`\`\`typescript
-        class ApiClient<T extends { id: string }> {
-          // T must be an object with a string id
-        }
-        \`\`\`
-
-        ### 2. Conditional Types
-        Conditional types allow you to choose one type over another based on a condition, similar to a ternary operator in JavaScript:
-        \`\`\`typescript
-        // If T[K] is a string, return string; otherwise, return number
-        transform<K extends keyof T>(key: K): T[K] extends string ? string : number {
-          return this.data[key] as any;
-        }
-        \`\`\`
-
-        ### 3. Mapped Types & Template Literal Types
-        Mapped types allow you to create new types based on existing ones. When combined with template literal types, you can dynamically generate property names:
-        \`\`\`typescript
-        type EventMap = {
-          click: MouseEvent;
-          keypress: KeyboardEvent;
-        };
-
-        // Generates types like 'onClick' and 'onKeypress'
-        type EventHandlers = {
-          [K in keyof EventMap as \`on\${Capitalize<K>}\`]: (e: EventMap[K]) => void;
-        };
-        \`\`\`
-
-        ### 4. Template Literal Inference
-        You can use the \`infer\` keyword within template literal types to extract specific parts of a string type:
-        \`\`\`typescript
-        type RouteParams<T extends string> = T extends \`\${infer Start}/:\${infer Param}/\${infer Rest}\`
-          ? { [K in Param]: string } & RouteParams<\`\${Start}/\${Rest}\`>
-          : {};
-        \`\`\`
-
-        ### 5. Decorators
-        Decorators provide a way to add annotations and a meta-programming syntax for class declarations and members:
-        \`\`\`typescript
-        function Log(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-          // Logic to log method calls
-        }
-
-        class ApiClient {
-          @Log
-          async fetch(id: string) { /* ... */ }
-        }
-        \`\`\`
-
-        Would you like to dive deeper into any of these specific concepts?",
-        ]
-      `)
+      // Check the supplied code, not incidental headings or explanatory prose.
+      expect(expectedSnippets.length).toBeGreaterThan(0)
+      const answer = messagesSent.join('\n')
+      for (const snippet of expectedSnippets) {
+        expect(answer).toContain(snippet)
+      }
     })
 
     it('should handle SQL with quotes, operators, and special syntax', async () => {
@@ -531,6 +406,7 @@ Key syntax:
 - Operators: -> ->> @> >= <= !=
 - Comments: -- and /* */
 `
+          expectedSnippets = [...content.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].map((match) => match[1]!.trim())
           throw new ThinkSignal(content)
         },
       })
@@ -542,7 +418,8 @@ Key syntax:
 
       const result = await llmz.executeContext({
         chat,
-        instructions: 'Answer the user question by retrieving relevant documentation and providing code examples.',
+        instructions:
+          'Retrieve the relevant documentation and answer with its full code examples copied unchanged. Preserve every character inside the examples, including escapes. You may add a brief explanation outside the code blocks.',
         options: { loop: 5 },
 
         tools: [tGetDocs],
@@ -558,83 +435,12 @@ Key syntax:
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
       expect(result.iterations.length).toBeLessThanOrEqual(4)
 
-      expect(messagesSent).toMatchInlineSnapshot(`
-        [
-          "Let me look up the documentation on how to write SQL queries for you...",
-          "Writing SQL queries involves using a structured language to communicate with a database. Depending on what you want to do (retrieve, insert, or manipulate data), the syntax varies.
-
-        ### 1. Basic Data Retrieval (\`SELECT\`)
-        The most common operation is the \`SELECT\` statement, used to fetch data from a table.
-
-        **Example: Basic Selection**
-        \`\`\`sql
-        SELECT name, email 
-        FROM users 
-        WHERE created_at >= '2024-01-01' 
-          AND name != 'Admin';
-        \`\`\`
-
-        ### 2. Advanced Queries
-        For more complex data analysis, you can use **Common Table Expressions (CTEs)** and **Window Functions** to organize your data before the final selection.
-
-        **Example: Ranking Users**
-        \`\`\`sql
-        WITH ranked_users AS (
-          SELECT
-            id,
-            name,
-            email,
-            created_at,
-            ROW_NUMBER() OVER (PARTITION BY DATE(created_at) ORDER BY id) as daily_rank
-          FROM users
-          WHERE email LIKE '%@gmail.com'
-        )
-        SELECT
-          *,
-          CASE
-            WHEN daily_rank = 1 THEN 'First of day'
-            WHEN daily_rank <= 10 THEN 'Top 10'
-            ELSE 'Other'
-          END as rank_category
-        FROM ranked_users
-        WHERE daily_rank <= 100;
-        \`\`\`
-
-        ### 3. Inserting Data (\`INSERT\`)
-        To add new records to a table, use the \`INSERT INTO\` statement. Note that strings must be enclosed in single quotes.
-
-        **Example: Inserting Records**
-        \`\`\`sql
-        INSERT INTO messages (content, metadata) VALUES
-          ('User said: "Hello!"', '{"sender": "user", "timestamp": "2024-01-01"}'),
-          ('It''s a nice day', '{"type": "greeting"}');
-        \`\`\`
-        *Tip: To include a single quote inside a string (like in "It's"), use two single quotes (\`''\`) to escape it.*
-
-        ### 4. Working with JSON
-        Many modern databases (like PostgreSQL) allow you to query JSON data directly using special operators.
-
-        **Example: JSON Extraction**
-        \`\`\`sql
-        SELECT
-          data->>'name' as name,
-          data->'address'->>'city' as city
-        FROM documents
-        WHERE data @> '{"status": "active"}';
-        \`\`\`
-
-        ### Quick Syntax Reference:
-        *   **Strings**: Use single quotes (e.g., \`'text'\`).
-        *   **Identifiers**: Use double quotes for column or table names if they contain spaces or reserved words (e.g., \`"column_name"\`).
-        *   **Comments**: Use \`--\` for single-line comments or \`/* ... */\` for multi-line blocks.
-        *   **Operators**: 
-            *   \`!=\` : Not equal to
-            *   \`>=\` / \`<=\` : Greater than or equal / Less than or equal
-            *   \`->\` / \`->>\` : JSON object/text extraction
-
-        Would you like me to explain a specific part of this syntax or help you write a query for a particular goal?",
-        ]
-      `)
+      // Check the supplied code, not incidental headings or explanatory prose.
+      expect(expectedSnippets.length).toBeGreaterThan(0)
+      const answer = messagesSent.join('\n')
+      for (const snippet of expectedSnippets) {
+        expect(answer).toContain(snippet)
+      }
     })
 
     it('should handle Bash scripts with variables, quotes, and special characters', async () => {
@@ -705,6 +511,7 @@ Important syntax:
 - Quotes: "double" 'single' \\\`backticks\\\`
 - Special chars: \$ \` ! & | < > ; ( ) { } [ ]
 `
+          expectedSnippets = [...content.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].map((match) => match[1]!.trim())
           throw new ThinkSignal(content)
         },
       })
@@ -716,7 +523,8 @@ Important syntax:
 
       const result = await llmz.executeContext({
         chat,
-        instructions: 'Answer the user question by retrieving relevant documentation and providing code examples.',
+        instructions:
+          'Retrieve the relevant documentation and answer with its full code examples copied unchanged. Preserve every character inside the examples, including escapes. You may add a brief explanation outside the code blocks.',
         options: { loop: 5 },
 
         tools: [tGetDocs],
@@ -732,73 +540,12 @@ Important syntax:
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
       expect(result.iterations.length).toBeLessThanOrEqual(4)
 
-      expect(messagesSent).toMatchInlineSnapshot(`
-        [
-          "Let me look up the documentation on how to write Bash scripts for you...",
-          "Writing Bash scripts allows you to automate repetitive tasks in a Unix-like environment. Here is a guide based on the documentation.
-
-        ### 1. The Shebang
-        Every Bash script should start with a "shebang" line. This tells the system which interpreter to use to execute the script.
-        \`\`\`bash
-        #!/bin/bash
-        \`\`\`
-
-        ### 2. Basic Concepts
-        *   **Variables**: Defined without spaces around the \`=\` sign. Use \`$\` to access them.
-            *   Example: \`NAME="John Doe"\` $\\rightarrow$ \`echo $NAME\`
-        *   **Command Substitution**: Use \`$(command)\` to save the output of a command into a variable.
-            *   Example: \`TIMESTAMP=$(date +%Y-%m-%d)\`
-        *   **Quotes**: Use double quotes (\`"\`) if you want variables to be expanded, and single quotes (\`'\`) to treat everything as literal text.
-
-        ### 3. Control Structures
-        **Conditionals**: Use \`if\` statements with double brackets \`[[ ]]\` for more robust testing.
-        \`\`\`bash
-        if [[ -f "file.txt" ]]; then
-          echo "The file exists."
-        fi
-        \`\`\`
-
-        **Loops**: Use \`for\` loops to iterate over lists or arrays.
-        \`\`\`bash
-        FILES=("file1.txt" "file2.txt")
-        for file in "\${FILES[@]}"; do
-          echo "Processing $file"
-        done
-        \`\`\`
-
-        ### 4. Putting it all together
-        Here is a comprehensive example showing functions, error handling, and string manipulation:
-
-        \`\`\`bash
-        #!/bin/bash
-
-        # Variable and string manipulation
-        NAME="John Doe"
-        echo "Hello \${NAME}!"
-        echo "Uppercase: \${NAME^^}"
-
-        # A function to process files with error handling
-        process_file() {
-          local file="$1"
-          if [[ ! -r "$file" ]]; then
-            echo "Error: Cannot read '$file'" >&2
-            return 1
-          fi
-          echo "Success: $file"
-        }
-
-        # Using the function
-        process_file "test.txt"
-        \`\`\`
-
-        ### 5. Running your script
-        To run your script, you first need to give it execution permissions:
-        1. \`chmod +x myscript.sh\`
-        2. \`./myscript.sh\`
-
-        Do you have a specific task you are trying to automate with a script?",
-        ]
-      `)
+      // Check the supplied code, not incidental headings or explanatory prose.
+      expect(expectedSnippets.length).toBeGreaterThan(0)
+      const answer = messagesSent.join('\n')
+      for (const snippet of expectedSnippets) {
+        expect(answer).toContain(snippet)
+      }
     })
 
     it('should handle Python with f-strings, raw strings, and triple quotes', async () => {
@@ -807,7 +554,7 @@ Important syntax:
         description: 'Gets Python documentation',
         input: z.object({ topic: z.string() }),
         output: z.object({ content: z.string() }),
-        handler: async ({ topic }) => {
+        handler: async () => {
           const content = `
 Python String Formatting:
 
@@ -866,6 +613,7 @@ String types:
 - Triple quotes: """multi-line"""
 - Format: "{0}".format(val)
 `
+          expectedSnippets = [...content.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].map((match) => match[1]!.trim())
           throw new ThinkSignal(content)
         },
       })
@@ -877,7 +625,8 @@ String types:
 
       const result = await llmz.executeContext({
         chat,
-        instructions: 'Answer the user question by retrieving relevant documentation and providing code examples.',
+        instructions:
+          'Retrieve the relevant documentation and answer with its full code examples copied unchanged. Preserve every character inside the examples, including escapes. You may add a brief explanation outside the code blocks.',
         options: { loop: 5 },
 
         tools: [tGetDocs],
@@ -893,66 +642,12 @@ String types:
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
       expect(result.iterations.length).toBeLessThanOrEqual(4)
 
-      expect(messagesSent).toMatchInlineSnapshot(`
-        [
-          "Let me look up the documentation on Python string formatting for you...",
-          "Python offers several ways to format strings, with **f-strings** being the most modern and preferred method. Here are the primary ways to handle string formatting:
-
-        ### 1. F-Strings (Formatted String Literals)
-        Introduced in Python 3.6, f-strings are fast and easy to read. You simply prefix the string with \`f\` and use curly braces \`{}\` to embed expressions.
-
-        \`\`\`python
-        name = "Alice"
-        age = 30
-        # Basic interpolation
-        print(f"Hello {name}! You are {age} years old.")
-
-        # Expressions inside braces
-        print(f"Next year: {age + 1}")
-        print(f"Uppercase: {name.upper()}")
-        \`\`\`
-
-        ### 2. Format Specifiers
-        You can control how values are displayed (like decimal places or padding) using a colon \`:\` inside the braces.
-
-        \`\`\`python
-        price = 19.99
-        print(f"Price: \${price:.2f}")      # 2 decimal places
-        print(f"Hex: {255:#x}")            # Hexadecimal format
-        print(f"Percentage: {0.846:.1%}")  # Percentage format
-        \`\`\`
-
-        ### 3. The \`.format()\` Method
-        This is useful for templates where the values are provided later.
-
-        \`\`\`python
-        template = "Hello {name}, you have {count} messages"
-        print(template.format(name="Charlie", count=5))
-        \`\`\`
-
-        ### 4. Special String Types
-        *   **Raw Strings (\`r""\`)**: Used primarily for regular expressions or Windows file paths to treat backslashes as literal characters.
-            \`\`\`python
-            pattern = r"\\d{3}-\\d{3}-\\d{4}"
-            path = r"C:\\Users\\Name\\Documents"
-            \`\`\`
-        *   **Triple-Quoted Strings (\`""" """\`)**: Used for multi-line strings.
-            \`\`\`python
-            sql_query = """
-            SELECT * FROM users
-            WHERE name = 'Alice'
-            """
-            \`\`\`
-
-        ### Summary Table
-        | Type | Syntax | Best Use Case |
-        | :--- | :--- | :--- |
-        | **F-String** | \`f"Text {var}"\` | Most general purpose formatting |
-        | **.format()** | \`"Text {}".format(var)\` | Reusable templates |
-        | **Raw String** | \`r"C:\\path"\` | Regex and file paths |
-        | **Triple Quote**| \`"""Text"""\` | Multi-line text/docs |",
-        ]
-      `)
+      // Check the supplied code, not incidental headings or explanatory prose.
+      expect(expectedSnippets.length).toBeGreaterThan(0)
+      const answer = messagesSent.join('\n')
+      for (const snippet of expectedSnippets) {
+        expect(answer).toContain(snippet)
+      }
     })
 
     it('should handle JSON with nested objects, arrays, and escaped characters', async () => {
@@ -961,7 +656,7 @@ String types:
         description: 'Gets JSON examples',
         input: z.object({ topic: z.string() }),
         output: z.object({ content: z.string() }),
-        handler: async ({ topic }) => {
+        handler: async () => {
           const content = `
 JSON Structure Examples:
 
@@ -1017,6 +712,7 @@ Escaping rules:
 - Special: \\\\n \\\\t \\\\r \\\\b \\\\f
 - Unicode: \\\\uXXXX
 `
+          expectedSnippets = [...content.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].map((match) => match[1]!.trim())
           throw new ThinkSignal(content)
         },
       })
@@ -1028,7 +724,8 @@ Escaping rules:
 
       const result = await llmz.executeContext({
         chat,
-        instructions: 'Answer the user question by retrieving relevant documentation and providing code examples.',
+        instructions:
+          'Retrieve the relevant documentation and answer with its full code examples copied unchanged. Preserve every character inside the examples, including escapes. You may add a brief explanation outside the code blocks.',
         options: { loop: 5 },
 
         tools: [tGetDocs],
@@ -1044,72 +741,12 @@ Escaping rules:
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
       expect(result.iterations.length).toBeLessThanOrEqual(4)
 
-      expect(messagesSent).toMatchInlineSnapshot(`
-        [
-          "Let me find the documentation on how to work with JSON for you...",
-          "To work with JSON, you need to follow a specific structure of key-value pairs and arrays. Here is a comprehensive example and a guide on the rules:
-
-        ### JSON Structure Example
-        \`\`\`json
-        {
-          "user": {
-            "id": "usr_123",
-            "name": "John O'Brien",
-            "email": "john@example.com",
-            "roles": ["admin", "user"],
-            "metadata": {
-              "created": "2024-01-01T00:00:00Z",
-              "tags": ["premium", "early-adopter"],
-              "preferences": {
-                "theme": "dark",
-                "notifications": true
-              }
-            }
-          },
-          "messages": [
-            {
-              "id": 1,
-              "text": "Hello \\"world\\"!",
-              "author": "Alice",
-              "timestamp": "2024-01-01T12:00:00Z"
-            },
-            {
-              "id": 2,
-              "text": "Path: C:\\\\Users\\\\Documents\\\\file.txt",
-              "author": "Bob",
-              "html": "<p>This is <strong>bold</strong></p>"
-            }
-          ],
-          "config": {
-            "apiUrl": "https://api.example.com/v1",
-            "regex": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}$",
-            "template": "User {name} has {count} items",
-            "escapes": "Tab:\\t Newline:\\n Quote:\\" Backslash:\\\\"
-          },
-          "special_chars": {
-            "unicode": "Hello \\u0041\\u0042\\u0043",
-            "emoji": "🎉 \\uD83D\\uDE80",
-            "null_value": null,
-            "boolean": true,
-            "number": 42.5e-10
-          }
-        }
-        \`\`\`
-
-        ### Key Escaping Rules
-        When working with strings in JSON, certain characters must be escaped using a backslash (\`\\\`):
-
-        *   **Quotes**: Use \`\\"\` to include a double quote inside a string.
-        *   **Backslash**: Use \`\\\\\` to represent a single backslash.
-        *   **Control Characters**: 
-            *   \`\\n\` for a newline
-            *   \`\\t\` for a tab
-            *   \`\\r\` for carriage return
-        *   **Unicode**: Use \`\\uXXXX\` (where XXXX is the hex code) to represent unicode characters.
-
-        Do you have a specific project or language you are using JSON with?",
-        ]
-      `)
+      // Check the supplied code, not incidental headings or explanatory prose.
+      expect(expectedSnippets.length).toBeGreaterThan(0)
+      const answer = messagesSent.join('\n')
+      for (const snippet of expectedSnippets) {
+        expect(answer).toContain(snippet)
+      }
     })
 
     it('should handle CSS with selectors, pseudo-classes, and special syntax', async () => {
@@ -1118,7 +755,7 @@ Escaping rules:
         description: 'Gets CSS documentation',
         input: z.object({ topic: z.string() }),
         output: z.object({ content: z.string() }),
-        handler: async ({ topic }) => {
+        handler: async () => {
           const content = `
 CSS Advanced Selectors:
 
@@ -1183,6 +820,7 @@ Special CSS features:
 - Variables: --custom-property
 - Escapes: \\\\ for special chars
 `
+          expectedSnippets = [...content.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].map((match) => match[1]!.trim())
           throw new ThinkSignal(content)
         },
       })
@@ -1194,7 +832,8 @@ Special CSS features:
 
       const result = await llmz.executeContext({
         chat,
-        instructions: 'Answer the user question by retrieving relevant documentation and providing code examples.',
+        instructions:
+          'Retrieve the relevant documentation and answer with its full code examples copied unchanged. Preserve every character inside the examples, including escapes. You may add a brief explanation outside the code blocks.',
         options: { loop: 5 },
 
         tools: [tGetDocs],
@@ -1210,59 +849,12 @@ Special CSS features:
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
       expect(result.iterations.length).toBeLessThanOrEqual(4)
 
-      expect(messagesSent).toMatchInlineSnapshot(`
-        [
-          "Let me look up the documentation on CSS selectors for you...",
-          "CSS selectors are used to "find" (or select) the HTML elements you want to style. They can range from simple type selectors to complex combinations.
-
-        ### 1. Basic Selectors
-        While the advanced documentation focuses on complex patterns, the foundation consists of:
-        - **Element Selector**: Selects elements based on the element name.
-          \`\`\`css
-          p { color: red; } /* Selects all <p> elements */
-          \`\`\`
-        - **Class Selector**: Selects elements with a specific class attribute.
-          \`\`\`css
-          .button { background: blue; } /* Selects all elements with class="button" */
-          \`\`\`
-        - **ID Selector**: Selects a unique element with a specific ID.
-          \`\`\`css
-          #header { height: 100px; } /* Selects the element with id="header" */
-          \`\`\`
-
-        ### 2. Advanced Selectors
-        For more precise targeting, you can use these advanced patterns:
-
-        **Attribute Selectors**
-        Target elements based on their attributes or the value of those attributes:
-        - \`a[href^="https://"]\`: Selects links starting with "https://".
-        - \`a[href$=".pdf"]\`: Selects links ending with ".pdf".
-        - \`div[data-theme~="dark"]\`: Selects elements where the attribute contains the word "dark".
-
-        **Pseudo-classes and Pseudo-elements**
-        Target elements based on their state or specific parts of the element:
-        - \`:nth-child(2n+1)\`: Selects every odd element.
-        - \`:not(.active)\`: Selects elements that do *not* have the class "active".
-        - \`::first-letter\`: Styles only the first letter of a block of text.
-        - \`::before\` / \`::after\`: Inserts content before or after an element.
-
-        **Combinators**
-        Define the relationship between selectors:
-        - \`nav > ul\`: The child combinator (selects \`ul\` that is a direct child of \`nav\`).
-        - \`div.container:has(> img)\`: The \`:has()\` relational pseudo-class (selects the container only if it contains an image).
-
-        ### Example: Putting it all together
-        \`\`\`css
-        /* Select a link inside a list item that is NOT active, when hovered */
-        nav > ul > li:not(.active) a:hover {
-          text-decoration: underline;
-          color: var(--primary-color);
-        }
-        \`\`\`
-
-        Do you have a specific HTML structure you are trying to target?",
-        ]
-      `)
+      // Check the supplied code, not incidental headings or explanatory prose.
+      expect(expectedSnippets.length).toBeGreaterThan(0)
+      const answer = messagesSent.join('\n')
+      for (const snippet of expectedSnippets) {
+        expect(answer).toContain(snippet)
+      }
     })
 
     it('should handle Markdown with code blocks, links, and special syntax', async () => {
@@ -1271,7 +863,7 @@ Special CSS features:
         description: 'Gets Markdown documentation',
         input: z.object({ topic: z.string() }),
         output: z.object({ content: z.string() }),
-        handler: async ({ topic }) => {
+        handler: async () => {
           const content = `
 Markdown Syntax Guide:
 
@@ -1332,6 +924,7 @@ Markdown features:
 - Special: * _ # + - . !
 - Escapes: \\\\char
 `
+          expectedSnippets = [...content.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].map((match) => match[1]!.trim())
           throw new ThinkSignal(content)
         },
       })
@@ -1343,7 +936,8 @@ Markdown features:
 
       const result = await llmz.executeContext({
         chat,
-        instructions: 'Answer the user question by retrieving relevant documentation and providing code examples.',
+        instructions:
+          'Retrieve the relevant documentation and answer with its full code examples copied unchanged. Preserve every character inside the examples, including escapes. You may add a brief explanation outside the code blocks.',
         options: { loop: 5 },
 
         tools: [tGetDocs],
@@ -1359,65 +953,22 @@ Markdown features:
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
       expect(result.iterations.length).toBeLessThanOrEqual(4)
 
-      expect(messagesSent).toMatchInlineSnapshot(`
-        [
-          "Let me look up the Markdown syntax documentation for you...",
-          "Here is a guide on how to use Markdown syntax:
-
-        ### Headings
-        Use the \`#\` symbol followed by a space. More \`#\` symbols create smaller headings.
-        \`# Heading 1\`
-        \`## Heading 2\`
-        \`### Heading 3\`
-
-        ### Text Formatting
-        - **Bold**: Wrap text in double asterisks \`**bold**\` or double underscores \`__bold__\`.
-        - *Italic*: Wrap text in single asterisks \`*italic*\` or single underscores \`_italic_\`.
-        - ~~Strikethrough~~: Wrap text in double tildes \`~~strikethrough~~\`.
-        - \`Inline Code\`: Wrap text in single backticks \`\` \`code\` \`\`.
-
-        ### Lists
-        **Ordered Lists**:
-        1. First item
-        2. Second item
-
-        **Unordered Lists**:
-        - Item A
-        - Item B
-          - Nested Item
-
-        ### Links and Images
-        - **Links**: \`[Link Text](https://example.com "Optional Title")\`
-        - **Images**: \`![Alt Text](https://example.com/image.png)\`
-        - **Auto-links**: \`<https://example.com>\`
-
-        ### Code Blocks
-        For multi-line code blocks, use triple backticks. You can specify the language for syntax highlighting:
-
-        \`\`\`javascript
-        const greeting = \`Hello World!\`;
-        console.log(greeting);
-        \`\`\`
-
-        ### Blockquotes
-        Use the \`>\` symbol at the start of the line:
-        > This is a blockquote.
-        > > This is a nested blockquote.
-
-        ### Tables
-        Use pipes \`|\` and dashes \`-\` to create tables:
-
-        | Header 1 | Header 2 |
-        |----------|----------|
-        | Cell 1    | Cell 2    |
-        | Cell 3    | Cell 4    |
-
-        ### Special Characters
-        If you need to display a character that is normally used for formatting (like \`*\` or \`#\`), escape it with a backslash \`\\\`. For example: \`\\*not italic\\*\`.
-
-        Do you have any specific questions about these features?",
-        ]
-      `)
+      // Check the supplied code, not incidental headings or explanatory prose.
+      expect(expectedSnippets.length).toBeGreaterThan(0)
+      const answer = messagesSent.join('\n')
+      // Markdown demonstrations can escape nested fences for display. Check the
+      // syntax itself rather than requiring one choice of outer fence/escaping.
+      for (const literal of [
+        '# Heading with `inline code`',
+        '[Link](https://example.com "Title")',
+        '![Image](https://example.com/img.png)',
+        'code with {braces}',
+        'const regex = /[a-z]+/g;',
+        '<div class="custom">content</div>',
+      ]) {
+        expect(answer).toContain(literal)
+      }
+      expect(answer).toMatch(/Hello (?:\\)?\$\{name\}!/)
     })
   })
 
@@ -1428,9 +979,8 @@ Markdown features:
         description: 'Searches the database for information',
         input: z.object({ query: z.string() }),
         output: z.object({ results: z.array(z.string()) }),
-        handler: async ({ query }) => {
-          // Return search results with HTML tags that should be rendered as-is
-          return {
+        handler: async () => {
+          const data = {
             results: [
               '<strong>Product A</strong> is available at <a href="https://example.com/productA">this link</a>',
               'The price is <em>$99.99</em> with a <span class="discount">20% discount</span>',
@@ -1439,6 +989,11 @@ Markdown features:
               'Features: <ul><li>Fast shipping</li><li>Money-back guarantee</li></ul>',
             ],
           }
+
+          expectedSnippets = Object.values(data)
+            .flat()
+            .map((value) => value.trim())
+          return data
         },
       })
 
@@ -1470,19 +1025,17 @@ IMPORTANT RULES:
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
       expect(result.iterations.length).toBeLessThanOrEqual(4)
 
-      expect(result.iteration.code).toMatchInlineSnapshot(`undefined`)
+      expect(result.iteration.code).toBeUndefined()
 
-      expect(messagesSent).toMatchInlineSnapshot(`
-        [
-          "<p><em>Searching for available products...</em></p>",
-          "<p>Here are the search results I found for you:</p>
-        <p><strong>Product A</strong> is available at <a href="https://example.com/productA">this link</a></p>
-        <p>The price is <em>$99.99</em> with a <span class="discount">20% discount</span></p>
-        <p>Customer review: "This is <strong>amazing</strong>!" - <cite>John Doe</cite></p>
-        <p>Visit our <a href="https://example.com/store?ref=search&utm_source=email">online store</a> for more details</p>
-        <p>Features: <ul><li>Fast shipping</li><li>Money-back guarantee</li></ul></p>",
-        ]
-      `)
+      // Check the supplied code, not incidental headings or explanatory prose.
+      expect(expectedSnippets.length).toBeGreaterThan(0)
+      const answer = messagesSent.join('\n')
+      for (const snippet of expectedSnippets) {
+        // Additional paragraph wrappers are allowed; preserve each original tag and its text.
+        for (const fragment of snippet.split(/(?=<)/)) {
+          expect(answer.includes(fragment.trim()) || decodeHtml(answer).includes(fragment.trim())).toBe(true)
+        }
+      }
     })
 
     it('should handle contradictory instructions about escaping and preserving HTML entities', async () => {
@@ -1491,8 +1044,8 @@ IMPORTANT RULES:
         description: 'Gets content from the database',
         input: z.object({ id: z.string() }),
         output: z.object({ html: z.string() }),
-        handler: async ({ id }) => {
-          return {
+        handler: async () => {
+          const data = {
             html: `<div class="article">
   <h1>Article Title &amp; Subtitle</h1>
   <p>This article discusses <strong>important topics</strong> like:</p>
@@ -1505,6 +1058,11 @@ IMPORTANT RULES:
   <a href="/read?id=123&amp;ref=home">Read more &rarr;</a>
 </div>`,
           }
+
+          expectedSnippets = Object.values(data)
+            .flat()
+            .map((value) => value.trim())
+          return data
         },
       })
 
@@ -1537,26 +1095,14 @@ CRITICAL: The user expects to see HTML tags rendered, not as plain text!`,
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
       expect(result.iterations.length).toBeLessThanOrEqual(4)
 
-      expect(result.iteration.code).toMatchInlineSnapshot(`undefined`)
+      expect(result.iteration.code).toBeUndefined()
 
-      expect(messagesSent).toMatchInlineSnapshot(`
-        [
-          "Let me fetch that content for you...",
-          "<div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px;">
-        <div class="article">
-          <h1>Article Title &amp; Subtitle</h1>
-          <p>This article discusses <strong>important topics</strong> like:</p>
-          <ul>
-            <li>How to use &lt;script&gt; tags safely</li>
-            <li>Understanding &quot;quoted&quot; text</li>
-            <li>Working with &apos;single quotes&apos;</li>
-            <li>Math: 5 &gt; 3 &amp;&amp; 2 &lt; 4</li>
-          </ul>
-          <a href="/read?id=123&amp;ref=home">Read more &rarr;</a>
-        </div>
-        </div>",
-        ]
-      `)
+      // Check the supplied code, not incidental headings or explanatory prose.
+      expect(expectedSnippets.length).toBeGreaterThan(0)
+      const answer = messagesSent.join('\n')
+      for (const snippet of expectedSnippets) {
+        expect(answer.includes(snippet) || decodeHtml(answer).includes(snippet)).toBe(true)
+      }
     })
 
     it('should handle instructions mixing code formatting with HTML rendering', async () => {
@@ -1565,8 +1111,8 @@ CRITICAL: The user expects to see HTML tags rendered, not as plain text!`,
         description: 'Gets code examples with HTML documentation',
         input: z.object({ topic: z.string() }),
         output: z.object({ examples: z.array(z.string()) }),
-        handler: async ({ topic }) => {
-          return {
+        handler: async () => {
+          const data = {
             examples: [
               `<div class="example">
   <h3>Example 1: Basic Usage</h3>
@@ -1595,6 +1141,11 @@ function Button({ label }) {
 </article>`,
             ],
           }
+
+          expectedSnippets = Object.values(data)
+            .flat()
+            .map((value) => value.trim())
+          return data
         },
       })
 
@@ -1632,53 +1183,14 @@ CRITICAL: Your output must be valid HTML that includes the raw HTML from the exa
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
       expect(result.iterations.length).toBeLessThanOrEqual(4)
 
-      expect(result.iteration.code).toMatchInlineSnapshot(`undefined`)
+      expect(result.iteration.code).toBeUndefined()
 
-      expect(messagesSent).toMatchInlineSnapshot(`
-        [
-          "<div>
-          <section>
-            <p><em>Let me find some <strong>HTML templating</strong> examples for you...</em></p>
-          </section>
-        </div>",
-          "<div>
-          <section>
-            <p>Here are the <strong>HTML templating</strong> examples you requested:</p>
-            <article>
-              <div class="example">
-          <h3>Example 1: Basic Usage</h3>
-          <code>const html = '&lt;div&gt;{content}&lt;/div&gt;';</code>
-          <p>This creates a <strong>template string</strong> with HTML.</p>
-        </div>
-            </article>
-            <article>
-              <section>
-          <h3>Example 2: JSX Component</h3>
-          <pre>
-        function Button({ label }) {
-          return &lt;button onClick={() =&gt; alert(\`Clicked \${label}!\`)}&gt;{label}&lt;/button&gt;;
-        }
-          </pre>
-          <p>Notice the <em>curly braces</em> for expressions: <code>{label}</code></p>
-        </section>
-            </article>
-            <article>
-              <article>
-          <h3>Example 3: HTML Entities</h3>
-          <p>Common entities:</p>
-          <ul>
-            <li>&amp;lt; for &lt;</li>
-            <li>&amp;gt; for &gt;</li>
-            <li>&amp;amp; for &amp;</li>
-            <li>&amp;quot; for &quot;</li>
-          </ul>
-          <code>text.replace(/&lt;/g, '&amp;lt;').replace(/&gt;/g, '&amp;gt;')</code>
-        </article>
-            </article>
-          </section>
-        </div>",
-        ]
-      `)
+      // Check the supplied code, not incidental headings or explanatory prose.
+      expect(expectedSnippets.length).toBeGreaterThan(0)
+      const answer = messagesSent.join('\n')
+      for (const snippet of expectedSnippets) {
+        expect(decodeHtml(answer)).toContain(decodeHtml(snippet))
+      }
     })
 
     it('should handle instructions with template literals and HTML injection patterns', async () => {
@@ -1687,8 +1199,8 @@ CRITICAL: Your output must be valid HTML that includes the raw HTML from the exa
         description: 'Gets HTML templates',
         input: z.object({ category: z.string() }),
         output: z.object({ templates: z.array(z.string()) }),
-        handler: async ({ category }) => {
-          return {
+        handler: async () => {
+          const data = {
             templates: [
               `<template id="user-card">
   <div class="card" data-user="\${userId}">
@@ -1711,6 +1223,11 @@ CRITICAL: Your output must be valid HTML that includes the raw HTML from the exa
 </div>`,
             ],
           }
+
+          expectedSnippets = Object.values(data)
+            .flat()
+            .map((value) => value.trim())
+          return data
         },
       })
 
@@ -1720,7 +1237,7 @@ CRITICAL: Your output must be valid HTML that includes the raw HTML from the exa
       })
 
       const result = await llmz.executeContext({
-        instructions: `You are a template engine demonstrator. Follow these rules EXACTLY:
+        instructions: `You are a template engine demonstrator. First call getTemplates and return its result. Demonstrate only the templates actually returned by that tool; do not invent substitute templates. Follow these rules EXACTLY:
 
 DISPLAY FORMAT:
 - Use HTML tags in your responses: <div>, <section>, <code>, <pre>
@@ -1753,51 +1270,13 @@ This is for EDUCATIONAL purposes - show real-world template patterns!`,
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
       expect(result.iterations.length).toBeLessThanOrEqual(4)
 
-      expect(result.iteration.code).toMatchInlineSnapshot(`undefined`)
-      expect(messagesSent).toMatchInlineSnapshot(`
-        [
-          "Let me fetch some HTML templates with template literals for you...",
-          "Here are several real-world examples of HTML templates using template literal syntax. These are designed to be copy-paste ready for your educational use.
-
-        <section>
-          <h3>1. Component-Based Template</h3>
-          <p>This pattern is common for user interfaces where data is injected into a reusable card component.</p>
-          <pre><code>&lt;template id="user-card"&gt;
-          &lt;div class="card" data-user="\${userId}"&gt;
-            &lt;h2&gt;\${name}&lt;/h2&gt;
-            &lt;p&gt;Email: &lt;a href="mailto:\${email}"&gt;\${email}&lt;/a&gt;&lt;/p&gt;
-            &lt;button onclick="deleteUser('\${userId}')"&gt;Delete&lt;/button&gt;
-          &lt;/div&gt;
-        &lt;/template&gt;</code></pre>
-        </section>
-
-        <section>
-          <h3>2. Script-Based Template</h3>
-          <p>Using <code>text/template</code> prevents the browser from rendering the content immediately, allowing JavaScript to clone and populate it.</p>
-          <pre><code>&lt;script type="text/template"&gt;
-          &lt;div class="message"&gt;
-            &lt;strong&gt;\${author}&lt;/strong&gt; said:
-            &lt;blockquote&gt;\${message}&lt;/blockquote&gt;
-            &lt;small&gt;Posted at \${timestamp}&lt;/small&gt;
-          &lt;/div&gt;
-        &lt;/script&gt;</code></pre>
-        </section>
-
-        <section>
-          <h3>3. Dynamic Content with Logic</h3>
-          <p>This demonstrates safe patterns, such as providing fallback values (OR operator) and basic sanitization (replace method) to prevent XSS attacks.</p>
-          <pre><code>&lt;div class="dynamic-content"&gt;
-          &lt;h1&gt;\${title || 'Untitled'}&lt;/h1&gt;
-          &lt;div class="body"&gt;\${content?.replace(/&lt;script&gt;/g, '&amp;lt;script&amp;gt;')}&lt;/div&gt;
-          &lt;a href="/edit?id=\${id}&amp;action=update"&gt;Edit&lt;/a&gt;
-        &lt;/div&gt;</code></pre>
-        </section>
-
-        <div style="margin-top: 20px; padding: 10px; border: 1px solid #ccc;">
-          <strong>Educational Tip:</strong> Always remember to sanitize user-provided data (like the <code>.replace()</code> example above) before injecting it into your HTML to ensure the application remains secure.
-        </div>",
-        ]
-      `)
+      expect(result.iteration.code).toBeUndefined()
+      // Check the supplied code, not incidental headings or explanatory prose.
+      expect(expectedSnippets.length).toBeGreaterThan(0)
+      const answer = messagesSent.join('\n')
+      for (const snippet of expectedSnippets) {
+        expect(answer.includes(snippet) || decodeHtml(answer).includes(snippet)).toBe(true)
+      }
     })
 
     it('should handle instructions demanding raw HTML output with complex nesting', async () => {
@@ -1806,8 +1285,8 @@ This is for EDUCATIONAL purposes - show real-world template patterns!`,
         description: 'Gets HTML widget code',
         input: z.object({ widgetType: z.string() }),
         output: z.object({ html: z.string(), css: z.string(), js: z.string() }),
-        handler: async ({ widgetType }) => {
-          return {
+        handler: async () => {
+          const data = {
             html: `<div class="widget" id="widget-\${id}">
   <header>
     <h3>\${title}</h3>
@@ -1843,6 +1322,11 @@ function addToCart(itemId) {
     .then(data => alert(\`Added \${data.name}!\`));
 }`,
           }
+
+          expectedSnippets = Object.values(data)
+            .flat()
+            .map((value) => value.trim())
+          return data
         },
       })
 
@@ -1852,7 +1336,7 @@ function addToCart(itemId) {
       })
 
       const result = await llmz.executeContext({
-        instructions: `You are a widget code generator. STRICT REQUIREMENTS:
+        instructions: `You are a widget code generator. First call getWidgetHtml and return its result. Display the returned widget, not a newly invented substitute. STRICT REQUIREMENTS:
 
 OUTPUT FORMAT:
 - Respond with complete, ready-to-use HTML/CSS/JS code
@@ -1884,53 +1368,13 @@ IMPORTANT: This is production code - show it EXACTLY as-is with all HTML tags an
       expect(result.iterations.filter((i) => i.isFailed()).length).toBe(0)
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
       expect(result.iterations.length).toBeLessThanOrEqual(4)
-      expect(result.iteration.code).toMatchInlineSnapshot(`undefined`)
-      expect(messagesSent).toMatchInlineSnapshot(`
-        [
-          "Let me fetch the shopping cart widget code for you...",
-          "Here is the complete production code for the shopping cart widget.
-
-        ### HTML
-        <pre><code>&lt;div class="widget" id="widget-\${id}"&gt;
-          &lt;header&gt;
-            &lt;h3&gt;\${title}&lt;/h3&gt;
-            &lt;button class="close" onclick="closeWidget('\${id}')"&gt;&times;&lt;/button&gt;
-          &lt;/header&gt;
-          &lt;main&gt;
-            &lt;ul class="items"&gt;
-              \${items.map(item =&gt; \`
-                &lt;li data-id="\${item.id}"&gt;
-                  &lt;strong&gt;\${item.name}&lt;/strong&gt;
-                  &lt;span class="price"&gt;$\${item.price.toFixed(2)}&lt;/span&gt;
-                  &lt;button onclick="addToCart('\${item.id}')"&gt;Add&lt;/button&gt;
-                &lt;/li&gt;
-              \`).join('')}
-            &lt;/ul&gt;
-          &lt;/main&gt;
-          &lt;footer&gt;
-            &lt;p&gt;Total: &lt;strong&gt;$\${total}&lt;/strong&gt;&lt;/p&gt;
-          &lt;/footer&gt;
-        &lt;/div&gt;</code></pre>
-
-        ### CSS
-        <pre><code>.widget { border: 1px solid #ccc; }
-        .widget header { background: linear-gradient(to right, #667eea 0%, #764ba2 100%); }
-        .widget button:hover { transform: scale(1.1); }
-        .price::before { content: "$"; }</code></pre>
-
-        ### JavaScript
-        <pre><code>function closeWidget(id) {
-          document.getElementById(\`widget-\${id}\`).remove();
-          localStorage.setItem('closed-widgets', JSON.stringify([...closedWidgets, id]));
-        }
-
-        function addToCart(itemId) {
-          fetch(\`/api/cart/add?item=\${itemId}\`, { method: 'POST' })
-            .then(res => res.json())
-            .then(data => alert(\`Added \${data.name}!\`));
-        }</code></pre>",
-        ]
-      `)
+      expect(result.iteration.code).toBeUndefined()
+      // Check the supplied code, not incidental headings or explanatory prose.
+      expect(expectedSnippets.length).toBeGreaterThan(0)
+      const answer = messagesSent.join('\n')
+      for (const snippet of expectedSnippets) {
+        expect(answer.includes(snippet) || decodeHtml(answer).includes(snippet)).toBe(true)
+      }
     })
   })
 })
@@ -1989,8 +1433,10 @@ describe('message streaming', { retry: 0, timeout: 60_000 }, () => {
 
     // Each streamed message is fully reconstructible from its chunks and matches
     // the final message delivered to the handler
-    const deltasById = new Map<string, MessageDelta[]>()
+    const deltasById = new Map<string, Extract<MessageDelta, { restart: false }>[]>()
     for (const delta of deltas) {
+      expect(delta.restart).toBe(false)
+      if (delta.restart) continue
       deltasById.set(delta.id, [...(deltasById.get(delta.id) ?? []), delta])
     }
     for (const [, messageDeltas] of deltasById) {
