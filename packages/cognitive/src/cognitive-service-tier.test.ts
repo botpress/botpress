@@ -67,7 +67,9 @@ describe('text generation service tier', () => {
       const fetchMock = vi
         .fn()
         .mockResolvedValue(
-          new Response(method === 'generateText' ? '{"output":"pong"}' : '{"output":"pong","created":1}\n')
+          new Response(
+            method === 'generateText' ? '{"output":"pong"}' : '{"output":"pong","created":1,"finished":true}\n'
+          )
         )
       vi.stubGlobal('fetch', fetchMock)
       const cognitive = new Cognitive({ apiUrl: 'https://cognitive.test' })

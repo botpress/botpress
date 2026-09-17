@@ -394,6 +394,10 @@ export class Cognitive {
       }
 
       for await (const obj of this._ndjson<CognitiveStreamChunk>(stream)) {
+        if (obj.error) {
+          throw new Error(obj.error)
+        }
+
         if (obj.restart) {
           // The prefix is void, so drop it here too: otherwise the response event below reports the
           // abandoned attempt concatenated onto the one the consumer actually kept.
@@ -402,6 +406,10 @@ export class Cognitive {
         chunks.push(obj)
         lastChunk = obj
         yield obj
+      }
+
+      if (!lastChunk?.finished) {
+        throw new Error('Generation stream ended before completion. Discard the partial response and retry.')
       }
 
       // Emit response event with the final chunk metadata
