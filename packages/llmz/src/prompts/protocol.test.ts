@@ -11,12 +11,12 @@ import {
   componentToProtocolDefinition,
   getMessageContract,
   getProtocolInstructions,
-  getTranscriptTextComponent,
+  getTextMessageComponent,
 } from './protocol.js'
 import { DualModePrompt } from './dual-modes.js'
 
-describe('message framing in prompts and history', () => {
-  it('places a registered message example beside generation and frames assistant history without mutating it', async () => {
+describe('protocol instructions and plain conversation history', () => {
+  it('keeps assistant history verbatim while teaching the protocol in instructions', async () => {
     const transcript = new TranscriptArray([
       { role: 'user', content: 'Hi' },
       { role: 'assistant', content: 'How can I help?' },
@@ -31,21 +31,23 @@ describe('message framing in prompts and history', () => {
       globalTools: [],
     }
     const { message, parts } = await DualModePrompt.getSystemMessage(props)
-    expect(parts.transcript).toContain('<assistant-002 role="assistant">\n■send=message\nHow can I help?')
+    expect(parts.transcript).toContain('<assistant-002 role="assistant">\nHow can I help?\n</assistant-002>')
     expect(parts.transcript).toContain('<assistant-003 role="assistant">\n{"options"')
     expect(parts.transcript).not.toContain('■next=listen')
-    expect(parts.transcript).not.toContain('■send=message\nHi')
-    expect(String(message.content).indexOf('# Response format')).toBeGreaterThan(
-      String(message.content).indexOf('# Available response blocks')
+    expect(parts.transcript).not.toContain('■send=')
+    expect(parts.transcript).toBe(transcript.toString())
+    expect(String(message.content)).not.toContain('Earlier replies have message headers')
+    expect(String(message.content).lastIndexOf('# Response format')).toBeGreaterThan(
+      String(message.content).indexOf('SECTION 6: CHAT CONVERSATION HISTORY')
     )
     const initial = await DualModePrompt.getInitialUserMessage(props)
     expect(String(message.content)).toContain('BAD ❌')
     expect(String(message.content)).toContain('CORRECT ✅')
     expect(String(initial.content)).not.toContain('BAD ❌')
-    expect(String(message.content)).toContain('Message + listen')
-    expect(String(message.content)).toContain('Action + listen')
-    expect(String(message.content)).toContain('Message + action')
-    expect(String(initial.content)).toContain('"""\n■start\n■send=message\nYour answer here.\n■next=listen\n■end\n"""')
+    expect(String(message.content)).toContain('### Sending a message')
+    expect(String(message.content)).toContain('### Running a final action and finishing')
+    expect(String(message.content)).toContain('### Sending a message and running code')
+    expect(String(initial.content)).toContain('Use ■send=message')
     expect(String(initial.content).trim()).toMatch(/Begin with ■start. End with ■end.$/)
     expect(transcript[1]).toMatchObject({ content: 'How can I help?' })
     expect(transcript.toString()).not.toContain('■send=')
@@ -65,8 +67,8 @@ describe('message framing in prompts and history', () => {
       if (example.code?.includes('return')) expect(example.next).toBeUndefined()
     }
     expect(examples[4]!.sends).toHaveLength(1)
-    expect(examples[4]!.code).toContain('return await')
-    expect(examples[5]!.code).toBe('await availableTool({})')
+    expect(examples[4]!.code).toContain('return total')
+    expect(examples[5]!.code).toBe('await exampleSaveTotal({ total: 5 })')
     expect(examples[5]!.next?.name).toBe('listen')
     expect(getMessageContract([DefaultComponents.Text], [])).not.toContain('■next=listen')
   })
@@ -86,14 +88,14 @@ describe('message framing in prompts and history', () => {
       description: 'Addressed text',
       default: { props: z.object({ to: z.string() }), children: [] },
     })
-    expect(getTranscriptTextComponent([addressed, reply])).toBe('reply')
+    expect(getTextMessageComponent([addressed, reply])).toBe('reply')
     const contract = getMessageContract([reply], [ListenExit])
     expect(contract).toContain('■send=reply')
     expect(contract).not.toContain('■send=message')
-    expect(getMessageContract([addressed], [ListenExit])).not.toContain('■send=addressed')
+    expect(getMessageContract([addressed], [ListenExit], false)).toContain('include its required fields')
     expect(getMessageContract([], [ListenExit])).not.toContain('■send')
     const transcript = new TranscriptArray([{ role: 'assistant', content: '■send=reply\nAlready framed' }])
-    expect(transcript.toString({ assistantMessageComponent: 'reply' }).match(/■send=/g)).toHaveLength(1)
+    expect(transcript.toString().match(/■send=/g)).toHaveLength(1)
   })
 })
 
@@ -114,7 +116,7 @@ describe('default component examples', () => {
     const registry = new ComponentRegistry(definitions)
     for (const definition of definitions) {
       expect(definition.generation?.examples?.length).toBeGreaterThan(0)
-      for (const example of definition.generation!.examples!) {
+      for (const example of definition.generation!.examples!.flat()) {
         const raw = `■send=${definition.name}${example.props ? ` ${JSON.stringify(example.props)}` : ''}${example.body ? `\n${example.body}` : ''}\n■next=listen`
         const parsed = parseAssistantResponse(`■start\n${raw}\n■end`)
         expect(parsed.diagnostics).toEqual([])
@@ -123,20 +125,19 @@ describe('default component examples', () => {
     }
   })
 
-  it('shows a complete response with a question and multiple valid buttons', () => {
-    const components = [DefaultComponents.Text, DefaultComponents.Button]
+  it('uses the component-owned multi-button example in the combined reference too', () => {
+    const components = [DefaultComponents.Button]
     const output = getProtocolInstructions({ components, exits: [ListenExit] })
-    const example = output.split('## Button choices')[1]!.match(/"""\n([\s\S]*?)\n"""/)![1]!
-    const parsed = parseAssistantResponse(example)
+    const examples = [...output.matchAll(/^"""\n([\s\S]*?)\n"""$/gm)].map((match) => match[1]!)
+    const example = examples.find((block) => (block.match(/■send=button/g) ?? []).length === 3)
+    expect(example).toBeDefined()
+    expect(example).not.toMatch(/■send=message|■next=/)
+    const parsed = parseAssistantResponse(`■start\n${example}\n■next=listen\n■end`)
     expect(parsed.diagnostics).toEqual([])
-    expect(parsed.sends.map((send) => send.name)).toEqual(['message', 'button', 'button', 'button'])
-    expect(parsed.next?.name).toBe('listen')
-    const registry = new ComponentRegistry(components.map(componentToProtocolDefinition))
-    for (const send of parsed.sends) expect(validateComponent(send, registry).valid).toBe(true)
+    expect(parsed.sends.map((send) => send.name)).toEqual(['button', 'button', 'button'])
     expect(getProtocolInstructions({ components: [DefaultComponents.Text], exits: [ListenExit] })).not.toContain(
-      '## Button choices'
+      'Track my order'
     )
-    expect(getProtocolInstructions({ components, exits: [] })).not.toContain('## Button choices')
   })
 })
 
@@ -154,5 +155,5 @@ it('keeps leaf-only and required-prop chat channels distinct from workers', () =
     expect(contract).not.toContain('Immediately after ■start, write ■run or ■next')
     expect(contract).toContain('■send')
   }
-  expect(getMessageContract([], [ListenExit])).toContain('There is no message channel')
+  expect(getMessageContract([], [ListenExit])).toContain('Use only ■run or ■next= followed by an available exit name')
 })

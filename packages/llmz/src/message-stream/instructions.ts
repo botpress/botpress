@@ -1,4 +1,4 @@
-import { quoteExample, quoteResponseExample } from '../example-format.js'
+import { quoteExample, quotePartialExample, quoteResponseExample } from '../example-format.js'
 import { MARKER, type JsonSchema, type NormalizedComponentDefinition, type NormalizedExitDefinition } from './types.js'
 
 export type InstructionVerbosity = 'compact' | 'standard' | 'verbose'
@@ -67,6 +67,33 @@ export function generateInstructions(
   return sections.join('\n\n')
 }
 
+/** Render catalogues with a partial example beside every component and exit. */
+export function generateInstructionSections(
+  components: NormalizedComponentDefinition[],
+  options: InstructionGeneratorOptions = {}
+) {
+  const verbosity = options.verbosity ?? 'standard'
+  const sorted = options.sortComponents === false ? [...components] : _sortComponents(components)
+  const exits = [...(options.exits ?? [])].sort((a, b) => a.name.localeCompare(b.name))
+  const includeSend = options.includeSend ?? components.length > 0
+  const examples = options.includeExamples ?? verbosity !== 'compact'
+  return {
+    syntax: _coreSyntax({ includeSend, includeRun: options.includeRun ?? true, hasExits: exits.length > 0 }),
+    components: sorted
+      .map((c) =>
+        [_componentEntry(c, verbosity, false), ...(examples && includeSend ? _componentExamples(c, true) : [])].join(
+          '\n'
+        )
+      )
+      .join('\n\n'),
+    exits: exits
+      .map((e) =>
+        [_exitEntry(e, verbosity), ...(examples ? ['Example:', quotePartialExample(exitExample(e))] : [])].join('\n')
+      )
+      .join('\n\n'),
+  }
+}
+
 const _section = (tag: string, content: string): string =>
   ['props', 'body', 'description'].includes(tag) ? `${tag}: ${content}` : `## ${tag.replaceAll('_', ' ')}\n${content}`
 
@@ -82,7 +109,7 @@ const _coreSyntax = ({
   const blocks: string[] = []
   if (includeSend) {
     blocks.push(
-      `Send a message with ${MARKER}send=<component> {props} on its own line, then the literal body on following lines. Choose a registered component. Props go on the header line as JSON; omit them when none are needed. Props-only components have no body. You may send several messages.`
+      `Send a message with ${MARKER}send= followed by a registered component name and its JSON fields on one line, then the literal body on following lines. Choose a registered component. Props go on the header line as JSON; omit them when none are needed. Props-only components have no body. You may send several messages.`
     )
   }
   if (includeRun) {
@@ -92,11 +119,11 @@ const _coreSyntax = ({
   }
   if (hasExits) {
     blocks.push(
-      `Finish with ${MARKER}next=<exit> {props} on one line. Choose an available exit and include required props as JSON on that same line. This block has no body. Follow it with ${MARKER}end.`
+      `Finish with ${MARKER}next= followed by an available exit name and its JSON fields on one line. Choose an available exit and include required props as JSON on that same line. This block has no body. Follow it with ${MARKER}end.`
     )
   }
   blocks.push(
-    'Names in angle brackets and {props} are placeholders. Substitute available names and actual values. JSON uses double-quoted keys and strings; do not nest fields under "props" or "value".',
+    'Write actual names and values, never template labels. JSON uses double-quoted keys and strings; do not nest fields under "props" or "value".',
     `Never write ${MARKER} inside a body or prop. All messages go before code. A response must contain code or a final exit.`
   )
   return blocks.join('\n\n')
@@ -138,16 +165,30 @@ const _componentEntry = (
   }
 
   if (verbosity !== 'compact' && includeExamples) {
-    for (const example of (definition.generation?.examples ?? []).slice(0, 3)) {
-      const props = example.props ? ` ${JSON.stringify(example.props)}` : ''
-      const body = definition.body ? (example.body ?? _exampleBody(definition)) : undefined
-      lines.push(
-        _section('example', quoteExample(`${MARKER}send=${definition.name}${props}${body ? `\n${body}` : ''}`))
-      )
-    }
+    lines.push(..._componentExamples(definition))
   }
 
   return lines.join('\n')
+}
+
+const _componentExamples = (definition: NormalizedComponentDefinition, partial = false): string[] => {
+  const examples = definition.generation?.examples?.length
+    ? definition.generation.examples
+    : partial
+      ? [{ props: JSON.parse(_exampleProps(definition)), body: _exampleBody(definition) }]
+      : []
+  return examples
+    .filter((example, index) => partial || index < 3 || Array.isArray(example))
+    .map((example) => {
+      const output = (Array.isArray(example) ? example : [example])
+        .map((block) => {
+          const props = block.props ? ` ${JSON.stringify(block.props)}` : ''
+          const body = definition.body ? (block.body ?? _exampleBody(definition)) : undefined
+          return `${MARKER}send=${definition.name}${props === ' {}' ? '' : props}${body ? `\n${body}` : ''}`
+        })
+        .join('\n')
+      return partial ? `Example:\n${quotePartialExample(output)}` : _section('example', quoteExample(output))
+    })
 }
 
 const _exitEntry = (exit: NormalizedExitDefinition, verbosity: InstructionVerbosity): string => {
@@ -285,28 +326,29 @@ const _buildExamples = (
 
   const examples: string[] = []
 
-  // Keep each curated props/body pair together when choosing a short example.
-  // Mixing the first example's props with another example's body teaches a
-  // response the component author never intended.
-  const completeExample = (definition: NormalizedComponentDefinition): string => {
-    const custom = [...(definition.generation?.examples ?? [])].sort(
-      (a, b) => (a.body?.length ?? 0) - (b.body?.length ?? 0)
-    )[0]
-    const props = custom ? (custom.props ? ` ${JSON.stringify(custom.props)}` : '') : ` ${_exampleProps(definition)}`
-    const body = definition.body ? (custom?.body ?? _exampleBody(definition)) : undefined
-    return `${MARKER}send=${definition.name}${props === ' {}' ? '' : props}${body ? `\n${body}` : ''}${suffix}`
-  }
   if (bodyOnly) {
-    examples.push(completeExample(bodyOnly))
+    examples.push(componentExample(bodyOnly) + suffix)
   }
   if (propsOnly) {
-    examples.push(completeExample(propsOnly))
+    examples.push(componentExample(propsOnly) + suffix)
   }
   if (propsAndBody) {
-    examples.push(completeExample(propsAndBody))
+    examples.push(componentExample(propsAndBody) + suffix)
   }
 
   return examples.slice(0, maxExamples)
+}
+
+// Keep each curated props/body pair together when choosing a short example.
+// Mixing the first example's props with another example's body teaches a
+// response the component author never intended.
+export const componentExample = (definition: NormalizedComponentDefinition): string => {
+  const custom = (definition.generation?.examples ?? [])
+    .flat()
+    .sort((a, b) => (a.body?.length ?? 0) - (b.body?.length ?? 0))[0]
+  const props = custom ? (custom.props ? ` ${JSON.stringify(custom.props)}` : '') : ` ${_exampleProps(definition)}`
+  const body = definition.body ? (custom?.body ?? _exampleBody(definition)) : undefined
+  return `${MARKER}send=${definition.name}${props === ' {}' ? '' : props}${body ? `\n${body}` : ''}`
 }
 
 export const exitExample = (exit: NormalizedExitDefinition): string => {
@@ -323,7 +365,7 @@ export const exitExample = (exit: NormalizedExitDefinition): string => {
 }
 
 const _exampleProps = (definition: NormalizedComponentDefinition): string => {
-  const custom = definition.generation?.examples?.[0]?.props
+  const custom = definition.generation?.examples?.flat()[0]?.props
   if (custom) {
     return JSON.stringify(custom)
   }
@@ -377,7 +419,10 @@ const _exampleValue = (schema: JsonSchema, name: string): unknown => {
 }
 
 const _exampleBody = (definition: NormalizedComponentDefinition): string => {
-  const bodies = (definition.generation?.examples ?? []).map((e) => e.body).filter((b): b is string => !!b)
+  const bodies = (definition.generation?.examples ?? [])
+    .flat()
+    .map((e) => e.body)
+    .filter((b): b is string => !!b)
   const custom = bodies[0]
   if (custom) {
     return custom

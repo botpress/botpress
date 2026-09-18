@@ -13,6 +13,11 @@ const Button = new Component({
       { props: { action: 'say', label: 'Track my order' } },
       { props: { action: 'url', label: 'View guide', url: 'https://example.com/guide' } },
       { props: { action: 'postback', label: 'Choose Standard', value: 'plan_standard' } },
+      [
+        { props: { action: 'say', label: 'Track my order' } },
+        { props: { action: 'say', label: 'Return an item' } },
+        { props: { action: 'say', label: 'Contact support' } },
+      ],
     ],
   },
   leaf: {

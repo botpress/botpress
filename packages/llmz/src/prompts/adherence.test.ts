@@ -18,7 +18,7 @@ describe('simple response instructions', () => {
     const props = protocolScenario('Bonjour !')
     const system = String((await DualModePrompt.getSystemMessage(props)).message.content)
     expect(system).not.toMatch(
-      /^<\/?(?:response_protocol|message_contract|next_action|conversation_defaults|component|props|body|syntax|exit|assigned_instructions|response_reminder)\b/m
+      /^<\/?(?:response_protocol|message_contract|next_action|conversation_defaults|component|syntax|exit|assigned_instructions|response_reminder)\b/m
     )
     expect(system.lastIndexOf('# Response format')).toBeGreaterThan(system.indexOf(props.instructions))
     expect(system.lastIndexOf('# Response format')).toBeGreaterThan(system.indexOf('Bonjour !'))

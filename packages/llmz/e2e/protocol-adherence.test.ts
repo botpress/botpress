@@ -2,11 +2,11 @@ import type { CognitiveRequest, CognitiveMetadata } from '@botpress/cognitive'
 import { describe, expect, it } from 'vitest'
 import { parseAssistantResponse } from '../src/prompts/common.js'
 import { DualModePrompt } from '../src/prompts/dual-modes.js'
-import { cases, client, models } from './__tests__/model-evaluation.js'
+import { cases, client, expectAllowedRestart, expectModelRoute, models } from './__tests__/model-evaluation.js'
 import { protocolScenario, protocolScenarios } from './__tests__/protocol-scenarios.js'
 
-// Deliberately no execution repair, provider fallback chain, cache, or test retry:
-// a green result here measures FIRST-response protocol adherence.
+// No execution repair, cache, or test retry. With optional provider fallback,
+// this measures the first response from the successful attempt, not the primary model alone.
 describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled', run: 1 }])(
   'first-response protocol: $model, sample $run',
   ({ model, run }) => {
@@ -33,7 +33,11 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         let metadata: CognitiveMetadata | undefined
         if (streaming) {
           for await (const chunk of client.generateTextStream(request)) {
-            expect(chunk.restart).toBeUndefined()
+            if (chunk.restart) {
+              expectAllowedRestart(chunk.restart)
+              output = ''
+              metadata = undefined
+            }
             output += chunk.output ?? ''
             metadata = chunk.metadata ?? metadata
           }
@@ -46,8 +50,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         console.info(
           JSON.stringify({ model, run, question, streaming, output, metadata, diagnostics: parsed.diagnostics })
         )
-        expect(metadata?.cached).toBe(false)
-        expect(metadata?.fallbackPath ?? []).toEqual([])
+        expectModelRoute(metadata, model)
         expect(output).toMatch(/^■start\r?\n/m)
         expect(
           parsed.diagnostics?.filter((d) => d.code !== 'unexpected-text' && d.code !== 'example-delimiter')

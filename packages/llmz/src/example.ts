@@ -184,7 +184,9 @@ export const renderExamples = async (
 
   return [
     '<few_shots>',
-    'These are hypothetical examples, NOT the conversation transcript. Each example shows ONE desired response.',
+    components.length
+      ? 'These are hypothetical examples, NOT the conversation transcript. Each example shows ONE desired response.'
+      : 'These are hypothetical examples, NOT actual task history. Each example shows ONE desired response.',
     'Use examples whose KIND of situation applies, not just the same names or numbers. Conditions such as "only when requested" are required: sharing a tool or topic is not enough.',
     exampleBoundaryInstructions,
     'Only the text between triple quotes in response demonstrates output. Situation and optional reason explain the example; never emit their text or XML tags.',

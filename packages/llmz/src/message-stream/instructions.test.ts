@@ -69,13 +69,13 @@ describe('instruction generator', () => {
 
     expect(output).toMatchInlineSnapshot(`
       "## syntax
-      Send a message with ■send=<component> {props} on its own line, then the literal body on following lines. Choose a registered component. Props go on the header line as JSON; omit them when none are needed. Props-only components have no body. You may send several messages.
+      Send a message with ■send= followed by a registered component name and its JSON fields on one line, then the literal body on following lines. Choose a registered component. Props go on the header line as JSON; omit them when none are needed. Props-only components have no body. You may send several messages.
 
       Run JavaScript with ■run on its own line, then the code. Use at most one run block. Return a result to inspect it in the next response; then close with ■end and stop. Do not append an answer before seeing the result.
 
-      Finish with ■next=<exit> {props} on one line. Choose an available exit and include required props as JSON on that same line. This block has no body. Follow it with ■end.
+      Finish with ■next= followed by an available exit name and its JSON fields on one line. Choose an available exit and include required props as JSON on that same line. This block has no body. Follow it with ■end.
 
-      Names in angle brackets and {props} are placeholders. Substitute available names and actual values. JSON uses double-quoted keys and strings; do not nest fields under "props" or "value".
+      Write actual names and values, never template labels. JSON uses double-quoted keys and strings; do not nest fields under "props" or "value".
 
       Never write ■ inside a body or prop. All messages go before code. A response must contain code or a final exit.
 
@@ -134,9 +134,9 @@ describe('instruction generator', () => {
       ■end
       """"
     `)
-    expect(output).toContain('■send=<component> {props}')
+    expect(output).toContain('■send= followed by a registered component name')
     expect(output).toContain('■run')
-    expect(output).toContain('■next=<exit> {props}')
+    expect(output).toContain('■next= followed by an available exit name')
     expect(output).toContain('Never write ■ inside a body or prop.')
     expect(output).toContain('Return a result to inspect it in the next response')
     expect(output).toContain('Follow it with ■end.')
@@ -144,7 +144,7 @@ describe('instruction generator', () => {
 
   it('requires an exit when code is disabled', () => {
     const output = generateInstructions(COMPONENTS, { exits: EXITS, includeRun: false })
-    expect(output).toContain('Finish with ■next=<exit> {props}')
+    expect(output).toContain('Finish with ■next= followed by an available exit name')
     expect(output).not.toContain('■run')
   })
 

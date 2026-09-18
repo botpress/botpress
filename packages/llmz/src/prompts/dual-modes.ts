@@ -7,11 +7,13 @@ import { wrapContent } from '../truncator.js'
 
 import CHAT_SYSTEM_PROMPT_TEXT from './chat-mode/system.js'
 import CHAT_USER_PROMPT_TEXT from './chat-mode/user.js'
+import CODE_EXAMPLES from './code-examples.js'
 
 import { parseAssistantResponse, replacePlaceholders } from './common.js'
 import { getExecutionState } from './execution-state.js'
 import { LLMzPrompts, Prompt } from './prompt.js'
-import { getMessageContract, getProtocolInstructions, getTranscriptTextComponent } from './protocol.js'
+import { noPlaceholders, readResultExample } from './protocol-basics.js'
+import { getMessageContract, getProtocolSections } from './protocol.js'
 
 import WORKER_SYSTEM_PROMPT_TEXT from './worker-mode/system.js'
 import WORKER_USER_PROMPT_TEXT from './worker-mode/user.js'
@@ -77,18 +79,19 @@ const value = ${readonly_vars[0]} // reading a Readonly variable is valid
   }
 
   const identity = props.instructions?.length ? props.instructions : 'No specific instructions provided'
-  const transcript = props.transcript.toString({
-    assistantMessageComponent: getTranscriptTextComponent(props.components),
-  })
+  const transcript = props.transcript.toString()
   const examples = await renderExamples(props.examples ?? [], props.components, props.exits)
-  const protocol = getProtocolInstructions({ components: props.components, exits: props.exits })
+  const sections = getProtocolSections({ components: props.components, exits: props.exits })
+  const protocol = [sections.specifications, sections.messages, sections.exits, variables_example, CODE_EXAMPLES]
+    .filter(Boolean)
+    .join('\n\n')
 
   return {
     message: {
       role: 'system' as const,
       content: replacePlaceholders(canTalk ? CHAT_SYSTEM_PROMPT_TEXT : WORKER_SYSTEM_PROMPT_TEXT, {
         is_message_enabled: canTalk,
-        'tools.d.ts': wrapContent(dts, {
+        'tools.d.ts': wrapContent(dts || '// No tools or variables are available.', {
           preserve: 'both',
           minTokens: 500,
         }),
@@ -96,20 +99,23 @@ const value = ${readonly_vars[0]} // reading a Readonly variable is valid
           preserve: 'both',
           minTokens: 1000,
         }),
-        transcript: wrapContent(transcript, {
+        transcript: wrapContent(transcript || (canTalk ? 'No conversation history.' : 'No task history.'), {
           preserve: 'bottom',
           minTokens: 500,
         }),
-        tool_names: tool_names.join(', '),
-        readonly_vars: readonly_vars.join(', '),
-        writeable_vars: writeable_vars.join(', '),
+        tool_names: tool_names.join(', ') || 'None',
+        readonly_vars: readonly_vars.join(', ') || 'None',
+        writeable_vars: writeable_vars.join(', ') || 'None',
         variables_example,
+        code_examples: CODE_EXAMPLES,
         few_shots: examples,
-        protocol: wrapContent(protocol, {
+        protocol_specifications: wrapContent(sections.specifications, {
           preserve: 'both',
           minTokens: 500,
         }),
-        message_contract: getMessageContract(props.components, props.exits),
+        ...(canTalk ? { message_types: wrapContent(sections.messages, { preserve: 'both', minTokens: 500 }) } : {}),
+        exits: wrapContent(sections.exits, { preserve: 'both', minTokens: 500 }),
+        message_summary: sections.summary,
       }).trim(),
     },
     parts: {
@@ -129,7 +135,15 @@ const getInitialUserMessage: Prompt['getInitialUserMessage'] = async (props) => 
     ? 'Nobody has spoken yet in this conversation. You can start by saying something.'
     : 'Carry out the assigned task.'
 
-  if (transcript.length && transcript[0]?.role === 'user') {
+  const latest = transcript[0]
+  if (!isChatMode && latest) {
+    const content =
+      latest.role === 'event' ? inspect(latest.payload, latest.name, { tokens: 5000 }) : latest.content.trim()
+    const hasAudio = 'attachments' in latest && latest.attachments?.some((attachment) => attachment.type === 'audio')
+    recap = `Latest task record:\n${content}`
+    if (hasAudio) recap += '\nThe attached audio is also task input. Read it along with the text.'
+    else if (latest.role === 'user' && latest.modality === 'voice') recap += '\nThis text was transcribed from audio.'
+  } else if (transcript.length && transcript[0]?.role === 'user') {
     const lastContent = transcript[0].content.trim()
     const lastHasVoiceAudio = transcript[0].attachments?.some((attachment) => attachment.type === 'audio')
     const lastIsVoice = lastHasVoiceAudio || transcript[0].modality === 'voice'
@@ -191,7 +205,9 @@ ${inspect(transcript[0]?.payload, transcript[0]?.name, { tokens: 5000 })}
             return [
               {
                 type: 'text',
-                text: `The user spoke this message aloud. Here's the voice message [${ref}]${alt} — what is said in this audio is what the user said:`,
+                text: isChatMode
+                  ? `The user spoke this message aloud. Here's the voice message [${ref}]${alt} — what is said in this audio is what the user said:`
+                  : `Audio task input [${ref}]${alt}:`,
               },
               {
                 type: 'audio',
@@ -254,14 +270,17 @@ ${props.isChatEnabled === false ? '' : `${recoveryReminder}\nAny messages alread
 
 Expected response format (■ blocks):
 ${exampleBoundaryInstructions}
-${props.isChatEnabled ? 'To answer or ask a question, write ■send=<component> on its own line BEFORE the message body, then ■next=<exit>. Unmarked text is discarded. Keep private reasoning out of send blocks. An exit alone sends nothing; use it only for intentional silence or a handoff requiring no message.' : ''}
-For an exit, put ALL required props in a JSON object on the SAME LINE as ■next=<exit>. An exit has NO body: putting the object on the next line leaves its props missing.
+${props.isChatEnabled ? 'To answer or ask a question, write ■send= followed by an available message type on its own line BEFORE the message body, then ■next= followed by an available exit name. Unmarked text is discarded. Keep private reasoning out of send blocks. An exit alone sends nothing; use it only for intentional silence or a handoff requiring no message.' : ''}
+For an exit, put ALL required props in a JSON object on the SAME LINE as ■next= followed by an available exit name. An exit has NO body: putting the object on the next line leaves its props missing.
 
-${quoteResponseExample('■run\n// code here')}
+${noPlaceholders}
 
-Or finish with:
+Here is a complete response that returns a calculation. Write your own code for the actual task:
 
-${quoteResponseExample('■next=<exit> {props?}')}
+${quoteResponseExample(readResultExample)}
+
+Do not add ■next after return. To finish instead, choose an exit from the available exits section and use its name and required JSON fields on one line, then write ■end.
+
 `.trim(),
   }
 }

@@ -1,12 +1,20 @@
 import { transforms, z } from '@bpinternal/zui'
 import { JSONSchema7 } from 'json-schema'
 
-import { DefaultComponents } from '../component.default.js'
 import { Component, ComponentDefinition } from '../component.js'
-import { exampleBoundaryInstructions, quoteResponseExample } from '../example-format.js'
+import { exampleBoundaryInstructions, quotePartialExample, quoteResponseExample } from '../example-format.js'
 import { Exit } from '../exit.js'
-import { exitExample, generateInstructions } from '../message-stream/instructions.js'
+import {
+  componentExample,
+  exitExample,
+  generateInstructions,
+  generateInstructionSections,
+} from '../message-stream/instructions.js'
 import type { NormalizedComponentDefinition, NormalizedExitDefinition } from '../message-stream/types.js'
+
+import CHAT_PROTOCOL from './chat-mode/protocol.js'
+import { finalActionExample, noPlaceholders, readResultExample } from './protocol-basics.js'
+import WORKER_PROTOCOL from './worker-mode/protocol.js'
 
 const toJsonSchema = (schema: z.ZodObject<any>): JSONSchema7 => {
   try {
@@ -59,8 +67,8 @@ export const exitToProtocolDefinition = (exit: Exit): NormalizedExitDefinition =
   propsJsonSchema: exit.schema as JSONSchema7 | undefined,
 })
 
-/** A historical text reply must not invent props or use an unavailable component. */
-export const getTranscriptTextComponent = (components: Component[]): string | undefined => {
+/** Choose a text component for examples and reminders without inventing required props. */
+export const getTextMessageComponent = (components: Component[]): string | undefined => {
   const candidates = components
     .map(componentToProtocolDefinition)
     .filter(
@@ -74,24 +82,21 @@ export const getTranscriptTextComponent = (components: Component[]): string | un
 }
 
 /** Keep the simplest complete response close to generation, even with a large component catalogue. */
-export const getMessageContract = (components: Component[], exits: Exit[], includeFormats = true): string => {
-  const name = getTranscriptTextComponent(components)
+const getResponseFormatSections = (components: Component[], exits: Exit[], includeFormats = true) => {
+  const name = getTextMessageComponent(components)
   const listen = exits.find((exit) => exit.name.toLowerCase() === 'listen')
-  const canListen = listen && !(listen.schema as JSONSchema7 | undefined)?.required?.length
-  const answer = name && canListen ? `■send=${name}\nYour answer here.\n■next=listen` : undefined
-  const action = '■run\nreturn await availableTool({})'
+  const canListen = components.length > 0 && listen && !(listen.schema as JSONSchema7 | undefined)?.required?.length
+  const answer = name && canListen ? `■send=${name}\nHello!\n■next=listen` : undefined
+  const action = readResultExample
   const done = exits[0]
   const finish = done ? exitExample(exitToProtocolDefinition(done)) : undefined
-  const lines = [
-    '# Response format',
-    'REQUIRED: Output one complete response. The first line is exactly ■start. The last line is exactly ■end. Nothing goes outside these boundaries.',
-    name
-      ? `Every word for the user goes inside ■send=${name}. Never answer in plain text. Keep reasoning private. If exact text or raw JSON is requested, put ONLY that literal content in the message body, without introductions, extra quotes, or Markdown fences.`
-      : components.length
-        ? 'User-facing messages must use registered ■send components with their required JSON props and documented body format. Never write unmarked prose or invent a text component.'
-        : 'There is no message channel. Immediately after ■start, write ■run or ■next=<exit>. Every remaining line belongs to that block or the closing ■end. A natural-language sentence is invalid in ANY language, including a translation or restatement of the result. Report results only as JSON props of the exit.',
-    exampleBoundaryInstructions,
+  const rules = [
+    'Start with ■start on its own line. End with ■end on its own line. Write nothing outside these boundaries. Do not add triple quotes or Markdown code fences around the response.',
+    components.length
+      ? `Use ■send=${name ?? components[0]?.definition.name.toLowerCase()} before any text for the user. Use a type from SECTION 2 and include its required fields. Write the final text itself, not thoughts or placeholders.`
+      : 'Use only ■run or ■next= followed by an available exit name after ■start. Put the result in the exit fields. Do not add explanations in any language.',
   ]
+  const lines = [exampleBoundaryInstructions]
   if (includeFormats && name) {
     lines.push(
       'BAD ❌ — missing the message header:',
@@ -110,9 +115,9 @@ export const getMessageContract = (components: Component[], exits: Exit[], inclu
   }
   if (answer) lines.push('Message + listen — answer or ask a question:', quoteResponseExample(answer))
   lines.push(
-    'Action — call a tool and inspect its result next turn:',
+    'Code — return a value to inspect next turn:',
     quoteResponseExample(action),
-    'availableTool is a placeholder. Use an actual tool from the API with its real inputs.'
+    'These values only illustrate the format. Use the code and facts needed for your task.'
   )
   if (includeFormats && name) {
     lines.push(
@@ -123,7 +128,8 @@ export const getMessageContract = (components: Component[], exits: Exit[], inclu
   if (canListen) {
     lines.push(
       'Action + listen — when the task requests a silent final action, await the tool WITHOUT return and use the requested exit in this same response. No extra result-inspection turn is needed:',
-      quoteResponseExample('■run\nawait availableTool({})\n■next=listen'),
+      quoteResponseExample(`${finalActionExample}\n■next=listen`),
+      'exampleSaveTotal is fictional and unavailable. Use a real tool from the API with its real inputs.',
       'Listen — only when intentional silence is appropriate:',
       quoteResponseExample('■next=listen')
     )
@@ -131,12 +137,61 @@ export const getMessageContract = (components: Component[], exits: Exit[], inclu
   if (!answer && finish) {
     lines.push('Finish — choose an available exit and supply its required props as JSON:', quoteResponseExample(finish))
   }
-  lines.push(
-    'Use at most one ■run. Put any messages BEFORE it. After code returning a result, close with ■end and wait for the result. Otherwise finish with ■next and then ■end.',
-    'Generate exactly ONE response, then stop. Do not continue the conversation, repeat the response, or write another marker after ■end. Start directly with ■start, without analysis or a thinking preamble. Do not wrap the response in Markdown code fences. Do not output triple quotes or documentation headings.',
-    'Begin with ■start. End with ■end.'
-  )
-  return lines.join('\n\n')
+  const closing = [
+    ...(components.length ? ['Put every ■send before ■run. Never send a message after code.'] : []),
+    'Use at most one ■run. To read a result next turn: return the result, then write ■end. Do not add ■next after return. To finish now: do not return a result; write ■next= followed by an available exit name with its required JSON fields on the same line, then ■end.',
+    noPlaceholders,
+    'Use the patterns in SECTION 1. Write one response only, then stop.',
+    'Begin with ■start. End with ■end.',
+  ]
+  return { rules, examples: lines, closing }
+}
+
+export const getMessageContract = (components: Component[], exits: Exit[], includeFormats = true): string => {
+  const { rules, examples, closing } = getResponseFormatSections(components, exits, includeFormats)
+  return ['# Response format', ...rules, ...(includeFormats ? examples : []), ...closing].join('\n\n')
+}
+
+const partialExamplesReminder =
+  'Each example below shows only one block. (...) means other parts of the response are omitted. Do NOT write (...) or the triple quotes in your response. Use SECTION 1 to put blocks together into a complete response.'
+
+/** Keep each block example beside its definition, separate from complete response patterns. */
+export const getProtocolSections = ({ components, exits }: { components: Component[]; exits: Exit[] }) => {
+  const sections = generateInstructionSections(components.map(componentToProtocolDefinition), {
+    exits: exits.map(exitToProtocolDefinition),
+  })
+  const canTalk = components.length > 0
+  const textComponent = getTextMessageComponent(components)
+  const messageCorrection = textComponent
+    ? [
+        'BAD ❌ — missing the message header:',
+        quotePartialExample('Hello!'),
+        'CORRECT ✅ — header before the reply:',
+        quotePartialExample(`■send=${textComponent}\nHello!`),
+      ].join('\n\n')
+    : ''
+  const defaultExit = exits.find((exit) => exit.name.toLowerCase() === 'listen') ?? exits[0]
+  const exit = defaultExit && exitExample(exitToProtocolDefinition(defaultExit))
+  const sampleComponent = components.find((c) => c.definition.name.toLowerCase() === textComponent) ?? components[0]
+  const send = sampleComponent && componentExample(componentToProtocolDefinition(sampleComponent))
+  const exitCorrection = exit
+    ? [
+        'BAD ❌ — missing the exit command:',
+        quotePartialExample(exit.replace('■next=', '')),
+        'CORRECT ✅ — name the exit with ■next:',
+        quotePartialExample(exit),
+      ].join('\n\n')
+    : ''
+  return {
+    specifications: send ? CHAT_PROTOCOL(send, exit) : WORKER_PROTOCOL(exit),
+    messages: canTalk
+      ? [partialExamplesReminder, messageCorrection, sections.components].filter(Boolean).join('\n\n')
+      : '',
+    exits: sections.exits
+      ? [partialExamplesReminder, exitCorrection, sections.exits].join('\n\n')
+      : 'No exits are available.',
+    summary: getMessageContract(components, exits, false),
+  }
 }
 
 /**
@@ -151,27 +206,5 @@ export const getProtocolInstructions = ({ components, exits }: { components: Com
     includeExamples: true,
   })
 
-  const listen = exits.map(exitToProtocolDefinition).find((exit) => exit.name === 'listen')
-  if (
-    !components.includes(DefaultComponents.Text) ||
-    !components.includes(DefaultComponents.Button) ||
-    !listen ||
-    listen.propsJsonSchema?.required?.length
-  ) {
-    return instructions
-  }
-
-  return `${instructions}
-
-## Button choices
-One response can contain a question and several button choices. Send each button as its own block, then wait for the user with ONE final exit.
-
-${quoteResponseExample(`■send=message
-How can I help with your order?
-■send=button {"action":"say","label":"Track my order"}
-■send=button {"action":"say","label":"Return an item"}
-■send=button {"action":"say","label":"Contact support"}
-■next=listen`)}
-
-`
+  return instructions
 }

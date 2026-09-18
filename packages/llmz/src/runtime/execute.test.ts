@@ -233,6 +233,74 @@ const restartDeltas = (deltas: MessageDelta[]): RestartDelta[] => deltas.filter(
 describe('message-stream protocol execution', () => {
   describe('framed response execution', () => {
     const modes = ['nonstreaming', 'whole', 'characters', 'chunks', 'fallback', 'restart'] as const
+    test.each(modes)('%s ignores trailing blocks after ■end without retries or side effects', async (mode) => {
+      const called = vi.fn(async () => undefined)
+      const forbidden = vi.fn(async () => undefined)
+      const deltas: MessageDelta[] = []
+      const { chat, messages } = makeChat((delta) => {
+        deltas.push({ ...delta })
+      })
+      const raw =
+        '■start\n■send=message\nDone.\n■run\nawait record()\n■next=listen\n■end■start\n■send=message\nDiscarded\n■run\nawait forbidden()\n■next=listen\n■end'
+      const client =
+        mode === 'nonstreaming'
+          ? new ScriptedNonStreamingCognitive([raw])
+          : mode === 'restart'
+            ? new ScriptedRestartStreamingCognitive(['■start\n■send=message\nAbandoned', raw], undefined, 1)
+            : new ScriptedStreamingCognitive(
+                [raw],
+                undefined,
+                mode === 'whole' ? 100_000 : mode === 'characters' ? 1 : 7
+              )
+      const result = await executeContext({
+        client,
+        chat,
+        tools: [new Tool({ name: 'record', handler: called }), new Tool({ name: 'forbidden', handler: forbidden })],
+        options: { loop: 1, midStreamFallback: mode === 'fallback' || mode === 'restart' },
+      })
+      expect(result.isSuccess()).toBe(true)
+      expect(result.iterations.map((iteration) => iteration.status.type)).toEqual(['exit_success'])
+      expect(called).toHaveBeenCalledOnce()
+      expect(forbidden).not.toHaveBeenCalled()
+      expect(messages).toEqual([{ type: 'MESSAGE', text: 'Done.', props: {} }])
+      expect(
+        textDeltas(deltas).every((delta) => ['Done.', 'Abandoned'].some((text) => text.startsWith(delta.content)))
+      ).toBe(true)
+      expect(restartDeltas(deltas)).toHaveLength(mode === 'restart' ? 1 : 0)
+      expect(result.iterations[0]!.llm?.output).toBe(raw)
+      expect(result.iterations[0]!.llm?.diagnostics).toEqual([
+        { code: 'unexpected-text', message: 'Discarded content after ■end' },
+      ])
+    })
+
+    test.each([false, true])(
+      'accepts the exact HTML failure response without a failed iteration (streaming=%s)',
+      async (streaming) => {
+        const raw =
+          '■start\n■run\nconst result = await getDocumentation({topic: "HTML forms"});\nreturn result.content;\n■end■start\n■end'
+        const lookup = vi.fn(async () => ({ content: 'Form documentation' }))
+        const { chat, messages } = makeChat()
+        const responses = [raw, '■start\n■send=message\nForm documentation\n■next=listen\n■end']
+        const result = await executeContext({
+          client: streaming
+            ? new ScriptedStreamingCognitive(responses, undefined, 1)
+            : new ScriptedNonStreamingCognitive(responses),
+          chat,
+          tools: [new Tool({ name: 'getDocumentation', input: z.object({ topic: z.string() }), handler: lookup })],
+          options: { loop: 2 },
+        })
+        expect(result.isSuccess()).toBe(true)
+        expect(result.iterations.map((iteration) => iteration.status.type)).toEqual([
+          'thinking_requested',
+          'exit_success',
+        ])
+        expect(lookup).toHaveBeenCalledOnce()
+        expect(lookup).toHaveBeenCalledWith({ topic: 'HTML forms' }, expect.any(Object))
+        expect(messages.map((message) => message.text)).toEqual(['Form documentation'])
+        expect(result.iterations[0]!.llm?.output).toBe(raw)
+      }
+    )
+
     test.each(modes)(
       '%s commits sends and code only after the full envelope and successful transport',
       async (mode) => {
@@ -448,7 +516,7 @@ describe('message-stream protocol execution', () => {
       const repair = String(result.iterations[1]!.messages.at(-1)!.content)
       expect(repair).toContain('■start')
       expect(repair).toContain('Keep private reasoning')
-      expect(repair).toContain('■send=<component>')
+      expect(repair).toContain('■send= followed by an available message type')
     })
 
     test.each(modes)('%s fails within the budget if every reply omits the send marker', async (mode) => {
@@ -910,6 +978,44 @@ describe('message-stream protocol execution', () => {
     if (result.isError()) expect(String(result.error)).toContain('ABORTED')
   })
 
+  test.each([false, true])(
+    'keeps original chat history without synthetic protocol markers (streaming: %s)',
+    async (streaming) => {
+      const greeting = "Hi! I'm the Botpress AI assistant. What can I help you with today?"
+      const options =
+        '{"options":[{"label":"Book a demo","value":"book_demo"},{"label":"Help me choose a plan","value":"choose_plan"},{"label":"Talk about my use case","value":"use_case"},{"label":"Explore Botpress","value":"explore"},{"label":"I’m an existing customer","value":"existing_customer"}]}'
+      const transcript: Transcript.Message[] = [
+        { role: 'user', content: 'Hi' },
+        { role: 'assistant', content: greeting },
+        { role: 'assistant', content: options },
+        { role: 'user', content: 'Help me choose a plan' },
+      ]
+      const responses = ['■run\nreturn 1', '■send=message\nWhat do you need from a plan?\n■next=listen']
+      const result = await executeContext({
+        client: streaming ? new ScriptedStreamingCognitive(responses) : new ScriptedNonStreamingCognitive(responses),
+        chat: new Chat({ components: [DefaultComponents.Text], transcript, handler: async () => {} }),
+        options: { loop: 2 },
+      })
+      expect(result.isSuccess()).toBe(true)
+      expect(result.iterations).toHaveLength(2)
+      for (const iteration of result.iterations) {
+        const system = String(iteration.messages.find((message) => message.role === 'system')!.content)
+        const history = system.split('SECTION 6: CHAT CONVERSATION HISTORY')[1]!.split('SECTION 7:')[0]!
+        expect(history).toContain(`<assistant-002 role="assistant">\n${greeting}\n</assistant-002>`)
+        expect(history).toContain(`<assistant-003 role="assistant">\n${options}\n</assistant-003>`)
+        expect(history).not.toContain('■send=')
+      }
+      // Actual model responses in this execution retain their real protocol.
+      expect(
+        result.iterations[1]!.messages.some(
+          (message) => message.role === 'assistant' && message.content === wire(responses[0]!)
+        )
+      ).toBe(true)
+      expect(transcript[1]).toEqual({ role: 'assistant', content: greeting })
+      expect(transcript[2]).toEqual({ role: 'assistant', content: options })
+    }
+  )
+
   test('keeps worker prompts free of chat components and listening across results and errors', async () => {
     const done = new Exit({ name: 'done', description: 'Finish the task.', schema: z.object({ total: z.number() }) })
     const result = await executeContext({
@@ -937,8 +1043,9 @@ describe('message-stream protocol execution', () => {
         .filter((message) => message.role !== 'assistant')
         .map((message) => String(message.content))
         .join('\n')
+      expect(prompts).toContain('SECTION 3: AVAILABLE EXITS (■next)')
       expect(prompts).not.toMatch(
-        /■send|\blisten(?:ing)?\b|\bcomponents?\b|sends messages|user-facing|delivered to the user|final answer|delivered_messages|SILENT SO FAR/i
+        /■send|\bchat\b|\bconversation\b|\blisten(?:ing)?\b|\bcomponents?\b|sends messages|user-facing|delivered to the user|final answer|delivered_messages|SILENT SO FAR/i
       )
       expect(prompts).toContain('■run')
       expect(prompts).toContain('■next=done')

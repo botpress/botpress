@@ -4,10 +4,17 @@ import type { CognitiveMetadata, CognitiveRequest } from '@botpress/cognitive'
 import { describe, expect, it } from 'vitest'
 import { DualModePrompt } from '../src/prompts/dual-modes.js'
 import { parseAssistantResponse } from '../src/prompts/common.js'
-import { cases, client, models } from './__tests__/model-evaluation.js'
+import {
+  cases,
+  client,
+  expectAllowedRestart,
+  expectModelRoute,
+  fallbackModels,
+  models,
+} from './__tests__/model-evaluation.js'
 import { checkProtocolTask, checkResponseShape, protocolMatrix } from './__tests__/protocol-matrix.js'
 
-// 144 distinct tasks, each in BOTH delivery modes. No repair, retry, cache or fallback credit.
+// 144 distinct tasks in BOTH delivery modes. No repair, retry or cache; fallback is opt-in.
 describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled', run: 1 }])(
   'protocol matrix: $model sample $run',
   ({ model, run }) => {
@@ -49,6 +56,11 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         restarts = 0
       if (streaming) {
         for await (const chunk of client.generateTextStream(request)) {
+          if (chunk.restart) {
+            expectAllowedRestart(chunk.restart)
+            output = ''
+            metadata = undefined
+          }
           output += chunk.output ?? ''
           metadata = chunk.metadata ?? metadata
           restarts += chunk.restart ? 1 : 0
@@ -73,10 +85,8 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
       }
       console.info(JSON.stringify(record))
       if (process.env.LLMZ_EVAL_RECORDS) appendFileSync(process.env.LLMZ_EVAL_RECORDS, JSON.stringify(record) + '\n')
-      expect(metadata?.model).toBe(model)
-      expect(metadata?.cached).toBe(false)
-      expect(metadata?.fallbackPath ?? []).toEqual([])
-      expect(restarts).toBe(0)
+      expectModelRoute(metadata, model)
+      if (!fallbackModels.length) expect(restarts).toBe(0)
       expect(metadata?.stopReason).not.toBe('max_tokens')
       expect(output).toMatch(/^■start\r?\n/m)
       expect(parsed.diagnostics?.filter((d) => d.code !== 'unexpected-text' && d.code !== 'example-delimiter')).toEqual(

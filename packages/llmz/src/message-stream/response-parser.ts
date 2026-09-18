@@ -11,7 +11,6 @@ export class ResponseParser {
   private _prefixDiagnostics: Diagnostic[] = []
   private _prefix = ''
   private _boundary = ''
-  private _lineStart = true
   private _closed = false
   private _finished = false
   private _failure: Diagnostic | undefined
@@ -82,21 +81,22 @@ export class ResponseParser {
         this._trailer += char
         continue
       }
-      if (this._boundary || (this._lineStart && char === '■')) {
+      if (this._boundary || char === '■') {
         this._boundary += char
-        if (char === '\n' && /^■end[ \t]*\r?\n$/.test(this._boundary)) {
+        if (this._boundary === '■end') {
+          // The first complete end marker is authoritative, including when the
+          // provider emits ■end■start in one chunk. Never parse its suffix.
           flush()
           events.push(...this._parser.finish())
           this._boundary = ''
           this._closed = true
-        } else if (!'■end'.startsWith(this._boundary) && !/^■end[ \t\r]*$/.test(this._boundary)) {
+        } else if (!'■end'.startsWith(this._boundary)) {
           forward += this._boundary
           this._boundary = ''
         }
       } else {
         forward += char
       }
-      this._lineStart = char === '\n'
     }
     flush()
     return events
@@ -114,12 +114,11 @@ export class ResponseParser {
     if (this.framed) {
       // Cognitive/provider STOP consumes ■end. A normal successful stop can
       // close the envelope; a truncation, failure, or partial marker cannot.
-      if (/^■end[ \t\r]*$/.test(this._boundary) || (!this._boundary && stopReason === 'stop')) this._closed = true
+      if (!this._boundary && stopReason === 'stop') this._closed = true
       else if (this._boundary) events.push(...this._parser.push(this._boundary))
       events.push(...this._parser.finish())
       const trailer = this._trailer.trim()
       if (!this._closed) this._fail('Missing ■end: the response envelope is incomplete')
-      else if (trailer && trailer !== '"""') this._fail('Unexpected content after ■end')
       else if (this._parser.diagnostics.some((d) => d.code !== 'example-delimiter')) {
         this._fail('The response envelope contains malformed protocol blocks')
       }
@@ -129,6 +128,10 @@ export class ResponseParser {
         const parser = new StreamingMessageParser()
         events.push(...parser.push(trailer), ...parser.finish())
         this._trailingDiagnostics = parser.diagnostics
+      } else if (trailer) {
+        const diagnostic: Diagnostic = { code: 'unexpected-text', message: 'Discarded content after ■end' }
+        this._trailingDiagnostics.push(diagnostic)
+        events.push({ type: 'diagnostic', diagnostic })
       }
       if (this._failure) events.push({ type: 'diagnostic', diagnostic: this._failure })
     } else if (this._failure) {

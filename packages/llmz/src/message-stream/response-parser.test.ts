@@ -36,8 +36,6 @@ describe('response envelopes', () => {
     '■start\n■send=message\nHello\n■next=listen',
     '■start\nprivate reasoning\n■send=message\nHello\n■next=listen\n■end',
     '■start\n■start\n■run\nawait charge()\n■end',
-    '■start\n■next=listen\n■end\n■run\nawait charge()',
-    '■start\n■next=listen\n■end\n■end',
   ])('rejects incomplete or malformed envelopes without actionable items: %s', (raw) => {
     const parser = new ResponseParser()
     for (const char of raw) parser.push(char)
@@ -45,6 +43,43 @@ describe('response envelopes', () => {
     expect(parser.valid).toBe(false)
     expect(parser.items).toEqual([])
     expect(parser.diagnostics).toContainEqual(expect.objectContaining({ code: 'invalid-envelope' }))
+  })
+
+  it.each(['■start\n■send=message\nDiscarded\n■run\nawait charge()\n■end', '\n■end', 'trailing prose'])(
+    'discards everything after the first end marker: %s',
+    (suffix) => {
+      const raw = `■start\n■send=message\nHello!\n■next=listen\n■end${suffix}`
+      for (const chunks of [
+        [raw],
+        [...raw],
+        ...Array.from({ length: raw.length + 1 }, (_, i) => [raw.slice(0, i), raw.slice(i)]),
+      ]) {
+        const parser = new ResponseParser()
+        const events = chunks.flatMap((chunk) => parser.push(chunk))
+        events.push(...parser.finish())
+        expect(parser.valid).toBe(true)
+        expect(parser.items.map((item) => item.kind)).toEqual(['send', 'next'])
+        expect(
+          events
+            .filter((event) => event.type === 'body-delta')
+            .map((event) => event.delta)
+            .join('')
+        ).toBe('Hello!')
+        expect(parser.diagnostics).toEqual([{ code: 'unexpected-text', message: 'Discarded content after ■end' }])
+      }
+    }
+  )
+
+  it.each(['\n', ''])('truncates code at the first complete end marker (separator=%j)', (separator) => {
+    const raw = `■start\n■run\nreturn 42${separator}■end■start\n■run\nawait charge()\n■end`
+    for (let split = 0; split <= raw.length; split++) {
+      const parser = new ResponseParser()
+      parser.push(raw.slice(0, split))
+      parser.push(raw.slice(split))
+      parser.finish()
+      expect(parser.valid).toBe(true)
+      expect(parser.items).toEqual([expect.objectContaining({ kind: 'run', body: 'return 42' })])
+    }
   })
 
   it('does not buffer ordinary message text while waiting for the envelope end', () => {

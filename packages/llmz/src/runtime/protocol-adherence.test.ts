@@ -60,11 +60,6 @@ const mutations = [
     make: (reply: string) => frame(`■send=message\n${reply}`),
     noPreview: false,
   },
-  {
-    name: 'content after end',
-    make: (reply: string) => `${frame(`■send=message\n${reply}\n■next=listen`)}\nPrivate reasoning`,
-    noPreview: false,
-  },
 ] as const
 
 // Raw wire responses: these fixtures must NEVER be automatically wrapped or repaired by the test client.
@@ -102,6 +97,41 @@ class StreamReplay extends Replay {
 }
 
 describe('mandatory protocol adherence', () => {
+  test.each(protocolLanguages)(
+    '$language: discards trailing content after a valid response in all delivery modes',
+    async ({ reply }) => {
+      const raw = `${frame(`■send=message\n${reply}\n■next=listen`)}\nPrivate reasoning\n■start\n■send=message\nDo not deliver\n■run\nawait record()\n■end`
+      for (const size of [0, 1, 7, 100000]) {
+        const delivered: string[] = [],
+          deltas: MessageDelta[] = []
+        const record = vi.fn(async () => undefined)
+        const result = await executeContext({
+          client: size ? new StreamReplay([raw], size) : new Replay([raw]),
+          chat: new Chat({
+            components: [DefaultComponents.Text],
+            handler: async (component) => {
+              delivered.push(component.children.join(''))
+            },
+            onMessageDelta: (delta) => {
+              deltas.push({ ...delta })
+            },
+          }),
+          tools: [new Tool({ name: 'record', handler: record })],
+          options: { loop: 1 },
+        })
+        expect(result.isSuccess()).toBe(true)
+        expect(result.iterations.map((iteration) => iteration.status.type)).toEqual(['exit_success'])
+        expect(delivered).toEqual([reply])
+        expect(record).not.toHaveBeenCalled()
+        expect(deltas.every((delta) => !delta.restart && reply.startsWith(delta.content))).toBe(true)
+        expect(result.iterations[0]!.llm?.output).toBe(raw)
+        expect(result.iterations[0]!.llm?.diagnostics).toEqual([
+          { code: 'unexpected-text', message: 'Discarded content after ■end' },
+        ])
+      }
+    }
+  )
+
   test.each(protocolLanguages.flatMap((language) => mutations.map((mutation) => ({ ...language, ...mutation }))))(
     '$language: rejects $name in all delivery modes before executing or committing anything',
     async ({ reply, make, noPreview }) => {

@@ -10,7 +10,7 @@ import {
 } from '../src/custom-client.js'
 import { buildSearchChallenge, longSearchChallenges } from '../src/runtime/fixtures/long-search.js'
 import { getTokenizer } from '../src/utils.js'
-import { cases, client, models } from './__tests__/model-evaluation.js'
+import { cases, client, expectModelRoute, models } from './__tests__/model-evaluation.js'
 
 // Tests the real execute -> search tool -> ThinkSignal -> generation -> Chat.handler path.
 // The source/tag layout mirrors VDK createKnowledgeSearchTool; all corpus data is synthetic.
@@ -133,9 +133,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         expect(finalInput).not.toContain('<truncated>')
         if (!compact) expect(corpusTokens).toBeGreaterThan(10_000)
         for (const m of metadata) {
-          expect(m.model).toBe(model)
-          expect(m.cached).toBe(false)
-          expect(m.fallbackPath ?? []).toEqual([])
+          expectModelRoute(m, model)
         }
         for (const fact of fixture.facts) {
           expect(answer, JSON.stringify(record)).toMatch(new RegExp(`(?<![\\w-])${fact}(?![\\w-])`))

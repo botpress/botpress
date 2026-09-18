@@ -158,12 +158,15 @@ describe('few-shot examples', () => {
     const { message, parts } = await DualModePrompt.getSystemMessage(props)
     const text = String(message.content)
     expect(text).toContain('<few_shots>')
-    // Keep demonstrations close to generation, but outside both instructions and live history.
-    expect(text.indexOf('</few_shots>')).toBeLessThan(text.indexOf('# Your task'))
-    expect(text.indexOf('</few_shots>')).toBeLessThan(text.indexOf('# Response format'))
-    if (chat) {
-      expect(text.indexOf('<few_shots>')).toBeGreaterThan(text.indexOf('LIVE_INPUT'))
-    }
+    // Task demonstrations follow the instructions, before live history.
+    expect(text.indexOf('<few_shots>')).toBeGreaterThan(
+      text.indexOf(chat ? 'SECTION 5: SYSTEM INSTRUCTIONS' : 'SECTION 4: SYSTEM INSTRUCTIONS')
+    )
+    expect(text.indexOf('</few_shots>')).toBeLessThan(
+      text.indexOf(chat ? 'SECTION 6: CHAT CONVERSATION HISTORY' : 'SECTION 5: TASK HISTORY')
+    )
+    expect(text.indexOf('</few_shots>')).toBeLessThan(text.lastIndexOf('# Response format'))
+    expect(text.indexOf('<few_shots>')).toBeLessThan(text.indexOf('LIVE_INPUT'))
     expect(parts.transcript).not.toContain('password recovery')
     expect(parts.examples).toContain('<few_shots>')
     expect(transcript).toHaveLength(1)

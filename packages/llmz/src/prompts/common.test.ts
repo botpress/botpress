@@ -34,10 +34,14 @@ return data
       expect(response.next).toEqual({ name: 'book_meeting', props: { reason: 'demo', email: 'a@b.com' } })
     })
 
-    it('rejects whole-response code fences', () => {
+    it('discards wrapper fences outside a valid response envelope', () => {
       const response = parseAssistantResponse('```\n■start\n■send=md\nHello!\n■next=listen\n■end\n```')
-      expect(response.sends).toEqual([])
-      expect(response.diagnostics).toContainEqual(expect.objectContaining({ code: 'invalid-envelope' }))
+      expect(response.sends).toEqual([{ name: 'md', props: {}, body: 'Hello!' }])
+      expect(response.next).toEqual({ name: 'listen', props: {} })
+      expect(response.diagnostics).toEqual([
+        { code: 'unexpected-text', message: 'Discarded text before ■start' },
+        { code: 'unexpected-text', message: 'Discarded content after ■end' },
+      ])
     })
 
     it('retains plain text for debugging without creating an implicit send', async () => {
