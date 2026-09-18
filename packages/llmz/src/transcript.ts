@@ -138,7 +138,7 @@ export class TranscriptArray extends Array<Transcript.Message> {
     Object.setPrototypeOf(this, new.target.prototype)
   }
 
-  public toString() {
+  public toString(options: { assistantMessageComponent?: string } = {}) {
     if (!this.length) {
       return ''
     }
@@ -149,6 +149,19 @@ export class TranscriptArray extends Array<Transcript.Message> {
 
       if (preview.length > MAX_MESSAGE_LENGTH) {
         preview = preview.slice(0, MAX_MESSAGE_LENGTH) + '\n... (truncated)'
+      }
+
+      // Render ordinary assistant replies in the required wire format so the
+      // history reinforces it. Legacy structured records lack component/props
+      // metadata: keep those as records rather than guessing a send component.
+      if (
+        item.role === 'assistant' &&
+        options.assistantMessageComponent &&
+        preview.trim() &&
+        !preview.trimStart().startsWith('■') &&
+        !/^[\[{]/.test(preview.trimStart())
+      ) {
+        preview = `■send=${options.assistantMessageComponent}\n${preview.trim()}`
       }
 
       const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'

@@ -14,6 +14,7 @@ import { ErrorExecutionResult, SuccessExecutionResult } from '../result.js'
 import { _CustomModelClient } from '../custom-client.js'
 import { Tool } from '../tool.js'
 import { Transcript } from '../transcript.js'
+import { qwenProtocolFailures } from './fixtures/qwen-protocol-failures.js'
 import { executeContext } from './execute.js'
 
 const makeFakeModel = (model: string): Model => ({
@@ -34,6 +35,11 @@ const makeFakeMetadata = (): CognitiveMetadata => ({
   cached: false,
   latency: 1,
 })
+
+/** Block-focused fixtures below describe the envelope contents. Raw malformed envelopes
+ * are tested without this helper in protocol-adherence.test.ts and the framed tests. */
+const wire = (blocks: string): string =>
+  /^■(?:send[=\s]|run(?:\n|$)|next[=\s])/.test(blocks) ? `■start\n${blocks}\n■end` : blocks
 
 /**
  * A cognitive client that replays scripted ■ protocol responses, one per
@@ -57,7 +63,7 @@ class ScriptedCognitive extends _CustomModelClient {
     if (content === undefined) {
       throw new Error('No more scripted responses')
     }
-    return content
+    return wire(content)
   }
 
   protected _buildResponse(content: string): CognitiveResponse {
@@ -129,7 +135,7 @@ class ScriptedRestartStreamingCognitive extends ScriptedCognitive {
 
   public async *generateTextStream(): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
     for (let i = 0; i < this._segments.length; i++) {
-      const content = this._segments[i]!
+      const content = wire(this._segments[i]!)
       for (let j = 0; j < content.length; j += this._chunkSize) {
         yield { output: content.slice(j, j + this._chunkSize), created: Date.now() }
         this.probes.push(this._probe())
@@ -225,6 +231,389 @@ type RestartDelta = Extract<MessageDelta, { restart: true }>
 const restartDeltas = (deltas: MessageDelta[]): RestartDelta[] => deltas.filter((d): d is RestartDelta => d.restart)
 
 describe('message-stream protocol execution', () => {
+  describe('framed response execution', () => {
+    const modes = ['nonstreaming', 'whole', 'characters', 'chunks', 'fallback', 'restart'] as const
+    test.each(modes)(
+      '%s commits sends and code only after the full envelope and successful transport',
+      async (mode) => {
+        const called = vi.fn(async () => undefined)
+        const deltas: MessageDelta[] = []
+        const { chat, messages } = makeChat((delta) => {
+          deltas.push({ ...delta })
+        })
+        const raw = '■start\n■send=message\nChecking.\n■run\nawait record()\n■next=listen\n■end'
+        const probe = () => messages.length + called.mock.calls.length
+        const client =
+          mode === 'nonstreaming'
+            ? new ScriptedNonStreamingCognitive([raw])
+            : mode === 'restart'
+              ? new ScriptedRestartStreamingCognitive(
+                  ['■start\n■send=message\nAbandoned\n■run\nawait record()\n■next=listen\n■end', raw],
+                  probe,
+                  1
+                )
+              : new ScriptedStreamingCognitive([raw], probe, mode === 'whole' ? 100_000 : mode === 'characters' ? 1 : 7)
+        const result = await executeContext({
+          client,
+          chat,
+          tools: [new Tool({ name: 'record', handler: called })],
+          options: { loop: 1, midStreamFallback: mode === 'fallback' || mode === 'restart' },
+        })
+        expect(result.isSuccess()).toBe(true)
+        expect(called).toHaveBeenCalledOnce()
+        expect(messages).toEqual([{ type: 'MESSAGE', text: 'Checking.', props: {} }])
+        if ('probes' in client) expect(client.probes.every((value) => value === 0)).toBe(true)
+        expect(result.iterations[0]!.llm?.output).toBe(wire(raw))
+        expect(result.iterations[0]!.llm?.diagnostics).toEqual([])
+        expect(
+          textDeltas(deltas).every((delta) => ['Checking.', 'Abandoned'].some((text) => text.startsWith(delta.content)))
+        ).toBe(true)
+        expect(restartDeltas(deltas)).toHaveLength(mode === 'restart' ? 1 : 0)
+      }
+    )
+
+    test.each(['nonstreaming', 'characters'] as const)(
+      '%s rejects a missing envelope end and repairs without running abandoned code',
+      async (mode) => {
+        const called = vi.fn(async () => undefined)
+        const deltas: MessageDelta[] = []
+        const { chat, messages } = makeChat((delta) => {
+          deltas.push({ ...delta })
+        })
+        const invalid = '■start\n■send=message\nAbandoned\n■run\nawait record()\n■next=listen'
+        const corrected = '■start\n■send=message\nDone.\n■next=listen\n■end'
+        const client =
+          mode === 'nonstreaming'
+            ? new ScriptedNonStreamingCognitive([invalid, corrected])
+            : new ScriptedStreamingCognitive([invalid, corrected], undefined, 1)
+        const result = await executeContext({
+          client,
+          chat,
+          tools: [new Tool({ name: 'record', handler: called })],
+          options: { loop: 2 },
+        })
+        expect(result.isSuccess()).toBe(true)
+        expect(result.iterations.map((i) => i.status.type)).toEqual(['invalid_code_error', 'exit_success'])
+        expect(called).not.toHaveBeenCalled()
+        expect(messages).toEqual([{ type: 'MESSAGE', text: 'Done.', props: {} }])
+        expect(result.iterations[0]!.llm?.output).toBe(invalid)
+        expect(result.iterations[0]!.llm?.diagnostics).toContainEqual(
+          expect.objectContaining({ code: 'invalid-envelope' })
+        )
+        expect(restartDeltas(deltas)).toHaveLength(mode === 'nonstreaming' ? 0 : 1)
+      }
+    )
+
+    test.each(['truncated', 'missing-metadata', 'throw'] as const)(
+      'retracts previews and runs no code when framed transport fails: %s',
+      async (failure) => {
+        const raw = '■start\n■send=message\nPreview\n■run\nawait record()\n■next=listen\n■end'
+        const called = vi.fn(async () => undefined)
+        class FailedTransport extends ScriptedCognitive {
+          public async *generateTextStream(): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
+            yield { output: raw, created: 1 }
+            if (failure === 'throw') throw new Error('Connection lost')
+            if (failure === 'truncated')
+              yield { finished: true, metadata: { ...makeFakeMetadata(), stopReason: 'max_tokens' }, created: 2 }
+          }
+        }
+        const deltas: MessageDelta[] = []
+        const { chat, messages } = makeChat((delta) => {
+          deltas.push({ ...delta })
+        })
+        const result = await executeContext({
+          client: new FailedTransport([]),
+          chat,
+          tools: [new Tool({ name: 'record', handler: called })],
+          options: { loop: 1 },
+        })
+        expect(result.isError()).toBe(true)
+        expect(called).not.toHaveBeenCalled()
+        expect(messages).toEqual([])
+        expect(
+          textDeltas(deltas)
+            .map((d) => d.delta)
+            .join('')
+        ).toBe('Preview')
+        expect(deltas.at(-1)).toMatchObject({ restart: true })
+        expect(result.iterations[0]!.llm?.output).toBe(raw)
+        expect(result.iterations[0]!.llm?.status).toBe('error')
+      }
+    )
+  })
+
+  describe('observed Qwen protocol failures', () => {
+    const modes = ['nonstreaming', 'whole', 'characters', 'chunks', 'fallback', 'restart'] as const
+    test.each(qwenProtocolFailures.flatMap((fixture) => modes.map((mode) => ({ ...fixture, mode }))))(
+      '$name ($mode) never leaks, duplicates, or silently drops the customer reply',
+      async ({ output, reply, mode }) => {
+        const repair = `■send=message\n${reply}\n■next=listen`
+        const responses = [output, repair]
+        class RestartThenReplay extends ScriptedStreamingCognitive {
+          private _first = true
+          public async *generateTextStream(): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
+            if (this._first) {
+              this._first = false
+              yield { created: 1, output: 'Abandoned thinking' }
+              yield { created: 2, restart: { attempt: 2, fromModel: 'A', toModel: 'B', reason: 'timeout' } }
+            }
+            yield* super.generateTextStream()
+          }
+        }
+        const client =
+          mode === 'nonstreaming'
+            ? new ScriptedNonStreamingCognitive(responses)
+            : mode === 'restart'
+              ? new RestartThenReplay(responses, undefined, 1)
+              : new ScriptedStreamingCognitive(
+                  responses,
+                  undefined,
+                  mode === 'whole' ? 100_000 : mode === 'characters' ? 1 : 7
+                )
+        const deltas: MessageDelta[] = []
+        const { chat, messages } = makeChat((delta) => {
+          deltas.push({ ...delta })
+        })
+        const onExit = vi.fn()
+        const result = await executeContext({
+          client,
+          chat,
+          onExit,
+          options: { loop: 2, midStreamFallback: mode === 'fallback' || mode === 'restart' },
+        })
+        // Assert all observed callbacks, not just the final state after a restart.
+        expect(messages).toEqual([{ type: 'MESSAGE', text: reply, props: {} }])
+        expect(textDeltas(deltas).every((delta) => reply.startsWith(delta.content))).toBe(true)
+        expect(
+          textDeltas(deltas)
+            .map((delta) => delta.delta)
+            .join('')
+        ).toBe(mode === 'nonstreaming' ? '' : reply)
+        expect(result.isSuccess()).toBe(true)
+        expect(result.iterations).toHaveLength(2)
+        expect(onExit).toHaveBeenCalledOnce()
+        expect(result.iterations[0]!.llm?.output).toBe(wire(output))
+        expect(result.iterations[0]!.llm?.diagnostics).toContainEqual(
+          expect.objectContaining({ code: 'invalid-envelope' })
+        )
+      }
+    )
+  })
+
+  describe('discarded reply followed by an exit', () => {
+    const malformed =
+      "Let's get started on helping you choose a plan! To give you an accurate recommendation, I need a few details.\n\nFirst, roughly how many **conversations** (not messages or visits) do you expect to have per month? If you're not sure yet, let me know and I'll explain how to estimate it.\n\n■next=listen"
+    const answer = 'Roughly how many conversations do you expect per month?'
+    const corrected = `■send=message\n${answer}\n■next=listen`
+    const modes = ['nonstreaming', 'whole', 'characters', 'chunks', 'fallback'] as const
+    const clientFor = (mode: (typeof modes)[number], responses: string[]) =>
+      mode === 'nonstreaming'
+        ? new ScriptedNonStreamingCognitive(responses)
+        : new ScriptedStreamingCognitive(responses, () => 0, mode === 'whole' ? 10000 : mode === 'characters' ? 1 : 7)
+
+    test.each(modes)('%s repairs the captured reply without ever delivering unmarked text', async (mode) => {
+      const delivered: string[] = []
+      const deltas: string[] = []
+      const onExit = vi.fn()
+      const result = await executeContext({
+        client: clientFor(mode, [malformed, corrected]),
+        chat: new Chat({
+          components: [DefaultComponents.Text],
+          transcript: [{ role: 'user', content: 'Help me choose a plan' }],
+          handler: async (message) => {
+            delivered.push(message.children.join(''))
+          },
+          onMessageDelta: (delta) => {
+            if (!delta.restart) {
+              deltas.push(delta.content)
+              expect(answer.startsWith(delta.content)).toBe(true)
+            }
+          },
+        }),
+        onExit,
+        options: { loop: 2, midStreamFallback: mode === 'fallback' },
+      })
+      expect(result.isSuccess()).toBe(true)
+      expect(result.iterations.map((iteration) => iteration.status.type)).toEqual([
+        'invalid_code_error',
+        'exit_success',
+      ])
+      expect(onExit).toHaveBeenCalledOnce()
+      expect(delivered).toEqual([answer])
+      if (mode !== 'nonstreaming') expect(deltas.length).toBeGreaterThan(0)
+      expect(result.iterations[0]!.llm?.output).toBe(malformed)
+      expect(result.iterations[0]!.llm?.diagnostics).toContainEqual(
+        expect.objectContaining({ code: 'invalid-envelope' })
+      )
+      const repair = String(result.iterations[1]!.messages.at(-1)!.content)
+      expect(repair).toContain('■start')
+      expect(repair).toContain('Keep private reasoning')
+      expect(repair).toContain('■send=<component>')
+    })
+
+    test.each(modes)('%s fails within the budget if every reply omits the send marker', async (mode) => {
+      const handler = vi.fn()
+      const onMessageDelta = vi.fn()
+      const onExit = vi.fn()
+      const result = await executeContext({
+        client: clientFor(mode, [malformed, malformed]),
+        chat: new Chat({ components: [DefaultComponents.Text], handler, onMessageDelta }),
+        onExit,
+        options: { loop: 2, midStreamFallback: mode === 'fallback' },
+      })
+      expect(result.isError()).toBe(true)
+      expect(result.iterations).toHaveLength(2)
+      expect(result.iterations.every((iteration) => iteration.status.type === 'invalid_code_error')).toBe(true)
+      expect(handler).not.toHaveBeenCalled()
+      expect(onMessageDelta).not.toHaveBeenCalled()
+      expect(onExit).not.toHaveBeenCalled()
+    })
+
+    test.each(modes)('%s permits intentional silence, including after correcting private reasoning', async (mode) => {
+      const handler = vi.fn()
+      for (const responses of [['■next=listen'], ['I should wait for the user.\n■next=listen', '■next=listen']]) {
+        const result = await executeContext({
+          client: clientFor(mode, responses),
+          chat: new Chat({ components: [DefaultComponents.Text], handler }),
+          options: { loop: 2, midStreamFallback: mode === 'fallback' },
+        })
+        expect(result.isSuccess()).toBe(true)
+        expect(result.iterations).toHaveLength(responses.length)
+      }
+      expect(handler).not.toHaveBeenCalled()
+    })
+
+    test.each(modes)('%s keeps completed tool side effects and their results during format repair', async (mode) => {
+      const write = vi.fn(async () => ({ receipt: 'receipt-123' }))
+      const tool = new Tool({ name: 'saveRecord', output: z.object({ receipt: z.string() }), handler: write })
+      const delivered: string[] = []
+      const result = await executeContext({
+        client: clientFor(mode, [
+          '■run\nconst saved = await saveRecord(); return saved',
+          'Your record is saved.\n■next=listen',
+          '■send=message\nSaved as receipt-123.\n■next=listen',
+        ]),
+        tools: [tool],
+        chat: new Chat({
+          components: [DefaultComponents.Text],
+          handler: async (m) => {
+            delivered.push(m.children.join(''))
+          },
+        }),
+        options: { loop: 3, midStreamFallback: mode === 'fallback' },
+      })
+      expect(result.isSuccess()).toBe(true)
+      expect(write).toHaveBeenCalledOnce()
+      expect(delivered).toEqual(['Saved as receipt-123.'])
+      expect(result.iterations[0]!.variables.saved).toEqual({ receipt: 'receipt-123' })
+      const repair = JSON.stringify(result.iterations[2]!.messages)
+      expect(repair).toContain('receipt-123')
+      expect(repair).toContain('receipt-123')
+      expect(result.iterations[0]!.traces.some((trace) => trace.type === 'code_execution')).toBe(true)
+    })
+
+    test('rejects a silent custom chat exit but leaves worker-mode exits valid', async () => {
+      const done = new Exit({ name: 'done', description: 'Finish' })
+      const malformed = 'Here is your answer.\n■next=done'
+      const onExit = vi.fn()
+      const chat = await executeContext({
+        client: new ScriptedNonStreamingCognitive([malformed]),
+        chat: new Chat({ components: [DefaultComponents.Text], handler: vi.fn() }),
+        exits: [done],
+        onExit,
+        options: { loop: 1 },
+      })
+      expect(chat.isError()).toBe(true)
+      expect(onExit).not.toHaveBeenCalled()
+      const worker = await executeContext({ client: new ScriptedNonStreamingCognitive(['■next=done']), exits: [done] })
+      expect(worker.isSuccess()).toBe(true)
+    })
+
+    test('a discarded abandoned attempt does not invalidate a clean replacement exit', async () => {
+      const result = await executeContext({
+        client: new ScriptedRestartStreamingCognitive([malformed, '■next=listen'], () => 0, 1),
+        chat: new Chat({ components: [DefaultComponents.Text], handler: vi.fn() }),
+        options: { loop: 1, midStreamFallback: true },
+      })
+      expect(result.isSuccess()).toBe(true)
+      expect(result.iterations[0]!.llm?.diagnostics).toEqual([])
+    })
+
+    test('repairs the surviving malformed response after a provider restart', async () => {
+      class RestartThenRepair extends ScriptedStreamingCognitive {
+        private _first = true
+        public async *generateTextStream(): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
+          if (this._first) {
+            this._first = false
+            yield { created: 1, output: 'Abandoned private thoughts' }
+            yield { created: 2, restart: { attempt: 2, fromModel: 'A', toModel: 'B', reason: 'timeout' } }
+          }
+          yield* super.generateTextStream()
+        }
+      }
+      const handler = vi.fn()
+      const deltas: MessageDelta[] = []
+      const result = await executeContext({
+        client: new RestartThenRepair([malformed, corrected], () => 0, 1),
+        chat: new Chat({
+          components: [DefaultComponents.Text],
+          handler,
+          onMessageDelta: (delta) => {
+            deltas.push({ ...delta })
+          },
+        }),
+        options: { loop: 2, midStreamFallback: true },
+      })
+      expect(result.isSuccess()).toBe(true)
+      expect(result.iterations.map((iteration) => iteration.status.type)).toEqual([
+        'invalid_code_error',
+        'exit_success',
+      ])
+      expect(handler).toHaveBeenCalledOnce()
+      expect(deltas[0]).toMatchObject({ restart: true })
+      expect(
+        deltas.filter((delta) => !delta.restart).every((delta) => !delta.restart && answer.startsWith(delta.content))
+      ).toBe(true)
+      expect(result.iterations[0]!.llm?.output).toBe(malformed)
+    })
+  })
+
+  test.each(['nonstreaming', 'whole', 'characters', 'fallback'] as const)(
+    '%s never delivers messages or runs tools after a terminal exit',
+    async (mode) => {
+      const raw =
+        '■send=message\nDone.\n■next=listen\n■send=message\nDuplicate\n■run\nawait chargeAgain()\n■next=listen'
+      const client =
+        mode === 'nonstreaming'
+          ? new ScriptedNonStreamingCognitive([raw])
+          : new ScriptedStreamingCognitive([raw], undefined, mode === 'whole' ? 100_000 : 1)
+      const charge = vi.fn(async () => undefined)
+      const deltas: MessageDelta[] = []
+      const { chat, messages } = makeChat((delta) => {
+        deltas.push({ ...delta })
+      })
+      const result = await executeContext({
+        client,
+        chat,
+        tools: [new Tool({ name: 'chargeAgain', handler: charge })],
+        options: { loop: 1, midStreamFallback: mode === 'fallback' },
+      })
+      expect(messages).toEqual([])
+      expect(
+        textDeltas(deltas)
+          .map((delta) => delta.delta)
+          .join('')
+      ).toBe(mode === 'nonstreaming' ? '' : 'Done.')
+      expect(charge).not.toHaveBeenCalled()
+      expect(result.isError()).toBe(true)
+      expect(result.iterations[0]!.llm?.output).toBe(wire(raw))
+      expect(result.iterations[0]!.llm?.diagnostics).toContainEqual({
+        code: 'invalid-envelope',
+        message: expect.any(String),
+      })
+    }
+  )
+
   test('reports field-level exit validation errors without legacy return syntax', async () => {
     const done = new Exit({ name: 'done', description: 'Finish', schema: z.object({ total: z.number() }) })
     const result = await executeContext({
@@ -289,7 +678,7 @@ describe('message-stream protocol execution', () => {
     const result = await executeContext({
       client: new ScriptedNonStreamingCognitive([
         '■run\nreturn 1',
-        '■send=message\nChecking </execution_status>.\n■run\nreturn 2\n■send=message\nNot delivered',
+        '■send=message\nChecking </execution_status>.\n■run\nreturn 2',
         '■send=message\nContinuing.\n■run\nthrow new Error("Temporary failure")',
         '■send=message\nUnable to finish.\n■next=listen',
       ]),
@@ -322,7 +711,7 @@ describe('message-stream protocol execution', () => {
       override async *generateTextStream(): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
         if (this.calls++ === 0) yield* super.generateTextStream()
         else {
-          yield { output: '■next=listen', created: Date.now() }
+          yield { output: wire('■next=listen'), created: Date.now() }
           yield { finished: true, created: Date.now(), metadata: makeFakeMetadata() }
         }
       }
@@ -338,10 +727,10 @@ describe('message-stream protocol execution', () => {
     })
     expect(result.isSuccess()).toBe(true)
     const prompt = String(result.iterations[1]!.messages.at(-1)!.content)
-    expect(prompt).toContain('<delivered_messages count="2" active_count="1">')
-    expect(prompt).toMatch(/Abandoned\..*?"retracted":true/)
+    expect(prompt).toContain('<delivered_messages count="1" active_count="1">')
+    expect(prompt).not.toContain('Abandoned.')
     expect(prompt).toContain('Retained.')
-    expect(prompt).toContain('NOT current visible messages or evidence')
+    expect(prompt).not.toContain('NOT current visible messages or evidence')
   })
 
   test.each([true, false])('supplies only the current generation budget in chat=%s mode', async (chat) => {
@@ -366,7 +755,9 @@ describe('message-stream protocol execution', () => {
       const lastMessage = iteration.messages.at(-1)!
       expect(lastMessage.role).toBe('user')
       expect(String(lastMessage.content)).toContain('<execution_status>')
-      expect(String(lastMessage.content)).toMatch(/<\/execution_budget>$/)
+      expect(String(lastMessage.content).lastIndexOf('■end')).toBeGreaterThan(
+        String(lastMessage.content).indexOf('</execution_budget>')
+      )
       for (const message of iteration.messages.slice(0, -1)) {
         expect(String(message.content)).not.toMatch(/<execution_status>|<execution_budget /)
       }
@@ -737,8 +1128,8 @@ describe('message-stream protocol execution', () => {
       })
       expect(result).toBeInstanceOf(SuccessExecutionResult)
       expect(result.iterations).toHaveLength(2)
-      expect(result.iterations[0]!.status.type).toBe('thinking_requested')
-      expect(calls).toHaveBeenCalledTimes(1)
+      expect(result.iterations[0]!.status.type).toBe('invalid_code_error')
+      expect(calls).not.toHaveBeenCalled()
       expect(messages.map((message) => message.text)).toEqual(['The result is 42'])
       expect(
         textDeltas(deltas)
@@ -746,9 +1137,9 @@ describe('message-stream protocol execution', () => {
           .join('')
       ).not.toContain('before seeing')
       expect(result.iterations[0]!.sends).toEqual([])
-      expect(result.iterations[0]!.llm?.diagnostics).toEqual([expect.objectContaining({ code: 'send-after-run' })])
+      expect(result.iterations[0]!.llm?.diagnostics).toEqual([expect.objectContaining({ code: 'invalid-envelope' })])
       expect(result.iterations[0]!.llm?.output).toContain('This was generated before seeing the result')
-      expect(JSON.stringify(result.iterations[1]!.messages)).toContain('They were NOT delivered and are NOT evidence.')
+      expect(JSON.stringify(result.iterations[1]!.messages)).toContain('never send a message after code')
     }
   )
 
@@ -784,7 +1175,7 @@ describe('message-stream protocol execution', () => {
     const modes = ['nonstreaming', 'whole', 'characters', 'chunks', 'restart'] as const
 
     test.each(['nonstreaming', 'whole', 'characters', 'chunks', 'fallback'] as const)(
-      '%s ignores prose mentioning a run block without regenerating or losing the actual code',
+      '%s rejects a preamble without executing any following code',
       async (mode) => {
         const called = vi.fn()
         const tool = new Tool({
@@ -796,9 +1187,9 @@ describe('message-stream protocol execution', () => {
         const raw = 'We need to produce a ■run block with the query.■run\nawait record()\n■next=listen'
         const client =
           mode === 'nonstreaming'
-            ? new ScriptedNonStreamingCognitive([raw])
+            ? new ScriptedNonStreamingCognitive([raw, '■next=listen'])
             : new ScriptedStreamingCognitive(
-                [raw],
+                [raw, '■next=listen'],
                 undefined,
                 mode === 'whole' ? 100_000 : mode === 'characters' ? 1 : 7
               )
@@ -810,18 +1201,19 @@ describe('message-stream protocol execution', () => {
           client,
           chat,
           tools: [tool],
-          options: { loop: 1, midStreamFallback: mode === 'fallback' },
+          options: { loop: 2, midStreamFallback: mode === 'fallback' },
         })
         expect(result).toBeInstanceOf(SuccessExecutionResult)
-        expect(result.iterations).toHaveLength(1)
-        expect(called).toHaveBeenCalledTimes(1)
+        expect(result.iterations).toHaveLength(2)
+        expect(called).not.toHaveBeenCalled()
         expect(messages).toEqual([])
         expect(textDeltas(deltas)).toEqual([])
-        expect(result.iterations[0]!.code).toBe('await record()')
-        expect(result.iterations[0]!.llm?.output).toBe(raw)
-        expect(result.iterations[0]!.llm?.diagnostics).toEqual([
-          { code: 'unexpected-text', message: expect.any(String) },
-        ])
+        expect(result.iterations[0]!.code).toBeUndefined()
+        expect(result.iterations[0]!.llm?.output).toBe(wire(raw))
+        expect(result.iterations[0]!.llm?.diagnostics).toContainEqual({
+          code: 'invalid-envelope',
+          message: expect.any(String),
+        })
       }
     )
 
@@ -841,7 +1233,7 @@ describe('message-stream protocol execution', () => {
       )
     }
 
-    test.each(modes)('%s only delivers explicit sends, including every temporary preview', async (mode) => {
+    test.each(modes)('%s rejects the original reasoning leak before every callback', async (mode) => {
       const deltas: MessageDelta[] = []
       const { chat, messages } = makeChat((delta) => {
         deltas.push({ ...delta })
@@ -852,18 +1244,105 @@ describe('message-stream protocol execution', () => {
         options: { loop: 1, midStreamFallback: mode === 'restart' },
       })
 
-      expect(result).toBeInstanceOf(SuccessExecutionResult)
-      expect((result as SuccessExecutionResult).result.exit.name).toBe(ListenExit.name)
-      const count = mode === 'restart' ? 2 : 1
+      expect(result).toBeInstanceOf(ErrorExecutionResult)
+      const count = 0
       expect(messages).toEqual(Array.from({ length: count }, () => ({ type: 'MESSAGE', text: reply, props: {} })))
       expect(result.iterations[0]!.traces.filter((trace) => trace.type === 'yield')).toHaveLength(count)
-      expect(result.iterations[0]!.llm?.output).toBe(output)
-      expect(result.iterations[0]!.llm?.diagnostics).toEqual([{ code: 'unexpected-text', message: expect.any(String) }])
+      expect(result.iterations[0]!.llm?.output).toBe(wire(output))
+      expect(result.iterations[0]!.llm?.diagnostics).toContainEqual({
+        code: 'invalid-envelope',
+        message: expect.any(String),
+      })
       expect(result.iterations[0]!.toJSON().llm?.diagnostics).toEqual(result.iterations[0]!.llm?.diagnostics)
       const previews = textDeltas(deltas)
-      expect(previews.map((delta) => delta.delta).join('')).toBe(mode === 'nonstreaming' ? '' : reply.repeat(count))
+      expect(previews.map((delta) => delta.delta).join('')).toBe('')
       expect(previews.every((delta) => delta.component === 'message' && reply.startsWith(delta.content))).toBe(true)
       expect(restartDeltas(deltas)).toHaveLength(mode === 'restart' ? 1 : 0)
+    })
+
+    test.each(modes)('%s strips copied example delimiters before every customer callback', async (mode) => {
+      const raw = `"""\n■start\n■send=message\n"""\n${reply}\n"""\n■send=md\n**Markdown**\n"""\n■next=listen\n■end\n"""`
+      const deltas: MessageDelta[] = []
+      const { chat, messages } = makeChat((delta) => {
+        deltas.push({ ...delta })
+      })
+      const client =
+        mode === 'restart'
+          ? new ScriptedRestartStreamingCognitive(['■start\n■send=message\nHello!\n""', raw], undefined, 1)
+          : makeClient(mode, [raw])
+      const result = await executeContext({ client, chat, options: { loop: 1, midStreamFallback: mode === 'restart' } })
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect(result.iterations).toHaveLength(1)
+      expect(messages).toEqual([
+        { type: 'MESSAGE', text: reply, props: {} },
+        { type: 'MD', text: '**Markdown**', props: {} },
+      ])
+      expect(
+        textDeltas(deltas).every((delta) =>
+          [reply, '**Markdown**', 'Hello!'].some((text) => text.startsWith(delta.content))
+        )
+      ).toBe(true)
+      expect(textDeltas(deltas).some((delta) => delta.delta.includes('"'))).toBe(false)
+      expect(result.iterations[0]!.llm?.output).toBe(wire(raw))
+      expect(result.iterations[0]!.llm?.diagnostics?.some((d) => d.code === 'example-delimiter')).toBe(true)
+      expect(restartDeltas(deltas)).toHaveLength(mode === 'restart' ? 1 : 0)
+    })
+
+    test.each(modes.flatMap((mode) => [false, true].map((returnsResult) => ({ mode, returnsResult }))))(
+      '$mode executes quoted actions once (returnsResult=$returnsResult)',
+      async ({ mode, returnsResult }) => {
+        const called = vi.fn(async () => 'done')
+        const tool = new Tool({ name: 'record', handler: called })
+        const action = `"""\n■start\n■run\n${returnsResult ? 'return ' : ''}await record()\n${returnsResult ? '' : '■next=listen\n'}■end\n"""`
+        const responses = returnsResult
+          ? [action, '"""\n■start\n■send=message\nDone.\n■next=listen\n■end\n"""']
+          : [action]
+        const deltas: MessageDelta[] = []
+        const { chat, messages } = makeChat((delta) => {
+          deltas.push({ ...delta })
+        })
+        // Restart before a partial code block has become executable.
+        class RestartThenComplete extends ScriptedStreamingCognitive {
+          private _first = true
+          public async *generateTextStream(): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
+            if (this._first) {
+              this._first = false
+              yield { created: 1, output: '"""\n■run\nawait record(' }
+              yield { created: 2, restart: { attempt: 2, fromModel: 'A', toModel: 'B', reason: 'timeout' } }
+            }
+            yield* super.generateTextStream()
+          }
+        }
+        const client =
+          mode === 'restart' ? new RestartThenComplete(responses, undefined, 1) : makeClient(mode, responses)
+        const result = await executeContext({
+          client,
+          chat,
+          tools: [tool],
+          options: { loop: 2, midStreamFallback: mode === 'restart' },
+        })
+        expect(result).toBeInstanceOf(SuccessExecutionResult)
+        expect(called).toHaveBeenCalledTimes(1)
+        expect(messages).toEqual(returnsResult ? [{ type: 'MESSAGE', text: 'Done.', props: {} }] : [])
+        expect(textDeltas(deltas).every((delta) => 'Done.'.startsWith(delta.content))).toBe(true)
+        expect(result.iterations[0]!.llm?.output).toBe(wire(action))
+        expect(result.iterations[0]!.code).toBe(`${returnsResult ? 'return ' : ''}await record()`)
+      }
+    )
+
+    test.each(modes)('%s rejects quoted unmarked prose without delivering it', async (mode) => {
+      const raw = `"""\n${preamble}\n"""\n■next=listen`
+      const deltas: MessageDelta[] = []
+      const { chat, messages } = makeChat((delta) => {
+        deltas.push({ ...delta })
+      })
+      const client =
+        mode === 'restart' ? new ScriptedRestartStreamingCognitive(['""', raw], undefined, 1) : makeClient(mode, [raw])
+      const result = await executeContext({ client, chat, options: { loop: 1, midStreamFallback: mode === 'restart' } })
+      expect(result).toBeInstanceOf(ErrorExecutionResult)
+      expect(messages).toEqual([])
+      expect(textDeltas(deltas)).toEqual([])
+      expect(result.iterations[0]!.llm?.output).toBe(wire(raw))
     })
 
     test.each(modes)('%s preserves explicit Markdown, clean sends, run and exit', async (mode) => {
@@ -890,7 +1369,6 @@ describe('message-stream protocol execution', () => {
       expect(called).toHaveBeenCalledTimes(1)
       expect(result.iterations[0]!.llm?.diagnostics).toEqual([])
       expect(messages).toEqual([
-        ...(mode === 'restart' ? [{ type: 'MESSAGE', text: reply, props: {} }] : []),
         { type: 'MD', text: '**Markdown**', props: {} },
         { type: 'MESSAGE', text: 'Hello!', props: {} },
       ])
@@ -898,7 +1376,7 @@ describe('message-stream protocol execution', () => {
         textDeltas(deltas)
           .map((delta) => delta.delta)
           .join('')
-      ).toBe(mode === 'nonstreaming' ? '' : `${mode === 'restart' ? reply : ''}**Markdown**Hello!`)
+      ).toBe(mode === 'nonstreaming' ? '' : '**Markdown**Hello!')
     })
 
     test.each(modes)('%s malformed-only output fails safely without sending it', async (mode) => {
@@ -914,14 +1392,17 @@ describe('message-stream protocol execution', () => {
       expect(result).toBeInstanceOf(ErrorExecutionResult)
       expect(result.iterations[0]!.status.type).toBe('invalid_code_error')
       expect(result.iterations[0]!.llm?.output).toBe(preamble)
-      expect(result.iterations[0]!.llm?.diagnostics).toEqual([{ code: 'unexpected-text', message: expect.any(String) }])
+      expect(result.iterations[0]!.llm?.diagnostics).toContainEqual({
+        code: 'invalid-envelope',
+        message: expect.any(String),
+      })
       expect(result.iterations[0]!.sends).toEqual([])
-      expect(messages).toEqual(mode === 'restart' ? [{ type: 'MESSAGE', text: reply, props: {} }] : [])
+      expect(messages).toEqual([])
       expect(
         textDeltas(deltas)
           .map((delta) => delta.delta)
           .join('')
-      ).toBe(mode === 'restart' ? reply : '')
+      ).toBe('')
     })
 
     test.each(['nonstreaming', 'characters'] as const)(
@@ -932,7 +1413,7 @@ describe('message-stream protocol execution', () => {
           deltas.push({ ...delta })
         })
         const result = await executeContext({
-          client: makeClient(mode, [preamble, output]),
+          client: makeClient(mode, [preamble, `■send=message\n${reply}\n■next=listen`]),
           chat,
           options: { loop: 2 },
         })
@@ -960,15 +1441,15 @@ describe('message-stream protocol execution', () => {
     expect((result as SuccessExecutionResult).result.exit.name).toBe(ListenExit.name)
   })
 
-  test('a message-only response without ■next implicitly listens', async () => {
+  test('a message-only response without ■next is rejected', async () => {
     const { chat, messages } = makeChat()
     const client = new ScriptedCognitive(['■send=message\nJust letting you know!'])
 
     const result = await executeContext({ client, chat, options: { loop: 3 } })
 
-    expect(messages.map((m) => m.text)).toEqual(['Just letting you know!'])
-    expect(result).toBeInstanceOf(SuccessExecutionResult)
-    expect((result as SuccessExecutionResult).result.exit.name).toBe(ListenExit.name)
+    expect(messages).toEqual([])
+    expect(result).toBeInstanceOf(ErrorExecutionResult)
+    expect(result.iterations[0]!.status.type).toBe('invalid_code_error')
   })
 
   test('■run executes code, feeds the returned value back, and continues', async () => {
@@ -1079,7 +1560,7 @@ describe('message-stream protocol execution', () => {
 
     expect(result).toBeInstanceOf(SuccessExecutionResult)
     expect(result.iterations).toHaveLength(2)
-    expect(result.iterations[0]!.status.type).toBe('thinking_requested')
+    expect(result.iterations[0]!.status.type).toBe('invalid_code_error')
     expect((result as SuccessExecutionResult).result.exit.name).toBe('done')
   })
 
@@ -1099,13 +1580,13 @@ describe('message-stream protocol execution', () => {
 
     const result = await executeContext({ client, chat, tools: [getNumber], options: { loop: 3 } })
 
-    expect(messages.map((m) => m.text)).toEqual(['Looking it up...', 'The number is **21**.'])
+    expect(messages.map((m) => m.text)).toEqual(['The number is **21**.'])
     expect(result).toBeInstanceOf(SuccessExecutionResult)
     expect(result.iterations).toHaveLength(2)
-    expect(result.iterations[0]!.status.type).toBe('thinking_requested')
+    expect(result.iterations[0]!.status.type).toBe('invalid_code_error')
   })
 
-  test('streaming clients dispatch messages while the stream is still in flight', async () => {
+  test('streaming clients commit messages after the stream completes', async () => {
     const { chat, messages } = makeChat()
     const client = new ScriptedStreamingCognitive(
       ['■send=message\nStreaming hello!\n■send=message\nSecond message\n■next=listen'],
@@ -1118,8 +1599,7 @@ describe('message-stream protocol execution', () => {
     expect(result).toBeInstanceOf(SuccessExecutionResult)
     expect((result as SuccessExecutionResult).result.exit.name).toBe(ListenExit.name)
 
-    // the first message must have been delivered before the stream completed
-    expect(client.probes.slice(0, -1).some((count) => count >= 1)).toBe(true)
+    expect(client.probes.every((count) => count === 0)).toBe(true)
   })
 
   test('streaming clients run code and continue like non-streaming clients', async () => {
@@ -1173,7 +1653,7 @@ describe('message-stream protocol execution', () => {
     expect(restartDeltas(deltas)).toEqual([])
 
     // deltas were flowing while the stream was still in flight
-    expect(client.probes.slice(0, -1).some((count) => count >= 1)).toBe(true)
+    expect(client.probes.slice(0, -1).some((count) => count > 0)).toBe(true)
   })
 
   test('onMessageDelta errors are ignored and the message is still delivered', async () => {
@@ -1248,63 +1728,58 @@ describe('message-stream protocol execution', () => {
     expect(result.iterations[1]!.traces.some((t) => t.type === 'code_generation_started')).toBe(false)
   })
 
-  test('streaming clients start executing the ■run block before the stream ends', { timeout: 10_000 }, async () => {
-    const done = new Exit({ name: 'done', description: 'Task completed' })
+  test(
+    'streaming clients wait for the envelope and successful transport before executing code',
+    { timeout: 10_000 },
+    async () => {
+      const done = new Exit({ name: 'done', description: 'Task completed' })
 
-    let release!: () => void
-    const toolRan = new Promise<void>((resolve) => (release = resolve))
-    const sideEffect = new Tool({
-      name: 'sideEffect',
-      description: 'Does something',
-      handler: async () => {
-        release()
-      },
-    })
+      let didRun = false
+      const sideEffect = new Tool({
+        name: 'sideEffect',
+        description: 'Does something',
+        handler: async () => {
+          didRun = true
+        },
+      })
 
-    /**
-     * Streams the ■run block and the start of the ■next block (which
-     * completes the run item and triggers early execution), then BLOCKS the
-     * rest of the stream until the tool inside the code has run. If execution
-     * only started after the stream ended, this would deadlock.
-     */
-    class GatedStreamingCognitive extends ScriptedCognitive {
-      public async *generateTextStream(): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
-        const content = this._nextContent()
-        const gateAt = content.indexOf('■next')
-        yield { output: content.slice(0, gateAt), created: Date.now() }
-        yield { output: content.slice(gateAt, gateAt + 5), created: Date.now() } // '■next' — completes the ■run item
-        await toolRan
-        yield { output: content.slice(gateAt + 5), created: Date.now() }
-        yield { created: Date.now(), finished: true, metadata: makeFakeMetadata() }
+      // Probe the closed run before allowing the response and transport to finish.
+      class GatedStreamingCognitive extends ScriptedCognitive {
+        public async *generateTextStream(): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
+          const content = this._nextContent()
+          const gateAt = content.indexOf('■next')
+          yield { output: content.slice(0, gateAt), created: Date.now() }
+          yield { output: content.slice(gateAt, gateAt + 5), created: Date.now() } // '■next' — completes the ■run item
+          expect(didRun).toBe(false)
+          yield { output: content.slice(gateAt + 5), created: Date.now() }
+          yield { created: Date.now(), finished: true, metadata: makeFakeMetadata() }
+        }
       }
+
+      const client = new GatedStreamingCognitive(['■run\nawait sideEffect()\n■next=done'])
+      const result = await executeContext({ client, tools: [sideEffect], exits: [done], options: { loop: 2 } })
+
+      expect(result).toBeInstanceOf(SuccessExecutionResult)
+      expect(result.iterations).toHaveLength(1)
+      expect((result as SuccessExecutionResult).result.exit.name).toBe('done')
     }
+  )
 
-    const client = new GatedStreamingCognitive(['■run\nawait sideEffect()\n■next=done'])
-    const result = await executeContext({ client, tools: [sideEffect], exits: [done], options: { loop: 2 } })
-
-    expect(result).toBeInstanceOf(SuccessExecutionResult)
-    expect(result.iterations).toHaveLength(1)
-    expect((result as SuccessExecutionResult).result.exit.name).toBe('done')
-  })
-
-  test('without fallback, closed code can run before a later transport failure but LLMz does not retry it', async () => {
-    let release!: () => void
-    const toolRan = new Promise<void>((resolve) => {
-      release = resolve
-    })
+  test('without fallback, a later transport failure prevents closed code from running', async () => {
+    let didRun = false
     const calls = vi.fn()
     const mark = new Tool({
       name: 'mark',
       description: 'Records a side effect',
       handler: async () => {
         calls()
-        release()
+        didRun = true
       },
     })
     class FailAfterCode extends ScriptedCognitive {
       public async *generateTextStream(): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
         yield { output: this._nextContent(), created: Date.now() }
-        await toolRan
+        expect(didRun).toBe(false)
         throw new Error('transport failed after code ran')
       }
     }
@@ -1314,18 +1789,18 @@ describe('message-stream protocol execution', () => {
     expect(result).toBeInstanceOf(ErrorExecutionResult)
     expect((result as ErrorExecutionResult).error).toBeInstanceOf(CognitiveError)
     expect(result.iterations).toHaveLength(1)
-    expect(calls).toHaveBeenCalledTimes(1)
+    expect(calls).not.toHaveBeenCalled()
     expect(messages).toEqual([])
   })
 
-  test('streaming clients strip a wrapping code fence', async () => {
+  test('streaming clients reject a wrapping code fence', async () => {
     const { chat, messages } = makeChat()
     const client = new ScriptedStreamingCognitive(['```\n■send=message\nFenced hello!\n■next=listen'])
 
     const result = await executeContext({ client, chat, options: { loop: 3 } })
 
-    expect(messages.map((m) => m.text)).toEqual(['Fenced hello!'])
-    expect(result).toBeInstanceOf(SuccessExecutionResult)
+    expect(messages.map((m) => m.text)).toEqual([])
+    expect(result).toBeInstanceOf(ErrorExecutionResult)
   })
 
   test('iterations expose token usage and a context breakdown', async () => {
@@ -1535,7 +2010,7 @@ describe('message-stream protocol execution', () => {
       {
         name: 'completed code then partial message',
         output: '■run\nawait mark()\n■send=message\nPartial reply',
-        preview: 'Partial reply',
+        preview: '',
         completed: [],
       },
     ]
@@ -1585,9 +2060,9 @@ describe('message-stream protocol execution', () => {
           const result = await executeContext({ client, chat, tools: [mark], options: midStreamOptions(1) })
 
           expect(result).toBeInstanceOf(SuccessExecutionResult)
-          expect(calls).toHaveBeenCalledTimes(1)
+          expect(calls).toHaveBeenCalledOnce()
           expect(client.probes.every((count) => count === 0)).toBe(true)
-          expect(result.iterations[0]!.llm?.output).toBe(replacement)
+          expect(result.iterations[0]!.llm?.output).toBe(wire(replacement))
           expect(events.filter((event) => event.type === 'reset')).toHaveLength(1)
           const resetAt = events.findIndex((event) => event.type === 'reset')
           const before = events.slice(0, resetAt)
@@ -1598,9 +2073,7 @@ describe('message-stream protocol execution', () => {
               .map((event) => event.text)
               .join('')
           ).toBe(scenario.preview)
-          expect(before.filter((event) => event.type === 'complete').map((event) => event.text)).toEqual(
-            scenario.completed
-          )
+          expect(before.filter((event) => event.type === 'complete').map((event) => event.text)).toEqual([])
           expect(
             after
               .filter((event) => event.type === 'delta')
@@ -1620,7 +2093,7 @@ describe('message-stream protocol execution', () => {
     })
 
     test.each(interruptedAttempts)(
-      'terminal failure during $name never executes code or invents a restart',
+      'terminal failure during $name never executes code and retracts any previews',
       async (scenario) => {
         const calls = vi.fn()
         const mark = new Tool({
@@ -1640,13 +2113,13 @@ describe('message-stream protocol execution', () => {
         expect((result as ErrorExecutionResult).error).toBeInstanceOf(CognitiveError)
         expect(result.iterations).toHaveLength(1)
         expect(calls).not.toHaveBeenCalled()
-        expect(messages.map((message) => message.text)).toEqual(scenario.completed)
+        expect(messages).toEqual([])
         expect(
           textDeltas(deltas)
             .map((delta) => delta.delta)
             .join('')
         ).toBe(scenario.preview)
-        expect(restartDeltas(deltas)).toEqual([])
+        expect(restartDeltas(deltas)).toHaveLength(scenario.preview ? 1 : 0)
       }
     )
 
@@ -1681,7 +2154,7 @@ describe('message-stream protocol execution', () => {
       }
     )
 
-    test('sends are delivered immediately even with midStreamFallback enabled', async () => {
+    test('completed sends wait for successful generation with midStreamFallback enabled', async () => {
       const { chat, messages } = makeChat()
       const client = new ScriptedStreamingCognitive(
         ['■send=message\nBuffered hello!\n■send=message\nBuffered second\n■next=listen'],
@@ -1696,7 +2169,7 @@ describe('message-stream protocol execution', () => {
 
       // there is no delivery queue: the first authoritative send reached the
       // chat while the stream was still in flight
-      expect(client.probes.slice(0, -1).some((count) => count >= 1)).toBe(true)
+      expect(client.probes.every((count) => count === 0)).toBe(true)
     })
 
     test('previews stream immediately even with midStreamFallback enabled', async () => {
@@ -1725,7 +2198,7 @@ describe('message-stream protocol execution', () => {
       expect(restartDeltas(deltas)).toEqual([])
 
       // and the previews reached the client while the model was still generating
-      expect(client.probes.slice(0, -1).some((count) => count >= 1)).toBe(true)
+      expect(client.probes.slice(0, -1).some((count) => count > 0)).toBe(true)
     })
 
     test('disables early code execution', async () => {
@@ -1759,9 +2232,8 @@ describe('message-stream protocol execution', () => {
       expect(client.probes.every((value) => value === 0)).toBe(true)
     })
 
-    test("sends completed before a restart stay delivered (retraction is the consumer's job)", async () => {
+    test('sends from abandoned attempts are never committed', async () => {
       const { chat, messages } = makeChat()
-      // first attempt: a completed ■send and a second ■send cut off mid-body
       const client = new ScriptedRestartStreamingCognitive([
         '■send=message\nAbandoned!\n■send=message\nPartial',
         '■send=message\nKept!\n■next=listen',
@@ -1770,11 +2242,7 @@ describe('message-stream protocol execution', () => {
       const result = await executeContext({ client, chat, options: midStreamOptions(3) })
 
       expect(result).toBeInstanceOf(SuccessExecutionResult)
-      // the completed send was committed before the restart; the mid-body second
-      // send never completed, and the restart resets the parser state so it is
-      // dropped — already-sent messages are retracted by consumers via the
-      // restart delta (clearPreview), not by the runtime
-      expect(messages.map((m) => m.text)).toEqual(['Abandoned!', 'Kept!'])
+      expect(messages.map((m) => m.text)).toEqual(['Kept!'])
     })
 
     test('an unexpected restart throws a CognitiveError when fallback is disabled', async () => {
@@ -1859,8 +2327,6 @@ describe('message-stream protocol execution', () => {
       const client = new CancelOnCompletion(['■send=message\nBuffered\n■next=listen'])
       const result = await executeContext({ client, chat, signal: controller.signal, options: midStreamOptions(1) })
       expect(result).toBeInstanceOf(ErrorExecutionResult)
-      // the send completed while the stream was still in flight; the terminal
-      // abort fails the run but does not revoke already-delivered content
       expect(messages.map((m) => m.text)).toEqual(['Buffered'])
       // previews were streamed live alongside the committed send
       expect(
@@ -1871,7 +2337,7 @@ describe('message-stream protocol execution', () => {
       expect(restartDeltas(deltas)).toEqual([])
     })
 
-    test('multiple restarts keep every completed send; previews retract to the survivor', async () => {
+    test('multiple restarts commit only the survivor and retract earlier previews', async () => {
       const { chat, messages } = makeChat()
       const client = new ScriptedRestartStreamingCognitive([
         '■send=message\nFirst attempt\n■next=listen',
@@ -1882,19 +2348,16 @@ describe('message-stream protocol execution', () => {
       const result = await executeContext({ client, chat, options: midStreamOptions(3) })
 
       expect(result).toBeInstanceOf(SuccessExecutionResult)
-      // each attempt sent immediately as it was parsed; the runtime keeps what
-      // it already delivered and consumers retract previews per iteration on
-      // each restart delta
-      expect(messages.map((m) => m.text)).toEqual(['First attempt', 'Second attempt', 'Final!'])
+      expect(messages.map((m) => m.text)).toEqual(['Final!'])
     })
 
     test.each(['```', '```\n■send=message\nAbandoned!\n', '■send=button { "label":'])(
-      'a restart resets incomplete parser/fence state: %s',
+      'a restart resets incomplete envelope state: %s',
       async (abandoned) => {
         const { chat, messages } = makeChat()
         // both attempts are wrapped in a code fence; the first fence must not
         // leak into the replacement after the restart
-        const client = new ScriptedRestartStreamingCognitive([abandoned, '```\n■send=message\nKept!\n■next=listen'])
+        const client = new ScriptedRestartStreamingCognitive([abandoned, '■send=message\nKept!\n■next=listen'])
 
         const result = await executeContext({ client, chat, options: midStreamOptions(3) })
 
@@ -1903,7 +2366,7 @@ describe('message-stream protocol execution', () => {
       }
     )
 
-    test('a metadata-less replacement fails but its completed sends stay delivered', async () => {
+    test('a metadata-less replacement retracts its previews without committing sends', async () => {
       const cases = [
         // the stream simply runs dry after the replacement content
         null,
@@ -1928,11 +2391,11 @@ describe('message-stream protocol execution', () => {
         expect((error as Error).message).toContain('without metadata')
         // sends parsed before the metadata failure were committed immediately;
         // unfinished trailing blocks are dropped because parser.finish() never runs
-        expect(messages.map((m) => m.text)).toEqual(['Abandoned!', 'Still sent'])
+        expect(messages.map((m) => m.text)).toEqual([])
       }
     })
 
-    test('cancelling mid-stream keeps the already completed send', async () => {
+    test('cancelling mid-stream retracts previews without committing sends', async () => {
       const guard = new AbortController()
       const deltas: MessageDelta[] = []
       const { chat, messages } = makeChat((delta) => {
@@ -1949,17 +2412,14 @@ describe('message-stream protocol execution', () => {
 
       expect(result).toBeInstanceOf(ErrorExecutionResult)
       expect((result as ErrorExecutionResult).error).toMatchObject({ message: 'cancelled' })
-      // the send item completed (■next opened) before the abort: it stays
-      // committed even though the run fails terminally
-      expect(messages.map((m) => m.text)).toEqual(['Abandoned!'])
+      expect(messages.map((m) => m.text)).toEqual([])
       expect(result.iterations[0]!.status.type).toBe('aborted')
 
-      // the preview that streamed before the abort is left in place (best effort)
-      expect(textDeltas(deltas).some((d) => d.delta.includes('Abandoned!'))).toBe(true)
-      expect(restartDeltas(deltas)).toEqual([])
+      expect(textDeltas(deltas).length).toBeGreaterThan(0)
+      expect(restartDeltas(deltas)).toHaveLength(1)
     })
 
-    test('a stream error delivers completed sends but never abandoned code', async () => {
+    test('a stream error commits neither sends nor code', async () => {
       const deltas: MessageDelta[] = []
       const { chat, messages } = makeChat((delta) => {
         deltas.push(delta)
@@ -1991,7 +2451,7 @@ describe('message-stream protocol execution', () => {
           .map((d) => d.delta)
           .join('')
       ).toBe('Buffered!')
-      expect(messages.map((m) => m.text)).toEqual(['Buffered!'])
+      expect(messages.map((m) => m.text)).toEqual([])
       expect(ran).toBe(false)
     })
 
@@ -2020,7 +2480,7 @@ describe('message-stream protocol execution', () => {
       expect((result as SuccessExecutionResult).result.exit.name).toBe('done')
       // only the abandoned attempt's send was committed (immediately as parsed);
       // the replacement attempt only runs code
-      expect(messages.map((m) => m.text)).toEqual(['Abandoned!'])
+      expect(messages.map((m) => m.text)).toEqual([])
       expect(ran).toEqual(['replacement'])
 
       const restarts = restartDeltas(deltas)
@@ -2054,11 +2514,10 @@ describe('message-stream protocol execution', () => {
       const error = (result as ErrorExecutionResult).error
       expect(error).toBeInstanceOf(CognitiveError)
       expect((error as Error).message).toContain('without metadata')
-      // both attempts' completed sends were committed before the failure
-      expect(messages.map((m) => m.text)).toEqual(['Abandoned!', 'Still buffered'])
+      expect(messages.map((m) => m.text)).toEqual([])
 
       const restarts = restartDeltas(deltas)
-      expect(restarts).toHaveLength(1)
+      expect(restarts).toHaveLength(2)
       expect(restarts[0]).toMatchObject({
         restart: true,
         attempt: 2,
@@ -2152,8 +2611,7 @@ describe('message-stream protocol execution', () => {
       expect(previews.size).toBe(1)
       expect([...[...previews.values()][0]!.values()]).toEqual(['Delta!'])
 
-      // every send was committed as it was parsed, across all attempts
-      expect(messages.map((m) => m.text)).toEqual(['Abandoned!', 'Beta abandoned', 'Mid attempt', 'Delta!'])
+      expect(messages.map((m) => m.text)).toEqual(['Delta!'])
     })
 
     test('text deltas from the replacement carry a fresh message id under a stable iteration id', async () => {
@@ -2169,7 +2627,7 @@ describe('message-stream protocol execution', () => {
       const result = await executeContext({ client, chat, options: midStreamOptions(3) })
 
       expect(result).toBeInstanceOf(SuccessExecutionResult)
-      expect(messages.map((m) => m.text)).toEqual(['Abandoned!', 'Kept over here!'])
+      expect(messages.map((m) => m.text)).toEqual(['Kept over here!'])
 
       const text = textDeltas(deltas)
       const bodies = new Map<string, string>()
@@ -2227,7 +2685,7 @@ describe('message-stream protocol execution', () => {
 
       expect(result).toBeInstanceOf(SuccessExecutionResult)
       expect((result as SuccessExecutionResult).result.exit.name).toBe(ListenExit.name)
-      expect(messages.map((m) => m.text)).toEqual(['Abandoned!', 'Kept!'])
+      expect(messages.map((m) => m.text)).toEqual(['Kept!'])
 
       // reset events settled (start → end) before any replacement preview
       const resetStart = events.indexOf('reset:start')
@@ -2267,7 +2725,7 @@ describe('message-stream protocol execution', () => {
 
       expect(result).toBeInstanceOf(SuccessExecutionResult)
       expect((result as SuccessExecutionResult).result.exit.name).toBe(ListenExit.name)
-      expect(messages.map((m) => m.text)).toEqual(['Abandoned!', 'Kept!'])
+      expect(messages.map((m) => m.text)).toEqual(['Kept!'])
 
       // the earlier generation's preview survived the restart untouched
       expect(previews.get('previous-iteration')).toEqual(new Map([['prev-msg', 'Committed earlier message']]))
@@ -2317,7 +2775,7 @@ describe('message-stream protocol execution', () => {
           'restart handler failed: retraction failed'
         )
         expect(result.iterations).toHaveLength(1)
-        expect(messages.map((m) => m.text)).toEqual(['Abandoned!'])
+        expect(messages.map((m) => m.text)).toEqual([])
         expect(events).toContain('text')
         expect(events.filter((event) => event === 'reset')).toHaveLength(1)
         expect(events.at(-1)).toBe('reset')
@@ -2344,7 +2802,7 @@ describe('message-stream protocol execution', () => {
       expect(error).toBeInstanceOf(CognitiveError)
       expect((error as Error).message).toContain('without metadata')
       // both attempts' sends completed and were committed before the failure
-      expect(messages.map((m) => m.text)).toEqual(['Abandoned!', 'Still buffered'])
+      expect(messages.map((m) => m.text)).toEqual([])
     })
 
     test('a replacement handoff within the stall guard still succeeds', async () => {
@@ -2424,7 +2882,7 @@ describe('message-stream protocol execution', () => {
       const result = await executeContext({ client, chat, options: midStreamOptions(3) })
 
       expect(result).toBeInstanceOf(SuccessExecutionResult)
-      expect(messages.map((m) => m.text)).toEqual(['First attempt', 'More abandoned output', 'Final!'])
+      expect(messages.map((m) => m.text)).toEqual(['Final!'])
 
       const iteration = result.iterations[0]!
       const restartTraces = iteration.traces.filter((t) => t.type === 'llm_call_restarted')
@@ -2432,7 +2890,7 @@ describe('message-stream protocol execution', () => {
       expect(restartTraces[0]).toMatchObject({ attempt: 2, fromModel: 'fake', toModel: 'fake', reason: 'timeout' })
 
       // raw output and usage come from the surviving attempt only
-      expect(iteration.llm!.output).toBe('■send=message\nFinal!\n■next=listen')
+      expect(iteration.llm!.output).toBe(wire('■send=message\nFinal!\n■next=listen'))
       expect(iteration.llm!.usage).toEqual({ inputTokens: 10, inputCost: 0, outputTokens: 10, outputCost: 0 })
       expect(iteration.tokens!.input).toBe(10)
       expect(iteration.tokens!.output).toBe(10)
@@ -2574,11 +3032,8 @@ describe('Chat.handler message metadata', () => {
 
     await executeContext({ client, chat, options: midStreamOptions(3) })
 
-    expect(sent).toHaveLength(2)
-    // fallback ids embed the attempt: :1: for the abandoned, :2: for the survivor
-    expect(sent[0]!.metadata.id.includes(':1:')).toBe(true)
-    expect(sent[1]!.metadata.id.includes(':2:')).toBe(true)
-    expect(sent[0]!.metadata.id).not.toBe(sent[1]!.metadata.id)
+    expect(sent).toHaveLength(1)
+    expect(sent[0]!.metadata.id.includes(':2:')).toBe(true)
     // one stable iteration id across both attempts
     expect(new Set(sent.map((s) => s.metadata.iterationId)).size).toBe(1)
   })
@@ -2601,7 +3056,7 @@ describe('Chat.handler message metadata', () => {
     ])
   })
 
-  test('handler deliveries are awaited: abandoned and replacement sends settle in stream order across a restart', async () => {
+  test('handler delivery is awaited only for the surviving attempt', async () => {
     const events: string[] = []
     const chat = new Chat({
       components: [DefaultComponents.Text],
@@ -2623,13 +3078,9 @@ describe('Chat.handler message metadata', () => {
     await executeContext({ client, chat, options: midStreamOptions(3) })
 
     const handlerEvents = events.filter((e) => e.startsWith('handler:')).map((e) => e.slice('handler:'.length))
-    expect(handlerEvents).toHaveLength(2)
-    expect(handlerEvents[0]).not.toBe(handlerEvents[1])
+    expect(handlerEvents).toHaveLength(1)
 
-    // the abandoned send's handler settled before the reset delta was emitted,
-    // and the survivor's after it — every delivery is awaited in stream order
-    expect(events.indexOf('reset')).toBeGreaterThan(events.indexOf(`handler:${handlerEvents[0]}`))
-    expect(events.indexOf('reset')).toBeLessThan(events.indexOf(`handler:${handlerEvents[1]}`))
+    expect(events.indexOf('reset')).toBeLessThan(events.indexOf(`handler:${handlerEvents[0]}`))
   })
 })
 

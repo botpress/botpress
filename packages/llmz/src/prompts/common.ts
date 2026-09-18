@@ -1,21 +1,8 @@
+import type { StopReason } from '@botpress/cognitive'
 import { hasTopLevelReturn } from '../compiler/index.js'
-import { StreamingMessageParser } from '../message-stream/parser.js'
+import { ResponseParser } from '../message-stream/response-parser.js'
 import type { Diagnostic, ParsedItem } from '../message-stream/types.js'
 import { ParsedAssistantResponse } from './prompt.js'
-
-/** Strips wrapping code fences the model may have added around the whole response. */
-const stripWrappingFences = (text: string): string =>
-  text
-    .trim()
-    .split('\n')
-    .filter((line, index, arr) => {
-      const isFirstOrLastLine = index === 0 || index === arr.length - 1
-      if (isFirstOrLastLine && line.trim().startsWith('```')) {
-        return false
-      }
-      return true
-    })
-    .join('\n')
 
 /** Builds a {@link ParsedAssistantResponse} from parsed protocol items. */
 export const toParsedAssistantResponse = (
@@ -53,10 +40,10 @@ export const toParsedAssistantResponse = (
   }
 }
 
-export const parseAssistantResponse = (response: string): ParsedAssistantResponse => {
-  const parser = new StreamingMessageParser()
-  parser.push(stripWrappingFences(response))
-  parser.finish()
+export const parseAssistantResponse = (response: string, stopReason?: StopReason): ParsedAssistantResponse => {
+  const parser = new ResponseParser()
+  parser.push(response)
+  parser.finish(stopReason)
 
   return toParsedAssistantResponse(parser.items, response, parser.diagnostics)
 }

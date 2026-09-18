@@ -1,4 +1,5 @@
 import { isPlainObject } from 'lodash-es'
+import { exampleBoundaryInstructions, quoteExample, quoteResponseExample } from '../example-format.js'
 import { renderExamples } from '../example.js'
 import { inspect } from '../inspect.js'
 import { cleanStackTrace } from '../stack-traces.js'
@@ -10,7 +11,7 @@ import CHAT_USER_PROMPT_TEXT from './chat-mode/user.js'
 import { parseAssistantResponse, replacePlaceholders } from './common.js'
 import { getExecutionState } from './execution-state.js'
 import { LLMzPrompts, Prompt } from './prompt.js'
-import { getProtocolInstructions } from './protocol.js'
+import { getMessageContract, getProtocolInstructions, getTranscriptTextComponent } from './protocol.js'
 
 import WORKER_SYSTEM_PROMPT_TEXT from './worker-mode/system.js'
 import WORKER_USER_PROMPT_TEXT from './worker-mode/user.js'
@@ -72,15 +73,13 @@ const value = ${readonly_vars[0]} // reading a Readonly variable is valid
   }
 
   if (variables_example) {
-    variables_example = `
-
-\`\`\`ts
-${variables_example}
-\`\`\``
+    variables_example = `\n\n${quoteExample(variables_example)}`
   }
 
   const identity = props.instructions?.length ? props.instructions : 'No specific instructions provided'
-  const transcript = props.transcript.toString()
+  const transcript = props.transcript.toString({
+    assistantMessageComponent: getTranscriptTextComponent(props.components),
+  })
   const examples = await renderExamples(props.examples ?? [], props.components, props.exits)
   const protocol = getProtocolInstructions({ components: props.components, exits: props.exits })
 
@@ -110,6 +109,7 @@ ${variables_example}
           preserve: 'both',
           minTokens: 500,
         }),
+        message_contract: getMessageContract(props.components, props.exits),
       }).trim(),
     },
     parts: {
@@ -181,6 +181,7 @@ ${inspect(transcript[0]?.payload, transcript[0]?.name, { tokens: 5000 })}
           type: 'text',
           text: replacePlaceholders(isChatMode ? CHAT_USER_PROMPT_TEXT : WORKER_USER_PROMPT_TEXT, {
             recap,
+            ...(isChatMode ? { message_contract: getMessageContract(props.components, props.exits, false) } : {}),
           }).trim(),
         },
         ...attachments.flatMap<LLMzPrompts.MessageContent>((attachment, idx) => {
@@ -217,6 +218,7 @@ ${inspect(transcript[0]?.payload, transcript[0]?.name, { tokens: 5000 })}
     role: 'user',
     content: replacePlaceholders(isChatMode ? CHAT_USER_PROMPT_TEXT : WORKER_USER_PROMPT_TEXT, {
       recap,
+      ...(isChatMode ? { message_contract: getMessageContract(props.components, props.exits, false) } : {}),
     }).trim(),
   }
 }
@@ -243,19 +245,23 @@ Error:
 ${wrapContent(props.message, { flex: 4 })}
 \`\`\`
 
+${props.variables ? `Preserved variables (reuse these):\n${wrapContent(inspect(props.variables) ?? '', { preserve: 'top' })}` : ''}
+${props.toolCalls ? `Actual tool calls and outcomes (completed calls must NOT be repeated to fix formatting):\n${wrapContent(inspect(props.toolCalls) ?? '', { preserve: 'top' })}` : ''}
+
 Fix the error within the remaining generation budget. If the task also sets a tool-attempt limit, count actual tool calls only: an invalid response that executed no tool does not consume a tool attempt.
-${/\n\s*<\/run>\s*$/.test(props.code) ? 'The trailing </run> is the syntax error. DELETE that line. A ■run block is plain JavaScript, not XML: end your response after the last JavaScript line, with NO closing tag.' : ''}
+${/\n\s*<\/run>\s*$/.test(props.code) ? 'The trailing </run> is the syntax error. DELETE that line. A ■run block is plain JavaScript, not XML: close the response with ■end after the last JavaScript line, with NO XML closing tag.' : ''}
 ${props.isChatEnabled === false ? '' : `${recoveryReminder}\nAny messages already sent have been delivered. Do not repeat them while correcting the code or exit.`}
 
 Expected response format (■ blocks):
+${exampleBoundaryInstructions}
+${props.isChatEnabled ? 'To answer or ask a question, write ■send=<component> on its own line BEFORE the message body, then ■next=<exit>. Unmarked text is discarded. Keep private reasoning out of send blocks. An exit alone sends nothing; use it only for intentional silence or a handoff requiring no message.' : ''}
 For an exit, put ALL required props in a JSON object on the SAME LINE as ■next=<exit>. An exit has NO body: putting the object on the next line leaves its props missing.
 
-■run
-// code here
+${quoteResponseExample('■run\n// code here')}
 
 Or finish with:
 
-■next=<exit> {props?}
+${quoteResponseExample('■next=<exit> {props?}')}
 `.trim(),
   }
 }
@@ -439,7 +445,7 @@ Continue with a new response using the available ■ blocks.
   }
 }
 
-const getStopTokens = () => []
+const getStopTokens = () => ['\n■end']
 
 export const DualModePrompt: Prompt = {
   getSystemMessage,

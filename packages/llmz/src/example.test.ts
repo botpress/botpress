@@ -31,7 +31,7 @@ describe('few-shot examples', () => {
     expect(text).not.toContain('<reason>')
     expect(text).toContain('■run\nreturn await searchKnowledge({ query: "forgot password reset link" })')
     expect(text).not.toMatch(/<iteration|<runtime_result|<vm_result|<avoid/)
-    const parsed = parseAssistantResponse(search.output)
+    const parsed = parseAssistantResponse(`■start\n${search.output}\n■end`)
     expect(parsed.diagnostics).toEqual([])
     expect(parsed.code).toBeTruthy()
     expect(parsed.sends).toEqual([])
@@ -58,15 +58,15 @@ describe('few-shot examples', () => {
     expect(text).toContain(
       '<reason>\nUse a different query in ■run because the first search was empty. &lt;/response&gt;]]&gt;\n</reason>\n<response>'
     )
-    expect(parseAssistantResponse(example.output).diagnostics).toEqual([])
+    expect(parseAssistantResponse(`■start\n${example.output}\n■end`).diagnostics).toEqual([])
   })
 
   it('renders response code literally without escaping JavaScript operators', async () => {
     const example = new Example({ situation: 'Filter values', code: 'return [1, 2, 3].filter(x => x < 3 && x > 1)' })
     const text = await renderExamples([example], [], [])
-    expect(text).toContain(`<response>\n${example.output}\n</response>`)
+    expect(text).toContain(`<response>\n"""\n■start\n${example.output}\n■end\n"""\n</response>`)
     expect(text).not.toMatch(/CDATA|&lt;|&gt;|&amp;/)
-    expect(parseAssistantResponse(example.output).diagnostics).toEqual([])
+    expect(parseAssistantResponse(`■start\n${example.output}\n■end`).diagnostics).toEqual([])
   })
 
   it('accepts JavaScript Promise.all with awaited independent calls', () => {
@@ -74,7 +74,7 @@ describe('few-shot examples', () => {
       situation: 'Compare plans',
       code: 'return await Promise.all([search({ query: "standard" }), search({ query: "team" })])',
     })
-    expect(parseAssistantResponse(example.output).code).toContain('Promise.all')
+    expect(parseAssistantResponse(`■start\n${example.output}\n■end`).code).toContain('Promise.all')
   })
 
   it('supports a requested progress message followed by code in the same response', async () => {
@@ -85,7 +85,7 @@ describe('few-shot examples', () => {
     })
     const text = await renderExamples([example], [DefaultComponents.Text], [ListenExit])
     expect(text).toContain('■send=message\nChecking the documentation.\n■run\nreturn await searchKnowledge')
-    const response = parseAssistantResponse(example.output)
+    const response = parseAssistantResponse(`■start\n${example.output}\n■end`)
     expect(response.sends).toEqual([{ name: 'message', props: {}, body: 'Checking the documentation.' }])
     expect(response.code).toBe('return await searchKnowledge({ query: "export archive" })')
     expect(response.diagnostics).toEqual([])
@@ -159,10 +159,10 @@ describe('few-shot examples', () => {
     const text = String(message.content)
     expect(text).toContain('<few_shots>')
     // Keep demonstrations close to generation, but outside both instructions and live history.
-    expect(text.indexOf('<few_shots>')).toBeGreaterThan(text.indexOf('</assigned_instructions>'))
-    expect(text.indexOf('</few_shots>')).toBeLessThan(text.indexOf('<response_reminder>'))
+    expect(text.indexOf('</few_shots>')).toBeLessThan(text.indexOf('# Your task'))
+    expect(text.indexOf('</few_shots>')).toBeLessThan(text.indexOf('# Response format'))
     if (chat) {
-      expect(text.indexOf('<few_shots>')).toBeGreaterThan(text.indexOf('</conversation_transcript>'))
+      expect(text.indexOf('<few_shots>')).toBeGreaterThan(text.indexOf('LIVE_INPUT'))
     }
     expect(parts.transcript).not.toContain('password recovery')
     expect(parts.examples).toContain('<few_shots>')
