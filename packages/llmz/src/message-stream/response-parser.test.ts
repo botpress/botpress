@@ -61,4 +61,22 @@ describe('response envelopes', () => {
     parser.finish()
     expect(parser.valid).toBe(true)
   })
+
+  it.each([1, 7, 100000])('preserves literal Bash escapes without correcting the source (chunk=%s)', (size) => {
+    // Even invalid Bash is valid message text. The parser must never repair it.
+    const body = '```bash\nTIMESTAMP=\\$(date)\nLITERAL_COMMAND="\\$(date)"\n```'
+    const raw = `■start\n■send=md\n${body}\n■next=listen\n■end`
+    const parser = new ResponseParser()
+    const events: MessageStreamEvent[] = []
+    for (let i = 0; i < raw.length; i += size) events.push(...parser.push(raw.slice(i, i + size)))
+    events.push(...parser.finish())
+    expect(parser.valid).toBe(true)
+    expect(parser.items[0]!.body).toBe(body)
+    expect(
+      events
+        .filter((e) => e.type === 'body-delta')
+        .map((e) => e.delta)
+        .join('')
+    ).toBe(body)
+  })
 })

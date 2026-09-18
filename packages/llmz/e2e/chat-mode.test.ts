@@ -471,7 +471,8 @@ Bash Scripting Examples:
 # Variables and parameter expansion
 NAME="John Doe"
 FILE_PATH="/home/\${USER}/documents"
-TIMESTAMP=\\$(date +%Y-%m-%d_%H:%M:%S)
+TIMESTAMP=$(date +%Y-%m-%d_%H:%M:%S)
+LITERAL_COMMAND="\\$(date +%Y-%m-%d_%H:%M:%S)"
 
 # String manipulation
 echo "Hello \${NAME}!"
