@@ -273,6 +273,96 @@ describe('message-stream protocol execution', () => {
       ])
     })
 
+    test.each(['nonstreaming', 'whole', 'characters', 'chunks'] as const)(
+      '%s rejects incomplete blocks cut by a reserved inline end marker before any tool execution',
+      async (mode) => {
+        for (const raw of [
+          '■start\n■send=message\nHello ■end world\n■next=listen\n■end',
+          '■start\n■run\nawait record()\nconst text = "■end";\nreturn text\n■end',
+        ]) {
+          const called = vi.fn(async () => undefined)
+          const deltas: MessageDelta[] = []
+          const { chat, messages } = makeChat((delta) => {
+            deltas.push({ ...delta })
+          })
+          const client =
+            mode === 'nonstreaming'
+              ? new ScriptedNonStreamingCognitive([raw])
+              : new ScriptedStreamingCognitive(
+                  [raw],
+                  undefined,
+                  mode === 'whole' ? 100_000 : mode === 'characters' ? 1 : 7
+                )
+          const result = await executeContext({
+            client,
+            chat,
+            tools: [new Tool({ name: 'record', handler: called })],
+            options: { loop: 1 },
+          })
+          expect(result.isSuccess()).toBe(false)
+          expect(called).not.toHaveBeenCalled()
+          expect(messages).toEqual([])
+          expect(result.iterations[0]!.llm?.output).toBe(raw)
+          if (textDeltas(deltas).length) expect(restartDeltas(deltas)).toHaveLength(1)
+          expect(textDeltas(deltas).every((delta) => !delta.content.includes('world'))).toBe(true)
+        }
+      }
+    )
+
+    test.each([false, true])(
+      'executes only valid code before an inline end marker (streaming=%s)',
+      async (streaming) => {
+        const called = vi.fn(async () => 42)
+        const forbidden = vi.fn(async () => undefined)
+        const { chat, messages } = makeChat()
+        const raw = '■start\n■run\nreturn await record()■end\nawait forbidden()\n■end'
+        const responses = [raw, '■start\n■send=message\n42\n■next=listen\n■end']
+        const result = await executeContext({
+          client: streaming
+            ? new ScriptedStreamingCognitive(responses, undefined, 1)
+            : new ScriptedNonStreamingCognitive(responses),
+          chat,
+          tools: [new Tool({ name: 'record', handler: called }), new Tool({ name: 'forbidden', handler: forbidden })],
+          options: { loop: 2 },
+        })
+        expect(result.isSuccess()).toBe(true)
+        expect(result.iterations.map((iteration) => iteration.status.type)).toEqual([
+          'thinking_requested',
+          'exit_success',
+        ])
+        expect(called).toHaveBeenCalledOnce()
+        expect(forbidden).not.toHaveBeenCalled()
+        expect(messages.map((message) => message.text)).toEqual(['42'])
+        expect(result.iterations[0]!.llm?.output).toBe(raw)
+      }
+    )
+
+    test.each([false, true])(
+      'constructs a literal reserved marker with a JavaScript escape (streaming=%s)',
+      async (streaming) => {
+        const called = vi.fn(async () => undefined)
+        const { chat, messages } = makeChat()
+        const raw = String.raw`■start
+■run
+await record({ token: "\u25a0end" })
+■next=listen
+■end`
+        const result = await executeContext({
+          client: streaming
+            ? new ScriptedStreamingCognitive([raw], undefined, 1)
+            : new ScriptedNonStreamingCognitive([raw]),
+          chat,
+          tools: [new Tool({ name: 'record', input: z.object({ token: z.string() }), handler: called })],
+          options: { loop: 1 },
+        })
+        expect(result.isSuccess()).toBe(true)
+        expect(called).toHaveBeenCalledOnce()
+        expect(called).toHaveBeenCalledWith({ token: '■end' }, expect.any(Object))
+        expect(messages).toEqual([])
+        expect(result.iterations[0]!.llm?.output).toBe(raw)
+      }
+    )
+
     test.each([false, true])(
       'accepts the exact HTML failure response without a failed iteration (streaming=%s)',
       async (streaming) => {
