@@ -26,6 +26,8 @@ const LONG_TEXT_LENGTH = 4096
 
 type PreviewOptions = {
   tokens: number
+  /** Latest tool results defer string clipping to the request context budget. */
+  maxStringLength?: number
 }
 
 const DEFAULT_OPTIONS: PreviewOptions = {
@@ -255,13 +257,14 @@ function previewError(err: Error) {
   return lines.join('\n')
 }
 
-function previewArray(arr: unknown) {
+function previewArray(arr: unknown, maxStringLength: number = LONG_TEXT_LENGTH) {
   if (!Array.isArray(arr)) {
     throw new Error('Expected an array')
   }
 
   const lines: string[] = []
-  const getItemPreview = (value: unknown, index: number) => `[${index}]`.padEnd(15) + `  ${previewValue(value)}`
+  const getItemPreview = (value: unknown, index: number) =>
+    `[${index}]`.padEnd(15) + `  ${previewValue(value, maxStringLength)}`
 
   if (arr.length === 0) {
     lines.push('// Array Is Empty (0 element)')
@@ -428,7 +431,7 @@ export const inspect = (value: unknown, name?: string, options: PreviewOptions =
     }
 
     if (genericType === 'Array') {
-      return header + previewArray(value)
+      return header + previewArray(value, options.maxStringLength)
     } else if (genericType === 'error') {
       return header + previewError(value as Error)
     } else if (genericType === 'object') {
@@ -437,9 +440,9 @@ export const inspect = (value: unknown, name?: string, options: PreviewOptions =
       return header + previewValue(value)
     } else if (typeof value === 'string') {
       if (getTokenizer().count(value) < options.tokens) {
-        return header + previewValue(value)
+        return header + previewValue(value, options.maxStringLength)
       } else {
-        return header + previewLongText(value)
+        return header + previewLongText(value, options.maxStringLength)
       }
     }
 

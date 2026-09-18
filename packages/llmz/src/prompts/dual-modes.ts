@@ -296,10 +296,12 @@ Continue with a new response using the available ■ blocks.
 
 const getThinkingMessage = async (props: LLMzPrompts.ThinkingProps): Promise<LLMzPrompts.Message> => {
   let context = ''
+  // Preserve search evidence until the actual request budget decides what fits.
+  const inspection = { tokens: 100_000, maxStringLength: Infinity }
 
   if (isPlainObject(props.variables)) {
     const mapped = Object.entries(props.variables ?? {}).reduce<string[]>((acc, [key, value]) => {
-      const inspected = inspect(value, key)
+      const inspected = inspect(value, key, inspection)
 
       if (inspected) {
         acc.push(inspected)
@@ -312,7 +314,7 @@ const getThinkingMessage = async (props: LLMzPrompts.ThinkingProps): Promise<LLM
     context = mapped.join('\n\n')
   } else if (Array.isArray(props.variables)) {
     const mapped = props.variables.map((value, index) => {
-      const inspected = inspect(value, `Index ${index}`)
+      const inspected = inspect(value, `Index ${index}`, inspection)
 
       if (inspected) {
         return inspected
@@ -325,7 +327,7 @@ const getThinkingMessage = async (props: LLMzPrompts.ThinkingProps): Promise<LLM
   } else if (typeof props.variables === 'string') {
     context = props.variables
   } else {
-    context = inspect(props.variables) ?? JSON.stringify(props.variables, null, 2)
+    context = inspect(props.variables, undefined, inspection) ?? JSON.stringify(props.variables, null, 2)
   }
 
   return {

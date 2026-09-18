@@ -103,6 +103,20 @@ The matrix contains 144 synthetic tasks across 12 languages, each in streaming a
 
 ---
 
+## Long search results and citations
+
+The RAG benchmark uses the same citation contract as VDK: a search tool registers source metadata, returns passages labelled with `【id】` through `ThinkSignal`, and the completed message handler extracts inline tags into citation metadata with text offsets. Its documents are entirely synthetic.
+
+```bash
+LLMZ_EVAL_MODELS=groq:qwen3.8-27b LLMZ_EVAL_REPEATS=1 pnpm test:e2e e2e/long-search-citations.test.ts
+```
+
+The 48 cases pair compact controls with long corpora in both streaming modes. They cover exact scope matching, superseded/future policies, joins across distant documents, and quota arithmetic, with answers near the beginning, middle, or end. Results span roughly 12,000–39,000 tokens and four response languages. Tests require correct facts, every required supporting source, no unrelated citations, intact evidence in the actual model request, no extra search/recovery hops, and the requested model without cache or fallback credit. Near-match sources may additionally support scope/date disambiguation (for example, explaining why an archived account does not apply); they cannot replace required evidence. These checks validate retrieval and source coverage, not every possible natural-language claim.
+
+Latest tool-result strings are preserved until the request context budget is applied; they are no longer silently clipped at 4,096 characters. Inputs exceeding the model/context budget still undergo normal truncation. Separate deterministic tests cover citation offsets, grouped/repeated tags, structured component props, chunk boundaries, discarded preambles, stream restarts, failed delivery, and unknown source IDs.
+
+---
+
 ## Quick Start
 
 **Requirements:** Node.js 20+
