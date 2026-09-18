@@ -1,9 +1,11 @@
 import { describe, expect, test, vi } from 'vitest'
+import { z } from '@bpinternal/zui'
 import type { CognitiveMetadata, CognitiveStreamChunk } from '@botpress/cognitive'
 import { Chat, type MessageDelta } from '../chat.js'
 import { DefaultComponents } from '../component.default.js'
 import { _CustomModelClient } from '../custom-client.js'
 import { Tool } from '../tool.js'
+import { Exit } from '../exit.js'
 import { executeContext } from './execute.js'
 import { protocolLanguages } from './fixtures/protocol-languages.js'
 
@@ -342,3 +344,68 @@ test.each([false, true])('pre-start reasoning permits an intentional silent exit
   expect(delta).not.toHaveBeenCalled()
   expect(result.iterations[0]!.llm?.output).toBe(raw)
 })
+
+test('retracts provisional previews when a completed message handler fails', async () => {
+  const raw = frame('■send=message\nHello!\n■run\nawait record()\n■next=listen')
+  const deltas: MessageDelta[] = [],
+    record = vi.fn(async () => undefined)
+  const result = await executeContext({
+    client: new StreamReplay([raw], 1),
+    chat: new Chat({
+      components: [DefaultComponents.Text],
+      handler: async () => {
+        throw new Error('Delivery failed')
+      },
+      onMessageDelta: (delta) => {
+        deltas.push({ ...delta })
+      },
+    }),
+    tools: [new Tool({ name: 'record', handler: record })],
+    options: { loop: 1 },
+  })
+  expect(result.isError()).toBe(true)
+  expect(deltas.some((d) => !d.restart && d.content === 'Hello!')).toBe(true)
+  expect(deltas.at(-1)?.restart).toBe(true)
+  expect(record).not.toHaveBeenCalled()
+  expect(result.iterations[0]!.llm?.output).toBe(raw)
+})
+
+// Verbatim worker failures from uncached synthetic Qwen runs: never treat the exit as success.
+test.each(
+  [
+    '■start\nEl total verificado es 42.\n■next=done {"total":42}',
+    '■start\nO total verificado é 42.\n■next=done {"total":42}',
+  ].flatMap((raw) => [false, true].map((streaming) => ({ raw, streaming })))
+)(
+  'rejects translated worker prose before accepting a corrected exit (streaming=$streaming): $raw',
+  async ({ raw, streaming }) => {
+    class Stopped extends Replay {
+      override async generateText() {
+        const response = await super.generateText()
+        return { ...response, metadata: { ...metadata, stopReason: 'stop' as const } }
+      }
+    }
+    class Streaming extends Stopped {
+      async *generateTextStream(): AsyncGenerator<CognitiveStreamChunk> {
+        const response = await this.generateText()
+        for (const char of response.output) yield { output: char, created: 1 }
+        yield { metadata: response.metadata, finished: true, created: 2 }
+      }
+    }
+    const onExit = vi.fn(),
+      responses = [raw, frame('■next=done {"total":42}')]
+    const result = await executeContext({
+      client: streaming ? new Streaming(responses) : new Stopped(responses),
+      exits: [
+        new Exit({ name: 'done', description: 'Report the verified total', schema: z.object({ total: z.number() }) }),
+      ],
+      onExit,
+      options: { loop: 2 },
+    })
+    expect(result.isSuccess()).toBe(true)
+    expect(result.iterations.map((i) => i.status.type)).toEqual(['invalid_code_error', 'exit_success'])
+    expect(onExit).toHaveBeenCalledOnce()
+    expect(result.iterations[0]!.llm?.output).toBe(raw)
+    expect(result.iterations[0]!.llm?.diagnostics).toContainEqual(expect.objectContaining({ code: 'unexpected-text' }))
+  }
+)

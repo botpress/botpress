@@ -87,7 +87,7 @@ Cognitive receives `stopSequences: ['\n■end']` to stop generation at the end b
 
 Raw output and diagnostics remain available in `iteration.llm.output` and `iteration.llm.diagnostics`, including on failed streams. A valid framed exit alone permits intentional silence. Tools completed in earlier successful iterations remain completed during later recovery.
 
-Prompt examples use standalone triple quotes (`"""`) to show their boundaries, with BAD/CORRECT comparisons and a menu of response shapes. These quotes are documentation, not protocol. If copied, standalone example delimiter lines are stripped before customer callbacks and recorded as `example-delimiter` diagnostics. Inline quotes, JSON props, and interior Markdown/code content remain literal.
+Prompt examples use standalone triple quotes (`"""`) to show their boundaries, with BAD/CORRECT comparisons and a menu of response shapes. These quotes are documentation, not protocol. If copied, standalone example delimiter lines are stripped before customer callbacks and recorded as `example-delimiter` diagnostics. Inline quotes, JSON props, and interior Markdown/code content remain literal. A standalone triple-quote line immediately before a protocol boundary is reserved for this purpose; to display it literally, include it inline or inside a fenced code sample.
 
 The prompts use ordinary headings and put the response format after task context and the current execution budget. Historical text replies carry their registered send header; structured history stays data. The low-level block parser remains useful for parsing individual blocks; execution uses the mandatory response envelope.
 

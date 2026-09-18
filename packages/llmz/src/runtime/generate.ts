@@ -330,8 +330,8 @@ export const generateCode = async ({
       const events = parser.finish(responseMetadata.stopReason)
       await dispatchSends(events)
       if (parser.valid) {
-        accepted = true
         for (const complete of completions) await complete()
+        accepted = true
       }
 
       assistantResponse = toParsedAssistantResponse(parser.items, raw, parser.diagnostics)
