@@ -17,6 +17,122 @@ const strip = (item: ParsedItem) => ({
 })
 
 describe('streaming message parser', () => {
+  describe('terminal exit regression', () => {
+    it.each(['■next=listen\n', '■next=done {}\n', '■next=listen'])(
+      'ignores all later blocks after %j at every split',
+      (exit) => {
+        const raw = `■send=message\nDone.\n${exit}■send=message\nDuplicate\n■run\nawait chargeAgain()\n■next=listen`
+        for (const chunks of [
+          [...raw],
+          ...Array.from({ length: raw.length + 1 }, (_, i) => [raw.slice(0, i), raw.slice(i)]),
+        ]) {
+          const parser = new StreamingMessageParser()
+          const events = chunks.flatMap((chunk) => parser.push(chunk))
+          events.push(...parser.finish())
+          expect(parser.items.map((item) => item.kind)).toEqual(['send', 'next'])
+          expect(
+            events
+              .filter((e) => e.type === 'body-delta')
+              .map((e) => e.delta)
+              .join('')
+          ).toBe('Done.')
+          expect(parser.diagnostics).toEqual([
+            { code: 'unexpected-text', message: 'Discarded content after terminal ■next' },
+          ])
+          parser.reset()
+          parser.push('■send=message\nFresh response\n■next=listen')
+          parser.finish()
+          expect(parser.items[0]!.body).toBe('Fresh response')
+          expect(parser.diagnostics).toEqual([])
+        }
+      }
+    )
+  })
+
+  describe('triple-quote example boundaries', () => {
+    const bodies = [
+      '"""\n■send=message\nHello!\n■next=listen\n"""',
+      '■send=message\n"""\nHello!\n"""\n■next=listen',
+      '■send=md\nHello!\n"""',
+      '  """ \r\n■send=md\r\nHello!\r\n  """ \r\n■next=listen',
+    ]
+    it.each(bodies)('never emits delimiter fragments at any chunk boundary: %s', (raw) => {
+      const chunks = [[...raw], ...Array.from({ length: raw.length + 1 }, (_, i) => [raw.slice(0, i), raw.slice(i)])]
+      for (const parts of chunks) {
+        const parser = new StreamingMessageParser()
+        const events: MessageStreamEvent[] = []
+        for (const part of parts) {
+          events.push(...parser.push(part))
+          expect(
+            parser.items.filter((item) => item.kind === 'send').every((item) => 'Hello!'.startsWith(item.body ?? ''))
+          ).toBe(true)
+        }
+        events.push(...parser.finish())
+        expect(parser.items[0]!.body).toBe('Hello!')
+        expect(
+          events
+            .filter((event) => event.type === 'body-delta')
+            .map((event) => event.delta)
+            .join('')
+        ).toBe('Hello!')
+        expect(parser.diagnostics.length).toBeGreaterThan(0)
+        expect(parser.diagnostics.every((d) => d.code === 'example-delimiter')).toBe(true)
+      }
+    })
+
+    it.each(['"', '""', '"""'])('holds an interrupted delimiter %s and clears it on reset', (ending) => {
+      const parser = new StreamingMessageParser()
+      const events = [...parser.push(`■send=message\nHello!\n${ending}`), ...parser.finish('interrupted')]
+      expect(parser.items[0]!.body).toBe('Hello!')
+      expect(parser.items[0]!.status).toBe('interrupted')
+      expect(
+        events
+          .filter((event) => event.type === 'body-delta')
+          .map((event) => event.delta)
+          .join('')
+      ).toBe('Hello!')
+      parser.reset()
+      parser.push('■send=message\nNew reply\n■next=listen')
+      parser.finish()
+      expect(parser.items[0]!.body).toBe('New reply')
+      expect(parser.diagnostics).toEqual([])
+    })
+
+    it.each([
+      '"',
+      '""',
+      '"""quoted"""',
+      'The delimiter is """.',
+      '""""',
+      '""" text',
+      '```python\n"""\nA docstring\n"""\n```',
+      'Before\n"""\nAfter',
+    ])('preserves literal text: %s', (body) => {
+      const parser = new StreamingMessageParser()
+      for (const char of `■send=message\n${body}`) parser.push(char)
+      parser.finish()
+      expect(parser.items[0]!.body).toBe(body)
+      expect(parser.diagnostics).toEqual([])
+    })
+
+    it('preserves JSON props and interior code while removing a terminal code wrapper', () => {
+      const code = 'const text = `\n"""\n`;\nreturn text'
+      const raw = `"""\n■send=button ${JSON.stringify({ label: '"""' })}\n■run\n${code}\n"""\n`
+      const parser = new StreamingMessageParser()
+      for (const char of raw) parser.push(char)
+      parser.finish()
+      expect(parser.items[0]!.props).toEqual({ label: '"""' })
+      expect(parser.items[1]!.body).toBe(code)
+      expect(parser.diagnostics.map((d) => d.code)).toEqual(['example-delimiter', 'example-delimiter'])
+    })
+
+    it('never promotes quoted prose to a message', () => {
+      const { parser, items } = parseAll('"""\nPrivate reasoning\n"""\n■next=listen')
+      expect(items.map((item) => item.kind)).toEqual(['next'])
+      expect(parser.diagnostics.some((d) => d.code === 'unexpected-text')).toBe(true)
+    })
+  })
+
   describe('reasoning preamble regression', () => {
     const preamble =
       'I have already provided the greeting in assistant message 5. The user has now said "ok". I should wait for their actual question or request.'

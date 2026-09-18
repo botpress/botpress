@@ -31,6 +31,8 @@ export type DiagnosticCode =
   | 'invalid-props'
   | 'props-too-long'
   | 'unexpected-text'
+  | 'example-delimiter'
+  | 'invalid-envelope'
   // Execution-level: messages emitted after code returning a value are premature.
   | 'send-after-run'
   | 'interrupted'
@@ -109,7 +111,8 @@ export type GenerativeComponentExample = {
 export type GenerativeComponentMetadata = {
   usage?: string
   doNotUseWhen?: string
-  examples?: GenerativeComponentExample[]
+  /** An array entry groups consecutive blocks of this component into one example. */
+  examples?: Array<GenerativeComponentExample | GenerativeComponentExample[]>
   priority?: number
 }
 

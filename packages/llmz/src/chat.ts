@@ -42,9 +42,9 @@ export type MessageHandler = (input: RenderedComponent, metadata: MessageMetadat
  * Each chunk is forwarded to {@link Chat} `onMessageDelta` as soon as it is parsed, so the
  * client can render the message progressively (e.g. typewriter effect in a chat UI).
  *
- * In mid-stream fallback mode, both deltas and completed `handler` messages
- * are live and retractable: restart deltas invalidate every message from that
- * iteration. Consumers must retract them; only code execution waits for success.
+ * Deltas are provisional: restart deltas retract previews from that iteration
+ * after a provider restart, malformed response, or transport failure. Completed
+ * `handler` messages and code wait for a valid response and successful transport.
  */
 export type MessageDelta =
   | {
@@ -65,12 +65,12 @@ export type MessageDelta =
   | {
       /**
        * Reset-only delta, emitted before replacement text (even if none follows).
-       * Clear ALL messages for iterationId, including completed `handler` sends.
-       * Other iterations are unaffected. Irreversible sends cannot be undone.
+       * Clear provisional messages for iterationId. Other iterations are unaffected.
+       * Completed handler sends are never produced by an abandoned generation.
        */
       restart: true
       iterationId: string
-      /** 1-based index of the new attempt. */
+      /** 1-based index of the next attempt; a terminal failure may have no replacement. */
       attempt: number
       fromModel: string
       toModel: string

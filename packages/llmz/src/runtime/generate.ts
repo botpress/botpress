@@ -3,10 +3,9 @@ import { clamp } from 'lodash-es'
 
 import { createJoinedAbortController } from '../abort-signal.js'
 import type { MessageDelta, MessageMetadata } from '../chat.js'
-import { hasTopLevelReturn } from '../compiler/index.js'
 import { Context, Iteration } from '../context.js'
 import { CognitiveError } from '../errors.js'
-import { StreamingMessageParser } from '../message-stream/parser.js'
+import { ResponseParser } from '../message-stream/response-parser.js'
 import type { MessageStreamEvent, ParsedItem } from '../message-stream/types.js'
 import { toParsedAssistantResponse } from '../prompts/common.js'
 import type { ParsedAssistantResponse, ParsedSend } from '../prompts/prompt.js'
@@ -49,8 +48,7 @@ type GenerateCodeProps = {
   controller: AbortController
   metadata?: Record<string, string>
   /**
-   * Called for each completed `■send` block. On streaming clients this fires
-   * while the model is still generating — messages are delivered progressively.
+   * Called for each send after a complete, valid response and successful transport.
    */
   onSend?: (send: ParsedSend, metadata: MessageMetadata) => Promise<void>
   /**
@@ -64,49 +62,6 @@ type GenerateCodeProps = {
    * being generated (streaming clients only). Used to pre-warm the VM.
    */
   onRunStart?: () => void
-  /**
-   * Called with the code of the first `■run` block the moment it is fully
-   * parsed — the rest of the response (e.g. `■next`) may still be streaming
-   * (streaming clients only). Used to start executing the code early.
-   */
-  onRunComplete?: (code: string) => void
-}
-
-/**
- * Models sometimes wrap their whole response in a code fence. The fence has to
- * be removed before it reaches the incremental parser to avoid a spurious
- * unexpected-text diagnostic. Works on arbitrary chunk boundaries
- * by holding content back until the first newline.
- */
-class LeadingFenceFilter {
-  private _buffer = ''
-  private _done = false
-
-  public push(text: string): string {
-    if (this._done) {
-      return text
-    }
-    this._buffer += text
-    const newline = this._buffer.indexOf('\n')
-    if (newline === -1) {
-      return ''
-    }
-    this._done = true
-    const firstLine = this._buffer.slice(0, newline)
-    const rest = this._buffer.slice(newline + 1)
-    this._buffer = ''
-    return firstLine.trim().startsWith('```') ? rest : `${firstLine}\n${rest}`
-  }
-
-  public flush(): string {
-    if (this._done) {
-      return ''
-    }
-    this._done = true
-    const buffered = this._buffer
-    this._buffer = ''
-    return buffered.trim().startsWith('```') ? '' : buffered
-  }
 }
 
 export const generateCode = async ({
@@ -118,7 +73,6 @@ export const generateCode = async ({
   onSend,
   onSendDelta,
   onRunStart,
-  onRunComplete,
 }: GenerateCodeProps) => {
   const startedAt = Date.now()
   const traces = iteration.traces
@@ -214,8 +168,8 @@ export const generateCode = async ({
   const liveContent = new Map<string, string>()
   let codeGenerationTraced = false
   let runCompleted = false
-  let awaitsRunResult = false
 
+  let completions: Array<() => void | Promise<void>> = []
   const dispatchSends = async (events: MessageStreamEvent[]) => {
     for (const event of events) {
       if (event.type === 'item-start') {
@@ -230,7 +184,7 @@ export const generateCode = async ({
         }
       } else if (event.type === 'body-delta' && onSendDelta) {
         const item = liveItems.get(event.itemId)
-        if (item?.kind !== 'send' || awaitsRunResult) {
+        if (item?.kind !== 'send' || runCompleted) {
           continue
         }
         const content = (liveContent.get(item.id) ?? '') + event.delta
@@ -245,23 +199,17 @@ export const generateCode = async ({
         }
         await preview(delta)
       } else if (event.type === 'item-complete') {
-        if (event.item.kind === 'send' && onSend && !awaitsRunResult) {
+        if (event.item.kind === 'send' && onSend && !runCompleted) {
           const send = {
             name: event.item.name,
             props: event.item.props,
             body: event.item.body,
           }
-          await onSend(send, messageMetadata(event.item.id))
+          const metadata = messageMetadata(event.item.id)
+          completions.push(() => onSend(send, metadata))
         } else if (event.item.kind === 'run' && event.item.status === 'complete' && !runCompleted) {
-          // The ■run block is fully parsed (only the first one counts — the
-          // response may invalidly contain more): execution can start while
-          // the rest of the response streams
+          // No message after code can be based on the result; suppress even its previews.
           runCompleted = true
-          const code = (event.item.body ?? '').trim()
-          // The model has not observed this return value yet. Anything it
-          // writes after the run in this generation cannot use the result.
-          awaitsRunResult = hasTopLevelReturn(code)
-          onRunComplete?.(code)
         }
       }
     }
@@ -269,8 +217,7 @@ export const generateCode = async ({
 
   if (typeof cognitive.generateTextStream === 'function') {
     // Only explicit sends may reach either preview or completed-message callbacks.
-    let parser = new StreamingMessageParser()
-    let fence = new LeadingFenceFilter()
+    let parser = new ResponseParser()
 
     // Guard against stalled streams: the transport has no timeout of its own
     // when a signal is provided, so a silent connection would hang forever.
@@ -315,6 +262,7 @@ export const generateCode = async ({
 
     raw = ''
     let streamCompleted = false
+    let accepted = false
 
     try {
       while (true) {
@@ -338,13 +286,13 @@ export const generateCode = async ({
         if (chunk.value?.restart) {
           traces.push({ type: 'llm_call_restarted', started_at: Date.now(), ...chunk.value.restart })
           raw = ''
-          parser = new StreamingMessageParser()
-          fence = new LeadingFenceFilter()
+          completions = []
+          accepted = false
+          parser = new ResponseParser()
           liveItems.clear()
           liveContent.clear()
           codeGenerationTraced = false
           runCompleted = false
-          awaitsRunResult = false
           responseMetadata = undefined
           attempt = chunk.value.restart.attempt
           // Emit even when the replacement has no sends: previous previews
@@ -370,7 +318,8 @@ export const generateCode = async ({
         timeToFirstToken ??= timeToLastToken
 
         raw += delta
-        await dispatchSends(parser.push(fence.push(delta)))
+        const events = parser.push(delta)
+        await dispatchSends(events)
       }
 
       if (!responseMetadata) {
@@ -378,13 +327,33 @@ export const generateCode = async ({
       }
       assertSuccessfulGeneration(responseMetadata)
 
-      const remaining = fence.flush()
-      if (remaining) {
-        await dispatchSends(parser.push(remaining))
+      const events = parser.finish(responseMetadata.stopReason)
+      await dispatchSends(events)
+      if (parser.valid) {
+        for (const complete of completions) await complete()
+        accepted = true
       }
-      await dispatchSends(parser.finish())
 
       assistantResponse = toParsedAssistantResponse(parser.items, raw, parser.diagnostics)
+    } catch (error) {
+      // Keep failed/truncated output for debugging, without dispatching any final parser events.
+      parser.finish()
+      const usage = responseMetadata?.usage ?? { inputTokens: 0, outputTokens: 0, inputCost: 0, outputCost: 0 }
+      iteration.llm = {
+        started_at: startedAt,
+        ended_at: Date.now(),
+        status: 'error',
+        cached: responseMetadata?.cached ?? false,
+        tokens: usage.inputTokens + usage.outputTokens,
+        spend: responseMetadata?.cost ?? usage.inputCost + usage.outputCost,
+        output: raw,
+        diagnostics: parser.diagnostics,
+        model: responseMetadata?.model ?? model.id,
+        time_to_first_token: timeToFirstToken,
+        time_to_last_token: timeToLastToken,
+        usage,
+      }
+      throw error
     } finally {
       // Release transport resources and the joined signal's parent listener,
       // including when a callback throws or an unexpected restart is rejected.
@@ -396,13 +365,19 @@ export const generateCode = async ({
           void err
         })
       }
+      if (!accepted && liveContent.size) {
+        await preview({
+          restart: true,
+          iterationId: iteration.id,
+          attempt: attempt + 1,
+          fromModel: model.id,
+          toModel: model.id,
+          reason: 'invalid or incomplete response envelope',
+        })
+      }
     }
 
-    // Tool execution still waits for successful generation in fallback mode.
-    // Cancellation/deadlines are never renewed across attempts.
-    if (midStreamFallback) {
-      controller.signal.throwIfAborted()
-    }
+    controller.signal.throwIfAborted()
   } else {
     const response = await cognitive.generateText(input, { signal: controller.signal }).catch((thrown: unknown) => {
       throw new CognitiveError(`LLM generation failed: ${getErrorMessage(thrown)}`)
@@ -418,7 +393,7 @@ export const generateCode = async ({
     responseMetadata = response.metadata
     assertSuccessfulGeneration(responseMetadata)
     raw = response.output
-    assistantResponse = ctx.version.parseAssistantResponse(raw)
+    assistantResponse = ctx.version.parseAssistantResponse(raw, responseMetadata.stopReason)
 
     for (const [index, send] of assistantResponse.sends.entries()) {
       await onSend?.(send, messageMetadata(`send-${index}`))

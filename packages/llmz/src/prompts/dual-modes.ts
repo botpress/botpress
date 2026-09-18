@@ -1,4 +1,5 @@
 import { isPlainObject } from 'lodash-es'
+import { exampleBoundaryInstructions, quoteExample, quoteResponseExample } from '../example-format.js'
 import { renderExamples } from '../example.js'
 import { inspect } from '../inspect.js'
 import { cleanStackTrace } from '../stack-traces.js'
@@ -6,11 +7,13 @@ import { wrapContent } from '../truncator.js'
 
 import CHAT_SYSTEM_PROMPT_TEXT from './chat-mode/system.js'
 import CHAT_USER_PROMPT_TEXT from './chat-mode/user.js'
+import CODE_EXAMPLES from './code-examples.js'
 
 import { parseAssistantResponse, replacePlaceholders } from './common.js'
 import { getExecutionState } from './execution-state.js'
 import { LLMzPrompts, Prompt } from './prompt.js'
-import { getProtocolInstructions } from './protocol.js'
+import { noPlaceholders, readResultExample } from './protocol-basics.js'
+import { getMessageContract, getProtocolSections } from './protocol.js'
 
 import WORKER_SYSTEM_PROMPT_TEXT from './worker-mode/system.js'
 import WORKER_USER_PROMPT_TEXT from './worker-mode/user.js'
@@ -72,24 +75,23 @@ const value = ${readonly_vars[0]} // reading a Readonly variable is valid
   }
 
   if (variables_example) {
-    variables_example = `
-
-\`\`\`ts
-${variables_example}
-\`\`\``
+    variables_example = `\n\n${quoteExample(variables_example)}`
   }
 
   const identity = props.instructions?.length ? props.instructions : 'No specific instructions provided'
   const transcript = props.transcript.toString()
   const examples = await renderExamples(props.examples ?? [], props.components, props.exits)
-  const protocol = getProtocolInstructions({ components: props.components, exits: props.exits })
+  const sections = getProtocolSections({ components: props.components, exits: props.exits })
+  const protocol = [sections.specifications, sections.messages, sections.exits, variables_example, CODE_EXAMPLES]
+    .filter(Boolean)
+    .join('\n\n')
 
   return {
     message: {
       role: 'system' as const,
       content: replacePlaceholders(canTalk ? CHAT_SYSTEM_PROMPT_TEXT : WORKER_SYSTEM_PROMPT_TEXT, {
         is_message_enabled: canTalk,
-        'tools.d.ts': wrapContent(dts, {
+        'tools.d.ts': wrapContent(dts || '// No tools or variables are available.', {
           preserve: 'both',
           minTokens: 500,
         }),
@@ -97,19 +99,23 @@ ${variables_example}
           preserve: 'both',
           minTokens: 1000,
         }),
-        transcript: wrapContent(transcript, {
+        transcript: wrapContent(transcript || (canTalk ? 'No conversation history.' : 'No task history.'), {
           preserve: 'bottom',
           minTokens: 500,
         }),
-        tool_names: tool_names.join(', '),
-        readonly_vars: readonly_vars.join(', '),
-        writeable_vars: writeable_vars.join(', '),
+        tool_names: tool_names.join(', ') || 'None',
+        readonly_vars: readonly_vars.join(', ') || 'None',
+        writeable_vars: writeable_vars.join(', ') || 'None',
         variables_example,
+        code_examples: CODE_EXAMPLES,
         few_shots: examples,
-        protocol: wrapContent(protocol, {
+        protocol_specifications: wrapContent(sections.specifications, {
           preserve: 'both',
           minTokens: 500,
         }),
+        ...(canTalk ? { message_types: wrapContent(sections.messages, { preserve: 'both', minTokens: 500 }) } : {}),
+        exits: wrapContent(sections.exits, { preserve: 'both', minTokens: 500 }),
+        message_summary: sections.summary,
       }).trim(),
     },
     parts: {
@@ -129,7 +135,15 @@ const getInitialUserMessage: Prompt['getInitialUserMessage'] = async (props) => 
     ? 'Nobody has spoken yet in this conversation. You can start by saying something.'
     : 'Carry out the assigned task.'
 
-  if (transcript.length && transcript[0]?.role === 'user') {
+  const latest = transcript[0]
+  if (!isChatMode && latest) {
+    const content =
+      latest.role === 'event' ? inspect(latest.payload, latest.name, { tokens: 5000 }) : latest.content.trim()
+    const hasAudio = 'attachments' in latest && latest.attachments?.some((attachment) => attachment.type === 'audio')
+    recap = `Latest task record:\n${content}`
+    if (hasAudio) recap += '\nThe attached audio is also task input. Read it along with the text.'
+    else if (latest.role === 'user' && latest.modality === 'voice') recap += '\nThis text was transcribed from audio.'
+  } else if (transcript.length && transcript[0]?.role === 'user') {
     const lastContent = transcript[0].content.trim()
     const lastHasVoiceAudio = transcript[0].attachments?.some((attachment) => attachment.type === 'audio')
     const lastIsVoice = lastHasVoiceAudio || transcript[0].modality === 'voice'
@@ -181,6 +195,7 @@ ${inspect(transcript[0]?.payload, transcript[0]?.name, { tokens: 5000 })}
           type: 'text',
           text: replacePlaceholders(isChatMode ? CHAT_USER_PROMPT_TEXT : WORKER_USER_PROMPT_TEXT, {
             recap,
+            ...(isChatMode ? { message_contract: getMessageContract(props.components, props.exits, false) } : {}),
           }).trim(),
         },
         ...attachments.flatMap<LLMzPrompts.MessageContent>((attachment, idx) => {
@@ -190,7 +205,9 @@ ${inspect(transcript[0]?.payload, transcript[0]?.name, { tokens: 5000 })}
             return [
               {
                 type: 'text',
-                text: `The user spoke this message aloud. Here's the voice message [${ref}]${alt} — what is said in this audio is what the user said:`,
+                text: isChatMode
+                  ? `The user spoke this message aloud. Here's the voice message [${ref}]${alt} — what is said in this audio is what the user said:`
+                  : `Audio task input [${ref}]${alt}:`,
               },
               {
                 type: 'audio',
@@ -217,6 +234,7 @@ ${inspect(transcript[0]?.payload, transcript[0]?.name, { tokens: 5000 })}
     role: 'user',
     content: replacePlaceholders(isChatMode ? CHAT_USER_PROMPT_TEXT : WORKER_USER_PROMPT_TEXT, {
       recap,
+      ...(isChatMode ? { message_contract: getMessageContract(props.components, props.exits, false) } : {}),
     }).trim(),
   }
 }
@@ -243,19 +261,26 @@ Error:
 ${wrapContent(props.message, { flex: 4 })}
 \`\`\`
 
+${props.variables ? `Preserved variables (reuse these):\n${wrapContent(inspect(props.variables) ?? '', { preserve: 'top' })}` : ''}
+${props.toolCalls ? `Actual tool calls and outcomes (completed calls must NOT be repeated to fix formatting):\n${wrapContent(inspect(props.toolCalls) ?? '', { preserve: 'top' })}` : ''}
+
 Fix the error within the remaining generation budget. If the task also sets a tool-attempt limit, count actual tool calls only: an invalid response that executed no tool does not consume a tool attempt.
-${/\n\s*<\/run>\s*$/.test(props.code) ? 'The trailing </run> is the syntax error. DELETE that line. A ■run block is plain JavaScript, not XML: end your response after the last JavaScript line, with NO closing tag.' : ''}
+${/\n\s*<\/run>\s*$/.test(props.code) ? 'The trailing </run> is the syntax error. DELETE that line. A ■run block is plain JavaScript, not XML: close the response with ■end after the last JavaScript line, with NO XML closing tag.' : ''}
 ${props.isChatEnabled === false ? '' : `${recoveryReminder}\nAny messages already sent have been delivered. Do not repeat them while correcting the code or exit.`}
 
 Expected response format (■ blocks):
-For an exit, put ALL required props in a JSON object on the SAME LINE as ■next=<exit>. An exit has NO body: putting the object on the next line leaves its props missing.
+${exampleBoundaryInstructions}
+${props.isChatEnabled ? 'To answer or ask a question, write ■send= followed by an available message type on its own line BEFORE the message body, then ■next= followed by an available exit name. Unmarked text is discarded. Keep private reasoning out of send blocks. An exit alone sends nothing; use it only for intentional silence or a handoff requiring no message.' : ''}
+For an exit, put ALL required props in a JSON object on the SAME LINE as ■next= followed by an available exit name. An exit has NO body: putting the object on the next line leaves its props missing.
 
-■run
-// code here
+${noPlaceholders}
 
-Or finish with:
+Here is a complete response that returns a calculation. Write your own code for the actual task:
 
-■next=<exit> {props?}
+${quoteResponseExample(readResultExample)}
+
+Do not add ■next after return. To finish instead, choose an exit from the available exits section and use its name and required JSON fields on one line, then write ■end.
+
 `.trim(),
   }
 }
@@ -290,10 +315,12 @@ Continue with a new response using the available ■ blocks.
 
 const getThinkingMessage = async (props: LLMzPrompts.ThinkingProps): Promise<LLMzPrompts.Message> => {
   let context = ''
+  // Preserve search evidence until the actual request budget decides what fits.
+  const inspection = { tokens: 100_000, maxStringLength: Infinity }
 
   if (isPlainObject(props.variables)) {
     const mapped = Object.entries(props.variables ?? {}).reduce<string[]>((acc, [key, value]) => {
-      const inspected = inspect(value, key)
+      const inspected = inspect(value, key, inspection)
 
       if (inspected) {
         acc.push(inspected)
@@ -306,7 +333,7 @@ const getThinkingMessage = async (props: LLMzPrompts.ThinkingProps): Promise<LLM
     context = mapped.join('\n\n')
   } else if (Array.isArray(props.variables)) {
     const mapped = props.variables.map((value, index) => {
-      const inspected = inspect(value, `Index ${index}`)
+      const inspected = inspect(value, `Index ${index}`, inspection)
 
       if (inspected) {
         return inspected
@@ -319,7 +346,7 @@ const getThinkingMessage = async (props: LLMzPrompts.ThinkingProps): Promise<LLM
   } else if (typeof props.variables === 'string') {
     context = props.variables
   } else {
-    context = inspect(props.variables) ?? JSON.stringify(props.variables, null, 2)
+    context = inspect(props.variables, undefined, inspection) ?? JSON.stringify(props.variables, null, 2)
   }
 
   return {
@@ -333,6 +360,8 @@ Reason: ${props.reason || 'Code execution returned a value'}
 Context:
 ${wrapContent(context, { preserve: 'top' })}
 -------------------
+
+Use the returned values according to the assigned task. Inspector quotes and backslash escapes REPRESENT string values: decode that display quoting once, rather than copying inspection syntax. If the task requests a verbatim copy, reproduce the original string contents unchanged, including comments, whitespace, literal backslashes, and existing HTML entities. Do not add escaping, rewrite, summarize, or substitute new examples.
 
 Continue with a new response using ■ blocks. ${props.interrupted ? "Follow the tool's request. If it supplied no result and the task still needs one, call that tool again after addressing its request. Do not repeat earlier operations that already succeeded." : 'Do not re-run successful code or tools. An empty result is normal for tools that return no value; it does NOT mean execution failed. Do not repeat reads just to verify these successful operations. Use the available results; if the task is complete, finish with an available exit.'} A successful search with NO matches has not answered the question: run a refined query when it could help. A different query is new work, not a repeat of the successful call. Keep internal deliberation private.
 ${
@@ -439,7 +468,7 @@ Continue with a new response using the available ■ blocks.
   }
 }
 
-const getStopTokens = () => []
+const getStopTokens = () => ['\n■end']
 
 export const DualModePrompt: Prompt = {
   getSystemMessage,

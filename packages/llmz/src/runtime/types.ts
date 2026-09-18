@@ -127,13 +127,10 @@ type Options = Partial<Pick<Context, 'loop' | 'timeout'>> & {
    */
   maxTimeToFirstToken?: number
   /**
-   * Allow Cognitive to restart failed streams on another model. No buffered
-   * delivery and no final delivery queue: delta text and completed Chat.handler
-   * sends stream immediately during generation. A reset-only delta (restart:
-   * true) on Chat.onMessageDelta invalidates ALL current-iteration messages,
-   * including completed sends — consumers must retract/replace them (not safe for
-   * irreversible transports). Only TOOL/CODE execution waits for a successful
-   * stream. Streaming-only; defaults to false, preserving progressive sending.
+   * Allow Cognitive to restart a failed stream on another model. Previews remain
+   * live and are retracted with a restart delta before replacement output.
+   * Completed sends and code always wait for a valid response and successful
+   * transport. Streaming-only; defaults to false.
    */
   midStreamFallback?: boolean
   /**

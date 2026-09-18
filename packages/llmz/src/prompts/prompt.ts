@@ -1,4 +1,4 @@
-import { type CognitiveMessage } from '@botpress/cognitive'
+import { type CognitiveMessage, type StopReason } from '@botpress/cognitive'
 
 import { Component } from '../component.js'
 import type { Example } from '../example.js'
@@ -83,6 +83,9 @@ export namespace LLMzPrompts {
     isChatEnabled?: boolean
     code: string
     message: string
+    /** Retain completed work when only the response/exit needs correction. */
+    variables?: unknown
+    toolCalls?: unknown
   }
 
   export type CodeExecutionErrorProps = {
@@ -122,5 +125,5 @@ export type Prompt = {
   getSnapshotResolvedMessage: (props: LLMzPrompts.SnapshotResolvedProps) => LLMzPrompts.Message
   getSnapshotRejectedMessage: (props: LLMzPrompts.SnapshotRejectedProps) => LLMzPrompts.Message
   getStopTokens: () => string[]
-  parseAssistantResponse: (response: string) => ParsedAssistantResponse
+  parseAssistantResponse: (response: string, stopReason?: StopReason) => ParsedAssistantResponse
 }

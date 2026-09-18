@@ -1,5 +1,7 @@
+import { responseEnvelopeInstructions } from '../example-format.js'
 import { wrapContent } from '../truncator.js'
 import type { LLMzPrompts } from './prompt.js'
+import { getMessageContract } from './protocol.js'
 
 type ExecutionState = NonNullable<LLMzPrompts.InitialStateProps['iteration']>
 
@@ -107,5 +109,6 @@ export function getExecutionState(props: LLMzPrompts.InitialStateProps): string 
   }
 
   status.push('</execution_status>')
-  return `\n\n${status.join('\n')}\n\n${describeBudget(iteration, canTalk)}`
+  const format = getMessageContract(props.components, props.exits, false) || responseEnvelopeInstructions
+  return `\n\n${status.join('\n')}\n\n${describeBudget(iteration, canTalk)}\n\n${format}`
 }
