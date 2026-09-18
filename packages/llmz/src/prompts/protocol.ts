@@ -87,7 +87,9 @@ export const getMessageContract = (components: Component[], exits: Exit[], inclu
     'REQUIRED: Output one complete response. The first line is exactly ■start. The last line is exactly ■end. Nothing goes outside these boundaries.',
     name
       ? `Every word for the user goes inside ■send=${name}. Never answer in plain text. Keep reasoning private. If exact text or raw JSON is requested, put ONLY that literal content in the message body, without introductions, extra quotes, or Markdown fences.`
-      : 'There is no message channel. Immediately after ■start, write ■run or ■next=<exit>. Every remaining line belongs to that block or the closing ■end. A natural-language sentence is invalid in ANY language, including a translation or restatement of the result. Report results only as JSON props of the exit.',
+      : components.length
+        ? 'User-facing messages must use registered ■send components with their required JSON props and documented body format. Never write unmarked prose or invent a text component.'
+        : 'There is no message channel. Immediately after ■start, write ■run or ■next=<exit>. Every remaining line belongs to that block or the closing ■end. A natural-language sentence is invalid in ANY language, including a translation or restatement of the result. Report results only as JSON props of the exit.',
     exampleBoundaryInstructions,
   ]
   if (includeFormats && name) {
@@ -98,7 +100,7 @@ export const getMessageContract = (components: Component[], exits: Exit[], inclu
       quoteResponseExample(answer ?? `■send=${name}\nChecking.\n${action}`)
     )
   }
-  if (!name && finish) {
+  if (!components.length && finish) {
     lines.push(
       'BAD ❌ — unmarked prose is invalid:',
       quoteResponseExample(`The task is complete.\n${finish}`),

@@ -1382,10 +1382,12 @@ IMPORTANT: This is production code - show it EXACTLY as-is with all HTML tags an
 describe('message streaming', { retry: 0, timeout: 60_000 }, () => {
   const StreamMarkdown = new Component({
     name: 'Markdown',
-    type: 'leaf',
+    aliases: [],
+    type: 'default',
     description: 'Renders markdown content',
-    leaf: {
+    default: {
       props: z.object({}),
+      children: [],
     },
     examples: [
       {

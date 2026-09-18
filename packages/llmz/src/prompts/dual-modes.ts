@@ -340,6 +340,8 @@ Context:
 ${wrapContent(context, { preserve: 'top' })}
 -------------------
 
+Use the returned values according to the assigned task. Inspector quotes and backslash escapes REPRESENT string values: decode that display quoting once, rather than copying inspection syntax. If the task requests a verbatim copy, reproduce the original string contents unchanged, including comments, whitespace, literal backslashes, and existing HTML entities. Do not add escaping, rewrite, summarize, or substitute new examples.
+
 Continue with a new response using ■ blocks. ${props.interrupted ? "Follow the tool's request. If it supplied no result and the task still needs one, call that tool again after addressing its request. Do not repeat earlier operations that already succeeded." : 'Do not re-run successful code or tools. An empty result is normal for tools that return no value; it does NOT mean execution failed. Do not repeat reads just to verify these successful operations. Use the available results; if the task is complete, finish with an available exit.'} A successful search with NO matches has not answered the question: run a refined query when it could help. A different query is new work, not a repeat of the successful call. Keep internal deliberation private.
 ${
   props.isChatEnabled === false

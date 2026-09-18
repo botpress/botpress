@@ -139,3 +139,20 @@ describe('default component examples', () => {
     expect(getProtocolInstructions({ components, exits: [] })).not.toContain('## Button choices')
   })
 })
+
+it('keeps leaf-only and required-prop chat channels distinct from workers', () => {
+  const addressed = new Component({
+    name: 'Addressed',
+    aliases: [],
+    type: 'default',
+    description: 'Addressed text',
+    default: { props: z.object({ to: z.string() }), children: [] },
+  })
+  for (const components of [[DefaultComponents.Button], [addressed]]) {
+    const contract = getMessageContract(components, [ListenExit])
+    expect(contract).not.toContain('There is no message channel')
+    expect(contract).not.toContain('Immediately after ■start, write ■run or ■next')
+    expect(contract).toContain('■send')
+  }
+  expect(getMessageContract([], [ListenExit])).toContain('There is no message channel')
+})
