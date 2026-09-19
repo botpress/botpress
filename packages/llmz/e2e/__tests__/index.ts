@@ -2,6 +2,7 @@ import { Cognitive, type CognitiveRequest, type CognitiveStreamChunk } from '@bo
 import fs from 'node:fs'
 import path from 'node:path'
 import { expect } from 'vitest'
+import { cacheKeyOf, stringifyWithSortedKeys } from './cache-key.js'
 
 /**
  * The models used by the e2e suites, as a fallback chain. Every request that
@@ -52,28 +53,6 @@ export function getScreenShareFixtures() {
   }
 }
 
-function stringifyWithSortedKeys(obj: any, space?: number): string {
-  function sortKeys(input: any): any {
-    if (Array.isArray(input)) {
-      return input.map(sortKeys)
-    } else if (input && typeof input === 'object' && input.constructor === Object) {
-      return Object.keys(input)
-        .sort()
-        .reduce(
-          (acc, key) => {
-            acc[key] = sortKeys(input[key])
-            return acc
-          },
-          {} as Record<string, any>
-        )
-    } else {
-      return input
-    }
-  }
-
-  return JSON.stringify(sortKeys(obj), null, space)
-}
-
 function readJSONL<T>(filePath: string, keyProperty: keyof T): Map<string, T> {
   if (!fs.existsSync(filePath)) {
     return new Map()
@@ -110,15 +89,6 @@ const FRESH_RESPONSES = process.env.LLMZ_E2E_FRESH === '1'
 
 const cache: Map<string, CacheEntry> = readJSONL(CACHE_PATH, 'key')
 
-function fastHash(str: string): string {
-  let hash = 0
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash << 5) - hash + str.charCodeAt(i)
-    hash |= 0 // Convert to 32bit integer
-  }
-  return (hash >>> 0).toString(16) // Convert to unsigned and then to hex
-}
-
 /** Rewrites unpinned/auto model selection to the deterministic test model chain. */
 const pinModels = <T extends CognitiveRequest>(input: T): T => {
   const model = input.model
@@ -135,12 +105,6 @@ const prepareRequest = (input: CognitiveRequest): CognitiveRequest => {
   }
 
   return { ...input, options: { ...input.options, skipCache: true } }
-}
-
-/** Strips non-deterministic / non-serializable fields before hashing. */
-const cacheKeyOf = (kind: 'text' | 'stream', input: CognitiveRequest): string => {
-  const { signal: _signal, ...rest } = input as CognitiveRequest & { signal?: unknown }
-  return fastHash(stringifyWithSortedKeys({ kind, input: rest }))
 }
 
 /**
