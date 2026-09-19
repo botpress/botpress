@@ -2,25 +2,24 @@ import type { SourceMapConsumer } from 'source-map-js'
 import { type CompiledCode, Identifiers } from '../compiler/index.js'
 import { USER_CODE_START_MARKER } from '../compiler/plugins/async-wrapper.js'
 import { TerminationCheckpointIdentifier, TerminationGuardIdentifier } from '../compiler/plugins/termination.js'
-
-const USER_CODE_MARKER_TAG_START = '__LLMZ_USER_CODE_START__'
-const USER_CODE_MARKER_TAG_END = '__LLMZ_USER_CODE_END__'
-import { Signals, SnapshotSignal } from '../errors.js'
 import { cloneMemoryValue, type VariableWrite } from '../memory.js'
 import type { Trace, VMExecutionResult } from '../types.js'
 import { VM_TERMINATION, type VMContext } from './types.js'
+
+const USER_CODE_MARKER_TAG_START = '__LLMZ_USER_CODE_START__'
+const USER_CODE_MARKER_TAG_END = '__LLMZ_USER_CODE_END__'
+
 // Internal identifiers injected by the compiler — excluded from variable tracking
 export const NO_TRACKING = [
   Identifiers.CommentFnIdentifier,
-  Identifiers.ToolCallTrackerFnIdentifier,
-  Identifiers.ToolTrackerRetIdentifier,
   Identifiers.VariableTrackingFnIdentifier,
   Identifiers.ConsoleObjIdentifier,
   TerminationCheckpointIdentifier,
   TerminationGuardIdentifier,
 ] as const
+
 export type InstrumentationState = {
-  currentToolCall: SnapshotSignal['toolCall'] | undefined
+  lastExecutedLine: number | undefined
   memoryNames: Set<string>
   variableWrites: VariableWrite[]
   captureErrors: {
@@ -29,7 +28,7 @@ export type InstrumentationState = {
   }[]
 }
 
-// Injects tracking functions (comments, lines, variables, tools, console) into the context.
+// Injects tracking functions (comments, lines, variables, console) into the context.
 // Shared by both QuickJS and Node drivers.
 export function instrumentContext(
   context: VMContext,
@@ -42,7 +41,7 @@ export function instrumentContext(
   memoryNames: string[] = []
 ): InstrumentationState {
   const state: InstrumentationState = {
-    currentToolCall: undefined,
+    lastExecutedLine: undefined,
     memoryNames: new Set([...memoryNames, ...transformed.variables]),
     variableWrites: [],
     captureErrors: [],
@@ -77,6 +76,7 @@ export function instrumentContext(
     })
     const mappedLine = originalLine.line ?? line
     const userCodeLine = Math.max(1, mappedLine - userCodeStartLine)
+    state.lastExecutedLine = userCodeLine
     lines_executed.set(userCodeLine, (lines_executed.get(userCodeLine) ?? 0) + 1)
   }
   context[Identifiers.VariableTrackingFnIdentifier] = (
@@ -112,27 +112,6 @@ export function instrumentContext(
       }
     }
     return result
-  }
-  context[Identifiers.ToolCallTrackerFnIdentifier] = (
-    callId: number,
-    type: 'start' | 'end',
-    outputOrError?: Error,
-    awaited = false
-  ) => {
-    const temp = Signals.maybeDeserializeError(outputOrError?.message)
-    if (type !== 'end' || !(temp instanceof SnapshotSignal) || !temp.toolCall || state.currentToolCall) {
-      return
-    }
-
-    const interrupted = context[VM_TERMINATION]?.getSignal?.()
-    if (interrupted && interrupted.toolCall?.id !== temp.toolCall.id) {
-      return
-    }
-
-    state.currentToolCall = {
-      ...temp.toolCall,
-      assignment: awaited ? transformed.toolCalls.get(callId)?.assignment : undefined,
-    }
   }
   context[Identifiers.ConsoleObjIdentifier] = {
     log: (...args: any[]) => {

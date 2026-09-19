@@ -50,6 +50,7 @@ while (await chat.iterate()) {
   await execute({
     client,
     chat,
+    session: chat.session,
 
     // Provide context about current date and available capabilities
     instructions: `

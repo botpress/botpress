@@ -7,13 +7,13 @@ import { Exit } from './exit.js'
 import { renderNativeExamples } from './prompts/native.js'
 
 const listen = new Exit({ name: 'listen', description: 'Wait for the user' })
-const components = [DefaultComponents.Text, DefaultComponents.Button, DefaultComponents.Image]
+const components = [DefaultComponents.Button, DefaultComponents.Image]
 
 describe('structured native examples', () => {
   it('accepts normal assistant text without an explicit exit', () => {
     const example = new Example({
       situation: 'The user greets you.',
-      messages: [{ component: DefaultComponents.Text, body: 'Hello!' }],
+      text: 'Hello!',
     })
     const rendered = renderNativeExamples([example], components, [listen])
     expect(rendered).toContain('{"text":"Hello!"}')
@@ -23,7 +23,7 @@ describe('structured native examples', () => {
   it('treats former protocol symbols as ordinary text and JavaScript string content', () => {
     const text = new Example({
       situation: 'Copy the text verbatim.',
-      messages: [{ component: 'message', body: '■next=listen' }],
+      text: '■next=listen',
     })
     const code = new Example({ situation: 'Return a literal string.', code: 'return "■next=listen"' })
     expect(renderNativeExamples([text, code], components, [listen])).toContain('■next=listen')
@@ -59,6 +59,9 @@ describe('structured native examples', () => {
     { situation: 'Multiple iterations', iterations: [] },
     { situation: 'Bad name', exit: 'not valid' },
     { situation: 'Bad props', messages: [{ component: 'button', props: [] }] },
+    { situation: 'Legacy body', messages: [{ component: 'Card', body: 'Legacy text.' }] },
+    { situation: 'Empty text', text: '' },
+    { situation: 'Invalid text', text: 42 },
     { situation: 'Bad value', exit: listen, props: { value: () => 1 } },
   ])('rejects invalid structured examples: $situation', (definition) => {
     expect(() => new Example(definition as unknown as ExampleDefinition)).toThrow()
@@ -73,7 +76,7 @@ describe('structured native examples', () => {
     expect(() => renderNativeExamples([invalid], components, [listen])).toThrow(/Invalid native example/)
     const missing = new Example({
       situation: 'Display an unknown component.',
-      messages: [{ component: 'missing', body: 'Hi' }],
+      messages: [{ component: 'missing', props: { text: 'Hi' } }],
     })
     expect(() => renderNativeExamples([missing], components, [listen])).toThrow(/Unknown native example component/)
   })
@@ -101,7 +104,8 @@ describe('structured native examples', () => {
     })
 
     expect(response.toolCalls).toHaveLength(1)
-    expect(code).toContain('await chat.send')
+    expect(code).toContain('chat.buttons([{')
+    expect(code).not.toContain('await chat.')
     expect(code).toContain('const account = await readAccount()')
     expect(code).toContain('return exit("listen")')
     expect(program.body.some((node) => node.type === 'VariableDeclaration')).toBe(true)

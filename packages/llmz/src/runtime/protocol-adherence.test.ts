@@ -2,19 +2,18 @@ import type { CognitiveToolCall } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Chat } from '../chat.js'
-import { DefaultComponents } from '../component.default.js'
 import { Tool } from '../tool.js'
 import { executeContext } from './execute.js'
+import { createRecordingChat } from './fixtures/chat.js'
 import { NativeClient, NativeStreamClient, nativeCall, response } from './fixtures/native-client.js'
 import { protocolLanguages } from './fixtures/protocol-languages.js'
 
 const makeChat = () => {
   const delivered: string[] = []
-  const chat = new Chat({
-    components: [DefaultComponents.Text],
+  const chat = createRecordingChat({
+    components: [],
     handler: (message) => {
-      delivered.push(message.children.join(''))
+      delivered.push(message.type === 'text' ? message.text : '')
     },
   })
 

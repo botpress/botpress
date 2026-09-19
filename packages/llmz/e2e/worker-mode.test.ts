@@ -1,16 +1,16 @@
 import { z } from '@bpinternal/zui'
-
 import { beforeAll, afterAll, assert, describe, expect, it } from 'vitest'
+
+import { ThinkSignal } from '../src/errors.js'
+import { Example } from '../src/example.js'
+import { Exit } from '../src/exit.js'
+import { ObjectInstance } from '../src/objects.js'
+import { ExecutionResult, SuccessExecutionResult } from '../src/result.js'
 import * as llmz from '../src/runtime/execute.js'
 import { Tool } from '../src/tool.js'
-
-import { ExecutionResult, SuccessExecutionResult } from '../src/result.js'
 import { Traces } from '../src/types.js'
+
 import { getCachedCognitiveClient } from './__tests__/index.js'
-import { ObjectInstance } from '../src/objects.js'
-import { Exit } from '../src/exit.js'
-import { Example } from '../src/example.js'
-import { ThinkSignal } from '../src/errors.js'
 
 const client = getCachedCognitiveClient()
 
@@ -58,7 +58,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
 
   describe('basic tool orchestration', () => {
     it('can orchestrate multiple tools with complex logic in single iteration', async () => {
-      let fetchedData: string[] = []
+      const fetchedData: string[] = []
 
       const tFetchUser = new Tool({
         name: 'fetchUser',
@@ -435,7 +435,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
     })
 
     it('works with object tools and state', async () => {
-      let purchases: string[] = []
+      const purchases: string[] = []
 
       const cart = new ObjectInstance({
         name: 'Cart',
@@ -480,7 +480,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
 
   describe('thinking and iteration control', () => {
     it('uses thinking to plan complex tasks', async () => {
-      let executionOrder: string[] = []
+      const executionOrder: string[] = []
 
       const tStep1 = new Tool({
         name: 'initializeDatabase',
@@ -894,6 +894,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
 
       assertSuccess(result)
 
+      expect(result.output).toMatchObject({ success: true })
       expect(listFilesCallCount).toBe(1) // List files only once
       expect(deleteCallCount).toBeGreaterThanOrEqual(3) // Multiple attempts due to failures
 
@@ -974,7 +975,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
         options: { loop: 2 },
         exits: [eResult],
         instructions:
-          'Call original once. After code execution returns a value, immediately finish with done using that returned value.',
+          'Call original once and return inspect(result). After inspecting the execution result, finish with return exit("done", result).',
         tools: [tOriginal, tModified],
         client,
 
@@ -986,7 +987,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
           replacedFirstProgram = true
 
           // Leave the later JavaScript completion program intact.
-          return { code: 'const res = await modified();\nreturn { value: res.value };' }
+          return { code: 'const res = await modified();\nreturn inspect({ value: res.value });' }
         },
       })
 

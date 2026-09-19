@@ -3,7 +3,7 @@
  *
  * This example demonstrates how to implement user confirmation for destructive operations.
  * It shows how to:
- * - Use ThinkSignal to pause execution and request user confirmation
+ * - Use ThinkSignal to request a confirmation question in the next model response
  * - Implement stateful confirmation workflows
  * - Handle confirmation state management across execution cycles
  * - Use onExit callbacks to manage execution flow
@@ -49,7 +49,7 @@ const overwriteData = new Tool({
       should_confirm = true
 
       // ThinkSignal interrupts execution and sends a message to the agent
-      // This causes the agent to pause and ask the user for confirmation
+      // The next model response asks the user for confirmation
       throw new ThinkSignal('Please ask the user for confirmation before proceeding.')
     } else {
       // Second call: User has confirmed, proceed with operation
@@ -71,6 +71,7 @@ while (await chat.iterate()) {
   await execute({
     client,
     chat,
+    session: chat.session,
     instructions: `You are an assistant that can overwrite data. 
   Greet the user and tell them you can overwrite data (show a button "Overwrite Data").
   Use buttons for quick responses when possible.`,
@@ -80,7 +81,7 @@ while (await chat.iterate()) {
     // onExit callback manages confirmation state transitions
     // This ensures proper coordination between tool calls and user responses
     onExit: (exit) => {
-      // Handle state management when execution pauses for user input
+      // Handle state management when the turn finishes and waits for user input
       if (ListenExit.match(exit)) {
         if (should_confirm) {
           // Tool has requested confirmation - set up confirmation state

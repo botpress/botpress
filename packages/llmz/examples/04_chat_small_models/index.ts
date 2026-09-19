@@ -128,6 +128,7 @@ while (await chat.iterate()) {
     tools: [getTicket, closeTicket, listTickets],
     client,
     chat,
+    session: chat.session,
 
     // Enable lightweight trace logging to see tool calls
     onTrace: ({ trace }) => lightToolTrace(trace),

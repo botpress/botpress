@@ -3,8 +3,8 @@ import type { Component } from '../component.js'
 import type { Example } from '../example.js'
 import type { Exit } from '../exit.js'
 import type { ObjectInstance } from '../objects.js'
+import type { ResolvedResponse } from '../response.js'
 import type { Tool } from '../tool.js'
-import type { TranscriptArray } from '../transcript.js'
 
 export namespace LLMzPrompts {
   export type Message = CognitiveMessage
@@ -32,14 +32,13 @@ export namespace LLMzPrompts {
     iteration?: {
       current: number
       limit: number
-      resumed?: boolean
       history?: string[]
       toolAttempts?: Record<string, number>
       deliveredMessages?: Array<{ iteration: number; content: unknown; retracted?: boolean }>
     }
     instructions?: string
+    response?: ResolvedResponse
     examples?: Example[]
-    transcript: TranscriptArray
     objects: ObjectInstance[]
     globalTools: Tool[]
     exits: Exit[]

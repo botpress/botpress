@@ -26,7 +26,7 @@ Hi!
 
       ;__comment__("line 1", 5);
       __track__(6);for (let i = 0; i < 10; (__llmz_guard(), i++)) {
-        __track__(7);(__llmz_guard(), __llmz_checkpoint((() => {__llmz_guard();try {__toolc__(0, "start");const __ret__ = (__llmz_guard(), __llmz_checkpoint(console.log(i)));__toolc__(0, "end", __ret__, false);return __ret__;} catch (err) {__toolc__(0, "end", err, false);__llmz_guard();const __newError = (__llmz_guard(), __llmz_checkpoint(new Error(err.message)));(__llmz_guard(), __newError.name = err.name || "Error");(__llmz_guard(), __newError.stack = err.stack + ("\\n" + __newError.stack));throw __newError;}})())) ;__comment__("line 3", 7);
+        __track__(7);(__llmz_guard(), __llmz_checkpoint(console.log(i))) ;__comment__("line 3", 7);
       ;__comment__("--", 8);
 
       ;__comment__("Comments on multiple lines\\nHi!", 10);
@@ -124,16 +124,16 @@ Hi!
         ;__comment__("Function to add the new entries", 13);
         __track__(14);async function addNewEntries(entries) {__llmz_guard();
           __track__(15);for (const entry of entries) {
-            __track__(16);(__llmz_guard(), __llmz_checkpoint(await (__llmz_guard(), __llmz_checkpoint((async () => {__llmz_guard();try {__toolc__(0, "start");const __ret__ = (__llmz_guard(), __llmz_checkpoint(await (__llmz_guard(), __llmz_checkpoint(ComputedTable.createTableRow(entry)))));__toolc__(0, "end", __ret__, false);return __ret__;} catch (err) {__toolc__(0, "end", err, true);__llmz_guard();const __newError = (__llmz_guard(), __llmz_checkpoint(new Error(err.message)));(__llmz_guard(), __newError.name = err.name || "Error");(__llmz_guard(), __newError.stack = err.stack + ("\\n" + __newError.stack));throw __newError;}})()))));
+            __track__(16);(__llmz_guard(), __llmz_checkpoint(await (__llmz_guard(), __llmz_checkpoint(ComputedTable.createTableRow(entry)))));
           }
           ;__comment__("Send a confirmation message to the user", 18);
-          __track__(19);(__llmz_guard(), __llmz_checkpoint((() => {__llmz_guard();try {__toolc__(1, "start");const __ret__ = (__llmz_guard(), __llmz_checkpoint(chat.sendText({
+          __track__(19);(__llmz_guard(), __llmz_checkpoint(chat.sendText({
             message: "I have successfully added the new persons: Fleur, Pikachu, Ash, and Misty to the computed table."
-          })));__toolc__(1, "end", __ret__, false);return __ret__;} catch (err) {__toolc__(1, "end", err, false);__llmz_guard();const __newError = (__llmz_guard(), __llmz_checkpoint(new Error(err.message)));(__llmz_guard(), __newError.name = err.name || "Error");(__llmz_guard(), __newError.stack = err.stack + ("\\n" + __newError.stack));throw __newError;}})()));
+          })));
         }
         
         ;__comment__("Execute the function to add the new entries", 24);
-        __track__(25);(__llmz_guard(), __llmz_checkpoint(await ((__llmz_guard(), __llmz_checkpoint(await (__llmz_guard(), __llmz_checkpoint((async () => {__llmz_guard();try {__toolc__(2, "start");const __ret__ = (__llmz_guard(), __llmz_checkpoint(await (__llmz_guard(), __llmz_checkpoint(addNewEntries(newEntries)))));__toolc__(2, "end", __ret__, false);return __ret__;} catch (err) {__toolc__(2, "end", err, true);__llmz_guard();const __newError = (__llmz_guard(), __llmz_checkpoint(new Error(err.message)));(__llmz_guard(), __newError.name = err.name || "Error");(__llmz_guard(), __newError.stack = err.stack + ("\\n" + __newError.stack));throw __newError;}})())))))));"
+        __track__(25);(__llmz_guard(), __llmz_checkpoint(await ((__llmz_guard(), __llmz_checkpoint(await (__llmz_guard(), __llmz_checkpoint(addNewEntries(newEntries))))))));"
     `)
   })
 })

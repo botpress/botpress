@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { Memory, MemoryCapacityError } from './memory.js'
+import { Memory, MemoryCapacityError, previewMemoryValue } from './memory.js'
+import { getTokenizer } from './utils.js'
 const settlement = (number: number, result?: unknown) => ({
   id: `i${number}`,
   number,
@@ -10,6 +11,28 @@ const settlement = (number: number, result?: unknown) => ({
   result,
 })
 describe('explicit session memory', () => {
+  it('bounds nested value previews by tokens without clipping stored values', () => {
+    const memory = new Memory()
+    const entries = Array.from({ length: 100 }, (_, index) => ({
+      id: index,
+      details: {
+        description: `Distinct entry ${index}: ${'extensive details '.repeat(100)}`,
+      },
+    }))
+    const report = memory.commit({
+      ...settlement(1),
+      variables: { entries },
+    })
+    const preview = previewMemoryValue(entries)
+
+    expect(getTokenizer().count(preview)).toBeLessThanOrEqual(60)
+    expect(preview).toContain('[truncated]')
+    expect(preview).not.toContain('\n')
+    expect(report.created[0]?.preview).toBe(preview)
+    expect(memory.render({ turn: 1, now: 1000 })).toContain(preview)
+    expect(memory.getBindings().entries).toEqual(entries)
+  })
+
   it('stores exact results independently of previews and keeps history immutable', () => {
     const memory = new Memory()
     memory.commit({
@@ -54,7 +77,60 @@ describe('explicit session memory', () => {
         turn: 1,
         now: 3000,
       })
-    ).toContain('$iterations[0].result')
+    ).toContain('`$return` = `$iterations[0].result` (undefined) — returned just now (this turn).')
+  })
+
+  it('lists result references without repeating payloads across failures and compaction', () => {
+    const memory = new Memory()
+    const earlierResult = { detail: 'earlier-result-only-payload' }
+    const latestResult = ['latest-result-only-payload']
+
+    memory.commit(settlement(1, earlierResult))
+    memory.commit({
+      ...settlement(2, latestResult),
+      timestamp: 61000,
+      turn: 3,
+    })
+    memory.commit({
+      ...settlement(3),
+      timestamp: 62000,
+      turn: 3,
+      hasResult: false,
+      outcome: 'error',
+    })
+
+    const overview = memory.render({ turn: 3, now: 62000 })
+    const bindings = memory.getBindings()
+
+    expect(overview).toContain('`$return` = `$iterations[1].result` (array) — returned just now (this turn).')
+    expect(overview).toContain('`$iterations[2].result` (object) — returned 1 minute ago (2 turns ago).')
+    expect(overview).not.toContain('$iterations[0].result')
+    expect(overview).not.toContain('earlier-result-only-payload')
+    expect(overview).not.toContain('latest-result-only-payload')
+    expect(bindings.$return).toEqual(latestResult)
+    expect(bindings.$iterations).toMatchObject([
+      { id: 'i3', hasResult: false },
+      { id: 'i2', result: latestResult },
+      { id: 'i1', result: earlierResult },
+    ])
+
+    memory.compact(['i1', 'i2'])
+
+    const compactedOverview = memory.render({ turn: 3, now: 62000 })
+
+    expect(compactedOverview).toContain('`$return` = `$iterations[0].result` (array)')
+    expect(compactedOverview).toContain('`$iterations[1].result` (object) — returned 1 minute ago (2 turns ago).')
+    expect(memory.getBindings().$return).toEqual(latestResult)
+
+    memory.compact(['i1'])
+
+    const remainingOverview = memory.render({ turn: 3, now: 62000 })
+
+    expect(remainingOverview).toContain('`$iterations[0].result` (object) — returned 1 minute ago (2 turns ago).')
+    expect(remainingOverview).not.toContain('$return')
+    expect(remainingOverview).not.toContain('earlier-result-only-payload')
+    expect(memory.getBindings().$return).toBeUndefined()
+    expect(memory.getBindings().$iterations).toMatchObject([{ id: 'i1', result: earlierResult }])
   })
 
   it('preserves named state and original age across compaction and JSON restoration', () => {
@@ -186,7 +262,7 @@ describe('explicit session memory', () => {
     })
   })
 
-  it('resolves snapshot assignments without fabricating iterations or successful returns', () => {
+  it('assigns variables without fabricating iterations or successful returns', () => {
     const memory = new Memory()
     memory.commit(settlement(1, 'before'))
     memory.assign(

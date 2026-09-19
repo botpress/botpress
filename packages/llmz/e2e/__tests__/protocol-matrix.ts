@@ -1,11 +1,14 @@
 import type { CognitiveToolCall } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
-import { Chat, DefaultComponents, Exit, ListenExit, Tool, execute } from '../../src/index.js'
+
+import { DefaultComponents, Exit, ListenExit, Tool, execute } from '../../src/index.js'
 import type { LLMzPrompts } from '../../src/prompts/prompt.js'
 import { NativeClient, response } from '../../src/runtime/fixtures/native-client.js'
 import { protocolLanguages } from '../../src/runtime/fixtures/protocol-languages.js'
 import { createNativeToolCatalogue, validateNativeToolCalls } from '../../src/runtime/native-tools.js'
 import { TranscriptArray } from '../../src/transcript.js'
+
+import { createTestChat } from './chat.js'
 import { protocolScenario } from './protocol-scenarios.js'
 
 const read = new Tool({
@@ -42,21 +45,28 @@ export type ProtocolCase = {
   language: string
   kind: (typeof kinds)[number]
   props: LLMzPrompts.InitialStateProps
+  messages: TranscriptArray
   history?: 'result' | 'error'
   expected?: string
 }
 
 export const protocolMatrix: ProtocolCase[] = protocolLanguages.flatMap((lang) =>
   kinds.map((kind): ProtocolCase => {
+    const { messages: _, ...baseProps } = protocolScenario(lang.question)
     const props: LLMzPrompts.InitialStateProps = {
-      ...protocolScenario(lang.question),
-      components: [DefaultComponents.Text],
+      ...baseProps,
+      components: [],
       globalTools: [],
-      transcript: new TranscriptArray([{ role: 'user', content: lang.question }]),
     }
-    const scenario: ProtocolCase = { id: `${lang.language}/${kind}`, language: lang.language, kind, props }
+    const scenario: ProtocolCase = {
+      id: `${lang.language}/${kind}`,
+      language: lang.language,
+      kind,
+      props,
+      messages: new TranscriptArray([{ role: 'user', content: lang.question }]),
+    }
     const set = (question: string, instructions: string, tools: Tool[] = []) => {
-      props.transcript = new TranscriptArray([{ role: 'user', content: question }])
+      scenario.messages = new TranscriptArray([{ role: 'user', content: question }])
       props.instructions = `Respond in ${lang.language}. ${instructions}`
       props.globalTools = tools
     }
@@ -100,7 +110,7 @@ export const protocolMatrix: ProtocolCase[] = protocolLanguages.flatMap((lang) =
       case 'save':
         set(
           'Enable the preference silently.',
-          'Call run_javascript to await savePreference({enabled:true}) silently, then return exit() in that same program. Do not send a message.',
+          'Call run_javascript to await savePreference({enabled:true}) silently, then return exit("listen") in that same program. Do not send a message.',
           [save]
         )
         break
@@ -110,6 +120,7 @@ export const protocolMatrix: ProtocolCase[] = protocolLanguages.flatMap((lang) =
           'The verified total is 42. Call run_javascript and return exit("done", { total: 42 }). No calculation is needed.'
         )
         props.components = []
+        props.isChatEnabled = false
         props.exits = [
           new Exit({
             name: 'done',
@@ -121,9 +132,9 @@ export const protocolMatrix: ProtocolCase[] = protocolLanguages.flatMap((lang) =
       case 'buttons':
         set(
           'Ask me to pick Standard or Premium, with a button for each.',
-          `Say exactly "${lang.reply}" and return chat.buttons with exactly two say buttons labelled Standard and Premium to finish the turn.`
+          `Say exactly "${lang.reply}" and call chat.buttons with exactly two say buttons labelled Standard and Premium, then return exit("listen") to finish the turn.`
         )
-        props.components = [DefaultComponents.Text, DefaultComponents.Button]
+        props.components = [DefaultComponents.Button]
         scenario.expected = lang.reply
         break
       case 'json':
@@ -153,7 +164,6 @@ export const protocolMatrix: ProtocolCase[] = protocolLanguages.flatMap((lang) =
       props.iteration = {
         current: 2,
         limit: 10,
-        resumed: false,
         deliveredMessages: [],
         toolAttempts: { readAccount: 1 },
       }
@@ -204,13 +214,14 @@ export async function evaluateNativeResponse(
     // Prompt fixtures include the built-in listen exit; execution adds it for chats.
     exits: props.exits.filter((exit) => !chatEnabled || exit !== ListenExit),
     chat: chatEnabled
-      ? new Chat({
+      ? createTestChat({
           components: props.components,
-          handler: async (message) => {
-            const type = message.type.toLowerCase()
-            const name = ['text', 'markdown', 'speech'].includes(type) ? 'message' : type
-
-            sends.push({ name, props: message.props, body: message.children.join('') })
+          onMessage: async (message) => {
+            if (message.type === 'text') {
+              sends.push({ name: 'message', props: {}, body: message.text })
+            } else {
+              sends.push({ name: message.name.toLowerCase(), props: message.props })
+            }
           },
         })
       : undefined,

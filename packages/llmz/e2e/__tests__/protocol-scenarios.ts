@@ -1,24 +1,17 @@
 import { z } from '@bpinternal/zui'
+
 import { Component } from '../../src/component.js'
 import { ListenExit } from '../../src/context.js'
 import { Exit } from '../../src/exit.js'
 import { TranscriptArray } from '../../src/transcript.js'
 
 // Synthetic fixtures: no captured customer instructions or conversation data.
-const message = new Component({
-  name: 'Message',
-  type: 'default',
-  aliases: [],
-  description: 'Send a text message or follow-up question.',
-  default: { props: z.object({}), children: [] },
-})
 const leaves = ['Choice', 'Image', 'Audio', 'Video', 'File', 'Carousel', 'Location', 'Dropdown'].map(
   (name) =>
     new Component({
       name,
-      type: 'leaf',
       description: `Send a ${name.toLowerCase()} when relevant.`,
-      leaf: { props: z.object({ value: z.string() }) },
+      props: z.object({ value: z.string() }),
     })
 )
 
@@ -37,7 +30,7 @@ Use normal assistant text for these conversational replies. Do not send choices,
 
 Reference catalogue (context, not a script to recite):
 ${Array.from({ length: 30 }, (_, i) => `Workspace feature ${i + 1}: Cedar Desk supports configuring a separate workspace preference for team ${i + 1}. It is optional, does not establish the customer's monthly volume, and is not needed to start choosing a plan. Ask about it only if the visitor asks about workspace preferences.`).join('\n')}`,
-  transcript: new TranscriptArray([
+  messages: new TranscriptArray([
     { role: 'user', content: 'Hello' },
     { role: 'assistant', content: "Hi! I'm the Cedar Desk assistant. How can I help?" },
     {
@@ -49,7 +42,8 @@ ${Array.from({ length: 30 }, (_, i) => `Workspace feature ${i + 1}: Cedar Desk s
   ]),
   objects: [],
   globalTools: [],
-  components: [message, ...leaves],
+  isChatEnabled: true,
+  components: leaves,
   exits: [
     ListenExit,
     new Exit({
@@ -58,5 +52,5 @@ ${Array.from({ length: 30 }, (_, i) => `Workspace feature ${i + 1}: Cedar Desk s
       schema: z.object({ reason: z.string() }),
     }),
   ],
-  iteration: { current: 1, limit: 10, resumed: false, deliveredMessages: [] },
+  iteration: { current: 1, limit: 10, deliveredMessages: [] },
 })

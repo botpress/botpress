@@ -7,8 +7,9 @@
  * applies to a websocket, an SSE response or any other transport.
  *
  * It shows how to:
- * - Stream message bodies token-by-token with `Chat.onMessageDelta`
- * - Receive the complete, authoritative message with `handler`
+ * - Stream assistant text token-by-token with `response.onDelta`
+ * - Receive the complete assistant text with `response.handler`
+ * - Handle rich messages through each component's own handler
  * - Display the generated code and tool calls (input, output, duration)
  *   live with the `onTrace` hook
  * - Define typed exits and render them when the agent ends the conversation
@@ -24,7 +25,7 @@
 import { Cognitive } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import chalk from 'chalk'
-import { Chat, DefaultComponents, Exit, ListenExit, Tool, execute, isComponent, type ExecutionResult } from 'llmz'
+import { Chat, Session, DefaultComponents, Exit, ListenExit, Tool, execute, type ExecutionResult } from 'llmz'
 
 import { prompt } from '../utils/buttons'
 
@@ -132,7 +133,7 @@ const cancelled = new Exit({
 // Chat — streaming rendering of messages, buttons, tool calls and exits
 // ────────────────────────────────────────────────────────────────────────────
 
-const transcript: Array<{ role: 'user' | 'assistant'; content: string }> = []
+const session = new Session()
 let buttons: string[] = []
 
 // The id of the message currently being streamed to the terminal, if any
@@ -144,55 +145,48 @@ const compact = (value: unknown, max = 80): string => {
 }
 
 const chat = new Chat({
-  components: [DefaultComponents.Text, DefaultComponents.Button],
-  transcript: () => transcript,
+  components: [
+    DefaultComponents.Button.withHandler(({ label }) => {
+      buttons.push(label)
+    }),
+  ],
+  response: {
+    preset: 'markdown',
 
-  // Called for every chunk of a message body, while the LLM is still
-  // generating. Print chunks as they arrive for a live typewriter effect.
-  onMessageDelta: (delta) => {
-    if (delta.restart) {
-      if (streaming) {
-        process.stdout.write(chalk.dim('\n   Previous preview discarded.\n'))
-        streaming = null
+    // Print assistant text as it arrives for a live typewriter effect.
+    onDelta: (delta) => {
+      if (delta.restart) {
+        if (streaming) {
+          process.stdout.write(chalk.dim('\n   Previous preview discarded.\n'))
+          streaming = null
+        }
+
+        return
       }
 
-      return
-    }
+      if (streaming !== delta.id) {
+        streaming = delta.id
+        process.stdout.write(chalk.bold('🤖 Agent: '))
+      }
 
-    if (streaming !== delta.id) {
-      streaming = delta.id
-      process.stdout.write(chalk.bold('🤖 Agent: '))
-    }
+      process.stdout.write(delta.delta)
+    },
 
-    process.stdout.write(delta.delta)
-  },
+    // Called once per complete response with the authoritative text.
+    handler: (text) => {
+      if (!text.trim().length) {
+        return
+      }
 
-  // Called once per complete message — the authoritative delivery
-  handler: async (component) => {
-    if (isComponent(component, DefaultComponents.Button)) {
-      buttons.push(component.props.label)
-      return
-    }
-
-    const text = component.children
-      .filter((child) => typeof child === 'string')
-      .join('')
-      .trim()
-
-    if (!text.length) {
-      return
-    }
-
-    transcript.push({ role: 'assistant', content: text })
-
-    if (streaming) {
-      // The body was already printed live by onMessageDelta — just end the line
-      streaming = null
-      process.stdout.write('\n')
-    } else {
-      // Fallback for non-streaming clients: print the whole message at once
-      console.log(`${chalk.bold('🤖 Agent:')} ${text}`)
-    }
+      if (streaming) {
+        // onDelta already printed the text; finish the line.
+        streaming = null
+        process.stdout.write('\n')
+      } else {
+        // Clients without streaming deliver the whole response at once.
+        console.log(`${chalk.bold('🤖 Agent:')} ${text}`)
+      }
+    },
   },
 })
 
@@ -228,7 +222,7 @@ console.log(chalk.bold.cyan('🚀 Space Travel Agency — guided simulation'))
 console.log(chalk.dim('Watch messages stream in, code + tool calls execute live, and typed exits end the trip.\n'))
 
 // Kick off the guided tour: the agent speaks first
-transcript.push({ role: 'user', content: 'Hi! Give me the tour.' })
+session.append({ role: 'user', content: 'Hi! Give me the tour.' })
 
 while (true) {
   turns++
@@ -243,6 +237,7 @@ while (true) {
       'If the user does not want to travel, exit with "cancelled".',
     ].join('\n'),
     chat,
+    session,
     client,
     tools: [listDestinations, checkAvailability, bookTrip, processPayment],
     exits: [booked, cancelled],
@@ -311,6 +306,6 @@ while (true) {
     break
   }
 
-  transcript.push({ role: 'user', content: reply })
+  session.append({ role: 'user', content: reply })
   console.log(`${chalk.bold('👤 User:')} ${reply}`)
 }

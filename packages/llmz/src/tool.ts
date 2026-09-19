@@ -1,12 +1,16 @@
 import { TypeOf, z, transforms, ZodObject, ZodType } from '@bpinternal/zui'
 import { JSONSchema7 } from 'json-schema'
 import { isEmpty, uniq } from 'lodash-es'
-import { Chat } from './chat.js'
+import type { MessageMetadata } from './chat.js'
 import { RenderedComponent } from './component.js'
 import { convertObjectToZuiLiterals, type StaticObject, type StaticValue } from './convert.js'
+import { isTruncated, unwrapTruncated, type Truncated, type TruncationPolicy } from './truncate.js'
 import { Serializable } from './types.js'
 import { getTypings as generateTypings } from './typings.js'
 import { fromJSONSchemaCompat, isJsonSchema, isValidIdentifier, isZuiSchema } from './utils.js'
+
+/** Internal delivery bridge for components yielded by a business tool. */
+export type ComponentDelivery = (component: RenderedComponent, metadata: MessageMetadata) => Promise<void> | void
 
 /**
  * Input parameters passed to tool retry functions.
@@ -49,6 +53,8 @@ type IsObject<T> = T extends object ? (T extends Function ? false : true) : fals
 /** @internal Utility type that makes object types partial, but leaves primitives unchanged */
 type SmartPartial<T> = IsObject<T> extends true ? Partial<T> : T
 
+type ToolOutput<T> = T | Truncated<T>
+
 /**
  * Context information passed to tool handlers during execution.
  *
@@ -62,6 +68,8 @@ type ToolCallContext = {
   iterationId?: string
   /** Native run_javascript call owning this invocation, when run by LLMz. */
   nativeCallId?: string
+  /** @internal Capture display policy while keeping the returned value ordinary JavaScript data. */
+  onTruncation?: (value: unknown, policy: TruncationPolicy) => void
 }
 
 export namespace Tool {
@@ -452,7 +460,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
       handler: (
         args: TypeOf<IX>,
         ctx: ToolCallContext
-      ) => AsyncGenerator<RenderedComponent, TypeOf<OX>> | Promise<TypeOf<OX>>
+      ) => AsyncGenerator<RenderedComponent, ToolOutput<TypeOf<OX>>> | Promise<ToolOutput<TypeOf<OX>>>
       retry: ToolRetryFn<TypeOf<IX>>
     }> = {}
   ): Tool<IX, OX> {
@@ -499,7 +507,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
         handler: (props.handler ?? this._handler) as (
           args: TypeOf<IX>,
           ctx: ToolCallContext
-        ) => AsyncGenerator<RenderedComponent, TypeOf<OX>, void> | Promise<TypeOf<OX>>,
+        ) => AsyncGenerator<RenderedComponent, ToolOutput<TypeOf<OX>>, void> | Promise<ToolOutput<TypeOf<OX>>>,
         retry: props.retry ?? this.retry,
       }).setStaticInputValues((props.staticInputValues as any) ?? (this._staticInputValues as any))
     } catch (e) {
@@ -599,7 +607,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
     handler: (
       args: TypeOf<I>,
       ctx: ToolCallContext
-    ) => AsyncGenerator<RenderedComponent, TypeOf<O>> | Promise<TypeOf<O>>
+    ) => AsyncGenerator<RenderedComponent, ToolOutput<TypeOf<O>>> | Promise<ToolOutput<TypeOf<O>>>
     retry?: ToolRetryFn<TypeOf<I>>
   }) {
     if (!isValidIdentifier(props.name)) {
@@ -680,7 +688,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
   private async _executeHandler(
     input: unknown,
     ctx: ToolCallContext,
-    chat: Chat | undefined,
+    onYield: ComponentDelivery | undefined,
     yieldedCount: number,
     setYieldedCount: (n: number) => void
   ): Promise<unknown> {
@@ -700,7 +708,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
 
       if (yieldIndex >= yieldedCount) {
         setYieldedCount(yieldIndex + 1)
-        await chat?.handler?.(value, {
+        await onYield?.(value, {
           iterationId: ctx.iterationId ?? ctx.callId,
           id: `${ctx.callId}:yield-${yieldIndex}`,
         })
@@ -734,7 +742,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
    *
    * @internal This method is primarily used internally by the LLMz execution engine
    */
-  public async execute(rawInput: TypeOf<I>, ctx: ToolCallContext, chat?: Chat): Promise<TypeOf<O>> {
+  public async execute(rawInput: TypeOf<I>, ctx: ToolCallContext, onYield?: ComponentDelivery): Promise<TypeOf<O>> {
     const isZodObject = (this.zInput as any)._def.typeName === 'ZodObject'
     const input = isZodObject ? (rawInput ?? {}) : rawInput
 
@@ -749,11 +757,22 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
 
     while (attempt < this.MAX_RETRIES) {
       try {
-        const result = await this._executeHandler(pInput.data, ctx, chat, yieldedCount, (n) => {
+        const result = await this._executeHandler(pInput.data, ctx, onYield, yieldedCount, (n) => {
           yieldedCount = n
         })
-        const pOutput = (this.zOutput as any).safeParse(result)
-        return pOutput.success ? pOutput.data : result
+        const policy = isTruncated(result) ? result.$$truncate : undefined
+        const value = unwrapTruncated(result)
+        const pOutput = (this.zOutput as any).safeParse(value)
+        const output = pOutput.success ? pOutput.data : value
+
+        if (!policy) {
+          return output
+        }
+
+        return Promise.resolve(output).then((parsed) => {
+          ctx.onTruncation?.(parsed, policy)
+          return parsed
+        })
       } catch (err) {
         const shouldRetry = await this.retry?.({
           input: pInput.data,

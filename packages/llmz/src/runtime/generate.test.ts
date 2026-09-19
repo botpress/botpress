@@ -1,8 +1,9 @@
 import type { CognitiveMetadata, CognitiveRequest, CognitiveResponse, CognitiveStreamChunk } from '@botpress/cognitive'
 import { describe, expect, it, vi } from 'vitest'
-import { Chat, type MessageDelta } from '../chat.js'
-import type { Context, ContextTokens, Iteration } from '../context.js'
+import { type MessageDelta } from '../chat.js'
+import { DefaultExit, type Context, type ContextTokens, type Iteration } from '../context.js'
 import { Session } from '../session.js'
+import { createRecordingChat } from './fixtures/chat.js'
 import { countNativeRequestTokens, generateCode, type NativeResponse } from './generate.js'
 import type { RuntimeCognitive } from './types.js'
 
@@ -19,7 +20,8 @@ function fixture(options: { session?: Session; maxTokens?: number; midStreamFall
   const session = options.session ?? new Session()
 
   if (!session.turn) {
-    session.beginTurn({ messages: [{ role: 'user', content: 'Find my account' }] })
+    session.append({ role: 'user', content: 'Find my account' })
+    session.beginTurn()
   }
 
   const info = session.nextIteration()
@@ -30,6 +32,7 @@ function fixture(options: { session?: Session; maxTokens?: number; midStreamFall
     variables: session.memory.getBindings(),
     messages: [{ role: 'system', content: 'Use native tools.' }, ...session.requestMessages()],
     traces: [],
+    exits: [DefaultExit],
     nativeTools: {
       tools: [{ name: 'run_javascript', parameters: { type: 'object', properties: { code: { type: 'string' } } } }],
     },
@@ -90,12 +93,27 @@ function expectCurrentContextTokens(context: ContextTokens, input: CognitiveRequ
 }
 
 describe('native generation', () => {
+  it.each([false, true])('requires JavaScript for workers while allowing assistant text for chat=%s', async (chat) => {
+    const base = fixture()
+
+    if (chat) {
+      base.ctx.chat = createRecordingChat({ handler: () => {} })
+    }
+
+    await generateCode(base)
+
+    expect(base.generateText.mock.calls[0]?.[0].toolControl).toEqual({
+      mode: chat ? 'auto' : 'required',
+      parallel: false,
+    })
+  })
+
   it.each([false, true])('gives valid final-response guidance for chat=%s', async (chat) => {
     const base = fixture()
     base.ctx.loop = 1
 
     if (chat) {
-      base.ctx.chat = new Chat({ handler: () => {} })
+      base.ctx.chat = createRecordingChat({ handler: () => {} })
     }
 
     await generateCode(base)
@@ -105,9 +123,10 @@ describe('native generation', () => {
     expect(guidance).toContain('This is the last response.')
 
     if (chat) {
-      expect(guidance).toContain('or an honest final answer')
+      expect(guidance).toContain('Answer from inspected evidence with normal assistant text')
+      expect(guidance).toContain('return exit("listen")')
     } else {
-      expect(guidance).toContain('returning exit(name, payload) from run_javascript')
+      expect(guidance).toContain('return exit("NAME", payload) from run_javascript')
       expect(guidance).toContain('incomplete or error payload only when the exit schema permits it')
       expect(guidance).toContain('Assistant prose and inspection returns do not complete a worker')
       expect(guidance).not.toContain('or an honest final answer')
@@ -121,7 +140,7 @@ describe('native generation', () => {
     expect(response.output).toBe('Done')
     const input = base.generateText.mock.calls[0]![0]
 
-    expect(input.toolControl).toEqual({ mode: 'auto', parallel: false })
+    expect(input.toolControl).toEqual({ mode: 'required', parallel: false })
     expect(input.stopSequences).toBeUndefined()
     expect(input.tools?.[0]?.name).toBe('run_javascript')
     expect(input.messages.at(-1)?.content).toContain('## Memory')
@@ -156,17 +175,14 @@ describe('native generation', () => {
     async (type) => {
       const url = `data:${type}/${type === 'image' ? 'png' : 'wav'};base64,${'AQID'.repeat(128_000)}`
       const session = new Session()
-      session.beginTurn({
-        messages: [
-          {
-            role: 'user',
-            content: [
-              { type: 'text', text: 'Describe this attachment.' },
-              { type, url },
-            ],
-          },
+      session.append({
+        role: 'user',
+        content: [
+          { type: 'text', text: 'Describe this attachment.' },
+          { type, url },
         ],
       })
+      session.beginTurn()
       const base = fixture({ session, maxTokens: 1000 })
 
       await generateCode(base)
@@ -185,9 +201,8 @@ describe('native generation', () => {
   it.each(['string', 'text part'] as const)('still rejects oversized text in %s content', async (kind) => {
     const text = `data:image/png;base64,${'AQID'.repeat(4000)}`
     const session = new Session()
-    session.beginTurn({
-      messages: [{ role: 'user', content: kind === 'string' ? text : [{ type: 'text', text }] }],
-    })
+    session.append({ role: 'user', content: kind === 'string' ? text : [{ type: 'text', text }] })
+    session.beginTurn()
     const base = fixture({ session, maxTokens: 1000 })
 
     await expect(generateCode(base)).rejects.toThrow('does not fit in the context window')
@@ -625,15 +640,18 @@ describe('native generation', () => {
     const session = new Session({ variables: { keep: 'named value' } })
 
     for (const id of ['old-a', 'old-b']) {
-      session.beginTurn({ messages: [{ role: 'user', content: `Request ${id}` }] })
+      session.append({ role: 'user', content: `Request ${id}` })
+      session.beginTurn()
       const info = session.nextIteration(id)
       session.appendAssistant(id, { output: '', toolCalls: [call(id)] })
       session.appendToolResult(id, id, 'record '.repeat(5000))
       session.memory.commit({ ...info, outcome: 'completed', hasResult: true, result: id })
       session.settleIteration(id)
+      session.completeTurn()
     }
 
-    session.beginTurn({ messages: [{ role: 'user', content: 'New request' }] })
+    session.append({ role: 'user', content: 'New request' })
+    session.beginTurn()
     const base = fixture({ session, maxTokens: 2000 })
     const originalHistoryTokens = countNativeRequestTokens(base.iteration.messages, [])
     base.iteration.tokens!.context.iterations = originalHistoryTokens

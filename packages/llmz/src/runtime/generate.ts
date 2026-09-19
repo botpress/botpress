@@ -322,7 +322,7 @@ async function prepareNativeRequest({ iteration, ctx, cognitive, controller, met
   )
   const canonical = withoutMemoryFooter(ctx.session.requestMessages())
   const historyCustomized = stableJSON(hookMessages) !== stableJSON(canonical)
-  const budgetInstruction = getBudgetInstruction(ctx)
+  const budgetInstruction = getBudgetInstruction(ctx, iteration)
   const budget = `\n\nExecution budget: response ${ctx.iterations.length} of ${ctx.loop}. ${budgetInstruction}`
 
   const buildMessages = () => {
@@ -387,7 +387,7 @@ async function prepareNativeRequest({ iteration, ctx, cognitive, controller, met
     reasoningEffort: iteration.reasoningEffort,
     messages,
     tools,
-    toolControl: { mode: 'auto', parallel: false },
+    toolControl: { mode: ctx.chat ? 'auto' : 'required', parallel: false },
     maxTokens: reserve,
     meta: metadata ? { metadata } : undefined,
     options: {
@@ -400,16 +400,20 @@ async function prepareNativeRequest({ iteration, ctx, cognitive, controller, met
   return { input, model }
 }
 
-function getBudgetInstruction(ctx: Context): string {
+function getBudgetInstruction(ctx: Context, iteration: Iteration): string {
   if (ctx.iterations.length < ctx.loop) {
-    return 'Reserve a response to inspect results before completing.'
+    return 'Use return inspect(value) to see business tool results in the next response. Reserve a response for that inspection.'
   }
 
   if (ctx.chat) {
-    return 'This is the last response. Complete with an available exit or an honest final answer; do not start work that needs another model response.'
+    return 'This is the last response. Answer from inspected evidence with normal assistant text, or use JavaScript with an explicit return exit("listen") or another registered named exit. Do not start work that needs another model response.'
   }
 
-  return 'This is the last response. Finish by returning exit(name, payload) from run_javascript, using a registered exit. If the task is incomplete, report it honestly with an incomplete or error payload only when the exit schema permits it. Assistant prose and inspection returns do not complete a worker. Do not start work that requires another model response.'
+  if (!iteration.exits.length) {
+    return 'This is the last response. Every JavaScript program must explicitly return inspect(value) with the available evidence. Do not start work that needs another model response.'
+  }
+
+  return 'This is the last response. Finish with return exit("NAME", payload) from run_javascript, using a registered name. If the task is incomplete, report it honestly with an incomplete or error payload only when the exit schema permits it. Assistant prose and inspection returns do not complete a worker. Do not start work that requires another model response.'
 }
 
 async function consumeNativeStream({
@@ -619,8 +623,7 @@ export async function generateCode({
             await preview({
               restart: false,
               ...messageMetadata(),
-              component: 'message',
-              props: {},
+              type: 'text',
               delta: value.output,
               content: output,
             })

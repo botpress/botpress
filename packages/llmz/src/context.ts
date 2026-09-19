@@ -3,7 +3,7 @@ import { z } from '@bpinternal/zui'
 import { ulid } from 'ulid'
 import { Chat } from './chat.js'
 import { assertValidComponent, Component } from './component.js'
-import { LoopExceededError, SnapshotSignal } from './errors.js'
+import { LoopExceededError } from './errors.js'
 import type { Example } from './example.js'
 import { Exit } from './exit.js'
 import { getValue, ValueOrGetter } from './getter.js'
@@ -11,12 +11,12 @@ import { HookedArray } from './handlers.js'
 import { ObjectInstance } from './objects.js'
 import { getNativeSystemMessage } from './prompts/native.js'
 import { LLMzPrompts } from './prompts/prompt.js'
+import { resolveResponse, type ResolvedResponse } from './response.js'
 import { createNativeToolCatalogue, type NativeToolCatalogue } from './runtime/native-tools.js'
 import { RESERVED_RUNTIME_NAMES } from './runtime-names.js'
 import { Session } from './session.js'
-import { Snapshot } from './snapshots.js'
 import { Tool } from './tool.js'
-import { Transcript, TranscriptArray } from './transcript.js'
+import { DEFAULT_TOOL_RESULT_MAX_TOKENS } from './truncate.js'
 import { stripTruncationTags } from './truncator.js'
 import { ObjectMutation, Serializable, Trace } from './types.js'
 import { getTokenizer } from './utils.js'
@@ -67,13 +67,13 @@ export type TokenUsage = {
 
 export type IterationParameters = {
   chatEnabled?: boolean
-  transcript: TranscriptArray
   tools: Tool[]
   objects: ObjectInstance[]
   exits: Exit[]
   instructions?: string
   examples?: Example[]
   components: Component[]
+  response?: ResolvedResponse
   model: Models | Models[]
   temperature: number
   reasoningEffort?: 'low' | 'medium' | 'high' | 'dynamic' | 'none'
@@ -85,7 +85,6 @@ export type IterationStatus =
   | IterationStatuses.ExecutionError
   | IterationStatuses.InvalidCodeError
   | IterationStatuses.Thinking
-  | IterationStatuses.Callback
   | IterationStatuses.ExitSuccess
   | IterationStatuses.ExitError
   | IterationStatuses.Aborted
@@ -129,13 +128,6 @@ export namespace IterationStatuses {
     }
   }
 
-  export type Callback = {
-    type: 'callback_requested'
-    callback_requested: {
-      signal: SnapshotSignal
-    }
-  }
-
   export type ExitSuccess<T = unknown> = {
     type: 'exit_success'
     exit_success: {
@@ -162,7 +154,7 @@ export namespace IterationStatuses {
 }
 
 /**
- * Chat completion. JavaScript returns `exit()` or a terminal presentation decision
+ * Chat completion. JavaScript uses `return exit('listen')`
  * to wait for user input. A plain assistant answer also implies this exit.
  */
 export const ListenExit = new Exit({
@@ -171,7 +163,7 @@ export const ListenExit = new Exit({
 })
 
 /**
- * Worker completion when no custom exits are registered. JavaScript returns
+ * Worker completion when exits are omitted. JavaScript returns
  * `exit('done', { success: true, result })` or
  * `exit('done', { success: false, error })`.
  */
@@ -222,7 +214,6 @@ export namespace Iteration {
       time_to_last_token?: number
     }
     tokens?: TokenUsage
-    transcript: Transcript.Message[]
     tools: Tool.JSON[]
     objects: ObjectInstance.JSON[]
     exits: Exit.JSON[]
@@ -272,8 +263,9 @@ export class Iteration implements Serializable<Iteration.JSON> {
   public get components(): Component[] {
     return this._parameters.components
   }
-  public get transcript() {
-    return this._parameters.transcript
+
+  public get response(): ResolvedResponse | undefined {
+    return this._parameters.response
   }
 
   public get tools() {
@@ -344,11 +336,9 @@ export class Iteration implements Serializable<Iteration.JSON> {
   }
 
   public isSuccessful(this: this): this is this & {
-    status: IterationStatuses.ExitSuccess | IterationStatuses.Callback | IterationStatuses.Thinking
+    status: IterationStatuses.ExitSuccess | IterationStatuses.Thinking
   } {
-    return (<IterationStatus['type'][]>['callback_requested', 'exit_success', 'thinking_requested']).includes(
-      this.status.type
-    )
+    return (<IterationStatus['type'][]>['exit_success', 'thinking_requested']).includes(this.status.type)
   }
 
   public isFailed(this: this): this is this & {
@@ -443,7 +433,6 @@ export class Iteration implements Serializable<Iteration.JSON> {
       mutations: [...this._mutations.values()],
       llm: this.llm,
       tokens: this.tokens,
-      transcript: [...this._parameters.transcript],
       tools: this._parameters.tools.map((tool) => tool.toJSON()),
       objects: this._parameters.objects.map((obj) => obj.toJSON()),
       exits: this._parameters.exits.map((exit) => exit.toJSON()),
@@ -463,7 +452,6 @@ export namespace Context {
     timeout: number
     loop: number
     metadata: Record<string, any>
-    snapshot?: Snapshot.JSON
     session: Session.JSON
   }
 }
@@ -489,6 +477,8 @@ export class Context implements Serializable<Context.JSON> {
    * `min(maxTokens, model's max input tokens)`.
    */
   public maxTokens?: number
+  /** Default display budget; explicitly wrapped tool results can override it. */
+  public toolResultMaxTokens: number = DEFAULT_TOOL_RESULT_MAX_TOKENS
   /**
    * Maximum time to wait for the first streamed token, in milliseconds,
    * before the cognitive service falls back to the next model/provider.
@@ -508,8 +498,6 @@ export class Context implements Serializable<Context.JSON> {
   public transcriptionModel?: SttModels
   public metadata: Record<string, any>
 
-  public snapshot?: Snapshot
-
   public iteration: number = 0
   public iterations: Iteration[]
 
@@ -518,11 +506,7 @@ export class Context implements Serializable<Context.JSON> {
       throw new LoopExceededError()
     }
 
-    if (this.snapshot && this.snapshot.status.type === 'pending') {
-      throw new Error(
-        `Cannot resume execution from a snapshot that is still pending: ${this.snapshot.id}. Please resolve() or reject() it first.`
-      )
-    }
+    this.session.beginTurn()
 
     const parameters = await this._refreshIterationParameters()
     await this.session.memory.syncObjects(parameters.objects, {
@@ -530,11 +514,6 @@ export class Context implements Serializable<Context.JSON> {
       turnId: this.session.turnId,
       timestamp: Date.now(),
     })
-    if (this.session.turn === 0) {
-      this.session.beginTurn({ transcript: parameters.transcript })
-    } else if (this.chat) {
-      this.session.reconcileTranscript(parameters.transcript)
-    }
 
     const { messages, parts } = await this._getIterationMessages(parameters)
     const contextTokens = this._measureContextTokens(messages, parts)
@@ -567,7 +546,6 @@ export class Context implements Serializable<Context.JSON> {
 
     this.iterations.push(iteration)
     this.iteration = this.iterations.length
-    this.snapshot = undefined
 
     return iteration
   }
@@ -605,7 +583,7 @@ export class Context implements Serializable<Context.JSON> {
     const systemTokens = messages.filter((x) => x.role === 'system').reduce((acc, x) => acc + countMessage(x), 0)
     const otherTokens = messages.filter((x) => x.role !== 'system').reduce((acc, x) => acc + countMessage(x), 0)
 
-    const isFirstIteration = this.iterations.length === 0 && !this.snapshot
+    const isFirstIteration = this.iterations.length === 0
     const framework = Math.max(0, systemTokens - (instructions + tools + transcript + protocol + examples))
     const iterations = isFirstIteration ? 0 : otherTokens
 
@@ -639,9 +617,9 @@ export class Context implements Serializable<Context.JSON> {
       objects: parameters.objects,
       instructions: parameters.instructions,
       examples: parameters.examples,
-      transcript: parameters.transcript,
       exits,
       components: parameters.components,
+      response: parameters.response,
     })
     return { messages: [message, ...this.session.requestMessages()], parts }
   }
@@ -649,11 +627,20 @@ export class Context implements Serializable<Context.JSON> {
   private async _refreshIterationParameters(): Promise<IterationParameters> {
     const instructions = await getValue(this.instructions, this)
     const examples = await getValue(this.examples, this)
-    const transcript = new TranscriptArray(await getValue(this.chat?.transcript ?? [], this))
-    const tools = Tool.withUniqueNames((await getValue(this.tools, this)) ?? [])
+    const configuredTools = (await getValue(this.tools, this)) ?? []
+
+    // Check the configured names before duplicate-name normalization can replace them.
+    for (const tool of configuredTools) {
+      for (const name of [tool.name, ...tool.aliases]) {
+        assertNotReservedRuntimeName(name)
+      }
+    }
+
+    const tools = Tool.withUniqueNames(configuredTools)
     const objects = (await getValue(this.objects, this)) ?? []
     const exits = (await getValue(this.exits, this)) ?? []
     const components = await getValue(this.chat?.components ?? [], this)
+    const response = this.chat ? resolveResponse(await getValue(this.chat.response, this)) : undefined
     const model = (await getValue(this.model, this)) ?? 'best'
     const temperature = await getValue(this.temperature, this)
     const reasoningEffort = await getValue(this.reasoningEffort, this)
@@ -668,13 +655,15 @@ export class Context implements Serializable<Context.JSON> {
 
     for (const component of components) {
       assertValidComponent(component.definition)
+
+      if (typeof component.handler !== 'function') {
+        throw new Error(`Component "${component.definition.name}" requires a handler. Attach one with withHandler().`)
+      }
     }
 
     const occupied = new Set<string>()
     const registerName = (name: string) => {
-      if (RESERVED_RUNTIME_NAMES.has(name) || name.startsWith('__')) {
-        throw new Error(`Runtime name "${name}" is reserved.`)
-      }
+      assertNotReservedRuntimeName(name)
 
       if (occupied.has(name)) {
         throw new Error(`Duplicate JavaScript binding "${name}".`)
@@ -688,6 +677,7 @@ export class Context implements Serializable<Context.JSON> {
 
       occupied.add(name)
     }
+
     for (const tool of tools) {
       for (const name of new Set([tool.name, ...tool.aliases])) {
         registerName(name)
@@ -710,11 +700,7 @@ export class Context implements Serializable<Context.JSON> {
       throw new Error('Instructions are too long. Expected at most 1,000,000 characters.')
     }
 
-    if (transcript && transcript.length > 250) {
-      throw new Error('Too many transcript messages. Expected at most 250 messages.')
-    }
-
-    if (!this.chat && !exits.length) {
+    if (!this.chat && !exits.length && this.exits === undefined) {
       exits.push(DefaultExit)
     }
 
@@ -737,13 +723,13 @@ export class Context implements Serializable<Context.JSON> {
 
     return {
       chatEnabled: !!this.chat,
-      transcript,
       tools,
       objects,
       exits,
       instructions,
       examples,
       components,
+      response,
       model,
       temperature,
       reasoningEffort,
@@ -762,10 +748,10 @@ export class Context implements Serializable<Context.JSON> {
     reasoningEffort?: ValueOrGetter<'low' | 'medium' | 'high' | 'dynamic' | 'none', Context>
     model?: ValueOrGetter<Models | Models[], Context>
     metadata?: Record<string, any>
-    snapshot?: Snapshot
     session?: Session
     timeout?: number
     maxTokens?: number
+    toolResultMaxTokens?: number
     maxTimeToFirstToken?: number
     midStreamFallback?: boolean
     transcriptionModel?: SttModels
@@ -785,9 +771,9 @@ export class Context implements Serializable<Context.JSON> {
     this.model = props.model ?? 'best'
     this.iterations = []
     this.metadata = props.metadata ?? {}
-    this.snapshot = props.snapshot
-    this.session = props.session ?? (props.snapshot?.session ? Session.fromJSON(props.snapshot.session) : new Session())
+    this.session = props.session ?? new Session()
     this.maxTokens = props.maxTokens
+    this.toolResultMaxTokens = props.toolResultMaxTokens ?? DEFAULT_TOOL_RESULT_MAX_TOKENS
     this.maxTimeToFirstToken = props.maxTimeToFirstToken
     this.midStreamFallback = props.midStreamFallback
     this.transcriptionModel = props.transcriptionModel
@@ -798,6 +784,14 @@ export class Context implements Serializable<Context.JSON> {
 
     if (this.maxTokens !== undefined && (!Number.isFinite(this.maxTokens) || this.maxTokens < 1)) {
       throw new Error('Invalid maxTokens. Expected a positive number.')
+    }
+
+    if (
+      !Number.isInteger(this.toolResultMaxTokens) ||
+      this.toolResultMaxTokens < 0 ||
+      this.toolResultMaxTokens > DEFAULT_TOOL_RESULT_MAX_TOKENS
+    ) {
+      throw new Error('Invalid toolResultMaxTokens. Expected an integer between 0 and 2000.')
     }
 
     if (
@@ -820,8 +814,13 @@ export class Context implements Serializable<Context.JSON> {
       timeout: this.timeout,
       loop: this.loop,
       metadata: this.metadata,
-      snapshot: this.snapshot?.toJSON(),
       session: this.session.toJSON(),
     } satisfies Context.JSON
+  }
+}
+
+function assertNotReservedRuntimeName(name: string): void {
+  if (RESERVED_RUNTIME_NAMES.has(name) || name.startsWith('__')) {
+    throw new Error(`Runtime name "${name}" is reserved.`)
   }
 }

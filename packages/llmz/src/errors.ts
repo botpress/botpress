@@ -1,18 +1,6 @@
-import { JSONSchema7 } from 'json-schema'
-import { type Assignment } from './compiler/plugins/track-tool-calls.js'
 import { cleanStackTrace } from './stack-traces.js'
 
 type ErrorConstructor = new (...args: any[]) => Error
-
-export type ToolCall = {
-  /** Stable identity of the inner host operation that requested the snapshot. */
-  id?: string
-  name: string
-  inputSchema?: JSONSchema7
-  outputSchema?: JSONSchema7
-  input?: unknown
-  assignment?: Assignment
-}
 
 const errorClasses: { [key: string]: ErrorConstructor } = {}
 function registerErrorClass(name: string, errorClass: ErrorConstructor) {
@@ -96,9 +84,6 @@ export class VMSignal extends Error {
    */
   public truncatedCode: string = ''
 
-  /** The current tool call, if any */
-  public toolCall?: ToolCall
-
   /**
    * Contains all the declared and executed variables during the VM execution
    * See file plugins/variable-extraction.ts for more details
@@ -106,18 +91,6 @@ export class VMSignal extends Error {
   public variables: { [key: string]: any } = {}
 
   public constructor(public message: string) {
-    super(message)
-    this.message = Signals.serializeError(this)
-  }
-}
-
-//////////////////////////////////////////////////////////
-// Interruption Signals
-//////////////////////////////////////////////////////////
-
-/** Request a snapshot from inside a tool call */
-export class SnapshotSignal extends VMSignal {
-  public constructor(message: string) {
     super(message)
     this.message = Signals.serializeError(this)
   }
@@ -215,7 +188,6 @@ export class CognitiveError extends Error {
 }
 
 registerErrorClass('VMSignal', VMSignal)
-registerErrorClass('SnapshotSignal', SnapshotSignal)
 registerErrorClass('VMLoopSignal', VMLoopSignal)
 registerErrorClass('ThinkSignal', ThinkSignal)
 registerErrorClass('CodeExecutionError', CodeExecutionError)

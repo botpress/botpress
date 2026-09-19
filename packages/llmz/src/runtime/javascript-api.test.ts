@@ -1,7 +1,7 @@
 import { z } from '@bpinternal/zui'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { Chat } from '../chat.js'
+import { DefaultComponents } from '../component.default.js'
 import { Component } from '../component.js'
 import { Context, ListenExit } from '../context.js'
 import { Exit } from '../exit.js'
@@ -13,15 +13,15 @@ import { init } from '../utils.js'
 import { runAsyncFunction } from '../vm/index.js'
 import { VM_PROGRAM_COMPLETE, VM_TERMINATION, type VMContext } from '../vm/types.js'
 import { executeContext } from './execute.js'
+import { createRecordingChat } from './fixtures/chat.js'
 import { NativeClient, javascript } from './fixtures/native-client.js'
 import { createJavaScriptApi, type JavaScriptApi } from './javascript-api.js'
 import { buildVMContext } from './vm-context.js'
 
 const Button = new Component({
-  type: 'leaf',
   name: 'Button',
   description: 'Show a button.',
-  leaf: { props: z.object({ label: z.string().min(1), value: z.string() }) },
+  props: z.object({ label: z.string().min(1), value: z.string() }),
 })
 
 const Completed = new Exit({
@@ -55,65 +55,111 @@ function apiContext(api: JavaScriptApi): VMContext {
 }
 
 describe('JavaScript completion decisions', () => {
-  test('constructs terminal decisions without delivering messages or finishing execution', () => {
+  test('sends buttons synchronously without finishing execution', async () => {
     const { api, deliver } = setupApi()
-    const receipt = api.bindings.chat.buttons([
+    const returned = api.bindings.chat.buttons!([
       { label: 'Yes', value: 'yes' },
       { label: 'No', value: 'no' },
     ])
 
-    expect(deliver).not.toHaveBeenCalled()
-    expect(api.resolve(receipt)).toMatchObject({
-      type: 'exit',
-      exit: ListenExit,
-      messages: [
-        { id: 'call-1:message:1', component: { type: 'BUTTON', props: { label: 'Yes', value: 'yes' } } },
-        { id: 'call-1:message:2', component: { type: 'BUTTON', props: { label: 'No', value: 'no' } } },
-      ],
-    })
+    expect(returned).toBeUndefined()
+    expect(deliver).toHaveBeenCalledOnce()
+    expect(api.getTerminalOutcome()).toBeUndefined()
     expect(() => api.assertOpen()).not.toThrow()
+
+    await api.close()
+
+    expect(deliver).toHaveBeenCalledOnce()
+    expect(deliver.mock.calls[0]).toMatchObject([
+      [
+        {
+          id: 'call-1:message:1',
+          component: { type: 'component', name: 'Button', props: { label: 'Yes', value: 'yes' } },
+        },
+        {
+          id: 'call-1:message:2',
+          component: { type: 'component', name: 'Button', props: { label: 'No', value: 'no' } },
+        },
+      ],
+    ])
   })
 
-  test('validates a typed completion and combines it with prepared messages', () => {
-    const { api } = setupApi()
-    const receipt = api.bindings.chat.present({
-      messages: [{ component: 'Button', props: { label: 'Open account', value: 'account-1' } }],
-      exit: { name: 'done', payload: { accountId: 'account-1' } },
-    })
+  test('validates typed completion independently from component delivery', async () => {
+    const { api, deliver } = setupApi()
 
-    expect(api.resolve(receipt)).toMatchObject({
+    expect(() => api.bindings.exit('completed', { accountId: 42 })).toThrow()
+    expect(() => api.bindings.exit('missing')).toThrow(/not available/)
+    expect(() => api.bindings.exit('listen', {})).toThrow(/no payload/)
+
+    api.bindings.chat.buttons!([{ label: 'Open account', value: 'account-1' }])
+
+    expect(() => api.bindings.exit('done', { accountId: 'account-1' })).toThrow(/terminated/)
+
+    await api.close()
+
+    expect(deliver).toHaveBeenCalledOnce()
+    expect(api.getTerminalOutcome()).toMatchObject({
       type: 'exit',
       exit: Completed,
       value: { accountId: 'account-1' },
     })
-    expect(() => api.bindings.exit('completed', { accountId: 42 })).toThrow()
-    expect(() => api.bindings.exit('missing')).toThrow(/not available/)
-    expect(() => api.bindings.exit('listen', {})).toThrow(/no payload/)
   })
 
-  test('requires the available listen exit for argumentless exit and presentation', () => {
+  test('keeps the unnamed listen fallback inside the engine', () => {
+    const { api } = setupApi()
+
+    expect(() => api.bindings.exit()).toThrow(/terminated/)
+    expect(api.getTerminalOutcome()).toEqual({ type: 'exit', exit: ListenExit, value: undefined })
+  })
+
+  test('requires a registered listen exit for the internal unnamed fallback', async () => {
+    const deliver = vi.fn(async () => {})
     const api = createJavaScriptApi({
       iteration: { id: 'worker-1' },
       components: [Button],
       exits: [Completed],
-      deliver: async () => {},
+      deliver,
     })
 
     expect(() => api.bindings.exit()).toThrow(/listen.*not available/)
-    expect(() => api.bindings.chat.buttons([{ label: 'Yes', value: 'yes' }])).toThrow(/listen.*not available/)
+    expect(api.bindings.chat.buttons!([{ label: 'Yes', value: 'yes' }])).toBeUndefined()
+
+    await api.close()
+
+    expect(deliver).toHaveBeenCalledOnce()
   })
 
-  test('validates the whole presentation batch before any delivery', async () => {
+  test('validates a complete buttons array before starting its delivery', async () => {
     const { api, deliver } = setupApi()
 
     expect(() =>
-      api.bindings.chat.send([
-        { component: 'Button', props: { label: 'Valid', value: 'valid' } },
-        { component: 'Button', props: { label: '', value: 'invalid' } },
+      api.bindings.chat.buttons!([
+        { label: 'Valid', value: 'valid' },
+        { label: '', value: 'invalid' },
       ])
     ).toThrow()
-    expect(() => api.bindings.chat.buttons([])).toThrow()
+    expect(() => api.bindings.chat.buttons!([])).toThrow()
+
+    await api.close()
+
     expect(deliver).not.toHaveBeenCalled()
+  })
+
+  test('exposes only rich component methods and never offers text delivery', async () => {
+    const api = createJavaScriptApi({
+      iteration: { id: 'iteration-1' },
+      components: [DefaultComponents.Card, Button],
+      exits: [ListenExit],
+      deliver: async () => {},
+    })
+
+    expect(Object.keys(api.bindings.chat).sort()).toEqual(['buttons', 'card'])
+    expect(api.bindings.chat).not.toHaveProperty('present')
+    expect(api.bindings.chat).not.toHaveProperty('send')
+    expect(api.bindings.chat).not.toHaveProperty('message')
+    expect(api.bindings.chat).not.toHaveProperty('text')
+    expect(api.bindings.chat).not.toHaveProperty('markdown')
+    expect(api.bindings.chat).not.toHaveProperty('speech')
 
     await api.close()
   })
@@ -142,18 +188,18 @@ describe('JavaScript completion decisions', () => {
     })
   })
 
-  test('chat.send is awaited, ordered, and nonterminal', async () => {
+  test('joins synchronous component calls in order without requiring await', async () => {
     const { api, deliver } = setupApi()
 
-    await api.bindings.chat.send([
-      { component: 'Button', props: { label: 'First', value: 'one' } },
-      { component: 'Button', props: { label: 'Second', value: 'two' } },
-    ])
+    api.bindings.chat.buttons!([{ label: 'First', value: 'one' }])
+    api.bindings.chat.buttons!([{ label: 'Second', value: 'two' }])
 
-    expect(deliver).toHaveBeenCalledOnce()
-    expect(deliver.mock.calls[0]).toMatchObject([[{ id: 'call-1:message:1' }, { id: 'call-1:message:2' }]])
     expect(() => api.assertOpen()).not.toThrow()
+
     await expect(api.close()).resolves.toBeUndefined()
+
+    expect(deliver).toHaveBeenCalledTimes(2)
+    expect(deliver.mock.calls).toMatchObject([[[{ id: 'call-1:message:1' }]], [[{ id: 'call-1:message:2' }]]])
     expect(() => api.bindings.exit()).toThrow(/completed/)
   })
 
@@ -175,7 +221,7 @@ describe('memory settlement before completion', () => {
     const result = await executeContext({
       client,
       session: new Session({ maxBytes: 5000 }),
-      chat: new Chat({ handler }),
+      chat: createRecordingChat({ handler }),
       objects: [account],
       tools: [new Tool({ name: 'action', handler: action })],
     })
@@ -275,7 +321,7 @@ for (const quickjs of ['true', 'false']) {
         properties: [{ name: 'age', value: 1, type: z.number(), writable: true }],
       })
       const ctx = new Context({
-        chat: new Chat({ handler: async () => {} }),
+        chat: createRecordingChat({ handler: async () => {} }),
         tools: [new Tool({ name: 'load', handler: load })],
         objects: [account],
       })
@@ -299,7 +345,7 @@ for (const quickjs of ['true', 'false']) {
       const { api } = setupApi()
       const result = await runAsyncFunction(
         apiContext(api),
-        'const alias = chat; alias.send = () => {}; return exit();'
+        'const alias = chat; alias.buttons = () => {}; return exit();'
       )
 
       await api.close()

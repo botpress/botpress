@@ -2,7 +2,7 @@ import { z } from '@bpinternal/zui'
 import { describe, expect, test } from 'vitest'
 
 import { Iteration } from '../context.js'
-import { SnapshotSignal, ThinkSignal } from '../errors.js'
+import { ThinkSignal } from '../errors.js'
 import { Tool } from '../tool.js'
 import { type Trace } from '../types.js'
 import { wrapTool } from './tool-wrapper.js'
@@ -110,47 +110,5 @@ describe('wrapTool', () => {
       output: signal,
       success: true,
     })
-  })
-
-  test('adds tool call metadata to SnapshotSignal', async () => {
-    const traces: Trace[] = []
-    const signal = new SnapshotSignal('pause')
-    const tool = new Tool({
-      name: 'payment',
-      input: z.object({ amount: z.number() }),
-      output: z.object({ paymentIntentId: z.string() }),
-      handler: async () => {
-        throw signal
-      },
-    })
-
-    const wrapped = wrapTool({
-      tool,
-      traces,
-      iteration,
-      controller: new AbortController(),
-    })
-
-    await expect(wrapped({ amount: 10 })).rejects.toBe(signal)
-
-    const call = traces.find((trace) => trace.type === 'tool_call')
-
-    expect(call).toBeDefined()
-    expect(signal.toolCall).toEqual({
-      id: call!.tool_call_id,
-      name: 'payment',
-      inputSchema: tool.input,
-      outputSchema: tool.output,
-      input: { amount: 10 },
-    })
-    expect(traces).toMatchObject([
-      {
-        type: 'tool_call',
-        tool_name: 'payment',
-        input: { amount: 10 },
-        error: signal,
-        success: false,
-      },
-    ])
   })
 })

@@ -1,10 +1,10 @@
 import { z } from '@bpinternal/zui'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { Chat } from '../chat.js'
 import { Exit } from '../exit.js'
 import { Tool } from '../tool.js'
 import { executeContext } from './execute.js'
+import { createRecordingChat } from './fixtures/chat.js'
 import { NativeClient, NativeStreamClient, javascript, nativeCall, response } from './fixtures/native-client.js'
 
 const done = new Exit({
@@ -38,9 +38,9 @@ describe('progress without a streaming preview consumer', () => {
     const execution = executeContext({
       client,
       tools: [new Tool({ name: 'search', handler: search })],
-      chat: new Chat({
+      chat: createRecordingChat({
         handler: async (message) => {
-          const text = message.children.join('')
+          const text = message.type === 'text' ? message.text : ''
           events.push(text)
 
           if (text === 'Checking the documentation.') {
@@ -68,6 +68,21 @@ describe('progress without a streaming preview consumer', () => {
 })
 
 describe('worker completion guidance', () => {
+  test.each([NativeClient, NativeStreamClient])('omits unavailable APIs from worker recovery (%s)', async (Client) => {
+    const client = new Client([response('The computed answer is 42.'), javascript('return inspect(42);')])
+
+    const result = await executeContext({ client, exits: [], options: { loop: 2 } })
+
+    expect(result.isError()).toBe(true)
+    expect(result.session.memory.getBindings().$return).toBe(42)
+    expect(client.requests).toHaveLength(2)
+
+    const correction = String(client.requests[1]!.messages.at(-1)?.content)
+
+    expect(correction).toContain('must explicitly return inspect(value)')
+    expect(correction).not.toMatch(/\b(?:exit|listen|chat)\b/)
+  })
+
   test('corrects worker prose with a registered exit request', async () => {
     const client = new NativeClient([
       response('The computed answer is 42.'),
@@ -82,7 +97,7 @@ describe('worker completion guidance', () => {
     const correction = String(client.requests[1]?.messages.at(-1)?.content)
 
     expect(correction).toContain('This is a worker task.')
-    expect(correction).toContain('returning exit(name, payload) with a registered exit')
+    expect(correction).toContain('return exit(name, payload) with a registered name')
     expect(correction).not.toContain('Reply with assistant text')
     expect(correction).not.toContain('or an honest final answer')
   })

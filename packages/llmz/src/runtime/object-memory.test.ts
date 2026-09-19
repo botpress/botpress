@@ -1,10 +1,10 @@
 import { z } from '@bpinternal/zui'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Chat } from '../chat.js'
 import { ObjectInstance } from '../objects.js'
 import { Tool } from '../tool.js'
 import { executeContext } from './execute.js'
+import { createRecordingChat } from './fixtures/chat.js'
 import { NativeClient, javascript, response } from './fixtures/native-client.js'
 
 const makeAccount = () =>
@@ -16,7 +16,7 @@ const makeAccount = () =>
     ],
   })
 
-const makeChat = () => new Chat({ handler: () => undefined })
+const makeChat = () => createRecordingChat({ handler: () => undefined })
 
 describe('object properties in session memory', () => {
   test('shows schema, value and access in MEMORY and callable methods in the tool section', async () => {
@@ -52,7 +52,9 @@ describe('object properties in session memory', () => {
     expect(result.session.memory.getBindings().$return).toBe(41)
     expect(result.session.memory.getObjectPropertyValue('account', 'age')).toBe(41)
     expect(result.session.memory.variables).toEqual({})
-    expect(String(client.requests[1]!.messages.at(-1)?.content)).toContain('UPDATED\n- account.age: 41')
+    const feedback = String(client.requests[1]!.messages.at(-1)?.content)
+    expect(feedback).toContain('Updated: account.age')
+    expect(feedback).toContain('`account.age`: 41')
   })
 
   test.each([
@@ -76,7 +78,9 @@ describe('object properties in session memory', () => {
     const result = await executeContext({ client, chat: makeChat(), objects: [makeAccount()] })
 
     expect(result.isSuccess()).toBe(true)
-    expect(String(client.requests[1]!.messages.at(-1)?.content)).toContain('UPDATED\n- account.age: 40')
+    const feedback = String(client.requests[1]!.messages.at(-1)?.content)
+    expect(feedback).toContain('Updated: account.age')
+    expect(feedback).toContain('`account.age`: 40')
     expect(result.session.memory.render({ turn: result.session.turn })).toContain('this turn')
   })
 

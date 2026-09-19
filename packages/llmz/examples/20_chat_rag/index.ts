@@ -105,5 +105,6 @@ while (await chat.iterate()) {
     tools: [rag],
     client,
     chat,
+    session: chat.session,
   })
 }

@@ -1,11 +1,14 @@
 import type { CognitiveMessage, CognitiveToolCall } from '@botpress/cognitive'
 import { ulid } from 'ulid'
 
+import { inspect } from './inspect.js'
 import { Memory } from './memory.js'
 import { type Transcript, TranscriptArray, isVoiceMessage } from './transcript.js'
 
 /** A native message plus opaque adapter fields, preserved without interpreting them. */
 export type SessionMessage = CognitiveMessage & Record<string, unknown>
+
+export type SessionInput = CognitiveMessage | Transcript.Message
 
 export type SessionIteration = {
   id: string
@@ -23,6 +26,11 @@ type HistoryGroup = {
   messages: SessionMessage[]
 }
 
+type PendingInput = {
+  id: string
+  message: SessionMessage
+}
+
 type AssistantResponse = {
   output: string
   toolCalls?: CognitiveToolCall[]
@@ -32,15 +40,15 @@ type AssistantResponse = {
 
 export namespace Session {
   export type JSON = {
-    version: 1
+    version: 2
     id: string
     turn: number
     turnId: string
     iteration: number
     groups: HistoryGroup[]
     memory: ReturnType<Memory['serialize']>
-    transcript: Transcript.Message[]
-    unacknowledgedAssistantText: string[]
+    pendingInputs: PendingInput[]
+    activeTurn: boolean
   }
 }
 
@@ -55,8 +63,8 @@ export class Session {
   #turnId = ''
   #iteration = 0
   #groups: HistoryGroup[] = []
-  #transcript: Transcript.Message[] = []
-  #unacknowledgedAssistantText: string[] = []
+  #pendingInputs: PendingInput[] = []
+  #activeTurn = false
   #locked = false
 
   public constructor(options: { variables?: Record<string, unknown>; maxBytes?: number } = {}) {
@@ -78,6 +86,22 @@ export class Session {
 
   public get messages(): SessionMessage[] {
     return clone(this.#groups.flatMap((group) => group.messages))
+  }
+
+  public get pendingMessages(): SessionMessage[] {
+    return clone(this.#pendingInputs.map((input) => input.message))
+  }
+
+  public get hasActiveTurn(): boolean {
+    return this.#activeTurn
+  }
+
+  public get status(): 'idle' | 'pending' | 'active' {
+    if (this.#activeTurn) {
+      return 'active'
+    }
+
+    return this.#pendingInputs.length ? 'pending' : 'idle'
   }
 
   public get retainedIterationIds(): string[] {
@@ -106,73 +130,49 @@ export class Session {
     }
   }
 
-  /** Accept one logical user/event/worker turn. Tool roundtrips do not call this. */
-  public beginTurn(options: { messages?: CognitiveMessage[]; transcript?: Transcript.Message[] } = {}): void {
-    if (this.pendingCalls.length) {
-      throw new Error('Cannot accept a new turn while native calls are pending. Resolve or reject the snapshot first.')
-    }
+  /**
+   * Queue new input for the next turn. Appending during an execution never
+   * changes the batch currently being processed. Identical messages stay distinct.
+   */
+  public append(input: SessionInput | readonly SessionInput[]): void {
+    const messages: readonly SessionInput[] = Array.isArray(input) ? input : [input as SessionInput]
+    assertPersistableData(messages)
+    const pending = messages.map((message) => ({
+      id: `input_${ulid()}`,
+      message: normalizeInput(message),
+    }))
 
-    const input = options.messages ?? []
-
-    for (const message of input) {
-      validateInputMessage(message)
-    }
-
-    const messages = input.map(asSessionMessage)
-    const previous = { turn: this.#turn, turnId: this.#turnId }
-    this.#turn++
-    this.#turnId = `turn_${ulid()}`
-
-    try {
-      if (options.transcript) {
-        this.reconcileTranscript(options.transcript)
-      }
-
-      if (messages.length) {
-        this.#appendInput(messages)
-      }
-    } catch (error) {
-      this.#turn = previous.turn
-      this.#turnId = previous.turnId
-      throw error
-    }
+    this.#pendingInputs.push(...pending)
   }
 
-  /**
-   * Ingest a host's full chat projection. A delivered assistant answer already in
-   * canonical history is acknowledged, not inserted again. Repeated snapshots
-   * and a host that drops an old prefix are both supported.
-   */
-  public reconcileTranscript(transcript: Transcript.Message[]): void {
-    const validated = [...new TranscriptArray(transcript)]
-    const overlap = overlappingPrefix(this.#transcript, validated)
-    const additions = validated.slice(overlap)
-    const assistantText = [...this.#unacknowledgedAssistantText]
-    const messages: SessionMessage[] = []
-
-    for (const message of additions) {
-      if (message.role === 'assistant') {
-        const matched = assistantText.indexOf(message.content)
-
-        if (matched >= 0) {
-          assistantText.splice(matched, 1)
-          continue
-        }
-      }
-
-      messages.push(transcriptMessage(message))
+  /** Claim queued input, or continue the current turn after a failed execution. */
+  public beginTurn(): void {
+    if (this.pendingCalls.length) {
+      throw new Error('Cannot begin a turn while native calls are pending. Await the active execution first.')
     }
 
-    if (messages.length && this.pendingCalls.length) {
-      throw new Error('Cannot insert transcript input between a native call and its pending result.')
+    if (this.#activeTurn) {
+      return
     }
 
-    if (messages.length) {
-      this.#appendInput(messages)
+    this.#turn++
+    this.#turnId = `turn_${ulid()}`
+    this.#activeTurn = true
+
+    for (const input of this.#pendingInputs) {
+      this.#groups.push({ id: input.id, turn: this.#turn, settled: true, messages: [input.message] })
     }
 
-    this.#transcript = clone(validated)
-    this.#unacknowledgedAssistantText = assistantText
+    this.#pendingInputs = []
+  }
+
+  /** Mark the active input batch complete without consuming newly queued input. */
+  public completeTurn(): void {
+    if (this.#groups.some((group) => !group.settled)) {
+      throw new Error('Cannot complete a turn with pending iterations. Await the active execution first.')
+    }
+
+    this.#activeTurn = false
   }
 
   public nextIteration(id = `iteration_${ulid()}`): SessionIteration {
@@ -184,9 +184,7 @@ export class Session {
       throw new Error(`Duplicate iteration id: ${id}`)
     }
 
-    if (!this.#turn) {
-      this.beginTurn()
-    }
+    this.beginTurn()
 
     const iteration = { id, number: ++this.#iteration, turn: this.#turn, turnId: this.#turnId, timestamp: Date.now() }
     this.#groups.push({ id, turn: this.#turn, iteration, settled: false, messages: [] })
@@ -249,11 +247,6 @@ export class Session {
     }
 
     group.messages.push(message)
-
-    // Host chat projections normally store delivered text, not native tool calls.
-    if (response.output) {
-      this.#unacknowledgedAssistantText.push(response.output)
-    }
   }
 
   public appendToolResult(iterationId: string, callId: string, content: string): void {
@@ -355,21 +348,25 @@ export class Session {
   }
 
   public toJSON(): Session.JSON {
+    if (this.#locked || this.#groups.some((group) => !group.settled)) {
+      throw new Error('Cannot serialize a session during an in-flight execution. Await execution before saving it.')
+    }
+
     return {
-      version: 1,
+      version: 2,
       id: this.id,
       turn: this.#turn,
       turnId: this.#turnId,
       iteration: this.#iteration,
       groups: clone(this.#groups),
       memory: this.memory.serialize(),
-      transcript: clone(this.#transcript),
-      unacknowledgedAssistantText: [...this.#unacknowledgedAssistantText],
+      pendingInputs: clone(this.#pendingInputs),
+      activeTurn: this.#activeTurn,
     }
   }
 
   public static fromJSON(state: Session.JSON): Session {
-    if (state.version !== 1) {
+    if (state.version !== 2) {
       throw new Error(`Unsupported LLMz session version: ${state.version}`)
     }
 
@@ -380,15 +377,9 @@ export class Session {
     session.#turnId = state.turnId
     session.#iteration = state.iteration
     session.#groups = clone(state.groups)
-    session.#transcript = clone(state.transcript)
-    session.#unacknowledgedAssistantText = [...state.unacknowledgedAssistantText]
+    session.#pendingInputs = clone(state.pendingInputs)
+    session.#activeTurn = state.activeTurn
     validateRestoredHistory(state, session.memory)
-
-    const pendingGroup = session.#groups.findIndex((group) => pendingCallIds(group).length)
-
-    if (pendingGroup >= 0 && pendingGroup !== session.#groups.length - 1) {
-      throw new Error('An unresolved native call must be the final history group.')
-    }
 
     return session
   }
@@ -410,6 +401,60 @@ export class Session {
 
 function asSessionMessage(message: CognitiveMessage): SessionMessage {
   return clone(message) as SessionMessage
+}
+
+function normalizeInput(message: SessionInput): SessionMessage {
+  assertPersistableData(message)
+
+  if (!message || typeof message !== 'object' || Array.isArray(message)) {
+    throw new Error('Session input must be a message object.')
+  }
+
+  validateInputToolCalls(message as CognitiveMessage)
+
+  const extended =
+    message.role === 'event' || message.role === 'summary' || 'attachments' in message || 'modality' in message
+
+  if (!extended) {
+    validateInputMessage(message as CognitiveMessage)
+
+    return asSessionMessage(message as CognitiveMessage)
+  }
+
+  const transcript = message as Transcript.Message
+  new TranscriptArray([transcript])
+
+  if (transcript.role === 'event') {
+    if (typeof transcript.name !== 'string' || !transcript.name.length || !('payload' in transcript)) {
+      throw new Error('Event messages require a name and payload.')
+    }
+  } else if (typeof transcript.content !== 'string') {
+    throw new Error('Transcript message content must be a string.')
+  }
+
+  if ('attachments' in transcript && transcript.attachments !== undefined) {
+    if (!Array.isArray(transcript.attachments)) {
+      throw new Error('Message attachments must be an array.')
+    }
+
+    for (const attachment of transcript.attachments) {
+      if (
+        !attachment ||
+        !['image', 'audio'].includes(attachment.type) ||
+        typeof attachment.url !== 'string' ||
+        !attachment.url.length ||
+        (attachment.id !== undefined && typeof attachment.id !== 'string') ||
+        (attachment.alt !== undefined && typeof attachment.alt !== 'string')
+      ) {
+        throw new Error('Message attachments require an image or audio type and a URL.')
+      }
+    }
+  }
+
+  const normalized = transcriptMessage(transcript)
+  validateInputMessage(normalized)
+
+  return normalized
 }
 
 function createAssistantMessage(response: AssistantResponse): SessionMessage {
@@ -469,17 +514,55 @@ function pendingCallIds(group: HistoryGroup): string[] {
 }
 
 function validateInputMessage(message: CognitiveMessage): void {
+  if (!message || typeof message !== 'object' || Array.isArray(message)) {
+    throw new Error('Session input must be a message object.')
+  }
+
   if (message.role === 'system') {
     throw new Error('Session input cannot contain system messages. Supply execute instructions instead.')
   }
 
-  if (message.toolCalls?.length || message.type === 'tool_result' || message.toolResultCallId) {
+  validateInputToolCalls(message)
+
+  if (!['user', 'assistant'].includes(message.role)) {
+    throw new Error(`Invalid session message role: ${message.role}`)
+  }
+
+  if (message.type !== undefined && !['text', 'multipart'].includes(message.type)) {
+    throw new Error(`Invalid session message type: ${message.type}`)
+  }
+
+  if (typeof message.content !== 'string' && message.content !== null && !Array.isArray(message.content)) {
+    throw new Error('Native message content must be text, multipart content, or null.')
+  }
+
+  if (Array.isArray(message.content)) {
+    for (const part of message.content) {
+      if (
+        !part ||
+        (part.type === 'text'
+          ? typeof part.text !== 'string'
+          : !['image', 'audio'].includes(part.type) || typeof part.url !== 'string' || !part.url.length)
+      ) {
+        throw new Error('Native content parts require text or an image/audio URL.')
+      }
+    }
+  }
+
+  assertPersistableData(message)
+}
+
+function validateInputToolCalls(message: CognitiveMessage): void {
+  if (
+    message.toolCalls?.length ||
+    message.type === 'tool_calls' ||
+    message.type === 'tool_result' ||
+    message.toolResultCallId
+  ) {
     throw new Error(
       'New session input cannot contain tool calls/results. Restore a serialized Session to continue native history.'
     )
   }
-
-  assertPersistableData(message)
 }
 
 /** Native provider payloads must survive the advertised JSON persistence API. */
@@ -591,6 +674,10 @@ function validateRestoredHistory(state: Session.JSON, memory: Memory): void {
     throw new Error('Session turn and iteration counters must be non-negative safe integers')
   }
 
+  if (typeof state.activeTurn !== 'boolean' || (state.activeTurn && (!state.turn || !state.turnId))) {
+    throw new Error('Session processing state must identify an active turn.')
+  }
+
   const groupIds = new Set<string>()
   const callIds = new Set<string>()
   const iterations = new Map<string, SessionIteration>()
@@ -622,6 +709,10 @@ function validateRestoredHistory(state: Session.JSON, memory: Memory): void {
       }
     }
 
+    if (group.settled !== true) {
+      throw new Error('Cannot restore a session with an unsettled iteration. Save sessions after execution finishes.')
+    }
+
     if (!group.iteration) {
       continue
     }
@@ -639,6 +730,15 @@ function validateRestoredHistory(state: Session.JSON, memory: Memory): void {
 
     previousIteration = iteration.number
     iterations.set(iteration.id, iteration)
+  }
+
+  for (const input of state.pendingInputs) {
+    if (!input.id || groupIds.has(input.id)) {
+      throw new Error(`Missing or duplicate queued input identity: ${input.id}`)
+    }
+
+    groupIds.add(input.id)
+    validateInputMessage(input.message)
   }
 
   let previousMemoryIteration = Number.POSITIVE_INFINITY
@@ -662,31 +762,12 @@ function validateRestoredHistory(state: Session.JSON, memory: Memory): void {
   }
 }
 
-/** Overlap is positional, so identical user messages in new turns stay distinct. */
-function overlappingPrefix(previous: Transcript.Message[], next: Transcript.Message[]): number {
-  const before = previous.map((message) => JSON.stringify(message))
-  const after = next.map((message) => JSON.stringify(message))
-
-  for (let count = Math.min(before.length, after.length); count > 0; count--) {
-    if (before.slice(-count).every((value, index) => value === after[index])) {
-      return count
-    }
-  }
-
-  if (previous.length && next.length) {
-    throw new Error(
-      'Host transcript changed without an overlapping retained prefix. Use explicit new messages or a new Session.'
-    )
-  }
-
-  return 0
-}
-
 function transcriptMessage(message: Transcript.Message): SessionMessage {
   let content: string
 
   if (message.role === 'event') {
-    content = `External event ${JSON.stringify(message.name)}:\n${JSON.stringify(message.payload)}`
+    const payload = inspect(message.payload, undefined, { tokens: 5000 })
+    content = `External event ${JSON.stringify(message.name)}:\n${payload}`
   } else if (message.role === 'summary') {
     content = `Conversation summary:\n${message.content}`
   } else {

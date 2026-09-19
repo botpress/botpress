@@ -1,34 +1,38 @@
 import ms from 'ms'
 import { ulid } from 'ulid'
 
-import { Chat } from '../chat.js'
 import { Iteration } from '../context.js'
-import { Signals, SnapshotSignal, ThinkSignal } from '../errors.js'
-import { type Tool } from '../tool.js'
+import { ThinkSignal } from '../errors.js'
+import { type Tool, type ComponentDelivery } from '../tool.js'
+import type { TruncationPolicy } from '../truncate.js'
 import { Trace } from '../types.js'
 import { ExecutionHooks } from './types.js'
 
 const SLOW_TOOL_WARNING = ms('15s')
 
 type ToolWrapperProps = {
-  chat?: Chat
+  onYield?: ComponentDelivery
   tool: Tool
   object?: string
   traces: Trace[]
   iteration: Iteration
   beforeHook?: ExecutionHooks['onBeforeTool']
   afterHook?: ExecutionHooks['onAfterTool']
+  onTruncation?: (value: unknown, policy: TruncationPolicy) => void
+  onResult?: (value: unknown) => void
   controller: AbortController
 }
 
 export function wrapTool({
-  chat,
+  onYield,
   tool,
   traces,
   object,
   iteration,
   beforeHook,
   afterHook,
+  onTruncation,
+  onResult,
   controller,
 }: ToolWrapperProps) {
   const getToolInput = (input: any) => (tool.zInput as any).safeParse(input).data ?? input
@@ -78,17 +82,6 @@ export function wrapTool({
     const handleSignals = async (err: unknown) => {
       if (output === err) {
         return true
-      }
-
-      if (err instanceof SnapshotSignal) {
-        err.toolCall = {
-          id: toolCallId,
-          name: tool.name,
-          inputSchema: tool.input,
-          outputSchema: tool.output,
-          input: originalInput,
-        }
-        err.message = Signals.serializeError(err)
       }
 
       if (err instanceof ThinkSignal) {
@@ -148,8 +141,9 @@ export function wrapTool({
           callId: toolCallId,
           iterationId: iteration.id,
           nativeCallId: iteration.nativeCallId,
+          onTruncation,
         },
-        chat
+        onYield
       )
 
       const afterRes = await afterHook?.({
@@ -184,6 +178,7 @@ export function wrapTool({
       throw signalToThrow
     }
 
+    onResult?.(output)
     return output
   }
 }

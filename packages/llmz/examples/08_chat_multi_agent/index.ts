@@ -57,14 +57,18 @@ while (true) {
     ...orchestrator.context,
     client,
     chat,
+    session: chat.session,
   })
 
-  // Check if the current agent has handed off control to another agent
-  if (!orchestrator.hasHandedOff(result)) {
-    // No handoff occurred - continue with user input
-    // Wait for the next user message to continue the conversation
+  if (orchestrator.hasHandedOff(result)) {
+    // The orchestrator already selected the next agent. Queue its new work
+    // explicitly; the session retains the user's request and handoff result.
+    chat.session.append({
+      role: 'event',
+      name: 'agentHandoff',
+      payload: { agent: orchestrator.currentAgent.name },
+    })
+  } else {
     await chat.prompt()
   }
-  // If handoff occurred, the orchestrator has already switched contexts
-  // Continue the loop with the new agent's configuration
 }

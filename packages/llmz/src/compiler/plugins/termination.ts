@@ -4,7 +4,7 @@ export const TerminationGuardIdentifier = '__llmz_guard'
 export const TerminationCheckpointIdentifier = '__llmz_checkpoint'
 
 const FUNCTIONS = new Set(['FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression'])
-const INTERNAL_CALLS = new Set(['__var__', '__toolc__', '__track__', '__comment__'])
+const INTERNAL_CALLS = new Set(['__var__', '__track__', '__comment__'])
 
 /**
  * A terminal host call unwinds ordinary JavaScript. User error handlers must not
@@ -40,15 +40,7 @@ export function applyTerminationGuards(ctx: Ctx): () => void {
     }
 
     if (node.type === 'CatchClause') {
-      const first = node.body.body[0]
-      const recordsToolCompletion =
-        first?.type === 'ExpressionStatement' &&
-        first.expression.type === 'CallExpression' &&
-        first.expression.callee.name === '__toolc__'
-
-      // Compiler catches preserve snapshot assignment ownership before their
-      // next guarded operation unwinds. User catches stop before their body.
-      ctx.ms.appendLeft(recordsToolCompletion ? first.end : node.body.start + 1, guard)
+      ctx.ms.appendLeft(node.body.start + 1, guard)
       return
     }
 

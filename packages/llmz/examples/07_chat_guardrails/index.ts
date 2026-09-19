@@ -52,6 +52,7 @@ while (await chat.iterate()) {
   await execute({
     client,
     chat,
+    session: chat.session,
     instructions: 'You are a helpful assistant. Greet the user and suggest topics for discussion using buttons.',
 
     // Pre-execution safety validation

@@ -1,15 +1,17 @@
 import { z } from '@bpinternal/zui'
 import { beforeAll, beforeEach, afterAll, assert, describe, expect, it } from 'vitest'
-import * as llmz from '../src/runtime/execute.js'
-import { Tool } from '../src/tool.js'
-import { Exit } from '../src/exit.js'
+
+import { Chat, MessageDelta } from '../src/chat.js'
 import { ListenExit } from '../src/context.js'
 import { ThinkSignal } from '../src/errors.js'
 import { ExecutionResult, SuccessExecutionResult } from '../src/result.js'
+import * as llmz from '../src/runtime/execute.js'
+import { Tool } from '../src/tool.js'
+import { Session } from '../src/session.js'
+import type { Response } from '../src/response.js'
+
+import { createTestChat } from './__tests__/chat.js'
 import { getCachedCognitiveClient } from './__tests__/index.js'
-import { Component } from '../src/component.js'
-import { Chat, MessageDelta } from '../src/chat.js'
-import { TranscriptArray } from '../src/transcript.js'
 
 const client = getCachedCognitiveClient()
 
@@ -30,7 +32,7 @@ describe('chat mode code snippets', { retry: 0, timeout: 60_000 }, () => {
   let chat: Chat
   let messagesSent: string[]
   let expectedSnippets: string[]
-  let transcript: TranscriptArray
+  let session: Session
 
   beforeAll(() => {
     unsub = client.on('error', (req, err) => {
@@ -42,45 +44,20 @@ describe('chat mode code snippets', { retry: 0, timeout: 60_000 }, () => {
     unsub()
   })
 
-  const MarkdownComponent = new Component({
-    name: 'Markdown',
-    aliases: [],
-    type: 'default',
-    description: 'Renders markdown content',
-    default: {
-      props: z.object({}),
-      children: [],
-    },
-    examples: [
-      {
-        code: '<Markdown>Here is some text.</Markdown>',
-        description: 'Simple markdown component',
-        name: 'Simple Markdown',
+  const createChat = (response: Response): Chat =>
+    createTestChat({
+      response,
+      onMessage: async (component) => {
+        assert(component.type === 'text', 'Expected an assistant text response')
+        messagesSent.push(component.text)
       },
-    ],
-  })
+    })
 
   beforeEach(() => {
     messagesSent = []
     expectedSnippets = []
-    transcript = new TranscriptArray()
-    chat = new Chat({
-      transcript,
-      components: [MarkdownComponent],
-      handler: async (component) => {
-        const appendTextChildren = (c: any) => {
-          if (typeof c === 'string') {
-            return c
-          }
-          if (Array.isArray(c.children)) {
-            return c.children.map(appendTextChildren).flat()
-          }
-          return []
-        }
-
-        messagesSent.push(appendTextChildren(component).join(''))
-      },
-    })
+    session = new Session()
+    chat = createChat({ preset: 'markdown', examples: ['Here is some text.'] })
   })
 
   describe('HTML and JavaScript code snippets', () => {
@@ -140,7 +117,7 @@ Key points:
         },
       })
 
-      transcript.push({
+      session.append({
         role: 'user',
         content: 'How do I create a React component with state?',
       })
@@ -149,6 +126,7 @@ Key points:
         instructions:
           'Retrieve the relevant documentation and answer with its full code examples copied unchanged. Preserve every character inside the examples, including escapes. You may add a brief explanation outside the code blocks.',
         chat,
+        session,
         options: { loop: 5 },
         tools: [tGetDocs],
         client,
@@ -231,13 +209,14 @@ Special characters handled:
         },
       })
 
-      transcript.push({
+      session.append({
         role: 'user',
         content: 'How do I create HTML forms?',
       })
 
       const result = await llmz.executeContext({
         chat,
+        session,
         instructions:
           'Retrieve the relevant documentation and answer with its full code examples copied unchanged. Preserve every character inside the examples, including escapes. You may add a brief explanation outside the code blocks.',
         options: { loop: 5 },
@@ -328,13 +307,14 @@ Features demonstrated:
         },
       })
 
-      transcript.push({
+      session.append({
         role: 'user',
         content: 'What are advanced TypeScript types?',
       })
 
       const result = await llmz.executeContext({
         chat,
+        session,
         instructions:
           'Retrieve the relevant documentation and answer with its full code examples copied unchanged. Preserve every character inside the examples, including escapes. You may add a brief explanation outside the code blocks.',
         options: { loop: 5 },
@@ -424,13 +404,14 @@ Key syntax:
         },
       })
 
-      transcript.push({
+      session.append({
         role: 'user',
         content: 'How do I write SQL queries?',
       })
 
       const result = await llmz.executeContext({
         chat,
+        session,
         instructions:
           'Retrieve the relevant documentation and answer with its full code examples copied unchanged. Preserve every character inside the examples, including escapes. You may add a brief explanation outside the code blocks.',
         options: { loop: 5 },
@@ -533,13 +514,14 @@ Important syntax:
         },
       })
 
-      transcript.push({
+      session.append({
         role: 'user',
         content: 'How do I write Bash scripts?',
       })
 
       const result = await llmz.executeContext({
         chat,
+        session,
         instructions:
           'Retrieve the relevant documentation and answer with its full code examples copied unchanged. Preserve every character inside the examples, including escapes. You may add a brief explanation outside the code blocks.',
         options: { loop: 5 },
@@ -638,15 +620,22 @@ String types:
         },
       })
 
-      transcript.push({
+      session.append({
         role: 'user',
-        content: 'How do I use Python string formatting?',
+        content:
+          'Fetch the Python string-formatting example and show its exact source code. I need to copy and paste the original; do not explain or rewrite it.',
       })
 
       const result = await llmz.executeContext({
-        chat,
-        instructions:
-          'Retrieve the relevant documentation and answer with its full code examples copied unchanged. Preserve every character inside the examples, including escapes. You may add a brief explanation outside the code blocks.',
+        chat: createChat({
+          preset: 'markdown',
+          instructions: `Respond with only the supplied code example in a Python code block.
+Transcribe the source verbatim, preserving indentation, blank lines, escapes, repeated patterns, and punctuation.
+Do not correct, expand, simplify, or reformat the supplied code. Do not add explanations or additional examples.`,
+          examples: [],
+        }),
+        session,
+        instructions: 'Retrieve the Python documentation and reproduce its complete original code example.',
         options: { loop: 5 },
 
         tools: [tGetDocs],
@@ -740,13 +729,14 @@ Escaping rules:
         },
       })
 
-      transcript.push({
+      session.append({
         role: 'user',
         content: 'How do I work with JSON?',
       })
 
       const result = await llmz.executeContext({
         chat,
+        session,
         instructions:
           'Retrieve the relevant documentation and answer with its full code examples copied unchanged. Preserve every character inside the examples, including escapes. You may add a brief explanation outside the code blocks.',
         options: { loop: 5 },
@@ -851,13 +841,14 @@ Special CSS features:
         },
       })
 
-      transcript.push({
+      session.append({
         role: 'user',
         content: 'How do I write CSS selectors?',
       })
 
       const result = await llmz.executeContext({
         chat,
+        session,
         instructions:
           'Retrieve the relevant documentation and answer with its full code examples copied unchanged. Preserve every character inside the examples, including escapes. You may add a brief explanation outside the code blocks.',
         options: { loop: 5 },
@@ -958,13 +949,14 @@ Markdown features:
         },
       })
 
-      transcript.push({
+      session.append({
         role: 'user',
         content: 'How do I use Markdown syntax?',
       })
 
       const result = await llmz.executeContext({
         chat,
+        session,
         instructions:
           'Retrieve the relevant documentation and answer with its full code examples copied unchanged. Preserve every character inside the examples, including escapes. You may add a brief explanation outside the code blocks.',
         options: { loop: 5 },
@@ -1026,23 +1018,21 @@ Markdown features:
         },
       })
 
-      transcript.push({
+      session.append({
         role: 'user',
-        content: 'Search for products and show me the results',
+        content: 'Search for Product A and show me the results',
       })
 
       const result = await llmz.executeContext({
-        instructions: `You are an assistant that MUST format all responses using rich HTML.
-
-IMPORTANT RULES:
-- Use <strong> tags for important text
-- Use <em> for emphasis
-- Use <a href=""> for links
-- Use <p> tags for paragraphs
-- When displaying search results, show them EXACTLY as they appear, preserving all HTML tags
-- Do NOT escape or modify any HTML tags in the search results
-- Make your responses visually rich with nested HTML elements`,
-        chat,
+        instructions: 'Search for the requested product and display every returned result.',
+        chat: createChat({
+          instructions: `Write raw HTML directly in the assistant response.
+Display every search result exactly as supplied, preserving its HTML tags, attributes, entities, and text.
+Use HTML tags for any added paragraphs, emphasis, or links. Do not escape, decode, or replace the supplied HTML.
+Additional wrapper elements may surround each unchanged result. Do not use Markdown fences.`,
+          examples: [],
+        }),
+        session,
         options: { loop: 5 },
         tools: [tSearch],
         client,
@@ -1095,24 +1085,22 @@ IMPORTANT RULES:
         },
       })
 
-      transcript.push({
+      session.append({
         role: 'user',
         content: 'Get content with ID "article-1" and display it',
       })
 
       const result = await llmz.executeContext({
-        instructions: `You are a content display system with STRICT REQUIREMENTS:
-
-1. Display all HTML exactly as received - DO NOT modify or escape anything
-2. Preserve all HTML entities like &amp; &lt; &gt; &quot; &apos; &rarr;
-3. Keep all tags intact: <div>, <h1>, <p>, <ul>, <li>, <a>, <strong>
-4. Maintain proper nesting and structure
-5. Show everything "as-is" without interpretation
-6. Use rich HTML formatting in your own responses too
-7. Wrap content in additional HTML for better presentation
-
-CRITICAL: The user expects to see HTML tags rendered, not as plain text!`,
-        chat,
+        instructions: 'Retrieve the requested article and display its complete HTML.',
+        chat: createChat({
+          instructions: `Write raw HTML directly in the assistant response.
+Copy the complete supplied HTML verbatim, preserving tags, attributes, entities, indentation, and line breaks.
+Do not decode or re-escape entities, correct markup, or reindent the source.
+An outer HTML wrapper is allowed only on separate lines, without changing the supplied HTML's indentation.
+Do not use Markdown fences.`,
+          examples: [],
+        }),
+        session,
         options: { loop: 5 },
         tools: [tGetContent],
         client,
@@ -1178,29 +1166,22 @@ function Button({ label }) {
         },
       })
 
-      transcript.push({
+      session.append({
         role: 'user',
         content: 'Show me code examples for HTML templating',
       })
 
       const result = await llmz.executeContext({
-        instructions: `You are a coding tutor with these EXACT requirements:
-
-FORMAT RULES:
-- Surround ALL your responses with HTML tags like <div>, <section>, <article>
-- Use <code> and <pre> tags for code snippets
-- Use <strong> and <em> for emphasis
-- Create nested HTML structures for better organization
-
-CONTENT DISPLAY RULES:
-- When you receive examples from tools, display them EXACTLY as-is
-- Preserve all HTML tags: <div>, <code>, <pre>, <ul>, <li>, etc.
-- Preserve all HTML entities: &lt; &gt; &amp; &quot; etc.
-- DO NOT escape or modify the HTML - show it raw
-- The examples contain both HTML structure AND code - keep both
-
-CRITICAL: Your output must be valid HTML that includes the raw HTML from the examples!`,
-        chat,
+        instructions: 'Retrieve the HTML templating examples and display all of them in their original order.',
+        chat: createChat({
+          instructions: `Write raw HTML directly in the assistant response.
+Copy every supplied example verbatim, preserving tags, entities, attributes, punctuation, indentation, and line breaks.
+Whitespace inside code and pre elements is part of the source: do not reindent or reformat it.
+Keep template expressions and escaped entities exactly as supplied, without evaluating, correcting, or decoding them.
+Place any additional HTML wrapper on separate lines without changing the examples. Do not use Markdown fences.`,
+          examples: [],
+        }),
+        session,
         options: { loop: 5 },
         tools: [tGetExamples],
         client,
@@ -1260,7 +1241,7 @@ CRITICAL: Your output must be valid HTML that includes the raw HTML from the exa
         },
       })
 
-      transcript.push({
+      session.append({
         role: 'user',
         content: 'Show me HTML templates with template literals (call getTemplates)',
       })
@@ -1288,6 +1269,7 @@ CRITICAL REQUIREMENTS:
 
 This is for EDUCATIONAL purposes - show real-world template patterns!`,
         chat,
+        session,
         options: { loop: 5 },
         tools: [tGetTemplates],
         client,
@@ -1359,7 +1341,7 @@ function addToCart(itemId) {
         },
       })
 
-      transcript.push({
+      session.append({
         role: 'user',
         content: 'Get me a shopping cart widget',
       })
@@ -1387,6 +1369,7 @@ DISPLAY RULES:
 
 IMPORTANT: This is production code - show it EXACTLY as-is with all HTML tags and syntax!`,
         chat,
+        session,
         options: { loop: 5 },
         tools: [tGetWidget],
         client,
@@ -1409,42 +1392,25 @@ IMPORTANT: This is production code - show it EXACTLY as-is with all HTML tags an
 })
 
 describe('message streaming', { retry: 0, timeout: 60_000 }, () => {
-  const StreamMarkdown = new Component({
-    name: 'Markdown',
-    aliases: [],
-    type: 'default',
-    description: 'Renders markdown content',
-    default: {
-      props: z.object({}),
-      children: [],
-    },
-    examples: [
-      {
-        code: '<Markdown>Here is some text.</Markdown>',
-        description: 'Simple markdown component',
-        name: 'Simple Markdown',
-      },
-    ],
-  })
-
   it('streams message chunks to the client as they arrive from cognitive', async () => {
     const deltas: MessageDelta[] = []
     const messagesSent: string[] = []
 
-    const transcript = new TranscriptArray([
+    const session = new Session()
+    session.append([
       {
         role: 'user',
         content: 'Please tell me a short story (about two paragraphs) about a brave corgi named Biscuit.',
       },
     ])
 
-    const chat = new Chat({
-      transcript,
-      components: [StreamMarkdown],
-      handler: async (component) => {
-        messagesSent.push(component.children.map((c) => (typeof c === 'string' ? c : '')).join(''))
+    const chat = createTestChat({
+      response: 'markdown',
+      onMessage: async (component) => {
+        assert(component.type === 'text', 'Expected an assistant text response')
+        messagesSent.push(component.text)
       },
-      onMessageDelta: (delta) => {
+      onDelta: (delta) => {
         deltas.push(delta)
       },
     })
@@ -1452,6 +1418,7 @@ describe('message streaming', { retry: 0, timeout: 60_000 }, () => {
     const result = await llmz.executeContext({
       instructions: 'Answer the user request directly.',
       chat,
+      session,
       options: { loop: 3 },
       client,
     })

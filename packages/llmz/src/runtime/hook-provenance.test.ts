@@ -1,9 +1,7 @@
 import { z } from '@bpinternal/zui'
 import { describe, expect, test, vi } from 'vitest'
 
-import { SnapshotSignal } from '../errors.js'
 import { Exit } from '../exit.js'
-import { Snapshot } from '../snapshots.js'
 import { Tool } from '../tool.js'
 import { executeContext } from './execute.js'
 import { renderExecutionOverride } from './execution-report.js'
@@ -56,51 +54,12 @@ describe('execution hook source provenance', () => {
       expect(feedback).toContain(replacement)
       expect(feedback).toContain('No exit was applied')
       expect(feedback).toContain('Do not call the originally requested business tools merely to compensate')
-      expect(feedback).toContain('BUSINESS CALL OUTCOMES')
-      expect(feedback).toContain('modified (')
+      expect(feedback).toContain('Tools called')
+      expect(feedback).toContain('modified(): succeeded')
       expect(feedback).toContain('modified')
       expect(result.iterations[0]!.code).toBe(replacement)
     }
   )
-
-  test('retains override provenance through a persisted snapshot and resume', async () => {
-    const original = vi.fn()
-    const modified = vi.fn(() => {
-      throw new SnapshotSignal('The replacement operation is pending.')
-    })
-    const requested = 'const result = await original(); return exit("done", result);'
-    const replacement = 'const res = await modified(); return { value: res.value };'
-    const tools = [new Tool({ name: 'original', handler: original }), new Tool({ name: 'modified', handler: modified })]
-    const first = await executeContext({
-      client: new NativeClient([javascript(requested)]),
-      exits: [done],
-      tools,
-      onBeforeExecution: async () => ({ code: replacement }),
-    })
-
-    if (!first.isInterrupted()) {
-      throw new Error('Expected a snapshot from the replacement program.')
-    }
-
-    const snapshot = Snapshot.fromJSON(JSON.parse(JSON.stringify(first.snapshot)))
-    expect(snapshot.pendingCall?.executionOverride).toContain('EXECUTION OVERRIDE')
-    expect(snapshot.pendingCall?.executionOverride).toContain(replacement)
-    snapshot.resolve({ value: 'settled replacement' })
-    const client = new NativeClient([javascript('return exit("done", res);')])
-
-    const resumed = await executeContext({ client, snapshot, tools, exits: [done] })
-
-    expect(resumed.is(done)).toBe(true)
-    expect(resumed.output).toEqual({ value: 'settled replacement' })
-    expect(original).not.toHaveBeenCalled()
-    expect(modified).toHaveBeenCalledOnce()
-
-    const feedback = client.requests[0]!.messages.find((message) => message.toolResultCallId)?.content
-
-    expect(feedback).toContain('EXECUTION OVERRIDE')
-    expect(feedback).toContain('remaining statements did not run')
-    expect(feedback).toContain('Do not replay the requested program')
-  })
 
   test('does not claim replacement for identical source and bounds source previews', () => {
     expect(renderExecutionOverride('return 42;', 'return 42;')).toBeUndefined()

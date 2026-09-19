@@ -1,14 +1,12 @@
 import { Context, Iteration } from './context.js'
-import { SnapshotSignal } from './errors.js'
 import { Exit, ExitResult } from './exit.js'
 import type { Session } from './session.js'
-import { Snapshot } from './snapshots.js'
 import { Serializable } from './types.js'
 
-type ExecutionStatus = 'success' | 'error' | 'interrupted'
+type ExecutionStatus = 'success' | 'error'
 
 export namespace ExecutionResult {
-  export type JSON = SuccessExecutionResult.JSON | ErrorExecutionResult.JSON | PartialExecutionResult.JSON
+  export type JSON = SuccessExecutionResult.JSON | ErrorExecutionResult.JSON
 }
 
 /**
@@ -20,10 +18,9 @@ export namespace ExecutionResult {
  *
  * ## Result Types
  *
- * LLMz execution can result in three different outcomes:
+ * LLMz execution can result in two different outcomes:
  * - **Success**: Agent completed with an Exit (SuccessExecutionResult)
  * - **Error**: Execution failed with an unrecoverable error (ErrorExecutionResult)
- * - **Interrupted**: Execution was paused for snapshots or cancellation (PartialExecutionResult)
  *
  * ## Usage Patterns
  *
@@ -38,8 +35,6 @@ export namespace ExecutionResult {
  *   console.log('Success:', result.output)
  * } else if (result.isError()) {
  *   console.error('Error:', result.error)
- * } else if (result.isInterrupted()) {
- *   console.log('Interrupted - snapshot available:', !!result.snapshot)
  * }
  * ```
  *
@@ -82,30 +77,8 @@ export namespace ExecutionResult {
  * }
  * ```
  *
- * ### Snapshot Handling
- * ```typescript
- * if (result.isInterrupted()) {
- *   // Serialize snapshot for persistence
- *   const serialized = result.snapshot.toJSON()
- *   await database.saveSnapshot(serialized)
- *
- *   // Later, resume from snapshot
- *   const snapshot = Snapshot.fromJSON(serialized)
- *   snapshot.resolve({ data: 'resolved data' })
- *
- *   const continuation = await execute({
- *     snapshot,
- *     instructions: result.context.instructions,
- *     tools: result.context.tools,
- *     exits: result.context.exits,
- *     client,
- *   })
- * }
- * ```
- *
  * @see {@link SuccessExecutionResult} For successful execution results
  * @see {@link ErrorExecutionResult} For failed execution results
- * @see {@link PartialExecutionResult} For interrupted execution results
  */
 export abstract class ExecutionResult implements Serializable<ExecutionResult.JSON> {
   public readonly status: ExecutionStatus
@@ -157,30 +130,6 @@ export abstract class ExecutionResult implements Serializable<ExecutionResult.JS
    */
   public isError(): this is ErrorExecutionResult {
     return this.status === 'error' && this instanceof ErrorExecutionResult
-  }
-
-  /**
-   * Type guard to check if the execution was interrupted.
-   * Interrupted means there's a snapshot available and the execution was paused and needs resuming.
-   *
-   * @returns True if the execution was interrupted, false otherwise
-   * @example
-   * ```typescript
-   * const result = await execute({ ... })
-   *
-   * if (result.isInterrupted()) {
-   *   // TypeScript knows this is PartialExecutionResult
-   *   console.log('Execution paused:', result.signal.message)
-   *
-   *   // Access snapshot for later resumption
-   *   const snapshot = result.snapshot
-   *   const serialized = snapshot.toJSON()
-   *   await storage.save('execution-state', serialized)
-   * }
-   * ```
-   */
-  public isInterrupted(): this is PartialExecutionResult {
-    return this.status === 'interrupted' && this instanceof PartialExecutionResult
   }
 
   /**
@@ -534,108 +483,5 @@ export class ErrorExecutionResult extends ExecutionResult implements Serializabl
       context: this.context.toJSON(),
       error: this.error,
     } satisfies ErrorExecutionResult.JSON
-  }
-}
-
-export namespace PartialExecutionResult {
-  export type JSON = {
-    status: 'interrupted'
-    context: Context.JSON
-    snapshot: Snapshot.JSON
-    signal: {
-      message: string
-      truncatedCode?: string
-      variables: Record<string, any>
-    }
-  }
-}
-
-/**
- * Result for executions that were interrupted before completion.
- *
- * PartialExecutionResult indicates that a snapshot was created during the execution.
- * Interrupted executions can be resumed using the provided snapshot.
- *
- * @example
- * ```typescript
- * // Tool that throws SnapshotSignal for long-running operations
- * const longRunningTool = new Tool({
- *   name: 'processLargeDataset',
- *   async handler({ datasetId }) {
- *     // Start background processing
- *     const jobId = await startBackgroundJob(datasetId)
- *
- *     // Pause execution until job completes
- *     throw new SnapshotSignal('Processing dataset', 'Waiting for background job completion', {
- *       jobId,
- *       datasetId,
- *       startTime: Date.now(),
- *     })
- *   },
- * })
- *
- * const result = await execute({
- *   instructions: 'Process the large dataset',
- *   tools: [longRunningTool],
- *   client,
- * })
- *
- * if (result.isInterrupted()) {
- *   console.log('Execution paused:', result.signal.message)
- *   console.log('Reason:', result.signal.longMessage)
- *
- *   // Serialize snapshot for later resumption
- *   const serialized = result.snapshot.toJSON()
- *   await database.saveSnapshot('job-123', serialized)
- *
- *   // Later, when the background job completes...
- *   const snapshot = Snapshot.fromJSON(serialized)
- *   snapshot.resolve({ jobResult: 'Processing completed successfully' })
- *
- *   const continuation = await execute({
- *     snapshot,
- *     instructions: result.context.instructions,
- *     tools: result.context.tools,
- *     exits: result.context.exits,
- *     client,
- *   })
- * }
- * ```
- */
-export class PartialExecutionResult extends ExecutionResult implements Serializable<PartialExecutionResult.JSON> {
-  public readonly signal: SnapshotSignal
-  public readonly snapshot: Snapshot
-
-  public constructor(context: Context, signal: SnapshotSignal, snapshot: Snapshot) {
-    super('interrupted', context)
-    this.signal = signal
-    this.snapshot = snapshot
-  }
-
-  /**
-   * Gets the output data (always null for interrupted results).
-   *
-   * @returns Always null since interrupted executions don't produce final output
-   */
-  public get output(): null {
-    return null
-  }
-
-  /**
-   * Serializes the execution result to JSON.
-   *
-   * @returns The JSON representation of the execution result.
-   */
-  public toJSON() {
-    return {
-      status: 'interrupted' as const,
-      context: this.context.toJSON(),
-      snapshot: this.snapshot.toJSON(),
-      signal: {
-        message: this.signal.message,
-        truncatedCode: this.signal.truncatedCode,
-        variables: this.signal.variables,
-      },
-    } satisfies PartialExecutionResult.JSON
   }
 }

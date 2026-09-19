@@ -1,12 +1,13 @@
 import { assert, describe, expect, it } from 'vitest'
-import * as llmz from '../src/runtime/execute.js'
 
-import { DefaultComponents } from '../src/component.default.js'
-import { Chat } from '../src/chat.js'
 import { Exit } from '../src/exit.js'
-import { transcriptToNativeMessages } from '../src/runtime/native-tools.js'
 import { ExecutionResult, SuccessExecutionResult } from '../src/result.js'
+import { Session } from '../src/session.js'
+import * as llmz from '../src/runtime/execute.js'
+import { transcriptToNativeMessages } from '../src/runtime/native-tools.js'
 import { Transcript, TranscriptArray } from '../src/transcript.js'
+
+import { createTestChat } from './__tests__/chat.js'
 import {
   getCachedCognitiveClient,
   getFixtureDataUri,
@@ -78,15 +79,18 @@ describe('voice messages', () => {
     it('understands what the user said in a voice message', async () => {
       let replies = ''
       const exit = new Exit({ name: 'done', description: 'call this when you are done' })
-      const chat = new Chat({
-        components: [DefaultComponents.Text],
-        transcript: [voiceMessage()],
-        handler: async (msg) => {
+      const session = new Session()
+      session.append([voiceMessage()])
+
+      const chat = createTestChat({
+        components: [],
+        onMessage: async (msg) => {
           replies += JSON.stringify(msg).toLowerCase()
         },
       })
 
       const result = await llmz.executeContext({
+        session,
         instructions: 'Do as the user says. You can hear voice messages.',
         options: { loop: 1 },
         exits: [exit],
@@ -104,15 +108,18 @@ describe('voice messages', () => {
     it('knows the user spoke instead of typing', async () => {
       let replies = ''
       const exit = new Exit({ name: 'done', description: 'call this when you are done' })
-      const chat = new Chat({
-        components: [DefaultComponents.Text],
-        transcript: [voiceMessage()],
-        handler: async (msg) => {
+      const session = new Session()
+      session.append([voiceMessage()])
+
+      const chat = createTestChat({
+        components: [],
+        onMessage: async (msg) => {
           replies += JSON.stringify(msg).toLowerCase()
         },
       })
 
       const result = await llmz.executeContext({
+        session,
         instructions:
           'Before answering, tell the user whether their last message was typed as text or spoken as a voice message.',
         options: { loop: 1 },
@@ -133,15 +140,18 @@ describe('voice messages', () => {
     it('hears the audio natively on an audio-capable model (gemini)', async () => {
       let replies = ''
       const exit = new Exit({ name: 'done', description: 'call this when you are done' })
-      const chat = new Chat({
-        components: [DefaultComponents.Text],
-        transcript: [voiceMessage()],
-        handler: async (msg) => {
+      const session = new Session()
+      session.append([voiceMessage()])
+
+      const chat = createTestChat({
+        components: [],
+        onMessage: async (msg) => {
           replies += JSON.stringify(msg).toLowerCase()
         },
       })
 
       const result = await llmz.executeContext({
+        session,
         instructions: 'Do as the user says. You can hear voice messages.',
         options: { loop: 1 },
         exits: [exit],
@@ -163,17 +173,19 @@ describe('voice messages', () => {
   describe('long voice replies stay plain markdown', () => {
     const runLongStory = async (message: Transcript.UserMessage, model?: string) => {
       let replies = ''
-      const chat = new Chat({
-        components: [DefaultComponents.Text],
-        transcript: [message],
-        handler: async (msg: any) => {
-          const collect = (c: any): string =>
-            typeof c === 'string' ? c : Array.isArray(c.children) ? c.children.map(collect).join('') : ''
-          replies += collect(msg)
+      const session = new Session()
+      session.append([message])
+
+      const chat = createTestChat({
+        components: [],
+        onMessage: async (msg) => {
+          assert(msg.type === 'text', 'Expected an assistant text response')
+          replies += msg.text
         },
       })
 
       const result = await llmz.executeContext({
+        session,
         instructions: 'Do as the user says. You can hear voice messages.',
         options: { loop: 2 },
         chat,
@@ -221,19 +233,22 @@ describe('voice messages', () => {
       })
     }, 60_000)
 
-    it('replies with plain prose when the Speech component is used', async () => {
+    it('replies with plain prose when the speech response preset is used', async () => {
       const sent: { type: string; text: string }[] = []
-      const chat = new Chat({
-        components: [DefaultComponents.Speech],
-        transcript: [longStoryVoiceMessage()],
-        handler: async (msg: any) => {
-          const collect = (c: any): string =>
-            typeof c === 'string' ? c : Array.isArray(c.children) ? c.children.map(collect).join('') : ''
-          sent.push({ type: msg.type, text: collect(msg) })
+      const session = new Session()
+      session.append([longStoryVoiceMessage()])
+
+      const chat = createTestChat({
+        response: 'speech',
+        components: [],
+        onMessage: async (msg) => {
+          assert(msg.type === 'text', 'Expected assistant text for speech playback')
+          sent.push({ type: msg.type, text: msg.text })
         },
       })
 
       const result = await llmz.executeContext({
+        session,
         instructions: 'You are a voice assistant: your replies are spoken aloud to the user.',
         options: { loop: 2 },
         chat,
@@ -242,7 +257,7 @@ describe('voice messages', () => {
 
       assertSuccess(result)
       const speech = sent.map((s) => s.text).join(' ')
-      expect(sent.every((s) => s.type.toLowerCase() === 'speech')).toBe(true)
+      expect(sent.every((s) => s.type === 'text')).toBe(true)
       expect(speech.length).toBeGreaterThan(200)
       // spoken prose: no markdown emphasis/headings/lists/links
       expect(speech).not.toMatch(/\*\*|__|^#|\n#|\n[-*] |https?:\/\//)
@@ -294,15 +309,18 @@ describe('voice messages', () => {
     it('grounds its answer in the screenshots, guided by the voice narration', async () => {
       let replies = ''
       const exit = new Exit({ name: 'done', description: 'call this when you are done' })
-      const chat = new Chat({
-        components: [DefaultComponents.Text],
-        transcript: [screenShareMessage()],
-        handler: async (msg) => {
+      const session = new Session()
+      session.append([screenShareMessage()])
+
+      const chat = createTestChat({
+        components: [],
+        onMessage: async (msg) => {
           replies += JSON.stringify(msg).toLowerCase()
         },
       })
 
       const result = await llmz.executeContext({
+        session,
         instructions:
           'You are a support agent watching the user share their screen. Their UI interactions arrive as timestamped events, screenshots show their screen at key moments, and the user narrates by voice. Answer their spoken questions using what you see on their screen.',
         options: { loop: 2 },

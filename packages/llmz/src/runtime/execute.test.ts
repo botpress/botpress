@@ -1,22 +1,21 @@
 import { z } from '@bpinternal/zui'
 import { describe, expect, test, vi } from 'vitest'
-import { Chat, type MessageDelta, type MessageMetadata } from '../chat.js'
-import { DefaultComponents } from '../component.default.js'
-import { Component, type RenderedComponent } from '../component.js'
+import type { MessageDelta, MessageMetadata, ChatMessage } from '../chat.js'
+import { Component } from '../component.js'
 import { ListenExit } from '../context.js'
-import { SnapshotSignal, ThinkSignal } from '../errors.js'
+import { ThinkSignal } from '../errors.js'
 import { Exit } from '../exit.js'
 import { Session } from '../session.js'
-import { Snapshot } from '../snapshots.js'
 import { Tool } from '../tool.js'
 import { executeContext } from './execute.js'
+import { createRecordingChat } from './fixtures/chat.js'
 import { NativeClient, NativeStreamClient, javascript, nativeCall, response } from './fixtures/native-client.js'
 
 const makeChat = () => {
-  const sent: { message: RenderedComponent; metadata: MessageMetadata }[] = []
+  const sent: { message: ChatMessage; metadata: MessageMetadata }[] = []
   const deltas: MessageDelta[] = []
-  const chat = new Chat({
-    components: [DefaultComponents.Text],
+  const chat = createRecordingChat({
+    components: [],
     handler: (message, metadata) => {
       sent.push({ message, metadata })
     },
@@ -33,12 +32,55 @@ const feedback = (client: NativeClient, index = 1) =>
 const done = new Exit({ name: 'done', description: 'Complete', schema: z.object({ value: z.number() }) })
 
 describe('native execution lifecycle', () => {
+  test('rejects removed snapshot input without starting a new execution', async () => {
+    const session = new Session()
+    session.append({ role: 'user', content: 'A queued request' })
+    const client = new NativeClient([response('This response must not be requested.')])
+    const props = { session, client, snapshot: {} }
+    const result = await executeContext(props)
+
+    expect(result.isError()).toBe(true)
+    expect(client.requests).toHaveLength(0)
+    expect(session.turn).toBe(0)
+    expect(session.pendingMessages).toEqual([{ role: 'user', content: 'A queued request' }])
+
+    if (!result.isError()) {
+      throw new Error('Expected the removed snapshot option to be rejected.')
+    }
+
+    expect(String(result.error)).toContain('Snapshots and external pause/resume are no longer supported')
+  })
+
+  test('rejects removed execute.messages input before claiming queued session input', async () => {
+    const session = new Session()
+    session.append({ role: 'user', content: 'The supported input path' })
+    const client = new NativeClient([response('This response must not be requested.')])
+    const props = {
+      session,
+      client,
+      messages: [{ role: 'user', content: 'The removed input path' }],
+    }
+    const result = await executeContext(props)
+
+    expect(result.isError()).toBe(true)
+    expect(client.requests).toHaveLength(0)
+    expect(session.turn).toBe(0)
+
+    const { chat } = makeChat()
+    const nextClient = new NativeClient([response('The queued input was preserved.')])
+    const next = await executeContext({ session, chat, client: nextClient })
+
+    expect(next.isSuccess()).toBe(true)
+    expect(JSON.stringify(nextClient.requests[0]!.messages)).toContain('The supported input path')
+    expect(JSON.stringify(nextClient.requests[0]!.messages)).not.toContain('The removed input path')
+  })
+
   test.each([NativeClient, NativeStreamClient])('plain assistant text delivers and listens (%s)', async (Client) => {
     const { chat, sent } = makeChat()
     const client = new Client([response('Hello, world.')])
     const result = await executeContext({ client, chat })
     expect(result.is(ListenExit)).toBe(true)
-    expect(sent.map((item) => item.message.children.join(''))).toEqual(['Hello, world.'])
+    expect(sent.map((item) => (item.message.type === 'text' ? item.message.text : ''))).toEqual(['Hello, world.'])
     expect(result.session.messages).toEqual([{ role: 'assistant', content: 'Hello, world.' }])
     expect(result.session.memory.iterations[0]?.hasResult).toBe(false)
     expect(client.requests[0]!.tools?.map((tool) => tool.name)).toEqual(['run_javascript'])
@@ -46,10 +88,51 @@ describe('native execution lifecycle', () => {
     expect(JSON.stringify(client.requests)).not.toContain('■start')
   })
 
+  test('does not start another completed chat turn without new input', async () => {
+    const session = new Session()
+    const { chat } = makeChat()
+    const first = await executeContext({ session, chat, client: new NativeClient([response('Welcome.')]) })
+    const client = new NativeClient([response('An unwanted repeated reply.')])
+    const repeated = await executeContext({ session, chat, client })
+
+    expect(first.isSuccess()).toBe(true)
+    expect(repeated.isError()).toBe(true)
+    expect(client.requests).toHaveLength(0)
+    expect(session.turn).toBe(1)
+
+    if (!repeated.isError()) {
+      throw new Error('Expected missing input to stop the new chat turn.')
+    }
+
+    expect(String(repeated.error)).toContain(
+      'No pending input. Append a message to the session before starting another chat turn.'
+    )
+
+    session.append({ role: 'user', content: 'Continue, please.' })
+    const next = await executeContext({ session, chat, client: new NativeClient([response('Continuing.')]) })
+
+    expect(next.isSuccess()).toBe(true)
+    expect(session.turn).toBe(2)
+  })
+
+  test('allows workers to start subsequent executions without queued input', async () => {
+    const session = new Session()
+
+    for (const value of [1, 2]) {
+      const client = new NativeClient([javascript(`return exit("done", { value: ${value} });`)])
+      const result = await executeContext({ session, client, exits: [done] })
+
+      expect(result.isSuccess()).toBe(true)
+      expect(result.output).toEqual({ value })
+      expect(client.requests).toHaveLength(1)
+      expect(session.turn).toBe(value)
+    }
+  })
+
   test('JavaScript returns a value to inspect, then a returned exit completes', async () => {
     const read = vi.fn(async () => ({ age: 40, email: 'a@example.com' }))
     const client = new NativeClient([
-      javascript('const account = await readAccount(); return { age: account.age };'),
+      javascript('const account = await readAccount(); return inspect({ age: account.age });'),
       javascript('return exit("done", { value: 40 });'),
     ])
     const result = await executeContext({
@@ -62,8 +145,8 @@ describe('native execution lifecycle', () => {
     expect(read).toHaveBeenCalledOnce()
     expect(result.session.memory.variables).toEqual({ account: { age: 40, email: 'a@example.com' } })
     expect(result.session.memory.getBindings().$return).toEqual({ age: 40 })
-    expect(feedback(client)).toContain('RETURN')
-    expect(feedback(client)).toContain('CREATED')
+    expect(feedback(client)).toContain('inspect() result')
+    expect(feedback(client)).toContain('Created')
     expect(feedback(client)).toContain('account')
     expect(client.requests[0]!.tools?.map((tool) => tool.name)).not.toContain('readAccount')
     expect(
@@ -76,15 +159,20 @@ describe('native execution lifecycle', () => {
 
   test('variables and latest result survive across user turns and JSON restore', async () => {
     const { chat } = makeChat()
+    const initialSession = new Session()
+    initialSession.append({ role: 'user', content: 'Remember my account.' })
+
     const first = await executeContext({
       chat,
-      messages: [{ role: 'user', content: 'Remember my account.' }],
+      session: initialSession,
       client: new NativeClient([
         javascript('const account = { age: 40 }; return { saved: true };'),
         response('Remembered.'),
       ]),
     })
     const session = Session.fromJSON(JSON.parse(JSON.stringify(first.session.toJSON())))
+    session.append({ role: 'user', content: 'Update it.' })
+
     const secondClient = new NativeClient([
       javascript(
         'account.age += 1; return { age: account.age, saved: $return.saved, previous: $iterations[0].outcome };'
@@ -94,16 +182,108 @@ describe('native execution lifecycle', () => {
     const second = await executeContext({
       session,
       chat,
-      messages: [{ role: 'user', content: 'Update it.' }],
       client: secondClient,
     })
     expect(second.isSuccess()).toBe(true)
     expect(second.session.turn).toBe(2)
     expect(second.session.memory.variables.account).toEqual({ age: 41 })
     expect(second.session.memory.getBindings().$return).toEqual({ age: 41, saved: true, previous: 'exit_success' })
-    expect(feedback(secondClient)).toContain('UPDATED')
+    expect(feedback(secondClient)).toContain('Updated')
     expect(JSON.stringify(second.session.messages)).not.toContain('<runtime-memory>')
     expect(JSON.stringify(secondClient.requests[1]!.messages).match(/<runtime-memory>/g)).toHaveLength(1)
+  })
+
+  test('messages appended during execution wait until the next turn', async () => {
+    const session = new Session()
+    session.append({ role: 'user', content: 'Process the first request' })
+    const { chat } = makeChat()
+    let release!: () => void
+    const pending = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    const waitForWork = vi.fn(async () => {
+      await pending
+
+      return { completed: true }
+    })
+    const client = new NativeClient([
+      javascript('const work = await waitForWork(); return inspect(work);'),
+      response('The first request is complete.'),
+    ])
+    const execution = executeContext({
+      session,
+      chat,
+      client,
+      tools: [new Tool({ name: 'waitForWork', handler: waitForWork })],
+    })
+
+    try {
+      await vi.waitFor(() => expect(waitForWork).toHaveBeenCalledOnce())
+      session.append({ role: 'user', content: 'Process the second request' })
+    } finally {
+      release()
+    }
+
+    const first = await execution
+
+    expect(first.isSuccess()).toBe(true)
+    expect(client.requests).toHaveLength(2)
+    expect(JSON.stringify(client.requests)).not.toContain('Process the second request')
+    expect(session.turn).toBe(1)
+
+    const nextClient = new NativeClient([response('The second request is complete.')])
+    const second = await executeContext({ session, chat, client: nextClient })
+
+    expect(second.isSuccess()).toBe(true)
+    expect(session.turn).toBe(2)
+    expect(
+      nextClient.requests[0]!.messages.filter(
+        (message) => message.role === 'user' && String(message.content).startsWith('Process the first request')
+      )
+    ).toHaveLength(1)
+    expect(
+      nextClient.requests[0]!.messages.filter(
+        (message) => message.role === 'user' && String(message.content).startsWith('Process the second request')
+      )
+    ).toHaveLength(1)
+    expect(nextClient.requests[0]!.messages.filter((message) => message.type === 'tool_result')).toHaveLength(1)
+  })
+
+  test('a failed generation can resume the same input after persisting the session', async () => {
+    const session = new Session()
+    session.append({ role: 'user', content: 'Keep this request until it succeeds' })
+    const { chat } = makeChat()
+    const client = new NativeClient([])
+    const failed = await executeContext({ session, chat, client, options: { loop: 1 } })
+
+    expect(failed.isError()).toBe(true)
+    expect(session.turn).toBe(1)
+
+    const restored = Session.fromJSON(JSON.parse(JSON.stringify(session)))
+    restored.append({ role: 'user', content: 'A later request' })
+    const retryClient = new NativeClient([response('The original request is complete.')])
+    const retried = await executeContext({ session: restored, chat, client: retryClient })
+
+    expect(retried.isSuccess()).toBe(true)
+    expect(restored.turn).toBe(1)
+    expect(
+      retryClient.requests[0]!.messages.filter(
+        (message) =>
+          message.role === 'user' && String(message.content).startsWith('Keep this request until it succeeds')
+      )
+    ).toHaveLength(1)
+    expect(JSON.stringify(retryClient.requests)).not.toContain('A later request')
+
+    const nextClient = new NativeClient([response('The later request is complete.')])
+    const next = await executeContext({ session: restored, chat, client: nextClient })
+
+    expect(next.isSuccess()).toBe(true)
+    expect(restored.turn).toBe(2)
+    expect(
+      nextClient.requests[0]!.messages.filter(
+        (message) => message.role === 'user' && String(message.content).startsWith('A later request')
+      )
+    ).toHaveLength(1)
   })
 
   test('partial failure retains named variables and never replaces last successful result', async () => {
@@ -122,8 +302,8 @@ describe('native execution lifecycle', () => {
       lastSucceeded: false,
     })
     expect(feedback(client, 2)).toContain('failed later')
-    expect(feedback(client, 2)).toContain('CREATED')
-    expect(feedback(client, 2)).toContain('UPDATED')
+    expect(feedback(client, 2)).toContain('Created')
+    expect(feedback(client, 2)).toContain('Updated')
   })
 
   test('successful undefined replaces $return and stays defined as a history result', async () => {
@@ -139,27 +319,26 @@ describe('native execution lifecycle', () => {
     expect(feedback(client, 2)).toContain('undefined')
   })
 
-  test('returned rich presentations run in order and finish without another generation', async () => {
+  test('synchronous component calls run in order and exit without another generation', async () => {
     const sent: string[] = []
     const card = new Component({
       name: 'Card',
-      type: 'leaf',
+
       description: 'Card',
-      leaf: { props: z.object({ title: z.string() }) },
+      props: z.object({ title: z.string() }),
     })
-    const chat = new Chat({
+    const chat = createRecordingChat({
       components: [card],
       handler: (message) => {
-        sent.push((message.props as Record<string, unknown>).title as string)
+        sent.push(((message.type === 'component' ? message.props : {}) as Record<string, unknown>).title as string)
       },
     })
     const client = new NativeClient([
-      javascript(`return chat.present({
-        messages: [
-          { component: "Card", props: { title: "One" } },
-          { component: "Card", props: { title: "Two" } }
-        ]
-      });`),
+      javascript(`
+        chat.card({ title: 'One' });
+        chat.card({ title: 'Two' });
+        return exit();
+      `),
     ])
     const result = await executeContext({
       chat,
@@ -178,19 +357,16 @@ describe('native execution lifecycle', () => {
   test('nonterminal sends request another model response', async () => {
     const card = new Component({
       name: 'Card',
-      type: 'leaf',
+
       description: 'Card',
-      leaf: { props: z.object({ title: z.string() }) },
+      props: z.object({ title: z.string() }),
     })
     const handler = vi.fn()
-    const client = new NativeClient([
-      javascript('await chat.send({ component: "Card", props: { title: "One" } });'),
-      javascript('return exit();'),
-    ])
-    const result = await executeContext({ client, chat: new Chat({ components: [card], handler }) })
+    const client = new NativeClient([javascript('chat.card({ title: "One" });'), javascript('return exit();')])
+    const result = await executeContext({ client, chat: createRecordingChat({ components: [card], handler }) })
     expect(result.isSuccess()).toBe(true)
     expect(handler).toHaveBeenCalledOnce()
-    expect(feedback(client)).toContain('MESSAGE DELIVERIES')
+    expect(feedback(client)).toContain('Messages sent')
   })
 
   test('preflights the entire batch before delivering or running any tool', async () => {
@@ -203,7 +379,7 @@ describe('native execution lifecycle', () => {
     const result = await executeContext({ client, chat, tools: [new Tool({ name: 'action', handler: action })] })
     expect(result.isSuccess()).toBe(true)
     expect(action).not.toHaveBeenCalled()
-    expect(sent.map((item) => item.message.children.join(''))).toEqual(['Corrected.'])
+    expect(sent.map((item) => (item.message.type === 'text' ? item.message.text : ''))).toEqual(['Corrected.'])
     expect(feedback(client)).toContain('at most one run_javascript call')
     expect(result.session.messages.filter((message) => message.type === 'tool_result')).toHaveLength(2)
   })
@@ -265,70 +441,7 @@ describe('native execution lifecycle', () => {
     expect(result.session.memory.getBindings().$return).toBe(17)
     expect(result.session.memory.variables).toEqual({ before: 1 })
     expect(feedback(client, 2)).toContain('Relevant evidence')
-    expect(feedback(client, 2)).toContain('INTERRUPTED')
-  })
-
-  test('snapshot resume uses the pending native ID, restores assignment and never replays interrupted code', async () => {
-    const start = vi.fn(() => {
-      throw new SnapshotSignal('Await approval')
-    })
-    const after = vi.fn()
-    const tools = [new Tool({ name: 'start', handler: start }), new Tool({ name: 'after', handler: after })]
-    const first = await executeContext({
-      client: new NativeClient([
-        javascript('const saved = 8; const approval = await start(); await after(); return 99;'),
-      ]),
-      tools,
-      exits: [done],
-    })
-    expect(first.isInterrupted()).toBe(true)
-    if (!first.isInterrupted()) {
-      throw new Error('Expected snapshot')
-    }
-
-    const pendingId = first.snapshot.pendingCall!.callId
-    const snapshot = Snapshot.fromJSON(JSON.parse(JSON.stringify(first.snapshot.toJSON())))
-    snapshot.resolve({ granted: true })
-    const nextClient = new NativeClient([
-      javascript('return { saved, approval };'),
-      javascript('return exit("done", { value: 8 });'),
-    ])
-    const resumed = await executeContext({ client: nextClient, snapshot, tools, exits: [done] })
-    expect(resumed.isSuccess()).toBe(true)
-    expect(start).toHaveBeenCalledOnce()
-    expect(after).not.toHaveBeenCalled()
-    expect(resumed.session.memory.getBindings().$return).toEqual({ saved: 8, approval: { granted: true } })
-    expect(
-      nextClient.requests[0]!.messages.find((message) => message.toolResultCallId === pendingId)?.content
-    ).toContain('remaining statements did not run')
-    expect(resumed.session.pendingCalls).toEqual([])
-  })
-
-  test('snapshot resume refuses new user input until the pending operation is handled', async () => {
-    const result = await executeContext({
-      client: new NativeClient([javascript('await pause();')]),
-      tools: [
-        new Tool({
-          name: 'pause',
-          handler: () => {
-            throw new SnapshotSignal('Pause')
-          },
-        }),
-      ],
-    })
-    if (!result.isInterrupted()) {
-      throw new Error('Expected interrupted result')
-    }
-
-    result.snapshot.resolve(true)
-    const client = new NativeClient([response('No execution')])
-    const resumed = await executeContext({
-      client,
-      snapshot: result.snapshot,
-      messages: [{ role: 'user', content: 'New request' }],
-    })
-    expect(resumed.isError()).toBe(true)
-    expect(client.requests).toHaveLength(0)
+    expect(feedback(client, 2)).toContain('run_javascript: paused')
   })
 
   test('session compaction retains named data and clears automatic results by origin', async () => {
@@ -344,11 +457,12 @@ describe('native execution lifecycle', () => {
       javascript('return { n: retained.n, history: $iterations.length };'),
       response('Done again.'),
     ])
+    first.session.append({ role: 'user', content: 'Continue' })
+
     const second = await executeContext({
       session: first.session,
       chat,
       client,
-      messages: [{ role: 'user', content: 'Continue' }],
     })
     expect(second.session.memory.getBindings().$return).toEqual({ n: 42, history: 1 })
     expect(client.requests[0]!.messages.some((message) => message.type === 'tool_result')).toBe(false)
@@ -389,46 +503,45 @@ describe('native execution lifecycle', () => {
 
     expect(result.is(done)).toBe(true)
     expect(client.requests[1]!.messages.at(-1)?.content).toContain(
-      'returning exit(name, payload) with a registered exit and a valid payload'
+      'return exit(name, payload) with a registered name and a valid payload'
     )
   })
 
-  test('a failed presentation preserves completed deliveries and skips the exit', async () => {
+  test('a failed component delivery preserves earlier deliveries and skips the exit', async () => {
     const shown: string[] = []
     const card = new Component({
       name: 'Card',
-      type: 'leaf',
+
       description: 'Card',
-      leaf: { props: z.object({ title: z.string() }) },
+      props: z.object({ title: z.string() }),
     })
     const client = new NativeClient([
-      javascript(`return chat.present({
-        messages: [
-          { component: "Card", props: { title: "One" } },
-          { component: "Card", props: { title: "Fails" } }
-        ]
-      });`),
+      javascript(`
+        chat.card({ title: 'One' });
+        chat.card({ title: 'Fails' });
+        return exit();
+      `),
       javascript('return exit();'),
     ])
     const onExit = vi.fn()
     const result = await executeContext({
       client,
       onExit,
-      chat: new Chat({
+      chat: createRecordingChat({
         components: [card],
         handler: (message) => {
-          if ((message.props as Record<string, unknown>).title === 'Fails') {
+          if (((message.type === 'component' ? message.props : {}) as Record<string, unknown>).title === 'Fails') {
             throw new Error('Delivery unavailable')
           }
 
-          shown.push((message.props as Record<string, unknown>).title as string)
+          shown.push(((message.type === 'component' ? message.props : {}) as Record<string, unknown>).title as string)
         },
       }),
     })
     expect(result.isSuccess()).toBe(true)
     expect(shown).toEqual(['One'])
     expect(onExit).toHaveBeenCalledOnce()
-    expect(feedback(client)).toContain('MESSAGE DELIVERIES')
+    expect(feedback(client)).toContain('Messages sent')
     expect(feedback(client)).toContain('Delivery unavailable')
     expect(result.session.pendingCalls).toEqual([])
   })

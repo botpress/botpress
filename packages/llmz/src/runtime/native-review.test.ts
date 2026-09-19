@@ -1,11 +1,11 @@
 import { z } from '@bpinternal/zui'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
-import { Chat } from '../chat.js'
 import { Exit } from '../exit.js'
 import { ObjectInstance } from '../objects.js'
 import { Session } from '../session.js'
 import { executeContext } from './execute.js'
+import { createRecordingChat } from './fixtures/chat.js'
 import { NativeClient, javascript, nativeCall, response } from './fixtures/native-client.js'
 
 afterEach(() => {
@@ -35,7 +35,7 @@ describe.each(['true', 'false'])('native integration review with USE_QUICKJS=%s'
     const result = await executeContext({
       client,
       objects: [account],
-      chat: new Chat({ handler: () => undefined }),
+      chat: createRecordingChat({ handler: () => undefined }),
     })
 
     expect(result.isSuccess()).toBe(true)

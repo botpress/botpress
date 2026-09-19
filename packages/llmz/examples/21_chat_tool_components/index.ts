@@ -3,7 +3,7 @@
  *
  * This example demonstrates how tool handlers can directly yield UI components
  * back to the chat interface using async generator functions. Unlike example 10
- * where the LLM yielids components, here the tool handler itself controls what
+ * where the LLM sends components, here the tool handler itself controls what
  * to display and when.
  *
  * Key concepts:
@@ -34,49 +34,43 @@ const client = new Client({
 const PlaneTicketComponent = new Component({
   name: 'PlaneTicket',
   description: 'A component to display a plane ticket',
-  type: 'leaf',
-  leaf: {
-    props: z.object({
-      ticketNumber: z.string().describe('The unique ticket number for the plane ticket'),
-      from: z.string().describe('The departure city'),
-      to: z.string().describe('The destination city'),
-      date: z.string().describe('The date of the flight (in YYYY-MM-DD format)'),
-      price: z.number().optional().describe('The price of the ticket'),
-    }),
+  props: z.object({
+    ticketNumber: z.string().describe('The unique ticket number for the plane ticket'),
+    from: z.string().describe('The departure city'),
+    to: z.string().describe('The destination city'),
+    date: z.string().describe('The date of the flight (in YYYY-MM-DD format)'),
+    price: z.number().optional().describe('The price of the ticket'),
+  }),
+  generation: {
+    examples: [
+      {
+        props: {
+          from: 'New York',
+          to: 'Los Angeles',
+          date: '2025-10-01',
+          price: 299.99,
+          ticketNumber: 'ABC-0000000',
+        },
+      },
+    ],
   },
-  examples: [
-    {
-      name: 'PlaneTicket',
-      description: 'A simple plane ticket example',
-      code: '<PlaneTicket from="New York" to="Los Angeles" date="2023-10-01" price={299.99} ticketNumber="ABC-0000000" />',
-    },
-  ],
 })
 
 // Define a progress component for status updates
 const ProgressComponent = new Component({
   name: 'Progress',
   description: 'Displays a progress update message',
-  type: 'leaf',
-  leaf: {
-    props: z.object({
-      message: z.string().describe('The progress message'),
-      step: z.number().describe('Current step number'),
-      total: z.number().describe('Total number of steps'),
-    }),
+  props: z.object({
+    message: z.string().describe('The progress message'),
+    step: z.number().describe('Current step number'),
+    total: z.number().describe('Total number of steps'),
+  }),
+  generation: {
+    examples: [
+      { props: { message: 'Checking availability...', step: 1, total: 3 } },
+      { props: { message: 'Calculating price...', step: 2, total: 3 } },
+    ],
   },
-  examples: [
-    {
-      name: 'Basic Progress',
-      description: 'Show a progress bar with step and total',
-      code: '<Progress message="Checking availability..." step={1} total={3} />',
-    },
-    {
-      name: 'Mid-progress',
-      description: 'Midway progress update',
-      code: '<Progress message="Calculating price..." step={2} total={3} />',
-    },
-  ],
 })
 
 // Tool for purchasing tickets — uses async generator to yield components
@@ -103,7 +97,7 @@ const purchaseTicket = new Tool({
     yield ProgressComponent.render({ message: 'Calculating best price...', step: 2, total: 3 })
     await new Promise((resolve) => setTimeout(resolve, 500))
 
-    // Step 3: Yiels the ticket component itself
+    // Step 3: Yield the ticket component itself
     yield PlaneTicketComponent.render({
       from,
       to,
@@ -123,15 +117,13 @@ const purchaseTicket = new Tool({
 
 const chat = new CLIChat()
 
-chat.transcript.push({
+chat.session.append({
   role: 'user',
   content: 'I want to purchase a plane ticket from New York to Los Angeles on 2025-10-01.',
 })
 
 // Register component renderers — same as example 10
-chat.registerComponent(PlaneTicketComponent, async (message) => {
-  const { ticketNumber, from, to, date, price } = message.props
-
+chat.registerComponent(PlaneTicketComponent, async ({ ticketNumber, from, to, date, price }) => {
   const ticket = box([
     chalk.white.bold('             ✈️  FLIGHT TICKET'),
     `${chalk.yellow.bold('Ticket Number:')} ${chalk.white(ticketNumber)}`,
@@ -148,10 +140,9 @@ chat.registerComponent(PlaneTicketComponent, async (message) => {
   console.log(ticket)
 })
 
-chat.registerComponent(ProgressComponent, async (message) => {
-  const { step, total, message: msg } = message.props
+chat.registerComponent(ProgressComponent, async ({ step, total, message }) => {
   const bar = '█'.repeat(step) + '░'.repeat(Math.max(0, total - step))
-  console.log(chalk.blue(`[${bar}]`) + ' ' + chalk.white(msg))
+  console.log(chalk.blue(`[${bar}]`) + ' ' + chalk.white(message))
 })
 
 // Execute the travel agent workflow
@@ -162,6 +153,7 @@ const result = await execute({
     'You are a travel agent. Help the user purchase a plane ticket. The ticket will be displayed automatically when the purchase completes.',
   tools: [purchaseTicket],
   chat,
+  session: chat.session,
   client,
 })
 

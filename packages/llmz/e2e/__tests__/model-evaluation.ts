@@ -6,6 +6,7 @@ import {
   type CognitiveStreamChunk,
 } from '@botpress/cognitive'
 import { expect } from 'vitest'
+
 import type { ExecutionResult } from '../../src/index.js'
 
 // Opt-in, one requested model and no test retries. Fallbacks require explicit configuration.

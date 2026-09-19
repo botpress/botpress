@@ -145,6 +145,7 @@ while (await chat.iterate()) {
   await execute({
     client,
     chat,
+    session: chat.session,
 
     // Use function-based instructions that evaluate at runtime
     // This allows instructions to change based on current user state

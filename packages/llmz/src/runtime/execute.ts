@@ -2,36 +2,29 @@ import { Client } from '@botpress/client'
 import { Cognitive, type BotpressClientLike } from '@botpress/cognitive'
 
 import { createJoinedAbortController } from '../abort-signal.js'
+import type { AssistantTextMessage } from '../chat.js'
 import { compile } from '../compiler/index.js'
+import { isAnyComponent } from '../component.js'
 import { Context, Iteration, ListenExit } from '../context.js'
 import { _CustomModelClient } from '../custom-client.js'
-import {
-  CodeExecutionError,
-  CognitiveError,
-  InvalidCodeError,
-  LoopExceededError,
-  SnapshotSignal,
-  ThinkSignal,
-} from '../errors.js'
+import { CodeExecutionError, CognitiveError, InvalidCodeError, LoopExceededError, ThinkSignal } from '../errors.js'
 import type { Exit } from '../exit.js'
-import { getValue } from '../getter.js'
-import { createJsxComponent } from '../jsx.js'
 import { MemoryCapacityError, type MemoryReport } from '../memory.js'
-import { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from '../result.js'
-import { Snapshot } from '../snapshots.js'
+import { ErrorExecutionResult, ExecutionResult, SuccessExecutionResult } from '../result.js'
 import { cleanStackTrace } from '../stack-traces.js'
 import type { VMExecutionResult } from '../types.js'
 import { getErrorMessage, init } from '../utils.js'
 import { runAsyncFunction } from '../vm/index.js'
-import { previewExecutionValue, renderExecutionOverride, renderExecutionReport } from './execution-report.js'
+import { previewExecutionValue, renderExecutionReport } from './execution-report.js'
 import { generateCode, type NativeGeneration } from './generate.js'
+import { InspectionValues } from './inspection-values.js'
 import {
   createJavaScriptApi,
   type JavaScriptApi,
   type JavaScriptOutcome,
   type PreparedMessage,
 } from './javascript-api.js'
-import { getNativeTextComponent, validateNativeToolCalls, type ValidatedNativeCall } from './native-tools.js'
+import { validateNativeToolCalls, type ValidatedNativeCall } from './native-tools.js'
 import type { ExecutionHooks, ExecutionProps, RuntimeCognitive } from './types.js'
 import { finalizeIteration } from './utils.js'
 import { buildVMContext } from './vm-context.js'
@@ -45,10 +38,10 @@ type Execution = {
 
 type IterationExecution = Execution & {
   iteration: Iteration
+  inspectionValues: InspectionValues
   memoryCommitted: boolean
   memoryOutcomePending?: boolean
   activeCallId?: string
-  snapshot?: Snapshot
   terminalError?: unknown
 }
 
@@ -79,6 +72,7 @@ async function executeContextInternal(props: ExecutionProps): Promise<ExecutionR
     loop: props.options?.loop,
     timeout: props.options?.timeout,
     maxTokens: props.options?.maxTokens,
+    toolResultMaxTokens: props.options?.toolResultMaxTokens,
     maxTimeToFirstToken: props.options?.maxTimeToFirstToken,
     midStreamFallback: props.options?.midStreamFallback,
     transcriptionModel: props.options?.transcriptionModel,
@@ -86,12 +80,20 @@ async function executeContextInternal(props: ExecutionProps): Promise<ExecutionR
   let release: (() => void) | undefined
 
   try {
-    if (props.session && props.snapshot) {
-      throw new Error('Pass either a session or a snapshot; a native snapshot contains its own session.')
+    if ('snapshot' in props) {
+      throw new Error(
+        'Snapshots and external pause/resume are no longer supported. Use a session for conversation history and memory.'
+      )
+    }
+
+    if ('messages' in props) {
+      throw new Error(
+        'Append input with session.append(message) before calling execute(). execute.messages is no longer supported.'
+      )
     }
 
     release = ctx.session.acquire()
-    await prepareSession(ctx, props)
+    prepareSession(ctx)
 
     const client = props.client ?? new Client()
     const cognitive: RuntimeCognitive =
@@ -103,6 +105,10 @@ async function executeContextInternal(props: ExecutionProps): Promise<ExecutionR
     while (ctx.iterations.length < ctx.loop) {
       const result = await executeNextIteration(execution)
       if (result) {
+        if (result.isSuccess()) {
+          ctx.session.completeTurn()
+        }
+
         return result
       }
     }
@@ -115,65 +121,23 @@ async function executeContextInternal(props: ExecutionProps): Promise<ExecutionR
   }
 }
 
-async function prepareSession(ctx: Context, props: ExecutionProps): Promise<void> {
-  if (!props.snapshot) {
-    ctx.session.beginTurn({
-      messages: props.messages,
-      transcript: props.messages ? undefined : await getValue(props.chat?.transcript ?? [], ctx),
-    })
-    return
+function prepareSession(ctx: Context): void {
+  if (ctx.chat && ctx.session.turn > 0 && !ctx.session.hasActiveTurn && !ctx.session.pendingMessages.length) {
+    throw new Error('No pending input. Append a message to the session before starting another chat turn.')
   }
 
-  const snapshot = props.snapshot
-  if (!snapshot.session || !snapshot.pendingCall) {
-    throw new Error(
-      'Legacy snapshots cannot resume under the native protocol. Finish them using LLMz 0.x before migrating.'
-    )
-  }
-
-  if (snapshot.status.type === 'pending') {
-    throw new Error('Resolve or reject the snapshot before resuming it.')
-  }
-
-  if (props.messages?.length) {
-    throw new Error('Resume the pending snapshot before adding new input messages.')
-  }
-
-  // This accepts an unchanged host projection and rejects new input while the
-  // native call is unresolved. The caller can submit new input after resumption.
-  if (props.chat) {
-    ctx.session.reconcileTranscript(await getValue(props.chat.transcript ?? [], ctx))
-  }
-
-  const { iterationId, callId, interruption, executionOverride } = snapshot.pendingCall
-  const outcome =
-    snapshot.status.type === 'resolved'
-      ? `The interrupted operation completed. Result: ${previewExecutionValue(snapshot.status.value)}`
-      : `The interrupted operation failed: ${previewExecutionValue(snapshot.status.error)}`
-  const sections = [
-    ...(executionOverride ? [executionOverride] : []),
-    outcome,
-    'The JavaScript program was interrupted. Its remaining statements did not run. Inspect retained variables and continue without repeating completed actions.',
-  ]
-
-  if (snapshot.assignmentError) {
-    sections.push(`Assignment unavailable: ${snapshot.assignmentError}`)
-  }
-
-  if (interruption) {
-    sections.push(`The response stream failed after this operation started: ${interruption}`)
-  }
-
-  snapshot.consumeResume()
-  ctx.session.appendToolResult(iterationId, callId, sections.join('\n'))
-  ctx.session.settleIteration(iterationId)
-  ctx.snapshot = undefined
+  ctx.session.beginTurn()
 }
 
 async function executeNextIteration(execution: Execution): Promise<ExecutionResult | undefined> {
   const { ctx, props, controller } = execution
   const iteration = await ctx.nextIteration()
-  const state: IterationExecution = { ...execution, iteration, memoryCommitted: false }
+  const state: IterationExecution = {
+    ...execution,
+    iteration,
+    inspectionValues: new InspectionValues(),
+    memoryCommitted: false,
+  }
   const unsubscribe = iteration.traces.onPush((traces) => {
     for (const trace of traces) {
       try {
@@ -205,9 +169,7 @@ async function executeNextIteration(execution: Execution): Promise<ExecutionResu
         }
       }
 
-      if (!state.snapshot) {
-        ctx.session.settleIteration(iteration.id)
-      }
+      ctx.session.settleIteration(iteration.id)
 
       await finalizeIteration({ iteration, controller, onIterationEnd: props.onIterationEnd })
     } finally {
@@ -237,11 +199,11 @@ async function executeIteration(state: IterationExecution): Promise<void> {
       cognitive,
       controller,
       metadata: props.metadata,
-      onSendDelta: ctx.chat?.onMessageDelta ? (delta) => ctx.chat!.onMessageDelta!(delta) : undefined,
+      onSendDelta: iteration.response?.onDelta,
       onToolCalls: (calls) => {
         // Without a preview consumer, accepted assistant text must be delivered
         // before its accompanying program starts.
-        if (ctx.chat && !ctx.chat.onMessageDelta) {
+        if (ctx.chat && !iteration.response?.onDelta) {
           return false
         }
 
@@ -285,16 +247,12 @@ async function executeIteration(state: IterationExecution): Promise<void> {
       state.activeCallId = undefined
     }
 
-    if (!state.snapshot && iteration.status.type === 'pending') {
+    if (iteration.status.type === 'pending') {
       await finishNativeResponse(state, generated)
     }
   } catch (error) {
     if (execution) {
       await preserveInterruptedExecution(state, execution, error, assistantCommitted)
-
-      if (state.snapshot) {
-        return
-      }
     }
 
     throw error
@@ -306,14 +264,14 @@ async function rejectNativeBatch(
   generated: NativeGeneration,
   errors: string[]
 ): Promise<void> {
-  const message = `Native tool batch rejected before execution: ${errors.join('\n')}`
+  const message = `Native tool batch rejected before execution: ${previewExecutionValue(errors, 500)}`
   for (const call of generated.toolCalls) {
     ctx.session.appendToolResult(iteration.id, call.id, message)
   }
 
-  if (generated.output && ctx.chat?.onMessageDelta) {
+  if (generated.output && iteration.response?.onDelta) {
     try {
-      await ctx.chat.onMessageDelta({
+      await iteration.response.onDelta({
         restart: true,
         iterationId: iteration.id,
         attempt: generated.attempt + 1,
@@ -339,15 +297,12 @@ async function deliverAssistantText(state: IterationExecution, generated: Native
   }
 
   const startedAt = Date.now()
-  const textComponent = getNativeTextComponent(iteration.components)
-  const component = textComponent
-    ? textComponent.render({}, [generated.output])
-    : createJsxComponent({ type: 'message', props: {}, children: [generated.output] })
+  const message: AssistantTextMessage = { type: 'text', text: generated.output }
 
-  await ctx.chat.handler(component, generated.messageMetadata)
+  await iteration.response?.handler?.(generated.output, generated.messageMetadata)
   iteration.traces.push({
     type: 'yield',
-    value: component,
+    value: message,
     started_at: startedAt,
     ended_at: Date.now(),
   })
@@ -391,20 +346,24 @@ async function settleJavaScriptCall(state: IterationExecution, execution: JavaSc
     result.captureErrors ??= []
     result.captureErrors.push({
       name: '$return',
-      reason:
-        'Execution decisions cannot be nested inside returned data. Return a decision directly or inspect plain values.',
+      reason: 'Execution decisions cannot be nested inside returned data. Use return inspect(value) with plain values.',
     })
   }
 
   endJavaScriptIteration(iteration, controller, result)
   const report = commitMemory(state, result)
 
-  if (iteration.status.type === 'callback_requested') {
-    attachExecutionSnapshot(state, call, iteration.status.callback_requested.signal)
-    return
-  }
-
-  ctx.session.appendToolResult(iteration.id, call.id, renderExecutionReport(iteration, result, report, call.code))
+  ctx.session.appendToolResult(
+    iteration.id,
+    call.id,
+    renderExecutionReport(iteration, result, report, {
+      requestedCode: call.code,
+      inspected: outcome?.type === 'inspect',
+      maxTokens: ctx.toolResultMaxTokens,
+      inspectionValue:
+        result.success && report.resultAvailable ? state.inspectionValues.prepare(result.return_value) : undefined,
+    })
+  )
 }
 
 async function preserveInterruptedExecution(
@@ -414,6 +373,7 @@ async function preserveInterruptedExecution(
   assistantCommitted: boolean
 ): Promise<void> {
   const { ctx, iteration, controller } = state
+  execution.api.complete()
   const result = await execution.result
 
   if (state.memoryCommitted) {
@@ -431,18 +391,6 @@ async function preserveInterruptedExecution(
   // receipts, but never apply a terminal decision from the interrupted response.
   removeCapturedDecisions(result, execution.api)
 
-  if (result.signal instanceof SnapshotSignal) {
-    // The operation already exists outside the VM. Its resumable handle must
-    // survive even when the response transport failed or was cancelled.
-    iteration.end({
-      type: 'callback_requested',
-      callback_requested: { signal: result.signal },
-    })
-    commitMemory(state, result, false)
-    attachExecutionSnapshot(state, execution.call, result.signal, getErrorMessage(error))
-    return
-  }
-
   if (iteration.status.type === 'pending') {
     endFailedIteration(iteration, controller, error)
   }
@@ -459,26 +407,11 @@ async function preserveInterruptedExecution(
   ctx.session.appendToolResult(
     iteration.id,
     execution.call.id,
-    renderExecutionReport(iteration, interrupted, report, execution.call.code)
+    renderExecutionReport(iteration, interrupted, report, {
+      requestedCode: execution.call.code,
+      maxTokens: ctx.toolResultMaxTokens,
+    })
   )
-}
-
-function attachExecutionSnapshot(
-  state: IterationExecution,
-  call: ValidatedNativeCall,
-  signal: SnapshotSignal,
-  interruption?: string
-): void {
-  const { ctx, iteration } = state
-  const snapshot = Snapshot.fromSignal(signal)
-  snapshot.attachSession(ctx.session, {
-    iterationId: iteration.id,
-    callId: call.id,
-    code: iteration.code,
-    interruption,
-    executionOverride: renderExecutionOverride(iteration.code, call.code),
-  })
-  state.snapshot = snapshot
 }
 
 function removeCapturedDecisions(result: VMExecutionResult, api: JavaScriptApi): void {
@@ -515,7 +448,6 @@ async function completeJavaScriptExit(
   const report = commitMemory(state, result, false)
 
   try {
-    await deliverJavaScriptMessages(state, outcome.messages)
     controller.signal.throwIfAborted()
     await applyNativeExit(iteration, outcome.exit, outcome.value, controller, props.onExit)
   } catch (error) {
@@ -525,7 +457,7 @@ async function completeJavaScriptExit(
   ctx.session.appendToolResult(
     iteration.id,
     iteration.nativeCallId!,
-    renderExecutionReport(iteration, result, report, requestedCode)
+    renderExecutionReport(iteration, result, report, { requestedCode, maxTokens: ctx.toolResultMaxTokens })
   )
 }
 
@@ -538,7 +470,7 @@ async function deliverJavaScriptMessages(
   }
 
   if (!ctx.chat) {
-    throw new Error('Presentation functions require a chat handler.')
+    throw new Error('Component delivery requires chat mode.')
   }
 
   for (const message of messages) {
@@ -546,7 +478,17 @@ async function deliverJavaScriptMessages(
     const startedAt = Date.now()
 
     try {
-      await ctx.chat.handler(message.component, { iterationId: iteration.id, id: message.id })
+      if (!isAnyComponent(message.component)) {
+        throw new Error('Only registered rich components can be delivered from JavaScript.')
+      }
+
+      const component = iteration.components.find((candidate) => candidate.definition.name === message.component.name)
+
+      if (!component?.handler) {
+        throw new Error(`Component "${message.component.name}" has no registered handler.`)
+      }
+
+      await component.handler(message.component.props, { iterationId: iteration.id, id: message.id })
     } catch (error) {
       iteration.traces.push({
         type: 'yield',
@@ -581,19 +523,20 @@ async function finishNativeResponse(state: IterationExecution, generated: Native
   if (!generated.toolCalls.length && generated.output.trim() && ctx.chat) {
     await applyNativeExit(iteration, ListenExit, {}, controller, props.onExit)
     if (!iteration.hasExited()) {
-      ctx.session.appendContext(iteration.error ?? 'Completion rejected.')
+      ctx.session.appendContext(previewExecutionValue(iteration.error ?? 'Completion rejected.', 200))
     }
 
     return
   }
 
-  let reason =
-    'This is a worker task. Finish through run_javascript by returning exit(name, payload) with a registered exit and a valid payload. Assistant prose alone does not complete the task.'
+  let reason = iteration.exits.length
+    ? 'This is a worker task. Every run_javascript program must explicitly return inspect(value) or return exit(name, payload) with a registered name and a valid payload. Assistant prose alone does not complete the task.'
+    : 'Every run_javascript program must explicitly return inspect(value). To see a business tool result in the next response, return inspect(result).'
 
   if (ctx.chat) {
     reason = generated.toolCalls.length
-      ? 'JavaScript completed. Inspect its result or return exit() to finish.'
-      : 'Reply with assistant text, or use run_javascript and return a registered exit() to finish.'
+      ? 'Every run_javascript program must explicitly return inspect(value) or return exit(name, payload). Use return exit("listen") to wait for the user.'
+      : 'Reply with assistant text, or use run_javascript with an explicit return inspect(value) or return exit(name, payload). Use return exit("listen") to wait for the user.'
   }
 
   iteration.end({
@@ -662,7 +605,7 @@ function handleIterationFailure(state: IterationExecution, error: unknown): void
     ctx.session.appendToolResult(
       iteration.id,
       call.callId,
-      `Execution stopped: ${getErrorMessage(error)}. ${outcome} Earlier acknowledged calls remain completed.`
+      `Execution stopped: ${previewExecutionValue(getErrorMessage(error), 200)}. ${outcome} Earlier acknowledged calls remain completed.`
     )
   }
 
@@ -671,7 +614,9 @@ function handleIterationFailure(state: IterationExecution, error: unknown): void
     return
   }
 
-  ctx.session.appendContext(`Execution stopped: ${getErrorMessage(error)}. Continue using the retained state.`)
+  ctx.session.appendContext(
+    `Execution stopped: ${previewExecutionValue(getErrorMessage(error), 200)}. Continue using the retained state.`
+  )
 }
 
 function endFailedIteration(iteration: Iteration, controller: AbortController, error: unknown): void {
@@ -724,10 +669,6 @@ function getIterationResult(state: IterationExecution): ExecutionResult | undefi
   const { ctx, iteration } = state
   if (state.terminalError !== undefined) {
     return new ErrorExecutionResult(ctx, state.terminalError)
-  }
-
-  if (state.snapshot && iteration.status.type === 'callback_requested') {
-    return new PartialExecutionResult(ctx, iteration.status.callback_requested.signal, state.snapshot)
   }
 
   if (iteration.status.type === 'exit_success') {
@@ -792,6 +733,9 @@ async function executeJavaScript(state: IterationExecution, api: JavaScriptApi):
       controller,
       onBeforeTool: props.onBeforeTool,
       onAfterTool: props.onAfterTool,
+      onTruncation: (value, policy) => state.inspectionValues.capture(value, policy),
+      onToolResult: (value) => state.inspectionValues.captureDefault(value, ctx.toolResultMaxTokens),
+      onYield: (component, metadata) => api.sendComponent(component, metadata),
       javascriptApi: api,
     })
     result = await runAsyncFunction(
@@ -811,8 +755,7 @@ async function executeJavaScript(state: IterationExecution, api: JavaScriptApi):
   } catch (error) {
     result = {
       ...result,
-      success: false,
-      signal: undefined,
+      success: !!result.signal,
       error: error instanceof Error ? error : new Error(getErrorMessage(error)),
       traces: [],
     }
@@ -821,8 +764,7 @@ async function executeJavaScript(state: IterationExecution, api: JavaScriptApi):
   const interruption = api.getInterruption()
 
   if (interruption && !result.signal) {
-    // Started work may request a snapshot after the program has returned. Its
-    // pending handle survives, but a promise declaration is not a value assignment.
+    // Observe a thinking interruption from work that settled after the program returned.
     interruption.variables = result.variables
     result = {
       ...result,
@@ -843,7 +785,7 @@ async function executeJavaScript(state: IterationExecution, api: JavaScriptApi):
 }
 
 function interruptedVMResult(error: unknown): VMExecutionResult {
-  if (error instanceof ThinkSignal || error instanceof SnapshotSignal) {
+  if (error instanceof ThinkSignal) {
     return {
       success: true,
       signal: error,
@@ -863,14 +805,6 @@ function interruptedVMResult(error: unknown): VMExecutionResult {
 }
 
 function endJavaScriptIteration(iteration: Iteration, controller: AbortController, result: VMExecutionResult): void {
-  if (result.signal instanceof SnapshotSignal) {
-    iteration.end({
-      type: 'callback_requested',
-      callback_requested: { signal: result.signal },
-    })
-    return
-  }
-
   if (controller.signal.aborted) {
     endFailedIteration(iteration, controller, controller.signal.reason)
     return

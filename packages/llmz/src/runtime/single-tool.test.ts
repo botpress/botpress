@@ -1,14 +1,14 @@
 import type { CognitiveResponse, CognitiveStreamChunk } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import { describe, expect, test, vi } from 'vitest'
-import { Chat, type MessageDelta, type MessageMetadata } from '../chat.js'
+import type { MessageDelta, MessageMetadata, ChatMessage } from '../chat.js'
 import { DefaultComponents } from '../component.default.js'
-import type { RenderedComponent } from '../component.js'
 import { ListenExit } from '../context.js'
 import type { RuntimeGenerateContentInput } from '../custom-client.js'
 import { Exit } from '../exit.js'
 import { Tool } from '../tool.js'
 import { executeContext } from './execute.js'
+import { createRecordingChat } from './fixtures/chat.js'
 import { NativeClient, javascript, nativeCall, nativeMetadata } from './fixtures/native-client.js'
 
 const done = new Exit({
@@ -18,9 +18,9 @@ const done = new Exit({
 })
 
 function recordingChat(options: { previews?: boolean } = {}) {
-  const delivered: Array<{ message: RenderedComponent; metadata: MessageMetadata }> = []
-  const chat = new Chat({
-    components: [DefaultComponents.Text, DefaultComponents.Button, DefaultComponents.Image],
+  const delivered: Array<{ message: ChatMessage; metadata: MessageMetadata }> = []
+  const chat = createRecordingChat({
+    components: [DefaultComponents.Button, DefaultComponents.Image],
     handler: (message, metadata) => {
       delivered.push({ message, metadata })
     },
@@ -170,17 +170,13 @@ describe('single-tool execution decisions', () => {
     expect(result.session.memory.getBindings().$return).toEqual({ value: 7 })
   })
 
-  test('validates every presentation before delivering the first message', async () => {
+  test('validates every button before delivering the first item in the array', async () => {
     const { chat, delivered } = recordingChat()
     const onExit = vi.fn()
     const client = new NativeClient([
       javascript(`
-        return chat.present({
-          messages: [
-            { component: 'Button', props: { label: 'Valid' } },
-            { component: 'Image', props: { url: 42 } },
-          ],
-        });
+        chat.buttons([{ label: 'Valid' }, { label: 42 }]);
+        return exit();
       `),
     ])
 
@@ -193,12 +189,12 @@ describe('single-tool execution decisions', () => {
     expect(result.session.pendingCalls).toEqual([])
   })
 
-  test('constructing a presentation then throwing commits no messages or exit', async () => {
+  test('preserves a synchronous component delivery when later JavaScript throws', async () => {
     const { chat, delivered } = recordingChat()
     const onExit = vi.fn()
     const client = new NativeClient([
       javascript(`
-        const pending = chat.buttons([{ label: 'Do not deliver' }]);
+        chat.buttons([{ label: 'Delivered before the error' }]);
 
         throw new Error('Later validation failed');
       `),
@@ -208,22 +204,98 @@ describe('single-tool execution decisions', () => {
 
     expect(result.isError()).toBe(true)
     expect(result.iterations[0]?.error).toContain('Later validation failed')
-    expect(delivered).toEqual([])
+    expect(delivered.map(({ message }) => (message.type === 'component' ? message.props : {}))).toEqual([
+      { action: 'say', label: 'Delivered before the error' },
+    ])
     expect(onExit).not.toHaveBeenCalled()
-    expect(result.session.memory.variables).not.toHaveProperty('pending')
+    expect(result.session.pendingCalls).toEqual([])
   })
 
-  test('presents an ordered batch and applies its typed exit in the same generation', async () => {
+  test('preserves an earlier component call when a later call has invalid arguments', async () => {
+    const { chat, delivered } = recordingChat()
+    const onExit = vi.fn()
+    const client = new NativeClient([
+      javascript(`
+        chat.buttons([{ label: 'Already sent' }]);
+        chat.image({ url: 42 });
+        return exit();
+      `),
+    ])
+
+    const result = await executeContext({ client, chat, onExit, options: { loop: 1 } })
+
+    expect(result.isError()).toBe(true)
+    expect(result.iterations[0]?.status.type).toBe('execution_error')
+    expect(delivered.map(({ message }) => (message.type === 'component' ? message.props : {}))).toEqual([
+      { action: 'say', label: 'Already sent' },
+    ])
+    expect(onExit).not.toHaveBeenCalled()
+  })
+
+  test.each(['exit', 'inspect'] as const)(
+    'automatically joins queued component handlers before %s completes',
+    async (completion) => {
+      const gate = createGate()
+      const started: string[] = []
+      const completed: string[] = []
+      const onExit = vi.fn(() => {
+        expect(completed).toEqual(['First', 'Second'])
+      })
+      const chat = createRecordingChat({
+        components: [DefaultComponents.Button],
+        handler: async (message) => {
+          const label = String(((message.type === 'component' ? message.props : {}) as Record<string, unknown>).label)
+          started.push(label)
+
+          if (label === 'First') {
+            await gate.promise
+          }
+
+          completed.push(label)
+        },
+      })
+      const client = new NativeClient([
+        javascript(`
+          chat.buttons([{ label: 'First' }]);
+          chat.buttons([{ label: 'Second' }]);
+          return ${completion === 'exit' ? 'exit()' : 'inspect({ sent: 2 })'};
+        `),
+        javascript('return exit();'),
+      ])
+      let settled = false
+      const execution = executeContext({ client, chat, onExit, options: { loop: 2 } }).then((result) => {
+        settled = true
+
+        return result
+      })
+
+      try {
+        await vi.waitFor(() => expect(started).toEqual(['First']))
+
+        expect(completed).toEqual([])
+        expect(settled).toBe(false)
+        expect(client.requests).toHaveLength(1)
+        expect(onExit).not.toHaveBeenCalled()
+      } finally {
+        gate.release()
+      }
+
+      const result = await execution
+
+      expect(result.is(ListenExit)).toBe(true)
+      expect(started).toEqual(['First', 'Second'])
+      expect(completed).toEqual(['First', 'Second'])
+      expect(client.requests).toHaveLength(completion === 'exit' ? 1 : 2)
+      expect(onExit).toHaveBeenCalledOnce()
+    }
+  )
+
+  test('sends ordered buttons and applies the typed exit in the same generation', async () => {
     const { chat, delivered } = recordingChat()
     const client = new NativeClient([
       javascript(`
-        return chat.present({
-          messages: [
-            { component: 'Button', props: { label: 'First' } },
-            { component: 'Button', props: { label: 'Second' } },
-          ],
-          exit: { name: 'done', payload: { value: 42 } },
-        });
+        chat.buttons([{ label: 'First' }, { label: 'Second' }]);
+        return exit('done', { value: 42 });
       `),
     ])
 
@@ -233,7 +305,7 @@ describe('single-tool execution decisions', () => {
       exits: [done],
       options: { loop: 1 },
       onExit: () => {
-        expect(delivered.map(({ message }) => message.props)).toEqual([
+        expect(delivered.map(({ message }) => (message.type === 'component' ? message.props : {}))).toEqual([
           { action: 'say', label: 'First' },
           { action: 'say', label: 'Second' },
         ])
@@ -249,15 +321,17 @@ describe('single-tool execution decisions', () => {
     expect(result.session.memory.getBindings().$return).toBeUndefined()
   })
 
-  test('button shorthand completes through listen without a second generation', async () => {
+  test('synchronous buttons and explicit listen complete without a second generation', async () => {
     const { chat, delivered } = recordingChat()
-    const client = new NativeClient([javascript('return chat.buttons([{ label: "Standard" }, { label: "Premium" }]);')])
+    const client = new NativeClient([
+      javascript('chat.buttons([{ label: "Standard" }, { label: "Premium" }]); return exit();'),
+    ])
 
     const result = await executeContext({ client, chat, options: { loop: 1 } })
 
     expect(result.is(ListenExit)).toBe(true)
     expect(client.requests).toHaveLength(1)
-    expect(delivered.map(({ message }) => message.props)).toEqual([
+    expect(delivered.map(({ message }) => (message.type === 'component' ? message.props : {}))).toEqual([
       { action: 'say', label: 'Standard' },
       { action: 'say', label: 'Premium' },
     ])
@@ -334,8 +408,8 @@ describe('overlapping streaming and JavaScript', () => {
         tools: [new Tool({ name: 'readAccount', handler: read })],
         exits: [done],
         options: { loop: 2 },
-        chat: new Chat({
-          components: [DefaultComponents.Text],
+        chat: createRecordingChat({
+          components: [],
           handler: () => {},
           onMessageDelta: (delta) => {
             deltas.push(delta)
@@ -385,7 +459,7 @@ describe('overlapping streaming and JavaScript', () => {
   )
 
   test.each(['stream', 'execution'] as const)(
-    'withholds terminal presentation and exit until both sides finish when %s finishes first',
+    'delivers components directly but joins both sides before exit when %s finishes first',
     async (first) => {
       const streamGate = createGate()
       const toolGate = createGate()
@@ -403,10 +477,8 @@ describe('overlapping streaming and JavaScript', () => {
           javascript(`
           const account = await readAccount();
 
-          return chat.present({
-            messages: [{ component: 'Button', props: { label: 'Continue' } }],
-            exit: { name: 'done', payload: { value: account.total } },
-          });
+          chat.buttons([{ label: 'Continue' }]);
+          return exit('done', { value: account.total });
         `),
         ],
         streamGate.promise
@@ -426,12 +498,19 @@ describe('overlapping streaming and JavaScript', () => {
         if (first === 'stream') {
           streamGate.release()
           await vi.waitFor(() => expect(client.firstStreamClosed).toBe(true))
+          expect(delivered.filter(({ message }) => message.type === 'component' && message.name === 'Button')).toEqual(
+            []
+          )
         } else {
           toolGate.release()
           await vi.waitFor(() => expect(toolFinished).toBe(true))
+          await vi.waitFor(() => {
+            expect(
+              delivered.filter(({ message }) => message.type === 'component' && message.name === 'Button')
+            ).toHaveLength(1)
+          })
         }
 
-        expect(delivered.filter(({ message }) => message.type.toLowerCase() === 'button')).toEqual([])
         expect(onExit).not.toHaveBeenCalled()
         expect(client.requests).toHaveLength(1)
       } finally {
@@ -443,7 +522,9 @@ describe('overlapping streaming and JavaScript', () => {
 
       expect(result.is(done)).toBe(true)
       expect(result.output).toEqual({ value: 42 })
-      expect(delivered.filter(({ message }) => message.type.toLowerCase() === 'button')).toHaveLength(1)
+      expect(delivered.filter(({ message }) => message.type === 'component' && message.name === 'Button')).toHaveLength(
+        1
+      )
       expect(onExit).toHaveBeenCalledOnce()
       expect(read).toHaveBeenCalledOnce()
       expect(client.requests).toHaveLength(1)
@@ -451,7 +532,57 @@ describe('overlapping streaming and JavaScript', () => {
   )
 
   test.each(['error', 'restart'] as const)(
-    'settles started effects and retains their memory without terminal delivery after a stream %s',
+    'preserves an acknowledged component delivery without replay after a stream %s',
+    async (tail) => {
+      const streamGate = createGate()
+      const { chat, delivered } = recordingChat({ previews: true })
+      const onExit = vi.fn()
+      const client = new GatedStreamClient(
+        [
+          javascript(`
+            const selectedPlan = 'Standard';
+            chat.buttons([{ label: selectedPlan }]);
+            return exit();
+          `),
+        ],
+        streamGate.promise,
+        tail
+      )
+      const execution = executeContext({
+        client,
+        chat,
+        onExit,
+        options: { loop: 3, midStreamFallback: true },
+      })
+
+      try {
+        await vi.waitFor(() => {
+          expect(
+            delivered.filter(({ message }) => message.type === 'component' && message.name === 'Button')
+          ).toHaveLength(1)
+        })
+        expect(client.firstStreamClosed).toBe(false)
+        expect(onExit).not.toHaveBeenCalled()
+      } finally {
+        streamGate.release()
+      }
+
+      const result = await execution
+      const reports = result.session.messages.filter((message) => message.type === 'tool_result')
+
+      expect(result.isError()).toBe(true)
+      expect(delivered).toHaveLength(1)
+      expect(client.requests).toHaveLength(1)
+      expect(onExit).not.toHaveBeenCalled()
+      expect(result.session.memory.variables.selectedPlan).toBe('Standard')
+      expect(reports).toHaveLength(1)
+      expect(reports[0]?.content).toContain('Messages sent')
+      expect(result.session.pendingCalls).toEqual([])
+    }
+  )
+
+  test.each(['error', 'restart'] as const)(
+    'settles started effects and retains memory without new delivery after a stream %s',
     async (tail) => {
       const streamGate = createGate()
       const toolGate = createGate()
@@ -468,7 +599,8 @@ describe('overlapping streaming and JavaScript', () => {
       const first = javascript(`
         const account = await readAccount();
 
-        return chat.buttons([{ label: 'Never delivered' }]);
+        chat.buttons([{ label: 'Never delivered' }]);
+        return exit();
       `)
       const client = new GatedStreamClient([first], streamGate.promise, tail)
       const execution = executeContext({

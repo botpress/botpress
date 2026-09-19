@@ -64,8 +64,8 @@ export class QuickJSDriver implements VMDriver {
     )
     const isTerminated = () => context[VM_TERMINATION]?.isTerminated() ?? false
 
-    // Interrupted host promises must reach compiler catches so snapshot
-    // assignment metadata is retained. Guards prevent user code from resuming.
+    // Let interrupted host promises propagate their signals. Guards prevent
+    // user code from continuing after the interruption.
     const shouldStopJobs = () => isTerminated() && !context[VM_TERMINATION]?.getSignal?.()
 
     const terminalResult = (): VMExecutionResult => {
@@ -73,16 +73,7 @@ export class QuickJSDriver implements VMDriver {
 
       if (interruption) {
         return finalizeMemoryCapture(
-          handleErrorQuickJS(
-            interruption,
-            code,
-            consumer,
-            traces,
-            variables,
-            lines_executed,
-            userCodeStartLine,
-            state.currentToolCall ?? interruption.toolCall
-          ),
+          handleErrorQuickJS(interruption, code, consumer, traces, variables, lines_executed, userCodeStartLine),
           state
         )
       }
@@ -403,16 +394,7 @@ export class QuickJSDriver implements VMDriver {
         const abortError =
           reason instanceof Error ? reason : new Error(reason ? String(reason) : 'Execution was aborted')
         return finalizeMemoryCapture(
-          handleErrorQuickJS(
-            abortError,
-            code,
-            consumer,
-            traces,
-            variables,
-            lines_executed,
-            userCodeStartLine,
-            ctx.currentToolCall ?? state.currentToolCall
-          ),
+          handleErrorQuickJS(abortError, code, consumer, traces, variables, lines_executed, userCodeStartLine),
           state
         )
       }
@@ -433,16 +415,7 @@ export class QuickJSDriver implements VMDriver {
         })
       ).catch(() => {})
       return finalizeMemoryCapture(
-        handleErrorQuickJS(
-          err,
-          code,
-          consumer,
-          traces,
-          variables,
-          lines_executed,
-          userCodeStartLine,
-          ctx.currentToolCall ?? state.currentToolCall
-        ),
+        handleErrorQuickJS(err, code, consumer, traces, variables, lines_executed, userCodeStartLine),
         state
       )
     } finally {

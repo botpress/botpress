@@ -2,6 +2,7 @@ import { Cognitive, type CognitiveRequest, type CognitiveStreamChunk } from '@bo
 import fs from 'node:fs'
 import path from 'node:path'
 import { expect } from 'vitest'
+
 import { cacheKeyOf, stringifyWithSortedKeys } from './cache-key.js'
 
 /**

@@ -1,12 +1,9 @@
 import type { CognitiveMessage, CognitiveTool, CognitiveToolCall } from '@botpress/cognitive'
-import { transforms, z } from '@bpinternal/zui'
-import type { JSONSchema7 } from 'json-schema'
-import type { Component, ComponentDefinition, RenderedComponent } from '../component.js'
+import { z } from '@bpinternal/zui'
+import { assertValidComponent, getComponentMethodName, type Component, type RenderedComponent } from '../component.js'
 import type { Exit } from '../exit.js'
 import { inspect } from '../inspect.js'
 import { isVoiceMessage, type Transcript } from '../transcript.js'
-
-const TEXT_NAMES = new Set(['message', 'text', 'markdown', 'md', 'speech'])
 
 export type NativeToolBinding = { kind: 'javascript'; name: string }
 
@@ -25,47 +22,53 @@ export type ValidatedNativeCall = {
 
 export type NativePresentationInput = {
   component: string
-  props?: Record<string, unknown>
-  body?: string
+  props: Record<string, unknown>
 }
 
-export function getComponentPropsSchema(definition: ComponentDefinition): z.ZodObject<any> {
-  switch (definition.type) {
-    case 'leaf':
-      return definition.leaf.props
-    case 'container':
-      return definition.container.props
-    case 'default':
-      return definition.default.props
-  }
+export type NativeChatMethod = {
+  name: string
+  component: Component
+  schema: z.ZodType
+  multiple: boolean
 }
 
-export function getComponentJSONSchema(component: Component): JSONSchema7 {
-  const schema = getComponentPropsSchema(component.definition)
-
-  try {
-    return transforms.toJSONSchema(schema) as JSONSchema7
-  } catch {
-    return transforms.toJSONSchemaLegacy(schema) as JSONSchema7
-  }
-}
-
-/** Text and spoken prose use ordinary assistant output and preserve native streaming. */
-export function isNativeTextComponent(component: Component): boolean {
-  const definition = component.definition
-
-  return (
-    TEXT_NAMES.has(definition.name.toLowerCase()) &&
-    definition.type !== 'leaf' &&
-    definition.body !== false &&
-    !getComponentJSONSchema(component).required?.length
+/** The prompt and VM share one component-to-method mapping and input schema. */
+export function getNativeChatMethods(components: readonly Component[]): NativeChatMethod[] {
+  validateUniqueNames(
+    components.map((component) => component.definition),
+    'component'
   )
+
+  const names = new Set<string>()
+
+  return components.map((component) => {
+    const definition = component.definition
+    assertValidComponent(definition)
+    const aliases = [definition.name, ...(definition.aliases ?? [])]
+    const multiple = aliases.some((name) => name.toLowerCase() === 'button')
+    const name = getComponentMethodName(definition)
+
+    if (names.has(name)) {
+      throw new Error(`Component ${definition.name} produces a duplicate chat method: ${name}`)
+    }
+
+    names.add(name)
+
+    const input = definition.props
+    return { name, component, schema: multiple ? z.array(input).min(1) : input, multiple }
+  })
 }
 
-export function getNativeTextComponent(components: readonly Component[]): Component | undefined {
-  const candidates = components.filter(isNativeTextComponent)
+/** Validate one synchronous send before rendering or delivering any of its messages. */
+export function renderNativeChatInput(method: NativeChatMethod, input: unknown): RenderedComponent[] {
+  const parsed = method.schema.parse(input)
+  const messages: Record<string, unknown>[] = method.multiple ? parsed : [parsed]
 
-  return candidates.find((component) => component.definition.name.toLowerCase() === 'message') ?? candidates[0]
+  return messages.map((props) => renderParsedComponent(method.component, props))
+}
+
+function renderParsedComponent(component: Component, props: Record<string, unknown>): RenderedComponent {
+  return { type: 'component', name: component.definition.name, props }
 }
 
 function validateUniqueNames(items: ReadonlyArray<{ name: string; aliases?: readonly string[] }>, kind: string): void {
@@ -92,10 +95,7 @@ export function createNativeToolCatalogue({
   components: readonly Component[]
   exits: readonly Exit[]
 }): NativeToolCatalogue {
-  validateUniqueNames(
-    components.map((component) => component.definition),
-    'component'
-  )
+  getNativeChatMethods(components)
   validateUniqueNames(exits, 'exit')
 
   return {
@@ -103,14 +103,14 @@ export function createNativeToolCatalogue({
       {
         name: 'run_javascript',
         description:
-          'Run JavaScript using the documented functions and memory. Return inspect(value) to inspect data in another response; return exit(...) to finish; return chat.present(...) to deliver rich messages and finish. Use at most one native call. Await independent business calls with Promise.all inside JavaScript.',
+          'Execute JavaScript using the available tools and memory. See the "run_javascript syntax" section of the system prompt for the input format, supported syntax, and API references.',
         parameters: {
           type: 'object',
           properties: {
             code: {
               type: 'string',
               minLength: 1,
-              description: 'JavaScript source. Top-level await and return are supported.',
+              description: 'JavaScript source with an explicit return statement. Top-level await is supported.',
             },
           },
           required: ['code'],
@@ -201,40 +201,24 @@ function findPresentationComponent(name: string, components: readonly Component[
 
 function validatePresentation(input: unknown, components: readonly Component[]): NativePresentationInput {
   if (!isObject(input) || typeof input.component !== 'string') {
-    throw new Error('A presentation requires { component, props?, body? }.')
+    throw new Error('A presentation requires { component, props }.')
   }
 
-  if (Object.keys(input).some((key) => !['component', 'props', 'body'].includes(key))) {
-    throw new Error('A presentation only accepts component, props, and body.')
+  if (Object.keys(input).some((key) => !['component', 'props'].includes(key))) {
+    throw new Error('A presentation only accepts component and props.')
   }
 
   const component = findPresentationComponent(input.component, components)
   const definition = component.definition
-  const hasBody = definition.type !== 'leaf' && definition.body !== false
-  const bodyOptions = definition.type !== 'leaf' && definition.body ? definition.body : undefined
-  const rawProps = input.props === undefined ? {} : input.props
-  const body = input.body
+  const rawProps = input.props
 
   if (!isObject(rawProps)) {
     throw new Error('Component props must be a JSON object.')
   }
 
-  if (body !== undefined && !hasBody) {
-    throw new Error(`Component ${definition.name} has no body.`)
-  }
-
-  if (body !== undefined && typeof body !== 'string') {
-    throw new Error('Component body must be a string.')
-  }
-
-  if (hasBody && (bodyOptions?.required ?? true) && (typeof body !== 'string' || !body.trim())) {
-    throw new Error(`Component ${definition.name} requires a non-empty body.`)
-  }
-
   return {
     component: definition.name,
-    props: getComponentPropsSchema(definition).parse(rawProps) as Record<string, unknown>,
-    ...(body === undefined ? {} : { body }),
+    props: definition.props.parse(rawProps) as Record<string, unknown>,
   }
 }
 
@@ -244,7 +228,7 @@ export function validateNativePresentationInputs(
   components: readonly Component[]
 ): NativePresentationInput[] {
   if (!Array.isArray(inputs) || !inputs.length) {
-    throw new Error('A presentation requires a non-empty messages array. Return exit() to wait silently.')
+    throw new Error('A presentation requires a non-empty messages array.')
   }
 
   validateUniqueNames(
@@ -262,7 +246,7 @@ export function validateNativePresentations(inputs: unknown, components: readonl
   return validated.map((input) => {
     const component = findPresentationComponent(input.component, components)
 
-    return component.render(input.props ?? {}, input.body === undefined ? [] : [input.body])
+    return renderParsedComponent(component, input.props)
   })
 }
 

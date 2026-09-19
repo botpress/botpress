@@ -1,21 +1,25 @@
 import type { Models } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import { describe, expect, it } from 'vitest'
-import { Chat, DefaultComponents, Example, ListenExit, Tool, execute, type ExecutionResult } from '../src/index.js'
+
+import { Example, ListenExit, Tool, execute, type ExecutionResult } from '../src/index.js'
+import { Session } from '../src/session.js'
+
+import { createTestChat } from './__tests__/chat.js'
 import { cases, client, expectAcceptedProtocol, metrics, models, withExamples } from './__tests__/model-evaluation.js'
 
 // Desired behavior comes from examples, not duplicated task instructions.
 // The same assertions are retained when LLMZ_EVAL_EXAMPLES=0 for ablation runs.
 const capitals = new Example({
   situation: 'Answering a geography question. The user asks for the capital of Italy.',
-  messages: [{ component: 'message', body: 'THE CAPITAL OF ITALY IS ROME.' }],
+  text: 'THE CAPITAL OF ITALY IS ROME.',
   exit: 'listen',
   reason: 'Short labels make this answer easy to scan.',
 })
 const announcement = (situation: string) =>
   new Example({
     situation,
-    messages: [{ component: 'message', body: 'Checking the documentation.' }],
+    text: 'Checking the documentation.',
     code: 'return await searchKnowledge({ query: "change account email" })',
   })
 const batchExamples = [
@@ -66,26 +70,32 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           ? explicitReason
             ? new Example({
                 situation: capitals.situation,
-                messages: [{ component: 'message', body: 'THE CAPITAL OF ITALY IS ROME.' }],
+                text: 'THE CAPITAL OF ITALY IS ROME.',
                 exit: ListenExit,
                 reason: 'We keep geography answers in uppercase so they read as short labels.',
               })
             : capitals
           : new Example({
               situation: 'Announcing an emergency drill when the user explicitly asks for a drill announcement.',
-              messages: [{ component: 'message', body: 'THIS IS A DRILL. FOLLOW THE MARKED EXIT ROUTE.' }],
+              text: 'THIS IS A DRILL. FOLLOW THE MARKED EXIT ROUTE.',
               exit: ListenExit,
             })
+        const session = new Session()
+        session.append([{ role: 'user', name: 'user', content: 'What is the capital of Portugal?' }])
+
         const result = await execute({
+          session,
           client,
           model: model as Models,
           instructions: `Answer the user's question in one short sentence.${override ? ' Use normal sentence casing, not all caps.' : ''}`,
           examples: withExamples ? [example] : [],
-          chat: new Chat({
-            components: [DefaultComponents.Text],
-            transcript: [{ role: 'user', name: 'user', content: 'What is the capital of Portugal?' }],
-            handler: async (message) => {
-              sent.push(message.children.join(''))
+          chat: createTestChat({
+            components: [],
+            onMessage: async (message) => {
+              expect(message.type).toBe('text')
+              if (message.type === 'text') {
+                sent.push(message.text)
+              }
             },
           }),
           options: { loop: 3 },
@@ -130,24 +140,30 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
             : 'Only when the user explicitly requests a narrated demonstration of how the knowledge search works.'
         )
         const quiet = 'Search silently. Do not send any message until the answer is ready.'
+        const session = new Session()
+        session.append([
+          {
+            role: 'user',
+            name: 'user',
+            content: `How do I export an archive? ${override === 'user' ? quiet : ''}`,
+          },
+        ])
+
         const result = await execute({
+          session,
           client,
           model: model as Models,
           instructions: `Answer product questions using the knowledge base. ${override === 'instructions' ? quiet : ''}`,
           examples: withExamples ? [example] : [],
           tools: [tool],
-          chat: new Chat({
-            components: [DefaultComponents.Text],
-            transcript: [
-              {
-                role: 'user',
-                name: 'user',
-                content: `How do I export an archive? ${override === 'user' ? quiet : ''}`,
-              },
-            ],
-            handler: async (message) => {
+          chat: createTestChat({
+            components: [],
+            onMessage: async (message) => {
               events.push('send')
-              sent.push(message.children.join(''))
+              expect(message.type).toBe('text')
+              if (message.type === 'text') {
+                sent.push(message.text)
+              }
             },
           }),
           options: { loop: 4 },
@@ -195,18 +211,24 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
             }
           },
         })
+        const session = new Session()
+        session.append([{ role: 'user', name: 'user', content: `Compare Oslo and Kyoto quotas in ${mode} mode.` }])
+
         const result = await execute({
+          session,
           client,
           model: model as Models,
           instructions: `Compare the requested regions using their current quotas.${override ? ' Run the regional checks one at a time, waiting for each to complete before starting the next.' : ''}`,
           examples: withExamples ? batchExamples : [],
           tools: [readQuota],
-          chat: new Chat({
-            components: [DefaultComponents.Text],
-            transcript: [{ role: 'user', name: 'user', content: `Compare Oslo and Kyoto quotas in ${mode} mode.` }],
-            handler: async (message) => {
+          chat: createTestChat({
+            components: [],
+            onMessage: async (message) => {
               events.push('send')
-              sent.push(message.children.join(''))
+              expect(message.type).toBe('text')
+              if (message.type === 'text') {
+                sent.push(message.text)
+              }
             },
           }),
           options: { loop: 4 },
@@ -256,18 +278,24 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         situation: "The user asks for Noah's balance. Only the name is known; the customer ID must be looked up.",
         code: 'const customer = await lookupCustomer({ name: "Noah" }); return await readBalance({ customerId: customer.id })',
       })
+      const session = new Session()
+      session.append([{ role: 'user', name: 'user', content: 'What is the balance for Ari?' }])
+
       const result = await execute({
+        session,
         client,
         model: model as Models,
         instructions: 'Answer account questions using the available tools.',
         examples: withExamples ? [example] : [],
         tools: [lookupCustomer, readBalance],
-        chat: new Chat({
-          components: [DefaultComponents.Text],
-          transcript: [{ role: 'user', name: 'user', content: 'What is the balance for Ari?' }],
-          handler: async (message) => {
+        chat: createTestChat({
+          components: [],
+          onMessage: async (message) => {
             events.push('send')
-            sent.push(message.children.join(''))
+            expect(message.type).toBe('text')
+            if (message.type === 'text') {
+              sent.push(message.text)
+            }
           },
         }),
         options: { loop: 4 },

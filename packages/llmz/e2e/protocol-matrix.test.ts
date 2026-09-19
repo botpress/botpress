@@ -2,8 +2,10 @@ import type { CognitiveMetadata, CognitiveRequest, CognitiveToolCall } from '@bo
 import { parse } from 'acorn'
 import { appendFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
+
 import { getNativeExecutionState, getNativeSystemMessage } from '../src/prompts/native.js'
 import { createNativeToolCatalogue, transcriptToNativeMessages } from '../src/runtime/native-tools.js'
+
 import {
   cases,
   client,
@@ -27,10 +29,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
       protocolMatrix.flatMap((scenario) => [false, true].map((streaming) => ({ scenario, streaming, id: scenario.id })))
     )('$id streaming=$streaming', { retry: 0, timeout: 60000 }, async ({ scenario, streaming }) => {
       const system = await getNativeSystemMessage(scenario.props)
-      const messages: CognitiveRequest['messages'] = [
-        system.message,
-        ...transcriptToNativeMessages(scenario.props.transcript),
-      ]
+      const messages: CognitiveRequest['messages'] = [system.message, ...transcriptToNativeMessages(scenario.messages)]
 
       if (scenario.history) {
         messages.push(
@@ -42,7 +41,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
               {
                 id: 'read-account',
                 type: 'function',
-                function: { name: 'run_javascript', arguments: { code: 'return await readAccount()' } },
+                function: { name: 'run_javascript', arguments: { code: 'return inspect(await readAccount())' } },
               },
             ],
           },
@@ -52,14 +51,15 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
             toolResultCallId: 'read-account',
             content:
               scenario.history === 'result'
-                ? 'Execution completed. Return: { plan: "Orchid", projects: 17 }'
-                : 'Execution error: readAccount failed: temporary service failure. Retry is safe. No variables or successful calls were preserved.',
+                ? 'run_javascript: succeeded\n\nTools called\n- readAccount(): succeeded\n\ninspect() result\n{ plan: "Orchid", projects: 17 }'
+                : 'run_javascript: failed\nreadAccount failed: temporary service failure. Retry is safe. No variables or successful calls were preserved.\n\ninspect() result\nNot produced; execution did not complete an inspection.',
           }
         )
       }
 
       const last = messages.at(-1)!
       last.content = String(last.content) + '\n\n' + getNativeExecutionState(scenario.props)
+      const chatEnabled = scenario.props.isChatEnabled ?? scenario.props.components.length > 0
 
       const request: CognitiveRequest = {
         model,
@@ -68,7 +68,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         reasoningEffort: 'none',
         maxTokens: 1600,
         tools: createNativeToolCatalogue(scenario.props).tools,
-        toolControl: { mode: 'auto', parallel: false },
+        toolControl: { mode: chatEnabled ? 'auto' : 'required', parallel: false },
         options: { skipCache: true },
       }
 

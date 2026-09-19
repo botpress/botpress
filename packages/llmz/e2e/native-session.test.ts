@@ -1,15 +1,8 @@
 import { z } from '@bpinternal/zui'
 import { assert, describe, expect, it } from 'vitest'
-import {
-  Exit,
-  ObjectInstance,
-  Session,
-  Snapshot,
-  SnapshotSignal,
-  Tool,
-  execute,
-  type ExecutionResult,
-} from '../src/index.js'
+
+import { Exit, ObjectInstance, Session, Tool, execute, type ExecutionResult } from '../src/index.js'
+
 import {
   cases,
   client,
@@ -56,7 +49,11 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
         description: 'Finish after loading the account and observing both sequence results.',
         schema: z.object({ accountId: z.string() }),
       })
+      const session = new Session()
+      session.append([{ role: 'user', content: 'Load the account and establish two sequential memory results.' }])
+
       const first = await execute({
+        session,
         client,
         model,
         temperature: 0,
@@ -64,7 +61,6 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
         options: executionOptions,
         tools: [readAccount],
         exits: [loaded],
-        messages: [{ role: 'user', content: 'Load the account and establish two sequential memory results.' }],
         instructions: [
           'Complete this finite memory fixture in three responses.',
           'First call run_javascript with: const account = await readAccount(); return inspect({ sequence: 1, accountId: account.id });',
@@ -113,6 +109,10 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
           latestHasResult: z.boolean(),
         }),
       })
+      restored.append([
+        { role: 'user', content: 'Audit the restored memory using JavaScript. Do not reread the account.' },
+      ])
+
       const second = await execute({
         client,
         model,
@@ -122,7 +122,7 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
         session: restored,
         tools: [readAccount],
         exits: [verified],
-        messages: [{ role: 'user', content: 'Audit the restored memory using JavaScript. Do not reread the account.' }],
+
         instructions: [
           'The previous turn completed. This is a new memory audit task.',
           'Call run_javascript once with: return inspect({ accountId: account.id, latestSequence: $return.sequence, previousSequence: $iterations[1].result.sequence, retainedSequences: $iterations.filter(entry => entry.hasResult).map(entry => entry.result.sequence), latestHasResult: $iterations[0].hasResult });',
@@ -167,7 +167,13 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
         schema: z.object({ id: z.string(), region: z.string(), quota: z.number() }),
       })
       const memoryReports: string[] = []
+      const session = new Session()
+      session.append([
+        { role: 'user', content: 'Set the profile quota to 4 while retaining its region and settings id.' },
+      ])
+
       const first = await execute({
+        session,
         client,
         model,
         temperature: 0,
@@ -175,7 +181,7 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
         options: executionOptions,
         objects: [settings],
         exits: [checked],
-        messages: [{ role: 'user', content: 'Set the profile quota to 4 while retaining its region and settings id.' }],
+
         instructions: [
           'Read the current values, schemas, and access rules in Memory.',
           'Use one run_javascript call: settings.profile = { ...settings.profile, quota: 4 }; return inspect({ id: settings.id, ...settings.profile });',
@@ -225,6 +231,10 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
       expect(restored.memory.serialize().objects).toEqual(persistedProperties)
 
       const restoredMemoryReports: string[] = []
+      restored.append([
+        { role: 'user', content: 'Read the retained settings after compaction without modifying them.' },
+      ])
+
       const second = await execute({
         client,
         model,
@@ -234,7 +244,7 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
         session: restored,
         objects: [settings],
         exits: [checked],
-        messages: [{ role: 'user', content: 'Read the retained settings after compaction without modifying them.' }],
+
         instructions: [
           'The previous update is complete. The current Memory properties are authoritative.',
           'Call run_javascript with: return inspect({ id: settings.id, ...settings.profile });',
@@ -253,119 +263,6 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
       expect(second.session.memory.getObjectPropertyValue('settings', 'profile')).toEqual({ region: 'east', quota: 4 })
       expect(restoredMemoryReports[0]).toContain('quota: 4')
       expect(hostProfile).toEqual({ region: 'east', quota: 3 })
-    })
-
-    it('resolves a snapshot binding and completes without repeating the completed effect', testOptions, async () => {
-      let effects = 0
-      let approvalRequests = 0
-      let finalizations = 0
-      const receipt = { receiptId: 'receipt-local-9' }
-      const approval = { approvalId: 'approval-local-2' }
-      const completion = { ...receipt, ...approval, completionToken: 'completion-local-42' }
-      const tools = [
-        new Tool({
-          name: 'recordEffect',
-          description: 'Record one local fixture effect and return its receipt. Never repeat a completed call.',
-          output: z.object({ receiptId: z.string() }),
-          handler: async () => {
-            effects++
-
-            return receipt
-          },
-        }),
-        new Tool({
-          name: 'waitForApproval',
-          description: 'Pause once for a fixture approval. The host resolves the pending call later.',
-          input: z.object({ receiptId: z.string() }),
-          output: z.object({ approvalId: z.string() }),
-          handler: async (input) => {
-            approvalRequests++
-            expect(input.receiptId).toBe(receipt.receiptId)
-
-            throw new SnapshotSignal('The local approval fixture is pending.')
-          },
-        }),
-        new Tool({
-          name: 'finishApproval',
-          description: 'Finalize the resolved fixture approval exactly once and return its completion token.',
-          input: z.object({ receiptId: z.string(), approvalId: z.string() }),
-          output: z.object({ receiptId: z.string(), approvalId: z.string(), completionToken: z.string() }),
-          handler: async (input) => {
-            finalizations++
-            expect(input).toEqual({ ...receipt, ...approval })
-
-            return completion
-          },
-        }),
-      ]
-      const completed = new Exit({
-        name: 'completed',
-        description: 'Finish with the receipt, approval, and completion token returned by finishApproval.',
-        schema: z.object({ receiptId: z.string(), approvalId: z.string(), completionToken: z.string() }),
-      })
-      const first = await execute({
-        client,
-        model,
-        temperature: 0,
-        reasoningEffort: 'none',
-        options: executionOptions,
-        tools,
-        exits: [completed],
-        messages: [{ role: 'user', content: 'Record the local effect and wait for its approval.' }],
-        instructions: [
-          'Call run_javascript with this sequence, retaining both named bindings:',
-          'const receipt = await recordEffect(); const approval = await waitForApproval({ receiptId: receipt.receiptId }); return inspect(await finishApproval({ receiptId: receipt.receiptId, approvalId: approval.approvalId }));',
-          'If an operation pauses, it will be resolved by the host. Never repeat completed effects.',
-          'After the approval resolves, finishApproval must run exactly once to obtain the completion token.',
-          'Once its return is observed, call run_javascript with: return exit("completed", $return);',
-        ].join('\n'),
-      })
-
-      inspectRun(first, 'snapshot-pause', model, run)
-      assert(first.isInterrupted(), JSON.stringify(metrics(first)))
-      expect(effects).toBe(1)
-      expect(approvalRequests).toBe(1)
-      expect(finalizations).toBe(0)
-      expect(first.session.memory.variables.receipt).toEqual(receipt)
-      expect(first.session.memory.getBindings().$return).toBeUndefined()
-
-      const snapshot = Snapshot.fromJSON(JSON.parse(JSON.stringify(first.snapshot)))
-      const pending = snapshot.pendingCall
-      assert(pending, 'The snapshot must retain its original native tool-call identity.')
-      snapshot.resolve(approval)
-      assert(snapshot.session, 'The resolved snapshot must preserve session state.')
-
-      expect(Session.fromJSON(snapshot.session).memory.variables.approval).toEqual(approval)
-      expect(snapshot.assignmentError).toBeUndefined()
-
-      const resumed = await execute({
-        client,
-        model,
-        temperature: 0,
-        reasoningEffort: 'none',
-        options: executionOptions,
-        snapshot,
-        tools,
-        exits: [completed],
-        instructions: [
-          'Continue the interrupted task. The effect and approval are already completed.',
-          'The bindings receipt and approval are restored in Memory. Do not call recordEffect or waitForApproval again.',
-          'finishApproval has not run. It is required to obtain the completion token; do not invent that token.',
-          'Continue using run_javascript: return inspect(await finishApproval({ receiptId: receipt.receiptId, approvalId: approval.approvalId }));',
-          'After observing that return, call run_javascript with: return exit("completed", $return);',
-        ].join('\n'),
-      })
-
-      inspectRun(resumed, 'snapshot-resume', model, run)
-      assert(resumed.is(completed), JSON.stringify(metrics(resumed)))
-      expect(resumed.output).toEqual(completion)
-      expect(resumed.session.memory.variables).toMatchObject({ receipt, approval })
-      expect(resumed.session.memory.getBindings().$return).toEqual(completion)
-      expect(resumed.session.pendingCalls).toEqual([])
-      expect(resumed.session.messages.filter((message) => message.toolResultCallId === pending.callId)).toHaveLength(1)
-      expect(effects).toBe(1)
-      expect(approvalRequests).toBe(1)
-      expect(finalizations).toBe(1)
     })
   }
 )

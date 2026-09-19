@@ -1,3 +1,5 @@
 *.md.js
 
 !examples/.env.example
+
+.prompt-review/

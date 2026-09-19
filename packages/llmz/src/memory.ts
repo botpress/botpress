@@ -1,5 +1,6 @@
 import { transforms } from '@bpinternal/zui'
 import type { JSONSchema7, JSONSchema7Definition } from 'json-schema'
+import { inspect } from './inspect.js'
 import type { ObjectInstance } from './objects.js'
 import { RESERVED_RUNTIME_NAMES } from './runtime-names.js'
 import type { ObjectMutation } from './types.js'
@@ -258,44 +259,8 @@ function typeOf(value: MemoryValue): string {
   return typeof value
 }
 
-export function previewMemoryValue(value: MemoryValue, maxChars = 160): string {
-  const describe = (item: MemoryValue, depth: number): string => {
-    if (item === undefined) {
-      return 'undefined'
-    }
-
-    if (typeof item === 'string') {
-      return JSON.stringify(item.length > 100 ? `${item.slice(0, 99)}…` : item)
-    }
-
-    if (item === null || typeof item !== 'object') {
-      return String(item)
-    }
-
-    if (Array.isArray(item)) {
-      const first = item[0]
-      const shape =
-        first && typeof first === 'object' && !Array.isArray(first)
-          ? ` with ${Object.keys(first)
-              .slice(0, 6)
-              .map((key) => `\`${key}\``)
-              .join(', ')}`
-          : ''
-      return `${item.length} item${item.length === 1 ? '' : 's'}${shape}`
-    }
-
-    if (depth > 0) {
-      return '{ … }'
-    }
-
-    const entries = Object.entries(item)
-    return `{ ${entries
-      .slice(0, 4)
-      .map(([key, child]) => `${key}: ${describe(child, depth + 1)}`)
-      .join(', ')}${entries.length > 4 ? ', …' : ''} }`
-  }
-  const text = describe(value, 0)
-  return text.length <= maxChars ? text : `${text.slice(0, Math.max(0, maxChars - 1))}…`
+export function previewMemoryValue(value: MemoryValue): string {
+  return inspect(value, undefined, { tokens: 60, compact: true, honorTruncation: false })
 }
 
 /** Keep the full schema in state; show a bounded, readable description in the model inventory. */
@@ -950,11 +915,11 @@ export class Memory {
         }
 
         const path = `\`$iterations[${index}].result\``
-        const name = entry.id === this._latestResultId ? `\`$return\` (also ${path})` : path
-        const preview = previewMemoryValue(entry.result)
+        const name = entry.id === this._latestResultId ? `\`$return\` = ${path}` : path
+        const type = typeOf(entry.result)
         const when = age(entry, options.turn, now)
 
-        append(`- ${name}: ${preview} — returned ${when}.`)
+        append(`- ${name} (${type}) — returned ${when}.`)
       }
     }
 

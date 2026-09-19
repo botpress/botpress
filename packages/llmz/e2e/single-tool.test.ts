@@ -3,12 +3,16 @@ import { z } from '@bpinternal/zui'
 import { appendFileSync } from 'node:fs'
 import { assert, describe, expect, it } from 'vitest'
 
+import type { ChatMessage } from '../src/chat.js'
 import {
   _CustomModelClient,
   type RuntimeGenerateContentInput,
   type RuntimeGenerateContentOptions,
 } from '../src/custom-client.js'
-import { Chat, DefaultComponents, Exit, ListenExit, Tool, execute, type ExecutionResult } from '../src/index.js'
+import { DefaultComponents, Exit, ListenExit, Tool, execute, type ExecutionResult } from '../src/index.js'
+import { Session } from '../src/session.js'
+
+import { createTestChat } from './__tests__/chat.js'
 import {
   cases,
   client,
@@ -167,14 +171,17 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
           description: 'Complete with the verified project limit.',
           schema: z.object({ limit: z.number() }),
         })
+        const session = new Session()
+        session.append([{ role: 'user', content: 'Read the project limit and complete the task.' }])
+
         const result = await execute({
+          session,
           client: recording,
           model,
           temperature: 0,
           reasoningEffort: 'none',
           tools: [readLimit],
           exits: [done],
-          messages: [{ role: 'user', content: 'Read the project limit and complete the task.' }],
           instructions:
             'Call readLimit exactly once and finish in the same JavaScript program with return exit("done", { limit }). Do not inspect first or add assistant text.',
           options: executionOptions,
@@ -194,24 +201,27 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
       }
     )
 
-    it('streams assistant text and presents two buttons in one generation', testOptions, async () => {
+    it('streams assistant text and sends two buttons in one generation', testOptions, async () => {
       const recording = new StreamingClient()
-      const delivered: Array<{ type: string; props: Record<string, unknown>; body: string }> = []
+      const delivered: ChatMessage[] = []
       const deltas: string[] = []
+      const session = new Session()
+      session.append([{ role: 'user', content: 'Ask me to choose Standard or Premium, with a button for each.' }])
+
       const result = await execute({
+        session,
         client: recording,
         model,
         temperature: 0,
         reasoningEffort: 'none',
-        messages: [{ role: 'user', content: 'Ask me to choose Standard or Premium, with a button for each.' }],
         instructions:
-          'Say exactly "Which plan would you like?" as normal assistant text, then call run_javascript once and return chat.buttons([{ action: "say", label: "Standard" }, { action: "say", label: "Premium" }]). Do not use chat.send or inspect. The returned presentation completes this turn.',
-        chat: new Chat({
-          components: [DefaultComponents.Text, DefaultComponents.Button],
-          handler: async (component) => {
-            delivered.push({ type: component.type, props: component.props, body: component.children.join('') })
+          'Say exactly "Which plan would you like?" as normal assistant text, then call run_javascript once. In the code, call chat.buttons([{ action: "say", label: "Standard" }, { action: "say", label: "Premium" }]); then finish with return exit("listen"). Component methods are synchronous. Do not use inspect.',
+        chat: createTestChat({
+          components: [DefaultComponents.Button],
+          onMessage: async (component) => {
+            delivered.push(component)
           },
-          onMessageDelta: async (delta) => {
+          onDelta: async (delta) => {
             if (delta.restart) {
               deltas.length = 0
             } else {
@@ -228,13 +238,14 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
       expect(recording.calls[0]).toHaveLength(1)
       expect(recording.outputs).toEqual(['Which plan would you like?'])
       expect(deltas.join('')).toBe('Which plan would you like?')
-      expect(delivered.map((message) => message.type)).toEqual([
-        DefaultComponents.Text.definition.name.toUpperCase(),
-        DefaultComponents.Button.definition.name.toUpperCase(),
-        DefaultComponents.Button.definition.name.toUpperCase(),
-      ])
-      expect(delivered[0]?.body).toBe('Which plan would you like?')
-      expect(delivered.slice(1).map((message) => message.props.label)).toEqual(['Standard', 'Premium'])
+      const text = delivered.filter((message) => message.type === 'text')
+      const buttons = delivered.filter((message) => message.type === 'component')
+
+      expect(delivered).toHaveLength(3)
+      expect(text).toHaveLength(1)
+      expect(text[0]?.text).toBe('Which plan would you like?')
+      expect(buttons.map((message) => message.name)).toEqual(['Button', 'Button'])
+      expect(buttons.map((message) => message.props.label)).toEqual(['Standard', 'Premium'])
     })
 
     it('inspects once and answers from the result in the next generation', testOptions, async () => {
@@ -250,19 +261,26 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
           return { plan: 'Orchid', projects: 17 }
         },
       })
+      const session = new Session()
+      session.append([{ role: 'user', content: 'What is my account plan and project count?' }])
+
       const result = await execute({
+        session,
         client: recording,
         model,
         temperature: 0,
         reasoningEffort: 'none',
         tools: [readAccount],
-        messages: [{ role: 'user', content: 'What is my account plan and project count?' }],
+
         instructions:
           'First call run_javascript with return inspect(await readAccount()). Do not send a progress update. After observing the result, answer with the plan and project count as normal assistant text, with no further tool calls.',
-        chat: new Chat({
-          components: [DefaultComponents.Text],
-          handler: async (component) => {
-            delivered.push(component.children.join(''))
+        chat: createTestChat({
+          components: [],
+          onMessage: async (component) => {
+            expect(component.type).toBe('text')
+            if (component.type === 'text') {
+              delivered.push(component.text)
+            }
           },
         }),
         options: { ...executionOptions, loop: 2 },

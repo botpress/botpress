@@ -28,7 +28,7 @@ const client = new Client({
 })
 
 // Chat executions can terminate in multiple ways:
-// 1. ListenExit: Agent pauses to wait for user input (automatic in chat mode)
+// 1. ListenExit: Agent finishes the turn and waits for user input (automatic in chat mode)
 // 2. Custom exits: User-defined conditions that end execution with specific outcomes
 // This example shows two custom exits for different termination scenarios
 
@@ -62,6 +62,7 @@ while (await chat.iterate()) {
     // Note: ListenExit is automatically added when using chat mode
     exits: [exit, escalation],
     chat,
+    session: chat.session,
     client,
   })
 
@@ -85,7 +86,7 @@ while (await chat.iterate()) {
   }
 
   if (result.is(ListenExit)) {
-    // The agent has paused execution to wait for user input
+    // The agent has finished the turn and is waiting for user input
     // Continue the loop to process the next user message
     // This is the normal flow for continuing conversations
   }

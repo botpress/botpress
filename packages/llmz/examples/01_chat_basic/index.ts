@@ -42,8 +42,9 @@ while (await chat.iterate()) {
       "You are a helpful assistant. Greet the user and suggest topics for discussion using buttons. Don't let users type themselves, suggest topics instead.",
 
     // Pass the chat interface to enable interactive conversation
-    // This automatically adds the user's message to the execution context
+    // The session holds pending input and retained conversation state.
     chat,
+    session: chat.session,
 
     // The Botpress client for LLM communication
     client,

@@ -3,10 +3,11 @@ export { version } from '../package.json'
 
 export { Example, type ExampleDefinition, type ExampleMessage } from './example.js'
 export { Tool } from './tool.js'
+export { truncate, type Truncated, type TruncationPolicy, type TruncatePreserve } from './truncate.js'
 export { Exit, type ExitResult } from './exit.js'
 export { ObjectInstance } from './objects.js'
-export { SnapshotSignal, ThinkSignal, LoopExceededError } from './errors.js'
-export { Session, type SessionMessage, type SessionIteration } from './session.js'
+export { ThinkSignal, LoopExceededError } from './errors.js'
+export { Session, type SessionMessage, type SessionInput, type SessionIteration } from './session.js'
 export {
   Memory,
   MemoryCapacityError,
@@ -20,10 +21,8 @@ export {
 export {
   Component,
   type RenderedComponent,
-  type LeafComponentDefinition,
-  type ContainerComponentDefinition,
-  type DefaultComponentDefinition,
   type ComponentDefinition,
+  type ComponentHandler,
   assertValidComponent,
   isComponent,
   isAnyComponent,
@@ -31,15 +30,23 @@ export {
 
 export { type Citation, CitationsManager } from './citations.js'
 export { DefaultComponents } from './component.default.js'
-export { Snapshot } from './snapshots.js'
-export { Chat, type MessageHandler, type MessageMetadata, type MessageDelta, type MessageDeltaHandler } from './chat.js'
+export {
+  Chat,
+  type AssistantTextMessage,
+  type ChatMessage,
+  type ResponseHandler,
+  type MessageMetadata,
+  type MessageDelta,
+  type MessageDeltaHandler,
+} from './chat.js'
+export type { Response, ResponsePreset } from './response.js'
 
 import { ExecutionResult } from './result.js'
 import { type ExecutionProps } from './runtime/types.js'
 import { stripTruncationTags, truncateWrappedContent, wrapContent } from './truncator.js'
 import { toValidFunctionName, toValidObjectName } from './utils.js'
 export { type Transcript } from './transcript.js'
-export { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from './result.js'
+export { ErrorExecutionResult, ExecutionResult, SuccessExecutionResult } from './result.js'
 export { type Trace, type Traces } from './types.js'
 export { type Iteration, ListenExit, DefaultExit, type IterationStatuses, type IterationStatus } from './context.js'
 export { type Context, type TokenUsage, type ContextTokens } from './context.js'
@@ -76,7 +83,7 @@ export const utils = {
  * @param props.tools - Array of Tool instances available to the agent (static or dynamic)
  * @param props.objects - Array of ObjectInstance for namespaced tools and variables (static or dynamic)
  * @param props.exits - Array of Exit definitions for structured completion (static or dynamic)
- * @param props.snapshot - Optional Snapshot to resume paused execution
+ * @param props.session - Conversation state; append input before execution and persist it between executions
  * @param props.signal - Optional AbortSignal to cancel execution
  * @param props.model - Optional model name (or array or models to use as fallback) (static or dynamic function)
  * @param props.temperature - Optional temperature value (static or dynamic function)
@@ -145,7 +152,6 @@ export const init = async () => {
   await import('./component.js')
   await import('./tool.js')
   await import('./exit.js')
-  await import('./jsx.js')
   await import('./vm/index.js')
   await import('./utils.js')
   await import('./truncator.js')

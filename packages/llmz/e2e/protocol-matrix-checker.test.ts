@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
+
 import { nativeCall } from '../src/runtime/fixtures/native-client.js'
+
 import {
   checkProtocolTask,
   checkResponseShape,
@@ -59,11 +61,12 @@ describe('single-response protocol matrix checker', () => {
     expect(checkProtocolTask(fixture, parsed)).toBe(false)
   })
 
-  it('evaluates computed button arguments and terminal presentation', async () => {
+  it('evaluates computed button arguments followed by explicit completion', async () => {
     const fixture = scenario('buttons')
     const code = [
       'const labels = ["Standard", "Premium"];',
-      'return chat.buttons(labels.map(label => ({ action: "say", label })));',
+      'chat.buttons(labels.map(label => ({ action: "say", label })));',
+      'return exit("listen");',
     ].join('\n')
     const parsed = await evaluateNativeResponse(
       fixture.expected!,
@@ -77,7 +80,7 @@ describe('single-response protocol matrix checker', () => {
     expect(checkResponseShape(fixture, parsed)).toBe(true)
   })
 
-  it('does not deliver a discarded terminal presentation decision', async () => {
+  it('delivers synchronous buttons without implicitly completing the turn', async () => {
     const fixture = scenario('buttons')
     const parsed = await evaluateNativeResponse(
       fixture.expected!,
@@ -85,7 +88,7 @@ describe('single-response protocol matrix checker', () => {
       fixture.props
     )
 
-    expect(parsed.sends.map((message) => message.name)).toEqual(['message'])
+    expect(parsed.sends.map((message) => message.name)).toEqual(['message', 'button'])
     expect(parsed.next).toBeUndefined()
     expect(checkProtocolTask(fixture, parsed)).toBe(false)
   })
@@ -148,7 +151,7 @@ describe('single-response protocol matrix checker', () => {
     const fixture = scenario('save')
     const parsed = await evaluateNativeResponse(
       '',
-      [nativeCall('run_javascript', { code: 'await savePreference({ enabled: true }); return exit();' })],
+      [nativeCall('run_javascript', { code: 'await savePreference({ enabled: true }); return exit("listen");' })],
       fixture.props
     )
 

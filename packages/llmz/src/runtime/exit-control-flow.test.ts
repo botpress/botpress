@@ -2,15 +2,15 @@ import type { CognitiveStreamChunk } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { Chat } from '../chat.js'
+import type { ChatMessage } from '../chat.js'
 import { DefaultComponents } from '../component.default.js'
-import type { RenderedComponent } from '../component.js'
 import { ListenExit } from '../context.js'
 import type { RuntimeGenerateContentInput } from '../custom-client.js'
 import { Exit } from '../exit.js'
 import { ObjectInstance } from '../objects.js'
 import { Tool } from '../tool.js'
 import { executeContext } from './execute.js'
+import { createRecordingChat } from './fixtures/chat.js'
 import { NativeClient, javascript, nativeMetadata } from './fixtures/native-client.js'
 
 const done = new Exit({
@@ -26,9 +26,9 @@ const other = new Exit({
 })
 
 function recordingChat() {
-  const delivered: RenderedComponent[] = []
-  const chat = new Chat({
-    components: [DefaultComponents.Text, DefaultComponents.Button],
+  const delivered: ChatMessage[] = []
+  const chat = createRecordingChat({
+    components: [DefaultComponents.Button],
     handler: (message) => {
       delivered.push(message)
     },
@@ -115,7 +115,7 @@ describe.each([
     const client = new NativeClient([
       javascript(`
         exit();
-        await chat.send({ component: 'Button', props: { label: 'Never sent' } });
+        chat.buttons([{ label: 'Never sent' }]);
       `),
     ])
 
@@ -149,7 +149,7 @@ describe.each([
         history.push('after');
         State.value = 'after';
         await after();
-        await chat.send({ component: 'Button', props: { label: 'Never sent' } });
+        chat.buttons([{ label: 'Never sent' }]);
         const createdAfterExit = true;
       `),
     ])
@@ -200,7 +200,7 @@ describe.each([
           phase = 'finally';
           local.value = 'finally';
           State.value = 'finally';
-          await chat.send({ component: 'Button', props: { label: 'Never sent' } });
+          chat.buttons([{ label: 'Never sent' }]);
           await after();
           return exit('other', { value: 99 });
         }
@@ -483,18 +483,18 @@ describe.each([
     expect(client.requests).toHaveLength(2)
   })
 
-  test('presents a returned batch before applying its inert typed exit descriptor', async () => {
+  test('settles synchronous component deliveries before applying a typed exit', async () => {
     const { chat, delivered } = recordingChat()
     const client = new NativeClient([
       javascript(`
-        return chat.present({
-          messages: [{ component: 'Button', props: { label: 'Continue' } }],
-          exit: { name: 'done', payload: { value: 42 } },
-        });
+        chat.buttons([{ label: 'Continue' }]);
+        return exit('done', { value: 42 });
       `),
     ])
     const onExit = vi.fn(() => {
-      expect(delivered.map((message) => message.props)).toEqual([{ action: 'say', label: 'Continue' }])
+      expect(delivered.map((message) => (message.type === 'component' ? message.props : {}))).toEqual([
+        { action: 'say', label: 'Continue' },
+      ])
     })
 
     const result = await executeContext({ client, chat, exits: [done], onExit, options: { loop: 1 } })
@@ -505,11 +505,11 @@ describe.each([
     expect(client.requests).toHaveLength(1)
   })
 
-  test('does not apply discarded presentations while a bare exit still completes', async () => {
+  test('settles synchronous component deliveries before a bare exit completes', async () => {
     const { chat, delivered } = recordingChat()
     const client = new NativeClient([
       javascript(`
-        chat.buttons([{ label: 'Never sent' }]);
+        chat.buttons([{ label: 'Sent before exit' }]);
         exit('done', { value: 42 });
       `),
     ])
@@ -517,7 +517,9 @@ describe.each([
     const result = await executeContext({ client, chat, exits: [done], options: { loop: 1 } })
 
     expect(result.is(done)).toBe(true)
-    expect(delivered).toEqual([])
+    expect(delivered.map((message) => (message.type === 'component' ? message.props : {}))).toEqual([
+      { action: 'say', label: 'Sent before exit' },
+    ])
   })
 
   test.each(['stream', 'execution'] as const)(

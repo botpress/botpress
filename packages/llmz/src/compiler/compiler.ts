@@ -9,20 +9,12 @@ import { LineTrackingFnIdentifier, applyLineTracking } from './plugins/line-trac
 import { CommentFnIdentifier, applyCommentReplacement } from './plugins/replace-comment.js'
 import { planLastLineInstrumentation } from './plugins/return-async.js'
 import { applyTerminationGuards } from './plugins/termination.js'
-import {
-  ToolCallEntry,
-  ToolCallTrackerFnIdentifier,
-  ToolTrackerRetIdentifier,
-  applyToolCallTracking,
-} from './plugins/track-tool-calls.js'
 import { VariableTrackingFnIdentifier, applyVariableTracking } from './plugins/variable-extraction.js'
 
 export const Identifiers = {
   ConsoleObjIdentifier: 'console',
   LineTrackingFnIdentifier,
   VariableTrackingFnIdentifier,
-  ToolCallTrackerFnIdentifier,
-  ToolTrackerRetIdentifier,
   CommentFnIdentifier,
 }
 
@@ -56,8 +48,7 @@ export function hasTopLevelReturn(code: string): boolean {
  *
  * 1. wraps it in an async `__fn__` so top-level `await`/`return` parse
  * 2. instruments it in a single parse + text-edit pass:
- *    line tracking, last-line awaiting, tool-call tracking, comment tracing
- *    and variable tracking
+ *    line tracking, last-line awaiting, comment tracing and variable tracking
  * 3. unwraps it — the VM drivers re-wrap the bare statements themselves
  *
  * All edits preserve line numbers 1:1 with the wrapped source, so positions
@@ -70,7 +61,6 @@ export function compile(code: string) {
   rejectDynamicCode(ast)
 
   const variables = new Set<string>()
-  const toolCalls = new Map<number, ToolCallEntry>()
 
   const lastLine = planLastLineInstrumentation(ast)
 
@@ -89,23 +79,22 @@ export function compile(code: string) {
 
   // order matters: at identical positions MagicString emits appendLeft content
   // in call order and appendRight content in call order, so the line tracker
-  // lands before `return await (`, which lands before the tool-call IIFE — and
-  // the closing edits nest in reverse
+  // lands before `return await (` and variable tracking. Closing edits nest
+  // in reverse order.
   applyLineTracking(ctx)
   if (lastLine) {
     ms.appendLeft(lastLine.prefixPos, lastLine.prefix)
   }
 
   const finishVariableTracking = applyVariableTracking(ctx, variables, true)
-  const wrappedRanges = applyToolCallTracking(ctx, toolCalls)
-  applyCommentReplacement(ctx, wrappedRanges)
+  applyCommentReplacement(ctx)
   finishVariableTracking()
   if (lastLine) {
     ms.appendRight(lastLine.suffixPos, lastLine.suffix)
   }
 
-  // Guard the instrumented program in a separate pass. Nested call and variable
-  // wrappers share source boundaries; mixing their edits can change expression values.
+  // Guard the instrumented program in a separate pass. Variable wrappers share
+  // source boundaries with calls; mixing their edits can change expression values.
   const instrumented = ms.toString()
   const terminationSource = new MagicString(instrumented)
   const finishTerminationGuards = applyTerminationGuards({
@@ -127,6 +116,5 @@ export function compile(code: string) {
     codeWithMarkers,
     map: map.toJSON(),
     variables,
-    toolCalls,
   }
 }

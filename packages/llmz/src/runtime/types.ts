@@ -1,4 +1,4 @@
-import { Cognitive, type BotpressClientLike, type CognitiveMessage, Models, type SttModels } from '@botpress/cognitive'
+import { Cognitive, type BotpressClientLike, Models, type SttModels } from '@botpress/cognitive'
 
 import { Chat } from '../chat.js'
 import { Context, Iteration } from '../context.js'
@@ -8,7 +8,6 @@ import { Exit, ExitResult } from '../exit.js'
 import { ValueOrGetter } from '../getter.js'
 import { type ObjectInstance } from '../objects.js'
 import type { Session } from '../session.js'
-import { Snapshot } from '../snapshots.js'
 import { type Tool } from '../tool.js'
 import { Trace } from '../types.js'
 
@@ -125,6 +124,11 @@ type Options = Partial<Pick<Context, 'loop' | 'timeout'>> & {
    */
   maxTokens?: number
   /**
+   * Default inspection budget for tool results, from 0 to 2,000 tokens.
+   * Defaults to 2,000. A tool's truncate() wrapper can override this limit.
+   */
+  toolResultMaxTokens?: number
+  /**
    * Maximum time to wait for the first streamed token, in milliseconds, before
    * the cognitive service falls back to the next model/provider. Only applies
    * to streaming clients (CognitiveBeta / Cognitive v2), and works best when
@@ -148,17 +152,15 @@ type Options = Partial<Pick<Context, 'loop' | 'timeout'>> & {
 }
 
 export type ExecutionProps = {
-  /** Retained native history and exact JavaScript memory across user turns. */
+  /** Append input to this session before execution. Retains history, queued input, and JavaScript memory. */
   session?: Session
-  /** New native input messages for this turn. Do not resend the session history. */
-  messages?: CognitiveMessage[]
   /**
    * If provided, the execution will be run in "Chat Mode".
-   * In this mode, the execution will be able to send messages to the chat and will also have access to a chat transcript.
+   * Chat configures assistant text and rich component delivery. Conversation input belongs to the session.
    * The execution can still end with a custom Exit, but a special ListenExit will be added to give back the chat control to the user.
    *
-   * If `chat` is not provided, the execution will run in "Worker Mode", where it will not have access to a chat transcript.
-   * In Worker Mode, the execution will iterate until it reaches an Exit or runs out of iterations.
+   * If `chat` is not provided, the execution will run in "Worker Mode" without chat delivery.
+   * In Worker Mode, the execution uses the same session history and memory, and iterates until an Exit or its limit.
    */
   chat?: Chat
 
@@ -213,7 +215,7 @@ export type ExecutionProps = {
    * Exits define the possible endpoints for the execution. Every execution will either end with an exit, or run out of iterations.
    *
    * When `chat` is provided, the built-in "ListenExit" is automatically added.
-   * When `exits` is not provided, the built-in "DefaultExit" is automatically added.
+   * In worker mode, omitting `exits` adds the built-in "DefaultExit". An explicit empty array provides no exits.
    *
    * Each exit has a name and can have aliases, which are alternative names for the exit that can be used to call it.
    * Exits can also have a Zui schema to validate the return value when the exit is reached.
@@ -237,15 +239,6 @@ export type ExecutionProps = {
    * Aborted iterations will end with IterationStatuses.Aborted and the execution will be marked as failed.
    */
   signal?: AbortSignal
-
-  /**
-   * A snapshot is a saved state of the execution context.
-   * It can be used to resume the execution of a context at a later time.
-   * This is useful for long-running executions that may need to be paused and resumed later.
-   * The snapshot MUST be settled, which means it has to be resolved or rejected.
-   * Providing an unsettled snapshot will throw an error.
-   */
-  snapshot?: Snapshot
 
   /**
    * The model to use for the LLM.

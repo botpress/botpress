@@ -4,7 +4,7 @@ import { Signals, VMSignal } from '../../errors.js'
 import { RESERVED_RUNTIME_NAMES } from '../../runtime-names.js'
 import type { VMExecutionResult } from '../../types.js'
 import { handleCatch, handleErrorNode } from '../errors.js'
-import { finalizeMemoryCapture, instrumentContext, NO_TRACKING } from '../instrument.js'
+import { finalizeMemoryCapture, findUserCodeStartLine, instrumentContext, NO_TRACKING } from '../instrument.js'
 import { VM_PROGRAM_COMPLETE, VM_TERMINATION, type DriverExecutionContext, type VMDriver } from '../types.js'
 // Unsandboxed execution via Node's AsyncFunction constructor.
 // No isolation — shares the same heap. Used as fallback when QuickJS WASM can't load.
@@ -18,7 +18,7 @@ export class NodeDriver implements VMDriver {
       variables,
       lines_executed,
       consumer,
-      0,
+      findUserCodeStartLine(transformed),
       ctx.memoryNames
     )
     // No built-in AsyncFunction type in TS — extract the constructor at runtime
@@ -90,15 +90,7 @@ export class NodeDriver implements VMDriver {
         const signal = context[VM_TERMINATION]?.getSignal?.()
 
         if (signal) {
-          return handleErrorNode(
-            signal,
-            code,
-            consumer,
-            traces,
-            variables,
-            lines_executed,
-            state.currentToolCall ?? signal.toolCall
-          )
+          return handleErrorNode(signal, code, consumer, traces, variables, lines_executed, state.lastExecutedLine)
         }
 
         if (context[VM_TERMINATION]?.isTerminated()) {
@@ -109,7 +101,7 @@ export class NodeDriver implements VMDriver {
           } satisfies VMExecutionResult
         }
 
-        return handleErrorNode(err, code, consumer, traces, variables, lines_executed, state.currentToolCall)
+        return handleErrorNode(err, code, consumer, traces, variables, lines_executed, state.lastExecutedLine)
       })
       .catch((err) => handleCatch(err, traces, variables, lines_executed))
     return finalizeMemoryCapture(result, state)

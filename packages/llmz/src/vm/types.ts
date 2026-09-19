@@ -1,6 +1,6 @@
 import type { SourceMapConsumer } from 'source-map-js'
 import type { CompiledCode } from '../compiler/index.js'
-import type { SnapshotSignal, VMSignal } from '../errors.js'
+import type { VMSignal } from '../errors.js'
 import type { Trace, VMExecutionResult } from '../types.js'
 
 /** Host-only lifecycle hook; symbols are not copied into the generated program's globals. */
@@ -29,7 +29,6 @@ export type DriverExecutionContext = {
   code: string
   lines_executed: Map<number, number>
   variables: Record<string, any>
-  currentToolCall: SnapshotSignal['toolCall'] | undefined
 }
 
 // Any execution driver (QuickJS, Node, future drivers) must implement this type

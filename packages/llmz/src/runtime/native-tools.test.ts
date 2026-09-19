@@ -5,6 +5,8 @@ import { Component } from '../component.js'
 import { Exit } from '../exit.js'
 import {
   createNativeToolCatalogue,
+  getNativeChatMethods,
+  renderNativeChatInput,
   transcriptToNativeMessages,
   validateNativePresentationInputs,
   validateNativePresentations,
@@ -37,19 +39,15 @@ describe('single native execution tool', () => {
     ).toThrow(/Duplicate exit name/)
 
     const duplicate = new Component({
-      type: 'leaf',
       name: 'Other',
       aliases: ['btn'],
       description: 'Colliding alias',
-      leaf: { props: z.object({}) },
+      props: z.object({}),
     })
 
-    expect(() =>
-      createNativeToolCatalogue({
-        components: [DefaultComponents.Button, duplicate],
-        exits: [],
-      })
-    ).toThrow(/Duplicate component name or alias/)
+    expect(() => createNativeToolCatalogue({ components: [DefaultComponents.Button, duplicate], exits: [] })).toThrow(
+      /Duplicate component name or alias/
+    )
   })
 
   it('accepts an ordinary text response or one complete JavaScript program', () => {
@@ -79,6 +77,115 @@ describe('single native execution tool', () => {
   })
 })
 
+describe('component chat methods', () => {
+  it('exposes every registered component with a normalized method name', () => {
+    const preview = new Component({
+      name: 'URLPreview',
+      description: 'Preview a link.',
+      props: z.object({ url: z.string() }),
+    })
+    const methods = getNativeChatMethods([...components, preview])
+
+    expect(methods.map((method) => method.name)).toEqual([
+      'buttons',
+      'image',
+      'file',
+      'video',
+      'audio',
+      'card',
+      'carousel',
+      'urlPreview',
+    ])
+    expect(methods.at(-1)?.component).toBe(preview)
+    expect(getNativeChatMethods([])).toEqual([])
+  })
+
+  it('maps a Button alias to an array method and preserves defaults and display order', () => {
+    const choice = new Component({ ...DefaultComponents.Button.definition, name: 'Choice', aliases: ['Button'] })
+    const [method] = getNativeChatMethods([choice])
+    const rendered = renderNativeChatInput(method!, [{ label: 'First' }, { label: 'Second', action: 'postback' }])
+
+    expect(method).toMatchObject({ name: 'buttons', component: choice, multiple: true })
+    expect(rendered).toEqual([
+      { type: 'component', name: 'Choice', props: { action: 'say', label: 'First' } },
+      { type: 'component', name: 'Choice', props: { action: 'postback', label: 'Second' } },
+    ])
+    expect(() => renderNativeChatInput(method!, { label: 'Not an array' })).toThrow()
+    expect(() => renderNativeChatInput(method!, [])).toThrow()
+  })
+
+  it('keeps a card’s text and optional content in props', () => {
+    const [method] = getNativeChatMethods([DefaultComponents.Card])
+    const [card] = renderNativeChatInput(method!, { title: 'Standard', text: 'Five projects.' })
+    const [minimal] = renderNativeChatInput(method!, { title: 'Reminder' })
+
+    expect(card).toEqual({ type: 'component', name: 'Card', props: { title: 'Standard', text: 'Five projects.' } })
+    expect(minimal).toEqual({ type: 'component', name: 'Card', props: { title: 'Reminder' } })
+    expect(() => renderNativeChatInput(method!, { title: 'Standard', body: 'Old body' })).toThrow()
+  })
+
+  it('rejects an invalid batch before invoking any component handler', () => {
+    const handler = vi.fn()
+    const action = DefaultComponents.Button.withHandler(handler)
+    const [method] = getNativeChatMethods([action])
+
+    expect(() => renderNativeChatInput(method!, [{ label: 'Valid' }, { label: 42 }])).toThrow()
+    expect(handler).not.toHaveBeenCalled()
+  })
+
+  it('applies schema transformations exactly once before producing delivery props', () => {
+    const transform = vi.fn((label: string) => `Choice: ${label}`)
+    const choice = new Component({
+      name: 'Choice',
+      aliases: ['Button'],
+      description: 'A transformed choice.',
+      props: z.object({ label: z.string().transform(transform) }),
+    })
+    const [method] = getNativeChatMethods([choice])
+    const rendered = renderNativeChatInput(method!, [{ label: 'First' }, { label: 'Second' }])
+
+    expect(rendered.map((message) => message.props.label)).toEqual(['Choice: First', 'Choice: Second'])
+    expect(transform).toHaveBeenCalledTimes(2)
+  })
+
+  it('rejects derived method-name collisions before generation', () => {
+    const buttons = new Component({ name: 'Buttons', description: 'Conflicting buttons.', props: z.object({}) })
+
+    expect(() => createNativeToolCatalogue({ components: [DefaultComponents.Button, buttons], exits: [] })).toThrow(
+      /duplicate chat method: buttons/
+    )
+
+    const first = new Component({ name: 'URLPreview', description: 'A preview.', props: z.object({}) })
+    const second = new Component({ name: 'URL-preview', description: 'Another preview.', props: z.object({}) })
+
+    expect(() => getNativeChatMethods([first, second])).toThrow(/duplicate chat method: urlPreview/)
+  })
+
+  it('treats a custom property named body as ordinary schema data', () => {
+    const document = new Component({
+      name: 'Document',
+      description: 'A document payload.',
+      props: z.object({ body: z.number() }),
+    })
+    const [method] = getNativeChatMethods([document])
+
+    expect(renderNativeChatInput(method!, { body: 7 })).toEqual([
+      { type: 'component', name: 'Document', props: { body: 7 } },
+    ])
+  })
+
+  it('derives the input schema directly from flat props', () => {
+    const [method] = getNativeChatMethods([DefaultComponents.Card])
+
+    expect(method?.schema).toBe(DefaultComponents.Card.definition.props)
+    expect(DefaultComponents.Card.definition.props.shape).toHaveProperty('text')
+    expect(DefaultComponents.Card.definition.props.shape).toHaveProperty('image')
+    expect(DefaultComponents.Card.definition.props.shape).toHaveProperty('buttons')
+    expect(DefaultComponents.Card.definition.props.shape).not.toHaveProperty('children')
+    expect(DefaultComponents.Card.definition.props.shape).not.toHaveProperty('body')
+  })
+})
+
 describe('JavaScript presentations', () => {
   it('resolves aliases and validates defaults while preserving display order', () => {
     const messages = validateNativePresentations(
@@ -89,80 +196,79 @@ describe('JavaScript presentations', () => {
       components
     )
 
-    expect(messages.map((message) => message.props)).toEqual([
-      { action: 'say', label: 'First' },
-      { action: 'say', label: 'Second' },
+    expect(messages).toEqual([
+      { type: 'component', name: 'Button', props: { action: 'say', label: 'First' } },
+      { type: 'component', name: 'Button', props: { action: 'say', label: 'Second' } },
     ])
   })
 
   it.each([
     [],
-    [{ component: 'Missing' }],
+    [{ component: 'Missing', props: {} }],
     [{ component: 'Image' }],
     [{ component: 'Image', props: { url: 42 } }],
     [{ component: 'Image', props: { url: 'https://example.com/image.png' }, body: 'Unexpected body' }],
-    [{ component: 'Card', props: { title: 'Title' } }],
-    [{ component: 'Card', props: { title: 'Title' }, body: 42 }],
-    [{ component: 'Card', props: { title: 'Title' }, body: 'Body', extra: true }],
+    [{ component: 'Card', props: { title: 'Title', text: 42 } }],
+    [{ component: 'Card', props: { title: 'Title' }, children: ['Old body'] }],
     [{ component: 'Carousel', props: { cards: [] } }],
   ])('rejects invalid presentation data before delivery: %j', (...messages) => {
     expect(() => validateNativePresentations(messages, components)).toThrow()
   })
 
-  it('validates all messages before invoking the first renderer', () => {
-    const render = vi.spyOn(DefaultComponents.Button, 'render')
+  it('validates all messages without invoking handlers', () => {
+    const handler = vi.fn()
+    const button = DefaultComponents.Button.withHandler(handler)
 
-    try {
-      expect(() =>
-        validateNativePresentations(
-          [
-            { component: 'Button', props: { label: 'Valid' } },
-            { component: 'Image', props: { url: 42 } },
-          ],
-          components
-        )
-      ).toThrow()
-
-      expect(render).not.toHaveBeenCalled()
-    } finally {
-      render.mockRestore()
-    }
+    expect(() =>
+      validateNativePresentations(
+        [
+          { component: 'Button', props: { label: 'Valid' } },
+          { component: 'Image', props: { url: 42 } },
+        ],
+        [button, DefaultComponents.Image]
+      )
+    ).toThrow()
+    expect(handler).not.toHaveBeenCalled()
   })
 
-  it('uses registered custom renderers, including nested carousel children', () => {
+  it('renders carousel card data without child components', () => {
     const [rendered] = validateNativePresentations(
       [
         {
           component: 'Carousel',
-          props: { cards: [{ title: 'Plan', body: 'Details', buttons: [{ label: 'Choose' }] }] },
+          props: { cards: [{ title: 'Plan', text: 'Details', buttons: [{ label: 'Choose' }] }] },
         },
       ],
       components
     )
 
-    expect(rendered?.children).toHaveLength(1)
-    expect(rendered?.children[0]).toMatchObject({
-      props: { title: 'Plan' },
-      children: ['Details', { props: { label: 'Choose', action: 'say' } }],
+    expect(rendered).toEqual({
+      type: 'component',
+      name: 'Carousel',
+      props: { cards: [{ title: 'Plan', text: 'Details', buttons: [{ action: 'say', label: 'Choose' }] }] },
     })
   })
 
-  it('keeps a component property named body separate from its displayed body', () => {
+  it('parses presentation schemas once and preserves parsed props', () => {
+    const transform = vi.fn((count: number) => count + 1)
     const custom = new Component({
-      type: 'container',
-      name: 'Custom',
-      description: 'Custom',
-      container: { props: z.object({ body: z.number() }), children: [] },
+      name: 'Counter',
+      description: 'A counter.',
+      props: z.object({ count: z.number().transform(transform) }),
     })
-    const [message] = validateNativePresentationInputs(
-      [{ component: 'Custom', props: { body: 7 }, body: 'Text' }],
-      [custom]
-    )
+    const [message] = validateNativePresentations([{ component: 'Counter', props: { count: 1 } }], [custom])
 
-    expect(message).toMatchObject({ props: { body: 7 }, body: 'Text' })
+    expect(message).toEqual({ type: 'component', name: 'Counter', props: { count: 2 } })
+    expect(transform).toHaveBeenCalledTimes(1)
+  })
+
+  it('validates ordinary props without adding a separate body', () => {
+    const custom = new Component({ name: 'Custom', description: 'Custom', props: z.object({ body: z.number() }) })
+    const [message] = validateNativePresentationInputs([{ component: 'Custom', props: { body: 7 } }], [custom])
+
+    expect(message).toEqual({ component: 'Custom', props: { body: 7 } })
   })
 })
-
 describe('native transcript messages', () => {
   it('retains native roles and media on their original turns', () => {
     const messages = transcriptToNativeMessages([

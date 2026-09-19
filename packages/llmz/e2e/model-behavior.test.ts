@@ -1,7 +1,12 @@
 import type { Models } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import { describe, expect, it } from 'vitest'
-import { Chat, Component, DefaultComponents, Example, Exit, ListenExit, Tool, execute } from '../src/index.js'
+
+import type { ChatMessage } from '../src/chat.js'
+import { Component, DefaultComponents, Example, Exit, ListenExit, Tool, execute } from '../src/index.js'
+import { Session } from '../src/session.js'
+
+import { createTestChat } from './__tests__/chat.js'
 import {
   cases,
   client,
@@ -14,7 +19,7 @@ import {
 
 const intakeExample = new Example({
   situation: 'The user says: Set up Birch Association. We have 7 board members.',
-  messages: [{ component: DefaultComponents.Text, body: 'How do you currently manage board meetings?' }],
+  text: 'How do you currently manage board meetings?',
   exit: ListenExit,
 })
 const searchExample = new Example({
@@ -49,18 +54,24 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
             return { plan: 'Orchid', projects: 17 }
           },
         })
+        const session = new Session()
+        session.append([{ role: 'user', content: 'What is my account plan and project count?' }])
+
         const result = await execute({
+          session,
           client,
           model: model as Models,
           instructions:
             'Read the account information using readAccount. Call it once per response and do not catch its errors.',
           tools: [tool],
-          chat: new Chat({
-            components: [DefaultComponents.Text],
-            transcript: [{ role: 'user', content: 'What is my account plan and project count?' }],
-            handler: async (message) => {
+          chat: createTestChat({
+            components: [],
+            onMessage: async (message) => {
               events.push('send')
-              sent.push(message.children.join(''))
+              expect(message.type).toBe('text')
+              if (message.type === 'text') {
+                sent.push(message.text)
+              }
             },
           }),
           options: { loop: limit },
@@ -124,23 +135,29 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
             return { plan: 'Orchid', projects: 17 }
           },
         })
+        const session = new Session()
+        session.append([
+          {
+            role: 'user',
+            content: `What is my account plan and project count? ${scenario === 'updates-user' ? request : ''}`,
+          },
+        ])
+
         const result = await execute({
+          session,
           client,
           model: model as Models,
           instructions: `Fetch the current account information using lookupAccount. Retry temporary failures until the lookup succeeds or you have made three total attempts. Call lookupAccount once per response and do not catch its errors. ${scenario === 'updates-instructions' ? request : ''}`,
           tools: [lookupAccount],
           // No examples or explicit silence instructions; only the update cases override defaults.
-          chat: new Chat({
-            components: [DefaultComponents.Text],
-            transcript: [
-              {
-                role: 'user',
-                content: `What is my account plan and project count? ${scenario === 'updates-user' ? request : ''}`,
-              },
-            ],
-            handler: async (message) => {
+          chat: createTestChat({
+            components: [],
+            onMessage: async (message) => {
               events.push('send')
-              sent.push(message.children.join(''))
+              expect(message.type).toBe('text')
+              if (message.type === 'text') {
+                sent.push(message.text)
+              }
             },
           }),
           options: { loop: 6 },
@@ -210,24 +227,30 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
             return ['Open Settings, select Export, then choose Download archive.']
           },
         })
+        const session = new Session()
+        session.append([
+          {
+            role: 'user',
+            name: 'user',
+            content: `How do I export an archive? ${source === 'user' ? requestedUpdate : ''}`,
+          },
+        ])
+
         const result = await execute({
+          session,
           client,
           model: model as Models,
           instructions: `Answer using the knowledge base. ${source === 'instructions' ? requestedUpdate : ''}`,
           examples: withExamples ? [searchExample] : [],
           tools: [tool],
-          chat: new Chat({
-            components: [DefaultComponents.Text],
-            transcript: [
-              {
-                role: 'user',
-                name: 'user',
-                content: `How do I export an archive? ${source === 'user' ? requestedUpdate : ''}`,
-              },
-            ],
-            handler: async (message) => {
+          chat: createTestChat({
+            components: [],
+            onMessage: async (message) => {
               events.push('send')
-              sent.push(message.children.join(''))
+              expect(message.type).toBe('text')
+              if (message.type === 'text') {
+                sent.push(message.text)
+              }
             },
           }),
           options: { loop: 4 },
@@ -321,17 +344,23 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
       'uses supplied intake fields: $scenario',
       async ({ input, complete }) => {
         const sent: string[] = []
+        const session = new Session()
+        session.append([{ role: 'user', name: 'user', content: input }])
+
         const result = await execute({
+          session,
           client,
           model: model as Models,
           instructions:
             'Collect exactly three onboarding details: organization name, board size, and current meeting process. Ask only for missing details. Once all three are available, acknowledge completion without proposing further setup or follow-up actions.',
           examples: withExamples ? [intakeExample] : [],
-          chat: new Chat({
-            components: [DefaultComponents.Text],
-            transcript: [{ role: 'user', name: 'user', content: input }],
-            handler: async (message) => {
-              sent.push(message.children.join(''))
+          chat: createTestChat({
+            components: [],
+            onMessage: async (message) => {
+              expect(message.type).toBe('text')
+              if (message.type === 'text') {
+                sent.push(message.text)
+              }
             },
           }),
           options: { loop: 4 },
@@ -389,19 +418,25 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
             : ['To export an archive, open Settings, select Export, then choose Download archive.']
         },
       })
+      const session = new Session()
+      session.append([{ role: 'user', name: 'user', content: 'How do I export an archive?' }])
+
       const result = await execute({
+        session,
         client,
         model: model as Models,
         instructions:
           'Answer product questions using the knowledge base. If no useful evidence is found, try a different query before answering.',
         examples: withExamples ? [searchExample] : [],
         tools: [searchKnowledge],
-        chat: new Chat({
-          components: [DefaultComponents.Text],
-          transcript: [{ role: 'user', name: 'user', content: 'How do I export an archive?' }],
-          handler: async (message) => {
+        chat: createTestChat({
+          components: [],
+          onMessage: async (message) => {
             events.push('send')
-            sent.push(message.children.join(''))
+            expect(message.type).toBe('text')
+            if (message.type === 'text') {
+              sent.push(message.text)
+            }
           },
         }),
         options: { loop: 5 },
@@ -454,24 +489,30 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         situation: 'The user asks: Compare the storage limits of Basic and Plus.',
         code: 'return inspect(await Promise.all([searchKnowledge({ query: "Basic storage limit" }), searchKnowledge({ query: "Plus storage limit" })]))',
       })
+      const session = new Session()
+      session.append([
+        {
+          role: 'user',
+          name: 'user',
+          content: 'Search separately for Standard and Team project limits and compare them.',
+        },
+      ])
+
       const result = await execute({
+        session,
         client,
         model: model as Models,
         instructions: 'Answer plan questions using the knowledge base. Fetch independent topics in parallel.',
         examples: withExamples ? [example] : [],
         tools: [searchKnowledge],
-        chat: new Chat({
-          components: [DefaultComponents.Text],
-          transcript: [
-            {
-              role: 'user',
-              name: 'user',
-              content: 'Search separately for Standard and Team project limits and compare them.',
-            },
-          ],
-          handler: async (message) => {
+        chat: createTestChat({
+          components: [],
+          onMessage: async (message) => {
             events.push('send')
-            sent.push(message.children.join(''))
+            expect(message.type).toBe('text')
+            if (message.type === 'text') {
+              sent.push(message.text)
+            }
           },
         }),
         options: { loop: 4 },
@@ -502,11 +543,11 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
     }, 120_000)
 
     it('emits cards, images and distinct button actions with exact props', async () => {
-      const sent: Array<{ type: string; props: Record<string, unknown>; body: string }> = []
+      const sent: ChatMessage[] = []
       const example = new Example({
         situation: 'The user asks: Present the Hiking guide and its cover, with links and actions.',
         messages: [
-          { component: DefaultComponents.Card, props: { title: 'Hiking guide' }, body: 'Trail safety tips.' },
+          { component: DefaultComponents.Card, props: { title: 'Hiking guide', text: 'Trail safety tips.' } },
           {
             component: DefaultComponents.Image,
             props: { url: 'https://example.com/hiking.jpg', alt: 'Hiking guide cover' },
@@ -522,29 +563,28 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         ],
         exit: ListenExit,
       })
+      const session = new Session()
+      session.append([
+        {
+          role: 'user',
+          name: 'user',
+          content:
+            'Send a card titled "Cycling guide" with text "Road safety tips.", then the image https://example.com/cycling.jpg with alt "Cycling guide cover", then a URL button labeled "Read guide" pointing to https://example.com/cycling, then a postback button labeled "Save guide" with value "save_cycling".',
+        },
+      ])
+
       const result = await execute({
+        session,
         client,
         model: model as Models,
         instructions:
           'Present supplied content using the requested components. Use exact titles, labels, URLs, and action values. Do not add a text introduction or closing message.',
         examples: withExamples ? [example] : [],
-        chat: new Chat({
-          components: [
-            DefaultComponents.Text,
-            DefaultComponents.Card,
-            DefaultComponents.Image,
-            DefaultComponents.Button,
-          ],
-          transcript: [
-            {
-              role: 'user',
-              name: 'user',
-              content:
-                'Send a card titled "Cycling guide" with body "Road safety tips.", then the image https://example.com/cycling.jpg with alt "Cycling guide cover", then a URL button labeled "Read guide" pointing to https://example.com/cycling, then a postback button labeled "Save guide" with value "save_cycling".',
-            },
-          ],
-          handler: async (message) => {
-            sent.push({ type: message.type.toLowerCase(), props: message.props, body: message.children.join('') })
+        chat: createTestChat({
+          components: [DefaultComponents.Card, DefaultComponents.Image, DefaultComponents.Button],
+
+          onMessage: async (message) => {
+            sent.push(message)
           },
         }),
         options: { loop: 3 },
@@ -562,42 +602,47 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
       )
 
       expect(result.isSuccess()).toBe(true)
-      expect(sent.map((message) => message.type)).toEqual(['card', 'image', 'button', 'button'])
-      expect(sent[0]).toMatchObject({ props: { title: 'Cycling guide' }, body: 'Road safety tips.' })
-      expect(sent[1]!.props).toMatchObject({ url: 'https://example.com/cycling.jpg', alt: 'Cycling guide cover' })
-      expect(sent[2]!.props).toMatchObject({ action: 'url', label: 'Read guide', url: 'https://example.com/cycling' })
-      expect(sent[3]!.props).toMatchObject({ action: 'postback', label: 'Save guide', value: 'save_cycling' })
+      expect(sent).toEqual([
+        DefaultComponents.Card.render({ title: 'Cycling guide', text: 'Road safety tips.' }),
+        DefaultComponents.Image.render({ url: 'https://example.com/cycling.jpg', alt: 'Cycling guide cover' }),
+        DefaultComponents.Button.render({ action: 'url', label: 'Read guide', url: 'https://example.com/cycling' }),
+        DefaultComponents.Button.render({ action: 'postback', label: 'Save guide', value: 'save_cycling' }),
+      ])
       expectRuntimeModelRoute(result, model)
       expectAcceptedProtocol(result)
     }, 120_000)
 
-    it('renders the default carousel as nested cards with images and buttons', async () => {
-      const cards = [
+    it('renders the default carousel with flat cards, images and buttons', async () => {
+      const cards: Parameters<typeof DefaultComponents.Carousel.render>[0]['cards'] = [
         {
           title: 'Blue mug',
           subtitle: '$12',
-          body: 'Dishwasher safe.',
+          text: 'Dishwasher safe.',
           image: { url: 'https://example.com/blue.jpg', alt: 'Blue mug' },
           buttons: [{ action: 'url', label: 'View Blue', url: 'https://example.com/blue' }],
         },
         {
           title: 'Green mug',
           subtitle: '$15',
-          body: 'Hand glazed.',
+          text: 'Hand glazed.',
           image: { url: 'https://example.com/green.jpg', alt: 'Green mug' },
           buttons: [{ action: 'postback', label: 'Choose Green', value: 'green_mug' }],
         },
       ]
       const sent: unknown[] = []
+      const session = new Session()
+      session.append([{ role: 'user', name: 'user', content: `Show these products: ${JSON.stringify(cards)}` }])
+
       const result = await execute({
+        session,
         client,
         model: model as Models,
         instructions:
           'Present supplied products as one carousel, preserving their order and all supplied content. Do not add introductory or closing text.',
-        chat: new Chat({
+        chat: createTestChat({
           components: [DefaultComponents.Carousel],
-          transcript: [{ role: 'user', name: 'user', content: `Show these products: ${JSON.stringify(cards)}` }],
-          handler: async (message) => {
+
+          onMessage: async (message) => {
             sent.push(message)
           },
         }),
@@ -615,35 +660,21 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
       )
 
       expect(result.isSuccess()).toBe(true)
-      expect(sent).toEqual([
-        DefaultComponents.Carousel.render(
-          {},
-          cards.map(({ body, image, buttons, ...props }) =>
-            DefaultComponents.Card.render(props, [
-              body,
-              DefaultComponents.Image.render(image),
-              ...buttons.map((button) => DefaultComponents.Button.render(button)),
-            ])
-          )
-        ),
-      ])
+      expect(sent).toEqual([DefaultComponents.Carousel.render({ cards })])
       expectRuntimeModelRoute(result, model)
       expectAcceptedProtocol(result)
     }, 120_000)
 
     it('emits structured carousel props without copying example facts', async () => {
       const ProductCarousel = new Component({
-        type: 'leaf',
         name: 'ProductCarousel',
         description: 'Displays products as a carousel of cards.',
-        leaf: {
-          props: z.object({
-            cards: z
-              .array(z.object({ title: z.string(), imageUrl: z.string(), url: z.string() }))
-              .min(1)
-              .max(10),
-          }),
-        },
+        props: z.object({
+          cards: z
+            .array(z.object({ title: z.string(), imageUrl: z.string(), url: z.string() }))
+            .min(1)
+            .max(10),
+        }),
         generation: {
           examples: [
             {
@@ -661,17 +692,21 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         { title: 'Blue mug', imageUrl: 'https://example.com/blue.jpg', url: 'https://example.com/blue' },
         { title: 'Green mug', imageUrl: 'https://example.com/green.jpg', url: 'https://example.com/green' },
       ]
-      const sent: Array<{ type: string; props: Record<string, unknown>; body: string }> = []
+      const sent: ChatMessage[] = []
+      const session = new Session()
+      session.append([{ role: 'user', name: 'user', content: `Show these products: ${JSON.stringify(cards)}` }])
+
       const result = await execute({
+        session,
         client,
         model: model as Models,
         instructions:
           'Present the supplied products as one carousel, preserving their order. Do not add introductory or closing text.',
-        chat: new Chat({
-          components: [DefaultComponents.Text, ProductCarousel],
-          transcript: [{ role: 'user', name: 'user', content: `Show these products: ${JSON.stringify(cards)}` }],
-          handler: async (message) => {
-            sent.push({ type: message.type.toLowerCase(), props: message.props, body: message.children.join('') })
+        chat: createTestChat({
+          components: [ProductCarousel],
+
+          onMessage: async (message) => {
+            sent.push(message)
           },
         }),
         options: { loop: 3 },
@@ -689,7 +724,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
       )
 
       expect(result.isSuccess()).toBe(true)
-      expect(sent).toEqual([{ type: 'productcarousel', props: { cards }, body: '' }])
+      expect(sent).toEqual([ProductCarousel.render({ cards })])
       expectRuntimeModelRoute(result, model)
       expectAcceptedProtocol(result)
     }, 120_000)

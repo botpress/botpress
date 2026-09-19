@@ -36,17 +36,13 @@ const client = new Client({
 const PlaneTicketComponent = new Component({
   name: 'PlaneTicket',
   description: 'A component to display a plane ticket',
-  type: 'leaf', // Leaf components don't contain children
-  leaf: {
-    // Define the props schema with validation
-    props: z.object({
-      ticketNumber: z.string().describe('The unique ticket number for the plane ticket'),
-      from: z.string().describe('The departure city'),
-      to: z.string().describe('The destination city'),
-      date: z.string().describe('The date of the flight (in YYYY-MM-DD format)'),
-      price: z.number().optional().describe('The price of the ticket'),
-    }),
-  },
+  props: z.object({
+    ticketNumber: z.string().describe('The unique ticket number for the plane ticket'),
+    from: z.string().describe('The departure city'),
+    to: z.string().describe('The destination city'),
+    date: z.string().describe('The date of the flight (in YYYY-MM-DD format)'),
+    price: z.number().optional().describe('The price of the ticket'),
+  }),
   generation: {
     usage: 'Display the confirmed ticket returned by purchase_ticket.',
     examples: [
@@ -90,16 +86,14 @@ const purchaseTicket = new Tool({
 const chat = new CLIChat()
 
 // Pre-populate the conversation with a user request
-chat.transcript.push({
+chat.session.append({
   role: 'user',
   content: 'I want to purchase a plane ticket from New York to Los Angeles on 2025-10-01.',
 })
 
 // Register how the PlaneTicket component should be rendered
 // This defines the visual output when the component is used
-chat.registerComponent(PlaneTicketComponent, async (message) => {
-  const { ticketNumber, from, to, date, price } = message.props
-
+chat.registerComponent(PlaneTicketComponent, async ({ ticketNumber, from, to, date, price }) => {
   // Create a visually appealing ticket display
   const ticket = box([
     chalk.white.bold('             ✈️  FLIGHT TICKET'),
@@ -124,6 +118,7 @@ const result = await execute({
     'You are a travel agent. Help the user purchase a plane ticket. Show them the ticket using the right component.',
   tools: [purchaseTicket], // Tool for purchasing tickets
   chat, // Chat interface with component registration
+  session: chat.session,
   client,
 })
 

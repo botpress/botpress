@@ -125,7 +125,7 @@ describe.each([
     expect(recovery).toContain('REFERENCE RECOVERY')
     expect(recovery).toContain('Declare new variables with const or let')
     expect(recovery).toContain('reuse its acknowledged result rather than repeating the call')
-    expect(recovery).toContain('BUSINESS CALL OUTCOMES')
+    expect(recovery).toContain('Tools called')
     expect(recovery).toContain('fetchOrder')
     expect(recovery).toContain('order-42')
   })

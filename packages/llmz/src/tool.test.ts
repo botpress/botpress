@@ -2,6 +2,90 @@ import { z } from '@bpinternal/zui'
 import { describe, expect, it } from 'vitest'
 
 import { Tool } from './tool.js'
+import { truncate } from './truncate.js'
+
+describe('tool inspection policies', () => {
+  it('returns a plain typed string and reports its display policy separately', async () => {
+    const value = 'Document text\nSecond line'
+    const policy = { maxTokens: 40000, preserve: 'both' as const }
+    const captured: unknown[] = []
+    const tool = new Tool({
+      name: 'readDocument',
+      output: z.string(),
+      handler: async () => truncate({ value, ...policy }),
+    })
+    const result: string = await tool.execute(undefined, {
+      callId: 'read-document',
+      onTruncation: (output, options) => captured.push({ output, options }),
+    })
+
+    expect(result).toBe(value)
+    expect(captured).toEqual([{ output: value, options: expect.objectContaining(policy) }])
+    expect(await tool.getTypings()).toContain('Promise<string>')
+    expect(await tool.getTypings()).not.toContain('truncate')
+  })
+
+  it('validates the underlying object before reporting the parsed value', async () => {
+    const captured: unknown[] = []
+    const tool = new Tool({
+      name: 'readAccount',
+      output: z.object({ id: z.number() }),
+      handler: async () => truncate({ value: { id: 42 }, maxTokens: 100 }),
+    })
+    const result: { id: number } = await tool.execute(undefined, {
+      callId: 'read-account',
+      onTruncation: (output) => captured.push(output),
+    })
+
+    expect(result).toEqual({ id: 42 })
+    expect(captured).toEqual([{ id: 42 }])
+    expect(result).not.toHaveProperty('$$truncate')
+    expect(await tool.execute(undefined, { callId: 'standalone' })).toEqual({ id: 42 })
+  })
+
+  it('supports policy wrappers returned by cloned tools and generator handlers', async () => {
+    const original = new Tool({
+      name: 'readDocument',
+      output: z.string(),
+      handler: async () => 'Original text',
+    })
+    const cloned = original.clone({
+      async *handler() {
+        return truncate({ value: 'Generator result', maxTokens: 200 })
+      },
+    })
+
+    expect(await cloned.execute(undefined, { callId: 'generator' })).toBe('Generator result')
+  })
+
+  it('preserves the existing invalid-output fallback for wrapped values without retrying', async () => {
+    let calls = 0
+    let retries = 0
+    let policies = 0
+    const tool = new Tool({
+      name: 'readDocument',
+      output: z.string().min(10),
+      handler: async () => {
+        calls++
+        return truncate({ value: 'short', maxTokens: 100 })
+      },
+      retry: async () => {
+        retries++
+        return true
+      },
+    })
+
+    await expect(
+      tool.execute(undefined, {
+        callId: 'invalid-output',
+        onTruncation: () => policies++,
+      })
+    ).resolves.toBe('short')
+    expect(calls).toBe(1)
+    expect(retries).toBe(0)
+    expect(policies).toBe(1)
+  })
+})
 
 describe('tools typings', () => {
   it('simple tool with no description', async () => {

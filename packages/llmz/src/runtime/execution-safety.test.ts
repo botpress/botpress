@@ -1,14 +1,12 @@
 import { z } from '@bpinternal/zui'
 import { describe, expect, it, vi } from 'vitest'
-import { Chat, type MessageDelta } from '../chat.js'
+import { type MessageDelta } from '../chat.js'
 import { Component } from '../component.js'
-import { SnapshotSignal } from '../errors.js'
 import { Exit } from '../exit.js'
 import { Session } from '../session.js'
-import { Snapshot } from '../snapshots.js'
 import { Tool } from '../tool.js'
-import type { Transcript } from '../transcript.js'
 import { executeContext } from './execute.js'
+import { createRecordingChat } from './fixtures/chat.js'
 import { NativeClient, NativeStreamClient, javascript, nativeCall, response } from './fixtures/native-client.js'
 
 const done = new Exit({ name: 'complete', description: 'Complete the work', schema: z.object({ ok: z.boolean() }) })
@@ -84,14 +82,14 @@ describe('native execution safety', () => {
     expect(action).toHaveBeenCalledOnce()
     expect(result.session.memory.variables.payment).toEqual({ charged: true })
     expect(result.session.memory.getBindings().$return).toEqual({ charged: true })
-    expect(toolResults(client, 1)[0]?.content).toContain('RETURN')
+    expect(toolResults(client, 1)[0]?.content).toContain('Result')
   })
 
   it('retracts provisional text when a completed response has an invalid native batch', async () => {
     const deltas: MessageDelta[] = []
     const handler = vi.fn()
     const business = vi.fn()
-    const chat = new Chat({
+    const chat = createRecordingChat({
       components: [],
       handler,
       onMessageDelta: (delta) => {
@@ -115,35 +113,54 @@ describe('native execution safety', () => {
     expect(toolResults(client, 1)).toHaveLength(2)
   })
 
-  it('does not replay earlier successful presentation after a later delivery or exit fails', async () => {
+  it('does not replay earlier successful delivery after a later queued delivery fails', async () => {
     const card = new Component({
       name: 'Card',
-      type: 'leaf',
+
       description: 'Card',
-      leaf: { props: z.object({ id: z.string() }) },
+      props: z.object({ id: z.string() }),
     })
     const displayed: string[] = []
-    const handler = vi.fn((message) => {
+    let releaseDelivery!: () => void
+    const pendingDelivery = new Promise<void>((resolve) => {
+      releaseDelivery = resolve
+    })
+    const handler = vi.fn(async (message) => {
       displayed.push(message.props.id)
 
       if (message.props.id === 'uncertain') {
+        await pendingDelivery
+
         throw new Error('Connection failed after send')
       }
     })
     const client = new NativeClient([
-      javascript(`return chat.present({
-        messages: [
-          { component: "Card", props: { id: "delivered" } },
-          { component: "Card", props: { id: "uncertain" } },
-          { component: "Card", props: { id: "skipped" } }
-        ]
-      });`),
+      javascript(`
+        chat.card({ id: 'delivered' });
+        chat.card({ id: 'uncertain' });
+        chat.card({ id: 'skipped' });
+        return exit();
+      `),
       javascript('return exit();'),
     ])
-    const result = await executeContext({ client, chat: new Chat({ components: [card], handler }) })
+    const onExit = vi.fn()
+    const execution = executeContext({ client, chat: createRecordingChat({ components: [card], handler }), onExit })
+
+    try {
+      await vi.waitFor(() => expect(displayed).toEqual(['delivered', 'uncertain']))
+
+      expect(client.requests).toHaveLength(1)
+      expect(onExit).not.toHaveBeenCalled()
+    } finally {
+      releaseDelivery()
+    }
+
+    const result = await execution
 
     expect(result.isSuccess()).toBe(true)
     expect(displayed).toEqual(['delivered', 'uncertain'])
+    expect(client.requests).toHaveLength(2)
+    expect(onExit).toHaveBeenCalledOnce()
     const feedback = toolResults(client, 1)
 
     expect(feedback).toHaveLength(1)
@@ -187,104 +204,6 @@ describe('native execution safety', () => {
     expect(client.requests).toHaveLength(1)
     expect(client.requests[0]!.messages.some((message) => message.type === 'tool_result')).toBe(false)
     expect(JSON.stringify(client.requests[0]!.messages)).toContain('Context fetch failed temporarily')
-  })
-
-  it('rejects new transcript input on snapshot resume instead of silently discarding it', async () => {
-    const history: Transcript.Message[] = [{ role: 'user', content: 'Start my job' }]
-    const chat = new Chat({ components: [], transcript: () => history, handler: () => {} })
-    const first = await executeContext({
-      chat,
-      client: new NativeClient([javascript('const job = await pause();')]),
-      tools: [
-        new Tool({
-          name: 'pause',
-          handler: () => {
-            throw new SnapshotSignal('Running')
-          },
-        }),
-      ],
-    })
-
-    if (!first.isInterrupted()) {
-      throw new Error('Expected a pending snapshot')
-    }
-
-    const snapshot = Snapshot.fromJSON(JSON.parse(JSON.stringify(first.snapshot)))
-    snapshot.resolve({ id: 'job-1' })
-    history.push({ role: 'user', content: 'Cancel the job instead' })
-    const client = new NativeClient([javascript('return exit();')])
-    const resumed = await executeContext({ snapshot, chat, client })
-
-    expect(resumed.isError()).toBe(true)
-    expect(client.requests).toHaveLength(0)
-    expect(snapshot.status.type).toBe('resolved')
-  })
-
-  it('snapshot rejection preserves the previous return and pairs the original outer call', async () => {
-    const tools = [
-      new Tool({
-        name: 'pause',
-        handler: () => {
-          throw new SnapshotSignal('Waiting')
-        },
-      }),
-    ]
-    const first = await executeContext({
-      client: new NativeClient([javascript('return 17;'), javascript('const task = await pause(); return 99;')]),
-      tools,
-      exits: [done],
-    })
-
-    if (!first.isInterrupted()) {
-      throw new Error('Expected interrupted result')
-    }
-
-    const pendingId = first.snapshot.pendingCall!.callId
-    first.snapshot.reject(new Error('Remote job failed'))
-    const client = new NativeClient([finish()])
-    const result = await executeContext({ snapshot: first.snapshot, tools, client, exits: [done] })
-
-    expect(result.isSuccess()).toBe(true)
-    expect(result.session.memory.getBindings().$return).toBe(17)
-    expect(result.session.memory.variables).not.toHaveProperty('task')
-    expect(client.requests[0]!.messages.find((message) => message.toolResultCallId === pendingId)?.content).toContain(
-      'failed'
-    )
-    expect(result.session.pendingCalls).toEqual([])
-  })
-
-  it('cannot resume the same snapshot object twice after accepting its pending result', async () => {
-    const tools = [
-      new Tool({
-        name: 'pause',
-        handler: async () => {
-          throw new SnapshotSignal('Waiting')
-        },
-      }),
-    ]
-    const first = await executeContext({
-      client: new NativeClient([javascript('await pause();')]),
-      tools,
-      exits: [done],
-    })
-
-    if (!first.isInterrupted()) {
-      throw new Error('Expected interrupted result')
-    }
-
-    first.snapshot.resolve(true)
-    const resumed = await executeContext({
-      snapshot: first.snapshot,
-      tools,
-      client: new NativeClient([finish()]),
-      exits: [done],
-    })
-    const repeatedClient = new NativeClient([finish()])
-    const repeated = await executeContext({ snapshot: first.snapshot, tools, client: repeatedClient, exits: [done] })
-
-    expect(resumed.isSuccess()).toBe(true)
-    expect(repeated.isError()).toBe(true)
-    expect(repeatedClient.requests).toHaveLength(0)
   })
 
   it('prevents concurrent executions from changing one retained session', async () => {

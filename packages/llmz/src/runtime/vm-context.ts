@@ -3,6 +3,8 @@ import { z } from '@bpinternal/zui'
 import { Context, Iteration } from '../context.js'
 import { AssignmentError } from '../errors.js'
 import { cloneMemoryValue } from '../memory.js'
+import type { ComponentDelivery } from '../tool.js'
+import type { TruncationPolicy } from '../truncate.js'
 import { type Trace } from '../types.js'
 import { getErrorMessage, stripInvalidIdentifiers } from '../utils.js'
 import { VM_PROGRAM_COMPLETE, VM_TERMINATION, type VMContext } from '../vm/types.js'
@@ -16,6 +18,9 @@ type BuildVMContextProps = {
   controller: AbortController
   onBeforeTool?: ExecutionHooks['onBeforeTool']
   onAfterTool?: ExecutionHooks['onAfterTool']
+  onTruncation?: (value: unknown, policy: TruncationPolicy) => void
+  onToolResult?: (value: unknown) => void
+  onYield?: ComponentDelivery
   javascriptApi?: JavaScriptApi
 }
 
@@ -25,6 +30,9 @@ export const buildVMContext = ({
   controller,
   onBeforeTool,
   onAfterTool,
+  onTruncation,
+  onToolResult,
+  onYield,
   javascriptApi,
 }: BuildVMContextProps): VMContext => {
   const traces: Trace[] = iteration.traces
@@ -111,13 +119,15 @@ export const buildVMContext = ({
 
     for (const tool of obj.tools ?? []) {
       const wrapped = wrapTool({
-        chat: ctx.chat,
+        onYield,
         tool,
         traces,
         object: obj.name,
         iteration,
         beforeHook: onBeforeTool,
         afterHook: onAfterTool,
+        onTruncation,
+        onResult: onToolResult,
         controller,
       })
       instance[tool.name] = javascriptApi ? (input: unknown) => javascriptApi.track(() => wrapped(input)) : wrapped
@@ -131,12 +141,14 @@ export const buildVMContext = ({
 
   for (const tool of iteration.tools) {
     const wrapped = wrapTool({
-      chat: ctx.chat,
+      onYield,
       tool,
       traces,
       iteration,
       beforeHook: onBeforeTool,
       afterHook: onAfterTool,
+      onTruncation,
+      onResult: onToolResult,
       controller,
     })
     const callable = javascriptApi ? (input: unknown) => javascriptApi.track(() => wrapped(input)) : wrapped

@@ -129,6 +129,5 @@ export async function runAsyncFunction(
     code,
     lines_executed,
     variables,
-    currentToolCall: undefined,
   })
 }

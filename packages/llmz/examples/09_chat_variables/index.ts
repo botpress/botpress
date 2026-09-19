@@ -94,6 +94,7 @@ while (await chat.iterate()) {
   await execute({
     client,
     chat,
+    session: chat.session,
     instructions: `You need to fill in the user profile with the user's information.
   Fill the individual fields with the information you have at hand before asking the user for more information.`,
     exits: [completed, abort],

@@ -1,11 +1,13 @@
 import type { CognitiveRequest, CognitiveMetadata, CognitiveToolCall } from '@botpress/cognitive'
 import { describe, expect, it } from 'vitest'
+
 import { getNativeExecutionState, getNativeSystemMessage } from '../src/prompts/native.js'
 import {
   createNativeToolCatalogue,
   transcriptToNativeMessages,
   validateNativeToolCalls,
 } from '../src/runtime/native-tools.js'
+
 import { cases, client, expectAllowedRestart, expectModelRoute, models } from './__tests__/model-evaluation.js'
 import { protocolScenario, protocolScenarios } from './__tests__/protocol-scenarios.js'
 
@@ -18,9 +20,9 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
       '$question (streaming=$streaming)',
       { retry: 0, timeout: 60000 },
       async ({ question, streaming }) => {
-        const props = protocolScenario(question)
+        const { messages: input, ...props } = protocolScenario(question)
         const system = await getNativeSystemMessage(props)
-        const messages = [system.message, ...transcriptToNativeMessages(props.transcript)]
+        const messages = [system.message, ...transcriptToNativeMessages(input)]
         const last = messages.at(-1)!
         last.content = String(last.content) + '\n\n' + getNativeExecutionState(props)
         const catalogue = createNativeToolCatalogue(props)

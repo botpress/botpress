@@ -1,11 +1,12 @@
 import { ulid } from 'ulid'
 
-import type { Component, RenderedComponent } from '../component.js'
+import type { MessageMetadata } from '../chat.js'
+import { isAnyComponent, prepareComponentDelivery, type Component, type RenderedComponent } from '../component.js'
 import type { Iteration } from '../context.js'
-import { SnapshotSignal, ThinkSignal } from '../errors.js'
+import { ThinkSignal } from '../errors.js'
 import type { Exit } from '../exit.js'
 import { cloneMemoryValue } from '../memory.js'
-import { validateNativePresentations, type NativePresentationInput } from './native-tools.js'
+import { getNativeChatMethods, renderNativeChatInput, type NativeChatMethod } from './native-tools.js'
 
 /** A child message keeps its identity from preparation through acknowledged delivery. */
 export type PreparedMessage = {
@@ -13,27 +14,16 @@ export type PreparedMessage = {
   component: RenderedComponent
 }
 
-export type JavaScriptOutcome =
-  | { type: 'inspect'; value: unknown }
-  | { type: 'exit'; exit: Exit; value: unknown; messages: PreparedMessage[] }
+export type JavaScriptOutcome = { type: 'inspect'; value: unknown } | { type: 'exit'; exit: Exit; value: unknown }
 
 type DecisionReceipt = Readonly<{ __llmz_decision: string }>
-
-export type ExitTarget = {
-  name: string
-  payload?: unknown
-}
 
 type TerminalOutcome = Extract<JavaScriptOutcome, { type: 'exit' }>
 
 export type JavaScriptBindings = {
   exit(name?: string, value?: unknown): never
   inspect(value: unknown): DecisionReceipt
-  chat: Readonly<{
-    present(input: { messages: NativePresentationInput[]; exit?: ExitTarget }): DecisionReceipt
-    buttons(buttons: Record<string, unknown>[]): DecisionReceipt
-    send(messages: NativePresentationInput | NativePresentationInput[]): Promise<void>
-  }>
+  chat: Readonly<Record<string, (input: unknown) => void>>
 }
 
 export type JavaScriptApi = {
@@ -42,13 +32,15 @@ export type JavaScriptApi = {
   isReceipt(value: unknown): boolean
   getTerminalOutcome(): TerminalOutcome | undefined
   /** The first host interruption closes execution before guest handlers can consume it. */
-  getInterruption(): SnapshotSignal | ThinkSignal | undefined
+  getInterruption(): ThinkSignal | undefined
   throwIfTerminated(): void
   track<T>(operation: () => Promise<T>): Promise<T>
   assertOpen(): void
+  /** Queue a component yielded by a host tool alongside ordinary chat sends. */
+  sendComponent(value: unknown, metadata: MessageMetadata): Promise<void>
   /** Called at program settlement, before background work can invoke another host operation. */
   complete(): void
-  /** Joins started work; interrupted programs preserve their signal instead of an unawaited-work error. */
+  /** Joins automatic message delivery and business work before the iteration can settle. */
   close(): Promise<void>
 }
 
@@ -64,8 +56,8 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === 'object' && !Array.isArray(value)
 
 /**
- * Presentation and inspection construct returned decisions. Calling exit instead
- * latches a validated outcome and stops the program before terminal effects run.
+ * Component methods send synchronously; the runtime joins delivery in close().
+ * Inspection returns a decision, while exit latches an outcome and stops the program.
  */
 export function createJavaScriptApi({
   iteration,
@@ -78,9 +70,10 @@ export function createJavaScriptApi({
   const pending = new Set<Promise<unknown>>()
   let open = true
   let outstanding: Promise<unknown>[] = []
+  let delivery: Promise<void> | undefined
   let nextMessage = 0
   let terminalOutcome: TerminalOutcome | undefined
-  let interruption: SnapshotSignal | ThinkSignal | undefined
+  let interruption: ThinkSignal | undefined
   const termination = new Error('JavaScript execution terminated.')
 
   const throwIfTerminated = (): void => {
@@ -115,9 +108,9 @@ export function createJavaScriptApi({
     return Object.freeze({ __llmz_decision: token })
   }
 
-  const prepareMessages = (messages: unknown): PreparedMessage[] => {
+  const prepareMessages = (method: NativeChatMethod, input: unknown): PreparedMessage[] => {
     assertOpen()
-    const rendered = validateNativePresentations(messages, components)
+    const rendered = renderNativeChatInput(method, input)
 
     return rendered.map((component) => ({
       id: `${iteration.nativeCallId ?? iteration.id}:message:${++nextMessage}`,
@@ -142,7 +135,6 @@ export function createJavaScriptApi({
       type: 'exit',
       exit: registered,
       value: cloneMemoryValue(validated),
-      messages: [],
     }
   }
 
@@ -165,7 +157,7 @@ export function createJavaScriptApi({
       (error) => {
         pending.delete(tracked)
 
-        if (!interruption && (error instanceof ThinkSignal || error instanceof SnapshotSignal)) {
+        if (!interruption && error instanceof ThinkSignal) {
           interruption = error
           complete()
         }
@@ -181,44 +173,38 @@ export function createJavaScriptApi({
     return tracked
   }
 
-  const present = (input: { messages: NativePresentationInput[]; exit?: ExitTarget }): DecisionReceipt => {
-    assertOpen()
-    if (!isRecord(input) || Object.keys(input).some((key) => key !== 'messages' && key !== 'exit')) {
-      throw new Error('chat.present requires { messages, exit? }.')
-    }
+  const enqueue = (messages: PreparedMessage[]): Promise<void> => {
+    const dispatch = async () => deliver(messages)
 
-    if (
-      input.exit !== undefined &&
-      (!isRecord(input.exit) ||
-        typeof input.exit.name !== 'string' ||
-        Object.keys(input.exit).some((key) => key !== 'name' && key !== 'payload'))
-    ) {
-      throw new Error('chat.present requires { name, payload? } for its optional exit.')
-    }
+    // Start the first delivery now, then preserve call order for asynchronous handlers.
+    delivery = delivery ? delivery.then(dispatch) : dispatch()
 
-    const terminal = validateExit(input.exit?.name, input.exit?.payload)
+    // Delivery failures are surfaced by close(), even if JavaScript is still running.
+    void delivery.catch(() => {})
 
-    return issue({
-      ...terminal,
-      messages: prepareMessages(input.messages),
-    })
+    return delivery
   }
 
-  const buttons = (props: Record<string, unknown>[]): DecisionReceipt => {
-    assertOpen()
-    if (!Array.isArray(props)) {
-      throw new Error('chat.buttons requires an array of Button props.')
-    }
-
-    return present({
-      messages: props.map((button) => ({ component: 'Button', props: button })),
-    })
+  const send = (method: NativeChatMethod, input: unknown): void => {
+    void enqueue(prepareMessages(method, input))
   }
 
-  const send = (input: NativePresentationInput | NativePresentationInput[]): Promise<void> => {
-    const messages = prepareMessages(Array.isArray(input) ? input : [input])
+  const sendComponent = async (value: unknown, metadata: MessageMetadata): Promise<void> => {
+    assertOpen()
 
-    return track(() => deliver(messages))
+    if (!isAnyComponent(value)) {
+      throw new Error('Only registered rich components can be yielded by a tool.')
+    }
+
+    const component = components.find((candidate) => candidate.definition.name === value.name)
+
+    if (!component) {
+      throw new Error(`Component "${value.name}" is not registered.`)
+    }
+
+    const rendered = prepareComponentDelivery(component, value)
+
+    await enqueue([{ id: metadata.id, component: cloneMemoryValue(rendered) as RenderedComponent }])
   }
 
   const complete = (): void => {
@@ -232,24 +218,33 @@ export function createJavaScriptApi({
 
   const close = async (): Promise<void> => {
     complete()
-    await Promise.allSettled(outstanding)
+    const [, delivered] = await Promise.all([
+      Promise.allSettled(outstanding),
+      Promise.allSettled(delivery ? [delivery] : []),
+    ])
+
+    if (delivered[0]?.status === 'rejected') {
+      throw delivered[0].reason
+    }
 
     if (outstanding.length && !interruption) {
       throw new Error(
-        `JavaScript completed with ${outstanding.length} unawaited host operation(s). Await all tools and chat.send calls before returning. Started operations have settled and may have completed effects; do not replay them.`
+        `JavaScript completed with ${outstanding.length} unawaited host operation(s). Await all business tools before returning. Started operations have settled and may have completed effects; do not replay them.`
       )
     }
   }
 
   const inspect = (value: unknown): DecisionReceipt => issue({ type: 'inspect', value: cloneMemoryValue(value) })
+  const chat = Object.fromEntries(
+    getNativeChatMethods(components).map((method) => [
+      method.name,
+      Object.freeze((input: unknown): void => send(method, input)),
+    ])
+  )
   const bindings: JavaScriptBindings = Object.freeze({
     exit: Object.freeze(exit),
     inspect: Object.freeze(inspect),
-    chat: Object.freeze({
-      present: Object.freeze(present),
-      buttons: Object.freeze(buttons),
-      send: Object.freeze(send),
-    }),
+    chat: Object.freeze(chat),
   })
 
   return {
@@ -261,6 +256,7 @@ export function createJavaScriptApi({
     throwIfTerminated,
     track,
     assertOpen,
+    sendComponent,
     complete,
     close,
   }

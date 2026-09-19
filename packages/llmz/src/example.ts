@@ -5,10 +5,10 @@ import type { Exit } from './exit.js'
 export type ExampleMessage = {
   component: Component | string
   props?: Record<string, unknown>
-  body?: string
 }
 
 type ExampleResponse = {
+  text?: string
   messages?: ExampleMessage[]
   code?: string
   exit?: Exit | string
@@ -55,8 +55,8 @@ function copyMessage(message: ExampleMessage): ExampleMessage {
   const name = typeof message.component === 'string' ? message.component : message.component?.definition.name
   validateName(name, 'component')
 
-  if (message.body !== undefined && typeof message.body !== 'string') {
-    throw new Error('An example message body must be a string.')
+  if ('body' in message) {
+    throw new Error('Example component content belongs in props. Use text for ordinary assistant replies.')
   }
 
   if (
@@ -69,7 +69,6 @@ function copyMessage(message: ExampleMessage): ExampleMessage {
   return {
     component: message.component,
     ...(message.props === undefined ? {} : { props: cloneJSON(message.props) }),
-    ...(message.body === undefined ? {} : { body: message.body }),
   }
 }
 
@@ -99,6 +98,10 @@ export class Example {
       throw new Error('Example messages must be an array.')
     }
 
+    if (definition.text !== undefined && (typeof definition.text !== 'string' || !definition.text.trim())) {
+      throw new Error('Example text must be a non-empty string.')
+    }
+
     const messages = definition.messages?.map(copyMessage)
 
     if (definition.code !== undefined) {
@@ -118,8 +121,13 @@ export class Example {
       validateName(exitName, 'exit')
     }
 
-    if (definition.code === undefined && definition.exit === undefined && !messages?.length) {
-      throw new Error('An example requires messages, code, or an exit.')
+    if (
+      definition.text === undefined &&
+      definition.code === undefined &&
+      definition.exit === undefined &&
+      !messages?.length
+    ) {
+      throw new Error('An example requires text, messages, code, or an exit.')
     }
 
     this.situation = definition.situation

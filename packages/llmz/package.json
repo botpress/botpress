@@ -30,6 +30,7 @@
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "test:e2e:update": "vitest -u run --config vitest.e2e.config.ts",
     "test:e2e:watch": "vitest --config vitest.e2e.config.ts",
+    "review:protocol": "tsc -p scripts/protocol-review/tsconfig.json && node --import tsx scripts/review-protocol.mts",
     "build:markdown": "node --loader ts-node/esm ./scripts/compile-markdown.mts",
     "check:format": "oxfmt --check .",
     "fix:format": "oxfmt .",

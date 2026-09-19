@@ -1,5 +1,6 @@
 import type { CognitiveRequest } from '@botpress/cognitive'
 import { describe, expect, it } from 'vitest'
+
 import { cacheKeyOf, stringifyWithSortedKeys } from './__tests__/cache-key.js'
 
 const FIRST_ID = 'tcall_01M2VJ67XKBKK1WRJ0E9874JM5'

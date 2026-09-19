@@ -1,13 +1,14 @@
 import type { CognitiveMetadata, CognitiveStreamChunk, CognitiveToolCall } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import { describe, expect, it, vi } from 'vitest'
-import { Chat, type MessageDelta } from '../chat.js'
+import { type MessageDelta } from '../chat.js'
 import { CitationsManager } from '../citations.js'
 import { DefaultComponents } from '../component.default.js'
 import { _CustomModelClient, type RuntimeGenerateContentInput } from '../custom-client.js'
 import { ThinkSignal } from '../errors.js'
 import { Tool } from '../tool.js'
 import { executeContext } from './execute.js'
+import { createRecordingChat } from './fixtures/chat.js'
 import { buildSearchChallenge, longSearchChallenges } from './fixtures/long-search.js'
 
 const meta: CognitiveMetadata = {
@@ -95,10 +96,10 @@ describe('VDK citation delivery through LLMz', () => {
     const raw = { output: body, reasoning: 'Private reasoning with an irrelevant source【14】.' }
     const result = await executeContext({
       client: size ? new Streaming([raw], size) : new Replay([raw]),
-      chat: new Chat({
-        components: [DefaultComponents.Text],
+      chat: createRecordingChat({
+        components: [],
         handler: async (message) => {
-          delivered.push(message.children.join(''))
+          delivered.push(message.type === 'text' ? message.text : '')
         },
         onMessageDelta: (delta) => {
           deltas.push({ ...delta })
@@ -129,7 +130,7 @@ describe('VDK citation delivery through LLMz', () => {
     'uses the actual VDK search -> ThinkSignal -> citation extraction path (chunk=%s)',
     async (size) => {
       const citations = new CitationsManager()
-      const fixture = buildSearchChallenge(longSearchChallenges[0]!, false, citations)
+      const fixture = buildSearchChallenge(longSearchChallenges[0]!, true, citations)
       const body = `${fixture.facts.join('; ')}${fixture.evidenceTags.join('')}`
       const responses = [javascript('return await search_knowledge("Meridian EU export limits")'), body]
       const client = size ? new Streaming(responses, size) : new Replay(responses)
@@ -140,17 +141,22 @@ describe('VDK citation delivery through LLMz', () => {
       const result = await executeContext({
         client,
         tools: [new Tool({ name: 'search_knowledge', input: z.string(), output: z.string(), handler: search })],
-        chat: new Chat({
-          components: [DefaultComponents.Text],
+        chat: createRecordingChat({
+          components: [],
           handler: async (m) => {
-            deliveries.push(citations.removeCitationsFromObject({ text: m.children.join('') }))
+            deliveries.push(citations.removeCitationsFromObject({ text: m.type === 'text' ? m.text : '' }))
           },
         }),
         options: { loop: 2 },
       })
       expect(result.isSuccess()).toBe(true)
       expect(search).toHaveBeenCalledOnce()
-      expect(String(client.requests[1]!.messages.at(-1)!.content)).toContain(fixture.content)
+      const feedback = String(client.requests[1]!.messages.at(-1)!.content)
+
+      for (const evidence of [...fixture.facts, ...fixture.evidenceTags]) {
+        expect(feedback).toContain(evidence)
+      }
+
       expect(deliveries).toHaveLength(1)
       expect(deliveries[0]![1].map((e) => e.citation.source.file)).toEqual(fixture.expectedSources)
     }
@@ -188,10 +194,10 @@ describe('VDK citation delivery through LLMz', () => {
 
       const result = await executeContext({
         client: new Restart([]),
-        chat: new Chat({
-          components: [DefaultComponents.Text],
+        chat: createRecordingChat({
+          components: [],
           handler: async (m) => {
-            committed.push(...citations.extractCitations(m.children.join('')).citations.map((c) => c.id))
+            committed.push(...citations.extractCitations(m.type === 'text' ? m.text : '').citations.map((c) => c.id))
           },
           onMessageDelta: (d) => {
             deltas.push({ ...d })
@@ -216,8 +222,8 @@ describe('VDK citation delivery through LLMz', () => {
 
     const result = await executeContext({
       client: new Failure([]),
-      chat: new Chat({
-        components: [DefaultComponents.Text],
+      chat: createRecordingChat({
+        components: [],
         handler,
         onMessageDelta: (d) => {
           deltas.push({ ...d })
@@ -238,26 +244,27 @@ describe('VDK citation delivery through LLMz', () => {
   })
 })
 
-it.each([0, 1, 7])('preserves citations in structured component props and body (chunk=%s)', async (size) => {
+it.each([0, 1, 7])('preserves citations in component props (chunk=%s)', async (size) => {
   const citations = manager()
-  const raw = javascript(`return chat.present({
-    messages: [{
-      component: "Card",
-      props: { title: "Policy【1】", subtitle: "Current【12】" },
-      body: "Limit 734【1,12】"
-    }]
-  });`)
+  const raw = javascript(`
+    chat.card({ title: 'Policy【1】', subtitle: 'Current【12】', text: 'Limit 734【1,12】' });
+    return exit();
+  `)
   const delivered: ReturnType<CitationsManager['removeCitationsFromObject']>[] = []
   const result = await executeContext({
     client: size ? new Streaming([raw], size) : new Replay([raw]),
-    chat: new Chat({
+    chat: createRecordingChat({
       components: [DefaultComponents.Card],
       handler: async (component) => {
+        if (component.type !== 'component') {
+          throw new Error('Expected a rich component.')
+        }
+
         delivered.push(
           citations.removeCitationsFromObject({
             title: (component.props as Record<string, unknown>).title,
             subtitle: (component.props as Record<string, unknown>).subtitle,
-            body: component.children.join(''),
+            text: (component.props as Record<string, unknown>).text,
           })
         )
       },
@@ -265,11 +272,11 @@ it.each([0, 1, 7])('preserves citations in structured component props and body (
     options: { loop: 1 },
   })
   expect(result.isSuccess()).toBe(true)
-  expect(delivered[0]![0]).toEqual({ title: 'Policy', subtitle: 'Current', body: 'Limit 734' })
+  expect(delivered[0]![0]).toEqual({ title: 'Policy', subtitle: 'Current', text: 'Limit 734' })
   expect(delivered[0]![1].map((entry) => ({ path: entry.path, id: entry.citation.id }))).toEqual([
     { path: 'root.title', id: 1 },
     { path: 'root.subtitle', id: 12 },
-    { path: 'root.body', id: 1 },
-    { path: 'root.body', id: 12 },
+    { path: 'root.text', id: 1 },
+    { path: 'root.text', id: 12 },
   ])
 })
