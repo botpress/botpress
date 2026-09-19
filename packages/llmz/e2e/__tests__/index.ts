@@ -1,4 +1,3 @@
-import { Client } from '@botpress/client'
 import { Cognitive, type CognitiveRequest, type CognitiveStreamChunk } from '@botpress/cognitive'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -17,23 +16,6 @@ export const TEST_MODELS = [
   'anthropic:claude-haiku-4-5-20251001',
   'google-ai:gemini-3.5-flash',
 ] as const
-
-export async function getCorgiUrl() {
-  const client = new Client({
-    apiUrl: process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.cloud',
-    botId: process.env.CLOUD_BOT_ID,
-    token: process.env.CLOUD_PAT,
-  })
-
-  const { file } = await client.uploadFile({
-    key: 'tests/corgi.png',
-    content: fs.readFileSync(path.resolve(__dirname, './corgi.png')),
-    publicContentImmediatelyAccessible: true,
-    accessPolicies: ['public_content'],
-  })
-
-  return file.url
-}
 
 /** Base64 data URI for a fixture file in this directory. */
 export function getFixtureDataUri(filename: string, mimeType: string) {
@@ -148,13 +130,11 @@ const pinModels = <T extends CognitiveRequest>(input: T): T => {
 
 /** Fresh evaluations bypass both response caches while still recording observations. */
 const prepareRequest = (input: CognitiveRequest): CognitiveRequest => {
-  const pinned = pinModels(input)
-
   if (!FRESH_RESPONSES) {
-    return pinned
+    return input
   }
 
-  return { ...pinned, options: { ...pinned.options, skipCache: true } }
+  return { ...input, options: { ...input.options, skipCache: true } }
 }
 
 /** Strips non-deterministic / non-serializable fields before hashing. */
@@ -187,7 +167,7 @@ class CachedCognitive extends Cognitive {
     input: CognitiveRequest,
     options?: Parameters<Cognitive['generateText']>[1]
   ): Promise<any> {
-    const pinned = prepareRequest(input)
+    const pinned = pinModels(input)
     const key = cacheKeyOf('text', pinned)
     const testKey = this._testKey()
 
@@ -200,8 +180,9 @@ class CachedCognitive extends Cognitive {
       console.info(`LLM cache miss (generateText) for ${key} in test ${testKey}`)
     }
 
-    const response = await super.generateText(pinned, options)
-    this._persist({ key, test: testKey, input: stringifyWithSortedKeys(pinned), value: response })
+    const request = prepareRequest(pinned)
+    const response = await super.generateText(request, options)
+    this._persist({ key, test: testKey, input: stringifyWithSortedKeys(request), value: response })
     return response
   }
 
@@ -209,7 +190,7 @@ class CachedCognitive extends Cognitive {
     input: CognitiveRequest,
     options?: Parameters<Cognitive['generateTextStream']>[1]
   ): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
-    const pinned = prepareRequest(input)
+    const pinned = pinModels(input)
     const key = cacheKeyOf('stream', pinned)
     const testKey = this._testKey()
 
@@ -226,12 +207,14 @@ class CachedCognitive extends Cognitive {
     }
 
     const chunks: CognitiveStreamChunk[] = []
-    for await (const chunk of super.generateTextStream(pinned, options)) {
+    const request = prepareRequest(pinned)
+
+    for await (const chunk of super.generateTextStream(request, options)) {
       chunks.push(chunk)
       yield chunk
     }
 
-    this._persist({ key, test: testKey, input: stringifyWithSortedKeys(pinned), chunks })
+    this._persist({ key, test: testKey, input: stringifyWithSortedKeys(request), chunks })
   }
 }
 

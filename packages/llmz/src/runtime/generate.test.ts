@@ -151,6 +151,71 @@ describe('native generation', () => {
     expect(context.iterations).toBeGreaterThan(0)
   })
 
+  it.each(['image', 'audio'] as const)(
+    'forwards large inline %s without charging encoded bytes as model text',
+    async (type) => {
+      const url = `data:${type}/${type === 'image' ? 'png' : 'wav'};base64,${'AQID'.repeat(128_000)}`
+      const session = new Session()
+      session.beginTurn({
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: 'Describe this attachment.' },
+              { type, url },
+            ],
+          },
+        ],
+      })
+      const base = fixture({ session, maxTokens: 1000 })
+
+      await generateCode(base)
+
+      expect(base.generateText).toHaveBeenCalledOnce()
+      const input = base.generateText.mock.calls[0]![0]
+      const content = input.messages.find((message) => message.role === 'user')?.content
+
+      expect(content).toContainEqual({ type, url })
+      expect(session.messages[0]?.content).toContainEqual({ type, url })
+      expect(base.iteration.tokens!.context.total).toBeLessThan(1000)
+      expectCurrentContextTokens(base.iteration.tokens!.context, input)
+    }
+  )
+
+  it.each(['string', 'text part'] as const)('still rejects oversized text in %s content', async (kind) => {
+    const text = `data:image/png;base64,${'AQID'.repeat(4000)}`
+    const session = new Session()
+    session.beginTurn({
+      messages: [{ role: 'user', content: kind === 'string' ? text : [{ type: 'text', text }] }],
+    })
+    const base = fixture({ session, maxTokens: 1000 })
+
+    await expect(generateCode(base)).rejects.toThrow('does not fit in the context window')
+
+    expect(base.generateText).not.toHaveBeenCalled()
+  })
+
+  it('counts media-shaped business arguments and tool results as text', () => {
+    const value = { type: 'image', url: `data:image/png;base64,${'AQID'.repeat(4000)}` }
+    const argumentsTokens = countNativeRequestTokens(
+      [
+        {
+          role: 'assistant',
+          content: null,
+          toolCalls: [{ id: 'call', type: 'function', function: { name: 'processData', arguments: value } }],
+        },
+      ],
+      []
+    )
+    const resultTokens = countNativeRequestTokens(
+      [{ role: 'user', type: 'tool_result', toolResultCallId: 'call', content: JSON.stringify(value) }],
+      []
+    )
+
+    expect(argumentsTokens).toBeGreaterThan(1000)
+    expect(resultTokens).toBeGreaterThan(1000)
+  })
+
   it('bounds static token estimates after hooks replace the system prompt', async () => {
     const base = fixture()
     base.iteration.tokens!.context = {

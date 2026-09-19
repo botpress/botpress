@@ -53,9 +53,31 @@ function assertSuccessfulGeneration(metadata: CognitiveMetadata | undefined) {
   }
 }
 
-/** Count structured arguments and schemas too, rather than only message text. */
+/**
+ * Estimate text, structured arguments, schemas, and message scaffolding. Media
+ * URLs carry bytes or locations, not model text. Cognitive does not expose a
+ * media-token estimator; actual media usage is reported by the provider.
+ */
 export function countNativeRequestTokens(messages: CognitiveMessage[], tools: unknown): number {
-  return getTokenizer().count(JSON.stringify({ messages, tools }))
+  const textMessages = messages.map(omitMediaPayloads)
+
+  return getTokenizer().count(JSON.stringify({ messages: textMessages, tools }))
+}
+
+function omitMediaPayloads(message: CognitiveMessage): CognitiveMessage {
+  if (!Array.isArray(message.content)) {
+    return message
+  }
+
+  const content = message.content.map((part) => {
+    if (part.type === 'image' || part.type === 'audio') {
+      return { ...part, url: undefined }
+    }
+
+    return part
+  })
+
+  return { ...message, content }
 }
 
 function measureNativeContextTokens(

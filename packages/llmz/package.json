@@ -1,7 +1,7 @@
 {
   "name": "llmz",
   "type": "module",
-  "description": "LLMz - Native LLM conversations with stateful JavaScript orchestration",
+  "description": "LLMz - An LLM-native Typescript VM built on top of Zui",
   "version": "1.0.0",
   "files": [
     "dist",

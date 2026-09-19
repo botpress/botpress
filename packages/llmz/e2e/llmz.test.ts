@@ -6,7 +6,7 @@ import { Tool } from '../src/tool.js'
 
 import { ErrorExecutionResult, ExecutionResult, SuccessExecutionResult } from '../src/result.js'
 import { Traces } from '../src/types.js'
-import { getCachedCognitiveClient, getCorgiUrl } from './__tests__/index.js'
+import { getCachedCognitiveClient, getFixtureDataUri } from './__tests__/index.js'
 import { ObjectInstance } from '../src/objects.js'
 import { Exit, ExitResult } from '../src/exit.js'
 import { DefaultComponents } from '../src/component.default.js'
@@ -787,7 +787,7 @@ describe('llmz', { retry: 0, timeout: 60_000 }, () => {
     it('handles image attachments', async () => {
       let dogMentionned = false
       const exit = new Exit({ name: 'done', description: 'call this when you are done' })
-      const url = await getCorgiUrl()
+      const url = getFixtureDataUri('corgi.png', 'image/png')
       const chat = new Chat({
         components: [DefaultComponents.Text],
         transcript: [

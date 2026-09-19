@@ -24,6 +24,8 @@ import { getTokenizer } from './utils.js'
 /**
  * Tokenizer estimate of the final request after compaction, grouped by purpose.
  * Categories sum to the measured request size; provider-reported usage is separate.
+ * Media transport URLs and encoded bytes are excluded; media token usage is
+ * provider-specific and is not available until the provider reports usage.
  */
 export type ContextTokens = {
   /** Total measured request size (sum of all the parts below). */
@@ -184,7 +186,11 @@ export const DefaultExit = new Exit({
     }),
     z.object({
       success: z.literal(false),
-      error: z.string().describe('Why the task could not be completed and recovery could not continue'),
+      error: z
+        .string()
+        .describe(
+          'The actual blocker and why available recovery cannot resolve it; a failed tool call alone is insufficient'
+        ),
     }),
   ]),
 })
