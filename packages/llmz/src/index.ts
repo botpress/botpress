@@ -6,7 +6,16 @@ export { Tool } from './tool.js'
 export { Exit, type ExitResult } from './exit.js'
 export { ObjectInstance } from './objects.js'
 export { SnapshotSignal, ThinkSignal, LoopExceededError } from './errors.js'
-export { parseExit, type ParsedExit } from './exit-parser.js'
+export { Session, type SessionMessage, type SessionIteration } from './session.js'
+export {
+  Memory,
+  MemoryCapacityError,
+  type MemoryValue,
+  type MemoryReport,
+  type MemoryProvenance,
+  type IterationMemory,
+  type ObjectPropertyMemory,
+} from './memory.js'
 
 export {
   Component,
@@ -32,22 +41,10 @@ import { toValidFunctionName, toValidObjectName } from './utils.js'
 export { type Transcript } from './transcript.js'
 export { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from './result.js'
 export { type Trace, type Traces } from './types.js'
-export {
-  type Iteration,
-  ListenExit,
-  ThinkExit,
-  DefaultExit,
-  type IterationStatuses,
-  type IterationStatus,
-} from './context.js'
+export { type Iteration, ListenExit, DefaultExit, type IterationStatuses, type IterationStatus } from './context.js'
 export { type Context, type TokenUsage, type ContextTokens } from './context.js'
-export type { LLMzPrompts, ParsedSend, ParsedNext, ParsedAssistantResponse } from './prompts/prompt.js'
 export type { ExecutionProps, ExecutionHooks } from './runtime/types.js'
 export { type ValueOrGetter, getValue } from './getter.js'
-
-// The ■ message-stream protocol: streaming parser, response objects, component
-// registry/validation and instruction generation
-export * from './message-stream/index.js'
 
 export * from './custom-client.js'
 
@@ -67,9 +64,9 @@ export const utils = {
 /**
  * Executes an LLMz agent in either Chat Mode or Worker Mode.
  *
- * LLMz is a code-first AI agent framework that generates and runs TypeScript code
- * in a sandbox rather than using traditional JSON tool calling. This enables complex
- * logic, multi-tool orchestration, and native LLM thinking via comments and code structure.
+ * LLMz generates and runs JavaScript in a sandbox through the native run_javascript
+ * tool. Assistant text streams normally; JavaScript returns decisions to present
+ * rich messages, inspect results, or complete through a typed exit.
  *
  * @param props - Configuration object for the execution
  * @param props.client - Botpress Client or Cognitive Client instance for LLM generation
@@ -153,5 +150,5 @@ export const init = async () => {
   await import('./utils.js')
   await import('./truncator.js')
   await import('./typings.js')
-  await import('./prompts/dual-modes.js')
+  await import('./prompts/native.js')
 }

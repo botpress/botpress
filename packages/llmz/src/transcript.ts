@@ -104,9 +104,11 @@ export function isVoiceMessage(message: Transcript.Message): boolean {
   if (message.role === 'user' && message.modality === 'voice') {
     return true
   }
+
   if (message.role === 'user' || message.role === 'event') {
     return message.attachments?.some((attachment) => attachment.type === 'audio') ?? false
   }
+
   return false
 }
 

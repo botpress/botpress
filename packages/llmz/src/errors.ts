@@ -5,6 +5,8 @@ import { cleanStackTrace } from './stack-traces.js'
 type ErrorConstructor = new (...args: any[]) => Error
 
 export type ToolCall = {
+  /** Stable identity of the inner host operation that requested the snapshot. */
+  id?: string
   name: string
   inputSchema?: JSONSchema7
   outputSchema?: JSONSchema7
@@ -54,8 +56,13 @@ export namespace Signals {
     if (errorIsAlreadyDeserialized) {
       return error
     }
-    const serializedError =
-      error instanceof Error ? error.message : typeof error === 'string' ? error : (error?.toString() ?? '')
+
+    let serializedError = error?.toString() ?? ''
+    if (error instanceof Error) {
+      serializedError = error.message
+    } else if (typeof error === 'string') {
+      serializedError = error
+    }
 
     try {
       const parsed = JSON.parse(serializedError)
@@ -152,7 +159,9 @@ export class CodeExecutionError extends Error {
   public constructor(
     message: string,
     public code: string,
-    public stacktrace: string
+    public stacktrace: string,
+    /** Original error category, retained without inferring it from message text. */
+    public originalErrorName?: string
   ) {
     super(message)
     this.message = Signals.serializeError(this)

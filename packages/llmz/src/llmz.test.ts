@@ -1,9 +1,9 @@
 import { Cognitive, Model } from '@botpress/cognitive'
 import { describe, expect, test, vi } from 'vitest'
 import { Context } from './context.js'
-import { executeContext } from './runtime/execute.js'
-import { ErrorExecutionResult } from './result.js'
 import { CognitiveError } from './errors.js'
+import { ErrorExecutionResult } from './result.js'
+import { executeContext } from './runtime/execute.js'
 
 const makeFakeModel = (model: string): Model => ({
   id: model,

@@ -1,11 +1,14 @@
 import { type Comment } from 'acorn'
 import MagicString from 'magic-string'
+import { SourceMapConsumer, SourceMapGenerator } from 'source-map-js'
 
 import { parseScript, walk, type Ctx } from './ast.js'
 import { AsyncWrapper } from './plugins/async-wrapper.js'
+import { rejectDynamicCode } from './plugins/dynamic-code.js'
 import { LineTrackingFnIdentifier, applyLineTracking } from './plugins/line-tracking.js'
 import { CommentFnIdentifier, applyCommentReplacement } from './plugins/replace-comment.js'
 import { planLastLineInstrumentation } from './plugins/return-async.js'
+import { applyTerminationGuards } from './plugins/termination.js'
 import {
   ToolCallEntry,
   ToolCallTrackerFnIdentifier,
@@ -53,7 +56,7 @@ export function hasTopLevelReturn(code: string): boolean {
  *
  * 1. wraps it in an async `__fn__` so top-level `await`/`return` parse
  * 2. instruments it in a single parse + text-edit pass:
- *    line tracking, last-line return, tool-call tracking, comment tracing
+ *    line tracking, last-line awaiting, tool-call tracking, comment tracing
  *    and variable tracking
  * 3. unwraps it — the VM drivers re-wrap the bare statements themselves
  *
@@ -64,6 +67,7 @@ export function compile(code: string) {
   const wrapped = AsyncWrapper.preProcessing(code)
   const comments: Comment[] = []
   const ast = parseScript(wrapped, { comments })
+  rejectDynamicCode(ast)
 
   const variables = new Set<string>()
   const toolCalls = new Map<number, ToolCallEntry>()
@@ -77,6 +81,7 @@ export function compile(code: string) {
     msMarkers.appendLeft(lastLine.prefixPos, lastLine.prefix)
     msMarkers.appendRight(lastLine.suffixPos, lastLine.suffix)
   }
+
   const codeWithMarkers = msMarkers.toString()
 
   const ms = new MagicString(wrapped)
@@ -90,20 +95,37 @@ export function compile(code: string) {
   if (lastLine) {
     ms.appendLeft(lastLine.prefixPos, lastLine.prefix)
   }
+
+  const finishVariableTracking = applyVariableTracking(ctx, variables, true)
   const wrappedRanges = applyToolCallTracking(ctx, toolCalls)
   applyCommentReplacement(ctx, wrappedRanges)
-  applyVariableTracking(ctx, variables)
+  finishVariableTracking()
   if (lastLine) {
     ms.appendRight(lastLine.suffixPos, lastLine.suffix)
   }
 
-  const outputCode = AsyncWrapper.postProcessing(ms.toString())
-  const map = ms.generateMap({ hires: true, source: '<anonymous>' })
+  // Guard the instrumented program in a separate pass. Nested call and variable
+  // wrappers share source boundaries; mixing their edits can change expression values.
+  const instrumented = ms.toString()
+  const terminationSource = new MagicString(instrumented)
+  const finishTerminationGuards = applyTerminationGuards({
+    code: instrumented,
+    ms: terminationSource,
+    ast: parseScript(instrumented),
+    comments: [],
+  })
+  finishTerminationGuards()
+
+  const firstMap = ms.generateMap({ hires: true, source: '<anonymous>' })
+  const secondMap = terminationSource.generateMap({ hires: true, source: '<instrumented>' })
+  const map = SourceMapGenerator.fromSourceMap(new SourceMapConsumer(JSON.parse(secondMap.toString())))
+  map.applySourceMap(new SourceMapConsumer(JSON.parse(firstMap.toString())), '<instrumented>')
+  const outputCode = AsyncWrapper.postProcessing(terminationSource.toString())
 
   return {
     code: outputCode,
     codeWithMarkers,
-    map,
+    map: map.toJSON(),
     variables,
     toolCalls,
   }

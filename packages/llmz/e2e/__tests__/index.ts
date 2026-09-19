@@ -1,8 +1,8 @@
-import { Client } from '@botpress/client'
 import { Cognitive, type CognitiveRequest, type CognitiveStreamChunk } from '@botpress/cognitive'
 import fs from 'node:fs'
 import path from 'node:path'
 import { expect } from 'vitest'
+import { cacheKeyOf, stringifyWithSortedKeys } from './cache-key.js'
 
 /**
  * The models used by the e2e suites, as a fallback chain. Every request that
@@ -17,23 +17,6 @@ export const TEST_MODELS = [
   'anthropic:claude-haiku-4-5-20251001',
   'google-ai:gemini-3.5-flash',
 ] as const
-
-export async function getCorgiUrl() {
-  const client = new Client({
-    apiUrl: process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.cloud',
-    botId: process.env.CLOUD_BOT_ID,
-    token: process.env.CLOUD_PAT,
-  })
-
-  const { file } = await client.uploadFile({
-    key: 'tests/corgi.png',
-    content: fs.readFileSync(path.resolve(__dirname, './corgi.png')),
-    publicContentImmediatelyAccessible: true,
-    accessPolicies: ['public_content'],
-  })
-
-  return file.url
-}
 
 /** Base64 data URI for a fixture file in this directory. */
 export function getFixtureDataUri(filename: string, mimeType: string) {
@@ -70,28 +53,6 @@ export function getScreenShareFixtures() {
   }
 }
 
-function stringifyWithSortedKeys(obj: any, space?: number): string {
-  function sortKeys(input: any): any {
-    if (Array.isArray(input)) {
-      return input.map(sortKeys)
-    } else if (input && typeof input === 'object' && input.constructor === Object) {
-      return Object.keys(input)
-        .sort()
-        .reduce(
-          (acc, key) => {
-            acc[key] = sortKeys(input[key])
-            return acc
-          },
-          {} as Record<string, any>
-        )
-    } else {
-      return input
-    }
-  }
-
-  return JSON.stringify(sortKeys(obj), null, space)
-}
-
 function readJSONL<T>(filePath: string, keyProperty: keyof T): Map<string, T> {
   if (!fs.existsSync(filePath)) {
     return new Map()
@@ -124,17 +85,9 @@ type CacheEntry = {
 
 // Override with a new path to run against a fresh cache without growing the checked-in fixture.
 const CACHE_PATH = process.env.LLMZ_E2E_CACHE_PATH ?? path.resolve(__dirname, './cache.jsonl')
+const FRESH_RESPONSES = process.env.LLMZ_E2E_FRESH === '1'
 
 const cache: Map<string, CacheEntry> = readJSONL(CACHE_PATH, 'key')
-
-function fastHash(str: string): string {
-  let hash = 0
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash << 5) - hash + str.charCodeAt(i)
-    hash |= 0 // Convert to 32bit integer
-  }
-  return (hash >>> 0).toString(16) // Convert to unsigned and then to hex
-}
 
 /** Rewrites unpinned/auto model selection to the deterministic test model chain. */
 const pinModels = <T extends CognitiveRequest>(input: T): T => {
@@ -145,10 +98,13 @@ const pinModels = <T extends CognitiveRequest>(input: T): T => {
   return input
 }
 
-/** Strips non-deterministic / non-serializable fields before hashing. */
-const cacheKeyOf = (kind: 'text' | 'stream', input: CognitiveRequest): string => {
-  const { signal: _signal, ...rest } = input as CognitiveRequest & { signal?: unknown }
-  return fastHash(stringifyWithSortedKeys({ kind, input: rest }))
+/** Fresh evaluations bypass both response caches while still recording observations. */
+const prepareRequest = (input: CognitiveRequest): CognitiveRequest => {
+  if (!FRESH_RESPONSES) {
+    return input
+  }
+
+  return { ...input, options: { ...input.options, skipCache: true } }
 }
 
 /**
@@ -179,7 +135,7 @@ class CachedCognitive extends Cognitive {
     const key = cacheKeyOf('text', pinned)
     const testKey = this._testKey()
 
-    const cached = cache.get(key)
+    const cached = FRESH_RESPONSES ? undefined : cache.get(key)
     if (cached?.value) {
       return cached.value
     }
@@ -188,8 +144,9 @@ class CachedCognitive extends Cognitive {
       console.info(`LLM cache miss (generateText) for ${key} in test ${testKey}`)
     }
 
-    const response = await super.generateText(pinned, options)
-    this._persist({ key, test: testKey, input: stringifyWithSortedKeys(pinned), value: response })
+    const request = prepareRequest(pinned)
+    const response = await super.generateText(request, options)
+    this._persist({ key, test: testKey, input: stringifyWithSortedKeys(request), value: response })
     return response
   }
 
@@ -201,7 +158,7 @@ class CachedCognitive extends Cognitive {
     const key = cacheKeyOf('stream', pinned)
     const testKey = this._testKey()
 
-    const cached = cache.get(key)
+    const cached = FRESH_RESPONSES ? undefined : cache.get(key)
     if (cached?.chunks) {
       for (const chunk of cached.chunks) {
         yield chunk
@@ -214,12 +171,14 @@ class CachedCognitive extends Cognitive {
     }
 
     const chunks: CognitiveStreamChunk[] = []
-    for await (const chunk of super.generateTextStream(pinned, options)) {
+    const request = prepareRequest(pinned)
+
+    for await (const chunk of super.generateTextStream(request, options)) {
       chunks.push(chunk)
       yield chunk
     }
 
-    this._persist({ key, test: testKey, input: stringifyWithSortedKeys(pinned), chunks })
+    this._persist({ key, test: testKey, input: stringifyWithSortedKeys(request), chunks })
   }
 }
 

@@ -1,8 +1,8 @@
 import MagicString from 'magic-string'
 import { format } from 'oxfmt'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { ToolCallEntry, applyToolCallTracking } from './track-tool-calls.js'
 import { parseScript } from '../ast.js'
+import { ToolCallEntry, applyToolCallTracking } from './track-tool-calls.js'
 
 const calls = new Map<number, ToolCallEntry>()
 async function transform(original: string) {
@@ -36,44 +36,52 @@ describe('toolCallTracking', () => {
         try {
           __toolc__(0, "start");
           const __ret__ = getNumber();
-          __toolc__(0, "end", __ret__);
+          __toolc__(0, "end", __ret__, false);
           return __ret__;
         } catch (err) {
-          __toolc__(1, "end", err);
-          throw new Error(err.message);
+          __toolc__(1, "end", err, false);
+          const __newError = new Error(err.message);
+          __newError.name = err.name || "Error";
+          throw __newError;
         }
       })();
       var z = (() => {
         try {
           __toolc__(1, "start");
           const __ret__ = obj.getNumber();
-          __toolc__(1, "end", __ret__);
+          __toolc__(1, "end", __ret__, false);
           return __ret__;
         } catch (err) {
-          __toolc__(2, "end", err);
-          throw new Error(err.message);
+          __toolc__(2, "end", err, false);
+          const __newError = new Error(err.message);
+          __newError.name = err.name || "Error";
+          throw __newError;
         }
       })();
       y = (() => {
         try {
           __toolc__(2, "start");
           const __ret__ = getNumber();
-          __toolc__(2, "end", __ret__);
+          __toolc__(2, "end", __ret__, false);
           return __ret__;
         } catch (err) {
-          __toolc__(3, "end", err);
-          throw new Error(err.message);
+          __toolc__(3, "end", err, false);
+          const __newError = new Error(err.message);
+          __newError.name = err.name || "Error";
+          throw __newError;
         }
       })();
       let { e, w } = (() => {
         try {
           __toolc__(3, "start");
           const __ret__ = obj.getNumber();
-          __toolc__(3, "end", __ret__);
+          __toolc__(3, "end", __ret__, false);
           return __ret__;
         } catch (err) {
-          __toolc__(4, "end", err);
-          throw new Error(err.message);
+          __toolc__(4, "end", err, false);
+          const __newError = new Error(err.message);
+          __newError.name = err.name || "Error";
+          throw __newError;
         }
       })();"
     `)
@@ -120,7 +128,7 @@ describe('toolCallTracking', () => {
           4,
           {
             "assignment": {
-              "evalFn": "let {e, w} = arguments[0] ?? {}; return {e, w};",
+              "evalFn": "let {e, w} = arguments[0]; return { e, w };",
               "left": "{e, w}",
               "type": "object",
             },
@@ -142,22 +150,26 @@ describe('toolCallTracking', () => {
         try {
           __toolc__(0, "start");
           const __ret__ = await getNumber();
-          __toolc__(0, "end", __ret__);
+          __toolc__(0, "end", __ret__, false);
           return __ret__;
         } catch (err) {
-          __toolc__(1, "end", err);
-          throw new Error(err.message);
+          __toolc__(1, "end", err, true);
+          const __newError = new Error(err.message);
+          __newError.name = err.name || "Error";
+          throw __newError;
         }
       })();
       var z = await(async () => {
         try {
           __toolc__(1, "start");
           const __ret__ = await obj.getNumber();
-          __toolc__(1, "end", __ret__);
+          __toolc__(1, "end", __ret__, false);
           return __ret__;
         } catch (err) {
-          __toolc__(2, "end", err);
-          throw new Error(err.message);
+          __toolc__(2, "end", err, true);
+          const __newError = new Error(err.message);
+          __newError.name = err.name || "Error";
+          throw __newError;
         }
       })();"
     `)
@@ -215,11 +227,13 @@ describe('toolCallTracking', () => {
                 2,
                 3,
               );
-            __toolc__(0, "end", __ret__);
+            __toolc__(0, "end", __ret__, false);
             return __ret__;
           } catch (err) {
-            __toolc__(1, "end", err);
-            throw new Error(err.message);
+            __toolc__(1, "end", err, false);
+            const __newError = new Error(err.message);
+            __newError.name = err.name || "Error";
+            throw __newError;
           }
         })();"
     `)
@@ -280,11 +294,13 @@ describe('toolCallTracking', () => {
         try {
           __toolc__(0, "start");
           const __ret__ = toolX([1, 2, 3]);
-          __toolc__(0, "end", __ret__);
+          __toolc__(0, "end", __ret__, false);
           return __ret__;
         } catch (err) {
-          __toolc__(1, "end", err);
-          throw new Error(err.message);
+          __toolc__(1, "end", err, false);
+          const __newError = new Error(err.message);
+          __newError.name = err.name || "Error";
+          throw __newError;
         }
       })();"
     `)
@@ -295,7 +311,7 @@ describe('toolCallTracking', () => {
           1,
           {
             "assignment": {
-              "evalFn": "let { a, b } = arguments[0] ?? {}; return { a, b };",
+              "evalFn": "let { a, b } = arguments[0]; return { a, b };",
               "left": "{ a, b }",
               "type": "object",
             },
@@ -316,11 +332,13 @@ describe('toolCallTracking', () => {
         try {
           __toolc__(0, "start");
           const __ret__ = await toolX([1, 2, 3]);
-          __toolc__(0, "end", __ret__);
+          __toolc__(0, "end", __ret__, false);
           return __ret__;
         } catch (err) {
-          __toolc__(1, "end", err);
-          throw new Error(err.message);
+          __toolc__(1, "end", err, true);
+          const __newError = new Error(err.message);
+          __newError.name = err.name || "Error";
+          throw __newError;
         }
       })();"
     `)
@@ -331,7 +349,7 @@ describe('toolCallTracking', () => {
           1,
           {
             "assignment": {
-              "evalFn": "let { a, b } = arguments[0] ?? {}; return { a, b };",
+              "evalFn": "let { a, b } = arguments[0]; return { a, b };",
               "left": "{ a, b }",
               "type": "object",
             },
@@ -352,11 +370,13 @@ describe('toolCallTracking', () => {
         try {
           __toolc__(0, "start");
           const __ret__ = toolZ();
-          __toolc__(0, "end", __ret__);
+          __toolc__(0, "end", __ret__, false);
           return __ret__;
         } catch (err) {
-          __toolc__(1, "end", err);
-          throw new Error(err.message);
+          __toolc__(1, "end", err, false);
+          const __newError = new Error(err.message);
+          __newError.name = err.name || "Error";
+          throw __newError;
         }
       })();"
     `)
@@ -367,8 +387,8 @@ describe('toolCallTracking', () => {
           1,
           {
             "assignment": {
-              "evalFn": "let [a, b] = arguments[0] ?? []; return { a, b };",
-              "left": "a, b",
+              "evalFn": "let [ a, b ] = arguments[0]; return { a, b };",
+              "left": " a, b ",
               "type": "array",
             },
             "object": "global",
@@ -400,11 +420,12 @@ describe('toolCallTracking', () => {
         try {
           __toolc__(0, "start");
           const __ret__ = await toolX();
-          __toolc__(0, "end", __ret__);
+          __toolc__(0, "end", __ret__, false);
           return __ret__;
         } catch (err) {
-          __toolc__(0, "end", err);
+          __toolc__(0, "end", err, true);
           const __newError = new Error(err.message);
+          __newError.name = err.name || "Error";
           __newError.stack = err.stack + ("\\n" + __newError.stack);
           throw __newError;
         }
@@ -413,11 +434,12 @@ describe('toolCallTracking', () => {
         try {
           __toolc__(1, "start");
           const __ret__ = toolY();
-          __toolc__(1, "end", __ret__);
+          __toolc__(1, "end", __ret__, false);
           return __ret__;
         } catch (err) {
-          __toolc__(1, "end", err);
+          __toolc__(1, "end", err, false);
           const __newError = new Error(err.message);
+          __newError.name = err.name || "Error";
           __newError.stack = err.stack + ("\\n" + __newError.stack);
           throw __newError;
         }
@@ -426,11 +448,13 @@ describe('toolCallTracking', () => {
         try {
           __toolc__(2, "start");
           const __ret__ = toolZ();
-          __toolc__(2, "end", __ret__);
+          __toolc__(2, "end", __ret__, false);
           return __ret__;
         } catch (err) {
-          __toolc__(3, "end", err);
-          throw new Error(err.message);
+          __toolc__(3, "end", err, false);
+          const __newError = new Error(err.message);
+          __newError.name = err.name || "Error";
+          throw __newError;
         }
       })();"
     `)
@@ -484,33 +508,39 @@ describe('toolCallTracking', () => {
         try {
           __toolc__(0, "start");
           const __ret__ = Number(2);
-          __toolc__(0, "end", __ret__);
+          __toolc__(0, "end", __ret__, false);
           return __ret__;
         } catch (err) {
-          __toolc__(1, "end", err);
-          throw new Error(err.message);
+          __toolc__(1, "end", err, false);
+          const __newError = new Error(err.message);
+          __newError.name = err.name || "Error";
+          throw __newError;
         }
       })();
       let b = (() => {
         try {
           __toolc__(1, "start");
           const __ret__ = String(2);
-          __toolc__(1, "end", __ret__);
+          __toolc__(1, "end", __ret__, false);
           return __ret__;
         } catch (err) {
-          __toolc__(2, "end", err);
-          throw new Error(err.message);
+          __toolc__(2, "end", err, false);
+          const __newError = new Error(err.message);
+          __newError.name = err.name || "Error";
+          throw __newError;
         }
       })();
       b = (() => {
         try {
           __toolc__(2, "start");
           const __ret__ = Boolean(2);
-          __toolc__(2, "end", __ret__);
+          __toolc__(2, "end", __ret__, false);
           return __ret__;
         } catch (err) {
-          __toolc__(3, "end", err);
-          throw new Error(err.message);
+          __toolc__(3, "end", err, false);
+          const __newError = new Error(err.message);
+          __newError.name = err.name || "Error";
+          throw __newError;
         }
       })();
       b = new Date();
@@ -518,11 +548,13 @@ describe('toolCallTracking', () => {
         try {
           __toolc__(3, "start");
           const __ret__ = String.fromCharCode(65);
-          __toolc__(3, "end", __ret__);
+          __toolc__(3, "end", __ret__, false);
           return __ret__;
         } catch (err) {
-          __toolc__(4, "end", err);
-          throw new Error(err.message);
+          __toolc__(4, "end", err, false);
+          const __newError = new Error(err.message);
+          __newError.name = err.name || "Error";
+          throw __newError;
         }
       })();"
     `)
@@ -592,33 +624,39 @@ describe('toolCallTracking', () => {
         try {
           __toolc__(0, "start");
           const __ret__ = await toolX();
-          __toolc__(0, "end", __ret__);
+          __toolc__(0, "end", __ret__, false);
           return __ret__;
         } catch (err) {
-          __toolc__(1, "end", err);
-          throw new Error(err.message);
+          __toolc__(1, "end", err, true);
+          const __newError = new Error(err.message);
+          __newError.name = err.name || "Error";
+          throw __newError;
         }
       })();
       a = (() => {
         try {
           __toolc__(1, "start");
           const __ret__ = toolY();
-          __toolc__(1, "end", __ret__);
+          __toolc__(1, "end", __ret__, false);
           return __ret__;
         } catch (err) {
-          __toolc__(2, "end", err);
-          throw new Error(err.message);
+          __toolc__(2, "end", err, false);
+          const __newError = new Error(err.message);
+          __newError.name = err.name || "Error";
+          throw __newError;
         }
       })();
       a = await(async () => {
         try {
           __toolc__(2, "start");
           const __ret__ = await toolZ();
-          __toolc__(2, "end", __ret__);
+          __toolc__(2, "end", __ret__, false);
           return __ret__;
         } catch (err) {
-          __toolc__(3, "end", err);
-          throw new Error(err.message);
+          __toolc__(3, "end", err, true);
+          const __newError = new Error(err.message);
+          __newError.name = err.name || "Error";
+          throw __newError;
         }
       })();"
     `)
@@ -663,5 +701,28 @@ describe('toolCallTracking', () => {
         ],
       ]
     `)
+  })
+})
+
+describe('snapshot destructuring assignments', () => {
+  it('restores binding names from renamed, nested and rest object patterns', () => {
+    const code = 'const { id: accountId, nested: { name }, ...rest } = await load()'
+    const ms = new MagicString(code)
+    const calls = new Map<number, any>()
+    applyToolCallTracking({ code, ms, ast: parseScript(code), comments: [] }, calls)
+    const assignment = [...calls.values()][0].assignment
+    expect(new Function(assignment.evalFn)({ id: 1, nested: { name: 'Sam' }, age: 42 })).toEqual({
+      accountId: 1,
+      name: 'Sam',
+      rest: { age: 42 },
+    })
+  })
+  it('restores arrays with holes/defaults/rest and selects the correct declarator', () => {
+    const code = 'const first = 1, [a = 2, , ...tail] = await load()'
+    const ms = new MagicString(code)
+    const calls = new Map<number, any>()
+    applyToolCallTracking({ code, ms, ast: parseScript(code), comments: [] }, calls)
+    const assignment = [...calls.values()][0].assignment
+    expect(new Function(assignment.evalFn)([undefined, 3, 4, 5])).toEqual({ a: 2, tail: [4, 5] })
   })
 })

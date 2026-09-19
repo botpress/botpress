@@ -2,9 +2,13 @@ import { ulid } from 'ulid'
 
 import { ToolCall, SnapshotSignal } from './errors.js'
 import { extractType, inspect } from './inspect.js'
+import { Memory, type SerializedMemory } from './memory.js'
+import { Session } from './session.js'
+import { restoreSnapshotAssignment } from './snapshot-assignment.js'
 import { Serializable } from './types.js'
 
 const MAX_SNAPSHOT_SIZE_BYTES = 4_000
+const MAX_INTERRUPTION_LENGTH = 2_000
 
 type Variable = {
   name: string
@@ -24,6 +28,16 @@ export namespace SnapshotStatuses {
 }
 
 export namespace Snapshot {
+  export type PendingCall = {
+    iterationId: string
+    callId: string
+    code?: string
+    /** A failed response transport does not discard an already-started operation. */
+    interruption?: string
+    /** Bounded disclosure when a host hook replaced the assistant's requested source. */
+    executionOverride?: string
+  }
+
   export type JSON = {
     id: string
     reason?: string
@@ -31,11 +45,20 @@ export namespace Snapshot {
     variables: Variable[]
     toolCall?: ToolCall
     status: SnapshotStatus
+    /** Native snapshots persist exact memory and the unresolved outer call. */
+    native?: {
+      version: 1
+      session: Session.JSON
+      pendingCall: PendingCall
+      settlement?: SerializedMemory
+      assignmentError?: string
+    }
   }
 }
 
 /**
- * Snapshot represents a captured execution state that can be persisted and restored later.
+ * Snapshot represents captured memory and an interrupted operation, persisted
+ * with the native assistant call needed to continue the conversation later.
  *
  * Snapshots are created when a SnapshotSignal is thrown during execution, typically from
  * within a tool handler to pause execution for long-running operations that need to be
@@ -100,8 +123,9 @@ export namespace Snapshot {
  * 5. **Resumed**: Continue execution with the resolved snapshot
  *
  * ## What's Captured
- * - **Execution stack**: Current code position and call stack
- * - **Variables**: All local variables and their values (up to size limit)
+ * - **Executed prefix**: Code position and trace; not a resumable instruction pointer
+ * - **Variables**: Exact supported session values and assignment provenance
+ * - **Native history**: Assistant call, matching identity, and adapter continuation data
  * - **Tool context**: Information about the tool call that triggered the snapshot
  * - **Reason**: Human-readable description of why the snapshot was created
  *
@@ -114,14 +138,63 @@ export class Snapshot implements Serializable<Snapshot.JSON> {
   public readonly toolCall?: ToolCall
   public variables: Variable[]
   #status: SnapshotStatus
+  #native?: Snapshot.JSON['native']
+  #resumeConsumed = false
+
+  public get session(): Session.JSON | undefined {
+    return this.#native ? structuredClone(this.#native.session) : undefined
+  }
+
+  public get pendingCall(): Snapshot.PendingCall | undefined {
+    return this.#native ? { ...this.#native.pendingCall } : undefined
+  }
+
+  public get assignmentError(): string | undefined {
+    return this.#native?.assignmentError
+  }
+
+  /**
+   * Claim this resolved/rejected snapshot object for one resumption. The runtime
+   * calls this after validating input and immediately before settling its call.
+   * Hosts must separately claim persisted snapshots atomically: clones and
+   * separately restored objects do not share this in-memory guard.
+   * @internal
+   */
+  public consumeResume(): void {
+    if (!this.#native || this.#status.type === 'pending') {
+      throw new Error('Only a settled native snapshot can be resumed')
+    }
+
+    if (this.#resumeConsumed) {
+      throw new Error('This snapshot has already been resumed. Continue using the resulting session instead.')
+    }
+
+    this.#resumeConsumed = true
+  }
+
+  /** Attach the native call before returning an interrupted execution. */
+  public attachSession(session: Session, pendingCall: Snapshot.PendingCall): void {
+    if (
+      !session.pendingCalls.some(
+        (call) => call.iterationId === pendingCall.iterationId && call.callId === pendingCall.callId
+      )
+    ) {
+      throw new Error('The snapshot must reference an unresolved native call in its session.')
+    }
+
+    this.#native = { version: 1, session: session.toJSON(), pendingCall: normalizePendingCall(pendingCall) }
+    this.variables = exactVariables(session.memory.variables)
+  }
 
   /**
    * Gets the current status of the snapshot.
    *
    * @returns The snapshot status (pending, resolved, or rejected)
    */
-  public get status() {
-    return Object.freeze({ ...this.#status })
+  public get status(): Readonly<SnapshotStatus> {
+    const status = this.#native ? structuredClone(this.#status) : { ...this.#status }
+
+    return Object.freeze(status)
   }
 
   private constructor(props: {
@@ -131,6 +204,7 @@ export class Snapshot implements Serializable<Snapshot.JSON> {
     variables: Variable[]
     toolCall?: ToolCall
     status: SnapshotStatus
+    native?: Snapshot.JSON['native']
   }) {
     this.id = props.id
     this.stack = props.stack
@@ -138,6 +212,7 @@ export class Snapshot implements Serializable<Snapshot.JSON> {
     this.variables = props.variables
     this.toolCall = props.toolCall
     this.#status = props.status
+    this.#native = props.native
   }
 
   /**
@@ -176,7 +251,7 @@ export class Snapshot implements Serializable<Snapshot.JSON> {
    * await database.save('snapshots', snapshot.id, serialized)
    * ```
    */
-  public toJSON() {
+  public toJSON(): Snapshot.JSON {
     return {
       id: this.id,
       reason: this.reason,
@@ -184,6 +259,7 @@ export class Snapshot implements Serializable<Snapshot.JSON> {
       variables: this.variables,
       toolCall: this.toolCall,
       status: this.#status,
+      ...(this.#native ? { native: structuredClone(this.#native) } : {}),
     } satisfies Snapshot.JSON
   }
 
@@ -201,21 +277,39 @@ export class Snapshot implements Serializable<Snapshot.JSON> {
    * const snapshot = Snapshot.fromJSON(serialized)
    * ```
    */
-  public static fromJSON(json: {
-    id: string
-    reason?: string
-    stack: string
-    variables: Variable[]
-    toolCall?: ToolCall
-    status: SnapshotStatus
-  }) {
+  public static fromJSON(json: Snapshot.JSON): Snapshot {
+    if (json.native && json.native.version !== 1) {
+      throw new Error('Unsupported native snapshot version')
+    }
+
+    const native = json.native ? structuredClone(json.native) : undefined
+    if (native) {
+      native.pendingCall = normalizePendingCall(native.pendingCall)
+    }
+
+    const session = native ? Session.fromJSON(native.session) : undefined
+    const status = structuredClone(json.status)
+
+    if (native?.settlement) {
+      const value = Memory.restore(native.settlement).variables.snapshotValue
+
+      if (status.type === 'resolved') {
+        status.value = value
+      }
+
+      if (status.type === 'rejected') {
+        status.error = value
+      }
+    }
+
     return new Snapshot({
       id: json.id,
       reason: json.reason,
       stack: json.stack,
-      variables: json.variables,
-      toolCall: json.toolCall,
-      status: json.status,
+      variables: session ? exactVariables(session.memory.variables) : structuredClone(json.variables),
+      toolCall: structuredClone(json.toolCall),
+      status,
+      native,
     })
   }
 
@@ -224,15 +318,8 @@ export class Snapshot implements Serializable<Snapshot.JSON> {
    *
    * @returns A new Snapshot instance with identical data
    */
-  public clone() {
-    return new Snapshot({
-      id: this.id,
-      reason: this.reason,
-      stack: this.stack,
-      variables: this.variables,
-      toolCall: this.toolCall,
-      status: this.#status,
-    })
+  public clone(): Snapshot {
+    return Snapshot.fromJSON(this.toJSON())
   }
 
   /**
@@ -241,7 +328,13 @@ export class Snapshot implements Serializable<Snapshot.JSON> {
    * This allows a previously resolved or rejected snapshot to be resolved/rejected
    * again with different data. Useful for retry scenarios.
    */
-  public reset() {
+  public reset(): void {
+    if (this.#native && this.#status.type !== 'pending') {
+      throw new Error(
+        'A settled native snapshot cannot be reset; resolved assignments are already retained in its session.'
+      )
+    }
+
     this.#status = { type: 'pending' }
   }
 
@@ -249,8 +342,9 @@ export class Snapshot implements Serializable<Snapshot.JSON> {
    * Resolves the snapshot with a successful result value.
    *
    * Call this method when the long-running operation that caused the snapshot
-   * has completed successfully. The provided value will be returned as the
-   * result of the original tool call when execution resumes.
+   * has completed successfully. Native snapshots retain the assigned value and
+   * report the inner operation's outcome to the model. The remaining JavaScript
+   * does not resume and the value does not become the program's $return.
    *
    * @param value The result value from the completed operation
    * @throws Error if the snapshot is not in pending status
@@ -264,29 +358,72 @@ export class Snapshot implements Serializable<Snapshot.JSON> {
    * const continuation = await execute({ snapshot, ... })
    * ```
    */
-  public resolve(value: any) {
+  public resolve(value: unknown): void {
     if (this.#status.type !== 'pending') {
       throw new Error(`Cannot resolve snapshot because it is already settled: ${this.#status.type}`)
     }
 
+    // Validate exact persistence before changing any assignment or lifecycle state.
+    const settlement = this.#native
+      ? new Memory({ variables: { snapshotValue: value }, maxBytes: this.#native.session.memory.maxBytes }).serialize()
+      : undefined
     const assignment = this.toolCall?.assignment
+
     if (assignment) {
       try {
-        const fn = new Function(assignment.evalFn)
-        const assignmentValue = fn(value)
-        this.variables = [...this.variables, ...parseVariables(assignmentValue)]
-      } catch {}
+        const assignmentValue = restoreSnapshotAssignment(assignment, value)
+
+        if (this.#native) {
+          const session = Session.fromJSON(this.#native.session)
+          const source = this.#native.session.groups.find(
+            (group) => group.iteration?.id === this.#native!.pendingCall.iterationId
+          )?.iteration
+
+          if (!source) {
+            throw new Error('Missing interrupted iteration identity')
+          }
+
+          const timestamp = Date.now()
+          const report = session.memory.assign(assignmentValue, {
+            ...source,
+            timestamp,
+            variableWrites: Object.keys(assignmentValue).map((name) => ({ name, timestamp })),
+          })
+          this.#native.session = session.toJSON()
+          this.variables = exactVariables(session.memory.variables)
+
+          if (report.unavailable.length) {
+            this.#native.assignmentError = report.unavailable.map((item) => `${item.name}: ${item.reason}`).join('; ')
+          }
+        } else {
+          const replacements = new Set(Object.keys(assignmentValue))
+          this.variables = [
+            ...this.variables.filter((variable) => !replacements.has(variable.name)),
+            ...parseVariables(assignmentValue),
+          ]
+        }
+      } catch (error) {
+        if (this.#native) {
+          this.#native.assignmentError = error instanceof Error ? error.message : String(error)
+        }
+      }
     }
 
-    this.#status = { type: 'resolved', value }
+    if (this.#native) {
+      this.#native.settlement = settlement
+    }
+
+    const retainedValue = settlement ? Memory.restore(settlement).variables.snapshotValue : value
+    this.#status = { type: 'resolved', value: retainedValue }
   }
 
   /**
    * Rejects the snapshot with an error.
    *
    * Call this method when the long-running operation that caused the snapshot
-   * has failed or encountered an error. The provided error will be thrown
-   * when execution resumes, allowing the generated code to handle it.
+   * has failed or encountered an error. On continuation, the model receives
+   * this failure as the outcome of the interrupted inner operation and can
+   * generate a recovery program. The original JavaScript does not resume.
    *
    * @param error The error that occurred during the operation
    * @throws Error if the snapshot is not in pending status
@@ -299,27 +436,87 @@ export class Snapshot implements Serializable<Snapshot.JSON> {
    *   snapshot.reject(error)
    * }
    *
-   * // Continue execution (will throw the error)
+   * // Continue model iteration with the failed operation's outcome
    * const continuation = await execute({ snapshot, ... })
    * ```
    */
-  public reject(error: any) {
+  public reject(error: unknown): void {
     if (this.#status.type !== 'pending') {
       throw new Error(`Cannot reject snapshot because it is already settled: ${this.#status.type}`)
+    }
+
+    if (this.#native) {
+      const value = error instanceof Error ? { name: error.name, message: error.message, stack: error.stack } : error
+      this.#native.settlement = new Memory({
+        variables: { snapshotValue: value },
+        maxBytes: this.#native.session.memory.maxBytes,
+      }).serialize()
+      this.#status = { type: 'rejected', error: Memory.restore(this.#native.settlement).variables.snapshotValue }
+
+      return
     }
 
     this.#status = { type: 'rejected', error }
   }
 }
 
+function normalizePendingCall(pendingCall: Snapshot.PendingCall): Snapshot.PendingCall {
+  const normalized = { ...pendingCall }
+
+  if (normalized.interruption !== undefined) {
+    normalized.interruption = normalized.interruption
+      .replace(/bp_pat_[A-Za-z0-9]+/g, '[REDACTED]')
+      .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '')
+      .slice(0, MAX_INTERRUPTION_LENGTH)
+  }
+
+  if (normalized.executionOverride !== undefined) {
+    normalized.executionOverride = normalized.executionOverride
+      .replace(/bp_pat_[A-Za-z0-9]+/g, '[REDACTED]')
+      .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '')
+      .slice(0, 6000)
+  }
+
+  return normalized
+}
+
 function parseVariables(variableMap: { [key: string]: any }) {
   return Object.entries(variableMap).map(([name, value]) => {
     const type = extractType(value)
-    const bytes = JSON.stringify(value || '').length
-    const truncated = bytes > MAX_SNAPSHOT_SIZE_BYTES
+    let bytes = 0
+    let unsupported = false
+
+    try {
+      const serialized = JSON.stringify(value)
+      unsupported = serialized === undefined && value !== undefined
+      bytes = serialized?.length ?? 0
+    } catch {
+      unsupported = true
+    }
+
+    const truncated = unsupported || bytes > MAX_SNAPSHOT_SIZE_BYTES
+    let preview = 'Unavailable: value could not be serialized'
+
+    if (truncated && !unsupported) {
+      try {
+        preview = inspect(value, name) ?? 'N/A'
+      } catch {
+        /* A preview failure must not lose an interrupted side effect. */
+      }
+    }
 
     return truncated
-      ? ({ name, type, bytes, truncated: true, preview: inspect(value, name) ?? 'N/A' } satisfies Variable)
+      ? ({ name, type, bytes, truncated: true, preview } satisfies Variable)
       : ({ name, type, bytes, truncated: false, value } satisfies Variable)
   })
+}
+
+function exactVariables(variables: Record<string, unknown>): Variable[] {
+  return Object.entries(variables).map(([name, value]) => ({
+    name,
+    type: extractType(value),
+    bytes: JSON.stringify(value)?.length ?? 0,
+    value,
+    truncated: false,
+  }))
 }

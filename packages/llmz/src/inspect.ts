@@ -74,8 +74,10 @@ function printLimitedJson(obj: any, maxDepth: number, maxLength: number, maxKeys
         if (i > 0) {
           result += ',\n'
         }
+
         result += indentation + ' '.repeat(indent) + recurse(currentObj[i], depth + 1, currentIndent + indent)
       }
+
       result += '\n' + indentation + ']'
       currentLength += getTokenizer().count(result)
       return result
@@ -88,13 +90,16 @@ function printLimitedJson(obj: any, maxDepth: number, maxLength: number, maxKeys
         if (i > 0) {
           result += ',\n'
         }
+
         const value = recurse(currentObj[key], depth + 1, currentIndent + indent)
         result += indentation + ' '.repeat(indent) + `"${key}": ${value}`
       }
+
       if (numKeys > maxKeys) {
         wasTruncated = true
         result += ',\n' + indentation + `... (${numKeys - maxKeys} more keys)`
       }
+
       result += '\n' + indentation + '}'
       currentLength += getTokenizer().count(result)
       return result
@@ -188,6 +193,7 @@ function previewValue(value: unknown, length: number = LONG_TEXT_LENGTH) {
     if (str.length > length) {
       return escapeString(str.slice(0, length)) + ' ... <truncated>'
     }
+
     return escapeString(str)
   }
 
@@ -373,6 +379,7 @@ function previewLongText(text: string, length: number = LONG_TEXT_LENGTH) {
     if (str.length > length) {
       return str.slice(0, length) + ' ... <truncated>'
     }
+
     return str
   }
 

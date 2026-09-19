@@ -86,7 +86,7 @@ class InMemoryChat extends Chat {
       handler: async (input) => {
         this.#transcript.push({
           role: 'assistant',
-          content: JSON.stringify(input, null, 2),
+          content: input.children.join(''),
         })
       },
     })
@@ -98,6 +98,13 @@ class InMemoryChat extends Chat {
       name: 'John',
       content: message,
     })
+  }
+
+  clone(): InMemoryChat {
+    const clone = new InMemoryChat()
+    clone.#transcript.push(...structuredClone(this.#transcript))
+
+    return clone
   }
 }
 
@@ -157,12 +164,14 @@ describe('snapshots', { retry: 0, timeout: 10_000 }, async () => {
       objects: result.context.objects,
       tools: result.context.tools,
       exits: result.context.exits,
-      chat,
+      chat: chat.clone(),
       snapshot,
     })
 
     assert(final instanceof ErrorExecutionResult)
-    expect(final.error?.toString()).toMatch(/still pending/)
+    expect(final.error?.toString()).toContain('Resolve or reject the snapshot before resuming it')
+    expect(final.iterations).toHaveLength(0)
+    expect(snapshot.status.type).toBe('pending')
   })
 
   test('a snapshot can be resolved', async () => {
@@ -176,7 +185,7 @@ describe('snapshots', { retry: 0, timeout: 10_000 }, async () => {
 
     const final = await llmz.executeContext({
       client,
-      chat,
+      chat: chat.clone(),
       instructions: result.context.instructions,
       objects: result.context.objects,
       tools: result.context.tools,
@@ -204,7 +213,7 @@ describe('snapshots', { retry: 0, timeout: 10_000 }, async () => {
 
     const final = await llmz.executeContext({
       client,
-      chat,
+      chat: chat.clone(),
       instructions: result.context.instructions,
       objects: result.context.objects,
       tools: result.context.tools,

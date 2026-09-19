@@ -1,4 +1,4 @@
-import { Cognitive, type BotpressClientLike, Models, type SttModels } from '@botpress/cognitive'
+import { Cognitive, type BotpressClientLike, type CognitiveMessage, Models, type SttModels } from '@botpress/cognitive'
 
 import { Chat } from '../chat.js'
 import { Context, Iteration } from '../context.js'
@@ -7,6 +7,7 @@ import type { Example } from '../example.js'
 import { Exit, ExitResult } from '../exit.js'
 import { ValueOrGetter } from '../getter.js'
 import { type ObjectInstance } from '../objects.js'
+import type { Session } from '../session.js'
 import { Snapshot } from '../snapshots.js'
 import { type Tool } from '../tool.js'
 import { Trace } from '../types.js'
@@ -89,6 +90,8 @@ export type ExecutionHooks = {
     input: any
     controller: AbortController
     toolCallId: string
+    /** Native run_javascript call owning this business call. */
+    nativeCallId?: string
     object?: string
   }) => Promise<{ input?: any } | void>
 
@@ -108,6 +111,8 @@ export type ExecutionHooks = {
     output: any
     controller: AbortController
     toolCallId: string
+    /** Native run_javascript call owning this business call. */
+    nativeCallId?: string
     object?: string
   }) => Promise<{ output?: any } | void>
 }
@@ -129,8 +134,9 @@ type Options = Partial<Pick<Context, 'loop' | 'timeout'>> & {
   /**
    * Allow Cognitive to restart a failed stream on another model. Previews remain
    * live and are retracted with a restart delta before replacement output.
-   * Completed sends and code always wait for a valid response and successful
-   * transport. Streaming-only; defaults to false.
+   * Complete calls may execute while transport is open. Once execution starts,
+   * a stream failure or restart ends the iteration without replaying its effects.
+   * Streaming-only; defaults to false.
    */
   midStreamFallback?: boolean
   /**
@@ -142,6 +148,10 @@ type Options = Partial<Pick<Context, 'loop' | 'timeout'>> & {
 }
 
 export type ExecutionProps = {
+  /** Retained native history and exact JavaScript memory across user turns. */
+  session?: Session
+  /** New native input messages for this turn. Do not resend the session history. */
+  messages?: CognitiveMessage[]
   /**
    * If provided, the execution will be run in "Chat Mode".
    * In this mode, the execution will be able to send messages to the chat and will also have access to a chat transcript.
@@ -269,8 +279,8 @@ export type ExecutionProps = {
 
 export type RuntimeCognitive = Pick<Cognitive, 'getModelDetails' | 'generateText'> & {
   /**
-   * Streaming generation. When present, the runtime streams the response and
-   * parses ■ blocks incrementally.
+   * Streaming generation. Assistant text streams as provisional previews; native
+   * tool calls execute only after the complete successful response.
    */
   generateTextStream?: Cognitive['generateTextStream']
 }

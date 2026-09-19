@@ -9,11 +9,12 @@ export type LastLineEdit = {
 }
 
 /**
- * Plans the instrumentation of the last statement of the `__fn__` wrapper so
- * the generated code always returns an awaited value (the isolated VM cannot
- * return a pending Promise):
+ * Awaits the last expression without changing whether the program returns it.
+ * The isolated VM cannot return a pending Promise:
  * - `return expr` → `return await (expr)`
- * - a trailing `call()` / `await call()` statement → `return await (…)`
+ * - a trailing `call()` / `await call()` statement → `await (…)`
+ *
+ * Discarded values must stay discarded, especially terminal decision receipts.
  *
  * The prefix must be applied before, and the suffix after, all other edits so
  * they wrap around the tool-call instrumentation.
@@ -36,6 +37,7 @@ export function planLastLineInstrumentation(ast: Program): LastLineEdit | null {
     if (!last.argument) {
       return null
     }
+
     return { prefixPos: last.argument.start, prefix: 'await (', suffixPos: last.argument.end, suffix: ')' }
   }
 
@@ -43,7 +45,7 @@ export function planLastLineInstrumentation(ast: Program): LastLineEdit | null {
     last.type === 'ExpressionStatement' &&
     (last.expression.type === 'CallExpression' || last.expression.type === 'AwaitExpression')
   ) {
-    return { prefixPos: last.expression.start, prefix: 'return await (', suffixPos: last.expression.end, suffix: ')' }
+    return { prefixPos: last.expression.start, prefix: 'await (', suffixPos: last.expression.end, suffix: ')' }
   }
 
   return null

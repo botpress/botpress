@@ -1,27 +1,24 @@
 import { SourceMapConsumer } from 'source-map-js'
-
 import { compile } from '../compiler/index.js'
 import { InvalidCodeError } from '../errors.js'
+import { cloneMemoryValue } from '../memory.js'
 import { getQuickJSVariant, type QuickJSSyncVariantEx } from '../quickjs-variant.js'
+import { RESERVED_RUNTIME_NAMES } from '../runtime-names.js'
 import type { Trace, VMExecutionResult } from '../types.js'
 import { NodeDriver } from './drivers/node.js'
 import { loadQuickJSModule, QuickJSDriver } from './drivers/quickjs.js'
 import type { VMContext, VMDriver } from './types.js'
 
-const MAX_VM_EXECUTION_TIME = 60_000
-
+const MAX_VM_EXECUTION_TIME = 60000
 const useQuickJS = () => typeof process === 'undefined' || process?.env?.USE_QUICKJS !== 'false'
-
 // The Node driver runs code through AsyncFunction(...), which workerd bans
 // ("Code generation from strings disallowed") — falling back to it would only
 // mask the real QuickJS load failure behind a confusing EvalError.
 const isWorkerd = () => typeof navigator !== 'undefined' && navigator?.userAgent === 'Cloudflare-Workers'
-
 /**
  * Pre-warms the VM so the first execution doesn't pay the QuickJS WASM
- * instantiation cost. Fire-and-forget: called as soon as the model starts
- * writing a `■run` block, so the module loads while the code is still being
- * generated. No-op when the QuickJS driver is disabled or already loaded.
+ * instantiation cost. Call this while a native JavaScript tool call is being
+ * generated or before executing it. No-op when the driver is disabled or loaded.
  */
 export const warmupVM = (): void => {
   if (useQuickJS()) {
@@ -37,7 +34,8 @@ export async function runAsyncFunction(
   code: string,
   traces: Trace[] = [],
   signal: AbortSignal | null = null,
-  timeout: number = MAX_VM_EXECUTION_TIME
+  timeout: number = MAX_VM_EXECUTION_TIME,
+  memoryNames?: string[]
 ): Promise<VMExecutionResult> {
   const transformed = (() => {
     try {
@@ -52,10 +50,8 @@ export async function runAsyncFunction(
       throw new InvalidCodeError(err.message, code)
     }
   })()
-
   const lines_executed = new Map<number, number>()
   const variables: Record<string, any> = {}
-
   const consumer = new SourceMapConsumer({
     version: transformed.map.version.toString(),
     mappings: transformed.map.mappings,
@@ -64,31 +60,33 @@ export async function runAsyncFunction(
     sourcesContent: [transformed.code],
     file: transformed.map.file!,
   })
-
   context ??= {}
+  memoryNames ??= Object.keys(context).filter((name) => {
+    if (name.startsWith('__') || RESERVED_RUNTIME_NAMES.has(name)) {
+      return false
+    }
 
+    try {
+      cloneMemoryValue(context[name])
+      return true
+    } catch {
+      return false
+    }
+  })
+  memoryNames = memoryNames.filter(
+    (name) => !transformed.variables.has(name) && !RESERVED_RUNTIME_NAMES.has(name) && !name.startsWith('__')
+  )
   // Remove variables that the compiler will track — avoids stale values in the context
   for (const name of Array.from(transformed.variables)) {
     delete context[name]
   }
 
-  let driver: VMDriver
-
+  let driver: VMDriver = new NodeDriver()
   if (useQuickJS()) {
     try {
+      // Driver fallback is permitted only before any generated code has executed.
+      await loadQuickJSModule()
       driver = new QuickJSDriver()
-      return await driver.execute({
-        transformed,
-        consumer,
-        context,
-        traces,
-        signal,
-        timeout,
-        code,
-        lines_executed,
-        variables,
-        currentToolCall: undefined,
-      })
     } catch (quickjsError: any) {
       const variant = getQuickJSVariant() as QuickJSSyncVariantEx
       const debugInfo = {
@@ -101,15 +99,15 @@ export async function runAsyncFunction(
         nodeVersion: typeof process !== 'undefined' && process.version ? process.version : 'undefined',
         platform: typeof process !== 'undefined' && process.platform ? process.platform : 'undefined',
       }
-
       if (isWorkerd()) {
         // No fallback possible on workerd — surface the actual QuickJS failure
         console.error('QuickJS failed to load and the node driver is unavailable on Cloudflare Workers.')
         console.error('Debug info:', JSON.stringify(debugInfo, null, 2))
         if (quickjsError instanceof Error) {
-          ;(quickjsError as any).debugInfo = debugInfo
+          Object.assign(quickjsError, { debugInfo })
           throw quickjsError
         }
+
         throw new Error(`QuickJS failed to load on Cloudflare Workers: ${debugInfo.error}`)
       }
 
@@ -120,9 +118,9 @@ export async function runAsyncFunction(
     }
   }
 
-  driver = new NodeDriver()
   return await driver.execute({
     transformed,
+    memoryNames,
     consumer,
     context,
     traces,

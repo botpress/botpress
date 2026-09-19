@@ -51,7 +51,7 @@ Hi!
   }
 }
 `
-    let traces: Trace[] = []
+    const traces: Trace[] = []
     const result = await runAsyncFunction({}, code, traces)
 
     assert(result.success === false)
@@ -77,7 +77,16 @@ Hi!
     `)
     expect(
       result.traces
-        .map((x) => `${x.type}: ${x.type === 'comment' ? x.comment : x.type === 'log' ? x.message : ''}`)
+        .map((trace) => {
+          let detail = ''
+          if (trace.type === 'comment') {
+            detail = trace.comment
+          } else if (trace.type === 'log') {
+            detail = trace.message
+          }
+
+          return `${trace.type}: ${detail}`
+        })
         .join('\n')
     ).toMatchInlineSnapshot(`
       "comment: line 1
@@ -291,7 +300,6 @@ console.log( /* this is a comment */ test(5, 6));
           "a": 10,
           "b": 20,
           "c": 30,
-          "doThrow": "[[non-primitive]]",
         }
       `)
     })
@@ -392,7 +400,7 @@ return {
         },
       }
 
-      let traces: Trace[] = []
+      const traces: Trace[] = []
       const result = await runAsyncFunction(context, code, traces)
 
       assert(result.success)
@@ -430,7 +438,7 @@ return {
         },
       }
 
-      let traces: Trace[] = []
+      const traces: Trace[] = []
       const result = await runAsyncFunction(context, code, traces)
 
       assert(result.success)
@@ -449,6 +457,7 @@ return {
             4,
           ],
           "g": null,
+          "h": undefined,
         }
       `)
 
@@ -470,7 +479,20 @@ return {
       const result = await runAsyncFunction(context, code)
 
       assert(result.success)
-      expect(result.variables).toMatchInlineSnapshot(`{}`)
+      expect(result.variables).toMatchInlineSnapshot(`
+        {
+          "aNumber": 102,
+          "myArr": [
+            1,
+            2,
+            3,
+            4,
+          ],
+          "myObj": {
+            "name": "John",
+          },
+        }
+      `)
 
       expect(context.myObj).toMatchInlineSnapshot(`
         {
@@ -989,6 +1011,7 @@ return {
             if (id % 2 === 0) {
               return { value: `ok_${id}`, extra: { data: [1, 2, 3] } }
             }
+
             throw new Error(`fail_${id}`)
           },
         },

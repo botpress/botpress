@@ -30,12 +30,19 @@ export function isJsxComponent<T extends JsxComponent>(type: T['type'], componen
   )
 }
 
-export const createJsxComponent = (props: Omit<JsxComponent, '__jsx'>): JsxComponent => ({
-  __jsx: true,
-  type: isString(props.type) ? props.type.toUpperCase() : '__unknown__',
-  children: Array.isArray(props.children) ? props.children : props.children ? [props.children] : [],
-  props: isPlainObject(props.props) ? props.props : {},
-})
+export const createJsxComponent = (props: Omit<JsxComponent, '__jsx'>): JsxComponent => {
+  let children = props.children
+  if (!Array.isArray(children)) {
+    children = children ? [children] : []
+  }
+
+  return {
+    __jsx: true,
+    type: isString(props.type) ? props.type.toUpperCase() : '__unknown__',
+    children,
+    props: isPlainObject(props.props) ? props.props : {},
+  }
+}
 
 export const Jsx = z.custom<JsxComponent>(
   (value) => isAnyJsxComponent(value),

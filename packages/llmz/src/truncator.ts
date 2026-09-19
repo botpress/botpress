@@ -317,6 +317,7 @@ class _MessageContentParser {
       const remainingContent = content.slice(this._lastIndex)
       return remainingContent
     }
+
     return null
   }
 }

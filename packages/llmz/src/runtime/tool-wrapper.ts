@@ -34,6 +34,7 @@ export function wrapTool({
   const getToolInput = (input: any) => (tool.zInput as any).safeParse(input).data ?? input
 
   return async function (input: any) {
+    controller.signal.throwIfAborted()
     const toolCallId = `tcall_${ulid()}`
     const originalInput = input
     let effectiveInput = input
@@ -62,6 +63,7 @@ export function wrapTool({
       traces.push({
         type: 'tool_call',
         tool_call_id: toolCallId,
+        native_call_id: iteration.nativeCallId,
         started_at: toolStart,
         ended_at: Date.now(),
         tool_name: tool.name,
@@ -80,6 +82,7 @@ export function wrapTool({
 
       if (err instanceof SnapshotSignal) {
         err.toolCall = {
+          id: toolCallId,
           name: tool.name,
           inputSchema: tool.input,
           outputSchema: tool.output,
@@ -107,6 +110,7 @@ export function wrapTool({
           controller,
           object,
           toolCallId,
+          nativeCallId: iteration.nativeCallId,
         })
 
         if (typeof afterRes?.output !== 'undefined') {
@@ -127,17 +131,23 @@ export function wrapTool({
         controller,
         object,
         toolCallId,
+        nativeCallId: iteration.nativeCallId,
       })
 
       if (typeof beforeRes?.input !== 'undefined') {
         effectiveInput = beforeRes.input
       }
 
+      // A policy hook may cancel by aborting rather than throwing. Do not start
+      // an irreversible business action after that cancellation was accepted.
+      controller.signal.throwIfAborted()
+
       output = await tool.execute(
         effectiveInput,
         {
           callId: toolCallId,
           iterationId: iteration.id,
+          nativeCallId: iteration.nativeCallId,
         },
         chat
       )
@@ -150,6 +160,7 @@ export function wrapTool({
         controller,
         object,
         toolCallId,
+        nativeCallId: iteration.nativeCallId,
       })
 
       if (typeof afterRes?.output !== 'undefined') {

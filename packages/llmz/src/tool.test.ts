@@ -453,7 +453,7 @@ describe('tool default values', () => {
   })
 
   it('tool clone and changing types', async () => {
-    let handlers: string[] = []
+    const handlers: string[] = []
 
     const tool = new Tool({
       name: 'add',
@@ -555,7 +555,7 @@ describe('tool default values', () => {
   })
 
   it('tool retry logic', async () => {
-    let attempts: string[] = []
+    const attempts: string[] = []
 
     const tool = new Tool({
       name: 'retryTool',
@@ -568,6 +568,7 @@ describe('tool default values', () => {
         if (attempts.length <= 3) {
           throw new Error(`Simulated error on attempt ${attempts.length}`)
         }
+
         attempts.push(`SUCCESS attempt with a=${a}`)
         return a * 2
       },
@@ -592,7 +593,7 @@ describe('tool default values', () => {
   })
 
   it('tool retry logic (2)', async () => {
-    let attempts: string[] = []
+    const attempts: string[] = []
 
     const tool = new Tool({
       name: 'retryTool',
@@ -605,6 +606,7 @@ describe('tool default values', () => {
         if (attempts.length <= 3) {
           throw new Error(`Simulated error on attempt ${attempts.length}`)
         }
+
         attempts.push(`SUCCESS attempt with a=${a}`)
         return a * 2
       },

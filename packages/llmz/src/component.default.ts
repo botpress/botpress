@@ -8,7 +8,7 @@ const Button = new Component({
   aliases: ['btn'],
   generation: {
     usage:
-      'Offer quick actions or choices after a message. It is common to send several buttons together: write one separate ■send=button block per choice in the SAME response. Each button has its own props and no body. Send all the choices before the final exit; do not wait for a user reply between buttons.',
+      'Offer quick actions or choices after a message. chat.buttons takes button props directly, without a component or props wrapper. For example: return chat.buttons([{ action: "say", label: "Track my order" }, { action: "say", label: "Contact support" }]); This sends the buttons and listens. Use full { component: "Button", props: { ... } } messages inside chat.present when combining buttons with other components.',
     examples: [
       { props: { action: 'say', label: 'Track my order' } },
       { props: { action: 'url', label: 'View guide', url: 'https://example.com/guide' } },
@@ -107,7 +107,7 @@ const Card = new Component({
   description: 'A card with a title, optional subtitle, and Markdown body.',
   aliases: [],
   generation: {
-    usage: 'Present one item. The block body is Markdown, not nested component blocks or JSX.',
+    usage: 'Present one item. Use { props: { title, subtitle? }, body } with final Markdown in body.',
     examples: [
       { props: { title: 'Standard plan', subtitle: '$20/month' }, body: 'Includes 5 projects and email support.' },
     ],
@@ -146,7 +146,7 @@ const carouselProps = z.object({
 
 class CarouselComponent extends Component<ContainerComponentDefinition<typeof carouselProps>> {
   public override render(props: Component['propsType'], children: any[] = []): RenderedComponent {
-    // Preserve direct rendering of legacy nested children. Protocol messages use cards props.
+    // Preserve direct rendering of legacy nested children. Native calls use cards props.
     if (!('cards' in props) && children.length && children.every((child) => isComponent(child, Card))) {
       return super.render(props, children)
     }
@@ -172,7 +172,7 @@ const Carousel = new CarouselComponent({
   body: false,
   generation: {
     usage:
-      'Use for several comparable items. Put ALL cards in the cards array of ONE send block. Each card can include title, subtitle, body, image {url, alt?}, and buttons [{action, label, value?, url?}]. Do not write a Markdown list or separate Card blocks; those do not form a carousel.',
+      'Use for several comparable items. Return chat.present({ messages: [{ component: "Carousel", props: { cards: [...] } }] }). Each card can include title, subtitle, body, image {url, alt?}, and buttons [{action, label, value?, url?}]. A Markdown list or separate Card messages do not form a carousel.',
     examples: [
       {
         props: {

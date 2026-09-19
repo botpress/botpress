@@ -38,13 +38,14 @@ export type MessageHandler = (input: RenderedComponent, metadata: MessageMetadat
 /**
  * A chunk of a message body streamed live from the LLM, before the message is complete.
  *
- * On streaming cognitive clients, message bodies (`■send` blocks) arrive token by token.
+ * On streaming clients, ordinary assistant text arrives token by token.
  * Each chunk is forwarded to {@link Chat} `onMessageDelta` as soon as it is parsed, so the
  * client can render the message progressively (e.g. typewriter effect in a chat UI).
  *
  * Deltas are provisional: restart deltas retract previews from that iteration
- * after a provider restart, malformed response, or transport failure. Completed
- * `handler` messages and code wait for a valid response and successful transport.
+ * after a provider restart, malformed response, or transport failure. Assistant
+ * text is committed after successful transport. Complete tool calls may execute
+ * earlier; the next iteration waits for both the stream and execution to settle.
  */
 export type MessageDelta =
   | {
@@ -217,16 +218,17 @@ export type MessageDeltaHandler = (delta: MessageDelta) => Promise<void> | void
  *
  * ## Component System
  *
- * The agent generates JSX code using available components:
+ * The agent streams assistant text and returns a JavaScript presentation decision:
  *
- * ```typescript
- * // Agent generates this TSX code:
- * yield <Text>Welcome! Choose an option:</Text>
- * yield <Button action="postback" label="Get Help" value="help" />
- * yield <Button action="postback" label="Contact Sales" value="sales" />
- *
- * // Your handler receives these as RenderedComponent objects
+ * ```text
+ * Assistant: Welcome! Choose an option:
+ * run_javascript code:
+ * return chat.buttons([
+ *   { action: "postback", label: "Get Help", value: "help" },
+ *   { action: "postback", label: "Contact Sales", value: "sales" },
+ * ])
  * ```
+ * Your handler receives the validated content as RenderedComponent objects.
  *
  * ## Transcript Management
  *
@@ -343,15 +345,15 @@ export class Chat {
     /**
      * Called with each message body chunk as it is streamed from the LLM (streaming
      * clients only). Enables progressive rendering; the complete message is still
-     * delivered to `handler` once fully parsed.
+     * delivered to `handler` after successful generation and validation.
      */
     onMessageDelta?: MessageDeltaHandler
-    components: ValueOrGetter<Component[], Context>
+    components?: ValueOrGetter<Component[], Context>
     transcript?: ValueOrGetter<Transcript.Message[], Context>
   }) {
     this.handler = props.handler
     this.onMessageDelta = props.onMessageDelta
-    this.components = props.components
+    this.components = props.components ?? []
     this.transcript = props.transcript || []
   }
 

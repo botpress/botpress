@@ -1,5 +1,7 @@
 type UnsubscribeFn = () => void
+
 type EventHandler<T> = (event: T) => void
+
 export type SubscribeFn<T> = (fn: EventHandler<T>) => UnsubscribeFn
 
 class Emitter<T> {

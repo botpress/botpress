@@ -3,6 +3,7 @@ import { beforeAll, beforeEach, afterAll, assert, describe, expect, it } from 'v
 import * as llmz from '../src/runtime/execute.js'
 import { Tool } from '../src/tool.js'
 import { Exit } from '../src/exit.js'
+import { ListenExit } from '../src/context.js'
 import { ThinkSignal } from '../src/errors.js'
 import { ExecutionResult, SuccessExecutionResult } from '../src/result.js'
 import { getCachedCognitiveClient } from './__tests__/index.js'
@@ -1053,7 +1054,7 @@ IMPORTANT RULES:
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
       expect(result.iterations.length).toBeLessThanOrEqual(4)
 
-      expect(result.iteration.code).toBeUndefined()
+      expect(result.is(ListenExit)).toBe(true)
 
       // Check the supplied code, not incidental headings or explanatory prose.
       expect(expectedSnippets.length).toBeGreaterThan(0)
@@ -1123,7 +1124,7 @@ CRITICAL: The user expects to see HTML tags rendered, not as plain text!`,
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
       expect(result.iterations.length).toBeLessThanOrEqual(4)
 
-      expect(result.iteration.code).toBeUndefined()
+      expect(result.is(ListenExit)).toBe(true)
 
       // Check the supplied code, not incidental headings or explanatory prose.
       expect(expectedSnippets.length).toBeGreaterThan(0)
@@ -1211,7 +1212,7 @@ CRITICAL: Your output must be valid HTML that includes the raw HTML from the exa
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
       expect(result.iterations.length).toBeLessThanOrEqual(4)
 
-      expect(result.iteration.code).toBeUndefined()
+      expect(result.is(ListenExit)).toBe(true)
 
       // Check the supplied code, not incidental headings or explanatory prose.
       expect(expectedSnippets.length).toBeGreaterThan(0)
@@ -1298,7 +1299,7 @@ This is for EDUCATIONAL purposes - show real-world template patterns!`,
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
       expect(result.iterations.length).toBeLessThanOrEqual(4)
 
-      expect(result.iteration.code).toBeUndefined()
+      expect(result.is(ListenExit)).toBe(true)
       // Check the supplied code, not incidental headings or explanatory prose.
       expect(expectedSnippets.length).toBeGreaterThan(0)
       const answer = messagesSent.join('\n')
@@ -1396,7 +1397,7 @@ IMPORTANT: This is production code - show it EXACTLY as-is with all HTML tags an
       expect(result.iterations.filter((i) => i.isFailed()).length).toBe(0)
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
       expect(result.iterations.length).toBeLessThanOrEqual(4)
-      expect(result.iteration.code).toBeUndefined()
+      expect(result.is(ListenExit)).toBe(true)
       // Check the supplied code, not incidental headings or explanatory prose.
       expect(expectedSnippets.length).toBeGreaterThan(0)
       const answer = messagesSent.join('\n')
@@ -1490,7 +1491,8 @@ describe('message streaming', { retry: 0, timeout: 60_000 }, () => {
     expect(usage.context.total).toBeLessThan(usage.limit!)
     expect(usage.context.framework).toBeGreaterThan(0)
     expect(usage.context.instructions).toBeGreaterThan(0)
-    expect(usage.context.transcript).toBeGreaterThan(0)
+    expect(usage.context.transcript).toBe(0)
+    expect(usage.context.iterations).toBeGreaterThan(0)
     expect(usage.context.protocol).toBeGreaterThan(0)
     expect(result.tokens.total).toBe(usage.total)
   })

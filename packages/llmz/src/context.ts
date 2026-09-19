@@ -1,6 +1,5 @@
-import { Models, SttModels } from '@botpress/cognitive'
+import { type CognitiveMessage, Models, SttModels } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
-import { cloneDeep, isPlainObject } from 'lodash-es'
 import { ulid } from 'ulid'
 import { Chat } from './chat.js'
 import { assertValidComponent, Component } from './component.js'
@@ -9,38 +8,41 @@ import type { Example } from './example.js'
 import { Exit } from './exit.js'
 import { getValue, ValueOrGetter } from './getter.js'
 import { HookedArray } from './handlers.js'
-import type { Diagnostic } from './message-stream/types.js'
 import { ObjectInstance } from './objects.js'
-import { DualModePrompt } from './prompts/dual-modes.js'
-import { summarizeIterations } from './prompts/execution-history.js'
-import { LLMzPrompts, ParsedNext, ParsedSend, Prompt } from './prompts/prompt.js'
+import { getNativeSystemMessage } from './prompts/native.js'
+import { LLMzPrompts } from './prompts/prompt.js'
+import { createNativeToolCatalogue, type NativeToolCatalogue } from './runtime/native-tools.js'
+import { RESERVED_RUNTIME_NAMES } from './runtime-names.js'
+import { Session } from './session.js'
 import { Snapshot } from './snapshots.js'
 import { Tool } from './tool.js'
 import { Transcript, TranscriptArray } from './transcript.js'
-import { stripTruncationTags, wrapContent } from './truncator.js'
+import { stripTruncationTags } from './truncator.js'
 import { ObjectMutation, Serializable, Trace } from './types.js'
-import { getErrorMessage, getTokenizer } from './utils.js'
+import { getTokenizer } from './utils.js'
 
 /**
- * Tokenizer-measured size of each part of the prompt, before truncation.
- * Useful to understand what is eating up the context window.
+ * Tokenizer estimate of the final request after compaction, grouped by purpose.
+ * Categories sum to the measured request size; provider-reported usage is separate.
+ * Media transport URLs and encoded bytes are excluded; media token usage is
+ * provider-specific and is not available until the provider reports usage.
  */
 export type ContextTokens = {
-  /** Total measured size of the prompt (sum of all the parts below). */
+  /** Total measured request size (sum of all the parts below). */
   total: number
-  /** Static prompt scaffolding: response format, VM rules, security guidelines, recap. */
+  /** System scaffolding and structured-message overhead not attributed below. */
   framework: number
   /** The identity / instructions section. */
   instructions: number
-  /** tools.d.ts — tools, objects and variable typings. */
+  /** Callable JavaScript declarations and native tool schemas. */
   tools: number
-  /** The conversation transcript. */
+  /** Always zero in the native protocol; conversation history is included in iterations. */
   transcript: number
-  /** The ■ protocol reference documenting components and exits. */
+  /** Native execution rules documenting components and exits. */
   protocol: number
   /** Consumer few-shot demonstrations, separate from the live transcript. */
   examples: number
-  /** Messages carried over from previous iterations (assistant responses, execution results, errors). */
+  /** Current input, retained native history, tool results, and the memory overview. */
   iterations: number
 }
 
@@ -59,11 +61,12 @@ export type TokenUsage = {
    * Undefined until the LLM call starts.
    */
   limit?: number
-  /** Measured context size by part of the prompt (pre-truncation). */
+  /** Measured context size by part of the request after compaction. */
   context: ContextTokens
 }
 
 export type IterationParameters = {
+  chatEnabled?: boolean
   transcript: TranscriptArray
   tools: Tool[]
   objects: ObjectInstance[]
@@ -159,135 +162,8 @@ export namespace IterationStatuses {
 }
 
 /**
- * Built-in exit for requesting thinking time during agent execution.
- *
- * The ThinkExit allows agents to pause execution and reflect on the current situation,
- * variables, and context before continuing. There are two ways to trigger thinking:
- *
- * 1. **Agent-initiated**: Agent calls `return { action: 'think' }` to pause and reflect
- * 2. **Tool/Hook-initiated**: Tools or hooks throw `ThinkSignal` to force agent reflection
- *
- * This exit is automatically available in all LLMz executions and is commonly used for:
- * - Complex decision making that requires analysis
- * - Debugging and understanding current variable state
- * - Planning multi-step operations
- * - Tool feedback and result processing
- * - Reflecting on previous iterations and results
- *
- * @example
- * ```typescript
- * // Agent retrieves web search results and decides to think about them
- * const results = await searchWeb(query)
- *
- * // Agent decides it needs to think (look at the search results) before responding
- * return { action: 'think', results }
- * ```
- *
- * Sometimes, as the author of the tool, you may want to always force the agent to think about the results.
- * In this case, you can throw a `ThinkSignal` from the tool handler to trigger thinking.
- *
- * @example
- * ```typescript
- * // Tool-initiated thinking using ThinkSignal
- * import { ThinkSignal } from 'llmz'
- *
- * const searchTool = new Tool({
- *   name: 'search',
- *   handler: async ({ query }) => {
- *     const results = await performSearch(query)
- *
- *     if (!results.length) {
- *       // Force agent to think about alternative approaches
- *       throw new ThinkSignal(
- *         'No search results found',
- *         'No results were found. Consider rephrasing the query or using a different approach.'
- *       )
- *     }
- *
- *     // Provide context for agent to process results
- *     throw new ThinkSignal(
- *       'Search completed with results',
- *       `Found ${results.length} results. Process them carefully and provide citations.`
- *     )
- *   }
- * })
- * ```
- * When an iteration ends with ThinkExit, the agent will automatically loop and start a new iteration to continue processing, unless iteration limit is reached.
- *
- * The thinking process helps agents:
- * - Avoid rushing into incorrect solutions
- * - Better understand complex problems and tool results
- * - Maintain variable state across iterations
- * - Process feedback from tools and hooks
- * - Provide more thoughtful and accurate responses
- */
-export const ThinkExit = new Exit({
-  name: 'think',
-  description: 'Think about the current situation and provide a response',
-})
-
-/**
- * Built-in exit for waiting for user input in chat mode.
- *
- * The ListenExit is automatically available when chat mode is enabled (when a Chat
- * instance is provided to execute()). When an agent calls `return { action: 'listen' }`,
- * the execution pauses and waits for user input before continuing the conversation.
- *
- * This exit is essential for interactive conversational agents and is used to:
- * - Wait for user responses in chat interfaces
- * - Pause execution until user provides input
- * - Enable back-and-forth conversation flow
- * - Allow users to guide the conversation direction
- *
- * The ListenExit is only available in chat mode - it will not be present in
- * worker mode executions where no chat interface is provided.
- *
- * @example
- * ```typescript
- * // Agent generated code using ListenExit in chat mode
- * yield <Message>What would you like me to help you with today?</Message>
- * yield <Button action="postback" label="Get Weather" value="weather" />
- * yield <Button action="postback" label="Set Reminder" value="reminder" />
- *
- * // Wait for user to respond
- * return { action: 'listen' }
- * ```
- *
- * @example
- * ```typescript
- * // Standard chat interaction pattern
- * const calculation = 2 + 8
- * yield <Message>The result of `2 + 8` is **{calculation}**.</Message>
- * return { action: 'listen' }
- * ```
- *
- * @example
- * ```typescript
- * // CLI chat example with ListenExit handling
- * const chat = new CLIChat()
- *
- * while (chat.iterate()) {
- *   const result = await execute({
- *     instructions: 'Help the user with their questions',
- *     chat,
- *     client,
- *   })
- *
- *   if (result.is(ListenExit)) {
- *     // CLIChat handles prompting user automatically
- *     continue
- *   } else {
- *     console.log('Conversation ended')
- *     break
- *   }
- * }
- * ```
- *
- * The ListenExit enables natural conversation flow where:
- * - Agent sends messages and waits for responses
- * - User provides input to guide the conversation
- * - Conversation continues iteratively until completion
- * - Chat interface manages the input/output cycle
+ * Chat completion. JavaScript returns `exit()` or a terminal presentation decision
+ * to wait for user input. A plain assistant answer also implies this exit.
  */
 export const ListenExit = new Exit({
   name: 'listen',
@@ -295,94 +171,14 @@ export const ListenExit = new Exit({
 })
 
 /**
- * Default exit used when no custom exits are provided.
- *
- * The DefaultExit is automatically used in worker mode when no custom exits are defined.
- * It provides a standard way to complete execution with either success or failure outcomes.
- * The exit uses a discriminated union schema to ensure type-safe handling of both success
- * and error cases.
- *
- * This exit is commonly used for:
- * - Simple worker mode executions without custom completion logic
- * - Standardized success/failure reporting
- * - Basic task completion with result or error information
- * - Default fallback when no specific exit behavior is needed
- *
- * @example
- * ```typescript
- * // Agent generated code using DefaultExit for successful completion
- * const data = await fetchUserData(userId)
- * const processedResult = processData(data)
- *
- * return {
- *   action: 'done',
- *   success: true,
- *   result: processedResult
- * }
- * ```
- *
- * @example
- * ```typescript
- * // Agent generated code using DefaultExit for error cases
- * try {
- *   const result = await riskyOperation()
- *   return { action: 'done', success: true, result }
- * } catch (error) {
- *   return {
- *     action: 'done',
- *     success: false,
- *     error: `Operation failed: ${error.message}`
- *   }
- * }
- * ```
- *
- * @example
- * ```typescript
- * import { execute, DefaultExit } from 'llmz'
- *
- * // Handling DefaultExit in execution results
- * const result = await execute({
- *   instructions: 'Process the user data and return results',
- *   // No custom exits provided - DefaultExit will be used
- *   client,
- * })
- *
- * if (result.is(DefaultExit)) {
- *   if (result.output.success) {
- *     console.log('Success:', result.output.result)
- *   } else {
- *     console.error('Error:', result.output.error)
- *   }
- * }
- * ```
- *
- * @example
- * ```typescript
- * // Worker mode execution with automatic DefaultExit
- * const result = await execute({
- *   instructions: 'Calculate fibonacci numbers up to 100',
- *   tools: [mathTools],
- *   client,
- *   // No chat provided = worker mode
- *   // No exits provided = DefaultExit automatically added
- * })
- *
- * // Result will use DefaultExit for completion
- * if (result.isSuccess() && result.is(DefaultExit)) {
- *   const { success, result: data, error } = result.output
- *   // Handle success/failure cases
- * }
- * ```
- *
- * The DefaultExit provides a consistent interface for:
- * - Type-safe success/failure handling
- * - Standardized result reporting across different executions
- * - Automatic fallback behavior when no custom exits are defined
- * - Clear separation between successful results and error conditions
+ * Worker completion when no custom exits are registered. JavaScript returns
+ * `exit('done', { success: true, result })` or
+ * `exit('done', { success: false, error })`.
  */
 export const DefaultExit = new Exit({
   name: 'done',
-  description: 'When the execution is sucessfully completed or when error recovery is not possible',
+  description:
+    'Finish when the requested work is complete or no safe, authorized recovery remains. Before reporting failure, address known recoverable causes with available tools without repeating successful actions. Recovery must respect instructions, access requirements, tool-attempt limits, and the remaining response budget.',
   schema: z.discriminatedUnion('success', [
     z.object({
       success: z.literal(true),
@@ -390,7 +186,11 @@ export const DefaultExit = new Exit({
     }),
     z.object({
       success: z.literal(false),
-      error: z.string().describe('The error message if the execution failed'),
+      error: z
+        .string()
+        .describe(
+          'The actual blocker and why available recovery cannot resolve it; a failed tool call alone is insufficient'
+        ),
     }),
   ]),
 })
@@ -417,7 +217,6 @@ export namespace Iteration {
       tokens: number
       spend: number
       output: string
-      diagnostics?: Diagnostic[]
       model: string
       time_to_first_token?: number
       time_to_last_token?: number
@@ -438,10 +237,11 @@ export class Iteration implements Serializable<Iteration.JSON> {
   public id: string
   public messages: LLMzPrompts.Message[]
   public code?: string
-  /** Messages (`■send` blocks) parsed from the assistant response, in order. */
-  public sends?: ParsedSend[]
-  /** The `■next` exit parsed from the assistant response, if any. */
-  public next?: ParsedNext
+  public initialMessages?: CognitiveMessage[]
+  public nativeTools?: NativeToolCatalogue
+  public sessionInfo?: { id: string; number: number; turn: number; turnId: string; timestamp: number }
+  /** Outer native call that owns the current JavaScript execution. */
+  public nativeCallId?: string
   public traces: HookedArray<Trace>
   public variables: Record<string, any>
 
@@ -522,8 +322,6 @@ export class Iteration implements Serializable<Iteration.JSON> {
     tokens: number
     spend: number
     output: string
-    /** Syntax diagnostics from the response parser; raw output remains available above. */
-    diagnostics?: Diagnostic[]
     model: string
     /** Milliseconds between the LLM call start and the first streamed token. Only set on streaming clients. */
     time_to_first_token?: number
@@ -601,7 +399,7 @@ export class Iteration implements Serializable<Iteration.JSON> {
   }
 
   public get isChatEnabled() {
-    return this._parameters.components.length > 0
+    return this._parameters.chatEnabled ?? this._parameters.components.length > 0
   }
 
   public constructor(props: {
@@ -666,6 +464,7 @@ export namespace Context {
     loop: number
     metadata: Record<string, any>
     snapshot?: Snapshot.JSON
+    session: Session.JSON
   }
 }
 
@@ -682,7 +481,7 @@ export class Context implements Serializable<Context.JSON> {
   public temperature: ValueOrGetter<number, Context>
   public reasoningEffort?: ValueOrGetter<'low' | 'medium' | 'high' | 'dynamic' | 'none', Context>
 
-  public version: Prompt = DualModePrompt
+  public session: Session
   public timeout: number = 60_000 // Default timeout of 60 seconds
   public loop: number
   /**
@@ -711,9 +510,6 @@ export class Context implements Serializable<Context.JSON> {
 
   public snapshot?: Snapshot
 
-  // Keep the latest message without its per-request state so old budgets never enter history.
-  private _lastMessageWithoutExecutionState?: LLMzPrompts.Message
-
   public iteration: number = 0
   public iterations: Iteration[]
 
@@ -729,16 +525,44 @@ export class Context implements Serializable<Context.JSON> {
     }
 
     const parameters = await this._refreshIterationParameters()
+    await this.session.memory.syncObjects(parameters.objects, {
+      turn: this.session.turn,
+      turnId: this.session.turnId,
+      timestamp: Date.now(),
+    })
+    if (this.session.turn === 0) {
+      this.session.beginTurn({ transcript: parameters.transcript })
+    } else if (this.chat) {
+      this.session.reconcileTranscript(parameters.transcript)
+    }
+
     const { messages, parts } = await this._getIterationMessages(parameters)
     const contextTokens = this._measureContextTokens(messages, parts)
 
+    const availableExits = [...parameters.exits]
+    if (this.chat) {
+      availableExits.push(ListenExit)
+    }
+
+    const nativeTools = createNativeToolCatalogue({ components: parameters.components, exits: availableExits })
+    const sessionInfo = this.session.nextIteration()
+
+    try {
+      this.session.memory.assertCapacityForIteration(sessionInfo)
+    } catch (error) {
+      this.session.settleIteration(sessionInfo.id)
+      throw error
+    }
+
     const iteration = new Iteration({
-      id: `${this.id}_${this.iterations.length + 1}`,
-      variables: this._getIterationVariables(),
+      id: sessionInfo.id,
+      variables: this.session.memory.getBindings(),
       parameters,
       messages,
     })
 
+    iteration.sessionInfo = sessionInfo
+    iteration.nativeTools = nativeTools
     iteration.tokens = { input: 0, output: 0, total: 0, context: contextTokens }
 
     this.iterations.push(iteration)
@@ -746,32 +570,6 @@ export class Context implements Serializable<Context.JSON> {
     this.snapshot = undefined
 
     return iteration
-  }
-
-  private _getIterationVariables(): Record<string, any> {
-    const lastIteration = this.iterations.at(-1)
-    const variables: Record<string, any> = {}
-
-    if (lastIteration?.status.type === 'thinking_requested') {
-      const lastThinkingVariables = lastIteration.status.thinking_requested.variables
-      if (isPlainObject(lastThinkingVariables)) {
-        Object.assign(variables, cloneDeep(lastThinkingVariables))
-      }
-    }
-
-    if (isPlainObject(lastIteration?.variables)) {
-      Object.assign(variables, cloneDeep(lastIteration?.variables ?? {}))
-    }
-
-    if (this.snapshot?.status.type === 'resolved') {
-      for (const v of this.snapshot.variables) {
-        if (!v.truncated && v.value !== undefined) {
-          variables[v.name] = v.value
-        }
-      }
-    }
-
-    return variables
   }
 
   /**
@@ -789,10 +587,12 @@ export class Context implements Serializable<Context.JSON> {
       if (typeof message.content === 'string') {
         return countText(message.content)
       }
+
       if (Array.isArray(message.content)) {
         // Images and other non-text parts are not counted
         return message.content.reduce((acc, part) => acc + (part.type === 'text' ? countText(part.text) : 0), 0)
       }
+
       return 0
     }
 
@@ -832,161 +632,18 @@ export class Context implements Serializable<Context.JSON> {
   private async _getIterationMessages(
     parameters: IterationParameters
   ): Promise<{ messages: LLMzPrompts.Message[]; parts: LLMzPrompts.SystemPromptParts }> {
-    const lastIteration = this.iterations.at(-1)
-
-    const promptProps: LLMzPrompts.InitialStateProps = {
-      iteration: {
-        current: this.iterations.length + 1,
-        limit: this.loop,
-        resumed: !!this.snapshot,
-        ...summarizeIterations(this.iterations, parameters.components.length > 0),
-      },
+    const exits = this.chat ? [...parameters.exits, ListenExit] : parameters.exits
+    const { message, parts } = await getNativeSystemMessage({
+      isChatEnabled: !!this.chat,
       globalTools: parameters.tools,
       objects: parameters.objects,
       instructions: parameters.instructions,
       examples: parameters.examples,
       transcript: parameters.transcript,
-      // ListenExit is protocol-level in chat mode: it must be documented alongside user-defined exits
-      exits: parameters.components.length ? [...parameters.exits, ListenExit] : parameters.exits,
+      exits,
       components: parameters.components,
-    }
-
-    const { message: systemMessage, parts } = await this.version.getSystemMessage(promptProps)
-    const previousLastMessage = this._lastMessageWithoutExecutionState
-    const withParts = (messages: LLMzPrompts.Message[]) => {
-      const last = messages.at(-1)!
-      this._lastMessageWithoutExecutionState = last
-
-      const state = this.version.getExecutionState?.(promptProps) ?? ''
-
-      if (state) {
-        messages[messages.length - 1] = Array.isArray(last.content)
-          ? { ...last, content: [...last.content, { type: 'text', text: state.trim() }] }
-          : { ...last, content: (last.content ?? '') + state }
-      }
-
-      return { messages, parts }
-    }
-
-    if (this.snapshot?.status.type === 'resolved') {
-      return withParts([
-        systemMessage,
-        this.version.getSnapshotResolvedMessage({
-          snapshot: this.snapshot,
-        }),
-      ])
-    }
-
-    if (this.snapshot?.status.type === 'rejected') {
-      return withParts([
-        systemMessage,
-        this.version.getSnapshotRejectedMessage({
-          snapshot: this.snapshot,
-        }),
-      ])
-    }
-
-    // TODO: truncate messages when too many / too long...
-    // this can't work with loop = 100 for example
-    // so we need to summarize the messages / situation and variables as we go
-    // probably we need to check if max tokens is 75% reached and then summarize messages and variables if needed
-
-    if (!lastIteration) {
-      return withParts([systemMessage, await this.version.getInitialUserMessage(promptProps)])
-    }
-
-    const history = lastIteration.messages.slice()
-    if (previousLastMessage) {
-      history[history.length - 1] = previousLastMessage
-    }
-
-    const lastIterationMessages = [systemMessage, ...history.filter((x) => x.role !== 'system')]
-
-    if (lastIteration?.status.type === 'thinking_requested') {
-      return withParts([
-        ...lastIterationMessages,
-        {
-          role: 'assistant',
-          content: wrapContent(lastIteration.llm?.output ?? '', { preserve: 'top', flex: 4, minTokens: 25 }),
-        },
-        await this.version.getThinkingMessage({
-          isChatEnabled: parameters.components.length > 0,
-          reason: lastIteration.status.thinking_requested.reason,
-          variables: lastIteration.status.thinking_requested.variables,
-          interrupted: lastIteration.status.thinking_requested.interrupted,
-          discardedMessages: lastIteration.llm?.diagnostics?.some((diagnostic) => diagnostic.code === 'send-after-run'),
-        }),
-      ])
-    }
-
-    if (lastIteration?.status.type === 'exit_error') {
-      return withParts([
-        ...lastIterationMessages,
-        {
-          role: 'assistant',
-          content: wrapContent(lastIteration.llm?.output ?? '', { preserve: 'top', flex: 4, minTokens: 25 }),
-        },
-        await this.version.getInvalidCodeMessage({
-          isChatEnabled: parameters.components.length > 0,
-          code: lastIteration.next
-            ? `■next=${lastIteration.next.name} ${JSON.stringify(lastIteration.next.props)}`
-            : (lastIteration.code ?? '// No code generated'),
-          message: `Invalid ■next block (${lastIteration.status.exit_error.exit}): ${lastIteration.status.exit_error.message}`,
-          variables: lastIteration.variables,
-          toolCalls: lastIteration.traces
-            .filter((trace) => trace.type === 'tool_call')
-            .map((trace) => ({
-              tool: trace.tool_name,
-              input: trace.input,
-              success: trace.success,
-              ...(trace.success ? { output: trace.output } : { error: getErrorMessage(trace.error) }),
-            })),
-        }),
-      ])
-    }
-
-    if (lastIteration?.status.type === 'invalid_code_error') {
-      return withParts([
-        ...lastIterationMessages,
-        {
-          role: 'assistant',
-          content: wrapContent(lastIteration.llm?.output ?? '', { preserve: 'top', flex: 4, minTokens: 25 }),
-        },
-        await this.version.getInvalidCodeMessage({
-          isChatEnabled: parameters.components.length > 0,
-          code: lastIteration.code ?? '// No code generated',
-          message: lastIteration.status.invalid_code_error.message,
-        }),
-      ])
-    }
-
-    if (lastIteration?.status.type === 'execution_error') {
-      return withParts([
-        ...lastIterationMessages,
-        {
-          role: 'assistant',
-          content: wrapContent(lastIteration.llm?.output ?? '', { preserve: 'top', flex: 4, minTokens: 25 }),
-        },
-        await this.version.getCodeExecutionErrorMessage({
-          isChatEnabled: parameters.components.length > 0,
-          variables: lastIteration.variables,
-          toolCalls: lastIteration.traces
-            .filter((trace) => trace.type === 'tool_call')
-            .map((trace) => ({
-              tool: trace.tool_name,
-              input: trace.input,
-              success: trace.success,
-              ...(trace.success ? { output: trace.output } : { error: getErrorMessage(trace.error) }),
-            })),
-          message: lastIteration.status.execution_error.message,
-          stacktrace: lastIteration.status.execution_error.stack,
-        }),
-      ])
-    }
-
-    throw new Error(
-      `Unexpected iteration status: ${lastIteration?.status.type}. This is likely a bug, please report it.`
-    )
+    })
+    return { messages: [message, ...this.session.requestMessages()], parts }
   }
 
   private async _refreshIterationParameters(): Promise<IterationParameters> {
@@ -1013,53 +670,32 @@ export class Context implements Serializable<Context.JSON> {
       assertValidComponent(component.definition)
     }
 
-    const ReservedToolNames = [
-      'think',
-      'listen',
-      'return',
-      'exit',
-      'action',
-      'function',
-      'callback',
-      'code',
-      'execute',
-      'jsx',
-      'object',
-      'string',
-      'number',
-      'boolean',
-      'array',
-    ]
-
-    for (const tool of tools) {
-      for (let name of [...tool.aliases, tool.name]) {
-        name = name.toLowerCase()
-
-        if (ReservedToolNames.includes(name)) {
-          throw new Error(`Tool name "${name}" (${tool.name}) is reserved. Please choose a different name.`)
-        }
-
-        if (
-          components.find(
-            (x) =>
-              x.definition.name.toLowerCase() === name ||
-              x.definition.aliases?.map((x) => x.toLowerCase()).includes(name)
-          )
-        ) {
-          throw new Error(
-            `Tool name "${name}" (${tool.name}) is already used by a component. Please choose a different name.`
-          )
-        }
-
-        if (
-          exits.find((x) => x.name.toLowerCase() === name) ||
-          exits.find((x) => x.aliases?.map((x) => x.toLowerCase()).includes(name))
-        ) {
-          throw new Error(
-            `Tool name "${name}" (${tool.name}) is already used by an exit. Please choose a different name.`
-          )
-        }
+    const occupied = new Set<string>()
+    const registerName = (name: string) => {
+      if (RESERVED_RUNTIME_NAMES.has(name) || name.startsWith('__')) {
+        throw new Error(`Runtime name "${name}" is reserved.`)
       }
+
+      if (occupied.has(name)) {
+        throw new Error(`Duplicate JavaScript binding "${name}".`)
+      }
+
+      if (Object.hasOwn(this.session.memory.variables, name)) {
+        throw new Error(
+          `JavaScript binding "${name}" conflicts with retained memory. Rename or remove it before registering a tool or object.`
+        )
+      }
+
+      occupied.add(name)
+    }
+    for (const tool of tools) {
+      for (const name of new Set([tool.name, ...tool.aliases])) {
+        registerName(name)
+      }
+    }
+
+    for (const object of objects) {
+      registerName(object.name)
     }
 
     if (exits && exits.length > 100) {
@@ -1078,7 +714,7 @@ export class Context implements Serializable<Context.JSON> {
       throw new Error('Too many transcript messages. Expected at most 250 messages.')
     }
 
-    if (!components.length && !exits.length) {
+    if (!this.chat && !exits.length) {
       exits.push(DefaultExit)
     }
 
@@ -1100,6 +736,7 @@ export class Context implements Serializable<Context.JSON> {
     }
 
     return {
+      chatEnabled: !!this.chat,
       transcript,
       tools,
       objects,
@@ -1126,6 +763,7 @@ export class Context implements Serializable<Context.JSON> {
     model?: ValueOrGetter<Models | Models[], Context>
     metadata?: Record<string, any>
     snapshot?: Snapshot
+    session?: Session
     timeout?: number
     maxTokens?: number
     maxTimeToFirstToken?: number
@@ -1148,6 +786,7 @@ export class Context implements Serializable<Context.JSON> {
     this.iterations = []
     this.metadata = props.metadata ?? {}
     this.snapshot = props.snapshot
+    this.session = props.session ?? (props.snapshot?.session ? Session.fromJSON(props.snapshot.session) : new Session())
     this.maxTokens = props.maxTokens
     this.maxTimeToFirstToken = props.maxTimeToFirstToken
     this.midStreamFallback = props.midStreamFallback
@@ -1182,6 +821,7 @@ export class Context implements Serializable<Context.JSON> {
       loop: this.loop,
       metadata: this.metadata,
       snapshot: this.snapshot?.toJSON(),
+      session: this.session.toJSON(),
     } satisfies Context.JSON
   }
 }

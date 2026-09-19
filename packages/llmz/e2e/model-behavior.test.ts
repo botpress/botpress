@@ -2,7 +2,15 @@ import type { Models } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import { describe, expect, it } from 'vitest'
 import { Chat, Component, DefaultComponents, Example, Exit, ListenExit, Tool, execute } from '../src/index.js'
-import { cases, client, expectAcceptedProtocol, metrics, models, withExamples } from './__tests__/model-evaluation.js'
+import {
+  cases,
+  client,
+  expectAcceptedProtocol,
+  expectRuntimeModelRoute,
+  metrics,
+  models,
+  withExamples,
+} from './__tests__/model-evaluation.js'
 
 const intakeExample = new Example({
   situation: 'The user says: Set up Birch Association. We have 7 board members.',
@@ -12,7 +20,7 @@ const intakeExample = new Example({
 const searchExample = new Example({
   situation:
     'The user asks how to change their email. A previous search for "change email" returned no useful results.',
-  code: 'return await searchKnowledge({ query: "update account email address" })',
+  code: 'return inspect(await searchKnowledge({ query: "update account email address" }))',
   reason:
     'The first query found no evidence. Try different wording before answering; routine retries need no announcement.',
 })
@@ -33,7 +41,11 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           output: z.object({ plan: z.string(), projects: z.number() }),
           handler: async () => {
             events.push('lookup')
-            if (unavailable) throw new Error('The account service is temporarily unavailable. Try again.')
+
+            if (unavailable) {
+              throw new Error('The account service is temporarily unavailable. Try again.')
+            }
+
             return { plan: 'Orchid', projects: 17 }
           },
         })
@@ -65,11 +77,13 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
             messages: sent,
           })
         )
+
         expect(result.isSuccess()).toBe(true)
         expect(result.iterations).toHaveLength(limit)
         expect(events).toEqual(unavailable ? ['lookup', 'lookup', 'send'] : ['lookup', 'send'])
         expect(sent).toHaveLength(1)
         expect(sent[0]).not.toMatch(/iteration|generation|budget|internal limit/i)
+
         if (unavailable) {
           expect(sent[0]).toMatch(/unavailable|unable|couldn.t|cannot|can.t|could not|failed|try again/i)
           expect(sent[0]).not.toMatch(/Orchid|\b17\b/)
@@ -77,6 +91,8 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           expect(sent[0]).toMatch(/Orchid/)
           expect(sent[0]).toMatch(/\b17\b/)
         }
+
+        expectRuntimeModelRoute(result, model)
         expectAcceptedProtocol(result)
       },
       120_000
@@ -98,10 +114,12 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           output: z.object({ plan: z.string(), projects: z.number() }),
           handler: async () => {
             attempts++
+
             if (blocked || attempts < 3) {
               events.push('failed-lookup')
               throw new Error('Account service temporarily unavailable. Retry lookupAccount.')
             }
+
             events.push('successful-lookup')
             return { plan: 'Orchid', projects: 17 }
           },
@@ -140,6 +158,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
             attempts,
           })
         )
+
         expect(result.isSuccess()).toBe(true)
         expect(attempts).toBe(3)
         expect(result.iterations.filter((iteration) => iteration.status.type === 'execution_error')).toHaveLength(
@@ -150,8 +169,13 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
             ? ['failed-lookup', 'send', 'failed-lookup', 'send', 'successful-lookup', 'send']
             : ['failed-lookup', 'failed-lookup', blocked ? 'failed-lookup' : 'successful-lookup', 'send']
         )
-        if (updates) expect(sent.slice(0, -1)).toEqual([update, update])
+
+        if (updates) {
+          expect(sent.slice(0, -1)).toEqual([update, update])
+        }
+
         const answer = sent.at(-1)!
+
         if (blocked) {
           expect(answer).toMatch(/unavailable|unable|couldn.t|cannot|can.t|could not|failed|try again/i)
           expect(answer).not.toMatch(/Orchid|\b17\b/)
@@ -160,8 +184,12 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           expect(answer).toMatch(/\b17\b/)
           // Omit recovered failures by default. An explicit request for recovery
           // updates permits a recap; exact updates and tool order are checked above.
-          if (!updates) expect(answer).not.toMatch(/sorry|apolog|error|retry|retried|temporar|failed/i)
+          if (!updates) {
+            expect(answer).not.toMatch(/sorry|apolog|error|retry|retried|temporar|failed/i)
+          }
         }
+
+        expectRuntimeModelRoute(result, model)
         expectAcceptedProtocol(result)
       },
       120_000
@@ -216,10 +244,12 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
             messages: sent,
           })
         )
+
         expect(result.isSuccess()).toBe(true)
         expect(events).toEqual(['send', 'search', 'send'])
         expect(sent[0]).toBe('Checking the documentation.')
         expect(sent[1]).toMatch(/Download archive/i)
+        expectRuntimeModelRoute(result, model)
         expectAcceptedProtocol(result)
       },
       120_000
@@ -243,14 +273,15 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
       const result = await execute({
         client,
         model: model as Models,
-        instructions: 'Read the current limit using readLimit and finish with done containing that exact limit.',
+        instructions:
+          'Read the current limit using readLimit, then return exit("done", { limit }) with that exact limit from the same JavaScript program.',
         tools: [tool],
         exits: [done],
         examples: withExamples
           ? [
               new Example({
                 situation: 'The task needs the current limit, which has not been read yet.',
-                code: 'return await readLimit()',
+                code: 'const limit = await readLimit(); return exit("done", { limit });',
               }),
             ]
           : [],
@@ -267,9 +298,15 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           calls,
         })
       )
+
       expect(result.is(done)).toBe(true)
-      if (result.is(done)) expect(result.output).toEqual({ limit: 17 })
+
+      if (result.is(done)) {
+        expect(result.output).toEqual({ limit: 17 })
+      }
+
       expect(calls).toBe(1)
+      expectRuntimeModelRoute(result, model)
       expectAcceptedProtocol(result)
     }, 120_000)
 
@@ -312,6 +349,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
             messages: sent,
           })
         )
+
         expect(result.isSuccess()).toBe(true)
         expect(sent).toHaveLength(1)
         expect(text.split(/\s+/).length).toBeLessThanOrEqual(70)
@@ -319,6 +357,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         expect(text).not.toMatch(
           /(?:what(?:'s| is)|confirm|provide|share|tell me).{0,35}(?:organization.{0,10}name|board.{0,10}(?:size|members))/i
         )
+
         if (complete) {
           expect(text).not.toContain('?')
           expect(text).not.toMatch(/\b12\b/)
@@ -326,6 +365,8 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           expect(text).toMatch(/meeting|manage/i)
           expect(text.match(/\?/g)).toHaveLength(1)
         }
+
+        expectRuntimeModelRoute(result, model)
         expectAcceptedProtocol(result)
       },
       120_000
@@ -378,12 +419,14 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           messages: sent,
         })
       )
+
       expect(result.isSuccess()).toBe(true)
       expect(events).toEqual(['search', 'search', 'send'])
       expect(queries[1]).not.toBe(queries[0])
       expect(sent[0]).toMatch(/Settings/i)
       expect(sent[0]).toMatch(/Download archive/i)
       expect(sent[0]!.split(/\s+/).length).toBeLessThanOrEqual(70)
+      expectRuntimeModelRoute(result, model)
       expectAcceptedProtocol(result)
     }, 120_000)
 
@@ -409,7 +452,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
       })
       const example = new Example({
         situation: 'The user asks: Compare the storage limits of Basic and Plus.',
-        code: 'return await Promise.all([searchKnowledge({ query: "Basic storage limit" }), searchKnowledge({ query: "Plus storage limit" })])',
+        code: 'return inspect(await Promise.all([searchKnowledge({ query: "Basic storage limit" }), searchKnowledge({ query: "Plus storage limit" })]))',
       })
       const result = await execute({
         client,
@@ -447,12 +490,14 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           messages: sent,
         })
       )
+
       expect(result.isSuccess()).toBe(true)
       expect(queries).toHaveLength(2)
       expect(peakActive).toBe(2)
       expect(events).toEqual(['search', 'search', 'send'])
       expect(sent.join(' ')).toMatch(/\b8\b/)
       expect(sent.join(' ')).toMatch(/\b30\b/)
+      expectRuntimeModelRoute(result, model)
       expectAcceptedProtocol(result)
     }, 120_000)
 
@@ -515,12 +560,14 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           messages: sent,
         })
       )
+
       expect(result.isSuccess()).toBe(true)
       expect(sent.map((message) => message.type)).toEqual(['card', 'image', 'button', 'button'])
       expect(sent[0]).toMatchObject({ props: { title: 'Cycling guide' }, body: 'Road safety tips.' })
       expect(sent[1]!.props).toMatchObject({ url: 'https://example.com/cycling.jpg', alt: 'Cycling guide cover' })
       expect(sent[2]!.props).toMatchObject({ action: 'url', label: 'Read guide', url: 'https://example.com/cycling' })
       expect(sent[3]!.props).toMatchObject({ action: 'postback', label: 'Save guide', value: 'save_cycling' })
+      expectRuntimeModelRoute(result, model)
       expectAcceptedProtocol(result)
     }, 120_000)
 
@@ -566,6 +613,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           messages: sent,
         })
       )
+
       expect(result.isSuccess()).toBe(true)
       expect(sent).toEqual([
         DefaultComponents.Carousel.render(
@@ -579,6 +627,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           )
         ),
       ])
+      expectRuntimeModelRoute(result, model)
       expectAcceptedProtocol(result)
     }, 120_000)
 
@@ -638,8 +687,10 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           messages: sent,
         })
       )
+
       expect(result.isSuccess()).toBe(true)
       expect(sent).toEqual([{ type: 'productcarousel', props: { cards }, body: '' }])
+      expectRuntimeModelRoute(result, model)
       expectAcceptedProtocol(result)
     }, 120_000)
   },

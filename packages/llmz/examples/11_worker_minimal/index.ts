@@ -37,7 +37,7 @@ console.log('With LLMz, it naturally writes the code to solve it in a few millis
 // Worker mode is perfect for one-shot computational tasks
 const result = await execute({
   // Give the LLM a mathematical problem to solve
-  // LLMz will generate TypeScript code to compute the answer
+  // LLMz will generate JavaScript code to compute the answer
   instructions: 'What is the sum of all integers between 14 and 1078 that are divisible by 3, 9 or 5?',
   client,
   // Note: No chat interface provided - this runs in worker mode
@@ -45,8 +45,7 @@ const result = await execute({
 
 // Check if execution was successful and display results
 if (result.isSuccess()) {
-  // The final iteration may be a pure ■next exit with no code — show the
-  // last iteration that actually ran code
+  // The final program returns a typed exit decision; show its generated code.
   const code = result.iterations.filter((i) => i.code).at(-1)?.code ?? '// no code generated'
 
   // Display both the generated code and the computed result
@@ -54,7 +53,7 @@ if (result.isSuccess()) {
     box(
       [
         'The LLM wrote the code to solve the problem:',
-        // Show the actual TypeScript code that was generated
+        // Show the actual JavaScript code that was generated
         ...code.split('\n'),
         '',
         'It then executed it and returned the result:',

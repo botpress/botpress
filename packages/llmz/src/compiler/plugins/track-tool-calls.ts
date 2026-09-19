@@ -2,7 +2,6 @@ import { walk, type AnyNode, type Ctx } from '../ast.js'
 
 export const ToolCallTrackerFnIdentifier = '__toolc__'
 export const ToolTrackerRetIdentifier = '__ret__'
-
 export type Assignment = {
   type: 'single' | 'object' | 'array' | 'unsupported'
   left: string
@@ -38,35 +37,70 @@ export function applyToolCallTracking(ctx: Ctx, calls: Map<number, ToolCallEntry
   let callId = 0
   const wrappedRanges: Array<[number, number]> = []
   const src = ctx.code
-
   const sliceOf = (node: AnyNode) => src.slice(node.start, node.end)
-
   const extractAssignment = (lval: AnyNode): Assignment => {
     const source = sliceOf(lval)
     if (lval.type === 'Identifier') {
-      return { type: 'single', left: source, evalFn: `let ${source} = arguments[0]; return { ${source} };` }
-    }
-    if (lval.type === 'ArrayPattern') {
-      const elements = (lval.elements as (AnyNode | null)[]).map((el) => (el ? sliceOf(el) : '')).join(', ')
       return {
-        type: 'array',
-        left: elements,
-        evalFn: `let [${elements}] = arguments[0] ?? []; return { ${elements} };`,
+        type: 'single',
+        left: source,
+        evalFn: `let ${source} = arguments[0]; return { ${source} };`,
       }
     }
-    if (lval.type === 'ObjectPattern') {
-      return { type: 'object', left: source, evalFn: `let ${source} = arguments[0] ?? {}; return ${source};` }
-    }
-    return { type: 'unsupported', left: '', evalFn: '' }
-  }
 
+    if (lval.type === 'ArrayPattern' || lval.type === 'ObjectPattern') {
+      const bindings = (pattern: AnyNode | null): string[] => {
+        if (!pattern) {
+          return []
+        }
+
+        if (pattern.type === 'Identifier') {
+          return [pattern.name]
+        }
+
+        if (pattern.type === 'RestElement') {
+          return bindings(pattern.argument)
+        }
+
+        if (pattern.type === 'AssignmentPattern') {
+          return bindings(pattern.left)
+        }
+
+        if (pattern.type === 'ArrayPattern') {
+          return pattern.elements.flatMap(bindings)
+        }
+
+        if (pattern.type === 'ObjectPattern') {
+          return pattern.properties.flatMap((prop: AnyNode) =>
+            bindings(prop.type === 'RestElement' ? prop.argument : prop.value)
+          )
+        }
+
+        return []
+      }
+      const captured = [...new Set(bindings(lval))].join(', ')
+      return {
+        type: lval.type === 'ArrayPattern' ? 'array' : 'object',
+        left: lval.type === 'ArrayPattern' ? source.slice(1, -1) : source,
+        evalFn: `let ${source} = arguments[0]; return { ${captured} };`,
+      }
+    }
+
+    return {
+      type: 'unsupported',
+      left: '',
+      evalFn: '',
+    }
+  }
   walk(ctx.ast, (node, parent, ancestors) => {
     if (node.type !== 'CallExpression') {
       return
     }
+
     if (wrappedRanges.some(([start, end]) => node.start >= start && node.end <= end)) {
       return // nested inside an already-wrapped call
     }
+
     if (parent?.type === 'YieldExpression') {
       return
     }
@@ -86,43 +120,41 @@ export function applyToolCallTracking(ctx: Ctx, calls: Map<number, ToolCallEntry
           containsAwait = true
         }
       })
-
       if (containsAwait) {
         return
       }
     }
 
-    const declaration = [...ancestors].reverse().find((n) => n.type === 'VariableDeclaration')
+    const declaration = [...ancestors].reverse().find((n) => n.type === 'VariableDeclarator')
     const assignment = [...ancestors].reverse().find((n) => n.type === 'AssignmentExpression')
-
     let lval: AnyNode | null = null
     if (declaration) {
-      lval = (declaration.declarations as AnyNode[])[0]?.id ?? null
+      lval = declaration.id ?? null
     }
+
     if (assignment) {
       lval = assignment.left
     }
 
     const isAsync = parent?.type === 'AwaitExpression'
-
     const start = (id: number) => `${ToolCallTrackerFnIdentifier}(${id}, "start");`
-    const end = (id: number, value: string) => `${ToolCallTrackerFnIdentifier}(${id}, "end", ${value});`
-
+    const end = (id: number, value: string, awaited = false) =>
+      `${ToolCallTrackerFnIdentifier}(${id}, "end", ${value}, ${awaited});`
     const prefix = (id: number) =>
       `(${isAsync ? 'async ' : ''}() => {try {${start(id)}const ${ToolTrackerRetIdentifier} = ${isAsync ? 'await ' : ''}`
     const successSuffix = (id: number) => `;${end(id, ToolTrackerRetIdentifier)}return ${ToolTrackerRetIdentifier};}`
-
     if (!lval) {
       if (!sliceOf(node).trim().length) {
         return
       }
+
       // bare calls: report and rethrow with the original stack appended
       const catchClause =
-        ` catch (err) {${end(callId, 'err')}` +
+        ` catch (err) {${end(callId, 'err', isAsync)}` +
         'const __newError = new Error(err.message);' +
+        '__newError.name = err.name || "Error";' +
         '__newError.stack = err.stack + ("\\n" + __newError.stack);' +
         'throw __newError;}})()'
-
       ctx.ms.appendLeft(node.start, prefix(callId))
       ctx.ms.appendRight(node.end, successSuffix(callId) + catchClause)
       wrappedRanges.push([node.start, node.end])
@@ -137,7 +169,6 @@ export function applyToolCallTracking(ctx: Ctx, calls: Map<number, ToolCallEntry
 
     const tryId = callId
     callId++ // the catch clause and the registry use the incremented id
-
     // tool identity from the AST: `obj.tool()`, `obj[tool]()` or a global `tool()`
     const callee = node.callee as AnyNode
     let object = 'global'
@@ -145,22 +176,28 @@ export function applyToolCallTracking(ctx: Ctx, calls: Map<number, ToolCallEntry
     if (callee.type === 'MemberExpression') {
       object = sliceOf(callee.object)
       const property = callee.property as AnyNode
-      tool =
-        property.type === 'Identifier'
-          ? property.name
-          : property.type === 'Literal'
-            ? String(property.value)
-            : sliceOf(property)
+      if (property.type === 'Identifier') {
+        tool = property.name
+      } else if (property.type === 'Literal') {
+        tool = String(property.value)
+      } else {
+        tool = sliceOf(property)
+      }
     }
 
-    const catchClause = ` catch (err) {${end(callId, 'err')}throw new Error(err.message);}})()`
-
+    const catchClause =
+      ` catch (err) {${end(callId, 'err', isAsync)}` +
+      'const __newError = new Error(err.message);' +
+      '__newError.name = err.name || "Error";' +
+      'throw __newError;}})()'
     ctx.ms.appendLeft(node.start, prefix(tryId))
     ctx.ms.appendRight(node.end, successSuffix(tryId) + catchClause)
     wrappedRanges.push([node.start, node.end])
-
-    calls.set(callId, { object, tool, assignment: assign })
+    calls.set(callId, {
+      object,
+      tool,
+      assignment: assign,
+    })
   })
-
   return wrappedRanges
 }

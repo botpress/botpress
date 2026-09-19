@@ -1,11 +1,12 @@
 import { z } from '@bpinternal/zui'
-import { isEqual } from 'lodash-es'
 
 import { Context, Iteration } from '../context.js'
 import { AssignmentError } from '../errors.js'
+import { cloneMemoryValue } from '../memory.js'
 import { type Trace } from '../types.js'
 import { getErrorMessage, stripInvalidIdentifiers } from '../utils.js'
-import { type VMContext } from '../vm/types.js'
+import { VM_PROGRAM_COMPLETE, VM_TERMINATION, type VMContext } from '../vm/types.js'
+import type { JavaScriptApi } from './javascript-api.js'
 import { wrapTool } from './tool-wrapper.js'
 import { ExecutionHooks } from './types.js'
 
@@ -15,6 +16,7 @@ type BuildVMContextProps = {
   controller: AbortController
   onBeforeTool?: ExecutionHooks['onBeforeTool']
   onAfterTool?: ExecutionHooks['onAfterTool']
+  javascriptApi?: JavaScriptApi
 }
 
 export const buildVMContext = ({
@@ -23,18 +25,52 @@ export const buildVMContext = ({
   controller,
   onBeforeTool,
   onAfterTool,
+  javascriptApi,
 }: BuildVMContextProps): VMContext => {
   const traces: Trace[] = iteration.traces
   const vmContext = { ...stripInvalidIdentifiers(iteration.variables) }
+  const memoryBindings = ctx.session.memory.getBindings()
+
+  for (const name of ['$return', '$iterations']) {
+    Object.defineProperty(vmContext, name, {
+      value: memoryBindings[name],
+      enumerable: true,
+      writable: false,
+      configurable: false,
+    })
+  }
+
+  if (javascriptApi) {
+    for (const [name, value] of Object.entries(javascriptApi.bindings)) {
+      Object.defineProperty(vmContext, name, {
+        value,
+        enumerable: true,
+        writable: false,
+        configurable: false,
+      })
+    }
+
+    Object.defineProperty(vmContext, VM_PROGRAM_COMPLETE, {
+      value: javascriptApi.complete,
+    })
+
+    Object.defineProperty(vmContext, VM_TERMINATION, {
+      value: {
+        isTerminated: () =>
+          javascriptApi.getTerminalOutcome() !== undefined || javascriptApi.getInterruption() !== undefined,
+        check: javascriptApi.throwIfTerminated,
+        getSignal: javascriptApi.getInterruption,
+      },
+    })
+  }
 
   for (const obj of iteration.objects) {
     const internalValues: Record<string, any> = {}
     const instance: Record<string, any> = {}
 
-    for (const { name, value, writable, type } of obj.properties ?? []) {
-      internalValues[name] = value
-
-      const initialValue = value
+    for (const { name, writable, type } of obj.properties ?? []) {
+      const initialValue = ctx.session.memory.getObjectPropertyValue(obj.name, name)
+      internalValues[name] = freezePropertyValue(initialValue)
       const schema = (type ?? z.any()) as z.ZodType
 
       Object.defineProperty(instance, name, {
@@ -44,9 +80,7 @@ export const buildVMContext = ({
           return internalValues[name]
         },
         set(value) {
-          if (isEqual(value, internalValues[name])) {
-            return
-          }
+          javascriptApi?.assertOpen()
 
           if (!writable) {
             throw new AssignmentError(`Property ${obj.name}.${name} is read-only and cannot be modified`)
@@ -60,7 +94,7 @@ export const buildVMContext = ({
             )
           }
 
-          internalValues[name] = parsed.data
+          internalValues[name] = freezePropertyValue(cloneMemoryValue(parsed.data))
 
           traces.push({
             type: 'property',
@@ -76,7 +110,7 @@ export const buildVMContext = ({
     }
 
     for (const tool of obj.tools ?? []) {
-      instance[tool.name] = wrapTool({
+      const wrapped = wrapTool({
         chat: ctx.chat,
         tool,
         traces,
@@ -86,6 +120,7 @@ export const buildVMContext = ({
         afterHook: onAfterTool,
         controller,
       })
+      instance[tool.name] = javascriptApi ? (input: unknown) => javascriptApi.track(() => wrapped(input)) : wrapped
     }
 
     Object.preventExtensions(instance)
@@ -104,10 +139,25 @@ export const buildVMContext = ({
       afterHook: onAfterTool,
       controller,
     })
+    const callable = javascriptApi ? (input: unknown) => javascriptApi.track(() => wrapped(input)) : wrapped
+
     for (const key of [tool.name, ...(tool.aliases ?? [])]) {
-      vmContext[key] = wrapped
+      vmContext[key] = callable
     }
   }
 
   return vmContext
+}
+
+/** Nested edits must go through whole-property assignment so its schema always runs. */
+function freezePropertyValue<T>(value: T): T {
+  if (value && typeof value === 'object') {
+    for (const child of Object.values(value)) {
+      freezePropertyValue(child)
+    }
+
+    Object.freeze(value)
+  }
+
+  return value
 }

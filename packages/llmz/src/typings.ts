@@ -71,6 +71,7 @@ export async function getTypings(schema: z.Schema, options?: Options): Promise<s
 
     wrappedSchema = new Declaration(schema, title)
   }
+
   let dts = await sUnwrapZodRecursive(wrappedSchema, { ...options })
   dts = await formatTypings(dts, { throwOnError: false })
 
@@ -117,6 +118,7 @@ declare const ${schema.identifier}: ${typings};${closingTag}`)
       if (z.is.zuiType(innerType) && !innerType.description && schema.value.description) {
         innerType = innerType?.describe(schema.value.description)
       }
+
       const optionalToken = schema.key.endsWith('?') ? '' : '?'
       return sUnwrapZodRecursive(new KeyValue(schema.key + optionalToken, innerType), newOptions)
     }
@@ -238,6 +240,7 @@ declare const ${schema.identifier}: ${typings};${closingTag}`)
     if (options?.declaration || (z.is.zuiType(options?.parent) && options.parent.typeName === 'ZodRecord')) {
       return `${await sUnwrapZodRecursive(schema._def.innerType, newOptions)} | undefined`
     }
+
     const optionalToken = options.parent instanceof KeyValue ? '| undefined' : ''
     const val = `${await sUnwrapZodRecursive(schema._def.innerType, newOptions)}${optionalToken}`
     return val
@@ -249,6 +252,7 @@ declare const ${schema.identifier}: ${typings};${closingTag}`)
         if (z.is.zuiType(value)) {
           return sUnwrapZodRecursive(new KeyValue(toPropertyKey(key), value), newOptions)
         }
+
         return `${key}: unknown`
       })
     )

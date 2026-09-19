@@ -1,9 +1,9 @@
-import { appendFileSync } from 'node:fs'
+import type { CognitiveMetadata, CognitiveRequest, CognitiveToolCall } from '@botpress/cognitive'
 import { parse } from 'acorn'
-import type { CognitiveMetadata, CognitiveRequest } from '@botpress/cognitive'
+import { appendFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { DualModePrompt } from '../src/prompts/dual-modes.js'
-import { parseAssistantResponse } from '../src/prompts/common.js'
+import { getNativeExecutionState, getNativeSystemMessage } from '../src/prompts/native.js'
+import { createNativeToolCatalogue, transcriptToNativeMessages } from '../src/runtime/native-tools.js'
 import {
   cases,
   client,
@@ -12,7 +12,12 @@ import {
   fallbackModels,
   models,
 } from './__tests__/model-evaluation.js'
-import { checkProtocolTask, checkResponseShape, protocolMatrix } from './__tests__/protocol-matrix.js'
+import {
+  checkProtocolTask,
+  checkResponseShape,
+  evaluateNativeResponse,
+  protocolMatrix,
+} from './__tests__/protocol-matrix.js'
 
 // 144 distinct tasks in BOTH delivery modes. No repair, retry or cache; fallback is opt-in.
 describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled', run: 1 }])(
@@ -21,78 +26,114 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
     it.each(
       protocolMatrix.flatMap((scenario) => [false, true].map((streaming) => ({ scenario, streaming, id: scenario.id })))
     )('$id streaming=$streaming', { retry: 0, timeout: 60000 }, async ({ scenario, streaming }) => {
-      const system = await DualModePrompt.getSystemMessage(scenario.props)
-      const initial = await DualModePrompt.getInitialUserMessage(scenario.props)
-      const messages: CognitiveRequest['messages'] = [system.message]
-      let user = initial
+      const system = await getNativeSystemMessage(scenario.props)
+      const messages: CognitiveRequest['messages'] = [
+        system.message,
+        ...transcriptToNativeMessages(scenario.props.transcript),
+      ]
+
       if (scenario.history) {
-        messages.push(initial, { role: 'assistant', content: '■start\n■run\nreturn await readAccount()\n■end' })
-        user =
-          scenario.history === 'result'
-            ? await DualModePrompt.getThinkingMessage({
-                isChatEnabled: true,
-                variables: { plan: 'Orchid', projects: 17 },
-              })
-            : await DualModePrompt.getCodeExecutionErrorMessage({
-                isChatEnabled: true,
-                message: 'readAccount failed: temporary service failure. Retry is safe.',
-                stacktrace: 'at readAccount',
-                variables: {},
-                toolCalls: [{ tool: 'readAccount', input: {}, error: 'temporary failure' }],
-              })
+        messages.push(
+          {
+            role: 'assistant',
+            type: 'tool_calls',
+            content: null,
+            toolCalls: [
+              {
+                id: 'read-account',
+                type: 'function',
+                function: { name: 'run_javascript', arguments: { code: 'return await readAccount()' } },
+              },
+            ],
+          },
+          {
+            role: 'user',
+            type: 'tool_result',
+            toolResultCallId: 'read-account',
+            content:
+              scenario.history === 'result'
+                ? 'Execution completed. Return: { plan: "Orchid", projects: 17 }'
+                : 'Execution error: readAccount failed: temporary service failure. Retry is safe. No variables or successful calls were preserved.',
+          }
+        )
       }
-      messages.push({ ...user, content: String(user.content) + DualModePrompt.getExecutionState!(scenario.props) })
+
+      const last = messages.at(-1)!
+      last.content = String(last.content) + '\n\n' + getNativeExecutionState(scenario.props)
+
       const request: CognitiveRequest = {
         model,
         messages,
         temperature: 0.7,
         reasoningEffort: 'none',
         maxTokens: 1600,
-        stopSequences: DualModePrompt.getStopTokens(),
+        tools: createNativeToolCatalogue(scenario.props).tools,
+        toolControl: { mode: 'auto', parallel: false },
         options: { skipCache: true },
       }
-      let output = '',
-        metadata: CognitiveMetadata | undefined,
-        restarts = 0
+
+      let output = ''
+      let metadata: CognitiveMetadata | undefined
+      let restarts = 0
+      let toolCalls: CognitiveToolCall[] = []
+
       if (streaming) {
         for await (const chunk of client.generateTextStream(request)) {
           if (chunk.restart) {
             expectAllowedRestart(chunk.restart)
             output = ''
+            toolCalls = []
             metadata = undefined
           }
+
           output += chunk.output ?? ''
+          toolCalls = chunk.toolCalls ?? toolCalls
           metadata = chunk.metadata ?? metadata
           restarts += chunk.restart ? 1 : 0
         }
       } else {
         const response = await client.generateText(request)
         output = response.output
+        toolCalls = response.toolCalls ?? []
         metadata = response.metadata
       }
-      const parsed = parseAssistantResponse(output, metadata?.stopReason)
+
+      const parsed = await evaluateNativeResponse(output, toolCalls, scenario.props)
       const record = {
         id: scenario.id,
         model,
         run,
         streaming,
         output,
+        toolCalls,
         metadata,
         restarts,
-        diagnostics: parsed.diagnostics,
+        errors: parsed.errors,
+        executionErrors: parsed.executionErrors,
+        businessCalls: parsed.businessCalls,
+        deliveredMessages: parsed.sends,
+        exit: parsed.next,
         behavior: checkProtocolTask(scenario, parsed),
         shape: checkResponseShape(scenario, parsed),
       }
+
       console.info(JSON.stringify(record))
-      if (process.env.LLMZ_EVAL_RECORDS) appendFileSync(process.env.LLMZ_EVAL_RECORDS, JSON.stringify(record) + '\n')
+
+      if (process.env.LLMZ_EVAL_RECORDS) {
+        appendFileSync(process.env.LLMZ_EVAL_RECORDS, JSON.stringify(record) + '\n')
+      }
+
       expectModelRoute(metadata, model)
-      if (!fallbackModels.length) expect(restarts).toBe(0)
-      expect(metadata?.stopReason).not.toBe('max_tokens')
-      expect(output).toMatch(/^■start\r?\n/m)
-      expect(parsed.diagnostics?.filter((d) => d.code !== 'unexpected-text' && d.code !== 'example-delimiter')).toEqual(
-        []
-      )
-      if (parsed.code)
+
+      if (!fallbackModels.length) {
+        expect(restarts).toBe(0)
+      }
+
+      expect(['stop', 'tool_calls']).toContain(metadata?.stopReason)
+      expect(parsed.errors).toEqual([])
+      expect(parsed.executionErrors).toEqual([])
+
+      if (parsed.code) {
         expect(() =>
           parse(parsed.code!, {
             ecmaVersion: 'latest',
@@ -100,7 +141,10 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
             allowAwaitOutsideFunction: true,
           })
         ).not.toThrow()
-      expect(checkResponseShape(scenario, parsed), output).toBe(true)
+      }
+
+      expect(record.shape, JSON.stringify(record)).toBe(true)
+      expect(record.behavior, JSON.stringify(record)).toBe(true)
     })
   }
 )

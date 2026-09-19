@@ -50,6 +50,7 @@ describe('transcript', () => {
         content: 'Hi ' + i,
       })
     }
+
     expect(transcript.toString()).toMatchInlineSnapshot(`
       "<user-001 role="user" name="Alice">
       Hello 0
