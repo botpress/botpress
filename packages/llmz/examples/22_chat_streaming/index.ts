@@ -150,10 +150,20 @@ const chat = new Chat({
   // Called for every chunk of a message body, while the LLM is still
   // generating. Print chunks as they arrive for a live typewriter effect.
   onMessageDelta: (delta) => {
+    if (delta.restart) {
+      if (streaming) {
+        process.stdout.write(chalk.dim('\n   Previous preview discarded.\n'))
+        streaming = null
+      }
+
+      return
+    }
+
     if (streaming !== delta.id) {
       streaming = delta.id
       process.stdout.write(chalk.bold('🤖 Agent: '))
     }
+
     process.stdout.write(delta.delta)
   },
 

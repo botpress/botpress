@@ -385,10 +385,6 @@ const result = await execute({
       showSpinner()
     }
 
-    if (trace.type === 'code_generation_started') {
-      showStatus('writing code…')
-    }
-
     if (trace.type === 'llm_call_success') {
       showCode(trace.code)
     }

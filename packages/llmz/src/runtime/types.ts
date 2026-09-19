@@ -134,8 +134,9 @@ type Options = Partial<Pick<Context, 'loop' | 'timeout'>> & {
   /**
    * Allow Cognitive to restart a failed stream on another model. Previews remain
    * live and are retracted with a restart delta before replacement output.
-   * Completed sends and code always wait for a valid response and successful
-   * transport. Streaming-only; defaults to false.
+   * Complete calls may execute while transport is open. Once execution starts,
+   * a stream failure or restart ends the iteration without replaying its effects.
+   * Streaming-only; defaults to false.
    */
   midStreamFallback?: boolean
   /**
