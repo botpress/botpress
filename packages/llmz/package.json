@@ -5,10 +5,7 @@
   "version": "1.0.0",
   "files": [
     "dist",
-    "DOCS.md",
-    "docs/native-protocol-spec.md",
-    "docs/native-protocol-migration.md",
-    "docs/native-protocol-live-evaluation.md"
+    "DOCS.md"
   ],
   "types": "./dist/index.d.ts",
   "main": "./dist/index.cjs",
@@ -30,7 +27,6 @@
     "check:type": "tsc --noEmit",
     "watch": "tsdown --watch",
     "test": "vitest --run",
-    "test:cognitive": "node --import tsx --test scripts/test-cognitive-tools.ts",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "test:e2e:update": "vitest -u run --config vitest.e2e.config.ts",
     "test:e2e:watch": "vitest --config vitest.e2e.config.ts",
