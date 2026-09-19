@@ -60,6 +60,8 @@ type ToolCallContext = {
   callId: string
   /** Set by the runtime; standalone calls use callId as their message scope. */
   iterationId?: string
+  /** Native run_javascript call owning this invocation, when run by LLMz. */
+  nativeCallId?: string
 }
 
 export namespace Tool {
@@ -473,23 +475,27 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
         }
       }
 
+      let input = zInput as unknown as IX
+      if (typeof props.input === 'function') {
+        input = props.input(zInput)
+      } else if (z.is.zuiType(props.input)) {
+        input = props.input
+      }
+
+      let output = zOutput as unknown as OX
+      if (typeof props.output === 'function') {
+        output = props.output(zOutput)
+      } else if (z.is.zuiType(props.output)) {
+        output = props.output
+      }
+
       return <Tool<IX, OX>>new Tool({
         name: props.name ?? this.name,
         aliases: props.aliases ?? [...this.aliases],
         description: props.description ?? this.description,
         metadata: JSON.parse(JSON.stringify(props.metadata ?? this.metadata)),
-        input:
-          typeof props.input === 'function'
-            ? props.input?.(zInput)
-            : z.is.zuiType(props.input)
-              ? props.input
-              : (zInput as unknown as IX),
-        output:
-          typeof props.output === 'function'
-            ? props.output?.(zOutput)
-            : z.is.zuiType(props.output)
-              ? props.output
-              : (zOutput as unknown as OX),
+        input,
+        output,
         handler: (props.handler ?? this._handler) as (
           args: TypeOf<IX>,
           ctx: ToolCallContext
@@ -691,6 +697,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
       if (done) {
         return value
       }
+
       if (yieldIndex >= yieldedCount) {
         setYieldedCount(yieldIndex + 1)
         await chat?.handler?.(value, {
@@ -698,6 +705,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
           id: `${ctx.callId}:yield-${yieldIndex}`,
         })
       }
+
       yieldIndex++
     }
   }

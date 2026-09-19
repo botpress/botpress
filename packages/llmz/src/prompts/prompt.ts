@@ -1,58 +1,24 @@
-import { type CognitiveMessage, type StopReason } from '@botpress/cognitive'
-
-import { Component } from '../component.js'
+import type { CognitiveMessage } from '@botpress/cognitive'
+import type { Component } from '../component.js'
 import type { Example } from '../example.js'
-import { Exit } from '../exit.js'
-import type { Diagnostic, ParsedItem } from '../message-stream/types.js'
+import type { Exit } from '../exit.js'
 import type { ObjectInstance } from '../objects.js'
-import { Snapshot } from '../snapshots.js'
-import { type Tool } from '../tool.js'
+import type { Tool } from '../tool.js'
 import type { TranscriptArray } from '../transcript.js'
-
-/** A `■send=<component>` block parsed from the assistant response. */
-export type ParsedSend = {
-  name: string
-  props: Record<string, unknown>
-  body?: string
-}
-
-/** A `■next=<exit>` block parsed from the assistant response. */
-export type ParsedNext = {
-  name: string
-  props: Record<string, unknown>
-}
-
-export type ParsedAssistantResponse = {
-  raw: string
-  /** All protocol items, in order of appearance. */
-  items: ParsedItem[]
-  /** Syntax diagnostics, including unexpected text discarded outside protocol blocks. */
-  diagnostics?: Diagnostic[]
-  /** Messages to send to the user, in order. */
-  sends: ParsedSend[]
-  /** The body of the `■run` block, if any. */
-  code?: string
-  /** The `■next` exit, if any. */
-  next?: ParsedNext
-}
 
 export namespace LLMzPrompts {
   export type Message = CognitiveMessage
+  export type MessageContent = Exclude<CognitiveMessage['content'], string | null>[number]
 
-  /**
-   * The raw (pre-truncation, unwrapped) content of each named section of the
-   * system prompt. Used to measure the context size of each part of the prompt.
-   */
+  /** System sections used to attribute context usage. Live history is native. */
   export type SystemPromptParts = {
-    /** The identity / instructions section. */
     instructions: string
-    /** tools.d.ts — tools, objects and variable typings. */
+    /** Callable global functions and object methods; properties live in Memory. */
     tools: string
-    /** The conversation transcript. */
+    /** Empty for native requests. Conversation messages are counted separately. */
     transcript: string
-    /** The ■ protocol reference documenting components and exits. */
+    /** Native execution and completion rules. */
     protocol: string
-    /** Consumer demonstrations, never live transcript entries. */
     examples?: string
   }
 
@@ -60,8 +26,9 @@ export namespace LLMzPrompts {
     message: Message
     parts: SystemPromptParts
   }
-  export type MessageContent = Extract<CognitiveMessage['content'], any[]>[number]
+
   export type InitialStateProps = {
+    isChatEnabled?: boolean
     iteration?: {
       current: number
       limit: number
@@ -78,52 +45,4 @@ export namespace LLMzPrompts {
     exits: Exit[]
     components: Component[]
   }
-
-  export type InvalidCodeProps = {
-    isChatEnabled?: boolean
-    code: string
-    message: string
-    /** Retain completed work when only the response/exit needs correction. */
-    variables?: unknown
-    toolCalls?: unknown
-  }
-
-  export type CodeExecutionErrorProps = {
-    isChatEnabled?: boolean
-    variables?: unknown
-    toolCalls?: unknown
-    message: string
-    stacktrace: string
-  }
-
-  export type ThinkingProps = {
-    isChatEnabled?: boolean
-    interrupted?: boolean
-    reason?: string
-    variables: unknown
-    /** Messages generated after returning code were suppressed before delivery. */
-    discardedMessages?: boolean
-  }
-
-  export type SnapshotResolvedProps = {
-    snapshot: Snapshot
-  }
-
-  export type SnapshotRejectedProps = {
-    snapshot: Snapshot
-  }
-}
-
-export type Prompt = {
-  /** Current execution state appended to the final input message, never retained in history. */
-  getExecutionState?: (props: LLMzPrompts.InitialStateProps) => string
-  getSystemMessage: (props: LLMzPrompts.InitialStateProps) => Promise<LLMzPrompts.SystemMessage>
-  getInitialUserMessage: (props: LLMzPrompts.InitialStateProps) => Promise<LLMzPrompts.Message>
-  getThinkingMessage: (props: LLMzPrompts.ThinkingProps) => Promise<LLMzPrompts.Message>
-  getInvalidCodeMessage: (props: LLMzPrompts.InvalidCodeProps) => Promise<LLMzPrompts.Message>
-  getCodeExecutionErrorMessage: (props: LLMzPrompts.CodeExecutionErrorProps) => Promise<LLMzPrompts.Message>
-  getSnapshotResolvedMessage: (props: LLMzPrompts.SnapshotResolvedProps) => LLMzPrompts.Message
-  getSnapshotRejectedMessage: (props: LLMzPrompts.SnapshotRejectedProps) => LLMzPrompts.Message
-  getStopTokens: () => string[]
-  parseAssistantResponse: (response: string, stopReason?: StopReason) => ParsedAssistantResponse
 }

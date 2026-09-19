@@ -232,6 +232,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
     })
 
     it('handles invalid exit data and retries', async () => {
+      let injectedInvalidExit = false
       const eStrict = new Exit({
         name: 'result',
         description: 'Return validated data',
@@ -252,17 +253,22 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
         instructions: 'Return email user@example.com and age 25 through the result exit.',
         tools: [tNoOp],
         client,
-        onBeforeExecution: async (iteration) => {
-          if (iteration.id.endsWith('_1')) {
-            // Inject the validation failure deterministically, rather than
-            // asking the model to deliberately generate a malformed response.
-            iteration.next = { name: 'result', props: { email: 'not-an-email', age: 200 } }
+        onBeforeExecution: async () => {
+          if (injectedInvalidExit) {
+            return {}
           }
-          return {}
+
+          injectedInvalidExit = true
+
+          // Invalid payloads are now validated by the returned JavaScript helper.
+          return { code: 'return exit("result", { email: "not-an-email", age: 200 });' }
         },
       })
 
-      expect(result.iterations[0]!.status.type).toBe('exit_error')
+      expect(injectedInvalidExit).toBe(true)
+      expect(result.iterations[0]!.status.type).toBe('execution_error')
+      expect(result.iterations[0]!.error).toMatch(/email/i)
+      expect(result.iterations[0]!.error).toContain('150')
       assertSuccess(result)
       assert(result.is(eStrict))
       expect(result.output).toEqual({ email: 'user@example.com', age: 25 })
@@ -941,6 +947,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
 
     it('onBeforeExecution can modify code', async () => {
       let codeModified = false
+      let replacedFirstProgram = false
 
       const tOriginal = new Tool({
         name: 'original',
@@ -971,13 +978,15 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
         tools: [tOriginal, tModified],
         client,
 
-        onBeforeExecution: async (iteration) => {
-          // Replace the code of the first iteration to call modified instead.
-          // The returned value is fed back to the model, which then exits.
-          if (iteration.id.endsWith('_1')) {
-            return { code: 'const res = await modified();\nreturn { value: res.value };' }
+        onBeforeExecution: async () => {
+          if (replacedFirstProgram) {
+            return {}
           }
-          return {}
+
+          replacedFirstProgram = true
+
+          // Leave the later JavaScript completion program intact.
+          return { code: 'const res = await modified();\nreturn { value: res.value };' }
         },
       })
 

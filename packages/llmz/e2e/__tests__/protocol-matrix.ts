@@ -1,7 +1,10 @@
+import type { CognitiveToolCall } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
-import { DefaultComponents, Exit, Tool } from '../../src/index.js'
-import type { LLMzPrompts, ParsedAssistantResponse } from '../../src/prompts/prompt.js'
+import { Chat, DefaultComponents, Exit, ListenExit, Tool, execute } from '../../src/index.js'
+import type { LLMzPrompts } from '../../src/prompts/prompt.js'
+import { NativeClient, response } from '../../src/runtime/fixtures/native-client.js'
 import { protocolLanguages } from '../../src/runtime/fixtures/protocol-languages.js'
+import { createNativeToolCatalogue, validateNativeToolCalls } from '../../src/runtime/native-tools.js'
 import { TranscriptArray } from '../../src/transcript.js'
 import { protocolScenario } from './protocol-scenarios.js'
 
@@ -11,12 +14,14 @@ const read = new Tool({
   output: z.object({ plan: z.string(), projects: z.number() }),
   handler: async () => ({ plan: 'Orchid', projects: 17 }),
 })
+
 const save = new Tool({
   name: 'savePreference',
   description: 'Save the enabled preference.',
   input: z.object({ enabled: z.boolean() }),
   handler: async () => undefined,
 })
+
 const kinds = [
   'greeting',
   'intake',
@@ -31,6 +36,7 @@ const kinds = [
   'markdown',
   'recovery',
 ] as const
+
 export type ProtocolCase = {
   id: string
   language: string
@@ -39,6 +45,7 @@ export type ProtocolCase = {
   history?: 'result' | 'error'
   expected?: string
 }
+
 export const protocolMatrix: ProtocolCase[] = protocolLanguages.flatMap((lang) =>
   kinds.map((kind): ProtocolCase => {
     const props: LLMzPrompts.InitialStateProps = {
@@ -53,6 +60,7 @@ export const protocolMatrix: ProtocolCase[] = protocolLanguages.flatMap((lang) =
       props.instructions = `Respond in ${lang.language}. ${instructions}`
       props.globalTools = tools
     }
+
     switch (kind) {
       case 'greeting':
         set(lang.hello, `Greet the user with exactly this text: ${lang.hello}`)
@@ -92,14 +100,14 @@ export const protocolMatrix: ProtocolCase[] = protocolLanguages.flatMap((lang) =
       case 'save':
         set(
           'Enable the preference silently.',
-          'Await savePreference({enabled:true}), then finish with listen. Do not return a value or send a message.',
+          'Call run_javascript to await savePreference({enabled:true}) silently, then return exit() in that same program. Do not send a message.',
           [save]
         )
         break
       case 'worker':
         set(
           'Finish.',
-          'The verified total is 42. Finish immediately using the done exit with that total. No calculation is needed.'
+          'The verified total is 42. Call run_javascript and return exit("done", { total: 42 }). No calculation is needed.'
         )
         props.components = []
         props.exits = [
@@ -113,7 +121,7 @@ export const protocolMatrix: ProtocolCase[] = protocolLanguages.flatMap((lang) =
       case 'buttons':
         set(
           'Ask me to pick Standard or Premium, with a button for each.',
-          `Say exactly "${lang.reply}" and send exactly two say buttons labelled Standard and Premium. Then listen.`
+          `Say exactly "${lang.reply}" and return chat.buttons with exactly two say buttons labelled Standard and Premium to finish the turn.`
         )
         props.components = [DefaultComponents.Text, DefaultComponents.Button]
         scenario.expected = lang.reply
@@ -121,7 +129,7 @@ export const protocolMatrix: ProtocolCase[] = protocolLanguages.flatMap((lang) =
       case 'json':
         set(
           'Send {"status":"ok"} as a text reply.',
-          'Return the exact requested JSON string in the text component and then listen.'
+          'Reply with the exact requested JSON string as normal assistant text.'
         )
         scenario.expected = '{"status":"ok"}'
         break
@@ -140,6 +148,7 @@ export const protocolMatrix: ProtocolCase[] = protocolLanguages.flatMap((lang) =
         scenario.history = 'error'
         break
     }
+
     if (scenario.history) {
       props.iteration = {
         current: 2,
@@ -149,17 +158,122 @@ export const protocolMatrix: ProtocolCase[] = protocolLanguages.flatMap((lang) =
         toolAttempts: { readAccount: 1 },
       }
     }
+
     return scenario
   })
 )
 
+type EvaluatedResponse = {
+  sends: Array<{ name: string; props: Record<string, unknown>; body?: string }>
+  businessCalls: Array<{ name: string; input: unknown; success: boolean }>
+  code?: string
+  next?: { name: string; props: unknown }
+  errors: string[]
+  executionErrors: string[]
+  inspectedResult?: unknown
+}
+
+/** Replay one completed response with local fixtures; no provider request or repair is allowed. */
+export async function evaluateNativeResponse(
+  output: string,
+  calls: CognitiveToolCall[],
+  props: ProtocolCase['props']
+): Promise<EvaluatedResponse> {
+  const validated = validateNativeToolCalls(calls, createNativeToolCatalogue(props))
+  const sends: EvaluatedResponse['sends'] = []
+  const code = calls.find((call) => call.name === 'run_javascript')?.input.code
+  const parsed: EvaluatedResponse = {
+    sends,
+    businessCalls: [],
+    code: typeof code === 'string' ? code : undefined,
+    errors: validated.errors,
+    executionErrors: [],
+  }
+
+  if (!validated.valid) {
+    return parsed
+  }
+
+  const chatEnabled = props.isChatEnabled ?? props.components.length > 0
+  const client = new NativeClient([response(output, calls)])
+  const result = await execute({
+    client,
+    model: 'fake:fake',
+    tools: props.globalTools,
+    objects: props.objects,
+    // Prompt fixtures include the built-in listen exit; execution adds it for chats.
+    exits: props.exits.filter((exit) => !chatEnabled || exit !== ListenExit),
+    chat: chatEnabled
+      ? new Chat({
+          components: props.components,
+          handler: async (message) => {
+            const type = message.type.toLowerCase()
+            const name = ['text', 'markdown', 'speech'].includes(type) ? 'message' : type
+
+            sends.push({ name, props: message.props, body: message.children.join('') })
+          },
+        })
+      : undefined,
+    options: { loop: 1, timeout: 5000, maxTokens: 12_000 },
+  })
+
+  // A nonterminal inspection exhausts this deliberate one-response replay.
+  // The iteration status, rather than that outer budget error, describes execution.
+  for (const iteration of result.iterations) {
+    if (
+      ['execution_error', 'generation_error', 'invalid_code_error', 'aborted', 'exit_error'].includes(
+        iteration.status.type
+      )
+    ) {
+      parsed.executionErrors.push(iteration.error ?? iteration.status.type)
+    }
+
+    if (iteration.status.type === 'exit_success') {
+      parsed.next = {
+        name: iteration.status.exit_success.exit_name.toLowerCase(),
+        props: iteration.status.exit_success.return_value,
+      }
+    }
+
+    for (const trace of iteration.traces) {
+      if (trace.type === 'tool_call') {
+        parsed.businessCalls.push({ name: trace.tool_name, input: trace.input, success: trace.success })
+      }
+    }
+  }
+
+  if (client.requests.length !== 1 || result.iterations.length !== 1) {
+    const reason = result.isError() ? String(result.error) : result.status
+
+    parsed.executionErrors.push(`The semantic replay did not execute exactly one response: ${reason}`)
+  }
+
+  parsed.inspectedResult = result.session.memory.getBindings().$return
+
+  return parsed
+}
+
 /** Independent task checks: valid syntax alone must not turn a silent exit into a passing answer. */
-export function checkProtocolTask(scenario: ProtocolCase, parsed: ParsedAssistantResponse): boolean {
+export function checkProtocolTask(scenario: ProtocolCase, parsed: EvaluatedResponse): boolean {
+  if (parsed.errors.length || parsed.executionErrors.length) {
+    return false
+  }
+
   const text = parsed.sends
     .filter((s) => s.name === 'message')
     .map((s) => s.body ?? '')
     .join('')
   const listen = parsed.next?.name === 'listen'
+  const reads = parsed.businessCalls.filter((call) => call.name === 'readAccount' && call.success)
+  const account = parsed.inspectedResult
+  const inspectedAccount =
+    !!account &&
+    typeof account === 'object' &&
+    'plan' in account &&
+    account.plan === 'Orchid' &&
+    'projects' in account &&
+    account.projects === 17
+
   switch (scenario.kind) {
     case 'greeting':
     case 'intake':
@@ -168,20 +282,50 @@ export function checkProtocolTask(scenario: ProtocolCase, parsed: ParsedAssistan
       return text === scenario.expected && !parsed.code && listen
     case 'read':
     case 'recovery':
-      return !!parsed.code?.includes('readAccount') && parsed.sends.length === 0 && !parsed.next
+      return (
+        reads.length === 1 &&
+        parsed.businessCalls.length === 1 &&
+        inspectedAccount &&
+        parsed.sends.length === 0 &&
+        !parsed.next
+      )
     case 'progress':
-      return text === scenario.expected && !!parsed.code?.includes('readAccount') && !parsed.next
+      return (
+        text === scenario.expected &&
+        reads.length === 1 &&
+        parsed.businessCalls.length === 1 &&
+        inspectedAccount &&
+        !parsed.next
+      )
     case 'tool-result':
       return text.includes('Orchid') && text.includes('17') && !parsed.code && listen
     case 'save':
       return (
-        !!parsed.code?.includes('savePreference') && !parsed.code.includes('return') && !parsed.sends.length && listen
+        parsed.businessCalls.length === 1 &&
+        parsed.businessCalls[0]?.name === 'savePreference' &&
+        parsed.businessCalls[0]?.success === true &&
+        JSON.stringify(parsed.businessCalls[0]?.input) === JSON.stringify({ enabled: true }) &&
+        !parsed.sends.length &&
+        listen
       )
-    case 'worker':
-      return parsed.next?.name === 'done' && parsed.next.props.total === 42 && !parsed.code && !parsed.sends.length
+    case 'worker': {
+      const payload = parsed.next?.props
+
+      return (
+        parsed.next?.name === 'done' &&
+        !!payload &&
+        typeof payload === 'object' &&
+        'total' in payload &&
+        payload.total === 42 &&
+        !parsed.businessCalls.length &&
+        !parsed.sends.length
+      )
+    }
     case 'buttons':
       return (
         text === scenario.expected &&
+        parsed.sends.length === 3 &&
+        !parsed.businessCalls.length &&
         parsed.sends
           .filter((s) => s.name === 'button' && s.props.action === 'say')
           .map((s) => s.props.label)
@@ -195,7 +339,11 @@ export function checkProtocolTask(scenario: ProtocolCase, parsed: ParsedAssistan
 }
 
 /** Protocol/control-flow checks are separate from exact wording and translation quality. */
-export function checkResponseShape(scenario: ProtocolCase, parsed: ParsedAssistantResponse): boolean {
+export function checkResponseShape(scenario: ProtocolCase, parsed: EvaluatedResponse): boolean {
+  if (parsed.errors.length || parsed.executionErrors.length) {
+    return false
+  }
+
   switch (scenario.kind) {
     case 'greeting':
     case 'intake':
@@ -209,7 +357,7 @@ export function checkResponseShape(scenario: ProtocolCase, parsed: ParsedAssista
       )
     case 'buttons':
       return (
-        !parsed.code &&
+        !!parsed.code &&
         parsed.next?.name === 'listen' &&
         parsed.sends.map((send) => send.name).join(',') === 'message,button,button' &&
         !!parsed.sends[0]?.body?.trim() &&
@@ -222,7 +370,9 @@ export function checkResponseShape(scenario: ProtocolCase, parsed: ParsedAssista
       )
     case 'progress':
       return (
-        !!parsed.code?.includes('readAccount') &&
+        parsed.businessCalls.length === 1 &&
+        parsed.businessCalls[0]?.name === 'readAccount' &&
+        parsed.businessCalls[0]?.success === true &&
         !parsed.next &&
         parsed.sends.length === 1 &&
         parsed.sends[0]?.name === 'message' &&

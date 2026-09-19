@@ -1,11 +1,14 @@
 {
   "name": "llmz",
   "type": "module",
-  "description": "LLMz - An LLM-native Typescript VM built on top of Zui",
-  "version": "0.9.0",
+  "description": "LLMz - Native LLM conversations with stateful JavaScript orchestration",
+  "version": "1.0.0",
   "files": [
     "dist",
-    "DOCS.md"
+    "DOCS.md",
+    "docs/native-protocol-spec.md",
+    "docs/native-protocol-migration.md",
+    "docs/native-protocol-live-evaluation.md"
   ],
   "types": "./dist/index.d.ts",
   "main": "./dist/index.cjs",
@@ -27,10 +30,16 @@
     "check:type": "tsc --noEmit",
     "watch": "tsdown --watch",
     "test": "vitest --run",
+    "test:cognitive": "node --import tsx --test scripts/test-cognitive-tools.ts",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "test:e2e:update": "vitest -u run --config vitest.e2e.config.ts",
     "test:e2e:watch": "vitest --config vitest.e2e.config.ts",
-    "build:markdown": "node --loader ts-node/esm ./scripts/compile-markdown.mts"
+    "build:markdown": "node --loader ts-node/esm ./scripts/compile-markdown.mts",
+    "check:format": "oxfmt --check .",
+    "fix:format": "oxfmt .",
+    "check:lint": "oxlint -c .oxlintrc.json src",
+    "fix:lint": "oxlint -c .oxlintrc.json --fix src",
+    "check:bplint": "pnpm check:lint"
   },
   "keywords": [],
   "author": "",

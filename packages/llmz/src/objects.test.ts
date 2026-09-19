@@ -1,9 +1,8 @@
-import { describe, it, expect, beforeAll } from 'vitest'
 import { z } from '@bpinternal/zui'
-
+import { describe, it, expect, beforeAll } from 'vitest'
 import { ObjectInstance } from './objects.js'
-import { init } from './utils.js'
 import { Tool } from './tool.js'
+import { init } from './utils.js'
 
 describe('Objects', () => {
   beforeAll(async () => {

@@ -1,45 +1,278 @@
-import type { CognitiveMetadata, CognitiveStreamChunk } from '@botpress/cognitive'
-import { clamp } from 'lodash-es'
-
+import type {
+  CognitiveMessage,
+  CognitiveMetadata,
+  CognitiveResponse,
+  CognitiveStreamChunk,
+  CognitiveToolCall,
+} from '@botpress/cognitive'
 import { createJoinedAbortController } from '../abort-signal.js'
 import type { MessageDelta, MessageMetadata } from '../chat.js'
-import { Context, Iteration } from '../context.js'
+import type { Context, ContextTokens, Iteration } from '../context.js'
 import { CognitiveError } from '../errors.js'
-import { ResponseParser } from '../message-stream/response-parser.js'
-import type { MessageStreamEvent, ParsedItem } from '../message-stream/types.js'
-import { toParsedAssistantResponse } from '../prompts/common.js'
-import type { ParsedAssistantResponse, ParsedSend } from '../prompts/prompt.js'
-import { truncateWrappedContent } from '../truncator.js'
-import { getErrorMessage } from '../utils.js'
-import { RuntimeCognitive } from './types.js'
+import { getErrorMessage, getTokenizer } from '../utils.js'
+import type { RuntimeCognitive } from './types.js'
 
-const RESPONSE_LENGTH_BUFFER = {
-  MIN_TOKENS: 1_000,
-  MAX_TOKENS: 16_000,
-  PERCENTAGE: 0.1,
-} as const
+/** A custom provider adapter can return the full assistant message, including opaque continuation data. */
+export type NativeResponse = CognitiveResponse & {
+  assistantMessage?: CognitiveMessage
+  continuation?: unknown
+}
 
-/** Maximum time to wait between two stream chunks before considering the stream stalled. */
-const STREAM_INACTIVITY_TIMEOUT = 180_000
+type NativeChunk = CognitiveStreamChunk & {
+  assistantMessage?: CognitiveMessage
+  continuation?: unknown
+}
 
-/** A syntactically valid prefix must not execute when generation did not finish successfully. */
-const assertSuccessfulGeneration = (metadata: CognitiveMetadata) => {
-  // Cognitive's stream error envelope ends normally with provider "unknown".
-  // Transport EOF plus metadata alone therefore does not prove success.
-  if (metadata.provider === 'unknown') {
-    throw new CognitiveError('LLM generation failed: received error metadata with unknown provider')
+export type NativeGeneration = {
+  attempt: number
+  output: string
+  toolCalls: CognitiveToolCall[]
+  assistantMessage?: CognitiveMessage
+  continuation?: unknown
+  metadata: CognitiveMetadata
+  messageMetadata: MessageMetadata
+}
+
+const STREAM_IDLE_TIMEOUT = 180_000
+const STATIC_TOKEN_PARTS = ['instructions', 'tools', 'protocol', 'examples'] as const
+type StaticTokenPart = (typeof STATIC_TOKEN_PARTS)[number]
+
+const staticTokenEstimates = new WeakMap<Iteration, Pick<ContextTokens, StaticTokenPart>>()
+
+function assertSuccessfulGeneration(metadata: CognitiveMetadata | undefined) {
+  if (!metadata || metadata.provider === 'unknown') {
+    throw new CognitiveError('LLM generation failed: missing successful provider metadata')
   }
-  if (metadata.stopReason === 'max_tokens' || metadata.stopReason === 'content_filter') {
+
+  if (
+    metadata.stopReason === 'max_tokens' ||
+    metadata.stopReason === 'content_filter' ||
+    metadata.stopReason === 'other'
+  ) {
     throw new CognitiveError(`LLM generation did not complete: stopReason=${metadata.stopReason}`)
   }
 }
 
-const getModelOutputLimit = (inputLength: number) =>
-  clamp(
-    RESPONSE_LENGTH_BUFFER.PERCENTAGE * inputLength,
-    RESPONSE_LENGTH_BUFFER.MIN_TOKENS,
-    RESPONSE_LENGTH_BUFFER.MAX_TOKENS
+/** Count structured arguments and schemas too, rather than only message text. */
+export function countNativeRequestTokens(messages: CognitiveMessage[], tools: unknown): number {
+  return getTokenizer().count(JSON.stringify({ messages, tools }))
+}
+
+function measureNativeContextTokens(
+  iteration: Iteration,
+  messages: CognitiveMessage[],
+  tools: unknown,
+  total: number
+): ContextTokens {
+  let estimates = staticTokenEstimates.get(iteration)
+
+  if (!estimates) {
+    const initial = iteration.tokens?.context
+    estimates = {
+      instructions: initial?.instructions ?? 0,
+      tools: initial?.tools ?? 0,
+      protocol: initial?.protocol ?? 0,
+      examples: initial?.examples ?? 0,
+    }
+    staticTokenEstimates.set(iteration, estimates)
+  }
+
+  const history = messages.filter((message) => message.role !== 'system')
+  const emptyRequestTokens = countNativeRequestTokens([], [])
+  const requestWithToolsTokens = countNativeRequestTokens([], tools)
+  const requestWithHistoryTokens = countNativeRequestTokens(history, tools)
+  const structuralTokens = Math.min(total, emptyRequestTokens)
+  const schemaTokens = Math.min(total - structuralTokens, Math.max(0, requestWithToolsTokens - emptyRequestTokens))
+  const iterations = Math.min(
+    total - structuralTokens - schemaTokens,
+    Math.max(0, requestWithHistoryTokens - requestWithToolsTokens)
   )
+  const systemBudget = total - structuralTokens - schemaTokens - iterations
+  const estimatedSystemParts = STATIC_TOKEN_PARTS.reduce((sum, part) => sum + estimates[part], 0)
+  const scale = estimatedSystemParts > 0 ? Math.min(1, systemBudget / estimatedSystemParts) : 0
+  const instructions = Math.floor(estimates.instructions * scale)
+  const toolsTokens = Math.floor(estimates.tools * scale) + schemaTokens
+  const protocol = Math.floor(estimates.protocol * scale)
+  const examples = Math.floor(estimates.examples * scale)
+
+  // Tokenization is not additive across JSON boundaries. Marginal request sizes
+  // keep native history and schemas current; the residual includes scaffolding.
+  return {
+    total,
+    framework: total - instructions - toolsTokens - protocol - examples - iterations,
+    instructions,
+    tools: toolsTokens,
+    transcript: 0,
+    protocol,
+    examples,
+    iterations,
+  }
+}
+
+/** A client may ignore its AbortSignal; cancellation must still release LLMz. */
+function abortable<T>(operation: Promise<T>, signal: AbortSignal): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const aborted = () => reject(signal.reason ?? new Error('Generation aborted'))
+
+    // The provider can synchronously abort while constructing its rejected
+    // promise. Observe that rejection before checking the signal's current state.
+    operation.then(resolve, reject).finally(() => signal.removeEventListener('abort', aborted))
+
+    if (signal.aborted) {
+      aborted()
+      return
+    }
+
+    signal.addEventListener('abort', aborted, { once: true })
+  })
+}
+
+/** Remove only the request-local trailing footer, never historic message content. */
+function withoutMemoryFooter(messages: CognitiveMessage[], initial: CognitiveMessage[] = messages): CognitiveMessage[] {
+  const copy = structuredClone(messages)
+  const last = initial.at(-1)
+
+  if (!last || last.role !== 'user') {
+    return copy
+  }
+
+  const source = typeof last.content === 'string' ? last.content : (last.content?.at(-1)?.text ?? '')
+  const start = source.lastIndexOf('\n\n<runtime-memory>\n')
+
+  if (start < 0 || !source.endsWith('\n</runtime-memory>')) {
+    return copy
+  }
+
+  const footer = source.slice(start)
+
+  for (const message of copy) {
+    if (message.role !== 'user') {
+      continue
+    }
+
+    if (typeof message.content === 'string' && message.content.includes(footer)) {
+      message.content = message.content.replace(footer, '')
+      break
+    }
+
+    if (Array.isArray(message.content)) {
+      const index = message.content.findIndex((part) => part.type === 'text' && part.text?.includes(footer))
+
+      if (index >= 0) {
+        const part = message.content[index]!
+        const text = part.text!.replace(footer, '')
+
+        if (!text) {
+          message.content.splice(index, 1)
+        } else {
+          part.text = text
+        }
+
+        break
+      }
+    }
+  }
+
+  return copy
+}
+
+function withMemoryFooter(messages: CognitiveMessage[], footer: string): CognitiveMessage[] {
+  const copy = structuredClone(messages)
+  const last = copy.at(-1)
+  const content = `\n\n<runtime-memory>\n${footer}\n</runtime-memory>`
+
+  if (last?.role === 'user') {
+    if (Array.isArray(last.content)) {
+      last.content.push({ type: 'text', text: content })
+    } else {
+      last.content = (last.content ?? '') + content
+    }
+  } else {
+    copy.push({ role: 'user', content: `Runtime context (LLMz):${content}` })
+  }
+
+  return copy
+}
+
+function stableJSON(value: unknown): string {
+  function sortProperties(item: unknown): unknown {
+    if (Array.isArray(item)) {
+      return item.map(sortProperties)
+    }
+
+    if (item && typeof item === 'object') {
+      const entries = Object.entries(item).sort(([left], [right]) => left.localeCompare(right))
+
+      return Object.fromEntries(entries.map(([key, child]) => [key, sortProperties(child)]))
+    }
+
+    return item
+  }
+
+  return JSON.stringify(sortProperties(value))
+}
+
+function validateResponse(
+  output: unknown,
+  calls: unknown,
+  assistant?: CognitiveMessage
+): asserts calls is CognitiveToolCall[] {
+  if (typeof output !== 'string') {
+    throw new CognitiveError('Provider returned invalid assistant output')
+  }
+
+  if (!Array.isArray(calls)) {
+    throw new CognitiveError('Provider returned invalid native tool calls')
+  }
+
+  const ids = new Set<string>()
+
+  for (const call of calls) {
+    if (!call || typeof call.id !== 'string' || !call.id || ids.has(call.id)) {
+      throw new CognitiveError('Provider returned missing or duplicate native call IDs')
+    }
+
+    if (
+      typeof call.name !== 'string' ||
+      !call.name ||
+      !call.input ||
+      typeof call.input !== 'object' ||
+      Array.isArray(call.input)
+    ) {
+      throw new CognitiveError('Provider returned invalid native tool arguments')
+    }
+
+    ids.add(call.id)
+  }
+
+  if (assistant) {
+    if (assistant.role !== 'assistant') {
+      throw new CognitiveError('Provider continuation must be an assistant message')
+    }
+
+    const normalized = (assistant.toolCalls ?? []).map((call) => ({
+      id: call.id,
+      name: call.function.name,
+      input: call.function.arguments ?? {},
+    }))
+
+    if (stableJSON(normalized) !== stableJSON(calls)) {
+      throw new CognitiveError('Provider assistant message and normalized tool calls disagree')
+    }
+
+    const text =
+      typeof assistant.content === 'string'
+        ? assistant.content
+        : (assistant.content
+            ?.filter((part) => part.type === 'text')
+            .map((part) => part.text ?? '')
+            .join('') ?? '')
+
+    if (text !== output) {
+      throw new CognitiveError('Provider assistant message and visible output disagree')
+    }
+  }
+}
 
 type GenerateCodeProps = {
   iteration: Iteration
@@ -47,396 +280,438 @@ type GenerateCodeProps = {
   cognitive: RuntimeCognitive
   controller: AbortController
   metadata?: Record<string, string>
-  /**
-   * Called for each send after a complete, valid response and successful transport.
-   */
-  onSend?: (send: ParsedSend, metadata: MessageMetadata) => Promise<void>
-  /**
-   * Called for each `■send` body chunk as it is parsed from the stream
-   * (streaming clients only), or with a restart delta before replacement output.
-   * Text errors are best-effort; restart errors terminate generation.
-   */
   onSendDelta?: (delta: MessageDelta) => Promise<void> | void
-  /**
-   * Called as soon as the model opens a `■run` block, while the code is still
-   * being generated (streaming clients only). Used to pre-warm the VM.
-   */
-  onRunStart?: () => void
+  /** Start a complete normalized call without waiting for execution or the stream tail. */
+  onToolCalls?: (calls: CognitiveToolCall[]) => boolean
 }
 
-export const generateCode = async ({
-  iteration,
-  ctx,
-  cognitive,
-  controller,
-  metadata,
-  onSend,
-  onSendDelta,
-  onRunStart,
-}: GenerateCodeProps) => {
-  const startedAt = Date.now()
-  const traces = iteration.traces
-
+async function prepareNativeRequest({ iteration, ctx, cognitive, controller, metadata }: GenerateCodeProps) {
   const modelRef = Array.isArray(iteration.model) ? iteration.model[0]! : iteration.model
-  const model = await cognitive.getModelDetails(modelRef).catch((thrown: unknown) => {
-    throw new CognitiveError(`Failed to fetch model details for model "${modelRef}": ${getErrorMessage(thrown)}`)
+  const model = await abortable(cognitive.getModelDetails(modelRef), controller.signal).catch((err: unknown) => {
+    throw new CognitiveError(`Failed to fetch model details for ${modelRef}: ${getErrorMessage(err)}`)
   })
-  let modelLimit = Math.max(model.input.maxTokens, 8_000)
-  if (ctx.maxTokens) {
-    // User-provided cap on the context window: effective max = min(override, model max)
-    modelLimit = Math.min(ctx.maxTokens, modelLimit)
-  }
-  const responseLengthBuffer = getModelOutputLimit(modelLimit)
+  const limit = Math.min(model.input.maxTokens, ctx.maxTokens ?? Infinity)
+  const reserve = Math.min(model.output.maxTokens, Math.max(256, Math.min(16_000, Math.floor(limit * 0.1))))
+  const tools = iteration.nativeTools?.tools ?? []
+  const system = iteration.messages.filter((message) => message.role === 'system')
+  const hookMessages = withoutMemoryFooter(
+    iteration.messages.filter((message) => message.role !== 'system'),
+    iteration.initialMessages ?? ctx.session.requestMessages()
+  )
+  const canonical = withoutMemoryFooter(ctx.session.requestMessages())
+  const historyCustomized = stableJSON(hookMessages) !== stableJSON(canonical)
+  const budgetInstruction = getBudgetInstruction(ctx)
+  const budget = `\n\nExecution budget: response ${ctx.iterations.length} of ${ctx.loop}. ${budgetInstruction}`
 
-  if (iteration.tokens) {
-    iteration.tokens.limit = modelLimit
+  const buildMessages = () => {
+    const history = historyCustomized
+      ? withMemoryFooter(hookMessages, ctx.session.memory.render({ turn: ctx.session.turn }))
+      : ctx.session.requestMessages()
+    const messages = [...structuredClone(system), ...history]
+    const last = messages.at(-1)
+
+    if (last) {
+      last.content =
+        typeof last.content === 'string'
+          ? last.content + budget
+          : [...(last.content ?? []), { type: 'text', text: budget.trim() }]
+    }
+
+    return messages
+  }
+  let messages = buildMessages()
+  let tokens = countNativeRequestTokens(messages, tools)
+
+  while (tokens > limit - reserve) {
+    if (historyCustomized) {
+      throw new CognitiveError(
+        'The hook-modified native prompt does not fit in the context window. Shorten onIterationStart.messages or increase options.maxTokens; automatic compaction cannot safely rewrite custom history.'
+      )
+    }
+
+    const ids = ctx.session.retainedIterationIds.filter((id) => id !== iteration.id)
+
+    if (!ids.length) {
+      break
+    }
+
+    ctx.session.compact(ids.slice(1).concat(iteration.id))
+    // Rebuild both the inventory and bindings after compaction, before executing model code.
+    iteration.variables = ctx.session.memory.getBindings()
+    messages = buildMessages()
+    tokens = countNativeRequestTokens(messages, tools)
   }
 
-  let messages: typeof iteration.messages
-  try {
-    messages = truncateWrappedContent({
-      messages: iteration.messages,
-      tokenLimit: modelLimit - responseLengthBuffer,
-      throwOnFailure: true,
-    }).filter((x) => typeof x.content !== 'string' || x.content.trim().length > 0)
-  } catch (thrown: unknown) {
-    // A prompt that doesn't fit the context window is a terminal configuration
-    // error: the failure happens before any LLM call and the prompt only grows
-    // across iterations, so retrying can never succeed. CognitiveError stops
-    // the execution loop instead of burning iterations until the loop limit.
-    const cap = ctx.maxTokens
-      ? ` (context window capped at ${modelLimit} tokens by options.maxTokens — consider raising or removing it)`
-      : ` (model context window: ${modelLimit} tokens)`
-    throw new CognitiveError(`The prompt does not fit in the context window${cap}: ${getErrorMessage(thrown)}`)
+  if (tokens > limit - reserve) {
+    throw new CognitiveError(
+      `The native prompt does not fit in the context window (${limit} tokens). Compact session input or raise options.maxTokens.`
+    )
   }
+
   iteration.messages = messages
 
-  traces.push({
-    type: 'llm_call_started',
-    started_at: startedAt,
-    ended_at: startedAt,
-    model: model.id,
-  })
+  if (iteration.tokens) {
+    iteration.tokens.limit = limit
+    iteration.tokens.context = measureNativeContextTokens(iteration, messages, tools, tokens)
+  }
 
-  // Only set when the prompt carries audio (voice messages): tells cognitive
-  // which STT model to transcribe with when the LLM lacks native audio support
-  const hasAudioParts = messages.some(
+  const hasAudio = messages.some(
     (message) => Array.isArray(message.content) && message.content.some((part) => part.type === 'audio')
   )
-
   const input: Parameters<RuntimeCognitive['generateText']>[0] = {
     model: iteration.model,
     temperature: iteration.temperature,
     responseFormat: 'text',
     reasoningEffort: iteration.reasoningEffort,
     messages,
-    stopSequences: ctx.version.getStopTokens(),
+    tools,
+    toolControl: { mode: 'auto', parallel: false },
+    maxTokens: reserve,
     meta: metadata ? { metadata } : undefined,
-    options: hasAudioParts ? { transcriptionModel: ctx.transcriptionModel ?? 'fast' } : undefined,
-  }
-
-  let responseMetadata: CognitiveMetadata | undefined
-  let raw: string
-  let assistantResponse: ParsedAssistantResponse
-
-  /** Milliseconds between the stream request and the first/last streamed tokens. */
-  let timeToFirstToken: number | undefined
-  let timeToLastToken: number | undefined
-
-  const midStreamFallback = ctx.midStreamFallback === true
-  let attempt = 1
-  const messageMetadata = (itemId: string): MessageMetadata => ({
-    iterationId: iteration.id,
-    id: midStreamFallback ? `${iteration.id}:${attempt}:${itemId}` : `${iteration.id}:${itemId}`,
-  })
-  // Previews are always live, including reset-only deltas. Await the callback
-  // so consumers observe the reset before replacement text, even when async.
-  const preview = async (delta: MessageDelta) => {
-    try {
-      await onSendDelta?.(delta)
-    } catch (err: unknown) {
-      // Retraction is required for safe replacement delivery. Treat its failure
-      // as terminal so the execution loop cannot start another generation.
-      if (delta.restart) {
-        throw new CognitiveError(`LLM stream restart handler failed: ${getErrorMessage(err)}`)
-      }
-      // Ordinary text previews remain best-effort.
-      void err
-    }
-  }
-  const liveItems = new Map<string, ParsedItem>()
-  const liveContent = new Map<string, string>()
-  let codeGenerationTraced = false
-  let runCompleted = false
-
-  let completions: Array<() => void | Promise<void>> = []
-  const dispatchSends = async (events: MessageStreamEvent[]) => {
-    for (const event of events) {
-      if (event.type === 'item-start') {
-        liveItems.set(event.item.id, event.item)
-        if (event.item.kind === 'run' && !codeGenerationTraced) {
-          // The model just opened a ■run block: signal that code is being
-          // generated so consumers can show progress while waiting for the
-          // code to complete and execute
-          codeGenerationTraced = true
-          traces.push({ type: 'code_generation_started', started_at: Date.now() })
-          onRunStart?.()
-        }
-      } else if (event.type === 'body-delta' && onSendDelta) {
-        const item = liveItems.get(event.itemId)
-        if (item?.kind !== 'send' || runCompleted) {
-          continue
-        }
-        const content = (liveContent.get(item.id) ?? '') + event.delta
-        liveContent.set(item.id, content)
-        const delta: MessageDelta = {
-          restart: false,
-          ...messageMetadata(item.id),
-          component: item.name,
-          props: item.props,
-          delta: event.delta,
-          content,
-        }
-        await preview(delta)
-      } else if (event.type === 'item-complete') {
-        if (event.item.kind === 'send' && onSend && !runCompleted) {
-          const send = {
-            name: event.item.name,
-            props: event.item.props,
-            body: event.item.body,
-          }
-          const metadata = messageMetadata(event.item.id)
-          completions.push(() => onSend(send, metadata))
-        } else if (event.item.kind === 'run' && event.item.status === 'complete' && !runCompleted) {
-          // No message after code can be based on the result; suppress even its previews.
-          runCompleted = true
-        }
-      }
-    }
-  }
-
-  if (typeof cognitive.generateTextStream === 'function') {
-    // Only explicit sends may reach either preview or completed-message callbacks.
-    let parser = new ResponseParser()
-
-    // Guard against stalled streams: the transport has no timeout of its own
-    // when a signal is provided, so a silent connection would hang forever.
-    const streamController = createJoinedAbortController([controller.signal])
-    const requestedAt = Date.now()
-    const stream = cognitive.generateTextStream(
-      {
-        ...input,
-        // Passed through to the cognitive request: fall back to the next
-        // model/provider when the first token takes too long
-        ...(ctx.maxTimeToFirstToken || midStreamFallback
-          ? {
-              options: {
-                ...input.options,
-                ...(ctx.maxTimeToFirstToken ? { maxTimeToFirstToken: ctx.maxTimeToFirstToken } : {}),
-                ...(midStreamFallback ? { midStreamFallback: true } : {}),
-              },
-            }
-          : {}),
-      },
-      { signal: streamController.signal }
-    )
-
-    // The client-side stall guard must leave room for the server-side
-    // maxTimeToFirstToken fallback chain to run through its models
-    const inactivityTimeout = Math.max(STREAM_INACTIVITY_TIMEOUT, ctx.maxTimeToFirstToken ?? 0)
-
-    const nextChunk = async () => {
-      let timer: NodeJS.Timeout | undefined
-      const stalled = new Promise<never>((_, reject) => {
-        timer = setTimeout(() => {
-          streamController.abort('LLM stream stalled')
-          reject(new Error(`LLM stream stalled: no data received for ${inactivityTimeout}ms`))
-        }, inactivityTimeout)
-      })
-      try {
-        return await Promise.race([stream.next(), stalled])
-      } finally {
-        clearTimeout(timer)
-      }
-    }
-
-    raw = ''
-    let streamCompleted = false
-    let accepted = false
-
-    try {
-      while (true) {
-        let chunk: IteratorResult<CognitiveStreamChunk, unknown>
-        try {
-          chunk = await nextChunk()
-        } catch (thrown: unknown) {
-          throw new CognitiveError(`LLM generation failed: ${getErrorMessage(thrown)}`)
-        }
-
-        if (chunk.done) {
-          streamCompleted = true
-          break
-        }
-
-        if (chunk.value?.restart && !midStreamFallback) {
-          streamController.abort('Unexpected LLM stream restart')
-          throw new CognitiveError('LLM stream restarted without options.midStreamFallback enabled')
-        }
-
-        if (chunk.value?.restart) {
-          traces.push({ type: 'llm_call_restarted', started_at: Date.now(), ...chunk.value.restart })
-          raw = ''
-          completions = []
-          accepted = false
-          parser = new ResponseParser()
-          liveItems.clear()
-          liveContent.clear()
-          codeGenerationTraced = false
-          runCompleted = false
-          responseMetadata = undefined
-          attempt = chunk.value.restart.attempt
-          // Emit even when the replacement has no sends: previous previews
-          // must disappear immediately, not wait for another text delta.
-          await preview({ ...chunk.value.restart, restart: true, iterationId: iteration.id })
-          // Keep request-relative timing (including handoff latency), but only
-          // report tokens from the surviving attempt.
-          timeToFirstToken = undefined
-          timeToLastToken = undefined
-          continue
-        }
-
-        if (chunk.value?.metadata) {
-          responseMetadata = chunk.value.metadata
-        }
-
-        const delta = chunk.value?.output
-        if (!delta) {
-          continue
-        }
-
-        timeToLastToken = Date.now() - requestedAt
-        timeToFirstToken ??= timeToLastToken
-
-        raw += delta
-        const events = parser.push(delta)
-        await dispatchSends(events)
-      }
-
-      if (!responseMetadata) {
-        throw new CognitiveError('LLM streaming completed without metadata')
-      }
-      assertSuccessfulGeneration(responseMetadata)
-
-      const events = parser.finish(responseMetadata.stopReason)
-      await dispatchSends(events)
-      if (parser.valid) {
-        for (const complete of completions) await complete()
-        accepted = true
-      }
-
-      assistantResponse = toParsedAssistantResponse(parser.items, raw, parser.diagnostics)
-    } catch (error) {
-      // Keep failed/truncated output for debugging, without dispatching any final parser events.
-      parser.finish()
-      const usage = responseMetadata?.usage ?? { inputTokens: 0, outputTokens: 0, inputCost: 0, outputCost: 0 }
-      iteration.llm = {
-        started_at: startedAt,
-        ended_at: Date.now(),
-        status: 'error',
-        cached: responseMetadata?.cached ?? false,
-        tokens: usage.inputTokens + usage.outputTokens,
-        spend: responseMetadata?.cost ?? usage.inputCost + usage.outputCost,
-        output: raw,
-        diagnostics: parser.diagnostics,
-        model: responseMetadata?.model ?? model.id,
-        time_to_first_token: timeToFirstToken,
-        time_to_last_token: timeToLastToken,
-        usage,
-      }
-      throw error
-    } finally {
-      // Release transport resources and the joined signal's parent listener,
-      // including when a callback throws or an unexpected restart is rejected.
-      streamController.abort('LLM stream closed')
-      if (!streamCompleted) {
-        // Do not wait: a stalled custom iterator may never settle its next().
-        void stream.return(undefined).catch((err: unknown) => {
-          // Cleanup is best-effort; preserve the original generation failure.
-          void err
-        })
-      }
-      if (!accepted && liveContent.size) {
-        await preview({
-          restart: true,
-          iterationId: iteration.id,
-          attempt: attempt + 1,
-          fromModel: model.id,
-          toModel: model.id,
-          reason: 'invalid or incomplete response envelope',
-        })
-      }
-    }
-
-    controller.signal.throwIfAborted()
-  } else {
-    const response = await cognitive.generateText(input, { signal: controller.signal }).catch((thrown: unknown) => {
-      throw new CognitiveError(`LLM generation failed: ${getErrorMessage(thrown)}`)
-    })
-
-    if (response.error) {
-      throw new CognitiveError(`LLM generation failed: ${response.error}`)
-    }
-    if (!response.output) {
-      throw new CognitiveError('LLM did not return any text output')
-    }
-
-    responseMetadata = response.metadata
-    assertSuccessfulGeneration(responseMetadata)
-    raw = response.output
-    assistantResponse = ctx.version.parseAssistantResponse(raw, responseMetadata.stopReason)
-
-    for (const [index, send] of assistantResponse.sends.entries()) {
-      await onSend?.(send, messageMetadata(`send-${index}`))
-    }
-  }
-
-  iteration.code = assistantResponse.code
-  iteration.sends = assistantResponse.sends
-  iteration.next = assistantResponse.next
-
-  const usage = responseMetadata.usage
-
-  iteration.llm = {
-    cached: responseMetadata.cached || false,
-    ended_at: Date.now(),
-    started_at: startedAt,
-    status: 'success',
-    tokens: usage.inputTokens + usage.outputTokens,
-    spend: responseMetadata.cost ?? usage.inputCost + usage.outputCost,
-    output: assistantResponse.raw,
-    diagnostics: assistantResponse.diagnostics,
-    model: `${responseMetadata.provider}:${responseMetadata.model}`,
-    time_to_first_token: timeToFirstToken,
-    time_to_last_token: timeToLastToken,
-    usage: {
-      inputTokens: usage.inputTokens,
-      inputCost: usage.inputCost,
-      outputTokens: usage.outputTokens,
-      outputCost: usage.outputCost,
+    options: {
+      ...(hasAudio ? { transcriptionModel: ctx.transcriptionModel ?? 'fast' } : {}),
+      ...(ctx.maxTimeToFirstToken ? { maxTimeToFirstToken: ctx.maxTimeToFirstToken } : {}),
+      ...(ctx.midStreamFallback ? { midStreamFallback: true } : {}),
     },
   }
 
-  if (iteration.tokens) {
-    iteration.tokens.input = usage.inputTokens
-    iteration.tokens.output = usage.outputTokens
-    iteration.tokens.total = usage.inputTokens + usage.outputTokens
+  return { input, model }
+}
+
+function getBudgetInstruction(ctx: Context): string {
+  if (ctx.iterations.length < ctx.loop) {
+    return 'Reserve a response to inspect results before completing.'
   }
 
-  traces.push({
+  if (ctx.chat) {
+    return 'This is the last response. Complete with an available exit or an honest final answer; do not start work that needs another model response.'
+  }
+
+  return 'This is the last response. Finish by returning exit(name, payload) from run_javascript, using a registered exit. If the task is incomplete, report it honestly with an incomplete or error payload only when the exit schema permits it. Assistant prose and inspection returns do not complete a worker. Do not start work that requires another model response.'
+}
+
+async function consumeNativeStream({
+  cognitive,
+  input,
+  controller,
+  maxIdleTime,
+  onChunk,
+}: {
+  cognitive: RuntimeCognitive
+  input: Parameters<RuntimeCognitive['generateText']>[0]
+  controller: AbortController
+  maxIdleTime: number
+  onChunk: (chunk: NativeChunk) => Promise<void>
+}): Promise<void> {
+  const streamController = createJoinedAbortController([controller.signal])
+  const stream = cognitive.generateTextStream!(input, { signal: streamController.signal })
+  let completed = false
+
+  try {
+    while (true) {
+      controller.signal.throwIfAborted()
+      const chunk = await readNextStreamChunk(stream, streamController, maxIdleTime)
+
+      if (chunk.done) {
+        completed = true
+        return
+      }
+
+      await onChunk(chunk.value as NativeChunk)
+    }
+  } finally {
+    streamController.abort('LLM stream closed')
+
+    if (!completed) {
+      // A stalled generator may never finish return(); cancellation must not wait for it.
+      void stream.return(undefined).catch(() => {})
+    }
+  }
+}
+
+async function readNextStreamChunk(
+  stream: AsyncGenerator<CognitiveStreamChunk, void, unknown>,
+  controller: AbortController,
+  maxIdleTime: number
+): Promise<IteratorResult<CognitiveStreamChunk, void>> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<never>((_resolve, reject) => {
+    timer = setTimeout(() => {
+      controller.abort('LLM stream stalled')
+      reject(new CognitiveError('LLM stream stalled'))
+    }, maxIdleTime)
+  })
+
+  try {
+    return await abortable(Promise.race([stream.next(), timeout]), controller.signal)
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+export async function generateCode({
+  iteration,
+  ctx,
+  cognitive,
+  controller,
+  metadata,
+  onSendDelta,
+  onToolCalls,
+}: GenerateCodeProps): Promise<NativeGeneration> {
+  const startedAt = Date.now()
+  controller.signal.throwIfAborted()
+  const { input, model } = await prepareNativeRequest({ iteration, ctx, cognitive, controller, metadata })
+  iteration.traces.push({ type: 'llm_call_started', started_at: startedAt, model: model.id })
+  let output = ''
+  let toolCalls: CognitiveToolCall[] = []
+  let responseMetadata: CognitiveMetadata | undefined
+  let assistantMessage: CognitiveMessage | undefined
+  let continuation: unknown
+  let attempt = 1
+  let ttft: number | undefined
+  let ttl: number | undefined
+  let previewed = false
+  let accepted = false
+  let dispatchedCalls: CognitiveToolCall[] | undefined
+  let dispatchedFingerprint: string | undefined
+  let offeredFingerprint: string | undefined
+  const messageMetadata = (): MessageMetadata => ({ iterationId: iteration.id, id: `${iteration.id}:${attempt}:text` })
+  const preview = async (delta: MessageDelta) => {
+    try {
+      await onSendDelta?.(delta)
+    } catch (err) {
+      if (delta.restart) {
+        throw new CognitiveError(`LLM stream restart handler failed: ${getErrorMessage(err)}`)
+      }
+    }
+  }
+
+  try {
+    controller.signal.throwIfAborted()
+
+    if (typeof cognitive.generateTextStream === 'function') {
+      let finished = false
+      await consumeNativeStream({
+        cognitive,
+        input,
+        controller,
+        maxIdleTime: Math.max(STREAM_IDLE_TIMEOUT, ctx.maxTimeToFirstToken ?? 0),
+        onChunk: async (value) => {
+          if (value.error) {
+            throw new CognitiveError(`LLM generation failed: ${value.error}`)
+          }
+
+          if (value.restart) {
+            if (dispatchedCalls) {
+              throw new CognitiveError(
+                'The LLM stream restarted after tool execution began; completed work cannot be replayed.'
+              )
+            }
+
+            if (!ctx.midStreamFallback) {
+              throw new CognitiveError('Unexpected LLM stream restart')
+            }
+
+            if (!Number.isInteger(value.restart.attempt) || value.restart.attempt <= attempt) {
+              throw new CognitiveError('Provider returned an invalid stream restart attempt')
+            }
+
+            if (value.output || value.toolCalls || value.finished) {
+              throw new CognitiveError('A stream restart must not contain output from either attempt')
+            }
+
+            iteration.traces.push({ type: 'llm_call_restarted', started_at: Date.now(), ...value.restart })
+            // A failed retraction must stop execution, not replay the UI effect in finally.
+            previewed = false
+            await preview({ restart: true, iterationId: iteration.id, ...value.restart })
+            attempt = value.restart.attempt
+            output = ''
+            toolCalls = []
+            responseMetadata = undefined
+            assistantMessage = undefined
+            continuation = undefined
+            ttft = undefined
+            ttl = undefined
+            finished = false
+            previewed = false
+            offeredFingerprint = undefined
+            return
+          }
+
+          const callsFingerprint = value.toolCalls ? stableJSON(value.toolCalls) : undefined
+          if (dispatchedCalls && callsFingerprint !== undefined && callsFingerprint !== dispatchedFingerprint) {
+            throw new CognitiveError(
+              'The LLM stream changed tool calls after execution began; completed work cannot be replayed.'
+            )
+          }
+
+          const repeatedDispatchedCalls = dispatchedCalls && callsFingerprint === dispatchedFingerprint
+          if (
+            finished &&
+            (value.output ||
+              (value.toolCalls && !repeatedDispatchedCalls) ||
+              value.assistantMessage ||
+              value.continuation !== undefined)
+          ) {
+            throw new CognitiveError('Received content after stream completion')
+          }
+
+          if (value.metadata) {
+            responseMetadata = value.metadata
+          }
+
+          if (value.toolCalls) {
+            toolCalls = dispatchedCalls ?? value.toolCalls
+
+            if (onToolCalls && !dispatchedCalls && toolCalls.length && offeredFingerprint !== callsFingerprint) {
+              validateResponse(output + (value.output ?? ''), toolCalls, value.assistantMessage ?? assistantMessage)
+
+              if (responseMetadata) {
+                assertSuccessfulGeneration(responseMetadata)
+              }
+
+              const snapshot = freezeToolCalls(structuredClone(toolCalls))
+              offeredFingerprint = callsFingerprint
+
+              if (onToolCalls(snapshot)) {
+                dispatchedCalls = snapshot
+                dispatchedFingerprint = callsFingerprint
+                toolCalls = snapshot
+              }
+            }
+          }
+
+          if (value.assistantMessage) {
+            assistantMessage = value.assistantMessage
+          }
+
+          if (value.continuation !== undefined) {
+            continuation = value.continuation
+          }
+
+          if (value.output) {
+            output += value.output
+            ttl = Date.now() - startedAt
+            ttft ??= ttl
+            previewed = true
+            await preview({
+              restart: false,
+              ...messageMetadata(),
+              component: 'message',
+              props: {},
+              delta: value.output,
+              content: output,
+            })
+          }
+
+          if (value.finished) {
+            finished = true
+          }
+        },
+      })
+
+      if (!finished) {
+        throw new CognitiveError('LLM stream ended without a completion signal')
+      }
+    } else {
+      const response = (await abortable(
+        cognitive.generateText(input, { signal: controller.signal }),
+        controller.signal
+      )) as NativeResponse
+
+      if (response.error) {
+        throw new CognitiveError(`LLM generation failed: ${response.error}`)
+      }
+
+      output = response.output ?? ''
+      toolCalls = response.toolCalls ?? []
+      assistantMessage = response.assistantMessage
+      continuation = response.continuation
+      responseMetadata = response.metadata
+    }
+
+    controller.signal.throwIfAborted()
+    assertSuccessfulGeneration(responseMetadata)
+    validateResponse(output, toolCalls, assistantMessage)
+
+    if (responseMetadata?.stopReason === 'tool_calls' && !toolCalls.length) {
+      throw new CognitiveError('Provider signaled tool calls but returned none')
+    }
+
+    accepted = true
+  } catch (err) {
+    throw err instanceof CognitiveError ? err : new CognitiveError(`LLM generation failed: ${getErrorMessage(err)}`)
+  } finally {
+    const usage = responseMetadata?.usage ?? { inputTokens: 0, outputTokens: 0, inputCost: 0, outputCost: 0 }
+    iteration.llm = {
+      started_at: startedAt,
+      ended_at: Date.now(),
+      status: accepted ? 'success' : 'error',
+      output,
+      cached: responseMetadata?.cached ?? false,
+      tokens: usage.inputTokens + usage.outputTokens,
+      spend: responseMetadata?.cost ?? 0,
+      model: responseMetadata?.model ?? model.id,
+      time_to_first_token: ttft,
+      time_to_last_token: ttl,
+      usage,
+    }
+
+    if (iteration.tokens) {
+      Object.assign(iteration.tokens, {
+        input: usage.inputTokens,
+        output: usage.outputTokens,
+        total: usage.inputTokens + usage.outputTokens,
+      })
+    }
+
+    if (!accepted && previewed) {
+      await preview({
+        restart: true,
+        iterationId: iteration.id,
+        attempt: attempt + 1,
+        fromModel: model.id,
+        toModel: model.id,
+        reason: 'Generation did not complete successfully',
+      })
+    }
+  }
+
+  const code = toolCalls.find((call) => call.name === 'run_javascript')?.input?.code
+  iteration.traces.push({
     type: 'llm_call_success',
     started_at: startedAt,
-    ended_at: iteration.llm.ended_at,
-    model: iteration.llm.model,
-    code: iteration.code ?? '',
+    ended_at: Date.now(),
+    model: model.id,
+    code: typeof code === 'string' ? code : '',
   })
+
+  return {
+    attempt,
+    output,
+    toolCalls,
+    assistantMessage,
+    continuation,
+    metadata: responseMetadata!,
+    messageMetadata: messageMetadata(),
+  }
+}
+
+/** Keep execution's accepted arguments independent of later provider or callback mutations. */
+function freezeToolCalls(calls: CognitiveToolCall[]): CognitiveToolCall[] {
+  const freeze = (value: unknown): void => {
+    if (!value || typeof value !== 'object' || Object.isFrozen(value)) {
+      return
+    }
+
+    for (const child of Object.values(value)) {
+      freeze(child)
+    }
+
+    Object.freeze(value)
+  }
+
+  freeze(calls)
+
+  return calls
 }

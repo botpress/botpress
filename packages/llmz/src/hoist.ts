@@ -26,6 +26,7 @@ function printNodes(nodes: Node[]): string {
     } else if (out.length && !out.endsWith('\n')) {
       out += ' '
     }
+
     afterLineComment = false
 
     if (isGroup(n)) {
@@ -33,10 +34,12 @@ function printNodes(nodes: Node[]): string {
       for (const child of n.children) {
         emit(child)
       }
+
       if (afterLineComment) {
         out += '\n'
         afterLineComment = false
       }
+
       out += n.close
     } else {
       out += n.text
@@ -47,6 +50,7 @@ function printNodes(nodes: Node[]): string {
   for (const n of nodes) {
     emit(n)
   }
+
   return out
 }
 
@@ -83,6 +87,7 @@ const prevMeaningful = (siblings: Node[], index: number): Node | undefined => {
       return n
     }
   }
+
   return undefined
 }
 
@@ -94,27 +99,33 @@ function segmentsAt(siblings: Node[], index: number): string[] {
   if (!prev || isGroup(prev)) {
     return []
   }
+
   if (isPunct(prev, '=>')) {
     return ['Output']
   }
+
   if (isPunct(prev, ':') || isPunct(prev, '<')) {
     let i = siblings.indexOf(prev) - 1
     while (i >= 0 && !isGroup(siblings[i]!) && (siblings[i] as any).kind?.includes('comment')) {
       i--
     }
+
     let q = siblings[i]
     if (q && !isGroup(q) && q.kind === 'punct' && q.text === '?') {
       q = siblings[--i]
     }
+
     if (q && isGroup(q) && q.open === '(') {
       // `fn(...): {` — a return type
       const fnWord = prevMeaningful(siblings, i)
       return fnWord && !isGroup(fnWord) && fnWord.kind === 'word' ? [asName(fnWord.text), 'Output'] : ['Output']
     }
+
     if (q && !isGroup(q) && (q.kind === 'word' || q.kind === 'string')) {
       return [asName(q.text)]
     }
   }
+
   return []
 }
 
@@ -161,11 +172,13 @@ function walkLiterals(siblings: Node[], path: string[], visit: LiteralVisit): vo
       if (!isAlias) {
         continue
       }
+
       const aliasName = (nameTok as { text: string }).text
       visit({ siblings, index: i, group: node, path: [aliasName], aliasName })
       if (siblings[i] === node) {
         walkLiterals(node.children, [aliasName], visit)
       }
+
       continue
     }
 
@@ -184,6 +197,7 @@ function walkLiterals(siblings: Node[], path: string[], visit: LiteralVisit): vo
     if (!namespaceLike) {
       visit({ siblings, index: i, group: node, path: newPath })
     }
+
     if (siblings[i] === node) {
       walkLiterals(node.children, namespaceLike ? [...path, asName((prev as { text: string }).text)] : newPath, visit)
     }
@@ -205,9 +219,11 @@ function extractAndHoistTypes(code: string): string {
     if (aliasName && !aliasByKey.has(key)) {
       aliasByKey.set(key, aliasName)
     }
+
     for (const segment of path) {
       usedNames.add(segment)
     }
+
     if (aliasName) {
       usedNames.add(aliasName)
     }
@@ -219,6 +235,7 @@ function extractAndHoistTypes(code: string): string {
     while (usedNames.has(name)) {
       name = `${base}${counter++}`
     }
+
     usedNames.add(name)
     return name
   }
@@ -262,6 +279,7 @@ export async function hoistTypings(code: string, formatOptions?: CodeFormatOptio
       if (formatOptions.throwOnError) {
         throw new CodeFormattingError(err instanceof Error ? err.message : String(err ?? 'Unknown Error'), code)
       }
+
       break
     }
   }

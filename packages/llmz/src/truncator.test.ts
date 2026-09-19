@@ -1,13 +1,10 @@
 // @ts-ignore
 import { TextTokenizer } from '@bpinternal/thicktoken'
-
+import * as _ from 'lodash-es'
 import { beforeAll, describe, expect, it } from 'vitest'
-
+import { LLMzPrompts } from './prompts/prompt.js'
 import { truncateWrappedContent, wrapContent } from './truncator.js'
 import { getTokenizer, init } from './utils.js'
-
-import * as _ from 'lodash-es'
-import { LLMzPrompts } from './prompts/prompt.js'
 
 const ONE_TOKEN = 'TOKEN\n'
 

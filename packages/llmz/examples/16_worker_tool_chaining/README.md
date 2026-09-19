@@ -19,7 +19,7 @@ const ToolC = new Tool({
 
 ## Generated code by LLMz
 
-```tsx
+```javascript
 // Directly perform the steps to get the 'secret' number in one step as per instructions
 const toolAResult = await tool_a()
 const toolBResult = await tool_b()
@@ -27,8 +27,10 @@ const secretNumber = await tool_c({
   first_task: toolAResult.pick.deep.deep_number,
   second_task: toolBResult.filter((num) => num > 50),
 })
-return { action: 'exit', value: { result: secretNumber } }
+return exit('exit', { result: secretNumber })
 ```
+
+This program is the argument to `run_javascript`. It uses the actual business results and returns a typed completion decision in the same execution. No additional model response is needed to copy the result into an exit.
 
 ## 🎥 Demo
 

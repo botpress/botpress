@@ -2,7 +2,7 @@
 
 **Stop chaining tools. Start generating code.**
 
-LLMz is a TypeScript AI agent framework that replaces traditional JSON tool calling with executable code generation. Instead of orchestrating tools through multiple LLM roundtrips, agents write and execute TypeScript directly—enabling complex logic, loops, and multi-tool coordination in a single pass.
+LLMz uses native assistant messages and tool calling, with JavaScript execution for business logic. Models call the single native tool `run_javascript` to chain business functions, compute, inspect results, reuse variables, present rich messages, and complete through typed exits.
 
 Powers millions of production agents at [Botpress](https://botpress.com).
 
@@ -12,96 +12,90 @@ Powers millions of production agents at [Botpress](https://botpress.com).
 
 ---
 
-## The Problem with Tool Calling
+## Native conversation, JavaScript orchestration
 
-Traditional agentic frameworks (LangChain, CrewAI, MCP servers) rely on JSON tool calling:
+Text replies are ordinary assistant messages. Business operations run through one native tool:
 
-```json
-{
-  "tool": "getTicketPrice",
-  "parameters": { "from": "quebec", "to": "new york" }
-}
+```javascript
+run_javascript({
+  code: `
+    const account = await readAccount()
+
+    const orders = await listOrders({ accountId: account.id })
+
+    return { account, orderCount: orders.length }
+  `,
+})
 ```
 
-This breaks down quickly:
+This illustrates a native tool call. The program inside `code` runs in the VM.
 
-- **Verbose schemas**: LLMs struggle with complex JSON structures
-- **No logic**: Can't express conditionals, loops, or error handling
-- **Multiple roundtrips**: Each tool call requires another LLM inference ($$$)
-- **Fragile composition**: Chaining tools is error-prone and expensive
+The return preview and created/updated variables arrive as a native tool result. The next assistant response can answer from that evidence. A program can instead use `return exit(name, payload)` to complete with a typed result, or return `inspect(value)` to explicitly request another response. Generated programs use JavaScript; TypeScript declarations document the available functions and objects.
 
-You end up with brittle agents that cost 10-100x more than they should.
+For rich content, the assistant can stream “Which plan would you like?” normally and make one native call containing:
 
----
+```js
+return chat.buttons([
+  { action: 'say', label: 'Standard' },
+  { action: 'say', label: 'Premium' },
+])
+```
 
-## The LLMz Solution
+The returned decision validates the complete presentation batch, settles memory, delivers the buttons in order, and finishes with `ListenExit`. Returning `chat.present({ messages })` supports other registered components. Use `await chat.send(messageOrArray)` for progress that continues execution, `return exit()` to wait silently, and `return exit('done', payload)` for typed completion. Keep using `return exit(...)`; if return is omitted, the exit call still stops JavaScript. Presentation builders still need to be returned.
 
-LLMz generates and executes **real TypeScript code** in a secure sandbox:
+Use `Promise.all` inside the program for independent business operations. Native parallel calls are disabled. Plain JavaScript values, including `undefined`, retain the existing nonterminal inspection behavior; terminal receipts do not replace `$return`.
+
+Assistant text streams provisionally. A validated, complete structured tool call can start JavaScript while the response stream remains open; partial arguments never execute. Both streaming and JavaScript must settle before the next iteration. If streaming fails after execution starts, LLMz preserves completed effects and memory and stops without automatically replaying the program. There are no response markers or protocol stop sequences.
+
+## Session memory
+
+Reuse a `Session` across user turns to preserve canonical native history and exact captured values:
 
 ```typescript
-const price = await getTicketPrice({ from: 'quebec', to: 'new york' })
+import { Session, execute } from 'llmz'
 
-if (price > 500) {
-  throw new Error('Price too high')
-}
+const session = new Session()
+await execute({ client, chat, session, messages: [{ role: 'user', content: 'Find my account.' }] })
+await execute({ client, chat, session, messages: [{ role: 'user', content: 'How many orders does it have?' }] })
 
-const ticketId = await buyTicket({ from: 'quebec', to: 'new york' })
+// Persist both native history and values; display previews cannot restore full memory.
+const saved = session.toJSON()
+const restored = Session.fromJSON(saved)
 ```
 
-**Why this works:**
+Inside JavaScript, named variables remain loaded. `$return` is the latest successful result; `$iterations[0]` is the most recent settled iteration, including iterations without a JavaScript result. Its `hasResult` distinguishes a successful `undefined` return from no result. Automatic history follows transcript compaction; named variables survive.
 
-- LLMs have seen billions of lines of TypeScript—they're exceptionally good at it
-- Complex logic (loops, conditionals, error handling) happens in one inference
-- Multiple tool calls execute synchronously without LLM roundtrips
-- Full type safety via Zui schemas and TypeScript inference
+Declare new retained variables at top level with `const` or `let`. Bare assignment updates an existing binding; it does not create one. If assignment fails after a tool completed, use the recorded result to repair the variable without repeating the tool's work.
 
-**Real-world impact**: Anthropic reduced agent costs by 98.7% using code execution patterns ([source](https://www.anthropic.com/engineering/code-execution-with-mcp)).
+The final model input includes a fresh, compact Memory overview with usable names, previews, and assignment ages. Each JavaScript tool result reports created and updated variables. These reports are metadata, separate from the actual return value.
 
----
+See the [native protocol specification](docs/native-protocol-spec.md) and [major-version migration guide](docs/native-protocol-migration.md), including provider and persistence boundaries.
 
-## The ■ Protocol
+## Native model evaluations
 
-Every model response is a sequence of streaming-native `■` blocks:
-
-```
-■start
-■send=message
-Let me check the next launch dates for the Moon...
-■run
-const dates = await checkAvailability({ destination: 'moon' })
-const reservation = await bookTrip({ destination: 'moon', date: dates[0], travelerName: 'Ada' })
-const payment = await processPayment({ reservationId: reservation.reservationId })
-return { ...payment, date: dates[0] }
-■end
-```
-
-- **`■send=<component> {props?}`** — sends a message to the user, streamed provisionally, then delivered after successful validation
-- **`■run`** — executes the JavaScript body in the sandbox; the returned value is fed back to the model
-- **`■next=<exit> {props?}`** — ends the turn through a typed exit (the built-in `listen` hands the turn back to the user)
-
-Every generated response must contain a standalone `■start` and end with `■end`. Text before the start marker is retained for debugging and discarded before parsing any blocks. There is no unwrapped response mode. Only explicit `■send` blocks can produce messages. Markdown (`■send=md`) remains supported.
-
-Message bodies stream as provisional deltas. Completed message handlers and code execution wait for the entire valid response and successful generation. A missing start marker, unmarked prose inside the envelope, multiple run blocks, and messages after code reject the response through the normal malformed-response/error path. A failed or restarted attempt cannot execute code or commit a message. Any previews from it are retracted with a reset delta.
-
-The first `■end` is a reserved terminator anywhere after `■start`, including inline and inside a JavaScript string or comment. Everything after it is discarded with a diagnostic; it never reaches message handlers or code execution. This intentionally accepts concatenated output such as `■end■start`. The prefix must still form valid blocks and valid JavaScript before any code runs. A terminator inside a string can therefore invalidate the response; do not use the raw sequence as content. In JavaScript, construct literal text with a Unicode escape such as `"\u25a0end"` instead. This is a protocol delimiter, not a JavaScript-aware scanner.
-
-Cognitive receives `stopSequences: ['\n■end']` to stop generation at the end boundary. Since providers consume the stop string, normal `stop` metadata closes the response even when the literal end marker is absent. Cognitive does not distinguish a matched stop string from ordinary end-of-generation; the response must still have a start marker and valid blocks. Missing metadata, truncation, filtering, and transport failure never supply this closure.
-
-Raw output and diagnostics remain available in `iteration.llm.output` and `iteration.llm.diagnostics`, including on failed streams. A valid framed exit alone permits intentional silence. Tools completed in earlier successful iterations remain completed during later recovery.
-
-Prompt examples use standalone triple quotes (`"""`) to show their boundaries, with BAD/CORRECT comparisons and a menu of response shapes. These quotes are documentation, not protocol. If copied, standalone example delimiter lines are stripped before customer callbacks and recorded as `example-delimiter` diagnostics. Inline quotes, JSON props, and interior Markdown/code content remain literal. A standalone triple-quote line immediately before a protocol boundary is reserved for this purpose; to display it literally, include it inline or inside a fenced code sample.
-
-The prompts use ordinary headings and put the response format after task context and the current execution budget. Historical replies are kept as recorded, without synthetic protocol headers. The low-level block parser remains useful for parsing individual blocks; execution uses the mandatory response envelope.
-
-This is a breaking protocol change: custom model clients and cached wire responses must include the start boundary and a successful response termination. Completed handlers now run after successful generation; only deltas stream during generation. `■run` followed by `■send` is invalid. Return a tool result, then answer in a new iteration. The removed `strict` and `recoveryComponent` options are not restored.
-
-To measure first-response adherence independently of runtime recovery, configure `CLOUD_PAT`, `CLOUD_BOT_ID`, and optionally `CLOUD_API_ENDPOINT`, then run:
+For a standalone Cognitive tool-call smoke test (no LLMz runtime), set `CLOUD_PAT` and `CLOUD_BOT_ID`, then run:
 
 ```bash
-LLMZ_EVAL_MODELS=cerebras:qwen-3.8-27b LLMZ_EVAL_REPEATS=1 pnpm test:e2e e2e/protocol-matrix.test.ts
+pnpm test:cognitive
 ```
 
-The matrix contains 144 synthetic tasks across 12 languages, each in streaming and nonstreaming mode: greetings, intake, long context, tools, progress messages, tool results, silent actions, typed exits, buttons, JSON text, Markdown, and error recovery. It disables test retries and cache and rejects fallback credit. Optional `LLMZ_EVAL_RECORDS=/absolute/path/results.jsonl` records raw outputs, diagnostics, task checks, and actual model metadata. Failures remain visible: passing runtime rejection tests does not establish perfect model adherence. Protocol/control-flow assertions are separate from exact task wording checks, which are retained in the evaluation records.
+This discovers all current text models through `Cognitive.listModels()` and runs two scenarios in streaming and nonstreaming mode: a single `record_number({ value: 42 })` call, then a response containing both that call and `record_label({ label: 'ready' })`. The multi-tool scenario enables parallel calls and checks both names, exact arguments, and distinct nonempty call IDs, regardless of order. Both calls must appear in the same response; there is no tool execution or follow-up model request.
+
+The catalog includes preview, deprecated, and reasoning variants; speech, image, and discontinued models are excluded with a printed reason. Requests run sequentially with required tool calling, a 1,600-token output budget, and a 60-second timeout. Narrow the run with comma-separated `COGNITIVE_TEST_MODELS`; explicit selections bypass catalog filtering. Optionally set `CLOUD_API_ENDPOINT`. The test loads `.env` and prints response diagnostics.
+
+Each response has separate checks for native tool-call correctness and the fresh requested route. A correct call served by Bedrock or a fallback passes the tool check but fails the route check; it does not establish support on the originally requested provider. Parent tests fail when either check fails. A failed probe only describes these settings, rather than proving a model cannot call tools under other settings.
+
+With `CLOUD_PAT` and `CLOUD_BOT_ID` configured, run first-response checks without runtime repair:
+
+```bash
+LLMZ_EVAL_MODELS=openai:gpt-5.6-luna LLMZ_EVAL_REPEATS=1 pnpm test:e2e e2e/protocol-matrix.test.ts
+```
+
+The matrix covers 144 tasks across 12 languages in streaming and nonstreaming mode, including tool results, buttons, worker exits, and recovery. Each completed response is replayed once through the isolated VM with local fixtures to check actual business calls, presentations, inspected results, and typed completion; it never asks the provider for a repair response. These opt-in live tests measure provider behavior; deterministic unit tests do not establish a model success rate.
+
+The [full evaluation report](docs/native-protocol-full-evaluation.md) separates the complete single-tool baseline, targeted corrections, and exit-control-flow checks. It reports native-call validity and task completion separately; the broader behavioral suite is not entirely green. The [earlier report](docs/native-protocol-rerun.md) preserves the preceding multiple-native-tools comparison. Session persistence, compaction, and snapshot continuation have a separate opt-in suite in `e2e/native-session.test.ts`.
+
+For a small current-protocol sample, run `e2e/single-tool.test.ts` with the same evaluation configuration. Its four cases check typed completion in both delivery modes, streamed assistant text plus two buttons in one generation, and inspection followed by an answer in two generations. Calls must use the requested uncached model, the sole `run_javascript` tool, and no provider restart. Examples prefer `return exit(...)`; deterministic VM tests also require correct completion when `return` is omitted.
 
 ---
 
@@ -166,16 +160,17 @@ const result = await execute({
 console.log(result.output) // 271575
 ```
 
-**Generated response:**
+**JavaScript supplied to `run_javascript`:**
 
-```
-■run
+```javascript
 let sum = 0
+
 for (let i = 14; i <= 1078; i++) {
   if (i % 3 === 0 || i % 9 === 0 || i % 5 === 0) {
     sum += i
   }
 }
+
 return sum
 ```
 
@@ -190,7 +185,7 @@ const chat = new Chat({
   components: [DefaultComponents.Text, DefaultComponents.Button],
   transcript: () => transcript,
 
-  // Complete messages, delivered as soon as they are parsed
+  // Complete messages, delivered after successful generation and validation
   handler: async (component) => {
     render(component)
   },
@@ -215,12 +210,13 @@ while (true) {
 
 **Generated response:**
 
-```
-■send=message
-Found 12 flights. The cheapest is **$249**. Want me to book it?
-■send=button {"label": "Book flight", "action": "postback", "value": "book"}
-■send=button {"label": "Cancel", "action": "postback", "value": "cancel"}
-■next=listen
+The assistant replies normally: “Found 12 flights. The cheapest is **$249**. Want me to book it?” Its one `run_javascript` call contains:
+
+```js
+return chat.buttons([
+  { label: 'Book flight', action: 'postback', value: 'book' },
+  { label: 'Cancel', action: 'postback', value: 'cancel' },
+])
 ```
 
 ---
@@ -277,7 +273,7 @@ const searchFlights = new Tool({
 })
 ```
 
-Tools are exposed to agents with full TypeScript signatures. Agents call them like regular async functions — and chain them freely inside a single `■run` block.
+Tools are exposed to agents with full TypeScript signatures. Agents call them like regular async functions — and chain them freely inside a single `run_javascript` call.
 
 Tool handlers can also be **async generators** that push UI components to the chat mid-execution (progress bars, previews) before returning their result — see [example 21](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/21_chat_tool_components).
 
@@ -345,17 +341,23 @@ if (result.is(TicketBooked)) {
 }
 ```
 
-Agents invoke exits with a `■next` block:
+Agents should complete with `return exit(...)`; the VM also stops at a valid exit if return is omitted:
 
+```js
+return exit('ticket_booked', {
+  ticketId: 'TKT-12345',
+  price: 299,
+  confirmation: 'ABC123',
+})
 ```
-■next=ticket_booked {"ticketId": "TKT-12345", "price": 299, "confirmation": "ABC123"}
-```
+
+In chat mode, a known outcome matching a registered exit should use that exit, even when the response also contains assistant text. Text alone completes through `listen`; an apology does not select a cancellation exit.
 
 ---
 
 ## Streaming
 
-With a streaming client (`CognitiveBeta` / Cognitive v2), everything an execution produces surfaces in real time:
+With a streaming client (`CognitiveBeta` / Cognitive v2), provisional assistant text streams while generation is in progress:
 
 ```typescript
 const chat = new Chat({
@@ -368,6 +370,7 @@ const chat = new Chat({
       // Remove this iteration's provisional previews.
       return clearIterationMessages(delta.iterationId)
     }
+
     return updateBubble(delta.iterationId, delta.id, delta.content)
   },
 })
@@ -378,24 +381,35 @@ const result = await execute({
   tools,
   options: { midStreamFallback: true },
   onTrace: ({ trace }) => {
-    if (trace.type === 'llm_call_started') showSpinner()
-    if (trace.type === 'code_generation_started') showStatus('writing code…')
-    if (trace.type === 'llm_call_success') showCode(trace.code)
-    if (trace.type === 'tool_call') showToolCall(trace)
+    if (trace.type === 'llm_call_started') {
+      showSpinner()
+    }
+
+    if (trace.type === 'code_generation_started') {
+      showStatus('writing code…')
+    }
+
+    if (trace.type === 'llm_call_success') {
+      showCode(trace.code)
+    }
+
+    if (trace.type === 'tool_call') {
+      showToolCall(trace)
+    }
   },
 })
 ```
 
 - **Message deltas** stream to your UI token-by-token (`handler` remains the authoritative delivery)
-- **Live traces** cover the full turn lifecycle: `llm_call_started` → message deltas → `code_generation_started` → `llm_call_success` (with the code) → `tool_call`s → exit
-- **Fallback**: a `restart: true` delta invalidates the current iteration's messages before replacement output arrives. Replacement messages have fresh IDs under the same `iterationId`. Code executes only after the replacement stream succeeds; abandoned code never runs.
-- **Execution**: code runs only after a complete, valid envelope and successful stream completion in every mode. The VM still pre-warms when a run block opens.
+- **Live traces** expose generation, message deltas, inner business calls, and completion. `llm_call_success` includes the generated code; business calls can overlap the remaining stream.
+- **Fallback**: before execution starts, a `restart: true` delta retracts provisional text and replacement messages receive fresh IDs. After execution starts, a stream failure or restart ends the iteration without automatically replaying its effects.
+- **Execution**: a complete validated structured call can start JavaScript before transport closes. The next iteration waits for both the stream and the program. Cognitive currently emits calls in its final chunk, so overlap is usually with transport draining; adapters that expose complete calls earlier can start sooner.
 
-Terminal failures return an `ErrorExecutionResult` and retract any provisional previews with a reset delta; no replacement is required for a reset. Completed handlers from abandoned attempts are never called. Nonstreaming fallback exposes only the surviving response.
+Terminal failures return an `ErrorExecutionResult` and retract provisional text with a reset delta. Already acknowledged business actions or `chat.send` deliveries remain completed, and retained memory records that progress. Nonstreaming fallback exposes only the surviving response.
 
-Explicit Cognitive errors, unknown-provider error metadata, missing streaming metadata, token-limit truncation, and content filtering cannot turn partial output into executable code. A complete code block inside an unfinished response is still provisional.
+Partial argument fragments never authorize execution. Complete structured calls are validated before dispatch; failed final metadata cannot turn an incomplete call into executable code. If failure is discovered after an earlier complete call already started, its effects are preserved and automatic replay is disabled.
 
-Send messages before code. A returning run requests another iteration and must be followed directly by `■end`. Side-effect-only code may finish with `■next` before `■end`.
+Assistant text accompanying a call is a pre-action message. Every completed JavaScript call produces a native tool result, including successful `undefined`. Calling `exit(...)` or returning a presentation decision can complete that same response after memory settlement. Ordinary values and `inspect(value)` continue the model loop.
 
 Forward these events over a websocket or SSE stream and your frontend renders the agent live — see [example 22](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/22_chat_streaming).
 
@@ -454,11 +468,12 @@ const complexAnalysis = new Tool({
 
 Agents self-initiate reflection by returning values from their code — the returned value is shown to them and they respond again:
 
-```
-■run
+```javascript
 const data = await fetchLargeDataset()
 return data.summary
 ```
+
+Host-thrown `ThinkSignal` and `SnapshotSignal` stop generated JavaScript, including surrounding `catch` and `finally` blocks. Completed work and captured variables remain available, and already-started host operations settle before continuation. Ordinary tool errors remain catchable.
 
 ### Snapshots: Pause and Resume
 
@@ -516,6 +531,8 @@ const result = await execute({
 })
 ```
 
+When `onBeforeExecution` replaces the program, the tool result discloses the replacement and actual business-call outcomes. The original assistant call stays intact in history. A replaced `exit(...)` does not complete the task unless the replacement also exits; the model continues from the recorded result and memory.
+
 ---
 
 ## Coming from MCP?
@@ -524,7 +541,7 @@ LLMz is **not** a replacement for MCP—it's complementary.
 
 **MCP** (Model Context Protocol): Standardizes how AI applications connect to data sources and tools across processes/machines.
 
-**LLMz**: Replaces the execution pattern _after_ tools are exposed. Instead of making multiple LLM calls to orchestrate MCP tools via JSON, LLMz generates TypeScript code that calls those same tools in a single inference—reducing costs by up to 98%.
+**LLMz**: Replaces the execution pattern _after_ tools are exposed. Instead of making multiple LLM calls to orchestrate MCP tools via JSON, LLMz generates JavaScript code that calls those same tools in a single inference—reducing costs by up to 98%.
 
 ---
 
@@ -545,10 +562,10 @@ LLMz has been running in production for over a year:
 **Execution Pipeline:**
 
 1. **Prompt Generation**: Injects tools, schemas, and context into dual-mode prompts
-2. **Streaming Generation**: The LLM streams ■ blocks — messages dispatch to the chat as they are parsed
-3. **Compilation**: Babel AST transformation with instrumentation plugins (line tracking, tool call tracking, variable extraction)
-4. **Execution**: Runs in QuickJS WASM sandbox with full isolation — after successful generation and protocol validation
-5. **Result Processing**: Type-safe exit handling, thinking loops and error recovery
+2. **Streaming Generation**: The LLM streams native assistant text; provisional deltas reach the chat immediately
+3. **Compilation**: Acorn AST instrumentation for line tracking, tool calls, and variable capture
+4. **Execution**: A complete validated structured call runs in the isolated VM while the response stream may still be open
+5. **Result Processing**: Waits for streaming and JavaScript settlement before typed completion or the next model response
 
 **Security:**
 
@@ -564,7 +581,7 @@ LLMz has been running in production for over a year:
 
 | Feature                  | LangChain / CrewAI     | MCP Servers            | LLMz                      |
 | ------------------------ | ---------------------- | ---------------------- | ------------------------- |
-| Tool calling             | JSON                   | JSON                   | TypeScript code           |
+| Tool calling             | JSON                   | JSON                   | JavaScript + native tools |
 | Multi-tool orchestration | Multiple LLM calls     | Multiple LLM calls     | Single LLM call           |
 | Complex logic            | Limited                | Limited                | Full language support     |
 | Type safety              | Partial                | Schema-based           | Full TypeScript + Zui     |

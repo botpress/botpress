@@ -124,6 +124,7 @@ type CacheEntry = {
 
 // Override with a new path to run against a fresh cache without growing the checked-in fixture.
 const CACHE_PATH = process.env.LLMZ_E2E_CACHE_PATH ?? path.resolve(__dirname, './cache.jsonl')
+const FRESH_RESPONSES = process.env.LLMZ_E2E_FRESH === '1'
 
 const cache: Map<string, CacheEntry> = readJSONL(CACHE_PATH, 'key')
 
@@ -143,6 +144,17 @@ const pinModels = <T extends CognitiveRequest>(input: T): T => {
     return { ...input, model: [...TEST_MODELS] as CognitiveRequest['model'] }
   }
   return input
+}
+
+/** Fresh evaluations bypass both response caches while still recording observations. */
+const prepareRequest = (input: CognitiveRequest): CognitiveRequest => {
+  const pinned = pinModels(input)
+
+  if (!FRESH_RESPONSES) {
+    return pinned
+  }
+
+  return { ...pinned, options: { ...pinned.options, skipCache: true } }
 }
 
 /** Strips non-deterministic / non-serializable fields before hashing. */
@@ -175,11 +187,11 @@ class CachedCognitive extends Cognitive {
     input: CognitiveRequest,
     options?: Parameters<Cognitive['generateText']>[1]
   ): Promise<any> {
-    const pinned = pinModels(input)
+    const pinned = prepareRequest(input)
     const key = cacheKeyOf('text', pinned)
     const testKey = this._testKey()
 
-    const cached = cache.get(key)
+    const cached = FRESH_RESPONSES ? undefined : cache.get(key)
     if (cached?.value) {
       return cached.value
     }
@@ -197,11 +209,11 @@ class CachedCognitive extends Cognitive {
     input: CognitiveRequest,
     options?: Parameters<Cognitive['generateTextStream']>[1]
   ): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
-    const pinned = pinModels(input)
+    const pinned = prepareRequest(input)
     const key = cacheKeyOf('stream', pinned)
     const testKey = this._testKey()
 
-    const cached = cache.get(key)
+    const cached = FRESH_RESPONSES ? undefined : cache.get(key)
     if (cached?.chunks) {
       for (const chunk of cached.chunks) {
         yield chunk

@@ -1,6 +1,7 @@
 import { Context, Iteration } from './context.js'
 import { SnapshotSignal } from './errors.js'
 import { Exit, ExitResult } from './exit.js'
+import type { Session } from './session.js'
 import { Snapshot } from './snapshots.js'
 import { Serializable } from './types.js'
 
@@ -255,6 +256,11 @@ export abstract class ExecutionResult implements Serializable<ExecutionResult.JS
    * }
    * ```
    */
+  /** Reuse this session for the next user turn, or persist session.toJSON(). */
+  public get session(): Session {
+    return this.context.session
+  }
+
   public get output(): unknown | null {
     return this.isSuccess() ? this.result.result : null
   }
@@ -344,6 +350,7 @@ export abstract class ExecutionResult implements Serializable<ExecutionResult.JS
       input += iteration.tokens?.input ?? 0
       output += iteration.tokens?.output ?? 0
     }
+
     return { input, output, total: input + output }
   }
 

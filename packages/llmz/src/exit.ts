@@ -31,8 +31,8 @@ export namespace Exit {
  *
  * Exits are the primary mechanism for controlling how and when agent execution completes.
  * They define the possible outcomes of an execution and provide type-safe result handling.
- * When an agent calls `return { action: 'exit_name', ...data }`, the execution terminates
- * with the corresponding Exit.
+ * The model returns `exit(name, payload)` from JavaScript to finish with a validated
+ * payload. Ordinary returned values remain nonterminal inspection results.
  *
  * ## Core Concepts
  *
@@ -46,7 +46,7 @@ export namespace Exit {
  * **Flow Control**: Different exits allow for different execution paths and result
  * handling, enabling complex decision-making and branching logic.
  *
- * **Built-in vs Custom**: LLMz provides built-in exits (ThinkExit, ListenExit, DefaultExit)
+ * **Built-in vs Custom**: LLMz provides built-in exits (ListenExit, DefaultExit)
  * for common patterns, while custom exits enable domain-specific termination logic.
  *
  * ## Usage Patterns
@@ -61,7 +61,7 @@ export namespace Exit {
  *   description: 'When the user wants to exit the program',
  * })
  *
- * // Agent usage: return { action: 'exit' }
+ * // Inside run_javascript: return exit('exit')
  *
  * // Result handling
  * if (result.is(exit)) {
@@ -85,7 +85,8 @@ export namespace Exit {
  *   }),
  * })
  *
- * // Agent usage: return { action: 'escalation', reason: 'Technical issue', details: '...' }
+ * // Inside run_javascript:
+ * // return exit('escalation', { reason: 'Technical issue', details: '...' })
  *
  * // Type-safe result handling
  * if (result.is(escalation)) {
@@ -135,7 +136,7 @@ export namespace Exit {
  *
  * ### Exit Aliases
  *
- * Multiple names for the same exit:
+ * Alternative names for the same exit:
  *
  * ```typescript
  * const exit = new Exit({
@@ -144,7 +145,8 @@ export namespace Exit {
  *   description: 'Task completed successfully',
  * })
  *
- * // Agent can use any alias: return { action: 'done' } or { action: 'finished' }
+ * // JavaScript can return exit('complete'), exit('done'), or another registered alias.
+ * // These all select the same exit without creating additional native tools.
  * ```
  *
  * ### Exit Metadata for Orchestration
@@ -222,14 +224,13 @@ export namespace Exit {
  * @template T - The type of data this exit returns (inferred from schema)
  *
  * @see {@link ExecutionResult} For result handling
- * @see {@link ThinkExit} Built-in thinking exit
  * @see {@link ListenExit} Built-in chat listening exit
  * @see {@link DefaultExit} Built-in completion exit
  */
 export class Exit<T = unknown> implements Serializable<Exit.JSON> {
-  /** The primary name of the exit (used in return statements) */
+  /** The primary name of the exit (used by its native exit tool) */
   public name: string
-  /** Alternative names that can be used to reference this exit */
+  /** Host-side aliases; the native tool uses only the primary name */
   public aliases: string[] = []
   /** Human-readable description of when this exit should be used */
   public description: string
@@ -440,7 +441,13 @@ export class Exit<T = unknown> implements Serializable<Exit.JSON> {
 
     if (typeof props.schema !== 'undefined') {
       if (isZuiSchema(props.schema)) {
-        this.schema = transforms.toJSONSchemaLegacy(props.schema)
+        if (['ZodUndefined', 'ZodVoid'].includes(props.schema._def.typeName)) {
+          throw new Error(
+            `Exit ${props.name} must use a JSON-compatible payload schema. Omit schema for an exit without data, or use z.null() for an explicit null payload.`
+          )
+        }
+
+        this.schema = transforms.toJSONSchema(props.schema) as JSONSchema7
       } else if (isJsonSchema(props.schema)) {
         this.schema = props.schema
       } else {

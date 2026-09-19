@@ -1,7 +1,11 @@
-import type { CognitiveRequest, CognitiveMetadata } from '@botpress/cognitive'
+import type { CognitiveRequest, CognitiveMetadata, CognitiveToolCall } from '@botpress/cognitive'
 import { describe, expect, it } from 'vitest'
-import { parseAssistantResponse } from '../src/prompts/common.js'
-import { DualModePrompt } from '../src/prompts/dual-modes.js'
+import { getNativeExecutionState, getNativeSystemMessage } from '../src/prompts/native.js'
+import {
+  createNativeToolCatalogue,
+  transcriptToNativeMessages,
+  validateNativeToolCalls,
+} from '../src/runtime/native-tools.js'
 import { cases, client, expectAllowedRestart, expectModelRoute, models } from './__tests__/model-evaluation.js'
 import { protocolScenario, protocolScenarios } from './__tests__/protocol-scenarios.js'
 
@@ -15,50 +19,51 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
       { retry: 0, timeout: 60000 },
       async ({ question, streaming }) => {
         const props = protocolScenario(question)
-        const system = await DualModePrompt.getSystemMessage(props)
-        const user = await DualModePrompt.getInitialUserMessage(props)
+        const system = await getNativeSystemMessage(props)
+        const messages = [system.message, ...transcriptToNativeMessages(props.transcript)]
+        const last = messages.at(-1)!
+        last.content = String(last.content) + '\n\n' + getNativeExecutionState(props)
+        const catalogue = createNativeToolCatalogue(props)
         const request: CognitiveRequest = {
           model,
           temperature: 0.7,
           reasoningEffort: 'none',
           maxTokens: 1200,
-          stopSequences: DualModePrompt.getStopTokens(),
+          tools: catalogue.tools,
+          toolControl: { mode: 'auto', parallel: false },
           options: { skipCache: true },
-          messages: [
-            system.message,
-            { ...user, content: String(user.content) + DualModePrompt.getExecutionState!(props) },
-          ],
+          messages,
         }
         let output = ''
+        let toolCalls: CognitiveToolCall[] = []
         let metadata: CognitiveMetadata | undefined
         if (streaming) {
           for await (const chunk of client.generateTextStream(request)) {
             if (chunk.restart) {
               expectAllowedRestart(chunk.restart)
               output = ''
+              toolCalls = []
               metadata = undefined
             }
             output += chunk.output ?? ''
+            toolCalls = chunk.toolCalls ?? toolCalls
             metadata = chunk.metadata ?? metadata
           }
         } else {
           const response = await client.generateText(request)
           output = response.output
+          toolCalls = response.toolCalls ?? []
           metadata = response.metadata
         }
-        const parsed = parseAssistantResponse(output, metadata?.stopReason)
+        const parsed = validateNativeToolCalls(toolCalls, catalogue)
         console.info(
-          JSON.stringify({ model, run, question, streaming, output, metadata, diagnostics: parsed.diagnostics })
+          JSON.stringify({ model, run, question, streaming, output, toolCalls, metadata, errors: parsed.errors })
         )
         expectModelRoute(metadata, model)
-        expect(output).toMatch(/^■start\r?\n/m)
-        expect(
-          parsed.diagnostics?.filter((d) => d.code !== 'unexpected-text' && d.code !== 'example-delimiter')
-        ).toEqual([])
-        expect(parsed.sends.length).toBeGreaterThan(0)
-        expect(parsed.sends.every((send) => send.name === 'message' && send.body?.trim())).toBe(true)
-        expect(parsed.code).toBeUndefined()
-        expect(parsed.next?.name).toBe('listen')
+        expect(metadata?.stopReason).toBe('stop')
+        expect(parsed.errors).toEqual([])
+        expect(output.trim()).not.toBe('')
+        expect(toolCalls).toEqual([])
       }
     )
   }

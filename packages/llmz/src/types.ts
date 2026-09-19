@@ -23,6 +23,7 @@ export namespace Traces {
         success: true
         tool_name: string
         tool_call_id: string
+        native_call_id?: string
         object?: string
         input: any
         output: any
@@ -32,6 +33,7 @@ export namespace Traces {
         success: false
         tool_name: string
         tool_call_id: string
+        native_call_id?: string
         object?: string
         input: any
         error: any
@@ -83,16 +85,17 @@ export namespace Traces {
     'llm_call_restarted',
     { attempt: number; fromModel: string; toModel: string; reason: string }
   >
-  /**
-   * Emitted on streaming clients the moment the model starts writing a `■run`
-   * block — before the code is fully generated. Useful to show a
-   * "writing code..." indicator while waiting for `llm_call_success` (which
-   * carries the final code) and the subsequent execution.
-   */
-  export type CodeGenerationStart = TraceTemplate<'code_generation_started', {}>
-
   export type AbortTrace = TraceTemplate<'abort_signal', { reason: string }>
-  export type YieldTrace = TraceTemplate<'yield', { value: any }>
+  export type YieldTrace = TraceTemplate<
+    'yield',
+    {
+      value: any
+      message_id?: string
+      native_call_id?: string
+      success?: boolean
+      error?: string
+    }
+  >
   export type InvalidCodeExceptionTrace = TraceTemplate<'invalid_code_exception', { message: string; code: string }>
 
   export type TraceTemplate<Type, Content> = { type: Type; started_at: number; ended_at?: number } & Content
@@ -107,7 +110,6 @@ export namespace Traces {
     | LLMCallStart
     | LLMCallSuccess
     | LLMCallRestart
-    | CodeGenerationStart
     | ThinkSignal
     | CodeExecution
     | CodeExecutionException
@@ -120,6 +122,8 @@ export type VMExecutionResult =
   | {
       success: true
       variables: { [k: string]: any }
+      variableWrites?: { name: string; timestamp: number; kind?: 'assignment' | 'mutation' }[]
+      captureErrors?: { name: string; reason: string }[]
       signal?: VMSignal
       error?: Error
       lines_executed: [number, number][]
@@ -128,6 +132,8 @@ export type VMExecutionResult =
   | {
       success: false
       variables: { [k: string]: any }
+      variableWrites?: { name: string; timestamp: number; kind?: 'assignment' | 'mutation' }[]
+      captureErrors?: { name: string; reason: string }[]
       signal?: VMSignal
       error: Error
       traces: Trace[]

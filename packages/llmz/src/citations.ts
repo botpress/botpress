@@ -134,14 +134,17 @@ export class CitationsManager {
         if (extraction.citations.length > 0) {
           result.push(...extraction.citations.map((citation) => ({ path, citation })))
         }
+
         return extraction.cleaned
       } else if (typeof current === 'object' && current !== null) {
         const newObject: any = Array.isArray(current) ? [] : {}
         for (const key of Object.keys(current)) {
           newObject[key] = processObject(current[key], `${path}.${key}`)
         }
+
         return newObject
       }
+
       return current
     }
 

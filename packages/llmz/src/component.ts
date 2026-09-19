@@ -1,10 +1,24 @@
 import { z } from '@bpinternal/zui'
 import { createJsxComponent, isAnyJsxComponent, isJsxComponent, JsxComponent } from './jsx.js'
-import type { BodyFormat, GenerativeComponentMetadata } from './message-stream/types.js'
+
+export type BodyFormat = 'text' | 'markdown' | 'code'
+
+export type GenerativeComponentExample = {
+  props?: Record<string, unknown>
+  body?: string
+}
+
+/** Guidance and examples for native component tools. */
+export type GenerativeComponentMetadata = {
+  usage?: string
+  doNotUseWhen?: string
+  examples?: Array<GenerativeComponentExample | GenerativeComponentExample[]>
+  priority?: number
+}
 
 /**
- * @deprecated TSX-era examples are no longer shown to the model — llmz
- * generates ■-protocol blocks, not TSX. Use `generation.examples`
+ * @deprecated TSX-era examples are no longer shown to the model — LLMz
+ * uses native presentation tools. Use `generation.examples`
  * ({ props?, body? }) instead.
  */
 export type ExampleUsage = {
@@ -16,7 +30,7 @@ export type ExampleUsage = {
 /**
  * Optional body configuration for components that accept a message body
  * (`default` and `container` types). Controls how the body is documented to
- * the model in the ■ protocol reference.
+ * the model in native tool schemas.
  */
 export type ComponentBodyOptions = {
   /** How the body should be written: 'markdown' (default), 'text' (plain prose) or 'code'. */
@@ -78,9 +92,9 @@ export type DefaultComponentDefinition<T extends z.ZodObject<any> = z.ZodObject<
   description: string
   /** @deprecated Not shown to the model. Use `generation.examples` instead. */
   examples?: ExampleUsage[]
-  /** Body configuration for the ■ protocol reference, or false to disallow a body. */
+  /** Body configuration for native tool schemas, or false to disallow a body. */
   body?: ComponentBodyOptions | false
-  /** Model-facing generation metadata: usage guidance and ■-protocol examples ({ props?, body? }). */
+  /** Model-facing generation metadata: usage guidance and native component examples ({ props?, body? }). */
   generation?: GenerativeComponentMetadata
   default: {
     props: T
@@ -95,7 +109,7 @@ export type LeafComponentDefinition<T extends z.ZodObject<any> = z.ZodObject<any
   aliases?: string[]
   /** @deprecated Not shown to the model. Use `generation.examples` instead. */
   examples?: ExampleUsage[]
-  /** Model-facing generation metadata: usage guidance and ■-protocol examples ({ props? }). */
+  /** Model-facing generation metadata: usage guidance and native component examples ({ props? }). */
   generation?: GenerativeComponentMetadata
   leaf: {
     props: T
@@ -109,9 +123,9 @@ export type ContainerComponentDefinition<T extends z.ZodObject<any> = z.ZodObjec
   aliases?: string[]
   /** @deprecated Not shown to the model. Use `generation.examples` instead. */
   examples?: ExampleUsage[]
-  /** Body configuration for the ■ protocol reference, or false to disallow a body. */
+  /** Body configuration for native tool schemas, or false to disallow a body. */
   body?: ComponentBodyOptions | false
-  /** Model-facing generation metadata: usage guidance and ■-protocol examples ({ props?, body? }). */
+  /** Model-facing generation metadata: usage guidance and native component examples ({ props?, body? }). */
   generation?: GenerativeComponentMetadata
   container: {
     props: T

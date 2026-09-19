@@ -132,7 +132,12 @@ describe('wrapTool', () => {
     })
 
     await expect(wrapped({ amount: 10 })).rejects.toBe(signal)
+
+    const call = traces.find((trace) => trace.type === 'tool_call')
+
+    expect(call).toBeDefined()
     expect(signal.toolCall).toEqual({
+      id: call!.tool_call_id,
       name: 'payment',
       inputSchema: tool.input,
       outputSchema: tool.output,

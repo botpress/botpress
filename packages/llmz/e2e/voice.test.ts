@@ -4,7 +4,7 @@ import * as llmz from '../src/runtime/execute.js'
 import { DefaultComponents } from '../src/component.default.js'
 import { Chat } from '../src/chat.js'
 import { Exit } from '../src/exit.js'
-import { DualModePrompt } from '../src/prompts/dual-modes.js'
+import { transcriptToNativeMessages } from '../src/runtime/native-tools.js'
 import { ExecutionResult, SuccessExecutionResult } from '../src/result.js'
 import { Transcript, TranscriptArray } from '../src/transcript.js'
 import {
@@ -38,13 +38,11 @@ describe('voice messages', () => {
         voiceMessage(),
       ])
 
-      const rendered = transcript.toString()
-
-      expect(rendered).toContain('modality="voice"')
-      expect(rendered).toContain('[Voice message user-003-A]')
-      // Typed messages must not be marked as voice
-      expect(rendered).toContain('<user-001 role="user">')
-      expect(rendered).toContain('<user-003 role="user" modality="voice">')
+      const messages = transcriptToNativeMessages(transcript)
+      expect(messages.map((message) => message.role)).toEqual(['user', 'assistant', 'user'])
+      expect(messages[0]?.content).toBe('Hello!')
+      expect(JSON.stringify(messages[2])).toContain('[Voice message]')
+      expect(messages[2]?.type).toBe('multipart')
     })
 
     it('marks pre-transcribed spoken turns via the explicit modality field', async () => {
@@ -52,32 +50,15 @@ describe('voice messages', () => {
         { role: 'user', content: 'What is the capital of France?', modality: 'voice' },
       ])
 
-      const rendered = transcript.toString()
-      expect(rendered).toContain('<user-001 role="user" modality="voice">')
-      // No audio attached: no voice message marker, the content IS the transcript
-      expect(rendered).not.toContain('[Voice message')
-
-      const message = await DualModePrompt.getInitialUserMessage({
-        transcript,
-        objects: [],
-        globalTools: [],
-        exits: [],
-        components: [DefaultComponents.Text],
-      })
+      const message = transcriptToNativeMessages(transcript)[0]!
 
       assert(typeof message.content === 'string', 'Expected a plain text message')
-      expect(message.content).toContain('the text below is a transcript of what they said out loud')
+      expect(message.content).toContain('[Voice message; transcribed]')
       expect(message.content).toContain('What is the capital of France?')
     })
 
     it('sends the audio to the model with explicit voice framing', async () => {
-      const message = await DualModePrompt.getInitialUserMessage({
-        transcript: new TranscriptArray([voiceMessage()]),
-        objects: [],
-        globalTools: [],
-        exits: [],
-        components: [DefaultComponents.Text],
-      })
+      const message = transcriptToNativeMessages([voiceMessage()])[0]!
 
       assert(Array.isArray(message.content), 'Expected a multipart message')
 
@@ -89,8 +70,7 @@ describe('voice messages', () => {
 
       expect(audioParts).toHaveLength(1)
       expect(audioParts[0]!.url).toMatch(/^data:audio\/wav;base64,/)
-      expect(text).toContain('voice message')
-      expect(text).toContain('spoken out loud in the attached audio')
+      expect(text).toContain('[Voice message]')
     })
   })
 
@@ -178,7 +158,7 @@ describe('voice messages', () => {
   })
 
   // Regression (llmz 0.4.0): long assistant replies to voice-modality turns
-  // came back with the ■send body wrapped in a JSON object ({"body": "..."}).
+  // came back with assistant prose wrapped in a JSON object ({"body": "..."}).
   // Short replies and typed turns were unaffected.
   describe('long voice replies stay plain markdown', () => {
     const runLongStory = async (message: Transcript.UserMessage, model?: string) => {
@@ -203,13 +183,10 @@ describe('voice messages', () => {
 
       assertSuccess(result)
 
-      // The raw parsed sends must be plain prose, not a JSON-wrapped body
-      // ({"body": "..."}) — there is no runtime unwrapping, the prompt alone
-      // must prevent this
+      // Native assistant content must remain plain prose, without a serialized
+      // message wrapper that a speech renderer would read aloud.
       for (const iteration of result.iterations) {
-        for (const send of iteration.sends ?? []) {
-          expect(send.body?.trim().startsWith('{')).not.toBe(true)
-        }
+        expect(iteration.llm?.output.trim().startsWith('{')).not.toBe(true)
       }
 
       // The delivered reply is long-form prose, not serialized data

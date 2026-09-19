@@ -1,15 +1,15 @@
-import { describe, it, expect } from 'vitest'
-
-import { inspect } from './inspect.js'
 import * as _ from 'lodash-es'
-import { init } from './utils.js'
 import { beforeEach } from 'node:test'
+import { describe, it, expect } from 'vitest'
+import { inspect } from './inspect.js'
+import { init } from './utils.js'
 
 const makeBigObject = () => {
   const obj: Record<string, any> = {}
   for (let i = 0; i < 100; i++) {
     obj[`key${i}`] = `value${i}`
   }
+
   return obj
 }
 

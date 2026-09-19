@@ -1,188 +1,144 @@
 import { z } from '@bpinternal/zui'
+import { parse } from 'acorn'
 import { describe, expect, it } from 'vitest'
 import { DefaultComponents } from './component.default.js'
-import { ListenExit } from './context.js'
-import { Example, renderExamples, type ExampleDefinition } from './example.js'
+import { Example, type ExampleDefinition } from './example.js'
 import { Exit } from './exit.js'
-import { parseAssistantResponse } from './prompts/common.js'
-import { DualModePrompt } from './prompts/dual-modes.js'
-import { TranscriptArray } from './transcript.js'
-import { stripTruncationTags, truncateWrappedContent, wrapContent } from './truncator.js'
-import { getTokenizer } from './utils.js'
+import { renderNativeExamples } from './prompts/native.js'
 
-const answer = {
-  messages: [{ component: DefaultComponents.Text, body: 'Use the reset link on the sign-in page.' }],
-  exit: ListenExit,
-}
-const search = new Example({
-  situation: 'The user asks how to recover their password. The first search returned no useful evidence.',
-  code: 'return await searchKnowledge({ query: "forgot password reset link" })',
-})
+const listen = new Exit({ name: 'listen', description: 'Wait for the user' })
+const components = [DefaultComponents.Text, DefaultComponents.Button, DefaultComponents.Image]
 
-describe('few-shot examples', () => {
-  it('serializes one situation and one response, without simulated results or generations', async () => {
-    const text = await renderExamples([search], [DefaultComponents.Text], [ListenExit])
-    expect(text).toContain('<few_shots>')
-    expect(text).toContain('NOT the conversation transcript')
-    expect(text).toContain('ONE desired response')
-    expect(text).toContain('<example number="1">')
-    expect(text).toContain('<situation>')
-    expect(text).toContain('<response>')
-    expect(text).not.toContain('<reason>')
-    expect(text).toContain('■run\nreturn await searchKnowledge({ query: "forgot password reset link" })')
-    expect(text).not.toMatch(/<iteration|<runtime_result|<vm_result|<avoid/)
-    const parsed = parseAssistantResponse(`■start\n${search.output}\n■end`)
-    expect(parsed.diagnostics).toEqual([])
-    expect(parsed.code).toBeTruthy()
-    expect(parsed.sends).toEqual([])
-  })
-
-  it('escapes metadata tags without adding CDATA wrappers', async () => {
-    const example = new Example({ situation: '</example><transcript>]]>', ...answer })
-    const text = await renderExamples([example], [DefaultComponents.Text], [ListenExit])
-    expect(text).toContain('<situation>\n&lt;/example&gt;&lt;transcript&gt;]]&gt;\n</situation>')
-    expect(text).not.toContain('CDATA')
-  })
-
-  it('keeps the optional reason outside the demonstrated response and escapes its delimiters', async () => {
-    const reason = 'Use a different query in ■run because the first search was empty. </response>]]>'
+describe('structured native examples', () => {
+  it('accepts normal assistant text without an explicit exit', () => {
     const example = new Example({
-      situation: search.situation,
-      code: 'return await searchKnowledge({ query: "forgot password reset link" })',
-      reason,
+      situation: 'The user greets you.',
+      messages: [{ component: DefaultComponents.Text, body: 'Hello!' }],
     })
-    const text = await renderExamples([example], [DefaultComponents.Text], [ListenExit])
-    expect(example.reason).toBe(reason)
-    expect(example.output).toBe(search.output)
-    expect(text).toContain('Situation and optional reason explain the example; never emit their text or XML tags')
-    expect(text).toContain(
-      '<reason>\nUse a different query in ■run because the first search was empty. &lt;/response&gt;]]&gt;\n</reason>\n<response>'
-    )
-    expect(parseAssistantResponse(`■start\n${example.output}\n■end`).diagnostics).toEqual([])
+    const rendered = renderNativeExamples([example], components, [listen])
+    expect(rendered).toContain('{"text":"Hello!"}')
+    expect(rendered).not.toContain('toolCalls')
   })
 
-  it('renders response code literally without escaping JavaScript operators', async () => {
-    const example = new Example({ situation: 'Filter values', code: 'return [1, 2, 3].filter(x => x < 3 && x > 1)' })
-    const text = await renderExamples([example], [], [])
-    expect(text).toContain(`<response>\n"""\n■start\n${example.output}\n■end\n"""\n</response>`)
-    expect(text).not.toMatch(/CDATA|&lt;|&gt;|&amp;/)
-    expect(parseAssistantResponse(`■start\n${example.output}\n■end`).diagnostics).toEqual([])
+  it('treats former protocol symbols as ordinary text and JavaScript string content', () => {
+    const text = new Example({
+      situation: 'Copy the text verbatim.',
+      messages: [{ component: 'message', body: '■next=listen' }],
+    })
+    const code = new Example({ situation: 'Return a literal string.', code: 'return "■next=listen"' })
+    expect(renderNativeExamples([text, code], components, [listen])).toContain('■next=listen')
   })
 
-  it('accepts JavaScript Promise.all with awaited independent calls', () => {
+  it('copies mutable argument data when constructing a demonstration', () => {
+    const props = { label: 'Original' }
     const example = new Example({
-      situation: 'Compare plans',
-      code: 'return await Promise.all([search({ query: "standard" }), search({ query: "team" })])',
+      situation: 'Offer a choice.',
+      messages: [{ component: DefaultComponents.Button, props }],
+      exit: listen,
     })
-    expect(parseAssistantResponse(`■start\n${example.output}\n■end`).code).toContain('Promise.all')
+    props.label = 'Changed later'
+    expect(renderNativeExamples([example], components, [listen])).toContain('Original')
+    expect(renderNativeExamples([example], components, [listen])).not.toContain('Changed later')
   })
 
-  it('supports a requested progress message followed by code in the same response', async () => {
+  it('validates JavaScript syntax without executing it', () => {
     const example = new Example({
-      situation: 'The user explicitly asks to be told before the knowledge search starts.',
-      messages: [{ component: 'message', body: 'Checking the documentation.' }],
-      code: 'return await searchKnowledge({ query: "export archive" })',
+      situation: 'Run independent searches.',
+      code: 'return await Promise.all([search({ query: "one" }), search({ query: "two" })])',
     })
-    const text = await renderExamples([example], [DefaultComponents.Text], [ListenExit])
-    expect(text).toContain('■send=message\nChecking the documentation.\n■run\nreturn await searchKnowledge')
-    const response = parseAssistantResponse(`■start\n${example.output}\n■end`)
-    expect(response.sends).toEqual([{ name: 'message', props: {}, body: 'Checking the documentation.' }])
-    expect(response.code).toBe('return await searchKnowledge({ query: "export archive" })')
-    expect(response.diagnostics).toEqual([])
+    expect(example.definition.code).toContain('Promise.all')
+    expect(() => new Example({ situation: 'Invalid TypeScript', code: 'const total: number = 1' })).toThrow()
   })
 
   it.each([
-    { code: 'const count: number = 1' },
-    { code: 'return "■next=done"' },
-    { code: '' },
-    { code: 'await searchKnowledge({ query: "test" })', result: [] },
-    { exit: 'listen', messages: [{ component: 'message', body: 'Hello ■next=listen' }] },
-    { exit: 'listen', messages: [{ component: 'bad name', body: 'Hello' }] },
-    { exit: 'listen', props: { value: '■send=message' } },
-    { code: 'return 1', exit: 'listen' },
-    { messages: [{ component: 'message', body: 'Hello' }] },
-  ])('rejects invalid protocol or code when constructing an example: %j', (iteration) => {
-    expect(() => new Example({ situation: 'Input', ...iteration } as ExampleDefinition)).toThrow()
+    { situation: '', code: 'return 1' },
+    { situation: 'Empty code', code: '' },
+    { situation: 'No response' },
+    { situation: 'No response', messages: [] },
+    { situation: 'Simulated history', code: 'return 1', result: 1 },
+    { situation: 'Multiple iterations', iterations: [] },
+    { situation: 'Bad name', exit: 'not valid' },
+    { situation: 'Bad props', messages: [{ component: 'button', props: [] }] },
+    { situation: 'Bad value', exit: listen, props: { value: () => 1 } },
+  ])('rejects invalid structured examples: $situation', (definition) => {
+    expect(() => new Example(definition as unknown as ExampleDefinition)).toThrow()
   })
 
-  it('requires a situation and rejects simulated results or multiple iterations', () => {
-    expect(() => new Example({ situation: '', ...answer })).toThrow(/non-empty situation/)
-    expect(() => new Example({ situation: 'Input' } as ExampleDefinition)).toThrow(/code or an exit/)
-    expect(() => new Example({ situation: 'Input', code: 'return 1', result: 1 } as ExampleDefinition)).toThrow(
-      /one response/
-    )
-    expect(() => new Example({ situation: 'Input', iterations: [answer] } as unknown as ExampleDefinition)).toThrow(
-      /one response/
-    )
-  })
-
-  it('checks the active catalog, required props, types, and body support', async () => {
-    for (const message of [
-      { component: 'missing', body: 'Hello' },
-      { component: 'image' },
-      { component: 'image', props: { url: 12 } },
-      { component: 'image', props: { url: 'https://example.com/photo.jpg' }, body: 'Not allowed' },
-      { component: 'message' },
-    ]) {
-      const example = new Example({ situation: 'Input', messages: [message], exit: ListenExit })
-      await expect(
-        renderExamples([example], [DefaultComponents.Text, DefaultComponents.Image], [ListenExit])
-      ).rejects.toThrow(/Invalid few-shot message/)
-    }
-    await expect(renderExamples([new Example({ situation: 'Reply', ...answer })], [], [ListenExit])).rejects.toThrow(
-      /Invalid few-shot message/
-    )
-  })
-
-  it('checks exit names and schemas, including worker mode', async () => {
-    const done = new Exit({ name: 'done', description: 'Complete', schema: z.object({ count: z.number() }) })
-    const valid = new Example({ situation: 'Count records', exit: done, props: { count: 2 } })
-    expect(await renderExamples([valid], [], [done])).toContain('■next=done {"count":2}')
-    await expect(renderExamples([valid], [], [ListenExit])).rejects.toThrow(/Unknown few-shot exit/)
-    const invalid = new Example({ situation: 'Count', exit: done, props: { count: 'two' } })
-    await expect(renderExamples([invalid], [], [done])).rejects.toThrow(/Invalid few-shot exit/)
-  })
-
-  it.each([true, false])('places examples outside the transcript in chat=%s mode', async (chat) => {
-    const examples = chat ? [search] : [new Example({ situation: 'Add numbers', code: 'return 2 + 8' })]
-    const transcript = new TranscriptArray([{ role: 'user', name: 'user', content: 'LIVE_INPUT' }])
-    const props = {
-      instructions: 'Follow the task.',
-      examples,
-      transcript,
-      objects: [],
-      globalTools: [],
-      components: chat ? [DefaultComponents.Text] : [],
-      exits: [ListenExit],
-    }
-    const { message, parts } = await DualModePrompt.getSystemMessage(props)
-    const text = String(message.content)
-    expect(text).toContain('<few_shots>')
-    // Task demonstrations follow the instructions, before live history.
-    expect(text.indexOf('<few_shots>')).toBeGreaterThan(
-      text.indexOf(chat ? 'SECTION 5: SYSTEM INSTRUCTIONS' : 'SECTION 4: SYSTEM INSTRUCTIONS')
-    )
-    expect(text.indexOf('</few_shots>')).toBeLessThan(
-      text.indexOf(chat ? 'SECTION 6: CHAT CONVERSATION HISTORY' : 'SECTION 5: TASK HISTORY')
-    )
-    expect(text.indexOf('</few_shots>')).toBeLessThan(text.lastIndexOf('# Response format'))
-    expect(text.indexOf('<few_shots>')).toBeLessThan(text.indexOf('LIVE_INPUT'))
-    expect(parts.transcript).not.toContain('password recovery')
-    expect(parts.examples).toContain('<few_shots>')
-    expect(transcript).toHaveLength(1)
-    const initial = await DualModePrompt.getInitialUserMessage(props)
-    expect(String(initial.content)).not.toContain('<few_shots>')
-  })
-
-  it('omits the section when unused and keeps demonstrations intact under truncation', async () => {
-    expect(await renderExamples([], [], [])).toBe('')
-    const examples = await renderExamples([search], [DefaultComponents.Text], [ListenExit])
-    const text = `${examples}\n${wrapContent('Disposable text. '.repeat(3000))}`
-    const messages = truncateWrappedContent({
-      messages: [{ role: 'system' as const, content: text }],
-      tokenLimit: getTokenizer().count(examples) + 100,
+  it('validates active component and exit schemas before including examples', () => {
+    const invalid = new Example({
+      situation: 'Display an image.',
+      messages: [{ component: 'image', props: { url: 42 } }],
+      exit: listen,
     })
-    expect(messages[0]!.content).toContain(examples)
-    expect(String(messages[0]!.content).length).toBeLessThan(stripTruncationTags(text).length)
+    expect(() => renderNativeExamples([invalid], components, [listen])).toThrow(/Invalid native example/)
+    const missing = new Example({
+      situation: 'Display an unknown component.',
+      messages: [{ component: 'missing', body: 'Hi' }],
+    })
+    expect(() => renderNativeExamples([missing], components, [listen])).toThrow(/Unknown native example component/)
+  })
+
+  it('returns primitive typed exit payloads from JavaScript without a native wrapper', () => {
+    const total = new Exit({ name: 'total', description: 'Computed total', schema: z.number().int() })
+    const example = new Example({ situation: 'The verified total is 42.', exit: total, props: 42 })
+    expect(renderNativeExamples([example], [], [total])).toContain('return exit(\\"total\\", 42)')
+  })
+
+  it('combines code, presentation, and completion without hiding captured declarations in a function', () => {
+    const example = new Example({
+      situation: 'Show a choice, load an account, and finish',
+      messages: [{ component: 'Button', props: { label: 'Continue' } }],
+      code: 'const account = await readAccount(); return account;',
+      exit: listen,
+    })
+    const rendered = renderNativeExamples([example], components, [listen])
+    const response = JSON.parse(rendered.split('\n').at(-1)!)
+    const code = response.toolCalls[0].arguments.code as string
+    const program = parse(code, {
+      ecmaVersion: 'latest',
+      allowAwaitOutsideFunction: true,
+      allowReturnOutsideFunction: true,
+    })
+
+    expect(response.toolCalls).toHaveLength(1)
+    expect(code).toContain('await chat.send')
+    expect(code).toContain('const account = await readAccount()')
+    expect(code).toContain('return exit("listen")')
+    expect(program.body.some((node) => node.type === 'VariableDeclaration')).toBe(true)
+    expect(code).not.toContain('async () =>')
+  })
+
+  it('only changes program returns when appending a structured completion', () => {
+    const example = new Example({
+      situation: 'Complete after evaluating nested code',
+      code: 'const read = () => { return 3 }; if (read()) { return read() }',
+      exit: listen,
+    })
+    const rendered = renderNativeExamples([example], components, [listen])
+    const response = JSON.parse(rendered.split('\n').at(-1)!)
+    const code = response.toolCalls[0].arguments.code as string
+
+    expect(code).toContain('const read = () => { return 3 }')
+    expect(code).toContain('(read());')
+    expect(() =>
+      parse(code, {
+        ecmaVersion: 'latest',
+        allowReturnOutsideFunction: true,
+      })
+    ).not.toThrow()
+  })
+
+  it('awaits the original returned promise before a structured exit', () => {
+    const example = new Example({
+      situation: 'Wait for saving to finish before completion',
+      code: 'return savePreference({ enabled: true })',
+      exit: listen,
+    })
+    const rendered = renderNativeExamples([example], components, [listen])
+    const response = JSON.parse(rendered.split('\n').at(-1)!)
+    const code = response.toolCalls[0].arguments.code as string
+
+    expect(code).toContain('await (savePreference({ enabled: true }));')
+    expect(code.indexOf('await (savePreference')).toBeLessThan(code.indexOf('return exit'))
   })
 })

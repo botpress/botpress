@@ -1,5 +1,5 @@
 import { appendFileSync } from 'node:fs'
-import type { CognitiveMetadata, CognitiveStreamChunk } from '@botpress/cognitive'
+import type { CognitiveMetadata, CognitiveStreamChunk, CognitiveToolCall } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import { describe, expect, it } from 'vitest'
 import { Chat, CitationsManager, DefaultComponents, ThinkSignal, Tool, execute } from '../src/index.js'
@@ -32,36 +32,55 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         const requests: RuntimeGenerateContentInput[] = []
         const metadata: CognitiveMetadata[] = []
         const outputs: string[] = []
+        const toolCallsByGeneration: CognitiveToolCall[][] = []
+
         class Recording extends _CustomModelClient {
           public getModelDetails(ref: string) {
             return client.getModelDetails(ref)
           }
+
           protected request(input: RuntimeGenerateContentInput) {
             requests.push(input)
             return { ...input, maxTokens: 1600, options: { ...input.options, skipCache: true } }
           }
+
           public async generateText(input: RuntimeGenerateContentInput, options?: RuntimeGenerateContentOptions) {
             const result = await client.generateText(this.request(input), options)
             metadata.push(result.metadata)
             outputs.push(result.output)
+            toolCallsByGeneration.push(result.toolCalls ?? [])
             return result
           }
         }
+
         class Streaming extends Recording {
           public async *generateTextStream(
             input: RuntimeGenerateContentInput,
             options?: RuntimeGenerateContentOptions
           ): AsyncGenerator<CognitiveStreamChunk> {
             let output = ''
+            let toolCalls: CognitiveToolCall[] = []
+
             for await (const chunk of client.generateTextStream(this.request(input), options)) {
               expect(chunk.restart).toBeUndefined()
               output += chunk.output ?? ''
-              if (chunk.metadata) metadata.push(chunk.metadata)
+
+              if (chunk.toolCalls) {
+                toolCalls = chunk.toolCalls
+              }
+
+              if (chunk.metadata) {
+                metadata.push(chunk.metadata)
+              }
+
               yield chunk
             }
+
             outputs.push(output)
+            toolCallsByGeneration.push(toolCalls)
           }
         }
+
         let searches = 0
         const delivered: string[] = []
         const extracted: ReturnType<CitationsManager['removeCitationsFromObject']>[1] = []
@@ -112,6 +131,15 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           corpusTokens,
           inputTokens: metadata.map((m) => m.usage.inputTokens),
           actualModels: metadata.map((m) => m.model),
+          generations: metadata.map((generation) => ({
+            model: generation.model,
+            stopReason: generation.stopReason,
+            outputTokens: generation.usage.outputTokens,
+            cached: generation.cached,
+            fallbackPath: generation.fallbackPath ?? [],
+            requestId: generation.requestId ?? null,
+          })),
+          toolCallsByGeneration,
           answer,
           sources,
           expectedSources: fixture.expectedSources,
@@ -120,18 +148,31 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           evidencePreserved: fixture.evidenceTags.every((tag) => finalInput.includes(`<${tag} `)),
           outputs,
           statuses: result.iterations.map((i) => i.status.type),
-          diagnostics: result.iterations.flatMap((i) => i.llm?.diagnostics ?? []),
+          iterationErrors: result.iterations
+            .map((iteration) => iteration.error?.replace(/bp_pat_[A-Za-z0-9]+/g, '[REDACTED]').slice(0, 2000))
+            .filter(Boolean),
+          invalidResponses: result.iterations.filter((iteration) => iteration.status.type === 'invalid_code_error'),
         }
+
         console.info(JSON.stringify(record))
-        if (process.env.LLMZ_EVAL_RECORDS) appendFileSync(process.env.LLMZ_EVAL_RECORDS, JSON.stringify(record) + '\n')
+
+        if (process.env.LLMZ_EVAL_RECORDS) {
+          appendFileSync(process.env.LLMZ_EVAL_RECORDS, JSON.stringify(record) + '\n')
+        }
+
         expect(result.isSuccess(), JSON.stringify(record)).toBe(true)
         expect(searches).toBe(1)
         expect(requests).toHaveLength(2)
         expect(result.iterations.map((i) => i.status.type)).toEqual(['thinking_requested', 'exit_success'])
         expect(record.evidencePreserved).toBe(true)
+
+        // Retrieval evidence must remain intact; diagnostic previews may be shortened.
         expect(finalInput).toContain(fixture.content)
-        expect(finalInput).not.toContain('<truncated>')
-        if (!compact) expect(corpusTokens).toBeGreaterThan(10_000)
+
+        if (!compact) {
+          expect(corpusTokens).toBeGreaterThan(10_000)
+        }
+
         for (const m of metadata) {
           expectModelRoute(m, model)
         }
@@ -144,9 +185,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           JSON.stringify(record)
         ).toEqual([])
         expect(extracted.every((entry) => entry.path === 'root.text' && entry.citation.id >= 0)).toBe(true)
-        expect(
-          record.diagnostics.filter((d) => d.code !== 'unexpected-text' && d.code !== 'example-delimiter')
-        ).toEqual([])
+        expect(record.invalidResponses).toEqual([])
       }
     )
   }

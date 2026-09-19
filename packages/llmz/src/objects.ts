@@ -431,6 +431,11 @@ export class ObjectInstance implements Serializable<ObjectInstance.JSON> {
     return getObjectTypings(this).withProperties().withTools().build()
   }
 
+  /** Callable API only. Property values, schemas, and access rules belong in Memory. */
+  public async getToolTypings() {
+    return getObjectTypings(this).withTools().build()
+  }
+
   /**
    * Converts this ObjectInstance to its JSON representation.
    *

@@ -104,7 +104,8 @@ export const handleErrorNode = (
       stackTrace: debugUserCode,
       started_at: Date.now(),
     })
-    throw new CodeExecutionError(err.message, code, debugUserCode)
+    const originalErrorName = err instanceof CodeExecutionError ? err.originalErrorName : err.name
+    throw new CodeExecutionError(err.message, code, debugUserCode, originalErrorName)
   }
 }
 
@@ -208,7 +209,8 @@ function formatError(
       started_at: Date.now(),
     })
 
-    const codeError = new CodeExecutionError(err.message, code, debugUserCode)
+    const originalErrorName = err instanceof CodeExecutionError ? err.originalErrorName : err.name
+    const codeError = new CodeExecutionError(err.message, code, debugUserCode, originalErrorName)
     const deserializedError = Signals.maybeDeserializeError(codeError)
 
     return {

@@ -47,14 +47,20 @@ const PlaneTicketComponent = new Component({
       price: z.number().optional().describe('The price of the ticket'),
     }),
   },
-  // Provide usage examples to guide the LLM
-  examples: [
-    {
-      name: 'PlaneTicket',
-      description: 'A simple plane ticket example',
-      code: '<PlaneTicket from="New York" to="Los Angeles" date="2023-10-01" price={299.99} ticketNumber="ABC-0000000" />',
-    },
-  ],
+  generation: {
+    usage: 'Display the confirmed ticket returned by purchase_ticket.',
+    examples: [
+      {
+        props: {
+          from: 'New York',
+          to: 'Los Angeles',
+          date: '2025-10-01',
+          price: 299.99,
+          ticketNumber: 'TICKET-345633',
+        },
+      },
+    ],
+  },
 })
 
 // Tool for purchasing tickets - generates data for the component
