@@ -79,8 +79,12 @@ describe('native prompt', () => {
 
     if (chat) {
       expect(text).toContain('declare const chat:')
+      expect(text).not.toContain('Keep assistant text empty:')
     } else {
       expect(text).not.toMatch(/\bchat\b|# Assistant response/)
+      expect(text).toContain('Respond only with a run_javascript tool call')
+      expect(text).toContain('Keep assistant text empty:')
+      expect(text).toContain('during recovery, and when completing the task')
     }
   })
 

@@ -105,6 +105,19 @@ describe('native generation', () => {
       mode: chat ? 'auto' : 'required',
       parallel: false,
     })
+
+    const request = base.generateText.mock.calls[0]![0]
+    const description = request.tools![0]!.description!
+    const guidance = String(request.messages.at(-1)?.content)
+    if (chat) {
+      expect(description).toContain('write the requested text as a preamble')
+      expect(guidance).not.toContain('Keep assistant text empty:')
+    } else {
+      expect(description).toContain('Keep assistant text empty:')
+      expect(description).not.toContain('write the requested text as a preamble')
+      expect(guidance).toContain('Keep assistant text empty:')
+      expect(guidance).not.toContain('If requested, include the update')
+    }
   })
 
   it('does not dispatch code when a worker stream says Done and then fails', async () => {
@@ -140,6 +153,7 @@ describe('native generation', () => {
       expect(guidance).toContain('return exit("NAME", payload) from run_javascript')
       expect(guidance).toContain('incomplete or error payload only when the exit schema permits it')
       expect(guidance).toContain('Assistant prose and inspection returns do not complete a worker')
+      expect(guidance).toContain('Keep assistant text empty:')
       expect(guidance).not.toContain('or an honest final answer')
     }
   })

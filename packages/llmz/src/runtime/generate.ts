@@ -13,7 +13,7 @@ import { prepareAutoCompaction } from '../session/compactor.js'
 import { stableJSON } from '../session/json.js'
 import type { Transcript } from '../session/transcript.js'
 import { getErrorMessage } from '../utils.js'
-import { RUN_JAVASCRIPT_TOOL } from './native-tools.js'
+import { getRunJavaScriptTool, WORKER_RESPONSE_INSTRUCTION } from './native-tools.js'
 import { countNativeRequestTokens, resolveTokenBudget } from './token-budget.js'
 import type { ExecutionHooks, RuntimeCognitive } from './types.js'
 
@@ -224,7 +224,7 @@ async function prepareNativeRequest({
   const model = models[0]!
   // The same request can reach any fallback, so it must fit every candidate.
   const { limit, output: reserve } = resolveTokenBudget(models, ctx.maxTokens)
-  const tools = [RUN_JAVASCRIPT_TOOL]
+  const tools = [getRunJavaScriptTool(!!ctx.chat)]
   const system = [iteration.systemMessage]
   const budgetInstruction = getBudgetInstruction(ctx, iteration)
   const budget = `\n\nExecution budget: response ${ctx.iterations.length} of ${ctx.loop}. ${budgetInstruction}`
@@ -311,7 +311,11 @@ async function prepareNativeRequest({
 
 function getBudgetInstruction(ctx: Context, iteration: Iteration): string {
   if (ctx.iterations.length < ctx.loop) {
-    return 'Inspect business results that need interpretation before completing; never guess missing completion fields. Once the required facts are known, complete using retained values without repeating successful calls. Component delivery needs no inspection. Keep lookups and retries silent unless progress updates were requested. If requested, include the update alongside the continuing call.'
+    const delivery = ctx.chat
+      ? 'Component delivery needs no inspection. Keep lookups and retries silent unless progress updates were requested. If requested, include the update alongside the continuing call.'
+      : WORKER_RESPONSE_INSTRUCTION
+
+    return `Inspect business results that need interpretation before completing; never guess missing completion fields. Once the required facts are known, complete using retained values without repeating successful calls. ${delivery}`
   }
 
   if (ctx.chat) {
@@ -319,10 +323,10 @@ function getBudgetInstruction(ctx: Context, iteration: Iteration): string {
   }
 
   if (!iteration.exits.length) {
-    return 'This is the last response. Every JavaScript program must explicitly return inspect(value) with the available evidence. Do not start work that needs another model response.'
+    return `${WORKER_RESPONSE_INSTRUCTION} This is the last response. Every JavaScript program must explicitly return inspect(value) with the available evidence. Do not start work that needs another model response.`
   }
 
-  return 'This is the last response. Finish with return exit("NAME", payload) from run_javascript, using a registered name. Build the payload from inspected $return and retained variables; do not repeat successful lookups to reconstruct it. If the task is incomplete, report it honestly with an incomplete or error payload only when the exit schema permits it. Assistant prose and inspection returns do not complete a worker. Do not start work that requires another model response.'
+  return `${WORKER_RESPONSE_INSTRUCTION} This is the last response. Finish with return exit("NAME", payload) from run_javascript, using a registered name. Build the payload from inspected $return and retained variables; do not repeat successful lookups to reconstruct it. If the task is incomplete, report it honestly with an incomplete or error payload only when the exit schema permits it. Assistant prose and inspection returns do not complete a worker. Do not start work that requires another model response.`
 }
 
 async function consumeNativeStream({

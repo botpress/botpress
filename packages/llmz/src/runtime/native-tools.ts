@@ -1,5 +1,8 @@
 import type { CognitiveTool, CognitiveToolCall } from '@botpress/cognitive'
 
+export const WORKER_RESPONSE_INSTRUCTION =
+  'You are running in worker mode. Respond only with a run_javascript tool call. Keep assistant text empty: do not send messages, preambles, progress updates, explanations, acknowledgements such as "Done", Markdown, or JSON outside the tool call. This applies before and after tools, during recovery, and when completing the task.'
+
 export const RUN_JAVASCRIPT_TOOL: CognitiveTool = {
   name: 'run_javascript',
   description:
@@ -16,6 +19,18 @@ export const RUN_JAVASCRIPT_TOOL: CognitiveTool = {
     required: ['code'],
     additionalProperties: false,
   },
+}
+
+/** Select delivery guidance without changing the native tool name or input schema. */
+export function getRunJavaScriptTool(chat: boolean): CognitiveTool {
+  if (chat) {
+    return RUN_JAVASCRIPT_TOOL
+  }
+
+  return {
+    ...RUN_JAVASCRIPT_TOOL,
+    description: `${WORKER_RESPONSE_INSTRUCTION} See "run_javascript syntax" and the documented functions and memory.`,
+  }
 }
 
 export type ValidatedNativeCall = {

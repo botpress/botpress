@@ -25,7 +25,7 @@ import {
   type JavaScriptOutcome,
   type PreparedMessage,
 } from './javascript-api.js'
-import { validateNativeToolCalls, type ValidatedNativeCall } from './native-tools.js'
+import { validateNativeToolCalls, WORKER_RESPONSE_INSTRUCTION, type ValidatedNativeCall } from './native-tools.js'
 import type { ExecutionHooks, ExecutionProps, RuntimeCognitive } from './types.js'
 import { finalizeIteration } from './utils.js'
 import { buildVMContext } from './vm-context.js'
@@ -536,6 +536,10 @@ async function finishNativeResponse(state: IterationExecution, generated: Native
     reason = generated.toolCalls.length
       ? 'Every run_javascript program must explicitly return inspect(value) or return exit(name, payload). Use return exit("listen") to wait for the user.'
       : 'Reply with assistant text, or use run_javascript with an explicit return inspect(value) or return exit(name, payload). Use return exit("listen") to wait for the user.'
+  }
+
+  if (!ctx.chat) {
+    reason = `${WORKER_RESPONSE_INSTRUCTION} ${reason}`
   }
 
   iteration.end({

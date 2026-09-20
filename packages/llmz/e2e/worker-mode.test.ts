@@ -18,6 +18,10 @@ function assertSuccess(result: ExecutionResult): asserts result is SuccessExecut
     result instanceof SuccessExecutionResult,
     `Expected result to be success but got ${result.status}\n${result.isError() ? result.error : ''}`.trim()
   )
+
+  for (const iteration of result.iterations) {
+    expect(iteration.llm?.output ?? '').toBe('')
+  }
 }
 
 const exec = (result: ExecutionResult) => {

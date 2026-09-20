@@ -1,5 +1,6 @@
 import { resolveResponse } from '../chat/response.js'
 import { formatTypings } from '../formatting.js'
+import { WORKER_RESPONSE_INSTRUCTION } from '../runtime/native-tools.js'
 import { getTypings } from '../typings.js'
 import { getMultilineComment } from '../utils.js'
 import type { LLMzPrompts } from './prompt.js'
@@ -32,10 +33,14 @@ function runtimeRules(props: LLMzPrompts.InitialStateProps, chat: boolean): stri
       "Follow the task's response constraints exactly. When exact text is requested, reproduce it byte-for-byte, without a greeting, explanation, translation, or extra whitespace. Do not add a leading or trailing space or newline, including before a tool call. This constrains assistant text, not the tool calls needed to carry out the task. Response style applies to free-form prose; it must not rewrite supplied text or code that the task asks you to preserve, including whitespace, quotes, and escapes. When transcribing source, check each line against the supplied source rather than completing familiar patterns from memory.",
       'Keep routine business lookups and recovery silent unless progress updates are requested; answer from inspected results. This does not suppress text explicitly requested alongside components. When more work remains, send a requested progress update alongside the run_javascript call that continues that work; a text-only update ends the turn.'
     )
-  } else if (hasExits) {
-    rules.push(
-      'Complete the assigned task with return exit("NAME", payload) inside JavaScript. Assistant prose alone does not complete a worker task. Every worker response, including completion after an inspection, must call run_javascript. Return the completion payload through exit, never as assistant text or a Markdown/JSON response.'
-    )
+  } else {
+    rules.push(WORKER_RESPONSE_INSTRUCTION)
+
+    if (hasExits) {
+      rules.push(
+        'Complete the assigned task with return exit("NAME", payload) inside JavaScript. Assistant prose alone does not complete a worker task. Every worker response, including completion after an inspection, must call run_javascript. Return the completion payload through exit, never as assistant text or a Markdown/JSON response.'
+      )
+    }
   }
 
   if (hasExits) {

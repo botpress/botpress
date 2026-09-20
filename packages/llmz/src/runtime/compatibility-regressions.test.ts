@@ -80,6 +80,7 @@ describe('worker completion guidance', () => {
     const correction = String(client.requests[1]!.messages.at(-1)?.content)
 
     expect(correction).toContain('must explicitly return inspect(value)')
+    expect(correction).toContain('Keep assistant text empty:')
     expect(correction).not.toMatch(/\b(?:exit|listen|chat)\b/)
   })
 
@@ -97,6 +98,7 @@ describe('worker completion guidance', () => {
     const correction = String(client.requests[1]?.messages.at(-1)?.content)
 
     expect(correction).toContain('This is a worker task.')
+    expect(correction).toContain('Keep assistant text empty:')
     expect(correction).toContain('return exit(name, payload) with a registered name')
     expect(correction).not.toContain('Reply with assistant text')
     expect(correction).not.toContain('or an honest final answer')

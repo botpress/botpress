@@ -4,7 +4,7 @@ import { appendFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
 import { getNativeSystemMessage } from '../src/prompts/native.js'
-import { RUN_JAVASCRIPT_TOOL } from '../src/runtime/native-tools.js'
+import { getRunJavaScriptTool } from '../src/runtime/native-tools.js'
 import { normalizeInput } from '../src/session/messages.js'
 
 import {
@@ -66,7 +66,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         temperature: 0.7,
         reasoningEffort: 'none',
         maxTokens: 1600,
-        tools: [RUN_JAVASCRIPT_TOOL],
+        tools: [getRunJavaScriptTool(chatEnabled)],
         toolControl: { mode: chatEnabled ? 'auto' : 'required', parallel: false },
         options: { skipCache: true },
       }

@@ -95,6 +95,8 @@ return exit('done', { accountId: account.id })
 
 `inspect(value)` exposes a preview in the next model request. Exact retained values remain available to JavaScript. `exit(name, payload)` validates a completion payload against its registered exit. Normal returned data does not complete a worker.
 
+Worker prompts require every response to be a `run_javascript` call with empty assistant text, including during recovery and completion. Workers must not emit preambles, progress updates, or acknowledgements such as “Done.” Results are inspected or returned through a registered exit.
+
 | Value             | Lifetime                                                                     |
 | ----------------- | ---------------------------------------------------------------------------- |
 | Named variables   | Remain in session memory across executions and history compaction.           |
