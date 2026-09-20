@@ -1,6 +1,7 @@
 import { z } from '@bpinternal/zui'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
+import { ThinkSignal } from '../errors.js'
 import { Exit } from '../exit.js'
 import { truncate } from '../index.js'
 import type { InspectEvent, OnInspect } from '../inspection.js'
@@ -157,6 +158,31 @@ return inspect(evidence);`,
     })
     expect(result.session.getBindings().$return).toBe(rag)
     expect(JSON.stringify(result.session.toJSON())).not.toContain('$$truncate')
+  })
+
+  test.each([false, true])('applies explicit interruption context budgets: %s', async (explicit) => {
+    const client = new NativeClient([
+      javascript('await search(); return inspect("unreachable");'),
+      javascript('return exit("done", { value: true });'),
+    ])
+    const search = new Tool({
+      name: 'search',
+      handler: async () => {
+        throw new ThinkSignal('Read the search evidence.', explicit ? truncate({ value: rag, maxTokens: 40_000 }) : rag)
+      },
+    })
+    const result = await executeContext({
+      client,
+      tools: [search],
+      exits: [done],
+      options: { toolResultMaxTokens: 64 },
+    })
+    expect(result.is(done)).toBe(true)
+    const report = String(client.requests[1]!.messages.find((message) => message.type === 'tool_result')?.content)
+    const preview = report.split('Interruption context\n')[1]!.split('\n\n<runtime-memory>')[0]!
+    expect(preview.includes('LATE_RAG_EVIDENCE')).toBe(explicit)
+    expect(getTokenizer().count(preview, { approximate: false })).toBeLessThanOrEqual(explicit ? 40_000 : 64)
+    expect(preview).not.toContain('$$truncate')
   })
 
   test.each(['top', 'bottom', 'both'] as const)('preserves the requested %s of a wrapped result', async (preserve) => {

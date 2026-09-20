@@ -24,10 +24,11 @@
   "scripts": {
     "build": "tsdown && pnpm tsc --emitDeclarationOnly --noCheck",
     "check:type": "tsc --noEmit",
+    "check:e2e:type": "tsc -p tsconfig.e2e.json",
     "check:docs": "node scripts/check-docs.mjs",
     "watch": "tsdown --watch",
     "test": "vitest --run",
-    "test:e2e": "vitest run --config vitest.e2e.config.ts",
+    "test:e2e": "pnpm check:e2e:type && vitest run --config vitest.e2e.config.ts",
     "test:e2e:update": "vitest -u run --config vitest.e2e.config.ts",
     "test:e2e:watch": "vitest --config vitest.e2e.config.ts",
     "review:protocol": "tsc -p scripts/protocol-review/tsconfig.json && node --import tsx scripts/review-protocol.mts",

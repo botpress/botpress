@@ -4,7 +4,8 @@ import { appendFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
 import { getNativeSystemMessage } from '../src/prompts/native.js'
-import { RUN_JAVASCRIPT_TOOL, transcriptToNativeMessages } from '../src/runtime/native-tools.js'
+import { RUN_JAVASCRIPT_TOOL } from '../src/runtime/native-tools.js'
+import { normalizeInput } from '../src/session/messages.js'
 
 import {
   cases,
@@ -29,7 +30,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
       protocolMatrix.flatMap((scenario) => [false, true].map((streaming) => ({ scenario, streaming, id: scenario.id })))
     )('$id streaming=$streaming', { retry: 0, timeout: 60000 }, async ({ scenario, streaming }) => {
       const system = await getNativeSystemMessage(scenario.props)
-      const messages: CognitiveRequest['messages'] = [system.message, ...transcriptToNativeMessages(scenario.messages)]
+      const messages: CognitiveRequest['messages'] = [system.message, ...scenario.messages.map(normalizeInput)]
 
       if (scenario.history) {
         messages.push(

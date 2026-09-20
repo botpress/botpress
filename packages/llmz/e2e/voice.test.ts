@@ -4,7 +4,7 @@ import { Exit } from '../src/exit.js'
 import { ExecutionResult, SuccessExecutionResult } from '../src/result.js'
 import { Session } from '../src/session.js'
 import * as llmz from '../src/runtime/execute.js'
-import { transcriptToNativeMessages } from '../src/runtime/native-tools.js'
+import { normalizeInput } from '../src/session/messages.js'
 import type { Transcript } from '../src/transcript.js'
 
 import { createTestChat } from './__tests__/chat.js'
@@ -39,10 +39,10 @@ describe('voice messages', () => {
         voiceMessage(),
       ]
 
-      const messages = transcriptToNativeMessages(transcript)
+      const messages = transcript.map(normalizeInput)
       expect(messages.map((message) => message.role)).toEqual(['user', 'assistant', 'user'])
       expect(messages[0]?.content).toBe('Hello!')
-      expect(JSON.stringify(messages[2])).toContain('[Voice message]')
+      expect(JSON.stringify(messages[2])).toContain('Voice message (transcript):')
       expect(messages[2]?.type).toBe('multipart')
     })
 
@@ -51,15 +51,15 @@ describe('voice messages', () => {
         { role: 'user', content: 'What is the capital of France?', modality: 'voice' },
       ]
 
-      const message = transcriptToNativeMessages(transcript)[0]!
+      const message = transcript.map(normalizeInput)[0]!
 
       assert(typeof message.content === 'string', 'Expected a plain text message')
-      expect(message.content).toContain('[Voice message; transcribed]')
+      expect(message.content).toContain('Voice message (transcript):')
       expect(message.content).toContain('What is the capital of France?')
     })
 
     it('sends the audio to the model with explicit voice framing', async () => {
-      const message = transcriptToNativeMessages([voiceMessage()])[0]!
+      const message = normalizeInput(voiceMessage())
 
       assert(Array.isArray(message.content), 'Expected a multipart message')
 
@@ -71,7 +71,7 @@ describe('voice messages', () => {
 
       expect(audioParts).toHaveLength(1)
       expect(audioParts[0]!.url).toMatch(/^data:audio\/wav;base64,/)
-      expect(text).toContain('[Voice message]')
+      expect(text).toContain('Voice message (transcript):')
     })
   })
 
@@ -291,18 +291,18 @@ describe('voice messages', () => {
     }
 
     it('retains attachment IDs and descriptions in native multipart messages', () => {
-      const message = transcriptToNativeMessages([screenShareMessage()])[0]!
+      const message = normalizeInput(screenShareMessage())
       assert(Array.isArray(message.content), 'Expected a multipart message')
       const text = message.content
         .filter((part) => part.type === 'text')
         .map((part) => part.text)
         .join('\n')
 
-      expect(text).toContain('[Voice message]')
-      expect(text).toContain('Attachment screenshot-A')
-      expect(text).toContain('Attachment screenshot-B')
-      expect(text).toContain('Attachment screenshot-C')
-      expect(text).toContain("Attachment voice-note: the user's spoken narration")
+      expect(text).toContain('Voice message (transcript):')
+      expect(text).toContain('Attachment "screenshot-A"')
+      expect(text).toContain('Attachment "screenshot-B"')
+      expect(text).toContain('Attachment "screenshot-C"')
+      expect(text).toContain('Attachment "voice-note": the user\'s spoken narration')
       expect(message.content.filter((part) => part.type === 'image')).toHaveLength(3)
       expect(message.content.filter((part) => part.type === 'audio')).toHaveLength(1)
     })

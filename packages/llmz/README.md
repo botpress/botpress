@@ -144,6 +144,7 @@ Streaming requires a client with `generateTextStream`. See [streaming semantics]
 ```sh
 pnpm test
 pnpm check:type
+pnpm check:e2e:type
 pnpm check:docs
 pnpm check:lint
 pnpm check:format

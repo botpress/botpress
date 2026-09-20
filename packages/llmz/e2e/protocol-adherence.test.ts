@@ -2,11 +2,8 @@ import type { CognitiveRequest, CognitiveMetadata, CognitiveToolCall } from '@bo
 import { describe, expect, it } from 'vitest'
 
 import { getNativeSystemMessage } from '../src/prompts/native.js'
-import {
-  RUN_JAVASCRIPT_TOOL,
-  transcriptToNativeMessages,
-  validateNativeToolCalls,
-} from '../src/runtime/native-tools.js'
+import { RUN_JAVASCRIPT_TOOL, validateNativeToolCalls } from '../src/runtime/native-tools.js'
+import { normalizeInput } from '../src/session/messages.js'
 
 import { cases, client, expectAllowedRestart, expectModelRoute, models } from './__tests__/model-evaluation.js'
 import { protocolScenario, protocolScenarios } from './__tests__/protocol-scenarios.js'
@@ -22,7 +19,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
       async ({ question, streaming }) => {
         const { messages: input, ...props } = protocolScenario(question)
         const system = await getNativeSystemMessage(props)
-        const messages = [system.message, ...transcriptToNativeMessages(input)]
+        const messages = [system.message, ...input.map(normalizeInput)]
         const request: CognitiveRequest = {
           model,
           temperature: 0.7,

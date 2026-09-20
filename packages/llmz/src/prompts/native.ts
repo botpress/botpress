@@ -10,6 +10,7 @@ const runJavaScriptSyntax = [
   'The code string is the body of an async JavaScript program. Top-level await and return are supported. Send plain JavaScript without Markdown fences, an enclosing function, type annotations, imports, or JSX. eval, Function constructors, and dynamically generated code are not supported.',
   'Make at most one run_javascript call per response. Put multiple operations in that program: await dependent business calls in order, or await Promise.all for independent operations when safe. Await all business operations before the final return, including unfinished siblings after a Promise.all failure.',
   'Use only the functions documented in the JavaScript API and variables listed in Memory. Do not assume browser, network, filesystem, or package APIs are available.',
+  'Match each function signature exactly. A string parameter takes a string, not an object containing that string.',
 ].join('\n\n')
 
 function runtimeRules(props: LLMzPrompts.InitialStateProps, chat: boolean): string {
@@ -27,17 +28,17 @@ function runtimeRules(props: LLMzPrompts.InitialStateProps, chat: boolean): stri
   if (chat) {
     rules.push(
       'Reply to the user with normal assistant text. Assistant text streams normally and is visible to the user. A completed response without tool calls finishes the turn. Keep private reasoning out of assistant text.',
-      'Text accompanying a tool call may describe known progress, not unseen outcomes. Keep routine calls and recovery silent unless progress updates are requested; answer after inspecting the results.'
+      'Text accompanying a tool call may describe known progress, not unseen outcomes. Keep routine calls and recovery silent unless progress updates are requested; answer after inspecting the results. When more work remains, send a requested progress update alongside the run_javascript call that continues that work; a text-only update ends the turn.'
     )
   } else if (hasExits) {
     rules.push(
-      'Complete the assigned task with return exit("NAME", payload) inside JavaScript. Assistant prose alone does not complete a worker task.'
+      'Complete the assigned task with return exit("NAME", payload) inside JavaScript. Assistant prose alone does not complete a worker task. Every worker response, including completion after an inspection, must call run_javascript. Return the completion payload through exit, never as assistant text or a Markdown/JSON response.'
     )
   }
 
   if (hasExits) {
     rules.push(
-      'Complete all required work before returning the registered exit. JavaScript can compute its payload from tool results without another model response. Completion validates the payload and requires its hook to succeed.'
+      'Complete all required work before returning the registered exit. JavaScript can compute its payload from tool results without another model response. Completion validates the payload and requires its hook to succeed. Omit the payload when an exit signature has no payload parameter.'
     )
   }
 
@@ -58,6 +59,12 @@ function runtimeRules(props: LLMzPrompts.InitialStateProps, chat: boolean): stri
       'Send rich messages with the registered chat methods. Each method accepts its documented props, sends synchronously, and returns void; do not await it. Messages are delivered in invocation order. A component call does not finish the program; follow it with the required return.',
       'Never print a rich-message description instead of sending its component. Reuse acknowledged deliveries; a failed delivery may have an uncertain external outcome.'
     )
+
+    if (listen) {
+      rules.push(
+        `After sending all requested components, finish in the same program with return exit(${JSON.stringify(listen.name)}) when waiting for the user. Returning inspect(undefined) requests another response and does not finish the turn.`
+      )
+    }
   }
 
   rules.push(

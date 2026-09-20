@@ -8,7 +8,7 @@ import {
   type RuntimeGenerateContentInput,
   type RuntimeGenerateContentOptions,
 } from '../src/custom-client.js'
-import { CitationsManager, ThinkSignal, Tool, execute } from '../src/index.js'
+import { CitationsManager, ThinkSignal, Tool, execute, truncate } from '../src/index.js'
 import { buildSearchChallenge, longSearchChallenges } from '../src/runtime/fixtures/long-search.js'
 import { Session } from '../src/session.js'
 import { getTokenizer } from '../src/utils.js'
@@ -96,7 +96,15 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           output: z.string(),
           handler: async () => {
             searches++
-            throw new ThinkSignal(fixture.reason, fixture.content)
+            // This scenario deliberately exposes the complete retrieval corpus.
+            // Ordinary tool previews use the runtime's smaller default budget.
+            throw new ThinkSignal(
+              fixture.reason,
+              truncate({
+                value: fixture.content,
+                maxTokens: getTokenizer().count(fixture.content, { approximate: false }) + 2000,
+              })
+            )
           },
         })
         const session = new Session()
