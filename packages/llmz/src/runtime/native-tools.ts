@@ -1,6 +1,4 @@
-import type { CognitiveMessage, CognitiveTool, CognitiveToolCall } from '@botpress/cognitive'
-import { inspect } from '../inspect.js'
-import { isVoiceMessage, type Transcript } from '../transcript.js'
+import type { CognitiveTool, CognitiveToolCall } from '@botpress/cognitive'
 
 export const RUN_JAVASCRIPT_TOOL: CognitiveTool = {
   name: 'run_javascript',
@@ -61,56 +59,4 @@ export function validateNativeToolCalls(calls: readonly CognitiveToolCall[]): Na
   }
 
   return { valid: true, call: { id: call.id, code: input.code } }
-}
-
-function getTranscriptText(entry: Transcript.Message): string {
-  if (entry.role === 'event') {
-    const payload = inspect(entry.payload, undefined, { tokens: 5000 }) ?? 'undefined'
-
-    return `Event: ${entry.name}\n${payload}`
-  }
-
-  if (entry.role === 'summary') {
-    return `Earlier conversation summary:\n${entry.content}`
-  }
-
-  const text = entry.name ? `[${entry.name}]\n${entry.content}` : entry.content
-
-  if (isVoiceMessage(entry)) {
-    const hasAudio = entry.role === 'user' && entry.attachments?.some((attachment) => attachment.type === 'audio')
-    const label = hasAudio ? '[Voice message]' : '[Voice message; transcribed]'
-
-    return `${label}\n${text}`
-  }
-
-  return text
-}
-
-/** Attach media to its actual turn; never collect old attachments onto a new user message. */
-export function transcriptToNativeMessages(transcript: readonly Transcript.Message[]): CognitiveMessage[] {
-  return Array.from(transcript, (entry): CognitiveMessage => {
-    const role = entry.role === 'assistant' ? 'assistant' : 'user'
-    const text = getTranscriptText(entry)
-
-    const attachments = 'attachments' in entry ? entry.attachments : undefined
-
-    if (!attachments?.length) {
-      return { role, content: text }
-    }
-
-    const content: Exclude<CognitiveMessage['content'], string | null> = [{ type: 'text', text }]
-
-    for (const attachment of attachments) {
-      if (attachment.id || attachment.alt) {
-        content.push({
-          type: 'text',
-          text: [attachment.id && `Attachment ${attachment.id}`, attachment.alt].filter(Boolean).join(': '),
-        })
-      }
-
-      content.push({ type: attachment.type, url: attachment.url })
-    }
-
-    return { role, type: 'multipart', content }
-  })
 }

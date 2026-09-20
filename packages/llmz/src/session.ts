@@ -1,39 +1,36 @@
-import type { CognitiveMessage, CognitiveToolCall } from '@botpress/cognitive'
 import { ulid } from 'ulid'
-
-import { createInspector, type Inspector } from './inspection.js'
-import {
-  cloneMemoryValue,
-  decodeMemoryValue,
-  encodeMemoryValue,
-  freezeMemoryValue,
-  type EncodedMemoryValue,
-  type MemoryValue,
-} from './memory-codec.js'
+import type { Inspector } from './inspection.js'
+import { cloneMemoryValue, freezeMemoryValue, type MemoryValue } from './memory-codec.js'
 import { renderMemory } from './memory-render.js'
 import { Memory, type MemoryAssignment, type MemoryReport } from './memory.js'
-import { type Transcript, validateTranscriptMessage, isVoiceMessage } from './transcript.js'
+import {
+  compactHistory,
+  pendingCallIds,
+  validateBatch,
+  type HistoryGroup,
+  type SessionIteration,
+  type SessionIterationRecord,
+} from './session/history.js'
+import { assertPersistableData, stableJSON } from './session/json.js'
+import {
+  normalizeInput,
+  createAssistantMessage,
+  withMemoryOverview,
+  type SessionMessage,
+  type SessionInput,
+  type AssistantResponse,
+} from './session/messages.js'
+import {
+  serializeGroup,
+  restoreGroup,
+  resultBytes,
+  validateRestoredHistory,
+  type SessionState,
+  type PendingInput,
+} from './session/serialization.js'
 
-/** A native message plus opaque adapter fields, preserved without interpreting them. */
-export type SessionMessage = CognitiveMessage & Record<string, unknown>
-
-export type SessionInput = CognitiveMessage | Transcript.Message
-
-export type SessionIteration = {
-  id: string
-  number: number
-  turn: number
-  turnId: string
-  timestamp: number
-}
-
-export type SessionIterationRecord = SessionIteration & {
-  outcome: string
-  error?: string
-  hasResult: boolean
-  result?: MemoryValue
-  unavailable?: string
-}
+export type { SessionMessage, SessionInput } from './session/messages.js'
+export type { SessionIteration, SessionIterationRecord } from './session/history.js'
 
 export type IterationCapture = MemoryAssignment & {
   id: string
@@ -42,48 +39,14 @@ export type IterationCapture = MemoryAssignment & {
   result?: unknown
 }
 
-type HistoryGroup = {
-  id: string
-  turn: number
-  iteration?: SessionIterationRecord
-  messages: SessionMessage[]
-}
-
-type SerializedHistoryGroup = Omit<HistoryGroup, 'iteration'> & {
-  iteration?: Omit<SessionIterationRecord, 'result'> & { result?: EncodedMemoryValue }
-}
-
 type ActiveIteration = {
   group: HistoryGroup & { iteration: SessionIterationRecord }
   captured: boolean
   following: HistoryGroup[]
 }
 
-type PendingInput = {
-  id: string
-  message: SessionMessage
-}
-
-type AssistantResponse = {
-  output: string
-  toolCalls?: CognitiveToolCall[]
-  assistantMessage?: CognitiveMessage
-  continuation?: unknown
-}
-
 export namespace Session {
-  export type JSON = {
-    version: 3
-    id: string
-    turn: number
-    turnId: string
-    iteration: number
-    groups: SerializedHistoryGroup[]
-    memory: ReturnType<Memory['serialize']>
-    pendingInputs: PendingInput[]
-    activeTurn: boolean
-    latestResultId?: string
-  }
+  export type JSON = SessionState
 }
 
 /**
@@ -121,11 +84,11 @@ export class Session {
   }
 
   public get messages(): SessionMessage[] {
-    return clone(this.#allGroups().flatMap((group) => group.messages))
+    return structuredClone(this.#allGroups().flatMap((group) => group.messages))
   }
 
   public get pendingMessages(): SessionMessage[] {
-    return clone(this.#pendingInputs.map((input) => input.message))
+    return structuredClone(this.#pendingInputs.map((input) => input.message))
   }
 
   public get hasActiveTurn(): boolean {
@@ -288,7 +251,7 @@ export class Session {
     const message = createAssistantMessage(response)
 
     if (response.continuation !== undefined) {
-      message.continuation = clone(response.continuation)
+      message.continuation = structuredClone(response.continuation)
     }
 
     if (message.role !== 'assistant') {
@@ -370,14 +333,16 @@ export class Session {
           throw new Error(captureFailure.reason)
         }
 
-        entry.result = cloneMemoryValue(input.result)
-        entry.hasResult = true
+        active.group.iteration = {
+          ...entry,
+          hasResult: true,
+          result: cloneMemoryValue(input.result),
+          unavailable: undefined,
+        }
         this.memory.assertCapacity()
-        delete entry.unavailable
         report.resultAvailable = true
       } catch (error) {
-        delete entry.result
-        entry.hasResult = false
+        active.group.iteration = { ...entry, hasResult: false, result: undefined }
 
         if (!report.unavailable.some((item) => item.name === '$return')) {
           report.unavailable.push({
@@ -388,7 +353,7 @@ export class Session {
       }
 
       // An unavailable latest result must never expose an earlier successful result.
-      this.#latestResultId = entry.hasResult ? entry.id : undefined
+      this.#latestResultId = active.group.iteration.hasResult ? entry.id : undefined
     }
 
     return report
@@ -467,60 +432,49 @@ export class Session {
    * the dynamic inventory is generated once, on the final eligible input only.
    */
   public requestMessages(
-    options: { memory?: boolean | string; now?: number; maxMemoryChars?: number; inspector?: Inspector } = {}
+    options: {
+      memory?: boolean | string
+      now?: number
+      maxMemoryChars?: number
+      inspector?: Inspector
+      /** Preview compaction without discarding retained history or results. */
+      retainedIterationIds?: Iterable<string>
+    } = {}
   ): SessionMessage[] {
     if (this.pendingCalls.length) {
       throw new Error('Cannot request generation before all native calls have results.')
     }
 
-    const messages = this.messages
-
+    const retained = options.retainedIterationIds === undefined ? undefined : new Set(options.retainedIterationIds)
+    const groups = retained
+      ? compactHistory(this.#allGroups(), retained, this.#turn, this.#activeIteration?.group.id)
+      : this.#allGroups()
+    const messages = groups.flatMap((group) => group.messages)
     if (options.memory === false) {
-      return messages
+      return withMemoryOverview(messages)
     }
 
     const overview =
       typeof options.memory === 'string'
         ? options.memory
-        : this.renderMemory({
+        : renderMemory({
             inspector: options.inspector,
             now: options.now,
             maxChars: options.maxMemoryChars,
+            turn: this.#turn,
+            bindings: this.memory.bindings,
+            properties: this.memory.objectProperties,
+            iterations: this.iterations.filter((record) => !retained || retained.has(record.id)),
+            latestResultId: this.#latestResultId,
           })
-    const footer = `\n\n<runtime-memory>\n${overview}\n</runtime-memory>`
-    const last = messages.at(-1)
-
-    if (!last) {
-      messages.push({ role: 'user', content: `Begin the task.${footer}` })
-    } else if (last.role === 'user' && (!last.type || ['text', 'multipart', 'tool_result'].includes(last.type))) {
-      if (Array.isArray(last.content)) {
-        last.content.push({ type: 'text', text: footer })
-      } else {
-        last.content = (last.content ?? '') + footer
-      }
-    } else {
-      // A new worker invocation can follow an assistant-only turn. Preserve its
-      // signed/provider fields rather than appending runtime data to that output.
-      messages.push({ role: 'user', content: `Runtime context (LLMz):${footer}` })
-    }
-
-    return messages
+    return withMemoryOverview(messages, overview)
   }
 
   /** Keep complete iterations, pruning their automatic results in the same operation. */
   public compact(retainedIds: Iterable<string>): void {
     const retained = new Set(retainedIds)
 
-    if (this.#activeIteration && !retained.has(this.#activeIteration.group.id)) {
-      throw new Error(`Cannot compact pending iteration ${this.#activeIteration.group.id}.`)
-    }
-
-    const retainedTurns = new Set(this.#groups.filter((g) => g.iteration && retained.has(g.id)).map((g) => g.turn))
-    retainedTurns.add(this.#turn)
-    const groups = this.#groups.filter((group) =>
-      group.iteration ? retained.has(group.id) : retainedTurns.has(group.turn)
-    )
-    this.#groups = groups
+    this.#groups = compactHistory(this.#groups, retained, this.#turn, this.#activeIteration?.group.id)
 
     if (this.#latestResultId && !retained.has(this.#latestResultId)) {
       this.#latestResultId = undefined
@@ -540,33 +494,27 @@ export class Session {
       iteration: this.#iteration,
       groups: this.#groups.map(serializeGroup),
       memory: this.memory.serialize(),
-      pendingInputs: clone(this.#pendingInputs),
+      pendingInputs: structuredClone(this.#pendingInputs),
       activeTurn: this.#activeTurn,
       latestResultId: this.#latestResultId,
     }
   }
 
   public static fromJSON(state: Session.JSON): Session {
-    if (state.version !== 3) {
-      throw new Error(`Unsupported LLMz session version: ${state.version}`)
-    }
-
-    assertPersistableData(state)
+    validateRestoredHistory(state)
     const session = new Session()
     Object.defineProperty(session, 'id', { value: state.id, enumerable: true })
     session.#turn = state.turn
     session.#turnId = state.turnId
     session.#iteration = state.iteration
     session.#groups = state.groups.map(restoreGroup)
-    session.#pendingInputs = clone(state.pendingInputs)
+    session.#pendingInputs = structuredClone(state.pendingInputs)
     session.#activeTurn = state.activeTurn
     session.#latestResultId = state.latestResultId
     Object.defineProperty(session, 'memory', {
       value: Memory.restore(state.memory, () => session.#resultBytes()),
       enumerable: true,
     })
-    validateRestoredHistory(session)
-
     return session
   }
 
@@ -610,437 +558,6 @@ export class Session {
   }
 }
 
-function asSessionMessage(message: CognitiveMessage): SessionMessage {
-  return clone(message) as SessionMessage
-}
-
-function normalizeInput(message: SessionInput): SessionMessage {
-  assertPersistableData(message)
-
-  if (!message || typeof message !== 'object' || Array.isArray(message)) {
-    throw new Error('Session input must be a message object.')
-  }
-
-  validateInputToolCalls(message as CognitiveMessage)
-
-  const extended =
-    message.role === 'event' || message.role === 'summary' || 'attachments' in message || 'modality' in message
-
-  if (!extended) {
-    validateInputMessage(message as CognitiveMessage)
-
-    return asSessionMessage(message as CognitiveMessage)
-  }
-
-  const transcript = message as Transcript.Message
-  validateTranscriptMessage(transcript)
-
-  if (transcript.role === 'event') {
-    if (typeof transcript.name !== 'string' || !transcript.name.length || !('payload' in transcript)) {
-      throw new Error('Event messages require a name and payload.')
-    }
-  } else if (typeof transcript.content !== 'string') {
-    throw new Error('Transcript message content must be a string.')
-  }
-
-  if ('attachments' in transcript && transcript.attachments !== undefined) {
-    if (!Array.isArray(transcript.attachments)) {
-      throw new Error('Message attachments must be an array.')
-    }
-
-    for (const attachment of transcript.attachments) {
-      if (
-        !attachment ||
-        !['image', 'audio'].includes(attachment.type) ||
-        typeof attachment.url !== 'string' ||
-        !attachment.url.length ||
-        (attachment.id !== undefined && typeof attachment.id !== 'string') ||
-        (attachment.alt !== undefined && typeof attachment.alt !== 'string')
-      ) {
-        throw new Error('Message attachments require an image or audio type and a URL.')
-      }
-    }
-  }
-
-  const normalized = transcriptMessage(transcript)
-  validateInputMessage(normalized)
-
-  return normalized
-}
-
-function createAssistantMessage(response: AssistantResponse): SessionMessage {
-  if (response.assistantMessage) {
-    return asSessionMessage(response.assistantMessage)
-  }
-
-  const message: SessionMessage = {
-    role: 'assistant',
-    content: response.output || null,
-  }
-
-  if (response.toolCalls?.length) {
-    message.type = 'tool_calls'
-    message.toolCalls = response.toolCalls.map((call) => ({
-      id: call.id,
-      type: 'function',
-      function: {
-        name: call.name,
-        arguments: clone(call.input),
-      },
-    }))
-  }
-
-  return message
-}
-
-function clone<T>(value: T): T {
-  return structuredClone(value)
-}
-
-function stableJSON(value: unknown): string {
-  function sortProperties(item: unknown): unknown {
-    if (Array.isArray(item)) {
-      return item.map(sortProperties)
-    }
-
-    if (item && typeof item === 'object') {
-      const entries = Object.entries(item).sort(([left], [right]) => left.localeCompare(right))
-
-      return Object.fromEntries(entries.map(([key, child]) => [key, sortProperties(child)]))
-    }
-
-    return item
-  }
-
-  return JSON.stringify(sortProperties(value))
-}
-
-function pendingCallIds(group: HistoryGroup): string[] {
-  const calls = group.messages.flatMap((message) => message.toolCalls?.map((call) => call.id) ?? [])
-  const results = new Set(
-    group.messages.filter((message) => message.type === 'tool_result').map((message) => message.toolResultCallId)
-  )
-
-  return calls.filter((id) => !results.has(id))
-}
-
-function validateInputMessage(message: CognitiveMessage): void {
-  if (!message || typeof message !== 'object' || Array.isArray(message)) {
-    throw new Error('Session input must be a message object.')
-  }
-
-  if (message.role === 'system') {
-    throw new Error('Session input cannot contain system messages. Supply execute instructions instead.')
-  }
-
-  validateInputToolCalls(message)
-
-  if (!['user', 'assistant'].includes(message.role)) {
-    throw new Error(`Invalid session message role: ${message.role}`)
-  }
-
-  if (message.type !== undefined && !['text', 'multipart'].includes(message.type)) {
-    throw new Error(`Invalid session message type: ${message.type}`)
-  }
-
-  if (typeof message.content !== 'string' && message.content !== null && !Array.isArray(message.content)) {
-    throw new Error('Native message content must be text, multipart content, or null.')
-  }
-
-  if (Array.isArray(message.content)) {
-    for (const part of message.content) {
-      if (
-        !part ||
-        (part.type === 'text'
-          ? typeof part.text !== 'string'
-          : !['image', 'audio'].includes(part.type) || typeof part.url !== 'string' || !part.url.length)
-      ) {
-        throw new Error('Native content parts require text or an image/audio URL.')
-      }
-    }
-  }
-
-  assertPersistableData(message)
-}
-
-function validateInputToolCalls(message: CognitiveMessage): void {
-  if (
-    message.toolCalls?.length ||
-    message.type === 'tool_calls' ||
-    message.type === 'tool_result' ||
-    message.toolResultCallId
-  ) {
-    throw new Error(
-      'New session input cannot contain tool calls/results. Restore a serialized Session to continue native history.'
-    )
-  }
-}
-
-/** Native provider payloads must survive the advertised JSON persistence API. */
-function assertPersistableData(data: unknown): void {
-  const seen = new Set<object>()
-
-  function visit(value: unknown): void {
-    if (value === undefined || value === null || typeof value === 'string' || typeof value === 'boolean') {
-      return
-    }
-
-    if (typeof value === 'number' && Number.isFinite(value)) {
-      return
-    }
-
-    if (typeof value !== 'object' || seen.has(value)) {
-      throw new Error('Native messages and provider continuation must contain finite, acyclic JSON data')
-    }
-
-    const array = Array.isArray(value)
-    const prototype = Object.getPrototypeOf(value)
-    if (!array && prototype !== Object.prototype && prototype !== null) {
-      throw new Error(
-        'Native provider continuation must use JSON data; encode custom objects or binary data explicitly'
-      )
-    }
-
-    if (Object.getOwnPropertySymbols(value).length) {
-      throw new Error('Native provider continuation cannot contain symbol properties')
-    }
-
-    seen.add(value)
-
-    if (array && (Object.keys(value).length !== value.length || value.some((item) => item === undefined))) {
-      throw new Error('Native provider continuation arrays must be dense JSON arrays')
-    }
-
-    for (const [key, descriptor] of Object.entries(Object.getOwnPropertyDescriptors(value))) {
-      if (array && key === 'length') {
-        continue
-      }
-
-      if (!descriptor.enumerable || descriptor.get || descriptor.set) {
-        throw new Error('Native provider continuation must contain plain JSON data properties')
-      }
-
-      visit(descriptor.value)
-    }
-
-    seen.delete(value)
-  }
-
-  visit(data)
-}
-
-function validateBatch(message: CognitiveMessage): void {
-  const ids = new Set<string>()
-
-  for (const call of message.toolCalls ?? []) {
-    if (!call.id || ids.has(call.id)) {
-      throw new Error(`Missing or duplicate native tool call id: ${call.id}`)
-    }
-
-    ids.add(call.id)
-  }
-}
-
-function validateGroup(group: HistoryGroup): void {
-  if (!group.iteration) {
-    for (const message of group.messages) {
-      validateInputMessage(message)
-    }
-
-    return
-  }
-
-  const [assistant, ...results] = group.messages
-
-  if (!assistant) {
-    return
-  }
-
-  if (assistant.role !== 'assistant') {
-    throw new Error('An iteration must start with its assistant message.')
-  }
-
-  validateBatch(assistant)
-  const ids = new Set(assistant.toolCalls?.map((call) => call.id) ?? [])
-
-  for (const result of results) {
-    if (result.type !== 'tool_result' || !result.toolResultCallId || !ids.delete(result.toolResultCallId)) {
-      throw new Error('Session contains an unmatched or duplicate native tool result.')
-    }
-  }
-
-  if (ids.size) {
-    throw new Error('A settled iteration contains pending native calls.')
-  }
-}
-
-/** Persisted counters, native identities, and exact values must describe one history. */
-function validateRestoredHistory(session: Session): void {
-  const state = session.toJSON()
-  if (
-    !Number.isSafeInteger(state.turn) ||
-    state.turn < 0 ||
-    !Number.isSafeInteger(state.iteration) ||
-    state.iteration < 0
-  ) {
-    throw new Error('Session turn and iteration counters must be non-negative safe integers')
-  }
-
-  if (typeof state.activeTurn !== 'boolean' || (state.activeTurn && (!state.turn || !state.turnId))) {
-    throw new Error('Session processing state must identify an active turn.')
-  }
-
-  const groupIds = new Set<string>()
-  const callIds = new Set<string>()
-  let previousIteration = 0
-  let previousTurn = 0
-
-  for (const group of state.groups) {
-    if (!group.id || groupIds.has(group.id)) {
-      throw new Error(`Missing or duplicate history group: ${group.id}`)
-    }
-
-    if (!Number.isSafeInteger(group.turn) || group.turn < previousTurn || group.turn > state.turn) {
-      throw new Error('History groups must retain their original chronological turn numbers')
-    }
-
-    groupIds.add(group.id)
-    previousTurn = group.turn
-    validateGroup(restoreGroup(group))
-
-    for (const message of group.messages) {
-      assertPersistableData(message)
-
-      for (const call of message.toolCalls ?? []) {
-        if (callIds.has(call.id)) {
-          throw new Error(`Duplicate retained native call ID: ${call.id}`)
-        }
-
-        callIds.add(call.id)
-      }
-    }
-
-    if (!group.iteration) {
-      continue
-    }
-
-    const iteration = group.iteration
-    if (
-      iteration.id !== group.id ||
-      !Number.isSafeInteger(iteration.number) ||
-      iteration.number <= previousIteration ||
-      iteration.number > state.iteration ||
-      iteration.turn !== group.turn
-    ) {
-      throw new Error('Retained iteration identities do not match the session counters')
-    }
-
-    previousIteration = iteration.number
-  }
-
-  for (const input of state.pendingInputs) {
-    if (!input.id || groupIds.has(input.id)) {
-      throw new Error(`Missing or duplicate queued input identity: ${input.id}`)
-    }
-
-    groupIds.add(input.id)
-    validateInputMessage(input.message)
-  }
-
-  if (
-    state.latestResultId &&
-    !state.groups.some((group) => group.iteration?.id === state.latestResultId && group.iteration?.hasResult)
-  ) {
-    throw new Error('Missing latest session result')
-  }
-}
-
-function transcriptMessage(message: Transcript.Message): SessionMessage {
-  let content: string
-
-  if (message.role === 'event') {
-    const payload = createInspector()(message.payload, {
-      purpose: 'event',
-      maxTokens: 5000,
-      identity: { name: message.name },
-    })
-    content = `External event ${JSON.stringify(message.name)}:\n${payload}`
-  } else if (message.role === 'summary') {
-    content = `Conversation summary:\n${message.content}`
-  } else {
-    content = message.content
-  }
-
-  if (isVoiceMessage(message)) {
-    content = `Voice message (transcript):\n${content}`
-  }
-
-  const attachments = 'attachments' in message ? (message.attachments ?? []) : []
-  const parts: Exclude<CognitiveMessage['content'], string | null> = [{ type: 'text', text: content }]
-
-  for (const attachment of attachments) {
-    if (attachment.id || attachment.alt) {
-      parts.push({
-        type: 'text',
-        text: `Attachment ${JSON.stringify(attachment.id ?? '')}${attachment.alt ? `: ${attachment.alt}` : ''}`,
-      })
-    }
-
-    parts.push({ type: attachment.type, url: attachment.url })
-  }
-
-  return {
-    role: message.role === 'assistant' ? 'assistant' : 'user',
-    ...(attachments.length ? { type: 'multipart' as const, content: parts } : { content }),
-  }
-}
-
 function cleanError(error: string): string {
   return error.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').slice(0, 2000)
-}
-
-function serializeGroup(group: HistoryGroup): SerializedHistoryGroup {
-  if (!group.iteration) {
-    return clone(group) as SerializedHistoryGroup
-  }
-
-  const { result, ...iteration } = group.iteration
-
-  return {
-    id: group.id,
-    turn: group.turn,
-    messages: clone(group.messages),
-    iteration: { ...iteration, ...(iteration.hasResult ? { result: encodeMemoryValue(result) } : {}) },
-  }
-}
-
-function restoreGroup(group: SerializedHistoryGroup): HistoryGroup {
-  if (!group.iteration) {
-    return clone(group) as HistoryGroup
-  }
-
-  const { result, ...iteration } = group.iteration
-  if (typeof iteration.hasResult !== 'boolean' || typeof iteration.outcome !== 'string') {
-    throw new Error('Invalid persisted iteration outcome')
-  }
-
-  if (iteration.hasResult && !result) {
-    throw new Error(`Missing result payload for iteration ${iteration.id}`)
-  }
-
-  return {
-    id: group.id,
-    turn: group.turn,
-    messages: clone(group.messages),
-    iteration: { ...iteration, ...(iteration.hasResult ? { result: decodeMemoryValue(result!) } : {}) },
-  }
-}
-
-function resultBytes(records: readonly SessionIterationRecord[]): number {
-  const encoded = records.map(({ result, ...record }) => ({
-    ...record,
-    ...(record.hasResult ? { result: encodeMemoryValue(result) } : {}),
-  }))
-
-  return new TextEncoder().encode(JSON.stringify(encoded)).byteLength
 }

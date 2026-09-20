@@ -89,6 +89,7 @@ describe('Component', () => {
   )
 
   it('requires object or array props while allowing an ordinary property named body', () => {
+    // @ts-expect-error Primitive schemas are also rejected by the public type contract.
     expect(() => new Component({ ...definition, props: z.string() })).toThrow(/object or array schema/)
     const component = new Component({ ...definition, props: z.object({ body: z.number() }) })
 

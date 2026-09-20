@@ -710,3 +710,125 @@ describe('native generation', () => {
     expect(JSON.stringify(base.session.messages)).not.toContain('Additional hook context')
   })
 })
+
+describe('request budgeting and atomic compaction', () => {
+  function history() {
+    const session = new Session({ variables: { retained: 'named memory' } })
+    session.append({ role: 'user', content: 'Old request' })
+    const info = session.nextIteration('old')
+    session.appendAssistant(info.id, { output: '', toolCalls: [call('old-call')] })
+    session.commitIteration({ ...info, hasResult: true, result: 'Exact result' })
+    session.appendToolResult(info.id, 'old-call', 'Long historical evidence. '.repeat(2000))
+    session.settleIteration(info.id)
+    session.completeTurn()
+    return session
+  }
+
+  it('uses the smallest fallback limits for the shared request', async () => {
+    const base = fixture()
+    base.iteration.model = ['test:large', 'test:small']
+    const details = await base.cognitive.getModelDetails('test:model')
+    base.cognitive.getModelDetails = vi.fn(async (id) => ({
+      ...details,
+      id,
+      input: { ...details.input, maxTokens: id === 'test:small' ? 2000 : 32000 },
+      output: { ...details.output, maxTokens: id === 'test:small' ? 64 : 8000 },
+    }))
+    await generateCode(base)
+    const request = base.generateText.mock.calls[0]![0]
+    expect(request.model).toEqual(['test:large', 'test:small'])
+    expect(request.maxTokens).toBe(64)
+    expect(base.iteration.tokens!.limit).toBe(2000)
+    expect(countNativeRequestTokens(request.messages, request.tools) + request.maxTokens!).toBeLessThanOrEqual(2000)
+    expect(base.cognitive.getModelDetails).toHaveBeenCalledTimes(2)
+  })
+
+  it('accepts an exact fit and rejects a request one token over budget', async () => {
+    const measured = fixture()
+    await generateCode(measured)
+    const required = countNativeRequestTokens(
+      measured.generateText.mock.calls[0]![0].messages,
+      measured.generateText.mock.calls[0]![0].tools
+    )
+
+    for (const extra of [1, 0]) {
+      const base = fixture({ maxTokens: required + extra })
+      const details = await base.cognitive.getModelDetails('test:model')
+      base.cognitive.getModelDetails = vi.fn(async () => ({
+        ...details,
+        output: { ...details.output, maxTokens: 1 },
+      }))
+      if (extra) {
+        await generateCode(base)
+        expect(base.generateText).toHaveBeenCalledOnce()
+        expect(base.generateText.mock.calls[0]![0].maxTokens).toBe(1)
+        expectCurrentContextTokens(base.iteration.tokens!.context, base.generateText.mock.calls[0]![0])
+      } else {
+        await expect(generateCode(base)).rejects.toThrow(/does not fit/)
+        expect(base.generateText).not.toHaveBeenCalled()
+      }
+    }
+  })
+
+  it('does not discard history when the current input cannot fit even after compaction', async () => {
+    const session = history()
+    session.append({ role: 'user', content: 'Oversized current input. '.repeat(2000) })
+    session.beginTurn()
+    const base = fixture({ session, maxTokens: 1000 })
+    const messages = session.messages
+    const records = session.iterations
+    await expect(generateCode(base)).rejects.toThrow(/does not fit/)
+    expect(base.generateText).not.toHaveBeenCalled()
+    expect(session.messages).toEqual(messages)
+    expect(session.iterations).toEqual(records)
+    expect(session.getBindings().$return).toBe('Exact result')
+  })
+
+  it.each(['overflow', 'exception', 'abort'] as const)(
+    'does not commit tentative compaction after hook %s',
+    async (failure) => {
+      const session = history()
+      session.append({ role: 'user', content: 'Next request' })
+      session.beginTurn()
+      const base = fixture({ session, maxTokens: 1200 })
+      const original = session.messages
+      const hook = vi.fn(({ messages }: { messages: CognitiveRequest['messages'] }) => {
+        expect(messages.some((message) => message.toolResultCallId === 'old-call')).toBe(false)
+        if (failure === 'exception') {
+          throw new Error('Hook failed')
+        }
+
+        if (failure === 'abort') {
+          base.controller.abort(new Error('Cancelled before dispatch'))
+          return undefined
+        }
+
+        return { messages: [...messages, { role: 'user' as const, content: 'Hook overflow. '.repeat(2000) }] }
+      })
+      await expect(generateCode({ ...base, onBeforeRequest: hook })).rejects.toThrow()
+      expect(hook).toHaveBeenCalledOnce()
+      expect(base.generateText).not.toHaveBeenCalled()
+      expect(session.messages).toEqual(original)
+      expect(session.getBindings().$return).toBe('Exact result')
+    }
+  )
+
+  it('commits successful compaction before dispatch and keeps named and queued state', async () => {
+    const session = history()
+    session.append({ role: 'user', content: 'Next request' })
+    session.beginTurn()
+    session.append({ role: 'user', content: 'Queued later' })
+    const base = fixture({ session, maxTokens: 1200 })
+    base.generateText.mockImplementation(async (input) => {
+      expect(session.iterations).toEqual([])
+      expect(session.getBindings().$return).toBeUndefined()
+      expect(session.memory.variables.retained).toBe('named memory')
+      expect(session.pendingMessages[0]!.content).toBe('Queued later')
+      expect(JSON.stringify(input.messages)).not.toContain('old-call')
+      expect(countNativeRequestTokens(input.messages, input.tools) + input.maxTokens!).toBeLessThanOrEqual(1200)
+      return { output: 'Done', metadata: metadata() }
+    })
+    await generateCode(base)
+    expect(base.generateText).toHaveBeenCalledOnce()
+  })
+})

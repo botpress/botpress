@@ -48,7 +48,7 @@ describe('shared prompt inspection', () => {
         maxTokens: 2000,
       })
 
-      expect(getTokenizer().count(output)).toBeLessThanOrEqual(40)
+      expect(getTokenizer().count(output, { approximate: false })).toBeLessThanOrEqual(40)
       expect(output).toContain('[truncated]')
       expect(output).not.toContain('\uFFFD')
       expect(output.includes('START')).toBe(preserve !== 'bottom')
@@ -72,7 +72,7 @@ describe('shared prompt inspection', () => {
 
     expect(events[0]?.maxTokens).toBe(60)
     expect(events[0]?.value).toBe('Full value')
-    expect(getTokenizer().count(output)).toBeLessThanOrEqual(60)
+    expect(getTokenizer().count(output, { approximate: false })).toBeLessThanOrEqual(60)
   })
 
   it('isolates hook values and metadata from runtime state', () => {
@@ -117,5 +117,52 @@ describe('shared prompt inspection', () => {
     const inspector = createInspector(() => 'Must not be displayed')
 
     expect(inspector('value', { purpose: 'result', maxTokens: 0 })).toBe('')
+  })
+})
+
+describe('inspection boundaries', () => {
+  it.each([0, 1, 2, 8, 32, 128])('bounds Unicode and structured output to exactly %s tokens', (maxTokens) => {
+    const value = { text: '🧠漢字e\u0301 source\n'.repeat(100), nested: Array.from({ length: 20 }, (_, i) => ({ i })) }
+    for (const preserve of ['top', 'bottom', 'both'] as const) {
+      for (const onInspect of [undefined, () => value.text, () => undefined]) {
+        const output = createInspector(onInspect)(value, { purpose: 'result', maxTokens, preserve })
+        expect(getTokenizer().count(output, { approximate: false })).toBeLessThanOrEqual(maxTokens)
+        expect(output).not.toContain('\uFFFD')
+      }
+    }
+  })
+
+  it('isolates cycles, shared references, and mutable Date instances in custom hooks', () => {
+    const date = new Date('2026-01-01')
+    const shared = { value: 42 }
+    const source = { date, first: shared, second: shared, self: null as unknown }
+    source.self = source
+    const onInspect = vi.fn((event: InspectEvent) => {
+      const copy = event.value as typeof source
+      expect(copy.self).toBe(copy)
+      expect(copy.first).toBe(copy.second)
+      expect(copy.first).not.toBe(shared)
+      copy.date.setTime(0)
+      return 'Safe preview'
+    })
+    expect(createInspector(onInspect)(source, { purpose: 'result', maxTokens: 20 })).toBe('Safe preview')
+    expect(onInspect).toHaveBeenCalledOnce()
+    expect(date.getUTCFullYear()).toBe(2026)
+    expect(shared.value).toBe(42)
+  })
+
+  it('falls back within the same budget after a throwing or invalid formatter', () => {
+    const value = { content: 'Full evidence. '.repeat(1000) }
+    for (const callback of [
+      () => {
+        throw new Error('Formatter failed')
+      },
+      () => 123,
+    ]) {
+      const output = createInspector(callback as never)(value, { purpose: 'result', maxTokens: 24 })
+      expect(output).toContain('[truncated]')
+      expect(getTokenizer().count(output, { approximate: false })).toBeLessThanOrEqual(24)
+      expect(value.content).toHaveLength(15000)
+    }
   })
 })

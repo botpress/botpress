@@ -9,9 +9,13 @@ import { createJoinedAbortController } from '../abort-signal.js'
 import type { MessageDelta, MessageMetadata } from '../chat.js'
 import type { Context, ContextTokens, Iteration } from '../context.js'
 import { CognitiveError } from '../errors.js'
-import { getErrorMessage, getTokenizer } from '../utils.js'
+import { stableJSON } from '../session/json.js'
+import { getErrorMessage } from '../utils.js'
 import { RUN_JAVASCRIPT_TOOL } from './native-tools.js'
+import { countNativeRequestTokens, resolveTokenBudget } from './token-budget.js'
 import type { ExecutionHooks, RuntimeCognitive } from './types.js'
+
+export { countNativeRequestTokens } from './token-budget.js'
 
 /** A custom provider adapter can return the full assistant message, including opaque continuation data. */
 export type NativeResponse = CognitiveResponse & {
@@ -52,33 +56,6 @@ function assertSuccessfulGeneration(metadata: CognitiveMetadata | undefined) {
   ) {
     throw new CognitiveError(`LLM generation did not complete: stopReason=${metadata.stopReason}`)
   }
-}
-
-/**
- * Estimate text, structured arguments, schemas, and message scaffolding. Media
- * URLs carry bytes or locations, not model text. Cognitive does not expose a
- * media-token estimator; actual media usage is reported by the provider.
- */
-export function countNativeRequestTokens(messages: CognitiveMessage[], tools: unknown): number {
-  const textMessages = messages.map(omitMediaPayloads)
-
-  return getTokenizer().count(JSON.stringify({ messages: textMessages, tools }))
-}
-
-function omitMediaPayloads(message: CognitiveMessage): CognitiveMessage {
-  if (!Array.isArray(message.content)) {
-    return message
-  }
-
-  const content = message.content.map((part) => {
-    if (part.type === 'image' || part.type === 'audio') {
-      return { ...part, url: undefined }
-    }
-
-    return part
-  })
-
-  return { ...message, content }
 }
 
 function measureNativeContextTokens(
@@ -144,24 +121,6 @@ function abortable<T>(operation: Promise<T>, signal: AbortSignal): Promise<T> {
 
     signal.addEventListener('abort', aborted, { once: true })
   })
-}
-
-function stableJSON(value: unknown): string {
-  function sortProperties(item: unknown): unknown {
-    if (Array.isArray(item)) {
-      return item.map(sortProperties)
-    }
-
-    if (item && typeof item === 'object') {
-      const entries = Object.entries(item).sort(([left], [right]) => left.localeCompare(right))
-
-      return Object.fromEntries(entries.map(([key, child]) => [key, sortProperties(child)]))
-    }
-
-    return item
-  }
-
-  return JSON.stringify(sortProperties(value))
 }
 
 function validateResponse(
@@ -246,19 +205,32 @@ async function prepareNativeRequest({
   metadata,
   onBeforeRequest,
 }: GenerateCodeProps) {
-  const modelRef = Array.isArray(iteration.model) ? iteration.model[0]! : iteration.model
-  const model = await abortable(cognitive.getModelDetails(modelRef), controller.signal).catch((err: unknown) => {
-    throw new CognitiveError(`Failed to fetch model details for ${modelRef}: ${getErrorMessage(err)}`)
-  })
-  const limit = Math.min(model.input.maxTokens, ctx.maxTokens ?? Infinity)
-  const reserve = Math.min(model.output.maxTokens, Math.max(256, Math.min(16_000, Math.floor(limit * 0.1))))
+  const modelRefs = Array.isArray(iteration.model) ? iteration.model : [iteration.model]
+  if (!modelRefs.length) {
+    throw new CognitiveError('At least one model is required.')
+  }
+
+  const models = await Promise.all(
+    modelRefs.map(async (ref) => {
+      try {
+        return await abortable(cognitive.getModelDetails(ref), controller.signal)
+      } catch (error) {
+        throw new CognitiveError(`Failed to fetch model details for ${ref}: ${getErrorMessage(error)}`)
+      }
+    })
+  )
+  const model = models[0]!
+  // The same request can reach any fallback, so it must fit every candidate.
+  const { limit, output: reserve } = resolveTokenBudget(models, ctx.maxTokens)
   const tools = [RUN_JAVASCRIPT_TOOL]
   const system = [iteration.systemMessage]
   const budgetInstruction = getBudgetInstruction(ctx, iteration)
   const budget = `\n\nExecution budget: response ${ctx.iterations.length} of ${ctx.loop}. ${budgetInstruction}`
 
+  let retainedIds = ctx.session.retainedIterationIds
+  let compacted = false
   const buildMessages = () => {
-    const history = ctx.session.requestMessages({ inspector: ctx.inspector })
+    const history = ctx.session.requestMessages({ inspector: ctx.inspector, retainedIterationIds: retainedIds })
     const messages = [...structuredClone(system), ...history]
     const last = messages.at(-1)
 
@@ -275,14 +247,15 @@ async function prepareNativeRequest({
   let tokens = countNativeRequestTokens(messages, tools)
 
   while (tokens > limit - reserve) {
-    const ids = ctx.session.retainedIterationIds.filter((id) => id !== iteration.id)
+    const ids = retainedIds.filter((id) => id !== iteration.id)
 
     if (!ids.length) {
       break
     }
 
-    ctx.session.compact(ids.slice(1).concat(iteration.id))
-    // The next request and VM both read the compacted Session state.
+    retainedIds = ids.slice(1).concat(iteration.id)
+    compacted = true
+    // Preview complete groups; a failed preflight must not delete history.
     messages = buildMessages()
     tokens = countNativeRequestTokens(messages, tools)
   }
@@ -304,6 +277,11 @@ async function prepareNativeRequest({
         'The onBeforeRequest messages exceed the context budget. Shorten them or increase options.maxTokens.'
       )
     }
+  }
+
+  controller.signal.throwIfAborted()
+  if (compacted) {
+    ctx.session.compact(retainedIds)
   }
 
   if (iteration.tokens) {

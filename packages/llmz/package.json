@@ -24,6 +24,7 @@
   "scripts": {
     "build": "tsdown && pnpm tsc --emitDeclarationOnly --noCheck",
     "check:type": "tsc --noEmit",
+    "check:docs": "node scripts/check-docs.mjs",
     "watch": "tsdown --watch",
     "test": "vitest --run",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",

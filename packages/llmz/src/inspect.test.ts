@@ -15,7 +15,7 @@ afterEach(() => {
 })
 
 function expectBounded(output: string, tokens: number) {
-  expect(utils.getTokenizer().count(output)).toBeLessThanOrEqual(tokens)
+  expect(utils.getTokenizer().count(output, { approximate: false })).toBeLessThanOrEqual(tokens)
 }
 
 describe('Inspect Array', () => {
@@ -356,7 +356,7 @@ describe('Per-value truncation policies', () => {
 
     expect(output).toContain('LATE EVIDENCE')
     expect(output).toContain('[truncated]')
-    expect(utils.getTokenizer().count(output)).toBeGreaterThan(2_000)
+    expect(utils.getTokenizer().count(output, { approximate: false })).toBeGreaterThan(2_000)
     expectBounded(output, 40_000)
     expect(wrapped.value).toBe(value)
   })
@@ -384,7 +384,7 @@ describe('Per-value truncation policies', () => {
     expect(output).not.toContain('BRIEF END')
     expect(output).toContain('LATE EVIDENCE')
     expect(output).not.toContain('$$truncate')
-    expect(utils.getTokenizer().count(output)).toBeGreaterThan(2_000)
+    expect(utils.getTokenizer().count(output, { approximate: false })).toBeGreaterThan(2_000)
     expectBounded(output, 40_000)
   })
 

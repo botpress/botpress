@@ -6,12 +6,14 @@ const TEXT_NAMES = new Set(['message', 'text', 'markdown', 'md', 'speech', 'spea
 const RESERVED_METHOD_NAMES = new Set(['then', 'constructor', 'prototype', '__proto__', 'button'])
 const renderedComponents = new WeakMap<object, z.ZodType>()
 
-export type ComponentHandler<P extends z.ZodType = any> = (
+export type ComponentSchema = z.ZodObject<any> | z.ZodArray<any>
+
+export type ComponentHandler<P extends ComponentSchema = any> = (
   props: z.output<P>,
   metadata: MessageMetadata
 ) => Promise<void> | void
 
-export type ComponentDefinition<P extends z.ZodType = any> = {
+export type ComponentDefinition<P extends ComponentSchema = any> = {
   /** The exact JavaScript method name exposed on chat. */
   name: string
   description: string
@@ -83,7 +85,7 @@ function freeze<T>(value: T, seen = new WeakSet<object>()): T {
   return value
 }
 
-export class Component<P extends z.ZodType = any> {
+export class Component<P extends ComponentSchema = any> {
   public readonly definition: Readonly<ComponentDefinition<P>>
   public readonly propsType!: z.output<P>
   public readonly handler: ComponentHandler<P> | undefined
@@ -129,7 +131,7 @@ export function createComponentRegistry(components: readonly Component[]): Compo
 }
 
 /** Raw descriptors are parsed; already-rendered values keep their parsed props. */
-export function prepareComponentDelivery<P extends z.ZodType>(
+export function prepareComponentDelivery<P extends ComponentSchema>(
   component: Component<P>,
   value: unknown
 ): RenderedComponent<z.output<P>> {
@@ -148,7 +150,7 @@ export function prepareComponentDelivery<P extends z.ZodType>(
   return component.render(value.props)
 }
 
-export function isComponent<P extends z.ZodType>(
+export function isComponent<P extends ComponentSchema>(
   rendered: unknown,
   component: Component<P>
 ): rendered is RenderedComponent<z.output<P>> {

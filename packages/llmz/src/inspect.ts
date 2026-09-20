@@ -45,7 +45,11 @@ type PreviewBudget = Pick<ReturnType<typeof getTokenizer>, 'count' | 'truncate'>
 
 function getPreviewBudget(): PreviewBudget {
   try {
-    return getTokenizer()
+    const tokenizer = getTokenizer()
+    return {
+      count: (value, options) => tokenizer.count(value, { ...options, approximate: false }),
+      truncate: (value, length, mode) => tokenizer.truncate(value, length, mode),
+    }
   } catch {
     // Memory can be populated before the tokenizer is initialized. UTF-8 bytes
     // conservatively bound tokens without making inspection depend on init().

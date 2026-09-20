@@ -35,6 +35,7 @@ export {
   Component,
   type RenderedComponent,
   type ComponentDefinition,
+  type ComponentSchema,
   type ComponentHandler,
   assertValidComponent,
   isComponent,
@@ -135,7 +136,7 @@ export const utils = {
  * // With dynamic instructions and hooks
  * const result = await execute({
  *   client: cognitiveClient,
- *   instructions: (ctx) => `Process ${ctx.variables.dataCount} records`,
+ *   instructions: (ctx) => `Process ${ctx.session.memory.variables.dataCount} records`,
  *   tools: async (ctx) => await getContextualTools(ctx),
  *   model: 'best',
  *   temperature: 0.1,

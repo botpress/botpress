@@ -97,7 +97,12 @@ export function decodeMemoryValue(value: EncodedMemoryValue): MemoryValue {
     throw new Error('Invalid serialized memory value')
   }
 
-  switch (value[0]) {
+  const tag = value[0]
+  if (value.length !== (tag === 'negative-zero' || tag === 'undefined' ? 1 : 2)) {
+    throw new Error('Invalid serialized memory tuple')
+  }
+
+  switch (tag) {
     case 'negative-zero':
       return -0
     case 'undefined':
@@ -116,9 +121,26 @@ export function decodeMemoryValue(value: EncodedMemoryValue): MemoryValue {
       throw new Error('Invalid serialized primitive')
     }
     case 'array':
-      return value[1].map(decodeMemoryValue)
-    case 'object':
-      return Object.fromEntries(value[1].map(([key, item]) => [key, decodeMemoryValue(item)]))
+      if (!Array.isArray(value[1])) {
+        throw new Error('Invalid serialized array')
+      }
+      return Array.from(value[1], decodeMemoryValue)
+    case 'object': {
+      if (!Array.isArray(value[1])) {
+        throw new Error('Invalid serialized object')
+      }
+
+      const keys = new Set<string>()
+      const entries = Array.from(value[1], (entry): [string, MemoryValue] => {
+        if (!Array.isArray(entry) || entry.length !== 2 || typeof entry[0] !== 'string' || keys.has(entry[0])) {
+          throw new Error('Invalid or duplicate serialized object property')
+        }
+
+        keys.add(entry[0])
+        return [entry[0], decodeMemoryValue(entry[1])]
+      })
+      return Object.fromEntries(entries)
+    }
     default:
       throw new Error('Unknown serialized memory value')
   }

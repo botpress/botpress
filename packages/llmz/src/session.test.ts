@@ -335,6 +335,26 @@ describe('native Session', () => {
     expect(Session.fromJSON(session.toJSON()).toJSON()).toEqual(session.toJSON())
   })
 
+  it('previews compaction without changing messages, exact results, or queued input', () => {
+    const session = new Session({ variables: { account: 'retained' } })
+    session.append({ role: 'user', content: 'Old request' })
+    complete(session, 'old', 'Old result')
+    session.completeTurn()
+    session.append({ role: 'user', content: 'Current request' })
+    complete(session, 'current', 'Current result')
+    session.append({ role: 'user', content: 'Queued request' })
+    const before = session.toJSON()
+    const preview = session.requestMessages({ retainedIterationIds: ['current'], now: 1000 })
+    expect(JSON.stringify(preview)).not.toContain('old-call')
+    expect(JSON.stringify(preview)).not.toContain('$iterations[1]')
+    expect(session.toJSON()).toEqual(before)
+    session.compact(['current'])
+    expect(session.requestMessages({ now: 1000 })).toEqual(preview)
+    expect(session.getBindings().$return).toBe('Current result')
+    expect(session.memory.variables.account).toBe('retained')
+    expect(session.pendingMessages[0]!.content).toBe('Queued request')
+  })
+
   it('retains matched native batches and renders only one ephemeral memory footer', () => {
     const session = new Session()
     session.append({ role: 'user', content: 'Find my account' })

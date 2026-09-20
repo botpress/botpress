@@ -50,7 +50,7 @@ export type TokenUsage = {
   total: number
   /**
    * The effective context window limit of this call, in tokens:
-   * `min(options.maxTokens, model's max input tokens)`. Use it to compute the
+   * `min(options.maxTokens, smallest configured model input limit)`. Use it to compute the
    * percentage of context used (e.g. `context.total / limit`).
    * Undefined until the LLM call starts.
    */
@@ -440,7 +440,7 @@ export class Context implements Serializable<Context.JSON> {
   public loop: number
   /**
    * Optional cap on the model's context window. The effective limit is
-   * `min(maxTokens, model's max input tokens)`.
+   * `min(maxTokens, smallest configured model input limit)`.
    */
   public maxTokens?: number
   /** Default display budget; explicitly wrapped tool results can override it. */
@@ -746,8 +746,8 @@ export class Context implements Serializable<Context.JSON> {
       throw new Error('Invalid loop. Expected a number between 1 and 100.')
     }
 
-    if (this.maxTokens !== undefined && (!Number.isFinite(this.maxTokens) || this.maxTokens < 1)) {
-      throw new Error('Invalid maxTokens. Expected a positive number.')
+    if (this.maxTokens !== undefined && (!Number.isSafeInteger(this.maxTokens) || this.maxTokens < 1)) {
+      throw new Error('Invalid maxTokens. Expected a positive safe integer.')
     }
 
     if (

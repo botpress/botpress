@@ -125,7 +125,7 @@ export type ExecutionHooks = {
 type Options = Partial<Pick<Context, 'loop' | 'timeout'>> & {
   /**
    * Optional cap on the model's context window, in tokens.
-   * The effective limit is `min(maxTokens, model's max input tokens)`.
+   * The effective limit is `min(maxTokens, smallest configured model input limit)`.
    * Useful to reduce cost and latency on models with very large context windows.
    */
   maxTokens?: number
