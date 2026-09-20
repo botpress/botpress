@@ -3,7 +3,7 @@ import type { CognitiveTool, CognitiveToolCall } from '@botpress/cognitive'
 export const RUN_JAVASCRIPT_TOOL: CognitiveTool = {
   name: 'run_javascript',
   description:
-    'Execute JavaScript using the available tools and memory. See the "run_javascript syntax" section of the system prompt for the input format, supported syntax, and API references.',
+    'Run business tools, send requested chat components, or finish a worker task by executing JavaScript. For text plus actions, write the requested text as a preamble to this tool call; do not end with a text-only answer before the actions. Exact requested text needs no separator before this call: do not append a space or newline to the preamble. An ordinary chat reply with no remaining action needs no tool call just to finish the turn. Code displayed in an answer is text, not a program to execute. See "run_javascript syntax" and the documented functions and memory.',
   parameters: {
     type: 'object',
     properties: {

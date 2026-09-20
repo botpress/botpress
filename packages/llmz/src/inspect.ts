@@ -318,15 +318,6 @@ function errorDetails(error: Error): Record<string, unknown> {
   }
 }
 
-function renderTextBlock(text: string, depth: number): string {
-  // Literal block notation preserves text without adding a fence that could be
-  // left open if the final token budget cuts the preview short.
-  const indentation = '  '.repeat(Math.max(2, depth + 1))
-  const content = text.replace(/(\r\n|\r|\n)/g, '$1' + indentation)
-
-  return `|\n${indentation}${content}`
-}
-
 function renderValue(value: unknown, state: PreviewState, depth = 0, pretty = false, policyApplied = false): string {
   if (state.nodes <= 0 || state.characters <= 0 || depth > state.maxDepth) {
     state.truncated = true
@@ -393,11 +384,8 @@ function renderValue(value: unknown, state: PreviewState, depth = 0, pretty = fa
 
   if (typeof value === 'string') {
     const text = previewText(value, state)
-
-    if (!state.compact && /[\r\n]/.test(text)) {
-      return renderTextBlock(text, depth)
-    }
-
+    // Structural indentation must never look like part of retrieved source code.
+    // JSON quoting preserves the distinction between line breaks, escapes and whitespace.
     return JSON.stringify(text)
   }
 
@@ -439,11 +427,11 @@ function renderValue(value: unknown, state: PreviewState, depth = 0, pretty = fa
     }
 
     const array = Array.isArray(value)
-    const entries: { index: number; preview: string; literal: boolean }[] = []
+    const entries: { index: number; preview: string }[] = []
 
     const appendEntry = (index: number, item: unknown, label = '') => {
       const preview = renderValue(item, state, depth + 1, pretty)
-      entries.push({ index, preview: label + preview, literal: preview.startsWith('|\n') })
+      entries.push({ index, preview: label + preview })
     }
 
     if (array) {
@@ -494,7 +482,7 @@ function renderValue(value: unknown, state: PreviewState, depth = 0, pretty = fa
     const itemIndentation = indentation + '  '
     const lines = entries.map((entry, index) => {
       const followingEntry = index < entries.length - 1
-      const separator = followingEntry && !entry.literal ? ',' : ''
+      const separator = followingEntry ? ',' : ''
       return itemIndentation + entry.preview + separator
     })
 

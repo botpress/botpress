@@ -4,6 +4,29 @@ import { describe, expect, it } from 'vitest'
 import { Tool } from './tool.js'
 import { truncate } from './truncate.js'
 
+describe('tool argument documentation', () => {
+  it.each([
+    { input: z.string(), value: 'query', type: 'string' },
+    { input: z.number(), value: 42, type: 'number' },
+    { input: z.boolean(), value: true, type: 'boolean' },
+    { input: z.array(z.string()), value: ['query'], type: 'array' },
+  ])('documents direct $type input without changing validation', async ({ input, value, type }) => {
+    const tool = new Tool({ name: 'echo', description: 'Return the input.', input, handler: async (value) => value })
+
+    expect(await tool.getTypings()).toContain(`Pass the ${type} itself as the argument`)
+    expect(await tool.execute(value, { callId: 'direct' })).toEqual(value)
+    await expect(tool.execute({ value } as never, { callId: 'wrapped' })).rejects.toThrow('invalid input')
+  })
+
+  it('keeps object and no-argument signatures distinct', async () => {
+    const object = new Tool({ name: 'search', input: z.object({ query: z.string() }), handler: async () => [] })
+    const empty = new Tool({ name: 'list', handler: async () => [] })
+
+    expect(await object.getTypings()).not.toContain('itself as the argument')
+    expect(await empty.getTypings()).not.toContain('itself as the argument')
+  })
+})
+
 describe('tool inspection policies', () => {
   it('returns a plain typed string and reports its display policy separately', async () => {
     const value = 'Document text\nSecond line'
@@ -118,7 +141,10 @@ describe('tools typings', () => {
 
     const typings = await tool.getTypings()
 
-    expect(typings).toMatchInlineSnapshot(`"declare function add(args: number[]): Promise<number[]>"`)
+    expect(typings).toMatchInlineSnapshot(`
+      "/** Pass the array itself as the argument, not an object containing it. */
+      declare function add(args: number[]): Promise<number[]>"
+    `)
   })
 
   it('no args, no output', async () => {
@@ -476,7 +502,10 @@ describe('tool default values', () => {
     )
     expect(await bool.getTypings()).toMatchInlineSnapshot(`"declare function bool(args: true): Promise<void>"`)
     expect(await nullable.getTypings()).toMatchInlineSnapshot(
-      `"declare function nullable(args: string | null): Promise<void>"`
+      `
+      "/** Pass the string itself as the argument, not an object containing it. */
+      declare function nullable(args: string | null): Promise<void>"
+    `
     )
   })
 

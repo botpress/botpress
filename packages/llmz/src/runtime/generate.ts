@@ -311,7 +311,7 @@ async function prepareNativeRequest({
 
 function getBudgetInstruction(ctx: Context, iteration: Iteration): string {
   if (ctx.iterations.length < ctx.loop) {
-    return 'Use return inspect(value) to see business tool results in the next response. Reserve a response for that inspection.'
+    return 'Inspect business results that need interpretation before completing; never guess missing completion fields. Once the required facts are known, complete using retained values without repeating successful calls. Component delivery needs no inspection. Keep lookups and retries silent unless progress updates were requested. If requested, include the update alongside the continuing call.'
   }
 
   if (ctx.chat) {
@@ -322,7 +322,7 @@ function getBudgetInstruction(ctx: Context, iteration: Iteration): string {
     return 'This is the last response. Every JavaScript program must explicitly return inspect(value) with the available evidence. Do not start work that needs another model response.'
   }
 
-  return 'This is the last response. Finish with return exit("NAME", payload) from run_javascript, using a registered name. If the task is incomplete, report it honestly with an incomplete or error payload only when the exit schema permits it. Assistant prose and inspection returns do not complete a worker. Do not start work that requires another model response.'
+  return 'This is the last response. Finish with return exit("NAME", payload) from run_javascript, using a registered name. Build the payload from inspected $return and retained variables; do not repeat successful lookups to reconstruct it. If the task is incomplete, report it honestly with an incomplete or error payload only when the exit schema permits it. Assistant prose and inspection returns do not complete a worker. Do not start work that requires another model response.'
 }
 
 async function consumeNativeStream({

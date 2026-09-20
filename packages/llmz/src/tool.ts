@@ -787,10 +787,30 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
       input = convertObjectToZuiLiterals(this._staticInputValues as Exclude<StaticValue, StaticObject>) as typeof input
     }
 
+    const valueType = input?.naked()
+    let directType: string | undefined
+    if (valueType) {
+      if (z.is.zuiString(valueType)) {
+        directType = 'string'
+      } else if (z.is.zuiNumber(valueType)) {
+        directType = 'number'
+      } else if (z.is.zuiBoolean(valueType)) {
+        directType = 'boolean'
+      } else if (z.is.zuiArray(valueType)) {
+        directType = 'array'
+      }
+    }
+
+    const description = [
+      this.description,
+      directType && `Pass the ${directType} itself as the argument, not an object containing it.`,
+    ]
+      .filter(Boolean)
+      .join('\n')
     const fnType = z
       .function(input as any, z.promise(output as any))
       .title(this.name)
-      .describe(this.description ?? '')
+      .describe(description)
 
     return generateTypings(fnType, {
       declaration: true,

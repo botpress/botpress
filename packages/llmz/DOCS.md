@@ -269,6 +269,8 @@ const getEvidence = new Tool({
 
 Inventories and diagnostic previews keep their own small budgets even if a value carries a larger inspection override. Truncation markers are included in the final measured output. Unicode boundaries, cyclic structures, throwing formatters, and accessor properties are handled without changing retained data.
 
+Standalone text is displayed directly. Strings nested in objects or arrays use JSON quoting so source indentation, line endings, and literal escapes remain distinct from the preview's formatting.
+
 `onInspect` customizes previews by purpose and identity. Return `undefined` for the default formatter. The hook receives an isolated read-only snapshot; custom text is still bounded. A formatter failure falls back to default inspection.
 
 ```ts

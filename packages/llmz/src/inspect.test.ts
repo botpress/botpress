@@ -159,33 +159,30 @@ describe('Inspect Text', () => {
     expect(inspect(text, undefined, OPTIONS)).toBe(text)
   })
 
-  it('displays nested retrieved chunks in literal blocks with separate metadata', () => {
+  it('keeps nested retrieved text distinct from its metadata', () => {
     const text = 'First paragraph.\n\nSecond paragraph with [1](https://example.com).'
     const output = inspect([{ text, citation: 'source-42' }], undefined, OPTIONS)
 
-    expect(output).toContain(
-      '"text": |\n    First paragraph.\n    \n    Second paragraph with [1](https://example.com).'
-    )
-    expect(output).toContain('example.com).\n  "citation": "source-42"')
-    expect(output).not.toContain('First paragraph.\\n')
+    expect(output).toContain(`"text": ${JSON.stringify(text)}`)
+    expect(output).toContain('"citation": "source-42"')
     expectBounded(output, OPTIONS.tokens)
   })
 
   it('preserves text inside nested arrays and objects', () => {
-    const value = { chunks: [{ body: 'Line one\r\n\r\nLine two' }], notes: ['First\nSecond'] }
+    const value = {
+      chunks: [{ body: '<pre>\r\nfunction example() {\r\n  return "literal \\n";\r\n}\r\n</pre>\r\n' }],
+      notes: ['First\nSecond', '\tindented\n  two spaces\n', '```js\ncode\n```'],
+    }
     const output = inspect(value, undefined, OPTIONS)
 
-    expect(output).toContain('"body": |\n        Line one\r\n        \r\n        Line two')
-    expect(output).toContain('"notes": [\n    |\n      First\n      Second')
-    expect(output).not.toContain('\\r\\n')
+    expect(JSON.parse(output.slice(output.indexOf('{')))).toEqual(value)
   })
 
   it('bounds nested Markdown without creating an outer fence that truncation could leave open', () => {
     const text = '# Example\n\n```ts\n' + 'const value = "🧠漢字"\n'.repeat(1_000) + '```\n'
     const output = inspect({ content: text }, undefined, { tokens: 80, maxStringLength: Infinity })
 
-    expect(output).toContain('"content": |\n    # Example')
-    expect(output).toContain('    ```ts\n')
+    expect(output).toContain('"content": "# Example\\n\\n```ts\\n')
     expect(output).toContain('[truncated]')
     expect(output).not.toMatch(/^ {0,3}```/m)
     expectBounded(output, 80)

@@ -9,6 +9,8 @@ export default defineConfig({
     teardownTimeout: 10_000,
     snapshotSerializers: ['./vitest.stack-trace-serializer.ts'],
     maxConcurrency: 1,
+    // Each file makes live provider requests; avoid a burst of independent fallback chains.
+    fileParallelism: false,
     isolate: false,
     allowOnly: true,
     pool: 'forks',
