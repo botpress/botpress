@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { Exit } from '../exit.js'
 import { truncate } from '../index.js'
+import type { InspectEvent, OnInspect } from '../inspection.js'
 import { Session } from '../session.js'
 import { Tool } from '../tool.js'
 import { getTokenizer } from '../utils.js'
@@ -46,14 +47,16 @@ async function inspectToolResult({
   tools,
   options,
   session,
+  onInspect,
 }: {
   code?: string
   tools: Tool[]
   options?: ExecutionProps['options']
   session?: Session
+  onInspect?: OnInspect
 }) {
   const client = new NativeClient([javascript(code), javascript('return exit("done", { value: true });')])
-  const result = await executeContext({ client, tools, options, session, exits: [done] })
+  const result = await executeContext({ client, tools, options, session, onInspect, exits: [done] })
 
   expect(result.is(done)).toBe(true)
 
@@ -81,7 +84,7 @@ describe.each([
 
     expect(handler).toHaveBeenCalledOnce()
     expect(result.session.memory.variables.evidence).toBe(rag)
-    expect(result.session.memory.getBindings().$return).toBe(rag)
+    expect(result.session.getBindings().$return).toBe(rag)
     expect(getTokenizer().count(inspection)).toBeLessThanOrEqual(maxTokens ?? 2000)
     expect(inspection).not.toContain('LATE_RAG_EVIDENCE')
 
@@ -90,6 +93,42 @@ describe.each([
     } else {
       expect(inspection).toContain('[truncated]')
     }
+  })
+
+  test('uses the inspection hook across result and inventory previews without changing retained values', async () => {
+    const events: InspectEvent[] = []
+    const { result, inspection } = await inspectToolResult({
+      tools: [new Tool({ name: 'search', handler: async () => rag })],
+      onInspect: (event) => {
+        events.push(event)
+        return event.purpose === 'result' ? 'Custom evidence\nSecond line' : undefined
+      },
+    })
+
+    expect(inspection).toBe('Custom evidence\nSecond line')
+    expect(events.some((event) => event.purpose === 'variable' && event.identity?.variable === 'evidence')).toBe(true)
+    expect(events.find((event) => event.purpose === 'result')).toMatchObject({
+      value: rag,
+      maxTokens: 2000,
+      identity: { sessionId: result.session.id, iteration: 1 },
+    })
+    expect(result.session.memory.variables.evidence).toBe(rag)
+    expect(result.session.getBindings().$return).toBe(rag)
+  })
+
+  test('enforces an explicit wrapper budget on custom result formatting', async () => {
+    const { result, inspection } = await inspectToolResult({
+      tools: [
+        new Tool({ name: 'search', handler: async () => truncate({ value: rag, maxTokens: 80, preserve: 'bottom' }) }),
+      ],
+      options: { toolResultMaxTokens: 20 },
+      onInspect: (event) => (event.purpose === 'result' ? 'DETAIL '.repeat(10000) + 'CUSTOM_END' : undefined),
+    })
+
+    expect(inspection).toContain('CUSTOM_END')
+    expect(inspection).toContain('[truncated]')
+    expect(getTokenizer().count(inspection)).toBeLessThanOrEqual(80)
+    expect(result.session.memory.variables.evidence).toBe(rag)
   })
 
   test('honors a large explicit budget while JavaScript receives an ordinary string', async () => {
@@ -116,7 +155,7 @@ return inspect(evidence);`,
       prefix: '# rag',
       length: rag.length,
     })
-    expect(result.session.memory.getBindings().$return).toBe(rag)
+    expect(result.session.getBindings().$return).toBe(rag)
     expect(JSON.stringify(result.session.toJSON())).not.toContain('$$truncate')
   })
 
@@ -130,7 +169,7 @@ return inspect(evidence);`,
     expect(inspection.includes('# rag')).toBe(preserve !== 'bottom')
     expect(inspection.includes('LATE_RAG_EVIDENCE')).toBe(preserve !== 'top')
     expect(result.session.memory.variables.evidence).toBe(rag)
-    expect(result.session.memory.getBindings().$return).toBe(rag)
+    expect(result.session.getBindings().$return).toBe(rag)
   })
 
   test('preserves the declared schema and raw shape of wrapped object results', async () => {
@@ -159,7 +198,7 @@ return inspect(evidence);`,
       countKind: 'number',
       keys: ['count', 'evidence'],
     })
-    expect(result.session.memory.getBindings().$return).toEqual({ count: 7, evidence: rag })
+    expect(result.session.getBindings().$return).toEqual({ count: 7, evidence: rag })
     expect(result.session.memory.variables.evidence).toEqual(result.session.memory.variables.baseline)
     const prompt = client.requests[0]!.messages.filter((message) => message.role === 'system')
       .map((message) => String(message.content))
@@ -189,7 +228,7 @@ return inspect({ rag, plain });`,
     expect(inspection).toContain('[truncated]')
     expect(getTokenizer().count(inspection)).toBeLessThanOrEqual(40_000)
     expect(result.session.memory.variables).toEqual({ rag, plain })
-    expect(result.session.memory.getBindings().$return).toEqual({ rag, plain })
+    expect(result.session.getBindings().$return).toEqual({ rag, plain })
     expect(JSON.stringify(result.session.toJSON())).not.toContain('$$truncate')
   })
 
@@ -207,7 +246,7 @@ return inspect(derived);`,
     expect(getTokenizer().count(inspection)).toBeLessThanOrEqual(2000)
     expect(result.session.memory.variables.evidence).toBe(rag)
     expect(result.session.memory.variables.derived).toBe(rag.slice(0, -1))
-    expect(result.session.memory.getBindings().$return).toBe(rag.slice(0, -1))
+    expect(result.session.getBindings().$return).toBe(rag.slice(0, -1))
   })
 
   test('does not persist the display override into a restored session', async () => {
@@ -222,7 +261,7 @@ return inspect(derived);`,
     expect(second.inspection).not.toContain('LATE_RAG_EVIDENCE')
     expect(getTokenizer().count(second.inspection)).toBeLessThanOrEqual(2000)
     expect(second.result.session.memory.variables.evidence).toBe(rag)
-    expect(second.result.session.memory.getBindings().$return).toBe(rag)
+    expect(second.result.session.getBindings().$return).toBe(rag)
   })
 
   test.each([-1, 0.5, 2001, Infinity, NaN])('rejects invalid global budget %s before any work', async (maxTokens) => {

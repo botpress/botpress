@@ -1,7 +1,8 @@
 import { isEqual } from 'lodash-es'
 
+import type { InspectionPolicyLookup } from '../inspect.js'
 import { cloneMemoryValue, type MemoryValue } from '../memory.js'
-import { truncate, type TruncationPolicy } from '../truncate.js'
+import type { TruncationPolicy } from '../truncate.js'
 
 type CapturedPolicy = {
   policy: TruncationPolicy
@@ -56,24 +57,14 @@ export class InspectionValues {
     this._objects.set(key, candidates)
   }
 
-  /** Build a display-only copy; the VM and persistent memory keep ordinary values. */
-  public prepare(value: unknown): unknown {
-    return this._prepareValue(cloneMemoryValue(value))
-  }
-
-  private _prepareValue(value: MemoryValue): unknown {
+  /** Match unchanged VM copies without rebuilding a wrapped display graph. */
+  public readonly getPolicy: InspectionPolicyLookup = (value) => {
     if (!value || typeof value !== 'object') {
-      const policy = this._primitives.get(value)?.policy
-      return policy ? truncate({ value, ...policy }) : value
+      return this._primitives.get(value as Exclude<MemoryValue, object>)?.policy
     }
 
     const candidates = this._objects.get(this._objectKey(value)) ?? []
-    const policy = candidates.find((candidate) => isEqual(candidate.value, value))?.policy
-    const prepared = Array.isArray(value)
-      ? value.map((item) => this._prepareValue(item))
-      : Object.fromEntries(Object.entries(value).map(([key, item]) => [key, this._prepareValue(item)]))
-
-    return policy ? truncate({ value: prepared, ...policy }) : prepared
+    return candidates.find((candidate) => isEqual(candidate.value, value))?.policy
   }
 
   private _objectKey(value: object): string {

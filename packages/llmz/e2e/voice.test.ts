@@ -5,7 +5,7 @@ import { ExecutionResult, SuccessExecutionResult } from '../src/result.js'
 import { Session } from '../src/session.js'
 import * as llmz from '../src/runtime/execute.js'
 import { transcriptToNativeMessages } from '../src/runtime/native-tools.js'
-import { Transcript, TranscriptArray } from '../src/transcript.js'
+import type { Transcript } from '../src/transcript.js'
 
 import { createTestChat } from './__tests__/chat.js'
 import {
@@ -33,11 +33,11 @@ const voiceMessage = (content: string = ''): Transcript.UserMessage => ({
 describe('voice messages', () => {
   describe('prompt rendering', () => {
     it('marks spoken turns in the transcript', () => {
-      const transcript = new TranscriptArray([
+      const transcript: Transcript.Message[] = [
         { role: 'user', content: 'Hello!' },
         { role: 'assistant', content: 'Hi! How can I help?' },
         voiceMessage(),
-      ])
+      ]
 
       const messages = transcriptToNativeMessages(transcript)
       expect(messages.map((message) => message.role)).toEqual(['user', 'assistant', 'user'])
@@ -47,9 +47,9 @@ describe('voice messages', () => {
     })
 
     it('marks pre-transcribed spoken turns via the explicit modality field', async () => {
-      const transcript = new TranscriptArray([
+      const transcript: Transcript.Message[] = [
         { role: 'user', content: 'What is the capital of France?', modality: 'voice' },
-      ])
+      ]
 
       const message = transcriptToNativeMessages(transcript)[0]!
 
@@ -290,20 +290,21 @@ describe('voice messages', () => {
       }
     }
 
-    it('references attachments by their id and describes them with alt', () => {
-      const rendered = new TranscriptArray([screenShareMessage()]).toString()
+    it('retains attachment IDs and descriptions in native multipart messages', () => {
+      const message = transcriptToNativeMessages([screenShareMessage()])[0]!
+      assert(Array.isArray(message.content), 'Expected a multipart message')
+      const text = message.content
+        .filter((part) => part.type === 'text')
+        .map((part) => part.text)
+        .join('\n')
 
-      expect(rendered).toContain('modality="voice"')
-      expect(rendered).toContain('[Attachment screenshot-A]')
-      expect(rendered).toContain('[Attachment screenshot-B]')
-      expect(rendered).toContain('[Attachment screenshot-C]')
-      expect(rendered).toContain("[Voice message voice-note: the user's spoken narration]")
-
-      // Without an id, attachments keep the auto-assigned positional letters
-      const anonymous = new TranscriptArray([
-        { role: 'user', content: 'look', attachments: [{ type: 'image', url: 'data:image/png;base64,x' }] },
-      ]).toString()
-      expect(anonymous).toContain('[Attachment user-001-A]')
+      expect(text).toContain('[Voice message]')
+      expect(text).toContain('Attachment screenshot-A')
+      expect(text).toContain('Attachment screenshot-B')
+      expect(text).toContain('Attachment screenshot-C')
+      expect(text).toContain("Attachment voice-note: the user's spoken narration")
+      expect(message.content.filter((part) => part.type === 'image')).toHaveLength(3)
+      expect(message.content.filter((part) => part.type === 'audio')).toHaveLength(1)
     })
 
     it('grounds its answer in the screenshots, guided by the voice narration', async () => {

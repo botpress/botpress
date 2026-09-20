@@ -75,7 +75,7 @@ describe('single-response protocol matrix checker', () => {
     )
 
     expect(parsed.executionErrors).toEqual([])
-    expect(parsed.sends.map((message) => message.name)).toEqual(['message', 'button', 'button'])
+    expect(parsed.sends.map((message) => message.name)).toEqual(['message', 'buttons'])
     expect(checkProtocolTask(fixture, parsed)).toBe(true)
     expect(checkResponseShape(fixture, parsed)).toBe(true)
   })
@@ -88,7 +88,7 @@ describe('single-response protocol matrix checker', () => {
       fixture.props
     )
 
-    expect(parsed.sends.map((message) => message.name)).toEqual(['message', 'button'])
+    expect(parsed.sends.map((message) => message.name)).toEqual(['message', 'buttons'])
     expect(parsed.next).toBeUndefined()
     expect(checkProtocolTask(fixture, parsed)).toBe(false)
   })

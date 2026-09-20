@@ -74,7 +74,7 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
       expect(first.output).toEqual({ accountId: account.id })
       expect(reads).toBe(1)
       expect(first.session.memory.variables.account).toEqual(account)
-      expect(first.session.memory.getBindings().$return).toEqual({
+      expect(first.session.getBindings().$return).toEqual({
         sequence: 2,
         accountId: account.id,
         previousSequence: 1,
@@ -82,7 +82,7 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
       })
 
       const restored = restoreSession(first.session)
-      const retained = restored.memory.iterations
+      const retained = restored.iterations
 
       expect(retained[0]?.hasResult).toBe(false)
       expect(retained.filter((entry) => entry.hasResult).map((entry) => entry.result)).toEqual([
@@ -141,7 +141,7 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
       }
 
       expect(second.output).toEqual(expectedAudit)
-      expect(second.session.memory.getBindings().$return).toEqual(expectedAudit)
+      expect(second.session.getBindings().$return).toEqual(expectedAudit)
       expect(second.session.memory.variables.account).toEqual(account)
       expect(second.session.turn).toBe(first.session.turn + 1)
       expect(reads).toBe(1)
@@ -188,8 +188,8 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
           'Assign the entire writable profile property. Do not mutate a nested field or the read-only id.',
           'After inspecting the returned values, call run_javascript with: return exit("checked", $return);',
         ].join('\n'),
-        onIterationStart: (iteration) => {
-          memoryReports.push(String(iteration.messages.at(-1)?.content))
+        onBeforeRequest: ({ messages }) => {
+          memoryReports.push(String(messages.at(-1)?.content))
         },
       })
 
@@ -226,8 +226,8 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
       const restored = restoreSession(first.session)
 
       expect(restored.retainedIterationIds).toEqual([])
-      expect(restored.memory.iterations).toEqual([])
-      expect(restored.memory.getBindings().$return).toBeUndefined()
+      expect(restored.iterations).toEqual([])
+      expect(restored.getBindings().$return).toBeUndefined()
       expect(restored.memory.serialize().objects).toEqual(persistedProperties)
 
       const restoredMemoryReports: string[] = []
@@ -250,15 +250,15 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
           'Call run_javascript with: return inspect({ id: settings.id, ...settings.profile });',
           'Then call run_javascript with: return exit("checked", $return); Do not assign any properties.',
         ].join('\n'),
-        onIterationStart: (iteration) => {
-          restoredMemoryReports.push(String(iteration.messages.at(-1)?.content))
+        onBeforeRequest: ({ messages }) => {
+          restoredMemoryReports.push(String(messages.at(-1)?.content))
         },
       })
 
       inspectRun(second, 'object-after-compaction', model, run)
       assert(second.is(checked), JSON.stringify(metrics(second)))
       expect(second.output).toEqual(expected)
-      expect(second.session.memory.getBindings().$return).toEqual(expected)
+      expect(second.session.getBindings().$return).toEqual(expected)
       expect(second.session.memory.getObjectPropertyValue('settings', 'id')).toBe('settings-4')
       expect(second.session.memory.getObjectPropertyValue('settings', 'profile')).toEqual({ region: 'east', quota: 4 })
       expect(restoredMemoryReports[0]).toContain('quota: 4')

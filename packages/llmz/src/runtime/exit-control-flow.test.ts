@@ -28,7 +28,7 @@ const other = new Exit({
 function recordingChat() {
   const delivered: ChatMessage[] = []
   const chat = createRecordingChat({
-    components: [DefaultComponents.Button],
+    components: [DefaultComponents.Buttons],
     handler: (message) => {
       delivered.push(message)
     },
@@ -105,7 +105,7 @@ describe.each([
       expect(result.output).toEqual({ value: 42 })
       expect(client.requests).toHaveLength(1)
       expect(onExit).toHaveBeenCalledOnce()
-      expect(result.session.memory.getBindings().$return).toBeUndefined()
+      expect(result.session.getBindings().$return).toBeUndefined()
       expect(result.session.pendingCalls).toEqual([])
     }
   )
@@ -479,7 +479,7 @@ describe.each([
 
     expect(result.is(done)).toBe(true)
     expect(result.output).toEqual({ value: 42 })
-    expect(result.session.memory.getBindings().$return).toEqual({ value: 42 })
+    expect(result.session.getBindings().$return).toEqual({ value: 42 })
     expect(client.requests).toHaveLength(2)
   })
 
@@ -493,7 +493,7 @@ describe.each([
     ])
     const onExit = vi.fn(() => {
       expect(delivered.map((message) => (message.type === 'component' ? message.props : {}))).toEqual([
-        { action: 'say', label: 'Continue' },
+        [{ action: 'say', label: 'Continue' }],
       ])
     })
 
@@ -518,7 +518,7 @@ describe.each([
 
     expect(result.is(done)).toBe(true)
     expect(delivered.map((message) => (message.type === 'component' ? message.props : {}))).toEqual([
-      { action: 'say', label: 'Sent before exit' },
+      [{ action: 'say', label: 'Sent before exit' }],
     ])
   })
 

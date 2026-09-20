@@ -1,9 +1,8 @@
 import { isAnyComponent } from '../component.js'
 import type { Iteration } from '../context.js'
 import { Signals, ThinkSignal } from '../errors.js'
-import { inspect } from '../inspect.js'
+import { createInspector, type InspectionIdentity, type Inspector } from '../inspection.js'
 import type { Traces } from '../types.js'
-import { getTokenizer } from '../utils.js'
 
 const MAX_ENTRIES = 20
 const PAYLOAD_PREVIEW_TOKENS = 80
@@ -27,7 +26,12 @@ export function getExecutionActivity(iteration: Iteration): ExecutionActivity {
   return { calls, deliveries }
 }
 
-export function renderToolCalls(activity: ExecutionActivity, includeRecoveryValues = false): string | undefined {
+export function renderToolCalls(
+  activity: ExecutionActivity,
+  includeRecoveryValues = false,
+  inspector: Inspector = createInspector(),
+  identity: InspectionIdentity = {}
+): string | undefined {
   if (!activity.calls.length) {
     return undefined
   }
@@ -35,18 +39,30 @@ export function renderToolCalls(activity: ExecutionActivity, includeRecoveryValu
   const lines = activity.calls.slice(0, MAX_ENTRIES).map((call) => {
     const name = call.object ? `${call.object}.${call.tool_name}` : call.tool_name
     const outcome = getToolOutcome(call)
-    const input = call.input === undefined ? '' : preview(call.input)
-    const details = [`- ${previewName(name)}(${input}): ${outcome}`]
+    const detailsIdentity = { ...identity, tool: call.tool_name, object: call.object }
+    const input =
+      call.input === undefined
+        ? ''
+        : inspector(call.input, {
+            purpose: 'tool-input',
+            maxTokens: PAYLOAD_PREVIEW_TOKENS,
+            compact: true,
+            identity: detailsIdentity,
+          })
+    const label = inspector(name, { purpose: 'name', maxTokens: NAME_PREVIEW_TOKENS, identity: detailsIdentity })
+    const details = [`- ${label}(${input}): ${outcome}`]
 
     if (outcome === 'interrupted') {
       const signal = getInterruption(call)!
       const reason = signal.reason
 
-      details.push(`pending; ${errorPreview(reason)}`)
+      details.push(`pending; ${errorPreview(reason, inspector, detailsIdentity)}`)
     } else if (!call.success) {
-      details.push(`error: ${errorPreview(call.error)}`)
+      details.push(`error: ${errorPreview(call.error, inspector, detailsIdentity)}`)
     } else if (includeRecoveryValues) {
-      details.push(`returned ${preview(call.output)}`)
+      details.push(
+        `returned ${inspector(call.output, { purpose: 'tool-output', maxTokens: PAYLOAD_PREVIEW_TOKENS, compact: true, identity: detailsIdentity })}`
+      )
     }
 
     return details.join('; ')
@@ -60,21 +76,21 @@ export function renderToolCalls(activity: ExecutionActivity, includeRecoveryValu
 }
 
 export function renderMessageDeliveries(
-  iteration: Iteration,
-  cancelled = iteration.status.type === 'aborted'
+  { deliveries }: ExecutionActivity,
+  cancelled = false,
+  inspector: Inspector = createInspector(),
+  identity: InspectionIdentity = {}
 ): string | undefined {
-  const { deliveries } = getExecutionActivity(iteration)
-
   if (!deliveries.length) {
     return undefined
   }
 
   const lines = deliveries.slice(0, MAX_ENTRIES).map((delivery) => {
     const outcome = delivery.success === true ? 'delivered' : 'uncertain'
-    const details = [`- ${messagePreview(delivery.value)}: ${outcome}`]
+    const details = [`- ${messagePreview(delivery.value, inspector, identity)}: ${outcome}`]
 
     if (delivery.error !== undefined) {
-      details.push(`error: ${errorPreview(delivery.error)}`)
+      details.push(`error: ${errorPreview(delivery.error, inspector, identity)}`)
     }
 
     return details.join('; ')
@@ -117,33 +133,37 @@ function getToolOutcome(call: Traces.ToolCall): ToolOutcome {
   return call.success ? 'succeeded' : 'failed'
 }
 
-function messagePreview(value: unknown): string {
-  if (!isAnyComponent(value)) {
-    return preview(value)
+function messagePreview(value: unknown, inspector: Inspector, identity: InspectionIdentity): string {
+  const component = isAnyComponent(value) ? value : undefined
+  const detailsIdentity = component ? { ...identity, component: component.name } : identity
+  const body = inspector(component ? component.props : value, {
+    purpose: 'message',
+    maxTokens: PAYLOAD_PREVIEW_TOKENS,
+    compact: true,
+    identity: detailsIdentity,
+  })
+
+  if (!component) {
+    return body
   }
 
-  return `${previewName(value.name)} ${preview(value.props)}`
+  const name = inspector(component.name, {
+    purpose: 'name',
+    maxTokens: NAME_PREVIEW_TOKENS,
+    identity: detailsIdentity,
+  })
+
+  return `${name} ${body}`
 }
 
-function preview(value: unknown): string {
-  return inspect(value, undefined, { tokens: PAYLOAD_PREVIEW_TOKENS, compact: true, honorTruncation: false })
-}
-
-function previewName(value: string): string {
-  if (value.length <= NAME_PREVIEW_TOKENS * 8 && getTokenizer().count(value) <= NAME_PREVIEW_TOKENS) {
-    return value
-  }
-
-  return inspect(value, undefined, { tokens: NAME_PREVIEW_TOKENS, compact: true, honorTruncation: false })
-}
-
-function errorPreview(value: unknown): string {
+function errorPreview(value: unknown, inspector: Inspector, identity: InspectionIdentity): string {
   const error = Signals.maybeDeserializeError(value)
   const message = error instanceof Error ? error.message : String(error ?? 'Unknown error')
 
-  return inspect(message.replace(/\s+/g, ' ').trim(), undefined, {
-    tokens: ERROR_PREVIEW_TOKENS,
+  return inspector(message.replace(/\s+/g, ' ').trim(), {
+    purpose: 'error',
+    maxTokens: ERROR_PREVIEW_TOKENS,
     compact: true,
-    honorTruncation: false,
+    identity,
   })
 }

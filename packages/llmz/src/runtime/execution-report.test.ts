@@ -119,7 +119,7 @@ describe('execution reports from actual runtime traces', () => {
     expect(create).toHaveBeenCalledOnce()
     expect(deliver).toHaveBeenCalledOnce()
     expect(result.session.memory.variables.ticket).toEqual({ id: 'ticket-42' })
-    expect(result.session.memory.getBindings().$return).toBeUndefined()
+    expect(result.session.getBindings().$return).toBeUndefined()
     expect(report).toMatch(/^run_javascript: failed/)
     expect(report).toContain('Tools called')
     expect(report).toContain('createTicket')
@@ -175,7 +175,7 @@ describe('execution reports from actual runtime traces', () => {
 
     expect(result.output).toEqual({ value: records.length })
     expect(result.session.memory.variables.records).toEqual(records)
-    expect(result.session.memory.getBindings().$return).toEqual(records)
+    expect(result.session.getBindings().$return).toEqual(records)
     expect(inspection).toContain('[truncated]')
     expect(getTokenizer().count(inspection)).toBeLessThanOrEqual(2000)
     expect(getTokenizer().count(feedback)).toBeLessThan(2500)
@@ -263,7 +263,7 @@ describe('execution reports from actual runtime traces', () => {
 
       if (mode === 'inspection') {
         expect(result.session.memory.variables.evidence).toBe(evidence)
-        expect(result.session.memory.getBindings().$return).toBe(evidence)
+        expect(result.session.getBindings().$return).toBe(evidence)
       }
     }
   )

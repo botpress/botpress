@@ -100,7 +100,7 @@ return exit('listen');`,
     const handler = vi.fn()
     const transform = vi.fn((label: string) => label + '!')
     const notice = new Component({
-      name: 'Notice',
+      name: 'notice',
       description: 'A structured notice.',
       props: z.object({ label: z.string().transform(transform) }),
       handler,
@@ -173,11 +173,11 @@ return exit('listen');`,
 
   test('routes a component yielded by a business tool to the registered component handler', async () => {
     const handler = vi.fn()
-    const button = DefaultComponents.Button.withHandler(handler)
+    const button = DefaultComponents.Buttons.withHandler(handler)
     const tool = new Tool({
       name: 'offerChoice',
       async *handler() {
-        yield button.render({ label: 'Continue' })
+        yield button.render([{ label: 'Continue' }])
         return 'offered'
       },
     })
@@ -189,7 +189,7 @@ return exit('listen');`,
 
     expect(result.is(ListenExit)).toBe(true)
     expect(handler).toHaveBeenCalledOnce()
-    expect(handler.mock.calls[0]?.[0]).toEqual({ action: 'say', label: 'Continue' })
+    expect(handler.mock.calls[0]?.[0]).toEqual([{ action: 'say', label: 'Continue' }])
     expect(handler.mock.calls[0]?.[1].id).toContain(':yield-0')
     expect(result.iteration?.traces.filter((trace) => trace.type === 'yield')).toHaveLength(1)
   })

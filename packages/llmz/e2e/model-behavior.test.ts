@@ -3,7 +3,7 @@ import { z } from '@bpinternal/zui'
 import { describe, expect, it } from 'vitest'
 
 import type { ChatMessage } from '../src/chat.js'
-import { Component, DefaultComponents, Example, Exit, ListenExit, Tool, execute } from '../src/index.js'
+import { Component, DefaultComponents, Exit, ListenExit, Tool, execute } from '../src/index.js'
 import { Session } from '../src/session.js'
 
 import { createTestChat } from './__tests__/chat.js'
@@ -14,21 +14,7 @@ import {
   expectRuntimeModelRoute,
   metrics,
   models,
-  withExamples,
 } from './__tests__/model-evaluation.js'
-
-const intakeExample = new Example({
-  situation: 'The user says: Set up Birch Association. We have 7 board members.',
-  text: 'How do you currently manage board meetings?',
-  exit: ListenExit,
-})
-const searchExample = new Example({
-  situation:
-    'The user asks how to change their email. A previous search for "change email" returned no useful results.',
-  code: 'return inspect(await searchKnowledge({ query: "update account email address" }))',
-  reason:
-    'The first query found no evidence. Try different wording before answering; routine retries need no announcement.',
-})
 
 // These are behavioral regression checks, not a semantic judge. Review captured
 // responses for unsupported claims and reasoning leakage beyond the patterns below.
@@ -81,7 +67,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
             model,
             run,
             scenario: unavailable ? 'last-iteration-blocked' : 'last-iteration-answer',
-            withExamples: false,
+
             success: result.isSuccess(),
             ...metrics(result),
             events,
@@ -167,7 +153,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
             model,
             run,
             scenario: `transient-failure-${scenario}`,
-            withExamples: false,
+
             success: result.isSuccess(),
             ...metrics(result),
             events,
@@ -241,7 +227,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           client,
           model: model as Models,
           instructions: `Answer using the knowledge base. ${source === 'instructions' ? requestedUpdate : ''}`,
-          examples: withExamples ? [searchExample] : [],
+
           tools: [tool],
           chat: createTestChat({
             components: [],
@@ -260,7 +246,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
             model,
             run,
             scenario: `requested-progress-${source}`,
-            withExamples,
+
             success: result.isSuccess(),
             ...metrics(result),
             events,
@@ -300,14 +286,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           'Read the current limit using readLimit, then return exit("done", { limit }) with that exact limit from the same JavaScript program.',
         tools: [tool],
         exits: [done],
-        examples: withExamples
-          ? [
-              new Example({
-                situation: 'The task needs the current limit, which has not been read yet.',
-                code: 'const limit = await readLimit(); return exit("done", { limit });',
-              }),
-            ]
-          : [],
+
         options: { loop: 4 },
       })
       console.info(
@@ -315,7 +294,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           model,
           run,
           scenario: 'worker',
-          withExamples,
+
           success: result.isSuccess(),
           ...metrics(result),
           calls,
@@ -353,7 +332,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           model: model as Models,
           instructions:
             'Collect exactly three onboarding details: organization name, board size, and current meeting process. Ask only for missing details. Once all three are available, acknowledge completion without proposing further setup or follow-up actions.',
-          examples: withExamples ? [intakeExample] : [],
+
           chat: createTestChat({
             components: [],
             onMessage: async (message) => {
@@ -371,7 +350,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
             model,
             run,
             scenario: complete ? 'intake-complete' : 'intake-missing',
-            withExamples,
+
             success: result.isSuccess(),
             ...metrics(result),
             words: text.split(/\s+/).filter(Boolean).length,
@@ -427,7 +406,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         model: model as Models,
         instructions:
           'Answer product questions using the knowledge base. If no useful evidence is found, try a different query before answering.',
-        examples: withExamples ? [searchExample] : [],
+
         tools: [searchKnowledge],
         chat: createTestChat({
           components: [],
@@ -446,7 +425,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           model,
           run,
           scenario: 'silent-search-retry',
-          withExamples,
+
           success: result.isSuccess(),
           ...metrics(result),
           events,
@@ -485,10 +464,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           return [/standard/i.test(query) ? 'Standard supports 8 projects.' : 'Team supports 30 projects.']
         },
       })
-      const example = new Example({
-        situation: 'The user asks: Compare the storage limits of Basic and Plus.',
-        code: 'return inspect(await Promise.all([searchKnowledge({ query: "Basic storage limit" }), searchKnowledge({ query: "Plus storage limit" })]))',
-      })
+
       const session = new Session()
       session.append([
         {
@@ -503,7 +479,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         client,
         model: model as Models,
         instructions: 'Answer plan questions using the knowledge base. Fetch independent topics in parallel.',
-        examples: withExamples ? [example] : [],
+
         tools: [searchKnowledge],
         chat: createTestChat({
           components: [],
@@ -522,7 +498,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           model,
           run,
           scenario: 'parallel-search',
-          withExamples,
+
           success: result.isSuccess(),
           ...metrics(result),
           queries,
@@ -544,32 +520,14 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
 
     it('emits cards, images and distinct button actions with exact props', async () => {
       const sent: ChatMessage[] = []
-      const example = new Example({
-        situation: 'The user asks: Present the Hiking guide and its cover, with links and actions.',
-        messages: [
-          { component: DefaultComponents.Card, props: { title: 'Hiking guide', text: 'Trail safety tips.' } },
-          {
-            component: DefaultComponents.Image,
-            props: { url: 'https://example.com/hiking.jpg', alt: 'Hiking guide cover' },
-          },
-          {
-            component: DefaultComponents.Button,
-            props: { action: 'url', label: 'Read guide', url: 'https://example.com/hiking' },
-          },
-          {
-            component: DefaultComponents.Button,
-            props: { action: 'postback', label: 'Save guide', value: 'save_hiking' },
-          },
-        ],
-        exit: ListenExit,
-      })
+
       const session = new Session()
       session.append([
         {
           role: 'user',
           name: 'user',
           content:
-            'Send a card titled "Cycling guide" with text "Road safety tips.", then the image https://example.com/cycling.jpg with alt "Cycling guide cover", then a URL button labeled "Read guide" pointing to https://example.com/cycling, then a postback button labeled "Save guide" with value "save_cycling".',
+            'Send a card titled "Cycling guide" with text "Road safety tips.", then the image https://example.com/cycling.jpg with alt "Cycling guide cover", then one group of buttons: a URL button labeled "Read guide" pointing to https://example.com/cycling and a postback button labeled "Save guide" with value "save_cycling", in that order.',
         },
       ])
 
@@ -579,9 +537,9 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         model: model as Models,
         instructions:
           'Present supplied content using the requested components. Use exact titles, labels, URLs, and action values. Do not add a text introduction or closing message.',
-        examples: withExamples ? [example] : [],
+
         chat: createTestChat({
-          components: [DefaultComponents.Card, DefaultComponents.Image, DefaultComponents.Button],
+          components: [DefaultComponents.Card, DefaultComponents.Image, DefaultComponents.Buttons],
 
           onMessage: async (message) => {
             sent.push(message)
@@ -594,7 +552,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           model,
           run,
           scenario: 'rich-messages',
-          withExamples,
+
           success: result.isSuccess(),
           ...metrics(result),
           messages: sent,
@@ -605,8 +563,10 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
       expect(sent).toEqual([
         DefaultComponents.Card.render({ title: 'Cycling guide', text: 'Road safety tips.' }),
         DefaultComponents.Image.render({ url: 'https://example.com/cycling.jpg', alt: 'Cycling guide cover' }),
-        DefaultComponents.Button.render({ action: 'url', label: 'Read guide', url: 'https://example.com/cycling' }),
-        DefaultComponents.Button.render({ action: 'postback', label: 'Save guide', value: 'save_cycling' }),
+        DefaultComponents.Buttons.render([
+          { action: 'url', label: 'Read guide', url: 'https://example.com/cycling' },
+          { action: 'postback', label: 'Save guide', value: 'save_cycling' },
+        ]),
       ])
       expectRuntimeModelRoute(result, model)
       expectAcceptedProtocol(result)
@@ -665,9 +625,9 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
       expectAcceptedProtocol(result)
     }, 120_000)
 
-    it('emits structured carousel props without copying example facts', async () => {
+    it('emits structured custom carousel props', async () => {
       const ProductCarousel = new Component({
-        name: 'ProductCarousel',
+        name: 'productCarousel',
         description: 'Displays products as a carousel of cards.',
         props: z.object({
           cards: z
@@ -675,18 +635,6 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
             .min(1)
             .max(10),
         }),
-        generation: {
-          examples: [
-            {
-              props: {
-                cards: [
-                  { title: 'Trail shoe', imageUrl: 'https://example.com/trail.jpg', url: 'https://example.com/trail' },
-                  { title: 'Road shoe', imageUrl: 'https://example.com/road.jpg', url: 'https://example.com/road' },
-                ],
-              },
-            },
-          ],
-        },
       })
       const cards = [
         { title: 'Blue mug', imageUrl: 'https://example.com/blue.jpg', url: 'https://example.com/blue' },
@@ -716,7 +664,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           model,
           run,
           scenario: 'carousel',
-          withExamples,
+
           success: result.isSuccess(),
           ...metrics(result),
           messages: sent,

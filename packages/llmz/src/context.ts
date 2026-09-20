@@ -1,23 +1,21 @@
-import { type CognitiveMessage, Models, SttModels } from '@botpress/cognitive'
+import { Models, SttModels } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import { ulid } from 'ulid'
 import { Chat } from './chat.js'
-import { assertValidComponent, Component } from './component.js'
+import { assertValidComponent, createComponentRegistry, type ComponentRegistry } from './component.js'
 import { LoopExceededError } from './errors.js'
-import type { Example } from './example.js'
 import { Exit } from './exit.js'
 import { getValue, ValueOrGetter } from './getter.js'
 import { HookedArray } from './handlers.js'
+import { createInspector, type Inspector, type OnInspect } from './inspection.js'
 import { ObjectInstance } from './objects.js'
 import { getNativeSystemMessage } from './prompts/native.js'
 import { LLMzPrompts } from './prompts/prompt.js'
 import { resolveResponse, type ResolvedResponse } from './response.js'
-import { createNativeToolCatalogue, type NativeToolCatalogue } from './runtime/native-tools.js'
 import { RESERVED_RUNTIME_NAMES } from './runtime-names.js'
 import { Session } from './session.js'
 import { Tool } from './tool.js'
 import { DEFAULT_TOOL_RESULT_MAX_TOKENS } from './truncate.js'
-import { stripTruncationTags } from './truncator.js'
 import { ObjectMutation, Serializable, Trace } from './types.js'
 import { getTokenizer } from './utils.js'
 
@@ -36,12 +34,8 @@ export type ContextTokens = {
   instructions: number
   /** Callable JavaScript declarations and native tool schemas. */
   tools: number
-  /** Always zero in the native protocol; conversation history is included in iterations. */
-  transcript: number
   /** Native execution rules documenting components and exits. */
   protocol: number
-  /** Consumer few-shot demonstrations, separate from the live transcript. */
-  examples: number
   /** Current input, retained native history, tool results, and the memory overview. */
   iterations: number
 }
@@ -66,13 +60,12 @@ export type TokenUsage = {
 }
 
 export type IterationParameters = {
-  chatEnabled?: boolean
+  chatEnabled: boolean
   tools: Tool[]
   objects: ObjectInstance[]
   exits: Exit[]
   instructions?: string
-  examples?: Example[]
-  components: Component[]
+  components: ComponentRegistry
   response?: ResolvedResponse
   model: Models | Models[]
   temperature: number
@@ -190,13 +183,11 @@ export const DefaultExit = new Exit({
 export namespace Iteration {
   export type JSON = {
     id: string
-    messages: LLMzPrompts.Message[]
     code?: string
     traces: Trace[]
     model: Models | Models[]
     temperature: number
     reasoningEffort?: 'low' | 'medium' | 'high' | 'dynamic' | 'none'
-    variables: Record<string, any>
     started_ts: number
     ended_ts?: number
     status: IterationStatus
@@ -214,10 +205,6 @@ export namespace Iteration {
       time_to_last_token?: number
     }
     tokens?: TokenUsage
-    tools: Tool.JSON[]
-    objects: ObjectInstance.JSON[]
-    exits: Exit.JSON[]
-    instructions?: string
     duration?: string
     error?: string | null
     isChatEnabled?: boolean
@@ -226,15 +213,12 @@ export namespace Iteration {
 
 export class Iteration implements Serializable<Iteration.JSON> {
   public id: string
-  public messages: LLMzPrompts.Message[]
+  public readonly systemMessage: LLMzPrompts.Message
   public code?: string
-  public initialMessages?: CognitiveMessage[]
-  public nativeTools?: NativeToolCatalogue
   public sessionInfo?: { id: string; number: number; turn: number; turnId: string; timestamp: number }
   /** Outer native call that owns the current JavaScript execution. */
   public nativeCallId?: string
   public traces: HookedArray<Trace>
-  public variables: Record<string, any>
 
   /**
    * Token usage of this iteration's LLM call. The `context` breakdown is measured
@@ -260,7 +244,7 @@ export class Iteration implements Serializable<Iteration.JSON> {
 
   private _parameters: IterationParameters
 
-  public get components(): Component[] {
+  public get components(): ComponentRegistry {
     return this._parameters.components
   }
 
@@ -293,13 +277,7 @@ export class Iteration implements Serializable<Iteration.JSON> {
   }
 
   public get exits() {
-    const exits = [...this._parameters.exits]
-
-    if (this.isChatEnabled) {
-      exits.push(ListenExit)
-    }
-
-    return exits
+    return this._parameters.exits
   }
 
   public get instructions() {
@@ -389,21 +367,15 @@ export class Iteration implements Serializable<Iteration.JSON> {
   }
 
   public get isChatEnabled() {
-    return this._parameters.chatEnabled ?? this._parameters.components.length > 0
+    return this._parameters.chatEnabled
   }
 
-  public constructor(props: {
-    id: string
-    parameters: IterationParameters
-    messages: LLMzPrompts.Message[]
-    variables: Record<string, any>
-  }) {
+  public constructor(props: { id: string; parameters: IterationParameters; systemMessage: LLMzPrompts.Message }) {
     this.id = props.id
     this.status = { type: 'pending' }
     this.traces = new HookedArray<Trace>()
     this._mutations = new Map()
-    this.messages = props.messages
-    this.variables = props.variables
+    this.systemMessage = props.systemMessage
     this._parameters = props.parameters
     this.started_ts = Date.now()
   }
@@ -420,23 +392,17 @@ export class Iteration implements Serializable<Iteration.JSON> {
   public toJSON() {
     return {
       id: this.id,
-      messages: [...this.messages],
       code: this.code,
       model: this.model,
       temperature: this.temperature,
       reasoningEffort: this.reasoningEffort,
       traces: [...this.traces],
-      variables: this.variables,
       started_ts: this.started_ts,
       ended_ts: this.ended_ts,
       status: this.status,
       mutations: [...this._mutations.values()],
       llm: this.llm,
       tokens: this.tokens,
-      tools: this._parameters.tools.map((tool) => tool.toJSON()),
-      objects: this._parameters.objects.map((obj) => obj.toJSON()),
-      exits: this._parameters.exits.map((exit) => exit.toJSON()),
-      instructions: this._parameters.instructions,
       duration: this.duration,
       error: this.error,
       isChatEnabled: this.isChatEnabled,
@@ -452,7 +418,7 @@ export namespace Context {
     timeout: number
     loop: number
     metadata: Record<string, any>
-    session: Session.JSON
+    sessionId: string
   }
 }
 
@@ -461,7 +427,6 @@ export class Context implements Serializable<Context.JSON> {
 
   public chat?: Chat
   public instructions?: ValueOrGetter<string, Context>
-  public examples?: ValueOrGetter<Example[], Context>
   public objects?: ValueOrGetter<ObjectInstance[], Context>
   public tools?: ValueOrGetter<Tool[], Context>
   public exits?: ValueOrGetter<Exit[], Context>
@@ -470,6 +435,7 @@ export class Context implements Serializable<Context.JSON> {
   public reasoningEffort?: ValueOrGetter<'low' | 'medium' | 'high' | 'dynamic' | 'none', Context>
 
   public session: Session
+  public readonly inspector: Inspector
   public timeout: number = 60_000 // Default timeout of 60 seconds
   public loop: number
   /**
@@ -515,33 +481,25 @@ export class Context implements Serializable<Context.JSON> {
       timestamp: Date.now(),
     })
 
-    const { messages, parts } = await this._getIterationMessages(parameters)
-    const contextTokens = this._measureContextTokens(messages, parts)
+    const { message, parts } = await this._getIterationMessages(parameters)
+    const contextTokens = this._measureContextTokens([message], parts)
 
-    const availableExits = [...parameters.exits]
-    if (this.chat) {
-      availableExits.push(ListenExit)
-    }
-
-    const nativeTools = createNativeToolCatalogue({ components: parameters.components, exits: availableExits })
     const sessionInfo = this.session.nextIteration()
 
     try {
-      this.session.memory.assertCapacityForIteration(sessionInfo)
+      this.session.assertCapacityForIteration(sessionInfo)
     } catch (error) {
-      this.session.settleIteration(sessionInfo.id)
+      this.session.cancelIteration(sessionInfo.id)
       throw error
     }
 
     const iteration = new Iteration({
       id: sessionInfo.id,
-      variables: this.session.memory.getBindings(),
       parameters,
-      messages,
+      systemMessage: message,
     })
 
     iteration.sessionInfo = sessionInfo
-    iteration.nativeTools = nativeTools
     iteration.tokens = { input: 0, output: 0, total: 0, context: contextTokens }
 
     this.iterations.push(iteration)
@@ -560,7 +518,7 @@ export class Context implements Serializable<Context.JSON> {
   private _measureContextTokens(messages: LLMzPrompts.Message[], parts: LLMzPrompts.SystemPromptParts): ContextTokens {
     const tokenizer = getTokenizer()
 
-    const countText = (text: string | undefined) => (text?.length ? tokenizer.count(stripTruncationTags(text)) : 0)
+    const countText = (text: string | undefined) => (text?.length ? tokenizer.count(text) : 0)
     const countMessage = (message: LLMzPrompts.Message): number => {
       if (typeof message.content === 'string') {
         return countText(message.content)
@@ -576,57 +534,38 @@ export class Context implements Serializable<Context.JSON> {
 
     const instructions = countText(parts.instructions)
     const tools = countText(parts.tools)
-    const transcript = countText(parts.transcript)
     const protocol = countText(parts.protocol)
-    const examples = countText(parts.examples)
 
     const systemTokens = messages.filter((x) => x.role === 'system').reduce((acc, x) => acc + countMessage(x), 0)
     const otherTokens = messages.filter((x) => x.role !== 'system').reduce((acc, x) => acc + countMessage(x), 0)
 
-    const isFirstIteration = this.iterations.length === 0
-    const framework = Math.max(0, systemTokens - (instructions + tools + transcript + protocol + examples))
-    const iterations = isFirstIteration ? 0 : otherTokens
+    const framework = Math.max(0, systemTokens - instructions - tools - protocol)
 
     return {
-      total:
-        framework +
-        instructions +
-        tools +
-        transcript +
-        protocol +
-        examples +
-        iterations +
-        (isFirstIteration ? otherTokens : 0),
-      framework: framework + (isFirstIteration ? otherTokens : 0),
+      total: systemTokens + otherTokens,
+      framework,
       instructions,
       tools,
-      transcript,
       protocol,
-      examples,
-      iterations,
+      iterations: otherTokens,
     }
   }
 
-  private async _getIterationMessages(
-    parameters: IterationParameters
-  ): Promise<{ messages: LLMzPrompts.Message[]; parts: LLMzPrompts.SystemPromptParts }> {
-    const exits = this.chat ? [...parameters.exits, ListenExit] : parameters.exits
+  private async _getIterationMessages(parameters: IterationParameters): Promise<LLMzPrompts.SystemMessage> {
     const { message, parts } = await getNativeSystemMessage({
       isChatEnabled: !!this.chat,
       globalTools: parameters.tools,
       objects: parameters.objects,
       instructions: parameters.instructions,
-      examples: parameters.examples,
-      exits,
+      exits: parameters.exits,
       components: parameters.components,
       response: parameters.response,
     })
-    return { messages: [message, ...this.session.requestMessages()], parts }
+    return { message, parts }
   }
 
   private async _refreshIterationParameters(): Promise<IterationParameters> {
     const instructions = await getValue(this.instructions, this)
-    const examples = await getValue(this.examples, this)
     const configuredTools = (await getValue(this.tools, this)) ?? []
 
     // Check the configured names before duplicate-name normalization can replace them.
@@ -638,7 +577,7 @@ export class Context implements Serializable<Context.JSON> {
 
     const tools = Tool.withUniqueNames(configuredTools)
     const objects = (await getValue(this.objects, this)) ?? []
-    const exits = (await getValue(this.exits, this)) ?? []
+    const exits = [...((await getValue(this.exits, this)) ?? [])]
     const components = await getValue(this.chat?.components ?? [], this)
     const response = this.chat ? resolveResponse(await getValue(this.chat.response, this)) : undefined
     const model = (await getValue(this.model, this)) ?? 'best'
@@ -700,8 +639,22 @@ export class Context implements Serializable<Context.JSON> {
       throw new Error('Instructions are too long. Expected at most 1,000,000 characters.')
     }
 
-    if (!this.chat && !exits.length && this.exits === undefined) {
+    if (this.chat) {
+      exits.push(ListenExit)
+    } else if (!exits.length && this.exits === undefined) {
       exits.push(DefaultExit)
+    }
+
+    const exitNames = new Set<string>()
+
+    for (const exit of exits) {
+      for (const name of new Set([exit.name, ...exit.aliases].map((name) => name.toLowerCase()))) {
+        if (exitNames.has(name)) {
+          throw new Error(`Duplicate exit name or alias: ${name}`)
+        }
+
+        exitNames.add(name)
+      }
     }
 
     if (typeof temperature !== 'number' || isNaN(temperature) || temperature < 0 || temperature > 2) {
@@ -727,8 +680,7 @@ export class Context implements Serializable<Context.JSON> {
       objects,
       exits,
       instructions,
-      examples,
-      components,
+      components: createComponentRegistry(components),
       response,
       model,
       temperature,
@@ -739,7 +691,6 @@ export class Context implements Serializable<Context.JSON> {
   public constructor(props: {
     chat?: Chat
     instructions?: ValueOrGetter<string, Context>
-    examples?: ValueOrGetter<Example[], Context>
     objects?: ValueOrGetter<ObjectInstance[], Context>
     tools?: ValueOrGetter<Tool[], Context>
     exits?: ValueOrGetter<Exit[], Context>
@@ -749,6 +700,7 @@ export class Context implements Serializable<Context.JSON> {
     model?: ValueOrGetter<Models | Models[], Context>
     metadata?: Record<string, any>
     session?: Session
+    onInspect?: OnInspect
     timeout?: number
     maxTokens?: number
     toolResultMaxTokens?: number
@@ -758,7 +710,6 @@ export class Context implements Serializable<Context.JSON> {
   }) {
     this.id = `llmz_${ulid()}`
     this.instructions = props.instructions
-    this.examples = props.examples
     this.objects = props.objects
     this.tools = props.tools
     this.exits = props.exits
@@ -772,6 +723,19 @@ export class Context implements Serializable<Context.JSON> {
     this.iterations = []
     this.metadata = props.metadata ?? {}
     this.session = props.session ?? new Session()
+    const inspectValue = createInspector(props.onInspect)
+    this.inspector = (value, options) =>
+      inspectValue(value, {
+        ...options,
+        identity: {
+          sessionId: this.session.id,
+          turn: this.session.turn,
+          turnId: this.session.turnId,
+          iterationId: this.iterations.at(-1)?.id,
+          iteration: this.iterations.at(-1)?.sessionInfo?.number,
+          ...options.identity,
+        },
+      })
     this.maxTokens = props.maxTokens
     this.toolResultMaxTokens = props.toolResultMaxTokens ?? DEFAULT_TOOL_RESULT_MAX_TOKENS
     this.maxTimeToFirstToken = props.maxTimeToFirstToken
@@ -814,7 +778,7 @@ export class Context implements Serializable<Context.JSON> {
       timeout: this.timeout,
       loop: this.loop,
       metadata: this.metadata,
-      session: this.session.toJSON(),
+      sessionId: this.session.id,
     } satisfies Context.JSON
   }
 }

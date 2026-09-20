@@ -3,6 +3,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { type MessageDelta } from '../chat.js'
 import { Component } from '../component.js'
 import { Exit } from '../exit.js'
+import { MemoryCapacityError } from '../memory.js'
+import { ObjectInstance } from '../objects.js'
 import { Session } from '../session.js'
 import { Tool } from '../tool.js'
 import { executeContext } from './execute.js'
@@ -15,6 +17,66 @@ const toolResults = (client: NativeClient, request: number) =>
   client.requests[request]!.messages.filter((message) => message.type === 'tool_result')
 
 describe('native execution safety', () => {
+  it('settles a capacity failure without replaying effects or leaving an unsavable session', async () => {
+    const session = new Session({ maxBytes: 5000 })
+    const receipt = 'x'.repeat(3200)
+    const action = vi.fn(async () => receipt)
+    const client = new NativeClient([
+      javascript('const receipt = await action(); throw new Error("large diagnostic ".repeat(200));'),
+    ])
+    const result = await executeContext({
+      client,
+      session,
+      tools: [new Tool({ name: 'action', handler: action })],
+      exits: [done],
+    })
+
+    expect(result.isError()).toBe(true)
+    if (result.isError()) {
+      expect(result.error).toBeInstanceOf(MemoryCapacityError)
+    }
+
+    expect(action).toHaveBeenCalledOnce()
+    expect(client.requests).toHaveLength(1)
+    expect(session.pendingCalls).toEqual([])
+    expect(session.iterations[0]?.outcome).toBe('error')
+    expect(session.memory.variables.receipt).toBe(receipt)
+    expect(Session.fromJSON(JSON.parse(JSON.stringify(session))).memory.variables.receipt).toBe(receipt)
+  })
+
+  it('closes an inspected call when a property update exceeds memory capacity', async () => {
+    const session = new Session({ maxBytes: 5000 })
+    const action = vi.fn(async () => 'completed')
+    const account = new ObjectInstance({
+      name: 'account',
+      properties: [{ name: 'name', value: 'original', type: z.string(), writable: true }],
+    })
+    const client = new NativeClient([
+      javascript('const receipt = await action(); account.name = "x".repeat(10000); return inspect({ ok: true });'),
+    ])
+    const result = await executeContext({
+      client,
+      session,
+      objects: [account],
+      tools: [new Tool({ name: 'action', handler: action })],
+      exits: [done],
+    })
+
+    expect(result.isError()).toBe(true)
+    if (result.isError()) {
+      expect(result.error).toBeInstanceOf(MemoryCapacityError)
+    }
+
+    expect(action).toHaveBeenCalledOnce()
+    expect(client.requests).toHaveLength(1)
+    expect(session.pendingCalls).toEqual([])
+    expect(session.iterations[0]?.outcome).toBe('execution_error')
+    expect(session.memory.variables.receipt).toBe('completed')
+    expect(session.memory.getObjectPropertyValue('account', 'name')).toBe('original')
+    expect(session.messages.at(-1)?.content).toContain('Memory limit exceeded')
+    expect(() => Session.fromJSON(JSON.parse(JSON.stringify(session)))).not.toThrow()
+  })
+
   it('a policy hook can abort before a business handler starts', async () => {
     const action = vi.fn(async () => ({ charged: true }))
     const after = vi.fn()
@@ -81,7 +143,7 @@ describe('native execution safety', () => {
     expect(result.isSuccess()).toBe(true)
     expect(action).toHaveBeenCalledOnce()
     expect(result.session.memory.variables.payment).toEqual({ charged: true })
-    expect(result.session.memory.getBindings().$return).toEqual({ charged: true })
+    expect(result.session.getBindings().$return).toEqual({ charged: true })
     expect(toolResults(client, 1)[0]?.content).toContain('Result')
   })
 
@@ -115,7 +177,7 @@ describe('native execution safety', () => {
 
   it('does not replay earlier successful delivery after a later queued delivery fails', async () => {
     const card = new Component({
-      name: 'Card',
+      name: 'card',
 
       description: 'Card',
       props: z.object({ id: z.string() }),

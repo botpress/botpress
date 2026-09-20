@@ -36,8 +36,8 @@ export const buildVMContext = ({
   javascriptApi,
 }: BuildVMContextProps): VMContext => {
   const traces: Trace[] = iteration.traces
-  const vmContext = { ...stripInvalidIdentifiers(iteration.variables) }
-  const memoryBindings = ctx.session.memory.getBindings()
+  const memoryBindings = ctx.session.getBindings()
+  const vmContext = { ...stripInvalidIdentifiers(memoryBindings) }
 
   for (const name of ['$return', '$iterations']) {
     Object.defineProperty(vmContext, name, {

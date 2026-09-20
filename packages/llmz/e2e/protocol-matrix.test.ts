@@ -3,8 +3,8 @@ import { parse } from 'acorn'
 import { appendFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
-import { getNativeExecutionState, getNativeSystemMessage } from '../src/prompts/native.js'
-import { createNativeToolCatalogue, transcriptToNativeMessages } from '../src/runtime/native-tools.js'
+import { getNativeSystemMessage } from '../src/prompts/native.js'
+import { RUN_JAVASCRIPT_TOOL, transcriptToNativeMessages } from '../src/runtime/native-tools.js'
 
 import {
   cases,
@@ -57,9 +57,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         )
       }
 
-      const last = messages.at(-1)!
-      last.content = String(last.content) + '\n\n' + getNativeExecutionState(scenario.props)
-      const chatEnabled = scenario.props.isChatEnabled ?? scenario.props.components.length > 0
+      const chatEnabled = scenario.props.isChatEnabled
 
       const request: CognitiveRequest = {
         model,
@@ -67,7 +65,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         temperature: 0.7,
         reasoningEffort: 'none',
         maxTokens: 1600,
-        tools: createNativeToolCatalogue(scenario.props).tools,
+        tools: [RUN_JAVASCRIPT_TOOL],
         toolControl: { mode: chatEnabled ? 'auto' : 'required', parallel: false },
         options: { skipCache: true },
       }

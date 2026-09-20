@@ -1,68 +1,34 @@
 import { z } from '@bpinternal/zui'
-import { camelCase, cloneDeep, isEqual } from 'lodash-es'
+import { cloneDeep } from 'lodash-es'
 import type { MessageMetadata } from './chat.js'
 
 const TEXT_NAMES = new Set(['message', 'text', 'markdown', 'md', 'speech', 'speak', 'spoken'])
-const RESERVED_METHOD_NAMES = new Set(['then', 'constructor', 'prototype', '__proto__'])
-const LEGACY_DEFINITION_FIELDS = ['type', 'default', 'leaf', 'container', 'body', 'children', 'examples']
-const renderedComponents = new WeakMap<object, { schema: z.ZodObject<any>; props: Record<string, unknown> }>()
+const RESERVED_METHOD_NAMES = new Set(['then', 'constructor', 'prototype', '__proto__', 'button'])
+const renderedComponents = new WeakMap<object, z.ZodType>()
 
-export type GenerativeComponentExample = {
-  props: Record<string, unknown>
-}
-
-/** Guidance and examples for the component's JavaScript method. */
-export type GenerativeComponentMetadata = {
-  usage?: string
-  doNotUseWhen?: string
-  examples?: Array<GenerativeComponentExample | GenerativeComponentExample[]>
-  priority?: number
-}
-
-export type ComponentHandler<P extends z.ZodObject<any> = z.ZodObject<any>> = (
+export type ComponentHandler<P extends z.ZodType = any> = (
   props: z.output<P>,
   metadata: MessageMetadata
 ) => Promise<void> | void
 
-export type ComponentDefinition<P extends z.ZodObject<any> = z.ZodObject<any>> = {
+export type ComponentDefinition<P extends z.ZodType = any> = {
+  /** The exact JavaScript method name exposed on chat. */
   name: string
   description: string
   props: P
-  aliases?: string[]
-  generation?: GenerativeComponentMetadata
   handler?: ComponentHandler<P>
 }
 
-export type RenderedComponent<TProps extends Record<string, unknown> = Record<string, unknown>> = {
-  type: 'component'
-  name: string
-  props: TProps
+export type RenderedComponent<TProps = unknown> = {
+  readonly type: 'component'
+  readonly name: string
+  readonly props: TProps
 }
+
+export type ComponentRegistry = ReadonlyMap<string, Component>
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value)
-}
-
-function assertValidName(name: unknown, label: string): asserts name is string {
-  if (typeof name !== 'string' || !name) {
-    throw new Error(`${label} must be a non-empty string`)
-  }
-
-  const method = camelCase(name)
-
-  if (TEXT_NAMES.has(name.toLowerCase()) || TEXT_NAMES.has(method.toLowerCase())) {
-    throw new Error(`${label} "${name}" is reserved for native assistant responses`)
-  }
-
-  if (!/^[A-Za-z][A-Za-z0-9_-]{2,49}$/.test(name)) {
-    throw new Error(
-      `${label} "${name}" must contain 3–50 letters, digits, underscores, or hyphens and start with a letter`
-    )
-  }
-
-  if (!/^[A-Za-z_$][\w$]*$/.test(method) || RESERVED_METHOD_NAMES.has(method.toLowerCase())) {
-    throw new Error(`${label} "${name}" produces an unavailable chat method: ${method}`)
-  }
 }
 
 export function assertValidComponent(component: unknown): asserts component is ComponentDefinition {
@@ -70,71 +36,61 @@ export function assertValidComponent(component: unknown): asserts component is C
     throw new Error('Component definition must be an object')
   }
 
-  const legacyField = LEGACY_DEFINITION_FIELDS.find((field) => Object.hasOwn(component, field))
+  const unknown = Object.keys(component).find((key) => !['name', 'description', 'props', 'handler'].includes(key))
 
-  if (legacyField) {
-    throw new Error(`Component definitions use a flat props schema; "${legacyField}" is no longer supported`)
+  if (unknown) {
+    throw new Error(`Unknown component option: ${unknown}`)
   }
 
-  assertValidName(component.name, 'Component name')
+  const name = component.name
+
+  if (typeof name !== 'string' || !/^[A-Za-z_$][\w$]{0,49}$/.test(name)) {
+    throw new Error('Component name must be a JavaScript identifier of 1–50 characters')
+  }
+
+  if (TEXT_NAMES.has(name.toLowerCase())) {
+    throw new Error(`Component name "${name}" is reserved for native assistant responses`)
+  }
+
+  if (RESERVED_METHOD_NAMES.has(name.toLowerCase())) {
+    throw new Error(`Component name "${name}" is unavailable; use "buttons" for button messages`)
+  }
 
   if (typeof component.description !== 'string' || !component.description.trim()) {
     throw new Error('Component must have a description')
   }
 
-  if (!z.is.zuiType(component.props) || !z.is.zuiObject(component.props)) {
-    throw new Error('Component props must be a Zod object schema')
+  if (!z.is.zuiType(component.props) || (!z.is.zuiObject(component.props) && !z.is.zuiArray(component.props))) {
+    throw new Error('Component props must be a Zod object or array schema')
   }
 
   if (component.handler !== undefined && typeof component.handler !== 'function') {
     throw new Error('Component handler must be a function')
   }
-
-  if (component.aliases !== undefined) {
-    if (!Array.isArray(component.aliases)) {
-      throw new Error('Component aliases must be an array')
-    }
-
-    for (const alias of component.aliases) {
-      assertValidName(alias, 'Component alias')
-    }
-  }
-
-  if (component.generation !== undefined) {
-    if (!isRecord(component.generation)) {
-      throw new Error('Component generation metadata must be an object')
-    }
-
-    const examples = component.generation.examples
-
-    if (examples !== undefined) {
-      if (!Array.isArray(examples)) {
-        throw new Error('Component generation examples must be an array')
-      }
-
-      for (const example of examples.flat()) {
-        if (!isRecord(example) || !isRecord(example.props) || Object.keys(example).some((key) => key !== 'props')) {
-          throw new Error('Component generation examples must contain only { props }')
-        }
-      }
-    }
-  }
 }
 
-/** The prompt and VM use the same normalized method name. */
-export function getComponentMethodName(definition: ComponentDefinition): string {
-  const names = [definition.name, ...(definition.aliases ?? [])]
-  return names.some((name) => name.toLowerCase() === 'button') ? 'buttons' : camelCase(definition.name)
+function freeze<T>(value: T, seen = new WeakSet<object>()): T {
+  if (value && typeof value === 'object' && !seen.has(value)) {
+    seen.add(value)
+
+    for (const child of Object.values(value)) {
+      freeze(child, seen)
+    }
+
+    Object.freeze(value)
+  }
+
+  return value
 }
 
-export class Component<P extends z.ZodObject<any> = any> {
-  public readonly definition: ComponentDefinition<P>
-  public readonly propsType!: z.infer<P>
+export class Component<P extends z.ZodType = any> {
+  public readonly definition: Readonly<ComponentDefinition<P>>
+  public readonly propsType!: z.output<P>
   public readonly handler: ComponentHandler<P> | undefined
 
   public constructor(definition: ComponentDefinition<P>) {
     assertValidComponent(definition)
-    this.definition = definition
+    this.definition = Object.freeze({ ...definition })
     this.handler = definition.handler
   }
 
@@ -142,23 +98,41 @@ export class Component<P extends z.ZodObject<any> = any> {
     return new Component({ ...this.definition, handler })
   }
 
-  public render(props: z.input<P>): RenderedComponent<z.infer<P>> {
-    const rendered: RenderedComponent<z.infer<P>> = {
-      type: 'component',
+  /** Parse once and retain an immutable delivery value. */
+  public render(props: z.input<P>): RenderedComponent<z.output<P>> {
+    const rendered = freeze({
+      type: 'component' as const,
       name: this.definition.name,
-      props: this.definition.props.parse(props) as z.infer<P>,
-    }
+      props: cloneDeep(this.definition.props.parse(props)) as z.output<P>,
+    })
 
-    renderedComponents.set(rendered, { schema: this.definition.props, props: cloneDeep(rendered.props) })
+    renderedComponents.set(rendered, this.definition.props)
     return rendered
   }
 }
 
-/** Validates raw tool yields without transforming an unchanged render a second time. */
-export function prepareComponentDelivery<P extends z.ZodObject<any>>(
+/** Resolve the exact methods once and share them between the prompt and runtime. */
+export function createComponentRegistry(components: readonly Component[]): ComponentRegistry {
+  const registry = new Map<string, Component>()
+
+  for (const component of components) {
+    const name = component.definition.name
+
+    if (registry.has(name)) {
+      throw new Error(`Duplicate component name: ${name}`)
+    }
+
+    registry.set(name, component)
+  }
+
+  return registry
+}
+
+/** Raw descriptors are parsed; already-rendered values keep their parsed props. */
+export function prepareComponentDelivery<P extends z.ZodType>(
   component: Component<P>,
   value: unknown
-): RenderedComponent<z.infer<P>> {
+): RenderedComponent<z.output<P>> {
   if (!isAnyComponent(value)) {
     throw new Error('A component delivery requires { type: "component", name, props }')
   }
@@ -167,29 +141,18 @@ export function prepareComponentDelivery<P extends z.ZodObject<any>>(
     throw new Error(`Component "${value.name}" is not registered as "${component.definition.name}"`)
   }
 
-  const rendered = renderedComponents.get(value)
-
-  if (rendered?.schema === component.definition.props && isEqual(value.props, rendered.props)) {
-    const prepared: RenderedComponent<z.infer<P>> = {
-      type: 'component',
-      name: component.definition.name,
-      props: cloneDeep(rendered.props) as z.infer<P>,
-    }
-
-    // Deliver the recorded data, so later edits to the yielded object cannot
-    // change the props after validation and before its handler runs.
-    renderedComponents.set(prepared, rendered)
-    return prepared
+  if (renderedComponents.get(value) === component.definition.props) {
+    return value
   }
 
-  return component.render(value.props as z.input<P>)
+  return component.render(value.props)
 }
 
-export function isComponent<P extends z.ZodObject<any>>(
+export function isComponent<P extends z.ZodType>(
   rendered: unknown,
   component: Component<P>
-): rendered is RenderedComponent<z.infer<P>> {
-  return isAnyComponent(rendered) && rendered.name.toLowerCase() === component.definition.name.toLowerCase()
+): rendered is RenderedComponent<z.output<P>> {
+  return isAnyComponent(rendered) && rendered.name === component.definition.name
 }
 
 export function isAnyComponent(value: unknown): value is RenderedComponent {
@@ -198,8 +161,7 @@ export function isAnyComponent(value: unknown): value is RenderedComponent {
     value.type === 'component' &&
     typeof value.name === 'string' &&
     value.name.length > 0 &&
-    isRecord(value.props) &&
-    !Object.hasOwn(value, '__jsx') &&
-    !Object.hasOwn(value, 'children')
+    (isRecord(value.props) || Array.isArray(value.props)) &&
+    Object.keys(value).every((key) => ['type', 'name', 'props'].includes(key))
   )
 }

@@ -1,3 +1,4 @@
+import type { CognitiveMessage } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import { beforeAll, afterAll, assert, describe, expect, it, vi } from 'vitest'
 
@@ -456,7 +457,7 @@ describe('llmz', { retry: 0, timeout: 60_000 }, () => {
 
     expect(res.firstIteration.status.type).toBe('thinking_requested')
     expect(confirmMessages).length(1)
-    expect(res.firstIteration.variables.orderId).toBe(ORDER_ID)
+    expect(result.session.memory.variables.orderId).toBe(ORDER_ID)
     expect(deleted).toBe(true)
     expect(res.allToolCalls.map((x) => x.tool_name)).toEqual(['fetchOrder', 'confirmWithUser', 'deleteOrder'])
   })
@@ -940,17 +941,22 @@ describe('llmz', { retry: 0, timeout: 60_000 }, () => {
         onMessage: async () => {},
       })
 
+      let requestMessages: CognitiveMessage[] = []
+
       const result = await llmz.executeContext({
         session,
         chat,
         options: { loop: 5 },
         exits: [eDone],
         client,
+        onBeforeRequest: ({ messages }) => {
+          requestMessages = messages
+        },
       })
 
       assertSuccess(result)
-      const userMessage = result.iteration.messages.find((message) => message.role === 'user')
-      const systemMessage = result.iteration.messages.find((message) => message.role === 'system')
+      const userMessage = requestMessages.find((message) => message.role === 'user')
+      const systemMessage = requestMessages.find((message) => message.role === 'system')
 
       expect(userMessage?.content).toContain(injection)
       expect(systemMessage?.content).not.toContain(injection)

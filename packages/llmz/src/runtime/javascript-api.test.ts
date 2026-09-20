@@ -2,7 +2,7 @@ import { z } from '@bpinternal/zui'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { DefaultComponents } from '../component.default.js'
-import { Component } from '../component.js'
+import { Component, createComponentRegistry } from '../component.js'
 import { Context, ListenExit } from '../context.js'
 import { Exit } from '../exit.js'
 import { Memory, MemoryCapacityError } from '../memory.js'
@@ -18,10 +18,10 @@ import { NativeClient, javascript } from './fixtures/native-client.js'
 import { createJavaScriptApi, type JavaScriptApi } from './javascript-api.js'
 import { buildVMContext } from './vm-context.js'
 
-const Button = new Component({
-  name: 'Button',
+const Buttons = new Component({
+  name: 'buttons',
   description: 'Show a button.',
-  props: z.object({ label: z.string().min(1), value: z.string() }),
+  props: z.array(z.object({ label: z.string().min(1), value: z.string() })).min(1),
 })
 
 const Completed = new Exit({
@@ -35,7 +35,7 @@ function setupApi() {
   const deliver = vi.fn(async () => {})
   const api = createJavaScriptApi({
     iteration: { id: 'iteration-1', nativeCallId: 'call-1' },
-    components: [Button],
+    components: createComponentRegistry([Buttons]),
     exits: [ListenExit, Completed],
     deliver,
   })
@@ -74,11 +74,14 @@ describe('JavaScript completion decisions', () => {
       [
         {
           id: 'call-1:message:1',
-          component: { type: 'component', name: 'Button', props: { label: 'Yes', value: 'yes' } },
-        },
-        {
-          id: 'call-1:message:2',
-          component: { type: 'component', name: 'Button', props: { label: 'No', value: 'no' } },
+          component: {
+            type: 'component',
+            name: 'buttons',
+            props: [
+              { label: 'Yes', value: 'yes' },
+              { label: 'No', value: 'no' },
+            ],
+          },
         },
       ],
     ])
@@ -116,7 +119,7 @@ describe('JavaScript completion decisions', () => {
     const deliver = vi.fn(async () => {})
     const api = createJavaScriptApi({
       iteration: { id: 'worker-1' },
-      components: [Button],
+      components: createComponentRegistry([Buttons]),
       exits: [Completed],
       deliver,
     })
@@ -148,7 +151,7 @@ describe('JavaScript completion decisions', () => {
   test('exposes only rich component methods and never offers text delivery', async () => {
     const api = createJavaScriptApi({
       iteration: { id: 'iteration-1' },
-      components: [DefaultComponents.Card, Button],
+      components: createComponentRegistry([DefaultComponents.Card, Buttons]),
       exits: [ListenExit],
       deliver: async () => {},
     })
@@ -230,31 +233,36 @@ describe('memory settlement before completion', () => {
     expect(client.requests).toHaveLength(1)
     expect(action).toHaveBeenCalledOnce()
     expect(handler).not.toHaveBeenCalled()
-    expect(result.session.memory.iterations[0]).toMatchObject({
+    expect(result.session.iterations[0]).toMatchObject({
       outcome: 'execution_error',
       hasResult: false,
     })
     expect(result.session.memory.getObjectPropertyValue('account', 'name')).toBe('original')
   })
 
-  test('updates only the outcome of a settled iteration', () => {
-    const memory = new Memory()
-    memory.commit({ id: 'iteration-1', number: 1, turn: 1, outcome: 'pending', hasResult: false })
+  test('settles the outcome without changing a captured result', () => {
+    const session = new Session()
+    const iteration = session.nextIteration('iteration-1')
+    session.commitIteration({ ...iteration, hasResult: true, result: 42 })
 
-    memory.updateOutcome('iteration-1', 'exit_success')
+    session.settleIteration(iteration.id, { outcome: 'exit_success' })
 
-    expect(memory.iterations).toHaveLength(1)
-    expect(memory.iterations[0]).toMatchObject({ id: 'iteration-1', outcome: 'exit_success', hasResult: false })
-    expect(memory.getBindings().$return).toBeUndefined()
+    expect(session.iterations).toHaveLength(1)
+    expect(session.iterations[0]).toMatchObject({ id: 'iteration-1', outcome: 'exit_success', hasResult: true })
+    expect(session.getBindings().$return).toBe(42)
   })
 
-  test('rolls back an outcome update that exceeds memory capacity', () => {
-    const memory = new Memory({ maxBytes: 500 })
-    memory.commit({ id: 'iteration-1', number: 1, turn: 1, outcome: 'pending', hasResult: false })
-    const original = memory.toJSON()
+  test('rolls back settlement metadata that exceeds memory capacity', () => {
+    const session = new Session({ maxBytes: 500 })
+    const iteration = session.nextIteration('iteration-1')
+    session.commitIteration({ ...iteration, hasResult: false })
+    const original = session.iterations
 
-    expect(() => memory.updateOutcome('iteration-1', 'exit_error', 'x'.repeat(2000))).toThrow(MemoryCapacityError)
-    expect(memory.toJSON()).toEqual(original)
+    expect(() => session.settleIteration(iteration.id, { outcome: 'exit_error', error: 'x'.repeat(2000) })).toThrow(
+      MemoryCapacityError
+    )
+    expect(session.iterations).toEqual(original)
+    expect(session.getBindings().$return).toBeUndefined()
   })
 })
 

@@ -74,7 +74,7 @@ describe('worker completion guidance', () => {
     const result = await executeContext({ client, exits: [], options: { loop: 2 } })
 
     expect(result.isError()).toBe(true)
-    expect(result.session.memory.getBindings().$return).toBe(42)
+    expect(result.session.getBindings().$return).toBe(42)
     expect(client.requests).toHaveLength(2)
 
     const correction = String(client.requests[1]!.messages.at(-1)?.content)

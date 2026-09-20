@@ -57,7 +57,7 @@ describe('chat mode code snippets', { retry: 0, timeout: 60_000 }, () => {
     messagesSent = []
     expectedSnippets = []
     session = new Session()
-    chat = createChat({ preset: 'markdown', examples: ['Here is some text.'] })
+    chat = createChat({ preset: 'markdown' })
   })
 
   describe('HTML and JavaScript code snippets', () => {
@@ -632,7 +632,6 @@ String types:
           instructions: `Respond with only the supplied code example in a Python code block.
 Transcribe the source verbatim, preserving indentation, blank lines, escapes, repeated patterns, and punctuation.
 Do not correct, expand, simplify, or reformat the supplied code. Do not add explanations or additional examples.`,
-          examples: [],
         }),
         session,
         instructions: 'Retrieve the Python documentation and reproduce its complete original code example.',
@@ -1030,7 +1029,6 @@ Markdown features:
 Display every search result exactly as supplied, preserving its HTML tags, attributes, entities, and text.
 Use HTML tags for any added paragraphs, emphasis, or links. Do not escape, decode, or replace the supplied HTML.
 Additional wrapper elements may surround each unchanged result. Do not use Markdown fences.`,
-          examples: [],
         }),
         session,
         options: { loop: 5 },
@@ -1098,7 +1096,6 @@ Copy the complete supplied HTML verbatim, preserving tags, attributes, entities,
 Do not decode or re-escape entities, correct markup, or reindent the source.
 An outer HTML wrapper is allowed only on separate lines, without changing the supplied HTML's indentation.
 Do not use Markdown fences.`,
-          examples: [],
         }),
         session,
         options: { loop: 5 },
@@ -1179,7 +1176,6 @@ Copy every supplied example verbatim, preserving tags, entities, attributes, pun
 Whitespace inside code and pre elements is part of the source: do not reindent or reformat it.
 Keep template expressions and escaped entities exactly as supplied, without evaluating, correcting, or decoding them.
 Place any additional HTML wrapper on separate lines without changing the examples. Do not use Markdown fences.`,
-          examples: [],
         }),
         session,
         options: { loop: 5 },
@@ -1458,7 +1454,6 @@ describe('message streaming', { retry: 0, timeout: 60_000 }, () => {
     expect(usage.context.total).toBeLessThan(usage.limit!)
     expect(usage.context.framework).toBeGreaterThan(0)
     expect(usage.context.instructions).toBeGreaterThan(0)
-    expect(usage.context.transcript).toBe(0)
     expect(usage.context.iterations).toBeGreaterThan(0)
     expect(usage.context.protocol).toBeGreaterThan(0)
     expect(result.tokens.total).toBe(usage.total)

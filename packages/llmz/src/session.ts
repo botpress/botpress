@@ -1,9 +1,18 @@
 import type { CognitiveMessage, CognitiveToolCall } from '@botpress/cognitive'
 import { ulid } from 'ulid'
 
-import { inspect } from './inspect.js'
-import { Memory } from './memory.js'
-import { type Transcript, TranscriptArray, isVoiceMessage } from './transcript.js'
+import { createInspector, type Inspector } from './inspection.js'
+import {
+  cloneMemoryValue,
+  decodeMemoryValue,
+  encodeMemoryValue,
+  freezeMemoryValue,
+  type EncodedMemoryValue,
+  type MemoryValue,
+} from './memory-codec.js'
+import { renderMemory } from './memory-render.js'
+import { Memory, type MemoryAssignment, type MemoryReport } from './memory.js'
+import { type Transcript, validateTranscriptMessage, isVoiceMessage } from './transcript.js'
 
 /** A native message plus opaque adapter fields, preserved without interpreting them. */
 export type SessionMessage = CognitiveMessage & Record<string, unknown>
@@ -18,12 +27,36 @@ export type SessionIteration = {
   timestamp: number
 }
 
+export type SessionIterationRecord = SessionIteration & {
+  outcome: string
+  error?: string
+  hasResult: boolean
+  result?: MemoryValue
+  unavailable?: string
+}
+
+export type IterationCapture = MemoryAssignment & {
+  id: string
+  variables?: Record<string, unknown>
+  hasResult?: boolean
+  result?: unknown
+}
+
 type HistoryGroup = {
   id: string
   turn: number
-  iteration?: SessionIteration
-  settled: boolean
+  iteration?: SessionIterationRecord
   messages: SessionMessage[]
+}
+
+type SerializedHistoryGroup = Omit<HistoryGroup, 'iteration'> & {
+  iteration?: Omit<SessionIterationRecord, 'result'> & { result?: EncodedMemoryValue }
+}
+
+type ActiveIteration = {
+  group: HistoryGroup & { iteration: SessionIterationRecord }
+  captured: boolean
+  following: HistoryGroup[]
 }
 
 type PendingInput = {
@@ -40,15 +73,16 @@ type AssistantResponse = {
 
 export namespace Session {
   export type JSON = {
-    version: 2
+    version: 3
     id: string
     turn: number
     turnId: string
     iteration: number
-    groups: HistoryGroup[]
+    groups: SerializedHistoryGroup[]
     memory: ReturnType<Memory['serialize']>
     pendingInputs: PendingInput[]
     activeTurn: boolean
+    latestResultId?: string
   }
 }
 
@@ -63,13 +97,15 @@ export class Session {
   #turnId = ''
   #iteration = 0
   #groups: HistoryGroup[] = []
+  #activeIteration?: ActiveIteration
+  #latestResultId?: string
   #pendingInputs: PendingInput[] = []
   #activeTurn = false
   #locked = false
 
   public constructor(options: { variables?: Record<string, unknown>; maxBytes?: number } = {}) {
     this.id = `session_${ulid()}`
-    this.memory = new Memory(options)
+    this.memory = new Memory({ ...options, additionalBytes: () => this.#resultBytes() })
   }
 
   public get turn(): number {
@@ -85,7 +121,7 @@ export class Session {
   }
 
   public get messages(): SessionMessage[] {
-    return clone(this.#groups.flatMap((group) => group.messages))
+    return clone(this.#allGroups().flatMap((group) => group.messages))
   }
 
   public get pendingMessages(): SessionMessage[] {
@@ -105,11 +141,45 @@ export class Session {
   }
 
   public get retainedIterationIds(): string[] {
-    return this.#groups.flatMap((group) => (group.iteration ? [group.iteration.id] : []))
+    return this.#allGroups().flatMap((group) => (group.iteration ? [group.iteration.id] : []))
   }
 
   public get pendingCalls(): Array<{ iterationId: string; callId: string }> {
-    return this.#groups.flatMap((group) => pendingCallIds(group).map((callId) => ({ iterationId: group.id, callId })))
+    return this.#activeIteration
+      ? pendingCallIds(this.#activeIteration.group).map((callId) => ({
+          iterationId: this.#activeIteration!.group.id,
+          callId,
+        }))
+      : []
+  }
+
+  /** Exact retained execution results, newest first. Each access returns a frozen copy. */
+  public get iterations(): readonly SessionIterationRecord[] {
+    return freezeMemoryValue(cloneMemoryValue(this.#records()) as SessionIterationRecord[])
+  }
+
+  public getBindings(): Record<string, MemoryValue> {
+    const history = this.iterations
+    const latest = history.find((entry) => entry.id === this.#latestResultId)
+    const bindings = this.memory.variables
+
+    Object.defineProperties(bindings, {
+      $return: { value: latest?.result, enumerable: true, writable: false, configurable: false },
+      $iterations: { value: history, enumerable: true, writable: false, configurable: false },
+    })
+
+    return bindings
+  }
+
+  public renderMemory(options: { now?: number; maxChars?: number; inspector?: Inspector } = {}): string {
+    return renderMemory({
+      ...options,
+      turn: this.#turn,
+      bindings: this.memory.bindings,
+      properties: this.memory.objectProperties,
+      iterations: this.iterations,
+      latestResultId: this.#latestResultId,
+    })
   }
 
   /** Prevent concurrent execute() calls from changing a shared session. */
@@ -160,7 +230,7 @@ export class Session {
     this.#activeTurn = true
 
     for (const input of this.#pendingInputs) {
-      this.#groups.push({ id: input.id, turn: this.#turn, settled: true, messages: [input.message] })
+      this.#groups.push({ id: input.id, turn: this.#turn, messages: [input.message] })
     }
 
     this.#pendingInputs = []
@@ -168,7 +238,7 @@ export class Session {
 
   /** Mark the active input batch complete without consuming newly queued input. */
   public completeTurn(): void {
-    if (this.#groups.some((group) => !group.settled)) {
+    if (this.#activeIteration) {
       throw new Error('Cannot complete a turn with pending iterations. Await the active execution first.')
     }
 
@@ -176,8 +246,8 @@ export class Session {
   }
 
   public nextIteration(id = `iteration_${ulid()}`): SessionIteration {
-    if (this.pendingCalls.length) {
-      throw new Error('Cannot generate another iteration while a native call has no result.')
+    if (this.#activeIteration) {
+      throw new Error('Cannot generate another iteration while an iteration is pending.')
     }
 
     if (this.#groups.some((group) => group.id === id)) {
@@ -187,7 +257,16 @@ export class Session {
     this.beginTurn()
 
     const iteration = { id, number: ++this.#iteration, turn: this.#turn, turnId: this.#turnId, timestamp: Date.now() }
-    this.#groups.push({ id, turn: this.#turn, iteration, settled: false, messages: [] })
+    this.#activeIteration = {
+      group: {
+        id,
+        turn: this.#turn,
+        iteration: { ...iteration, outcome: 'pending', hasResult: false },
+        messages: [],
+      },
+      captured: false,
+      following: [],
+    }
 
     return { ...iteration }
   }
@@ -195,7 +274,7 @@ export class Session {
   public appendAssistant(iterationId: string, response: AssistantResponse): void {
     const group = this.#getIteration(iterationId)
 
-    if (group.settled || group.messages.length) {
+    if (group.messages.length) {
       throw new Error('An iteration can contain exactly one assistant response.')
     }
 
@@ -252,10 +331,6 @@ export class Session {
   public appendToolResult(iterationId: string, callId: string, content: string): void {
     const group = this.#getIteration(iterationId)
 
-    if (group.settled) {
-      throw new Error('Cannot add a result to a settled iteration.')
-    }
-
     if (!pendingCallIds(group).includes(callId)) {
       throw new Error(`Native call ${callId} is unknown or already has a result.`)
     }
@@ -263,15 +338,119 @@ export class Session {
     group.messages.push({ role: 'user', type: 'tool_result', toolResultCallId: callId, content })
   }
 
-  public settleIteration(iterationId: string): void {
-    const group = this.#getIteration(iterationId)
+  /** Capture successful writes and the inspection result even when later delivery fails. */
+  public commitIteration(input: IterationCapture): MemoryReport {
+    const active = this.#getActiveIteration(input.id)
+
+    if (active.captured) {
+      throw new Error(`Iteration ${input.id} was already captured`)
+    }
+
+    const entry = active.group.iteration
+    entry.timestamp = input.timestamp ?? Date.now()
+    const metadata = { ...input, ...entry }
+    active.captured = true
+    if (input.hasResult) {
+      entry.unavailable = 'Result unavailable; see the execution report.'
+    }
+
+    try {
+      this.memory.assertCapacity()
+    } catch (error) {
+      active.captured = false
+      throw error
+    }
+
+    const report = this.memory.assign(input.variables ?? {}, metadata)
+
+    if (input.hasResult) {
+      try {
+        const captureFailure = input.captureErrors?.find((item) => item.name === '$return')
+        if (captureFailure) {
+          throw new Error(captureFailure.reason)
+        }
+
+        entry.result = cloneMemoryValue(input.result)
+        entry.hasResult = true
+        this.memory.assertCapacity()
+        delete entry.unavailable
+        report.resultAvailable = true
+      } catch (error) {
+        delete entry.result
+        entry.hasResult = false
+
+        if (!report.unavailable.some((item) => item.name === '$return')) {
+          report.unavailable.push({
+            name: '$return',
+            reason: error instanceof Error ? error.message : String(error),
+          })
+        }
+      }
+
+      // An unavailable latest result must never expose an earlier successful result.
+      this.#latestResultId = entry.hasResult ? entry.id : undefined
+    }
+
+    return report
+  }
+
+  /** Set the outcome once, after generation, code and delivery have all finished. */
+  public settleIteration(
+    iterationId: string,
+    outcome: { outcome: string; error?: string } = { outcome: 'completed' }
+  ): void {
+    const active = this.#getActiveIteration(iterationId)
+    const group = active.group
     const pending = pendingCallIds(group)
 
     if (pending.length) {
       throw new Error(`Cannot settle iteration with unresolved native calls: ${pending.join(', ')}`)
     }
 
-    group.settled = true
+    const previous = group.iteration
+    const wasCaptured = active.captured
+    group.iteration = {
+      ...previous,
+      outcome: outcome.outcome,
+      ...(outcome.error ? { error: cleanError(outcome.error) } : {}),
+    }
+    active.captured = true
+
+    try {
+      this.memory.assertCapacity()
+    } catch (error) {
+      group.iteration = previous
+      active.captured = wasCaptured
+      throw error
+    }
+
+    this.#groups.push(group, ...active.following)
+    this.#activeIteration = undefined
+  }
+
+  /** Reserve failure metadata before model generation or side effects begin. */
+  public assertCapacityForIteration(info: SessionIteration): void {
+    const active = this.#getActiveIteration(info.id)
+    const reservation: SessionIterationRecord = {
+      ...info,
+      outcome: 'thinking_requested',
+      error: 'x'.repeat(2000),
+      hasResult: false,
+      unavailable: 'Result unavailable; see the execution report.',
+    }
+    const bytes = resultBytes([reservation])
+    this.memory.assertCapacity(bytes - (active.captured ? resultBytes([active.group.iteration]) : 0))
+  }
+
+  /** Discard a preflight failure that generated no response and ran no code. */
+  public cancelIteration(iterationId: string): void {
+    const active = this.#getActiveIteration(iterationId)
+
+    if (active.captured || active.group.messages.length) {
+      throw new Error('Cannot discard an iteration after generation or execution has started.')
+    }
+
+    this.#activeIteration = undefined
   }
 
   /** Runtime feedback without inventing a tool-call identity or user turn. */
@@ -288,7 +467,7 @@ export class Session {
    * the dynamic inventory is generated once, on the final eligible input only.
    */
   public requestMessages(
-    options: { memory?: boolean | string; now?: number; maxMemoryChars?: number } = {}
+    options: { memory?: boolean | string; now?: number; maxMemoryChars?: number; inspector?: Inspector } = {}
   ): SessionMessage[] {
     if (this.pendingCalls.length) {
       throw new Error('Cannot request generation before all native calls have results.')
@@ -303,8 +482,8 @@ export class Session {
     const overview =
       typeof options.memory === 'string'
         ? options.memory
-        : this.memory.render({
-            turn: this.#turn,
+        : this.renderMemory({
+            inspector: options.inspector,
             now: options.now,
             maxChars: options.maxMemoryChars,
           })
@@ -332,10 +511,8 @@ export class Session {
   public compact(retainedIds: Iterable<string>): void {
     const retained = new Set(retainedIds)
 
-    for (const group of this.#groups) {
-      if (group.iteration && !retained.has(group.id) && !group.settled) {
-        throw new Error(`Cannot compact pending iteration ${group.id}.`)
-      }
+    if (this.#activeIteration && !retained.has(this.#activeIteration.group.id)) {
+      throw new Error(`Cannot compact pending iteration ${this.#activeIteration.group.id}.`)
     }
 
     const retainedTurns = new Set(this.#groups.filter((g) => g.iteration && retained.has(g.id)).map((g) => g.turn))
@@ -343,59 +520,93 @@ export class Session {
     const groups = this.#groups.filter((group) =>
       group.iteration ? retained.has(group.id) : retainedTurns.has(group.turn)
     )
-    this.memory.compact(groups.flatMap((group) => (group.iteration ? [group.id] : [])))
     this.#groups = groups
+
+    if (this.#latestResultId && !retained.has(this.#latestResultId)) {
+      this.#latestResultId = undefined
+    }
   }
 
   public toJSON(): Session.JSON {
-    if (this.#locked || this.#groups.some((group) => !group.settled)) {
+    if (this.#locked || this.#activeIteration) {
       throw new Error('Cannot serialize a session during an in-flight execution. Await execution before saving it.')
     }
 
     return {
-      version: 2,
+      version: 3,
       id: this.id,
       turn: this.#turn,
       turnId: this.#turnId,
       iteration: this.#iteration,
-      groups: clone(this.#groups),
+      groups: this.#groups.map(serializeGroup),
       memory: this.memory.serialize(),
       pendingInputs: clone(this.#pendingInputs),
       activeTurn: this.#activeTurn,
+      latestResultId: this.#latestResultId,
     }
   }
 
   public static fromJSON(state: Session.JSON): Session {
-    if (state.version !== 2) {
+    if (state.version !== 3) {
       throw new Error(`Unsupported LLMz session version: ${state.version}`)
     }
 
+    assertPersistableData(state)
     const session = new Session()
     Object.defineProperty(session, 'id', { value: state.id, enumerable: true })
-    Object.defineProperty(session, 'memory', { value: Memory.restore(state.memory), enumerable: true })
     session.#turn = state.turn
     session.#turnId = state.turnId
     session.#iteration = state.iteration
-    session.#groups = clone(state.groups)
+    session.#groups = state.groups.map(restoreGroup)
     session.#pendingInputs = clone(state.pendingInputs)
     session.#activeTurn = state.activeTurn
-    validateRestoredHistory(state, session.memory)
+    session.#latestResultId = state.latestResultId
+    Object.defineProperty(session, 'memory', {
+      value: Memory.restore(state.memory, () => session.#resultBytes()),
+      enumerable: true,
+    })
+    validateRestoredHistory(session)
 
     return session
   }
 
-  #getIteration(id: string): HistoryGroup {
-    const group = this.#groups.find((group) => group.iteration?.id === id)
+  #getActiveIteration(id: string): ActiveIteration {
+    const active = this.#activeIteration
 
-    if (!group) {
-      throw new Error(`Unknown iteration: ${id}`)
+    if (!active || active.group.id !== id) {
+      throw new Error(`Unknown or settled iteration: ${id}`)
     }
 
-    return group
+    return active
+  }
+
+  #getIteration(id: string): HistoryGroup {
+    return this.#getActiveIteration(id).group
+  }
+
+  #allGroups(): HistoryGroup[] {
+    return this.#activeIteration
+      ? [...this.#groups, this.#activeIteration.group, ...this.#activeIteration.following]
+      : this.#groups
+  }
+
+  #records(): SessionIterationRecord[] {
+    const records = this.#groups.flatMap((group) => (group.iteration ? [group.iteration] : []))
+
+    if (this.#activeIteration?.captured) {
+      records.push(this.#activeIteration.group.iteration)
+    }
+
+    return records.reverse()
+  }
+
+  #resultBytes(): number {
+    return resultBytes(this.#records())
   }
 
   #appendInput(messages: SessionMessage[]): void {
-    this.#groups.push({ id: `input_${ulid()}`, turn: this.#turn, settled: true, messages })
+    const target = this.#activeIteration?.following ?? this.#groups
+    target.push({ id: `input_${ulid()}`, turn: this.#turn, messages })
   }
 }
 
@@ -422,7 +633,7 @@ function normalizeInput(message: SessionInput): SessionMessage {
   }
 
   const transcript = message as Transcript.Message
-  new TranscriptArray([transcript])
+  validateTranscriptMessage(transcript)
 
   if (transcript.role === 'event') {
     if (typeof transcript.name !== 'string' || !transcript.name.length || !('payload' in transcript)) {
@@ -658,13 +869,14 @@ function validateGroup(group: HistoryGroup): void {
     }
   }
 
-  if (group.settled && ids.size) {
+  if (ids.size) {
     throw new Error('A settled iteration contains pending native calls.')
   }
 }
 
 /** Persisted counters, native identities, and exact values must describe one history. */
-function validateRestoredHistory(state: Session.JSON, memory: Memory): void {
+function validateRestoredHistory(session: Session): void {
+  const state = session.toJSON()
   if (
     !Number.isSafeInteger(state.turn) ||
     state.turn < 0 ||
@@ -680,7 +892,6 @@ function validateRestoredHistory(state: Session.JSON, memory: Memory): void {
 
   const groupIds = new Set<string>()
   const callIds = new Set<string>()
-  const iterations = new Map<string, SessionIteration>()
   let previousIteration = 0
   let previousTurn = 0
 
@@ -695,7 +906,7 @@ function validateRestoredHistory(state: Session.JSON, memory: Memory): void {
 
     groupIds.add(group.id)
     previousTurn = group.turn
-    validateGroup(group)
+    validateGroup(restoreGroup(group))
 
     for (const message of group.messages) {
       assertPersistableData(message)
@@ -707,10 +918,6 @@ function validateRestoredHistory(state: Session.JSON, memory: Memory): void {
 
         callIds.add(call.id)
       }
-    }
-
-    if (group.settled !== true) {
-      throw new Error('Cannot restore a session with an unsettled iteration. Save sessions after execution finishes.')
     }
 
     if (!group.iteration) {
@@ -729,7 +936,6 @@ function validateRestoredHistory(state: Session.JSON, memory: Memory): void {
     }
 
     previousIteration = iteration.number
-    iterations.set(iteration.id, iteration)
   }
 
   for (const input of state.pendingInputs) {
@@ -741,24 +947,11 @@ function validateRestoredHistory(state: Session.JSON, memory: Memory): void {
     validateInputMessage(input.message)
   }
 
-  let previousMemoryIteration = Number.POSITIVE_INFINITY
-
-  for (const entry of memory.iterations) {
-    const iteration = iterations.get(entry.id)
-    if (!iteration) {
-      throw new Error(`Memory references an iteration absent from retained history: ${entry.id}`)
-    }
-
-    if (
-      entry.number !== iteration.number ||
-      entry.turn !== iteration.turn ||
-      entry.turnId !== iteration.turnId ||
-      entry.number >= previousMemoryIteration
-    ) {
-      throw new Error(`Memory provenance disagrees with retained iteration ${entry.id}`)
-    }
-
-    previousMemoryIteration = entry.number
+  if (
+    state.latestResultId &&
+    !state.groups.some((group) => group.iteration?.id === state.latestResultId && group.iteration?.hasResult)
+  ) {
+    throw new Error('Missing latest session result')
   }
 }
 
@@ -766,7 +959,11 @@ function transcriptMessage(message: Transcript.Message): SessionMessage {
   let content: string
 
   if (message.role === 'event') {
-    const payload = inspect(message.payload, undefined, { tokens: 5000 })
+    const payload = createInspector()(message.payload, {
+      purpose: 'event',
+      maxTokens: 5000,
+      identity: { name: message.name },
+    })
     content = `External event ${JSON.stringify(message.name)}:\n${payload}`
   } else if (message.role === 'summary') {
     content = `Conversation summary:\n${message.content}`
@@ -796,4 +993,54 @@ function transcriptMessage(message: Transcript.Message): SessionMessage {
     role: message.role === 'assistant' ? 'assistant' : 'user',
     ...(attachments.length ? { type: 'multipart' as const, content: parts } : { content }),
   }
+}
+
+function cleanError(error: string): string {
+  return error.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').slice(0, 2000)
+}
+
+function serializeGroup(group: HistoryGroup): SerializedHistoryGroup {
+  if (!group.iteration) {
+    return clone(group) as SerializedHistoryGroup
+  }
+
+  const { result, ...iteration } = group.iteration
+
+  return {
+    id: group.id,
+    turn: group.turn,
+    messages: clone(group.messages),
+    iteration: { ...iteration, ...(iteration.hasResult ? { result: encodeMemoryValue(result) } : {}) },
+  }
+}
+
+function restoreGroup(group: SerializedHistoryGroup): HistoryGroup {
+  if (!group.iteration) {
+    return clone(group) as HistoryGroup
+  }
+
+  const { result, ...iteration } = group.iteration
+  if (typeof iteration.hasResult !== 'boolean' || typeof iteration.outcome !== 'string') {
+    throw new Error('Invalid persisted iteration outcome')
+  }
+
+  if (iteration.hasResult && !result) {
+    throw new Error(`Missing result payload for iteration ${iteration.id}`)
+  }
+
+  return {
+    id: group.id,
+    turn: group.turn,
+    messages: clone(group.messages),
+    iteration: { ...iteration, ...(iteration.hasResult ? { result: decodeMemoryValue(result!) } : {}) },
+  }
+}
+
+function resultBytes(records: readonly SessionIterationRecord[]): number {
+  const encoded = records.map(({ result, ...record }) => ({
+    ...record,
+    ...(record.hasResult ? { result: encodeMemoryValue(result) } : {}),
+  }))
+
+  return new TextEncoder().encode(JSON.stringify(encoded)).byteLength
 }

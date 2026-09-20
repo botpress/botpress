@@ -2,6 +2,7 @@ import type { CognitiveMetadata, CognitiveRequest, CognitiveResponse, CognitiveS
 import { describe, expect, it, vi } from 'vitest'
 import { type MessageDelta } from '../chat.js'
 import { DefaultExit, type Context, type ContextTokens, type Iteration } from '../context.js'
+import { createInspector } from '../inspection.js'
 import { Session } from '../session.js'
 import { createRecordingChat } from './fixtures/chat.js'
 import { countNativeRequestTokens, generateCode, type NativeResponse } from './generate.js'
@@ -29,13 +30,9 @@ function fixture(options: { session?: Session; maxTokens?: number; midStreamFall
     id: info.id,
     model: 'test:model',
     temperature: 0,
-    variables: session.memory.getBindings(),
-    messages: [{ role: 'system', content: 'Use native tools.' }, ...session.requestMessages()],
+    systemMessage: { role: 'system', content: 'Use native tools.' },
     traces: [],
     exits: [DefaultExit],
-    nativeTools: {
-      tools: [{ name: 'run_javascript', parameters: { type: 'object', properties: { code: { type: 'string' } } } }],
-    },
     tokens: {
       input: 0,
       output: 0,
@@ -46,16 +43,14 @@ function fixture(options: { session?: Session; maxTokens?: number; midStreamFall
         framework: 0,
         instructions: 0,
         tools: 0,
-        transcript: 0,
         protocol: 4,
-        examples: 0,
         iterations: 0,
       },
     },
   } as unknown as Iteration
-  iteration.initialMessages = structuredClone(iteration.messages)
   const ctx = {
     session,
+    inspector: createInspector(),
     iterations: [iteration],
     loop: 5,
     maxTokens: options.maxTokens,
@@ -89,7 +84,6 @@ function expectCurrentContextTokens(context: ContextTokens, input: CognitiveRequ
   expect(total).toBe(countNativeRequestTokens(input.messages, input.tools))
   expect(values.every((value) => Number.isInteger(value) && value >= 0)).toBe(true)
   expect(values.reduce((sum, value) => sum + value, 0)).toBe(total)
-  expect(context.transcript).toBe(0)
 }
 
 describe('native generation', () => {
@@ -238,37 +232,38 @@ describe('native generation', () => {
       framework: 0,
       instructions: 5_000,
       tools: 5_000,
-      transcript: 0,
       protocol: 5_000,
-      examples: 5_000,
       iterations: 0,
     }
-    base.iteration.messages[0]!.content = 'Updated system rules.'
-    const hookMessages = structuredClone(base.iteration.messages)
+    const onBeforeRequest = ({ messages }: { messages: CognitiveRequest['messages'] }) => ({
+      messages: messages.map((message) =>
+        message.role === 'system' ? { ...message, content: 'Updated system rules.' } : message
+      ),
+    })
 
-    await generateCode(base)
+    await generateCode({ ...base, onBeforeRequest })
 
     const input = base.generateText.mock.calls[0]![0]
     const context = base.iteration.tokens!.context
     const system = input.messages.filter((message) => message.role === 'system')
     const schemaTokens = countNativeRequestTokens([], input.tools) - countNativeRequestTokens([], [])
-    const staticTokens = context.instructions + context.tools - schemaTokens + context.protocol + context.examples
+    const staticTokens = context.instructions + context.tools - schemaTokens + context.protocol
 
     expectCurrentContextTokens(context, input)
     expect(staticTokens).toBeLessThanOrEqual(countNativeRequestTokens(system, []))
     expect(context.tools).toBeGreaterThanOrEqual(schemaTokens)
 
-    base.iteration.messages = hookMessages
-    await generateCode(base)
+    await generateCode({ ...base, onBeforeRequest })
 
     expect(base.iteration.tokens!.context).toEqual(context)
   })
 
   it('removes static token categories when a hook removes the system prompt', async () => {
     const base = fixture()
-    base.iteration.messages.shift()
-
-    await generateCode(base)
+    await generateCode({
+      ...base,
+      onBeforeRequest: ({ messages }) => ({ messages: messages.filter((message) => message.role !== 'system') }),
+    })
 
     const input = base.generateText.mock.calls[0]![0]
     const context = base.iteration.tokens!.context
@@ -276,7 +271,6 @@ describe('native generation', () => {
     expectCurrentContextTokens(context, input)
     expect(context.instructions).toBe(0)
     expect(context.protocol).toBe(0)
-    expect(context.examples).toBe(0)
     expect(context.tools).toBeGreaterThan(0)
     expect(context.iterations).toBeGreaterThan(0)
   })
@@ -645,22 +639,22 @@ describe('native generation', () => {
       const info = session.nextIteration(id)
       session.appendAssistant(id, { output: '', toolCalls: [call(id)] })
       session.appendToolResult(id, id, 'record '.repeat(5000))
-      session.memory.commit({ ...info, outcome: 'completed', hasResult: true, result: id })
-      session.settleIteration(id)
+      session.commitIteration({ ...info, hasResult: true, result: id })
+      session.settleIteration(id, { outcome: 'completed' })
       session.completeTurn()
     }
 
     session.append({ role: 'user', content: 'New request' })
     session.beginTurn()
     const base = fixture({ session, maxTokens: 2000 })
-    const originalHistoryTokens = countNativeRequestTokens(base.iteration.messages, [])
+    const originalHistoryTokens = countNativeRequestTokens(session.requestMessages(), [])
     base.iteration.tokens!.context.iterations = originalHistoryTokens
 
     await generateCode(base)
 
     expect(session.retainedIterationIds).toEqual([base.iteration.id])
-    expect(session.memory.iterations).toHaveLength(0)
-    expect(base.iteration.variables).toMatchObject({ keep: 'named value', $return: undefined, $iterations: [] })
+    expect(session.iterations).toHaveLength(0)
+    expect(session.getBindings()).toMatchObject({ keep: 'named value', $return: undefined, $iterations: [] })
     const input = base.generateText.mock.calls[0]![0]
 
     expect(input.messages.some((message) => message.toolCalls?.length)).toBe(false)
@@ -672,31 +666,47 @@ describe('native generation', () => {
     expect(context.tools).toBeGreaterThan(0)
   })
 
-  it('preserves custom iteration message content and refuses to silently compact it away', async () => {
+  it('preserves explicit request overrides and rejects ones that exceed the budget', async () => {
     const base = fixture()
-    base.iteration.messages[1]!.content = 'Custom hook request'
-    await generateCode(base)
+    await generateCode({
+      ...base,
+      onBeforeRequest: ({ messages }) => ({
+        messages: [...messages, { role: 'user', content: 'Custom hook request' }],
+      }),
+    })
 
     const input = base.generateText.mock.calls[0]![0]
 
-    expect(input.messages[1]?.content).toContain('Custom hook request')
+    expect(input.messages.at(-1)?.content).toBe('Custom hook request')
     expectCurrentContextTokens(base.iteration.tokens!.context, input)
     const small = fixture({ maxTokens: 1000 })
-    small.iteration.messages[1]!.content = 'Custom hook request '.repeat(3000)
 
-    await expect(generateCode(small)).rejects.toThrow('hook-modified')
+    await expect(
+      generateCode({
+        ...small,
+        onBeforeRequest: ({ messages }) => ({
+          messages: [...messages, { role: 'user', content: 'Custom hook request '.repeat(3000) }],
+        }),
+      })
+    ).rejects.toThrow('onBeforeRequest messages exceed')
     expect(small.generateText).not.toHaveBeenCalled()
   })
 
-  it('moves the ephemeral memory footer after hook-appended input without accumulating stale inventories', async () => {
+  it('keeps request overrides ephemeral and renders one current memory inventory', async () => {
     const base = fixture()
-    base.iteration.messages.push({ role: 'user', content: 'Additional hook context' })
-    await generateCode(base)
-    const messages = base.generateText.mock.calls[0]![0].messages
+    const onBeforeRequest = ({ messages }: { messages: CognitiveRequest['messages'] }) => ({
+      messages: [...messages, { role: 'user' as const, content: 'Additional hook context' }],
+    })
 
-    expect(messages[1]?.content).toBe('Find my account')
-    expect(messages.at(-1)?.content).toContain('Additional hook context')
-    expect(messages.at(-1)?.content).toContain('## Memory')
-    expect(JSON.stringify(messages).split('## Memory')).toHaveLength(2)
+    await generateCode({ ...base, onBeforeRequest })
+    await generateCode({ ...base, onBeforeRequest })
+
+    for (const [input] of base.generateText.mock.calls) {
+      expect(input.messages.at(-1)?.content).toBe('Additional hook context')
+      expect(JSON.stringify(input.messages).split('## Memory')).toHaveLength(2)
+      expect(input.messages.filter((message) => message.content === 'Additional hook context')).toHaveLength(1)
+    }
+
+    expect(JSON.stringify(base.session.messages)).not.toContain('Additional hook context')
   })
 })

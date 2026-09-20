@@ -270,7 +270,7 @@ return exit('listen');`,
   assert.equal(delivered.filter((message) => message.type === 'text').length, 1)
   assert.deepEqual(
     delivered.filter((message) => message.type === 'component').map((message) => message.name),
-    ['Button', 'Button']
+    ['buttons']
   )
 
   return review.scenario
@@ -353,7 +353,7 @@ return exit('listen');`,
   assert.equal(runs[0]?.delivered.filter((message) => message.type === 'text').length, 1)
   assert.deepEqual(
     runs[0]?.delivered.filter((message) => message.type === 'component').map((message) => message.name),
-    ['Image', 'Audio', 'Video', 'File', 'Card', 'Carousel', 'Button']
+    ['image', 'audio', 'video', 'file', 'card', 'carousel', 'buttons']
   )
   review.note(
     'Verified: incoming image/audio URLs are preserved in both requests. All seven rich default components were delivered alongside assistant text. Audio is an existing clip.'
@@ -490,8 +490,8 @@ return inspect({ preferredPlan });`),
 
   review.session.compact([])
   assert.deepEqual(review.session.memory.variables, { preferredPlan: 'Team' })
-  assert.equal(review.session.memory.iterations.length, 0)
-  assert.equal(review.session.memory.getBindings().$return, undefined)
+  assert.equal(review.session.iterations.length, 0)
+  assert.equal(review.session.getBindings().$return, undefined)
   review.note(
     'Host calls session.compact([]). The argument contains IDs to keep, so all settled iterations are removed.'
   )
@@ -509,7 +509,7 @@ return inspect({ preferredPlan });`),
     { messages: [{ role: 'user', content: 'What is my preferred plan?' }] }
   )
 
-  assert.deepEqual(review.session.memory.getBindings().$return, {
+  assert.deepEqual(review.session.getBindings().$return, {
     preferredPlan: 'Team',
     historyLength: 0,
     hasPreviousReturn: false,
@@ -610,7 +610,7 @@ return inspect(invoice);`),
   assert.ok(result.error instanceof LoopExceededError)
   assert.deepEqual(result.iterations[0]?.exits, [])
   assert.equal(result.iterations[0]?.status.type, 'thinking_requested')
-  assert.deepEqual(result.session.memory.getBindings().$return, {
+  assert.deepEqual(result.session.getBindings().$return, {
     id: 'invoice-42',
     total: 20,
     currency: 'USD',
@@ -682,7 +682,7 @@ return inspect({ summary, emailUpdates: customer.preferences.emailUpdates });`),
   assert.equal(run!.delivered.length, 1)
   assert.deepEqual(run!.delivered[0], {
     type: 'component',
-    name: 'Card',
+    name: 'card',
     props: {
       title: 'Invoice invoice-42',
       subtitle: 'USD 20',
@@ -964,7 +964,7 @@ return inspect(handbook);`),
   assert.equal(review.session.memory.variables.handbook, source)
   assert.equal(review.session.memory.variables.handbookType, 'string')
   assert.equal(review.session.memory.variables.heading, source.slice(0, 25))
-  assert.equal(review.session.memory.getBindings().$return, source)
+  assert.equal(review.session.getBindings().$return, source)
   assert.ok(!JSON.stringify(review.session.toJSON()).includes('$$truncate'))
   review.note(
     'Verified offline: each search ran once. The ordinary inspection was limited to 2,000 tokens; the explicitly allowed inspection exceeded 2,000 and exposed the final clause while staying below 40,000. JavaScript string methods worked normally, both complete strings remained in memory, and no display wrapper entered the session.'
@@ -1013,17 +1013,16 @@ async function plainTextResponse() {
 async function customResponse() {
   const { calls: _calls, ...settings } = createFixtures()
   const instructions = 'Write one concise line beginning with "Support:". Use ordinary sentences without Markdown.'
-  const example = 'Support: Your receipt is ready in account settings.'
   const review = new PromptReview(
     {
       name: '16-custom-response-and-flat-components',
       title: 'Custom response instructions with flat card and carousel props',
       description:
-        'A custom response format and example guide streamed assistant text. Separate Card and Carousel handlers receive flat validated props, including card text, nested image data, and button data. One JavaScript call sends both rich components and exits to listen.',
+        'Custom response instructions guide streamed assistant text. Separate Card and Carousel handlers receive flat validated props, including card text, nested image data, and button data. One JavaScript call sends both rich components and exits to listen.',
     },
     {
       ...settings,
-      response: { instructions, examples: [example] },
+      response: { instructions },
       components: [DefaultComponents.Card, DefaultComponents.Carousel],
     }
   )
@@ -1052,7 +1051,6 @@ return exit('listen');`,
   const rich = run.delivered.filter((message) => message.type === 'component')
 
   assert.ok(prompt.includes(instructions))
-  assert.ok(prompt.includes(example))
   assert.doesNotMatch(prompt, /Write natural Markdown directly/)
   assert.deepEqual(rich, [
     DefaultComponents.Card.render({ title: 'Current plan', text: 'Standard is $20 per month.' }),

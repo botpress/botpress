@@ -7,7 +7,6 @@
  * - Register component renderers for different output formats
  * - Let the agent send custom components with typed props
  * - Combine tools and components for complete workflows
- * - Create reusable UI patterns with examples
  *
  * Key concepts:
  * - Component definition with typed schemas
@@ -34,7 +33,7 @@ const client = new Client({
 // Define a custom UI component for displaying plane tickets
 // Components provide structured, reusable UI patterns
 const PlaneTicketComponent = new Component({
-  name: 'PlaneTicket',
+  name: 'planeTicket',
   description: 'A component to display a plane ticket',
   props: z.object({
     ticketNumber: z.string().describe('The unique ticket number for the plane ticket'),
@@ -43,20 +42,6 @@ const PlaneTicketComponent = new Component({
     date: z.string().describe('The date of the flight (in YYYY-MM-DD format)'),
     price: z.number().optional().describe('The price of the ticket'),
   }),
-  generation: {
-    usage: 'Display the confirmed ticket returned by purchase_ticket.',
-    examples: [
-      {
-        props: {
-          from: 'New York',
-          to: 'Los Angeles',
-          date: '2025-10-01',
-          price: 299.99,
-          ticketNumber: 'TICKET-345633',
-        },
-      },
-    ],
-  },
 })
 
 // Tool for purchasing tickets - generates data for the component

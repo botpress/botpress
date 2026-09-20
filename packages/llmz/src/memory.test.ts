@@ -1,28 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { Memory, MemoryCapacityError, previewMemoryValue } from './memory.js'
+import { Memory, previewMemoryValue } from './memory.js'
 import { getTokenizer } from './utils.js'
-const settlement = (number: number, result?: unknown) => ({
-  id: `i${number}`,
-  number,
-  turn: 1,
-  timestamp: number * 1000,
-  outcome: 'completed',
-  hasResult: true,
-  result,
-})
-describe('explicit session memory', () => {
-  it('bounds nested value previews by tokens without clipping stored values', () => {
+
+const provenance = { id: 'first', number: 1, turn: 1, timestamp: 1000 }
+
+describe('named memory', () => {
+  it('bounds previews without clipping stored values', () => {
     const memory = new Memory()
-    const entries = Array.from({ length: 100 }, (_, index) => ({
-      id: index,
-      details: {
-        description: `Distinct entry ${index}: ${'extensive details '.repeat(100)}`,
-      },
-    }))
-    const report = memory.commit({
-      ...settlement(1),
-      variables: { entries },
-    })
+    const entries = Array.from({ length: 100 }, (_, id) => ({ id, detail: 'extensive details '.repeat(100) }))
+    const report = memory.assign({ entries }, provenance)
     const preview = previewMemoryValue(entries)
 
     expect(getTokenizer().count(preview)).toBeLessThanOrEqual(60)
@@ -30,278 +16,56 @@ describe('explicit session memory', () => {
     expect(preview).not.toContain('\n')
     expect(report.created[0]?.preview).toBe(preview)
     expect(memory.render({ turn: 1, now: 1000 })).toContain(preview)
-    expect(memory.getBindings().entries).toEqual(entries)
-  })
-
-  it('stores exact results independently of previews and keeps history immutable', () => {
-    const memory = new Memory()
-    memory.commit({
-      ...settlement(1, {
-        account: {
-          id: 1,
-        },
-        text: 'x'.repeat(1000),
-      }),
-      variables: {
-        account: {
-          id: 1,
-        },
-      },
-    })
-    const bindings = memory.getBindings()
-    expect(() => ((bindings.$return as any).account.id = 2)).toThrow()
-    const account = bindings.account as { id: number }
-    account.id = 4
-    expect((memory.getBindings().$return as any).account.id).toBe(1)
-    expect((memory.getBindings().$return as any).text).toHaveLength(1000)
-  })
-
-  it('has newest-first settled entries including errors and distinguishes undefined from absent', () => {
-    const memory = new Memory()
-    memory.commit(settlement(1, 42))
-    memory.commit({
-      ...settlement(2),
-      hasResult: false,
-      outcome: 'error',
-    })
-    expect(memory.getBindings().$return).toBe(42)
-    expect((memory.getBindings().$iterations as any)[0].hasResult).toBe(false)
-    memory.commit(settlement(3))
-    expect(memory.getBindings().$return).toBeUndefined()
-    expect((memory.getBindings().$iterations as any)[0]).toMatchObject({
-      hasResult: true,
-      result: undefined,
-    })
-    expect(
-      memory.render({
-        turn: 1,
-        now: 3000,
-      })
-    ).toContain('`$return` = `$iterations[0].result` (undefined) — returned just now (this turn).')
-  })
-
-  it('lists result references without repeating payloads across failures and compaction', () => {
-    const memory = new Memory()
-    const earlierResult = { detail: 'earlier-result-only-payload' }
-    const latestResult = ['latest-result-only-payload']
-
-    memory.commit(settlement(1, earlierResult))
-    memory.commit({
-      ...settlement(2, latestResult),
-      timestamp: 61000,
-      turn: 3,
-    })
-    memory.commit({
-      ...settlement(3),
-      timestamp: 62000,
-      turn: 3,
-      hasResult: false,
-      outcome: 'error',
-    })
-
-    const overview = memory.render({ turn: 3, now: 62000 })
-    const bindings = memory.getBindings()
-
-    expect(overview).toContain('`$return` = `$iterations[1].result` (array) — returned just now (this turn).')
-    expect(overview).toContain('`$iterations[2].result` (object) — returned 1 minute ago (2 turns ago).')
-    expect(overview).not.toContain('$iterations[0].result')
-    expect(overview).not.toContain('earlier-result-only-payload')
-    expect(overview).not.toContain('latest-result-only-payload')
-    expect(bindings.$return).toEqual(latestResult)
-    expect(bindings.$iterations).toMatchObject([
-      { id: 'i3', hasResult: false },
-      { id: 'i2', result: latestResult },
-      { id: 'i1', result: earlierResult },
-    ])
-
-    memory.compact(['i1', 'i2'])
-
-    const compactedOverview = memory.render({ turn: 3, now: 62000 })
-
-    expect(compactedOverview).toContain('`$return` = `$iterations[0].result` (array)')
-    expect(compactedOverview).toContain('`$iterations[1].result` (object) — returned 1 minute ago (2 turns ago).')
-    expect(memory.getBindings().$return).toEqual(latestResult)
-
-    memory.compact(['i1'])
-
-    const remainingOverview = memory.render({ turn: 3, now: 62000 })
-
-    expect(remainingOverview).toContain('`$iterations[0].result` (object) — returned 1 minute ago (2 turns ago).')
-    expect(remainingOverview).not.toContain('$return')
-    expect(remainingOverview).not.toContain('earlier-result-only-payload')
-    expect(memory.getBindings().$return).toBeUndefined()
-    expect(memory.getBindings().$iterations).toMatchObject([{ id: 'i1', result: earlierResult }])
-  })
-
-  it('preserves named state and original age across compaction and JSON restoration', () => {
-    const memory = new Memory()
-    memory.commit({
-      ...settlement(1, {
-        x: undefined,
-      }),
-      variables: {
-        account: {
-          id: 1,
-        },
-        unset: undefined,
-      },
-    })
-    memory.commit(settlement(2, 'two'))
-    memory.compact(['i1'])
-    expect(memory.getBindings().$return).toBeUndefined()
-    expect((memory.getBindings().$iterations as any)[0].id).toBe('i1')
-    const restored = Memory.restore(JSON.parse(JSON.stringify(memory)))
-    expect(restored.variables).toEqual({
-      account: {
-        id: 1,
-      },
-      unset: undefined,
-    })
-    expect(
-      restored.render({
-        turn: 3,
-        now: 61000,
-      })
-    ).toContain('1 minute ago (2 turns ago)')
-    restored.compact([])
-    expect(restored.variables.account).toEqual({
-      id: 1,
-    })
+    expect(memory.variables.entries).toEqual(entries)
   })
 
   it('coalesces writes, refreshes equal assignments, and does not refresh reads', () => {
     const memory = new Memory()
-    expect(
-      memory
-        .commit({
-          ...settlement(1),
-          variables: {
-            age: 42,
-          },
-        })
-        .created.map((v) => v.name)
-    ).toEqual(['age'])
-    expect(
-      memory.commit({
-        ...settlement(2),
-        variables: {
-          age: 42,
-        },
-      }).updated
-    ).toEqual([])
-    const updated = memory.commit({
-      ...settlement(3),
-      variables: {
-        age: 42,
-      },
-      variableWrites: [
-        {
-          name: 'age',
-          timestamp: 2500,
-        },
-        {
-          name: 'age',
-          timestamp: 2900,
-        },
-      ],
-    })
-    expect(updated.updated).toHaveLength(1)
-    expect(updated.updated[0]?.provenance.timestamp).toBe(2900)
-  })
+    expect(memory.assign({ age: 42 }, provenance).created.map((change) => change.name)).toEqual(['age'])
+    expect(memory.assign({ age: 42 }, { ...provenance, timestamp: 2000 }).updated).toEqual([])
 
-  it('reports unavailable unsupported or over-budget values without fake placeholders', () => {
-    const memory = new Memory({
-      maxBytes: 4000,
-    })
-    const report = memory.commit({
-      ...settlement(1, new Date()),
-      variables: {
-        unsupported: () => 42,
-        tooBig: 'x'.repeat(5000),
-        ok: 2,
-      },
-    })
-    expect(report.unavailable.map((v) => v.name)).toEqual(['unsupported', 'tooBig', '$return'])
-    expect(memory.variables).toEqual({
-      ok: 2,
-    })
-    expect((memory.getBindings().$iterations as any)[0].hasResult).toBe(false)
-    expect(
-      () =>
-        new Memory({
-          variables: {
-            $return: 1,
-          },
-        })
-    ).toThrow(/reserved/)
-  })
-
-  it('keeps partial changes but clears failed captures instead of exposing old values', () => {
-    const memory = new Memory({
-      variables: {
-        account: 'old',
-      },
-    })
-    const report = memory.commit({
-      ...settlement(1),
-      hasResult: false,
-      outcome: 'error',
-      variables: {
-        prefix: 1,
-      },
-      captureErrors: [
-        {
-          name: 'account',
-          reason: 'initialization failed',
-        },
-      ],
-    })
-    expect(report.created[0]?.name).toBe('prefix')
-    expect(memory.variables).toEqual({
-      prefix: 1,
-    })
-  })
-
-  it('assigns variables without fabricating iterations or successful returns', () => {
-    const memory = new Memory()
-    memory.commit(settlement(1, 'before'))
-    memory.assign(
+    const report = memory.assign(
+      { age: 42 },
       {
-        resolved: 42,
-      },
-      {
-        id: 'i1',
-        number: 1,
-        turn: 1,
-        timestamp: 2000,
+        ...provenance,
+        variableWrites: [
+          { name: 'age', timestamp: 2500 },
+          { name: 'age', timestamp: 2900 },
+        ],
       }
     )
-    expect(memory.iterations).toHaveLength(1)
-    expect(memory.variables.resolved).toBe(42)
-    expect(memory.getBindings().$return).toBe('before')
+
+    expect(report.updated).toHaveLength(1)
+    expect(report.updated[0]?.provenance.timestamp).toBe(2900)
   })
 
-  it('rejects persisted payload loss and budgets the overview', () => {
-    const memory = new Memory()
-    for (let i = 1; i <= 10; i++) {
-      memory.commit(
-        settlement(i, {
-          large: 'x'.repeat(500),
-        })
-      )
-    }
+  it('keeps partial changes and clears unavailable bindings rather than exposing old values', () => {
+    const memory = new Memory({ maxBytes: 4000, variables: { account: 'old' } })
+    const report = memory.assign(
+      { prefix: 1, unsupported: () => 42, tooBig: 'x'.repeat(5000) },
+      {
+        ...provenance,
+        captureErrors: [{ name: 'account', reason: 'initialization failed' }],
+      }
+    )
 
-    const serialized = memory.serialize()
-    delete serialized.iterations[0]!.value
-    expect(() => Memory.restore(serialized)).toThrow(/Missing result payload/)
-    expect(
-      memory.render({
-        turn: 1,
-        maxChars: 800,
-      }).length
-    ).toBeLessThan(900)
+    expect(memory.variables).toEqual({ prefix: 1 })
+    expect(report.unavailable.map((item) => item.name)).toEqual(['account', 'unsupported', 'tooBig'])
+    expect(() => new Memory({ variables: { $return: 1 } })).toThrow(/reserved/)
+  })
+
+  it('serializes bindings and object state without keeping a second execution history', () => {
+    const memory = new Memory({ variables: { unset: undefined, negativeZero: -0 } })
+    const json = memory.toJSON()
+    const restored = Memory.fromJSON(JSON.parse(JSON.stringify(json)))
+
+    expect(json).not.toHaveProperty('iterations')
+    expect(json).not.toHaveProperty('latestResultId')
+    expect(restored.variables).toHaveProperty('unset', undefined)
+    expect(Object.is(restored.variables.negativeZero, -0)).toBe(true)
   })
 })
+
 describe('object property memory', () => {
   it('shows exact host properties with schema and mutability without adding mutable variable aliases', async () => {
     const { z } = await import('@bpinternal/zui')
@@ -332,7 +96,7 @@ describe('object property memory', () => {
     expect(overview).toContain('read-only')
     expect(overview).toContain('age unknown')
     expect(memory.variables).toEqual({})
-    expect(memory.getBindings()).not.toHaveProperty('account')
+    expect(memory.variables).not.toHaveProperty('account')
     expect(() => memory.assertNamesAvailable(['account'])).toThrow(/namespace/)
   })
 
@@ -596,38 +360,5 @@ describe('object property memory', () => {
         {}
       )
     ).toThrow(/read-only/)
-  })
-})
-describe('memory capacity preflight', () => {
-  it('rejects insufficient metadata capacity before execution without modifying history', () => {
-    const memory = new Memory({
-      maxBytes: 1000,
-    })
-    expect(() => memory.assertCapacityForIteration()).toThrow(MemoryCapacityError)
-    expect(memory.iterations).toEqual([])
-  })
-
-  it('bounds metadata-only histories without evicting retained state', () => {
-    const memory = new Memory({
-      maxBytes: 1000,
-    })
-    let completed = 0
-    for (let number = 1; number <= 100; number++) {
-      try {
-        memory.commit({
-          ...settlement(number),
-          hasResult: false,
-        })
-        completed++
-      } catch (error) {
-        expect(error).toBeInstanceOf(MemoryCapacityError)
-        break
-      }
-    }
-
-    expect(completed).toBeGreaterThan(0)
-    expect(completed).toBeLessThan(100)
-    expect(memory.iterations).toHaveLength(completed)
-    expect(new TextEncoder().encode(JSON.stringify(memory)).byteLength).toBeLessThanOrEqual(1000)
   })
 })

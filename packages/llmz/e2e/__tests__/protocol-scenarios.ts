@@ -1,12 +1,12 @@
 import { z } from '@bpinternal/zui'
 
-import { Component } from '../../src/component.js'
+import { Component, createComponentRegistry } from '../../src/component.js'
 import { ListenExit } from '../../src/context.js'
 import { Exit } from '../../src/exit.js'
-import { TranscriptArray } from '../../src/transcript.js'
+import type { Transcript } from '../../src/transcript.js'
 
 // Synthetic fixtures: no captured customer instructions or conversation data.
-const leaves = ['Choice', 'Image', 'Audio', 'Video', 'File', 'Carousel', 'Location', 'Dropdown'].map(
+const leaves = ['choice', 'image', 'audio', 'video', 'file', 'carousel', 'location', 'dropdown'].map(
   (name) =>
     new Component({
       name,
@@ -30,7 +30,7 @@ Use normal assistant text for these conversational replies. Do not send choices,
 
 Reference catalogue (context, not a script to recite):
 ${Array.from({ length: 30 }, (_, i) => `Workspace feature ${i + 1}: Cedar Desk supports configuring a separate workspace preference for team ${i + 1}. It is optional, does not establish the customer's monthly volume, and is not needed to start choosing a plan. Ask about it only if the visitor asks about workspace preferences.`).join('\n')}`,
-  messages: new TranscriptArray([
+  messages: [
     { role: 'user', content: 'Hello' },
     { role: 'assistant', content: "Hi! I'm the Cedar Desk assistant. How can I help?" },
     {
@@ -39,11 +39,11 @@ ${Array.from({ length: 30 }, (_, i) => `Workspace feature ${i + 1}: Cedar Desk s
         '{"options":[{"label":"Choose a plan","value":"choose_plan"},{"label":"Explore features","value":"explore"}]}',
     },
     { role: 'user', content: lastMessage },
-  ]),
+  ] satisfies Transcript.Message[],
   objects: [],
   globalTools: [],
   isChatEnabled: true,
-  components: leaves,
+  components: createComponentRegistry(leaves),
   exits: [
     ListenExit,
     new Exit({
@@ -52,5 +52,4 @@ ${Array.from({ length: 30 }, (_, i) => `Workspace feature ${i + 1}: Cedar Desk s
       schema: z.object({ reason: z.string() }),
     }),
   ],
-  iteration: { current: 1, limit: 10, deliveredMessages: [] },
 })

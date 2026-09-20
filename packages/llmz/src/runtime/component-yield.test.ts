@@ -33,7 +33,7 @@ describe.each([
   test('rejects invalid raw yielded props before invoking the registered handler', async () => {
     const handler = vi.fn()
     const notice = new Component({
-      name: 'Notice',
+      name: 'notice',
       description: 'A notice with a string label.',
       props: z.object({ label: z.string() }),
       handler,
@@ -41,7 +41,7 @@ describe.each([
     const emit = new Tool({
       name: 'emitNotice',
       async *handler() {
-        yield { type: 'component' as const, name: 'Notice', props: { label: 42 } }
+        yield { type: 'component' as const, name: 'notice', props: { label: 42 } }
         return true
       },
     })
@@ -68,7 +68,7 @@ describe.each([
       const handler = vi.fn()
       const transform = vi.fn((label: string) => `${label}!`)
       const notice = new Component({
-        name: 'Notice',
+        name: 'notice',
         description: 'A notice with a normalized label.',
         props: z.object({ label: z.string().transform(transform) }),
         handler,
@@ -78,7 +78,7 @@ describe.each([
         async *handler() {
           yield kind === 'rendered'
             ? notice.render({ label: 'Saved' })
-            : { type: 'component' as const, name: 'Notice', props: { label: 'Saved' } }
+            : { type: 'component' as const, name: 'notice', props: { label: 'Saved' } }
           return true
         },
       })
@@ -99,7 +99,7 @@ describe.each([
         message_id: `${call?.tool_call_id}:yield-0`,
         native_call_id: result.iteration?.nativeCallId,
         success: true,
-        value: { type: 'component', name: 'Notice', props: { label: 'Saved!' } },
+        value: { type: 'component', name: 'notice', props: { label: 'Saved!' } },
       })
       expect(handler.mock.calls[0]?.[1].id).toBe(deliveries?.[0]?.message_id)
     }
@@ -124,12 +124,12 @@ describe.each([
       await buttonDelivery.promise
       events.push('button delivered')
     })
-    const button = DefaultComponents.Button.withHandler(buttonHandler)
+    const button = DefaultComponents.Buttons.withHandler(buttonHandler)
     const offerChoice = new Tool({
       name: 'offerChoice',
       async *handler() {
         yielding.release()
-        yield button.render({ label: 'Continue' })
+        yield button.render([{ label: 'Continue' }])
         events.push('tool continued')
         return 'offered'
       },
@@ -178,8 +178,8 @@ describe.each([
     const deliveries = result.iteration?.traces.filter((trace) => trace.type === 'yield')
 
     expect(deliveries?.map((trace) => trace.value)).toEqual([
-      { type: 'component', name: 'Card', props: { title: 'First' } },
-      { type: 'component', name: 'Button', props: { action: 'say', label: 'Continue' } },
+      { type: 'component', name: 'card', props: { title: 'First' } },
+      { type: 'component', name: 'buttons', props: [{ action: 'say', label: 'Continue' }] },
     ])
     expect(deliveries?.every((trace) => trace.success)).toBe(true)
     expect(deliveries?.[0]?.message_id).toContain(':message:1')

@@ -39,7 +39,7 @@ describe.each(['true', 'false'])('native integration review with USE_QUICKJS=%s'
     })
 
     expect(result.isSuccess()).toBe(true)
-    expect(result.session.memory.getBindings().$return).toBe(40)
+    expect(result.session.getBindings().$return).toBe(40)
     expect(result.session.memory.getObjectPropertyValue('account', 'profile')).toEqual({ age: 40 })
   })
 })

@@ -1,22 +1,23 @@
 import { transforms } from '@bpinternal/zui'
-import type { JSONSchema7, JSONSchema7Definition } from 'json-schema'
-import { inspect } from './inspect.js'
+import type { JSONSchema7Definition } from 'json-schema'
+import type { Inspector } from './inspection.js'
+import {
+  cloneMemoryValue,
+  decodeMemoryValue,
+  encodeMemoryValue,
+  type EncodedMemoryValue,
+  type MemoryValue,
+} from './memory-codec.js'
+import { memoryValueType, previewMemoryValue, renderMemory } from './memory-render.js'
+
 import type { ObjectInstance } from './objects.js'
 import { RESERVED_RUNTIME_NAMES } from './runtime-names.js'
 import type { ObjectMutation } from './types.js'
 import { getTypings } from './typings.js'
 
-/** Exact, bounded session data. Model-facing previews are never used as stored values. */
-export type MemoryValue =
-  | null
-  | undefined
-  | boolean
-  | number
-  | string
-  | MemoryValue[]
-  | {
-      [key: string]: MemoryValue
-    }
+export { cloneMemoryValue, decodeMemoryValue, type MemoryValue } from './memory-codec.js'
+export { previewMemoryValue } from './memory-render.js'
+
 export type VariableWrite = {
   name: string
   timestamp: number
@@ -38,19 +39,6 @@ export type MemoryChange = {
   provenance: MemoryProvenance
 }
 
-export type IterationMemory = {
-  id: string
-  number: number
-  turn: number
-  turnId?: string
-  timestamp: number
-  outcome: string
-  error?: string
-  hasResult: boolean
-  result?: MemoryValue
-  unavailable?: string
-}
-
 export type ObjectPropertyMemory = {
   hostValue?: MemoryValue
   object: string
@@ -62,56 +50,34 @@ export type ObjectPropertyMemory = {
   description?: string
   provenance: MemoryProvenance
 }
-type Binding = {
+export type MemoryBinding = {
   value: MemoryValue
   created: MemoryProvenance
   assigned: MemoryProvenance
   updated?: MemoryProvenance
 }
 
-type Encoded =
-  | ['negative-zero']
-  | ['undefined']
-  | ['value', null | boolean | number | string]
-  | ['array', Encoded[]]
-  | ['object', [string, Encoded][]]
+export type NamedMemoryBinding = MemoryBinding & { name: string }
 
 export type SerializedMemory = {
-  version: 1
+  version: 2
   maxBytes: number
   variables: {
     name: string
-    value: Encoded
+    value: EncodedMemoryValue
     created: MemoryProvenance
     assigned: MemoryProvenance
     updated?: MemoryProvenance
   }[]
-  iterations: (Omit<IterationMemory, 'result'> & {
-    value?: Encoded
-  })[]
-  latestResultId?: string
   objects?: (Omit<ObjectPropertyMemory, 'value' | 'hostValue'> & {
-    value: Encoded
-    hostValue?: Encoded
+    value: EncodedMemoryValue
+    hostValue?: EncodedMemoryValue
   })[]
 }
 
-export type MemorySettlement = {
-  id: string
-  number: number
-  turn: number
-  turnId?: string
-  timestamp?: number
-  outcome: string
-  error?: string
-  variables?: Record<string, unknown>
+export type MemoryAssignment = MemoryProvenance & {
   variableWrites?: VariableWrite[]
-  captureErrors?: {
-    name: string
-    reason: string
-  }[]
-  hasResult?: boolean
-  result?: unknown
+  captureErrors?: { name: string; reason: string }[]
 }
 
 export type MemoryReport = {
@@ -126,258 +92,6 @@ export type MemoryReport = {
 
 const RESERVED = RESERVED_RUNTIME_NAMES
 const DEFAULT_MAX_BYTES = 16 * 1024 * 1024
-function encode(value: unknown, seen = new Set<object>()): Encoded {
-  if (value === undefined) {
-    return ['undefined']
-  }
-
-  if (Object.is(value, -0)) {
-    return ['negative-zero']
-  }
-
-  if (value === null || typeof value === 'string' || typeof value === 'boolean') {
-    return ['value', value]
-  }
-
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    return ['value', value]
-  }
-
-  if (typeof value !== 'object') {
-    throw new Error(`Unsupported memory value: ${typeof value}`)
-  }
-
-  if (seen.has(value)) {
-    throw new Error('Cyclic values cannot be retained in memory')
-  }
-
-  if (
-    !Array.isArray(value) &&
-    Object.getPrototypeOf(value) !== Object.prototype &&
-    Object.getPrototypeOf(value) !== null
-  ) {
-    throw new Error('Only plain objects and arrays can be retained in memory')
-  }
-
-  if (Object.getOwnPropertySymbols(value).length) {
-    throw new Error('Symbol properties cannot be retained in memory')
-  }
-
-  seen.add(value)
-  try {
-    if (Array.isArray(value)) {
-      if (Object.keys(value).length !== value.length) {
-        throw new Error('Sparse arrays and custom array properties are unsupported')
-      }
-
-      const items: Encoded[] = []
-      for (let index = 0; index < value.length; index++) {
-        const descriptor = Object.getOwnPropertyDescriptor(value, index)
-        if (!descriptor || descriptor.get || descriptor.set) {
-          throw new Error('Array accessor properties cannot be retained in memory')
-        }
-
-        items.push(encode(descriptor.value, seen))
-      }
-
-      return ['array', items]
-    }
-
-    const entries: [string, Encoded][] = []
-    for (const [key, descriptor] of Object.entries(Object.getOwnPropertyDescriptors(value))) {
-      if (descriptor.get || descriptor.set) {
-        throw new Error('Accessor properties cannot be retained in memory')
-      }
-
-      if (!descriptor.enumerable) {
-        throw new Error('Non-enumerable properties cannot be retained in memory')
-      }
-
-      entries.push([key, encode(descriptor.value, seen)])
-    }
-
-    return ['object', entries]
-  } finally {
-    seen.delete(value)
-  }
-}
-
-export function decodeMemoryValue(value: Encoded): MemoryValue {
-  if (!Array.isArray(value)) {
-    throw new Error('Invalid serialized memory value')
-  }
-
-  switch (value[0]) {
-    case 'negative-zero':
-      return -0
-    case 'undefined':
-      return undefined
-    case 'value': {
-      const primitive = value[1]
-      if (
-        primitive === null ||
-        typeof primitive === 'string' ||
-        typeof primitive === 'boolean' ||
-        (typeof primitive === 'number' && Number.isFinite(primitive))
-      ) {
-        return primitive
-      }
-
-      throw new Error('Invalid serialized primitive')
-    }
-    case 'array':
-      return value[1].map(decodeMemoryValue)
-    case 'object':
-      return Object.fromEntries(value[1].map(([key, item]) => [key, decodeMemoryValue(item)]))
-    default:
-      throw new Error('Unknown serialized memory value')
-  }
-}
-
-export const cloneMemoryValue = (value: unknown): MemoryValue => decodeMemoryValue(encode(value))
-function freeze<T>(value: T): T {
-  if (value && typeof value === 'object' && !Object.isFrozen(value)) {
-    for (const child of Object.values(value)) {
-      freeze(child)
-    }
-
-    Object.freeze(value)
-  }
-
-  return value
-}
-
-function typeOf(value: MemoryValue): string {
-  if (value === null) {
-    return 'null'
-  }
-
-  if (Array.isArray(value)) {
-    return 'array'
-  }
-
-  return typeof value
-}
-
-export function previewMemoryValue(value: MemoryValue): string {
-  return inspect(value, undefined, { tokens: 60, compact: true, honorTruncation: false })
-}
-
-/** Keep the full schema in state; show a bounded, readable description in the model inventory. */
-function summarizeMemorySchema(schema: JSONSchema7Definition, fallback: string, maxChars = 360): string {
-  const shorten = (text: string, limit: number) => (text.length <= limit ? text : `${text.slice(0, limit - 1)}…`)
-  const describe = (definition: JSONSchema7Definition, depth: number): string => {
-    if (definition === true) {
-      return 'any'
-    }
-
-    if (definition === false) {
-      return 'never'
-    }
-
-    const constraints: string[] = []
-    const bounds: [keyof JSONSchema7, string][] = [
-      ['minimum', 'min'],
-      ['maximum', 'max'],
-      ['exclusiveMinimum', 'greater than'],
-      ['exclusiveMaximum', 'less than'],
-      ['multipleOf', 'multiple of'],
-      ['minLength', 'min length'],
-      ['maxLength', 'max length'],
-      ['minItems', 'min items'],
-      ['maxItems', 'max items'],
-      ['minProperties', 'min properties'],
-      ['maxProperties', 'max properties'],
-    ]
-    for (const [key, label] of bounds) {
-      if (typeof definition[key] === 'number') {
-        constraints.push(`${label} ${definition[key]}`)
-      }
-    }
-
-    if (definition.format) {
-      constraints.push(definition.format)
-    }
-
-    // Standard formats often emit a long equivalent regex; the format is the useful concise instruction.
-    if (definition.pattern && !definition.format) {
-      constraints.push(`pattern ${shorten(JSON.stringify(definition.pattern), 80)}`)
-    }
-
-    if (definition.uniqueItems) {
-      constraints.push('unique items')
-    }
-
-    let type = depth === 0 ? fallback : 'unknown'
-    if (typeof definition.type === 'string') {
-      type = definition.type
-    } else if (Array.isArray(definition.type)) {
-      type = definition.type.join(' | ')
-    }
-
-    if (definition.const !== undefined) {
-      type = JSON.stringify(definition.const)
-    } else if (definition.enum) {
-      type = definition.enum
-        .slice(0, 6)
-        .map((value) => shorten(JSON.stringify(value), 48))
-        .join(' | ')
-      if (definition.enum.length > 6) {
-        type += ` | … (${definition.enum.length} allowed values)`
-      }
-    } else if (depth < 3 && (definition.anyOf || definition.oneOf)) {
-      const variants = definition.anyOf ?? definition.oneOf ?? []
-      type = variants
-        .slice(0, 4)
-        .map((variant) => describe(variant, depth + 1))
-        .join(' | ')
-      if (variants.length > 4) {
-        type += ' | …'
-      }
-    } else if (depth < 3 && definition.allOf) {
-      type = definition.allOf
-        .slice(0, 4)
-        .map((variant) => describe(variant, depth + 1))
-        .join(' & ')
-      if (definition.allOf.length > 4) {
-        type += ' & …'
-      }
-    } else if (depth < 3 && definition.properties) {
-      const properties = Object.entries(definition.properties)
-      const required = new Set(definition.required ?? [])
-      const fields = properties.slice(0, 5).map(([name, property]) => {
-        const optional = required.has(name) ? '' : '?'
-        return `${name}${optional}: ${describe(property, depth + 1)}`
-      })
-      if (properties.length > 5) {
-        fields.push(`… (${properties.length} fields)`)
-      }
-
-      type = `{ ${fields.join(', ')} }`
-      if (definition.additionalProperties === false) {
-        constraints.push('no extra fields')
-      }
-    } else if (depth < 3 && definition.items !== undefined) {
-      if (Array.isArray(definition.items)) {
-        type = `[${definition.items
-          .slice(0, 5)
-          .map((item) => describe(item, depth + 1))
-          .join(', ')}]`
-      } else {
-        type = `Array<${describe(definition.items, depth + 1)}>`
-      }
-    }
-
-    if (constraints.length) {
-      return `${type} [${constraints.join(', ')}]`
-    }
-
-    return type
-  }
-
-  return shorten(describe(schema, 0), maxChars)
-}
-
 function propertyMemorySchema(type: Parameters<typeof getTypings>[0]): JSONSchema7Definition {
   let schema: JSONSchema7Definition
   try {
@@ -389,30 +103,6 @@ function propertyMemorySchema(type: Parameters<typeof getTypings>[0]): JSONSchem
   return cloneMemoryValue(schema) as JSONSchema7Definition
 }
 
-function age(provenance: MemoryProvenance, turn: number, now: number): string {
-  if (provenance.timestamp === undefined || provenance.turn === undefined) {
-    return 'age unknown'
-  }
-
-  const seconds = Math.max(0, Math.floor((now - provenance.timestamp) / 1000))
-  let amount = 0
-  let unit = ''
-  if (seconds >= 86400) {
-    amount = Math.floor(seconds / 86400)
-    unit = 'day'
-  } else if (seconds >= 3600) {
-    amount = Math.floor(seconds / 3600)
-    unit = 'hour'
-  } else if (seconds >= 60) {
-    amount = Math.floor(seconds / 60)
-    unit = 'minute'
-  }
-
-  const elapsed = amount === 0 ? 'just now' : `${amount} ${unit}${amount === 1 ? '' : 's'} ago`
-  const turns = Math.max(0, turn - provenance.turn)
-  return `${elapsed} (${turns === 0 ? 'this turn' : `${turns} turn${turns === 1 ? '' : 's'} ago`})`
-}
-
 export class MemoryCapacityError extends Error {
   public constructor(maxBytes: number) {
     super(`Memory limit exceeded (${maxBytes} bytes). Compact retained iterations before continuing.`)
@@ -421,19 +111,21 @@ export class MemoryCapacityError extends Error {
 }
 
 export class Memory {
-  private _bindings = new Map<string, Binding>()
-  private _history: IterationMemory[] = []
+  private _bindings = new Map<string, MemoryBinding>()
   private _objectProperties = new Map<string, ObjectPropertyMemory>()
   private _activeObjects = new Set<string>()
-  private _latestResultId?: string
+  private readonly _additionalBytes: () => number
   public readonly maxBytes: number
   public constructor(
     options: {
       variables?: Record<string, unknown>
       maxBytes?: number
+      /** Bytes retained by the owning Session, outside named/object memory. */
+      additionalBytes?: () => number
     } = {}
   ) {
     this.maxBytes = options.maxBytes ?? DEFAULT_MAX_BYTES
+    this._additionalBytes = options.additionalBytes ?? (() => 0)
     if (!Number.isFinite(this.maxBytes) || this.maxBytes < 1) {
       throw new Error('Memory maxBytes must be positive')
     }
@@ -447,7 +139,7 @@ export class Memory {
       })
     }
 
-    this._assertBudget()
+    this.assertCapacity()
   }
 
   private _assertName(name: string): void {
@@ -488,11 +180,13 @@ export class Memory {
         const previous = this._objectProperties.get(path)
         const previousHostValue =
           previous && Object.prototype.hasOwnProperty.call(previous, 'hostValue') ? previous.hostValue : previous?.value
-        const changed = previous && JSON.stringify(encode(previousHostValue)) !== JSON.stringify(encode(hostValue))
+        const changed =
+          previous &&
+          JSON.stringify(encodeMemoryValue(previousHostValue)) !== JSON.stringify(encodeMemoryValue(hostValue))
         const value = previous && !changed ? previous.value : hostValue
         const type = property.type
           ? (await getTypings(property.type as Parameters<typeof getTypings>[0], {})).trim().replace(/\s+/g, ' ')
-          : typeOf(value)
+          : memoryValueType(value)
         const schema = property.type
           ? propertyMemorySchema(property.type as Parameters<typeof getTypings>[0])
           : undefined
@@ -520,7 +214,7 @@ export class Memory {
     const previous = this._objectProperties
     this._objectProperties = next
     try {
-      this._assertBudget()
+      this.assertCapacity()
     } catch (error) {
       this._objectProperties = previous
       throw error
@@ -537,31 +231,6 @@ export class Memory {
     }
 
     return cloneMemoryValue(entry.value)
-  }
-
-  /** Reserve enough metadata for a failure before generation or side effects start. */
-  public assertCapacityForIteration(
-    info: Partial<Pick<IterationMemory, 'id' | 'number' | 'turn' | 'turnId' | 'timestamp'>> = {}
-  ): void {
-    const reservation: IterationMemory = {
-      id: info.id ?? 'pending_iteration_00000000000000000000000000',
-      number: info.number ?? Number.MAX_SAFE_INTEGER,
-      turn: info.turn ?? Number.MAX_SAFE_INTEGER,
-      turnId: info.turnId ?? 'pending_turn_00000000000000000000000000',
-      timestamp: info.timestamp ?? Date.now(),
-      outcome: 'thinking_requested',
-      error: 'x'.repeat(2000),
-      hasResult: false,
-      unavailable: 'Result unavailable; see the execution report.',
-    }
-    this._history.unshift(reservation)
-    try {
-      this._assertBudget()
-    } catch {
-      throw new MemoryCapacityError(this.maxBytes)
-    } finally {
-      this._history.shift()
-    }
   }
 
   /** Reject collisions before executing code, even if the conflicting declaration would run later. */
@@ -596,7 +265,7 @@ export class Memory {
         },
       })
       try {
-        this._assertBudget()
+        this.assertCapacity()
       } catch (error) {
         this._objectProperties.set(path, previous)
         throw error
@@ -619,126 +288,24 @@ export class Memory {
     return Object.fromEntries([...this._bindings].map(([name, binding]) => [name, cloneMemoryValue(binding.value)]))
   }
 
-  public get iterations(): readonly IterationMemory[] {
-    return freeze(cloneMemoryValue(this._history) as IterationMemory[])
-  }
-  public getBindings(): Record<string, MemoryValue> {
-    const history = freeze(cloneMemoryValue(this._history) as IterationMemory[])
-    const latest = history.find((entry) => entry.id === this._latestResultId)
-    const bindings: Record<string, MemoryValue> = this.variables
-    Object.defineProperties(bindings, {
-      $return: {
-        value: latest?.result,
-        enumerable: true,
-        writable: false,
-        configurable: false,
-      },
-      $iterations: {
-        value: history,
-        enumerable: true,
-        writable: false,
-        configurable: false,
-      },
-    })
-    return bindings
+  public get bindings(): readonly NamedMemoryBinding[] {
+    return [...this._bindings].map(([name, binding]) => ({
+      name,
+      ...binding,
+      value: cloneMemoryValue(binding.value),
+      created: { ...binding.created },
+      assigned: { ...binding.assigned },
+      updated: binding.updated ? { ...binding.updated } : undefined,
+    }))
   }
 
-  public commit(input: MemorySettlement): MemoryReport {
-    if (this._history.some((entry) => entry.id === input.id)) {
-      throw new Error(`Iteration ${input.id} was already settled`)
-    }
-
-    const timestamp = input.timestamp ?? Date.now()
-    const entry: IterationMemory = {
-      id: input.id,
-      number: input.number,
-      turn: input.turn,
-      turnId: input.turnId,
-      timestamp,
-      outcome: input.outcome,
-      ...(input.error
-        ? {
-            error: input.error.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').slice(0, 2000),
-          }
-        : {}),
-      hasResult: false,
-      unavailable: 'Result unavailable; see the execution report.',
-    }
-    this._history.unshift(entry)
-    try {
-      this._assertBudget()
-    } catch {
-      this._history.shift()
-      throw new MemoryCapacityError(this.maxBytes)
-    }
-
-    const report = this.assign(input.variables ?? {}, input)
-    if (input.hasResult) {
-      try {
-        const captureFailure = input.captureErrors?.find((item) => item.name === '$return')
-        if (captureFailure) {
-          throw new Error(captureFailure.reason)
-        }
-
-        entry.result = cloneMemoryValue(input.result)
-        entry.hasResult = true
-        this._latestResultId = entry.id
-        this._assertBudget()
-        delete entry.unavailable
-        report.resultAvailable = true
-      } catch (err) {
-        delete entry.result
-        entry.hasResult = false
-        if (!report.unavailable.some((item) => item.name === '$return')) {
-          report.unavailable.push({
-            name: '$return',
-            reason: err instanceof Error ? err.message : String(err),
-          })
-        }
-      }
-
-      // A successful but unavailable result must not leave an older value posing as the latest.
-      this._latestResultId = entry.hasResult ? entry.id : undefined
-    } else {
-      delete entry.unavailable
-    }
-
-    return report
+  public get objectProperties(): readonly ObjectPropertyMemory[] {
+    return [...this._objectProperties.values()]
+      .filter((property) => this._activeObjects.has(property.object))
+      .map((property) => cloneMemoryValue(property) as ObjectPropertyMemory)
   }
 
-  /** Finalize a terminal decision after memory is settled and its delivery/exit hooks finish. */
-  public updateOutcome(id: string, outcome: string, error?: string): void {
-    const entry = this._history.find((iteration) => iteration.id === id)
-    if (!entry) {
-      throw new Error(`Cannot update unsettled iteration ${id}`)
-    }
-
-    const previous = { ...entry }
-    entry.outcome = outcome
-    if (error) {
-      entry.error = error.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').slice(0, 2000)
-    } else {
-      delete entry.error
-    }
-
-    try {
-      this._assertBudget()
-    } catch (failure) {
-      Object.assign(entry, previous)
-      if (!Object.hasOwn(previous, 'error')) {
-        delete entry.error
-      }
-
-      throw failure
-    }
-  }
-
-  public assign(
-    variables: Record<string, unknown>,
-    metadata: Omit<MemorySettlement, 'variables' | 'hasResult' | 'result' | 'outcome'> & {
-      outcome?: string
-    }
-  ): MemoryReport {
+  public assign(variables: Record<string, unknown>, metadata: MemoryAssignment): MemoryReport {
     const input = {
       ...metadata,
       variables,
@@ -783,7 +350,8 @@ export class Memory {
 
         const value = cloneMemoryValue(raw)
         const write = writes.get(name)
-        const changed = !previous || JSON.stringify(encode(previous.value)) !== JSON.stringify(encode(value))
+        const changed =
+          !previous || JSON.stringify(encodeMemoryValue(previous.value)) !== JSON.stringify(encodeMemoryValue(value))
 
         if (!changed && !write) {
           continue
@@ -814,7 +382,7 @@ export class Memory {
         })
 
         try {
-          this._assertBudget()
+          this.assertCapacity()
         } catch (err) {
           this._bindings.delete(name)
           throw err
@@ -823,7 +391,7 @@ export class Memory {
         const changes = previous ? report.updated : report.created
         changes.push({
           name,
-          type: typeOf(value),
+          type: memoryValueType(value),
           preview: previewMemoryValue(value),
           provenance: assigned,
         })
@@ -839,110 +407,18 @@ export class Memory {
     return report
   }
 
-  public compact(retainedIds: Iterable<string>): void {
-    const retained = new Set(retainedIds)
-    this._history = this._history.filter((entry) => retained.has(entry.id))
-
-    if (this._latestResultId && !retained.has(this._latestResultId)) {
-      this._latestResultId = undefined
-    }
-  }
-
-  public render(options: { turn: number; now?: number; maxChars?: number }): string {
-    const now = options.now ?? Date.now()
-    const maxChars = Math.max(100, options.maxChars ?? 6000)
-    const lines = ['## Memory']
-
-    if (!this._bindings.size && !this._activeObjects.size && !this._history.some((entry) => entry.hasResult)) {
-      return `${lines[0]}\nNo stored variables or results yet.`
-    }
-
-    lines.push('Available in JavaScript. Previews are abbreviated; historical results are read-only.')
-    let omitted = 0
-    const append = (line: string) => {
-      if (lines.join('\n').length + line.length + 60 > maxChars) {
-        omitted++
-      } else {
-        lines.push(line)
-      }
-    }
-
-    if (this._bindings.size) {
-      lines.push('', '### Variables')
-      const ordered = [...this._bindings].sort(
-        ([a, x], [b, y]) =>
-          ((y.updated ?? y.assigned).timestamp ?? 0) - ((x.updated ?? x.assigned).timestamp ?? 0) || a.localeCompare(b)
-      )
-
-      for (const [name, binding] of ordered) {
-        const preview = previewMemoryValue(binding.value)
-        const action = binding.updated ? 'updated' : 'set'
-        const when = age(binding.updated ?? binding.assigned, options.turn, now)
-
-        append(`- \`${name}\`: ${preview} — ${action} ${when}.`)
-      }
-    }
-
-    const properties = [...this._objectProperties.values()].filter((property) =>
-      this._activeObjects.has(property.object)
-    )
-
-    if (properties.length) {
-      lines.push('', '### Object properties')
-
-      for (const property of properties) {
-        const description = property.description ? ` ${property.description.replace(/\s+/g, ' ').slice(0, 120)}` : ''
-        const schemaSummary =
-          property.schema === undefined ? property.type : summarizeMemorySchema(property.schema, property.type)
-        const name = `${property.object}.${property.property}`
-        const preview = previewMemoryValue(property.value)
-        const access = property.writable ? 'writable' : 'read-only'
-        const when =
-          property.provenance.timestamp === undefined
-            ? 'age unknown'
-            : `updated ${age(property.provenance, options.turn, now)}`
-
-        append(`- \`${name}\`: ${preview} (${schemaSummary}; ${access}) — ${when}.${description}`)
-      }
-    }
-
-    if (this._history.some((entry) => entry.hasResult)) {
-      lines.push('', '### Results')
-
-      for (const [index, entry] of this._history.entries()) {
-        if (!entry.hasResult) {
-          continue
-        }
-
-        const path = `\`$iterations[${index}].result\``
-        const name = entry.id === this._latestResultId ? `\`$return\` = ${path}` : path
-        const type = typeOf(entry.result)
-        const when = age(entry, options.turn, now)
-
-        append(`- ${name} (${type}) — returned ${when}.`)
-      }
-    }
-
-    if (omitted) {
-      lines.push(
-        `\n${omitted} additional memory entr${omitted === 1 ? 'y' : 'ies'} omitted from this overview; retained history has ${this._history.length} iterations.`
-      )
-    }
-
-    const rendered = lines.join('\n')
-    return rendered.length <= maxChars
-      ? rendered
-      : `## Memory\n${this._bindings.size} variables and ${this._history.length} iterations available; overview omitted.`
+  public render(options: { turn: number; now?: number; maxChars?: number; inspector?: Inspector }): string {
+    return renderMemory({ ...options, bindings: this.bindings, properties: this.objectProperties })
   }
 
   public serialize(): SerializedMemory {
     return {
-      version: 1,
+      version: 2,
       maxBytes: this.maxBytes,
       variables: [...this._bindings].map(([name, binding]) => ({
         name,
         ...binding,
-        value: encode(binding.value),
+        value: encodeMemoryValue(binding.value),
         created: {
           ...binding.created,
         },
@@ -955,19 +431,10 @@ export class Memory {
             }
           : undefined,
       })),
-      iterations: this._history.map(({ result, ...entry }) => ({
-        ...entry,
-        ...(entry.hasResult
-          ? {
-              value: encode(result),
-            }
-          : {}),
-      })),
-      latestResultId: this._latestResultId,
       objects: [...this._objectProperties.values()].map((property) => ({
         ...property,
-        value: encode(property.value),
-        hostValue: encode(property.hostValue),
+        value: encodeMemoryValue(property.value),
+        hostValue: encodeMemoryValue(property.hostValue),
         schema: cloneMemoryValue(property.schema) as JSONSchema7Definition | undefined,
         provenance: {
           ...property.provenance,
@@ -984,13 +451,14 @@ export class Memory {
     return Memory.restore(state)
   }
 
-  public static restore(state: SerializedMemory): Memory {
-    if (state.version !== 1) {
+  public static restore(state: SerializedMemory, additionalBytes?: () => number): Memory {
+    if (state.version !== 2) {
       throw new Error('Unsupported memory version')
     }
 
     const memory = new Memory({
       maxBytes: state.maxBytes,
+      additionalBytes,
     })
     for (const binding of state.variables) {
       memory._assertName(binding.name)
@@ -1027,41 +495,14 @@ export class Memory {
       })
     }
 
-    const ids = new Set<string>()
-    memory._history = state.iterations.map(({ value, ...entry }) => {
-      if (ids.has(entry.id)) {
-        throw new Error('Duplicate persisted memory iteration')
-      }
-
-      ids.add(entry.id)
-      if (entry.hasResult && !value) {
-        throw new Error(`Missing result payload for iteration ${entry.id}`)
-      }
-
-      return {
-        ...entry,
-        ...(entry.hasResult
-          ? {
-              result: decodeMemoryValue(value!),
-            }
-          : {}),
-      }
-    })
-    memory._latestResultId = state.latestResultId
-    if (
-      state.latestResultId &&
-      !memory._history.some((entry) => entry.id === state.latestResultId && entry.hasResult)
-    ) {
-      throw new Error('Missing latest memory result')
-    }
-
-    memory._assertBudget()
+    memory.assertCapacity()
     return memory
   }
 
-  private _assertBudget(): void {
-    // UTF-8 encoded persistence size also bounds the materialized VM view.
-    if (new TextEncoder().encode(JSON.stringify(this.serialize())).byteLength > this.maxBytes) {
+  public assertCapacity(additionalBytes = 0): void {
+    // Both exact state and the owning Session's result records count toward the limit.
+    const bytes = new TextEncoder().encode(JSON.stringify(this.serialize())).byteLength
+    if (bytes + this._additionalBytes() + additionalBytes > this.maxBytes) {
       throw new MemoryCapacityError(this.maxBytes)
     }
   }

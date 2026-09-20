@@ -476,7 +476,7 @@ describe('tool default values', () => {
     )
     expect(await bool.getTypings()).toMatchInlineSnapshot(`"declare function bool(args: true): Promise<void>"`)
     expect(await nullable.getTypings()).toMatchInlineSnapshot(
-      `"declare function nullable(string | null): Promise<void>"`
+      `"declare function nullable(args: string | null): Promise<void>"`
     )
   })
 
@@ -518,20 +518,20 @@ describe('tool default values', () => {
     })
 
     expect(await anySchema.clone().getTypings()).toMatchInlineSnapshot(
-      `"declare function anySchema(any): Promise<void>"`
+      `"declare function anySchema(args: any): Promise<void>"`
     )
     expect(await unknownSchema.clone().getTypings()).toMatchInlineSnapshot(
-      `"declare function unknownSchema(unknown): Promise<void>"`
+      `"declare function unknownSchema(args: unknown): Promise<void>"`
     )
     expect(await enumSchema.clone().getTypings()).toMatchInlineSnapshot(
-      `"declare function enumSchema('a' | 'b' | 'c'): Promise<void>"`
+      `"declare function enumSchema(args: 'a' | 'b' | 'c'): Promise<void>"`
     )
     expect(await neverSchema.clone().getTypings()).toMatchInlineSnapshot(
-      `"declare function neverSchema(never): Promise<void>"`
+      `"declare function neverSchema(args: never): Promise<void>"`
     )
     expect(await defaultValueSchema.clone().getTypings()).toMatchInlineSnapshot(`
       "declare function defaultValueSchema(
-        { a?: number; b?: string } | null,
+        args: { a?: number; b?: string } | null,
       ): Promise<void>"
     `)
   })
@@ -602,7 +602,7 @@ describe('tool default values', () => {
         c?: number
       }): Promise<number>"
     `)
-    expect(await newTool2.getTypings()).toMatchInlineSnapshot(`"declare function add(null): Promise<number>"`)
+    expect(await newTool2.getTypings()).toMatchInlineSnapshot(`"declare function add(args: null): Promise<number>"`)
     expect(await newTool3.getTypings()).toMatchInlineSnapshot(
       `"declare function add(args: { a: number; b: number }): Promise<string>"`
     )

@@ -30,8 +30,8 @@ export class CLIChat extends Chat {
   public constructor() {
     super({
       components: () => [
-        DefaultComponents.Button.withHandler(({ label }) => {
-          this._buttons.push(label)
+        DefaultComponents.Buttons.withHandler((buttons) => {
+          this._buttons.push(...buttons.map(({ label }) => label))
         }),
         ...this._components,
       ],

@@ -129,7 +129,6 @@ export function expectAllowedRestart(restart: CognitiveStreamChunk['restart']): 
 }
 
 export const repeats = Math.max(1, Math.min(100, Number(process.env.LLMZ_EVAL_REPEATS) || 1))
-export const withExamples = process.env.LLMZ_EVAL_EXAMPLES !== '0'
 export const cases = models.flatMap((model) =>
   Array.from({ length: repeats }, (_, index) => ({ model, run: index + 1 }))
 )

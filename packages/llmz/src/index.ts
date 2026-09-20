@@ -1,20 +1,33 @@
 // @ts-ignore
 export { version } from '../package.json'
 
-export { Example, type ExampleDefinition, type ExampleMessage } from './example.js'
 export { Tool } from './tool.js'
+export { inspect, type InspectOptions } from './inspect.js'
+export {
+  createInspector,
+  type OnInspect,
+  type InspectEvent,
+  type InspectionPurpose,
+  type InspectionIdentity,
+  type Inspector,
+} from './inspection.js'
 export { truncate, type Truncated, type TruncationPolicy, type TruncatePreserve } from './truncate.js'
 export { Exit, type ExitResult } from './exit.js'
 export { ObjectInstance } from './objects.js'
 export { ThinkSignal, LoopExceededError } from './errors.js'
-export { Session, type SessionMessage, type SessionInput, type SessionIteration } from './session.js'
+export {
+  Session,
+  type SessionMessage,
+  type SessionInput,
+  type SessionIteration,
+  type SessionIterationRecord,
+} from './session.js'
 export {
   Memory,
   MemoryCapacityError,
   type MemoryValue,
   type MemoryReport,
   type MemoryProvenance,
-  type IterationMemory,
   type ObjectPropertyMemory,
 } from './memory.js'
 
@@ -43,7 +56,6 @@ export type { Response, ResponsePreset } from './response.js'
 
 import { ExecutionResult } from './result.js'
 import { type ExecutionProps } from './runtime/types.js'
-import { stripTruncationTags, truncateWrappedContent, wrapContent } from './truncator.js'
 import { toValidFunctionName, toValidObjectName } from './utils.js'
 export { type Transcript } from './transcript.js'
 export { ErrorExecutionResult, ExecutionResult, SuccessExecutionResult } from './result.js'
@@ -63,9 +75,6 @@ export { configureTokenizer } from './utils.js'
 export const utils = {
   toValidObjectName,
   toValidFunctionName,
-  wrapContent,
-  truncateWrappedContent,
-  stripTruncationTags,
 }
 
 /**
@@ -78,7 +87,6 @@ export const utils = {
  * @param props - Configuration object for the execution
  * @param props.client - Botpress Client or Cognitive Client instance for LLM generation
  * @param props.instructions - System prompt/instructions for the LLM (static string or dynamic function)
- * @param props.examples - Optional labeled few-shot examples (static array or dynamic function)
  * @param props.chat - Optional Chat instance to enable Chat Mode with user interaction
  * @param props.tools - Array of Tool instances available to the agent (static or dynamic)
  * @param props.objects - Array of ObjectInstance for namespaced tools and variables (static or dynamic)
@@ -154,7 +162,6 @@ export const init = async () => {
   await import('./exit.js')
   await import('./vm/index.js')
   await import('./utils.js')
-  await import('./truncator.js')
   await import('./typings.js')
   await import('./prompts/native.js')
 }

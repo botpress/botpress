@@ -9,9 +9,9 @@ function complete(session: Session, id: string, result?: unknown) {
     output: '',
     toolCalls: [{ id: `${id}-call`, name: 'run_javascript', input: { code: 'return 42' } }],
   })
-  session.memory.commit({ ...iteration, outcome: 'completed', hasResult: true, result })
+  session.commitIteration({ ...iteration, hasResult: true, result })
   session.appendToolResult(id, `${id}-call`, 'Execution completed.')
-  session.settleIteration(id)
+  session.settleIteration(id, { outcome: 'completed' })
 
   return iteration
 }
@@ -256,7 +256,7 @@ describe('native Session', () => {
 
     expect(() => session.beginTurn()).toThrow('native calls are pending')
     expect(() => session.completeTurn()).toThrow('pending iterations')
-    expect(() => session.nextIteration()).toThrow('no result')
+    expect(() => session.nextIteration()).toThrow('iteration is pending')
     expect(() => session.requestMessages()).toThrow('all native calls')
     expect(() => session.toJSON()).toThrow('in-flight execution')
 
@@ -267,6 +267,21 @@ describe('native Session', () => {
     expect(session.turn).toBe(1)
     expect(session.pendingMessages).toHaveLength(1)
     expect(session.messages).toHaveLength(3)
+  })
+
+  it('keeps runtime feedback after the response it describes before and after settlement', () => {
+    const session = new Session()
+    const iteration = session.nextIteration()
+    session.appendAssistant(iteration.id, { output: 'An incomplete answer' })
+    session.appendContext('Continue using the retained state.')
+    const messages = session.messages
+
+    expect(messages.map((message) => message.role)).toEqual(['assistant', 'user'])
+    expect(messages[1]?.content).toContain('Continue using the retained state.')
+    session.settleIteration(iteration.id, { outcome: 'thinking_requested' })
+
+    expect(session.messages).toEqual(messages)
+    expect(Session.fromJSON(session.toJSON()).messages).toEqual(messages)
   })
 
   it('rejects serialization while an iteration has not received its assistant response', () => {
@@ -315,7 +330,7 @@ describe('native Session', () => {
 
     expect(session.messages.some((message) => message.content === 'Old request')).toBe(false)
     expect(session.memory.variables.account).toBe('retained')
-    expect(session.memory.iterations.map((entry) => entry.id)).toEqual(['current'])
+    expect(session.iterations.map((entry) => entry.id)).toEqual(['current'])
     expect(session.toJSON().pendingInputs).toEqual(pending)
     expect(Session.fromJSON(session.toJSON()).toJSON()).toEqual(session.toJSON())
   })
@@ -486,8 +501,8 @@ describe('native Session', () => {
 
     expect(session.retainedIterationIds).toEqual(['second'])
     expect(session.messages.map((message) => message.content)).not.toContain('First request')
-    expect(session.memory.getBindings()).toMatchObject({ account: { id: 7 }, $return: 'second result' })
-    expect(session.memory.iterations.map((iteration) => iteration.id)).toEqual(['second'])
+    expect(session.getBindings()).toMatchObject({ account: { id: 7 }, $return: 'second result' })
+    expect(session.iterations.map((iteration) => iteration.id)).toEqual(['second'])
     const next = session.nextIteration('third')
 
     expect(next).toMatchObject({ number: 3, turn: 2 })
@@ -516,7 +531,7 @@ describe('native Session', () => {
     const restored = Session.fromJSON(JSON.parse(JSON.stringify(session)))
 
     expect(restored.memory.variables.account).toHaveProperty('optional', undefined)
-    expect(restored.memory.iterations[0]).toMatchObject({ hasResult: true, result: undefined })
+    expect(restored.iterations[0]).toMatchObject({ hasResult: true, result: undefined })
     expect(restored.nextIteration().number).toBe(2)
     expect(restored.turn).toBe(1)
   })
@@ -546,13 +561,13 @@ describe('native Session', () => {
     expect(() => Session.fromJSON(state)).toThrow('pending native calls')
   })
 
-  it('rejects persisted memory whose source iteration is missing', () => {
+  it('rejects a persisted execution record whose identity disagrees with its group', () => {
     const session = new Session()
     complete(session, 'first', { secret: 'retained only with its history' })
     const state = session.toJSON()
-    state.groups = state.groups.filter((group) => !group.iteration)
+    state.groups.find((group) => group.iteration)!.iteration!.id = 'missing'
 
-    expect(() => Session.fromJSON(state)).toThrow('absent from retained history')
+    expect(() => Session.fromJSON(state)).toThrow('session counters')
   })
 
   it('rejects persisted counters that would reuse an earlier iteration number', () => {
@@ -575,15 +590,15 @@ describe('native Session', () => {
     expect(() => Session.fromJSON(state)).toThrow('duplicate queued input identity')
   })
 
-  it.each([true, false])('rejects restored unsettled iterations even with activeTurn=%s', (activeTurn) => {
+  it.each([true, false])('rejects restored records without an outcome even with activeTurn=%s', (activeTurn) => {
     const session = new Session()
     const iteration = session.nextIteration()
     session.settleIteration(iteration.id)
     const state = session.toJSON()
     state.activeTurn = activeTurn
-    state.groups[0]!.settled = false
+    state.groups[0]!.iteration!.outcome = undefined as any
 
-    expect(() => Session.fromJSON(state)).toThrow('unsettled iteration')
+    expect(() => Session.fromJSON(state)).toThrow('Invalid persisted iteration outcome')
   })
 
   it('rejects old session persistence formats', () => {

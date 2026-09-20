@@ -16,31 +16,26 @@ describe('assistant response configuration', () => {
     }
   )
 
-  it.each(['markdown', 'text', 'speech'] as const)('resolves the %s preset with examples', (preset) => {
+  it.each(['markdown', 'text', 'speech'] as const)('resolves the %s preset', (preset) => {
     const resolved = resolveResponse(preset)
 
     expect(resolved.instructions.length).toBeGreaterThan(0)
-    expect(resolved.examples.length).toBeGreaterThan(0)
     expect(resolved).toEqual(resolveResponse({ preset }))
   })
 
-  it('extends preset instructions and replaces its examples', () => {
+  it('extends preset instructions', () => {
     const response = resolveResponse({
       preset: 'speech',
       instructions: 'Use one short sentence.',
-      examples: ['Ready.'],
     })
 
     expect(response.instructions).toContain('text-to-speech')
     expect(response.instructions).toContain('Use one short sentence.')
-    expect(response.examples).toEqual(['Ready.'])
-    expect(resolveResponse({ preset: 'markdown', examples: [] }).examples).toEqual([])
   })
 
   it('supports fully custom instructions without inherited preset guidance', () => {
-    expect(resolveResponse({ instructions: 'Write a haiku.', examples: ['An illustrative haiku.'] })).toEqual({
+    expect(resolveResponse({ instructions: 'Write a haiku.' })).toEqual({
       instructions: 'Write a haiku.',
-      examples: ['An illustrative haiku.'],
     })
   })
 
@@ -56,16 +51,6 @@ describe('assistant response configuration', () => {
     expect(onDelta).not.toHaveBeenCalled()
   })
 
-  it('copies examples so configuration changes cannot alter an active generation', () => {
-    const examples = ['Original example.']
-    const resolved = resolveResponse({ preset: 'text', examples })
-    examples[0] = 'Changed later.'
-    resolved.examples.push('Only this resolved configuration.')
-
-    expect(resolved.examples[0]).toBe('Original example.')
-    expect(resolveResponse('text').examples).not.toContain('Only this resolved configuration.')
-  })
-
   it.each([
     null,
     [],
@@ -74,9 +59,7 @@ describe('assistant response configuration', () => {
     { preset: ['speech'] },
     { instructions: '' },
     { instructions: 42 },
-    { examples: 'not an array' },
-    { examples: [''] },
-    { examples: [42] },
+    { examples: ['Removed examples'] },
     { handler: true },
     { onDelta: 'not a callback' },
     { unexpected: true },

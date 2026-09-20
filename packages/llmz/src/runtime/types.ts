@@ -1,11 +1,11 @@
-import { Cognitive, type BotpressClientLike, Models, type SttModels } from '@botpress/cognitive'
+import { Cognitive, type CognitiveMessage, type BotpressClientLike, Models, type SttModels } from '@botpress/cognitive'
 
 import { Chat } from '../chat.js'
 import { Context, Iteration } from '../context.js'
 import { _CustomModelClient } from '../custom-client.js'
-import type { Example } from '../example.js'
 import { Exit, ExitResult } from '../exit.js'
 import { ValueOrGetter } from '../getter.js'
+import type { OnInspect } from '../inspection.js'
 import { type ObjectInstance } from '../objects.js'
 import type { Session } from '../session.js'
 import { type Tool } from '../tool.js'
@@ -30,13 +30,19 @@ export type ExecutionHooks = {
    *   This hook will block the execution of the iteration until it resolves.
    *
    * This hook will be called before each iteration starts, regardless of the status.
-   * This is useful for logging or dynamically change model arguments
+   * Use this for observation. Configure dynamic model arguments with their getters.
    */
-  onIterationStart?: (
-    iteration: Iteration,
-    controller: AbortController,
-    context: Context
-  ) => Promise<void | Partial<Iteration>> | void | Partial<Iteration>
+  onIterationStart?: (iteration: Iteration, controller: AbortController, context: Context) => Promise<void> | void
+
+  /** Customize the assembled request after compaction. Custom messages must fit the context budget. */
+  onBeforeRequest?: (event: {
+    messages: CognitiveMessage[]
+    iteration: Iteration
+    controller: AbortController
+  }) => Promise<{ messages: CognitiveMessage[] } | void> | { messages: CognitiveMessage[] } | void
+
+  /** Format runtime values; LLMz enforces the supplied budget on custom output. */
+  onInspect?: OnInspect
 
   /**
    * BLOCKING HOOK
@@ -173,15 +179,6 @@ export type ExecutionProps = {
   instructions?: ValueOrGetter<string, Context>
 
   /**
-   * Labeled examples of one situation and one response, kept outside the live transcript.
-   * Use `new Example({ situation, code })` or `new Example({ situation, messages, exit })`.
-   * Evaluated each iteration, like instructions. Examples must use the current
-   * component/exit catalog. They are kept intact when the prompt is truncated;
-   * select a small relevant set to leave room for tools and conversation.
-   */
-  examples?: ValueOrGetter<Example[], Context>
-
-  /**
    * Objects available in the context.
    * Objects are useful to scope related tools together and to provide data to the VM.
    * Objects can contain "properties" that can be read and written to, as well as "tools" that can be executed.
@@ -273,7 +270,7 @@ export type ExecutionProps = {
 export type RuntimeCognitive = Pick<Cognitive, 'getModelDetails' | 'generateText'> & {
   /**
    * Streaming generation. Assistant text streams as provisional previews; native
-   * tool calls execute only after the complete successful response.
+   * tool calls can execute while text streams; both settle before the next iteration.
    */
   generateTextStream?: Cognitive['generateTextStream']
 }

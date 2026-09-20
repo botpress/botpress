@@ -1,9 +1,9 @@
 import type { CognitiveRequest, CognitiveMetadata, CognitiveToolCall } from '@botpress/cognitive'
 import { describe, expect, it } from 'vitest'
 
-import { getNativeExecutionState, getNativeSystemMessage } from '../src/prompts/native.js'
+import { getNativeSystemMessage } from '../src/prompts/native.js'
 import {
-  createNativeToolCatalogue,
+  RUN_JAVASCRIPT_TOOL,
   transcriptToNativeMessages,
   validateNativeToolCalls,
 } from '../src/runtime/native-tools.js'
@@ -23,15 +23,12 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         const { messages: input, ...props } = protocolScenario(question)
         const system = await getNativeSystemMessage(props)
         const messages = [system.message, ...transcriptToNativeMessages(input)]
-        const last = messages.at(-1)!
-        last.content = String(last.content) + '\n\n' + getNativeExecutionState(props)
-        const catalogue = createNativeToolCatalogue(props)
         const request: CognitiveRequest = {
           model,
           temperature: 0.7,
           reasoningEffort: 'none',
           maxTokens: 1200,
-          tools: catalogue.tools,
+          tools: [RUN_JAVASCRIPT_TOOL],
           toolControl: { mode: 'auto', parallel: false },
           options: { skipCache: true },
           messages,
@@ -57,13 +54,22 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           toolCalls = response.toolCalls ?? []
           metadata = response.metadata
         }
-        const parsed = validateNativeToolCalls(toolCalls, catalogue)
+        const parsed = validateNativeToolCalls(toolCalls)
         console.info(
-          JSON.stringify({ model, run, question, streaming, output, toolCalls, metadata, errors: parsed.errors })
+          JSON.stringify({
+            model,
+            run,
+            question,
+            streaming,
+            output,
+            toolCalls,
+            metadata,
+            errors: parsed.valid ? [] : parsed.errors,
+          })
         )
         expectModelRoute(metadata, model)
         expect(metadata?.stopReason).toBe('stop')
-        expect(parsed.errors).toEqual([])
+        expect(parsed.valid).toBe(true)
         expect(output.trim()).not.toBe('')
         expect(toolCalls).toEqual([])
       }

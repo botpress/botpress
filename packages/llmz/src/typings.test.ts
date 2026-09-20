@@ -104,7 +104,7 @@ describe('functions', () => {
         /** This is a number */
         arg1: number,
         arg2: [string, /** This is a number */ number],
-      ): unknown // end of fn"
+      ): unknown"
     `)
   })
 
@@ -240,7 +240,7 @@ describe('objects', () => {
             h?: string[]
           }
         }) => unknown
-      } // end of MyObject"
+      }"
     `)
   })
 
@@ -413,7 +413,7 @@ describe('objects', () => {
       "declare function MyObject(
         /** This is an array of numbers */
         arg0: number[],
-      ): unknown // end of MyObject"
+      ): unknown"
     `)
   })
 

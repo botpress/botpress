@@ -10,7 +10,8 @@ import type { MessageDelta, MessageMetadata } from '../chat.js'
 import type { Context, ContextTokens, Iteration } from '../context.js'
 import { CognitiveError } from '../errors.js'
 import { getErrorMessage, getTokenizer } from '../utils.js'
-import type { RuntimeCognitive } from './types.js'
+import { RUN_JAVASCRIPT_TOOL } from './native-tools.js'
+import type { ExecutionHooks, RuntimeCognitive } from './types.js'
 
 /** A custom provider adapter can return the full assistant message, including opaque continuation data. */
 export type NativeResponse = CognitiveResponse & {
@@ -34,7 +35,7 @@ export type NativeGeneration = {
 }
 
 const STREAM_IDLE_TIMEOUT = 180_000
-const STATIC_TOKEN_PARTS = ['instructions', 'tools', 'protocol', 'examples'] as const
+const STATIC_TOKEN_PARTS = ['instructions', 'tools', 'protocol'] as const
 type StaticTokenPart = (typeof STATIC_TOKEN_PARTS)[number]
 
 const staticTokenEstimates = new WeakMap<Iteration, Pick<ContextTokens, StaticTokenPart>>()
@@ -94,7 +95,6 @@ function measureNativeContextTokens(
       instructions: initial?.instructions ?? 0,
       tools: initial?.tools ?? 0,
       protocol: initial?.protocol ?? 0,
-      examples: initial?.examples ?? 0,
     }
     staticTokenEstimates.set(iteration, estimates)
   }
@@ -115,18 +115,15 @@ function measureNativeContextTokens(
   const instructions = Math.floor(estimates.instructions * scale)
   const toolsTokens = Math.floor(estimates.tools * scale) + schemaTokens
   const protocol = Math.floor(estimates.protocol * scale)
-  const examples = Math.floor(estimates.examples * scale)
 
   // Tokenization is not additive across JSON boundaries. Marginal request sizes
   // keep native history and schemas current; the residual includes scaffolding.
   return {
     total,
-    framework: total - instructions - toolsTokens - protocol - examples - iterations,
+    framework: total - instructions - toolsTokens - protocol - iterations,
     instructions,
     tools: toolsTokens,
-    transcript: 0,
     protocol,
-    examples,
     iterations,
   }
 }
@@ -147,73 +144,6 @@ function abortable<T>(operation: Promise<T>, signal: AbortSignal): Promise<T> {
 
     signal.addEventListener('abort', aborted, { once: true })
   })
-}
-
-/** Remove only the request-local trailing footer, never historic message content. */
-function withoutMemoryFooter(messages: CognitiveMessage[], initial: CognitiveMessage[] = messages): CognitiveMessage[] {
-  const copy = structuredClone(messages)
-  const last = initial.at(-1)
-
-  if (!last || last.role !== 'user') {
-    return copy
-  }
-
-  const source = typeof last.content === 'string' ? last.content : (last.content?.at(-1)?.text ?? '')
-  const start = source.lastIndexOf('\n\n<runtime-memory>\n')
-
-  if (start < 0 || !source.endsWith('\n</runtime-memory>')) {
-    return copy
-  }
-
-  const footer = source.slice(start)
-
-  for (const message of copy) {
-    if (message.role !== 'user') {
-      continue
-    }
-
-    if (typeof message.content === 'string' && message.content.includes(footer)) {
-      message.content = message.content.replace(footer, '')
-      break
-    }
-
-    if (Array.isArray(message.content)) {
-      const index = message.content.findIndex((part) => part.type === 'text' && part.text?.includes(footer))
-
-      if (index >= 0) {
-        const part = message.content[index]!
-        const text = part.text!.replace(footer, '')
-
-        if (!text) {
-          message.content.splice(index, 1)
-        } else {
-          part.text = text
-        }
-
-        break
-      }
-    }
-  }
-
-  return copy
-}
-
-function withMemoryFooter(messages: CognitiveMessage[], footer: string): CognitiveMessage[] {
-  const copy = structuredClone(messages)
-  const last = copy.at(-1)
-  const content = `\n\n<runtime-memory>\n${footer}\n</runtime-memory>`
-
-  if (last?.role === 'user') {
-    if (Array.isArray(last.content)) {
-      last.content.push({ type: 'text', text: content })
-    } else {
-      last.content = (last.content ?? '') + content
-    }
-  } else {
-    copy.push({ role: 'user', content: `Runtime context (LLMz):${content}` })
-  }
-
-  return copy
 }
 
 function stableJSON(value: unknown): string {
@@ -303,32 +233,32 @@ type GenerateCodeProps = {
   controller: AbortController
   metadata?: Record<string, string>
   onSendDelta?: (delta: MessageDelta) => Promise<void> | void
+  onBeforeRequest?: ExecutionHooks['onBeforeRequest']
   /** Start a complete normalized call without waiting for execution or the stream tail. */
   onToolCalls?: (calls: CognitiveToolCall[]) => boolean
 }
 
-async function prepareNativeRequest({ iteration, ctx, cognitive, controller, metadata }: GenerateCodeProps) {
+async function prepareNativeRequest({
+  iteration,
+  ctx,
+  cognitive,
+  controller,
+  metadata,
+  onBeforeRequest,
+}: GenerateCodeProps) {
   const modelRef = Array.isArray(iteration.model) ? iteration.model[0]! : iteration.model
   const model = await abortable(cognitive.getModelDetails(modelRef), controller.signal).catch((err: unknown) => {
     throw new CognitiveError(`Failed to fetch model details for ${modelRef}: ${getErrorMessage(err)}`)
   })
   const limit = Math.min(model.input.maxTokens, ctx.maxTokens ?? Infinity)
   const reserve = Math.min(model.output.maxTokens, Math.max(256, Math.min(16_000, Math.floor(limit * 0.1))))
-  const tools = iteration.nativeTools?.tools ?? []
-  const system = iteration.messages.filter((message) => message.role === 'system')
-  const hookMessages = withoutMemoryFooter(
-    iteration.messages.filter((message) => message.role !== 'system'),
-    iteration.initialMessages ?? ctx.session.requestMessages()
-  )
-  const canonical = withoutMemoryFooter(ctx.session.requestMessages())
-  const historyCustomized = stableJSON(hookMessages) !== stableJSON(canonical)
+  const tools = [RUN_JAVASCRIPT_TOOL]
+  const system = [iteration.systemMessage]
   const budgetInstruction = getBudgetInstruction(ctx, iteration)
   const budget = `\n\nExecution budget: response ${ctx.iterations.length} of ${ctx.loop}. ${budgetInstruction}`
 
   const buildMessages = () => {
-    const history = historyCustomized
-      ? withMemoryFooter(hookMessages, ctx.session.memory.render({ turn: ctx.session.turn }))
-      : ctx.session.requestMessages()
+    const history = ctx.session.requestMessages({ inspector: ctx.inspector })
     const messages = [...structuredClone(system), ...history]
     const last = messages.at(-1)
 
@@ -345,12 +275,6 @@ async function prepareNativeRequest({ iteration, ctx, cognitive, controller, met
   let tokens = countNativeRequestTokens(messages, tools)
 
   while (tokens > limit - reserve) {
-    if (historyCustomized) {
-      throw new CognitiveError(
-        'The hook-modified native prompt does not fit in the context window. Shorten onIterationStart.messages or increase options.maxTokens; automatic compaction cannot safely rewrite custom history.'
-      )
-    }
-
     const ids = ctx.session.retainedIterationIds.filter((id) => id !== iteration.id)
 
     if (!ids.length) {
@@ -358,8 +282,7 @@ async function prepareNativeRequest({ iteration, ctx, cognitive, controller, met
     }
 
     ctx.session.compact(ids.slice(1).concat(iteration.id))
-    // Rebuild both the inventory and bindings after compaction, before executing model code.
-    iteration.variables = ctx.session.memory.getBindings()
+    // The next request and VM both read the compacted Session state.
     messages = buildMessages()
     tokens = countNativeRequestTokens(messages, tools)
   }
@@ -370,7 +293,18 @@ async function prepareNativeRequest({ iteration, ctx, cognitive, controller, met
     )
   }
 
-  iteration.messages = messages
+  const override = await onBeforeRequest?.({ messages: structuredClone(messages), iteration, controller })
+
+  if (override) {
+    messages = structuredClone(override.messages)
+    tokens = countNativeRequestTokens(messages, tools)
+
+    if (tokens > limit - reserve) {
+      throw new CognitiveError(
+        'The onBeforeRequest messages exceed the context budget. Shorten them or increase options.maxTokens.'
+      )
+    }
+  }
 
   if (iteration.tokens) {
     iteration.tokens.limit = limit
@@ -483,10 +417,18 @@ export async function generateCode({
   metadata,
   onSendDelta,
   onToolCalls,
+  onBeforeRequest,
 }: GenerateCodeProps): Promise<NativeGeneration> {
   const startedAt = Date.now()
   controller.signal.throwIfAborted()
-  const { input, model } = await prepareNativeRequest({ iteration, ctx, cognitive, controller, metadata })
+  const { input, model } = await prepareNativeRequest({
+    iteration,
+    ctx,
+    cognitive,
+    controller,
+    metadata,
+    onBeforeRequest,
+  })
   iteration.traces.push({ type: 'llm_call_started', started_at: startedAt, model: model.id })
   let output = ''
   let toolCalls: CognitiveToolCall[] = []

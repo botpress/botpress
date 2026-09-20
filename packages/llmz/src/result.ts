@@ -1,300 +1,57 @@
-import { Context, Iteration } from './context.js'
-import { Exit, ExitResult } from './exit.js'
+import type { Context, Iteration } from './context.js'
+import type { Exit, ExitResult } from './exit.js'
 import type { Session } from './session.js'
-import { Serializable } from './types.js'
 
 type ExecutionStatus = 'success' | 'error'
+
+type ResultSummary = {
+  sessionId: string
+  tokens: { input: number; output: number; total: number }
+}
 
 export namespace ExecutionResult {
   export type JSON = SuccessExecutionResult.JSON | ErrorExecutionResult.JSON
 }
 
-/**
- * Base class for all execution results returned by the `execute()` function.
- *
- * ExecutionResult provides a type-safe way to handle the different outcomes of LLMz
- * agent execution. All results contain the execution context and provide methods
- * to check the final status and access relevant data.
- *
- * ## Result Types
- *
- * LLMz execution can result in two different outcomes:
- * - **Success**: Agent completed with an Exit (SuccessExecutionResult)
- * - **Error**: Execution failed with an unrecoverable error (ErrorExecutionResult)
- *
- * ## Usage Patterns
- *
- * ### Basic Status Checking
- * ```typescript
- * const result = await execute({
- *   instructions: 'Calculate the sum of numbers 1 to 100',
- *   client,
- * })
- *
- * if (result.isSuccess()) {
- *   console.log('Success:', result.output)
- * } else if (result.isError()) {
- *   console.error('Error:', result.error)
- * }
- * ```
- *
- * ### Type-Safe Exit Checking
- * ```typescript
- * const dataExit = new Exit({
- *   name: 'dataProcessed',
- *   schema: z.object({
- *     recordCount: z.number(),
- *     processingTime: z.number(),
- *   }),
- * })
- *
- * const result = await execute({
- *   instructions: 'Process the data',
- *   exits: [dataExit],
- *   client,
- * })
- *
- * // Type-safe exit checking with typed output access
- * if (result.is(dataExit)) {
- *   console.log(`Processed ${result.output.recordCount} records`)
- *   console.log(`Processing took ${result.output.processingTime}ms`)
- * }
- * ```
- *
- * ### Accessing Execution Details
- * ```typescript
- * if (result.isSuccess()) {
- *   // Access the generated code from the final iteration
- *   console.log('Generated code:', result.iteration.code)
- *
- *   // Access all iterations to see the full execution flow
- *   result.iterations.forEach((iteration, index) => {
- *     console.log(`Iteration ${index + 1}:`, iteration.status.type)
- *   })
- *
- *   // Access execution context
- *   console.log('Original instructions:', result.context.instructions)
- * }
- * ```
- *
- * @see {@link SuccessExecutionResult} For successful execution results
- * @see {@link ErrorExecutionResult} For failed execution results
- */
-export abstract class ExecutionResult implements Serializable<ExecutionResult.JSON> {
-  public readonly status: ExecutionStatus
-  public readonly context: Context
+/** An execution outcome. Persist Session separately; diagnostics belong to this run. */
+export abstract class ExecutionResult {
+  protected constructor(
+    public readonly status: ExecutionStatus,
+    public readonly context: Context
+  ) {}
 
-  protected constructor(status: ExecutionStatus, context: Context) {
-    this.status = status
-    this.context = context
-  }
-
-  /**
-   * Type guard to check if the execution completed successfully.
-   *
-   * @returns True if the execution completed with an Exit, false otherwise
-   * @example
-   * ```typescript
-   * const result = await execute({ ... })
-   *
-   * if (result.isSuccess()) {
-   *   // TypeScript knows this is SuccessExecutionResult
-   *   console.log('Output:', result.output)
-   *   console.log('Exit name:', result.result.exit.name)
-   * }
-   * ```
-   */
   public isSuccess(): this is SuccessExecutionResult {
-    return this.status === 'success' && this instanceof SuccessExecutionResult
+    return this instanceof SuccessExecutionResult
   }
 
-  /**
-   * Type guard to check if the execution failed with an error.
-   *
-   * @returns True if the execution failed with an unrecoverable error, false otherwise
-   * @example
-   * ```typescript
-   * const result = await execute({ ... })
-   *
-   * if (result.isError()) {
-   *   // TypeScript knows this is ErrorExecutionResult
-   *   console.error('Execution failed:', result.error)
-   *
-   *   // Access error details from the last iteration
-   *   const lastIteration = result.iteration
-   *   if (lastIteration?.status.type === 'execution_error') {
-   *     console.error('Stack trace:', lastIteration.status.execution_error.stack)
-   *   }
-   * }
-   * ```
-   */
   public isError(): this is ErrorExecutionResult {
-    return this.status === 'error' && this instanceof ErrorExecutionResult
+    return this instanceof ErrorExecutionResult
   }
 
-  /**
-   * Type guard to check if the execution completed with a specific exit.
-   *
-   * This method provides type-safe access to the output data based on the exit's schema.
-   * It's the recommended way to handle different exit types in complex agents.
-   *
-   * @param exit - The Exit instance to check against
-   * @returns True if the execution completed with the specified exit, false otherwise
-   * @template T - The output type of the exit
-   *
-   * @example
-   * ```typescript
-   * // Define typed exits
-   * const successExit = new Exit({
-   *   name: 'success',
-   *   schema: z.object({
-   *     message: z.string(),
-   *     count: z.number(),
-   *   }),
-   * })
-   *
-   * const errorExit = new Exit({
-   *   name: 'error',
-   *   schema: z.object({
-   *     errorCode: z.string(),
-   *     details: z.string(),
-   *   }),
-   * })
-   *
-   * const result = await execute({
-   *   instructions: 'Process the data',
-   *   exits: [successExit, errorExit],
-   *   client,
-   * })
-   *
-   * // Type-safe exit handling
-   * if (result.is(successExit)) {
-   *   // TypeScript knows result.output has { message: string, count: number }
-   *   console.log(`Success: ${result.output.message}`)
-   *   console.log(`Processed ${result.output.count} items`)
-   * } else if (result.is(errorExit)) {
-   *   // TypeScript knows result.output has { errorCode: string, details: string }
-   *   console.error(`Error ${result.output.errorCode}: ${result.output.details}`)
-   * }
-   * ```
-   */
   public is<T>(exit: Exit<T>): this is SuccessExecutionResult<T> {
-    return this.status === 'success' && this instanceof SuccessExecutionResult && this.result.exit === exit
+    return this.isSuccess() && this.result.exit === exit
   }
 
-  /**
-   * Gets the output data from the last successful iteration.
-   *
-   * For successful executions, returns the data produced by the exit.
-   * For failed or interrupted executions, returns null.
-   *
-   * @returns The output data for successful executions, null otherwise
-   * @example
-   * ```typescript
-   * const result = await execute({ ... })
-   *
-   * // Generic output access
-   * if (result.isSuccess()) {
-   *   console.log('Output:', result.output)
-   * }
-   *
-   * // Type-safe output access with specific exits
-   * if (result.is(myExit)) {
-   *   // result.output is now typed based on myExit's schema
-   *   console.log(result.output.specificField)
-   * }
-   * ```
-   */
-  /** Reuse this session for the next user turn, or persist session.toJSON(). */
   public get session(): Session {
     return this.context.session
   }
 
-  public get output(): unknown | null {
+  public get output(): unknown {
     return this.isSuccess() ? this.result.result : null
   }
 
-  /**
-   * Gets the most recent (last) iteration from the execution.
-   *
-   * Iterations represent individual steps in the execution loop where the LLM
-   * generates code, executes it, and processes the results. The last iteration
-   * contains the final generated code and execution status.
-   *
-   * @returns The last iteration, or null if no iterations were completed
-   * @example
-   * ```typescript
-   * const result = await execute({ ... })
-   *
-   * const lastIteration = result.iteration
-   * if (lastIteration) {
-   *   console.log('Generated code:', lastIteration.code)
-   *   console.log('Status:', lastIteration.status.type)
-   *   console.log('Variables:', lastIteration.variables)
-   *   console.log('Tool calls:', lastIteration.toolCalls)
-   * }
-   * ```
-   */
   public get iteration(): Iteration | null {
-    return this.context.iterations.at(-1) || null
+    return this.context.iterations.at(-1) ?? null
   }
 
-  /**
-   * Gets all iterations from the execution.
-   *
-   * This provides access to the complete execution history, showing how the agent
-   * progressed through multiple iterations to reach the final result. Useful for
-   * debugging, logging, or understanding the agent's reasoning process.
-   *
-   * @returns Array of all iterations in execution order
-   * @example
-   * ```typescript
-   * const result = await execute({ ... })
-   *
-   * // Analyze the full execution flow
-   * result.iterations.forEach((iteration, index) => {
-   *   console.log(`Iteration ${index + 1}:`)
-   *   console.log('  Status:', iteration.status.type)
-   *   console.log('  Code length:', iteration.code?.length || 0)
-   *   console.log('  Tool calls:', iteration.toolCalls.length)
-   *   console.log('  Variables:', Object.keys(iteration.variables).length)
-   * })
-   *
-   * // Find iterations with specific characteristics
-   * const iterationsWithErrors = result.iterations.filter(
-   *   iter => iter.status.type === 'execution_error'
-   * )
-   *
-   * // Calculate total execution time
-   * const totalTime = result.iterations.reduce(
-   *   (sum, iter) => sum + (iter.duration || 0), 0
-   * )
-   * ```
-   */
   public get iterations(): Iteration[] {
-    return this.context.iterations ?? []
+    return this.context.iterations
   }
 
-  /**
-   * Gets the total token usage of the execution, aggregated across all iterations.
-   *
-   * `input`/`output` are the provider-reported token counts of every LLM call made
-   * during the execution. Per-iteration detail (including the measured context size
-   * breakdown by prompt part) is available on each iteration's `tokens` property.
-   *
-   * @example
-   * ```typescript
-   * const result = await execute({ ... })
-   * console.log(`Execution used ${result.tokens.total} tokens`)
-   *
-   * for (const iteration of result.iterations) {
-   *   console.log(iteration.id, iteration.tokens?.context)
-   * }
-   * ```
-   */
-  public get tokens(): { input: number; output: number; total: number } {
+  public get tokens(): ResultSummary['tokens'] {
     let input = 0
     let output = 0
+
     for (const iteration of this.iterations) {
       input += iteration.tokens?.input ?? 0
       output += iteration.tokens?.output ?? 0
@@ -303,185 +60,74 @@ export abstract class ExecutionResult implements Serializable<ExecutionResult.JS
     return { input, output, total: input + output }
   }
 
+  /** Explicit diagnostic export without conversation or memory persistence. */
+  public diagnostics(): Context.JSON {
+    return this.context.toJSON()
+  }
+
   public abstract toJSON(): ExecutionResult.JSON
 }
 
 export namespace SuccessExecutionResult {
-  export type JSON = {
+  export type JSON = ResultSummary & {
     status: 'success'
-    context: Context.JSON
-    result: {
-      exit: Exit.JSON
-      result: unknown
-    }
+    exit: string
+    output: unknown
   }
 }
 
-/**
- * Result for successful executions that completed with an Exit.
- *
- * SuccessExecutionResult indicates that the agent successfully completed its task
- * and returned structured data through one of the provided exits. This is the
- * most common positive outcome for LLMz executions.
- *
- * In *Worker Mode* (ie. no `chat` provided), if no exits were provided, the "DefaultExit" will be used.
- * If *Chat Mode* is enabled, most likely the "ListenExit" will be used if no exits were provided.
- *
- * You can check for a specific exit using the `is()` method, which provides type-safe access to the output data of the exit.
- * You can import "ListenExit" and "DefaultExit" from `llmz`.
- *
- * @template TOutput - The type of the output data based on the exit schema
- *
- * @example
- * ```typescript
- * import { execute, Exit, DefaultExit, ListenExit } from 'llmz'
- *
- * const exit = new Exit({
- *   name: 'dataProcessed',
- *   schema: z.object({
- *     recordCount: z.number(),
- *     summary: z.string(),
- *   }),
- * })
- *
- * const result = await execute({
- *   instructions: 'Process the user data',
- *   exits: [exit],
- *   client,
- * })
- *
- * if (result.isSuccess() && result.is(exit)) {
- *   // Access the exit information
- *   console.log('Exit name:', result.result.exit.name)
- *
- *   // Access typed output data
- *   console.log('Records processed:', result.output.recordCount)
- *   console.log('Summary:', result.output.summary)
- *
- *   // Access the final iteration (guaranteed to exist)
- *   console.log('Generated code:', result.iteration.code)
- * }
- * ```
- */
-export class SuccessExecutionResult<TOutput = unknown>
-  extends ExecutionResult
-  implements Serializable<SuccessExecutionResult.JSON>
-{
-  public readonly result: ExitResult<TOutput>
-
-  public constructor(context: Context, result: ExitResult<TOutput>) {
+export class SuccessExecutionResult<TOutput = unknown> extends ExecutionResult {
+  public constructor(
+    context: Context,
+    public readonly result: ExitResult<TOutput>
+  ) {
     super('success', context)
-    this.result = result
   }
 
-  /**
-   * Gets the typed output data from the successful execution.
-   *
-   * This overrides the base class output property to provide proper typing
-   * based on the exit schema. The output is guaranteed to match the schema
-   * of the exit that was triggered.
-   *
-   * @returns The typed output data
-   */
   public get output(): TOutput {
     return this.result.result
   }
 
-  /**
-   * Gets the final iteration from the successful execution.
-   *
-   * For successful executions, there is always at least one iteration,
-   * so this method returns the guaranteed non-null final iteration.
-   *
-   * @returns The final iteration (guaranteed to exist)
-   */
   public get iteration(): Iteration {
     return this.context.iterations.at(-1)!
   }
 
-  /**
-   * Serializes the execution result to JSON.
-   *
-   * This method converts the execution result into a JSON format that includes
-   * the execution status, context, and exit information. It is used for serialization
-   * and transmission of the execution result.
-   *
-   * @returns The JSON representation of the execution result.
-   */
-  public toJSON() {
+  public toJSON(): SuccessExecutionResult.JSON {
     return {
-      status: 'success' as const,
-      context: this.context.toJSON(),
-      result: {
-        exit: this.result.exit.toJSON(),
-        result: this.result.result,
-      },
-    } satisfies SuccessExecutionResult.JSON
+      status: 'success',
+      sessionId: this.session.id,
+      exit: this.result.exit.name,
+      output: this.output,
+      tokens: this.tokens,
+    }
   }
 }
 
 export namespace ErrorExecutionResult {
-  export type JSON = {
+  export type JSON = ResultSummary & {
     status: 'error'
-    context: Context.JSON
     error: unknown
   }
 }
 
-/**
- * Result for executions that failed with an unrecoverable error.
- *
- * ErrorExecutionResult indicates that the execution encountered an error that could not be recovered from, such as:
- * - Execution has been aborted by the user (eg. via the `signal` AbortSignal parameter)
- * - Iterations exceeded the maximum allowed limit
- *
- * Upon iteration failure, the execution will continue until the maximum iteration limit is reached or an exit is triggered.
- *
- * @example
- * ```typescript
- * const result = await execute({
- *   instructions: 'Call a non-existent function',
- *   client,
- * })
- *
- * if (result.isError()) {
- *   console.error('Execution failed:', result.error)
- *
- *   // Access error details from the last iteration
- *   const lastIteration = result.iteration
- *   if (lastIteration?.status.type === 'execution_error') {
- *     console.error('Error type:', lastIteration.status.execution_error.type)
- *     console.error('Stack trace:', lastIteration.status.execution_error.stack)
- *     console.error('Generated code:', lastIteration.code)
- *   }
- *
- *   // Access all iterations to understand the failure progression
- *   console.log('Total iterations before failure:', result.iterations.length)
- * }
- * ```
- */
-export class ErrorExecutionResult extends ExecutionResult implements Serializable<ErrorExecutionResult.JSON> {
-  public readonly error: unknown
-
-  public constructor(context: Context, error: unknown) {
+export class ErrorExecutionResult extends ExecutionResult {
+  public constructor(
+    context: Context,
+    public readonly error: unknown
+  ) {
     super('error', context)
-    this.error = error
   }
 
-  /**
-   * Gets the output data (always null for error results).
-   *
-   * @returns Always null since error executions don't produce output
-   */
   public get output(): null {
     return null
   }
 
-  public toJSON() {
+  public toJSON(): ErrorExecutionResult.JSON {
     return {
-      status: 'error' as const,
-      context: this.context.toJSON(),
-      error: this.error,
-    } satisfies ErrorExecutionResult.JSON
+      status: 'error',
+      sessionId: this.session.id,
+      error: this.error instanceof Error ? { name: this.error.name, message: this.error.message } : this.error,
+      tokens: this.tokens,
+    }
   }
 }

@@ -1,6 +1,5 @@
 import type { CognitiveMessage } from '@botpress/cognitive'
-import type { Component } from '../component.js'
-import type { Example } from '../example.js'
+import type { ComponentRegistry } from '../component.js'
 import type { Exit } from '../exit.js'
 import type { ObjectInstance } from '../objects.js'
 import type { ResolvedResponse } from '../response.js'
@@ -10,16 +9,11 @@ export namespace LLMzPrompts {
   export type Message = CognitiveMessage
   export type MessageContent = Exclude<CognitiveMessage['content'], string | null>[number]
 
-  /** System sections used to attribute context usage. Live history is native. */
+  /** System sections used to attribute context usage. */
   export type SystemPromptParts = {
     instructions: string
-    /** Callable global functions and object methods; properties live in Memory. */
     tools: string
-    /** Empty for native requests. Conversation messages are counted separately. */
-    transcript: string
-    /** Native execution and completion rules. */
     protocol: string
-    examples?: string
   }
 
   export type SystemMessage = {
@@ -28,20 +22,12 @@ export namespace LLMzPrompts {
   }
 
   export type InitialStateProps = {
-    isChatEnabled?: boolean
-    iteration?: {
-      current: number
-      limit: number
-      history?: string[]
-      toolAttempts?: Record<string, number>
-      deliveredMessages?: Array<{ iteration: number; content: unknown; retracted?: boolean }>
-    }
+    isChatEnabled: boolean
     instructions?: string
     response?: ResolvedResponse
-    examples?: Example[]
     objects: ObjectInstance[]
     globalTools: Tool[]
     exits: Exit[]
-    components: Component[]
+    components: ComponentRegistry
   }
 }

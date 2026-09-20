@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Memory } from '../memory.js'
+import { Session } from '../session.js'
 import { runAsyncFunction } from './index.js'
 import { NodeDriver } from './drivers/node.js'
 import { QuickJSDriver } from './drivers/quickjs.js'
@@ -170,12 +170,12 @@ for (const driver of ['true', 'false']) {
     })
 
     it('protects deeply nested historical values and allows explicit copies', async () => {
-      const memory = new Memory()
-      memory.commit({
+      const session = new Session()
+      const iteration = session.nextIteration('one')
+      session.commitIteration({
         id: 'one',
         number: 1,
         turn: 1,
-        outcome: 'completed',
         hasResult: true,
         result: {
           nested: {
@@ -183,14 +183,15 @@ for (const driver of ['true', 'false']) {
           },
         },
       })
+      session.settleIteration(iteration.id, { outcome: 'completed' })
       const blocked = await runAsyncFunction(
-        memory.getBindings(),
+        session.getBindings(),
         'const alias = $return.nested; alias.age = 2; return alias'
       )
       expect(blocked.success).toBe(false)
-      expect((memory.getBindings().$return as any).nested.age).toBe(1)
+      expect((session.getBindings().$return as any).nested.age).toBe(1)
       const copied = await runAsyncFunction(
-        memory.getBindings(),
+        session.getBindings(),
         'const copy = { ...$return.nested }; copy.age = 2; return copy'
       )
       expect(copied.success && copied.return_value).toEqual({

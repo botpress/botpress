@@ -3,7 +3,18 @@ import { DefaultComponents } from './component.default.js'
 
 describe('default components', () => {
   it('includes only components for rich messages', () => {
-    expect(Object.keys(DefaultComponents)).toEqual(['Button', 'Image', 'File', 'Video', 'Audio', 'Card', 'Carousel'])
+    expect(Object.keys(DefaultComponents)).toEqual(['Buttons', 'Image', 'File', 'Video', 'Audio', 'Card', 'Carousel'])
+  })
+
+  it('renders buttons as one array of props', () => {
+    expect(DefaultComponents.Buttons.render([{ label: 'Continue' }])).toEqual({
+      type: 'component',
+      name: 'buttons',
+      props: [{ action: 'say', label: 'Continue' }],
+    })
+    expect(DefaultComponents).not.toHaveProperty('Button')
+    expect(() => DefaultComponents.Buttons.render({ label: 'Continue' } as never)).toThrow()
+    expect(() => DefaultComponents.Buttons.render([])).toThrow()
   })
 
   it('renders a card entirely from props and applies nested defaults', () => {
@@ -17,7 +28,7 @@ describe('default components', () => {
 
     expect(card).toEqual({
       type: 'component',
-      name: 'Card',
+      name: 'card',
       props: {
         title: 'Standard plan',
         subtitle: '$20/month',
@@ -37,7 +48,7 @@ describe('default components', () => {
 
     expect(carousel).toEqual({
       type: 'component',
-      name: 'Carousel',
+      name: 'carousel',
       props: { cards: cards.map((props) => DefaultComponents.Card.render(props).props) },
     })
     expect(carousel).not.toHaveProperty('children')
@@ -59,7 +70,7 @@ describe('default components', () => {
   it('allows cards containing only a title', () => {
     expect(DefaultComponents.Card.render({ title: 'Reminder' })).toEqual({
       type: 'component',
-      name: 'Card',
+      name: 'card',
       props: { title: 'Reminder' },
     })
   })

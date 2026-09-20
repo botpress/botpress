@@ -32,7 +32,7 @@ const client = new Client({
 
 // Define a custom UI component for displaying plane tickets
 const PlaneTicketComponent = new Component({
-  name: 'PlaneTicket',
+  name: 'planeTicket',
   description: 'A component to display a plane ticket',
   props: z.object({
     ticketNumber: z.string().describe('The unique ticket number for the plane ticket'),
@@ -41,36 +41,17 @@ const PlaneTicketComponent = new Component({
     date: z.string().describe('The date of the flight (in YYYY-MM-DD format)'),
     price: z.number().optional().describe('The price of the ticket'),
   }),
-  generation: {
-    examples: [
-      {
-        props: {
-          from: 'New York',
-          to: 'Los Angeles',
-          date: '2025-10-01',
-          price: 299.99,
-          ticketNumber: 'ABC-0000000',
-        },
-      },
-    ],
-  },
 })
 
 // Define a progress component for status updates
 const ProgressComponent = new Component({
-  name: 'Progress',
+  name: 'progress',
   description: 'Displays a progress update message',
   props: z.object({
     message: z.string().describe('The progress message'),
     step: z.number().describe('Current step number'),
     total: z.number().describe('Total number of steps'),
   }),
-  generation: {
-    examples: [
-      { props: { message: 'Checking availability...', step: 1, total: 3 } },
-      { props: { message: 'Calculating price...', step: 2, total: 3 } },
-    ],
-  },
 })
 
 // Tool for purchasing tickets — uses async generator to yield components

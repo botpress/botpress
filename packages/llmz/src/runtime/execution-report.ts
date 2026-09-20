@@ -1,222 +1,194 @@
-import type { Iteration } from '../context.js'
-import { CodeExecutionError, Signals, ThinkSignal } from '../errors.js'
-import { inspect } from '../inspect.js'
+import { CodeExecutionError, Signals } from '../errors.js'
+import type { InspectionPolicyLookup } from '../inspect.js'
+import { createInspector, type InspectionIdentity, type Inspector } from '../inspection.js'
 import type { MemoryChange, MemoryReport } from '../memory.js'
 import { DEFAULT_TOOL_RESULT_MAX_TOKENS } from '../truncate.js'
-import type { VMExecutionResult } from '../types.js'
-import { getExecutionActivity, renderMessageDeliveries, renderToolCalls } from './execution-activity.js'
+import { renderMessageDeliveries, renderToolCalls, type ExecutionActivity } from './execution-activity.js'
 
 export { renderMessageDeliveries } from './execution-activity.js'
 
 const MAX_REPORTED_CHANGES = 40
 const MAX_OVERRIDE_SOURCE_LENGTH = 3000
 
-export function previewExecutionValue(value: unknown, tokens = DEFAULT_TOOL_RESULT_MAX_TOKENS): string {
-  return inspect(value, undefined, { tokens, maxStringLength: Infinity }) ?? 'undefined'
+export type ExecutionOutcome =
+  | { type: 'inspect'; value: unknown; available: boolean; explicit: boolean }
+  | { type: 'exit'; name: string; value: unknown }
+  | { type: 'error'; message: string; error?: unknown; exitName?: string }
+  | { type: 'cancelled'; message: string }
+  | { type: 'interrupted'; reason: 'stream' | 'thinking'; message?: string; context?: unknown }
+
+export type ExecutionReport = {
+  outcome: ExecutionOutcome
+  activity: ExecutionActivity
+  memory: MemoryReport
+  source?: { requested?: string; executed?: string }
+  requiresExit?: boolean
+  iteration?: number
+  identity?: InspectionIdentity
+  inspector?: Inspector
+  maxTokens?: number
+  policies?: InspectionPolicyLookup
 }
 
-function previewDetail(value: unknown, tokens = 100): string {
-  return inspect(value, undefined, { tokens, compact: true, honorTruncation: false })
-}
-
-function previewName(name: string): string {
-  return name.length <= 100 ? name : previewDetail(name, 40)
-}
-
-/** Full values live in memory; tool feedback contains bounded, readable previews. */
-export function renderExecutionReport(
-  iteration: Iteration,
-  result: VMExecutionResult,
-  report: MemoryReport,
-  {
-    requestedCode,
-    cancelled = iteration.status.type === 'aborted',
-    inspected = false,
-    maxTokens = DEFAULT_TOOL_RESULT_MAX_TOKENS,
-    inspectionValue = result.success ? result.return_value : undefined,
-  }: {
-    requestedCode?: string
-    cancelled?: boolean
-    inspected?: boolean
-    maxTokens?: number
-    inspectionValue?: unknown
-  } = {}
-): string {
-  const activity = getExecutionActivity(iteration)
-  const sections = [renderExecutionStatus(iteration, result, report)]
-  const override = renderExecutionOverride(iteration.code, requestedCode)
+/** Format one settled outcome; execution is responsible for deciding what happened. */
+export function renderExecutionReport({
+  outcome,
+  activity,
+  memory,
+  source,
+  requiresExit = false,
+  iteration,
+  identity = { iteration },
+  inspector = createInspector(),
+  maxTokens = DEFAULT_TOOL_RESULT_MAX_TOKENS,
+  policies,
+}: ExecutionReport): string {
+  const detail = (value: unknown) => inspector(value, { purpose: 'error', maxTokens: 100, compact: true, identity })
+  const name = (value: string) => inspector(value, { purpose: 'name', maxTokens: 40, identity })
+  const result = (value: unknown) => inspector(value, { purpose: 'result', maxTokens, policies, identity })
+  const sections = [renderStatus(outcome, memory, detail)]
+  const override = renderExecutionOverride(source?.executed, source?.requested, inspector, identity)
 
   if (override) {
     sections.push(override)
+
+    if (outcome.type === 'inspect' && requiresExit) {
+      sections.push(
+        'No exit was applied. The executed program returned an inspection result; use that result for any required completion. Do not call the originally requested business tools merely to compensate for the hook replacement.'
+      )
+    }
   }
 
-  const referenceRecovery = renderReferenceRecovery(result)
-
-  if (referenceRecovery) {
-    sections.push(referenceRecovery)
-  }
-
-  const completedNormally =
-    result.success &&
-    !result.signal &&
-    (iteration.status.type === 'thinking_requested' || iteration.status.type === 'exit_success')
-
-  if (override && completedNormally && iteration.status.type === 'thinking_requested' && iteration.exits.length) {
+  if (outcome.type === 'error' && isReferenceError(outcome.error)) {
     sections.push(
-      'No exit was applied. The executed program returned an inspection result; use that result for any required completion. Do not call the originally requested business tools merely to compensate for the hook replacement.'
+      'REFERENCE RECOVERY\nCheck the Memory overview and JavaScript API for the missing name. Declare new variables with const or let; assignment alone never creates a variable. If a preceding business call already returned, reuse its acknowledged result rather than repeating the call. Do not invent values or functions for unknown names.'
     )
   }
 
-  const calls = renderToolCalls(activity, !!override || !completedNormally)
+  const completed = outcome.type === 'inspect' || outcome.type === 'exit'
+  const calls = renderToolCalls(activity, !!override || !completed, inspector, identity)
+  const deliveries = renderMessageDeliveries(activity, outcome.type === 'cancelled', inspector, identity)
 
   if (calls) {
     sections.push(calls)
   }
 
-  const deliveries = renderMessageDeliveries(iteration, cancelled)
-
   if (deliveries) {
     sections.push(deliveries)
   }
 
-  const changes: string[] = []
-  appendChanges(changes, 'Created', report.created)
-  appendChanges(changes, 'Updated', report.updated)
+  const changes = [renderChanges('Created', memory.created, name), renderChanges('Updated', memory.updated, name)]
+    .filter(Boolean)
+    .join('\n')
 
-  if (changes.length) {
-    sections.push(`Memory changes\n${changes.join('\n')}`)
+  if (changes) {
+    sections.push(`Memory changes\n${changes}`)
   }
 
-  if (report.unavailable.length) {
-    const failures = report.unavailable.slice(0, MAX_REPORTED_CHANGES)
-    const entries = failures.map(({ name, reason }) => `- ${previewName(name)}: ${previewDetail(reason)}`)
+  if (memory.unavailable.length) {
+    const failures = memory.unavailable.slice(0, MAX_REPORTED_CHANGES)
+    const entries = failures.map((failure) => `- ${name(failure.name)}: ${detail(failure.reason)}`)
 
-    if (report.unavailable.length > failures.length) {
-      entries.push(`- ${report.unavailable.length - failures.length} additional values could not be retained.`)
+    if (memory.unavailable.length > failures.length) {
+      entries.push(`- ${memory.unavailable.length - failures.length} additional values could not be retained.`)
     }
 
     sections.push(`Memory errors\n${entries.join('\n')}`)
   }
 
-  sections.push(renderOutcome(iteration, result, report, { inspected, maxTokens, inspectionValue }))
+  if (outcome.type === 'inspect') {
+    const value = outcome.available ? result(outcome.value) : 'Unavailable; see memory errors above.'
+    sections.push(`${outcome.explicit ? 'inspect() result' : 'Result'}\n${value}`)
+  } else if (outcome.type === 'exit') {
+    const payload = outcome.value === undefined ? '' : `\n${result(outcome.value)}`
+    sections.push(`Completion\nExit ${detail(outcome.name)} completed.${payload}`)
+  } else {
+    sections.push('inspect() result\nNot produced; execution did not complete an inspection.')
+
+    if (outcome.type === 'interrupted' && outcome.reason === 'thinking' && outcome.context !== undefined) {
+      sections.push(`Interruption context\n${result(outcome.context)}`)
+    }
+  }
 
   return sections.join('\n\n')
 }
 
-function renderExecutionStatus(iteration: Iteration, result: VMExecutionResult, report: MemoryReport): string {
-  if (result.signal instanceof ThinkSignal) {
-    return `run_javascript: paused\nThinking requested: ${previewDetail(result.signal.reason)}. Its remaining statements did not run.`
-  }
+function renderStatus(outcome: ExecutionOutcome, memory: MemoryReport, detail: (value: unknown) => string): string {
+  switch (outcome.type) {
+    case 'cancelled':
+      return `run_javascript: cancelled\n${detail(outcome.message)}`
 
-  if (iteration.status.type === 'aborted') {
-    return `run_javascript: cancelled\n${previewDetail(iteration.error ?? 'Execution was cancelled.')}`
-  }
+    case 'interrupted':
+      if (outcome.reason === 'thinking') {
+        return `run_javascript: paused\nThinking requested: ${detail(outcome.message)}. Its remaining statements did not run.`
+      }
 
-  if (iteration.status.type === 'generation_error') {
-    return [
-      'run_javascript: interrupted',
-      'The response stream failed after JavaScript started. Earlier actions may have completed, but the terminal decision was not applied. Inspect the recorded outcomes before continuing.',
-      iteration.error ? previewDetail(iteration.error) : undefined,
-    ]
-      .filter(Boolean)
-      .join('\n')
-  }
+      return [
+        'run_javascript: interrupted',
+        'The response stream failed after JavaScript started. Earlier actions may have completed, but the terminal decision was not applied. Inspect the recorded outcomes before continuing.',
+        outcome.message ? detail(outcome.message) : undefined,
+      ]
+        .filter(Boolean)
+        .join('\n')
 
-  if (iteration.status.type === 'exit_error') {
-    return `run_javascript: failed\nJavaScript ran, but completion through ${previewDetail(iteration.status.exit_error.exit)} failed: ${previewDetail(iteration.status.exit_error.message)}`
-  }
+    case 'error':
+      if (outcome.exitName !== undefined) {
+        return `run_javascript: failed\nJavaScript ran, but completion through ${detail(outcome.exitName)} failed: ${detail(outcome.message)}`
+      }
 
-  if (!result.success) {
-    return [
-      'run_javascript: failed',
-      previewDetail(iteration.error ?? 'JavaScript execution failed.'),
-      'Completed actions below remain valid; do not repeat them blindly.',
-    ].join('\n')
-  }
+      return [
+        'run_javascript: failed',
+        detail(outcome.message),
+        'Completed actions below remain valid; do not repeat them blindly.',
+      ].join('\n')
 
-  if (report.unavailable.length) {
-    return 'run_javascript: completed with memory errors\nJavaScript ran successfully, but some values could not be retained.'
+    case 'inspect':
+    case 'exit':
+      return memory.unavailable.length
+        ? 'run_javascript: completed with memory errors\nJavaScript ran successfully, but some values could not be retained.'
+        : 'run_javascript: succeeded'
   }
-
-  return 'run_javascript: succeeded'
 }
 
-function renderReferenceRecovery(result: VMExecutionResult): string | undefined {
-  if (result.success) {
-    return undefined
-  }
-
-  const error = Signals.maybeDeserializeError(result.error)
-  const originalErrorName = error instanceof CodeExecutionError ? error.originalErrorName : error?.name
-
-  if (originalErrorName !== 'ReferenceError') {
-    return undefined
-  }
-
-  return [
-    'REFERENCE RECOVERY',
-    'Check the Memory overview and JavaScript API for the missing name. Declare new variables with const or let; assignment alone never creates a variable. If a preceding business call already returned, reuse its acknowledged result rather than repeating the call. Do not invent values or functions for unknown names.',
-  ].join('\n')
+function isReferenceError(value: unknown): boolean {
+  const error = Signals.maybeDeserializeError(value)
+  return (error instanceof CodeExecutionError ? error.originalErrorName : error?.name) === 'ReferenceError'
 }
 
 /** Keep the requested assistant call intact while disclosing the source the host actually ran. */
-export function renderExecutionOverride(executedCode?: string, requestedCode?: string): string | undefined {
+export function renderExecutionOverride(
+  executedCode?: string,
+  requestedCode?: string,
+  inspector: Inspector = createInspector(),
+  identity?: InspectionIdentity
+): string | undefined {
   if (executedCode === undefined || requestedCode === undefined || executedCode === requestedCode) {
     return undefined
   }
 
   const source = executedCode.slice(0, MAX_OVERRIDE_SOURCE_LENGTH)
-  const truncated = source.length < executedCode.length
 
   return [
     'EXECUTION OVERRIDE',
     'The host onBeforeExecution hook replaced the requested JavaScript. The original assistant tool call records the requested program. Replacement source is shown below; the outcomes report what actually executed.',
     'Continue from the actual results and retained variables. Do not replay the requested program to compensate for this intentional replacement.',
     'Replacement JavaScript (bounded preview):',
-    previewExecutionValue(source, 800),
-    ...(truncated ? ['The replacement source preview was truncated.'] : []),
+    inspector(source, { purpose: 'code', maxTokens: 800, identity }),
+    ...(source.length < executedCode.length ? ['The replacement source preview was truncated.'] : []),
   ].join('\n')
 }
 
-function renderOutcome(
-  iteration: Iteration,
-  result: VMExecutionResult,
-  report: MemoryReport,
-  { inspected, maxTokens, inspectionValue }: { inspected: boolean; maxTokens: number; inspectionValue: unknown }
-): string {
-  if (iteration.status.type === 'exit_success') {
-    const { exit_name: name, return_value: value } = iteration.status.exit_success
-    const payload = value === undefined ? '' : `\n${previewExecutionValue(value, maxTokens)}`
-
-    return `Completion\nExit ${previewDetail(name)} completed.${payload}`
-  }
-
-  if (result.success && !result.signal && iteration.status.type === 'thinking_requested') {
-    const value = report.resultAvailable
-      ? previewExecutionValue(inspectionValue, maxTokens)
-      : 'Unavailable; see memory errors above.'
-    return `${inspected ? 'inspect() result' : 'Result'}\n${value}`
-  }
-
-  const signal = result.signal
-  const lines = ['inspect() result\nNot produced; execution did not complete an inspection.']
-
-  if (signal instanceof ThinkSignal && signal.context !== undefined) {
-    lines.push(`Interruption context\n${previewExecutionValue(signal.context, maxTokens)}`)
-  }
-
-  return lines.join('\n\n')
-}
-
-function appendChanges(sections: string[], label: string, changes: MemoryChange[]): void {
+function renderChanges(label: string, changes: MemoryChange[], name: (value: string) => string): string | undefined {
   if (!changes.length) {
-    return
+    return undefined
   }
 
-  const names = changes.slice(0, MAX_REPORTED_CHANGES).map(({ name }) => previewName(name))
-  sections.push(`${label}: ${names.join(', ')}`)
+  const names = changes.slice(0, MAX_REPORTED_CHANGES).map((change) => name(change.name))
+  const lines = [`${label}: ${names.join(', ')}`]
 
   if (changes.length > names.length) {
-    sections.push(`${changes.length - names.length} more changes are retained in memory.`)
+    lines.push(`${changes.length - names.length} more changes are retained in memory.`)
   }
+
+  return lines.join('\n')
 }

@@ -82,7 +82,7 @@ describe('native execution lifecycle', () => {
     expect(result.is(ListenExit)).toBe(true)
     expect(sent.map((item) => (item.message.type === 'text' ? item.message.text : ''))).toEqual(['Hello, world.'])
     expect(result.session.messages).toEqual([{ role: 'assistant', content: 'Hello, world.' }])
-    expect(result.session.memory.iterations[0]?.hasResult).toBe(false)
+    expect(result.session.iterations[0]?.hasResult).toBe(false)
     expect(client.requests[0]!.tools?.map((tool) => tool.name)).toEqual(['run_javascript'])
     expect(client.requests[0]!.toolControl).toMatchObject({ parallel: false })
     expect(JSON.stringify(client.requests)).not.toContain('■start')
@@ -144,7 +144,7 @@ describe('native execution lifecycle', () => {
     expect(result.output).toEqual({ value: 40 })
     expect(read).toHaveBeenCalledOnce()
     expect(result.session.memory.variables).toEqual({ account: { age: 40, email: 'a@example.com' } })
-    expect(result.session.memory.getBindings().$return).toEqual({ age: 40 })
+    expect(result.session.getBindings().$return).toEqual({ age: 40 })
     expect(feedback(client)).toContain('inspect() result')
     expect(feedback(client)).toContain('Created')
     expect(feedback(client)).toContain('account')
@@ -187,7 +187,7 @@ describe('native execution lifecycle', () => {
     expect(second.isSuccess()).toBe(true)
     expect(second.session.turn).toBe(2)
     expect(second.session.memory.variables.account).toEqual({ age: 41 })
-    expect(second.session.memory.getBindings().$return).toEqual({ age: 41, saved: true, previous: 'exit_success' })
+    expect(second.session.getBindings().$return).toEqual({ age: 41, saved: true, previous: 'exit_success' })
     expect(feedback(secondClient)).toContain('Updated')
     expect(JSON.stringify(second.session.messages)).not.toContain('<runtime-memory>')
     expect(JSON.stringify(secondClient.requests[1]!.messages).match(/<runtime-memory>/g)).toHaveLength(1)
@@ -295,7 +295,7 @@ describe('native execution lifecycle', () => {
     ])
     const result = await executeContext({ client, exits: [done], options: { loop: 6 } })
     expect(result.isSuccess()).toBe(true)
-    expect(result.session.memory.getBindings().$return).toEqual({
+    expect(result.session.getBindings().$return).toEqual({
       old: 'original',
       account: { age: 41 },
       note: 'saved',
@@ -314,15 +314,15 @@ describe('native execution lifecycle', () => {
     ])
     const result = await executeContext({ client, exits: [done], options: { loop: 6 } })
     expect(result.isSuccess()).toBe(true)
-    expect(result.session.memory.getBindings().$return).toBeUndefined()
-    expect(result.session.memory.iterations[1]?.hasResult).toBe(true)
+    expect(result.session.getBindings().$return).toBeUndefined()
+    expect(result.session.iterations[1]?.hasResult).toBe(true)
     expect(feedback(client, 2)).toContain('undefined')
   })
 
   test('synchronous component calls run in order and exit without another generation', async () => {
     const sent: string[] = []
     const card = new Component({
-      name: 'Card',
+      name: 'card',
 
       description: 'Card',
       props: z.object({ title: z.string() }),
@@ -350,13 +350,13 @@ describe('native execution lifecycle', () => {
     expect(result.is(ListenExit)).toBe(true)
     expect(client.requests).toHaveLength(1)
     expect(result.session.messages.filter((message) => message.type === 'tool_result')).toHaveLength(1)
-    expect(result.session.memory.iterations[0]?.outcome).toBe('exit_success')
-    expect(result.session.memory.iterations[0]?.hasResult).toBe(false)
+    expect(result.session.iterations[0]?.outcome).toBe('exit_success')
+    expect(result.session.iterations[0]?.hasResult).toBe(false)
   })
 
   test('nonterminal sends request another model response', async () => {
     const card = new Component({
-      name: 'Card',
+      name: 'card',
 
       description: 'Card',
       props: z.object({ title: z.string() }),
@@ -438,7 +438,7 @@ describe('native execution lifecycle', () => {
     ])
     const result = await executeContext({ client, tools: [pause], exits: [done] })
     expect(result.isSuccess()).toBe(true)
-    expect(result.session.memory.getBindings().$return).toBe(17)
+    expect(result.session.getBindings().$return).toBe(17)
     expect(result.session.memory.variables).toEqual({ before: 1 })
     expect(feedback(client, 2)).toContain('Relevant evidence')
     expect(feedback(client, 2)).toContain('run_javascript: paused')
@@ -452,7 +452,7 @@ describe('native execution lifecycle', () => {
     })
     first.session.compact([first.iterations[1]!.id])
     expect(first.session.memory.variables.retained).toEqual({ n: 42 })
-    expect(first.session.memory.getBindings().$return).toBeUndefined()
+    expect(first.session.getBindings().$return).toBeUndefined()
     const client = new NativeClient([
       javascript('return { n: retained.n, history: $iterations.length };'),
       response('Done again.'),
@@ -464,7 +464,7 @@ describe('native execution lifecycle', () => {
       chat,
       client,
     })
-    expect(second.session.memory.getBindings().$return).toEqual({ n: 42, history: 1 })
+    expect(second.session.getBindings().$return).toEqual({ n: 42, history: 1 })
     expect(client.requests[0]!.messages.some((message) => message.type === 'tool_result')).toBe(false)
   })
 
@@ -477,7 +477,7 @@ describe('native execution lifecycle', () => {
     ])
     const result = await executeContext({ client, exits: [done], options: { loop: 6 } })
     expect(result.isSuccess()).toBe(true)
-    expect(result.session.memory.getBindings().$return).toBe(1)
+    expect(result.session.getBindings().$return).toBe(1)
   })
 
   test('cancellation from an iteration hook prevents model and business calls', async () => {
@@ -510,7 +510,7 @@ describe('native execution lifecycle', () => {
   test('a failed component delivery preserves earlier deliveries and skips the exit', async () => {
     const shown: string[] = []
     const card = new Component({
-      name: 'Card',
+      name: 'card',
 
       description: 'Card',
       props: z.object({ title: z.string() }),
@@ -563,7 +563,7 @@ describe('native execution lifecycle', () => {
     const result = await executeContext({ client, tools: [read], exits: [done] })
     expect(result.isSuccess()).toBe(true)
     expect(calls).toEqual([1, 2])
-    expect(result.session.memory.getBindings().$return).toEqual([2, 4])
+    expect(result.session.getBindings().$return).toEqual([2, 4])
   })
 
   test('stream previews correlate with committed text and never commit before completion', async () => {

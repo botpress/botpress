@@ -49,7 +49,7 @@ describe('object properties in session memory', () => {
     const result = await executeContext({ client, chat: makeChat(), objects: [account] })
 
     expect(result.isSuccess()).toBe(true)
-    expect(result.session.memory.getBindings().$return).toBe(41)
+    expect(result.session.getBindings().$return).toBe(41)
     expect(result.session.memory.getObjectPropertyValue('account', 'age')).toBe(41)
     expect(result.session.memory.variables).toEqual({})
     const feedback = String(client.requests[1]!.messages.at(-1)?.content)

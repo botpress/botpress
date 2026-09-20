@@ -217,7 +217,7 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
         instructions:
           'Say exactly "Which plan would you like?" as normal assistant text, then call run_javascript once. In the code, call chat.buttons([{ action: "say", label: "Standard" }, { action: "say", label: "Premium" }]); then finish with return exit("listen"). Component methods are synchronous. Do not use inspect.',
         chat: createTestChat({
-          components: [DefaultComponents.Button],
+          components: [DefaultComponents.Buttons],
           onMessage: async (component) => {
             delivered.push(component)
           },
@@ -241,11 +241,10 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
       const text = delivered.filter((message) => message.type === 'text')
       const buttons = delivered.filter((message) => message.type === 'component')
 
-      expect(delivered).toHaveLength(3)
+      expect(delivered).toHaveLength(2)
       expect(text).toHaveLength(1)
       expect(text[0]?.text).toBe('Which plan would you like?')
-      expect(buttons.map((message) => message.name)).toEqual(['Button', 'Button'])
-      expect(buttons.map((message) => message.props.label)).toEqual(['Standard', 'Premium'])
+      expect(buttons).toEqual([DefaultComponents.Buttons.render([{ label: 'Standard' }, { label: 'Premium' }])])
     })
 
     it('inspects once and answers from the result in the next generation', testOptions, async () => {
@@ -295,7 +294,7 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
         'thinking_requested',
         'exit_success',
       ])
-      expect(result.session.memory.getBindings().$return).toEqual({ plan: 'Orchid', projects: 17 })
+      expect(result.session.getBindings().$return).toEqual({ plan: 'Orchid', projects: 17 })
       expect(delivered).toHaveLength(1)
       expect(delivered[0]).toMatch(/Orchid/)
       expect(delivered[0]).toMatch(/\b17\b/)

@@ -1,4 +1,4 @@
-import { isTruncated, type TruncatePreserve } from './truncate.js'
+import { isTruncated, type TruncatePreserve, type TruncationPolicy } from './truncate.js'
 import { getTokenizer } from './utils.js'
 
 const SUBTITLE_LN = '--------------'
@@ -7,7 +7,9 @@ const LONG_TEXT_LENGTH = 4096
 const MAX_PREVIEW_CHARACTERS = 1_000_000
 const MAX_PREVIEW_NODES = 10_000
 
-type PreviewOptions = {
+export type InspectionPolicyLookup = (value: unknown) => TruncationPolicy | undefined
+
+export type InspectOptions = {
   tokens: number
   /** Maximum characters shown from a string, within the overall token budget. */
   maxStringLength?: number
@@ -15,9 +17,12 @@ type PreviewOptions = {
   compact?: boolean
   /** Disable per-value overrides for compact inventories and other fixed budgets. */
   honorTruncation?: boolean
+  /** Policies retained for unchanged tool values during the current execution. */
+  policies?: InspectionPolicyLookup
+  preserve?: TruncatePreserve
 }
 
-const DEFAULT_OPTIONS: PreviewOptions = {
+const DEFAULT_OPTIONS: InspectOptions = {
   tokens: 100_000,
 }
 
@@ -33,6 +38,7 @@ type PreviewState = {
   honorTruncation: boolean
   truncated: boolean
   ancestors: WeakSet<object>
+  policies?: InspectionPolicyLookup
 }
 
 type PreviewBudget = Pick<ReturnType<typeof getTokenizer>, 'count' | 'truncate'>
@@ -47,21 +53,35 @@ function getPreviewBudget(): PreviewBudget {
 
     return {
       count: (value: string) => encoder.encode(value).length,
-      truncate: (value: string, length: number) => {
-        let output = ''
-        let bytes = 0
+      truncate: (value: string, length: number, mode = 'head') => {
+        const take = (text: string, limit: number, fromEnd: boolean): string => {
+          let output = ''
+          let bytes = 0
+          const characters = Array.from(text)
 
-        for (const character of value) {
-          bytes += encoder.encode(character).length
-
-          if (bytes > length) {
-            break
+          if (fromEnd) {
+            characters.reverse()
           }
 
-          output += character
+          for (const character of characters) {
+            bytes += encoder.encode(character).length
+
+            if (bytes > limit) {
+              break
+            }
+
+            output = fromEnd ? character + output : output + character
+          }
+
+          return output
         }
 
-        return output
+        if (mode === 'middle') {
+          const head = Math.ceil(length / 2)
+          return take(value, head, false) + take(value, length - head, true)
+        }
+
+        return take(value, length, mode === 'tail')
       },
     }
   }
@@ -82,26 +102,23 @@ function takeCharacters(value: string, length: number, side: 'top' | 'bottom'): 
 }
 
 function takeTokens(value: string, tokens: number, side: 'top' | 'bottom', budget: PreviewBudget): string {
-  let minimum = 0
-  let maximum = value.length
-  let output = ''
+  let output = budget.truncate(value, tokens, side === 'top' ? 'head' : 'tail')
 
-  while (minimum <= maximum) {
-    const length = Math.floor((minimum + maximum) / 2)
-    const candidate = takeCharacters(value, length, side)
-
-    if (budget.count(candidate) <= tokens) {
-      output = candidate
-      minimum = length + 1
-    } else {
-      maximum = length - 1
-    }
+  // A token can end inside a UTF-8 character. Remove only the lossy boundary
+  // produced by decoding; the retained text must remain an exact source slice.
+  while (output && !(side === 'top' ? value.startsWith(output) : value.endsWith(output))) {
+    output = side === 'top' ? output.slice(0, -1) : output.slice(1)
   }
 
   return output
 }
 
-function limitOutput(output: string, tokens: number, truncated: boolean, preserve: TruncatePreserve = 'top'): string {
+export function limitInspectionOutput(
+  output: string,
+  tokens: number,
+  truncated: boolean,
+  preserve: TruncatePreserve = 'top'
+): string {
   if (tokens === 0) {
     return ''
   }
@@ -138,11 +155,7 @@ function limitOutput(output: string, tokens: number, truncated: boolean, preserv
       const suffix = takeTokens(output, available - topTokens, 'bottom', budget).trimStart()
       candidate = `${prefix} ${TRUNCATION_MARKER} ${suffix}`
     } else {
-      let prefix = budget.truncate(output, available)
-
-      if (!output.startsWith(prefix)) {
-        prefix = takeTokens(output, available, 'top', budget)
-      }
+      const prefix = takeTokens(output, available, 'top', budget)
 
       candidate = `${prefix.trimEnd()} ${TRUNCATION_MARKER}`
     }
@@ -182,13 +195,23 @@ function previewText(value: string, state: PreviewState): string {
   return state.preserve === 'top' ? output + '...' : '...' + output
 }
 
-function findNestedBudget(value: unknown): number | undefined {
+function findNestedBudget(value: unknown, policies?: InspectionPolicyLookup): number | undefined {
   const visited = new WeakSet<object>()
   let remaining = MAX_PREVIEW_NODES
   let largest: number | undefined
 
   function visit(current: unknown, depth: number) {
-    if (!current || typeof current !== 'object' || visited.has(current) || remaining <= 0 || depth > 20) {
+    if (remaining <= 0 || depth > 20) {
+      return
+    }
+
+    const policy = policies?.(current)
+
+    if (policy) {
+      largest = Math.max(largest ?? 0, policy.maxTokens)
+    }
+
+    if (!current || typeof current !== 'object' || visited.has(current)) {
       return
     }
 
@@ -217,7 +240,7 @@ function findNestedBudget(value: unknown): number | undefined {
   return largest
 }
 
-function createState(tokens: number, options: PreviewOptions, explicitPolicy: boolean): PreviewState {
+function createState(tokens: number, options: InspectOptions, explicitPolicy: boolean): PreviewState {
   const compact = options.compact ?? false
   const nodeLimit = explicitPolicy ? 100_000 : MAX_PREVIEW_NODES
   let maxEntries = compact ? 20 : 100
@@ -238,6 +261,7 @@ function createState(tokens: number, options: PreviewOptions, explicitPolicy: bo
     honorTruncation: options.honorTruncation ?? true,
     truncated: false,
     ancestors: new WeakSet(),
+    policies: options.policies,
   }
 }
 
@@ -299,7 +323,7 @@ function renderTextBlock(text: string, depth: number): string {
   return `|\n${indentation}${content}`
 }
 
-function renderValue(value: unknown, state: PreviewState, depth = 0, pretty = false): string {
+function renderValue(value: unknown, state: PreviewState, depth = 0, pretty = false, policyApplied = false): string {
   if (state.nodes <= 0 || state.characters <= 0 || depth > state.maxDepth) {
     state.truncated = true
     return '...'
@@ -307,38 +331,51 @@ function renderValue(value: unknown, state: PreviewState, depth = 0, pretty = fa
 
   state.nodes--
 
-  if (isTruncated(value)) {
-    if (state.ancestors.has(value)) {
+  const wrapped = isTruncated(value)
+  let policy: TruncationPolicy | undefined
+
+  if (!policyApplied && state.honorTruncation) {
+    policy = wrapped ? value.$$truncate : state.policies?.(value)
+  }
+
+  if (wrapped || policy) {
+    const displayed = wrapped ? value.value : value
+
+    if (wrapped && state.ancestors.has(value)) {
       return '[Circular]'
     }
 
-    state.ancestors.add(value)
+    if (wrapped) {
+      state.ancestors.add(value)
+    }
 
     try {
-      if (!state.honorTruncation) {
-        return renderValue(value.value, state, depth, pretty)
+      if (!policy) {
+        return renderValue(displayed, state, depth, pretty)
       }
 
-      const tokens = Math.min(state.tokens, value.$$truncate.maxTokens)
+      const tokens = Math.min(state.tokens, policy.maxTokens)
 
       if (tokens === 0) {
         return ''
       }
 
-      const nested = createState(tokens, { tokens, compact: state.compact }, true)
-      nested.preserve = value.$$truncate.preserve
+      const nested = createState(tokens, { tokens, compact: state.compact, policies: state.policies }, true)
+      nested.preserve = policy.preserve
       nested.ancestors = state.ancestors
       nested.characters = Math.min(nested.characters, state.characters)
       nested.nodes = Math.min(nested.nodes, state.nodes)
       const characters = nested.characters
       const nodes = nested.nodes
-      const output = renderValue(value.value, nested, depth, pretty)
+      const output = renderValue(displayed, nested, depth, pretty, true)
       state.characters -= characters - nested.characters
       state.nodes -= nodes - nested.nodes
 
-      return limitOutput(output, tokens, nested.truncated, nested.preserve)
+      return limitInspectionOutput(output, tokens, nested.truncated, nested.preserve)
     } finally {
-      state.ancestors.delete(value)
+      if (wrapped) {
+        state.ancestors.delete(value)
+      }
     }
   }
 
@@ -495,7 +532,7 @@ function previewDetailed(value: unknown, state: PreviewState): string {
       }
 
       const item = readProperty(value, String(index))
-      const structured = typeof item === 'string' || isTruncated(item)
+      const structured = typeof item === 'string' || isTruncated(item) || !!state.policies?.(item)
       const preview = structured ? renderValue(item, state) : previewPrimitive(item, state)
       entries.push({ index, preview })
     }
@@ -586,30 +623,48 @@ export function extractType(value: unknown, generic = true): string {
   return typeof value
 }
 
-export const inspect = (value: unknown, name?: string, options: PreviewOptions = DEFAULT_OPTIONS): string => {
+export function resolveInspectionBudget(
+  value: unknown,
+  options: InspectOptions
+): {
+  tokens: number
+  preserve: TruncatePreserve
+  explicit: boolean
+} {
+  const requested = options.tokens ?? DEFAULT_OPTIONS.tokens
+  const tokens = Number.isFinite(requested) ? Math.max(0, Math.floor(requested)) : DEFAULT_OPTIONS.tokens
+
+  if (options.honorTruncation === false) {
+    return { tokens, preserve: options.preserve ?? 'top', explicit: false }
+  }
+
+  const wrapped = isTruncated(value)
+  const root = wrapped ? value.$$truncate : options.policies?.(value)
+  const nested = findNestedBudget(wrapped ? value.value : value, options.policies)
+
+  return {
+    tokens: root?.maxTokens ?? Math.max(tokens, nested ?? 0),
+    preserve: root?.preserve ?? options.preserve ?? 'top',
+    explicit: !!root || nested !== undefined,
+  }
+}
+
+export const inspect = (value: unknown, name?: string, options: InspectOptions = DEFAULT_OPTIONS): string => {
   const resolvedOptions = options ?? DEFAULT_OPTIONS
-  const requestedTokens = resolvedOptions.tokens ?? DEFAULT_OPTIONS.tokens
-  let tokens = Number.isFinite(requestedTokens) ? Math.max(0, Math.floor(requestedTokens)) : DEFAULT_OPTIONS.tokens
+  let tokens = resolvedOptions.tokens ?? DEFAULT_OPTIONS.tokens
   let state = createState(tokens, resolvedOptions, false)
 
   try {
-    const wrapped = isTruncated(value)
-    const displayed = wrapped ? value.value : value
-    const rootPolicy = wrapped && state.honorTruncation ? value.$$truncate : undefined
-    const nestedBudget = state.honorTruncation ? findNestedBudget(displayed) : undefined
-
-    if (rootPolicy) {
-      tokens = rootPolicy.maxTokens
-    } else if (nestedBudget !== undefined) {
-      tokens = Math.max(tokens, nestedBudget)
-    }
+    const budget = resolveInspectionBudget(value, resolvedOptions)
+    tokens = budget.tokens
 
     if (tokens === 0) {
       return ''
     }
 
-    state = createState(tokens, resolvedOptions, !!rootPolicy || nestedBudget !== undefined)
-    state.preserve = rootPolicy?.preserve ?? 'top'
+    const displayed = isTruncated(value) ? value.value : value
+    state = createState(tokens, resolvedOptions, budget.explicit)
+    state.preserve = budget.preserve
     let header = ''
 
     if (name) {
@@ -618,10 +673,10 @@ export const inspect = (value: unknown, name?: string, options: PreviewOptions =
     }
 
     const output = state.compact ? renderValue(displayed, state) : previewDetailed(displayed, state)
-    return limitOutput(header + output, tokens, state.truncated, state.preserve)
+    return limitInspectionOutput(header + output, tokens, state.truncated, state.preserve)
   } catch (error) {
     const message = error instanceof Error ? readProperty(error, 'message') : undefined
     const output = typeof message === 'string' ? previewText(message, state) : 'Unable to inspect value'
-    return limitOutput(`Error: ${JSON.stringify(output)}`, tokens, state.truncated, state.preserve)
+    return limitInspectionOutput(`Error: ${JSON.stringify(output)}`, tokens, state.truncated, state.preserve)
   }
 }

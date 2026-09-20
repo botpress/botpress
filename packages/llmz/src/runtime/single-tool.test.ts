@@ -20,7 +20,7 @@ const done = new Exit({
 function recordingChat(options: { previews?: boolean } = {}) {
   const delivered: Array<{ message: ChatMessage; metadata: MessageMetadata }> = []
   const chat = createRecordingChat({
-    components: [DefaultComponents.Button, DefaultComponents.Image],
+    components: [DefaultComponents.Buttons, DefaultComponents.Image],
     handler: (message, metadata) => {
       delivered.push({ message, metadata })
     },
@@ -114,8 +114,8 @@ describe('single-tool execution decisions', () => {
     expect(client.requests[0]?.tools?.map((tool) => tool.name)).toEqual(['run_javascript'])
     expect(read).toHaveBeenCalledOnce()
     expect(result.session.memory.variables.account).toEqual({ id: 'account-7', total: 42 })
-    expect(result.session.memory.getBindings().$return).toBeUndefined()
-    expect(result.session.memory.iterations[0]?.hasResult).toBe(false)
+    expect(result.session.getBindings().$return).toBeUndefined()
+    expect(result.session.iterations[0]?.hasResult).toBe(false)
     expect(result.session.messages.filter((message) => message.type === 'tool_result')).toHaveLength(1)
     expect(result.session.pendingCalls).toEqual([])
   })
@@ -131,8 +131,8 @@ describe('single-tool execution decisions', () => {
     expect(result.is(done)).toBe(true)
     expect(result.output).toEqual({ value: 42 })
     expect(client.requests).toHaveLength(2)
-    expect(result.session.memory.getBindings().$return).toEqual({ value: 42 })
-    expect(result.session.memory.iterations[1]).toMatchObject({ hasResult: true, result: { value: 42 } })
+    expect(result.session.getBindings().$return).toEqual({ value: 42 })
+    expect(result.session.iterations[1]).toMatchObject({ hasResult: true, result: { value: 42 } })
     expect(JSON.stringify(client.requests[1]?.messages)).toContain('42')
     expect(JSON.stringify(result.session.toJSON())).not.toContain('__llmz_decision')
   })
@@ -149,7 +149,7 @@ describe('single-tool execution decisions', () => {
     expect(result.is(done)).toBe(true)
     expect(result.output).toEqual({ value: 99 })
     expect(result.iterations[0]?.status.type).toBe('exit_success')
-    expect(result.session.memory.getBindings().$return).toBeUndefined()
+    expect(result.session.getBindings().$return).toBeUndefined()
     expect(result.session.memory.variables).not.toHaveProperty('unused')
     expect(client.requests).toHaveLength(1)
     expect(onExit).toHaveBeenCalledOnce()
@@ -167,7 +167,7 @@ describe('single-tool execution decisions', () => {
     expect(result.output).toEqual({ value: 7 })
     expect(result.session.memory.variables).not.toHaveProperty('pending')
     expect(JSON.stringify(result.session.toJSON())).not.toContain('__llmz_decision')
-    expect(result.session.memory.getBindings().$return).toEqual({ value: 7 })
+    expect(result.session.getBindings().$return).toEqual({ value: 7 })
   })
 
   test('validates every button before delivering the first item in the array', async () => {
@@ -205,7 +205,7 @@ describe('single-tool execution decisions', () => {
     expect(result.isError()).toBe(true)
     expect(result.iterations[0]?.error).toContain('Later validation failed')
     expect(delivered.map(({ message }) => (message.type === 'component' ? message.props : {}))).toEqual([
-      { action: 'say', label: 'Delivered before the error' },
+      [{ action: 'say', label: 'Delivered before the error' }],
     ])
     expect(onExit).not.toHaveBeenCalled()
     expect(result.session.pendingCalls).toEqual([])
@@ -227,7 +227,7 @@ describe('single-tool execution decisions', () => {
     expect(result.isError()).toBe(true)
     expect(result.iterations[0]?.status.type).toBe('execution_error')
     expect(delivered.map(({ message }) => (message.type === 'component' ? message.props : {}))).toEqual([
-      { action: 'say', label: 'Already sent' },
+      [{ action: 'say', label: 'Already sent' }],
     ])
     expect(onExit).not.toHaveBeenCalled()
   })
@@ -242,9 +242,11 @@ describe('single-tool execution decisions', () => {
         expect(completed).toEqual(['First', 'Second'])
       })
       const chat = createRecordingChat({
-        components: [DefaultComponents.Button],
+        components: [DefaultComponents.Buttons],
         handler: async (message) => {
-          const label = String(((message.type === 'component' ? message.props : {}) as Record<string, unknown>).label)
+          const label = String(
+            message.type === 'component' ? (message.props as Array<{ label: string }>)[0]?.label : undefined
+          )
           started.push(label)
 
           if (label === 'First') {
@@ -306,8 +308,10 @@ describe('single-tool execution decisions', () => {
       options: { loop: 1 },
       onExit: () => {
         expect(delivered.map(({ message }) => (message.type === 'component' ? message.props : {}))).toEqual([
-          { action: 'say', label: 'First' },
-          { action: 'say', label: 'Second' },
+          [
+            { action: 'say', label: 'First' },
+            { action: 'say', label: 'Second' },
+          ],
         ])
       },
     })
@@ -315,10 +319,10 @@ describe('single-tool execution decisions', () => {
     expect(result.is(done)).toBe(true)
     expect(result.output).toEqual({ value: 42 })
     expect(client.requests).toHaveLength(1)
-    expect(new Set(delivered.map(({ metadata }) => metadata.id)).size).toBe(2)
+    expect(new Set(delivered.map(({ metadata }) => metadata.id)).size).toBe(1)
     expect(delivered.every(({ metadata }) => metadata.iterationId === result.iteration?.id)).toBe(true)
     expect(result.session.messages.filter((message) => message.type === 'tool_result')).toHaveLength(1)
-    expect(result.session.memory.getBindings().$return).toBeUndefined()
+    expect(result.session.getBindings().$return).toBeUndefined()
   })
 
   test('synchronous buttons and explicit listen complete without a second generation', async () => {
@@ -332,8 +336,10 @@ describe('single-tool execution decisions', () => {
     expect(result.is(ListenExit)).toBe(true)
     expect(client.requests).toHaveLength(1)
     expect(delivered.map(({ message }) => (message.type === 'component' ? message.props : {}))).toEqual([
-      { action: 'say', label: 'Standard' },
-      { action: 'say', label: 'Premium' },
+      [
+        { action: 'say', label: 'Standard' },
+        { action: 'say', label: 'Premium' },
+      ],
     ])
     expect(result.session.pendingCalls).toEqual([])
   })
@@ -498,7 +504,7 @@ describe('overlapping streaming and JavaScript', () => {
         if (first === 'stream') {
           streamGate.release()
           await vi.waitFor(() => expect(client.firstStreamClosed).toBe(true))
-          expect(delivered.filter(({ message }) => message.type === 'component' && message.name === 'Button')).toEqual(
+          expect(delivered.filter(({ message }) => message.type === 'component' && message.name === 'buttons')).toEqual(
             []
           )
         } else {
@@ -506,7 +512,7 @@ describe('overlapping streaming and JavaScript', () => {
           await vi.waitFor(() => expect(toolFinished).toBe(true))
           await vi.waitFor(() => {
             expect(
-              delivered.filter(({ message }) => message.type === 'component' && message.name === 'Button')
+              delivered.filter(({ message }) => message.type === 'component' && message.name === 'buttons')
             ).toHaveLength(1)
           })
         }
@@ -522,9 +528,9 @@ describe('overlapping streaming and JavaScript', () => {
 
       expect(result.is(done)).toBe(true)
       expect(result.output).toEqual({ value: 42 })
-      expect(delivered.filter(({ message }) => message.type === 'component' && message.name === 'Button')).toHaveLength(
-        1
-      )
+      expect(
+        delivered.filter(({ message }) => message.type === 'component' && message.name === 'buttons')
+      ).toHaveLength(1)
       expect(onExit).toHaveBeenCalledOnce()
       expect(read).toHaveBeenCalledOnce()
       expect(client.requests).toHaveLength(1)
@@ -558,7 +564,7 @@ describe('overlapping streaming and JavaScript', () => {
       try {
         await vi.waitFor(() => {
           expect(
-            delivered.filter(({ message }) => message.type === 'component' && message.name === 'Button')
+            delivered.filter(({ message }) => message.type === 'component' && message.name === 'buttons')
           ).toHaveLength(1)
         })
         expect(client.firstStreamClosed).toBe(false)
@@ -638,7 +644,7 @@ describe('overlapping streaming and JavaScript', () => {
       expect(delivered).toEqual([])
       expect(onExit).not.toHaveBeenCalled()
       expect(result.session.memory.variables.account).toEqual({ id: 'retained-account', total: 42 })
-      expect(result.session.memory.getBindings().$return).toBeUndefined()
+      expect(result.session.getBindings().$return).toBeUndefined()
       expect(results).toHaveLength(1)
       expect(results[0]?.toolResultCallId).toBe(first.toolCalls?.[0]?.id)
       expect(result.session.pendingCalls).toEqual([])

@@ -302,7 +302,7 @@ describe('declarations', () => {
         /** This is a number */
         arg1: number,
         arg2: [string, /** This is a number */ number],
-      ): unknown // end of fn"
+      ): unknown"
     `)
   })
 
@@ -377,7 +377,7 @@ describe('complex real-world shapes', () => {
             h?: string[]
           }
         }) => unknown
-      } // end of MyObject"
+      }"
     `)
   })
 
@@ -423,7 +423,7 @@ describe('complex real-world shapes', () => {
         'x-custom-header'?: string
         /** Files attached to the message */
         attachments: Array<{ id: string; mimeType: string; sizeBytes: number }>
-      } // end of Message"
+      }"
     `)
   })
 })

@@ -13,12 +13,12 @@ function createIteration(...traces: Trace[]): Iteration {
       tools: [],
       objects: [],
       exits: [],
-      components: [],
+      components: new Map(),
+      chatEnabled: false,
       model: 'test',
       temperature: 0,
     },
-    messages: [],
-    variables: {},
+    systemMessage: { role: 'system', content: '' },
   })
 
   iteration.traces.push(...traces)
@@ -96,19 +96,19 @@ describe('execution activity', () => {
   it('reports delivered button, media, and text props while excluding native assistant prose', () => {
     const iteration = createIteration(
       { type: 'yield', started_at: 1, value: { type: 'text', text: 'Ordinary assistant reply.' } },
-      delivery('button-1', DefaultComponents.Button.render({ label: 'Continue', action: 'say' })),
+      delivery('button-1', DefaultComponents.Buttons.render([{ label: 'Continue', action: 'say' }])),
       delivery('image-1', DefaultComponents.Image.render({ url: 'https://example.com/photo.jpg', alt: 'The trail' })),
       delivery('card-1', DefaultComponents.Card.render({ title: 'Standard', text: 'Five projects included.' }))
     )
     const activity = getExecutionActivity(iteration)
-    const report = renderMessageDeliveries(iteration)!
+    const report = renderMessageDeliveries(getExecutionActivity(iteration))!
 
     expect(activity.deliveries).toHaveLength(3)
-    expect(report).toContain('- Button { action: "say", label: "Continue" }: delivered')
-    expect(report).toContain('- Image ')
+    expect(report).toContain('- buttons [ { action: "say", label: "Continue" } ]: delivered')
+    expect(report).toContain('- image ')
     expect(report).toContain('https://example.com/photo.jpg')
     expect(report).toContain('The trail')
-    expect(report).toContain('- Card { title: "Standard", text: "Five projects included." }: delivered')
+    expect(report).toContain('- card { title: "Standard", text: "Five projects included." }: delivered')
     expect(report).not.toContain('button-1')
     expect(report).not.toContain('image-1')
     expect(report).not.toContain('card-1')
@@ -116,23 +116,29 @@ describe('execution activity', () => {
   })
 
   it('retains uncertain delivery outcomes and distinguishes failure from cancellation', () => {
-    const button = DefaultComponents.Button.render({ label: 'Retry' })
+    const button = DefaultComponents.Buttons.render([{ label: 'Retry' }])
     const failed = createIteration(delivery('message-1', button, false, 'Network disconnected.'))
     const cancelled = createIteration(delivery('message-2', button))
     cancelled.end({ type: 'aborted', aborted: { reason: 'Stopped by the user.' } })
 
-    expect(renderMessageDeliveries(failed)).toContain('- Button { action: "say", label: "Retry" }: uncertain')
-    expect(renderMessageDeliveries(failed)).toContain('Network disconnected.')
-    expect(renderMessageDeliveries(failed)).toContain('Messages queued after the failed delivery were skipped.')
-    expect(renderMessageDeliveries(cancelled)).toContain(
+    expect(renderMessageDeliveries(getExecutionActivity(failed))).toContain(
+      '- buttons [ { action: "say", label: "Retry" } ]: uncertain'
+    )
+    expect(renderMessageDeliveries(getExecutionActivity(failed))).toContain('Network disconnected.')
+    expect(renderMessageDeliveries(getExecutionActivity(failed))).toContain(
+      'Messages queued after the failed delivery were skipped.'
+    )
+    expect(renderMessageDeliveries(getExecutionActivity(cancelled), true)).toContain(
       'Messages still queued when execution was cancelled were skipped.'
     )
-    expect(renderMessageDeliveries(cancelled, false)).not.toContain('cancelled')
+    expect(renderMessageDeliveries(getExecutionActivity(cancelled), false)).not.toContain('cancelled')
 
     const unacknowledged = createIteration({ type: 'yield', started_at: 1, message_id: 'unknown', value: button })
 
-    expect(renderMessageDeliveries(unacknowledged)).toContain('- Button { action: "say", label: "Retry" }: uncertain')
-    expect(renderMessageDeliveries(unacknowledged)).not.toContain('failed delivery')
+    expect(renderMessageDeliveries(getExecutionActivity(unacknowledged))).toContain(
+      '- buttons [ { action: "say", label: "Retry" } ]: uncertain'
+    )
+    expect(renderMessageDeliveries(getExecutionActivity(unacknowledged))).not.toContain('failed delivery')
   })
 
   it('bounds entry counts, argument previews, recovery values, payloads, and errors', () => {
@@ -148,12 +154,12 @@ describe('execution activity', () => {
 
     const activity = getExecutionActivity(iteration)
     const calls = renderToolCalls(activity, true)!
-    const messages = renderMessageDeliveries(iteration)!
+    const messages = renderMessageDeliveries(getExecutionActivity(iteration))!
 
     expect(activity.calls).toHaveLength(23)
     expect(activity.deliveries).toHaveLength(23)
     expect(calls.match(/^- accounts\.readAccount/gm)).toHaveLength(20)
-    expect(messages.match(/^- Card /gm)).toHaveLength(20)
+    expect(messages.match(/^- card /gm)).toHaveLength(20)
     expect(calls).toContain('3 additional calls')
     expect(messages).toContain('3 additional deliveries')
     expect(calls).toContain('[truncated]')
@@ -165,7 +171,7 @@ describe('execution activity', () => {
       expect(getTokenizer().count(line)).toBeLessThanOrEqual(180)
     }
 
-    for (const line of messages.split('\n').filter((line) => line.startsWith('- Card '))) {
+    for (const line of messages.split('\n').filter((line) => line.startsWith('- card '))) {
       expect(getTokenizer().count(line)).toBeLessThanOrEqual(160)
     }
   })
@@ -175,6 +181,6 @@ describe('execution activity', () => {
 
     expect(getExecutionActivity(iteration).deliveries).toHaveLength(0)
     expect(renderToolCalls(getExecutionActivity(iteration))).toBeUndefined()
-    expect(renderMessageDeliveries(iteration)).toBeUndefined()
+    expect(renderMessageDeliveries(getExecutionActivity(iteration))).toBeUndefined()
   })
 })

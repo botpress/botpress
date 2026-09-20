@@ -146,8 +146,8 @@ const compact = (value: unknown, max = 80): string => {
 
 const chat = new Chat({
   components: [
-    DefaultComponents.Button.withHandler(({ label }) => {
-      buttons.push(label)
+    DefaultComponents.Buttons.withHandler((choices) => {
+      buttons.push(...choices.map(({ label }) => label))
     }),
   ],
   response: {

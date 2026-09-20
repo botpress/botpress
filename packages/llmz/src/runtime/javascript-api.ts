@@ -1,12 +1,16 @@
 import { ulid } from 'ulid'
 
 import type { MessageMetadata } from '../chat.js'
-import { isAnyComponent, prepareComponentDelivery, type Component, type RenderedComponent } from '../component.js'
+import {
+  isAnyComponent,
+  prepareComponentDelivery,
+  type ComponentRegistry,
+  type RenderedComponent,
+} from '../component.js'
 import type { Iteration } from '../context.js'
 import { ThinkSignal } from '../errors.js'
 import type { Exit } from '../exit.js'
 import { cloneMemoryValue } from '../memory.js'
-import { getNativeChatMethods, renderNativeChatInput, type NativeChatMethod } from './native-tools.js'
 
 /** A child message keeps its identity from preparation through acknowledged delivery. */
 export type PreparedMessage = {
@@ -46,7 +50,7 @@ export type JavaScriptApi = {
 
 type JavaScriptApiOptions = {
   iteration: Pick<Iteration, 'id' | 'nativeCallId'>
-  components: readonly Component[]
+  components: ComponentRegistry
   exits: readonly Exit[]
   deliver(messages: readonly PreparedMessage[]): Promise<void>
   signal?: AbortSignal
@@ -106,16 +110,6 @@ export function createJavaScriptApi({
     decisions.set(token, outcome)
 
     return Object.freeze({ __llmz_decision: token })
-  }
-
-  const prepareMessages = (method: NativeChatMethod, input: unknown): PreparedMessage[] => {
-    assertOpen()
-    const rendered = renderNativeChatInput(method, input)
-
-    return rendered.map((component) => ({
-      id: `${iteration.nativeCallId ?? iteration.id}:message:${++nextMessage}`,
-      component: cloneMemoryValue(component) as RenderedComponent,
-    }))
   }
 
   const validateExit = (name = 'listen', value?: unknown): TerminalOutcome => {
@@ -185,10 +179,6 @@ export function createJavaScriptApi({
     return delivery
   }
 
-  const send = (method: NativeChatMethod, input: unknown): void => {
-    void enqueue(prepareMessages(method, input))
-  }
-
   const sendComponent = async (value: unknown, metadata: MessageMetadata): Promise<void> => {
     assertOpen()
 
@@ -196,7 +186,7 @@ export function createJavaScriptApi({
       throw new Error('Only registered rich components can be yielded by a tool.')
     }
 
-    const component = components.find((candidate) => candidate.definition.name === value.name)
+    const component = components.get(value.name)
 
     if (!component) {
       throw new Error(`Component "${value.name}" is not registered.`)
@@ -236,9 +226,19 @@ export function createJavaScriptApi({
 
   const inspect = (value: unknown): DecisionReceipt => issue({ type: 'inspect', value: cloneMemoryValue(value) })
   const chat = Object.fromEntries(
-    getNativeChatMethods(components).map((method) => [
-      method.name,
-      Object.freeze((input: unknown): void => send(method, input)),
+    [...components].map(([name, component]) => [
+      name,
+      Object.freeze((input: unknown): void => {
+        assertOpen()
+        const rendered = component.render(input)
+
+        void enqueue([
+          {
+            id: `${iteration.nativeCallId ?? iteration.id}:message:${++nextMessage}`,
+            component: rendered,
+          },
+        ])
+      }),
     ])
   )
   const bindings: JavaScriptBindings = Object.freeze({

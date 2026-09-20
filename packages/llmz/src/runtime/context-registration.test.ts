@@ -2,6 +2,7 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { DefaultExit, ListenExit } from '../context.js'
 import { LoopExceededError } from '../errors.js'
+import { Exit } from '../exit.js'
 import { ObjectInstance } from '../objects.js'
 import { Tool } from '../tool.js'
 import { executeContext } from './execute.js'
@@ -120,7 +121,7 @@ describe('worker exit registration', () => {
     expect(result.isError()).toBe(true)
     expect(result.iteration?.exits).toEqual([])
     expect(result.iteration?.status.type).toBe('thinking_requested')
-    expect(result.session.memory.getBindings().$return).toEqual({ reviewed: true })
+    expect(result.session.getBindings().$return).toEqual({ reviewed: true })
     expect(result.session.pendingCalls).toEqual([])
     expect(client.requests).toHaveLength(1)
 
@@ -130,4 +131,15 @@ describe('worker exit registration', () => {
 
     expect(result.error).toBeInstanceOf(LoopExceededError)
   })
+})
+
+test('rejects exit aliases that collide with another registered exit', async () => {
+  const first = new Exit({ name: 'first', description: 'First outcome.', aliases: ['complete'] })
+  const second = new Exit({ name: 'complete', description: 'Second outcome.' })
+  const client = new NativeClient([])
+  const result = await executeContext({ client, exits: [first, second] })
+
+  expect(result.isError()).toBe(true)
+  expect(String(result.isError() && result.error)).toContain('Duplicate exit name or alias')
+  expect(client.requests).toHaveLength(0)
 })

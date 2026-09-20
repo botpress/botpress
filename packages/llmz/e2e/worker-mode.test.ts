@@ -2,7 +2,6 @@ import { z } from '@bpinternal/zui'
 import { beforeAll, afterAll, assert, describe, expect, it } from 'vitest'
 
 import { ThinkSignal } from '../src/errors.js'
-import { Example } from '../src/example.js'
 import { Exit } from '../src/exit.js'
 import { ObjectInstance } from '../src/objects.js'
 import { ExecutionResult, SuccessExecutionResult } from '../src/result.js'
@@ -679,7 +678,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
       const res = exec(result)
 
       // Should have variables preserved
-      expect(res.lastIteration?.variables).toBeDefined()
+      expect(Object.keys(result.session.memory.variables).length).toBeGreaterThan(0)
 
       assert(result.is(eResult))
       expect(result.output.tokenUsedSuccessfully).toBe(true)
@@ -762,19 +761,6 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
         exits: [eResult],
         instructions:
           'Find and delete work-related files with corrupted data. Return the list of deleted files, total work files found, and count of corrupted files. First return the list of filenames and inspect it before choosing which files to read. Select work files by the meaning of their names, not a guessed keyword or extension filter. Then read the selected files, return their contents, and inspect them yourself before deciding which files to delete — corruption cannot be reliably detected by code heuristics. Only read work-related files — never open personal files.',
-        examples: [
-          new Example({
-            situation: 'The task requires inspecting work files, but no filenames have been listed yet.',
-            code: 'return await listFiles()',
-            reason: 'Inspect the actual names before deciding which files are in scope.',
-          }),
-          new Example({
-            situation:
-              'The returned filenames are invoice.txt, holiday.jpg, and project_notes.md. The task is to inspect work files only.',
-            code: 'return await Promise.all([readFile({ filename: "invoice.txt" }), readFile({ filename: "project_notes.md" })])',
-            reason: 'These two names concern work; the holiday photo is personal and must not be opened.',
-          }),
-        ],
         tools: [tListFiles, tReadFile, tDeleteFile],
         client,
         // Multi-step judgement task (corruption must be identified by inspecting

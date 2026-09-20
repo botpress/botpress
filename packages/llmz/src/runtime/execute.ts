@@ -15,7 +15,8 @@ import { cleanStackTrace } from '../stack-traces.js'
 import type { VMExecutionResult } from '../types.js'
 import { getErrorMessage, init } from '../utils.js'
 import { runAsyncFunction } from '../vm/index.js'
-import { previewExecutionValue, renderExecutionReport } from './execution-report.js'
+import { getExecutionActivity } from './execution-activity.js'
+import { renderExecutionReport, type ExecutionOutcome } from './execution-report.js'
 import { generateCode, type NativeGeneration } from './generate.js'
 import { InspectionValues } from './inspection-values.js'
 import {
@@ -39,9 +40,13 @@ type Execution = {
 type IterationExecution = Execution & {
   iteration: Iteration
   inspectionValues: InspectionValues
-  memoryCommitted: boolean
-  memoryOutcomePending?: boolean
-  activeCallId?: string
+  capture?: {
+    call: ValidatedNativeCall
+    result: VMExecutionResult
+    inspected: boolean
+    interrupted?: boolean
+  }
+  memory?: MemoryReport
   terminalError?: unknown
 }
 
@@ -136,7 +141,6 @@ async function executeNextIteration(execution: Execution): Promise<ExecutionResu
     ...execution,
     iteration,
     inspectionValues: new InspectionValues(),
-    memoryCommitted: false,
   }
   const unsubscribe = iteration.traces.onPush((traces) => {
     for (const trace of traces) {
@@ -154,22 +158,53 @@ async function executeNextIteration(execution: Execution): Promise<ExecutionResu
     handleIterationFailure(state, error)
   } finally {
     try {
-      if (!state.memoryCommitted) {
-        commitMemory(state)
+      try {
+        state.memory ??= commitMemory(state, state.capture?.result)
+      } catch (error) {
+        failFinalization(state, error)
       }
 
-      if (state.memoryOutcomePending) {
-        state.memoryOutcomePending = false
+      const memory = state.memory!
+      const outcome = getExecutionOutcome(state, memory)
 
-        try {
-          ctx.session.memory.updateOutcome(iteration.id, iteration.status.type, iteration.error ?? undefined)
-          iteration.variables = ctx.session.memory.getBindings()
-        } catch (error) {
-          state.terminalError = error
+      if (state.capture) {
+        ctx.session.appendToolResult(
+          iteration.id,
+          state.capture.call.id,
+          renderExecutionReport({
+            outcome,
+            memory,
+            activity: getExecutionActivity(iteration),
+            source: { requested: state.capture.call.code, executed: iteration.code },
+            requiresExit: !iteration.isChatEnabled,
+            identity: {
+              sessionId: ctx.session.id,
+              ...iteration.sessionInfo,
+              iterationId: iteration.id,
+              iteration: iteration.sessionInfo?.number,
+            },
+            inspector: ctx.inspector,
+            maxTokens: ctx.toolResultMaxTokens,
+            policies: state.inspectionValues.getPolicy,
+          })
+        )
+      }
+
+      try {
+        ctx.session.settleIteration(iteration.id, {
+          outcome: iteration.status.type,
+          error: iteration.error ?? undefined,
+        })
+      } catch (error) {
+        if (!(error instanceof MemoryCapacityError)) {
+          throw error
         }
-      }
 
-      ctx.session.settleIteration(iteration.id)
+        // Retained values are already within the limit. Keep their receipt while
+        // reporting the oversized diagnostic through the execution result.
+        failFinalization(state, error)
+        ctx.session.settleIteration(iteration.id, { outcome: 'error' })
+      }
 
       await finalizeIteration({ iteration, controller, onIterationEnd: props.onIterationEnd })
     } finally {
@@ -182,11 +217,7 @@ async function executeNextIteration(execution: Execution): Promise<ExecutionResu
 
 async function executeIteration(state: IterationExecution): Promise<void> {
   const { ctx, props, iteration, cognitive, controller } = state
-  iteration.initialMessages = structuredClone(iteration.messages)
-  const overrides = await props.onIterationStart?.(iteration, controller, ctx)
-  if (overrides) {
-    Object.assign(iteration, overrides)
-  }
+  await props.onIterationStart?.(iteration, controller, ctx)
 
   controller.signal.throwIfAborted()
   let execution: JavaScriptExecution | undefined
@@ -200,6 +231,7 @@ async function executeIteration(state: IterationExecution): Promise<void> {
       controller,
       metadata: props.metadata,
       onSendDelta: iteration.response?.onDelta,
+      onBeforeRequest: props.onBeforeRequest,
       onToolCalls: (calls) => {
         // Without a preview consumer, accepted assistant text must be delivered
         // before its accompanying program starts.
@@ -207,8 +239,8 @@ async function executeIteration(state: IterationExecution): Promise<void> {
           return false
         }
 
-        const validation = validateNativeToolCalls(calls, iteration.nativeTools!)
-        const call = validation.valid ? validation.calls[0] : undefined
+        const validation = validateNativeToolCalls(calls)
+        const call = validation.valid ? validation.call : undefined
 
         if (!call) {
           return false
@@ -229,7 +261,7 @@ async function executeIteration(state: IterationExecution): Promise<void> {
     await execution?.result
     controller.signal.throwIfAborted()
 
-    const validation = validateNativeToolCalls(generated.toolCalls, iteration.nativeTools!)
+    const validation = validateNativeToolCalls(generated.toolCalls)
     ctx.session.appendAssistant(iteration.id, generated)
     assistantCommitted = true
 
@@ -240,11 +272,10 @@ async function executeIteration(state: IterationExecution): Promise<void> {
 
     await deliverAssistantText(state, generated)
 
-    const call = validation.calls[0]
+    const call = validation.call
     if (call) {
       execution ??= startJavaScriptCall(state, call)
       await settleJavaScriptCall(state, execution)
-      state.activeCallId = undefined
     }
 
     if (iteration.status.type === 'pending') {
@@ -264,7 +295,7 @@ async function rejectNativeBatch(
   generated: NativeGeneration,
   errors: string[]
 ): Promise<void> {
-  const message = `Native tool batch rejected before execution: ${previewExecutionValue(errors, 500)}`
+  const message = `Native tool batch rejected before execution: ${ctx.inspector(errors, { purpose: 'error', maxTokens: 500 })}`
   for (const call of generated.toolCalls) {
     ctx.session.appendToolResult(iteration.id, call.id, message)
   }
@@ -312,7 +343,6 @@ function startJavaScriptCall(state: IterationExecution, call: ValidatedNativeCal
   const { iteration, controller } = state
   iteration.code = call.code
   iteration.nativeCallId = call.id
-  state.activeCallId = call.id
 
   const api = createJavaScriptApi({
     iteration,
@@ -325,20 +355,21 @@ function startJavaScriptCall(state: IterationExecution, call: ValidatedNativeCal
 }
 
 async function settleJavaScriptCall(state: IterationExecution, execution: JavaScriptExecution): Promise<void> {
-  const { ctx, iteration, controller } = state
+  const { iteration, controller } = state
   const { call, api } = execution
   const result = await execution.result
   const outcome =
     result.success && !result.signal ? (api.getTerminalOutcome() ?? api.resolve(result.return_value)) : undefined
 
   removeCapturedDecisions(result, api)
+  state.capture = { call, result, inspected: outcome?.type === 'inspect' }
 
   if (outcome?.type === 'inspect' && result.success) {
     result.return_value = outcome.value
   }
 
   if (outcome?.type === 'exit') {
-    await completeJavaScriptExit(state, result, outcome, call.code)
+    await completeJavaScriptExit(state, result, outcome)
     return
   }
 
@@ -351,19 +382,6 @@ async function settleJavaScriptCall(state: IterationExecution, execution: JavaSc
   }
 
   endJavaScriptIteration(iteration, controller, result)
-  const report = commitMemory(state, result)
-
-  ctx.session.appendToolResult(
-    iteration.id,
-    call.id,
-    renderExecutionReport(iteration, result, report, {
-      requestedCode: call.code,
-      inspected: outcome?.type === 'inspect',
-      maxTokens: ctx.toolResultMaxTokens,
-      inspectionValue:
-        result.success && report.resultAvailable ? state.inspectionValues.prepare(result.return_value) : undefined,
-    })
-  )
 }
 
 async function preserveInterruptedExecution(
@@ -376,7 +394,7 @@ async function preserveInterruptedExecution(
   execution.api.complete()
   const result = await execution.result
 
-  if (state.memoryCommitted) {
+  if (state.memory) {
     return
   }
 
@@ -402,16 +420,7 @@ async function preserveInterruptedExecution(
     error: error instanceof Error ? error : new Error(getErrorMessage(error)),
     traces: [],
   }
-  const report = commitMemory(state, interrupted)
-
-  ctx.session.appendToolResult(
-    iteration.id,
-    execution.call.id,
-    renderExecutionReport(iteration, interrupted, report, {
-      requestedCode: execution.call.code,
-      maxTokens: ctx.toolResultMaxTokens,
-    })
-  )
+  state.capture = { call: execution.call, result: interrupted, inspected: false, interrupted: true }
 }
 
 function removeCapturedDecisions(result: VMExecutionResult, api: JavaScriptApi): void {
@@ -441,11 +450,10 @@ function containsDecision(value: unknown, api: JavaScriptApi, seen = new Set<obj
 async function completeJavaScriptExit(
   state: IterationExecution,
   result: VMExecutionResult,
-  outcome: Extract<JavaScriptOutcome, { type: 'exit' }>,
-  requestedCode: string
+  outcome: Extract<JavaScriptOutcome, { type: 'exit' }>
 ): Promise<void> {
-  const { ctx, iteration, controller, props } = state
-  const report = commitMemory(state, result, false)
+  const { iteration, controller, props } = state
+  state.memory = commitMemory(state, result, false)
 
   try {
     controller.signal.throwIfAborted()
@@ -453,12 +461,6 @@ async function completeJavaScriptExit(
   } catch (error) {
     endFailedIteration(iteration, controller, error)
   }
-
-  ctx.session.appendToolResult(
-    iteration.id,
-    iteration.nativeCallId!,
-    renderExecutionReport(iteration, result, report, { requestedCode, maxTokens: ctx.toolResultMaxTokens })
-  )
 }
 
 async function deliverJavaScriptMessages(
@@ -482,7 +484,7 @@ async function deliverJavaScriptMessages(
         throw new Error('Only registered rich components can be delivered from JavaScript.')
       }
 
-      const component = iteration.components.find((candidate) => candidate.definition.name === message.component.name)
+      const component = iteration.components.get(message.component.name)
 
       if (!component?.handler) {
         throw new Error(`Component "${message.component.name}" has no registered handler.`)
@@ -523,7 +525,9 @@ async function finishNativeResponse(state: IterationExecution, generated: Native
   if (!generated.toolCalls.length && generated.output.trim() && ctx.chat) {
     await applyNativeExit(iteration, ListenExit, {}, controller, props.onExit)
     if (!iteration.hasExited()) {
-      ctx.session.appendContext(previewExecutionValue(iteration.error ?? 'Completion rejected.', 200))
+      ctx.session.appendContext(
+        ctx.inspector(iteration.error ?? 'Completion rejected.', { purpose: 'error', maxTokens: 200 })
+      )
     }
 
     return
@@ -551,19 +555,17 @@ async function finishNativeResponse(state: IterationExecution, generated: Native
 
 function commitMemory(state: IterationExecution, result?: VMExecutionResult, includeReturn = true): MemoryReport {
   const { ctx, iteration, controller } = state
-  const report = ctx.session.memory.commit({
+  const report = ctx.session.commitIteration({
     ...iteration.sessionInfo!,
     timestamp: Date.now(),
-    outcome: iteration.status.type,
-    error: iteration.error ?? undefined,
     variables: result?.variables,
     variableWrites: result?.variableWrites,
     captureErrors: result?.captureErrors,
     hasResult: includeReturn && !!result?.success && !result.signal && !controller.signal.aborted,
     result: result?.success ? result.return_value : undefined,
   })
-  state.memoryCommitted = true
-  state.memoryOutcomePending = iteration.status.type === 'pending'
+
+  state.memory = report
 
   for (const mutation of iteration.mutations) {
     const trace = [...iteration.traces]
@@ -578,8 +580,58 @@ function commitMemory(state: IterationExecution, result?: VMExecutionResult, inc
     report.updated.push(...changes)
   }
 
-  iteration.variables = ctx.session.memory.getBindings()
   return report
+}
+
+function failFinalization(state: IterationExecution, error: unknown): void {
+  const { iteration } = state
+  // JavaScript may already have ended successfully. A later retention failure
+  // changes the final execution outcome, while preserving its completed effects.
+  iteration.status = {
+    type: 'execution_error',
+    execution_error: { message: getErrorMessage(error), stack: executionErrorStack(error) },
+  }
+  iteration.ended_ts = Date.now()
+  state.terminalError = error
+  state.memory ??= { created: [], updated: [], unavailable: [], resultAvailable: false }
+}
+
+function getExecutionOutcome(state: IterationExecution, memory: MemoryReport): ExecutionOutcome {
+  const { iteration, capture } = state
+  const status = iteration.status
+
+  if (status.type === 'aborted') {
+    return { type: 'cancelled', message: status.aborted.reason }
+  }
+
+  if (capture?.interrupted) {
+    return { type: 'interrupted', reason: 'stream', message: iteration.error ?? undefined }
+  }
+
+  if (status.type === 'exit_success') {
+    return { type: 'exit', name: status.exit_success.exit_name, value: status.exit_success.return_value }
+  }
+
+  if (status.type === 'exit_error') {
+    return { type: 'error', exitName: status.exit_error.exit, message: status.exit_error.message }
+  }
+
+  if (status.type === 'thinking_requested') {
+    const thinking = status.thinking_requested
+
+    if (thinking.interrupted) {
+      return { type: 'interrupted', reason: 'thinking', message: thinking.reason, context: thinking.variables }
+    }
+
+    return {
+      type: 'inspect',
+      value: capture?.result.success ? capture.result.return_value : undefined,
+      available: memory.resultAvailable,
+      explicit: capture?.inspected ?? false,
+    }
+  }
+
+  return { type: 'error', message: iteration.error ?? 'Execution failed.', error: capture?.result.error }
 }
 
 function handleIterationFailure(state: IterationExecution, error: unknown): void {
@@ -591,21 +643,25 @@ function handleIterationFailure(state: IterationExecution, error: unknown): void
   if (error instanceof MemoryCapacityError) {
     // Capacity failure can happen after an action. Never retry settlement or
     // generate another instruction that could repeat that action.
-    state.memoryCommitted = true
+    state.memory ??= { created: [], updated: [], unavailable: [], resultAvailable: false }
   }
 
   // Keep earlier successful results. Failed and unexecuted calls each receive
   // a matching result, so the next model request cannot replay a partial batch.
   const pending = ctx.session.pendingCalls.filter((call) => call.iterationId === iteration.id)
   for (const call of pending) {
+    if (call.callId === state.capture?.call.id) {
+      continue
+    }
+
     const outcome =
-      call.callId === state.activeCallId
+      call.callId === iteration.nativeCallId
         ? 'This call failed without a confirmed successful result; its external effects may be incomplete.'
         : 'This call was skipped and did not run.'
     ctx.session.appendToolResult(
       iteration.id,
       call.callId,
-      `Execution stopped: ${previewExecutionValue(getErrorMessage(error), 200)}. ${outcome} Earlier acknowledged calls remain completed.`
+      `Execution stopped: ${ctx.inspector(getErrorMessage(error), { purpose: 'error', maxTokens: 200 })}. ${outcome} Earlier acknowledged calls remain completed.`
     )
   }
 
@@ -614,8 +670,12 @@ function handleIterationFailure(state: IterationExecution, error: unknown): void
     return
   }
 
+  if (ctx.session.pendingCalls.length) {
+    return
+  }
+
   ctx.session.appendContext(
-    `Execution stopped: ${previewExecutionValue(getErrorMessage(error), 200)}. Continue using the retained state.`
+    `Execution stopped: ${ctx.inspector(getErrorMessage(error), { purpose: 'error', maxTokens: 200 })}. Continue using the retained state.`
   )
 }
 

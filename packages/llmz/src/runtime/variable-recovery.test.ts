@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { CodeExecutionError, Signals } from '../errors.js'
 import { Exit } from '../exit.js'
+import { Session } from '../session.js'
 import { Tool } from '../tool.js'
 import { executeContext } from './execute.js'
 import { NativeClient, javascript } from './fixtures/native-client.js'
@@ -74,7 +75,19 @@ describe.each([
       `),
     ])
 
-    const result = await executeContext({ client, tools: fixture.tools, exits: [done], options: { loop: 3 } })
+    const session = new Session()
+    const result = await executeContext({
+      client,
+      session,
+      tools: fixture.tools,
+      exits: [done],
+      options: { loop: 3 },
+      onIterationEnd: (iteration) => {
+        if (iteration.status.type === 'execution_error') {
+          expect(session.memory.variables).not.toHaveProperty('orderId')
+        }
+      },
+    })
 
     expect(result.is(done)).toBe(true)
     expect(result.output).toEqual({ orderId: 'order-42' })
@@ -108,11 +121,22 @@ describe.each([
       `),
     ])
 
-    const result = await executeContext({ client, tools: fixture.tools, exits: [done], options: { loop: 3 } })
+    const session = new Session()
+    const result = await executeContext({
+      client,
+      session,
+      tools: fixture.tools,
+      exits: [done],
+      options: { loop: 3 },
+      onIterationEnd: (iteration) => {
+        if (iteration.status.type === 'execution_error') {
+          expect(session.memory.variables).not.toHaveProperty('orderId')
+        }
+      },
+    })
 
     expect(result.iterations[0]?.status.type).toBe('execution_error')
     expect(result.iterations[0]?.error).toContain('not defined')
-    expect(result.iterations[0]?.variables).not.toHaveProperty('orderId')
     expect(result.is(done)).toBe(true)
     expect(result.output).toEqual({ orderId: 'order-42' })
     expect(result.session.memory.variables).toMatchObject({ orderId: 'order-42', confirmed: true })

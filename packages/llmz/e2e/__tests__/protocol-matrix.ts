@@ -5,8 +5,9 @@ import { DefaultComponents, Exit, ListenExit, Tool, execute } from '../../src/in
 import type { LLMzPrompts } from '../../src/prompts/prompt.js'
 import { NativeClient, response } from '../../src/runtime/fixtures/native-client.js'
 import { protocolLanguages } from '../../src/runtime/fixtures/protocol-languages.js'
-import { createNativeToolCatalogue, validateNativeToolCalls } from '../../src/runtime/native-tools.js'
-import { TranscriptArray } from '../../src/transcript.js'
+import { validateNativeToolCalls } from '../../src/runtime/native-tools.js'
+import type { Transcript } from '../../src/transcript.js'
+import { createComponentRegistry } from '../../src/component.js'
 
 import { createTestChat } from './chat.js'
 import { protocolScenario } from './protocol-scenarios.js'
@@ -45,7 +46,7 @@ export type ProtocolCase = {
   language: string
   kind: (typeof kinds)[number]
   props: LLMzPrompts.InitialStateProps
-  messages: TranscriptArray
+  messages: Transcript.Message[]
   history?: 'result' | 'error'
   expected?: string
 }
@@ -55,7 +56,7 @@ export const protocolMatrix: ProtocolCase[] = protocolLanguages.flatMap((lang) =
     const { messages: _, ...baseProps } = protocolScenario(lang.question)
     const props: LLMzPrompts.InitialStateProps = {
       ...baseProps,
-      components: [],
+      components: createComponentRegistry([]),
       globalTools: [],
     }
     const scenario: ProtocolCase = {
@@ -63,10 +64,10 @@ export const protocolMatrix: ProtocolCase[] = protocolLanguages.flatMap((lang) =
       language: lang.language,
       kind,
       props,
-      messages: new TranscriptArray([{ role: 'user', content: lang.question }]),
+      messages: [{ role: 'user', content: lang.question }],
     }
     const set = (question: string, instructions: string, tools: Tool[] = []) => {
-      scenario.messages = new TranscriptArray([{ role: 'user', content: question }])
+      scenario.messages = [{ role: 'user', content: question }]
       props.instructions = `Respond in ${lang.language}. ${instructions}`
       props.globalTools = tools
     }
@@ -119,7 +120,7 @@ export const protocolMatrix: ProtocolCase[] = protocolLanguages.flatMap((lang) =
           'Finish.',
           'The verified total is 42. Call run_javascript and return exit("done", { total: 42 }). No calculation is needed.'
         )
-        props.components = []
+        props.components = createComponentRegistry([])
         props.isChatEnabled = false
         props.exits = [
           new Exit({
@@ -134,7 +135,7 @@ export const protocolMatrix: ProtocolCase[] = protocolLanguages.flatMap((lang) =
           'Ask me to pick Standard or Premium, with a button for each.',
           `Say exactly "${lang.reply}" and call chat.buttons with exactly two say buttons labelled Standard and Premium, then return exit("listen") to finish the turn.`
         )
-        props.components = [DefaultComponents.Button]
+        props.components = createComponentRegistry([DefaultComponents.Buttons])
         scenario.expected = lang.reply
         break
       case 'json':
@@ -160,21 +161,12 @@ export const protocolMatrix: ProtocolCase[] = protocolLanguages.flatMap((lang) =
         break
     }
 
-    if (scenario.history) {
-      props.iteration = {
-        current: 2,
-        limit: 10,
-        deliveredMessages: [],
-        toolAttempts: { readAccount: 1 },
-      }
-    }
-
     return scenario
   })
 )
 
 type EvaluatedResponse = {
-  sends: Array<{ name: string; props: Record<string, unknown>; body?: string }>
+  sends: Array<{ name: string; props: unknown; body?: string }>
   businessCalls: Array<{ name: string; input: unknown; success: boolean }>
   code?: string
   next?: { name: string; props: unknown }
@@ -189,14 +181,14 @@ export async function evaluateNativeResponse(
   calls: CognitiveToolCall[],
   props: ProtocolCase['props']
 ): Promise<EvaluatedResponse> {
-  const validated = validateNativeToolCalls(calls, createNativeToolCatalogue(props))
+  const validated = validateNativeToolCalls(calls)
   const sends: EvaluatedResponse['sends'] = []
   const code = calls.find((call) => call.name === 'run_javascript')?.input.code
   const parsed: EvaluatedResponse = {
     sends,
     businessCalls: [],
     code: typeof code === 'string' ? code : undefined,
-    errors: validated.errors,
+    errors: validated.valid ? [] : validated.errors,
     executionErrors: [],
   }
 
@@ -204,7 +196,7 @@ export async function evaluateNativeResponse(
     return parsed
   }
 
-  const chatEnabled = props.isChatEnabled ?? props.components.length > 0
+  const chatEnabled = props.isChatEnabled
   const client = new NativeClient([response(output, calls)])
   const result = await execute({
     client,
@@ -215,7 +207,7 @@ export async function evaluateNativeResponse(
     exits: props.exits.filter((exit) => !chatEnabled || exit !== ListenExit),
     chat: chatEnabled
       ? createTestChat({
-          components: props.components,
+          components: [...props.components.values()],
           onMessage: async (message) => {
             if (message.type === 'text') {
               sends.push({ name: 'message', props: {}, body: message.text })
@@ -259,7 +251,7 @@ export async function evaluateNativeResponse(
     parsed.executionErrors.push(`The semantic replay did not execute exactly one response: ${reason}`)
   }
 
-  parsed.inspectedResult = result.session.memory.getBindings().$return
+  parsed.inspectedResult = result.session.getBindings().$return
 
   return parsed
 }
@@ -335,13 +327,9 @@ export function checkProtocolTask(scenario: ProtocolCase, parsed: EvaluatedRespo
     case 'buttons':
       return (
         text === scenario.expected &&
-        parsed.sends.length === 3 &&
+        parsed.sends.length === 2 &&
         !parsed.businessCalls.length &&
-        parsed.sends
-          .filter((s) => s.name === 'button' && s.props.action === 'say')
-          .map((s) => s.props.label)
-          .sort()
-          .join(',') === 'Premium,Standard' &&
+        getButtonLabels(parsed).sort().join(',') === 'Premium,Standard' &&
         listen
       )
     case 'markdown':
@@ -370,14 +358,9 @@ export function checkResponseShape(scenario: ProtocolCase, parsed: EvaluatedResp
       return (
         !!parsed.code &&
         parsed.next?.name === 'listen' &&
-        parsed.sends.map((send) => send.name).join(',') === 'message,button,button' &&
+        parsed.sends.map((send) => send.name).join(',') === 'message,buttons' &&
         !!parsed.sends[0]?.body?.trim() &&
-        parsed.sends.slice(1).every((send) => send.props.action === 'say') &&
-        parsed.sends
-          .slice(1)
-          .map((send) => send.props.label)
-          .sort()
-          .join(',') === 'Premium,Standard'
+        getButtonLabels(parsed).sort().join(',') === 'Premium,Standard'
       )
     case 'progress':
       return (
@@ -392,4 +375,17 @@ export function checkResponseShape(scenario: ProtocolCase, parsed: EvaluatedResp
     default:
       return checkProtocolTask(scenario, parsed)
   }
+}
+
+function getButtonLabels(response: EvaluatedResponse): string[] {
+  const buttons = response.sends.find((message) => message.name === 'buttons')?.props
+
+  if (
+    !Array.isArray(buttons) ||
+    !buttons.every((button) => button?.action === 'say' && typeof button.label === 'string')
+  ) {
+    return []
+  }
+
+  return buttons.map((button) => button.label)
 }

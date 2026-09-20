@@ -1,22 +1,19 @@
 import { describe, expect, it } from 'vitest'
 
-import { truncate } from '../truncate.js'
+import { createInspector } from '../inspection.js'
 import { InspectionValues } from './inspection-values.js'
 
-describe('iteration inspection values', () => {
-  it('recognizes copied tool values inside inspection data without changing the source', () => {
+const inspect = createInspector()
+
+describe('iteration inspection policies', () => {
+  it('recognizes copied tool values without changing the source', () => {
     const values = new InspectionValues()
     const result = { documents: [{ title: 'Guide', body: 'First line\nSecond line' }] }
     const policy = { maxTokens: 40000, preserve: 'both' as const }
     values.capture(result, policy)
 
-    const inspected = { result: structuredClone(result), selected: result.documents[0]?.title }
-
-    expect(values.prepare(inspected)).toEqual({
-      result: truncate({ value: result, ...policy }),
-      selected: 'Guide',
-    })
-    expect(inspected).toEqual({ result, selected: 'Guide' })
+    expect(values.getPolicy(structuredClone(result))).toEqual(policy)
+    expect(values.getPolicy(result.documents[0]?.title)).toBeUndefined()
     expect(result).toEqual({ documents: [{ title: 'Guide', body: 'First line\nSecond line' }] })
   })
 
@@ -30,7 +27,7 @@ describe('iteration inspection values', () => {
       values.capture(structuredClone(value), strictest)
       values.capture(structuredClone(value), first)
 
-      expect(values.prepare(value)).toEqual(truncate({ value, ...strictest }))
+      expect(values.getPolicy(value)).toEqual(strictest)
     }
   })
 
@@ -42,7 +39,7 @@ describe('iteration inspection values', () => {
       values.capture(value, policy)
       values.capture(value, { maxTokens: 100, preserve: 'bottom' })
 
-      expect(values.prepare(value)).toEqual(truncate({ value, ...policy }))
+      expect(values.getPolicy(value)).toEqual(policy)
     }
   })
 
@@ -60,7 +57,7 @@ describe('iteration inspection values', () => {
         values.capture('same text', policy)
       }
 
-      expect(values.prepare('same text')).toEqual(truncate({ value: 'same text', maxTokens: 100, preserve: 'top' }))
+      expect(values.getPolicy('same text')).toEqual({ maxTokens: 100, preserve: 'top' })
     }
   })
 
@@ -73,10 +70,10 @@ describe('iteration inspection values', () => {
     expect(() => values.capture(new Date(), policy)).not.toThrow()
     expect(() => values.capture(cyclic, policy)).not.toThrow()
     expect(() => values.capture(() => 42, policy)).not.toThrow()
-    expect(values.prepare('unrelated result')).toBe('unrelated result')
+    expect(values.getPolicy('unrelated result')).toBeUndefined()
   })
 
-  it('does not apply the policy to modified values or a later iteration', () => {
+  it('does not apply policies to modified values or later executions', () => {
     const values = new InspectionValues()
     const result = { records: ['original'] }
     const policy = { maxTokens: 20, preserve: 'top' as const }
@@ -84,43 +81,26 @@ describe('iteration inspection values', () => {
     values.capture('original text', policy)
     result.records.push('added')
 
-    expect(values.prepare(result)).toEqual({ records: ['original', 'added'] })
-    expect(values.prepare('original text with added details')).toBe('original text with added details')
-    expect(values.prepare({ records: ['original'] })).toEqual(truncate({ value: { records: ['original'] }, ...policy }))
-    expect(new InspectionValues().prepare({ records: ['original'] })).toEqual({ records: ['original'] })
+    expect(values.getPolicy(result)).toBeUndefined()
+    expect(values.getPolicy('original text with added details')).toBeUndefined()
+    expect(values.getPolicy({ records: ['original'] })).toEqual(policy)
+    expect(new InspectionValues().getPolicy({ records: ['original'] })).toBeUndefined()
   })
 
-  it('preserves independent policies for nested values', () => {
+  it('renders nested budgets directly without inserting wrappers into the inspected data', () => {
     const values = new InspectionValues()
-    const text = 'A complete document'
-    const parent = { body: text }
-    const parentPolicy = { maxTokens: 1000, preserve: 'top' as const }
-    const textPolicy = { maxTokens: 20, preserve: 'both' as const }
-    values.capture(parent, parentPolicy)
-    values.capture(text, textPolicy)
-
-    expect(values.prepare(parent)).toEqual(
-      truncate({
-        value: { body: truncate({ value: text, ...textPolicy }) },
-        ...parentPolicy,
-      })
-    )
-  })
-
-  it('retains ordinary tool limits alongside explicit policies in combined inspections', () => {
-    const values = new InspectionValues()
-    const rag = { documents: [{ body: 'Retrieved document text' }] }
-    const ordinary = 'Ordinary tool response'
-    values.capture(rag, { maxTokens: 40000, preserve: 'both' })
+    const rag = 'RAG_START ' + 'evidence '.repeat(4000) + ' RAG_END'
+    const ordinary = 'PLAIN_START ' + 'ordinary '.repeat(4000) + ' PLAIN_END'
+    values.capture(rag, { maxTokens: 10000, preserve: 'both' })
     values.captureDefault(rag, 64)
     values.captureDefault(ordinary, 64)
+    const value = { results: [rag, ordinary] }
+    const output = inspect(value, { purpose: 'result', maxTokens: 64, policies: values.getPolicy })
 
-    expect(values.prepare({ results: [rag, ordinary] })).toEqual({
-      results: [
-        truncate({ value: rag, maxTokens: 40000, preserve: 'both' }),
-        truncate({ value: ordinary, maxTokens: 64 }),
-      ],
-    })
+    expect(output).toContain('RAG_END')
+    expect(output).not.toContain('PLAIN_END')
+    expect(output).not.toContain('$$truncate')
+    expect(value).toEqual({ results: [rag, ordinary] })
   })
 
   it('lets explicit policies override defaults independently of capture order', () => {
@@ -140,7 +120,7 @@ describe('iteration inspection values', () => {
           values.capture(value, policy)
         }
 
-        expect(values.prepare(value)).toEqual(truncate({ value, ...policy }))
+        expect(values.getPolicy(value)).toEqual(policy)
       }
     }
   })
