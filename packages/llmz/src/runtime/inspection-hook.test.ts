@@ -1,10 +1,10 @@
 import { z } from '@bpinternal/zui'
 import { describe, expect, test } from 'vitest'
 
-import { Chat } from '../chat.js'
+import { Chat } from '../chat/chat.js'
 import { type InspectEvent, inspect } from '../index.js'
 import { ObjectInstance } from '../objects.js'
-import { Session } from '../session.js'
+import { Session } from '../session/session.js'
 import { Tool } from '../tool.js'
 import { truncate } from '../truncate.js'
 import { getTokenizer } from '../utils.js'

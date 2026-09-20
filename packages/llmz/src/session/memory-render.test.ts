@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createInspector } from './inspection.js'
+import { createInspector } from '../inspection.js'
 import { renderMemory } from './memory-render.js'
 
 describe('memory inventory', () => {

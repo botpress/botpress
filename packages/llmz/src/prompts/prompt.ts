@@ -1,8 +1,8 @@
 import type { CognitiveMessage } from '@botpress/cognitive'
-import type { ComponentRegistry } from '../component.js'
+import type { ComponentRegistry } from '../chat/component.js'
+import type { ResolvedResponse } from '../chat/response.js'
 import type { Exit } from '../exit.js'
 import type { ObjectInstance } from '../objects.js'
-import type { ResolvedResponse } from '../response.js'
 import type { Tool } from '../tool.js'
 
 export namespace LLMzPrompts {

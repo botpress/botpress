@@ -6,10 +6,12 @@ import type {
   CognitiveToolCall,
 } from '@botpress/cognitive'
 import { createJoinedAbortController } from '../abort-signal.js'
-import type { MessageDelta, MessageMetadata } from '../chat.js'
+import type { MessageDelta, MessageMetadata } from '../chat/chat.js'
 import type { Context, ContextTokens, Iteration } from '../context.js'
 import { CognitiveError } from '../errors.js'
+import { prepareAutoCompaction } from '../session/compactor.js'
 import { stableJSON } from '../session/json.js'
+import type { Transcript } from '../session/transcript.js'
 import { getErrorMessage } from '../utils.js'
 import { RUN_JAVASCRIPT_TOOL } from './native-tools.js'
 import { countNativeRequestTokens, resolveTokenBudget } from './token-budget.js'
@@ -227,10 +229,12 @@ async function prepareNativeRequest({
   const budgetInstruction = getBudgetInstruction(ctx, iteration)
   const budget = `\n\nExecution budget: response ${ctx.iterations.length} of ${ctx.loop}. ${budgetInstruction}`
 
-  let retainedIds = ctx.session.retainedIterationIds
-  let compacted = false
-  const buildMessages = () => {
-    const history = ctx.session.requestMessages({ inspector: ctx.inspector, retainedIterationIds: retainedIds })
+  const buildMessages = (retainedIds: readonly string[], summary?: Transcript.SummaryMessage) => {
+    const history = ctx.session.requestMessages({
+      inspector: ctx.inspector,
+      retainedIterationIds: retainedIds,
+      summary,
+    })
     const messages = [...structuredClone(system), ...history]
     const last = messages.at(-1)
 
@@ -243,46 +247,39 @@ async function prepareNativeRequest({
 
     return messages
   }
-  let messages = buildMessages()
+  const compaction = await prepareAutoCompaction(ctx.session, {
+    client: cognitive,
+    model: iteration.model,
+    signal: controller.signal,
+    contextWindow: ctx.maxTokens,
+    iterationId: iteration.id,
+    inputLimit: limit - reserve,
+    metadata,
+    measure: (ids, summary) => countNativeRequestTokens(buildMessages(ids, summary), tools),
+  })
+  let messages = buildMessages(
+    compaction?.retainedIterationIds ?? ctx.session.retainedIterationIds,
+    compaction?.summary
+  )
   let tokens = countNativeRequestTokens(messages, tools)
-
-  while (tokens > limit - reserve) {
-    const ids = retainedIds.filter((id) => id !== iteration.id)
-
-    if (!ids.length) {
-      break
-    }
-
-    retainedIds = ids.slice(1).concat(iteration.id)
-    compacted = true
-    // Preview complete groups; a failed preflight must not delete history.
-    messages = buildMessages()
-    tokens = countNativeRequestTokens(messages, tools)
-  }
-
-  if (tokens > limit - reserve) {
-    throw new CognitiveError(
-      `The native prompt does not fit in the context window (${limit} tokens). Compact session input or raise options.maxTokens.`
-    )
-  }
 
   const override = await onBeforeRequest?.({ messages: structuredClone(messages), iteration, controller })
 
   if (override) {
     messages = structuredClone(override.messages)
     tokens = countNativeRequestTokens(messages, tools)
+  }
 
-    if (tokens > limit - reserve) {
-      throw new CognitiveError(
-        'The onBeforeRequest messages exceed the context budget. Shorten them or increase options.maxTokens.'
-      )
-    }
+  if (tokens > limit - reserve) {
+    throw new CognitiveError(
+      override
+        ? 'The onBeforeRequest messages exceed the context budget. Shorten them or increase options.maxTokens.'
+        : 'The native prompt exceeds the context budget. Compact session input or increase options.maxTokens.'
+    )
   }
 
   controller.signal.throwIfAborted()
-  if (compacted) {
-    ctx.session.compact(retainedIds)
-  }
+  compaction?.commit()
 
   if (iteration.tokens) {
     iteration.tokens.limit = limit

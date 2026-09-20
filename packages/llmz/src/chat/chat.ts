@@ -1,8 +1,8 @@
+import type { Context } from '../context.js'
+import type { ValueOrGetter } from '../getter.js'
+import type { ExecutionResult } from '../result.js'
 import type { Component, RenderedComponent } from './component.js'
-import type { Context } from './context.js'
-import type { ValueOrGetter } from './getter.js'
 import type { Response } from './response.js'
-import type { ExecutionResult } from './result.js'
 
 /** Ordinary assistant output, independent of the configured response style. */
 export type AssistantTextMessage = { type: 'text'; text: string }
@@ -11,7 +11,7 @@ export type AssistantTextMessage = { type: 'text'; text: string }
 export type ChatMessage = AssistantTextMessage | RenderedComponent
 
 export type MessageMetadata = {
-  /** Stable across generation attempts; standalone tool calls use their call ID. */
+  /** The iteration that owns this response or component send. */
   iterationId: string
   /** Logical send ID, shared with its streamed text deltas. */
   id: string

@@ -3,7 +3,7 @@ import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { Exit } from '../exit.js'
 import { ObjectInstance } from '../objects.js'
-import { Session } from '../session.js'
+import { Session } from '../session/session.js'
 import { executeContext } from './execute.js'
 import { createRecordingChat } from './fixtures/chat.js'
 import { NativeClient, javascript, nativeCall, response } from './fixtures/native-client.js'

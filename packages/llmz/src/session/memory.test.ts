@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import { getTokenizer } from '../utils.js'
 import { Memory, previewMemoryValue } from './memory.js'
-import { getTokenizer } from './utils.js'
 
 const provenance = { id: 'first', number: 1, turn: 1, timestamp: 1000 }
 

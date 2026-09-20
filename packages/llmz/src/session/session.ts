@@ -1,8 +1,6 @@
 import { ulid } from 'ulid'
-import type { Inspector } from './inspection.js'
-import { cloneMemoryValue, freezeMemoryValue, type MemoryValue } from './memory-codec.js'
-import { renderMemory } from './memory-render.js'
-import { Memory, type MemoryAssignment, type MemoryReport } from './memory.js'
+import type { Inspector } from '../inspection.js'
+import { resolveCompaction, summarizeMessages, type CompactionOptions, type SummarizeOptions } from './compactor.js'
 import {
   compactHistory,
   pendingCallIds,
@@ -10,8 +8,11 @@ import {
   type HistoryGroup,
   type SessionIteration,
   type SessionIterationRecord,
-} from './session/history.js'
-import { assertPersistableData, stableJSON } from './session/json.js'
+} from './history.js'
+import { assertPersistableData, stableJSON } from './json.js'
+import { cloneMemoryValue, freezeMemoryValue, type MemoryValue } from './memory-codec.js'
+import { renderMemory } from './memory-render.js'
+import { Memory, type MemoryAssignment, type MemoryReport } from './memory.js'
 import {
   normalizeInput,
   createAssistantMessage,
@@ -19,7 +20,7 @@ import {
   type SessionMessage,
   type SessionInput,
   type AssistantResponse,
-} from './session/messages.js'
+} from './messages.js'
 import {
   serializeGroup,
   restoreGroup,
@@ -27,10 +28,11 @@ import {
   validateRestoredHistory,
   type SessionState,
   type PendingInput,
-} from './session/serialization.js'
+} from './serialization.js'
+import type { Transcript } from './transcript.js'
 
-export type { SessionMessage, SessionInput } from './session/messages.js'
-export type { SessionIteration, SessionIterationRecord } from './session/history.js'
+export type { SessionMessage, SessionInput } from './messages.js'
+export type { SessionIteration, SessionIterationRecord } from './history.js'
 
 export type IterationCapture = MemoryAssignment & {
   id: string
@@ -49,6 +51,20 @@ export namespace Session {
   export type JSON = SessionState
 }
 
+export type SessionOptions = {
+  variables?: Record<string, unknown>
+  maxBytes?: number
+  /** Automatic LLM summarization is enabled by default. Set false to preserve history and fail on overflow. */
+  compaction?: false | CompactionOptions
+}
+
+export type SessionCompaction = {
+  summary: Transcript.SummaryMessage
+  retainedIterationIds: readonly string[]
+  /** Commit only after the final request and all request hooks pass their budget checks. */
+  commit(): void
+}
+
 /**
  * Owns canonical native conversation history and its exact JavaScript memory.
  * Reuse a Session across execute() calls; persist toJSON(), not prompt previews.
@@ -56,6 +72,7 @@ export namespace Session {
 export class Session {
   public readonly id: string
   public readonly memory: Memory
+  public readonly compaction: false | ReturnType<typeof resolveCompaction>
   #turn = 0
   #turnId = ''
   #iteration = 0
@@ -66,9 +83,10 @@ export class Session {
   #activeTurn = false
   #locked = false
 
-  public constructor(options: { variables?: Record<string, unknown>; maxBytes?: number } = {}) {
+  public constructor(options: SessionOptions = {}) {
     this.id = `session_${ulid()}`
     this.memory = new Memory({ ...options, additionalBytes: () => this.#resultBytes() })
+    this.compaction = options.compaction === false ? false : resolveCompaction(options.compaction)
   }
 
   public get turn(): number {
@@ -85,6 +103,14 @@ export class Session {
 
   public get messages(): SessionMessage[] {
     return structuredClone(this.#allGroups().flatMap((group) => group.messages))
+  }
+
+  /** Retained conversation plus queued input, preserving event and summary roles. Returns a detached copy. */
+  public get transcript(): SessionInput[] {
+    return structuredClone([
+      ...this.#allGroups().flatMap((group): SessionInput[] => (group.source ? [group.source] : group.messages)),
+      ...this.#pendingInputs.map((input) => input.source ?? input.message),
+    ])
   }
 
   public get pendingMessages(): SessionMessage[] {
@@ -173,6 +199,7 @@ export class Session {
     const pending = messages.map((message) => ({
       id: `input_${ulid()}`,
       message: normalizeInput(message),
+      ...(message.role === 'event' || message.role === 'summary' ? { source: structuredClone(message) } : {}),
     }))
 
     this.#pendingInputs.push(...pending)
@@ -193,7 +220,12 @@ export class Session {
     this.#activeTurn = true
 
     for (const input of this.#pendingInputs) {
-      this.#groups.push({ id: input.id, turn: this.#turn, messages: [input.message] })
+      this.#groups.push({
+        id: input.id,
+        turn: this.#turn,
+        messages: [input.message],
+        ...(input.source ? { source: input.source } : {}),
+      })
     }
 
     this.#pendingInputs = []
@@ -439,6 +471,8 @@ export class Session {
       inspector?: Inspector
       /** Preview compaction without discarding retained history or results. */
       retainedIterationIds?: Iterable<string>
+      /** Preview a prepared summary without changing the transcript. */
+      summary?: Transcript.SummaryMessage
     } = {}
   ): SessionMessage[] {
     if (this.pendingCalls.length) {
@@ -447,9 +481,15 @@ export class Session {
 
     const retained = options.retainedIterationIds === undefined ? undefined : new Set(options.retainedIterationIds)
     const groups = retained
-      ? compactHistory(this.#allGroups(), retained, this.#turn, this.#activeIteration?.group.id)
+      ? compactHistory(this.#allGroups(), retained, this.#activeTurn ? this.#turn : -1, this.#activeIteration?.group.id)
       : this.#allGroups()
-    const messages = groups.flatMap((group) => group.messages)
+    const messages = groups
+      .filter((group) => !options.summary || group.source?.role !== 'summary')
+      .flatMap((group) => group.messages)
+    if (options.summary) {
+      messages.unshift(normalizeInput(options.summary))
+    }
+
     if (options.memory === false) {
       return withMemoryOverview(messages)
     }
@@ -471,14 +511,158 @@ export class Session {
   }
 
   /** Keep complete iterations, pruning their automatic results in the same operation. */
-  public compact(retainedIds: Iterable<string>): void {
+  public prune(retainedIds: Iterable<string>): void {
     const retained = new Set(retainedIds)
 
-    this.#groups = compactHistory(this.#groups, retained, this.#turn, this.#activeIteration?.group.id)
+    this.#groups = compactHistory(
+      this.#groups,
+      retained,
+      this.#activeTurn ? this.#turn : -1,
+      this.#activeIteration?.group.id
+    )
 
     if (this.#latestResultId && !retained.has(this.#latestResultId)) {
       this.#latestResultId = undefined
     }
+  }
+
+  /** Summarize processed conversation without changing it. Queued inputs remain for the next turn. */
+  public async summarize(options: SummarizeOptions): Promise<Transcript.SummaryMessage | undefined> {
+    const release = this.acquire()
+    try {
+      if (this.#activeIteration) {
+        throw new Error('Cannot summarize a session with a pending iteration.')
+      }
+
+      const messages = this.messages
+      if (!messages.length) {
+        return undefined
+      }
+
+      const config = this.compaction || resolveCompaction()
+      return await summarizeMessages(
+        messages,
+        {
+          ...options,
+          model: options.model ?? config.model,
+          maxTokens: options.maxTokens ?? config.maxSummaryTokens,
+        },
+        config.summarize
+      )
+    } finally {
+      release()
+    }
+  }
+
+  /** Replace older complete history with a summary, preserving named memory and queued input. */
+  public async compact(
+    options: SummarizeOptions & { keepRecentIterations?: number }
+  ): Promise<Transcript.SummaryMessage | undefined> {
+    const release = this.acquire()
+    try {
+      if (this.#activeIteration) {
+        throw new Error('Cannot compact a session with a pending iteration.')
+      }
+
+      const config = resolveCompaction({
+        ...(this.compaction || {}),
+        keepRecentIterations: options.keepRecentIterations ?? (this.compaction || {}).keepRecentIterations,
+      })
+      const ids = this.retainedIterationIds
+      const retained = config.keepRecentIterations === 0 ? [] : ids.slice(-config.keepRecentIterations)
+      const prepared = await this.prepareCompaction(retained, options)
+      options.signal?.throwIfAborted()
+      prepared?.commit()
+      return prepared?.summary
+    } finally {
+      release()
+    }
+  }
+
+  /** @internal Prepare a transactional summary; callers must validate its final request before committing. */
+  public async prepareCompaction(
+    retainedIds: Iterable<string>,
+    options: SummarizeOptions
+  ): Promise<SessionCompaction | undefined> {
+    const retained = new Set(retainedIds)
+    const before = this.#allGroups()
+    const selected = compactHistory(
+      before,
+      retained,
+      this.#activeTurn ? this.#turn : -1,
+      this.#activeIteration?.group.id
+    )
+    const kept = new Set(selected.map((group) => group.id))
+    const removed = before.filter((group) => !kept.has(group.id))
+    const previousSummaries = before.filter((group) => group.source?.role === 'summary')
+    if (!removed.length && !previousSummaries.length) {
+      return undefined
+    }
+
+    const firstKeptIteration = selected.find((group) => group.iteration)?.iteration
+    if (
+      firstKeptIteration &&
+      removed.some((group) => group.iteration && group.iteration.number > firstKeptIteration.number)
+    ) {
+      throw new Error('Compaction must remove a prefix of complete iterations, preserving their chronological order.')
+    }
+
+    const source = before.filter((group) => !kept.has(group.id) || group.source?.role === 'summary')
+    const fingerprint = this.#historyFingerprint()
+    const config = this.compaction || resolveCompaction()
+    const summary = Object.freeze(
+      await summarizeMessages(
+        source.flatMap((group) => {
+          if (group.messages.length || !group.iteration) {
+            return group.messages
+          }
+
+          return [
+            normalizeInput({
+              role: 'event',
+              name: 'iteration.completed',
+              payload: { id: group.id, outcome: group.iteration.outcome, error: group.iteration.error },
+            }),
+          ]
+        }),
+        {
+          ...options,
+          model: options.model ?? config.model,
+          maxTokens: options.maxTokens ?? config.maxSummaryTokens,
+        },
+        config.summarize
+      )
+    )
+    const summaryGroup: HistoryGroup = {
+      id: `summary_${ulid()}`,
+      turn: Math.min(...removed.map((group) => group.turn), ...previousSummaries.map((group) => group.turn)),
+      source: structuredClone(summary),
+      messages: [normalizeInput(summary)],
+    }
+    let committed = false
+    return {
+      summary,
+      retainedIterationIds: Object.freeze([...retained]),
+      commit: () => {
+        options.signal?.throwIfAborted()
+        if (committed || fingerprint !== this.#historyFingerprint()) {
+          throw new Error('Session history changed while compaction was being prepared.')
+        }
+
+        this.prune(retained)
+        this.#groups = [summaryGroup, ...this.#groups.filter((group) => group.source?.role !== 'summary')]
+        committed = true
+      },
+    }
+  }
+
+  #historyFingerprint(): string {
+    return stableJSON({
+      groups: this.#allGroups().map(serializeGroup),
+      turn: this.#turn,
+      activeTurn: this.#activeTurn,
+      latestResultId: this.#latestResultId,
+    })
   }
 
   public toJSON(): Session.JSON {
@@ -486,6 +670,7 @@ export class Session {
       throw new Error('Cannot serialize a session during an in-flight execution. Await execution before saving it.')
     }
 
+    const compaction = this.compaction === false ? false : { ...this.compaction, summarize: undefined }
     return {
       version: 3,
       id: this.id,
@@ -497,12 +682,13 @@ export class Session {
       pendingInputs: structuredClone(this.#pendingInputs),
       activeTurn: this.#activeTurn,
       latestResultId: this.#latestResultId,
+      compaction,
     }
   }
 
-  public static fromJSON(state: Session.JSON): Session {
+  public static fromJSON(state: Session.JSON, options: Pick<SessionOptions, 'compaction'> = {}): Session {
     validateRestoredHistory(state)
-    const session = new Session()
+    const session = new Session({ compaction: options.compaction ?? state.compaction })
     Object.defineProperty(session, 'id', { value: state.id, enumerable: true })
     session.#turn = state.turn
     session.#turnId = state.turnId

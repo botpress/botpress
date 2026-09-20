@@ -21,7 +21,9 @@ export {
   type SessionInput,
   type SessionIteration,
   type SessionIterationRecord,
-} from './session.js'
+  type SessionOptions,
+} from './session/session.js'
+export type { CompactionOptions, SummarizeOptions, SummaryRequest } from './session/compactor.js'
 export {
   Memory,
   MemoryCapacityError,
@@ -29,7 +31,7 @@ export {
   type MemoryReport,
   type MemoryProvenance,
   type ObjectPropertyMemory,
-} from './memory.js'
+} from './session/memory.js'
 
 export {
   Component,
@@ -40,10 +42,10 @@ export {
   assertValidComponent,
   isComponent,
   isAnyComponent,
-} from './component.js'
+} from './chat/component.js'
 
-export { type Citation, CitationsManager } from './citations.js'
-export { DefaultComponents } from './component.default.js'
+export { type Citation, CitationsManager } from './chat/citations.js'
+export { DefaultComponents } from './chat/component.default.js'
 export {
   Chat,
   type AssistantTextMessage,
@@ -52,13 +54,13 @@ export {
   type MessageMetadata,
   type MessageDelta,
   type MessageDeltaHandler,
-} from './chat.js'
-export type { Response, ResponsePreset } from './response.js'
+} from './chat/chat.js'
+export type { Response, ResponsePreset } from './chat/response.js'
 
 import { ExecutionResult } from './result.js'
 import { type ExecutionProps } from './runtime/types.js'
 import { toValidFunctionName, toValidObjectName } from './utils.js'
-export { type Transcript } from './transcript.js'
+export { type Transcript } from './session/transcript.js'
 export { ErrorExecutionResult, ExecutionResult, SuccessExecutionResult } from './result.js'
 export { type Trace, type Traces } from './types.js'
 export { type Iteration, ListenExit, DefaultExit, type IterationStatuses, type IterationStatus } from './context.js'
@@ -158,7 +160,7 @@ export const execute = async (props: ExecutionProps) => {
  */
 export const init = async () => {
   await import('./runtime/execute.js')
-  await import('./component.js')
+  await import('./chat/component.js')
   await import('./tool.js')
   await import('./exit.js')
   await import('./vm/index.js')

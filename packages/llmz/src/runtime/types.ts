@@ -1,13 +1,13 @@
 import { Cognitive, type CognitiveMessage, type BotpressClientLike, Models, type SttModels } from '@botpress/cognitive'
 
-import { Chat } from '../chat.js'
+import { Chat } from '../chat/chat.js'
 import { Context, Iteration } from '../context.js'
 import { _CustomModelClient } from '../custom-client.js'
 import { Exit, ExitResult } from '../exit.js'
 import { ValueOrGetter } from '../getter.js'
 import type { OnInspect } from '../inspection.js'
 import { type ObjectInstance } from '../objects.js'
-import type { Session } from '../session.js'
+import type { Session } from '../session/session.js'
 import { type Tool } from '../tool.js'
 import { Trace } from '../types.js'
 

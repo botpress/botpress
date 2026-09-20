@@ -222,7 +222,7 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
       )
 
       const persistedProperties = first.session.memory.serialize().objects
-      first.session.compact([])
+      first.session.prune([])
       const restored = restoreSession(first.session)
 
       expect(restored.retainedIterationIds).toEqual([])

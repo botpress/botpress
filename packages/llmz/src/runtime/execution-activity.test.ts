@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DefaultComponents } from '../component.default.js'
+import { DefaultComponents } from '../chat/component.default.js'
 import { Iteration } from '../context.js'
 import { Signals, ThinkSignal } from '../errors.js'
 import type { Trace, Traces } from '../types.js'

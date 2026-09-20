@@ -1,5 +1,5 @@
 import type { JSONSchema7, JSONSchema7Definition } from 'json-schema'
-import { createInspector, type Inspector } from './inspection.js'
+import { createInspector, type Inspector } from '../inspection.js'
 import type { MemoryValue, NamedMemoryBinding, ObjectPropertyMemory, MemoryProvenance } from './memory.js'
 import type { SessionIterationRecord } from './session.js'
 

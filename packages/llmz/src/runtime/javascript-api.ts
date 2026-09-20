@@ -1,10 +1,10 @@
 import { ulid } from 'ulid'
 
-import type { ComponentRegistry, RenderedComponent } from '../component.js'
+import type { ComponentRegistry, RenderedComponent } from '../chat/component.js'
 import type { Iteration } from '../context.js'
 import { ThinkSignal } from '../errors.js'
 import type { Exit } from '../exit.js'
-import { cloneMemoryValue } from '../memory.js'
+import { cloneMemoryValue } from '../session/memory.js'
 
 /** A child message keeps its identity from preparation through acknowledged delivery. */
 export type PreparedMessage = {

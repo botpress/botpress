@@ -1,6 +1,6 @@
-import { Chat, type ChatMessage, type MessageDeltaHandler, type MessageMetadata } from '../../src/chat.js'
-import type { Component } from '../../src/component.js'
-import type { Response } from '../../src/response.js'
+import { Chat, type ChatMessage, type MessageDeltaHandler, type MessageMetadata } from '../../src/chat/chat.js'
+import type { Component } from '../../src/chat/component.js'
+import type { Response } from '../../src/chat/response.js'
 
 /** Collect real response and component callbacks in one assertion-friendly fixture. */
 export function createTestChat({

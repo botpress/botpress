@@ -1,13 +1,13 @@
 import { z } from '@bpinternal/zui'
 import assert from 'node:assert/strict'
 
-import { DefaultComponents } from '../../src/component.default.js'
+import { DefaultComponents } from '../../src/chat/component.default.js'
 import { ListenExit } from '../../src/context.js'
 import { LoopExceededError, ThinkSignal } from '../../src/errors.js'
 import { truncate } from '../../src/index.js'
-import { Session } from '../../src/session.js'
+import { Session } from '../../src/session/session.js'
 import { Tool } from '../../src/tool.js'
-import type { Transcript } from '../../src/transcript.js'
+import type { Transcript } from '../../src/session/transcript.js'
 import { getTokenizer } from '../../src/utils.js'
 import { codeReply, PromptReview, textReply, type ReviewExecution, type ReviewScenario } from './capture.js'
 import { cancelled, createFixtures, handoff, media, resolved } from './fixtures.js'
@@ -488,13 +488,11 @@ return inspect({ preferredPlan });`),
     { messages: [{ role: 'user', content: 'Remember that I prefer Team.' }] }
   )
 
-  review.session.compact([])
+  review.session.prune([])
   assert.deepEqual(review.session.memory.variables, { preferredPlan: 'Team' })
   assert.equal(review.session.iterations.length, 0)
   assert.equal(review.session.getBindings().$return, undefined)
-  review.note(
-    'Host calls session.compact([]). The argument contains IDs to keep, so all settled iterations are removed.'
-  )
+  review.note('Host calls session.prune([]). The argument contains IDs to keep, so all settled iterations are removed.')
 
   await review.run(
     'Turn 2: inspect what survived compaction',

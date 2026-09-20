@@ -1,5 +1,5 @@
+import { resolveResponse } from '../chat/response.js'
 import { formatTypings } from '../formatting.js'
-import { resolveResponse } from '../response.js'
 import { getTypings } from '../typings.js'
 import { getMultilineComment } from '../utils.js'
 import type { LLMzPrompts } from './prompt.js'

@@ -1,7 +1,8 @@
-import { decodeMemoryValue, encodeMemoryValue, type EncodedMemoryValue } from '../memory-codec.js'
-import type { SerializedMemory } from '../memory.js'
+import type { CompactionOptions } from './compactor.js'
 import { validateGroup, type HistoryGroup, type SessionIterationRecord } from './history.js'
 import { assertPersistableData } from './json.js'
+import { decodeMemoryValue, encodeMemoryValue, type EncodedMemoryValue } from './memory-codec.js'
+import type { SerializedMemory } from './memory.js'
 import { validateInputMessage, type SessionMessage } from './messages.js'
 
 type SerializedHistoryGroup = Omit<HistoryGroup, 'iteration'> & {
@@ -13,6 +14,7 @@ type SerializedHistoryGroup = Omit<HistoryGroup, 'iteration'> & {
 export type PendingInput = {
   id: string
   message: SessionMessage
+  source?: HistoryGroup['source']
 }
 
 export type SessionState = {
@@ -26,6 +28,7 @@ export type SessionState = {
   pendingInputs: PendingInput[]
   activeTurn: boolean
   latestResultId?: string
+  compaction?: false | Omit<CompactionOptions, 'summarize'>
 }
 
 /** Persisted counters, native identities, and exact values must describe one history. */
@@ -116,6 +119,7 @@ export function validateRestoredHistory(state: SessionState): void {
 
     groupIds.add(input.id)
     validateInputMessage(input.message)
+    validateGroup({ id: input.id, turn: state.turn, messages: [input.message], source: input.source })
   }
 
   if (
@@ -147,6 +151,10 @@ export function serializeGroup(group: HistoryGroup): SerializedHistoryGroup {
 export function restoreGroup(group: SerializedHistoryGroup): HistoryGroup {
   if (group.iteration === undefined) {
     return structuredClone(group) as HistoryGroup
+  }
+
+  if (group.source !== undefined) {
+    throw new Error('Iteration groups cannot have an event or summary transcript source.')
   }
 
   if (!group.iteration || typeof group.iteration !== 'object' || Array.isArray(group.iteration)) {

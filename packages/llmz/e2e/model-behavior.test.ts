@@ -2,9 +2,9 @@ import type { Models } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import { describe, expect, it } from 'vitest'
 
-import type { ChatMessage } from '../src/chat.js'
+import type { ChatMessage } from '../src/chat/chat.js'
 import { Component, DefaultComponents, Exit, ListenExit, Tool, execute } from '../src/index.js'
-import { Session } from '../src/session.js'
+import { Session } from '../src/session/session.js'
 
 import { createTestChat } from './__tests__/chat.js'
 import {

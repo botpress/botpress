@@ -77,9 +77,9 @@ describe('Session result history', () => {
     expect(overview).not.toContain('earlier-result-only-payload')
     expect(overview).not.toContain('latest-result-only-payload')
 
-    session.compact([first.id, second.id])
+    session.prune([first.id, second.id])
     expect(session.renderMemory()).toContain('`$return` = `$iterations[0].result` (array)')
-    session.compact([first.id])
+    session.prune([first.id])
 
     expect(session.getBindings().$return).toBeUndefined()
     expect(session.iterations.map((entry) => entry.id)).toEqual([first.id])

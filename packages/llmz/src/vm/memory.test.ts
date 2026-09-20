@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Session } from '../session.js'
+import { Session } from '../session/session.js'
 import { runAsyncFunction } from './index.js'
 import { NodeDriver } from './drivers/node.js'
 import { QuickJSDriver } from './drivers/quickjs.js'

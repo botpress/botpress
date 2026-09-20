@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import { getTokenizer } from '../utils.js'
 import { Session, type SessionInput } from './session.js'
 import type { Transcript } from './transcript.js'
-import { getTokenizer } from './utils.js'
 
 function complete(session: Session, id: string, result?: unknown) {
   const iteration = session.nextIteration(id)
@@ -326,7 +326,7 @@ describe('native Session', () => {
     complete(session, 'current', 'Current result')
     session.append({ role: 'user', content: 'Queued request' })
     const pending = session.toJSON().pendingInputs
-    session.compact(['current'])
+    session.prune(['current'])
 
     expect(session.messages.some((message) => message.content === 'Old request')).toBe(false)
     expect(session.memory.variables.account).toBe('retained')
@@ -348,7 +348,7 @@ describe('native Session', () => {
     expect(JSON.stringify(preview)).not.toContain('old-call')
     expect(JSON.stringify(preview)).not.toContain('$iterations[1]')
     expect(session.toJSON()).toEqual(before)
-    session.compact(['current'])
+    session.prune(['current'])
     expect(session.requestMessages({ now: 1000 })).toEqual(preview)
     expect(session.getBindings().$return).toBe('Current result')
     expect(session.memory.variables.account).toBe('retained')
@@ -517,7 +517,7 @@ describe('native Session', () => {
     session.append({ role: 'user', content: 'Second request' })
     session.beginTurn()
     complete(session, 'second', 'second result')
-    session.compact(['second'])
+    session.prune(['second'])
 
     expect(session.retainedIterationIds).toEqual(['second'])
     expect(session.messages.map((message) => message.content)).not.toContain('First request')
@@ -539,7 +539,7 @@ describe('native Session', () => {
     const memory = session.memory.serialize()
     const pendingCalls = session.pendingCalls
 
-    expect(() => session.compact([])).toThrow('pending')
+    expect(() => session.prune([])).toThrow('pending')
     expect(session.messages).toEqual(messages)
     expect(session.memory.serialize()).toEqual(memory)
     expect(session.pendingCalls).toEqual(pendingCalls)

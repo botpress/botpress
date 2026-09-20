@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { CodeExecutionError, Signals } from '../errors.js'
 import { Exit } from '../exit.js'
-import { Session } from '../session.js'
+import { Session } from '../session/session.js'
 import { Tool } from '../tool.js'
 import { executeContext } from './execute.js'
 import { NativeClient, javascript } from './fixtures/native-client.js'

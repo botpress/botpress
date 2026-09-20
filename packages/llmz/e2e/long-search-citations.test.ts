@@ -10,7 +10,7 @@ import {
 } from '../src/custom-client.js'
 import { CitationsManager, ThinkSignal, Tool, execute, truncate } from '../src/index.js'
 import { buildSearchChallenge, longSearchChallenges } from '../src/runtime/fixtures/long-search.js'
-import { Session } from '../src/session.js'
+import { Session } from '../src/session/session.js'
 import { getTokenizer } from '../src/utils.js'
 
 import { createTestChat } from './__tests__/chat.js'

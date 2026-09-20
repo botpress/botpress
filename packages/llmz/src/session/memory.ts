@@ -1,6 +1,10 @@
 import { transforms } from '@bpinternal/zui'
 import type { JSONSchema7Definition } from 'json-schema'
-import type { Inspector } from './inspection.js'
+import type { Inspector } from '../inspection.js'
+import type { ObjectInstance } from '../objects.js'
+import { RESERVED_RUNTIME_NAMES } from '../runtime-names.js'
+import type { ObjectMutation } from '../types.js'
+import { getTypings } from '../typings.js'
 import {
   cloneMemoryValue,
   decodeMemoryValue,
@@ -9,11 +13,6 @@ import {
   type MemoryValue,
 } from './memory-codec.js'
 import { memoryValueType, previewMemoryValue, renderMemory } from './memory-render.js'
-
-import type { ObjectInstance } from './objects.js'
-import { RESERVED_RUNTIME_NAMES } from './runtime-names.js'
-import type { ObjectMutation } from './types.js'
-import { getTypings } from './typings.js'
 
 export { cloneMemoryValue, decodeMemoryValue, type MemoryValue } from './memory-codec.js'
 export { previewMemoryValue } from './memory-render.js'

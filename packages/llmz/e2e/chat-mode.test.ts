@@ -1,14 +1,14 @@
 import { z } from '@bpinternal/zui'
 import { beforeAll, beforeEach, afterAll, assert, describe, expect, it } from 'vitest'
 
-import { Chat, MessageDelta } from '../src/chat.js'
+import { Chat, MessageDelta } from '../src/chat/chat.js'
 import { ListenExit } from '../src/context.js'
 import { ThinkSignal } from '../src/errors.js'
 import { ExecutionResult, SuccessExecutionResult } from '../src/result.js'
 import * as llmz from '../src/runtime/execute.js'
 import { Tool } from '../src/tool.js'
-import { Session } from '../src/session.js'
-import type { Response } from '../src/response.js'
+import { Session } from '../src/session/session.js'
+import type { Response } from '../src/chat/response.js'
 
 import { createTestChat } from './__tests__/chat.js'
 import { getCachedCognitiveClient } from './__tests__/index.js'

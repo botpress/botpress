@@ -1,11 +1,11 @@
 import { z } from '@bpinternal/zui'
 import { describe, expect, test, vi } from 'vitest'
-import type { MessageDelta, MessageMetadata, ChatMessage } from '../chat.js'
-import { Component } from '../component.js'
+import type { MessageDelta, MessageMetadata, ChatMessage } from '../chat/chat.js'
+import { Component } from '../chat/component.js'
 import { ListenExit } from '../context.js'
 import { ThinkSignal } from '../errors.js'
 import { Exit } from '../exit.js'
-import { Session } from '../session.js'
+import { Session } from '../session/session.js'
 import { Tool } from '../tool.js'
 import { executeContext } from './execute.js'
 import { createRecordingChat } from './fixtures/chat.js'
@@ -450,7 +450,7 @@ describe('native execution lifecycle', () => {
       chat,
       client: new NativeClient([javascript('const retained = { n: 42 }; return "discard";'), response('Done.')]),
     })
-    first.session.compact([first.iterations[1]!.id])
+    first.session.prune([first.iterations[1]!.id])
     expect(first.session.memory.variables.retained).toEqual({ n: 42 })
     expect(first.session.getBindings().$return).toBeUndefined()
     const client = new NativeClient([

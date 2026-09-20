@@ -2,7 +2,7 @@ import { z } from '@bpinternal/zui'
 
 import { Context, Iteration } from '../context.js'
 import { AssignmentError } from '../errors.js'
-import { cloneMemoryValue } from '../memory.js'
+import { cloneMemoryValue } from '../session/memory.js'
 import type { TruncationPolicy } from '../truncate.js'
 import { getErrorMessage, stripInvalidIdentifiers } from '../utils.js'
 import { VM_PROGRAM_COMPLETE, VM_TERMINATION, type VMContext } from '../vm/types.js'

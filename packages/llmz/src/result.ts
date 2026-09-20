@@ -1,6 +1,6 @@
 import type { Context, Iteration } from './context.js'
 import type { Exit, ExitResult } from './exit.js'
-import type { Session } from './session.js'
+import type { Session } from './session/session.js'
 
 type ExecutionStatus = 'success' | 'error'
 

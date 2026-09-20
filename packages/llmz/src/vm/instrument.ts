@@ -2,7 +2,7 @@ import type { SourceMapConsumer } from 'source-map-js'
 import { type CompiledCode, Identifiers } from '../compiler/index.js'
 import { USER_CODE_START_MARKER } from '../compiler/plugins/async-wrapper.js'
 import { TerminationCheckpointIdentifier, TerminationGuardIdentifier } from '../compiler/plugins/termination.js'
-import { cloneMemoryValue, type VariableWrite } from '../memory.js'
+import { cloneMemoryValue, type VariableWrite } from '../session/memory.js'
 import type { Trace, VMExecutionResult } from '../types.js'
 import { VM_TERMINATION, type VMContext } from './types.js'
 

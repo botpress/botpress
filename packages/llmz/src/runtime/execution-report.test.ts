@@ -1,11 +1,11 @@
 import { z } from '@bpinternal/zui'
 import { describe, expect, test, vi } from 'vitest'
 
-import { DefaultComponents } from '../component.default.js'
+import { DefaultComponents } from '../chat/component.default.js'
 import { ThinkSignal } from '../errors.js'
 import { Exit } from '../exit.js'
 import type { ExecutionResult } from '../result.js'
-import { Session } from '../session.js'
+import { Session } from '../session/session.js'
 import { Tool } from '../tool.js'
 import { getTokenizer } from '../utils.js'
 import { executeContext } from './execute.js'

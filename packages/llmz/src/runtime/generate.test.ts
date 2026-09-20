@@ -1,9 +1,10 @@
 import type { CognitiveMetadata, CognitiveRequest, CognitiveResponse, CognitiveStreamChunk } from '@botpress/cognitive'
 import { describe, expect, it, vi } from 'vitest'
-import { type MessageDelta } from '../chat.js'
+import { type MessageDelta } from '../chat/chat.js'
 import { DefaultExit, type Context, type ContextTokens, type Iteration } from '../context.js'
 import { createInspector } from '../inspection.js'
-import { Session } from '../session.js'
+import type { CompactionOptions } from '../session/compactor.js'
+import { Session } from '../session/session.js'
 import type { Trace } from '../types.js'
 import { createRecordingChat } from './fixtures/chat.js'
 import { countNativeRequestTokens, generateCode, type NativeResponse } from './generate.js'
@@ -659,7 +660,7 @@ describe('native generation', () => {
     expect(session.retainedIterationIds).toEqual([base.iteration.id])
     expect(session.iterations).toHaveLength(0)
     expect(session.getBindings()).toMatchObject({ keep: 'named value', $return: undefined, $iterations: [] })
-    const input = base.generateText.mock.calls[0]![0]
+    const input = base.generateText.mock.calls.at(-1)![0]
 
     expect(input.messages.some((message) => message.toolCalls?.length)).toBe(false)
     expect(input.messages.at(-1)?.content).toContain('keep')
@@ -716,8 +717,8 @@ describe('native generation', () => {
 })
 
 describe('request budgeting and atomic compaction', () => {
-  function history() {
-    const session = new Session({ variables: { retained: 'named memory' } })
+  function history(compaction?: false | CompactionOptions) {
+    const session = new Session({ variables: { retained: 'named memory' }, compaction })
     session.append({ role: 'user', content: 'Old request' })
     const info = session.nextIteration('old')
     session.appendAssistant(info.id, { output: '', toolCalls: [call('old-call')] })
@@ -727,6 +728,52 @@ describe('request budgeting and atomic compaction', () => {
     session.completeTurn()
     return session
   }
+
+  it('can disable automatic compaction without silently deleting overflowing history', async () => {
+    const session = history(false)
+    session.append({ role: 'user', content: 'Next request' })
+    const base = fixture({ session, maxTokens: 1200 })
+    const before = session.messages
+    await expect(generateCode(base)).rejects.toThrow('does not fit')
+    expect(base.generateText).not.toHaveBeenCalled()
+    expect(session.messages).toEqual(before)
+    expect(session.getBindings().$return).toBe('Exact result')
+  })
+
+  it('honors configured thresholds and a custom summarizer before the hard window is full', async () => {
+    const summarize = vi.fn(async () => 'The earlier task completed. Its receipt is confirmed.')
+    const session = history({ triggerRatio: 0.1, targetRatio: 0.05, keepRecentIterations: 0, summarize })
+    session.append({ role: 'user', content: 'Next request' })
+    const base = fixture({ session })
+    expect(countNativeRequestTokens(session.requestMessages(), [])).toBeLessThan(32_768 - 3276)
+    await generateCode(base)
+    expect(summarize).toHaveBeenCalledOnce()
+    expect(base.generateText).toHaveBeenCalledOnce()
+    expect(session.transcript[0]).toEqual({
+      role: 'summary',
+      content: 'The earlier task completed. Its receipt is confirmed.',
+    })
+    expect(
+      base.generateText.mock.calls[0]?.[0].messages.some((message) =>
+        String(message.content).includes('Conversation summary:')
+      )
+    ).toBe(true)
+  })
+
+  it('preserves history when the summary provider fails before request hooks or execution', async () => {
+    const session = history()
+    session.append({ role: 'user', content: 'Next request' })
+    const base = fixture({ session, maxTokens: 1200 })
+    const before = session.messages
+    base.generateText.mockRejectedValueOnce(new Error('Summary provider unavailable'))
+    const hook = vi.fn()
+    await expect(generateCode({ ...base, onBeforeRequest: hook })).rejects.toThrow('Summary provider unavailable')
+    expect(hook).not.toHaveBeenCalled()
+    expect(base.generateText).toHaveBeenCalledOnce()
+    expect(base.generateText.mock.calls[0]?.[0].toolControl?.mode).toBe('none')
+    expect(session.messages).toEqual(before)
+    expect(session.getBindings().$return).toBe('Exact result')
+  })
 
   it('uses the smallest fallback limits for the shared request', async () => {
     const base = fixture()
@@ -811,7 +858,7 @@ describe('request budgeting and atomic compaction', () => {
       })
       await expect(generateCode({ ...base, onBeforeRequest: hook })).rejects.toThrow()
       expect(hook).toHaveBeenCalledOnce()
-      expect(base.generateText).not.toHaveBeenCalled()
+      expect(base.generateText.mock.calls.every(([request]) => request.toolControl?.mode === 'none')).toBe(true)
       expect(session.messages).toEqual(original)
       expect(session.getBindings().$return).toBe('Exact result')
     }
@@ -824,6 +871,11 @@ describe('request budgeting and atomic compaction', () => {
     session.append({ role: 'user', content: 'Queued later' })
     const base = fixture({ session, maxTokens: 1200 })
     base.generateText.mockImplementation(async (input) => {
+      if (input.toolControl?.mode === 'none') {
+        expect(session.retainedIterationIds).toContain('old')
+        return { output: 'The earlier request completed successfully.', metadata: metadata() }
+      }
+
       expect(session.iterations).toEqual([])
       expect(session.getBindings().$return).toBeUndefined()
       expect(session.memory.variables.retained).toBe('named memory')
@@ -833,6 +885,7 @@ describe('request budgeting and atomic compaction', () => {
       return { output: 'Done', metadata: metadata() }
     })
     await generateCode(base)
-    expect(base.generateText).toHaveBeenCalledOnce()
+    expect(base.generateText.mock.calls.filter(([request]) => request.toolControl?.mode !== 'none')).toHaveLength(1)
+    expect(session.transcript.some((message) => message.role === 'summary')).toBe(true)
   })
 })

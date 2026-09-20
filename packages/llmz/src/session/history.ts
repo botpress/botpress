@@ -1,6 +1,8 @@
 import type { CognitiveMessage } from '@botpress/cognitive'
-import type { MemoryValue } from '../memory-codec.js'
-import { validateInputMessage, validateMessageContent, type SessionMessage } from './messages.js'
+import { stableJSON } from './json.js'
+import type { MemoryValue } from './memory-codec.js'
+import { normalizeInput, validateInputMessage, validateMessageContent, type SessionMessage } from './messages.js'
+import type { Transcript } from './transcript.js'
 
 export type SessionIteration = {
   id: string
@@ -23,6 +25,8 @@ export type HistoryGroup = {
   turn: number
   iteration?: SessionIterationRecord
   messages: SessionMessage[]
+  /** Preserve typed external events and compaction summaries alongside native model input. */
+  source?: Transcript.EventMessage | Transcript.SummaryMessage
 }
 
 export function pendingCallIds(group: HistoryGroup): string[] {
@@ -67,6 +71,18 @@ export function validateBatch(message: CognitiveMessage): void {
 export function validateGroup(group: HistoryGroup): void {
   if (!Array.isArray(group.messages)) {
     throw new Error('History messages must be an array.')
+  }
+
+  if (group.source !== undefined) {
+    if (
+      group.iteration ||
+      !group.source ||
+      !['event', 'summary'].includes(group.source.role) ||
+      group.messages.length !== 1 ||
+      stableJSON(normalizeInput(group.source)) !== stableJSON(group.messages[0])
+    ) {
+      throw new Error('Transcript source must match its native history message.')
+    }
   }
 
   if (!group.iteration) {
@@ -122,5 +138,7 @@ export function compactHistory(
 
   const turns = new Set(groups.filter((group) => group.iteration && retained.has(group.id)).map((group) => group.turn))
   turns.add(currentTurn)
-  return groups.filter((group) => (group.iteration ? retained.has(group.id) : turns.has(group.turn)))
+  return groups.filter(
+    (group) => group.source?.role === 'summary' || (group.iteration ? retained.has(group.id) : turns.has(group.turn))
+  )
 }

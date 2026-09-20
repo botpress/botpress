@@ -1,7 +1,7 @@
 import type { CognitiveMessage, CognitiveToolCall } from '@botpress/cognitive'
 import { createInspector } from '../inspection.js'
-import { type Transcript, validateTranscriptMessage, isVoiceMessage } from '../transcript.js'
 import { assertPersistableData } from './json.js'
+import { type Transcript, validateTranscriptMessage, isVoiceMessage } from './transcript.js'
 
 /** A native message plus opaque adapter fields, preserved without interpreting them. */
 export type SessionMessage = CognitiveMessage & Record<string, unknown>

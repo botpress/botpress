@@ -1,4 +1,4 @@
-import { isAnyComponent } from '../component.js'
+import { isAnyComponent } from '../chat/component.js'
 import type { Iteration } from '../context.js'
 import { Signals, ThinkSignal } from '../errors.js'
 import { createInspector, type InspectionIdentity, type Inspector } from '../inspection.js'

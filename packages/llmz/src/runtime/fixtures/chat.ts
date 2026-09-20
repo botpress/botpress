@@ -1,5 +1,5 @@
-import { Chat, type ChatMessage, type MessageDeltaHandler, type MessageMetadata } from '../../chat.js'
-import type { Component } from '../../component.js'
+import { Chat, type ChatMessage, type MessageDeltaHandler, type MessageMetadata } from '../../chat/chat.js'
+import type { Component } from '../../chat/component.js'
 
 /** Collect both delivery paths when testing execution order and receipts. */
 export function createRecordingChat({

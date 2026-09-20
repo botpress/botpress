@@ -1,10 +1,10 @@
 import { z } from '@bpinternal/zui'
 import { describe, expect, it } from 'vitest'
-import { DefaultComponents } from '../component.default.js'
-import { Component, createComponentRegistry } from '../component.js'
+import { DefaultComponents } from '../chat/component.default.js'
+import { Component, createComponentRegistry } from '../chat/component.js'
+import { resolveResponse } from '../chat/response.js'
 import { Exit } from '../exit.js'
 import { ObjectInstance } from '../objects.js'
-import { resolveResponse } from '../response.js'
 import { Tool } from '../tool.js'
 import { getNativeSystemMessage } from './native.js'
 

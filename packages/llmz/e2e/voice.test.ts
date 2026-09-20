@@ -2,10 +2,10 @@ import { assert, describe, expect, it } from 'vitest'
 
 import { Exit } from '../src/exit.js'
 import { ExecutionResult, SuccessExecutionResult } from '../src/result.js'
-import { Session } from '../src/session.js'
+import { Session } from '../src/session/session.js'
 import * as llmz from '../src/runtime/execute.js'
 import { normalizeInput } from '../src/session/messages.js'
-import type { Transcript } from '../src/transcript.js'
+import type { Transcript } from '../src/session/transcript.js'
 
 import { createTestChat } from './__tests__/chat.js'
 import {

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { Chat } from './chat.js'
+import { Chat } from './chat/chat.js'
 import { executeContext } from './runtime/execute.js'
 import { NativeClient, javascript, response } from './runtime/fixtures/native-client.js'
 

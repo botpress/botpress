@@ -1,4 +1,4 @@
-import { CitationsManager } from '../../citations.js'
+import { CitationsManager } from '../../chat/citations.js'
 
 export type SearchChallenge = {
   id: string

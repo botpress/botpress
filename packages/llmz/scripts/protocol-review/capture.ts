@@ -1,19 +1,19 @@
 import type { CognitiveMetadata, CognitiveStreamChunk } from '@botpress/cognitive'
 import assert from 'node:assert/strict'
 
-import { Chat, type ChatMessage, type MessageDelta } from '../../src/chat.js'
-import { DefaultComponents } from '../../src/component.default.js'
-import type { Component } from '../../src/component.js'
+import { Chat, type ChatMessage, type MessageDelta } from '../../src/chat/chat.js'
+import { DefaultComponents } from '../../src/chat/component.default.js'
+import type { Component } from '../../src/chat/component.js'
 import {
   _CustomModelClient,
   type RuntimeGenerateContentInput,
   type RuntimeGenerateContentOutput,
 } from '../../src/custom-client.js'
 import { Signals } from '../../src/errors.js'
-import type { Response } from '../../src/response.js'
+import type { Response } from '../../src/chat/response.js'
 import { executeContext } from '../../src/runtime/execute.js'
 import type { ExecutionProps } from '../../src/runtime/types.js'
-import { Session, type SessionInput } from '../../src/session.js'
+import { Session, type SessionInput } from '../../src/session/session.js'
 
 export type ReviewExecution = {
   type: 'execution'

@@ -1,9 +1,9 @@
 import { z } from '@bpinternal/zui'
 
-import { Component, createComponentRegistry } from '../../src/component.js'
+import { Component, createComponentRegistry } from '../../src/chat/component.js'
 import { ListenExit } from '../../src/context.js'
 import { Exit } from '../../src/exit.js'
-import type { Transcript } from '../../src/transcript.js'
+import type { Transcript } from '../../src/session/transcript.js'
 
 // Synthetic fixtures: no captured customer instructions or conversation data.
 const leaves = ['choice', 'image', 'audio', 'video', 'file', 'carousel', 'location', 'dropdown'].map(

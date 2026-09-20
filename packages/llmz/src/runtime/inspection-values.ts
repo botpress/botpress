@@ -1,7 +1,7 @@
 import { isEqual } from 'lodash-es'
 
 import type { InspectionPolicyLookup } from '../inspect.js'
-import { cloneMemoryValue, type MemoryValue } from '../memory.js'
+import { cloneMemoryValue, type MemoryValue } from '../session/memory.js'
 import type { TruncationPolicy } from '../truncate.js'
 
 type CapturedPolicy = {

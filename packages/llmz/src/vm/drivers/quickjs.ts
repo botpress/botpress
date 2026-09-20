@@ -10,9 +10,9 @@ import {
 import { Identifiers } from '../../compiler/index.js'
 import { TerminationCheckpointIdentifier, TerminationGuardIdentifier } from '../../compiler/plugins/termination.js'
 import { Signals, VMSignal } from '../../errors.js'
-import { cloneMemoryValue, decodeMemoryValue } from '../../memory.js'
 import { getQuickJSVariant } from '../../quickjs-variant.js'
 import { RUNTIME_BINDING_NAMES, TERMINATION_BINDING_NAMES } from '../../runtime-names.js'
+import { cloneMemoryValue, decodeMemoryValue } from '../../session/memory.js'
 import type { VMExecutionResult } from '../../types.js'
 import { handleErrorQuickJS } from '../errors.js'
 import {

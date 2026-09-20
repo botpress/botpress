@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { Session } from '../session.js'
 import { resultBytes, restoreGroup, serializeGroup, validateRestoredHistory } from './serialization.js'
+import { Session } from './session.js'
 
 function state() {
   const session = new Session({ variables: { account: { id: 42 } } })
@@ -99,6 +99,12 @@ describe('session persistence', () => {
       'duplicate queued identity',
       (s: Session.JSON) => {
         s.pendingInputs[0]!.id = s.groups[0]!.id
+      },
+    ],
+    [
+      'summary source on an iteration',
+      (s: Session.JSON) => {
+        s.groups[1]!.source = { role: 'summary', content: 'Hidden call history' }
       },
     ],
     [

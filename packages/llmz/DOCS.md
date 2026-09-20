@@ -48,9 +48,31 @@ session.append([
 
 Native multipart inputs already describe their content; do not combine them with convenience `attachments` or `modality`. Events and summaries do not become system instructions. Pass system instructions through `execute({ instructions })`.
 
+`session.transcript` returns the retained conversation and queued input, preserving `event` and `summary` roles. `session.messages` exposes processed native messages; `session.pendingMessages` exposes queued native input. All three return detached copies.
+
+External events start turns just like user messages. Append them, then execute:
+
+```ts
+import { Client } from '@botpress/client'
+import { Chat, Session, execute } from 'llmz'
+
+const client = new Client()
+const session = new Session()
+const chat = new Chat({ response: { handler: (text) => console.log(text) } })
+
+session.append({
+  role: 'event',
+  name: 'button.clicked',
+  payload: { button: 'confirm', orderId: 'order-42' },
+})
+await execute({ client, session, chat, instructions: 'Respond to order actions.' })
+```
+
+Appending an event does not start execution automatically. Events arriving during a run stay queued for the next call; repeated clicks remain separate events. Event payloads are data, so validate authorization and business rules in your tool handlers.
+
 Input cannot inject native tool calls or results. Restore a serialized session to continue existing tool history. The runtime retains assistant calls and their matching results together, including provider continuation metadata. It never appends memory instructions to signed assistant output.
 
-Convenience event payloads receive a 5,000-token preview when appended. Ordinary user text is retained in full. The original event payload is not separately persisted; store authoritative application events in the host if needed.
+Convenience event payloads receive a 5,000-token preview in native model input. The original payload remains in `session.transcript` and serialized session state until that event is compacted. Ordinary user text is retained in full. Keep authoritative application events in the host when they must outlive conversation compaction.
 
 Session status is `idle`, `pending`, or `active`. A turn claims queued input once. Input arriving during execution remains queued until that turn completes. Concurrent `execute` calls on one session are rejected.
 
@@ -184,9 +206,40 @@ The runtime reserves output space before fitting input: 10% of the effective lim
 
 Input measurement includes system instructions, message scaffolding, tools, JavaScript arguments, tool receipts, memory previews, and execution-budget guidance. Enforcement uses exact tokenization with the configured local tokenizer. This remains an estimate of the provider's request accounting: model tokenizers and provider framing can differ. Image/audio transport URLs and encoded bytes are excluded from text measurement; provider-specific media token costs are not available locally. Media-shaped business arguments and ordinary strings are counted as text.
 
-When input does not fit, the runtime previews removal of the oldest complete settled iterations, including their results and inputs belonging only to discarded turns. It retains current-turn input, pending iterations, queued input, and named memory. It checks any `onBeforeRequest` replacement against the budget too. Only successful, non-aborted request preparation commits compaction; an overflowing input or failing hook leaves prior history available.
+Automatic compaction is enabled by default. At 85% of the available input budget, it aims for 65%, preferring to keep the two most recent iterations. A hard overflow can require retaining fewer iterations. The compactor asks an LLM to summarize the discarded conversation, including decisions, external events, confirmed effects, failures, and pending work. Large histories are summarized in bounded segments; each request reserves output space and includes the previous segment's summary.
 
-Applications may explicitly call `session.compact(retainedIterationIds)`. It retains complete iteration groups, never individual tool calls or orphan results. `requestMessages({ retainedIterationIds })` previews the corresponding request without changing the session.
+A successful compaction inserts a `{ role: 'summary', content }` event at the start of the retained transcript. It replaces earlier compaction summaries, preserving their information in the new summary. Native requests receive the summary as labeled user-role data. The summarizer cannot call tools. Summaries are lossy model output; named JavaScript memory stays exact and is never reconstructed from them.
+
+```ts
+import { Client } from '@botpress/client'
+import { Session } from 'llmz'
+
+const client = new Client()
+const session = new Session({
+  compaction: {
+    triggerRatio: 0.85,
+    targetRatio: 0.65,
+    keepRecentIterations: 2,
+    maxSummaryTokens: 1024,
+    model: 'fast',
+  },
+})
+
+// Read-only: returns a summary message without changing the conversation.
+const summary = await session.summarize({ client })
+
+// Replace older history now, preserving the most recent iteration.
+await session.compact({ client, keepRecentIterations: 1 })
+console.log(summary, session.transcript)
+```
+
+Without an explicit compaction model, automatic summaries use the execution model; standalone `summarize` and `compact` use `fast`. Summary generation makes additional model calls. `maxSummaryTokens` is a ceiling; model limits and remaining request space may reduce it. `signal` cancels explicit summarization or compaction.
+
+Set `compaction: false` to disable automatic summarization; requests that cannot fit then fail without dropping history. A custom `compaction.summarize({ messages, maxTokens, signal })` can return summary text; the same validation and token limit still apply. Serializable controls survive `toJSON()` / `fromJSON()`. Reattach a custom callback with `Session.fromJSON(state, { compaction: { ...controls, summarize } })`.
+
+Compaction retains complete call/result groups, current-turn input, pending iterations, queued input, and named memory. Discarded iteration results are removed from `$iterations` and `$return`. Summary failure, cancellation, an oversized summary, or a failing `onBeforeRequest` hook leaves the original history intact. A prepared summary is committed only after the final request fits and its hooks succeed. Explicit `compact` and `summarize` acquire the session lock and cannot overlap execution.
+
+For deliberate deletion without summarization, `session.prune(retainedIterationIds)` keeps the specified complete iterations. `requestMessages({ retainedIterationIds })` previews that selection. Use these lower-level methods only when discarding history is intentional.
 
 If required instructions, current input, tool definitions, or retained memory previews still exceed the budget, shorten them or use a larger context limit. LLMZ does not silently truncate current user input.
 

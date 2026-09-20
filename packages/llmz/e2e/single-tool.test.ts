@@ -3,14 +3,14 @@ import { z } from '@bpinternal/zui'
 import { appendFileSync } from 'node:fs'
 import { assert, describe, expect, it } from 'vitest'
 
-import type { ChatMessage } from '../src/chat.js'
+import type { ChatMessage } from '../src/chat/chat.js'
 import {
   _CustomModelClient,
   type RuntimeGenerateContentInput,
   type RuntimeGenerateContentOptions,
 } from '../src/custom-client.js'
 import { DefaultComponents, Exit, ListenExit, Tool, execute, type ExecutionResult } from '../src/index.js'
-import { Session } from '../src/session.js'
+import { Session } from '../src/session/session.js'
 
 import { createTestChat } from './__tests__/chat.js'
 import {

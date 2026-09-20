@@ -1,7 +1,7 @@
 import { CodeExecutionError, Signals } from '../errors.js'
 import type { InspectionPolicyLookup } from '../inspect.js'
 import { createInspector, type InspectionIdentity, type Inspector } from '../inspection.js'
-import type { MemoryChange, MemoryReport } from '../memory.js'
+import type { MemoryChange, MemoryReport } from '../session/memory.js'
 import { DEFAULT_TOOL_RESULT_MAX_TOKENS } from '../truncate.js'
 import { renderMessageDeliveries, renderToolCalls, type ExecutionActivity } from './execution-activity.js'
 
