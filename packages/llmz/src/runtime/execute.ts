@@ -136,21 +136,16 @@ function prepareSession(ctx: Context): void {
 
 async function executeNextIteration(execution: Execution): Promise<ExecutionResult | undefined> {
   const { ctx, props, controller } = execution
-  const iteration = await ctx.nextIteration()
+  let onTrace = props.onTrace
+  const iterationNumber = ctx.iterations.length + 1
+  const iteration = await ctx.nextIteration((trace) => {
+    onTrace?.({ trace, iteration: iterationNumber, controller })
+  })
   const state: IterationExecution = {
     ...execution,
     iteration,
     inspectionValues: new InspectionValues(),
   }
-  const unsubscribe = iteration.traces.onPush((traces) => {
-    for (const trace of traces) {
-      try {
-        props.onTrace?.({ trace, iteration: ctx.iterations.length, controller })
-      } catch {
-        // Trace observers must not change the result of a completed action.
-      }
-    }
-  })
 
   try {
     await executeIteration(state)
@@ -208,7 +203,7 @@ async function executeNextIteration(execution: Execution): Promise<ExecutionResu
 
       await finalizeIteration({ iteration, controller, onIterationEnd: props.onIterationEnd })
     } finally {
-      unsubscribe()
+      onTrace = undefined
     }
   }
 
@@ -331,7 +326,7 @@ async function deliverAssistantText(state: IterationExecution, generated: Native
   const message: AssistantTextMessage = { type: 'text', text: generated.output }
 
   await iteration.response?.handler?.(generated.output, generated.messageMetadata)
-  iteration.traces.push({
+  iteration.recordTrace({
     type: 'yield',
     value: message,
     started_at: startedAt,
@@ -492,7 +487,7 @@ async function deliverJavaScriptMessages(
 
       await component.handler(message.component.props, { iterationId: iteration.id, id: message.id })
     } catch (error) {
-      iteration.traces.push({
+      iteration.recordTrace({
         type: 'yield',
         value: message.component,
         message_id: message.id,
@@ -508,7 +503,7 @@ async function deliverJavaScriptMessages(
       )
     }
 
-    iteration.traces.push({
+    iteration.recordTrace({
       type: 'yield',
       value: message.component,
       message_id: message.id,
@@ -804,7 +799,8 @@ async function executeJavaScript(state: IterationExecution, api: JavaScriptApi):
       iteration.traces,
       controller.signal,
       ctx.timeout,
-      Object.keys(ctx.session.memory.variables)
+      Object.keys(ctx.session.memory.variables),
+      iteration.recordTrace
     )
   } catch (error) {
     result = interruptedVMResult(error)
@@ -835,7 +831,7 @@ async function executeJavaScript(state: IterationExecution, api: JavaScriptApi):
     }
   }
 
-  iteration.traces.push({
+  iteration.recordTrace({
     type: 'code_execution',
     lines_executed: result.lines_executed,
     started_at: startedAt,

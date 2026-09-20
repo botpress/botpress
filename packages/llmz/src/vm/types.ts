@@ -24,6 +24,7 @@ export type DriverExecutionContext = {
   consumer: SourceMapConsumer
   context: VMContext
   traces: Trace[]
+  recordTrace: (trace: Trace) => void
   signal: AbortSignal | null
   timeout: number
   code: string

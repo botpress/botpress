@@ -10,11 +10,11 @@ import { VM_PROGRAM_COMPLETE, VM_TERMINATION, type DriverExecutionContext, type 
 // No isolation — shares the same heap. Used as fallback when QuickJS WASM can't load.
 export class NodeDriver implements VMDriver {
   public async execute(ctx: DriverExecutionContext): Promise<VMExecutionResult> {
-    const { transformed, consumer, context, traces, code, lines_executed, variables } = ctx
+    const { transformed, consumer, context, traces, recordTrace, code, lines_executed, variables } = ctx
     const state = instrumentContext(
       context,
       transformed,
-      traces,
+      recordTrace,
       variables,
       lines_executed,
       consumer,
@@ -90,7 +90,7 @@ export class NodeDriver implements VMDriver {
         const signal = context[VM_TERMINATION]?.getSignal?.()
 
         if (signal) {
-          return handleErrorNode(signal, code, consumer, traces, variables, lines_executed, state.lastExecutedLine)
+          return handleErrorNode(signal, code, consumer, recordTrace, variables, lines_executed, state.lastExecutedLine)
         }
 
         if (context[VM_TERMINATION]?.isTerminated()) {
@@ -101,7 +101,7 @@ export class NodeDriver implements VMDriver {
           } satisfies VMExecutionResult
         }
 
-        return handleErrorNode(err, code, consumer, traces, variables, lines_executed, state.lastExecutedLine)
+        return handleErrorNode(err, code, consumer, recordTrace, variables, lines_executed, state.lastExecutedLine)
       })
       .catch((err) => handleCatch(err, traces, variables, lines_executed))
     return finalizeMemoryCapture(result, state)

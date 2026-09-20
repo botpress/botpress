@@ -14,7 +14,8 @@ export const handleErrorQuickJS = (
   traces: Traces.Trace[],
   variables: { [k: string]: any },
   lines_executed: Map<number, number>,
-  userCodeStartLine: number
+  userCodeStartLine: number,
+  recordTrace: (trace: Traces.Trace) => void
 ): VMExecutionResult => {
   err = Signals.maybeDeserializeError(err)
   const lines = code.split('\n')
@@ -41,7 +42,7 @@ export const handleErrorQuickJS = (
     matches.push({ line: lastLine, column: whiteSpacesCount })
   }
 
-  return formatError(err, lines, matches, traces, variables, lines_executed, code)
+  return formatError(err, lines, matches, traces, variables, lines_executed, code, recordTrace)
 }
 
 // Parse Node VM stack traces ("<anonymous>:13:269") and use source maps to map
@@ -50,7 +51,7 @@ export const handleErrorNode = (
   err: Error,
   code: string,
   consumer: SourceMapConsumer,
-  traces: Traces.Trace[],
+  recordTrace: (trace: Traces.Trace) => void,
   variables: { [k: string]: () => any },
   _lines_executed: Map<number, number>,
   lastExecutedLine?: number
@@ -102,7 +103,7 @@ export const handleErrorNode = (
     err.variables = mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter))
     throw err
   } else {
-    traces.push({
+    recordTrace({
       type: 'code_execution_exception',
       position: [matches[0]?.line ?? 0, matches[0]?.column ?? 0],
       message: err.message,
@@ -182,7 +183,8 @@ function formatError(
   traces: Traces.Trace[],
   variables: { [k: string]: any },
   lines_executed: Map<number, number>,
-  code: string
+  code: string,
+  recordTrace: (trace: Traces.Trace) => void
 ): VMExecutionResult {
   const { debugUserCode, truncatedCode } = buildDebugCode(lines, matches)
 
@@ -198,7 +200,7 @@ function formatError(
       lines_executed: Array.from(lines_executed),
     }
   } else {
-    traces.push({
+    recordTrace({
       type: 'code_execution_exception',
       position: [matches[0]?.line ?? 0, matches[0]?.column ?? 0],
       message: err.message,

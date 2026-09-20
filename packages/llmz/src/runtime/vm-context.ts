@@ -5,7 +5,6 @@ import { AssignmentError } from '../errors.js'
 import { cloneMemoryValue } from '../memory.js'
 import type { ComponentDelivery } from '../tool.js'
 import type { TruncationPolicy } from '../truncate.js'
-import { type Trace } from '../types.js'
 import { getErrorMessage, stripInvalidIdentifiers } from '../utils.js'
 import { VM_PROGRAM_COMPLETE, VM_TERMINATION, type VMContext } from '../vm/types.js'
 import type { JavaScriptApi } from './javascript-api.js'
@@ -35,7 +34,6 @@ export const buildVMContext = ({
   onYield,
   javascriptApi,
 }: BuildVMContextProps): VMContext => {
-  const traces: Trace[] = iteration.traces
   const memoryBindings = ctx.session.getBindings()
   const vmContext = { ...stripInvalidIdentifiers(memoryBindings) }
 
@@ -104,7 +102,7 @@ export const buildVMContext = ({
 
           internalValues[name] = freezePropertyValue(cloneMemoryValue(parsed.data))
 
-          traces.push({
+          iteration.recordTrace({
             type: 'property',
             started_at: Date.now(),
             object: obj.name,
@@ -121,7 +119,6 @@ export const buildVMContext = ({
       const wrapped = wrapTool({
         onYield,
         tool,
-        traces,
         object: obj.name,
         iteration,
         beforeHook: onBeforeTool,
@@ -143,7 +140,6 @@ export const buildVMContext = ({
     const wrapped = wrapTool({
       onYield,
       tool,
-      traces,
       iteration,
       beforeHook: onBeforeTool,
       afterHook: onAfterTool,

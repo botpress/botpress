@@ -407,7 +407,7 @@ export async function generateCode({
     metadata,
     onBeforeRequest,
   })
-  iteration.traces.push({ type: 'llm_call_started', started_at: startedAt, model: model.id })
+  iteration.recordTrace({ type: 'llm_call_started', started_at: startedAt, model: model.id })
   let output = ''
   let toolCalls: CognitiveToolCall[] = []
   let responseMetadata: CognitiveMetadata | undefined
@@ -466,7 +466,7 @@ export async function generateCode({
               throw new CognitiveError('A stream restart must not contain output from either attempt')
             }
 
-            iteration.traces.push({ type: 'llm_call_restarted', started_at: Date.now(), ...value.restart })
+            iteration.recordTrace({ type: 'llm_call_restarted', started_at: Date.now(), ...value.restart })
             // A failed retraction must stop execution, not replay the UI effect in finally.
             previewed = false
             await preview({ restart: true, iterationId: iteration.id, ...value.restart })
@@ -623,7 +623,7 @@ export async function generateCode({
   }
 
   const code = toolCalls.find((call) => call.name === 'run_javascript')?.input?.code
-  iteration.traces.push({
+  iteration.recordTrace({
     type: 'llm_call_success',
     started_at: startedAt,
     ended_at: Date.now(),

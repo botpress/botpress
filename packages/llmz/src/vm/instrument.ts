@@ -33,7 +33,7 @@ export type InstrumentationState = {
 export function instrumentContext(
   context: VMContext,
   transformed: CompiledCode,
-  traces: Trace[],
+  recordTrace: (trace: Trace) => void,
   variables: Record<string, any>,
   lines_executed: Map<number, number>,
   consumer: SourceMapConsumer,
@@ -62,7 +62,7 @@ export function instrumentContext(
       return
     }
 
-    traces.push({
+    recordTrace({
       type: 'comment',
       comment,
       line,
@@ -116,7 +116,7 @@ export function instrumentContext(
   context[Identifiers.ConsoleObjIdentifier] = {
     log: (...args: any[]) => {
       const message = args.shift()
-      traces.push({
+      recordTrace({
         type: 'log',
         message,
         args,

@@ -5,7 +5,6 @@ import { Iteration } from '../context.js'
 import { ThinkSignal } from '../errors.js'
 import { type Tool, type ComponentDelivery } from '../tool.js'
 import type { TruncationPolicy } from '../truncate.js'
-import { Trace } from '../types.js'
 import { ExecutionHooks } from './types.js'
 
 const SLOW_TOOL_WARNING = ms('15s')
@@ -14,7 +13,6 @@ type ToolWrapperProps = {
   onYield?: ComponentDelivery
   tool: Tool
   object?: string
-  traces: Trace[]
   iteration: Iteration
   beforeHook?: ExecutionHooks['onBeforeTool']
   afterHook?: ExecutionHooks['onAfterTool']
@@ -26,7 +24,6 @@ type ToolWrapperProps = {
 export function wrapTool({
   onYield,
   tool,
-  traces,
   object,
   iteration,
   beforeHook,
@@ -45,7 +42,7 @@ export function wrapTool({
 
     const alertSlowTool = setTimeout(
       () =>
-        traces.push({
+        iteration.recordTrace({
           type: 'tool_slow',
           tool_name: tool.name,
           tool_call_id: toolCallId,
@@ -64,7 +61,7 @@ export function wrapTool({
     let signalToThrow: ThinkSignal | undefined
 
     const pushToolCallTrace = () => {
-      traces.push({
+      iteration.recordTrace({
         type: 'tool_call',
         tool_call_id: toolCallId,
         native_call_id: iteration.nativeCallId,
@@ -86,7 +83,7 @@ export function wrapTool({
 
       if (err instanceof ThinkSignal) {
         signalToThrow = err
-        traces.push({
+        iteration.recordTrace({
           type: 'think_signal',
           started_at: Date.now(),
           line: 0,

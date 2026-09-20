@@ -35,13 +35,16 @@ export async function runAsyncFunction(
   traces: Trace[] = [],
   signal: AbortSignal | null = null,
   timeout: number = MAX_VM_EXECUTION_TIME,
-  memoryNames?: string[]
+  memoryNames?: string[],
+  recordTrace: (trace: Trace) => void = (trace) => {
+    traces.push(trace)
+  }
 ): Promise<VMExecutionResult> {
   const transformed = (() => {
     try {
       return compile(code)
     } catch (err: any) {
-      traces.push({
+      recordTrace({
         type: 'invalid_code_exception',
         message: err?.message ?? 'Unknown error',
         code,
@@ -124,6 +127,7 @@ export async function runAsyncFunction(
     consumer,
     context,
     traces,
+    recordTrace,
     signal,
     timeout,
     code,

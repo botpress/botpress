@@ -4,17 +4,31 @@ import { describe, expect, test } from 'vitest'
 import { Iteration } from '../context.js'
 import { ThinkSignal } from '../errors.js'
 import { Tool } from '../tool.js'
-import { type Trace } from '../types.js'
 import { wrapTool } from './tool-wrapper.js'
 
-const iteration = {} as Iteration
+function createIteration() {
+  return new Iteration({
+    id: 'tool-test',
+    parameters: {
+      tools: [],
+      objects: [],
+      exits: [],
+      components: new Map(),
+      chatEnabled: false,
+      model: 'test',
+      temperature: 0,
+    },
+    systemMessage: { role: 'system', content: '' },
+  })
+}
 
 describe('wrapTool', () => {
   test('mutates input and output through hooks while tracing original input', async () => {
     let originalInputName: string | undefined
     let calledInputName: string | undefined
     let afterHookInputName: string | undefined
-    const traces: Trace[] = []
+    const iteration = createIteration()
+    const traces = iteration.traces
 
     const tool = new Tool({
       name: 'greeting',
@@ -28,7 +42,6 @@ describe('wrapTool', () => {
 
     const wrapped = wrapTool({
       tool,
-      traces,
       iteration,
       controller: new AbortController(),
       beforeHook: async ({ input }) => {
@@ -58,7 +71,8 @@ describe('wrapTool', () => {
   })
 
   test('traces failed tool calls', async () => {
-    const traces: Trace[] = []
+    const iteration = createIteration()
+    const traces = iteration.traces
     const tool = new Tool({
       name: 'fail',
       input: z.object({ value: z.string() }),
@@ -69,7 +83,6 @@ describe('wrapTool', () => {
 
     const wrapped = wrapTool({
       tool,
-      traces,
       iteration,
       controller: new AbortController(),
     })
@@ -86,7 +99,8 @@ describe('wrapTool', () => {
   })
 
   test('traces ThinkSignal as successful and rethrows it', async () => {
-    const traces: Trace[] = []
+    const iteration = createIteration()
+    const traces = iteration.traces
     const signal = new ThinkSignal('need context', { value: 1 })
     const tool = new Tool({
       name: 'thinker',
@@ -97,7 +111,6 @@ describe('wrapTool', () => {
 
     const wrapped = wrapTool({
       tool,
-      traces,
       iteration,
       controller: new AbortController(),
     })

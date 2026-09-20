@@ -6,7 +6,6 @@ import { assertValidComponent, createComponentRegistry, type ComponentRegistry }
 import { LoopExceededError } from './errors.js'
 import { Exit } from './exit.js'
 import { getValue, ValueOrGetter } from './getter.js'
-import { HookedArray } from './handlers.js'
 import { createInspector, type Inspector, type OnInspect } from './inspection.js'
 import { ObjectInstance } from './objects.js'
 import { getNativeSystemMessage } from './prompts/native.js'
@@ -218,7 +217,20 @@ export class Iteration implements Serializable<Iteration.JSON> {
   public sessionInfo?: { id: string; number: number; turn: number; turnId: string; timestamp: number }
   /** Outer native call that owns the current JavaScript execution. */
   public nativeCallId?: string
-  public traces: HookedArray<Trace>
+  public traces: Trace[] = []
+
+  private readonly _onTrace?: (trace: Trace) => void
+
+  /** Record a runtime trace and notify the observer without changing execution on observer errors. */
+  public recordTrace = (trace: Trace): void => {
+    this.traces.push(trace)
+
+    try {
+      this._onTrace?.(trace)
+    } catch {
+      // Trace observers must not change the result of a completed action.
+    }
+  }
 
   /**
    * Token usage of this iteration's LLM call. The `context` breakdown is measured
@@ -370,10 +382,15 @@ export class Iteration implements Serializable<Iteration.JSON> {
     return this._parameters.chatEnabled
   }
 
-  public constructor(props: { id: string; parameters: IterationParameters; systemMessage: LLMzPrompts.Message }) {
+  public constructor(props: {
+    id: string
+    parameters: IterationParameters
+    systemMessage: LLMzPrompts.Message
+    onTrace?: (trace: Trace) => void
+  }) {
     this.id = props.id
     this.status = { type: 'pending' }
-    this.traces = new HookedArray<Trace>()
+    this._onTrace = props.onTrace
     this._mutations = new Map()
     this.systemMessage = props.systemMessage
     this._parameters = props.parameters
@@ -467,7 +484,7 @@ export class Context implements Serializable<Context.JSON> {
   public iteration: number = 0
   public iterations: Iteration[]
 
-  public async nextIteration(): Promise<Iteration> {
+  public async nextIteration(onTrace?: (trace: Trace) => void): Promise<Iteration> {
     if (this.iterations.length >= this.loop) {
       throw new LoopExceededError()
     }
@@ -497,6 +514,7 @@ export class Context implements Serializable<Context.JSON> {
       id: sessionInfo.id,
       parameters,
       systemMessage: message,
+      onTrace,
     })
 
     iteration.sessionInfo = sessionInfo

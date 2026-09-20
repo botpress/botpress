@@ -4,6 +4,7 @@ import { type MessageDelta } from '../chat.js'
 import { DefaultExit, type Context, type ContextTokens, type Iteration } from '../context.js'
 import { createInspector } from '../inspection.js'
 import { Session } from '../session.js'
+import type { Trace } from '../types.js'
 import { createRecordingChat } from './fixtures/chat.js'
 import { countNativeRequestTokens, generateCode, type NativeResponse } from './generate.js'
 import type { RuntimeCognitive } from './types.js'
@@ -32,6 +33,9 @@ function fixture(options: { session?: Session; maxTokens?: number; midStreamFall
     temperature: 0,
     systemMessage: { role: 'system', content: 'Use native tools.' },
     traces: [],
+    recordTrace: (trace: Trace) => {
+      iteration.traces.push(trace)
+    },
     exits: [DefaultExit],
     tokens: {
       input: 0,

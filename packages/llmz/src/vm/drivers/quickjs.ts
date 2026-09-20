@@ -50,12 +50,13 @@ export const loadQuickJSModule = (): Promise<QuickJSWASMModule> => {
 // across the boundary — QuickJS has its own heap, separate from Node.js.
 export class QuickJSDriver implements VMDriver {
   public async execute(ctx: DriverExecutionContext): Promise<VMExecutionResult> {
-    const { transformed, consumer, context, traces, signal, timeout, code, lines_executed, variables } = ctx
+    const { transformed, consumer, context, traces, recordTrace, signal, timeout, code, lines_executed, variables } =
+      ctx
     const userCodeStartLine = findUserCodeStartLine(transformed)
     const state = instrumentContext(
       context,
       transformed,
-      traces,
+      recordTrace,
       variables,
       lines_executed,
       consumer,
@@ -73,7 +74,16 @@ export class QuickJSDriver implements VMDriver {
 
       if (interruption) {
         return finalizeMemoryCapture(
-          handleErrorQuickJS(interruption, code, consumer, traces, variables, lines_executed, userCodeStartLine),
+          handleErrorQuickJS(
+            interruption,
+            code,
+            consumer,
+            traces,
+            variables,
+            lines_executed,
+            userCodeStartLine,
+            recordTrace
+          ),
           state
         )
       }
@@ -394,7 +404,16 @@ export class QuickJSDriver implements VMDriver {
         const abortError =
           reason instanceof Error ? reason : new Error(reason ? String(reason) : 'Execution was aborted')
         return finalizeMemoryCapture(
-          handleErrorQuickJS(abortError, code, consumer, traces, variables, lines_executed, userCodeStartLine),
+          handleErrorQuickJS(
+            abortError,
+            code,
+            consumer,
+            traces,
+            variables,
+            lines_executed,
+            userCodeStartLine,
+            recordTrace
+          ),
           state
         )
       }
@@ -415,7 +434,7 @@ export class QuickJSDriver implements VMDriver {
         })
       ).catch(() => {})
       return finalizeMemoryCapture(
-        handleErrorQuickJS(err, code, consumer, traces, variables, lines_executed, userCodeStartLine),
+        handleErrorQuickJS(err, code, consumer, traces, variables, lines_executed, userCodeStartLine, recordTrace),
         state
       )
     } finally {

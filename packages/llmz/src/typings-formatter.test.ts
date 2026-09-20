@@ -483,7 +483,7 @@ describe('namespaces (objects.ts output shape)', () => {
     `)
   })
 
-  it('hoisted type aliases (hoist.ts output shape)', () => {
+  it('type aliases shared across function declarations', () => {
     const raw = [
       'type Client = { id: string; name: string; email: string; createdAt: string }',
       'declare function getClient(args: { id: string }): Promise<Client>;',
