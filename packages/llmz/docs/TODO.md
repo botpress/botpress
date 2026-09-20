@@ -57,32 +57,16 @@ if (price > 500) {
 
 The use of comments in the code helps the LLM to think "step-by-step" and use the tools correctly. It helps the LLM plan ahead of writing the code.
 
-#### React Components (Chat Mode)
+#### Components (Chat Mode)
 
-In Chat Mode, the code can `yield` React components to respond to the user. Unlike tool calls, components have many benefits.
+The assistant writes text in its native response. Generated code sends registered rich components through `chat.<component>(props)` methods:
 
-They support multi-line text:
-
-```tsx
-yield <Text>
-Hello, world!
-This is a second line.
-</Text>
-
-return { action: 'listen' }
+```typescript
+chat.buttons([{ label: 'Cats' }, { label: 'Dogs' }])
+exit('listen')
 ```
 
-And they can be composed / nested:
-
-```tsx
-yield <Message>
-	<Text>What do you prefer ?</Text>
-	<Button>Cats</Button>
-	<Button>Dogs</Button>
-</Message>
-
-return { action: 'listen' }
-```
+Component props are flat data validated against their schemas. Message delivery completes before the iteration settles.
 
 # Modes: Chat vs Worker
 
@@ -203,7 +187,7 @@ await execute({
 - `property`: Object property accessed or modified
 - `think_signal`: ThinkSignal thrown
 - `tool_call`: Tool executed
-- `yield`: Component yielded in chat mode
+- `message_delivery`: Message delivery recorded in chat mode
 - `log`: General logging event
 
 ## onIterationEnd (blocking, non-mutation)
@@ -563,7 +547,7 @@ console.log('Total tool calls:', allToolCalls.length)
 // Access other trace types
 const lastIteration = result.iteration
 if (lastIteration) {
-  const yields = lastIteration.traces.filter(trace => trace.type === 'yield')
+  const deliveries = lastIteration.traces.filter(trace => trace.type === 'message_delivery')
   const comments = lastIteration.traces.filter(trace => trace.type === 'comment')
   const propertyAccess = lastIteration.traces.filter(trace => trace.type === 'property')
 }

@@ -3,7 +3,6 @@ import { z } from '@bpinternal/zui'
 import { Context, Iteration } from '../context.js'
 import { AssignmentError } from '../errors.js'
 import { cloneMemoryValue } from '../memory.js'
-import type { ComponentDelivery } from '../tool.js'
 import type { TruncationPolicy } from '../truncate.js'
 import { getErrorMessage, stripInvalidIdentifiers } from '../utils.js'
 import { VM_PROGRAM_COMPLETE, VM_TERMINATION, type VMContext } from '../vm/types.js'
@@ -19,7 +18,6 @@ type BuildVMContextProps = {
   onAfterTool?: ExecutionHooks['onAfterTool']
   onTruncation?: (value: unknown, policy: TruncationPolicy) => void
   onToolResult?: (value: unknown) => void
-  onYield?: ComponentDelivery
   javascriptApi?: JavaScriptApi
 }
 
@@ -31,7 +29,6 @@ export const buildVMContext = ({
   onAfterTool,
   onTruncation,
   onToolResult,
-  onYield,
   javascriptApi,
 }: BuildVMContextProps): VMContext => {
   const memoryBindings = ctx.session.getBindings()
@@ -117,7 +114,6 @@ export const buildVMContext = ({
 
     for (const tool of obj.tools ?? []) {
       const wrapped = wrapTool({
-        onYield,
         tool,
         object: obj.name,
         iteration,
@@ -138,7 +134,6 @@ export const buildVMContext = ({
 
   for (const tool of iteration.tools) {
     const wrapped = wrapTool({
-      onYield,
       tool,
       iteration,
       beforeHook: onBeforeTool,

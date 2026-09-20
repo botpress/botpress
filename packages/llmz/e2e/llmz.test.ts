@@ -46,7 +46,9 @@ const exec = (result: ExecutionResult) => {
     getTracesOfType,
     allCodeExecutions: getTracesOfType<Traces.CodeExecution>('code_execution'),
     allToolCalls: getTracesOfType<Traces.ToolCall>('tool_call') ?? [],
-    allMessagesSent: [...getTracesOfType<Traces.YieldTrace>('yield').map((x) => JSON.stringify(x.value))],
+    allMessagesSent: [
+      ...getTracesOfType<Traces.MessageDelivery>('message_delivery').map((x) => JSON.stringify(x.value)),
+    ],
     allErrors: result.iterations.flatMap((i) => i.error).filter(Boolean),
   }
 }

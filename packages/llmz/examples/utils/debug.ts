@@ -50,7 +50,7 @@ export const printTrace = (
     'property',
     'think_signal',
     'tool_call',
-    'yield',
+    'message_delivery',
     'log',
   ]
 ) => {

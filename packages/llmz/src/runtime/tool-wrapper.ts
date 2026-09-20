@@ -3,14 +3,13 @@ import { ulid } from 'ulid'
 
 import { Iteration } from '../context.js'
 import { ThinkSignal } from '../errors.js'
-import { type Tool, type ComponentDelivery } from '../tool.js'
+import { type Tool } from '../tool.js'
 import type { TruncationPolicy } from '../truncate.js'
 import { ExecutionHooks } from './types.js'
 
 const SLOW_TOOL_WARNING = ms('15s')
 
 type ToolWrapperProps = {
-  onYield?: ComponentDelivery
   tool: Tool
   object?: string
   iteration: Iteration
@@ -22,7 +21,6 @@ type ToolWrapperProps = {
 }
 
 export function wrapTool({
-  onYield,
   tool,
   object,
   iteration,
@@ -132,16 +130,12 @@ export function wrapTool({
       // an irreversible business action after that cancellation was accepted.
       controller.signal.throwIfAborted()
 
-      output = await tool.execute(
-        effectiveInput,
-        {
-          callId: toolCallId,
-          iterationId: iteration.id,
-          nativeCallId: iteration.nativeCallId,
-          onTruncation,
-        },
-        onYield
-      )
+      output = await tool.execute(effectiveInput, {
+        callId: toolCallId,
+        iterationId: iteration.id,
+        nativeCallId: iteration.nativeCallId,
+        onTruncation,
+      })
 
       const afterRes = await afterHook?.({
         iteration,

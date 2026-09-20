@@ -327,7 +327,7 @@ async function deliverAssistantText(state: IterationExecution, generated: Native
 
   await iteration.response?.handler?.(generated.output, generated.messageMetadata)
   iteration.recordTrace({
-    type: 'yield',
+    type: 'message_delivery',
     value: message,
     started_at: startedAt,
     ended_at: Date.now(),
@@ -488,7 +488,7 @@ async function deliverJavaScriptMessages(
       await component.handler(message.component.props, { iterationId: iteration.id, id: message.id })
     } catch (error) {
       iteration.recordTrace({
-        type: 'yield',
+        type: 'message_delivery',
         value: message.component,
         message_id: message.id,
         native_call_id: iteration.nativeCallId,
@@ -504,7 +504,7 @@ async function deliverJavaScriptMessages(
     }
 
     iteration.recordTrace({
-      type: 'yield',
+      type: 'message_delivery',
       value: message.component,
       message_id: message.id,
       native_call_id: iteration.nativeCallId,
@@ -790,7 +790,6 @@ async function executeJavaScript(state: IterationExecution, api: JavaScriptApi):
       onAfterTool: props.onAfterTool,
       onTruncation: (value, policy) => state.inspectionValues.capture(value, policy),
       onToolResult: (value) => state.inspectionValues.captureDefault(value, ctx.toolResultMaxTokens),
-      onYield: (component, metadata) => api.sendComponent(component, metadata),
       javascriptApi: api,
     })
     result = await runAsyncFunction(

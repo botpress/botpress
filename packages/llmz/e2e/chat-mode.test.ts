@@ -141,7 +141,7 @@ Key points:
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
       expect(result.iterations.length).toBeLessThanOrEqual(4)
 
-      // Should have yielded components with the code snippet
+      // Should have sent components with the code snippet
       expect(messagesSent.length).toBeGreaterThan(0)
       // Check the supplied code, not incidental headings or explanatory prose.
       expect(expectedSnippets.length).toBeGreaterThan(0)

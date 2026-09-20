@@ -4,7 +4,6 @@ import type { MessageMetadata } from './chat.js'
 
 const TEXT_NAMES = new Set(['message', 'text', 'markdown', 'md', 'speech', 'speak', 'spoken'])
 const RESERVED_METHOD_NAMES = new Set(['then', 'constructor', 'prototype', '__proto__', 'button'])
-const renderedComponents = new WeakMap<object, z.ZodType>()
 
 export type ComponentSchema = z.ZodObject<any> | z.ZodArray<any>
 
@@ -102,14 +101,11 @@ export class Component<P extends ComponentSchema = any> {
 
   /** Parse once and retain an immutable delivery value. */
   public render(props: z.input<P>): RenderedComponent<z.output<P>> {
-    const rendered = freeze({
+    return freeze({
       type: 'component' as const,
       name: this.definition.name,
       props: cloneDeep(this.definition.props.parse(props)) as z.output<P>,
     })
-
-    renderedComponents.set(rendered, this.definition.props)
-    return rendered
   }
 }
 
@@ -128,26 +124,6 @@ export function createComponentRegistry(components: readonly Component[]): Compo
   }
 
   return registry
-}
-
-/** Raw descriptors are parsed; already-rendered values keep their parsed props. */
-export function prepareComponentDelivery<P extends ComponentSchema>(
-  component: Component<P>,
-  value: unknown
-): RenderedComponent<z.output<P>> {
-  if (!isAnyComponent(value)) {
-    throw new Error('A component delivery requires { type: "component", name, props }')
-  }
-
-  if (!isComponent(value, component)) {
-    throw new Error(`Component "${value.name}" is not registered as "${component.definition.name}"`)
-  }
-
-  if (renderedComponents.get(value) === component.definition.props) {
-    return value
-  }
-
-  return component.render(value.props)
 }
 
 export function isComponent<P extends ComponentSchema>(

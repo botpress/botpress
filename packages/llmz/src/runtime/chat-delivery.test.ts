@@ -115,6 +115,34 @@ return exit('listen');`,
     expect(handler.mock.calls[0]?.[0]).toEqual({ label: 'Saved!' })
   })
 
+  test('sends tool results explicitly through chat and records acknowledged delivery', async () => {
+    const handler = vi.fn()
+    const choices = new Tool({
+      name: 'getChoices',
+      output: z.array(z.object({ label: z.string() })),
+      handler: async () => [{ label: 'Continue' }],
+    })
+    const result = await executeContext({
+      client: new NativeClient([
+        javascript('const choices = await getChoices(); chat.buttons(choices); return exit("listen");'),
+      ]),
+      tools: [choices],
+      chat: new Chat({ components: [DefaultComponents.Buttons.withHandler(handler)] }),
+    })
+
+    expect(result.is(ListenExit)).toBe(true)
+    expect(handler).toHaveBeenCalledOnce()
+    expect(handler.mock.calls[0]?.[0]).toEqual([{ action: 'say', label: 'Continue' }])
+    expect(result.iteration?.traces.filter((trace) => trace.type === 'message_delivery')).toEqual([
+      expect.objectContaining({
+        message_id: handler.mock.calls[0]?.[1].id,
+        native_call_id: result.iteration?.nativeCallId,
+        success: true,
+        value: { type: 'component', name: 'buttons', props: [{ action: 'say', label: 'Continue' }] },
+      }),
+    ])
+  })
+
   test('rejects unbound components before calling the model', async () => {
     const client = new NativeClient([])
     const result = await executeContext({ client, chat: new Chat({ components: [DefaultComponents.Card] }) })
@@ -169,28 +197,5 @@ return exit('listen');`,
           .every(({ delta }) => !delta.restart && delta.id === committed[index]?.metadata.id)
       ).toBe(true)
     }
-  })
-
-  test('routes a component yielded by a business tool to the registered component handler', async () => {
-    const handler = vi.fn()
-    const button = DefaultComponents.Buttons.withHandler(handler)
-    const tool = new Tool({
-      name: 'offerChoice',
-      async *handler() {
-        yield button.render([{ label: 'Continue' }])
-        return 'offered'
-      },
-    })
-    const result = await executeContext({
-      client: new NativeClient([javascript('await offerChoice(); return exit("listen");')]),
-      tools: [tool],
-      chat: new Chat({ components: [button] }),
-    })
-
-    expect(result.is(ListenExit)).toBe(true)
-    expect(handler).toHaveBeenCalledOnce()
-    expect(handler.mock.calls[0]?.[0]).toEqual([{ action: 'say', label: 'Continue' }])
-    expect(handler.mock.calls[0]?.[1].id).toContain(':yield-0')
-    expect(result.iteration?.traces.filter((trace) => trace.type === 'yield')).toHaveLength(1)
   })
 })

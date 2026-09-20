@@ -40,8 +40,8 @@ function succeeded(id: string, output: unknown = { receipt: 'receipt-42' }, inpu
   } satisfies Traces.ToolCall
 }
 
-function delivery(id: string, value: unknown, success = true, error?: string): Traces.YieldTrace {
-  return { type: 'yield', started_at: 1, ended_at: 2, message_id: id, value, success, error }
+function delivery(id: string, value: unknown, success = true, error?: string): Traces.MessageDelivery {
+  return { type: 'message_delivery', started_at: 1, ended_at: 2, message_id: id, value, success, error }
 }
 
 describe('execution activity', () => {
@@ -95,7 +95,7 @@ describe('execution activity', () => {
 
   it('reports delivered button, media, and text props while excluding native assistant prose', () => {
     const iteration = createIteration(
-      { type: 'yield', started_at: 1, value: { type: 'text', text: 'Ordinary assistant reply.' } },
+      { type: 'message_delivery', started_at: 1, value: { type: 'text', text: 'Ordinary assistant reply.' } },
       delivery('button-1', DefaultComponents.Buttons.render([{ label: 'Continue', action: 'say' }])),
       delivery('image-1', DefaultComponents.Image.render({ url: 'https://example.com/photo.jpg', alt: 'The trail' })),
       delivery('card-1', DefaultComponents.Card.render({ title: 'Standard', text: 'Five projects included.' }))
@@ -133,7 +133,12 @@ describe('execution activity', () => {
     )
     expect(renderMessageDeliveries(getExecutionActivity(cancelled), false)).not.toContain('cancelled')
 
-    const unacknowledged = createIteration({ type: 'yield', started_at: 1, message_id: 'unknown', value: button })
+    const unacknowledged = createIteration({
+      type: 'message_delivery',
+      started_at: 1,
+      message_id: 'unknown',
+      value: button,
+    })
 
     expect(renderMessageDeliveries(getExecutionActivity(unacknowledged))).toContain(
       '- buttons [ { action: "say", label: "Retry" } ]: uncertain'
@@ -177,7 +182,7 @@ describe('execution activity', () => {
   })
 
   it('returns no sections when only native assistant output was recorded', () => {
-    const iteration = createIteration({ type: 'yield', started_at: 1, value: 'Hello.' })
+    const iteration = createIteration({ type: 'message_delivery', started_at: 1, value: 'Hello.' })
 
     expect(getExecutionActivity(iteration).deliveries).toHaveLength(0)
     expect(renderToolCalls(getExecutionActivity(iteration))).toBeUndefined()

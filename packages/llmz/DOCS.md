@@ -141,7 +141,7 @@ const done = new Exit({
 
 Use `result.is(done)` to narrow the result and its output type. `result.isError()` exposes an execution failure. Without custom exits, workers receive `DefaultExit`. An explicit empty `exits` array supplies no completion exits. Chat adds `ListenExit`; an accepted plain assistant answer can complete the chat turn.
 
-An async-generator tool may yield rendered components before returning its business result. Each component must be registered in the chat. A `ThinkSignal` requests another reasoning iteration; it is not durable pause/resume.
+Tools return business data. Generated code sends rich messages through registered `chat.<component>(props)` methods. A `ThinkSignal` requests another reasoning iteration; it is not durable pause/resume.
 
 ## Components
 

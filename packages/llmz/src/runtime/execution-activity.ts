@@ -11,7 +11,7 @@ const NAME_PREVIEW_TOKENS = 16
 
 export type ExecutionActivity = {
   calls: Traces.ToolCall[]
-  deliveries: Traces.YieldTrace[]
+  deliveries: Traces.MessageDelivery[]
 }
 
 type ToolOutcome = 'succeeded' | 'failed' | 'interrupted'
@@ -20,7 +20,7 @@ type ToolOutcome = 'succeeded' | 'failed' | 'interrupted'
 export function getExecutionActivity(iteration: Iteration): ExecutionActivity {
   const calls = iteration.traces.filter((trace): trace is Traces.ToolCall => trace.type === 'tool_call')
   const deliveries = iteration.traces.filter(
-    (trace): trace is Traces.YieldTrace => trace.type === 'yield' && !!trace.message_id
+    (trace): trace is Traces.MessageDelivery => trace.type === 'message_delivery' && !!trace.message_id
   )
 
   return { calls, deliveries }

@@ -1,12 +1,6 @@
 import { ulid } from 'ulid'
 
-import type { MessageMetadata } from '../chat.js'
-import {
-  isAnyComponent,
-  prepareComponentDelivery,
-  type ComponentRegistry,
-  type RenderedComponent,
-} from '../component.js'
+import type { ComponentRegistry, RenderedComponent } from '../component.js'
 import type { Iteration } from '../context.js'
 import { ThinkSignal } from '../errors.js'
 import type { Exit } from '../exit.js'
@@ -40,8 +34,6 @@ export type JavaScriptApi = {
   throwIfTerminated(): void
   track<T>(operation: () => Promise<T>): Promise<T>
   assertOpen(): void
-  /** Queue a component yielded by a host tool alongside ordinary chat sends. */
-  sendComponent(value: unknown, metadata: MessageMetadata): Promise<void>
   /** Called at program settlement, before background work can invoke another host operation. */
   complete(): void
   /** Joins automatic message delivery and business work before the iteration can settle. */
@@ -179,24 +171,6 @@ export function createJavaScriptApi({
     return delivery
   }
 
-  const sendComponent = async (value: unknown, metadata: MessageMetadata): Promise<void> => {
-    assertOpen()
-
-    if (!isAnyComponent(value)) {
-      throw new Error('Only registered rich components can be yielded by a tool.')
-    }
-
-    const component = components.get(value.name)
-
-    if (!component) {
-      throw new Error(`Component "${value.name}" is not registered.`)
-    }
-
-    const rendered = prepareComponentDelivery(component, value)
-
-    await enqueue([{ id: metadata.id, component: cloneMemoryValue(rendered) as RenderedComponent }])
-  }
-
   const complete = (): void => {
     if (!open) {
       return
@@ -256,7 +230,6 @@ export function createJavaScriptApi({
     throwIfTerminated,
     track,
     assertOpen,
-    sendComponent,
     complete,
     close,
   }

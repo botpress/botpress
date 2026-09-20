@@ -1,12 +1,6 @@
 import { z } from '@bpinternal/zui'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
-import {
-  Component,
-  createComponentRegistry,
-  isAnyComponent,
-  isComponent,
-  prepareComponentDelivery,
-} from './component.js'
+import { Component, createComponentRegistry, isAnyComponent, isComponent } from './component.js'
 
 const definition = {
   name: 'rating',
@@ -115,26 +109,16 @@ describe('component registry', () => {
 })
 
 describe('component delivery', () => {
-  it('parses raw input once and reuses immutable rendered props', () => {
+  it('parses props once and freezes the rendered value', () => {
     const transform = vi.fn((score: number) => `Score: ${score}`)
     const template = new Component({ ...definition, props: z.object({ score: z.number().transform(transform) }) })
     const rendered = template.render({ score: 4 })
-    const bound = template.withHandler(vi.fn())
 
-    expect(prepareComponentDelivery(bound, rendered)).toBe(rendered)
     expect(rendered.props).toEqual({ score: 'Score: 4' })
     expect(transform).toHaveBeenCalledTimes(1)
     expect(() => {
       rendered.props.score = 'Changed'
     }).toThrow(TypeError)
-
-    const raw = { type: 'component', name: 'rating', props: { score: 3 } }
-    const prepared = prepareComponentDelivery(bound, raw)
-    raw.props.score = 1
-
-    expect(prepared.props).toEqual({ score: 'Score: 3' })
-    expect(prepareComponentDelivery(bound, prepared)).toBe(prepared)
-    expect(transform).toHaveBeenCalledTimes(2)
   })
 
   it('freezes nested props and isolates them from input data', () => {
@@ -145,7 +129,6 @@ describe('component delivery', () => {
 
     expect(rendered.props.scores).toEqual([4])
     expect(() => rendered.props.scores.push(2)).toThrow(TypeError)
-    expect(prepareComponentDelivery(component, rendered)).toBe(rendered)
   })
 
   it('recognizes object and array renders with exact component names', () => {
@@ -171,17 +154,5 @@ describe('component delivery', () => {
     { type: 'component', name: 'rating', props: {}, children: [] },
   ])('rejects invalid descriptors: %j', (value) => {
     expect(isAnyComponent(value)).toBe(false)
-    expect(() => prepareComponentDelivery(new Component(definition), value)).toThrow()
-  })
-
-  it('rejects unregistered and invalid raw component input', () => {
-    const component = new Component(definition)
-
-    expect(() => prepareComponentDelivery(component, { type: 'component', name: 'other', props: {} })).toThrow(
-      /not registered/
-    )
-    expect(() =>
-      prepareComponentDelivery(component, { type: 'component', name: 'rating', props: { score: 9 } })
-    ).toThrow()
   })
 })

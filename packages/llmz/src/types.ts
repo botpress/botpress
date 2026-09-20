@@ -86,8 +86,9 @@ export namespace Traces {
     { attempt: number; fromModel: string; toModel: string; reason: string }
   >
   export type AbortTrace = TraceTemplate<'abort_signal', { reason: string }>
-  export type YieldTrace = TraceTemplate<
-    'yield',
+  /** A message send and its delivery outcome, used to avoid replaying completed effects. */
+  export type MessageDelivery = TraceTemplate<
+    'message_delivery',
     {
       value: any
       message_id?: string
@@ -106,7 +107,7 @@ export namespace Traces {
     | ToolCall
     | ToolSlow
     | PropertyMutation
-    | YieldTrace
+    | MessageDelivery
     | LLMCallStart
     | LLMCallSuccess
     | LLMCallRestart

@@ -43,19 +43,19 @@ describe('tool inspection policies', () => {
     expect(await tool.execute(undefined, { callId: 'standalone' })).toEqual({ id: 42 })
   })
 
-  it('supports policy wrappers returned by cloned tools and generator handlers', async () => {
+  it('supports policy wrappers returned by cloned tools', async () => {
     const original = new Tool({
       name: 'readDocument',
       output: z.string(),
       handler: async () => 'Original text',
     })
     const cloned = original.clone({
-      async *handler() {
-        return truncate({ value: 'Generator result', maxTokens: 200 })
+      async handler() {
+        return truncate({ value: 'Cloned result', maxTokens: 200 })
       },
     })
 
-    expect(await cloned.execute(undefined, { callId: 'generator' })).toBe('Generator result')
+    expect(await cloned.execute(undefined, { callId: 'clone' })).toBe('Cloned result')
   })
 
   it('preserves the existing invalid-output fallback for wrapped values without retrying', async () => {
