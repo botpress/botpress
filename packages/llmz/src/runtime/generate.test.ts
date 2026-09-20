@@ -107,6 +107,18 @@ describe('native generation', () => {
     })
   })
 
+  it('does not dispatch code when a worker stream says Done and then fails', async () => {
+    const base = fixture()
+    const onToolCalls = vi.fn()
+    const cognitive = withStream(base, async function* () {
+      yield { created: 1, output: 'Done.' }
+      throw new Error('Generation failed. Discard the partial response and retry the request.')
+    })
+
+    await expect(generateCode({ ...base, cognitive, onToolCalls })).rejects.toThrow('Generation failed')
+    expect(onToolCalls).not.toHaveBeenCalled()
+  })
+
   it.each([false, true])('gives valid final-response guidance for chat=%s', async (chat) => {
     const base = fixture()
     base.ctx.loop = 1

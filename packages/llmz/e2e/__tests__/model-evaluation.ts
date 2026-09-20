@@ -1,17 +1,12 @@
-import { Client } from '@botpress/client'
-import {
-  Cognitive,
-  type CognitiveMetadata,
-  type CognitiveRequest,
-  type CognitiveStreamChunk,
-} from '@botpress/cognitive'
+import { type CognitiveMetadata, type CognitiveRequest, type CognitiveStreamChunk } from '@botpress/cognitive'
 import { expect } from 'vitest'
 
 import type { ExecutionResult } from '../../src/index.js'
+import { CachedCognitive, cacheMode } from './cached-cognitive.js'
 
 // Opt-in, one requested model and no test retries. Fallbacks require explicit configuration.
 // Record actual model metadata: the gateway may still route to another provider.
-// Cache bypass and route assertions keep repeated evaluations honest.
+// Refresh mode bypasses caches; ordinary runs replay recorded responses and preserve route assertions.
 export const models = (process.env.LLMZ_EVAL_MODELS ?? '')
   .split(',')
   .map((model) => model.trim())
@@ -23,13 +18,7 @@ export const fallbackModels = (process.env.LLMZ_EVAL_FALLBACK_MODELS ?? '')
   .filter(Boolean)
 
 function prepareEvaluationRequest(input: CognitiveRequest): CognitiveRequest {
-  const request: CognitiveRequest = {
-    ...input,
-    options: {
-      ...input.options,
-      skipCache: true,
-    },
-  }
+  const request: CognitiveRequest = { ...input }
 
   if (fallbackModels.length && typeof input.model === 'string' && models.includes(input.model)) {
     request.model = [input.model, ...fallbackModels] as CognitiveRequest['model']
@@ -64,8 +53,11 @@ function reportModelRouteMismatch(request: CognitiveRequest, metadata: Cognitive
   )
 }
 
-class EvaluationCognitive extends Cognitive {
-  public override async generateText(input: CognitiveRequest, options?: Parameters<Cognitive['generateText']>[1]) {
+class EvaluationCognitive extends CachedCognitive {
+  public override async generateText(
+    input: CognitiveRequest,
+    options?: Parameters<CachedCognitive['generateText']>[1]
+  ) {
     const response = await super.generateText(prepareEvaluationRequest(input), options)
 
     reportModelRouteMismatch(input, response.metadata)
@@ -75,7 +67,7 @@ class EvaluationCognitive extends Cognitive {
 
   public override async *generateTextStream(
     input: CognitiveRequest,
-    options?: Parameters<Cognitive['generateTextStream']>[1]
+    options?: Parameters<CachedCognitive['generateTextStream']>[1]
   ) {
     for await (const chunk of super.generateTextStream(prepareEvaluationRequest(input), options)) {
       if (chunk.finished && chunk.metadata) {
@@ -92,7 +84,10 @@ export function expectModelRoute(metadata: CognitiveMetadata | undefined, model:
 
   expect(metadata).toBeDefined()
   expect(allowed).toContain(metadata?.model)
-  expect(metadata?.cached).toBe(false)
+
+  if (cacheMode() === 'refresh') {
+    expect(metadata?.cached).toBe(false)
+  }
 
   if (!fallbackModels.length) {
     expect(metadata?.fallbackPath ?? []).toEqual([])
@@ -103,7 +98,7 @@ export function expectModelRoute(metadata: CognitiveMetadata | undefined, model:
   }
 }
 
-/** Verify every generated iteration; full executions must not pass using another model or cached samples. */
+/** Verify every route; explicit fresh evaluations must never pass using cached samples. */
 export function expectRuntimeModelRoute(result: ExecutionResult, requestedModel: string): void {
   const allowed = [requestedModel, ...fallbackModels]
 
@@ -114,7 +109,9 @@ export function expectRuntimeModelRoute(result: ExecutionResult, requestedModel:
 
     expect(iteration.llm, `${label} must include generation metadata`).toBeDefined()
     expect(allowed, `${label} used an unexpected model`).toContain(iteration.llm?.model)
-    expect(iteration.llm?.cached, `${label} must be a fresh provider sample`).toBe(false)
+    if (cacheMode() === 'refresh') {
+      expect(iteration.llm?.cached, `${label} must be a fresh provider sample`).toBe(false)
+    }
   }
 }
 
@@ -134,11 +131,9 @@ export const cases = models.flatMap((model) =>
 )
 
 export const client = new EvaluationCognitive({
-  client: new Client({
-    apiUrl: process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.cloud',
-    botId: process.env.CLOUD_BOT_ID,
-    token: process.env.CLOUD_PAT,
-  }),
+  apiUrl: process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.cloud',
+  botId: process.env.CLOUD_BOT_ID,
+  token: process.env.CLOUD_PAT,
 })
 
 export const metrics = (result: ExecutionResult) => ({

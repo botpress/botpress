@@ -16,5 +16,6 @@ export default defineConfig({
     pool: 'forks',
     setupFiles: './vitest.e2e.setup.ts',
     include: ['./e2e/**/*.test.ts'],
+    exclude: ['./e2e/__tests__/**/*.test.ts'],
   },
 })

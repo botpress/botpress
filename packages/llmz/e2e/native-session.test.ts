@@ -12,7 +12,7 @@ import {
   models,
 } from './__tests__/model-evaluation.js'
 
-const enabled = models.length > 0 && Boolean(process.env.CLOUD_PAT && process.env.CLOUD_BOT_ID)
+const enabled = models.length > 0
 const testOptions = { retry: 0, timeout: 120_000 }
 const executionOptions = { loop: 4, timeout: 45_000, maxTokens: 12_000 }
 

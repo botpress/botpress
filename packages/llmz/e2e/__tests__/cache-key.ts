@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import type { CognitiveMessage, CognitiveRequest } from '@botpress/cognitive'
 
 const BUSINESS_CALL_HEADER = 'BUSINESS CALL OUTCOMES\n'
@@ -24,17 +25,6 @@ export function stringifyWithSortedKeys(value: unknown, space?: number): string 
   }
 
   return JSON.stringify(sortKeys(value), null, space)
-}
-
-function fastHash(value: string): string {
-  let hash = 0
-
-  for (let index = 0; index < value.length; index++) {
-    hash = (hash << 5) - hash + value.charCodeAt(index)
-    hash |= 0
-  }
-
-  return (hash >>> 0).toString(16)
 }
 
 /** Normalize diagnostic labels, preserving repeated IDs and every byte of the reported outcomes. */
@@ -84,7 +74,10 @@ function normalizeBusinessCallIds(messages: CognitiveMessage[]): CognitiveMessag
 /** Ignore runtime-only diagnostic IDs and the non-serializable abort signal, never provider content. */
 export function cacheKeyOf(kind: 'text' | 'stream', input: CognitiveRequest): string {
   const { signal: _signal, ...request } = input as CognitiveRequest & { signal?: unknown }
+  const { skipCache: _skipCache, ...options } = request.options ?? {}
   const messages = normalizeBusinessCallIds(request.messages)
 
-  return fastHash(stringifyWithSortedKeys({ kind, input: { ...request, messages } }))
+  return createHash('sha256')
+    .update(stringifyWithSortedKeys({ kind, input: { ...request, options, messages } }))
+    .digest('hex')
 }

@@ -23,7 +23,7 @@ import {
   models,
 } from './__tests__/model-evaluation.js'
 
-const enabled = models.length > 0 && Boolean(process.env.CLOUD_PAT && process.env.CLOUD_BOT_ID)
+const enabled = models.length > 0
 const testOptions = { retry: 0, timeout: 120_000 }
 const executionOptions = { loop: 1, timeout: 45_000, maxTokens: 16_000 }
 
@@ -145,8 +145,8 @@ function inspectRun(
   }
 }
 
-// A small live acceptance sample. Business functions touch only local fixtures.
-// Keep one fresh sample per condition and no automatic test retries.
+// A small acceptance sample. Business functions touch only local fixtures.
+// Refresh mode records one fresh sample per condition; no automatic test retries.
 describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run: 1 }])(
   'single native tool: $model, sample $run',
   ({ model, run }) => {

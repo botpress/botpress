@@ -22,7 +22,7 @@ import {
   protocolMatrix,
 } from './__tests__/protocol-matrix.js'
 
-// 144 distinct tasks in BOTH delivery modes. No repair, retry or cache; fallback is opt-in.
+// 144 distinct tasks in BOTH delivery modes. No repair or retry; refresh bypasses caching and fallback is opt-in.
 describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled', run: 1 }])(
   'protocol matrix: $model sample $run',
   ({ model, run }) => {

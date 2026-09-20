@@ -496,6 +496,15 @@ describe('native execution lifecycle', () => {
     expect(result.iteration?.status.type).toBe('aborted')
   })
 
+  test.each([NativeClient, NativeStreamClient])('does not accept "Done." as worker completion (%s)', async (Client) => {
+    const client = new Client([response('Done.')])
+    const result = await executeContext({ client, exits: [done], options: { loop: 1 } })
+
+    expect(client.requests[0]!.toolControl).toEqual({ mode: 'required', parallel: false })
+    expect(result.isError()).toBe(true)
+    expect(result.is(done)).toBe(false)
+  })
+
   test('worker assistant prose requests an exit instead of silently completing', async () => {
     const client = new NativeClient([response('The answer is 42.'), javascript('return exit("done", { value: 42 });')])
 

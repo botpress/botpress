@@ -3,7 +3,7 @@ import { assert, describe, expect, it } from 'vitest'
 import { Exit, Session, execute } from '../src/index.js'
 import { cases, client, expectAcceptedProtocol, expectRuntimeModelRoute, models } from './__tests__/model-evaluation.js'
 
-const enabled = models.length > 0 && Boolean(process.env.CLOUD_PAT && process.env.CLOUD_BOT_ID)
+const enabled = models.length > 0
 
 // Only provider generation is live. The payment receipt below is synthetic history.
 describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run: 1 }])(
