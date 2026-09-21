@@ -1,800 +1,464 @@
-import { describe, it, expect } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
-import { inspect } from './inspect.js'
-import * as _ from 'lodash-es'
-import { init } from './utils.js'
-import { beforeEach } from 'node:test'
-
-const makeBigObject = () => {
-  const obj: Record<string, any> = {}
-  for (let i = 0; i < 100; i++) {
-    obj[`key${i}`] = `value${i}`
-  }
-  return obj
-}
+import { extractType, inspect } from './inspect.js'
+import { truncate } from './truncate.js'
+import * as utils from './utils.js'
 
 const OPTIONS = { tokens: 1_000 }
 
+beforeAll(async () => {
+  await utils.init()
+})
+
+afterEach(() => {
+  vi.restoreAllMocks()
+})
+
+function expectBounded(output: string, tokens: number) {
+  expect(utils.getTokenizer().count(output, { approximate: false })).toBeLessThanOrEqual(tokens)
+}
+
 describe('Inspect Array', () => {
-  beforeEach(async () => {
-    await init()
-  })
+  it('shows all elements of a short array', () => {
+    const items = [1, 'hello', null, new Date('2020-10-12'), { active: true }]
 
-  it('short arrays shows all elements', () => {
-    const items = [1, 'hello', null, new Date('2020-10-12'), makeBigObject()]
     expect(inspect(items, 'shortArray', OPTIONS)).toMatchInlineSnapshot(`
       "// const shortArray: Array
-      // Full Array Preview
+      // Array Preview
       --------------
       [0]              <number> 1
-      [1]              <string> 'hello'
+      [1]              "hello"
       [2]              <nil>
       [3]              <date> 2020-10-12T00:00:00.000Z
-      [4]              <object> {"'key0'":"value0","'key1'":"value1","'key2'":"value2","'key3'":"value3","'key4'":"value4","'key5'":"value5","'key6'":"value6","'key7'":"value7","'key8'":"value8","'key9'":"value9","'key10'":"value10","'key11'":"value11","'key12'":"value12","'key13'":"value13","'key14'":"value14","'key15'":"value15","'key16'":"value16","'key17'":"value17","'key18'":"value18","'key19'":"value19","'key20'":"value20","'key21'":"value21","'key22'":"value22","'key23'":"value23","'key24'":"value24","'key25'":"value25","'key26'":"value26","'key27'":"value27","'key28'":"value28","'key29'":"value29","'key30'":"value30","'key31'":"value31","'key32'":"value32","'key33'":"value33","'key34'":"value34","'key35'":"value35","'key36'":"value36","'key37'":"value37","'key38'":"value38","'key39'":"value39","'key40'":"value40","'key41'":"value41","'key42'":"value42","'key43'":"value43","'key44'":"value44","'key45'":"value45","'key46'":"value46","'key47'":"value47","'key48'":"value48","'key49'":"value49","'key50'":"value50","'key51'":"value51","'key52'":"value52","'key53'":"value53","'key54'":"value54","'key55'":"value55","'key56'":"value56","'key57'":"value57","'key58'":"value58","'key59'":"value59","'key60'":"value60","'key61'":"value61","'key62'":"value62","'key63'":"value63","'key64'":"value64","'key65'":"value65","'key66'":"value66","'key67'":"value67","'key68'":"value68","'key69'":"value69","'key70'":"value70","'key71'":"value71","'key72'":"value72","'key73'":"value73","'key74'":"value74","'key75'":"value75","'key76'":"value76","'key77'":"value77","'key78'":"value78","'key79'":"value79","'key80'":"value80","'key81'":"value81","'key82'":"value82","'key83'":"value83","'key84'":"value84","'key85'":"value85","'key86'":"value86","'key87'":"value87","'key88'":"value88","'key89'":"value89","'key90'":"value90","'key91'":"value91","'key92'":"value92","'key93'":"value93","'key94'":"value94","'key95'":"value95","'key96'":"value96","'key97'":"value97","'key98'":"value98","'key99'":"value99"}"
+      [4]              <object> {
+        "active": true
+      }"
     `)
   })
 
-  it('arrays with large payloads are not part of aggregate stats', () => {
-    const items = ['1' + 'a'.repeat(1000), 'hello', '9' + 'b'.repeat(1000), null, '3', '4', '5', '6', 7, 8, 9]
-    expect(inspect(items, 'shortArray', OPTIONS)).toMatchInlineSnapshot(`
-      "// const shortArray: Array
-      // Analysis Summary
-      --------------
-      Total Items:     11
-      Unique Items:    11
-      Types:           {"string":7,"null":1,"number":3}
-      Minimum Values:  [<string> '3', <string> '4', <string> '5']
-      Maximum Values:  [<number> 7, <number> 8, <number> 9]
-      Memory Usage:    2KB
-      Nil Values:      1
-      // Array Preview (truncated)
-      --------------
-      [0]              <string> '1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      [1]              <string> 'hello'
-      [2]              <string> '9bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
-      [3]              <nil>
-      [4]              <string> '3'
-      [5]              <string> '4'
-      [6]              <string> '5'
-      [7]              <string> '6'
-      [8]              <number> 7
-      [9]              <number> 8
-      [10]             <number> 9"
-    `)
+  it('truncates long arrays within the requested budget', () => {
+    const items = Array.from({ length: 100_000 }, (_, index) => `value${index}`)
+    const output = inspect(items, 'longArray', OPTIONS)
+
+    expect(output).toContain('100000 items')
+    expect(output).toContain('value0')
+    expect(output).toContain('[truncated]')
+    expect(output).not.toContain('value99999')
+    expectBounded(output, OPTIONS.tokens)
+    expect(items).toHaveLength(100_000)
+    expect(items[99_999]).toBe('value99999')
   })
 
-  it('long arrays are not truncated anymore', () => {
-    const items = [1, 'hello', null, new Date('2020-10-12'), ..._.range(1, 250).map((i) => `value${i}`)]
-    expect(inspect(items, 'shortArray', OPTIONS)).toMatchInlineSnapshot(`
-      "// const shortArray: Array
-      // Analysis Summary
-      --------------
-      Total Items:     253
-      Unique Items:    253
-      Types:           {"number":1,"string":250,"null":1,"date":1}
-      Minimum Values:  [<date> 2020-10-12T00:00:00.000Z, <string> 'hello', <string> 'value1']
-      Maximum Values:  [<string> 'value98', <string> 'value99', <number> 1]
-      Memory Usage:    2.61KB
-      Nil Values:      1
-      // Array Preview (truncated)
-      --------------
-      [0]              <number> 1
-      [1]              <string> 'hello'
-      [2]              <nil>
-      [3]              <date> 2020-10-12T00:00:00.000Z
-      [4]              <string> 'value1'
-      [5]              <string> 'value2'
-      [6]              <string> 'value3'
-      [7]              <string> 'value4'
-      [8]              <string> 'value5'
-      [9]              <string> 'value6'
-      [10]             <string> 'value7'
-      [11]             <string> 'value8'
-      [12]             <string> 'value9'
-      [13]             <string> 'value10'
-      [14]             <string> 'value11'
-      [15]             <string> 'value12'
-      [16]             <string> 'value13'
-      [17]             <string> 'value14'
-      [18]             <string> 'value15'
-      [19]             <string> 'value16'
-      [20]             <string> 'value17'
-      [21]             <string> 'value18'
-      [22]             <string> 'value19'
-      [23]             <string> 'value20'
-      [24]             <string> 'value21'
-      [25]             <string> 'value22'
-      [26]             <string> 'value23'
-      [27]             <string> 'value24'
-      [28]             <string> 'value25'
-      [29]             <string> 'value26'
-      [30]             <string> 'value27'
-      [31]             <string> 'value28'
-      [32]             <string> 'value29'
-      [33]             <string> 'value30'
-      [34]             <string> 'value31'
-      [35]             <string> 'value32'
-      [36]             <string> 'value33'
-      [37]             <string> 'value34'
-      [38]             <string> 'value35'
-      [39]             <string> 'value36'
-      [40]             <string> 'value37'
-      [41]             <string> 'value38'
-      [42]             <string> 'value39'
-      [43]             <string> 'value40'
-      [44]             <string> 'value41'
-      [45]             <string> 'value42'
-      [46]             <string> 'value43'
-      [47]             <string> 'value44'
-      [48]             <string> 'value45'
-      [49]             <string> 'value46'
-      [50]             <string> 'value47'
-      [51]             <string> 'value48'
-      [52]             <string> 'value49'
-      [53]             <string> 'value50'
-      [54]             <string> 'value51'
-      [55]             <string> 'value52'
-      [56]             <string> 'value53'
-      [57]             <string> 'value54'
-      [58]             <string> 'value55'
-      [59]             <string> 'value56'
-      [60]             <string> 'value57'
-      [61]             <string> 'value58'
-      [62]             <string> 'value59'
-      [63]             <string> 'value60'
-      [64]             <string> 'value61'
-      [65]             <string> 'value62'
-      [66]             <string> 'value63'
-      [67]             <string> 'value64'
-      [68]             <string> 'value65'
-      [69]             <string> 'value66'
-      [70]             <string> 'value67'
-      [71]             <string> 'value68'
-      [72]             <string> 'value69'
-      [73]             <string> 'value70'
-      [74]             <string> 'value71'
-      [75]             <string> 'value72'
-      [76]             <string> 'value73'
-      [77]             <string> 'value74'
-      [78]             <string> 'value75'
-      [79]             <string> 'value76'
-      [80]             <string> 'value77'
-      [81]             <string> 'value78'
-      [82]             <string> 'value79'
-      [83]             <string> 'value80'
-      [84]             <string> 'value81'
-      [85]             <string> 'value82'
-      [86]             <string> 'value83'
-      [87]             <string> 'value84'
-      [88]             <string> 'value85'
-      [89]             <string> 'value86'
-      [90]             <string> 'value87'
-      [91]             <string> 'value88'
-      [92]             <string> 'value89'
-      [93]             <string> 'value90'
-      [94]             <string> 'value91'
-      [95]             <string> 'value92'
-      [96]             <string> 'value93'
-      [97]             <string> 'value94'
-      [98]             <string> 'value95'
-      [99]             <string> 'value96'
-      [100]            <string> 'value97'
-      [101]            <string> 'value98'
-      [102]            <string> 'value99'
-      [103]            <string> 'value100'
-      [104]            <string> 'value101'
-      [105]            <string> 'value102'
-      [106]            <string> 'value103'
-      [107]            <string> 'value104'
-      [108]            <string> 'value105'
-      [109]            <string> 'value106'
-      [110]            <string> 'value107'
-      [111]            <string> 'value108'
-      [112]            <string> 'value109'
-      [113]            <string> 'value110'
-      [114]            <string> 'value111'
-      [115]            <string> 'value112'
-      [116]            <string> 'value113'
-      [117]            <string> 'value114'
-      [118]            <string> 'value115'
-      [119]            <string> 'value116'
-      [120]            <string> 'value117'
-      [121]            <string> 'value118'
-      [122]            <string> 'value119'
-      [123]            <string> 'value120'
-      [124]            <string> 'value121'
-      [125]            <string> 'value122'
-      [126]            <string> 'value123'
-      [127]            <string> 'value124'
-      [128]            <string> 'value125'
-      [129]            <string> 'value126'
-      [130]            <string> 'value127'
-      [131]            <string> 'value128'
-      [132]            <string> 'value129'
-      [133]            <string> 'value130'
-      [134]            <string> 'value131'
-      [135]            <string> 'value132'
-      [136]            <string> 'value133'
-      [137]            <string> 'value134'
-      [138]            <string> 'value135'
-      [139]            <string> 'value136'
-      [140]            <string> 'value137'
-      [141]            <string> 'value138'
-      [142]            <string> 'value139'
-      [143]            <string> 'value140'
-      [144]            <string> 'value141'
-      [145]            <string> 'value142'
-      [146]            <string> 'value143'
-      [147]            <string> 'value144'
-      [148]            <string> 'value145'
-      [149]            <string> 'value146'
-      [150]            <string> 'value147'
-      [151]            <string> 'value148'
-      [152]            <string> 'value149'
-      [153]            <string> 'value150'
-      [154]            <string> 'value151'
-      [155]            <string> 'value152'
-      [156]            <string> 'value153'
-      [157]            <string> 'value154'
-      [158]            <string> 'value155'
-      [159]            <string> 'value156'
-      [160]            <string> 'value157'
-      [161]            <string> 'value158'
-      [162]            <string> 'value159'
-      [163]            <string> 'value160'
-      [164]            <string> 'value161'
-      [165]            <string> 'value162'
-      [166]            <string> 'value163'
-      [167]            <string> 'value164'
-      [168]            <string> 'value165'
-      [169]            <string> 'value166'
-      [170]            <string> 'value167'
-      [171]            <string> 'value168'
-      [172]            <string> 'value169'
-      [173]            <string> 'value170'
-      [174]            <string> 'value171'
-      [175]            <string> 'value172'
-      [176]            <string> 'value173'
-      [177]            <string> 'value174'
-      [178]            <string> 'value175'
-      [179]            <string> 'value176'
-      [180]            <string> 'value177'
-      [181]            <string> 'value178'
-      [182]            <string> 'value179'
-      [183]            <string> 'value180'
-      [184]            <string> 'value181'
-      [185]            <string> 'value182'
-      [186]            <string> 'value183'
-      [187]            <string> 'value184'
-      [188]            <string> 'value185'
-      [189]            <string> 'value186'
-      [190]            <string> 'value187'
-      [191]            <string> 'value188'
-      [192]            <string> 'value189'
-      [193]            <string> 'value190'
-      [194]            <string> 'value191'
-      [195]            <string> 'value192'
-      [196]            <string> 'value193'
-      [197]            <string> 'value194'
-      [198]            <string> 'value195'
-      [199]            <string> 'value196'
-      [200]            <string> 'value197'
-      [201]            <string> 'value198'
-      [202]            <string> 'value199'
-      [203]            <string> 'value200'
-      [204]            <string> 'value201'
-      [205]            <string> 'value202'
-      [206]            <string> 'value203'
-      [207]            <string> 'value204'
-      [208]            <string> 'value205'
-      [209]            <string> 'value206'
-      [210]            <string> 'value207'
-      [211]            <string> 'value208'
-      [212]            <string> 'value209'
-      [213]            <string> 'value210'
-      [214]            <string> 'value211'
-      [215]            <string> 'value212'
-      [216]            <string> 'value213'
-      [217]            <string> 'value214'
-      [218]            <string> 'value215'
-      [219]            <string> 'value216'
-      [220]            <string> 'value217'
-      [221]            <string> 'value218'
-      [222]            <string> 'value219'
-      [223]            <string> 'value220'
-      [224]            <string> 'value221'
-      [225]            <string> 'value222'
-      [226]            <string> 'value223'
-      [227]            <string> 'value224'
-      [228]            <string> 'value225'
-      [229]            <string> 'value226'
-      [230]            <string> 'value227'
-      [231]            <string> 'value228'
-      [232]            <string> 'value229'
-      [233]            <string> 'value230'
-      [234]            <string> 'value231'
-      [235]            <string> 'value232'
-      [236]            <string> 'value233'
-      [237]            <string> 'value234'
-      [238]            <string> 'value235'
-      [239]            <string> 'value236'
-      [240]            <string> 'value237'
-      [241]            <string> 'value238'
-      [242]            <string> 'value239'
-      [243]            <string> 'value240'
-      [244]            <string> 'value241'
-      [245]            <string> 'value242'
-      [246]            <string> 'value243'
-      [247]            <string> 'value244'
-      [248]            <string> 'value245'
-      [249]            <string> 'value246'
-      [250]            <string> 'value247'
-      [251]            <string> 'value248'
-      [252]            <string> 'value249'"
-    `)
+  it('does not traverse a huge sparse array beyond its preview', () => {
+    const items: unknown[] = []
+    const read = vi.fn(() => 'unreachable')
+    items.length = 1_000_000
+    Object.defineProperty(items, 999_999, { get: read })
+
+    const output = inspect(items, undefined, { tokens: 40, compact: true })
+
+    expect(output).toContain('[truncated]')
+    expectBounded(output, 40)
+    expect(read).not.toHaveBeenCalled()
   })
 
-  it('empty array', () => {
-    const items: unknown = []
-    expect(inspect(items, 'emptyArr', OPTIONS)).toMatchInlineSnapshot(`
-      "// const emptyArr: Array
-      // Array Is Empty (0 element)"
-    `)
+  it('shows an empty array', () => {
+    expect(inspect([], 'emptyArr', OPTIONS)).toBe('// const emptyArr: Array\n// Array Is Empty (0 element)')
   })
 })
 
 describe('Inspect Object', () => {
-  it('short object', () => {
-    const obj = { name: 'John', age: 21, dob: new Date('2000-01-01') }
-    expect(inspect(obj, 'smallObject', OPTIONS)).toMatchInlineSnapshot(`
+  it('preserves the detailed format for a small object', () => {
+    const value = { name: 'John', age: 21, dob: new Date('2000-01-01') }
+
+    expect(inspect(value, 'smallObject', OPTIONS)).toMatchInlineSnapshot(`
       "// const smallObject: object
-      // Full Object Preview
+      // Object Preview
       --------------
       {
-        "name": "John",
-        "age": 21,
-        "dob": 2000-01-01T00:00:00.000Z
+        \"name\": \"John\",
+        \"age\": 21,
+        \"dob\": 2000-01-01T00:00:00.000Z
       }"
     `)
   })
 
-  it('big object', () => {
-    const obj = { name: 'John', age: 21, dob: new Date('2000-01-01'), ...makeBigObject(), otherName: 'John' }
-    expect(inspect(obj, 'bigObject', OPTIONS)).toMatchInlineSnapshot(`
-      "// const bigObject: object
+  it('bounds the output for objects with many entries', () => {
+    const value = Object.fromEntries(Array.from({ length: 10_000 }, (_, index) => [`key${index}`, index]))
+    const output = inspect(value, 'largeObject', { tokens: 120 })
 
-      // Analysis Summary
-      --------------
-      Total Entries:   104
-      Keys:            <array> '[\\"name\\",\\"age\\",\\"dob\\",\\"key0\\",\\"key1\\",\\"key2\\",\\"key3\\",\\"key4\\",\\"key5\\",\\"key6\\",\\"key7\\",\\"key8\\",\\"key9\\",\\"key10\\",\\"key11\\",\\"key12\\",\\"key13\\",\\"key14\\",\\"key15\\",\\"key16\\",\\"key17\\",\\"key18\\",\\"key19\\",\\"key20\\",\\"key21\\",\\"key22\\",\\"key23\\",\\"key24\\",\\"key25\\",\\"key26\\",\\"key27\\",\\"key28\\",\\"key29\\",\\"key30\\",\\"key31\\",\\"key32\\",\\"key33\\",\\"key34\\",\\"key35\\",\\"key36\\",\\"key37\\",\\"key38\\",\\"key39\\",\\"key40\\",\\"key41\\",\\"key42\\",\\"key43\\",\\"key44\\",\\"key45\\",\\"key46\\",\\"key47\\",\\"key48\\",\\"key49\\",\\"key50\\",\\"key51\\",\\"key52\\",\\"key53\\",\\"key54\\",\\"key55\\",\\"key56\\",\\"key57\\",\\"key58\\",\\"key59\\",\\"key60\\",\\"key61\\",\\"key62\\",\\"key63\\",\\"key64\\",\\"key65\\",\\"key66\\",\\"key67\\",\\"key68\\",\\"key69\\",\\"key70\\",\\"key71\\",\\"key72\\",\\"key73\\",\\"key74\\",\\"key75\\",\\"key76\\",\\"key77\\",\\"key78\\",\\"key79\\",\\"key80\\",\\"key81\\",\\"key82\\",\\"key83\\",\\"key84\\",\\"key85\\",\\"key86\\",\\"key87\\",\\"key88\\",\\"key89\\",\\"key90\\",\\"key91\\",\\"key92\\",\\"key93\\",\\"key94\\",\\"key95\\",\\"key96\\",\\"key97\\",\\"key98\\",\\"key99\\",\\"otherName\\"]'
-      Popular Types:   <object> {"'string'":102}
-      Unique Values:   103
-      Nil Values:      0
-      Memory Usage:    1.81KB
-      // Object Preview (truncated)
-      --------------
-      {
-        "name": "John",
-        "age": 21,
-        "dob": 2000-01-01T00:00:00.000Z,
-        "key0": "value0",
-        "key1": "value1",
-        "key2": "value2",
-        "key3": "value3",
-        "key4": "value4",
-        "key5": "value5",
-        "key6": "value6",
-        "key7": "value7",
-        "key8": "value8",
-        "key9": "value9",
-        "key10": "value10",
-        "key11": "value11",
-        "key12": "value12",
-        "key13": "value13",
-        "key14": "value14",
-        "key15": "value15",
-        "key16": "value16",
-      ... (84 more keys)
-      }"
-    `)
+    expect(output).toContain('key0')
+    expect(output).toContain('[truncated]')
+    expectBounded(output, 120)
   })
 
-  it('object with large values', () => {
-    const obj = { name: 'John', age: 21, large: 'Hello, world\n'.repeat(5000), dob: new Date('2000-01-01') }
-    expect(inspect(obj, 'smallObject', OPTIONS)).toMatchInlineSnapshot(`
-      "// const smallObject: object
-      // Full Object Preview
-      --------------
-      {
-        "name": "John",
-        "age": 21,
-        "large": "Hello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\nHello, world\\n"
-    `)
-  })
+  it('bounds deeply nested objects and large nested strings', () => {
+    let value: unknown = { content: 'Hello, world\n'.repeat(100_000) }
 
-  it('empty objects', () => {
-    const obj = {}
-    expect(inspect(obj, 'smallObject', OPTIONS)).toMatchInlineSnapshot(`
-      "// const smallObject: object
-      // Empty Object {}"
-    `)
-  })
-
-  it('object with nested values and deep large text', () => {
-    const obj = {
-      name: 'John',
-      age: 21,
-      dob: new Date('2000-01-01'),
-      that: { IS: { such_a_: { deeply: { nested: { obj: 'Hello, world'.repeat(10000) } } } } },
+    for (let depth = 0; depth < 1_000; depth++) {
+      value = { child: value }
     }
-    expect(inspect(obj, 'smallObject', OPTIONS)).toMatchInlineSnapshot(`
-      "// const smallObject: object
-      // Full Object Preview
-      --------------
-      {
-        "name": "John",
-        "age": 21,
-        "dob": 2000-01-01T00:00:00.000Z,
-        "that": {
-          "IS": {
-            "such_a_": {
-              "deeply": {
-                "nested": {
-                  "obj": "Hello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello, worldHello"
-    `)
+
+    const output = inspect(value, undefined, { tokens: 80 })
+
+    expect(output).toContain('child')
+    expect(output).toContain('[truncated]')
+    expectBounded(output, 80)
+  })
+
+  it('shows an empty object', () => {
+    expect(inspect({}, 'empty', OPTIONS)).toBe('// const empty: object\n// Empty Object {}')
+  })
+
+  it('does not invoke getters or toJSON while rendering', () => {
+    const getter = vi.fn(() => 'secret')
+    const toJSON = vi.fn(() => 'not the original object')
+    const value = { toJSON }
+    Object.defineProperty(value, 'computed', { enumerable: true, get: getter })
+
+    const output = inspect(value, undefined, { tokens: 100, compact: true })
+
+    expect(output).toContain('[Getter]')
+    expect(getter).not.toHaveBeenCalled()
+    expect(toJSON).not.toHaveBeenCalled()
   })
 })
 
 describe('Inspect Text', () => {
-  it('short text', () => {
-    const text = 'Hello, World'
-    expect(inspect(text, 'shortText', OPTIONS)).toMatchInlineSnapshot(`
-      "// const shortText: string
-      <string> 'Hello, World'"
-    `)
+  it('shows short text', () => {
+    expect(inspect('Hello, World', 'greeting', OPTIONS)).toBe('// const greeting: string\nHello, World')
   })
 
-  it('truncated text', () => {
-    const text = 'Hello, World'.repeat(100)
-    expect(inspect(text, 'longText', OPTIONS)).toMatchInlineSnapshot(
-      `
-      "// const longText: string
-      <string> 'Hello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, WorldHello, World'"
-    `
+  it('preserves retrieved Markdown paragraphs, tables, citations, and code samples', () => {
+    const text = [
+      '# Refund policy',
+      '',
+      'Customers may request a refund within **30 days**. [1](https://example.com/policy)',
+      '',
+      '| Plan | Refund window |',
+      '| --- | --- |',
+      '| Standard | 30 days |',
+      '',
+      '```ts',
+      'const eligible = daysSincePurchase <= 30',
+      '```',
+      '',
+      'A literal \\n remains a backslash followed by n.',
+    ].join('\n')
+
+    const output = inspect(text, undefined, OPTIONS)
+
+    expect(output).toBe(text)
+    expect(output).not.toContain('<string>')
+    expectBounded(output, OPTIONS.tokens)
+  })
+
+  it('preserves CRLF and distinguishes literal backslashes from line breaks', () => {
+    const text = 'First paragraph\r\n\r\nLiteral \\n and \\r\\n stay literal.\r\nLast line.'
+
+    expect(inspect(text, undefined, OPTIONS)).toBe(text)
+  })
+
+  it('keeps nested retrieved text distinct from its metadata', () => {
+    const text = 'First paragraph.\n\nSecond paragraph with [1](https://example.com).'
+    const output = inspect([{ text, citation: 'source-42' }], undefined, OPTIONS)
+
+    expect(output).toContain(`"text": ${JSON.stringify(text)}`)
+    expect(output).toContain('"citation": "source-42"')
+    expectBounded(output, OPTIONS.tokens)
+  })
+
+  it('preserves text inside nested arrays and objects', () => {
+    const value = {
+      chunks: [{ body: '<pre>\r\nfunction example() {\r\n  return "literal \\n";\r\n}\r\n</pre>\r\n' }],
+      notes: ['First\nSecond', '\tindented\n  two spaces\n', '```js\ncode\n```'],
+    }
+    const output = inspect(value, undefined, OPTIONS)
+
+    expect(JSON.parse(output.slice(output.indexOf('{')))).toEqual(value)
+  })
+
+  it('bounds nested Markdown without creating an outer fence that truncation could leave open', () => {
+    const text = '# Example\n\n```ts\n' + 'const value = "🧠漢字"\n'.repeat(1_000) + '```\n'
+    const output = inspect({ content: text }, undefined, { tokens: 80, maxStringLength: Infinity })
+
+    expect(output).toContain('"content": "# Example\\n\\n```ts\\n')
+    expect(output).toContain('[truncated]')
+    expect(output).not.toMatch(/^ {0,3}```/m)
+    expectBounded(output, 80)
+  })
+
+  it('keeps compact previews escaped and on one line', () => {
+    const text = '# Guide\n\nActual line break; literal \\n.\n```ts\nconst x = 1\n```'
+    const output = inspect(text, undefined, { tokens: 100, compact: true })
+
+    expect(output).toBe(JSON.stringify(text))
+    expect(output).not.toContain('\n')
+    expectBounded(output, 100)
+  })
+
+  it.each([false, true])('bounds long text when compact is %s', (compact) => {
+    const value = 'Hello, world https://example.com user@example.com\n'.repeat(100_000)
+    const output = inspect(value, 'longText', { tokens: 100, compact, maxStringLength: Infinity })
+
+    expect(output).toContain('Hello')
+    expect(output).toContain('[truncated]')
+    expectBounded(output, 100)
+  })
+
+  it('marks explicit string clipping even when it fits the token budget', () => {
+    const output = inspect('abcdefghij', undefined, { tokens: 100, maxStringLength: 4, compact: true })
+
+    expect(output).toBe('"abcd..." [truncated]')
+    expectBounded(output, 100)
+  })
+})
+
+describe('Compact inspection', () => {
+  it('shows concise JavaScript-like values without report headings', () => {
+    const output = inspect({ age: 42, name: 'Maya', 'a key': [true, null] }, undefined, { tokens: 80, compact: true })
+
+    expect(output).toBe('{ age: 42, name: "Maya", "a key": [ true, null ] }')
+    expect(output).not.toContain('\n')
+  })
+
+  it('escapes strings and multiline object keys', () => {
+    const output = inspect({ 'line\nbreak': 'one\ntwo' }, undefined, { tokens: 80, compact: true })
+
+    expect(output).toBe('{ "line\\nbreak": "one\\ntwo" }')
+  })
+
+  it('handles circular references, bigint, undefined, and invalid dates', () => {
+    const value = { bigint: 123n, optional: undefined, date: new Date(NaN), self: null as unknown }
+    value.self = value
+
+    const output = inspect(value, undefined, { tokens: 80, compact: true })
+
+    expect(output).toContain('bigint: 123n')
+    expect(output).toContain('optional: undefined')
+    expect(output).toContain('date: Invalid Date')
+    expect(output).toContain('self: [Circular]')
+    expectBounded(output, 80)
+    expect(value.self).toBe(value)
+    expect(value.bigint).toBe(123n)
+  })
+
+  it('shows repeated non-circular values', () => {
+    const value = { id: 42 }
+
+    expect(inspect([value, value], undefined, { tokens: 80, compact: true })).toBe('[ { id: 42 }, { id: 42 } ]')
+  })
+
+  it('preserves standard error subclass names', () => {
+    const output = inspect(new TypeError('Unexpected input'), undefined, { tokens: 80, compact: true })
+
+    expect(output).toContain('name: "TypeError"')
+    expect(output).toContain('message: "Unexpected input"')
+  })
+
+  it('keeps symbols on a single line', () => {
+    const output = inspect(Symbol('line\nbreak'), undefined, { tokens: 80, compact: true })
+
+    expect(output).not.toContain('\n')
+    expect(output).toContain('line\\nbreak')
+  })
+})
+
+describe('Inspection budgets', () => {
+  it.each([false, true])('includes names, headings, and errors in the budget when compact is %s', (compact) => {
+    const error = new Error('failure '.repeat(10_000))
+    error.stack = 'stack frame\n'.repeat(10_000)
+
+    const values = [
+      '🧠漢字 e\u0301\n'.repeat(10_000),
+      error,
+      Array.from({ length: 5_000 }, (_, index) => ({ index, text: 'payload '.repeat(100) })),
+      { ['hugeKey'.repeat(10_000)]: true },
+      1234567890123456789012345678901234567890n,
+    ]
+
+    for (const value of values) {
+      for (const tokens of [0, 1, 2, 4, 10, 40, 80]) {
+        const output = inspect(value, 'variable'.repeat(1_000), { tokens, compact, maxStringLength: Infinity })
+
+        expectBounded(output, tokens)
+
+        if (tokens >= 10) {
+          expect(output).toContain('[truncated]')
+        }
+      }
+    }
+  })
+
+  it('includes error details and stack traces in the same budget', () => {
+    const error = new Error('service rejected request: ' + 'detail '.repeat(10_000))
+    error.stack = 'stack frame\n'.repeat(10_000)
+
+    for (const compact of [false, true]) {
+      const output = inspect(error, undefined, { tokens: 80, compact })
+
+      expect(output).toContain('service rejected request')
+      expect(output).toContain('[truncated]')
+      expectBounded(output, 80)
+    }
+  })
+
+  it('bounds failures raised by a proxy while inspecting', () => {
+    const value = new Proxy(
+      {},
+      {
+        ownKeys() {
+          throw new Error('cannot enumerate '.repeat(10_000))
+        },
+      }
     )
+
+    const output = inspect(value, undefined, { tokens: 40, compact: true })
+
+    expect(output).toContain('cannot enumerate')
+    expect(output).toContain('[truncated]')
+    expectBounded(output, 40)
   })
 
-  it('long text', () => {
-    const text = 'Hello, World '.repeat(5000)
-    expect(inspect(text, 'superLongText', OPTIONS)).toMatchInlineSnapshot(`
-      "// const superLongText: string
-      // The string is too long to fully display, here is a preview:
-      Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World H ... <truncated>
-      --------------
-      // Analysis Summary
-      --------------
-      Length:               65,000 chars
-      Word Count:           10,001 words
-      Unique Words:         3
-      Most Common Words:    "Hello," 5000 times
-                            "World" 5000 times"
-    `)
+  it('uses a conservative bounded preview before tokenizer initialization', () => {
+    vi.spyOn(utils, 'getTokenizer').mockImplementation(() => {
+      throw new Error('Tokenizer not initialized, make sure to call init() first and await it')
+    })
+
+    const short = inspect({ ready: true }, undefined, { tokens: 40, compact: true })
+    const long = inspect('🧠漢字'.repeat(10_000), undefined, { tokens: 40, compact: true })
+
+    expect(short).toBe('{ ready: true }')
+    expect(long).toContain('[truncated]')
+    expect(new TextEncoder().encode(long).length).toBeLessThanOrEqual(40)
   })
 
-  it('long text with emails, urls etc', () => {
-    let text = 'Hello, World \n'.repeat(1000)
-    text += '\nsylvain.perron@botpress.com\nhttps://botpress.com\nhello@world.com\nhttps://hi.com/mypage/image.png'
-    text += '\nyooy\n'.repeat(1000)
+  it('does not mutate caller options', () => {
+    const options = Object.freeze({ tokens: 80, compact: true })
 
-    expect(inspect(text, 'superLongText', OPTIONS)).toMatchInlineSnapshot(`
-      "// const superLongText: string
-      // The string is too long to fully display, here is a preview:
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, World 
-      Hello, W ... <truncated>
-      --------------
-      // Analysis Summary
-      --------------
-      Found URLs:           2
-      URLs:                https://botpress.com, https://hi.com/mypage/image.png
-      Found Emails:         2
-      Emails:              sylvain.perron@botpress.com, hello@world.com
-      Length:               20,097 chars
-      Word Count:           3,005 words
-      Unique Words:         8
-      Most Common Words:    "Hello," 1000 times
-                            "World" 1000 times
-                            "yooy" 1000 times"
-    `)
+    expect(inspect({ ready: true }, undefined, options)).toBe('{ ready: true }')
+    expect(options).toEqual({ tokens: 80, compact: true })
+  })
+
+  it('retains default options for JavaScript callers passing null', () => {
+    expect(inspect('value', undefined, null as never)).toBe('value')
+  })
+})
+
+describe('Per-value truncation policies', () => {
+  it('honors a 40000-token override without the old string clipping limit', () => {
+    const value = 'evidence '.repeat(10_000) + 'LATE EVIDENCE\n' + 'remaining '.repeat(50_000)
+    const wrapped = truncate({ value, maxTokens: 40_000 })
+    const output = inspect(wrapped, undefined, { tokens: 2_000 })
+
+    expect(output).toContain('LATE EVIDENCE')
+    expect(output).toContain('[truncated]')
+    expect(utils.getTokenizer().count(output, { approximate: false })).toBeGreaterThan(2_000)
+    expectBounded(output, 40_000)
+    expect(wrapped.value).toBe(value)
+  })
+
+  it('lets an explicit policy display more than 100 array entries', () => {
+    const value = Array.from({ length: 2_000 }, (_, index) => `item-${index}`)
+    const output = inspect(truncate({ value, maxTokens: 40_000 }), undefined, { tokens: 2_000 })
+
+    expect(output).toContain('[1500]')
+    expect(output).toContain('item-1999')
+    expectBounded(output, 40_000)
+  })
+
+  it('raises the enclosing budget for a nested override while keeping smaller subtree limits', () => {
+    const value = {
+      brief: truncate({ value: 'BRIEF START ' + 'detail '.repeat(500) + 'BRIEF END', maxTokens: 20 }),
+      evidence: truncate({
+        value: 'evidence '.repeat(10_000) + 'LATE EVIDENCE\n' + 'remaining '.repeat(50_000),
+        maxTokens: 40_000,
+      }),
+    }
+    const output = inspect(value, undefined, { tokens: 2_000 })
+
+    expect(output).toContain('BRIEF START')
+    expect(output).not.toContain('BRIEF END')
+    expect(output).toContain('LATE EVIDENCE')
+    expect(output).not.toContain('$$truncate')
+    expect(utils.getTokenizer().count(output, { approximate: false })).toBeGreaterThan(2_000)
+    expectBounded(output, 40_000)
+  })
+
+  it('keeps an explicit root cap even when a nested value requests more', () => {
+    const value = { content: truncate({ value: 'detail '.repeat(10_000), maxTokens: 40_000 }) }
+    const output = inspect(truncate({ value, maxTokens: 80 }), undefined, { tokens: 2_000 })
+
+    expect(output).toContain('[truncated]')
+    expectBounded(output, 80)
+  })
+
+  it.each(['top', 'bottom', 'both'] as const)('preserves the actual %s of a large text value', (preserve) => {
+    const value = 'START OF EVIDENCE\n' + 'middle 🧠漢字 '.repeat(20_000) + '\nEND OF EVIDENCE'
+    const output = inspect(truncate({ value, maxTokens: 80, preserve }), undefined, { tokens: 2_000 })
+
+    if (preserve === 'top' || preserve === 'both') {
+      expect(output).toContain('START OF EVIDENCE')
+    }
+
+    if (preserve === 'bottom' || preserve === 'both') {
+      expect(output).toContain('END OF EVIDENCE')
+    }
+
+    expect(output).toContain('[truncated]')
+    expectBounded(output, 80)
+  })
+
+  it.each(['bottom', 'both'] as const)('preserves the actual %s of a large array', (preserve) => {
+    const value = Array.from({ length: 10_000 }, (_, index) => `item-${index}`)
+    const output = inspect(truncate({ value, maxTokens: 80, preserve }), undefined, { tokens: 2_000 })
+
+    expect(output).toContain('item-9999')
+
+    if (preserve === 'both') {
+      expect(output).toContain('item-0')
+    }
+
+    expect(output).toContain('[truncated]')
+    expectBounded(output, 80)
+  })
+
+  it.each(['top', 'bottom', 'both'] as const)(
+    'keeps Unicode intact when preserving %s at token boundaries',
+    (preserve) => {
+      for (const maxTokens of [5, 6, 7, 8, 9, 10, 20]) {
+        const value = truncate({ value: '🧠漢字'.repeat(1_000), maxTokens, preserve })
+        const output = inspect(value, undefined, { tokens: 2_000 })
+
+        expect(output).not.toContain('\uFFFD')
+        expectBounded(output, maxTokens)
+      }
+    }
+  )
+
+  it('can disable overrides while still hiding wrapper metadata', () => {
+    const value = truncate({ value: 'head '.repeat(10_000) + 'LATE EVIDENCE', maxTokens: 40_000, preserve: 'bottom' })
+    const output = inspect(value, undefined, { tokens: 60, compact: true, honorTruncation: false })
+
+    expect(output).toContain('head')
+    expect(output).not.toContain('LATE EVIDENCE')
+    expect(output).not.toContain('$$truncate')
+    expectBounded(output, 60)
+  })
+
+  it('allows a zero per-value budget without removing the original data', () => {
+    const wrapped = truncate({ value: 'full data', maxTokens: 0 })
+
+    expect(inspect(wrapped, undefined, { tokens: 2_000 })).toBe('')
+    expect(wrapped.value).toBe('full data')
+  })
+})
+
+describe('Type extraction', () => {
+  it('summarizes array item types without recursing through cycles', () => {
+    const array: unknown[] = [1, null]
+    array.push(array)
+
+    expect(extractType(array)).toBe('Array<number | null | Array>')
   })
 })

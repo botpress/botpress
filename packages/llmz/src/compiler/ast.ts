@@ -30,6 +30,7 @@ export function parseScript(code: string, opts?: Partial<Options> & { comments?:
       err.message +=
         '. The code must be plain JavaScript: do not use TypeScript syntax (type annotations, "as" casts, generics, interfaces or type aliases).'
     }
+
     throw err
   }
 }
@@ -48,6 +49,7 @@ export function walk(root: Node, enter: (node: AnyNode, parent: AnyNode | null, 
       if (key === 'loc') {
         continue
       }
+
       const value = node[key]
       if (Array.isArray(value)) {
         for (const child of value) {
@@ -59,6 +61,7 @@ export function walk(root: Node, enter: (node: AnyNode, parent: AnyNode | null, 
         visit(value)
       }
     }
+
     ancestors.pop()
   }
 
@@ -82,6 +85,7 @@ export function enclosingStatement(node: AnyNode, ancestors: AnyNode[]): AnyNode
       return chain[i]!
     }
   }
+
   return null
 }
 

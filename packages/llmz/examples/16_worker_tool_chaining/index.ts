@@ -21,10 +21,10 @@ import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
 import chalk from 'chalk'
 import { execute, Exit, Tool } from 'llmz'
-import { box } from '../utils/box'
 
 // Initialize Botpress client
 const client = new Client({
+  apiUrl: process.env.BOTPRESS_API_URL,
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
 })
@@ -105,6 +105,7 @@ const exit = new Exit({
 // 3. Calls Tool C with the processed data
 // 4. Returns the final result through the exit
 const result = await execute({
+  model: process.env.BOTPRESS_MODEL ?? 'openai:gpt-5.6-luna',
   instructions: "I need the 'secret' number please. Do not think, try to do it in one step.",
   tools: [ToolA, ToolB, ToolC],
   exits: [exit],
@@ -113,13 +114,8 @@ const result = await execute({
 
 // Display the results showing both the generated code and final output
 if (result.is(exit)) {
-  console.log(
-    box([
-      'The LLM wrote the code to solve the problem:',
-      ...(result.iterations.filter((i) => i.code).at(-1)?.code ?? '// no code generated').split('\n'),
-      '',
-      'It then executed it and returned the result:',
-      chalk.cyan.bold(result.output.result.toString()),
-    ])
-  )
+  console.log(chalk.bold('Generated JavaScript:'))
+  console.log(result.iterations.filter((iteration) => iteration.code).at(-1)?.code ?? '// no code generated')
+  console.log(chalk.bold('\nResult:'))
+  console.log(chalk.cyan(JSON.stringify(result.output.result, null, 2)))
 }

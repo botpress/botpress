@@ -1,76 +1,60 @@
 #!/usr/bin/env tsx
-import chalk from 'chalk'
-import { spawn } from 'child_process'
+import { spawn } from 'node:child_process'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import dotenv from 'dotenv'
-import fs from 'fs'
-import path from 'path'
 
-const EXAMPLES_DIR = path.resolve('.')
+export const examplesDirectory = path.dirname(fileURLToPath(import.meta.url))
 
-const args = process.argv.slice(2)
-const exampleName = args[0]
+export function listExamples(directory = examplesDirectory): string[] {
+  return fs
+    .readdirSync(directory)
+    .filter((name) => /^\d+_(chat|worker)_/.test(name) && fs.existsSync(path.join(directory, name, 'index.ts')))
+    .sort()
+}
 
-// Optional: declare required envs per example
-const required = ['BOTPRESS_BOT_ID', 'BOTPRESS_TOKEN']
+export function resolveExample(name: string, directory = examplesDirectory): string | undefined {
+  return listExamples(directory).find((folder) => folder === name || folder.startsWith(`${name}_`))
+}
 
-console.clear()
+export function loadEnvironment(folder: string, directory = examplesDirectory): void {
+  // Shell values win, followed by example-specific settings and the shared .env.
+  dotenv.config({ path: path.join(directory, folder, '.env') })
+  dotenv.config({ path: path.join(directory, '.env') })
+}
 
-const folders = fs.readdirSync(EXAMPLES_DIR).filter((f) => {
-  const fullPath = path.join(EXAMPLES_DIR, f)
-  return (f.includes('_chat') || f.includes('_worker')) && fs.statSync(fullPath).isDirectory()
-})
+function main() {
+  const name = process.argv[2]
+  if (!name || name === '--list' || name === '--help') {
+    console.log(
+      `Examples:\n${listExamples()
+        .map((folder) => `  ${folder}`)
+        .join('\n')}`
+    )
+    console.log('\nUsage: pnpm start <example name or two-digit number>')
+    return
+  }
 
-const findExample = (name: string) => folders.find((f: string) => f === name || f.startsWith(name + '_'))
+  const folder = resolveExample(name)
+  if (!folder) throw new Error(`Unknown example: ${name}. Run pnpm start --list.`)
+  loadEnvironment(folder)
+  const missing = ['BOTPRESS_BOT_ID', 'BOTPRESS_TOKEN'].filter((key) => !process.env[key])
+  if (missing.length) throw new Error(`Missing ${missing.join(', ')}. Configure examples/.env (see .env.example).`)
 
-function listExamples() {
-  console.log(chalk.yellow('📦 Available examples:\n'))
-  folders.forEach((f) => {
-    console.log(`  ${chalk.green(f)}`)
+  console.log(`Launching ${folder}`)
+  const child = spawn(process.execPath, ['--import', 'tsx', path.join(examplesDirectory, folder, 'index.ts')], {
+    cwd: examplesDirectory,
+    stdio: 'inherit',
+    env: process.env,
   })
-  console.log(`\n${chalk.cyan('Usage:')} pnpm start ${chalk.underline('<example_name>')}`)
-  process.exit(1)
+  child.on('error', (error) => {
+    console.error(error.message)
+    process.exitCode = 1
+  })
+  child.on('exit', (code) => {
+    process.exitCode = code ?? 1
+  })
 }
 
-if (!exampleName) {
-  console.log(chalk.red('❌ No example specified.\n'))
-  listExamples()
-}
-
-const exampleDir = findExample(exampleName)
-
-if (!exampleDir) {
-  console.log(chalk.red(`❌ Example "${exampleName}" not found.\n`))
-  listExamples()
-  process.exit(1)
-}
-
-const entryPath = path.join(EXAMPLES_DIR, exampleDir, 'index.ts')
-
-if (!fs.existsSync(entryPath)) {
-  console.log(chalk.red(`❌ Entry file not found: ${entryPath}\n`))
-  console.log('Make sure the example has an index.ts file in the root directory.')
-  process.exit(1)
-}
-
-// Load .env if present
-dotenv.config({ path: path.join(EXAMPLES_DIR, exampleName, '.env') })
-
-const missing = required.filter((key) => !process.env[key])
-
-if (missing.length) {
-  console.log(chalk.red('❌ Missing required environment variables:\n'))
-  missing.forEach((key) => console.log(`  - ${chalk.yellow(key)}`))
-  console.log(`\nSet them in ${chalk.cyan(`${path.resolve(EXAMPLES_DIR)}/.env`)}`)
-  process.exit(1)
-}
-
-console.log(chalk.greenBright(`🚀 Launching example: ${chalk.bold(exampleDir)}\n`))
-
-// Run the example via tsx
-const child = spawn('tsx', [entryPath], {
-  stdio: 'inherit',
-  env: process.env,
-})
-child.on('exit', (code) => {
-  process.exit(code ?? 1)
-})
+if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) main()

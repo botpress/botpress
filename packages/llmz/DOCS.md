@@ -1,1923 +1,357 @@
-# LLMz Documentation
+# LLMZ API guide
 
-**LLMz: A Revolutionary TypeScript AI Agent Framework**
+[Quickstart](./README.md) · [Sessions](#sessions-and-messages) · [Memory](#execution-and-memory) · [Tools](#tools-and-exits) · [Components](#components) · [Streaming](#streaming-and-delivery) · [Budgets](#token-budgets-and-compaction) · [Inspection](#inspection) · [Errors](./ERRORS.md) · [Hooks](#hooks) · [Migration](#migrating-from-the-previous-api)
 
-_Stop chaining tools. Start generating real code._
+## The public API
 
----
+| API                           | Responsibility                                                                    |
+| ----------------------------- | --------------------------------------------------------------------------------- |
+| `execute(props)`              | Run model iterations until completion or failure.                                 |
+| `Session`                     | Own input queues, native conversation history, and exact retained memory.         |
+| `Chat`                        | Configure assistant text and rich component delivery.                             |
+| `Tool`                        | Expose a host function with optional input and output schemas.                    |
+| `Exit`                        | Define a named completion and its output schema.                                  |
+| `Component`                   | Define a rich message schema, exact JavaScript method name, and delivery handler. |
+| `ExecutionResult`             | Read one run's outcome, provider usage, and diagnostics.                          |
+| `truncate`                    | Attach a display budget to a value without changing its data.                     |
+| `inspect` / `createInspector` | Format bounded previews for host integrations.                                    |
 
-## Table of Contents
+## Sessions and messages
 
-1. [Introduction](#introduction)
-2. [Core Philosophy](#core-philosophy)
-3. [Quick Start](#quick-start)
-4. [Core Concepts](#core-concepts)
-5. [Execution Modes](#execution-modes)
-6. [Tools](#tools)
-7. [Objects and Variables](#objects-and-variables)
-8. [Execution Results](#execution-results)
-9. [Hooks System](#hooks-system)
-10. [Advanced Features](#advanced-features)
-11. [API Reference](#api-reference)
-12. [Examples](#examples)
+Create one `Session` per conversation or worker context. Append input before calling `execute({ session, ... })`. Omit `session` to create a fresh one, then read it from `result.session`.
 
----
+```ts
+import { Session } from 'llmz'
 
-## Introduction
-
-LLMz is a revolutionary TypeScript AI agent framework that fundamentally changes how AI agents work. Like other agent frameworks, LLMz calls LLM models in a loop to achieve desired outcomes with access to tools and memory. However, LLMz is **code-first** – meaning it generates and runs TypeScript code in a sandbox rather than using traditional JSON tool calling.
-
-### What Makes LLMz Different
-
-Traditional agent frameworks rely on JSON tool calling, which has significant limitations:
-
-- **Hard-to-parse JSON schemas** for LLMs
-- **Incapable of complex logic** like loops and conditionals
-- **Multiple expensive roundtrips** for each tool call
-- **Unreliable beyond simple scenarios**
-
-LLMz leverages the fact that models have been trained extensively on millions of TypeScript codebases, making them incredibly reliable at generating working code. This enables:
-
-- **Complex logic and multi-tool orchestration** in **one call**
-- **Native LLM thinking** via comments and code structure
-- **Complete type safety** and predictable schemas
-- **Seamless scaling** in production environments
-
-### Battle-Tested at Scale
-
-LLMz operates as an LLM-native TypeScript VM built on top of Zui (Botpress's internal schema library), battle-tested in production powering millions of AI agents worldwide.
-
----
-
-## Core Philosophy
-
-### Code Generation > Tool Calling
-
-Traditional tool-calling agents are fundamentally limited by the JSON interface between the LLM and tools. This requires multiple roundtrips for complex tasks and cannot handle conditional logic, loops, or sophisticated data processing.
-
-LLMz solves this by letting LLMs do what they do best: **generate code**. Since models are trained extensively on code, they can reliably generate TypeScript that:
-
-- Calls multiple tools in sequence
-- Handles conditional logic and error cases
-- Processes and transforms data between tool calls
-- Implements complex business logic
-- Maintains type safety throughout execution
-
-### Example: Traditional vs LLMz
-
-**Traditional Tool Calling:**
-
-```
-LLM → JSON: {"tool": "getPrice", "params": {"from": "quebec", "to": "new york"}}
-System → Response: {"price": 600}
-LLM → JSON: {"tool": "checkBudget", "params": {"amount": 600}}
-System → Response: {"canAfford": false}
-LLM → JSON: {"tool": "notifyUser", "params": {"message": "Price too high"}}
+const session = new Session()
+session.append([
+  { role: 'user', content: 'Hello' },
+  { role: 'assistant', content: 'How can I help?' },
+  {
+    role: 'user',
+    content: 'What does this receipt say?',
+    attachments: [{ type: 'image', url: 'https://example.com/receipt.png', id: 'receipt', alt: 'Store receipt' }],
+  },
+])
 ```
 
-**LLMz Code Generation:**
+`append` accepts a native Cognitive message, a `Transcript.Message`, or an array of either. It validates the whole batch before enqueueing any of it. Identical messages remain distinct inputs. The session copies its inputs and returns copies of its messages.
 
-```typescript
-// Check the ticket price and user's budget in one go
-const price = await getTicketPrice({ from: 'quebec', to: 'new york' })
-const budget = await getUserBudget()
+| Input                                   | Cognitive representation                                                   |
+| --------------------------------------- | -------------------------------------------------------------------------- |
+| Native text or multipart message        | Preserves content, part order, and opaque JSON provider fields.            |
+| User/assistant text                     | Retains its role and text.                                                 |
+| `attachments`                           | Adds image/audio parts to that message, with adjacent ID/alt descriptions. |
+| `modality: 'voice'` or audio attachment | Labels convenience input as a voice transcript.                            |
+| `role: 'event'`                         | User-role data labeled with the event name and a bounded payload preview.  |
+| `role: 'summary'`                       | User-role data labeled as a conversation summary.                          |
 
-if (price > budget) {
-  await notifyUser({ message: `Price $${price} exceeds budget $${budget}` })
-  return { action: 'budget_exceeded', price, budget }
-} else {
-  const ticketId = await buyTicket({ from: 'quebec', to: 'new york' })
-  return { action: 'done', result: ticketId }
-}
-```
+Native multipart inputs already describe their content; do not combine them with convenience `attachments` or `modality`. Events and summaries do not become system instructions. Pass system instructions through `execute({ instructions })`.
 
----
+`session.transcript` returns the retained conversation and queued input, preserving `event` and `summary` roles. `session.messages` exposes processed native messages; `session.pendingMessages` exposes queued native input. All three return detached copies.
 
-## Quick Start
+External events start turns just like user messages. Append them, then execute:
 
-### Installation
-
-```bash
-npm install llmz @botpress/client
-```
-
-### Basic Example (Worker Mode)
-
-```typescript
-import { execute } from 'llmz'
+```ts
 import { Client } from '@botpress/client'
+import { Chat, Session, execute } from 'llmz'
 
-const client = new Client({
-  botId: process.env.BOTPRESS_BOT_ID!,
-  token: process.env.BOTPRESS_TOKEN!,
+const client = new Client()
+const session = new Session()
+const chat = new Chat({ response: { handler: (text) => console.log(text) } })
+
+session.append({
+  role: 'event',
+  name: 'button.clicked',
+  payload: { button: 'confirm', orderId: 'order-42' },
 })
-
-const result = await execute({
-  instructions: 'Calculate the sum of numbers 1 to 100',
-  client,
-})
-
-if (result.isSuccess()) {
-  console.log('Result:', result.output)
-  console.log('Generated code:', result.iteration.code)
-}
+await execute({ client, session, chat, instructions: 'Respond to order actions.' })
 ```
 
-### Basic Example (Chat Mode)
+Appending an event does not start execution automatically. Events arriving during a run stay queued for the next call; repeated clicks remain separate events. Event payloads are data, so validate authorization and business rules in your tool handlers.
 
-```typescript
-import { execute } from 'llmz'
+Input cannot inject native tool calls or results. Restore a serialized session to continue existing tool history. The runtime retains assistant calls and their matching results together, including provider continuation metadata. It never appends memory instructions to signed assistant output.
+
+Convenience event payloads receive a 5,000-token preview in native model input. The original payload remains in `session.transcript` and serialized session state until that event is compacted. Ordinary user text is retained in full. Keep authoritative application events in the host when they must outlive conversation compaction.
+
+Session status is `idle`, `pending`, or `active`. A turn claims queued input once. Input arriving during execution remains queued until that turn completes. Concurrent `execute` calls on one session are rejected.
+
+`session.messages` is canonical history. `session.pendingMessages` contains unclaimed input. `session.requestMessages()` produces a copy with an ephemeral memory overview; `requestMessages({ memory: false })` omits the overview. Runtime lifecycle methods such as `beginTurn`, `nextIteration`, and `settleIteration` are used by `execute`; applications normally only need `append` and persistence.
+
+## Execution and memory
+
+The model receives one native tool, `run_javascript`, and declarations for the registered host tools, objects, components, and exits. A response may contain at most one JavaScript call. Its program can compose multiple business operations.
+
+These examples are JavaScript generated by the model, not host TypeScript:
+
+```js
+const account = await getAccount({ id: 'customer-42' })
+return inspect(account)
+```
+
+```js
+return exit('done', { accountId: account.id })
+```
+
+`inspect(value)` exposes a preview in the next model request. Exact retained values remain available to JavaScript. `exit(name, payload)` validates a completion payload against its registered exit. Normal returned data does not complete a worker.
+
+Worker prompts require every response to be a `run_javascript` call with empty assistant text, including during recovery and completion. Workers must not emit preambles, progress updates, or acknowledgements such as “Done.” Results are inspected or returned through a registered exit.
+
+| Value             | Lifetime                                                                     |
+| ----------------- | ---------------------------------------------------------------------------- |
+| Named variables   | Remain in session memory across executions and history compaction.           |
+| `$return`         | Latest available returned result; read-only.                                 |
+| `$iterations`     | Retained iteration records, newest first; records and results are read-only. |
+| Object properties | Host-backed values with declared read/write access.                          |
+| Prompt previews   | Derived display text; never the source of stored values.                     |
+
+A record's `hasResult` distinguishes an absent result from a result whose exact value is `undefined`. A failed iteration without a new result preserves the previous `$return`. A new result that cannot be retained clears `$return` rather than exposing stale evidence. Compaction removes discarded iteration results; it does not fall back to an older `$return`.
+
+Memory accepts finite numbers, booleans, strings, null, undefined, dense arrays, and plain data objects. Its codec preserves `undefined` and negative zero through JSON persistence. Functions, accessors, symbols, cycles, and custom class instances cannot be stored as exact memory values.
+
+```ts
+import { Session } from 'llmz'
+
+const session = new Session({
+  variables: { accountId: 'customer-42', attempts: 0 },
+  maxBytes: 4 * 1024 * 1024,
+})
+console.log(session.memory.variables)
+console.log(session.iterations)
+```
+
+The default memory limit is 16 MiB. It covers encoded named variables, object memory, and retained result records; it is not a byte limit on all conversation messages. Token budgeting controls the request sent to the model. Successful writes may be retained when later writes exceed capacity; reports describe unavailable values. Host side effects are not rolled back.
+
+## Persistence and recovery
+
+Persist `session.toJSON()` after execution has settled. It rejects serialization while a run holds the session lock or an iteration is pending.
+
+```ts
+import { Session } from 'llmz'
+
+const session = new Session()
+session.append({ role: 'user', content: 'Queued request' })
+const encoded = JSON.stringify(session.toJSON())
+const restored = Session.fromJSON(JSON.parse(encoded))
+console.log(restored.status) // pending
+```
+
+Restoration checks format versions, chronology, identities, call/result pairing, exact result encodings, and memory capacity. Unknown versions are rejected. Conversation/provider fields must be acyclic JSON data; encode binary values explicitly. This is conversation and memory persistence, not a paused JavaScript stack.
+
+After a failed execution, the session retains the active input batch and any completed effects/results. Executing it again continues that turn. Newly appended messages remain queued. Applications should inspect failures before retrying operations that produce external effects.
+
+`result.toJSON()` is a compact outcome summary. `result.diagnostics()` exports run diagnostics. Neither replaces `session.toJSON()`.
+
+## Tools and exits
+
+A `Tool` has a name, async handler, optional description, input/output schemas, aliases, metadata, and retry callback. Its original input schema validates and normalizes arguments before the handler runs. Its output schema describes likely returned data for TypeScript and the model: results are never validated, normalized, stripped, or rejected against that schema. Dynamic tools, objects, exits, instructions, and model configuration can be supplied as getters evaluated for each iteration.
+
+```ts
+import { z } from '@bpinternal/zui'
+import { Tool, Exit } from 'llmz'
+
+const getStock = new Tool({
+  name: 'getStock',
+  input: z.object({ sku: z.string() }),
+  output: z.number(),
+  handler: async ({ sku }) => (sku === 'coffee' ? 20 : 0),
+})
+const done = new Exit({
+  name: 'done',
+  description: 'Return available stock.',
+  schema: z.object({ available: z.number() }),
+})
+```
+
+See the [complete typed error catalogue and recovery contract](./ERRORS.md) for stable codes, import-safe guards, iteration diagnostics, and critical failures.
+
+LLMz retains the original schemas separately from their model-facing JSON descriptions. Tool inputs, exit payloads, component props, and object-property assignments preserve `.trim()`, `.refine()`, `.superRefine()`, `.preprocess()`, `.transform()`, and pipelines. Rejected refinements produce the corresponding typed input error and feedback for the next iteration. Successful parsing runs effects once; handlers, exit hooks, deliveries, and stored properties receive the parsed value. Cloning tools and exits preserves their validators.
+
+Tool input effects may be asynchronous. Exit validation, component rendering, and object-property setters are synchronous: async effects on those surfaces raise `InvalidConfigurationError`. Put asynchronous checks in a tool input schema. Exceptions thrown by schema callbacks are configuration failures; use refinement issues to report correctable input errors.
+
+For a type-changing tool input, `execute()` accepts `z.input<I>` and the handler receives `z.output<I>`. Exit results and component handlers use the parsed output type. Tool output schemas describe raw data, so their type hint uses `z.input<O>`; output effects never execute. A handler may return data outside that hint. Memory and inspection retain their own supported-value constraints.
+
+Model-facing schemas describe accepted input shapes, not arbitrary JavaScript behavior. Use descriptions to explain custom constraints. Object property schemas describe assignments; host-provided initial values are already-normalized state and are not parsed again when loaded or restored. Plain session variables have no user-supplied validation schema.
+
+`toJSON()` exports descriptions, not executable refinements or transforms. Persist sessions separately and reattach the original tool, exit, component, and object definitions when resuming. Reconstructing a schema from JSON cannot restore its JavaScript callbacks.
+
+Use `result.is(done)` to narrow the result and its output type. `result.isError()` exposes an execution failure. Without custom exits, workers receive `DefaultExit`. An explicit empty `exits` array supplies no completion exits. Chat adds `ListenExit`; an accepted plain assistant answer can complete the chat turn.
+
+Tools return business data. Generated code sends rich messages through registered `chat.<component>(props)` methods. A `ThinkSignal` requests another reasoning iteration; it is not durable pause/resume.
+
+## Components
+
+Component names are exact JavaScript identifiers. Object and array schemas are supported, including root effects and pipelines; transformed props must still be an object or array. Aliases and generation metadata are not component options. Text names such as `text` and `message` are reserved for native assistant output.
+
+```ts
+import { z } from '@bpinternal/zui'
+import { Chat, Component } from 'llmz'
+
+const cards = new Component({
+  name: 'cards',
+  description: 'Show a list of products.',
+  props: z.array(z.object({ title: z.string(), price: z.number() })),
+  handler: (items, metadata) => {
+    console.log(metadata.id, items)
+  },
+})
+const chat = new Chat({ components: [cards] })
+const rendered = cards.render([{ title: 'Coffee', price: 12 }])
+console.log(rendered.props)
+```
+
+The model calls `chat.cards(...)`. `render` parses props once and captures an immutable delivery value. `withHandler` binds delivery without changing a reusable definition. `DefaultComponents` provides ready-made rich message definitions; bind handlers before using them for delivery.
+
+`Chat.response` accepts `markdown`, `text`, or `speech`, or `{ preset, instructions, handler, onDelta }`. Speech is a prose style for text-to-speech; it does not synthesize audio.
+
+## Streaming and delivery
+
+`response.onDelta` receives previews. Its normal event has `delta`, accumulated `content`, `id`, and `iterationId`. A restart event has `restart: true`, an iteration ID, attempt number, models, and reason. Retract the prior preview before displaying replacement text.
+
+`response.handler` receives the accepted complete text and its message metadata. Components use their own handlers. Without handlers, native text is still retained in session history.
+
+Complete JavaScript calls can execute while streaming continues. If a stream fails after dispatch, the runtime retains completed effects and reports the interruption; it does not replay the program on another model. `options.midStreamFallback` enables restarts before dispatch and requires a preview consumer capable of handling retractions. Normal preview callback failures are ignored; failed retractions stop generation. A final delivery failure can fail execution.
+
+## Token budgets and compaction
+
+`options.maxTokens` caps the context window, not output alone. It must be a positive safe integer. The effective limit is the smaller of this cap and every configured model's input limit. A fallback list uses the smallest input and output limits so the same request fits every candidate.
+
+The runtime reserves output space before fitting input: 10% of the effective limit, with a 256-token floor and 16,000-token ceiling, also bounded by the model's output limit and space for input. A window too small for the request fails before model dispatch.
+
+Input measurement includes system instructions, message scaffolding, tools, JavaScript arguments, tool receipts, memory previews, and execution-budget guidance. Enforcement uses exact tokenization with the configured local tokenizer. This remains an estimate of the provider's request accounting: model tokenizers and provider framing can differ. Image/audio transport URLs and encoded bytes are excluded from text measurement; provider-specific media token costs are not available locally. Media-shaped business arguments and ordinary strings are counted as text.
+
+Automatic compaction is enabled by default. At 85% of the available input budget, it aims for 65%, preferring to keep the two most recent iterations. A hard overflow can require retaining fewer iterations. The compactor asks an LLM to summarize the discarded conversation, including decisions, external events, confirmed effects, failures, and pending work. Large histories are summarized in bounded segments; each request reserves output space and includes the previous segment's summary.
+
+A successful compaction inserts a `{ role: 'summary', content }` event at the start of the retained transcript. It replaces earlier compaction summaries, preserving their information in the new summary. Native requests receive the summary as labeled user-role data. The summarizer cannot call tools. Summaries are lossy model output; named JavaScript memory stays exact and is never reconstructed from them.
+
+```ts
 import { Client } from '@botpress/client'
-import { CLIChat } from './utils/cli-chat'
+import { Session } from 'llmz'
 
-const client = new Client({
-  botId: process.env.BOTPRESS_BOT_ID!,
-  token: process.env.BOTPRESS_TOKEN!,
+const client = new Client()
+const session = new Session({
+  compaction: {
+    triggerRatio: 0.85,
+    targetRatio: 0.65,
+    keepRecentIterations: 2,
+    maxSummaryTokens: 1024,
+    model: 'fast',
+  },
 })
 
-const chat = new CLIChat()
+// Read-only: returns a summary message without changing the conversation.
+const summary = await session.summarize({ client })
 
-while (await chat.iterate()) {
-  await execute({
-    instructions: 'You are a helpful assistant',
-    chat,
-    client,
-  })
-}
+// Replace older history now, preserving the most recent iteration.
+await session.compact({ client, keepRecentIterations: 1 })
+console.log(summary, session.transcript)
 ```
 
----
+Without an explicit compaction model, automatic summaries use the execution model; standalone `summarize` and `compact` use `fast`. Summary generation makes additional model calls. `maxSummaryTokens` is a ceiling; model limits and remaining request space may reduce it. `signal` cancels explicit summarization or compaction.
 
-## Core Concepts
+Set `compaction: false` to disable automatic summarization; requests that cannot fit then fail without dropping history. A custom `compaction.summarize({ messages, maxTokens, signal })` can return summary text; the same validation and token limit still apply. Serializable controls survive `toJSON()` / `fromJSON()`. Reattach a custom callback with `Session.fromJSON(state, { compaction: { ...controls, summarize } })`.
 
-### Execution Loop
+Compaction retains complete call/result groups, current-turn input, pending iterations, queued input, and named memory. Discarded iteration results are removed from `$iterations` and `$return`. Summary failure, cancellation, an oversized summary, or a failing `onBeforeRequest` hook leaves the original history intact. A prepared summary is committed only after the final request fits and its hooks succeed. Explicit `compact` and `summarize` acquire the session lock and cannot overlap execution.
 
-At its core, LLMz exposes a single method (`execute`) that runs in a loop until one of these conditions is met:
+For deliberate deletion without summarization, `session.prune(retainedIterationIds)` keeps the specified complete iterations. `requestMessages({ retainedIterationIds })` previews that selection. Use these lower-level methods only when discarding history is intentional.
 
-1. **An Exit is returned** - Agent completes with structured result
-2. **Agent waits for user input** (Chat Mode) - Returns control to user
-3. **Maximum iterations reached** - Safety limit to prevent infinite loops
+If required instructions, current input, tool definitions, or retained memory previews still exceed the budget, shorten them or use a larger context limit. LLMZ does not silently truncate current user input.
 
-The loop automatically handles:
+`result.tokens` reports provider usage summed over this run. Each iteration's `tokens.context` describes the measured request after compaction and hook replacement; its categories sum to `context.total`. These estimates and provider usage have different purposes.
 
-- Tool calling and result processing
-- Thinking about outputs and context
-- Error recovery and retry logic
-- Variable state persistence across iterations
+## Inspection
 
-### Generated Code Structure
+Use `truncate` in a tool handler to set a value's display budget while retaining its full data:
 
-Every LLMz code block follows a predictable structure that LLMs can reliably generate:
-
-#### Return Statement (Required)
-
-At minimum, an LLMz response must contain a return statement with an Exit:
-
-```typescript
-// Chat mode - give turn back to user
-return { action: 'listen' }
-
-// Worker mode - complete with result
-return { action: 'done', result: calculatedValue }
-```
-
-#### Tool Calls with Logic
-
-Unlike traditional tool calling, LLMz enables complex logic impossible with JSON:
-
-```typescript
-// Complex conditional logic and error handling
-const price = await getTicketPrice({ from: 'quebec', to: 'new york' })
-
-if (price > 500) {
-  throw new Error('Price too high')
-} else {
-  const ticketId = await buyTicket({ from: 'quebec', to: 'new york' })
-  return { action: 'done', result: ticketId }
-}
-```
-
-#### Comments for Planning
-
-Comments help LLMs think step-by-step and plan ahead:
-
-```typescript
-// Check user's budget first before proceeding with purchase
-const budget = await getUserBudget()
-
-// Only proceed if we have enough funds
-if (budget >= price) {
-  // Purchase the ticket
-  const ticket = await buyTicket(ticketDetails)
-}
-```
-
-#### React Components (Chat Mode Only)
-
-In Chat Mode, agents can yield React components for rich user interaction:
-
-```typescript
-// Multi-line text support
-yield <Text>
-Hello, world!
-This is a second line.
-</Text>
-
-// Composed/nested components
-yield <Message>
-  <Text>What do you prefer?</Text>
-  <Button>Cats</Button>
-  <Button>Dogs</Button>
-</Message>
-
-return { action: 'listen' }
-```
-
-### Compilation Pipeline
-
-LLMz uses a sophisticated Babel-based compilation system to transform generated code:
-
-1. **AST Parsing**: TypeScript/JSX code parsed into Abstract Syntax Tree
-2. **Plugin Transformation**: Custom plugins modify the AST for execution
-3. **Code Generation**: Modified AST compiled back to executable JavaScript
-4. **Source Maps**: Generated for debugging and error tracking
-
-Key transformations include:
-
-- Tool call instrumentation for monitoring
-- Variable extraction and tracking
-- JSX component handling
-- Line number preservation for stack traces
-
-### Virtual Machine Execution
-
-LLMz supports multiple execution environments:
-
-- **Production**: Uses `isolated-vm` for security isolation
-- **CI/Development**: Falls back to Node.js VM for compatibility
-- **Browser**: Uses standard JavaScript execution
-
-The VM provides:
-
-- Memory isolation and limits
-- Execution timeouts
-- Secure context separation
-- Stack trace sanitization
-
----
-
-## Execution Modes
-
-LLMz operates in two distinct modes depending on whether a chat interface is provided:
-
-### Chat Mode
-
-**Enabled when**: `chat` parameter is provided to `execute()`
-
-Chat Mode is designed for interactive conversational agents that need to:
-
-- Maintain conversation history
-- Respond to user messages
-- Yield UI components for rich interaction
-- Handle turn-taking between agent and user
-
-Key characteristics:
-
-- Agent can yield React components to user
-- Special `ListenExit` automatically available
-- Transcript management for conversation history
-- Turn-based execution flow
-
-```typescript
-const result = await execute({
-  instructions: 'You are a helpful assistant',
-  chat: myChatInstance,
-  tools: [searchTool, calculatorTool],
-  client,
-})
-
-if (result.is(ListenExit)) {
-  // Agent is waiting for user input
-}
-```
-
-### Worker Mode
-
-**Enabled when**: `chat` parameter is omitted from `execute()`
-
-Worker Mode is designed for automated execution environments that need to:
-
-- Process data and perform computations
-- Execute multi-step workflows
-- Return structured results
-- Run without human interaction
-
-Key characteristics:
-
-- Focus on computational tasks and data processing
-- Uses `DefaultExit` if no custom exits provided
-- Sandboxed execution with security isolation
-- Automated completion without user interaction
-
-```typescript
-const result = await execute({
-  instructions: 'Process the customer data and generate insights',
-  tools: [dataProcessorTool, analyticseTool],
-  exits: [dataProcessedExit],
-  client,
-})
-
-if (result.is(dataProcessedExit)) {
-  console.log('Analysis complete:', result.output)
-}
-```
-
-### Mode Comparison
-
-| Feature              | Chat Mode           | Worker Mode     |
-| -------------------- | ------------------- | --------------- |
-| User Interaction     | ✅ Interactive      | ❌ Automated    |
-| UI Components        | ✅ React components | ❌ No UI        |
-| Conversation History | ✅ Full transcript  | ❌ No history   |
-| Default Exits        | `ListenExit`        | `DefaultExit`   |
-| Primary Use Case     | Conversational AI   | Data processing |
-| Execution Pattern    | Turn-based          | Continuous      |
-
----
-
-## Tools
-
-Tools are the primary way to extend LLMz agents with external capabilities. Unlike traditional agent frameworks, LLMz tools are called through generated TypeScript code, enabling complex orchestration and error handling.
-
-### Tool Definition
-
-Tools are defined using Zui schemas for complete type safety:
-
-```typescript
-import { Tool } from 'llmz'
+```ts
 import { z } from '@bpinternal/zui'
+import { Tool, truncate } from 'llmz'
 
-const weatherTool = new Tool({
-  name: 'getWeather',
-  description: 'Get current weather for a location',
-  input: z.object({
-    location: z.string().describe('City name or coordinates'),
-    units: z.enum(['celsius', 'fahrenheit']).optional().default('celsius'),
-  }),
-  output: z.object({
-    temperature: z.number(),
-    conditions: z.string(),
-    humidity: z.number(),
-  }),
-  handler: async ({ location, units }) => {
-    // Implementation here
-    return {
-      temperature: 22,
-      conditions: 'sunny',
-      humidity: 65,
-    }
-  },
-})
-```
-
-### Tool Usage in Generated Code
-
-The LLM generates TypeScript code that calls tools naturally:
-
-```typescript
-// Simple tool call
-const weather = await getWeather({ location: 'New York' })
-
-// Complex logic with multiple tools
-const weather = await getWeather({ location: userLocation })
-if (weather.temperature < 0) {
-  const clothing = await getSuggestions({ type: 'winter', temperature: weather.temperature })
-  yield <Text>It's {weather.temperature}°C! {clothing.suggestion}</Text>
-} else {
-  yield <Text>Nice weather! {weather.conditions} at {weather.temperature}°C</Text>
-}
-
-return { action: 'listen' }
-```
-
-### Advanced Tool Features
-
-#### Tool Aliases
-
-Tools can have multiple names for flexible calling:
-
-```typescript
-const tool = new Tool({
-  name: 'calculatePrice',
-  aliases: ['getPrice', 'checkCost'],
-  // ... rest of definition
-})
-
-// All of these work in generated code:
-// await calculatePrice(params)
-// await getPrice(params)
-// await checkCost(params)
-```
-
-#### Static Inputs
-
-Force specific inputs to be always included:
-
-```typescript
-const tool = new Tool({
-  name: 'logEvent',
-  input: z.object({
-    event: z.string(),
-    userId: z.string(),
-    timestamp: z.number(),
-  }),
-  staticInputs: {
-    userId: 'user-123',
-    timestamp: () => Date.now(), // Dynamic static input
-  },
-  handler: async ({ event, userId, timestamp }) => {
-    // userId and timestamp are automatically provided
-  },
-})
-```
-
-#### Tool Wrapping and Cloning
-
-Clone and modify existing tools:
-
-```typescript
-const originalTool = new Tool({/* definition */})
-
-const wrappedTool = originalTool.clone({
-  name: 'wrappedVersion',
-  description: 'Enhanced version with logging',
-  handler: async (input) => {
-    console.log('Tool called with:', input)
-    const result = await originalTool.execute(input)
-    console.log('Tool returned:', result)
-    return result
-  },
-})
-```
-
-### Tool Type Generation
-
-Use `tool.getTypings()` to see the TypeScript definitions generated for the LLM:
-
-```typescript
-console.log(weatherTool.getTypings())
-// Output:
-// /**
-//  * Get current weather for a location
-//  */
-// declare function getWeather(input: {
-//   location: string; // City name or coordinates
-//   units?: "celsius" | "fahrenheit";
-// }): Promise<{
-//   temperature: number;
-//   conditions: string;
-//   humidity: number;
-// }>;
-```
-
-### Best Practices
-
-1. **Descriptive Schemas**: Detailed descriptions help LLMs generate better code
-2. **Type Safety**: Use strict Zui schemas for predictable behavior
-3. **Error Handling**: Tools should handle errors gracefully
-4. **Performance**: Keep tool execution fast to avoid timeouts
-5. **Documentation**: Clear descriptions improve code generation quality
-
----
-
-## Objects and Variables
-
-Objects in LLMz provide namespaced containers for related tools and variables, enabling sophisticated state management and data organization.
-
-### Object Definition
-
-Objects group related functionality and provide scoped variables:
-
-```typescript
-import { ObjectInstance } from 'llmz'
-import { z } from '@bpinternal/zui'
-
-const userObject = new ObjectInstance({
-  name: 'user',
-  properties: [
-    {
-      name: 'name',
-      value: 'John Doe',
-      writable: true,
-      type: z.string(),
-    },
-    {
-      name: 'age',
-      value: 30,
-      writable: false, // Read-only
-      type: z.number(),
-    },
-    {
-      name: 'preferences',
-      value: { theme: 'dark', language: 'en' },
-      writable: true,
-      type: z.object({
-        theme: z.enum(['light', 'dark']),
-        language: z.string(),
-      }),
-    },
-  ],
-  tools: [
-    new Tool({
-      name: 'updateProfile',
-      input: z.object({ name: z.string() }),
-      handler: async ({ name }) => {
-        // This tool is scoped to the user object
-        return { success: true }
-      },
+const getEvidence = new Tool({
+  name: 'getEvidence',
+  output: z.string(),
+  handler: async () =>
+    truncate({
+      value: 'First section\nDetailed evidence\nLast section',
+      maxTokens: 800,
+      preserve: 'both',
     }),
-  ],
 })
 ```
 
-### Variables in Generated Code
+`preserve` is `top`, `bottom`, or `both`. Budgets are nonnegative safe integers; zero hides the preview. `options.toolResultMaxTokens` defaults to 2,000 and accepts 0–2,000. An explicit `truncate` policy can raise or lower the inspected result budget. It cannot bypass the overall request limit. Tool-result preview budgets do not cap the entire execution report, which also contains status and activity.
 
-The LLM can read and write object properties in generated code:
+Inventories and diagnostic previews keep their own small budgets even if a value carries a larger inspection override. Truncation markers are included in the final measured output. Unicode boundaries, cyclic structures, throwing formatters, and accessor properties are handled without changing retained data.
 
-```typescript
-// Reading variables
-const userName = user.name // "John Doe"
-const userAge = user.age // 30
+Standalone text is displayed directly. Strings nested in objects or arrays use JSON quoting so source indentation, line endings, and literal escapes remain distinct from the preview's formatting.
 
-// Writing to writable variables
-user.name = 'Jane Smith' // ✅ Succeeds
-user.preferences = { theme: 'light', language: 'es' } // ✅ Succeeds
+`onInspect` customizes previews by purpose and identity. Return `undefined` for the default formatter. The hook receives an isolated read-only snapshot; custom text is still bounded. A formatter failure falls back to default inspection.
 
-// Attempting to write read-only variables
-user.age = 25 // ❌ Throws AssignmentError
-```
+```ts
+import { createInspector, inspect, type ExecutionHooks } from 'llmz'
 
-### Type Safety and Validation
-
-Variables are validated against their schemas:
-
-```typescript
-// Valid assignment
-user.preferences = { theme: 'dark', language: 'fr' } // ✅
-
-// Invalid assignment - wrong type
-user.preferences = { theme: 'blue', language: 'fr' } // ❌ Throws validation error
-
-// Invalid assignment - missing required fields
-user.preferences = { theme: 'dark' } // ❌ Missing language field
-```
-
-### Mutation Tracking
-
-LLMz automatically tracks changes to object properties:
-
-```typescript
-// In generated code
-user.name = 'Updated Name'
-user.preferences.theme = 'light'
-
-// After execution, mutations are available
-console.log(result.iteration.mutations)
-// [
-//   {
-//     object: 'user',
-//     property: 'name',
-//     before: 'John Doe',
-//     after: 'Updated Name'
-//   },
-//   {
-//     object: 'user',
-//     property: 'preferences',
-//     before: { theme: 'dark', language: 'en' },
-//     after: { theme: 'light', language: 'en' }
-//   }
-// ]
-```
-
-### Namespaced Tools
-
-Tools within objects are called with object namespace:
-
-```typescript
-// Tool is scoped to the user object
-await user.updateProfile({ name: 'New Name' })
-
-// This automatically updates the user object's properties
-// and is tracked as a mutation
-```
-
-### Object Sealing and Protection
-
-Objects are automatically sealed to prevent unauthorized modifications:
-
-```typescript
-// In generated code - these will throw errors
-user.newProperty = 'value' // ❌ Cannot add new properties
-delete user.name // ❌ Cannot delete properties
-
-// Only predefined properties can be modified (if writable)
-user.name = 'New Name' // ✅ Allowed if writable: true
-```
-
-### Variable Persistence
-
-Variables persist across iterations and thinking cycles:
-
-```typescript
-// Iteration 1: Set a variable
-user.preferences = { theme: 'dark', language: 'es' }
-return { action: 'think' } // Trigger thinking
-
-// Iteration 2: Variable is still available
-const currentTheme = user.preferences.theme // 'dark'
-```
-
-### Best Practices
-
-1. **Meaningful Names**: Use descriptive object and property names
-2. **Appropriate Scope**: Group related functionality together
-3. **Write Protection**: Mark properties as read-only when appropriate
-4. **Type Safety**: Use strict schemas for predictable behavior
-5. **Mutation Tracking**: Leverage mutation tracking for audit trails
-
----
-
-## Execution Results
-
-Every call to `execute()` returns an `ExecutionResult` that provides type-safe access to the execution outcome. LLMz execution can result in three different types of results.
-
-### Result Types
-
-#### SuccessExecutionResult
-
-Agent completed successfully with an Exit. Contains the structured data produced by the agent.
-
-```typescript
-const result = await execute({
-  instructions: 'Calculate the sum',
-  client,
-})
-
-if (result.isSuccess()) {
-  console.log('Output:', result.output)
-  console.log('Exit used:', result.exit.name)
-  console.log('Generated code:', result.iteration.code)
+const hooks: ExecutionHooks = {
+  onInspect: (event) => {
+    if (event.purpose === 'variable' && event.identity?.variable === 'apiKey') {
+      return '[redacted]'
+    }
+    return undefined
+  },
 }
+const inspector = createInspector(hooks.onInspect)
+console.log(inspector({ count: 3 }, { purpose: 'result', maxTokens: 40 }))
+console.log(inspect({ count: 3 }, undefined, { tokens: 40, compact: true }))
 ```
 
-#### ErrorExecutionResult
+A redacted preview is not a security boundary: the underlying value still exists in memory and can be used by JavaScript or tools. Keep secrets out of model-accessible state.
 
-Execution failed with an unrecoverable error:
+## Hooks
 
-```typescript
-if (result.isError()) {
-  console.error('Error:', result.error)
-  console.error('Failed iteration:', result.iteration?.error)
+| Hook                           | Purpose                                                                                             |
+| ------------------------------ | --------------------------------------------------------------------------------------------------- |
+| `onIterationStart`             | Observe the iteration before generation. Use getters for dynamic configuration.                     |
+| `onBeforeRequest`              | Return replacement native messages after tentative compaction. The replacement must fit the budget. |
+| `onBeforeExecution`            | Optionally return replacement JavaScript code.                                                      |
+| `onBeforeTool` / `onAfterTool` | Inspect or replace a business tool's input/output.                                                  |
+| `onInspect`                    | Format bounded previews without changing retained values.                                           |
+| `onTrace`                      | Observe execution traces. Observer exceptions do not alter completed actions.                       |
+| `onIterationEnd`               | Observe a settled iteration.                                                                        |
+| `onExit`                       | Validate or handle a proposed completion.                                                           |
 
-  // Analyze failure progression
-  result.iterations.forEach((iter, i) => {
-    console.log(`Iteration ${i + 1}: ${iter.status.type}`)
-  })
-}
-```
+```ts
+import type { ExecutionHooks } from 'llmz'
 
-#### PartialExecutionResult
-
-Execution was interrupted by a SnapshotSignal for pauseable operations:
-
-```typescript
-if (result.isInterrupted()) {
-  console.log('Interrupted:', result.signal.message)
-
-  // Save snapshot for later resumption
-  const serialized = result.snapshot.toJSON()
-  await database.saveSnapshot(serialized)
-}
-```
-
-### Type-Safe Exit Checking
-
-Use `result.is(exit)` for type-safe access to specific exit data:
-
-```typescript
-const successExit = new Exit({
-  name: 'success',
-  schema: z.object({
-    recordsProcessed: z.number(),
-    processingTime: z.number(),
+const hooks: ExecutionHooks = {
+  onBeforeRequest: ({ messages }) => ({
+    messages: [{ role: 'system', content: 'Use concise language.' }, ...messages],
   }),
-})
-
-const errorExit = new Exit({
-  name: 'error',
-  schema: z.object({
-    errorCode: z.string(),
-    details: z.string(),
-  }),
-})
-
-const result = await execute({
-  instructions: 'Process the data',
-  exits: [successExit, errorExit],
-  client,
-})
-
-// Type-safe exit handling with automatic output typing
-if (result.is(successExit)) {
-  // TypeScript knows result.output has the success schema
-  console.log(`Processed ${result.output.recordsProcessed} records`)
-  console.log(`Processing took ${result.output.processingTime}ms`)
-} else if (result.is(errorExit)) {
-  // TypeScript knows result.output has the error schema
-  console.error(`Error ${result.output.errorCode}: ${result.output.details}`)
-}
-```
-
-### Built-in Exits
-
-```typescript
-import { ListenExit, DefaultExit, ThinkExit } from 'llmz'
-
-// Check for built-in exits
-if (result.is(ListenExit)) {
-  console.log('Agent is waiting for user input')
-}
-
-if (result.is(DefaultExit)) {
-  // DefaultExit has success/failure discriminated union
-  if (result.output.success) {
-    console.log('Completed successfully:', result.output.result)
-  } else {
-    console.error('Completed with error:', result.output.error)
-  }
-}
-
-if (result.is(ThinkExit)) {
-  console.log('Agent requested thinking time')
-  console.log('Current variables:', result.output.variables)
-}
-```
-
-### Accessing Execution Details
-
-#### Iterations and Execution Flow
-
-```typescript
-// Access the final iteration
-const lastIteration = result.iteration
-if (lastIteration) {
-  console.log('Generated code:', lastIteration.code)
-  console.log('Status:', lastIteration.status.type)
-  console.log('Duration:', lastIteration.duration)
-}
-
-// Access all iterations to see full execution flow
-result.iterations.forEach((iteration, index) => {
-  console.log(`Iteration ${index + 1}:`)
-  console.log('  Status:', iteration.status.type)
-  console.log('  Code length:', iteration.code?.length || 0)
-  console.log('  Variables:', Object.keys(iteration.variables).length)
-})
-```
-
-#### Variables and Declarations
-
-```typescript
-// If agent generates: const hello = '1234'
-const lastIteration = result.iteration
-if (lastIteration) {
-  console.log(lastIteration.variables.hello) // '1234'
-
-  // Access all variables from the final iteration
-  Object.entries(lastIteration.variables).forEach(([name, value]) => {
-    console.log(`Variable ${name}:`, value)
-  })
-}
-```
-
-#### Tool Calls and Traces
-
-```typescript
-// Access tool calls from all iterations
-const allToolCalls = result.iterations.flatMap((iter) => iter.traces.filter((trace) => trace.type === 'tool_call'))
-
-console.log('Total tool calls:', allToolCalls.length)
-
-// Access other trace types
-const lastIteration = result.iteration
-if (lastIteration) {
-  const yields = lastIteration.traces.filter((trace) => trace.type === 'yield')
-  const comments = lastIteration.traces.filter((trace) => trace.type === 'comment')
-  const propertyAccess = lastIteration.traces.filter((trace) => trace.type === 'property')
-}
-```
-
-#### Context and Metadata
-
-```typescript
-if (result.isSuccess()) {
-  // Access original execution parameters
-  console.log('Instructions:', result.context.instructions)
-  console.log('Loop limit:', result.context.loop)
-  console.log('Temperature:', result.context.temperature)
-  console.log('Model:', result.context.model)
-
-  // Access tools and exits that were available
-  console.log(
-    'Available tools:',
-    result.context.tools?.map((t) => t.name)
-  )
-  console.log(
-    'Available exits:',
-    result.context.exits?.map((e) => e.name)
-  )
-}
-```
-
-### Error Analysis
-
-```typescript
-if (result.isError()) {
-  console.error('Execution failed:', result.error)
-
-  // Analyze the failure progression
-  const failedIteration = result.iteration
-  if (failedIteration) {
-    switch (failedIteration.status.type) {
-      case 'execution_error':
-        console.error('Code execution failed:', failedIteration.status.execution_error.message)
-        console.error('Stack trace:', failedIteration.status.execution_error.stack)
-        console.error('Failed code:', failedIteration.code)
-        break
-
-      case 'generation_error':
-        console.error('LLM generation failed:', failedIteration.status.generation_error.message)
-        break
-
-      case 'invalid_code_error':
-        console.error('Invalid code generated:', failedIteration.status.invalid_code_error.message)
-        console.error('Invalid code:', failedIteration.code)
-        break
-
-      case 'aborted':
-        console.error('Execution aborted:', failedIteration.status.aborted.reason)
-        break
-    }
-  }
-
-  // Review all iterations to understand failure progression
-  console.log('Iterations before failure:', result.iterations.length)
-  result.iterations.forEach((iter, i) => {
-    console.log(`Iteration ${i + 1}: ${iter.status.type}`)
-  })
-}
-```
-
-### Snapshot Handling
-
-Handle interrupted executions with snapshot resumption:
-
-```typescript
-const result = await execute({
-  instructions: 'Process large dataset with pauseable operation',
-  tools: [snapshotCapableTool],
-  client,
-})
-
-if (result.isInterrupted()) {
-  console.log('Execution paused:', result.signal.message)
-
-  // Serialize snapshot for persistence
-  const serialized = result.snapshot.toJSON()
-  await database.saveSnapshot('execution-123', serialized)
-
-  // Later, resume from snapshot
-  const snapshot = Snapshot.fromJSON(serialized)
-  snapshot.resolve({ resumeData: 'Operation completed' })
-
-  const continuation = await execute({
-    snapshot,
-    instructions: result.context.instructions,
-    tools: result.context.tools,
-    exits: result.context.exits,
-    client,
-  })
-
-  if (continuation.isSuccess()) {
-    console.log('Resumed execution completed:', continuation.output)
-  }
-}
-```
-
----
-
-## Hooks System
-
-LLMz provides a comprehensive hook system that allows you to inject custom logic at various points during execution. Hooks are categorized as either blocking (execution waits) or non-blocking, and either mutation (can modify data) or non-mutation.
-
-### Hook Types Overview
-
-| Hook                | Blocking | Mutation | Called When                |
-| ------------------- | -------- | -------- | -------------------------- |
-| `onTrace`           | ❌       | ❌       | Each trace generated       |
-| `onIterationEnd`    | ✅       | ❌       | After iteration completion |
-| `onExit`            | ✅       | ❌       | When exit is reached       |
-| `onBeforeExecution` | ✅       | ✅       | Before code execution      |
-| `onBeforeTool`      | ✅       | ✅       | Before tool execution      |
-| `onAfterTool`       | ✅       | ✅       | After tool execution       |
-
-### onTrace (Non-blocking, Non-mutation)
-
-Called for each trace generated during iteration. Useful for logging, debugging, or monitoring execution progress.
-
-```typescript
-await execute({
-  onTrace: ({ trace, iteration }) => {
-    console.log(`Iteration ${iteration}: ${trace.type}`, trace)
-
-    // Log specific trace types
-    if (trace.type === 'tool_call') {
-      console.log(`Tool ${trace.tool_name} called with:`, trace.input)
-    }
-  },
-  // ... other props
-})
-```
-
-**Available Trace Types:**
-
-- `abort_signal`: Abort signal received
-- `comment`: Comment found in generated code
-- `llm_call_success`: LLM generation completed successfully
-- `property`: Object property accessed or modified
-- `think_signal`: ThinkSignal thrown
-- `tool_call`: Tool executed
-- `yield`: Component yielded in chat mode
-- `log`: General logging event
-
-### onIterationEnd (Blocking, Non-mutation)
-
-Called after each iteration ends, regardless of status. Useful for logging, cleanup, or controlling iteration timing.
-
-```typescript
-await execute({
-  onIterationEnd: async (iteration, controller) => {
-    console.log(`Iteration ${iteration.id} ended with status: ${iteration.status.type}`)
-
-    // Add delays, cleanup, or conditional logic
-    if (iteration.status.type === 'execution_error') {
-      await logError(iteration.error)
-
-      // Add delay before retry
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-    }
-
-    // Can use controller to abort execution if needed
-    if (shouldAbort(iteration)) {
-      controller.abort('Custom abort reason')
-    }
-  },
-  // ... other props
-})
-```
-
-### onExit (Blocking, Non-mutation)
-
-Called when an exit is reached. Useful for logging, notifications, or implementing guardrails by throwing errors to prevent exit.
-
-```typescript
-await execute({
-  onExit: async (result) => {
-    console.log(`Exiting with: ${result.exit.name}`, result.result)
-
-    // Implement guardrails
-    if (result.exit.name === 'approve_loan' && result.result.amount > 10000) {
-      throw new Error('Manager approval required for loans over $10,000')
-    }
-
-    // Send notifications
-    await notifyStakeholders(result)
-
-    // Log to audit trail
-    await auditLog.record({
-      action: result.exit.name,
-      data: result.result,
-      timestamp: Date.now(),
-    })
-  },
-  // ... other props
-})
-```
-
-### onBeforeExecution (Blocking, Mutation)
-
-Called after LLM generates code but before execution. Allows code modification and guardrails implementation.
-
-```typescript
-await execute({
-  onBeforeExecution: async (iteration, controller) => {
-    console.log('Generated code:', iteration.code)
-
-    // Code modification
-    if (iteration.code?.includes('dangerousOperation')) {
-      return {
-        code: iteration.code.replace('dangerousOperation', 'safeOperation'),
-      }
-    }
-
-    // Guardrails - throw to prevent execution
-    if (iteration.code?.includes('forbidden')) {
-      throw new Error('Forbidden operation detected')
-    }
-
-    // Add security checks
-    const securityIssues = await scanCodeForSecurity(iteration.code)
-    if (securityIssues.length > 0) {
-      throw new Error(`Security issues found: ${securityIssues.join(', ')}`)
-    }
-
-    // Log code generation for audit
-    await auditCodeGeneration(iteration.code)
-  },
-  // ... other props
-})
-```
-
-### onBeforeTool (Blocking, Mutation)
-
-Called before any tool execution. Allows input modification and tool execution control.
-
-```typescript
-await execute({
-  onBeforeTool: async ({ iteration, tool, input, controller }) => {
-    console.log(`Executing tool: ${tool.name}`, input)
-
-    // Input modification
-    if (tool.name === 'sendEmail') {
-      return {
-        input: {
-          ...input,
-          subject: `[Automated] ${input.subject}`, // Add prefix
-          from: 'noreply@company.com', // Override sender
-        },
-      }
-    }
-
-    // Access control
-    if (tool.name === 'deleteFile' && !hasPermission(input.path)) {
-      throw new Error('Insufficient permissions to delete file')
-    }
-
-    // Rate limiting
-    const rateLimit = await checkRateLimit(tool.name)
-    if (rateLimit.exceeded) {
-      throw new Error(`Rate limit exceeded for ${tool.name}`)
-    }
-
-    // Validation
-    await validateToolUsage(tool, input)
-  },
-  // ... other props
-})
-```
-
-### onAfterTool (Blocking, Mutation)
-
-Called after tool execution. Allows output modification and post-processing.
-
-```typescript
-await execute({
-  onAfterTool: async ({ iteration, tool, input, output, controller }) => {
-    console.log(`Tool ${tool.name} completed`, { input, output })
-
-    // Output modification
-    if (tool.name === 'fetchUserData') {
-      return {
-        output: {
-          ...output,
-          // Remove sensitive data before LLM sees it
-          ssn: undefined,
-          creditCard: undefined,
-          // Add metadata
-          fetchedAt: Date.now(),
-        },
-      }
-    }
-
-    // Result enhancement
-    if (tool.name === 'calculatePrice') {
-      return {
-        output: {
-          ...output,
-          currency: 'USD',
-          timestamp: Date.now(),
-          exchangeRate: await getCurrentExchangeRate(),
-        },
-      }
-    }
-
-    // Logging and caching
-    await Promise.all([
-      cacheResult(tool.name, input, output),
-      logToolExecution(tool.name, input, output),
-      updateMetrics(tool.name, Date.now() - tool.startTime),
-    ])
-  },
-  // ... other props
-})
-```
-
-### Hook Execution Order
-
-For each iteration:
-
-1. **onTrace**: Throughout execution (non-blocking)
-2. **onBeforeExecution**: After code generation, before execution
-3. **onBeforeTool**: Before each tool call
-4. **onAfterTool**: After each tool call
-5. **onExit**: When exit is reached
-6. **onIterationEnd**: After iteration completes
-
-### Advanced Hook Patterns
-
-#### Conditional Hook Logic
-
-```typescript
-await execute({
-  onBeforeTool: async ({ tool, input }) => {
-    // Apply different logic based on tool
-    switch (tool.name) {
-      case 'payment':
-        return await handlePaymentValidation(input)
-      case 'notification':
-        return await handleNotificationThrottling(input)
-      default:
-        return // No modification
-    }
-  },
-})
-```
-
-#### Error Recovery in Hooks
-
-```typescript
-await execute({
-  onExit: async (result) => {
-    try {
-      await criticalPostProcessing(result)
-    } catch (error) {
-      // Log error but don't fail the entire execution
-      console.error('Post-processing failed:', error)
-
-      // Optionally throw to retry the iteration
-      if (error.retryable) {
-        throw new Error('Retrying due to recoverable error')
-      }
-    }
-  },
-})
-```
-
-#### Hook State Management
-
-```typescript
-let executionMetrics = { toolCalls: 0, totalTime: 0 }
-
-await execute({
-  onBeforeTool: async ({ tool }) => {
-    executionMetrics.toolCalls++
-    tool.startTime = Date.now()
-  },
-
-  onAfterTool: async ({ tool }) => {
-    executionMetrics.totalTime += Date.now() - tool.startTime
-  },
-
-  onIterationEnd: async () => {
-    console.log('Execution metrics:', executionMetrics)
-  },
-})
-```
-
-### Best Practices
-
-1. **Error Handling**: Always wrap hook logic in try-catch for production
-2. **Performance**: Keep hooks lightweight, especially `onTrace`
-3. **Security**: Use `onBeforeExecution` and `onBeforeTool` for security validation
-4. **Debugging**: Leverage `onTrace` for comprehensive execution monitoring
-5. **Guardrails**: Implement business logic validation in `onExit`
-6. **Data Transformation**: Use `onBeforeTool`/`onAfterTool` for input/output processing
-7. **Async Operations**: All hooks support async/await for external API calls
-8. **State Management**: Use closures or external state for cross-hook data sharing
-
----
-
-## Advanced Features
-
-### Snapshots (Pauseable Execution)
-
-Snapshots allow you to pause and resume LLMz execution, enabling long-running workflows that can be interrupted and continued later.
-
-#### SnapshotSignal
-
-Inside a tool, throw a `SnapshotSignal` to halt execution and create a serializable snapshot:
-
-```typescript
-import { SnapshotSignal, Tool } from 'llmz'
-
-const longRunningTool = new Tool({
-  name: 'processLargeDataset',
-  input: z.object({ datasetId: z.string() }),
-  async handler({ datasetId }) {
-    // Start processing
-    const dataset = await loadDataset(datasetId)
-
-    // At any point, pause execution for later resumption
-    if (dataset.size > LARGE_THRESHOLD) {
-      throw new SnapshotSignal(
-        'Dataset is large, pausing for background processing',
-        'Processing will continue once background job completes'
-      )
-    }
-
-    return { processed: true }
-  },
-})
-```
-
-#### Snapshot Handling
-
-```typescript
-const result = await execute({
-  instructions: 'Process the uploaded dataset',
-  tools: [longRunningTool],
-  client,
-})
-
-if (result.isInterrupted()) {
-  console.log('Execution paused:', result.signal.message)
-
-  // Serialize snapshot for persistence
-  const serialized = result.snapshot.toJSON()
-  await database.saveSnapshot('job-123', serialized)
-
-  // Start background processing
-  await backgroundJobQueue.add('process-dataset', {
-    snapshotId: 'job-123',
-    datasetId: result.signal.toolCall?.input.datasetId,
-  })
-}
-```
-
-#### Resuming from Snapshot
-
-```typescript
-// Later, when background job completes
-const serialized = await database.getSnapshot('job-123')
-const snapshot = Snapshot.fromJSON(serialized)
-
-// Resolve the snapshot with the result
-snapshot.resolve({
-  processed: true,
-  recordCount: 1000000,
-  processingTime: 3600000,
-})
-
-// Continue execution from where it left off
-const continuation = await execute({
-  snapshot,
-  instructions: 'Process the uploaded dataset', // Same as original
-  tools: [longRunningTool], // Same tools
-  client,
-})
-
-if (continuation.isSuccess()) {
-  console.log('Processing completed:', continuation.output)
-}
-```
-
-#### Snapshot Rejection
-
-```typescript
-// If background processing fails
-const snapshot = Snapshot.fromJSON(serialized)
-snapshot.reject(new Error('Background processing failed'))
-
-const continuation = await execute({
-  snapshot,
-  // ... same parameters
-})
-
-// The agent will receive the error and can handle it
-```
-
-### Thinking (Agent Reflection)
-
-The thinking system allows agents to pause and reflect on variables and context before proceeding.
-
-#### ThinkSignal (Tool-Initiated)
-
-Tools can force thinking by throwing a `ThinkSignal`:
-
-```typescript
-const analysisTool = new Tool({
-  name: 'analyzeData',
-  input: z.object({ data: z.array(z.number()) }),
-  async handler({ data }) {
-    const result = performAnalysis(data)
-
-    // Force the agent to think about the results before responding
-    throw new ThinkSignal(
-      'Analysis complete, consider the implications',
-      `Found ${result.anomalies.length} anomalies and ${result.patterns.length} patterns`
-    )
-  },
-})
-```
-
-#### Agent-Initiated Thinking
-
-Agents can request thinking time in generated code:
-
-```typescript
-// In generated code
-const analysisResult = await analyzeData({ data: userInputData })
-
-// Think about the results before responding to user
-return { action: 'think' }
-```
-
-#### Thinking with Variables
-
-Pass specific variables for reflection:
-
-```typescript
-// In generated code
-const price = await calculatePrice({ items: cartItems })
-const budget = await getUserBudget()
-
-// Think about pricing vs budget with specific context
-return {
-  action: 'think',
-  price,
-  budget,
-  recommendation: price > budget ? 'deny' : 'approve',
-}
-```
-
-#### Handling Think Results
-
-```typescript
-const result = await execute({
-  instructions: 'Analyze the user data and provide recommendations',
-  tools: [analysisTool],
-  client,
-})
-
-if (result.is(ThinkExit)) {
-  console.log('Agent is thinking about:', result.output.variables)
-
-  // Continue execution after thinking
-  const continuation = await execute({
-    instructions: result.context.instructions,
-    tools: result.context.tools,
-    // Variables from thinking are automatically preserved
-    client,
-  })
-}
-```
-
-### Citations (RAG Support)
-
-CitationsManager provides standardized source tracking and referencing for RAG (Retrieval-Augmented Generation) systems.
-
-#### Core Concepts
-
-Citations use rare Unicode symbols (`【】`) as markers that are unlikely to appear in natural text. The system supports:
-
-- **Source Registration**: Register any object as a citation source
-- **Tag Generation**: Automatic creation of unique citation tags like `【0】`, `【1】`
-- **Content Processing**: Extract and clean citation tags from text
-- **Multiple Citations**: Support for multi-source citations like `【0,1,3】`
-
-#### Basic Usage
-
-```typescript
-import { CitationsManager } from 'llmz'
-
-const citations = new CitationsManager()
-
-// Register sources and get citation tags
-const source1 = citations.registerSource({
-  file: 'document.pdf',
-  page: 5,
-  title: 'Company Policy',
-})
-
-const source2 = citations.registerSource({
-  url: 'https://example.com/article',
-  title: 'Best Practices',
-})
-
-console.log(source1.tag) // "【0】"
-console.log(source2.tag) // "【1】"
-
-// Use tags in content
-const content = `The policy states employees must arrive on time${source1.tag}. However, best practices suggest flexibility${source2.tag}.`
-```
-
-#### RAG Implementation Example
-
-```typescript
-const ragTool = new Tool({
-  name: 'search',
-  description: 'Searches in the knowledge base for relevant information.',
-  input: z.string().describe('The query to search in the knowledge base.'),
-  async handler(query) {
-    // Perform semantic search
-    const { passages } = await client.searchFiles({
-      query,
-      limit: 20,
-      contextDepth: 3,
-    })
-
-    if (!passages.length) {
-      throw new ThinkSignal(
-        'No results found',
-        'No results were found in the knowledge base. Try rephrasing your question.'
-      )
-    }
-
-    // Build response with citations
-    let message: string[] = ['Here are the search results:']
-    let { tag: example } = chat.citations.registerSource({}) // Example citation
-
-    // Register each passage as a source
-    for (const passage of passages) {
-      const { tag } = chat.citations.registerSource({
-        file: passage.file.key,
-        title: passage.file.tags.title,
-      })
-
-      message.push(`<${tag} file="${passage.file.key}">`)
-      message.push(`**${passage.file.tags.title}**`)
-      message.push(passage.content)
-      message.push(`</${tag}>`)
-    }
-
-    // Provide context with citation instructions
-    throw new ThinkSignal(
-      `Got search results. When answering, you MUST add inline citations (eg: "The price is $10${example} ...")`,
-      message.join('\n').trim()
-    )
-  },
-})
-```
-
-#### Chat Integration
-
-```typescript
-class CLIChat extends Chat {
-  public citations: CitationsManager = new CitationsManager()
-
-  private async sendMessage(input: RenderedComponent) {
-    if (input.type === 'Text') {
-      let sources: string[] = []
-
-      // Extract citations and format them for display
-      const { cleaned } = this.citations.extractCitations(input.text, (citation) => {
-        let idx = chalk.bgGreenBright.black.bold(` ${sources.length + 1} `)
-        sources.push(`${idx}: ${JSON.stringify(citation.source)}`)
-        return `${idx}` // Replace 【0】 with [1]
-      })
-
-      // Display cleaned text and sources
-      console.log(`🤖 Agent: ${cleaned}`)
-
-      if (sources.length) {
-        console.log(chalk.dim('Citations'))
-        console.log(chalk.dim('========='))
-        console.log(chalk.dim(sources.join('\n')))
-      }
-    }
-  }
-}
-```
-
-#### Advanced Citation Features
-
-**Multiple Citation Support:**
-
-```typescript
-// Agent can reference multiple sources in one citation
-const content = 'This fact is supported by multiple studies【0,1,3】'
-
-const { cleaned, citations } = manager.extractCitations(content)
-// citations array contains entries for sources 0, 1, and 3
-```
-
-**Object Citation Processing:**
-
-```typescript
-// Remove citations from complex objects
-const dataWithCitations = {
-  summary: 'The report shows positive trends【0】',
-  details: {
-    revenue: 'Increased by 15%【1】',
-    costs: 'Reduced by 8%【2】',
+  onTrace: ({ trace }) => {
+    console.debug(trace.type)
   },
 }
-
-const [cleanData, extractedCitations] = manager.removeCitationsFromObject(dataWithCitations)
-// cleanData has citations removed, extractedCitations contains path + citation info
 ```
 
-**Citation Stripping:**
+Request messages are copies. Hooks should preserve native call/result pairing and opaque provider fields. `onBeforeRequest` changes the model request, not canonical session history. Blocking hook failures can fail the iteration; observation hooks have the behavior documented by their types.
 
-```typescript
-// Remove all citation tags from content
-const textWithCitations = 'This statement【0】 has multiple【1,2】 citations.'
-const cleaned = CitationsManager.stripCitationTags(textWithCitations)
-// Result: "This statement has multiple citations."
-```
+## Runtime configuration
 
-### Dynamic Context
+`options.loop` bounds model iterations; `options.timeout` bounds JavaScript execution. Supply `signal` to cancel a run. Cancellation preserves completed effects and any values captured before interruption.
 
-LLMz supports dynamic evaluation of most parameters, allowing context-aware configuration:
+`model` can be a model ID, an ordered fallback list, or a dynamic getter. `options.maxTimeToFirstToken` and `midStreamFallback` apply to streaming clients. `options.transcriptionModel` selects transcription for audio on models without native audio support.
 
-```typescript
-await execute({
-  // Dynamic instructions based on context
-  instructions: (ctx) => {
-    const timeOfDay = new Date().getHours()
-    const greeting = timeOfDay < 12 ? 'Good morning' : 'Good afternoon'
-    return `${greeting}! You are a helpful assistant with access to ${ctx.tools?.length || 0} tools.`
-  },
+On platforms that prohibit runtime WASM compilation, configure a compatible QuickJS variant with `configureQuickJS` and a precompiled tokenizer with `configureTokenizer` before execution. [Examples](./examples) show host integration patterns.
 
-  // Dynamic tools based on user permissions
-  tools: async (ctx) => {
-    const userPermissions = await getUserPermissions(ctx.userId)
-    return allTools.filter((tool) => userPermissions.includes(tool.permission))
-  },
+## Migrating from the previous API
 
-  // Dynamic objects with current state
-  objects: async (ctx) => {
-    const userPreferences = await loadUserPreferences(ctx.userId)
-    return [
-      new ObjectInstance({
-        name: 'user',
-        properties: [{ name: 'preferences', value: userPreferences, writable: true }],
-      }),
-    ]
-  },
+| Previous API                                                           | Current replacement                                                                 |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `Chat.transcript` or `execute.messages`                                | `session.append(...)`, then `execute({ session, ... })`.                            |
+| `Chat.handler`, `onMessageDelta`                                       | `response.handler`, `response.onDelta`; rich messages use component handlers.       |
+| Snapshot signals, snapshot results, `execute.snapshot`                 | Persist settled sessions. Durable paused-program resumption is no longer supported. |
+| Persisting `ExecutionResult` as conversation state                     | `session.toJSON()` and `Session.fromJSON(...)`.                                     |
+| `Example`, `execute.examples`, response examples                       | Put guidance in instructions, or supply request messages with `onBeforeRequest`.    |
+| Component aliases, generated method normalization, generation metadata | Exact component names with object or array props.                                   |
+| `utils.wrapContent`, legacy truncation helpers                         | `truncate({ value, maxTokens, preserve })`.                                         |
+| Returning iteration mutations from `onIterationStart`                  | Dynamic configuration getters or `onBeforeRequest`.                                 |
 
-  client,
-})
-```
-
----
-
-### Mid-Stream Model Fallback (midStreamFallback)
-
-By default, LLMz streams responses: message bodies (`■send` blocks) and completed `Chat.handler` sends are dispatched as soon as they are produced, and the ■run block starts executing while the model is still generating the rest of the response. This gives the lowest time-to-first-token but runs code before the response is complete.
-
-Set `options.midStreamFallback: true` to allow Cognitive to restart a failed stream on another model. There is **no buffered delivery and no final delivery queue**: with fallback enabled, delta text and completed `Chat.handler` sends both stream immediately during generation. Only **TOOL/CODE execution** waits for a stream to complete successfully. When Cognitive abandons an attempt, a reset-only delta (`restart: true`) is delivered through the existing `Chat.onMessageDelta`; it invalidates **all** messages of the current iteration — **including messages already committed through `handler`** — so consumers must retract and replace them:
-
-```typescript
-await execute({
-  // ...
-  chat: new MyChat({
-    onMessageDelta: (delta) => {
-      if (delta.restart) {
-        // invalidates ALL current-iteration messages, including completed handler
-        // sends: retract/replace them before the replacement streams
-        return retractIteration(delta.iterationId)
-      } else {
-        // stream this message's text as it arrives (same iterationId as below)
-        updateMessage(delta)
-      }
-    },
-  }),
-  options: { midStreamFallback: true },
-})
-```
-
-`retractIteration`/`updateMessage` are placeholder names for your consumer's message store. **This option is not safe to enable blindly**: a reset invalidates messages that were already delivered through `handler`. If your transport cannot retract or replace an already-sent message — an external irreversible send such as SMS, email, or a third-party webhook — those sends cannot be undone, so keep `midStreamFallback` disabled unless your consumer can retract and replace invalidated messages.
-
-#### MessageDelta contract
-
-`Chat.onMessageDelta` receives a single typed `MessageDelta` discriminated union:
-
-- **Ordinary text chunk** (`restart: false`) — the next piece of one message's body; all fields are required:
-  ```typescript
-  {
-    restart: false,
-    iterationId: string, // stable across ALL attempts of this LLM generation iteration
-    id: string, // message id — DIFFERENT per attempt (unique when fallback is on)
-    component: string,
-    props: Record<string, unknown>, // final by the time the body starts streaming
-    delta: string, // new chunk of body text
-    content: string, // full body text accumulated so far, including this chunk
-  }
-  ```
-- **Reset-only delta** (`restart: true`) — carries no text; signals the current generation attempt was abandoned and a replacement is being attempted:
-  ```typescript
-  {
-    restart: true,
-    iterationId: string, // the iteration whose messages (incl. handler sends) must be retracted/replaced
-    attempt: number,
-    fromModel: string,
-    toModel: string,
-    reason: string,
-  }
-  ```
-
-IDs: `iterationId` is **stable across attempts** — every restart of the same iteration keeps the same `iterationId` — while `id` is **different per attempt**. After a reset, replacement chunks arrive under new `id`s within the same `iterationId`.
-
-Consumer rules:
-
-- On `restart: true`, retract/replace **all** current-iteration messages bearing that `iterationId` — streamed text **and** messages already delivered through `handler`.
-- On an ordinary chunk, update the message for `delta.id` (create it if new, otherwise append).
-- A reset is emitted and awaited **before** replacement output begins, **even if the replacement yields no message at all**. Return/await the retraction promise in your handler. If it throws or rejects, generation fails without delivering replacement output or executing code; ordinary text-preview errors remain best-effort.
-- A reset only invalidates the messages of its own `iterationId`; it **never** invalidates messages from earlier, completed iterations.
-- Only TOOL/CODE execution is gated on a successful stream: generated code and tool calls never run from an abandoned attempt.
-
-Outside of fallback (the default), `onMessageDelta` behavior is unchanged: ordinary chunks carry `iterationId`/`id`/`component`/`props`/`delta`/`content` with a single stable message id, and no restart/reset deltas are produced.
-
-#### Completed-send correlation
-
-`Chat.handler(component, metadata)` receives `{ iterationId: string, id: string }` for **every send**, including empty-body and non-text components, without requiring `onMessageDelta`. For streamed messages, `metadata.id` matches the text delta's `id`; it changes across attempts while `iterationId` stays stable. Existing one-argument handlers continue to work.
-
-Record **all** persisted message IDs created while awaiting that handler under its metadata (one component may produce multiple persisted messages). A restart can then retract everything for the matching iteration, even after a message's stream tracking has completed. Non-streaming sends also receive metadata. Tool-yielded messages get unique per-yield IDs and the runtime iteration ID; standalone `Tool.execute` calls without an iteration use their `callId` as the scope.
-
-#### Migrating consumers
-
-- **No final delivery queue**: messages are not withheld until the stream ends. Deltas and completed `handler` sends arrive during generation; drop any "promote on success" design — treat every delivered message as provisional until the iteration completes without a reset.
-- **Retract, don't just clear previews**: on `restart: true`, retraction must cascade to every current-iteration message, including ones already committed through `handler`. If your UI or transport cannot do that, keep `midStreamFallback` disabled.
-- **Clear on errors and cancellation**: a failed or cancelled generation can leave current-iteration messages on screen, incomplete, or unresettable. Explicitly clear/roll back current-iteration state when execution errors or ends — there is no exactly-once guarantee, and caller retries can duplicate effects.
-- **Irreversible transports**: external sends that cannot be undone (SMS, email, webhooks) must not blindly enable fallback without a reset-capable gateway.
-
-#### Caveats
-
-- **No extra retry loop**: Cognitive owns fallback, bounded by the model chain. LLMz does not retry abandoned attempts itself.
-- **Cancellation**: cancellation still aborts the original generation request as usual; consumers must clear current-iteration state on abort (see above). Cancellation deadlines are not reset, and the existing stream inactivity guard remains active during handoffs.
-
-This option defaults to false and applies only to streaming clients. Non-streaming Cognitive requests already fall back transparently. It can be combined with `maxTimeToFirstToken` and `transcriptionModel`; do not enable it globally underneath LLMz without also enabling LLMz's fallback option and a reset-capable consumer.
-
-Restarts emit `llm_call_restarted` traces with the attempt, source/destination models, and reason. Token timings remain relative to the original request and describe the surviving attempt (including time spent on prior attempts). Usage and cost retain Cognitive's final reported metadata; LLMz does not infer or sum abandoned-attempt billing.
-
-## API Reference
-
-### Core Functions
-
-#### execute(props: ExecutionProps): Promise<ExecutionResult>
-
-Main execution function that runs LLMz agents in either Chat Mode or Worker Mode.
-
-**Parameters:**
-
-- `props.client` - Botpress Client or Cognitive Client instance for LLM generation
-- `props.instructions` - System prompt/instructions for the LLM (static string or dynamic function)
-- `props.chat` - Optional Chat instance to enable Chat Mode with user interaction
-- `props.tools` - Array of Tool instances available to the agent (static or dynamic)
-- `props.objects` - Array of ObjectInstance for namespaced tools and variables (static or dynamic)
-- `props.exits` - Array of Exit definitions for structured completion (static or dynamic)
-- `props.snapshot` - Optional Snapshot to resume paused execution
-- `props.signal` - Optional AbortSignal to cancel execution
-- `props.options` - Optional execution options (loop limit, temperature, model, timeout)
-- `props.onTrace` - Optional non-blocking hook for monitoring traces during execution
-- `props.onIterationEnd` - Optional blocking hook called after each iteration
-- `props.onExit` - Optional blocking hook called when an exit is reached
-- `props.onBeforeExecution` - Optional blocking hook to modify code before VM execution
-- `props.onBeforeTool` - Optional blocking hook to modify tool inputs before execution
-- `props.onAfterTool` - Optional blocking hook to modify tool outputs after execution
-
-**Returns:** `Promise<ExecutionResult>` - Result containing success/error/interrupted status with type-safe exit checking
-
-### Tool Class
-
-#### new Tool(config: ToolConfig)
-
-Creates a new tool definition with type-safe schemas.
-
-**Properties:**
-
-- `name: string` - Tool name used in generated code
-- `description?: string` - Description for LLM understanding
-- `input?: ZuiSchema` - Input validation schema
-- `output?: ZuiSchema` - Output validation schema
-- `handler: (input: any) => Promise<any> | any` - Tool implementation
-- `aliases?: string[]` - Alternative names for the tool
-- `staticInputs?: Record<string, any>` - Force specific input values
-
-**Methods:**
-
-- `execute(input: any, context?: ToolContext): Promise<any>` - Execute the tool
-- `getTypings(): string` - Get TypeScript definitions for LLM
-- `clone(overrides: Partial<ToolConfig>): Tool` - Create a modified copy
-
-### Exit Class
-
-#### new Exit(config: ExitConfig)
-
-Defines a structured exit point for agent execution.
-
-**Properties:**
-
-- `name: string` - Exit name used in generated code
-- `description?: string` - Description for LLM understanding
-- `schema?: ZuiSchema` - Output validation schema
-- `aliases?: string[]` - Alternative names for the exit
-
-### ObjectInstance Class
-
-#### new ObjectInstance(config: ObjectConfig)
-
-Creates a namespaced container for tools and variables.
-
-**Properties:**
-
-- `name: string` - Object name used in generated code
-- `properties?: PropertyConfig[]` - Object properties/variables
-- `tools?: Tool[]` - Tools scoped to this object
-
-**PropertyConfig:**
-
-- `name: string` - Property name
-- `value: any` - Initial value
-- `writable: boolean` - Whether property can be modified
-- `type?: ZuiSchema` - Validation schema
-
-### ExecutionResult Types
-
-#### SuccessExecutionResult
-
-**Properties:**
-
-- `isSuccess(): boolean` - Type guard for success
-- `output: any` - The result data from the exit
-- `exit: Exit` - The exit that was used
-- `iteration: Iteration` - Final iteration details
-- `iterations: Iteration[]` - All iterations
-- `context: Context` - Execution context
-- `is(exit: Exit): boolean` - Type-safe exit checking
-
-#### ErrorExecutionResult
-
-**Properties:**
-
-- `isError(): boolean` - Type guard for error
-- `error: Error | string` - The error that occurred
-- `iteration?: Iteration` - Failed iteration details
-- `iterations: Iteration[]` - All iterations before failure
-- `context: Context` - Execution context
-
-#### PartialExecutionResult
-
-**Properties:**
-
-- `isInterrupted(): boolean` - Type guard for interruption
-- `signal: SnapshotSignal` - The signal that caused interruption
-- `snapshot: Snapshot` - Serializable execution state
-- `iterations: Iteration[]` - All iterations before interruption
-- `context: Context` - Execution context
-
-### Chat Class
-
-Abstract base class for implementing chat interfaces.
-
-**Abstract Methods:**
-
-- `getTranscript(): Promise<Transcript.Message[]> | Transcript.Message[]` - Get conversation history
-- `getComponents(): Promise<ComponentDefinition[]> | ComponentDefinition[]` - Get available UI components
-- `handler(component: RenderedComponent): Promise<void>` - Handle agent messages
-
-### CitationsManager Class
-
-Manages source citations for RAG systems.
-
-**Methods:**
-
-- `registerSource(source: any): { tag: string, id: number }` - Register a source and get citation tag
-- `extractCitations(text: string, replacer?: (citation) => string): { cleaned: string, citations: Citation[] }` - Extract and process citations
-- `removeCitationsFromObject(obj: any): [cleanedObj: any, citations: Citation[]]` - Remove citations from objects
-- `static stripCitationTags(text: string): string` - Remove all citation tags
-
-### Snapshot Class
-
-Manages pauseable execution state.
-
-**Methods:**
-
-- `toJSON(): string` - Serialize snapshot
-- `static fromJSON(json: string): Snapshot` - Deserialize snapshot
-- `resolve(data: any): void` - Resume with success
-- `reject(error: Error): void` - Resume with error
-
-### Built-in Exits
-
-- `ListenExit` - Automatically available in Chat Mode for user interaction
-- `DefaultExit` - Default exit for Worker Mode with success/failure discrimination
-- `ThinkExit` - Used when agent requests thinking time
-
-### Signals
-
-- `SnapshotSignal` - Thrown to pause execution for later resumption
-- `ThinkSignal` - Thrown to request agent reflection time
-- `LoopExceededError` - Thrown when maximum iterations reached
-
-### Environment Variables
-
-- `VM_DRIVER: 'isolated-vm' | 'node'` - Choose VM execution environment
-- `CI: boolean` - Automatically detected, affects VM driver selection
-
----
-
-## Examples
-
-The LLMz repository includes 20 comprehensive examples demonstrating different patterns and capabilities:
-
-### Chat Examples (Interactive Patterns)
-
-1. **01_chat_basic** - Basic conversational agent setup
-2. **02_chat_exits** - Custom exits for structured conversations
-3. **03_chat_conditional_tool** - Conditional tool usage based on context
-4. **04_chat_small_models** - Optimizations for smaller language models
-5. **05_chat_web_search** - Integration with web search capabilities
-6. **06_chat_confirm_tool** - User confirmation patterns for sensitive operations
-7. **07_chat_guardrails** - Safety mechanisms and content filtering
-8. **08_chat_multi_agent** - Multi-agent orchestration and delegation
-9. **09_chat_variables** - Object variables and state management
-10. **10_chat_components** - Rich UI components and interactive elements
-
-### Worker Examples (Automated Patterns)
-
-11. **11_worker_minimal** - Simplest worker mode execution
-12. **12_worker_fs** - File system operations and data processing
-13. **13_worker_sandbox** - Security isolation and sandboxing
-14. **14_worker_snapshot** - Pauseable execution and resumption
-15. **15_worker_stacktraces** - Error handling and debugging
-16. **16_worker_tool_chaining** - Complex multi-tool workflows
-17. **17_worker_error_recovery** - Graceful error recovery patterns
-18. **18_worker_security** - Security best practices and validation
-19. **19_worker_wrap_tool** - Tool modification and enhancement
-20. **20_chat_rag** - Retrieval-Augmented Generation with citations
-
-### Running Examples
-
-```bash
-# Install dependencies
-pnpm install
-
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your Botpress credentials
-
-# Run a specific example
-pnpm start 01_chat_basic
-pnpm start chat_basic
-pnpm start 01
-
-# List all available examples
-pnpm start
-```
-
-### Example Environment Setup
-
-Create a `.env` file in the examples directory:
-
-```env
-BOTPRESS_BOT_ID=your_bot_id_here
-BOTPRESS_TOKEN=your_token_here
-```
-
-### Key Learning Paths
-
-**Getting Started:**
-
-- Start with `01_chat_basic` and `11_worker_minimal`
-- Understand the difference between Chat and Worker modes
-- Learn basic tool integration patterns
-
-**Intermediate Concepts:**
-
-- Explore `09_chat_variables` for state management
-- Study `16_worker_tool_chaining` for complex workflows
-- Review `14_worker_snapshot` for pauseable execution
-
-**Advanced Patterns:**
-
-- Examine `08_chat_multi_agent` for orchestration
-- Learn from `20_chat_rag` for knowledge integration
-- Study `18_worker_security` for production deployment
-
-Each example includes detailed comments explaining the concepts and implementation patterns, making them excellent learning resources for understanding LLMz capabilities.
-
----
-
-_This documentation covers the complete LLMz framework. For the latest updates and community contributions, visit the [LLMz repository](https://github.com/botpress/llmz)._
+Stored state has explicit format versions. Migration from older serialized state is not automatic. Rebuild supported session inputs from your application's authoritative conversation records when upgrading.

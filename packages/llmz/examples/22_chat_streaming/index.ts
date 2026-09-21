@@ -7,8 +7,9 @@
  * applies to a websocket, an SSE response or any other transport.
  *
  * It shows how to:
- * - Stream message bodies token-by-token with `Chat.onMessageDelta`
- * - Receive the complete, authoritative message with `handler`
+ * - Stream assistant text token-by-token with `response.onDelta`
+ * - Receive the complete assistant text with `response.handler`
+ * - Handle rich messages through each component's own handler
  * - Display the generated code and tool calls (input, output, duration)
  *   live with the `onTrace` hook
  * - Define typed exits and render them when the agent ends the conversation
@@ -24,13 +25,14 @@
 import { Cognitive } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import chalk from 'chalk'
-import { Chat, DefaultComponents, Exit, ListenExit, Tool, execute, isComponent, type ExecutionResult } from 'llmz'
+import { Chat, Session, DefaultComponents, Exit, ListenExit, Tool, execute, type ExecutionResult } from 'llmz'
 
 import { prompt } from '../utils/buttons'
 
-// Streaming requires the Cognitive v2 (beta) client. A regular Botpress
-// client also works, but messages are then delivered whole, not streamed.
+// Cognitive supports native text streaming. Deltas are previews; the response
+// handler receives the complete, authoritative message.
 const client = new Cognitive({
+  apiUrl: process.env.BOTPRESS_API_URL,
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
 })
@@ -61,7 +63,7 @@ const checkAvailability = new Tool({
     if (!DESTINATIONS.some((d) => d.id === destination)) {
       throw new Error(`Unknown destination "${destination}". Use listDestinations first.`)
     }
-    return ['2026-09-14', '2026-11-02', '2027-01-21']
+    return [30, 60, 90].map((days) => new Date(Date.now() + days * 86400_000).toISOString().slice(0, 10))
   },
 })
 
@@ -132,7 +134,7 @@ const cancelled = new Exit({
 // Chat — streaming rendering of messages, buttons, tool calls and exits
 // ────────────────────────────────────────────────────────────────────────────
 
-const transcript: Array<{ role: 'user' | 'assistant'; content: string }> = []
+const session = new Session()
 let buttons: string[] = []
 
 // The id of the message currently being streamed to the terminal, if any
@@ -144,45 +146,48 @@ const compact = (value: unknown, max = 80): string => {
 }
 
 const chat = new Chat({
-  components: [DefaultComponents.Text, DefaultComponents.Button],
-  transcript: () => transcript,
+  components: [
+    DefaultComponents.Buttons.withHandler((choices) => {
+      buttons.push(...choices.map(({ label }) => label))
+    }),
+  ],
+  response: {
+    preset: 'markdown',
 
-  // Called for every chunk of a message body, while the LLM is still
-  // generating. Print chunks as they arrive for a live typewriter effect.
-  onMessageDelta: (delta) => {
-    if (streaming !== delta.id) {
-      streaming = delta.id
-      process.stdout.write(chalk.bold('🤖 Agent: '))
-    }
-    process.stdout.write(delta.delta)
-  },
+    // Print assistant text as it arrives for a live typewriter effect.
+    onDelta: (delta) => {
+      if (delta.restart) {
+        if (streaming) {
+          process.stdout.write(chalk.dim('\n   Previous preview discarded.\n'))
+          streaming = null
+        }
 
-  // Called once per complete message — the authoritative delivery
-  handler: async (component) => {
-    if (isComponent(component, DefaultComponents.Button)) {
-      buttons.push(component.props.label)
-      return
-    }
+        return
+      }
 
-    const text = component.children
-      .filter((child) => typeof child === 'string')
-      .join('')
-      .trim()
+      if (streaming !== delta.id) {
+        streaming = delta.id
+        process.stdout.write(chalk.bold('🤖 Agent: '))
+      }
 
-    if (!text.length) {
-      return
-    }
+      process.stdout.write(delta.delta)
+    },
 
-    transcript.push({ role: 'assistant', content: text })
+    // Called once per complete response with the authoritative text.
+    handler: (text) => {
+      if (!text.trim().length) {
+        return
+      }
 
-    if (streaming) {
-      // The body was already printed live by onMessageDelta — just end the line
-      streaming = null
-      process.stdout.write('\n')
-    } else {
-      // Fallback for non-streaming clients: print the whole message at once
-      console.log(`${chalk.bold('🤖 Agent:')} ${text}`)
-    }
+      if (streaming) {
+        // onDelta already printed the text; finish the line.
+        streaming = null
+        process.stdout.write('\n')
+      } else {
+        // Clients without streaming deliver the whole response at once.
+        console.log(`${chalk.bold('🤖 Agent:')} ${text}`)
+      }
+    },
   },
 })
 
@@ -218,12 +223,13 @@ console.log(chalk.bold.cyan('🚀 Space Travel Agency — guided simulation'))
 console.log(chalk.dim('Watch messages stream in, code + tool calls execute live, and typed exits end the trip.\n'))
 
 // Kick off the guided tour: the agent speaks first
-transcript.push({ role: 'user', content: 'Hi! Give me the tour.' })
+session.append({ role: 'user', content: 'Hi! Give me the tour.' })
 
 while (true) {
   turns++
 
   const result = await execute({
+    model: process.env.BOTPRESS_MODEL ?? 'openai:gpt-5.6-luna',
     instructions: [
       'You are the booking agent of a fictional space travel agency.',
       'Guide the user through booking a trip: list destinations (with prices), check launch dates, then ask for the traveler full name.',
@@ -233,6 +239,7 @@ while (true) {
       'If the user does not want to travel, exit with "cancelled".',
     ].join('\n'),
     chat,
+    session,
     client,
     tools: [listDestinations, checkAvailability, bookTrip, processPayment],
     exits: [booked, cancelled],
@@ -240,10 +247,8 @@ while (true) {
     // Live feed of everything happening inside the iteration: show the code
     // the LLM generated, then each tool call as it completes
     onTrace: ({ trace }) => {
-      // Fires as soon as the model starts writing a ■run block — the code is
-      // still being generated at this point
-      if (trace.type === 'code_generation_started') {
-        console.log(chalk.dim('   ⏳ writing code…'))
+      if (trace.type === 'llm_call_started') {
+        console.log(chalk.dim('   ⏳ generating response…'))
       }
 
       if (trace.type === 'llm_call_success' && trace.code.trim().length) {
@@ -303,6 +308,6 @@ while (true) {
     break
   }
 
-  transcript.push({ role: 'user', content: reply })
+  session.append({ role: 'user', content: reply })
   console.log(`${chalk.bold('👤 User:')} ${reply}`)
 }

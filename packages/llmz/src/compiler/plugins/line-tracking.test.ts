@@ -1,8 +1,7 @@
 import MagicString from 'magic-string'
 import { describe, expect, it } from 'vitest'
-
-import { applyLineTracking } from './line-tracking.js'
 import { parseScript } from '../ast.js'
+import { applyLineTracking } from './line-tracking.js'
 
 function lineTrackingTransform(code: string) {
   const ms = new MagicString(code)

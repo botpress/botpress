@@ -1,404 +1,91 @@
 import MagicString from 'magic-string'
-import { format } from 'oxfmt'
-import { describe, expect, it, beforeEach } from 'vitest'
-
-import { applyVariableTracking } from './variable-extraction.js'
+import { describe, expect, it } from 'vitest'
 import { parseScript } from '../ast.js'
-
-const variables = new Set<string>()
-async function transform(original: string) {
-  const ms = new MagicString(original)
-  applyVariableTracking({ code: original, ms, ast: parseScript(original), comments: [] }, variables)
-
-  const result = await format('tools.ts', ms.toString(), {
-    singleAttributePerLine: true,
-    bracketSameLine: true,
-    semi: true,
-    embeddedLanguageFormatting: 'off',
-  })
-
-  return result.code.trim()
+import { applyVariableTracking } from './variable-extraction.js'
+function transform(code: string) {
+  const ms = new MagicString(code)
+  const variables = new Set<string>()
+  applyVariableTracking(
+    {
+      code,
+      ms,
+      ast: parseScript(code),
+      comments: [],
+    },
+    variables
+  )
+  const output = ms.toString()
+  parseScript(output)
+  return {
+    output,
+    variables: [...variables],
+  }
 }
 
-describe('variableExtractionBabelPlugin', () => {
-  beforeEach(() => {
-    variables.clear()
+describe('session variable instrumentation', () => {
+  it('tracks top-level declarations, including nested destructuring and rest', () => {
+    const result = transform('const { a, x: { b }, ...rest } = data; const [c, [d]] = rows')
+    expect(result.variables).toEqual(['a', 'b', 'rest', 'c', 'd'])
+    for (const name of result.variables) {
+      expect(result.output).toContain(`__var__("${name}"`)
+    }
+  })
+  it('excludes block temporaries and function parameters', () => {
+    const result = transform(
+      'const account = {}; function f(account) { let inner = 2; account = inner }; if (true) { const temp = 2 }; const f2 = (param) => param'
+    )
+    expect(result.variables).toEqual(['account', 'f2'])
+    expect(result.output).not.toContain('__var__("param"')
+    expect(result.output).not.toContain('__var__("inner"')
+    expect(result.output).not.toContain('__var__("temp"')
+    expect(result.output).not.toContain('__var__("account", () => eval("account"), (account = inner)')
+  })
+  it('captures writes to outer bindings inside closures and preserves updates', () => {
+    const result = transform('let count = 1; const f = () => count++; count = 1; state.value = 2')
+    expect(result.output).toContain('(count++)')
+    expect(result.output).toContain('(count = 1)')
+    expect(result.output).toContain('__var__("state"')
+    expect(result.output).toContain('"mutation"')
   })
 
-  it('Basic tracking', async () => {
-    const code = `
-      const a = 10;
-      let x = 5;
-      x += a;
-      var y = await getNumber({ a, x });
-      console.log(y, x, a);
-      // x, y, a
-    `
-    expect(await transform(code)).toMatchInlineSnapshot(`
-      "const a = 10;
-      __var__("a", () => eval("a"));
-      let x = 5;
-      __var__("x", () => eval("x"));
-      x += a;
-      var y = await getNumber({ a, x });
-      __var__("y", () => eval("y"));
-      console.log(y, x, a);
-      // x, y, a"
+  it('discovers function-scoped var bindings in blocks and loop headers', () => {
+    const result = transform(`
+      if (true) { var count = 2; }
+      for (var index = 0; index < 2; index++) {}
+      for (var { id, ...rest } of rows) { let temporary = id; }
+      for (var key in record) continue;
+      if (false) var unused;
     `)
+    expect(result.variables).toEqual(['count', 'index', 'id', 'rest', 'key', 'unused'])
+    for (const name of result.variables) {
+      expect(result.output).toContain(`__var__("${name}"`)
+    }
 
-    expect([...variables]).toMatchInlineSnapshot(`
-      [
-        "a",
-        "x",
-        "y",
-      ]
-    `)
+    expect(result.output).not.toContain('__var__("temporary"')
   })
 
-  it('Object destructuring', async () => {
-    const code = `
-      const { a, b } = { a: 1, b: 2 };
-      console.log(a, b);
-    `
-    expect(await transform(code)).toMatchInlineSnapshot(`
-      "const { a, b } = { a: 1, b: 2 };
-      __var__("a", () => eval("a"));
-      __var__("b", () => eval("b"));
-      console.log(a, b);"
+  it('keeps var bindings inside functions and class static blocks private', () => {
+    const result = transform(`
+      function f() { if (true) { var privateFunction = 1; } }
+      const callback = () => { var privateCallback = 2; };
+      class Example { static { var privateStatic = 3; privateStatic++; } }
     `)
-
-    expect([...variables]).toMatchInlineSnapshot(`
-      [
-        "a",
-        "b",
-      ]
-    `)
+    expect(result.variables).toEqual(['callback'])
+    expect(result.output).not.toMatch(/__var__\("private/)
   })
 
-  it('Array destructuring', async () => {
-    const code = `
-      const [ a, b ] = [ 1, 2 ];
-      console.log(a, b);
-    `
-    expect(await transform(code)).toMatchInlineSnapshot(`
-      "const [a, b] = [1, 2];
-      __var__("a", () => eval("a"));
-      __var__("b", () => eval("b"));
-      console.log(a, b);"
-    `)
-
-    expect([...variables]).toMatchInlineSnapshot(`
-      [
-        "a",
-        "b",
-      ]
-    `)
-  })
-
-  it('skips declarations inside for loops', async () => {
-    const code = `
-      for (const { a, b } of [{ a: 1, b: 2 }]) {
-        console.log(a, b);
-      }
-    `
-    expect(await transform(code)).toMatchInlineSnapshot(`
-      "for (const { a, b } of [{ a: 1, b: 2 }]) {
-        console.log(a, b);
-      }"
-    `)
-
-    expect([...variables]).toMatchInlineSnapshot(`[]`)
-  })
-
-  it('skips declarations inside for loops (2)', async () => {
-    const code = `
-      for (let i = 0; i < 10; i++) {
-        console.log(a, b);
-      }
-    `
-    expect(await transform(code)).toMatchInlineSnapshot(`
-      "for (let i = 0; i < 10; i++) {
-        console.log(a, b);
-      }"
-    `)
-
-    expect([...variables]).toMatchInlineSnapshot(`[]`)
-  })
-
-  it('Nested object destructuring', async () => {
-    const code = `
-      const { a, b: { c, d } } = { a: 1, b: { c: 2, d: 3 } };
-      console.log(a, c, d);
-    `
-    expect(await transform(code)).toMatchInlineSnapshot(`
-      "const {
-        a,
-        b: { c, d },
-      } = { a: 1, b: { c: 2, d: 3 } };
-      __var__("a", () => eval("a"));
-      __var__("c", () => eval("c"));
-      __var__("d", () => eval("d"));
-      console.log(a, c, d);"
-    `)
-
-    expect([...variables]).toMatchInlineSnapshot(`
-      [
-        "a",
-        "c",
-        "d",
-      ]
-    `)
-  })
-
-  it('Object destructuring with default values', async () => {
-    const code = `
-      const { a = 1, b = 2 } = {};
-      console.log(a, b);
-    `
-    expect(await transform(code)).toMatchInlineSnapshot(`
-      "const { a = 1, b = 2 } = {};
-      __var__("a", () => eval("a"));
-      __var__("b", () => eval("b"));
-      console.log(a, b);"
-    `)
-
-    expect([...variables]).toMatchInlineSnapshot(`
-      [
-        "a",
-        "b",
-      ]
-    `)
-  })
-
-  it('Array destructuring with rest elements', async () => {
-    const code = `
-      const [a, ...rest] = [1, 2, 3];
-      console.log(a, rest);
-    `
-    expect(await transform(code)).toMatchInlineSnapshot(`
-      "const [a, ...rest] = [1, 2, 3];
-      __var__("a", () => eval("a"));
-      __var__("rest", () => eval("rest"));
-      console.log(a, rest);"
-    `)
-
-    expect([...variables]).toMatchInlineSnapshot(`
-      [
-        "a",
-        "rest",
-      ]
-    `)
-  })
-
-  it('Array destructuring with default values', async () => {
-    const code = `
-      const [a = 1, b = 2] = [];
-      console.log(a, b);
-    `
-    expect(await transform(code)).toMatchInlineSnapshot(`
-      "const [a = 1, b = 2] = [];
-      __var__("a", () => eval("a"));
-      __var__("b", () => eval("b"));
-      console.log(a, b);"
-    `)
-
-    expect([...variables]).toMatchInlineSnapshot(`
-      [
-        "a",
-        "b",
-      ]
-    `)
-  })
-
-  it('Variable declarations in block scope', async () => {
-    const code = `
-      if (true) {
-        const a = 1;
-        let b = 2;
-        var c = 3;
-        console.log(a, b, c);
-      }
-    `
-    expect(await transform(code)).toMatchInlineSnapshot(`
-      "if (true) {
-        const a = 1;
-        __var__("a", () => eval("a"));
-        let b = 2;
-        __var__("b", () => eval("b"));
-        var c = 3;
-        __var__("c", () => eval("c"));
-        console.log(a, b, c);
-      }"
-    `)
-
-    expect([...variables]).toMatchInlineSnapshot(`
-      [
-        "a",
-        "b",
-        "c",
-      ]
-    `)
-  })
-
-  it('Function parameters', async () => {
-    const code = `
-      function foo(a, b) {
-        console.log(a, b);
-      }
-      foo(1, 2);
-    `
-    expect(await transform(code)).toMatchInlineSnapshot(`
-      "function foo(a, b) {
-        __var__("a", () => eval("a"));
-        __var__("b", () => eval("b"));
-        console.log(a, b);
-      }
-      foo(1, 2);"
-    `)
-
-    expect([...variables]).toMatchInlineSnapshot(`
-      [
-        "a",
-        "b",
-      ]
-    `)
-  })
-
-  it('Default function parameters', async () => {
-    const code = `
-      function foo(a = 1, b = 2) {
-        console.log(a, b);
-      }
-      foo();
-    `
-    expect(await transform(code)).toMatchInlineSnapshot(`
-      "function foo(a = 1, b = 2) {
-        __var__("a", () => eval("a"));
-        __var__("b", () => eval("b"));
-        console.log(a, b);
-      }
-      foo();"
-    `)
-
-    expect([...variables]).toMatchInlineSnapshot(`
-      [
-        "a",
-        "b",
-      ]
-    `)
-  })
-
-  it('Arrow functions', async () => {
-    const code = `
-      const foo = (a, b) => {
-        console.log(a, b);
-      };
-      foo(1, 2);
-      const bar = (a, b) => {
-        return a + b;
-      };
-      bar(3, 4);
-    `
-    expect(await transform(code)).toMatchInlineSnapshot(`
-      "const foo = (a, b) => {
-        __var__("a", () => eval("a"));
-        __var__("b", () => eval("b"));
-        console.log(a, b);
-      };
-      __var__("foo", () => eval("foo"));
-      foo(1, 2);
-      const bar = (a, b) => {
-        __var__("a", () => eval("a"));
-        __var__("b", () => eval("b"));
-        return a + b;
-      };
-      __var__("bar", () => eval("bar"));
-      bar(3, 4);"
-    `)
-
-    expect([...variables]).toMatchInlineSnapshot(`
-      [
-        "foo",
-        "a",
-        "b",
-        "bar",
-      ]
-    `)
-  })
-
-  it('Arrow functions with no body', async () => {
-    const code = `
-      const foo = (a, b) => console.log(a, b);
-      foo(1, 2);
-      const bar = (a, b) => a + b;
-      bar(3, 4);
-    `
-    expect(await transform(code)).toMatchInlineSnapshot(`
-      "const foo = (a, b) => (
-        __var__("a", () => eval("a")),
-        __var__("b", () => eval("b")),
-        console.log(a, b)
-      );
-      __var__("foo", () => eval("foo"));
-      foo(1, 2);
-      const bar = (a, b) => (__var__("a", () => eval("a")), __var__("b", () => eval("b")), a + b);
-      __var__("bar", () => eval("bar"));
-      bar(3, 4);"
-    `)
-
-    expect([...variables]).toMatchInlineSnapshot(`
-      [
-        "foo",
-        "a",
-        "b",
-        "bar",
-      ]
-    `)
-  })
-
-  it('Top-level await', async () => {
-    const code = `
-      const a = await getNumber();
-      console.log(a);
-    `
-    expect(await transform(code)).toMatchInlineSnapshot(`
-      "const a = await getNumber();
-      __var__("a", () => eval("a"));
-      console.log(a);"
-    `)
-  })
-
-  it('Variable declarations in try/catch blocks', async () => {
-    const code = `
-      try {
-        const a = 1;
-        let b = 2;
-        var c = 3;
-        console.log(a, b, c);
-      } catch (e) {
-        console.log(e);
-      }
-    `
-    expect(await transform(code)).toMatchInlineSnapshot(`
-      "try {
-        const a = 1;
-        __var__("a", () => eval("a"));
-        let b = 2;
-        __var__("b", () => eval("b"));
-        var c = 3;
-        __var__("c", () => eval("c"));
-        console.log(a, b, c);
-      } catch (e) {
-        console.log(e);
-      }"
-    `)
-
-    expect([...variables]).toMatchInlineSnapshot(`
-      [
-        "a",
-        "b",
-        "c",
-      ]
-    `)
+  it('rejects reserved bindings and writes', () => {
+    for (const code of [
+      'const $return = 1',
+      '$return = 1',
+      '$iterations[0] = 1',
+      'function f($return) {}',
+      'const exit = () => {}',
+      'inspect = () => {}',
+      'chat.send = () => {}',
+      'function shadow(chat) {}',
+    ]) {
+      expect(() => transform(code)).toThrow(/runtime memory/)
+    }
   })
 })
