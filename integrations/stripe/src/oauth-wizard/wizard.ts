@@ -18,6 +18,8 @@ const _buildStripeAuthorizeUrl = ({ webhookId }: { webhookId: string }): string 
   return `https://marketplace.stripe.com/oauth/v2/authorize?${params.toString()}`
 }
 
+const _errorMessage = (error: unknown) => (error instanceof Error ? error.message : String(error))
+
 const _manualCredentialsSchema = z.object({
   apiKey: z
     .string()
@@ -92,17 +94,21 @@ const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, logger, respo
     await oauth.requestShortLivedCredentials.fromAuthorizationCode(code)
     stripeUserId = (await oauth.getAuthState()).stripeUserId
   } catch (error) {
-    return responses.endWizard({
-      success: false,
-      errorMessage: `Failed to connect to Stripe: ${error instanceof Error ? error.message : String(error)}`,
-    })
+    return responses.endWizard({ success: false, errorMessage: `Failed to connect to Stripe: ${_errorMessage(error)}` })
   }
 
   if (!stripeUserId) {
     return responses.endWizard({ success: false, errorMessage: 'Stripe did not return an account id' })
   }
 
-  await client.configureIntegration({ identifier: stripeUserId })
+  try {
+    await client.configureIntegration({ identifier: stripeUserId })
+  } catch (error) {
+    return responses.endWizard({
+      success: false,
+      errorMessage: `Failed to set the Stripe account identifier: ${_errorMessage(error)}`,
+    })
+  }
 
   return responses.endWizard({ success: true })
 }
@@ -132,13 +138,20 @@ const _saveManualCredentialsHandler: WizardHandler = async ({ ctx, client, logge
   } catch (error) {
     return responses.endWizard({
       success: false,
-      errorMessage: `Failed to validate the Stripe API key: ${error instanceof Error ? error.message : String(error)}`,
+      errorMessage: `Failed to validate the Stripe API key: ${_errorMessage(error)}`,
     })
   }
 
-  const oauth = new StripeOAuthClient({ client, ctx, logger })
-  await oauth.saveManualApiKey(parsed.data.apiKey)
-  await client.configureIntegration({ identifier: accountId })
+  try {
+    const oauth = new StripeOAuthClient({ client, ctx, logger })
+    await oauth.saveManualApiKey(parsed.data.apiKey)
+    await client.configureIntegration({ identifier: accountId })
+  } catch (error) {
+    return responses.endWizard({
+      success: false,
+      errorMessage: `Failed to save the Stripe credentials: ${_errorMessage(error)}`,
+    })
+  }
 
   return responses.endWizard({ success: true })
 }
