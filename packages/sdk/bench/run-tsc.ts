@@ -3,7 +3,7 @@ import fs from 'fs/promises'
 import ms from 'ms'
 import path from 'path'
 import tmp from 'tmp'
-import * as consts from './paths'
+import * as consts from './paths.js'
 
 const DIR_PREFIX = 'tsc-bench-'
 
