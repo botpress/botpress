@@ -10,6 +10,7 @@ import path from 'node:path'
 import { expect } from 'vitest'
 
 import { cacheKeyOf, stringifyWithSortedKeys } from './cache-key.js'
+import { markCacheIncomplete, markCacheUsed, withCacheLock } from './cache-usage.js'
 
 export type CacheMode = 'auto' | 'replay' | 'refresh'
 
@@ -110,9 +111,11 @@ export class CachedCognitive extends Cognitive {
     const entry = this._mode === 'refresh' ? undefined : this._entries.get(key)
 
     if (!entry && this._mode === 'replay') {
+      markCacheIncomplete(this._path)
       throw new Error(`E2E cache miss in replay mode: ${key}. Record it with LLMZ_E2E_CACHE_MODE=auto or refresh.`)
     }
 
+    if (entry) markCacheUsed(this._path, entry)
     return entry && structuredClone(entry)
   }
 
@@ -120,12 +123,14 @@ export class CachedCognitive extends Cognitive {
     // A successful fallback can still carry a provider 429. Preserve the live
     // response for assertions, but never freeze temporary throttling into a fixture.
     if (rateLimited(entry)) {
+      markCacheIncomplete(this._path)
       return
     }
 
     const snapshot = structuredClone({ ...entry, scope: this._scope, test: expect.getState().currentTestName })
-    fs.mkdirSync(path.dirname(this._path), { recursive: true })
-    fs.appendFileSync(this._path, JSON.stringify(snapshot) + '\n')
+    const written = withCacheLock(this._path, () => fs.appendFileSync(this._path, JSON.stringify(snapshot) + '\n'))
+    if (!written) return
+    markCacheUsed(this._path, snapshot)
     this._entries.set(entry.key, snapshot)
   }
 
@@ -148,7 +153,10 @@ export class CachedCognitive extends Cognitive {
       return cached.value as Model
     }
 
-    const value = await super.getModelDetails(model)
+    const value = await super.getModelDetails(model).catch((error) => {
+      markCacheIncomplete(this._path)
+      throw error
+    })
     this._write({ kind: 'model', key, value })
     return value
   }
@@ -165,7 +173,10 @@ export class CachedCognitive extends Cognitive {
       return response
     }
 
-    const value = await super.generateText(request, options)
+    const value = await super.generateText(request, options).catch((error) => {
+      markCacheIncomplete(this._path)
+      throw error
+    })
     this._write({ kind: 'text', key, input: stringifyWithSortedKeys(request), value })
     return value
   }
@@ -194,14 +205,18 @@ export class CachedCognitive extends Cognitive {
     }
 
     const chunks: CognitiveStreamChunk[] = []
-    for await (const chunk of super.generateTextStream(request, options)) {
-      chunks.push(structuredClone(chunk))
-      yield chunk
-    }
+    try {
+      for await (const chunk of super.generateTextStream(request, options)) {
+        chunks.push(structuredClone(chunk))
+        yield chunk
+      }
 
-    // Failed, canceled, partially consumed, and incomplete streams must never become replay fixtures.
-    if (completeStream(chunks)) {
-      this._write({ kind: 'stream', key, input: stringifyWithSortedKeys(request), chunks })
+      // Failed, canceled, partially consumed, and incomplete streams must never become replay fixtures.
+      if (completeStream(chunks)) {
+        this._write({ kind: 'stream', key, input: stringifyWithSortedKeys(request), chunks })
+      }
+    } finally {
+      if (!completeStream(chunks)) markCacheIncomplete(this._path)
     }
   }
 }

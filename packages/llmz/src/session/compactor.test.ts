@@ -39,8 +39,9 @@ describe('session compactor', () => {
     expect(session.toJSON()).toEqual(before)
     expect(JSON.stringify(generate.mock.calls)).toContain('Receipt for first')
     expect(JSON.stringify(generate.mock.calls)).not.toContain('button.clicked')
-    expect(generate.mock.calls[0]?.[0]).toMatchObject({ model: 'fast', toolControl: { mode: 'none' } })
+    expect(generate.mock.calls[0]?.[0]).toMatchObject({ model: 'fast', responseFormat: 'text' })
     expect(generate.mock.calls[0]?.[0].tools).toBeUndefined()
+    expect(generate.mock.calls[0]?.[0].toolControl).toBeUndefined()
   })
 
   it('replaces whole call/result groups with a persistent summary and preserves exact named memory', async () => {
@@ -104,7 +105,8 @@ describe('session compactor', () => {
     expect(generate.mock.calls.length).toBeGreaterThan(2)
     const segments = generate.mock.calls.map(([request]) => {
       expect(countNativeRequestTokens(request.messages, []) + request.maxTokens!).toBeLessThanOrEqual(500)
-      expect(request.toolControl).toEqual({ mode: 'none' })
+      expect(request.toolControl).toBeUndefined()
+      expect(request.tools).toBeUndefined()
       return String(request.messages[1]?.content).split('Conversation segment:\n')[1]
     })
     expect(segments.join('')).toBe(JSON.stringify({ role: 'user', content: text }))

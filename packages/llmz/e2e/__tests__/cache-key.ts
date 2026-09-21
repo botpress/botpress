@@ -27,6 +27,23 @@ export function stringifyWithSortedKeys(value: unknown, space?: number): string 
   return JSON.stringify(sortKeys(value), null, space)
 }
 
+/** Variable inventory order can vary with millisecond assignment timestamps; its contents cannot. */
+function normalizeMemoryInventory(content: string): string {
+  const opening = '\n\n<runtime-memory>\n'
+  const closing = '\n</runtime-memory>'
+  const start = content.lastIndexOf(opening)
+  if (start < 0) return content
+  const end = content.indexOf(closing, start)
+  if (end < 0) return content
+  const inventory = content.slice(start, end)
+  if (!inventory.startsWith(`${opening}## Memory\nAvailable in JavaScript.`)) return content
+  const normalized = inventory.replace(/(\n### Variables\n)((?:- `[^`\n]+`: [^\n]*\n?)+)/, (_match, header, rows) => {
+    const trailing = rows.endsWith('\n') ? '\n' : ''
+    return header + rows.trimEnd().split('\n').sort().join('\n') + trailing
+  })
+  return content.slice(0, start) + normalized + content.slice(end)
+}
+
 /** Normalize diagnostic labels, preserving repeated IDs and every byte of the reported outcomes. */
 function normalizeBusinessCallIds(messages: CognitiveMessage[]): CognitiveMessage[] {
   const executionCalls = new Set<string>()
@@ -67,7 +84,7 @@ function normalizeBusinessCallIds(messages: CognitiveMessage[]): CognitiveMessag
       })
     })
 
-    return { ...message, content: sections.join('') }
+    return { ...message, content: normalizeMemoryInventory(sections.join('')) }
   })
 }
 

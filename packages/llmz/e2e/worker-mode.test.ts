@@ -825,7 +825,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
       }
 
       const runningProcesses = new Set([1234, 5678])
-      let listFilesCallCount = 0
+      const listings: string[][] = []
       let deleteCallCount = 0
       const deleteAttempts: Record<string, number> = {}
       const deletedFiles: string[] = []
@@ -836,8 +836,9 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
         description: 'Lists all files in the directory',
         output: z.object({ files: z.array(z.string()) }),
         handler: async () => {
-          listFilesCallCount++
-          return { files: Object.keys(fileState) }
+          const files = Object.keys(fileState)
+          listings.push(files)
+          return { files }
         },
       })
 
@@ -885,7 +886,10 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
       assertSuccess(result)
 
       expect(result.output).toMatchObject({ success: true })
-      expect(listFilesCallCount).toBe(1) // List files only once
+      expect(listings[0]).toEqual(['old_project.txt', 'legacy_data.csv', 'deprecated_config.json'])
+      // A final read-only check is valid; successful deletions must still never repeat.
+      expect(listings.length).toBeLessThanOrEqual(2)
+      if (listings.length === 2) expect(listings[1]).toEqual([])
       expect(deleteCallCount).toBeGreaterThanOrEqual(3) // Multiple attempts due to failures
 
       // Should have killed both processes

@@ -796,7 +796,7 @@ describe('request budgeting and atomic compaction', () => {
     await expect(generateCode({ ...base, onBeforeRequest: hook })).rejects.toThrow('Summary provider unavailable')
     expect(hook).not.toHaveBeenCalled()
     expect(base.generateText).toHaveBeenCalledOnce()
-    expect(base.generateText.mock.calls[0]?.[0].toolControl?.mode).toBe('none')
+    expect(base.generateText.mock.calls[0]?.[0].tools).toBeUndefined()
     expect(session.messages).toEqual(before)
     expect(session.getBindings().$return).toBe('Exact result')
   })
@@ -884,7 +884,7 @@ describe('request budgeting and atomic compaction', () => {
       })
       await expect(generateCode({ ...base, onBeforeRequest: hook })).rejects.toThrow()
       expect(hook).toHaveBeenCalledOnce()
-      expect(base.generateText.mock.calls.every(([request]) => request.toolControl?.mode === 'none')).toBe(true)
+      expect(base.generateText.mock.calls.every(([request]) => !request.tools?.length)).toBe(true)
       expect(session.messages).toEqual(original)
       expect(session.getBindings().$return).toBe('Exact result')
     }
@@ -897,7 +897,7 @@ describe('request budgeting and atomic compaction', () => {
     session.append({ role: 'user', content: 'Queued later' })
     const base = fixture({ session, maxTokens: 1200 })
     base.generateText.mockImplementation(async (input) => {
-      if (input.toolControl?.mode === 'none') {
+      if (!input.tools?.length) {
         expect(session.retainedIterationIds).toContain('old')
         return { output: 'The earlier request completed successfully.', metadata: metadata() }
       }
@@ -911,7 +911,7 @@ describe('request budgeting and atomic compaction', () => {
       return { output: 'Done', metadata: metadata() }
     })
     await generateCode(base)
-    expect(base.generateText.mock.calls.filter(([request]) => request.toolControl?.mode !== 'none')).toHaveLength(1)
+    expect(base.generateText.mock.calls.filter(([request]) => request.tools?.length)).toHaveLength(1)
     expect(session.transcript.some((message) => message.role === 'summary')).toBe(true)
   })
 })

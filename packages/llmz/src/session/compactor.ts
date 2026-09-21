@@ -233,13 +233,13 @@ export async function summarizeMessages(
       throw new CognitiveError('The summarizer context window cannot fit its instructions and previous summary.')
     }
 
+    // No tools are exposed. Some providers reject toolControl even in 'none' mode without tools.
     const response = await abortable(
       client.generateText(
         {
           model,
           messages: request(source.slice(offset, offset + low)),
           responseFormat: 'text',
-          toolControl: { mode: 'none' },
           maxTokens: output,
           meta: options.metadata ? { metadata: options.metadata } : undefined,
         },

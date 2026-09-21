@@ -12,6 +12,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { CachedCognitive, cacheMode } from './cached-cognitive.js'
 import { cacheKeyOf } from './cache-key.js'
+import { CACHE_USAGE_ENV, CacheUsageRun, markCacheUsed } from './cache-usage.js'
 
 const request: CognitiveRequest = {
   model: 'openai:gpt-5.6-luna',
@@ -58,6 +59,39 @@ const client = (mode: 'auto' | 'replay' | 'refresh' = 'auto', apiUrl?: string) =
   new CachedCognitive({ apiUrl }, { path: file, mode })
 
 describe('network test cache', () => {
+  it.each(['replay miss', 'text failure', 'stream failure', 'model failure'])(
+    'prevents pruning downstream recordings after a %s',
+    async (failure) => {
+      file = path.join(directory, 'responses.jsonl')
+      const entry = { key: 'old-response' }
+      const original = JSON.stringify(entry) + '\n' + JSON.stringify({ key: 'downstream' }) + '\n'
+      writeFileSync(file, original)
+      const run = new CacheUsageRun(file)
+      try {
+        vi.stubEnv(CACHE_USAGE_ENV, run.journal)
+        markCacheUsed(file, entry)
+        vi.spyOn(Cognitive.prototype, 'generateText').mockRejectedValue(new Error('transport failed'))
+        vi.spyOn(Cognitive.prototype, 'getModelDetails').mockRejectedValue(new Error('transport failed'))
+        vi.spyOn(Cognitive.prototype, 'generateTextStream').mockImplementation(async function* () {
+          yield { created: 1, output: 'partial' }
+          throw new Error('transport failed')
+        })
+        const cognitive = client(failure === 'replay miss' ? 'replay' : 'auto')
+        const operation =
+          failure === 'model failure'
+            ? cognitive.getModelDetails('missing')
+            : failure === 'stream failure'
+              ? collect(cognitive.generateTextStream(request))
+              : cognitive.generateText(request)
+        await expect(operation).rejects.toThrow()
+        expect(run.prune()).toBeUndefined()
+        expect(readFileSync(file, 'utf8')).toBe(original)
+      } finally {
+        run.dispose()
+      }
+    }
+  )
+
   describe.each(['text', 'stream'] as const)('%s rate-limit responses', (kind) => {
     const generate = (cognitive: CachedCognitive) =>
       kind === 'text' ? cognitive.generateText(request) : collect(cognitive.generateTextStream(request))

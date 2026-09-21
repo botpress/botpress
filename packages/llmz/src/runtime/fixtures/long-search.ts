@@ -32,9 +32,6 @@ export function buildSearchChallenge(challenge: SearchChallenge, compact: boolea
   const main = Math.round(47 * challenge.position)
   const second = main < 24 ? 39 : 7
   const required = challenge.profile === 'join' || challenge.profile === 'arithmetic' ? [main, second] : [main]
-  // Near-match passages can support explicit scope/date disambiguation, but
-  // never substitute for evidence about the requested account and policy.
-  const contextual = challenge.profile === 'join' || challenge.profile === 'arithmetic' ? [47] : [0, 1, 46]
   const evidence = new Map<number, string>()
   let question: string
   let facts: string[]
@@ -136,7 +133,8 @@ export function buildSearchChallenge(challenge: SearchChallenge, compact: boolea
         evidenceTags.push(citation.tag)
       }
 
-      if (required.includes(doc.id) || contextual.includes(doc.id)) {
+      // Near matches can support scope/date comparisons, but do not replace required evidence.
+      if (required.includes(doc.id) || distractors.has(doc.id)) {
         relevantSources.push(file)
       }
 
