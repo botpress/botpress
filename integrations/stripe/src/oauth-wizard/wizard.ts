@@ -122,7 +122,7 @@ const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, logger, respo
     if (!stripeUserId) {
       throw new RuntimeError('Stripe did not return an account id')
     }
-    await client.configureIntegration({ identifier: stripeUserId })
+    await client.configureIntegration({ identifier: ctx.webhookId })
   } catch (error) {
     return responses.endWizard({
       success: false,
@@ -155,10 +155,9 @@ const _saveManualCredentialsHandler: WizardHandler = async ({ ctx, client, logge
     })
   }
 
-  let accountId: string
   try {
     const stripeClient = new StripeClient(parsed.data.apiKey, ctx.configuration.apiVersion)
-    accountId = (await stripeClient.retrieveAccount()).id
+    await stripeClient.retrieveAccount()
   } catch (error) {
     return responses.endWizard({
       success: false,
@@ -180,7 +179,7 @@ const _saveManualCredentialsHandler: WizardHandler = async ({ ctx, client, logge
 
   try {
     await oauth.saveManualApiKey(parsed.data.apiKey)
-    await client.configureIntegration({ identifier: accountId })
+    await client.configureIntegration({ identifier: ctx.webhookId })
   } catch (error) {
     return responses.endWizard({
       success: false,

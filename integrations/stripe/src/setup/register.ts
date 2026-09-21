@@ -23,16 +23,14 @@ export const register: RegisterFunction = async ({ ctx, client, webhookUrl, logg
     throw new sdk.RuntimeError(`Failed to load Stripe credentials. Re-run the setup wizard. (${message})`)
   }
 
-  let accountId: string
   try {
-    const account = await stripeClient.retrieveAccount()
-    accountId = account.id
+    await stripeClient.retrieveAccount()
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     throw new sdk.RuntimeError(`Failed to connect to Stripe. (${message})`)
   }
 
-  await client.configureIntegration({ identifier: accountId })
+  await client.configureIntegration({ identifier: ctx.webhookId })
 
   const prior = await client
     .getState({ type: 'integration', id: ctx.integrationId, name: 'stripeIntegrationInfo' })
