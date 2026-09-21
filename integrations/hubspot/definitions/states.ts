@@ -22,8 +22,8 @@ const environment = {
     env: z
       .enum(['preview', 'production'])
       .title('Environment')
-      .describe('The environment where the integration is installed (deprecated)'),
-    source: z.string().optional().title('Source').describe('The source of the OAuth request, eg: "desk" (deprecated)'),
+      .describe('The environment where the integration is installed'),
+    source: z.string().optional().title('Source').describe('The source of the OAuth request, eg: "desk"'),
   }),
 } satisfies StateDefinition
 

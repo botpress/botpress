@@ -4,7 +4,7 @@ import { exchangeCodeForOAuthCredentials, setOAuthCredentials } from '../../auth
 import { getHitlClient } from '../../hitl/client'
 import { createHitlChannel, connectHitlChannel } from '../../hitl/setup'
 import { HubspotClient } from '../../hubspot-api'
-import { setPortalId } from '../../utils'
+import { getEnvironment, setPortalId, useDeskOAuth } from '../../utils'
 import * as bp from '.botpress'
 
 const REDIRECT_URI = `${process.env.BP_WEBHOOK_URL}/oauth`
@@ -23,6 +23,15 @@ const CRM_SCOPES = [
   'crm.objects.deals.write',
   'files',
   'files.ui_hidden.read',
+]
+
+const DESK_SCOPES = [
+  'crm.objects.companies.read',
+  'crm.objects.contacts.read',
+  'crm.objects.owners.read',
+  'files',
+  'files.ui_hidden.read',
+  'oauth',
 ]
 
 const HITL_SCOPES = [
@@ -87,10 +96,16 @@ const _oauthRedirectStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
     .getState({ type: 'integration', name: 'hitlSetupWizard', id: ctx.integrationId })
     .catch(() => null)
 
+  const environment = await getEnvironment({ client, ctx })
   const enableHitl = hitlSetupWizardState?.state?.payload?.enableHitl ?? false
-  const scopes = enableHitl ? [...CRM_SCOPES, ...HITL_SCOPES] : CRM_SCOPES
+  const scopes =
+    environment.source === 'desk' && environment.env === 'production'
+      ? DESK_SCOPES
+      : enableHitl
+        ? [...CRM_SCOPES, ...HITL_SCOPES]
+        : CRM_SCOPES
   const scopesStr = encodeURIComponent(scopes.join(' '))
-  const clientId = bp.secrets.CLIENT_ID
+  const clientId = useDeskOAuth(environment) ? bp.secrets.DESK_CLIENT_ID : bp.secrets.CLIENT_ID
 
   const url =
     'https://app.hubspot.com/oauth/authorize' +
@@ -121,7 +136,8 @@ const _oauthCallbackStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async
     return responses.endWizard({ success: false, errorMessage: 'Authorization code not present in OAuth callback' })
   }
 
-  const credentials = await exchangeCodeForOAuthCredentials({ code })
+  const environment = await getEnvironment({ client, ctx })
+  const credentials = await exchangeCodeForOAuthCredentials({ code, useDesk: useDeskOAuth(environment) })
   await setOAuthCredentials({ client, ctx, credentials })
 
   const hitlSetupWizardState = await client
