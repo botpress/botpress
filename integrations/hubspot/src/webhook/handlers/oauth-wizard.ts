@@ -56,13 +56,6 @@ const _startStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async ({
     env: z.enum(['preview', 'production']).catch('preview').parse(query.get('env')),
   } as bp.states.environment.Environment['payload']
 
-  await client.setState({
-    type: 'integration',
-    name: 'environment',
-    id: ctx.integrationId,
-    payload: environmentPayload,
-  })
-
   if (environmentPayload.source === 'desk') {
     await client.setState({
       type: 'integration',
