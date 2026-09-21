@@ -1,7 +1,7 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
-import { Response, z } from '@botpress/sdk'
+import { Response, RuntimeError, z } from '@botpress/sdk'
 import { StripeClient } from '../stripe-api/stripe-client'
-import { StripeOAuthClient } from '../stripe-api/stripe-oauth-client'
+import { StripeOAuthClient, type StripeCredentialsSnapshot } from '../stripe-api/stripe-oauth-client'
 import * as bp from '.botpress'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
@@ -19,6 +19,23 @@ const _buildStripeAuthorizeUrl = ({ webhookId }: { webhookId: string }): string 
 }
 
 const _errorMessage = (error: unknown) => (error instanceof Error ? error.message : String(error))
+
+const _rollbackCredentials = async ({
+  oauth,
+  snapshot,
+  reason,
+}: {
+  oauth: StripeOAuthClient
+  snapshot: StripeCredentialsSnapshot
+  reason: string
+}): Promise<string> => {
+  try {
+    await oauth.restoreCredentials(snapshot)
+    return reason
+  } catch (error) {
+    return `${reason}. The previous Stripe credentials could not be restored either (${_errorMessage(error)}), so the integration may be left partially configured; re-run this wizard`
+  }
+}
 
 const _manualCredentialsSchema = z.object({
   apiKey: z
@@ -89,24 +106,31 @@ const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, logger, respo
 
   const oauth = new StripeOAuthClient({ client, ctx, logger })
 
-  let stripeUserId: string | undefined
+  let snapshot: StripeCredentialsSnapshot
+  try {
+    snapshot = await oauth.snapshotCredentials()
+  } catch (error) {
+    return responses.endWizard({
+      success: false,
+      errorMessage: `Failed to read the existing Stripe credentials: ${_errorMessage(error)}`,
+    })
+  }
+
   try {
     await oauth.requestShortLivedCredentials.fromAuthorizationCode(code)
-    stripeUserId = (await oauth.getAuthState()).stripeUserId
-  } catch (error) {
-    return responses.endWizard({ success: false, errorMessage: `Failed to connect to Stripe: ${_errorMessage(error)}` })
-  }
-
-  if (!stripeUserId) {
-    return responses.endWizard({ success: false, errorMessage: 'Stripe did not return an account id' })
-  }
-
-  try {
+    const { stripeUserId } = await oauth.getAuthState()
+    if (!stripeUserId) {
+      throw new RuntimeError('Stripe did not return an account id')
+    }
     await client.configureIntegration({ identifier: stripeUserId })
   } catch (error) {
     return responses.endWizard({
       success: false,
-      errorMessage: `Failed to set the Stripe account identifier: ${_errorMessage(error)}`,
+      errorMessage: await _rollbackCredentials({
+        oauth,
+        snapshot,
+        reason: `Failed to connect to Stripe: ${_errorMessage(error)}`,
+      }),
     })
   }
 
@@ -142,14 +166,29 @@ const _saveManualCredentialsHandler: WizardHandler = async ({ ctx, client, logge
     })
   }
 
+  const oauth = new StripeOAuthClient({ client, ctx, logger })
+
+  let snapshot: StripeCredentialsSnapshot
   try {
-    const oauth = new StripeOAuthClient({ client, ctx, logger })
+    snapshot = await oauth.snapshotCredentials()
+  } catch (error) {
+    return responses.endWizard({
+      success: false,
+      errorMessage: `Failed to read the existing Stripe credentials: ${_errorMessage(error)}`,
+    })
+  }
+
+  try {
     await oauth.saveManualApiKey(parsed.data.apiKey)
     await client.configureIntegration({ identifier: accountId })
   } catch (error) {
     return responses.endWizard({
       success: false,
-      errorMessage: `Failed to save the Stripe credentials: ${_errorMessage(error)}`,
+      errorMessage: await _rollbackCredentials({
+        oauth,
+        snapshot,
+        reason: `Failed to save the Stripe credentials: ${_errorMessage(error)}`,
+      }),
     })
   }
 

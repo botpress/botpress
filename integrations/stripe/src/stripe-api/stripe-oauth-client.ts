@@ -34,6 +34,11 @@ type PublicAuthState = {
   readonly livemode?: boolean
 }
 
+export type StripeCredentialsSnapshot = {
+  readonly manual: bp.states.States['manualCredentials']['payload'] | undefined
+  readonly oauth: bp.states.States['oAuthCredentials']['payload'] | undefined
+}
+
 const STRIPE_TOKEN_URL = 'https://api.stripe.com/v1/oauth/token'
 const MINIMUM_TOKEN_VALIDITY_SECONDS = 3_600
 const DEFAULT_ACCESS_TOKEN_TTL_SECONDS = 3_600
@@ -110,6 +115,37 @@ export class StripeOAuthClient {
       payload: { apiKey },
     })
     await this._clearOAuthCredentials()
+  }
+
+  public async snapshotCredentials(): Promise<StripeCredentialsSnapshot> {
+    const [manual, oauth] = await Promise.all([this._getManualCredentialsState(), this._getOAuthCredentialsState()])
+    return { manual, oauth }
+  }
+
+  public async restoreCredentials(snapshot: StripeCredentialsSnapshot): Promise<void> {
+    if (snapshot.manual) {
+      await this._client.setState({
+        type: 'integration',
+        name: 'manualCredentials',
+        id: this._ctx.integrationId,
+        payload: snapshot.manual,
+      })
+    } else {
+      await this._clearManualCredentials()
+    }
+
+    if (snapshot.oauth) {
+      await this._client.setState({
+        type: 'integration',
+        name: 'oAuthCredentials',
+        id: this._ctx.integrationId,
+        payload: snapshot.oauth,
+      })
+    } else {
+      await this._clearOAuthCredentials()
+    }
+
+    this._currentAuthState = undefined
   }
 
   private async _postToken(body: Record<string, string>): Promise<StripeTokenResponse> {
