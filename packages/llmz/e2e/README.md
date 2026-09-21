@@ -1,6 +1,6 @@
 # End-to-end tests
 
-All network-backed test suites share a disk cache, including the opt-in model evaluations. It records ordinary responses, native streaming chunks, and model details. Ordinary test runs reuse recordings and contact Cognitive only on a cache miss.
+All network-backed test suites share a disk cache, including model evaluations. It records ordinary responses, native streaming chunks, and model details. Ordinary test runs reuse recordings and contact Cognitive only on a cache miss.
 
 ```sh
 pnpm test:e2e
@@ -20,7 +20,7 @@ Replay requires no credentials. Recording requires `CLOUD_PAT` and `CLOUD_BOT_ID
 # Deterministic replay of previously recorded integration tests
 LLMZ_E2E_CACHE_MODE=replay pnpm test:e2e
 
-# Include the opt-in model suites, using existing recordings where available
+# Choose the model to evaluate, using existing recordings where available
 LLMZ_EVAL_MODELS=openai:gpt-5.6-luna pnpm test:e2e
 
 # Explicit live evaluation: new provider samples, no response-cache hits
@@ -31,4 +31,6 @@ Use refresh mode when evaluating model reliability or independent repeated sampl
 
 Cache identity includes the complete request (instructions, messages, tools, tool control, model, and generation settings), response mode, and API endpoint. Only transport-only cache flags, abort signals, and recognized diagnostic IDs are excluded. Native call IDs and their result relationships are preserved. Older recordings are re-keyed from their stored requests.
 
-Failed requests, unfinished streams, canceled consumers, and error chunks are never cached. Complete model responses are recorded even when a test assertion subsequently fails: caching must reproduce failures, not silently select successful samples. New regression tests for the cache live beside its implementation in `__tests__/cached-cognitive.test.ts` and run with `pnpm test` without network access.
+Model evaluations send an explicit model array to disable Cognitive's automatic fallback ladder. Additional models are used only when explicitly configured through `LLMZ_EVAL_FALLBACK_MODELS`. A provider rate limit therefore fails the evaluation instead of silently testing a different provider.
+
+Failed requests, unfinished streams, canceled consumers, and error chunks are never cached. Responses reporting rate limits in provider warnings or stream restarts are also excluded, including successful fallback responses; existing recordings with those diagnostics are ignored. Other complete model responses are recorded even when a test assertion subsequently fails: caching must reproduce failures, not silently select successful samples. New regression tests for the cache live beside its implementation in `__tests__/cached-cognitive.test.ts` and run with `pnpm test` without network access.

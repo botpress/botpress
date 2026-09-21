@@ -56,9 +56,9 @@ describe.each([
       }
     )
 
-    test('skips blank responses during recovery and preserves non-empty text exactly', async () => {
+    test('skips blank responses during recovery and trims only outer delivery whitespace', async () => {
       const handler = vi.fn()
-      const text = '\n  Hello. \t\n'
+      const text = '\n  Hello.\n\n  Next line. \t\n'
       const responses = [response(' \t\n'), response(text)]
       const client = streaming ? new NativeStreamClient(responses, 1) : new NativeClient(responses)
       const result = await executeContext({
@@ -69,7 +69,8 @@ describe.each([
       expect(result.is(ListenExit)).toBe(true)
       expect(client.requests).toHaveLength(2)
       expect(handler).toHaveBeenCalledOnce()
-      expect(handler).toHaveBeenCalledWith(text, expect.any(Object))
+      expect(handler).toHaveBeenCalledWith(text.trim(), expect.any(Object))
+      expect(result.session.messages).toContainEqual({ role: 'assistant', content: text })
     })
   })
 

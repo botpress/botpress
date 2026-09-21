@@ -43,11 +43,22 @@ type Entry = {
 }
 type Settings = { path?: string; mode?: CacheMode }
 
+function rateLimited(entry: Entry): boolean {
+  const responses = entry.chunks ?? (entry.value && entry.kind !== 'model' ? [entry.value as CognitiveResponse] : [])
+  const limited = (message: string) => /\b429\b|\brate[ _-]?limit(?:ed|ing)?\b|\btoo many requests\b/i.test(message)
+
+  return responses.some(
+    (response) =>
+      response.metadata?.warnings?.some((warning) => limited(warning.message)) ||
+      ('restart' in response && response.restart && limited(response.restart.reason))
+  )
+}
+
 function completeStream(chunks: CognitiveStreamChunk[]): boolean {
   return !!chunks.at(-1)?.finished && !!chunks.at(-1)?.metadata && !chunks.some((chunk) => chunk.error)
 }
 
-/** Shared by ordinary integration tests and opt-in model evaluations. */
+/** Shared by ordinary integration tests and model evaluations. */
 export class CachedCognitive extends Cognitive {
   private readonly _path: string
   private readonly _mode: CacheMode
@@ -69,6 +80,10 @@ export class CachedCognitive extends Cognitive {
         const entry: Entry = JSON.parse(line)
 
         if ((entry.scope ?? DEFAULT_ENDPOINT) !== this._scope) {
+          continue
+        }
+
+        if (rateLimited(entry)) {
           continue
         }
 
@@ -102,6 +117,12 @@ export class CachedCognitive extends Cognitive {
   }
 
   private _write(entry: Entry): void {
+    // A successful fallback can still carry a provider 429. Preserve the live
+    // response for assertions, but never freeze temporary throttling into a fixture.
+    if (rateLimited(entry)) {
+      return
+    }
+
     const snapshot = structuredClone({ ...entry, scope: this._scope, test: expect.getState().currentTestName })
     fs.mkdirSync(path.dirname(this._path), { recursive: true })
     fs.appendFileSync(this._path, JSON.stringify(snapshot) + '\n')

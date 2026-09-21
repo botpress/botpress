@@ -4,8 +4,9 @@ import { expect } from 'vitest'
 import type { ExecutionResult } from '../../src/index.js'
 import { CachedCognitive, cacheMode } from './cached-cognitive.js'
 
-// Opt-in, one requested model and no test retries. Fallbacks require explicit configuration.
-// Record actual model metadata: the gateway may still route to another provider.
+// One requested model per case and no test retries. Fallbacks require explicit configuration.
+// A one-element array disables the gateway's automatic fallback ladder.
+// Record actual model metadata so routing changes remain visible.
 // Refresh mode bypasses caches; ordinary runs replay recorded responses and preserve route assertions.
 export const models = (process.env.LLMZ_EVAL_MODELS ?? 'openai:gpt-5.6-luna, cerebras:qwen-3.8-27b')
   .split(',')
@@ -20,7 +21,7 @@ export const fallbackModels = (process.env.LLMZ_EVAL_FALLBACK_MODELS ?? '')
 function prepareEvaluationRequest(input: CognitiveRequest): CognitiveRequest {
   const request: CognitiveRequest = { ...input }
 
-  if (fallbackModels.length && typeof input.model === 'string' && models.includes(input.model)) {
+  if (typeof input.model === 'string' && models.includes(input.model)) {
     request.model = [input.model, ...fallbackModels] as CognitiveRequest['model']
   }
 

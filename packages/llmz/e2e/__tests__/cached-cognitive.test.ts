@@ -58,6 +58,72 @@ const client = (mode: 'auto' | 'replay' | 'refresh' = 'auto', apiUrl?: string) =
   new CachedCognitive({ apiUrl }, { path: file, mode })
 
 describe('network test cache', () => {
+  describe.each(['text', 'stream'] as const)('%s rate-limit responses', (kind) => {
+    const generate = (cognitive: CachedCognitive) =>
+      kind === 'text' ? cognitive.generateText(request) : collect(cognitive.generateTextStream(request))
+
+    it.each(['Provider rate limit exceeded: 429', 'rate_limit (recovers in 58s)', 'Too many requests'])(
+      'does not cache a completed fallback after %s',
+      async (message) => {
+        const fallback = {
+          ...response,
+          metadata: {
+            ...response.metadata,
+            model: 'fallback:model',
+            warnings: [{ type: 'provider_limitation' as const, message }],
+          },
+        }
+        const text = vi.spyOn(Cognitive.prototype, 'generateText').mockResolvedValue(fallback)
+        const stream = vi.spyOn(Cognitive.prototype, 'generateTextStream').mockImplementation(async function* () {
+          yield { ...completed, metadata: fallback.metadata }
+        })
+        const live = client()
+        await generate(live)
+        await generate(live)
+        expect(kind === 'text' ? text : stream).toHaveBeenCalledTimes(2)
+        await expect(generate(client('replay'))).rejects.toThrow('cache miss')
+      }
+    )
+
+    it('ignores existing rate-limited recordings and records a healthy replacement', async () => {
+      file = path.join(directory, 'legacy.jsonl')
+      const metadata = {
+        ...response.metadata,
+        warnings: [{ type: 'provider_limitation', message: 'Provider rate limit exceeded: 429' }],
+      }
+      writeFileSync(
+        file,
+        JSON.stringify({
+          key: 'legacy',
+          input: JSON.stringify(request),
+          ...(kind === 'text' ? { value: { ...response, metadata } } : { chunks: [{ ...completed, metadata }] }),
+        }) + '\n'
+      )
+      await expect(generate(client('replay'))).rejects.toThrow('cache miss')
+      vi.spyOn(Cognitive.prototype, 'generateText').mockResolvedValue(response)
+      vi.spyOn(Cognitive.prototype, 'generateTextStream').mockImplementation(async function* () {
+        yield completed
+      })
+      await generate(client())
+      await expect(generate(client('replay'))).resolves.toBeDefined()
+    })
+  })
+
+  it('does not cache a rate-limit restart even when the final metadata has no warnings', async () => {
+    vi.spyOn(Cognitive.prototype, 'generateTextStream').mockImplementation(async function* () {
+      yield { created: 1, restart: { attempt: 1, fromModel: 'first', toModel: 'second', reason: 'HTTP 429' } }
+      yield completed
+    })
+    await collect(client().generateTextStream(request))
+    await expect(collect(client('replay').generateTextStream(request))).rejects.toThrow('cache miss')
+  })
+
+  it('caches ordinary response text mentioning 429', async () => {
+    vi.spyOn(Cognitive.prototype, 'generateText').mockResolvedValue({ ...response, output: '429 requests' })
+    await client().generateText(request)
+    expect((await client('replay').generateText(request)).output).toBe('429 requests')
+  })
+
   it('persists and replays full native responses without a network request or shared mutations', async () => {
     const network = vi.spyOn(Cognitive.prototype, 'generateText').mockResolvedValue(structuredClone(response))
     const first = await client().generateText(request)
