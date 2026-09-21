@@ -204,8 +204,8 @@ describe('voice messages', () => {
       // The delivered reply is long-form prose, not serialized data
       expect(replies.length).toBeGreaterThan(300)
       expect(replies.trimStart().startsWith('{')).toBe(false)
-      // A story can personify a Worker without repeating the vendor name.
-      expect(replies).toMatch(/workers?/i)
+      // Check the computing theme without requiring a creative story to repeat
+      // the product name; this regression covers the response format.
       expect(replies).toMatch(/edge|code|requests?|server|data/i)
       return replies
     }

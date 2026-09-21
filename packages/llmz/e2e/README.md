@@ -6,6 +6,8 @@ All network-backed test suites share a disk cache, including model evaluations. 
 pnpm test:e2e
 ```
 
+Pull-request CI runs the offline tests and replays the complete E2E suite from the committed production recordings. Missing recordings fail the job instead of making live provider requests. To check current staging/provider behavior, manually run the **Run LLMz Tests** workflow with **live** enabled; it refreshes responses against staging using a temporary bot.
+
 Set `LLMZ_E2E_CACHE_MODE` to choose the behavior:
 
 | Mode             | Existing recording | Missing recording                               |

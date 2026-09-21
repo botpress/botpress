@@ -5,6 +5,12 @@ on:
     paths:
       - 'packages/llmz/**'
       - '.github/workflows/run-llmz-tests.yml'
+  workflow_dispatch:
+    inputs:
+      live:
+        description: 'Refresh E2E responses against staging instead of replaying committed fixtures'
+        type: boolean
+        default: false
 
 permissions:
   id-token: write
@@ -22,17 +28,28 @@ jobs:
         uses: ./.github/actions/setup
         with:
           extra_filters: '-F llmz'
+      - name: Run offline tests
+        run: pnpm -F llmz test
+      - name: Replay E2E fixtures
+        if: ${{ !inputs.live }}
+        env:
+          LLMZ_E2E_CACHE_MODE: replay
+          CLOUD_API_ENDPOINT: 'https://api.botpress.cloud'
+        run: pnpm -F llmz run test:e2e
       - name: Login
+        if: ${{ inputs.live }}
         env:
           BP_API_URL: 'https://api.botpress.dev'
           BP_WORKSPACE_ID: ${{ secrets.STAGING_E2E_TESTS_WORKSPACE_ID }}
           BP_TOKEN: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
         run: |
           pnpm bp login
-      - name: Run LLMz Tests
+      - name: Run live E2E tests
+        if: ${{ inputs.live }}
         id: 'run-tests'
         env:
           CLOUD_PAT: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
+          LLMZ_E2E_CACHE_MODE: refresh
         run: |
           bot_id=$(pnpm bp bots new --json | jq -r ".id")
           echo "bot_id=$bot_id" >> "$GITHUB_OUTPUT"
@@ -42,7 +59,7 @@ jobs:
           pnpm -F llmz run test:e2e
 
       - name: Cleanup
-        if: ${{ always() }}
+        if: ${{ always() && steps.run-tests.outputs.bot_id != '' }}
         env:
           BOT_ID: ${{ steps.run-tests.outputs.bot_id }}
         run: |
