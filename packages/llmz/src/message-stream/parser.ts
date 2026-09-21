@@ -76,6 +76,7 @@ export class StreamingMessageParser {
   private _currentReady = false
   private _counter = 0
   private _finished = false
+  private _ended = false
 
   private _directiveBuffer = ''
   private _nameBuffer = ''
@@ -93,6 +94,9 @@ export class StreamingMessageParser {
   private _preambleHeader: string | undefined
   // A closing Markdown fence after a completed exit is wrapper noise, never a body.
   private _closingFenceTicks: number | undefined
+  private _lineStart = true
+  // Hold possible documentation delimiters BEFORE producing any body deltas.
+  private _exampleDelimiter = ''
 
   public constructor(options: StreamingParserOptions = {}) {
     this._maxPropsLength = options.maxPropsLength ?? 100_000
@@ -115,7 +119,7 @@ export class StreamingMessageParser {
 
     const events: MessageStreamEvent[] = []
     for (const char of chunk) {
-      this._processChar(char, events)
+      this._processOutputChar(char, events)
     }
     this._flushBodyDelta(events)
     return events
@@ -134,6 +138,14 @@ export class StreamingMessageParser {
     this._finished = true
 
     const events: MessageStreamEvent[] = []
+    if (/^"""\s*$/.test(this._exampleDelimiter)) {
+      this._discardExampleDelimiter(events)
+    } else if (reason === 'end') {
+      this._flushExampleDelimiter(events)
+    } else {
+      // A cut-off delimiter must not flash in an interrupted message either.
+      this._exampleDelimiter = ''
+    }
     if (this._closingFenceTicks !== undefined && this._closingFenceTicks !== 3) {
       this._skipUnexpectedText(events)
     }
@@ -183,6 +195,7 @@ export class StreamingMessageParser {
     this._currentReady = false
     this._counter = 0
     this._finished = false
+    this._ended = false
     this._directiveBuffer = ''
     this._nameBuffer = ''
     this._propsBuffer = ''
@@ -194,6 +207,64 @@ export class StreamingMessageParser {
     this._pendingWhitespace = ''
     this._preambleHeader = undefined
     this._closingFenceTicks = undefined
+    this._lineStart = true
+    this._exampleDelimiter = ''
+  }
+
+  private _processOutputChar(char: string, events: MessageStreamEvent[]): void {
+    const lineStart = this._lineStart
+    this._lineStart = char === '\n' || (lineStart && (char === ' ' || char === '\t' || char === '\r'))
+
+    if (this._exampleDelimiter) {
+      // Inside a body, only remove a terminal delimiter. Interior lines may be
+      // literal Markdown/code content and must stay intact.
+      if (this._exampleDelimiter.includes('\n')) {
+        if (isWhitespace(char)) {
+          this._exampleDelimiter += char
+          return
+        }
+        if (char === MARKER) {
+          this._discardExampleDelimiter(events)
+        } else {
+          this._flushExampleDelimiter(events)
+        }
+      } else {
+        const candidate = this._exampleDelimiter + char
+        if (/^(?:"{1,2}|"""[ \t]*\r?)$/.test(candidate)) {
+          this._exampleDelimiter = candidate
+          return
+        }
+        if (/^"""[ \t]*\r?\n$/.test(candidate)) {
+          this._exampleDelimiter = candidate
+          if (this._state !== 'body') this._discardExampleDelimiter(events)
+          return
+        }
+        this._flushExampleDelimiter(events)
+      }
+    }
+
+    if (
+      lineStart &&
+      char === '"' &&
+      (this._state === 'idle' || this._state === 'skip' || this._state === 'body-wait' || this._state === 'body')
+    ) {
+      this._exampleDelimiter = char
+      return
+    }
+    this._processChar(char, events)
+  }
+
+  private _flushExampleDelimiter(events: MessageStreamEvent[]): void {
+    for (const char of this._exampleDelimiter) this._processChar(char, events)
+    this._exampleDelimiter = ''
+  }
+
+  private _discardExampleDelimiter(events: MessageStreamEvent[]): void {
+    this._exampleDelimiter = ''
+    this._diagnostic(events, {
+      code: 'example-delimiter',
+      message: 'Discarded a triple-quote example delimiter',
+    })
   }
 
   private _processChar(char: string, events: MessageStreamEvent[]): void {
@@ -211,10 +282,22 @@ export class StreamingMessageParser {
       this._skipUnexpectedText(events)
     }
 
+    // An exit terminates this response. Never emit later sends or execute later
+    // code, even if the model repeats an otherwise valid response after it.
+    if (this._ended) {
+      if (this._state === 'skip' || isWhitespace(char)) return
+      if (char === '`') {
+        this._closingFenceTicks = 1
+        return
+      }
+      this._skipUnexpectedText(events)
+      return
+    }
+
     switch (this._state) {
       case 'idle': {
         if (char === MARKER) {
-          this._beginItem()
+          this._beginItem(events)
         } else if (!isWhitespace(char)) {
           const last = this._items.at(-1)
           if (char === '`' && last?.kind === 'next' && last.status === 'complete') {
@@ -236,7 +319,7 @@ export class StreamingMessageParser {
         } else if (char === MARKER) {
           this._endDirective(events, undefined)
           this._completeCurrent(events)
-          this._beginItem()
+          this._beginItem(events)
         } else if (char === '\n') {
           this._endDirective(events, '\n')
         } else if (isWhitespace(char)) {
@@ -253,7 +336,7 @@ export class StreamingMessageParser {
         if (char === MARKER) {
           this._endName(events)
           this._completeCurrent(events)
-          this._beginItem()
+          this._beginItem(events)
         } else if (char === '{') {
           this._endName(events)
           this._afterHeaderChar(char, events)
@@ -282,7 +365,7 @@ export class StreamingMessageParser {
       case 'body-wait': {
         if (char === MARKER) {
           this._completeCurrent(events)
-          this._beginItem()
+          this._beginItem(events)
         } else if (!isWhitespace(char)) {
           this._startBody(events)
           this._appendBody(char)
@@ -295,7 +378,7 @@ export class StreamingMessageParser {
           this._pendingWhitespace = ''
           this._flushBodyDelta(events)
           this._completeCurrent(events)
-          this._beginItem()
+          this._beginItem(events)
         } else {
           this._appendBody(char)
         }
@@ -319,7 +402,7 @@ export class StreamingMessageParser {
           return
         }
         if (char === MARKER) {
-          this._beginItem()
+          this._beginItem(events)
         }
         return
       }
@@ -349,7 +432,7 @@ export class StreamingMessageParser {
 
     if (char === MARKER) {
       this._completeCurrent(events)
-      this._beginItem()
+      this._beginItem(events)
       return
     }
 
@@ -418,7 +501,7 @@ export class StreamingMessageParser {
       } else if (char === MARKER && this._propsBroken) {
         this._failProps(events, 'props were interrupted by a new block')
         this._completeCurrent(events)
-        this._beginItem()
+        this._beginItem(events)
       }
       return
     }
@@ -429,7 +512,7 @@ export class StreamingMessageParser {
       // `■` is never valid outside of a string
       this._failProps(events, 'props were interrupted by a new block')
       this._completeCurrent(events)
-      this._beginItem()
+      this._beginItem(events)
     } else if (char === '{' || char === '[') {
       this._propsDepth++
     } else if (char === '}' || char === ']') {
@@ -440,7 +523,11 @@ export class StreamingMessageParser {
     }
   }
 
-  private _beginItem(): void {
+  private _beginItem(events: MessageStreamEvent[]): void {
+    if (this._ended) {
+      this._skipUnexpectedText(events)
+      return
+    }
     const item: ParsedItem = {
       id: `item-${this._counter++}`,
       kind: 'unknown',
@@ -673,6 +760,8 @@ export class StreamingMessageParser {
       item.status = forcedStatus ?? 'complete'
     }
 
+    if (item.kind === 'next' && item.status === 'complete') this._ended = true
+
     events.push({ type: 'item-complete', item })
     this._current = undefined
     this._currentReady = false
@@ -681,7 +770,7 @@ export class StreamingMessageParser {
   private _skipUnexpectedText(events: MessageStreamEvent[]): void {
     this._diagnostic(events, {
       code: 'unexpected-text',
-      message: 'Encountered text outside of a ■ block',
+      message: this._ended ? 'Discarded content after terminal ■next' : 'Encountered text outside of a ■ block',
     })
     this._state = 'skip'
   }

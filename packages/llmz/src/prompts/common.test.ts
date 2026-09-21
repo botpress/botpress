@@ -14,7 +14,7 @@ const data = await fetchUserData({ id: 'usr_1' })
 return data
 `.trim()
 
-      const response = parseAssistantResponse(input)
+      const response = parseAssistantResponse(`■start\n${input}\n■end`)
 
       expect(response.sends).toEqual([{ name: 'md', props: {}, body: 'Let me check that for you.' }])
       expect(response.code).toMatchInlineSnapshot(`
@@ -27,26 +27,21 @@ return data
 
     it('parses a next exit with props', async () => {
       const response = parseAssistantResponse(
-        '■send=md\nTransferring you now!\n■next=book_meeting { reason: "demo", email: "a@b.com" }'
+        '■start\n■send=md\nTransferring you now!\n■next=book_meeting { reason: "demo", email: "a@b.com" }\n■end'
       )
 
       expect(response.code).toBeUndefined()
       expect(response.next).toEqual({ name: 'book_meeting', props: { reason: 'demo', email: 'a@b.com' } })
     })
 
-    it('strips code fences wrapping the whole response', async () => {
-      const input = `
-\`\`\`
-■send=md
-Hello!
-■next=listen
-\`\`\`
-`.trim()
-
-      const response = parseAssistantResponse(input)
-
+    it('discards wrapper fences outside a valid response envelope', () => {
+      const response = parseAssistantResponse('```\n■start\n■send=md\nHello!\n■next=listen\n■end\n```')
       expect(response.sends).toEqual([{ name: 'md', props: {}, body: 'Hello!' }])
       expect(response.next).toEqual({ name: 'listen', props: {} })
+      expect(response.diagnostics).toEqual([
+        { code: 'unexpected-text', message: 'Discarded text before ■start' },
+        { code: 'unexpected-text', message: 'Discarded content after ■end' },
+      ])
     })
 
     it('retains plain text for debugging without creating an implicit send', async () => {
@@ -56,7 +51,7 @@ Hello!
       expect(response.raw).toBe(raw)
       expect(response.items).toEqual([])
       expect(response.sends).toEqual([])
-      expect(response.diagnostics).toEqual([{ code: 'unexpected-text', message: expect.any(String) }])
+      expect(response.diagnostics).toContainEqual({ code: 'invalid-envelope', message: expect.any(String) })
       expect(response.code).toBeUndefined()
       expect(response.next).toBeUndefined()
     })
@@ -64,31 +59,21 @@ Hello!
     it('keeps code fences inside message bodies', async () => {
       const input = '■send=md\nHere is an example:\n```js\nconsole.log(1)\n```\n■next=listen'
 
-      const response = parseAssistantResponse(input)
+      const response = parseAssistantResponse(`■start\n${input}\n■end`)
 
       expect(response.sends[0]!.body).toBe('Here is an example:\n```js\nconsole.log(1)\n```')
     })
 
-    it('keeps messages before returning code and diagnoses messages after it', () => {
-      const parsed = parseAssistantResponse(
-        '■send=md\nRequested progress update.\n■run\nreturn await search()\n■send=md\nInvented result.\n■send=image {"url":"https://example.com/invented.jpg"}\n■next=listen'
-      )
-      expect(parsed.sends).toEqual([{ name: 'md', props: {}, body: 'Requested progress update.' }])
-      expect(parsed.diagnostics?.map((diagnostic) => diagnostic.code)).toEqual(['send-after-run', 'send-after-run'])
-      expect(parsed.code).toBe('return await search()')
-    })
-
-    it('preserves sends after side-effect code without a top-level return', () => {
-      const parsed = parseAssistantResponse(
-        '■run\nconst label = "return"; await save({ label })\n■send=md\nSaved.\n■next=listen'
-      )
-      expect(parsed.sends).toEqual([{ name: 'md', props: {}, body: 'Saved.' }])
-      expect(parsed.diagnostics).toEqual([])
+    it.each(['return await search()', 'await save()'])('rejects messages after code: %s', (code) => {
+      const parsed = parseAssistantResponse(`■start\n■run\n${code}\n■send=md\nInvented result\n■next=listen\n■end`)
+      expect(parsed.sends).toEqual([])
+      expect(parsed.code).toBeUndefined()
+      expect(parsed.diagnostics).toContainEqual(expect.objectContaining({ code: 'invalid-envelope' }))
     })
 
     it('parses multiple sends in order', async () => {
       const response = parseAssistantResponse(
-        '■send=md\nPick an option:\n■send=buttons { buttons: [{ label: "A" }, { label: "B" }] }\n■next=listen'
+        '■start\n■send=md\nPick an option:\n■send=buttons { buttons: [{ label: "A" }, { label: "B" }] }\n■next=listen\n■end'
       )
 
       expect(response.sends.map((s) => s.name)).toEqual(['md', 'buttons'])

@@ -132,7 +132,10 @@ Key points:
 - JSX uses {} for JavaScript expressions
 `
           expectedSnippets = [...content.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].map((match) => match[1]!.trim())
-          throw new ThinkSignal(content)
+          throw new ThinkSignal(
+            'Documentation retrieved. Use the supplied examples to answer the assigned task.',
+            content
+          )
         },
       })
 
@@ -220,7 +223,10 @@ Special characters handled:
 - Brackets: [] {} ()
 `
           expectedSnippets = [...content.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].map((match) => match[1]!.trim())
-          throw new ThinkSignal(content)
+          throw new ThinkSignal(
+            'Documentation retrieved. Use the supplied examples to answer the assigned task.',
+            content
+          )
         },
       })
 
@@ -314,7 +320,10 @@ Features demonstrated:
 - Mapped types and conditional types
 `
           expectedSnippets = [...content.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].map((match) => match[1]!.trim())
-          throw new ThinkSignal(content)
+          throw new ThinkSignal(
+            'Documentation retrieved. Use the supplied examples to answer the assigned task.',
+            content
+          )
         },
       })
 
@@ -407,7 +416,10 @@ Key syntax:
 - Comments: -- and /* */
 `
           expectedSnippets = [...content.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].map((match) => match[1]!.trim())
-          throw new ThinkSignal(content)
+          throw new ThinkSignal(
+            'Documentation retrieved. Use the supplied examples to answer the assigned task.',
+            content
+          )
         },
       })
 
@@ -459,7 +471,8 @@ Bash Scripting Examples:
 # Variables and parameter expansion
 NAME="John Doe"
 FILE_PATH="/home/\${USER}/documents"
-TIMESTAMP=\\$(date +%Y-%m-%d_%H:%M:%S)
+TIMESTAMP=$(date +%Y-%m-%d_%H:%M:%S)
+LITERAL_COMMAND="\\$(date +%Y-%m-%d_%H:%M:%S)"
 
 # String manipulation
 echo "Hello \${NAME}!"
@@ -512,7 +525,10 @@ Important syntax:
 - Special chars: \$ \` ! & | < > ; ( ) { } [ ]
 `
           expectedSnippets = [...content.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].map((match) => match[1]!.trim())
-          throw new ThinkSignal(content)
+          throw new ThinkSignal(
+            'Documentation retrieved. Use the supplied examples to answer the assigned task.',
+            content
+          )
         },
       })
 
@@ -614,7 +630,10 @@ String types:
 - Format: "{0}".format(val)
 `
           expectedSnippets = [...content.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].map((match) => match[1]!.trim())
-          throw new ThinkSignal(content)
+          throw new ThinkSignal(
+            'Documentation retrieved. Use the supplied examples to answer the assigned task.',
+            content
+          )
         },
       })
 
@@ -713,7 +732,10 @@ Escaping rules:
 - Unicode: \\\\uXXXX
 `
           expectedSnippets = [...content.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].map((match) => match[1]!.trim())
-          throw new ThinkSignal(content)
+          throw new ThinkSignal(
+            'Documentation retrieved. Use the supplied examples to answer the assigned task.',
+            content
+          )
         },
       })
 
@@ -821,7 +843,10 @@ Special CSS features:
 - Escapes: \\\\ for special chars
 `
           expectedSnippets = [...content.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].map((match) => match[1]!.trim())
-          throw new ThinkSignal(content)
+          throw new ThinkSignal(
+            'Documentation retrieved. Use the supplied examples to answer the assigned task.',
+            content
+          )
         },
       })
 
@@ -925,7 +950,10 @@ Markdown features:
 - Escapes: \\\\char
 `
           expectedSnippets = [...content.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].map((match) => match[1]!.trim())
-          throw new ThinkSignal(content)
+          throw new ThinkSignal(
+            'Documentation retrieved. Use the supplied examples to answer the assigned task.',
+            content
+          )
         },
       })
 
@@ -1382,10 +1410,12 @@ IMPORTANT: This is production code - show it EXACTLY as-is with all HTML tags an
 describe('message streaming', { retry: 0, timeout: 60_000 }, () => {
   const StreamMarkdown = new Component({
     name: 'Markdown',
-    type: 'leaf',
+    aliases: [],
+    type: 'default',
     description: 'Renders markdown content',
-    leaf: {
+    default: {
       props: z.object({}),
+      children: [],
     },
     examples: [
       {

@@ -1,5 +1,6 @@
 import { parse } from 'acorn'
 import type { Component } from './component.js'
+import { exampleBoundaryInstructions, quoteResponseExample } from './example-format.js'
 import type { Exit } from './exit.js'
 import { ComponentRegistry } from './message-stream/registry.js'
 import { MARKER, NAME_REGEX } from './message-stream/types.js'
@@ -150,7 +151,7 @@ export const renderExamples = async (
   const { parseAssistantResponse } = await import('./prompts/common.js')
 
   const render = (output: string) => {
-    const response = parseAssistantResponse(output)
+    const response = parseAssistantResponse(`■start\n${output}\n■end`)
     if (response.diagnostics?.length || response.items.some((item) => item.status === 'invalid')) {
       throw new Error('Invalid few-shot protocol output.')
     }
@@ -183,15 +184,18 @@ export const renderExamples = async (
 
   return [
     '<few_shots>',
-    'These are hypothetical examples, NOT the conversation transcript. Each example shows ONE desired response.',
+    components.length
+      ? 'These are hypothetical examples, NOT the conversation transcript. Each example shows ONE desired response.'
+      : 'These are hypothetical examples, NOT actual task history. Each example shows ONE desired response.',
     'Use examples whose KIND of situation applies, not just the same names or numbers. Conditions such as "only when requested" are required: sharing a tool or topic is not enough.',
-    'Only response demonstrates output. Situation and optional reason explain the example; never emit their text or XML tags.',
+    exampleBoundaryInstructions,
+    'Only the text between triple quotes in response demonstrates output. Situation and optional reason explain the example; never emit their text or XML tags.',
     ...examples.map((example, index) =>
       [
         `<example number="${index + 1}">`,
         `<situation>\n${metadata(example.situation)}\n</situation>`,
         ...(example.reason ? [`<reason>\n${metadata(example.reason)}\n</reason>`] : []),
-        `<response>\n${render(example.output)}\n</response>`,
+        `<response>\n${quoteResponseExample(render(example.output))}\n</response>`,
         '</example>',
       ].join('\n')
     ),

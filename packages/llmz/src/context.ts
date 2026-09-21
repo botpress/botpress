@@ -696,14 +696,10 @@ export class Context implements Serializable<Context.JSON> {
    */
   public maxTimeToFirstToken?: number
   /**
-   * Allow Cognitive to restart a failed stream on another model. With fallback
-   * enabled, there is no buffered delivery and no final delivery queue: delta
-   * text and completed Chat.handler sends stream immediately during generation.
-   * A reset-only delta (restart: true) on Chat.onMessageDelta invalidates ALL
-   * current-iteration messages, including completed sends — consumers must
-   * retract/replace them, which is unsafe for irreversible external transports.
-   * Only TOOL/CODE execution waits for a successful stream. Streaming-only;
-   * defaults to false, which leaves progressive sending unchanged.
+   * Allow Cognitive to restart a failed stream on another model. Previews remain
+   * live and are retracted with a restart delta before replacement output.
+   * Completed sends and code always wait for a valid response and successful
+   * transport. Streaming-only; defaults to false.
    */
   public midStreamFallback?: boolean
   /**
@@ -936,6 +932,15 @@ export class Context implements Serializable<Context.JSON> {
             ? `■next=${lastIteration.next.name} ${JSON.stringify(lastIteration.next.props)}`
             : (lastIteration.code ?? '// No code generated'),
           message: `Invalid ■next block (${lastIteration.status.exit_error.exit}): ${lastIteration.status.exit_error.message}`,
+          variables: lastIteration.variables,
+          toolCalls: lastIteration.traces
+            .filter((trace) => trace.type === 'tool_call')
+            .map((trace) => ({
+              tool: trace.tool_name,
+              input: trace.input,
+              success: trace.success,
+              ...(trace.success ? { output: trace.output } : { error: getErrorMessage(trace.error) }),
+            })),
         }),
       ])
     }

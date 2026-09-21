@@ -64,6 +64,7 @@ const ticketId = await buyTicket({ from: 'quebec', to: 'new york' })
 Every model response is a sequence of streaming-native `■` blocks:
 
 ```
+■start
 ■send=message
 Let me check the next launch dates for the Moon...
 ■run
@@ -71,17 +72,50 @@ const dates = await checkAvailability({ destination: 'moon' })
 const reservation = await bookTrip({ destination: 'moon', date: dates[0], travelerName: 'Ada' })
 const payment = await processPayment({ reservationId: reservation.reservationId })
 return { ...payment, date: dates[0] }
+■end
 ```
 
-- **`■send=<component> {props?}`** — sends a message to the user, delivered (and streamable) the moment it is parsed
-- **`■run`** — executes the TypeScript body in the sandbox; the returned value is fed back to the model
+- **`■send=<component> {props?}`** — sends a message to the user, streamed provisionally, then delivered after successful validation
+- **`■run`** — executes the JavaScript body in the sandbox; the returned value is fed back to the model
 - **`■next=<exit> {props?}`** — ends the turn through a typed exit (the built-in `listen` hands the turn back to the user)
 
-Because the protocol is parsed incrementally, messages stream to your UI token-by-token, tool calls surface live, and code execution can start before the response has even finished streaming.
+Every generated response must contain a standalone `■start` and end with `■end`. Text before the start marker is retained for debugging and discarded before parsing any blocks. There is no unwrapped response mode. Only explicit `■send` blocks can produce messages. Markdown (`■send=md`) remains supported.
 
-Only explicit `■send` blocks produce messages or message deltas. Unexpected text outside protocol blocks is discarded in streaming, fallback restarts, and nonstreaming execution. Explicit Markdown (`■send=md`) is supported. A response with only unexpected text follows the normal invalid-response retry/error path. For debugging, `iteration.llm.output` retains the raw response and `iteration.llm.diagnostics` records parser diagnostics, including `unexpected-text`.
+Message bodies stream as provisional deltas. Completed message handlers and code execution wait for the entire valid response and successful generation. A missing start marker, unmarked prose inside the envelope, multiple run blocks, and messages after code reject the response through the normal malformed-response/error path. A failed or restarted attempt cannot execute code or commit a message. Any previews from it are retracted with a reset delta.
 
-As of 0.7.0, the parser options `strict` and `recoveryComponent` have been removed. All parsing requires explicit send blocks; callers relying on implicit messages must emit `■send=<component>` instead.
+The first `■end` is a reserved terminator anywhere after `■start`, including inline and inside a JavaScript string or comment. Everything after it is discarded with a diagnostic; it never reaches message handlers or code execution. This intentionally accepts concatenated output such as `■end■start`. The prefix must still form valid blocks and valid JavaScript before any code runs. A terminator inside a string can therefore invalidate the response; do not use the raw sequence as content. In JavaScript, construct literal text with a Unicode escape such as `"\u25a0end"` instead. This is a protocol delimiter, not a JavaScript-aware scanner.
+
+Cognitive receives `stopSequences: ['\n■end']` to stop generation at the end boundary. Since providers consume the stop string, normal `stop` metadata closes the response even when the literal end marker is absent. Cognitive does not distinguish a matched stop string from ordinary end-of-generation; the response must still have a start marker and valid blocks. Missing metadata, truncation, filtering, and transport failure never supply this closure.
+
+Raw output and diagnostics remain available in `iteration.llm.output` and `iteration.llm.diagnostics`, including on failed streams. A valid framed exit alone permits intentional silence. Tools completed in earlier successful iterations remain completed during later recovery.
+
+Prompt examples use standalone triple quotes (`"""`) to show their boundaries, with BAD/CORRECT comparisons and a menu of response shapes. These quotes are documentation, not protocol. If copied, standalone example delimiter lines are stripped before customer callbacks and recorded as `example-delimiter` diagnostics. Inline quotes, JSON props, and interior Markdown/code content remain literal. A standalone triple-quote line immediately before a protocol boundary is reserved for this purpose; to display it literally, include it inline or inside a fenced code sample.
+
+The prompts use ordinary headings and put the response format after task context and the current execution budget. Historical replies are kept as recorded, without synthetic protocol headers. The low-level block parser remains useful for parsing individual blocks; execution uses the mandatory response envelope.
+
+This is a breaking protocol change: custom model clients and cached wire responses must include the start boundary and a successful response termination. Completed handlers now run after successful generation; only deltas stream during generation. `■run` followed by `■send` is invalid. Return a tool result, then answer in a new iteration. The removed `strict` and `recoveryComponent` options are not restored.
+
+To measure first-response adherence independently of runtime recovery, configure `CLOUD_PAT`, `CLOUD_BOT_ID`, and optionally `CLOUD_API_ENDPOINT`, then run:
+
+```bash
+LLMZ_EVAL_MODELS=cerebras:qwen-3.8-27b LLMZ_EVAL_REPEATS=1 pnpm test:e2e e2e/protocol-matrix.test.ts
+```
+
+The matrix contains 144 synthetic tasks across 12 languages, each in streaming and nonstreaming mode: greetings, intake, long context, tools, progress messages, tool results, silent actions, typed exits, buttons, JSON text, Markdown, and error recovery. It disables test retries and cache and rejects fallback credit. Optional `LLMZ_EVAL_RECORDS=/absolute/path/results.jsonl` records raw outputs, diagnostics, task checks, and actual model metadata. Failures remain visible: passing runtime rejection tests does not establish perfect model adherence. Protocol/control-flow assertions are separate from exact task wording checks, which are retained in the evaluation records.
+
+---
+
+## Long search results and citations
+
+The RAG benchmark uses the same citation contract as VDK: a search tool registers source metadata, returns passages labelled with `【id】` through `ThinkSignal`, and the completed message handler extracts inline tags into citation metadata with text offsets. Its documents are entirely synthetic.
+
+```bash
+LLMZ_EVAL_MODELS=groq:qwen3.8-27b LLMZ_EVAL_REPEATS=1 pnpm test:e2e e2e/long-search-citations.test.ts
+```
+
+The 48 cases pair compact controls with long corpora in both streaming modes. They cover exact scope matching, superseded/future policies, joins across distant documents, and quota arithmetic, with answers near the beginning, middle, or end. Results span roughly 12,000–39,000 tokens and four response languages. Tests require correct facts, every required supporting source, no unrelated citations, intact evidence in the actual model request, no extra search/recovery hops, and the requested model without cache or fallback credit. Near-match sources may additionally support scope/date disambiguation (for example, explaining why an archived account does not apply); they cannot replace required evidence. These checks validate retrieval and source coverage, not every possible natural-language claim.
+
+Latest tool-result strings are preserved until the request context budget is applied; they are no longer silently clipped at 4,096 characters. Inputs exceeding the model/context budget still undergo normal truncation. Separate deterministic tests cover citation offsets, grouped/repeated tags, structured component props, chunk boundaries, discarded preambles, stream restarts, failed delivery, and unknown source IDs.
 
 ---
 
@@ -331,7 +365,7 @@ const chat = new Chat({
   // Fires per token-chunk while the LLM is still generating
   onMessageDelta: (delta) => {
     if (delta.restart) {
-      // Remove ALL this iteration's messages, including completed handler sends.
+      // Remove this iteration's provisional previews.
       return clearIterationMessages(delta.iterationId)
     }
     return updateBubble(delta.iterationId, delta.id, delta.content)
@@ -355,13 +389,13 @@ const result = await execute({
 - **Message deltas** stream to your UI token-by-token (`handler` remains the authoritative delivery)
 - **Live traces** cover the full turn lifecycle: `llm_call_started` → message deltas → `code_generation_started` → `llm_call_success` (with the code) → `tool_call`s → exit
 - **Fallback**: a `restart: true` delta invalidates the current iteration's messages before replacement output arrives. Replacement messages have fresh IDs under the same `iterationId`. Code executes only after the replacement stream succeeds; abandoned code never runs.
-- **Early execution**: without `midStreamFallback`, a closed `■run` block can start executing while the response tail is still streaming. A later generation failure returns an error without retrying the code. The VM pre-warms when code generation begins in either mode.
+- **Execution**: code runs only after a complete, valid envelope and successful stream completion in every mode. The VM still pre-warms when a run block opens.
 
-Terminal failures return an `ErrorExecutionResult`; they do not emit a restart delta because there is no replacement attempt. Handle that result to clear or mark unfinished messages as failed. Already delivered messages remain delivered unless your consumer retracts them. Nonstreaming Cognitive fallback exposes only the successful response, so no message reset is needed.
+Terminal failures return an `ErrorExecutionResult` and retract any provisional previews with a reset delta; no replacement is required for a reset. Completed handlers from abandoned attempts are never called. Nonstreaming fallback exposes only the surviving response.
 
-LLMz rejects explicit Cognitive errors, error metadata (`provider: "unknown"`), and responses stopped by a token limit or content filter before finalizing unfinished blocks. Such failures cannot turn a partial code prefix into executable code. With fallback disabled, this cannot undo code that already ran after a block boundary.
+Explicit Cognitive errors, unknown-provider error metadata, missing streaming metadata, token-limit truncation, and content filtering cannot turn partial output into executable code. A complete code block inside an unfinished response is still provisional.
 
-`■run` followed by `■send` is currently accepted, but that message was generated without seeing the code's result. Prefer sending an acknowledgement before `■run`, returning the needed data, then answering in the next iteration. A top-level `return` always requests another iteration; side-effect-only code can finish immediately with `■next`.
+Send messages before code. A returning run requests another iteration and must be followed directly by `■end`. Side-effect-only code may finish with `■next` before `■end`.
 
 Forward these events over a websocket or SSE stream and your frontend renders the agent live — see [example 22](https://github.com/botpress/botpress/tree/master/packages/llmz/examples/22_chat_streaming).
 
@@ -513,7 +547,7 @@ LLMz has been running in production for over a year:
 1. **Prompt Generation**: Injects tools, schemas, and context into dual-mode prompts
 2. **Streaming Generation**: The LLM streams ■ blocks — messages dispatch to the chat as they are parsed
 3. **Compilation**: Babel AST transformation with instrumentation plugins (line tracking, tool call tracking, variable extraction)
-4. **Execution**: Runs in QuickJS WASM sandbox with full isolation — starting while the response tail is still streaming
+4. **Execution**: Runs in QuickJS WASM sandbox with full isolation — after successful generation and protocol validation
 5. **Result Processing**: Type-safe exit handling, thinking loops and error recovery
 
 **Security:**
