@@ -1,24 +1,8 @@
 /**
- * Example 18: Security Testing and Sandbox Protection
- *
- * This example demonstrates LLMz's security capabilities by testing various attack vectors.
- * It shows how to:
- * - Test sandbox isolation against malicious code
- * - Verify protection against VM escape attempts
- * - Demonstrate timeout and resource protection
- * - Test against memory exhaustion attacks
- * - Validate security against process access attempts
- *
- * Key concepts:
- * - Sandbox security and isolation
- * - Malicious code detection and prevention
- * - Resource limits and timeout protection
- * - VM escape prevention
- * - Security testing patterns
- *
- * ⚠️  SECURITY TESTING ONLY - This file contains malicious code patterns for testing purposes
+ * Exercise 15 hostile scripts against the sandbox: resource exhaustion,
+ * unavailable host APIs, constructor escapes, and information disclosure.
+ * Payloads replace generated code in onBeforeExecution so each case is exact.
  */
-
 import { Client } from '@botpress/client'
 
 import chalk from 'chalk'
@@ -28,6 +12,7 @@ import { printTrace } from '../utils/debug'
 
 // Initialize Botpress client
 const client = new Client({
+  apiUrl: process.env.BOTPRESS_API_URL,
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
 })
@@ -117,7 +102,7 @@ fib(1e6);
 // Test 7: File system attacks (should be blocked)
 maliciousScripts.push({
   title: 'Delete all files',
-  description: 'This script will delete all files in the system.',
+  description: 'Attempts to invoke filesystem deletion through a Node import.',
   code: `
 import { exec } from 'child_process'
 exec('rm -rf /')
@@ -127,7 +112,7 @@ exec('rm -rf /')
 // Test 8: File system attacks via CommonJS
 maliciousScripts.push({
   title: 'Delete all files (require syntax)',
-  description: 'Deletes everything using CommonJS require.',
+  description: 'Attempts filesystem deletion through CommonJS require.',
   code: `
 const { exec } = require('child_process');
 exec('rm -rf /')
@@ -165,7 +150,7 @@ for (const key of Object.keys(globalThis)) {
 // Test 11: Process access attempts
 maliciousScripts.push({
   title: 'Access process via constructor',
-  description: 'Bypasses sandbox using Function constructor to access process object.',
+  description: 'Attempts to access the host process through a Function constructor.',
   code: `
 const getProcess = this.constructor.constructor('return process');
 console.log(getProcess().env);
@@ -229,6 +214,7 @@ for (const script of maliciousScripts) {
 
   // Execute the malicious code with security protections
   const result = await execute({
+    model: process.env.BOTPRESS_MODEL ?? 'openai:gpt-5.6-luna',
     options: {
       loop: 1, // Limit iterations
       timeout: 2000, // 2 second timeout for protection
@@ -247,8 +233,4 @@ for (const script of maliciousScripts) {
   console.log('Result Status:', result.status)
   console.log('Generated Code:', result.iteration?.code)
   console.log('Execution Status:', result.iteration?.status)
-
-  // Wait and clear screen between tests
-  await new Promise((resolve) => setTimeout(resolve, 5000))
-  console.clear()
 }

@@ -9,7 +9,7 @@ const indentLines = (str: string, length: number) => {
     .join('\n')
 }
 
-export const ellipsis = (str: string, maxLength: number = process.stdout.columns - 10) => {
+export const ellipsis = (str: string, maxLength: number = (process.stdout.columns || 100) - 10) => {
   if (str.length <= maxLength) return str
   return str.slice(0, maxLength - 3) + '...'
 }

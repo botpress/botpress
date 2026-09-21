@@ -25,6 +25,7 @@ import { makeFileSystem } from '../utils/tools/file-system'
 
 // Initialize Botpress client for LLM communication
 const client = new Client({
+  apiUrl: process.env.BOTPRESS_API_URL,
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
 })
@@ -42,11 +43,12 @@ const exit = new Exit({
 // Execute file system operations in worker mode
 // This demonstrates automated file management without user interaction
 const result = await execute({
+  model: process.env.BOTPRESS_MODEL ?? 'openai:gpt-5.6-luna',
   // Provide clear instructions for the file management task
-  instructions: `Today's date is ${new Date().toLocaleDateString()}
+  instructions: `Today's date is ${new Date().toISOString().slice(0, 10)}
 You need to make sure there's a file for today in the "/notes" folder.
 If the file exists, return its content.
-If the file does not exists, create the file with today's date as the name and write "Hello, world!" in it.`,
+If the file does not exists, create the file with today's date and .txt as the name and write "Hello, world!" in it.`,
 
   // Use objects instead of tools for richer API access
   // Objects provide more complex interfaces than simple input/output tools

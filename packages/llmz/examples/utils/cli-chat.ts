@@ -27,7 +27,7 @@ export class CLIChat extends Chat {
 
   private _components: Component[] = []
 
-  public constructor() {
+  public constructor(options: { validateText?: (text: string) => Promise<void> } = {}) {
     super({
       components: () => [
         DefaultComponents.Buttons.withHandler((buttons) => {
@@ -36,7 +36,10 @@ export class CLIChat extends Chat {
         ...this._components,
       ],
       response: {
-        handler: (text) => this._sendText(text),
+        handler: async (text) => {
+          await options.validateText?.(text)
+          this._sendText(text)
+        },
       },
     })
   }
@@ -52,8 +55,7 @@ export class CLIChat extends Chat {
     }
 
     if (this.hasExitedWith(ListenExit)) {
-      await this.prompt()
-      return true
+      return this.prompt()
     }
 
     if (this.turns++ > 100) {
@@ -61,10 +63,8 @@ export class CLIChat extends Chat {
       return false
     }
 
-    if (!this.result) {
-      return true
-    }
-
+    if (!this.result) return true
+    if (this.result.isError()) throw this.result.error
     return false
   }
 
@@ -81,12 +81,13 @@ export class CLIChat extends Chat {
     this._buttons = []
     this.turns = 0
 
-    if (reply?.trim().length) {
-      this.session.append({ role: 'user', content: reply })
-      console.log(`${chalk.bold('👤 User:')} ${reply}`)
-    } else {
-      this.session.append({ role: 'user', content: '[silence] (user did not answer)' })
+    if (!reply?.trim() || /^(quit|exit)$/i.test(reply.trim())) {
+      this.stop()
+      return false
     }
+    this.session.append({ role: 'user', content: reply })
+    console.log(`${chalk.bold('👤 User:')} ${reply}`)
+    return true
   }
 
   private _sendText(text: string) {

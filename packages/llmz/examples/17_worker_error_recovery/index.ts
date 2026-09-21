@@ -21,11 +21,11 @@ import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
 import chalk from 'chalk'
 import { execute, Tool } from 'llmz'
-import { box } from '../utils/box'
 import { printTrace } from '../utils/debug'
 
 // Initialize Botpress client
 const client = new Client({
+  apiUrl: process.env.BOTPRESS_API_URL,
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
 })
@@ -56,6 +56,7 @@ const errorProneTool = new Tool({
 // Execute with automatic error recovery
 // LLMz will automatically retry when the tool fails and learn from the error
 const result = await execute({
+  model: process.env.BOTPRESS_MODEL ?? 'openai:gpt-5.6-luna',
   instructions: 'Return the secret code (getCode)',
   tools: [errorProneTool],
   client,
@@ -72,15 +73,8 @@ const result = await execute({
 
 // Display successful result after error recovery
 if (result.isSuccess()) {
-  console.log(
-    box([
-      'The LLM wrote the code to solve the problem:',
-      // Show the final working code (after any error recovery)
-      ...(result.iterations.filter((i) => i.code).at(-1)?.code ?? '// no code generated').split('\n'),
-      '',
-      'It then executed it and returned the result:',
-      // Display the successfully extracted secret code
-      chalk.cyan.bold(JSON.stringify(result.output, null, 2)),
-    ])
-  )
+  console.log(chalk.bold('Generated JavaScript:'))
+  console.log(result.iterations.filter((iteration) => iteration.code).at(-1)?.code ?? '// no code generated')
+  console.log(chalk.bold('\nResult:'))
+  console.log(chalk.cyan(JSON.stringify(result.output, null, 2)))
 }

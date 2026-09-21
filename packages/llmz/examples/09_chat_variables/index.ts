@@ -26,6 +26,7 @@ import { CLIChat } from '../utils/cli-chat'
 
 // Initialize Botpress client
 const client = new Client({
+  apiUrl: process.env.BOTPRESS_API_URL,
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
 })
@@ -92,6 +93,7 @@ const chat = new CLIChat()
 // Main execution loop with state management
 while (await chat.iterate()) {
   await execute({
+    model: process.env.BOTPRESS_MODEL ?? 'openai:gpt-5.6-luna',
     client,
     chat,
     session: chat.session,
@@ -119,5 +121,5 @@ while (await chat.iterate()) {
 }
 
 // Display final collected profile data
-console.log('Profile completed:', memory)
+console.log('Collected profile:', memory)
 console.log('👋 Goodbye!')

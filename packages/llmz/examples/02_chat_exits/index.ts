@@ -23,6 +23,7 @@ import { CLIChat } from '../utils/cli-chat'
 
 // Initialize Botpress client for LLM communication
 const client = new Client({
+  apiUrl: process.env.BOTPRESS_API_URL,
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
 })
@@ -56,6 +57,7 @@ const escalation = new Exit({
 while (await chat.iterate()) {
   // Execute with custom exits defined
   const result = await execute({
+    model: process.env.BOTPRESS_MODEL ?? 'openai:gpt-5.6-luna',
     instructions: 'You are a helpful assistant. Greet the user and suggest topics for discussion using buttons.',
 
     // Custom exits available to the agent

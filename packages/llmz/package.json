@@ -23,7 +23,7 @@
   },
   "scripts": {
     "build": "tsdown && pnpm tsc --emitDeclarationOnly --noCheck",
-    "check:type": "tsc --noEmit",
+    "check:type": "tsc --noEmit && pnpm check:examples",
     "check:e2e:type": "tsc -p tsconfig.e2e.json",
     "check:docs": "node scripts/check-docs.mjs",
     "watch": "tsdown --watch",
@@ -35,7 +35,8 @@
     "fix:format": "oxfmt .",
     "check:lint": "oxlint -c .oxlintrc.json src",
     "fix:lint": "oxlint -c .oxlintrc.json --fix src",
-    "check:bplint": "pnpm check:lint"
+    "check:bplint": "pnpm check:lint",
+    "check:examples": "tsc -p examples/tsconfig.json"
   },
   "keywords": [],
   "author": "",

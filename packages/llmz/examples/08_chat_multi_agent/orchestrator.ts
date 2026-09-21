@@ -13,8 +13,6 @@ export type SubAgent = {
 
 /**
  * This is a minimal multi-agent orchestration framework that allows for dynamic handoffs between agents.
- * This system can scale to hundreds of sub-agents, each with dozens or even hundreds of tools.
- * It is designed to handle complex inquiries by allowing agents to hand off requests to other agents.
  */
 export class MultiAgentOrchestrator {
   private _agents: SubAgent[]
@@ -29,6 +27,7 @@ export class MultiAgentOrchestrator {
   public constructor(agents: SubAgent[], initialAgentName: string) {
     this._agents = agents
     this._currentAgentName = initialAgentName
+    this.setCurrentAgent(initialAgentName)
   }
 
   public hasHandedOff(result: ExecutionResult): boolean {

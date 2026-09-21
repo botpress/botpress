@@ -21,10 +21,10 @@ import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
 import chalk from 'chalk'
 import { execute, Exit, Tool } from 'llmz'
-import { box } from '../utils/box'
 
 // Initialize Botpress client
 const client = new Client({
+  apiUrl: process.env.BOTPRESS_API_URL,
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
 })
@@ -84,6 +84,7 @@ const wrappedTool = normalTool.clone({
 
 // Execute using the wrapped tool
 const result = await execute({
+  model: process.env.BOTPRESS_MODEL ?? 'openai:gpt-5.6-luna',
   instructions: 'Greet the user and return the confirmation code',
   exits: [exit],
 
@@ -95,18 +96,8 @@ const result = await execute({
 
 // Display the results showing the enhanced functionality
 if (result.is(exit)) {
-  console.log(
-    box(
-      [
-        'The LLM wrote this code:',
-        // Show the generated code that used the wrapped tool
-        ...(result.iterations.filter((i) => i.code).at(-1)?.code ?? '// no code generated').split('\n'),
-        '',
-        'It then executed it and returned the result:',
-        // Display the confirmation code from the wrapped tool
-        chalk.cyan.bold(result.output.result.toString()),
-      ],
-      80
-    )
-  )
+  console.log(chalk.bold('Generated JavaScript:'))
+  console.log(result.iterations.filter((iteration) => iteration.code).at(-1)?.code ?? '// no code generated')
+  console.log(chalk.bold('\nResult:'))
+  console.log(chalk.cyan(JSON.stringify(result.output.result, null, 2)))
 }

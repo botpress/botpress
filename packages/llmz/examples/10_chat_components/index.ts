@@ -26,6 +26,7 @@ import { CLIChat } from '../utils/cli-chat'
 
 // Initialize Botpress client
 const client = new Client({
+  apiUrl: process.env.BOTPRESS_API_URL,
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
 })
@@ -73,7 +74,7 @@ const chat = new CLIChat()
 // Pre-populate the conversation with a user request
 chat.session.append({
   role: 'user',
-  content: 'I want to purchase a plane ticket from New York to Los Angeles on 2025-10-01.',
+  content: 'I want to purchase a plane ticket from New York to Los Angeles on 2031-10-01.',
 })
 
 // Register how the PlaneTicket component should be rendered
@@ -99,6 +100,7 @@ chat.registerComponent(PlaneTicketComponent, async ({ ticketNumber, from, to, da
 
 // Execute the travel agent workflow
 const result = await execute({
+  model: process.env.BOTPRESS_MODEL ?? 'openai:gpt-5.6-luna',
   instructions:
     'You are a travel agent. Help the user purchase a plane ticket. Show them the ticket using the right component.',
   tools: [purchaseTicket], // Tool for purchasing tickets

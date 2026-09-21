@@ -29,9 +29,10 @@ import { Chat, Session, DefaultComponents, Exit, ListenExit, Tool, execute, type
 
 import { prompt } from '../utils/buttons'
 
-// Streaming requires the Cognitive v2 (beta) client. A regular Botpress
-// client also works, but messages are then delivered whole, not streamed.
+// Cognitive supports native text streaming. Deltas are previews; the response
+// handler receives the complete, authoritative message.
 const client = new Cognitive({
+  apiUrl: process.env.BOTPRESS_API_URL,
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
 })
@@ -62,7 +63,7 @@ const checkAvailability = new Tool({
     if (!DESTINATIONS.some((d) => d.id === destination)) {
       throw new Error(`Unknown destination "${destination}". Use listDestinations first.`)
     }
-    return ['2026-09-14', '2026-11-02', '2027-01-21']
+    return [30, 60, 90].map((days) => new Date(Date.now() + days * 86400_000).toISOString().slice(0, 10))
   },
 })
 
@@ -228,6 +229,7 @@ while (true) {
   turns++
 
   const result = await execute({
+    model: process.env.BOTPRESS_MODEL ?? 'openai:gpt-5.6-luna',
     instructions: [
       'You are the booking agent of a fictional space travel agency.',
       'Guide the user through booking a trip: list destinations (with prices), check launch dates, then ask for the traveler full name.',
