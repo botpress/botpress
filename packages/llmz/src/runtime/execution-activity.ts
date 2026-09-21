@@ -110,14 +110,14 @@ export function renderMessageDeliveries(
 }
 
 function getInterruption(call: Traces.ToolCall): ThinkSignal | undefined {
-  if ('output' in call && call.output instanceof ThinkSignal) {
+  if ('output' in call && ThinkSignal.is(call.output)) {
     return call.output
   }
 
   if (!call.success) {
     const error = Signals.maybeDeserializeError(call.error)
 
-    if (error instanceof ThinkSignal) {
+    if (ThinkSignal.is(error)) {
       return error
     }
   }

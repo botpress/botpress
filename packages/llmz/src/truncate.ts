@@ -1,3 +1,4 @@
+import { InvalidConfigurationError } from './errors.js'
 const TRUNCATE_SIGNATURE = 'llmz.truncate.v1'
 
 export const DEFAULT_TOOL_RESULT_MAX_TOKENS = 2_000
@@ -25,11 +26,11 @@ export function truncate<T>({
   preserve?: TruncatePreserve
 }): Truncated<T> {
   if (!Number.isSafeInteger(maxTokens) || maxTokens < 0) {
-    throw new TypeError('maxTokens must be a finite nonnegative integer')
+    throw new InvalidConfigurationError('maxTokens must be a finite nonnegative integer')
   }
 
   if (preserve !== 'top' && preserve !== 'bottom' && preserve !== 'both') {
-    throw new TypeError('preserve must be "top", "bottom", or "both"')
+    throw new InvalidConfigurationError('preserve must be "top", "bottom", or "both"')
   }
 
   return Object.freeze({
@@ -88,7 +89,7 @@ export function unwrapTruncated(value: unknown): unknown {
 
   while (isTruncated(underlying)) {
     if (rootWrappers.has(underlying)) {
-      throw new TypeError('Circular truncation wrappers cannot be unwrapped')
+      throw new InvalidConfigurationError('Circular truncation wrappers cannot be unwrapped')
     }
 
     rootWrappers.add(underlying)
@@ -131,7 +132,7 @@ export function unwrapTruncated(value: unknown): unknown {
 
     if (isTruncated(current)) {
       if (wrappers.has(current)) {
-        throw new TypeError('Circular truncation wrappers cannot be unwrapped')
+        throw new InvalidConfigurationError('Circular truncation wrappers cannot be unwrapped')
       }
 
       wrappers.add(current)

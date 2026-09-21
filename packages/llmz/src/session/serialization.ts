@@ -1,3 +1,4 @@
+import { InvalidSessionError } from '../errors.js'
 import type { CompactionOptions } from './compactor.js'
 import { validateGroup, type HistoryGroup, type SessionIterationRecord } from './history.js'
 import { assertPersistableData } from './json.js'
@@ -35,15 +36,15 @@ export type SessionState = {
 export function validateRestoredHistory(state: SessionState): void {
   assertPersistableData(state)
   if (!state || state.version !== 3) {
-    throw new Error(`Unsupported LLMz session version: ${state?.version}`)
+    throw new InvalidSessionError(`Unsupported LLMz session version: ${state?.version}`)
   }
 
   if (typeof state.id !== 'string' || !state.id.trim() || typeof state.turnId !== 'string') {
-    throw new Error('Session identities must be strings.')
+    throw new InvalidSessionError('Session identities must be strings.')
   }
 
   if (!Array.isArray(state.groups) || !Array.isArray(state.pendingInputs)) {
-    throw new Error('Session history and queued inputs must be arrays.')
+    throw new InvalidSessionError('Session history and queued inputs must be arrays.')
   }
 
   if (
@@ -52,11 +53,11 @@ export function validateRestoredHistory(state: SessionState): void {
     !Number.isSafeInteger(state.iteration) ||
     state.iteration < 0
   ) {
-    throw new Error('Session turn and iteration counters must be non-negative safe integers')
+    throw new InvalidSessionError('Session turn and iteration counters must be non-negative safe integers')
   }
 
   if (typeof state.activeTurn !== 'boolean' || (state.activeTurn && (!state.turn || !state.turnId))) {
-    throw new Error('Session processing state must identify an active turn.')
+    throw new InvalidSessionError('Session processing state must identify an active turn.')
   }
 
   const groupIds = new Set<string>()
@@ -66,11 +67,11 @@ export function validateRestoredHistory(state: SessionState): void {
 
   for (const group of state.groups) {
     if (!group || typeof group.id !== 'string' || !group.id.trim() || groupIds.has(group.id)) {
-      throw new Error(`Missing or duplicate history group: ${group?.id}`)
+      throw new InvalidSessionError(`Missing or duplicate history group: ${group?.id}`)
     }
 
     if (!Number.isSafeInteger(group.turn) || group.turn < 1 || group.turn < previousTurn || group.turn > state.turn) {
-      throw new Error('History groups must retain their original chronological turn numbers')
+      throw new InvalidSessionError('History groups must retain their original chronological turn numbers')
     }
 
     groupIds.add(group.id)
@@ -82,7 +83,7 @@ export function validateRestoredHistory(state: SessionState): void {
 
       for (const call of message.toolCalls ?? []) {
         if (callIds.has(call.id)) {
-          throw new Error(`Duplicate retained native call ID: ${call.id}`)
+          throw new InvalidSessionError(`Duplicate retained native call ID: ${call.id}`)
         }
 
         callIds.add(call.id)
@@ -106,7 +107,7 @@ export function validateRestoredHistory(state: SessionState): void {
       iteration.timestamp < 0 ||
       (iteration.turn === state.turn && iteration.turnId !== state.turnId)
     ) {
-      throw new Error('Retained iteration identities do not match the session counters')
+      throw new InvalidSessionError('Retained iteration identities do not match the session counters')
     }
 
     previousIteration = iteration.number
@@ -114,7 +115,7 @@ export function validateRestoredHistory(state: SessionState): void {
 
   for (const input of state.pendingInputs) {
     if (!input || typeof input.id !== 'string' || !input.id.trim() || groupIds.has(input.id)) {
-      throw new Error(`Missing or duplicate queued input identity: ${input?.id}`)
+      throw new InvalidSessionError(`Missing or duplicate queued input identity: ${input?.id}`)
     }
 
     groupIds.add(input.id)
@@ -126,7 +127,7 @@ export function validateRestoredHistory(state: SessionState): void {
     state.latestResultId &&
     !state.groups.some((group) => group.iteration?.id === state.latestResultId && group.iteration?.hasResult)
   ) {
-    throw new Error('Missing latest session result')
+    throw new InvalidSessionError('Missing latest session result')
   }
 }
 
@@ -154,16 +155,16 @@ export function restoreGroup(group: SerializedHistoryGroup): HistoryGroup {
   }
 
   if (group.source !== undefined) {
-    throw new Error('Iteration groups cannot have an event or summary transcript source.')
+    throw new InvalidSessionError('Iteration groups cannot have an event or summary transcript source.')
   }
 
   if (!group.iteration || typeof group.iteration !== 'object' || Array.isArray(group.iteration)) {
-    throw new Error('Invalid persisted iteration record')
+    throw new InvalidSessionError('Invalid persisted iteration record')
   }
 
   const { result, ...iteration } = group.iteration
   if (typeof iteration.hasResult !== 'boolean' || typeof iteration.outcome !== 'string') {
-    throw new Error('Invalid persisted iteration outcome')
+    throw new InvalidSessionError('Invalid persisted iteration outcome')
   }
 
   if (
@@ -174,11 +175,11 @@ export function restoreGroup(group: SerializedHistoryGroup): HistoryGroup {
     (iteration.hasResult && iteration.unavailable !== undefined) ||
     (!iteration.hasResult && result !== undefined)
   ) {
-    throw new Error('Invalid persisted iteration outcome')
+    throw new InvalidSessionError('Invalid persisted iteration outcome')
   }
 
   if (iteration.hasResult && !result) {
-    throw new Error(`Missing result payload for iteration ${iteration.id}`)
+    throw new InvalidSessionError(`Missing result payload for iteration ${iteration.id}`)
   }
 
   return {

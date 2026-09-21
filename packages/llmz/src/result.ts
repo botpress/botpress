@@ -1,4 +1,5 @@
 import type { Context, Iteration } from './context.js'
+import { describeError, InternalError, isLLMzError, type LLMzFailure } from './errors.js'
 import type { Exit, ExitResult } from './exit.js'
 import type { Session } from './session/session.js'
 
@@ -111,11 +112,12 @@ export namespace ErrorExecutionResult {
 }
 
 export class ErrorExecutionResult extends ExecutionResult {
-  public constructor(
-    context: Context,
-    public readonly error: unknown
-  ) {
+  public readonly error: LLMzFailure
+  public constructor(context: Context, error: unknown) {
     super('error', context)
+    this.error = isLLMzError(error)
+      ? error
+      : new InternalError(error instanceof Error ? error.message : String(error), { cause: error })
   }
 
   public get output(): null {
@@ -126,7 +128,7 @@ export class ErrorExecutionResult extends ExecutionResult {
     return {
       status: 'error',
       sessionId: this.session.id,
-      error: this.error instanceof Error ? { name: this.error.name, message: this.error.message } : this.error,
+      error: describeError(this.error),
       tokens: this.tokens,
     }
   }

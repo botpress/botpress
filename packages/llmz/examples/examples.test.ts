@@ -174,6 +174,14 @@ const cases = [
       ],
     ],
   ],
+  [
+    '23_chat_compaction',
+    [[response('Visit a museum.')], [response('Try the old town.')], [response('Quebec City, 300 CAD.')]],
+  ],
+  [
+    '24_chat_events_and_media',
+    [[response('Gallery opened.')], [response('Red, green and blue.')], [response('Green.')]],
+  ],
 ] as const
 
 beforeEach(() => {

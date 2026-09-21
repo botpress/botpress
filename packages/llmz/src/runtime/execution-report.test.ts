@@ -170,7 +170,10 @@ describe('execution reports from actual runtime traces', () => {
       tools: [new Tool({ name: 'readRecords', handler: async () => records })],
     })
     const report = reportAt(result)
-    const inspection = report.split('inspect() result\n')[1]!
+    const inspection = report
+      .split('inspect() result\n')[1]!
+      .split('\n</result>')[0]!
+      .replace(/^<!\[CDATA\[\n|\n\]\]>$/g, '')
     const feedback = String(client.requests[1]!.messages.at(-1)!.content)
 
     expect(result.output).toEqual({ value: records.length })
@@ -201,7 +204,7 @@ describe('execution reports from actual runtime traces', () => {
       ],
     })
     const report = reportAt(result)
-    const context = report.split('Interruption context\n')[1]!
+    const context = report.split('Interruption context\n')[1]!.split('\n</interruption_context>')[0]!
 
     expect(report).toMatch(/^run_javascript: paused/)
     expect(context).toContain('SOURCE_START')
@@ -225,6 +228,8 @@ describe('execution reports from actual runtime traces', () => {
         '| Plan | Refund window |',
         '| --- | --- |',
         '| Standard | 30 days |',
+        '',
+        '<section data-kind="example">A & B, with &lt;literal&gt; entities.</section>',
         '',
         '```javascript',
         'const delimiter = "\\n";',
@@ -253,7 +258,10 @@ describe('execution reports from actual runtime traces', () => {
       const feedback = client.requests[1]!.messages.find((message) => message.type === 'tool_result')!
       const content = String(feedback.content)
       const heading = mode === 'inspection' ? 'inspect() result' : 'Interruption context'
-      const displayed = content.split(`${heading}\n`)[1]!.split('\n\n<runtime-memory>')[0]!
+      const displayed = content
+        .split(`${heading}\n`)[1]!
+        .split(mode === 'inspection' ? '\n</result>' : '\n</interruption_context>')[0]!
+        .replace(/^<!\[CDATA\[\n|\n\]\]>$/g, '')
 
       expect(result.is(done)).toBe(true)
       expect(feedback.toolResultCallId).toBeTruthy()

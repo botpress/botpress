@@ -1,6 +1,7 @@
 import { transforms } from '@bpinternal/zui'
 import { JSONSchema7 } from 'json-schema'
 import { uniq } from 'lodash-es'
+import { InvalidExitError } from './errors.js'
 import { Serializable, ZuiType } from './types.js'
 import { fromJSONSchemaCompat, isJsonSchema, isValidIdentifier, isZuiSchema } from './utils.js'
 
@@ -264,7 +265,7 @@ export class Exit<T = unknown> implements Serializable<Exit.JSON> {
     const before = this.name
 
     if (!isValidIdentifier(name)) {
-      throw new Error(
+      throw new InvalidExitError(
         `Invalid name for exit ${name}. An exit name must start with a letter and contain only letters, numbers, and underscores. It must be 1-50 characters long.`
       )
     }
@@ -411,38 +412,42 @@ export class Exit<T = unknown> implements Serializable<Exit.JSON> {
     metadata?: Record<string, unknown>
     schema?: ZuiType<T>
   }) {
+    if (!props || typeof props !== 'object' || Array.isArray(props)) {
+      throw new InvalidExitError('Exit definition must be an object.')
+    }
+
     if (!isValidIdentifier(props.name)) {
-      throw new Error(
+      throw new InvalidExitError(
         `Invalid name for exit ${props.name}. A exit name must start with a letter and contain only letters, numbers, and underscores. It must be 1-50 characters long.`
       )
     }
 
     if (typeof props.description !== 'string' || props.description.trim().length === 0) {
-      throw new Error(
+      throw new InvalidExitError(
         `Invalid description for exit ${props.name}. Expected a non-empty string, but got type "${typeof props.description}"`
       )
     }
 
     if (props.metadata !== undefined && typeof props.metadata !== 'object') {
-      throw new Error(
+      throw new InvalidExitError(
         `Invalid metadata for exit ${props.name}. Expected an object, but got type "${typeof props.metadata}"`
       )
     }
 
     if (props.aliases !== undefined && !Array.isArray(props.aliases)) {
-      throw new Error(
+      throw new InvalidExitError(
         `Invalid aliases for exit ${props.name}. Expected an array, but got type "${typeof props.aliases}"`
       )
     }
 
     if (props.aliases && props.aliases.some((alias) => !isValidIdentifier(alias))) {
-      throw new Error(`Invalid aliases for exit ${props.name}. Expected an array of valid identifiers.`)
+      throw new InvalidExitError(`Invalid aliases for exit ${props.name}. Expected an array of valid identifiers.`)
     }
 
     if (typeof props.schema !== 'undefined') {
       if (isZuiSchema(props.schema)) {
         if (['ZodUndefined', 'ZodVoid'].includes(props.schema._def.typeName)) {
-          throw new Error(
+          throw new InvalidExitError(
             `Exit ${props.name} must use a JSON-compatible payload schema. Omit schema for an exit without data, or use z.null() for an explicit null payload.`
           )
         }
@@ -451,7 +456,7 @@ export class Exit<T = unknown> implements Serializable<Exit.JSON> {
       } else if (isJsonSchema(props.schema)) {
         this.schema = props.schema
       } else {
-        throw new Error(
+        throw new InvalidExitError(
           `Invalid input schema for exit ${props.name}. Expected a ZodType or JSONSchema, but got type "${typeof props.schema}"`
         )
       }

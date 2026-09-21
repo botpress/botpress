@@ -5,7 +5,7 @@ import ts from 'typescript'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const snippets = new Map()
-for (const name of ['README.md', 'DOCS.md']) {
+for (const name of ['README.md', 'DOCS.md', 'ERRORS.md']) {
   const markdown = fs.readFileSync(path.join(root, name), 'utf8')
   for (const match of markdown.matchAll(/^```(?:ts|typescript)\n([\s\S]*?)^```/gm)) {
     const line = markdown.slice(0, match.index).split('\n').length

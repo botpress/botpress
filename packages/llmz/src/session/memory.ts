@@ -1,5 +1,6 @@
 import { transforms } from '@bpinternal/zui'
 import type { JSONSchema7Definition } from 'json-schema'
+import { AssignmentError, InvalidConfigurationError, MemoryCapacityError, ReservedIdentifierError } from '../errors.js'
 import type { Inspector } from '../inspection.js'
 import type { ObjectInstance } from '../objects.js'
 import { RESERVED_RUNTIME_NAMES } from '../runtime-names.js'
@@ -13,6 +14,8 @@ import {
   type MemoryValue,
 } from './memory-codec.js'
 import { memoryValueType, previewMemoryValue, renderMemory } from './memory-render.js'
+
+export { MemoryCapacityError } from '../errors.js'
 
 export { cloneMemoryValue, decodeMemoryValue, type MemoryValue } from './memory-codec.js'
 export { previewMemoryValue } from './memory-render.js'
@@ -102,13 +105,6 @@ function propertyMemorySchema(type: Parameters<typeof getTypings>[0]): JSONSchem
   return cloneMemoryValue(schema) as JSONSchema7Definition
 }
 
-export class MemoryCapacityError extends Error {
-  public constructor(maxBytes: number) {
-    super(`Memory limit exceeded (${maxBytes} bytes). Compact retained iterations before continuing.`)
-    this.name = 'MemoryCapacityError'
-  }
-}
-
 export class Memory {
   private _bindings = new Map<string, MemoryBinding>()
   private _objectProperties = new Map<string, ObjectPropertyMemory>()
@@ -126,7 +122,7 @@ export class Memory {
     this.maxBytes = options.maxBytes ?? DEFAULT_MAX_BYTES
     this._additionalBytes = options.additionalBytes ?? (() => 0)
     if (!Number.isFinite(this.maxBytes) || this.maxBytes < 1) {
-      throw new Error('Memory maxBytes must be positive')
+      throw new InvalidConfigurationError('Memory maxBytes must be positive')
     }
 
     for (const [name, value] of Object.entries(options.variables ?? {})) {
@@ -143,11 +139,11 @@ export class Memory {
 
   private _assertName(name: string): void {
     if (RESERVED.has(name)) {
-      throw new Error(`${name} is reserved for runtime memory`)
+      throw new ReservedIdentifierError(name, 'variable', false, `${name} is reserved for runtime memory`)
     }
 
     if (!/^[A-Za-z_$][\w$]*$/.test(name) || name.startsWith('__')) {
-      throw new Error(`Invalid memory variable: ${name}`)
+      throw new InvalidConfigurationError(`Invalid memory variable: ${name}`)
     }
   }
 
@@ -161,18 +157,18 @@ export class Memory {
     for (const object of objects) {
       this._assertName(object.name)
       if (roots.has(object.name)) {
-        throw new Error(`Duplicate object namespace: ${object.name}`)
+        throw new InvalidConfigurationError(`Duplicate object namespace: ${object.name}`)
       }
 
       if (this._bindings.has(object.name)) {
-        throw new Error(`Object namespace ${object.name} conflicts with a named memory variable`)
+        throw new InvalidConfigurationError(`Object namespace ${object.name} conflicts with a named memory variable`)
       }
 
       roots.add(object.name)
       for (const property of object.properties ?? []) {
         const path = `${object.name}.${property.name}`
         if (next.has(path)) {
-          throw new Error(`Duplicate object property: ${path}`)
+          throw new InvalidConfigurationError(`Duplicate object property: ${path}`)
         }
 
         const hostValue = cloneMemoryValue(property.value)
@@ -226,7 +222,7 @@ export class Memory {
     const path = `${object}.${property}`
     const entry = this._objectProperties.get(path)
     if (!entry || !this._activeObjects.has(object)) {
-      throw new Error(`Unknown object property: ${path}`)
+      throw new InvalidConfigurationError(`Unknown object property: ${path}`)
     }
 
     return cloneMemoryValue(entry.value)
@@ -237,7 +233,7 @@ export class Memory {
     for (const name of names) {
       this._assertName(name)
       if (this._activeObjects.has(name)) {
-        throw new Error(`Variable ${name} conflicts with an object namespace`)
+        throw new AssignmentError(`Variable ${name} conflicts with an object namespace`)
       }
     }
   }
@@ -248,11 +244,11 @@ export class Memory {
       const path = `${mutation.object}.${mutation.property}`
       const previous = this._objectProperties.get(path)
       if (!previous || !this._activeObjects.has(mutation.object)) {
-        throw new Error(`Unknown object property: ${path}`)
+        throw new InvalidConfigurationError(`Unknown object property: ${path}`)
       }
 
       if (!previous.writable) {
-        throw new Error(`Object property ${path} is read-only`)
+        throw new InvalidConfigurationError(`Object property ${path} is read-only`)
       }
 
       const value = cloneMemoryValue(mutation.after)
@@ -452,7 +448,7 @@ export class Memory {
 
   public static restore(state: SerializedMemory, additionalBytes?: () => number): Memory {
     if (state.version !== 2) {
-      throw new Error('Unsupported memory version')
+      throw new InvalidConfigurationError('Unsupported memory version')
     }
 
     const memory = new Memory({
@@ -462,7 +458,7 @@ export class Memory {
     for (const binding of state.variables) {
       memory._assertName(binding.name)
       if (memory._bindings.has(binding.name)) {
-        throw new Error('Duplicate persisted memory binding')
+        throw new InvalidConfigurationError('Duplicate persisted memory binding')
       }
 
       memory._bindings.set(binding.name, {

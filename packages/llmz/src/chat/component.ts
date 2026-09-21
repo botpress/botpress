@@ -1,5 +1,7 @@
 import { z } from '@bpinternal/zui'
 import { cloneDeep } from 'lodash-es'
+import { ComponentInputError, InvalidComponentError, ReservedIdentifierError } from '../errors.js'
+import { schemaToTypeScript } from '../typings.js'
 import type { MessageMetadata } from './chat.js'
 
 const TEXT_NAMES = new Set(['message', 'text', 'markdown', 'md', 'speech', 'speak', 'spoken'])
@@ -34,39 +36,44 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 export function assertValidComponent(component: unknown): asserts component is ComponentDefinition {
   if (!isRecord(component)) {
-    throw new Error('Component definition must be an object')
+    throw new InvalidComponentError('Component definition must be an object')
   }
 
   const unknown = Object.keys(component).find((key) => !['name', 'description', 'props', 'handler'].includes(key))
 
   if (unknown) {
-    throw new Error(`Unknown component option: ${unknown}`)
+    throw new InvalidComponentError(`Unknown component option: ${unknown}`)
   }
 
   const name = component.name
 
   if (typeof name !== 'string' || !/^[A-Za-z_$][\w$]{0,49}$/.test(name)) {
-    throw new Error('Component name must be a JavaScript identifier of 1–50 characters')
+    throw new InvalidComponentError('Component name must be a JavaScript identifier of 1–50 characters')
   }
 
   if (TEXT_NAMES.has(name.toLowerCase())) {
-    throw new Error(`Component name "${name}" is reserved for native assistant responses`)
+    throw new ReservedIdentifierError(
+      name,
+      'component',
+      true,
+      `Component name "${name}" is reserved for native assistant responses`
+    )
   }
 
   if (RESERVED_METHOD_NAMES.has(name.toLowerCase())) {
-    throw new Error(`Component name "${name}" is unavailable; use "buttons" for button messages`)
+    throw new InvalidComponentError(`Component name "${name}" is unavailable; use "buttons" for button messages`)
   }
 
   if (typeof component.description !== 'string' || !component.description.trim()) {
-    throw new Error('Component must have a description')
+    throw new InvalidComponentError('Component must have a description')
   }
 
   if (!z.is.zuiType(component.props) || (!z.is.zuiObject(component.props) && !z.is.zuiArray(component.props))) {
-    throw new Error('Component props must be a Zod object or array schema')
+    throw new InvalidComponentError('Component props must be a Zod object or array schema')
   }
 
   if (component.handler !== undefined && typeof component.handler !== 'function') {
-    throw new Error('Component handler must be a function')
+    throw new InvalidComponentError('Component handler must be a function')
   }
 }
 
@@ -101,10 +108,19 @@ export class Component<P extends ComponentSchema = any> {
 
   /** Parse once and retain an immutable delivery value. */
   public render(props: z.input<P>): RenderedComponent<z.output<P>> {
+    const parsed = this.definition.props.safeParse(props)
+    if (!parsed.success) {
+      throw new ComponentInputError(
+        this.definition.name,
+        parsed.error.issues,
+        schemaToTypeScript(this.definition.props)
+      )
+    }
+
     return freeze({
       type: 'component' as const,
       name: this.definition.name,
-      props: cloneDeep(this.definition.props.parse(props)) as z.output<P>,
+      props: cloneDeep(parsed.data) as z.output<P>,
     })
   }
 }
@@ -117,7 +133,7 @@ export function createComponentRegistry(components: readonly Component[]): Compo
     const name = component.definition.name
 
     if (registry.has(name)) {
-      throw new Error(`Duplicate component name: ${name}`)
+      throw new InvalidComponentError(`Duplicate component name: ${name}`)
     }
 
     registry.set(name, component)

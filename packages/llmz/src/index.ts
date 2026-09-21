@@ -1,72 +1,122 @@
 // @ts-ignore
 export { version } from '../package.json'
 
-export { Tool } from './tool.js'
+export { ThinkSignal, type ErrorDetails } from './errors.js'
+export {
+  AssignmentError,
+  CodeExecutionError,
+  CodeFormattingError,
+  CognitiveError,
+  CompactionError,
+  ComponentInputError,
+  DeliveryError,
+  ExecutionAbortedError,
+  ExitInputError,
+  HookError,
+  HostOperationError,
+  InternalError,
+  InvalidCodeError,
+  InvalidComponentError,
+  InvalidConfigurationError,
+  InvalidEventError,
+  InvalidExitError,
+  InvalidMessageError,
+  InvalidObjectError,
+  InvalidSessionError,
+  InvalidToolError,
+  isCriticalError,
+  isLLMzError,
+  LLMzError,
+  LoopExceededError,
+  MemoryCapacityError,
+  MemoryValueError,
+  NativeProtocolError,
+  ObjectPropertyError,
+  ReservedIdentifierError,
+  SessionStateError,
+  TokenOverflowError,
+  ToolExecutionError,
+  ToolInputError,
+  UnknownComponentError,
+  UnknownExitError,
+  UnknownToolError,
+  type ErrorCode,
+  type LLMzFailure,
+  type ToolInputIssue,
+  type ValidationIssue,
+} from './errors/catalog.js'
+export { Exit, type ExitResult } from './exit.js'
 export { inspect, type InspectOptions } from './inspect.js'
 export {
   createInspector,
-  type OnInspect,
   type InspectEvent,
-  type InspectionPurpose,
   type InspectionIdentity,
+  type InspectionPurpose,
   type Inspector,
+  type OnInspect,
 } from './inspection.js'
-export { truncate, type Truncated, type TruncationPolicy, type TruncatePreserve } from './truncate.js'
-export { Exit, type ExitResult } from './exit.js'
 export { ObjectInstance } from './objects.js'
-export { ThinkSignal, LoopExceededError } from './errors.js'
-export {
-  Session,
-  type SessionMessage,
-  type SessionInput,
-  type SessionIteration,
-  type SessionIterationRecord,
-  type SessionOptions,
-} from './session/session.js'
 export type { CompactionOptions, SummarizeOptions, SummaryRequest } from './session/compactor.js'
 export {
   Memory,
-  MemoryCapacityError,
-  type MemoryValue,
-  type MemoryReport,
   type MemoryProvenance,
+  type MemoryReport,
+  type MemoryValue,
   type ObjectPropertyMemory,
 } from './session/memory.js'
+export {
+  Session,
+  type SessionInput,
+  type SessionIteration,
+  type SessionIterationRecord,
+  type SessionMessage,
+  type SessionOptions,
+} from './session/session.js'
+export { Tool } from './tool.js'
+export { truncate, type Truncated, type TruncatePreserve, type TruncationPolicy } from './truncate.js'
 
 export {
-  Component,
-  type RenderedComponent,
-  type ComponentDefinition,
-  type ComponentSchema,
-  type ComponentHandler,
   assertValidComponent,
-  isComponent,
+  Component,
   isAnyComponent,
+  isComponent,
+  type ComponentDefinition,
+  type ComponentHandler,
+  type ComponentSchema,
+  type RenderedComponent,
 } from './chat/component.js'
 
-export { type Citation, CitationsManager } from './chat/citations.js'
-export { DefaultComponents } from './chat/component.default.js'
 export {
   Chat,
   type AssistantTextMessage,
   type ChatMessage,
-  type ResponseHandler,
-  type MessageMetadata,
   type MessageDelta,
   type MessageDeltaHandler,
+  type MessageMetadata,
+  type ResponseHandler,
 } from './chat/chat.js'
+export { CitationsManager, type Citation } from './chat/citations.js'
+export { DefaultComponents } from './chat/component.default.js'
 export type { Response, ResponsePreset } from './chat/response.js'
+export {
+  DefaultExit,
+  ListenExit,
+  type Context,
+  type ContextTokens,
+  type Iteration,
+  type IterationStatus,
+  type IterationStatuses,
+  type TokenUsage,
+} from './context.js'
+export { getValue, type ValueOrGetter } from './getter.js'
+export { ErrorExecutionResult, ExecutionResult, SuccessExecutionResult } from './result.js'
+export type { ExecutionHooks, ExecutionProps } from './runtime/types.js'
+export { type Transcript } from './session/transcript.js'
+export { type Trace, type Traces } from './types.js'
 
 import { ExecutionResult } from './result.js'
 import { type ExecutionProps } from './runtime/types.js'
 import { toValidFunctionName, toValidObjectName } from './utils.js'
-export { type Transcript } from './session/transcript.js'
-export { ErrorExecutionResult, ExecutionResult, SuccessExecutionResult } from './result.js'
-export { type Trace, type Traces } from './types.js'
-export { type Iteration, ListenExit, DefaultExit, type IterationStatuses, type IterationStatus } from './context.js'
-export { type Context, type TokenUsage, type ContextTokens } from './context.js'
-export type { ExecutionProps, ExecutionHooks } from './runtime/types.js'
-export { type ValueOrGetter, getValue } from './getter.js'
 
 export * from './custom-client.js'
 

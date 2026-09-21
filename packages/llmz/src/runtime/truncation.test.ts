@@ -40,7 +40,7 @@ function nextInspection(client: NativeClient): string {
   expect(report).toMatch(/^run_javascript: succeeded/)
   expect(report).toContain('inspect() result\n')
 
-  return report.split('inspect() result\n')[1]!.trim()
+  return report.split('inspect() result\n')[1]!.split('\n</result>')[0]!.trim()
 }
 
 async function inspectToolResult({
@@ -179,7 +179,7 @@ return inspect(evidence);`,
     })
     expect(result.is(done)).toBe(true)
     const report = String(client.requests[1]!.messages.find((message) => message.type === 'tool_result')?.content)
-    const preview = report.split('Interruption context\n')[1]!.split('\n\n<runtime-memory>')[0]!
+    const preview = report.split('Interruption context\n')[1]!.split('\n</interruption_context>')[0]!
     expect(preview.includes('LATE_RAG_EVIDENCE')).toBe(explicit)
     expect(getTokenizer().count(preview, { approximate: false })).toBeLessThanOrEqual(explicit ? 40_000 : 64)
     expect(preview).not.toContain('$$truncate')

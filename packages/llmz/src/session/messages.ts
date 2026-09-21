@@ -1,7 +1,9 @@
 import type { CognitiveMessage, CognitiveToolCall } from '@botpress/cognitive'
+import { InvalidEventError, InvalidMessageError } from '../errors.js'
+
 import { createInspector } from '../inspection.js'
 import { assertPersistableData } from './json.js'
-import { type Transcript, validateTranscriptMessage, isVoiceMessage } from './transcript.js'
+import { isVoiceMessage, type Transcript, validateTranscriptMessage } from './transcript.js'
 
 /** A native message plus opaque adapter fields, preserved without interpreting them. */
 export type SessionMessage = CognitiveMessage & Record<string, unknown>
@@ -20,10 +22,23 @@ function asSessionMessage(message: CognitiveMessage): SessionMessage {
 }
 
 export function normalizeInput(message: SessionInput): SessionMessage {
+  try {
+    return normalizeMessage(message)
+  } catch (cause) {
+    const ErrorClass = message?.role === 'event' ? InvalidEventError : InvalidMessageError
+    if (ErrorClass.is(cause)) {
+      throw cause
+    }
+
+    throw new ErrorClass(cause instanceof Error ? cause.message : String(cause), { cause })
+  }
+}
+
+function normalizeMessage(message: SessionInput): SessionMessage {
   assertPersistableData(message)
 
   if (!message || typeof message !== 'object' || Array.isArray(message)) {
-    throw new Error('Session input must be a message object.')
+    throw new InvalidMessageError('Session input must be a message object.')
   }
 
   validateInputToolCalls(message as CognitiveMessage)
@@ -38,7 +53,7 @@ export function normalizeInput(message: SessionInput): SessionMessage {
   }
 
   if ('type' in message && message.type !== undefined && message.type !== 'text') {
-    throw new Error('Transcript convenience fields cannot be combined with a native message type.')
+    throw new InvalidMessageError('Transcript convenience fields cannot be combined with a native message type.')
   }
 
   const transcript = message as Transcript.Message
@@ -46,15 +61,15 @@ export function normalizeInput(message: SessionInput): SessionMessage {
 
   if (transcript.role === 'event') {
     if (typeof transcript.name !== 'string' || !transcript.name.length || !('payload' in transcript)) {
-      throw new Error('Event messages require a name and payload.')
+      throw new InvalidMessageError('Event messages require a name and payload.')
     }
   } else if (typeof transcript.content !== 'string') {
-    throw new Error('Transcript message content must be a string.')
+    throw new InvalidMessageError('Transcript message content must be a string.')
   }
 
   if ('attachments' in transcript && transcript.attachments !== undefined) {
     if (!Array.isArray(transcript.attachments)) {
-      throw new Error('Message attachments must be an array.')
+      throw new InvalidMessageError('Message attachments must be an array.')
     }
 
     for (const attachment of transcript.attachments) {
@@ -66,7 +81,7 @@ export function normalizeInput(message: SessionInput): SessionMessage {
         (attachment.id !== undefined && typeof attachment.id !== 'string') ||
         (attachment.alt !== undefined && typeof attachment.alt !== 'string')
       ) {
-        throw new Error('Message attachments require an image or audio type and a URL.')
+        throw new InvalidMessageError('Message attachments require an image or audio type and a URL.')
       }
     }
   }
@@ -105,21 +120,21 @@ export function createAssistantMessage(response: AssistantResponse): SessionMess
 export function validateInputMessage(message: CognitiveMessage): void {
   assertPersistableData(message)
   if (!message || typeof message !== 'object' || Array.isArray(message)) {
-    throw new Error('Session input must be a message object.')
+    throw new InvalidMessageError('Session input must be a message object.')
   }
 
   if (message.role === 'system') {
-    throw new Error('Session input cannot contain system messages. Supply execute instructions instead.')
+    throw new InvalidMessageError('Session input cannot contain system messages. Supply execute instructions instead.')
   }
 
   validateInputToolCalls(message)
 
   if (!['user', 'assistant'].includes(message.role)) {
-    throw new Error(`Invalid session message role: ${message.role}`)
+    throw new InvalidMessageError(`Invalid session message role: ${message.role}`)
   }
 
   if (message.type !== undefined && !['text', 'multipart'].includes(message.type)) {
-    throw new Error(`Invalid session message type: ${message.type}`)
+    throw new InvalidMessageError(`Invalid session message type: ${message.type}`)
   }
 
   validateMessageContent(message)
@@ -127,7 +142,7 @@ export function validateInputMessage(message: CognitiveMessage): void {
 
 export function validateMessageContent(message: CognitiveMessage): void {
   if (typeof message.content !== 'string' && message.content !== null && !Array.isArray(message.content)) {
-    throw new Error('Native message content must be text, multipart content, or null.')
+    throw new InvalidMessageError('Native message content must be text, multipart content, or null.')
   }
 
   if (Array.isArray(message.content)) {
@@ -138,7 +153,7 @@ export function validateMessageContent(message: CognitiveMessage): void {
           ? typeof part.text !== 'string'
           : !['image', 'audio'].includes(part.type) || typeof part.url !== 'string' || !part.url.length)
       ) {
-        throw new Error('Native content parts require text or an image/audio URL.')
+        throw new InvalidMessageError('Native content parts require text or an image/audio URL.')
       }
     }
   }
@@ -151,7 +166,7 @@ function validateInputToolCalls(message: CognitiveMessage): void {
     message.type === 'tool_result' ||
     message.toolResultCallId !== undefined
   ) {
-    throw new Error(
+    throw new InvalidMessageError(
       'New session input cannot contain tool calls/results. Restore a serialized Session to continue native history.'
     )
   }

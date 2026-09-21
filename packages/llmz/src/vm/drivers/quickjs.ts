@@ -2,10 +2,10 @@ import { isFunction, mapValues } from 'lodash-es'
 import {
   newQuickJSWASMModuleFromVariant,
   QuickJSContext,
+  shouldInterruptAfterDeadline,
   type QuickJSHandle,
   type QuickJSSyncVariant,
   type QuickJSWASMModule,
-  shouldInterruptAfterDeadline,
 } from 'quickjs-emscripten-core'
 import { Identifiers } from '../../compiler/index.js'
 import { TerminationCheckpointIdentifier, TerminationGuardIdentifier } from '../../compiler/plugins/termination.js'
@@ -16,12 +16,13 @@ import { cloneMemoryValue, decodeMemoryValue } from '../../session/memory.js'
 import type { VMExecutionResult } from '../../types.js'
 import { handleErrorQuickJS } from '../errors.js'
 import {
-  type InstrumentationState,
   finalizeMemoryCapture,
-  NO_TRACKING,
   findUserCodeStartLine,
   instrumentContext,
+  NO_TRACKING,
+  type InstrumentationState,
 } from '../instrument.js'
+import { MISSING_MEMBER } from '../member-proxy.js'
 import {
   VM_PROGRAM_COMPLETE,
   VM_TERMINATION,
@@ -208,8 +209,7 @@ export class QuickJSDriver implements VMDriver {
 
           return toVmValue(cloneMemoryValue(result))
         } catch (err) {
-          const serialized = err instanceof Error ? err.message : String(err)
-          throw new Error(serialized)
+          return { error: guestError(vm, err) }
         }
       }
     }
@@ -346,7 +346,7 @@ export class QuickJSDriver implements VMDriver {
         const errorStack = vm.dump(errorStackResult.unwrap()) || ''
         errorStackResult.unwrap().dispose()
         const deserializedError = Signals.maybeDeserializeError(errorValue)
-        if (deserializedError instanceof VMSignal) {
+        if (VMSignal.is(deserializedError)) {
           deserializedError.stack = errorStack
           throw deserializedError
         }
@@ -384,7 +384,7 @@ export class QuickJSDriver implements VMDriver {
         {
           success: true,
           variables: mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter)),
-          signal: returnValue instanceof VMSignal ? returnValue : undefined,
+          signal: VMSignal.is(returnValue) ? returnValue : undefined,
           lines_executed: Array.from(lines_executed),
           return_value: returnValue,
           variableWrites: state.variableWrites,
@@ -544,8 +544,13 @@ export class QuickJSDriver implements VMDriver {
                   return
                 }
 
-                const serialized = err instanceof Error ? err.message : String(err)
-                const createErrorResult = vm.evalCode(`new Error(${JSON.stringify(serialized)})`)
+                const message = err instanceof Error ? err.message : String(err)
+                const serialized = err instanceof Error ? Signals.serializeError(err) : message
+                // Keep catch(error).message readable inside the guest while retaining
+                // the host exception's structured details if it escapes the program.
+                const createErrorResult = vm.evalCode(
+                  `Object.assign(new Error(${JSON.stringify(message)}), { __llmz_error: ${JSON.stringify(serialized)} })`
+                )
                 if ('error' in createErrorResult) {
                   const errValue = vm.newString(serialized)
                   deferredPromise.reject(errValue)
@@ -654,6 +659,13 @@ function bridgeContextToVM(
         bridgeGetterSetter(vm, key, prop, descriptor, context, toVmValue, captureValue)
       }
 
+      const missing = (value as any)[MISSING_MEMBER]
+      if (missing) {
+        // API namespaces remain host-owned; copying a guest Proxy back loses their accessors.
+        trackedProperties.delete(key)
+        installMemberProxy(vm, key, bridgeFunction(missing))
+      }
+
       if (Object.isSealed(value)) {
         const sealResult = vm.evalCode(`Object.seal(globalThis['${key}']);`)
         if ('error' in sealResult) {
@@ -680,6 +692,43 @@ function bridgeContextToVM(
   }
 }
 
+function installMemberProxy(vm: QuickJSContext, key: string, missing: (...args: any[]) => any): void {
+  const factory = vm.evalCode(
+    '(function(target, missing) { return new Proxy(target, { get(object, key, receiver) { if (typeof key === "string" && !Object.prototype.hasOwnProperty.call(object, key)) { return missing(key); } return Reflect.get(object, key, receiver); } }); })'
+  )
+  if ('error' in factory) {
+    factory.error?.dispose()
+    throw new Error('Could not create the API member proxy.')
+  }
+
+  const missingHandle = vm.newFunction('missingMember', missing)
+  const target = vm.getProp(vm.global, key)
+  try {
+    const result = vm.callFunction(factory.value, vm.undefined, target, missingHandle)
+    if ('error' in result) {
+      result.error?.dispose()
+      throw new Error('Could not install the API member proxy.')
+    }
+
+    vm.setProp(vm.global, key, result.value)
+    result.value.dispose()
+  } finally {
+    target.dispose()
+    factory.value.dispose()
+    missingHandle.dispose()
+  }
+}
+
+/** Preserve readable guest messages and host error types without serializing Error as a string. */
+function guestError(vm: QuickJSContext, cause: unknown): QuickJSHandle {
+  const error = cause instanceof Error ? cause : new Error(String(cause))
+  const handle = vm.newError({ name: error.name, message: error.message })
+  const details = vm.newString(Signals.serializeError(error))
+  vm.setProp(handle, '__llmz_error', details)
+  details.dispose()
+  return handle
+}
+
 // Bridge a getter/setter property across the host-QuickJS boundary using Object.defineProperty
 function bridgeGetterSetter(
   vm: QuickJSContext,
@@ -700,7 +749,7 @@ function bridgeGetterSetter(
         const hostValue = prop ? context[key][prop] : context[key]
         return toVmValue(hostValue, true)
       } catch (err: any) {
-        throw new Error(err instanceof Error ? err.message : String(err))
+        return { error: guestError(vm, err) }
       }
     })
     const getterName = `__getter_${prefix}__`
@@ -722,7 +771,7 @@ function bridgeGetterSetter(
 
         return vm.undefined
       } catch (err: any) {
-        throw new Error(err instanceof Error ? err.message : String(err))
+        return { error: guestError(vm, err) }
       }
     })
     const setterName = `__setter_${prefix}__`
@@ -911,7 +960,7 @@ ${transformedCode}
     globalThis.__llmz_result = await __fn__();
     globalThis.__llmz_result_set = true;
   } catch (err) {
-    globalThis.__llmz_error = typeof err === 'string' ? err : String(err.message || err || '');
+    globalThis.__llmz_error = typeof err === 'string' ? err : String(err.__llmz_error || err.message || err || '');
     globalThis.__llmz_error_name = typeof err?.name === 'string' ? err.name : 'Error';
     globalThis.__llmz_error_stack = '' + (err.stack || '');
   } finally {

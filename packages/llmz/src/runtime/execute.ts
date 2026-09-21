@@ -7,7 +7,26 @@ import { isAnyComponent } from '../chat/component.js'
 import { compile } from '../compiler/index.js'
 import { Context, Iteration, ListenExit } from '../context.js'
 import { _CustomModelClient } from '../custom-client.js'
-import { CodeExecutionError, CognitiveError, InvalidCodeError, LoopExceededError, ThinkSignal } from '../errors.js'
+import { callHook } from '../errors/hooks.js'
+import {
+  CodeExecutionError,
+  CognitiveError,
+  CompactionError,
+  DeliveryError,
+  HookError,
+  ExecutionAbortedError,
+  InvalidCodeError,
+  InvalidConfigurationError,
+  isCriticalError,
+  LoopExceededError,
+  MemoryValueError,
+  NativeProtocolError,
+  SessionStateError,
+  ThinkSignal,
+  TokenOverflowError,
+  UnknownToolError,
+} from '../errors.js'
+
 import type { Exit } from '../exit.js'
 import { ErrorExecutionResult, ExecutionResult, SuccessExecutionResult } from '../result.js'
 import { MemoryCapacityError, type MemoryReport } from '../session/memory.js'
@@ -16,6 +35,7 @@ import type { VMExecutionResult } from '../types.js'
 import { getErrorMessage, init } from '../utils.js'
 import { runAsyncFunction } from '../vm/index.js'
 import { getExecutionActivity } from './execution-activity.js'
+import { reportSection } from './execution-diagnostics.js'
 import { renderExecutionReport, type ExecutionOutcome } from './execution-report.js'
 import { generateCode, type NativeGeneration } from './generate.js'
 import { InspectionValues } from './inspection-values.js'
@@ -86,13 +106,13 @@ async function executeContextInternal(props: ExecutionProps): Promise<ExecutionR
 
   try {
     if ('snapshot' in props) {
-      throw new Error(
+      throw new InvalidConfigurationError(
         'Snapshots and external pause/resume are no longer supported. Use a session for conversation history and memory.'
       )
     }
 
     if ('messages' in props) {
-      throw new Error(
+      throw new InvalidConfigurationError(
         'Append input with session.append(message) before calling execute(). execute.messages is no longer supported.'
       )
     }
@@ -118,7 +138,9 @@ async function executeContextInternal(props: ExecutionProps): Promise<ExecutionR
       }
     }
 
-    return new ErrorExecutionResult(ctx, new LoopExceededError())
+    const error = new LoopExceededError(ctx.loop)
+    ctx.iterations.at(-1)?.recordError(error)
+    return new ErrorExecutionResult(ctx, error)
   } catch (error) {
     return new ErrorExecutionResult(ctx, error)
   } finally {
@@ -128,7 +150,7 @@ async function executeContextInternal(props: ExecutionProps): Promise<ExecutionR
 
 function prepareSession(ctx: Context): void {
   if (ctx.chat && ctx.session.turn > 0 && !ctx.session.hasActiveTurn && !ctx.session.pendingMessages.length) {
-    throw new Error('No pending input. Append a message to the session before starting another chat turn.')
+    throw new SessionStateError('No pending input. Append a message to the session before starting another chat turn.')
   }
 
   ctx.session.beginTurn()
@@ -160,6 +182,10 @@ async function executeNextIteration(execution: Execution): Promise<ExecutionResu
       }
 
       const memory = state.memory!
+      for (const failure of memory.unavailable) {
+        iteration.recordError(new MemoryValueError(`Memory variable "${failure.name}": ${failure.reason}`))
+      }
+
       const outcome = getExecutionOutcome(state, memory)
 
       if (state.capture) {
@@ -191,7 +217,7 @@ async function executeNextIteration(execution: Execution): Promise<ExecutionResu
           error: iteration.error ?? undefined,
         })
       } catch (error) {
-        if (!(error instanceof MemoryCapacityError)) {
+        if (!MemoryCapacityError.is(error)) {
           throw error
         }
 
@@ -212,7 +238,7 @@ async function executeNextIteration(execution: Execution): Promise<ExecutionResu
 
 async function executeIteration(state: IterationExecution): Promise<void> {
   const { ctx, props, iteration, cognitive, controller } = state
-  await props.onIterationStart?.(iteration, controller, ctx)
+  await callHook(() => props.onIterationStart?.(iteration, controller, ctx))
 
   controller.signal.throwIfAborted()
   let execution: JavaScriptExecution | undefined
@@ -290,7 +316,17 @@ async function rejectNativeBatch(
   generated: NativeGeneration,
   errors: string[]
 ): Promise<void> {
-  const message = `Native tool batch rejected before execution: ${ctx.inspector(errors, { purpose: 'error', maxTokens: 500 })}`
+  const message = [
+    reportSection(
+      'error',
+      `Native tool batch rejected before execution:\n${ctx.inspector(errors.join('\n'), { purpose: 'error', maxTokens: 500 })}`,
+      500
+    ),
+    reportSection(
+      'recovery',
+      'No code ran and no actions were performed. Call run_javascript with exactly one non-empty code string.'
+    ),
+  ].join('\n\n')
   for (const call of generated.toolCalls) {
     ctx.session.appendToolResult(iteration.id, call.id, message)
   }
@@ -310,10 +346,19 @@ async function rejectNativeBatch(
     }
   }
 
-  iteration.end({
-    type: 'invalid_code_error',
-    invalid_code_error: { message },
-  })
+  iteration.end(
+    {
+      type: 'invalid_code_error',
+      invalid_code_error: { message },
+    },
+    generated.toolCalls.some((call) => call.name !== 'run_javascript')
+      ? new UnknownToolError(
+          generated.toolCalls.find((call) => call.name !== 'run_javascript')!.name,
+          ['run_javascript'],
+          message
+        )
+      : new NativeProtocolError(message)
+  )
 }
 
 async function deliverAssistantText(state: IterationExecution, generated: NativeGeneration): Promise<void> {
@@ -325,7 +370,16 @@ async function deliverAssistantText(state: IterationExecution, generated: Native
   const startedAt = Date.now()
   const message: AssistantTextMessage = { type: 'text', text: generated.output }
 
-  await iteration.response?.handler?.(generated.output.trim(), generated.messageMetadata)
+  try {
+    await iteration.response?.handler?.(generated.output.trim(), generated.messageMetadata)
+  } catch (cause) {
+    if (isCriticalError(cause)) {
+      throw cause
+    }
+
+    throw new DeliveryError(`Assistant response delivery failed: ${getErrorMessage(cause)}`, { cause })
+  }
+
   iteration.recordTrace({
     type: 'message_delivery',
     value: message,
@@ -345,6 +399,7 @@ function startJavaScriptCall(state: IterationExecution, call: ValidatedNativeCal
     exits: iteration.exits,
     signal: controller.signal,
     deliver: (messages) => deliverJavaScriptMessages(state, messages),
+    onError: (error) => iteration.recordError(error),
   })
   return { call, api, result: executeJavaScript(state, api) }
 }
@@ -467,7 +522,7 @@ async function deliverJavaScriptMessages(
   }
 
   if (!ctx.chat) {
-    throw new Error('Component delivery requires chat mode.')
+    throw new DeliveryError('Component delivery requires chat mode.')
   }
 
   for (const message of messages) {
@@ -476,13 +531,13 @@ async function deliverJavaScriptMessages(
 
     try {
       if (!isAnyComponent(message.component)) {
-        throw new Error('Only registered rich components can be delivered from JavaScript.')
+        throw new DeliveryError('Only registered rich components can be delivered from JavaScript.')
       }
 
       const component = iteration.components.get(message.component.name)
 
       if (!component?.handler) {
-        throw new Error(`Component "${message.component.name}" has no registered handler.`)
+        throw new DeliveryError(`Component "${message.component.name}" has no registered handler.`)
       }
 
       await component.handler(message.component.props, { iterationId: iteration.id, id: message.id })
@@ -498,9 +553,12 @@ async function deliverJavaScriptMessages(
         ended_at: Date.now(),
       })
 
-      throw new Error(
-        `Delivery ${message.id} failed: ${getErrorMessage(error)}. Its external outcome is uncertain. Later messages were skipped; earlier acknowledged messages remain delivered.`
-      )
+      throw isCriticalError(error)
+        ? error
+        : new DeliveryError(
+            `Delivery ${message.id} failed: ${getErrorMessage(error)}. Its external outcome is uncertain. Later messages were skipped; earlier acknowledged messages remain delivered.`,
+            { cause: error }
+          )
     }
 
     iteration.recordTrace({
@@ -591,6 +649,7 @@ function failFinalization(state: IterationExecution, error: unknown): void {
     execution_error: { message: getErrorMessage(error), stack: executionErrorStack(error) },
   }
   iteration.ended_ts = Date.now()
+  iteration.exception = iteration.recordError(error)
   state.terminalError = error
   state.memory ??= { created: [], updated: [], unavailable: [], resultAvailable: false }
 }
@@ -612,14 +671,25 @@ function getExecutionOutcome(state: IterationExecution, memory: MemoryReport): E
   }
 
   if (status.type === 'exit_error') {
-    return { type: 'error', exitName: status.exit_error.exit, message: status.exit_error.message }
+    return {
+      type: 'error',
+      exitName: status.exit_error.exit,
+      message: status.exit_error.message,
+      error: iteration.exception,
+    }
   }
 
   if (status.type === 'thinking_requested') {
     const thinking = status.thinking_requested
 
     if (thinking.interrupted) {
-      return { type: 'interrupted', reason: 'thinking', message: thinking.reason, context: thinking.variables }
+      return {
+        type: 'interrupted',
+        reason: 'thinking',
+        message: thinking.reason,
+        context: thinking.variables,
+        stacktrace: capture?.result.signal?.stack,
+      }
     }
 
     return {
@@ -630,7 +700,11 @@ function getExecutionOutcome(state: IterationExecution, memory: MemoryReport): E
     }
   }
 
-  return { type: 'error', message: iteration.error ?? 'Execution failed.', error: capture?.result.error }
+  return {
+    type: 'error',
+    message: iteration.error ?? 'Execution failed.',
+    error: iteration.exception ?? capture?.result.error,
+  }
 }
 
 function handleIterationFailure(state: IterationExecution, error: unknown): void {
@@ -639,7 +713,7 @@ function handleIterationFailure(state: IterationExecution, error: unknown): void
     endFailedIteration(iteration, controller, error)
   }
 
-  if (error instanceof MemoryCapacityError) {
+  if (MemoryCapacityError.is(error)) {
     // Capacity failure can happen after an action. Never retry settlement or
     // generate another instruction that could repeat that action.
     state.memory ??= { created: [], updated: [], unavailable: [], resultAvailable: false }
@@ -664,8 +738,12 @@ function handleIterationFailure(state: IterationExecution, error: unknown): void
     )
   }
 
-  if (error instanceof CognitiveError || error instanceof MemoryCapacityError || controller.signal.aborted) {
-    state.terminalError = controller.signal.aborted ? (controller.signal.reason ?? error) : error
+  if (isCriticalError(error) || controller.signal.aborted) {
+    state.terminalError = controller.signal.aborted
+      ? new ExecutionAbortedError(getErrorMessage(controller.signal.reason ?? error), {
+          cause: controller.signal.reason ?? error,
+        })
+      : error
     return
   }
 
@@ -680,22 +758,30 @@ function handleIterationFailure(state: IterationExecution, error: unknown): void
 
 function endFailedIteration(iteration: Iteration, controller: AbortController, error: unknown): void {
   if (controller.signal.aborted) {
-    iteration.end({
-      type: 'aborted',
-      aborted: { reason: getErrorMessage(controller.signal.reason ?? error) },
-    })
+    iteration.end(
+      {
+        type: 'aborted',
+        aborted: { reason: getErrorMessage(controller.signal.reason ?? error) },
+      },
+      new ExecutionAbortedError(getErrorMessage(controller.signal.reason ?? error), {
+        cause: controller.signal.reason ?? error,
+      })
+    )
     return
   }
 
-  if (error instanceof CognitiveError) {
-    iteration.end({
-      type: 'generation_error',
-      generation_error: { message: error.message },
-    })
+  if (CognitiveError.is(error) || TokenOverflowError.is(error) || CompactionError.is(error)) {
+    iteration.end(
+      {
+        type: 'generation_error',
+        generation_error: { message: error.message },
+      },
+      error
+    )
     return
   }
 
-  if (error instanceof ThinkSignal) {
+  if (ThinkSignal.is(error)) {
     iteration.end({
       type: 'thinking_requested',
       thinking_requested: { reason: error.reason, variables: error.context, interrupted: true },
@@ -703,18 +789,25 @@ function endFailedIteration(iteration: Iteration, controller: AbortController, e
     return
   }
 
-  iteration.end({
-    type: 'execution_error',
-    execution_error: {
-      message: getErrorMessage(error),
-      stack: executionErrorStack(error),
+  iteration.end(
+    {
+      type: 'execution_error',
+      execution_error: {
+        message: getErrorMessage(error),
+        stack: executionErrorStack(error),
+      },
     },
-  })
+    error
+  )
 }
 
 function executionErrorStack(error: unknown): string {
-  if (error instanceof CodeExecutionError && error.stacktrace) {
-    return cleanStackTrace(error.stacktrace)
+  if (CodeExecutionError.is(error) && error.stacktrace) {
+    return error.stacktrace
+  }
+
+  if (HookError.is(error) && error.cause instanceof Error) {
+    return cleanStackTrace(error.cause.stack ?? '')
   }
 
   if (error instanceof Error) {
@@ -726,6 +819,8 @@ function executionErrorStack(error: unknown): string {
 
 function getIterationResult(state: IterationExecution): ExecutionResult | undefined {
   const { ctx, iteration } = state
+  const critical = iteration.errors.find(isCriticalError)
+  state.terminalError ??= critical
   if (state.terminalError !== undefined) {
     return new ErrorExecutionResult(ctx, state.terminalError)
   }
@@ -753,7 +848,7 @@ async function applyNativeExit(
   onExit?: ExecutionHooks['onExit']
 ): Promise<void> {
   try {
-    await onExit?.({ exit, result: value }, controller)
+    await callHook(() => onExit?.({ exit, result: value }, controller))
     controller.signal.throwIfAborted()
     iteration.end({
       type: 'exit_success',
@@ -764,10 +859,13 @@ async function applyNativeExit(
       throw error
     }
 
-    iteration.end({
-      type: 'exit_error',
-      exit_error: { exit: exit.name, message: getErrorMessage(error), return_value: value },
-    })
+    iteration.end(
+      {
+        type: 'exit_error',
+        exit_error: { exit: exit.name, message: getErrorMessage(error), return_value: value },
+      },
+      error
+    )
   }
 }
 
@@ -777,7 +875,7 @@ async function executeJavaScript(state: IterationExecution, api: JavaScriptApi):
   let result: VMExecutionResult
 
   try {
-    const override = await props.onBeforeExecution?.(iteration, controller)
+    const override = await callHook(() => props.onBeforeExecution?.(iteration, controller))
     if (typeof override?.code === 'string') {
       iteration.code = override.code
     }
@@ -844,7 +942,7 @@ async function executeJavaScript(state: IterationExecution, api: JavaScriptApi):
 }
 
 function interruptedVMResult(error: unknown): VMExecutionResult {
-  if (error instanceof ThinkSignal) {
+  if (ThinkSignal.is(error)) {
     return {
       success: true,
       signal: error,
@@ -870,11 +968,14 @@ function endJavaScriptIteration(iteration: Iteration, controller: AbortControlle
   }
 
   if (!result.success) {
-    if (result.error instanceof InvalidCodeError) {
-      iteration.end({
-        type: 'invalid_code_error',
-        invalid_code_error: { message: result.error.message },
-      })
+    if (InvalidCodeError.is(result.error)) {
+      iteration.end(
+        {
+          type: 'invalid_code_error',
+          invalid_code_error: { message: result.error.message },
+        },
+        result.error
+      )
     } else {
       endFailedIteration(iteration, controller, result.error)
     }
@@ -882,7 +983,7 @@ function endJavaScriptIteration(iteration: Iteration, controller: AbortControlle
     return
   }
 
-  if (result.signal instanceof ThinkSignal) {
+  if (ThinkSignal.is(result.signal)) {
     iteration.end({
       type: 'thinking_requested',
       thinking_requested: {

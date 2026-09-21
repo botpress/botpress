@@ -1,4 +1,5 @@
 import type { Context } from '../context.js'
+import { InvalidConfigurationError } from '../errors.js'
 import type { ValueOrGetter } from '../getter.js'
 import type { ExecutionResult } from '../result.js'
 import type { Component, RenderedComponent } from './component.js'
@@ -68,11 +69,11 @@ export class Chat {
     } = {}
   ) {
     if (!props || typeof props !== 'object' || Array.isArray(props)) {
-      throw new TypeError('Chat configuration must be an object.')
+      throw new InvalidConfigurationError('Chat configuration must be an object.')
     }
 
     if ('handler' in props || 'onMessageDelta' in props) {
-      throw new TypeError(
+      throw new InvalidConfigurationError(
         'Use response.handler and response.onDelta for text, and component handlers for rich messages.'
       )
     }
@@ -80,7 +81,7 @@ export class Chat {
     const unknown = Object.keys(props).find((key) => !['components', 'response'].includes(key))
 
     if (unknown) {
-      throw new TypeError(`Unknown Chat option: ${unknown}.`)
+      throw new InvalidConfigurationError(`Unknown Chat option: ${unknown}.`)
     }
 
     this.components = props.components ?? []

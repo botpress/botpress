@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import { InvalidConfigurationError } from '../errors.js'
 import { Chat } from './chat.js'
 import { resolveResponse, type Response } from './response.js'
 
@@ -12,7 +13,7 @@ describe('assistant response configuration', () => {
   it.each([{ handler: () => {} }, { onMessageDelta: () => {} }, { transcript: [] }, { unexpected: true }])(
     'rejects removed or unknown chat options instead of losing delivery callbacks',
     (options) => {
-      expect(() => new Chat(options as never)).toThrow(TypeError)
+      expect(() => new Chat(options as never)).toThrow(InvalidConfigurationError)
     }
   )
 
@@ -64,6 +65,6 @@ describe('assistant response configuration', () => {
     { onDelta: 'not a callback' },
     { unexpected: true },
   ])('rejects invalid response settings: %j', (response) => {
-    expect(() => resolveResponse(response as Response)).toThrow(TypeError)
+    expect(() => resolveResponse(response as Response)).toThrow(InvalidConfigurationError)
   })
 })

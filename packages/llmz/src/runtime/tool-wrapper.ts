@@ -2,7 +2,9 @@ import ms from 'ms'
 import { ulid } from 'ulid'
 
 import { Iteration } from '../context.js'
-import { ThinkSignal } from '../errors.js'
+import { callHook } from '../errors/hooks.js'
+import { isLLMzError, ThinkSignal, ToolExecutionError } from '../errors.js'
+
 import { type Tool } from '../tool.js'
 import type { TruncationPolicy } from '../truncate.js'
 import { ExecutionHooks } from './types.js'
@@ -79,7 +81,7 @@ export function wrapTool({
         return true
       }
 
-      if (err instanceof ThinkSignal) {
+      if (ThinkSignal.is(err)) {
         signalToThrow = err
         iteration.recordTrace({
           type: 'think_signal',
@@ -90,16 +92,18 @@ export function wrapTool({
         success = true
         output = err
 
-        const afterRes = await afterHook?.({
-          iteration,
-          tool,
-          input: originalInput,
-          output,
-          controller,
-          object,
-          toolCallId,
-          nativeCallId: iteration.nativeCallId,
-        })
+        const afterRes = await callHook(() =>
+          afterHook?.({
+            iteration,
+            tool,
+            input: originalInput,
+            output,
+            controller,
+            object,
+            toolCallId,
+            nativeCallId: iteration.nativeCallId,
+          })
+        )
 
         if (typeof afterRes?.output !== 'undefined') {
           output = afterRes.output
@@ -112,15 +116,17 @@ export function wrapTool({
     }
 
     try {
-      const beforeRes = await beforeHook?.({
-        iteration,
-        tool,
-        input: effectiveInput,
-        controller,
-        object,
-        toolCallId,
-        nativeCallId: iteration.nativeCallId,
-      })
+      const beforeRes = await callHook(() =>
+        beforeHook?.({
+          iteration,
+          tool,
+          input: effectiveInput,
+          controller,
+          object,
+          toolCallId,
+          nativeCallId: iteration.nativeCallId,
+        })
+      )
 
       if (typeof beforeRes?.input !== 'undefined') {
         effectiveInput = beforeRes.input
@@ -137,16 +143,18 @@ export function wrapTool({
         onTruncation,
       })
 
-      const afterRes = await afterHook?.({
-        iteration,
-        tool,
-        input: effectiveInput,
-        output,
-        controller,
-        object,
-        toolCallId,
-        nativeCallId: iteration.nativeCallId,
-      })
+      const afterRes = await callHook(() =>
+        afterHook?.({
+          iteration,
+          tool,
+          input: effectiveInput,
+          output,
+          controller,
+          object,
+          toolCallId,
+          nativeCallId: iteration.nativeCallId,
+        })
+      )
 
       if (typeof afterRes?.output !== 'undefined') {
         output = afterRes.output
@@ -154,7 +162,8 @@ export function wrapTool({
     } catch (err) {
       if (!(await handleSignals(err))) {
         success = false
-        error = err
+        error = isLLMzError(err) ? err : new ToolExecutionError(tool.name, err)
+        iteration.recordError(error)
       }
     } finally {
       clearTimeout(alertSlowTool)

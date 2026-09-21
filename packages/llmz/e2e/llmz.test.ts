@@ -632,7 +632,7 @@ describe('llmz', { retry: 0, timeout: 60_000 }, () => {
 
       assertError(result)
       expect(result.iterations).toHaveLength(1)
-      expect(result.error).toMatch('ABORTED')
+      expect(result.error).toMatchObject({ code: 'EXECUTION_ABORTED', critical: true, cause: 'ABORTED' })
     })
 
     it('abort inside hooks stops loop', async () => {
@@ -666,7 +666,7 @@ describe('llmz', { retry: 0, timeout: 60_000 }, () => {
 
       assertError(result)
       expect(result.iterations).toHaveLength(4)
-      expect(result.error).toMatch('ABORTED')
+      expect(result.error).toMatchObject({ code: 'EXECUTION_ABORTED', critical: true, cause: 'ABORTED' })
     })
   })
 

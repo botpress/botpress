@@ -1,7 +1,16 @@
-import { TypeOf, z, transforms, ZodObject, ZodType } from '@bpinternal/zui'
+import { transforms, TypeOf, z, ZodObject, ZodType } from '@bpinternal/zui'
 import { JSONSchema7 } from 'json-schema'
 import { isEmpty, uniq } from 'lodash-es'
 import { convertObjectToZuiLiterals, type StaticObject, type StaticValue } from './convert.js'
+import {
+  InvalidToolError,
+  isCriticalError,
+  isLLMzError,
+  ToolExecutionError,
+  ToolInputError,
+  VMSignal,
+} from './errors.js'
+
 import { isTruncated, unwrapTruncated, type Truncated, type TruncationPolicy } from './truncate.js'
 import { Serializable } from './types.js'
 import { getTypings as generateTypings } from './typings.js'
@@ -284,13 +293,13 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
     const input = this.input ? fromJSONSchemaCompat(this.input) : z.any()
 
     if (z.is.zuiObject(input) && typeof values !== 'object') {
-      throw new Error(
+      throw new InvalidToolError(
         `Invalid static input values for tool ${this.name}. Expected an object, but got type "${typeof values}"`
       )
     }
 
     if (z.is.zuiArray(input) && !Array.isArray(values)) {
-      throw new Error(
+      throw new InvalidToolError(
         `Invalid static input values for tool ${this.name}. Expected an array, but got type "${typeof values}"`
       )
     }
@@ -376,7 +385,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
     const before = this.name
 
     if (!isValidIdentifier(name)) {
-      throw new Error(
+      throw new InvalidToolError(
         `Invalid name for tool ${name}. A tool name must start with a letter and contain only letters, numbers, and underscores. It must be 1-50 characters long.`
       )
     }
@@ -503,7 +512,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
         retry: props.retry ?? this.retry,
       }).setStaticInputValues((props.staticInputValues as any) ?? (this._staticInputValues as any))
     } catch (e) {
-      throw new Error(`Failed to clone tool "${this.name}": ${e}`)
+      throw new InvalidToolError(`Failed to clone tool "${this.name}": ${e}`)
     }
   }
 
@@ -596,38 +605,42 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
     handler: (args: TypeOf<I>, ctx: ToolCallContext) => Promise<ToolOutput<TypeOf<O>>>
     retry?: ToolRetryFn<TypeOf<I>>
   }) {
+    if (!props || typeof props !== 'object' || Array.isArray(props)) {
+      throw new InvalidToolError('Tool definition must be an object.')
+    }
+
     if (!isValidIdentifier(props.name)) {
-      throw new Error(
+      throw new InvalidToolError(
         `Invalid name for tool ${props.name}. A tool name must start with a letter and contain only letters, numbers, and underscores. It must be 1-50 characters long.`
       )
     }
 
     if (props.description !== undefined && typeof props.description !== 'string') {
-      throw new Error(
+      throw new InvalidToolError(
         `Invalid description for tool ${props.name}. Expected a string, but got type "${typeof props.description}"`
       )
     }
 
     if (props.metadata !== undefined && typeof props.metadata !== 'object') {
-      throw new Error(
+      throw new InvalidToolError(
         `Invalid metadata for tool ${props.name}. Expected an object, but got type "${typeof props.metadata}"`
       )
     }
 
     if (typeof props.handler !== 'function') {
-      throw new Error(
+      throw new InvalidToolError(
         `Invalid handler for tool ${props.name}. Expected a function, but got type "${typeof props.handler}"`
       )
     }
 
     if (props.aliases !== undefined && !Array.isArray(props.aliases)) {
-      throw new Error(
+      throw new InvalidToolError(
         `Invalid aliases for tool ${props.name}. Expected an array, but got type "${typeof props.aliases}"`
       )
     }
 
     if (props.aliases && props.aliases.some((alias) => !isValidIdentifier(alias))) {
-      throw new Error(`Invalid aliases for tool ${props.name}. Expected an array of valid identifiers.`)
+      throw new InvalidToolError(`Invalid aliases for tool ${props.name}. Expected an array of valid identifiers.`)
     }
 
     if (typeof props.input !== 'undefined') {
@@ -640,7 +653,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
       } else if (isJsonSchema(props.input)) {
         this.input = props.input
       } else {
-        throw new Error(
+        throw new InvalidToolError(
           `Invalid input schema for tool ${props.name}. Expected a ZodType or JSONSchema, but got type "${typeof props.input}"`
         )
       }
@@ -656,7 +669,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
       } else if (isJsonSchema(props.output)) {
         this.output = props.output
       } else {
-        throw new Error(
+        throw new InvalidToolError(
           `Invalid output schema for tool ${props.name}. Expected a ZodType or JSONSchema, but got type "${typeof props.output}"`
         )
       }
@@ -696,16 +709,20 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
    * @internal This method is primarily used internally by the LLMz execution engine
    */
   public async execute(rawInput: TypeOf<I>, ctx: ToolCallContext): Promise<TypeOf<O>> {
-    const isZodObject = (this.zInput as any)._def.typeName === 'ZodObject'
+    const schema = this.zInput
+    const isZodObject = (schema as any)._def.typeName === 'ZodObject'
     const input = isZodObject ? (rawInput ?? {}) : rawInput
 
-    const pInput = (this.zInput as any).safeParse(input)
+    const pInput = schema.safeParse(input)
 
     if (!pInput.success) {
-      throw new Error(`Tool "${this.name}" received invalid input: ${pInput.error.message}`)
+      const expectedInput = await generateTypings(schema)
+      const issues = pInput.error.issues.map(({ path, message }) => ({ path, message }))
+      throw new ToolInputError(this.name, issues, expectedInput)
     }
 
     let attempt = 0
+    let lastError: unknown
 
     while (attempt < this.MAX_RETRIES) {
       try {
@@ -724,6 +741,11 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
           return parsed
         })
       } catch (err) {
+        if (isCriticalError(err) || VMSignal.is(err)) {
+          throw err
+        }
+
+        lastError = err
         const shouldRetry = await this.retry?.({
           input: pInput.data,
           attempt: ++attempt,
@@ -731,14 +753,12 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
         })
 
         if (!shouldRetry) {
-          throw err
+          throw VMSignal.is(err) || isLLMzError(err) ? err : new ToolExecutionError(this.name, err)
         }
       }
     }
 
-    throw new Error(
-      `Tool "${this.name}" failed after ${this.MAX_RETRIES} attempts. Last error: ${JSON.stringify(input)}`
-    )
+    throw new ToolExecutionError(this.name, lastError)
   }
 
   /**

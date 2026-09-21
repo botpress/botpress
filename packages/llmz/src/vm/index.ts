@@ -1,6 +1,7 @@
 import { SourceMapConsumer } from 'source-map-js'
 import { compile } from '../compiler/index.js'
-import { InvalidCodeError } from '../errors.js'
+import { InvalidCodeError, isLLMzError } from '../errors.js'
+
 import { getQuickJSVariant, type QuickJSSyncVariantEx } from '../quickjs-variant.js'
 import { RESERVED_RUNTIME_NAMES } from '../runtime-names.js'
 import { cloneMemoryValue } from '../session/memory.js'
@@ -50,7 +51,7 @@ export async function runAsyncFunction(
         code,
         started_at: Date.now(),
       })
-      throw new InvalidCodeError(err.message, code)
+      throw isLLMzError(err) ? err : new InvalidCodeError(err.message, code, { cause: err })
     }
   })()
   const lines_executed = new Map<number, number>()

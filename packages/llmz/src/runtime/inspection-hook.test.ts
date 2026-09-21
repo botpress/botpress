@@ -68,7 +68,7 @@ describe('runtime inspection hook', () => {
       ])
     )
     const report = String(session.messages.find((message) => message.type === 'tool_result')!.content)
-    const preview = report.split('inspect() result\n')[1]!
+    const preview = report.split('inspect() result\n')[1]!.split('\n</result>')[0]!
 
     expect(preview).toContain('Custom evidence')
     expect(getTokenizer().count(preview, { approximate: false })).toBeLessThanOrEqual(80)

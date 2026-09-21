@@ -8,7 +8,9 @@ import type {
 import { createJoinedAbortController } from '../abort-signal.js'
 import type { MessageDelta, MessageMetadata } from '../chat/chat.js'
 import type { Context, ContextTokens, Iteration } from '../context.js'
-import { CognitiveError } from '../errors.js'
+import { callHook } from '../errors/hooks.js'
+import { CognitiveError, isLLMzError, TokenOverflowError } from '../errors.js'
+
 import { prepareAutoCompaction } from '../session/compactor.js'
 import { stableJSON } from '../session/json.js'
 import type { Transcript } from '../session/transcript.js'
@@ -51,11 +53,16 @@ function assertSuccessfulGeneration(metadata: CognitiveMetadata | undefined) {
     throw new CognitiveError('LLM generation failed: missing successful provider metadata')
   }
 
-  if (
-    metadata.stopReason === 'max_tokens' ||
-    metadata.stopReason === 'content_filter' ||
-    metadata.stopReason === 'other'
-  ) {
+  if (metadata.stopReason === 'max_tokens') {
+    throw new TokenOverflowError(
+      'LLM generation did not complete: stopReason=max_tokens',
+      metadata.usage?.outputTokens,
+      undefined,
+      'output'
+    )
+  }
+
+  if (metadata.stopReason === 'content_filter' || metadata.stopReason === 'other') {
     throw new CognitiveError(`LLM generation did not complete: stopReason=${metadata.stopReason}`)
   }
 }
@@ -217,7 +224,9 @@ async function prepareNativeRequest({
       try {
         return await abortable(cognitive.getModelDetails(ref), controller.signal)
       } catch (error) {
-        throw new CognitiveError(`Failed to fetch model details for ${ref}: ${getErrorMessage(error)}`)
+        throw new CognitiveError(`Failed to fetch model details for ${ref}: ${getErrorMessage(error)}`, {
+          cause: error,
+        })
       }
     })
   )
@@ -263,7 +272,9 @@ async function prepareNativeRequest({
   )
   let tokens = countNativeRequestTokens(messages, tools)
 
-  const override = await onBeforeRequest?.({ messages: structuredClone(messages), iteration, controller })
+  const override = await callHook(() =>
+    onBeforeRequest?.({ messages: structuredClone(messages), iteration, controller })
+  )
 
   if (override) {
     messages = structuredClone(override.messages)
@@ -271,10 +282,12 @@ async function prepareNativeRequest({
   }
 
   if (tokens > limit - reserve) {
-    throw new CognitiveError(
+    throw new TokenOverflowError(
       override
         ? 'The onBeforeRequest messages exceed the context budget. Shorten them or increase options.maxTokens.'
-        : 'The native prompt exceeds the context budget. Compact session input or increase options.maxTokens.'
+        : 'The native prompt exceeds the context budget. Compact session input or increase options.maxTokens.',
+      tokens,
+      limit - reserve
     )
   }
 
@@ -428,7 +441,7 @@ export async function generateCode({
       await onSendDelta?.(delta)
     } catch (err) {
       if (delta.restart) {
-        throw new CognitiveError(`LLM stream restart handler failed: ${getErrorMessage(err)}`)
+        throw new CognitiveError(`LLM stream restart handler failed: ${getErrorMessage(err)}`, { cause: err })
       }
     }
   }
@@ -586,7 +599,7 @@ export async function generateCode({
 
     accepted = true
   } catch (err) {
-    throw err instanceof CognitiveError ? err : new CognitiveError(`LLM generation failed: ${getErrorMessage(err)}`)
+    throw isLLMzError(err) ? err : new CognitiveError(`LLM generation failed: ${getErrorMessage(err)}`, { cause: err })
   } finally {
     const usage = responseMetadata?.usage ?? { inputTokens: 0, outputTokens: 0, inputCost: 0, outputCost: 0 }
     iteration.llm = {

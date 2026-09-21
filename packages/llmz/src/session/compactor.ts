@@ -1,5 +1,5 @@
 import { Cognitive, type BotpressClientLike, type CognitiveMessage, type Models } from '@botpress/cognitive'
-import { CognitiveError } from '../errors.js'
+import { CompactionError, ExecutionAbortedError, InvalidConfigurationError, TokenOverflowError } from '../errors.js'
 import { countNativeRequestTokens, resolveTokenBudget } from '../runtime/token-budget.js'
 import type { RuntimeCognitive } from '../runtime/types.js'
 import { getTokenizer } from '../utils.js'
@@ -58,11 +58,11 @@ export function resolveCompaction(options: CompactionOptions = {}) {
     resolved.targetRatio <= 0 ||
     resolved.targetRatio >= resolved.triggerRatio
   ) {
-    throw new Error('Compaction ratios must satisfy 0 < targetRatio < triggerRatio <= 1.')
+    throw new InvalidConfigurationError('Compaction ratios must satisfy 0 < targetRatio < triggerRatio <= 1.')
   }
 
   if (!Number.isSafeInteger(resolved.keepRecentIterations) || resolved.keepRecentIterations < 0) {
-    throw new Error('keepRecentIterations must be a nonnegative safe integer.')
+    throw new InvalidConfigurationError('keepRecentIterations must be a nonnegative safe integer.')
   }
 
   assertTokenLimit(resolved.maxSummaryTokens)
@@ -72,11 +72,11 @@ export function resolveCompaction(options: CompactionOptions = {}) {
       ? !resolved.model.length || resolved.model.some((ref) => typeof ref !== 'string' || !ref.trim())
       : typeof resolved.model !== 'string' || !resolved.model.trim())
   ) {
-    throw new Error('Compaction model must be a nonempty model name or model list.')
+    throw new InvalidConfigurationError('Compaction model must be a nonempty model name or model list.')
   }
 
   if (resolved.summarize !== undefined && typeof resolved.summarize !== 'function') {
-    throw new Error('Compaction summarize must be a function.')
+    throw new InvalidConfigurationError('Compaction summarize must be a function.')
   }
 
   return Object.freeze(resolved)
@@ -95,8 +95,10 @@ export async function prepareAutoCompaction(
   const originalIds = session.retainedIterationIds
   const originalTokens = options.measure(originalIds)
   const overflow = () =>
-    new CognitiveError(
-      'The native prompt does not fit in the context window. Compact session input or raise options.maxTokens.'
+    new TokenOverflowError(
+      'The native prompt does not fit in the context window. Compact session input or raise options.maxTokens.',
+      originalTokens,
+      options.inputLimit
     )
 
   if (!config || originalTokens < options.inputLimit * config.triggerRatio) {
@@ -155,7 +157,11 @@ export async function prepareAutoCompaction(
 
   const finalTokens = options.measure(retained, prepared.summary)
   if (finalTokens > options.inputLimit) {
-    throw new CognitiveError('The compacted summary does not fit in the context window. History was preserved.')
+    throw new TokenOverflowError(
+      'The compacted summary does not fit in the context window. History was preserved.',
+      finalTokens,
+      options.inputLimit
+    )
   }
 
   // A summary that saves no space should not replace a conversation that already fits.
@@ -172,6 +178,36 @@ requested output limit. Exact JavaScript memory is stored separately and must no
 
 /** Summarize in bounded segments, including when the source history exceeds the model window. */
 export async function summarizeMessages(
+  messages: readonly SessionMessage[],
+  options: SummarizeOptions,
+  custom?: CompactionOptions['summarize']
+): Promise<Transcript.SummaryMessage> {
+  try {
+    return await summarize(messages, options, custom)
+  } catch (cause) {
+    if (options.signal?.aborted) {
+      throw new ExecutionAbortedError(cause instanceof Error ? cause.message : String(cause), {
+        cause: options.signal.reason ?? cause,
+      })
+    }
+
+    if (
+      CompactionError.is(cause) ||
+      InvalidConfigurationError.is(cause) ||
+      ExecutionAbortedError.is(cause) ||
+      TokenOverflowError.is(cause)
+    ) {
+      throw cause
+    }
+
+    throw new CompactionError(
+      `Session summarization failed: ${cause instanceof Error ? cause.message : String(cause)}`,
+      { cause }
+    )
+  }
+}
+
+async function summarize(
   messages: readonly SessionMessage[],
   options: SummarizeOptions,
   custom?: CompactionOptions['summarize']
@@ -230,7 +266,7 @@ export async function summarizeMessages(
     }
 
     if (!low) {
-      throw new CognitiveError('The summarizer context window cannot fit its instructions and previous summary.')
+      throw new CompactionError('The summarizer context window cannot fit its instructions and previous summary.')
     }
 
     // No tools are exposed. Some providers reject toolControl even in 'none' mode without tools.
@@ -254,7 +290,7 @@ export async function summarizeMessages(
       (response.metadata.stopReason !== undefined && response.metadata.stopReason !== 'stop') ||
       response.toolCalls?.length
     ) {
-      throw new CognitiveError('Session summarization did not complete successfully.')
+      throw new CompactionError('Session summarization did not complete successfully.')
     }
 
     content = validateSummary(response.output, output)
@@ -266,23 +302,23 @@ export async function summarizeMessages(
 
 function assertTokenLimit(value: number): void {
   if (!Number.isSafeInteger(value) || value < 1) {
-    throw new Error('Summary maxTokens must be a positive safe integer.')
+    throw new InvalidConfigurationError('Summary maxTokens must be a positive safe integer.')
   }
 }
 
 function validateSummary(value: unknown, maxTokens: number): string {
   if (typeof value !== 'string' || !value.trim()) {
-    throw new CognitiveError('Session summarization returned an empty or invalid summary.')
+    throw new CompactionError('Session summarization returned an empty or invalid summary.')
   }
 
   const text = value.trim()
   const tokens = getTokenizer().count(text, { approximate: false })
   if (!Number.isSafeInteger(tokens) || tokens < 0) {
-    throw new CognitiveError('The tokenizer must return a nonnegative safe integer.')
+    throw new CompactionError('The tokenizer must return a nonnegative safe integer.')
   }
 
   if (tokens > maxTokens) {
-    throw new CognitiveError('Session summary exceeds its token budget.')
+    throw new CompactionError('Session summary exceeds its token budget.')
   }
 
   return text
@@ -309,7 +345,7 @@ async function abortable<T>(promise: Promise<T>, signal?: AbortSignal): Promise<
   }
 
   return new Promise<T>((resolve, reject) => {
-    const abort = () => reject(signal.reason ?? new Error('Session summarization aborted.'))
+    const abort = () => reject(signal.reason ?? new InvalidConfigurationError('Session summarization aborted.'))
     promise.then(resolve, reject).finally(() => signal.removeEventListener('abort', abort))
     if (signal.aborted) {
       abort()

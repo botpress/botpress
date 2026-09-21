@@ -1,4 +1,6 @@
 import { ulid } from 'ulid'
+import { InvalidMessageError, SessionStateError } from '../errors.js'
+
 import type { Inspector } from '../inspection.js'
 import { resolveCompaction, summarizeMessages, type CompactionOptions, type SummarizeOptions } from './compactor.js'
 import {
@@ -14,25 +16,25 @@ import { cloneMemoryValue, freezeMemoryValue, type MemoryValue } from './memory-
 import { renderMemory } from './memory-render.js'
 import { Memory, type MemoryAssignment, type MemoryReport } from './memory.js'
 import {
-  normalizeInput,
   createAssistantMessage,
+  normalizeInput,
   withMemoryOverview,
-  type SessionMessage,
-  type SessionInput,
   type AssistantResponse,
+  type SessionInput,
+  type SessionMessage,
 } from './messages.js'
 import {
-  serializeGroup,
   restoreGroup,
   resultBytes,
+  serializeGroup,
   validateRestoredHistory,
-  type SessionState,
   type PendingInput,
+  type SessionState,
 } from './serialization.js'
 import type { Transcript } from './transcript.js'
 
-export type { SessionMessage, SessionInput } from './messages.js'
 export type { SessionIteration, SessionIterationRecord } from './history.js'
+export type { SessionInput, SessionMessage } from './messages.js'
 
 export type IterationCapture = MemoryAssignment & {
   id: string
@@ -174,7 +176,7 @@ export class Session {
   /** Prevent concurrent execute() calls from changing a shared session. */
   public acquire(): () => void {
     if (this.#locked) {
-      throw new Error('This session is already executing. Await the active execution before reusing it.')
+      throw new SessionStateError('This session is already executing. Await the active execution before reusing it.')
     }
 
     this.#locked = true
@@ -195,12 +197,17 @@ export class Session {
    */
   public append(input: SessionInput | readonly SessionInput[]): void {
     const messages: readonly SessionInput[] = Array.isArray(input) ? input : [input as SessionInput]
-    assertPersistableData(messages)
     const pending = messages.map((message) => ({
       id: `input_${ulid()}`,
       message: normalizeInput(message),
       ...(message.role === 'event' || message.role === 'summary' ? { source: structuredClone(message) } : {}),
     }))
+
+    try {
+      assertPersistableData(messages)
+    } catch (cause) {
+      throw new InvalidMessageError(cause instanceof Error ? cause.message : String(cause), { cause })
+    }
 
     this.#pendingInputs.push(...pending)
   }
@@ -208,7 +215,9 @@ export class Session {
   /** Claim queued input, or continue the current turn after a failed execution. */
   public beginTurn(): void {
     if (this.pendingCalls.length) {
-      throw new Error('Cannot begin a turn while native calls are pending. Await the active execution first.')
+      throw new SessionStateError(
+        'Cannot begin a turn while native calls are pending. Await the active execution first.'
+      )
     }
 
     if (this.#activeTurn) {
@@ -234,7 +243,7 @@ export class Session {
   /** Mark the active input batch complete without consuming newly queued input. */
   public completeTurn(): void {
     if (this.#activeIteration) {
-      throw new Error('Cannot complete a turn with pending iterations. Await the active execution first.')
+      throw new SessionStateError('Cannot complete a turn with pending iterations. Await the active execution first.')
     }
 
     this.#activeTurn = false
@@ -242,11 +251,11 @@ export class Session {
 
   public nextIteration(id = `iteration_${ulid()}`): SessionIteration {
     if (this.#activeIteration) {
-      throw new Error('Cannot generate another iteration while an iteration is pending.')
+      throw new SessionStateError('Cannot generate another iteration while an iteration is pending.')
     }
 
     if (this.#groups.some((group) => group.id === id)) {
-      throw new Error(`Duplicate iteration id: ${id}`)
+      throw new SessionStateError(`Duplicate iteration id: ${id}`)
     }
 
     this.beginTurn()
@@ -270,7 +279,7 @@ export class Session {
     const group = this.#getIteration(iterationId)
 
     if (group.messages.length) {
-      throw new Error('An iteration can contain exactly one assistant response.')
+      throw new SessionStateError('An iteration can contain exactly one assistant response.')
     }
 
     assertPersistableData({
@@ -287,7 +296,7 @@ export class Session {
     }
 
     if (message.role !== 'assistant') {
-      throw new Error('Native generation must produce an assistant message.')
+      throw new SessionStateError('Native generation must produce an assistant message.')
     }
 
     validateBatch(message)
@@ -298,7 +307,7 @@ export class Session {
     )
 
     if (message.toolCalls?.some((call) => previousIds.has(call.id))) {
-      throw new Error('Native call IDs must be unique in retained session history.')
+      throw new SessionStateError('Native call IDs must be unique in retained session history.')
     }
 
     if (response.assistantMessage && response.toolCalls !== undefined) {
@@ -316,7 +325,7 @@ export class Session {
           )
         })
       ) {
-        throw new Error('Provider assistant message and normalized tool calls disagree.')
+        throw new SessionStateError('Provider assistant message and normalized tool calls disagree.')
       }
     }
 
@@ -327,7 +336,7 @@ export class Session {
     const group = this.#getIteration(iterationId)
 
     if (!pendingCallIds(group).includes(callId)) {
-      throw new Error(`Native call ${callId} is unknown or already has a result.`)
+      throw new SessionStateError(`Native call ${callId} is unknown or already has a result.`)
     }
 
     group.messages.push({ role: 'user', type: 'tool_result', toolResultCallId: callId, content })
@@ -338,7 +347,7 @@ export class Session {
     const active = this.#getActiveIteration(input.id)
 
     if (active.captured) {
-      throw new Error(`Iteration ${input.id} was already captured`)
+      throw new SessionStateError(`Iteration ${input.id} was already captured`)
     }
 
     const entry = active.group.iteration
@@ -362,7 +371,7 @@ export class Session {
       try {
         const captureFailure = input.captureErrors?.find((item) => item.name === '$return')
         if (captureFailure) {
-          throw new Error(captureFailure.reason)
+          throw new SessionStateError(captureFailure.reason)
         }
 
         active.group.iteration = {
@@ -401,7 +410,7 @@ export class Session {
     const pending = pendingCallIds(group)
 
     if (pending.length) {
-      throw new Error(`Cannot settle iteration with unresolved native calls: ${pending.join(', ')}`)
+      throw new SessionStateError(`Cannot settle iteration with unresolved native calls: ${pending.join(', ')}`)
     }
 
     const previous = group.iteration
@@ -444,7 +453,7 @@ export class Session {
     const active = this.#getActiveIteration(iterationId)
 
     if (active.captured || active.group.messages.length) {
-      throw new Error('Cannot discard an iteration after generation or execution has started.')
+      throw new SessionStateError('Cannot discard an iteration after generation or execution has started.')
     }
 
     this.#activeIteration = undefined
@@ -453,7 +462,7 @@ export class Session {
   /** Runtime feedback without inventing a tool-call identity or user turn. */
   public appendContext(content: string): void {
     if (this.pendingCalls.length) {
-      throw new Error('Runtime context cannot interrupt an unresolved native call batch.')
+      throw new SessionStateError('Runtime context cannot interrupt an unresolved native call batch.')
     }
 
     this.#appendInput([{ role: 'user', content: `Runtime context (LLMz):\n${content}` }])
@@ -476,7 +485,7 @@ export class Session {
     } = {}
   ): SessionMessage[] {
     if (this.pendingCalls.length) {
-      throw new Error('Cannot request generation before all native calls have results.')
+      throw new SessionStateError('Cannot request generation before all native calls have results.')
     }
 
     const retained = options.retainedIterationIds === undefined ? undefined : new Set(options.retainedIterationIds)
@@ -531,7 +540,7 @@ export class Session {
     const release = this.acquire()
     try {
       if (this.#activeIteration) {
-        throw new Error('Cannot summarize a session with a pending iteration.')
+        throw new SessionStateError('Cannot summarize a session with a pending iteration.')
       }
 
       const messages = this.messages
@@ -561,7 +570,7 @@ export class Session {
     const release = this.acquire()
     try {
       if (this.#activeIteration) {
-        throw new Error('Cannot compact a session with a pending iteration.')
+        throw new SessionStateError('Cannot compact a session with a pending iteration.')
       }
 
       const config = resolveCompaction({
@@ -604,7 +613,9 @@ export class Session {
       firstKeptIteration &&
       removed.some((group) => group.iteration && group.iteration.number > firstKeptIteration.number)
     ) {
-      throw new Error('Compaction must remove a prefix of complete iterations, preserving their chronological order.')
+      throw new SessionStateError(
+        'Compaction must remove a prefix of complete iterations, preserving their chronological order.'
+      )
     }
 
     const source = before.filter((group) => !kept.has(group.id) || group.source?.role === 'summary')
@@ -646,7 +657,7 @@ export class Session {
       commit: () => {
         options.signal?.throwIfAborted()
         if (committed || fingerprint !== this.#historyFingerprint()) {
-          throw new Error('Session history changed while compaction was being prepared.')
+          throw new SessionStateError('Session history changed while compaction was being prepared.')
         }
 
         this.prune(retained)
@@ -667,7 +678,9 @@ export class Session {
 
   public toJSON(): Session.JSON {
     if (this.#locked || this.#activeIteration) {
-      throw new Error('Cannot serialize a session during an in-flight execution. Await execution before saving it.')
+      throw new SessionStateError(
+        'Cannot serialize a session during an in-flight execution. Await execution before saving it.'
+      )
     }
 
     const compaction = this.compaction === false ? false : { ...this.compaction, summarize: undefined }
@@ -708,7 +721,7 @@ export class Session {
     const active = this.#activeIteration
 
     if (!active || active.group.id !== id) {
-      throw new Error(`Unknown or settled iteration: ${id}`)
+      throw new SessionStateError(`Unknown or settled iteration: ${id}`)
     }
 
     return active

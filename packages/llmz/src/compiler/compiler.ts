@@ -1,6 +1,7 @@
 import { type Comment } from 'acorn'
 import MagicString from 'magic-string'
 import { SourceMapConsumer, SourceMapGenerator } from 'source-map-js'
+import { InvalidCodeError, isLLMzError } from '../errors.js'
 
 import { parseScript, walk, type Ctx } from './ast.js'
 import { AsyncWrapper } from './plugins/async-wrapper.js'
@@ -9,6 +10,7 @@ import { LineTrackingFnIdentifier, applyLineTracking } from './plugins/line-trac
 import { CommentFnIdentifier, applyCommentReplacement } from './plugins/replace-comment.js'
 import { planLastLineInstrumentation } from './plugins/return-async.js'
 import { applyTerminationGuards } from './plugins/termination.js'
+import { applyToolResolution } from './plugins/tool-resolution.js'
 import { VariableTrackingFnIdentifier, applyVariableTracking } from './plugins/variable-extraction.js'
 
 export const Identifiers = {
@@ -55,6 +57,18 @@ export function hasTopLevelReturn(code: string): boolean {
  * reported at runtime map straight back to the user code.
  */
 export function compile(code: string) {
+  try {
+    return compileProgram(code)
+  } catch (cause) {
+    if (isLLMzError(cause)) {
+      throw cause
+    }
+
+    throw new InvalidCodeError(cause instanceof Error ? cause.message : String(cause), code, { cause })
+  }
+}
+
+function compileProgram(code: string) {
   const wrapped = AsyncWrapper.preProcessing(code)
   const comments: Comment[] = []
   const ast = parseScript(wrapped, { comments })
@@ -81,6 +95,7 @@ export function compile(code: string) {
   // in call order and appendRight content in call order, so the line tracker
   // lands before `return await (` and variable tracking. Closing edits nest
   // in reverse order.
+  applyToolResolution(ctx)
   applyLineTracking(ctx)
   if (lastLine) {
     ms.appendLeft(lastLine.prefixPos, lastLine.prefix)

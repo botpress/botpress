@@ -81,7 +81,7 @@ Hi!
       await sayHello('Hello');`
 
     expect(() => compile(code)).toThrowErrorMatchingInlineSnapshot(
-      `[SyntaxError: Unexpected token (5:37). The code must be plain JavaScript: do not use TypeScript syntax (type annotations, "as" casts, generics, interfaces or type aliases).]`
+      `[InvalidCodeError: Unexpected token (5:37). The code must be plain JavaScript: do not use TypeScript syntax (type annotations, "as" casts, generics, interfaces or type aliases).]`
     )
   })
 

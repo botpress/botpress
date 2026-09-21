@@ -81,7 +81,7 @@ export class NodeDriver implements VMDriver {
         return {
           success: true,
           variables: mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter)),
-          signal: res instanceof VMSignal ? res : undefined,
+          signal: VMSignal.is(res) ? res : undefined,
           lines_executed: Array.from(lines_executed),
           return_value: res,
         } satisfies VMExecutionResult

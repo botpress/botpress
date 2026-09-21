@@ -59,8 +59,8 @@ describe('object properties in session memory', () => {
 
   test.each([
     { code: 'account.id = "replacement";', reason: 'read-only' },
-    { code: 'account.age = "forty";', reason: 'Invalid value' },
-    { code: 'account.age = 151;', reason: 'Invalid value' },
+    { code: 'account.age = "forty";', reason: 'received invalid input' },
+    { code: 'account.age = 151;', reason: 'received invalid input' },
   ])('enforces access and schema: $code', async ({ code, reason }) => {
     const client = new NativeClient([javascript(code), response('Rejected.')])
 

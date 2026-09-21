@@ -1,5 +1,6 @@
 import type { CognitiveMessage } from '@botpress/cognitive'
 import { CognitiveError } from '../errors.js'
+
 import { getTokenizer } from '../utils.js'
 
 /**

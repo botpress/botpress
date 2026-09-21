@@ -1,11 +1,14 @@
 import { z } from '@bpinternal/zui'
 
 import { Context, Iteration } from '../context.js'
-import { AssignmentError } from '../errors.js'
+import { AssignmentError, ObjectPropertyError, UnknownToolError, type LLMzFailure } from '../errors.js'
+
 import { cloneMemoryValue } from '../session/memory.js'
 import type { TruncationPolicy } from '../truncate.js'
-import { getErrorMessage, stripInvalidIdentifiers } from '../utils.js'
-import { VM_PROGRAM_COMPLETE, VM_TERMINATION, type VMContext } from '../vm/types.js'
+import { schemaToTypeScript } from '../typings.js'
+import { stripInvalidIdentifiers } from '../utils.js'
+import { withMissingMember } from '../vm/member-proxy.js'
+import { VM_ON_ERROR, VM_PROGRAM_COMPLETE, VM_TERMINATION, type VMContext } from '../vm/types.js'
 import type { JavaScriptApi } from './javascript-api.js'
 import { wrapTool } from './tool-wrapper.js'
 import { ExecutionHooks } from './types.js'
@@ -32,7 +35,16 @@ export const buildVMContext = ({
   javascriptApi,
 }: BuildVMContextProps): VMContext => {
   const memoryBindings = ctx.session.getBindings()
-  const vmContext = { ...stripInvalidIdentifiers(memoryBindings) }
+  const vmContext: VMContext = {
+    ...stripInvalidIdentifiers(memoryBindings),
+    [VM_ON_ERROR]: (error) => {
+      iteration.recordError(error)
+    },
+  }
+  const reject = (error: LLMzFailure): never => {
+    iteration.recordError(error)
+    throw error
+  }
 
   for (const name of ['$return', '$iterations']) {
     Object.defineProperty(vmContext, name, {
@@ -86,15 +98,13 @@ export const buildVMContext = ({
           javascriptApi?.assertOpen()
 
           if (!writable) {
-            throw new AssignmentError(`Property ${obj.name}.${name} is read-only and cannot be modified`)
+            reject(new AssignmentError(`Property ${obj.name}.${name} is read-only and cannot be modified`))
           }
 
           const parsed = schema.safeParse(value)
 
           if (!parsed.success) {
-            throw new AssignmentError(
-              `Invalid value for Object property ${obj.name}.${name}: ${getErrorMessage(parsed.error)}`
-            )
+            reject(new ObjectPropertyError(obj.name, name, parsed.error.issues, schemaToTypeScript(schema)))
           }
 
           internalValues[name] = freezePropertyValue(cloneMemoryValue(parsed.data))
@@ -126,10 +136,14 @@ export const buildVMContext = ({
       instance[tool.name] = javascriptApi ? (input: unknown) => javascriptApi.track(() => wrapped(input)) : wrapped
     }
 
-    Object.preventExtensions(instance)
-    Object.seal(instance)
-
-    vmContext[obj.name] = instance
+    vmContext[obj.name] = withMissingMember(instance, (name) => {
+      const error = new UnknownToolError(
+        `${obj.name}.${name}`,
+        (obj.tools ?? []).map((tool) => `${obj.name}.${tool.name}`)
+      )
+      iteration.recordError(error)
+      throw error
+    })
   }
 
   for (const tool of iteration.tools) {

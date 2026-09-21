@@ -2,9 +2,20 @@ import { ulid } from 'ulid'
 
 import type { ComponentRegistry, RenderedComponent } from '../chat/component.js'
 import type { Iteration } from '../context.js'
-import { ThinkSignal } from '../errors.js'
+import {
+  ExitInputError,
+  HostOperationError,
+  ThinkSignal,
+  UnknownComponentError,
+  UnknownExitError,
+  isCriticalError,
+  type LLMzFailure,
+} from '../errors.js'
+
 import type { Exit } from '../exit.js'
 import { cloneMemoryValue } from '../session/memory.js'
+import { schemaToTypeScript } from '../typings.js'
+import { withMissingMember } from '../vm/member-proxy.js'
 
 /** A child message keeps its identity from preparation through acknowledged delivery. */
 export type PreparedMessage = {
@@ -46,6 +57,7 @@ type JavaScriptApiOptions = {
   exits: readonly Exit[]
   deliver(messages: readonly PreparedMessage[]): Promise<void>
   signal?: AbortSignal
+  onError?(error: unknown): void
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -61,6 +73,7 @@ export function createJavaScriptApi({
   exits,
   deliver,
   signal,
+  onError,
 }: JavaScriptApiOptions): JavaScriptApi {
   const decisions = new Map<string, JavaScriptOutcome>()
   const pending = new Set<Promise<unknown>>()
@@ -70,9 +83,14 @@ export function createJavaScriptApi({
   let nextMessage = 0
   let terminalOutcome: TerminalOutcome | undefined
   let interruption: ThinkSignal | undefined
+  let criticalFailure: LLMzFailure | undefined
   const termination = new Error('JavaScript execution terminated.')
 
   const throwIfTerminated = (): void => {
+    if (criticalFailure) {
+      throw criticalFailure
+    }
+
     if (interruption || terminalOutcome) {
       throw termination
     }
@@ -82,7 +100,7 @@ export function createJavaScriptApi({
     throwIfTerminated()
 
     if (!open) {
-      throw new Error('JavaScript has completed. Host operations and Object writes are closed.')
+      throw new HostOperationError('JavaScript has completed. Host operations and Object writes are closed.')
     }
 
     signal?.throwIfAborted()
@@ -108,14 +126,23 @@ export function createJavaScriptApi({
     assertOpen()
     const registered = exits.find((candidate) => candidate.name === name || candidate.aliases.includes(name))
     if (!registered) {
-      throw new Error(`Exit "${name}" is not available. Use a registered exit name.`)
+      throw new UnknownExitError(
+        name,
+        exits.map((exit) => exit.name)
+      )
     }
 
     if (!registered.schema && value !== undefined) {
-      throw new Error(`Exit "${registered.name}" takes no payload.`)
+      throw new ExitInputError(registered.name, [{ path: [], message: 'This exit takes no payload.' }], 'undefined')
     }
 
-    const validated = registered.zSchema ? registered.zSchema.parse(value) : undefined
+    const schema = registered.zSchema
+    const parsed = schema?.safeParse(value)
+    if (parsed && !parsed.success) {
+      throw new ExitInputError(registered.name, parsed.error.issues, schemaToTypeScript(schema!))
+    }
+
+    const validated = parsed?.data
 
     return {
       type: 'exit',
@@ -125,7 +152,14 @@ export function createJavaScriptApi({
   }
 
   const exit = (name = 'listen', value?: unknown): never => {
-    const outcome = validateExit(name, value)
+    let outcome: TerminalOutcome
+    try {
+      outcome = validateExit(name, value)
+    } catch (error) {
+      onError?.(error)
+      throw error
+    }
+
     terminalOutcome = outcome
     complete()
 
@@ -143,7 +177,12 @@ export function createJavaScriptApi({
       (error) => {
         pending.delete(tracked)
 
-        if (!interruption && error instanceof ThinkSignal) {
+        if (isCriticalError(error)) {
+          criticalFailure = error
+          complete()
+        }
+
+        if (!interruption && ThinkSignal.is(error)) {
           interruption = error
           complete()
         }
@@ -187,33 +226,50 @@ export function createJavaScriptApi({
       Promise.allSettled(delivery ? [delivery] : []),
     ])
 
+    if (criticalFailure) {
+      throw criticalFailure
+    }
+
     if (delivered[0]?.status === 'rejected') {
       throw delivered[0].reason
     }
 
     if (outstanding.length && !interruption) {
-      throw new Error(
+      throw new HostOperationError(
         `JavaScript completed with ${outstanding.length} unawaited host operation(s). Await all business tools before returning. Started operations have settled and may have completed effects; do not replay them.`
       )
     }
   }
 
   const inspect = (value: unknown): DecisionReceipt => issue({ type: 'inspect', value: cloneMemoryValue(value) })
-  const chat = Object.fromEntries(
-    [...components].map(([name, component]) => [
-      name,
-      Object.freeze((input: unknown): void => {
-        assertOpen()
-        const rendered = component.render(input)
+  const chat = withMissingMember(
+    Object.fromEntries(
+      [...components].map(([name, component]) => [
+        name,
+        Object.freeze((input: unknown): void => {
+          assertOpen()
+          let rendered: RenderedComponent
+          try {
+            rendered = component.render(input)
+          } catch (error) {
+            onError?.(error)
+            throw error
+          }
 
-        void enqueue([
-          {
-            id: `${iteration.nativeCallId ?? iteration.id}:message:${++nextMessage}`,
-            component: rendered,
-          },
-        ])
-      }),
-    ])
+          void enqueue([
+            {
+              id: `${iteration.nativeCallId ?? iteration.id}:message:${++nextMessage}`,
+              component: rendered,
+            },
+          ])
+        }),
+      ])
+    ),
+    (name) => {
+      const error = new UnknownComponentError(name, [...components.keys()])
+      onError?.(error)
+      throw error
+    }
   )
   const bindings: JavaScriptBindings = Object.freeze({
     exit: Object.freeze(exit),

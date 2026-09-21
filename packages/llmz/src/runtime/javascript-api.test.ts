@@ -157,12 +157,12 @@ describe('JavaScript completion decisions', () => {
     })
 
     expect(Object.keys(api.bindings.chat).sort()).toEqual(['buttons', 'card'])
-    expect(api.bindings.chat).not.toHaveProperty('present')
-    expect(api.bindings.chat).not.toHaveProperty('send')
-    expect(api.bindings.chat).not.toHaveProperty('message')
-    expect(api.bindings.chat).not.toHaveProperty('text')
-    expect(api.bindings.chat).not.toHaveProperty('markdown')
-    expect(api.bindings.chat).not.toHaveProperty('speech')
+    expect(() => api.bindings.chat.present).toThrow(/is not available/)
+    expect(() => api.bindings.chat.send).toThrow(/is not available/)
+    expect(() => api.bindings.chat.message).toThrow(/is not available/)
+    expect(() => api.bindings.chat.text).toThrow(/is not available/)
+    expect(() => api.bindings.chat.markdown).toThrow(/is not available/)
+    expect(() => api.bindings.chat.speech).toThrow(/is not available/)
 
     await api.close()
   })

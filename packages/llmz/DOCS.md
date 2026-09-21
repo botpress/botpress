@@ -1,6 +1,6 @@
 # LLMZ API guide
 
-[Quickstart](./README.md) · [Sessions](#sessions-and-messages) · [Memory](#execution-and-memory) · [Tools](#tools-and-exits) · [Components](#components) · [Streaming](#streaming-and-delivery) · [Budgets](#token-budgets-and-compaction) · [Inspection](#inspection) · [Hooks](#hooks) · [Migration](#migrating-from-the-previous-api)
+[Quickstart](./README.md) · [Sessions](#sessions-and-messages) · [Memory](#execution-and-memory) · [Tools](#tools-and-exits) · [Components](#components) · [Streaming](#streaming-and-delivery) · [Budgets](#token-budgets-and-compaction) · [Inspection](#inspection) · [Errors](./ERRORS.md) · [Hooks](#hooks) · [Migration](#migrating-from-the-previous-api)
 
 ## The public API
 
@@ -162,6 +162,8 @@ const done = new Exit({
   schema: z.object({ available: z.number() }),
 })
 ```
+
+See the [complete typed error catalogue and recovery contract](./ERRORS.md) for stable codes, import-safe guards, iteration diagnostics, and critical failures.
 
 Use `result.is(done)` to narrow the result and its output type. `result.isError()` exposes an execution failure. Without custom exits, workers receive `DefaultExit`. An explicit empty `exits` array supplies no completion exits. Chat adds `ListenExit`; an accepted plain assistant answer can complete the chat turn.
 

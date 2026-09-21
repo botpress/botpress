@@ -49,6 +49,9 @@ Run interactive examples in a terminal. Most chat examples accept an empty reply
 | [20_chat_rag](./20_chat_rag)                           | Retrieval with citations         |
 | [22_chat_streaming](./22_chat_streaming)               | Streaming text and rich messages |
 
+| [23_chat_compaction](./23_chat_compaction) | Custom mocked compaction and summary previews |
+| [24_chat_events_and_media](./24_chat_events_and_media) | Events, image attachments and voice input |
+
 ## Verification
 
 From `packages/llmz`:
@@ -60,4 +63,4 @@ pnpm test -- examples
 
 The type check resolves `llmz` to the current source API. Offline smoke tests execute the example entry points with scripted model responses and mocked external services, exercising the real LLMz runtime without API charges. They verify wiring and behavior, not current provider quality or the configuration of your bot’s integrations. Live execution uses the built package; rebuild it after changing the library.
 
-Each example README includes a short, colored recording made with Luna. The recordings use a 100 × 28 terminal, with the same dimensions for capture and SVG playback. Typing is paced naturally, and interactive conversations include button selections and follow-up turns where useful. Long idle pauses are shortened; model responses and tool results are recorded live. `record-demo.sh` can record a new terminal session when `asciinema` 2.x and `svg-term` are installed. Run `./record-demo.sh 01` (or the full example folder name); the cast and SVG are saved inside that example folder.
+Examples 01–22 include a short, colored recording made with Luna. The recordings use a 100 × 28 terminal, with the same dimensions for capture and SVG playback. Typing is paced naturally, and interactive conversations include button selections and follow-up turns where useful. Long idle pauses are shortened; model responses and tool results are recorded live. `record-demo.sh` can record a new terminal session when `asciinema` 2.x and `svg-term` are installed. Run `./record-demo.sh 01` (or the full example folder name); the cast and SVG are saved inside that example folder.

@@ -1,3 +1,4 @@
+import { InvalidMessageError } from '../errors.js'
 export namespace Transcript {
   /**
    * A file attached to a transcript message.
@@ -85,20 +86,24 @@ export function isVoiceMessage(message: Transcript.Message): boolean {
 /** Validate the convenience input shape before converting it to a native message. */
 export function validateTranscriptMessage(message: Transcript.Message): void {
   if (!['user', 'assistant', 'event', 'summary'].includes(message.role)) {
-    throw new Error(`Invalid role "${message.role}" in transcript message`)
+    throw new InvalidMessageError(`Invalid role "${message.role}" in transcript message`)
   }
 
   if ('name' in message && message.name !== undefined && typeof message.name !== 'string') {
-    throw new Error(`Invalid name for transcript message. Expected a string, but got type "${typeof message.name}"`)
+    throw new InvalidMessageError(
+      `Invalid name for transcript message. Expected a string, but got type "${typeof message.name}"`
+    )
   }
 
   if ('content' in message && typeof message.content !== 'string') {
-    throw new Error(
+    throw new InvalidMessageError(
       `Invalid content for transcript message. Expected a string, but got type "${typeof message.content}"`
     )
   }
 
   if ('modality' in message && message.modality !== undefined && !['text', 'voice'].includes(message.modality)) {
-    throw new Error(`Invalid modality "${message.modality}" in transcript message. Expected "text" or "voice"`)
+    throw new InvalidMessageError(
+      `Invalid modality "${message.modality}" in transcript message. Expected "text" or "voice"`
+    )
   }
 }

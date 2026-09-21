@@ -1,4 +1,5 @@
 import { transforms, z } from '@bpinternal/zui'
+import { InvalidConfigurationError } from './errors.js'
 import { formatTypings } from './formatting.js'
 import { fromJSONSchemaCompat, getMultilineComment, toPropertyKey } from './utils.js'
 
@@ -45,7 +46,7 @@ export async function getTypings(schema: z.Schema, options: Options = {}): Promi
   const title = schema.ui?.title
 
   if (typeof title !== 'string' || !title) {
-    throw new Error('Only schemas with "title" Zui property can be declared.')
+    throw new InvalidConfigurationError('Only schemas with "title" Zui property can be declared.')
   }
 
   const description = getMultilineComment(schema.description)

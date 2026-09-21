@@ -1,3 +1,4 @@
+import { InvalidConfigurationError } from '../errors.js'
 import type { MessageDeltaHandler, ResponseHandler } from './chat.js'
 
 export type ResponsePreset = 'markdown' | 'text' | 'speech'
@@ -37,24 +38,24 @@ export function resolveResponse(response: Response = 'markdown'): ResolvedRespon
   const config: Exclude<Response, string> = typeof response === 'string' ? { preset: response } : response
 
   if (!config || typeof config !== 'object' || Array.isArray(config)) {
-    throw new TypeError('Chat response must be a preset or a response configuration.')
+    throw new InvalidConfigurationError('Chat response must be a preset or a response configuration.')
   }
 
   if (Object.keys(config).some((key) => !['preset', 'instructions', 'handler', 'onDelta'].includes(key))) {
-    throw new TypeError('Chat response only accepts preset, instructions, handler, and onDelta.')
+    throw new InvalidConfigurationError('Chat response only accepts preset, instructions, handler, and onDelta.')
   }
 
   if (config.preset !== undefined && (typeof config.preset !== 'string' || !Object.hasOwn(presets, config.preset))) {
-    throw new TypeError('Chat response preset must be "markdown", "text", or "speech".')
+    throw new InvalidConfigurationError('Chat response preset must be "markdown", "text", or "speech".')
   }
 
   if (config.instructions !== undefined && (typeof config.instructions !== 'string' || !config.instructions.trim())) {
-    throw new TypeError('Chat response instructions must be a non-empty string.')
+    throw new InvalidConfigurationError('Chat response instructions must be a non-empty string.')
   }
 
   for (const key of ['handler', 'onDelta'] as const) {
     if (config[key] !== undefined && typeof config[key] !== 'function') {
-      throw new TypeError(`Chat response ${key} must be a function.`)
+      throw new InvalidConfigurationError(`Chat response ${key} must be a function.`)
     }
   }
 

@@ -1,4 +1,5 @@
 import type { CognitiveMessage } from '@botpress/cognitive'
+import { InvalidSessionError } from '../errors.js'
 import { stableJSON } from './json.js'
 import type { MemoryValue } from './memory-codec.js'
 import { normalizeInput, validateInputMessage, validateMessageContent, type SessionMessage } from './messages.js'
@@ -41,14 +42,14 @@ export function pendingCallIds(group: HistoryGroup): string[] {
 export function validateBatch(message: CognitiveMessage): void {
   validateMessageContent(message)
   if (message.toolCalls !== undefined && !Array.isArray(message.toolCalls)) {
-    throw new Error('Native tool calls must be an array.')
+    throw new InvalidSessionError('Native tool calls must be an array.')
   }
 
   const ids = new Set<string>()
 
   for (const call of message.toolCalls ?? []) {
     if (!call || typeof call.id !== 'string' || !call.id.trim() || ids.has(call.id)) {
-      throw new Error(`Missing or duplicate native tool call id: ${call?.id}`)
+      throw new InvalidSessionError(`Missing or duplicate native tool call id: ${call?.id}`)
     }
 
     if (
@@ -61,7 +62,7 @@ export function validateBatch(message: CognitiveMessage): void {
           typeof call.function.arguments !== 'object' ||
           Array.isArray(call.function.arguments)))
     ) {
-      throw new Error('Native calls require a function name and an arguments object.')
+      throw new InvalidSessionError('Native calls require a function name and an arguments object.')
     }
 
     ids.add(call.id)
@@ -70,7 +71,7 @@ export function validateBatch(message: CognitiveMessage): void {
 
 export function validateGroup(group: HistoryGroup): void {
   if (!Array.isArray(group.messages)) {
-    throw new Error('History messages must be an array.')
+    throw new InvalidSessionError('History messages must be an array.')
   }
 
   if (group.source !== undefined) {
@@ -81,7 +82,7 @@ export function validateGroup(group: HistoryGroup): void {
       group.messages.length !== 1 ||
       stableJSON(normalizeInput(group.source)) !== stableJSON(group.messages[0])
     ) {
-      throw new Error('Transcript source must match its native history message.')
+      throw new InvalidSessionError('Transcript source must match its native history message.')
     }
   }
 
@@ -100,7 +101,7 @@ export function validateGroup(group: HistoryGroup): void {
   }
 
   if (assistant.role !== 'assistant') {
-    throw new Error('An iteration must start with its assistant message.')
+    throw new InvalidSessionError('An iteration must start with its assistant message.')
   }
 
   validateBatch(assistant)
@@ -116,12 +117,12 @@ export function validateGroup(group: HistoryGroup): void {
       !result.toolResultCallId ||
       !ids.delete(result.toolResultCallId)
     ) {
-      throw new Error('Session contains an unmatched or duplicate native tool result.')
+      throw new InvalidSessionError('Session contains an unmatched or duplicate native tool result.')
     }
   }
 
   if (ids.size) {
-    throw new Error('A settled iteration contains pending native calls.')
+    throw new InvalidSessionError('A settled iteration contains pending native calls.')
   }
 }
 
@@ -133,7 +134,7 @@ export function compactHistory(
   pendingId?: string
 ): HistoryGroup[] {
   if (pendingId && !retained.has(pendingId)) {
-    throw new Error(`Cannot compact pending iteration ${pendingId}.`)
+    throw new InvalidSessionError(`Cannot compact pending iteration ${pendingId}.`)
   }
 
   const turns = new Set(groups.filter((group) => group.iteration && retained.has(group.id)).map((group) => group.turn))

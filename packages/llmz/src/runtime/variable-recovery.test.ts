@@ -226,12 +226,13 @@ describe.each([
 describe('execution error category persistence', () => {
   test('preserves the original category through the existing serialized error format', () => {
     const error = new CodeExecutionError('missingName is not defined', 'return missingName;', '', 'ReferenceError')
-    const restored = Signals.maybeDeserializeError(error.message)
+    const restored = Signals.maybeDeserializeError(Signals.serializeError(error))
 
     expect(restored).toBeInstanceOf(CodeExecutionError)
     expect(restored.message).toBe('missingName is not defined')
     expect(restored.originalErrorName).toBe('ReferenceError')
-    expect(restored.code).toBe('return missingName;')
+    expect(restored.source).toBe('return missingName;')
+    expect(restored.code).toBe('EXECUTION_FAILED')
   })
 
   test('restores older errors without fabricating their original category', () => {

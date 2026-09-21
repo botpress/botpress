@@ -4,7 +4,18 @@ import { ulid } from 'ulid'
 import { Chat } from './chat/chat.js'
 import { assertValidComponent, createComponentRegistry, type ComponentRegistry } from './chat/component.js'
 import { resolveResponse, type ResolvedResponse } from './chat/response.js'
-import { LoopExceededError } from './errors.js'
+import {
+  describeError,
+  InternalError,
+  InvalidConfigurationError,
+  isLLMzError,
+  LoopExceededError,
+  ReservedIdentifierError,
+  Signals,
+  type ErrorDetails,
+  type LLMzFailure,
+} from './errors.js'
+
 import { Exit } from './exit.js'
 import { getValue, ValueOrGetter } from './getter.js'
 import { createInspector, type Inspector, type OnInspect } from './inspection.js'
@@ -206,6 +217,8 @@ export namespace Iteration {
     tokens?: TokenUsage
     duration?: string
     error?: string | null
+    exception?: ErrorDetails
+    errors: ErrorDetails[]
     isChatEnabled?: boolean
   }
 }
@@ -243,6 +256,22 @@ export class Iteration implements Serializable<Iteration.JSON> {
   public ended_ts?: number
 
   public status: IterationStatus
+  /** Original failure for programmatic handling. Execution errors retain their typed cause. */
+  public exception?: LLMzFailure
+  /** All observed failures, including tool errors caught by generated code. */
+  public readonly errors: LLMzFailure[] = []
+
+  public recordError(value: unknown): LLMzFailure {
+    const error = Signals.maybeDeserializeError(value)
+    const failure = isLLMzError(error)
+      ? error
+      : new InternalError(error instanceof Error ? error.message : String(error), { cause: error })
+    if (!this.errors.includes(failure)) {
+      this.errors.push(failure)
+    }
+
+    return failure
+  }
 
   private _mutations: Map<string, ObjectMutation>
 
@@ -354,6 +383,7 @@ export class Iteration implements Serializable<Iteration.JSON> {
     return ms.toLocaleString('en-US', { style: 'unit', unit: 'millisecond' }) + trailing
   }
 
+  /** Human-readable failure summary. Use exception for instanceof checks and structured details. */
   public get error() {
     if (this.status.type === 'generation_error') {
       return `CodeGenerationError: ${this.status.generation_error.message}`
@@ -397,13 +427,16 @@ export class Iteration implements Serializable<Iteration.JSON> {
     this.started_ts = Date.now()
   }
 
-  public end(status: IterationStatus) {
+  public end(status: IterationStatus, exception?: unknown) {
     if (this.status.type !== 'pending') {
-      throw new Error(`Iteration ${this.id} has already ended with status ${this.status.type}`)
+      throw new InvalidConfigurationError(`Iteration ${this.id} has already ended with status ${this.status.type}`)
     }
 
     this.ended_ts = Date.now()
     this.status = status
+    if (exception !== undefined) {
+      this.exception = this.recordError(exception)
+    }
   }
 
   public toJSON() {
@@ -422,6 +455,8 @@ export class Iteration implements Serializable<Iteration.JSON> {
       tokens: this.tokens,
       duration: this.duration,
       error: this.error,
+      exception: this.exception ? describeError(this.exception) : undefined,
+      errors: this.errors.map((error) => describeError(error)),
       isChatEnabled: this.isChatEnabled,
     } satisfies Iteration.JSON
   }
@@ -589,7 +624,7 @@ export class Context implements Serializable<Context.JSON> {
     // Check the configured names before duplicate-name normalization can replace them.
     for (const tool of configuredTools) {
       for (const name of [tool.name, ...tool.aliases]) {
-        assertNotReservedRuntimeName(name)
+        assertNotReservedRuntimeName(name, 'tool')
       }
     }
 
@@ -603,31 +638,33 @@ export class Context implements Serializable<Context.JSON> {
     const reasoningEffort = await getValue(this.reasoningEffort, this)
 
     if (objects && objects.length > 100) {
-      throw new Error('Too many objects. Expected at most 100 objects.')
+      throw new InvalidConfigurationError('Too many objects. Expected at most 100 objects.')
     }
 
     if (tools && tools.length > 100) {
-      throw new Error('Too many tools. Expected at most 100 tools.')
+      throw new InvalidConfigurationError('Too many tools. Expected at most 100 tools.')
     }
 
     for (const component of components) {
       assertValidComponent(component.definition)
 
       if (typeof component.handler !== 'function') {
-        throw new Error(`Component "${component.definition.name}" requires a handler. Attach one with withHandler().`)
+        throw new InvalidConfigurationError(
+          `Component "${component.definition.name}" requires a handler. Attach one with withHandler().`
+        )
       }
     }
 
     const occupied = new Set<string>()
-    const registerName = (name: string) => {
-      assertNotReservedRuntimeName(name)
+    const registerName = (name: string, kind: 'tool' | 'object') => {
+      assertNotReservedRuntimeName(name, kind)
 
       if (occupied.has(name)) {
-        throw new Error(`Duplicate JavaScript binding "${name}".`)
+        throw new InvalidConfigurationError(`Duplicate JavaScript binding "${name}".`)
       }
 
       if (Object.hasOwn(this.session.memory.variables, name)) {
-        throw new Error(
+        throw new InvalidConfigurationError(
           `JavaScript binding "${name}" conflicts with retained memory. Rename or remove it before registering a tool or object.`
         )
       }
@@ -637,24 +674,24 @@ export class Context implements Serializable<Context.JSON> {
 
     for (const tool of tools) {
       for (const name of new Set([tool.name, ...tool.aliases])) {
-        registerName(name)
+        registerName(name, 'tool')
       }
     }
 
     for (const object of objects) {
-      registerName(object.name)
+      registerName(object.name, 'object')
     }
 
     if (exits && exits.length > 100) {
-      throw new Error('Too many exits. Expected at most 100 exits.')
+      throw new InvalidConfigurationError('Too many exits. Expected at most 100 exits.')
     }
 
     if (components && components.length > 100) {
-      throw new Error('Too many components. Expected at most 100 components.')
+      throw new InvalidConfigurationError('Too many components. Expected at most 100 components.')
     }
 
     if (instructions && instructions.length > 1_000_000) {
-      throw new Error('Instructions are too long. Expected at most 1,000,000 characters.')
+      throw new InvalidConfigurationError('Instructions are too long. Expected at most 1,000,000 characters.')
     }
 
     if (this.chat) {
@@ -666,9 +703,15 @@ export class Context implements Serializable<Context.JSON> {
     const exitNames = new Set<string>()
 
     for (const exit of exits) {
+      for (const name of [exit.name, ...exit.aliases]) {
+        if (name !== 'exit') {
+          assertNotReservedRuntimeName(name, 'exit')
+        }
+      }
+
       for (const name of new Set([exit.name, ...exit.aliases].map((name) => name.toLowerCase()))) {
         if (exitNames.has(name)) {
-          throw new Error(`Duplicate exit name or alias: ${name}`)
+          throw new InvalidConfigurationError(`Duplicate exit name or alias: ${name}`)
         }
 
         exitNames.add(name)
@@ -676,7 +719,7 @@ export class Context implements Serializable<Context.JSON> {
     }
 
     if (typeof temperature !== 'number' || isNaN(temperature) || temperature < 0 || temperature > 2) {
-      throw new Error('Invalid temperature. Expected a number between 0 and 2.')
+      throw new InvalidConfigurationError('Invalid temperature. Expected a number between 0 and 2.')
     }
 
     const isValidModel = (m: unknown): m is string =>
@@ -684,12 +727,12 @@ export class Context implements Serializable<Context.JSON> {
 
     if (Array.isArray(model)) {
       if (model.length === 0 || !model.every(isValidModel)) {
-        throw new Error(
+        throw new InvalidConfigurationError(
           "Invalid model. Expected a non-empty array of model strings ('best'/'fast'/'auto' or 'provider:model')."
         )
       }
     } else if (!isValidModel(model)) {
-      throw new Error("Invalid model. Expected 'best'/'fast'/'auto' or 'provider:model'.")
+      throw new InvalidConfigurationError("Invalid model. Expected 'best'/'fast'/'auto' or 'provider:model'.")
     }
 
     return {
@@ -761,11 +804,11 @@ export class Context implements Serializable<Context.JSON> {
     this.transcriptionModel = props.transcriptionModel
 
     if (this.loop < 1 || this.loop > 100) {
-      throw new Error('Invalid loop. Expected a number between 1 and 100.')
+      throw new InvalidConfigurationError('Invalid loop. Expected a number between 1 and 100.')
     }
 
     if (this.maxTokens !== undefined && (!Number.isSafeInteger(this.maxTokens) || this.maxTokens < 1)) {
-      throw new Error('Invalid maxTokens. Expected a positive safe integer.')
+      throw new InvalidConfigurationError('Invalid maxTokens. Expected a positive safe integer.')
     }
 
     if (
@@ -773,18 +816,18 @@ export class Context implements Serializable<Context.JSON> {
       this.toolResultMaxTokens < 0 ||
       this.toolResultMaxTokens > DEFAULT_TOOL_RESULT_MAX_TOKENS
     ) {
-      throw new Error('Invalid toolResultMaxTokens. Expected an integer between 0 and 2000.')
+      throw new InvalidConfigurationError('Invalid toolResultMaxTokens. Expected an integer between 0 and 2000.')
     }
 
     if (
       this.maxTimeToFirstToken !== undefined &&
       (!Number.isFinite(this.maxTimeToFirstToken) || this.maxTimeToFirstToken < 1)
     ) {
-      throw new Error('Invalid maxTimeToFirstToken. Expected a positive number of milliseconds.')
+      throw new InvalidConfigurationError('Invalid maxTimeToFirstToken. Expected a positive number of milliseconds.')
     }
 
     if (this.midStreamFallback !== undefined && typeof this.midStreamFallback !== 'boolean') {
-      throw new Error('Invalid midStreamFallback. Expected a boolean.')
+      throw new InvalidConfigurationError('Invalid midStreamFallback. Expected a boolean.')
     }
   }
 
@@ -801,8 +844,8 @@ export class Context implements Serializable<Context.JSON> {
   }
 }
 
-function assertNotReservedRuntimeName(name: string): void {
+function assertNotReservedRuntimeName(name: string, kind: 'tool' | 'object' | 'exit'): void {
   if (RESERVED_RUNTIME_NAMES.has(name) || name.startsWith('__')) {
-    throw new Error(`Runtime name "${name}" is reserved.`)
+    throw new ReservedIdentifierError(name, kind)
   }
 }

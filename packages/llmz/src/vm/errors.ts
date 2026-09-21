@@ -2,7 +2,6 @@ import { isFunction, mapValues, maxBy } from 'lodash-es'
 import type { SourceMapConsumer } from 'source-map-js'
 
 import { CodeExecutionError, Signals, VMSignal } from '../errors.js'
-import { cleanStackTrace } from '../stack-traces.js'
 import type { Traces, VMExecutionResult } from '../types.js'
 
 // Parse QuickJS stack traces ("<quickjs>:16") and map line numbers back through
@@ -97,7 +96,7 @@ export const handleErrorNode = (
 
   const { debugUserCode, truncatedCode } = buildDebugCode(lines, matches)
 
-  if (err instanceof VMSignal) {
+  if (VMSignal.is(err)) {
     err.stack = debugUserCode
     err.truncatedCode = truncatedCode
     err.variables = mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter))
@@ -110,8 +109,8 @@ export const handleErrorNode = (
       stackTrace: debugUserCode,
       started_at: Date.now(),
     })
-    const originalErrorName = err instanceof CodeExecutionError ? err.originalErrorName : err.name
-    throw new CodeExecutionError(err.message, code, debugUserCode, originalErrorName)
+    const originalErrorName = CodeExecutionError.is(err) ? err.originalErrorName : err.name
+    throw new CodeExecutionError(err.message, code, debugUserCode, originalErrorName, err)
   }
 }
 
@@ -124,10 +123,10 @@ export const handleCatch = (
 ) => {
   err = Signals.maybeDeserializeError(err)
   return {
-    success: err instanceof VMSignal ? true : false,
+    success: VMSignal.is(err) ? true : false,
     variables: mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter)),
     error: err,
-    signal: err instanceof VMSignal ? err : undefined,
+    signal: VMSignal.is(err) ? err : undefined,
     traces,
     lines_executed: Array.from(lines_executed),
   } satisfies VMExecutionResult
@@ -169,8 +168,8 @@ function buildDebugCode(lines: string[], matches: Array<{ line: number; column: 
   }
 
   return {
-    debugUserCode: cleanStackTrace(debugUserCode).trim(),
-    truncatedCode: cleanStackTrace(truncatedCode).trim(),
+    debugUserCode: debugUserCode.trim(),
+    truncatedCode: truncatedCode.trim(),
   }
 }
 
@@ -188,7 +187,7 @@ function formatError(
 ): VMExecutionResult {
   const { debugUserCode, truncatedCode } = buildDebugCode(lines, matches)
 
-  if (err instanceof VMSignal) {
+  if (VMSignal.is(err)) {
     err.stack = debugUserCode
     err.truncatedCode = truncatedCode
     err.variables = mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter))
@@ -208,8 +207,8 @@ function formatError(
       started_at: Date.now(),
     })
 
-    const originalErrorName = err instanceof CodeExecutionError ? err.originalErrorName : err.name
-    const codeError = new CodeExecutionError(err.message, code, debugUserCode, originalErrorName)
+    const originalErrorName = CodeExecutionError.is(err) ? err.originalErrorName : err.name
+    const codeError = new CodeExecutionError(err.message, code, debugUserCode, originalErrorName, err)
     const deserializedError = Signals.maybeDeserializeError(codeError)
 
     return {

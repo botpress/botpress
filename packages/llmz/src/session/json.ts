@@ -1,3 +1,4 @@
+import { InvalidSessionError } from '../errors.js'
 export function stableJSON(value: unknown): string {
   function sortProperties(item: unknown): unknown {
     if (Array.isArray(item)) {
@@ -30,40 +31,40 @@ export function assertPersistableData(data: unknown): void {
     }
 
     if (typeof value !== 'object' || seen.has(value)) {
-      throw new Error('Native messages and provider continuation must contain finite, acyclic JSON data')
+      throw new InvalidSessionError('Native messages and provider continuation must contain finite, acyclic JSON data')
     }
 
     const array = Array.isArray(value)
     const prototype = Object.getPrototypeOf(value)
     if (!array && prototype !== Object.prototype && prototype !== null) {
-      throw new Error(
+      throw new InvalidSessionError(
         'Native provider continuation must use JSON data; encode custom objects or binary data explicitly'
       )
     }
 
     if (Object.getOwnPropertySymbols(value).length) {
-      throw new Error('Native provider continuation cannot contain symbol properties')
+      throw new InvalidSessionError('Native provider continuation cannot contain symbol properties')
     }
 
     seen.add(value)
 
     if (array && Object.keys(value).length !== value.length) {
-      throw new Error('Native provider continuation arrays must be dense JSON arrays')
+      throw new InvalidSessionError('Native provider continuation arrays must be dense JSON arrays')
     }
 
     if (array) {
       for (let index = 0; index < value.length; index++) {
         const item = Object.getOwnPropertyDescriptor(value, index)
         if (!item) {
-          throw new Error('Native provider continuation arrays must be dense JSON arrays')
+          throw new InvalidSessionError('Native provider continuation arrays must be dense JSON arrays')
         }
 
         if (!('value' in item)) {
-          throw new Error('Native provider continuation must contain plain JSON data properties')
+          throw new InvalidSessionError('Native provider continuation must contain plain JSON data properties')
         }
 
         if (item.value === undefined) {
-          throw new Error('Native provider continuation arrays must be dense JSON arrays')
+          throw new InvalidSessionError('Native provider continuation arrays must be dense JSON arrays')
         }
       }
     }
@@ -74,7 +75,7 @@ export function assertPersistableData(data: unknown): void {
       }
 
       if (!descriptor.enumerable || descriptor.get || descriptor.set) {
-        throw new Error('Native provider continuation must contain plain JSON data properties')
+        throw new InvalidSessionError('Native provider continuation must contain plain JSON data properties')
       }
 
       visit(descriptor.value)

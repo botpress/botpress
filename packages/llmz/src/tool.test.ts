@@ -1,5 +1,5 @@
 import { z } from '@bpinternal/zui'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { Tool } from './tool.js'
 import { truncate } from './truncate.js'
@@ -285,19 +285,11 @@ describe('tool default values', () => {
     })
 
     await expect(tool.execute({ a: 1, b: 2 }, { callId: '' })).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Error: Tool "add" received invalid input: [
-        {
-          "code": "too_small",
-          "minimum": 2,
-          "type": "number",
-          "inclusive": true,
-          "exact": false,
-          "message": "Number must be greater than or equal to 2",
-          "path": [
-            "a"
-          ]
-        }
-      ]]
+      [ToolInputError: Tool "add" received invalid input:
+      - a: Number must be greater than or equal to 2
+
+      Expected input (TypeScript):
+      { a: number; b: number }]
     `)
 
     expect(result).toBe(-1)
@@ -739,4 +731,17 @@ describe('tool default values', () => {
       ]
     `)
   })
+})
+
+it('never retries a critical failure, even when the retry policy would accept it', async () => {
+  const { CompactionError } = await import('./errors.js')
+  const error = new CompactionError('Cannot retain conversation')
+  const handler = vi.fn(async () => {
+    throw error
+  })
+  const retry = vi.fn(async () => true)
+  const tool = new Tool({ name: 'critical', handler, retry })
+  await expect(tool.execute({}, { callId: 'test' })).rejects.toBe(error)
+  expect(handler).toHaveBeenCalledOnce()
+  expect(retry).not.toHaveBeenCalled()
 })

@@ -2,9 +2,11 @@ import type { SourceMapConsumer } from 'source-map-js'
 import { type CompiledCode, Identifiers } from '../compiler/index.js'
 import { USER_CODE_START_MARKER } from '../compiler/plugins/async-wrapper.js'
 import { TerminationCheckpointIdentifier, TerminationGuardIdentifier } from '../compiler/plugins/termination.js'
+import { MissingToolIdentifier } from '../compiler/plugins/tool-resolution.js'
+import { UnknownToolError } from '../errors.js'
 import { cloneMemoryValue, type VariableWrite } from '../session/memory.js'
 import type { Trace, VMExecutionResult } from '../types.js'
-import { VM_TERMINATION, type VMContext } from './types.js'
+import { VM_ON_ERROR, VM_TERMINATION, type VMContext } from './types.js'
 
 const USER_CODE_MARKER_TAG_START = '__LLMZ_USER_CODE_START__'
 const USER_CODE_MARKER_TAG_END = '__LLMZ_USER_CODE_END__'
@@ -45,6 +47,14 @@ export function instrumentContext(
     memoryNames: new Set([...memoryNames, ...transformed.variables]),
     variableWrites: [],
     captureErrors: [],
+  }
+  context[MissingToolIdentifier] = (name: string): never => {
+    const error = new UnknownToolError(
+      name,
+      Object.keys(context).filter((key) => !key.startsWith('__') && typeof context[key] === 'function')
+    )
+    context[VM_ON_ERROR]?.(error)
+    throw error
   }
   context[TerminationGuardIdentifier] = () => context[VM_TERMINATION]?.check()
   context[TerminationCheckpointIdentifier] = (value: unknown) => {

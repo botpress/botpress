@@ -1,3 +1,4 @@
+import { AssignmentError, ReservedIdentifierError } from '../../errors.js'
 import { RESERVED_RUNTIME_NAMES } from '../../runtime-names.js'
 import { walk, type AnyNode, type Ctx } from '../ast.js'
 
@@ -107,7 +108,7 @@ export function applyVariableTracking(ctx: Ctx, variables: Set<string>, deferSuf
 
     for (const name of declared) {
       if (RESERVED.has(name)) {
-        throw new Error(`${name} is reserved for runtime memory`)
+        throw new ReservedIdentifierError(name, 'variable', false, `${name} is reserved for runtime memory`)
       }
     }
   })
@@ -184,7 +185,7 @@ export function applyVariableTracking(ctx: Ctx, variables: Set<string>, deferSuf
         target.type === 'MemberExpression' ? ([rootName(target)].filter(Boolean) as string[]) : names(target)
       for (const name of roots) {
         if (RESERVED.has(name)) {
-          throw new Error(`${name} is read-only runtime memory`)
+          throw new AssignmentError(`${name} is read-only runtime memory`)
         }
       }
 

@@ -1,4 +1,5 @@
 import { z } from '@bpinternal/zui'
+import { InvalidObjectError } from './errors.js'
 
 import { formatTypings } from './formatting.js'
 import { Tool } from './tool.js'
@@ -296,60 +297,66 @@ export class ObjectInstance implements Serializable<ObjectInstance.JSON> {
     properties?: ObjectProperty[]
     metadata?: Record<string, unknown>
   }) {
+    if (!props || typeof props !== 'object' || Array.isArray(props)) {
+      throw new InvalidObjectError('Object definition must be an object.')
+    }
+
     if (!isValidIdentifier(props.name)) {
-      throw new Error(
+      throw new InvalidObjectError(
         `Invalid name for tool ${props.name}. A tool name must start with a letter and contain only letters, numbers, and underscores. It must be 1-50 characters long.`
       )
     }
 
     if (props.description !== undefined && typeof props.description !== 'string') {
-      throw new Error(
+      throw new InvalidObjectError(
         `Invalid description for tool ${props.name}. Expected a string, but got type "${typeof props.description}"`
       )
     }
 
     if (props.metadata !== undefined && typeof props.metadata !== 'object') {
-      throw new Error(
+      throw new InvalidObjectError(
         `Invalid metadata for tool ${props.name}. Expected an object, but got type "${typeof props.metadata}"`
       )
     }
 
     if (props.properties !== undefined && !Array.isArray(props.properties)) {
-      throw new Error(
+      throw new InvalidObjectError(
         `Invalid properties for tool ${props.name}. Expected an array, but got type "${typeof props.properties}"`
       )
     }
 
     if (props.tools !== undefined && !Array.isArray(props.tools)) {
-      throw new Error(`Invalid tools for tool ${props.name}. Expected an array, but got type "${typeof props.tools}"`)
+      throw new InvalidObjectError(
+        `Invalid tools for tool ${props.name}. Expected an array, but got type "${typeof props.tools}"`
+      )
     }
 
     if (props.properties?.length) {
       if (props.properties.length > 100) {
-        throw new Error(
+        throw new InvalidObjectError(
           `Too many properties for tool ${props.name}. Expected at most 100 properties, but got ${props.properties.length}`
         )
       }
 
       for (const prop of props.properties) {
         if (props.properties.filter((p) => p.name === prop.name).length > 1) {
-          throw new Error(`Duplicate property name "${prop.name}" in tool ${props.name}`)
+          throw new InvalidObjectError(`Duplicate property name "${prop.name}" in tool ${props.name}`)
         }
 
         if (!isValidIdentifier(prop.name)) {
-          throw new Error(
+          throw new InvalidObjectError(
             `Invalid name for property ${prop.name}. A property name must start with a letter and contain only letters, numbers, and underscores. It must be 1-50 characters long.`
           )
         }
 
         if (prop.description !== undefined && typeof prop.description !== 'string') {
-          throw new Error(
+          throw new InvalidObjectError(
             `Invalid description for property ${prop.name}. Expected a string, but got type "${typeof prop.description}"`
           )
         }
 
         if (props.description && props.description.length >= 5000) {
-          throw new Error(
+          throw new InvalidObjectError(
             `Description for property ${prop.name} is too long. Expected at most 5000 characters, but got ${props.description.length}`
           )
         }

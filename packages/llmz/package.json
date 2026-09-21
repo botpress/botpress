@@ -5,7 +5,8 @@
   "version": "1.0.0",
   "files": [
     "dist",
-    "DOCS.md"
+    "DOCS.md",
+    "ERRORS.md"
   ],
   "types": "./dist/index.d.ts",
   "main": "./dist/index.cjs",
