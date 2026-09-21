@@ -18,25 +18,6 @@ const _buildStripeAuthorizeUrl = ({ webhookId }: { webhookId: string }): string 
   return `https://marketplace.stripe.com/oauth/v2/authorize?${params.toString()}`
 }
 
-const _setIdentifierFromStripeAccount = async ({
-  ctx,
-  client,
-  logger,
-}: {
-  ctx: bp.Context
-  client: bp.Client
-  logger: bp.Logger
-}): Promise<string | undefined> => {
-  try {
-    const stripeClient = await StripeClient.createFromStates({ client, ctx, logger })
-    const account = await stripeClient.retrieveAccount()
-    await client.configureIntegration({ identifier: account.id })
-    return undefined
-  } catch (error) {
-    return error instanceof Error ? error.message : String(error)
-  }
-}
-
 const _manualCredentialsSchema = z.object({
   apiKey: z
     .string()
@@ -105,15 +86,23 @@ const _oauthCallbackHandler: WizardHandler = async ({ ctx, client, logger, respo
   }
 
   const oauth = new StripeOAuthClient({ client, ctx, logger })
-  await oauth.requestShortLivedCredentials.fromAuthorizationCode(code)
 
-  const identifierError = await _setIdentifierFromStripeAccount({ ctx, client, logger })
-  if (identifierError) {
+  let stripeUserId: string | undefined
+  try {
+    await oauth.requestShortLivedCredentials.fromAuthorizationCode(code)
+    stripeUserId = (await oauth.getAuthState()).stripeUserId
+  } catch (error) {
     return responses.endWizard({
       success: false,
-      errorMessage: `Failed to connect to Stripe: ${identifierError}`,
+      errorMessage: `Failed to connect to Stripe: ${error instanceof Error ? error.message : String(error)}`,
     })
   }
+
+  if (!stripeUserId) {
+    return responses.endWizard({ success: false, errorMessage: 'Stripe did not return an account id' })
+  }
+
+  await client.configureIntegration({ identifier: stripeUserId })
 
   return responses.endWizard({ success: true })
 }
@@ -136,16 +125,20 @@ const _saveManualCredentialsHandler: WizardHandler = async ({ ctx, client, logge
     })
   }
 
-  const oauth = new StripeOAuthClient({ client, ctx, logger })
-  await oauth.saveManualApiKey(parsed.data.apiKey)
-
-  const identifierError = await _setIdentifierFromStripeAccount({ ctx, client, logger })
-  if (identifierError) {
+  let accountId: string
+  try {
+    const stripeClient = new StripeClient(parsed.data.apiKey, ctx.configuration.apiVersion)
+    accountId = (await stripeClient.retrieveAccount()).id
+  } catch (error) {
     return responses.endWizard({
       success: false,
-      errorMessage: `Failed to validate the Stripe API key: ${identifierError}`,
+      errorMessage: `Failed to validate the Stripe API key: ${error instanceof Error ? error.message : String(error)}`,
     })
   }
+
+  const oauth = new StripeOAuthClient({ client, ctx, logger })
+  await oauth.saveManualApiKey(parsed.data.apiKey)
+  await client.configureIntegration({ identifier: accountId })
 
   return responses.endWizard({ success: true })
 }
