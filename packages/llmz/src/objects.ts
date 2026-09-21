@@ -1,10 +1,8 @@
-import { z } from '@bpinternal/zui'
 import { InvalidObjectError } from './errors.js'
 
 import { formatTypings } from './formatting.js'
 import { Tool } from './tool.js'
 import { Serializable, ZuiType } from './types.js'
-import { getTypings } from './typings.js'
 import { getMultilineComment, isValidIdentifier } from './utils.js'
 
 /**
@@ -379,11 +377,7 @@ export class ObjectInstance implements Serializable<ObjectInstance.JSON> {
     const declarations: string[] = []
 
     for (const tool of this.tools ?? []) {
-      const signature = z
-        .function(tool.zInput as any, tool.zOutput)
-        .title(tool.name)
-        .describe(tool.description ?? '')
-      const declaration = await getTypings(signature, { declaration: true })
+      const declaration = await tool.getTypings()
       declarations.push(declaration.replace('declare function ', 'function '))
     }
 

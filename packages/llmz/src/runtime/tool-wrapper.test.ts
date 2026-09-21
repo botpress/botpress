@@ -1,5 +1,5 @@
 import { z } from '@bpinternal/zui'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
 import { Iteration } from '../context.js'
 import { ThinkSignal } from '../errors.js'
@@ -23,6 +23,31 @@ function createIteration() {
 }
 
 describe('wrapTool', () => {
+  test('does not start business work when cancelled during async input validation', async () => {
+    let release!: () => void
+    const blocked = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    const normalize = vi.fn(async (value: string) => {
+      await blocked
+      return value.trim()
+    })
+    const handler = vi.fn(async () => 'saved')
+    const controller = new AbortController()
+    const wrapped = wrapTool({
+      tool: new Tool({ name: 'save', input: z.string().transform(normalize), handler }),
+      iteration: createIteration(),
+      controller,
+    })
+    const task = wrapped(' value ')
+    await vi.waitFor(() => expect(normalize).toHaveBeenCalledOnce())
+    controller.abort(new Error('Cancelled'))
+    release()
+
+    await expect(task).rejects.toThrow('Cancelled')
+    expect(handler).not.toHaveBeenCalled()
+  })
+
   test('mutates input and output through hooks while tracing original input', async () => {
     let originalInputName: string | undefined
     let calledInputName: string | undefined

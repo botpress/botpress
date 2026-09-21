@@ -1,7 +1,8 @@
-import { transforms } from '@bpinternal/zui'
+import { z } from '@bpinternal/zui'
 import { JSONSchema7 } from 'json-schema'
 import { uniq } from 'lodash-es'
 import { InvalidExitError } from './errors.js'
+import { toModelSchema } from './schema.js'
 import { Serializable, ZuiType } from './types.js'
 import { fromJSONSchemaCompat, isJsonSchema, isValidIdentifier, isZuiSchema } from './utils.js'
 
@@ -237,15 +238,16 @@ export class Exit<T = unknown> implements Serializable<Exit.JSON> {
   public description: string
   /** Additional metadata for orchestration and custom logic */
   public metadata: Record<string, unknown>
-  /** JSON Schema for validating exit result data */
+  /** Model-facing payload description. The original validator is retained in zSchema. */
   public schema?: JSONSchema7
+  private _schema?: z.ZodType<T, any, unknown>
 
   /**
-   * Returns the Zod schema equivalent of the JSON schema (if available).
+   * Returns the original runtime validator, preserving transforms and refinements.
    * Used internally for validation and type inference.
    */
-  public get zSchema() {
-    return this.schema ? fromJSONSchemaCompat(this.schema) : undefined
+  public get zSchema(): z.ZodType<T, any, unknown> | undefined {
+    return this._schema ?? (this.schema ? fromJSONSchemaCompat(this.schema) : undefined)
   }
 
   /**
@@ -297,7 +299,7 @@ export class Exit<T = unknown> implements Serializable<Exit.JSON> {
    * ```
    */
   public clone() {
-    return new Exit({
+    return new Exit<T>({
       name: this.name,
       aliases: [...this.aliases],
       description: this.description,
@@ -329,7 +331,7 @@ export class Exit<T = unknown> implements Serializable<Exit.JSON> {
   }
 
   /**
-   * Serializes this exit to a JSON-compatible object.
+   * Serializes the model-facing description. JavaScript validators cannot be serialized; use clone() to retain them.
    *
    * @returns JSON representation of the exit
    *
@@ -410,7 +412,7 @@ export class Exit<T = unknown> implements Serializable<Exit.JSON> {
     aliases?: string[]
     description: string
     metadata?: Record<string, unknown>
-    schema?: ZuiType<T>
+    schema?: ZuiType<T, unknown>
   }) {
     if (!props || typeof props !== 'object' || Array.isArray(props)) {
       throw new InvalidExitError('Exit definition must be an object.')
@@ -452,7 +454,12 @@ export class Exit<T = unknown> implements Serializable<Exit.JSON> {
           )
         }
 
-        this.schema = transforms.toJSONSchema(props.schema) as JSONSchema7
+        try {
+          this.schema = toModelSchema(props.schema)
+          this._schema = props.schema as z.ZodType<T, any, unknown>
+        } catch (cause) {
+          throw new InvalidExitError(`Cannot describe schema for exit ${props.name}: ${String(cause)}`, { cause })
+        }
       } else if (isJsonSchema(props.schema)) {
         this.schema = props.schema
       } else {

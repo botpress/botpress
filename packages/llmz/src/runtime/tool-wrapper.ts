@@ -32,12 +32,11 @@ export function wrapTool({
   onResult,
   controller,
 }: ToolWrapperProps) {
-  const getToolInput = (input: any) => (tool.zInput as any).safeParse(input).data ?? input
-
   return async function (input: any) {
     controller.signal.throwIfAborted()
     const toolCallId = `tcall_${ulid()}`
     const originalInput = input
+    let reportedInput = originalInput
     let effectiveInput = input
 
     const alertSlowTool = setTimeout(
@@ -47,7 +46,7 @@ export function wrapTool({
           tool_name: tool.name,
           tool_call_id: toolCallId,
           started_at: Date.now(),
-          input: getToolInput(originalInput),
+          input: reportedInput,
           object,
           duration: SLOW_TOOL_WARNING,
         }),
@@ -69,7 +68,7 @@ export function wrapTool({
         ended_at: Date.now(),
         tool_name: tool.name,
         object,
-        input: getToolInput(originalInput),
+        input: reportedInput,
         output,
         error,
         success,
@@ -141,6 +140,14 @@ export function wrapTool({
         iterationId: iteration.id,
         nativeCallId: iteration.nativeCallId,
         onTruncation,
+        onInput: (parsed) => {
+          controller.signal.throwIfAborted()
+          // Keep the original argument when a hook replaced it; do not rerun
+          // its effects just to produce a trace of an argument we never used.
+          if (effectiveInput === originalInput) {
+            reportedInput = parsed
+          }
+        },
       })
 
       const afterRes = await callHook(() =>

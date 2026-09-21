@@ -2,6 +2,7 @@ import { z } from '@bpinternal/zui'
 
 import { Context, Iteration } from '../context.js'
 import { AssignmentError, ObjectPropertyError, UnknownToolError, type LLMzFailure } from '../errors.js'
+import { parseSchemaSync } from '../schema.js'
 
 import { cloneMemoryValue } from '../session/memory.js'
 import type { TruncationPolicy } from '../truncate.js'
@@ -43,6 +44,7 @@ export const buildVMContext = ({
   }
   const reject = (error: LLMzFailure): never => {
     iteration.recordError(error)
+    javascriptApi?.reportError(error)
     throw error
   }
 
@@ -101,7 +103,14 @@ export const buildVMContext = ({
             reject(new AssignmentError(`Property ${obj.name}.${name} is read-only and cannot be modified`))
           }
 
-          const parsed = schema.safeParse(value)
+          let parsed: ReturnType<typeof parseSchemaSync>
+          try {
+            parsed = parseSchemaSync(schema, value, `Object property ${obj.name}.${name}`)
+          } catch (error) {
+            const failure = iteration.recordError(error)
+            javascriptApi?.reportError(failure)
+            throw failure
+          }
 
           if (!parsed.success) {
             reject(new ObjectPropertyError(obj.name, name, parsed.error.issues, schemaToTypeScript(schema)))

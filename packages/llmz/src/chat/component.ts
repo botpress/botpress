@@ -1,13 +1,14 @@
 import { z } from '@bpinternal/zui'
 import { cloneDeep } from 'lodash-es'
 import { ComponentInputError, InvalidComponentError, ReservedIdentifierError } from '../errors.js'
+import { parseSchemaSync, schemaInput } from '../schema.js'
 import { schemaToTypeScript } from '../typings.js'
 import type { MessageMetadata } from './chat.js'
 
 const TEXT_NAMES = new Set(['message', 'text', 'markdown', 'md', 'speech', 'speak', 'spoken'])
 const RESERVED_METHOD_NAMES = new Set(['then', 'constructor', 'prototype', '__proto__', 'button'])
 
-export type ComponentSchema = z.ZodObject<any> | z.ZodArray<any>
+export type ComponentSchema = z.ZodObject<any> | z.ZodArray<any> | z.ZodEffects<any> | z.ZodPipeline<any, any>
 
 export type ComponentHandler<P extends ComponentSchema = any> = (
   props: z.output<P>,
@@ -68,7 +69,10 @@ export function assertValidComponent(component: unknown): asserts component is C
     throw new InvalidComponentError('Component must have a description')
   }
 
-  if (!z.is.zuiType(component.props) || (!z.is.zuiObject(component.props) && !z.is.zuiArray(component.props))) {
+  if (
+    !z.is.zuiType(component.props) ||
+    (!z.is.zuiObject(schemaInput(component.props)) && !z.is.zuiArray(schemaInput(component.props)))
+  ) {
     throw new InvalidComponentError('Component props must be a Zod object or array schema')
   }
 
@@ -108,13 +112,17 @@ export class Component<P extends ComponentSchema = any> {
 
   /** Parse once and retain an immutable delivery value. */
   public render(props: z.input<P>): RenderedComponent<z.output<P>> {
-    const parsed = this.definition.props.safeParse(props)
+    const parsed = parseSchemaSync(this.definition.props, props, `Component "${this.definition.name}"`)
     if (!parsed.success) {
       throw new ComponentInputError(
         this.definition.name,
         parsed.error.issues,
         schemaToTypeScript(this.definition.props)
       )
+    }
+
+    if (!isRecord(parsed.data) && !Array.isArray(parsed.data)) {
+      throw new InvalidComponentError(`Component "${this.definition.name}" must produce object or array props`)
     }
 
     return freeze({

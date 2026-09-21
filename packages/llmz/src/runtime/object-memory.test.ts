@@ -1,5 +1,5 @@
 import { z } from '@bpinternal/zui'
-import { describe, expect, test, vi } from 'vitest'
+import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { ObjectInstance } from '../objects.js'
 import { Tool } from '../tool.js'
@@ -17,6 +17,49 @@ const makeAccount = () =>
   })
 
 const makeChat = () => createRecordingChat({ handler: () => undefined })
+
+afterEach(() => vi.unstubAllEnvs())
+
+test.each(['false', 'true'])('object schemas retain effects and transformed state (QuickJS=%s)', async (quickjs) => {
+  vi.stubEnv('USE_QUICKJS', quickjs)
+  const transform = vi.fn((value: string) => value.length)
+  const account = new ObjectInstance({
+    name: 'account',
+    properties: [
+      {
+        name: 'size',
+        value: 0,
+        writable: true,
+        type: z
+          .string()
+          .trim()
+          .refine((value) => value.length > 0, 'Supply a name')
+          .transform(transform),
+      },
+    ],
+  })
+  const client = new NativeClient([
+    javascript('account.size = " ";'),
+    javascript('account.size = " hello "; return account.size;'),
+    response('Saved.'),
+  ])
+  const result = await executeContext({ client, chat: makeChat(), objects: [account] })
+
+  expect(result.isSuccess()).toBe(true)
+  expect(result.iterations[0]?.error).toContain('Supply a name')
+  expect(result.session.memory.getObjectPropertyValue('account', 'size')).toBe(5)
+  expect(transform).toHaveBeenCalledOnce()
+
+  const next = await executeContext({
+    client: new NativeClient([javascript('return account.size;'), response('Still saved.')]),
+    chat: makeChat(),
+    objects: [account],
+    session: result.session,
+  })
+
+  expect(next.session.getBindings().$return).toBe(5)
+  expect(transform).toHaveBeenCalledOnce()
+})
 
 describe('object properties in session memory', () => {
   test('shows schema, value and access in MEMORY and callable methods in the tool section', async () => {

@@ -1,5 +1,6 @@
 import { z } from '@bpinternal/zui'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
+import { ComponentInputError, InvalidConfigurationError } from '../errors.js'
 import { Component, createComponentRegistry, isAnyComponent, isComponent } from './component.js'
 
 const definition = {
@@ -109,6 +110,31 @@ describe('component registry', () => {
 })
 
 describe('component delivery', () => {
+  it('preserves root effects and rejects invalid props before delivery', () => {
+    const transform = vi.fn((value: { score: number }) => ({ label: `Score: ${value.score}` }))
+    const component = new Component({
+      ...definition,
+      props: z
+        .object({ score: z.number() })
+        .refine((value) => value.score > 0, 'Score must be positive')
+        .transform(transform),
+    })
+
+    expect(() => component.render({ score: 0 })).toThrow(ComponentInputError)
+    expect(transform).not.toHaveBeenCalled()
+    expect(component.render({ score: 4 }).props).toEqual({ label: 'Score: 4' })
+    expect(transform).toHaveBeenCalledOnce()
+    expect(component.withHandler(() => undefined).definition.props).toBe(component.definition.props)
+  })
+
+  it('rejects asynchronous effects and transforms producing non-component values clearly', () => {
+    const asyncComponent = new Component({ ...definition, props: definition.props.transform(async (value) => value) })
+    const primitiveComponent = new Component({ ...definition, props: definition.props.transform(() => 'text') })
+
+    expect(() => asyncComponent.render({ score: 4 })).toThrow(InvalidConfigurationError)
+    expect(() => primitiveComponent.render({ score: 4 })).toThrow(/must produce object or array props/)
+  })
+
   it('parses props once and freezes the rendered value', () => {
     const transform = vi.fn((score: number) => `Score: ${score}`)
     const template = new Component({ ...definition, props: z.object({ score: z.number().transform(transform) }) })

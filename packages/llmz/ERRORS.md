@@ -34,6 +34,8 @@ Pass `observe` as `onIterationEnd`. `iteration.error` remains the readable strin
 
 A **non-critical** iteration failure produces feedback and permits another model call within the remaining iteration budget. It does not promise that retrying an external action is safe. Feedback records acknowledged tool results and deliveries, discloses uncertain effects, and tells the model not to repeat completed actions blindly. The model may correct its arguments, choose another tool, or complete through an appropriate exit.
 
+Original schema refinements are enforced for tool inputs, exit payloads, component props, and object-property assignments. Their issues use the corresponding input/property error below. Async effects are supported for tool inputs; using them on synchronous exit, component, or property APIs raises critical `InvalidConfigurationError`. A schema callback that throws instead of reporting a validation issue is also a configuration failure. Tool output schemas are documentation only: unexpected tool return values do not produce schema-validation errors.
+
 A **critical** failure stops the execution without another model call. Critical tool failures remain fatal even if generated JavaScript catches them; later host operations are closed. Examples include provider failures, token overflow, failed compaction, cancellation, and memory capacity exhaustion. A hook can reject an iteration with an ordinary error (reported as `HookError`), or stop execution with a critical typed error or its abort controller. Observational callbacks remain observational; `onIterationEnd` propagates explicitly critical failures.
 
 ## Complete catalogue

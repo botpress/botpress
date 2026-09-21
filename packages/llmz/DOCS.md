@@ -144,7 +144,7 @@ After a failed execution, the session retains the active input batch and any com
 
 ## Tools and exits
 
-A `Tool` has a name, async handler, optional description, input/output schemas, aliases, metadata, and retry callback. Zui parses the supplied schemas at the tool boundary. Dynamic tools, objects, exits, instructions, and model configuration can be supplied as getters evaluated for each iteration.
+A `Tool` has a name, async handler, optional description, input/output schemas, aliases, metadata, and retry callback. Its original input schema validates and normalizes arguments before the handler runs. Its output schema describes likely returned data for TypeScript and the model: results are never validated, normalized, stripped, or rejected against that schema. Dynamic tools, objects, exits, instructions, and model configuration can be supplied as getters evaluated for each iteration.
 
 ```ts
 import { z } from '@bpinternal/zui'
@@ -165,13 +165,23 @@ const done = new Exit({
 
 See the [complete typed error catalogue and recovery contract](./ERRORS.md) for stable codes, import-safe guards, iteration diagnostics, and critical failures.
 
+LLMz retains the original schemas separately from their model-facing JSON descriptions. Tool inputs, exit payloads, component props, and object-property assignments preserve `.trim()`, `.refine()`, `.superRefine()`, `.preprocess()`, `.transform()`, and pipelines. Rejected refinements produce the corresponding typed input error and feedback for the next iteration. Successful parsing runs effects once; handlers, exit hooks, deliveries, and stored properties receive the parsed value. Cloning tools and exits preserves their validators.
+
+Tool input effects may be asynchronous. Exit validation, component rendering, and object-property setters are synchronous: async effects on those surfaces raise `InvalidConfigurationError`. Put asynchronous checks in a tool input schema. Exceptions thrown by schema callbacks are configuration failures; use refinement issues to report correctable input errors.
+
+For a type-changing tool input, `execute()` accepts `z.input<I>` and the handler receives `z.output<I>`. Exit results and component handlers use the parsed output type. Tool output schemas describe raw data, so their type hint uses `z.input<O>`; output effects never execute. A handler may return data outside that hint. Memory and inspection retain their own supported-value constraints.
+
+Model-facing schemas describe accepted input shapes, not arbitrary JavaScript behavior. Use descriptions to explain custom constraints. Object property schemas describe assignments; host-provided initial values are already-normalized state and are not parsed again when loaded or restored. Plain session variables have no user-supplied validation schema.
+
+`toJSON()` exports descriptions, not executable refinements or transforms. Persist sessions separately and reattach the original tool, exit, component, and object definitions when resuming. Reconstructing a schema from JSON cannot restore its JavaScript callbacks.
+
 Use `result.is(done)` to narrow the result and its output type. `result.isError()` exposes an execution failure. Without custom exits, workers receive `DefaultExit`. An explicit empty `exits` array supplies no completion exits. Chat adds `ListenExit`; an accepted plain assistant answer can complete the chat turn.
 
 Tools return business data. Generated code sends rich messages through registered `chat.<component>(props)` methods. A `ThinkSignal` requests another reasoning iteration; it is not durable pause/resume.
 
 ## Components
 
-Component names are exact JavaScript identifiers. Object and array schemas are supported; aliases and generation metadata are not component options. Text names such as `text` and `message` are reserved for native assistant output.
+Component names are exact JavaScript identifiers. Object and array schemas are supported, including root effects and pipelines; transformed props must still be an object or array. Aliases and generation metadata are not component options. Text names such as `text` and `message` are reserved for native assistant output.
 
 ```ts
 import { z } from '@bpinternal/zui'

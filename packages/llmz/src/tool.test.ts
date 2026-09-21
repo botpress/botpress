@@ -1,8 +1,131 @@
 import { z } from '@bpinternal/zui'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 
+import { ToolInputError } from './errors.js'
 import { Tool } from './tool.js'
 import { truncate } from './truncate.js'
+
+describe('tool schema effects', () => {
+  it('documents void inputs accurately and validates their original schema', async () => {
+    const tool = new Tool({ name: 'noop', input: z.void(), handler: async () => 'done' })
+
+    expect(await tool.getTypings()).toContain('args: void')
+    expect(await tool.execute(undefined, { callId: 'good' })).toBe('done')
+    await expect(tool.execute({} as never, { callId: 'bad' })).rejects.toBeInstanceOf(ToolInputError)
+  })
+
+  it('normalizes and validates original input, including root refinements', async () => {
+    const handler = vi.fn(async (value: { name: string }) => value)
+    const tool = new Tool({
+      name: 'save',
+      input: z.object({ name: z.string().trim() }).superRefine((value, ctx) => {
+        if (value.name !== 'valid') {
+          ctx.addIssue({ code: 'custom', path: ['name'], message: 'Use a valid name' })
+        }
+      }),
+      handler,
+    })
+
+    await expect(tool.execute({ name: 'invalid' }, { callId: 'bad' })).rejects.toBeInstanceOf(ToolInputError)
+    expect(handler).not.toHaveBeenCalled()
+    expect(await tool.execute({ name: ' valid ' }, { callId: 'good' })).toEqual({ name: 'valid' })
+    expect(handler).toHaveBeenCalledOnce()
+  })
+
+  it('supports async input effects and distinguishes raw input from handler input', async () => {
+    const transform = vi.fn(async (value: string) => value.length)
+    const tool = new Tool({
+      name: 'measure',
+      input: z.string().transform(transform),
+      output: z.number(),
+      handler: async (value) => {
+        expectTypeOf(value).toEqualTypeOf<number>()
+        return value
+      },
+    })
+    const result = await tool.execute('hello', { callId: 'one' })
+
+    expectTypeOf(result).toEqualTypeOf<number>()
+    expect(result).toBe(5)
+    expect(transform).toHaveBeenCalledOnce()
+    expect(await tool.getTypings()).toContain('args: string')
+  })
+
+  it('preserves preprocessing and coercion', async () => {
+    const tool = new Tool({
+      name: 'measure',
+      input: z.preprocess((value) => String(value).trim(), z.string().min(1)),
+      handler: async (value) => value,
+    })
+
+    expect(await tool.execute(42, { callId: 'one' })).toBe('42')
+    await expect(tool.execute(' ', { callId: 'bad' })).rejects.toBeInstanceOf(ToolInputError)
+    const coerce = new Tool({ name: 'coerce', input: z.coerce.number(), handler: async (value) => value })
+    expect(await coerce.execute('42' as never, { callId: 'coerce' })).toBe(42)
+  })
+
+  it('rejects failed async refinements before calling the handler', async () => {
+    const handler = vi.fn(async () => true)
+    const tool = new Tool({
+      name: 'save',
+      input: z.string().refine(async (value) => value === 'valid', 'Use a valid name'),
+      handler,
+    })
+
+    await expect(tool.execute('invalid', { callId: 'bad' })).rejects.toBeInstanceOf(ToolInputError)
+    expect(handler).not.toHaveBeenCalled()
+  })
+
+  it('preserves validators through cloning and applies static values before effects', async () => {
+    const normalize = vi.fn((value: { name: string }) => ({ name: value.name.toUpperCase() }))
+    const schema = z
+      .object({ name: z.string().trim() })
+      .refine((value) => value.name === 'valid')
+      .transform(normalize)
+    const original = new Tool({ name: 'save', input: schema, handler: async (value) => value })
+    const clone = original.clone({ staticInputValues: { name: ' valid ' } })
+
+    expect(await clone.execute({ name: 'ignored' }, { callId: 'one' })).toEqual({ name: 'VALID' })
+    expect(normalize).toHaveBeenCalledOnce()
+    expect(await clone.execute(undefined as never, { callId: 'defaults' })).toEqual({ name: 'VALID' })
+    await expect(original.execute({ name: 'invalid' }, { callId: 'bad' })).rejects.toBeInstanceOf(ToolInputError)
+    await expect(original.clone().execute({ name: 'invalid' }, { callId: 'bad' })).rejects.toBeInstanceOf(
+      ToolInputError
+    )
+  })
+
+  it('does not run output effects, strip fields, or reject unexpected data', async () => {
+    const normalize = vi.fn((value: string) => value.length)
+    const value = { unexpected: true }
+    const tool = new Tool({
+      name: 'read',
+      output: z
+        .string()
+        .transform(normalize)
+        .refine(() => false),
+      handler: async () => value,
+    })
+
+    expect(await tool.execute(undefined, { callId: 'one' })).toBe(value)
+    expect(await tool.clone().execute(undefined, { callId: 'two' })).toBe(value)
+    expect(normalize).not.toHaveBeenCalled()
+    expectTypeOf(tool.execute).returns.toEqualTypeOf<Promise<string>>()
+    expect(await tool.getTypings()).toContain('Promise<string>')
+  })
+
+  it('leaves truncated output unchanged and reports its display policy', async () => {
+    const value = { extra: true }
+    const onTruncation = vi.fn()
+    const tool = new Tool({
+      name: 'read',
+      output: z.number(),
+      handler: async () => truncate({ value, maxTokens: 100 }),
+    })
+
+    expect(await tool.execute(undefined, { callId: 'one', onTruncation })).toBe(value)
+    expect(onTruncation).toHaveBeenCalledWith(value, expect.objectContaining({ maxTokens: 100 }))
+  })
+})
 
 describe('tool argument documentation', () => {
   it.each([
@@ -266,7 +389,7 @@ describe('tool default values', () => {
       },
     })
 
-    tool.execute({ a: 1, b: 2 }, { callId: '' })
+    await tool.execute({ a: 1, b: 2 }, { callId: '' })
 
     expect(result).toBe(3)
   })

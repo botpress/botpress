@@ -1,9 +1,9 @@
-import { transforms } from '@bpinternal/zui'
 import type { JSONSchema7Definition } from 'json-schema'
 import { AssignmentError, InvalidConfigurationError, MemoryCapacityError, ReservedIdentifierError } from '../errors.js'
 import type { Inspector } from '../inspection.js'
 import type { ObjectInstance } from '../objects.js'
 import { RESERVED_RUNTIME_NAMES } from '../runtime-names.js'
+import { toModelSchema } from '../schema.js'
 import type { ObjectMutation } from '../types.js'
 import { getTypings } from '../typings.js'
 import {
@@ -95,14 +95,7 @@ export type MemoryReport = {
 const RESERVED = RESERVED_RUNTIME_NAMES
 const DEFAULT_MAX_BYTES = 16 * 1024 * 1024
 function propertyMemorySchema(type: Parameters<typeof getTypings>[0]): JSONSchema7Definition {
-  let schema: JSONSchema7Definition
-  try {
-    schema = transforms.toJSONSchema(type) as JSONSchema7Definition
-  } catch {
-    schema = transforms.toJSONSchemaLegacy(type) as JSONSchema7Definition
-  }
-
-  return cloneMemoryValue(schema) as JSONSchema7Definition
+  return cloneMemoryValue(toModelSchema(type)) as JSONSchema7Definition
 }
 
 export class Memory {

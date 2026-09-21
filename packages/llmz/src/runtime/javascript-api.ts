@@ -13,6 +13,7 @@ import {
 } from '../errors.js'
 
 import type { Exit } from '../exit.js'
+import { parseSchemaSync } from '../schema.js'
 import { cloneMemoryValue } from '../session/memory.js'
 import { schemaToTypeScript } from '../typings.js'
 import { withMissingMember } from '../vm/member-proxy.js'
@@ -45,6 +46,8 @@ export type JavaScriptApi = {
   throwIfTerminated(): void
   track<T>(operation: () => Promise<T>): Promise<T>
   assertOpen(): void
+  /** Record validation failures and close host operations on critical configuration errors. */
+  reportError(error: unknown): void
   /** Called at program settlement, before background work can invoke another host operation. */
   complete(): void
   /** Joins automatic message delivery and business work before the iteration can settle. */
@@ -85,6 +88,14 @@ export function createJavaScriptApi({
   let interruption: ThinkSignal | undefined
   let criticalFailure: LLMzFailure | undefined
   const termination = new Error('JavaScript execution terminated.')
+
+  const reportError = (error: unknown): void => {
+    onError?.(error)
+    if (isCriticalError(error)) {
+      criticalFailure = error
+      complete()
+    }
+  }
 
   const throwIfTerminated = (): void => {
     if (criticalFailure) {
@@ -137,7 +148,7 @@ export function createJavaScriptApi({
     }
 
     const schema = registered.zSchema
-    const parsed = schema?.safeParse(value)
+    const parsed = schema ? parseSchemaSync(schema, value, `Exit "${registered.name}"`) : undefined
     if (parsed && !parsed.success) {
       throw new ExitInputError(registered.name, parsed.error.issues, schemaToTypeScript(schema!))
     }
@@ -156,7 +167,7 @@ export function createJavaScriptApi({
     try {
       outcome = validateExit(name, value)
     } catch (error) {
-      onError?.(error)
+      reportError(error)
       throw error
     }
 
@@ -252,7 +263,7 @@ export function createJavaScriptApi({
           try {
             rendered = component.render(input)
           } catch (error) {
-            onError?.(error)
+            reportError(error)
             throw error
           }
 
@@ -286,6 +297,7 @@ export function createJavaScriptApi({
     throwIfTerminated,
     track,
     assertOpen,
+    reportError,
     complete,
     close,
   }

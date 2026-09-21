@@ -7,6 +7,167 @@ import { NativeClient, javascript, nativeCall, response } from './fixtures/nativ
 const done = new Exit({ name: 'done', description: 'Finish the task.', schema: z.object({ ok: z.boolean() }) })
 const completed = () => javascript('return exit("done", { ok: true });')
 
+test('async effects on synchronous APIs stop execution even when generated code catches them', async () => {
+  try {
+    for (const quickjs of ['false', 'true']) {
+      vi.stubEnv('USE_QUICKJS', quickjs)
+      for (const source of ['exit("asyncExit", "value")', 'chat.card({ value: "value" })', 'account.value = "value"']) {
+        const schema = z.string().transform(async (value) => value)
+        const danger = vi.fn(async () => 'must not run')
+        const send = vi.fn()
+        const client = new NativeClient([
+          javascript(`try { ${source}; } catch {} await danger(); exit("done", { ok: true });`),
+        ])
+        const result = await executeContext({
+          client,
+          exits: [done, new Exit({ name: 'asyncExit', description: 'Invalid async schema.', schema })],
+          tools: [new Tool({ name: 'danger', handler: danger })],
+          chat: new Chat({
+            components: [
+              new Component({ name: 'card', description: 'Card.', props: z.object({ value: schema }), handler: send }),
+            ],
+          }),
+          objects: [
+            new ObjectInstance({
+              name: 'account',
+              properties: [{ name: 'value', type: schema, value: 'initial', writable: true }],
+            }),
+          ],
+        })
+
+        expect(result.isError()).toBe(true)
+        expect(client.requests).toHaveLength(1)
+        expect(danger).not.toHaveBeenCalled()
+        expect(send).not.toHaveBeenCalled()
+        expect(result.iterations[0]?.errors.some((error) => error.code === 'INVALID_CONFIG')).toBe(true)
+      }
+    }
+  } finally {
+    vi.unstubAllEnvs()
+  }
+})
+
+test('schema effects produce recoverable feedback and run once on corrected input', async () => {
+  const prompts: Record<string, string> = {}
+  try {
+    for (const quickjs of ['false', 'true']) {
+      vi.stubEnv('USE_QUICKJS', quickjs)
+      for (const surface of ['tool', 'exit', 'component', 'property']) {
+        const transform = vi.fn((value: string) => value.toUpperCase())
+        const schema = z
+          .string()
+          .trim()
+          .refine((value) => value === 'valid', 'Use valid runtime references')
+          .transform(transform)
+        const payload = z.object({ value: schema })
+        const finish = new Exit({
+          name: 'finish',
+          description: 'Finish.',
+          schema: surface === 'exit' ? payload : undefined,
+        })
+        const action = (value: string) => {
+          const literal = JSON.stringify(value)
+          switch (surface) {
+            case 'tool':
+              return `await save({ value: ${literal} });`
+            case 'exit':
+              return `exit("finish", { value: ${literal} });`
+            case 'component':
+              return `chat.card({ value: ${literal} });`
+            default:
+              return `account.value = ${literal};`
+          }
+        }
+        const client = new NativeClient([
+          javascript(action('invalid')),
+          javascript(action(' valid ') + (surface === 'exit' ? '' : 'exit("finish");')),
+        ])
+        const handler = vi.fn(async () => 'saved')
+        const deliver = vi.fn()
+        const exitHook = vi.fn()
+        const result = await executeContext({
+          client,
+          exits: [finish],
+          tools: [new Tool({ name: 'save', input: payload, handler })],
+          chat: new Chat({
+            components: [
+              new Component({ name: 'card', description: 'Show a card.', props: payload, handler: deliver }),
+            ],
+          }),
+          objects: [
+            new ObjectInstance({
+              name: 'account',
+              properties: [{ name: 'value', value: 'initial', type: schema, writable: true }],
+            }),
+          ],
+          onExit: exitHook,
+          options: { loop: 2 },
+        })
+
+        expect(result.is(finish)).toBe(true)
+        expect(client.requests).toHaveLength(2)
+        expect(transform).toHaveBeenCalledOnce()
+        expect(handler).toHaveBeenCalledTimes(surface === 'tool' ? 1 : 0)
+        expect(deliver).toHaveBeenCalledTimes(surface === 'component' ? 1 : 0)
+        expect(exitHook).toHaveBeenCalledOnce()
+        expect(recoveryFeedback(client)).toContain('Use valid runtime references')
+        if (surface === 'exit') {
+          expect(result.output).toEqual({ value: 'VALID' })
+          expect(exitHook.mock.calls[0]?.[0].result).toEqual({ value: 'VALID' })
+        }
+
+        // Stack mapping is covered above; snapshot the schema diagnostic itself.
+        const diagnostic = recoveryFeedback(client).match(/<error>[\s\S]*?<\/error>/)?.[0]
+        expect(diagnostic).toBeDefined()
+        if (quickjs === 'false') {
+          prompts[surface] = diagnostic!
+        } else {
+          expect(diagnostic).toBe(prompts[surface])
+        }
+      }
+    }
+  } finally {
+    vi.unstubAllEnvs()
+  }
+
+  expect(prompts).toMatchInlineSnapshot(`
+    {
+      "component": "<error>
+    Code: INVALID_COMPONENT_INPUT
+    Component "card" received invalid input:
+    - value: Use valid runtime references
+
+    Expected input (TypeScript):
+    { value: string }
+    </error>",
+      "exit": "<error>
+    Code: INVALID_EXIT_INPUT
+    Exit "finish" received invalid input:
+    - value: Use valid runtime references
+
+    Expected input (TypeScript):
+    { value: string }
+    </error>",
+      "property": "<error>
+    Code: INVALID_OBJECT_PROPERTY
+    Object property account.value received invalid input:
+    - input: Use valid runtime references
+
+    Expected input (TypeScript):
+    string
+    </error>",
+      "tool": "<error>
+    Code: INVALID_TOOL_INPUT
+    Tool "save" received invalid input:
+    - value: Use valid runtime references
+
+    Expected input (TypeScript):
+    { value: string }
+    </error>",
+    }
+  `)
+})
+
 /** Read what the next model actually received, excluding unrelated memory/budget footers. */
 function recoveryFeedback(client: NativeClient): string {
   const message = client.requests[1]!.messages.slice()

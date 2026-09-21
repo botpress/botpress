@@ -11,7 +11,8 @@ import {
   VMSignal,
 } from './errors.js'
 
-import { isTruncated, unwrapTruncated, type Truncated, type TruncationPolicy } from './truncate.js'
+import { parseSchemaAsync, schemaInput, toModelSchema } from './schema.js'
+import { isTruncated, unwrapTruncated, type TruncationPolicy } from './truncate.js'
 import { Serializable } from './types.js'
 import { getTypings as generateTypings } from './typings.js'
 import { fromJSONSchemaCompat, isJsonSchema, isValidIdentifier, isZuiSchema } from './utils.js'
@@ -57,8 +58,6 @@ type IsObject<T> = T extends object ? (T extends Function ? false : true) : fals
 /** @internal Utility type that makes object types partial, but leaves primitives unchanged */
 type SmartPartial<T> = IsObject<T> extends true ? Partial<T> : T
 
-type ToolOutput<T> = T | Truncated<T>
-
 /**
  * Context information passed to tool handlers during execution.
  *
@@ -72,6 +71,8 @@ type ToolCallContext = {
   iterationId?: string
   /** Native run_javascript call owning this invocation, when run by LLMz. */
   nativeCallId?: string
+  /** @internal Report the parsed argument without evaluating its effects again for traces. */
+  onInput?: (input: unknown) => void
   /** @internal Capture display policy while keeping the returned value ordinary JavaScript data. */
   onTruncation?: (value: unknown, policy: TruncationPolicy) => void
 }
@@ -98,7 +99,7 @@ export namespace Tool {
  *
  * ## Key Features
  * - **Type Safety**: Full TypeScript inference with Zui/Zod schema validation
- * - **Input/Output Validation**: Automatic validation of inputs and outputs against schemas
+ * - **Input Validation**: Parse inputs through their original schema; output schemas are documentation only
  * - **Retry Logic**: Built-in retry mechanisms with custom retry functions
  * - **Static Values**: Pre-configure parameters that won't change between calls
  * - **Tool Cloning**: Create variations of existing tools with modified behavior
@@ -225,7 +226,7 @@ export namespace Tool {
  *
  * Tools automatically handle:
  * - **Input validation**: Invalid inputs throw descriptive errors
- * - **Output validation**: Outputs are validated but invalid outputs are still returned
+ * - **Output hints**: Schemas describe likely outputs; results are never parsed or rejected
  * - **Handler errors**: Exceptions in handlers are caught and can trigger retries
  * - **Type coercion**: Basic type coercion where possible
  *
@@ -237,7 +238,9 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
   public aliases: string[] = []
   public description?: string
   public metadata: Record<string, unknown>
+  /** Model-facing input description; zInput retains the original validator. */
   public input?: JSONSchema7
+  /** Expected raw output shape, used for documentation only. */
   public output?: JSONSchema7
   public retry?: ToolRetryFn<TypeOf<I>>
 
@@ -284,7 +287,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
    * const unrestricted = restrictedTool.setStaticInputValues(null)
    * ```
    */
-  public setStaticInputValues(values: SmartPartial<TypeOf<I>>): this {
+  public setStaticInputValues(values: SmartPartial<z.input<I>>): this {
     if (values === null || values === undefined) {
       this._staticInputValues = undefined
       return this
@@ -318,40 +321,30 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
    * @internal
    */
   public get zInput() {
-    let input: z.ZodType
-    if (this.input) {
-      try {
-        input = transforms.fromJSONSchema(this.input)
-      } catch {
-        input = transforms.fromJSONSchemaLegacy(this.input)
-      }
+    const input = this._inputSchema ?? (this.input ? fromJSONSchemaCompat(this.input) : z.any())
+    if (isEmpty(this._staticInputValues)) {
+      return input
+    }
+
+    // Apply static overrides before parsing the original schema. Extending a
+    // reconstructed schema would discard object-level refinements and transforms.
+    const shape = schemaInput(input)
+    let overrides: z.ZodType
+    if (z.is.zuiObject(shape)) {
+      overrides = z.object(convertObjectToZuiLiterals(this._staticInputValues as StaticObject)).passthrough()
+    } else if (z.is.zuiArray(shape)) {
+      overrides = z.array(z.object(convertObjectToZuiLiterals(this._staticInputValues as StaticObject)).passthrough())
     } else {
-      input = z.any()
+      overrides = convertObjectToZuiLiterals(this._staticInputValues as Exclude<StaticValue, StaticObject>)
     }
 
-    if (!isEmpty(this._staticInputValues)) {
-      if (z.is.zuiObject(input)) {
-        const inputExtensions = convertObjectToZuiLiterals(this._staticInputValues as StaticObject)
-        input = input.extend(inputExtensions) as typeof input
-      } else if (z.is.zuiArray(input)) {
-        const inputExtensions = convertObjectToZuiLiterals(this._staticInputValues as StaticObject)
-        input = z.array((input.element as z.ZodObject).extend(inputExtensions))
-      } else {
-        // if input is z.string() or z.number() etc
-        const inputExtensions = convertObjectToZuiLiterals(
-          this._staticInputValues as Exclude<StaticValue, StaticObject>
-        )
-        input = inputExtensions as typeof input
-      }
-    }
-
-    return input
+    return overrides.pipe(input)
   }
 
   /**
-   * Gets the output schema for validation.
+   * Gets the output description as a promise schema. It is never used to parse tool results.
    *
-   * @returns The Zui schema for output validation
+   * @returns The Zui schema used to describe likely output
    * @internal
    */
   public get zOutput() {
@@ -460,29 +453,16 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
       metadata?: Record<string, unknown>
       input: IX | ((original: I | undefined) => IX)
       output: OX | ((original: O | undefined) => OX)
-      staticInputValues?: SmartPartial<TypeOf<IX>>
-      handler: (args: TypeOf<IX>, ctx: ToolCallContext) => Promise<ToolOutput<TypeOf<OX>>>
+      staticInputValues?: SmartPartial<z.input<IX>>
+      handler: (args: TypeOf<IX>, ctx: ToolCallContext) => Promise<unknown>
       retry: ToolRetryFn<TypeOf<IX>>
     }> = {}
   ): Tool<IX, OX> {
     try {
-      let zInput: I | undefined
-      if (this.input) {
-        try {
-          zInput = transforms.fromJSONSchema(this.input) as unknown as I
-        } catch {
-          zInput = transforms.fromJSONSchemaLegacy(this.input) as unknown as I
-        }
-      }
-
-      let zOutput: O | undefined
-      if (this.output) {
-        try {
-          zOutput = transforms.fromJSONSchema(this.output) as unknown as O
-        } catch {
-          zOutput = transforms.fromJSONSchemaLegacy(this.output) as unknown as O
-        }
-      }
+      const zInput = (this._inputSchema ?? (this.input ? fromJSONSchemaCompat(this.input) : undefined)) as I | undefined
+      const zOutput = (this._outputSchema ?? (this.output ? fromJSONSchemaCompat(this.output) : undefined)) as
+        | O
+        | undefined
 
       let input = zInput as unknown as IX
       if (typeof props.input === 'function') {
@@ -505,16 +485,16 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
         metadata: JSON.parse(JSON.stringify(props.metadata ?? this.metadata)),
         input,
         output,
-        handler: (props.handler ?? this._handler) as (
-          args: TypeOf<IX>,
-          ctx: ToolCallContext
-        ) => Promise<ToolOutput<TypeOf<OX>>>,
+        handler: (props.handler ?? this._handler) as (args: TypeOf<IX>, ctx: ToolCallContext) => Promise<unknown>,
         retry: props.retry ?? this.retry,
       }).setStaticInputValues((props.staticInputValues as any) ?? (this._staticInputValues as any))
     } catch (e) {
       throw new InvalidToolError(`Failed to clone tool "${this.name}": ${e}`)
     }
   }
+
+  private _inputSchema?: z.ZodType
+  private _outputSchema?: z.ZodType
 
   private _handler: (args: unknown, ctx: ToolCallContext) => Promise<unknown>
 
@@ -525,7 +505,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
    * @param props.name - Unique tool name (must be valid TypeScript identifier)
    * @param props.description - Human-readable description for the LLM
    * @param props.input - Zui/Zod schema for input validation (optional)
-   * @param props.output - Zui/Zod schema for output validation (optional)
+   * @param props.output - Schema describing likely raw output; never used for validation or normalization
    * @param props.handler - Async function that implements the tool logic
    * @param props.aliases - Alternative names for the tool (optional)
    * @param props.metadata - Additional metadata for the tool (optional)
@@ -601,8 +581,8 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
     metadata?: Record<string, unknown>
     input?: I
     output?: O
-    staticInputValues?: Partial<TypeOf<I>>
-    handler: (args: TypeOf<I>, ctx: ToolCallContext) => Promise<ToolOutput<TypeOf<O>>>
+    staticInputValues?: SmartPartial<z.input<I>>
+    handler: (args: TypeOf<I>, ctx: ToolCallContext) => Promise<unknown>
     retry?: ToolRetryFn<TypeOf<I>>
   }) {
     if (!props || typeof props !== 'object' || Array.isArray(props)) {
@@ -646,9 +626,10 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
     if (typeof props.input !== 'undefined') {
       if (isZuiSchema(props.input)) {
         try {
-          this.input = transforms.toJSONSchema(props.input)
-        } catch {
-          this.input = transforms.toJSONSchemaLegacy(props.input)
+          this.input = toModelSchema(props.input)
+          this._inputSchema = props.input
+        } catch (cause) {
+          throw new InvalidToolError(`Cannot describe input schema for tool ${props.name}: ${String(cause)}`, { cause })
         }
       } else if (isJsonSchema(props.input)) {
         this.input = props.input
@@ -662,9 +643,12 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
     if (typeof props.output !== 'undefined') {
       if (isZuiSchema(props.output)) {
         try {
-          this.output = transforms.toJSONSchema(props.output)
-        } catch {
-          this.output = transforms.toJSONSchemaLegacy(props.output)
+          this.output = toModelSchema(props.output)
+          this._outputSchema = props.output
+        } catch (cause) {
+          throw new InvalidToolError(`Cannot describe output schema for tool ${props.name}: ${String(cause)}`, {
+            cause,
+          })
         }
       } else if (isJsonSchema(props.output)) {
         this.output = props.output
@@ -687,7 +671,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
   /**
    * Executes the tool with the given input and context.
    *
-   * This method handles input validation, retry logic, output validation, and error handling.
+   * This method parses inputs and handles retries. Output schemas are hints: results pass through unchanged.
    * It's called internally by the LLMz execution engine when generated code calls the tool.
    *
    * @param input - Input data to pass to the tool handler
@@ -708,18 +692,20 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
    *
    * @internal This method is primarily used internally by the LLMz execution engine
    */
-  public async execute(rawInput: TypeOf<I>, ctx: ToolCallContext): Promise<TypeOf<O>> {
+  public async execute(rawInput: z.input<I>, ctx: ToolCallContext): Promise<z.input<O>> {
     const schema = this.zInput
-    const isZodObject = (schema as any)._def.typeName === 'ZodObject'
+    const isZodObject = z.is.zuiObject(schemaInput(schema))
     const input = isZodObject ? (rawInput ?? {}) : rawInput
 
-    const pInput = schema.safeParse(input)
+    const pInput = await parseSchemaAsync(schema, input, `Tool "${this.name}" input`)
 
     if (!pInput.success) {
-      const expectedInput = await generateTypings(schema)
+      const expectedInput = await generateTypings(this._inputSchema ?? schema)
       const issues = pInput.error.issues.map(({ path, message }) => ({ path, message }))
       throw new ToolInputError(this.name, issues, expectedInput)
     }
+
+    ctx.onInput?.(pInput.data)
 
     let attempt = 0
     let lastError: unknown
@@ -729,8 +715,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
         const result = await this._handler(pInput.data, ctx)
         const policy = isTruncated(result) ? result.$$truncate : undefined
         const value = unwrapTruncated(result)
-        const pOutput = (this.zOutput as any).safeParse(value)
-        const output = pOutput.success ? pOutput.data : value
+        const output = value as z.input<O>
 
         if (!policy) {
           return output
@@ -779,6 +764,13 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
       } catch {
         input = transforms.fromJSONSchemaLegacy(this.input)
       }
+    }
+
+    // JSON Schema has no undefined value. Keep no-argument schemas explicit
+    // instead of advertising any and then rejecting the model's empty object.
+    const originalInput = this._inputSchema && schemaInput(this._inputSchema)
+    if (originalInput && (z.is.zuiVoid(originalInput) || z.is.zuiUndefined(originalInput))) {
+      input = originalInput
     }
 
     // Handle void output specially - when z.void() is converted to JSON Schema ({}),
@@ -888,7 +880,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
   }
 
   /**
-   * Converts the tool to its JSON representation.
+   * Serializes model-facing descriptions, not JavaScript validators. Use clone() to retain schema effects.
    *
    * @returns JSON representation of the Tool instance
    */
