@@ -31,7 +31,6 @@
     "test:e2e": "pnpm check:e2e:type && vitest run --config vitest.e2e.config.ts",
     "test:e2e:update": "vitest -u run --config vitest.e2e.config.ts",
     "test:e2e:watch": "vitest --config vitest.e2e.config.ts",
-    "review:protocol": "tsc -p scripts/protocol-review/tsconfig.json && node --import tsx scripts/review-protocol.mts",
     "check:format": "oxfmt --check .",
     "fix:format": "oxfmt .",
     "check:lint": "oxlint -c .oxlintrc.json src",
