@@ -47,6 +47,33 @@ describe('session variable instrumentation', () => {
     expect(result.output).toContain('__var__("state"')
     expect(result.output).toContain('"mutation"')
   })
+
+  it('discovers function-scoped var bindings in blocks and loop headers', () => {
+    const result = transform(`
+      if (true) { var count = 2; }
+      for (var index = 0; index < 2; index++) {}
+      for (var { id, ...rest } of rows) { let temporary = id; }
+      for (var key in record) continue;
+      if (false) var unused;
+    `)
+    expect(result.variables).toEqual(['count', 'index', 'id', 'rest', 'key', 'unused'])
+    for (const name of result.variables) {
+      expect(result.output).toContain(`__var__("${name}"`)
+    }
+
+    expect(result.output).not.toContain('__var__("temporary"')
+  })
+
+  it('keeps var bindings inside functions and class static blocks private', () => {
+    const result = transform(`
+      function f() { if (true) { var privateFunction = 1; } }
+      const callback = () => { var privateCallback = 2; };
+      class Example { static { var privateStatic = 3; privateStatic++; } }
+    `)
+    expect(result.variables).toEqual(['callback'])
+    expect(result.output).not.toMatch(/__var__\("private/)
+  })
+
   it('rejects reserved bindings and writes', () => {
     for (const code of [
       'const $return = 1',

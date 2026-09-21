@@ -107,6 +107,64 @@ for (const driver of ['true', 'false']) {
       expect(result.variableWrites).toEqual([])
     })
 
+    it.each([
+      { code: 'if (true) { var count = 2; }', value: 2, writes: 1 },
+      { code: 'if (true) var count = 2; else var count = 3;', value: 2, writes: 1 },
+      { code: 'if (true) { var { value: count } = { value: 2 }; }', value: 2, writes: 1 },
+      { code: 'for (var count = 0; count < 2; count++) {}', value: 2, writes: 3 },
+      { code: 'for (var count; false;) {}', value: undefined, writes: 0 },
+      { code: 'for (var count of [1, 2]) continue;', value: 2, writes: 2 },
+      { code: 'for (var count in { a: 1, b: 2 }) {}', value: 'b', writes: 2 },
+      { code: 'for (var { value: count } of [{ value: 2 }]) {}', value: 2, writes: 1 },
+      { code: 'for (var count of []) {}', value: undefined, writes: 0 },
+      { code: 'outer: for (var count of [1, 2]) { break outer; }', value: 1, writes: 1 },
+      { code: 'for await (var count of [1, 2]) {}', value: 2, writes: 2 },
+      { code: 'if (false) { var count = 2; }', value: undefined, writes: 0 },
+      { code: '{ var count; }', value: undefined, writes: 0 },
+      { code: 'var count = 2; { var count; }', value: 2, writes: 1 },
+      { code: 'try { throw 1; } catch (count) { var count = 2; }', value: undefined, writes: 0 },
+    ])('captures session var bindings without changing semantics: $code', async ({ code, value, writes }) => {
+      const result = await runAsyncFunction({}, `${code} return count;`)
+
+      expect(result.success).toBe(true)
+      expect(result.success && result.return_value).toBe(value)
+      expect(result.variables).toEqual({ count: value })
+      expect(result.variableWrites?.filter((write) => write.name === 'count')).toHaveLength(writes)
+      expect(result.captureErrors).toEqual([])
+    })
+
+    it('retains completed nested initializers when a later initializer fails', async () => {
+      const result = await runAsyncFunction(
+        {},
+        'if (true) { var first = 2, second = (() => { throw new Error("stop"); })(); }'
+      )
+      expect(result.success).toBe(false)
+      expect(result.variables).toEqual({ first: 2, second: undefined })
+      expect(result.variableWrites?.map((write) => write.name)).toEqual(['first'])
+    })
+
+    it('keeps loop-body shadows, function var and class static var out of session memory', async () => {
+      const result = await runAsyncFunction(
+        {},
+        `
+        if (true) { var count = 2; }
+        for (var item of [1, 2]) { let item = 9; item++; }
+        function local() { var count = 100; count++; }
+        local();
+        class Example { static { var count = 200; count++; } }
+        { let count = 300; count++; }
+        for (let index = 0; index < 2; index++) {}
+        for (const hidden of [1, 2]) {}
+        switch (count) { case 2: let hidden = 9; hidden++; }
+        return count;
+        `
+      )
+      expect(result.success).toBe(true)
+      expect(result.success && result.return_value).toBe(2)
+      expect(result.variables).toEqual({ count: 2, item: 2 })
+      expect(result.variableWrites?.map((write) => write.name)).toEqual(['count', 'item', 'item'])
+    })
+
     it('preserves undefined object properties and rejects lossy unsupported results', async () => {
       const exact = await runAsyncFunction({}, 'const data = { x: undefined, rows: [undefined] }; return data')
       expect(exact.success && exact.return_value).toEqual({

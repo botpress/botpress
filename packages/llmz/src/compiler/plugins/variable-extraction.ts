@@ -53,6 +53,8 @@ export function applyVariableTracking(ctx: Ctx, variables: Set<string>, deferSuf
   ) as AnyNode | undefined
   const root = wrapper?.body ?? ctx.ast
   const scopes = new Map<AnyNode, Set<string>>()
+  const sessionDeclarations = new Set<AnyNode>()
+  const varBindings = new Set<string>()
   const scope = (node: AnyNode): Set<string> => {
     if (!scopes.has(node)) {
       scopes.set(node, new Set())
@@ -67,9 +69,11 @@ export function applyVariableTracking(ctx: Ctx, variables: Set<string>, deferSuf
         (node) =>
           node === root ||
           node.type === 'Program' ||
+          node.type === 'StaticBlock' ||
           FUNCTION_TYPES.has(node.type) ||
           (!isVar &&
             (node.type === 'BlockStatement' ||
+              node.type === 'SwitchStatement' ||
               node.type === 'CatchClause' ||
               node.type === 'ForStatement' ||
               node.type === 'ForOfStatement' ||
@@ -79,14 +83,17 @@ export function applyVariableTracking(ctx: Ctx, variables: Set<string>, deferSuf
     let declared: string[] = []
     if (node.type === 'VariableDeclarator') {
       declared = names(node.id)
+      const bindingScope = owner(ancestors, parent?.kind === 'var')
       for (const name of declared) {
-        scope(owner(ancestors, parent?.kind === 'var')).add(name)
+        scope(bindingScope).add(name)
       }
 
-      if (ancestors[ancestors.length - 2] === root) {
-        for (const name of declared) {
-          if (!name.startsWith('__')) {
-            variables.add(name)
+      if (bindingScope === root) {
+        sessionDeclarations.add(node)
+        for (const name of declared.filter((name) => !name.startsWith('__'))) {
+          variables.add(name)
+          if (parent?.kind === 'var') {
+            varBindings.add(name)
           }
         }
       }
@@ -145,8 +152,23 @@ export function applyVariableTracking(ctx: Ctx, variables: Set<string>, deferSuf
     )
     suffixes.unshift(() => ctx.ms.appendRight(node.end, bindingNames.map(() => `), ${JSON.stringify(kind)})`).join('')))
   }
+
+  // A var binding exists throughout the function, even when its declaration is
+  // in an untaken branch or has no initializer. Capture it from the root scope
+  // without reporting a write or inserting statements into a loop header.
+  const varGetters = [...varBindings]
+    .map(
+      (name) =>
+        `${VariableTrackingFnIdentifier}(${JSON.stringify(name)}, () => eval(${JSON.stringify(name)}), undefined, "initialize");`
+    )
+    .join('')
+  const entry = root.body.find((node: AnyNode) => !node.directive)
+  if (entry && varGetters) {
+    ctx.ms.appendLeft(entry.start, varGetters)
+  }
+
   walk(ctx.ast, (node, parent, ancestors) => {
-    if (node.type === 'VariableDeclaration' && parent === root) {
+    if (node.type === 'VariableDeclaration' && parent === root && node.kind !== 'var') {
       const declared = node.declarations
         .flatMap((declaration: AnyNode) => names(declaration.id))
         .filter((name: string) => variables.has(name))
@@ -161,17 +183,39 @@ export function applyVariableTracking(ctx: Ctx, variables: Set<string>, deferSuf
       )
     }
 
-    if (node.type === 'VariableDeclarator' && ancestors[ancestors.length - 2] === root) {
-      const declared = names(node.id).filter((name) => variables.has(name))
+    if (node.type === 'VariableDeclarator' && sessionDeclarations.has(node)) {
+      const declared = names(node.id).filter((name) => variables.has(name) && eligible(name, ancestors))
       if (node.init) {
         wrap(node.init, declared)
-      } else if (parent) {
+      } else if (parent && parent.kind !== 'var') {
         const trackers = declared
           .map(
             (name) => `${VariableTrackingFnIdentifier}(${JSON.stringify(name)}, () => eval(${JSON.stringify(name)}));`
           )
           .join('')
         ctx.ms.appendRight(parent.end, `${ctx.code[parent.end - 1] === ';' ? '' : ';'}${trackers}`)
+      }
+    }
+
+    if (
+      (node.type === 'ForOfStatement' || node.type === 'ForInStatement') &&
+      node.left.type === 'VariableDeclaration'
+    ) {
+      const declared = node.left.declarations
+        .filter((declaration: AnyNode) => sessionDeclarations.has(declaration))
+        .flatMap((declaration: AnyNode) => names(declaration.id))
+        .filter((name: string) => eligible(name, ancestors))
+      if (declared.length) {
+        // The loop assigns its binding before entering the body. An extra block
+        // keeps single statements, labels, continue and break semantics intact.
+        const trackers = declared
+          .map(
+            (name: string) =>
+              `${VariableTrackingFnIdentifier}(${JSON.stringify(name)}, () => eval(${JSON.stringify(name)}));`
+          )
+          .join('')
+        ctx.ms.appendLeft(node.body.start, `{${trackers}`)
+        suffixes.unshift(() => ctx.ms.appendRight(node.body.end, '}'))
       }
     }
 

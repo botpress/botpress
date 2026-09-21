@@ -168,6 +168,34 @@ describe.each([
     expect(result.iterations.every((iteration) => !iteration.error)).toBe(true)
   })
 
+  test('persists nested var writes across iterations and executions', async () => {
+    const session = new Session({ variables: { count: 1 } })
+    const completed = new Exit({
+      name: 'completed',
+      description: 'Return the retained counter.',
+      schema: z.object({ count: z.number() }),
+    })
+    const client = new NativeClient([
+      javascript('if (true) { var count = 2; } return inspect(count);'),
+      javascript('exit("completed", { count });'),
+    ])
+    const result = await executeContext({ client, session, exits: [completed], options: { loop: 2 } })
+
+    expect(result.is(completed)).toBe(true)
+    expect(result.output).toEqual({ count: 2 })
+    expect(session.memory.variables.count).toBe(2)
+    expect(result.iterations.every((iteration) => !iteration.error)).toBe(true)
+    expect(feedback(client, 1)).toContain('Updated: count')
+
+    const next = await executeContext({
+      client: new NativeClient([javascript('exit("completed", { count });')]),
+      session,
+      exits: [completed],
+    })
+    expect(next.is(completed)).toBe(true)
+    expect(next.output).toEqual({ count: 2 })
+  })
+
   test('points unknown callable names back to the documented API without creating fake functions', async () => {
     const fixture = orderTools()
     const client = new NativeClient([
