@@ -22,6 +22,57 @@ describe.each([
     vi.unstubAllEnvs()
   })
 
+  describe.each([
+    { name: 'non-streaming', streaming: false, previews: false },
+    { name: 'streaming without previews', streaming: true, previews: false },
+    { name: 'streaming with previews', streaming: true, previews: true },
+  ])('$name', ({ streaming, previews }) => {
+    test.each(['', '   ', '\t\r\n', '\u00a0\u2003\u2028'])(
+      'does not deliver blank text %j alongside a component',
+      async (text) => {
+        const handler = vi.fn()
+        const component = vi.fn()
+        const responses = [
+          response(text, [
+            nativeCall('run_javascript', {
+              code: 'chat.buttons([{ label: "Continue" }]); return exit("listen");',
+            }),
+          ]),
+        ]
+        const result = await executeContext({
+          client: streaming ? new NativeStreamClient(responses, 1) : new NativeClient(responses),
+          chat: new Chat({
+            response: { handler, onDelta: previews ? vi.fn() : undefined },
+            components: [DefaultComponents.Buttons.withHandler(component)],
+          }),
+        })
+
+        expect(result.is(ListenExit)).toBe(true)
+        expect(handler).not.toHaveBeenCalled()
+        expect(component).toHaveBeenCalledOnce()
+        expect(result.iteration?.traces.filter((trace) => trace.type === 'message_delivery')).toEqual([
+          expect.objectContaining({ value: expect.objectContaining({ type: 'component' }), success: true }),
+        ])
+      }
+    )
+
+    test('skips blank responses during recovery and preserves non-empty text exactly', async () => {
+      const handler = vi.fn()
+      const text = '\n  Hello. \t\n'
+      const responses = [response(' \t\n'), response(text)]
+      const client = streaming ? new NativeStreamClient(responses, 1) : new NativeClient(responses)
+      const result = await executeContext({
+        client,
+        chat: new Chat({ response: { handler, onDelta: previews ? vi.fn() : undefined } }),
+      })
+
+      expect(result.is(ListenExit)).toBe(true)
+      expect(client.requests).toHaveLength(2)
+      expect(handler).toHaveBeenCalledOnce()
+      expect(handler).toHaveBeenCalledWith(text, expect.any(Object))
+    })
+  })
+
   test.each<ResponsePreset>(['markdown', 'text', 'speech'])(
     'streams one canonical text response using the %s preset',
     async (preset) => {

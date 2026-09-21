@@ -1,6 +1,6 @@
 import { beforeAll } from 'vitest'
-import { init } from './src/utils.js'
 import { cacheMode } from './e2e/__tests__/cached-cognitive.js'
+import { init } from './src/utils.js'
 
 beforeAll(async () => {
   await init()

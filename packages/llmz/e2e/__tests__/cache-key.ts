@@ -1,5 +1,5 @@
-import { createHash } from 'node:crypto'
 import type { CognitiveMessage, CognitiveRequest } from '@botpress/cognitive'
+import { createHash } from 'node:crypto'
 
 const BUSINESS_CALL_HEADER = 'BUSINESS CALL OUTCOMES\n'
 const BUSINESS_CALL_LINE =

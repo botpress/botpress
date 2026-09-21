@@ -318,14 +318,14 @@ async function rejectNativeBatch(
 
 async function deliverAssistantText(state: IterationExecution, generated: NativeGeneration): Promise<void> {
   const { ctx, iteration } = state
-  if (!generated.output || !ctx.chat) {
+  if (!generated.output.trim() || !ctx.chat) {
     return
   }
 
   const startedAt = Date.now()
   const message: AssistantTextMessage = { type: 'text', text: generated.output }
 
-  await iteration.response?.handler?.(generated.output, generated.messageMetadata)
+  await iteration.response?.handler?.(generated.output.trim(), generated.messageMetadata)
   iteration.recordTrace({
     type: 'message_delivery',
     value: message,

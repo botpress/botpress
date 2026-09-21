@@ -7,7 +7,7 @@ import { CachedCognitive, cacheMode } from './cached-cognitive.js'
 // Opt-in, one requested model and no test retries. Fallbacks require explicit configuration.
 // Record actual model metadata: the gateway may still route to another provider.
 // Refresh mode bypasses caches; ordinary runs replay recorded responses and preserve route assertions.
-export const models = (process.env.LLMZ_EVAL_MODELS ?? '')
+export const models = (process.env.LLMZ_EVAL_MODELS ?? 'openai:gpt-5.6-luna, cerebras:qwen-3.8-27b')
   .split(',')
   .map((model) => model.trim())
   .filter(Boolean)

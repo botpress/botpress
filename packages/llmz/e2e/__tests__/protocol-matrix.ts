@@ -1,13 +1,13 @@
 import type { CognitiveToolCall } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 
+import { createComponentRegistry } from '../../src/chat/component.js'
 import { DefaultComponents, Exit, ListenExit, Tool, execute } from '../../src/index.js'
 import type { LLMzPrompts } from '../../src/prompts/prompt.js'
 import { NativeClient, response } from '../../src/runtime/fixtures/native-client.js'
 import { protocolLanguages } from '../../src/runtime/fixtures/protocol-languages.js'
 import { validateNativeToolCalls } from '../../src/runtime/native-tools.js'
 import type { Transcript } from '../../src/session/transcript.js'
-import { createComponentRegistry } from '../../src/chat/component.js'
 
 import { createTestChat } from './chat.js'
 import { protocolScenario } from './protocol-scenarios.js'

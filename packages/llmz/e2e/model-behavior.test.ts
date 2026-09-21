@@ -104,7 +104,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         const blocked = scenario === 'silent-blocked'
         const updates = scenario.startsWith('updates-')
         const update = 'Retrying the account lookup.'
-        const request = `After each failed lookup, send exactly "${update}" before trying again.`
+        const request = `After each failed lookup, send exactly "${update}" and then try again.`
         const lookupAccount = new Tool({
           name: 'lookupAccount',
           description: 'Reads the current account information.',
@@ -405,7 +405,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         client,
         model: model as Models,
         instructions:
-          'Answer product questions using the knowledge base. If no useful evidence is found, try a different query before answering.',
+          'Answer product questions using the knowledge base. If no useful evidence is found, try a different query before answering. Perform one search at a time.',
 
         tools: [searchKnowledge],
         chat: createTestChat({
