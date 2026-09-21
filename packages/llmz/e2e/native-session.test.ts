@@ -110,7 +110,11 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
         }),
       })
       restored.append([
-        { role: 'user', content: 'Audit the restored memory using JavaScript. Do not reread the account.' },
+        {
+          role: 'user',
+          content:
+            'Capture the restored memory as it stands now, then return that exact snapshot. Do not reread the account.',
+        },
       ])
 
       const second = await execute({
@@ -124,9 +128,11 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
         exits: [verified],
 
         instructions: [
-          'The previous turn completed. This is a new memory audit task.',
-          'Call run_javascript once with: return inspect({ accountId: account.id, latestSequence: $return.sequence, previousSequence: $iterations[1].result.sequence, retainedSequences: $iterations.filter(entry => entry.hasResult).map(entry => entry.result.sequence), latestHasResult: $iterations[0].hasResult });',
-          'Then call run_javascript with: return exit("verified", $return); Do not call readAccount or rerun prior code.',
+          'The previous turn completed. Capture a point-in-time snapshot of the restored memory in exactly two responses.',
+          'The fields refer to memory before this audit starts. previousSequence means the sequence at the literal history index [1], not the previous distinct sequence number. History includes completion entries without results.',
+          'First call run_javascript with exactly: const audit = { accountId: account.id, latestSequence: $return.sequence, previousSequence: $iterations[1].result.sequence, retainedSequences: $iterations.filter(entry => entry.hasResult).map(entry => entry.result.sequence), latestHasResult: $iterations[0].hasResult }; return inspect(audit);',
+          'Inspection itself adds a history entry and replaces $return with the audit. That is expected: do not inspect history again, recompute the snapshot, or correct its fields based on the newer history.',
+          'Once the audit has been inspected, call run_javascript with exactly: return exit("verified", $return); Return the computed snapshot unchanged, without adding fields or substituting literal values. Do not call readAccount or rerun prior code.',
         ].join('\n'),
       })
 
