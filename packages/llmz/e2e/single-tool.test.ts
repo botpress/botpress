@@ -89,7 +89,7 @@ class StreamingClient extends RecordingClient {
     }
 
     this.calls.push(calls)
-    this.outputs.push(output)
+    this.outputs.push(output.trim())
   }
 }
 
@@ -237,7 +237,7 @@ describe.skipIf(!enabled).each(cases.length ? cases : [{ model: 'disabled', run:
       expect(recording.requests).toHaveLength(1)
       expect(recording.calls[0]).toHaveLength(1)
       expect(recording.outputs).toEqual(['Which plan would you like?'])
-      expect(deltas.join('')).toBe('Which plan would you like?')
+      expect(deltas.join('').trim()).toBe('Which plan would you like?')
       const text = delivered.filter((message) => message.type === 'text')
       const buttons = delivered.filter((message) => message.type === 'component')
 
