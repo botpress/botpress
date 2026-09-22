@@ -3,7 +3,7 @@ import { ulid } from 'ulid'
 
 import { Iteration } from '../context.js'
 import { callHook } from '../errors/hooks.js'
-import { isLLMzError, ThinkSignal, ToolExecutionError } from '../errors.js'
+import { HookError, isLLMzError, ThinkSignal, ToolExecutionError } from '../errors.js'
 import { snapshotInspectionValue } from '../inspection.js'
 
 import { type Tool } from '../tool.js'
@@ -115,6 +115,12 @@ export function wrapTool({
         })
       )
 
+      if (ThinkSignal.is(beforeRes)) {
+        throw new HookError(
+          'Tool hooks cannot request inspection with ThinkSignal. Return it from the tool handler instead.'
+        )
+      }
+
       if (typeof beforeRes?.input !== 'undefined') {
         effectiveInput = beforeRes.input
       }
@@ -161,23 +167,36 @@ export function wrapTool({
         })
       )
 
+      if (ThinkSignal.is(afterRes) || ThinkSignal.is(afterRes?.output)) {
+        throw new HookError(
+          'Tool hooks cannot request inspection with ThinkSignal. Return it from the tool handler instead.'
+        )
+      }
+
       if (typeof afterRes?.output !== 'undefined') {
-        output = unwrapSignal(afterRes.output)
+        output = afterRes.output
       }
+
+      controller.signal.throwIfAborted()
     } catch (err) {
+      success = false
+      // A rejected output must not reach guest memory, traces, or forced inspection.
+      output = undefined
       if (ThinkSignal.is(err)) {
-        output = unwrapSignal(err)
+        error = new HookError(
+          'Tool hooks cannot request inspection with ThinkSignal. Return it from the tool handler instead.'
+        )
       } else {
-        success = false
         error = isLLMzError(err) ? err : new ToolExecutionError(tool.name, err)
-        iteration.recordError(error)
       }
+
+      iteration.recordError(error)
     } finally {
       clearTimeout(alertSlowTool)
-      for (const inspection of inspections) {
+      for (const inspection of success ? inspections : []) {
         // Hooks may redact or replace a successful result. Inspect the effective
         // value, and snapshot it before guest code can mutate the returned object.
-        const value = snapshotInspectionValue(success ? output : inspection.value)
+        const value = snapshotInspectionValue(output)
         onThink?.({ ...inspection, value })
         iteration.recordTrace({
           type: 'think_signal',

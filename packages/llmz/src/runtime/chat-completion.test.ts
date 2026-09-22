@@ -1,9 +1,10 @@
 import { z } from '@bpinternal/zui'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
+import { Chat } from '../chat/chat.js'
 import { DefaultComponents } from '../chat/component.default.js'
 import { ListenExit } from '../context.js'
-import { Exit, LoopExceededError, Session, Tool } from '../index.js'
+import { Exit, LoopExceededError, MissingChatResponseError, Session, Tool } from '../index.js'
 import { executeContext } from './execute.js'
 import { createRecordingChat } from './fixtures/chat.js'
 import { NativeClient, NativeStreamClient, javascript, response } from './fixtures/native-client.js'
@@ -179,4 +180,18 @@ test('rejects a non-boolean requireChatResponse before generation', async () => 
   const result = await executeContext({ client, options: { requireChatResponse: 'false' as unknown as boolean } })
   expect(result.isError() && result.error.code).toBe('INVALID_CONFIG')
   expect(client.requests).toHaveLength(0)
+})
+
+test.each([false, true])('text without a handler is not a delivery (opt out: %s)', async (optOut) => {
+  const result = await executeContext({
+    client: new NativeClient([response('Generated, but not delivered.')]),
+    chat: new Chat(),
+    options: { loop: 1, requireChatResponse: !optOut },
+  })
+  expect(result.is(ListenExit)).toBe(optOut)
+  expect(result.session.lastSpeaker).toBeNull()
+  expect(result.iterations[0]?.traces.filter((trace) => trace.type === 'message_delivery')).toEqual([])
+  if (!optOut) {
+    expect(MissingChatResponseError.is(result.iterations[0]?.exception)).toBe(true)
+  }
 })

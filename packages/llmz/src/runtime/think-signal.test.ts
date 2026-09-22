@@ -295,6 +295,29 @@ describe.each([
     expect(result.session.memory.variables.result).toEqual({ stock: 4 })
   })
 
+  test.each(['thrown', 'returned'] as const)(
+    'withholds a %s signal when the output hook rejects it',
+    async (delivery) => {
+      const { tool } = search(delivery, { secret: 'REJECTED_EVIDENCE' })
+      const client = new NativeClient([javascript('const result = await search(); return inspect(result);'), finish])
+      const result = await executeContext({
+        client,
+        tools: [tool],
+        exits: [done],
+        options: { loop: 2 },
+        onAfterTool: () => {
+          throw new Error('Output policy rejected this result.')
+        },
+      })
+      expect(result.is(done)).toBe(true)
+      expect(result.iterations[0]?.status.type).toBe('execution_error')
+      expect(result.iterations[0]?.traces.some((trace) => trace.type === 'think_signal')).toBe(false)
+      expect(feedback(client)).not.toContain('<forced_inspection>')
+      expect(JSON.stringify(client.requests[1])).not.toContain('REJECTED_EVIDENCE')
+      expect(JSON.stringify(result.session.memory.variables)).not.toContain('REJECTED_EVIDENCE')
+    }
+  )
+
   test.each(['critical error', 'cancellation'] as const)(
     'never overrides %s with forced inspection',
     async (failure) => {

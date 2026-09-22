@@ -2,7 +2,7 @@ import { z } from '@bpinternal/zui'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Iteration } from '../context.js'
-import { ThinkSignal } from '../errors.js'
+import { HookError, ThinkSignal } from '../errors.js'
 import { Tool } from '../tool.js'
 import { wrapTool } from './tool-wrapper.js'
 
@@ -121,6 +121,68 @@ describe('wrapTool', () => {
       success: false,
     })
     expect((traces[0] as any).error).toBeInstanceOf(Error)
+  })
+
+  test.each(['before', 'after', 'after output'] as const)('rejects ThinkSignal from a %s hook', async (phase) => {
+    const iteration = createIteration()
+    const handler = vi.fn(async () => new ThinkSignal('Tool result', { secret: 'tool-value' }))
+    const onThink = vi.fn()
+    const signal = new ThinkSignal('Hook signal', { secret: 'hook-value' })
+    const wrapped = wrapTool({
+      tool: new Tool({ name: 'lookup', handler }),
+      iteration,
+      controller: new AbortController(),
+      onThink,
+      beforeHook:
+        phase === 'before'
+          ? () => {
+              throw signal
+            }
+          : undefined,
+      afterHook: async () => {
+        if (phase === 'after') {
+          throw signal
+        }
+
+        if (phase === 'after output') {
+          return { output: signal }
+        }
+
+        return undefined
+      },
+    })
+    await expect(wrapped(undefined)).rejects.toSatisfy(HookError.is)
+    expect(handler).toHaveBeenCalledTimes(phase === 'before' ? 0 : 1)
+    expect(onThink).not.toHaveBeenCalled()
+    expect(iteration.traces).toMatchObject([{ type: 'tool_call', success: false, output: undefined }])
+    expect(JSON.stringify(iteration.traces)).not.toContain('tool-value')
+    expect(JSON.stringify(iteration.traces)).not.toContain('hook-value')
+  })
+
+  test('does not publish a ThinkSignal result rejected by the output hook', async () => {
+    const iteration = createIteration()
+    const onThink = vi.fn()
+    const onResult = vi.fn()
+    const wrapped = wrapTool({
+      tool: new Tool({
+        name: 'lookup',
+        handler: async () => {
+          throw new ThinkSignal('Inspect', { secret: 'withheld' })
+        },
+      }),
+      iteration,
+      controller: new AbortController(),
+      onThink,
+      onResult,
+      afterHook: () => {
+        throw new Error('Output rejected')
+      },
+    })
+    await expect(wrapped(undefined)).rejects.toThrow('Output rejected')
+    expect(onThink).not.toHaveBeenCalled()
+    expect(onResult).not.toHaveBeenCalled()
+    expect(iteration.traces).toMatchObject([{ type: 'tool_call', success: false, output: undefined }])
+    expect(JSON.stringify(iteration.traces)).not.toContain('withheld')
   })
 
   test('traces ThinkSignal as successful and returns its context', async () => {

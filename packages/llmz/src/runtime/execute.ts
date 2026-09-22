@@ -371,7 +371,7 @@ async function rejectNativeBatch(
 
 async function deliverAssistantText(state: IterationExecution, generated: NativeGeneration): Promise<void> {
   const { ctx, iteration } = state
-  if (!generated.output.trim() || !ctx.chat) {
+  if (!generated.output.trim() || !ctx.chat || !iteration.response?.handler) {
     return
   }
 
@@ -379,7 +379,7 @@ async function deliverAssistantText(state: IterationExecution, generated: Native
   const message: AssistantTextMessage = { type: 'text', text: generated.output }
 
   try {
-    await iteration.response?.handler?.(generated.output.trim(), generated.messageMetadata)
+    await iteration.response.handler(generated.output.trim(), generated.messageMetadata)
   } catch (cause) {
     if (isCriticalError(cause)) {
       throw cause

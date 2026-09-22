@@ -8,7 +8,9 @@ test('mock summarization is deterministic and compaction preserves memory and qu
   const client = new NativeClient([response('Museum first.'), response('Walk next.')])
   for (const content of ['Visit Quebec City for 300 CAD.', 'I enjoy museums.']) {
     session.append({ role: 'user', content })
-    expect((await execute({ client, session, chat: new Chat() })).isSuccess()).toBe(true)
+    expect(
+      (await execute({ client, session, chat: new Chat({ response: { handler: () => undefined } }) })).isSuccess()
+    ).toBe(true)
   }
   const generate = vi.spyOn(client, 'generateText')
   session.append({ role: 'event', name: 'itinerary.confirmed', payload: { id: 'trip-1' } })
