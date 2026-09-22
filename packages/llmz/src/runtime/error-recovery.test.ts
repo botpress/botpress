@@ -990,7 +990,7 @@ test('silent listen explains the missing message in the next LLM request', async
 
     <error>
     Code: MISSING_CHAT_RESPONSE
-    No message was sent to the user during this execution. Send a response using the inspected results before waiting for the user. Do not repeat completed tool calls.
+    The assistant has not delivered a message since the last user message. Send a response using the inspected results before waiting for the user. Do not repeat completed tool calls.
     </error>
 
     <recovery>

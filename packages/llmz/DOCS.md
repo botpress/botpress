@@ -142,7 +142,7 @@ After a failed execution, the session retains the active input batch and any com
 
 `result.toJSON()` is a compact outcome summary. `result.diagnostics()` exports run diagnostics. Neither replaces `session.toJSON()`.
 
-Chat requires at least one successfully delivered text or component message during the current `execute()` call before `exit("listen")` can complete. An empty or whitespace-only response does not count; messages from earlier iterations in this execution do. Silent completion raises a recoverable `MissingChatResponseError` before `onExit`, preserving tool results for the next attempt. Set `options: { requireChatResponse: false }` for intentionally silent handling. Custom task exits and worker mode are unaffected.
+Chat requires the assistant to be the last participant who spoke before `exit("listen")` can complete. Successfully delivered text and components count across iterations, executions, and saved sessions. A new user message requires a new response; events, tool results, failed deliveries, and whitespace-only content do not change the last speaker. An empty or whitespace-only model response with `stopReason: "stop"` and no tool calls follows the same listen flow and guard. Silent completion raises a recoverable `MissingChatResponseError` before `onExit`, preserving tool results for the next attempt. Set `options: { requireChatResponse: false }` for intentionally silent handling. Custom task exits and worker mode are unaffected. Older session snapshots without delivery tracking restore with an unknown last speaker and require a response by default.
 
 ## Tools and exits
 

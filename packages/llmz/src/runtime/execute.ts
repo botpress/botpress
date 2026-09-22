@@ -388,6 +388,7 @@ async function deliverAssistantText(state: IterationExecution, generated: Native
     throw new DeliveryError(`Assistant response delivery failed: ${getErrorMessage(cause)}`, { cause })
   }
 
+  ctx.session.recordAssistantDelivery(iteration.id)
   iteration.recordTrace({
     type: 'message_delivery',
     value: message,
@@ -597,6 +598,7 @@ async function deliverJavaScriptMessages(
           )
     }
 
+    ctx.session.recordAssistantDelivery(iteration.id)
     iteration.recordTrace({
       type: 'message_delivery',
       value: message.component,
@@ -611,7 +613,11 @@ async function deliverJavaScriptMessages(
 
 async function finishNativeResponse(state: IterationExecution, generated: NativeGeneration): Promise<void> {
   const { ctx, iteration } = state
-  if (!generated.toolCalls.length && generated.output.trim() && ctx.chat) {
+  if (
+    !generated.toolCalls.length &&
+    ctx.chat &&
+    (generated.output.trim() || generated.metadata.stopReason === 'stop')
+  ) {
     await applyNativeExit(state, ListenExit, {})
     if (!iteration.hasExited()) {
       ctx.session.appendContext(
@@ -885,12 +891,10 @@ async function applyNativeExit(state: IterationExecution, exit: Exit, value: unk
       ctx.chat &&
       exit === ListenExit &&
       props.options?.requireChatResponse !== false &&
-      !ctx.iterations.some((entry) =>
-        entry.traces.some((trace) => trace.type === 'message_delivery' && trace.success !== false)
-      )
+      ctx.session.lastSpeaker !== 'assistant'
     ) {
       throw new MissingChatResponseError(
-        'No message was sent to the user during this execution. Send a response using the inspected results before waiting for the user. Do not repeat completed tool calls.'
+        'The assistant has not delivered a message since the last user message. Send a response using the inspected results before waiting for the user. Do not repeat completed tool calls.'
       )
     }
 

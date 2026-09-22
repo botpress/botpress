@@ -92,6 +92,14 @@ function normalizeMessage(message: SessionInput): SessionMessage {
   return normalized
 }
 
+/** Only actual participant content counts as speech, including image/audio-only messages. */
+export function inputSpeaker(message: SessionMessage): 'user' | 'assistant' | null {
+  const hasContent = Array.isArray(message.content)
+    ? message.content.some((part) => part.type !== 'text' || Boolean(part.text?.trim()))
+    : Boolean(message.content?.trim())
+  return hasContent && (message.role === 'user' || message.role === 'assistant') ? message.role : null
+}
+
 export function createAssistantMessage(response: AssistantResponse): SessionMessage {
   if (response.assistantMessage) {
     return asSessionMessage(response.assistantMessage)

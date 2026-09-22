@@ -39,7 +39,7 @@ describe.each(['false', 'true'])('chat completion (QuickJS=%s)', (quickjs) => {
         expect.objectContaining({ code: 'MISSING_CHAT_RESPONSE', critical: false }),
       ])
       const feedback = String(client.requests[1]!.messages.find((message) => message.type === 'tool_result')?.content)
-      expect(feedback).toContain('No message was sent to the user during this execution.')
+      expect(feedback).toContain('The assistant has not delivered a message since the last user message.')
       expect(feedback).toContain('Do not repeat completed tool calls.')
       expect(feedback).toContain('lookup(): succeeded')
     }
@@ -144,7 +144,7 @@ describe.each(['false', 'true'])('chat completion (QuickJS=%s)', (quickjs) => {
     expect(result.iterations[1]?.errors.some((error) => error.code === 'MISSING_CHAT_RESPONSE')).toBe(true)
   })
 
-  test('messages from a previous turn do not satisfy the guard', async () => {
+  test('a new user message after a previous assistant reply requires a new response', async () => {
     const session = new Session()
     const chat = createRecordingChat({ handler: vi.fn() })
     await executeContext({ client: new NativeClient([response('Previous answer.')]), session, chat })

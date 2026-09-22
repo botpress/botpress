@@ -124,8 +124,9 @@ export type ExecutionHooks = {
 
 type Options = Partial<Pick<Context, 'loop' | 'timeout'>> & {
   /**
-   * Require at least one successfully delivered text or component message in this
-   * execution before the built-in ListenExit can complete. Defaults to true.
+   * Require the assistant to be the last participant who spoke before the built-in
+   * ListenExit can complete. Defaults to true. Successful text and component delivery
+   * count across iterations and executions; events and tool results do not.
    * Set false for intentionally silent chat handling. Custom exits and workers
    * are unaffected. Rejection is recoverable within the remaining loop budget.
    */

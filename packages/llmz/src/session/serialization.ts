@@ -28,6 +28,8 @@ export type SessionState = {
   memory: SerializedMemory
   pendingInputs: PendingInput[]
   activeTurn: boolean
+  /** Acknowledged conversation speaker, independent of retained/compacted history. Absent in older snapshots. */
+  lastSpeaker?: 'user' | 'assistant' | null
   latestResultId?: string
   compaction?: false | Omit<CompactionOptions, 'summarize'>
 }
@@ -58,6 +60,14 @@ export function validateRestoredHistory(state: SessionState): void {
 
   if (typeof state.activeTurn !== 'boolean' || (state.activeTurn && (!state.turn || !state.turnId))) {
     throw new InvalidSessionError('Session processing state must identify an active turn.')
+  }
+
+  if (
+    state.lastSpeaker !== undefined &&
+    state.lastSpeaker !== null &&
+    !['user', 'assistant'].includes(state.lastSpeaker)
+  ) {
+    throw new InvalidSessionError('Session last speaker must be user, assistant, or null.')
   }
 
   const groupIds = new Set<string>()

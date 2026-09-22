@@ -17,6 +17,7 @@ import { renderMemory } from './memory-render.js'
 import { Memory, type MemoryAssignment, type MemoryReport } from './memory.js'
 import {
   createAssistantMessage,
+  inputSpeaker,
   normalizeInput,
   withMemoryOverview,
   type AssistantResponse,
@@ -84,6 +85,7 @@ export class Session {
   #pendingInputs: PendingInput[] = []
   #activeTurn = false
   #locked = false
+  #lastSpeaker: 'user' | 'assistant' | null = null
 
   public constructor(options: SessionOptions = {}) {
     this.id = `session_${ulid()}`
@@ -113,6 +115,17 @@ export class Session {
       ...this.#allGroups().flatMap((group): SessionInput[] => (group.source ? [group.source] : group.messages)),
       ...this.#pendingInputs.map((input) => input.source ?? input.message),
     ])
+  }
+
+  /** Last participant who spoke in the active history. Events and queued inputs do not count. */
+  public get lastSpeaker(): 'user' | 'assistant' | null {
+    return this.#lastSpeaker
+  }
+
+  /** Record acknowledged text or component delivery, never generation alone. */
+  public recordAssistantDelivery(iterationId: string): void {
+    this.#getActiveIteration(iterationId)
+    this.#lastSpeaker = 'assistant'
   }
 
   public get pendingMessages(): SessionMessage[] {
@@ -229,6 +242,10 @@ export class Session {
     this.#activeTurn = true
 
     for (const input of this.#pendingInputs) {
+      if (!input.source) {
+        this.#lastSpeaker = inputSpeaker(input.message) ?? this.#lastSpeaker
+      }
+
       this.#groups.push({
         id: input.id,
         turn: this.#turn,
@@ -693,6 +710,7 @@ export class Session {
       groups: this.#groups.map(serializeGroup),
       memory: this.memory.serialize(),
       pendingInputs: structuredClone(this.#pendingInputs),
+      lastSpeaker: this.#lastSpeaker,
       activeTurn: this.#activeTurn,
       latestResultId: this.#latestResultId,
       compaction,
@@ -709,6 +727,8 @@ export class Session {
     session.#groups = state.groups.map(restoreGroup)
     session.#pendingInputs = structuredClone(state.pendingInputs)
     session.#activeTurn = state.activeTurn
+    // Older snapshots do not prove delivery; keep the response guard conservative.
+    session.#lastSpeaker = state.lastSpeaker ?? null
     session.#latestResultId = state.latestResultId
     Object.defineProperty(session, 'memory', {
       value: Memory.restore(state.memory, () => session.#resultBytes()),
