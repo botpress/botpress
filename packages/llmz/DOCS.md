@@ -138,7 +138,7 @@ console.log(restored.status) // pending
 
 Restoration checks format versions, chronology, identities, call/result pairing, exact result encodings, and memory capacity. Unknown versions are rejected. Conversation/provider fields must be acyclic JSON data; encode binary values explicitly. This is conversation and memory persistence, not a paused JavaScript stack.
 
-After a failed execution, the session retains the active input batch and any completed effects/results. Executing it again continues that turn. Newly appended messages remain queued. Applications should inspect failures before retrying operations that produce external effects.
+After a failed execution, the session retains the active input batch and any completed effects/results. Executing it again continues that turn. Newly appended messages remain queued. A successful retry can therefore leave `session.status === "pending"`; call `execute()` again to process that next batch. Its user messages reset the chat response guard when the next turn starts. Applications should inspect failures before retrying operations that produce external effects.
 
 `result.toJSON()` is a compact outcome summary. `result.diagnostics()` exports run diagnostics. Neither replaces `session.toJSON()`.
 

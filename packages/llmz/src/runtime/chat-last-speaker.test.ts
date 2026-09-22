@@ -134,6 +134,48 @@ describe.each(endings)('last speaker policy: $name', (ending) => {
     expect(onExit).not.toHaveBeenCalled()
   })
 
+  test('finishes a failed turn without consuming the next user message, then requires its reply', async () => {
+    const handler = vi.fn()
+    const chat = createRecordingChat({ handler })
+    const session = new Session()
+    session.append({ role: 'user', content: 'First request.' })
+    const failed = await executeContext({
+      session,
+      chat,
+      client: new NativeClient([
+        { ...javascript('throw new Error("Finish this turn on retry.");'), output: 'I received your first request.' },
+      ]),
+      options: { loop: 1 },
+    })
+    expect(failed.isSuccess()).toBe(false)
+    expect(session.hasActiveTurn).toBe(true)
+    expect(session.lastSpeaker).toBe('assistant')
+    session.append({ role: 'user', content: 'Second request.' })
+    const restored = Session.fromJSON(session.toJSON())
+
+    const retry = new NativeClient([ending.response()])
+    const resumed = await executeContext({ session: restored, chat, client: retry, options: { loop: 1 } })
+    expect(resumed.is(ListenExit)).toBe(true)
+    expect(restored.turn).toBe(1)
+    expect(restored.status).toBe('pending')
+    expect(restored.pendingMessages).toEqual([{ role: 'user', content: 'Second request.' }])
+    expect(retry.requests[0]?.messages.some((message) => message.content === 'Second request.')).toBe(false)
+
+    const next = new NativeClient([ending.response(), response('Here is the answer to your second request.')])
+    const answered = await executeContext({ session: restored, chat, client: next, options: { loop: 2 } })
+    expect(answered.is(ListenExit)).toBe(true)
+    expect(MissingChatResponseError.is(answered.iterations[0]?.exception)).toBe(true)
+    expect(JSON.stringify(next.requests[0]?.messages)).toContain('Second request.')
+    expect(restored.turn).toBe(2)
+    expect(restored.status).toBe('idle')
+    expect(restored.pendingMessages).toEqual([])
+    expect(restored.messages.filter((message) => message.content === 'Second request.')).toHaveLength(1)
+    expect(handler.mock.calls.map(([message]) => message)).toEqual([
+      { type: 'text', text: 'I received your first request.' },
+      { type: 'text', text: 'Here is the answer to your second request.' },
+    ])
+  })
+
   test('does not count whitespace-only assistant history as speech', async () => {
     const session = new Session()
     session.append([
