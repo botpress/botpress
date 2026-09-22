@@ -13,19 +13,14 @@ const blank = (ctx: Ctx, start: number, end: number) => {
 /**
  * Replaces comments at statement position with `__comment__("<text>", <line>)`
  * calls so the agent's inline "thinking" comments show up as traces at runtime.
- * Comments inside expressions and the user-code markers are blanked; comments
- * inside instrumented tool-call ranges are left verbatim.
+ * Comments inside expressions and the user-code markers are blanked.
  */
-export function applyCommentReplacement(ctx: Ctx, skipRanges: Array<[number, number]>): void {
+export function applyCommentReplacement(ctx: Ctx): void {
   for (const comment of ctx.comments) {
     const text = comment.value.trim()
 
     if (MARKER_TAGS.some((tag) => text.includes(tag))) {
       blank(ctx, comment.start, comment.end)
-      continue
-    }
-
-    if (skipRanges.some(([start, end]) => comment.start >= start && comment.end <= end)) {
       continue
     }
 

@@ -1,51 +1,52 @@
 import ms from 'ms'
 import { ulid } from 'ulid'
 
-import { Chat } from '../chat.js'
 import { Iteration } from '../context.js'
-import { Signals, SnapshotSignal, ThinkSignal } from '../errors.js'
+import { callHook } from '../errors/hooks.js'
+import { isLLMzError, ThinkSignal, ToolExecutionError } from '../errors.js'
+
 import { type Tool } from '../tool.js'
-import { Trace } from '../types.js'
+import type { TruncationPolicy } from '../truncate.js'
 import { ExecutionHooks } from './types.js'
 
 const SLOW_TOOL_WARNING = ms('15s')
 
 type ToolWrapperProps = {
-  chat?: Chat
   tool: Tool
   object?: string
-  traces: Trace[]
   iteration: Iteration
   beforeHook?: ExecutionHooks['onBeforeTool']
   afterHook?: ExecutionHooks['onAfterTool']
+  onTruncation?: (value: unknown, policy: TruncationPolicy) => void
+  onResult?: (value: unknown) => void
   controller: AbortController
 }
 
 export function wrapTool({
-  chat,
   tool,
-  traces,
   object,
   iteration,
   beforeHook,
   afterHook,
+  onTruncation,
+  onResult,
   controller,
 }: ToolWrapperProps) {
-  const getToolInput = (input: any) => (tool.zInput as any).safeParse(input).data ?? input
-
   return async function (input: any) {
+    controller.signal.throwIfAborted()
     const toolCallId = `tcall_${ulid()}`
     const originalInput = input
+    let reportedInput = originalInput
     let effectiveInput = input
 
     const alertSlowTool = setTimeout(
       () =>
-        traces.push({
+        iteration.recordTrace({
           type: 'tool_slow',
           tool_name: tool.name,
           tool_call_id: toolCallId,
           started_at: Date.now(),
-          input: getToolInput(originalInput),
+          input: reportedInput,
           object,
           duration: SLOW_TOOL_WARNING,
         }),
@@ -59,14 +60,15 @@ export function wrapTool({
     let signalToThrow: ThinkSignal | undefined
 
     const pushToolCallTrace = () => {
-      traces.push({
+      iteration.recordTrace({
         type: 'tool_call',
         tool_call_id: toolCallId,
+        native_call_id: iteration.nativeCallId,
         started_at: toolStart,
         ended_at: Date.now(),
         tool_name: tool.name,
         object,
-        input: getToolInput(originalInput),
+        input: reportedInput,
         output,
         error,
         success,
@@ -78,19 +80,9 @@ export function wrapTool({
         return true
       }
 
-      if (err instanceof SnapshotSignal) {
-        err.toolCall = {
-          name: tool.name,
-          inputSchema: tool.input,
-          outputSchema: tool.output,
-          input: originalInput,
-        }
-        err.message = Signals.serializeError(err)
-      }
-
-      if (err instanceof ThinkSignal) {
+      if (ThinkSignal.is(err)) {
         signalToThrow = err
-        traces.push({
+        iteration.recordTrace({
           type: 'think_signal',
           started_at: Date.now(),
           line: 0,
@@ -99,15 +91,18 @@ export function wrapTool({
         success = true
         output = err
 
-        const afterRes = await afterHook?.({
-          iteration,
-          tool,
-          input: originalInput,
-          output,
-          controller,
-          object,
-          toolCallId,
-        })
+        const afterRes = await callHook(() =>
+          afterHook?.({
+            iteration,
+            tool,
+            input: originalInput,
+            output,
+            controller,
+            object,
+            toolCallId,
+            nativeCallId: iteration.nativeCallId,
+          })
+        )
 
         if (typeof afterRes?.output !== 'undefined') {
           output = afterRes.output
@@ -120,37 +115,53 @@ export function wrapTool({
     }
 
     try {
-      const beforeRes = await beforeHook?.({
-        iteration,
-        tool,
-        input: effectiveInput,
-        controller,
-        object,
-        toolCallId,
-      })
+      const beforeRes = await callHook(() =>
+        beforeHook?.({
+          iteration,
+          tool,
+          input: effectiveInput,
+          controller,
+          object,
+          toolCallId,
+          nativeCallId: iteration.nativeCallId,
+        })
+      )
 
       if (typeof beforeRes?.input !== 'undefined') {
         effectiveInput = beforeRes.input
       }
 
-      output = await tool.execute(
-        effectiveInput,
-        {
-          callId: toolCallId,
-          iterationId: iteration.id,
-        },
-        chat
-      )
+      // A policy hook may cancel by aborting rather than throwing. Do not start
+      // an irreversible business action after that cancellation was accepted.
+      controller.signal.throwIfAborted()
 
-      const afterRes = await afterHook?.({
-        iteration,
-        tool,
-        input: effectiveInput,
-        output,
-        controller,
-        object,
-        toolCallId,
+      output = await tool.execute(effectiveInput, {
+        callId: toolCallId,
+        iterationId: iteration.id,
+        nativeCallId: iteration.nativeCallId,
+        onTruncation,
+        onInput: (parsed) => {
+          controller.signal.throwIfAborted()
+          // Keep the original argument when a hook replaced it; do not rerun
+          // its effects just to produce a trace of an argument we never used.
+          if (effectiveInput === originalInput) {
+            reportedInput = parsed
+          }
+        },
       })
+
+      const afterRes = await callHook(() =>
+        afterHook?.({
+          iteration,
+          tool,
+          input: effectiveInput,
+          output,
+          controller,
+          object,
+          toolCallId,
+          nativeCallId: iteration.nativeCallId,
+        })
+      )
 
       if (typeof afterRes?.output !== 'undefined') {
         output = afterRes.output
@@ -158,7 +169,8 @@ export function wrapTool({
     } catch (err) {
       if (!(await handleSignals(err))) {
         success = false
-        error = err
+        error = isLLMzError(err) ? err : new ToolExecutionError(tool.name, err)
+        iteration.recordError(error)
       }
     } finally {
       clearTimeout(alertSlowTool)
@@ -173,6 +185,7 @@ export function wrapTool({
       throw signalToThrow
     }
 
+    onResult?.(output)
     return output
   }
 }

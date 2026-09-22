@@ -1,20 +1,59 @@
 import { z } from '@bpinternal/zui'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
 import { Iteration } from '../context.js'
-import { SnapshotSignal, ThinkSignal } from '../errors.js'
+import { ThinkSignal } from '../errors.js'
 import { Tool } from '../tool.js'
-import { type Trace } from '../types.js'
 import { wrapTool } from './tool-wrapper.js'
 
-const iteration = {} as Iteration
+function createIteration() {
+  return new Iteration({
+    id: 'tool-test',
+    parameters: {
+      tools: [],
+      objects: [],
+      exits: [],
+      components: new Map(),
+      chatEnabled: false,
+      model: 'test',
+      temperature: 0,
+    },
+    systemMessage: { role: 'system', content: '' },
+  })
+}
 
 describe('wrapTool', () => {
+  test('does not start business work when cancelled during async input validation', async () => {
+    let release!: () => void
+    const blocked = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    const normalize = vi.fn(async (value: string) => {
+      await blocked
+      return value.trim()
+    })
+    const handler = vi.fn(async () => 'saved')
+    const controller = new AbortController()
+    const wrapped = wrapTool({
+      tool: new Tool({ name: 'save', input: z.string().transform(normalize), handler }),
+      iteration: createIteration(),
+      controller,
+    })
+    const task = wrapped(' value ')
+    await vi.waitFor(() => expect(normalize).toHaveBeenCalledOnce())
+    controller.abort(new Error('Cancelled'))
+    release()
+
+    await expect(task).rejects.toThrow('Cancelled')
+    expect(handler).not.toHaveBeenCalled()
+  })
+
   test('mutates input and output through hooks while tracing original input', async () => {
     let originalInputName: string | undefined
     let calledInputName: string | undefined
     let afterHookInputName: string | undefined
-    const traces: Trace[] = []
+    const iteration = createIteration()
+    const traces = iteration.traces
 
     const tool = new Tool({
       name: 'greeting',
@@ -28,7 +67,6 @@ describe('wrapTool', () => {
 
     const wrapped = wrapTool({
       tool,
-      traces,
       iteration,
       controller: new AbortController(),
       beforeHook: async ({ input }) => {
@@ -58,7 +96,8 @@ describe('wrapTool', () => {
   })
 
   test('traces failed tool calls', async () => {
-    const traces: Trace[] = []
+    const iteration = createIteration()
+    const traces = iteration.traces
     const tool = new Tool({
       name: 'fail',
       input: z.object({ value: z.string() }),
@@ -69,7 +108,6 @@ describe('wrapTool', () => {
 
     const wrapped = wrapTool({
       tool,
-      traces,
       iteration,
       controller: new AbortController(),
     })
@@ -86,7 +124,8 @@ describe('wrapTool', () => {
   })
 
   test('traces ThinkSignal as successful and rethrows it', async () => {
-    const traces: Trace[] = []
+    const iteration = createIteration()
+    const traces = iteration.traces
     const signal = new ThinkSignal('need context', { value: 1 })
     const tool = new Tool({
       name: 'thinker',
@@ -97,7 +136,6 @@ describe('wrapTool', () => {
 
     const wrapped = wrapTool({
       tool,
-      traces,
       iteration,
       controller: new AbortController(),
     })
@@ -110,42 +148,5 @@ describe('wrapTool', () => {
       output: signal,
       success: true,
     })
-  })
-
-  test('adds tool call metadata to SnapshotSignal', async () => {
-    const traces: Trace[] = []
-    const signal = new SnapshotSignal('pause')
-    const tool = new Tool({
-      name: 'payment',
-      input: z.object({ amount: z.number() }),
-      output: z.object({ paymentIntentId: z.string() }),
-      handler: async () => {
-        throw signal
-      },
-    })
-
-    const wrapped = wrapTool({
-      tool,
-      traces,
-      iteration,
-      controller: new AbortController(),
-    })
-
-    await expect(wrapped({ amount: 10 })).rejects.toBe(signal)
-    expect(signal.toolCall).toEqual({
-      name: 'payment',
-      inputSchema: tool.input,
-      outputSchema: tool.output,
-      input: { amount: 10 },
-    })
-    expect(traces).toMatchObject([
-      {
-        type: 'tool_call',
-        tool_name: 'payment',
-        input: { amount: 10 },
-        error: signal,
-        success: false,
-      },
-    ])
   })
 })

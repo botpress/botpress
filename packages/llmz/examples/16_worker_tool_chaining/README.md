@@ -1,35 +1,23 @@
-## Single-turn tool chaining
+# Tool chaining
 
-Tool C requires output from Tool A + filtered output from Tool B.
-LLMz is aware of the output schemas, and can chain tool calls in a single LLM turn.
-Because it generates code, it can also handle complex logic and conditions between tool calls.
+Three typed tools demonstrate data dependencies. JavaScript reads a nested value from tool A, filters tool B’s numbers, and passes both to tool C before returning a typed result. The tool outputs are simulated.
 
-In the definition of Tool C, we mention that we want numbers from Tool B that are greater than 50.
+From `packages/llmz/examples`, after the [shared setup](../README.md):
 
-```ts
-const ToolC = new Tool({
-  name: 'tool_c',
-  input: z.object({
-    first_task: z.number().describe('Number from tool A'),
-    second_task: z.number().array().describe('Numbers from tool B that are greater than 50'),
-    //                                                                 ^^^^^^^^^^^^^^^^^^^^
-  }),
-  // ...
+```sh
+pnpm start 16_worker_tool_chaining
 ```
 
-## Generated code by LLMz
+The program can perform these operations in one native `run_javascript` call; a particular model may choose additional inspection steps.
 
-```tsx
-// Directly perform the steps to get the 'secret' number in one step as per instructions
-const toolAResult = await tool_a()
-const toolBResult = await tool_b()
-const secretNumber = await tool_c({
-  first_task: toolAResult.pick.deep.deep_number,
-  second_task: toolBResult.filter((num) => num > 50),
+```javascript
+const a = await tool_a()
+const b = await tool_b()
+const result = await tool_c({
+  first_task: a.pick.deep.deep_number,
+  second_task: b.filter((value) => value > 50),
 })
-return { action: 'exit', value: { result: secretNumber } }
+return exit('exit', { result })
 ```
 
-## 🎥 Demo
-
-![Demo](./demo.svg)
+![Tool chaining demo](./demo.svg)

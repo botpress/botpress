@@ -11,8 +11,9 @@
     // Bundler mode
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
     "noEmit": true,
+    "paths": { "llmz": ["../src/index.ts"] },
 
     // Best practices
     "strict": true,

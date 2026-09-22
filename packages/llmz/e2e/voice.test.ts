@@ -1,12 +1,13 @@
 import { assert, describe, expect, it } from 'vitest'
-import * as llmz from '../src/runtime/execute.js'
 
-import { DefaultComponents } from '../src/component.default.js'
-import { Chat } from '../src/chat.js'
 import { Exit } from '../src/exit.js'
-import { DualModePrompt } from '../src/prompts/dual-modes.js'
 import { ExecutionResult, SuccessExecutionResult } from '../src/result.js'
-import { Transcript, TranscriptArray } from '../src/transcript.js'
+import { Session } from '../src/session/session.js'
+import * as llmz from '../src/runtime/execute.js'
+import { normalizeInput } from '../src/session/messages.js'
+import type { Transcript } from '../src/session/transcript.js'
+
+import { createTestChat } from './__tests__/chat.js'
 import {
   getCachedCognitiveClient,
   getFixtureDataUri,
@@ -32,52 +33,33 @@ const voiceMessage = (content: string = ''): Transcript.UserMessage => ({
 describe('voice messages', () => {
   describe('prompt rendering', () => {
     it('marks spoken turns in the transcript', () => {
-      const transcript = new TranscriptArray([
+      const transcript: Transcript.Message[] = [
         { role: 'user', content: 'Hello!' },
         { role: 'assistant', content: 'Hi! How can I help?' },
         voiceMessage(),
-      ])
+      ]
 
-      const rendered = transcript.toString()
-
-      expect(rendered).toContain('modality="voice"')
-      expect(rendered).toContain('[Voice message user-003-A]')
-      // Typed messages must not be marked as voice
-      expect(rendered).toContain('<user-001 role="user">')
-      expect(rendered).toContain('<user-003 role="user" modality="voice">')
+      const messages = transcript.map(normalizeInput)
+      expect(messages.map((message) => message.role)).toEqual(['user', 'assistant', 'user'])
+      expect(messages[0]?.content).toBe('Hello!')
+      expect(JSON.stringify(messages[2])).toContain('Voice message (transcript):')
+      expect(messages[2]?.type).toBe('multipart')
     })
 
     it('marks pre-transcribed spoken turns via the explicit modality field', async () => {
-      const transcript = new TranscriptArray([
+      const transcript: Transcript.Message[] = [
         { role: 'user', content: 'What is the capital of France?', modality: 'voice' },
-      ])
+      ]
 
-      const rendered = transcript.toString()
-      expect(rendered).toContain('<user-001 role="user" modality="voice">')
-      // No audio attached: no voice message marker, the content IS the transcript
-      expect(rendered).not.toContain('[Voice message')
-
-      const message = await DualModePrompt.getInitialUserMessage({
-        transcript,
-        objects: [],
-        globalTools: [],
-        exits: [],
-        components: [DefaultComponents.Text],
-      })
+      const message = transcript.map(normalizeInput)[0]!
 
       assert(typeof message.content === 'string', 'Expected a plain text message')
-      expect(message.content).toContain('the text below is a transcript of what they said out loud')
+      expect(message.content).toContain('Voice message (transcript):')
       expect(message.content).toContain('What is the capital of France?')
     })
 
     it('sends the audio to the model with explicit voice framing', async () => {
-      const message = await DualModePrompt.getInitialUserMessage({
-        transcript: new TranscriptArray([voiceMessage()]),
-        objects: [],
-        globalTools: [],
-        exits: [],
-        components: [DefaultComponents.Text],
-      })
+      const message = normalizeInput(voiceMessage())
 
       assert(Array.isArray(message.content), 'Expected a multipart message')
 
@@ -89,8 +71,7 @@ describe('voice messages', () => {
 
       expect(audioParts).toHaveLength(1)
       expect(audioParts[0]!.url).toMatch(/^data:audio\/wav;base64,/)
-      expect(text).toContain('voice message')
-      expect(text).toContain('spoken out loud in the attached audio')
+      expect(text).toContain('Voice message (transcript):')
     })
   })
 
@@ -98,15 +79,18 @@ describe('voice messages', () => {
     it('understands what the user said in a voice message', async () => {
       let replies = ''
       const exit = new Exit({ name: 'done', description: 'call this when you are done' })
-      const chat = new Chat({
-        components: [DefaultComponents.Text],
-        transcript: [voiceMessage()],
-        handler: async (msg) => {
+      const session = new Session()
+      session.append([voiceMessage()])
+
+      const chat = createTestChat({
+        components: [],
+        onMessage: async (msg) => {
           replies += JSON.stringify(msg).toLowerCase()
         },
       })
 
       const result = await llmz.executeContext({
+        session,
         instructions: 'Do as the user says. You can hear voice messages.',
         options: { loop: 1 },
         exits: [exit],
@@ -124,15 +108,18 @@ describe('voice messages', () => {
     it('knows the user spoke instead of typing', async () => {
       let replies = ''
       const exit = new Exit({ name: 'done', description: 'call this when you are done' })
-      const chat = new Chat({
-        components: [DefaultComponents.Text],
-        transcript: [voiceMessage()],
-        handler: async (msg) => {
+      const session = new Session()
+      session.append([voiceMessage()])
+
+      const chat = createTestChat({
+        components: [],
+        onMessage: async (msg) => {
           replies += JSON.stringify(msg).toLowerCase()
         },
       })
 
       const result = await llmz.executeContext({
+        session,
         instructions:
           'Before answering, tell the user whether their last message was typed as text or spoken as a voice message.',
         options: { loop: 1 },
@@ -153,15 +140,18 @@ describe('voice messages', () => {
     it('hears the audio natively on an audio-capable model (gemini)', async () => {
       let replies = ''
       const exit = new Exit({ name: 'done', description: 'call this when you are done' })
-      const chat = new Chat({
-        components: [DefaultComponents.Text],
-        transcript: [voiceMessage()],
-        handler: async (msg) => {
+      const session = new Session()
+      session.append([voiceMessage()])
+
+      const chat = createTestChat({
+        components: [],
+        onMessage: async (msg) => {
           replies += JSON.stringify(msg).toLowerCase()
         },
       })
 
       const result = await llmz.executeContext({
+        session,
         instructions: 'Do as the user says. You can hear voice messages.',
         options: { loop: 1 },
         exits: [exit],
@@ -178,22 +168,24 @@ describe('voice messages', () => {
   })
 
   // Regression (llmz 0.4.0): long assistant replies to voice-modality turns
-  // came back with the ■send body wrapped in a JSON object ({"body": "..."}).
+  // came back with assistant prose wrapped in a JSON object ({"body": "..."}).
   // Short replies and typed turns were unaffected.
   describe('long voice replies stay plain markdown', () => {
     const runLongStory = async (message: Transcript.UserMessage, model?: string) => {
       let replies = ''
-      const chat = new Chat({
-        components: [DefaultComponents.Text],
-        transcript: [message],
-        handler: async (msg: any) => {
-          const collect = (c: any): string =>
-            typeof c === 'string' ? c : Array.isArray(c.children) ? c.children.map(collect).join('') : ''
-          replies += collect(msg)
+      const session = new Session()
+      session.append([message])
+
+      const chat = createTestChat({
+        components: [],
+        onMessage: async (msg) => {
+          assert(msg.type === 'text', 'Expected an assistant text response')
+          replies += msg.text
         },
       })
 
       const result = await llmz.executeContext({
+        session,
         instructions: 'Do as the user says. You can hear voice messages.',
         options: { loop: 2 },
         chat,
@@ -203,20 +195,17 @@ describe('voice messages', () => {
 
       assertSuccess(result)
 
-      // The raw parsed sends must be plain prose, not a JSON-wrapped body
-      // ({"body": "..."}) — there is no runtime unwrapping, the prompt alone
-      // must prevent this
+      // Native assistant content must remain plain prose, without a serialized
+      // message wrapper that a speech renderer would read aloud.
       for (const iteration of result.iterations) {
-        for (const send of iteration.sends ?? []) {
-          expect(send.body?.trim().startsWith('{')).not.toBe(true)
-        }
+        expect(iteration.llm?.output.trim().startsWith('{')).not.toBe(true)
       }
 
       // The delivered reply is long-form prose, not serialized data
       expect(replies.length).toBeGreaterThan(300)
       expect(replies.trimStart().startsWith('{')).toBe(false)
-      // A story can personify a Worker without repeating the vendor name.
-      expect(replies).toMatch(/workers?/i)
+      // Check the computing theme without requiring a creative story to repeat
+      // the product name; this regression covers the response format.
       expect(replies).toMatch(/edge|code|requests?|server|data/i)
       return replies
     }
@@ -244,19 +233,22 @@ describe('voice messages', () => {
       })
     }, 60_000)
 
-    it('replies with plain prose when the Speech component is used', async () => {
+    it('replies with plain prose when the speech response preset is used', async () => {
       const sent: { type: string; text: string }[] = []
-      const chat = new Chat({
-        components: [DefaultComponents.Speech],
-        transcript: [longStoryVoiceMessage()],
-        handler: async (msg: any) => {
-          const collect = (c: any): string =>
-            typeof c === 'string' ? c : Array.isArray(c.children) ? c.children.map(collect).join('') : ''
-          sent.push({ type: msg.type, text: collect(msg) })
+      const session = new Session()
+      session.append([longStoryVoiceMessage()])
+
+      const chat = createTestChat({
+        response: 'speech',
+        components: [],
+        onMessage: async (msg) => {
+          assert(msg.type === 'text', 'Expected assistant text for speech playback')
+          sent.push({ type: msg.type, text: msg.text })
         },
       })
 
       const result = await llmz.executeContext({
+        session,
         instructions: 'You are a voice assistant: your replies are spoken aloud to the user.',
         options: { loop: 2 },
         chat,
@@ -265,7 +257,7 @@ describe('voice messages', () => {
 
       assertSuccess(result)
       const speech = sent.map((s) => s.text).join(' ')
-      expect(sent.every((s) => s.type.toLowerCase() === 'speech')).toBe(true)
+      expect(sent.every((s) => s.type === 'text')).toBe(true)
       expect(speech.length).toBeGreaterThan(200)
       // spoken prose: no markdown emphasis/headings/lists/links
       expect(speech).not.toMatch(/\*\*|__|^#|\n#|\n[-*] |https?:\/\//)
@@ -298,34 +290,38 @@ describe('voice messages', () => {
       }
     }
 
-    it('references attachments by their id and describes them with alt', () => {
-      const rendered = new TranscriptArray([screenShareMessage()]).toString()
+    it('retains attachment IDs and descriptions in native multipart messages', () => {
+      const message = normalizeInput(screenShareMessage())
+      assert(Array.isArray(message.content), 'Expected a multipart message')
+      const text = message.content
+        .filter((part) => part.type === 'text')
+        .map((part) => part.text)
+        .join('\n')
 
-      expect(rendered).toContain('modality="voice"')
-      expect(rendered).toContain('[Attachment screenshot-A]')
-      expect(rendered).toContain('[Attachment screenshot-B]')
-      expect(rendered).toContain('[Attachment screenshot-C]')
-      expect(rendered).toContain("[Voice message voice-note: the user's spoken narration]")
-
-      // Without an id, attachments keep the auto-assigned positional letters
-      const anonymous = new TranscriptArray([
-        { role: 'user', content: 'look', attachments: [{ type: 'image', url: 'data:image/png;base64,x' }] },
-      ]).toString()
-      expect(anonymous).toContain('[Attachment user-001-A]')
+      expect(text).toContain('Voice message (transcript):')
+      expect(text).toContain('Attachment "screenshot-A"')
+      expect(text).toContain('Attachment "screenshot-B"')
+      expect(text).toContain('Attachment "screenshot-C"')
+      expect(text).toContain('Attachment "voice-note": the user\'s spoken narration')
+      expect(message.content.filter((part) => part.type === 'image')).toHaveLength(3)
+      expect(message.content.filter((part) => part.type === 'audio')).toHaveLength(1)
     })
 
     it('grounds its answer in the screenshots, guided by the voice narration', async () => {
       let replies = ''
       const exit = new Exit({ name: 'done', description: 'call this when you are done' })
-      const chat = new Chat({
-        components: [DefaultComponents.Text],
-        transcript: [screenShareMessage()],
-        handler: async (msg) => {
+      const session = new Session()
+      session.append([screenShareMessage()])
+
+      const chat = createTestChat({
+        components: [],
+        onMessage: async (msg) => {
           replies += JSON.stringify(msg).toLowerCase()
         },
       })
 
       const result = await llmz.executeContext({
+        session,
         instructions:
           'You are a support agent watching the user share their screen. Their UI interactions arrive as timestamped events, screenshots show their screen at key moments, and the user narrates by voice. Answer their spoken questions using what you see on their screen.',
         options: { loop: 2 },

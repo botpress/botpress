@@ -1,4 +1,5 @@
 import chalk from 'chalk'
+import { clearLine, cursorTo } from 'node:readline'
 
 // Spinner frames
 const spinnerFrames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
@@ -21,9 +22,8 @@ function updateSpinner(): void {
   if (!state.isActive) return
 
   // Clear the current line
-  process.stdout.write('\r')
-  process.stdout.write(' '.repeat(100)) // Clear with spaces
-  process.stdout.write('\r')
+  clearLine(process.stdout, 0)
+  cursorTo(process.stdout, 0)
 
   // Display the spinner with message
   const frame = chalk.cyan(spinnerFrames[state.frameIndex])
@@ -65,9 +65,8 @@ function stopSpinner(): void {
   }
 
   // Clear the line
-  process.stdout.write('\r')
-  process.stdout.write(' '.repeat(100))
-  process.stdout.write('\r')
+  clearLine(process.stdout, 0)
+  cursorTo(process.stdout, 0)
 
   // Show cursor
   process.stdout.write('\x1b[?25h')

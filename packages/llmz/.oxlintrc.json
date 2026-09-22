@@ -1,0 +1,14 @@
+{
+  "extends": ["../../.oxlintrc.json"],
+  "overrides": [
+    {
+      "files": ["src/**/*.ts"],
+      "rules": {
+        "eslint/curly": ["error", "all"],
+        "eslint/no-nested-ternary": "error",
+        "llmz-style/readable-statements": "error"
+      }
+    }
+  ],
+  "jsPlugins": ["./scripts/oxlint-readability.mjs"]
+}

@@ -1,4 +1,5 @@
 import chalk from 'chalk'
+import { stripVTControlCharacters } from 'node:util'
 import * as readline from 'readline'
 
 export async function prompt(message: string = '', quickReplies: string[] = []): Promise<string> {
@@ -6,6 +7,9 @@ export async function prompt(message: string = '', quickReplies: string[] = []):
     const stdin = process.stdin
     const stdout = process.stdout
 
+    if (!stdin.isTTY || !stdout.isTTY) {
+      throw new Error('Interactive examples need a terminal. Run pnpm start in a terminal, without piping input.')
+    }
     // Enable raw mode and keypress events
     stdin.setRawMode(true)
     readline.emitKeypressEvents(stdin)
@@ -18,6 +22,13 @@ export async function prompt(message: string = '', quickReplies: string[] = []):
     for (let i = 0; i < reservedLines - 1; i++) {
       // Changed from reservedLines to reservedLines - 1
       stdout.write('\n')
+    }
+
+    function inputLine() {
+      // Keep editing on one terminal row; the submitted reply is printed in full.
+      const available = Math.max(1, (stdout.columns || 100) - stripVTControlCharacters(message).length - 4)
+      const visible = Array.from(buffer).slice(-available).join('')
+      return chalk.bold('> ') + message + visible + chalk.inverse(' ')
     }
 
     function drawChoices() {
@@ -50,19 +61,20 @@ export async function prompt(message: string = '', quickReplies: string[] = []):
 
       // Position cursor at input line
       readline.clearLine(stdout, 0)
-      stdout.write(chalk.bold('> ') + message + buffer + chalk.inverse(' '))
+      stdout.write(inputLine())
     }
 
     function updateInputOnly() {
       // Just update the input line
       readline.cursorTo(stdout, 0)
       readline.clearLine(stdout, 0)
-      stdout.write(chalk.bold('> ') + message + buffer + chalk.inverse(' '))
+      stdout.write(inputLine())
     }
 
     function cleanup() {
       stdin.setRawMode(false)
       stdin.removeListener('keypress', onKeypress)
+      stdin.pause()
     }
 
     function onKeypress(str: string, key: readline.Key) {
@@ -162,6 +174,7 @@ export async function prompt(message: string = '', quickReplies: string[] = []):
 
     // Set up keypress listener
     stdin.on('keypress', onKeypress)
+    stdin.resume()
 
     // Initial render
     drawChoices()

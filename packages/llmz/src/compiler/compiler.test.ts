@@ -25,8 +25,8 @@ Hi!
                                     
 
       ;__comment__("line 1", 5);
-      __track__(6);for (let i = 0; i < 10; i++) {
-        __track__(7);(() => {try {__toolc__(0, "start");const __ret__ = console.log(i);__toolc__(0, "end", __ret__);return __ret__;} catch (err) {__toolc__(0, "end", err);const __newError = new Error(err.message);__newError.stack = err.stack + ("\\n" + __newError.stack);throw __newError;}})() ;__comment__("line 3", 7);
+      __track__(6);for (let i = 0; i < 10; (__llmz_guard(), i++)) {
+        __track__(7);(__llmz_guard(), __llmz_checkpoint(console.log(i))) ;__comment__("line 3", 7);
       ;__comment__("--", 8);
 
       ;__comment__("Comments on multiple lines\\nHi!", 10);
@@ -35,7 +35,7 @@ Hi!
 
         __track__(14);if (i === 5) {
           ;__comment__("I will throw an error here", 15);
-          __track__(16);throw new Error('Something went wrong')
+          __track__(16);throw (__llmz_guard(), __llmz_checkpoint(new Error('Something went wrong')))
         }
       }"
     `)
@@ -57,13 +57,13 @@ Hi!
       "
                                     
 
-        __track__(5);for(let i = 0;                           i < 10; i++) {
+        __track__(5);for(let i = 0;                           i < 10; (__llmz_guard(), i++)) {
          ;__comment__("this is a comment that will be replaces", 6);
          __track__(7);const a = {
             b: i,              
             c: 1
                          
-         };__var__("a", () => eval("a"));
+         }
         }"
     `)
   })
@@ -81,7 +81,7 @@ Hi!
       await sayHello('Hello');`
 
     expect(() => compile(code)).toThrowErrorMatchingInlineSnapshot(
-      `[SyntaxError: Unexpected token (5:37). The code must be plain JavaScript: do not use TypeScript syntax (type annotations, "as" casts, generics, interfaces or type aliases).]`
+      `[InvalidCodeError: Unexpected token (5:37). The code must be plain JavaScript: do not use TypeScript syntax (type annotations, "as" casts, generics, interfaces or type aliases).]`
     )
   })
 
@@ -114,26 +114,26 @@ Hi!
                                     
 
             ;__comment__("Adding new entries to the computed table", 5);
-        __track__(6);const newEntries = [
+        __track__(6);__var__("newEntries", () => eval("newEntries"), undefined, "initialize");const newEntries = __var__("newEntries", () => eval("newEntries"), ([
           { Name: "Fleur" },
           { Name: "Pikachu" },
           { Name: "Ash" },
           { Name: "Misty" }
-        ];__var__("newEntries", () => eval("newEntries"));
+        ]), "assignment");
         
         ;__comment__("Function to add the new entries", 13);
-        __track__(14);async function addNewEntries(entries) {__var__("entries", () => eval("entries"));
+        __track__(14);async function addNewEntries(entries) {__llmz_guard();
           __track__(15);for (const entry of entries) {
-            __track__(16);await (async () => {try {__toolc__(0, "start");const __ret__ = await ComputedTable.createTableRow(entry);__toolc__(0, "end", __ret__);return __ret__;} catch (err) {__toolc__(0, "end", err);const __newError = new Error(err.message);__newError.stack = err.stack + ("\\n" + __newError.stack);throw __newError;}})();
+            __track__(16);(__llmz_guard(), __llmz_checkpoint(await (__llmz_guard(), __llmz_checkpoint(ComputedTable.createTableRow(entry)))));
           }
           ;__comment__("Send a confirmation message to the user", 18);
-          __track__(19);(() => {try {__toolc__(1, "start");const __ret__ = chat.sendText({
+          __track__(19);(__llmz_guard(), __llmz_checkpoint(chat.sendText({
             message: "I have successfully added the new persons: Fleur, Pikachu, Ash, and Misty to the computed table."
-          });__toolc__(1, "end", __ret__);return __ret__;} catch (err) {__toolc__(1, "end", err);const __newError = new Error(err.message);__newError.stack = err.stack + ("\\n" + __newError.stack);throw __newError;}})();
+          })));
         }
         
         ;__comment__("Execute the function to add the new entries", 24);
-        __track__(25);return await (await (async () => {try {__toolc__(2, "start");const __ret__ = await addNewEntries(newEntries);__toolc__(2, "end", __ret__);return __ret__;} catch (err) {__toolc__(2, "end", err);const __newError = new Error(err.message);__newError.stack = err.stack + ("\\n" + __newError.stack);throw __newError;}})());"
+        __track__(25);(__llmz_guard(), __llmz_checkpoint(await ((__llmz_guard(), __llmz_checkpoint(await (__llmz_guard(), __llmz_checkpoint(addNewEntries(newEntries))))))));"
     `)
   })
 })

@@ -135,11 +135,15 @@ export const getMultilineComment = (description?: string) => {
 
   trimEmptyLines(descLines)
 
-  return descLines.length === 0
-    ? ''
-    : descLines.length === 1
-      ? `/** ${escapeCommentEnd(descLines[0]!)} */`
-      : `/**\n${descLines.map(ensureLineStartsWithAsterisk).map(escapeCommentEnd).join('\n')}\n */`
+  if (descLines.length === 0) {
+    return ''
+  }
+
+  if (descLines.length === 1) {
+    return `/** ${escapeCommentEnd(descLines[0]!)} */`
+  }
+
+  return `/**\n${descLines.map(ensureLineStartsWithAsterisk).map(escapeCommentEnd).join('\n')}\n */`
 }
 
 export const toValidFunctionName = (str: string) => {
@@ -184,6 +188,7 @@ export const toValidObjectName = (str: string) => {
   if (!/^[a-zA-Z_$]/.test(name)) {
     name = `_${name}`
   }
+
   return name.replaceAll(' ', '')
 }
 

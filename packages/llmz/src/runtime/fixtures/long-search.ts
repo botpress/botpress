@@ -1,4 +1,4 @@
-import { CitationsManager } from '../../citations.js'
+import { CitationsManager } from '../../chat/citations.js'
 
 export type SearchChallenge = {
   id: string
@@ -32,9 +32,6 @@ export function buildSearchChallenge(challenge: SearchChallenge, compact: boolea
   const main = Math.round(47 * challenge.position)
   const second = main < 24 ? 39 : 7
   const required = challenge.profile === 'join' || challenge.profile === 'arithmetic' ? [main, second] : [main]
-  // Near-match passages can support explicit scope/date disambiguation, but
-  // never substitute for evidence about the requested account and policy.
-  const contextual = challenge.profile === 'join' || challenge.profile === 'arithmetic' ? [47] : [0, 1, 46]
   const evidence = new Map<number, string>()
   let question: string
   let facts: string[]
@@ -82,6 +79,7 @@ export function buildSearchChallenge(challenge: SearchChallenge, compact: boolea
       facts = [String(remaining)]
       break
   }
+
   const distractors = new Map<number, string>([
     [
       0,
@@ -111,8 +109,11 @@ export function buildSearchChallenge(challenge: SearchChallenge, compact: boolea
       `Historical operations note ${i}. No export policy for the requested account is established here.`
     let padding = ''
     if (!compact) {
-      for (let j = 0; padding.length < challenge.size / 48; j++) padding += paragraph(i, j)
+      for (let j = 0; padding.length < challenge.size / 48; j++) {
+        padding += paragraph(i, j)
+      }
     }
+
     const midpoint = padding.indexOf('\n', Math.floor(padding.length / 2)) + 1
     return { id: i, text: padding.slice(0, midpoint) + core + '\n' + padding.slice(midpoint) }
   }).filter((doc) => !compact || evidence.has(doc.id) || distractors.has(doc.id))
@@ -131,9 +132,12 @@ export function buildSearchChallenge(challenge: SearchChallenge, compact: boolea
         expectedSources.push(file)
         evidenceTags.push(citation.tag)
       }
-      if (required.includes(doc.id) || contextual.includes(doc.id)) {
+
+      // Near matches can support scope/date comparisons, but do not replace required evidence.
+      if (required.includes(doc.id) || distractors.has(doc.id)) {
         relevantSources.push(file)
       }
+
       return `<${citation.tag} file="${file}" title="${title}">\n${doc.text}\n</${citation.tag}>`
     })
     .join('\n')

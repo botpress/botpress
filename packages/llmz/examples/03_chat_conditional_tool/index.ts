@@ -27,6 +27,7 @@ import { printTrace } from '../utils/debug'
 
 // Initialize Botpress client
 const client = new Client({
+  apiUrl: process.env.BOTPRESS_API_URL,
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
 })
@@ -128,14 +129,12 @@ const ToolsForUser: Record<Identity, Tool[]> = {
   unknown: [login], // Unauthenticated users can only login
 }
 
-login.getTypings()
-
 // Define dynamic instructions based on user state
 // Instructions change based on authentication status
 const InstructionsForUser: Record<Identity, string> = {
   unknown: 'The user is not authenticated. Please ask them to log in before proceeding. Use buttons to list users.',
-  admin: `User is logged in as "${userId}". At every turn, send a message to the user with the list of all the tools available for the user and ask them to choose one. Use buttons to list tools.`,
-  customer: `User is logged in as "${userId}". At every turn, send a message to the user with the list of all the tools available for the user and ask them to choose one. Use buttons to list tools.`,
+  admin: `User is logged in as an administrator. At every turn, send a message to the user with the list of all the tools available for the user and ask them to choose one. Use buttons to list tools.`,
+  customer: `User is logged in as a customer. At every turn, send a message to the user with the list of all the tools available for the user and ask them to choose one. Use buttons to list tools.`,
 }
 
 const chat = new CLIChat()
@@ -143,8 +142,10 @@ const chat = new CLIChat()
 // Main execution loop with dynamic configuration
 while (await chat.iterate()) {
   await execute({
+    model: process.env.BOTPRESS_MODEL ?? 'openai:gpt-5.6-luna',
     client,
     chat,
+    session: chat.session,
 
     // Use function-based instructions that evaluate at runtime
     // This allows instructions to change based on current user state

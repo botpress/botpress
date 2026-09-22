@@ -1,9 +1,14 @@
-import { Model } from '@botpress/cognitive'
+import { Model, type CognitiveMessage } from '@botpress/cognitive'
 import { RuntimeCognitive } from './runtime/types.js'
 
 export type RuntimeGenerateContentInput = Parameters<RuntimeCognitive['generateText']>[0]
 export type RuntimeGenerateContentOptions = Parameters<RuntimeCognitive['generateText']>[1]
-export type RuntimeGenerateContentOutput = Awaited<ReturnType<RuntimeCognitive['generateText']>>
+export type RuntimeGenerateContentOutput = Awaited<ReturnType<RuntimeCognitive['generateText']>> & {
+  /** Full native assistant message, including opaque provider reasoning/signature fields. */
+  assistantMessage?: CognitiveMessage & Record<string, unknown>
+  /** Opaque provider continuation state. The adapter must consume it on subsequent requests. */
+  continuation?: unknown
+}
 
 /**
  * Internal escape hatch for supplying a custom model client that bypasses Cognitive.
@@ -12,6 +17,11 @@ export type RuntimeGenerateContentOutput = Awaited<ReturnType<RuntimeCognitive['
  * against arbitrary models). It is intentionally undocumented and offers no stability
  * guarantees — the API may change or be removed without notice. Avoid it unless you
  * fully understand the implications.
+ *
+ * Native clients must forward request tools/toolControl, return real toolCalls
+ * with unique IDs, and report successful completion metadata. Preserve provider
+ * reasoning/signature state using assistantMessage or continuation; flattened
+ * reasoning text is not a replacement for provider-required continuation data.
  */
 export abstract class _CustomModelClient implements RuntimeCognitive {
   private readonly ['$$COGNITIVE'] = 'runtime' as const

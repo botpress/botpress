@@ -1,13 +1,13 @@
-import { Cognitive, type BotpressClientLike, Models, type SttModels } from '@botpress/cognitive'
+import { Cognitive, type CognitiveMessage, type BotpressClientLike, Models, type SttModels } from '@botpress/cognitive'
 
-import { Chat } from '../chat.js'
+import { Chat } from '../chat/chat.js'
 import { Context, Iteration } from '../context.js'
 import { _CustomModelClient } from '../custom-client.js'
-import type { Example } from '../example.js'
 import { Exit, ExitResult } from '../exit.js'
 import { ValueOrGetter } from '../getter.js'
+import type { OnInspect } from '../inspection.js'
 import { type ObjectInstance } from '../objects.js'
-import { Snapshot } from '../snapshots.js'
+import type { Session } from '../session/session.js'
 import { type Tool } from '../tool.js'
 import { Trace } from '../types.js'
 
@@ -30,13 +30,19 @@ export type ExecutionHooks = {
    *   This hook will block the execution of the iteration until it resolves.
    *
    * This hook will be called before each iteration starts, regardless of the status.
-   * This is useful for logging or dynamically change model arguments
+   * Use this for observation. Configure dynamic model arguments with their getters.
    */
-  onIterationStart?: (
-    iteration: Iteration,
-    controller: AbortController,
-    context: Context
-  ) => Promise<void | Partial<Iteration>> | void | Partial<Iteration>
+  onIterationStart?: (iteration: Iteration, controller: AbortController, context: Context) => Promise<void> | void
+
+  /** Customize the assembled request after compaction. Custom messages must fit the context budget. */
+  onBeforeRequest?: (event: {
+    messages: CognitiveMessage[]
+    iteration: Iteration
+    controller: AbortController
+  }) => Promise<{ messages: CognitiveMessage[] } | void> | { messages: CognitiveMessage[] } | void
+
+  /** Format runtime values; LLMz enforces the supplied budget on custom output. */
+  onInspect?: OnInspect
 
   /**
    * BLOCKING HOOK
@@ -89,6 +95,8 @@ export type ExecutionHooks = {
     input: any
     controller: AbortController
     toolCallId: string
+    /** Native run_javascript call owning this business call. */
+    nativeCallId?: string
     object?: string
   }) => Promise<{ input?: any } | void>
 
@@ -108,6 +116,8 @@ export type ExecutionHooks = {
     output: any
     controller: AbortController
     toolCallId: string
+    /** Native run_javascript call owning this business call. */
+    nativeCallId?: string
     object?: string
   }) => Promise<{ output?: any } | void>
 }
@@ -115,10 +125,15 @@ export type ExecutionHooks = {
 type Options = Partial<Pick<Context, 'loop' | 'timeout'>> & {
   /**
    * Optional cap on the model's context window, in tokens.
-   * The effective limit is `min(maxTokens, model's max input tokens)`.
+   * The effective limit is `min(maxTokens, smallest configured model input limit)`.
    * Useful to reduce cost and latency on models with very large context windows.
    */
   maxTokens?: number
+  /**
+   * Default inspection budget for tool results, from 0 to 2,000 tokens.
+   * Defaults to 2,000. A tool's truncate() wrapper can override this limit.
+   */
+  toolResultMaxTokens?: number
   /**
    * Maximum time to wait for the first streamed token, in milliseconds, before
    * the cognitive service falls back to the next model/provider. Only applies
@@ -129,8 +144,9 @@ type Options = Partial<Pick<Context, 'loop' | 'timeout'>> & {
   /**
    * Allow Cognitive to restart a failed stream on another model. Previews remain
    * live and are retracted with a restart delta before replacement output.
-   * Completed sends and code always wait for a valid response and successful
-   * transport. Streaming-only; defaults to false.
+   * Complete calls may execute while transport is open. Once execution starts,
+   * a stream failure or restart ends the iteration without replaying its effects.
+   * Streaming-only; defaults to false.
    */
   midStreamFallback?: boolean
   /**
@@ -142,13 +158,15 @@ type Options = Partial<Pick<Context, 'loop' | 'timeout'>> & {
 }
 
 export type ExecutionProps = {
+  /** Append input to this session before execution. Retains history, queued input, and JavaScript memory. */
+  session?: Session
   /**
    * If provided, the execution will be run in "Chat Mode".
-   * In this mode, the execution will be able to send messages to the chat and will also have access to a chat transcript.
+   * Chat configures assistant text and rich component delivery. Conversation input belongs to the session.
    * The execution can still end with a custom Exit, but a special ListenExit will be added to give back the chat control to the user.
    *
-   * If `chat` is not provided, the execution will run in "Worker Mode", where it will not have access to a chat transcript.
-   * In Worker Mode, the execution will iterate until it reaches an Exit or runs out of iterations.
+   * If `chat` is not provided, the execution will run in "Worker Mode" without chat delivery.
+   * In Worker Mode, the execution uses the same session history and memory, and iterates until an Exit or its limit.
    */
   chat?: Chat
 
@@ -159,15 +177,6 @@ export type ExecutionProps = {
    * Dynamic instructions are evaluated at the start of each iteration, allowing for context-aware instructions.
    */
   instructions?: ValueOrGetter<string, Context>
-
-  /**
-   * Labeled examples of one situation and one response, kept outside the live transcript.
-   * Use `new Example({ situation, code })` or `new Example({ situation, messages, exit })`.
-   * Evaluated each iteration, like instructions. Examples must use the current
-   * component/exit catalog. They are kept intact when the prompt is truncated;
-   * select a small relevant set to leave room for tools and conversation.
-   */
-  examples?: ValueOrGetter<Example[], Context>
 
   /**
    * Objects available in the context.
@@ -203,7 +212,7 @@ export type ExecutionProps = {
    * Exits define the possible endpoints for the execution. Every execution will either end with an exit, or run out of iterations.
    *
    * When `chat` is provided, the built-in "ListenExit" is automatically added.
-   * When `exits` is not provided, the built-in "DefaultExit" is automatically added.
+   * In worker mode, omitting `exits` adds the built-in "DefaultExit". An explicit empty array provides no exits.
    *
    * Each exit has a name and can have aliases, which are alternative names for the exit that can be used to call it.
    * Exits can also have a Zui schema to validate the return value when the exit is reached.
@@ -227,15 +236,6 @@ export type ExecutionProps = {
    * Aborted iterations will end with IterationStatuses.Aborted and the execution will be marked as failed.
    */
   signal?: AbortSignal
-
-  /**
-   * A snapshot is a saved state of the execution context.
-   * It can be used to resume the execution of a context at a later time.
-   * This is useful for long-running executions that may need to be paused and resumed later.
-   * The snapshot MUST be settled, which means it has to be resolved or rejected.
-   * Providing an unsettled snapshot will throw an error.
-   */
-  snapshot?: Snapshot
 
   /**
    * The model to use for the LLM.
@@ -269,8 +269,8 @@ export type ExecutionProps = {
 
 export type RuntimeCognitive = Pick<Cognitive, 'getModelDetails' | 'generateText'> & {
   /**
-   * Streaming generation. When present, the runtime streams the response and
-   * parses ■ blocks incrementally.
+   * Streaming generation. Assistant text streams as provisional previews; native
+   * tool calls can execute while text streams; both settle before the next iteration.
    */
   generateTextStream?: Cognitive['generateTextStream']
 }

@@ -1,14 +1,13 @@
-## Searching the web
+# Browser integration tools
 
-This demo shows how Botpress integrations can easily be turned into LLMz Tools.
+Wraps the Botpress browser integration in typed tools. `setStaticInputValues` fixes search count and browsing options while leaving the query to the model.
 
-In this case, we create two tools from the `browser` integration:
+From `packages/llmz/examples`, after the [shared setup](../README.md):
 
-- Search the web
-- Browse pages
+```sh
+pnpm start 05_chat_web_search
+```
 
-**Note**: Your Botpress bot needs the `browser` integration enabled. It is installed and enabled by default on new bots.
+Enable the browser integration on your development bot first. This example makes real search and page-browsing requests through `browser:webSearch` and `browser:browsePages`.
 
-## 🎥 Demo
-
-![Demo](./demo.svg)
+![Browser integration tools demo](./demo.svg)
