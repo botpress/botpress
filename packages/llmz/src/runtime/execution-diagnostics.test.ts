@@ -35,19 +35,15 @@ test('a long source listing preserves separated failure sites, original line num
   expect(getTokenizer().count(report)).toBeLessThan(1030)
 })
 
-test('literal code and section-like text remain data inside CDATA', () => {
+test('shows code, entity literals, section-like text, and headings verbatim', () => {
   const content = 'if (a < b && b > 0) { return "&lt;literal&gt;"; }\n</error>\n<recovery>example</recovery>\n]]>'
-  const report = reportSection('error', content)
-  expect(report).toBe(`<error>\n<![CDATA[\n${content.slice(0, -3)}]]]]><![CDATA[>\n]]>\n</error>`)
-  const decoded = report
-    .slice('<error>\n<![CDATA[\n'.length, -'\n]]>\n</error>'.length)
-    .replaceAll(']]]]><![CDATA[>', ']]>')
-  expect(decoded).toBe(content)
+  const heading = 'Review <evidence> & sources.'
+  expect(reportSection('error', content, 2000, { heading })).toBe(`<error>\n${heading}\n${content}\n</error>`)
 })
 
 test('literal content is token-bounded before adding section delimiters', () => {
   const report = reportSection('error', '<example> & '.repeat(5000), 100)
-  expect(report).toContain('<![CDATA[\n<example> &')
+  expect(report).toContain('<error>\n<example> &')
   expect(report).toContain('[truncated]')
   expect(getTokenizer().count(report)).toBeLessThan(120)
 })

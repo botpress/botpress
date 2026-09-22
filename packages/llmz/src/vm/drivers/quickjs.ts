@@ -24,6 +24,7 @@ import {
 } from '../instrument.js'
 import { MISSING_MEMBER } from '../member-proxy.js'
 import {
+  VM_CALL_SITE,
   VM_PROGRAM_COMPLETE,
   VM_TERMINATION,
   type DriverExecutionContext,
@@ -180,6 +181,20 @@ export class QuickJSDriver implements VMDriver {
     const disposeIfNeeded = (handle: QuickJSHandle) => {
       if (handle !== vm.true && handle !== vm.false && handle !== vm.null && handle !== vm.undefined) {
         handle.dispose()
+      }
+    }
+    context[VM_CALL_SITE] = () => {
+      const stack = vm.evalCode('new Error().stack')
+      if ('error' in stack) {
+        stack.error?.dispose()
+        return undefined
+      }
+
+      try {
+        const frame = vm.getString(stack.value).match(/<quickjs>:(\d+)/)
+        return frame ? Math.max(1, Number(frame[1]) - 9 - userCodeStartLine + 1) : undefined
+      } finally {
+        stack.value.dispose()
       }
     }
     // Wrap a host function so QuickJS can call it: unmarshal args, call host, marshal result back.

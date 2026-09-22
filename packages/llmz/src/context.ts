@@ -126,7 +126,7 @@ export namespace IterationStatuses {
       /** The value returned by the executed code (or the context provided by a ThinkSignal). */
       variables: unknown
       metadata?: Record<string, unknown>
-      /** A tool paused execution; it did not finish or return normally. */
+      /** A legacy VM control-flow signal paused execution. Tool ThinkSignals now use forced inspection. */
       interrupted?: boolean
     }
   }

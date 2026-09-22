@@ -124,6 +124,13 @@ export type ExecutionHooks = {
 
 type Options = Partial<Pick<Context, 'loop' | 'timeout'>> & {
   /**
+   * Require at least one successfully delivered text or component message in this
+   * execution before the built-in ListenExit can complete. Defaults to true.
+   * Set false for intentionally silent chat handling. Custom exits and workers
+   * are unaffected. Rejection is recoverable within the remaining loop budget.
+   */
+  requireChatResponse?: boolean
+  /**
    * Optional cap on the model's context window, in tokens.
    * The effective limit is `min(maxTokens, smallest configured model input limit)`.
    * Useful to reduce cost and latency on models with very large context windows.

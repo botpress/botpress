@@ -110,7 +110,7 @@ describe.each([
     }
   )
 
-  test('exit without arguments listens immediately and skips subsequent messages', async () => {
+  test('exit without arguments listens immediately and skips subsequent messages when silence is allowed', async () => {
     const { chat, delivered } = recordingChat()
     const client = new NativeClient([
       javascript(`
@@ -119,7 +119,7 @@ describe.each([
       `),
     ])
 
-    const result = await executeContext({ client, chat, options: { loop: 1 } })
+    const result = await executeContext({ client, chat, options: { loop: 1, requireChatResponse: false } })
 
     expect(result.is(ListenExit)).toBe(true)
     expect(delivered).toEqual([])

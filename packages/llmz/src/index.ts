@@ -10,6 +10,7 @@ export {
   CompactionError,
   ComponentInputError,
   DeliveryError,
+  MissingChatResponseError,
   ExecutionAbortedError,
   ExitInputError,
   HookError,

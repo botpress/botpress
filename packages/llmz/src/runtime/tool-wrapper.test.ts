@@ -123,7 +123,7 @@ describe('wrapTool', () => {
     expect((traces[0] as any).error).toBeInstanceOf(Error)
   })
 
-  test('traces ThinkSignal as successful and rethrows it', async () => {
+  test('traces ThinkSignal as successful and returns its context', async () => {
     const iteration = createIteration()
     const traces = iteration.traces
     const signal = new ThinkSignal('need context', { value: 1 })
@@ -140,12 +140,12 @@ describe('wrapTool', () => {
       controller: new AbortController(),
     })
 
-    await expect(wrapped(undefined)).rejects.toBe(signal)
+    await expect(wrapped(undefined)).resolves.toEqual({ value: 1 })
     expect(traces.map((trace) => trace.type)).toEqual(['think_signal', 'tool_call'])
     expect(traces[1]).toMatchObject({
       type: 'tool_call',
       tool_name: 'thinker',
-      output: signal,
+      output: { value: 1 },
       success: true,
     })
   })

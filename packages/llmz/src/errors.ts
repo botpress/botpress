@@ -225,6 +225,12 @@ export class VMLoopSignal extends VMSignal {
   }
 }
 
+/**
+ * A successful tool result that requires model inspection before completion.
+ * Tools may throw or return this signal. Its context becomes the JavaScript
+ * return value; calls and assignments continue, and inspection overrides any
+ * attempted exit at iteration settlement. Cancellation and critical errors still stop execution.
+ */
 export class ThinkSignal extends VMLoopSignal {
   public override readonly signalKind = 'think'
   public static override readonly is = (value: unknown): value is ThinkSignal =>

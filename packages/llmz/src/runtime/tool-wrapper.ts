@@ -4,9 +4,11 @@ import { ulid } from 'ulid'
 import { Iteration } from '../context.js'
 import { callHook } from '../errors/hooks.js'
 import { isLLMzError, ThinkSignal, ToolExecutionError } from '../errors.js'
+import { snapshotInspectionValue } from '../inspection.js'
 
 import { type Tool } from '../tool.js'
-import type { TruncationPolicy } from '../truncate.js'
+import { isTruncated, unwrapTruncated, type TruncationPolicy } from '../truncate.js'
+import type { ForcedInspection } from './forced-inspection.js'
 import { ExecutionHooks } from './types.js'
 
 const SLOW_TOOL_WARNING = ms('15s')
@@ -20,6 +22,7 @@ type ToolWrapperProps = {
   onTruncation?: (value: unknown, policy: TruncationPolicy) => void
   onResult?: (value: unknown) => void
   controller: AbortController
+  onThink?: (inspection: ForcedInspection) => void
 }
 
 export function wrapTool({
@@ -31,8 +34,9 @@ export function wrapTool({
   onTruncation,
   onResult,
   controller,
+  onThink,
 }: ToolWrapperProps) {
-  return async function (input: any) {
+  return async function (input: any, line?: number) {
     controller.signal.throwIfAborted()
     const toolCallId = `tcall_${ulid()}`
     const originalInput = input
@@ -57,7 +61,7 @@ export function wrapTool({
     let output: any
     let error: unknown
     let success = true
-    let signalToThrow: ThinkSignal | undefined
+    const inspections: ForcedInspection[] = []
 
     const pushToolCallTrace = () => {
       iteration.recordTrace({
@@ -75,43 +79,27 @@ export function wrapTool({
       })
     }
 
-    const handleSignals = async (err: unknown) => {
-      if (output === err) {
-        return true
+    const unwrapSignal = (value: unknown): unknown => {
+      if (!ThinkSignal.is(value)) {
+        return value
       }
 
-      if (ThinkSignal.is(err)) {
-        signalToThrow = err
-        iteration.recordTrace({
-          type: 'think_signal',
-          started_at: Date.now(),
-          line: 0,
-          ended_at: Date.now(),
-        })
-        success = true
-        output = err
-
-        const afterRes = await callHook(() =>
-          afterHook?.({
-            iteration,
-            tool,
-            input: originalInput,
-            output,
-            controller,
-            object,
-            toolCallId,
-            nativeCallId: iteration.nativeCallId,
-          })
-        )
-
-        if (typeof afterRes?.output !== 'undefined') {
-          output = afterRes.output
-        }
-
-        return true
+      const context = value.context
+      const output = unwrapTruncated(context)
+      if (isTruncated(context)) {
+        onTruncation?.(output, context.$$truncate)
       }
 
-      return false
+      const inspection: ForcedInspection = {
+        tool: object ? `${object}.${tool.name}` : tool.name,
+        toolCallId,
+        line,
+        reason: value.reason,
+        value: output,
+        metadata: value.metadata,
+      }
+      inspections.push(inspection)
+      return output
     }
 
     try {
@@ -135,20 +123,30 @@ export function wrapTool({
       // an irreversible business action after that cancellation was accepted.
       controller.signal.throwIfAborted()
 
-      output = await tool.execute(effectiveInput, {
-        callId: toolCallId,
-        iterationId: iteration.id,
-        nativeCallId: iteration.nativeCallId,
-        onTruncation,
-        onInput: (parsed) => {
-          controller.signal.throwIfAborted()
-          // Keep the original argument when a hook replaced it; do not rerun
-          // its effects just to produce a trace of an argument we never used.
-          if (effectiveInput === originalInput) {
-            reportedInput = parsed
-          }
-        },
-      })
+      try {
+        output = await tool.execute(effectiveInput, {
+          callId: toolCallId,
+          iterationId: iteration.id,
+          nativeCallId: iteration.nativeCallId,
+          onTruncation,
+          onInput: (parsed) => {
+            controller.signal.throwIfAborted()
+            // Keep the original argument when a hook replaced it; do not rerun
+            // its effects just to produce a trace of an argument we never used.
+            if (effectiveInput === originalInput) {
+              reportedInput = parsed
+            }
+          },
+        })
+      } catch (error) {
+        if (!ThinkSignal.is(error)) {
+          throw error
+        }
+
+        output = error
+      }
+
+      output = unwrapSignal(output)
 
       const afterRes = await callHook(() =>
         afterHook?.({
@@ -164,25 +162,42 @@ export function wrapTool({
       )
 
       if (typeof afterRes?.output !== 'undefined') {
-        output = afterRes.output
+        output = unwrapSignal(afterRes.output)
       }
     } catch (err) {
-      if (!(await handleSignals(err))) {
+      if (ThinkSignal.is(err)) {
+        output = unwrapSignal(err)
+      } else {
         success = false
         error = isLLMzError(err) ? err : new ToolExecutionError(tool.name, err)
         iteration.recordError(error)
       }
     } finally {
       clearTimeout(alertSlowTool)
+      for (const inspection of inspections) {
+        // Hooks may redact or replace a successful result. Inspect the effective
+        // value, and snapshot it before guest code can mutate the returned object.
+        const value = snapshotInspectionValue(success ? output : inspection.value)
+        onThink?.({ ...inspection, value })
+        iteration.recordTrace({
+          type: 'think_signal',
+          started_at: Date.now(),
+          ended_at: Date.now(),
+          line: line ?? 0,
+          tool_name: tool.name,
+          tool_call_id: toolCallId,
+          object,
+          reason: inspection.reason,
+          context: value,
+          metadata: inspection.metadata,
+        })
+      }
+
       pushToolCallTrace()
     }
 
     if (!success) {
       throw error
-    }
-
-    if (signalToThrow) {
-      throw signalToThrow
     }
 
     onResult?.(output)

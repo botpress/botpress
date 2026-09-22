@@ -424,7 +424,7 @@ describe('native execution lifecycle', () => {
     expect(feedback(client, 2)).toContain('Use value 3.')
   })
 
-  test('ThinkSignal preserves prior memory and emits explicit interrupted feedback', async () => {
+  test('ThinkSignal retains later assignments and exposes its context as an inspection', async () => {
     const pause = new Tool({
       name: 'pause',
       handler: () => {
@@ -438,10 +438,10 @@ describe('native execution lifecycle', () => {
     ])
     const result = await executeContext({ client, tools: [pause], exits: [done] })
     expect(result.isSuccess()).toBe(true)
-    expect(result.session.getBindings().$return).toBe(17)
-    expect(result.session.memory.variables).toEqual({ before: 1 })
+    expect(result.session.getBindings().$return).toBe('Relevant evidence')
+    expect(result.session.memory.variables).toEqual({ before: 1, after: 2 })
     expect(feedback(client, 2)).toContain('Relevant evidence')
-    expect(feedback(client, 2)).toContain('run_javascript: paused')
+    expect(feedback(client, 2)).toContain('<forced_inspection>')
   })
 
   test('session compaction retains named data and clears automatic results by origin', async () => {

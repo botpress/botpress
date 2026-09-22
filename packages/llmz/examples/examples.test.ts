@@ -53,7 +53,8 @@ const cases = [
     [
       [
         javascript('return inspect(await login({userId:"admin",password:"password"}))'),
-        javascript('await reset_database(); return exit("listen")'),
+        javascript('return inspect(await reset_database());'),
+        response('The database has been reset.'),
       ],
     ],
   ],
@@ -62,7 +63,8 @@ const cases = [
     [
       [
         javascript('return inspect(await listTickets({}))'),
-        javascript('await closeTicket({ticketId:"123"}); return exit("listen")'),
+        javascript('return inspect(await closeTicket({ticketId:"123"}));'),
+        response('Ticket 123 has been closed.'),
       ],
     ],
   ],
@@ -76,7 +78,10 @@ const cases = [
       ],
     ],
   ],
-  ['06_chat_confirm_tool', [[javascript('const result = await overwrite(); return exit("listen")')]]],
+  [
+    '06_chat_confirm_tool',
+    [[javascript('return inspect(await overwrite());'), response('The file has been overwritten.')]],
+  ],
   ['07_chat_guardrails', [[response('Hello, how can I help?')]]],
   [
     '08_chat_multi_agent',

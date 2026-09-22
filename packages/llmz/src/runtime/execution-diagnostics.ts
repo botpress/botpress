@@ -10,13 +10,9 @@ export function reportSection(
   maxTokens = 2000,
   options: { heading?: string; preserve?: TruncatePreserve } = {}
 ): string {
-  const escape = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;')
-  const heading = options.heading ? `${escape(options.heading)}\n` : ''
+  const heading = options.heading ? `${options.heading}\n` : ''
   const body = limitInspectionOutput(content, maxTokens, false, options.preserve ?? 'top')
-  // Entity escaping would change code examples, HTML, and retrieval tags that the
-  // model needs to quote verbatim. CDATA keeps those bytes literal inside XML.
-  const literal = /[<&]|\]\]>/.test(body) ? `<![CDATA[\n${body.replaceAll(']]>', ']]]]><![CDATA[>')}\n]]>` : body
-  return `<${name}>\n${heading}${literal}\n</${name}>`
+  return `<${name}>\n${heading}${body}\n</${name}>`
 }
 
 /** Show the specific failure and guest source, never the host's implementation stack. */

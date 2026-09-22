@@ -142,6 +142,8 @@ After a failed execution, the session retains the active input batch and any com
 
 `result.toJSON()` is a compact outcome summary. `result.diagnostics()` exports run diagnostics. Neither replaces `session.toJSON()`.
 
+Chat requires at least one successfully delivered text or component message during the current `execute()` call before `exit("listen")` can complete. An empty or whitespace-only response does not count; messages from earlier iterations in this execution do. Silent completion raises a recoverable `MissingChatResponseError` before `onExit`, preserving tool results for the next attempt. Set `options: { requireChatResponse: false }` for intentionally silent handling. Custom task exits and worker mode are unaffected.
+
 ## Tools and exits
 
 A `Tool` has a name, async handler, optional description, input/output schemas, aliases, metadata, and retry callback. Its original input schema validates and normalizes arguments before the handler runs. Its output schema describes likely returned data for TypeScript and the model: results are never validated, normalized, stripped, or rejected against that schema. Dynamic tools, objects, exits, instructions, and model configuration can be supplied as getters evaluated for each iteration.
@@ -177,7 +179,9 @@ Model-facing schemas describe accepted input shapes, not arbitrary JavaScript be
 
 Use `result.is(done)` to narrow the result and its output type. `result.isError()` exposes an execution failure. Without custom exits, workers receive `DefaultExit`. An explicit empty `exits` array supplies no completion exits. Chat adds `ListenExit`; an accepted plain assistant answer can complete the chat turn.
 
-Tools return business data. Generated code sends rich messages through registered `chat.<component>(props)` methods. A `ThinkSignal` requests another reasoning iteration; it is not durable pause/resume.
+Tools return business data. Generated code sends rich messages through registered `chat.<component>(props)` methods. A tool may throw or return `new ThinkSignal(reason, context)` to require inspection of a successful result. JavaScript receives `context` as the tool return value: assignments, subsequent calls, and awaited parallel tools continue normally. At the end of that iteration, inspection takes precedence over an attempted exit or a later recoverable error; exit hooks do not run. The next model turn receives every signaling tool's name, source line, reason, and result together inside `<forced_inspection>`, and is instructed to reuse those results rather than repeat successful calls. Explicit `inspect()` output is also preserved. Tool-result display budgets and `truncate()` policies still apply.
+
+Forced inspection delays completion, not business actions: code after a signaling tool still runs, including other tools and chat component deliveries. It is not an authorization barrier. Cancellation and critical failures still stop execution completely. `ThinkSignal` is not durable pause/resume.
 
 ## Components
 
@@ -283,7 +287,7 @@ const getEvidence = new Tool({
 
 Inventories and diagnostic previews keep their own small budgets even if a value carries a larger inspection override. Truncation markers are included in the final measured output. Unicode boundaries, cyclic structures, throwing formatters, and accessor properties are handled without changing retained data.
 
-Standalone text is displayed directly. Strings nested in objects or arrays use JSON quoting so source indentation, line endings, and literal escapes remain distinct from the preview's formatting.
+Both `return inspect(value)` and forced ThinkSignal inspection use the native inspector. Standalone text is displayed directly, preserving whitespace, code, and literal tags within its preview budget. Report sections add no XML entity escaping or CDATA. Strings nested in objects or arrays use JSON quoting so source indentation, line endings, and literal escapes remain distinct from the preview's formatting.
 
 `onInspect` customizes previews by purpose and identity. Return `undefined` for the default formatter. The hook receives an isolated read-only snapshot; custom text is still bounded. A formatter failure falls back to default inspection.
 

@@ -6,6 +6,7 @@ import type { Trace, VMExecutionResult } from '../types.js'
 /** Host-only lifecycle hook; symbols are not copied into the generated program's globals. */
 export const VM_PROGRAM_COMPLETE = Symbol('llmz.programComplete')
 export const VM_TERMINATION = Symbol('llmz.termination')
+export const VM_CALL_SITE = Symbol('llmz.callSite')
 export const VM_ON_ERROR = Symbol('llmz.onError')
 
 export type VMTermination = {
@@ -16,6 +17,7 @@ export type VMTermination = {
 }
 
 export type VMContext = Record<string, any> & {
+  [VM_CALL_SITE]?: () => number | undefined
   [VM_ON_ERROR]?: (error: LLMzFailure) => void
   [VM_PROGRAM_COMPLETE]?: () => void
   [VM_TERMINATION]?: VMTermination

@@ -431,7 +431,11 @@ Key syntax:
 
       // Check the supplied code, not incidental headings or explanatory prose.
       expect(expectedSnippets.length).toBeGreaterThan(0)
-      const answer = messagesSent.join('\n')
+      // The model may split independent SQL examples into separate fences.
+      // Compare their actual source, preserving every character within each example.
+      const answer = [...messagesSent.join('\n').matchAll(/```[^\n]*\n([\s\S]*?)```/g)]
+        .map((match) => match[1]!.trim())
+        .join('\n\n')
       for (const snippet of expectedSnippets) {
         expect(answer).toContain(snippet)
       }

@@ -1,12 +1,15 @@
+import { isEqual } from 'lodash-es'
 import { CodeExecutionError, Signals, UnknownToolError } from '../errors.js'
 
 import { resolveInspectionBudget, type InspectionPolicyLookup } from '../inspect.js'
 import { createInspector, type InspectionIdentity, type Inspector } from '../inspection.js'
 import type { MemoryChange, MemoryReport } from '../session/memory.js'
 import { DEFAULT_TOOL_RESULT_MAX_TOKENS } from '../truncate.js'
+import { getErrorMessage } from '../utils.js'
 import { renderMessageDeliveries, renderToolCalls, type ExecutionActivity } from './execution-activity.js'
 
 import { renderExecutionDiagnostics, renderSourceTrace, reportSection } from './execution-diagnostics.js'
+import { renderForcedInspection, type ForcedInspection } from './forced-inspection.js'
 
 export { renderMessageDeliveries } from './execution-activity.js'
 
@@ -14,7 +17,14 @@ const MAX_REPORTED_CHANGES = 40
 const MAX_OVERRIDE_SOURCE_LENGTH = 3000
 
 export type ExecutionOutcome =
-  | { type: 'inspect'; value: unknown; available: boolean; explicit: boolean }
+  | {
+      type: 'inspect'
+      value: unknown
+      available: boolean
+      explicit: boolean
+      forcedInspections?: readonly ForcedInspection[]
+      downstreamError?: unknown
+    }
   | { type: 'exit'; name: string; value: unknown }
   | { type: 'error'; message: string; error?: unknown; exitName?: string }
   | { type: 'cancelled'; message: string }
@@ -54,6 +64,26 @@ export function renderExecutionReport({
     return reportSection(tag, body, budget.tokens, { heading, preserve: budget.preserve })
   }
   const sections = [renderStatus(outcome, memory)]
+
+  if (outcome.type === 'inspect' && outcome.forcedInspections?.length) {
+    sections.push(renderForcedInspection(outcome.forcedInspections, inspector, identity, maxTokens, policies))
+    if (outcome.downstreamError) {
+      sections.push(
+        ...renderExecutionDiagnostics(
+          outcome.downstreamError,
+          getErrorMessage(outcome.downstreamError),
+          inspector,
+          identity
+        )
+      )
+      sections.push(
+        reportSection(
+          'recovery',
+          'A later operation failed. The tool results above were successfully retrieved; inspect them and repair only the failed work. Do not repeat successful calls.'
+        )
+      )
+    }
+  }
 
   if (outcome.type === 'error') {
     sections.push(...renderExecutionDiagnostics(outcome.error, outcome.message, inspector, identity))
@@ -145,7 +175,13 @@ export function renderExecutionReport({
     sections.push(reportSection('memory_errors', `Memory errors\n${entries.join('\n')}`))
   }
 
-  if (outcome.type === 'inspect') {
+  if (
+    outcome.type === 'inspect' &&
+    outcome.forcedInspections?.length &&
+    (!outcome.explicit || outcome.forcedInspections.some((entry) => isEqual(entry.value, outcome.value)))
+  ) {
+    // Forced tool results are already grouped with their attribution above.
+  } else if (outcome.type === 'inspect') {
     const heading = outcome.explicit ? 'inspect() result' : 'Result'
     sections.push(
       outcome.available

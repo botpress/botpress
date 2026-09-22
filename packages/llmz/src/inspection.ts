@@ -68,7 +68,7 @@ export function createInspector(onInspect?: OnInspect): Inspector {
         const budget = resolveInspectionBudget(value, formatting)
         const output = onInspect(
           Object.freeze({
-            value: snapshot(value),
+            value: snapshotInspectionValue(value),
             purpose: options.purpose,
             maxTokens: budget.tokens,
             preserve: budget.preserve,
@@ -89,7 +89,8 @@ export function createInspector(onInspect?: OnInspect): Inspector {
   }
 }
 
-function snapshot(value: unknown, copies = new WeakMap<object, unknown>()): unknown {
+/** Isolate evidence from subsequent guest mutations without invoking getters. */
+export function snapshotInspectionValue(value: unknown, copies = new WeakMap<object, unknown>()): unknown {
   if (!value || typeof value !== 'object') {
     return typeof value === 'function' ? '[Function]' : value
   }
@@ -101,7 +102,7 @@ function snapshot(value: unknown, copies = new WeakMap<object, unknown>()): unkn
   if (isTruncated(value)) {
     // Display metadata is delivered through the event, never as user data.
     copies.set(value, '[Circular]')
-    const copy = snapshot(value.value, copies)
+    const copy = snapshotInspectionValue(value.value, copies)
     copies.set(value, copy)
     return copy
   }
@@ -122,7 +123,7 @@ function snapshot(value: unknown, copies = new WeakMap<object, unknown>()): unkn
 
     if (descriptor) {
       Object.defineProperty(copy, key, {
-        value: 'value' in descriptor ? snapshot(descriptor.value, copies) : '[Getter]',
+        value: 'value' in descriptor ? snapshotInspectionValue(descriptor.value, copies) : '[Getter]',
         enumerable: descriptor.enumerable,
       })
     }

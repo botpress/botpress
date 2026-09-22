@@ -93,7 +93,7 @@ function runtimeRules(props: LLMzPrompts.InitialStateProps, chat: boolean): stri
   }
 
   rules.push(
-    'A thinking interruption stops the current program and requests another model response. Statements after the interruption have not run; continue with a new program without repeating completed actions.',
+    'A tool may request forced inspection through ThinkSignal. The tool succeeded and its context is returned to JavaScript. Other calls and assignments continue normally. At the end of the program, forced inspection takes precedence over completion: review the reported results as an inspect() call, then continue from retained values without repeating successful calls.',
     'Respect tool-attempt limits separately from the model-response budget. An empty successful inspection result is not a failure.'
   )
 
