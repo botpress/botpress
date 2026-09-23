@@ -1,4 +1,3 @@
-import { Client } from '@botpress/client'
 import { Cognitive, type CognitiveRequest, type CognitiveStreamChunk } from '@botpress/cognitive'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -17,23 +16,6 @@ export const TEST_MODELS = [
   'anthropic:claude-haiku-4-5-20251001',
   'google-ai:gemini-3.5-flash',
 ] as const
-
-export async function getCorgiUrl() {
-  const client = new Client({
-    apiUrl: process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.cloud',
-    botId: process.env.CLOUD_BOT_ID,
-    token: process.env.CLOUD_PAT,
-  })
-
-  const { file } = await client.uploadFile({
-    key: 'tests/corgi.png',
-    content: fs.readFileSync(path.resolve(__dirname, './corgi.png')),
-    publicContentImmediatelyAccessible: true,
-    accessPolicies: ['public_content'],
-  })
-
-  return file.url
-}
 
 /** Base64 data URI for a fixture file in this directory. */
 export function getFixtureDataUri(filename: string, mimeType: string) {
