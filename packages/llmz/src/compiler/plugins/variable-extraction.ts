@@ -1,267 +1,125 @@
-import { AssignmentError, ReservedIdentifierError } from '../../errors.js'
-import { RESERVED_RUNTIME_NAMES } from '../../runtime-names.js'
 import { walk, type AnyNode, type Ctx } from '../ast.js'
 
 export const VariableTrackingFnIdentifier = '__var__'
-const FUNCTION_TYPES = new Set(['FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression'])
-const RESERVED = RESERVED_RUNTIME_NAMES
-function names(id: AnyNode | null): string[] {
-  if (!id) {
+
+/**
+ * Tracks user variables so the VM can read their values between iterations:
+ * - after each variable declaration: `__var__("a", () => eval("a"));`
+ * - at the top of function bodies, for their parameters
+ *
+ * The `eval` indirection captures the variable lazily in its own scope.
+ */
+export function applyVariableTracking(ctx: Ctx, variables: Set<string>): void {
+  const trackerFor = (name: string): string | null => {
+    if (name.startsWith('__')) {
+      return null
+    }
+    variables.add(name)
+    return `${VariableTrackingFnIdentifier}(${JSON.stringify(name)}, () => eval(${JSON.stringify(name)}));`
+  }
+
+  const track = (names: string[]): string =>
+    names
+      .map(trackerFor)
+      .filter((t): t is string => !!t)
+      .join('')
+
+  // names declared by a `const/let/var` binding pattern
+  const declaredNames = (id: AnyNode): string[] => {
+    if (id.type === 'Identifier') {
+      return [id.name]
+    }
+    if (id.type === 'ObjectPattern') {
+      const names: string[] = []
+      for (const prop of id.properties as AnyNode[]) {
+        if (prop.type !== 'Property') {
+          continue
+        }
+        if (prop.value.type === 'Identifier') {
+          names.push(prop.value.name)
+        } else if (prop.value.type === 'ObjectPattern') {
+          names.push(...declaredNames(prop.value))
+        } else if (prop.value.type === 'AssignmentPattern' && prop.value.left.type === 'Identifier') {
+          names.push(prop.value.left.name)
+        }
+      }
+      return names
+    }
+    if (id.type === 'ArrayPattern') {
+      const names: string[] = []
+      for (const element of id.elements as (AnyNode | null)[]) {
+        if (!element) {
+          continue
+        }
+        if (element.type === 'Identifier') {
+          names.push(element.name)
+        } else if (element.type === 'RestElement' && element.argument.type === 'Identifier') {
+          names.push(element.argument.name)
+        } else if (element.type === 'AssignmentPattern' && element.left.type === 'Identifier') {
+          names.push(element.left.name)
+        }
+      }
+      return names
+    }
     return []
   }
 
-  if (id.type === 'Identifier') {
-    return [id.name]
-  }
-
-  if (id.type === 'RestElement') {
-    return names(id.argument)
-  }
-
-  if (id.type === 'AssignmentPattern') {
-    return names(id.left)
-  }
-
-  if (id.type === 'ObjectPattern') {
-    return id.properties.flatMap((prop: AnyNode) => names(prop.type === 'RestElement' ? prop.argument : prop.value))
-  }
-
-  if (id.type === 'ArrayPattern') {
-    return id.elements.flatMap(names)
-  }
-
-  return []
-}
-
-function rootName(node: AnyNode): string | undefined {
-  if (node.type === 'Identifier') {
-    return node.name
-  }
-
-  if (node.type === 'MemberExpression') {
-    return rootName(node.object)
-  }
-
-  return undefined
-}
-
-/** Capture only session-level bindings, and record completed writes without changing expression values. */
-export function applyVariableTracking(ctx: Ctx, variables: Set<string>, deferSuffixes = false): () => void {
-  const suffixes: (() => void)[] = []
-  const wrapper = ctx.ast.body.find(
-    (node: any) => node.type === 'FunctionDeclaration' && node.id?.name === '__fn__'
-  ) as AnyNode | undefined
-  const root = wrapper?.body ?? ctx.ast
-  const scopes = new Map<AnyNode, Set<string>>()
-  const sessionDeclarations = new Set<AnyNode>()
-  const varBindings = new Set<string>()
-  const scope = (node: AnyNode): Set<string> => {
-    if (!scopes.has(node)) {
-      scopes.set(node, new Set())
-    }
-
-    return scopes.get(node)!
-  }
-  const owner = (ancestors: AnyNode[], isVar = false): AnyNode =>
-    [...ancestors]
-      .reverse()
-      .find(
-        (node) =>
-          node === root ||
-          node.type === 'Program' ||
-          node.type === 'StaticBlock' ||
-          FUNCTION_TYPES.has(node.type) ||
-          (!isVar &&
-            (node.type === 'BlockStatement' ||
-              node.type === 'SwitchStatement' ||
-              node.type === 'CatchClause' ||
-              node.type === 'ForStatement' ||
-              node.type === 'ForOfStatement' ||
-              node.type === 'ForInStatement'))
-      ) ?? root
-  walk(ctx.ast, (node, parent, ancestors) => {
-    let declared: string[] = []
-    if (node.type === 'VariableDeclarator') {
-      declared = names(node.id)
-      const bindingScope = owner(ancestors, parent?.kind === 'var')
-      for (const name of declared) {
-        scope(bindingScope).add(name)
-      }
-
-      if (bindingScope === root) {
-        sessionDeclarations.add(node)
-        for (const name of declared.filter((name) => !name.startsWith('__'))) {
-          variables.add(name)
-          if (parent?.kind === 'var') {
-            varBindings.add(name)
+  // names bound by function parameters (shallower rules than declarations)
+  const paramNames = (params: AnyNode[]): string[] => {
+    const names: string[] = []
+    for (const param of params) {
+      if (param.type === 'Identifier') {
+        names.push(param.name)
+      } else if (param.type === 'AssignmentPattern' && param.left.type === 'Identifier') {
+        names.push(param.left.name)
+      } else if (param.type === 'ObjectPattern') {
+        for (const prop of param.properties as AnyNode[]) {
+          if (prop.type === 'Property' && prop.value.type === 'Identifier') {
+            names.push(prop.value.name)
+          }
+        }
+      } else if (param.type === 'ArrayPattern') {
+        for (const element of param.elements as (AnyNode | null)[]) {
+          if (element?.type === 'Identifier') {
+            names.push(element.name)
           }
         }
       }
-    } else if (FUNCTION_TYPES.has(node.type)) {
-      declared = node.params.flatMap(names)
-      if (node.id) {
-        declared.push(node.id.name)
-      }
-
-      for (const name of declared) {
-        scope(node).add(name)
-      }
-    } else if (node.type === 'CatchClause' && node.param) {
-      declared = names(node.param)
-      for (const name of declared) {
-        scope(node).add(name)
-      }
     }
-
-    for (const name of declared) {
-      if (RESERVED.has(name)) {
-        throw new ReservedIdentifierError(name, 'variable', false, `${name} is reserved for runtime memory`)
-      }
-    }
-  })
-  const eligible = (name: string, ancestors: AnyNode[]): boolean => {
-    if (name.startsWith('__')) {
-      return false
-    }
-
-    for (const ancestor of [...ancestors].reverse()) {
-      if (ancestor === root) {
-        return true
-      }
-
-      if (scopes.get(ancestor)?.has(name)) {
-        return false
-      }
-    }
-
-    return true
+    return names
   }
-  const wrap = (node: AnyNode, bindingNames: string[], kind: 'assignment' | 'mutation' = 'assignment') => {
-    if (!bindingNames.length) {
+
+  walk(ctx.ast, (node, parent) => {
+    if (node.type === 'VariableDeclaration') {
+      if (
+        parent &&
+        (parent.type === 'ForStatement' || parent.type === 'ForInStatement' || parent.type === 'ForOfStatement')
+      ) {
+        return
+      }
+      const trackers = track((node.declarations as AnyNode[]).flatMap((d) => declaredNames(d.id)))
+      if (trackers) {
+        const semi = ctx.code[node.end - 1] === ';' ? '' : ';'
+        ctx.ms.appendRight(node.end, `${semi}${trackers}`)
+      }
       return
     }
 
-    // This helper returns its third argument unchanged, including postfix update values.
-    ctx.ms.appendLeft(
-      node.start,
-      bindingNames
-        .map(
-          (name) => `${VariableTrackingFnIdentifier}(${JSON.stringify(name)}, () => eval(${JSON.stringify(name)}), (`
-        )
-        .join('')
-    )
-    suffixes.unshift(() => ctx.ms.appendRight(node.end, bindingNames.map(() => `), ${JSON.stringify(kind)})`).join('')))
-  }
-
-  // A var binding exists throughout the function, even when its declaration is
-  // in an untaken branch or has no initializer. Capture it from the root scope
-  // without reporting a write or inserting statements into a loop header.
-  const varGetters = [...varBindings]
-    .map(
-      (name) =>
-        `${VariableTrackingFnIdentifier}(${JSON.stringify(name)}, () => eval(${JSON.stringify(name)}), undefined, "initialize");`
-    )
-    .join('')
-  const entry = root.body.find((node: AnyNode) => !node.directive)
-  if (entry && varGetters) {
-    ctx.ms.appendLeft(entry.start, varGetters)
-  }
-
-  walk(ctx.ast, (node, parent, ancestors) => {
-    if (node.type === 'VariableDeclaration' && parent === root && node.kind !== 'var') {
-      const declared = node.declarations
-        .flatMap((declaration: AnyNode) => names(declaration.id))
-        .filter((name: string) => variables.has(name))
-      ctx.ms.appendLeft(
-        node.start,
-        declared
-          .map(
-            (name: string) =>
-              `${VariableTrackingFnIdentifier}(${JSON.stringify(name)}, () => eval(${JSON.stringify(name)}), undefined, "initialize");`
-          )
-          .join('')
-      )
-    }
-
-    if (node.type === 'VariableDeclarator' && sessionDeclarations.has(node)) {
-      const declared = names(node.id).filter((name) => variables.has(name) && eligible(name, ancestors))
-      if (node.init) {
-        wrap(node.init, declared)
-      } else if (parent && parent.kind !== 'var') {
-        const trackers = declared
-          .map(
-            (name) => `${VariableTrackingFnIdentifier}(${JSON.stringify(name)}, () => eval(${JSON.stringify(name)}));`
-          )
-          .join('')
-        ctx.ms.appendRight(parent.end, `${ctx.code[parent.end - 1] === ';' ? '' : ';'}${trackers}`)
-      }
-    }
-
-    if (
-      (node.type === 'ForOfStatement' || node.type === 'ForInStatement') &&
-      node.left.type === 'VariableDeclaration'
-    ) {
-      const declared = node.left.declarations
-        .filter((declaration: AnyNode) => sessionDeclarations.has(declaration))
-        .flatMap((declaration: AnyNode) => names(declaration.id))
-        .filter((name: string) => eligible(name, ancestors))
-      if (declared.length) {
-        // The loop assigns its binding before entering the body. An extra block
-        // keeps single statements, labels, continue and break semantics intact.
-        const trackers = declared
-          .map(
-            (name: string) =>
-              `${VariableTrackingFnIdentifier}(${JSON.stringify(name)}, () => eval(${JSON.stringify(name)}));`
-          )
-          .join('')
-        ctx.ms.appendLeft(node.body.start, `{${trackers}`)
-        suffixes.unshift(() => ctx.ms.appendRight(node.body.end, '}'))
-      }
-    }
-
-    if (
-      node.type === 'AssignmentExpression' ||
-      node.type === 'UpdateExpression' ||
-      (node.type === 'UnaryExpression' && node.operator === 'delete')
-    ) {
-      const target = node.left ?? node.argument
-      const roots =
-        target.type === 'MemberExpression' ? ([rootName(target)].filter(Boolean) as string[]) : names(target)
-      for (const name of roots) {
-        if (RESERVED.has(name)) {
-          throw new AssignmentError(`${name} is read-only runtime memory`)
-        }
-      }
-
-      const tracked = [...new Set(roots)].filter((name) => eligible(name, ancestors))
-      const kind = target.type === 'MemberExpression' ? 'mutation' : 'assignment'
-      const logicalAssignment = ['||=', '&&=', '??='].includes(node.operator)
-      if (logicalAssignment) {
-        // Track only the branch that actually writes. Reusing an identifier is side-effect free.
-        if (target.type === 'Identifier' && tracked.length) {
-          const name = tracked[0]!
-          const operator = node.operator.slice(0, -1)
-          const lineBreaks = ctx.code.slice(target.end, node.right.start).replace(/[^\n]/g, '')
-          ctx.ms.appendLeft(node.start, '(')
-          ctx.ms.overwrite(target.end, node.right.start, ` ${operator} ${lineBreaks}`)
-          ctx.ms.appendLeft(
-            node.right.start,
-            `${VariableTrackingFnIdentifier}(${JSON.stringify(name)}, () => eval(${JSON.stringify(name)}), (${name} = (`
-          )
-          suffixes.unshift(() => ctx.ms.appendRight(node.end, `)), "assignment"))`))
-        }
-
-        // Complex member targets can have getter side effects; their changes are observed at settlement.
+    if (node.type === 'FunctionDeclaration' || node.type === 'ArrowFunctionExpression') {
+      const trackers = track(paramNames(node.params))
+      if (!trackers) {
         return
       }
-
-      wrap(node, tracked, kind)
+      const body = node.body as AnyNode
+      if (body.type === 'BlockStatement') {
+        ctx.ms.appendRight(body.start + 1, trackers)
+      } else {
+        // Acorn excludes surrounding parentheses from body.start/end. Keep an
+        // expression here: inserting a block inside `(expression)` is invalid.
+        const expressions = trackers.slice(0, -1).replaceAll(';', ',')
+        ctx.ms.prependLeft(body.start, `(${expressions}, (`)
+        ctx.ms.appendRight(body.end, '))')
+      }
     }
   })
-  const finish = () => suffixes.forEach((apply) => apply())
-  if (!deferSuffixes) {
-    finish()
-  }
-
-  return finish
 }

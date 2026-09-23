@@ -1,13 +1,7 @@
-# Host-controlled confirmation
+## Impossible to Jailbreak
 
-The overwrite tool asks the terminal user for confirmation before calling its handler. Only the exact input `OVERWRITE` approves the operation. A model-supplied flag or an earlier request does not authorize a later call.
+In this demo, we show how we can make tools virtually impossible to jailbreak with programmatic protection against unwanted executions and prompt injections.
 
-From `packages/llmz/examples`, after the [shared setup](../README.md):
+## 🎥 Demo
 
-```sh
-pnpm start 06_chat_confirm_tool
-```
-
-Ask the agent to overwrite data. Decline once, then approve a second attempt. The operation is simulated and does not modify storage.
-
-![Host-controlled confirmation demo](./demo.svg)
+![Demo](./demo.svg)

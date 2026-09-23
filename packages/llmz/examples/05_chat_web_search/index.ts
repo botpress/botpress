@@ -26,7 +26,6 @@ import { browsePages, webSearch } from '../utils/tools/browser'
 
 // Initialize Botpress client for LLM communication
 const client = new Client({
-  apiUrl: process.env.BOTPRESS_API_URL,
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
 })
@@ -49,16 +48,14 @@ const chat = new CLIChat()
 // Main conversation loop with web search capabilities
 while (await chat.iterate()) {
   await execute({
-    model: process.env.BOTPRESS_MODEL ?? 'openai:gpt-5.6-luna',
     client,
     chat,
-    session: chat.session,
 
     // Provide context about current date and available capabilities
     instructions: `
   The current date is ${new Date().toLocaleDateString()}.
   You are a helpful assistant that can search the web for information.
-  You can call 'browser_webSearch' to get the pages, then call 'browser_browsePages' to fetch the content of the most relevant page(s).`.trim(),
+  You can call 'search' to get the pages, then call 'browse' to fetch the content of the most relevant page(s).`.trim(),
 
     // Provide both search and browse tools for comprehensive web research
     // Typical workflow: search() returns URLs -> browse() fetches content

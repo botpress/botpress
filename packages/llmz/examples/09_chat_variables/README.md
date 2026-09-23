@@ -1,13 +1,11 @@
-# Validated object properties
+## Variables / Forms
 
-Exposes a writable user profile with schemas for name, age, and email. Successful property traces update the host-side profile used for the next iteration. Invalid assignments are rejected by the property schema.
+This demo shows how LLMz can interact with variables/memory in real-time.
 
-From `packages/llmz/examples`, after the [shared setup](../README.md):
+Also, the variables schema are asserted at assign-time, which means an error will be thrown if the validation fails and LLMz will recover gracefully. This ensures that only the right data can be written.
 
-```sh
-pnpm start 09_chat_variables
-```
+Variables can also be marked "readonly", in which case the sandbox has no write access to the variables and any attempt to set the value will throw a runtime error (and LLMz will recover gracefully).
 
-Try an invalid email or an age outside the example’s 18–40 range. That range is an illustrative constraint, not a general registration policy.
+## 🎥 Demo
 
-![Validated object properties demo](./demo.svg)
+![Demo](./demo.svg)

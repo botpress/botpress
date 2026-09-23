@@ -29,23 +29,18 @@ import { RAG_TAG, uploadToRAG, waitUntilIndexed } from './rag'
 
 // Initialize Botpress client for LLM and file operations
 const client = new Client({
-  apiUrl: process.env.BOTPRESS_API_URL,
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
 })
 
 // Upload knowledge base documents for RAG
 // This uploads HR, IT, and Sales documentation to the search index
-const uploaded = await uploadToRAG(client, ['hr.md', 'it.md', 'sales.md'])
+await uploadToRAG(client, ['hr.md', 'it.md', 'sales.md'])
 console.log(chalk.green('✓') + ' Documents uploaded')
 
 // Wait for documents to be processed and indexed
 // Indexing is required for semantic search functionality
-await waitUntilIndexed(
-  client,
-  uploaded.map(({ file }) => file.id),
-  600
-)
+await waitUntilIndexed(client, 600)
 console.log(chalk.green('✓') + ' Documents indexed for RAG')
 
 const chat = new CLIChat()
@@ -61,15 +56,14 @@ const rag = new Tool({
     loading(true, '🔍 Searching ...')
 
     // Perform semantic search across uploaded documents
-    const { passages } = await client
-      .searchFiles({
-        query, // User's search query
-        tags: { purpose: RAG_TAG }, // Filter to only RAG documents
-        limit: 20, // Maximum number of results
-        contextDepth: 3, // Include surrounding context
-        consolidate: true, // Merge similar passages
-      })
-      .finally(() => loading(false))
+    const { passages } = await client.searchFiles({
+      query, // User's search query
+      tags: { purpose: RAG_TAG }, // Filter to only RAG documents
+      limit: 20, // Maximum number of results
+      contextDepth: 3, // Include surrounding context
+      consolidate: true, // Merge similar passages
+    })
+    loading(false)
 
     // Handle case where no relevant documents are found
     if (!passages.length) {
@@ -104,7 +98,6 @@ const rag = new Tool({
 // Main conversation loop with RAG-enhanced responses
 while (await chat.iterate()) {
   await execute({
-    model: process.env.BOTPRESS_MODEL ?? 'openai:gpt-5.6-luna',
     instructions:
       'You are a helpful assistant that can answer questions based on the provided knowledge base. Use the search tool to find relevant information.',
 
@@ -112,6 +105,5 @@ while (await chat.iterate()) {
     tools: [rag],
     client,
     chat,
-    session: chat.session,
   })
 }

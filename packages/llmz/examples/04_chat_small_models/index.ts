@@ -10,7 +10,7 @@
  * - Enable trace logging for debugging tool calls
  *
  * Key concepts:
- * - Model selection with model
+ * - Model selection with options.model
  * - Tool-based state management
  * - Structured data manipulation with Zod schemas
  * - Error handling in tool implementations
@@ -26,7 +26,6 @@ import { lightToolTrace } from '../utils/debug'
 
 // Initialize Botpress client
 const client = new Client({
-  apiUrl: process.env.BOTPRESS_API_URL,
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
 })
@@ -100,7 +99,6 @@ const listTickets = new Tool({
       .array(
         z.object({
           id: z.string().describe('Ticket ID'),
-          status: z.string().describe('Current ticket status: Open or Closed'),
           description: z.string().describe('Ticket description'),
         })
       )
@@ -112,7 +110,6 @@ const listTickets = new Tool({
     return {
       tickets: TICKETS.map((ticket) => ({
         id: ticket.id,
-        status: ticket.status,
         description: ticket.description,
       })),
     }
@@ -131,13 +128,13 @@ while (await chat.iterate()) {
     tools: [getTicket, closeTicket, listTickets],
     client,
     chat,
-    session: chat.session,
 
     // Enable lightweight trace logging to see tool calls
     onTrace: ({ trace }) => lightToolTrace(trace),
 
     // Use a smaller, faster model for cost-effective operations
-    // Override BOTPRESS_MODEL to compare models on this simulated ticket workflow.
-    model: process.env.BOTPRESS_MODEL ?? 'openai:gpt-5.6-luna',
+    // Smaller models work well with LLMz because TypeScript generation
+    // is easier than complex JSON tool calling
+    model: 'openai:gpt-4.1-mini-2025-04-14',
   })
 }

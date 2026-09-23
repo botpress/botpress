@@ -1,9 +1,9 @@
 import { Cognitive, Model } from '@botpress/cognitive'
 import { describe, expect, test, vi } from 'vitest'
 import { Context } from './context.js'
-import { CognitiveError } from './errors.js'
-import { ErrorExecutionResult } from './result.js'
 import { executeContext } from './runtime/execute.js'
+import { ErrorExecutionResult } from './result.js'
+import { CognitiveError } from './errors.js'
 
 const makeFakeModel = (model: string): Model => ({
   id: model,
@@ -119,11 +119,7 @@ test('executeContext calls onIterationEnd when onIterationStart aborts', async (
   expect(onIterationEnd).toHaveBeenCalledTimes(1)
   expect(output.iterations).toHaveLength(1)
   expect(output.iterations[0]!.status.type).toBe('aborted')
-  expect((output as ErrorExecutionResult).error).toMatchObject({
-    code: 'EXECUTION_ABORTED',
-    critical: true,
-    cause: 'ABORTED',
-  })
+  expect((output as ErrorExecutionResult).error).toBe('ABORTED')
 })
 
 test('executeContext calls onIterationEnd when LLM generation aborts', async () => {
@@ -145,11 +141,7 @@ test('executeContext calls onIterationEnd when LLM generation aborts', async () 
   expect(onIterationEnd).toHaveBeenCalledTimes(1)
   expect(output.iterations).toHaveLength(1)
   expect(output.iterations[0]!.status.type).toBe('aborted')
-  expect((output as ErrorExecutionResult).error).toMatchObject({
-    code: 'EXECUTION_ABORTED',
-    critical: true,
-    cause: 'ABORTED',
-  })
+  expect((output as ErrorExecutionResult).error).toBe('ABORTED')
 })
 
 test('executeContext forwards metadata to cognitive generation', async () => {

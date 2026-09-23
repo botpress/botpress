@@ -1,7 +1,8 @@
 import { isFunction, mapValues, maxBy } from 'lodash-es'
 import type { SourceMapConsumer } from 'source-map-js'
 
-import { CodeExecutionError, Signals, VMSignal } from '../errors.js'
+import { CodeExecutionError, Signals, SnapshotSignal, VMSignal } from '../errors.js'
+import { cleanStackTrace } from '../stack-traces.js'
 import type { Traces, VMExecutionResult } from '../types.js'
 
 // Parse QuickJS stack traces ("<quickjs>:16") and map line numbers back through
@@ -14,7 +15,7 @@ export const handleErrorQuickJS = (
   variables: { [k: string]: any },
   lines_executed: Map<number, number>,
   userCodeStartLine: number,
-  recordTrace: (trace: Traces.Trace) => void
+  currentToolCall?: SnapshotSignal['toolCall'] | undefined
 ): VMExecutionResult => {
   err = Signals.maybeDeserializeError(err)
   const lines = code.split('\n')
@@ -41,7 +42,7 @@ export const handleErrorQuickJS = (
     matches.push({ line: lastLine, column: whiteSpacesCount })
   }
 
-  return formatError(err, lines, matches, traces, variables, lines_executed, code, recordTrace)
+  return formatError(err, lines, matches, traces, variables, lines_executed, currentToolCall, code)
 }
 
 // Parse Node VM stack traces ("<anonymous>:13:269") and use source maps to map
@@ -50,10 +51,10 @@ export const handleErrorNode = (
   err: Error,
   code: string,
   consumer: SourceMapConsumer,
-  recordTrace: (trace: Traces.Trace) => void,
+  traces: Traces.Trace[],
   variables: { [k: string]: () => any },
   _lines_executed: Map<number, number>,
-  lastExecutedLine?: number
+  currentToolCall?: SnapshotSignal['toolCall'] | undefined
 ) => {
   err = Signals.maybeDeserializeError(err)
   const lines = code.split('\n')
@@ -87,30 +88,23 @@ export const handleErrorNode = (
     return { line, column: Math.min(minColumn, Number(x[2])) }
   })
 
-  // Host promise rejections may not carry a guest stack. The most recently
-  // executed line still identifies the call awaiting that host result.
-  if (!matches.length && lastExecutedLine !== undefined) {
-    const sourceLine = lines[lastExecutedLine - LINE_OFFSET] ?? ''
-    matches.push({ line: lastExecutedLine, column: sourceLine.length - sourceLine.trimStart().length })
-  }
-
   const { debugUserCode, truncatedCode } = buildDebugCode(lines, matches)
 
-  if (VMSignal.is(err)) {
+  if (err instanceof VMSignal) {
     err.stack = debugUserCode
     err.truncatedCode = truncatedCode
     err.variables = mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter))
+    err.toolCall = currentToolCall
     throw err
   } else {
-    recordTrace({
+    traces.push({
       type: 'code_execution_exception',
       position: [matches[0]?.line ?? 0, matches[0]?.column ?? 0],
       message: err.message,
       stackTrace: debugUserCode,
       started_at: Date.now(),
     })
-    const originalErrorName = CodeExecutionError.is(err) ? err.originalErrorName : err.name
-    throw new CodeExecutionError(err.message, code, debugUserCode, originalErrorName, err)
+    throw new CodeExecutionError(err.message, code, debugUserCode)
   }
 }
 
@@ -123,10 +117,10 @@ export const handleCatch = (
 ) => {
   err = Signals.maybeDeserializeError(err)
   return {
-    success: VMSignal.is(err) ? true : false,
+    success: err instanceof VMSignal ? true : false,
     variables: mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter)),
     error: err,
-    signal: VMSignal.is(err) ? err : undefined,
+    signal: err instanceof VMSignal ? err : undefined,
     traces,
     lines_executed: Array.from(lines_executed),
   } satisfies VMExecutionResult
@@ -168,8 +162,8 @@ function buildDebugCode(lines: string[], matches: Array<{ line: number; column: 
   }
 
   return {
-    debugUserCode: debugUserCode.trim(),
-    truncatedCode: truncatedCode.trim(),
+    debugUserCode: cleanStackTrace(debugUserCode).trim(),
+    truncatedCode: cleanStackTrace(truncatedCode).trim(),
   }
 }
 
@@ -182,15 +176,22 @@ function formatError(
   traces: Traces.Trace[],
   variables: { [k: string]: any },
   lines_executed: Map<number, number>,
-  code: string,
-  recordTrace: (trace: Traces.Trace) => void
+  currentToolCall: SnapshotSignal['toolCall'] | undefined,
+  code: string
 ): VMExecutionResult {
   const { debugUserCode, truncatedCode } = buildDebugCode(lines, matches)
 
-  if (VMSignal.is(err)) {
-    err.stack = debugUserCode
-    err.truncatedCode = truncatedCode
-    err.variables = mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter))
+  if (err instanceof VMSignal) {
+    const signalError = err as VMSignal & {
+      stack: string
+      truncatedCode: string
+      variables: any
+      toolCall?: SnapshotSignal['toolCall']
+    }
+    signalError.stack = debugUserCode
+    signalError.truncatedCode = truncatedCode
+    signalError.variables = mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter))
+    signalError.toolCall = currentToolCall
 
     return {
       success: true,
@@ -199,7 +200,7 @@ function formatError(
       lines_executed: Array.from(lines_executed),
     }
   } else {
-    recordTrace({
+    traces.push({
       type: 'code_execution_exception',
       position: [matches[0]?.line ?? 0, matches[0]?.column ?? 0],
       message: err.message,
@@ -207,8 +208,7 @@ function formatError(
       started_at: Date.now(),
     })
 
-    const originalErrorName = CodeExecutionError.is(err) ? err.originalErrorName : err.name
-    const codeError = new CodeExecutionError(err.message, code, debugUserCode, originalErrorName, err)
+    const codeError = new CodeExecutionError(err.message, code, debugUserCode)
     const deserializedError = Signals.maybeDeserializeError(codeError)
 
     return {

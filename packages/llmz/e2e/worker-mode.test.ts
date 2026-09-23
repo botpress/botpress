@@ -1,15 +1,16 @@
 import { z } from '@bpinternal/zui'
-import { beforeAll, afterAll, assert, describe, expect, it } from 'vitest'
 
-import { ThinkSignal } from '../src/errors.js'
-import { Exit } from '../src/exit.js'
-import { ObjectInstance } from '../src/objects.js'
-import { ExecutionResult, SuccessExecutionResult } from '../src/result.js'
+import { beforeAll, afterAll, assert, describe, expect, it } from 'vitest'
 import * as llmz from '../src/runtime/execute.js'
 import { Tool } from '../src/tool.js'
-import { Traces } from '../src/types.js'
 
+import { ExecutionResult, SuccessExecutionResult } from '../src/result.js'
+import { Traces } from '../src/types.js'
 import { getCachedCognitiveClient } from './__tests__/index.js'
+import { ObjectInstance } from '../src/objects.js'
+import { Exit } from '../src/exit.js'
+import { Example } from '../src/example.js'
+import { ThinkSignal } from '../src/errors.js'
 
 const client = getCachedCognitiveClient()
 
@@ -18,10 +19,6 @@ function assertSuccess(result: ExecutionResult): asserts result is SuccessExecut
     result instanceof SuccessExecutionResult,
     `Expected result to be success but got ${result.status}\n${result.isError() ? result.error : ''}`.trim()
   )
-
-  for (const iteration of result.iterations) {
-    expect(iteration.llm?.output ?? '').toBe('')
-  }
 }
 
 const exec = (result: ExecutionResult) => {
@@ -61,7 +58,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
 
   describe('basic tool orchestration', () => {
     it('can orchestrate multiple tools with complex logic in single iteration', async () => {
-      const fetchedData: string[] = []
+      let fetchedData: string[] = []
 
       const tFetchUser = new Tool({
         name: 'fetchUser',
@@ -235,7 +232,6 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
     })
 
     it('handles invalid exit data and retries', async () => {
-      let injectedInvalidExit = false
       const eStrict = new Exit({
         name: 'result',
         description: 'Return validated data',
@@ -256,22 +252,17 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
         instructions: 'Return email user@example.com and age 25 through the result exit.',
         tools: [tNoOp],
         client,
-        onBeforeExecution: async () => {
-          if (injectedInvalidExit) {
-            return {}
+        onBeforeExecution: async (iteration) => {
+          if (iteration.id.endsWith('_1')) {
+            // Inject the validation failure deterministically, rather than
+            // asking the model to deliberately generate a malformed response.
+            iteration.next = { name: 'result', props: { email: 'not-an-email', age: 200 } }
           }
-
-          injectedInvalidExit = true
-
-          // Invalid payloads are now validated by the returned JavaScript helper.
-          return { code: 'return exit("result", { email: "not-an-email", age: 200 });' }
+          return {}
         },
       })
 
-      expect(injectedInvalidExit).toBe(true)
-      expect(result.iterations[0]!.status.type).toBe('execution_error')
-      expect(result.iterations[0]!.error).toMatch(/email/i)
-      expect(result.iterations[0]!.error).toContain('150')
+      expect(result.iterations[0]!.status.type).toBe('exit_error')
       assertSuccess(result)
       assert(result.is(eStrict))
       expect(result.output).toEqual({ email: 'user@example.com', age: 25 })
@@ -438,7 +429,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
     })
 
     it('works with object tools and state', async () => {
-      const purchases: string[] = []
+      let purchases: string[] = []
 
       const cart = new ObjectInstance({
         name: 'Cart',
@@ -483,7 +474,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
 
   describe('thinking and iteration control', () => {
     it('uses thinking to plan complex tasks', async () => {
-      const executionOrder: string[] = []
+      let executionOrder: string[] = []
 
       const tStep1 = new Tool({
         name: 'initializeDatabase',
@@ -532,7 +523,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
       expect(executionOrder).toEqual(['init', 'tables', 'seed'])
     })
 
-    it('inspects successful ThinkSignal results without retrying the tool', async () => {
+    it('handles ThinkSignal from tools', async () => {
       let attempts = 0
 
       const tRequireThinking = new Tool({
@@ -540,7 +531,10 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
         output: z.object({ result: z.string() }),
         handler: async () => {
           attempts++
-          throw new ThinkSignal('Review the completed operation before returning its status.', { result: 'completed' })
+          if (attempts === 1) {
+            throw new ThinkSignal('This operation requires more context. Please think about the dependencies first.')
+          }
+          return { result: 'completed' }
         },
       })
 
@@ -556,14 +550,15 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
         instructions: 'Call the complexOperation tool and return its result as status.',
         tools: [tRequireThinking],
         client,
-        model: ['openai:gpt-5.6-luna'],
+        // Requires retrying the tool after a ThinkSignal: needs a stronger model
+        model: 'anthropic:claude-haiku-4-5-20251001',
       })
 
       assertSuccess(result)
 
       // Should have multiple iterations due to thinking
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
-      expect(attempts).toBe(1)
+      expect(attempts).toBeGreaterThanOrEqual(2)
 
       assert(result.is(eResult))
       expect(result.output.status).toBe('completed')
@@ -645,7 +640,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
         handler: async () => {
           callCount++
           if (callCount === 1) {
-            throw new ThinkSignal('Token retrieved, now use it', { token: 'abc123' })
+            throw new ThinkSignal('Token retrieved, now use it')
           }
           return { token: 'abc123' }
         },
@@ -677,9 +672,8 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
       assertSuccess(result)
       const res = exec(result)
 
-      // The first result is retained; retrieving the same token again is unnecessary.
-      expect(callCount).toBe(1)
-      expect(Object.keys(result.session.memory.variables).length).toBeGreaterThan(0)
+      // Should have variables preserved
+      expect(res.lastIteration?.variables).toBeDefined()
 
       assert(result.is(eResult))
       expect(result.output.tokenUsedSuccessfully).toBe(true)
@@ -762,6 +756,19 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
         exits: [eResult],
         instructions:
           'Find and delete work-related files with corrupted data. Return the list of deleted files, total work files found, and count of corrupted files. First return the list of filenames and inspect it before choosing which files to read. Select work files by the meaning of their names, not a guessed keyword or extension filter. Then read the selected files, return their contents, and inspect them yourself before deciding which files to delete — corruption cannot be reliably detected by code heuristics. Only read work-related files — never open personal files.',
+        examples: [
+          new Example({
+            situation: 'The task requires inspecting work files, but no filenames have been listed yet.',
+            code: 'return await listFiles()',
+            reason: 'Inspect the actual names before deciding which files are in scope.',
+          }),
+          new Example({
+            situation:
+              'The returned filenames are invoice.txt, holiday.jpg, and project_notes.md. The task is to inspect work files only.',
+            code: 'return await Promise.all([readFile({ filename: "invoice.txt" }), readFile({ filename: "project_notes.md" })])',
+            reason: 'These two names concern work; the holiday photo is personal and must not be opened.',
+          }),
+        ],
         tools: [tListFiles, tReadFile, tDeleteFile],
         client,
         // Multi-step judgement task (corruption must be identified by inspecting
@@ -822,7 +829,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
       }
 
       const runningProcesses = new Set([1234, 5678])
-      const listings: string[][] = []
+      let listFilesCallCount = 0
       let deleteCallCount = 0
       const deleteAttempts: Record<string, number> = {}
       const deletedFiles: string[] = []
@@ -833,9 +840,8 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
         description: 'Lists all files in the directory',
         output: z.object({ files: z.array(z.string()) }),
         handler: async () => {
-          const files = Object.keys(fileState)
-          listings.push(files)
-          return { files }
+          listFilesCallCount++
+          return { files: Object.keys(fileState) }
         },
       })
 
@@ -882,11 +888,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
 
       assertSuccess(result)
 
-      expect(result.output).toMatchObject({ success: true })
-      expect(listings[0]).toEqual(['old_project.txt', 'legacy_data.csv', 'deprecated_config.json'])
-      // A final read-only check is valid; successful deletions must still never repeat.
-      expect(listings.length).toBeLessThanOrEqual(2)
-      if (listings.length === 2) expect(listings[1]).toEqual([])
+      expect(listFilesCallCount).toBe(1) // List files only once
       expect(deleteCallCount).toBeGreaterThanOrEqual(3) // Multiple attempts due to failures
 
       // Should have killed both processes
@@ -939,7 +941,6 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
 
     it('onBeforeExecution can modify code', async () => {
       let codeModified = false
-      let replacedFirstProgram = false
 
       const tOriginal = new Tool({
         name: 'original',
@@ -966,19 +967,17 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
         options: { loop: 2 },
         exits: [eResult],
         instructions:
-          'Call original once and return inspect(result). After inspecting the execution result, finish with return exit("done", result).',
+          'Call original once. After code execution returns a value, immediately finish with done using that returned value.',
         tools: [tOriginal, tModified],
         client,
 
-        onBeforeExecution: async () => {
-          if (replacedFirstProgram) {
-            return {}
+        onBeforeExecution: async (iteration) => {
+          // Replace the code of the first iteration to call modified instead.
+          // The returned value is fed back to the model, which then exits.
+          if (iteration.id.endsWith('_1')) {
+            return { code: 'const res = await modified();\nreturn { value: res.value };' }
           }
-
-          replacedFirstProgram = true
-
-          // Leave the later JavaScript completion program intact.
-          return { code: 'const res = await modified();\nreturn inspect({ value: res.value });' }
+          return {}
         },
       })
 

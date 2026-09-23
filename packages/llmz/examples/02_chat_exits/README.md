@@ -1,13 +1,12 @@
-# Typed exits
+## Exits
 
-Custom exits distinguish a normal listening turn, ending the chat, and escalating to a human. `result.is(escalation)` narrows the output to its reason schema.
+This demo shows how the chat can exit (ie. transition) when certain criteria are met. In this case, the agent has two exits:
 
-From `packages/llmz/examples`, after the [shared setup](../README.md):
+1. Handoff to Human (with a reason)
+2. Exit / Quit
 
-```sh
-pnpm start 02_chat_exits
-```
+The handoff is also typed with a mandatory enum for the reason to escalade.
 
-Ask to escalate a technical problem, or end the conversation.
+## 🎥 Demo
 
-![Typed exits demo](./demo.svg)
+![Demo](./demo.svg)

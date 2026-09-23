@@ -1,4 +1,4 @@
-/** Synthetic multilingual inputs for native protocol boundary tests. */
+/** Synthetic multilingual inputs shared by parser/execution and live model tests. */
 export const protocolLanguages = [
   {
     language: 'English',

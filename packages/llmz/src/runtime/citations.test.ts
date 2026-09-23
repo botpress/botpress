@@ -1,14 +1,13 @@
-import type { CognitiveMetadata, CognitiveStreamChunk, CognitiveToolCall } from '@botpress/cognitive'
+import type { CognitiveMetadata, CognitiveStreamChunk } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import { describe, expect, it, vi } from 'vitest'
-import { type MessageDelta } from '../chat/chat.js'
-import { CitationsManager } from '../chat/citations.js'
-import { DefaultComponents } from '../chat/component.default.js'
+import { Chat, type MessageDelta } from '../chat.js'
+import { CitationsManager } from '../citations.js'
+import { DefaultComponents } from '../component.default.js'
 import { _CustomModelClient, type RuntimeGenerateContentInput } from '../custom-client.js'
 import { ThinkSignal } from '../errors.js'
 import { Tool } from '../tool.js'
 import { executeContext } from './execute.js'
-import { createRecordingChat } from './fixtures/chat.js'
 import { buildSearchChallenge, longSearchChallenges } from './fixtures/long-search.js'
 
 const meta: CognitiveMetadata = {
@@ -19,15 +18,10 @@ const meta: CognitiveMetadata = {
   latency: 1,
   usage: { inputTokens: 1, outputTokens: 1, inputCost: 0, outputCost: 0 },
 }
-type ReplayResponse = { output: string; toolCalls?: CognitiveToolCall[]; reasoning?: string }
-
-const javascript = (code: string): ReplayResponse => ({
-  output: '',
-  toolCalls: [{ id: 'js-search', name: 'run_javascript', input: { code } }],
-})
+const frame = (body: string) => `■start\n${body}\n■end`
 class Replay extends _CustomModelClient {
   public requests: RuntimeGenerateContentInput[] = []
-  public constructor(private _responses: Array<string | ReplayResponse>) {
+  public constructor(private responses: string[]) {
     super()
   }
   public async getModelDetails(id: string) {
@@ -43,41 +37,27 @@ class Replay extends _CustomModelClient {
   }
   public async generateText(input: RuntimeGenerateContentInput) {
     this.requests.push(input)
-    const response = this._responses.shift()!
-    const value = typeof response === 'string' ? { output: response } : response
-
-    return {
-      ...value,
-      metadata: { ...meta, stopReason: value.toolCalls?.length ? ('tool_calls' as const) : ('stop' as const) },
-    }
+    return { output: this.responses.shift()!, metadata: meta }
   }
 }
-
 class Streaming extends Replay {
   public constructor(
-    responses: Array<string | ReplayResponse>,
-    private _size: number
+    responses: string[],
+    private size: number
   ) {
     super(responses)
   }
   public async *generateTextStream(input: RuntimeGenerateContentInput): AsyncGenerator<CognitiveStreamChunk> {
     const response = await this.generateText(input)
-
-    for (let i = 0; i < response.output.length; i += this._size) {
-      yield { output: response.output.slice(i, i + this._size), created: 1 }
-    }
-
-    yield { metadata: response.metadata, toolCalls: response.toolCalls, finished: true, created: 2 }
+    for (let i = 0; i < response.output.length; i += this.size)
+      yield { output: response.output.slice(i, i + this.size), created: 1 }
+    yield { metadata: meta, finished: true, created: 2 }
   }
 }
-
 const manager = () => {
   const citations = new CitationsManager()
-
-  for (let i = 0; i < 15; i++) {
+  for (let i = 0; i < 15; i++)
     citations.registerSource({ file: `source-${i}.md`, title: `Source ${i}`, url: `https://cedar.example/${i}` })
-  }
-
   return citations
 }
 
@@ -93,13 +73,13 @@ describe('VDK citation delivery through LLMz', () => {
     const citations = manager(),
       delivered: string[] = [],
       deltas: MessageDelta[] = []
-    const raw = { output: body, reasoning: 'Private reasoning with an irrelevant source【14】.' }
+    const raw = `Private reasoning with an irrelevant source【14】.\n${frame(`■send=message\n${body}\n■next=listen`)}`
     const result = await executeContext({
       client: size ? new Streaming([raw], size) : new Replay([raw]),
-      chat: createRecordingChat({
-        components: [],
+      chat: new Chat({
+        components: [DefaultComponents.Text],
         handler: async (message) => {
-          delivered.push(message.type === 'text' ? message.text : '')
+          delivered.push(message.children.join(''))
         },
         onMessageDelta: (delta) => {
           deltas.push({ ...delta })
@@ -130,9 +110,12 @@ describe('VDK citation delivery through LLMz', () => {
     'uses the actual VDK search -> ThinkSignal -> citation extraction path (chunk=%s)',
     async (size) => {
       const citations = new CitationsManager()
-      const fixture = buildSearchChallenge(longSearchChallenges[0]!, true, citations)
+      const fixture = buildSearchChallenge(longSearchChallenges[0]!, false, citations)
       const body = `${fixture.facts.join('; ')}${fixture.evidenceTags.join('')}`
-      const responses = [javascript('return await search_knowledge("Meridian EU export limits")'), body]
+      const responses = [
+        frame('■run\nreturn await search_knowledge("Meridian EU export limits")'),
+        frame(`■send=message\n${body}\n■next=listen`),
+      ]
       const client = size ? new Streaming(responses, size) : new Replay(responses)
       const search = vi.fn(async () => {
         throw new ThinkSignal(fixture.reason, fixture.content)
@@ -141,28 +124,23 @@ describe('VDK citation delivery through LLMz', () => {
       const result = await executeContext({
         client,
         tools: [new Tool({ name: 'search_knowledge', input: z.string(), output: z.string(), handler: search })],
-        chat: createRecordingChat({
-          components: [],
+        chat: new Chat({
+          components: [DefaultComponents.Text],
           handler: async (m) => {
-            deliveries.push(citations.removeCitationsFromObject({ text: m.type === 'text' ? m.text : '' }))
+            deliveries.push(citations.removeCitationsFromObject({ text: m.children.join('') }))
           },
         }),
         options: { loop: 2 },
       })
       expect(result.isSuccess()).toBe(true)
       expect(search).toHaveBeenCalledOnce()
-      const feedback = String(client.requests[1]!.messages.at(-1)!.content)
-
-      for (const evidence of [...fixture.facts, ...fixture.evidenceTags]) {
-        expect(feedback).toContain(evidence)
-      }
-
+      expect(String(client.requests[1]!.messages.at(-1)!.content)).toContain(fixture.content)
       expect(deliveries).toHaveLength(1)
       expect(deliveries[0]![1].map((e) => e.citation.source.file)).toEqual(fixture.expectedSources)
     }
   )
 
-  it.each(['partial-tag', 'completed-message', 'completed-tools'])(
+  it.each(['partial-tag', 'completed-message', 'completed-envelope'])(
     'commits only replacement citations after a restart: %s',
     async (state) => {
       const citations = manager(),
@@ -170,34 +148,26 @@ describe('VDK citation delivery through LLMz', () => {
         deltas: MessageDelta[] = []
       class Restart extends Replay {
         public async *generateTextStream(): AsyncGenerator<CognitiveStreamChunk> {
-          const abandoned = state === 'partial-tag' ? 'Abandoned【1' : 'Abandoned【1】'
-
-          for (const char of abandoned) {
-            yield { output: char, created: 1 }
-          }
-
-          if (state === 'completed-tools') {
-            yield { toolCalls: [{ id: 'abandoned-listen', name: 'listen', input: {} }], created: 1 }
-          }
-
+          const abandoned =
+            state === 'partial-tag'
+              ? '■start\n■send=message\nAbandoned【1'
+              : state === 'completed-message'
+                ? '■start\n■send=message\nAbandoned【1】\n■next=listen\n'
+                : frame('■send=message\nAbandoned【1】\n■next=listen')
+          for (const char of abandoned) yield { output: char, created: 1 }
           expect(committed).toEqual([])
           yield { restart: { attempt: 2, fromModel: 'fake', toModel: 'fake', reason: 'fallback' }, created: 2 }
           expect(deltas.at(-1)?.restart).toBe(true)
-
-          for (const char of 'Kept【12】') {
-            yield { output: char, created: 3 }
-          }
-
-          yield { metadata: { ...meta, stopReason: 'stop' }, finished: true, created: 4 }
+          for (const char of frame('■send=message\nKept【12】\n■next=listen')) yield { output: char, created: 3 }
+          yield { metadata: meta, finished: true, created: 4 }
         }
       }
-
       const result = await executeContext({
         client: new Restart([]),
-        chat: createRecordingChat({
-          components: [],
+        chat: new Chat({
+          components: [DefaultComponents.Text],
           handler: async (m) => {
-            committed.push(...citations.extractCitations(m.type === 'text' ? m.text : '').citations.map((c) => c.id))
+            committed.push(...citations.extractCitations(m.children.join('')).citations.map((c) => c.id))
           },
           onMessageDelta: (d) => {
             deltas.push({ ...d })
@@ -215,15 +185,14 @@ describe('VDK citation delivery through LLMz', () => {
       deltas: MessageDelta[] = []
     class Failure extends Replay {
       public async *generateTextStream(): AsyncGenerator<CognitiveStreamChunk> {
-        yield { output: 'Uncommitted【12】', created: 1 }
+        yield { output: frame('■send=message\nUncommitted【12】\n■next=listen'), created: 1 }
         throw new Error('Transport failed')
       }
     }
-
     const result = await executeContext({
       client: new Failure([]),
-      chat: createRecordingChat({
-        components: [],
+      chat: new Chat({
+        components: [DefaultComponents.Text],
         handler,
         onMessageDelta: (d) => {
           deltas.push({ ...d })
@@ -244,27 +213,20 @@ describe('VDK citation delivery through LLMz', () => {
   })
 })
 
-it.each([0, 1, 7])('preserves citations in component props (chunk=%s)', async (size) => {
+it.each([0, 1, 7])('preserves citations in structured component props and body (chunk=%s)', async (size) => {
   const citations = manager()
-  const raw = javascript(`
-    chat.card({ title: 'Policy【1】', subtitle: 'Current【12】', text: 'Limit 734【1,12】' });
-    return exit();
-  `)
+  const raw = frame('■send=card {"title":"Policy【1】","subtitle":"Current【12】"}\nLimit 734【1,12】\n■next=listen')
   const delivered: ReturnType<CitationsManager['removeCitationsFromObject']>[] = []
   const result = await executeContext({
     client: size ? new Streaming([raw], size) : new Replay([raw]),
-    chat: createRecordingChat({
+    chat: new Chat({
       components: [DefaultComponents.Card],
       handler: async (component) => {
-        if (component.type !== 'component') {
-          throw new Error('Expected a rich component.')
-        }
-
         delivered.push(
           citations.removeCitationsFromObject({
             title: (component.props as Record<string, unknown>).title,
             subtitle: (component.props as Record<string, unknown>).subtitle,
-            text: (component.props as Record<string, unknown>).text,
+            body: component.children.join(''),
           })
         )
       },
@@ -272,11 +234,11 @@ it.each([0, 1, 7])('preserves citations in component props (chunk=%s)', async (s
     options: { loop: 1 },
   })
   expect(result.isSuccess()).toBe(true)
-  expect(delivered[0]![0]).toEqual({ title: 'Policy', subtitle: 'Current', text: 'Limit 734' })
+  expect(delivered[0]![0]).toEqual({ title: 'Policy', subtitle: 'Current', body: 'Limit 734' })
   expect(delivered[0]![1].map((entry) => ({ path: entry.path, id: entry.citation.id }))).toEqual([
     { path: 'root.title', id: 1 },
     { path: 'root.subtitle', id: 12 },
-    { path: 'root.text', id: 1 },
-    { path: 'root.text', id: 12 },
+    { path: 'root.body', id: 1 },
+    { path: 'root.body', id: 12 },
   ])
 })

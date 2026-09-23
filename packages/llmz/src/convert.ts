@@ -46,16 +46,13 @@ export function convertObjectToZuiLiterals(obj: unknown, nested = false): z.ZodR
     for (const [key, value] of Object.entries(obj)) {
       shape[key] = convertObjectToZuiLiterals(value as StaticValue, true)
     }
-
     if (nested) {
       return z.object(shape).catch(() => obj)
     }
-
     // We need to return a zod empty object for empty objects otherwise clone doesn't work properly.
     if (Object.keys(shape).length === 0) {
       return z.object({}).catch(() => obj)
     }
-
     return shape
   }
 

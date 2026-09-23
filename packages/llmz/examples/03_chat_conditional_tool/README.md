@@ -1,13 +1,9 @@
-# Conditional tools
+## Conditional tools
 
-Instructions and available tools are recomputed from the current login state. The credentials are deliberately simulated: both `admin` and `customer` use `password`. Tools only print messages; there is no real database reset.
+This demo shows how you can restrict tool access to only certain users and dynamically mutate the instructions and the available tools on the fly.
 
-From `packages/llmz/examples`, after the [shared setup](../README.md):
+This approach guarantees safe and contextual execution and reduces the cognitive loads on prompts.
 
-```sh
-pnpm start 03_chat_conditional_tool
-```
+## 🎥 Demo
 
-Log in as each role, compare available tools, then log out. In an application, authenticate outside the model and enforce authorization inside every sensitive handler.
-
-![Conditional tools demo](./demo.svg)
+![Demo](./demo.svg)

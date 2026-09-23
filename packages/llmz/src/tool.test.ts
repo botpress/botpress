@@ -1,237 +1,7 @@
 import { z } from '@bpinternal/zui'
-import { describe, expect, expectTypeOf, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-import { ToolInputError } from './errors.js'
 import { Tool } from './tool.js'
-import { truncate } from './truncate.js'
-
-describe('tool schema effects', () => {
-  it('documents void inputs accurately and validates their original schema', async () => {
-    const tool = new Tool({ name: 'noop', input: z.void(), handler: async () => 'done' })
-
-    expect(await tool.getTypings()).toContain('args: void')
-    expect(await tool.execute(undefined, { callId: 'good' })).toBe('done')
-    await expect(tool.execute({} as never, { callId: 'bad' })).rejects.toBeInstanceOf(ToolInputError)
-  })
-
-  it('normalizes and validates original input, including root refinements', async () => {
-    const handler = vi.fn(async (value: { name: string }) => value)
-    const tool = new Tool({
-      name: 'save',
-      input: z.object({ name: z.string().trim() }).superRefine((value, ctx) => {
-        if (value.name !== 'valid') {
-          ctx.addIssue({ code: 'custom', path: ['name'], message: 'Use a valid name' })
-        }
-      }),
-      handler,
-    })
-
-    await expect(tool.execute({ name: 'invalid' }, { callId: 'bad' })).rejects.toBeInstanceOf(ToolInputError)
-    expect(handler).not.toHaveBeenCalled()
-    expect(await tool.execute({ name: ' valid ' }, { callId: 'good' })).toEqual({ name: 'valid' })
-    expect(handler).toHaveBeenCalledOnce()
-  })
-
-  it('supports async input effects and distinguishes raw input from handler input', async () => {
-    const transform = vi.fn(async (value: string) => value.length)
-    const tool = new Tool({
-      name: 'measure',
-      input: z.string().transform(transform),
-      output: z.number(),
-      handler: async (value) => {
-        expectTypeOf(value).toEqualTypeOf<number>()
-        return value
-      },
-    })
-    const result = await tool.execute('hello', { callId: 'one' })
-
-    expectTypeOf(result).toEqualTypeOf<number>()
-    expect(result).toBe(5)
-    expect(transform).toHaveBeenCalledOnce()
-    expect(await tool.getTypings()).toContain('args: string')
-  })
-
-  it('preserves preprocessing and coercion', async () => {
-    const tool = new Tool({
-      name: 'measure',
-      input: z.preprocess((value) => String(value).trim(), z.string().min(1)),
-      handler: async (value) => value,
-    })
-
-    expect(await tool.execute(42, { callId: 'one' })).toBe('42')
-    await expect(tool.execute(' ', { callId: 'bad' })).rejects.toBeInstanceOf(ToolInputError)
-    const coerce = new Tool({ name: 'coerce', input: z.coerce.number(), handler: async (value) => value })
-    expect(await coerce.execute('42' as never, { callId: 'coerce' })).toBe(42)
-  })
-
-  it('rejects failed async refinements before calling the handler', async () => {
-    const handler = vi.fn(async () => true)
-    const tool = new Tool({
-      name: 'save',
-      input: z.string().refine(async (value) => value === 'valid', 'Use a valid name'),
-      handler,
-    })
-
-    await expect(tool.execute('invalid', { callId: 'bad' })).rejects.toBeInstanceOf(ToolInputError)
-    expect(handler).not.toHaveBeenCalled()
-  })
-
-  it('preserves validators through cloning and applies static values before effects', async () => {
-    const normalize = vi.fn((value: { name: string }) => ({ name: value.name.toUpperCase() }))
-    const schema = z
-      .object({ name: z.string().trim() })
-      .refine((value) => value.name === 'valid')
-      .transform(normalize)
-    const original = new Tool({ name: 'save', input: schema, handler: async (value) => value })
-    const clone = original.clone({ staticInputValues: { name: ' valid ' } })
-
-    expect(await clone.execute({ name: 'ignored' }, { callId: 'one' })).toEqual({ name: 'VALID' })
-    expect(normalize).toHaveBeenCalledOnce()
-    expect(await clone.execute(undefined as never, { callId: 'defaults' })).toEqual({ name: 'VALID' })
-    await expect(original.execute({ name: 'invalid' }, { callId: 'bad' })).rejects.toBeInstanceOf(ToolInputError)
-    await expect(original.clone().execute({ name: 'invalid' }, { callId: 'bad' })).rejects.toBeInstanceOf(
-      ToolInputError
-    )
-  })
-
-  it('does not run output effects, strip fields, or reject unexpected data', async () => {
-    const normalize = vi.fn((value: string) => value.length)
-    const value = { unexpected: true }
-    const tool = new Tool({
-      name: 'read',
-      output: z
-        .string()
-        .transform(normalize)
-        .refine(() => false),
-      handler: async () => value,
-    })
-
-    expect(await tool.execute(undefined, { callId: 'one' })).toBe(value)
-    expect(await tool.clone().execute(undefined, { callId: 'two' })).toBe(value)
-    expect(normalize).not.toHaveBeenCalled()
-    expectTypeOf(tool.execute).returns.toEqualTypeOf<Promise<string>>()
-    expect(await tool.getTypings()).toContain('Promise<string>')
-  })
-
-  it('leaves truncated output unchanged and reports its display policy', async () => {
-    const value = { extra: true }
-    const onTruncation = vi.fn()
-    const tool = new Tool({
-      name: 'read',
-      output: z.number(),
-      handler: async () => truncate({ value, maxTokens: 100 }),
-    })
-
-    expect(await tool.execute(undefined, { callId: 'one', onTruncation })).toBe(value)
-    expect(onTruncation).toHaveBeenCalledWith(value, expect.objectContaining({ maxTokens: 100 }))
-  })
-})
-
-describe('tool argument documentation', () => {
-  it.each([
-    { input: z.string(), value: 'query', type: 'string' },
-    { input: z.number(), value: 42, type: 'number' },
-    { input: z.boolean(), value: true, type: 'boolean' },
-    { input: z.array(z.string()), value: ['query'], type: 'array' },
-  ])('documents direct $type input without changing validation', async ({ input, value, type }) => {
-    const tool = new Tool({ name: 'echo', description: 'Return the input.', input, handler: async (value) => value })
-
-    expect(await tool.getTypings()).toContain(`Pass the ${type} itself as the argument`)
-    expect(await tool.execute(value, { callId: 'direct' })).toEqual(value)
-    await expect(tool.execute({ value } as never, { callId: 'wrapped' })).rejects.toThrow('invalid input')
-  })
-
-  it('keeps object and no-argument signatures distinct', async () => {
-    const object = new Tool({ name: 'search', input: z.object({ query: z.string() }), handler: async () => [] })
-    const empty = new Tool({ name: 'list', handler: async () => [] })
-
-    expect(await object.getTypings()).not.toContain('itself as the argument')
-    expect(await empty.getTypings()).not.toContain('itself as the argument')
-  })
-})
-
-describe('tool inspection policies', () => {
-  it('returns a plain typed string and reports its display policy separately', async () => {
-    const value = 'Document text\nSecond line'
-    const policy = { maxTokens: 40000, preserve: 'both' as const }
-    const captured: unknown[] = []
-    const tool = new Tool({
-      name: 'readDocument',
-      output: z.string(),
-      handler: async () => truncate({ value, ...policy }),
-    })
-    const result: string = await tool.execute(undefined, {
-      callId: 'read-document',
-      onTruncation: (output, options) => captured.push({ output, options }),
-    })
-
-    expect(result).toBe(value)
-    expect(captured).toEqual([{ output: value, options: expect.objectContaining(policy) }])
-    expect(await tool.getTypings()).toContain('Promise<string>')
-    expect(await tool.getTypings()).not.toContain('truncate')
-  })
-
-  it('validates the underlying object before reporting the parsed value', async () => {
-    const captured: unknown[] = []
-    const tool = new Tool({
-      name: 'readAccount',
-      output: z.object({ id: z.number() }),
-      handler: async () => truncate({ value: { id: 42 }, maxTokens: 100 }),
-    })
-    const result: { id: number } = await tool.execute(undefined, {
-      callId: 'read-account',
-      onTruncation: (output) => captured.push(output),
-    })
-
-    expect(result).toEqual({ id: 42 })
-    expect(captured).toEqual([{ id: 42 }])
-    expect(result).not.toHaveProperty('$$truncate')
-    expect(await tool.execute(undefined, { callId: 'standalone' })).toEqual({ id: 42 })
-  })
-
-  it('supports policy wrappers returned by cloned tools', async () => {
-    const original = new Tool({
-      name: 'readDocument',
-      output: z.string(),
-      handler: async () => 'Original text',
-    })
-    const cloned = original.clone({
-      async handler() {
-        return truncate({ value: 'Cloned result', maxTokens: 200 })
-      },
-    })
-
-    expect(await cloned.execute(undefined, { callId: 'clone' })).toBe('Cloned result')
-  })
-
-  it('preserves the existing invalid-output fallback for wrapped values without retrying', async () => {
-    let calls = 0
-    let retries = 0
-    let policies = 0
-    const tool = new Tool({
-      name: 'readDocument',
-      output: z.string().min(10),
-      handler: async () => {
-        calls++
-        return truncate({ value: 'short', maxTokens: 100 })
-      },
-      retry: async () => {
-        retries++
-        return true
-      },
-    })
-
-    await expect(
-      tool.execute(undefined, {
-        callId: 'invalid-output',
-        onTruncation: () => policies++,
-      })
-    ).resolves.toBe('short')
-    expect(calls).toBe(1)
-    expect(retries).toBe(0)
-    expect(policies).toBe(1)
-  })
-})
 
 describe('tools typings', () => {
   it('simple tool with no description', async () => {
@@ -264,10 +34,7 @@ describe('tools typings', () => {
 
     const typings = await tool.getTypings()
 
-    expect(typings).toMatchInlineSnapshot(`
-      "/** Pass the array itself as the argument, not an object containing it. */
-      declare function add(args: number[]): Promise<number[]>"
-    `)
+    expect(typings).toMatchInlineSnapshot(`"declare function add(args: number[]): Promise<number[]>"`)
   })
 
   it('no args, no output', async () => {
@@ -389,7 +156,7 @@ describe('tool default values', () => {
       },
     })
 
-    await tool.execute({ a: 1, b: 2 }, { callId: '' })
+    tool.execute({ a: 1, b: 2 }, { callId: '' })
 
     expect(result).toBe(3)
   })
@@ -408,11 +175,19 @@ describe('tool default values', () => {
     })
 
     await expect(tool.execute({ a: 1, b: 2 }, { callId: '' })).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ToolInputError: Tool "add" received invalid input:
-      - a: Number must be greater than or equal to 2
-
-      Expected input (TypeScript):
-      { a: number; b: number }]
+      [Error: Tool "add" received invalid input: [
+        {
+          "code": "too_small",
+          "minimum": 2,
+          "type": "number",
+          "inclusive": true,
+          "exact": false,
+          "message": "Number must be greater than or equal to 2",
+          "path": [
+            "a"
+          ]
+        }
+      ]]
     `)
 
     expect(result).toBe(-1)
@@ -617,10 +392,7 @@ describe('tool default values', () => {
     )
     expect(await bool.getTypings()).toMatchInlineSnapshot(`"declare function bool(args: true): Promise<void>"`)
     expect(await nullable.getTypings()).toMatchInlineSnapshot(
-      `
-      "/** Pass the string itself as the argument, not an object containing it. */
-      declare function nullable(args: string | null): Promise<void>"
-    `
+      `"declare function nullable(string | null): Promise<void>"`
     )
   })
 
@@ -662,26 +434,26 @@ describe('tool default values', () => {
     })
 
     expect(await anySchema.clone().getTypings()).toMatchInlineSnapshot(
-      `"declare function anySchema(args: any): Promise<void>"`
+      `"declare function anySchema(any): Promise<void>"`
     )
     expect(await unknownSchema.clone().getTypings()).toMatchInlineSnapshot(
-      `"declare function unknownSchema(args: unknown): Promise<void>"`
+      `"declare function unknownSchema(unknown): Promise<void>"`
     )
     expect(await enumSchema.clone().getTypings()).toMatchInlineSnapshot(
-      `"declare function enumSchema(args: 'a' | 'b' | 'c'): Promise<void>"`
+      `"declare function enumSchema('a' | 'b' | 'c'): Promise<void>"`
     )
     expect(await neverSchema.clone().getTypings()).toMatchInlineSnapshot(
-      `"declare function neverSchema(args: never): Promise<void>"`
+      `"declare function neverSchema(never): Promise<void>"`
     )
     expect(await defaultValueSchema.clone().getTypings()).toMatchInlineSnapshot(`
       "declare function defaultValueSchema(
-        args: { a?: number; b?: string } | null,
+        { a?: number; b?: string } | null,
       ): Promise<void>"
     `)
   })
 
   it('tool clone and changing types', async () => {
-    const handlers: string[] = []
+    let handlers: string[] = []
 
     const tool = new Tool({
       name: 'add',
@@ -746,7 +518,7 @@ describe('tool default values', () => {
         c?: number
       }): Promise<number>"
     `)
-    expect(await newTool2.getTypings()).toMatchInlineSnapshot(`"declare function add(args: null): Promise<number>"`)
+    expect(await newTool2.getTypings()).toMatchInlineSnapshot(`"declare function add(null): Promise<number>"`)
     expect(await newTool3.getTypings()).toMatchInlineSnapshot(
       `"declare function add(args: { a: number; b: number }): Promise<string>"`
     )
@@ -783,7 +555,7 @@ describe('tool default values', () => {
   })
 
   it('tool retry logic', async () => {
-    const attempts: string[] = []
+    let attempts: string[] = []
 
     const tool = new Tool({
       name: 'retryTool',
@@ -796,7 +568,6 @@ describe('tool default values', () => {
         if (attempts.length <= 3) {
           throw new Error(`Simulated error on attempt ${attempts.length}`)
         }
-
         attempts.push(`SUCCESS attempt with a=${a}`)
         return a * 2
       },
@@ -821,7 +592,7 @@ describe('tool default values', () => {
   })
 
   it('tool retry logic (2)', async () => {
-    const attempts: string[] = []
+    let attempts: string[] = []
 
     const tool = new Tool({
       name: 'retryTool',
@@ -834,7 +605,6 @@ describe('tool default values', () => {
         if (attempts.length <= 3) {
           throw new Error(`Simulated error on attempt ${attempts.length}`)
         }
-
         attempts.push(`SUCCESS attempt with a=${a}`)
         return a * 2
       },
@@ -854,17 +624,4 @@ describe('tool default values', () => {
       ]
     `)
   })
-})
-
-it('never retries a critical failure, even when the retry policy would accept it', async () => {
-  const { CompactionError } = await import('./errors.js')
-  const error = new CompactionError('Cannot retain conversation')
-  const handler = vi.fn(async () => {
-    throw error
-  })
-  const retry = vi.fn(async () => true)
-  const tool = new Tool({ name: 'critical', handler, retry })
-  await expect(tool.execute({}, { callId: 'test' })).rejects.toBe(error)
-  expect(handler).toHaveBeenCalledOnce()
-  expect(retry).not.toHaveBeenCalled()
 })

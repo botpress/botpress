@@ -1,43 +1,65 @@
 import type { Client } from '@botpress/client'
-import { readFileSync } from 'node:fs'
-import { setTimeout as delay } from 'node:timers/promises'
+
+import { readFileSync } from 'fs'
+import { join, resolve } from 'path'
 import { loading } from '../utils/spinner'
+
+const readDocument = (file: string) => readFileSync(resolve(join('./20_chat_rag/documents/', file)), 'utf-8')
 
 export const RAG_TAG = 'rag-llmz-demo'
 
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
 export async function uploadToRAG(client: Client, files: string[]) {
-  loading(true, 'Uploading example documents...')
-  try {
-    // uploadFile upserts by key; there is no need to delete existing documents first.
-    return await Promise.all(
-      files.map((name) =>
-        client.uploadFile({
-          key: `llmz-examples/rag/${name}`,
-          content: readFileSync(new URL(`./documents/${name}`, import.meta.url), 'utf8'),
-          index: true,
-          tags: { title: name, purpose: RAG_TAG },
+  loading(true, 'Uploading documents to Botpress RAG...')
+
+  await Promise.allSettled(
+    files.map(async (file) => {
+      await client
+        .deleteFile({
+          id: `knowledge/${file}`,
         })
-      )
+        .then(() => wait(2000))
+    })
+  )
+
+  await Promise.all(
+    files.map((file) =>
+      client
+        .uploadFile({
+          key: 'knowledge/' + file,
+          content: readDocument(file),
+          // Indexing the file for RAG
+          index: true,
+          tags: {
+            title: file,
+            purpose: RAG_TAG,
+          },
+        })
+        .catch((error) => {
+          throw new Error(`Failed to upload file ${file}: ${error?.message}`)
+        })
     )
-  } finally {
-    loading(false)
-  }
+  )
+
+  loading(false)
 }
 
-export async function waitUntilIndexed(client: Client, fileIds: string[], timeoutSeconds = 60) {
-  loading(true, 'Waiting for indexing...')
-  try {
-    const deadline = Date.now() + timeoutSeconds * 1000
-    while (Date.now() < deadline) {
-      const files = await Promise.all(fileIds.map(async (id) => (await client.getFile({ id })).file))
-      if (files.every((file) => file.status === 'indexing_completed')) return
-      if (files.some((file) => file.status === 'indexing_failed' || file.status === 'upload_failed')) {
-        throw new Error('An example document failed to index.')
-      }
-      await delay(1000)
+export async function waitUntilIndexed(client: Client, timeout_in_seconds: number = 60) {
+  loading(true, 'Waiting for documents to be indexed...')
+
+  for (let i = 0; i < timeout_in_seconds; i++) {
+    await wait(1000)
+    const files = await client.list.files({ tags: { purpose: RAG_TAG } }).collect()
+    if (files.length > 0 && files.every((file) => file.status === 'indexing_completed')) {
+      loading(false)
+      return
+    } else if (files.some((file) => file.status === 'indexing_failed' || file.status === 'upload_failed')) {
+      loading(false)
+      throw new Error('Some files failed to index.')
     }
-    throw new Error('Timed out waiting for example documents to index.')
-  } finally {
-    loading(false)
   }
+
+  loading(false)
+  throw new Error('Timeout waiting for files to be indexed.')
 }

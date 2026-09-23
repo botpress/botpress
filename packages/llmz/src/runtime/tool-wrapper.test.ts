@@ -1,59 +1,20 @@
 import { z } from '@bpinternal/zui'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import { Iteration } from '../context.js'
-import { HookError, ThinkSignal } from '../errors.js'
+import { SnapshotSignal, ThinkSignal } from '../errors.js'
 import { Tool } from '../tool.js'
+import { type Trace } from '../types.js'
 import { wrapTool } from './tool-wrapper.js'
 
-function createIteration() {
-  return new Iteration({
-    id: 'tool-test',
-    parameters: {
-      tools: [],
-      objects: [],
-      exits: [],
-      components: new Map(),
-      chatEnabled: false,
-      model: 'test',
-      temperature: 0,
-    },
-    systemMessage: { role: 'system', content: '' },
-  })
-}
+const iteration = {} as Iteration
 
 describe('wrapTool', () => {
-  test('does not start business work when cancelled during async input validation', async () => {
-    let release!: () => void
-    const blocked = new Promise<void>((resolve) => {
-      release = resolve
-    })
-    const normalize = vi.fn(async (value: string) => {
-      await blocked
-      return value.trim()
-    })
-    const handler = vi.fn(async () => 'saved')
-    const controller = new AbortController()
-    const wrapped = wrapTool({
-      tool: new Tool({ name: 'save', input: z.string().transform(normalize), handler }),
-      iteration: createIteration(),
-      controller,
-    })
-    const task = wrapped(' value ')
-    await vi.waitFor(() => expect(normalize).toHaveBeenCalledOnce())
-    controller.abort(new Error('Cancelled'))
-    release()
-
-    await expect(task).rejects.toThrow('Cancelled')
-    expect(handler).not.toHaveBeenCalled()
-  })
-
   test('mutates input and output through hooks while tracing original input', async () => {
     let originalInputName: string | undefined
     let calledInputName: string | undefined
     let afterHookInputName: string | undefined
-    const iteration = createIteration()
-    const traces = iteration.traces
+    const traces: Trace[] = []
 
     const tool = new Tool({
       name: 'greeting',
@@ -67,6 +28,7 @@ describe('wrapTool', () => {
 
     const wrapped = wrapTool({
       tool,
+      traces,
       iteration,
       controller: new AbortController(),
       beforeHook: async ({ input }) => {
@@ -96,8 +58,7 @@ describe('wrapTool', () => {
   })
 
   test('traces failed tool calls', async () => {
-    const iteration = createIteration()
-    const traces = iteration.traces
+    const traces: Trace[] = []
     const tool = new Tool({
       name: 'fail',
       input: z.object({ value: z.string() }),
@@ -108,6 +69,7 @@ describe('wrapTool', () => {
 
     const wrapped = wrapTool({
       tool,
+      traces,
       iteration,
       controller: new AbortController(),
     })
@@ -123,71 +85,8 @@ describe('wrapTool', () => {
     expect((traces[0] as any).error).toBeInstanceOf(Error)
   })
 
-  test.each(['before', 'after', 'after output'] as const)('rejects ThinkSignal from a %s hook', async (phase) => {
-    const iteration = createIteration()
-    const handler = vi.fn(async () => new ThinkSignal('Tool result', { secret: 'tool-value' }))
-    const onThink = vi.fn()
-    const signal = new ThinkSignal('Hook signal', { secret: 'hook-value' })
-    const wrapped = wrapTool({
-      tool: new Tool({ name: 'lookup', handler }),
-      iteration,
-      controller: new AbortController(),
-      onThink,
-      beforeHook:
-        phase === 'before'
-          ? () => {
-              throw signal
-            }
-          : undefined,
-      afterHook: async () => {
-        if (phase === 'after') {
-          throw signal
-        }
-
-        if (phase === 'after output') {
-          return { output: signal }
-        }
-
-        return undefined
-      },
-    })
-    await expect(wrapped(undefined)).rejects.toSatisfy(HookError.is)
-    expect(handler).toHaveBeenCalledTimes(phase === 'before' ? 0 : 1)
-    expect(onThink).not.toHaveBeenCalled()
-    expect(iteration.traces).toMatchObject([{ type: 'tool_call', success: false, output: undefined }])
-    expect(JSON.stringify(iteration.traces)).not.toContain('tool-value')
-    expect(JSON.stringify(iteration.traces)).not.toContain('hook-value')
-  })
-
-  test('does not publish a ThinkSignal result rejected by the output hook', async () => {
-    const iteration = createIteration()
-    const onThink = vi.fn()
-    const onResult = vi.fn()
-    const wrapped = wrapTool({
-      tool: new Tool({
-        name: 'lookup',
-        handler: async () => {
-          throw new ThinkSignal('Inspect', { secret: 'withheld' })
-        },
-      }),
-      iteration,
-      controller: new AbortController(),
-      onThink,
-      onResult,
-      afterHook: () => {
-        throw new Error('Output rejected')
-      },
-    })
-    await expect(wrapped(undefined)).rejects.toThrow('Output rejected')
-    expect(onThink).not.toHaveBeenCalled()
-    expect(onResult).not.toHaveBeenCalled()
-    expect(iteration.traces).toMatchObject([{ type: 'tool_call', success: false, output: undefined }])
-    expect(JSON.stringify(iteration.traces)).not.toContain('withheld')
-  })
-
-  test('traces ThinkSignal as successful and returns its context', async () => {
-    const iteration = createIteration()
-    const traces = iteration.traces
+  test('traces ThinkSignal as successful and rethrows it', async () => {
+    const traces: Trace[] = []
     const signal = new ThinkSignal('need context', { value: 1 })
     const tool = new Tool({
       name: 'thinker',
@@ -198,17 +97,55 @@ describe('wrapTool', () => {
 
     const wrapped = wrapTool({
       tool,
+      traces,
       iteration,
       controller: new AbortController(),
     })
 
-    await expect(wrapped(undefined)).resolves.toEqual({ value: 1 })
+    await expect(wrapped(undefined)).rejects.toBe(signal)
     expect(traces.map((trace) => trace.type)).toEqual(['think_signal', 'tool_call'])
     expect(traces[1]).toMatchObject({
       type: 'tool_call',
       tool_name: 'thinker',
-      output: { value: 1 },
+      output: signal,
       success: true,
     })
+  })
+
+  test('adds tool call metadata to SnapshotSignal', async () => {
+    const traces: Trace[] = []
+    const signal = new SnapshotSignal('pause')
+    const tool = new Tool({
+      name: 'payment',
+      input: z.object({ amount: z.number() }),
+      output: z.object({ paymentIntentId: z.string() }),
+      handler: async () => {
+        throw signal
+      },
+    })
+
+    const wrapped = wrapTool({
+      tool,
+      traces,
+      iteration,
+      controller: new AbortController(),
+    })
+
+    await expect(wrapped({ amount: 10 })).rejects.toBe(signal)
+    expect(signal.toolCall).toEqual({
+      name: 'payment',
+      inputSchema: tool.input,
+      outputSchema: tool.output,
+      input: { amount: 10 },
+    })
+    expect(traces).toMatchObject([
+      {
+        type: 'tool_call',
+        tool_name: 'payment',
+        input: { amount: 10 },
+        error: signal,
+        success: false,
+      },
+    ])
   })
 })
