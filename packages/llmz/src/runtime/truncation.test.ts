@@ -160,9 +160,9 @@ return inspect(evidence);`,
     expect(JSON.stringify(result.session.toJSON())).not.toContain('$$truncate')
   })
 
-  test.each([false, true])('applies explicit interruption context budgets: %s', async (explicit) => {
+  test.each([false, true])('applies explicit forced inspection context budgets: %s', async (explicit) => {
     const client = new NativeClient([
-      javascript('await search(); return inspect("unreachable");'),
+      javascript('await search(); return inspect("additional result");'),
       javascript('return exit("done", { value: true });'),
     ])
     const search = new Tool({
@@ -179,7 +179,7 @@ return inspect(evidence);`,
     })
     expect(result.is(done)).toBe(true)
     const report = String(client.requests[1]!.messages.find((message) => message.type === 'tool_result')?.content)
-    const preview = report.split('Interruption context\n')[1]!.split('\n</interruption_context>')[0]!
+    const preview = report.split('<result>\n')[1]!.split('\n</result>')[0]!
     expect(preview.includes('LATE_RAG_EVIDENCE')).toBe(explicit)
     expect(getTokenizer().count(preview, { approximate: false })).toBeLessThanOrEqual(explicit ? 40_000 : 64)
     expect(preview).not.toContain('$$truncate')

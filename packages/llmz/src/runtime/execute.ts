@@ -13,6 +13,7 @@ import {
   CognitiveError,
   CompactionError,
   DeliveryError,
+  MissingChatResponseError,
   HookError,
   ExecutionAbortedError,
   InvalidCodeError,
@@ -37,6 +38,7 @@ import { runAsyncFunction } from '../vm/index.js'
 import { getExecutionActivity } from './execution-activity.js'
 import { reportSection } from './execution-diagnostics.js'
 import { renderExecutionReport, type ExecutionOutcome } from './execution-report.js'
+import type { ForcedInspection } from './forced-inspection.js'
 import { generateCode, type NativeGeneration } from './generate.js'
 import { InspectionValues } from './inspection-values.js'
 import {
@@ -46,7 +48,7 @@ import {
   type PreparedMessage,
 } from './javascript-api.js'
 import { validateNativeToolCalls, WORKER_RESPONSE_INSTRUCTION, type ValidatedNativeCall } from './native-tools.js'
-import type { ExecutionHooks, ExecutionProps, RuntimeCognitive } from './types.js'
+import type { ExecutionProps, RuntimeCognitive } from './types.js'
 import { finalizeIteration } from './utils.js'
 import { buildVMContext } from './vm-context.js'
 
@@ -65,6 +67,8 @@ type IterationExecution = Execution & {
     result: VMExecutionResult
     inspected: boolean
     interrupted?: boolean
+    forcedInspections?: readonly ForcedInspection[]
+    downstreamError?: unknown
   }
   memory?: MemoryReport
   terminalError?: unknown
@@ -115,6 +119,10 @@ async function executeContextInternal(props: ExecutionProps): Promise<ExecutionR
       throw new InvalidConfigurationError(
         'Append input with session.append(message) before calling execute(). execute.messages is no longer supported.'
       )
+    }
+
+    if (props.options?.requireChatResponse !== undefined && typeof props.options.requireChatResponse !== 'boolean') {
+      throw new InvalidConfigurationError('Invalid requireChatResponse. Expected a boolean.')
     }
 
     release = ctx.session.acquire()
@@ -363,7 +371,7 @@ async function rejectNativeBatch(
 
 async function deliverAssistantText(state: IterationExecution, generated: NativeGeneration): Promise<void> {
   const { ctx, iteration } = state
-  if (!generated.output.trim() || !ctx.chat) {
+  if (!generated.output.trim() || !ctx.chat || !iteration.response?.handler) {
     return
   }
 
@@ -371,7 +379,7 @@ async function deliverAssistantText(state: IterationExecution, generated: Native
   const message: AssistantTextMessage = { type: 'text', text: generated.output }
 
   try {
-    await iteration.response?.handler?.(generated.output.trim(), generated.messageMetadata)
+    await iteration.response.handler(generated.output.trim(), generated.messageMetadata)
   } catch (cause) {
     if (isCriticalError(cause)) {
       throw cause
@@ -380,6 +388,7 @@ async function deliverAssistantText(state: IterationExecution, generated: Native
     throw new DeliveryError(`Assistant response delivery failed: ${getErrorMessage(cause)}`, { cause })
   }
 
+  ctx.session.recordAssistantDelivery(iteration.id)
   iteration.recordTrace({
     type: 'message_delivery',
     value: message,
@@ -416,6 +425,34 @@ async function settleJavaScriptCall(state: IterationExecution, execution: JavaSc
 
   if (outcome?.type === 'inspect' && result.success) {
     result.return_value = outcome.value
+  }
+
+  const forcedInspections = api.getForcedInspections()
+  if (forcedInspections.length && !controller.signal.aborted && !isCriticalError(result.error)) {
+    if (!result.success && result.error) {
+      iteration.recordError(result.error)
+      state.capture.downstreamError = result.error
+    }
+
+    state.capture.forcedInspections = forcedInspections
+    let value =
+      forcedInspections.length === 1 ? forcedInspections[0]!.value : forcedInspections.map((entry) => entry.value)
+    if (outcome?.type === 'inspect') {
+      value = outcome.value
+    }
+
+    state.capture.result = { ...result, success: true, signal: undefined, return_value: value }
+    // The VM has already retained assignments and joined started tools. An exit
+    // decision is intentionally not applied until the next model has seen these results.
+    iteration.end({
+      type: 'thinking_requested',
+      thinking_requested: {
+        reason: 'Tools completed successfully and requested forced inspection.',
+        variables: value,
+        metadata: forcedInspections.length === 1 ? forcedInspections[0]!.metadata : undefined,
+      },
+    })
+    return
   }
 
   if (outcome?.type === 'exit') {
@@ -502,12 +539,12 @@ async function completeJavaScriptExit(
   result: VMExecutionResult,
   outcome: Extract<JavaScriptOutcome, { type: 'exit' }>
 ): Promise<void> {
-  const { iteration, controller, props } = state
+  const { iteration, controller } = state
   state.memory = commitMemory(state, result, false)
 
   try {
     controller.signal.throwIfAborted()
-    await applyNativeExit(iteration, outcome.exit, outcome.value, controller, props.onExit)
+    await applyNativeExit(state, outcome.exit, outcome.value)
   } catch (error) {
     endFailedIteration(iteration, controller, error)
   }
@@ -561,6 +598,7 @@ async function deliverJavaScriptMessages(
           )
     }
 
+    ctx.session.recordAssistantDelivery(iteration.id)
     iteration.recordTrace({
       type: 'message_delivery',
       value: message.component,
@@ -574,9 +612,13 @@ async function deliverJavaScriptMessages(
 }
 
 async function finishNativeResponse(state: IterationExecution, generated: NativeGeneration): Promise<void> {
-  const { ctx, iteration, controller, props } = state
-  if (!generated.toolCalls.length && generated.output.trim() && ctx.chat) {
-    await applyNativeExit(iteration, ListenExit, {}, controller, props.onExit)
+  const { ctx, iteration } = state
+  if (
+    !generated.toolCalls.length &&
+    ctx.chat &&
+    (generated.output.trim() || generated.metadata.stopReason === 'stop')
+  ) {
+    await applyNativeExit(state, ListenExit, {})
     if (!iteration.hasExited()) {
       ctx.session.appendContext(
         ctx.inspector(iteration.error ?? 'Completion rejected.', { purpose: 'error', maxTokens: 200 })
@@ -697,6 +739,8 @@ function getExecutionOutcome(state: IterationExecution, memory: MemoryReport): E
       value: capture?.result.success ? capture.result.return_value : undefined,
       available: memory.resultAvailable,
       explicit: capture?.inspected ?? false,
+      forcedInspections: capture?.forcedInspections,
+      downstreamError: capture?.downstreamError,
     }
   }
 
@@ -840,15 +884,21 @@ function getIterationResult(state: IterationExecution): ExecutionResult | undefi
   return undefined
 }
 
-async function applyNativeExit(
-  iteration: Iteration,
-  exit: Exit,
-  value: unknown,
-  controller: AbortController,
-  onExit?: ExecutionHooks['onExit']
-): Promise<void> {
+async function applyNativeExit(state: IterationExecution, exit: Exit, value: unknown): Promise<void> {
+  const { ctx, iteration, controller, props } = state
   try {
-    await callHook(() => onExit?.({ exit, result: value }, controller))
+    if (
+      ctx.chat &&
+      exit === ListenExit &&
+      props.options?.requireChatResponse !== false &&
+      ctx.session.lastSpeaker !== 'assistant'
+    ) {
+      throw new MissingChatResponseError(
+        'The assistant has not delivered a message since the last user message. Send a response using the inspected results before waiting for the user. Do not repeat completed tool calls.'
+      )
+    }
+
+    await callHook(() => props.onExit?.({ exit, result: value }, controller))
     controller.signal.throwIfAborted()
     iteration.end({
       type: 'exit_success',

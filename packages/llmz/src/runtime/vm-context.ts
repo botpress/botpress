@@ -9,7 +9,7 @@ import type { TruncationPolicy } from '../truncate.js'
 import { schemaToTypeScript } from '../typings.js'
 import { stripInvalidIdentifiers } from '../utils.js'
 import { withMissingMember } from '../vm/member-proxy.js'
-import { VM_ON_ERROR, VM_PROGRAM_COMPLETE, VM_TERMINATION, type VMContext } from '../vm/types.js'
+import { VM_CALL_SITE, VM_ON_ERROR, VM_PROGRAM_COMPLETE, VM_TERMINATION, type VMContext } from '../vm/types.js'
 import type { JavaScriptApi } from './javascript-api.js'
 import { wrapTool } from './tool-wrapper.js'
 import { ExecutionHooks } from './types.js'
@@ -141,8 +141,14 @@ export const buildVMContext = ({
         onTruncation,
         onResult: onToolResult,
         controller,
+        onThink: javascriptApi?.requestInspection,
       })
-      instance[tool.name] = javascriptApi ? (input: unknown) => javascriptApi.track(() => wrapped(input)) : wrapped
+      instance[tool.name] = javascriptApi
+        ? (input: unknown) => {
+            const line = vmContext[VM_CALL_SITE]?.()
+            return javascriptApi.track(() => wrapped(input, line))
+          }
+        : wrapped
     }
 
     vmContext[obj.name] = withMissingMember(instance, (name) => {
@@ -164,8 +170,14 @@ export const buildVMContext = ({
       onTruncation,
       onResult: onToolResult,
       controller,
+      onThink: javascriptApi?.requestInspection,
     })
-    const callable = javascriptApi ? (input: unknown) => javascriptApi.track(() => wrapped(input)) : wrapped
+    const callable = javascriptApi
+      ? (input: unknown) => {
+          const line = vmContext[VM_CALL_SITE]?.()
+          return javascriptApi.track(() => wrapped(input, line))
+        }
+      : wrapped
 
     for (const key of [tool.name, ...(tool.aliases ?? [])]) {
       vmContext[key] = callable

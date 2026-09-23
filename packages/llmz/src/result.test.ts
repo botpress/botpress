@@ -9,7 +9,7 @@ test('serializes a compact outcome while Session owns durable history and memory
     javascript('const account = { id: 42 }; return inspect(account);'),
     response('Done.'),
   ])
-  const result = await executeContext({ client, chat: new Chat() })
+  const result = await executeContext({ client, chat: new Chat({ response: { handler: () => undefined } }) })
   const summary = result.toJSON()
 
   expect(summary).toMatchObject({ status: 'success', sessionId: result.session.id, exit: 'listen' })

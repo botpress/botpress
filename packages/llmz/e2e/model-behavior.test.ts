@@ -133,9 +133,9 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
           session,
           client,
           model: model as Models,
-          instructions: `Fetch the current account information using lookupAccount. Retry temporary failures until the lookup succeeds or you have made three total attempts. Call lookupAccount once per response and do not catch its errors. ${scenario === 'updates-instructions' ? request : ''}`,
+          instructions: `Fetch the current account information using lookupAccount. Retry temporary failures until the lookup succeeds or you have made three total attempts. Call lookupAccount once per response and do not catch its errors. After successful recovery, answer the original question without mentioning resolved internal failures or retries, unless requested or relevant to the outcome. Explain unresolved failures that prevent completion. ${scenario === 'updates-instructions' ? request : ''}`,
           tools: [lookupAccount],
-          // No examples or explicit silence instructions; only the update cases override defaults.
+          // Explicit update requests override the instruction to omit resolved failures.
           chat: createTestChat({
             components: [],
             onMessage: async (message) => {

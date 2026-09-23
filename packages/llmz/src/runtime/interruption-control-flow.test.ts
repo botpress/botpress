@@ -26,7 +26,7 @@ function gate() {
 describe.each([
   { name: 'Node', quickjs: 'false' },
   { name: 'QuickJS', quickjs: 'true' },
-])('host interruption control flow ($name)', ({ quickjs }) => {
+])('forced inspection control flow ($name)', ({ quickjs }) => {
   beforeEach(() => {
     vi.stubEnv('USE_QUICKJS', quickjs)
   })
@@ -59,7 +59,7 @@ describe.each([
         });
       `,
     },
-  ])('retains prior memory and skips catch, finally, and later effects after $name', async ({ call }) => {
+  ])('retains memory and allows finally and later effects after $name', async ({ call }) => {
     const pause = vi.fn(async () => {
       throw new ThinkSignal('Review the completed stage.', { stage: 1 })
     })
@@ -104,18 +104,18 @@ describe.each([
     expect(result.is(done)).toBe(true)
     expect(result.output).toEqual({ value: 42 })
     expect(pause).toHaveBeenCalledOnce()
-    expect(after).not.toHaveBeenCalled()
+    expect(after).toHaveBeenCalledTimes(call === 'await pause();' ? 1 : 2)
     expect(result.session.memory.variables).toMatchObject({
       saved: 42,
-      phase: 'before',
-      local: { phase: 'before' },
+      phase: 'finally',
+      local: { phase: 'finally' },
     })
-    expect(result.session.memory.getObjectPropertyValue('State', 'phase')).toBe('before')
+    expect(result.session.memory.getObjectPropertyValue('State', 'phase')).toBe('finally')
     expect(JSON.stringify(client.requests[1]!.messages)).toContain('Review the completed stage.')
     expect(result.session.pendingCalls).toEqual([])
   })
 
-  test('joins started siblings before another generation without allowing their continuations to run', async () => {
+  test('joins awaited siblings and their continuations before the next generation', async () => {
     const pending = gate()
     const interrupting = gate()
     const events: string[] = []
@@ -144,6 +144,7 @@ describe.each([
         } catch {
           phase = 'caught';
         }
+        await sibling;
       `),
       javascript('return exit("done", { value: saved });'),
     ])
@@ -173,8 +174,8 @@ describe.each([
 
     expect(result.is(done)).toBe(true)
     expect(result.output).toEqual({ value: 42 })
-    expect(result.session.memory.variables.phase).toBe('before')
-    expect(after).not.toHaveBeenCalled()
+    expect(result.session.memory.variables.phase).toBe('sibling continued')
+    expect(after).toHaveBeenCalledOnce()
     expect(slow).toHaveBeenCalledOnce()
     expect(pause).toHaveBeenCalledOnce()
     expect(events).toEqual(['generation started', 'sibling started', 'sibling completed', 'generation started'])

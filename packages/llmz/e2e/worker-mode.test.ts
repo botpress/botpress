@@ -532,7 +532,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
       expect(executionOrder).toEqual(['init', 'tables', 'seed'])
     })
 
-    it('handles ThinkSignal from tools', async () => {
+    it('inspects successful ThinkSignal results without retrying the tool', async () => {
       let attempts = 0
 
       const tRequireThinking = new Tool({
@@ -540,10 +540,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
         output: z.object({ result: z.string() }),
         handler: async () => {
           attempts++
-          if (attempts === 1) {
-            throw new ThinkSignal('This operation requires more context. Please think about the dependencies first.')
-          }
-          return { result: 'completed' }
+          throw new ThinkSignal('Review the completed operation before returning its status.', { result: 'completed' })
         },
       })
 
@@ -559,15 +556,14 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
         instructions: 'Call the complexOperation tool and return its result as status.',
         tools: [tRequireThinking],
         client,
-        // Requires retrying the tool after a ThinkSignal: needs a stronger model
-        model: 'anthropic:claude-haiku-4-5-20251001',
+        model: ['openai:gpt-5.6-luna'],
       })
 
       assertSuccess(result)
 
       // Should have multiple iterations due to thinking
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
-      expect(attempts).toBeGreaterThanOrEqual(2)
+      expect(attempts).toBe(1)
 
       assert(result.is(eResult))
       expect(result.output.status).toBe('completed')
@@ -649,7 +645,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
         handler: async () => {
           callCount++
           if (callCount === 1) {
-            throw new ThinkSignal('Token retrieved, now use it')
+            throw new ThinkSignal('Token retrieved, now use it', { token: 'abc123' })
           }
           return { token: 'abc123' }
         },
@@ -681,7 +677,8 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
       assertSuccess(result)
       const res = exec(result)
 
-      // Should have variables preserved
+      // The first result is retained; retrieving the same token again is unnecessary.
+      expect(callCount).toBe(1)
       expect(Object.keys(result.session.memory.variables).length).toBeGreaterThan(0)
 
       assert(result.is(eResult))

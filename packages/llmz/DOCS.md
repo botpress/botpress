@@ -138,9 +138,11 @@ console.log(restored.status) // pending
 
 Restoration checks format versions, chronology, identities, call/result pairing, exact result encodings, and memory capacity. Unknown versions are rejected. Conversation/provider fields must be acyclic JSON data; encode binary values explicitly. This is conversation and memory persistence, not a paused JavaScript stack.
 
-After a failed execution, the session retains the active input batch and any completed effects/results. Executing it again continues that turn. Newly appended messages remain queued. Applications should inspect failures before retrying operations that produce external effects.
+After a failed execution, the session retains the active input batch and any completed effects/results. Executing it again continues that turn. Newly appended messages remain queued. A successful retry can therefore leave `session.status === "pending"`; call `execute()` again to process that next batch. Its user messages reset the chat response guard when the next turn starts. Applications should inspect failures before retrying operations that produce external effects.
 
 `result.toJSON()` is a compact outcome summary. `result.diagnostics()` exports run diagnostics. Neither replaces `session.toJSON()`.
+
+Chat requires the assistant to be the last participant who spoke before `exit("listen")` can complete. Successfully delivered text and components count across iterations, executions, and saved sessions. A new user message requires a new response; events, tool results, failed deliveries, and whitespace-only content do not change the last speaker. An empty or whitespace-only model response with `stopReason: "stop"` and no tool calls follows the same listen flow and guard. Silent completion raises a recoverable `MissingChatResponseError` before `onExit`, preserving tool results for the next attempt. Set `options: { requireChatResponse: false }` for intentionally silent handling. Custom task exits and worker mode are unaffected. Older session snapshots without delivery tracking restore with an unknown last speaker and require a response by default.
 
 ## Tools and exits
 
@@ -177,7 +179,9 @@ Model-facing schemas describe accepted input shapes, not arbitrary JavaScript be
 
 Use `result.is(done)` to narrow the result and its output type. `result.isError()` exposes an execution failure. Without custom exits, workers receive `DefaultExit`. An explicit empty `exits` array supplies no completion exits. Chat adds `ListenExit`; an accepted plain assistant answer can complete the chat turn.
 
-Tools return business data. Generated code sends rich messages through registered `chat.<component>(props)` methods. A `ThinkSignal` requests another reasoning iteration; it is not durable pause/resume.
+Tools return business data. Generated code sends rich messages through registered `chat.<component>(props)` methods. A tool may throw or return `new ThinkSignal(reason, context)` to require inspection of a successful result. JavaScript receives `context` as the tool return value: assignments, subsequent calls, and awaited parallel tools continue normally. At the end of that iteration, inspection takes precedence over an attempted exit or a later recoverable error; exit hooks do not run. The next model turn receives every signaling tool's name, source line, reason, and result together inside `<forced_inspection>`, and is instructed to reuse those results rather than repeat successful calls. Explicit `inspect()` output is also preserved. Tool-result display budgets and `truncate()` policies still apply. Only the business tool handler may produce a `ThinkSignal`; tool hooks must return their documented input/output overrides. Forced inspection uses the output accepted by `onAfterTool`. If that hook rejects or cancels, the rejected result is withheld from guest memory and inspection.
+
+Forced inspection delays completion, not business actions: code after a signaling tool still runs, including other tools and chat component deliveries. It is not an authorization barrier. Cancellation and critical failures still stop execution completely. `ThinkSignal` is not durable pause/resume.
 
 ## Components
 
@@ -208,7 +212,7 @@ The model calls `chat.cards(...)`. `render` parses props once and captures an im
 
 `response.onDelta` receives previews. Its normal event has `delta`, accumulated `content`, `id`, and `iterationId`. A restart event has `restart: true`, an iteration ID, attempt number, models, and reason. Retract the prior preview before displaying replacement text.
 
-`response.handler` receives the accepted complete text and its message metadata. Components use their own handlers. Without handlers, native text is still retained in session history.
+`response.handler` receives the accepted complete text and its message metadata. Components use their own handlers. Without handlers, native text is still retained in session history, but does not count as delivered speech for `requireChatResponse`.
 
 Complete JavaScript calls can execute while streaming continues. If a stream fails after dispatch, the runtime retains completed effects and reports the interruption; it does not replay the program on another model. `options.midStreamFallback` enables restarts before dispatch and requires a preview consumer capable of handling retractions. Normal preview callback failures are ignored; failed retractions stop generation. A final delivery failure can fail execution.
 
@@ -283,7 +287,7 @@ const getEvidence = new Tool({
 
 Inventories and diagnostic previews keep their own small budgets even if a value carries a larger inspection override. Truncation markers are included in the final measured output. Unicode boundaries, cyclic structures, throwing formatters, and accessor properties are handled without changing retained data.
 
-Standalone text is displayed directly. Strings nested in objects or arrays use JSON quoting so source indentation, line endings, and literal escapes remain distinct from the preview's formatting.
+Both `return inspect(value)` and forced ThinkSignal inspection use the native inspector. Standalone text is displayed directly, preserving whitespace, code, and literal tags within its preview budget. Report sections add no XML entity escaping or CDATA. Strings nested in objects or arrays use JSON quoting so source indentation, line endings, and literal escapes remain distinct from the preview's formatting.
 
 `onInspect` customizes previews by purpose and identity. Return `undefined` for the default formatter. The hook receives an isolated read-only snapshot; custom text is still bounded. A formatter failure falls back to default inspection.
 

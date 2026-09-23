@@ -855,130 +855,104 @@ test('the next request retains a larger expected input shape instead of clipping
   expect(recoveryFeedback(client)).toContain('preference24?: boolean')
 })
 
-test('ThinkSignal sends its reason, interruption site, and context to the next LLM request', async () => {
+test('ThinkSignal exposes successful tool results together in the next LLM prompt', async () => {
+  let prompt: string | undefined
   const { ThinkSignal } = await import('../errors.js')
-  const prompts: Record<string, string> = {}
   try {
     for (const quickjs of ['false', 'true']) {
       vi.stubEnv('USE_QUICKJS', quickjs)
-      const after = vi.fn(async () => 'must not run')
+      const stock = vi.fn(async () => {
+        throw new ThinkSignal('Review the available stock.', { stock: 4 })
+      })
+      const pickup = vi.fn(async () => {
+        return new ThinkSignal('Review the pickup location before answering.', { collection: 'Dock 7' })
+      })
+      const onExit = vi.fn()
       const client = new NativeClient([
-        javascript('const order = "order-1";\nawait review({ order });\nawait charge();'),
+        javascript(
+          [
+            'const stock = await searchStock();',
+            'const pickup = await searchPickup();',
+            'return exit("done", { ok: true });',
+          ].join('\n')
+        ),
         completed(),
       ])
       const result = await executeContext({
         client,
+        tools: [new Tool({ name: 'searchStock', handler: stock }), new Tool({ name: 'searchPickup', handler: pickup })],
         exits: [done],
-        tools: [
-          new Tool({
-            name: 'review',
-            handler: async () => {
-              throw new ThinkSignal('Check approval before charging.', {
-                approved: false,
-                nextStep: 'Ask for approval.',
-              })
-            },
-          }),
-          new Tool({ name: 'charge', handler: after }),
-        ],
+        options: { loop: 2 },
+        onExit,
       })
-      expect(result.is(done)).toBe(true)
-      expect(after).not.toHaveBeenCalled()
-      expect(result.iterations[0]!.errors).toEqual([])
-      const prompt = recoveryFeedback(client)
-      expect(prompt).toContain('> 002 | await review({ order });')
-      prompts[quickjs === 'true' ? 'QuickJS' : 'Node'] = prompt
+
+      expect.soft(result.is(done)).toBe(true)
+      expect.soft(client.requests).toHaveLength(2)
+      expect.soft(stock).toHaveBeenCalledOnce()
+      expect.soft(pickup).toHaveBeenCalledOnce()
+      expect.soft(onExit).toHaveBeenCalledOnce()
+      expect.soft(result.iterations[0]?.status.type).toBe('thinking_requested')
+      expect.soft(result.iterations[0]?.errors).toEqual([])
+      expect.soft(result.session.memory.variables).toMatchObject({
+        stock: { stock: 4 },
+        pickup: { collection: 'Dock 7' },
+      })
+
+      // Snapshot the actual tool-result message sent to the second model call,
+      // not a separately constructed report. Only memory/budget footers are omitted.
+      const current = recoveryFeedback(client)
+      if (prompt !== undefined) {
+        expect(current).toBe(prompt)
+      }
+
+      prompt = current
     }
-
-    expect(prompts).toMatchInlineSnapshot(`
-      {
-        "Node": "run_javascript: paused
-
-      <interruption>
-      Check approval before charging.
-      </interruption>
-
-      <stack_trace>
-      001 | const order = "order-1";
-      > 002 | await review({ order });
-             ^^^^^^^^^^
-        003 | await charge();
-      </stack_trace>
-
-      <recovery>
-      Execution paused at the thinking request. Remaining statements did not run. Review the context below and continue from retained variables and acknowledged results; do not repeat completed actions or messages.
-      </recovery>
-
-      <tool_calls>
-      Tools called
-      - review({ order: "order-1" }): interrupted; pending; "Check approval before charging."
-      </tool_calls>
-
-      <memory_changes>
-      Memory changes
-      Created: order
-      </memory_changes>
-
-      <result>
-      inspect() result
-      Not produced; execution did not complete an inspection.
-      </result>
-
-      <interruption_context>
-      Interruption context
-      // Object Preview
-      --------------
-      {
-        "approved": false,
-        "nextStep": "Ask for approval."
-      }
-      </interruption_context>",
-        "QuickJS": "run_javascript: paused
-
-      <interruption>
-      Check approval before charging.
-      </interruption>
-
-      <stack_trace>
-      001 | const order = "order-1";
-      > 002 | await review({ order });
-             ^^^^^^^^^^
-        003 | await charge();
-      </stack_trace>
-
-      <recovery>
-      Execution paused at the thinking request. Remaining statements did not run. Review the context below and continue from retained variables and acknowledged results; do not repeat completed actions or messages.
-      </recovery>
-
-      <tool_calls>
-      Tools called
-      - review({ order: "order-1" }): interrupted; pending; "Check approval before charging."
-      </tool_calls>
-
-      <memory_changes>
-      Memory changes
-      Created: order
-      </memory_changes>
-
-      <result>
-      inspect() result
-      Not produced; execution did not complete an inspection.
-      </result>
-
-      <interruption_context>
-      Interruption context
-      // Object Preview
-      --------------
-      {
-        "approved": false,
-        "nextStep": "Ask for approval."
-      }
-      </interruption_context>",
-      }
-    `)
   } finally {
     vi.unstubAllEnvs()
   }
+
+  expect(prompt).toMatchInlineSnapshot(`
+        "run_javascript: succeeded
+
+        <forced_inspection>
+        Forced inspection: the tools listed below completed successfully and requested review of their results.
+        This is the equivalent of an inspect() call. Do not repeat these tool calls; use the results below and retained variables.
+        No exit was applied. Review the evidence before continuing or completing the task.
+
+        Tools requesting inspection (lines refer to the executed JavaScript):
+        <tool name="searchStock" line="1">
+        <reason>Review the available stock.</reason>
+        <result>
+        // Object Preview
+        --------------
+        {
+          "stock": 4
+        }
+        </result>
+        </tool>
+        <tool name="searchPickup" line="2">
+        <reason>Review the pickup location before answering.</reason>
+        <result>
+        // Object Preview
+        --------------
+        {
+          "collection": "Dock 7"
+        }
+        </result>
+        </tool>
+        </forced_inspection>
+
+        <tool_calls>
+        Tools called
+        - searchStock(): succeeded
+        - searchPickup(): succeeded
+        </tool_calls>
+
+        <memory_changes>
+        Memory changes
+        Created: stock, pickup
+        </memory_changes>"
+      `)
 })
 
 test.each(['false', 'true'])(
@@ -1001,3 +975,34 @@ test.each(['false', 'true'])(
     }
   }
 )
+
+test('silent listen explains the missing message in the next LLM request', async () => {
+  const client = new NativeClient([javascript('return exit("listen");'), response('Here is your answer.')])
+  const handler = vi.fn()
+  const onExit = vi.fn()
+  const result = await executeContext({ client, chat: new Chat({ response: { handler } }), onExit })
+  expect(result.isSuccess()).toBe(true)
+  expect(result.iterations[0]?.exception?.code).toBe('MISSING_CHAT_RESPONSE')
+  expect(handler).toHaveBeenCalledOnce()
+  expect(onExit).toHaveBeenCalledOnce()
+  expect(recoveryFeedback(client)).toMatchInlineSnapshot(`
+    "run_javascript: failed
+
+    <error>
+    Code: MISSING_CHAT_RESPONSE
+    The assistant has not delivered a message since the last user message. Send a response using the inspected results before waiting for the user. Do not repeat completed tool calls.
+    </error>
+
+    <recovery>
+    Completion through listen failed; no exit was applied.
+    The iteration did not complete successfully. Review the error and recorded outcomes before continuing.
+    Use retained variables and acknowledged results. Do not repeat completed actions or messages.
+    Check uncertain external outcomes before retrying an operation.
+    </recovery>
+
+    <result>
+    inspect() result
+    Not produced; execution did not complete an inspection.
+    </result>"
+  `)
+})

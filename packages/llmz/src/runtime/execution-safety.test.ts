@@ -165,7 +165,12 @@ describe('native execution safety', () => {
       ]),
       javascript('return exit();'),
     ])
-    const result = await executeContext({ client, chat, tools: [new Tool({ name: 'action', handler: business })] })
+    const result = await executeContext({
+      client,
+      chat,
+      tools: [new Tool({ name: 'action', handler: business })],
+      options: { requireChatResponse: false },
+    })
 
     expect(result.isSuccess()).toBe(true)
     expect(deltas.some((delta) => !delta.restart)).toBe(true)

@@ -369,6 +369,16 @@ export class HostOperationError extends LLMzError<'HOST_OPERATION_FAILED'> {
   }
 }
 
+/** Chat tried to wait for the user without delivering any message. */
+export class MissingChatResponseError extends LLMzError<'MISSING_CHAT_RESPONSE'> {
+  public static override readonly is = (value: unknown): value is MissingChatResponseError =>
+    isLLMzError(value, 'MISSING_CHAT_RESPONSE')
+  public readonly code = 'MISSING_CHAT_RESPONSE'
+  public constructor(message: string, options?: ErrorOptions) {
+    super(message, false, options)
+  }
+}
+
 /** Message delivery failed; external delivery may have partially completed. */
 export class DeliveryError extends LLMzError<'DELIVERY_FAILED'> {
   public static override readonly is = (value: unknown): value is DeliveryError => isLLMzError(value, 'DELIVERY_FAILED')
@@ -439,6 +449,7 @@ export const errorClasses = {
   NativeProtocolError,
   HostOperationError,
   DeliveryError,
+  MissingChatResponseError,
   HookError,
   ExecutionAbortedError,
   InternalError,
@@ -480,6 +491,7 @@ const ERROR_CODES: ReadonlySet<string> = new Set([
   'INVALID_NATIVE_CALL',
   'HOST_OPERATION_FAILED',
   'DELIVERY_FAILED',
+  'MISSING_CHAT_RESPONSE',
   'HOOK_FAILED',
   'EXECUTION_ABORTED',
   'INTERNAL_ERROR',

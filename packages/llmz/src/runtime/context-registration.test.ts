@@ -80,7 +80,12 @@ test('allows namespaced business methods without shadowing runtime globals', asy
     `),
   ])
 
-  const result = await executeContext({ client, objects: [account], chat: createRecordingChat({ handler: vi.fn() }) })
+  const result = await executeContext({
+    client,
+    objects: [account],
+    chat: createRecordingChat({ handler: vi.fn() }),
+    options: { requireChatResponse: false },
+  })
 
   expect(result.is(ListenExit)).toBe(true)
   expect(calls).toEqual(['exit', 'chat', 'inspect'])
@@ -91,7 +96,12 @@ test('retains the listen exit in chat when custom exits are explicitly empty', a
   const client = new NativeClient([javascript('return exit("listen");')])
   const handler = vi.fn()
 
-  const result = await executeContext({ client, exits: [], chat: createRecordingChat({ handler }) })
+  const result = await executeContext({
+    client,
+    exits: [],
+    chat: createRecordingChat({ handler }),
+    options: { requireChatResponse: false },
+  })
 
   expect(result.is(ListenExit)).toBe(true)
   expect(result.iteration?.exits).toEqual([ListenExit])

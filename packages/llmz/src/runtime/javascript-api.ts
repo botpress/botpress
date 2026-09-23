@@ -17,6 +17,7 @@ import { parseSchemaSync } from '../schema.js'
 import { cloneMemoryValue } from '../session/memory.js'
 import { schemaToTypeScript } from '../typings.js'
 import { withMissingMember } from '../vm/member-proxy.js'
+import type { ForcedInspection } from './forced-inspection.js'
 
 /** A child message keeps its identity from preparation through acknowledged delivery. */
 export type PreparedMessage = {
@@ -43,6 +44,8 @@ export type JavaScriptApi = {
   getTerminalOutcome(): TerminalOutcome | undefined
   /** The first host interruption closes execution before guest handlers can consume it. */
   getInterruption(): ThinkSignal | undefined
+  requestInspection(inspection: ForcedInspection): void
+  getForcedInspections(): readonly ForcedInspection[]
   throwIfTerminated(): void
   track<T>(operation: () => Promise<T>): Promise<T>
   assertOpen(): void
@@ -80,6 +83,7 @@ export function createJavaScriptApi({
 }: JavaScriptApiOptions): JavaScriptApi {
   const decisions = new Map<string, JavaScriptOutcome>()
   const pending = new Set<Promise<unknown>>()
+  const inspections: ForcedInspection[] = []
   let open = true
   let outstanding: Promise<unknown>[] = []
   let delivery: Promise<void> | undefined
@@ -294,6 +298,10 @@ export function createJavaScriptApi({
     isReceipt: (value) => resolve(value) !== undefined,
     getTerminalOutcome: () => terminalOutcome,
     getInterruption: () => interruption,
+    requestInspection: (inspection) => {
+      inspections.push(inspection)
+    },
+    getForcedInspections: () => inspections,
     throwIfTerminated,
     track,
     assertOpen,

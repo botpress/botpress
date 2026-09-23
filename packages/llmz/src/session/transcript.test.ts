@@ -82,7 +82,7 @@ describe('session events', () => {
 
       return generate(input)
     })
-    const chat = new Chat()
+    const chat = new Chat({ response: { handler: () => undefined } })
     expect((await executeContext({ session, client, chat })).isSuccess()).toBe(true)
     expect(JSON.stringify(client.requests[0])).not.toContain('button.clicked')
     expect(session.pendingMessages).toHaveLength(2)

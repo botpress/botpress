@@ -38,6 +38,7 @@ const samples = {
   INVALID_NATIVE_CALL: new errors.NativeProtocolError('Invalid native call'),
   HOST_OPERATION_FAILED: new errors.HostOperationError('Await the tool'),
   DELIVERY_FAILED: new errors.DeliveryError('Channel offline'),
+  MISSING_CHAT_RESPONSE: new errors.MissingChatResponseError('Send a response before listening.'),
   HOOK_FAILED: new errors.HookError('Use another value'),
   EXECUTION_ABORTED: new errors.ExecutionAbortedError('Cancelled'),
   INTERNAL_ERROR: new errors.InternalError('Unexpected failure'),

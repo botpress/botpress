@@ -23,7 +23,7 @@ describe('runtime inspection hook', () => {
     const result = await executeContext({
       client,
       session,
-      chat: new Chat(),
+      chat: new Chat({ response: { handler: () => undefined } }),
       objects: [
         new ObjectInstance({ name: 'customer', properties: [{ name: 'plan', type: z.string(), value: 'Team' }] }),
       ],
@@ -78,7 +78,7 @@ describe('runtime inspection hook', () => {
     const client = new NativeClient([javascript('return inspect({ count: 3 });'), response('Done.')])
     const result = await executeContext({
       client,
-      chat: new Chat(),
+      chat: new Chat({ response: { handler: () => undefined } }),
       onInspect: ({ value, maxTokens, preserve, compact }) =>
         inspect(value, undefined, { tokens: maxTokens, preserve, compact }),
     })

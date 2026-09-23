@@ -49,6 +49,12 @@ export namespace Traces {
   export type ThinkSignal = TraceTemplate<
     'think_signal',
     {
+      tool_name?: string
+      tool_call_id?: string
+      object?: string
+      reason?: string
+      context?: unknown
+      metadata?: Record<string, unknown>
       line: number
     }
   >

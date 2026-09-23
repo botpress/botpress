@@ -170,10 +170,7 @@ describe('execution reports from actual runtime traces', () => {
       tools: [new Tool({ name: 'readRecords', handler: async () => records })],
     })
     const report = reportAt(result)
-    const inspection = report
-      .split('inspect() result\n')[1]!
-      .split('\n</result>')[0]!
-      .replace(/^<!\[CDATA\[\n|\n\]\]>$/g, '')
+    const inspection = report.split('inspect() result\n')[1]!.split('\n</result>')[0]!
     const feedback = String(client.requests[1]!.messages.at(-1)!.content)
 
     expect(result.output).toEqual({ value: records.length })
@@ -185,7 +182,7 @@ describe('execution reports from actual runtime traces', () => {
     expect(feedback).not.toContain('Record 4999:')
   })
 
-  test('bounds interruption evidence instead of bypassing the inspector for strings', async () => {
+  test('bounds forced inspection evidence instead of bypassing the inspector for strings', async () => {
     const evidence = '# SOURCE_START\n\n' + 'Retrieved passage.\n\n'.repeat(10_000) + 'HIDDEN_SOURCE_END'
     const client = new NativeClient([
       javascript('return inspect(await search());'),
@@ -204,9 +201,9 @@ describe('execution reports from actual runtime traces', () => {
       ],
     })
     const report = reportAt(result)
-    const context = report.split('Interruption context\n')[1]!.split('\n</interruption_context>')[0]!
+    const context = report.split('<result>\n')[1]!.split('\n</result>')[0]!
 
-    expect(report).toMatch(/^run_javascript: paused/)
+    expect(report).toContain('<forced_inspection>')
     expect(context).toContain('SOURCE_START')
     expect(context).toContain('# SOURCE_START\n\nRetrieved passage.\n\n')
     expect(context).toContain('[truncated]')
@@ -214,11 +211,11 @@ describe('execution reports from actual runtime traces', () => {
     expect(getTokenizer().count(context)).toBeLessThanOrEqual(2000)
   })
 
-  test.each(['inspection', 'interruption'] as const)(
+  test.each(['inspection', 'thrown ThinkSignal', 'returned ThinkSignal'] as const)(
     'preserves multiline RAG evidence in the actual %s tool-result message',
     async (mode) => {
       const evidence = [
-        '# Refund policy 【1】',
+        '  # Refund policy 【1】  ',
         '',
         'Refunds are available within 30 days. See https://example.com/refunds.',
         '',
@@ -232,22 +229,31 @@ describe('execution reports from actual runtime traces', () => {
         '<section data-kind="example">A & B, with &lt;literal&gt; entities.</section>',
         '',
         '```javascript',
-        'const delimiter = "\\n";',
+        '  const delimiter = "\\n";  ',
+        '\tif (a < b && b > 0) { return "&lt;literal&gt;"; }',
         '```',
+        ']]>',
+        '',
       ].join('\n')
       const client = new NativeClient([
         javascript('const evidence = await search(); return inspect(evidence);'),
         javascript('return exit("done", { value: 30 });'),
       ])
+      const onInspect = vi.fn(() => undefined)
       const result = await executeContext({
         client,
         exits: [done],
+        onInspect,
         tools: [
           new Tool({
             name: 'search',
             handler: async () => {
-              if (mode === 'interruption') {
+              if (mode === 'thrown ThinkSignal') {
                 throw new ThinkSignal('Read the retrieved policy.', evidence)
+              }
+
+              if (mode === 'returned ThinkSignal') {
+                return new ThinkSignal('Read the retrieved policy.', evidence)
               }
 
               return evidence
@@ -257,15 +263,16 @@ describe('execution reports from actual runtime traces', () => {
       })
       const feedback = client.requests[1]!.messages.find((message) => message.type === 'tool_result')!
       const content = String(feedback.content)
-      const heading = mode === 'inspection' ? 'inspect() result' : 'Interruption context'
-      const displayed = content
-        .split(`${heading}\n`)[1]!
-        .split(mode === 'inspection' ? '\n</result>' : '\n</interruption_context>')[0]!
-        .replace(/^<!\[CDATA\[\n|\n\]\]>$/g, '')
+      const heading = mode === 'inspection' ? 'inspect() result' : '<result>'
+      const displayed = content.split(`${heading}\n`)[1]!.split('\n</result>')[0]!
 
       expect(result.is(done)).toBe(true)
       expect(feedback.toolResultCallId).toBeTruthy()
       expect(displayed).toBe(evidence)
+      expect(content).not.toContain('<![CDATA[')
+      expect(onInspect).toHaveBeenCalledWith(
+        expect.objectContaining({ purpose: 'result', value: evidence, compact: false })
+      )
       expect(displayed).not.toContain('【1】\\n\\nRefunds')
       expect(getTokenizer().count(displayed)).toBeLessThanOrEqual(2000)
 

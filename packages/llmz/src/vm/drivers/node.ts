@@ -5,7 +5,13 @@ import { RESERVED_RUNTIME_NAMES } from '../../runtime-names.js'
 import type { VMExecutionResult } from '../../types.js'
 import { handleCatch, handleErrorNode } from '../errors.js'
 import { finalizeMemoryCapture, findUserCodeStartLine, instrumentContext, NO_TRACKING } from '../instrument.js'
-import { VM_PROGRAM_COMPLETE, VM_TERMINATION, type DriverExecutionContext, type VMDriver } from '../types.js'
+import {
+  VM_CALL_SITE,
+  VM_PROGRAM_COMPLETE,
+  VM_TERMINATION,
+  type DriverExecutionContext,
+  type VMDriver,
+} from '../types.js'
 // Unsandboxed execution via Node's AsyncFunction constructor.
 // No isolation — shares the same heap. Used as fallback when QuickJS WASM can't load.
 export class NodeDriver implements VMDriver {
@@ -21,6 +27,15 @@ export class NodeDriver implements VMDriver {
       findUserCodeStartLine(transformed),
       ctx.memoryNames
     )
+    context[VM_CALL_SITE] = () => {
+      const frame = new Error().stack?.match(/<anonymous>:(\d+):(\d+)/)
+      if (!frame) {
+        return undefined
+      }
+
+      const position = consumer.originalPositionFor({ line: Number(frame[1]) - 1, column: Number(frame[2]) })
+      return position.line ? Math.max(1, position.line - 3) : undefined
+    }
     // No built-in AsyncFunction type in TS — extract the constructor at runtime
     type AsyncFunctionCtor = (...args: unknown[]) => (...args: unknown[]) => Promise<unknown>
 

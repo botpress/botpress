@@ -894,7 +894,9 @@ describe('llmz', { retry: 0, timeout: 60_000 }, () => {
       })
 
       assertSuccess(result)
-      expect(result.iterations.length).toBeGreaterThanOrEqual(3)
+      // Multiple successful ThinkSignals can now settle in the same program.
+      expect(callCount).toBe(3)
+      expect(result.iterations.length).toBeGreaterThanOrEqual(2)
 
       // Verify first iteration uses fast model and 0.5 temperature
       expect(result.iterations[0]!.model).toBe('fast')

@@ -124,6 +124,14 @@ export type ExecutionHooks = {
 
 type Options = Partial<Pick<Context, 'loop' | 'timeout'>> & {
   /**
+   * Require the assistant to be the last participant who spoke before the built-in
+   * ListenExit can complete. Defaults to true. Successful text and component delivery
+   * count across iterations and executions; events and tool results do not.
+   * Set false for intentionally silent chat handling. Custom exits and workers
+   * are unaffected. Rejection is recoverable within the remaining loop budget.
+   */
+  requireChatResponse?: boolean
+  /**
    * Optional cap on the model's context window, in tokens.
    * The effective limit is `min(maxTokens, smallest configured model input limit)`.
    * Useful to reduce cost and latency on models with very large context windows.
