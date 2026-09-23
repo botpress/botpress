@@ -6,8 +6,8 @@ import {
   type RuntimeGenerateContentOptions,
 } from '../../src/custom-client.js'
 import { type ChatMessage, type ExecutionResult } from '../../src/index.js'
-import { createTestChat } from './chat.js'
 import { getCachedCognitiveClient } from './index.js'
+import { createTestChat } from './chat.js'
 
 // Compare the reported Qwen route, both requested GPT-OSS providers, and a Luna control.
 // A single-element model array below prevents a fallback from hiding a failing route.
@@ -25,9 +25,9 @@ class ProductionClient extends _CustomModelClient {
   public metadata: CognitiveMetadata[] = []
   public restarts: unknown[] = []
   public requests: RuntimeGenerateContentInput[] = []
-  private seeded = false
+  private _seeded = false
 
-  public constructor(private readonly firstCode?: string) {
+  public constructor(private readonly _firstCode?: string) {
     super()
   }
 
@@ -46,13 +46,13 @@ class ProductionClient extends _CustomModelClient {
     options?: RuntimeGenerateContentOptions
   ): AsyncGenerator<CognitiveStreamChunk> {
     this.requests.push(structuredClone(input))
-    if (this.firstCode !== undefined && !this.seeded) {
-      this.seeded = true
+    if (this._firstCode !== undefined && !this._seeded) {
+      this._seeded = true
       yield {
         created: 0,
         finished: true,
         output: '',
-        toolCalls: [{ id: 'production_fault', name: 'run_javascript', input: { code: this.firstCode } }],
+        toolCalls: [{ id: 'production_fault', name: 'run_javascript', input: { code: this._firstCode } }],
         metadata: {
           provider: 'fixture',
           model: 'production-fault-replay',
