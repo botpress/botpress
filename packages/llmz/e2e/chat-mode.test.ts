@@ -635,6 +635,7 @@ String types:
           preset: 'markdown',
           instructions: `Respond with only the supplied code example in a Python code block.
 Transcribe the source verbatim, preserving indentation, blank lines, escapes, repeated patterns, and punctuation.
+Copy one source line at a time and compare it against the retrieved example. Repeated groups in regexes must occur exactly as many times as in the source; do not complete a familiar pattern from memory.
 Do not correct, expand, simplify, or reformat the supplied code. Do not add explanations or additional examples.`,
         }),
         session,

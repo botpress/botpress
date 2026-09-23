@@ -112,7 +112,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
 
         const calculationInstructions =
           challenge.profile === 'arithmetic'
-            ? '\n\nAfter searching, calculate using run_javascript and return inspect(...) with the computed result. Read that result, then give the answer as native assistant text with citations. To finish, call exit("listen") without a payload. The listen exit does not accept calculation results; inspect(...) returns values for you to read.'
+            ? '\n\nRetrieval: call search_knowledge exactly once in total, using the complete question as one query. That single call returns the entire evidence corpus, including all facts needed for the calculation. Do not split the question into multiple searches or call search_knowledge in Promise.all. After inspecting the evidence, calculate using run_javascript and return inspect(...) with the computed result. Read that result, then give the answer as native assistant text with citations. A final text-only answer completes the turn; do not call run_javascript solely to exit("listen").'
             : ''
 
         const result = await execute({

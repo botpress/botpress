@@ -1,6 +1,9 @@
 import type { CognitiveToolCall } from '@botpress/cognitive'
 import { describe, expect, it } from 'vitest'
-import { RUN_JAVASCRIPT_TOOL, validateNativeToolCalls } from './native-tools.js'
+import { executeContext } from './execute.js'
+import { createRecordingChat } from './fixtures/chat.js'
+import { NativeClient, javascript, response } from './fixtures/native-client.js'
+import { getRunJavaScriptTool, RUN_JAVASCRIPT_TOOL, validateNativeToolCalls } from './native-tools.js'
 
 const call = (name: string, input: Record<string, unknown> = {}, id = name) => ({ id, name, input })
 
@@ -13,6 +16,38 @@ describe('single native execution tool', () => {
       required: ['code'],
       additionalProperties: false,
     })
+    expect(RUN_JAVASCRIPT_TOOL.parameters).not.toHaveProperty('properties.code.minLength')
+  })
+
+  it('keeps execution documentation in both modes without teaching workers to send text', () => {
+    const chat = getRunJavaScriptTool(true)
+    const worker = getRunJavaScriptTool(false)
+    for (const tool of [chat, worker]) {
+      expect(tool.description).toContain('business functions are called INSIDE its code')
+      expect(tool.description).toContain('never submit search terms')
+      expect(tool.parameters).toEqual(chat.parameters)
+    }
+
+    expect(chat.description).toContain('include the assistant text AND this tool call')
+    expect(worker.description).toContain('Keep assistant text empty')
+    expect(worker.description).not.toContain('include the assistant text')
+    expect(worker.description).not.toContain('A plain assistant reply')
+  })
+
+  it('executes the JavaScript example embedded in the code property documentation', async () => {
+    const schema = RUN_JAVASCRIPT_TOOL.parameters as {
+      properties: { code: { description: string } }
+    }
+    const code = schema.properties.code.description.match(/<example[^>]*>([\s\S]*?)<\/example>/)?.[1]
+    expect(code).toBeDefined()
+    const result = await executeContext({
+      client: new NativeClient([javascript(code!), response('42')]),
+      chat: createRecordingChat({ handler: () => {} }),
+      options: { loop: 2 },
+    })
+    expect(result.isSuccess()).toBe(true)
+    expect(result.session.memory.variables.total).toBe(42)
+    expect(result.iterations.flatMap((iteration) => iteration.errors)).toEqual([])
   })
 
   it('accepts ordinary text or one complete JavaScript program', () => {

@@ -3,6 +3,7 @@ import { formatTypings } from '../formatting.js'
 import { WORKER_RESPONSE_INSTRUCTION } from '../runtime/native-tools.js'
 import { getTypings } from '../typings.js'
 import { getMultilineComment } from '../utils.js'
+import { getNativeExamples } from './native-examples.js'
 import type { LLMzPrompts } from './prompt.js'
 
 const runJavaScriptSyntax = [
@@ -144,7 +145,20 @@ export async function getNativeSystemMessage(props: LLMzPrompts.InitialStateProp
     runJavaScriptSyntax,
     runtimeRules(props, chat),
     ...(chat ? ['# Assistant response', (props.response ?? resolveResponse()).instructions] : []),
+    getNativeExamples({
+      chat,
+      tools: declarations.length > 0,
+      components: props.components.size > 0,
+      exits: props.exits.length > 0,
+      listen: props.exits.some((exit) => exit.name === 'listen'),
+    }),
   ].join('\n\n')
+  const delivery = chat
+    ? [
+        '# Assistant text delivery',
+        'When answering, write only the final user-facing answer, once. Do not output private thinking, drafts, or thinking tags. This governs assistant text only: still call required tools, send requested components, and provide requested progress updates. Preserve literal text or code the user explicitly asks you to reproduce.',
+      ].join('\n\n')
+    : ''
 
   return {
     message: {
@@ -156,8 +170,9 @@ export async function getNativeSystemMessage(props: LLMzPrompts.InitialStateProp
         tools,
         '# Task instructions',
         instructions,
+        ...(delivery ? [delivery] : []),
       ].join('\n\n'),
     },
-    parts: { instructions, tools, protocol },
+    parts: { instructions, tools, protocol: [protocol, delivery].filter(Boolean).join('\n\n') },
   }
 }

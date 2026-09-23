@@ -19,7 +19,19 @@ const props = {
 }
 
 describe('native prompt', () => {
-  it('documents the single execution tool without embedding hypothetical conversation', async () => {
+  it('separates final-answer text from actions and preserves requested literal content', async () => {
+    const chat = await getNativeSystemMessage(props)
+    const worker = await getNativeSystemMessage({ ...props, isChatEnabled: false })
+    expect(chat.parts.protocol).toContain('write only the final user-facing answer, once')
+    expect(chat.message.content).toContain(
+      'still call required tools, send requested components, and provide requested progress updates'
+    )
+    expect(chat.message.content).toContain('Preserve literal text or code the user explicitly asks you to reproduce')
+    expect(worker.message.content).not.toContain('# Assistant text delivery')
+    expect(worker.message.content).toContain('Keep assistant text empty')
+  })
+
+  it('separates fictional examples from the actual API and task instructions', async () => {
     const tool = new Tool({
       name: 'readAccount',
       description: 'Read an account',
@@ -36,7 +48,13 @@ describe('native prompt', () => {
     expect(message.content).toContain('readAccount')
     expect(message.content).toContain('$iterations')
     expect(message.content).not.toContain('■')
-    expect(message.content).not.toMatch(/Hypothetical examples|Response example|Component method example/)
+    expect(message.content).toContain('<examples>')
+    expect(message.content).toContain('NOT live conversation, task history, or evidence')
+    expect(parts.tools).not.toContain('exampleSearch')
+    expect(parts.protocol).toContain('exampleSearch')
+    const content = String(message.content)
+    expect(content.indexOf('</examples>')).toBeLessThan(content.indexOf('# JavaScript API'))
+    expect(content.indexOf('# JavaScript API')).toBeLessThan(content.indexOf('# Task instructions'))
     expect(Object.keys(parts)).toEqual(['instructions', 'tools', 'protocol'])
   })
 

@@ -6,7 +6,31 @@ All network-backed test suites share a disk cache, including model evaluations. 
 pnpm test:e2e
 ```
 
-Pull-request CI runs the offline tests and replays the complete E2E suite from the committed production recordings. Missing recordings fail the job instead of making live provider requests. To check current staging/provider behavior, manually run the **Run LLMz Tests** workflow with **live** enabled; it refreshes responses against staging using a temporary bot.
+Pull-request CI runs the offline tests and replays the E2E suite from the committed production recordings. Missing recordings fail the job instead of making live provider requests. The three accepted model limitations below are skipped in the blocking suite and evaluated in a separate non-blocking CI step. To check current staging/provider behavior, manually run the **Run LLMz Tests** workflow with **live** enabled; it refreshes responses against staging using a temporary bot.
+
+## Quarantined model cases
+
+The quarantine registry in `__tests__/quarantine.ts` exempts only these model/scenario pairs:
+
+| Model                   | Scenario                         | Known failure                                           |
+| ----------------------- | -------------------------------- | ------------------------------------------------------- |
+| `groq:qwen3.8-27b`      | Bare product lookup (Tomatoes)   | Closing thinking tag leaks into the reply.              |
+| `cerebras:gpt-oss-120b` | Introduction with choice buttons | Component call appears as text instead of buttons.      |
+| `groq:gpt-oss-120b`     | Introduction with choice buttons | Buttons arrive without the requested text introduction. |
+
+All other model/scenario combinations remain blocking. Quarantined cases retain every assertion and their original recordings. Their separate command returns a failure exit code when they fail; only the CI step is non-blocking. A passing evaluation remains visible as a pass, so remove its registry entry once the behavior is fixed and verified.
+
+```sh
+# Replay only the quarantined cases, with no network requests
+LLMZ_E2E_CACHE_MODE=replay pnpm test:e2e:quarantine
+
+# Evaluate fresh provider responses (requires credentials)
+LLMZ_E2E_CACHE_MODE=refresh pnpm test:e2e:quarantine
+```
+
+Neither the quarantine-only run nor a run that skips quarantined cases prunes recordings. This preserves the evidence for these failures.
+
+## Cache modes
 
 Set `LLMZ_E2E_CACHE_MODE` to choose the behavior:
 

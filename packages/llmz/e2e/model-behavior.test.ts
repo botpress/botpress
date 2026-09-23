@@ -104,7 +104,7 @@ describe.skipIf(!models.length).each(cases.length ? cases : [{ model: 'disabled'
         const blocked = scenario === 'silent-blocked'
         const updates = scenario.startsWith('updates-')
         const update = 'Retrying the account lookup.'
-        const request = `After each failed lookup, send exactly "${update}" and then try again.`
+        const request = `After EVERY failed lookup, send exactly "${update}" as assistant text alongside the next lookup call. Repeat this update after each new failure, even if you sent the identical sentence before. Do not send an update after a successful lookup.`
         const lookupAccount = new Tool({
           name: 'lookupAccount',
           description: 'Reads the current account information.',

@@ -92,6 +92,32 @@ function expectCurrentContextTokens(context: ContextTokens, input: CognitiveRequ
 }
 
 describe('native generation', () => {
+  it.each([false, true])(
+    'adds the reasoning hint before counting tokens without changing history (chat=%s)',
+    async (chat) => {
+      const base = fixture()
+      Object.assign(base.iteration, { model: ['test:model'], reasoningEffort: 'none' })
+      if (chat) {
+        base.ctx.chat = createRecordingChat({ handler: () => {} })
+      }
+
+      const before = base.session.requestMessages({ inspector: base.ctx.inspector })
+      const originalSystem = structuredClone(base.iteration.systemMessage)
+      const hook = vi.fn()
+
+      await generateCode({ ...base, onBeforeRequest: hook })
+
+      const request = base.generateText.mock.calls[0]![0]
+      expect(request.messages[0]?.content).toBe('Use native tools.\n\n/no_think')
+      expect(hook.mock.calls[0]?.[0].messages).toEqual(request.messages)
+      expect(request.reasoningEffort).toBe('none')
+      expect(request.toolControl?.mode).toBe(chat ? 'auto' : 'required')
+      expectCurrentContextTokens(base.iteration.tokens!.context, request)
+      expect(base.iteration.systemMessage).toEqual(originalSystem)
+      expect(base.session.requestMessages({ inspector: base.ctx.inspector })).toEqual(before)
+    }
+  )
+
   it.each([false, true])('requires JavaScript for workers while allowing assistant text for chat=%s', async (chat) => {
     const base = fixture()
 
@@ -110,7 +136,7 @@ describe('native generation', () => {
     const description = request.tools![0]!.description!
     const guidance = String(request.messages.at(-1)?.content)
     if (chat) {
-      expect(description).toContain('write the requested text as a preamble')
+      expect(description).toContain('include the assistant text AND this tool call')
       expect(guidance).not.toContain('Keep assistant text empty:')
     } else {
       expect(description).toContain('Keep assistant text empty:')
