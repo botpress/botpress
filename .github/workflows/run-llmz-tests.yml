@@ -36,6 +36,13 @@ jobs:
           LLMZ_E2E_CACHE_MODE: replay
           CLOUD_API_ENDPOINT: 'https://api.botpress.cloud'
         run: pnpm -F llmz run test:e2e
+      - name: Evaluate quarantined model cases (non-blocking)
+        if: ${{ !cancelled() && !inputs.live }}
+        continue-on-error: true
+        env:
+          LLMZ_E2E_CACHE_MODE: replay
+          CLOUD_API_ENDPOINT: 'https://api.botpress.cloud'
+        run: pnpm -F llmz run test:e2e:quarantine
       - name: Login
         if: ${{ inputs.live }}
         env:

@@ -2,7 +2,7 @@
   "name": "llmz",
   "type": "module",
   "description": "LLMz - An LLM-native Typescript VM built on top of Zui",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "files": [
     "dist",
     "DOCS.md",
@@ -30,6 +30,7 @@
     "watch": "tsdown --watch",
     "test": "vitest --run",
     "test:e2e": "pnpm check:e2e:type && vitest run --config vitest.e2e.config.ts",
+    "test:e2e:quarantine": "vitest run --config vitest.quarantine.config.ts production-chat",
     "test:e2e:update": "vitest -u run --config vitest.e2e.config.ts",
     "test:e2e:watch": "vitest --config vitest.e2e.config.ts",
     "check:format": "oxfmt --check .",

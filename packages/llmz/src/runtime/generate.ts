@@ -10,6 +10,7 @@ import type { MessageDelta, MessageMetadata } from '../chat/chat.js'
 import type { Context, ContextTokens, Iteration } from '../context.js'
 import { callHook } from '../errors/hooks.js'
 import { CognitiveError, isLLMzError, TokenOverflowError } from '../errors.js'
+import { getReasoningHint } from '../prompts/reasoning.js'
 
 import { prepareAutoCompaction } from '../session/compactor.js'
 import { stableJSON } from '../session/json.js'
@@ -234,7 +235,16 @@ async function prepareNativeRequest({
   // The same request can reach any fallback, so it must fit every candidate.
   const { limit, output: reserve } = resolveTokenBudget(models, ctx.maxTokens)
   const tools = [getRunJavaScriptTool(!!ctx.chat)]
-  const system = [iteration.systemMessage]
+  const systemMessage = structuredClone(iteration.systemMessage)
+  const reasoningHint = getReasoningHint(iteration.reasoningEffort)
+  if (reasoningHint) {
+    systemMessage.content =
+      typeof systemMessage.content === 'string'
+        ? `${systemMessage.content}\n\n${reasoningHint}`
+        : [...(systemMessage.content ?? []), { type: 'text', text: reasoningHint }]
+  }
+
+  const system = [systemMessage]
   const budgetInstruction = getBudgetInstruction(ctx, iteration)
   const budget = `\n\nExecution budget: response ${ctx.iterations.length} of ${ctx.loop}. ${budgetInstruction}`
 
