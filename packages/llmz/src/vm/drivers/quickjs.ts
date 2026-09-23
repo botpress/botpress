@@ -67,6 +67,23 @@ export class QuickJSDriver implements VMDriver {
     const referenceProperties = new Set<string>()
     const pendingPromises: Array<{ hostPromise: Promise<any>; deferredPromise: any }> = []
 
+    const variableGetters = new Map<string, QuickJSHandle>()
+    const objectConstructor = vm.getProp(vm.global, 'Object')
+    const freezeFunction = vm.getProp(objectConstructor, 'freeze')
+    objectConstructor.dispose()
+    const preserveFreeze = (value: object, handle: QuickJSHandle): QuickJSHandle => {
+      if (Object.isFrozen(value)) {
+        const frozen = vm.callFunction(freezeFunction, vm.undefined, handle)
+        try {
+          frozen.unwrap().dispose()
+        } catch (error) {
+          handle.dispose()
+          throw error
+        }
+      }
+      return handle
+    }
+
     // Convert a host JS value into a QuickJS handle (the WASM equivalent)
     const toVmValue = (value: any): QuickJSHandle => {
       if (typeof value === 'string') {
@@ -80,20 +97,13 @@ export class QuickJSDriver implements VMDriver {
       } else if (value === undefined) {
         return vm.undefined
       } else if (Array.isArray(value)) {
-        const items = value.map((item) => {
-          if (typeof item === 'string') return JSON.stringify(item)
-          else if (typeof item === 'number' || typeof item === 'boolean') return String(item)
-          else if (item === null) return 'null'
-          else if (item === undefined) return 'undefined'
-          else if (typeof item === 'object') return JSON.stringify(item)
-          return 'undefined'
+        const array = vm.newArray()
+        value.forEach((item, index) => {
+          const handle = toVmValue(item)
+          vm.setProp(array, index, handle)
+          disposeIfNeeded(handle)
         })
-        const result = vm.evalCode(`[${items.join(',')}]`)
-        if ('error' in result) {
-          result.error?.dispose()
-          return vm.undefined
-        }
-        return result.value
+        return preserveFreeze(value, array)
       } else if (typeof value === 'object') {
         const obj = vm.newObject()
         for (const [k, v] of Object.entries(value)) {
@@ -103,7 +113,7 @@ export class QuickJSDriver implements VMDriver {
             disposeIfNeeded(propHandle)
           }
         }
-        return obj
+        return preserveFreeze(value, obj)
       }
       return vm.undefined
     }
@@ -141,9 +151,10 @@ export class QuickJSDriver implements VMDriver {
     }
 
     try {
+      installValueReader(vm)
       bridgeContextToVM(context, vm, trackedProperties, referenceProperties, toVmValue, disposeIfNeeded, bridgeFunction)
 
-      setupVariableTrackingBridge(vm, variables)
+      setupVariableTrackingBridge(vm, variables, variableGetters)
 
       const scriptCode = buildScriptCode(transformed.code)
 
@@ -218,7 +229,7 @@ export class QuickJSDriver implements VMDriver {
       let returnValue: any = undefined
       if (resultSet) {
         const resultResult = vm.evalCode('globalThis.__llmz_result')
-        returnValue = vm.dump(resultResult.unwrap())
+        returnValue = readVmValue(vm, resultResult.unwrap())
         resultResult.unwrap().dispose()
       }
 
@@ -275,6 +286,8 @@ export class QuickJSDriver implements VMDriver {
         ctx.currentToolCall ?? state.currentToolCall
       )
     } finally {
+      for (const getter of variableGetters.values()) getter.dispose()
+      freezeFunction.dispose()
       try {
         vm.dispose()
       } catch {}
@@ -507,7 +520,7 @@ function bridgeGetterSetter(
   if (descriptor.set) {
     const setterBridge = vm.newFunction(`set_${propName}`, (valueHandle: any) => {
       try {
-        const jsValue = vm.dump(valueHandle)
+        const jsValue = readVmValue(vm, valueHandle, true)
         if (prop) {
           context[key][prop] = jsValue
         } else {
@@ -537,36 +550,95 @@ function bridgeGetterSetter(
   else result.value.dispose()
 }
 
-// QuickJS-specific variable tracking: uses vm.callFunction to invoke getter handles inside the VM
-function setupVariableTrackingBridge(vm: QuickJSContext, variables: Record<string, any>) {
-  const varTrackFnHandle = vm.newFunction(
-    Identifiers.VariableTrackingFnIdentifier,
-    (nameHandle: any, getterHandle: any) => {
-      const name = vm.getString(nameHandle)
-      if (NO_TRACKING.includes(name)) return
-
+// Encode before vm.dump can JSON-coerce undefined or non-finite numbers.
+function installValueReader(vm: QuickJSContext) {
+  const installed = vm.evalCode(`
+    globalThis.__llmz_read_value = function encode(value, strict, seen = new Set()) {
+      if (value === undefined) return ['undefined'];
+      if (typeof value === 'number') {
+        if (strict && !Number.isFinite(value)) throw new Error('Non-finite numbers cannot be assigned to host properties');
+        return ['number', Object.is(value, -0) ? '-0' : String(value)];
+      }
+      if (value === null || typeof value === 'string' || typeof value === 'boolean') return ['value', value];
+      if (typeof value !== 'object') throw new Error('Unsupported VM value: ' + typeof value);
+      if (seen.has(value)) throw new Error('Cyclic VM values cannot be transferred');
+      if (value instanceof Date) return ['value', value.toJSON()];
+      seen.add(value);
       try {
-        const valueResult = vm.callFunction(getterHandle, vm.undefined)
-        if ('error' in valueResult) {
-          variables[name] = '[[non-primitive]]'
-          valueResult.error?.dispose()
-          return
-        }
-        const value = vm.dump(valueResult.value)
-        valueResult.value.dispose()
+        if (Array.isArray(value)) return ['array', Array.from(value, item => encode(item, strict, seen))];
+        return ['object', Object.entries(value).map(([key, item]) => [key, encode(item, strict, seen)])];
+      } finally {
+        seen.delete(value);
+      }
+    };
+  `)
+  installed.unwrap().dispose()
+}
 
-        if (typeof value === 'function' || (typeof value === 'string' && value.includes('=>'))) {
-          variables[name] = '[[non-primitive]]'
-        } else {
-          variables[name] = value
-        }
-      } catch {
-        variables[name] = '[[non-primitive]]'
+function readVmValue(vm: QuickJSContext, handle: QuickJSHandle, strict = false): any {
+  const decode = ([type, value]: [string, any]): any => {
+    if (type === 'undefined') return undefined
+    if (type === 'number') return Number(value)
+    if (type === 'array') return value.map(decode)
+    if (type === 'object') return Object.fromEntries(value.map(([key, item]: [string, any]) => [key, decode(item)]))
+    return value
+  }
+  const encoder = vm.getProp(vm.global, '__llmz_read_value')
+  try {
+    const result = vm.callFunction(encoder, vm.undefined, handle, strict ? vm.true : vm.false)
+    if (result.error) {
+      const error = vm.dump(result.error)
+      result.error.dispose()
+      if (strict) throw new Error(error.message)
+      // Keep the existing best-effort representation for exotic return values.
+      // dump consumes promise handles, so give it a separate owned reference.
+      const copy = handle.dup()
+      try {
+        return vm.dump(copy)
+      } finally {
+        if (copy.alive) copy.dispose()
       }
     }
-  )
-  vm.setProp(vm.global, Identifiers.VariableTrackingFnIdentifier, varTrackFnHandle)
-  varTrackFnHandle.dispose()
+    try {
+      return decode(vm.dump(result.value))
+    } finally {
+      result.value.dispose()
+    }
+  } finally {
+    encoder.dispose()
+  }
+}
+
+// Keep getters alive until settlement, matching the Node driver's lazy capture.
+function setupVariableTrackingBridge(
+  vm: QuickJSContext,
+  variables: Record<string, any>,
+  getters: Map<string, QuickJSHandle>
+) {
+  const tracker = vm.newFunction(Identifiers.VariableTrackingFnIdentifier, (nameHandle, getterHandle) => {
+    const name = vm.getString(nameHandle)
+    if (NO_TRACKING.includes(name)) return
+    getters.get(name)?.dispose()
+    const getter = getterHandle.dup()
+    getters.set(name, getter)
+    variables[name] = () => {
+      const result = vm.callFunction(getter, vm.undefined)
+      if (result.error) {
+        result.error.dispose()
+        return '[[non-primitive]]'
+      }
+      try {
+        if (vm.typeof(result.value) === 'function') return '[[non-primitive]]'
+        return readVmValue(vm, result.value)
+      } catch {
+        return '[[non-primitive]]'
+      } finally {
+        result.value.dispose()
+      }
+    }
+  })
+  vm.setProp(vm.global, Identifiers.VariableTrackingFnIdentifier, tracker)
+  tracker.dispose()
 }
 
 // Wraps transformed code in an async IIFE that stores the result/error on globalThis.

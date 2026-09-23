@@ -6,6 +6,7 @@ import { Iteration } from '../context.js'
 import { Signals, SnapshotSignal, ThinkSignal } from '../errors.js'
 import { type Tool } from '../tool.js'
 import { Trace } from '../types.js'
+import { fromJSONSchemaCompat } from '../utils.js'
 import { ExecutionHooks } from './types.js'
 
 const SLOW_TOOL_WARNING = ms('15s')
@@ -31,9 +32,12 @@ export function wrapTool({
   afterHook,
   controller,
 }: ToolWrapperProps) {
-  const getToolInput = (input: any) => (tool.zInput as any).safeParse(input).data ?? input
+  // Tracing must not rerun user refinements/transforms (which may be async).
+  const traceSchema = tool.input ? fromJSONSchemaCompat(tool.input) : undefined
+  const getToolInput = (input: any) => traceSchema?.safeParse(input).data ?? input
 
   return async function (input: any) {
+    controller.signal.throwIfAborted()
     const toolCallId = `tcall_${ulid()}`
     const originalInput = input
     let effectiveInput = input
@@ -129,6 +133,8 @@ export function wrapTool({
         toolCallId,
       })
 
+      controller.signal.throwIfAborted()
+
       if (typeof beforeRes?.input !== 'undefined') {
         effectiveInput = beforeRes.input
       }
@@ -156,9 +162,16 @@ export function wrapTool({
         output = afterRes.output
       }
     } catch (err) {
-      if (!(await handleSignals(err))) {
+      try {
+        if (!(await handleSignals(err))) {
+          success = false
+          error = err
+          output = undefined
+        }
+      } catch (hookError) {
         success = false
-        error = err
+        error = hookError
+        output = undefined
       }
     } finally {
       clearTimeout(alertSlowTool)

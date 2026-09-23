@@ -39,6 +39,10 @@ type PrintResult = {
   truncated: boolean
 }
 
+// JSON has no bigint representation; keep its decimal value in previews.
+const stringify = (value: unknown) =>
+  JSON.stringify(value, (_key, item) => (typeof item === 'bigint' ? item.toString() + 'n' : item))
+
 function printLimitedJson(obj: any, maxDepth: number, maxLength: number, maxKeys: number): PrintResult {
   const indent = 2
   let currentLength = 0
@@ -60,7 +64,7 @@ function printLimitedJson(obj: any, maxDepth: number, maxLength: number, maxKeys
     }
 
     if (typeof currentObj !== 'object' || currentObj === null) {
-      const value = JSON.stringify(currentObj)
+      const value = stringify(currentObj)
       currentLength += getTokenizer().count(value)
 
       return value
@@ -193,7 +197,7 @@ function previewValue(value: unknown, length: number = LONG_TEXT_LENGTH) {
 
   const previewObj = (obj: any) => {
     const mapped = mapKeys(obj, (_value, key) => previewStr(key))
-    return JSON.stringify(mapped)
+    return stringify(mapped)
   }
 
   if (typeof value === 'string') {
@@ -201,7 +205,7 @@ function previewValue(value: unknown, length: number = LONG_TEXT_LENGTH) {
   }
 
   if (typeof value === 'object' && Array.isArray(value)) {
-    return '<array> ' + previewStr(JSON.stringify(value))
+    return '<array> ' + previewStr(stringify(value))
   }
 
   if (typeof value === 'object' && value instanceof Date) {
@@ -283,19 +287,19 @@ function previewArray(arr: unknown, maxStringLength: number = LONG_TEXT_LENGTH) 
 
   const typesCount = countBy(arr, (item) => extractType(item, false))
   const ordered = orderBy(
-    arr.filter((item) => !isNil(item) && JSON.stringify(item).length < 100),
-    (item) => JSON.stringify(item),
+    arr.filter((item) => !isNil(item) && stringify(item).length < 100),
+    (item) => stringify(item),
     'asc'
   )
   const minValues = ordered.slice(0, 3).map((item) => previewValue(item, 10))
   const maxValues = ordered.slice(-3).map((item) => previewValue(item, 10))
   const uniqueItems = uniqWith(arr, isEqual)
   const nullValues = filter(arr, isNil).length
-  const memoryUsage = bytes(JSON.stringify(arr).length)
+  const memoryUsage = bytes(stringify(arr).length)
 
   lines.push(`Total Items:     ${arr.length}`)
   lines.push(`Unique Items:    ${uniqueItems.length}`)
-  lines.push(`Types:           ${JSON.stringify(typesCount)}`)
+  lines.push(`Types:           ${stringify(typesCount)}`)
   lines.push(`Minimum Values:  [${minValues.join(', ')}]`)
   lines.push(`Maximum Values:  [${maxValues.join(', ')}]`)
   lines.push(`Memory Usage:    ${memoryUsage}`)
@@ -336,7 +340,7 @@ function previewObject(obj: unknown, options: PreviewOptions) {
     const keys = Object.keys(obj)
     const uniqueEntries = uniq(Object.values(obj))
     const nilValues = filter(entries, ([, value]) => isNil(value)).length
-    const memoryUsage = bytes(JSON.stringify(obj).length)
+    const memoryUsage = bytes(stringify(obj).length)
 
     lines.push(`Total Entries:   ${NUMBER_LOCALE.format(entries.length)}`)
     lines.push(`Keys:            ${previewValue(keys)}`)
@@ -433,7 +437,7 @@ export const inspect = (value: unknown, name?: string, options: PreviewOptions =
     if (genericType === 'Array') {
       return header + previewArray(value, options.maxStringLength)
     } else if (genericType === 'error') {
-      return header + previewError(value as Error)
+      return getTokenizer().truncate(header + previewError(value as Error), options.tokens)
     } else if (genericType === 'object') {
       return header + previewObject(value, options)
     } else if (genericType === 'boolean') {
@@ -448,6 +452,6 @@ export const inspect = (value: unknown, name?: string, options: PreviewOptions =
 
     return header + previewValue(value)
   } catch (err: any) {
-    return `Error: ${err?.message ?? 'Unknown Error'}`
+    return getTokenizer().truncate(`Error: ${err?.message ?? 'Unknown Error'}`, options.tokens)
   }
 }

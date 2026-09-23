@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 
 import { inspect } from './inspect.js'
 import * as _ from 'lodash-es'
-import { init } from './utils.js'
+import { init, getTokenizer } from './utils.js'
 import { beforeEach } from 'node:test'
 
 const makeBigObject = () => {
@@ -796,5 +796,42 @@ describe('Inspect Text', () => {
                             "World" 1000 times
                             "yooy" 1000 times"
     `)
+  })
+})
+
+describe('inspection safety', () => {
+  it('includes error messages and stacks within the requested token budget', () => {
+    const error = new Error('Service rejected request: ' + 'detail '.repeat(2000))
+    error.stack = 'at application.ts:10:2\n'.repeat(2000)
+    const output = inspect(error, undefined, { tokens: 80 })
+    expect(output).toContain('Service rejected request')
+    expect(getTokenizer().count(output, { approximate: false })).toBeLessThanOrEqual(80)
+  })
+
+  it('bounds the fallback message when inspecting a throwing proxy', () => {
+    const value = new Proxy(
+      {},
+      {
+        ownKeys() {
+          throw new Error('Cannot enumerate '.repeat(2000))
+        },
+      }
+    )
+    const output = inspect(value, undefined, { tokens: 80 })
+    expect(output).toContain('Cannot enumerate')
+    expect(getTokenizer().count(output, { approximate: false })).toBeLessThanOrEqual(80)
+  })
+
+  it('displays bigint without losing the entire surrounding object', () => {
+    const output = inspect({ order: 'order-42', amount: 123n }, undefined, { tokens: 100 })
+    expect.soft(output).toContain('order-42')
+    expect(output).toContain('123')
+  })
+
+  it('does not label a repeated non-circular object as circular', () => {
+    const shared = { id: 'order-42' }
+    const output = inspect({ first: shared, second: shared }, undefined, { tokens: 200 })
+    expect(output).not.toContain('Circular')
+    expect(output.match(/order-42/g)).toHaveLength(2)
   })
 })

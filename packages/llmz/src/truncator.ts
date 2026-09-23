@@ -171,11 +171,16 @@ export function truncateWrappedContent<T extends MessageLike>({
    */
 
   const parts: Part[][] = []
+  // Flatten text parts only; image/audio transport bytes are not text tokens.
+  const contents = messages.flatMap((message) =>
+    typeof message.content === 'string'
+      ? [message.content]
+      : (message.content ?? []).flatMap((part) => (part.type === 'text' ? [part.text ?? ''] : []))
+  )
   // Split messages into parts and calculate initial tokens
-  for (const msg of messages) {
+  for (const content of contents) {
     const current: Part[] = []
 
-    const content = typeof msg.content === 'string' ? msg.content : ''
     let match: ParsedMessageContent | null
     const parser = new _MessageContentParser()
 
@@ -264,17 +269,17 @@ export function truncateWrappedContent<T extends MessageLike>({
     currentCount -= toRemove
   }
 
-  // Reconstruct the messages
-  return messages.map((msg, i) => {
-    const p = parts[i]!
-    return {
-      ...msg,
-      content:
-        typeof msg.content === 'string'
-          ? _renderRemainingWrappers(p.map((part) => part.content).join(''))
-          : msg.content,
-    }
-  })
+  // Restore the original multipart structure and leave media untouched.
+  let textIndex = 0
+  const renderText = () => _renderRemainingWrappers(parts[textIndex++]!.map((part) => part.content).join(''))
+  return messages.map((message) => ({
+    ...message,
+    content:
+      typeof message.content === 'string'
+        ? renderText()
+        : (message.content?.map((part) => (part.type === 'text' ? { ...part, text: renderText() } : part)) ??
+          message.content),
+  }))
 }
 
 class _MessageContentParser {

@@ -211,13 +211,15 @@ export namespace Tool {
  *
  * Tools automatically handle:
  * - **Input validation**: Invalid inputs throw descriptive errors
- * - **Output validation**: Outputs are validated but invalid outputs are still returned
+ * - **Output descriptions**: Output schemas describe likely results; handler output is returned unchanged
  * - **Handler errors**: Exceptions in handlers are caught and can trigger retries
  * - **Type coercion**: Basic type coercion where possible
  *
  */
 export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodType> implements Serializable<Tool.JSON> {
   private _staticInputValues?: unknown
+  private _inputSchema?: z.ZodType
+  private _outputSchema?: z.ZodType
 
   public name: string
   public aliases: string[] = []
@@ -304,34 +306,23 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
    * @internal
    */
   public get zInput() {
-    let input: z.ZodType
-    if (this.input) {
-      try {
-        input = transforms.fromJSONSchema(this.input)
-      } catch {
-        input = transforms.fromJSONSchemaLegacy(this.input)
-      }
+    const input = this._inputSchema ?? (this.input ? fromJSONSchemaCompat(this.input) : z.any())
+    if (isEmpty(this._staticInputValues)) {
+      return input
+    }
+
+    // Apply static values before the original validator, retaining its effects.
+    const shape = this.input ? fromJSONSchemaCompat(this.input) : z.any()
+    let overrides: z.ZodType
+    if (z.is.zuiObject(shape)) {
+      overrides = z.object(convertObjectToZuiLiterals(this._staticInputValues as StaticObject)).passthrough()
+    } else if (z.is.zuiArray(shape)) {
+      overrides = z.array(z.object(convertObjectToZuiLiterals(this._staticInputValues as StaticObject)).passthrough())
     } else {
-      input = z.any()
+      overrides = convertObjectToZuiLiterals(this._staticInputValues as Exclude<StaticValue, StaticObject>)
     }
 
-    if (!isEmpty(this._staticInputValues)) {
-      if (z.is.zuiObject(input)) {
-        const inputExtensions = convertObjectToZuiLiterals(this._staticInputValues as StaticObject)
-        input = input.extend(inputExtensions) as typeof input
-      } else if (z.is.zuiArray(input)) {
-        const inputExtensions = convertObjectToZuiLiterals(this._staticInputValues as StaticObject)
-        input = z.array((input.element as z.ZodObject).extend(inputExtensions))
-      } else {
-        // if input is z.string() or z.number() etc
-        const inputExtensions = convertObjectToZuiLiterals(
-          this._staticInputValues as Exclude<StaticValue, StaticObject>
-        )
-        input = inputExtensions as typeof input
-      }
-    }
-
-    return input
+    return overrides.pipe(input)
   }
 
   /**
@@ -455,23 +446,10 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
     }> = {}
   ): Tool<IX, OX> {
     try {
-      let zInput: I | undefined
-      if (this.input) {
-        try {
-          zInput = transforms.fromJSONSchema(this.input) as unknown as I
-        } catch {
-          zInput = transforms.fromJSONSchemaLegacy(this.input) as unknown as I
-        }
-      }
-
-      let zOutput: O | undefined
-      if (this.output) {
-        try {
-          zOutput = transforms.fromJSONSchema(this.output) as unknown as O
-        } catch {
-          zOutput = transforms.fromJSONSchemaLegacy(this.output) as unknown as O
-        }
-      }
+      const zInput = (this._inputSchema ?? (this.input ? fromJSONSchemaCompat(this.input) : undefined)) as I | undefined
+      const zOutput = (this._outputSchema ?? (this.output ? fromJSONSchemaCompat(this.output) : undefined)) as
+        | O
+        | undefined
 
       return <Tool<IX, OX>>new Tool({
         name: props.name ?? this.name,
@@ -513,7 +491,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
    * @param props.name - Unique tool name (must be valid TypeScript identifier)
    * @param props.description - Human-readable description for the LLM
    * @param props.input - Zui/Zod schema for input validation (optional)
-   * @param props.output - Zui/Zod schema for output validation (optional)
+   * @param props.output - Zui/Zod schema describing output (optional)
    * @param props.handler - Async function that implements the tool logic
    * @param props.aliases - Alternative names for the tool (optional)
    * @param props.metadata - Additional metadata for the tool (optional)
@@ -632,6 +610,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
 
     if (typeof props.input !== 'undefined') {
       if (isZuiSchema(props.input)) {
+        this._inputSchema = props.input
         try {
           this.input = transforms.toJSONSchema(props.input)
         } catch {
@@ -648,6 +627,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
 
     if (typeof props.output !== 'undefined') {
       if (isZuiSchema(props.output)) {
+        this._outputSchema = props.output
         try {
           this.output = transforms.toJSONSchema(props.output)
         } catch {
@@ -705,7 +685,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
   /**
    * Executes the tool with the given input and context.
    *
-   * This method handles input validation, retry logic, output validation, and error handling.
+   * This method handles input validation, retry logic, and error handling.
    * It's called internally by the LLMz execution engine when generated code calls the tool.
    *
    * @param input - Input data to pass to the tool handler
@@ -727,10 +707,11 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
    * @internal This method is primarily used internally by the LLMz execution engine
    */
   public async execute(rawInput: TypeOf<I>, ctx: ToolCallContext, chat?: Chat): Promise<TypeOf<O>> {
-    const isZodObject = (this.zInput as any)._def.typeName === 'ZodObject'
+    const shape = this.input ? fromJSONSchemaCompat(this.input) : z.any()
+    const isZodObject = z.is.zuiObject(shape)
     const input = isZodObject ? (rawInput ?? {}) : rawInput
 
-    const pInput = (this.zInput as any).safeParse(input)
+    const pInput = await this.zInput.safeParseAsync(input)
 
     if (!pInput.success) {
       throw new Error(`Tool "${this.name}" received invalid input: ${pInput.error.message}`)
@@ -744,8 +725,7 @@ export class Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.ZodTy
         const result = await this._executeHandler(pInput.data, ctx, chat, yieldedCount, (n) => {
           yieldedCount = n
         })
-        const pOutput = (this.zOutput as any).safeParse(result)
-        return pOutput.success ? pOutput.data : result
+        return result as TypeOf<O>
       } catch (err) {
         const shouldRetry = await this.retry?.({
           input: pInput.data,

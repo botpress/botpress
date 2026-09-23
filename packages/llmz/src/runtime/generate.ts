@@ -29,7 +29,11 @@ const assertSuccessfulGeneration = (metadata: CognitiveMetadata) => {
   if (metadata.provider === 'unknown') {
     throw new CognitiveError('LLM generation failed: received error metadata with unknown provider')
   }
-  if (metadata.stopReason === 'max_tokens' || metadata.stopReason === 'content_filter') {
+  if (
+    metadata.stopReason === 'max_tokens' ||
+    metadata.stopReason === 'content_filter' ||
+    metadata.stopReason === 'other'
+  ) {
     throw new CognitiveError(`LLM generation did not complete: stopReason=${metadata.stopReason}`)
   }
 }
@@ -77,16 +81,20 @@ export const generateCode = async ({
   const startedAt = Date.now()
   const traces = iteration.traces
 
-  const modelRef = Array.isArray(iteration.model) ? iteration.model[0]! : iteration.model
-  const model = await cognitive.getModelDetails(modelRef).catch((thrown: unknown) => {
-    throw new CognitiveError(`Failed to fetch model details for model "${modelRef}": ${getErrorMessage(thrown)}`)
-  })
-  let modelLimit = Math.max(model.input.maxTokens, 8_000)
-  if (ctx.maxTokens) {
-    // User-provided cap on the context window: effective max = min(override, model max)
-    modelLimit = Math.min(ctx.maxTokens, modelLimit)
-  }
-  const responseLengthBuffer = getModelOutputLimit(modelLimit)
+  controller.signal.throwIfAborted()
+  const modelRefs = Array.isArray(iteration.model) ? iteration.model : [iteration.model]
+  const models = await Promise.all(
+    modelRefs.map((modelRef) =>
+      cognitive.getModelDetails(modelRef).catch((thrown: unknown) => {
+        throw new CognitiveError(`Failed to fetch model details for model "${modelRef}": ${getErrorMessage(thrown)}`)
+      })
+    )
+  )
+  controller.signal.throwIfAborted()
+  const model = models[0]!
+  const modelLimit = Math.min(...models.map((model) => model.input.maxTokens), ctx.maxTokens ?? Infinity)
+  // Leave room for input even on small windows; never increase a provider's limit.
+  const responseLengthBuffer = Math.min(getModelOutputLimit(modelLimit), Math.floor(modelLimit / 2))
 
   if (iteration.tokens) {
     iteration.tokens.limit = modelLimit
@@ -382,6 +390,8 @@ export const generateCode = async ({
     const response = await cognitive.generateText(input, { signal: controller.signal }).catch((thrown: unknown) => {
       throw new CognitiveError(`LLM generation failed: ${getErrorMessage(thrown)}`)
     })
+
+    controller.signal.throwIfAborted()
 
     if (response.error) {
       throw new CognitiveError(`LLM generation failed: ${response.error}`)
