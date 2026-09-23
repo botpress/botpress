@@ -1,123 +1,53 @@
 // @ts-ignore
 export { version } from '../package.json'
 
-export { ThinkSignal, type ErrorDetails } from './errors.js'
-export {
-  AssignmentError,
-  CodeExecutionError,
-  CodeFormattingError,
-  CognitiveError,
-  CompactionError,
-  ComponentInputError,
-  DeliveryError,
-  MissingChatResponseError,
-  ExecutionAbortedError,
-  ExitInputError,
-  HookError,
-  HostOperationError,
-  InternalError,
-  InvalidCodeError,
-  InvalidComponentError,
-  InvalidConfigurationError,
-  InvalidEventError,
-  InvalidExitError,
-  InvalidMessageError,
-  InvalidObjectError,
-  InvalidSessionError,
-  InvalidToolError,
-  isCriticalError,
-  isLLMzError,
-  LLMzError,
-  LoopExceededError,
-  MemoryCapacityError,
-  MemoryValueError,
-  NativeProtocolError,
-  ObjectPropertyError,
-  ReservedIdentifierError,
-  SessionStateError,
-  TokenOverflowError,
-  ToolExecutionError,
-  ToolInputError,
-  UnknownComponentError,
-  UnknownExitError,
-  UnknownToolError,
-  type ErrorCode,
-  type LLMzFailure,
-  type ToolInputIssue,
-  type ValidationIssue,
-} from './errors/catalog.js'
-export { Exit, type ExitResult } from './exit.js'
-export { inspect, type InspectOptions } from './inspect.js'
-export {
-  createInspector,
-  type InspectEvent,
-  type InspectionIdentity,
-  type InspectionPurpose,
-  type Inspector,
-  type OnInspect,
-} from './inspection.js'
-export { ObjectInstance } from './objects.js'
-export type { CompactionOptions, SummarizeOptions, SummaryRequest } from './session/compactor.js'
-export {
-  Memory,
-  type MemoryProvenance,
-  type MemoryReport,
-  type MemoryValue,
-  type ObjectPropertyMemory,
-} from './session/memory.js'
-export {
-  Session,
-  type SessionInput,
-  type SessionIteration,
-  type SessionIterationRecord,
-  type SessionMessage,
-  type SessionOptions,
-} from './session/session.js'
+export { Example, type ExampleDefinition, type ExampleMessage } from './example.js'
 export { Tool } from './tool.js'
-export { truncate, type Truncated, type TruncatePreserve, type TruncationPolicy } from './truncate.js'
+export { Exit, type ExitResult } from './exit.js'
+export { ObjectInstance } from './objects.js'
+export { SnapshotSignal, ThinkSignal, LoopExceededError } from './errors.js'
+export { parseExit, type ParsedExit } from './exit-parser.js'
 
 export {
-  assertValidComponent,
   Component,
-  isAnyComponent,
-  isComponent,
-  type ComponentDefinition,
-  type ComponentHandler,
-  type ComponentSchema,
   type RenderedComponent,
-} from './chat/component.js'
+  type LeafComponentDefinition,
+  type ContainerComponentDefinition,
+  type DefaultComponentDefinition,
+  type ComponentDefinition,
+  assertValidComponent,
+  isComponent,
+  isAnyComponent,
+} from './component.js'
 
-export {
-  Chat,
-  type AssistantTextMessage,
-  type ChatMessage,
-  type MessageDelta,
-  type MessageDeltaHandler,
-  type MessageMetadata,
-  type ResponseHandler,
-} from './chat/chat.js'
-export { CitationsManager, type Citation } from './chat/citations.js'
-export { DefaultComponents } from './chat/component.default.js'
-export type { Response, ResponsePreset } from './chat/response.js'
-export {
-  DefaultExit,
-  ListenExit,
-  type Context,
-  type ContextTokens,
-  type Iteration,
-  type IterationStatus,
-  type IterationStatuses,
-  type TokenUsage,
-} from './context.js'
-export { getValue, type ValueOrGetter } from './getter.js'
-export { ErrorExecutionResult, ExecutionResult, SuccessExecutionResult } from './result.js'
-export type { ExecutionHooks, ExecutionProps } from './runtime/types.js'
-export { type Transcript } from './session/transcript.js'
-export { type Trace, type Traces } from './types.js'
+export { type Citation, CitationsManager } from './citations.js'
+export { DefaultComponents } from './component.default.js'
+export { Snapshot } from './snapshots.js'
+export { Chat, type MessageHandler, type MessageMetadata, type MessageDelta, type MessageDeltaHandler } from './chat.js'
 
 import { ExecutionResult } from './result.js'
 import { type ExecutionProps } from './runtime/types.js'
+import { stripTruncationTags, truncateWrappedContent, wrapContent } from './truncator.js'
 import { toValidFunctionName, toValidObjectName } from './utils.js'
+export { type Transcript } from './transcript.js'
+export { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from './result.js'
+export { type Trace, type Traces } from './types.js'
+export {
+  type Iteration,
+  ListenExit,
+  ThinkExit,
+  DefaultExit,
+  type IterationStatuses,
+  type IterationStatus,
+} from './context.js'
+export { type Context, type TokenUsage, type ContextTokens } from './context.js'
+export type { LLMzPrompts, ParsedSend, ParsedNext, ParsedAssistantResponse } from './prompts/prompt.js'
+export type { ExecutionProps, ExecutionHooks } from './runtime/types.js'
+export { type ValueOrGetter, getValue } from './getter.js'
+
+// The ■ message-stream protocol: streaming parser, response objects, component
+// registry/validation and instruction generation
+export * from './message-stream/index.js'
 
 export * from './custom-client.js'
 
@@ -129,23 +59,27 @@ export { configureTokenizer } from './utils.js'
 export const utils = {
   toValidObjectName,
   toValidFunctionName,
+  wrapContent,
+  truncateWrappedContent,
+  stripTruncationTags,
 }
 
 /**
  * Executes an LLMz agent in either Chat Mode or Worker Mode.
  *
- * LLMz generates and runs JavaScript in a sandbox through the native run_javascript
- * tool. Assistant text streams normally; JavaScript returns decisions to present
- * rich messages, inspect results, or complete through a typed exit.
+ * LLMz is a code-first AI agent framework that generates and runs TypeScript code
+ * in a sandbox rather than using traditional JSON tool calling. This enables complex
+ * logic, multi-tool orchestration, and native LLM thinking via comments and code structure.
  *
  * @param props - Configuration object for the execution
  * @param props.client - Botpress Client or Cognitive Client instance for LLM generation
  * @param props.instructions - System prompt/instructions for the LLM (static string or dynamic function)
+ * @param props.examples - Optional labeled few-shot examples (static array or dynamic function)
  * @param props.chat - Optional Chat instance to enable Chat Mode with user interaction
  * @param props.tools - Array of Tool instances available to the agent (static or dynamic)
  * @param props.objects - Array of ObjectInstance for namespaced tools and variables (static or dynamic)
  * @param props.exits - Array of Exit definitions for structured completion (static or dynamic)
- * @param props.session - Conversation state; append input before execution and persist it between executions
+ * @param props.snapshot - Optional Snapshot to resume paused execution
  * @param props.signal - Optional AbortSignal to cancel execution
  * @param props.model - Optional model name (or array or models to use as fallback) (static or dynamic function)
  * @param props.temperature - Optional temperature value (static or dynamic function)
@@ -189,7 +123,7 @@ export const utils = {
  * // With dynamic instructions and hooks
  * const result = await execute({
  *   client: cognitiveClient,
- *   instructions: (ctx) => `Process ${ctx.session.memory.variables.dataCount} records`,
+ *   instructions: (ctx) => `Process ${ctx.variables.dataCount} records`,
  *   tools: async (ctx) => await getContextualTools(ctx),
  *   model: 'best',
  *   temperature: 0.1,
@@ -211,11 +145,13 @@ export const execute = async (props: ExecutionProps) => {
  */
 export const init = async () => {
   await import('./runtime/execute.js')
-  await import('./chat/component.js')
+  await import('./component.js')
   await import('./tool.js')
   await import('./exit.js')
+  await import('./jsx.js')
   await import('./vm/index.js')
   await import('./utils.js')
+  await import('./truncator.js')
   await import('./typings.js')
-  await import('./prompts/native.js')
+  await import('./prompts/dual-modes.js')
 }

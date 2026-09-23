@@ -7,6 +7,7 @@
  * - Register component renderers for different output formats
  * - Let the agent send custom components with typed props
  * - Combine tools and components for complete workflows
+ * - Create reusable UI patterns with examples
  *
  * Key concepts:
  * - Component definition with typed schemas
@@ -26,7 +27,6 @@ import { CLIChat } from '../utils/cli-chat'
 
 // Initialize Botpress client
 const client = new Client({
-  apiUrl: process.env.BOTPRESS_API_URL,
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
 })
@@ -34,15 +34,27 @@ const client = new Client({
 // Define a custom UI component for displaying plane tickets
 // Components provide structured, reusable UI patterns
 const PlaneTicketComponent = new Component({
-  name: 'planeTicket',
+  name: 'PlaneTicket',
   description: 'A component to display a plane ticket',
-  props: z.object({
-    ticketNumber: z.string().describe('The unique ticket number for the plane ticket'),
-    from: z.string().describe('The departure city'),
-    to: z.string().describe('The destination city'),
-    date: z.string().describe('The date of the flight (in YYYY-MM-DD format)'),
-    price: z.number().optional().describe('The price of the ticket'),
-  }),
+  type: 'leaf', // Leaf components don't contain children
+  leaf: {
+    // Define the props schema with validation
+    props: z.object({
+      ticketNumber: z.string().describe('The unique ticket number for the plane ticket'),
+      from: z.string().describe('The departure city'),
+      to: z.string().describe('The destination city'),
+      date: z.string().describe('The date of the flight (in YYYY-MM-DD format)'),
+      price: z.number().optional().describe('The price of the ticket'),
+    }),
+  },
+  // Provide usage examples to guide the LLM
+  examples: [
+    {
+      name: 'PlaneTicket',
+      description: 'A simple plane ticket example',
+      code: '<PlaneTicket from="New York" to="Los Angeles" date="2023-10-01" price={299.99} ticketNumber="ABC-0000000" />',
+    },
+  ],
 })
 
 // Tool for purchasing tickets - generates data for the component
@@ -72,14 +84,16 @@ const purchaseTicket = new Tool({
 const chat = new CLIChat()
 
 // Pre-populate the conversation with a user request
-chat.session.append({
+chat.transcript.push({
   role: 'user',
-  content: 'I want to purchase a plane ticket from New York to Los Angeles on 2031-10-01.',
+  content: 'I want to purchase a plane ticket from New York to Los Angeles on 2025-10-01.',
 })
 
 // Register how the PlaneTicket component should be rendered
 // This defines the visual output when the component is used
-chat.registerComponent(PlaneTicketComponent, async ({ ticketNumber, from, to, date, price }) => {
+chat.registerComponent(PlaneTicketComponent, async (message) => {
+  const { ticketNumber, from, to, date, price } = message.props
+
   // Create a visually appealing ticket display
   const ticket = box([
     chalk.white.bold('             ✈️  FLIGHT TICKET'),
@@ -100,12 +114,10 @@ chat.registerComponent(PlaneTicketComponent, async ({ ticketNumber, from, to, da
 
 // Execute the travel agent workflow
 const result = await execute({
-  model: process.env.BOTPRESS_MODEL ?? 'openai:gpt-5.6-luna',
   instructions:
     'You are a travel agent. Help the user purchase a plane ticket. Show them the ticket using the right component.',
   tools: [purchaseTicket], // Tool for purchasing tickets
   chat, // Chat interface with component registration
-  session: chat.session,
   client,
 })
 

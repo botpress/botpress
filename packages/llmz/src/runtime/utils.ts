@@ -1,5 +1,4 @@
 import type { Iteration } from '../context.js'
-import { HookError, isCriticalError } from '../errors.js'
 import type { ExecutionHooks } from './types.js'
 
 type FinalizeIterationProps = {
@@ -21,12 +20,6 @@ export const finalizeIteration = async ({ iteration, status, controller, onItera
   try {
     await onIterationEnd?.(iteration, controller)
   } catch (err) {
-    if (isCriticalError(err)) {
-      iteration.recordError(err)
-      throw err
-    }
-
-    iteration.recordError(new HookError(err instanceof Error ? err.message : String(err), { cause: err }))
     console.error(err)
   }
 }

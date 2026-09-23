@@ -1,47 +1,27 @@
 import { isFunction, mapValues } from 'lodash-es'
+
 import { Identifiers } from '../../compiler/index.js'
 import { Signals, VMSignal } from '../../errors.js'
-import { RESERVED_RUNTIME_NAMES } from '../../runtime-names.js'
 import type { VMExecutionResult } from '../../types.js'
 import { handleCatch, handleErrorNode } from '../errors.js'
-import { finalizeMemoryCapture, findUserCodeStartLine, instrumentContext, NO_TRACKING } from '../instrument.js'
-import {
-  VM_CALL_SITE,
-  VM_PROGRAM_COMPLETE,
-  VM_TERMINATION,
-  type DriverExecutionContext,
-  type VMDriver,
-} from '../types.js'
+import { instrumentContext, NO_TRACKING } from '../instrument.js'
+import type { DriverExecutionContext, VMDriver } from '../types.js'
+
 // Unsandboxed execution via Node's AsyncFunction constructor.
 // No isolation — shares the same heap. Used as fallback when QuickJS WASM can't load.
 export class NodeDriver implements VMDriver {
   public async execute(ctx: DriverExecutionContext): Promise<VMExecutionResult> {
-    const { transformed, consumer, context, traces, recordTrace, code, lines_executed, variables } = ctx
-    const state = instrumentContext(
-      context,
-      transformed,
-      recordTrace,
-      variables,
-      lines_executed,
-      consumer,
-      findUserCodeStartLine(transformed),
-      ctx.memoryNames
-    )
-    context[VM_CALL_SITE] = () => {
-      const frame = new Error().stack?.match(/<anonymous>:(\d+):(\d+)/)
-      if (!frame) {
-        return undefined
-      }
+    const { transformed, consumer, context, traces, code, lines_executed, variables } = ctx
 
-      const position = consumer.originalPositionFor({ line: Number(frame[1]) - 1, column: Number(frame[2]) })
-      return position.line ? Math.max(1, position.line - 3) : undefined
-    }
+    const state = instrumentContext(context, transformed, traces, variables, lines_executed, consumer, 0)
+
     // No built-in AsyncFunction type in TS — extract the constructor at runtime
     type AsyncFunctionCtor = (...args: unknown[]) => (...args: unknown[]) => Promise<unknown>
-
     const AsyncFunction: AsyncFunctionCtor = async function () {}.constructor as AsyncFunctionCtor
-    const result = await (async () => {
+
+    return await (async () => {
       const descriptors = Object.getOwnPropertyDescriptors(context)
+
       const topLevelProperties = Object.keys(descriptors).filter(
         (x) =>
           !NO_TRACKING.includes(x) &&
@@ -49,76 +29,35 @@ export class NodeDriver implements VMDriver {
           typeof descriptors[x].value !== 'function' &&
           typeof descriptors[x].value !== 'object'
       )
+
       const __report = (name: string, value: unknown) => {
         if (context[name] !== undefined && context[name] !== value) {
           context[name] = value
         }
       }
+
       context.__report = __report
+
       // Inject __report calls into the line tracker so primitive context values sync back on every line
       const reportAll = topLevelProperties.map((x) => `__report("${x}", ${x})`).join(';')
-      const assigner = `let __${Identifiers.LineTrackingFnIdentifier} = ${Identifiers.LineTrackingFnIdentifier}; ${Identifiers.LineTrackingFnIdentifier} = function(line) { ${reportAll}; __${Identifiers.LineTrackingFnIdentifier}(line);}`
-      const trackInputs = ctx.memoryNames
-        .map(
-          (name) =>
-            `${Identifiers.VariableTrackingFnIdentifier}(${JSON.stringify(name)}, () => eval(${JSON.stringify(name)}), undefined, "read");`
-        )
-        .join('')
-      const bindings = Object.keys(context)
-      const protectedBindings = bindings
-        .filter((name) => RESERVED_RUNTIME_NAMES.has(name))
-        .map((name) => `const ${name} = __llmz_binding_${bindings.indexOf(name)};`)
-        .join('')
-      const parameters = bindings.map((name, index) =>
-        RESERVED_RUNTIME_NAMES.has(name) ? `__llmz_binding_${index}` : name
-      )
-      const wrapper = `"use strict"; ${protectedBindings} try { ${assigner};${trackInputs}${transformed.code} } finally { ${reportAll} };`
-      const fn = AsyncFunction(...parameters, wrapper)
 
-      try {
-        return await fn(...Object.values(context))
-      } finally {
-        context[VM_PROGRAM_COMPLETE]?.()
-      }
+      const assigner = `let __${Identifiers.LineTrackingFnIdentifier} = ${Identifiers.LineTrackingFnIdentifier}; ${Identifiers.LineTrackingFnIdentifier} = function(line) { ${reportAll}; __${Identifiers.LineTrackingFnIdentifier}(line);}`
+      const wrapper = `"use strict"; try { ${assigner};${transformed.code} } finally { ${reportAll} };`
+
+      const fn = AsyncFunction(...Object.keys(context), wrapper)
+      return await fn(...Object.values(context))
     })()
       .then((res) => {
-        const signal = context[VM_TERMINATION]?.getSignal?.()
-
-        if (signal) {
-          throw signal
-        }
-
-        if (context[VM_TERMINATION]?.isTerminated()) {
-          res = undefined
-        }
-
         res = Signals.maybeDeserializeError(res)
         return {
           success: true,
           variables: mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter)),
-          signal: VMSignal.is(res) ? res : undefined,
+          signal: res instanceof VMSignal ? res : undefined,
           lines_executed: Array.from(lines_executed),
           return_value: res,
         } satisfies VMExecutionResult
       })
-      .catch((err) => {
-        const signal = context[VM_TERMINATION]?.getSignal?.()
-
-        if (signal) {
-          return handleErrorNode(signal, code, consumer, recordTrace, variables, lines_executed, state.lastExecutedLine)
-        }
-
-        if (context[VM_TERMINATION]?.isTerminated()) {
-          return {
-            success: true,
-            variables: mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter)),
-            lines_executed: Array.from(lines_executed),
-          } satisfies VMExecutionResult
-        }
-
-        return handleErrorNode(err, code, consumer, recordTrace, variables, lines_executed, state.lastExecutedLine)
-      })
+      .catch((err) => handleErrorNode(err, code, consumer, traces, variables, lines_executed, state.currentToolCall))
       .catch((err) => handleCatch(err, traces, variables, lines_executed))
-    return finalizeMemoryCapture(result, state)
   }
 }

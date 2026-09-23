@@ -121,7 +121,7 @@ describe('createJoinedAbortController', () => {
       const addEventListenerSpy2 = vi.spyOn(controller2.signal, 'addEventListener')
       const removeEventListenerSpy2 = vi.spyOn(controller2.signal, 'removeEventListener')
 
-      createJoinedAbortController([controller1.signal, controller2.signal])
+      const joinedController = createJoinedAbortController([controller1.signal, controller2.signal])
 
       // Should have added listeners to both signals
       expect(addEventListenerSpy1).toHaveBeenCalledWith('abort', expect.any(Function))

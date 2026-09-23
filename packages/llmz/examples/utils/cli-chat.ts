@@ -6,18 +6,24 @@ import {
   DefaultComponents,
   Exit,
   ListenExit,
-  Session,
-  type ComponentHandler,
+  isComponent,
   type ExecutionResult,
   type IterationStatus,
   type IterationStatuses,
+  type RenderedComponent,
 } from 'llmz'
 
 import { prompt } from './buttons'
 
+type TranscriptItem = {
+  role: 'assistant' | 'user'
+  content: string
+  name?: string
+}
+
 export class CLIChat extends Chat {
   private _controller = new AbortController()
-  public readonly session = new Session()
+  public transcript: TranscriptItem[] = []
   private _buttons: string[] = []
 
   public turns = 0
@@ -25,22 +31,16 @@ export class CLIChat extends Chat {
   public result?: ExecutionResult
   public citations: CitationsManager = new CitationsManager()
 
-  private _components: Component[] = []
+  public renderers: Array<{
+    component: Component
+    render: (component: RenderedComponent) => Promise<void>
+  }> = []
 
-  public constructor(options: { validateText?: (text: string) => Promise<void> } = {}) {
+  public constructor() {
     super({
-      components: () => [
-        DefaultComponents.Buttons.withHandler((buttons) => {
-          this._buttons.push(...buttons.map(({ label }) => label))
-        }),
-        ...this._components,
-      ],
-      response: {
-        handler: async (text) => {
-          await options.validateText?.(text)
-          this._sendText(text)
-        },
-      },
+      components: () => [DefaultComponents.Text, DefaultComponents.Button, ...this.renderers.map((r) => r.component)],
+      transcript: () => this.transcript,
+      handler: (input) => this._sendMessage(input),
     })
   }
 
@@ -55,7 +55,8 @@ export class CLIChat extends Chat {
     }
 
     if (this.hasExitedWith(ListenExit)) {
-      return this.prompt()
+      await this.prompt()
+      return true
     }
 
     if (this.turns++ > 100) {
@@ -63,8 +64,10 @@ export class CLIChat extends Chat {
       return false
     }
 
-    if (!this.result) return true
-    if (this.result.isError()) throw this.result.error
+    if (!this.result) {
+      return true
+    }
+
     return false
   }
 
@@ -81,47 +84,75 @@ export class CLIChat extends Chat {
     this._buttons = []
     this.turns = 0
 
-    if (!reply?.trim() || /^(quit|exit)$/i.test(reply.trim())) {
-      this.stop()
-      return false
+    if (reply?.trim().length) {
+      this.transcript.push({ role: 'user', content: reply })
+      console.log(`${chalk.bold('👤 User:')} ${reply}`)
+    } else {
+      this.transcript.push({ role: 'user', content: '[silence] (user did not answer)' })
     }
-    this.session.append({ role: 'user', content: reply })
-    console.log(`${chalk.bold('👤 User:')} ${reply}`)
-    return true
   }
 
-  private _sendText(text: string) {
+  private async _sendMessage(input: RenderedComponent) {
+    let text = ''
+
+    let children: any[] = [input]
+    if (isComponent(input, DefaultComponents.Text)) {
+      children = input.children
+    }
+
+    for (const child of children) {
+      if (isComponent(child, DefaultComponents.Button) && child.props?.label) {
+        this._buttons.push(child.props.label)
+      } else if (
+        typeof child === 'string' ||
+        typeof child === 'number' ||
+        typeof child === 'boolean' ||
+        typeof child === 'bigint'
+      ) {
+        text += '\n' + child
+      } else {
+        this.transcript.push({
+          role: 'assistant',
+          content: JSON.stringify(child, null, 2),
+        })
+
+        const renderer = this.renderers.find((r) => isComponent(child, r.component))
+
+        if (renderer) {
+          await renderer.render(child)
+        } else {
+          console.log(chalk.bold('🤖 Agent: ') + chalk.gray('<unknown component> ' + JSON.stringify(child)))
+        }
+      }
+    }
+
     text = text.trim()
-
-    if (!text.length) {
-      return
-    }
-
-    const sources: string[] = []
-    const { cleaned } = this.citations.extractCitations(text, (citation) => {
-      const idx = chalk.bgGreenBright.black.bold(` ${sources.length + 1} `)
-      sources.push(`${idx}: ${JSON.stringify(citation.source)}`)
-      return `${idx}`
-    }) ?? { cleaned: text, citations: [] }
-
-    console.log(`${chalk.bold('🤖 Agent:')} ${cleaned}`)
-
-    if (sources.length) {
-      console.log(chalk.dim('Citations'))
-      console.log(chalk.dim('========='))
-      console.log(chalk.dim(sources.join('\n')))
+    if (text.length > 0) {
+      const sources: string[] = []
+      const { cleaned } = this.citations.extractCitations(text, (citation) => {
+        const idx = chalk.bgGreenBright.black.bold(` ${sources.length + 1} `)
+        sources.push(`${idx}: ${JSON.stringify(citation.source)}`)
+        return `${idx}`
+      }) ?? { cleaned: text, citations: [] }
+      const buttonsStr = this._buttons.length > 0 ? `\n\n${chalk.bold('Buttons:')} ${this._buttons.join(', ')}` : ''
+      this.transcript.push({ role: 'assistant', content: cleaned + buttonsStr })
+      console.log(`${chalk.bold('🤖 Agent:')} ${cleaned}`)
+      if (sources.length) {
+        console.log(chalk.dim('Citations'))
+        console.log(chalk.dim('========='))
+        console.log(chalk.dim(sources.join('\n')))
+      }
     }
   }
 
-  public registerComponent<T extends Component>(
-    component: T,
-    render: ComponentHandler<T['definition']['props']>
-  ): void {
-    if (this._components.some((registered) => registered.definition.name === component.definition.name)) {
+  public registerComponent<
+    T extends Component,
+    Props extends Record<string, any> = T extends Component ? T['propsType'] : never,
+  >(component: T, render: (component: RenderedComponent<Props>) => Promise<void>): void {
+    if (this.renderers.some((r) => r.component.definition.name === component.definition.name)) {
       throw new Error(`Component ${component.definition.name} is already registered`)
     }
-
-    this._components.push(component.withHandler(render))
+    this.renderers.push({ component, render: render as any })
   }
 
   public stop() {

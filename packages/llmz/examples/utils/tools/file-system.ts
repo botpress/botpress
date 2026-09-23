@@ -10,7 +10,7 @@ const sanitizePath = (path: string) => {
   // Ensure the path does not start with a slash
   path = path.startsWith('/') ? path : `/${path}`
   // Ensure the path does not end with a slash
-  path = path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path
+  path = path.endsWith('/') ? path.slice(0, -1) : path
   // Ensure the path does not contain consecutive slashes
   path = path.replace(/\/{2,}/g, '/')
   // Ensure the path does not contain a leading dot
@@ -77,9 +77,7 @@ export const makeFileSystem = (client: Client) =>
             id: key,
           })
 
-          const response = await fetch(file.url)
-          if (!response.ok) throw new Error(`File download failed: ${response.status}`)
-          return response.text()
+          return await fetch(file.url).then((res) => res.text())
         },
       }),
 
@@ -109,7 +107,7 @@ export const makeFileSystem = (client: Client) =>
 
       new Tool({
         name: 'listFiles',
-        description: 'List files in a folder',
+        description: 'Write a file to the file system',
         input: z.string().describe('Folder path to list files from').default('/'),
         output: z
           .array(

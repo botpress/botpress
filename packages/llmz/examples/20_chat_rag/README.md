@@ -1,13 +1,9 @@
-# Retrieval with citations
+## RAG / Knowledge Bases
 
-Uploads three synthetic documents to Botpress Files, waits for those exact files to finish indexing, and searches them through a tool. `ThinkSignal` exposes retrieved passages to the next model response. `CitationsManager` links source tags to the rendered answer.
+This is an example of how you can implement RAG in your agent as a custom tool. In this example, we leverage Botpress' built-in RAG by uploading 3 documents (IT, HR and Sales related) and support for citations.
 
-From `packages/llmz/examples`, after the [shared setup](../README.md):
+The CitationManager is a built-in utility class provided by LLMz to inject and extract citations from your agent's responses.
 
-```sh
-pnpm start 20_chat_rag
-```
+## 🎥 Demo
 
-Use a development bot. This example upserts real files under `llmz-examples/rag/` and leaves them available for subsequent runs. Indexing can take time; the script reports indexing failures and times out after ten minutes.
-
-![Retrieval with citations demo](./demo.svg)
+![Demo](./demo.svg)

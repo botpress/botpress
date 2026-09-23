@@ -25,7 +25,6 @@ import { box } from '../utils/box'
 
 // Initialize Botpress client
 const client = new Client({
-  apiUrl: process.env.BOTPRESS_API_URL,
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
 })
@@ -52,7 +51,6 @@ const exit = new Exit({
 
 // Execute with a tool that will fail
 const result = await execute({
-  model: process.env.BOTPRESS_MODEL ?? 'openai:gpt-5.6-luna',
   options: { loop: 1 }, // Limit to 1 iteration to avoid retry loops
   instructions: 'call the "demo" tool',
   tools: [demo],

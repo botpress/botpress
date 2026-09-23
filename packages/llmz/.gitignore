@@ -1,7 +1,3 @@
 *.md.js
 
 !examples/.env.example
-
-.prompt-review/
-e2e/__tests__/cache.jsonl.lock
-e2e/__tests__/cache.jsonl.*.tmp

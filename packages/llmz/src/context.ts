@@ -1,52 +1,46 @@
 import { Models, SttModels } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
+import { cloneDeep, isPlainObject } from 'lodash-es'
 import { ulid } from 'ulid'
-import { Chat } from './chat/chat.js'
-import { assertValidComponent, createComponentRegistry, type ComponentRegistry } from './chat/component.js'
-import { resolveResponse, type ResolvedResponse } from './chat/response.js'
-import {
-  describeError,
-  InternalError,
-  InvalidConfigurationError,
-  isLLMzError,
-  LoopExceededError,
-  ReservedIdentifierError,
-  Signals,
-  type ErrorDetails,
-  type LLMzFailure,
-} from './errors.js'
-
+import { Chat } from './chat.js'
+import { assertValidComponent, Component } from './component.js'
+import { LoopExceededError, SnapshotSignal } from './errors.js'
+import type { Example } from './example.js'
 import { Exit } from './exit.js'
 import { getValue, ValueOrGetter } from './getter.js'
-import { createInspector, type Inspector, type OnInspect } from './inspection.js'
+import { HookedArray } from './handlers.js'
+import type { Diagnostic } from './message-stream/types.js'
 import { ObjectInstance } from './objects.js'
-import { getNativeSystemMessage } from './prompts/native.js'
-import { LLMzPrompts } from './prompts/prompt.js'
-import { RESERVED_RUNTIME_NAMES } from './runtime-names.js'
-import { Session } from './session/session.js'
+import { DualModePrompt } from './prompts/dual-modes.js'
+import { summarizeIterations } from './prompts/execution-history.js'
+import { LLMzPrompts, ParsedNext, ParsedSend, Prompt } from './prompts/prompt.js'
+import { Snapshot } from './snapshots.js'
 import { Tool } from './tool.js'
-import { DEFAULT_TOOL_RESULT_MAX_TOKENS } from './truncate.js'
+import { Transcript, TranscriptArray } from './transcript.js'
+import { stripTruncationTags, wrapContent } from './truncator.js'
 import { ObjectMutation, Serializable, Trace } from './types.js'
-import { getTokenizer } from './utils.js'
+import { getErrorMessage, getTokenizer } from './utils.js'
 
 /**
- * Tokenizer estimate of the final request after compaction, grouped by purpose.
- * Categories sum to the measured request size; provider-reported usage is separate.
- * Media transport URLs and encoded bytes are excluded; media token usage is
- * provider-specific and is not available until the provider reports usage.
+ * Tokenizer-measured size of each part of the prompt, before truncation.
+ * Useful to understand what is eating up the context window.
  */
 export type ContextTokens = {
-  /** Total measured request size (sum of all the parts below). */
+  /** Total measured size of the prompt (sum of all the parts below). */
   total: number
-  /** System scaffolding and structured-message overhead not attributed below. */
+  /** Static prompt scaffolding: response format, VM rules, security guidelines, recap. */
   framework: number
   /** The identity / instructions section. */
   instructions: number
-  /** Callable JavaScript declarations and native tool schemas. */
+  /** tools.d.ts — tools, objects and variable typings. */
   tools: number
-  /** Native execution rules documenting components and exits. */
+  /** The conversation transcript. */
+  transcript: number
+  /** The ■ protocol reference documenting components and exits. */
   protocol: number
-  /** Current input, retained native history, tool results, and the memory overview. */
+  /** Consumer few-shot demonstrations, separate from the live transcript. */
+  examples: number
+  /** Messages carried over from previous iterations (assistant responses, execution results, errors). */
   iterations: number
 }
 
@@ -60,23 +54,23 @@ export type TokenUsage = {
   total: number
   /**
    * The effective context window limit of this call, in tokens:
-   * `min(options.maxTokens, smallest configured model input limit)`. Use it to compute the
+   * `min(options.maxTokens, model's max input tokens)`. Use it to compute the
    * percentage of context used (e.g. `context.total / limit`).
    * Undefined until the LLM call starts.
    */
   limit?: number
-  /** Measured context size by part of the request after compaction. */
+  /** Measured context size by part of the prompt (pre-truncation). */
   context: ContextTokens
 }
 
 export type IterationParameters = {
-  chatEnabled: boolean
+  transcript: TranscriptArray
   tools: Tool[]
   objects: ObjectInstance[]
   exits: Exit[]
   instructions?: string
-  components: ComponentRegistry
-  response?: ResolvedResponse
+  examples?: Example[]
+  components: Component[]
   model: Models | Models[]
   temperature: number
   reasoningEffort?: 'low' | 'medium' | 'high' | 'dynamic' | 'none'
@@ -88,6 +82,7 @@ export type IterationStatus =
   | IterationStatuses.ExecutionError
   | IterationStatuses.InvalidCodeError
   | IterationStatuses.Thinking
+  | IterationStatuses.Callback
   | IterationStatuses.ExitSuccess
   | IterationStatuses.ExitError
   | IterationStatuses.Aborted
@@ -126,8 +121,15 @@ export namespace IterationStatuses {
       /** The value returned by the executed code (or the context provided by a ThinkSignal). */
       variables: unknown
       metadata?: Record<string, unknown>
-      /** A legacy VM control-flow signal paused execution. Tool ThinkSignals now use forced inspection. */
+      /** A tool paused execution; it did not finish or return normally. */
       interrupted?: boolean
+    }
+  }
+
+  export type Callback = {
+    type: 'callback_requested'
+    callback_requested: {
+      signal: SnapshotSignal
     }
   }
 
@@ -157,8 +159,135 @@ export namespace IterationStatuses {
 }
 
 /**
- * Chat completion. JavaScript uses `return exit('listen')`
- * to wait for user input. A plain assistant answer also implies this exit.
+ * Built-in exit for requesting thinking time during agent execution.
+ *
+ * The ThinkExit allows agents to pause execution and reflect on the current situation,
+ * variables, and context before continuing. There are two ways to trigger thinking:
+ *
+ * 1. **Agent-initiated**: Agent calls `return { action: 'think' }` to pause and reflect
+ * 2. **Tool/Hook-initiated**: Tools or hooks throw `ThinkSignal` to force agent reflection
+ *
+ * This exit is automatically available in all LLMz executions and is commonly used for:
+ * - Complex decision making that requires analysis
+ * - Debugging and understanding current variable state
+ * - Planning multi-step operations
+ * - Tool feedback and result processing
+ * - Reflecting on previous iterations and results
+ *
+ * @example
+ * ```typescript
+ * // Agent retrieves web search results and decides to think about them
+ * const results = await searchWeb(query)
+ *
+ * // Agent decides it needs to think (look at the search results) before responding
+ * return { action: 'think', results }
+ * ```
+ *
+ * Sometimes, as the author of the tool, you may want to always force the agent to think about the results.
+ * In this case, you can throw a `ThinkSignal` from the tool handler to trigger thinking.
+ *
+ * @example
+ * ```typescript
+ * // Tool-initiated thinking using ThinkSignal
+ * import { ThinkSignal } from 'llmz'
+ *
+ * const searchTool = new Tool({
+ *   name: 'search',
+ *   handler: async ({ query }) => {
+ *     const results = await performSearch(query)
+ *
+ *     if (!results.length) {
+ *       // Force agent to think about alternative approaches
+ *       throw new ThinkSignal(
+ *         'No search results found',
+ *         'No results were found. Consider rephrasing the query or using a different approach.'
+ *       )
+ *     }
+ *
+ *     // Provide context for agent to process results
+ *     throw new ThinkSignal(
+ *       'Search completed with results',
+ *       `Found ${results.length} results. Process them carefully and provide citations.`
+ *     )
+ *   }
+ * })
+ * ```
+ * When an iteration ends with ThinkExit, the agent will automatically loop and start a new iteration to continue processing, unless iteration limit is reached.
+ *
+ * The thinking process helps agents:
+ * - Avoid rushing into incorrect solutions
+ * - Better understand complex problems and tool results
+ * - Maintain variable state across iterations
+ * - Process feedback from tools and hooks
+ * - Provide more thoughtful and accurate responses
+ */
+export const ThinkExit = new Exit({
+  name: 'think',
+  description: 'Think about the current situation and provide a response',
+})
+
+/**
+ * Built-in exit for waiting for user input in chat mode.
+ *
+ * The ListenExit is automatically available when chat mode is enabled (when a Chat
+ * instance is provided to execute()). When an agent calls `return { action: 'listen' }`,
+ * the execution pauses and waits for user input before continuing the conversation.
+ *
+ * This exit is essential for interactive conversational agents and is used to:
+ * - Wait for user responses in chat interfaces
+ * - Pause execution until user provides input
+ * - Enable back-and-forth conversation flow
+ * - Allow users to guide the conversation direction
+ *
+ * The ListenExit is only available in chat mode - it will not be present in
+ * worker mode executions where no chat interface is provided.
+ *
+ * @example
+ * ```typescript
+ * // Agent generated code using ListenExit in chat mode
+ * yield <Message>What would you like me to help you with today?</Message>
+ * yield <Button action="postback" label="Get Weather" value="weather" />
+ * yield <Button action="postback" label="Set Reminder" value="reminder" />
+ *
+ * // Wait for user to respond
+ * return { action: 'listen' }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Standard chat interaction pattern
+ * const calculation = 2 + 8
+ * yield <Message>The result of `2 + 8` is **{calculation}**.</Message>
+ * return { action: 'listen' }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // CLI chat example with ListenExit handling
+ * const chat = new CLIChat()
+ *
+ * while (chat.iterate()) {
+ *   const result = await execute({
+ *     instructions: 'Help the user with their questions',
+ *     chat,
+ *     client,
+ *   })
+ *
+ *   if (result.is(ListenExit)) {
+ *     // CLIChat handles prompting user automatically
+ *     continue
+ *   } else {
+ *     console.log('Conversation ended')
+ *     break
+ *   }
+ * }
+ * ```
+ *
+ * The ListenExit enables natural conversation flow where:
+ * - Agent sends messages and waits for responses
+ * - User provides input to guide the conversation
+ * - Conversation continues iteratively until completion
+ * - Chat interface manages the input/output cycle
  */
 export const ListenExit = new Exit({
   name: 'listen',
@@ -166,14 +295,94 @@ export const ListenExit = new Exit({
 })
 
 /**
- * Worker completion when exits are omitted. JavaScript returns
- * `exit('done', { success: true, result })` or
- * `exit('done', { success: false, error })`.
+ * Default exit used when no custom exits are provided.
+ *
+ * The DefaultExit is automatically used in worker mode when no custom exits are defined.
+ * It provides a standard way to complete execution with either success or failure outcomes.
+ * The exit uses a discriminated union schema to ensure type-safe handling of both success
+ * and error cases.
+ *
+ * This exit is commonly used for:
+ * - Simple worker mode executions without custom completion logic
+ * - Standardized success/failure reporting
+ * - Basic task completion with result or error information
+ * - Default fallback when no specific exit behavior is needed
+ *
+ * @example
+ * ```typescript
+ * // Agent generated code using DefaultExit for successful completion
+ * const data = await fetchUserData(userId)
+ * const processedResult = processData(data)
+ *
+ * return {
+ *   action: 'done',
+ *   success: true,
+ *   result: processedResult
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Agent generated code using DefaultExit for error cases
+ * try {
+ *   const result = await riskyOperation()
+ *   return { action: 'done', success: true, result }
+ * } catch (error) {
+ *   return {
+ *     action: 'done',
+ *     success: false,
+ *     error: `Operation failed: ${error.message}`
+ *   }
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * import { execute, DefaultExit } from 'llmz'
+ *
+ * // Handling DefaultExit in execution results
+ * const result = await execute({
+ *   instructions: 'Process the user data and return results',
+ *   // No custom exits provided - DefaultExit will be used
+ *   client,
+ * })
+ *
+ * if (result.is(DefaultExit)) {
+ *   if (result.output.success) {
+ *     console.log('Success:', result.output.result)
+ *   } else {
+ *     console.error('Error:', result.output.error)
+ *   }
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Worker mode execution with automatic DefaultExit
+ * const result = await execute({
+ *   instructions: 'Calculate fibonacci numbers up to 100',
+ *   tools: [mathTools],
+ *   client,
+ *   // No chat provided = worker mode
+ *   // No exits provided = DefaultExit automatically added
+ * })
+ *
+ * // Result will use DefaultExit for completion
+ * if (result.isSuccess() && result.is(DefaultExit)) {
+ *   const { success, result: data, error } = result.output
+ *   // Handle success/failure cases
+ * }
+ * ```
+ *
+ * The DefaultExit provides a consistent interface for:
+ * - Type-safe success/failure handling
+ * - Standardized result reporting across different executions
+ * - Automatic fallback behavior when no custom exits are defined
+ * - Clear separation between successful results and error conditions
  */
 export const DefaultExit = new Exit({
   name: 'done',
-  description:
-    'Finish when the requested work is complete or no safe, authorized recovery remains. Before reporting failure, address known recoverable causes with available tools without repeating successful actions. Recovery must respect instructions, access requirements, tool-attempt limits, and the remaining response budget.',
+  description: 'When the execution is sucessfully completed or when error recovery is not possible',
   schema: z.discriminatedUnion('success', [
     z.object({
       success: z.literal(true),
@@ -181,11 +390,7 @@ export const DefaultExit = new Exit({
     }),
     z.object({
       success: z.literal(false),
-      error: z
-        .string()
-        .describe(
-          'The actual blocker and why available recovery cannot resolve it; a failed tool call alone is insufficient'
-        ),
+      error: z.string().describe('The error message if the execution failed'),
     }),
   ]),
 })
@@ -193,11 +398,13 @@ export const DefaultExit = new Exit({
 export namespace Iteration {
   export type JSON = {
     id: string
+    messages: LLMzPrompts.Message[]
     code?: string
     traces: Trace[]
     model: Models | Models[]
     temperature: number
     reasoningEffort?: 'low' | 'medium' | 'high' | 'dynamic' | 'none'
+    variables: Record<string, any>
     started_ts: number
     ended_ts?: number
     status: IterationStatus
@@ -210,40 +417,33 @@ export namespace Iteration {
       tokens: number
       spend: number
       output: string
+      diagnostics?: Diagnostic[]
       model: string
       time_to_first_token?: number
       time_to_last_token?: number
     }
     tokens?: TokenUsage
+    transcript: Transcript.Message[]
+    tools: Tool.JSON[]
+    objects: ObjectInstance.JSON[]
+    exits: Exit.JSON[]
+    instructions?: string
     duration?: string
     error?: string | null
-    exception?: ErrorDetails
-    errors: ErrorDetails[]
     isChatEnabled?: boolean
   }
 }
 
 export class Iteration implements Serializable<Iteration.JSON> {
   public id: string
-  public readonly systemMessage: LLMzPrompts.Message
+  public messages: LLMzPrompts.Message[]
   public code?: string
-  public sessionInfo?: { id: string; number: number; turn: number; turnId: string; timestamp: number }
-  /** Outer native call that owns the current JavaScript execution. */
-  public nativeCallId?: string
-  public traces: Trace[] = []
-
-  private readonly _onTrace?: (trace: Trace) => void
-
-  /** Record a runtime trace and notify the observer without changing execution on observer errors. */
-  public recordTrace = (trace: Trace): void => {
-    this.traces.push(trace)
-
-    try {
-      this._onTrace?.(trace)
-    } catch {
-      // Trace observers must not change the result of a completed action.
-    }
-  }
+  /** Messages (`■send` blocks) parsed from the assistant response, in order. */
+  public sends?: ParsedSend[]
+  /** The `■next` exit parsed from the assistant response, if any. */
+  public next?: ParsedNext
+  public traces: HookedArray<Trace>
+  public variables: Record<string, any>
 
   /**
    * Token usage of this iteration's LLM call. The `context` breakdown is measured
@@ -256,22 +456,6 @@ export class Iteration implements Serializable<Iteration.JSON> {
   public ended_ts?: number
 
   public status: IterationStatus
-  /** Original failure for programmatic handling. Execution errors retain their typed cause. */
-  public exception?: LLMzFailure
-  /** All observed failures, including tool errors caught by generated code. */
-  public readonly errors: LLMzFailure[] = []
-
-  public recordError(value: unknown): LLMzFailure {
-    const error = Signals.maybeDeserializeError(value)
-    const failure = isLLMzError(error)
-      ? error
-      : new InternalError(error instanceof Error ? error.message : String(error), { cause: error })
-    if (!this.errors.includes(failure)) {
-      this.errors.push(failure)
-    }
-
-    return failure
-  }
 
   private _mutations: Map<string, ObjectMutation>
 
@@ -285,12 +469,11 @@ export class Iteration implements Serializable<Iteration.JSON> {
 
   private _parameters: IterationParameters
 
-  public get components(): ComponentRegistry {
+  public get components(): Component[] {
     return this._parameters.components
   }
-
-  public get response(): ResolvedResponse | undefined {
-    return this._parameters.response
+  public get transcript() {
+    return this._parameters.transcript
   }
 
   public get tools() {
@@ -318,7 +501,13 @@ export class Iteration implements Serializable<Iteration.JSON> {
   }
 
   public get exits() {
-    return this._parameters.exits
+    const exits = [...this._parameters.exits]
+
+    if (this.isChatEnabled) {
+      exits.push(ListenExit)
+    }
+
+    return exits
   }
 
   public get instructions() {
@@ -333,6 +522,8 @@ export class Iteration implements Serializable<Iteration.JSON> {
     tokens: number
     spend: number
     output: string
+    /** Syntax diagnostics from the response parser; raw output remains available above. */
+    diagnostics?: Diagnostic[]
     model: string
     /** Milliseconds between the LLM call start and the first streamed token. Only set on streaming clients. */
     time_to_first_token?: number
@@ -355,9 +546,11 @@ export class Iteration implements Serializable<Iteration.JSON> {
   }
 
   public isSuccessful(this: this): this is this & {
-    status: IterationStatuses.ExitSuccess | IterationStatuses.Thinking
+    status: IterationStatuses.ExitSuccess | IterationStatuses.Callback | IterationStatuses.Thinking
   } {
-    return (<IterationStatus['type'][]>['exit_success', 'thinking_requested']).includes(this.status.type)
+    return (<IterationStatus['type'][]>['callback_requested', 'exit_success', 'thinking_requested']).includes(
+      this.status.type
+    )
   }
 
   public isFailed(this: this): this is this & {
@@ -383,7 +576,6 @@ export class Iteration implements Serializable<Iteration.JSON> {
     return ms.toLocaleString('en-US', { style: 'unit', unit: 'millisecond' }) + trailing
   }
 
-  /** Human-readable failure summary. Use exception for instanceof checks and structured details. */
   public get error() {
     if (this.status.type === 'generation_error') {
       return `CodeGenerationError: ${this.status.generation_error.message}`
@@ -409,54 +601,57 @@ export class Iteration implements Serializable<Iteration.JSON> {
   }
 
   public get isChatEnabled() {
-    return this._parameters.chatEnabled
+    return this._parameters.components.length > 0
   }
 
   public constructor(props: {
     id: string
     parameters: IterationParameters
-    systemMessage: LLMzPrompts.Message
-    onTrace?: (trace: Trace) => void
+    messages: LLMzPrompts.Message[]
+    variables: Record<string, any>
   }) {
     this.id = props.id
     this.status = { type: 'pending' }
-    this._onTrace = props.onTrace
+    this.traces = new HookedArray<Trace>()
     this._mutations = new Map()
-    this.systemMessage = props.systemMessage
+    this.messages = props.messages
+    this.variables = props.variables
     this._parameters = props.parameters
     this.started_ts = Date.now()
   }
 
-  public end(status: IterationStatus, exception?: unknown) {
+  public end(status: IterationStatus) {
     if (this.status.type !== 'pending') {
-      throw new InvalidConfigurationError(`Iteration ${this.id} has already ended with status ${this.status.type}`)
+      throw new Error(`Iteration ${this.id} has already ended with status ${this.status.type}`)
     }
 
     this.ended_ts = Date.now()
     this.status = status
-    if (exception !== undefined) {
-      this.exception = this.recordError(exception)
-    }
   }
 
   public toJSON() {
     return {
       id: this.id,
+      messages: [...this.messages],
       code: this.code,
       model: this.model,
       temperature: this.temperature,
       reasoningEffort: this.reasoningEffort,
       traces: [...this.traces],
+      variables: this.variables,
       started_ts: this.started_ts,
       ended_ts: this.ended_ts,
       status: this.status,
       mutations: [...this._mutations.values()],
       llm: this.llm,
       tokens: this.tokens,
+      transcript: [...this._parameters.transcript],
+      tools: this._parameters.tools.map((tool) => tool.toJSON()),
+      objects: this._parameters.objects.map((obj) => obj.toJSON()),
+      exits: this._parameters.exits.map((exit) => exit.toJSON()),
+      instructions: this._parameters.instructions,
       duration: this.duration,
       error: this.error,
-      exception: this.exception ? describeError(this.exception) : undefined,
-      errors: this.errors.map((error) => describeError(error)),
       isChatEnabled: this.isChatEnabled,
     } satisfies Iteration.JSON
   }
@@ -470,7 +665,7 @@ export namespace Context {
     timeout: number
     loop: number
     metadata: Record<string, any>
-    sessionId: string
+    snapshot?: Snapshot.JSON
   }
 }
 
@@ -479,6 +674,7 @@ export class Context implements Serializable<Context.JSON> {
 
   public chat?: Chat
   public instructions?: ValueOrGetter<string, Context>
+  public examples?: ValueOrGetter<Example[], Context>
   public objects?: ValueOrGetter<ObjectInstance[], Context>
   public tools?: ValueOrGetter<Tool[], Context>
   public exits?: ValueOrGetter<Exit[], Context>
@@ -486,17 +682,14 @@ export class Context implements Serializable<Context.JSON> {
   public temperature: ValueOrGetter<number, Context>
   public reasoningEffort?: ValueOrGetter<'low' | 'medium' | 'high' | 'dynamic' | 'none', Context>
 
-  public session: Session
-  public readonly inspector: Inspector
+  public version: Prompt = DualModePrompt
   public timeout: number = 60_000 // Default timeout of 60 seconds
   public loop: number
   /**
    * Optional cap on the model's context window. The effective limit is
-   * `min(maxTokens, smallest configured model input limit)`.
+   * `min(maxTokens, model's max input tokens)`.
    */
   public maxTokens?: number
-  /** Default display budget; explicitly wrapped tool results can override it. */
-  public toolResultMaxTokens: number = DEFAULT_TOOL_RESULT_MAX_TOKENS
   /**
    * Maximum time to wait for the first streamed token, in milliseconds,
    * before the cognitive service falls back to the next model/provider.
@@ -516,49 +709,69 @@ export class Context implements Serializable<Context.JSON> {
   public transcriptionModel?: SttModels
   public metadata: Record<string, any>
 
+  public snapshot?: Snapshot
+
+  // Keep the latest message without its per-request state so old budgets never enter history.
+  private _lastMessageWithoutExecutionState?: LLMzPrompts.Message
+
   public iteration: number = 0
   public iterations: Iteration[]
 
-  public async nextIteration(onTrace?: (trace: Trace) => void): Promise<Iteration> {
+  public async nextIteration(): Promise<Iteration> {
     if (this.iterations.length >= this.loop) {
       throw new LoopExceededError()
     }
 
-    this.session.beginTurn()
-
-    const parameters = await this._refreshIterationParameters()
-    await this.session.memory.syncObjects(parameters.objects, {
-      turn: this.session.turn,
-      turnId: this.session.turnId,
-      timestamp: Date.now(),
-    })
-
-    const { message, parts } = await this._getIterationMessages(parameters)
-    const contextTokens = this._measureContextTokens([message], parts)
-
-    const sessionInfo = this.session.nextIteration()
-
-    try {
-      this.session.assertCapacityForIteration(sessionInfo)
-    } catch (error) {
-      this.session.cancelIteration(sessionInfo.id)
-      throw error
+    if (this.snapshot && this.snapshot.status.type === 'pending') {
+      throw new Error(
+        `Cannot resume execution from a snapshot that is still pending: ${this.snapshot.id}. Please resolve() or reject() it first.`
+      )
     }
 
+    const parameters = await this._refreshIterationParameters()
+    const { messages, parts } = await this._getIterationMessages(parameters)
+    const contextTokens = this._measureContextTokens(messages, parts)
+
     const iteration = new Iteration({
-      id: sessionInfo.id,
+      id: `${this.id}_${this.iterations.length + 1}`,
+      variables: this._getIterationVariables(),
       parameters,
-      systemMessage: message,
-      onTrace,
+      messages,
     })
 
-    iteration.sessionInfo = sessionInfo
     iteration.tokens = { input: 0, output: 0, total: 0, context: contextTokens }
 
     this.iterations.push(iteration)
     this.iteration = this.iterations.length
+    this.snapshot = undefined
 
     return iteration
+  }
+
+  private _getIterationVariables(): Record<string, any> {
+    const lastIteration = this.iterations.at(-1)
+    const variables: Record<string, any> = {}
+
+    if (lastIteration?.status.type === 'thinking_requested') {
+      const lastThinkingVariables = lastIteration.status.thinking_requested.variables
+      if (isPlainObject(lastThinkingVariables)) {
+        Object.assign(variables, cloneDeep(lastThinkingVariables))
+      }
+    }
+
+    if (isPlainObject(lastIteration?.variables)) {
+      Object.assign(variables, cloneDeep(lastIteration?.variables ?? {}))
+    }
+
+    if (this.snapshot?.status.type === 'resolved') {
+      for (const v of this.snapshot.variables) {
+        if (!v.truncated && v.value !== undefined) {
+          variables[v.name] = v.value
+        }
+      }
+    }
+
+    return variables
   }
 
   /**
@@ -571,155 +784,306 @@ export class Context implements Serializable<Context.JSON> {
   private _measureContextTokens(messages: LLMzPrompts.Message[], parts: LLMzPrompts.SystemPromptParts): ContextTokens {
     const tokenizer = getTokenizer()
 
-    const countText = (text: string | undefined) => (text?.length ? tokenizer.count(text) : 0)
+    const countText = (text: string | undefined) => (text?.length ? tokenizer.count(stripTruncationTags(text)) : 0)
     const countMessage = (message: LLMzPrompts.Message): number => {
       if (typeof message.content === 'string') {
         return countText(message.content)
       }
-
       if (Array.isArray(message.content)) {
         // Images and other non-text parts are not counted
         return message.content.reduce((acc, part) => acc + (part.type === 'text' ? countText(part.text) : 0), 0)
       }
-
       return 0
     }
 
     const instructions = countText(parts.instructions)
     const tools = countText(parts.tools)
+    const transcript = countText(parts.transcript)
     const protocol = countText(parts.protocol)
+    const examples = countText(parts.examples)
 
     const systemTokens = messages.filter((x) => x.role === 'system').reduce((acc, x) => acc + countMessage(x), 0)
     const otherTokens = messages.filter((x) => x.role !== 'system').reduce((acc, x) => acc + countMessage(x), 0)
 
-    const framework = Math.max(0, systemTokens - instructions - tools - protocol)
+    const isFirstIteration = this.iterations.length === 0 && !this.snapshot
+    const framework = Math.max(0, systemTokens - (instructions + tools + transcript + protocol + examples))
+    const iterations = isFirstIteration ? 0 : otherTokens
 
     return {
-      total: systemTokens + otherTokens,
-      framework,
+      total:
+        framework +
+        instructions +
+        tools +
+        transcript +
+        protocol +
+        examples +
+        iterations +
+        (isFirstIteration ? otherTokens : 0),
+      framework: framework + (isFirstIteration ? otherTokens : 0),
       instructions,
       tools,
+      transcript,
       protocol,
-      iterations: otherTokens,
+      examples,
+      iterations,
     }
   }
 
-  private async _getIterationMessages(parameters: IterationParameters): Promise<LLMzPrompts.SystemMessage> {
-    const { message, parts } = await getNativeSystemMessage({
-      isChatEnabled: !!this.chat,
+  private async _getIterationMessages(
+    parameters: IterationParameters
+  ): Promise<{ messages: LLMzPrompts.Message[]; parts: LLMzPrompts.SystemPromptParts }> {
+    const lastIteration = this.iterations.at(-1)
+
+    const promptProps: LLMzPrompts.InitialStateProps = {
+      iteration: {
+        current: this.iterations.length + 1,
+        limit: this.loop,
+        resumed: !!this.snapshot,
+        ...summarizeIterations(this.iterations, parameters.components.length > 0),
+      },
       globalTools: parameters.tools,
       objects: parameters.objects,
       instructions: parameters.instructions,
-      exits: parameters.exits,
+      examples: parameters.examples,
+      transcript: parameters.transcript,
+      // ListenExit is protocol-level in chat mode: it must be documented alongside user-defined exits
+      exits: parameters.components.length ? [...parameters.exits, ListenExit] : parameters.exits,
       components: parameters.components,
-      response: parameters.response,
-    })
-    return { message, parts }
+    }
+
+    const { message: systemMessage, parts } = await this.version.getSystemMessage(promptProps)
+    const previousLastMessage = this._lastMessageWithoutExecutionState
+    const withParts = (messages: LLMzPrompts.Message[]) => {
+      const last = messages.at(-1)!
+      this._lastMessageWithoutExecutionState = last
+
+      const state = this.version.getExecutionState?.(promptProps) ?? ''
+
+      if (state) {
+        messages[messages.length - 1] = Array.isArray(last.content)
+          ? { ...last, content: [...last.content, { type: 'text', text: state.trim() }] }
+          : { ...last, content: (last.content ?? '') + state }
+      }
+
+      return { messages, parts }
+    }
+
+    if (this.snapshot?.status.type === 'resolved') {
+      return withParts([
+        systemMessage,
+        this.version.getSnapshotResolvedMessage({
+          snapshot: this.snapshot,
+        }),
+      ])
+    }
+
+    if (this.snapshot?.status.type === 'rejected') {
+      return withParts([
+        systemMessage,
+        this.version.getSnapshotRejectedMessage({
+          snapshot: this.snapshot,
+        }),
+      ])
+    }
+
+    // TODO: truncate messages when too many / too long...
+    // this can't work with loop = 100 for example
+    // so we need to summarize the messages / situation and variables as we go
+    // probably we need to check if max tokens is 75% reached and then summarize messages and variables if needed
+
+    if (!lastIteration) {
+      return withParts([systemMessage, await this.version.getInitialUserMessage(promptProps)])
+    }
+
+    const history = lastIteration.messages.slice()
+    if (previousLastMessage) {
+      history[history.length - 1] = previousLastMessage
+    }
+
+    const lastIterationMessages = [systemMessage, ...history.filter((x) => x.role !== 'system')]
+
+    if (lastIteration?.status.type === 'thinking_requested') {
+      return withParts([
+        ...lastIterationMessages,
+        {
+          role: 'assistant',
+          content: wrapContent(lastIteration.llm?.output ?? '', { preserve: 'top', flex: 4, minTokens: 25 }),
+        },
+        await this.version.getThinkingMessage({
+          isChatEnabled: parameters.components.length > 0,
+          reason: lastIteration.status.thinking_requested.reason,
+          variables: lastIteration.status.thinking_requested.variables,
+          interrupted: lastIteration.status.thinking_requested.interrupted,
+          discardedMessages: lastIteration.llm?.diagnostics?.some((diagnostic) => diagnostic.code === 'send-after-run'),
+        }),
+      ])
+    }
+
+    if (lastIteration?.status.type === 'exit_error') {
+      return withParts([
+        ...lastIterationMessages,
+        {
+          role: 'assistant',
+          content: wrapContent(lastIteration.llm?.output ?? '', { preserve: 'top', flex: 4, minTokens: 25 }),
+        },
+        await this.version.getInvalidCodeMessage({
+          isChatEnabled: parameters.components.length > 0,
+          code: lastIteration.next
+            ? `■next=${lastIteration.next.name} ${JSON.stringify(lastIteration.next.props)}`
+            : (lastIteration.code ?? '// No code generated'),
+          message: `Invalid ■next block (${lastIteration.status.exit_error.exit}): ${lastIteration.status.exit_error.message}`,
+          variables: lastIteration.variables,
+          toolCalls: lastIteration.traces
+            .filter((trace) => trace.type === 'tool_call')
+            .map((trace) => ({
+              tool: trace.tool_name,
+              input: trace.input,
+              success: trace.success,
+              ...(trace.success ? { output: trace.output } : { error: getErrorMessage(trace.error) }),
+            })),
+        }),
+      ])
+    }
+
+    if (lastIteration?.status.type === 'invalid_code_error') {
+      return withParts([
+        ...lastIterationMessages,
+        {
+          role: 'assistant',
+          content: wrapContent(lastIteration.llm?.output ?? '', { preserve: 'top', flex: 4, minTokens: 25 }),
+        },
+        await this.version.getInvalidCodeMessage({
+          isChatEnabled: parameters.components.length > 0,
+          code: lastIteration.code ?? '// No code generated',
+          message: lastIteration.status.invalid_code_error.message,
+        }),
+      ])
+    }
+
+    if (lastIteration?.status.type === 'execution_error') {
+      return withParts([
+        ...lastIterationMessages,
+        {
+          role: 'assistant',
+          content: wrapContent(lastIteration.llm?.output ?? '', { preserve: 'top', flex: 4, minTokens: 25 }),
+        },
+        await this.version.getCodeExecutionErrorMessage({
+          isChatEnabled: parameters.components.length > 0,
+          variables: lastIteration.variables,
+          toolCalls: lastIteration.traces
+            .filter((trace) => trace.type === 'tool_call')
+            .map((trace) => ({
+              tool: trace.tool_name,
+              input: trace.input,
+              success: trace.success,
+              ...(trace.success ? { output: trace.output } : { error: getErrorMessage(trace.error) }),
+            })),
+          message: lastIteration.status.execution_error.message,
+          stacktrace: lastIteration.status.execution_error.stack,
+        }),
+      ])
+    }
+
+    throw new Error(
+      `Unexpected iteration status: ${lastIteration?.status.type}. This is likely a bug, please report it.`
+    )
   }
 
   private async _refreshIterationParameters(): Promise<IterationParameters> {
     const instructions = await getValue(this.instructions, this)
-    const configuredTools = (await getValue(this.tools, this)) ?? []
-
-    // Check the configured names before duplicate-name normalization can replace them.
-    for (const tool of configuredTools) {
-      for (const name of [tool.name, ...tool.aliases]) {
-        assertNotReservedRuntimeName(name, 'tool')
-      }
-    }
-
-    const tools = Tool.withUniqueNames(configuredTools)
+    const examples = await getValue(this.examples, this)
+    const transcript = new TranscriptArray(await getValue(this.chat?.transcript ?? [], this))
+    const tools = Tool.withUniqueNames((await getValue(this.tools, this)) ?? [])
     const objects = (await getValue(this.objects, this)) ?? []
-    const exits = [...((await getValue(this.exits, this)) ?? [])]
+    const exits = (await getValue(this.exits, this)) ?? []
     const components = await getValue(this.chat?.components ?? [], this)
-    const response = this.chat ? resolveResponse(await getValue(this.chat.response, this)) : undefined
     const model = (await getValue(this.model, this)) ?? 'best'
     const temperature = await getValue(this.temperature, this)
     const reasoningEffort = await getValue(this.reasoningEffort, this)
 
     if (objects && objects.length > 100) {
-      throw new InvalidConfigurationError('Too many objects. Expected at most 100 objects.')
+      throw new Error('Too many objects. Expected at most 100 objects.')
     }
 
     if (tools && tools.length > 100) {
-      throw new InvalidConfigurationError('Too many tools. Expected at most 100 tools.')
+      throw new Error('Too many tools. Expected at most 100 tools.')
     }
 
     for (const component of components) {
       assertValidComponent(component.definition)
-
-      if (typeof component.handler !== 'function') {
-        throw new InvalidConfigurationError(
-          `Component "${component.definition.name}" requires a handler. Attach one with withHandler().`
-        )
-      }
     }
 
-    const occupied = new Set<string>()
-    const registerName = (name: string, kind: 'tool' | 'object') => {
-      assertNotReservedRuntimeName(name, kind)
-
-      if (occupied.has(name)) {
-        throw new InvalidConfigurationError(`Duplicate JavaScript binding "${name}".`)
-      }
-
-      if (Object.hasOwn(this.session.memory.variables, name)) {
-        throw new InvalidConfigurationError(
-          `JavaScript binding "${name}" conflicts with retained memory. Rename or remove it before registering a tool or object.`
-        )
-      }
-
-      occupied.add(name)
-    }
+    const ReservedToolNames = [
+      'think',
+      'listen',
+      'return',
+      'exit',
+      'action',
+      'function',
+      'callback',
+      'code',
+      'execute',
+      'jsx',
+      'object',
+      'string',
+      'number',
+      'boolean',
+      'array',
+    ]
 
     for (const tool of tools) {
-      for (const name of new Set([tool.name, ...tool.aliases])) {
-        registerName(name, 'tool')
-      }
-    }
+      for (let name of [...tool.aliases, tool.name]) {
+        name = name.toLowerCase()
 
-    for (const object of objects) {
-      registerName(object.name, 'object')
+        if (ReservedToolNames.includes(name)) {
+          throw new Error(`Tool name "${name}" (${tool.name}) is reserved. Please choose a different name.`)
+        }
+
+        if (
+          components.find(
+            (x) =>
+              x.definition.name.toLowerCase() === name ||
+              x.definition.aliases?.map((x) => x.toLowerCase()).includes(name)
+          )
+        ) {
+          throw new Error(
+            `Tool name "${name}" (${tool.name}) is already used by a component. Please choose a different name.`
+          )
+        }
+
+        if (
+          exits.find((x) => x.name.toLowerCase() === name) ||
+          exits.find((x) => x.aliases?.map((x) => x.toLowerCase()).includes(name))
+        ) {
+          throw new Error(
+            `Tool name "${name}" (${tool.name}) is already used by an exit. Please choose a different name.`
+          )
+        }
+      }
     }
 
     if (exits && exits.length > 100) {
-      throw new InvalidConfigurationError('Too many exits. Expected at most 100 exits.')
+      throw new Error('Too many exits. Expected at most 100 exits.')
     }
 
     if (components && components.length > 100) {
-      throw new InvalidConfigurationError('Too many components. Expected at most 100 components.')
+      throw new Error('Too many components. Expected at most 100 components.')
     }
 
     if (instructions && instructions.length > 1_000_000) {
-      throw new InvalidConfigurationError('Instructions are too long. Expected at most 1,000,000 characters.')
+      throw new Error('Instructions are too long. Expected at most 1,000,000 characters.')
     }
 
-    if (this.chat) {
-      exits.push(ListenExit)
-    } else if (!exits.length && this.exits === undefined) {
+    if (transcript && transcript.length > 250) {
+      throw new Error('Too many transcript messages. Expected at most 250 messages.')
+    }
+
+    if (!components.length && !exits.length) {
       exits.push(DefaultExit)
     }
 
-    const exitNames = new Set<string>()
-
-    for (const exit of exits) {
-      for (const name of [exit.name, ...exit.aliases]) {
-        if (name !== 'exit') {
-          assertNotReservedRuntimeName(name, 'exit')
-        }
-      }
-
-      for (const name of new Set([exit.name, ...exit.aliases].map((name) => name.toLowerCase()))) {
-        if (exitNames.has(name)) {
-          throw new InvalidConfigurationError(`Duplicate exit name or alias: ${name}`)
-        }
-
-        exitNames.add(name)
-      }
-    }
-
     if (typeof temperature !== 'number' || isNaN(temperature) || temperature < 0 || temperature > 2) {
-      throw new InvalidConfigurationError('Invalid temperature. Expected a number between 0 and 2.')
+      throw new Error('Invalid temperature. Expected a number between 0 and 2.')
     }
 
     const isValidModel = (m: unknown): m is string =>
@@ -727,22 +1091,22 @@ export class Context implements Serializable<Context.JSON> {
 
     if (Array.isArray(model)) {
       if (model.length === 0 || !model.every(isValidModel)) {
-        throw new InvalidConfigurationError(
+        throw new Error(
           "Invalid model. Expected a non-empty array of model strings ('best'/'fast'/'auto' or 'provider:model')."
         )
       }
     } else if (!isValidModel(model)) {
-      throw new InvalidConfigurationError("Invalid model. Expected 'best'/'fast'/'auto' or 'provider:model'.")
+      throw new Error("Invalid model. Expected 'best'/'fast'/'auto' or 'provider:model'.")
     }
 
     return {
-      chatEnabled: !!this.chat,
+      transcript,
       tools,
       objects,
       exits,
       instructions,
-      components: createComponentRegistry(components),
-      response,
+      examples,
+      components,
       model,
       temperature,
       reasoningEffort,
@@ -752,6 +1116,7 @@ export class Context implements Serializable<Context.JSON> {
   public constructor(props: {
     chat?: Chat
     instructions?: ValueOrGetter<string, Context>
+    examples?: ValueOrGetter<Example[], Context>
     objects?: ValueOrGetter<ObjectInstance[], Context>
     tools?: ValueOrGetter<Tool[], Context>
     exits?: ValueOrGetter<Exit[], Context>
@@ -760,17 +1125,16 @@ export class Context implements Serializable<Context.JSON> {
     reasoningEffort?: ValueOrGetter<'low' | 'medium' | 'high' | 'dynamic' | 'none', Context>
     model?: ValueOrGetter<Models | Models[], Context>
     metadata?: Record<string, any>
-    session?: Session
-    onInspect?: OnInspect
+    snapshot?: Snapshot
     timeout?: number
     maxTokens?: number
-    toolResultMaxTokens?: number
     maxTimeToFirstToken?: number
     midStreamFallback?: boolean
     transcriptionModel?: SttModels
   }) {
     this.id = `llmz_${ulid()}`
     this.instructions = props.instructions
+    this.examples = props.examples
     this.objects = props.objects
     this.tools = props.tools
     this.exits = props.exits
@@ -783,51 +1147,29 @@ export class Context implements Serializable<Context.JSON> {
     this.model = props.model ?? 'best'
     this.iterations = []
     this.metadata = props.metadata ?? {}
-    this.session = props.session ?? new Session()
-    const inspectValue = createInspector(props.onInspect)
-    this.inspector = (value, options) =>
-      inspectValue(value, {
-        ...options,
-        identity: {
-          sessionId: this.session.id,
-          turn: this.session.turn,
-          turnId: this.session.turnId,
-          iterationId: this.iterations.at(-1)?.id,
-          iteration: this.iterations.at(-1)?.sessionInfo?.number,
-          ...options.identity,
-        },
-      })
+    this.snapshot = props.snapshot
     this.maxTokens = props.maxTokens
-    this.toolResultMaxTokens = props.toolResultMaxTokens ?? DEFAULT_TOOL_RESULT_MAX_TOKENS
     this.maxTimeToFirstToken = props.maxTimeToFirstToken
     this.midStreamFallback = props.midStreamFallback
     this.transcriptionModel = props.transcriptionModel
 
     if (this.loop < 1 || this.loop > 100) {
-      throw new InvalidConfigurationError('Invalid loop. Expected a number between 1 and 100.')
+      throw new Error('Invalid loop. Expected a number between 1 and 100.')
     }
 
-    if (this.maxTokens !== undefined && (!Number.isSafeInteger(this.maxTokens) || this.maxTokens < 1)) {
-      throw new InvalidConfigurationError('Invalid maxTokens. Expected a positive safe integer.')
-    }
-
-    if (
-      !Number.isInteger(this.toolResultMaxTokens) ||
-      this.toolResultMaxTokens < 0 ||
-      this.toolResultMaxTokens > DEFAULT_TOOL_RESULT_MAX_TOKENS
-    ) {
-      throw new InvalidConfigurationError('Invalid toolResultMaxTokens. Expected an integer between 0 and 2000.')
+    if (this.maxTokens !== undefined && (!Number.isFinite(this.maxTokens) || this.maxTokens < 1)) {
+      throw new Error('Invalid maxTokens. Expected a positive number.')
     }
 
     if (
       this.maxTimeToFirstToken !== undefined &&
       (!Number.isFinite(this.maxTimeToFirstToken) || this.maxTimeToFirstToken < 1)
     ) {
-      throw new InvalidConfigurationError('Invalid maxTimeToFirstToken. Expected a positive number of milliseconds.')
+      throw new Error('Invalid maxTimeToFirstToken. Expected a positive number of milliseconds.')
     }
 
     if (this.midStreamFallback !== undefined && typeof this.midStreamFallback !== 'boolean') {
-      throw new InvalidConfigurationError('Invalid midStreamFallback. Expected a boolean.')
+      throw new Error('Invalid midStreamFallback. Expected a boolean.')
     }
   }
 
@@ -839,13 +1181,7 @@ export class Context implements Serializable<Context.JSON> {
       timeout: this.timeout,
       loop: this.loop,
       metadata: this.metadata,
-      sessionId: this.session.id,
+      snapshot: this.snapshot?.toJSON(),
     } satisfies Context.JSON
-  }
-}
-
-function assertNotReservedRuntimeName(name: string, kind: 'tool' | 'object' | 'exit'): void {
-  if (RESERVED_RUNTIME_NAMES.has(name) || name.startsWith('__')) {
-    throw new ReservedIdentifierError(name, kind)
   }
 }

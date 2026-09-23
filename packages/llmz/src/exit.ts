@@ -1,8 +1,6 @@
-import { z } from '@bpinternal/zui'
+import { transforms } from '@bpinternal/zui'
 import { JSONSchema7 } from 'json-schema'
 import { uniq } from 'lodash-es'
-import { InvalidExitError } from './errors.js'
-import { toModelSchema } from './schema.js'
 import { Serializable, ZuiType } from './types.js'
 import { fromJSONSchemaCompat, isJsonSchema, isValidIdentifier, isZuiSchema } from './utils.js'
 
@@ -33,8 +31,8 @@ export namespace Exit {
  *
  * Exits are the primary mechanism for controlling how and when agent execution completes.
  * They define the possible outcomes of an execution and provide type-safe result handling.
- * The model returns `exit(name, payload)` from JavaScript to finish with a validated
- * payload. Ordinary returned values remain nonterminal inspection results.
+ * When an agent calls `return { action: 'exit_name', ...data }`, the execution terminates
+ * with the corresponding Exit.
  *
  * ## Core Concepts
  *
@@ -48,7 +46,7 @@ export namespace Exit {
  * **Flow Control**: Different exits allow for different execution paths and result
  * handling, enabling complex decision-making and branching logic.
  *
- * **Built-in vs Custom**: LLMz provides built-in exits (ListenExit, DefaultExit)
+ * **Built-in vs Custom**: LLMz provides built-in exits (ThinkExit, ListenExit, DefaultExit)
  * for common patterns, while custom exits enable domain-specific termination logic.
  *
  * ## Usage Patterns
@@ -63,7 +61,7 @@ export namespace Exit {
  *   description: 'When the user wants to exit the program',
  * })
  *
- * // Inside run_javascript: return exit('exit')
+ * // Agent usage: return { action: 'exit' }
  *
  * // Result handling
  * if (result.is(exit)) {
@@ -87,8 +85,7 @@ export namespace Exit {
  *   }),
  * })
  *
- * // Inside run_javascript:
- * // return exit('escalation', { reason: 'Technical issue', details: '...' })
+ * // Agent usage: return { action: 'escalation', reason: 'Technical issue', details: '...' }
  *
  * // Type-safe result handling
  * if (result.is(escalation)) {
@@ -138,7 +135,7 @@ export namespace Exit {
  *
  * ### Exit Aliases
  *
- * Alternative names for the same exit:
+ * Multiple names for the same exit:
  *
  * ```typescript
  * const exit = new Exit({
@@ -147,8 +144,7 @@ export namespace Exit {
  *   description: 'Task completed successfully',
  * })
  *
- * // JavaScript can return exit('complete'), exit('done'), or another registered alias.
- * // These all select the same exit without creating additional native tools.
+ * // Agent can use any alias: return { action: 'done' } or { action: 'finished' }
  * ```
  *
  * ### Exit Metadata for Orchestration
@@ -226,28 +222,28 @@ export namespace Exit {
  * @template T - The type of data this exit returns (inferred from schema)
  *
  * @see {@link ExecutionResult} For result handling
+ * @see {@link ThinkExit} Built-in thinking exit
  * @see {@link ListenExit} Built-in chat listening exit
  * @see {@link DefaultExit} Built-in completion exit
  */
 export class Exit<T = unknown> implements Serializable<Exit.JSON> {
-  /** The primary name of the exit (used by its native exit tool) */
+  /** The primary name of the exit (used in return statements) */
   public name: string
-  /** Host-side aliases; the native tool uses only the primary name */
+  /** Alternative names that can be used to reference this exit */
   public aliases: string[] = []
   /** Human-readable description of when this exit should be used */
   public description: string
   /** Additional metadata for orchestration and custom logic */
   public metadata: Record<string, unknown>
-  /** Model-facing payload description. The original validator is retained in zSchema. */
+  /** JSON Schema for validating exit result data */
   public schema?: JSONSchema7
-  private _schema?: z.ZodType<T, any, unknown>
 
   /**
-   * Returns the original runtime validator, preserving transforms and refinements.
+   * Returns the Zod schema equivalent of the JSON schema (if available).
    * Used internally for validation and type inference.
    */
-  public get zSchema(): z.ZodType<T, any, unknown> | undefined {
-    return this._schema ?? (this.schema ? fromJSONSchemaCompat(this.schema) : undefined)
+  public get zSchema() {
+    return this.schema ? fromJSONSchemaCompat(this.schema) : undefined
   }
 
   /**
@@ -267,7 +263,7 @@ export class Exit<T = unknown> implements Serializable<Exit.JSON> {
     const before = this.name
 
     if (!isValidIdentifier(name)) {
-      throw new InvalidExitError(
+      throw new Error(
         `Invalid name for exit ${name}. An exit name must start with a letter and contain only letters, numbers, and underscores. It must be 1-50 characters long.`
       )
     }
@@ -299,7 +295,7 @@ export class Exit<T = unknown> implements Serializable<Exit.JSON> {
    * ```
    */
   public clone() {
-    return new Exit<T>({
+    return new Exit({
       name: this.name,
       aliases: [...this.aliases],
       description: this.description,
@@ -331,7 +327,7 @@ export class Exit<T = unknown> implements Serializable<Exit.JSON> {
   }
 
   /**
-   * Serializes the model-facing description. JavaScript validators cannot be serialized; use clone() to retain them.
+   * Serializes this exit to a JSON-compatible object.
    *
    * @returns JSON representation of the exit
    *
@@ -412,58 +408,43 @@ export class Exit<T = unknown> implements Serializable<Exit.JSON> {
     aliases?: string[]
     description: string
     metadata?: Record<string, unknown>
-    schema?: ZuiType<T, unknown>
+    schema?: ZuiType<T>
   }) {
-    if (!props || typeof props !== 'object' || Array.isArray(props)) {
-      throw new InvalidExitError('Exit definition must be an object.')
-    }
-
     if (!isValidIdentifier(props.name)) {
-      throw new InvalidExitError(
+      throw new Error(
         `Invalid name for exit ${props.name}. A exit name must start with a letter and contain only letters, numbers, and underscores. It must be 1-50 characters long.`
       )
     }
 
     if (typeof props.description !== 'string' || props.description.trim().length === 0) {
-      throw new InvalidExitError(
+      throw new Error(
         `Invalid description for exit ${props.name}. Expected a non-empty string, but got type "${typeof props.description}"`
       )
     }
 
     if (props.metadata !== undefined && typeof props.metadata !== 'object') {
-      throw new InvalidExitError(
+      throw new Error(
         `Invalid metadata for exit ${props.name}. Expected an object, but got type "${typeof props.metadata}"`
       )
     }
 
     if (props.aliases !== undefined && !Array.isArray(props.aliases)) {
-      throw new InvalidExitError(
+      throw new Error(
         `Invalid aliases for exit ${props.name}. Expected an array, but got type "${typeof props.aliases}"`
       )
     }
 
     if (props.aliases && props.aliases.some((alias) => !isValidIdentifier(alias))) {
-      throw new InvalidExitError(`Invalid aliases for exit ${props.name}. Expected an array of valid identifiers.`)
+      throw new Error(`Invalid aliases for exit ${props.name}. Expected an array of valid identifiers.`)
     }
 
     if (typeof props.schema !== 'undefined') {
       if (isZuiSchema(props.schema)) {
-        if (['ZodUndefined', 'ZodVoid'].includes(props.schema._def.typeName)) {
-          throw new InvalidExitError(
-            `Exit ${props.name} must use a JSON-compatible payload schema. Omit schema for an exit without data, or use z.null() for an explicit null payload.`
-          )
-        }
-
-        try {
-          this.schema = toModelSchema(props.schema)
-          this._schema = props.schema as z.ZodType<T, any, unknown>
-        } catch (cause) {
-          throw new InvalidExitError(`Cannot describe schema for exit ${props.name}: ${String(cause)}`, { cause })
-        }
+        this.schema = transforms.toJSONSchemaLegacy(props.schema)
       } else if (isJsonSchema(props.schema)) {
         this.schema = props.schema
       } else {
-        throw new InvalidExitError(
+        throw new Error(
           `Invalid input schema for exit ${props.name}. Expected a ZodType or JSONSchema, but got type "${typeof props.schema}"`
         )
       }

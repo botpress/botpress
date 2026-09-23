@@ -18,7 +18,7 @@
  */
 
 import { Client } from '@botpress/client'
-import { execute, ListenExit } from 'llmz'
+import { execute } from 'llmz'
 
 import { CLIChat } from '../utils/cli-chat'
 
@@ -33,7 +33,6 @@ import { MultiAgentOrchestrator } from './orchestrator'
 
 // Initialize Botpress client for LLM communication
 const client = new Client({
-  apiUrl: process.env.BOTPRESS_API_URL,
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
 })
@@ -53,27 +52,19 @@ while (true) {
   // Execute with the current agent's context
   // The orchestrator provides the appropriate instructions, tools, and configuration
   const result = await execute({
-    model: process.env.BOTPRESS_MODEL ?? 'openai:gpt-5.6-luna',
     // Spread the orchestrator's context (instructions, tools, exits, etc.)
     // This dynamically configures the execution based on the current agent
     ...orchestrator.context,
     client,
     chat,
-    session: chat.session,
   })
 
-  if (orchestrator.hasHandedOff(result)) {
-    // The orchestrator already selected the next agent. Queue its new work
-    // explicitly; the session retains the user's request and handoff result.
-    chat.session.append({
-      role: 'event',
-      name: 'agentHandoff',
-      payload: { agent: orchestrator.currentAgent.name },
-    })
-  } else if (result.is(ListenExit)) {
-    if (!(await chat.prompt())) break
-  } else {
-    if (result.isError()) throw result.error
-    break
+  // Check if the current agent has handed off control to another agent
+  if (!orchestrator.hasHandedOff(result)) {
+    // No handoff occurred - continue with user input
+    // Wait for the next user message to continue the conversation
+    await chat.prompt()
   }
+  // If handoff occurred, the orchestrator has already switched contexts
+  // Continue the loop with the new agent's configuration
 }

@@ -2,11 +2,10 @@
   "name": "llmz",
   "type": "module",
   "description": "LLMz - An LLM-native Typescript VM built on top of Zui",
-  "version": "1.0.3",
+  "version": "0.9.0",
   "files": [
     "dist",
-    "DOCS.md",
-    "ERRORS.md"
+    "DOCS.md"
   ],
   "types": "./dist/index.d.ts",
   "main": "./dist/index.cjs",
@@ -23,22 +22,15 @@
     "url": "https://github.com/botpress/botpress"
   },
   "scripts": {
+    "generate": "pnpm build:markdown",
     "build": "tsdown && pnpm tsc --emitDeclarationOnly --noCheck",
-    "check:type": "tsc --noEmit && pnpm check:examples",
-    "check:e2e:type": "tsc -p tsconfig.e2e.json",
-    "check:docs": "node scripts/check-docs.mjs",
+    "check:type": "tsc --noEmit",
     "watch": "tsdown --watch",
     "test": "vitest --run",
-    "test:e2e": "pnpm check:e2e:type && vitest run --config vitest.e2e.config.ts",
-    "test:e2e:quarantine": "vitest run --config vitest.quarantine.config.ts production-chat",
+    "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "test:e2e:update": "vitest -u run --config vitest.e2e.config.ts",
     "test:e2e:watch": "vitest --config vitest.e2e.config.ts",
-    "check:format": "oxfmt --check .",
-    "fix:format": "oxfmt .",
-    "check:lint": "oxlint -c .oxlintrc.json src",
-    "fix:lint": "oxlint -c .oxlintrc.json --fix src",
-    "check:bplint": "pnpm check:lint",
-    "check:examples": "tsc -p examples/tsconfig.json"
+    "build:markdown": "node --loader ts-node/esm ./scripts/compile-markdown.mts"
   },
   "keywords": [],
   "author": "",
