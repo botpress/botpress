@@ -13,7 +13,7 @@ import {
   buildButtonComponents,
 } from '../misc/template-utils'
 import type { TemplateBodyParams } from '../misc/types'
-import { logForBotAndThrow } from '../misc/util'
+import { logForBotAndThrow, reportIssueAndThrow } from '../misc/util'
 import * as bp from '.botpress'
 
 export const sendTemplateMessage: bp.IntegrationProps['actions']['sendTemplateMessage'] = async (props) => {
@@ -115,6 +115,21 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
   const response = await whatsapp.sendMessage(botPhoneNumberId, userPhone, template)
 
   if ('error' in response) {
+    const error = response.error
+    if (error?.code === 131042) {
+      reportIssueAndThrow(logger, {
+        code: 'whatsapp_payment_method_error',
+        category: 'configuration',
+        title: 'WhatsApp payment method error',
+        description: `WhatsApp rejected the template message due to a payment method error: ${error.message}${error.error_data?.details ? ` - ${error.error_data.details}` : ''}`,
+        groupBy: ['whatsapp_payment_method_error'],
+        data: {
+          errorCode: { raw: '131042' },
+          reason: { raw: error.message },
+          ...(error.error_data?.details && { details: { raw: error.error_data.details } }),
+        },
+      })
+    }
     const errorJSON = JSON.stringify(response.error)
     logForBotAndThrow(
       `Failed to send WhatsApp template "${templateName}" with language "${templateLanguage}" - Error: ${errorJSON}`,
