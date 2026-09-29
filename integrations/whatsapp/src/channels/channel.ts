@@ -17,7 +17,11 @@ import {
 import { getAuthenticatedWhatsappClient } from '../auth'
 import { WHATSAPP } from '../misc/constants'
 import { convertMarkdownToWhatsApp } from '../misc/markdown-to-whatsapp-rtf'
-import { resolveWhatsAppDestination, sendWhatsAppMessage, type WhatsAppSendResponse } from '../misc/send-whatsapp-message'
+import {
+  resolveWhatsAppDestination,
+  sendWhatsAppMessage,
+  type WhatsAppSendResponse,
+} from '../misc/send-whatsapp-message'
 import { splitTextMessageIfNeeded } from '../misc/split-text-message'
 import { reportIssueAndThrow, sleep } from '../misc/util'
 import { repeat } from '../repeat'
