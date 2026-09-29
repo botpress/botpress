@@ -6,21 +6,6 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
   const configTypeName = props.ctx.configurationType ? props.ctx.configurationType : 'OAuth'
   props.logger.forBot().debug(`Whatsapp Registration with configurationType ${configTypeName}`)
 
-  // Opt-in test issue for verifying WhatsApp payment error reporting in an environment.
-  props.logger.issue({
-    type: 'issue',
-    code: 'whatsapp_payment_method_error',
-    category: 'configuration',
-    title: 'WhatsApp payment method error',
-    description:
-      'Mock WhatsApp payment method error (131042): payment account is not attached to the WhatsApp Business account.',
-    groupBy: ['whatsapp_payment_method_error'],
-    data: {
-      errorCode: { raw: '131042' },
-      reason: { raw: 'Mock payment account is not attached' },
-    },
-  })
-
   // Always make sure a bot is dissociated from WhatsApp conversations once the configuration type changes
   const configureIntegrationProps: Parameters<typeof props.client.configureIntegration>[0] = {
     sandboxIdentifiers: null,
