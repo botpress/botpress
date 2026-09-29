@@ -45,6 +45,27 @@ const _getMediaUrlFromPayload = (
 export const statusHandler = async (value: WhatsAppStatusValue, props: bp.HandlerProps) => {
   const { client, ctx, logger } = props
 
+  if (value.status === 'failed') {
+    for (const error of value.errors ?? []) {
+      if (error.code === 131042) {
+        logger.issue({
+          type: 'issue',
+          code: 'whatsapp_payment_method_error',
+          category: 'configuration',
+          title: 'WhatsApp payment method error',
+          description: `WhatsApp message ${value.id} failed due to a payment method error: ${error.message}${error.error_data?.details ? ` - ${error.error_data.details}` : ''}`,
+          groupBy: ['whatsapp_payment_method_error'],
+          data: {
+            whatsappMessageId: { raw: value.id },
+            errorCode: { raw: String(error.code) },
+            reason: { raw: error.message },
+            ...(error.error_data?.details && { details: { raw: error.error_data.details } }),
+          },
+        })
+      }
+    }
+  }
+
   const message = await getMessageFromWhatsappMessageId(value.id, client)
   if (!message) {
     logger
