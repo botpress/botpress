@@ -1,4 +1,4 @@
-import axios, { Axios } from 'axios'
+import axios, { AxiosInstance } from 'axios'
 import { GRAPHQL_QUERIES, QUERY_INPUT, QUERY_RESPONSE } from './graphql-queries'
 
 export type MondayClientConfiguration = {
@@ -53,7 +53,7 @@ export const exchangeCodeForTokens = async ({
 }
 
 export class MondayClient {
-  private constructor(private readonly _client: Axios) {}
+  private constructor(private readonly _client: AxiosInstance) {}
 
   public static create(config: MondayClientConfiguration) {
     const client = axios.create({

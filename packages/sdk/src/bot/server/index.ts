@@ -12,16 +12,28 @@ import { handleWorkflowUpdateEvent } from './workflows/update-handler'
 
 export * from './types'
 
+export type BotHandlerDependencies = {
+  /**
+   * Request-scoped client supplied by a host runtime.
+   *
+   * Hosts serving multiple bots must inject the client selected for the
+   * current request instead of changing process-wide environment variables.
+   */
+  client: Client
+}
+
 export const botHandler =
   (bot: types.BotHandlers<common.BaseBot>) =>
-  async (req: Request): Promise<Response | void> => {
+  async (req: Request, dependencies?: BotHandlerDependencies): Promise<Response | void> => {
     const ctx = extractContext(req.headers)
     const logger = new BotLogger()
 
-    const vanillaClient = new Client({
-      botId: ctx.botId,
-      retry: retryConfig,
-    })
+    const vanillaClient =
+      dependencies?.client ??
+      new Client({
+        botId: ctx.botId,
+        retry: retryConfig,
+      })
     const botClient = new BotSpecificClient<common.BaseBot>(vanillaClient, {
       before: {
         createMessage: async (req) => {

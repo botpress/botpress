@@ -1,4 +1,5 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+import { ShopifyClient } from './index'
 
 beforeAll(() => {
   process.env.SECRET_SHOPIFY_CLIENT_ID = 'test-client-id'
@@ -49,8 +50,6 @@ describe('ShopifyClient 401 retry', () => {
       accessTokenExpiresAtSeconds: nowSeconds + 3600,
       refreshTokenExpiresAtSeconds: nowSeconds + 7776000,
     })
-
-    const { ShopifyClient } = await import('./index')
     const shopify = new ShopifyClient({ shopDomain: 'example', accessToken: 'shpat_old', client: bpClient, ctx })
     const result = await shopify.query('query { shop { name } }')
 
@@ -71,8 +70,6 @@ describe('ShopifyClient 401 retry', () => {
       .fn()
       .mockResolvedValueOnce(new Response('Unauthorized', { status: 401, statusText: 'Unauthorized' }))
     vi.stubGlobal('fetch', fetchMock)
-
-    const { ShopifyClient } = await import('./index')
     const shopify = new ShopifyClient({ shopDomain: 'example', accessToken: 'shpat_old' })
 
     await expect(shopify.query('query { shop { name } }')).rejects.toThrow(/401 Unauthorized/)

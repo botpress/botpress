@@ -1,6 +1,5 @@
 import { generateRawHtmlDialog } from '@botpress/common/src/html-dialogs'
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
-import { z } from '@botpress/sdk'
 import { exchangeCodeForOAuthCredentials, setOAuthCredentials } from '../../auth'
 import { getHitlClient } from '../../hitl/client'
 import { createHitlChannel, connectHitlChannel } from '../../hitl/setup'
@@ -60,19 +59,9 @@ const _startStep: oauthWizard.WizardStepHandler<bp.HandlerProps> = async ({
     return responses.redirectToStep('oauth-redirect')
   }
 
-  const environmentPayload = {
-    source: query.get('source') ?? undefined,
-    env: z.enum(['preview', 'production']).catch('preview').parse(query.get('env')),
-  } as bp.states.environment.Environment['payload']
+  const source = query.get('source') ?? undefined
 
-  await client.setState({
-    type: 'integration',
-    name: 'environment',
-    id: ctx.integrationId,
-    payload: environmentPayload,
-  })
-
-  if (environmentPayload.source === 'desk') {
+  if (source === 'desk') {
     await client.setState({
       type: 'integration',
       name: 'hitlSetupWizard',

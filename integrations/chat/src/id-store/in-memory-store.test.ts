@@ -1,8 +1,11 @@
 import { test, expect } from 'vitest'
 import { InMemoryChatIdStore } from './in-memory-store'
+import * as bp from '.botpress'
+
+const silentLogger = { debug: () => {} } as unknown as bp.Logger
 
 test('id store should set by fid and get by id', async () => {
-  const store = new InMemoryChatIdStore()
+  const store = new InMemoryChatIdStore(silentLogger)
   const fid = 'fid'
   const id = 'id'
   await store.byFid.set(fid, id)
@@ -11,7 +14,7 @@ test('id store should set by fid and get by id', async () => {
 })
 
 test('id store should set by id and get by fid', async () => {
-  const store = new InMemoryChatIdStore()
+  const store = new InMemoryChatIdStore(silentLogger)
   const fid = 'fid'
   const id = 'id'
   await store.byId.set(id, fid)
@@ -20,7 +23,7 @@ test('id store should set by id and get by fid', async () => {
 })
 
 test('id store should delete by fid', async () => {
-  const store = new InMemoryChatIdStore()
+  const store = new InMemoryChatIdStore(silentLogger)
   const fid = 'fid'
   const id = 'id'
   await store.byFid.set(fid, id)

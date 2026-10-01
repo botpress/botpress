@@ -1,6 +1,6 @@
 {
   "name": "@botpress/cognitive",
-  "version": "1.1.0",
+  "version": "1.2.2",
   "files": [
     "dist"
   ],
@@ -17,9 +17,9 @@
     "build:type": "rollup -c rollup.dts.config.mjs",
     "build:neutral": "ts-node -T ./build.ts --neutral",
     "build": "pnpm build:neutral && pnpm build:type && size-limit",
-    "test:e2e": "vitest run --dir ./e2e",
+    "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "test": "vitest --run",
-    "refresh:models": "ts-node -T ./refresh-models.ts && pnpm prettier src/models.ts --write"
+    "refresh:models": "ts-node -T ./refresh-models.ts && pnpm oxfmt src/models.ts"
   },
   "size-limit": [
     {
@@ -42,9 +42,11 @@
     "@types/debug": "^4.1.12",
     "dotenv": "^16.4.4",
     "esbuild": "^0.25.10",
+    "oxfmt": "^0.61.0",
     "rollup": "^4.60.4",
     "rollup-plugin-dts": "^6.4.1",
-    "size-limit": "^11.1.6"
+    "size-limit": "^11.1.6",
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -12,9 +12,9 @@ import type {
 import { ParseInputLazyPath, addIssueToContext, ParseStatus, ZodBaseTypeImpl } from '../basetype'
 
 export class ZodTupleImpl<
-    T extends [IZodType, ...IZodType[]] | [] = [IZodType, ...IZodType[]],
-    Rest extends IZodType | null = null,
-  >
+  T extends [IZodType, ...IZodType[]] | [] = [IZodType, ...IZodType[]],
+  Rest extends IZodType | null = null,
+>
   extends ZodBaseTypeImpl<OutputTypeOfTupleWithRest<T, Rest>, ZodTupleDef<T, Rest>, InputTypeOfTupleWithRest<T, Rest>>
   implements IZodTuple<T, Rest>
 {

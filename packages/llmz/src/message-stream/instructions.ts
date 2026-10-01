@@ -1,3 +1,4 @@
+import { quoteExample, quotePartialExample, quoteResponseExample } from '../example-format.js'
 import { MARKER, type JsonSchema, type NormalizedComponentDefinition, type NormalizedExitDefinition } from './types.js'
 
 export type InstructionVerbosity = 'compact' | 'standard' | 'verbose'
@@ -36,25 +37,65 @@ export function generateInstructions(
 
   const sorted = options.sortComponents === false ? [...components] : _sortComponents(components)
 
-  const sections: string[] = [_coreSyntax({ includeSend, includeRun, hasExits: exits.length > 0 })]
+  const sections: string[] = [_section('syntax', _coreSyntax({ includeSend, includeRun, hasExits: exits.length > 0 }))]
 
   if (sorted.length) {
-    sections.push('Components:\n\n' + sorted.map((c) => _componentEntry(c, verbosity)).join('\n\n'))
+    sections.push(
+      _section(
+        'components',
+        sorted.map((c) => _componentEntry(c, verbosity, includeExamples && includeSend)).join('\n\n')
+      )
+    )
   }
 
   if (exits.length) {
-    sections.push('Exits:\n\n' + exits.map((e) => _exitEntry(e, verbosity)).join('\n\n'))
+    sections.push(_section('exits', exits.map((e) => _exitEntry(e, verbosity)).join('\n\n')))
   }
 
   if (includeExamples) {
-    const examples = _buildExamples(sorted, exits, maxExamples)
+    const examples = _buildExamples(includeSend ? sorted : [], exits, maxExamples)
     if (examples.length) {
-      sections.push('Examples:\n\n' + examples.join('\n\n'))
+      sections.push(
+        _section(
+          'response_examples',
+          examples.map((example) => _section('example', quoteResponseExample(example))).join('\n\n')
+        )
+      )
     }
   }
 
   return sections.join('\n\n')
 }
+
+/** Render catalogues with a partial example beside every component and exit. */
+export function generateInstructionSections(
+  components: NormalizedComponentDefinition[],
+  options: InstructionGeneratorOptions = {}
+) {
+  const verbosity = options.verbosity ?? 'standard'
+  const sorted = options.sortComponents === false ? [...components] : _sortComponents(components)
+  const exits = [...(options.exits ?? [])].sort((a, b) => a.name.localeCompare(b.name))
+  const includeSend = options.includeSend ?? components.length > 0
+  const examples = options.includeExamples ?? verbosity !== 'compact'
+  return {
+    syntax: _coreSyntax({ includeSend, includeRun: options.includeRun ?? true, hasExits: exits.length > 0 }),
+    components: sorted
+      .map((c) =>
+        [_componentEntry(c, verbosity, false), ...(examples && includeSend ? _componentExamples(c, true) : [])].join(
+          '\n'
+        )
+      )
+      .join('\n\n'),
+    exits: exits
+      .map((e) =>
+        [_exitEntry(e, verbosity), ...(examples ? ['Example:', quotePartialExample(exitExample(e))] : [])].join('\n')
+      )
+      .join('\n\n'),
+  }
+}
+
+const _section = (tag: string, content: string): string =>
+  ['props', 'body', 'description'].includes(tag) ? `${tag}: ${content}` : `## ${tag.replaceAll('_', ' ')}\n${content}`
 
 const _coreSyntax = ({
   includeSend,
@@ -65,29 +106,27 @@ const _coreSyntax = ({
   includeRun: boolean
   hasExits: boolean
 }): string => {
-  const blocks = [
-    ...(includeSend ? [`${MARKER}send=<component> {props}\nbody content`] : []),
-    ...(includeRun ? [`${MARKER}run\n// TypeScript code to execute`] : []),
-    ...(hasExits ? [`${MARKER}next=<exit> {props}`] : []),
-  ]
-
-  const rules = [
-    ...(includeSend
-      ? [
-          `\`${MARKER}send\` sends a message component to the user. Props are a JSON object on the same line as the header; the body is everything after the header line, until the next \`${MARKER}\`.`,
-        ]
-      : []),
-    ...(includeRun ? [`\`${MARKER}run\` executes code; the body is the code.`] : []),
-    ...(hasExits
-      ? [
-          `Always end your response with \`${MARKER}next=<exit>\`.`,
-          `Props are written inline as a plain JSON object of the fields themselves (e.g. \`${MARKER}next=done {"id": "123"}\`) — never wrap them in a "props" or "value" key.`,
-        ]
-      : []),
-    `Never write \`${MARKER}\` inside props or body content.${includeSend ? ' Do not output unregistered components or unspecified props.' : ''}`,
-  ]
-
-  return `Respond using only ${MARKER} blocks, with this exact syntax:\n\n${blocks.join('\n\n')}\n\n${rules.join(' ')}`
+  const blocks: string[] = []
+  if (includeSend) {
+    blocks.push(
+      `Send a message with ${MARKER}send= followed by a registered component name and its JSON fields on one line, then the literal body on following lines. Choose a registered component. Props go on the header line as JSON; omit them when none are needed. Props-only components have no body. You may send several messages.`
+    )
+  }
+  if (includeRun) {
+    blocks.push(
+      `Run JavaScript with ${MARKER}run on its own line, then the code. Use at most one run block. Return a result to inspect it in the next response; then close with ${MARKER}end and stop. Do not append an answer before seeing the result.`
+    )
+  }
+  if (hasExits) {
+    blocks.push(
+      `Finish with ${MARKER}next= followed by an available exit name and its JSON fields on one line. Choose an available exit and include required props as JSON on that same line. This block has no body. Follow it with ${MARKER}end.`
+    )
+  }
+  blocks.push(
+    'Write actual names and values, never template labels. JSON uses double-quoted keys and strings; do not nest fields under "props" or "value".',
+    `Never write ${MARKER} inside a body or prop. All messages go before code. A response must contain code or a final exit.`
+  )
+  return blocks.join('\n\n')
 }
 
 const _sortComponents = (components: NormalizedComponentDefinition[]): NormalizedComponentDefinition[] =>
@@ -96,70 +135,82 @@ const _sortComponents = (components: NormalizedComponentDefinition[]): Normalize
     return priority !== 0 ? priority : a.name.localeCompare(b.name)
   })
 
-const _componentEntry = (definition: NormalizedComponentDefinition, verbosity: InstructionVerbosity): string => {
-  const lines: string[] = [_titleLine(definition.name, definition.description, definition.generation)]
+const _componentEntry = (
+  definition: NormalizedComponentDefinition,
+  verbosity: InstructionVerbosity,
+  includeExamples: boolean
+): string => {
+  const description = _description(definition.description, definition.generation)
+  const lines: string[] = [`### ${definition.name}`]
+
+  if (description) {
+    lines.push(_section('description', description))
+  }
 
   const props = _propEntries(definition.propsJsonSchema)
   if (!props.length) {
-    lines.push('Props: none')
+    lines.push(_section('props', 'none'))
   } else if (verbosity === 'compact') {
-    lines.push(`Props: ${props.map((p) => _inlineProp(p)).join('; ')}`)
+    lines.push(_section('props', props.map((p) => _inlineProp(p)).join('; ')))
   } else {
-    lines.push('Props:')
-    lines.push(...props.map((p) => _bulletProp(p, verbosity)))
+    lines.push(_section('props', props.map((p) => _bulletProp(p, verbosity)).join('\n')))
   }
 
   if (!definition.body) {
-    lines.push('Body: none')
+    lines.push(_section('body', 'none'))
   } else {
     const requirement = definition.body.required ? 'required' : 'optional'
     const description = definition.body.description ? ` — ${_oneLine(definition.body.description)}` : ''
-    lines.push(`Body: ${requirement} ${definition.body.format}${description}`)
+    lines.push(_section('body', `${requirement} ${definition.body.format}${description}`))
   }
 
-  if (verbosity !== 'compact') {
-    const example = _componentExample(definition)
-    if (example) {
-      lines.push(`Example:\n${example}`)
-    }
+  if (verbosity !== 'compact' && includeExamples) {
+    lines.push(..._componentExamples(definition))
   }
 
   return lines.join('\n')
 }
 
-/** Renders a component's first curated example ({ props?, body? }) as a ■send block. */
-const _componentExample = (definition: NormalizedComponentDefinition): string | undefined => {
-  const example = definition.generation?.examples?.[0]
-  if (!example) {
-    return undefined
-  }
-
-  const props = example.props ? ` ${JSON.stringify(example.props)}` : ''
-  const body = definition.body ? (example.body ?? _exampleBody(definition)) : undefined
-  return `${MARKER}send=${definition.name}${props}${body ? `\n${body}` : ''}`
+const _componentExamples = (definition: NormalizedComponentDefinition, partial = false): string[] => {
+  const examples = definition.generation?.examples?.length
+    ? definition.generation.examples
+    : partial
+      ? [{ props: JSON.parse(_exampleProps(definition)), body: _exampleBody(definition) }]
+      : []
+  return examples
+    .filter((example, index) => partial || index < 3 || Array.isArray(example))
+    .map((example) => {
+      const output = (Array.isArray(example) ? example : [example])
+        .map((block) => {
+          const props = block.props ? ` ${JSON.stringify(block.props)}` : ''
+          const body = definition.body ? (block.body ?? _exampleBody(definition)) : undefined
+          return `${MARKER}send=${definition.name}${props === ' {}' ? '' : props}${body ? `\n${body}` : ''}`
+        })
+        .join('\n')
+      return partial ? `Example:\n${quotePartialExample(output)}` : _section('example', quoteExample(output))
+    })
 }
 
 const _exitEntry = (exit: NormalizedExitDefinition, verbosity: InstructionVerbosity): string => {
-  const lines: string[] = [_titleLine(exit.name, exit.description)]
+  const lines: string[] = [`### ${exit.name}`]
+
+  if (exit.description) {
+    lines.push(_section('description', _description(exit.description)))
+  }
 
   const props = exit.propsJsonSchema ? _propEntries(exit.propsJsonSchema) : []
   if (!props.length) {
-    lines.push('Props: none')
+    lines.push(_section('props', 'none'))
   } else if (verbosity === 'compact') {
-    lines.push(`Props: ${props.map((p) => _inlineProp(p)).join('; ')}`)
+    lines.push(_section('props', props.map((p) => _inlineProp(p)).join('; ')))
   } else {
-    lines.push('Props:')
-    lines.push(...props.map((p) => _bulletProp(p, verbosity)))
+    lines.push(_section('props', props.map((p) => _bulletProp(p, verbosity)).join('\n')))
   }
 
   return lines.join('\n')
 }
 
-const _titleLine = (
-  name: string,
-  description?: string,
-  generation?: NormalizedComponentDefinition['generation']
-): string => {
+const _description = (description?: string, generation?: NormalizedComponentDefinition['generation']): string => {
   const parts: string[] = []
   if (description) {
     parts.push(_sentence(description))
@@ -170,7 +221,7 @@ const _titleLine = (
   if (generation?.doNotUseWhen) {
     parts.push(_sentence(generation.doNotUseWhen))
   }
-  return parts.length ? `${name} — ${parts.join(' ')}` : name
+  return parts.join(' ')
 }
 
 type PropEntry = {
@@ -242,7 +293,7 @@ const _renderType = (schema: JsonSchema | boolean | undefined, depth = 0): strin
         return 'object'
       }
       const inner = Object.entries(schema.properties)
-        .map(([key, value]) => `${key}:${_renderType(value, depth + 1)}`)
+        .map(([key, value]) => `${key}${schema.required?.includes(key) ? '' : '?'}:${_renderType(value, depth + 1)}`)
         .join(',')
       return `{${inner}}`
     }
@@ -263,7 +314,7 @@ const _buildExamples = (
   maxExamples: number
 ): string[] => {
   const defaultExit = exits.find((e) => e.name === 'listen') ?? exits[0]
-  const suffix = defaultExit ? `\n${_exitExample(defaultExit)}` : ''
+  const suffix = defaultExit ? `\n${exitExample(defaultExit)}` : ''
 
   // Prefer components with curated examples over auto-generated filler
   const pick = (predicate: (c: NormalizedComponentDefinition) => boolean | undefined) =>
@@ -275,25 +326,32 @@ const _buildExamples = (
 
   const examples: string[] = []
 
-  // The global examples demonstrate the overall response shape (including the
-  // closing ■next), so prefer the shortest curated body — the representative,
-  // possibly long-form example is already rendered under the component entry
   if (bodyOnly) {
-    examples.push(`${MARKER}send=${bodyOnly.name}\n${_exampleBody(bodyOnly, { compact: true })}${suffix}`)
+    examples.push(componentExample(bodyOnly) + suffix)
   }
   if (propsOnly) {
-    examples.push(`${MARKER}send=${propsOnly.name} ${_exampleProps(propsOnly)}${suffix}`)
+    examples.push(componentExample(propsOnly) + suffix)
   }
   if (propsAndBody) {
-    examples.push(
-      `${MARKER}send=${propsAndBody.name} ${_exampleProps(propsAndBody)}\n${_exampleBody(propsAndBody, { compact: true })}${suffix}`
-    )
+    examples.push(componentExample(propsAndBody) + suffix)
   }
 
   return examples.slice(0, maxExamples)
 }
 
-const _exitExample = (exit: NormalizedExitDefinition): string => {
+// Keep each curated props/body pair together when choosing a short example.
+// Mixing the first example's props with another example's body teaches a
+// response the component author never intended.
+export const componentExample = (definition: NormalizedComponentDefinition): string => {
+  const custom = (definition.generation?.examples ?? [])
+    .flat()
+    .sort((a, b) => (a.body?.length ?? 0) - (b.body?.length ?? 0))[0]
+  const props = custom ? (custom.props ? ` ${JSON.stringify(custom.props)}` : '') : ` ${_exampleProps(definition)}`
+  const body = definition.body ? (custom?.body ?? _exampleBody(definition)) : undefined
+  return `${MARKER}send=${definition.name}${props === ' {}' ? '' : props}${body ? `\n${body}` : ''}`
+}
+
+export const exitExample = (exit: NormalizedExitDefinition): string => {
   const props: Record<string, unknown> = {}
   if (exit.propsJsonSchema) {
     const required = new Set(exit.propsJsonSchema.required ?? [])
@@ -307,7 +365,7 @@ const _exitExample = (exit: NormalizedExitDefinition): string => {
 }
 
 const _exampleProps = (definition: NormalizedComponentDefinition): string => {
-  const custom = definition.generation?.examples?.[0]?.props
+  const custom = definition.generation?.examples?.flat()[0]?.props
   if (custom) {
     return JSON.stringify(custom)
   }
@@ -360,9 +418,12 @@ const _exampleValue = (schema: JsonSchema, name: string): unknown => {
   }
 }
 
-const _exampleBody = (definition: NormalizedComponentDefinition, options: { compact?: boolean } = {}): string => {
-  const bodies = (definition.generation?.examples ?? []).map((e) => e.body).filter((b): b is string => !!b)
-  const custom = options.compact ? bodies.sort((a, b) => a.length - b.length)[0] : bodies[0]
+const _exampleBody = (definition: NormalizedComponentDefinition): string => {
+  const bodies = (definition.generation?.examples ?? [])
+    .flat()
+    .map((e) => e.body)
+    .filter((b): b is string => !!b)
+  const custom = bodies[0]
   if (custom) {
     return custom
   }

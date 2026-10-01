@@ -4,7 +4,7 @@ import { telegramMessageChannels } from './definitions/channels'
 
 export default new IntegrationDefinition({
   name: 'telegram',
-  version: '1.0.10',
+  version: '1.0.11',
   title: 'Telegram',
   description: 'Engage with your audience in real-time.',
   icon: 'icon.svg',
@@ -34,6 +34,20 @@ export default new IntegrationDefinition({
       type: 'integration',
       schema: z.object({
         botToken: z.string().title('Bot Token').min(1).secret().describe('The Telegram bot token'),
+      }),
+    },
+    choicePrompts: {
+      type: 'conversation',
+      schema: z.object({
+        prompts: z
+          .array(
+            z.object({
+              messageId: z.number(),
+              entries: z.array(z.object({ label: z.string(), value: z.string() })),
+            })
+          )
+          .title('Choice prompts')
+          .describe('Recently sent choice prompts, mapping each message to its options for callback resolution'),
       }),
     },
   },

@@ -17,8 +17,8 @@ import * as bp from '.botpress'
 export const isBatchUpdateEvent = (props: bp.HandlerProps): boolean =>
   Boolean(
     props.req.method.toUpperCase() === 'POST' &&
-      props.req.body?.length &&
-      BATCH_UPDATE_EVENT_PAYLOAD.safeParse(JSON.parse(props.req.body)).success
+    props.req.body?.length &&
+    BATCH_UPDATE_EVENT_PAYLOAD.safeParse(JSON.parse(props.req.body)).success
   )
 
 export const handleBatchUpdateEvent: bp.IntegrationProps['handler'] = async (props) => {
@@ -68,7 +68,7 @@ export const handleBatchUpdateEvent: bp.IntegrationProps['handler'] = async (pro
         })
         break
       case isTicketCreatedEvent(event):
-        const ticket = await hsClient.getTicketById({ ticketId: event.objectId })
+        const ticket = await hsClient.getTicketById({ ticketId: event.objectId.toString() })
         await props.client.createEvent({
           type: 'ticketCreated',
           payload: {

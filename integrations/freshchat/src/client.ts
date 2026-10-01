@@ -1,5 +1,5 @@
 import * as sdk from '@botpress/sdk'
-import axios, { type Axios } from 'axios'
+import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios'
 import type {
   FreshchatMessage,
   FreshchatAgent,
@@ -12,7 +12,7 @@ import * as bp from '.botpress'
 // API docs: https://developers.freshchat.com/api/
 
 class FreshchatClient {
-  private _client: Axios
+  private _client: AxiosInstance
 
   public constructor(
     private _config: FreshchatConfiguration,
@@ -22,7 +22,7 @@ class FreshchatClient {
       baseURL: `https://${this._config.domain}.freshchat.com/v2`,
     })
 
-    this._client.interceptors.request.use((axionsConfig) => {
+    this._client.interceptors.request.use((axionsConfig: InternalAxiosRequestConfig) => {
       // @ts-ignore
       axionsConfig.headers = {
         ...axionsConfig.headers,

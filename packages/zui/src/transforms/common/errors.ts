@@ -108,3 +108,11 @@ export class CircularZuiToTypescriptTypeError extends ZuiToTypescriptTypeError {
     super('Schema is self-referential and cannot be inlined into a TypeScript type without a name to reference.', path)
   }
 }
+export class InvalidParameterOrderError extends ZuiToTypescriptTypeError {
+  public constructor(paramName: string, path: string) {
+    super(
+      `Optional parameter "${paramName}" cannot precede a required parameter in a function signature. Reorder the arguments, or make the parameters after it optional too.`,
+      path
+    )
+  }
+}

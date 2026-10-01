@@ -1,3 +1,4 @@
+import { getBusinessPhoneNumbers } from './get-business-phone-numbers'
 import { listTemplates } from './list-templates'
 import { startConversation, sendTemplateMessage } from './start-conversation'
 import { startTypingIndicator, stopTypingIndicator } from './typing-indicator'
@@ -9,4 +10,5 @@ export default {
   listTemplates,
   startTypingIndicator,
   stopTypingIndicator,
+  getBusinessPhoneNumbers,
 } as const satisfies bp.IntegrationProps['actions']

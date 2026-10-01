@@ -21,6 +21,8 @@ export const integrationOperationSchema = z.enum([
   'ping',
   'create_user',
   'create_conversation',
+  'message_updated',
+  'conversation_updated',
 ])
 
 export const extractContext = (headers: Record<string, string | undefined>): IntegrationContext => ({

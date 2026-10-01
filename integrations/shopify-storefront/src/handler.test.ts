@@ -1,5 +1,6 @@
 import { createHmac } from 'crypto'
 import { beforeAll, describe, expect, it } from 'vitest'
+import { handler } from './handler'
 
 const SECRET = 'test-shopify-secret'
 
@@ -31,13 +32,11 @@ describe('Shopify Storefront webhook handler', () => {
 
     for (const topic of topics) {
       it(`returns 200 on valid HMAC for ${topic}`, async () => {
-        const { handler } = await import('./handler')
         const response = await handler(buildProps({ topic, hmac: computeHmac(validBody), body: validBody }))
         expect(response).toEqual({ status: 200, body: '' })
       })
 
       it(`returns 401 on invalid HMAC for ${topic}`, async () => {
-        const { handler } = await import('./handler')
         const response = await handler(buildProps({ topic, hmac: 'invalid-hmac', body: validBody }))
         expect(response).toMatchObject({ status: 401 })
       })
@@ -46,20 +45,17 @@ describe('Shopify Storefront webhook handler', () => {
 
   describe('request validation', () => {
     it('returns 400 when topic header is missing', async () => {
-      const { handler } = await import('./handler')
       const response = await handler(buildProps({ hmac: computeHmac(validBody), body: validBody }))
       expect(response).toMatchObject({ status: 400 })
     })
 
     it('returns 400 when hmac header is missing', async () => {
-      const { handler } = await import('./handler')
       const response = await handler(buildProps({ topic: 'customers/redact', body: validBody }))
       expect(response).toMatchObject({ status: 400 })
     })
   })
 
   it('returns 200 on unknown topic after HMAC passes', async () => {
-    const { handler } = await import('./handler')
     const response = await handler(
       buildProps({ topic: 'products/create', hmac: computeHmac(validBody), body: validBody })
     )

@@ -72,23 +72,12 @@ export async function runAsyncFunction(
     delete context[name]
   }
 
-  let driver: VMDriver
+  let driver: VMDriver = new NodeDriver()
 
   if (useQuickJS()) {
     try {
+      await loadQuickJSModule()
       driver = new QuickJSDriver()
-      return await driver.execute({
-        transformed,
-        consumer,
-        context,
-        traces,
-        signal,
-        timeout,
-        code,
-        lines_executed,
-        variables,
-        currentToolCall: undefined,
-      })
     } catch (quickjsError: any) {
       const variant = getQuickJSVariant() as QuickJSSyncVariantEx
       const debugInfo = {
@@ -120,7 +109,6 @@ export async function runAsyncFunction(
     }
   }
 
-  driver = new NodeDriver()
   return await driver.execute({
     transformed,
     consumer,

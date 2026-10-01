@@ -1,6 +1,7 @@
 import { RuntimeError } from '@botpress/client'
 import { Reaction } from 'whatsapp-api-js/messages'
 import { getAuthenticatedWhatsappClient } from '../auth'
+import { resolveWhatsAppDestination, sendWhatsAppMessage } from '../misc/send-whatsapp-message'
 import * as bp from '.botpress'
 
 export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIndicator'] = async ({
@@ -14,7 +15,7 @@ export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIn
   }
   const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
   const { conversationId, messageId } = input
-  const { botPhoneNumberId, userPhone } = await _getConversationInfos(client, conversationId)
+  const { botPhoneNumberId, destination } = await _getConversationInfos(client, conversationId)
   const { whatsappMessageId } = await _getMessageInfos(client, messageId)
   const indicator = ctx.configuration.messageReadBehavior === 'typing_indicator' ? 'text' : undefined
 
@@ -23,9 +24,13 @@ export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIn
     logger.forBot().error(`Error marking message as read and/or sending typing indicators: ${e ?? '[Unknown error]'}`)
   })
   if (ctx.configuration.typingIndicatorEmoji) {
-    void whatsapp
-      .sendMessage(botPhoneNumberId, userPhone, new Reaction(whatsappMessageId, '👀'))
-      .catch((e) => logger.forBot().error(`Error sending typing indicator emoji: ${e ?? '[Unknown error]'}`))
+    if (!destination) {
+      logger.forBot().error('Error sending typing indicator emoji: missing WhatsApp recipient in conversation tags')
+    } else {
+      void sendWhatsAppMessage(whatsapp, botPhoneNumberId, destination, new Reaction(whatsappMessageId, '👀')).catch(
+        (e) => logger.forBot().error(`Error sending typing indicator emoji: ${e ?? '[Unknown error]'}`)
+      )
+    }
   }
   return {}
 }
@@ -40,9 +45,12 @@ export const stopTypingIndicator: bp.IntegrationProps['actions']['stopTypingIndi
   }
   const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
   const { conversationId, messageId } = input
-  const { botPhoneNumberId, userPhone } = await _getConversationInfos(client, conversationId)
+  const { botPhoneNumberId, destination } = await _getConversationInfos(client, conversationId)
   const { whatsappMessageId } = await _getMessageInfos(client, messageId)
-  await whatsapp.sendMessage(botPhoneNumberId, userPhone, new Reaction(whatsappMessageId))
+  if (!destination) {
+    throw new RuntimeError('Missing WhatsApp recipient in conversation tags')
+  }
+  await sendWhatsAppMessage(whatsapp, botPhoneNumberId, destination, new Reaction(whatsappMessageId))
   return {}
 }
 
@@ -50,11 +58,11 @@ const _getConversationInfos = async (client: bp.Client, conversationId: string) 
   const { conversation } = await client.getConversation({
     id: conversationId,
   })
-  const { botPhoneNumberId, userPhone } = conversation.tags
-  if (!botPhoneNumberId || !userPhone) {
-    throw new RuntimeError('Missing tags in conversation tags')
+  const { botPhoneNumberId } = conversation.tags
+  if (!botPhoneNumberId) {
+    throw new RuntimeError('Missing bot phone number ID in conversation tags')
   }
-  return { botPhoneNumberId, userPhone }
+  return { botPhoneNumberId, destination: resolveWhatsAppDestination(conversation.tags) }
 }
 
 const _getMessageInfos = async (client: bp.Client, messageId: string) => {

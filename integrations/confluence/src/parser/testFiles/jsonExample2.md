@@ -37,9 +37,10 @@ _Décrivez les types d'approches envisagées, ainsi que les avantages et les inc
 ## 🗓 Versions
 
 _Si ce projet implique des versions, décrivez-les ici._
-| **Nom de la version** | **Valeur ajoutée** | **Champ** | **État** | **Date d'achèvement** |
-| --- | --- | --- | --- | --- |
-| | | | **[À faire]** / **[En cours]** / **[Bloqué]** / **[En attente de feedback]** / **[Terminé]** | 09/04/2025 |
+
+| **Nom de la version** | **Valeur ajoutée** | **Champ** | **État**                                                                                     | **Date d'achèvement** |
+| --------------------- | ------------------ | --------- | -------------------------------------------------------------------------------------------- | --------------------- |
+|                       |                    |           | **[À faire]** / **[En cours]** / **[Bloqué]** / **[En attente de feedback]** / **[Terminé]** | 09/04/2025            |
 
 ## 👣 Étapes suivantes
 

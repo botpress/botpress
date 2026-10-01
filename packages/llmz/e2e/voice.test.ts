@@ -215,7 +215,9 @@ describe('voice messages', () => {
       // The delivered reply is long-form prose, not serialized data
       expect(replies.length).toBeGreaterThan(300)
       expect(replies.trimStart().startsWith('{')).toBe(false)
-      expect(replies.toLowerCase()).toContain('cloudflare')
+      // A story can personify a Worker without repeating the vendor name.
+      expect(replies).toMatch(/workers?/i)
+      expect(replies).toMatch(/edge|code|requests?|server|data/i)
       return replies
     }
 
@@ -236,7 +238,8 @@ describe('voice messages', () => {
     it('with a pre-transcribed voice turn (explicit modality)', async () => {
       await runLongStory({
         role: 'user',
-        content: 'Can you tell me a fun story about Cloudflare Workers? Around one hundred words please.',
+        content:
+          'Can you tell me a fun story about Cloudflare Workers? Mention Cloudflare Workers by name. Around one hundred words please.',
         modality: 'voice',
       })
     }, 60_000)

@@ -1,0 +1,33 @@
+{
+  "bracketSpacing": true,
+  "printWidth": 120,
+  "tabWidth": 2,
+  "semi": false,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "endOfLine": "lf",
+  "sortPackageJson": false,
+  "ignorePatterns": [
+    "*",
+    "!**/",
+    "!*.ts",
+    "!*.mts",
+    "!*.tsx",
+    "!*.json",
+    "!*.yaml",
+    "!*.yml",
+    "!*.md",
+    "!*.mjs",
+    "pnpm-lock.yaml",
+    "gen",
+    "dist",
+    ".botpress",
+    ".botpresshome",
+    ".botpresshome.*",
+    "bp_modules",
+    ".genenv/",
+    ".genenv.*",
+    ".turbo",
+    "*.md.ts"
+  ]
+}

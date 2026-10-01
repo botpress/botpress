@@ -141,6 +141,51 @@ const denodecryptoify = (dir: string): void => {
   )
 }
 
+// TEMPORARY, same deal as deaxiosify/denodecryptoify: opapi's generated
+// errors.ts hand-declares CryptoLib against a plain Uint8Array signature,
+// which drifts out of sync with the real Crypto type as TS's DOM lib
+// evolves (already true under TS 6). Deriving it from Crypto directly keeps
+// it correct going forward.
+const fixCryptoLibType = (dir: string): void => {
+  const errorsFile = path.join(dir, 'errors.ts')
+  const content = fs.readFileSync(errorsFile, 'utf-8')
+  const typeTarget = 'type CryptoLib = { getRandomValues(array: Uint8Array): Uint8Array }'
+  if (!content.includes(typeTarget)) {
+    return // already patched
+  }
+
+  const polyfillTarget =
+    'getRandomValues: (array: Uint8Array) => new Uint8Array(array.map(() => Math.floor(Math.random() * 256))),'
+  if (!content.includes(polyfillTarget)) {
+    throw new Error(
+      `fixCryptoLibType: found "${typeTarget}" but not the expected polyfill implementation in ${errorsFile} — opapi's generated output may have changed shape, update this patch`
+    )
+  }
+
+  fs.writeFileSync(
+    errorsFile,
+    content
+      .replace(typeTarget, "type CryptoLib = Pick<Crypto, 'getRandomValues'>")
+      .replace(
+        polyfillTarget,
+        [
+          'getRandomValues: <T extends ArrayBufferView | null>(array: T): T => {',
+          "    // array is nullable because that's how some lib.dom.d.ts versions type",
+          '    // Crypto.getRandomValues; this codebase never actually passes null.',
+          '    if (array === null) {',
+          "      throw new TypeError('getRandomValues polyfill requires a non-null typed array')",
+          '    }',
+          '    const view = new Uint8Array(array.buffer, array.byteOffset, array.byteLength)',
+          '    for (let i = 0; i < view.length; i++) {',
+          '      view[i] = Math.floor(Math.random() * 256)',
+          '    }',
+          '    return array',
+          '  },',
+        ].join('\n')
+      )
+  )
+}
+
 const main = async (): Promise<void> => {
   await publicApi.exportClient('./src/gen/public', { generator: 'opapi' })
   await runtimeApi.exportClient('./src/gen/runtime', options)
@@ -152,6 +197,7 @@ const main = async (): Promise<void> => {
   for (const name of ['public', 'runtime', 'admin', 'files', 'tables', 'billing']) {
     deaxiosify(`./src/gen/${name}`)
     denodecryptoify(`./src/gen/${name}`)
+    fixCryptoLibType(`./src/gen/${name}`)
   }
 }
 

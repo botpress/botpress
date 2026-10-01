@@ -1,5 +1,5 @@
 import wasmfileVariantImport from '@jitl/quickjs-wasmfile-release-sync'
-// Static import of the engine .wasm: the workerd tsup build copies it to dist as a
+// Static import of the engine .wasm: the workerd build copies it to dist as a
 // separate file and Cloudflare Workers compiles it at deploy time, handing us a
 // precompiled WebAssembly.Module (runtime WASM compilation is banned on workerd).
 import wasmModule from '@jitl/quickjs-wasmfile-release-sync/wasm'
@@ -13,7 +13,7 @@ const wasmfileVariant = ((wasmfileVariantImport as { default?: QuickJSSyncVarian
 
 /**
  * Workerd (Cloudflare Workers) drop-in replacement for `./quickjs-variant.ts` —
- * the workerd tsup build aliases that module to this one. Same export surface,
+ * the workerd build resolves that module to this one. Exports the same symbols,
  * but the default variant follows quickjs-emscripten's documented Cloudflare
  * recipe (wasmfile variant + statically imported precompiled module) instead of
  * the singlefile variant that compiles inlined base64 WASM at runtime.

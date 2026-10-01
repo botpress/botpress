@@ -1,4 +1,5 @@
-import MarkdownIt from 'markdown-it'
+import MarkdownIt, { type Options } from 'markdown-it'
+import type Token from 'markdown-it/lib/token.mjs'
 import { nanoid } from 'nanoid'
 import sanitizeHtml from 'sanitize-html'
 import { spliceText } from './string-utils'
@@ -42,15 +43,9 @@ type ExtractedData = Partial<{
 }>
 
 function ruleHandler(
-  handler: (
-    token: MarkdownIt.Token,
-    env: RawExtractedData,
-    tokens: MarkdownIt.Token[],
-    idx: number,
-    options: MarkdownIt.Options
-  ) => string
+  handler: (token: Token, env: RawExtractedData, tokens: Token[], idx: number, options: Options) => string
 ) {
-  return (tokens: MarkdownIt.Token[], idx: number, options: MarkdownIt.Options, env: RawExtractedData) => {
+  return (tokens: Token[], idx: number, options: Options, env: RawExtractedData) => {
     const token = tokens[idx]
     if (!token) throw new Error('Token not found')
     return handler(token, env, tokens, idx, options)
@@ -66,7 +61,7 @@ md.renderer.rules.heading_close = () => '\n'
 md.renderer.rules.hr = () => '\n'
 md.renderer.rules.text = textReplacer
 
-md.renderer.rules.link_open = ruleHandler((token: MarkdownIt.Token) => {
+md.renderer.rules.link_open = ruleHandler((token: Token) => {
   const href = token.attrGet('href')?.trim() ?? ''
 
   // Just sends the email or the phone number as is since Telegram will be the one to convert it
@@ -83,7 +78,7 @@ md.renderer.rules.link_open = ruleHandler((token: MarkdownIt.Token) => {
   return `<${token.tag}${formattedAttributes ?? ''}>`
 })
 
-md.renderer.rules.link_close = ruleHandler((token: MarkdownIt.Token) => {
+md.renderer.rules.link_close = ruleHandler((token: Token) => {
   if (md.renderer.rules.text !== textReplacer) {
     md.renderer.rules.text = textReplacer
     return ''
@@ -91,7 +86,7 @@ md.renderer.rules.link_close = ruleHandler((token: MarkdownIt.Token) => {
   return `</${token.tag}>`
 })
 
-md.renderer.rules.image = ruleHandler((token: MarkdownIt.Token, env: RawExtractedData) => {
+md.renderer.rules.image = ruleHandler((token: Token, env: RawExtractedData) => {
   const src = token?.attrGet('src')?.trim() ?? ''
   const alt = token?.content ?? ''
   const title = token?.attrGet('title')?.trim() ?? ''

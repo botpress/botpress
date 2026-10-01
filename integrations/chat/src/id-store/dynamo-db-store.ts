@@ -1,8 +1,8 @@
 import * as dynamodb from '@aws-sdk/client-dynamodb'
-import { logger } from '../logger'
 import { runWithSpan, SPAN_ATTRS } from '../tracing'
 import * as errors from './errors'
 import * as types from './types'
+import * as bp from '.botpress'
 
 type DynamoDbMapProps = {
   botId: string
@@ -18,7 +18,8 @@ type DynamoDbMapProps = {
 class DynamoDbMap implements types.IdMap {
   public constructor(
     protected _client: dynamodb.DynamoDBClient,
-    private _props: DynamoDbMapProps
+    private _props: DynamoDbMapProps,
+    protected _logger: bp.Logger
   ) {}
 
   public async find(src: string): Promise<string | undefined> {
@@ -55,9 +56,9 @@ class DynamoDbMap implements types.IdMap {
 
   protected _debug = (operation: string, src: string, dest: string) => {
     if (this._props.indexName === undefined) {
-      logger.debug(`${operation} ${src} -> ${dest}`)
+      this._logger.debug(`${operation} ${src} -> ${dest}`)
     } else {
-      logger.debug(`${operation} ${dest} <- ${src}`)
+      this._logger.debug(`${operation} ${dest} <- ${src}`)
     }
   }
 }
@@ -65,17 +66,22 @@ class DynamoDbMap implements types.IdMap {
 class IncomingDynamoDbMap extends DynamoDbMap implements types.IncomingIdMap {
   public constructor(
     client: dynamodb.DynamoDBClient,
-    private _args: DynamoDbChatIdStoreProps
+    private _args: DynamoDbChatIdStoreProps,
+    logger: bp.Logger
   ) {
     const { botId, tableName, partitionKey, sortKey, indexSortKey } = _args
-    super(client, {
-      botId,
-      tableName,
-      indexName: undefined,
-      partitionKey,
-      srcKeyName: sortKey,
-      destKeyName: indexSortKey,
-    })
+    super(
+      client,
+      {
+        botId,
+        tableName,
+        indexName: undefined,
+        partitionKey,
+        srcKeyName: sortKey,
+        destKeyName: indexSortKey,
+      },
+      logger
+    )
   }
 
   public async set(fid: string, id: string): Promise<void> {
@@ -132,17 +138,22 @@ class IncomingDynamoDbMap extends DynamoDbMap implements types.IncomingIdMap {
 class OutgoingDynamoDbMap extends DynamoDbMap implements types.OutoingIdMap {
   public constructor(
     client: dynamodb.DynamoDBClient,
-    private _args: DynamoDbChatIdStoreProps
+    private _args: DynamoDbChatIdStoreProps,
+    logger: bp.Logger
   ) {
     const { botId, tableName, indexName, partitionKey, sortKey, indexSortKey } = _args
-    super(client, {
-      botId,
-      tableName,
-      indexName,
-      partitionKey,
-      srcKeyName: indexSortKey,
-      destKeyName: sortKey,
-    })
+    super(
+      client,
+      {
+        botId,
+        tableName,
+        indexName,
+        partitionKey,
+        srcKeyName: indexSortKey,
+        destKeyName: sortKey,
+      },
+      logger
+    )
   }
 
   public async fetch(
@@ -206,8 +217,8 @@ export class DynamoDbChatIdStore implements types.ChatIdStore {
   public readonly byFid: types.IncomingIdMap
   public readonly byId: types.OutoingIdMap
 
-  public constructor(client: dynamodb.DynamoDBClient, props: DynamoDbChatIdStoreProps) {
-    this.byFid = new IncomingDynamoDbMap(client, props)
-    this.byId = new OutgoingDynamoDbMap(client, props)
+  public constructor(client: dynamodb.DynamoDBClient, props: DynamoDbChatIdStoreProps, logger: bp.Logger) {
+    this.byFid = new IncomingDynamoDbMap(client, props, logger)
+    this.byId = new OutgoingDynamoDbMap(client, props, logger)
   }
 }

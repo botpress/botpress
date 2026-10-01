@@ -1,5 +1,5 @@
 import { z } from '@bpinternal/zui'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, it, vi } from 'vitest'
 
 import { Iteration } from '../context.js'
 import { SnapshotSignal, ThinkSignal } from '../errors.js'
@@ -148,4 +148,65 @@ describe('wrapTool', () => {
       },
     ])
   })
+})
+
+describe('tool policy boundaries', () => {
+  it.each(['before invocation', 'inside before-tool hook'])('does not execute a cancelled tool: %s', async (when) => {
+    const handler = vi.fn(async () => 'charged')
+    const afterHook = vi.fn()
+    const controller = new AbortController()
+    if (when === 'before invocation') controller.abort(new Error('Payment rejected'))
+    const tool = new Tool({ name: 'charge', handler })
+    const wrapped = wrapTool({
+      tool,
+      iteration: { id: 'policy-test' } as Iteration,
+      traces: [],
+      controller,
+      beforeHook: async () => {
+        if (when === 'inside before-tool hook') controller.abort(new Error('Payment rejected'))
+      },
+      afterHook,
+    })
+    const outcome = await wrapped(undefined).catch((error: unknown) => error)
+    expect.soft(handler).not.toHaveBeenCalled()
+    expect.soft(afterHook).not.toHaveBeenCalled()
+    expect(outcome).toBeInstanceOf(Error)
+  })
+
+  it('does not expose tool output rejected by the after-tool hook in traces', async () => {
+    const traces: Trace[] = []
+    const wrapped = wrapTool({
+      tool: new Tool({
+        name: 'lookup',
+        handler: async () => {
+          throw new ThinkSignal('Review result', { secret: 'withheld-by-policy' })
+        },
+      }),
+      iteration: { id: 'policy-test' } as Iteration,
+      traces,
+      controller: new AbortController(),
+      afterHook: async () => {
+        throw new Error('Output rejected')
+      },
+    })
+    await expect(wrapped(undefined)).rejects.toThrow('Output rejected')
+    expect.soft(JSON.stringify(traces)).not.toContain('withheld-by-policy')
+    expect(traces.find((trace) => trace.type === 'tool_call')).toMatchObject({ success: false })
+  })
+})
+
+it('runs async input effects once, without invoking them again for tracing', async () => {
+  const transform = vi.fn(async (value: string) => value.trim())
+  const handler = vi.fn(async (value: string) => value)
+  const traces: Trace[] = []
+  const wrapped = wrapTool({
+    tool: new Tool({ name: 'normalize', input: z.string().transform(transform), handler }),
+    traces,
+    iteration,
+    controller: new AbortController(),
+  })
+  expect(await wrapped(' valid ')).toBe('valid')
+  expect(transform).toHaveBeenCalledOnce()
+  expect(handler).toHaveBeenCalledWith('valid', expect.anything())
+  expect(traces).toContainEqual(expect.objectContaining({ type: 'tool_call', success: true, output: 'valid' }))
 })

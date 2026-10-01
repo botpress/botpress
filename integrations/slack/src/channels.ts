@@ -160,14 +160,18 @@ const defaultMessages = {
     )
   },
   bloc: (props) => _sendBloc(props),
-} satisfies bp.IntegrationProps['channels']['channel']['messages'] &
-  bp.IntegrationProps['channels']['dm']['messages'] &
-  bp.IntegrationProps['channels']['thread']['messages']
+} satisfies ChannelMessages & DmMessages & ThreadMessages
 
-type SlackMessageProps<TMessage extends keyof bp.IntegrationProps['channels']['channel']['messages']> =
-  | Parameters<bp.IntegrationProps['channels']['channel']['messages'][TMessage]>[0]
-  | Parameters<bp.IntegrationProps['channels']['dm']['messages'][TMessage]>[0]
-  | Parameters<bp.IntegrationProps['channels']['thread']['messages'][TMessage]>[0]
+// `messages` and `messageCreated` share the same underlying type per channel - this resolves correctly regardless
+// of which one is actually defined
+type ChannelMessages = NonNullable<bp.IntegrationProps['channels']['channel']['messageCreated']>
+type DmMessages = NonNullable<bp.IntegrationProps['channels']['dm']['messageCreated']>
+type ThreadMessages = NonNullable<bp.IntegrationProps['channels']['thread']['messageCreated']>
+
+type SlackMessageProps<TMessage extends keyof ChannelMessages> =
+  | Parameters<ChannelMessages[TMessage]>[0]
+  | Parameters<DmMessages[TMessage]>[0]
+  | Parameters<ThreadMessages[TMessage]>[0]
 
 const _sendBloc = async (props: SlackMessageProps<'bloc'>) => {
   for (const item of props.payload.items) {

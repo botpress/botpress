@@ -25,7 +25,15 @@ import { TranscriptArray, Transcript } from './transcript.js'
  * }
  * ```
  */
-export type MessageHandler = (input: RenderedComponent) => Promise<void> | void
+/** Correlates every generated send with its deltas and restart scope. */
+export type MessageMetadata = {
+  /** Stable across generation attempts; standalone tool calls use their callId. */
+  iterationId: string
+  /** Logical send ID; matches MessageDelta.id when text deltas exist. Unique across attempts. */
+  id: string
+}
+
+export type MessageHandler = (input: RenderedComponent, metadata: MessageMetadata) => Promise<void> | void
 
 /**
  * A chunk of a message body streamed live from the LLM, before the message is complete.
@@ -34,25 +42,45 @@ export type MessageHandler = (input: RenderedComponent) => Promise<void> | void
  * Each chunk is forwarded to {@link Chat} `onMessageDelta` as soon as it is parsed, so the
  * client can render the message progressively (e.g. typewriter effect in a chat UI).
  *
- * The complete message is always delivered to the regular `handler` afterwards — deltas
- * are a progressive preview, the `handler` call remains the authoritative delivery.
+ * Deltas are provisional: restart deltas retract previews from that iteration
+ * after a provider restart, malformed response, or transport failure. Completed
+ * `handler` messages and code wait for a valid response and successful transport.
  */
-export type MessageDelta = {
-  /** Identifies the message being streamed. Unique within an `execute()` call. */
-  id: string
-  /** Component name of the message being streamed (e.g. 'message', 'button'). */
-  component: string
-  /** Props of the message being streamed. Final by the time the body starts streaming. */
-  props: Record<string, unknown>
-  /** The new chunk of body text. */
-  delta: string
-  /** The full body text accumulated so far, including this chunk. */
-  content: string
-}
+export type MessageDelta =
+  | {
+      restart: false
+      /** Generation whose provisional messages must be cleared on a restart. */
+      iterationId: string
+      /** Identifies the message being streamed. Unique within an `execute()` call. */
+      id: string
+      /** Component name of the message being streamed (e.g. 'message', 'button'). */
+      component: string
+      /** Props of the message being streamed. Final by the time the body starts streaming. */
+      props: Record<string, unknown>
+      /** The new chunk of body text. */
+      delta: string
+      /** The full body text accumulated so far, including this chunk. */
+      content: string
+    }
+  | {
+      /**
+       * Reset-only delta, emitted before replacement text (even if none follows).
+       * Clear provisional messages for iterationId. Other iterations are unaffected.
+       * Completed handler sends are never produced by an abandoned generation.
+       */
+      restart: true
+      iterationId: string
+      /** 1-based index of the next attempt; a terminal failure may have no replacement. */
+      attempt: number
+      fromModel: string
+      toModel: string
+      reason: string
+    }
 
 /**
  * Function type for handling message chunks as they are streamed from the LLM.
- * Errors thrown by this handler are ignored — streaming previews are best-effort.
+ * Text-preview errors are ignored. Restart-handler errors stop generation:
+ * replacement output must not be delivered if retraction fails.
  */
 export type MessageDeltaHandler = (delta: MessageDelta) => Promise<void> | void
 

@@ -26,15 +26,22 @@ const _buildGoogleAuthorizeUrl = ({ webhookId }: { webhookId: string }): string 
 }
 
 const _calendarIdSchema = z.object({
-  calendarId: z.string().min(1).title('Calendar ID').describe('The ID of the Google Calendar to interact with.'),
+  calendarId: z
+    .string()
+    .min(1)
+    .title('Calendar ID or email')
+    .describe('Usually your Google account email. If that does not work, use the Calendar ID from the steps below.'),
 })
 
 const _calendarIdForm = {
   pageTitle: 'Google Calendar Setup',
   htmlOrMarkdownPageContents:
-    '1. In Google Calendar, go to <b>Settings</b> and select your calendar.<br>' +
-    '2. Scroll to <b>Integrate calendar</b> to find your Calendar ID.<br>' +
-    '3. Copy the Calendar ID and paste it below.',
+    '<b>Step 1:</b> Enter your Google account email below. For most calendars, your Calendar ID is simply your email (e.g. <b>you@gmail.com</b>).<br><br>' +
+    "<b>Step 2 (only if your email didn't work):</b> Find your Calendar ID manually:<br>" +
+    'a. In Google Calendar, go to <b>Settings</b><br>' +
+    'b. In the left sidebar, scroll down to "Settings for my calendars" and select the calendar you would like to connect.<br>' +
+    'c. Scroll to <b>Integrate calendar</b> to find your Calendar ID.<br>' +
+    'd. Copy the Calendar ID and paste it below.',
   schema: _calendarIdSchema,
   nextStepId: 'save-calendar-id',
 }

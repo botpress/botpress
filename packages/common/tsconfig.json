@@ -7,5 +7,6 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["src/**/*", "*.ts"]
+  "include": ["src/**/*", "*.ts"],
+  "exclude": ["vitest.config.ts"]
 }

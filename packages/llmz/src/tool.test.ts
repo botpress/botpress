@@ -1,5 +1,5 @@
 import { z } from '@bpinternal/zui'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { Tool } from './tool.js'
 
@@ -156,7 +156,7 @@ describe('tool default values', () => {
       },
     })
 
-    tool.execute({ a: 1, b: 2 }, { callId: '' })
+    await tool.execute({ a: 1, b: 2 }, { callId: '' })
 
     expect(result).toBe(3)
   })
@@ -623,5 +623,59 @@ describe('tool default values', () => {
         "retry called for attempt 2 with input={"a":3}",
       ]
     `)
+  })
+})
+
+describe('tool schema fidelity', () => {
+  it('runs input refinements before invoking a business handler', async () => {
+    const handler = vi.fn(async (input: string) => input)
+    const tool = new Tool({
+      name: 'save',
+      input: z.string().refine((value): boolean => value === 'valid', 'Use a valid name'),
+      handler,
+    })
+    const outcome = await tool.execute('invalid', { callId: 'invalid' }).catch((error: unknown) => error)
+    expect.soft(handler).not.toHaveBeenCalled()
+    expect(outcome).toBeInstanceOf(Error)
+  })
+
+  it('passes normalized input to the handler', async () => {
+    const tool = new Tool({ name: 'save', input: z.string().trim(), handler: async (input) => input })
+    expect(await tool.execute(' valid ', { callId: 'normalize' })).toBe('valid')
+  })
+
+  it('keeps handler output intact even when the documented output schema omits fields', async () => {
+    const output = { id: 'order-42', receipt: { charged: true } }
+    const tool = new Tool({ name: 'createOrder', output: z.object({ id: z.string() }), handler: async () => output })
+    expect(await tool.execute(undefined, { callId: 'order' })).toStrictEqual(output)
+  })
+})
+
+describe('schema effects through tool configuration', () => {
+  it('retains async refinements when cloning a tool and applying static inputs', async () => {
+    const input = z
+      .object({ name: z.string().trim(), tenant: z.string() })
+      .refine(async ({ name, tenant }) => name === 'valid' && tenant === 'trusted', 'Invalid account')
+    const handler = vi.fn(async (value: z.infer<typeof input>) => value)
+    const tool = new Tool({ name: 'save', input, handler })
+      .clone({ name: 'saveTrusted' })
+      .setStaticInputValues({ tenant: 'trusted' })
+
+    await expect(tool.execute({ name: 'invalid', tenant: 'trusted' }, { callId: 'invalid' })).rejects.toThrow(
+      'Invalid account'
+    )
+    expect(handler).not.toHaveBeenCalled()
+    await expect(tool.execute({ name: ' valid ', tenant: 'untrusted' }, { callId: 'valid' })).resolves.toEqual({
+      name: 'valid',
+      tenant: 'trusted',
+    })
+    expect(handler).toHaveBeenCalledOnce()
+  })
+
+  it('does not run output transforms or normalize handler results', async () => {
+    const transform = vi.fn((value: string) => value.trim())
+    const tool = new Tool({ name: 'read', output: z.string().transform(transform), handler: async () => ' raw ' })
+    expect(await tool.execute(undefined, { callId: 'read' })).toBe(' raw ')
+    expect(transform).not.toHaveBeenCalled()
   })
 })

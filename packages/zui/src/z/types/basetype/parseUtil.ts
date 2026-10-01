@@ -120,6 +120,14 @@ export class ParseStatus {
 export const isAsync = <T>(x: ParseReturnType<T>): x is AsyncParseReturnType<T> =>
   typeof Promise !== 'undefined' && x instanceof Promise
 
+/** Thrown when a sync parse (safeParse, ~standard's sync attempt, ...) hits an async refine/transform/effect. */
+export class SyncParseEncounteredAsyncError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'SyncParseEncounteredAsyncError'
+  }
+}
+
 export const getParsedType = (data: unknown): ZodParsedType => {
   switch (typeof data) {
     case 'undefined':

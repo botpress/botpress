@@ -71,6 +71,27 @@ export function applyToolCallTracking(ctx: Ctx, calls: Map<number, ToolCallEntry
       return
     }
 
+    // A synchronous wrapper cannot contain an await from the original call's
+    // arguments (e.g. values.push(await fetch())). Leave the outer call intact
+    // and let the traversal instrument its awaited inner calls instead.
+    if (parent?.type !== 'AwaitExpression') {
+      let containsAwait = false
+      walk(node, (child, _parent, ancestors) => {
+        if (
+          child.type === 'AwaitExpression' &&
+          !ancestors.some((ancestor) =>
+            ['FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression'].includes(ancestor.type)
+          )
+        ) {
+          containsAwait = true
+        }
+      })
+
+      if (containsAwait) {
+        return
+      }
+    }
+
     const declaration = [...ancestors].reverse().find((n) => n.type === 'VariableDeclaration')
     const assignment = [...ancestors].reverse().find((n) => n.type === 'AssignmentExpression')
 

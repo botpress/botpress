@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import axios, { Axios, AxiosResponse } from 'axios'
+import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import {
   getCandidateInputSchema,
   getCandidateOutputSchema,
@@ -26,7 +26,7 @@ export type ErrorResponse = {
 type ApiOutput<K extends object> = K | ErrorResponse
 
 export class WorkableClient {
-  private _client: Axios
+  private _client: AxiosInstance
 
   public constructor(apiToken: string, subDomain: string) {
     this._client = axios.create({

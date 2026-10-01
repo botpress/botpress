@@ -15,7 +15,7 @@ const _downloadFile = async (fileUrl: string): Promise<{ data: ArrayBuffer; cont
   }
 }
 
-const _decodeBase64 = (data: string): Buffer => {
+const _decodeBase64 = (data: string): Buffer<ArrayBuffer> => {
   const base64 = data.includes(',') ? data.split(',').pop()! : data
   return Buffer.from(base64, 'base64')
 }
@@ -29,7 +29,7 @@ export const addAttachment: Implementation['actions']['addAttachment'] = async (
       throw new RuntimeError('Either fileUrl or data must be provided')
     }
 
-    const file = validatedInput.fileUrl
+    const file: { data: ArrayBuffer | Buffer<ArrayBuffer>; contentType?: string } = validatedInput.fileUrl
       ? await _downloadFile(validatedInput.fileUrl)
       : { data: _decodeBase64(validatedInput.data!), contentType: undefined }
 

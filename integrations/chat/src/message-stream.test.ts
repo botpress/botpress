@@ -2,6 +2,9 @@ import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { InMemoryChatIdStore } from './id-store'
 import { emitMessageStream, MessageStreamActionArgs } from './message-stream'
 import { SignalEmitter } from './signal-emitter'
+import * as bp from '.botpress'
+
+const silentLogger = { debug: () => {} } as unknown as bp.Logger
 
 type MessageStreamInput = MessageStreamActionArgs['input']
 
@@ -29,8 +32,8 @@ describe('emitMessageStream', () => {
   let signalEmitter: SignalEmitter
 
   beforeEach(() => {
-    convIdStore = new InMemoryChatIdStore()
-    userIdStore = new InMemoryChatIdStore()
+    convIdStore = new InMemoryChatIdStore(silentLogger)
+    userIdStore = new InMemoryChatIdStore(silentLogger)
     signalEmitter = makeSignalEmitter()
   })
 

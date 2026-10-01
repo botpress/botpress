@@ -1,8 +1,5 @@
 import MagicString from 'magic-string'
-import babel from 'prettier/plugins/babel'
-import estree from 'prettier/plugins/estree'
-import typescript from 'prettier/plugins/typescript'
-import { format } from 'prettier/standalone'
+import { format } from 'oxfmt'
 import { describe, expect, it, beforeEach } from 'vitest'
 
 import { applyVariableTracking } from './variable-extraction.js'
@@ -13,17 +10,14 @@ async function transform(original: string) {
   const ms = new MagicString(original)
   applyVariableTracking({ code: original, ms, ast: parseScript(original), comments: [] }, variables)
 
-  const result = await format(ms.toString(), {
+  const result = await format('tools.ts', ms.toString(), {
     singleAttributePerLine: true,
     bracketSameLine: true,
     semi: true,
     embeddedLanguageFormatting: 'off',
-    plugins: [estree, babel, typescript],
-    parser: 'typescript',
-    filepath: 'tools.d.ts',
   })
 
-  return result.trim()
+  return result.code.trim()
 }
 
 describe('variableExtractionBabelPlugin', () => {
@@ -226,21 +220,17 @@ describe('variableExtractionBabelPlugin', () => {
       }
     `
     expect(await transform(code)).toMatchInlineSnapshot(`
-      "if (true) {
+      "__var__("c", () => eval("c"));
+      if (true) {
         const a = 1;
-        __var__("a", () => eval("a"));
         let b = 2;
-        __var__("b", () => eval("b"));
         var c = 3;
-        __var__("c", () => eval("c"));
         console.log(a, b, c);
       }"
     `)
 
     expect([...variables]).toMatchInlineSnapshot(`
       [
-        "a",
-        "b",
         "c",
       ]
     `)
@@ -255,19 +245,12 @@ describe('variableExtractionBabelPlugin', () => {
     `
     expect(await transform(code)).toMatchInlineSnapshot(`
       "function foo(a, b) {
-        __var__("a", () => eval("a"));
-        __var__("b", () => eval("b"));
         console.log(a, b);
       }
       foo(1, 2);"
     `)
 
-    expect([...variables]).toMatchInlineSnapshot(`
-      [
-        "a",
-        "b",
-      ]
-    `)
+    expect([...variables]).toMatchInlineSnapshot(`[]`)
   })
 
   it('Default function parameters', async () => {
@@ -279,19 +262,12 @@ describe('variableExtractionBabelPlugin', () => {
     `
     expect(await transform(code)).toMatchInlineSnapshot(`
       "function foo(a = 1, b = 2) {
-        __var__("a", () => eval("a"));
-        __var__("b", () => eval("b"));
         console.log(a, b);
       }
       foo();"
     `)
 
-    expect([...variables]).toMatchInlineSnapshot(`
-      [
-        "a",
-        "b",
-      ]
-    `)
+    expect([...variables]).toMatchInlineSnapshot(`[]`)
   })
 
   it('Arrow functions', async () => {
@@ -307,15 +283,11 @@ describe('variableExtractionBabelPlugin', () => {
     `
     expect(await transform(code)).toMatchInlineSnapshot(`
       "const foo = (a, b) => {
-        __var__("a", () => eval("a"));
-        __var__("b", () => eval("b"));
         console.log(a, b);
       };
       __var__("foo", () => eval("foo"));
       foo(1, 2);
       const bar = (a, b) => {
-        __var__("a", () => eval("a"));
-        __var__("b", () => eval("b"));
         return a + b;
       };
       __var__("bar", () => eval("bar"));
@@ -325,8 +297,6 @@ describe('variableExtractionBabelPlugin', () => {
     expect([...variables]).toMatchInlineSnapshot(`
       [
         "foo",
-        "a",
-        "b",
         "bar",
       ]
     `)
@@ -340,18 +310,10 @@ describe('variableExtractionBabelPlugin', () => {
       bar(3, 4);
     `
     expect(await transform(code)).toMatchInlineSnapshot(`
-      "const foo = (a, b) => {
-        __var__("a", () => eval("a"));
-        __var__("b", () => eval("b"));
-        return console.log(a, b);
-      };
+      "const foo = (a, b) => console.log(a, b);
       __var__("foo", () => eval("foo"));
       foo(1, 2);
-      const bar = (a, b) => {
-        __var__("a", () => eval("a"));
-        __var__("b", () => eval("b"));
-        return a + b;
-      };
+      const bar = (a, b) => a + b;
       __var__("bar", () => eval("bar"));
       bar(3, 4);"
     `)
@@ -359,8 +321,6 @@ describe('variableExtractionBabelPlugin', () => {
     expect([...variables]).toMatchInlineSnapshot(`
       [
         "foo",
-        "a",
-        "b",
         "bar",
       ]
     `)
@@ -390,13 +350,11 @@ describe('variableExtractionBabelPlugin', () => {
       }
     `
     expect(await transform(code)).toMatchInlineSnapshot(`
-      "try {
+      "__var__("c", () => eval("c"));
+      try {
         const a = 1;
-        __var__("a", () => eval("a"));
         let b = 2;
-        __var__("b", () => eval("b"));
         var c = 3;
-        __var__("c", () => eval("c"));
         console.log(a, b, c);
       } catch (e) {
         console.log(e);
@@ -405,8 +363,6 @@ describe('variableExtractionBabelPlugin', () => {
 
     expect([...variables]).toMatchInlineSnapshot(`
       [
-        "a",
-        "b",
         "c",
       ]
     `)

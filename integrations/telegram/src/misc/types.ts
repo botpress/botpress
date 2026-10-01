@@ -1,5 +1,5 @@
 import * as sdk from '@botpress/sdk'
-import * as Typegram from 'telegraf/typings/core/types/typegram'
+import * as Typegram from 'telegraf/types'
 import * as bp from '.botpress'
 
 export type Card = bp.channels.channel.card.Card

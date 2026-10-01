@@ -231,19 +231,27 @@ describe.concurrent('functions', () => {
     await assert.expectTypescript(typings).toMatchWithoutFormatting('declare function fn(firstName?: string): unknown;')
   })
 
-  it('mix of named and unnammed params', async () => {
+  it('mix of named and unnamed params', async () => {
+    const fn = z
+      .function()
+      .title('fn')
+      .args(z.number(), z.object({ a: z.string() }).title('obj'), z.string().title('firstName').optional())
+    const typings = toTypescript(fn)
+    await assert.expectTypescript(typings).toMatchWithoutFormatting(`
+        declare function fn(
+          arg0: number,
+          obj: { a: string },
+          firstName?: string
+        ): unknown;
+      `)
+  })
+
+  it('optional param before a required param throws', async () => {
     const fn = z
       .function()
       .title('fn')
       .args(z.string().title('firstName').optional(), z.number(), z.object({ a: z.string() }).title('obj'))
-    const typings = toTypescript(fn)
-    await assert.expectTypescript(typings).toMatchWithoutFormatting(`
-        declare function fn(
-          firstName?: string,
-          arg1: number,
-          obj: { a: string }
-        ): unknown;
-      `)
+    expect(() => toTypescript(fn)).toThrowError(errors.ZuiToTypescriptTypeError)
   })
 
   it('nullables and optionals combined', async () => {

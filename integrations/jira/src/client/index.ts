@@ -49,7 +49,7 @@ export type IssuePickerResponse = {
 export type AttachmentInput = {
   filename: string
   contentType?: string
-  data: ArrayBuffer | Uint8Array
+  data: ArrayBuffer | Uint8Array<ArrayBuffer>
 }
 
 export class JiraApi {

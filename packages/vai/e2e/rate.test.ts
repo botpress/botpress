@@ -36,6 +36,12 @@ describe('rate', { timeout: 30_000 }, () => {
         reason: 'Rasa is a chatbot framework, so it competes with us (Botpress, a chatbot company)',
       },
       {
+        rating: 3,
+        value: 'Slack',
+        reason:
+          'Slack supports chatbot integrations and automations as part of its broader team communication platform, so there is partial overlap with us, but it is not primarily a chatbot or customer support company like Botpress',
+      },
+      {
         rating: 1,
         value: 'Rasa the coffee company',
         reason:

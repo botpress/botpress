@@ -1,10 +1,16 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    // This package ships a command run by Node rather than a bundle consumed by
+    // another build, so its dependencies have to resolve the way Node resolves
+    // them. Bundler resolution reaches the ECMAScript entrypoint of CommonJS
+    // dependencies and picks up the wrong shape for their default export.
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "outDir": "dist",
     "esModuleInterop": true,
     "sourceMap": true
   },
   "include": ["./src/**/*", "./e2e/**/*", "*.ts"],
-  "exclude": ["./templates/**", "./e2e/fixtures/**"]
+  "exclude": ["./templates/**", "./e2e/fixtures/**", "./vitest.config.ts"]
 }

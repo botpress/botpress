@@ -53,12 +53,14 @@ const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionR
   const ctx = new Context({
     chat: props.chat,
     instructions: props.instructions,
+    examples: props.examples,
     objects: props.objects,
     tools: props.tools,
     loop: props.options?.loop,
     timeout: props.options?.timeout,
     maxTokens: props.options?.maxTokens,
     maxTimeToFirstToken: props.options?.maxTimeToFirstToken,
+    midStreamFallback: props.options?.midStreamFallback,
     transcriptionModel: props.options?.transcriptionModel,
     exits: props.exits,
     snapshot: props.snapshot,
@@ -367,15 +369,8 @@ const executeIteration = async ({
     })
   }
 
-  // On streaming clients, execution starts as soon as the ■run block is fully
-  // parsed — while the rest of the response (■next, stream metadata) may
-  // still be streaming. Disabled when an onBeforeExecution hook is registered,
-  // since the hook must run (and may mutate the code) before execution.
-  const canExecuteEarly = typeof onBeforeExecution !== 'function'
-  let earlyExecution: { code: string; started_at: number; promise: Promise<VMExecutionResult> } | undefined
-
-  // ■send blocks are dispatched to the chat as soon as they are parsed — on
-  // streaming clients this happens while the model is still generating.
+  // Previews stream while generating. Completed sends and code require a valid,
+  // complete envelope and successful transport, including after model restarts.
   await generateCode({
     iteration,
     ctx,
@@ -384,30 +379,21 @@ const executeIteration = async ({
     metadata,
     // Pre-warm the VM while the model is still writing the ■run block
     onRunStart: () => warmupVM(),
-    onRunComplete: canExecuteEarly
-      ? (code) => {
-          if (!code.length || controller.signal.aborted || earlyExecution) {
-            return
-          }
-          iteration.code = code
-          earlyExecution = { code, started_at: Date.now(), promise: runCode(code) }
-        }
-      : undefined,
-    onSend: async (send) => {
+    onSend: async (send, messageMetadata) => {
       if (!ctx.chat) {
         return
       }
 
       const sendStartedAt = Date.now()
-      const component = createJsxComponent({
-        type: send.name,
-        props: send.props,
-        children: send.body ? [send.body] : [],
-      })
+      const registered = iteration.components.find((component) => component.definition.name.toLowerCase() === send.name)
+      const children = send.body ? [send.body] : []
+      const component = registered
+        ? registered.render(send.props, children)
+        : createJsxComponent({ type: send.name, props: send.props, children })
 
       try {
-        await ctx.chat.handler(component)
-      } catch (err) {
+        await ctx.chat.handler(component, messageMetadata)
+      } catch (err: unknown) {
         throw new Error(`Error while sending message (■send=${send.name}): ${getErrorMessage(err)}`)
       }
 
@@ -415,12 +401,6 @@ const executeIteration = async ({
     },
     onSendDelta: ctx.chat?.onMessageDelta ? (delta) => ctx.chat!.onMessageDelta!(delta) : undefined,
   })
-
-  if (earlyExecution) {
-    // generateCode re-derives iteration.code from the full parsed response;
-    // keep the code that actually ran
-    iteration.code = earlyExecution.code
-  }
 
   if (typeof onBeforeExecution === 'function') {
     try {
@@ -478,25 +458,19 @@ const executeIteration = async ({
       return
     }
 
-    if (ctx.chat && iteration.sends?.length) {
-      // Message-only response in chat mode: hand the turn back to the user
-      iteration.next = { name: 'listen', props: {} }
-      await applyNextExit({ iteration, controller, onExit })
-      return
-    }
-
     iteration.end({
       type: 'invalid_code_error',
       invalid_code_error: {
         message:
-          'The response did not include a ■run block or a ■next exit. Reply using ■ blocks and end your response with ■run or ■next=<exit>.',
+          iteration.llm?.diagnostics?.find((diagnostic) => diagnostic.code === 'invalid-envelope')?.message ??
+          'The response did not include a ■run block or a ■next exit. Reply with ■start, the required ■ blocks, and ■end.',
       },
     })
     return
   }
 
-  const startedAt = earlyExecution?.started_at ?? Date.now()
-  const result: VMExecutionResult = earlyExecution ? await earlyExecution.promise : await runCode(iteration.code ?? '')
+  const startedAt = Date.now()
+  const result = await runCode(iteration.code)
 
   await interpretVMResult({
     iteration,

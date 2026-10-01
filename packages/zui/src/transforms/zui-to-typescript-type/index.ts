@@ -167,12 +167,28 @@ function sUnwrapZod(
 
   if (schema instanceof FnParameters) {
     if (z.is.zuiTuple(schema.schema)) {
+      const items = schema.schema.items
+
+      const isItemOptional = (item: z.ZodType): boolean =>
+        z.is.zuiOptional(item) || (z.is.zuiDefault(item) && !!config.treatDefaultAsOptional)
+
+      // TS forbids an optional param before a required one — fail loudly instead of emitting invalid TypeScript.
+      let lastRequiredIndex = -1
+      for (let i = 0; i < items.length; i++) {
+        if (!isItemOptional(items[i]!)) lastRequiredIndex = i
+      }
+
       let args = ''
-      for (let i = 0; i < schema.schema.items.length; i++) {
-        const argName = (schema.schema.items[i]?.ui?.title as string) ?? `arg${i}`
-        const item = schema.schema.items[i]!
+      for (let i = 0; i < items.length; i++) {
+        const argName = (items[i]?.ui?.title as string) ?? `arg${i}`
+        const item = items[i]!
+
+        if (i <= lastRequiredIndex && isItemOptional(item)) {
+          throw new errors.InvalidParameterOrderError(argName, path.toString())
+        }
+
         args += `${sUnwrapZod(new KeyValue(toPropertyKey(argName), item), path.withIndexType('number', i), newConfig)}${
-          i < schema.schema.items.length - 1 ? ', ' : ''
+          i < items.length - 1 ? ', ' : ''
         } `
       }
 

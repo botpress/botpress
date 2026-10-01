@@ -3,8 +3,11 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
-    "baseUrl": ".",
+    // The type checker the linter runs does not support baseUrl; this
+    // mapping reproduces it.
+    "paths": { "*": ["./*"] },
     "outDir": "dist"
   },
-  "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "*.ts", "*.json"]
+  "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "*.ts", "*.json"],
+  "exclude": ["vitest.config.ts"]
 }

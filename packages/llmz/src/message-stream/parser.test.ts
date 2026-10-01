@@ -17,7 +17,233 @@ const strip = (item: ParsedItem) => ({
 })
 
 describe('streaming message parser', () => {
+  describe('terminal exit regression', () => {
+    it.each(['■next=listen\n', '■next=done {}\n', '■next=listen'])(
+      'ignores all later blocks after %j at every split',
+      (exit) => {
+        const raw = `■send=message\nDone.\n${exit}■send=message\nDuplicate\n■run\nawait chargeAgain()\n■next=listen`
+        for (const chunks of [
+          [...raw],
+          ...Array.from({ length: raw.length + 1 }, (_, i) => [raw.slice(0, i), raw.slice(i)]),
+        ]) {
+          const parser = new StreamingMessageParser()
+          const events = chunks.flatMap((chunk) => parser.push(chunk))
+          events.push(...parser.finish())
+          expect(parser.items.map((item) => item.kind)).toEqual(['send', 'next'])
+          expect(
+            events
+              .filter((e) => e.type === 'body-delta')
+              .map((e) => e.delta)
+              .join('')
+          ).toBe('Done.')
+          expect(parser.diagnostics).toEqual([
+            { code: 'unexpected-text', message: 'Discarded content after terminal ■next' },
+          ])
+          parser.reset()
+          parser.push('■send=message\nFresh response\n■next=listen')
+          parser.finish()
+          expect(parser.items[0]!.body).toBe('Fresh response')
+          expect(parser.diagnostics).toEqual([])
+        }
+      }
+    )
+  })
+
+  describe('triple-quote example boundaries', () => {
+    const bodies = [
+      '"""\n■send=message\nHello!\n■next=listen\n"""',
+      '■send=message\n"""\nHello!\n"""\n■next=listen',
+      '■send=md\nHello!\n"""',
+      '  """ \r\n■send=md\r\nHello!\r\n  """ \r\n■next=listen',
+    ]
+    it.each(bodies)('never emits delimiter fragments at any chunk boundary: %s', (raw) => {
+      const chunks = [[...raw], ...Array.from({ length: raw.length + 1 }, (_, i) => [raw.slice(0, i), raw.slice(i)])]
+      for (const parts of chunks) {
+        const parser = new StreamingMessageParser()
+        const events: MessageStreamEvent[] = []
+        for (const part of parts) {
+          events.push(...parser.push(part))
+          expect(
+            parser.items.filter((item) => item.kind === 'send').every((item) => 'Hello!'.startsWith(item.body ?? ''))
+          ).toBe(true)
+        }
+        events.push(...parser.finish())
+        expect(parser.items[0]!.body).toBe('Hello!')
+        expect(
+          events
+            .filter((event) => event.type === 'body-delta')
+            .map((event) => event.delta)
+            .join('')
+        ).toBe('Hello!')
+        expect(parser.diagnostics.length).toBeGreaterThan(0)
+        expect(parser.diagnostics.every((d) => d.code === 'example-delimiter')).toBe(true)
+      }
+    })
+
+    it.each(['"', '""', '"""'])('holds an interrupted delimiter %s and clears it on reset', (ending) => {
+      const parser = new StreamingMessageParser()
+      const events = [...parser.push(`■send=message\nHello!\n${ending}`), ...parser.finish('interrupted')]
+      expect(parser.items[0]!.body).toBe('Hello!')
+      expect(parser.items[0]!.status).toBe('interrupted')
+      expect(
+        events
+          .filter((event) => event.type === 'body-delta')
+          .map((event) => event.delta)
+          .join('')
+      ).toBe('Hello!')
+      parser.reset()
+      parser.push('■send=message\nNew reply\n■next=listen')
+      parser.finish()
+      expect(parser.items[0]!.body).toBe('New reply')
+      expect(parser.diagnostics).toEqual([])
+    })
+
+    it.each([
+      '"',
+      '""',
+      '"""quoted"""',
+      'The delimiter is """.',
+      '""""',
+      '""" text',
+      '```python\n"""\nA docstring\n"""\n```',
+      'Before\n"""\nAfter',
+    ])('preserves literal text: %s', (body) => {
+      const parser = new StreamingMessageParser()
+      for (const char of `■send=message\n${body}`) parser.push(char)
+      parser.finish()
+      expect(parser.items[0]!.body).toBe(body)
+      expect(parser.diagnostics).toEqual([])
+    })
+
+    it('preserves JSON props and interior code while removing a terminal code wrapper', () => {
+      const code = 'const text = `\n"""\n`;\nreturn text'
+      const raw = `"""\n■send=button ${JSON.stringify({ label: '"""' })}\n■run\n${code}\n"""\n`
+      const parser = new StreamingMessageParser()
+      for (const char of raw) parser.push(char)
+      parser.finish()
+      expect(parser.items[0]!.props).toEqual({ label: '"""' })
+      expect(parser.items[1]!.body).toBe(code)
+      expect(parser.diagnostics.map((d) => d.code)).toEqual(['example-delimiter', 'example-delimiter'])
+    })
+
+    it('never promotes quoted prose to a message', () => {
+      const { parser, items } = parseAll('"""\nPrivate reasoning\n"""\n■next=listen')
+      expect(items.map((item) => item.kind)).toEqual(['next'])
+      expect(parser.diagnostics.some((d) => d.code === 'unexpected-text')).toBe(true)
+    })
+  })
+
+  describe('reasoning preamble regression', () => {
+    const preamble =
+      'I have already provided the greeting in assistant message 5. The user has now said "ok". I should wait for their actual question or request.'
+    const reply = "Sounds good! Whenever you're ready, just let me know how I can help. 😊"
+    const output = `${preamble}\n\n■send=message\n${reply}\n■next=listen`
+
+    it.each([
+      'We need a run block.■run\nreturn await search()\n■next=done',
+      'We need to produce a ■run block with the query.■run\nreturn await search()\n■next=done',
+      'Use ■send=message for the answer.\n■run\nreturn await search()\n■next=done',
+    ])('ignores protocol names mentioned in prose at every split: %s', (raw) => {
+      for (let split = 0; split <= raw.length; split++) {
+        const parser = new StreamingMessageParser()
+        const events = [...parser.push(raw.slice(0, split)), ...parser.push(raw.slice(split)), ...parser.finish()]
+        expect(parser.items.map((item) => item.kind)).toEqual(['run', 'next'])
+        expect(parser.items[0]!.body).toBe('return await search()')
+        expect(events.filter((event) => event.type === 'item-start')).toHaveLength(2)
+        expect(parser.diagnostics).toEqual([{ code: 'unexpected-text', message: expect.any(String) }])
+        parser.reset()
+        parser.push('■send=message\nClean answer.\n■next=listen')
+        parser.finish()
+        expect(parser.items.map((item) => item.kind)).toEqual(['send', 'next'])
+        expect(parser.diagnostics).toEqual([])
+      }
+    })
+
+    it('recovers a final exit header without a trailing newline', () => {
+      const { items } = parseAll('The work is done.■next=done {"count":2}')
+      expect(items.map(strip)).toEqual([{ kind: 'next', name: 'done', props: { count: 2 }, status: 'complete' }])
+    })
+
+    it('never emits preamble events at any two-chunk boundary', () => {
+      for (let split = 0; split <= output.length; split++) {
+        const parser = new StreamingMessageParser()
+        const events = [...parser.push(output.slice(0, split)), ...parser.push(output.slice(split)), ...parser.finish()]
+
+        expect(parser.items.map((item) => [item.kind, item.name])).toEqual([
+          ['send', 'message'],
+          ['next', 'listen'],
+        ])
+        expect(
+          events
+            .filter((event) => event.type === 'body-delta')
+            .map((event) => event.delta)
+            .join('')
+        ).toBe(reply)
+        expect(events.filter((event) => event.type === 'item-complete' && event.item.kind === 'send')).toHaveLength(1)
+        expect(events.filter((event) => event.type === 'diagnostic')).toEqual([
+          { type: 'diagnostic', diagnostic: { code: 'unexpected-text', message: expect.any(String) } },
+        ])
+        expect(parser.diagnostics).toEqual([{ code: 'unexpected-text', message: expect.any(String) }])
+      }
+    })
+
+    it('discards malformed-only output without producing body or item events', () => {
+      const parser = new StreamingMessageParser()
+      const events = [...preamble.split('').flatMap((char) => parser.push(char)), ...parser.finish()]
+      expect(parser.items).toEqual([])
+      expect(events).toEqual([
+        { type: 'diagnostic', diagnostic: { code: 'unexpected-text', message: expect.any(String) } },
+      ])
+      expect(parser.diagnostics).toHaveLength(1)
+      parser.reset()
+      expect(parser.diagnostics).toEqual([])
+      expect(parser.push(preamble).map((event) => event.type)).toEqual(['diagnostic'])
+      expect(parser.items).toEqual([])
+    })
+  })
+
   describe('basic parsing', () => {
+    it('ignores a trailing wrapper fence after an exit, preserving fenced message content', () => {
+      const body = 'Example:\n```js\nconst answer = 42\n```'
+      const raw = `■send=message\n${body}\n■next=listen\n\x60\x60\x60\n`
+      for (let split = 0; split <= raw.length; split++) {
+        const parser = new StreamingMessageParser()
+        const events = [...parser.push(raw.slice(0, split)), ...parser.push(raw.slice(split)), ...parser.finish()]
+        expect(parser.items.map((item) => item.kind)).toEqual(['send', 'next'])
+        expect(parser.items[0]!.body).toBe(body)
+        expect(parser.diagnostics).toEqual([])
+        expect(events.filter((event) => event.type === 'diagnostic')).toEqual([])
+        parser.reset()
+        parser.push('■next=listen\n`not a fence')
+        parser.finish()
+        expect(parser.diagnostics.map((diagnostic) => diagnostic.code)).toEqual(['unexpected-text'])
+      }
+    })
+
+    it.each(['`', '``', '````', '```\nextra prose'])('still diagnoses invalid trailing text: %s', (suffix) => {
+      const { parser } = parseAll(`■next=listen\n${suffix}`)
+      expect(parser.diagnostics.map((diagnostic) => diagnostic.code)).toEqual(['unexpected-text'])
+    })
+
+    it('recovers one duplicate props wrapper at every stream split', () => {
+      const raw = '■next=odd_prime {{"number":17}}'
+      for (let split = 0; split <= raw.length; split++) {
+        const parser = new StreamingMessageParser()
+        parser.push(raw.slice(0, split))
+        parser.push(raw.slice(split))
+        parser.finish()
+        expect(parser.items.map(strip)).toEqual([
+          { kind: 'next', name: 'odd_prime', props: { number: 17 }, status: 'complete' },
+        ])
+      }
+    })
+
+    it('does not recover duplicate wrappers around conflicting objects', () => {
+      const { items } = parseAll('■next=done {{"number":17},{"number":2}}')
+      expect(items[0]!.status).toBe('invalid')
+      expect(items[0]!.diagnostics.some((diagnostic) => diagnostic.code === 'invalid-props')).toBe(true)
+    })
+
     it('parses a markdown send followed by a next', () => {
       const { items } = parseAll('■send=md\nHello! How can I help?\n■next=listen')
 
@@ -206,27 +432,19 @@ describe('streaming message parser', () => {
   })
 
   describe('error recovery', () => {
-    it('recovers unexpected text into an implicit send', () => {
-      const { items } = parseAll('Hello\n■send=md\nWorld')
+    it('cannot restore implicit sends with legacy options passed by JavaScript callers', () => {
+      const legacyOptions = { maxPropsLength: 100_000, strict: false, recoveryComponent: 'text' }
+      const { items, events } = parseAll('Hello\n■send=md\nWorld', legacyOptions)
 
-      expect(items.map(strip)).toEqual([
-        { kind: 'send', name: 'md', props: {}, body: 'Hello', status: 'complete' },
-        { kind: 'send', name: 'md', props: {}, body: 'World', status: 'complete' },
-      ])
-      expect(items[0]!.diagnostics.some((d) => d.code === 'unexpected-text')).toBe(true)
+      expect(items.map(strip)).toEqual([{ kind: 'send', name: 'md', props: {}, body: 'World', status: 'complete' }])
+      expect(events.filter((event) => event.type === 'body-delta').map((event) => event.delta)).toEqual(['World'])
     })
 
-    it('drops unexpected text in strict mode', () => {
-      const { items, events } = parseAll('Hello\n■send=md\nWorld', { strict: true })
+    it('drops unexpected text with a diagnostic', () => {
+      const { items, events } = parseAll('Hello\n■send=md\nWorld')
 
       expect(items.map(strip)).toEqual([{ kind: 'send', name: 'md', props: {}, body: 'World', status: 'complete' }])
       expect(events.some((e) => e.type === 'diagnostic' && e.diagnostic.code === 'unexpected-text')).toBe(true)
-    })
-
-    it('supports a custom recovery component', () => {
-      const { items } = parseAll('Hello', { recoveryComponent: 'text' })
-      expect(items[0]!.name).toBe('text')
-      expect(items[0]!.body).toBe('Hello')
     })
 
     it('skips unknown directives until the next block', () => {
@@ -254,12 +472,12 @@ describe('streaming message parser', () => {
       expect(items[0]!.body).toBe('Hello')
     })
 
-    it('recovers free text after a next header', () => {
-      const { items } = parseAll('■next=listen ok then')
+    it('drops free text after a next header by default', () => {
+      const { items, parser } = parseAll('■next=listen ok then')
+      expect(items).toHaveLength(1)
       expect(items[0]!.kind).toBe('next')
       expect(items[0]!.status).toBe('complete')
-      expect(items[1]!.kind).toBe('send')
-      expect(items[1]!.body).toBe('ok then')
+      expect(parser.diagnostics).toEqual([{ code: 'unexpected-text', message: expect.any(String) }])
     })
   })
 
@@ -398,17 +616,15 @@ describe('streaming message parser', () => {
       const { items } = parseAll(FIXTURE)
 
       expect(items.map((i) => [i.kind, i.name])).toEqual([
-        ['send', 'md'], // recovered preamble
         ['send', 'md'],
         ['send', 'buttons'],
         ['run', ''],
         ['send', 'callout'],
         ['next', 'book_meeting'],
       ])
-      expect(items[0]!.body).toBe('preamble text')
-      expect(items[2]!.props).toEqual({ buttons: [{ label: 'A ■ A' }, { label: 'B' }], cols: 2 })
-      expect(items[3]!.body).toBe('const x = { a: [1, 2, 3] }\nreturn await tool({ x })')
-      expect(items[5]!.props).toEqual({ reason: 'demo', email: 'a@b.com' })
+      expect(items[1]!.props).toEqual({ buttons: [{ label: 'A ■ A' }, { label: 'B' }], cols: 2 })
+      expect(items[2]!.body).toBe('const x = { a: [1, 2, 3] }\nreturn await tool({ x })')
+      expect(items[4]!.props).toEqual({ reason: 'demo', email: 'a@b.com' })
     })
   })
 })

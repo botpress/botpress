@@ -4,7 +4,7 @@ Nous avons ajouté un exemple de contenu pour vous aider à démarrer les tests 
 
 | **🚗 Meneur**          | @Michael Masson                                  |
 | ---------------------- | ------------------------------------------------ |
-| **⚡️ Équipe**         | _Mentionnez les contributeurs (p. ex., @xavier)_ |
+| **⚡️ Équipe**          | _Mentionnez les contributeurs (p. ex., @xavier)_ |
 |                        |
 | **📆 Date d'échéance** | 03/04/2025                                       |
 | **État**               | **[en cours]**                                   |
@@ -20,7 +20,7 @@ D'après une récente étude menée auprès de clients, nous souhaitons augmente
 
 - | Revitaliser la croissance et les revenus du client en identifiant et en capturant un nouveau segment de marché grâce à l'innovation |
   | ----------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-  | **Souhaitable :**                                                                                                                   | - _Ajoutez quelque chose que vous aimeriez avoir, mais dont vous n'avez pas absolument besoin._ |
+  | **Souhaitable :** | - _Ajoutez quelque chose que vous aimeriez avoir, mais dont vous n'avez pas absolument besoin._ |
 
 - Revitaliser plus d'un segment du client |
   | **Hors périmètre :** | - _Ajoutez tout ce que vous ne souhaitez pas inclure._

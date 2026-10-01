@@ -35,7 +35,20 @@ export const generateFileDownloadMessage = (props: Parameters<typeof _FileDownlo
   _renderMessage(_FileDownloadMessage(props))
 
 export const generateMarkdownMessage = ({ markdown }: { markdown: string }) =>
-  _renderMessage(<Markdown>{markdown}</Markdown>)
+  _renderMessage(<Markdown>{_normalizeMarkdown(markdown)}</Markdown>)
+
+// LLM / pipeline output frequently arrives with "blank" separator lines that actually contain whitespace.
+// The markdown block parser only treats truly empty lines as block separators, so these whitespace-only
+// lines cause lists, blockquotes, and headings to collapse into a single mis-parsed block. Collapse only
+// whitespace-only lines to empty; content lines are left byte-for-byte intact so that whitespace-sensitive
+// constructs — nested-list indentation, indented/fenced code, and trailing-space hard line breaks — are
+// preserved. (The parser already tolerates up to 3 leading spaces on block markers, so real indentation is
+// not the issue.)
+const _normalizeMarkdown = (markdown: string): string =>
+  markdown
+    .split('\n')
+    .map((line) => (line.trim() === '' ? '' : line))
+    .join('\n')
 
 export const generateCardMessage = (props: Parameters<typeof _CardMessage>[0]) => _renderMessage(_CardMessage(props))
 
@@ -51,7 +64,11 @@ const _BaseMessage = ({ children }: react.PropsWithChildren) => (
   <Html>
     <Head />
     <Body style={_bodyStyle}>
-      <Container style={_innerContainerStyle}>{children}</Container>
+      {/* align="left" overrides Container's hardcoded align="center" table attribute, which Gmail honors
+          over CSS text-align and would otherwise center all content. */}
+      <Container align="left" style={_innerContainerStyle}>
+        {children}
+      </Container>
     </Body>
   </Html>
 )
@@ -63,7 +80,8 @@ const _bodyStyle = {
 const _innerContainerStyle = {
   paddingLeft: '12px',
   paddingRight: '12px',
-  margin: '0 auto',
+  margin: '0',
+  textAlign: 'left',
 } as const
 
 const _primaryButtonStyle = {

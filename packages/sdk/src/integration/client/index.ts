@@ -7,9 +7,9 @@ export * from './types'
 /**
  * Just like the regular botpress client, but typed with the integration's properties.
  */
-export class IntegrationSpecificClient<TIntegration extends common.BaseIntegration>
-  implements types.ClientOperations<TIntegration>
-{
+export class IntegrationSpecificClient<
+  TIntegration extends common.BaseIntegration,
+> implements types.ClientOperations<TIntegration> {
   public constructor(private readonly _client: client.Client) {}
 
   /**
@@ -82,6 +82,8 @@ export class IntegrationSpecificClient<TIntegration extends common.BaseIntegrati
     this._client.patchState(x)) as types.PatchState<TIntegration>
 
   public configureIntegration: types.ConfigureIntegration<TIntegration> = (x) => this._client.configureIntegration(x)
+  public getIntegrationInstanceIdentifiers: types.GetIntegrationInstanceIdentifiers<TIntegration> = () =>
+    this._client.getIntegrationInstanceIdentifiers({}) //  Arguments omitted for convenience
 
   public uploadFile: types.UploadFile<TIntegration> = (x) => this._client.uploadFile(x)
   public upsertFile: types.UpsertFile<TIntegration> = (x) => this._client.upsertFile(x)
