@@ -2,7 +2,7 @@ import { PluginDefinition, z } from '@botpress/sdk'
 
 export default new PluginDefinition({
   name: 'conversation-insights',
-  version: '0.6.1',
+  version: '0.6.2',
   configuration: {
     schema: z.object({
       aiEnabled: z.boolean().default(true).describe('Set to true to enable title, summary and sentiment ai generation'),
@@ -36,6 +36,16 @@ export default new PluginDefinition({
         title: 'Is Dirty',
         description:
           "Indicates whether a conversation's AI insight has been updated since the last message. Type: boolean",
+      },
+      insightStatus: {
+        title: 'Insight status',
+        description:
+          "Set when generating the AI insight failed. 'failed': the next run tries again. 'failed-permanently': only a new message makes the conversation eligible again. Absent otherwise. Type: enum 'failed' | 'failed-permanently'",
+      },
+      insightFailureCount: {
+        title: 'Insight failure count',
+        description:
+          'How many runs failed to generate the AI insight since the last message or successful generation, not counting runs where Cognitive could not be reached. Type: int',
       },
     },
   },

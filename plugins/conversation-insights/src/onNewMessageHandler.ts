@@ -1,3 +1,4 @@
+import * as insightFailures from './insight-failures'
 import * as types from './types'
 
 type OnNewMessageProps = types.CommonProps & {
@@ -16,6 +17,7 @@ export const onNewMessage = async (props: OnNewMessageProps) => {
       message_count: message_count.toString(),
       participant_count: participant_count.toString(),
       isDirty: props.configuration.aiEnabled ? 'true' : 'false',
+      ...insightFailures.CLEARED_INSIGHT_FAILURE_TAGS,
     },
   })
   return

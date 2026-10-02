@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { parseLLMOutput } from './parse-content'
-import * as sdk from '@botpress/sdk'
 import { z } from '@botpress/sdk'
 import * as cognitive from '@botpress/cognitive'
 
@@ -19,22 +18,21 @@ describe('parseLLMOutput', () => {
     expect(result.success).toBe(true)
   })
 
-  it('invalid json parsing throws an error', () => {
-    const output = COGNITIVE_OUTPUT(`not a json`)
+  it.for([
+    { case: 'plain text', output: 'not a json' },
+    { case: 'a response cut off after its first character', output: '{' },
+    { case: 'an object without the expected keys', output: '{"answer": "ok"}' },
+    { case: 'text that cannot be repaired into JSON', output: '```json' },
+    { case: 'an empty response', output: '' },
+  ])('reports $case as unusable instead of throwing', ({ output }) => {
+    // Arrange
+    const response = COGNITIVE_OUTPUT(output)
 
-    let thrown: unknown | undefined = undefined
-    try {
-      parseLLMOutput<typeof CONTENT_PARSE_SCHEMA>({ schema: CONTENT_PARSE_SCHEMA, ...output })
-    } catch (e) {
-      thrown = e
-    }
+    // Act
+    const result = parseLLMOutput<z.infer<typeof CONTENT_PARSE_SCHEMA>>({ schema: CONTENT_PARSE_SCHEMA, ...response })
 
-    expect(thrown).toBeDefined()
-    expect(z.is.zuiError(thrown)).toBe(true)
-  })
-
-  it('empty choices parsing throws an error', () => {
-    expect(() => parseLLMOutput<any>({ output: '' } as any)).toThrow(sdk.RuntimeError)
+    // Assert
+    expect(result.success).toBe(false)
   })
 
   it('valid json with whitespaces parsing is successful', () => {

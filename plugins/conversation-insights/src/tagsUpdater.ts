@@ -1,5 +1,6 @@
 import * as cognitive from '@botpress/cognitive'
 import * as sdk from '@botpress/sdk'
+import * as insightFailures from './insight-failures'
 import * as gen from './prompt/parse-content'
 import * as sentiment from './prompt/sentiment-prompt'
 import * as summarizer from './prompt/summary-prompt'
@@ -12,6 +13,9 @@ type UpdateTitleAndSummaryProps = Omit<CommonProps, 'messages'> & {
   messages: types.ActionableMessage[]
   client: cognitive.BotpressClientLike
 }
+
+const MAX_GENERATION_RETRIES = 3
+
 export const updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
   const summaryPrompt = summarizer.createPrompt({
     messages: props.messages,
@@ -43,10 +47,11 @@ export const updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) =
 
   await props.conversation.update({
     tags: {
-      title: parsedSummary.json.title,
-      summary: parsedSummary.json.summary,
-      sentiment: parsedSentiment.json.sentiment,
+      title: parsedSummary.title,
+      summary: parsedSummary.summary,
+      sentiment: parsedSentiment.sentiment,
       isDirty: 'false',
+      ...insightFailures.CLEARED_INSIGHT_FAILURE_TAGS,
     },
   })
   props.logger.info(`The AI insight was updated for conversation ${props.conversation.id}`)
@@ -59,26 +64,23 @@ type ParsePromptProps = {
   client: cognitive.BotpressClientLike
   schema: sdk.z.ZodSchema
 }
-const _generateContentWithRetries = async <T>(props: ParsePromptProps): Promise<gen.PredictResponse<T>> => {
-  let attemptCount = 0
-  const maxRetries = 3
-
+const _generateContentWithRetries = async <T>(props: ParsePromptProps): Promise<T> => {
   const cognitiveClient = new cognitive.Cognitive({ client: props.client })
-  let llmOutput = await cognitiveClient.generateText(props.prompt)
-  let parsed = gen.parseLLMOutput<T>({ schema: props.schema, output: llmOutput.output })
+  let lastFailureReason = ''
 
-  while (!parsed.success && attemptCount < maxRetries) {
-    props.logger.debug(
-      `Attempt ${attemptCount + 1}: The LLM output did not respect the schema. It submitted: `,
-      parsed.json
-    )
-    llmOutput = await cognitiveClient.generateText(props.prompt)
-    parsed = gen.parseLLMOutput<T>({ schema: props.schema, output: llmOutput.output })
-    attemptCount++
+  for (let attempt = 1; attempt <= MAX_GENERATION_RETRIES + 1; attempt++) {
+    const llmOutput = await cognitiveClient.generateText(props.prompt)
+    const parsed = gen.parseLLMOutput<T>({ schema: props.schema, output: llmOutput.output })
+
+    if (parsed.success) {
+      return parsed.json
+    }
+
+    lastFailureReason = parsed.reason
+    props.logger.debug(`Attempt ${attempt}: the LLM output did not respect the schema: ${parsed.reason}`)
   }
 
-  if (!parsed.success) {
-    props.logger.debug(`The LLM output did not respect the schema after ${attemptCount} retries.`, parsed.json)
-  }
-  return parsed
+  throw new sdk.RuntimeError(
+    `The LLM output did not respect the schema after ${MAX_GENERATION_RETRIES + 1} attempts: ${lastFailureReason}`
+  )
 }
