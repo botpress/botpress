@@ -18,6 +18,7 @@ jobs:
           private-key: ${{ secrets.PRIVATE_DEPLOYS_PRIVATE_KEY }}
           owner: botpress
           repositories: private-deploys
+          permission-contents: write
 
       - name: Dispatch private integration deploy
         uses: actions/github-script@v9
