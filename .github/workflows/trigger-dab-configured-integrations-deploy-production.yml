@@ -1,0 +1,35 @@
+name: Deploy All DAB-Configured Integrations Production
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Acquire a short-lived access token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.PRIVATE_DEPLOYS_APP_CLIENT_ID }}
+          private-key: ${{ secrets.PRIVATE_DEPLOYS_PRIVATE_KEY }}
+          owner: botpress
+          repositories: private-deploys
+
+      - name: Dispatch private integration deploy
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            await github.rest.repos.createDispatchEvent({
+              owner: 'botpress',
+              repo: 'private-deploys',
+              event_type: 'deploy-integration',
+              client_payload: {
+                integration: '*',
+                env: 'production'
+              }
+            });
