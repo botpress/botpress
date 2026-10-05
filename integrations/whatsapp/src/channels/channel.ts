@@ -17,7 +17,11 @@ import {
 import { getAuthenticatedWhatsappClient } from '../auth'
 import { WHATSAPP } from '../misc/constants'
 import { convertMarkdownToWhatsApp } from '../misc/markdown-to-whatsapp-rtf'
-import { resolveWhatsAppDestination, sendWhatsAppMessage } from '../misc/send-whatsapp-message'
+import {
+  resolveWhatsAppDestination,
+  sendWhatsAppMessage,
+  type WhatsAppSendResponse,
+} from '../misc/send-whatsapp-message'
 import { splitTextMessageIfNeeded } from '../misc/split-text-message'
 import { reportIssueAndThrow, sleep } from '../misc/util'
 import { repeat } from '../repeat'
@@ -313,16 +317,31 @@ async function _send({ client, ctx, conversation, logger, message, ack }: SendMe
     }
   )
 
+  _assertSuccessfulSend(feedback, messageType, logger)
+
+  logger.forBot().debug(`Successfully sent ${messageType} message from bot to WhatsApp:`, message)
+  await ack({ tags: { id: feedback.messages[0].id } })
+}
+
+function _assertSuccessfulSend(
+  feedback: WhatsAppSendResponse,
+  messageType: string,
+  logger: bp.AnyMessageProps['logger']
+): asserts feedback is Extract<WhatsAppSendResponse, { messages: unknown }> {
   if ('error' in feedback) {
     const reason = feedback.error?.message ?? 'Unknown error'
     const errorCode = feedback.error?.code
 
     reportIssueAndThrow(logger, {
-      code: 'whatsapp_send_message_failed',
-      category: 'other',
-      title: `Failed to send ${messageType} message to WhatsApp`,
-      description: `WhatsApp rejected the ${messageType} message sent from the bot. Reason: ${reason}`,
-      groupBy: ['whatsapp_send_message_failed', String(errorCode ?? 'unknown')],
+      code: errorCode === 131042 ? 'whatsapp_payment_method_error' : 'whatsapp_send_message_failed',
+      category: errorCode === 131042 ? 'configuration' : 'other',
+      title:
+        errorCode === 131042 ? 'WhatsApp payment method error' : `Failed to send ${messageType} message to WhatsApp`,
+      description: `WhatsApp rejected the ${messageType} message sent from the bot. Reason: ${reason}${feedback.error?.error_data?.details ? ` - ${feedback.error.error_data.details}` : ''}`,
+      groupBy:
+        errorCode === 131042
+          ? ['whatsapp_payment_method_error']
+          : ['whatsapp_send_message_failed', String(errorCode ?? 'unknown')],
       data: {
         messageType: { raw: messageType },
         reason: { raw: reason },
@@ -345,9 +364,6 @@ async function _send({ client, ctx, conversation, logger, message, ack }: SendMe
       throwMessage: `WhatsApp returned no message ID for the sent ${messageType} message, so delivery could not be confirmed`,
     })
   }
-
-  logger.forBot().debug(`Successfully sent ${messageType} message from bot to WhatsApp:`, message)
-  await ack({ tags: { id: feedback.messages[0].id } })
 }
 
 async function _sendMany({

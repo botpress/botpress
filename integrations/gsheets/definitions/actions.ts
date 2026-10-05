@@ -23,6 +23,13 @@ const _commonFields = {
         .describe('Represents a major dimension (a row or column) of a values range')
     )
     .title('Values'),
+  spreadsheetId: z
+    .string()
+    .optional()
+    .title('Spreadsheet ID')
+    .describe(
+      'The spreadsheet to act on. Must be one of the spreadsheets selected during setup. Defaults to the first one selected if left empty.'
+    ),
 } as const
 
 const getValues = {
@@ -36,6 +43,7 @@ const getValues = {
         .describe(
           'If it equals "ROWS", then the values are returned as rows. If it equals "COLUMNS", then the values are returned as columns.'
         ),
+      spreadsheetId: _commonFields.spreadsheetId,
     }),
   },
   output: {
@@ -67,6 +75,7 @@ const setValues = {
       values: _commonFields.values.describe(
         'The values to write to the range. This is an array of arrays, where each inner array represents a major dimension (a row or column) of data. (e.g. [["a", "b"], ["c", "d"]])'
       ),
+      spreadsheetId: _commonFields.spreadsheetId,
     }),
   },
   output: {
@@ -114,6 +123,7 @@ const appendValues = {
       values: _commonFields.values.describe(
         'The values to write to the range. This is an array of arrays, where each inner array represents a major dimension (a row or column) of data. (e.g. [["a", "b"], ["c", "d"]])'
       ),
+      spreadsheetId: _commonFields.spreadsheetId,
     }),
   },
   output: {
@@ -155,6 +165,7 @@ const clearValues = {
   input: {
     schema: z.object({
       range: _commonFields.range.describe('The A1 notation of the range to clear. (e.g. "Sheet1!A1:B2")'),
+      spreadsheetId: _commonFields.spreadsheetId,
     }),
   },
   output: {
@@ -176,6 +187,7 @@ const getInfoSpreadsheet = {
         .describe(
           'The fields to include in the response when retrieving spreadsheet properties and metadata. This is a list of field names. (eg. spreadsheetId, properties.title, sheets.properties.sheetId, sheets.properties.title)'
         ),
+      spreadsheetId: _commonFields.spreadsheetId,
     }),
   },
   output: {
@@ -222,6 +234,7 @@ const addSheet = {
   input: {
     schema: z.object({
       title: z.string().title('Title').describe('The title of the new sheet to add to the spreadsheet.'),
+      spreadsheetId: _commonFields.spreadsheetId,
     }),
   },
   output: {
@@ -246,6 +259,7 @@ const deleteSheet = {
   input: {
     schema: z.object({
       sheetId: z.number().title('Sheet ID').describe('The ID of the sheet to delete.'),
+      spreadsheetId: _commonFields.spreadsheetId,
     }),
   },
   output: {
@@ -260,6 +274,7 @@ const renameSheet = {
     schema: z.object({
       sheetId: z.number().title('Sheet ID').describe('The ID of the sheet to rename.'),
       newTitle: z.string().title('New Title').describe('The new title of the sheet.'),
+      spreadsheetId: _commonFields.spreadsheetId,
     }),
   },
   output: {
@@ -271,7 +286,9 @@ const getAllSheetsInSpreadsheet = {
   title: 'Get All Sheets in Spreadsheet',
   description: 'Returns all sheets in the spreadsheet.',
   input: {
-    schema: z.object({}),
+    schema: z.object({
+      spreadsheetId: _commonFields.spreadsheetId,
+    }),
   },
   output: {
     schema: z.object({
@@ -302,6 +319,7 @@ const setSheetVisibility = {
     schema: z.object({
       sheetId: z.number().title('Sheet ID').describe('The ID of the sheet to set visibility.'),
       isHidden: z.boolean().title('Is Hidden').describe('Whether the sheet is hidden.'),
+      spreadsheetId: _commonFields.spreadsheetId,
     }),
   },
   output: {
@@ -316,6 +334,7 @@ const moveSheetHorizontally = {
     schema: z.object({
       sheetId: z.number().title('Sheet ID').describe('The ID of the sheet to move.'),
       newIndex: z.number().title('New Index').describe('The new index of the sheet within the spreadsheet.'),
+      spreadsheetId: _commonFields.spreadsheetId,
     }),
   },
   output: {
@@ -339,6 +358,7 @@ const protectNamedRange = {
         .title('Requesting User Can Edit')
         .optional()
         .describe('Whether the user adding the protection can edit the protected range.'),
+      spreadsheetId: _commonFields.spreadsheetId,
     }),
   },
   output: {
@@ -352,7 +372,9 @@ const getNamedRanges = {
   title: 'Get Named Ranges',
   description: 'Returns all named ranges in the spreadsheet.',
   input: {
-    schema: z.object({}),
+    schema: z.object({
+      spreadsheetId: _commonFields.spreadsheetId,
+    }),
   },
   output: {
     schema: z.object({
@@ -375,7 +397,9 @@ const getProtectedRanges = {
   title: 'Get Protected Ranges',
   description: 'Returns all protected ranges in the spreadsheet.',
   input: {
-    schema: z.object({}),
+    schema: z.object({
+      spreadsheetId: _commonFields.spreadsheetId,
+    }),
   },
   output: {
     schema: z.object({
@@ -412,6 +436,7 @@ const unprotectRange = {
   input: {
     schema: z.object({
       protectedRangeId: z.number().title('Protected Range ID').describe('The ID of the protected range to unprotect.'),
+      spreadsheetId: _commonFields.spreadsheetId,
     }),
   },
   output: {
@@ -434,6 +459,7 @@ const createNamedRangeInSheet = {
       rangeA1: _commonFields.range.describe(
         'The A1 notation of the range to associate with the named range. (e.g. "Sheet1!A1:B2")'
       ),
+      spreadsheetId: _commonFields.spreadsheetId,
     }),
   },
   output: {
@@ -471,6 +497,7 @@ const findRows = {
         .describe(
           'Optional A1 notation range to limit the search (e.g. "A1:F100"). If not provided, searches the entire sheet.'
         ),
+      spreadsheetId: _commonFields.spreadsheetId,
     }),
   },
   output: {
@@ -501,6 +528,7 @@ const findRow = {
         .describe(
           'Optional A1 notation range to limit the search (e.g. "A1:F100"). If not provided, searches the entire sheet.'
         ),
+      spreadsheetId: _commonFields.spreadsheetId,
     }),
   },
   output: {
@@ -536,6 +564,7 @@ const getRow = {
         .title('End Column')
         .optional()
         .describe('The ending column letter (e.g. "Z"). If not provided, returns all columns with data.'),
+      spreadsheetId: _commonFields.spreadsheetId,
     }),
   },
   output: {
@@ -568,6 +597,7 @@ const updateRow = {
         .optional()
         .default('A')
         .describe('The starting column letter for the update (e.g. "A"). Defaults to "A".'),
+      spreadsheetId: _commonFields.spreadsheetId,
     }),
   },
   output: {
@@ -600,6 +630,7 @@ const insertRowAtIndex = {
         .optional()
         .default('A')
         .describe('The starting column letter for the values (e.g. "A"). Defaults to "A".'),
+      spreadsheetId: _commonFields.spreadsheetId,
     }),
   },
   output: {
@@ -624,6 +655,7 @@ const deleteRows = {
         .array(z.number().title('Row Index'))
         .title('Row Indexes')
         .describe('The 1-based row indexes to delete.'),
+      spreadsheetId: _commonFields.spreadsheetId,
     }),
   },
   output: {
@@ -656,12 +688,48 @@ const upsertRow = {
         .optional()
         .default('A')
         .describe('The starting column letter for the values (e.g. "A"). Defaults to "A".'),
+      spreadsheetId: _commonFields.spreadsheetId,
     }),
   },
   output: {
     schema: z.object({
       action: z.enum(['updated', 'inserted']).title('Action').describe('Whether the row was updated or inserted.'),
       rowIndex: z.number().title('Row Index').describe('The 1-based index of the affected row.'),
+    }),
+  },
+} as const satisfies ActionDef
+
+const getSelectedSpreadsheets = {
+  title: 'Get Selected Spreadsheets',
+  description:
+    'Returns the spreadsheets this integration was given access to during setup. These are the only spreadsheets its actions can operate on.',
+  input: {
+    schema: z.object({}),
+  },
+  output: {
+    schema: z.object({
+      spreadsheets: z
+        .array(
+          z.object({
+            spreadsheetId: z
+              .string()
+              .title('Spreadsheet ID')
+              .describe('The ID of the spreadsheet. Pass it to the "Spreadsheet ID" field of any action.'),
+            title: z
+              .string()
+              .optional()
+              .title('Title')
+              .describe(
+                "The name of the spreadsheet. Absent when the spreadsheet can no longer be reached, which usually means it was deleted or the integration's access to it was revoked."
+              ),
+            isDefault: z
+              .boolean()
+              .title('Is Default')
+              .describe('Whether actions that do not specify a spreadsheet operate on this one.'),
+          })
+        )
+        .title('Spreadsheets')
+        .describe('The selected spreadsheets, in the order they were selected. The first one is the default.'),
     }),
   },
 } as const satisfies ActionDef
@@ -680,6 +748,7 @@ export const actions = {
   getNamedRanges,
   getProtectedRanges,
   getRow,
+  getSelectedSpreadsheets,
   getValues,
   insertRowAtIndex,
   moveSheetHorizontally,

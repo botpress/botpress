@@ -101,6 +101,25 @@ export const statusHandler = async (value: WhatsAppStatusValue, props: bp.Handle
           `WhatsApp message delivery failed. Message ID: ${value.id}, Recipient: ${recipient}, Errors: ${errorDetails}`
         )
 
+      for (const error of value.errors ?? []) {
+        if (error.code === 131042) {
+          logger.issue({
+            type: 'issue',
+            code: 'whatsapp_payment_method_error',
+            category: 'configuration',
+            title: 'WhatsApp payment method error',
+            description: `WhatsApp message ${value.id} failed due to a payment method error: ${error.message}${error.error_data?.details ? ` - ${error.error_data.details}` : ''}`,
+            groupBy: ['whatsapp_payment_method_error'],
+            data: {
+              whatsappMessageId: { raw: value.id },
+              errorCode: { raw: String(error.code) },
+              reason: { raw: error.message },
+              ...(error.error_data?.details && { details: { raw: error.error_data.details } }),
+            },
+          })
+        }
+      }
+
       const mediaErrorCode = value.errors?.find((e) => MEDIA_FAILURE_CODES.has(e.code))?.code
       const mediaUrl = _getMediaUrlFromPayload(message)
       if (!isStale && mediaErrorCode && mediaUrl) {

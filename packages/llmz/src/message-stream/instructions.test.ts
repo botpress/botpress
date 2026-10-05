@@ -68,64 +68,84 @@ describe('instruction generator', () => {
     const output = generateInstructions(COMPONENTS, { exits: EXITS })
 
     expect(output).toMatchInlineSnapshot(`
-      "Respond using only ■ blocks, with this exact syntax:
+      "## syntax
+      Send a message with ■send= followed by a registered component name and its JSON fields on one line, then the literal body on following lines. Choose a registered component. Props go on the header line as JSON; omit them when none are needed. Props-only components have no body. You may send several messages.
 
-      ■send=<component> {props}
-      body content
+      Run JavaScript with ■run on its own line, then the code. Use at most one run block. Return a result to inspect it in the next response; then close with ■end and stop. Do not append an answer before seeing the result.
 
-      ■run
-      // TypeScript code to execute
+      Finish with ■next= followed by an available exit name and its JSON fields on one line. Choose an available exit and include required props as JSON on that same line. This block has no body. Follow it with ■end.
 
-      ■next=<exit> {props}
+      Write actual names and values, never template labels. JSON uses double-quoted keys and strings; do not nest fields under "props" or "value".
 
-      \`■send\` sends a message component to the user. Props are a JSON object on the same line as the header; the body is everything after the header line, until the next \`■\`. \`■run\` executes code; the body is the code. Always end your response with \`■next=<exit>\`. Props are written inline as a plain JSON object of the fields themselves (e.g. \`■next=done {"id": "123"}\`) — never wrap them in a "props" or "value" key. Never write \`■\` inside props or body content. Do not output unregistered components or unspecified props.
+      Never write ■ inside a body or prop. All messages go before code. A response must contain code or a final exit.
 
-      Components:
-
-      callout — Highlights important information.
-      Props:
-      - variant: "info"|"warning"|"danger", required
+      ## components
+      ### callout
+      description: Highlights important information.
+      props: - variant: "info"|"warning"|"danger", required
       - columns: number, optional, default 3
-      Body: required markdown — The highlighted message.
+      body: required markdown — The highlighted message.
 
-      image — Displays an image.
-      Props:
-      - src: string, required
+      ### image
+      description: Displays an image.
+      props: - src: string, required
       - alt: string, required
-      Body: none
+      body: none
 
-      md — Normal Markdown content.
-      Props: none
-      Body: required markdown — The response text.
+      ### md
+      description: Normal Markdown content.
+      props: none
+      body: required markdown — The response text.
 
-      Exits:
-
-      book_meeting — Transfer to sales.
-      Props:
-      - reason: string, required
+      ## exits
+      ### book_meeting
+      description: Transfer to sales.
+      props: - reason: string, required
       - email: string, required
 
-      listen — Give the turn back to the user.
-      Props: none
+      ### listen
+      description: Give the turn back to the user.
+      props: none
 
-      Examples:
-
+      ## response examples
+      ## example
+      """
+      ■start
       ■send=md
       Example **Markdown** content.
       ■next=listen
+      ■end
+      """
 
+      ## example
+      """
+      ■start
       ■send=image {"src":"https://example.com","alt":"Example"}
       ■next=listen
+      ■end
+      """
 
+      ## example
+      """
+      ■start
       ■send=callout {"variant":"info"}
       Example **Markdown** content.
-      ■next=listen"
+      ■next=listen
+      ■end
+      """"
     `)
-    expect(output).toContain('■send=<component> {props}')
+    expect(output).toContain('■send= followed by a registered component name')
     expect(output).toContain('■run')
-    expect(output).toContain('■next=<exit> {props}')
-    expect(output).toContain('Never write `■` inside props or body content.')
-    expect(output).toContain('Always end your response with `■next=<exit>`.')
+    expect(output).toContain('■next= followed by an available exit name')
+    expect(output).toContain('Never write ■ inside a body or prop.')
+    expect(output).toContain('Return a result to inspect it in the next response')
+    expect(output).toContain('Follow it with ■end.')
+  })
+
+  it('requires an exit when code is disabled', () => {
+    const output = generateInstructions(COMPONENTS, { exits: EXITS, includeRun: false })
+    expect(output).toContain('Finish with ■next= followed by an available exit name')
+    expect(output).not.toContain('■run')
   })
 
   it('omits run and next when not available', () => {
@@ -146,26 +166,28 @@ describe('instruction generator', () => {
   it('documents body support per component', () => {
     const output = generateInstructions(COMPONENTS, { exits: EXITS })
 
-    expect(output).toContain('md — Normal Markdown content.\nProps: none\nBody: required markdown — The response text.')
     expect(output).toContain(
-      'image — Displays an image.\nProps:\n- src: string, required\n- alt: string, required\nBody: none'
+      '### md\ndescription: Normal Markdown content.\nprops: none\nbody: required markdown — The response text.'
+    )
+    expect(output).toContain(
+      '### image\ndescription: Displays an image.\nprops: - src: string, required\n- alt: string, required\nbody: none'
     )
   })
 
   it('documents exits and their props', () => {
     const output = generateInstructions(COMPONENTS, { exits: EXITS })
 
-    expect(output).toContain('Exits:')
-    expect(output).toContain('listen — Give the turn back to the user.\nProps: none')
+    expect(output).toContain('## exits')
+    expect(output).toContain('### listen\ndescription: Give the turn back to the user.\nprops: none')
     expect(output).toContain(
-      'book_meeting — Transfer to sales.\nProps:\n- reason: string, required\n- email: string, required'
+      '### book_meeting\ndescription: Transfer to sales.\nprops: - reason: string, required\n- email: string, required'
     )
   })
 
   it('generates one example per syntax pattern, ending with the default exit', () => {
     const output = generateInstructions(COMPONENTS, { exits: EXITS })
 
-    expect(output).toContain('Examples:')
+    expect(output).toContain('## response examples')
     expect(output).toContain('■send=md\nExample **Markdown** content.\n■next=listen')
     expect(output).toContain('■send=image {"src":"https://example.com","alt":"Example"}\n■next=listen')
     expect(output).toContain('■send=callout {"variant":"info"}\nExample **Markdown** content.\n■next=listen')
@@ -177,11 +199,45 @@ describe('instruction generator', () => {
       generation: { examples: [{ props: { variant: 'warning' }, body: 'This cannot be undone.' }] },
     }
     const output = generateInstructions([withExample], { exits: EXITS })
-    expect(output).toContain('■send=callout {"variant":"warning"}\nThis cannot be undone.\n■next=listen')
+    expect(output).toContain('## example\n"""\n■send=callout {"variant":"warning"}\nThis cannot be undone.\n"""')
+    expect(output).toContain(
+      '## example\n"""\n■start\n■send=callout {"variant":"warning"}\nThis cannot be undone.\n■next=listen\n■end\n"""'
+    )
+  })
+
+  it('keeps curated props and bodies paired in complete response examples', () => {
+    const output = generateInstructions(
+      [
+        {
+          ...callout,
+          generation: {
+            examples: [
+              { props: { variant: 'warning' }, body: 'This operation permanently deletes your account.' },
+              { props: { variant: 'info' }, body: 'Saved.' },
+            ],
+          },
+        },
+      ],
+      { exits: [listen] }
+    )
+    const completeExamples = output.split('## response examples')[1]!
+    expect(completeExamples).toContain('■send=callout {"variant":"info"}\nSaved.\n■next=listen')
+    expect(completeExamples).not.toContain('"warning"')
+  })
+
+  it('limits inline examples and respects disabled example generation', () => {
+    const component = { ...md, generation: { examples: [1, 2, 3, 4].map((n) => ({ body: `Example ${n}` })) } }
+    const output = generateInstructions([component], { maxExamples: 0 })
+    expect(output).toContain('Example 3')
+    expect(output).not.toContain('Example 4')
+    expect(generateInstructions([component], { includeExamples: false })).not.toContain('Example 1')
+    expect(generateInstructions([component], { includeSend: false })).not.toContain('■send')
   })
 
   it('respects maxExamples and includeExamples', () => {
-    expect(generateInstructions(COMPONENTS, { exits: EXITS, includeExamples: false })).not.toContain('Examples:')
+    expect(generateInstructions(COMPONENTS, { exits: EXITS, includeExamples: false })).not.toContain(
+      '## response examples'
+    )
     const output = generateInstructions(COMPONENTS, { exits: EXITS, maxExamples: 1 })
     expect(output.split('■send=').length - 2).toBe(1) // one example send + the syntax template
   })
@@ -198,7 +254,7 @@ describe('instruction generator', () => {
     }
     const output = generateInstructions([carousel])
     expect(output).toContain(
-      'carousel — Displays a horizontally scrollable collection. Use when presenting multiple comparable options. Do not use for a single item.'
+      'Displays a horizontally scrollable collection. Use when presenting multiple comparable options. Do not use for a single item.'
     )
   })
 
@@ -209,13 +265,13 @@ describe('instruction generator', () => {
       generation: { priority: 10 },
     }
     const output = generateInstructions([md, prioritized])
-    expect(output.indexOf('zz-priority —')).toBeLessThan(output.indexOf('md —'))
+    expect(output.indexOf('### zz-priority')).toBeLessThan(output.indexOf('### md'))
   })
 
   it('uses inline props in compact mode', () => {
     const output = generateInstructions(COMPONENTS, { verbosity: 'compact' })
-    expect(output).toContain('Props: variant:"info"|"warning"|"danger" required; columns:number optional, default 3')
-    expect(output).not.toContain('Examples:')
+    expect(output).toContain('props: variant:"info"|"warning"|"danger" required; columns:number optional, default 3')
+    expect(output).not.toContain('## response examples')
   })
 
   it('renders nested types compactly', () => {
@@ -236,7 +292,7 @@ describe('instruction generator', () => {
       },
     }
     const output = generateInstructions([buttons])
-    expect(output).toContain('- buttons: {label:string,value:string}[], required')
+    expect(output).toContain('- buttons: {label?:string,value?:string}[], required')
   })
 })
 

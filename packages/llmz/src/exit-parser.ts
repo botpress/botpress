@@ -13,6 +13,8 @@ export type ParsedExit =
   | {
       success: false
       error: string
+      /** Field-level schema errors, separate from the legacy return-statement guidance. */
+      validationErrors?: string[]
       returnValue: unknown
     }
 
@@ -336,7 +338,8 @@ export function parseExit(returnValue: { action: string; [key: string]: unknown 
   const schemaType = schema._def.typeName
 
   // First, try to parse as-is
-  let parsed = schema.safeParse(valueToValidate)
+  const initialParse = schema.safeParse(valueToValidate)
+  let parsed = initialParse
 
   // If that failed and we have an alternative (extracted value), try that too
   if (!parsed.success && alternativeValue !== undefined && alternativeValue !== valueToValidate) {
@@ -438,6 +441,10 @@ export function parseExit(returnValue: { action: string; [key: string]: unknown 
     return {
       success: false,
       error: errorMessage,
+      validationErrors: (initialParse.error?.issues ?? []).map(
+        (issue: { path: (string | number)[]; message: string }) =>
+          `${issue.path.join('.') || 'value'}: ${issue.message}`
+      ),
       returnValue,
     }
   }

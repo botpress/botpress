@@ -70,7 +70,7 @@ const tGetPaymentIntent = () =>
   new Tool({
     name: 'getPaymentIntent',
     input: z.object({ amount: z.number() }),
-    output: z.object({ paymentIntent: z.string() }),
+    output: z.object({ paymentIntentId: z.string() }),
     handler: async () => {
       throw new SnapshotSignal('payment needed')
     },

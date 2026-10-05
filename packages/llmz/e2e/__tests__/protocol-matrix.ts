@@ -1,0 +1,234 @@
+import { z } from '@bpinternal/zui'
+import { DefaultComponents, Exit, Tool } from '../../src/index.js'
+import type { LLMzPrompts, ParsedAssistantResponse } from '../../src/prompts/prompt.js'
+import { protocolLanguages } from '../../src/runtime/fixtures/protocol-languages.js'
+import { TranscriptArray } from '../../src/transcript.js'
+import { protocolScenario } from './protocol-scenarios.js'
+
+const read = new Tool({
+  name: 'readAccount',
+  description: 'Read the account plan and project count.',
+  output: z.object({ plan: z.string(), projects: z.number() }),
+  handler: async () => ({ plan: 'Orchid', projects: 17 }),
+})
+const save = new Tool({
+  name: 'savePreference',
+  description: 'Save the enabled preference.',
+  input: z.object({ enabled: z.boolean() }),
+  handler: async () => undefined,
+})
+const kinds = [
+  'greeting',
+  'intake',
+  'long-context',
+  'read',
+  'progress',
+  'tool-result',
+  'save',
+  'worker',
+  'buttons',
+  'json',
+  'markdown',
+  'recovery',
+] as const
+export type ProtocolCase = {
+  id: string
+  language: string
+  kind: (typeof kinds)[number]
+  props: LLMzPrompts.InitialStateProps
+  history?: 'result' | 'error'
+  expected?: string
+}
+export const protocolMatrix: ProtocolCase[] = protocolLanguages.flatMap((lang) =>
+  kinds.map((kind): ProtocolCase => {
+    const props: LLMzPrompts.InitialStateProps = {
+      ...protocolScenario(lang.question),
+      components: [DefaultComponents.Text],
+      globalTools: [],
+      transcript: new TranscriptArray([{ role: 'user', content: lang.question }]),
+    }
+    const scenario: ProtocolCase = { id: `${lang.language}/${kind}`, language: lang.language, kind, props }
+    const set = (question: string, instructions: string, tools: Tool[] = []) => {
+      props.transcript = new TranscriptArray([{ role: 'user', content: question }])
+      props.instructions = `Respond in ${lang.language}. ${instructions}`
+      props.globalTools = tools
+    }
+    switch (kind) {
+      case 'greeting':
+        set(lang.hello, `Greet the user with exactly this text: ${lang.hello}`)
+        scenario.expected = lang.hello
+        break
+      case 'intake':
+        set(lang.question, `Ask exactly this question, then wait: ${lang.reply}`)
+        scenario.expected = lang.reply
+        break
+      case 'long-context':
+        props.instructions += `\nRespond in ${lang.language}. The first question must be exactly: ${lang.reply}`
+        scenario.expected = lang.reply
+        break
+      case 'read':
+        set(
+          `${lang.question} What is my account plan and project count?`,
+          'Use readAccount to obtain the facts. Return its result before answering. Do not send a progress message.',
+          [read]
+        )
+        break
+      case 'progress':
+        set(
+          `First say exactly "${lang.checking}", then look up my account.`,
+          'Follow the requested progress update, then use readAccount and return its result.',
+          [read]
+        )
+        scenario.expected = lang.checking
+        break
+      case 'tool-result':
+        set(
+          'What is my account plan and project count?',
+          'Answer from the latest tool result without calling again. Include the plan name and project count.',
+          [read]
+        )
+        scenario.history = 'result'
+        break
+      case 'save':
+        set(
+          'Enable the preference silently.',
+          'Await savePreference({enabled:true}), then finish with listen. Do not return a value or send a message.',
+          [save]
+        )
+        break
+      case 'worker':
+        set(
+          'Finish.',
+          'The verified total is 42. Finish immediately using the done exit with that total. No calculation is needed.'
+        )
+        props.components = []
+        props.exits = [
+          new Exit({
+            name: 'done',
+            description: 'Report the verified total.',
+            schema: z.object({ total: z.number() }),
+          }),
+        ]
+        break
+      case 'buttons':
+        set(
+          'Ask me to pick Standard or Premium, with a button for each.',
+          `Say exactly "${lang.reply}" and send exactly two say buttons labelled Standard and Premium. Then listen.`
+        )
+        props.components = [DefaultComponents.Text, DefaultComponents.Button]
+        scenario.expected = lang.reply
+        break
+      case 'json':
+        set(
+          'Send {"status":"ok"} as a text reply.',
+          'Return the exact requested JSON string in the text component and then listen.'
+        )
+        scenario.expected = '{"status":"ok"}'
+        break
+      case 'markdown':
+        set(
+          'Show a fenced Python example with a triple-quoted docstring.',
+          'Answer directly in Markdown, then listen. Include a complete fenced Python example.'
+        )
+        break
+      case 'recovery':
+        set(
+          'What is my account plan and project count?',
+          'Use readAccount. On a temporary failure, retry once silently. There has only been one failed call so far. Return the result before answering.',
+          [read]
+        )
+        scenario.history = 'error'
+        break
+    }
+    if (scenario.history) {
+      props.iteration = {
+        current: 2,
+        limit: 10,
+        resumed: false,
+        deliveredMessages: [],
+        toolAttempts: { readAccount: 1 },
+      }
+    }
+    return scenario
+  })
+)
+
+/** Independent task checks: valid syntax alone must not turn a silent exit into a passing answer. */
+export function checkProtocolTask(scenario: ProtocolCase, parsed: ParsedAssistantResponse): boolean {
+  const text = parsed.sends
+    .filter((s) => s.name === 'message')
+    .map((s) => s.body ?? '')
+    .join('')
+  const listen = parsed.next?.name === 'listen'
+  switch (scenario.kind) {
+    case 'greeting':
+    case 'intake':
+    case 'long-context':
+    case 'json':
+      return text === scenario.expected && !parsed.code && listen
+    case 'read':
+    case 'recovery':
+      return !!parsed.code?.includes('readAccount') && parsed.sends.length === 0 && !parsed.next
+    case 'progress':
+      return text === scenario.expected && !!parsed.code?.includes('readAccount') && !parsed.next
+    case 'tool-result':
+      return text.includes('Orchid') && text.includes('17') && !parsed.code && listen
+    case 'save':
+      return (
+        !!parsed.code?.includes('savePreference') && !parsed.code.includes('return') && !parsed.sends.length && listen
+      )
+    case 'worker':
+      return parsed.next?.name === 'done' && parsed.next.props.total === 42 && !parsed.code && !parsed.sends.length
+    case 'buttons':
+      return (
+        text === scenario.expected &&
+        parsed.sends
+          .filter((s) => s.name === 'button' && s.props.action === 'say')
+          .map((s) => s.props.label)
+          .sort()
+          .join(',') === 'Premium,Standard' &&
+        listen
+      )
+    case 'markdown':
+      return text.includes('```python') && text.includes('"""') && !parsed.code && listen
+  }
+}
+
+/** Protocol/control-flow checks are separate from exact wording and translation quality. */
+export function checkResponseShape(scenario: ProtocolCase, parsed: ParsedAssistantResponse): boolean {
+  switch (scenario.kind) {
+    case 'greeting':
+    case 'intake':
+    case 'long-context':
+    case 'tool-result':
+      return (
+        !parsed.code &&
+        parsed.next?.name === 'listen' &&
+        parsed.sends.length > 0 &&
+        parsed.sends.every((send) => send.name === 'message' && !!send.body?.trim())
+      )
+    case 'buttons':
+      return (
+        !parsed.code &&
+        parsed.next?.name === 'listen' &&
+        parsed.sends.map((send) => send.name).join(',') === 'message,button,button' &&
+        !!parsed.sends[0]?.body?.trim() &&
+        parsed.sends.slice(1).every((send) => send.props.action === 'say') &&
+        parsed.sends
+          .slice(1)
+          .map((send) => send.props.label)
+          .sort()
+          .join(',') === 'Premium,Standard'
+      )
+    case 'progress':
+      return (
+        !!parsed.code?.includes('readAccount') &&
+        !parsed.next &&
+        parsed.sends.length === 1 &&
+        parsed.sends[0]?.name === 'message' &&
+        !!parsed.sends[0]?.body?.trim()
+      )
+    default:
+      return checkProtocolTask(scenario, parsed)
+  }
+}

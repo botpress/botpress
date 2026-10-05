@@ -62,6 +62,57 @@ export async function sendCard(payload: Card, client: Telegraf<Context<Update>>,
   }
 }
 
+const MAX_STORED_CHOICE_PROMPTS = 20
+
+type ChoiceEntry = { label: string; value: string }
+
+const getChoicePromptsState = async (client: bp.Client, conversationId: string) => {
+  const { state } = await client.getOrSetState({
+    type: 'conversation',
+    name: 'choicePrompts',
+    id: conversationId,
+    payload: { prompts: [] },
+  })
+  return state.payload.prompts
+}
+
+export const storeChoicePrompt = async (
+  client: bp.Client,
+  conversationId: string,
+  messageId: number,
+  entries: ChoiceEntry[]
+) => {
+  const prompts = await getChoicePromptsState(client, conversationId)
+  const next = [...prompts.filter((prompt) => prompt.messageId !== messageId), { messageId, entries }].slice(
+    -MAX_STORED_CHOICE_PROMPTS
+  )
+  await client.setState({
+    type: 'conversation',
+    name: 'choicePrompts',
+    id: conversationId,
+    payload: { prompts: next },
+  })
+}
+
+export const consumeChoicePrompt = async (
+  client: bp.Client,
+  conversationId: string,
+  messageId: number
+): Promise<ChoiceEntry[] | null> => {
+  const prompts = await getChoicePromptsState(client, conversationId)
+  const prompt = prompts.find((entry) => entry.messageId === messageId)
+  if (!prompt) {
+    return null
+  }
+  await client.setState({
+    type: 'conversation',
+    name: 'choicePrompts',
+    id: conversationId,
+    payload: { prompts: prompts.filter((entry) => entry.messageId !== messageId) },
+  })
+  return prompt.entries
+}
+
 export function getChat(conversation: MessageHandlerProps['conversation']): string {
   const chat = conversation.tags.chatId
 
@@ -89,6 +140,27 @@ export const getUserNameFromTelegramUser = (telegramUser: User) => {
     return telegramUser.username
   }
   return telegramUser.first_name
+}
+
+export const resolveConversationAndUser = async (client: bp.Client, chatId: number, fromUser: User) => {
+  const userName = getUserNameFromTelegramUser(fromUser)
+  const { conversation } = await client.getOrCreateConversation({
+    channel: 'channel',
+    tags: {
+      id: chatId.toString(),
+      fromUserId: fromUser.id.toString(),
+      fromUserUsername: fromUser.username,
+      fromUserName: userName,
+      chatId: chatId.toString(),
+    },
+    discriminateByTags: ['id'],
+  })
+  const { user } = await client.getOrCreateUser({
+    tags: { id: fromUser.id.toString() },
+    ...(userName && { name: userName }),
+    discriminateByTags: ['id'],
+  })
+  return { conversation, user }
 }
 
 const getMimeTypeFromExtension = (extension: string): string => {

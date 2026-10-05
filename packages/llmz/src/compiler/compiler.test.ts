@@ -63,7 +63,7 @@ Hi!
             b: i,              
             c: 1
                          
-         };__var__("a", () => eval("a"));
+         }
         }"
     `)
   })
@@ -122,7 +122,7 @@ Hi!
         ];__var__("newEntries", () => eval("newEntries"));
         
         ;__comment__("Function to add the new entries", 13);
-        __track__(14);async function addNewEntries(entries) {__var__("entries", () => eval("entries"));
+        __track__(14);async function addNewEntries(entries) {
           __track__(15);for (const entry of entries) {
             __track__(16);await (async () => {try {__toolc__(0, "start");const __ret__ = await ComputedTable.createTableRow(entry);__toolc__(0, "end", __ret__);return __ret__;} catch (err) {__toolc__(0, "end", err);const __newError = new Error(err.message);__newError.stack = err.stack + ("\\n" + __newError.stack);throw __newError;}})();
           }

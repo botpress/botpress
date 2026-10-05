@@ -537,3 +537,27 @@ describe('bug fixes', () => {
     `)
   })
 })
+
+it('truncates multipart text while preserving media, null content, and message order', () => {
+  const image = { type: 'image' as const, url: 'data:image/png;base64,AQID' }
+  const messages: LLMzPrompts.Message[] = [
+    { role: 'assistant', content: null },
+    {
+      role: 'user',
+      content: [{ type: 'text', text: 'Keep this' }, image, { type: 'text', text: wrapContent('word '.repeat(400)) }],
+    },
+    { role: 'user', content: 'And this' },
+  ]
+  const result = truncateWrappedContent({ messages, tokenLimit: 100 })
+  expect(result[0]).toEqual(messages[0])
+  expect(result[2]).toEqual(messages[2])
+  const content = result[1]!.content
+  expect(Array.isArray(content)).toBe(true)
+  if (!Array.isArray(content)) throw new Error('Expected multipart content')
+  expect(content[0]).toEqual({ type: 'text', text: 'Keep this' })
+  expect(content[1]).toBe(image)
+  const text = content.flatMap((part) => (part.type === 'text' ? [part.text ?? ''] : [])).join('')
+  expect(text).not.toContain('TRUNCATE')
+  expect(getTokenizer().count(text + 'And this', { approximate: false })).toBeLessThanOrEqual(100)
+  expect(messages[1]!.content).toContainEqual({ type: 'text', text: wrapContent('word '.repeat(400)) })
+})

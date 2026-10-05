@@ -1,6 +1,7 @@
 // @ts-ignore
 export { version } from '../package.json'
 
+export { Example, type ExampleDefinition, type ExampleMessage } from './example.js'
 export { Tool } from './tool.js'
 export { Exit, type ExitResult } from './exit.js'
 export { ObjectInstance } from './objects.js'
@@ -22,7 +23,7 @@ export {
 export { type Citation, CitationsManager } from './citations.js'
 export { DefaultComponents } from './component.default.js'
 export { Snapshot } from './snapshots.js'
-export { Chat, type MessageHandler, type MessageDelta, type MessageDeltaHandler } from './chat.js'
+export { Chat, type MessageHandler, type MessageMetadata, type MessageDelta, type MessageDeltaHandler } from './chat.js'
 
 import { ExecutionResult } from './result.js'
 import { type ExecutionProps } from './runtime/types.js'
@@ -73,6 +74,7 @@ export const utils = {
  * @param props - Configuration object for the execution
  * @param props.client - Botpress Client or Cognitive Client instance for LLM generation
  * @param props.instructions - System prompt/instructions for the LLM (static string or dynamic function)
+ * @param props.examples - Optional labeled few-shot examples (static array or dynamic function)
  * @param props.chat - Optional Chat instance to enable Chat Mode with user interaction
  * @param props.tools - Array of Tool instances available to the agent (static or dynamic)
  * @param props.objects - Array of ObjectInstance for namespaced tools and variables (static or dynamic)

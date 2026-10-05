@@ -1,10 +1,43 @@
-import { assert, describe, expect, it, vi } from 'vitest'
+import { afterEach, assert, describe, expect, it, vi } from 'vitest'
 
 import { CodeExecutionError, InvalidCodeError, VMSignal } from '../errors.js'
 import { Trace, Traces } from '../types.js'
+import { NodeDriver } from './drivers/node.js'
+import { QuickJSDriver } from './drivers/quickjs.js'
 import { runAsyncFunction } from './index.js'
 
 describe('llmz/vm', () => {
+  it('executes parenthesized arrow expressions without corrupting their syntax', async () => {
+    const result = await runAsyncFunction(
+      {},
+      `
+const values = [1, 3, 2].map(value => ({ value }));
+return values.reduce((a, b) => (a.value > b.value ? a : b));
+`,
+      []
+    )
+    expect(result.success).toBe(true)
+    assert(result.success)
+    expect(result.return_value).toEqual({ value: 3 })
+  })
+
+  it('preserves await expressions inside synchronous call arguments', async () => {
+    const result = await runAsyncFunction(
+      {},
+      `
+const values = [];
+for (let i = 0; i < 3; i++) {
+  values.push(await Promise.resolve(i + 1));
+}
+return values;
+`,
+      []
+    )
+    expect(result.success).toBe(true)
+    assert(result.success)
+    expect(result.return_value).toEqual([1, 2, 3])
+  })
+
   it('stack traces points to original source map code', async () => {
     const code = `
 // line 1
@@ -418,6 +451,7 @@ return {
             4,
           ],
           "g": null,
+          "h": undefined,
         }
       `)
 
@@ -1009,4 +1043,105 @@ return {
       expect(called).toBe(false)
     })
   })
+})
+
+afterEach(() => {
+  vi.restoreAllMocks()
+  vi.unstubAllEnvs()
+})
+
+describe('VM failure boundary', () => {
+  it('does not execute a side effect twice when QuickJS fails after starting execution', async () => {
+    vi.stubEnv('USE_QUICKJS', 'true')
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const charge = vi.fn()
+    vi.spyOn(QuickJSDriver.prototype, 'execute').mockImplementation(async (ctx) => {
+      ctx.context.charge()
+      throw new Error('Bridge failed after charging')
+    })
+    const node = vi.spyOn(NodeDriver.prototype, 'execute')
+    const outcome = await runAsyncFunction({ charge }, 'charge();').catch((error: unknown) => error)
+
+    expect.soft(charge).toHaveBeenCalledOnce()
+    expect.soft(node).not.toHaveBeenCalled()
+    expect(outcome).toBeInstanceOf(Error)
+  })
+})
+
+describe.each(['true', 'false'])('VM value integrity (QuickJS=%s)', (quickjs) => {
+  it('keeps earlier declarators when a later initializer throws', async () => {
+    vi.stubEnv('USE_QUICKJS', quickjs)
+    const result = await runAsyncFunction({}, 'const receipt = "paid", later = (() => { throw new Error("stop"); })();')
+    expect(result.success).toBe(false)
+    expect(result.variables.receipt).toBe('paid')
+  })
+
+  it('does not replace a top-level variable with a same-named function parameter', async () => {
+    vi.stubEnv('USE_QUICKJS', quickjs)
+    const result = await runAsyncFunction(
+      {},
+      'const account = "outer"; function local(account) { return account; } local("inner"); return account;'
+    )
+    expect(result.success && result.return_value).toBe('outer')
+    expect(result.variables.account).toBe('outer')
+  })
+
+  it('does not replace a top-level variable with a block-local shadow', async () => {
+    vi.stubEnv('USE_QUICKJS', quickjs)
+    const result = await runAsyncFunction({}, 'const account = "outer"; { const account = "inner"; } return account;')
+    expect(result.success && result.return_value).toBe('outer')
+    expect(result.variables.account).toBe('outer')
+  })
+
+  it('captures a function-scoped var declared in a for loop', async () => {
+    vi.stubEnv('USE_QUICKJS', quickjs)
+    const result = await runAsyncFunction({}, 'for (var count = 0; count < 2; count++) {} return count;')
+    expect(result.success && result.return_value).toBe(2)
+    expect(result.variables.count).toBe(2)
+  })
+
+  it('preserves undefined in objects and arrays returned by the VM', async () => {
+    vi.stubEnv('USE_QUICKJS', quickjs)
+    const result = await runAsyncFunction({}, 'return { detail: undefined, rows: [undefined] };')
+    expect(result.success).toBe(true)
+    expect(result.success && result.return_value).toStrictEqual({ detail: undefined, rows: [undefined] })
+  })
+
+  it('preserves undefined in values sent to host setters', async () => {
+    vi.stubEnv('USE_QUICKJS', quickjs)
+    const setter = vi.fn()
+    const account = Object.defineProperty({}, 'profile', {
+      enumerable: true,
+      get: () => ({ age: 40 }),
+      set: setter,
+    })
+    const result = await runAsyncFunction({ account }, 'account.profile = { detail: undefined, rows: [undefined] };')
+    expect(result.success).toBe(true)
+    expect(setter.mock.calls[0]?.[0]).toStrictEqual({ detail: undefined, rows: [undefined] })
+  })
+
+  it('preserves deeply frozen objects returned by host getters', async () => {
+    vi.stubEnv('USE_QUICKJS', quickjs)
+    const profile = Object.freeze({ nested: Object.freeze({ age: 40 }) })
+    const account = Object.defineProperty({}, 'profile', { enumerable: true, get: () => profile })
+    const result = await runAsyncFunction(
+      { account },
+      'const value = account.profile; try { value.nested.age = -1; } catch {} return value.nested.age;'
+    )
+    expect(result.success && result.return_value).toBe(40)
+    expect(profile.nested.age).toBe(40)
+  })
+})
+
+it('rejects a lossy QuickJS setter conversion before invoking the host setter', async () => {
+  vi.stubEnv('USE_QUICKJS', 'true')
+  const setter = vi.fn()
+  const account = Object.defineProperty({}, 'profile', {
+    enumerable: true,
+    get: () => ({ age: 40 }),
+    set: setter,
+  })
+  const result = await runAsyncFunction({ account }, 'account.profile = { age: NaN };')
+  expect.soft(setter).not.toHaveBeenCalled()
+  expect(result.success).toBe(false)
 })

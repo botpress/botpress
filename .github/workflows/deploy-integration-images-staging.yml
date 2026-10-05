@@ -57,7 +57,7 @@ jobs:
             --output text)
 
           if [ -z "$image_manifest" ] || [ "$image_manifest" = "None" ]; then
-            echo "No ECR image found for $ECR_REPOSITORY:$latest_tag"
+            echo "::error::No ECR image found for $ECR_REPOSITORY:$latest_tag"
             exit 1
           fi
 
@@ -77,6 +77,7 @@ jobs:
               exit 0
             fi
 
+            echo "::error::Failed to tag $ECR_REPOSITORY:$latest_tag as $staging_tag"
             exit 1
           fi
 
