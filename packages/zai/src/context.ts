@@ -35,6 +35,7 @@ export type ZaiContextProps = {
   source?: CognitiveRequest['meta']
   memoizer?: Memoizer
   metadata?: ZaiMetadata
+  skipCache?: boolean
 }
 
 /**
@@ -112,6 +113,7 @@ export class ZaiContext {
   public adapter?: Adapter
   public source?: CognitiveRequest['meta']
   public metadata?: ZaiMetadata
+  public skipCache?: boolean
 
   private _eventEmitter: EventEmitter<ContextEvents>
   private _memoizer: Memoizer
@@ -131,6 +133,7 @@ export class ZaiContext {
     this.taskType = props.taskType
     this._memoizer = props.memoizer ?? ZaiContext._noopMemoizer
     this._eventEmitter = new EventEmitter<ContextEvents>()
+    this.skipCache = props.skipCache ?? false
 
     this._client.on('request', () => {
       this._totalRequests++
@@ -215,6 +218,9 @@ export class ZaiContext {
               promptCategory: props.meta?.promptCategory || `zai:${this.taskType}`,
               promptSource: props.meta?.promptSource || `zai:${this.taskType}:${this.taskId ?? 'default'}`,
               metadata: props.meta?.metadata || this.metadata,
+            },
+            options: {
+              skipCache: this.skipCache,
             },
           },
           { signal: this.controller.signal }

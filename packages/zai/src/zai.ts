@@ -131,6 +131,8 @@ export type ZaiConfig = {
    * events server-side. Use `zai.with({ metadata })` to scope it, e.g. per conversation.
    */
   metadata?: ZaiMetadata
+
+  skipCache?: boolean
 }
 
 const _ZaiConfig = z.object({
