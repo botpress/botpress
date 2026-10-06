@@ -45,6 +45,7 @@ export type MessageHandler = (input: RenderedComponent, metadata: MessageMetadat
  * Deltas are provisional: restart deltas retract previews from that iteration
  * after a provider restart, malformed response, or transport failure. Completed
  * `handler` messages and code wait for a valid response and successful transport.
+ * A caller abort emits no restart: previews already streamed stay as they are.
  */
 export type MessageDelta =
   | {
