@@ -132,6 +132,7 @@ export type ZaiConfig = {
    */
   metadata?: ZaiMetadata
 
+  /** Skip cache for this request. */
   skipCache?: boolean
 }
 
