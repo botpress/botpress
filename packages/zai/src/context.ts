@@ -133,7 +133,7 @@ export class ZaiContext {
     this.taskType = props.taskType
     this._memoizer = props.memoizer ?? ZaiContext._noopMemoizer
     this._eventEmitter = new EventEmitter<ContextEvents>()
-    this.skipCache = props.skipCache ?? false
+    this.skipCache = props.skipCache
 
     this._client.on('request', () => {
       this._totalRequests++
@@ -219,9 +219,8 @@ export class ZaiContext {
               promptSource: props.meta?.promptSource || `zai:${this.taskType}:${this.taskId ?? 'default'}`,
               metadata: props.meta?.metadata || this.metadata,
             },
-            options: {
-              skipCache: this.skipCache,
-            },
+            // only set when enabled so default request bodies stay unchanged
+            ...(this.skipCache && { options: { ...request.options, skipCache: true } }),
           },
           { signal: this.controller.signal }
         )
