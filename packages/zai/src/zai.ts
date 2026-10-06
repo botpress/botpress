@@ -131,8 +131,10 @@ export type ZaiConfig = {
    * events server-side. Use `zai.with({ metadata })` to scope it, e.g. per conversation.
    */
   metadata?: ZaiMetadata
-
-  /** Skip cache for this request. */
+  /**
+   * Bypass the cognitive cache and force fresh LLM calls.
+   * Use `zai.with({ skipCache: true })` to scope it to specific operations.
+   */
   skipCache?: boolean
 }
 
@@ -169,6 +171,7 @@ const _ZaiConfig = z.object({
     .record(z.string().max(128))
     .describe('Arbitrary key-value metadata attached to every cognitive call and recorded on usage events')
     .optional(),
+  skipCache: z.boolean().describe('Bypass the cognitive cache and force fresh LLM calls').optional(),
 })
 
 /**
@@ -248,6 +251,7 @@ export class Zai {
   protected activeLearning: ActiveLearning
   protected _memoize?: Memoizer | (() => Memoizer)
   protected metadata?: ZaiMetadata
+  protected skipCache?: boolean
 
   /**
    * Creates a new Zai instance with the specified configuration.
@@ -283,6 +287,7 @@ export class Zai {
     this.Model = parsed.modelId as Models | Models[]
     this.activeLearning = parsed.activeLearning as ActiveLearning
     this.metadata = parsed.metadata
+    this.skipCache = parsed.skipCache
 
     this.adapter = parsed.activeLearning?.enable
       ? new TableAdapter({

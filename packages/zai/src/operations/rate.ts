@@ -613,6 +613,7 @@ Zai.prototype.rate = function <T, I extends RatingInstructions>(
     adapter: this.adapter,
     memoizer: this._resolveMemoizer(),
     metadata: this.metadata,
+    skipCache: this.skipCache,
   })
 
   return new Response<Array<RatingResult<I>>, Array<SimplifiedRatingResult<I>>>(
