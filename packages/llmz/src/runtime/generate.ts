@@ -373,7 +373,9 @@ export const generateCode = async ({
           void err
         })
       }
-      if (!accepted && liveContent.size) {
+      // A caller abort ends the run without a retry, so there is no replacement
+      // output to restart into: keep what was already previewed.
+      if (!accepted && liveContent.size && !controller.signal.aborted) {
         await preview({
           restart: true,
           iterationId: iteration.id,

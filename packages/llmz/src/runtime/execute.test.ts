@@ -2592,7 +2592,7 @@ await record({ token: "\u25a0end" })
       }
     })
 
-    test('cancelling mid-stream retracts previews without committing sends', async () => {
+    test('cancelling mid-stream keeps previews without committing sends', async () => {
       const guard = new AbortController()
       const deltas: MessageDelta[] = []
       const { chat, messages } = makeChat((delta) => {
@@ -2613,7 +2613,33 @@ await record({ token: "\u25a0end" })
       expect(result.iterations[0]!.status.type).toBe('aborted')
 
       expect(textDeltas(deltas).length).toBeGreaterThan(0)
-      expect(restartDeltas(deltas)).toHaveLength(1)
+      // no retry follows a cancel, so nothing replaces the previews
+      expect(restartDeltas(deltas)).toEqual([])
+    })
+
+    test('a stalled stream still retracts previews', async () => {
+      try {
+        vi.useFakeTimers()
+        const deltas: MessageDelta[] = []
+        const { chat, messages } = makeChat((delta) => {
+          deltas.push(delta)
+        })
+        const client = new ScriptedAbortAwareCognitive(['■send=message\nAbandoned!\n■next=listen'])
+
+        const execution = executeContext({ client, chat, options: midStreamOptions(1) })
+
+        // the stall guard aborts only the stream, never the caller's signal
+        await vi.advanceTimersByTimeAsync(180_001)
+
+        const result = await execution
+        expect(result).toBeInstanceOf(ErrorExecutionResult)
+        expect(((result as ErrorExecutionResult).error as Error).message).toContain('LLM stream stalled')
+        expect(messages).toEqual([])
+        expect(textDeltas(deltas).length).toBeGreaterThan(0)
+        expect(restartDeltas(deltas)).toHaveLength(1)
+      } finally {
+        vi.useRealTimers()
+      }
     })
 
     test('a stream error commits neither sends nor code', async () => {
