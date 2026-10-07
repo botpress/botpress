@@ -7,6 +7,10 @@ on:
     paths:
       - Dockerfile
       - integrations/telegram/**
+      - integrations/whatsapp/**
+      - integrations/slack/**
+      - integrations/instagram/**
+      - integrations/messenger/**
       - integrations/build-utils/**
       - interfaces/**
       - packages/**
