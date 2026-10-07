@@ -40,6 +40,18 @@ jobs:
           - integration: telegram
             target: telegram
             platform: linux/amd64
+          - integration: whatsapp
+            target: whatsapp
+            platform: linux/amd64
+          - integration: slack
+            target: slack
+            platform: linux/amd64
+          - integration: instagram
+            target: instagram
+            platform: linux/amd64
+          - integration: messenger
+            target: messenger
+            platform: linux/amd64
     steps:
       - uses: actions/checkout@v4
 

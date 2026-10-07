@@ -46,3 +46,18 @@ FROM base AS telegram
 
 COPY --from=build /usr/app/integrations/telegram/.botpress/dist/index.cjs ./index.cjs
 
+FROM base AS whatsapp
+
+COPY --from=build /usr/app/integrations/whatsapp/.botpress/dist/index.cjs ./index.cjs
+
+FROM base AS slack
+
+COPY --from=build /usr/app/integrations/slack/.botpress/dist/index.cjs ./index.cjs
+
+FROM base AS instagram
+
+COPY --from=build /usr/app/integrations/instagram/.botpress/dist/index.cjs ./index.cjs
+
+FROM base AS messenger
+
+COPY --from=build /usr/app/integrations/messenger/.botpress/dist/index.cjs ./index.cjs
