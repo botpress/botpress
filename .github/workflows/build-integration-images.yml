@@ -39,7 +39,7 @@ jobs:
         include:
           - integration: telegram
             target: telegram
-            platform: linux/arm64
+            platform: linux/amd64
     steps:
       - uses: actions/checkout@v4
 
