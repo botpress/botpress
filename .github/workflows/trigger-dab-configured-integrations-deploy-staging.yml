@@ -4,13 +4,88 @@ on:
   push:
     branches:
       - master
+    paths:
+      - Dockerfile
+      - integrations/telegram/**
+      - integrations/build-utils/**
+      - interfaces/**
+      - packages/**
+      - patches/**
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - tsconfig.json
+      - turbo.json
+      - .github/workflows/build-integration-images.yml
   workflow_dispatch:
 
 permissions:
+  id-token: write
   contents: read
 
+env:
+  ECR_REPOSITORY: integration-images
+
 jobs:
+  tag-images:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - integration: telegram
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-session-name: container_pusher
+          role-to-assume: arn:aws:iam::986677156374:role/actions/build/container_pusher
+          aws-region: us-east-1
+
+      - name: Tag commit image as staging
+        env:
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          INTEGRATION: ${{ matrix.integration }}
+        run: |
+          source_tag="${INTEGRATION}-${GITHUB_SHA}"
+          staging_tag="${INTEGRATION}-staging"
+          image_digest=$(aws ecr describe-images \
+            --repository-name "$ECR_REPOSITORY" \
+            --image-ids imageTag="$source_tag" \
+            --query 'imageDetails[0].imageDigest' \
+            --output text)
+          image_manifest=$(aws ecr batch-get-image \
+            --repository-name "$ECR_REPOSITORY" \
+            --image-ids imageTag="$source_tag" \
+            --query 'images[0].imageManifest' \
+            --output text)
+
+          if [ -z "$image_manifest" ] || [ "$image_manifest" = "None" ]; then
+            echo "::error::No ECR image found for $ECR_REPOSITORY:$source_tag"
+            exit 1
+          fi
+
+          if ! aws ecr put-image \
+            --repository-name "$ECR_REPOSITORY" \
+            --image-tag "$staging_tag" \
+            --image-manifest "$image_manifest" \
+            > /dev/null; then
+            staging_digest=$(aws ecr describe-images \
+              --repository-name "$ECR_REPOSITORY" \
+              --image-ids imageTag="$staging_tag" \
+              --query 'imageDetails[0].imageDigest' \
+              --output text 2> /dev/null || true)
+
+            if [ "$staging_digest" = "$image_digest" ]; then
+              echo "$ECR_REPOSITORY:$staging_tag already points at $image_digest"
+              exit 0
+            fi
+
+            echo "::error::Failed to tag $ECR_REPOSITORY:$source_tag as $staging_tag"
+            exit 1
+          fi
+
   trigger:
+    needs: tag-images
     runs-on: ubuntu-latest
     steps:
       - name: Acquire a short-lived access token
