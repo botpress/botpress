@@ -1,4 +1,5 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
+import { RuntimeError } from '@botpress/sdk'
 import { getCredentialsState } from './auth'
 import { fireOrderCancelled } from './events/order-cancelled'
 import { fireOrderCreated } from './events/order-created'
@@ -28,7 +29,18 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     return { status: 400, body: 'Missing Shopify webhook headers or body' }
   }
 
-  if (!verifyWebhookHmac(req.body, hmac, await _getWebhookSecret(client, ctx))) {
+  let secret: string
+  try {
+    secret = await _getWebhookSecret(client, ctx)
+  } catch (thrown: unknown) {
+    // Without the saved auth method we can't tell which app signed the webhook. Fail with a 5xx
+    // so Shopify retries later, instead of rejecting a correctly signed webhook as invalid.
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    logger.forBot().error(`Failed to read Shopify credentials to verify webhook (topic: ${topic}): ${error.message}`)
+    return { status: 503, body: 'Unable to verify webhook right now' }
+  }
+
+  if (!verifyWebhookHmac(req.body, hmac, secret)) {
     logger.forBot().warn('Rejected Shopify webhook with invalid HMAC signature')
     return { status: 401, body: 'Invalid HMAC signature' }
   }
@@ -68,8 +80,17 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
 }
 
 // Shopify signs webhooks with the secret of the app that created the subscription:
-// our app for OAuth, the merchant's own app for manual setup.
+// our app for OAuth, the merchant's own app for manual setup. Throws if the state can't be read,
+// so the OAuth default is only used once a successful read shows the store isn't set up manually.
 const _getWebhookSecret = async (client: bp.Client, ctx: bp.Context): Promise<string> => {
-  const { authMethod, clientSecret } = await getCredentialsState({ client, ctx })
-  return authMethod === 'manual' && clientSecret ? clientSecret : bp.secrets.SHOPIFY_CLIENT_SECRET
+  try {
+    const { authMethod, clientSecret } = await getCredentialsState({ client, ctx })
+    return authMethod === 'manual' && clientSecret ? clientSecret : bp.secrets.SHOPIFY_CLIENT_SECRET
+  } catch (thrown: unknown) {
+    if (thrown instanceof RuntimeError) {
+      throw thrown
+    }
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError(`Failed to read Shopify credentials to verify the webhook: ${error.message}`)
+  }
 }

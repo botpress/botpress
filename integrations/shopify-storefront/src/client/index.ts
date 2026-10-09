@@ -109,27 +109,35 @@ export const fetchClientCredentialsToken = async ({
   clientId: string
   clientSecret: string
 }): Promise<string> => {
-  const response = await fetch(`https://${shop}.myshopify.com/admin/oauth/access_token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
-    body: new URLSearchParams({
-      grant_type: 'client_credentials',
-      client_id: clientId,
-      client_secret: clientSecret,
-    }).toString(),
-  })
+  try {
+    const response = await fetch(`https://${shop}.myshopify.com/admin/oauth/access_token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
+      body: new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: clientId,
+        client_secret: clientSecret,
+      }).toString(),
+    })
 
-  if (!response.ok) {
-    const body = await response.text().catch(() => '')
-    throw new RuntimeError(
-      `Failed to get a Shopify access token with the provided Client ID and Client Secret: ${response.status} ${response.statusText} — ${body.slice(0, 500)}. Check the credentials and that the app is installed on ${shop}.myshopify.com.`
-    )
+    if (!response.ok) {
+      const body = await response.text().catch(() => '')
+      throw new RuntimeError(
+        `Failed to get a Shopify access token with the provided Client ID and Client Secret: ${response.status} ${response.statusText} — ${body.slice(0, 500)}. Check the credentials and that the app is installed on ${shop}.myshopify.com.`
+      )
+    }
+
+    const json = (await response.json()) as { access_token?: string }
+    if (!json.access_token) {
+      throw new RuntimeError('Shopify did not return an access_token in the client credentials response')
+    }
+
+    return json.access_token
+  } catch (thrown: unknown) {
+    if (thrown instanceof RuntimeError) {
+      throw thrown
+    }
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError(`Failed to get a Shopify access token for ${shop}.myshopify.com: ${error.message}`)
   }
-
-  const json = (await response.json()) as { access_token?: string }
-  if (!json.access_token) {
-    throw new RuntimeError('Shopify did not return an access_token in the client credentials response')
-  }
-
-  return json.access_token
 }

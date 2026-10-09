@@ -1,4 +1,4 @@
-import { RuntimeError } from '@botpress/sdk'
+import { isApiError, RuntimeError } from '@botpress/sdk'
 import * as bp from '.botpress'
 
 const REFRESH_BUFFER_SECONDS = 300
@@ -123,53 +123,62 @@ export const fetchClientCredentialsToken = async ({
   clientId: string
   clientSecret: string
 }): Promise<Pick<ShopifyCredentials, 'accessToken' | 'accessTokenExpiresAtSeconds'>> => {
-  const response = await fetch(`https://${shop}.myshopify.com/admin/oauth/access_token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
-    body: new URLSearchParams({
-      grant_type: 'client_credentials',
-      client_id: clientId,
-      client_secret: clientSecret,
-    }).toString(),
-  })
+  try {
+    const response = await fetch(`https://${shop}.myshopify.com/admin/oauth/access_token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
+      body: new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: clientId,
+        client_secret: clientSecret,
+      }).toString(),
+    })
 
-  if (!response.ok) {
-    const body = await response.text().catch(() => '')
-    throw new RuntimeError(
-      `Failed to get a Shopify access token with the provided Client ID and Client Secret: ${response.status} ${response.statusText} — ${body.slice(0, 500)}. Check the credentials and that the app is installed on ${shop}.myshopify.com.`
-    )
-  }
+    if (!response.ok) {
+      const body = await response.text().catch(() => '')
+      throw new RuntimeError(
+        `Failed to get a Shopify access token with the provided Client ID and Client Secret: ${response.status} ${response.statusText} — ${body.slice(0, 500)}. Check the credentials and that the app is installed on ${shop}.myshopify.com.`
+      )
+    }
 
-  const json = (await response.json()) as TokenResponse
-  if (!json.access_token || !json.expires_in) {
-    throw new RuntimeError('Shopify client credentials response is missing access_token or expires_in')
-  }
+    const json = (await response.json()) as TokenResponse
+    if (!json.access_token || !json.expires_in) {
+      throw new RuntimeError('Shopify client credentials response is missing access_token or expires_in')
+    }
 
-  return {
-    accessToken: json.access_token,
-    accessTokenExpiresAtSeconds: _nowSeconds() + json.expires_in,
+    return {
+      accessToken: json.access_token,
+      accessTokenExpiresAtSeconds: _nowSeconds() + json.expires_in,
+    }
+  } catch (thrown: unknown) {
+    if (thrown instanceof RuntimeError) {
+      throw thrown
+    }
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError(`Failed to get a Shopify access token for ${shop}.myshopify.com: ${error.message}`)
   }
 }
 
-export const setCredentialsState = async ({
+// Callers pass the full payload they already read (merged with the new token fields) rather than
+// having this re-read state: a failed re-read would otherwise drop the stored shop and app credentials.
+const _saveCredentialsState = async ({
   client,
   ctx,
-  credentials,
+  payload,
 }: {
   client: bp.Client
   ctx: bp.Context
-  credentials: CredentialsStatePayload
+  payload: CredentialsStatePayload
 }) => {
-  const { state } = await client
-    .getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
-    .catch(() => ({ state: { payload: {} as Record<string, unknown> } }))
-
-  await client.setState({
-    type: 'integration',
-    name: 'credentials',
-    id: ctx.integrationId,
-    payload: { ...state.payload, ...credentials },
-  })
+  try {
+    await client.setState({ type: 'integration', name: 'credentials', id: ctx.integrationId, payload })
+  } catch (thrown: unknown) {
+    if (thrown instanceof RuntimeError) {
+      throw thrown
+    }
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError(`Failed to save Shopify credentials: ${error.message}`)
+  }
 }
 
 /**
@@ -203,8 +212,13 @@ export const getCredentialsState = async ({
   try {
     const { state } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
     return state.payload
-  } catch {
-    return {}
+  } catch (thrown: unknown) {
+    // No state yet means nothing has been connected. Any other failure is unexpected and must not be
+    // mistaken for "no credentials", or callers would fall back to OAuth defaults for a manual store.
+    if (isApiError(thrown) && thrown.type === 'ResourceNotFound') {
+      return {}
+    }
+    throw thrown
   }
 }
 
@@ -224,23 +238,33 @@ const _getOrFetchManualCredentials = async ({
   payload: CredentialsStatePayload
   force: boolean
 }): Promise<ShopifyAccess> => {
-  const { shopDomain, clientId, clientSecret, accessToken, accessTokenExpiresAtSeconds } = payload
-  if (!shopDomain || !clientId || !clientSecret) {
-    throw new RuntimeError('Shopify app credentials not found or incomplete; reconnect the integration via the wizard.')
-  }
+  try {
+    const { shopDomain, clientId, clientSecret, accessToken, accessTokenExpiresAtSeconds } = payload
+    if (!shopDomain || !clientId || !clientSecret) {
+      throw new RuntimeError(
+        'Shopify app credentials not found or incomplete; reconnect the integration via the wizard.'
+      )
+    }
 
-  if (
-    !force &&
-    accessToken &&
-    accessTokenExpiresAtSeconds !== undefined &&
-    _nowSeconds() < accessTokenExpiresAtSeconds - REFRESH_BUFFER_SECONDS
-  ) {
-    return { shopDomain, accessToken }
-  }
+    if (
+      !force &&
+      accessToken &&
+      accessTokenExpiresAtSeconds !== undefined &&
+      _nowSeconds() < accessTokenExpiresAtSeconds - REFRESH_BUFFER_SECONDS
+    ) {
+      return { shopDomain, accessToken }
+    }
 
-  const fetched = await fetchClientCredentialsToken({ shop: shopDomain, clientId, clientSecret })
-  await setCredentialsState({ client, ctx, credentials: fetched })
-  return { shopDomain, accessToken: fetched.accessToken }
+    const fetched = await fetchClientCredentialsToken({ shop: shopDomain, clientId, clientSecret })
+    await _saveCredentialsState({ client, ctx, payload: { ...payload, ...fetched } })
+    return { shopDomain, accessToken: fetched.accessToken }
+  } catch (thrown: unknown) {
+    if (thrown instanceof RuntimeError) {
+      throw thrown
+    }
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError(`Failed to get Shopify credentials for the manually connected store: ${error.message}`)
+  }
 }
 
 /**
@@ -286,6 +310,6 @@ const _getOrRefreshOAuthCredentials = async ({
   }
 
   const refreshed = await refreshAccessToken({ shop: shopDomain, refreshToken })
-  await setCredentialsState({ client, ctx, credentials: { shopDomain, ...refreshed } })
+  await _saveCredentialsState({ client, ctx, payload: { ...payload, ...refreshed } })
   return { shopDomain, accessToken: refreshed.accessToken }
 }

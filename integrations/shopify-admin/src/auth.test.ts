@@ -237,6 +237,13 @@ describe('fetchClientCredentialsToken', () => {
       /Client ID and Client Secret: 400 Bad Request — invalid_client/
     )
   })
+
+  it('wraps network failures with the shop for context', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('fetch failed')))
+    await expect(
+      fetchClientCredentialsToken({ shop: 'example', clientId: 'id', clientSecret: 'secret' })
+    ).rejects.toThrow('Failed to get a Shopify access token for example.myshopify.com: fetch failed')
+  })
 })
 
 describe('getOrRefreshCredentials (manual setup)', () => {
@@ -311,5 +318,86 @@ describe('getOrRefreshCredentials (manual setup)', () => {
   it('throws a reconnect hint when the app credentials are missing', async () => {
     const { client, ctx } = _stubManual({ clientSecret: undefined })
     await expect(getOrRefreshCredentials({ client, ctx })).rejects.toThrow(/reconnect the integration via the wizard/)
+  })
+})
+
+describe('getOrRefreshCredentials keeps stored fields when a later state read fails', () => {
+  const _stubFlakyClient = (payload: Record<string, unknown>) => {
+    const setState = vi.fn().mockResolvedValue({})
+    const getState = vi
+      .fn()
+      .mockResolvedValueOnce({ state: { payload } })
+      .mockRejectedValue(new Error('state read failed'))
+    return { setState, client: { setState, getState } as any, ctx: { integrationId: 'int-1' } as any }
+  }
+
+  it('manual refresh keeps the auth method, shop and app credentials', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-03T00:00:00Z'))
+    const nowSeconds = Math.floor(Date.now() / 1000)
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(_clientCredentialsResponse()))
+
+    const stored = {
+      authMethod: 'manual',
+      shopDomain: 'example',
+      clientId: 'my-id',
+      clientSecret: 'my-secret',
+      accessToken: 'shpat_old',
+      accessTokenExpiresAtSeconds: nowSeconds + 60,
+      webhookSubscriptionIds: ['gid://shopify/WebhookSubscription/1'],
+    }
+    const { client, ctx, setState } = _stubFlakyClient(stored)
+    await getOrRefreshCredentials({ client, ctx })
+
+    expect(setState.mock.calls[0]![0].payload).toEqual({
+      ...stored,
+      accessToken: 'shpat_cc',
+      accessTokenExpiresAtSeconds: nowSeconds + 86399,
+    })
+  })
+
+  it('OAuth refresh keeps the webhook subscription IDs', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-03T00:00:00Z'))
+    const nowSeconds = Math.floor(Date.now() / 1000)
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(_expiringResponse({ access_token: 'shpat_new', refresh_token: 'shprt_new' }))
+    )
+
+    const stored = {
+      shopDomain: 'example',
+      accessToken: 'shpat_old',
+      refreshToken: 'shprt_old',
+      accessTokenExpiresAtSeconds: nowSeconds + 60,
+      refreshTokenExpiresAtSeconds: nowSeconds + 7776000,
+      webhookSubscriptionIds: ['gid://shopify/WebhookSubscription/1'],
+    }
+    const { client, ctx, setState } = _stubFlakyClient(stored)
+    await getOrRefreshCredentials({ client, ctx })
+
+    expect(setState.mock.calls[0]![0].payload).toMatchObject({
+      shopDomain: 'example',
+      accessToken: 'shpat_new',
+      refreshToken: 'shprt_new',
+      webhookSubscriptionIds: ['gid://shopify/WebhookSubscription/1'],
+    })
+  })
+})
+
+describe('getOrRefreshCredentials state read errors', () => {
+  const _stubFailingRead = (error: unknown) => ({
+    client: { getState: vi.fn().mockRejectedValue(error), setState: vi.fn() } as any,
+    ctx: { integrationId: 'int-1' } as any,
+  })
+
+  it('rethrows unexpected state read errors', async () => {
+    const { client, ctx } = _stubFailingRead(new Error('state service unavailable'))
+    await expect(getOrRefreshCredentials({ client, ctx })).rejects.toThrow(/state service unavailable/)
+  })
+
+  it('treats a missing state as not connected', async () => {
+    const { client, ctx } = _stubFailingRead({ isApiError: true, type: 'ResourceNotFound', message: 'not found' })
+    await expect(getOrRefreshCredentials({ client, ctx })).rejects.toThrow(/credentials not found or incomplete/)
   })
 })

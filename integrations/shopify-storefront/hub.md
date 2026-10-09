@@ -19,11 +19,12 @@ Once authorized, the integration creates a Storefront API access token for this 
 
 #### Create the app
 
-1. Open the [Shopify Dev Dashboard](https://dev.shopify.com/dashboard) and go to **Apps**.
-2. Click **Create app**, then select **Create app manually**.
-3. Enter a name for the app. Leave the URLs empty.
-4. In the **API Access** section, add the Storefront API scopes `unauthenticated_read_product_listings`, `unauthenticated_read_checkouts`, and `unauthenticated_write_checkouts`.
-5. Click **Create app**, then click **Release**.
+1. Open the [Shopify Dev Dashboard](https://dev.shopify.com/dashboard) and switch to the Shopify organization that owns your store. The app must be in the same organization as the store, or the integration can't connect.
+2. Go to **Apps**.
+3. Click **Create app**, then select **Create app manually**.
+4. Enter a name for the app. Leave the URLs empty.
+5. In the **API Access** section, add the Storefront API scopes `unauthenticated_read_product_listings`, `unauthenticated_read_checkouts`, and `unauthenticated_write_checkouts`.
+6. Click **Create app**, then click **Release**.
 
 #### Install the app on your store
 

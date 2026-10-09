@@ -59,7 +59,7 @@ const _manualInstructionsHandler: WizardHandler = ({ responses }) =>
   responses.displayButtons({
     pageTitle: 'Create a Shopify App',
     htmlOrMarkdownPageContents:
-      '1. Open the <a href="https://dev.shopify.com/dashboard" target="_blank">Shopify Dev Dashboard</a>, go to **Apps**, click **Create app**, then select **Create app manually**.' +
+      '1. Open the <a href="https://dev.shopify.com/dashboard" target="_blank">Shopify Dev Dashboard</a> and switch to the Shopify organization that owns your store. The app must be in the same organization as the store, or the integration can\'t connect. Go to **Apps**, click **Create app**, then select **Create app manually**.' +
       '\n2. Enter a name for the app. Leave the URLs empty.' +
       '\n3. In the **API Access** section, add the Storefront API scopes `unauthenticated_read_product_listings`, `unauthenticated_read_checkouts`, and `unauthenticated_write_checkouts`.' +
       '\n4. Click **Create app**, then click **Release**.' +
@@ -108,7 +108,7 @@ const _saveManualCredentialsHandler: WizardHandler = async ({ client, ctx, logge
   if (!SHOP_NAME_REGEX.test(shopDomain)) {
     return responses.displayButtons({
       pageTitle: 'Invalid Shop Domain',
-      htmlOrMarkdownPageContents: `"${parsed.data.shopDomain}" doesn't look like a valid Shopify store domain. Please enter a domain like \`your-store.myshopify.com\`.`,
+      htmlOrMarkdownPageContents: `"${_escapeHtml(parsed.data.shopDomain)}" doesn't look like a valid Shopify store domain. Please enter a domain like \`your-store.myshopify.com\`.`,
       buttons: [
         { action: 'navigate', label: 'Try again', navigateToStep: 'get-manual-credentials', buttonType: 'primary' },
         { action: 'close', label: 'Cancel', buttonType: 'secondary' },
@@ -132,12 +132,10 @@ const _saveManualCredentialsHandler: WizardHandler = async ({ client, ctx, logge
 
     await _patchCredentialsState(client, ctx, { shopDomain, storefrontAccessToken })
     await client.configureIntegration({ identifier: shopDomain })
-  } catch (e) {
-    logger.forBot().error({ err: e }, 'Shopify manual setup failed')
-    return responses.endWizard({
-      success: false,
-      errorMessage: e instanceof Error ? e.message : String(e),
-    })
+  } catch (thrown: unknown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    logger.forBot().error({ err: error }, 'Shopify manual setup failed')
+    return responses.endWizard({ success: false, errorMessage: error.message })
   }
 
   return responses.redirectToStep('end')
@@ -161,7 +159,7 @@ const _validateShopHandler: WizardHandler = async ({ client, ctx, inputValue, re
   if (!SHOP_NAME_REGEX.test(shopDomain)) {
     return responses.displayButtons({
       pageTitle: 'Invalid Shop Domain',
-      htmlOrMarkdownPageContents: `"${inputValue}" doesn't look like a valid Shopify store domain. Please enter a domain like \`your-store.myshopify.com\`.`,
+      htmlOrMarkdownPageContents: `"${_escapeHtml(inputValue)}" doesn't look like a valid Shopify store domain. Please enter a domain like \`your-store.myshopify.com\`.`,
       buttons: [
         { action: 'navigate', label: 'Try again', navigateToStep: 'get-shop', buttonType: 'primary' },
         { action: 'close', label: 'Cancel', buttonType: 'secondary' },
@@ -264,6 +262,15 @@ const _oauthCallbackHandler: WizardHandler = async ({ query, client, ctx, logger
     })
   }
 }
+
+// Wizard pages render their contents as raw HTML, so user input echoed back must be escaped
+const _escapeHtml = (value: string): string =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
 
 const _endHandler: WizardHandler = ({ responses }) => responses.endWizard({ success: true })
 

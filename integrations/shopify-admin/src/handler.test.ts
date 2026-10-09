@@ -25,6 +25,7 @@ const buildProps = (opts: {
   body?: string
   path?: string
   credentials?: Record<string, unknown>
+  getStateError?: unknown
 }) => {
   const body = opts.body ?? '{}'
   const headers: Record<string, string> = {}
@@ -35,7 +36,12 @@ const buildProps = (opts: {
   return {
     req: { path: opts.path ?? '/', headers, body },
     ctx: { integrationId: 'int-1' },
-    client: { getState: vi.fn().mockResolvedValue({ state: { payload: opts.credentials ?? {} } }) },
+    client: {
+      getState:
+        opts.getStateError !== undefined
+          ? vi.fn().mockRejectedValue(opts.getStateError)
+          : vi.fn().mockResolvedValue({ state: { payload: opts.credentials ?? {} } }),
+    },
     logger: { forBot },
   } as any
 }
@@ -125,6 +131,30 @@ describe('Shopify webhook handler', () => {
         buildProps({ topic: 'orders/create', hmac: computeHmac(validBody), body: validBody, credentials })
       )
       expect(response).toMatchObject({ status: 401 })
+    })
+  })
+
+  describe('credentials state read', () => {
+    it('returns 503 without firing the event when the state read fails unexpectedly', async () => {
+      vi.mocked(fireOrderCreated).mockClear()
+      const response = await handler(
+        buildProps({
+          topic: 'orders/create',
+          hmac: computeHmac(validBody, 'merchant-app-secret'),
+          body: validBody,
+          getStateError: new Error('state service unavailable'),
+        })
+      )
+      expect(response).toMatchObject({ status: 503 })
+      expect(fireOrderCreated).not.toHaveBeenCalled()
+    })
+
+    it('falls back to the Botpress app secret when no credentials state exists', async () => {
+      const notFound = { isApiError: true, type: 'ResourceNotFound', message: 'not found' }
+      const response = await handler(
+        buildProps({ topic: 'orders/create', hmac: computeHmac(validBody), body: validBody, getStateError: notFound })
+      )
+      expect(response).toMatchObject({ status: 200 })
     })
   })
 })

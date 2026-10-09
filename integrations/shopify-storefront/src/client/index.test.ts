@@ -78,4 +78,11 @@ describe('fetchClientCredentialsToken', () => {
       fetchClientCredentialsToken({ shop: 'example', clientId: 'id', clientSecret: 'secret' })
     ).rejects.toThrow(/did not return an access_token/)
   })
+
+  it('wraps network failures with the shop for context', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('fetch failed')))
+    await expect(
+      fetchClientCredentialsToken({ shop: 'example', clientId: 'id', clientSecret: 'secret' })
+    ).rejects.toThrow('Failed to get a Shopify access token for example.myshopify.com: fetch failed')
+  })
 })
