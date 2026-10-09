@@ -97,7 +97,7 @@ const _isAuthorizationCodeAlreadyUsed = async ({
   try {
     const { state } = await client.getState({ type: 'integration', name: 'configuration', id: ctx.integrationId })
     return state.payload.authorizationCode === code
-  } catch (_thrown: unknown) {
+  } catch {
     // No state or unreadable state: try the exchange, which falls back to the refresh token on failure
     return false
   }
