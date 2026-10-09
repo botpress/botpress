@@ -61,7 +61,12 @@ jobs:
         env:
           ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
         run: |
-          aws ecr create-repository --repository-name "$ECR_REPOSITORY" || true
+          if ! create_output=$(aws ecr create-repository --repository-name "$ECR_REPOSITORY" 2>&1); then
+            if [[ "$create_output" != *RepositoryAlreadyExistsException* ]]; then
+              echo "$create_output" >&2
+              exit 1
+            fi
+          fi
           aws ssm get-parameter \
             --name '/cloud/container-registry/ecr-policy-document' \
             --query 'Parameter.Value' \
