@@ -1,7 +1,7 @@
 name: Build Integration Images
 
 on:
-  push:
+  pull_request:
     branches:
       - master
     paths:
@@ -35,7 +35,7 @@ env:
   ECR_REPOSITORY: integration-images
 
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -58,40 +58,27 @@ jobs:
             platform: linux/amd64
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Resolve source commit
+        id: source
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - uses: aws-actions/configure-aws-credentials@v3
+        if: github.event_name == 'workflow_dispatch'
         with:
           role-session-name: container_pusher
           role-to-assume: arn:aws:iam::986677156374:role/actions/build/container_pusher
           aws-region: us-east-1
 
       - uses: aws-actions/amazon-ecr-login@v1
+        if: github.event_name == 'workflow_dispatch'
         id: ecr
         with:
           mask-password: true
 
-      - uses: docker/metadata-action@v4
-        id: meta
-        with:
-          images: ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}
-          flavor: |
-            latest=false
-          tags: |
-            type=raw,value=${{ matrix.integration }}-${{ github.sha }}
-            type=raw,value=${{ matrix.integration }}-latest,enable=${{ github.ref == 'refs/heads/master' }}
-
-      - name: Create ECR repository
-        env:
-          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
-        run: |
-          aws ecr create-repository --repository-name "$ECR_REPOSITORY" || true
-          aws ssm get-parameter --name '/cloud/container-registry/ecr-policy-document' --query 'Parameter.Value' | jq -r > repository-policy.json
-          aws ecr set-repository-policy --repository-name "$ECR_REPOSITORY" --policy-text file://repository-policy.json > /dev/null
-
-      - name: Set up Depot CLI
-        uses: depot/setup-action@v1
-
-      - name: Build and push ${{ matrix.integration }} image
+      - name: Build ${{ matrix.integration }} image
         uses: depot/build-push-action@v1
         with:
           project: ${{ secrets.DEPOT_PROJECT_ID }}
@@ -99,6 +86,5 @@ jobs:
           context: .
           target: ${{ matrix.target }}
           platforms: ${{ matrix.platform }}
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          push: ${{ github.event_name == 'workflow_dispatch' }}
+          tags: ${{ steps.ecr.outputs.registry || 'local' }}/${{ env.ECR_REPOSITORY }}:${{ matrix.integration }}-${{ steps.source.outputs.sha }}
