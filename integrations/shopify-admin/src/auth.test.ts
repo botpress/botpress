@@ -1,5 +1,10 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
-import { exchangeCodeForAccessToken, getOrRefreshCredentials, refreshAccessToken } from './auth'
+import {
+  exchangeCodeForAccessToken,
+  fetchClientCredentialsToken,
+  getOrRefreshCredentials,
+  refreshAccessToken,
+} from './auth'
 
 beforeAll(() => {
   process.env.SECRET_SHOPIFY_CLIENT_ID = 'test-client-id'
@@ -162,7 +167,6 @@ describe('getOrRefreshCredentials', () => {
     const creds = await getOrRefreshCredentials({ client, ctx })
 
     expect(creds.accessToken).toBe('shpat_new')
-    expect(creds.refreshToken).toBe('shprt_new')
     expect(setState).toHaveBeenCalledTimes(1)
     const setCall = setState.mock.calls[0]![0]
     expect(setCall.payload).toMatchObject({
@@ -190,5 +194,236 @@ describe('getOrRefreshCredentials', () => {
       refreshTokenExpiresAtSeconds: nowSeconds - 1, // expired
     })
     await expect(getOrRefreshCredentials({ client, ctx })).rejects.toThrow(/refresh token expired \(90-day TTL\)/)
+  })
+})
+
+const _clientCredentialsResponse = (overrides: Record<string, unknown> = {}) =>
+  new Response(JSON.stringify({ access_token: 'shpat_cc', scope: 'read_products', expires_in: 86399, ...overrides }), {
+    status: 200,
+  })
+
+describe('fetchClientCredentialsToken', () => {
+  it('sends grant_type=client_credentials as a form-encoded body', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(_clientCredentialsResponse())
+    vi.stubGlobal('fetch', fetchMock)
+    await fetchClientCredentialsToken({ shop: 'example', clientId: 'my-id', clientSecret: 'my-secret' })
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe('https://example.myshopify.com/admin/oauth/access_token')
+    expect(init.headers['Content-Type']).toBe('application/x-www-form-urlencoded')
+    expect(Object.fromEntries(new URLSearchParams(init.body as string))).toEqual({
+      grant_type: 'client_credentials',
+      client_id: 'my-id',
+      client_secret: 'my-secret',
+    })
+  })
+
+  it('returns the token with an expiry computed from expires_in', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-03T00:00:00Z'))
+    const nowSeconds = Math.floor(Date.now() / 1000)
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(_clientCredentialsResponse()))
+
+    const token = await fetchClientCredentialsToken({ shop: 'example', clientId: 'id', clientSecret: 'secret' })
+    expect(token).toEqual({ accessToken: 'shpat_cc', accessTokenExpiresAtSeconds: nowSeconds + 86399 })
+  })
+
+  it('throws a credentials hint on non-2xx', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response('invalid_client', { status: 400, statusText: 'Bad Request' }))
+    )
+    await expect(fetchClientCredentialsToken({ shop: 'example', clientId: 'id', clientSecret: 'bad' })).rejects.toThrow(
+      /Client ID and Client Secret: 400 Bad Request — invalid_client/
+    )
+  })
+
+  it('wraps network failures with the shop for context', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('fetch failed')))
+    await expect(
+      fetchClientCredentialsToken({ shop: 'example', clientId: 'id', clientSecret: 'secret' })
+    ).rejects.toThrow('Failed to get a Shopify access token for example.myshopify.com: fetch failed')
+  })
+})
+
+describe('getOrRefreshCredentials (manual setup)', () => {
+  const _stubManual = (payload: Record<string, unknown>) => {
+    const setState = vi.fn().mockResolvedValue({})
+    const getState = vi.fn().mockResolvedValue({
+      state: {
+        payload: {
+          authMethod: 'manual',
+          shopDomain: 'example',
+          clientId: 'my-id',
+          clientSecret: 'my-secret',
+          ...payload,
+        },
+      },
+    })
+    return { setState, client: { setState, getState } as any, ctx: { integrationId: 'int-1' } as any }
+  }
+
+  it('returns the cached token when it is well within expiry', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-03T00:00:00Z'))
+    const nowSeconds = Math.floor(Date.now() / 1000)
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { client, ctx } = _stubManual({ accessToken: 'shpat_cached', accessTokenExpiresAtSeconds: nowSeconds + 3600 })
+    const creds = await getOrRefreshCredentials({ client, ctx })
+
+    expect(creds).toEqual({ shopDomain: 'example', accessToken: 'shpat_cached' })
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('fetches a new token with the stored app credentials near expiry and persists it', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-03T00:00:00Z'))
+    const nowSeconds = Math.floor(Date.now() / 1000)
+    const fetchMock = vi.fn().mockResolvedValue(_clientCredentialsResponse())
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { client, ctx, setState } = _stubManual({
+      accessToken: 'shpat_old',
+      accessTokenExpiresAtSeconds: nowSeconds + 60, // within buffer
+    })
+    const creds = await getOrRefreshCredentials({ client, ctx })
+
+    expect(creds).toEqual({ shopDomain: 'example', accessToken: 'shpat_cc' })
+    const body = Object.fromEntries(new URLSearchParams(fetchMock.mock.calls[0]![1].body as string))
+    expect(body).toMatchObject({ client_id: 'my-id', client_secret: 'my-secret' })
+    expect(setState.mock.calls[0]![0].payload).toMatchObject({
+      authMethod: 'manual',
+      clientSecret: 'my-secret',
+      accessToken: 'shpat_cc',
+      accessTokenExpiresAtSeconds: nowSeconds + 86399,
+    })
+  })
+
+  it('ignores a cached token when force is set', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-03T00:00:00Z'))
+    const nowSeconds = Math.floor(Date.now() / 1000)
+    const fetchMock = vi.fn().mockResolvedValue(_clientCredentialsResponse())
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { client, ctx } = _stubManual({ accessToken: 'shpat_cached', accessTokenExpiresAtSeconds: nowSeconds + 3600 })
+    const creds = await getOrRefreshCredentials({ client, ctx, force: true })
+
+    expect(creds.accessToken).toBe('shpat_cc')
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('throws a reconnect hint when the app credentials are missing', async () => {
+    const { client, ctx } = _stubManual({ clientSecret: undefined })
+    await expect(getOrRefreshCredentials({ client, ctx })).rejects.toThrow(/reconnect the integration via the wizard/)
+  })
+})
+
+describe('getOrRefreshCredentials token save', () => {
+  const OLD_IDS = ['gid://shopify/WebhookSubscription/1']
+  const NEW_IDS = ['gid://shopify/WebhookSubscription/2']
+
+  // First read returns `before`; the re-read right before the write returns `atWrite`
+  // (or rejects, when `atWrite` is an Error).
+  const _stubClient = (before: Record<string, unknown>, atWrite: Record<string, unknown> | Error) => {
+    const setState = vi.fn().mockResolvedValue({})
+    const getState = vi.fn().mockResolvedValueOnce({ state: { payload: before } })
+    if (atWrite instanceof Error) {
+      getState.mockRejectedValueOnce(atWrite)
+    } else {
+      getState.mockResolvedValueOnce({ state: { payload: atWrite } })
+    }
+    return { setState, client: { setState, getState } as any, ctx: { integrationId: 'int-1' } as any }
+  }
+
+  const _manualState = (nowSeconds: number, webhookSubscriptionIds: string[]) => ({
+    authMethod: 'manual',
+    shopDomain: 'example',
+    clientId: 'my-id',
+    clientSecret: 'my-secret',
+    accessToken: 'shpat_old',
+    accessTokenExpiresAtSeconds: nowSeconds + 60, // within buffer
+    webhookSubscriptionIds,
+  })
+
+  const _oauthState = (nowSeconds: number, webhookSubscriptionIds: string[]) => ({
+    shopDomain: 'example',
+    accessToken: 'shpat_old',
+    refreshToken: 'shprt_old',
+    accessTokenExpiresAtSeconds: nowSeconds + 60, // within buffer
+    refreshTokenExpiresAtSeconds: nowSeconds + 7776000,
+    webhookSubscriptionIds,
+  })
+
+  it('manual refresh keeps webhook IDs saved while the token request was in flight', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-03T00:00:00Z'))
+    const nowSeconds = Math.floor(Date.now() / 1000)
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(_clientCredentialsResponse()))
+
+    const { client, ctx, setState } = _stubClient(_manualState(nowSeconds, OLD_IDS), _manualState(nowSeconds, NEW_IDS))
+    await getOrRefreshCredentials({ client, ctx })
+
+    expect(setState.mock.calls[0]![0].payload).toEqual({
+      ..._manualState(nowSeconds, NEW_IDS),
+      accessToken: 'shpat_cc',
+      accessTokenExpiresAtSeconds: nowSeconds + 86399,
+    })
+  })
+
+  it('OAuth refresh keeps webhook IDs saved while the token request was in flight', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-03T00:00:00Z'))
+    const nowSeconds = Math.floor(Date.now() / 1000)
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(_expiringResponse({ access_token: 'shpat_new', refresh_token: 'shprt_new' }))
+    )
+
+    const { client, ctx, setState } = _stubClient(_oauthState(nowSeconds, OLD_IDS), _oauthState(nowSeconds, NEW_IDS))
+    await getOrRefreshCredentials({ client, ctx })
+
+    expect(setState.mock.calls[0]![0].payload).toMatchObject({
+      shopDomain: 'example',
+      accessToken: 'shpat_new',
+      refreshToken: 'shprt_new',
+      webhookSubscriptionIds: NEW_IDS,
+    })
+  })
+
+  it('skips the write and throws when the re-read fails', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-03T00:00:00Z'))
+    const nowSeconds = Math.floor(Date.now() / 1000)
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(_clientCredentialsResponse()))
+
+    const { client, ctx, setState } = _stubClient(
+      _manualState(nowSeconds, OLD_IDS),
+      new Error('state service unavailable')
+    )
+
+    await expect(getOrRefreshCredentials({ client, ctx })).rejects.toThrow(
+      'Failed to save the refreshed Shopify access token: state service unavailable'
+    )
+    expect(setState).not.toHaveBeenCalled()
+  })
+})
+
+describe('getOrRefreshCredentials state read errors', () => {
+  const _stubFailingRead = (error: unknown) => ({
+    client: { getState: vi.fn().mockRejectedValue(error), setState: vi.fn() } as any,
+    ctx: { integrationId: 'int-1' } as any,
+  })
+
+  it('rethrows unexpected state read errors', async () => {
+    const { client, ctx } = _stubFailingRead(new Error('state service unavailable'))
+    await expect(getOrRefreshCredentials({ client, ctx })).rejects.toThrow(/state service unavailable/)
+  })
+
+  it('treats a missing state as not connected', async () => {
+    const { client, ctx } = _stubFailingRead({ isApiError: true, type: 'ResourceNotFound', message: 'not found' })
+    await expect(getOrRefreshCredentials({ client, ctx })).rejects.toThrow(/credentials not found or incomplete/)
   })
 })

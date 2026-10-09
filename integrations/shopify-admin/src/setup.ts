@@ -39,16 +39,25 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, w
     }
   }
 
+  // Re-read before writing: a 401 during the subscription calls can refresh and save new tokens, and
+  // writing the payload read above would put the old (for OAuth, already rotated) tokens back.
+  const { state: current } = await client.getState({
+    type: 'integration',
+    name: 'credentials',
+    id: ctx.integrationId,
+  })
   await client.setState({
     type: 'integration',
     name: 'credentials',
     id: ctx.integrationId,
-    payload: { ...state.payload, webhookSubscriptionIds: subscriptionIds },
+    payload: { ...current.payload, webhookSubscriptionIds: subscriptionIds },
   })
 
   if (subscriptionIds.length === 0 && failures.length === WEBHOOK_TOPICS.length) {
+    const firstError = failures[0]?.err
+    const reason = firstError instanceof Error ? firstError.message : String(firstError)
     throw new RuntimeError(
-      `All Shopify webhook subscriptions failed (${failures.length}/${WEBHOOK_TOPICS.length}); the access token is likely invalid. Re-authorize the integration.`
+      `All Shopify webhook subscriptions failed (${failures.length}/${WEBHOOK_TOPICS.length}). First error: ${reason}`
     )
   }
 

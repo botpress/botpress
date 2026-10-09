@@ -16,9 +16,17 @@ vi.mock('./events/order-cancelled', () => ({ fireOrderCancelled: vi.fn(async () 
 vi.mock('./events/order-fulfilled', () => ({ fireOrderFulfilled: vi.fn(async () => ({ status: 200, body: 'ok' })) }))
 vi.mock('./events/order-paid', () => ({ fireOrderPaid: vi.fn(async () => ({ status: 200, body: 'ok' })) }))
 
-const computeHmac = (body: string) => createHmac('sha256', SECRET).update(body, 'utf8').digest('base64')
+const computeHmac = (body: string, secret = SECRET) =>
+  createHmac('sha256', secret).update(body, 'utf8').digest('base64')
 
-const buildProps = (opts: { topic?: string; hmac?: string; body?: string; path?: string }) => {
+const buildProps = (opts: {
+  topic?: string
+  hmac?: string
+  body?: string
+  path?: string
+  credentials?: Record<string, unknown>
+  getStateError?: unknown
+}) => {
   const body = opts.body ?? '{}'
   const headers: Record<string, string> = {}
   if (opts.topic !== undefined) headers['x-shopify-topic'] = opts.topic
@@ -27,6 +35,13 @@ const buildProps = (opts: { topic?: string; hmac?: string; body?: string; path?:
   const forBot = () => ({ info: noop, warn: noop, error: noop, debug: noop })
   return {
     req: { path: opts.path ?? '/', headers, body },
+    ctx: { integrationId: 'int-1' },
+    client: {
+      getState:
+        opts.getStateError !== undefined
+          ? vi.fn().mockRejectedValue(opts.getStateError)
+          : vi.fn().mockResolvedValue({ state: { payload: opts.credentials ?? {} } }),
+    },
     logger: { forBot },
   } as any
 }
@@ -86,6 +101,60 @@ describe('Shopify webhook handler', () => {
         buildProps({ topic: 'orders/create', hmac: computeHmac(validBody), body: validBody })
       )
       expect(response).toEqual({ status: 200, body: '' })
+    })
+  })
+
+  describe('manual setup', () => {
+    const MERCHANT_SECRET = 'merchant-app-secret'
+    const credentials = {
+      authMethod: 'manual',
+      shopDomain: 'example',
+      clientId: 'my-id',
+      clientSecret: MERCHANT_SECRET,
+    }
+
+    it("accepts webhooks signed with the merchant app's client secret", async () => {
+      const response = await handler(
+        buildProps({
+          topic: 'orders/create',
+          hmac: computeHmac(validBody, MERCHANT_SECRET),
+          body: validBody,
+          credentials,
+        })
+      )
+      expect(response).toMatchObject({ status: 200 })
+      expect(fireOrderCreated).toHaveBeenCalled()
+    })
+
+    it("rejects webhooks signed with Botpress's own app secret", async () => {
+      const response = await handler(
+        buildProps({ topic: 'orders/create', hmac: computeHmac(validBody), body: validBody, credentials })
+      )
+      expect(response).toMatchObject({ status: 401 })
+    })
+  })
+
+  describe('credentials state read', () => {
+    it('returns 503 without firing the event when the state read fails unexpectedly', async () => {
+      vi.mocked(fireOrderCreated).mockClear()
+      const response = await handler(
+        buildProps({
+          topic: 'orders/create',
+          hmac: computeHmac(validBody, 'merchant-app-secret'),
+          body: validBody,
+          getStateError: new Error('state service unavailable'),
+        })
+      )
+      expect(response).toMatchObject({ status: 503 })
+      expect(fireOrderCreated).not.toHaveBeenCalled()
+    })
+
+    it('falls back to the Botpress app secret when no credentials state exists', async () => {
+      const notFound = { isApiError: true, type: 'ResourceNotFound', message: 'not found' }
+      const response = await handler(
+        buildProps({ topic: 'orders/create', hmac: computeHmac(validBody), body: validBody, getStateError: notFound })
+      )
+      expect(response).toMatchObject({ status: 200 })
     })
   })
 })
