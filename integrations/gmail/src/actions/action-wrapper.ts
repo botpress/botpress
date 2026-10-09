@@ -2,7 +2,6 @@ import { createActionWrapper, posthogHelper } from '@botpress/common'
 import { posthogConfig } from 'src'
 import { wrapWithTryCatch } from '../google-api/error-handling'
 import { GoogleClient } from '../google-api/google-client'
-import { renewWatchIfExpiring } from '../watch'
 import * as bp from '.botpress'
 
 export const wrapAction: typeof _wrapAction = (meta, actionImpl) =>
@@ -41,11 +40,7 @@ export const wrapAction: typeof _wrapAction = (meta, actionImpl) =>
 
 const _wrapAction = createActionWrapper<bp.IntegrationProps>()({
   toolFactories: {
-    googleClient: async ({ client, ctx, logger }) => {
-      const googleClient = await GoogleClient.create({ client, ctx })
-      await renewWatchIfExpiring({ client, ctx, logger, getGoogleClient: async () => googleClient })
-      return googleClient
-    },
+    googleClient: GoogleClient.create,
   },
   extraMetadata: {} as {
     errorMessageWhenFailed: string

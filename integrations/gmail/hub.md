@@ -187,4 +187,4 @@ Standard Gmail API limitations apply to the Gmail integration in Botpress. These
 
 More details are available in the [Gmail API documentation](https://developers.google.com/gmail/api/reference/quota).
 
-Gmail only notifies the integration of new emails for 7 days at a time. The integration renews this automatically whenever it receives an email or your bot sends a message or runs a Gmail action. If your inbox receives no emails and your bot doesn't use the integration for 7 days, new emails stop arriving until the next time your bot sends a message or runs a Gmail action.
+Gmail only notifies the integration of new emails for 7 days at a time. The integration renews this automatically every day, so no action is needed on your part.

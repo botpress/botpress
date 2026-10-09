@@ -24,6 +24,11 @@ export const states = {
         .optional()
         .title('History cursor')
         .describe('The last history ID processed by the integration'),
+      authorizationCode: z
+        .string()
+        .optional()
+        .title('Used authorization code')
+        .describe('The authorization code already exchanged for the refresh token, so it is not exchanged again'),
     }),
   },
   watch: {
@@ -33,7 +38,15 @@ export const states = {
         .number()
         .title('Watch expiry')
         .describe('When Gmail stops sending notifications for the current watch (epoch milliseconds)'),
-      renewedAtMs: z.number().title('Last renewal').describe('When the watch was last started (epoch milliseconds)'),
+    }),
+  },
+  registerSchedule: {
+    type: 'integration',
+    schema: z.object({
+      scheduledAtMs: z
+        .number()
+        .title('Scheduled at')
+        .describe('When the daily register() call was requested (epoch milliseconds); 0 means not scheduled'),
     }),
   },
   googlePublicCertCache: {

@@ -1,7 +1,6 @@
 import { createChannelWrapper } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 import { GoogleClient, wrapWithTryCatch } from '../google-api'
-import { renewWatchIfExpiring } from '../watch'
 import * as bp from '.botpress'
 
 export const wrapChannel: typeof _injectTools = (meta, channelImpl) =>
@@ -18,10 +17,8 @@ export const wrapChannel: typeof _injectTools = (meta, channelImpl) =>
 
 const _injectTools = createChannelWrapper<bp.IntegrationProps>()({
   toolFactories: {
-    async googleClient({ client, ctx, logger }) {
-      const googleClient = await GoogleClient.create({ client, ctx })
-      await renewWatchIfExpiring({ client, ctx, logger, getGoogleClient: async () => googleClient })
-      return googleClient
+    async googleClient({ client, ctx }) {
+      return await GoogleClient.create({ client, ctx })
     },
 
     async inReplyTo({ client, conversation }) {

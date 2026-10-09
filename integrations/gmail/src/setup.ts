@@ -1,5 +1,5 @@
 import { GoogleClient } from './google-api'
-import { startWatch } from './watch'
+import { ensureDailyRegister, startWatch } from './watch'
 import * as bp from '.botpress'
 
 export const register: bp.IntegrationProps['register'] = async ({ client, ctx, logger }) => {
@@ -21,6 +21,10 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
     if (!ctx.configuration.oauthAuthorizationCode) {
       logger.forBot().info('No authorization code provided, using existing refresh token from state')
       googleClient = await createFromRefreshToken()
+    } else if (await _isAuthorizationCodeAlreadyUsed({ client, ctx, code: ctx.configuration.oauthAuthorizationCode })) {
+      // Authorization codes are single-use, and register() now runs daily: reuse the refresh token
+      logger.forBot().info('Authorization code was already exchanged, using existing refresh token from state')
+      googleClient = await createFromRefreshToken()
     } else {
       logger.forBot().info('Using authorization code from context')
       try {
@@ -33,6 +37,8 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
       } catch (err) {
         logger.forBot().warn({ err }, 'Failed to create Google client from authorization code; falling back')
         googleClient = await createFromRefreshToken()
+        // The refresh token works, so this code will never be needed again: skip it on later daily runs
+        await _markAuthorizationCodeUsed({ client, ctx, code: ctx.configuration.oauthAuthorizationCode, logger })
       }
     }
   }
@@ -41,9 +47,54 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
   try {
     await startWatch({ client, ctx, googleClient })
   } catch (thrown: unknown) {
-    // Not fatal: the watch is renewed the next time the integration is called
+    // Not fatal: the next daily register() call, or an incoming-mail webhook, retries it
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
     logger.forBot().warn(error.message)
+  }
+
+  await ensureDailyRegister({ client, ctx, logger })
+}
+
+const _markAuthorizationCodeUsed = async ({
+  client,
+  ctx,
+  code,
+  logger,
+}: {
+  client: bp.Client
+  ctx: bp.Context
+  code: string
+  logger: bp.Logger
+}) => {
+  try {
+    // patchState keeps the refresh token and lastHistoryId, as in GoogleClient._saveRefreshTokenIntoStates
+    await client.patchState({
+      type: 'integration',
+      name: 'configuration',
+      id: ctx.integrationId,
+      payload: { authorizationCode: code },
+    })
+  } catch (thrown: unknown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    logger.forBot().warn(`Failed to record the used authorization code: ${error.message}`)
+  }
+}
+
+const _isAuthorizationCodeAlreadyUsed = async ({
+  client,
+  ctx,
+  code,
+}: {
+  client: bp.Client
+  ctx: bp.Context
+  code: string
+}): Promise<boolean> => {
+  try {
+    const { state } = await client.getState({ type: 'integration', name: 'configuration', id: ctx.integrationId })
+    return state.payload.authorizationCode === code
+  } catch (_thrown: unknown) {
+    // No state or unreadable state: try the exchange, which falls back to the refresh token on failure
+    return false
   }
 }
 

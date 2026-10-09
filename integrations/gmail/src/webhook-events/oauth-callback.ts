@@ -34,8 +34,10 @@ export const handleOAuthCallback = async ({ req, client, ctx, logger }: bp.Handl
     logger.forBot().info(`User email retrieved: ${userEmail}`)
 
     logger.forBot().info(`Configuring integration for user: ${userEmail}`)
+    // Daily register() calls keep the Gmail watch renewed (it expires after 7 days)
     await client.configureIntegration({
       identifier: userEmail,
+      scheduleRegisterCall: 'daily',
     })
     logger.forBot().info('Integration configured successfully')
     return generateRedirection(getInterstitialUrl(true))
