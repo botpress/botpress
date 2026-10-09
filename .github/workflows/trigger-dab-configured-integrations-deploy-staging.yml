@@ -112,14 +112,13 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: depot/setup-action@v1
+      - uses: docker/setup-buildx-action@v3
         if: steps.image.outputs.exists != 'true'
 
       - name: Build and push ${{ matrix.integration }} image
         if: steps.image.outputs.exists != 'true'
-        uses: depot/build-push-action@v1
+        uses: docker/build-push-action@v6
         with:
-          project: ${{ secrets.DEPOT_PROJECT_ID }}
           file: ./Dockerfile
           context: .
           target: ${{ matrix.target }}
