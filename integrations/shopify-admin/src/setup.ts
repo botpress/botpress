@@ -47,8 +47,10 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, w
   })
 
   if (subscriptionIds.length === 0 && failures.length === WEBHOOK_TOPICS.length) {
+    const firstError = failures[0]?.err
+    const reason = firstError instanceof Error ? firstError.message : String(firstError)
     throw new RuntimeError(
-      `All Shopify webhook subscriptions failed (${failures.length}/${WEBHOOK_TOPICS.length}); the access token is likely invalid. Re-authorize the integration.`
+      `All Shopify webhook subscriptions failed (${failures.length}/${WEBHOOK_TOPICS.length}). First error: ${reason}`
     )
   }
 

@@ -1,6 +1,6 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import * as sdk from '@botpress/sdk'
-import { exchangeCodeForAccessToken, ShopifyAdminClient } from '../client'
+import { exchangeCodeForAccessToken, fetchClientCredentialsToken, ShopifyAdminClient } from '../client'
 import { STOREFRONT_ACCESS_TOKEN_CREATE, STOREFRONT_ACCESS_TOKENS_QUERY } from '../client/queries/admin'
 import { verifyOAuthCallbackHmac } from './hmac'
 import * as bp from '.botpress'
@@ -19,6 +19,10 @@ const STOREFRONT_TOKEN_TITLE = 'Botpress Storefront Access'
 export const oauthWizardHandler = async (props: bp.HandlerProps): Promise<sdk.Response> => {
   const wizard = new oauthWizard.OAuthWizardBuilder(props)
     .addStep({ id: 'start', handler: _startHandler })
+    .addStep({ id: 'route-choice', handler: _routeChoiceHandler })
+    .addStep({ id: 'manual-instructions', handler: _manualInstructionsHandler })
+    .addStep({ id: 'get-manual-credentials', handler: _getManualCredentialsHandler })
+    .addStep({ id: 'save-manual-credentials', handler: _saveManualCredentialsHandler })
     .addStep({ id: 'get-shop', handler: _getShopHandler })
     .addStep({ id: 'validate-shop', handler: _validateShopHandler })
     .addStep({ id: 'authorize', handler: _authorizeHandler })
@@ -30,15 +34,114 @@ export const oauthWizardHandler = async (props: bp.HandlerProps): Promise<sdk.Re
 }
 
 const _startHandler: WizardHandler = ({ responses }) =>
-  responses.displayButtons({
+  responses.displayChoices({
     pageTitle: 'Connect Shopify Storefront',
     htmlOrMarkdownPageContents:
-      'This wizard will connect your Shopify storefront to Botpress. If the integration was previously connected, the existing connection will be reset.\n\nDo you want to continue?',
+      'This wizard will connect your Shopify storefront to Botpress. If the integration was previously connected, the existing connection will be reset.\n\nChoose how you would like to connect:',
+    choices: [
+      { label: 'Connect with OAuth', value: 'oauth' },
+      { label: 'Use my own Shopify app', value: 'manual' },
+    ],
+    nextStepId: 'route-choice',
+  })
+
+const _routeChoiceHandler: WizardHandler = ({ selectedChoice, responses }) => {
+  switch (selectedChoice) {
+    case 'manual':
+      return responses.redirectToStep('manual-instructions')
+    case 'oauth':
+    default:
+      return responses.redirectToStep('get-shop')
+  }
+}
+
+const _manualInstructionsHandler: WizardHandler = ({ responses }) =>
+  responses.displayButtons({
+    pageTitle: 'Create a Shopify App',
+    htmlOrMarkdownPageContents:
+      '1. Open the <a href="https://dev.shopify.com/dashboard" target="_blank">Shopify Dev Dashboard</a>, go to **Apps**, click **Create app**, then select **Create app manually**.' +
+      '\n2. Enter a name for the app. Leave the URLs empty.' +
+      '\n3. In the **API Access** section, add the Storefront API scopes `unauthenticated_read_product_listings`, `unauthenticated_read_checkouts`, and `unauthenticated_write_checkouts`.' +
+      '\n4. Click **Create app**, then click **Release**.' +
+      '\n5. Go back to the **App overview** and click **Install app** in the top right corner.',
     buttons: [
-      { action: 'navigate', label: 'Yes, continue', navigateToStep: 'get-shop', buttonType: 'primary' },
-      { action: 'close', label: 'No, cancel', buttonType: 'secondary' },
+      { action: 'navigate', label: 'Next step', navigateToStep: 'get-manual-credentials', buttonType: 'primary' },
     ],
   })
+
+const _manualCredentialsSchema = sdk.z.object({
+  shopDomain: sdk.z
+    .string()
+    .min(1)
+    .title('Shop Domain')
+    .describe('The myshopify.com domain of your store, e.g. your-store.myshopify.com. Find it in Settings → Domains.'),
+  clientId: sdk.z.string().min(1).title('Client ID').describe('The Client ID of your Shopify app'),
+  clientSecret: sdk.z.string().secret().min(1).title('Client Secret').describe('The Client Secret of your Shopify app'),
+})
+
+const _manualCredentialsForm = {
+  pageTitle: 'Enter Your App Credentials',
+  htmlOrMarkdownPageContents:
+    "Enter your store domain, then copy the app's **Client ID** and **Client Secret** from its settings in the Dev Dashboard.",
+  schema: _manualCredentialsSchema,
+  nextStepId: 'save-manual-credentials',
+}
+
+const _getManualCredentialsHandler: WizardHandler = ({ responses }) => responses.displayForm(_manualCredentialsForm)
+
+const _saveManualCredentialsHandler: WizardHandler = async ({ client, ctx, logger, formValues, responses }) => {
+  if (!formValues) {
+    return responses.redirectToStep('get-manual-credentials')
+  }
+
+  const parsed = _manualCredentialsSchema.safeParse(formValues)
+  if (!parsed.success) {
+    return responses.displayForm({
+      ..._manualCredentialsForm,
+      errors: parsed.error,
+      previousValues: formValues as sdk.z.input<typeof _manualCredentialsSchema>,
+    })
+  }
+
+  const { clientId, clientSecret } = parsed.data
+  const shopDomain = normalizeShopDomain(parsed.data.shopDomain)
+  if (!SHOP_NAME_REGEX.test(shopDomain)) {
+    return responses.displayButtons({
+      pageTitle: 'Invalid Shop Domain',
+      htmlOrMarkdownPageContents: `"${parsed.data.shopDomain}" doesn't look like a valid Shopify store domain. Please enter a domain like \`your-store.myshopify.com\`.`,
+      buttons: [
+        { action: 'navigate', label: 'Try again', navigateToStep: 'get-manual-credentials', buttonType: 'primary' },
+        { action: 'close', label: 'Cancel', buttonType: 'secondary' },
+      ],
+    })
+  }
+
+  try {
+    // Same as the OAuth callback: the Admin token is only used to provision a Storefront token,
+    // so the app credentials are not persisted.
+    const accessToken = await fetchClientCredentialsToken({ shop: shopDomain, clientId, clientSecret })
+    const admin = new ShopifyAdminClient({ shopDomain, accessToken })
+    const storefrontAccessToken = await _provisionStorefrontToken(admin)
+    if (!storefrontAccessToken) {
+      return responses.endWizard({
+        success: false,
+        errorMessage:
+          'Failed to provision a Storefront API access token. Ensure your Shopify app has the `unauthenticated_*` Storefront API scopes.',
+      })
+    }
+
+    await _patchCredentialsState(client, ctx, { shopDomain, storefrontAccessToken })
+    await client.configureIntegration({ identifier: shopDomain })
+  } catch (e) {
+    logger.forBot().error({ err: e }, 'Shopify manual setup failed')
+    return responses.endWizard({
+      success: false,
+      errorMessage: e instanceof Error ? e.message : String(e),
+    })
+  }
+
+  return responses.redirectToStep('end')
+}
 
 const _getShopHandler: WizardHandler = ({ responses }) =>
   responses.displayInput({

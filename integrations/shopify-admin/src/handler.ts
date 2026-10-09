@@ -1,4 +1,5 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
+import { getCredentialsState } from './auth'
 import { fireOrderCancelled } from './events/order-cancelled'
 import { fireOrderCreated } from './events/order-created'
 import { fireOrderFulfilled } from './events/order-fulfilled'
@@ -12,7 +13,7 @@ const SHOPIFY_TOPIC_HEADER = 'x-shopify-topic'
 const SHOPIFY_HMAC_HEADER = 'x-shopify-hmac-sha256'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
-  const { req, logger } = props
+  const { req, client, ctx, logger } = props
 
   if (oauthWizard.isOAuthWizardUrl(req.path)) {
     return await oauthWizardHandler(props)
@@ -27,7 +28,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     return { status: 400, body: 'Missing Shopify webhook headers or body' }
   }
 
-  if (!verifyWebhookHmac(req.body, hmac, bp.secrets.SHOPIFY_CLIENT_SECRET)) {
+  if (!verifyWebhookHmac(req.body, hmac, await _getWebhookSecret(client, ctx))) {
     logger.forBot().warn('Rejected Shopify webhook with invalid HMAC signature')
     return { status: 401, body: 'Invalid HMAC signature' }
   }
@@ -64,4 +65,11 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     logger.forBot().error(`Failed to process Shopify webhook (topic: ${topic}): ${error.message}`)
     return { status: 200, body: '' }
   }
+}
+
+// Shopify signs webhooks with the secret of the app that created the subscription:
+// our app for OAuth, the merchant's own app for manual setup.
+const _getWebhookSecret = async (client: bp.Client, ctx: bp.Context): Promise<string> => {
+  const { authMethod, clientSecret } = await getCredentialsState({ client, ctx })
+  return authMethod === 'manual' && clientSecret ? clientSecret : bp.secrets.SHOPIFY_CLIENT_SECRET
 }

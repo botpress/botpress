@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { normalizeShopDomain } from './wizard'
+import { normalizeShopDomain } from '../shop-domain'
 
 describe('normalizeShopDomain', () => {
   it('returns bare domain as-is', () => {
