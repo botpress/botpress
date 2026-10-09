@@ -1,6 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import { IntegrationConfig } from 'src/config/integration-config'
 import { JWTVerifier } from 'src/google-api'
+import { renewWatchIfExpiring } from 'src/watch'
 import { handleIncomingEmail } from './new-mail'
 import { handleOAuthCallback } from './oauth-callback'
 import * as bp from '.botpress'
@@ -19,6 +20,7 @@ export const handler = async (props: bp.HandlerProps) => {
     throw new sdk.RuntimeError(`Incoming webhook event is not properly authenticated ${props.req}`)
   }
 
+  await renewWatchIfExpiring(props)
   await handleIncomingEmail(props)
   return {}
 }

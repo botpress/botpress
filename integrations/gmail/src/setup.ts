@@ -1,4 +1,5 @@
 import { GoogleClient } from './google-api'
+import { startWatch } from './watch'
 import * as bp from '.botpress'
 
 export const register: bp.IntegrationProps['register'] = async ({ client, ctx, logger }) => {
@@ -38,13 +39,11 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
 
   logger.forBot().info('Setting up Gmail watch for incoming emails...')
   try {
-    await googleClient
-      .watchIncomingMail()
-      .catch((error) =>
-        logger.forBot().warn(`Failed to set up Gmail watch: ${error instanceof Error ? error.message : String(error)}`)
-      )
-  } catch (error) {
-    logger.forBot().error(`Failed to set up Gmail watch ${error}`)
+    await startWatch({ client, ctx, googleClient })
+  } catch (thrown: unknown) {
+    // Not fatal: the watch is renewed the next time the integration is called
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    logger.forBot().warn(error.message)
   }
 }
 

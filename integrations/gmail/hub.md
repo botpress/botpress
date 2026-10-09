@@ -186,3 +186,5 @@ Botpress shall not be held responsible for any costs you may incur on the Google
 Standard Gmail API limitations apply to the Gmail integration in Botpress. These limitations include rate limits, message size restrictions, and other constraints imposed by the Gmail and Google Cloud platforms. Ensure that your chatbot adheres to these limitations to maintain optimal performance and reliability.
 
 More details are available in the [Gmail API documentation](https://developers.google.com/gmail/api/reference/quota).
+
+Gmail only notifies the integration of new emails for 7 days at a time. The integration renews this automatically whenever it receives an email or your bot sends a message or runs a Gmail action. If your inbox receives no emails and your bot doesn't use the integration for 7 days, new emails stop arriving until the next time your bot sends a message or runs a Gmail action.

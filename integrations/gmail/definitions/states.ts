@@ -26,6 +26,16 @@ export const states = {
         .describe('The last history ID processed by the integration'),
     }),
   },
+  watch: {
+    type: 'integration',
+    schema: z.object({
+      expiresAtMs: z
+        .number()
+        .title('Watch expiry')
+        .describe('When Gmail stops sending notifications for the current watch (epoch milliseconds)'),
+      renewedAtMs: z.number().title('Last renewal').describe('When the watch was last started (epoch milliseconds)'),
+    }),
+  },
   googlePublicCertCache: {
     type: 'integration',
     schema: z.object({
