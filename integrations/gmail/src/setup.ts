@@ -1,4 +1,5 @@
-import { GoogleClient } from './google-api'
+import { AuthorizationCodeSpentError, GoogleClient } from './google-api'
+import { ensureDailyRegister, startWatch } from './watch'
 import * as bp from '.botpress'
 
 export const register: bp.IntegrationProps['register'] = async ({ client, ctx, logger }) => {
@@ -20,6 +21,10 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
     if (!ctx.configuration.oauthAuthorizationCode) {
       logger.forBot().info('No authorization code provided, using existing refresh token from state')
       googleClient = await createFromRefreshToken()
+    } else if (await _isAuthorizationCodeAlreadyUsed({ client, ctx, code: ctx.configuration.oauthAuthorizationCode })) {
+      // Authorization codes are single-use, and register() now runs daily: reuse the refresh token
+      logger.forBot().info('Authorization code was already exchanged, using existing refresh token from state')
+      googleClient = await createFromRefreshToken()
     } else {
       logger.forBot().info('Using authorization code from context')
       try {
@@ -32,19 +37,69 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
       } catch (err) {
         logger.forBot().warn({ err }, 'Failed to create Google client from authorization code; falling back')
         googleClient = await createFromRefreshToken()
+        // Google rejected this code itself, so retrying it on later daily runs can never succeed.
+        // Any other failure (network, Google outage) may be temporary: keep trying the code.
+        if (err instanceof AuthorizationCodeSpentError) {
+          await _markAuthorizationCodeUsed({ client, ctx, code: ctx.configuration.oauthAuthorizationCode, logger })
+        }
       }
     }
   }
 
   logger.forBot().info('Setting up Gmail watch for incoming emails...')
   try {
-    await googleClient
-      .watchIncomingMail()
-      .catch((error) =>
-        logger.forBot().warn(`Failed to set up Gmail watch: ${error instanceof Error ? error.message : String(error)}`)
-      )
-  } catch (error) {
-    logger.forBot().error(`Failed to set up Gmail watch ${error}`)
+    await startWatch({ client, ctx, googleClient })
+  } catch (thrown: unknown) {
+    // Not fatal: the next daily register() call, or an incoming-mail webhook, retries it
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    logger.forBot().warn(error.message)
+  }
+
+  // Throws if scheduling fails, so register() fails and can be retried instead of silently
+  // leaving the watch to expire
+  await ensureDailyRegister({ client, ctx, logger })
+}
+
+const _markAuthorizationCodeUsed = async ({
+  client,
+  ctx,
+  code,
+  logger,
+}: {
+  client: bp.Client
+  ctx: bp.Context
+  code: string
+  logger: bp.Logger
+}) => {
+  try {
+    // patchState keeps the refresh token and lastHistoryId, as in GoogleClient._saveRefreshTokenIntoStates
+    await client.patchState({
+      type: 'integration',
+      name: 'configuration',
+      id: ctx.integrationId,
+      payload: { authorizationCode: code },
+    })
+  } catch (thrown: unknown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    logger.forBot().warn(`Failed to record the used authorization code: ${error.message}`)
+  }
+}
+
+const _isAuthorizationCodeAlreadyUsed = async ({
+  client,
+  ctx,
+  code,
+}: {
+  client: bp.Client
+  ctx: bp.Context
+  code: string
+}): Promise<boolean> => {
+  try {
+    const { state } = await client.getState({ type: 'integration', name: 'configuration', id: ctx.integrationId })
+    return state.payload.authorizationCode === code
+  } catch {
+    // No state or unreadable state: try the exchange, which falls back to the refresh token on failure
+    return false
   }
 }
 
