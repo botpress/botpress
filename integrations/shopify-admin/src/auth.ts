@@ -159,25 +159,37 @@ export const fetchClientCredentialsToken = async ({
   }
 }
 
-// Callers pass the full payload they already read (merged with the new token fields) rather than
-// having this re-read state: a failed re-read would otherwise drop the stored shop and app credentials.
-const _saveCredentialsState = async ({
+type TokenFields = Partial<
+  Pick<
+    ShopifyCredentials,
+    'accessToken' | 'accessTokenExpiresAtSeconds' | 'refreshToken' | 'refreshTokenExpiresAtSeconds'
+  >
+>
+
+// Re-reads the credentials right before writing and merges only the token fields onto them, so fields
+// other writers saved while the token request was in flight (e.g. register's webhookSubscriptionIds)
+// are kept. If the read fails the write is skipped: writing over unknown state could erase the shop
+// and app credentials.
+const _saveTokenFields = async ({
   client,
   ctx,
-  payload,
+  tokens,
 }: {
   client: bp.Client
   ctx: bp.Context
-  payload: CredentialsStatePayload
+  tokens: TokenFields
 }) => {
   try {
-    await client.setState({ type: 'integration', name: 'credentials', id: ctx.integrationId, payload })
+    const { state } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+    await client.setState({
+      type: 'integration',
+      name: 'credentials',
+      id: ctx.integrationId,
+      payload: { ...state.payload, ...tokens },
+    })
   } catch (thrown: unknown) {
-    if (thrown instanceof RuntimeError) {
-      throw thrown
-    }
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    throw new RuntimeError(`Failed to save Shopify credentials: ${error.message}`)
+    throw new RuntimeError(`Failed to save the refreshed Shopify access token: ${error.message}`)
   }
 }
 
@@ -256,7 +268,7 @@ const _getOrFetchManualCredentials = async ({
     }
 
     const fetched = await fetchClientCredentialsToken({ shop: shopDomain, clientId, clientSecret })
-    await _saveCredentialsState({ client, ctx, payload: { ...payload, ...fetched } })
+    await _saveTokenFields({ client, ctx, tokens: fetched })
     return { shopDomain, accessToken: fetched.accessToken }
   } catch (thrown: unknown) {
     if (thrown instanceof RuntimeError) {
@@ -310,6 +322,6 @@ const _getOrRefreshOAuthCredentials = async ({
   }
 
   const refreshed = await refreshAccessToken({ shop: shopDomain, refreshToken })
-  await _saveCredentialsState({ client, ctx, payload: { ...payload, ...refreshed } })
+  await _saveTokenFields({ client, ctx, tokens: refreshed })
   return { shopDomain, accessToken: refreshed.accessToken }
 }

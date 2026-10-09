@@ -39,11 +39,18 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, w
     }
   }
 
+  // Re-read before writing: a 401 during the subscription calls can refresh and save new tokens, and
+  // writing the payload read above would put the old (for OAuth, already rotated) tokens back.
+  const { state: current } = await client.getState({
+    type: 'integration',
+    name: 'credentials',
+    id: ctx.integrationId,
+  })
   await client.setState({
     type: 'integration',
     name: 'credentials',
     id: ctx.integrationId,
-    payload: { ...state.payload, webhookSubscriptionIds: subscriptionIds },
+    payload: { ...current.payload, webhookSubscriptionIds: subscriptionIds },
   })
 
   if (subscriptionIds.length === 0 && failures.length === WEBHOOK_TOPICS.length) {

@@ -321,42 +321,59 @@ describe('getOrRefreshCredentials (manual setup)', () => {
   })
 })
 
-describe('getOrRefreshCredentials keeps stored fields when a later state read fails', () => {
-  const _stubFlakyClient = (payload: Record<string, unknown>) => {
+describe('getOrRefreshCredentials token save', () => {
+  const OLD_IDS = ['gid://shopify/WebhookSubscription/1']
+  const NEW_IDS = ['gid://shopify/WebhookSubscription/2']
+
+  // First read returns `before`; the re-read right before the write returns `atWrite`
+  // (or rejects, when `atWrite` is an Error).
+  const _stubClient = (before: Record<string, unknown>, atWrite: Record<string, unknown> | Error) => {
     const setState = vi.fn().mockResolvedValue({})
-    const getState = vi
-      .fn()
-      .mockResolvedValueOnce({ state: { payload } })
-      .mockRejectedValue(new Error('state read failed'))
+    const getState = vi.fn().mockResolvedValueOnce({ state: { payload: before } })
+    if (atWrite instanceof Error) {
+      getState.mockRejectedValueOnce(atWrite)
+    } else {
+      getState.mockResolvedValueOnce({ state: { payload: atWrite } })
+    }
     return { setState, client: { setState, getState } as any, ctx: { integrationId: 'int-1' } as any }
   }
 
-  it('manual refresh keeps the auth method, shop and app credentials', async () => {
+  const _manualState = (nowSeconds: number, webhookSubscriptionIds: string[]) => ({
+    authMethod: 'manual',
+    shopDomain: 'example',
+    clientId: 'my-id',
+    clientSecret: 'my-secret',
+    accessToken: 'shpat_old',
+    accessTokenExpiresAtSeconds: nowSeconds + 60, // within buffer
+    webhookSubscriptionIds,
+  })
+
+  const _oauthState = (nowSeconds: number, webhookSubscriptionIds: string[]) => ({
+    shopDomain: 'example',
+    accessToken: 'shpat_old',
+    refreshToken: 'shprt_old',
+    accessTokenExpiresAtSeconds: nowSeconds + 60, // within buffer
+    refreshTokenExpiresAtSeconds: nowSeconds + 7776000,
+    webhookSubscriptionIds,
+  })
+
+  it('manual refresh keeps webhook IDs saved while the token request was in flight', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-05-03T00:00:00Z'))
     const nowSeconds = Math.floor(Date.now() / 1000)
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(_clientCredentialsResponse()))
 
-    const stored = {
-      authMethod: 'manual',
-      shopDomain: 'example',
-      clientId: 'my-id',
-      clientSecret: 'my-secret',
-      accessToken: 'shpat_old',
-      accessTokenExpiresAtSeconds: nowSeconds + 60,
-      webhookSubscriptionIds: ['gid://shopify/WebhookSubscription/1'],
-    }
-    const { client, ctx, setState } = _stubFlakyClient(stored)
+    const { client, ctx, setState } = _stubClient(_manualState(nowSeconds, OLD_IDS), _manualState(nowSeconds, NEW_IDS))
     await getOrRefreshCredentials({ client, ctx })
 
     expect(setState.mock.calls[0]![0].payload).toEqual({
-      ...stored,
+      ..._manualState(nowSeconds, NEW_IDS),
       accessToken: 'shpat_cc',
       accessTokenExpiresAtSeconds: nowSeconds + 86399,
     })
   })
 
-  it('OAuth refresh keeps the webhook subscription IDs', async () => {
+  it('OAuth refresh keeps webhook IDs saved while the token request was in flight', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-05-03T00:00:00Z'))
     const nowSeconds = Math.floor(Date.now() / 1000)
@@ -365,23 +382,32 @@ describe('getOrRefreshCredentials keeps stored fields when a later state read fa
       vi.fn().mockResolvedValue(_expiringResponse({ access_token: 'shpat_new', refresh_token: 'shprt_new' }))
     )
 
-    const stored = {
-      shopDomain: 'example',
-      accessToken: 'shpat_old',
-      refreshToken: 'shprt_old',
-      accessTokenExpiresAtSeconds: nowSeconds + 60,
-      refreshTokenExpiresAtSeconds: nowSeconds + 7776000,
-      webhookSubscriptionIds: ['gid://shopify/WebhookSubscription/1'],
-    }
-    const { client, ctx, setState } = _stubFlakyClient(stored)
+    const { client, ctx, setState } = _stubClient(_oauthState(nowSeconds, OLD_IDS), _oauthState(nowSeconds, NEW_IDS))
     await getOrRefreshCredentials({ client, ctx })
 
     expect(setState.mock.calls[0]![0].payload).toMatchObject({
       shopDomain: 'example',
       accessToken: 'shpat_new',
       refreshToken: 'shprt_new',
-      webhookSubscriptionIds: ['gid://shopify/WebhookSubscription/1'],
+      webhookSubscriptionIds: NEW_IDS,
     })
+  })
+
+  it('skips the write and throws when the re-read fails', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-03T00:00:00Z'))
+    const nowSeconds = Math.floor(Date.now() / 1000)
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(_clientCredentialsResponse()))
+
+    const { client, ctx, setState } = _stubClient(
+      _manualState(nowSeconds, OLD_IDS),
+      new Error('state service unavailable')
+    )
+
+    await expect(getOrRefreshCredentials({ client, ctx })).rejects.toThrow(
+      'Failed to save the refreshed Shopify access token: state service unavailable'
+    )
+    expect(setState).not.toHaveBeenCalled()
   })
 })
 
