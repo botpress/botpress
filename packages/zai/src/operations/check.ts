@@ -356,6 +356,7 @@ Zai.prototype.check = function (
     adapter: this.adapter,
     memoizer: this._resolveMemoizer(),
     metadata: this.metadata,
+    skipCache: this.skipCache,
   })
 
   return new Response<

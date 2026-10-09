@@ -308,6 +308,7 @@ Zai.prototype.summarize = function (this: Zai, original, _options): Response<str
     adapter: this.adapter,
     memoizer: this._resolveMemoizer(),
     metadata: this.metadata,
+    skipCache: this.skipCache,
   })
 
   return new Response<string, string>(context, summarize(original, options, context), (value) => value)

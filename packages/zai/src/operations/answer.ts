@@ -814,6 +814,7 @@ Zai.prototype.answer = function <T>(
     adapter: this.adapter,
     memoizer: this._resolveMemoizer(),
     metadata: this.metadata,
+    skipCache: this.skipCache,
   })
 
   if (!parse.success) {

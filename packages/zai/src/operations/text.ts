@@ -137,6 +137,7 @@ Zai.prototype.text = function (this: Zai, prompt: string, _options?: Options): R
     adapter: this.adapter,
     memoizer: this._resolveMemoizer(),
     metadata: this.metadata,
+    skipCache: this.skipCache,
   })
 
   return new Response<string>(context, text(prompt, _options, context), (result) => result)
