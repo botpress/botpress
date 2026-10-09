@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { GoogleClient } from './google-api'
+import { AuthorizationCodeSpentError, GoogleClient } from './google-api'
 import { register } from './setup'
 import { ensureDailyRegister, startWatch } from './watch'
 
 vi.mock('./google-api', () => ({
   GoogleClient: { create: vi.fn(), createFromAuthorizationCode: vi.fn() },
+  AuthorizationCodeSpentError: class AuthorizationCodeSpentError extends Error {},
 }))
 vi.mock('./watch', () => ({ startWatch: vi.fn(), ensureDailyRegister: vi.fn() }))
 
@@ -65,8 +66,10 @@ describe('register', () => {
     )
   })
 
-  it('records the code as used when the exchange fails but the refresh token works', async () => {
-    vi.mocked(GoogleClient.createFromAuthorizationCode).mockRejectedValue(new Error('invalid_grant'))
+  it('records the code as used when Google rejects it as spent', async () => {
+    vi.mocked(GoogleClient.createFromAuthorizationCode).mockRejectedValue(
+      new AuthorizationCodeSpentError('invalid_grant')
+    )
     const { props, patchState } = _props()
     await register(props)
 
@@ -77,5 +80,21 @@ describe('register', () => {
       id: 'int-1',
       payload: { authorizationCode: 'code-1' },
     })
+  })
+
+  it('keeps the code for the next run when the exchange fails temporarily', async () => {
+    vi.mocked(GoogleClient.createFromAuthorizationCode).mockRejectedValue(new Error('socket hang up'))
+    const { props, patchState } = _props()
+    await register(props)
+
+    expect(GoogleClient.create).toHaveBeenCalledTimes(1)
+    expect(patchState).not.toHaveBeenCalled()
+  })
+
+  it('fails when the daily register() call cannot be scheduled, so it can be retried', async () => {
+    vi.mocked(ensureDailyRegister).mockRejectedValueOnce(new Error('Failed to schedule the daily Gmail watch renewal'))
+    const { props } = _props({ storedCode: 'code-1' })
+
+    await expect(register(props)).rejects.toThrow('Failed to schedule the daily Gmail watch renewal')
   })
 })

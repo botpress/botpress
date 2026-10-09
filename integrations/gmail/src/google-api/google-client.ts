@@ -6,6 +6,21 @@ import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { GmailClient, GoogleOAuth2Client } from './types'
 import * as bp from '.botpress'
 
+/**
+ * Google rejected the authorization code itself (already used, expired or revoked). Unlike network or
+ * server errors, retrying the same code can never succeed.
+ */
+export class AuthorizationCodeSpentError extends sdk.RuntimeError {}
+
+/** Google's token endpoint answers `invalid_grant` for an authorization code that is used, expired or revoked. */
+export const isInvalidGrantError = (thrown: unknown): boolean => {
+  if (typeof thrown !== 'object' || thrown === null) {
+    return false
+  }
+  const { response, message } = thrown as { response?: { data?: { error?: unknown } }; message?: unknown }
+  return response?.data?.error === 'invalid_grant' || message === 'invalid_grant'
+}
+
 export class GoogleClient {
   public readonly threads: ThreadManagement
   public readonly messages: MessageManagement
@@ -186,10 +201,10 @@ export class GoogleClient {
     console.error('Error exchanging authorization code for refresh token', thrown)
 
     if (ctx.configurationType === 'customApp') {
-      throw new sdk.RuntimeError(
+      const message =
         'Unable to exchange authorization code for refresh token: this may be due to an expired authorization code.' +
-          'Please try the OAuth flow again and update the integration settings with the new authorization code.'
-      )
+        'Please try the OAuth flow again and update the integration settings with the new authorization code.'
+      throw isInvalidGrantError(thrown) ? new AuthorizationCodeSpentError(message) : new sdk.RuntimeError(message)
     }
   }
 

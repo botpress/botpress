@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ensureDailyRegister, renewWatchIfExpiring, startWatch } from './watch'
+import { ensureDailyRegister, renewWatchIfExpiring, startWatch, tryEnsureDailyRegister } from './watch'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 const NOW = new Date('2026-10-01T00:00:00Z').getTime()
@@ -69,43 +69,98 @@ describe('startWatch', () => {
 })
 
 describe('ensureDailyRegister', () => {
-  it('schedules a daily register() call and saves the marker first', async () => {
+  const _statuses = (setState: ReturnType<typeof vi.fn>) => setState.mock.calls.map((c) => c[0].payload.status)
+
+  it('saves a pending marker, schedules the daily call, then marks it scheduled', async () => {
     const { props, setState, configureIntegration } = _setup({ getStateError: _notFound() })
     await ensureDailyRegister(props)
 
     expect(configureIntegration).toHaveBeenCalledWith({ scheduleRegisterCall: 'daily' })
-    expect(setState).toHaveBeenCalledWith({
+    expect(_statuses(setState)).toEqual(['pending', 'scheduled'])
+    expect(setState.mock.calls[0]![0]).toEqual({
       type: 'integration',
       name: 'registerSchedule',
       id: 'int-1',
-      payload: { scheduledAtMs: NOW },
+      payload: { status: 'pending', updatedAtMs: NOW },
     })
     // The marker must be saved before configureIntegration, so a nested register() call skips
     expect(setState.mock.invocationCallOrder[0]!).toBeLessThan(configureIntegration.mock.invocationCallOrder[0]!)
   })
 
-  it('does nothing once the schedule was requested', async () => {
-    const { props, setState, configureIntegration } = _setup({ state: { scheduledAtMs: NOW - DAY_MS } })
+  it('does nothing once scheduled', async () => {
+    const { props, setState, configureIntegration } = _setup({
+      state: { status: 'scheduled', updatedAtMs: NOW - 30 * DAY_MS },
+    })
     await ensureDailyRegister(props)
 
     expect(configureIntegration).not.toHaveBeenCalled()
     expect(setState).not.toHaveBeenCalled()
   })
 
-  it('clears the marker and does not throw when scheduling fails, so the next register() retries', async () => {
-    const { props, setState, configureIntegration, warn } = _setup({ getStateError: _notFound() })
-    configureIntegration.mockRejectedValue(new Error('forbidden'))
+  it('skips while another run is scheduling (recent pending marker)', async () => {
+    const { props, configureIntegration } = _setup({ state: { status: 'pending', updatedAtMs: NOW - 60_000 } })
+    await ensureDailyRegister(props)
 
-    await expect(ensureDailyRegister(props)).resolves.toBeUndefined()
-    expect(setState.mock.calls.map((c) => c[0].payload)).toEqual([{ scheduledAtMs: NOW }, { scheduledAtMs: 0 }])
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('forbidden'))
+    expect(configureIntegration).not.toHaveBeenCalled()
   })
 
-  it('retries when a previous attempt cleared the marker', async () => {
-    const { props, configureIntegration } = _setup({ state: { scheduledAtMs: 0 } })
+  it('retries an abandoned pending marker', async () => {
+    const { props, configureIntegration } = _setup({ state: { status: 'pending', updatedAtMs: NOW - 11 * 60_000 } })
     await ensureDailyRegister(props)
 
     expect(configureIntegration).toHaveBeenCalledTimes(1)
+  })
+
+  it('retries after a previous failure', async () => {
+    const { props, configureIntegration } = _setup({ state: { status: 'failed', updatedAtMs: NOW - 60_000 } })
+    await ensureDailyRegister(props)
+
+    expect(configureIntegration).toHaveBeenCalledTimes(1)
+  })
+
+  it('marks the failure and throws when scheduling fails', async () => {
+    const { props, setState, configureIntegration } = _setup({ getStateError: _notFound() })
+    configureIntegration.mockRejectedValue(new Error('forbidden'))
+
+    await expect(ensureDailyRegister(props)).rejects.toThrow(
+      'Failed to schedule the daily Gmail watch renewal: forbidden. Save the integration again to retry.'
+    )
+    expect(_statuses(setState)).toEqual(['pending', 'failed'])
+  })
+
+  it('still throws the scheduling error when recording the failure also fails', async () => {
+    const { props, setState, configureIntegration, warn } = _setup({ getStateError: _notFound() })
+    configureIntegration.mockRejectedValue(new Error('forbidden'))
+    setState.mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('state service unavailable'))
+
+    await expect(ensureDailyRegister(props)).rejects.toThrow('Failed to schedule the daily Gmail watch renewal')
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('state service unavailable'))
+  })
+
+  it('throws when the schedule state cannot be read', async () => {
+    const { props, configureIntegration } = _setup({ getStateError: new Error('state service unavailable') })
+
+    await expect(ensureDailyRegister(props)).rejects.toThrow(
+      'Failed to read the daily Gmail watch renewal schedule: state service unavailable'
+    )
+    expect(configureIntegration).not.toHaveBeenCalled()
+  })
+})
+
+describe('tryEnsureDailyRegister', () => {
+  it('schedules the daily call when it is not scheduled yet', async () => {
+    const { props, configureIntegration } = _setup({ state: { status: 'failed', updatedAtMs: NOW - DAY_MS } })
+    await tryEnsureDailyRegister(props)
+
+    expect(configureIntegration).toHaveBeenCalledWith({ scheduleRegisterCall: 'daily' })
+  })
+
+  it('logs instead of throwing when scheduling fails', async () => {
+    const { props, configureIntegration, warn } = _setup({ getStateError: _notFound() })
+    configureIntegration.mockRejectedValue(new Error('forbidden'))
+
+    await expect(tryEnsureDailyRegister(props)).resolves.toBeUndefined()
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('forbidden'))
   })
 })
 

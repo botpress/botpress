@@ -1,4 +1,4 @@
-import { GoogleClient } from './google-api'
+import { AuthorizationCodeSpentError, GoogleClient } from './google-api'
 import { ensureDailyRegister, startWatch } from './watch'
 import * as bp from '.botpress'
 
@@ -37,8 +37,11 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
       } catch (err) {
         logger.forBot().warn({ err }, 'Failed to create Google client from authorization code; falling back')
         googleClient = await createFromRefreshToken()
-        // The refresh token works, so this code will never be needed again: skip it on later daily runs
-        await _markAuthorizationCodeUsed({ client, ctx, code: ctx.configuration.oauthAuthorizationCode, logger })
+        // Google rejected this code itself, so retrying it on later daily runs can never succeed.
+        // Any other failure (network, Google outage) may be temporary: keep trying the code.
+        if (err instanceof AuthorizationCodeSpentError) {
+          await _markAuthorizationCodeUsed({ client, ctx, code: ctx.configuration.oauthAuthorizationCode, logger })
+        }
       }
     }
   }
@@ -52,6 +55,8 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
     logger.forBot().warn(error.message)
   }
 
+  // Throws if scheduling fails, so register() fails and can be retried instead of silently
+  // leaving the watch to expire
   await ensureDailyRegister({ client, ctx, logger })
 }
 

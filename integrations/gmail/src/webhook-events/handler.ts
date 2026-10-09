@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import { IntegrationConfig } from 'src/config/integration-config'
 import { JWTVerifier } from 'src/google-api'
-import { renewWatchIfExpiring } from 'src/watch'
+import { renewWatchIfExpiring, tryEnsureDailyRegister } from 'src/watch'
 import { handleIncomingEmail } from './new-mail'
 import { handleOAuthCallback } from './oauth-callback'
 import * as bp from '.botpress'
@@ -21,6 +21,7 @@ export const handler = async (props: bp.HandlerProps) => {
   }
 
   await renewWatchIfExpiring(props)
+  await tryEnsureDailyRegister(props)
   await handleIncomingEmail(props)
   return {}
 }

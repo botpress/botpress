@@ -5,11 +5,12 @@ import * as bp from '.botpress'
 /*
   Gmail watches expire after 7 days. register() starts the watch and asks the platform to call
   register() daily, which keeps it renewed. As a backstop, incoming-mail webhooks also renew a watch
-  that is close to expiring, which only happens if the daily call stopped running.
+  that is close to expiring, and retry scheduling the daily call if it isn't scheduled yet.
 */
 const DAY_MS = 24 * 60 * 60 * 1000
 const WATCH_LIFETIME_MS = 7 * DAY_MS
 const BACKSTOP_RENEW_BEFORE_EXPIRY_MS = 2 * DAY_MS
+const PENDING_TIMEOUT_MS = 10 * 60 * 1000
 
 type WatchProps = {
   client: bp.Client
@@ -37,29 +38,50 @@ export const startWatch = async ({ client, ctx, googleClient }: WatchProps & { g
 }
 
 /**
- * Asks the platform to call register() daily, once per installation. The marker is saved before
+ * Asks the platform to call register() daily, once per installation. A `pending` marker is saved before
  * calling configureIntegration so that if that call itself triggers register(), the nested run skips
- * instead of looping. Never throws: on failure it logs and leaves the marker unset so the next
- * register() retries.
+ * instead of looping. A `pending` marker older than PENDING_TIMEOUT_MS is treated as abandoned (for
+ * example if the failure cleanup below couldn't be saved), so it can never block retries for good.
+ * Throws if scheduling fails, so register() fails and the caller can retry.
  */
 export const ensureDailyRegister = async ({ client, ctx, logger }: WatchProps & { logger: bp.Logger }) => {
-  try {
-    const schedule = await _getRegisterScheduleState({ client, ctx })
-    if (schedule && schedule.scheduledAtMs > 0) {
-      return
-    }
+  const schedule = await _getRegisterScheduleState({ client, ctx }).catch((thrown: unknown) => {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError(`Failed to read the daily Gmail watch renewal schedule: ${error.message}`)
+  })
+  if (schedule?.status === 'scheduled') {
+    return
+  }
+  if (schedule?.status === 'pending' && Date.now() - schedule.updatedAtMs < PENDING_TIMEOUT_MS) {
+    return
+  }
 
-    await _setRegisterScheduled({ client, ctx, scheduledAtMs: Date.now() })
-    try {
-      await client.configureIntegration({ scheduleRegisterCall: 'daily' })
-    } catch (thrown: unknown) {
-      await _setRegisterScheduled({ client, ctx, scheduledAtMs: 0 })
-      throw thrown
-    }
-    logger.forBot().info('Scheduled a daily register() call to keep the Gmail watch renewed')
+  await _setRegisterScheduleStatus({ client, ctx, status: 'pending' })
+  try {
+    await client.configureIntegration({ scheduleRegisterCall: 'daily' })
   } catch (thrown: unknown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    logger.forBot().warn(`Failed to schedule the daily Gmail watch renewal; will retry: ${error.message}`)
+    await _setRegisterScheduleStatus({ client, ctx, status: 'failed' }).catch((cleanupThrown: unknown) => {
+      // The pending marker expires after PENDING_TIMEOUT_MS, so a later call still retries
+      const cleanupError = cleanupThrown instanceof Error ? cleanupThrown : new Error(String(cleanupThrown))
+      logger.forBot().warn(`Failed to record the scheduling failure: ${cleanupError.message}`)
+    })
+    throw new RuntimeError(
+      `Failed to schedule the daily Gmail watch renewal: ${error.message}. Save the integration again to retry.`
+    )
+  }
+
+  await _setRegisterScheduleStatus({ client, ctx, status: 'scheduled' })
+  logger.forBot().info('Scheduled a daily register() call to keep the Gmail watch renewed')
+}
+
+/** Retry path for ensureDailyRegister outside of register(): logs instead of throwing. */
+export const tryEnsureDailyRegister = async (props: WatchProps & { logger: bp.Logger }) => {
+  try {
+    await ensureDailyRegister(props)
+  } catch (thrown: unknown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    props.logger.forBot().warn(`${error.message} Will retry on the next incoming email.`)
   }
 }
 
@@ -88,17 +110,21 @@ export const renewWatchIfExpiring = async ({
   }
 }
 
-const _setRegisterScheduled = async ({ client, ctx, scheduledAtMs }: WatchProps & { scheduledAtMs: number }) => {
+const _setRegisterScheduleStatus = async ({
+  client,
+  ctx,
+  status,
+}: WatchProps & { status: 'pending' | 'scheduled' | 'failed' }) => {
   try {
     await client.setState({
       type: 'integration',
       name: 'registerSchedule',
       id: ctx.integrationId,
-      payload: { scheduledAtMs },
+      payload: { status, updatedAtMs: Date.now() },
     })
   } catch (thrown: unknown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    throw new RuntimeError(`Failed to save the register schedule marker: ${error.message}`)
+    throw new RuntimeError(`Failed to save the daily Gmail watch renewal status: ${error.message}`)
   }
 }
 

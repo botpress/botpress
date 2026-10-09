@@ -43,10 +43,11 @@ export const states = {
   registerSchedule: {
     type: 'integration',
     schema: z.object({
-      scheduledAtMs: z
-        .number()
-        .title('Scheduled at')
-        .describe('When the daily register() call was requested (epoch milliseconds); 0 means not scheduled'),
+      status: z
+        .enum(['pending', 'scheduled', 'failed'])
+        .title('Status')
+        .describe('Whether the daily register() call is being requested, was scheduled, or failed to schedule'),
+      updatedAtMs: z.number().title('Updated at').describe('When the status last changed (epoch milliseconds)'),
     }),
   },
   googlePublicCertCache: {
