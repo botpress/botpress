@@ -1,9 +1,9 @@
 import { posthogHelper } from '@botpress/common'
-import { IntegrationDefinition } from '@botpress/sdk'
+import { IntegrationDefinition, z } from '@botpress/sdk'
 import { actionDefinitions } from 'src/definitions/actions'
 
 export const INTEGRATION_NAME = 'browser'
-export const INTEGRATION_VERSION = '0.8.8'
+export const INTEGRATION_VERSION = '1.0.0'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -14,6 +14,15 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   icon: 'icon.svg',
   actions: actionDefinitions,
+  configuration: {
+    schema: z.object({
+      crawlerHeaderValue: z
+        .string()
+        .default('botpress')
+        .describe('Value sent in the X-Botpress-Crawler header for Firecrawl scrape requests')
+        .title('Crawler Header Value'),
+    }),
+  },
   secrets: {
     ...posthogHelper.COMMON_SECRET_NAMES,
     SCREENSHOT_API_KEY: {
