@@ -15,6 +15,11 @@ export type BotContext = {
   configuration: {
     payload: string
   }
+  /**
+   * W3C trace context headers (`traceparent`, `tracestate`) of the incoming request.
+   * Spread them into outgoing HTTP calls to continue the trace. Empty when the request carries none.
+   */
+  traceHeaders: Record<string, string>
 }
 
 type _IncomingEvents<TBot extends common.BaseBot> = {
