@@ -1,6 +1,7 @@
 import { Client, InvalidPayloadError } from '@botpress/client'
 import { retryConfig } from '../../retry'
 import { Request, Response, parseBody, handlerErrorToHttpResponse } from '../../serve'
+import { extractTracingHeaders } from '../../tracing'
 import { IntegrationSpecificClient } from '../client'
 import { BaseIntegration } from '../common'
 import { ActionMetadataStore } from './action-metadata'
@@ -27,15 +28,6 @@ export * from './integration-logger'
 type ServerProps = CommonHandlerProps<BaseIntegration> & {
   req: Request
   instance: IntegrationHandlers<BaseIntegration>
-}
-
-const extractTracingHeaders = (headers: Record<string, string | undefined>) => {
-  return ['traceparent', 'tracestate'].reduce<Record<string, string>>((acc, header) => {
-    if (headers[header]) {
-      acc[header] = headers[header]
-    }
-    return acc
-  }, {})
 }
 
 const getServerProps = (
