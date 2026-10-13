@@ -4,7 +4,25 @@ export const states = {
   credentials: {
     type: 'integration',
     schema: z.object({
+      authMethod: z
+        .enum(['oauth', 'manual'])
+        .optional()
+        .title('Auth Method')
+        .describe(
+          'How the store was connected: through the Botpress OAuth app, or with credentials of an app the merchant created. Missing means OAuth.'
+        ),
       shopDomain: z.string().optional().title('Shop Domain').describe('The myshopify.com domain of the store'),
+      clientId: z
+        .string()
+        .optional()
+        .title('Client ID')
+        .describe("Client ID of the merchant's own Shopify app (manual setup only)"),
+      clientSecret: z
+        .string()
+        .secret()
+        .optional()
+        .title('Client Secret')
+        .describe("Client Secret of the merchant's own Shopify app (manual setup only). Also verifies webhooks."),
       accessToken: z
         .string()
         .optional()

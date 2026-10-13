@@ -91,3 +91,53 @@ export const exchangeCodeForAccessToken = async ({ shop, code }: { shop: string;
 
   return json.access_token
 }
+
+/**
+ * Requests an Admin access token with the client credentials grant, for apps the merchant created
+ * in the Shopify Dev Dashboard (manual setup). The app and the store must belong to the same
+ * Shopify organization. Like the OAuth token, it is only used inside the wizard to provision a
+ * Storefront Access Token, so its 24-hour TTL doesn't matter.
+ *
+ * See https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/client-credentials-grant
+ */
+export const fetchClientCredentialsToken = async ({
+  shop,
+  clientId,
+  clientSecret,
+}: {
+  shop: string
+  clientId: string
+  clientSecret: string
+}): Promise<string> => {
+  try {
+    const response = await fetch(`https://${shop}.myshopify.com/admin/oauth/access_token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
+      body: new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: clientId,
+        client_secret: clientSecret,
+      }).toString(),
+    })
+
+    if (!response.ok) {
+      const body = await response.text().catch(() => '')
+      throw new RuntimeError(
+        `Failed to get a Shopify access token with the provided Client ID and Client Secret: ${response.status} ${response.statusText} — ${body.slice(0, 500)}. Check the credentials and that the app is installed on ${shop}.myshopify.com.`
+      )
+    }
+
+    const json = (await response.json()) as { access_token?: string }
+    if (!json.access_token) {
+      throw new RuntimeError('Shopify did not return an access_token in the client credentials response')
+    }
+
+    return json.access_token
+  } catch (thrown: unknown) {
+    if (thrown instanceof RuntimeError) {
+      throw thrown
+    }
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError(`Failed to get a Shopify access token for ${shop}.myshopify.com: ${error.message}`)
+  }
+}
