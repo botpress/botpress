@@ -76,7 +76,7 @@ export const echoHandler = async (
     },
   })
 
-  if (newMessage && ctx.configuration.listenMessageEchoes) {
+  if (newMessage) {
     await client.createEvent({
       type: 'onMessageEchoReceived',
       conversationId: conversation.id,
