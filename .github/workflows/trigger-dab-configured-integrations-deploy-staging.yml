@@ -4,13 +4,180 @@ on:
   push:
     branches:
       - master
+    paths:
+      - Dockerfile
+      - integrations/telegram/**
+      - integrations/whatsapp/**
+      - integrations/slack/**
+      - integrations/instagram/**
+      - integrations/messenger/**
+      - integrations/build-utils/**
+      - interfaces/**
+      - packages/**
+      - patches/**
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - tsconfig.json
+      - turbo.json
+      - .github/workflows/trigger-dab-configured-integrations-deploy-staging.yml
   workflow_dispatch:
 
 permissions:
+  id-token: write
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+env:
+  ECR_REPOSITORY: integration-images
+  DEPLOY_ENVIRONMENT: staging
+
 jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - integration: telegram
+            target: telegram
+            platform: linux/amd64
+          - integration: whatsapp
+            target: whatsapp
+            platform: linux/amd64
+          - integration: slack
+            target: slack
+            platform: linux/amd64
+          - integration: instagram
+            target: instagram
+            platform: linux/amd64
+          - integration: messenger
+            target: messenger
+            platform: linux/amd64
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Resolve source commit
+        id: source
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-session-name: container_pusher
+          role-to-assume: arn:aws:iam::986677156374:role/actions/build/container_pusher
+          aws-region: us-east-1
+
+      - uses: aws-actions/amazon-ecr-login@v1
+        id: ecr
+        with:
+          mask-password: true
+
+      - name: Create ECR repository
+        env:
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+        run: |
+          if ! create_output=$(aws ecr create-repository --repository-name "$ECR_REPOSITORY" 2>&1); then
+            if [[ "$create_output" != *RepositoryAlreadyExistsException* ]]; then
+              echo "$create_output" >&2
+              exit 1
+            fi
+          fi
+          aws ssm get-parameter \
+            --name '/cloud/container-registry/ecr-policy-document' \
+            --query 'Parameter.Value' \
+            --output text | jq -r > repository-policy.json
+          aws ecr set-repository-policy \
+            --repository-name "$ECR_REPOSITORY" \
+            --policy-text file://repository-policy.json > /dev/null
+
+      - name: Check for existing image
+        id: image
+        env:
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          INTEGRATION: ${{ matrix.integration }}
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        run: |
+          image_tag="${INTEGRATION}-${SOURCE_SHA}"
+          image_digest=$(aws ecr describe-images \
+            --repository-name "$ECR_REPOSITORY" \
+            --image-ids imageTag="$image_tag" \
+            --query 'imageDetails[0].imageDigest' \
+            --output text 2> /dev/null || true)
+
+          if [ -n "$image_digest" ] && [ "$image_digest" != "None" ]; then
+            echo "Image $ECR_REPOSITORY:$image_tag already exists at $image_digest"
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Image $ECR_REPOSITORY:$image_tag will be built"
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: docker/setup-buildx-action@v3
+        if: steps.image.outputs.exists != 'true'
+
+      - name: Build and push ${{ matrix.integration }} image
+        if: steps.image.outputs.exists != 'true'
+        uses: docker/build-push-action@v6
+        with:
+          file: ./Dockerfile
+          context: .
+          target: ${{ matrix.target }}
+          platforms: ${{ matrix.platform }}
+          push: true
+          tags: ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ matrix.integration }}-${{ steps.source.outputs.sha }}
+
+      - name: Promote image to staging
+        env:
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          INTEGRATION: ${{ matrix.integration }}
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+          DEPLOY_ENVIRONMENT: ${{ env.DEPLOY_ENVIRONMENT }}
+        run: |
+          source_tag="${INTEGRATION}-${SOURCE_SHA}"
+          environment_tag="${INTEGRATION}-${DEPLOY_ENVIRONMENT}"
+          image_digest=$(aws ecr describe-images \
+            --repository-name "$ECR_REPOSITORY" \
+            --image-ids imageTag="$source_tag" \
+            --query 'imageDetails[0].imageDigest' \
+            --output text)
+          image_manifest=$(aws ecr batch-get-image \
+            --repository-name "$ECR_REPOSITORY" \
+            --image-ids imageTag="$source_tag" \
+            --query 'images[0].imageManifest' \
+            --output text)
+
+          if [ -z "$image_manifest" ] || [ "$image_manifest" = "None" ]; then
+            echo "::error::No ECR image found for $ECR_REPOSITORY:$source_tag"
+            exit 1
+          fi
+
+          if ! aws ecr put-image \
+            --repository-name "$ECR_REPOSITORY" \
+            --image-tag "$environment_tag" \
+            --image-manifest "$image_manifest" \
+            > /dev/null; then
+            environment_digest=$(aws ecr describe-images \
+              --repository-name "$ECR_REPOSITORY" \
+              --image-ids imageTag="$environment_tag" \
+              --query 'imageDetails[0].imageDigest' \
+              --output text 2> /dev/null || true)
+
+            if [ "$environment_digest" = "$image_digest" ]; then
+              echo "$ECR_REPOSITORY:$environment_tag already points at $image_digest"
+              exit 0
+            fi
+
+            echo "::error::Failed to tag $ECR_REPOSITORY:$source_tag as $environment_tag"
+            exit 1
+          fi
+
   trigger:
+    needs: deploy
     runs-on: ubuntu-latest
     steps:
       - name: Acquire a short-lived access token

@@ -5,6 +5,7 @@ import {
   OPERATION_TYPE_HEADER,
   OPERATION_SUBTYPE_HEADER,
 } from '../../consts'
+import { extractTracingHeaders } from '../../tracing'
 import { throwError } from '../../utils/error-utils'
 import { BotContext } from './types'
 
@@ -19,4 +20,5 @@ export const extractContext = (headers: Record<string, string | undefined>): Bot
       'utf-8'
     )
   ),
+  traceHeaders: extractTracingHeaders(headers),
 })

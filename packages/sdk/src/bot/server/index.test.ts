@@ -18,11 +18,24 @@ type HitlPlugin = DefaultPlugin<{
   }
 }>
 
-const actionRequest = (type: string) => ({
+type TracingPlugin = DefaultPlugin<{
+  actions: {
+    inspect: {
+      input: Record<string, never>
+      output: { traceHeaders: Record<string, string>; clientHeaders: Record<string, unknown> }
+    }
+  }
+}>
+
+const TRACEPARENT = '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01'
+const TRACESTATE = 'vendor=value'
+
+const actionRequest = (type: string, extraHeaders: Record<string, string> = {}) => ({
   method: 'POST',
   path: '/',
   query: '',
   headers: {
+    ...extraHeaders,
     'x-bot-id': 'bot-1',
     'x-bp-operation': 'action_triggered',
     'x-bp-type': 'action_triggered',
@@ -57,6 +70,59 @@ describe('botHandler', () => {
       type: 'bot',
       name: 'desk-hitl#runtimeConfig',
       id: 'desk-hitl',
+    })
+  })
+
+  describe('trace context', () => {
+    const makeBot = () => {
+      const plugin = new PluginImplementation<TracingPlugin>({
+        actions: {
+          inspect: async ({ ctx, client }) => ({
+            traceHeaders: ctx.traceHeaders,
+            clientHeaders: { ...client._inner.config.headers },
+          }),
+        },
+      }).initialize({
+        alias: 'tracing',
+        configuration: {},
+        interfaces: {},
+        integrations: {},
+      })
+      return new BotImplementation({
+        actions: {},
+        plugins: { tracing: plugin },
+      })
+    }
+
+    const inspect = async (extraHeaders: Record<string, string>, dependencies?: { client: Client }) => {
+      const response = await makeBot().handler(actionRequest('tracing#inspect', extraHeaders), dependencies)
+      return JSON.parse((response as { body: string }).body).output as TracingPlugin['actions']['inspect']['output']
+    }
+
+    it('exposes incoming trace headers to plugin handlers and forwards them on the bot client', async () => {
+      const output = await inspect({ traceparent: TRACEPARENT, tracestate: TRACESTATE })
+
+      expect(output.traceHeaders).toEqual({ traceparent: TRACEPARENT, tracestate: TRACESTATE })
+      expect(output.clientHeaders).toMatchObject({ traceparent: TRACEPARENT, tracestate: TRACESTATE })
+    })
+
+    it('sends no trace headers when the request carries none', async () => {
+      const output = await inspect({})
+
+      expect(output.traceHeaders).toEqual({})
+      expect(output.clientHeaders).not.toHaveProperty('traceparent')
+      expect(output.clientHeaders).not.toHaveProperty('tracestate')
+    })
+
+    it('exposes trace headers without modifying an injected client', async () => {
+      const injectedHeaders = { 'x-bot-id': 'bot-1' }
+      const injectedClient = { config: { headers: injectedHeaders } } as unknown as Client
+
+      const output = await inspect({ traceparent: TRACEPARENT }, { client: injectedClient })
+
+      expect(output.traceHeaders).toEqual({ traceparent: TRACEPARENT })
+      expect(output.clientHeaders).toEqual(injectedHeaders)
+      expect(injectedHeaders).toEqual({ 'x-bot-id': 'bot-1' })
     })
   })
 })

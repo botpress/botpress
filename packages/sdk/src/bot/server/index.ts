@@ -18,6 +18,8 @@ export type BotHandlerDependencies = {
    *
    * Hosts serving multiple bots must inject the client selected for the
    * current request instead of changing process-wide environment variables.
+   * The host is also responsible for forwarding the request's trace context
+   * headers (`traceparent`, `tracestate`) on this client; the SDK does not modify it.
    */
   client: Client
 }
@@ -33,6 +35,7 @@ export const botHandler =
       new Client({
         botId: ctx.botId,
         retry: retryConfig,
+        headers: ctx.traceHeaders,
       })
     const botClient = new BotSpecificClient<common.BaseBot>(vanillaClient, {
       before: {
