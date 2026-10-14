@@ -5,6 +5,7 @@ import axios from 'axios'
 import { INTEGRATION_NAME, INTEGRATION_VERSION } from 'integration.definition'
 import { getAccessToken, getAuthenticatedWhatsappClient } from '../../auth'
 import { safeFormatPhoneNumber } from '../../misc/phone-number-to-whatsapp'
+import { getReferralTags } from '../../misc/referral-tags'
 import { WhatsAppMessage, WhatsAppMessageValue } from '../../misc/types'
 import { getMessageFromWhatsappMessageId } from '../../misc/util'
 import { getMediaInfos } from '../../misc/whatsapp-utils'
@@ -136,7 +137,7 @@ export const messagesHandler = async (
     tags: {
       id: message.id,
       ...(replyTo && { replyTo }),
-      ..._processReferralTags(message, logger),
+      ...getReferralTags(message, logger),
     },
   })
 }
@@ -299,35 +300,4 @@ function _getMediaExpiry(ctx: bp.Context) {
   }
   const expiresAt = new Date(Date.now() + expiryDelayHours * 60 * 60 * 1000)
   return expiresAt.toISOString()
-}
-
-function _processReferralTags(message: WhatsAppMessage, logger: bp.Logger): Record<string, string> {
-  const { referral } = message
-  if (!referral) {
-    return {}
-  }
-
-  const tags: Record<string, string> = {}
-
-  if (referral.source_url) {
-    const originalUrl = referral.source_url
-    // Urls can go up to 2048 characters, but we limit to 500 to avoid tags limit error
-    const processedUrl = originalUrl.slice(0, 500)
-
-    if (originalUrl !== processedUrl) {
-      logger
-        .forBot()
-        .warn(
-          `For whatsapp message "${message.id}", referral source URL was truncated from ${originalUrl.length} to 500 characters. Original: ${originalUrl}, Sliced: ${processedUrl}`
-        )
-    }
-
-    tags.referralSourceUrl = processedUrl
-  }
-
-  if (referral.source_id) {
-    tags.referralSourceId = referral.source_id
-  }
-
-  return tags
 }
