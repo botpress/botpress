@@ -957,6 +957,7 @@ Zai.prototype.group = function <T>(
     adapter: this.adapter,
     memoizer: this._resolveMemoizer(),
     metadata: this.metadata,
+    skipCache: this.skipCache,
   })
 
   return new Response<Array<Group<T>>, Record<string, T[]>>(context, group(input, _options, context), (result) => {
