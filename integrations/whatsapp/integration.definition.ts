@@ -46,14 +46,6 @@ const commonConfigSchema = z.object({
     .describe(
       'Expiry time in hours for downloaded media files. An expiry time of 0 means the files will never expire.'
     ),
-  listenMessageEchoes: z
-    .boolean()
-    .default(false)
-    .optional()
-    .title('Listen Message Echoes')
-    .describe(
-      'When enabled, triggers an onMessageEchoReceived event when an external message is echoed via the webhook.'
-    ),
 })
 
 const dropdownButtonLabelSchema = z
