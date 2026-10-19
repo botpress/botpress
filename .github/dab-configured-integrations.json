@@ -1,0 +1,24 @@
+{
+  "include": [
+    {
+      "integration": "telegram",
+      "target": "telegram"
+    },
+    {
+      "integration": "whatsapp",
+      "target": "whatsapp"
+    },
+    {
+      "integration": "slack",
+      "target": "slack"
+    },
+    {
+      "integration": "instagram",
+      "target": "instagram"
+    },
+    {
+      "integration": "messenger",
+      "target": "messenger"
+    }
+  ]
+}
