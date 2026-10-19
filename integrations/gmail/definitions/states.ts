@@ -24,6 +24,21 @@ export const states = {
         .optional()
         .title('History cursor')
         .describe('The last history ID processed by the integration'),
+      authorizationCode: z
+        .string()
+        .optional()
+        .title('Used authorization code')
+        .describe('The authorization code already exchanged for the refresh token, so it is not exchanged again'),
+    }),
+  },
+  registerSchedule: {
+    type: 'integration',
+    schema: z.object({
+      status: z
+        .enum(['pending', 'scheduled', 'failed'])
+        .title('Status')
+        .describe('Whether the daily register() call is being requested, was scheduled, or failed to schedule'),
+      updatedAtMs: z.number().title('Updated at').describe('When the status last changed (epoch milliseconds)'),
     }),
   },
   googlePublicCertCache: {
