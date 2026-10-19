@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ensureDailyRegister } from './schedule'
+import { unregister } from './setup'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 const NOW = new Date('2026-10-01T00:00:00Z').getTime()
@@ -110,4 +111,43 @@ describe('ensureDailyRegister', () => {
     )
     expect(configureIntegration).not.toHaveBeenCalled()
   })
+})
+
+it('recreates the daily schedule after unregistering and restoring with retained state', async () => {
+  const { props, setState, configureIntegration } = _setup()
+  let payload: { status: string; updatedAtMs: number } | null = { status: 'scheduled', updatedAtMs: NOW }
+  props.client.getState.mockImplementation(async () => {
+    if (payload === null) {
+      throw _notFound()
+    }
+    return { state: { payload } }
+  })
+  setState.mockImplementation(async (state) => {
+    expect(state.name).toBe('registerSchedule')
+    payload = state.payload
+    return {}
+  })
+
+  await unregister({ ...props, webhookUrl: 'https://example.com/webhook' })
+  expect(payload).toBeNull()
+  await ensureDailyRegister(props)
+  await ensureDailyRegister(props)
+
+  expect(configureIntegration).toHaveBeenCalledTimes(1)
+  expect(configureIntegration).toHaveBeenCalledWith({ scheduleRegisterCall: 'daily' })
+  expect(payload).toEqual({ status: 'scheduled', updatedAtMs: NOW })
+})
+
+it('allows unregister when no schedule state exists', async () => {
+  const { props, setState } = _setup()
+  setState.mockRejectedValue(_notFound())
+  await expect(unregister({ ...props, webhookUrl: 'https://example.com/webhook' })).resolves.toBeUndefined()
+})
+
+it('propagates unexpected errors when clearing the schedule state', async () => {
+  const { props, setState } = _setup()
+  setState.mockRejectedValue(new Error('state service unavailable'))
+  await expect(unregister({ ...props, webhookUrl: 'https://example.com/webhook' })).rejects.toThrow(
+    'state service unavailable'
+  )
 })
