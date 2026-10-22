@@ -31,16 +31,7 @@ export const states = {
         .describe('The authorization code already exchanged for the refresh token, so it is not exchanged again'),
     }),
   },
-  registerSchedule: {
-    type: 'integration',
-    schema: z.object({
-      status: z
-        .enum(['pending', 'scheduled', 'failed'])
-        .title('Status')
-        .describe('Whether the daily register() call is being requested, was scheduled, or failed to schedule'),
-      updatedAtMs: z.number().title('Updated at').describe('When the status last changed (epoch milliseconds)'),
-    }),
-  },
+
   googlePublicCertCache: {
     type: 'integration',
     schema: z.object({

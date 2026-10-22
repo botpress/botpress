@@ -1,14 +1,12 @@
 import { isApiError } from '@botpress/sdk'
 import { AuthorizationCodeSpentError, GoogleClient } from './google-api'
-import { ensureDailyRegister } from './schedule'
 import * as bp from '.botpress'
 
 type SetupProps = Pick<Parameters<bp.IntegrationProps['register']>[0], 'client' | 'ctx' | 'logger'>
 
-export const register: bp.IntegrationProps['register'] = async (props) => {
-  const { logger } = props
+export const register: bp.IntegrationProps['register'] = async ({ client, logger }) => {
   const googleClient = await _initializeGoogleClient(props)
-  await ensureDailyRegister(props)
+  await client.configureIntegration({ scheduleRegisterCall: 'daily' })
 
   logger.forBot().info('Setting up Gmail watch for incoming emails...')
   try {
