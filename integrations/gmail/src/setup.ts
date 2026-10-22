@@ -1,10 +1,10 @@
-import { isApiError } from '@botpress/sdk'
 import { AuthorizationCodeSpentError, GoogleClient } from './google-api'
 import * as bp from '.botpress'
 
 type SetupProps = Pick<Parameters<bp.IntegrationProps['register']>[0], 'client' | 'ctx' | 'logger'>
 
-export const register: bp.IntegrationProps['register'] = async ({ client, logger }) => {
+export const register: bp.IntegrationProps['register'] = async (props) => {
+  const { client, logger } = props
   const googleClient = await _initializeGoogleClient(props)
   await client.configureIntegration({ scheduleRegisterCall: 'daily' })
 
@@ -101,13 +101,4 @@ const _isAuthorizationCodeAlreadyUsed = async ({
   }
 }
 
-export const unregister: bp.IntegrationProps['unregister'] = async ({ client, ctx }) => {
-  // Restoring a removed integration preserves state but clears its scheduled task reference.
-  try {
-    await client.setState({ type: 'integration', name: 'registerSchedule', id: ctx.integrationId, payload: null })
-  } catch (error) {
-    if (!isApiError(error) || error.type !== 'ResourceNotFound') {
-      throw error
-    }
-  }
-}
+export const unregister: bp.IntegrationProps['unregister'] = async () => {}

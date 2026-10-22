@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AuthorizationCodeSpentError, GoogleClient } from './google-api'
-import { ensureDailyRegister } from './schedule'
 import { register } from './setup'
 import type * as bp from '.botpress'
 
@@ -8,8 +7,6 @@ vi.mock('./google-api', () => ({
   GoogleClient: { create: vi.fn(), createFromAuthorizationCode: vi.fn() },
   AuthorizationCodeSpentError: class AuthorizationCodeSpentError extends Error {},
 }))
-
-vi.mock('./schedule', () => ({ ensureDailyRegister: vi.fn() }))
 
 const watchIncomingMail = vi.fn()
 const googleClient = { watchIncomingMail } as unknown as GoogleClient
@@ -19,6 +16,7 @@ const _props = (configurationType = 'customApp', oauthAuthorizationCode = 'code-
     client: {
       getState: vi.fn().mockResolvedValue({ state: { payload: { refreshToken: 'refresh' } } }),
       patchState: vi.fn().mockResolvedValue({}),
+      configureIntegration: vi.fn().mockResolvedValue({}),
     },
     ctx: { integrationId: 'int-1', configurationType, configuration: { oauthAuthorizationCode } },
     logger: { forBot: () => logger },
@@ -73,8 +71,8 @@ describe('register', () => {
   })
 })
 
-describe('daily renewal', () => {
-  it('reuses an exchanged code on consecutive registrations and renews each time', async () => {
+describe('manual authorization codes', () => {
+  it('reuses the saved token on consecutive registrations', async () => {
     const props = _props()
     vi.mocked(props.client.getState).mockResolvedValue({
       state: { payload: { refreshToken: 'refresh', authorizationCode: 'code-1' } },
@@ -83,7 +81,6 @@ describe('daily renewal', () => {
     await register(props)
     expect(GoogleClient.createFromAuthorizationCode).not.toHaveBeenCalled()
     expect(watchIncomingMail).toHaveBeenCalledTimes(2)
-    expect(ensureDailyRegister).toHaveBeenCalledTimes(2)
   })
 
   it('marks a rejected spent code so subsequent runs use the saved token', async () => {
@@ -106,16 +103,5 @@ describe('daily renewal', () => {
     vi.mocked(GoogleClient.createFromAuthorizationCode).mockRejectedValue(new Error('socket hang up'))
     await register(props)
     expect(props.client.patchState).not.toHaveBeenCalled()
-  })
-
-  it('keeps the daily retry even if starting the watch fails', async () => {
-    watchIncomingMail.mockRejectedValue(new Error('Google unavailable'))
-    await register(_props())
-    expect(ensureDailyRegister).toHaveBeenCalledTimes(1)
-  })
-
-  it('fails registration if the daily schedule cannot be established', async () => {
-    vi.mocked(ensureDailyRegister).mockRejectedValue(new Error('Scheduling failed'))
-    await expect(register(_props())).rejects.toThrow('Scheduling failed')
   })
 })
