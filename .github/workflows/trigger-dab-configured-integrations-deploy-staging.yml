@@ -11,6 +11,7 @@ on:
       - integrations/slack/**
       - integrations/instagram/**
       - integrations/messenger/**
+      - integrations/chat/**
       - integrations/build-utils/**
       - interfaces/**
       - packages/**
