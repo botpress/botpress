@@ -371,6 +371,32 @@ const group = async <T>(input: Array<T>, _options: Options | undefined, ctx: Zai
     elementChunks.push(currentChunk)
   }
 
+  // Tokens a group takes in the prompt (label + its examples)
+  const groupTokenCount = (group: GroupInfo) =>
+    tokenizer.count(`${group.label} ${group.examples.join(' ')}`) + 10 + group.examples.length * 2
+
+  // Chunk element indices by token budget and MAX_ELEMENTS_PER_CHUNK
+  const chunkElements = (indices: number[]): number[][] => {
+    const chunks: number[][] = []
+    let chunk: number[] = []
+    let tokens = 0
+    for (const idx of indices) {
+      const elemTokens = tokenizer.count(tokenizer.truncate(elements[idx].stringified, options.tokensPerElement))
+      if (
+        (tokens + elemTokens > TOKENS_FOR_ELEMENTS_MAX || chunk.length >= MAX_ELEMENTS_PER_CHUNK) &&
+        chunk.length > 0
+      ) {
+        chunks.push(chunk)
+        chunk = []
+        tokens = 0
+      }
+      chunk.push(idx)
+      tokens += elemTokens
+    }
+    if (chunk.length > 0) chunks.push(chunk)
+    return chunks
+  }
+
   // Helper to chunk groups
   const getGroupChunks = (): string[][] => {
     const allGroupIds = Array.from(groups.keys())
@@ -382,7 +408,7 @@ const group = async <T>(input: Array<T>, _options: Options | undefined, ctx: Zai
 
     for (const groupId of allGroupIds) {
       const group = groups.get(groupId)!
-      const groupTokens = tokenizer.count(`${group.label}`) + 10
+      const groupTokens = groupTokenCount(group)
 
       if (currentTokens + groupTokens > TOKENS_FOR_GROUPS_MAX && currentChunk.length > 0) {
         chunks.push(currentChunk)
@@ -483,8 +509,14 @@ Group each element.`,
         // Assistant message. Saved outputs are groups ({ label, elements }); older ones may be per-element
         // ({ elementIndex, label }). Either way, render one "■index:label■" line per example element.
         const exampleOutput = example.output as unknown as Array<Record<string, any>>
-        const positionOf = (el: unknown) =>
-          exampleElements.findIndex((x) => stringify(x, false) === stringify(el, false))
+        // Each saved occurrence takes the next unused equal input, so duplicates get their own index
+        const used = new Set<number>()
+        const positionOf = (el: unknown) => {
+          const key = stringify(el, false)
+          const i = exampleElements.findIndex((x, j) => !used.has(j) && stringify(x, false) === key)
+          if (i >= 0) used.add(i)
+          return i
+        }
         const lines = Array.isArray(exampleOutput)
           ? exampleOutput.flatMap((o) =>
               Array.isArray(o.elements)
@@ -603,7 +635,7 @@ ${END}`.trim()
     let assignments: Array<{ elementIndex: number; label: string }> = []
     try {
       assignments = await processChunk(elementIndices, groupIds)
-    } catch (err) {
+    } catch (err: unknown) {
       if (ctx.controller.signal.aborted || depth >= 2) throw err
     }
     const answered = new Set(assignments.map((a) => a.elementIndex))
@@ -740,6 +772,44 @@ ${END}`.trim()
   }
 
   // Phase 3: Resolve conflicts (elements in multiple groups)
+  // With several group chunks, each call only saw its own chunk (and with newGroups: false had to pick from it), so an
+  // element can hold one candidate per chunk. Ask once more with only its candidates side by side.
+  // With a single group chunk the review pass already compared the element against every group, so its answer stands.
+  const conflicted = Array.from(elementGroups.entries())
+    .filter(([, s]) => s.size > 1)
+    .map(([idx]) => idx)
+  if (conflicted.length > 0 && getGroupChunks().length > 1) {
+    const tieBreaks: Array<{ elementIndices: number[]; groupIds: string[] }> = []
+    for (const chunk of chunkElements(conflicted)) {
+      let current = { elementIndices: [] as number[], groupIds: new Set<string>() }
+      let tokens = 0
+      for (const idx of chunk) {
+        const candidates = Array.from(elementGroups.get(idx)!)
+        const addedTokens = (seen: Set<string>) =>
+          candidates.filter((gid) => !seen.has(gid)).reduce((n, gid) => n + groupTokenCount(groups.get(gid)!), 0)
+        if (tokens + addedTokens(current.groupIds) > TOKENS_FOR_GROUPS_MAX && current.elementIndices.length > 0) {
+          tieBreaks.push({ elementIndices: current.elementIndices, groupIds: Array.from(current.groupIds) })
+          current = { elementIndices: [], groupIds: new Set() }
+          tokens = 0
+        }
+        tokens += addedTokens(current.groupIds)
+        candidates.forEach((gid) => current.groupIds.add(gid))
+        current.elementIndices.push(idx)
+      }
+      if (current.elementIndices.length > 0) {
+        tieBreaks.push({ elementIndices: current.elementIndices, groupIds: Array.from(current.groupIds) })
+      }
+    }
+
+    const tieBreakResults = await Promise.all(
+      tieBreaks.map(({ elementIndices, groupIds }) => groupLimit(() => processChunkComplete(elementIndices, groupIds)))
+    )
+    for (const { elementIndex, label } of tieBreakResults.flat()) {
+      const gid = labelToGroupId.get(normalizeLabel(label))
+      if (gid && elementGroups.get(elementIndex)?.has(gid)) lastAssigned.set(elementIndex, gid)
+    }
+  }
+
   for (const [elementIndex, groupSet] of elementGroups.entries()) {
     if (groupSet.size > 1) {
       // Element is in multiple groups, keep only the most common assignment
@@ -750,9 +820,34 @@ ${END}`.trim()
         groupElements.get(gid)?.delete(elementIndex)
       }
 
-      // Keep the latest assignment: the review pass compared the element against every group
+      // Keep the latest assignment: the review pass (or the tie-break above) compared the element against every candidate
       const finalGroupId = lastAssigned.get(elementIndex) ?? groupIds[0]
       groupElements.get(finalGroupId)!.add(elementIndex)
+    }
+  }
+
+  // Every element must end up in a group: ask again for any the model kept skipping, then fail rather than drop it
+  const isPlaced = (idx: number) => Array.from(groupElements.values()).some((s) => s.has(idx))
+  const unplaced = elements.map((e) => e.index).filter((idx) => !isPlaced(idx))
+  if (unplaced.length > 0) {
+    const results = await Promise.all(
+      chunkElements(unplaced).map((chunk) =>
+        elementLimit(async () =>
+          (await Promise.all(getGroupChunks().map((gc) => groupLimit(() => processChunkComplete(chunk, gc))))).flat()
+        )
+      )
+    )
+    const answer = new Map<number, string>()
+    for (const { elementIndex, label } of results.flat()) {
+      answer.set(elementIndex, label)
+    }
+    for (const [elementIndex, label] of answer) {
+      const groupId = labelToGroupId.get(normalizeLabel(label)) ?? addGroup(`group_${groupIdCounter++}`, label)
+      groupElements.get(groupId)!.add(elementIndex)
+    }
+    const stillUnplaced = unplaced.filter((idx) => !isPlaced(idx))
+    if (stillUnplaced.length > 0) {
+      throw new Error(`zai.group: the model did not assign ${stillUnplaced.length} element(s) to a group`)
     }
   }
 
@@ -781,7 +876,7 @@ ${END}`.trim()
 
 ${options.instructions ? `**Original instructions:** ${options.instructions}\n` : ''}
 **Task:** Merge ${currentIds.length} groups down to at most ${options.maxGroups} groups.
-Combine the most semantically related groups together. Give each merged group a new descriptive label.
+Combine the most semantically related groups together. ${options.newGroups ? 'Give each merged group a new descriptive label.' : 'Name each merged group with the exact label of one of the groups it combines (do not invent labels).'}
 
 **Output Format:**
 For each input group (■0 to ■${currentIds.length - 1}), output which target label it maps to:
@@ -839,16 +934,18 @@ ${END}`.trim()
       for (const [, { label, sourceGroupIds }] of mergeMap) {
         if (sourceGroupIds.length <= 1) continue
 
-        const targetGid = sourceGroupIds[0]
+        // With newGroups: false the labels are a fixed list: merge into the source group the model named
+        // (or the largest one) and keep its label
+        const named = sourceGroupIds.find((gid) => groups.get(gid)!.normalizedLabel === normalizeLabel(label))
+        const targetGid = options.newGroups
+          ? sourceGroupIds[0]
+          : (named ??
+            sourceGroupIds.reduce((a, b) => (groupElements.get(a)!.size >= groupElements.get(b)!.size ? a : b)))
         const targetSet = groupElements.get(targetGid)!
 
-        // Update label on the target group
-        const targetInfo = groups.get(targetGid)!
-        targetInfo.label = label
-        targetInfo.normalizedLabel = normalizeLabel(label)
+        if (options.newGroups) Object.assign(groups.get(targetGid)!, { label, normalizedLabel: normalizeLabel(label) })
 
-        for (let i = 1; i < sourceGroupIds.length; i++) {
-          const sourceGid = sourceGroupIds[i]
+        for (const sourceGid of sourceGroupIds.filter((gid) => gid !== targetGid)) {
           const sourceSet = groupElements.get(sourceGid)!
           sourceSet.forEach((elemIdx) => targetSet.add(elemIdx))
           sourceSet.clear()
@@ -874,7 +971,12 @@ ${END}`.trim()
 
   // Phase 5: Redistribute undersized groups if minElements is set
   // Reuses processChunk so orphans see the valid groups as available buckets
-  if (options.minElements !== undefined && options.minElements > 1) {
+  // With newGroups: false and every populated group undersized there is no listed group left to move orphans into,
+  // so the assignments are kept as they are.
+  const minElements = options.minElements
+  const everyGroupUndersized =
+    minElements !== undefined && Array.from(groupElements.values()).every((s) => s.size === 0 || s.size < minElements)
+  if (minElements !== undefined && minElements > 1 && (options.newGroups || !everyGroupUndersized)) {
     const getNonEmptyGroupIds = () =>
       Array.from(groupElements.entries())
         .filter(([, s]) => s.size > 0)

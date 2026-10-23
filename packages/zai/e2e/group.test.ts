@@ -1528,6 +1528,48 @@ describe('group into a fixed list (initialGroups)', () => {
     expect(correct / items.length).toBeGreaterThanOrEqual(0.9)
   })
 
+  it('keeps the listed labels when maxGroups merges groups', async () => {
+    // Before: the merge pass gave merged groups new labels, even with a fixed list.
+    const initialGroups = [
+      { id: 'password', label: 'Reset a forgotten password' },
+      { id: 'login', label: 'Cannot sign in to the account' },
+      { id: 'card', label: 'Update the billing card' },
+      { id: 'invoice', label: 'Download an invoice' },
+    ]
+    const items = [
+      'I forgot my password',
+      'need a password reset link',
+      'login page keeps rejecting me',
+      'cannot sign in since this morning',
+      'change my billing card',
+      'my card expired, how do I update it',
+      'where can I download last month invoice',
+      'send me the invoice PDF for March',
+    ]
+
+    const result = await zai.group(items, { initialGroups, newGroups: false, maxGroups: 2 })
+
+    const allowed = new Set(initialGroups.map((g) => g.label))
+    expect(labelsOf(result).length).toBeLessThanOrEqual(2)
+    expect(labelsOf(result).every((l) => allowed.has(l))).toBe(true)
+    expect(allElements(result).sort()).toEqual([...items].sort())
+  })
+
+  it('keeps assignments when minElements leaves no listed group to move elements into', async () => {
+    // Before: every group was cleared as undersized and the model was asked to pick from an empty list.
+    const initialGroups = [
+      { id: 'password', label: 'Reset a forgotten password' },
+      { id: 'card', label: 'Update the billing card' },
+    ]
+    const items = ['I forgot my password', 'change my billing card']
+
+    const result = await zai.group(items, { initialGroups, newGroups: false, minElements: 2 })
+
+    const allowed = new Set(initialGroups.map((g) => g.label))
+    expect(labelsOf(result).every((l) => allowed.has(l))).toBe(true)
+    expect(allElements(result).sort()).toEqual([...items].sort())
+  })
+
   it('rejects newGroups: false without initialGroups', async () => {
     await expect(zai.group(['a', 'b'], { newGroups: false })).rejects.toThrow(/initialGroups/)
   })
