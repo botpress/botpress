@@ -648,6 +648,16 @@ ${END}`.trim()
   const elementLimit = pLimit(options.concurrency) // Separate limiter for element chunks
   const groupLimit = pLimit(options.concurrency) // Separate limiter for group chunks
 
+  // Groups each element was shown (not only the one it was put in), so the review pass only re-asks elements
+  // that have not seen every group yet — e.g. groups created by other chunks
+  const elementShown = new Map<number, Set<string>>()
+  const markShown = (elementIndices: number[], groupIds: string[]) => {
+    for (const idx of elementIndices) {
+      const shown = elementShown.get(idx) ?? elementShown.set(idx, new Set()).get(idx)!
+      groupIds.forEach((gid) => shown.add(gid))
+    }
+  }
+
   // Collect all assignments from parallel processing
   const allChunkResults = await Promise.all(
     elementChunks.map((elementChunk) =>
@@ -655,7 +665,13 @@ ${END}`.trim()
         const groupChunks = getGroupChunks()
 
         const allAssignments = await Promise.all(
-          groupChunks.map((groupChunk) => groupLimit(() => processChunkComplete(elementChunk, groupChunk)))
+          groupChunks.map((groupChunk) =>
+            groupLimit(async () => {
+              const assignments = await processChunkComplete(elementChunk, groupChunk)
+              markShown(elementChunk, groupChunk)
+              return assignments
+            })
+          )
         )
 
         return allAssignments.flat()
@@ -693,10 +709,10 @@ ${END}`.trim()
     const elementsNeedingReview: number[] = []
 
     for (const elem of elements) {
-      const seenGroups = elementGroups.get(elem.index) ?? new Set()
+      const seenGroups = new Set([...(elementShown.get(elem.index) ?? []), ...(elementGroups.get(elem.index) ?? [])])
       const unseenCount = allGroupIds.filter((gid) => !seenGroups.has(gid)).length
 
-      if (unseenCount > 0) {
+      if (unseenCount > 0 || !elementGroups.has(elem.index)) {
         elementsNeedingReview.push(elem.index)
       }
     }
