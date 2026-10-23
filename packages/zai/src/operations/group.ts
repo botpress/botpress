@@ -779,34 +779,75 @@ ${END}`.trim()
     .filter(([, s]) => s.size > 1)
     .map(([idx]) => idx)
   if (conflicted.length > 0 && getGroupChunks().length > 1) {
-    const tieBreaks: Array<{ elementIndices: number[]; groupIds: string[] }> = []
-    for (const chunk of chunkElements(conflicted)) {
-      let current = { elementIndices: [] as number[], groupIds: new Set<string>() }
+    // Candidates left to compare per element. Each round shows at most a group budget's worth of them (always at least
+    // two), and the winner carries over against the rest, so an element with many candidates never overflows a prompt.
+    const pending = new Map(conflicted.map((idx) => [idx, Array.from(elementGroups.get(idx)!)]))
+    const takeRound = (candidates: string[]) => {
       let tokens = 0
-      for (const idx of chunk) {
-        const candidates = Array.from(elementGroups.get(idx)!)
-        const addedTokens = (seen: Set<string>) =>
-          candidates.filter((gid) => !seen.has(gid)).reduce((n, gid) => n + groupTokenCount(groups.get(gid)!), 0)
-        if (tokens + addedTokens(current.groupIds) > TOKENS_FOR_GROUPS_MAX && current.elementIndices.length > 0) {
-          tieBreaks.push({ elementIndices: current.elementIndices, groupIds: Array.from(current.groupIds) })
-          current = { elementIndices: [], groupIds: new Set() }
-          tokens = 0
-        }
-        tokens += addedTokens(current.groupIds)
-        candidates.forEach((gid) => current.groupIds.add(gid))
-        current.elementIndices.push(idx)
+      let n = 0
+      while (n < candidates.length) {
+        const t = groupTokenCount(groups.get(candidates[n]!)!)
+        if (n >= 2 && tokens + t > TOKENS_FOR_GROUPS_MAX) break
+        tokens += t
+        n++
       }
-      if (current.elementIndices.length > 0) {
-        tieBreaks.push({ elementIndices: current.elementIndices, groupIds: Array.from(current.groupIds) })
-      }
+      return candidates.slice(0, n)
     }
 
-    const tieBreakResults = await Promise.all(
-      tieBreaks.map(({ elementIndices, groupIds }) => groupLimit(() => processChunkComplete(elementIndices, groupIds)))
-    )
-    for (const { elementIndex, label } of tieBreakResults.flat()) {
-      const gid = labelToGroupId.get(normalizeLabel(label))
-      if (gid && elementGroups.get(elementIndex)?.has(gid)) lastAssigned.set(elementIndex, gid)
+    // Batch elements whose round candidates fit together in the group budget
+    const batchRound = (round: Map<number, string[]>) => {
+      const batches: Array<{ elementIndices: number[]; groupIds: Set<string> }> = []
+      for (const chunk of chunkElements(Array.from(round.keys()))) {
+        let current = { elementIndices: [] as number[], groupIds: new Set<string>() }
+        let tokens = 0
+        for (const idx of chunk) {
+          const added = round.get(idx)!.filter((gid) => !current.groupIds.has(gid))
+          const addedTokens = added.reduce((n, gid) => n + groupTokenCount(groups.get(gid)!), 0)
+          if (tokens + addedTokens > TOKENS_FOR_GROUPS_MAX && current.elementIndices.length > 0) {
+            batches.push(current)
+            current = { elementIndices: [], groupIds: new Set() }
+            tokens = 0
+          }
+          round.get(idx)!.forEach((gid) => current.groupIds.add(gid))
+          tokens = Array.from(current.groupIds).reduce((n, gid) => n + groupTokenCount(groups.get(gid)!), 0)
+          current.elementIndices.push(idx)
+        }
+        if (current.elementIndices.length > 0) batches.push(current)
+      }
+      return batches
+    }
+
+    while (Array.from(pending.values()).some((c) => c.length > 1)) {
+      const round = new Map<number, string[]>()
+      for (const [idx, candidates] of pending) {
+        if (candidates.length > 1) round.set(idx, takeRound(candidates))
+      }
+      const batches = batchRound(round)
+      const results = await Promise.all(
+        batches.map((b) => groupLimit(() => processChunkComplete(b.elementIndices, Array.from(b.groupIds))))
+      )
+
+      // Any group shown in the element's call is a valid choice, even one another element of the batch brought
+      const winners = new Map<number, string>()
+      batches.forEach((b, i) => {
+        for (const { elementIndex, label } of results[i]!) {
+          const gid = labelToGroupId.get(normalizeLabel(label))
+          if (gid && b.groupIds.has(gid)) winners.set(elementIndex, gid)
+        }
+      })
+      for (const [idx, shown] of round) {
+        const winner = winners.get(idx) ?? (shown.includes(lastAssigned.get(idx)!) ? lastAssigned.get(idx)! : shown[0]!)
+        groupElements.get(winner)!.add(idx)
+        elementGroups.get(idx)!.add(winner)
+        lastAssigned.set(idx, winner)
+        pending.set(idx, [
+          winner,
+          ...pending
+            .get(idx)!
+            .slice(shown.length)
+            .filter((gid) => gid !== winner),
+        ])
+      }
     }
   }
 
