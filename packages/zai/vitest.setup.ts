@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import { setupClient } from '@botpress/vai'
 import { beforeAll, afterEach, afterAll } from 'vitest'
+import { getCachedBotpressClient } from './e2e/client'
 import { server } from './e2e/mocks/server'
 import { getClient } from './e2e/utils'
 
@@ -49,5 +50,5 @@ beforeAll(async () => {
     },
   })
 
-  setupClient(client)
+  setupClient(getCachedBotpressClient())
 })

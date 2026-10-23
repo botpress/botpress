@@ -1,6 +1,6 @@
 import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { Zai } from '../src'
-import { getClient, getZai, metadata } from './utils'
+import { getCachedTestClient, getZai, metadata } from './utils'
 import { TableAdapter } from '../src/adapters/botpress-table'
 
 describe('group', () => {
@@ -238,7 +238,7 @@ describe('group', () => {
         expect(typeof group.label).toBe('string')
       })
 
-      expect(elapsed).toBeGreaterThan(0)
+      expect(elapsed).toBeGreaterThanOrEqual(0) // 0ms when every call is served from the e2e cache
     })
 
     it('should return simplified format on await', async () => {
@@ -1130,7 +1130,7 @@ choose "VIP Urgent Track" as it's more urgent. Use business judgment for priorit
 })
 
 describe.sequential('zai.learn.group', () => {
-  const client = getClient()
+  const client = getCachedTestClient()
   const tableName = 'ZaiTestGroupInternalTable'
   const taskId = 'group'
   let zai = getZai()

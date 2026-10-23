@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, afterAll } from 'vitest'
 
-import { BotpressDocumentation, getCachedClient, getClient, getZai, metadata } from './utils'
+import { BotpressDocumentation, getCachedClient, getCachedTestClient, getZai, metadata } from './utils'
 
 import { z } from '@bpinternal/zui'
 import { check } from '@botpress/vai'
@@ -277,7 +277,7 @@ Feature 4: Integrations`
 })
 
 describe.sequential('zai.learn.extract', () => {
-  const client = getClient()
+  const client = getCachedTestClient()
   let tableName = 'ZaiTestExtractInternalTable'
   let taskId = 'extract'
   let zai = getZai()

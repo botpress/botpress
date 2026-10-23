@@ -3,7 +3,7 @@ import { Cognitive } from '@botpress/cognitive'
 import { diffLines } from 'diff'
 import fs from 'node:fs'
 import path from 'node:path'
-import { expect } from 'vitest'
+import { beforeEach, expect } from 'vitest'
 
 function stringifyWithSortedKeys(obj: any, space?: number): string {
   function sortKeys(input: any): any {
@@ -47,7 +47,7 @@ function readJSONL<T>(filePath: string, keyProperty: keyof T): Map<string, T> {
   return map
 }
 
-type CacheEntry = { key: string; value: any; test?: string; input: string }
+type CacheEntry = { key: string; value: any; error?: string; test?: string; input: string }
 
 const cache: Map<string, CacheEntry> = readJSONL(path.resolve(__dirname, './data/cache.jsonl'), 'key')
 const cacheByTest: Map<string, CacheEntry> = readJSONL(path.resolve(__dirname, './data/cache.jsonl'), 'test')
@@ -108,10 +108,68 @@ class CachedClient extends Client {
     return response
   }
 
+  // Tables calls are recorded and replayed too, so tests never depend on the live Tables API.
+  // Table state changes during a test, so a call is keyed by test name, method, arguments and how many times that
+  // exact call was made in the test (counts reset before each test, so vitest retries replay the same sequence).
+  #replayTable = async (method: TableMethod, args: unknown[]) => {
+    const currentTestName = expect.getState().currentTestName
+    if (!currentTestName) {
+      // Suite-level cleanup (afterAll): nothing to assert on, and in CI there is no live table to clean
+      return process.env.CI ? {} : (this.#client[method] as any)(...args).catch(() => ({}))
+    }
+    const input = stringifyWithSortedKeys({ method, args })
+    const occurrence = (tableCallsByTest[`${currentTestName}|${input}`] =
+      (tableCallsByTest[`${currentTestName}|${input}`] ?? 0) + 1)
+    const testKey = `table:${currentTestName}-${method}-${occurrence}`
+    const key = `table:${fastHash(`${currentTestName}|${occurrence}|${input}`)}`
+    const cached = cache.get(key)
+    if (cached) {
+      if (cached.error !== undefined) throw new Error(cached.error)
+      return cached.value
+    }
+    if (process.env.CI) {
+      throw new Error(
+        `Missing cached Tables response for ${key} in ${testKey}. Run pnpm test:e2e:update to refresh packages/zai/e2e/data/cache.jsonl.`
+      )
+    }
+    let value: any
+    let error: string | undefined
+    try {
+      value = await (this.#client[method] as any)(...args)
+    } catch (err: unknown) {
+      error = err instanceof Error ? err.message : String(err)
+    }
+    const entry: CacheEntry = { key, value, error, test: testKey, input }
+    cache.set(key, entry)
+    fs.appendFileSync(path.resolve(__dirname, './data/cache.jsonl'), JSON.stringify(entry) + '\n')
+    if (error !== undefined) throw new Error(error)
+    return value
+  }
+
+  public getOrCreateTable = ((...args) => this.#replayTable('getOrCreateTable', args)) as Client['getOrCreateTable']
+  public findTableRows = ((...args) => this.#replayTable('findTableRows', args)) as Client['findTableRows']
+  public upsertTableRows = ((...args) => this.#replayTable('upsertTableRows', args)) as Client['upsertTableRows']
+  public deleteTableRows = ((...args) => this.#replayTable('deleteTableRows', args)) as Client['deleteTableRows']
+  public deleteTable = ((...args) => this.#replayTable('deleteTable', args)) as Client['deleteTable']
+
   public clone() {
     return this
   }
 }
+
+type TableMethod = 'getOrCreateTable' | 'findTableRows' | 'upsertTableRows' | 'deleteTableRows' | 'deleteTable'
+let tableCallsByTest: Record<string, number> = {}
+beforeEach(() => {
+  tableCallsByTest = {}
+})
+
+/** A Botpress client whose LLM and Tables calls are served from e2e/data/cache.jsonl (recorded on a miss outside CI) */
+export const getCachedBotpressClient = () =>
+  new CachedClient({
+    apiUrl: process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.dev',
+    botId: process.env.CLOUD_BOT_ID,
+    token: process.env.CLOUD_PAT,
+  })
 
 export const getCognitiveClient = () => {
   const cognitive = new Cognitive({

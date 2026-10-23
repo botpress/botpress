@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, afterAll } from 'vitest'
 import { z } from '@bpinternal/zui'
 
-import { getClient, getZai, metadata } from './utils'
+import { getCachedTestClient, getZai, metadata } from './utils'
 import { TableAdapter } from '../src/adapters/botpress-table'
 
 type File = {
@@ -1613,7 +1613,7 @@ export const TIMEOUT = 5000`,
 })
 
 describe.sequential('zai.learn.patch', { timeout: 60_000 }, () => {
-  const client = getClient()
+  const client = getCachedTestClient()
   let tableName = 'ZaiTestPatchInternalTable'
   let taskId = 'patch'
   let zai = getZai()

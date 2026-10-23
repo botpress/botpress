@@ -1,11 +1,11 @@
 import { describe, it, expect, afterAll, beforeEach, afterEach, vi } from 'vitest'
 
-import { getClient, getZai } from './utils'
+import { getCachedTestClient, getZai } from './utils'
 
 import { check } from '@botpress/vai'
 
 describe.sequential('zai.learn / generic', { timeout: 60_000 }, () => {
-  const client = getClient()
+  const client = getCachedTestClient()
   let tableName = 'ZaiTestInternalTable'
   let taskId = 'test'
   let zai = getZai()
@@ -63,7 +63,7 @@ describe.sequential('zai.learn / generic', { timeout: 60_000 }, () => {
       throw new Error('Table is down')
     })
 
-    const client = getClient()
+    const client = getCachedTestClient()
     Object.assign(client, {
       upsertTableRows,
       findTableRows,
@@ -74,7 +74,7 @@ describe.sequential('zai.learn / generic', { timeout: 60_000 }, () => {
       .learn(taskId)
       .check('This text is very clearly written in English.', 'Text is in English')
 
-    const { rows } = await getClient().findTableRows({ table: tableName })
+    const { rows } = await getCachedTestClient().findTableRows({ table: tableName })
 
     expect(value).toBe(true)
     expect(rows.length).toBe(0)
