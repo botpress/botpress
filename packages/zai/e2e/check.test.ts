@@ -1,5 +1,5 @@
 import { describe, it, expect, afterAll, beforeEach, afterEach, vi } from 'vitest'
-import { BotpressDocumentation, getClient, getZai, metadata } from './utils'
+import { BotpressDocumentation, getCachedTestClient, getZai, metadata } from './utils'
 import { TableAdapter } from '../src/adapters/botpress-table'
 import { getCachedCognitiveClient, getCognitiveClient } from './client'
 
@@ -130,7 +130,7 @@ describe('zai.check', { timeout: 60_000 }, () => {
 })
 
 describe('zai.learn.check', { timeout: 60_000, sequential: true }, () => {
-  const client = getClient()
+  const client = getCachedTestClient()
   let tableName = 'ZaiTestCheckInternalTable'
   let taskId = 'check'
   let zai = getZai()

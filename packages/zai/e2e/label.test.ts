@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, afterAll } from 'vitest'
 
-import { BotpressDocumentation, getClient, getZai, metadata } from './utils'
+import { BotpressDocumentation, getCachedTestClient, getZai, metadata } from './utils'
 import { TableAdapter } from '../src/adapters/botpress-table'
 import { check } from '@botpress/vai'
 
@@ -133,7 +133,7 @@ describe('zai.label', { timeout: 60_000 }, () => {
 })
 
 describe.sequential('zai.learn.label', { timeout: 60_000 }, () => {
-  const client = getClient()
+  const client = getCachedTestClient()
   let tableName = 'ZaiTestLabelInternalTable'
   let taskId = 'label'
   let zai = getZai()

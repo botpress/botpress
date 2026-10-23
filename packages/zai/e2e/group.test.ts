@@ -1,6 +1,6 @@
 import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { Zai } from '../src'
-import { getClient, getZai, metadata } from './utils'
+import { getCachedTestClient, getZai, metadata } from './utils'
 import { TableAdapter } from '../src/adapters/botpress-table'
 
 describe('group', () => {
@@ -238,7 +238,7 @@ describe('group', () => {
         expect(typeof group.label).toBe('string')
       })
 
-      expect(elapsed).toBeGreaterThan(0)
+      expect(elapsed).toBeGreaterThanOrEqual(0) // 0ms when every call is served from the e2e cache
     })
 
     it('should return simplified format on await', async () => {
@@ -1130,7 +1130,7 @@ choose "VIP Urgent Track" as it's more urgent. Use business judgment for priorit
 })
 
 describe.sequential('zai.learn.group', () => {
-  const client = getClient()
+  const client = getCachedTestClient()
   const tableName = 'ZaiTestGroupInternalTable'
   const taskId = 'group'
   let zai = getZai()
@@ -1175,7 +1175,13 @@ describe.sequential('zai.learn.group', () => {
       taskType: 'zai.group',
       instructions: 'group these numbers',
       input: JSON.stringify([{ value: 3 }, { value: 6 }, { value: 9 }]),
-      output: [{ id: 'alpha', label: 'Alpha', elements: [{ value: 3 }, { value: 6 }, { value: 9 }] }],
+      output: [
+        {
+          id: 'alpha',
+          label: 'Alpha',
+          elements: [{ value: 3 }, { value: 6 }, { value: 9 }],
+        },
+      ],
       explanation: 'Numbers divisible by 3 (remainder 0) go to Alpha group',
       metadata,
       status: 'approved',
@@ -1187,7 +1193,13 @@ describe.sequential('zai.learn.group', () => {
       taskType: 'zai.group',
       instructions: 'group these numbers',
       input: JSON.stringify([{ value: 1 }, { value: 4 }, { value: 7 }]),
-      output: [{ id: 'beta', label: 'Beta', elements: [{ value: 1 }, { value: 4 }, { value: 7 }] }],
+      output: [
+        {
+          id: 'beta',
+          label: 'Beta',
+          elements: [{ value: 1 }, { value: 4 }, { value: 7 }],
+        },
+      ],
       explanation: 'Numbers with remainder 1 when divided by 3 go to Beta group',
       metadata,
       status: 'approved',
@@ -1199,7 +1211,13 @@ describe.sequential('zai.learn.group', () => {
       taskType: 'zai.group',
       instructions: 'group these numbers',
       input: JSON.stringify([{ value: 2 }, { value: 5 }, { value: 8 }]),
-      output: [{ id: 'gamma', label: 'Gamma', elements: [{ value: 2 }, { value: 5 }, { value: 8 }] }],
+      output: [
+        {
+          id: 'gamma',
+          label: 'Gamma',
+          elements: [{ value: 2 }, { value: 5 }, { value: 8 }],
+        },
+      ],
       explanation: 'Numbers with remainder 2 when divided by 3 go to Gamma group',
       metadata,
       status: 'approved',
@@ -1282,7 +1300,11 @@ describe.sequential('zai.learn.group', () => {
       instructions: 'group these names',
       input: JSON.stringify([{ name: 'Alice' }, { name: 'Bob' }, { name: 'Charlie' }]),
       output: [
-        { id: 'first', label: 'First Half', elements: [{ name: 'Alice' }, { name: 'Bob' }, { name: 'Charlie' }] },
+        {
+          id: 'first',
+          label: 'First Half',
+          elements: [{ name: 'Alice' }, { name: 'Bob' }, { name: 'Charlie' }],
+        },
       ],
       explanation: 'Names starting with A-M go to First Half',
       metadata,
@@ -1296,7 +1318,11 @@ describe.sequential('zai.learn.group', () => {
       instructions: 'group these names',
       input: JSON.stringify([{ name: 'Nancy' }, { name: 'Oscar' }, { name: 'Paula' }]),
       output: [
-        { id: 'second', label: 'Second Half', elements: [{ name: 'Nancy' }, { name: 'Oscar' }, { name: 'Paula' }] },
+        {
+          id: 'second',
+          label: 'Second Half',
+          elements: [{ name: 'Nancy' }, { name: 'Oscar' }, { name: 'Paula' }],
+        },
       ],
       explanation: 'Names starting with N-Z go to Second Half',
       metadata,
@@ -1348,5 +1374,214 @@ describe.sequential('zai.learn.group', () => {
 
     const rows = await client.findTableRows({ table: tableName })
     expect(rows.rows.length).toBeGreaterThanOrEqual(3)
+  })
+})
+
+describe('group into a fixed list (initialGroups)', () => {
+  let zai: Zai
+
+  beforeEach(async () => {
+    zai = await getZai()
+  })
+
+  const labelsOf = (result: Record<string, unknown[]>) => Object.keys(result)
+  const allElements = (result: Record<string, unknown[]>) => Object.values(result).flat()
+
+  it('assigns every element to one of the listed groups even when labels are long sentences', async () => {
+    // Before: the model had to retype each label; a paraphrase created a duplicate "new" group.
+    const initialGroups = [
+      {
+        id: 'reset',
+        label: 'Reset a forgotten password or unlock an account after too many failed sign-in attempts',
+      },
+      {
+        id: 'card',
+        label: 'Update the credit card or payment method used for the monthly subscription invoice',
+      },
+      {
+        id: 'export',
+        label: 'Export all customer records to a CSV or spreadsheet file for an external report',
+      },
+      {
+        id: 'invite',
+        label: 'Invite a new teammate to the workspace and choose what role and permissions they get',
+      },
+    ]
+    const items = [
+      'I forgot my password and cannot log in',
+      'my account is locked after I typed the wrong password 5 times',
+      'how do I change the card that gets charged every month?',
+      'my visa expired, where do I put the new one for billing?',
+      'I need all my contacts in an excel file',
+      'can I download the customer list as csv?',
+      'add my colleague Sam as an admin please',
+      'how do I give a new employee read-only access to our workspace?',
+    ]
+
+    const result = await zai.group(items, { initialGroups, newGroups: false })
+
+    const allowed = new Set(initialGroups.map((g) => g.label))
+    expect(labelsOf(result).every((l) => allowed.has(l))).toBe(true)
+    expect(allElements(result).sort()).toEqual([...items].sort())
+    expect(result[initialGroups[0]!.label]).toEqual(expect.arrayContaining([items[0], items[1]]))
+    expect(result[initialGroups[1]!.label]).toEqual(expect.arrayContaining([items[2], items[3]]))
+    expect(result[initialGroups[2]!.label]).toEqual(expect.arrayContaining([items[4], items[5]]))
+    expect(result[initialGroups[3]!.label]).toEqual(expect.arrayContaining([items[6], items[7]]))
+  })
+
+  it('uses a listed catch-all group instead of forcing weak matches', async () => {
+    const initialGroups = [
+      { id: 'password', label: 'Reset a forgotten password' },
+      { id: 'card', label: 'Update the billing card' },
+      { id: 'other', label: 'Other / one-off' },
+    ]
+    const items = [
+      'I forgot my password',
+      'what is the weather in Paris tomorrow?',
+      'please write me a poem about the sea',
+      'change my billing card',
+    ]
+
+    const result = await zai.group(items, {
+      instructions: 'Put each request in the item it is the same as. Use "Other / one-off" if none matches.',
+      initialGroups,
+      newGroups: false,
+    })
+
+    expect(result['Other / one-off']).toEqual(expect.arrayContaining([items[1], items[2]]))
+    expect(result['Reset a forgotten password']).toEqual([items[0]])
+    expect(result['Update the billing card']).toEqual([items[3]])
+  })
+
+  it('shows initialGroups elements as examples so opaque labels can be told apart', async () => {
+    // Before: initialGroups[].elements were accepted but never shown to the model.
+    const initialGroups = [
+      {
+        id: 'a',
+        label: 'Bucket A',
+        elements: ['refund my order', 'I want my money back', 'charge me back for the duplicate payment'],
+      },
+      {
+        id: 'b',
+        label: 'Bucket B',
+        elements: ['the app crashes on launch', 'error 500 when I click save', 'the page never finishes loading'],
+      },
+    ]
+    const items = ['please reimburse me, the product never arrived', 'it freezes every time I open the settings screen']
+
+    const result = await zai.group(items, { initialGroups, newGroups: false })
+
+    expect(result['Bucket A']).toEqual([items[0]])
+    expect(result['Bucket B']).toEqual([items[1]])
+  })
+
+  it('classifies a large input across many chunks without losing or duplicating elements', async () => {
+    const topics = {
+      Shipping: [
+        'where is my package',
+        'my parcel tracking has not updated',
+        'delivery is late',
+        'the courier left it at the wrong door',
+      ],
+      Refunds: [
+        'I want a refund',
+        'how long until my money is returned',
+        'refund the second charge',
+        'return this item for my money back',
+      ],
+      Login: [
+        'cannot sign in',
+        'password reset email never arrives',
+        'two-factor code is rejected',
+        'my account is locked',
+      ],
+    }
+    const items = Object.values(topics)
+      .flatMap((phrases) =>
+        phrases.flatMap((p) => [p, `${p} (order #${p.length})`, `hi, ${p}`, `${p}?? urgent`, `${p}, thanks`])
+      )
+      .sort()
+    const truth = new Map(
+      Object.entries(topics).flatMap(([label, phrases]) =>
+        items.filter((i) => phrases.some((p) => i.includes(p))).map((i) => [i, label] as const)
+      )
+    )
+
+    const result = await zai.group(items, {
+      initialGroups: Object.keys(topics).map((label) => ({
+        id: label.toLowerCase(),
+        label,
+      })),
+      newGroups: false,
+      elementsPerChunk: 10,
+      concurrency: 6,
+    })
+
+    const placed = allElements(result)
+    expect(placed.length).toBe(items.length) // nothing dropped or duplicated
+    expect(new Set(placed).size).toBe(items.length)
+    expect(labelsOf(result).every((l) => l in topics)).toBe(true)
+    const correct = Object.entries(result).reduce(
+      (n, [label, els]) => n + els.filter((e) => truth.get(e as string) === label).length,
+      0
+    )
+    expect(correct / items.length).toBeGreaterThanOrEqual(0.9)
+  })
+
+  it('keeps the listed labels when maxGroups merges groups', async () => {
+    // Before: the merge pass gave merged groups new labels, even with a fixed list.
+    const initialGroups = [
+      { id: 'password', label: 'Reset a forgotten password' },
+      { id: 'login', label: 'Cannot sign in to the account' },
+      { id: 'card', label: 'Update the billing card' },
+      { id: 'invoice', label: 'Download an invoice' },
+    ]
+    const items = [
+      'I forgot my password',
+      'need a password reset link',
+      'login page keeps rejecting me',
+      'cannot sign in since this morning',
+      'change my billing card',
+      'my card expired, how do I update it',
+      'where can I download last month invoice',
+      'send me the invoice PDF for March',
+    ]
+
+    const result = await zai.group(items, { initialGroups, newGroups: false, maxGroups: 2 })
+
+    const allowed = new Set(initialGroups.map((g) => g.label))
+    expect(labelsOf(result).length).toBeLessThanOrEqual(2)
+    expect(labelsOf(result).every((l) => allowed.has(l))).toBe(true)
+    expect(allElements(result).sort()).toEqual([...items].sort())
+  })
+
+  it('keeps assignments when minElements leaves no listed group to move elements into', async () => {
+    // Before: every group was cleared as undersized and the model was asked to pick from an empty list.
+    const initialGroups = [
+      { id: 'password', label: 'Reset a forgotten password' },
+      { id: 'card', label: 'Update the billing card' },
+    ]
+    const items = ['I forgot my password', 'change my billing card']
+
+    const result = await zai.group(items, { initialGroups, newGroups: false, minElements: 2 })
+
+    const allowed = new Set(initialGroups.map((g) => g.label))
+    expect(labelsOf(result).every((l) => allowed.has(l))).toBe(true)
+    expect(allElements(result).sort()).toEqual([...items].sort())
+  })
+
+  it('rejects newGroups: false without initialGroups', async () => {
+    await expect(zai.group(['a', 'b'], { newGroups: false })).rejects.toThrow(/initialGroups/)
+  })
+
+  it('still creates a new group by default when no listed group fits', async () => {
+    const result = await zai.group(['apple', 'banana', 'hammer', 'screwdriver'], {
+      instructions: 'Group by kind of thing',
+      initialGroups: [{ id: 'fruits', label: 'Fruits' }],
+    })
+
+    expect(result['Fruits']).toEqual(expect.arrayContaining(['apple', 'banana']))
+    expect(labelsOf(result).length).toBeGreaterThanOrEqual(2)
+    expect(allElements(result).length).toBe(4)
   })
 })
