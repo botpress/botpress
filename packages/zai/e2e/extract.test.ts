@@ -46,6 +46,17 @@ describe('zai.extract', () => {
     ).rejects.toThrow('@bpinternal/zui')
   })
 
+  it('keeps values that end like unfinished JSON (code quotes ending with "{")', async () => {
+    // Before: jsonrepair ran on valid JSON and turned {"line":"if (user.isAdmin) {"} into a parse error
+    const lines = await zai.extract(
+      `The customer pasted this code and says it crashes:\nif (user.isAdmin) {\n  grantAccess(user)\n}`,
+      z.array(z.object({ line: z.string().describe('one line of the pasted code, copied verbatim') })),
+      { instructions: 'Extract every line of the pasted code, in order, copied verbatim (without indentation).' }
+    )
+
+    expect(lines.map((l) => l.line.trim())).toEqual(['if (user.isAdmin) {', 'grantAccess(user)', '}'])
+  })
+
   it('extract an array of objects from paragraph', async () => {
     const people = await zai.extract(
       `
