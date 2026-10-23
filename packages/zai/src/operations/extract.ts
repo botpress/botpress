@@ -130,6 +130,20 @@ const markerPattern = (marker: string) => {
 }
 const MARKERS = [START, END, NO_MORE, ZERO_ELEMENTS].map((m) => [markerPattern(m), m] as const)
 const normalizeMarkers = (text: string) => MARKERS.reduce((t, [re, m]) => t.replace(re, m), text)
+
+// Valid JSON is parsed as-is: jsonrepair "fixes" some valid JSON into an error, e.g. a string ending with "{" such as
+// {"quote":"if (x) {"} (common when the input quotes code). Repair is only the fallback for malformed output.
+const parseLenient = (json: string): unknown => {
+  try {
+    return JSON.parse(json)
+  } catch {
+    try {
+      return JSON5.parse(json)
+    } catch {
+      return JSON5.parse(jsonrepair(json))
+    }
+  }
+}
 // The same characters between JSON tokens (e.g. '{\u200B"key"') break the parser; inside strings they are kept
 const stripInvisibleOutsideStrings = (json: string) => {
   let out = ''
@@ -407,8 +421,7 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
               json = json.slice(0, json.indexOf(SPECIAL_CHAR)).trim()
             }
 
-            const repairedJson = jsonrepair(json)
-            const parsedJson: unknown = JSON5.parse(repairedJson)
+            const parsedJson: unknown = parseLenient(json)
             const safe = objSchema.safeParse(parsedJson)
 
             if (safe.success) {
