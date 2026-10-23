@@ -1,6 +1,6 @@
 // eslint-disable consistent-type-definitions
 import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { getClient, getZai, metadata } from './utils'
+import { getCachedTestClient, getZai, metadata } from './utils'
 import { TableAdapter } from '../src/adapters/botpress-table'
 
 describe('zai.rate', () => {
@@ -105,7 +105,7 @@ describe('zai.rate', () => {
       })
 
       expect(usage.tokens.total).toBeGreaterThan(0)
-      expect(elapsed).toBeGreaterThan(0)
+      expect(elapsed).toBeGreaterThanOrEqual(0) // 0ms when every call is served from the e2e cache
     })
   })
 
@@ -202,7 +202,7 @@ describe('zai.rate', () => {
       expect(output[0]?.total).toBe((output[0]?.naming ?? 0) + (output[0]?.size ?? 0))
 
       expect(usage.tokens.total).toBeGreaterThan(0)
-      expect(elapsed).toBeGreaterThan(0)
+      expect(elapsed).toBeGreaterThanOrEqual(0) // 0ms when every call is served from the e2e cache
     })
   })
 
@@ -499,7 +499,7 @@ describe('zai.rate', () => {
 })
 
 describe.sequential('zai.learn.rate', () => {
-  const client = getClient()
+  const client = getCachedTestClient()
   const tableName = 'ZaiTestRateInternalTable'
   const taskId = 'rate'
   let zai = getZai()

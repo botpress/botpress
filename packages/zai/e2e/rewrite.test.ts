@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, afterAll } from 'vitest'
 import { check } from '@botpress/vai'
 
-import { getClient, getZai, metadata, tokenizer } from './utils'
+import { getCachedTestClient, getZai, metadata, tokenizer } from './utils'
 import { TableAdapter } from '../src/adapters/botpress-table'
 
 const Zoe = `
@@ -40,7 +40,7 @@ describe('zai.rewrite', { timeout: 60_000 }, () => {
 })
 
 describe.sequential('zai.learn.rewrite', { timeout: 60_000 }, () => {
-  const client = getClient()
+  const client = getCachedTestClient()
   let tableName = 'ZaiTestRewriteInternalTable'
   let taskId = 'rewrite'
   let zai = getZai()

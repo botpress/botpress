@@ -1,5 +1,5 @@
 import { describe, it, expect, afterAll, beforeEach, afterEach } from 'vitest'
-import { getClient, getZai, metadata } from './utils'
+import { getCachedTestClient, getZai, metadata } from './utils'
 import { TableAdapter } from '../src/adapters/botpress-table'
 import type { AnswerResult } from '../src/operations/answer'
 import { parseResponse } from '../src/operations/answer'
@@ -1740,7 +1740,7 @@ export default Counter;`,
 })
 
 describe('zai.learn.answer', { timeout: 60_000, sequential: true }, () => {
-  const client = getClient()
+  const client = getCachedTestClient()
   const tableName = 'ZaiTestAnswerInternalTable'
   const taskId = 'answer'
   let zai = getZai()
