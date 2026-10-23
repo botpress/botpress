@@ -34,6 +34,14 @@ export type Options = {
   initialGroups?: Array<InitialGroup>
   maxGroups?: number
   minElements?: number
+  /** Allow the model to create groups beyond `initialGroups` (default true). Set false to classify into a fixed list. */
+  newGroups?: boolean
+  /** Example elements shown under each group in the prompt (default 3), taken from `initialGroups[].elements`. */
+  examplesPerGroup?: number
+  /** Maximum elements per model call (default 30). Smaller chunks are more accurate; larger ones use fewer calls. */
+  elementsPerChunk?: number
+  /** Maximum model calls in flight (default 20). */
+  concurrency?: number
 }
 
 const _Options = z.object({
@@ -43,6 +51,10 @@ const _Options = z.object({
   initialGroups: z.array(_InitialGroup).optional().default([]),
   maxGroups: z.number().min(2).optional(),
   minElements: z.number().min(1).optional(),
+  newGroups: z.boolean().optional().default(true),
+  examplesPerGroup: z.number().min(0).max(20).optional().default(3),
+  elementsPerChunk: z.number().min(1).max(200).optional().default(30),
+  concurrency: z.number().min(1).max(100).optional().default(20),
 })
 
 declare module '@botpress/zai' {
@@ -58,6 +70,10 @@ declare module '@botpress/zai' {
      * @param options - Configuration for grouping behavior, instructions, and initial categories
      * @param options.maxGroups - Maximum number of groups allowed (minimum 2). When set, groups are merged at the end until within limit.
      * @param options.minElements - Minimum elements per group (minimum 1). Groups below this threshold have their elements redistributed via AI.
+     * @param options.newGroups - Set false to only use `initialGroups` (classification into a fixed list); the model must pick one of them.
+     * @param options.examplesPerGroup - How many `initialGroups[].elements` to show under each group as examples (default 3).
+     * @param options.elementsPerChunk - Maximum elements per model call (default 30).
+     * @param options.concurrency - Maximum model calls in flight (default 20).
      * @returns Response with groups array (simplified to Record<groupLabel, items[]>)
      *
      * @example Automatic grouping
@@ -222,6 +238,21 @@ type GroupInfo = {
   id: string
   label: string
   normalizedLabel: string
+  /** short reference shown to the model (G1, G2…) so it can answer without retyping long labels */
+  ref: string
+  examples: string[]
+}
+
+const words = (s: string) => new Set(s.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [])
+
+/** Word-overlap similarity (Jaccard) — used to map a near-verbatim label back to an existing group instead of creating a duplicate. */
+const similarity = (a: string, b: string): number => {
+  const A = words(a)
+  const B = words(b)
+  if (!A.size || !B.size) return 0
+  let inter = 0
+  for (const w of A) if (B.has(w)) inter++
+  return inter / (A.size + B.size - inter)
 }
 
 const normalizeLabel = (label: string): string => {
@@ -252,15 +283,50 @@ const group = async <T>(input: Array<T>, _options: Options | undefined, ctx: Zai
   const groupElements = new Map<string, Set<number>>() // groupId -> Set of element indices
   const elementGroups = new Map<number, Set<string>>() // elementIndex -> Set of groupIds seen/assigned
   const labelToGroupId = new Map<string, string>() // normalized label -> groupId
+  const lastAssigned = new Map<number, string>() // elementIndex -> latest group it was put in (the review pass sees every group)
   let groupIdCounter = 0
+  const refToGroupId = new Map<string, string>() // "G3" -> groupId
+  const addGroup = (id: string, label: string, examples: string[] = []) => {
+    const normalized = normalizeLabel(label)
+    const ref = `G${groups.size + 1}`
+    groups.set(id, { id, label, normalizedLabel: normalized, ref, examples })
+    groupElements.set(id, new Set())
+    labelToGroupId.set(normalized, id)
+    refToGroupId.set(ref.toLowerCase(), id)
+    return id
+  }
 
-  // Initialize with provided groups
+  // Initialize with provided groups (their elements become examples shown to the model)
   options.initialGroups.forEach((ig) => {
-    const normalized = normalizeLabel(ig.label)
-    groups.set(ig.id, { id: ig.id, label: ig.label, normalizedLabel: normalized })
-    groupElements.set(ig.id, new Set())
-    labelToGroupId.set(normalized, ig.id)
+    addGroup(
+      ig.id,
+      ig.label,
+      (ig.elements ?? []).slice(0, options.examplesPerGroup).map((e) => tokenizer.truncate(stringify(e, false), 60))
+    )
   })
+  if (!options.newGroups && groups.size === 0) {
+    throw new Error('zai.group: newGroups is false but no initialGroups were given')
+  }
+
+  // Resolve a model answer (group ref, exact label, or a near-verbatim label) to an existing group id, if any.
+  const resolveGroup = (answer: string): string | undefined => {
+    const a = answer.trim()
+    const byRef =
+      refToGroupId.get(a.toLowerCase()) ?? refToGroupId.get(a.match(/^\s*(G\d+)\b/i)?.[1]?.toLowerCase() ?? '')
+    if (byRef) return byRef
+    const byLabel = labelToGroupId.get(normalizeLabel(a))
+    if (byLabel) return byLabel
+    let best: string | undefined
+    let bestScore = 0.8
+    for (const g of groups.values()) {
+      const score = similarity(a, g.label)
+      if (score >= bestScore) {
+        best = g.id
+        bestScore = score
+      }
+    }
+    return best
+  }
 
   // Prepare elements
   const elements = input.map((element, idx) => ({
@@ -279,7 +345,7 @@ const group = async <T>(input: Array<T>, _options: Options | undefined, ctx: Zai
   const TOKENS_FOR_ELEMENTS_MAX = Math.floor(TOKENS_AVAILABLE * 0.6)
 
   // Chunk elements by token budget
-  const MAX_ELEMENTS_PER_CHUNK = 50
+  const MAX_ELEMENTS_PER_CHUNK = options.elementsPerChunk
   const elementChunks: number[][] = [] // Array of element indices
   let currentChunk: number[] = []
   let currentTokens = 0
@@ -378,14 +444,22 @@ const group = async <T>(input: Array<T>, _options: Options | undefined, ctx: Zai
       })
       .join('\n')
 
-    const groupsList = groupIds.map((gid) => groups.get(gid)!.label)
+    const groupLines = groupIds.map((gid) => {
+      const g = groups.get(gid)!
+      const examples = g.examples.length ? `\n  e.g. ${g.examples.map((e) => `"${e}"`).join(' · ')}` : ''
+      return `${g.ref}: ${g.label}${examples}`
+    })
     const groupsText =
-      groupsList.length > 0
-        ? `**Existing Groups (prefer reusing these):**\n${groupsList.map((l) => `- ${l}`).join('\n')}\n\n`
+      groupLines.length > 0
+        ? `**${options.newGroups ? 'Existing Groups (prefer reusing these)' : 'Groups'}:**\n${groupLines.join('\n')}\n\n`
         : ''
 
     // Format examples for few-shot learning
-    const exampleMessages: Array<{ type: 'text'; role: 'user' | 'assistant'; content: string }> = []
+    const exampleMessages: Array<{
+      type: 'text'
+      role: 'user' | 'assistant'
+      content: string
+    }> = []
 
     for (const example of examples.slice(0, 5)) {
       try {
@@ -406,12 +480,26 @@ ${exampleElementsText}
 Group each element.`,
         })
 
-        // Assistant message
-        const exampleOutput = example.output
-        if (Array.isArray(exampleOutput) && exampleOutput.length > 0) {
-          const formattedAssignments = exampleOutput
-            .map((assignment) => `■${assignment.elementIndex}:${assignment.label}■`)
-            .join('\n')
+        // Assistant message. Saved outputs are groups ({ label, elements }); older ones may be per-element
+        // ({ elementIndex, label }). Either way, render one "■index:label■" line per example element.
+        const exampleOutput = example.output as unknown as Array<Record<string, any>>
+        const positionOf = (el: unknown) =>
+          exampleElements.findIndex((x) => stringify(x, false) === stringify(el, false))
+        const lines = Array.isArray(exampleOutput)
+          ? exampleOutput.flatMap((o) =>
+              Array.isArray(o.elements)
+                ? o.elements.map((el: unknown) => ({
+                    index: positionOf(el),
+                    label: String(o.label),
+                  }))
+                : [{ index: Number(o.elementIndex), label: String(o.label) }]
+            )
+          : []
+        const valid = lines
+          .filter((l) => Number.isInteger(l.index) && l.index >= 0 && l.label)
+          .sort((x, y) => x.index - y.index)
+        if (valid.length > 0) {
+          const formattedAssignments = valid.map((l) => `■${l.index}:${l.label}■`).join('\n')
 
           exampleMessages.push({
             type: 'text',
@@ -437,14 +525,20 @@ Group each element.`,
 ${options.instructions ? `**Instructions:** ${options.instructions}\n` : '**Instructions:** Group similar elements together.'}
 
 **Important:**
-- Each element gets exactly ONE group label
-- Use EXACT SAME label for similar items (case-sensitive)
-- Create new descriptive labels when needed
+- Each element gets exactly ONE group
+- To use a listed group, answer with its id (e.g. G3) — do not retype its label
+${
+  options.newGroups
+    ? '- If no listed group fits, write a new short descriptive label instead, and reuse the exact same new label for similar elements'
+    : '- You MUST pick one of the listed groups; do not invent new ones'
+}
+- Only put an element in a group it truly belongs to; if a catch-all group (like "Other") is listed, use it instead of forcing a weak match
+- Answer for every element, in order
 
 **Output Format:**
 One line per element:
-■0:Group Label■
-■1:Group Label■
+■0:G1■
+■1:${options.newGroups ? 'New Group Label' : 'G2'}■
 ${END}`.trim()
 
     const userPrompt = `${groupsText}**Elements (■0 to ■${elementIndices.length - 1}):**
@@ -461,18 +555,35 @@ ${END}`.trim()
         const assignments: Array<{ elementIndex: number; label: string }> = []
         const regex = /■(\d+):([^■]+)■/g
         let match: RegExpExecArray | null
+        const seen = new Set<number>()
+        const unknown: string[] = []
 
         while ((match = regex.exec(text)) !== null) {
           const idx = parseInt(match[1] ?? '', 10)
           if (isNaN(idx) || idx < 0 || idx >= elementIndices.length) continue
 
-          const label = (match[2] ?? '').trim()
-          if (!label) continue
+          const answer = (match[2] ?? '').trim()
+          if (!answer) continue
 
+          // Answers are group refs (G3) or labels; map refs and near-verbatim labels to the existing group's label
+          const gid = resolveGroup(answer)
+          if (!gid && (!options.newGroups || /^G\d+$/i.test(answer))) {
+            unknown.push(`■${idx}:${answer}■`)
+            continue
+          }
+          seen.add(idx)
           assignments.push({
             elementIndex: elementIndices[idx],
-            label: label.slice(0, 250),
+            label: gid ? groups.get(gid)!.label : answer.slice(0, 250),
           })
+        }
+
+        // Answers that name no listed group are fed back to the model (ZaiContext retries with this message).
+        // Elements the model skipped are not an error here: processChunkComplete re-asks for them on their own.
+        if (unknown.length) {
+          throw new Error(
+            `These answers are not one of the listed group ids: ${unknown.slice(0, 10).join(' ')}. Use an id from the list${options.newGroups ? ' or a new descriptive label' : ''}.`
+          )
         }
 
         return assignments
@@ -482,9 +593,28 @@ ${END}`.trim()
     return extracted
   }
 
+  // processChunk, then re-ask (up to 2 times) for any element the model skipped or a chunk that failed after its retries,
+  // so one bad answer never drops elements or fails the whole operation.
+  const processChunkComplete = async (
+    elementIndices: number[],
+    groupIds: string[],
+    depth = 0
+  ): Promise<Array<{ elementIndex: number; label: string }>> => {
+    let assignments: Array<{ elementIndex: number; label: string }> = []
+    try {
+      assignments = await processChunk(elementIndices, groupIds)
+    } catch (err) {
+      if (ctx.controller.signal.aborted || depth >= 2) throw err
+    }
+    const answered = new Set(assignments.map((a) => a.elementIndex))
+    const missing = elementIndices.filter((idx) => !answered.has(idx))
+    if (missing.length && depth < 2) assignments.push(...(await processChunkComplete(missing, groupIds, depth + 1)))
+    return assignments
+  }
+
   // Phase 1: Process all element chunks against current groups IN PARALLEL
-  const elementLimit = pLimit(10) // Separate limiter for element chunks
-  const groupLimit = pLimit(10) // Separate limiter for group chunks
+  const elementLimit = pLimit(options.concurrency) // Separate limiter for element chunks
+  const groupLimit = pLimit(options.concurrency) // Separate limiter for group chunks
 
   // Collect all assignments from parallel processing
   const allChunkResults = await Promise.all(
@@ -493,7 +623,7 @@ ${END}`.trim()
         const groupChunks = getGroupChunks()
 
         const allAssignments = await Promise.all(
-          groupChunks.map((groupChunk) => groupLimit(() => processChunk(elementChunk, groupChunk)))
+          groupChunks.map((groupChunk) => groupLimit(() => processChunkComplete(elementChunk, groupChunk)))
         )
 
         return allAssignments.flat()
@@ -509,14 +639,12 @@ ${END}`.trim()
 
       if (!groupId) {
         // Create new group
-        groupId = `group_${groupIdCounter++}`
-        groups.set(groupId, { id: groupId, label, normalizedLabel: normalized })
-        groupElements.set(groupId, new Set())
-        labelToGroupId.set(normalized, groupId)
+        groupId = addGroup(`group_${groupIdCounter++}`, label)
       }
 
       // Add element to group
       groupElements.get(groupId)!.add(elementIndex)
+      lastAssigned.set(elementIndex, groupId)
 
       // Track that element saw this group
       if (!elementGroups.has(elementIndex)) {
@@ -577,7 +705,7 @@ ${END}`.trim()
             const groupChunks = getGroupChunks()
 
             const allAssignments = await Promise.all(
-              groupChunks.map((groupChunk) => groupLimit(() => processChunk(chunk, groupChunk)))
+              groupChunks.map((groupChunk) => groupLimit(() => processChunkComplete(chunk, groupChunk)))
             )
 
             return allAssignments.flat()
@@ -593,6 +721,7 @@ ${END}`.trim()
 
         // Add to group and mark as seen
         groupElements.get(groupId)!.add(elementIndex)
+        lastAssigned.set(elementIndex, groupId)
 
         // Initialize element groups if needed
         const elemGroups = elementGroups.get(elementIndex) ?? new Set()
@@ -621,8 +750,8 @@ ${END}`.trim()
         groupElements.get(gid)?.delete(elementIndex)
       }
 
-      // Re-assign to first group (or could use LLM to decide)
-      const finalGroupId = groupIds[0]
+      // Keep the latest assignment: the review pass compared the element against every group
+      const finalGroupId = lastAssigned.get(elementIndex) ?? groupIds[0]
       groupElements.get(finalGroupId)!.add(elementIndex)
     }
   }
@@ -809,7 +938,7 @@ ${END}`.trim()
                 .map((groupChunk) => {
                   // Only show valid groups (exclude the orphaned/undersized ones)
                   const filteredGroupChunk = groupChunk.filter((gid) => validGroupIds.includes(gid))
-                  return groupLimit(() => processChunk(chunk, filteredGroupChunk))
+                  return groupLimit(() => processChunkComplete(chunk, filteredGroupChunk))
                 })
             )
 
@@ -825,10 +954,7 @@ ${END}`.trim()
         let groupId = labelToGroupId.get(normalized)
 
         if (!groupId) {
-          groupId = `group_${groupIdCounter++}`
-          groups.set(groupId, { id: groupId, label, normalizedLabel: normalized })
-          groupElements.set(groupId, new Set())
-          labelToGroupId.set(normalized, groupId)
+          groupId = addGroup(`group_${groupIdCounter++}`, label)
         }
         groupElements.get(groupId)!.add(elementIndex)
       }
