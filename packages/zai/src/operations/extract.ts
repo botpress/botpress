@@ -119,6 +119,35 @@ const END = '■json_end■'
 const NO_MORE = '■NO_MORE_ELEMENT■'
 const ZERO_ELEMENTS = '■ZERO_ELEMENTS■'
 
+// Models occasionally garble a marker with invisible characters (zero-width spaces, direction marks), sometimes in place
+// of its closing ■, e.g. "■json_start\u200E{", which hides that element from the parser. Markers are matched with any of
+// those characters between their letters and an optional closing ■; the extracted values themselves are left untouched
+// (emoji sequences rely on zero-width joiners).
+const INVISIBLE = '[\\u200B-\\u200F\\u2060\\uFEFF]*'
+const markerPattern = (marker: string) => {
+  const body = [...marker.slice(0, -1)].map((c) => c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join(INVISIBLE)
+  return new RegExp(`${body}${INVISIBLE}${SPECIAL_CHAR}?`, 'g')
+}
+const MARKERS = [START, END, NO_MORE, ZERO_ELEMENTS].map((m) => [markerPattern(m), m] as const)
+const normalizeMarkers = (text: string) => MARKERS.reduce((t, [re, m]) => t.replace(re, m), text)
+// The same characters between JSON tokens (e.g. '{\u200B"key"') break the parser; inside strings they are kept
+const stripInvisibleOutsideStrings = (json: string) => {
+  let out = ''
+  let inString = false
+  for (let i = 0; i < json.length; i++) {
+    const c = json[i]!
+    if (inString) {
+      out += c
+      if (c === '\\') out += json[++i] ?? ''
+      else if (c === '"') inString = false
+    } else if (!/[\u200B-\u200F\u2060\uFEFF]/.test(c)) {
+      out += c
+      if (c === '"') inString = true
+    }
+  }
+  return out
+}
+
 const extract = async <S extends OfType<AnyObjectOrArray>>(
   input: unknown,
   _schema: S,
@@ -204,11 +233,9 @@ Merge it back into a final result.`.trim(),
     )
   }
 
+  // Output-format rules; the schema and these go in the system prompt once. The caller's instructions go once, in the
+  // final message next to the input (examples and the task used to repeat schema + instructions in every message).
   const instructions: string[] = []
-
-  if (options.instructions) {
-    instructions.push(options.instructions)
-  }
 
   const shape = `{ ${keys.map((key) => `"${key}": ...`).join(', ')} }`
   const abbv = '{ ... }'
@@ -217,6 +244,7 @@ Merge it back into a final result.`.trim(),
     instructions.push('You may have multiple elements, or zero elements in the input.')
     instructions.push('You must extract each element separately.')
     instructions.push(`Each element must be a JSON object with exactly the format: ${START}${shape}${END}`)
+    instructions.push('Write each JSON object compactly on a single line (no indentation).')
     instructions.push(`If there are no elements to extract, respond with ${ZERO_ELEMENTS}.`)
     instructions.push(`When you are done extracting all elements, type "${NO_MORE}" to finish.`)
     instructions.push(
@@ -228,6 +256,7 @@ Merge it back into a final result.`.trim(),
   } else {
     instructions.push('You may have exactly one element in the input.')
     instructions.push(`The element must be a JSON object with exactly the format: ${START}${shape}${END}`)
+    instructions.push('Write the JSON object compactly on a single line (no indentation).')
   }
 
   if (!options.strict) {
@@ -235,7 +264,11 @@ Merge it back into a final result.`.trim(),
   }
 
   // All tokens remaining after the input and condition are accounted can be used for examples
-  const EXAMPLES_TOKENS = PROMPT_COMPONENT - tokenizer.count(inputAsString) - tokenizer.count(instructions.join('\n'))
+  const EXAMPLES_TOKENS =
+    PROMPT_COMPONENT -
+    tokenizer.count(inputAsString) -
+    tokenizer.count(instructions.join('\n')) -
+    tokenizer.count(options.instructions ?? '')
 
   const Key = fastHash(
     JSON.stringify({
@@ -288,56 +321,46 @@ The end.`,
         extracted: { name: 'Alice', age: 30 },
       }
 
-  const userExamples = examples.map((e) => ({
-    input: e.input,
-    extracted: e.output,
-    schema: schemaTypescript,
-    instructions: options.instructions,
-  }))
+  // Saved examples were made for this same task: same schema and instructions, so only their input is shown
+  const userExamples: Array<{ input?: unknown; schema?: string; instructions?: string; extracted: unknown }> =
+    examples.map((e) => ({ input: e.input, extracted: e.output }))
 
   let exampleId = 1
 
-  const formatInput = (input: string, schema: string, instructions?: string) => {
-    const header = userExamples.length
-      ? `Expert Example #${exampleId++}`
-      : "Here's an example to help you understand the format:"
+  const block = (name: string, content: string) => `<|start_${name}|>\n${content}\n<|end_${name}|>`
 
-    return `
-${header}
+  const formatExampleInput = (input: string, schema?: string, instructions?: string) =>
+    schema
+      ? [
+          "Here's an example to help you understand the format (it uses its own schema, not the one above):",
+          block('schema', schema),
+          block('instructions', instructions ?? 'No specific instructions, just follow the schema.'),
+          block('input', input.trim()),
+        ].join('\n\n')
+      : [
+          `Expert Example #${exampleId++} (same schema and instructions as the task):`,
+          block('input', input.trim()),
+        ].join('\n\n')
 
-<|start_schema|>
-${schema}
-<|end_schema|>
+  const formatTaskInput = (input: string) =>
+    [
+      'Now extract from this input, following the schema in the system prompt:',
+      block('instructions', options.instructions || 'No specific instructions, just follow the schema.'),
+      block('input', input.trim()),
+    ].join('\n\n')
 
-<|start_instructions|>
-${instructions ?? 'No specific instructions, just follow the schema above.'}
-<|end_instructions|>
-
-<|start_input|>
-${input.trim()}
-<|end_input|>
-  `.trim()
-  }
-
+  // Compact JSON (one line per object): the model copies the examples' style, and indentation is 20-30% of the output tokens
   const formatOutput = (extracted: unknown) => {
     const extractedArr = isArray(extracted) ? extracted : [extracted]
 
-    return (
-      extractedArr
-        .map((x: string) =>
-          `
-${START}
-${JSON.stringify(x, null, 2)}
-${END}`.trim()
-        )
-        .join('\n') + NO_MORE
-    )
+    // markers on their own lines: some models garble a marker glued to the JSON
+    return extractedArr.map((x: unknown) => `${START}\n${JSON.stringify(x)}\n${END}`).join('\n') + NO_MORE
   }
 
-  const formatExample = (example: { input?: unknown; schema: string; instructions?: string; extracted: unknown }) => [
+  const formatExample = (example: { input?: unknown; schema?: string; instructions?: string; extracted: unknown }) => [
     {
       type: 'text' as const,
-      content: formatInput(stringify(example.input ?? null), example.schema, example.instructions),
+      content: formatExampleInput(stringify(example.input ?? null), example.schema, example.instructions),
       role: 'user' as const,
     },
     {
@@ -347,7 +370,7 @@ ${END}`.trim()
     },
   ]
 
-  const allExamples = takeUntilTokens(
+  const allExamples = takeUntilTokens<{ input?: unknown; schema?: string; instructions?: string; extracted: unknown }>(
     userExamples.length ? userExamples : [defaultExample],
     EXAMPLES_TOKENS,
     (el) => tokenizer.count(stringify(el.input)) + tokenizer.count(stringify(el.extracted))
@@ -369,16 +392,16 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
       {
         role: 'user',
         type: 'text',
-        content: formatInput(inputAsString, schemaTypescript, options.instructions ?? ''),
+        content: formatTaskInput(inputAsString),
       },
     ],
     transform: (text): unknown[] =>
-      (text || '{}')
+      normalizeMarkers(text || '{}')
         .split(START)
         .filter((x) => x.trim().length > 0 && x.includes('}'))
         .map((x) => {
           try {
-            let json = x.slice(0, x.indexOf(END)).trim()
+            let json = stripInvisibleOutsideStrings(x.slice(0, x.indexOf(END))).trim()
 
             if (json.includes(SPECIAL_CHAR)) {
               json = json.slice(0, json.indexOf(SPECIAL_CHAR)).trim()
