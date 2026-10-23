@@ -21,6 +21,7 @@ on:
       - tsconfig.json
       - turbo.json
       - .github/workflows/trigger-dab-configured-integrations-deploy-staging.yml
+      - .github/dab-configured-integrations.json
   workflow_dispatch:
 
 permissions:
@@ -36,27 +37,29 @@ env:
   DEPLOY_ENVIRONMENT: staging
 
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.integrations.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - id: integrations
+        run: |
+          matrix=$(jq . .github/dab-configured-integrations.json)
+          {
+            echo 'matrix<<MATRIX'
+            echo "$matrix"
+            echo MATRIX
+          } >> "$GITHUB_OUTPUT"
+
   deploy:
+    needs: prepare
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - integration: telegram
-            target: telegram
-            platform: linux/amd64
-          - integration: whatsapp
-            target: whatsapp
-            platform: linux/amd64
-          - integration: slack
-            target: slack
-            platform: linux/amd64
-          - integration: instagram
-            target: instagram
-            platform: linux/amd64
-          - integration: messenger
-            target: messenger
-            platform: linux/amd64
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -127,7 +130,7 @@ jobs:
           file: ./Dockerfile
           context: .
           target: ${{ matrix.target }}
-          platforms: ${{ matrix.platform }}
+          platforms: linux/amd64
           push: true
           tags: ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ matrix.integration }}-${{ steps.source.outputs.sha }}
 
@@ -177,7 +180,7 @@ jobs:
           fi
 
   trigger:
-    needs: deploy
+    needs: [prepare, deploy]
     runs-on: ubuntu-latest
     steps:
       - name: Acquire a short-lived access token
@@ -191,15 +194,20 @@ jobs:
 
       - name: Dispatch private integration deploy
         uses: actions/github-script@v9
+        env:
+          INTEGRATION_MATRIX: ${{ needs.prepare.outputs.matrix }}
         with:
           github-token: ${{ steps.app-token.outputs.token }}
           script: |
+            const { include } = JSON.parse(process.env.INTEGRATION_MATRIX);
+            const integrations = include.map(({ integration }) => integration);
+
             await github.rest.repos.createDispatchEvent({
               owner: 'botpress',
               repo: 'private-deploys',
               event_type: 'deploy-integration',
               client_payload: {
-                integration: '*',
+                integrations,
                 env: 'staging'
               }
             });
