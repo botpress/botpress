@@ -24,8 +24,14 @@ export const states = {
         .optional()
         .title('History cursor')
         .describe('The last history ID processed by the integration'),
+      authorizationCode: z
+        .string()
+        .optional()
+        .title('Used authorization code')
+        .describe('The authorization code already exchanged for the refresh token, so it is not exchanged again'),
     }),
   },
+
   googlePublicCertCache: {
     type: 'integration',
     schema: z.object({

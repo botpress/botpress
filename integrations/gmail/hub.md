@@ -186,3 +186,5 @@ Botpress shall not be held responsible for any costs you may incur on the Google
 Standard Gmail API limitations apply to the Gmail integration in Botpress. These limitations include rate limits, message size restrictions, and other constraints imposed by the Gmail and Google Cloud platforms. Ensure that your chatbot adheres to these limitations to maintain optimal performance and reliability.
 
 More details are available in the [Gmail API documentation](https://developers.google.com/gmail/api/reference/quota).
+
+Gmail watches expire after 7 days. The integration renews the watch daily to keep receiving incoming emails.
