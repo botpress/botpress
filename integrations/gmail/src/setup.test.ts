@@ -42,11 +42,13 @@ describe('register', () => {
   })
 
   it('exchanges an authorization code before starting the watch', async () => {
-    await register(_props())
+    const props = _props()
+    await register(props)
     expect(GoogleClient.createFromAuthorizationCode).toHaveBeenCalledWith(
       expect.objectContaining({ authorizationCode: 'code-1' })
     )
     expect(GoogleClient.create).not.toHaveBeenCalled()
+    expect(props.client.configureIntegration).toHaveBeenCalledWith({ scheduleRegisterCall: 'daily' })
     expect(watchIncomingMail).toHaveBeenCalledTimes(1)
   })
 
@@ -67,7 +69,15 @@ describe('register', () => {
     const props = _props()
     watchIncomingMail.mockRejectedValue(new Error('topic not found'))
     await expect(register(props)).resolves.toBeUndefined()
+    expect(props.client.configureIntegration).toHaveBeenCalledWith({ scheduleRegisterCall: 'daily' })
     expect(props.logger.forBot().warn).toHaveBeenCalledWith('Failed to set up Gmail watch: topic not found')
+  })
+
+  it('fails registration if daily renewal cannot be scheduled', async () => {
+    const props = _props()
+    vi.mocked(props.client.configureIntegration).mockRejectedValue(new Error('Scheduling failed'))
+    await expect(register(props)).rejects.toThrow('Scheduling failed')
+    expect(watchIncomingMail).not.toHaveBeenCalled()
   })
 })
 
