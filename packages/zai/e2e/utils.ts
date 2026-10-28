@@ -6,7 +6,7 @@ import path from 'node:path'
 import { beforeAll } from 'vitest'
 import { Zai } from '../src'
 import { type TextTokenizer } from '../src/tokenizer'
-import { getCachedCognitiveClient } from './client'
+import { getCachedBotpressClient, getCachedCognitiveClient } from './client'
 
 const DATA_PATH = path.join(__dirname, 'data')
 const DOC_PATH = path.join(DATA_PATH, 'botpress_docs.txt')
@@ -18,6 +18,9 @@ export const getClient = () => {
     token: process.env.CLOUD_PAT,
   })
 }
+
+/** Same as getClient, but its LLM and Tables calls come from the e2e cache, so tests don't depend on live services */
+export const getCachedTestClient = () => getCachedBotpressClient()
 
 export const getCachedClient = () => {
   return getCachedCognitiveClient()

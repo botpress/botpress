@@ -1,5 +1,5 @@
 import { afterAll, describe, expect, it } from 'vitest'
-import { getClient, getZai, metadata } from './utils'
+import { getCachedTestClient, getZai, metadata } from './utils'
 import { TableAdapter } from '../src/adapters/botpress-table'
 
 describe('zai.sort', () => {
@@ -607,7 +607,7 @@ describe('zai.sort', () => {
       expect(usage.requests.responses).toBeGreaterThan(0)
 
       // Verify elapsed time
-      expect(elapsed).toBeGreaterThan(0)
+      expect(elapsed).toBeGreaterThanOrEqual(0) // 0ms when every call is served from the e2e cache
     })
   })
 })
@@ -615,7 +615,7 @@ describe('zai.sort', () => {
 describe.sequential('zai.learn.sort', () => {
   const taskId = 'sort-counterintuitive-test'
   const tableName = 'TestSortLearningTable'
-  const client = getClient()
+  const client = getCachedTestClient()
 
   afterAll(async () => {
     // Cleanup: delete the table after all tests

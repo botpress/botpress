@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, afterAll } from 'vitest'
 
-import { BotpressDocumentation, getCachedClient, getClient, getZai, metadata } from './utils'
+import { BotpressDocumentation, getCachedClient, getCachedTestClient, getZai, metadata } from './utils'
 
 import { z } from '@bpinternal/zui'
 import { check } from '@botpress/vai'
@@ -44,6 +44,17 @@ describe('zai.extract', () => {
     await expect(
       zai.extract('My name is John Doe, I am 30 years old and I live in Quebec', schema as any).result()
     ).rejects.toThrow('@bpinternal/zui')
+  })
+
+  it('keeps values that end like unfinished JSON (code quotes ending with "{")', async () => {
+    // Before: jsonrepair ran on valid JSON and turned {"line":"if (user.isAdmin) {"} into a parse error
+    const lines = await zai.extract(
+      `The customer pasted this code and says it crashes:\nif (user.isAdmin) {\n  grantAccess(user)\n}`,
+      z.array(z.object({ line: z.string().describe('one line of the pasted code, copied verbatim') })),
+      { instructions: 'Extract every line of the pasted code, in order, copied verbatim (without indentation).' }
+    )
+
+    expect(lines.map((l) => l.line.trim())).toEqual(['if (user.isAdmin) {', 'grantAccess(user)', '}'])
   })
 
   it('extract an array of objects from paragraph', async () => {
@@ -277,7 +288,7 @@ Feature 4: Integrations`
 })
 
 describe.sequential('zai.learn.extract', () => {
-  const client = getClient()
+  const client = getCachedTestClient()
   let tableName = 'ZaiTestExtractInternalTable'
   let taskId = 'extract'
   let zai = getZai()
