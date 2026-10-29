@@ -3293,12 +3293,6 @@ importers:
       dotenv:
         specifier: ^16.4.4
         version: 16.4.4
-      esbuild:
-        specifier: ^0.25.10
-        version: 0.25.10
-      glob:
-        specifier: ^9.3.4
-        version: 9.3.5
       lodash:
         specifier: ^4.17.21
         version: 4.17.21

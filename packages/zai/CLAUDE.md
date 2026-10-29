@@ -502,9 +502,8 @@ Test files located in `e2e/` directory:
 
 ## Build System
 
-- **TypeScript**: Compiled with tsup (types) and custom esbuild script (build.ts)
-- **Type Generation**: `tsup` generates .d.ts files
-- **Neutral Build**: `ts-node -T ./build.ts` for platform-neutral JS
+- **Bundler**: `tsdown` bundles `src/index.ts` into `dist/index.mjs` (ESM) and `dist/index.cjs` (CJS), with bundled `.d.mts`/`.d.cts` declarations
+- **ESM-only deps**: `lodash-es` and `p-limit` are bundled in so the CJS build can be `require`d by plain Node
 - **Size Limit**: Max 50 kB (enforced by size-limit)
 - **Peer Dependencies**: @bpinternal/thicktoken, @bpinternal/zui
 
@@ -586,7 +585,7 @@ export class MyAdapter extends Adapter {
 - `@botpress/client` (workspace) - Botpress API client
 - `@botpress/common` (workspace) - Shared utilities
 - `@botpress/vai` (workspace) - Validation utilities
-- `tsup`, `esbuild` - Build tools
+- `tsdown` - Build tool
 - `vitest` - Testing framework
 
 ## Common Patterns

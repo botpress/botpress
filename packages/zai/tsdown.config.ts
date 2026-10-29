@@ -2,13 +2,15 @@ import { defineConfig } from 'tsdown'
 
 export default defineConfig({
   entry: ['src/index.ts'],
-  dts: true,
-  outDir: 'dist',
-  platform: 'neutral',
-  clean: true,
   // Keep the declaration entrypoint bundled so operation module augmentations
   // like zai.extract/check/summarize are visible from @botpress/zai.
-  unbundle: false,
-  format: 'cjs',
-  target: undefined,
+  dts: true,
+  outDir: 'dist',
+  format: ['esm', 'cjs'],
+  fixedExtension: true,
+  target: 'node18',
+  // lodash-es and p-limit are ESM-only; bundle them so the CJS build can be required.
+  deps: { alwaysBundle: ['lodash-es', 'p-limit'], onlyBundle: false },
+  sourcemap: false,
+  clean: true,
 })
