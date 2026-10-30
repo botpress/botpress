@@ -92,7 +92,7 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
     audio: async ({ payload, ...props }) => {
       await _send({
         ...props,
-        message: new Audio(payload.audioUrl.trim(), false),
+        message: new Audio(payload.audioUrl.trim(), false, payload.voice),
       })
     },
     video: async ({ payload, ...props }) => {
@@ -193,7 +193,7 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
             })
             break
           case 'audio':
-            await _send({ ...props, message: new Audio(item.payload.audioUrl.trim(), false) })
+            await _send({ ...props, message: new Audio(item.payload.audioUrl.trim(), false, item.payload.voice) })
             break
           case 'video':
             await _send({
