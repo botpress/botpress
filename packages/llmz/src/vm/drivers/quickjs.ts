@@ -55,12 +55,17 @@ export class QuickJSDriver implements VMDriver {
 
     const startTime = Date.now()
     const timeoutHandler = shouldInterruptAfterDeadline(startTime + timeout)
+    let timedOut = false
     runtime.setInterruptHandler(() => {
       if (signal?.aborted) {
         return true
       }
-      return timeoutHandler(runtime)
+      if (timeoutHandler(runtime)) {
+        timedOut = true
+      }
+      return timedOut
     })
+    const timeoutError = () => new Error(`Code execution timed out after ${timeout}ms`)
 
     const vm = runtime.newContext()
     const trackedProperties = new Set<string>()
@@ -188,6 +193,7 @@ export class QuickJSDriver implements VMDriver {
       execResult.value.dispose()
 
       await this._pumpEventLoop(runtime, vm, pendingPromises, signal, toVmValue, disposeIfNeeded)
+      const codeTimedOut = timedOut
 
       const errorResult = vm.evalCode('globalThis.__llmz_error')
       const errorValue = vm.dump(errorResult.unwrap())
@@ -221,6 +227,10 @@ export class QuickJSDriver implements VMDriver {
       }
 
       copyBackContextFromVM()
+
+      if (codeTimedOut) {
+        throw timeoutError()
+      }
 
       const resultSetResult = vm.evalCode('globalThis.__llmz_result_set')
       const resultSet = vm.dump(resultSetResult.unwrap())
@@ -276,7 +286,7 @@ export class QuickJSDriver implements VMDriver {
       ).catch(() => {})
 
       return handleErrorQuickJS(
-        err,
+        timedOut ? timeoutError() : err,
         code,
         consumer,
         traces,
