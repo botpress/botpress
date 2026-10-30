@@ -86,7 +86,8 @@ CONFIG = struct(
 
 api_webhook_domain = "webhook.%s" % CONFIG.bp_domain
 api_api_domain = "api.%s" % CONFIG.bp_domain
-api_tunnel_domain = "tunnel.%s" % CONFIG.bp_domain
+content_domains = {"botpress.cloud": "bpcontent.cloud", "botpress.dev": "bpcontent.dev"}
+api_tunnel_domain = "tunnel.%s" % content_domains.get(CONFIG.bp_domain, CONFIG.bp_domain)
 api_api_url = "https://%s" % api_api_domain
 api_tunnel_url = "https://%s" % api_tunnel_domain
 
