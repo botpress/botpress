@@ -193,6 +193,7 @@ export class QuickJSDriver implements VMDriver {
       execResult.value.dispose()
 
       await this._pumpEventLoop(runtime, vm, pendingPromises, signal, toVmValue, disposeIfNeeded)
+      const codeTimedOut = timedOut
 
       const errorResult = vm.evalCode('globalThis.__llmz_error')
       const errorValue = vm.dump(errorResult.unwrap())
@@ -202,10 +203,6 @@ export class QuickJSDriver implements VMDriver {
         const reason = (signal as any).reason
         if (reason instanceof Error) throw reason
         throw new Error(reason ? String(reason) : 'Execution was aborted')
-      }
-
-      if (timedOut) {
-        throw timeoutError()
       }
 
       if (errorValue !== null && errorValue !== '') {
@@ -230,6 +227,10 @@ export class QuickJSDriver implements VMDriver {
       }
 
       copyBackContextFromVM()
+
+      if (codeTimedOut) {
+        throw timeoutError()
+      }
 
       const resultSetResult = vm.evalCode('globalThis.__llmz_result_set')
       const resultSet = vm.dump(resultSetResult.unwrap())

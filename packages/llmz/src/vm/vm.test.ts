@@ -1044,11 +1044,41 @@ return {
     })
 
     it('timing out a busy loop returns an error', async () => {
-      const result = await runAsyncFunction({}, `while (true) {}`, [], null, 200)
+      const result = await runAsyncFunction(
+        {},
+        `const end = Date.now() + 2000; while (Date.now() < end) {}`,
+        [],
+        null,
+        200
+      )
 
       expect(result.success).toBe(false)
       expect(result.error).toBeInstanceOf(CodeExecutionError)
       expect(result.error?.message).toContain('Code execution timed out after 200ms')
+    })
+
+    it('timing out keeps the changes made before the timeout', async () => {
+      const context = {
+        count: 0,
+        slowFn: async () => {
+          await new Promise((resolve) => setTimeout(resolve, 300))
+        },
+      }
+      const code = `
+      count = 5
+      await slowFn()
+      for (let i = 0; i < 50; i++) {
+        let s = ''
+        for (let j = 0; j < 20000; j++) s += j
+      }
+      return 'done'
+      `
+
+      const result = await runAsyncFunction(context, code, [], null, 200)
+
+      expect(result.success).toBe(false)
+      expect(result.error?.message).toContain('Code execution timed out after 200ms')
+      expect(context.count).toBe(5)
     })
 
     it('timing out after a slow tool returns an error instead of skipping the rest', async () => {
@@ -1081,6 +1111,21 @@ return {
       expect(result.success).toBe(false)
       expect(result.error?.message).toContain('Code execution timed out after 200ms')
       expect(writes.length).toBeLessThan(50)
+    })
+
+    it('code that finishes after a slow tool is not reported as timed out', async () => {
+      const context: Record<string, unknown> = {
+        slowFn: async () => {
+          await new Promise((resolve) => setTimeout(resolve, 300))
+        },
+      }
+      for (let i = 0; i < 20_000; i++) context[`v${i}`] = i
+
+      const result = await runAsyncFunction(context, `v0 = 99; await slowFn(); return 'done'`, [], null, 200)
+
+      assert(result.success)
+      expect(result.return_value).toBe('done')
+      expect(context.v0).toBe(99)
     })
 
     it('code that finishes before the timeout still succeeds', async () => {
