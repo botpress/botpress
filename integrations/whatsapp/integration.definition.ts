@@ -55,6 +55,12 @@ const dropdownButtonLabelSchema = z
   .title('Button Label')
   .describe('Label for the dropdown button')
 
+const audioVoiceSchema = z
+  .boolean()
+  .optional()
+  .title('Voice Note')
+  .describe('Send the audio as a voice note instead of an audio file. The audio must be an .ogg file with OPUS codec')
+
 const startConversationProps = {
   title: 'Start Conversation',
   description:
@@ -157,7 +163,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.18.5'
+export const INTEGRATION_VERSION = '4.18.6'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
@@ -269,6 +275,11 @@ export default new IntegrationDefinition({
             caption: z.string().optional(),
           }),
         },
+        audio: {
+          schema: messages.defaults.audio.schema.extend({
+            voice: audioVoiceSchema,
+          }),
+        },
         bloc: {
           schema: z.object({
             items: z.array(
@@ -295,6 +306,7 @@ export default new IntegrationDefinition({
                   type: z.literal('audio'),
                   payload: z.object({
                     audioUrl: z.string(),
+                    voice: audioVoiceSchema,
                   }),
                 }),
                 z.object({
