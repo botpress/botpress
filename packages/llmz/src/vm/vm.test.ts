@@ -1042,6 +1042,59 @@ return {
       expect(result.error).toMatchInlineSnapshot(`[CodeExecutionError: This operation was aborted]`)
       expect(called).toBe(false)
     })
+
+    it('timing out a busy loop returns an error', async () => {
+      const result = await runAsyncFunction({}, `while (true) {}`, [], null, 200)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBeInstanceOf(CodeExecutionError)
+      expect(result.error?.message).toContain('Code execution timed out after 200ms')
+    })
+
+    it('timing out after a slow tool returns an error instead of skipping the rest', async () => {
+      const writes: number[] = []
+      const code = `
+      await slowFn()
+      for (let i = 0; i < 50; i++) {
+        let s = ''
+        for (let j = 0; j < 20000; j++) s += j
+        await write(i)
+      }
+      return 'done'
+      `
+
+      const result = await runAsyncFunction(
+        {
+          slowFn: async () => {
+            await new Promise((resolve) => setTimeout(resolve, 300))
+          },
+          write: async (i: number) => {
+            writes.push(i)
+          },
+        },
+        code,
+        [],
+        null,
+        200
+      )
+
+      expect(result.success).toBe(false)
+      expect(result.error?.message).toContain('Code execution timed out after 200ms')
+      expect(writes.length).toBeLessThan(50)
+    })
+
+    it('code that finishes before the timeout still succeeds', async () => {
+      const result = await runAsyncFunction(
+        {},
+        `let n = 0; for (let i = 0; i < 1000; i++) n += i; return n`,
+        [],
+        null,
+        5_000
+      )
+
+      assert(result.success)
+      expect(result.return_value).toBe(499500)
+    })
   })
 })
 
