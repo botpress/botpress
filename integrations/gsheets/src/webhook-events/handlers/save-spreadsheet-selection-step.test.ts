@@ -9,11 +9,12 @@ const makeClient = ({ storedSelection, setStateError }: { storedSelection?: unkn
   const calls: string[] = []
   return {
     calls,
-    getState: vi.fn(async () =>
-      storedSelection === undefined
-        ? Promise.reject(new Error('state not found'))
-        : { state: { payload: storedSelection } }
-    ),
+    getState: vi.fn(async () => {
+      if (storedSelection === undefined) {
+        throw new Error('state not found')
+      }
+      return { state: { payload: storedSelection } }
+    }),
     setState: vi.fn(async () => {
       calls.push('setState')
       if (setStateError) {
