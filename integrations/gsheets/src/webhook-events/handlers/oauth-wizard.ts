@@ -2,6 +2,7 @@ import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import * as sdk from '@botpress/sdk'
 import { GoogleClient } from 'src/google-api'
 import { getAuthenticatedOAuth2Client } from 'src/google-api/oauth-client'
+import { getAllowedSpreadsheetIds } from 'src/google-api/spreadsheet-selection'
 import * as bp from '.botpress'
 
 export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Response> => {
@@ -75,11 +76,6 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
             redirectUri: _getOAuthRedirectUri().href,
           })
 
-          // Done in order to correctly display the authorization status in the UI
-          await client.configureIntegration({
-            identifier: ctx.webhookId,
-          })
-
           return responses.redirectToStep('file-picker')
         } catch (err) {
           logger.forBot().error('Failed to authenticate with Google:', err)
@@ -150,8 +146,7 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
                           document.location.href = ${JSON.stringify(oauthWizard.getWizardStepUrl('end', ctx).href)};
                         }
                       } else if (data[google.picker.Response.ACTION] == google.picker.Action.CANCEL) {
-                        // User closed the picker without selecting files.
-                        // They can still click "Skip file selection" to continue.
+                        // User closed the picker without selecting files; they can reopen it.
                       }
                     })
                     .setSize(640,790)
@@ -188,23 +183,43 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
           ),
         ]
 
-        if (spreadsheetIds.length) {
-          try {
+        // A re-authorization without a new pick keeps the previous selection.
+        const hasSelection = spreadsheetIds.length > 0 || (await getAllowedSpreadsheetIds({ ctx, client })).length > 0
+
+        if (!hasSelection) {
+          // The drive.file scope only grants access to picked spreadsheets, so an
+          // installation without a selection cannot reach any spreadsheet.
+          logger.forBot().warn('OAuth wizard completed without a spreadsheet selection')
+          return responses.endWizard({
+            success: false,
+            errorMessage:
+              'No spreadsheet was selected. The integration can only access the spreadsheets you pick, so run the setup again and select at least one spreadsheet.',
+          })
+        }
+
+        try {
+          if (spreadsheetIds.length) {
             await client.setState({
               id: ctx.integrationId,
               type: 'integration',
               name: 'spreadsheetConfig',
               payload: { spreadsheetIds },
             })
-          } catch (thrown: unknown) {
-            const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-            logger.forBot().error('Failed to save the selected spreadsheets:', error)
-
-            return responses.endWizard({
-              success: false,
-              errorMessage: `Failed to save your spreadsheet selection: ${error.message}`,
-            })
           }
+
+          // Marks the integration as connected in the UI, so it must only happen once
+          // the installation is usable.
+          await client.configureIntegration({
+            identifier: ctx.webhookId,
+          })
+        } catch (thrown: unknown) {
+          const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+          logger.forBot().error('Failed to save the selected spreadsheets:', error)
+
+          return responses.endWizard({
+            success: false,
+            errorMessage: `Failed to save your spreadsheet selection: ${error.message}`,
+          })
         }
 
         return responses.endWizard({
