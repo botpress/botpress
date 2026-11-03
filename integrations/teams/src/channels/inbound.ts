@@ -1,6 +1,6 @@
 import { Activity, ConversationReference, TurnContext, TeamsInfo, TeamsChannelAccount } from 'botbuilder'
 import { transformTeamsHtmlToStdMarkdown } from '../markdown/teams-html-to-markdown'
-import { getAdapter, sleep } from '../utils'
+import { getAdapter, shouldCollectUserEmail, sleep } from '../utils'
 import { DROPDOWN_VALUE_ID, DROPDOWN_VALUE_KIND } from './constants'
 import * as bp from '.botpress'
 
@@ -8,11 +8,11 @@ export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.H
   const convRef: Partial<ConversationReference> = TurnContext.getConversationReference(activity)
 
   const senderChannelAccount = activity.from!
-  const { disableUserEmailCollection } = ctx.configuration
+  const collectUserEmail = shouldCollectUserEmail(ctx.configuration)
 
-  const senderEmail = disableUserEmailCollection
-    ? undefined
-    : await _getSenderEmail(ctx.configuration, convRef, senderChannelAccount.id)
+  const senderEmail = collectUserEmail
+    ? await _getSenderEmail(ctx.configuration, convRef, senderChannelAccount.id)
+    : undefined
   if (senderEmail) {
     logger.forBot().info(`Received request from user: ${senderEmail}`)
   }
@@ -34,9 +34,9 @@ export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.H
       })
 
       const { user } = await client.getOrCreateUser(
-        disableUserEmailCollection
-          ? { tags: { id: activity.from.id }, discriminateByTags: ['id'] }
-          : { tags: { id: activity.from.id, email: senderEmail } }
+        collectUserEmail
+          ? { tags: { id: activity.from.id, email: senderEmail } }
+          : { tags: { id: activity.from.id }, discriminateByTags: ['id'] }
       )
 
       const message = _extractMessage(activity)

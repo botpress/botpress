@@ -55,8 +55,11 @@ describe('processInboundChannelMessage', () => {
     getMember.mockResolvedValue({ id: 'teams-user-1', email: 'jane.doe@example.com' })
   })
 
-  test('stores the sender email as a user tag by default', async () => {
-    const { client, info, props } = makeProps({})
+  test.each([
+    ['has no stored value (installs saved before the option existed)', {}],
+    ['true', { collectUserEmail: true }],
+  ])('stores the sender email as a user tag when collectUserEmail %s', async (_, configuration) => {
+    const { client, info, props } = makeProps(configuration)
 
     await processInboundChannelMessage(props, activity)
 
@@ -67,8 +70,8 @@ describe('processInboundChannelMessage', () => {
     expect(info).toHaveBeenCalledWith('Received request from user: jane.doe@example.com')
   })
 
-  test('does not look up, log or store the sender email when disableUserEmailCollection is set', async () => {
-    const { client, info, props } = makeProps({ disableUserEmailCollection: true })
+  test('does not look up, log or store the sender email when collectUserEmail is false', async () => {
+    const { client, info, props } = makeProps({ collectUserEmail: false })
 
     await processInboundChannelMessage(props, activity)
 
