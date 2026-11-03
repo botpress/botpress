@@ -1,20 +1,5 @@
 import bytes from 'bytes'
-import {
-  flow,
-  isEmpty,
-  uniq,
-  isEqual,
-  uniqWith,
-  filter,
-  mapKeys,
-  countBy,
-  orderBy,
-  isNil,
-  fromPairs,
-  toPairs,
-  take,
-  map,
-} from 'lodash-es'
+import { flow, isEmpty, uniq, filter, mapKeys, countBy, orderBy, isNil, fromPairs, toPairs, take, map } from 'lodash-es'
 
 import { escapeString, getTokenizer } from './utils.js'
 
@@ -293,12 +278,12 @@ function previewArray(arr: unknown, maxStringLength: number = LONG_TEXT_LENGTH) 
   )
   const minValues = ordered.slice(0, 3).map((item) => previewValue(item, 10))
   const maxValues = ordered.slice(-3).map((item) => previewValue(item, 10))
-  const uniqueItems = uniqWith(arr, isEqual)
+  const uniqueCount = new Set(arr.map((item) => stringify(item))).size
   const nullValues = filter(arr, isNil).length
   const memoryUsage = bytes(stringify(arr).length)
 
   lines.push(`Total Items:     ${arr.length}`)
-  lines.push(`Unique Items:    ${uniqueItems.length}`)
+  lines.push(`Unique Items:    ${uniqueCount}`)
   lines.push(`Types:           ${stringify(typesCount)}`)
   lines.push(`Minimum Values:  [${minValues.join(', ')}]`)
   lines.push(`Maximum Values:  [${maxValues.join(', ')}]`)

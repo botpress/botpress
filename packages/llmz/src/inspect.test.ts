@@ -334,6 +334,14 @@ describe('Inspect Array', () => {
     `)
   })
 
+  it('counts unique items in large arrays quickly', () => {
+    const rows = Array.from({ length: 20_000 }, (_v, i) => ({ id: i % 10_000, name: `row${i % 10_000}` }))
+    const start = Date.now()
+    const output = inspect(rows, 'rows', OPTIONS)
+    expect(Date.now() - start).toBeLessThan(5_000)
+    expect(output).toContain('Unique Items:    10000')
+  })
+
   it('empty array', () => {
     const items: unknown = []
     expect(inspect(items, 'emptyArr', OPTIONS)).toMatchInlineSnapshot(`
