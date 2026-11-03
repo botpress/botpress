@@ -40,13 +40,14 @@ const makeProps = (configuration: Partial<bp.configuration.Configuration>) => {
     getOrCreateMessage: vi.fn(async () => ({ message: { id: 'message-1' } })),
   }
   const info = vi.fn()
-  const logger = { forBot: () => ({ info, warn: vi.fn(), error: vi.fn(), debug: vi.fn() }) }
+  const warn = vi.fn()
+  const logger = { forBot: () => ({ info, warn, error: vi.fn(), debug: vi.fn() }) }
   const props = {
     client,
     logger,
     ctx: { configuration: { appId: 'app-id', appPassword: 'app-password', ...configuration } },
   } as unknown as bp.HandlerProps
-  return { client, info, props }
+  return { client, info, warn, props }
 }
 
 describe('processInboundChannelMessage', () => {
@@ -84,5 +85,17 @@ describe('processInboundChannelMessage', () => {
     expect(client.getOrCreateMessage).toHaveBeenCalledWith(
       expect.objectContaining({ userId: 'user-1', conversationId: 'conversation-1', payload: { text: 'hello' } })
     )
+  })
+
+  test('handles the message without an email when the email lookup fails', async () => {
+    getMember.mockRejectedValue(new Error('Forbidden'))
+    const { client, info, warn, props } = makeProps({})
+
+    await processInboundChannelMessage(props, activity)
+
+    expect(warn).toHaveBeenCalledWith("Could not look up the sender's email: Forbidden")
+    expect(info).not.toHaveBeenCalled()
+    expect(client.getOrCreateUser).toHaveBeenCalledWith({ tags: { id: 'teams-user-1', email: undefined } })
+    expect(client.getOrCreateMessage).toHaveBeenCalledOnce()
   })
 })

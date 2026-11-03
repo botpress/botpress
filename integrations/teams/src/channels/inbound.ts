@@ -1,6 +1,6 @@
 import { Activity, ConversationReference, TurnContext, TeamsInfo, TeamsChannelAccount } from 'botbuilder'
 import { transformTeamsHtmlToStdMarkdown } from '../markdown/teams-html-to-markdown'
-import { getAdapter, shouldCollectUserEmail, sleep } from '../utils'
+import { getAdapter, getError, shouldCollectUserEmail, sleep } from '../utils'
 import { DROPDOWN_VALUE_ID, DROPDOWN_VALUE_KIND } from './constants'
 import * as bp from '.botpress'
 
@@ -11,7 +11,7 @@ export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.H
   const collectUserEmail = shouldCollectUserEmail(ctx.configuration)
 
   const senderEmail = collectUserEmail
-    ? await _getSenderEmail(ctx.configuration, convRef, senderChannelAccount.id)
+    ? await _getSenderEmail(ctx.configuration, convRef, senderChannelAccount.id, logger)
     : undefined
   if (senderEmail) {
     logger.forBot().info(`Received request from user: ${senderEmail}`)
@@ -56,22 +56,29 @@ export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.H
 const _getSenderEmail = async (
   config: bp.configuration.Configuration,
   convRef: Partial<ConversationReference>,
-  senderId: string
+  senderId: string,
+  logger: bp.Logger
 ): Promise<string | undefined> => {
-  const adapter = getAdapter(config)
+  try {
+    const adapter = getAdapter(config)
 
-  const getUserPromise = new Promise<TeamsChannelAccount | undefined>((resolve, reject) => {
-    void adapter
-      .continueConversation(convRef, async (tc) => {
-        const user = await TeamsInfo.getMember(tc, senderId)
-        resolve(user)
-      })
-      .then(() => resolve(undefined))
-      .catch(reject)
-  })
+    const getUserPromise = new Promise<TeamsChannelAccount | undefined>((resolve, reject) => {
+      void adapter
+        .continueConversation(convRef, async (tc) => {
+          const user = await TeamsInfo.getMember(tc, senderId)
+          resolve(user)
+        })
+        .then(() => resolve(undefined))
+        .catch(reject)
+    })
 
-  const sender = await Promise.race([getUserPromise, sleep(2000)])
-  return sender?.email
+    const sender = await Promise.race([getUserPromise, sleep(2000)])
+    return sender?.email
+  } catch (thrown: unknown) {
+    // The email is optional: handle the message without it, as when the lookup times out
+    logger.forBot().warn(`Could not look up the sender's email: ${getError(thrown).message}`)
+    return undefined
+  }
 }
 
 const _extractMessage = (activity: Activity): string => {
