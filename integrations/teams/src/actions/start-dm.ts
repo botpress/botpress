@@ -106,12 +106,11 @@ export const startDmConversation: bp.IntegrationProps['actions']['startDmConvers
   let userId: string | undefined
   if (newConvMember) {
     userId = (
-      await client.getOrCreateUser({
-        tags: {
-          id: newConvMember.id,
-          email: newConvMember.email,
-        },
-      })
+      await client.getOrCreateUser(
+        ctx.configuration.disableUserEmailCollection
+          ? { tags: { id: newConvMember.id }, discriminateByTags: ['id'] }
+          : { tags: { id: newConvMember.id, email: newConvMember.email } }
+      )
     ).user.id
 
     await client.addParticipant({

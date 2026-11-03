@@ -8,21 +8,13 @@ export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.H
   const convRef: Partial<ConversationReference> = TurnContext.getConversationReference(activity)
 
   const senderChannelAccount = activity.from!
-  const adapter = getAdapter(ctx.configuration)
+  const { disableUserEmailCollection } = ctx.configuration
 
-  const getUserPromise = new Promise<TeamsChannelAccount | undefined>((resolve, reject) => {
-    void adapter
-      .continueConversation(convRef, async (tc) => {
-        const user = await TeamsInfo.getMember(tc, senderChannelAccount.id)
-        resolve(user)
-      })
-      .then(() => resolve(undefined))
-      .catch(reject)
-  })
-
-  const sender = await Promise.race([getUserPromise, sleep(2000)])
-  if (sender?.email) {
-    logger.forBot().info(`Received request from user: ${sender.email}`)
+  const senderEmail = disableUserEmailCollection
+    ? undefined
+    : await _getSenderEmail(ctx.configuration, convRef, senderChannelAccount.id)
+  if (senderEmail) {
+    logger.forBot().info(`Received request from user: ${senderEmail}`)
   }
 
   switch (activity.type) {
@@ -41,12 +33,11 @@ export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.H
         payload: convRef,
       })
 
-      const { user } = await client.getOrCreateUser({
-        tags: {
-          id: activity.from.id,
-          email: sender?.email,
-        },
-      })
+      const { user } = await client.getOrCreateUser(
+        disableUserEmailCollection
+          ? { tags: { id: activity.from.id }, discriminateByTags: ['id'] }
+          : { tags: { id: activity.from.id, email: senderEmail } }
+      )
 
       const message = _extractMessage(activity)
       await client.getOrCreateMessage({
@@ -60,6 +51,27 @@ export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.H
     default:
       return
   }
+}
+
+const _getSenderEmail = async (
+  config: bp.configuration.Configuration,
+  convRef: Partial<ConversationReference>,
+  senderId: string
+): Promise<string | undefined> => {
+  const adapter = getAdapter(config)
+
+  const getUserPromise = new Promise<TeamsChannelAccount | undefined>((resolve, reject) => {
+    void adapter
+      .continueConversation(convRef, async (tc) => {
+        const user = await TeamsInfo.getMember(tc, senderId)
+        resolve(user)
+      })
+      .then(() => resolve(undefined))
+      .catch(reject)
+  })
+
+  const sender = await Promise.race([getUserPromise, sleep(2000)])
+  return sender?.email
 }
 
 const _extractMessage = (activity: Activity): string => {
