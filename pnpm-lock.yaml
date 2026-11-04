@@ -17,8 +17,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.135.0
-        version: 1.135.0
+        specifier: 1.136.0
+        version: 1.136.0
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -1206,8 +1206,6 @@ importers:
       preact:
         specifier: ^10.26.6
         version: 10.26.6
-
-  integrations/grafana: {}
 
   integrations/groq:
     dependencies:
@@ -2760,10 +2758,10 @@ importers:
         specifier: 1.1.0
         version: link:../chat-client
       '@botpress/client':
-        specifier: 2.10.0
+        specifier: 2.11.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 7.2.10
+        specifier: 7.2.11
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2884,10 +2882,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 2.10.0
+        specifier: 2.11.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 7.2.10
+        specifier: 7.2.11
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2900,10 +2898,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 2.10.0
+        specifier: 2.11.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 7.2.10
+        specifier: 7.2.11
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2916,7 +2914,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 7.2.10
+        specifier: 7.2.11
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2929,10 +2927,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 2.10.0
+        specifier: 2.11.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 7.2.10
+        specifier: 7.2.11
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2945,10 +2943,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 2.10.0
+        specifier: 2.11.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 7.2.10
+        specifier: 7.2.11
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -3072,7 +3070,7 @@ importers:
   packages/llmz:
     dependencies:
       '@botpress/client':
-        specifier: 2.10.0
+        specifier: 2.11.0
         version: link:../client
       '@botpress/cognitive':
         specifier: 1.2.2
@@ -3175,7 +3173,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 2.10.0
+        specifier: 2.11.0
         version: link:../client
       '@bpinternal/zui':
         specifier: ^2.4.1
@@ -3206,7 +3204,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 2.10.0
+        specifier: 2.11.0
         version: link:../client
       '@botpress/cognitive':
         specifier: 1.2.2
@@ -4269,8 +4267,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@botpress/api@1.135.0':
-    resolution: {integrity: sha512-BcL8tGFls2OLJA9ZRcq9xNwxnVaDJ2JKGVopv6DSTbXK2qxpFFOLcqkEs8a3mv6qvlEMsN8r8v+LgSb1720m6w==}
+  '@botpress/api@1.136.0':
+    resolution: {integrity: sha512-EvDsCGr3qiMmbD8YQWj/WRpeqRd5fAtRhG+0ROjh7m/s7YO6sJvYMQjG3N29LVlT8HAvkVIC2di751zPcTUdDA==}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -14776,7 +14774,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.135.0':
+  '@botpress/api@1.136.0':
     dependencies:
       '@bpinternal/opapi': 1.0.0(openapi-types@12.1.3)
     transitivePeerDependencies:

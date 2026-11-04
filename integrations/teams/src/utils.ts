@@ -11,6 +11,9 @@ export const getAdapter = (config: TeamsConfig) => {
   })
 }
 
+// The schema default is not applied at runtime: installs saved before this option existed have no value, so keep collecting
+export const shouldCollectUserEmail = (config: TeamsConfig) => config.collectUserEmail !== false
+
 export const getConversationReference = async ({
   conversationId,
   client,

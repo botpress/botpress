@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/client'
 import { ConversationParameters, ConversationReference, TeamsChannelAccount, TeamsInfo, TurnContext } from 'botbuilder'
 import { MicrosoftClient } from '../microsoft-api'
-import { getAdapter, getError } from '../utils'
+import { getAdapter, getError, shouldCollectUserEmail } from '../utils'
 import * as bp from '.botpress'
 
 export const startDmConversation: bp.IntegrationProps['actions']['startDmConversation'] = async ({
@@ -106,12 +106,11 @@ export const startDmConversation: bp.IntegrationProps['actions']['startDmConvers
   let userId: string | undefined
   if (newConvMember) {
     userId = (
-      await client.getOrCreateUser({
-        tags: {
-          id: newConvMember.id,
-          email: newConvMember.email,
-        },
-      })
+      await client.getOrCreateUser(
+        shouldCollectUserEmail(ctx.configuration)
+          ? { tags: { id: newConvMember.id, email: newConvMember.email } }
+          : { tags: { id: newConvMember.id }, discriminateByTags: ['id'] }
+      )
     ).user.id
 
     await client.addParticipant({
