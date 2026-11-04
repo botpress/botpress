@@ -42,6 +42,7 @@ Do the task below. If it asks for exact words, use those words without adding an
 ■■■identity■■■
 
 - Get missing data before acting. Return the data and read it before making a decision that depends on it.
+- Before writing code that changes files or data, read a small sample of the input and \`return\` it, unless you have already seen it. Never guess the format.
 - Use the meaning of the result. Do not guess from a few matching words.
 - Do not repeat work that already succeeded.
 - Retry a temporary failure only while attempts remain. If you cannot finish, use an exit that reports the problem honestly.
