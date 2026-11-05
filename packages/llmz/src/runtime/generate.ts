@@ -1,4 +1,4 @@
-import type { CognitiveMetadata, CognitiveStreamChunk } from '@botpress/cognitive'
+import type { CognitiveMetadata, CognitiveStreamChunk, Model } from '@botpress/cognitive'
 import { clamp } from 'lodash-es'
 
 import { createJoinedAbortController } from '../abort-signal.js'
@@ -10,7 +10,7 @@ import type { MessageStreamEvent, ParsedItem } from '../message-stream/types.js'
 import { toParsedAssistantResponse } from '../prompts/common.js'
 import type { ParsedAssistantResponse, ParsedSend } from '../prompts/prompt.js'
 import { truncateWrappedContent } from '../truncator.js'
-import { getErrorMessage } from '../utils.js'
+import { getErrorMessage, getTokenizer } from '../utils.js'
 import { RuntimeCognitive } from './types.js'
 
 const RESPONSE_LENGTH_BUFFER = {
@@ -21,6 +21,12 @@ const RESPONSE_LENGTH_BUFFER = {
 
 /** Maximum time to wait between two stream chunks before considering the stream stalled. */
 const STREAM_INACTIVITY_TIMEOUT = 180_000
+
+/**
+ * How long to keep reading after ■end for the provider's final chunk. Models
+ * that ignore the stop sequence can otherwise stream junk until the caller's deadline.
+ */
+const STREAM_END_GRACE_PERIOD = 1_000
 
 /** A syntactically valid prefix must not execute when generation did not finish successfully. */
 const assertSuccessfulGeneration = (metadata: CognitiveMetadata) => {
@@ -35,6 +41,24 @@ const assertSuccessfulGeneration = (metadata: CognitiveMetadata) => {
     metadata.stopReason === 'other'
   ) {
     throw new CognitiveError(`LLM generation did not complete: stopReason=${metadata.stopReason}`)
+  }
+}
+
+/**
+ * Cognitive sends usage only in the final chunk, which is never read when the
+ * stream is closed early. Estimate it from the measured prompt and the output.
+ */
+const estimateMetadata = (model: Model, inputTokens: number, output: string): CognitiveMetadata => {
+  const outputTokens = getTokenizer().count(output)
+  const inputCost = (inputTokens * model.input.costPer1MTokens) / 1_000_000
+  const outputCost = (outputTokens * model.output.costPer1MTokens) / 1_000_000
+  const [provider, ...name] = model.id.split(':')
+  return {
+    provider: provider!,
+    model: name.join(':'),
+    usage: { inputTokens, inputCost, outputTokens, outputCost },
+    cost: inputCost + outputCost,
+    stopReason: 'stop',
   }
 }
 
@@ -253,16 +277,14 @@ export const generateCode = async ({
     // maxTimeToFirstToken fallback chain to run through its models
     const inactivityTimeout = Math.max(STREAM_INACTIVITY_TIMEOUT, ctx.maxTimeToFirstToken ?? 0)
 
-    const nextChunk = async () => {
+    /** Resolves to undefined when no chunk arrives within the timeout. */
+    const nextChunk = async (timeout: number) => {
       let timer: NodeJS.Timeout | undefined
-      const stalled = new Promise<never>((_, reject) => {
-        timer = setTimeout(() => {
-          streamController.abort('LLM stream stalled')
-          reject(new Error(`LLM stream stalled: no data received for ${inactivityTimeout}ms`))
-        }, inactivityTimeout)
+      const expired = new Promise<undefined>((resolve) => {
+        timer = setTimeout(() => resolve(undefined), timeout)
       })
       try {
-        return await Promise.race([stream.next(), stalled])
+        return await Promise.race([stream.next(), expired])
       } finally {
         clearTimeout(timer)
       }
@@ -271,14 +293,25 @@ export const generateCode = async ({
     raw = ''
     let streamCompleted = false
     let accepted = false
+    let closedAt: number | undefined
 
     try {
       while (true) {
-        let chunk: IteratorResult<CognitiveStreamChunk, unknown>
+        let chunk: IteratorResult<CognitiveStreamChunk, unknown> | undefined
         try {
-          chunk = await nextChunk()
+          chunk = await nextChunk(
+            closedAt === undefined ? inactivityTimeout : closedAt + STREAM_END_GRACE_PERIOD - Date.now()
+          )
         } catch (thrown: unknown) {
           throw new CognitiveError(`LLM generation failed: ${getErrorMessage(thrown)}`)
+        }
+
+        if (!chunk && closedAt !== undefined) break
+        if (!chunk) {
+          streamController.abort('LLM stream stalled')
+          throw new CognitiveError(
+            `LLM generation failed: LLM stream stalled: no data received for ${inactivityTimeout}ms`
+          )
         }
 
         if (chunk.done) {
@@ -297,6 +330,7 @@ export const generateCode = async ({
           completions = []
           accepted = false
           parser = new ResponseParser()
+          closedAt = undefined
           liveItems.clear()
           liveContent.clear()
           codeGenerationTraced = false
@@ -328,8 +362,13 @@ export const generateCode = async ({
         raw += delta
         const events = parser.push(delta)
         await dispatchSends(events)
+        if (parser.done) break
+        if (parser.closed) closedAt ??= Date.now()
       }
 
+      if (!responseMetadata && !streamCompleted) {
+        responseMetadata = estimateMetadata(model, iteration.tokens?.context.total ?? 0, raw)
+      }
       if (!responseMetadata) {
         throw new CognitiveError('LLM streaming completed without metadata')
       }

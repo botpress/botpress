@@ -1,7 +1,8 @@
-import type { CognitiveRequest, CognitiveResponse } from '@botpress/cognitive'
+import type { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk } from '@botpress/cognitive'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { Context, Iteration } from '../context.js'
+import { MAX_PREAMBLE_LENGTH, MAX_TRAILER_LENGTH } from '../message-stream/response-parser.js'
 import { DualModePrompt } from '../prompts/dual-modes.js'
 import { generateCode } from './generate.js'
 import type { RuntimeCognitive } from './types.js'
@@ -20,13 +21,13 @@ function fixture(content: CognitiveRequest['messages'][number]['content'], limit
   })
   const getModelDetails = vi.fn(async (name: string) => ({
     id: name,
-    input: { maxTokens: limits[Number(name.split('-').at(-1))] },
-    output: { maxTokens: 2000 },
+    input: { maxTokens: limits[Number(name.split('-').at(-1))], costPer1MTokens: 1 },
+    output: { maxTokens: 2000, costPer1MTokens: 1 },
   }))
   const cognitive = { getModelDetails, generateText } as unknown as RuntimeCognitive
   const controller = new AbortController()
   const run = () => generateCode({ iteration, ctx, cognitive, controller }).catch((error: unknown) => error)
-  return { run, ctx, controller, generateText }
+  return { run, ctx, controller, generateText, cognitive, iteration }
 }
 
 function response(stopReason: 'stop' | 'other' = 'stop'): CognitiveResponse {
@@ -107,5 +108,80 @@ describe('request budgets', () => {
       return response()
     })
     expect(await probe.run()).toBeInstanceOf(Error)
+  })
+})
+
+const metadata = {
+  provider: 'test',
+  model: 'model-0',
+  stopReason: 'stop' as const,
+  cost: 0,
+  usage: { inputTokens: 10, outputTokens: 10, inputCost: 0, outputCost: 0 },
+}
+
+/** Streams `head`, then keeps writing `junk` until the client closes the stream. */
+function streaming(head: string, junk?: string, tail?: CognitiveStreamChunk) {
+  const probe = fixture('Compute a result')
+  let reads = 0
+  async function* stream(signal: AbortSignal): AsyncGenerator<CognitiveStreamChunk> {
+    yield { created: 0, output: head }
+    if (tail) {
+      yield tail
+      return
+    }
+    while (!signal.aborted) {
+      if (!junk) {
+        // A provider that stopped writing but never closed the connection.
+        await new Promise((resolve) => signal.addEventListener('abort', resolve))
+        return
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1))
+      reads++
+      yield { created: reads, output: junk }
+    }
+  }
+  Object.assign(probe.cognitive, {
+    generateTextStream: (_input: CognitiveRequest, { signal }: { signal: AbortSignal }) => stream(signal),
+  })
+  return { ...probe, reads: () => reads }
+}
+
+describe('streams that ignore the ■end stop sequence', () => {
+  const envelope = '■start\n■run\nreturn 42;\n■end'
+
+  it('keeps the provider metadata when the stream ends after ■end', async () => {
+    const probe = streaming(`${envelope}\n`, undefined, { created: 1, output: '', metadata })
+    expect(await probe.run()).toBeUndefined()
+    expect(probe.iteration.llm).toMatchObject({ status: 'success', model: 'test:model-0' })
+  })
+
+  it('stops reading junk after ■end and estimates usage', async () => {
+    const probe = streaming(envelope, '\\\n'.repeat(50))
+    expect(await probe.run()).toBeUndefined()
+    expect(probe.iteration.code).toContain('return 42')
+    expect(probe.iteration.llm).toMatchObject({ status: 'success' })
+    expect(probe.iteration.llm!.usage.outputTokens).toBeGreaterThan(0)
+    expect(probe.iteration.llm!.diagnostics).toContainEqual(
+      expect.objectContaining({ message: 'Discarded content after ■end' })
+    )
+    expect(probe.reads()).toBeLessThan(MAX_TRAILER_LENGTH / 100 + 5)
+  })
+
+  it('stops waiting for a stream that goes silent after ■end', async () => {
+    const probe = streaming(envelope)
+    const startedAt = Date.now()
+    expect(await probe.run()).toBeUndefined()
+    expect(Date.now() - startedAt).toBeLessThan(5_000)
+    expect(probe.iteration.code).toContain('return 42')
+  })
+
+  it('gives up on junk that never opens the envelope', async () => {
+    const probe = streaming('', 'junk '.repeat(100))
+    expect(await probe.run()).toBeUndefined()
+    expect(probe.iteration.code).toBeUndefined()
+    expect(probe.iteration.llm!.diagnostics).toContainEqual(
+      expect.objectContaining({ message: expect.stringContaining('no response envelope within') })
+    )
+    expect(probe.reads()).toBeLessThan(MAX_PREAMBLE_LENGTH / 500 + 5)
   })
 })

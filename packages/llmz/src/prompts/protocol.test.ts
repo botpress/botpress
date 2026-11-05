@@ -47,8 +47,8 @@ describe('protocol instructions and plain conversation history', () => {
     expect(String(message.content)).toContain('### Sending a message')
     expect(String(message.content)).toContain('### Running a final action and finishing')
     expect(String(message.content)).toContain('### Sending a message and running code')
-    expect(String(initial.content)).toContain('Use ■send=message')
-    expect(String(initial.content).trim()).toMatch(/Begin with ■start. End with ■end.$/)
+    // The execution state appended to this message ends with the format, once.
+    expect(String(initial.content)).not.toContain('# Response format')
     expect(transcript[1]).toMatchObject({ content: 'How can I help?' })
     expect(transcript.toString()).not.toContain('■send=')
   })
