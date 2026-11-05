@@ -22,7 +22,8 @@ function fixture(content: CognitiveRequest['messages'][number]['content'], limit
   const getModelDetails = vi.fn(async (name: string) => ({
     id: name,
     input: { maxTokens: limits[Number(name.split('-').at(-1))], costPer1MTokens: 1 },
-    output: { maxTokens: 2000, costPer1MTokens: 1 },
+    // Each fallback model has its own output price: model-0 costs 1, model-1 costs 2, ...
+    output: { maxTokens: 2000, costPer1MTokens: Number(name.split('-').at(-1)) + 1 },
   }))
   const cognitive = { getModelDetails, generateText } as unknown as RuntimeCognitive
   const controller = new AbortController()
@@ -120,10 +121,17 @@ const metadata = {
 }
 
 /** Streams `head`, then keeps writing `junk` until the client closes the stream. */
-function streaming(head: string, junk?: string, tail?: CognitiveStreamChunk) {
-  const probe = fixture('Compute a result')
+function streaming(head: string, junk?: string, tail?: CognitiveStreamChunk, limits?: number[]) {
+  const probe = fixture('Compute a result', limits)
   let reads = 0
   async function* stream(signal: AbortSignal): AsyncGenerator<CognitiveStreamChunk> {
+    if (limits && limits.length > 1) {
+      yield { created: 0, output: '■start\n■run\nreturn' }
+      yield {
+        created: 0,
+        restart: { attempt: 2, fromModel: 'model-0', toModel: 'model-1', reason: 'first model failed' },
+      }
+    }
     yield { created: 0, output: head }
     if (tail) {
       yield tail
@@ -160,11 +168,21 @@ describe('streams that ignore the ■end stop sequence', () => {
     expect(await probe.run()).toBeUndefined()
     expect(probe.iteration.code).toContain('return 42')
     expect(probe.iteration.llm).toMatchObject({ status: 'success' })
+    expect(probe.iteration.llm!.usage.inputTokens).toBeGreaterThan(0)
     expect(probe.iteration.llm!.usage.outputTokens).toBeGreaterThan(0)
     expect(probe.iteration.llm!.diagnostics).toContainEqual(
       expect.objectContaining({ message: 'Discarded content after ■end' })
     )
     expect(probe.reads()).toBeLessThan(MAX_TRAILER_LENGTH / 100 + 5)
+  })
+
+  it('estimates usage with the model that survived a fallback restart', async () => {
+    const probe = streaming(envelope, '\\\n'.repeat(50), undefined, [32_000, 32_000])
+    probe.ctx.midStreamFallback = true
+    expect(await probe.run()).toBeUndefined()
+    const { usage } = probe.iteration.llm!
+    expect(probe.iteration.llm!.model).toContain('model-1')
+    expect(usage.outputCost).toBeCloseTo((usage.outputTokens * 2) / 1_000_000)
   })
 
   it('stops waiting for a stream that goes silent after ■end', async () => {

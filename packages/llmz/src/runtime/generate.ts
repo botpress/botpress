@@ -8,7 +8,7 @@ import { CognitiveError } from '../errors.js'
 import { ResponseParser } from '../message-stream/response-parser.js'
 import type { MessageStreamEvent, ParsedItem } from '../message-stream/types.js'
 import { toParsedAssistantResponse } from '../prompts/common.js'
-import type { ParsedAssistantResponse, ParsedSend } from '../prompts/prompt.js'
+import type { LLMzPrompts, ParsedAssistantResponse, ParsedSend } from '../prompts/prompt.js'
 import { truncateWrappedContent } from '../truncator.js'
 import { getErrorMessage, getTokenizer } from '../utils.js'
 import { RuntimeCognitive } from './types.js'
@@ -46,10 +46,20 @@ const assertSuccessfulGeneration = (metadata: CognitiveMetadata) => {
 
 /**
  * Cognitive sends usage only in the final chunk, which is never read when the
- * stream is closed early. Estimate it from the measured prompt and the output.
+ * stream is closed early. Estimate it from the messages sent and the output.
  */
-const estimateMetadata = (model: Model, inputTokens: number, output: string): CognitiveMetadata => {
-  const outputTokens = getTokenizer().count(output)
+const estimateMetadata = (model: Model, messages: LLMzPrompts.Message[], output: string): CognitiveMetadata => {
+  const tokenizer = getTokenizer()
+  const countMessage = (message: LLMzPrompts.Message): number => {
+    if (typeof message.content === 'string') {
+      return tokenizer.count(message.content)
+    }
+    // Images and other non-text parts are not counted
+    const texts = (message.content ?? []).map((part) => (part.type === 'text' ? (part.text ?? '') : ''))
+    return texts.reduce((sum, text) => sum + tokenizer.count(text), 0)
+  }
+  const inputTokens = messages.reduce((total, message) => total + countMessage(message), 0)
+  const outputTokens = tokenizer.count(output)
   const inputCost = (inputTokens * model.input.costPer1MTokens) / 1_000_000
   const outputCost = (outputTokens * model.output.costPer1MTokens) / 1_000_000
   const [provider, ...name] = model.id.split(':')
@@ -294,6 +304,7 @@ export const generateCode = async ({
     let streamCompleted = false
     let accepted = false
     let closedAt: number | undefined
+    let servedModel = model.id
 
     try {
       while (true) {
@@ -337,6 +348,7 @@ export const generateCode = async ({
           runCompleted = false
           responseMetadata = undefined
           attempt = chunk.value.restart.attempt
+          servedModel = chunk.value.restart.toModel
           // Emit even when the replacement has no sends: previous previews
           // must disappear immediately, not wait for another text delta.
           await preview({ ...chunk.value.restart, restart: true, iterationId: iteration.id })
@@ -367,7 +379,10 @@ export const generateCode = async ({
       }
 
       if (!responseMetadata && !streamCompleted) {
-        responseMetadata = estimateMetadata(model, iteration.tokens?.context.total ?? 0, raw)
+        const served =
+          models.find((details) => details.id === servedModel) ??
+          (await cognitive.getModelDetails(servedModel).catch(() => model))
+        responseMetadata = estimateMetadata(served, messages, raw)
       }
       if (!responseMetadata) {
         throw new CognitiveError('LLM streaming completed without metadata')
