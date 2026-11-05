@@ -6,18 +6,21 @@ export type Models =
   | 'anthropic-bedrock:claude-opus-4-7'
   | 'anthropic-bedrock:claude-opus-4-8'
   | 'anthropic-bedrock:claude-opus-5'
+  | 'anthropic-bedrock:claude-opus-5-5'
   | 'anthropic-bedrock:claude-sonnet-5'
+  | 'anthropic:claude-fable-5-1'
   | 'anthropic:claude-haiku-4-5-20251001'
   | 'anthropic:claude-haiku-4-5-reasoning-20251001'
+  | 'anthropic:claude-haiku-5-5'
   | 'anthropic:claude-opus-4-5-20251101'
   | 'anthropic:claude-opus-4-6'
   | 'anthropic:claude-opus-4-7'
   | 'anthropic:claude-opus-4-8'
   | 'anthropic:claude-opus-5'
-  | 'anthropic:claude-sonnet-4-5-20250929'
-  | 'anthropic:claude-sonnet-4-5-reasoning-20250929'
+  | 'anthropic:claude-opus-5-5'
   | 'anthropic:claude-sonnet-4-6'
   | 'anthropic:claude-sonnet-5'
+  | 'anthropic:claude-sonnet-5-5'
   | 'cerebras:gpt-oss-120b'
   | 'cerebras:qwen-3.8-27b'
   | 'cohere:command-a-03-2025'
@@ -28,66 +31,73 @@ export type Models =
   | 'elevenlabs:eleven_multilingual_v2'
   | 'elevenlabs:eleven_turbo_v2_5'
   | 'elevenlabs:eleven_v3'
-  | 'fireworks-ai:glm-5p2'
-  | 'fireworks-ai:gpt-oss-120b'
-  | 'fireworks-ai:kimi-k2p6'
-  | 'fireworks-ai:kimi-k2p7-code'
+  | 'fireworks-ai:glm-5p3'
+  | 'fireworks-ai:glm-5p3-flash'
   | 'fireworks-ai:kimi-k3'
   | 'fireworks-ai:minimax-m3'
+  | 'fireworks-ai:minimax-m3p1-flash'
+  | 'fireworks-ai:muse-spark-open'
   | 'google-ai:gemini-3-pro-image'
   | 'google-ai:gemini-3.1-flash-image'
   | 'google-ai:gemini-3.1-flash-lite'
   | 'google-ai:gemini-3.1-flash-lite-image'
-  | 'google-ai:gemini-3.1-flash-tts'
   | 'google-ai:gemini-3.1-pro'
   | 'google-ai:gemini-3.5-flash'
   | 'google-ai:gemini-3.5-flash-lite'
-  | 'google-ai:gemini-3.6-flash'
   | 'google-ai:gemini-3.7-flash'
   | 'google-ai:gemini-3.8-flash'
+  | 'google-ai:gemini-3.8-flash-lite-tts'
+  | 'google-ai:gemini-3.8-flash-tts'
+  | 'google-ai:gemini-4-argon'
   | 'groq:gpt-oss-120b'
   | 'groq:gpt-oss-20b'
   | 'groq:qwen3.8-27b'
   | 'inception:mercury-2'
   | 'inception:mercury-2.5'
+  | 'inception:mercury-3'
   | 'openai-bedrock:gpt-5.6-luna'
   | 'openai-bedrock:gpt-5.6-sol'
   | 'openai-bedrock:gpt-5.6-terra'
-  | 'openai:gpt-4.1-2025-04-14'
-  | 'openai:gpt-4.1-mini-2025-04-14'
-  | 'openai:gpt-4o-2024-11-20'
-  | 'openai:gpt-4o-mini-2024-07-18'
-  | 'openai:gpt-4o-mini-tts'
-  | 'openai:gpt-5.1-2025-11-13'
+  | 'openai-bedrock:gpt-6-astra'
+  | 'openai-bedrock:gpt-6-luna'
+  | 'openai-bedrock:gpt-6-sol'
+  | 'openai-bedrock:gpt-6.1-sol'
   | 'openai:gpt-5.2-2025-12-11'
   | 'openai:gpt-5.4-2026-03-05'
   | 'openai:gpt-5.4-mini-2026-03-17'
-  | 'openai:gpt-5.4-nano-2026-03-17'
   | 'openai:gpt-5.5'
   | 'openai:gpt-5.6-luna'
   | 'openai:gpt-5.6-sol'
   | 'openai:gpt-5.6-terra'
+  | 'openai:gpt-6-astra'
+  | 'openai:gpt-6-luna'
+  | 'openai:gpt-6-sol'
+  | 'openai:gpt-6.1-sol'
   | 'openai:gpt-image-2'
-  | 'openai:tts-1'
-  | 'openai:tts-1-hd'
   | 'openrouter:gemma-4-31b-it'
-  | 'openrouter:glm-4.7'
   | 'openrouter:glm-5.3'
   | 'openrouter:glm-5.3-flash'
   | 'openrouter:gpt-oss-120b'
   | 'openrouter:qwen3.8-flash'
   | 'openrouter:qwen3.8-max'
+  | 'typesafe:jev-1.13.0'
   | 'xai:grok-4.20-0309-non-reasoning'
   | 'xai:grok-4.20-0309-reasoning'
   | 'xai:grok-4.3'
   | 'xai:grok-4.5'
   | 'xai:grok-4.6'
+  | 'xai:grok-4.7'
   | 'xai:grok-build-0.1'
+  | 'anthropic-bedrock:anthropic.claude-opus-5-5'
   | 'anthropic-bedrock:anthropic.claude-opus-5'
   | 'anthropic-bedrock:anthropic.claude-opus-4-8'
   | 'anthropic-bedrock:anthropic.claude-opus-4-7'
   | 'anthropic-bedrock:anthropic.claude-sonnet-5'
   | 'anthropic-bedrock:anthropic.claude-haiku-4-5'
+  | 'openai-bedrock:us.openai.gpt-6.1-sol'
+  | 'openai-bedrock:us.openai.gpt-6-sol'
+  | 'openai-bedrock:us.openai.gpt-6-luna'
+  | 'openai-bedrock:us.openai.gpt-6-astra'
   | 'openai-bedrock:us.openai.gpt-5.6-sol'
   | 'openai-bedrock:us.openai.gpt-5.6-terra'
   | 'openai-bedrock:us.openai.gpt-5.6-luna'
@@ -136,6 +146,10 @@ export type Models =
   | 'openrouter:qwen/qwen3.8-flash'
   | 'openrouter:z-ai/glm-4.7'
   | 'openrouter:google/gemma-4-31b-it'
+  | 'fireworks-ai:accounts/fireworks/models/minimax-m3p1-flash'
+  | 'fireworks-ai:accounts/fireworks/models/muse-spark-open'
+  | 'fireworks-ai:accounts/fireworks/models/glm-5p3-flash'
+  | 'fireworks-ai:accounts/fireworks/models/glm-5p3'
   | 'fireworks-ai:accounts/fireworks/models/kimi-k3'
   | 'fireworks-ai:accounts/fireworks/models/kimi-k2p6'
   | 'fireworks-ai:accounts/fireworks/models/kimi-k2p5'
@@ -163,13 +177,14 @@ export type Models =
   | 'fireworks-ai:accounts/fireworks/models/mixtral-8x7b-instruct'
   | 'fireworks-ai:accounts/fireworks/models/mythomax-l2-13b'
   | 'fireworks-ai:accounts/fireworks/models/gemma2-9b-it'
+  | 'typesafe:jev'
+  | 'typesafe:jev-latest'
   | ({} & string)
 
 export type SttModels =
   | 'auto'
   | 'best'
   | 'fast'
-  | 'fireworks-ai:whisper-v3'
   | 'groq:whisper-large-v3'
   | 'groq:whisper-large-v3-turbo'
   | 'openai:gpt-transcribe'
@@ -321,6 +336,11 @@ export type CognitiveMetadata = {
   reasoningTime?: number
   stopReason?: StopReason
   reasoningEffort?: string
+  /**
+   * The tier that actually served the request, which is the tier the usage above is priced at.
+   * `standard` when `options.serviceTier: 'fast'` was requested but the provider downgraded it.
+   */
+  serviceTier?: 'standard' | 'fast'
   /** Web sources cited by the model when search is enabled */
   citations?: { url: string; title?: string }[]
   warnings?: { type: WarningType; message: string }[]
@@ -414,8 +434,11 @@ export type TtsRequest = {
   input: string
   /** Voice id (provider-specific). Use listVoices() to discover available voices. Omit to use the model default voice. */
   voice?: string
-  /** Audio format. Defaults to mp3. */
-  format?: 'mp3' | 'opus' | 'wav'
+  /**
+   * Audio format. Defaults to mp3. `pcm` returns raw 24 kHz mono signed 16-bit little-endian samples
+   * (no header) for the lowest latency; wrap them in WAV or play them through WebAudio.
+   */
+  format?: 'mp3' | 'opus' | 'wav' | 'pcm'
   speed?: number
   /** Optional natural-language voice steering instructions (provider-dependent) */
   instructions?: string
@@ -453,7 +476,10 @@ export type Voice = {
   provider: string
   gender?: 'male' | 'female' | 'neutral'
   description?: string
+  /** ISO 639-1 language codes the voice handles well; omitted means the voice is multilingual via its model */
   languages?: string[]
+  /** Natural accent the voice was trained on (e.g. "American English"); it shows when speaking other languages */
+  accent?: string
   tags?: string[]
   models: string[]
 }
@@ -492,6 +518,7 @@ export type ModelTag =
   | 'deprecated'
   | 'general-purpose'
   | 'low-cost'
+  | 'flagship'
   | 'vision'
   | 'coding'
   | 'agents'
