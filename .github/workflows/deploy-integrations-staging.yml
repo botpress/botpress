@@ -40,7 +40,6 @@ jobs:
         uses: ./.github/actions/deploy-integrations
         with:
           environment: 'staging'
-          extra_filter: "-F '!chat'"
           force: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force == 'true' }}
           dry_run: ${{ github.event_name == 'pull_request' }}
           token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
