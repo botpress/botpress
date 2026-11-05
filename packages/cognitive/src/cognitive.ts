@@ -39,6 +39,7 @@ export {
   ClassifyResponse,
   Voice,
 }
+export type { ClassifyLabel, ClassifyModels, ClassifyScore, ClassifyMetadata } from './types'
 
 export type BetaTextRequest = { type: 'generateText'; input: CognitiveRequest }
 export type BetaTranscribeRequest = { type: 'transcribeAudio'; input: TranscribeRequest }
