@@ -13,7 +13,7 @@ import { parseAssistantResponse, replacePlaceholders } from './common.js'
 import { getExecutionState } from './execution-state.js'
 import { LLMzPrompts, Prompt } from './prompt.js'
 import { noPlaceholders, readResultExample } from './protocol-basics.js'
-import { getProtocolSections } from './protocol.js'
+import { getMessageContract, getProtocolSections } from './protocol.js'
 
 import WORKER_SYSTEM_PROMPT_TEXT from './worker-mode/system.js'
 import WORKER_USER_PROMPT_TEXT from './worker-mode/user.js'
@@ -193,7 +193,10 @@ ${inspect(transcript[0]?.payload, transcript[0]?.name, { tokens: 5000 })}
       content: [
         {
           type: 'text',
-          text: replacePlaceholders(isChatMode ? CHAT_USER_PROMPT_TEXT : WORKER_USER_PROMPT_TEXT, { recap }).trim(),
+          text: replacePlaceholders(isChatMode ? CHAT_USER_PROMPT_TEXT : WORKER_USER_PROMPT_TEXT, {
+            recap,
+            ...(isChatMode ? { message_contract: getMessageContract(props.components, props.exits, false) } : {}),
+          }).trim(),
         },
         ...attachments.flatMap<LLMzPrompts.MessageContent>((attachment, idx) => {
           const ref = attachment.id ?? alphabet[idx % alphabet.length]
@@ -229,7 +232,10 @@ ${inspect(transcript[0]?.payload, transcript[0]?.name, { tokens: 5000 })}
 
   return {
     role: 'user',
-    content: replacePlaceholders(isChatMode ? CHAT_USER_PROMPT_TEXT : WORKER_USER_PROMPT_TEXT, { recap }).trim(),
+    content: replacePlaceholders(isChatMode ? CHAT_USER_PROMPT_TEXT : WORKER_USER_PROMPT_TEXT, {
+      recap,
+      ...(isChatMode ? { message_contract: getMessageContract(props.components, props.exits, false) } : {}),
+    }).trim(),
   }
 }
 
