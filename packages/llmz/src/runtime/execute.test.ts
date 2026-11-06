@@ -2105,8 +2105,37 @@ await record({ token: "\u25a0end" })
     const rowsShown = (name: string) =>
       (lastSent.find((content) => content.includes(`${name} PAGE`)) ?? '').split('row of page content').length - 1
     // The oldest page shrinks too, so the newest one isn't the only one cut
+    expect(rowsShown('FIRST')).toBeGreaterThan(0)
     expect(rowsShown('FIRST')).toBeLessThan(2_000)
+    expect(rowsShown('FOURTH')).toBeGreaterThan(0)
     expect(rowsShown('FOURTH')).toBeGreaterThanOrEqual(rowsShown('FIRST') - 100)
+  })
+
+  test('older messages removed by onIterationStart stay removed in later iterations', async () => {
+    const done = new Exit({ name: 'done', description: 'Task completed' })
+    const client = new ScriptedCognitive([
+      '■run\nreturn "REMOVE-ME"',
+      '■run\nreturn "first kept"',
+      '■run\nreturn "second kept"',
+      '■next=done',
+    ])
+
+    const result = await executeContext({
+      client,
+      exits: [done],
+      options: { loop: 4 },
+      onIterationStart: (iteration) =>
+        iteration.id.endsWith('_3')
+          ? { messages: iteration.messages.filter((message) => !String(message.content).includes('REMOVE-ME')) }
+          : undefined,
+    })
+
+    expect(result).toBeInstanceOf(SuccessExecutionResult)
+    const [, , third, fourth] = result.iterations.map((iteration) => JSON.stringify(iteration.messages))
+    expect(third).toContain('first kept')
+    expect(third).not.toContain('REMOVE-ME')
+    expect(fourth).toContain('second kept')
+    expect(fourth).not.toContain('REMOVE-ME')
   })
 
   test('a maxTokens too small to fit the prompt fails fast instead of looping', async () => {

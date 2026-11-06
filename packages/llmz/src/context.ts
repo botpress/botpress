@@ -459,13 +459,11 @@ export class Iteration implements Serializable<Iteration.JSON> {
 
   private _mutations: Map<string, ObjectMutation>
 
-  // `messages` becomes what was sent, which has no truncation tags. The next iteration builds on these instead so
-  // older messages can still be truncated
-  private _builtMessages: LLMzPrompts.Message[]
-
-  public get builtMessages() {
-    return this._builtMessages
-  }
+  /**
+   * The messages as built, after any onIterationStart changes, while `messages` becomes what was sent. Sent messages
+   * have no truncation tags, so the next iteration builds on these to keep older messages truncatable
+   */
+  public builtMessages?: LLMzPrompts.Message[]
 
   public get mutations() {
     return [...this._mutations.values()]
@@ -623,7 +621,6 @@ export class Iteration implements Serializable<Iteration.JSON> {
     this.traces = new HookedArray<Trace>()
     this._mutations = new Map()
     this.messages = props.messages
-    this._builtMessages = props.messages
     this.variables = props.variables
     this._parameters = props.parameters
     this.started_ts = Date.now()
@@ -902,7 +899,7 @@ export class Context implements Serializable<Context.JSON> {
       return withParts([systemMessage, await this.version.getInitialUserMessage(promptProps)])
     }
 
-    const history = lastIteration.builtMessages.slice()
+    const history = (lastIteration.builtMessages ?? lastIteration.messages).slice()
     if (previousLastMessage) {
       history[history.length - 1] = previousLastMessage
     }
