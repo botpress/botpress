@@ -140,13 +140,18 @@ export class ZaiContext {
     this._client.on('response', (_req, res) => {
       this._totalResponses++
 
-      if (res.metadata.cached) {
+      const { metadata } = res
+
+      if ('cached' in metadata && metadata.cached) {
         this._totalCachedResponses++
-      } else if ('usage' in res.metadata) {
-        this._inputTokens += res.metadata.usage.inputTokens || 0
-        this._outputTokens += res.metadata.usage.outputTokens || 0
-        this._inputCost += res.metadata.usage.inputCost || 0
-        this._outputCost += res.metadata.usage.outputCost || 0
+      } else if ('usage' in metadata) {
+        this._inputTokens += metadata.usage.inputTokens || 0
+        this._outputTokens += metadata.usage.outputTokens || 0
+
+        if ('inputCost' in metadata.usage) {
+          this._inputCost += metadata.usage.inputCost || 0
+          this._outputCost += metadata.usage.outputCost || 0
+        }
       }
 
       this._eventEmitter.emit('update', this.usage)

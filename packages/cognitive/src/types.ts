@@ -513,6 +513,87 @@ export type ImageResponse =
   | { output: { imageUrl: string }; metadata: ImageMetadata; error?: never }
   | { output: { imageUrl: null }; metadata: ImageMetadata; error: string }
 
+export type ClassifyLabel = {
+  /** Label returned when this category wins */
+  name: string
+  /** What belongs in this category. Sent to the model verbatim, so it is worth writing well. */
+  description?: string
+}
+
+/** Model ID, `jev`, or a routing goal (`auto`, `best`, `fast`) that expands to the default chain */
+export type ClassifyModels = Models | 'jev'
+
+export type ClassifyRequest = {
+  /** The text to classify */
+  input: string
+  /**
+   * Categories to choose from. Names must be unique (case-insensitive). Past 20 labels, logprobs scoring is skipped.
+   * @minItems 2
+   * @maxItems 50
+   */
+  labels: ClassifyLabel[]
+  /** What the classification is deciding */
+  instructions?: string
+  /**
+   * Model to use, or an array of them as an explicit chain tried in order. Omit for the default chain
+   * (Jev, then OpenAI Decisions, then logprobs scoring, then generation). A single value gets
+   * classification-capable fallbacks and a generation fallback behind it; an array is the whole chain
+   * unless it also contains a routing goal.
+   */
+  model?: ClassifyModels | ClassifyModels[]
+  options?: {
+    /** Include the chain-selection and attempt trail in the response */
+    debug?: boolean
+  }
+  meta?: CognitiveRequest['meta']
+}
+
+export type ClassifyScore = {
+  label: string
+  /** Between 0 and 1 */
+  probability: number
+}
+
+export type ClassifyMetadata = {
+  requestId: string
+  /** Which backend answered */
+  backend: 'jev' | 'decisions' | 'logprobs' | 'llm' | ({} & string)
+  provider: string
+  model: string
+  usage: {
+    inputTokens: number
+    outputTokens: number
+  }
+  /** Total cost of the request in U.S. dollars */
+  cost: number
+  /** In milliseconds */
+  latency: number
+  /**
+   * Attempts that failed or were skipped, in order: model ids, `llm:<model>` or `llm` for generation,
+   * a `:degraded` suffix when skipped
+   */
+  fallbackPath?: string[]
+  warnings?: { type: WarningType; message: string }[]
+  /** Chain selection and per-attempt failures. Present only when `options.debug` is set. */
+  debug?: { type: string; data?: unknown }[]
+}
+
+export type ClassifyResponse = {
+  output: {
+    label: string
+    /**
+     * Confidence in the winning label, or null when the backend that answered cannot produce one.
+     * Jev and OpenAI Decisions return their own calibrated confidence, which can be lower than the
+     * label's probability in `scores`; logprobs scoring returns that probability. Null means unscored, not low.
+     */
+    confidence: number | null
+    /** Per-label probabilities. Empty when the answer is unscored. */
+    scores: ClassifyScore[]
+  }
+  metadata: ClassifyMetadata
+  error?: string
+}
+
 export type ModelTag =
   | 'recommended'
   | 'deprecated'
