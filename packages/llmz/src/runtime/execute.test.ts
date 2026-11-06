@@ -2083,6 +2083,32 @@ await record({ token: "\u25a0end" })
     expect(capped.limit).toBe(10_000)
   })
 
+  test('older tool results are truncated when later ones no longer fit', async () => {
+    const pages = ['FIRST', 'SECOND', 'THIRD', 'FOURTH'].map(
+      (name) => `${name} PAGE\n${'row of page content\n'.repeat(2_000)}`
+    )
+    let call = 0
+    const readPage = new Tool({ name: 'readPage', output: z.string(), handler: async () => pages[call++]! })
+    const done = new Exit({ name: 'done', description: 'Task completed' })
+    const client = new ScriptedCognitive([...pages.map(() => '■run\nreturn await readPage()'), '■next=done'])
+
+    const result = await executeContext({
+      client,
+      exits: [done],
+      tools: [readPage],
+      instructions: 'Read every page.',
+      options: { loop: pages.length + 1, maxTokens: 30_000 },
+    })
+
+    expect(result).toBeInstanceOf(SuccessExecutionResult)
+    const lastSent = result.iterations.at(-1)!.messages.map((message) => String(message.content))
+    const rowsShown = (name: string) =>
+      (lastSent.find((content) => content.includes(`${name} PAGE`)) ?? '').split('row of page content').length - 1
+    // The oldest page shrinks too, so the newest one isn't the only one cut
+    expect(rowsShown('FIRST')).toBeLessThan(2_000)
+    expect(rowsShown('FOURTH')).toBeGreaterThanOrEqual(rowsShown('FIRST') - 100)
+  })
+
   test('a maxTokens too small to fit the prompt fails fast instead of looping', async () => {
     const done = new Exit({ name: 'done', description: 'Task completed' })
     // No scripted responses: the failure must happen before any LLM call

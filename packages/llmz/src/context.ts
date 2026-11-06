@@ -459,6 +459,14 @@ export class Iteration implements Serializable<Iteration.JSON> {
 
   private _mutations: Map<string, ObjectMutation>
 
+  // `messages` becomes what was sent, which has no truncation tags. The next iteration builds on these instead so
+  // older messages can still be truncated
+  private _builtMessages: LLMzPrompts.Message[]
+
+  public get builtMessages() {
+    return this._builtMessages
+  }
+
   public get mutations() {
     return [...this._mutations.values()]
   }
@@ -615,6 +623,7 @@ export class Iteration implements Serializable<Iteration.JSON> {
     this.traces = new HookedArray<Trace>()
     this._mutations = new Map()
     this.messages = props.messages
+    this._builtMessages = props.messages
     this.variables = props.variables
     this._parameters = props.parameters
     this.started_ts = Date.now()
@@ -886,16 +895,14 @@ export class Context implements Serializable<Context.JSON> {
       ])
     }
 
-    // TODO: truncate messages when too many / too long...
-    // this can't work with loop = 100 for example
-    // so we need to summarize the messages / situation and variables as we go
-    // probably we need to check if max tokens is 75% reached and then summarize messages and variables if needed
+    // TODO: with many iterations (e.g. loop = 100) the history still grows, even truncated
+    // summarize the messages / situation and variables as we go, e.g. once 75% of max tokens is reached
 
     if (!lastIteration) {
       return withParts([systemMessage, await this.version.getInitialUserMessage(promptProps)])
     }
 
-    const history = lastIteration.messages.slice()
+    const history = lastIteration.builtMessages.slice()
     if (previousLastMessage) {
       history[history.length - 1] = previousLastMessage
     }
