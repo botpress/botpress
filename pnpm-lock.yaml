@@ -570,8 +570,6 @@ importers:
         specifier: workspace:*
         version: link:../../packages/common
 
-  integrations/build-utils: {}
-
   integrations/calcom:
     dependencies:
       '@botpress/client':
