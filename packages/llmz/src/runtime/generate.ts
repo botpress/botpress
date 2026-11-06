@@ -151,6 +151,7 @@ export const generateCode = async ({
       : ` (model context window: ${modelLimit} tokens)`
     throw new CognitiveError(`The prompt does not fit in the context window${cap}: ${getErrorMessage(thrown)}`)
   }
+  iteration.builtMessages = iteration.messages
   iteration.messages = messages
 
   traces.push({
