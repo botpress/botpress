@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@types/semver": "^7.3.11",
-    "esbuild": "^0.25.10",
+    "esbuild": "^0.28.1",
     "esbuild-plugin-polyfill-node": "^0.3.0"
   },
   "peerDependencies": {
