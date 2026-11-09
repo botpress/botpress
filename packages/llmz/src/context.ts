@@ -911,8 +911,12 @@ export class Context implements Serializable<Context.JSON> {
       return withParts([systemMessage, await this.version.getInitialUserMessage(promptProps)])
     }
 
+    // Matched by content, since an onIterationStart hook may have replaced the messages with copies
     const history = (lastIteration.builtMessages ?? lastIteration.messages).filter(
-      (message) => message !== previousStateMessage
+      (message) =>
+        !previousStateMessage ||
+        message.role !== previousStateMessage.role ||
+        message.content !== previousStateMessage.content
     )
     if (previousLastMessage) {
       history[history.length - 1] = previousLastMessage

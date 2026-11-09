@@ -1012,6 +1012,22 @@ await record({ token: "\u25a0end" })
     }
   })
 
+  test('drops the previous execution state even when a hook copies the messages', async () => {
+    const done = new Exit({ name: 'done', description: 'Finish' })
+    const result = await executeContext({
+      client: new ScriptedNonStreamingCognitive(['■run\nreturn 1', '■run\nreturn 2', '■run\nreturn 3', '■next=done']),
+      exits: [done],
+      options: { loop: 4 },
+      onIterationStart: (iteration) => ({ messages: iteration.messages.map((message) => ({ ...message })) }),
+    })
+    expect(result.isSuccess()).toBe(true)
+    for (const iteration of result.iterations) {
+      expect(
+        iteration.messages.filter((message) => String(message.content).includes('<execution_status>'))
+      ).toHaveLength(1)
+    }
+  })
+
   test('sends every earlier message unchanged in the next request between the first and last iterations', async () => {
     const done = new Exit({ name: 'done', description: 'Finish' })
     const result = await executeContext({
