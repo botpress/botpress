@@ -12,6 +12,7 @@ describe('text generation service tier', () => {
         model: 'gpt-5.4-mini-2026-03-17',
         usage: { inputTokens: 1, inputCost: 0, outputTokens: 1, outputCost: 0 },
         cost: 0,
+        serviceTier: 'fast' as const,
       }
       const chunks: CognitiveStreamChunk[] = [
         { output: 'pong', created: 1 },
@@ -38,7 +39,10 @@ describe('text generation service tier', () => {
       const original = structuredClone(request)
 
       if (method === 'generateText') {
-        expect((await cognitive.generateText(request)).output).toBe('pong')
+        const response = await cognitive.generateText(request)
+        expect(response.output).toBe('pong')
+        // The tier that actually served the request comes back on the metadata.
+        expect(response.metadata.serviceTier).toBe('fast')
       } else {
         const received: CognitiveStreamChunk[] = []
         for await (const chunk of cognitive.generateTextStream(request)) received.push(chunk)
@@ -97,6 +101,15 @@ describe('refreshed model catalogue', () => {
       input: { maxTokens: 260000 },
       output: { maxTokens: 65536 },
     })
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  // Absent from the built-in table, a model costs a GET /v2/cognitive/models per Cognitive instance.
+  test('GPT-6 Luna resolves offline', async () => {
+    const fetchMock = vi.fn().mockRejectedValue(new Error('network should not be used'))
+    vi.stubGlobal('fetch', fetchMock)
+    const cognitive = new Cognitive()
+    expect(await cognitive.getModelDetails('openai:gpt-6-luna')).toMatchObject({ id: 'openai:gpt-6-luna' })
     expect(fetchMock).not.toHaveBeenCalled()
   })
 })

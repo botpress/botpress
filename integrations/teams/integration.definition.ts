@@ -14,6 +14,13 @@ export default new IntegrationDefinition({
       appId: z.string().min(1).title('App ID').describe('Teams application ID'),
       appPassword: z.string().min(1).title('App Password').describe('Teams application password'),
       tenantId: z.string().optional().title('Tenant ID').describe('Teams tenant ID'),
+      collectUserEmail: z
+        .boolean()
+        .default(true)
+        .title('Collect User Email')
+        .describe(
+          "Look up the sender's email address, log it, and store it as the user's email tag. When disabled, users are identified by their Teams user ID only"
+        ),
     }),
   },
   channels,

@@ -17,8 +17,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.132.0
-        version: 1.132.0(openapi-types@12.1.3)
+        specifier: 1.137.0
+        version: 1.137.0
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -569,6 +569,8 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+
+  integrations/build-utils: {}
 
   integrations/calcom:
     dependencies:
@@ -2329,8 +2331,8 @@ importers:
         specifier: ^6.5.13
         version: 6.5.13(preact@10.26.6)
       whatsapp-api-js:
-        specifier: ^5.3.0
-        version: 5.3.0
+        specifier: ^6.3.0
+        version: 6.3.0
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -2756,10 +2758,10 @@ importers:
         specifier: 1.1.0
         version: link:../chat-client
       '@botpress/client':
-        specifier: 2.9.0
+        specifier: 2.12.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 7.2.9
+        specifier: 7.2.12
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2880,10 +2882,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 2.9.0
+        specifier: 2.12.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 7.2.9
+        specifier: 7.2.12
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2896,10 +2898,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 2.9.0
+        specifier: 2.12.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 7.2.9
+        specifier: 7.2.12
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2912,7 +2914,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 7.2.9
+        specifier: 7.2.12
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2925,10 +2927,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 2.9.0
+        specifier: 2.12.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 7.2.9
+        specifier: 7.2.12
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2941,10 +2943,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 2.9.0
+        specifier: 2.12.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 7.2.9
+        specifier: 7.2.12
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -3068,10 +3070,10 @@ importers:
   packages/llmz:
     dependencies:
       '@botpress/client':
-        specifier: 2.9.0
+        specifier: 2.12.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: 1.2.2
+        specifier: 1.3.0
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^3.1.0
@@ -3171,7 +3173,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 2.9.0
+        specifier: 2.12.0
         version: link:../client
       '@bpinternal/zui':
         specifier: ^2.4.1
@@ -3202,10 +3204,10 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 2.9.0
+        specifier: 2.12.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: 1.2.2
+        specifier: 1.3.0
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^3.0.0
@@ -3248,7 +3250,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 1.2.2
+        specifier: 1.3.0
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^3.0.0
@@ -3382,7 +3384,7 @@ importers:
   plugins/conversation-insights:
     dependencies:
       '@botpress/cognitive':
-        specifier: 1.2.2
+        specifier: 1.3.0
         version: link:../../packages/cognitive
       '@botpress/sdk':
         specifier: workspace:*
@@ -4265,8 +4267,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@botpress/api@1.132.0':
-    resolution: {integrity: sha512-MPvgLi0SrXfSuaFkT1rtTd5wUZ1s48jMjmkl2qvOSjSA68+Mm8bq5w7Iiuz8xFLK/c/deocG/8u+Hz9eZhfvtw==}
+  '@botpress/api@1.137.0':
+    resolution: {integrity: sha512-zwbyJIVfKsA3TjogLkQ9VRX/RcNlgx66rUK5MKjv8WyBZuDmol7sumXmbt4VDT2Q1VoV8KY4ewDDxCxMIakylg==}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -13095,9 +13097,9 @@ packages:
     resolution: {integrity: sha512-OqedPIGOfsDlo31UNwYbCFMSaO9m9G/0faIHj5/dZFDMFqPTcx6UwqyOy3COEaEOg/9VsGIpdqn62W5KhoKSpg==}
     engines: {node: '>=0.8.0'}
 
-  whatsapp-api-js@5.3.0:
-    resolution: {integrity: sha512-Rw2pfh0qsbQ1FT+Y4F9Lc8pfoyT80ghVE7xAXDESYknQNfjwawb/lCI3SXN/+sE9wrn7y7ob5CDPLNO9JfwsVg==}
-    engines: {node: '>=16'}
+  whatsapp-api-js@6.3.0:
+    resolution: {integrity: sha512-aTraRrDhR7gaXR1jFisUarFUcCsJ5jLA8JA7gjoBa6X10uRYS0D+0we8XcPlKTJiQqEdlpb1G8m8B40lux31CA==}
+    engines: {runtime: {name: node, version: '>=22.13.0', onFail: warn}}
 
   whatwg-encoding@3.1.1:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
@@ -14772,7 +14774,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.132.0(openapi-types@12.1.3)':
+  '@botpress/api@1.137.0':
     dependencies:
       '@bpinternal/opapi': 1.0.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -24963,7 +24965,7 @@ snapshots:
 
   websocket-extensions@0.1.4: {}
 
-  whatsapp-api-js@5.3.0: {}
+  whatsapp-api-js@6.3.0: {}
 
   whatwg-encoding@3.1.1:
     dependencies:

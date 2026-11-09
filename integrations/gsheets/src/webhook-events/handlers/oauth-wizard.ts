@@ -2,6 +2,7 @@ import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import * as sdk from '@botpress/sdk'
 import { GoogleClient } from 'src/google-api'
 import { getAuthenticatedOAuth2Client } from 'src/google-api/oauth-client'
+import { saveSpreadsheetSelectionStep } from './save-spreadsheet-selection-step'
 import * as bp from '.botpress'
 
 export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Response> => {
@@ -75,11 +76,6 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
             redirectUri: _getOAuthRedirectUri().href,
           })
 
-          // Done in order to correctly display the authorization status in the UI
-          await client.configureIntegration({
-            identifier: ctx.webhookId,
-          })
-
           return responses.redirectToStep('file-picker')
         } catch (err) {
           logger.forBot().error('Failed to authenticate with Google:', err)
@@ -150,8 +146,7 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
                           document.location.href = ${JSON.stringify(oauthWizard.getWizardStepUrl('end', ctx).href)};
                         }
                       } else if (data[google.picker.Response.ACTION] == google.picker.Action.CANCEL) {
-                        // User closed the picker without selecting files.
-                        // They can still click "Skip file selection" to continue.
+                        // User closed the picker without selecting files; they can reopen it.
                       }
                     })
                     .setSize(640,790)
@@ -177,40 +172,7 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
 
     .addStep({
       id: 'end',
-      async handler({ responses, query, client, ctx, logger }) {
-        // Selection order is preserved: the first id is the default spreadsheet.
-        const spreadsheetIds = [
-          ...new Set(
-            (query.get('spreadsheetIds') ?? '')
-              .split(',')
-              .map((id) => id.trim())
-              .filter(Boolean)
-          ),
-        ]
-
-        if (spreadsheetIds.length) {
-          try {
-            await client.setState({
-              id: ctx.integrationId,
-              type: 'integration',
-              name: 'spreadsheetConfig',
-              payload: { spreadsheetIds },
-            })
-          } catch (thrown: unknown) {
-            const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-            logger.forBot().error('Failed to save the selected spreadsheets:', error)
-
-            return responses.endWizard({
-              success: false,
-              errorMessage: `Failed to save your spreadsheet selection: ${error.message}`,
-            })
-          }
-        }
-
-        return responses.endWizard({
-          success: true,
-        })
-      },
+      handler: saveSpreadsheetSelectionStep,
     })
 
     .build()

@@ -1,6 +1,6 @@
 import { Activity, ConversationReference, TurnContext, TeamsInfo, TeamsChannelAccount } from 'botbuilder'
 import { transformTeamsHtmlToStdMarkdown } from '../markdown/teams-html-to-markdown'
-import { getAdapter, sleep } from '../utils'
+import { getAdapter, getError, shouldCollectUserEmail, sleep } from '../utils'
 import { DROPDOWN_VALUE_ID, DROPDOWN_VALUE_KIND } from './constants'
 import * as bp from '.botpress'
 
@@ -8,21 +8,13 @@ export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.H
   const convRef: Partial<ConversationReference> = TurnContext.getConversationReference(activity)
 
   const senderChannelAccount = activity.from!
-  const adapter = getAdapter(ctx.configuration)
+  const collectUserEmail = shouldCollectUserEmail(ctx.configuration)
 
-  const getUserPromise = new Promise<TeamsChannelAccount | undefined>((resolve, reject) => {
-    void adapter
-      .continueConversation(convRef, async (tc) => {
-        const user = await TeamsInfo.getMember(tc, senderChannelAccount.id)
-        resolve(user)
-      })
-      .then(() => resolve(undefined))
-      .catch(reject)
-  })
-
-  const sender = await Promise.race([getUserPromise, sleep(2000)])
-  if (sender?.email) {
-    logger.forBot().info(`Received request from user: ${sender.email}`)
+  const senderEmail = collectUserEmail
+    ? await _getSenderEmail(ctx.configuration, convRef, senderChannelAccount.id, logger)
+    : undefined
+  if (senderEmail) {
+    logger.forBot().info(`Received request from user: ${senderEmail}`)
   }
 
   switch (activity.type) {
@@ -41,12 +33,11 @@ export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.H
         payload: convRef,
       })
 
-      const { user } = await client.getOrCreateUser({
-        tags: {
-          id: activity.from.id,
-          email: sender?.email,
-        },
-      })
+      const { user } = await client.getOrCreateUser(
+        collectUserEmail
+          ? { tags: { id: activity.from.id, email: senderEmail } }
+          : { tags: { id: activity.from.id }, discriminateByTags: ['id'] }
+      )
 
       const message = _extractMessage(activity)
       await client.getOrCreateMessage({
@@ -59,6 +50,34 @@ export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.H
       break
     default:
       return
+  }
+}
+
+const _getSenderEmail = async (
+  config: bp.configuration.Configuration,
+  convRef: Partial<ConversationReference>,
+  senderId: string,
+  logger: bp.Logger
+): Promise<string | undefined> => {
+  try {
+    const adapter = getAdapter(config)
+
+    const getUserPromise = new Promise<TeamsChannelAccount | undefined>((resolve, reject) => {
+      void adapter
+        .continueConversation(convRef, async (tc) => {
+          const user = await TeamsInfo.getMember(tc, senderId)
+          resolve(user)
+        })
+        .then(() => resolve(undefined))
+        .catch(reject)
+    })
+
+    const sender = await Promise.race([getUserPromise, sleep(2000)])
+    return sender?.email
+  } catch (thrown: unknown) {
+    // The email is optional: handle the message without it, as when the lookup times out
+    logger.forBot().warn(`Could not look up the sender's email: ${getError(thrown).message}`)
+    return undefined
   }
 }
 

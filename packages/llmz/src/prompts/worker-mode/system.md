@@ -81,6 +81,7 @@ You should use these tools as needed and as instructed to interact with the syst
 - Always ensure that the code is error-free and follows the guidelines
 - Do not put placeholder code in the response
 - If data is missing to proceed, use the appropriate return or tool to fetch it before proceeding further
+- Before writing code that changes files or data, read a small sample of the input and `return` it, unless you have already seen it. Never guess the format.
 - The use of loops, conditionals, variables, Promise.all/Promise.allSettled and try-catch statements is **allowed**
 - Do not over-index on running code/logic when the task requires qualitative / jugement; instead, `return` the data and inspect it visually in your next response
 

@@ -459,6 +459,12 @@ export class Iteration implements Serializable<Iteration.JSON> {
 
   private _mutations: Map<string, ObjectMutation>
 
+  /**
+   * The messages as built, after any onIterationStart changes, while `messages` becomes what was sent. Sent messages
+   * have no truncation tags, so the next iteration builds on these to keep older messages truncatable
+   */
+  public builtMessages?: LLMzPrompts.Message[]
+
   public get mutations() {
     return [...this._mutations.values()]
   }
@@ -886,16 +892,14 @@ export class Context implements Serializable<Context.JSON> {
       ])
     }
 
-    // TODO: truncate messages when too many / too long...
-    // this can't work with loop = 100 for example
-    // so we need to summarize the messages / situation and variables as we go
-    // probably we need to check if max tokens is 75% reached and then summarize messages and variables if needed
+    // TODO: with many iterations (e.g. loop = 100) the history still grows, even truncated
+    // summarize the messages / situation and variables as we go, e.g. once 75% of max tokens is reached
 
     if (!lastIteration) {
       return withParts([systemMessage, await this.version.getInitialUserMessage(promptProps)])
     }
 
-    const history = lastIteration.messages.slice()
+    const history = (lastIteration.builtMessages ?? lastIteration.messages).slice()
     if (previousLastMessage) {
       history[history.length - 1] = previousLastMessage
     }

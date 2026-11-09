@@ -32,7 +32,11 @@ async function main(): Promise<void> {
     },
   })
 
-  const modelsObj = models.reduce((acc, m) => ((acc[m.id] = m), acc), {} as Record<string, Model>)
+  // The API omits `tags` on untagged models; the client's `Model` type always carries the array.
+  const modelsObj = models.reduce(
+    (acc, m) => ((acc[m.id] = { ...m, tags: m.tags ?? [] }), acc),
+    {} as Record<string, Model>
+  )
 
   const defaultModel: Model = {
     id: '',

@@ -2,6 +2,10 @@
 
 The WhatsApp integration allows your AI-powered chatbot to seamlessly connect with WhatsApp, one of the most popular messaging platforms worldwide. Integrate your chatbot with WhatsApp to engage with your audience, automate conversations, and provide instant support. With this integration, you can send messages, handle inquiries, deliver notifications, and perform actions directly within WhatsApp. Leverage WhatsApp's powerful features such as text messages, media sharing, document sharing, and more to create personalized and interactive chatbot experiences. Connect with users on a platform they already use and enhance customer engagement with the WhatsApp Integration for Botpress.
 
+## Voice notes
+
+Audio messages are sent as audio files by default. Set `voice: true` in the audio payload to send it as a voice note instead (microphone icon, waveform, "played" status). The audio must be an `.ogg` file with the OPUS codec.
+
 ## Card and carousel rendering
 
 WhatsApp has no direct equivalent of Botpress's `card` and `carousel` types. The integration maps each to a native WhatsApp message type:
