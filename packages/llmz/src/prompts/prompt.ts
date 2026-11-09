@@ -115,7 +115,10 @@ export namespace LLMzPrompts {
 }
 
 export type Prompt = {
-  /** Current execution state appended to the final input message, never retained in history. */
+  /**
+   * Current execution state, never retained in history. Appended to the final input message on the first and last
+   * iterations, and sent as its own last message in between so earlier messages stay unchanged for prompt caching.
+   */
   getExecutionState?: (props: LLMzPrompts.InitialStateProps) => string
   getSystemMessage: (props: LLMzPrompts.InitialStateProps) => Promise<LLMzPrompts.SystemMessage>
   getInitialUserMessage: (props: LLMzPrompts.InitialStateProps) => Promise<LLMzPrompts.Message>

@@ -11,7 +11,7 @@ import { describe, expect, test, vi } from 'vitest'
 import { Chat, MessageDelta, MessageMetadata } from '../chat.js'
 import { DefaultComponents } from '../component.default.js'
 import { Component, RenderedComponent } from '../component.js'
-import { ListenExit } from '../context.js'
+import { Iteration, ListenExit } from '../context.js'
 import { createJsxComponent } from '../jsx.js'
 import { CognitiveError, ThinkSignal } from '../errors.js'
 import { Exit } from '../exit.js'
@@ -23,6 +23,18 @@ import { Transcript } from '../transcript.js'
 import { qwenProtocolFailures } from './fixtures/qwen-protocol-failures.js'
 import { executeContext } from './execute.js'
 import { getTokenizer } from '../utils.js'
+
+/**
+ * What a request adds after the model's last reply: the newest message and, between the first and last iterations,
+ * the execution state that follows it as its own message
+ */
+const latestPrompt = (iteration: Iteration) => {
+  const lastReply = iteration.messages.map((message) => message.role).lastIndexOf('assistant')
+  return iteration.messages
+    .slice(lastReply + 1)
+    .map((message) => String(message.content))
+    .join('\n')
+}
 
 const makeFakeModel = (model: string): Model => ({
   id: model,
@@ -972,6 +984,57 @@ await record({ token: "\u25a0end" })
     expect(result.iterations[0]!.messages.at(-1)!.content).toEqual(firstContent)
   })
 
+  test('sends the execution state as its own message only between the first and last iterations', async () => {
+    const done = new Exit({ name: 'done', description: 'Finish' })
+    const result = await executeContext({
+      client: new ScriptedNonStreamingCognitive(['■run\nreturn 1', '■run\nreturn 2', '■run\nreturn 3', '■next=done']),
+      exits: [done],
+      options: { loop: 4 },
+    })
+    expect(result.isSuccess()).toBe(true)
+    const isState = (content: unknown) => String(content).startsWith('<execution_status>')
+    const lastContents = result.iterations.map((iteration) => iteration.messages.at(-1)!.content)
+    // First and last: the state ends the latest message, where it reads as part of the task
+    for (const content of [lastContents[0], lastContents[3]]) {
+      expect(isState(content)).toBe(false)
+      expect(String(content)).toContain('<execution_status>')
+    }
+    // In between: the state is its own last message and the latest message before it is left as is
+    for (const iteration of [result.iterations[1]!, result.iterations[2]!]) {
+      expect(isState(iteration.messages.at(-1)!.content)).toBe(true)
+      expect(String(iteration.messages.at(-2)!.content)).not.toContain('<execution_status>')
+    }
+    // Only the newest state is ever sent
+    for (const iteration of result.iterations) {
+      expect(
+        iteration.messages.filter((message) => String(message.content).includes('<execution_status>'))
+      ).toHaveLength(1)
+    }
+  })
+
+  test('sends every earlier message unchanged in the next request between the first and last iterations', async () => {
+    const done = new Exit({ name: 'done', description: 'Finish' })
+    const result = await executeContext({
+      client: new ScriptedNonStreamingCognitive([
+        '■run\nreturn 1',
+        '■run\nreturn 2',
+        '■run\nreturn 3',
+        '■run\nreturn 4',
+        '■next=done',
+      ]),
+      exits: [done],
+      options: { loop: 5 },
+    })
+    expect(result.isSuccess()).toBe(true)
+    // Providers cache a prompt by its prefix, so everything before the state must reach the next request as it was sent
+    for (const index of [1, 2]) {
+      expect(String(result.iterations[index]!.messages.at(-1)!.content)).toMatch(/^<execution_status>/)
+      const sentBeforeState = result.iterations[index]!.messages.slice(0, -1)
+      const next = result.iterations[index + 1]!.messages
+      expect(next.slice(0, sentBeforeState.length)).toEqual(sentBeforeState)
+    }
+  })
+
   test('marks the first response as final when only one generation is allowed', async () => {
     const done = new Exit({ name: 'done', description: 'Finish' })
     const result = await executeContext({
@@ -1006,14 +1069,12 @@ await record({ token: "\u25a0end" })
     })
     expect(result.isSuccess()).toBe(true)
     expect(result.iterations[0]!.variables.ids).toEqual([1, 2])
-    const recovery = String(result.iterations[1]!.messages.at(-1)!.content)
+    const recovery = latestPrompt(result.iterations[1]!)
     expect(recovery).toContain('blocked-1')
     expect(recovery).toContain('blocked-2')
     expect(recovery).toContain('Variables preserved')
     expect(recovery).toContain('Actual tool calls so far (including failed calls): {"failOperation":2}')
-    expect(String(result.iterations[1]!.messages.at(-1)!.content)).toContain(
-      'failOperation: failed or paused; failOperation: failed or paused'
-    )
+    expect(recovery).toContain('failOperation: failed or paused; failOperation: failed or paused')
     expect(result.iterations[1]!.status.type).toBe('thinking_requested')
   })
 
@@ -1039,14 +1100,14 @@ await record({ token: "\u25a0end" })
     })
     expect(result.isSuccess()).toBe(true)
     expect(attempts).toBe(2)
-    const pause = String(result.iterations[1]!.messages.at(-1)!.content)
+    const pause = latestPrompt(result.iterations[1]!)
     expect(pause).toContain('A tool paused code execution')
     expect(pause).toContain('operation: paused for attention')
     expect(pause).not.toContain('operation: succeeded')
     expect(pause).toContain('Actual tool calls so far (including failed calls): {"operation":1}')
     expect(pause).not.toContain('The code execution completed')
     expect(pause).toContain('call that tool again')
-    expect(String(result.iterations[2]!.messages.at(-1)!.content)).toContain('The code execution completed')
+    expect(latestPrompt(result.iterations[2]!)).toContain('The code execution completed')
   })
 
   test('aborting from an iteration hook prevents further tool calls', async () => {

@@ -722,6 +722,9 @@ export class Context implements Serializable<Context.JSON> {
 
   // Keep the latest message without its per-request state so old budgets never enter history.
   private _lastMessageWithoutExecutionState?: LLMzPrompts.Message
+  // Between the first and last iterations the state is its own last message, so earlier messages are never edited
+  // and providers can keep caching the prompt. It is also dropped from history
+  private _executionStateMessage?: LLMzPrompts.Message
 
   public iteration: number = 0
   public iterations: Iteration[]
@@ -862,13 +865,19 @@ export class Context implements Serializable<Context.JSON> {
 
     const { message: systemMessage, parts } = await this.version.getSystemMessage(promptProps)
     const previousLastMessage = this._lastMessageWithoutExecutionState
+    const previousStateMessage = this._executionStateMessage
+    // On the first and last iterations the state stays in the latest message, where it reads as part of the task
+    const current = this.iterations.length + 1
+    const stateInLatestMessage = current === 1 || current >= this.loop
     const withParts = (messages: LLMzPrompts.Message[]) => {
       const last = messages.at(-1)!
-      this._lastMessageWithoutExecutionState = last
-
       const state = this.version.getExecutionState?.(promptProps) ?? ''
+      this._lastMessageWithoutExecutionState = stateInLatestMessage ? last : undefined
+      this._executionStateMessage = state && !stateInLatestMessage ? { role: 'user', content: state.trim() } : undefined
 
-      if (state) {
+      if (this._executionStateMessage) {
+        messages.push(this._executionStateMessage)
+      } else if (state) {
         messages[messages.length - 1] = Array.isArray(last.content)
           ? { ...last, content: [...last.content, { type: 'text', text: state.trim() }] }
           : { ...last, content: (last.content ?? '') + state }
@@ -902,7 +911,9 @@ export class Context implements Serializable<Context.JSON> {
       return withParts([systemMessage, await this.version.getInitialUserMessage(promptProps)])
     }
 
-    const history = (lastIteration.builtMessages ?? lastIteration.messages).slice()
+    const history = (lastIteration.builtMessages ?? lastIteration.messages).filter(
+      (message) => message !== previousStateMessage
+    )
     if (previousLastMessage) {
       history[history.length - 1] = previousLastMessage
     }
