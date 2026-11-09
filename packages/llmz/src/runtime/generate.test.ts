@@ -15,7 +15,8 @@ function fixture(content: CognitiveRequest['messages'][number]['content'], limit
     messages: [{ role: 'user', content }],
     traces: [],
   } as unknown as Iteration
-  const ctx = { version: DualModePrompt } as Context
+  const iterations: Iteration[] = []
+  const ctx = { version: DualModePrompt, iterations } as Context
   const generateText = vi.fn(async (_input: CognitiveRequest): Promise<CognitiveResponse> => {
     throw new Error('Provider boundary reached')
   })

@@ -72,6 +72,31 @@ const estimateMetadata = (model: Model, messages: LLMzPrompts.Message[], output:
   }
 }
 
+/** Ratios up to this are treated as the same count; above it, it is the margin on top of the measured ratio */
+const PROVIDER_TOKEN_RATIO_MARGIN = 1.05
+
+/** Provider tokens per local token on a text-only request (Claude counts ~1.5x more), or undefined for other requests */
+const measureProviderTokenRatio = (messages: LLMzPrompts.Message[], inputTokens: number): number | undefined => {
+  const contents = messages.map((message) => message.content)
+  if (inputTokens <= 0 || !contents.every((content): content is string => typeof content === 'string')) {
+    return undefined
+  }
+  const tokenizer = getTokenizer()
+  const localTokens = contents.reduce((sum, content) => sum + tokenizer.count(content), 0)
+  return localTokens > 0 ? inputTokens / localTokens : undefined
+}
+
+/** The highest ratio measured on earlier requests for the same model, so a fallback chain gets its strictest one */
+const getProviderTokenRatio = (iteration: Iteration, iterations: Iteration[]): number => {
+  const model = JSON.stringify(iteration.model)
+  const ratios = iterations
+    .filter((other) => other !== iteration && JSON.stringify(other.model) === model)
+    .map((other) => other.providerTokenRatio ?? 1)
+  const ratio = Math.max(1, ...ratios)
+  // Providers that count like the local tokenizer (OpenAI) keep their whole window
+  return ratio > PROVIDER_TOKEN_RATIO_MARGIN ? ratio * PROVIDER_TOKEN_RATIO_MARGIN : 1
+}
+
 const getModelOutputLimit = (inputLength: number) =>
   clamp(
     RESPONSE_LENGTH_BUFFER.PERCENTAGE * inputLength,
@@ -134,11 +159,13 @@ export const generateCode = async ({
     iteration.tokens.limit = modelLimit
   }
 
+  const providerTokenRatio = getProviderTokenRatio(iteration, ctx.iterations)
+
   let messages: typeof iteration.messages
   try {
     messages = truncateWrappedContent({
       messages: iteration.messages,
-      tokenLimit: modelLimit - responseLengthBuffer,
+      tokenLimit: Math.floor(modelLimit / providerTokenRatio) - responseLengthBuffer,
       throwOnFailure: true,
     }).filter((x) => typeof x.content !== 'string' || x.content.trim().length > 0)
   } catch (thrown: unknown) {
@@ -179,6 +206,7 @@ export const generateCode = async ({
   }
 
   let responseMetadata: CognitiveMetadata | undefined
+  let usageEstimated = false
   let raw: string
   let assistantResponse: ParsedAssistantResponse
 
@@ -384,6 +412,7 @@ export const generateCode = async ({
           models.find((details) => details.id === servedModel) ??
           (await cognitive.getModelDetails(servedModel).catch(() => model))
         responseMetadata = estimateMetadata(served, messages, raw)
+        usageEstimated = true
       }
       if (!responseMetadata) {
         throw new CognitiveError('LLM streaming completed without metadata')
@@ -491,6 +520,10 @@ export const generateCode = async ({
       outputTokens: usage.outputTokens,
       outputCost: usage.outputCost,
     },
+  }
+
+  if (!usageEstimated) {
+    iteration.providerTokenRatio = measureProviderTokenRatio(messages, usage.inputTokens)
   }
 
   if (iteration.tokens) {

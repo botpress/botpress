@@ -452,6 +452,9 @@ export class Iteration implements Serializable<Iteration.JSON> {
    */
   public tokens?: TokenUsage
 
+  /** Provider input tokens per local token on this iteration's request, when the provider reported its own usage */
+  public providerTokenRatio?: number
+
   public started_ts: number
   public ended_ts?: number
 
