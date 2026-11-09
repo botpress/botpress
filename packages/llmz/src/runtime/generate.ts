@@ -72,6 +72,23 @@ const estimateMetadata = (model: Model, messages: LLMzPrompts.Message[], output:
   }
 }
 
+/** Ratios up to this are treated as the same count; above it, it is the margin on top of the measured ratio */
+const PROVIDER_TOKEN_RATIO_MARGIN = 1.05
+
+/** Provider tokens per local token, measured on the previous text-only request (Claude counts ~1.5x more) */
+const getProviderTokenRatio = (previous: Iteration | undefined): number => {
+  const inputTokens = previous?.llm?.usage?.inputTokens
+  const contents = previous?.messages.map((message) => message.content) ?? []
+  if (!inputTokens || !contents.every((content): content is string => typeof content === 'string')) {
+    return 1
+  }
+  const tokenizer = getTokenizer()
+  const localTokens = contents.reduce((sum, content) => sum + tokenizer.count(content), 0)
+  const ratio = localTokens > 0 ? inputTokens / localTokens : 1
+  // Providers that count like the local tokenizer (OpenAI) keep their whole window
+  return ratio > PROVIDER_TOKEN_RATIO_MARGIN ? ratio * PROVIDER_TOKEN_RATIO_MARGIN : 1
+}
+
 const getModelOutputLimit = (inputLength: number) =>
   clamp(
     RESPONSE_LENGTH_BUFFER.PERCENTAGE * inputLength,
@@ -134,11 +151,14 @@ export const generateCode = async ({
     iteration.tokens.limit = modelLimit
   }
 
+  const previousIteration = ctx.iterations.filter((other) => other !== iteration).at(-1)
+  const providerTokenRatio = getProviderTokenRatio(previousIteration)
+
   let messages: typeof iteration.messages
   try {
     messages = truncateWrappedContent({
       messages: iteration.messages,
-      tokenLimit: modelLimit - responseLengthBuffer,
+      tokenLimit: Math.floor(modelLimit / providerTokenRatio) - responseLengthBuffer,
       throwOnFailure: true,
     }).filter((x) => typeof x.content !== 'string' || x.content.trim().length > 0)
   } catch (thrown: unknown) {

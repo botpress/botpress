@@ -1,4 +1,10 @@
-import { CognitiveMetadata, CognitiveResponse, CognitiveStreamChunk, Model } from '@botpress/cognitive'
+import {
+  CognitiveMetadata,
+  CognitiveRequest,
+  CognitiveResponse,
+  CognitiveStreamChunk,
+  Model,
+} from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -16,6 +22,7 @@ import { Tool } from '../tool.js'
 import { Transcript } from '../transcript.js'
 import { qwenProtocolFailures } from './fixtures/qwen-protocol-failures.js'
 import { executeContext } from './execute.js'
+import { getTokenizer } from '../utils.js'
 
 const makeFakeModel = (model: string): Model => ({
   id: model,
@@ -2136,6 +2143,39 @@ await record({ token: "\u25a0end" })
     expect(third).not.toContain('REMOVE-ME')
     expect(fourth).toContain('second kept')
     expect(fourth).not.toContain('REMOVE-ME')
+  })
+
+  test('the prompt budget follows how the provider counts tokens', async () => {
+    // A provider that counts 1.5 tokens for each local token, like Claude
+    class ClaudeLikeCognitive extends ScriptedCognitive {
+      public sent: number[] = []
+      public override async generateText(input?: CognitiveRequest): Promise<CognitiveResponse> {
+        const local = (input?.messages ?? []).reduce(
+          (sum, message) => sum + getTokenizer().count(typeof message.content === 'string' ? message.content : ''),
+          0
+        )
+        const inputTokens = Math.ceil(local * 1.5)
+        this.sent.push(inputTokens)
+        const response = await super.generateText()
+        return { ...response, metadata: { ...response.metadata, usage: { ...response.metadata.usage, inputTokens } } }
+      }
+    }
+    const pages = Array.from({ length: 5 }, (_, index) => `PAGE ${index}\n${'row of page content\n'.repeat(2_000)}`)
+    let call = 0
+    const readPage = new Tool({ name: 'readPage', output: z.string(), handler: async () => pages[call++] ?? '' })
+    const done = new Exit({ name: 'done', description: 'Task completed' })
+    const client = new ClaudeLikeCognitive([...pages.map(() => '■run\nreturn await readPage()'), '■next=done'])
+
+    const result = await executeContext({
+      client,
+      exits: [done],
+      tools: [readPage],
+      options: { loop: pages.length + 1, maxTokens: 40_000 },
+    })
+
+    expect(result).toBeInstanceOf(SuccessExecutionResult)
+    // Once the first request is measured, no request goes over the window by the provider's count
+    expect(Math.max(...client.sent.slice(1))).toBeLessThanOrEqual(40_000)
   })
 
   test('a maxTokens too small to fit the prompt fails fast instead of looping', async () => {
