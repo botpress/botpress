@@ -3,6 +3,15 @@ import { hasTopLevelReturn } from '../compiler/index.js'
 import { StreamingMessageParser } from './parser.js'
 import type { Diagnostic, MessageStreamEvent, ParsedItem } from './types.js'
 
+/**
+ * Text a model may write before ■start. Some models stream junk for minutes
+ * without ever opening the envelope; past this many characters, give up.
+ */
+export const MAX_PREAMBLE_LENGTH = 8_000
+
+/** Text a model may write after ■end before the rest of its stream is ignored. */
+export const MAX_TRAILER_LENGTH = 2_000
+
 /** One wire format: a complete ■start … ■end envelope containing valid blocks. */
 export class ResponseParser {
   private _parser = new StreamingMessageParser()
@@ -15,9 +24,21 @@ export class ResponseParser {
   private _finished = false
   private _failure: Diagnostic | undefined
   private _trailer = ''
+  private _preambleLength = 0
 
   public get framed(): boolean {
     return this._mode === 'framed'
+  }
+
+  /** Whether ■end was received. Later text is only kept as a diagnostic. */
+  public get closed(): boolean {
+    return this._closed
+  }
+
+  /** The model is writing junk past either boundary: stop reading the stream. */
+  public get done(): boolean {
+    if (this._closed) return this._trailer.length > MAX_TRAILER_LENGTH
+    return this._mode === 'detect' && this._preambleLength > MAX_PREAMBLE_LENGTH
   }
 
   public get valid(): boolean {
@@ -46,7 +67,13 @@ export class ResponseParser {
       forward = ''
     }
     for (const char of chunk) {
+      if (this._closed) {
+        this._trailer += char
+        continue
+      }
+      if (this.done) continue
       if (this._mode === 'detect') {
+        this._preambleLength++
         if (this._discardPrefixLine) {
           if (char === '\n') this._discardPrefixLine = false
           continue
@@ -77,10 +104,6 @@ export class ResponseParser {
         }
         continue
       }
-      if (this._closed) {
-        this._trailer += char
-        continue
-      }
       if (this._boundary || char === '■') {
         this._boundary += char
         if (this._boundary === '■end') {
@@ -107,7 +130,8 @@ export class ResponseParser {
     this._finished = true
     const events: MessageStreamEvent[] = []
     if (this._mode === 'detect') {
-      if (this._prefix.trim() === '■start') this._mode = 'framed'
+      if (this.done) this._fail(`Missing ■start: no response envelope within ${MAX_PREAMBLE_LENGTH} characters`)
+      else if (this._prefix.trim() === '■start') this._mode = 'framed'
       else this._fail('Missing ■start: every response must begin with the response envelope')
       this._prefix = ''
     }

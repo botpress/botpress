@@ -68,6 +68,12 @@ The id of the board should be 24 characters long consisting of letters and numbe
 
 [Trello - API Introduction]: https://developer.atlassian.com/cloud/trello/guides/rest-api/api-introduction/
 
+## Migration from 2.x.x to 3.x.x
+
+- Webhook signatures are now enforced. In 2.x the check was inverted: with a Trello API Secret configured, events signed by Trello were dropped and events with any other signature were accepted, and without a secret every event was dropped.
+- With a Trello API Secret configured, 3.x only accepts events signed with that secret. Before upgrading, make sure the configured secret is the one shown in the admin page of the same Trello app as your API key, otherwise every event will be rejected.
+- Without a Trello API Secret, 3.x accepts events without verifying them. Configure the secret to make sure events come from Trello.
+
 ## Migration from 1.x.x to 2.x.x
 
 - Replace "Move Card Up" action with "Move Card Down" actions (and vice versa) as the directions were reversed to match the visual displacement of the cards on Trello.

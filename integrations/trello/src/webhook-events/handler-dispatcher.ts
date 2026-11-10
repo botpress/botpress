@@ -7,7 +7,7 @@ import { fallbackEventPayloadSchema, WebhookEventPayload, webhookEventPayloadSch
 import * as bp from '.botpress'
 
 export const handler = async (props: bp.HandlerProps): Promise<void> => {
-  if (_verifyWebhookSignature(props)) {
+  if (!_verifyWebhookSignature(props)) {
     props.logger.forBot().error('The provided webhook payload failed its signature validation')
     return
   }

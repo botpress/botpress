@@ -452,12 +452,21 @@ export class Iteration implements Serializable<Iteration.JSON> {
    */
   public tokens?: TokenUsage
 
+  /** Provider input tokens per local token on this iteration's request, when the provider reported its own usage */
+  public providerTokenRatio?: number
+
   public started_ts: number
   public ended_ts?: number
 
   public status: IterationStatus
 
   private _mutations: Map<string, ObjectMutation>
+
+  /**
+   * The messages as built, after any onIterationStart changes, while `messages` becomes what was sent. Sent messages
+   * have no truncation tags, so the next iteration builds on these to keep older messages truncatable
+   */
+  public builtMessages?: LLMzPrompts.Message[]
 
   public get mutations() {
     return [...this._mutations.values()]
@@ -713,6 +722,9 @@ export class Context implements Serializable<Context.JSON> {
 
   // Keep the latest message without its per-request state so old budgets never enter history.
   private _lastMessageWithoutExecutionState?: LLMzPrompts.Message
+  // Between the first and last iterations the state is its own last message, so earlier messages are never edited
+  // and providers can keep caching the prompt. It is also dropped from history
+  private _executionStateMessage?: LLMzPrompts.Message
 
   public iteration: number = 0
   public iterations: Iteration[]
@@ -853,13 +865,19 @@ export class Context implements Serializable<Context.JSON> {
 
     const { message: systemMessage, parts } = await this.version.getSystemMessage(promptProps)
     const previousLastMessage = this._lastMessageWithoutExecutionState
+    const previousStateMessage = this._executionStateMessage
+    // On the first and last iterations the state stays in the latest message, where it reads as part of the task
+    const current = this.iterations.length + 1
+    const stateInLatestMessage = current === 1 || current >= this.loop
     const withParts = (messages: LLMzPrompts.Message[]) => {
       const last = messages.at(-1)!
-      this._lastMessageWithoutExecutionState = last
-
       const state = this.version.getExecutionState?.(promptProps) ?? ''
+      this._lastMessageWithoutExecutionState = stateInLatestMessage ? last : undefined
+      this._executionStateMessage = state && !stateInLatestMessage ? { role: 'user', content: state.trim() } : undefined
 
-      if (state) {
+      if (this._executionStateMessage) {
+        messages.push(this._executionStateMessage)
+      } else if (state) {
         messages[messages.length - 1] = Array.isArray(last.content)
           ? { ...last, content: [...last.content, { type: 'text', text: state.trim() }] }
           : { ...last, content: (last.content ?? '') + state }
@@ -886,16 +904,20 @@ export class Context implements Serializable<Context.JSON> {
       ])
     }
 
-    // TODO: truncate messages when too many / too long...
-    // this can't work with loop = 100 for example
-    // so we need to summarize the messages / situation and variables as we go
-    // probably we need to check if max tokens is 75% reached and then summarize messages and variables if needed
+    // TODO: with many iterations (e.g. loop = 100) the history still grows, even truncated
+    // summarize the messages / situation and variables as we go, e.g. once 75% of max tokens is reached
 
     if (!lastIteration) {
       return withParts([systemMessage, await this.version.getInitialUserMessage(promptProps)])
     }
 
-    const history = lastIteration.messages.slice()
+    // Matched by content, since an onIterationStart hook may have replaced the messages with copies
+    const history = (lastIteration.builtMessages ?? lastIteration.messages).filter(
+      (message) =>
+        !previousStateMessage ||
+        message.role !== previousStateMessage.role ||
+        message.content !== previousStateMessage.content
+    )
     if (previousLastMessage) {
       history[history.length - 1] = previousLastMessage
     }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ResponseParser } from './response-parser.js'
+import { MAX_PREAMBLE_LENGTH, MAX_TRAILER_LENGTH, ResponseParser } from './response-parser.js'
 import type { MessageStreamEvent } from './types.js'
 
 describe('response envelopes', () => {
@@ -113,5 +113,41 @@ describe('response envelopes', () => {
         .map((e) => e.delta)
         .join('')
     ).toBe(body)
+  })
+
+  it('is done once junk after ■end exceeds the trailer limit, keeping the closed envelope', () => {
+    const parser = new ResponseParser()
+    parser.push('■start\n■send=message\nHello!\n■next=listen\n■end')
+    expect(parser.closed).toBe(true)
+    expect(parser.done).toBe(false)
+    parser.push('\\\n'.repeat(MAX_TRAILER_LENGTH / 2))
+    expect(parser.done).toBe(false)
+    parser.push('\\')
+    expect(parser.done).toBe(true)
+    parser.finish()
+    expect(parser.valid).toBe(true)
+    expect(parser.items.map((item) => item.kind)).toEqual(['send', 'next'])
+  })
+
+  it('is done once junk before ■start exceeds the preamble limit, ignoring a later envelope', () => {
+    const parser = new ResponseParser()
+    parser.push('x'.repeat(MAX_PREAMBLE_LENGTH))
+    expect(parser.done).toBe(false)
+    parser.push('x\n■start\n■send=message\nHello!\n■next=listen\n■end')
+    expect(parser.done).toBe(true)
+    expect(parser.closed).toBe(false)
+    parser.finish('stop')
+    expect(parser.valid).toBe(false)
+    expect(parser.diagnostics).toContainEqual({
+      code: 'invalid-envelope',
+      message: `Missing ■start: no response envelope within ${MAX_PREAMBLE_LENGTH} characters`,
+    })
+  })
+
+  it('accepts a long preamble below the limit', () => {
+    const parser = new ResponseParser()
+    parser.push(`${'thinking out loud\n'.repeat(MAX_PREAMBLE_LENGTH / 20)}■start\n■run\nreturn 42\n■end`)
+    parser.finish()
+    expect(parser.valid).toBe(true)
   })
 })

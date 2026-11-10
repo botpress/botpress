@@ -1,11 +1,17 @@
-import { CognitiveMetadata, CognitiveResponse, CognitiveStreamChunk, Model } from '@botpress/cognitive'
+import {
+  CognitiveMetadata,
+  CognitiveRequest,
+  CognitiveResponse,
+  CognitiveStreamChunk,
+  Model,
+} from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Chat, MessageDelta, MessageMetadata } from '../chat.js'
 import { DefaultComponents } from '../component.default.js'
 import { Component, RenderedComponent } from '../component.js'
-import { ListenExit } from '../context.js'
+import { Iteration, ListenExit } from '../context.js'
 import { createJsxComponent } from '../jsx.js'
 import { CognitiveError, ThinkSignal } from '../errors.js'
 import { Exit } from '../exit.js'
@@ -16,6 +22,19 @@ import { Tool } from '../tool.js'
 import { Transcript } from '../transcript.js'
 import { qwenProtocolFailures } from './fixtures/qwen-protocol-failures.js'
 import { executeContext } from './execute.js'
+import { getTokenizer } from '../utils.js'
+
+/**
+ * What a request adds after the model's last reply: the newest message and, between the first and last iterations,
+ * the execution state that follows it as its own message
+ */
+const latestPrompt = (iteration: Iteration) => {
+  const lastReply = iteration.messages.map((message) => message.role).lastIndexOf('assistant')
+  return iteration.messages
+    .slice(lastReply + 1)
+    .map((message) => String(message.content))
+    .join('\n')
+}
 
 const makeFakeModel = (model: string): Model => ({
   id: model,
@@ -965,6 +984,73 @@ await record({ token: "\u25a0end" })
     expect(result.iterations[0]!.messages.at(-1)!.content).toEqual(firstContent)
   })
 
+  test('sends the execution state as its own message only between the first and last iterations', async () => {
+    const done = new Exit({ name: 'done', description: 'Finish' })
+    const result = await executeContext({
+      client: new ScriptedNonStreamingCognitive(['■run\nreturn 1', '■run\nreturn 2', '■run\nreturn 3', '■next=done']),
+      exits: [done],
+      options: { loop: 4 },
+    })
+    expect(result.isSuccess()).toBe(true)
+    const isState = (content: unknown) => String(content).startsWith('<execution_status>')
+    const lastContents = result.iterations.map((iteration) => iteration.messages.at(-1)!.content)
+    // First and last: the state ends the latest message, where it reads as part of the task
+    for (const content of [lastContents[0], lastContents[3]]) {
+      expect(isState(content)).toBe(false)
+      expect(String(content)).toContain('<execution_status>')
+    }
+    // In between: the state is its own last message and the latest message before it is left as is
+    for (const iteration of [result.iterations[1]!, result.iterations[2]!]) {
+      expect(isState(iteration.messages.at(-1)!.content)).toBe(true)
+      expect(String(iteration.messages.at(-2)!.content)).not.toContain('<execution_status>')
+    }
+    // Only the newest state is ever sent
+    for (const iteration of result.iterations) {
+      expect(
+        iteration.messages.filter((message) => String(message.content).includes('<execution_status>'))
+      ).toHaveLength(1)
+    }
+  })
+
+  test('drops the previous execution state even when a hook copies the messages', async () => {
+    const done = new Exit({ name: 'done', description: 'Finish' })
+    const result = await executeContext({
+      client: new ScriptedNonStreamingCognitive(['■run\nreturn 1', '■run\nreturn 2', '■run\nreturn 3', '■next=done']),
+      exits: [done],
+      options: { loop: 4 },
+      onIterationStart: (iteration) => ({ messages: iteration.messages.map((message) => ({ ...message })) }),
+    })
+    expect(result.isSuccess()).toBe(true)
+    for (const iteration of result.iterations) {
+      expect(
+        iteration.messages.filter((message) => String(message.content).includes('<execution_status>'))
+      ).toHaveLength(1)
+    }
+  })
+
+  test('sends every earlier message unchanged in the next request between the first and last iterations', async () => {
+    const done = new Exit({ name: 'done', description: 'Finish' })
+    const result = await executeContext({
+      client: new ScriptedNonStreamingCognitive([
+        '■run\nreturn 1',
+        '■run\nreturn 2',
+        '■run\nreturn 3',
+        '■run\nreturn 4',
+        '■next=done',
+      ]),
+      exits: [done],
+      options: { loop: 5 },
+    })
+    expect(result.isSuccess()).toBe(true)
+    // Providers cache a prompt by its prefix, so everything before the state must reach the next request as it was sent
+    for (const index of [1, 2]) {
+      expect(String(result.iterations[index]!.messages.at(-1)!.content)).toMatch(/^<execution_status>/)
+      const sentBeforeState = result.iterations[index]!.messages.slice(0, -1)
+      const next = result.iterations[index + 1]!.messages
+      expect(next.slice(0, sentBeforeState.length)).toEqual(sentBeforeState)
+    }
+  })
+
   test('marks the first response as final when only one generation is allowed', async () => {
     const done = new Exit({ name: 'done', description: 'Finish' })
     const result = await executeContext({
@@ -999,14 +1085,12 @@ await record({ token: "\u25a0end" })
     })
     expect(result.isSuccess()).toBe(true)
     expect(result.iterations[0]!.variables.ids).toEqual([1, 2])
-    const recovery = String(result.iterations[1]!.messages.at(-1)!.content)
+    const recovery = latestPrompt(result.iterations[1]!)
     expect(recovery).toContain('blocked-1')
     expect(recovery).toContain('blocked-2')
     expect(recovery).toContain('Variables preserved')
     expect(recovery).toContain('Actual tool calls so far (including failed calls): {"failOperation":2}')
-    expect(String(result.iterations[1]!.messages.at(-1)!.content)).toContain(
-      'failOperation: failed or paused; failOperation: failed or paused'
-    )
+    expect(recovery).toContain('failOperation: failed or paused; failOperation: failed or paused')
     expect(result.iterations[1]!.status.type).toBe('thinking_requested')
   })
 
@@ -1032,14 +1116,14 @@ await record({ token: "\u25a0end" })
     })
     expect(result.isSuccess()).toBe(true)
     expect(attempts).toBe(2)
-    const pause = String(result.iterations[1]!.messages.at(-1)!.content)
+    const pause = latestPrompt(result.iterations[1]!)
     expect(pause).toContain('A tool paused code execution')
     expect(pause).toContain('operation: paused for attention')
     expect(pause).not.toContain('operation: succeeded')
     expect(pause).toContain('Actual tool calls so far (including failed calls): {"operation":1}')
     expect(pause).not.toContain('The code execution completed')
     expect(pause).toContain('call that tool again')
-    expect(String(result.iterations[2]!.messages.at(-1)!.content)).toContain('The code execution completed')
+    expect(latestPrompt(result.iterations[2]!)).toContain('The code execution completed')
   })
 
   test('aborting from an iteration hook prevents further tool calls', async () => {
@@ -2081,6 +2165,173 @@ await record({ token: "\u25a0end" })
     // the effective limit is min(override, model max)
     expect(unbounded.limit).toBe(128_000)
     expect(capped.limit).toBe(10_000)
+  })
+
+  test('older tool results are truncated when later ones no longer fit', async () => {
+    const pages = ['FIRST', 'SECOND', 'THIRD', 'FOURTH'].map(
+      (name) => `${name} PAGE\n${'row of page content\n'.repeat(2_000)}`
+    )
+    let call = 0
+    const readPage = new Tool({ name: 'readPage', output: z.string(), handler: async () => pages[call++]! })
+    const done = new Exit({ name: 'done', description: 'Task completed' })
+    const client = new ScriptedCognitive([...pages.map(() => '■run\nreturn await readPage()'), '■next=done'])
+
+    const result = await executeContext({
+      client,
+      exits: [done],
+      tools: [readPage],
+      instructions: 'Read every page.',
+      options: { loop: pages.length + 1, maxTokens: 30_000 },
+    })
+
+    expect(result).toBeInstanceOf(SuccessExecutionResult)
+    const lastSent = result.iterations.at(-1)!.messages.map((message) => String(message.content))
+    const rowsShown = (name: string) =>
+      (lastSent.find((content) => content.includes(`${name} PAGE`)) ?? '').split('row of page content').length - 1
+    // The oldest page shrinks too, so the newest one isn't the only one cut
+    expect(rowsShown('FIRST')).toBeGreaterThan(0)
+    expect(rowsShown('FIRST')).toBeLessThan(2_000)
+    expect(rowsShown('FOURTH')).toBeGreaterThan(0)
+    expect(rowsShown('FOURTH')).toBeGreaterThanOrEqual(rowsShown('FIRST') - 100)
+  })
+
+  test('older messages removed by onIterationStart stay removed in later iterations', async () => {
+    const done = new Exit({ name: 'done', description: 'Task completed' })
+    const client = new ScriptedCognitive([
+      '■run\nreturn "REMOVE-ME"',
+      '■run\nreturn "first kept"',
+      '■run\nreturn "second kept"',
+      '■next=done',
+    ])
+
+    const result = await executeContext({
+      client,
+      exits: [done],
+      options: { loop: 4 },
+      onIterationStart: (iteration) =>
+        iteration.id.endsWith('_3')
+          ? { messages: iteration.messages.filter((message) => !String(message.content).includes('REMOVE-ME')) }
+          : undefined,
+    })
+
+    expect(result).toBeInstanceOf(SuccessExecutionResult)
+    const [, , third, fourth] = result.iterations.map((iteration) => JSON.stringify(iteration.messages))
+    expect(third).toContain('first kept')
+    expect(third).not.toContain('REMOVE-ME')
+    expect(fourth).toContain('second kept')
+    expect(fourth).not.toContain('REMOVE-ME')
+  })
+
+  test('the prompt budget follows how the provider counts tokens', async () => {
+    // A provider that counts 1.5 tokens for each local token, like Claude
+    class ClaudeLikeCognitive extends ScriptedCognitive {
+      public sent: number[] = []
+      public override async generateText(input?: CognitiveRequest): Promise<CognitiveResponse> {
+        const local = (input?.messages ?? []).reduce(
+          (sum, message) => sum + getTokenizer().count(typeof message.content === 'string' ? message.content : ''),
+          0
+        )
+        const inputTokens = Math.ceil(local * 1.5)
+        this.sent.push(inputTokens)
+        const response = await super.generateText()
+        return { ...response, metadata: { ...response.metadata, usage: { ...response.metadata.usage, inputTokens } } }
+      }
+    }
+    const pages = Array.from({ length: 5 }, (_, index) => `PAGE ${index}\n${'row of page content\n'.repeat(2_000)}`)
+    let call = 0
+    const readPage = new Tool({ name: 'readPage', output: z.string(), handler: async () => pages[call++] ?? '' })
+    const done = new Exit({ name: 'done', description: 'Task completed' })
+    const client = new ClaudeLikeCognitive([...pages.map(() => '■run\nreturn await readPage()'), '■next=done'])
+
+    const result = await executeContext({
+      client,
+      exits: [done],
+      tools: [readPage],
+      options: { loop: pages.length + 1, maxTokens: 40_000 },
+    })
+
+    expect(result).toBeInstanceOf(SuccessExecutionResult)
+    // Once the first request is measured, no request goes over the window by the provider's count
+    expect(Math.max(...client.sent.slice(1))).toBeLessThanOrEqual(40_000)
+  })
+
+  test('a request whose usage was only estimated keeps the measured ratio', async () => {
+    // Streams like Claude (1.5 tokens per local token); the 4th reply keeps writing after ■end, so its usage is estimated
+    class ClaudeLikeStreamingCognitive extends ScriptedCognitive {
+      public sent: number[] = []
+      public async *generateTextStream(input?: CognitiveRequest): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
+        const local = (input?.messages ?? []).reduce(
+          (sum, message) => sum + getTokenizer().count(typeof message.content === 'string' ? message.content : ''),
+          0
+        )
+        const inputTokens = Math.ceil(local * 1.5)
+        this.sent.push(inputTokens)
+        yield { output: this._nextContent(), created: Date.now() }
+        if (this.sent.length === 4) {
+          yield { output: 'x'.repeat(3_000), created: Date.now() }
+          return
+        }
+        const metadata = makeFakeMetadata()
+        yield {
+          created: Date.now(),
+          finished: true,
+          metadata: { ...metadata, usage: { ...metadata.usage, inputTokens } },
+        }
+      }
+    }
+    const pages = Array.from({ length: 6 }, (_, index) => `PAGE ${index}\n${'row of page content\n'.repeat(2_000)}`)
+    let call = 0
+    const readPage = new Tool({ name: 'readPage', output: z.string(), handler: async () => pages[call++] ?? '' })
+    const done = new Exit({ name: 'done', description: 'Task completed' })
+    const client = new ClaudeLikeStreamingCognitive([...pages.map(() => '■run\nreturn await readPage()'), '■next=done'])
+
+    const result = await executeContext({
+      client,
+      exits: [done],
+      tools: [readPage],
+      options: { loop: pages.length + 1, maxTokens: 40_000 },
+    })
+
+    expect(result).toBeInstanceOf(SuccessExecutionResult)
+    expect(result.iterations[3]!.providerTokenRatio).toBeUndefined()
+    expect(Math.max(...client.sent.slice(1))).toBeLessThanOrEqual(40_000)
+  })
+
+  test('a model switch does not apply the previous model ratio', async () => {
+    // Counts 1.5 tokens per local token for the Claude-like model and 1 for the OpenAI-like one
+    class TwoProviderCognitive extends ScriptedCognitive {
+      public sent: { model: string; inputTokens: number }[] = []
+      public override async generateText(input?: CognitiveRequest): Promise<CognitiveResponse> {
+        const local = (input?.messages ?? []).reduce(
+          (sum, message) => sum + getTokenizer().count(typeof message.content === 'string' ? message.content : ''),
+          0
+        )
+        const model = String(input?.model)
+        const inputTokens = Math.ceil(local * (model.startsWith('anthropic:') ? 1.5 : 1))
+        this.sent.push({ model, inputTokens })
+        const response = await super.generateText()
+        return { ...response, metadata: { ...response.metadata, usage: { ...response.metadata.usage, inputTokens } } }
+      }
+    }
+    const pages = Array.from({ length: 6 }, (_, index) => `PAGE ${index}\n${'row of page content\n'.repeat(2_000)}`)
+    let call = 0
+    const readPage = new Tool({ name: 'readPage', output: z.string(), handler: async () => pages[call++] ?? '' })
+    const done = new Exit({ name: 'done', description: 'Task completed' })
+    const client = new TwoProviderCognitive([...pages.map(() => '■run\nreturn await readPage()'), '■next=done'])
+
+    const result = await executeContext({
+      client,
+      model: (ctx) => (ctx.iterations.length < 5 ? 'anthropic:claude-like' : 'openai:gpt-like'),
+      exits: [done],
+      tools: [readPage],
+      options: { loop: pages.length + 1, maxTokens: 40_000 },
+    })
+
+    expect(result).toBeInstanceOf(SuccessExecutionResult)
+    const firstOpenAi = client.sent.find((request) => request.model.startsWith('openai:'))
+    // The Claude ratio would cut this request to about 21k tokens; OpenAI's own budget allows about 36k
+    expect(firstOpenAi?.inputTokens).toBeGreaterThan(30_000)
+    expect(Math.max(...client.sent.map((request) => request.inputTokens))).toBeLessThanOrEqual(40_000)
   })
 
   test('a maxTokens too small to fit the prompt fails fast instead of looping', async () => {
