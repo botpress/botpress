@@ -40,7 +40,7 @@
     "@types/web": "^0.0.115",
     "@types/ws": "^8.5.10",
     "dotenv": "^16.4.4",
-    "esbuild": "^0.25.10",
+    "esbuild": "^0.28.1",
     "esbuild-plugin-polyfill-node": "^0.3.0",
     "lodash": "^4.17.21",
     "uuid": "^9.0.0"
