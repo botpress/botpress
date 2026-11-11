@@ -16,6 +16,8 @@ import {
   ImageRequest,
   ImageResponse,
   ImageMetadata,
+  ClassifyRequest,
+  ClassifyResponse,
   Voice,
   Model,
 } from './types'
@@ -33,18 +35,30 @@ export {
   ImageRequest,
   ImageResponse,
   ImageMetadata,
+  ClassifyRequest,
+  ClassifyResponse,
   Voice,
 }
+export type { ClassifyLabel, ClassifyModels, ClassifyScore, ClassifyMetadata } from './types'
 
 export type BetaTextRequest = { type: 'generateText'; input: CognitiveRequest }
 export type BetaTranscribeRequest = { type: 'transcribeAudio'; input: TranscribeRequest }
 export type BetaTtsRequest = { type: 'generateAudio'; input: TtsRequest }
 export type BetaImageRequest = { type: 'generateImage'; input: ImageRequest }
-export type BetaRequest = BetaTextRequest | BetaTranscribeRequest | BetaTtsRequest | BetaImageRequest
+export type BetaClassifyRequest = { type: 'classify'; input: ClassifyRequest }
+export type BetaRequest =
+  | BetaTextRequest
+  | BetaTranscribeRequest
+  | BetaTtsRequest
+  | BetaImageRequest
+  | BetaClassifyRequest
 
 export type BetaEvents = {
   request: (req: BetaRequest) => void
-  response: (req: BetaRequest, res: CognitiveResponse | TranscribeResponse | TtsResponse | ImageResponse) => void
+  response: (
+    req: BetaRequest,
+    res: CognitiveResponse | TranscribeResponse | TtsResponse | ImageResponse | ClassifyResponse
+  ) => void
   error: (req: BetaRequest, error: any) => void
   retry: (req: BetaRequest, error: any) => void
 }
@@ -316,6 +330,32 @@ export class Cognitive {
       const { data } = await this._withServerRetry(
         () =>
           this._httpClient.post<ImageResponse>('/v2/cognitive/generate-image', input, {
+            signal,
+            timeout: options.timeout ?? this._timeout,
+          }),
+        options,
+        req
+      )
+
+      this._events.emit('response', req, data)
+      return data
+    } catch (error) {
+      this._events.emit('error', req, error)
+      throw error
+    }
+  }
+
+  /** Picks the best-fitting label for a text, with per-label scores when the answering backend provides them. */
+  public async classify(input: ClassifyRequest, options: RequestOptions = {}): Promise<ClassifyResponse> {
+    const signal = options.signal ?? AbortSignal.timeout(this._timeout)
+    const req: BetaClassifyRequest = { type: 'classify', input }
+
+    this._events.emit('request', req)
+
+    try {
+      const { data } = await this._withServerRetry(
+        () =>
+          this._httpClient.post<ClassifyResponse>('/v2/cognitive/classify', input, {
             signal,
             timeout: options.timeout ?? this._timeout,
           }),
