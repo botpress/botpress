@@ -93,8 +93,8 @@ You may select more than one spreadsheet. **The first spreadsheet you select bec
 
 1. Open the downloaded JSON file in a text editor.
 2. Look for the `client_email` field. This is the email address of the service account you created. Copy the email address, excluding the quotation marks. You will need this email address to share your spreadsheet with the service account and to configure the integration in Botpress.
-3. Look for the `private_key` field. This is the private key associated with the service account. Copy the private key, excluding the quotation marks. You will need this private key to configure the integration in Botpress.
-   > This public key begins with `-----BEGIN PRIVATE KEY-----\n` and ends with `\n-----END PRIVATE KEY-----\n`. You must copy the entire key: everything that is between the quotation marks.
+3. For the **Service account private key** field, copy the whole content of the JSON file. Botpress reads the private key from the file's `private_key` field.
+   > You can also copy only the value of the `private_key` field. Copy the entire value, from `-----BEGIN PRIVATE KEY-----` to `-----END PRIVATE KEY-----`, and do not edit it: Botpress accepts the key with its `\n` characters as they appear in the file.
 
 #### Sharing your spreadsheet with the service account
 
