@@ -26,7 +26,9 @@ export const configurations = {
         .string()
         .title('Service account private key')
         .min(1)
-        .describe('The private key from the Google service account. You can get it from the downloaded JSON file.'),
+        .describe(
+          'The whole JSON file downloaded for the Google service account, or only the value of its "private_key" field.'
+        ),
       clientEmail: z
         .string()
         .title('Service account email')
