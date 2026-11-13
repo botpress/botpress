@@ -882,6 +882,30 @@ await record({ token: "\u25a0end" })
     expect(prompts[3]).toContain('Iteration 3: code execution failed.')
   })
 
+  test('lists only the latest iterations one by one in the status and counts the earlier ones', async () => {
+    const done = new Exit({ name: 'done', description: 'Task completed' })
+    const result = await executeContext({
+      client: new ScriptedNonStreamingCognitive([
+        '■run\nreturn 1',
+        '■run\nthrow new Error("boom")',
+        '■run\nreturn 3',
+        '■run\nreturn 4',
+        '■run\nreturn 5',
+        '■run\nreturn 6',
+        '■run\nreturn 7',
+        '■next=done',
+      ]),
+      exits: [done],
+      options: { loop: 10 },
+    })
+    expect(result.isSuccess()).toBe(true)
+    const status = String(result.iterations[7]!.messages.at(-1)!.content)
+    expect(status).toContain('Iterations 1-2: shown in the conversation above (1 of them failed)')
+    expect(status).not.toContain('Iteration 1:')
+    expect(status).not.toContain('Iteration 2:')
+    for (const n of [3, 4, 5, 6, 7]) expect(status).toContain(`Iteration ${n}: code completed and returned control.`)
+  })
+
   test('marks delivered messages retracted by a stream restart in the next status', async () => {
     class RestartThenAnswer extends ScriptedRestartStreamingCognitive {
       private calls = 0

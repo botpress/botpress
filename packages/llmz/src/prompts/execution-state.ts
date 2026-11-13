@@ -10,6 +10,22 @@ const escapeData = (value: string): string =>
 
 const summarizeData = (value: string): string => wrapContent(escapeData(value), { preserve: 'bottom', minTokens: 100 })
 
+/** Iterations listed one by one; earlier ones are already in the conversation, and this message is rebuilt on every request */
+const RECENT_ITERATIONS = 5
+
+function listIterations(history: readonly string[]): string {
+  const recent = history.slice(-RECENT_ITERATIONS)
+  const earlier = history.length - recent.length
+  if (earlier === 0) {
+    return recent.join('\n')
+  }
+  const failed = history
+    .slice(0, earlier)
+    .filter((line) => /: (code execution failed|invalid code|exit validation failed)/.test(line)).length
+  const summary = `Iterations 1-${earlier}: shown in the conversation above (${failed} of them failed); totals per tool are below.`
+  return [summary, ...recent].join('\n')
+}
+
 function describeIteration(iteration: ExecutionState): string {
   if (iteration.current > 1) {
     return 'This is the NEXT ITERATION. The most recent code and its result or error appear above.'
@@ -94,7 +110,7 @@ export function getExecutionState(props: LLMzPrompts.InitialStateProps): string 
   const status = ['<execution_status>', describeIteration(iteration)]
 
   if (iteration.history?.length) {
-    status.push(summarizeData(iteration.history.join('\n')))
+    status.push(summarizeData(listIterations(iteration.history)))
   }
 
   if (Object.keys(iteration.toolAttempts ?? {}).length) {
