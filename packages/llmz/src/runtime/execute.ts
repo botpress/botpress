@@ -6,6 +6,7 @@ import { Context, Iteration } from '../context.js'
 import { _CustomModelClient } from '../custom-client.js'
 import { CognitiveError, LoopExceededError, ThinkSignal } from '../errors.js'
 import { createJsxComponent } from '../jsx.js'
+import { getSavedResultVariables } from '../prompts/result-budget.js'
 import { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from '../result.js'
 import { Snapshot } from '../snapshots.js'
 import { cleanStackTrace } from '../stack-traces.js'
@@ -478,5 +479,6 @@ const executeIteration = async ({
     controller,
     startedAt,
     onExit,
+    savedResultVariables: getSavedResultVariables(ctx.iterations.slice(0, -1)),
   })
 }

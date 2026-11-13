@@ -9,10 +9,19 @@ const NUMBER_LOCALE = new Intl.NumberFormat('en-US')
 
 const LONG_TEXT_LENGTH = 4096
 
-type PreviewOptions = {
-  tokens: number
-  /** Latest tool results defer string clipping to the request context budget. */
+export type PreviewLimits = {
+  /** Clips strings, including strings nested in objects and arrays when finite. */
   maxStringLength?: number
+  /** Lists at most this many array items; summaries still describe every item. */
+  maxArrayItems?: number
+  /** Prints values nested below the top level on a single line. */
+  compact?: boolean
+}
+
+export type PreviewOptions = PreviewLimits & {
+  tokens: number
+  /** Set to false to drop the "Full ... Preview" heading above a complete object or array preview. */
+  fullPreviewHeader?: boolean
 }
 
 const DEFAULT_OPTIONS: PreviewOptions = {
@@ -28,8 +37,16 @@ type PrintResult = {
 const stringify = (value: unknown) =>
   JSON.stringify(value, (_key, item) => (typeof item === 'bigint' ? item.toString() + 'n' : item))
 
-function printLimitedJson(obj: any, maxDepth: number, maxLength: number, maxKeys: number): PrintResult {
+function printLimitedJson(
+  obj: any,
+  maxDepth: number,
+  maxLength: number,
+  maxKeys: number,
+  limits: PreviewLimits = {}
+): PrintResult {
   const indent = 2
+  const maxStringLength = limits.maxStringLength ?? Infinity
+  const maxArrayItems = limits.maxArrayItems ?? Infinity
   let currentLength = 0
   let wasTruncated = false
 
@@ -48,6 +65,14 @@ function printLimitedJson(obj: any, maxDepth: number, maxLength: number, maxKeys
       }
     }
 
+    if (typeof currentObj === 'string' && currentObj.length > maxStringLength) {
+      wasTruncated = true
+      const value = stringify(currentObj.slice(0, maxStringLength)) + ' ... <truncated>'
+      currentLength += getTokenizer().count(value)
+
+      return value
+    }
+
     if (typeof currentObj !== 'object' || currentObj === null) {
       const value = stringify(currentObj)
       currentLength += getTokenizer().count(value)
@@ -55,36 +80,46 @@ function printLimitedJson(obj: any, maxDepth: number, maxLength: number, maxKeys
       return value
     }
 
-    const indentation = ' '.repeat(currentIndent)
+    const inline = limits.compact === true && depth >= 1
+    const indentation = inline ? '' : ' '.repeat(currentIndent)
+    const itemIndent = inline ? '' : indentation + ' '.repeat(indent)
+    const open = inline ? '' : '\n'
+    const separator = inline ? ', ' : ',\n'
+    const close = inline ? '' : '\n' + indentation
 
     if (Array.isArray(currentObj)) {
-      let result = '[\n'
-      for (let i = 0; i < currentObj.length && currentLength < maxLength; i++) {
+      let result = '[' + open
+      const shownItems = Math.min(currentObj.length, maxArrayItems)
+      for (let i = 0; i < shownItems && currentLength < maxLength; i++) {
         if (i > 0) {
-          result += ',\n'
+          result += separator
         }
-        result += indentation + ' '.repeat(indent) + recurse(currentObj[i], depth + 1, currentIndent + indent)
+        result += itemIndent + recurse(currentObj[i], depth + 1, currentIndent + indent)
       }
-      result += '\n' + indentation + ']'
+      if (currentObj.length > shownItems) {
+        wasTruncated = true
+        result += separator + itemIndent + `... (${currentObj.length - shownItems} more items)`
+      }
+      result += close + ']'
       currentLength += getTokenizer().count(result)
       return result
     } else {
-      let result = '{\n'
+      let result = '{' + open
       const keys = Object.keys(currentObj)
       const numKeys = keys.length
       for (let i = 0; i < Math.min(numKeys, maxKeys) && currentLength < maxLength; i++) {
         const key = keys[i]!
         if (i > 0) {
-          result += ',\n'
+          result += separator
         }
         const value = recurse(currentObj[key], depth + 1, currentIndent + indent)
-        result += indentation + ' '.repeat(indent) + `"${key}": ${value}`
+        result += itemIndent + `"${key}": ${value}`
       }
       if (numKeys > maxKeys) {
         wasTruncated = true
-        result += ',\n' + indentation + `... (${numKeys - maxKeys} more keys)`
+        result += separator + indentation + `... (${numKeys - maxKeys} more keys)`
       }
-      result += '\n' + indentation + '}'
+      result += close + '}'
       currentLength += getTokenizer().count(result)
       return result
     }
@@ -164,7 +199,7 @@ export function extractType(value: unknown, generic: boolean = true): string {
   return typeof value
 }
 
-function previewValue(value: unknown, length: number = LONG_TEXT_LENGTH) {
+function previewValue(value: unknown, length: number = LONG_TEXT_LENGTH, clipObjects: boolean = false) {
   if (value === null) {
     return '<nil>'
   }
@@ -181,8 +216,8 @@ function previewValue(value: unknown, length: number = LONG_TEXT_LENGTH) {
   }
 
   const previewObj = (obj: any) => {
-    const mapped = mapKeys(obj, (_value, key) => previewStr(key))
-    return stringify(mapped)
+    const json = stringify(mapKeys(obj, (_value, key) => previewStr(key)))
+    return clipObjects && json.length > length ? json.slice(0, length) + ' ... <truncated>' : json
   }
 
   if (typeof value === 'string') {
@@ -246,14 +281,26 @@ function previewError(err: Error) {
   return lines.join('\n')
 }
 
-function previewArray(arr: unknown, maxStringLength: number = LONG_TEXT_LENGTH) {
+function previewArray(arr: unknown, limits: Omit<PreviewOptions, 'tokens'> = {}) {
   if (!Array.isArray(arr)) {
     throw new Error('Expected an array')
   }
 
+  const maxStringLength = limits.maxStringLength ?? LONG_TEXT_LENGTH
+  const maxArrayItems = limits.maxArrayItems ?? Infinity
+  // Only an explicit finite limit clips whole object items; default previews keep them intact.
+  const clipObjects = Number.isFinite(limits.maxStringLength)
+
   const lines: string[] = []
   const getItemPreview = (value: unknown, index: number) =>
-    `[${index}]`.padEnd(15) + `  ${previewValue(value, maxStringLength)}`
+    `[${index}]`.padEnd(15) + `  ${previewValue(value, maxStringLength, clipObjects)}`
+  const getItemPreviews = () => {
+    const previews = arr.slice(0, maxArrayItems).map(getItemPreview)
+    if (arr.length > previews.length) {
+      previews.push(`... (${arr.length - previews.length} more items)`)
+    }
+    return previews
+  }
 
   if (arr.length === 0) {
     lines.push('// Array Is Empty (0 element)')
@@ -261,9 +308,11 @@ function previewArray(arr: unknown, maxStringLength: number = LONG_TEXT_LENGTH) 
   }
 
   if (arr.length <= 10) {
-    lines.push('// Full Array Preview')
-    lines.push(SUBTITLE_LN)
-    lines.push(...arr.map(getItemPreview))
+    if (limits.fullPreviewHeader !== false) {
+      lines.push('// Full Array Preview')
+      lines.push(SUBTITLE_LN)
+    }
+    lines.push(...getItemPreviews())
     return lines.join('\n').replace(/\n{2,}/g, SECTION_SEP)
   }
 
@@ -293,7 +342,7 @@ function previewArray(arr: unknown, maxStringLength: number = LONG_TEXT_LENGTH) 
   lines.push('// Array Preview (truncated)')
   lines.push(SUBTITLE_LN)
 
-  lines.push(...arr.map(getItemPreview))
+  lines.push(...getItemPreviews())
 
   return lines.join('\n').replace(/\n{2,}/g, SECTION_SEP)
 }
@@ -305,7 +354,7 @@ function previewObject(obj: unknown, options: PreviewOptions) {
 
   const lines: string[] = []
 
-  const { output, truncated } = printLimitedJson(obj, 10, options.tokens, 20)
+  const { output, truncated } = printLimitedJson(obj, 10, options.tokens, 20, options)
 
   if (truncated) {
     lines.push(SECTION_SEP)
@@ -337,6 +386,8 @@ function previewObject(obj: unknown, options: PreviewOptions) {
 
   if (isEmpty(obj)) {
     lines.push('// Empty Object {}')
+  } else if (!truncated && options.fullPreviewHeader === false) {
+    lines.push(output)
   } else {
     lines.push(truncated ? '// Object Preview (truncated)' : '// Full Object Preview')
     // Preview Object
@@ -420,7 +471,7 @@ export const inspect = (value: unknown, name?: string, options: PreviewOptions =
     }
 
     if (genericType === 'Array') {
-      return header + previewArray(value, options.maxStringLength)
+      return header + previewArray(value, options)
     } else if (genericType === 'error') {
       return getTokenizer().truncate(header + previewError(value as Error), options.tokens)
     } else if (genericType === 'object') {

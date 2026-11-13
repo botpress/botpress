@@ -1,4 +1,3 @@
-import { isPlainObject } from 'lodash-es'
 import { exampleBoundaryInstructions, quoteExample, quoteResponseExample } from '../example-format.js'
 import { renderExamples } from '../example.js'
 import { inspect } from '../inspect.js'
@@ -14,9 +13,35 @@ import { getExecutionState } from './execution-state.js'
 import { LLMzPrompts, Prompt } from './prompt.js'
 import { noPlaceholders, readResultExample } from './protocol-basics.js'
 import { getMessageContract, getProtocolSections } from './protocol.js'
+import {
+  MAX_RESULT_CHARS,
+  clipText,
+  inspectToolCallsWithinBudget,
+  inspectWithinBudget,
+  renderCodeResult,
+  renderWithinBudget,
+} from './result-budget.js'
 
 import WORKER_SYSTEM_PROMPT_TEXT from './worker-mode/system.js'
 import WORKER_USER_PROMPT_TEXT from './worker-mode/user.js'
+
+/** Error messages carry up to three dumps (message, variables, tool calls); split the result budget. */
+const ERROR_SECTION_CHARS = MAX_RESULT_CHARS / 2
+// Beside an error, variables are previews (they stay in the VM) and tool calls keep every call so none is repeated;
+// both stay in the conversation, so page snapshots would be resent on every later turn
+const ERROR_VARIABLES_CHARS = 4_000
+const ERROR_TOOL_CALLS_CHARS = 12_000
+const ERROR_STACK_CHARS = 4_000
+
+/** A stack starts with the error message, which is already shown (capped) above it. */
+const boundStackTrace = (stacktrace: string, message: string): string => {
+  const stack = cleanStackTrace(stacktrace)
+  if (stack.length <= ERROR_STACK_CHARS) {
+    return stack
+  }
+  const withoutMessage = message.length > 0 ? stack.replaceAll(message, '[the error message above]') : stack
+  return clipText(withoutMessage, ERROR_STACK_CHARS)
+}
 
 const getSystemMessage: Prompt['getSystemMessage'] = async (props) => {
   let dts = ''
@@ -261,8 +286,8 @@ Error:
 ${wrapContent(props.message, { flex: 4 })}
 \`\`\`
 
-${props.variables ? `Preserved variables (reuse these):\n${wrapContent(inspect(props.variables) ?? '', { preserve: 'top' })}` : ''}
-${props.toolCalls ? `Actual tool calls and outcomes (completed calls must NOT be repeated to fix formatting):\n${wrapContent(inspect(props.toolCalls) ?? '', { preserve: 'top' })}` : ''}
+${props.variables ? `Preserved variables (reuse these):\n${wrapContent(inspectWithinBudget(props.variables, ERROR_VARIABLES_CHARS), { preserve: 'top' })}` : ''}
+${props.toolCalls ? `Actual tool calls and outcomes (completed calls must NOT be repeated to fix formatting):\n${wrapContent(inspectToolCallsWithinBudget(props.toolCalls, ERROR_TOOL_CALLS_CHARS), { preserve: 'top' })}` : ''}
 
 Fix the error within the remaining generation budget. If the task also sets a tool-attempt limit, count actual tool calls only: an invalid response that executed no tool does not consume a tool attempt.
 ${/\n\s*<\/run>\s*$/.test(props.code) ? 'The trailing </run> is the syntax error. DELETE that line. A ■run block is plain JavaScript, not XML: close the response with ■end after the last JavaScript line, with NO XML closing tag.' : ''}
@@ -295,15 +320,15 @@ const getCodeExecutionErrorMessage = async (
 
 An error occurred while executing the code.
 
-${wrapContent(props.message, { preserve: 'top', flex: 4 })}
+${wrapContent(clipText(props.message, ERROR_SECTION_CHARS), { preserve: 'top', flex: 4 })}
 
 Stack Trace:
 \`\`\`
-${wrapContent(cleanStackTrace(props.stacktrace), { flex: 6, preserve: 'top' })}
+${wrapContent(boundStackTrace(props.stacktrace, props.message), { flex: 6, preserve: 'top' })}
 \`\`\`
 
-${props.variables ? `Variables preserved from execution:\n${wrapContent(inspect(props.variables) ?? '', { preserve: 'top' })}` : ''}
-${props.toolCalls ? `Tool results from this attempt (including parallel calls):\n${wrapContent(inspect(props.toolCalls) ?? '', { preserve: 'top' })}` : ''}
+${props.variables ? `Variables preserved from execution:\n${wrapContent(inspectWithinBudget(props.variables, ERROR_VARIABLES_CHARS), { preserve: 'top' })}` : ''}
+${props.toolCalls ? `Tool results from this attempt (including parallel calls):\n${wrapContent(inspectToolCallsWithinBudget(props.toolCalls, ERROR_TOOL_CALLS_CHARS), { preserve: 'top' })}` : ''}
 
 If the task sets a tool-attempt limit, count actual calls across ALL previous responses, including the call that just failed. The initial call counts as one attempt; retries use the remaining attempts. Invalid code that called no tool is not a tool attempt. If the limit is reached, DO NOT call the tool again; finish with the available outcome. Do not invent a tool-attempt limit when none was assigned. Always respect the generation budget separately.
 Otherwise, resume at the FAILED operation; do not restart the whole code block. Reuse preserved data instead of repeating successful reads or side effects. For a temporary failure, retry the failed operation when attempts remain; for invalid code or inputs, correct the cause first. Then continue the remaining work. ${props.isChatEnabled === false ? 'If completion is blocked, use an available exit to report the outcome according to the assigned task.' : recoveryReminder}
@@ -313,57 +338,42 @@ Continue with a new response using the available ■ blocks.
   }
 }
 
+const resultDecodingHint =
+  'Use the returned values according to the assigned task. Inspector quotes and backslash escapes REPRESENT string values: decode that display quoting once, rather than copying inspection syntax. If the task requests a verbatim copy, reproduce the original string contents unchanged, including comments, whitespace, literal backslashes, and existing HTML entities. Do not add escaping, rewrite, summarize, or substitute new examples.'
+
+const interruptedHint =
+  "Follow the tool's request. If it supplied no result and the task still needs one, call that tool again after addressing its request. Do not repeat earlier operations that already succeeded."
+
 const getThinkingMessage = async (props: LLMzPrompts.ThinkingProps): Promise<LLMzPrompts.Message> => {
-  let context = ''
-  // Preserve search evidence until the actual request budget decides what fits.
-  const inspection = { tokens: 100_000, maxStringLength: Infinity }
-
-  if (isPlainObject(props.variables)) {
-    const mapped = Object.entries(props.variables ?? {}).reduce<string[]>((acc, [key, value]) => {
-      const inspected = inspect(value, key, inspection)
-
-      if (inspected) {
-        acc.push(inspected)
-      } else {
-        acc.push(`Value of ${key} is ${wrapContent(JSON.stringify(value, null, 2))}`)
-      }
-      return acc
-    }, [])
-
-    context = mapped.join('\n\n')
-  } else if (Array.isArray(props.variables)) {
-    const mapped = props.variables.map((value, index) => {
-      const inspected = inspect(value, `Index ${index}`, inspection)
-
-      if (inspected) {
-        return inspected
-      } else {
-        return `Value at index ${index} is ${wrapContent(JSON.stringify(value, null, 2))}`
-      }
-    })
-
-    context = mapped.join('\n\n')
-  } else if (typeof props.variables === 'string') {
-    context = props.variables
-  } else {
-    context = inspect(props.variables, undefined, inspection) ?? JSON.stringify(props.variables, null, 2)
-  }
+  const format = { fullPreviewHeader: true }
+  // A tool's ThinkSignal context (e.g. knowledge search passages) is curated by the tool and kept whole;
+  // values returned by generated code are bounded to the result budget.
+  const context = props.interrupted
+    ? renderCodeResult(props.variables, undefined, format)
+    : renderWithinBudget(
+        (limits) => renderCodeResult(props.variables, limits, format),
+        MAX_RESULT_CHARS,
+        props.fullValueVariable
+      )
+  const intro = props.interrupted
+    ? 'A tool paused code execution to request your attention. Its reason and context below may supply a result or request further work.'
+    : "The code execution completed. Here's the context:"
 
   return {
     role: 'user',
     content: `
 ## Important message from the VM
 
-${props.interrupted ? 'A tool paused code execution to request your attention. Its reason and context below may supply a result or request further work.' : "The code execution completed. Here's the context:"}
+${intro}
 -------------------
 Reason: ${props.reason || 'Code execution returned a value'}
 Context:
 ${wrapContent(context, { preserve: 'top' })}
 -------------------
 
-Use the returned values according to the assigned task. Inspector quotes and backslash escapes REPRESENT string values: decode that display quoting once, rather than copying inspection syntax. If the task requests a verbatim copy, reproduce the original string contents unchanged, including comments, whitespace, literal backslashes, and existing HTML entities. Do not add escaping, rewrite, summarize, or substitute new examples.
+${resultDecodingHint}
 
-Continue with a new response using ■ blocks. ${props.interrupted ? "Follow the tool's request. If it supplied no result and the task still needs one, call that tool again after addressing its request. Do not repeat earlier operations that already succeeded." : 'Do not re-run successful code or tools. An empty result is normal for tools that return no value; it does NOT mean execution failed. Do not repeat reads just to verify these successful operations. Use the available results; if the task is complete, finish with an available exit.'} A successful search with NO matches has not answered the question: run a refined query when it could help. A different query is new work, not a repeat of the successful call. Keep internal deliberation private.
+Continue with a new response using ■ blocks. ${props.interrupted ? interruptedHint : 'Do not re-run successful code or tools. An empty result is normal for tools that return no value; it does NOT mean execution failed. Do not repeat reads just to verify these successful operations. Use the available results; if the task is complete, finish with an available exit.'} A successful search with NO matches has not answered the question: run a refined query when it could help. A different query is new work, not a repeat of the successful call. Keep internal deliberation private.
 ${
   props.isChatEnabled === false
     ? ''

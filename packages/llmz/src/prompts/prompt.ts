@@ -103,6 +103,8 @@ export namespace LLMzPrompts {
     variables: unknown
     /** Messages generated after returning code were suppressed before delivery. */
     discardedMessages?: boolean
+    /** Names the code variable that holds the full returned value when it is too large to show. */
+    fullValueVariable?: string
   }
 
   export type SnapshotResolvedProps = {

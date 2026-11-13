@@ -15,6 +15,7 @@ import { Iteration, ListenExit } from '../context.js'
 import { createJsxComponent } from '../jsx.js'
 import { CognitiveError, ThinkSignal } from '../errors.js'
 import { Exit } from '../exit.js'
+import { ObjectInstance } from '../objects.js'
 import { Example } from '../example.js'
 import { ErrorExecutionResult, SuccessExecutionResult } from '../result.js'
 import { _CustomModelClient } from '../custom-client.js'
@@ -22,6 +23,7 @@ import { Tool } from '../tool.js'
 import { Transcript } from '../transcript.js'
 import { qwenProtocolFailures } from './fixtures/qwen-protocol-failures.js'
 import { executeContext } from './execute.js'
+import { MAX_RESULT_CHARS } from '../prompts/result-budget.js'
 import { getTokenizer } from '../utils.js'
 
 /**
@@ -1073,6 +1075,114 @@ await record({ token: "\u25a0end" })
       const next = result.iterations[index + 1]!.messages
       expect(next.slice(0, sentBeforeState.length)).toEqual(sentBeforeState)
     }
+  })
+
+  describe('code results larger than the result budget', () => {
+    const rows = Array.from({ length: 3_000 }, (_, i) => ({ id: i, text: `row ${i} ${'x'.repeat(60)}` }))
+    const fetchAll = new Tool({
+      name: 'fetchAll',
+      output: z.array(z.object({ id: z.number(), text: z.string() })),
+      handler: async () => rows,
+    })
+    const done = () => new Exit({ name: 'done', description: 'Finish' })
+
+    test('caps a result larger than the default budget and keeps the full value in lastResult', async () => {
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive([
+          '■run\nreturn await fetchAll()',
+          '■run\nreturn lastResult.length',
+          '■next=done',
+        ]),
+        tools: [fetchAll],
+        exits: [done()],
+        options: { loop: 4 },
+      })
+      expect(result.isSuccess()).toBe(true)
+      const [first, second] = result.iterations
+      expect(first!.status).toMatchObject({ thinking_requested: { fullValueVariable: 'lastResult' } })
+      const prompt = latestPrompt(second!)
+      expect(prompt).toMatch(/\[truncated: showing \d+ of \d+ chars\. The full value is in the variable `lastResult`/)
+      expect(prompt).not.toContain(rows.at(-1)!.text)
+      expect(prompt.length).toBeLessThan(MAX_RESULT_CHARS + 10_000)
+      expect(second!.status).toMatchObject({ thinking_requested: { variables: 3_000 } })
+    })
+
+    test('keeps a lastResult the code declared and saves the large result under another name', async () => {
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive([
+          '■run\nconst lastResult = { ticketId: "42" }\nreturn await fetchAll()',
+          '■run\nreturn { ticketId: lastResult.ticketId, rows: lastResult2.length }',
+          '■next=done',
+        ]),
+        tools: [fetchAll],
+        exits: [done()],
+        options: { loop: 4 },
+      })
+      expect(result.isSuccess()).toBe(true)
+      const [first, second] = result.iterations
+      expect(first!.status).toMatchObject({ thinking_requested: { fullValueVariable: 'lastResult2' } })
+      expect(latestPrompt(second!)).toContain('The full value is in the variable `lastResult2`')
+      expect(second!.status).toMatchObject({ thinking_requested: { variables: { ticketId: '42', rows: 3_000 } } })
+    })
+
+    test('skips names used by tools, tool aliases and objects', async () => {
+      const lastResult2 = new Tool({ name: 'lastResult2', output: z.string(), handler: async () => 'tool' })
+      const aliased = new Tool({
+        name: 'other',
+        aliases: ['lastResult3'],
+        output: z.string(),
+        handler: async () => 'alias',
+      })
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive([
+          '■run\nconst lastResult = { ticketId: "42" }\nreturn await fetchAll()',
+          '■run\nreturn { ticketId: lastResult.ticketId, rows: lastResult5.length }',
+          '■next=done',
+        ]),
+        tools: [fetchAll, lastResult2, aliased],
+        objects: [new ObjectInstance({ name: 'lastResult4' })],
+        exits: [done()],
+        options: { loop: 4 },
+      })
+      expect(result.isSuccess()).toBe(true)
+      const [first, second] = result.iterations
+      expect(first!.status).toMatchObject({ thinking_requested: { fullValueVariable: 'lastResult5' } })
+      expect(second!.status).toMatchObject({ thinking_requested: { variables: { ticketId: '42', rows: 3_000 } } })
+    })
+
+    test('reuses its own lastResult for the next large result', async () => {
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive([
+          '■run\nreturn await fetchAll()',
+          '■run\nreturn await fetchAll()',
+          '■next=done',
+        ]),
+        tools: [fetchAll],
+        exits: [done()],
+        options: { loop: 4 },
+      })
+      expect(result.isSuccess()).toBe(true)
+      for (const iteration of result.iterations.slice(0, 2)) {
+        expect(iteration.status).toMatchObject({ thinking_requested: { fullValueVariable: 'lastResult' } })
+      }
+    })
+
+    test('does not define lastResult when the result fits', async () => {
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive([
+          '■run\nreturn [1, 2]',
+          '■run\nreturn typeof lastResult',
+          '■next=done',
+        ]),
+        exits: [done()],
+        options: { loop: 4 },
+      })
+      expect(result.isSuccess()).toBe(true)
+      expect(result.iterations[0]!.status).not.toMatchObject({
+        thinking_requested: { fullValueVariable: 'lastResult' },
+      })
+      expect(result.iterations[1]!.status).toMatchObject({ thinking_requested: { variables: 'undefined' } })
+    })
   })
 
   test('marks the first response as final when only one generation is allowed', async () => {

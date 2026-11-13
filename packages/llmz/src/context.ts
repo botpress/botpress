@@ -1,6 +1,6 @@
 import { Models, SttModels } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
-import { cloneDeep, isPlainObject } from 'lodash-es'
+import { cloneDeep, isPlainObject, omit } from 'lodash-es'
 import { ulid } from 'ulid'
 import { Chat } from './chat.js'
 import { assertValidComponent, Component } from './component.js'
@@ -14,6 +14,7 @@ import { ObjectInstance } from './objects.js'
 import { DualModePrompt } from './prompts/dual-modes.js'
 import { summarizeIterations } from './prompts/execution-history.js'
 import { LLMzPrompts, ParsedNext, ParsedSend, Prompt } from './prompts/prompt.js'
+import { getSavedResultVariables } from './prompts/result-budget.js'
 import { Snapshot } from './snapshots.js'
 import { Tool } from './tool.js'
 import { Transcript, TranscriptArray } from './transcript.js'
@@ -123,6 +124,8 @@ export namespace IterationStatuses {
       metadata?: Record<string, unknown>
       /** A tool paused execution; it did not finish or return normally. */
       interrupted?: boolean
+      /** The returned value was too large to show; the next code run reads it from this variable. */
+      fullValueVariable?: string
     }
   }
 
@@ -937,6 +940,7 @@ export class Context implements Serializable<Context.JSON> {
           variables: lastIteration.status.thinking_requested.variables,
           interrupted: lastIteration.status.thinking_requested.interrupted,
           discardedMessages: lastIteration.llm?.diagnostics?.some((diagnostic) => diagnostic.code === 'send-after-run'),
+          fullValueVariable: lastIteration.status.thinking_requested.fullValueVariable,
         }),
       ])
     }
@@ -954,7 +958,7 @@ export class Context implements Serializable<Context.JSON> {
             ? `■next=${lastIteration.next.name} ${JSON.stringify(lastIteration.next.props)}`
             : (lastIteration.code ?? '// No code generated'),
           message: `Invalid ■next block (${lastIteration.status.exit_error.exit}): ${lastIteration.status.exit_error.message}`,
-          variables: lastIteration.variables,
+          variables: omit(lastIteration.variables, getSavedResultVariables(this.iterations)),
           toolCalls: lastIteration.traces
             .filter((trace) => trace.type === 'tool_call')
             .map((trace) => ({
@@ -991,7 +995,7 @@ export class Context implements Serializable<Context.JSON> {
         },
         await this.version.getCodeExecutionErrorMessage({
           isChatEnabled: parameters.components.length > 0,
-          variables: lastIteration.variables,
+          variables: omit(lastIteration.variables, getSavedResultVariables(this.iterations)),
           toolCalls: lastIteration.traces
             .filter((trace) => trace.type === 'tool_call')
             .map((trace) => ({
