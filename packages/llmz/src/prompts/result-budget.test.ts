@@ -64,6 +64,16 @@ describe.each([
     expect(content.length).toBeLessThan(MAX_RESULT_CHARS + 5_000)
   })
 
+  it('renders only the items a smaller preview can show when a top-level array is too large', async () => {
+    const rows = Array.from({ length: 5_000 }, (_, i) => ({ id: i, content: html(20) }))
+    const content = await thinking(rows, isChatEnabled)
+
+    expect(content).toMatch(NOTICE)
+    expect(content).toContain('Index 0')
+    expect(content).toMatch(/\.\.\. \(\d+ more items\)/)
+    expect(content.length).toBeLessThan(MAX_RESULT_CHARS + 5_000)
+  })
+
   it('bounds large nested arrays and strings inside an object structurally', async () => {
     const report = { title: 'Inventory', items: Array.from({ length: 3_000 }, (_, i) => `sku-${i}`), body: html(5_000) }
     const content = await thinking({ report }, isChatEnabled)

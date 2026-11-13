@@ -104,13 +104,23 @@ export const renderCodeResult = (
   const describe = (item: unknown, name: string, fallback: string) =>
     inspect(item, name, inspection) || `${fallback} is ${wrapContent(JSON.stringify(item, null, 2))}`
 
+  // A smaller preview only renders the entries it can show, instead of rendering every one and cutting afterwards
+  const shown = <T>(entries: T[], unit: string): { entries: T[]; more: string[] } => {
+    const max = limits?.maxArrayItems ?? Infinity
+    return entries.length > max
+      ? { entries: entries.slice(0, max), more: [`... (${entries.length - max} more ${unit})`] }
+      : { entries, more: [] }
+  }
+
   if (isPlainObject(value) && typeof value === 'object' && value !== null) {
-    return Object.entries(value)
-      .map(([key, item]) => describe(item, key, `Value of ${key}`))
-      .join('\n\n')
+    const { entries, more } = shown(Object.entries(value), 'entries')
+    return [...entries.map(([key, item]) => describe(item, key, `Value of ${key}`)), ...more].join('\n\n')
   }
   if (Array.isArray(value)) {
-    return value.map((item, index) => describe(item, `Index ${index}`, `Value at index ${index}`)).join('\n\n')
+    const { entries, more } = shown(value, 'items')
+    return [...entries.map((item, index) => describe(item, `Index ${index}`, `Value at index ${index}`)), ...more].join(
+      '\n\n'
+    )
   }
   if (typeof value === 'string') {
     return value
