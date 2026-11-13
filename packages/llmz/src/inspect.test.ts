@@ -843,3 +843,44 @@ describe('inspection safety', () => {
     expect(output.match(/order-42/g)).toHaveLength(2)
   })
 })
+
+describe('Inspect preview limits', () => {
+  const value = { title: 'Report', rows: Array.from({ length: 30 }, (_, i) => i), body: 'b'.repeat(500) }
+
+  it('ignores the limits unless they are provided', () => {
+    expect(inspect(value, 'report', { tokens: 100_000, maxStringLength: Infinity })).toBe(inspect(value, 'report'))
+  })
+
+  it('clips nested strings, lists fewer array items and prints nested values on one line', () => {
+    expect(inspect(value, 'report', { tokens: 100_000, maxStringLength: 10, maxArrayItems: 3, compact: true }))
+      .toMatchInlineSnapshot(`
+      "// const report: object
+
+      // Analysis Summary
+      --------------
+      Total Entries:   3
+      Keys:            <array> '[\\"title\\",\\"rows\\",\\"body\\"]'
+      Popular Types:   <object> {"'string'":2}
+      Unique Values:   3
+      Nil Values:      0
+      Memory Usage:    617B
+      // Object Preview (truncated)
+      --------------
+      {
+        "title": "Report",
+        "rows": [0, 1, 2, ... (27 more items)],
+        "body": "bbbbbbbbbb" ... <truncated>
+      }"
+    `)
+  })
+
+  it('lists at most maxArrayItems items of a long array but summarizes all of them', () => {
+    const items = Array.from({ length: 100 }, (_, i) => ({ id: i, text: 't'.repeat(50) }))
+    const output = inspect(items, 'items', { tokens: 100_000, maxStringLength: 20, maxArrayItems: 5 })
+    expect(output).toContain('Total Items:     100')
+    expect(output).toContain('[4]')
+    expect(output).not.toContain('[5]')
+    expect(output).toContain('... (95 more items)')
+    expect(output).toMatch(/\[0\] +<object> \{"'id'":0,"'text'":"t* \.\.\. <truncated>/)
+  })
+})

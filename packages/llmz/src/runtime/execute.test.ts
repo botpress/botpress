@@ -22,6 +22,7 @@ import { Tool } from '../tool.js'
 import { Transcript } from '../transcript.js'
 import { qwenProtocolFailures } from './fixtures/qwen-protocol-failures.js'
 import { executeContext } from './execute.js'
+import { MAX_RESULT_CHARS } from '../prompts/result-budget.js'
 import { getTokenizer } from '../utils.js'
 
 /**
@@ -1073,6 +1074,32 @@ await record({ token: "\u25a0end" })
       const next = result.iterations[index + 1]!.messages
       expect(next.slice(0, sentBeforeState.length)).toEqual(sentBeforeState)
     }
+  })
+
+  describe('code results larger than the result budget', () => {
+    const rows = Array.from({ length: 3_000 }, (_, i) => ({ id: i, text: `row ${i} ${'x'.repeat(60)}` }))
+    const fetchAll = new Tool({
+      name: 'fetchAll',
+      output: z.array(z.object({ id: z.number(), text: z.string() })),
+      handler: async () => rows,
+    })
+    const done = () => new Exit({ name: 'done', description: 'Finish' })
+
+    test('caps a result larger than the default budget and says how to see the rest', async () => {
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive(['■run\nreturn await fetchAll()', '■next=done']),
+        tools: [fetchAll],
+        exits: [done()],
+        options: { loop: 3 },
+      })
+      expect(result.isSuccess()).toBe(true)
+      const prompt = latestPrompt(result.iterations[1]!)
+      expect(prompt).toMatch(
+        /\[truncated: showing \d+ of \d+ chars — return a smaller slice or filter to see the rest\]/
+      )
+      expect(prompt).not.toContain(rows.at(-1)!.text)
+      expect(prompt.length).toBeLessThan(MAX_RESULT_CHARS + 10_000)
+    })
   })
 
   test('marks the first response as final when only one generation is allowed', async () => {
