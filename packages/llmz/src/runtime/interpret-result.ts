@@ -1,7 +1,9 @@
+import { omit } from 'lodash-es'
 import { hasTopLevelReturn } from '../compiler/index.js'
 import { Iteration } from '../context.js'
 import { CodeExecutionError, InvalidCodeError, SnapshotSignal, ThinkSignal } from '../errors.js'
 import { parseExit } from '../exit-parser.js'
+import { LAST_RESULT_VARIABLE, exceedsResultBudget } from '../prompts/result-budget.js'
 import { cleanStackTrace } from '../stack-traces.js'
 import { VMExecutionResult } from '../types.js'
 import { getErrorMessage } from '../utils.js'
@@ -121,6 +123,15 @@ export const interpretVMResult = async ({
     Object.entries(result.variables ?? {}).filter(([, value]) => value !== '[[non-primitive]]')
   )
 
+  // A returned value too large to show stays readable by the next code run instead of being lost.
+  const fullValueVariable =
+    returnValue !== undefined && exceedsResultBudget(returnValue, { fullPreviewHeader: true })
+      ? LAST_RESULT_VARIABLE
+      : undefined
+  if (fullValueVariable) {
+    iteration.variables[fullValueVariable] = returnValue
+  }
+
   iteration.end({
     type: 'thinking_requested',
     thinking_requested: {
@@ -132,7 +143,8 @@ export const interpretVMResult = async ({
           ? returnValue
           : Object.keys(localVariables).length
             ? localVariables
-            : iteration.variables,
+            : omit(iteration.variables, LAST_RESULT_VARIABLE),
+      ...(fullValueVariable ? { fullValueVariable } : {}),
     },
   })
 }

@@ -31,6 +31,17 @@ const ERROR_SECTION_CHARS = MAX_RESULT_CHARS / 2
 // both stay in the conversation, so page snapshots would be resent on every later turn
 const ERROR_VARIABLES_CHARS = 4_000
 const ERROR_TOOL_CALLS_CHARS = 12_000
+const ERROR_STACK_CHARS = 4_000
+
+/** A stack starts with the error message, which is already shown (capped) above it. */
+const boundStackTrace = (stacktrace: string, message: string): string => {
+  const stack = cleanStackTrace(stacktrace)
+  if (stack.length <= ERROR_STACK_CHARS) {
+    return stack
+  }
+  const withoutMessage = message.length > 0 ? stack.replaceAll(message, '[the error message above]') : stack
+  return clipText(withoutMessage, ERROR_STACK_CHARS)
+}
 
 const getSystemMessage: Prompt['getSystemMessage'] = async (props) => {
   let dts = ''
@@ -313,7 +324,7 @@ ${wrapContent(clipText(props.message, ERROR_SECTION_CHARS), { preserve: 'top', f
 
 Stack Trace:
 \`\`\`
-${wrapContent(cleanStackTrace(props.stacktrace), { flex: 6, preserve: 'top' })}
+${wrapContent(boundStackTrace(props.stacktrace, props.message), { flex: 6, preserve: 'top' })}
 \`\`\`
 
 ${props.variables ? `Variables preserved from execution:\n${wrapContent(inspectWithinBudget(props.variables, ERROR_VARIABLES_CHARS), { preserve: 'top' })}` : ''}
@@ -339,7 +350,11 @@ const getThinkingMessage = async (props: LLMzPrompts.ThinkingProps): Promise<LLM
   // values returned by generated code are bounded to the result budget.
   const context = props.interrupted
     ? renderCodeResult(props.variables, undefined, format)
-    : renderWithinBudget((limits) => renderCodeResult(props.variables, limits, format))
+    : renderWithinBudget(
+        (limits) => renderCodeResult(props.variables, limits, format),
+        MAX_RESULT_CHARS,
+        props.fullValueVariable
+      )
   const intro = props.interrupted
     ? 'A tool paused code execution to request your attention. Its reason and context below may supply a result or request further work.'
     : "The code execution completed. Here's the context:"

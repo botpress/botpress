@@ -1085,20 +1085,42 @@ await record({ token: "\u25a0end" })
     })
     const done = () => new Exit({ name: 'done', description: 'Finish' })
 
-    test('caps a result larger than the default budget and says how to see the rest', async () => {
+    test('caps a result larger than the default budget and keeps the full value in lastResult', async () => {
       const result = await executeContext({
-        client: new ScriptedNonStreamingCognitive(['■run\nreturn await fetchAll()', '■next=done']),
+        client: new ScriptedNonStreamingCognitive([
+          '■run\nreturn await fetchAll()',
+          '■run\nreturn lastResult.length',
+          '■next=done',
+        ]),
         tools: [fetchAll],
         exits: [done()],
-        options: { loop: 3 },
+        options: { loop: 4 },
       })
       expect(result.isSuccess()).toBe(true)
-      const prompt = latestPrompt(result.iterations[1]!)
-      expect(prompt).toMatch(
-        /\[truncated: showing \d+ of \d+ chars — return a smaller slice or filter to see the rest\]/
-      )
+      const [first, second] = result.iterations
+      expect(first!.status).toMatchObject({ thinking_requested: { fullValueVariable: 'lastResult' } })
+      const prompt = latestPrompt(second!)
+      expect(prompt).toMatch(/\[truncated: showing \d+ of \d+ chars\. The full value is in the variable `lastResult`/)
       expect(prompt).not.toContain(rows.at(-1)!.text)
       expect(prompt.length).toBeLessThan(MAX_RESULT_CHARS + 10_000)
+      expect(second!.status).toMatchObject({ thinking_requested: { variables: 3_000 } })
+    })
+
+    test('does not define lastResult when the result fits', async () => {
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive([
+          '■run\nreturn [1, 2]',
+          '■run\nreturn typeof lastResult',
+          '■next=done',
+        ]),
+        exits: [done()],
+        options: { loop: 4 },
+      })
+      expect(result.isSuccess()).toBe(true)
+      expect(result.iterations[0]!.status).not.toMatchObject({
+        thinking_requested: { fullValueVariable: 'lastResult' },
+      })
+      expect(result.iterations[1]!.status).toMatchObject({ thinking_requested: { variables: 'undefined' } })
     })
   })
 

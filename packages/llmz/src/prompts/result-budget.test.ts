@@ -177,6 +177,35 @@ describe.each([
     expect(content.length).toBeLessThan(MAX_RESULT_CHARS)
   })
 
+  it('shows a circular tool output instead of failing to build the message', async () => {
+    const output: Record<string, unknown> = { id: 'order-1' }
+    output.self = output
+    const message = await DualModePrompt.getCodeExecutionErrorMessage({
+      isChatEnabled,
+      message: 'Error: failed later',
+      stacktrace,
+      toolCalls: [{ tool: 'getOrder', input: { id: 1 }, success: true, output }],
+    })
+    const content = String(message.content)
+    expect(content).toContain('getOrder')
+    expect(content).toContain('order-1')
+  })
+
+  it('caps a stack trace that repeats a huge error message, keeping the location', async () => {
+    const huge = `Error: ${'x'.repeat(200_000)}`
+    const message = await DualModePrompt.getCodeExecutionErrorMessage({
+      isChatEnabled,
+      message: huge,
+      stacktrace: `${huge}\n  at line 7\n  007 | const title = page.title.trim()`,
+    })
+    const content = String(message.content)
+    const stack = content.slice(content.indexOf('Stack Trace:'))
+    expect(stack).toContain('[the error message above]')
+    expect(stack).toContain('at line 7')
+    expect(stack).toContain('007 | const title = page.title.trim()')
+    expect(content.length).toBeLessThan(MAX_RESULT_CHARS / 2 + 10_000)
+  })
+
   it('renders small errors exactly as the unbounded inspector does', async () => {
     const variables = { count: 3, names: ['a', 'b'] }
     const toolCalls = [
@@ -209,5 +238,28 @@ describe.each([
     expect(content).toContain('/a.html')
     expect(content).toMatch(NOTICE)
     expect(content.length).toBeLessThan(MAX_RESULT_CHARS + 10_000)
+  })
+})
+
+describe('full value variable', () => {
+  it.each([false, true])('names the variable holding a truncated result (chat=%s)', async (isChatEnabled) => {
+    const message = await DualModePrompt.getThinkingMessage({
+      variables: { page: html(20_000) },
+      isChatEnabled,
+      fullValueVariable: 'lastResult',
+    })
+    expect(String(message.content)).toMatch(
+      /\[truncated: showing \d+ of \d+ chars\. The full value is in the variable `lastResult`; process it in code \(filter, slice, count\) and return only what you need\]/
+    )
+  })
+
+  it('leaves small results untouched', async () => {
+    const variables = { total: 4 }
+    const message = await DualModePrompt.getThinkingMessage({
+      variables,
+      isChatEnabled: false,
+      fullValueVariable: 'lastResult',
+    })
+    expect(String(message.content)).not.toContain('lastResult')
   })
 })

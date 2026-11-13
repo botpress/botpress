@@ -5,6 +5,9 @@ import { wrapContent } from '../truncator.js'
 /** Largest rendered code result (~37K tokens) sent to the model in one message. */
 export const MAX_RESULT_CHARS = 150_000
 
+/** Holds the full value of the latest code result that was too large to show, for the next code run. */
+export const LAST_RESULT_VARIABLE = 'lastResult'
+
 /** Largest preview of a single tool call input, output or error inside an error message. */
 export const MAX_TOOL_CALL_FIELD_CHARS = 2_000
 
@@ -30,14 +33,21 @@ export type CodeResultFormat = {
 const stringify = (value: unknown): string | undefined =>
   JSON.stringify(value, (_key, item) => (typeof item === 'bigint' ? `${item.toString()}n` : item))
 
-const truncationNotice = (shown: number, total: number) =>
-  `[truncated: showing ${shown} of ${total} chars — return a smaller slice or filter to see the rest]`
+const truncationNotice = (shown: number, total: number, fullValueVariable: string | undefined) =>
+  fullValueVariable
+    ? `[truncated: showing ${shown} of ${total} chars. The full value is in the variable \`${fullValueVariable}\`; process it in code (filter, slice, count) and return only what you need]`
+    : `[truncated: showing ${shown} of ${total} chars — return a smaller slice or filter to see the rest]`
 
 /**
  * Renders unlimited first, so results within the budget stay byte-identical. Larger results are
- * re-rendered with tighter string/array limits before a final cut, and end with a truncation notice.
+ * re-rendered with tighter string/array limits before a final cut, and end with a truncation notice
+ * that names the variable holding the full value, when there is one.
  */
-export const renderWithinBudget = (render: Render, maxChars: number = MAX_RESULT_CHARS): string => {
+export const renderWithinBudget = (
+  render: Render,
+  maxChars: number = MAX_RESULT_CHARS,
+  fullValueVariable?: string
+): string => {
   const full = render(undefined)
   if (full.length <= maxChars) {
     return full
@@ -52,7 +62,7 @@ export const renderWithinBudget = (render: Render, maxChars: number = MAX_RESULT
   }
 
   const shown = output.slice(0, maxChars)
-  return `${shown}\n${truncationNotice(shown.length, full.length)}`
+  return `${shown}\n${truncationNotice(shown.length, full.length, fullValueVariable)}`
 }
 
 /** Renders a code result (returned value or local variables) with each top-level entry named. */
@@ -80,6 +90,13 @@ export const renderCodeResult = (
   return inspect(value, undefined, inspection) ?? JSON.stringify(value, null, 2)
 }
 
+/** True when a code result cannot be shown whole within the result budget. */
+export const exceedsResultBudget = (
+  value: unknown,
+  format: CodeResultFormat,
+  maxChars: number = MAX_RESULT_CHARS
+): boolean => renderCodeResult(value, undefined, format).length > maxChars
+
 /** Inspects a value with the default preview options, bounded to the budget. */
 export const inspectWithinBudget = (value: unknown, maxChars: number = MAX_RESULT_CHARS): string =>
   renderWithinBudget(
@@ -96,11 +113,52 @@ const clipField = (value: unknown, maxChars: number): unknown => {
     return value.length > maxChars ? `${value.slice(0, maxChars)} ... <truncated, ${value.length} chars total>` : value
   }
 
-  const json = stringify(value)
+  const json = safeStringify(value)
+  if (json instanceof Error) {
+    // A circular value stays in the call trace as the tool returned it: print it with the loop marked
+    const preview = stringifyWithoutCycles(value)
+    return preview.length > maxChars
+      ? `${preview.slice(0, maxChars)} ... <truncated JSON, ${preview.length} chars total>`
+      : preview
+  }
   if (json === undefined || json.length <= maxChars) {
     return value
   }
   return `${json.slice(0, maxChars)} ... <truncated JSON, ${json.length} chars total>`
+}
+
+const safeStringify = (value: unknown): string | undefined | Error => {
+  try {
+    return stringify(value)
+  } catch (thrown) {
+    return thrown instanceof Error ? thrown : new Error(String(thrown))
+  }
+}
+
+const stringifyWithoutCycles = (value: unknown): string => {
+  const ancestors: object[] = []
+  try {
+    return (
+      JSON.stringify(value, function (this: unknown, _key, item: unknown) {
+        if (typeof item === 'bigint') {
+          return `${item.toString()}n`
+        }
+        if (typeof item !== 'object' || item === null) {
+          return item
+        }
+        while (ancestors.length > 0 && ancestors.at(-1) !== this) {
+          ancestors.pop()
+        }
+        if (ancestors.includes(item)) {
+          return '[Circular]'
+        }
+        ancestors.push(item)
+        return item
+      }) ?? `<unserializable ${typeof value}>`
+    )
+  } catch {
+    return `<unserializable ${typeof value}>`
+  }
 }
 
 const boundToolCalls = (toolCalls: unknown, maxFieldChars: number): unknown => {
