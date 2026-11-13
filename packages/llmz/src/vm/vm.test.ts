@@ -3,7 +3,7 @@ import { afterEach, assert, describe, expect, it, vi } from 'vitest'
 import { CodeExecutionError, InvalidCodeError, VMSignal } from '../errors.js'
 import { Trace, Traces } from '../types.js'
 import { NodeDriver } from './drivers/node.js'
-import { QuickJSDriver } from './drivers/quickjs.js'
+import { loadQuickJSModule, QuickJSDriver } from './drivers/quickjs.js'
 import { runAsyncFunction } from './index.js'
 
 describe('llmz/vm', () => {
@@ -1062,22 +1062,23 @@ return {
       const page = ('row "' + 'a b c d e f g h '.repeat(40) + '" ').repeat(50)
       return page.match(/row "[^"]* ([^"]*) [^"]* [^"]* [^"]* [^"]* [^"]* [^"]* [^"]* 100\\.0000 /g)
     `
+    // Only QuickJS enforces the timeout; on the node driver this regex would block the test worker for minutes
+    const runOnQuickJS = async (context: Record<string, unknown>, code: string) => {
+      vi.stubEnv('USE_QUICKJS', 'true')
+      await loadQuickJSModule()
+      vi.spyOn(NodeDriver.prototype, 'execute').mockRejectedValue(new Error('This test must run on the QuickJS driver'))
+      return runAsyncFunction(context, code, [], null, 200)
+    }
 
     it('timing out a catastrophic regex returns an error', async () => {
-      const result = await runAsyncFunction({}, catastrophicRegex, [], null, 200)
+      const result = await runOnQuickJS({}, catastrophicRegex)
 
       expect(result.success).toBe(false)
       expect(result.error?.message).toContain('Code execution timed out after 200ms')
     })
 
     it('timing out a catastrophic regex after a tool call returns an error', async () => {
-      const result = await runAsyncFunction(
-        { fetchPage: async () => 'ok' },
-        `await fetchPage()\n${catastrophicRegex}`,
-        [],
-        null,
-        200
-      )
+      const result = await runOnQuickJS({ fetchPage: async () => 'ok' }, `await fetchPage()\n${catastrophicRegex}`)
 
       expect(result.success).toBe(false)
       expect(result.error?.message).toContain('Code execution timed out after 200ms')
