@@ -15,6 +15,7 @@ import { Iteration, ListenExit } from '../context.js'
 import { createJsxComponent } from '../jsx.js'
 import { CognitiveError, ThinkSignal } from '../errors.js'
 import { Exit } from '../exit.js'
+import { ObjectInstance } from '../objects.js'
 import { Example } from '../example.js'
 import { ErrorExecutionResult, SuccessExecutionResult } from '../result.js'
 import { _CustomModelClient } from '../custom-client.js'
@@ -1121,6 +1122,31 @@ await record({ token: "\u25a0end" })
       const [first, second] = result.iterations
       expect(first!.status).toMatchObject({ thinking_requested: { fullValueVariable: 'lastResult2' } })
       expect(latestPrompt(second!)).toContain('The full value is in the variable `lastResult2`')
+      expect(second!.status).toMatchObject({ thinking_requested: { variables: { ticketId: '42', rows: 3_000 } } })
+    })
+
+    test('skips names used by tools, tool aliases and objects', async () => {
+      const lastResult2 = new Tool({ name: 'lastResult2', output: z.string(), handler: async () => 'tool' })
+      const aliased = new Tool({
+        name: 'other',
+        aliases: ['lastResult3'],
+        output: z.string(),
+        handler: async () => 'alias',
+      })
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive([
+          '■run\nconst lastResult = { ticketId: "42" }\nreturn await fetchAll()',
+          '■run\nreturn { ticketId: lastResult.ticketId, rows: lastResult5.length }',
+          '■next=done',
+        ]),
+        tools: [fetchAll, lastResult2, aliased],
+        objects: [new ObjectInstance({ name: 'lastResult4' })],
+        exits: [done()],
+        options: { loop: 4 },
+      })
+      expect(result.isSuccess()).toBe(true)
+      const [first, second] = result.iterations
+      expect(first!.status).toMatchObject({ thinking_requested: { fullValueVariable: 'lastResult5' } })
       expect(second!.status).toMatchObject({ thinking_requested: { variables: { ticketId: '42', rows: 3_000 } } })
     })
 

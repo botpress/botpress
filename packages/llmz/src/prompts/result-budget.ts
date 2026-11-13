@@ -17,11 +17,20 @@ export const getSavedResultVariables = (iterations: readonly Iteration[]): strin
       : []
   )
 
-/** `lastResult`, or `lastResult2`, `lastResult3`... when generated code already uses that name for its own data. */
-export const pickResultVariable = (variables: Record<string, unknown>, saved: readonly string[]): string => {
+type PickResultVariableProps = {
+  /** Variables the next code run receives */
+  variables: Record<string, unknown>
+  /** Names llmz created earlier in this run to hold too-large results; it may reuse them */
+  saved: readonly string[]
+  /** Tool names, tool aliases and object names, which replace variables of the same name in the VM */
+  reserved: readonly string[]
+}
+
+/** `lastResult`, or `lastResult2`, `lastResult3`... when generated code, a tool or an object already uses that name. */
+export const pickResultVariable = ({ variables, saved, reserved }: PickResultVariableProps): string => {
   for (let index = 1; ; index++) {
     const name = index === 1 ? LAST_RESULT_VARIABLE : `${LAST_RESULT_VARIABLE}${index}`
-    if (!(name in variables) || saved.includes(name)) {
+    if (!reserved.includes(name) && (!(name in variables) || saved.includes(name))) {
       return name
     }
   }

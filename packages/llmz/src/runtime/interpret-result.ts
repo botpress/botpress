@@ -129,7 +129,14 @@ export const interpretVMResult = async ({
   // A returned value too large to show stays readable by the next code run instead of being lost.
   const fullValueVariable =
     returnValue !== undefined && exceedsResultBudget(returnValue, { fullPreviewHeader: true })
-      ? pickResultVariable(iteration.variables, savedResultVariables)
+      ? pickResultVariable({
+          variables: iteration.variables,
+          saved: savedResultVariables,
+          reserved: [
+            ...iteration.tools.flatMap((tool) => [tool.name, ...(tool.aliases ?? [])]),
+            ...iteration.objects.map((object) => object.name),
+          ],
+        })
       : undefined
   if (fullValueVariable) {
     iteration.variables[fullValueVariable] = returnValue
