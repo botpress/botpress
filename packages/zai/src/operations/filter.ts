@@ -365,6 +365,7 @@ Zai.prototype.filter = function <T>(
     adapter: this.adapter,
     memoizer: this._resolveMemoizer(),
     metadata: this.metadata,
+    skipCache: this.skipCache,
   })
 
   return new Response<Array<T>>(context, filter(input, condition, _options, context), (result) => result)
