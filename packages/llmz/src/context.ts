@@ -14,7 +14,7 @@ import { ObjectInstance } from './objects.js'
 import { DualModePrompt } from './prompts/dual-modes.js'
 import { summarizeIterations } from './prompts/execution-history.js'
 import { LLMzPrompts, ParsedNext, ParsedSend, Prompt } from './prompts/prompt.js'
-import { LAST_RESULT_VARIABLE } from './prompts/result-budget.js'
+import { getSavedResultVariables } from './prompts/result-budget.js'
 import { Snapshot } from './snapshots.js'
 import { Tool } from './tool.js'
 import { Transcript, TranscriptArray } from './transcript.js'
@@ -958,7 +958,7 @@ export class Context implements Serializable<Context.JSON> {
             ? `■next=${lastIteration.next.name} ${JSON.stringify(lastIteration.next.props)}`
             : (lastIteration.code ?? '// No code generated'),
           message: `Invalid ■next block (${lastIteration.status.exit_error.exit}): ${lastIteration.status.exit_error.message}`,
-          variables: omit(lastIteration.variables, LAST_RESULT_VARIABLE),
+          variables: omit(lastIteration.variables, getSavedResultVariables(this.iterations)),
           toolCalls: lastIteration.traces
             .filter((trace) => trace.type === 'tool_call')
             .map((trace) => ({
@@ -995,7 +995,7 @@ export class Context implements Serializable<Context.JSON> {
         },
         await this.version.getCodeExecutionErrorMessage({
           isChatEnabled: parameters.components.length > 0,
-          variables: omit(lastIteration.variables, LAST_RESULT_VARIABLE),
+          variables: omit(lastIteration.variables, getSavedResultVariables(this.iterations)),
           toolCalls: lastIteration.traces
             .filter((trace) => trace.type === 'tool_call')
             .map((trace) => ({

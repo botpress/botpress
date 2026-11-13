@@ -1,4 +1,5 @@
 import { isPlainObject } from 'lodash-es'
+import type { Iteration } from '../context.js'
 import { inspect, type PreviewLimits } from '../inspect.js'
 import { wrapContent } from '../truncator.js'
 
@@ -7,6 +8,24 @@ export const MAX_RESULT_CHARS = 150_000
 
 /** Holds the full value of the latest code result that was too large to show, for the next code run. */
 export const LAST_RESULT_VARIABLE = 'lastResult'
+
+/** Names llmz itself used to hold a too-large result earlier in this run; generated code owns every other name. */
+export const getSavedResultVariables = (iterations: readonly Iteration[]): string[] =>
+  iterations.flatMap((iteration) =>
+    iteration.status.type === 'thinking_requested' && iteration.status.thinking_requested.fullValueVariable
+      ? [iteration.status.thinking_requested.fullValueVariable]
+      : []
+  )
+
+/** `lastResult`, or `lastResult2`, `lastResult3`... when generated code already uses that name for its own data. */
+export const pickResultVariable = (variables: Record<string, unknown>, saved: readonly string[]): string => {
+  for (let index = 1; ; index++) {
+    const name = index === 1 ? LAST_RESULT_VARIABLE : `${LAST_RESULT_VARIABLE}${index}`
+    if (!(name in variables) || saved.includes(name)) {
+      return name
+    }
+  }
+}
 
 /** Largest preview of a single tool call input, output or error inside an error message. */
 export const MAX_TOOL_CALL_FIELD_CHARS = 2_000

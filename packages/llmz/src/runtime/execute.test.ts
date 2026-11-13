@@ -1106,6 +1106,41 @@ await record({ token: "\u25a0end" })
       expect(second!.status).toMatchObject({ thinking_requested: { variables: 3_000 } })
     })
 
+    test('keeps a lastResult the code declared and saves the large result under another name', async () => {
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive([
+          '■run\nconst lastResult = { ticketId: "42" }\nreturn await fetchAll()',
+          '■run\nreturn { ticketId: lastResult.ticketId, rows: lastResult2.length }',
+          '■next=done',
+        ]),
+        tools: [fetchAll],
+        exits: [done()],
+        options: { loop: 4 },
+      })
+      expect(result.isSuccess()).toBe(true)
+      const [first, second] = result.iterations
+      expect(first!.status).toMatchObject({ thinking_requested: { fullValueVariable: 'lastResult2' } })
+      expect(latestPrompt(second!)).toContain('The full value is in the variable `lastResult2`')
+      expect(second!.status).toMatchObject({ thinking_requested: { variables: { ticketId: '42', rows: 3_000 } } })
+    })
+
+    test('reuses its own lastResult for the next large result', async () => {
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive([
+          '■run\nreturn await fetchAll()',
+          '■run\nreturn await fetchAll()',
+          '■next=done',
+        ]),
+        tools: [fetchAll],
+        exits: [done()],
+        options: { loop: 4 },
+      })
+      expect(result.isSuccess()).toBe(true)
+      for (const iteration of result.iterations.slice(0, 2)) {
+        expect(iteration.status).toMatchObject({ thinking_requested: { fullValueVariable: 'lastResult' } })
+      }
+    })
+
     test('does not define lastResult when the result fits', async () => {
       const result = await executeContext({
         client: new ScriptedNonStreamingCognitive([

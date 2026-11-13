@@ -3,7 +3,7 @@ import { hasTopLevelReturn } from '../compiler/index.js'
 import { Iteration } from '../context.js'
 import { CodeExecutionError, InvalidCodeError, SnapshotSignal, ThinkSignal } from '../errors.js'
 import { parseExit } from '../exit-parser.js'
-import { LAST_RESULT_VARIABLE, exceedsResultBudget } from '../prompts/result-budget.js'
+import { exceedsResultBudget, pickResultVariable } from '../prompts/result-budget.js'
 import { cleanStackTrace } from '../stack-traces.js'
 import { VMExecutionResult } from '../types.js'
 import { getErrorMessage } from '../utils.js'
@@ -15,6 +15,8 @@ type InterpretVMResultProps = {
   controller: AbortController
   startedAt: number
   onExit?: ExecutionHooks['onExit']
+  /** Variables llmz created earlier in this run to hold too-large results; it may reuse them */
+  savedResultVariables?: readonly string[]
 }
 
 export const interpretVMResult = async ({
@@ -23,6 +25,7 @@ export const interpretVMResult = async ({
   controller,
   startedAt,
   onExit,
+  savedResultVariables = [],
 }: InterpretVMResultProps) => {
   // Preserve locals independently of the returned value. Returning a scalar
   // (or failing after a successful call) must not erase variables needed later.
@@ -126,7 +129,7 @@ export const interpretVMResult = async ({
   // A returned value too large to show stays readable by the next code run instead of being lost.
   const fullValueVariable =
     returnValue !== undefined && exceedsResultBudget(returnValue, { fullPreviewHeader: true })
-      ? LAST_RESULT_VARIABLE
+      ? pickResultVariable(iteration.variables, savedResultVariables)
       : undefined
   if (fullValueVariable) {
     iteration.variables[fullValueVariable] = returnValue
@@ -143,7 +146,7 @@ export const interpretVMResult = async ({
           ? returnValue
           : Object.keys(localVariables).length
             ? localVariables
-            : omit(iteration.variables, LAST_RESULT_VARIABLE),
+            : omit(iteration.variables, savedResultVariables),
       ...(fullValueVariable ? { fullValueVariable } : {}),
     },
   })
