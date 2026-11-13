@@ -1,5 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import { google } from 'googleapis'
+import { extractServiceAccountPrivateKey } from './service-account-private-key'
 import * as bp from '.botpress'
 
 type GoogleOAuth2Client = InstanceType<(typeof google.auth)['OAuth2']>
@@ -49,7 +50,7 @@ export const getAuthenticatedOAuth2Client = async ({
   if (ctx.configurationType === 'serviceAccountKey') {
     return new google.auth.JWT({
       email: ctx.configuration.clientEmail,
-      key: ctx.configuration.privateKey.split(String.raw`\n`).join('\n'),
+      key: extractServiceAccountPrivateKey(ctx.configuration.privateKey),
       scopes: OAUTH_SCOPES,
     })
   }
