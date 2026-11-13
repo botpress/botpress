@@ -1057,6 +1057,32 @@ return {
       expect(result.error?.message).toContain('Code execution timed out after 200ms')
     })
 
+    // A pattern with many `[^"]*` groups backtracks for minutes on a long string; QuickJS must still stop it
+    const catastrophicRegex = `
+      const page = ('row "' + 'a b c d e f g h '.repeat(40) + '" ').repeat(50)
+      return page.match(/row "[^"]* ([^"]*) [^"]* [^"]* [^"]* [^"]* [^"]* [^"]* [^"]* 100\\.0000 /g)
+    `
+
+    it('timing out a catastrophic regex returns an error', async () => {
+      const result = await runAsyncFunction({}, catastrophicRegex, [], null, 200)
+
+      expect(result.success).toBe(false)
+      expect(result.error?.message).toContain('Code execution timed out after 200ms')
+    })
+
+    it('timing out a catastrophic regex after a tool call returns an error', async () => {
+      const result = await runAsyncFunction(
+        { fetchPage: async () => 'ok' },
+        `await fetchPage()\n${catastrophicRegex}`,
+        [],
+        null,
+        200
+      )
+
+      expect(result.success).toBe(false)
+      expect(result.error?.message).toContain('Code execution timed out after 200ms')
+    })
+
     it('timing out keeps the changes made before the timeout', async () => {
       const context = {
         count: 0,
