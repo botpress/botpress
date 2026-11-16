@@ -14,13 +14,13 @@ import { ObjectInstance } from './objects.js'
 import { DualModePrompt } from './prompts/dual-modes.js'
 import { summarizeIterations } from './prompts/execution-history.js'
 import { LLMzPrompts, ParsedNext, ParsedSend, Prompt } from './prompts/prompt.js'
-import { getSavedResultVariables, MAX_RESULT_CHARS } from './prompts/result-budget.js'
+import { getSavedResultVariables, getToolCalls, MAX_RESULT_CHARS } from './prompts/result-budget.js'
 import { Snapshot } from './snapshots.js'
 import { Tool } from './tool.js'
 import { Transcript, TranscriptArray } from './transcript.js'
 import { stripTruncationTags, wrapContent } from './truncator.js'
 import { ObjectMutation, Serializable, Trace } from './types.js'
-import { getErrorMessage, getTokenizer } from './utils.js'
+import { getTokenizer } from './utils.js'
 
 /**
  * Tokenizer-measured size of each part of the prompt, before truncation.
@@ -128,6 +128,8 @@ export namespace IterationStatuses {
       fullValueVariable?: string
       /** An exit written alongside the code was held back until the model checks it against the results. */
       heldExit?: string
+      /** With a held exit: the code run's tool calls, in full, for the next code run to read. */
+      toolCallsVariable?: string
     }
   }
 
@@ -946,7 +948,8 @@ export class Context implements Serializable<Context.JSON> {
           discardedMessages: lastIteration.llm?.diagnostics?.some((diagnostic) => diagnostic.code === 'send-after-run'),
           fullValueVariable: lastIteration.status.thinking_requested.fullValueVariable,
           maxResultChars: this.maxResultChars,
-          toolCalls: lastIteration.status.thinking_requested.heldExit ? this._getToolCalls(lastIteration) : undefined,
+          toolCalls: lastIteration.status.thinking_requested.heldExit ? getToolCalls(lastIteration) : undefined,
+          toolCallsVariable: lastIteration.status.thinking_requested.toolCallsVariable,
         }),
       ])
     }
@@ -965,7 +968,7 @@ export class Context implements Serializable<Context.JSON> {
             : (lastIteration.code ?? '// No code generated'),
           message: `Invalid ■next block (${lastIteration.status.exit_error.exit}): ${lastIteration.status.exit_error.message}`,
           variables: omit(lastIteration.variables, getSavedResultVariables(this.iterations)),
-          toolCalls: this._getToolCalls(lastIteration),
+          toolCalls: getToolCalls(lastIteration),
         }),
       ])
     }
@@ -995,7 +998,7 @@ export class Context implements Serializable<Context.JSON> {
         await this.version.getCodeExecutionErrorMessage({
           isChatEnabled: parameters.components.length > 0,
           variables: omit(lastIteration.variables, getSavedResultVariables(this.iterations)),
-          toolCalls: this._getToolCalls(lastIteration),
+          toolCalls: getToolCalls(lastIteration),
           message: lastIteration.status.execution_error.message,
           stacktrace: lastIteration.status.execution_error.stack,
         }),
@@ -1005,17 +1008,6 @@ export class Context implements Serializable<Context.JSON> {
     throw new Error(
       `Unexpected iteration status: ${lastIteration?.status.type}. This is likely a bug, please report it.`
     )
-  }
-
-  private _getToolCalls(iteration: Iteration) {
-    return iteration.traces
-      .filter((trace) => trace.type === 'tool_call')
-      .map((trace) => ({
-        tool: trace.tool_name,
-        input: trace.input,
-        success: trace.success,
-        ...(trace.success ? { output: trace.output } : { error: getErrorMessage(trace.error) }),
-      }))
   }
 
   private async _refreshIterationParameters(): Promise<IterationParameters> {

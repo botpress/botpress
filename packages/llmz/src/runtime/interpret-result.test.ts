@@ -328,12 +328,12 @@ describe('interpretVMResult', () => {
   describe('■next written alongside code that calls tools', () => {
     const answerExit = () => new Exit({ name: 'done', description: 'done', schema: z.object({ answer: z.string() }) })
 
-    const pushToolCall = (iteration: Iteration, output: unknown) =>
+    const pushToolCall = (iteration: Iteration, output: unknown, input: unknown = {}) =>
       iteration.traces.push({
         type: 'tool_call',
         tool_call_id: 'tcall_1',
         tool_name: 'query',
-        input: {},
+        input,
         output,
         success: true,
         started_at: Date.now(),
@@ -344,16 +344,18 @@ describe('interpretVMResult', () => {
       next,
       toolOutputs,
       canDeferExit,
+      toolInput,
     }: {
       next: { name: string; props: Record<string, unknown> }
       toolOutputs: unknown[]
       canDeferExit: boolean
+      toolInput?: unknown
     }) => {
       const iteration = makeIteration([answerExit(), new Exit({ name: 'listen', description: 'listen' })])
       iteration.code = 'const rows = await query()'
       iteration.next = next
       for (const output of toolOutputs) {
-        pushToolCall(iteration, output)
+        pushToolCall(iteration, output, toolInput)
       }
       await interpretVMResult({
         iteration,
@@ -378,6 +380,7 @@ describe('interpretVMResult', () => {
             'Code execution completed. The ■next=done exit was NOT applied because its fields were written before this code ran. Verify each field against the tool results below, correct anything wrong or missing, then end your next response with ■next.',
           variables: { rows: [1, 2] },
           heldExit: 'done',
+          toolCallsVariable: 'lastResult',
         },
       })
     })
@@ -407,6 +410,26 @@ describe('interpretVMResult', () => {
         canDeferExit: true,
       })
       expect(iteration.status).toMatchObject({ type: 'exit_success', exit_success: { exit_name: 'listen' } })
+    })
+
+    test('holds the exit back when a tool returns a flat record it was not given', async () => {
+      const iteration = await interpret({
+        next: { name: 'done', props: { answer: 'sunny' } },
+        toolOutputs: [{ temperature: 12, condition: 'rain', humidity: 80 }],
+        toolInput: { city: 'Paris' },
+        canDeferExit: true,
+      })
+      expect(iteration.status).toMatchObject({ thinking_requested: { heldExit: 'done' } })
+    })
+
+    test('applies the exit when a tool only repeats its input with yes/no flags', async () => {
+      const iteration = await interpret({
+        next: { name: 'done', props: { answer: 'renamed' } },
+        toolOutputs: [{ source: './a.jpg', destination: './b.jpg', moved: true }],
+        toolInput: { source: './a.jpg', destination: './b.jpg' },
+        canDeferExit: true,
+      })
+      expect(iteration.status).toMatchObject({ type: 'exit_success', exit_success: { exit_name: 'done' } })
     })
 
     test('applies the exit when the code made no tool calls', async () => {

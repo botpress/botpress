@@ -360,7 +360,7 @@ const getThinkingMessage = async (props: LLMzPrompts.ThinkingProps): Promise<LLM
         props.fullValueVariable
       )
   const toolCalls = props.toolCalls
-    ? `Tool calls made by this code (outputs are previews):\n${wrapContent(inspectToolCallsWithinBudget(props.toolCalls, TOOL_CALLS_SECTION_CHARS), { preserve: 'top' })}\n-------------------\n`
+    ? `Tool calls made by this code (outputs are previews${props.toolCallsVariable ? `; the full calls are in the variable \`${props.toolCallsVariable}\`, in this order, so read cut values from \`${props.toolCallsVariable}[i].output\` in code` : ''}):\n${wrapContent(inspectToolCallsWithinBudget(props.toolCalls, TOOL_CALLS_SECTION_CHARS), { preserve: 'top' })}\n-------------------\n`
     : ''
   const intro = props.interrupted
     ? 'A tool paused code execution to request your attention. Its reason and context below may supply a result or request further work.'

@@ -1114,11 +1114,14 @@ await record({ token: "\u25a0end" })
     test('applies the exit right away when the tools only confirm a write', async () => {
       const move = new Tool({
         name: 'move',
+        input: z.object({ source: z.string(), destination: z.string() }),
         output: z.object({ source: z.string(), destination: z.string(), moved: z.boolean() }),
-        handler: async () => ({ source: './a.jpg', destination: './largest.jpg', moved: true }),
+        handler: async ({ source, destination }) => ({ source, destination, moved: true }),
       })
       const result = await executeContext({
-        client: new ScriptedNonStreamingCognitive(['■run\nawait move()\n■next=done {"answer":"renamed"}']),
+        client: new ScriptedNonStreamingCognitive([
+          '■run\nawait move({ source: "./a.jpg", destination: "./largest.jpg" })\n■next=done {"answer":"renamed"}',
+        ]),
         tools: [move],
         exits: [answerExit()],
         options: { loop: 3 },
@@ -1126,6 +1129,26 @@ await record({ token: "\u25a0end" })
       expect(result.isSuccess()).toBe(true)
       expect(result.iterations).toHaveLength(1)
       expect(result.isSuccess() && result.output).toEqual({ answer: 'renamed' })
+    })
+
+    test('holds the exit back when a read returns a flat record of short values', async () => {
+      const weather = new Tool({
+        name: 'getWeather',
+        input: z.object({ city: z.string() }),
+        output: z.object({ temperature: z.number(), condition: z.string() }),
+        handler: async () => ({ temperature: 12, condition: 'rain' }),
+      })
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive([
+          '■run\nawait getWeather({ city: "Paris" })\n■next=done {"answer":"sunny"}',
+          '■next=done {"answer":"rain"}',
+        ]),
+        tools: [weather],
+        exits: [answerExit()],
+        options: { loop: 3 },
+      })
+      expect(result.iterations[0]!.status).toMatchObject({ thinking_requested: { heldExit: 'done' } })
+      expect(result.isSuccess() && result.output).toEqual({ answer: 'rain' })
     })
 
     test('holds the exit back when a tool returns a single scalar', async () => {
@@ -1216,6 +1239,27 @@ await record({ token: "\u25a0end" })
       const toolCalls = followUp.slice(followUp.indexOf('Tool calls made by this code'))
       expect(toolCalls).toContain('"snapshot"')
       expect(toolCalls.length).toBeLessThan(6_000)
+    })
+
+    test('keeps an unassigned tool output readable past its preview', async () => {
+      const filler = 'filler line\n'.repeat(1_000)
+      const report = `${filler}total: 9876\n${filler}`
+      const fetchReport = new Tool({ name: 'fetchReport', output: z.string(), handler: async () => report })
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive([
+          '■run\nawait fetchReport()\nconst checked = true\n■next=done {"answer":"unknown"}',
+          '■run\nreturn lastResult[0].output.match(/total: (\\d+)/)[1]',
+          '■next=done {"answer":"9876"}',
+        ]),
+        tools: [fetchReport],
+        exits: [answerExit()],
+        options: { loop: 4 },
+      })
+      const followUp = latestPrompt(result.iterations[1]!)
+      expect(followUp).not.toContain('total: 9876')
+      expect(followUp).toContain('the full calls are in the variable `lastResult`')
+      expect(result.iterations[1]!.status).toMatchObject({ thinking_requested: { variables: '9876' } })
+      expect(result.isSuccess() && result.output).toEqual({ answer: '9876' })
     })
   })
 

@@ -3,26 +3,22 @@ import { hasTopLevelReturn } from '../compiler/index.js'
 import { Iteration } from '../context.js'
 import { CodeExecutionError, InvalidCodeError, SnapshotSignal, ThinkSignal } from '../errors.js'
 import { parseExit } from '../exit-parser.js'
-import { exceedsResultBudget, pickResultVariable } from '../prompts/result-budget.js'
+import { exceedsResultBudget, getToolCalls, pickResultVariable } from '../prompts/result-budget.js'
 import { cleanStackTrace } from '../stack-traces.js'
 import { VMExecutionResult } from '../types.js'
 import { getErrorMessage } from '../utils.js'
 import { ExecutionHooks } from './types.js'
 
-const MAX_CONFIRMATION_STRING_CHARS = 200
-
-/** A flat object of short scalar values, as write tools return to confirm what they did */
-const isConfirmation = (output: unknown): boolean =>
-  typeof output === 'object' &&
-  output !== null &&
-  !Array.isArray(output) &&
-  Object.values(output).every(
-    (value) =>
-      value === null ||
-      typeof value === 'boolean' ||
-      typeof value === 'number' ||
-      (typeof value === 'string' && value.length <= MAX_CONFIRMATION_STRING_CHARS)
+/** An object that only repeats the call's own input plus yes/no flags, as write tools return to confirm what they did */
+const isConfirmation = ({ input, output }: { input: unknown; output: unknown }): boolean => {
+  if (typeof output !== 'object' || output === null || Array.isArray(output)) {
+    return false
+  }
+  const inputValues = typeof input === 'object' && input !== null ? Object.values(input) : []
+  return Object.values(output).every(
+    (value) => value === null || typeof value === 'boolean' || inputValues.includes(value)
   )
+}
 
 type InterpretVMResultProps = {
   iteration: Iteration
@@ -140,7 +136,7 @@ export const interpretVMResult = async ({
 
   // Exit fields written before a tool returned data were guessed without seeing it: hold the exit back
   // so the model checks them against the results, unless no further response is possible.
-  // A write's confirmation (like `{ path, moved: true }`) holds nothing to check, so it doesn't count as data.
+  // A write's confirmation (like `{ source, destination, moved: true }`) adds nothing new, so it doesn't count as data.
   const exitWrittenBeforeData =
     canDeferExit &&
     !!iteration.next &&
@@ -151,7 +147,7 @@ export const interpretVMResult = async ({
         trace.success &&
         trace.output !== undefined &&
         !(trace.output instanceof ThinkSignal) &&
-        !isConfirmation(trace.output)
+        !isConfirmation(trace)
     )
 
   if (iteration.next && !codeRequestsInspection && !exitWrittenBeforeData) {
@@ -163,23 +159,37 @@ export const interpretVMResult = async ({
     Object.entries(result.variables ?? {}).filter(([, value]) => value !== '[[non-primitive]]')
   )
 
+  const reserved = [
+    ...iteration.tools.flatMap((tool) => [tool.name, ...(tool.aliases ?? [])]),
+    ...iteration.objects.map((object) => object.name),
+  ]
+
   // A returned value too large to show stays readable by the next code run instead of being lost.
   const fullValueVariable =
     returnValue !== undefined && exceedsResultBudget(returnValue, { fullPreviewHeader: true }, maxResultChars)
-      ? pickResultVariable({
-          variables: iteration.variables,
-          saved: savedResultVariables,
-          reserved: [
-            ...iteration.tools.flatMap((tool) => [tool.name, ...(tool.aliases ?? [])]),
-            ...iteration.objects.map((object) => object.name),
-          ],
-        })
+      ? pickResultVariable({ variables: iteration.variables, saved: savedResultVariables, reserved })
       : undefined
   if (fullValueVariable) {
     iteration.variables[fullValueVariable] = returnValue
   }
 
   const heldExit = iteration.next && !codeRequestsInspection ? iteration.next.name : undefined
+
+  // A held exit is checked against tool output previews; outputs the code never assigned stay readable in full.
+  const toolCallsVariable = heldExit
+    ? pickResultVariable({
+        variables: iteration.variables,
+        saved: savedResultVariables,
+        reserved: fullValueVariable ? [...reserved, fullValueVariable] : reserved,
+      })
+    : undefined
+  if (toolCallsVariable) {
+    iteration.variables[toolCallsVariable] = getToolCalls(iteration)
+  }
+  const ownVariables = [
+    ...savedResultVariables,
+    ...[fullValueVariable, toolCallsVariable].filter((name) => name !== undefined),
+  ]
 
   iteration.end({
     type: 'thinking_requested',
@@ -194,9 +204,9 @@ export const interpretVMResult = async ({
           ? returnValue
           : Object.keys(localVariables).length
             ? localVariables
-            : omit(iteration.variables, savedResultVariables),
+            : omit(iteration.variables, ownVariables),
       ...(fullValueVariable ? { fullValueVariable } : {}),
-      ...(heldExit ? { heldExit } : {}),
+      ...(heldExit ? { heldExit, toolCallsVariable } : {}),
     },
   })
 }
