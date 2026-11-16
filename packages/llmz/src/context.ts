@@ -14,7 +14,7 @@ import { ObjectInstance } from './objects.js'
 import { DualModePrompt } from './prompts/dual-modes.js'
 import { summarizeIterations } from './prompts/execution-history.js'
 import { LLMzPrompts, ParsedNext, ParsedSend, Prompt } from './prompts/prompt.js'
-import { getSavedResultVariables } from './prompts/result-budget.js'
+import { getSavedResultVariables, MAX_RESULT_CHARS } from './prompts/result-budget.js'
 import { Snapshot } from './snapshots.js'
 import { Tool } from './tool.js'
 import { Transcript, TranscriptArray } from './transcript.js'
@@ -702,6 +702,8 @@ export class Context implements Serializable<Context.JSON> {
    * `min(maxTokens, model's max input tokens)`.
    */
   public maxTokens?: number
+  /** Largest code result shown to the model, in characters; a larger one is previewed and kept in `lastResult`. */
+  public maxResultChars: number = MAX_RESULT_CHARS
   /**
    * Maximum time to wait for the first streamed token, in milliseconds,
    * before the cognitive service falls back to the next model/provider.
@@ -941,6 +943,7 @@ export class Context implements Serializable<Context.JSON> {
           interrupted: lastIteration.status.thinking_requested.interrupted,
           discardedMessages: lastIteration.llm?.diagnostics?.some((diagnostic) => diagnostic.code === 'send-after-run'),
           fullValueVariable: lastIteration.status.thinking_requested.fullValueVariable,
+          maxResultChars: this.maxResultChars,
         }),
       ])
     }
@@ -1154,6 +1157,7 @@ export class Context implements Serializable<Context.JSON> {
     snapshot?: Snapshot
     timeout?: number
     maxTokens?: number
+    maxResultChars?: number
     maxTimeToFirstToken?: number
     midStreamFallback?: boolean
     transcriptionModel?: SttModels
@@ -1175,6 +1179,7 @@ export class Context implements Serializable<Context.JSON> {
     this.metadata = props.metadata ?? {}
     this.snapshot = props.snapshot
     this.maxTokens = props.maxTokens
+    this.maxResultChars = props.maxResultChars ?? MAX_RESULT_CHARS
     this.maxTimeToFirstToken = props.maxTimeToFirstToken
     this.midStreamFallback = props.midStreamFallback
     this.transcriptionModel = props.transcriptionModel
@@ -1185,6 +1190,10 @@ export class Context implements Serializable<Context.JSON> {
 
     if (this.maxTokens !== undefined && (!Number.isFinite(this.maxTokens) || this.maxTokens < 1)) {
       throw new Error('Invalid maxTokens. Expected a positive number.')
+    }
+
+    if (!Number.isFinite(this.maxResultChars) || this.maxResultChars < 1) {
+      throw new Error('Invalid maxResultChars. Expected a positive number.')
     }
 
     if (

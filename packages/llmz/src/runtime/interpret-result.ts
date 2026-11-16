@@ -17,6 +17,8 @@ type InterpretVMResultProps = {
   onExit?: ExecutionHooks['onExit']
   /** Variables llmz created earlier in this run to hold too-large results; it may reuse them */
   savedResultVariables?: readonly string[]
+  /** Largest code result shown to the model, in characters */
+  maxResultChars?: number
 }
 
 export const interpretVMResult = async ({
@@ -26,6 +28,7 @@ export const interpretVMResult = async ({
   startedAt,
   onExit,
   savedResultVariables = [],
+  maxResultChars,
 }: InterpretVMResultProps) => {
   // Preserve locals independently of the returned value. Returning a scalar
   // (or failing after a successful call) must not erase variables needed later.
@@ -128,7 +131,7 @@ export const interpretVMResult = async ({
 
   // A returned value too large to show stays readable by the next code run instead of being lost.
   const fullValueVariable =
-    returnValue !== undefined && exceedsResultBudget(returnValue, { fullPreviewHeader: true })
+    returnValue !== undefined && exceedsResultBudget(returnValue, { fullPreviewHeader: true }, maxResultChars)
       ? pickResultVariable({
           variables: iteration.variables,
           saved: savedResultVariables,

@@ -105,6 +105,8 @@ export namespace LLMzPrompts {
     discardedMessages?: boolean
     /** Names the code variable that holds the full returned value when it is too large to show. */
     fullValueVariable?: string
+    /** Largest code result shown, in characters; defaults to MAX_RESULT_CHARS */
+    maxResultChars?: number
   }
 
   export type SnapshotResolvedProps = {
