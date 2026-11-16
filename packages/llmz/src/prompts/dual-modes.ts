@@ -352,7 +352,7 @@ const getThinkingMessage = async (props: LLMzPrompts.ThinkingProps): Promise<LLM
     ? renderCodeResult(props.variables, undefined, format)
     : renderWithinBudget(
         (limits) => renderCodeResult(props.variables, limits, format),
-        MAX_RESULT_CHARS,
+        props.maxResultChars ?? MAX_RESULT_CHARS,
         props.fullValueVariable
       )
   const intro = props.interrupted

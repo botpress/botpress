@@ -1185,6 +1185,64 @@ await record({ token: "\u25a0end" })
     })
   })
 
+  describe('code results larger than options.maxResultChars', () => {
+    // About 54K chars rendered: over the 20K limit used below, under the default
+    const rows = Array.from({ length: 600 }, (_, i) => ({ id: i, text: `row ${i} ${'x'.repeat(60)}` }))
+    const fetchAll = new Tool({
+      name: 'fetchAll',
+      output: z.array(z.object({ id: z.number(), text: z.string() })),
+      handler: async () => rows,
+    })
+    const done = () => new Exit({ name: 'done', description: 'Finish' })
+
+    test('shows a preview and keeps the full value in lastResult for the next code run', async () => {
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive([
+          '■run\nreturn await fetchAll()',
+          '■run\nreturn { count: lastResult.length, last: lastResult[lastResult.length - 1].text }',
+          '■next=done',
+        ]),
+        tools: [fetchAll],
+        exits: [done()],
+        options: { loop: 4, maxResultChars: 20_000 },
+      })
+      expect(result.isSuccess()).toBe(true)
+      const [first, second] = result.iterations
+      expect(first!.status).toMatchObject({ thinking_requested: { fullValueVariable: 'lastResult' } })
+      const prompt = latestPrompt(second!)
+      expect(prompt).toMatch(/\[truncated: showing \d+ of \d+ chars\. The full value is in the variable `lastResult`/)
+      expect(prompt).not.toContain(rows.at(-1)!.text)
+      expect(prompt.length).toBeLessThan(30_000)
+      expect(second!.status).toMatchObject({
+        thinking_requested: { variables: { count: 600, last: rows.at(-1)!.text } },
+      })
+    })
+
+    test('shows the same result whole with the default limit', async () => {
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive(['■run\nreturn await fetchAll()', '■next=done']),
+        tools: [fetchAll],
+        exits: [done()],
+        options: { loop: 3 },
+      })
+      expect(result.isSuccess()).toBe(true)
+      expect(result.iterations[0]!.status).not.toMatchObject({
+        thinking_requested: { fullValueVariable: 'lastResult' },
+      })
+      expect(latestPrompt(result.iterations[1]!)).toContain(rows.at(-1)!.text)
+    })
+
+    test('rejects a maxResultChars that is not a positive number', async () => {
+      await expect(
+        executeContext({
+          client: new ScriptedNonStreamingCognitive(['■next=done']),
+          exits: [done()],
+          options: { loop: 2, maxResultChars: 0 },
+        })
+      ).rejects.toThrow('Invalid maxResultChars')
+    })
+  })
+
   test('marks the first response as final when only one generation is allowed', async () => {
     const done = new Exit({ name: 'done', description: 'Finish' })
     const result = await executeContext({

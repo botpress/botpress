@@ -120,6 +120,12 @@ type Options = Partial<Pick<Context, 'loop' | 'timeout'>> & {
    */
   maxTokens?: number
   /**
+   * Largest code result shown to the model, in characters (default 150,000). A larger returned value is shown
+   * as a preview, and its full value is kept in the `lastResult` variable for the next code run to filter.
+   * Lower it when results are large and only partly useful, like web page snapshots.
+   */
+  maxResultChars?: number
+  /**
    * Maximum time to wait for the first streamed token, in milliseconds, before
    * the cognitive service falls back to the next model/provider. Only applies
    * to streaming clients (CognitiveBeta / Cognitive v2), and works best when

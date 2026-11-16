@@ -60,6 +60,7 @@ const executeContextInternal = async (props: ExecutionProps): Promise<ExecutionR
     loop: props.options?.loop,
     timeout: props.options?.timeout,
     maxTokens: props.options?.maxTokens,
+    maxResultChars: props.options?.maxResultChars,
     maxTimeToFirstToken: props.options?.maxTimeToFirstToken,
     midStreamFallback: props.options?.midStreamFallback,
     transcriptionModel: props.options?.transcriptionModel,
@@ -480,5 +481,6 @@ const executeIteration = async ({
     startedAt,
     onExit,
     savedResultVariables: getSavedResultVariables(ctx.iterations.slice(0, -1)),
+    maxResultChars: ctx.maxResultChars,
   })
 }
