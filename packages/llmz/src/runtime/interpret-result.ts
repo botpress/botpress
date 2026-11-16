@@ -9,6 +9,21 @@ import { VMExecutionResult } from '../types.js'
 import { getErrorMessage } from '../utils.js'
 import { ExecutionHooks } from './types.js'
 
+const MAX_CONFIRMATION_STRING_CHARS = 200
+
+/** A flat object of short scalar values, as write tools return to confirm what they did */
+const isConfirmation = (output: unknown): boolean =>
+  typeof output === 'object' &&
+  output !== null &&
+  !Array.isArray(output) &&
+  Object.values(output).every(
+    (value) =>
+      value === null ||
+      typeof value === 'boolean' ||
+      typeof value === 'number' ||
+      (typeof value === 'string' && value.length <= MAX_CONFIRMATION_STRING_CHARS)
+  )
+
 type InterpretVMResultProps = {
   iteration: Iteration
   result: VMExecutionResult
@@ -17,6 +32,8 @@ type InterpretVMResultProps = {
   onExit?: ExecutionHooks['onExit']
   /** Variables llmz created earlier in this run to hold too-large results; it may reuse them */
   savedResultVariables?: readonly string[]
+  /** False on the last iteration, where a held-back exit could never be emitted again */
+  canDeferExit?: boolean
   /** Largest code result shown to the model, in characters */
   maxResultChars?: number
 }
@@ -28,6 +45,7 @@ export const interpretVMResult = async ({
   startedAt,
   onExit,
   savedResultVariables = [],
+  canDeferExit = false,
   maxResultChars,
 }: InterpretVMResultProps) => {
   // Preserve locals independently of the returned value. Returning a scalar
@@ -120,7 +138,23 @@ export const interpretVMResult = async ({
   // code (no top-level `return` statement) may be combined with a final ■next.
   const codeRequestsInspection = hasTopLevelReturn(iteration.code ?? '')
 
-  if (iteration.next && !codeRequestsInspection) {
+  // Exit fields written before a tool returned data were guessed without seeing it: hold the exit back
+  // so the model checks them against the results, unless no further response is possible.
+  // A write's confirmation (like `{ path, moved: true }`) holds nothing to check, so it doesn't count as data.
+  const exitWrittenBeforeData =
+    canDeferExit &&
+    !!iteration.next &&
+    Object.keys(iteration.next.props).length > 0 &&
+    iteration.traces.some(
+      (trace) =>
+        trace.type === 'tool_call' &&
+        trace.success &&
+        trace.output !== undefined &&
+        !(trace.output instanceof ThinkSignal) &&
+        !isConfirmation(trace.output)
+    )
+
+  if (iteration.next && !codeRequestsInspection && !exitWrittenBeforeData) {
     await applyNextExit({ iteration, controller, onExit })
     return
   }
@@ -145,12 +179,16 @@ export const interpretVMResult = async ({
     iteration.variables[fullValueVariable] = returnValue
   }
 
+  const heldExit = iteration.next && !codeRequestsInspection ? iteration.next.name : undefined
+
   iteration.end({
     type: 'thinking_requested',
     thinking_requested: {
-      reason: iteration.next
-        ? `Code execution completed. The ■next=${iteration.next.name} exit was NOT applied because your code returns a value — inspect it below, then end your next response with ■next.`
-        : 'Code execution completed',
+      reason: !iteration.next
+        ? 'Code execution completed'
+        : codeRequestsInspection
+          ? `Code execution completed. The ■next=${iteration.next.name} exit was NOT applied because your code returns a value — inspect it below, then end your next response with ■next.`
+          : `Code execution completed. The ■next=${iteration.next.name} exit was NOT applied because its fields were written before this code ran. Verify each field against the tool results below, correct anything wrong or missing, then end your next response with ■next.`,
       variables:
         returnValue !== undefined
           ? returnValue
@@ -158,6 +196,7 @@ export const interpretVMResult = async ({
             ? localVariables
             : omit(iteration.variables, savedResultVariables),
       ...(fullValueVariable ? { fullValueVariable } : {}),
+      ...(heldExit ? { heldExit } : {}),
     },
   })
 }

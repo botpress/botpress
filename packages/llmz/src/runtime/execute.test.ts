@@ -1077,6 +1077,148 @@ await record({ token: "\u25a0end" })
     }
   })
 
+  describe('■next written before the code it follows returned data', () => {
+    const makeQuery = (onCall: () => void = () => {}) =>
+      new Tool({
+        name: 'query',
+        output: z.array(z.object({ id: z.number() })),
+        handler: async () => {
+          onCall()
+          return [{ id: 42 }]
+        },
+      })
+    const answerExit = () => new Exit({ name: 'done', description: 'Finish', schema: z.object({ answer: z.string() }) })
+
+    test('holds the exit back for one response so the model can check its fields', async () => {
+      const onExit = vi.fn()
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive([
+          '■run\nconst rows = await query()\n■next=done {"answer":"rows"}',
+          '■next=done {"answer":"42"}',
+        ]),
+        tools: [makeQuery()],
+        exits: [answerExit()],
+        options: { loop: 3 },
+        onExit,
+      })
+      expect(result.isSuccess()).toBe(true)
+      expect(result.iterations).toHaveLength(2)
+      expect(result.iterations[0]!.status.type).toBe('thinking_requested')
+      expect(result.isSuccess() && result.output).toEqual({ answer: '42' })
+      expect(onExit).toHaveBeenCalledTimes(1)
+      const followUp = latestPrompt(result.iterations[1]!)
+      expect(followUp).toContain('■next=done exit was NOT applied because its fields were written before this code ran')
+      expect(followUp).toContain('42')
+    })
+
+    test('applies the exit right away when the tools only confirm a write', async () => {
+      const move = new Tool({
+        name: 'move',
+        output: z.object({ source: z.string(), destination: z.string(), moved: z.boolean() }),
+        handler: async () => ({ source: './a.jpg', destination: './largest.jpg', moved: true }),
+      })
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive(['■run\nawait move()\n■next=done {"answer":"renamed"}']),
+        tools: [move],
+        exits: [answerExit()],
+        options: { loop: 3 },
+      })
+      expect(result.isSuccess()).toBe(true)
+      expect(result.iterations).toHaveLength(1)
+      expect(result.isSuccess() && result.output).toEqual({ answer: 'renamed' })
+    })
+
+    test('holds the exit back when a tool returns a single scalar', async () => {
+      const count = new Tool({ name: 'count', output: z.number(), handler: async () => 42 })
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive([
+          '■run\nconst n = await count()\n■next=done {"answer":"7"}',
+          '■next=done {"answer":"42"}',
+        ]),
+        tools: [count],
+        exits: [answerExit()],
+        options: { loop: 3 },
+      })
+      expect(result.isSuccess() && result.output).toEqual({ answer: '42' })
+      expect(result.iterations[0]!.status).toMatchObject({ thinking_requested: { heldExit: 'done' } })
+    })
+
+    test('still ends a chat turn on ■next=listen and sends the message once', async () => {
+      const { chat, messages } = makeChat()
+      let saves = 0
+      const save = new Tool({
+        name: 'save',
+        output: z.object({ ok: z.boolean() }),
+        handler: async () => {
+          saves++
+          return { ok: true }
+        },
+      })
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive([
+          '■send=message\nSaving it now.\n■run\nconst r = await save()\n■next=listen',
+        ]),
+        chat,
+        tools: [save],
+        options: { loop: 3 },
+      })
+      expect(result.isSuccess()).toBe(true)
+      expect(result.iterations).toHaveLength(1)
+      expect(saves).toBe(1)
+      expect(messages.filter((message) => message.text.includes('Saving it now.'))).toHaveLength(1)
+    })
+
+    test('applies the exit when only one generation is allowed', async () => {
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive(['■run\nconst rows = await query()\n■next=done {"answer":"rows"}']),
+        tools: [makeQuery()],
+        exits: [answerExit()],
+        options: { loop: 1 },
+      })
+      expect(result.isSuccess()).toBe(true)
+      expect(result.iterations).toHaveLength(1)
+      expect(result.isSuccess() && result.output).toEqual({ answer: 'rows' })
+    })
+
+    test('shows the tool outputs of the code, even when assigned inside a block', async () => {
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive([
+          '■run\nif (true) {\n  const rows = await query()\n}\n■next=done {"answer":"rows"}',
+          '■next=done {"answer":"42"}',
+        ]),
+        tools: [makeQuery()],
+        exits: [answerExit()],
+        options: { loop: 3 },
+      })
+      expect(result.isSuccess()).toBe(true)
+      expect(result.iterations[0]!.status).toMatchObject({ thinking_requested: { heldExit: 'done' } })
+      const followUp = latestPrompt(result.iterations[1]!)
+      expect(followUp).toContain('Verify each field against the tool results below')
+      const toolCalls = followUp.slice(followUp.indexOf('Tool calls made by this code'))
+      expect(toolCalls).toContain('"query"')
+      expect(toolCalls).toContain('[{"id":42}]')
+    })
+
+    test('keeps the tool outputs of a held-back exit short when a tool returns a large page', async () => {
+      const page = `<html>${'<li>product</li>'.repeat(20_000)}</html>`
+      const snapshot = new Tool({ name: 'snapshot', output: z.string(), handler: async () => page })
+      const result = await executeContext({
+        client: new ScriptedNonStreamingCognitive([
+          '■run\nconst html = await snapshot()\n■next=done {"answer":"html"}',
+          '■next=done {"answer":"42"}',
+        ]),
+        tools: [snapshot],
+        exits: [answerExit()],
+        options: { loop: 3 },
+      })
+      expect(result.isSuccess()).toBe(true)
+      const followUp = latestPrompt(result.iterations[1]!)
+      const toolCalls = followUp.slice(followUp.indexOf('Tool calls made by this code'))
+      expect(toolCalls).toContain('"snapshot"')
+      expect(toolCalls.length).toBeLessThan(6_000)
+    })
+  })
+
   describe('code results larger than the result budget', () => {
     const rows = Array.from({ length: 3_000 }, (_, i) => ({ id: i, text: `row ${i} ${'x'.repeat(60)}` }))
     const fetchAll = new Tool({

@@ -481,6 +481,7 @@ const executeIteration = async ({
     startedAt,
     onExit,
     savedResultVariables: getSavedResultVariables(ctx.iterations.slice(0, -1)),
+    canDeferExit: ctx.iterations.length < ctx.loop,
     maxResultChars: ctx.maxResultChars,
   })
 }

@@ -2,7 +2,7 @@ import { z } from '@bpinternal/zui'
 import { describe, expect, test } from 'vitest'
 
 import { Iteration, type IterationParameters } from '../context.js'
-import { CodeExecutionError, SnapshotSignal } from '../errors.js'
+import { CodeExecutionError, SnapshotSignal, ThinkSignal } from '../errors.js'
 import { Exit } from '../exit.js'
 import { TranscriptArray } from '../transcript.js'
 import { type VMExecutionResult } from '../types.js'
@@ -322,6 +322,112 @@ describe('interpretVMResult', () => {
       thinking_requested: {
         variables: { movies: [{ id: 'Matrix_1124' }] },
       },
+    })
+  })
+
+  describe('■next written alongside code that calls tools', () => {
+    const answerExit = () => new Exit({ name: 'done', description: 'done', schema: z.object({ answer: z.string() }) })
+
+    const pushToolCall = (iteration: Iteration, output: unknown) =>
+      iteration.traces.push({
+        type: 'tool_call',
+        tool_call_id: 'tcall_1',
+        tool_name: 'query',
+        input: {},
+        output,
+        success: true,
+        started_at: Date.now(),
+        ended_at: Date.now(),
+      })
+
+    const interpret = async ({
+      next,
+      toolOutputs,
+      canDeferExit,
+    }: {
+      next: { name: string; props: Record<string, unknown> }
+      toolOutputs: unknown[]
+      canDeferExit: boolean
+    }) => {
+      const iteration = makeIteration([answerExit(), new Exit({ name: 'listen', description: 'listen' })])
+      iteration.code = 'const rows = await query()'
+      iteration.next = next
+      for (const output of toolOutputs) {
+        pushToolCall(iteration, output)
+      }
+      await interpretVMResult({
+        iteration,
+        result: { success: true, variables: { rows: [1, 2] }, lines_executed: [[1, 1]] },
+        controller: new AbortController(),
+        startedAt: Date.now(),
+        canDeferExit,
+      })
+      return iteration
+    }
+
+    test('holds the exit back when its props were written before a tool returned data', async () => {
+      const iteration = await interpret({
+        next: { name: 'done', props: { answer: 'rows' } },
+        toolOutputs: [[1, 2]],
+        canDeferExit: true,
+      })
+      expect(iteration.status).toEqual({
+        type: 'thinking_requested',
+        thinking_requested: {
+          reason:
+            'Code execution completed. The ■next=done exit was NOT applied because its fields were written before this code ran. Verify each field against the tool results below, correct anything wrong or missing, then end your next response with ■next.',
+          variables: { rows: [1, 2] },
+          heldExit: 'done',
+        },
+      })
+    })
+
+    test('applies the exit when the tools returned nothing', async () => {
+      const iteration = await interpret({
+        next: { name: 'done', props: { answer: 'saved' } },
+        toolOutputs: [undefined],
+        canDeferExit: true,
+      })
+      expect(iteration.status).toMatchObject({ type: 'exit_success', exit_success: { exit_name: 'done' } })
+    })
+
+    test('applies the exit when a tool output is only a think signal', async () => {
+      const iteration = await interpret({
+        next: { name: 'done', props: { answer: 'saved' } },
+        toolOutputs: [new ThinkSignal('pause')],
+        canDeferExit: true,
+      })
+      expect(iteration.status).toMatchObject({ type: 'exit_success', exit_success: { exit_name: 'done' } })
+    })
+
+    test('applies an exit without props even after a tool returned data', async () => {
+      const iteration = await interpret({
+        next: { name: 'listen', props: {} },
+        toolOutputs: [{ id: 1 }],
+        canDeferExit: true,
+      })
+      expect(iteration.status).toMatchObject({ type: 'exit_success', exit_success: { exit_name: 'listen' } })
+    })
+
+    test('applies the exit when the code made no tool calls', async () => {
+      const iteration = await interpret({
+        next: { name: 'done', props: { answer: 'rows' } },
+        toolOutputs: [],
+        canDeferExit: true,
+      })
+      expect(iteration.status).toMatchObject({ type: 'exit_success', exit_success: { exit_name: 'done' } })
+    })
+
+    test('applies the exit on the last iteration', async () => {
+      const iteration = await interpret({
+        next: { name: 'done', props: { answer: 'rows' } },
+        toolOutputs: [[1, 2]],
+        canDeferExit: false,
+      })
+      expect(iteration.status).toMatchObject({
+        type: 'exit_success',
+        exit_success: { exit_name: 'done', return_value: { answer: 'rows' } },
+      })
     })
   })
 })

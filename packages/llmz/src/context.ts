@@ -126,6 +126,8 @@ export namespace IterationStatuses {
       interrupted?: boolean
       /** The returned value was too large to show; the next code run reads it from this variable. */
       fullValueVariable?: string
+      /** An exit written alongside the code was held back until the model checks it against the results. */
+      heldExit?: string
     }
   }
 
@@ -944,6 +946,7 @@ export class Context implements Serializable<Context.JSON> {
           discardedMessages: lastIteration.llm?.diagnostics?.some((diagnostic) => diagnostic.code === 'send-after-run'),
           fullValueVariable: lastIteration.status.thinking_requested.fullValueVariable,
           maxResultChars: this.maxResultChars,
+          toolCalls: lastIteration.status.thinking_requested.heldExit ? this._getToolCalls(lastIteration) : undefined,
         }),
       ])
     }
@@ -962,14 +965,7 @@ export class Context implements Serializable<Context.JSON> {
             : (lastIteration.code ?? '// No code generated'),
           message: `Invalid ■next block (${lastIteration.status.exit_error.exit}): ${lastIteration.status.exit_error.message}`,
           variables: omit(lastIteration.variables, getSavedResultVariables(this.iterations)),
-          toolCalls: lastIteration.traces
-            .filter((trace) => trace.type === 'tool_call')
-            .map((trace) => ({
-              tool: trace.tool_name,
-              input: trace.input,
-              success: trace.success,
-              ...(trace.success ? { output: trace.output } : { error: getErrorMessage(trace.error) }),
-            })),
+          toolCalls: this._getToolCalls(lastIteration),
         }),
       ])
     }
@@ -999,14 +995,7 @@ export class Context implements Serializable<Context.JSON> {
         await this.version.getCodeExecutionErrorMessage({
           isChatEnabled: parameters.components.length > 0,
           variables: omit(lastIteration.variables, getSavedResultVariables(this.iterations)),
-          toolCalls: lastIteration.traces
-            .filter((trace) => trace.type === 'tool_call')
-            .map((trace) => ({
-              tool: trace.tool_name,
-              input: trace.input,
-              success: trace.success,
-              ...(trace.success ? { output: trace.output } : { error: getErrorMessage(trace.error) }),
-            })),
+          toolCalls: this._getToolCalls(lastIteration),
           message: lastIteration.status.execution_error.message,
           stacktrace: lastIteration.status.execution_error.stack,
         }),
@@ -1016,6 +1005,17 @@ export class Context implements Serializable<Context.JSON> {
     throw new Error(
       `Unexpected iteration status: ${lastIteration?.status.type}. This is likely a bug, please report it.`
     )
+  }
+
+  private _getToolCalls(iteration: Iteration) {
+    return iteration.traces
+      .filter((trace) => trace.type === 'tool_call')
+      .map((trace) => ({
+        tool: trace.tool_name,
+        input: trace.input,
+        success: trace.success,
+        ...(trace.success ? { output: trace.output } : { error: getErrorMessage(trace.error) }),
+      }))
   }
 
   private async _refreshIterationParameters(): Promise<IterationParameters> {
