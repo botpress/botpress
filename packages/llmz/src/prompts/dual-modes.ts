@@ -33,6 +33,10 @@ const ERROR_VARIABLES_CHARS = 4_000
 const ERROR_TOOL_CALLS_CHARS = 12_000
 const ERROR_STACK_CHARS = 4_000
 
+/** Tool calls shown beside a code result when an exit is held back; each field keeps its own cap. */
+// Kept small: these previews stay in the conversation, and page snapshots would be resent on every later turn
+const TOOL_CALLS_SECTION_CHARS = 4_000
+
 /** A stack starts with the error message, which is already shown (capped) above it. */
 const boundStackTrace = (stacktrace: string, message: string): string => {
   const stack = cleanStackTrace(stacktrace)
@@ -355,6 +359,9 @@ const getThinkingMessage = async (props: LLMzPrompts.ThinkingProps): Promise<LLM
         props.maxResultChars ?? MAX_RESULT_CHARS,
         props.fullValueVariable
       )
+  const toolCalls = props.toolCalls
+    ? `Tool calls made by this code (outputs are previews${props.toolCallsVariable ? `; the full calls are in the variable \`${props.toolCallsVariable}\`, in this order, so read cut values from \`${props.toolCallsVariable}[i].output\` in code` : ''}):\n${wrapContent(inspectToolCallsWithinBudget(props.toolCalls, TOOL_CALLS_SECTION_CHARS), { preserve: 'top' })}\n-------------------\n`
+    : ''
   const intro = props.interrupted
     ? 'A tool paused code execution to request your attention. Its reason and context below may supply a result or request further work.'
     : "The code execution completed. Here's the context:"
@@ -370,7 +377,7 @@ Reason: ${props.reason || 'Code execution returned a value'}
 Context:
 ${wrapContent(context, { preserve: 'top' })}
 -------------------
-
+${toolCalls}
 ${resultDecodingHint}
 
 Continue with a new response using ■ blocks. ${props.interrupted ? interruptedHint : 'Do not re-run successful code or tools. An empty result is normal for tools that return no value; it does NOT mean execution failed. Do not repeat reads just to verify these successful operations. Use the available results; if the task is complete, finish with an available exit.'} A successful search with NO matches has not answered the question: run a refined query when it could help. A different query is new work, not a repeat of the successful call. Keep internal deliberation private.

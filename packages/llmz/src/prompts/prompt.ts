@@ -107,6 +107,10 @@ export namespace LLMzPrompts {
     fullValueVariable?: string
     /** Largest code result shown, in characters; defaults to MAX_RESULT_CHARS */
     maxResultChars?: number
+    /** Tool calls of the code run, shown when an exit written alongside that code was held back. */
+    toolCalls?: unknown
+    /** Variable holding those tool calls in full, for the next code run */
+    toolCallsVariable?: string
   }
 
   export type SnapshotResolvedProps = {

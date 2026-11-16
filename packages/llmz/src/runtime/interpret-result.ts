@@ -3,11 +3,22 @@ import { hasTopLevelReturn } from '../compiler/index.js'
 import { Iteration } from '../context.js'
 import { CodeExecutionError, InvalidCodeError, SnapshotSignal, ThinkSignal } from '../errors.js'
 import { parseExit } from '../exit-parser.js'
-import { exceedsResultBudget, pickResultVariable } from '../prompts/result-budget.js'
+import { exceedsResultBudget, getToolCalls, pickResultVariable } from '../prompts/result-budget.js'
 import { cleanStackTrace } from '../stack-traces.js'
 import { VMExecutionResult } from '../types.js'
 import { getErrorMessage } from '../utils.js'
 import { ExecutionHooks } from './types.js'
+
+/** An object that only repeats the call's own input plus yes/no flags, as write tools return to confirm what they did */
+const isConfirmation = ({ input, output }: { input: unknown; output: unknown }): boolean => {
+  if (typeof output !== 'object' || output === null || Array.isArray(output)) {
+    return false
+  }
+  const inputValues = typeof input === 'object' && input !== null ? Object.values(input) : []
+  return Object.values(output).every(
+    (value) => value === null || typeof value === 'boolean' || inputValues.includes(value)
+  )
+}
 
 type InterpretVMResultProps = {
   iteration: Iteration
@@ -17,6 +28,8 @@ type InterpretVMResultProps = {
   onExit?: ExecutionHooks['onExit']
   /** Variables llmz created earlier in this run to hold too-large results; it may reuse them */
   savedResultVariables?: readonly string[]
+  /** False on the last iteration, where a held-back exit could never be emitted again */
+  canDeferExit?: boolean
   /** Largest code result shown to the model, in characters */
   maxResultChars?: number
 }
@@ -28,6 +41,7 @@ export const interpretVMResult = async ({
   startedAt,
   onExit,
   savedResultVariables = [],
+  canDeferExit = false,
   maxResultChars,
 }: InterpretVMResultProps) => {
   // Preserve locals independently of the returned value. Returning a scalar
@@ -120,7 +134,23 @@ export const interpretVMResult = async ({
   // code (no top-level `return` statement) may be combined with a final ■next.
   const codeRequestsInspection = hasTopLevelReturn(iteration.code ?? '')
 
-  if (iteration.next && !codeRequestsInspection) {
+  // Exit fields written before a tool returned data were guessed without seeing it: hold the exit back
+  // so the model checks them against the results, unless no further response is possible.
+  // A write's confirmation (like `{ source, destination, moved: true }`) adds nothing new, so it doesn't count as data.
+  const exitWrittenBeforeData =
+    canDeferExit &&
+    !!iteration.next &&
+    Object.keys(iteration.next.props).length > 0 &&
+    iteration.traces.some(
+      (trace) =>
+        trace.type === 'tool_call' &&
+        trace.success &&
+        trace.output !== undefined &&
+        !(trace.output instanceof ThinkSignal) &&
+        !isConfirmation(trace)
+    )
+
+  if (iteration.next && !codeRequestsInspection && !exitWrittenBeforeData) {
     await applyNextExit({ iteration, controller, onExit })
     return
   }
@@ -129,35 +159,54 @@ export const interpretVMResult = async ({
     Object.entries(result.variables ?? {}).filter(([, value]) => value !== '[[non-primitive]]')
   )
 
+  const reserved = [
+    ...iteration.tools.flatMap((tool) => [tool.name, ...(tool.aliases ?? [])]),
+    ...iteration.objects.map((object) => object.name),
+  ]
+
   // A returned value too large to show stays readable by the next code run instead of being lost.
   const fullValueVariable =
     returnValue !== undefined && exceedsResultBudget(returnValue, { fullPreviewHeader: true }, maxResultChars)
-      ? pickResultVariable({
-          variables: iteration.variables,
-          saved: savedResultVariables,
-          reserved: [
-            ...iteration.tools.flatMap((tool) => [tool.name, ...(tool.aliases ?? [])]),
-            ...iteration.objects.map((object) => object.name),
-          ],
-        })
+      ? pickResultVariable({ variables: iteration.variables, saved: savedResultVariables, reserved })
       : undefined
   if (fullValueVariable) {
     iteration.variables[fullValueVariable] = returnValue
   }
 
+  const heldExit = iteration.next && !codeRequestsInspection ? iteration.next.name : undefined
+
+  // A held exit is checked against tool output previews; outputs the code never assigned stay readable in full.
+  const toolCallsVariable = heldExit
+    ? pickResultVariable({
+        variables: iteration.variables,
+        saved: savedResultVariables,
+        reserved: fullValueVariable ? [...reserved, fullValueVariable] : reserved,
+      })
+    : undefined
+  if (toolCallsVariable) {
+    iteration.variables[toolCallsVariable] = getToolCalls(iteration)
+  }
+  const ownVariables = [
+    ...savedResultVariables,
+    ...[fullValueVariable, toolCallsVariable].filter((name) => name !== undefined),
+  ]
+
   iteration.end({
     type: 'thinking_requested',
     thinking_requested: {
-      reason: iteration.next
-        ? `Code execution completed. The ■next=${iteration.next.name} exit was NOT applied because your code returns a value — inspect it below, then end your next response with ■next.`
-        : 'Code execution completed',
+      reason: !iteration.next
+        ? 'Code execution completed'
+        : codeRequestsInspection
+          ? `Code execution completed. The ■next=${iteration.next.name} exit was NOT applied because your code returns a value — inspect it below, then end your next response with ■next.`
+          : `Code execution completed. The ■next=${iteration.next.name} exit was NOT applied because its fields were written before this code ran. Verify each field against the tool results below, correct anything wrong or missing, then end your next response with ■next.`,
       variables:
         returnValue !== undefined
           ? returnValue
           : Object.keys(localVariables).length
             ? localVariables
-            : omit(iteration.variables, savedResultVariables),
+            : omit(iteration.variables, ownVariables),
       ...(fullValueVariable ? { fullValueVariable } : {}),
+      ...(heldExit ? { heldExit, toolCallsVariable } : {}),
     },
   })
 }

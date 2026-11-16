@@ -2,6 +2,7 @@ import { isPlainObject } from 'lodash-es'
 import type { Iteration } from '../context.js'
 import { inspect, type PreviewLimits } from '../inspect.js'
 import { wrapContent } from '../truncator.js'
+import { getErrorMessage } from '../utils.js'
 
 /** Largest rendered code result (~37K tokens) sent to the model in one message. */
 export const MAX_RESULT_CHARS = 150_000
@@ -9,13 +10,26 @@ export const MAX_RESULT_CHARS = 150_000
 /** Holds the full value of the latest code result that was too large to show, for the next code run. */
 export const LAST_RESULT_VARIABLE = 'lastResult'
 
-/** Names llmz itself used to hold a too-large result earlier in this run; generated code owns every other name. */
+/** Names llmz itself used to hold results earlier in this run; generated code owns every other name. */
 export const getSavedResultVariables = (iterations: readonly Iteration[]): string[] =>
-  iterations.flatMap((iteration) =>
-    iteration.status.type === 'thinking_requested' && iteration.status.thinking_requested.fullValueVariable
-      ? [iteration.status.thinking_requested.fullValueVariable]
-      : []
-  )
+  iterations.flatMap((iteration) => {
+    if (iteration.status.type !== 'thinking_requested') {
+      return []
+    }
+    const { fullValueVariable, toolCallsVariable } = iteration.status.thinking_requested
+    return [fullValueVariable, toolCallsVariable].filter((name) => name !== undefined)
+  })
+
+/** The tool calls of an iteration's code run, in call order. */
+export const getToolCalls = (iteration: Iteration) =>
+  iteration.traces
+    .filter((trace) => trace.type === 'tool_call')
+    .map((trace) => ({
+      tool: trace.tool_name,
+      input: trace.input,
+      success: trace.success,
+      ...(trace.success ? { output: trace.output } : { error: getErrorMessage(trace.error) }),
+    }))
 
 type PickResultVariableProps = {
   /** Variables the next code run receives */
