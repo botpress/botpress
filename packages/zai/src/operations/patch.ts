@@ -827,6 +827,7 @@ Zai.prototype.patch = function (
     adapter: this.adapter,
     memoizer: this._resolveMemoizer(),
     metadata: this.metadata,
+    skipCache: this.skipCache,
   })
 
   return new Response<Array<File>>(context, patch(files, instructions, _options, context), (result) => result)
