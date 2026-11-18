@@ -171,9 +171,12 @@ class FreshchatClient {
 
   public async verifyToken(): Promise<boolean> {
     try {
-      const result = await this._client.get<{ organisation_id: number }>('/accounts/configuration')
-      return !!result?.data?.organisation_id
-    } catch {
+      const result = await this._client.get<{ channels: FreshchatChannel[] }>('/channels')
+      return Array.isArray(result?.data?.channels)
+    } catch (thrown: unknown) {
+      const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+      const details = axios.isAxiosError(thrown) ? thrown.response?.data : undefined
+      this._logger.forBot().error('Failed to verify token : ' + error.message, details)
       return false
     }
   }
