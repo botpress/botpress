@@ -137,6 +137,10 @@ export class Response<T, S = T> implements PromiseLike<S> {
       }
     )
 
+    // A Response used fire-and-forget (never awaited) must not crash the process with an unhandled rejection.
+    // Awaiting / `.then` / `.catch` / `.result()` still chain off `_promise` and see the rejection.
+    this._promise.catch(() => {})
+
     this._context.on('update', (usage) => {
       this._eventEmitter.emit('progress', usage)
     })
@@ -246,16 +250,18 @@ export class Response<T, S = T> implements PromiseLike<S> {
   public bindSignal(signal: AbortSignal): this {
     if (signal.aborted) {
       this.abort(signal.reason)
+      return this
     }
 
     const signalAbort = () => {
       this.abort(signal.reason)
     }
 
-    signal.addEventListener('abort', () => signalAbort())
+    signal.addEventListener('abort', signalAbort, { once: true })
 
-    void this.once('complete', () => signal.removeEventListener('abort', signalAbort))
-    void this.once('error', () => signal.removeEventListener('abort', signalAbort))
+    // Remove the listener once the operation settles, so long-lived signals don't accumulate listeners
+    const cleanup = () => signal.removeEventListener('abort', signalAbort)
+    this._promise.then(cleanup, cleanup)
 
     return this
   }
@@ -331,7 +337,7 @@ export class Response<T, S = T> implements PromiseLike<S> {
   public catch<TResult = never>(
     onrejected?: ((reason: unknown) => TResult | PromiseLike<TResult>) | null
   ): PromiseLike<S | TResult> {
-    return this._promise.catch(onrejected) as PromiseLike<S | TResult>
+    return this.then(undefined, onrejected)
   }
 
   /**

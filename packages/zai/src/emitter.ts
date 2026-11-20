@@ -1,3 +1,9 @@
+const reportListenerError = (error: unknown) => {
+  try {
+    console.error('[zai] An event listener threw an error:', error)
+  } catch {}
+}
+
 export class EventEmitter<E extends object> {
   private _listeners: {
     [K in keyof E]?: ((event: E[K]) => void)[]
@@ -8,8 +14,14 @@ export class EventEmitter<E extends object> {
     if (!listeners) {
       return
     }
-    for (const listener of listeners) {
-      listener(event)
+    // Iterate over a copy: `once` listeners remove themselves while we iterate.
+    // A throwing listener must not prevent other listeners from running nor break the emitter's caller.
+    for (const listener of [...listeners]) {
+      try {
+        listener(event)
+      } catch (error) {
+        reportListenerError(error)
+      }
     }
   }
 

@@ -4,7 +4,7 @@ import { BotpressClientLike, Cognitive, Model, Models } from '@botpress/cognitiv
 import { z } from '@bpinternal/zui'
 
 import { Adapter } from './adapters/adapter'
-import { TableAdapter } from './adapters/botpress-table'
+import { TABLE_NAME_REGEX, TableAdapter } from './adapters/botpress-table'
 import { MemoryAdapter } from './adapters/memory'
 import { type TextTokenizer, getTokenizer } from './tokenizer'
 
@@ -62,8 +62,8 @@ const _ActiveLearning = z.object({
   tableName: z
     .string()
     .regex(
-      /^[A-Za-z0-9_/-]{1,100}Table$/,
-      'Namespace must be alphanumeric and contain only letters, numbers, underscores, hyphens and slashes'
+      TABLE_NAME_REGEX,
+      'Table name must contain only letters, numbers and underscores (max 45 characters) and end with "Table". Example: "ActiveLearningTable"'
     )
     .describe('The name of the table to store active learning tasks')
     .default('ActiveLearningTable'),
@@ -279,7 +279,8 @@ export class Zai {
     this._userId = parsed.userId
     this.Model = parsed.modelId as Models | Models[]
     this.activeLearning = parsed.activeLearning as ActiveLearning
-    this.metadata = parsed.metadata
+    // userId is forwarded on every cognitive call's metadata (explicit metadata.userId wins)
+    this.metadata = parsed.userId ? { userId: parsed.userId, ...parsed.metadata } : parsed.metadata
 
     this.adapter = parsed.activeLearning?.enable
       ? new TableAdapter({

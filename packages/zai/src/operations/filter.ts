@@ -6,7 +6,7 @@ import pLimit from 'p-limit'
 import { ZaiContext } from '../context'
 import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
-import { fastHash, stringify, takeUntilTokens } from '../utils'
+import { fastHash, stringify, takeUntilTokens, abortSiblingsOnFailure } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
 
@@ -33,9 +33,8 @@ const _Options = z.object({
   tokensPerItem: z
     .number()
     .min(1)
-    .max(100_000)
     .optional()
-    .describe('The maximum number of tokens per item')
+    .describe("The maximum number of tokens per item (capped at the items' share of the model's input context)")
     .default(250),
   examples: z.array(_Example).describe('Examples to filter the condition against').default([]),
 })
@@ -134,6 +133,67 @@ declare module '@botpress/zai' {
 
 const END = '■END■'
 
+/**
+ * Saved examples are whole chunks: `input` is the JSON array of the chunk's items and `output` the items that were kept.
+ * Expand them into one example per item (kept → true). Single-item examples with a boolean output are passed through.
+ */
+const toItemExamples = (input: unknown, output: unknown, explanation?: string): Example[] => {
+  if (typeof output === 'boolean') {
+    return [{ input, filter: output, reason: explanation }]
+  }
+  let items: unknown
+  try {
+    items = typeof input === 'string' ? JSON.parse(input) : input
+  } catch {
+    return []
+  }
+  if (!Array.isArray(items) || !Array.isArray(output)) {
+    return []
+  }
+  const kept = new Set(output.map((o) => JSON.stringify(o)))
+  return items.map((item) => ({ input: item, filter: kept.has(JSON.stringify(item)), reason: explanation }))
+}
+
+/**
+ * Parses the model's filter decisions (`■0:true■1:false■2:true`).
+ * Tolerates whitespace, newlines, code fences, prose around the decisions, `yes`/`no`, and trailing reasons
+ * (`■0: true (it's a fruit)`). Throws (so the context retries with feedback) when an index is missing or out of range.
+ */
+export const parseFilterDecisions = (text: string, count: number): boolean[] => {
+  const decisions: Array<boolean | undefined> = new Array(count).fill(undefined)
+  const outOfRange: number[] = []
+  const regex = /■\s*(\d+)\s*[:=]\s*\**\s*(true|false|yes|no)\b/gi
+  let match: RegExpExecArray | null
+
+  while ((match = regex.exec(text)) !== null) {
+    const idx = parseInt(match[1]!, 10)
+    const value = match[2]!.toLowerCase()
+    if (idx < 0 || idx >= count) {
+      outOfRange.push(idx)
+      continue
+    }
+    decisions[idx] = value === 'true' || value === 'yes'
+  }
+
+  const missing = decisions.map((d, i) => (d === undefined ? i : -1)).filter((i) => i >= 0)
+
+  if (outOfRange.length || missing.length) {
+    const problems: string[] = []
+    if (missing.length) {
+      problems.push(`missing decisions for item(s) ${missing.map((i) => `■${i}`).join(', ')}`)
+    }
+    if (outOfRange.length) {
+      problems.push(`unknown item index(es) ${outOfRange.map((i) => `■${i}`).join(', ')}`)
+    }
+    throw new Error(
+      `Invalid filter output: ${problems.join('; ')}. Items are numbered from ■0 to ■${count - 1}. ` +
+        `Return one decision per item using the format ■0:true■1:false■2:true (indices start at 0).`
+    )
+  }
+
+  return decisions as boolean[]
+}
+
 const filter = async <T>(
   input: Array<T>,
   condition: string,
@@ -155,9 +215,13 @@ const filter = async <T>(
   const TOKENS_INPUT_ARRAY_MAX = TOKENS_TOTAL_MAX - TOKENS_EXAMPLES_MAX - TOKENS_CONDITION_MAX
 
   condition = tokenizer.truncate(condition, TOKENS_CONDITION_MAX)
+  options.tokensPerItem = Math.min(options.tokensPerItem, TOKENS_INPUT_ARRAY_MAX)
 
-  let chunks: Array<typeof input> = []
-  let currentChunk: typeof input = []
+  // Each chunk keeps the original elements (returned to the caller) alongside their truncated
+  // string form (what the model sees), so `tokensPerItem` actually bounds the prompt size.
+  type ChunkItem = { element: T; text: string }
+  let chunks: Array<ChunkItem[]> = []
+  let currentChunk: ChunkItem[] = []
   let currentChunkTokens = 0
 
   for (const element of input) {
@@ -170,7 +234,7 @@ const filter = async <T>(
       currentChunkTokens = 0
     }
 
-    currentChunk.push(element)
+    currentChunk.push({ element, text: elementAsString })
     currentChunkTokens += elementTokens
   }
 
@@ -239,7 +303,9 @@ ${examples.map((x, idx) => `■${idx}:${!!x.filter ? 'true' : 'false'}:${x.reaso
     },
   ]
 
-  const filterChunk = async (chunk: typeof input) => {
+  const filterChunk = async (chunkItems: ChunkItem[]): Promise<Array<T>> => {
+    ctx.controller.signal.throwIfAborted()
+    const chunk = chunkItems.map((x) => x.element)
     const examples =
       taskId && ctx.adapter
         ? await ctx.adapter
@@ -249,9 +315,7 @@ ${examples.map((x, idx) => `■${idx}:${!!x.filter ? 'true' : 'false'}:${x.reaso
               taskType,
               taskId,
             })
-            .then((x) =>
-              x.map((y) => ({ filter: y.output as boolean, input: y.input, reason: y.explanation }) satisfies Example)
-            )
+            .then((x) => x.flatMap((y) => toItemExamples(y.input, y.output, y.explanation)))
         : []
 
     const allExamples = takeUntilTokens([...examples, ...(options.examples ?? [])], TOKENS_EXAMPLES_MAX, (el) =>
@@ -284,29 +348,19 @@ The condition is: "${condition}"
 `.trim(),
       stopSequences: [END],
       messages: [
-        ...(exampleMessages.length ? exampleMessages : genericExamplesMessages),
+        ...(allExamples.length ? exampleMessages : genericExamplesMessages),
         {
           type: 'text',
           content: formatInput(
-            chunk.map((x) => ({ input: x }) as Example),
+            chunkItems.map((x) => ({ input: x.text }) as Example),
             condition
           ),
           role: 'user',
         },
       ],
       transform: (text) => {
-        const indices = text
-          .trim()
-          .split('■')
-          .filter((x) => x.length > 0)
-          .map((x) => {
-            const [idx, filter] = x.split(':')
-            return { idx: parseInt(idx?.trim() ?? ''), filter: filter?.toLowerCase().trim() === 'true' }
-          })
-
-        return chunk.filter((_, idx) => {
-          return indices.find((x) => x.idx === idx && x.filter) ?? false
-        })
+        const decisions = parseFilterDecisions(text ?? '', chunk.length)
+        return chunk.filter((_, idx) => decisions[idx] === true)
       },
     })
 
@@ -346,7 +400,9 @@ The condition is: "${condition}"
   }
 
   const limit = pLimit(10) // Limit to 10 concurrent filtering operations
-  const filteredChunks = await Promise.all(chunks.map((chunk) => limit(() => filterChunk(chunk))))
+  const filteredChunks = await Promise.all(
+    chunks.map((chunk) => limit(() => filterChunk(chunk)).catch(abortSiblingsOnFailure(ctx)))
+  )
 
   return filteredChunks.flat()
 }

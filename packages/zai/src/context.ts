@@ -13,13 +13,36 @@ type Meta = {
   tokens: { input: number; output: number }
 }
 
-const toMeta = (metadata: CognitiveMetadata): Meta => ({
-  cached: metadata.cached ?? false,
-  model: { integration: metadata.provider, model: metadata.model ?? '' },
-  latency: metadata.latency ?? 0,
-  cost: { input: metadata.usage.inputCost, output: metadata.usage.outputCost },
-  tokens: { input: metadata.usage.inputTokens, output: metadata.usage.outputTokens },
+const toMeta = (metadata: CognitiveMetadata | undefined): Meta => ({
+  cached: metadata?.cached ?? false,
+  model: {
+    integration: metadata?.provider ?? '',
+    model: metadata?.model ?? '',
+  },
+  latency: metadata?.latency ?? 0,
+  cost: {
+    input: metadata?.usage?.inputCost ?? 0,
+    output: metadata?.usage?.outputCost ?? 0,
+  },
+  tokens: {
+    input: metadata?.usage?.inputTokens ?? 0,
+    output: metadata?.usage?.outputTokens ?? 0,
+  },
 })
+
+const errorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message
+  }
+  if (typeof error === 'string') {
+    return error
+  }
+  try {
+    return JSON.stringify(error) ?? String(error)
+  } catch {
+    return String(error)
+  }
+}
 
 type GenerateContentProps<T> = Omit<CognitiveRequest, 'model'> & {
   maxRetries?: number
@@ -140,11 +163,13 @@ export class ZaiContext {
     this._client.on('response', (_req, res) => {
       this._totalResponses++
 
-      const { metadata } = res
+      const metadata = res?.metadata
 
-      if ('cached' in metadata && metadata.cached) {
+      if (!metadata) {
+        // nothing to account for
+      } else if ('cached' in metadata && metadata.cached) {
         this._totalCachedResponses++
-      } else if ('usage' in metadata) {
+      } else if ('usage' in metadata && metadata.usage) {
         this._inputTokens += metadata.usage.inputTokens || 0
         this._outputTokens += metadata.usage.outputTokens || 0
 
@@ -187,13 +212,22 @@ export class ZaiContext {
 
   public async generateContent<Out = string>(
     props: GenerateContentProps<Out>
-  ): Promise<{ meta: Meta; output: CognitiveResponse; text: string | undefined; extracted: Out }> {
+  ): Promise<{
+    meta: Meta
+    output: CognitiveResponse
+    text: string | undefined
+    extracted: Out
+  }> {
     const memoKey = `zai:memo:${this.taskType}:${this.taskId || 'default'}:${fastHash(
       JSON.stringify({
+        model: this.modelId,
         s: props.systemPrompt,
-        m: props.messages?.map((m) => ('content' in m ? m.content : '')),
+        m: props.messages?.map((m) => [m.role, 'content' in m ? m.content : '']),
         st: props.stopSequences,
         mt: props.maxTokens,
+        t: props.temperature,
+        rf: props.responseFormat,
+        re: props.reasoningEffort,
       })
     )}`
 
@@ -202,15 +236,27 @@ export class ZaiContext {
 
   private async _generateContentInner<Out = string>(
     props: GenerateContentProps<Out>
-  ): Promise<{ meta: Meta; output: CognitiveResponse; text: string | undefined; extracted: Out }> {
+  ): Promise<{
+    meta: Meta
+    output: CognitiveResponse
+    text: string | undefined
+    extracted: Out
+  }> {
     const maxRetries = Math.max(props.maxRetries ?? 3, 0)
     const { maxRetries: _mr, transform, ...request } = props
-    let lastError: Error | null = null
+    let lastError: unknown = undefined
     const messages = [...(props.messages || [])]
 
-    for (let attempt = 0; attempt <= maxRetries && !this.controller.signal.aborted; attempt++) {
-      try {
-        const response = await this._client.generateText(
+    // Aborted before (or while) setting up the operation: surface the abort reason, never `null`
+    this.controller.signal.throwIfAborted()
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      this.controller.signal.throwIfAborted()
+
+      // Errors thrown by the request itself (auth, bad request, context too long, network…) are not
+      // something the model can fix: Cognitive already retries transient failures, so rethrow as-is.
+      const response = await this._client
+        .generateText(
           {
             ...request,
             messages,
@@ -224,45 +270,44 @@ export class ZaiContext {
           },
           { signal: this.controller.signal }
         )
-
-        if (this.controller.signal.aborted) {
-          throw this.controller.signal.reason
-        }
-
-        const str = response.output
-        let output: Out
-
-        messages.push({
-          role: 'assistant',
-          content: str || '<Invalid output, no content provided>',
+        .catch((error: unknown) => {
+          this.controller.signal.throwIfAborted()
+          throw error
         })
 
-        if (!transform) {
-          output = str as Out
-        } else {
-          output = transform(str, response)
-        }
+      this.controller.signal.throwIfAborted()
 
-        return { meta: toMeta(response.metadata), output: response, text: str, extracted: output }
+      const str = response.output
+      messages.push({
+        role: 'assistant',
+        content: str || '<Invalid output, no content provided>',
+      })
+
+      try {
+        const output = transform ? transform(str, response) : (str as Out)
+        return {
+          meta: toMeta(response.metadata),
+          output: response,
+          text: str,
+          extracted: output,
+        }
       } catch (error) {
-        if (this.controller.signal.aborted) {
-          throw this.controller.signal.reason
-        }
+        this.controller.signal.throwIfAborted()
 
-        lastError = error as Error
-
+        // Only output problems (parsing/validation in `transform`) are retried, with the error fed back to the model
+        lastError = error
         if (attempt === maxRetries) {
-          throw lastError
+          break
         }
 
         messages.push({
           role: 'user',
-          content: `ERROR PARSING OUTPUT\n\n${lastError.message}.\n\nPlease return a valid response addressing the error above.`,
+          content: `ERROR PARSING OUTPUT\n\n${errorMessage(error)}.\n\nPlease return a valid response addressing the error above.`,
         })
       }
     }
 
-    throw lastError
+    throw lastError ?? new Error('Failed to generate a valid response')
   }
 
   public get elapsedTime(): number {

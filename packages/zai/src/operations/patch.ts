@@ -3,11 +3,11 @@ import { z } from '@bpinternal/zui'
 import pLimit from 'p-limit'
 
 import { ZaiContext } from '../context'
-import { isJsonFile, validateOrRepairJson } from '../json-utils'
+import { isJsonFile, jsonKind, validateOrRepairJson } from '../json-utils'
 import { Micropatch } from '../micropatch'
 import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
-import { fastHash, stringify } from '../utils'
+import { fastHash, stringify, allOrAbort } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
 import { JsonParsingError } from './errors'
@@ -51,11 +51,82 @@ export type Options = {
   schema?: OfType<any>
 }
 
+/** How far over `maxTokensPerChunk` a chunk cut by average line length may go before it is cut line by line */
+const CHUNK_OVERFLOW = 1.5
+
 const INVALID_SCHEMA_ERROR = 'zai.patch only accepts schemas created with @bpinternal/zui'
 
 const Options = z.object({
-  maxTokensPerChunk: z.number().optional(),
+  maxTokensPerChunk: z.number().int().min(1).optional(),
 })
+
+/** Strips a markdown code fence wrapped around the whole content of a <FILE> block */
+const unfence = (ops: string): string => {
+  const lines = ops.split(/\r?\n/)
+  if (lines.length >= 2 && /^\s*```[\w-]*\s*$/.test(lines[0]!) && /^\s*```\s*$/.test(lines[lines.length - 1]!)) {
+    return lines.slice(1, -1).join('\n').trim()
+  }
+  return ops
+}
+
+/**
+ * Parses the <FILE> blocks of a patch response into ops per file path. Two blocks for the same path are combined.
+ * Throws (so the call is made again with the error as feedback) when a block is not closed, targets a file that
+ * isn't in the input, has invalid op syntax, or targets lines past the end of its file.
+ */
+const parsePatchOutput = (output: string, files: Array<{ path: string; content: string }>): Map<string, string> => {
+  const patchMap = new Map<string, string>()
+  const byPath = new Map(files.map((file) => [file.path, file]))
+
+  // Match <FILE path="...">...</FILE> blocks
+  const fileBlockRegex = /<FILE[^>]*path="([^"]+)"[^>]*>([\s\S]*?)<\/FILE>/g
+  let match
+  let blocks = 0
+
+  while ((match = fileBlockRegex.exec(output)) !== null) {
+    blocks++
+    const filePath = match[1]!
+    const patchOps = unfence(match[2]!.trim())
+    const existing = patchMap.get(filePath)
+    patchMap.set(filePath, existing ? `${existing}\n${patchOps}` : patchOps)
+  }
+
+  const opened = output.match(/<FILE\b/g)?.length ?? 0
+  if (opened > blocks) {
+    throw new Error(
+      'A <FILE> block is not closed. Every <FILE path="..."> block must end with </FILE>. If the patch is long, use fewer and larger operations (e.g. replace a range instead of many single lines).'
+    )
+  }
+
+  if (blocks === 0 && /^[\u25FC\u25A0]/m.test(output)) {
+    throw new Error('The patch operations must be inside <FILE path="...">...</FILE> blocks, one per file.')
+  }
+
+  const errors: string[] = []
+  for (const [filePath, patchOps] of patchMap) {
+    const file = byPath.get(filePath)
+    if (!file) {
+      errors.push(
+        `There is no file with path "${filePath}". Use the exact path of one of these files: ${[...byPath.keys()].map((p) => `"${p}"`).join(', ')}.`
+      )
+      continue
+    }
+    try {
+      const { skipped } = Micropatch.applyWithReport(file.content, patchOps)
+      for (const op of skipped.filter((x) => x.reason === 'out_of_range')) {
+        errors.push(`In "${filePath}": ${op.message}. Use the line numbers shown in the input.`)
+      }
+    } catch (err) {
+      errors.push(`In "${filePath}": ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
+
+  if (errors.length) {
+    throw new Error(`The patch is invalid:\n${errors.map((e) => `- ${e}`).join('\n')}`)
+  }
+
+  return patchMap
+}
 
 declare module '@botpress/zai' {
   interface Zai {
@@ -187,6 +258,7 @@ const patch = async (
   ctx: ZaiContext
 ): Promise<Array<File>> => {
   ctx.controller.signal.throwIfAborted()
+  const startedAt = Date.now()
 
   const options: Options = { ...Options.parse(_options ?? {}), schema: _options?.schema }
 
@@ -226,13 +298,27 @@ const patch = async (
 
   const totalInputTokens = fileTokenCounts.reduce((sum, f) => sum + f.tokens, 0)
 
+  // Files are cut between lines, never inside one: a single line that doesn't fit a call can't be patched
+  for (const { file, tokens } of fileTokenCounts) {
+    if (tokens <= TOKENS_FILES_MAX) continue
+    file.content.split(/\r?\n/).forEach((line, i) => {
+      const lineTokens = tokenizer.count(line)
+      if (lineTokens > TOKENS_FILES_MAX) {
+        throw new Error(
+          `Line ${i + 1} of "${file.path}" is ${lineTokens} tokens long, more than the ${TOKENS_FILES_MAX} tokens one call to this model (${model.name}) can take. Files are patched line by line, so break that line into several lines (e.g. pretty-print minified JSON) first.`
+        )
+      }
+    })
+  }
+
   /**
    * Split a file into chunks by line ranges
    */
   const splitFileIntoChunks = (file: File, totalLines: number, fileTokens: number): Array<FileChunk> => {
     const lines = file.content.split(/\r?\n/)
     const tokensPerLine = fileTokens / totalLines
-    const linesPerChunk = Math.floor(maxTokensPerChunk / tokensPerLine)
+    // At least one line per chunk: a line longer than the budget gets a chunk of its own
+    const linesPerChunk = Math.max(1, Math.floor(maxTokensPerChunk / tokensPerLine))
 
     if (linesPerChunk >= totalLines) {
       // File fits in one chunk
@@ -250,20 +336,40 @@ const patch = async (
     }
 
     const chunks: Array<FileChunk> = []
-    for (let start = 0; start < totalLines; start += linesPerChunk) {
-      const end = Math.min(start + linesPerChunk, totalLines)
-      const chunkLines = lines.slice(start, end)
-      const chunkContent = chunkLines.join('\n')
-
+    const pushChunk = (start: number, end: number) =>
       chunks.push({
         path: file.path,
         name: file.name,
-        content: chunkContent,
+        content: lines.slice(start, end).join('\n'),
         startLine: start + 1,
         endLine: end,
         totalLines,
         isPartial: true,
       })
+
+    for (let start = 0; start < totalLines; start += linesPerChunk) {
+      const end = Math.min(start + linesPerChunk, totalLines)
+
+      // The line count comes from the file's average line length. When the lines are very uneven (e.g. one huge
+      // line among short ones), the chunk can be far over budget: cut it again, line by line.
+      const chunkTokens = tokenizer.count(lines.slice(start, end).join('\n'))
+      if (end - start > 1 && chunkTokens > maxTokensPerChunk * CHUNK_OVERFLOW) {
+        let from = start
+        let tokens = 0
+        for (let i = start; i < end; i++) {
+          const lineTokens = tokenizer.count(lines[i]!) + 1
+          if (i > from && tokens + lineTokens > maxTokensPerChunk) {
+            pushChunk(from, i)
+            from = i
+            tokens = 0
+          }
+          tokens += lineTokens
+        }
+        pushChunk(from, end)
+        continue
+      }
+
+      pushChunk(start, end)
     }
 
     return chunks
@@ -323,31 +429,12 @@ ${numberedView}
   }
 
   /**
-   * Parse XML output to extract patches per file
-   */
-  const parsePatchOutput = (output: string): Map<string, string> => {
-    const patchMap = new Map<string, string>()
-
-    // Match <FILE path="...">...</FILE> blocks
-    const fileBlockRegex = /<FILE[^>]*path="([^"]+)"[^>]*>([\s\S]*?)<\/FILE>/g
-    let match
-
-    while ((match = fileBlockRegex.exec(output)) !== null) {
-      const filePath = match[1]
-      const patchOps = match[2].trim()
-      patchMap.set(filePath, patchOps)
-    }
-
-    return patchMap
-  }
-
-  /**
    * For JSON files, validate the patched content is valid JSON.
    * Attempts repair with jsonrepair if invalid.
    * Returns the (possibly repaired) content, or null if unrecoverable.
    */
-  const ensureValidJson = (content: string): string | null => {
-    const result = validateOrRepairJson(content)
+  const ensureValidJson = (content: string, kind: ReturnType<typeof jsonKind>): string | null => {
+    const result = validateOrRepairJson(content, { kind })
     if (result.valid) {
       return result.content
     }
@@ -363,13 +450,8 @@ ${numberedView}
       return { ...file, patch: '' }
     }
 
-    let patchedContent: string
-    try {
-      patchedContent = Micropatch.applyText(file.content, patchOps)
-    } catch (error) {
-      console.error(`Failed to apply patch to ${file.path}:`, error)
-      return { ...file, patch: `ERROR: ${error instanceof Error ? error.message : String(error)}` }
-    }
+    // The ops were validated when the model's response was parsed, so this does not throw on syntax
+    const patchedContent = Micropatch.applyText(file.content, patchOps)
 
     const jsonMode = isJsonFile(file.path, file.name)
 
@@ -384,11 +466,12 @@ ${numberedView}
       return { ...file, content: patchedContent, patch: patchOps }
     }
 
-    // Validate/repair the patched output
-    const validContent = ensureValidJson(patchedContent)
+    // Validate/repair the patched output. The patch must keep the file's top-level shape (object, array…)
+    const kind = jsonKind(originalParse.data)
+    const validContent = ensureValidJson(patchedContent, kind)
     if (validContent === null) {
       // Repair failed — give the LLM the broken result and ask it to fix the syntax
-      return retryJsonPatch(file, patchedContent)
+      return retryJsonPatch(file, patchedContent, kind)
     }
 
     // If a schema is provided, validate the JSON against it
@@ -396,7 +479,7 @@ ${numberedView}
       const parsed = JSON.parse(validContent)
       const safe = zSchema.safeParse(parsed)
       if (!safe.success) {
-        return retrySchemaValidation(file, validContent, safe.error)
+        return retrySchemaValidation(file, validContent, safe.error, kind)
       }
     }
 
@@ -407,10 +490,14 @@ ${numberedView}
    * Re-prompt the LLM when a JSON file patch produced invalid JSON.
    * Gives the LLM the broken result as a new file to patch, asking it to fix just the JSON syntax errors.
    */
-  const retryJsonPatch = async (file: File, brokenContent: string): Promise<File> => {
+  const retryJsonPatch = async (
+    file: File,
+    brokenContent: string,
+    kind: ReturnType<typeof jsonKind>
+  ): Promise<File> => {
     // Get the parse error message
-    const parseResult = validateOrRepairJson(brokenContent)
-    const errorMessage = parseResult.error
+    const parseResult = validateOrRepairJson(brokenContent, { kind })
+    const errorMessage = parseResult.valid ? '' : parseResult.error
 
     // Format the broken content as a numbered file for the LLM to patch
     const brokenChunk: FileChunk = {
@@ -445,11 +532,10 @@ ${numberedView}
         },
       ],
       stopSequences: [],
-      transform: (text) => (text ?? '').trim(),
+      transform: (text) => parsePatchOutput((text ?? '').trim(), [{ path: file.path, content: brokenContent }]),
     })
 
-    const retryPatchMap = parsePatchOutput(extracted)
-    const retryPatchOps = retryPatchMap.get(file.path)
+    const retryPatchOps = extracted.get(file.path)
 
     if (!retryPatchOps || retryPatchOps.trim().length === 0) {
       throw new Error(`JSON patch retry for "${file.path}" produced no patches.\n\n${errorMessage}`)
@@ -457,13 +543,13 @@ ${numberedView}
 
     try {
       const retryContent = Micropatch.applyText(brokenContent, retryPatchOps)
-      const validContent = ensureValidJson(retryContent)
+      const validContent = ensureValidJson(retryContent, kind)
       if (validContent !== null) {
         if (zSchema) {
           const parsed = JSON.parse(validContent)
           const safe = zSchema.safeParse(parsed)
           if (!safe.success) {
-            return retrySchemaValidation(file, validContent, safe.error)
+            return retrySchemaValidation(file, validContent, safe.error, kind)
           }
         }
         return { ...file, content: validContent, patch: retryPatchOps }
@@ -479,7 +565,12 @@ ${numberedView}
    * Re-prompt the LLM when a JSON file's content is valid JSON but doesn't match the schema.
    * Gives the LLM the content + the schema validation errors and asks it to fix the data.
    */
-  const retrySchemaValidation = async (file: File, content: string, zodError: z.ZodError): Promise<File> => {
+  const retrySchemaValidation = async (
+    file: File,
+    content: string,
+    zodError: z.ZodError,
+    kind: ReturnType<typeof jsonKind>
+  ): Promise<File> => {
     const errorMessage = new JsonParsingError(content, zodError).message
 
     const contentChunk: FileChunk = {
@@ -511,11 +602,10 @@ ${numberedView}
         },
       ],
       stopSequences: [],
-      transform: (text) => (text ?? '').trim(),
+      transform: (text) => parsePatchOutput((text ?? '').trim(), [{ path: file.path, content }]),
     })
 
-    const retryPatchMap = parsePatchOutput(extracted)
-    const retryPatchOps = retryPatchMap.get(file.path)
+    const retryPatchOps = extracted.get(file.path)
 
     if (!retryPatchOps || retryPatchOps.trim().length === 0) {
       throw new Error(`Schema validation retry for "${file.path}" produced no patches.\n\n${errorMessage}`)
@@ -523,7 +613,7 @@ ${numberedView}
 
     try {
       const retryContent = Micropatch.applyText(content, retryPatchOps)
-      const validContent = ensureValidJson(retryContent)
+      const validContent = ensureValidJson(retryContent, kind)
       if (validContent !== null) {
         if (zSchema) {
           const parsed = JSON.parse(validContent)
@@ -563,12 +653,17 @@ Generate patches for each file that needs modification:
         },
       ],
       stopSequences: [],
-      transform: (text) => {
-        return text.trim()
-      },
+      // Invalid output throws here, so the call is made again with the error as feedback
+      transform: (text) => parsePatchOutput((text ?? '').trim(), batchFiles(batch)),
     })
 
-    return parsePatchOutput(extracted)
+    return extracted
+  }
+
+  /** The complete files a batch's chunks come from (ops use the original line numbers of the whole file) */
+  const batchFiles = (batch: ProcessingBatch) => {
+    const paths = new Set(batch.items.map((item) => item.path))
+    return files.filter((file) => paths.has(file.path))
   }
 
   // Check if we need chunking
@@ -616,7 +711,10 @@ Generate patches for each file that needs modification:
     const patchMap = await processBatch(batch)
 
     // Apply patches to each file (with JSON validation/repair for .json files)
-    const patchedFiles = await Promise.all(files.map((file) => applyPatchToFile(file, patchMap.get(file.path))))
+    const patchedFiles = await allOrAbort(
+      ctx,
+      files.map((file) => applyPatchToFile(file, patchMap.get(file.path)))
+    )
 
     // Save example for active learning
     if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {
@@ -632,7 +730,7 @@ Generate patches for each file that needs modification:
             input: ctx.usage.cost.input,
             output: ctx.usage.cost.output,
           },
-          latency: Date.now(),
+          latency: Date.now() - startedAt,
           model: ctx.modelName,
           tokens: {
             input: ctx.usage.tokens.input,
@@ -658,7 +756,10 @@ Generate patches for each file that needs modification:
 
   // Step 3: Process batches in parallel
   const limit = pLimit(10)
-  const batchResults = await Promise.all(batches.map((batch) => limit(() => processBatch(batch))))
+  const batchResults = await allOrAbort(
+    ctx,
+    batches.map((batch) => limit(() => processBatch(batch)))
+  )
 
   // Step 4: Merge results - combine patches from all batches per file
   const mergedPatches = new Map<string, string>()
@@ -671,7 +772,10 @@ Generate patches for each file that needs modification:
   }
 
   // Step 5: Apply merged patches to original files (with JSON validation/repair for .json files)
-  const patchedFiles = await Promise.all(files.map((file) => applyPatchToFile(file, mergedPatches.get(file.path))))
+  const patchedFiles = await allOrAbort(
+    ctx,
+    files.map((file) => applyPatchToFile(file, mergedPatches.get(file.path)))
+  )
 
   return patchedFiles
 }
