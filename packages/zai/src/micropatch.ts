@@ -328,6 +328,9 @@ export class Micropatch {
             break
           }
           const slot = slots[o.n - 1]!
+          if (slot.state === 'deleted') {
+            break // deleting a line twice is harmless
+          }
           if (slot.state !== 'original') {
             conflict(o, o.n)
             break

@@ -19,7 +19,7 @@ export class EventEmitter<E extends object> {
     for (const listener of [...listeners]) {
       try {
         listener(event)
-      } catch (error) {
+      } catch (error: unknown) {
         reportListenerError(error)
       }
     }

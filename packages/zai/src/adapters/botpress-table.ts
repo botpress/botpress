@@ -248,7 +248,7 @@ export class TableAdapter extends Adapter {
       }
 
       this._status = 'initialized'
-    } catch (err) {
+    } catch (err: unknown) {
       console.warn(
         `[zai] Active learning disabled: could not get or create table "${this._tableName}": ${
           err instanceof Error ? err.message : String(err)

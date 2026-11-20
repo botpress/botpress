@@ -303,3 +303,29 @@ describe('text robustness', () => {
     expect(calls[0].systemPrompt).toContain('Length constraint: 1 tokens')
   })
 })
+
+describe('extract schema transforms', () => {
+  it('applies nested transforms exactly once', async () => {
+    const { zai } = makeZai(() => el({ n: 1 }))
+    const res = await zai.extract('n is 1', z.object({ n: z.number().transform((n) => n + 1) }))
+    expect(res).toEqual({ n: 2 })
+  })
+
+  it('accepts transforms that change the value type', async () => {
+    const { zai, calls } = makeZai(() => el({ word: 'abc' }))
+    const res = await zai.extract('the word is abc', z.object({ word: z.string().transform((s) => s.length) }), {
+      strict: true,
+    })
+    expect(res).toEqual({ word: 3 })
+    expect(calls).toHaveLength(1)
+  })
+
+  it('applies transforms once across chunked extraction and merging', async () => {
+    const { zai } = makeZai(() => el({ n: 1 }) + '■NO_MORE_ELEMENT■')
+    const res = await zai.extract('word '.repeat(600), z.array(z.object({ n: z.number().transform((n) => n * 10) })), {
+      chunkLength: 200,
+    })
+    expect(res.length).toBeGreaterThan(0)
+    expect(res.every((x) => x.n === 10)).toBe(true)
+  })
+})

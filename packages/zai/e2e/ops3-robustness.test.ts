@@ -396,3 +396,56 @@ describe('summarize robustness', { timeout: 30_000 }, () => {
     }
   })
 })
+
+describe('patch conflicts and answer chunking', { timeout: 30_000 }, () => {
+  const file = { path: 'src/a.ts', name: 'a.ts', content: 'L1\nL2\nL3' }
+
+  it('sends overlapping patch ops back to the model instead of dropping one', async () => {
+    const { zai, calls } = makeZai((_req, n) =>
+      n === 0 ? '<FILE path="src/a.ts">\n◼︎=1-2|X\n◼︎=2-3|Y\n</FILE>' : '<FILE path="src/a.ts">\n◼︎=1-3|XY\n</FILE>'
+    )
+    const [out] = await zai.patch([file], 'merge everything')
+    expect(out!.content).toBe('XY')
+    expect(calls).toHaveLength(2)
+    expect(lastUser(calls[1]!)).toMatch(/combine overlapping edits/)
+  })
+
+  it('does not retry when the same line is deleted twice', async () => {
+    const { zai, calls } = makeZai(() => '<FILE path="src/a.ts">\n◼︎-2\n◼︎-2\n</FILE>')
+    const [out] = await zai.patch([file], 'remove line 2')
+    expect(out!.content).toBe('L1\nL3')
+    expect(calls).toHaveLength(1)
+  })
+
+  const citeLine = (content: string, tag: string) => content.match(new RegExp(`■(\\d+) \\| [^\\n]*${tag}`))?.[1]
+
+  it('keeps the end of a single line longer than a chunk', async () => {
+    const doc = `${words(1500, 'w')} The secret code is FORTYTWO.`
+    const { zai } = makeZai((req) => {
+      const line = citeLine(firstUser(req), 'FORTYTWO')
+      return line ? `■answer\nIt is 42.■${line}` : '■missing_knowledge\nNothing here'
+    })
+    const result = await zai.answer([doc], 'What is the secret code?', { chunkLength: 300 })
+    expect(result.type).toBe('answer')
+  })
+
+  it('combines answers from several parts of one large document', async () => {
+    const lines = [
+      'ALPHA is the first fact.',
+      ...Array.from({ length: 60 }, (_, i) => `Noise line ${i} ${words(8, 'n')}`),
+      'BETA is the second fact.',
+    ]
+    const { zai, calls } = makeZai((req) => {
+      const content = firstUser(req)
+      const a = citeLine(content, 'ALPHA')
+      const b = citeLine(content, 'BETA')
+      if (a && b) return `■answer\nAlpha and beta.■${a}■${b}`
+      if (a) return `■answer\nAlpha.■${a}`
+      if (b) return `■answer\nBeta.■${b}`
+      return '■missing_knowledge\nNothing here'
+    })
+    const result = await zai.answer([lines.join('\n')], 'What are the facts?', { chunkLength: 300 })
+    expect(result.type === 'answer' && result.answer).toBe('Alpha and beta.')
+    expect(calls.some((c) => citeLine(firstUser(c), 'ALPHA') && citeLine(firstUser(c), 'BETA'))).toBe(true)
+  })
+})

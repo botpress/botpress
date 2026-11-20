@@ -291,7 +291,7 @@ export class ZaiContext {
           text: str,
           extracted: output,
         }
-      } catch (error) {
+      } catch (error: unknown) {
         this.controller.signal.throwIfAborted()
 
         // Only output problems (parsing/validation in `transform`) are retried, with the error fed back to the model

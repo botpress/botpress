@@ -2,6 +2,7 @@
 // so these never call the network and never touch the e2e cache.
 import { describe, it, expect } from 'vitest'
 import { Zai } from '../src'
+import { parseRatingValue } from '../src/operations/rate'
 
 type FakeRequest = {
   systemPrompt?: string
@@ -329,5 +330,25 @@ describe('group robustness', () => {
     const produce = res.find((g) => g.label === 'Produce')
     expect(produce?.elements).toContain('basil')
     expect(res.find((g) => g.label === 'Hardware')?.elements).not.toContain('basil')
+  })
+})
+
+describe('rate criteria and values', () => {
+  it('parses decimal ratings', () => {
+    expect(parseRatingValue('4.0')).toBe(4)
+    expect(parseRatingValue('4.')).toBe(4)
+    expect(parseRatingValue('Good.')).toBe(4)
+    expect(parseRatingValue('4.5')).toBeUndefined()
+  })
+
+  it('accepts non-English criterion names', async () => {
+    const labels = { very_bad: 'a', bad: 'b', average: 'c', good: 'd', very_good: 'e' }
+    const { zai } = makeZai((req) =>
+      req.systemPrompt?.startsWith('You are creating evaluation criteria')
+        ? JSON.stringify({ 质量: labels, 速度: labels })
+        : '■0:质量=good;速度=bad■'
+    )
+    const res = await zai.rate(['x'], { 质量: 'quality', 速度: 'speed' })
+    expect(res).toEqual([{ 质量: 4, 速度: 2, total: 6 }])
   })
 })

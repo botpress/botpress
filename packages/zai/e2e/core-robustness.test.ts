@@ -432,3 +432,16 @@ describe('TableAdapter degrades gracefully', () => {
     await expect(adapter.getExamples({ taskType: 't', taskId: 'x', input: circular })).resolves.toEqual([])
   })
 })
+
+describe('bindSignal after settle', () => {
+  it('does not register a listener once the operation has settled', async () => {
+    const client = makeFakeCognitive(async () => ok(TRUE_ANSWER))
+    const zai = new Zai({ client })
+    const response = zai.check('hello', 'is a greeting')
+    await response
+    const controller = new AbortController()
+    const add = vi.spyOn(controller.signal, 'addEventListener')
+    response.bindSignal(controller.signal)
+    expect(add).not.toHaveBeenCalled()
+  })
+})

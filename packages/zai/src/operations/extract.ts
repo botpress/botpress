@@ -297,6 +297,12 @@ type InternalProps = { depth: number; isMerge: boolean }
 /** Maximum nesting of chunk → merge rounds; past it, chunk results are merged in code */
 const MAX_DEPTH = 4
 
+/** Applies the caller's schema (defaults, transforms) once, to the raw top-level result */
+const finalize = <S extends OfType<AnyObjectOrArray>>(schema: S, raw: unknown): S['_output'] => {
+  const safe = (schema as unknown as z.ZodType).safeParse(raw)
+  return (safe.success ? safe.data : raw) as S['_output']
+}
+
 const extract = async <S extends OfType<AnyObjectOrArray>>(
   input: unknown,
   _schema: S,
@@ -344,7 +350,7 @@ const extract = async <S extends OfType<AnyObjectOrArray>>(
   let schemaTypescript: string
   try {
     schemaTypescript = objSchema.toTypescriptType({ declaration: false, treatDefaultAsOptional: true })
-  } catch (error) {
+  } catch (error: unknown) {
     throw new Error(
       `zai.extract could not describe the schema to the model (recursive schemas such as z.lazy() are not supported): ${
         error instanceof Error ? error.message : String(error)
@@ -366,13 +372,14 @@ const extract = async <S extends OfType<AnyObjectOrArray>>(
   const inputAsString = stringify(input)
   const inputTokens = tokenizer.count(inputAsString)
 
-  /** Checks the merged/final value against the caller's schema (refinements, array bounds, etc.) */
+  /**
+   * Checks the merged/final value against the caller's schema (refinements, array bounds, etc.).
+   * Returns the value untransformed: internal values stay raw so the schema's transforms run exactly once,
+   * in `finalize` at the top level (chunk and merge results are re-validated when merged).
+   */
   const validateFinal = (final: unknown, raw: string): unknown => {
     const safe = _schema.safeParse(final)
-    if (safe.success) {
-      return safe.data
-    }
-    if (options.strict) {
+    if (!safe.success && options.strict) {
       throw new JsonParsingError(raw, safe.error)
     }
     return final
@@ -443,7 +450,7 @@ Merge it back into a final result.`.trim()
 
     try {
       return await extract(mergePrompt, _schema, options, ctx, { depth: internal.depth + 1, isMerge: true })
-    } catch (error) {
+    } catch (error: unknown) {
       ctx.controller.signal.throwIfAborted()
       if (error instanceof TruncatedOutputError) {
         return mergeInCode(all)
@@ -638,7 +645,7 @@ The end.`,
       let parsed: unknown
       try {
         parsed = parseElement(json)
-      } catch (error) {
+      } catch (error: unknown) {
         if (!options.strict && !isArrayOfObjects) {
           return // lenient single object: unreadable output means nothing was found (e.g. a chunk without the data)
         }
@@ -647,7 +654,7 @@ The end.`,
 
       const safe = objSchema.safeParse(parsed)
       if (safe.success) {
-        elements.push(safe.data)
+        elements.push(parsed) // raw: transforms run once, in finalize
       } else if (options.strict) {
         throw new JsonParsingError(segment, safe.error)
       } else if (parsed !== null && parsed !== undefined) {
@@ -757,7 +764,11 @@ Zai.prototype.extract = function <S extends OfType<AnyObjectOrArray>>(
     metadata: this.metadata,
   })
 
-  return new Response<S['_output']>(context, extract(input, schema, _options, context), (result) => result)
+  return new Response<S['_output']>(
+    context,
+    extract(input, schema, _options, context).then((raw) => finalize(schema, raw)),
+    (result) => result
+  )
 }
 
 namespace _parsing {

@@ -1,5 +1,6 @@
 // eslint-disable consistent-type-definitions
 import { z } from '@bpinternal/zui'
+import { chunk } from 'lodash-es'
 import pLimit from 'p-limit'
 
 import { ZaiContext } from '../context'
@@ -394,7 +395,7 @@ const processSingleChunk = async <T>(
 
 /**
  * Cuts documents into chunks of at most `chunkTokenLimit` tokens, counted on the line-numbered text the model gets.
- * A document longer than the limit is cut between lines (a single line longer than the limit is truncated).
+ * A document longer than the limit is cut between lines (a single line longer than the limit is split into parts).
  */
 const chunkDocuments = async <T>(documents: T[], chunkTokenLimit: number): Promise<Segment<T>[][]> => {
   const tokenizer = await getTokenizer()
@@ -436,8 +437,14 @@ const chunkDocuments = async <T>(documents: T[], chunkTokenLimit: number): Promi
     for (let i = 0; i < lines.length; i++) {
       if (lineTokens[i]! > chunkTokenLimit) {
         if (i > from) flush(i)
-        lines[i] = tokenizer.truncate(lines[i]!, Math.max(1, chunkTokenLimit - prefixTokens))
-        flush(i + 1)
+        // A single line longer than a chunk: split it into parts (each cites as line i of the document)
+        const partTokens = Math.max(1, chunkTokenLimit - prefixTokens)
+        const lineParts = chunk(tokenizer.split(lines[i]!), partTokens).map((part) => part.join(''))
+        for (const part of lineParts) {
+          add({ document, lines: [part], startLine: i }, chunkTokenLimit + 1)
+        }
+        from = i + 1
+        tokens = 0
         continue
       }
       if (i > from && tokens + lineTokens[i]! > chunkTokenLimit) {
@@ -548,6 +555,22 @@ const mergeChunkResults = async <T>(
     // Cited docs fit in one chunk, get unified answer
     const merged = await callLLM(formatted, question, options, mappings, ctx)
     // The chunks did find answers: a merge that says otherwise must not throw them away
+    return merged.type === 'answer' || merged.type === 'ambiguous' ? merged : bestAnswer
+  }
+
+  // The cited documents don't fit (e.g. parts of one large document): merge over the cited passages only
+  const passages = new Map<string, Segment<T>>()
+  answers.forEach((answer) => {
+    answer.citations.forEach((citation) => {
+      const key = `${stringify(citation.item)}\u0000${citation.snippet}`
+      if (!passages.has(key)) {
+        passages.set(key, { document: citation.item, lines: citation.snippet.split('\n'), startLine: 0 })
+      }
+    })
+  })
+  const cited = formatSegments([...passages.values()])
+  if (passages.size > 0 && tokenizer.count(cited.formatted) <= chunkTokenLimit) {
+    const merged = await callLLM(cited.formatted, question, options, cited.mappings, ctx)
     return merged.type === 'answer' || merged.type === 'ambiguous' ? merged : bestAnswer
   }
 

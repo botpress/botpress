@@ -116,6 +116,17 @@ export class Response<T, S = T> implements PromiseLike<S> {
     return new Response<T, T>(context, Promise.reject(err), (value) => value)
   }
 
+  /** Cleanups to run once the operation settles (e.g. removing a bound signal's listener) */
+  private _onSettled: Array<() => void> = []
+  private _settled = false
+
+  private _settle() {
+    this._settled = true
+    for (const fn of this._onSettled.splice(0)) {
+      fn()
+    }
+  }
+
   public constructor(context: ZaiContext, promise: Promise<T>, simplify: (value: T) => S) {
     this._context = context
     this._eventEmitter = new EventEmitter<ResponseEvents<T>>()
@@ -124,6 +135,7 @@ export class Response<T, S = T> implements PromiseLike<S> {
       (value) => {
         this._elasped ||= this._context.elapsedTime
         this._eventEmitter.emit('complete', value)
+        this._settle()
         this._eventEmitter.clear()
         this._context.clear()
         return value
@@ -131,6 +143,7 @@ export class Response<T, S = T> implements PromiseLike<S> {
       (reason) => {
         this._elasped ||= this._context.elapsedTime
         this._eventEmitter.emit('error', reason)
+        this._settle()
         this._eventEmitter.clear()
         this._context.clear()
         throw reason
@@ -248,6 +261,9 @@ export class Response<T, S = T> implements PromiseLike<S> {
    * ```
    */
   public bindSignal(signal: AbortSignal): this {
+    if (this._settled) {
+      return this // nothing left to abort
+    }
     if (signal.aborted) {
       this.abort(signal.reason)
       return this
@@ -260,8 +276,7 @@ export class Response<T, S = T> implements PromiseLike<S> {
     signal.addEventListener('abort', signalAbort, { once: true })
 
     // Remove the listener once the operation settles, so long-lived signals don't accumulate listeners
-    const cleanup = () => signal.removeEventListener('abort', signalAbort)
-    this._promise.then(cleanup, cleanup)
+    this._onSettled.push(() => signal.removeEventListener('abort', signalAbort))
 
     return this
   }

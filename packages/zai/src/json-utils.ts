@@ -18,7 +18,7 @@ function tryParseJson(content: string): { valid: true; data: unknown } | { valid
   try {
     const data = JSON.parse(content)
     return { valid: true, data }
-  } catch (err) {
+  } catch (err: unknown) {
     return { valid: false, error: err instanceof Error ? err.message : String(err) }
   }
 }

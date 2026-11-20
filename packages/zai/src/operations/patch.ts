@@ -113,10 +113,14 @@ const parsePatchOutput = (output: string, files: Array<{ path: string; content: 
     }
     try {
       const { skipped } = Micropatch.applyWithReport(file.content, patchOps)
-      for (const op of skipped.filter((x) => x.reason === 'out_of_range')) {
-        errors.push(`In "${filePath}": ${op.message}. Use the line numbers shown in the input.`)
+      for (const op of skipped) {
+        errors.push(
+          op.reason === 'out_of_range'
+            ? `In "${filePath}": ${op.message}. Use the line numbers shown in the input.`
+            : `In "${filePath}": ${op.message}. Each original line can be edited by only one operation; combine overlapping edits into a single operation.`
+        )
       }
-    } catch (err) {
+    } catch (err: unknown) {
       errors.push(`In "${filePath}": ${err instanceof Error ? err.message : String(err)}`)
     }
   }

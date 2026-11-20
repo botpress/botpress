@@ -202,15 +202,21 @@ const END = '■END■'
 const RESERVED_CRITERION = 'total'
 
 /** Loose key used to match criterion names written by the model to the expected ones (case/spacing/punctuation-insensitive) */
-const looseKey = (key: string) => key.toLowerCase().replace(/[^a-z0-9]/g, '')
+const looseKey = (key: string) => {
+  const loose = key.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '')
+  return loose || key.trim().toLowerCase() // names made only of punctuation/symbols keep their own (exact) key
+}
 
 /** Converts a label (`very_good`, `Very Good`) or a number (`1`-`5`) to a rating value, or undefined if invalid */
 export const parseRatingValue = (label: string): number | undefined => {
-  const trimmed = label.trim().replace(/[*`"'.]/g, '')
-  if (/^[1-5](\.0+)?$/.test(trimmed)) {
+  const trimmed = label.trim().replace(/[*`"']/g, '')
+  if (/^[1-5](\.0+)?\.?$/.test(trimmed)) {
     return parseInt(trimmed, 10)
   }
-  const normalized = trimmed.toLowerCase().replace(/[\s-]+/g, '_')
+  const normalized = trimmed
+    .replace(/\.+$/, '')
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_')
   return RATING_VALUES[normalized as RatingLabel]
 }
 
@@ -241,7 +247,8 @@ export const parseRatings = (
     for (const pair of (match[2] ?? '').split(';')) {
       const eq = pair.indexOf('=')
       if (eq < 0) continue
-      const criterion = byLooseKey.get(looseKey(pair.slice(0, eq)))
+      const name = pair.slice(0, eq).trim()
+      const criterion = criteriaKeys.includes(name) ? name : byLooseKey.get(looseKey(name))
       if (!criterion) continue // Unknown criterion: ignored
       const value = parseRatingValue(pair.slice(eq + 1))
       if (value === undefined) {
