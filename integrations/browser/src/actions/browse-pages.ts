@@ -1,4 +1,4 @@
-import { IntegrationLogger, RuntimeError } from '@botpress/sdk'
+import { IntegrationContext, IntegrationLogger, RuntimeError } from '@botpress/sdk'
 import Firecrawl, { SdkError } from '@mendable/firecrawl-js'
 import { FullPage } from 'src/definitions/actions'
 import { trackEvent } from '../tracking'
@@ -16,6 +16,7 @@ const fixOutput = (val: unknown): string => {
 }
 
 const getPageContent = async (props: {
+  ctx: IntegrationContext
   url: string
   logger: IntegrationLogger
   waitFor?: number
@@ -29,12 +30,12 @@ const getPageContent = async (props: {
   try {
     const result = await firecrawl.scrape(props.url, {
       onlyMainContent: true,
-      maxAge: 60 * 60 * 24 * 7, // 1 week
+      maxAge: props.maxAge,
       removeBase64Images: true,
       waitFor: props.waitFor,
       timeout: props.timeout,
       formats: ['markdown', 'rawHtml'],
-      headers: { 'X-Botpress-Crawler': 'botpress' },
+      headers: { 'X-Botpress-Crawler': props.ctx.configuration.crawlerHeaderValue },
       storeInCache: true,
     })
 
@@ -77,12 +78,14 @@ const getPageContent = async (props: {
   }
 }
 
-export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async ({ input, logger, metadata }) => {
+export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async ({ ctx, input, logger, metadata }) => {
   const startTime = Date.now()
 
   try {
     const pageContentPromises = await Promise.allSettled(
-      input.urls.map((url) => getPageContent({ url, logger, waitFor: input.waitFor, timeout: input.timeout }))
+      input.urls.map((url) =>
+        getPageContent({ ctx, url, logger, waitFor: input.waitFor, timeout: input.timeout, maxAge: input.maxAge })
+      )
     )
 
     const results = pageContentPromises
