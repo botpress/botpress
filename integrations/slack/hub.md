@@ -179,6 +179,15 @@ Regardless of the configuration mode you choose, you can optionally set a custom
 
 To minimize disruption in busy Slack channels, you can activate reply threading in the integration settings. This feature creates a thread for each incoming message, where the bot will respond. For a more targeted approach, enable the "Require Bot Mention for Replies" to only create threads when the bot is mentioned by name.
 
+## Incoming images
+
+Incoming images are saved to the Botpress Files API by default, so their message URLs can be accessed without Slack authentication. This applies to standalone images and images sent with text or other attachments.
+
+- **Download Images**: Disable this to retain Slack permalinks instead. Those links may require Slack access and are not direct image download URLs.
+- **Downloaded Image Expiry**: Images expire after 720 hours (30 days) by default. Set the value to `0` to keep them indefinitely.
+
+These settings apply to images only; other attachment types retain their existing behavior.
+
 ## Limitations
 
 Standard Slack API limitations apply to the Slack integration in Botpress. These limitations include rate limits, message size restrictions, and other constraints imposed by the Slack platform. Ensure that your chatbot adheres to these limitations to maintain optimal performance and reliability.

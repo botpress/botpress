@@ -15,7 +15,8 @@ import {
   getBotpressConversationFromSlackThread,
   getBotpressUserFromSlackUser,
   updateBotpressUserFromSlackUser,
-} from 'src/misc/utils'
+} from '../../misc/utils'
+import { createImageDownloader } from './download-image'
 import * as bp from '.botpress'
 
 type Mention = NonNullable<z.infer<typeof textSchema>['mentions']>[number]
@@ -50,7 +51,11 @@ export const handleEvent = async (props: HandleEventProps) => {
   const { botpressUser } = await getBotpressUserFromSlackUser({ slackUserId: slackEvent.user }, client)
   await updateBotpressUserFromSlackUser(slackEvent.user, botpressUser, client, ctx, logger)
 
-  const mentionsBot = await _isBotMentionedInMessage({ slackEvent, client, ctx })
+  const mentionsBot = await _isBotMentionedInMessage({
+    slackEvent,
+    client,
+    ctx,
+  })
   const isSentInChannel = !slackEvent.thread_ts
   const replyLocation = ctx.configuration.replyBehaviour?.location ?? 'channel'
   const replyOnlyOnBotMention = ctx.configuration.replyBehaviour?.onlyOnBotMention ?? false
@@ -63,6 +68,8 @@ export const handleEvent = async (props: HandleEventProps) => {
   const shouldRespondInChannel =
     isSentInChannel && (replyLocation === 'channel' || replyLocation === 'channelAndThread')
   const shouldRespondInThread = !isSentInChannel || replyLocation === 'thread' || replyLocation === 'channelAndThread'
+
+  const downloadImage = createImageDownloader({ client, ctx, logger })
 
   if (shouldRespondInChannel) {
     const { botpressConversation } = await getBotpressConversationFromSlackThread(
@@ -80,6 +87,7 @@ export const handleEvent = async (props: HandleEventProps) => {
         mentionsBot: mentionsBot ? 'true' : undefined,
         forkedToThread: 'false',
       },
+      downloadImage,
       discriminateByTags: ['ts', 'channelId'],
       slackEvent,
       client,
@@ -93,7 +101,11 @@ export const handleEvent = async (props: HandleEventProps) => {
 
     const { conversation: threadConversation } = await client.getOrCreateConversation({
       channel: 'thread',
-      tags: { id: slackEvent.channel, thread: threadTs, isBotReplyThread: 'true' },
+      tags: {
+        id: slackEvent.channel,
+        thread: threadTs,
+        isBotReplyThread: 'true',
+      },
       discriminateByTags: ['id', 'thread'],
     })
 
@@ -107,6 +119,7 @@ export const handleEvent = async (props: HandleEventProps) => {
         mentionsBot: mentionsBot ? 'true' : undefined,
         forkedToThread: isSentInChannel ? 'true' : 'false',
       },
+      downloadImage,
       discriminateByTags: ['ts', 'channelId', 'forkedToThread'],
       slackEvent,
       client,
@@ -121,10 +134,21 @@ type _SendMessageProps = HandleEventProps & {
   botpressUser: { id: string }
   tags: Record<MessageTag, string | undefined>
   discriminateByTags: MessageTag[] | undefined
+  downloadImage: ReturnType<typeof createImageDownloader>
 }
 
 const _sendMessage = async (props: _SendMessageProps) => {
-  const { slackEvent, client, ctx, logger, botpressConversation, botpressUser, tags, discriminateByTags } = props
+  const {
+    slackEvent,
+    client,
+    ctx,
+    logger,
+    botpressConversation,
+    botpressUser,
+    tags,
+    discriminateByTags,
+    downloadImage,
+  } = props
 
   if (slackEvent.subtype === 'file_share') {
     await _getOrCreateMessageFromFiles({
@@ -136,6 +160,7 @@ const _sendMessage = async (props: _SendMessageProps) => {
       logger,
       tags,
       discriminateByTags,
+      downloadImage,
     })
     return
   }
@@ -214,6 +239,7 @@ const _getOrCreateMessageFromFiles = async ({
   logger,
   tags,
   discriminateByTags,
+  downloadImage,
 }: _SendMessageProps & {
   slackEvent: FileShareMessageEvent
 }) => {
@@ -228,7 +254,7 @@ const _getOrCreateMessageFromFiles = async ({
   if (parsedEvent.type === 'file') {
     const { payload: file } = parsedEvent
 
-    const blocItem = _parseSlackFile(logger, file)
+    const blocItem = await _parseSlackFile(logger, file, downloadImage)
     if (!blocItem) {
       return
     }
@@ -247,11 +273,14 @@ const _getOrCreateMessageFromFiles = async ({
   const items: BlocItem[] = []
 
   if (slackEvent.text) {
-    items.push({ type: 'text', payload: await _getTextPayloadFromSlackEvent(slackEvent, client, ctx, logger) })
+    items.push({
+      type: 'text',
+      payload: await _getTextPayloadFromSlackEvent(slackEvent, client, ctx, logger),
+    })
   }
 
   for (const file of parsedEvent.items) {
-    const item = _parseSlackFile(logger, file)
+    const item = await _parseSlackFile(logger, file, downloadImage)
     if (item) {
       items.push(item)
     }
@@ -267,11 +296,20 @@ const _getOrCreateMessageFromFiles = async ({
   })
 }
 
-const _parseSlackFile = (logger: bp.Logger, file: File): BlocItem | null => {
+const _parseSlackFile = async (
+  logger: bp.Logger,
+  file: File,
+  downloadImage: ReturnType<typeof createImageDownloader>
+): Promise<BlocItem | null> => {
   const fileType = file.mimetype.split('/')[0]
   if (!fileType) {
     logger.forBot().info('File of type', fileType, 'is not yet supported.')
     return null
+  }
+
+  if (fileType === 'image') {
+    const imageUrl = await downloadImage(file)
+    return imageUrl ? { type: 'image', payload: { imageUrl } } : null
   }
 
   if (!file.permalink_public) {
@@ -280,9 +318,6 @@ const _parseSlackFile = (logger: bp.Logger, file: File): BlocItem | null => {
   }
 
   switch (fileType) {
-    case 'image':
-      return { type: fileType, payload: { imageUrl: file.permalink_public } }
-
     case 'audio':
       return { type: fileType, payload: { audioUrl: file.permalink_public } }
 
@@ -370,7 +405,12 @@ const _getTextPayloadFromSlackEvent = async (
       continue
     }
     text = text.replace(userElement.user_id, botpressUser.name)
-    mentions.push({ type: userElement.type, start: 1, end: 1, user: { id: botpressUser.id, name: botpressUser.name } })
+    mentions.push({
+      type: userElement.type,
+      start: 1,
+      end: 1,
+      user: { id: botpressUser.id, name: botpressUser.name },
+    })
   }
 
   for (const mention of mentions) {
