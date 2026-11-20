@@ -274,7 +274,9 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
       const startIdx = output.indexOf(START)
       if (startIdx < 0) {
         // Without the marker, any preamble ("Sure! Here is the rewrite:") would end up in the result
-        throw new Error(`The rewritten text must start with ${START} and end with ${END}, with nothing before ${START}.`)
+        throw new Error(
+          `The rewritten text must start with ${START} and end with ${END}, with nothing before ${START}.`
+        )
       }
       output = output.slice(startIdx + START.length)
 

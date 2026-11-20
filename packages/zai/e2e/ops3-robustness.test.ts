@@ -190,9 +190,7 @@ describe('patch robustness', { timeout: 30_000 }, () => {
   })
 
   it('combines two FILE blocks for the same path', async () => {
-    const { zai } = makeZai(
-      () => '<FILE path="src/a.ts">\n◼︎=1|A\n</FILE>\n<FILE path="src/a.ts">\n◼︎=3|C\n</FILE>'
-    )
+    const { zai } = makeZai(() => '<FILE path="src/a.ts">\n◼︎=1|A\n</FILE>\n<FILE path="src/a.ts">\n◼︎=3|C\n</FILE>')
     const [out] = await zai.patch([file], 'change lines 1 and 3')
     expect(out!.content).toBe('A\nL2\nC')
   })
@@ -220,9 +218,7 @@ describe('patch robustness', { timeout: 30_000 }, () => {
     const json = { path: 'c.json', name: 'c.json', content: '{\n  "a": 1\n}' }
     // The patch closes the object early and adds a second one; the fix-up call then makes it valid again
     const { zai, calls } = makeZai((_req, n) =>
-      n === 0
-        ? '<FILE path="c.json">\n◼︎=3|}\n{"b": 2}\n</FILE>'
-        : '<FILE path="c.json">\n◼︎=3|}\n◼︎-4\n</FILE>'
+      n === 0 ? '<FILE path="c.json">\n◼︎=3|}\n{"b": 2}\n</FILE>' : '<FILE path="c.json">\n◼︎=3|}\n◼︎-4\n</FILE>'
     )
     const [out] = await zai.patch([json], 'add b')
     expect(JSON.parse(out!.content)).toEqual({ a: 1 })
@@ -290,7 +286,8 @@ describe('answer robustness', { timeout: 30_000 }, () => {
     const docs = [doc('MISSING'), doc('AMBIG'), doc('OFFTOPIC')]
     const { zai } = makeZai((req) => {
       const content = firstUser(req)
-      if (content.includes('AMBIG')) return '■ambiguous\nTwo meanings\n■follow_up\nWhich?\n■answer\nA■001\n■answer\nB■001'
+      if (content.includes('AMBIG'))
+        return '■ambiguous\nTwo meanings\n■follow_up\nWhich?\n■answer\nA■001\n■answer\nB■001'
       if (content.includes('MISSING')) return '■missing_knowledge\nNothing here'
       return '■out_of_topic\nUnrelated'
     })
@@ -317,7 +314,9 @@ describe('answer robustness', { timeout: 30_000 }, () => {
     const big = Array.from({ length: 300 }, (_, i) => `Line ${i + 1} says ${words(5, `w${i}x`)}`).join('\n')
     const { zai, calls } = makeZai((req) => {
       const content = firstUser(req)
-      return content.includes('Line 300 says') ? '■answer\nThe last line.■' + content.match(/■(\d+) \| Line 300 says/)![1] : '■missing_knowledge\nNo'
+      return content.includes('Line 300 says')
+        ? '■answer\nThe last line.■' + content.match(/■(\d+) \| Line 300 says/)![1]
+        : '■missing_knowledge\nNo'
     })
     const result = await zai.answer([big], 'What does line 300 say?', { chunkLength: 1000 })
     expect(calls.length).toBeGreaterThan(1)

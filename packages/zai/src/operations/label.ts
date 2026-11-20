@@ -218,7 +218,11 @@ declare module '@botpress/zai' {
 }
 
 const parseLabel = (label: string): Label | null => {
-  label = label.toUpperCase().replace(/[\s-]+/g, '_').replace(/_{2,}/g, '_').replace(/^_|_$/g, '')
+  label = label
+    .toUpperCase()
+    .replace(/[\s-]+/g, '_')
+    .replace(/_{2,}/g, '_')
+    .replace(/^_|_$/g, '')
   const isNo = label.includes('NOT') || label === 'NO' || label.endsWith('_NO')
   if (label.includes('ABSOLUTELY') && isNo) {
     return LABELS.ABSOLUTELY_NOT
@@ -240,10 +244,10 @@ const LABEL_WORDS = '(?:ABSOLUTELY|PROBABLY)[ _-]?(?:NOT|YES|NO)|AMBIGUOUS|YES|N
 /** Finds `■key:【explanation】:LABEL■` for one key; tolerates multi-line explanations, spaces and a missing closing ■ */
 const matchLabel = (text: string, key: string): { explanation: string; label: Label } | null => {
   const k = escapeRegExp(key)
-  const strict = text.match(new RegExp(`■\\s*${k}\\s*:\\s*【([\\s\\S]*?)】\\s*:\\s*([A-Za-z_ -]+?)\\s*(?:■|\\n|$)`, 'i'))
-  const loose =
-    strict ??
-    text.match(new RegExp(`■\\s*${k}\\s*:([^■]*?)[:\\s]\\s*(${LABEL_WORDS})\\s*(?:■|\\n|$)`, 'i'))
+  const strict = text.match(
+    new RegExp(`■\\s*${k}\\s*:\\s*【([\\s\\S]*?)】\\s*:\\s*([A-Za-z_ -]+?)\\s*(?:■|\\n|$)`, 'i')
+  )
+  const loose = strict ?? text.match(new RegExp(`■\\s*${k}\\s*:([^■]*?)[:\\s]\\s*(${LABEL_WORDS})\\s*(?:■|\\n|$)`, 'i'))
   if (!loose) {
     return null
   }
@@ -251,7 +255,10 @@ const matchLabel = (text: string, key: string): { explanation: string; label: La
   if (!label) {
     return null
   }
-  const explanation = loose[1]!.trim().replace(/^【|】$/g, '').trim()
+  const explanation = loose[1]!
+    .trim()
+    .replace(/^【|】$/g, '')
+    .trim()
   return { explanation, label }
 }
 

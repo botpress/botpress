@@ -227,9 +227,7 @@ describe('label robustness', () => {
   })
 
   it('does not mix up two labels written on the same line', async () => {
-    const { zai } = makeZai(
-      () => `${line('urgent', 'ABSOLUTELY_NOT')} ${line('complaint', 'ABSOLUTELY_YES')}\n■END■`
-    )
+    const { zai } = makeZai(() => `${line('urgent', 'ABSOLUTELY_NOT')} ${line('complaint', 'ABSOLUTELY_YES')}\n■END■`)
     const { output } = await zai.label('x', { urgent: 'urgent?', complaint: 'complaint?' }).result()
     expect(output.urgent).toMatchObject({ value: false, confidence: 1 })
     expect(output.complaint).toMatchObject({ value: true, confidence: 1 })

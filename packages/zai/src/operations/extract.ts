@@ -379,7 +379,9 @@ const extract = async <S extends OfType<AnyObjectOrArray>>(
   }
 
   const mergeInCode = (parts: unknown[]) => {
-    const merged = isArrayOfObjects ? uniqueValues(parts.flatMap((p) => (Array.isArray(p) ? p : [p]))) : mergeValues(parts)
+    const merged = isArrayOfObjects
+      ? uniqueValues(parts.flatMap((p) => (Array.isArray(p) ? p : [p])))
+      : mergeValues(parts)
     return validateFinal(merged, stringify(merged, false)) as S['_output']
   }
 
@@ -488,7 +490,10 @@ Merge it back into a final result.`.trim()
 
   // All tokens remaining after the input and condition are accounted can be used for examples
   const EXAMPLES_TOKENS =
-    PROMPT_COMPONENT - inputTokens - tokenizer.count(instructions.join('\n')) - tokenizer.count(options.instructions ?? '')
+    PROMPT_COMPONENT -
+    inputTokens -
+    tokenizer.count(instructions.join('\n')) -
+    tokenizer.count(options.instructions ?? '')
 
   const Key = fastHash(
     JSON.stringify({
@@ -762,7 +767,10 @@ namespace _parsing {
    * Non-object values are wrapped as { value }. The wrapped value keeps its nullable/optional modifiers, so the model
    * can answer null (or nothing) when the caller's schema allows it.
    */
-  const _maybeWrapObjSchema = (base: z.ZodType, withModifiers: z.ZodType): { schema: z.ZodObject; isWrapped: boolean } => {
+  const _maybeWrapObjSchema = (
+    base: z.ZodType,
+    withModifiers: z.ZodType
+  ): { schema: z.ZodObject; isWrapped: boolean } => {
     if (z.is.zuiObject(base)) {
       return { schema: base, isWrapped: false }
     }

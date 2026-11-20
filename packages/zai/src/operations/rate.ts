@@ -218,7 +218,11 @@ export const parseRatingValue = (label: string): number | undefined => {
  * Parses `■0:criterion=label;criterion=label■` lines (closing ■ optional) into ratings keyed by the expected
  * criterion names. Throws (so the context retries with feedback) when an item, a criterion or a label is missing/invalid.
  */
-export const parseRatings = (text: string, itemCount: number, criteriaKeys: string[]): Array<Record<string, number>> => {
+export const parseRatings = (
+  text: string,
+  itemCount: number,
+  criteriaKeys: string[]
+): Array<Record<string, number>> => {
   const byLooseKey = new Map(criteriaKeys.map((k) => [looseKey(k), k] as const))
   const results: Array<Record<string, number> | undefined> = new Array(itemCount).fill(undefined)
   const problems: string[] = []
@@ -268,7 +272,9 @@ export const parseRatings = (text: string, itemCount: number, criteriaKeys: stri
     const unique = [...new Set(problems)]
     throw new Error(
       [
-        missingItems.length ? `Missing or invalid ratings for item(s) ${missingItems.map((i) => `■${i}`).join(', ')}.` : '',
+        missingItems.length
+          ? `Missing or invalid ratings for item(s) ${missingItems.map((i) => `■${i}`).join(', ')}.`
+          : '',
         ...unique.slice(0, 10),
         `Rate every item from ■0 to ■${itemCount - 1} on every criterion (${criteriaKeys.join(', ')}) using: very_bad, bad, average, good, very_good.`,
         'Format: ■index:criterion1=label;criterion2=label■ (one item per line)',

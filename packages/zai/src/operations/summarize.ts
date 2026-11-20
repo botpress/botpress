@@ -1,6 +1,5 @@
 // eslint-disable consistent-type-definitions
 import { z } from '@bpinternal/zui'
-import { allOrAbort } from '../utils'
 
 import { chunk } from 'lodash-es'
 import pLimit from 'p-limit'
@@ -8,6 +7,7 @@ import { ZaiContext } from '../context'
 import { Response } from '../response'
 
 import { getTokenizer } from '../tokenizer'
+import { allOrAbort } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
 

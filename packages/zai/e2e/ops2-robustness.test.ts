@@ -246,16 +246,16 @@ describe('group robustness', () => {
   }
 
   it('does not merge "New York" into "York"', async () => {
-    const { zai } = makeZai((req) =>
-      Array.from({ length: elementCount(req) }, (_, i) => `■${i}:G${i + 1}■`).join('\n')
-    )
-    const { output: res } = await zai.group(['Manhattan', 'Shambles'], {
-      initialGroups: [
-        { id: 'ny', label: 'New York' },
-        { id: 'yk', label: 'York' },
-      ],
-      newGroups: false,
-    }).result()
+    const { zai } = makeZai((req) => Array.from({ length: elementCount(req) }, (_, i) => `■${i}:G${i + 1}■`).join('\n'))
+    const { output: res } = await zai
+      .group(['Manhattan', 'Shambles'], {
+        initialGroups: [
+          { id: 'ny', label: 'New York' },
+          { id: 'yk', label: 'York' },
+        ],
+        newGroups: false,
+      })
+      .result()
     expect(Object.fromEntries(res.map((g) => [g.id, g.elements]))).toEqual({ ny: ['Manhattan'], yk: ['Shambles'] })
   })
 
@@ -274,13 +274,15 @@ describe('group robustness', () => {
     const { zai, calls } = makeZai((req) =>
       Array.from({ length: elementCount(req) }, (_, i) => `■${i}:G${(i % 2) + 1}`).join('\n')
     )
-    const { output: res } = await zai.group(['a', 'b', 'c', 'd'], {
-      initialGroups: [
-        { id: 'odd', label: 'Odd' },
-        { id: 'even', label: 'Even' },
-      ],
-      newGroups: false,
-    }).result()
+    const { output: res } = await zai
+      .group(['a', 'b', 'c', 'd'], {
+        initialGroups: [
+          { id: 'odd', label: 'Odd' },
+          { id: 'even', label: 'Even' },
+        ],
+        newGroups: false,
+      })
+      .result()
     expect(Object.fromEntries(res.map((g) => [g.id, g.elements]))).toEqual({ odd: ['a', 'c'], even: ['b', 'd'] })
     expect(calls).toHaveLength(1)
   })
@@ -300,7 +302,13 @@ describe('group robustness', () => {
   it('places orphans in the renamed group after a maxGroups merge', async () => {
     const items = ['apple', 'pear', 'carrot', 'leek', 'bolt', 'nut', 'basil']
     const kind = (e: string) =>
-      ['apple', 'pear'].includes(e) ? 'Fruit' : ['carrot', 'leek'].includes(e) ? 'Veg' : e === 'basil' ? 'Herb' : 'Hardware'
+      ['apple', 'pear'].includes(e)
+        ? 'Fruit'
+        : ['carrot', 'leek'].includes(e)
+          ? 'Veg'
+          : e === 'basil'
+            ? 'Herb'
+            : 'Hardware'
     const { zai } = makeZai((req) => {
       if (req.systemPrompt?.startsWith('You are consolidating')) {
         const lines = [...lastUser(req).matchAll(/^■(\d+):([^(]+)\(/gm)].map((m) => [m[1], m[2]!.trim()])

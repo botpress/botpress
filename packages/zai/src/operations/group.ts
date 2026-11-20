@@ -665,7 +665,11 @@ ${END}`.trim()
 
   // processChunk, then re-ask (up to 2 times) for any element the model skipped or a chunk that failed after its retries,
   // so one bad answer never drops elements or fails the whole operation.
-  const processChunkComplete = async (elementIndices: number[], groupIds: string[], depth = 0): Promise<Assignment[]> => {
+  const processChunkComplete = async (
+    elementIndices: number[],
+    groupIds: string[],
+    depth = 0
+  ): Promise<Assignment[]> => {
     let assignments: Assignment[] = []
     try {
       assignments = await processChunk(elementIndices, groupIds)
@@ -1042,9 +1046,7 @@ ${END}`.trim()
           // Rename the merged group, and make its new label resolve to it (the old label keeps resolving to it too)
           Object.assign(groups.get(targetGid)!, { label, normalizedLabel: normalizeLabel(label) })
           labelToGroupId.set(normalizeLabel(label), targetGid)
-          for (const sourceGid of sourceGroupIds) {
-            labelToGroupId.set(groups.get(sourceGid)!.normalizedLabel, targetGid)
-          }
+          sourceGroupIds.forEach((sourceGid) => labelToGroupId.set(groups.get(sourceGid)!.normalizedLabel, targetGid))
         }
 
         for (const sourceGid of sourceGroupIds.filter((gid) => gid !== targetGid)) {
