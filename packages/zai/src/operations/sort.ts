@@ -4,7 +4,7 @@ import pLimit from 'p-limit'
 import { ZaiContext } from '../context'
 import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
-import { fastHash, stringify } from '../utils'
+import { fastHash, stringify, abortSiblingsOnFailure } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
 
@@ -17,9 +17,8 @@ const _Options = z.object({
   tokensPerItem: z
     .number()
     .min(1)
-    .max(100_000)
     .optional()
-    .describe('The maximum number of tokens per item')
+    .describe("The maximum number of tokens per item (capped at the items' share of the model's input context)")
     .default(250),
 })
 
@@ -154,6 +153,43 @@ declare module '@botpress/zai' {
 }
 
 const END = '■END■'
+
+/** Max number of items sent in a single tie-break request */
+const MAX_TIE_BREAK_ITEMS = 50
+
+const normalizeKey = (key: string) => key.trim().toLowerCase().replace(/\s+/g, '_')
+
+type ItemScore = {
+  elementIndex: number
+  scores: Record<string, number>
+  totalScore: number
+}
+
+const isItemScoreArray = (value: unknown): value is ItemScore[] =>
+  Array.isArray(value) &&
+  value.every(
+    (x) =>
+      !!x &&
+      typeof x === 'object' &&
+      typeof (x as ItemScore).elementIndex === 'number' &&
+      typeof (x as ItemScore).totalScore === 'number' &&
+      !!(x as ItemScore).scores &&
+      typeof (x as ItemScore).scores === 'object'
+  )
+
+/**
+ * Matches `■<index>:<payload>` entries. The payload ends at the next `■` or newline, so both the closed form
+ * (`■0:a=b■`) and the open form (`■0:a=b` on its own line) are supported without one entry swallowing the next.
+ */
+export const parseIndexedEntries = (text: string): Array<{ index: number; payload: string }> => {
+  const entries: Array<{ index: number; payload: string }> = []
+  const regex = /■\s*(\d+)\s*:([^■\n]*)/g
+  let match: RegExpExecArray | null
+  while ((match = regex.exec(text)) !== null) {
+    entries.push({ index: parseInt(match[1]!, 10), payload: match[2] ?? '' })
+  }
+  return entries
+}
 
 const sort = async <T>(
   input: Array<T>,
@@ -296,7 +332,8 @@ CRITICAL: Output ordered labels from FIRST to LAST position in sorted result.
       let match: RegExpExecArray | null
 
       while ((match = criterionRegex.exec(text)) !== null) {
-        const name = (match[1] ?? '').trim().toLowerCase()
+        // Normalized the same way as the criterion names in the scoring output (spaces → underscores)
+        const name = normalizeKey(match[1] ?? '')
         const labelsStr = (match[2] ?? '').trim()
 
         if (!name || name === 'end') continue
@@ -331,6 +368,7 @@ CRITICAL: Output ordered labels from FIRST to LAST position in sorted result.
   // Phase 2: Chunk items and score them in parallel
   const TOKENS_CRITERIA_MAX = Math.floor(TOKENS_TOTAL_MAX * 0.2)
   const TOKENS_ITEMS_MAX = TOKENS_TOTAL_MAX - TOKENS_CRITERIA_MAX
+  options.tokensPerItem = Math.min(options.tokensPerItem, TOKENS_ITEMS_MAX)
 
   const MAX_ITEMS_PER_CHUNK = 50
 
@@ -368,10 +406,10 @@ CRITICAL: Output ordered labels from FIRST to LAST position in sorted result.
   }
 
   // Phase 3: Score each chunk
-  type ItemScore = {
-    elementIndex: number
-    scores: Record<string, number>
-    totalScore: number
+
+  const middleScore = (criterion: string) => {
+    const labels = sortingCriteria[criterion]?.labels ?? []
+    return labels.length > 0 ? Math.floor(labels.length / 2) : 0
   }
 
   const scoreChunk = async (chunk: typeof elements): Promise<ItemScore[]> => {
@@ -390,18 +428,21 @@ CRITICAL: Output ordered labels from FIRST to LAST position in sorted result.
           })
         : []
 
-    // Check for exact match (cache hit)
+    // Check for exact match (cache hit).
+    // The key is namespaced ('chunk-scores') so it can never collide with the key of the final sorted example
+    // saved at the end of the operation (whose output is the sorted items, not scores).
     const key = fastHash(
       stringify({
         taskId,
         taskType,
+        kind: 'chunk-scores',
         input: chunkInputStr,
         instructions,
       })
     )
 
     const exactMatch = examples.find((x) => x.key === key)
-    if (exactMatch && exactMatch.output) {
+    if (exactMatch && isItemScoreArray(exactMatch.output) && exactMatch.output.length === chunkSize) {
       return exactMatch.output
     }
 
@@ -423,7 +464,8 @@ CRITICAL: Output ordered labels from FIRST to LAST position in sorted result.
     // Format examples for few-shot learning
     const exampleMessages: Array<{ type: 'text'; role: 'user' | 'assistant'; content: string }> = []
 
-    for (const example of examples.slice(0, 3)) {
+    // Only examples whose output is a list of scores can be shown as scoring examples
+    for (const example of examples.filter((x) => isItemScoreArray(x.output) && x.output.length > 0).slice(0, 3)) {
       try {
         const exampleInput = JSON.parse(example.input)
         const exampleItems = Array.isArray(exampleInput) ? exampleInput : [exampleInput]
@@ -496,65 +538,49 @@ IMPORTANT:
       ],
       transform: (text) => {
         const results: ItemScore[] = []
-        const regex = /■(\d+):([^■]+)■/g
-        let match: RegExpExecArray | null
 
-        while ((match = regex.exec(text)) !== null) {
-          const idx = parseInt(match[1] ?? '', 10)
-          const labelsStr = match[2] ?? ''
-
+        for (const { index: idx, payload } of parseIndexedEntries(text ?? '')) {
           if (isNaN(idx) || idx < 0 || idx >= chunkSize) continue
 
-          const scores: Record<string, number> = {}
-          let total = 0
-
-          const pairs = labelsStr.split(';').filter((x) => x.trim().length > 0)
+          const parsed: Record<string, number> = {}
+          const pairs = payload.split(';').filter((x) => x.trim().length > 0)
           for (const pair of pairs) {
-            const [criterion, labelStr] = pair.split('=').map((x) => x.trim().toLowerCase().replace(/\s+/g, '_'))
+            const [criterion, labelStr] = pair.split('=').map((x) => normalizeKey(x))
             if (!criterion || !labelStr) continue
 
-            // Find the label index in the ordered array (index = score)
-            const labels = sortingCriteria[criterion]?.labels ?? []
-            const labelIndex = labels.findIndex((l) => l === labelStr)
+            const labels = sortingCriteria[criterion]?.labels
+            if (!labels) continue // Unknown criterion: ignored (it must not affect the total)
 
-            if (labelIndex >= 0) {
-              // Use index as score (0 = first, higher = later)
-              scores[criterion] = labelIndex
-              total += labelIndex
-            } else {
-              // If label not found, use middle value
-              const middleIndex = labels.length > 0 ? Math.floor(labels.length / 2) : 5
-              scores[criterion] = middleIndex
-              total += middleIndex
-            }
+            const labelIndex = labels.findIndex((l) => l === labelStr)
+            // Use index as score (0 = first, higher = later). Unknown label → middle value
+            parsed[criterion] = labelIndex >= 0 ? labelIndex : middleScore(criterion)
+          }
+
+          // Every criterion contributes to the total; a missing one counts as the middle value (not as "first")
+          const scores: Record<string, number> = {}
+          let total = 0
+          for (const key of criteriaKeys) {
+            scores[key] = parsed[key] ?? middleScore(key)
+            total += scores[key]
           }
 
           results[idx] = {
-            elementIndex: chunk[idx].index,
+            elementIndex: chunk[idx]!.index,
             scores,
             totalScore: total,
           }
         }
 
-        // Fill in missing results with middle scores
+        const missing: number[] = []
         for (let i = 0; i < chunkSize; i++) {
-          if (!results[i]) {
-            const scores: Record<string, number> = {}
-            let total = 0
+          if (!results[i]) missing.push(i)
+        }
 
-            for (const key of criteriaKeys) {
-              const labels = sortingCriteria[key]?.labels ?? []
-              const middleIndex = labels.length > 0 ? Math.floor(labels.length / 2) : 5
-              scores[key] = middleIndex
-              total += middleIndex
-            }
-
-            results[i] = {
-              elementIndex: chunk[i].index,
-              scores,
-              totalScore: total,
-            }
-          }
+        if (missing.length) {
+          throw new Error(
+            `Missing scores for item(s) ${missing.map((i) => `■${i}`).join(', ')}. ` +
+              `Rate every item from ■0 to ■${chunkSize - 1}, one per line, using the format ■index:criterion=label;criterion=label■`
+          )
         }
 
         return results
@@ -566,7 +592,7 @@ IMPORTANT:
 
   // Process all chunks in parallel
   const limit = pLimit(10)
-  const chunkPromises = chunks.map((chunk) => limit(() => scoreChunk(chunk)))
+  const chunkPromises = chunks.map((chunk) => limit(() => scoreChunk(chunk)).catch(abortSiblingsOnFailure(ctx)))
   const allScores = await Promise.all(chunkPromises)
 
   // Phase 4: Merge scores from all chunks
@@ -606,17 +632,46 @@ IMPORTANT:
     scoreGroups.set(roundedScore, group)
   }
 
-  // Find groups with more than one item (ties)
-  const tiedGroups = Array.from(scoreGroups.values()).filter((group) => group.length > 1)
+  // Find groups with more than one item (ties).
+  // Large tie groups are split into bounded sub-groups (by item count and tokens) so a tie-break prompt never
+  // exceeds the model's context. Sub-groups keep their relative input order; items are only re-ordered within one.
+  const tiedGroups: Array<{ indices: number[]; offset: number }> = []
+  for (const group of scoreGroups.values()) {
+    if (group.length <= 1) continue
+    let current: number[] = []
+    let currentTokens = 0
+    let offset = 0
+    for (const idx of group) {
+      const tokens = tokenizer.count(tokenizer.truncate(elements[idx]!.stringified, options.tokensPerItem))
+      if (current.length > 0 && (current.length >= MAX_TIE_BREAK_ITEMS || currentTokens + tokens > TOKENS_ITEMS_MAX)) {
+        tiedGroups.push({ indices: current, offset })
+        offset += current.length
+        current = []
+        currentTokens = 0
+      }
+      current.push(idx)
+      currentTokens += tokens
+    }
+    if (current.length > 0) {
+      tiedGroups.push({ indices: current, offset })
+    }
+  }
 
   // Phase 6: Tie-breaking - process all tied groups IN PARALLEL
   if (tiedGroups.length > 0) {
     const tieBreakLimit = pLimit(10)
 
     await Promise.all(
-      tiedGroups.map((tiedIndices) =>
+      tiedGroups.map(({ indices: tiedIndices, offset }) =>
         tieBreakLimit(async () => {
-          if (tiedIndices.length <= 1) return
+          ctx.controller.signal.throwIfAborted()
+          if (tiedIndices.length <= 1) {
+            for (const idx of tiedIndices) {
+              const scoreData = scoreMap.get(idx)
+              if (scoreData) scoreData.tieBreakOrder = offset
+            }
+            return
+          }
 
           const tiedElements = tiedIndices.map((idx) => elements[idx])
 
@@ -708,12 +763,13 @@ Output the indices in the order they should appear (first item at top).`,
             ],
             transform: (text) => {
               const order: number[] = []
-              const regex = /■(\d+)■/g
+              // Closing ■ is optional (■3■ or ■3)
+              const regex = /■\s*(\d+)/g
               let match: RegExpExecArray | null
 
-              while ((match = regex.exec(text)) !== null) {
+              while ((match = regex.exec(text ?? '')) !== null) {
                 const idx = parseInt(match[1] ?? '', 10)
-                if (!isNaN(idx) && idx >= 0 && idx < tiedElements.length) {
+                if (!isNaN(idx) && idx >= 0 && idx < tiedElements.length && !order.includes(idx)) {
                   order.push(idx)
                 }
               }
@@ -734,10 +790,10 @@ Output the indices in the order they should appear (first item at top).`,
             const elementIndex = tiedElements[tieBreakOrder[i]].index
             const scoreData = scoreMap.get(elementIndex)
             if (scoreData) {
-              scoreData.tieBreakOrder = i
+              scoreData.tieBreakOrder = offset + i
             }
           }
-        })
+        }).catch(abortSiblingsOnFailure(ctx))
       )
     )
   }

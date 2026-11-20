@@ -5,7 +5,7 @@ import pLimit from 'p-limit'
 import { ZaiContext } from '../context'
 import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
-import { fastHash, stringify } from '../utils'
+import { fastHash, stringify, abortSiblingsOnFailure } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
 
@@ -46,8 +46,8 @@ export type Options = {
 
 const _Options = z.object({
   instructions: z.string().optional(),
-  tokensPerElement: z.number().min(1).max(100_000).optional().default(250),
-  chunkLength: z.number().min(100).max(100_000).optional().default(16_000),
+  tokensPerElement: z.number().min(1).optional().default(250),
+  chunkLength: z.number().min(100).optional().default(16_000),
   initialGroups: z.array(_InitialGroup).optional().default([]),
   maxGroups: z.number().min(2).optional(),
   minElements: z.number().min(1).optional(),
@@ -255,14 +255,30 @@ const similarity = (a: string, b: string): number => {
   return inter / (A.size + B.size - inter)
 }
 
-const normalizeLabel = (label: string): string => {
-  return label
+/**
+ * Key used to look up a group by label. It only folds case and whitespace: it must never make two distinct labels
+ * equal (e.g. "New York" and "York"), since that would silently route elements to the wrong group.
+ */
+const normalizeLabel = (label: string): string => label.trim().toLowerCase().replace(/\s+/g, ' ')
+
+/**
+ * Removes an explicit "new group" marker the model sometimes prepends to a label it invents
+ * ("New Group: Snacks", "new: Snacks", "Group - Snacks" → "Snacks"). A bare leading word is kept ("New York" stays).
+ */
+const stripNewGroupMarker = (label: string): string => {
+  const stripped = label
     .trim()
-    .toLowerCase()
-    .replace(/^(group|new group|new)\s*[-:]\s*/i, '')
-    .replace(/^(group|new group|new)\s+/i, '')
+    .replace(/^(new group|new|group)\s*[-:]\s*/i, '')
+    .replace(/^new group\s+/i, '')
     .trim()
+  return stripped.length > 0 ? stripped : label.trim()
 }
+
+/** Matches `■<index>:<answer>` with an optional closing ■ (the answer ends at the next ■ or newline) */
+const INDEXED_ANSWER_REGEX = /■\s*(\d+)\s*:([^■\n]+)/g
+
+/** An element's answer: the group it was resolved to (when it named an existing group) and the label used */
+type Assignment = { elementIndex: number; label: string; groupId?: string }
 
 const group = async <T>(input: Array<T>, _options: Options | undefined, ctx: ZaiContext): Promise<Array<Group<T>>> => {
   ctx.controller.signal.throwIfAborted()
@@ -278,6 +294,22 @@ const group = async <T>(input: Array<T>, _options: Options | undefined, ctx: Zai
     return []
   }
 
+  const seenInitialIds = new Set<string>()
+  const seenInitialLabels = new Map<string, string>()
+  for (const ig of options.initialGroups) {
+    if (seenInitialIds.has(ig.id)) {
+      throw new Error(`zai.group: duplicate initialGroups id "${ig.id}"`)
+    }
+    seenInitialIds.add(ig.id)
+    const other = seenInitialLabels.get(normalizeLabel(ig.label))
+    if (other !== undefined) {
+      throw new Error(`zai.group: initialGroups "${other}" and "${ig.id}" have the same label "${ig.label}"`)
+    }
+    seenInitialLabels.set(normalizeLabel(ig.label), ig.id)
+  }
+
+  const guard = abortSiblingsOnFailure(ctx)
+
   // Simple data structures
   const groups = new Map<string, GroupInfo>() // groupId -> GroupInfo
   const groupElements = new Map<string, Set<number>>() // groupId -> Set of element indices
@@ -291,10 +323,16 @@ const group = async <T>(input: Array<T>, _options: Options | undefined, ctx: Zai
     const ref = `G${groups.size + 1}`
     groups.set(id, { id, label, normalizedLabel: normalized, ref, examples })
     groupElements.set(id, new Set())
-    labelToGroupId.set(normalized, id)
+    if (!labelToGroupId.has(normalized)) {
+      labelToGroupId.set(normalized, id)
+    }
     refToGroupId.set(ref.toLowerCase(), id)
     return id
   }
+
+  // Group of an assignment: the group the answer was resolved to, else the group with that label (created if new)
+  const groupIdOf = (a: Assignment): string | undefined =>
+    (a.groupId && groups.has(a.groupId) ? a.groupId : undefined) ?? labelToGroupId.get(normalizeLabel(a.label))
 
   // Initialize with provided groups (their elements become examples shown to the model)
   options.initialGroups.forEach((ig) => {
@@ -314,7 +352,7 @@ const group = async <T>(input: Array<T>, _options: Options | undefined, ctx: Zai
     const byRef =
       refToGroupId.get(a.toLowerCase()) ?? refToGroupId.get(a.match(/^\s*(G\d+)\b/i)?.[1]?.toLowerCase() ?? '')
     if (byRef) return byRef
-    const byLabel = labelToGroupId.get(normalizeLabel(a))
+    const byLabel = labelToGroupId.get(normalizeLabel(a)) ?? labelToGroupId.get(normalizeLabel(stripNewGroupMarker(a)))
     if (byLabel) return byLabel
     let best: string | undefined
     let bestScore = 0.8
@@ -343,6 +381,7 @@ const group = async <T>(input: Array<T>, _options: Options | undefined, ctx: Zai
   const TOKENS_AVAILABLE = TOKENS_TOTAL_MAX - TOKENS_INSTRUCTIONS_MAX
   const TOKENS_FOR_GROUPS_MAX = Math.floor(TOKENS_AVAILABLE * 0.4)
   const TOKENS_FOR_ELEMENTS_MAX = Math.floor(TOKENS_AVAILABLE * 0.6)
+  options.tokensPerElement = Math.min(options.tokensPerElement, TOKENS_FOR_ELEMENTS_MAX)
 
   // Chunk elements by token budget
   const MAX_ELEMENTS_PER_CHUNK = options.elementsPerChunk
@@ -428,10 +467,8 @@ const group = async <T>(input: Array<T>, _options: Options | undefined, ctx: Zai
   }
 
   // Process elements against groups and get assignments
-  const processChunk = async (
-    elementIndices: number[],
-    groupIds: string[]
-  ): Promise<Array<{ elementIndex: number; label: string }>> => {
+  const processChunk = async (elementIndices: number[], groupIds: string[]): Promise<Assignment[]> => {
+    ctx.controller.signal.throwIfAborted()
     // Get examples from adapter for active learning
     const chunkElements = elementIndices.map((idx) => elements[idx].element)
     const chunkInputStr = JSON.stringify(chunkElements)
@@ -584,13 +621,13 @@ ${END}`.trim()
       stopSequences: [END],
       messages: [...exampleMessages, { type: 'text', role: 'user', content: userPrompt }],
       transform: (text) => {
-        const assignments: Array<{ elementIndex: number; label: string }> = []
-        const regex = /■(\d+):([^■]+)■/g
+        const assignments: Assignment[] = []
+        const regex = new RegExp(INDEXED_ANSWER_REGEX.source, 'g')
         let match: RegExpExecArray | null
         const seen = new Set<number>()
         const unknown: string[] = []
 
-        while ((match = regex.exec(text)) !== null) {
+        while ((match = regex.exec(text ?? '')) !== null) {
           const idx = parseInt(match[1] ?? '', 10)
           if (isNaN(idx) || idx < 0 || idx >= elementIndices.length) continue
 
@@ -605,8 +642,9 @@ ${END}`.trim()
           }
           seen.add(idx)
           assignments.push({
-            elementIndex: elementIndices[idx],
-            label: gid ? groups.get(gid)!.label : answer.slice(0, 250),
+            elementIndex: elementIndices[idx]!,
+            label: gid ? groups.get(gid)!.label : stripNewGroupMarker(answer).slice(0, 250),
+            groupId: gid,
           })
         }
 
@@ -631,8 +669,8 @@ ${END}`.trim()
     elementIndices: number[],
     groupIds: string[],
     depth = 0
-  ): Promise<Array<{ elementIndex: number; label: string }>> => {
-    let assignments: Array<{ elementIndex: number; label: string }> = []
+  ): Promise<Assignment[]> => {
+    let assignments: Assignment[] = []
     try {
       assignments = await processChunk(elementIndices, groupIds)
     } catch (err: unknown) {
@@ -662,6 +700,7 @@ ${END}`.trim()
   const allChunkResults = await Promise.all(
     elementChunks.map((elementChunk) =>
       elementLimit(async () => {
+        ctx.controller.signal.throwIfAborted()
         const groupChunks = getGroupChunks()
 
         const allAssignments = await Promise.all(
@@ -675,15 +714,15 @@ ${END}`.trim()
         )
 
         return allAssignments.flat()
-      })
+      }).catch(guard)
     )
   )
 
   // Process all assignments sequentially to avoid race conditions
   for (const assignments of allChunkResults) {
-    for (const { elementIndex, label } of assignments) {
-      const normalized = normalizeLabel(label)
-      let groupId = labelToGroupId.get(normalized)
+    for (const assignment of assignments) {
+      const { elementIndex, label } = assignment
+      let groupId = groupIdOf(assignment)
 
       if (!groupId) {
         // Create new group
@@ -757,14 +796,14 @@ ${END}`.trim()
             )
 
             return allAssignments.flat()
-          })
+          }).catch(guard)
         )
       )
 
       // Mark groups as seen and update assignments (sequential to avoid races)
-      const updateElementGroupAssignment = (elementIndex: number, label: string) => {
-        const normalized = normalizeLabel(label)
-        const groupId = labelToGroupId.get(normalized)
+      const updateElementGroupAssignment = (assignment: Assignment) => {
+        const { elementIndex } = assignment
+        const groupId = groupIdOf(assignment)
         if (!groupId) return
 
         // Add to group and mark as seen
@@ -780,8 +819,8 @@ ${END}`.trim()
       }
 
       for (const assignments of reviewResults) {
-        for (const { elementIndex, label } of assignments) {
-          updateElementGroupAssignment(elementIndex, label)
+        for (const assignment of assignments) {
+          updateElementGroupAssignment(assignment)
         }
       }
     }
@@ -840,14 +879,17 @@ ${END}`.trim()
       }
       const batches = batchRound(round)
       const results = await Promise.all(
-        batches.map((b) => groupLimit(() => processChunkComplete(b.elementIndices, Array.from(b.groupIds))))
+        batches.map((b) =>
+          groupLimit(() => processChunkComplete(b.elementIndices, Array.from(b.groupIds))).catch(guard)
+        )
       )
 
       // Any group shown in the element's call is a valid choice, even one another element of the batch brought
       const winners = new Map<number, string>()
       batches.forEach((b, i) => {
-        for (const { elementIndex, label } of results[i]!) {
-          const gid = labelToGroupId.get(normalizeLabel(label))
+        for (const assignment of results[i]!) {
+          const { elementIndex } = assignment
+          const gid = groupIdOf(assignment)
           if (gid && b.groupIds.has(gid)) winners.set(elementIndex, gid)
         }
       })
@@ -891,15 +933,15 @@ ${END}`.trim()
       chunkElements(unplaced).map((chunk) =>
         elementLimit(async () =>
           (await Promise.all(getGroupChunks().map((gc) => groupLimit(() => processChunkComplete(chunk, gc))))).flat()
-        )
+        ).catch(guard)
       )
     )
-    const answer = new Map<number, string>()
-    for (const { elementIndex, label } of results.flat()) {
-      answer.set(elementIndex, label)
+    const answer = new Map<number, Assignment>()
+    for (const assignment of results.flat()) {
+      answer.set(assignment.elementIndex, assignment)
     }
-    for (const [elementIndex, label] of answer) {
-      const groupId = labelToGroupId.get(normalizeLabel(label)) ?? addGroup(`group_${groupIdCounter++}`, label)
+    for (const [elementIndex, assignment] of answer) {
+      const groupId = groupIdOf(assignment) ?? addGroup(`group_${groupIdCounter++}`, assignment.label)
       groupElements.get(groupId)!.add(elementIndex)
     }
     const stillUnplaced = unplaced.filter((idx) => !isPlaced(idx))
@@ -955,10 +997,10 @@ ${END}`.trim()
         messages: [{ type: 'text', role: 'user', content: mergeUserPrompt }],
         transform: (text) => {
           const assignments: Array<{ sourceIdx: number; label: string }> = []
-          const regex = /■(\d+):([^■]+)■/g
+          const regex = new RegExp(INDEXED_ANSWER_REGEX.source, 'g')
           let match: RegExpExecArray | null
 
-          while ((match = regex.exec(text)) !== null) {
+          while ((match = regex.exec(text ?? '')) !== null) {
             const idx = parseInt(match[1] ?? '', 10)
             if (isNaN(idx) || idx < 0 || idx >= currentIds.length) continue
 
@@ -1000,7 +1042,12 @@ ${END}`.trim()
             sourceGroupIds.reduce((a, b) => (groupElements.get(a)!.size >= groupElements.get(b)!.size ? a : b)))
         const targetSet = groupElements.get(targetGid)!
 
-        if (options.newGroups) Object.assign(groups.get(targetGid)!, { label, normalizedLabel: normalizeLabel(label) })
+        if (options.newGroups) {
+          // Rename the merged group, and make its new label resolve to it (the old label keeps resolving to it too)
+          Object.assign(groups.get(targetGid)!, { label, normalizedLabel: normalizeLabel(label) })
+          labelToGroupId.set(normalizeLabel(label), targetGid)
+          sourceGroupIds.forEach((sourceGid) => labelToGroupId.set(groups.get(sourceGid)!.normalizedLabel, targetGid))
+        }
 
         for (const sourceGid of sourceGroupIds.filter((gid) => gid !== targetGid)) {
           const sourceSet = groupElements.get(sourceGid)!
@@ -1102,15 +1149,15 @@ ${END}`.trim()
             )
 
             return allAssignments.flat()
-          })
+          }).catch(guard)
         )
       )
 
       // Apply assignments
       const flatAssignments = orphanResults.flat()
-      for (const { elementIndex, label } of flatAssignments) {
-        const normalized = normalizeLabel(label)
-        let groupId = labelToGroupId.get(normalized)
+      for (const assignment of flatAssignments) {
+        const { elementIndex, label } = assignment
+        let groupId = groupIdOf(assignment)
 
         if (!groupId) {
           groupId = addGroup(`group_${groupIdCounter++}`, label)

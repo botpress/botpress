@@ -49,9 +49,8 @@ const _Options = z.object({
   chunkLength: z
     .number()
     .min(100)
-    .max(100_000)
     .optional()
-    .describe('The maximum number of tokens per chunk')
+    .describe("The maximum number of tokens per chunk (capped at what fits the model's input context)")
     .default(16_000),
 })
 
@@ -218,21 +217,49 @@ declare module '@botpress/zai' {
   }
 }
 
-const parseLabel = (label: string): Label => {
-  label = label.toUpperCase().replace(/\s+/g, '_').replace(/_{2,}/g, '_').trim()
-  if (label.includes('ABSOLUTELY') && label.includes('NOT')) {
+const parseLabel = (label: string): Label | null => {
+  label = label
+    .toUpperCase()
+    .replace(/[\s-]+/g, '_')
+    .replace(/_{2,}/g, '_')
+    .replace(/^_|_$/g, '')
+  const isNo = label.includes('NOT') || label === 'NO' || label.endsWith('_NO')
+  if (label.includes('ABSOLUTELY') && isNo) {
     return LABELS.ABSOLUTELY_NOT
-  } else if (label.includes('NOT')) {
+  } else if (isNo) {
     return LABELS.PROBABLY_NOT
   } else if (label.includes('AMBIGUOUS')) {
     return LABELS.AMBIGUOUS
-  }
-  if (label.includes('YES')) {
-    return LABELS.PROBABLY_YES
   } else if (label.includes('ABSOLUTELY') && label.includes('YES')) {
     return LABELS.ABSOLUTELY_YES
+  } else if (label.includes('YES')) {
+    return LABELS.PROBABLY_YES
   }
-  return LABELS.AMBIGUOUS
+  return null
+}
+
+const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+const LABEL_WORDS = '(?:ABSOLUTELY|PROBABLY)[ _-]?(?:NOT|YES|NO)|AMBIGUOUS|YES|NO'
+
+/** Finds `■key:【explanation】:LABEL■` for one key; tolerates multi-line explanations, spaces and a missing closing ■ */
+const matchLabel = (text: string, key: string): { explanation: string; label: Label } | null => {
+  const k = escapeRegExp(key)
+  const strict = text.match(
+    new RegExp(`■\\s*${k}\\s*:\\s*【([\\s\\S]*?)】\\s*:\\s*([A-Za-z_ -]+?)\\s*(?:■|\\n|$)`, 'i')
+  )
+  const loose = strict ?? text.match(new RegExp(`■\\s*${k}\\s*:([^■]*?)[:\\s]\\s*(${LABEL_WORDS})\\s*(?:■|\\n|$)`, 'i'))
+  if (!loose) {
+    return null
+  }
+  const label = parseLabel(loose[2]!)
+  if (!label) {
+    return null
+  }
+  const explanation = loose[1]!
+    .trim()
+    .replace(/^【|】$/g, '')
+    .trim()
+  return { explanation, label }
 }
 
 const getConfidence = (label: Label) => {
@@ -264,6 +291,11 @@ const label = async <T extends string>(
   ctx.controller.signal.throwIfAborted()
   const options = _Options.parse(_options ?? {}) as unknown as Options<T>
   const labels = _Labels.parse(_labels) as Labels<T>
+
+  if (!Object.keys(labels).length) {
+    return {} as { [K in T]: { explanation: string; value: boolean; confidence: number } }
+  }
+
   const tokenizer = await getTokenizer()
   const model = await ctx.getModel()
 
@@ -315,6 +347,7 @@ const label = async <T extends string>(
       taskId,
       input: inputAsString,
       instructions: options.instructions ?? '',
+      labels,
     })
   )
 
@@ -435,7 +468,7 @@ ${format}
 ${END}
 \`\`\`
 
-${options.instructions}
+${options.instructions ?? ''}
 
 ===
 You should consider the Expert Examples below to help you make your decision.
@@ -470,29 +503,26 @@ The Expert Examples are there to help you make your decision. They have been pro
 For example, you can say: "According to Expert Example #1, ..."`.trim(),
       },
     ],
-    transform: (text) =>
-      Object.keys(labels).reduce((acc, key) => {
-        const match = text.match(new RegExp(`■${key}:【(.+)】:(\\w{2,})■`, 'i'))
+    transform: (text) => {
+      const output = text ?? ''
+      const mapping = {} as { [K in T]: { explanation: string; label: Label } }
+      const missing: string[] = []
+      for (const key of Object.keys(labels) as T[]) {
+        const match = matchLabel(output, key)
         if (match) {
-          const explanation = match[1].trim()
-          const label = parseLabel(match[2])
-          acc[key] = {
-            explanation,
-            label,
-          }
+          mapping[key] = match
         } else {
-          acc[key] = {
-            explanation: '',
-            label: LABELS.AMBIGUOUS,
-          }
+          missing.push(key)
         }
-        return acc
-      }, {}) as {
-        [K in T]: {
-          explanation: string
-          label: Label
-        }
-      },
+      }
+      if (missing.length) {
+        // Defaulting to AMBIGUOUS would silently answer "false"; the error goes back to the model instead
+        throw new Error(
+          `Missing or invalid answer for label(s): ${missing.join(', ')}. Answer every label on its own line with the format ■label:【explanation】:x■ where x is one of ${ALL_LABELS}, then ${END}`
+        )
+      }
+      return mapping
+    },
   })
 
   if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {

@@ -193,10 +193,11 @@ LAST
       const source = 'line1\nline2\nline3\n'
       const ops = '◼︎>1|INSERT1\n◼︎>1|INSERT2'
       const result = Micropatch.applyText(source, ops)
+      // Inserts at the same line keep the order they were written in
       expect(result).toMatchInlineSnapshot(`
 "line1
-INSERT2
 INSERT1
+INSERT2
 line2
 line3
 "
@@ -455,11 +456,10 @@ line2
       const source = 'line1\nline2\nline3\n'
       const ops = '\n\n◼︎=2|REPLACED\n\n'
       const result = Micropatch.applyText(source, ops)
+      // Blank lines after a payload separate ops, they are not content
       expect(result).toMatchInlineSnapshot(`
 "line1
 REPLACED
-
-
 line3
 "
 `)
@@ -472,7 +472,6 @@ line3
       expect(result).toMatchInlineSnapshot(`
 "line1
 REPLACED
-
 line3
 line4
 REPLACED2

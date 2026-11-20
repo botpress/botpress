@@ -73,6 +73,12 @@ declare module '@botpress/zai' {
   }
 }
 
+/** Cuts text at its last complete sentence when one ends in the second half, otherwise keeps the truncated text */
+const trimToLength = (text: string) => {
+  const cut = Math.max(...['. ', '! ', '? ', '.\n', '!\n', '?\n', '\n\n', '。'].map((s) => text.lastIndexOf(s)))
+  return (cut >= text.length / 2 ? text.slice(0, cut + 1) : text).trim()
+}
+
 const text = async (prompt: string, _options: Options | undefined, ctx: ZaiContext): Promise<string> => {
   ctx.controller.signal.throwIfAborted()
   const options = Options.parse(_options ?? {})
@@ -89,7 +95,8 @@ const text = async (prompt: string, _options: Options | undefined, ctx: ZaiConte
   let chart = ''
 
   if (options.length) {
-    const length = clamp(options.length * 0.75, 5, options.length)
+    // Below 5 the clamp bounds would cross (lodash returns the upper bound of 5, above the requested length)
+    const length = options.length < 5 ? options.length : clamp(options.length * 0.75, 5, options.length)
     instructions.push(`IMPORTANT: Length constraint: ${length} tokens/words`)
     instructions.push(`The text must be standalone and complete in less than ${length} tokens/words`)
   }
@@ -108,6 +115,11 @@ const text = async (prompt: string, _options: Options | undefined, ctx: ZaiConte
 | 300-500 tokens| A long paragraph (200-300 words)   |`.trim()
   }
 
+  // A hard cap with room to finish the last sentence; the prompt asks for ~75% of the requested length
+  const maxTokens = options.length
+    ? Math.min(model.output.maxTokens, Math.max(Math.ceil(options.length * 1.5), options.length + 50))
+    : undefined
+
   const { extracted } = await ctx.generateContent({
     systemPrompt: `
 Generate a text that fulfills the user prompt below. Answer directly to the prompt, without any acknowledgements or fluff. Also, make sure the text is standalone and complete.
@@ -115,15 +127,20 @@ ${instructions.map((x) => `- ${x}`).join('\n')}
 ${chart}
 `.trim(),
     temperature: 0.7,
+    ...(maxTokens ? { maxTokens } : {}),
     messages: [{ type: 'text', content: prompt, role: 'user' }],
     transform: (text) => {
-      if (!text.trim().length) {
-        throw new Error('The model did not return a valid summary. The response was empty.')
+      if (!text?.trim().length) {
+        throw new Error('The model did not return any text. The response was empty.')
       }
 
       return text
     },
   })
+
+  if (options.length && tokenizer.count(extracted) > options.length) {
+    return trimToLength(tokenizer.truncate(extracted, options.length))
+  }
 
   return extracted
 }

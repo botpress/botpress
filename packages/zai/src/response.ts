@@ -116,6 +116,17 @@ export class Response<T, S = T> implements PromiseLike<S> {
     return new Response<T, T>(context, Promise.reject(err), (value) => value)
   }
 
+  /** Cleanups to run once the operation settles (e.g. removing a bound signal's listener) */
+  private _onSettled: Array<() => void> = []
+  private _settled = false
+
+  private _settle() {
+    this._settled = true
+    for (const fn of this._onSettled.splice(0)) {
+      fn()
+    }
+  }
+
   public constructor(context: ZaiContext, promise: Promise<T>, simplify: (value: T) => S) {
     this._context = context
     this._eventEmitter = new EventEmitter<ResponseEvents<T>>()
@@ -124,6 +135,7 @@ export class Response<T, S = T> implements PromiseLike<S> {
       (value) => {
         this._elasped ||= this._context.elapsedTime
         this._eventEmitter.emit('complete', value)
+        this._settle()
         this._eventEmitter.clear()
         this._context.clear()
         return value
@@ -131,11 +143,16 @@ export class Response<T, S = T> implements PromiseLike<S> {
       (reason) => {
         this._elasped ||= this._context.elapsedTime
         this._eventEmitter.emit('error', reason)
+        this._settle()
         this._eventEmitter.clear()
         this._context.clear()
         throw reason
       }
     )
+
+    // A Response used fire-and-forget (never awaited) must not crash the process with an unhandled rejection.
+    // Awaiting / `.then` / `.catch` / `.result()` still chain off `_promise` and see the rejection.
+    this._promise.catch(() => {})
 
     this._context.on('update', (usage) => {
       this._eventEmitter.emit('progress', usage)
@@ -244,18 +261,22 @@ export class Response<T, S = T> implements PromiseLike<S> {
    * ```
    */
   public bindSignal(signal: AbortSignal): this {
+    if (this._settled) {
+      return this // nothing left to abort
+    }
     if (signal.aborted) {
       this.abort(signal.reason)
+      return this
     }
 
     const signalAbort = () => {
       this.abort(signal.reason)
     }
 
-    signal.addEventListener('abort', () => signalAbort())
+    signal.addEventListener('abort', signalAbort, { once: true })
 
-    void this.once('complete', () => signal.removeEventListener('abort', signalAbort))
-    void this.once('error', () => signal.removeEventListener('abort', signalAbort))
+    // Remove the listener once the operation settles, so long-lived signals don't accumulate listeners
+    this._onSettled.push(() => signal.removeEventListener('abort', signalAbort))
 
     return this
   }
@@ -331,7 +352,7 @@ export class Response<T, S = T> implements PromiseLike<S> {
   public catch<TResult = never>(
     onrejected?: ((reason: unknown) => TResult | PromiseLike<TResult>) | null
   ): PromiseLike<S | TResult> {
-    return this._promise.catch(onrejected) as PromiseLike<S | TResult>
+    return this.then(undefined, onrejected)
   }
 
   /**

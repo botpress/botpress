@@ -25,12 +25,15 @@ type Props = {
   tableName: string
 }
 
+/** Valid Botpress table names for the active learning table */
+export const TABLE_NAME_REGEX = /^[a-zA-Z0-9_]{1,45}Table$/i
+
 const Props = z.object({
   client: z.custom(() => true),
   tableName: z
     .string()
     .regex(
-      /^[a-zA-Z0-9_]{1,45}Table$/i,
+      TABLE_NAME_REGEX,
       'Table name must be lowercase and contain only letters, numbers and underscores. It must also end with "Table". Example: "ActiveLearningTable"'
     ),
 })
@@ -93,13 +96,24 @@ export class TableAdapter extends Adapter {
     this._status = 'ready'
   }
 
-  public async getExamples<TInput, TOutput>({ taskType, taskId, input }: GetExamplesProps<TInput>) {
+  public async getExamples<TInput, TOutput>({
+    taskType,
+    taskId,
+    input,
+  }: GetExamplesProps<TInput>): Promise<
+    Array<{ key: string; input: TInput; output: TOutput; explanation?: string; similarity: number }>
+  > {
     await this._assertTableExists()
+
+    if (this._status === 'error') {
+      // Active learning is best-effort: an unusable table means no examples, never a failed operation
+      return []
+    }
 
     const { rows } = await this._client
       .findTableRows({
         table: this._tableName,
-        search: JSON.stringify({ value: input }).substring(0, 1023), // Search is limited to 1024 characters
+        search: safeJson({ value: input }).substring(0, 1023), // Search is limited to 1024 characters
         limit: 10, // TODO
         filter: {
           // Proximity match of approved examples
@@ -114,13 +128,15 @@ export class TableAdapter extends Adapter {
         return { rows: [] }
       })
 
-    return rows.map((row) => ({
-      key: row.key,
-      input: row.input.value as TInput,
-      output: row.output.value as TOutput,
-      explanation: row.explanation,
-      similarity: row.similarity ?? 0,
-    }))
+    return (Array.isArray(rows) ? rows : [])
+      .filter((row) => !!row && typeof row.key === 'string' && isValueWrapper(row.input) && isValueWrapper(row.output))
+      .map((row) => ({
+        key: row.key,
+        input: row.input.value as TInput,
+        output: row.output.value as TOutput,
+        explanation: typeof row.explanation === 'string' ? row.explanation : undefined,
+        similarity: typeof row.similarity === 'number' ? row.similarity : 0,
+      }))
   }
 
   public async saveExample<TInput, TOutput>({
@@ -135,6 +151,10 @@ export class TableAdapter extends Adapter {
     status = 'pending',
   }: SaveExampleProps<TInput, TOutput>) {
     await this._assertTableExists()
+
+    if (this._status === 'error') {
+      return
+    }
 
     await this._client
       .upsertTableRows({
@@ -165,8 +185,8 @@ export class TableAdapter extends Adapter {
       return
     }
 
-    const { table, created } = await this._client
-      .getOrCreateTable({
+    try {
+      const { table, created } = await this._client.getOrCreateTable({
         table: this._tableName,
         factor: FACTOR,
         frozen: true,
@@ -177,55 +197,79 @@ export class TableAdapter extends Adapter {
         },
         schema: TableJsonSchema,
       })
-      .catch(() => {
+
+      if (!table) {
         this._status = 'error'
-        return { table: null, created: false }
-      })
+        return
+      }
 
-    if (!table) {
-      return
+      if (!created) {
+        const issues: string[] = []
+
+        if (table.factor !== FACTOR) {
+          issues.push(`Factor is ${table.factor} instead of ${FACTOR}`)
+        }
+
+        if (table.frozen !== true) {
+          issues.push('Table is not frozen')
+        }
+
+        for (const [key, value] of Object.entries(CRITICAL_TAGS)) {
+          if (table.tags?.[key] !== value) {
+            issues.push(`Tag ${key} is ${table.tags?.[key]} instead of ${value}`)
+          }
+        }
+
+        for (const key of Object.keys(TableJsonSchema)) {
+          const column = table.schema?.properties?.[key]
+          const expected = TableJsonSchema[key] as { type: string; 'x-zui'?: { searchable?: boolean } }
+
+          if (!column) {
+            issues.push(`Column ${key} is missing`)
+            continue
+          }
+
+          if (column.type !== expected.type) {
+            issues.push(`Column ${key} has type ${column.type} instead of ${expected.type}`)
+          }
+
+          if (expected['x-zui']?.searchable && !column['x-zui']?.searchable) {
+            issues.push(`Column ${key} is not searchable but should be`)
+          }
+        }
+
+        if (issues.length) {
+          console.warn(
+            `[zai] Active learning disabled: table "${this._tableName}" has an incompatible schema (${issues.join('; ')})`
+          )
+          this._status = 'error'
+          return
+        }
+      }
+
+      this._status = 'initialized'
+    } catch (err: unknown) {
+      console.warn(
+        `[zai] Active learning disabled: could not get or create table "${this._tableName}": ${
+          err instanceof Error ? err.message : String(err)
+        }`
+      )
+      this._status = 'error'
     }
+  }
+}
 
-    if (!created) {
-      const issues: string[] = []
+const isValueWrapper = (value: unknown): value is { value: unknown } =>
+  !!value && typeof value === 'object' && 'value' in value
 
-      if (table.factor !== FACTOR) {
-        issues.push(`Factor is ${table.factor} instead of ${FACTOR}`)
-      }
-
-      if (table.frozen !== true) {
-        issues.push('Table is not frozen')
-      }
-
-      for (const [key, value] of Object.entries(CRITICAL_TAGS)) {
-        if (table.tags?.[key] !== value) {
-          issues.push(`Tag ${key} is ${table.tags?.[key]} instead of ${value}`)
-        }
-      }
-
-      for (const key of Object.keys(TableJsonSchema)) {
-        const column = table.schema?.properties[key]
-        const expected = TableJsonSchema[key] as { type: string }
-
-        if (!column) {
-          issues.push(`Column ${key} is missing`)
-          continue
-        }
-
-        if (column.type !== expected.type) {
-          issues.push(`Column ${key} has type ${column.type} instead of ${expected.type}`)
-        }
-
-        if (expected['x-zui'].searchable && !column['x-zui'].searchable) {
-          issues.push(`Column ${key} is not searchable but should be`)
-        }
-      }
-
-      if (issues.length) {
-        this._status = 'error'
-      }
+const safeJson = (value: unknown): string => {
+  try {
+    return JSON.stringify(value) ?? ''
+  } catch {
+    try {
+      return String((value as { value?: unknown })?.value ?? '')
+    } catch {
+      return ''
     }
-
-    this._status = 'initialized'
   }
 }

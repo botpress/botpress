@@ -17,7 +17,7 @@ export async function getTokenizer(): Promise<TextTokenizer> {
   if (!tokenizer) {
     try {
       tokenizer = await getWasmTokenizer()
-    } catch (err) {
+    } catch (err: unknown) {
       throw new Error('Failed to initialize ThickToken tokenizer', { cause: err })
     }
   }

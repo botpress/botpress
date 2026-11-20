@@ -1,11 +1,12 @@
 // eslint-disable consistent-type-definitions
 import { z } from '@bpinternal/zui'
+import { chunk } from 'lodash-es'
 import pLimit from 'p-limit'
 
 import { ZaiContext } from '../context'
 import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
-import { stringify } from '../utils'
+import { stringify, allOrAbort } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER } from './constants'
 
@@ -120,9 +121,8 @@ const _Options = z.object({
   chunkLength: z
     .number()
     .min(250)
-    .max(100_000)
     .optional()
-    .describe('Maximum number of tokens per document chunk')
+    .describe("Maximum number of tokens per document chunk (capped at what fits the model's input context)")
     .default(16_000),
   maxRefinementPasses: z
     .number()
@@ -258,44 +258,55 @@ type LineMapping<T> = {
 }
 
 /**
+ * A document, or a part of one (a long document is cut between lines so each part fits a call)
+ */
+type Segment<T> = {
+  document: T
+  lines: string[]
+  /** 0-based index of the segment's first line in the document */
+  startLine: number
+}
+
+const toSegment = <T>(document: T): Segment<T> => ({ document, lines: stringify(document).split('\n'), startLine: 0 })
+
+/**
  * Format documents with line numbers and create mappings
  */
-const formatDocumentsWithLineNumbers = <T>(documents: T[]): { formatted: string; mappings: LineMapping<T>[] } => {
+const formatDocumentsWithLineNumbers = <T>(documents: T[]): { formatted: string; mappings: LineMapping<T>[] } =>
+  formatSegments(documents.map(toSegment))
+
+const formatSegments = <T>(segments: Segment<T>[]): { formatted: string; mappings: LineMapping<T>[] } => {
   const mappings: LineMapping<T>[] = []
   const allLines: string[] = []
   let globalLineNumber = 1
 
-  // First pass: count total lines to determine padding
-  let totalLines = 0
-  documents.forEach((doc) => {
-    const docString = stringify(doc)
-    const lines = docString.split('\n')
-    totalLines += lines.length
-  })
-
+  const totalLines = segments.reduce((sum, segment) => sum + segment.lines.length, 0)
   const padding = Math.max(3, totalLines.toString().length)
 
-  // Second pass: format with padding
-  documents.forEach((doc, docIndex) => {
-    const docString = stringify(doc)
-    const lines = docString.split('\n')
+  // Documents keep their index in the order they first appear
+  const documentIndexes = new Map<T, number>()
 
-    lines.forEach((line, lineInDoc) => {
+  for (const segment of segments) {
+    if (!documentIndexes.has(segment.document)) {
+      documentIndexes.set(segment.document, documentIndexes.size)
+    }
+    const docIndex = documentIndexes.get(segment.document)!
+
+    segment.lines.forEach((line, i) => {
       const paddedNumber = globalLineNumber.toString().padStart(padding, '0')
-      const formattedLine = `■${paddedNumber} | ${line}`
-      allLines.push(formattedLine)
+      allLines.push(`■${paddedNumber} | ${line}`)
 
       mappings.push({
         lineNumber: globalLineNumber,
         documentIndex: docIndex,
-        lineInDocument: lineInDoc,
+        lineInDocument: segment.startLine + i,
         text: line,
-        document: doc,
+        document: segment.document,
       })
 
       globalLineNumber++
     })
-  })
+  }
 
   return {
     formatted: allLines.join('\n'),
@@ -320,27 +331,27 @@ const parseCitations = <T>(
   let cleanAnswer = answerText
   let offsetAdjustment = 0
 
+  const lastLine = mappings.length ? mappings[mappings.length - 1]!.lineNumber : 0
+
   while ((match = citationPattern.exec(answerText)) !== null) {
     const fullMatch = match[0]
     const offset = match.index - offsetAdjustment
-    const startLine = parseInt(match[1], 10)
-    const endLine = match[2] ? parseInt(match[2], 10) : startLine
+    const startLine = parseInt(match[1]!, 10)
+    // A range past the last line (e.g. a hallucinated ■001-999999999) is clamped to the lines that exist
+    const endLine = Math.min(match[2] ? parseInt(match[2], 10) : startLine, Math.max(startLine, lastLine))
 
-    // Generate range key to avoid duplicates
+    // The marker is always removed from the answer; the same citation at the same place is only kept once
+    cleanAnswer = cleanAnswer.slice(0, offset) + cleanAnswer.slice(offset + fullMatch.length)
+    offsetAdjustment += fullMatch.length
+
     const rangeKey = `${offset}:${startLine}-${endLine}`
     if (processedRanges.has(rangeKey)) {
       continue
     }
     processedRanges.add(rangeKey)
 
-    // Collect all line numbers in this citation
-    const lineNumbers: number[] = []
-    for (let i = startLine; i <= endLine; i++) {
-      lineNumbers.push(i)
-    }
-
     // Find the corresponding documents
-    const relevantMappings = mappings.filter((m) => lineNumbers.includes(m.lineNumber))
+    const relevantMappings = mappings.filter((m) => m.lineNumber >= startLine && m.lineNumber <= endLine)
     if (relevantMappings.length > 0) {
       // Group by document to create citations
       const documentMap = new Map<T, string[]>()
@@ -358,10 +369,6 @@ const parseCitations = <T>(
         })
       })
     }
-
-    // Remove citation marker from answer text
-    cleanAnswer = cleanAnswer.slice(0, offset) + cleanAnswer.slice(offset + fullMatch.length)
-    offsetAdjustment += fullMatch.length
   }
 
   return {
@@ -387,6 +394,75 @@ const processSingleChunk = async <T>(
 }
 
 /**
+ * Cuts documents into chunks of at most `chunkTokenLimit` tokens, counted on the line-numbered text the model gets.
+ * A document longer than the limit is cut between lines (a single line longer than the limit is split into parts).
+ */
+const chunkDocuments = async <T>(documents: T[], chunkTokenLimit: number): Promise<Segment<T>[][]> => {
+  const tokenizer = await getTokenizer()
+  // Every line gets a "■NNN | " prefix (the number grows with the lines of the chunk)
+  const prefixTokens = tokenizer.count('■0000 | ') + 1
+
+  const chunks: Segment<T>[][] = []
+  let currentChunk: Segment<T>[] = []
+  let currentTokens = 0
+
+  const add = (segment: Segment<T>, tokens: number) => {
+    if (currentTokens + tokens > chunkTokenLimit && currentChunk.length > 0) {
+      chunks.push(currentChunk)
+      currentChunk = []
+      currentTokens = 0
+    }
+    currentChunk.push(segment)
+    currentTokens += tokens
+  }
+
+  for (const document of documents) {
+    const lines = stringify(document).split('\n')
+    const lineTokens = lines.map((line) => tokenizer.count(line) + prefixTokens)
+    const docTokens = lineTokens.reduce((sum, n) => sum + n, 0)
+
+    if (docTokens <= chunkTokenLimit) {
+      add({ document, lines, startLine: 0 }, docTokens)
+      continue
+    }
+
+    // Too long for one chunk: cut it into parts, each in a chunk of its own
+    let from = 0
+    let tokens = 0
+    const flush = (to: number) => {
+      add({ document, lines: lines.slice(from, to), startLine: from }, chunkTokenLimit + 1)
+      from = to
+      tokens = 0
+    }
+    for (let i = 0; i < lines.length; i++) {
+      if (lineTokens[i]! > chunkTokenLimit) {
+        if (i > from) flush(i)
+        // A single line longer than a chunk: split it into parts (each cites as line i of the document)
+        const partTokens = Math.max(1, chunkTokenLimit - prefixTokens)
+        const lineParts = chunk(tokenizer.split(lines[i]!), partTokens).map((part) => part.join(''))
+        for (const part of lineParts) {
+          add({ document, lines: [part], startLine: i }, chunkTokenLimit + 1)
+        }
+        from = i + 1
+        tokens = 0
+        continue
+      }
+      if (i > from && tokens + lineTokens[i]! > chunkTokenLimit) {
+        flush(i)
+      }
+      tokens += lineTokens[i]!
+    }
+    if (from < lines.length) flush(lines.length)
+  }
+
+  if (currentChunk.length > 0) {
+    chunks.push(currentChunk)
+  }
+
+  return chunks
+}
+
+/**
  * Process multiple chunks and merge results
  */
 const processMultipleChunks = async <T>(
@@ -394,37 +470,15 @@ const processMultipleChunks = async <T>(
   question: string,
   chunkTokenLimit: number,
   options: Options<T>,
-  ctx: ZaiContext
+  ctx: ZaiContext,
+  pass: number = 1
 ): Promise<AnswerResult<T>> => {
-  const tokenizer = await getTokenizer()
-
-  // Split documents into chunks
-  const chunks: T[][] = []
-  let currentChunk: T[] = []
-  let currentTokens = 0
-
-  for (const doc of documents) {
-    const docString = stringify(doc)
-    const docTokens = tokenizer.count(docString)
-
-    if (currentTokens + docTokens > chunkTokenLimit && currentChunk.length > 0) {
-      chunks.push([...currentChunk])
-      currentChunk = [doc]
-      currentTokens = docTokens
-    } else {
-      currentChunk.push(doc)
-      currentTokens += docTokens
-    }
-  }
-
-  if (currentChunk.length > 0) {
-    chunks.push(currentChunk)
-  }
+  const chunks = await chunkDocuments(documents, chunkTokenLimit)
 
   // Process a single chunk
-  const processChunk = async (chunk: T[]): Promise<AnswerResult<T>> => {
+  const processChunk = async (chunk: Segment<T>[]): Promise<AnswerResult<T>> => {
     ctx.controller.signal.throwIfAborted()
-    const { formatted, mappings } = formatDocumentsWithLineNumbers(chunk)
+    const { formatted, mappings } = formatSegments(chunk)
     const result = await callLLM(formatted, question, options, mappings, ctx)
     ctx.controller.signal.throwIfAborted()
     return result
@@ -432,12 +486,24 @@ const processMultipleChunks = async <T>(
 
   // Process all chunks in parallel
   const limit = pLimit(10) // Limit to 10 concurrent operations
-  const chunkResults = await Promise.all(chunks.map((chunk) => limit(() => processChunk(chunk))))
+  const chunkResults = await allOrAbort(
+    ctx,
+    chunks.map((chunk) => limit(() => processChunk(chunk)))
+  )
 
   ctx.controller.signal.throwIfAborted()
 
   // Merge results
-  return mergeChunkResults(chunkResults, question, chunkTokenLimit, options, ctx)
+  return mergeChunkResults(chunkResults, documents.length, question, chunkTokenLimit, options, ctx, pass)
+}
+
+/** When no chunk could answer: the most useful of the other results first */
+const NON_ANSWER_RANK: Record<AnswerResult<unknown>['type'], number> = {
+  answer: 0,
+  ambiguous: 1,
+  missing_knowledge: 2,
+  out_of_topic: 3,
+  invalid_question: 4,
 }
 
 /**
@@ -445,23 +511,30 @@ const processMultipleChunks = async <T>(
  */
 const mergeChunkResults = async <T>(
   results: AnswerResult<T>[],
+  documentCount: number,
   question: string,
   chunkTokenLimit: number,
   options: Options<T>,
-  ctx: ZaiContext
+  ctx: ZaiContext,
+  pass: number
 ): Promise<AnswerResult<T>> => {
   ctx.controller.signal.throwIfAborted()
   // Filter out non-answer results
   const answers = results.filter((r): r is AnswerResponse<T> => r.type === 'answer')
 
   if (answers.length === 0) {
-    // No answers found, return first non-answer result
-    const nonAnswer = results.find((r) => r.type !== 'answer')
-    return nonAnswer || { type: 'missing_knowledge', reason: 'No relevant information found in documents.' }
+    // No answers found: return the most useful other result (ambiguous > missing knowledge > out of topic > invalid)
+    const ranked = [...results].sort((a, b) => NON_ANSWER_RANK[a.type] - NON_ANSWER_RANK[b.type])
+    return ranked[0] || { type: 'missing_knowledge', reason: 'No relevant information found in documents.' }
   }
 
+  // The answer with the most citations, used when the chunks' answers can't be merged
+  const bestAnswer = answers.reduce((best, current) =>
+    current.citations.length > best.citations.length ? current : best
+  )
+
   if (answers.length === 1) {
-    return answers[0]
+    return answers[0]!
   }
 
   // Collect all cited documents
@@ -480,12 +553,36 @@ const mergeChunkResults = async <T>(
 
   if (tokenizer.count(formatted) <= chunkTokenLimit) {
     // Cited docs fit in one chunk, get unified answer
-    return await callLLM(formatted, question, options, mappings, ctx)
+    const merged = await callLLM(formatted, question, options, mappings, ctx)
+    // The chunks did find answers: a merge that says otherwise must not throw them away
+    return merged.type === 'answer' || merged.type === 'ambiguous' ? merged : bestAnswer
   }
 
-  // Still too large, return best answer from chunks
-  // Prefer the answer with most citations
-  return answers.reduce((best, current) => (current.citations.length > best.citations.length ? current : best))
+  // The cited documents don't fit (e.g. parts of one large document): merge over the cited passages only
+  const passages = new Map<string, Segment<T>>()
+  answers.forEach((answer) => {
+    answer.citations.forEach((citation) => {
+      const key = `${stringify(citation.item)}\u0000${citation.snippet}`
+      if (!passages.has(key)) {
+        passages.set(key, { document: citation.item, lines: citation.snippet.split('\n'), startLine: 0 })
+      }
+    })
+  })
+  const cited = formatSegments([...passages.values()])
+  if (passages.size > 0 && tokenizer.count(cited.formatted) <= chunkTokenLimit) {
+    const merged = await callLLM(cited.formatted, question, options, cited.mappings, ctx)
+    return merged.type === 'answer' || merged.type === 'ambiguous' ? merged : bestAnswer
+  }
+
+  // Still too large: refine over the cited documents only (another pass), while that narrows the documents down
+  const maxPasses = options.maxRefinementPasses ?? 3
+  if (pass < maxPasses && citedDocsArray.length < documentCount) {
+    const refined = await processMultipleChunks(citedDocsArray, question, chunkTokenLimit, options, ctx, pass + 1)
+    return refined.type === 'answer' || refined.type === 'ambiguous' ? refined : bestAnswer
+  }
+
+  // Return best answer from chunks (the one with most citations)
+  return bestAnswer
 }
 
 /**
@@ -582,9 +679,14 @@ Question to answer: "${question}"`
       },
     ],
     transform: (text) => {
-      text = text.slice(0, text.lastIndexOf(END.slice(0, -1))) // Remove anything after END
+      text = text ?? ''
+      // END is a stop sequence, so it is usually absent; when the model writes it anyway, drop it and what follows
+      const end = text.indexOf(END.slice(0, -1))
+      if (end >= 0) {
+        text = text.slice(0, end)
+      }
       // Parse and validate response - errors will be caught and retried
-      return parseResponse(text || '', mappings)
+      return parseResponse(text, mappings)
     },
   })
 
@@ -659,7 +761,7 @@ const parseAmbiguousResponse = <T>(text: string, mappings: LineMapping<T>[]): Am
   const ambiguity = ambiguityMatch ? ambiguityMatch[1].trim() : 'The question has multiple interpretations.'
 
   // Extract follow-up question
-  const followUpMatch = text.match(/■follow_up(.+?)■answer/s)
+  const followUpMatch = text.match(/■follow_up(.+?)(?=■answer|$)/s)
   const follow_up = followUpMatch ? followUpMatch[1].trim() : 'Please clarify your question.'
 
   // Extract all possible answers (match until next ■answer or end of string)
@@ -671,6 +773,12 @@ const parseAmbiguousResponse = <T>(text: string, mappings: LineMapping<T>[]): Am
     const answerText = match[1].trim()
     const { cleanAnswer, citations } = parseCitations(answerText, mappings)
     answers.push({ answer: cleanAnswer, citations })
+  }
+
+  if (answers.length < 2) {
+    throw new Error(
+      'An ambiguous response must give at least 2 possible answers, each starting with ■answer and including citations. If there is only one possible answer, reply with the ■answer format instead.'
+    )
   }
 
   // Validate that each answer has citations
@@ -685,7 +793,7 @@ const parseAmbiguousResponse = <T>(text: string, mappings: LineMapping<T>[]): Am
     type: 'ambiguous',
     ambiguity,
     follow_up,
-    answers: answers.length >= 2 ? answers.slice(0, 3) : answers,
+    answers: answers.slice(0, 3),
   }
 }
 

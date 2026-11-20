@@ -505,7 +505,7 @@ Test files located in `e2e/` directory:
 - **TypeScript**: Compiled with tsup (types) and custom esbuild script (build.ts)
 - **Type Generation**: `tsup` generates .d.ts files
 - **Neutral Build**: `ts-node -T ./build.ts` for platform-neutral JS
-- **Size Limit**: Max 50 kB (enforced by size-limit)
+- **Size Limit**: Max 62 kB (enforced by size-limit)
 - **Peer Dependencies**: @bpinternal/thicktoken, @bpinternal/zui
 
 ## Extension Points

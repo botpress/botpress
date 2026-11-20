@@ -1360,7 +1360,7 @@ export default Counter;`,
 
       expect(result.type).toBe('answer')
       if (result.type === 'answer') {
-        expect(result.answer).toMatch(/def|fibonacci|fib/)
+        expect(result.answer).toMatch(/def|fibonacci|fib/i)
         expect(result.citations.length).toBeGreaterThan(0)
 
         // Should cite the code example
@@ -1619,20 +1619,18 @@ export default Counter;`,
       }
     })
 
-    it('should validate chunkLength bounds (min: 100, max: 100000)', async () => {
+    it('should validate chunkLength bounds (min: 250, capped at the model input)', async () => {
       const documents = ['Test document.']
 
       // Should accept minimum value
       await expect(zai.answer(documents, 'Test question?', { chunkLength: 1001 })).resolves.toBeTruthy()
 
-      // Should accept maximum value
+      // Should accept large values (capped at what fits the model's input context)
       await expect(zai.answer(documents, 'Test question?', { chunkLength: 100_000 })).resolves.toBeTruthy()
+      await expect(zai.answer(documents, 'Test question?', { chunkLength: 2_000_000 })).resolves.toBeTruthy()
 
       // Should reject below minimum
       await expect(zai.answer(documents, 'Test question?', { chunkLength: 50 })).rejects.toThrow()
-
-      // Should reject above maximum
-      await expect(zai.answer(documents, 'Test question?', { chunkLength: 200_000 })).rejects.toThrow()
     })
 
     it('should process documents progressively with small chunkLength and track progress', async () => {

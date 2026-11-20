@@ -28,7 +28,11 @@ export type Options = {
 
 const Options = z.object({
   examples: z.array(_Example).default([]),
-  length: z.number().min(10).max(16_000).optional().describe('The maximum number of tokens to generate'),
+  length: z
+    .number()
+    .min(10)
+    .optional()
+    .describe("The maximum number of tokens to generate (capped at the model's output limit)"),
 })
 
 declare module '@botpress/zai' {
@@ -121,8 +125,25 @@ declare module '@botpress/zai' {
   }
 }
 
-const START = '■START■'
-const END = '■END■'
+const DEFAULT_START = '■START■'
+const DEFAULT_END = '■END■'
+
+/** Markers that don't appear in the given texts; the defaults unless the text itself contains them */
+const pickMarkers = (...texts: string[]) => {
+  for (let i = 0; ; i++) {
+    const start = i === 0 ? DEFAULT_START : `■START_${i}■`
+    const end = i === 0 ? DEFAULT_END : `■END_${i}■`
+    if (!texts.some((t) => t.includes(start) || t.includes(end))) {
+      return { START: start, END: end }
+    }
+  }
+}
+
+/** Shortens text to its last complete sentence when one ends in the second half, so truncation doesn't cut mid-sentence */
+const trimToSentence = (text: string) => {
+  const cut = Math.max(...['. ', '! ', '? ', '.\n', '!\n', '?\n', '\n\n', '。'].map((s) => text.lastIndexOf(s)))
+  return cut >= text.length / 2 ? text.slice(0, cut + 1).trim() : text
+}
 
 const rewrite = async (
   original: string,
@@ -141,7 +162,7 @@ const rewrite = async (
   const INPUT_COMPONENT_SIZE = Math.max(100, (model.input.maxTokens - PROMPT_INPUT_BUFFER) / 2)
   prompt = tokenizer.truncate(prompt, INPUT_COMPONENT_SIZE)
 
-  const inputSize = tokenizer.count(original) + tokenizer.count(prompt)
+  const inputSize = tokenizer.count(original)
   const maxInputSize = model.input.maxTokens - tokenizer.count(prompt) - PROMPT_INPUT_BUFFER
   if (inputSize > maxInputSize) {
     throw new Error(
@@ -151,7 +172,13 @@ const rewrite = async (
 
   const instructions: string[] = []
 
-  const originalSize = tokenizer.count(original)
+  // An input that contains the markers would make the model stop early on the END stop sequence
+  const { START, END } = pickMarkers(original, prompt, ...(options.examples ?? []).flatMap((e) => [e.input, e.output]))
+
+  const originalSize = inputSize
+  if (options.length) {
+    options.length = Math.min(options.length, model.output.maxTokens - PROMPT_OUTPUT_BUFFER)
+  }
   const generationLength = options.length
     ? Math.min(Math.max(options.length * 10, 500), model.output.maxTokens - PROMPT_OUTPUT_BUFFER)
     : undefined
@@ -179,8 +206,16 @@ ${END}
       taskType,
       input: original,
       prompt,
+      ...(options.length ? { length: options.length } : {}),
     })
   )
+
+  const fitLength = (text: string) => {
+    if (options.length && tokenizer.count(text) > options.length) {
+      return trimToSentence(tokenizer.truncate(text, options.length).trim())
+    }
+    return text
+  }
 
   const formatExample = ({ input, output, instructions }: Example) => {
     return [
@@ -204,8 +239,8 @@ ${END}
       : []
 
   const exactMatch = tableExamples.find((x) => x.key === Key)
-  if (exactMatch) {
-    return exactMatch.output
+  if (exactMatch && typeof exactMatch.output === 'string') {
+    return fitLength(exactMatch.output)
   }
 
   const savedExamples: Example[] = [
@@ -213,7 +248,7 @@ ${END}
     ...options.examples,
   ]
 
-  const REMAINING_TOKENS = model.input.maxTokens - tokenizer.count(prompt) - PROMPT_INPUT_BUFFER
+  const REMAINING_TOKENS = maxInputSize - inputSize
   const examples = takeUntilTokens(
     savedExamples.length ? savedExamples : defaultExamples,
     REMAINING_TOKENS,
@@ -231,29 +266,29 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
     stopSequences: [END],
     ...(generationLength ? { maxTokens: generationLength } : {}),
     transform: (text) => {
-      if (!text.trim().length) {
+      let output = text ?? ''
+      if (!output.trim().length) {
         throw new Error('The model did not return a valid rewrite. The response was empty.')
       }
 
-      return text
+      const startIdx = output.indexOf(START)
+      if (startIdx < 0) {
+        // Without the marker, any preamble ("Sure! Here is the rewrite:") would end up in the result
+        throw new Error(
+          `The rewritten text must start with ${START} and end with ${END}, with nothing before ${START}.`
+        )
+      }
+      output = output.slice(startIdx + START.length)
+
+      if (output.includes(END)) {
+        output = output.slice(0, output.indexOf(END))
+      }
+
+      return output
     },
   })
 
-  let result = extracted
-
-  if (result.includes(START)) {
-    result = result.slice(result.indexOf(START) + START.length)
-  }
-
-  if (result.includes(END)) {
-    result = result.slice(0, result.indexOf(END))
-  }
-
-  result = result.trim()
-
-  if (options.length && tokenizer.count(result) > options.length) {
-    result = tokenizer.truncate(result, options.length).trim()
-  }
+  const result = fitLength(extracted.trim())
 
   if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {
     await ctx.adapter.saveExample({

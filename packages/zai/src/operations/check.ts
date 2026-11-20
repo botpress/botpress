@@ -277,28 +277,38 @@ In your "Analysis", please refer to the Expert Examples # to justify your decisi
       },
     ],
     transform: (text) => {
-      const hasTrue = text.includes(TRUE)
-      const hasFalse = text.includes(FALSE)
+      const output = text ?? ''
+      const hasTrue = output.includes(TRUE)
+      const hasFalse = output.includes(FALSE)
+      let finalAnswer: boolean
 
-      if (!hasTrue && !hasFalse) {
-        throw new Error(`The model did not return a valid answer. The response was: ${text}`)
+      if (hasTrue && hasFalse) {
+        // If both TRUE and FALSE are present, we need to check which one was answered last
+        finalAnswer = output.lastIndexOf(TRUE) > output.lastIndexOf(FALSE)
+      } else if (hasTrue || hasFalse) {
+        finalAnswer = hasTrue
+      } else {
+        // Tolerate variants of the markers: "■true■", "■TRUE" (closing ■ dropped) or a bare "Final Answer: TRUE"
+        const variant = [
+          ...output.matchAll(/■\s*(TRUE|FALSE)\s*■?/gi),
+          ...output.matchAll(/Final Answer\s*:\s*[*_`"']*\s*(TRUE|FALSE)\b/gi),
+        ].sort((a, b) => a.index! - b.index!)
+        const last = variant[variant.length - 1]
+        if (!last) {
+          throw new Error(
+            `The response did not end with a valid answer${output.trim() ? '' : ' (it was empty)'}. After your analysis, answer with exactly "Final Answer: ${TRUE}" or "Final Answer: ${FALSE}", then ${END}.`
+          )
+        }
+        finalAnswer = last[1]!.toUpperCase() === 'TRUE'
       }
 
-      let finalAnswer: boolean
-      const explanation = text
+      const explanation = output
         .replace(TRUE, '')
         .replace(FALSE, '')
         .replace(END, '')
         .replace('Final Answer:', '')
         .replace('Analysis:', '')
         .trim()
-
-      if (hasTrue && hasFalse) {
-        // If both TRUE and FALSE are present, we need to check which one was answered last
-        finalAnswer = text.lastIndexOf(TRUE) > text.lastIndexOf(FALSE)
-      } else {
-        finalAnswer = hasTrue
-      }
 
       return { finalAnswer, explanation: explanation.trim() }
     },
