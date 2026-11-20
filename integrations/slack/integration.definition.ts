@@ -14,7 +14,7 @@ export default new IntegrationDefinition({
   name: 'slack',
   title: 'Slack',
   description: 'Automate interactions with your team.',
-  version: '5.1.1',
+  version: '5.2.0',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
@@ -34,6 +34,20 @@ export default new IntegrationDefinition({
         .default(false)
         .title('Typing Indicator Emoji')
         .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
+      downloadMedia: z
+        .boolean()
+        .default(true)
+        .title('Download Images')
+        .describe(
+          'Save incoming images to the Files API for public content access. If disabled, Slack permalinks are used.'
+        ),
+      downloadedMediaExpiry: z
+        .number()
+        .nonnegative()
+        .default(30 * 24)
+        .optional()
+        .title('Downloaded Image Expiry')
+        .describe('Expiry time in hours for downloaded images. Set to 0 to keep images indefinitely.'),
       replyBehaviour: z
         .object({
           location: z
