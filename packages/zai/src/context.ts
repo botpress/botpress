@@ -56,6 +56,11 @@ const errorMessage = (error: unknown): string => {
 type GenerateContentProps<T> = Omit<CognitiveRequest, 'model'> & {
   maxRetries?: number
   transform?: (text: string | undefined, response: CognitiveResponse) => T
+  /**
+   * Bump when `transform`'s output shape changes, so a memoizer never replays a result saved in the old shape
+   * (part of the memo key only when set, so existing keys are unchanged)
+   */
+  memoVersion?: number
 }
 
 export type ZaiContextProps = {
@@ -259,6 +264,7 @@ export class ZaiContext {
         t: props.temperature,
         rf: props.responseFormat,
         re: props.reasoningEffort,
+        ...(props.memoVersion ? { v: props.memoVersion } : {}),
       })
     )}`
 
@@ -274,7 +280,7 @@ export class ZaiContext {
     extracted: Out
   }> {
     const maxRetries = Math.max(props.maxRetries ?? 3, 0)
-    const { maxRetries: _mr, transform, ...request } = props
+    const { maxRetries: _mr, transform, memoVersion: _mv, ...request } = props
     let lastError: unknown = undefined
     const messages = [...(props.messages || [])]
 
@@ -383,9 +389,11 @@ export class ZaiContext {
     const key = JSON.stringify([props.taskType, props.taskId, props.input])
     let pending = this._examples.get(key)
     if (pending === undefined) {
-      pending = this.adapter.getExamples<TInput, TOutput>(props)
       // A failed lookup is not cached, so a later caller can retry it
-      pending.catch(() => this._examples.delete(key))
+      pending = this.adapter.getExamples<TInput, TOutput>(props).catch((error: unknown) => {
+        this._examples.delete(key)
+        throw error
+      })
       this._examples.set(key, pending)
     }
     return pending as ReturnType<typeof this.adapter.getExamples<TInput, TOutput>>

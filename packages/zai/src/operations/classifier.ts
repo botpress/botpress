@@ -84,8 +84,9 @@ export const fitsClassifier = (input: string, question: string, instructions = '
 
 export const percent = (p: number) => `${Math.round(p * 100)}%`
 
-/** Server limit on label descriptions */
+/** Server limits on label descriptions and label count */
 const MAX_LABEL_DESCRIPTION_CHARS = 500
+export const CLASSIFIER_MAX_LABELS = 50
 
 /**
  * Picks one of several labels for the input (a yes/no answer, a rating level, a category...).
@@ -104,14 +105,22 @@ export const classifyChoice = async (
     priority: Priority
   }
 ): Promise<ChoiceAnswer | null> => {
+  // Over the server limits: the LLM decides rather than the classifier seeing a cut-off rule
+  if (
+    props.input.length > CLASSIFIER_MAX_INPUT_CHARS ||
+    props.instructions.length > CLASSIFIER_MAX_INSTRUCTIONS_CHARS ||
+    props.labels.length < 2 ||
+    props.labels.length > CLASSIFIER_MAX_LABELS ||
+    props.labels.some((l) => (l.description?.length ?? 0) > MAX_LABEL_DESCRIPTION_CHARS)
+  ) {
+    return null
+  }
+
   try {
     const response = await ctx.classify({
       input: props.input,
-      instructions: props.instructions.slice(0, CLASSIFIER_MAX_INSTRUCTIONS_CHARS),
-      labels: props.labels.map((l) => ({
-        name: l.name,
-        ...(l.description ? { description: l.description.slice(0, MAX_LABEL_DESCRIPTION_CHARS) } : {}),
-      })),
+      instructions: props.instructions,
+      labels: props.labels.map((l) => ({ name: l.name, ...(l.description ? { description: l.description } : {}) })),
       ...(props.model ? { model: props.model } : {}),
     })
 

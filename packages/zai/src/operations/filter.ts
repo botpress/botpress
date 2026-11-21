@@ -8,7 +8,7 @@ import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
 import { fastHash, stringify, takeUntilTokens, abortSiblingsOnFailure } from '../utils'
 import { Zai } from '../zai'
-import { classifyYesNo, fitsClassifier, hasLearnedExamples, mapUnique } from './classifier'
+import { classifyYesNo, fitsClassifier, hasLearnedExamples, mapUnique, sumUsage } from './classifier'
 import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
 
 type Example = {
@@ -243,6 +243,27 @@ const filter = async <T>(
     candidates.forEach((i, n) => {
       decided[i] = answers[n]?.value ?? null
     })
+
+    // Save the classifier's decisions like an LLM chunk (input: the items, output: the kept ones) so they can be
+    // reviewed and approved
+    const decidedItems = input.filter((_, i) => decided[i] !== null)
+    if (decidedItems.length && taskId && ctx.adapter && !ctx.controller.signal.aborted) {
+      const usage = sumUsage(answers)
+      await ctx.adapter.saveExample({
+        key: fastHash(stringify({ taskId, taskType, input: JSON.stringify(decidedItems), condition })),
+        taskType,
+        taskId,
+        input: JSON.stringify(decidedItems),
+        output: input.filter((_, i) => decided[i] === true),
+        instructions: condition,
+        metadata: {
+          cost: { input: usage.cost, output: 0 },
+          latency: usage.latency,
+          model: usage.model,
+          tokens: usage.tokens,
+        },
+      })
+    }
   }
 
   // Each chunk keeps the original elements (returned to the caller) alongside their truncated
@@ -390,6 +411,8 @@ The condition is: "${condition}"
         },
       ],
       transform: (text) => parseFilterDecisions(text ?? '', chunk.length),
+      // v2: the result is the list of decisions (it was the list of kept items)
+      memoVersion: 2,
     })
 
     chunkItems.forEach((item, idx) => {

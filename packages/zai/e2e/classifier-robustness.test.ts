@@ -681,3 +681,90 @@ describe('defaults: priority speed and the fast service tier', () => {
     expect(() => makeZai({ config: { serviceTier: 'flex' } })).toThrow()
   })
 })
+
+describe('review fixes', () => {
+  it('filter saves the classifier decisions as a learning example', async () => {
+    const adapter = fakeAdapter()
+    const { zai } = makeZai({
+      adapter,
+      learn: 't',
+      config: { priority: 'speed' },
+      classify: (input) => ({ yes: input.input === 'apple' ? 0.99 : 0.01 }),
+    })
+    expect(await zai.filter(['apple', 'rock'], 'is a fruit')).toEqual(['apple'])
+    expect(adapter.saved).toHaveLength(1)
+    expect(JSON.parse(adapter.saved[0].input)).toEqual(['apple', 'rock'])
+    expect(adapter.saved[0].output).toEqual(['apple'])
+    expect(adapter.saved[0].metadata.model).toBe('typesafe:jev-1.13.0')
+  })
+
+  it('filter memo keys are versioned (an old memoized result is never replayed as decisions)', async () => {
+    const keys: string[] = []
+    const memoize = {
+      run: async (key: string, fn: () => Promise<any>) => {
+        keys.push(key)
+        return fn()
+      },
+    }
+    const { zai } = makeZai({
+      config: { priority: 'accuracy', memoize },
+      llm: () => '■0:true■1:false■\n■END■',
+    })
+    await zai.filter(['apple', 'rock'], 'is a fruit')
+    const { ZaiContext } = await import('../src/context')
+    const ctx = new ZaiContext({
+      client: (zai as any).client,
+      taskType: 'zai.filter',
+      taskId: '',
+      modelId: 'fast',
+      memoizer: memoize,
+      priority: 'accuracy',
+    })
+    const unversioned = keys.length
+    await ctx.generateContent({ messages: [{ role: 'user', content: 'x' }] })
+    await ctx.generateContent({ messages: [{ role: 'user', content: 'x' }], memoVersion: 2 })
+    expect(keys[unversioned]).not.toBe(keys[unversioned + 1])
+  })
+
+  it('sends over-limit label descriptions to the LLM instead of cutting them', async () => {
+    const { zai, classifyCalls, llmCalls } = makeZai({
+      config: { priority: 'speed' },
+      llm: () => '■0:a■\n■END■',
+    })
+    expect(await zai.classify('x', { a: 'A'.repeat(501), b: 'B' })).toBe('a')
+    expect(classifyCalls).toHaveLength(0)
+    expect(llmCalls).toHaveLength(1)
+  })
+
+  it('matches the exact label before removing punctuation, and rejects ambiguous loose matches', async () => {
+    const outputs = ['■0:[VIP]■\n■END■', '■0:vip!■\n■END■', '■0:VIP■\n■END■']
+    const { zai, llmCalls } = makeZai({ config: { priority: 'accuracy' }, llm: () => outputs.shift()! })
+    expect(await zai.classify('x', ['[VIP]', 'VIP'])).toBe('[VIP]')
+    // 'vip!' matches both labels loosely: retried, then answered exactly
+    expect(await zai.classify('y', ['[VIP]', 'VIP'])).toBe('VIP')
+    expect(llmCalls).toHaveLength(3)
+  })
+
+  it('classify fails clearly when the labels alone do not fit the model, only if the LLM is needed', async () => {
+    const huge = Object.fromEntries(Array.from({ length: 2 }, (_, i) => [`l${i}`, 'word '.repeat(200_000)]))
+    const llm = makeZai({ config: { priority: 'accuracy' } })
+    await expect(llm.zai.classify('x', huge)).rejects.toThrow('too many for the model')
+  })
+
+  it('a failed example lookup is not cached', async () => {
+    let calls = 0
+    const adapter = {
+      saved: [] as any[],
+      getExamples: async () => {
+        calls++
+        if (calls === 1) throw new Error('tables down')
+        return []
+      },
+      saveExample: async () => undefined,
+    }
+    const { zai } = makeZai({ adapter, learn: 't', config: { priority: 'accuracy' }, llm: () => '■0:a■\n■END■' })
+    await expect(zai.classify('x', ['a', 'b'])).rejects.toThrow('tables down')
+    expect(await zai.classify('x', ['a', 'b'])).toBe('a')
+    expect(calls).toBe(2)
+  })
+})

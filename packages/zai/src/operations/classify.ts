@@ -7,7 +7,7 @@ import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
 import { abortSiblingsOnFailure, fastHash, stringify, takeUntilTokens } from '../utils'
 import { Zai } from '../zai'
-import { classifyChoice, fitsClassifier, mapUnique, sumUsage } from './classifier'
+import { CLASSIFIER_MAX_LABELS, classifyChoice, fitsClassifier, mapUnique, sumUsage } from './classifier'
 import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
 
 /** Label names, or label names mapped to a description of what belongs in each */
@@ -39,8 +39,6 @@ const _Options = z.object({
   tokensPerItem: z.number().min(1).optional().default(1000),
 })
 
-/** Server limits of the classification API */
-const CLASSIFIER_MAX_LABELS = 50
 const MAX_ITEMS_PER_CHUNK = 50
 const END = '■END■'
 
@@ -128,19 +126,23 @@ const normalizeLabels = (labels: unknown): LabelDef[] => {
 
 const looseLabel = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '')
 
-/** Finds the label the model wrote (exact, then case/punctuation-insensitive), or undefined */
+/**
+ * Finds the label the model wrote: exact first (as written, then without surrounding quotes/markdown), then
+ * case-insensitive, then ignoring punctuation. A loose match shared by several labels is rejected (undefined).
+ */
 const matchLabelName = (written: string, labels: LabelDef[]): string | undefined => {
-  const cleaned = written
-    .trim()
-    .replace(/^[*_`"'[(]+|[*_`"'\])]+$/g, '')
-    .trim()
-  const exact =
-    labels.find((l) => l.name === cleaned) ?? labels.find((l) => l.name.toLowerCase() === cleaned.toLowerCase())
-  if (exact) {
-    return exact.name
+  const trimmed = written.trim()
+  const cleaned = trimmed.replace(/^[*_`"']+|[*_`"']+$/g, '').trim()
+  for (const candidate of [trimmed, cleaned]) {
+    const exact =
+      labels.find((l) => l.name === candidate) ?? labels.find((l) => l.name.toLowerCase() === candidate.toLowerCase())
+    if (exact) {
+      return exact.name
+    }
   }
   const loose = looseLabel(cleaned)
-  return loose ? labels.find((l) => looseLabel(l.name) === loose)?.name : undefined
+  const matches = loose ? labels.filter((l) => looseLabel(l.name) === loose) : []
+  return matches.length === 1 ? matches[0]!.name : undefined
 }
 
 /**
@@ -216,9 +218,12 @@ const classify = async (
   const taskId = ctx.taskId
   const taskType = 'zai.classify'
 
-  const TOKENS_TOTAL_MAX = Math.max(model.input.maxTokens - PROMPT_INPUT_BUFFER - PROMPT_OUTPUT_BUFFER, 1000)
-  const TOKENS_EXAMPLES_MAX = Math.floor(TOKENS_TOTAL_MAX * 0.3)
-  const TOKENS_ITEMS_MAX = Math.floor(TOKENS_TOTAL_MAX * 0.5)
+  // Every LLM prompt repeats the label list and the instructions: budget them first, then split the rest
+  const labelList = labels.map((l) => `- ${l.name}${l.description ? `: ${l.description}` : ''}`).join('\n')
+  const TOKENS_FIXED = tokenizer.count(labelList) + tokenizer.count(options.instructions ?? '') + 200
+  const TOKENS_AVAILABLE = model.input.maxTokens - PROMPT_INPUT_BUFFER - PROMPT_OUTPUT_BUFFER - TOKENS_FIXED
+  const TOKENS_EXAMPLES_MAX = Math.max(Math.floor(TOKENS_AVAILABLE * 0.3), 0)
+  const TOKENS_ITEMS_MAX = Math.max(Math.floor(TOKENS_AVAILABLE * 0.6), 1)
   const tokensPerItem = Math.min(options.tokensPerItem, TOKENS_ITEMS_MAX)
 
   const rawTexts = items.map((item) => stringify(item, false))
@@ -285,6 +290,11 @@ const classify = async (
   // LLM: the remaining items, batched
   const pending = results.flatMap((r, i) => (r ? [] : [i]))
   if (pending.length) {
+    if (TOKENS_AVAILABLE < 500) {
+      throw new Error(
+        `The labels and instructions take ${TOKENS_FIXED} tokens, too many for the model's input (${model.input.maxTokens} tokens). Shorten the label descriptions or instructions.`
+      )
+    }
     const texts = new Map(pending.map((i) => [i, tokenizer.truncate(rawTexts[i]!, tokensPerItem)]))
     const chunks: number[][] = []
     let current: number[] = []
@@ -303,7 +313,6 @@ const classify = async (
       chunks.push(current)
     }
 
-    const labelList = labels.map((l) => `- ${l.name}${l.description ? `: ${l.description}` : ''}`).join('\n')
     const formatItems = (entries: string[]) => entries.map((text, idx) => `■${idx} = ${text}`).join('\n')
 
     const shownExamples = takeUntilTokens(
