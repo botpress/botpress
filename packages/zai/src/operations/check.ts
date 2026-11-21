@@ -6,6 +6,7 @@ import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
 import { fastHash, stringify, takeUntilTokens } from '../utils'
 import { Zai } from '../zai'
+import { classifyYesNo, fitsClassifier, percent } from './classifier'
 import { PROMPT_INPUT_BUFFER } from './constants'
 
 const _Example = z.object({
@@ -178,6 +179,40 @@ const check = async (
   const exactMatch = examples.find((x) => x.key === Key)
   if (exactMatch) {
     return { explanation: exactMatch.explanation ?? '', value: exactMatch.output }
+  }
+
+  // The classifier cannot learn from examples: with expert examples, the LLM (which reads them) decides
+  const rawInput = stringify(input)
+  if (ctx.usesClassifier && !examples.length && !options.examples.length && fitsClassifier(rawInput, condition)) {
+    const answer = await classifyYesNo(ctx, {
+      input: rawInput,
+      question: `Is this condition true for the text? Condition: ${condition}`,
+      model: ctx.classifier,
+      priority: ctx.priority,
+    })
+
+    if (answer && answer.value !== null) {
+      const explanation = `Classifier ${answer.model}: the condition is ${answer.value ? 'true' : 'false'} (${percent(answer.pYes)} probability that it is true).`
+      if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {
+        await ctx.adapter.saveExample({
+          key: Key,
+          taskType,
+          taskId,
+          input: inputAsString,
+          instructions: condition,
+          metadata: {
+            cost: { input: answer.cost, output: 0 },
+            latency: answer.latency,
+            model: answer.model,
+            tokens: answer.tokens,
+          },
+          output: answer.value,
+          explanation,
+        })
+      }
+      return { value: answer.value, explanation }
+    }
+    // Classifier unavailable or not confident: the LLM decides
   }
 
   const defaultExamples = [
@@ -358,15 +393,7 @@ Zai.prototype.check = function (
 > {
   const options = _Options.parse(_options ?? {}) as Options
 
-  const context = new ZaiContext({
-    client: this.client,
-    modelId: this.Model,
-    taskId: this.taskId,
-    taskType: 'zai.check',
-    adapter: this.adapter,
-    memoizer: this._resolveMemoizer(),
-    metadata: this.metadata,
-  })
+  const context = this._context('zai.check')
 
   return new Response<
     {

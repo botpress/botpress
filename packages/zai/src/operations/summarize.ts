@@ -616,15 +616,7 @@ ${options.format}
 Zai.prototype.summarize = function (this: Zai, original, _options): Response<string> {
   const options = Options.parse(_options ?? {}) as Options
 
-  const context = new ZaiContext({
-    client: this.client,
-    modelId: this.Model,
-    taskId: this.taskId,
-    taskType: 'summarize',
-    adapter: this.adapter,
-    memoizer: this._resolveMemoizer(),
-    metadata: this.metadata,
-  })
+  const context = this._context('summarize')
 
   return new Response<string, string>(context, summarize(original, options, context), (value) => value)
 }

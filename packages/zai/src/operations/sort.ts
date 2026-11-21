@@ -226,7 +226,7 @@ const sort = async <T>(
   const criteriaInputStr = JSON.stringify({ instructions, sampleItems })
   const criteriaExamples =
     taskId && ctx.adapter
-      ? await ctx.adapter.getExamples<string, Array<T>>({
+      ? await ctx.getExamples<string, Array<T>>({
           input: criteriaInputStr.slice(0, 1000),
           taskType,
           taskId,
@@ -421,7 +421,7 @@ CRITICAL: Output ordered labels from FIRST to LAST position in sorted result.
     // Get examples from adapter for active learning
     const examples =
       taskId && ctx.adapter
-        ? await ctx.adapter.getExamples<string, ItemScore[]>({
+        ? await ctx.getExamples<string, ItemScore[]>({
             input: chunkInputStr.slice(0, 1000),
             taskType,
             taskId,
@@ -687,7 +687,7 @@ IMPORTANT:
           const tieBreakInputStr = JSON.stringify(tiedElements.map((e) => e.element))
           const tieBreakExamples =
             taskId && ctx.adapter
-              ? await ctx.adapter.getExamples<string, Array<T>>({
+              ? await ctx.getExamples<string, Array<T>>({
                   input: tieBreakInputStr.slice(0, 1000),
                   taskType,
                   taskId,
@@ -808,7 +808,8 @@ Output the indices in the order they should appear (first item at top).`,
       // If scores are equal, use tie-break order
       const orderA = a[1].tieBreakOrder ?? 0
       const orderB = b[1].tieBreakOrder ?? 0
-      return orderA - orderB
+      // Then by input order
+      return orderA - orderB || a[0] - b[0]
     })
     .map(([index]) => elements[index].element)
 
@@ -850,15 +851,7 @@ Zai.prototype.sort = function <T>(
   instructions: string,
   _options?: Options
 ): Response<Array<T>, Array<T>> {
-  const context = new ZaiContext({
-    client: this.client,
-    modelId: this.Model,
-    taskId: this.taskId,
-    taskType: 'zai.sort',
-    adapter: this.adapter,
-    memoizer: this._resolveMemoizer(),
-    metadata: this.metadata,
-  })
+  const context = this._context('zai.sort')
 
   return new Response<Array<T>, Array<T>>(
     context,

@@ -1,7 +1,7 @@
 {
   "name": "@botpress/zai",
   "description": "Zui AI (zai) – An LLM utility library written on top of Zui and the Botpress API",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "files": [
     "dist"
   ],
@@ -27,7 +27,7 @@
   },
   "size-limit": [
     {
-      "limit": "62 kB",
+      "limit": "60 kB",
       "path": "dist/**/*.js"
     }
   ],

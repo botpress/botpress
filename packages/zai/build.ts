@@ -6,4 +6,7 @@ void esbuild.build({
   entryPoints,
   platform: 'neutral',
   outdir: './dist',
+  // Smaller package without obfuscation: identifiers are kept, so stack traces stay readable
+  minifyWhitespace: true,
+  minifySyntax: true,
 })

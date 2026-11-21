@@ -87,6 +87,24 @@ const labels = await zai.label(review, {
 // Result: { positive: true, technical: false, verified: true }
 ```
 
+### Classify - Pick exactly one label
+
+```typescript
+const intent = await zai.classify('I was charged twice', ['billing', 'technical', 'other'])
+// Result: 'billing'
+
+// Arrays are classified item by item (pass labels with descriptions for better results)
+const intents = await zai.classify(tickets, {
+  billing: 'Charges, invoices, refunds',
+  technical: 'Bugs, errors, outages',
+  other: 'Anything else',
+})
+// Result: ['technical', 'billing', ...]
+
+// Full result: { label, confidence, scores, source: 'classifier' | 'llm' }
+const { output } = await zai.classify(ticket, intents).result()
+```
+
 ### 4. Rewrite - Transform text
 
 ```typescript
@@ -233,6 +251,41 @@ const fastZai = new Zai({ client, model: 'fast' })
 const customZai = new Zai({ client, model: 'gpt-4-turbo' })
 ```
 
+### Speed vs. accuracy (classification API)
+
+`check`, `label`, `classify`, `filter` and `rate` can answer with the Cognitive classification API
+(a calibrated classifier such as Jev, ~100-300ms per call for a fraction of an LLM call's cost):
+
+```typescript
+// Default: the classifier answers alone (fastest and cheapest)
+const zai = new Zai({ client, priority: 'speed' })
+
+// The classifier answers when it is confident (probability >= 0.95), the LLM decides the rest
+const balancedZai = zai.with({ priority: 'moderate' })
+
+// LLM only: written explanations, slower and more expensive
+const carefulZai = zai.with({ priority: 'accuracy' })
+```
+
+The LLM always answers when examples are given (the classifier cannot learn from them), when the input is over the
+classifier's limits, and when the classifier is unavailable. Use `classifier` to pin the classification model chain
+(by default the backend chooses).
+
+### Service tier
+
+```typescript
+// 'fast' requests the provider's low-latency tier (OpenAI: ~25-30% faster, ~2-3x the token price).
+// Default: 'fast' with priority 'speed' (the default), 'standard' otherwise
+const zai = new Zai({ client, serviceTier: 'standard' })
+```
+
+### Reasoning effort
+
+```typescript
+// Sent on every LLM call; omit it to use each model's default
+const zai = new Zai({ client, reasoningEffort: 'low' }) // 'none' | 'low' | 'medium' | 'high' | 'dynamic'
+```
+
 ### Progress Tracking
 
 ```typescript
@@ -309,6 +362,7 @@ setTimeout(() => controller.abort(), 5000)
 - `.extract(content, schema, options?)` - Extract structured data
 - `.check(content, condition, options?)` - Verify boolean condition
 - `.label(content, criteria, options?)` - Apply multiple labels
+- `.classify(content | items, labels, options?)` - Pick exactly one label (per item)
 - `.rewrite(content, instruction, options?)` - Transform text
 - `.filter(items, condition, options?)` - Filter array items
 - `.group(items, options?)` - Organize items into categories

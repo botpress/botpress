@@ -6,6 +6,8 @@ import { z } from '@bpinternal/zui'
 import { Adapter } from './adapters/adapter'
 import { TABLE_NAME_REGEX, TableAdapter } from './adapters/botpress-table'
 import { MemoryAdapter } from './adapters/memory'
+import { ZaiContext } from './context'
+import { type ClassifierOption, type Priority, DEFAULT_CLASSIFIER, DEFAULT_PRIORITY } from './operations/classifier'
 import { type TextTokenizer, getTokenizer } from './tokenizer'
 
 /**
@@ -32,6 +34,10 @@ export type Memoizer = {
  * ```
  */
 export type ZaiMetadata = Record<string, string>
+
+export type ReasoningEffort = 'none' | 'low' | 'medium' | 'high' | 'dynamic'
+
+export type ServiceTier = 'fast' | 'standard'
 
 /**
  * Active learning configuration for improving AI operations over time.
@@ -131,6 +137,36 @@ export type ZaiConfig = {
    * events server-side. Use `zai.with({ metadata })` to scope it, e.g. per conversation.
    */
   metadata?: ZaiMetadata
+  /**
+   * Reasoning effort for every LLM call (`none`, `low`, `medium`, `high` or `dynamic`).
+   * Omit it to use each operation's default (the model's own default for most operations).
+   * Models that cannot honor a value adjust it server-side (e.g. some models cannot disable thinking).
+   */
+  reasoningEffort?: ReasoningEffort
+  /**
+   * Service tier of every LLM call. `fast` requests the provider's low-latency tier (OpenAI models: ~25-30% faster,
+   * ~2-3x the token price); models without one ignore it. `standard` uses the standard tier.
+   * Defaults to `fast` with `priority: 'speed'` (the default) and to `standard` otherwise.
+   */
+  serviceTier?: ServiceTier
+  /**
+   * Speed/accuracy trade-off of operations that can use the Cognitive classification API (`check`, `label`,
+   * `classify`, `filter`, `rate`),
+   * a calibrated classifier (Jev) that answers in ~100-300ms for a small fraction of an LLM call's cost:
+   * - `speed` (default): the classifier answers alone
+   * - `moderate`: the classifier answers when it is confident (probability of yes >= 0.95 or <= 0.05),
+   *   the LLM decides the rest
+   * - `accuracy`: the LLM answers everything (written explanations; slower and more expensive)
+   *
+   * In every mode the LLM answers when the classifier is unavailable or fails, when examples are given
+   * (the classifier cannot learn from them) and when the input is over the classifier's limits (100k characters).
+   */
+  priority?: Priority
+  /**
+   * Model of the classification API, or an ordered chain of them (an array is the whole chain).
+   * Omit it (default) to let the backend choose: Jev, then OpenAI Decisions, then logprobs scoring, then generation.
+   */
+  classifier?: ClassifierOption
 }
 
 const _ZaiConfig = z.object({
@@ -165,6 +201,17 @@ const _ZaiConfig = z.object({
   metadata: z
     .record(z.string().max(128))
     .describe('Arbitrary key-value metadata attached to every cognitive call and recorded on usage events')
+    .optional(),
+  reasoningEffort: z.enum(['none', 'low', 'medium', 'high', 'dynamic']).optional(),
+  serviceTier: z.enum(['fast', 'standard']).optional(),
+  priority: z.enum(['speed', 'moderate', 'accuracy']).optional(),
+  classifier: z
+    .custom<ClassifierOption>(
+      (value) =>
+        (typeof value === 'string' && value.length > 0) ||
+        (Array.isArray(value) && value.length > 0 && value.every((v) => typeof v === 'string' && v.length > 0)),
+      { message: 'classifier must be a model ID or a non-empty array of model IDs' }
+    )
     .optional(),
 })
 
@@ -245,6 +292,10 @@ export class Zai {
   protected activeLearning: ActiveLearning
   protected _memoize?: Memoizer | (() => Memoizer)
   protected metadata?: ZaiMetadata
+  protected reasoningEffort?: ReasoningEffort
+  protected serviceTier?: ServiceTier
+  protected classifier?: ClassifierOption
+  protected priority: Priority
 
   /**
    * Creates a new Zai instance with the specified configuration.
@@ -290,6 +341,10 @@ export class Zai {
       : new MemoryAdapter([])
 
     this._memoize = config.memoize
+    this.reasoningEffort = parsed.reasoningEffort
+    this.serviceTier = parsed.serviceTier
+    this.classifier = parsed.classifier ?? DEFAULT_CLASSIFIER
+    this.priority = parsed.priority ?? DEFAULT_PRIORITY
   }
 
   /** @internal */
@@ -297,6 +352,8 @@ export class Zai {
     return this.client.generateText({
       reasoningEffort: 'none',
       ...props,
+      ...(this.reasoningEffort ? { reasoningEffort: this.reasoningEffort } : {}),
+      ...(this._serviceTier === 'fast' ? { options: { serviceTier: 'fast' as const, ...props.options } } : {}),
       model: this.Model,
       meta: {
         ...props.meta,
@@ -305,6 +362,28 @@ export class Zai {
           ...props.meta?.metadata,
         },
       },
+    })
+  }
+
+  /** The service tier of LLM calls: as configured, else `fast` with `priority: 'speed'` and `standard` otherwise */
+  private get _serviceTier(): ServiceTier {
+    return this.serviceTier ?? (this.priority === 'speed' ? 'fast' : 'standard')
+  }
+
+  /** @internal Creates the execution context of one operation */
+  protected _context(taskType: string): ZaiContext {
+    return new ZaiContext({
+      client: this.client,
+      modelId: this.Model,
+      taskId: this.taskId,
+      taskType,
+      adapter: this.adapter,
+      memoizer: this._resolveMemoizer(),
+      metadata: this.metadata,
+      reasoningEffort: this.reasoningEffort,
+      serviceTier: this._serviceTier,
+      classifier: this.classifier,
+      priority: this.priority,
     })
   }
 

@@ -1281,15 +1281,7 @@ Zai.prototype.group = function <T>(
   input: Array<T>,
   _options?: Options
 ): Response<Array<Group<T>>, Record<string, T[]>> {
-  const context = new ZaiContext({
-    client: this.client,
-    modelId: this.Model,
-    taskId: this.taskId,
-    taskType: 'zai.group',
-    adapter: this.adapter,
-    memoizer: this._resolveMemoizer(),
-    metadata: this.metadata,
-  })
+  const context = this._context('zai.group')
 
   return new Response<Array<Group<T>>, Record<string, T[]>>(context, group(input, _options, context), (result) => {
     const merged: Record<string, T[]> = {}

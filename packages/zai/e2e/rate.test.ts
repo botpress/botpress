@@ -361,11 +361,13 @@ describe('zai.rate', () => {
         { testsPassing: true, buildSuccessful: true, lintClean: true, coverageAbove80: true },
         { testsPassing: false, buildSuccessful: false, lintClean: false, coverageAbove80: false },
       ]
-      const ratings = await zai.rate(checks, 'how healthy is this codebase status?')
+      // 'moderate': the classifier alone (default 'speed') rates these less sharply
+      const ratings = await zai.with({ priority: 'moderate' }).rate(checks, 'how healthy is this codebase status?')
 
       expect(ratings).toHaveLength(2)
-      // First item (all passing) should rate significantly higher than second (all failing)
-      expect(ratings[0]).toBeGreaterThan(ratings[1]! * 2)
+      // The all-passing codebase rates clearly higher. Not "twice as high": the generated criteria usually include
+      // dimensions these flags say nothing about (documentation, dependencies...), rated average for both items.
+      expect(ratings[0]! - ratings[1]!).toBeGreaterThanOrEqual(5)
     })
   })
 

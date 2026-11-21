@@ -8,6 +8,7 @@ import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
 import { fastHash, stringify, takeUntilTokens } from '../utils'
 import { Zai } from '../zai'
+import { classifyYesNo, CONFIDENT_NO, CONFIDENT_YES, fitsClassifier, mapUnique, percent, sumUsage } from './classifier'
 import { PROMPT_INPUT_BUFFER } from './constants'
 
 type Label = keyof typeof LABELS
@@ -262,6 +263,15 @@ const matchLabel = (text: string, key: string): { explanation: string; label: La
   return { explanation, label }
 }
 
+/** Absolutely when the classifier is confident, probably otherwise (only with `priority: 'speed'`) */
+const confidentLabel = (value: boolean, pYes: number): Label => {
+  const confident = pYes >= CONFIDENT_YES || pYes <= CONFIDENT_NO
+  if (value) {
+    return confident ? LABELS.ABSOLUTELY_YES : LABELS.PROBABLY_YES
+  }
+  return confident ? LABELS.ABSOLUTELY_NOT : LABELS.PROBABLY_NOT
+}
+
 const getConfidence = (label: Label) => {
   switch (label) {
     case LABELS.ABSOLUTELY_NOT:
@@ -405,6 +415,75 @@ const label = async <T extends string>(
     return convertToAnswer(exactMatch.output)
   }
 
+  // One yes/no classification per label, in parallel. The classifier cannot learn from examples: with expert
+  // examples the LLM (which reads them) decides. Labels the classifier is not confident about (or could not
+  // classify) go to the LLM.
+  const keys = Object.keys(labels) as T[]
+  const classified = {} as { [K in T]: { explanation: string; label: Label } }
+  let classifierUsage = sumUsage([])
+  let llmKeys: T[] = keys
+
+  if (
+    ctx.usesClassifier &&
+    !examples.length &&
+    keys.every((key) => fitsClassifier(inputAsString, labels[key], options.instructions))
+  ) {
+    const answers = await mapUnique(keys, (key) =>
+      classifyYesNo(ctx, {
+        input: inputAsString,
+        question: labels[key as T],
+        instructions: options.instructions,
+        model: ctx.classifier,
+        priority: ctx.priority,
+      })
+    )
+    classifierUsage = sumUsage(answers)
+
+    llmKeys = []
+    keys.forEach((key, i) => {
+      const answer = answers[i]
+      if (!answer || answer.value === null) {
+        llmKeys.push(key)
+        return
+      }
+      classified[key] = {
+        label: confidentLabel(answer.value, answer.pYes),
+        explanation: `Classifier ${answer.model}: ${percent(answer.pYes)} probability that the answer is yes.`,
+      }
+    })
+  }
+
+  const saveExample = async (
+    output: { [K in T]: { explanation: string; label: Label } },
+    meta: { cost: { input: number; output: number }; latency: number; tokens: { input: number; output: number } },
+    model: string
+  ) => {
+    if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {
+      await ctx.adapter.saveExample({
+        key: Key,
+        taskType,
+        taskId,
+        instructions: options.instructions ?? '',
+        metadata: { cost: meta.cost, latency: meta.latency, model, tokens: meta.tokens },
+        input: inputAsString,
+        output,
+      })
+    }
+  }
+
+  if (!llmKeys.length) {
+    await saveExample(
+      classified,
+      {
+        cost: { input: classifierUsage.cost, output: 0 },
+        latency: classifierUsage.latency,
+        tokens: classifierUsage.tokens,
+      },
+      classifierUsage.model
+    )
+    return convertToAnswer(classified)
+  }
+
   const allExamples = takeUntilTokens(
     examples,
     CHUNK_EXAMPLES_MAX_TOKENS,
@@ -444,7 +523,7 @@ ${END}
     ])
     .flat()
 
-  const format = Object.keys(labels)
+  const format = llmKeys
     .map((key) => {
       return `
 ■${key}:【explanation (where "explanation" is answering the question "${labels[key]}")】:x■ (where x is ${ALL_LABELS})
@@ -507,7 +586,7 @@ For example, you can say: "According to Expert Example #1, ..."`.trim(),
       const output = text ?? ''
       const mapping = {} as { [K in T]: { explanation: string; label: Label } }
       const missing: string[] = []
-      for (const key of Object.keys(labels) as T[]) {
+      for (const key of llmKeys) {
         const match = matchLabel(output, key)
         if (match) {
           mapping[key] = match
@@ -525,30 +604,21 @@ For example, you can say: "According to Expert Example #1, ..."`.trim(),
     },
   })
 
-  if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {
-    await ctx.adapter.saveExample({
-      key: Key,
-      taskType,
-      taskId,
-      instructions: options.instructions ?? '',
-      metadata: {
-        cost: {
-          input: meta.cost.input,
-          output: meta.cost.output,
-        },
-        latency: meta.latency,
-        model: ctx.modelName,
-        tokens: {
-          input: meta.tokens.input,
-          output: meta.tokens.output,
-        },
+  const merged = { ...classified, ...extracted }
+  await saveExample(
+    merged,
+    {
+      cost: { input: meta.cost.input + classifierUsage.cost, output: meta.cost.output },
+      latency: meta.latency + classifierUsage.latency,
+      tokens: {
+        input: meta.tokens.input + classifierUsage.tokens.input,
+        output: meta.tokens.output + classifierUsage.tokens.output,
       },
-      input: inputAsString,
-      output: extracted,
-    })
-  }
+    },
+    ctx.modelName
+  )
 
-  return convertToAnswer(extracted)
+  return convertToAnswer(merged)
 }
 
 Zai.prototype.label = function <T extends string>(
@@ -566,15 +636,7 @@ Zai.prototype.label = function <T extends string>(
   },
   { [K in T]: boolean }
 > {
-  const context = new ZaiContext({
-    client: this.client,
-    modelId: this.Model,
-    taskId: this.taskId,
-    taskType: 'zai.label',
-    adapter: this.adapter,
-    memoizer: this._resolveMemoizer(),
-    metadata: this.metadata,
-  })
+  const context = this._context('zai.label')
 
   return new Response<
     {
