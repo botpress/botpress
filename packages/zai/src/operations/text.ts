@@ -146,15 +146,7 @@ ${chart}
 }
 
 Zai.prototype.text = function (this: Zai, prompt: string, _options?: Options): Response<string> {
-  const context = new ZaiContext({
-    client: this.client,
-    modelId: this.Model,
-    taskId: this.taskId,
-    taskType: 'zai.text',
-    adapter: this.adapter,
-    memoizer: this._resolveMemoizer(),
-    metadata: this.metadata,
-  })
+  const context = this._context('zai.text')
 
   return new Response<string>(context, text(prompt, _options, context), (result) => result)
 }

@@ -1,6 +1,15 @@
-import { Cognitive, Model, CognitiveMetadata, CognitiveRequest, CognitiveResponse } from '@botpress/cognitive'
-import { Adapter } from './adapters/adapter'
+import {
+  Cognitive,
+  Model,
+  CognitiveMetadata,
+  CognitiveRequest,
+  CognitiveResponse,
+  ClassifyRequest,
+  ClassifyResponse,
+} from '@botpress/cognitive'
+import { Adapter, type GetExamplesProps } from './adapters/adapter'
 import { EventEmitter } from './emitter'
+import { type ClassifierOption, type Priority, DEFAULT_CLASSIFIER, DEFAULT_PRIORITY } from './operations/classifier'
 import { fastHash } from './utils'
 import type { Memoizer, ZaiMetadata } from './zai'
 
@@ -47,6 +56,11 @@ const errorMessage = (error: unknown): string => {
 type GenerateContentProps<T> = Omit<CognitiveRequest, 'model'> & {
   maxRetries?: number
   transform?: (text: string | undefined, response: CognitiveResponse) => T
+  /**
+   * Bump when `transform`'s output shape changes, so a memoizer never replays a result saved in the old shape
+   * (part of the memo key only when set, so existing keys are unchanged)
+   */
+  memoVersion?: number
 }
 
 export type ZaiContextProps = {
@@ -58,6 +72,14 @@ export type ZaiContextProps = {
   source?: CognitiveRequest['meta']
   memoizer?: Memoizer
   metadata?: ZaiMetadata
+  /** Reasoning effort applied to every LLM call of the operation (overrides the operation's own default) */
+  reasoningEffort?: CognitiveRequest['reasoningEffort']
+  /** Service tier of every LLM call of the operation (default: `fast` with priority `speed`, `standard` otherwise) */
+  serviceTier?: 'fast' | 'standard'
+  /** Cognitive classification API model(s) used by operations that support it */
+  classifier?: ClassifierOption
+  /** Speed/accuracy trade-off of operations that can use the classification API */
+  priority?: Priority
 }
 
 /**
@@ -135,6 +157,10 @@ export class ZaiContext {
   public adapter?: Adapter
   public source?: CognitiveRequest['meta']
   public metadata?: ZaiMetadata
+  public reasoningEffort?: CognitiveRequest['reasoningEffort']
+  public serviceTier: 'fast' | 'standard'
+  public classifier?: ClassifierOption
+  public priority: Priority
 
   private _eventEmitter: EventEmitter<ContextEvents>
   private _memoizer: Memoizer
@@ -152,6 +178,10 @@ export class ZaiContext {
     this.source = props.source
     this.metadata = props.metadata
     this.taskType = props.taskType
+    this.reasoningEffort = props.reasoningEffort
+    this.priority = props.priority ?? DEFAULT_PRIORITY
+    this.serviceTier = props.serviceTier ?? (this.priority === 'speed' ? 'fast' : 'standard')
+    this.classifier = props.classifier ?? DEFAULT_CLASSIFIER
     this._memoizer = props.memoizer ?? ZaiContext._noopMemoizer
     this._eventEmitter = new EventEmitter<ContextEvents>()
 
@@ -176,6 +206,9 @@ export class ZaiContext {
         if ('inputCost' in metadata.usage) {
           this._inputCost += metadata.usage.inputCost || 0
           this._outputCost += metadata.usage.outputCost || 0
+        } else if ('cost' in metadata && typeof metadata.cost === 'number') {
+          // Classification responses only report a total cost
+          this._inputCost += metadata.cost || 0
         }
       }
 
@@ -218,6 +251,9 @@ export class ZaiContext {
     text: string | undefined
     extracted: Out
   }> {
+    if (this.reasoningEffort) {
+      props = { ...props, reasoningEffort: this.reasoningEffort }
+    }
     const memoKey = `zai:memo:${this.taskType}:${this.taskId || 'default'}:${fastHash(
       JSON.stringify({
         model: this.modelId,
@@ -228,6 +264,7 @@ export class ZaiContext {
         t: props.temperature,
         rf: props.responseFormat,
         re: props.reasoningEffort,
+        ...(props.memoVersion ? { v: props.memoVersion } : {}),
       })
     )}`
 
@@ -243,7 +280,7 @@ export class ZaiContext {
     extracted: Out
   }> {
     const maxRetries = Math.max(props.maxRetries ?? 3, 0)
-    const { maxRetries: _mr, transform, ...request } = props
+    const { maxRetries: _mr, transform, memoVersion: _mv, ...request } = props
     let lastError: unknown = undefined
     const messages = [...(props.messages || [])]
 
@@ -259,6 +296,8 @@ export class ZaiContext {
         .generateText(
           {
             ...request,
+            // The tier does not change the answer, so it stays out of the memo key
+            ...(this.serviceTier === 'fast' ? { options: { serviceTier: 'fast' as const, ...request.options } } : {}),
             messages,
             model: this.modelId,
             meta: {
@@ -308,6 +347,61 @@ export class ZaiContext {
     }
 
     throw lastError ?? new Error('Failed to generate a valid response')
+  }
+
+  /** Calls the Cognitive classification API, memoized like generateContent and bound to the operation's abort signal */
+  public async classify(request: Omit<ClassifyRequest, 'meta'>): Promise<ClassifyResponse> {
+    const memoKey = `zai:memo:${this.taskType}:${this.taskId || 'default'}:classify:${fastHash(JSON.stringify(request))}`
+    return this._memoizer.run(memoKey, async () => {
+      this.controller.signal.throwIfAborted()
+      const response = await this._client
+        .classify(
+          {
+            ...request,
+            meta: {
+              integrationName: 'zai',
+              promptCategory: `zai:${this.taskType}`,
+              promptSource: `zai:${this.taskType}:${this.taskId ?? 'default'}`,
+              metadata: this.metadata,
+            },
+          },
+          { signal: this.controller.signal }
+        )
+        .catch((error: unknown) => {
+          this.controller.signal.throwIfAborted()
+          throw error
+        })
+      this.controller.signal.throwIfAborted()
+      return response
+    })
+  }
+
+  private _examples = new Map<string, Promise<unknown>>()
+
+  /**
+   * adapter.getExamples, deduplicated within the operation: the classifier's "are there learned examples?" probe
+   * and the LLM path's lookup for the same input share one Tables query.
+   */
+  public getExamples<TInput, TOutput>(props: GetExamplesProps<TInput>) {
+    if (!this.adapter) {
+      throw new Error('No adapter configured')
+    }
+    const key = JSON.stringify([props.taskType, props.taskId, props.input])
+    let pending = this._examples.get(key)
+    if (pending === undefined) {
+      // A failed lookup is not cached, so a later caller can retry it
+      pending = this.adapter.getExamples<TInput, TOutput>(props).catch((error: unknown) => {
+        this._examples.delete(key)
+        throw error
+      })
+      this._examples.set(key, pending)
+    }
+    return pending as ReturnType<typeof this.adapter.getExamples<TInput, TOutput>>
+  }
+
+  /** Whether the operation may use the classification API (any priority but `accuracy`) */
+  public get usesClassifier(): boolean {
+    return this.priority !== 'accuracy'
   }
 
   public get elapsedTime(): number {

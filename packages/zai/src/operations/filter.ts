@@ -8,6 +8,7 @@ import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
 import { fastHash, stringify, takeUntilTokens, abortSiblingsOnFailure } from '../utils'
 import { Zai } from '../zai'
+import { classifyYesNo, fitsClassifier, hasLearnedExamples, mapUnique, sumUsage } from './classifier'
 import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
 
 type Example = {
@@ -217,15 +218,66 @@ const filter = async <T>(
   condition = tokenizer.truncate(condition, TOKENS_CONDITION_MAX)
   options.tokensPerItem = Math.min(options.tokensPerItem, TOKENS_INPUT_ARRAY_MAX)
 
+  const texts = input.map((element) => tokenizer.truncate(stringify(element, false), options.tokensPerItem))
+
+  // The classification API decides each distinct item (yes/no on the condition). Items it is not confident
+  // about (or cannot classify) go to the LLM. Examples can only be read by the LLM.
+  const decided: Array<boolean | null> = input.map(() => null)
+  if (
+    ctx.usesClassifier &&
+    !options.examples?.length &&
+    fitsClassifier('x', condition) &&
+    !(await hasLearnedExamples(ctx, taskType, input))
+  ) {
+    const candidates = texts.flatMap((text, i) => (fitsClassifier(text, condition) ? [i] : []))
+    const answers = await mapUnique(
+      candidates.map((i) => texts[i]!),
+      (text) =>
+        classifyYesNo(ctx, {
+          input: text,
+          question: `Does this item satisfy the condition: ${condition}`,
+          model: ctx.classifier,
+          priority: ctx.priority,
+        })
+    )
+    candidates.forEach((i, n) => {
+      decided[i] = answers[n]?.value ?? null
+    })
+
+    // Save the classifier's decisions like an LLM chunk (input: the items, output: the kept ones) so they can be
+    // reviewed and approved
+    const decidedItems = input.filter((_, i) => decided[i] !== null)
+    if (decidedItems.length && taskId && ctx.adapter && !ctx.controller.signal.aborted) {
+      const usage = sumUsage(answers)
+      await ctx.adapter.saveExample({
+        key: fastHash(stringify({ taskId, taskType, input: JSON.stringify(decidedItems), condition })),
+        taskType,
+        taskId,
+        input: JSON.stringify(decidedItems),
+        output: input.filter((_, i) => decided[i] === true),
+        instructions: condition,
+        metadata: {
+          cost: { input: usage.cost, output: 0 },
+          latency: usage.latency,
+          model: usage.model,
+          tokens: usage.tokens,
+        },
+      })
+    }
+  }
+
   // Each chunk keeps the original elements (returned to the caller) alongside their truncated
   // string form (what the model sees), so `tokensPerItem` actually bounds the prompt size.
-  type ChunkItem = { element: T; text: string }
+  type ChunkItem = { element: T; text: string; index: number }
   let chunks: Array<ChunkItem[]> = []
   let currentChunk: ChunkItem[] = []
   let currentChunkTokens = 0
 
-  for (const element of input) {
-    const elementAsString = tokenizer.truncate(stringify(element, false), options.tokensPerItem)
+  for (const [index, element] of input.entries()) {
+    if (decided[index] !== null) {
+      continue
+    }
+    const elementAsString = texts[index]!
     const elementTokens = tokenizer.count(elementAsString)
 
     if (currentChunkTokens + elementTokens > TOKENS_INPUT_ARRAY_MAX || currentChunk.length >= MAX_ITEMS_PER_CHUNK) {
@@ -234,7 +286,7 @@ const filter = async <T>(
       currentChunkTokens = 0
     }
 
-    currentChunk.push({ element, text: elementAsString })
+    currentChunk.push({ element, text: elementAsString, index })
     currentChunkTokens += elementTokens
   }
 
@@ -303,12 +355,12 @@ ${examples.map((x, idx) => `■${idx}:${!!x.filter ? 'true' : 'false'}:${x.reaso
     },
   ]
 
-  const filterChunk = async (chunkItems: ChunkItem[]): Promise<Array<T>> => {
+  const filterChunk = async (chunkItems: ChunkItem[]): Promise<void> => {
     ctx.controller.signal.throwIfAborted()
     const chunk = chunkItems.map((x) => x.element)
     const examples =
       taskId && ctx.adapter
-        ? await ctx.adapter
+        ? await ctx
             .getExamples<string, unknown>({
               // The Table API can't search for a huge input string
               input: JSON.stringify(chunk).slice(0, 1000),
@@ -335,7 +387,7 @@ ${examples.map((x, idx) => `■${idx}:${!!x.filter ? 'true' : 'false'}:${x.reaso
       },
     ]
 
-    const { extracted: partial, meta } = await ctx.generateContent({
+    const { extracted: decisions, meta } = await ctx.generateContent({
       systemPrompt: `
 You are given a list of items. Your task is to filter out the items that meet the condition below.
 You need to return the full list of items with the format:
@@ -358,11 +410,15 @@ The condition is: "${condition}"
           role: 'user',
         },
       ],
-      transform: (text) => {
-        const decisions = parseFilterDecisions(text ?? '', chunk.length)
-        return chunk.filter((_, idx) => decisions[idx] === true)
-      },
+      transform: (text) => parseFilterDecisions(text ?? '', chunk.length),
+      // v2: the result is the list of decisions (it was the list of kept items)
+      memoVersion: 2,
     })
+
+    chunkItems.forEach((item, idx) => {
+      decided[item.index] = decisions[idx] === true
+    })
+    const partial = chunk.filter((_, idx) => decisions[idx] === true)
 
     if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {
       const key = fastHash(
@@ -395,16 +451,12 @@ The condition is: "${condition}"
         },
       })
     }
-
-    return partial
   }
 
   const limit = pLimit(10) // Limit to 10 concurrent filtering operations
-  const filteredChunks = await Promise.all(
-    chunks.map((chunk) => limit(() => filterChunk(chunk)).catch(abortSiblingsOnFailure(ctx)))
-  )
+  await Promise.all(chunks.map((chunk) => limit(() => filterChunk(chunk)).catch(abortSiblingsOnFailure(ctx))))
 
-  return filteredChunks.flat()
+  return input.filter((_, i) => decided[i] === true)
 }
 
 Zai.prototype.filter = function <T>(
@@ -413,15 +465,7 @@ Zai.prototype.filter = function <T>(
   condition: string,
   _options?: Options
 ): Response<Array<T>> {
-  const context = new ZaiContext({
-    client: this.client,
-    modelId: this.Model,
-    taskId: this.taskId,
-    taskType: 'zai.filter',
-    adapter: this.adapter,
-    memoizer: this._resolveMemoizer(),
-    metadata: this.metadata,
-  })
+  const context = this._context('zai.filter')
 
   return new Response<Array<T>>(context, filter(input, condition, _options, context), (result) => result)
 }

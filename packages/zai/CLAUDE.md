@@ -325,6 +325,43 @@ Simplified to `Record<LabelKey, boolean>`
 - Formats Zod validation errors in human-readable way
 - Shows JSON excerpt and specific validation issues
 
+## Classification API (Jev) and `priority`
+
+`check`, `label`, `classify`, `filter` and `rate` can answer with the Cognitive classification API
+(`cognitive.classify`, POST /v2/cognitive/classify), a calibrated classifier (Jev) that answers in ~100-300ms for
+a small fraction of an LLM call's cost. Shared code: `src/operations/classifier.ts`.
+
+- `check` / `filter`: one yes/no classification per input / distinct item
+- `label`: one yes/no classification per label (in parallel)
+- `classify` (src/operations/classify.ts): one classification per input / distinct array item over the given labels (exactly one label; 2-50 labels for the classifier, more go to the LLM). LLM fallback is batched (up to 50 items per prompt, `■0:label■1:label`)
+- `rate`: one 5-level classification (very_bad..very_good, descriptions from the LLM-generated criteria) per item and criterion
+- `sort` does not use the classifier: it needs comparisons (dates, numbers, lengths) that a classifier placing
+  each item in a bucket alone cannot make (it failed the e2e date and length sorts)
+
+`priority` (Zai config, default `speed`):
+
+- `speed`: the classifier answers alone (yes when p(yes) >= 0.6; most likely level otherwise)
+- `moderate`: the classifier answers only when confident (p(yes) >= 0.95 or <= 0.05; top level >= 0.95). The rest
+  (labels, items) goes to the LLM prompt, which only sees the uncertain part
+- `accuracy`: LLM only (written explanations)
+
+In every mode the LLM answers when the classifier fails or is unavailable (classify errors return null, an abort
+is rethrown), when examples are given or approved learned examples exist (the classifier cannot learn from them),
+and for inputs over the server limits (100k characters for input and instructions, 500-character label
+descriptions, 2-50 labels). `classifier` (Zai config) optionally pins the model chain (an array is the whole
+chain server-side). By default no model is sent and the backend picks its chain (Jev, then OpenAI Decisions, then
+logprobs scoring, then generation). Only scored answers can be confident: an unscored answer (the server's
+generation fallback) goes to zai's own LLM prompt unless `priority` is `speed`. Identical items
+are classified once; up to 16 classification calls run at a time per operation. Classify responses report a
+total `metadata.cost`, accounted as input cost in `Usage`.
+
+`serviceTier` (Zai config, `fast` | `standard`): `fast` sends `options.serviceTier: 'fast'` on every LLM call (OpenAI
+low-latency tier, ~25-30% faster, ~2-3x the price; other providers ignore it). Unset, it is `fast` with priority
+`speed` and `standard` otherwise. The e2e cache key ignores `options.serviceTier` (e2e/mocks/handlers.ts).
+
+`reasoningEffort` (Zai config) is sent on every LLM call when set, overriding operation defaults; when omitted,
+each model uses its default (`answer` and `callModel` send `none`).
+
 ## Token Budget Management
 
 All operations carefully manage token budgets to stay within model limits:
@@ -505,7 +542,7 @@ Test files located in `e2e/` directory:
 - **TypeScript**: Compiled with tsup (types) and custom esbuild script (build.ts)
 - **Type Generation**: `tsup` generates .d.ts files
 - **Neutral Build**: `ts-node -T ./build.ts` for platform-neutral JS
-- **Size Limit**: Max 62 kB (enforced by size-limit)
+- **Size Limit**: Max 60 kB (enforced by size-limit; dist is minified: whitespace and syntax only, identifiers kept)
 - **Peer Dependencies**: @bpinternal/thicktoken, @bpinternal/zui
 
 ## Extension Points

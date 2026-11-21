@@ -239,6 +239,19 @@ describe('answer robustness', { timeout: 30_000 }, () => {
     expect(result.citations.map((c) => c.item)).toEqual(['Fact number 12.'])
   })
 
+  it('removes citation markers from the ambiguity and follow-up of an ambiguous answer', async () => {
+    const { zai } = makeZai(
+      () =>
+        '■ambiguous\n"Fact" can mean fact 1■001 or fact 2■002.\n■follow_up\nWhich fact■001-002?\n■answer\nThe first.■001\n■answer\nThe second.■002\n■end■'
+    )
+    const result = await zai.answer(lines, 'Which fact?')
+    expect(result.type).toBe('ambiguous')
+    if (result.type !== 'ambiguous') return
+    expect(result.ambiguity).toBe('"Fact" can mean fact 1 or fact 2.')
+    expect(result.follow_up).toBe('Which fact?')
+    expect(result.answers.map((a) => a.answer)).toEqual(['The first.', 'The second.'])
+  })
+
   it('drops what the model writes after ■end■', async () => {
     const { zai } = makeZai(() => '■answer\nFirst.■001\n■end■ trailing junk ■003')
     const result = await zai.answer(lines, 'q?')

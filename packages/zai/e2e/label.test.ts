@@ -49,7 +49,8 @@ describe('zai.label', { timeout: 60_000 }, () => {
       is_french: 'is the person french?',
     }
 
-    const initial = await zai.label(`Sylvain Perron has no criminal record.`, labels)
+    // 'moderate': the classifier alone (default 'speed') answers no to is_human, which the text only implies
+    const initial = await zai.with({ priority: 'moderate' }).label(`Sylvain Perron has no criminal record.`, labels)
 
     expect(initial.canadian).toBe(false)
     expect(initial.is_french).toBe(false)
@@ -166,13 +167,16 @@ describe.sequential('zai.learn.label', { timeout: 60_000 }, () => {
       tableName,
     })
 
-    const value = await zai.learn(taskId).label(`Sylvain Perron has no criminal record.`, {
-      is_human: 'is the person a human?',
-      good_person: 'is the person a good person?',
-      bad_person: 'is the person a bad person?',
-      canadian: 'is the person canadian?',
-      is_french: 'is the person french?',
-    })
+    const value = await zai
+      .with({ priority: 'moderate' })
+      .learn(taskId)
+      .label(`Sylvain Perron has no criminal record.`, {
+        is_human: 'is the person a human?',
+        good_person: 'is the person a good person?',
+        bad_person: 'is the person a bad person?',
+        canadian: 'is the person canadian?',
+        is_french: 'is the person french?',
+      })
 
     expect(value.is_human).toBe(true)
     expect(value.is_french).toBe(false)
@@ -226,13 +230,16 @@ describe.sequential('zai.learn.label', { timeout: 60_000 }, () => {
     rows = await client.findTableRows({ table: tableName })
     expect(rows.rows.length).toBe(3)
 
-    const second = await zai.learn(taskId).label(`Sylvain Perron has no criminal record.`, {
-      is_human: 'is the person a human?',
-      good_person: 'is the person a good person?',
-      bad_person: 'is the person a bad person?',
-      canadian: 'is the person canadian?',
-      is_french: 'is the person french?',
-    })
+    const second = await zai
+      .with({ priority: 'moderate' })
+      .learn(taskId)
+      .label(`Sylvain Perron has no criminal record.`, {
+        is_human: 'is the person a human?',
+        good_person: 'is the person a good person?',
+        bad_person: 'is the person a bad person?',
+        canadian: 'is the person canadian?',
+        is_french: 'is the person french?',
+      })
 
     expect(second.is_human).toBe(true)
     expect(second.is_french).toBe(true)

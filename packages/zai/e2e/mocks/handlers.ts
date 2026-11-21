@@ -40,10 +40,19 @@ const cache = loadCache()
  * Older clients serialized junk keys into the request body (an AbortSignal
  * under `signal` that stringified to `{}`). Strip them so cache entries
  * recorded by old clients keep matching requests from new ones.
+ * `options.serviceTier` only changes the latency tier, not the answer, so it is not part of the key either.
  */
 function normalizeBody(body: any): any {
   if (body && typeof body === 'object' && !Array.isArray(body)) {
     const { signal: _signal, ...rest } = body
+    if (rest.options && typeof rest.options === 'object' && 'serviceTier' in rest.options) {
+      const { serviceTier: _tier, ...options } = rest.options
+      if (Object.keys(options).length) {
+        rest.options = options
+      } else {
+        delete rest.options
+      }
+    }
     return rest
   }
   return body
@@ -111,7 +120,16 @@ export const handlers = [
     // Not in cache - fetch from real API
     try {
       // Use bypass to avoid infinite recursion
-      const response = await fetch(bypass(request))
+      let forwarded = request
+      if (process.env.ZAI_E2E_SKIP_SERVER_CACHE && body && url.includes('/v2/cognitive/')) {
+        // Re-recording a bad answer: identical requests are cached server-side too, so ask for a fresh generation.
+        // The local cache key is still computed from the original body.
+        const parsed = JSON.parse(body)
+        forwarded = new Request(request, {
+          body: JSON.stringify({ ...parsed, options: { ...parsed.options, skipCache: true } }),
+        })
+      }
+      const response = await fetch(bypass(forwarded))
 
       const responseData = await response.json()
 

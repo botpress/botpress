@@ -758,11 +758,16 @@ const parseAnswerResponse = <T>(text: string, mappings: LineMapping<T>[]): Answe
 const parseAmbiguousResponse = <T>(text: string, mappings: LineMapping<T>[]): AmbiguousResponse<T> => {
   // Extract ambiguity explanation
   const ambiguityMatch = text.match(new RegExp(`${AMBIGUOUS_START}(.+?)■follow_up`, 's'))
-  const ambiguity = ambiguityMatch ? ambiguityMatch[1].trim() : 'The question has multiple interpretations.'
+  // These fields are plain text: citation markers the model put in them are removed (only answers carry citations)
+  const ambiguity = ambiguityMatch
+    ? parseCitations(ambiguityMatch[1].trim(), mappings).cleanAnswer
+    : 'The question has multiple interpretations.'
 
   // Extract follow-up question
   const followUpMatch = text.match(/■follow_up(.+?)(?=■answer|$)/s)
-  const follow_up = followUpMatch ? followUpMatch[1].trim() : 'Please clarify your question.'
+  const follow_up = followUpMatch
+    ? parseCitations(followUpMatch[1].trim(), mappings).cleanAnswer
+    : 'Please clarify your question.'
 
   // Extract all possible answers (match until next ■answer or end of string)
   const answerPattern = /■answer(.+?)(?=■answer|$)/gs
@@ -914,15 +919,7 @@ Zai.prototype.answer = function <T>(
 ): Response<AnswerResult<T>, AnswerResult<T>> {
   const parse = _Options.safeParse(_options ?? {})
 
-  const context = new ZaiContext({
-    client: this.client,
-    modelId: this.Model,
-    taskId: this.taskId,
-    taskType: 'zai.answer',
-    adapter: this.adapter,
-    memoizer: this._resolveMemoizer(),
-    metadata: this.metadata,
-  })
+  const context = this._context('zai.answer')
 
   if (!parse.success) {
     return Response.reject<AnswerResult<T>>(context, new Error(`Invalid options: ${parse.error.message}`))

@@ -317,15 +317,7 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
 }
 
 Zai.prototype.rewrite = function (this: Zai, original: string, prompt: string, _options?: Options): Response<string> {
-  const context = new ZaiContext({
-    client: this.client,
-    modelId: this.Model,
-    taskId: this.taskId,
-    taskType: 'zai.rewrite',
-    adapter: this.adapter,
-    memoizer: this._resolveMemoizer(),
-    metadata: this.metadata,
-  })
+  const context = this._context('zai.rewrite')
 
   return new Response<string>(context, rewrite(original, prompt, _options, context), (result) => result)
 }

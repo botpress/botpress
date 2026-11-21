@@ -927,15 +927,7 @@ Zai.prototype.patch = function (
   instructions: string,
   _options?: Options
 ): Response<Array<File>> {
-  const context = new ZaiContext({
-    client: this.client,
-    modelId: this.Model,
-    taskId: this.taskId,
-    taskType: 'zai.patch',
-    adapter: this.adapter,
-    memoizer: this._resolveMemoizer(),
-    metadata: this.metadata,
-  })
+  const context = this._context('zai.patch')
 
   return new Response<Array<File>>(context, patch(files, instructions, _options, context), (result) => result)
 }

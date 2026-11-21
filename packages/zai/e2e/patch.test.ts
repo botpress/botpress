@@ -80,7 +80,7 @@ describe('zai.patch', { timeout: 60_000 }, () => {
 
     expect(result.output[0].content).toMatchInlineSnapshot(`
       "/**
-       * Greets the provided name.
+       * Greets the specified person by logging a hello message.
        */
       function greet(name: string) {
         console.log('Hello, ' + name)
@@ -89,10 +89,9 @@ describe('zai.patch', { timeout: 60_000 }, () => {
       greet('World')"
     `)
     expect(result.output[0].patch).toMatchInlineSnapshot(`
-      "◼︎=1|/**
-       * Greets the provided name.
-       */
-      function greet(name: string) {"
+      "◼︎<1|/**
+       * Greets the specified person by logging a hello message.
+       */"
     `)
   })
 
@@ -109,7 +108,7 @@ describe('zai.patch', { timeout: 60_000 }, () => {
       }
       "
     `)
-    expect(result.output[0].patch).toMatchInlineSnapshot(`"◼︎-005"`)
+    expect(result.output[0].patch).toMatchInlineSnapshot(`"◼︎-5"`)
   })
 
   it('patches multiple files with a single instruction', async () => {
@@ -147,7 +146,7 @@ describe('zai.patch', { timeout: 60_000 }, () => {
         "enabled": true
       }"
     `)
-    expect(result.output[0].patch).toMatchInlineSnapshot(`"◼︎>003|  "description": "A test application","`)
+    expect(result.output[0].patch).toMatchInlineSnapshot(`"◼︎>3|  "description": "A test application","`)
   })
 
   it('handles complex multi-line changes', async () => {
@@ -168,15 +167,15 @@ describe('zai.patch', { timeout: 60_000 }, () => {
     expect(hasDefaultParam).toBe(true)
 
     expect(result.output[0].content).toMatchInlineSnapshot(`
-      "function greet(name: string, greeting: string = "Hello") {
+      "function greet(name: string, greeting = 'Hello') {
         console.log(greeting + ', ' + name)
       }
 
       greet('World')"
     `)
     expect(result.output[0].patch).toMatchInlineSnapshot(`
-      "◼︎=001|function greet(name: string, greeting: string = "Hello") {
-      ◼︎=002|  console.log(greeting + ', ' + name)"
+      "◼︎=1|function greet(name: string, greeting = 'Hello') {
+      ◼︎=2|  console.log(greeting + ', ' + name)"
     `)
   })
 
@@ -210,8 +209,8 @@ describe('zai.patch', { timeout: 60_000 }, () => {
     expect(result.output.find((f) => f.name === 'Button.tsx')).toBeDefined()
     expect(result.output.find((f) => f.name === 'helper.ts')).toBeDefined()
 
-    expect(result.output.find((f) => f.name === 'Button.tsx')?.patch).toMatchInlineSnapshot(`"◼︎<001|//"`)
-    expect(result.output.find((f) => f.name === 'helper.ts')?.patch).toMatchInlineSnapshot(`"◼︎<001|//"`)
+    expect(result.output.find((f) => f.name === 'Button.tsx')?.patch).toMatchInlineSnapshot(`"◼︎<1|// Button component"`)
+    expect(result.output.find((f) => f.name === 'helper.ts')?.patch).toMatchInlineSnapshot(`"◼︎<1|// Helper utilities"`)
   })
 
   it('handles file with special characters in content', async () => {
@@ -229,11 +228,11 @@ describe('zai.patch', { timeout: 60_000 }, () => {
 
     expect(result.output[0].content).toMatchInlineSnapshot(`
       "# Title
+      ## Installation
 
-      Content with \`code\` and **bold** and [links](url)
-      ## Installation"
+      Content with \`code\` and **bold** and [links](url)"
     `)
-    expect(result.output[0].patch).toMatchInlineSnapshot(`"◼︎>3|## Installation"`)
+    expect(result.output[0].patch).toMatchInlineSnapshot(`"◼︎<2|## Installation"`)
   })
 
   it('patches a markdown table by adding a row', async () => {
@@ -467,8 +466,9 @@ export function UserComponent({ userId }: { userId: number }) {
       }"
     `)
     expect(patchedApi?.patch).toMatchInlineSnapshot(`
-      "◼︎>003|  email: string
-      ◼︎=007|  return { id, name: 'Unknown', email: 'unknown@example.com' }"
+      "◼︎=3|  name: string
+      ◼︎>3|  email: string
+      ◼︎=7|  return { id, name: 'Unknown', email: 'unknown@example.com' }"
     `)
     expect(patchedComponent?.content).toMatchInlineSnapshot(`
       "import { getUser } from './api'
@@ -478,7 +478,7 @@ export function UserComponent({ userId }: { userId: number }) {
         return <div>{user.name} ({user.email})</div>
       }"
     `)
-    expect(patchedComponent?.patch).toMatchInlineSnapshot(`"◼︎=005|  return <div>{user.name} ({user.email})</div>"`)
+    expect(patchedComponent?.patch).toMatchInlineSnapshot(`"◼︎=5|  return <div>{user.name} ({user.email})</div>"`)
   })
 
   it('refactors two files in a related way (rename function and update usage)', async () => {
@@ -520,7 +520,7 @@ console.log(total)`,
         return items.reduce((sum, item) => sum + item, 0)
       }"
     `)
-    expect(patchedUtils?.patch).toMatchInlineSnapshot(`"◼︎=001|export function computeSum(items: number[]): number {"`)
+    expect(patchedUtils?.patch).toMatchInlineSnapshot(`"◼︎=1|export function computeSum(items: number[]): number {"`)
     expect(patchedApp?.content).toMatchInlineSnapshot(`
       "import { computeSum } from './utils'
 
@@ -529,8 +529,8 @@ console.log(total)`,
       console.log(total)"
     `)
     expect(patchedApp?.patch).toMatchInlineSnapshot(`
-      "◼︎=001|import { computeSum } from './utils'
-      ◼︎=004|const total = computeSum(prices)"
+      "◼︎=1|import { computeSum } from './utils'
+      ◼︎=4|const total = computeSum(prices)"
     `)
   })
 
@@ -608,42 +608,42 @@ export const TIMEOUT = 5000`,
 
     expect(patchedApi1?.content).toMatchInlineSnapshot(`
       "export async function fetchUser(id: number) {
-      try {
-        const response = await fetch('/api/user/' + id)
-        return response.json()
-      } catch (error) {
-        console.error('Error fetching user:', error)
-        throw error
-      }
+        try {
+          const response = await fetch('/api/user/' + id)
+          return response.json()
+        } catch (error) {
+          throw error
+        }
       }"
     `)
     expect(patchedApi1?.patch).toMatchInlineSnapshot(`
-      "◼︎=2-3|try {
-        const response = await fetch('/api/user/' + id)
-        return response.json()
-      } catch (error) {
-        console.error('Error fetching user:', error)
-        throw error
+      "◼︎=1-4|export async function fetchUser(id: number) {
+        try {
+          const response = await fetch('/api/user/' + id)
+          return response.json()
+        } catch (error) {
+          throw error
+        }
       }"
     `)
     expect(patchedApi2?.content).toMatchInlineSnapshot(`
       "export async function saveData(data: any) {
-      try {
-        const response = await fetch('/api/save', { method: 'POST', body: JSON.stringify(data) })
-        return response.json()
-      } catch (error) {
-        console.error('Error saving data:', error)
-        throw error
-      }
+        try {
+          const response = await fetch('/api/save', { method: 'POST', body: JSON.stringify(data) })
+          return response.json()
+        } catch (error) {
+          throw error
+        }
       }"
     `)
     expect(patchedApi2?.patch).toMatchInlineSnapshot(`
-      "◼︎=2-3|try {
-        const response = await fetch('/api/save', { method: 'POST', body: JSON.stringify(data) })
-        return response.json()
-      } catch (error) {
-        console.error('Error saving data:', error)
-        throw error
+      "◼︎=1-4|export async function saveData(data: any) {
+        try {
+          const response = await fetch('/api/save', { method: 'POST', body: JSON.stringify(data) })
+          return response.json()
+        } catch (error) {
+          throw error
+        }
       }"
     `)
   })
@@ -1502,9 +1502,8 @@ export const TIMEOUT = 5000`,
       const data193 = 'some data 193'"
     `)
     expect(patched.patch).toMatchInlineSnapshot(`
-      "◼︎=2-4|function transformText(item: string, options: { uppercase: boolean } = { uppercase: false }): string {
-        return options.uppercase ? item.toUpperCase() : item
-      }
+      "◼︎=2|function transformText(item: string, options: { uppercase: boolean } = { uppercase: false }): string {
+      ◼︎=3|  return options.uppercase ? item.toUpperCase() : item
       ◼︎=7|const result0 = transformText('value0', { uppercase: false })
       ◼︎=27|const result20 = transformText('value20', { uppercase: false })
       ◼︎=37|console.log(transformText('test30', { uppercase: false }))
@@ -1692,8 +1691,8 @@ describe.sequential('zai.learn.patch', { timeout: 60_000 }, () => {
     expect(second.output[0].content).toContain('react')
 
     expect(second.output[0].patch).toMatchInlineSnapshot(`
-      "◼︎<1|import React from 'react';
-      ◼︎=1|export const Component: React.FC = () => <div>Test</div>"
+      "◼︎<1|import type { FC } from 'react'
+      ◼︎=1|export const Component: FC = () => <div>Test</div>"
     `)
   })
 })

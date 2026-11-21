@@ -5,7 +5,8 @@ import type { AnswerResult } from '../src/operations/answer'
 import { parseResponse } from '../src/operations/answer'
 
 describe('zai.answer', { timeout: 60_000 }, () => {
-  const zai = getZai()
+  // GPT 6.1: `best` (Opus 5.5) is unreliable at following the citation format at the moment
+  const zai = getZai().with({ modelId: 'openai:gpt-6.1-sol' })
 
   describe('basic answer generation', () => {
     it('should answer a simple question with citations (string documents)', async () => {
@@ -22,7 +23,10 @@ describe('zai.answer', { timeout: 60_000 }, () => {
         expect(result.answer).toContain('2016')
         expect(result.citations.length).toBeGreaterThan(0)
         expect(result.citations[0].item).toBe(documents[1])
-        expect(result.citations[0].snippet).toMatchInlineSnapshot(`"It was founded in 2016."`)
+        expect(result.citations[0].snippet).toMatchInlineSnapshot(`
+          "Botpress is an AI agent platform.
+          It was founded in 2016."
+        `)
       }
     })
 
@@ -1745,6 +1749,7 @@ describe('zai.learn.answer', { timeout: 60_000, sequential: true }, () => {
 
   beforeEach(async () => {
     zai = getZai().with({
+      modelId: 'openai:gpt-6.1-sol',
       activeLearning: {
         enable: true,
         taskId,

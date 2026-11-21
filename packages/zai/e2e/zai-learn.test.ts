@@ -42,7 +42,7 @@ describe.sequential('zai.learn / generic', { timeout: 60_000 }, () => {
     expect(value).toBe(true)
     expect(rows.length).toBe(1)
 
-    check(rows[0].explanation, 'is an explanation sentence')
+    check(rows[0].explanation, 'is an explanation sentence').toBe(true)
     expect(rows[0].explanation).not.toContain('Final Answer:')
     expect(rows[0].output).toMatchObject({ value: true })
     expect(rows[0].input).toMatchInlineSnapshot(`

@@ -85,10 +85,10 @@ describe('zai.check', { timeout: 60_000 }, () => {
     mocked.clone = vi.fn().mockReturnValue(mocked)
     mocked.generateText = mock
 
-    const isEnglish = await getZai(mocked).check(
-      'This text is very clearly written in English',
-      'is an english sentence'
-    )
+    // LLM only: this test is about retrying a bad LLM output
+    const isEnglish = await getZai(mocked)
+      .with({ priority: 'accuracy' })
+      .check('This text is very clearly written in English', 'is an english sentence')
 
     expect(isEnglish).toBe(true)
     expect(mock).toHaveBeenCalledTimes(2)

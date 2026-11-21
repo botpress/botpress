@@ -754,15 +754,7 @@ Zai.prototype.extract = function <S extends OfType<AnyObjectOrArray>>(
   schema: S,
   _options?: Options
 ): Response<S['_output']> {
-  const context = new ZaiContext({
-    client: this.client,
-    modelId: this.Model,
-    taskId: this.taskId,
-    taskType: 'zai.extract',
-    adapter: this.adapter,
-    memoizer: this._resolveMemoizer(),
-    metadata: this.metadata,
-  })
+  const context = this._context('zai.extract')
 
   return new Response<S['_output']>(
     context,
