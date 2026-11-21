@@ -30,6 +30,41 @@ describe('response envelopes', () => {
   })
 
   it.each([
+    'Let me check that.■start\n■send=message\nHello!\n■next=listen\n■end',
+    'We need follow protocol only. ■start \n■send=message\nHello!\n■next=listen\n■end',
+    'thinking\nLet me check that.■start\n■send=message\nHello!\n■next=listen\n■end',
+  ])('opens the envelope at a start marker that ends a line of discarded text: %s', (raw) => {
+    for (const chunks of [
+      [...raw],
+      ...Array.from({ length: raw.length + 1 }, (_, i) => [raw.slice(0, i), raw.slice(i)]),
+    ]) {
+      const parser = new ResponseParser()
+      const events = chunks.flatMap((chunk) => parser.push(chunk))
+      events.push(...parser.finish())
+      expect(parser.valid).toBe(true)
+      expect(parser.items.map((item) => item.kind)).toEqual(['send', 'next'])
+      expect(
+        events
+          .filter((e) => e.type === 'body-delta')
+          .map((e) => e.delta)
+          .join('')
+      ).toBe('Hello!')
+      expect(parser.diagnostics).toEqual([{ code: 'unexpected-text', message: 'Discarded text before ■start' }])
+    }
+  })
+
+  it.each(['Let me check that.', 'I will write ■start and then ■send=message\nHello!\n■next=listen\n■end'])(
+    'still rejects a response whose start marker never ends a line: %s',
+    (raw) => {
+      const parser = new ResponseParser()
+      for (const char of raw) parser.push(char)
+      parser.finish()
+      expect(parser.valid).toBe(false)
+      expect(parser.items).toEqual([])
+    }
+  )
+
+  it.each([
     '■start',
     '■start\n■run\nawait charge()',
     '■start\n■run\nawait charge()\n■en',

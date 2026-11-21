@@ -17,6 +17,7 @@ export class ResponseParser {
   private _parser = new StreamingMessageParser()
   private _mode: 'detect' | 'framed' = 'detect'
   private _discardPrefixLine = false
+  private _discardedLine = ''
   private _prefixDiagnostics: Diagnostic[] = []
   private _prefix = ''
   private _boundary = ''
@@ -75,7 +76,7 @@ export class ResponseParser {
       if (this._mode === 'detect') {
         this._preambleLength++
         if (this._discardPrefixLine) {
-          if (char === '\n') this._discardPrefixLine = false
+          this._discardPrefixChar(char)
           continue
         }
         if (!this._prefix && /\s/.test(char)) continue
@@ -92,13 +93,14 @@ export class ResponseParser {
           !/^■start[ \t\r]*$/.test(this._prefix) &&
           !/^"{1,3}[ \t\r]*$/.test(this._prefix)
         ) {
-          // Ignore everything before a standalone start marker, including apparent
+          // Ignore everything before a start marker that ends a line, including apparent
           // send/run blocks in a thinking preamble. Never feed it to the block parser.
           if (!this._prefixDiagnostics.length) {
             const diagnostic: Diagnostic = { code: 'unexpected-text', message: 'Discarded text before ■start' }
             this._prefixDiagnostics.push(diagnostic)
             events.push({ type: 'diagnostic', diagnostic })
           }
+          this._discardedLine = char !== '\n' ? this._prefix : ''
           this._prefix = ''
           this._discardPrefixLine = char !== '\n'
         }
@@ -123,6 +125,17 @@ export class ResponseParser {
     }
     flush()
     return events
+  }
+
+  /** A discarded line ends at its newline; one that ends with the start marker opens the envelope. */
+  private _discardPrefixChar(char: string): void {
+    if (char !== '\n') {
+      this._discardedLine += char
+      return
+    }
+    this._discardPrefixLine = false
+    if (this._discardedLine.trimEnd().endsWith('■start')) this._mode = 'framed'
+    this._discardedLine = ''
   }
 
   public finish(stopReason?: StopReason): MessageStreamEvent[] {
