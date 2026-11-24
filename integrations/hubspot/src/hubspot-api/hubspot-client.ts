@@ -958,9 +958,10 @@ export class HubspotClient {
   private async _validateProperties({ properties, type }: { properties: string[]; type: CrmObjectType }) {
     const unknownProperties: string[] = []
     for (const property of properties) {
-      await this._crmObjectPropertiesCaches[type].getProperty({ nameOrLabel: property }).catch(() => {
+      const knownProperty = await this._crmObjectPropertiesCaches[type].findProperty({ nameOrLabel: property })
+      if (!knownProperty) {
         unknownProperties.push(property)
-      })
+      }
     }
     if (unknownProperties.length) {
       throw new sdk.RuntimeError(`Unknown properties: ${unknownProperties.join(', ')}`)

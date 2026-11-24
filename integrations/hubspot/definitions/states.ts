@@ -87,7 +87,6 @@ const propertyCacheStateDefinition = {
         z.object({
           label: z.string().title('Label').describe('The label of the property'),
           type: propertyTypeSchema,
-          hubspotDefined: z.boolean().title('HubSpot Defined').describe('Whether the property is defined by HubSpot'),
           options: z
             .array(z.string())
             .optional()
