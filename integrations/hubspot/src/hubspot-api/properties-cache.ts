@@ -1,6 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
 import { Client as OfficialHubspotClient } from '@hubspot/api-client'
 import { CrmObjectType, propertyTypeSchema } from '../../definitions/states'
+import { handleErrorsDecorator as handleErrors } from './error-handling'
 import * as bp from '.botpress'
 
 type Properties = NonNullable<bp.states.States[`${CrmObjectType}PropertyCache`]['payload']['properties']>
@@ -55,6 +56,7 @@ export class PropertiesCache {
   }
 
   /** Resolves to `undefined` when the property doesn't exist, and rejects when the properties can't be loaded. */
+  @handleErrors('Failed to load HubSpot properties')
   public async findProperty({ nameOrLabel }: { nameOrLabel: string }) {
     const knownProperties = await this._getPropertiesOrRefresh()
 
