@@ -61,7 +61,8 @@ export class ZodSetImpl<Value extends IZodType = IZodType>
           exact: false,
           message: def.maxSize.message,
         })
-        status.dirty()
+
+        return { status: 'aborted' }
       }
     }
 

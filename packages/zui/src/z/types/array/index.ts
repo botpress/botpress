@@ -77,6 +77,11 @@ export class ZodArrayImpl<T extends IZodType = IZodType, Cardinality extends Arr
           exact: true,
           message: def.exactLength.message,
         })
+
+        if (tooBig) {
+          return { status: 'aborted' }
+        }
+
         status.dirty()
       }
     }
@@ -105,7 +110,8 @@ export class ZodArrayImpl<T extends IZodType = IZodType, Cardinality extends Arr
           exact: false,
           message: def.maxLength.message,
         })
-        status.dirty()
+
+        return { status: 'aborted' }
       }
     }
 

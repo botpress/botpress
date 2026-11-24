@@ -18,7 +18,7 @@ importers:
         version: 3.709.0
       '@botpress/api':
         specifier: 1.141.0
-        version: 1.141.0(openapi-types@12.1.3)
+        version: 1.141.0
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -569,6 +569,8 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+
+  integrations/build-utils: {}
 
   integrations/calcom:
     dependencies:
@@ -2759,7 +2761,7 @@ importers:
         specifier: 2.15.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 7.2.15
+        specifier: 7.2.16
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2883,7 +2885,7 @@ importers:
         specifier: 2.15.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 7.2.15
+        specifier: 7.2.16
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2899,7 +2901,7 @@ importers:
         specifier: 2.15.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 7.2.15
+        specifier: 7.2.16
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2912,7 +2914,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 7.2.15
+        specifier: 7.2.16
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2928,7 +2930,7 @@ importers:
         specifier: 2.15.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 7.2.15
+        specifier: 7.2.16
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2944,7 +2946,7 @@ importers:
         specifier: 2.15.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 7.2.15
+        specifier: 7.2.16
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -3174,7 +3176,7 @@ importers:
         specifier: 2.15.0
         version: link:../client
       '@bpinternal/zui':
-        specifier: ^2.4.1
+        specifier: ^2.4.2
         version: link:../zui
       browser-or-node:
         specifier: ^2.1.1
@@ -14779,7 +14781,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.141.0(openapi-types@12.1.3)':
+  '@botpress/api@1.141.0':
     dependencies:
       '@bpinternal/opapi': 1.0.0(openapi-types@12.1.3)
     transitivePeerDependencies:

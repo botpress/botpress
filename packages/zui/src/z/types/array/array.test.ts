@@ -67,3 +67,23 @@ test('parse should fail given sparse array', () => {
 
   expect(() => schema.parse(new Array(3))).toThrow()
 })
+
+test('stops at the size limit without checking the elements of an array bigger than max()', () => {
+  const result = maxTwo.safeParse([1, 2, 3])
+
+  expect(result.success).toEqual(false)
+  if (result.success === false) {
+    expect(result.error.issues.length).toEqual(1)
+    expect(result.error.issues[0]?.code).toEqual('too_big')
+  }
+})
+
+test('stops at the size limit without checking the elements of an array longer than length()', () => {
+  const result = justTwo.safeParse([1, 2, 3])
+
+  expect(result.success).toEqual(false)
+  if (result.success === false) {
+    expect(result.error.issues.length).toEqual(1)
+    expect(result.error.issues[0]?.code).toEqual('too_big')
+  }
+})

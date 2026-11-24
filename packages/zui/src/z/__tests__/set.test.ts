@@ -137,3 +137,13 @@ test('throws when the given set has multiple invalid entries', () => {
     expect(result.error.issues[1]?.path).toEqual([1])
   }
 })
+
+test('stops at the size limit without checking the entries of a set bigger than max()', () => {
+  const result = maxTwo.safeParse(new Set([1, 2, 3]))
+
+  expect(result.success).toEqual(false)
+  if (result.success === false) {
+    expect(result.error.issues.length).toEqual(1)
+    expect(result.error.issues[0]?.code).toEqual('too_big')
+  }
+})
