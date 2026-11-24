@@ -8,6 +8,9 @@ packages:
 
 minimumReleaseAge: 10080 # 7 days
 
+overrides:
+  '@bpinternal/opapi': 'file:/var/home/v/projects/packages/.claude/worktrees/opapi-zod-v4/opapi'
+
 minimumReleaseAgeExclude:
   - '@bpinternal/*'
   - '@botpress/*'

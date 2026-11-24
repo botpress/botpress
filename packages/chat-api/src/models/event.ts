@@ -1,7 +1,7 @@
 import { schema } from '@bpinternal/opapi'
 import z from 'zod'
 
-export const eventPayloadSchema = schema(z.record(z.any()), {
+export const eventPayloadSchema = schema(z.record(z.string(), z.any()), {
   description: 'Payload is the content of the custom event.',
   additionalProperties: {
     nullable: undefined, // fixes a weird issue with opapi zod to json conversion conversion
