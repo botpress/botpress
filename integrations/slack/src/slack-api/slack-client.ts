@@ -1,6 +1,8 @@
 import { collectableGenerator } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 import * as SlackWebApi from '@slack/web-api'
+import axios from 'axios'
+import type { Readable } from 'stream'
 import { handleErrorsDecorator as handleErrors, surfaceSlackErrors } from './error-handling'
 import { getAppCredentials } from './slack-manifest-client'
 import { SlackOAuthClient } from './slack-oauth-client'
@@ -97,7 +99,13 @@ export class SlackClient {
 
     const slackWebClient = new SlackWebApi.WebClient(accessToken)
 
-    return new SlackClient({ logger, slackWebClient, grantedScopes: scopes, botUserId, teamId })
+    return new SlackClient({
+      logger,
+      slackWebClient,
+      grantedScopes: scopes,
+      botUserId,
+      teamId,
+    })
   }
 
   @handleErrors('Failed to validate Slack authentication')
@@ -110,6 +118,20 @@ export class SlackClient {
 
   public getBotUserId(): string {
     return this._botUserId
+  }
+
+  @requireAllScopes(['files:read'])
+  public async downloadFile(url: string): Promise<Readable> {
+    try {
+      const { data } = await axios.get<Readable>(url, {
+        responseType: 'stream',
+        headers: { Authorization: `Bearer ${this._slackWebClient.token}` },
+      })
+      return data
+    } catch {
+      // Axios errors include request headers, so do not expose the original error/token.
+      throw new sdk.RuntimeError('Failed to download incoming Slack image')
+    }
   }
 
   public getTeamId(): string {
